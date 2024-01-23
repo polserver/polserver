@@ -1,5 +1,6 @@
 #include "ExpressionEvaluator.h"
 
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/ElementAccess.h"
 #include "bscript/compiler/ast/ElementIndexes.h"
 #include "bscript/compiler/ast/Expression.h"
@@ -10,6 +11,7 @@
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/executor.h"
 #include "bscript/impstr.h"
@@ -103,6 +105,16 @@ void EvaluationVisitor::visit_string_value( StringValue& node )
 void EvaluationVisitor::visit_integer_value( IntegerValue& node )
 {
   stack.push( BObjectRef( new BLong( node.value ) ) );
+}
+
+void EvaluationVisitor::visit_boolean_value( BooleanValue& node )
+{
+  stack.push( BObjectRef( new BBoolean( node.value ) ) );
+}
+
+void EvaluationVisitor::visit_uninitialized_value( UninitializedValue& )
+{
+  stack.push( BObjectRef( UninitObject::create() ) );
 }
 
 // Operators
@@ -228,11 +240,6 @@ void EvaluationVisitor::visit_struct_member_initializer( StructMemberInitializer
 }
 
 void EvaluationVisitor::visit_unary_operator( UnaryOperator& )
-{
-  throw_invalid_expression();
-}
-
-void EvaluationVisitor::visit_uninitialized_value( UninitializedValue& )
 {
   throw_invalid_expression();
 }

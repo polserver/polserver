@@ -916,8 +916,6 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [WebServer=(1/0 {default 0})]
 [WebServerPort=(int port {default 8080})]
 [IgnoreLoadErrors=(1/0 {default 0})]
-[DebugPort=(int port {default 0})]
-[DAPDebugPort=(int port {default 0})]
 [AccountDataSave=(1/0 {default -1})]
 [Verbose=(1/0 {default 0})]
 [LogLevel=(int level {default 0})]
@@ -947,6 +945,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [DisplayUnknownPackets=(1/0 {default 0})]
 [ExpLosChecksMap=(1/0 {default 1})]
 [EnableDebugLog=(1/0 {default 0})]
+[DebugPort=(int port {default 0})]
+[DAPDebugPort=(int port {default 0})]
 [DebugPassword=(string {default empty})]
 [DebugLocalOnly=(1/0 {default 1})]
 [DebugLevel=(int level {default 0})]
@@ -1000,6 +1000,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>ShowWarningItem: will show equip item and drop item warning messages on the console.</explain>
     <explain>ShowWarningCursorSequence: will show a warning when a player sends click packets out of sequence, this is usually due to the player running some sort of macro or client injection program.</explain>
     <explain>MaxTileID: maximum tile id. If 0, it will be chosen according to the graphics in tiles.cfg.</explain>
+    <explain>DebugPort: TCP/IP port to listen for debugger connections.</explain>
+    <explain>DAPDebugPort: TCP/IP port to listen for debugger connections using the DAP implementation.</explain>
 </cfgfile>
 
 

@@ -5,7 +5,9 @@
 #include "../../bscript/eprog.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/esignal.h"
+#include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
+#include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
 #include "../module/uomod.h"
 #include "../polsem.h"
@@ -15,6 +17,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <filesystem>
 #include <fstream>
+
+namespace fs = std::filesystem;
 
 namespace Pol
 {
@@ -29,12 +33,17 @@ namespace DAP
 {
 namespace fs = std::filesystem;
 
+unsigned int DebugClientThread::_instance_counter = 0;
+
 DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
-    : _rw( rw ),
+    : _instance( ++_instance_counter ),
+      _rw( rw ),
       _session( dap::Session::create() ),
       _uoexec_wptr( nullptr ),
       _expression_evaluator(),
-      _global_scope_handle( 0 )
+      _global_scope_handle( 0 ),
+      _was_launch_requested( false ),
+      _exit_sent( false )
 {
 }
 
@@ -48,12 +57,11 @@ void DebugClientThread::on_halt()
 
 void DebugClientThread::on_destroy()
 {
+  POLLOG_INFOLN( "Debugger#{} script destroyed.", _instance );
   dap::ExitedEvent event;
   event.exitCode = 0;
   _session->send( event );
-
-  // threadsafe...? Is the event flushed to the socket before closing?
-  _rw->close();
+  _exit_sent = true;
 }
 
 dap::ConfigurationDoneResponse DebugClientThread::handle_configurationDone(
@@ -106,12 +114,50 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
   PolLock lock;
   ScriptDef sd;
 
-  fs::path script_path = request.script;
+  fs::path p( request.script );
 
-  if ( script_path.extension() == ".src" )
-    script_path.replace_extension( ".ecl" );
+  if ( p.extension().u8string() == ".src" )
+    p.replace_extension( fs::path( ".ecl" ) );
 
-  if ( !sd.config_nodie( script_path.string(), nullptr, "" ) )
+  bool config_result;
+
+  // A package-path
+  if ( request.script.find( ':' ) == 0 )
+  {
+    config_result = sd.config_nodie( p.u8string(), nullptr, "scripts/" );
+  }
+  else
+  {
+    std::string relative = ( p.is_absolute() ? fs::relative( p ) : p ).u8string();
+
+    if ( relative.find( "scripts/" ) == 0 )
+    {
+      config_result = sd.config_nodie( relative.substr( 8 ), nullptr, "scripts/" );
+    }
+    else
+    {
+      const Plib::Package* package = nullptr;
+      for ( const auto* pkg : Plib::systemstate.packages )
+      {
+        if ( relative.find( pkg->dir() ) == 0 )
+        {
+          package = pkg;
+          break;
+        }
+      }
+      if ( package )
+      {
+        config_result =
+            sd.config_nodie( relative.substr( package->dir().length() ), package, "scripts/" );
+      }
+      else
+      {
+        config_result = sd.config_nodie( request.script, nullptr, "scripts/" );
+      }
+    }
+  }
+
+  if ( !config_result )
     return dap::Error( "Error in script name." );
   if ( !sd.exists() )
     return dap::Error( "Script " + sd.name() + " does not exist." );
@@ -143,6 +189,8 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
 
     _uoexec_wptr = uoexec->weakptr;
     _script.set( prog );
+
+    _was_launch_requested = true;
 
     return dap::LaunchResponse{};
   }
@@ -194,6 +242,11 @@ dap::ResponseOrError<dap::ThreadsResponse> DebugClientThread::handle_threads(
   return response;
 }
 
+dap::ResponseOrError<dap::SetExceptionBreakpointsResponse>
+DebugClientThread::handle_setExceptionBreakpoints( const dap::SetExceptionBreakpointsRequest& )
+{
+  return dap::SetExceptionBreakpointsResponse{};
+}
 
 dap::ResponseOrError<dap::ContinueResponse> DebugClientThread::handle_continue(
     const dap::ContinueRequest& )
@@ -501,8 +554,12 @@ dap::ResponseOrError<dap::StackTraceResponse> DebugClientThread::handle_stackTra
 
     dap::Source source;
 
-    source.name = _script->dbg_filenames[_script->dbg_filenum[PC]];
-    source.path = _script->dbg_filenames[_script->dbg_filenum[PC]];
+    auto filepath = _script->dbg_filenames[_script->dbg_filenum[PC]];
+    fs::path p( filepath );
+    std::string abs_path = ( p.is_relative() ? ( fs::current_path() / p ) : p ).u8string();
+
+    source.name = abs_path;
+    source.path = abs_path;
 
     dap::StackFrame frame;
     frame.line = _script->dbg_linenum[PC];
@@ -666,6 +723,13 @@ dap::ResponseOrError<dap::DisconnectResponse> DebugClientThread::handle_disconne
   if ( _uoexec_wptr.exists() )
   {
     UOExecutor* exec = _uoexec_wptr.get_weakptr();
+
+    if ( _was_launch_requested )
+    {
+      exec->seterror( true );
+      exec->revive();
+    }
+
     if ( exec->in_debugger_holdlist() )
       exec->revive_debugged();
 
@@ -721,13 +785,13 @@ void DebugClientThread::after_attach( const dap::ResponseOrError<dap::AttachResp
 
 void DebugClientThread::on_error( const char* msg )
 {
-  POLLOG_ERRORLN( "Debugger session error: {}", msg );
+  POLLOG_ERRORLN( "Debugger#{} session error: {}", _instance, msg );
   _rw->close();
 }
 
 void DebugClientThread::run()
 {
-  POLLOG_INFOLN( "Debug client thread started." );
+  POLLOG_INFOLN( "Debugger#{} client thread started.", _instance );
 
   // Session event handlers that are only attached once initialized with the password (if
   // required).
@@ -753,6 +817,9 @@ void DebugClientThread::run()
 
     _session->registerHandler( [this]( const dap::ThreadsRequest& request )
                                { return handle_threads( request ); } );
+
+    _session->registerHandler( [this]( const dap::SetExceptionBreakpointsRequest& request )
+                               { return handle_setExceptionBreakpoints( request ); } );
 
     _session->registerHandler( [this]( const dap::ContinueRequest& request )
                                { return handle_continue( request ); } );
@@ -823,9 +890,10 @@ void DebugClientThread::run()
   _session->onError( [this]( const char* msg ) { on_error( msg ); } );
 
   // Attach the SocketReaderWriter to the Session and begin processing events.
-  _session->bind( _rw, []() { POLLOG_INFOLN( "Debug session endpoint closed." ); } );
+  _session->bind( _rw,
+                  [&]() { POLLOG_INFOLN( "Debugger#{} session endpoint closed.", _instance ); } );
 
-  while ( !Clib::exit_signalled && _rw->isOpen() )
+  while ( !Clib::exit_signalled && !_exit_sent && _rw->isOpen() )
   {
     pol_sleep_ms( 1000 );
   }
@@ -854,7 +922,7 @@ void DebugClientThread::run()
     _rw->close();
   }
 
-  POLLOG_INFOLN( "Debug client thread closing." );
+  POLLOG_INFOLN( "Debugger#{} client thread closing.", _instance );
 }
 }  // namespace DAP
 }  // namespace Network

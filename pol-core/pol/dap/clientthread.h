@@ -6,6 +6,7 @@
 #include "handles.h"
 #include "proto.h"
 
+#include <atomic>
 #include <dap/session.h>
 #include <memory>
 
@@ -79,6 +80,8 @@ private:
   void on_error( const char* msg );
 
 private:
+  unsigned int _instance;
+  static unsigned int _instance_counter;
   std::shared_ptr<dap::ReaderWriter> _rw;
   std::unique_ptr<dap::Session> _session;
   weak_ptr<Core::UOExecutor> _uoexec_wptr;
@@ -86,6 +89,8 @@ private:
   Handles _variable_handles;
   Bscript::Compiler::ExpressionEvaluator _expression_evaluator;
   int _global_scope_handle;
+  bool _was_launch_requested;
+  std::atomic<bool> _exit_sent;
 };
 
 }  // namespace DAP
