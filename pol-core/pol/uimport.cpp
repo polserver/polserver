@@ -744,50 +744,69 @@ SaveContext::SaveContext()
   datastore.init( Plib::systemstate.config.world_data_path + "datastore.ndt" );
   party.init( Plib::systemstate.config.world_data_path + "parties.ndt" );
 
-  pcs() << "#" << pf_endl << "#  PCS.TXT: Player-Character Data" << pf_endl << "#" << pf_endl
-        << "#  In addition to PC data, this also contains hair, beards, death shrouds," << pf_endl
-        << "#  and backpacks, but not the contents of each backpack." << pf_endl << "#" << pf_endl
-        << pf_endl;
+  pcs.comment( "" );
+  pcs.comment( " PCS.TXT: Player-Character Data" );
+  pcs.comment( "" );
+  pcs.comment( " In addition to PC data, this also contains hair, beards, death shrouds," );
+  pcs.comment( " and backpacks, but not the contents of each backpack." );
+  pcs.comment( "\n" );
 
-  pcequip() << "#" << pf_endl << "#  PCEQUIP.TXT: Player-Character Equipment Data" << pf_endl << "#"
-            << pf_endl
-            << "#  This file can be deleted to wipe all items held/equipped by characters"
-            << pf_endl
-            << "#  Note that hair, beards, empty backpacks, and death shrouds are in PCS.TXT."
-            << pf_endl << "#" << pf_endl << pf_endl;
+  pcequip.comment( "" );
+  pcequip.comment( " PCEQUIP.TXT: Player-Character Equipment Data" );
+  pcequip.comment( "" );
+  pcequip.comment( " This file can be deleted to wipe all items held/equipped by characters" );
+  pcequip.comment( " Note that hair, beards, empty backpacks, and death shrouds are in PCS.TXT." );
+  pcequip.comment( "\n" );
 
-  npcs() << "#" << pf_endl << "#  NPCS.TXT: Nonplayer-Character Data" << pf_endl << "#" << pf_endl
-         << "#  If you delete this file to perform an NPC wipe," << pf_endl
-         << "#  be sure to also delete NPCEQUIP.TXT" << pf_endl << "#" << pf_endl << pf_endl;
+  npcs.comment( "" );
+  npcs.comment( " NPCS.TXT: Nonplayer-Character Data" );
+  npcs.comment( "" );
+  npcs.comment( " If you delete this file to perform an NPC wipe," );
+  npcs.comment( " be sure to also delete NPCEQUIP.TXT" );
+  npcs.comment( "\n" );
 
-  npcequip() << "#" << pf_endl << "#  NPCEQUIP.TXT: Nonplayer-Character Equipment Data" << pf_endl
-             << "#" << pf_endl << "#  Delete this file along with NPCS.TXT to perform an NPC wipe"
-             << pf_endl << "#" << pf_endl << pf_endl;
+  npcequip.comment( "" );
+  npcequip.comment( " NPCEQUIP.TXT: Nonplayer-Character Equipment Data" );
+  npcequip.comment( "" );
+  npcequip.comment( " Delete this file along with NPCS.TXT to perform an NPC wipe" );
 
-  items() << "#" << pf_endl << "#  ITEMS.TXT: Item data" << pf_endl << "#" << pf_endl
-          << "#  This file also contains ship and house components (doors, planks etc)" << pf_endl
-          << "#" << pf_endl << pf_endl;
+  npcequip.comment( "\n" );
 
-  multis() << "#" << pf_endl << "#  MULTIS.TXT: Ship and House data" << pf_endl << "#" << pf_endl
-           << "#  Deleting this file will not properly wipe houses and ships," << pf_endl
-           << "#  because doors, planks, and tillermen will be left in the world." << pf_endl << "#"
-           << pf_endl << pf_endl;
+  items.comment( "" );
+  items.comment( " ITEMS.TXT: Item data" );
+  items.comment( "" );
+  items.comment( " This file also contains ship and house components (doors, planks etc)" );
+  items.comment( "\n" );
 
-  storage() << "#" << pf_endl
-            << "#  STORAGE.TXT: Contains bank boxes, vendor inventories, and other data." << pf_endl
-            << "#" << pf_endl
-            << "#  This file can safely be deleted to wipe bank boxes and vendor inventories."
-            << pf_endl << "#  Note that scripts may use this for other types of storage as well"
-            << pf_endl << "#" << pf_endl << pf_endl;
+  multis.comment( "" );
+  multis.comment( " MULTIS.TXT: Ship and House data" );
+  multis.comment( "" );
+  multis.comment( " Deleting this file will not properly wipe houses and ships," );
+  multis.comment( " because doors, planks, and tillermen will be left in the world." );
+  multis.comment( "\n" );
 
-  resource() << "#" << pf_endl << "#  RESOURCE.TXT: Resource System Data" << pf_endl << "#"
-             << pf_endl << pf_endl;
+  storage.comment( "" );
+  storage.comment( " STORAGE.TXT: Contains bank boxes, vendor inventories, and other data." );
+  storage.comment( "" );
+  storage.comment( " This file can safely be deleted to wipe bank boxes and vendor inventories." );
+  storage.comment( " Note that scripts may use this for other types of storage as well" );
+  storage.comment( "\n" );
 
-  guilds() << "#" << pf_endl << "#  GUILDS.TXT: Guild Data" << pf_endl << "#" << pf_endl << pf_endl;
+  resource.comment( "" );
+  resource.comment( " RESOURCE.TXT: Resource System Data" );
+  resource.comment( "\n" );
 
-  datastore() << "#" << pf_endl << "#  DATASTORE.TXT: DataStore Data" << pf_endl << "#" << pf_endl
-              << pf_endl;
-  party() << "#" << pf_endl << "#  PARTIES.TXT: Party Data" << pf_endl << "#" << pf_endl << pf_endl;
+  guilds.comment( "" );
+  guilds.comment( " GUILDS.TXT: Guild Data" );
+  guilds.comment( "\n" );
+
+  datastore.comment( "" );
+  datastore.comment( " DATASTORE.TXT: DataStore Data" );
+  datastore.comment( "\n" );
+
+  party.comment( "" );
+  party.comment( " PARTIES.TXT: Party Data" );
+  party.comment( "\n" );
 }
 
 SaveContext::~SaveContext()
@@ -820,21 +839,20 @@ void SaveContext::ready()
 
 void write_global_properties( Clib::StreamWriter& sw )
 {
-  sw() << "GlobalProperties" << pf_endl << "{" << pf_endl;
+  sw.begin( "GlobalProperties" );
   gamestate.global_properties->printProperties( sw );
-  sw() << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw.end();
 }
 
 void write_system_data( Clib::StreamWriter& sw )
 {
-  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION_STR << pf_endl
-       << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl << "\tCompileDateTime\t"
-       << Clib::ProgramConfig::build_datetime() << pf_endl << "\tLastItemSerialNumber\t"
-       << GetCurrentItemSerialNumber() << pf_endl                                // dave 3/9/3
-       << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl  // dave 3/9/3
-       << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw.begin( "System" );
+  sw.add( "CoreVersion", POL_VERSION_STR );
+  sw.add( "CoreVersionString", POL_VERSION_STR );
+  sw.add( "CompileDateTime", Clib::ProgramConfig::build_datetime() );
+  sw.add( "LastItemSerialNumber", GetCurrentItemSerialNumber() );
+  sw.add( "LastCharSerialNumber", GetCurrentCharSerialNumber() );
+  sw.end();
 }
 
 void write_shadow_realms( Clib::StreamWriter& sw )
@@ -843,11 +861,12 @@ void write_shadow_realms( Clib::StreamWriter& sw )
   {
     if ( realm->is_shadowrealm )
     {
-      sw() << "Realm" << pf_endl << "{" << pf_endl << "\tName\t" << realm->shadowname << pf_endl
-           << "\tBaseRealm\t" << realm->baserealm->name() << pf_endl << "}" << pf_endl << pf_endl;
+      sw.begin( "Realm" );
+      sw.add( "Name", realm->shadowname );
+      sw.add( "BaseRealm", realm->baserealm->name() );
+      sw.end();
     }
   }
-  // sw.flush();
 }
 
 // Austin (Oct. 17, 2006)
@@ -915,7 +934,7 @@ void write_items( Clib::StreamWriter& sw_items )
       {
         if ( item->itemdesc().save_on_exit && item->saveonexit() )
         {
-          sw_items << *item;
+          item->printOn( sw_items );
           item->clear_dirty();
         }
       }
@@ -958,7 +977,7 @@ void write_multis( Clib::StreamWriter& ofs )
             }
           }
         }
-        ofs << *multi;
+        multi->printOn( ofs );
         multi->clear_dirty();
       }
     }
@@ -1055,10 +1074,11 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
               {
                 try
                 {
-                  sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID
-                           << pf_endl << "#  Mobiles: " << get_mobile_count() << pf_endl
-                           << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl << "#"
-                           << pf_endl << pf_endl;
+                  sc.pol.comment( "" );
+                  sc.pol.comment( " Created by Version: {}", POL_VERSION_ID );
+                  sc.pol.comment( " Mobiles: {}", get_mobile_count() );
+                  sc.pol.comment( " Top-level Items: {}", get_toplevel_item_count() );
+                  sc.pol.comment( "\n" );
 
                   write_system_data( sc.pol );
                   write_global_properties( sc.pol );

@@ -9,7 +9,6 @@ endprogram
 
 exported function inbox()
   var info:=ListStaticsInBox(154,154,-128,154,153,128);
-  print(info);
   if (len(info)!=2)
     return ret_error($"wrong number of statics got : {info}");
   endif

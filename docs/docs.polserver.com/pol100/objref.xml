@@ -25,7 +25,7 @@
 <fileheader>
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
-<datemodified>01/12/2024</datemodified>
+<datemodified>01/19/2024</datemodified>
 </fileheader>
 
 
@@ -112,7 +112,7 @@
 <member mname="hp" type="Integer" access="r/w" mdesc="Hit points of item" />
 <member mname="maxhp_mod" type="Integer" access="r/w" mdesc="Maximum Hit Point modification" />
 <member mname="maxhp" type="Integer" access="r/o" mdesc="Maximum Hit Points of item" />
-<member mname="name_suffix" type="String" access="r/o" mdesc="For adding crafter marks or such, will be appended to desc" />
+<member mname="name_suffix" type="String" access="r/w" mdesc="For adding crafter marks or such, will be appended to desc" />
 <member mname="house" type="House" access="r/o" mdesc="Returns a reference to the House this item is component of, if any" />
 <member mname="no_drop" type="Boolean" access="r/w" mdesc="If set no drop of this item is allowed, except no_drop_exception is set for target" />
 <member mname="lower_reagent_cost" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
@@ -146,6 +146,7 @@
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="character_owner" type="OfflineCharacterRef" access="r/o" mdesc="Returns Character that owns the item, ie. the character whose backpack or equipped items contains the item." />
+<member mname="snoopscript" type="String" access="r/w" mdesc="double-click action script when owned by another character. set to empty string for itemdesc.cfg default script." />
 
 
 <method proto="splitStackAt(x, y, z, realm, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates" />

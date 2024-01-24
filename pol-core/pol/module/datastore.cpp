@@ -94,20 +94,16 @@ void DataFileContents::save( Clib::StreamWriter& sw )
 {
   for ( const auto& element : elements_by_string )
   {
-    sw() << "Element " << element.first << "\n"
-         << "{\n";
+    sw.begin( "Element", element.first );
     element.second->printOn( sw );
-    sw() << "}\n\n";
-    // sw.flush();
+    sw.end();
   }
 
   for ( const auto& element : elements_by_integer )
   {
-    sw() << "Element " << element.first << "\n"
-         << "{\n";
+    sw.begin( "Element", element.first );
     element.second->printOn( sw );
-    sw() << "}\n\n";
-    // sw.flush();
+    sw.end();
   }
 }
 
@@ -625,18 +621,17 @@ DataStoreFile::~DataStoreFile()
 
 void DataStoreFile::printOn( Clib::StreamWriter& sw ) const
 {
-  sw() << "DataFile\n"
-       << "{\n"
-       << "\tDescriptor\t" << descriptor << "\n"
-       << "\tName\t" << name << "\n";
+  sw.begin( "DataFile" );
+  sw.add( "Descriptor", descriptor );
+  sw.add( "Name", name );
 
   if ( !pkgname.empty() )
-    sw() << "\tPackage\t" << pkgname << "\n";
+    sw.add( "Package", pkgname );
 
-  sw() << "\tFlags\t" << flags << "\n"
-       << "\tVersion\t" << version << "\n"
-       << "\tOldVersion\t" << oldversion << "\n"
-       << "}\n\n";
+  sw.add( "Flags", flags );
+  sw.add( "Version", version );
+  sw.add( "OldVersion", oldversion );
+  sw.end();
 }
 
 std::string DataStoreFile::filename( unsigned ver ) const
@@ -657,7 +652,7 @@ void DataStoreFile::save() const
 {
   std::string fname = filename();
   std::ofstream ofs( fname.c_str(), std::ios::out );
-  Clib::OFStreamWriter sw( &ofs );
+  Clib::StreamWriter sw( &ofs );
   dfcontents->save( sw );
 }
 

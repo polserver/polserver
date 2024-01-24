@@ -851,10 +851,11 @@ void display_leftover_objects()
   Bscript::display_bobjectimp_instances();
 #endif
   display_reftypes();
-  std::ofstream ofs;
-  Clib::OFStreamWriter sw( &ofs );
-  sw.init( "leftovers.txt" );
-  objStorageManager.objecthash.PrintContents( sw );
+  {
+    std::ofstream ofs;
+    ofs.open( "leftovers.txt", std::ios::out | std::ios::trunc );
+    objStorageManager.objecthash.PrintContents( &ofs );
+  }
   std::string tmp;
   if ( stateManager.uobjcount.uobject_count != 0 )
     tmp += fmt::format( "Remaining UObjects: {}\n", stateManager.uobjcount.uobject_count );

@@ -127,9 +127,9 @@ void UCorpse::RemoveItemFromLayer( Item* item )
 void UCorpse::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
-  sw() << "\tCorpseType\t" << corpsetype << pf_endl;
-  sw() << "\tOwnerSerial\t" << ownerserial << pf_endl;
-  sw() << "\tTakeContentsToGrave\t" << take_contents_to_grave() << pf_endl;
+  sw.add( "CorpseType", corpsetype );
+  sw.add( "OwnerSerial", ownerserial );
+  sw.add( "TakeContentsToGrave", take_contents_to_grave() );
 }
 
 void UCorpse::readProperties( Clib::ConfigElem& elem )

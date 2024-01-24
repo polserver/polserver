@@ -1,0 +1,84 @@
+use os;
+use uo;
+use datafile;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_datafile()
+  return 1;
+endprogram
+
+exported function load_save_datafile_stringkey()
+  if (testrun == 1)
+    var df := CreateDataFile(":TestRestart:dfstring",DF_KEYTYPE_STRING);
+    if (!df)
+      return ret_error($"failed to create {df}");
+    endif
+    var ele1 := df.createelement("key1");
+    var ele2 := df.createelement("key2");
+    ele1.setprop("prop1-1",1);
+    ele1.setprop("prop1-2",2);
+    ele2.setprop("prop2-1",3);
+  else
+    var df := OpenDataFile(":TestRestart:dfstring");
+    if (!df)
+      return ret_error($"failed to open {df}");
+    endif
+    if (len(df.keys())!=2)
+      return ret_error($"count of keys {df.keys()}!=2");
+    endif
+    var ele1 := df.findelement("key1");
+    var ele2 := df.findelement("key2");
+    if (!ele1 || !ele2)
+      return ret_error($"elements not found {ele1}/{ele2}");
+    endif
+    if (ele1.getprop("prop1-1")!=1)
+      return ret_error("prop 1-1 not found "+ele1.getprop("prop1-1"));
+    endif
+    if (ele1.getprop("prop1-2")!=2)
+      return ret_error("prop 1-2 not found "+ele1.getprop("prop1-1"));
+    endif
+    if (ele2.getprop("prop2-1")!=3)
+      return ret_error("prop 2-1 not found "+ele2.getprop("prop1-1"));
+    endif
+  endif
+  return 1;
+endfunction
+
+exported function load_save_datafile_intkey()
+  if (testrun == 1)
+    var df := CreateDataFile(":TestRestart:dfint",DF_KEYTYPE_INTEGER);
+    if (!df)
+      return ret_error($"failed to create {df}");
+    endif
+    var ele1 := df.createelement(10);
+    var ele2 := df.createelement(11);
+    ele1.setprop("prop1-1",1);
+    ele1.setprop("prop1-2",2);
+    ele2.setprop("prop2-1",3);
+  else
+    var df := OpenDataFile(":TestRestart:dfint");
+    if (!df)
+      return ret_error($"failed to open {df}");
+    endif
+    if (len(df.keys())!=2)
+      return ret_error($"count of keys {df.keys()}!=2");
+    endif
+    var ele1 := df.findelement(10);
+    var ele2 := df.findelement(11);
+    if (!ele1 || !ele2)
+      return ret_error($"elements not found {ele1}/{ele2}");
+    endif
+    if (ele1.getprop("prop1-1")!=1)
+      return ret_error("prop 1-1 not found "+ele1.getprop("prop1-1"));
+    endif
+    if (ele1.getprop("prop1-2")!=2)
+      return ret_error("prop 1-2 not found "+ele1.getprop("prop1-1"));
+    endif
+    if (ele2.getprop("prop2-1")!=3)
+      return ret_error("prop 2-1 not found "+ele2.getprop("prop1-1"));
+    endif
+  endif
+  return 1;
+endfunction

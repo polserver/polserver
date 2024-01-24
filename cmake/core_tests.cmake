@@ -83,12 +83,12 @@ add_test(NAME testenv
 set_tests_properties(testenv PROPERTIES DEPENDS testenv_map1)
 set_tests_properties(testenv PROPERTIES FIXTURES_SETUP client)
 
-add_test(NAME shard_cfgfiles
-  COMMAND ${CMAKE_COMMAND} -E copy ${testsuite}/pol.cfg ${testsuite}/uoconvert.cfg coretest
+add_test(NAME shard_files
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${testsuite} coretest
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-set_tests_properties(shard_cfgfiles PROPERTIES DEPENDS testenv)
-set_tests_properties(shard_cfgfiles PROPERTIES FIXTURES_SETUP shard)
+set_tests_properties(shard_files PROPERTIES DEPENDS testenv)
+set_tests_properties(shard_files PROPERTIES FIXTURES_SETUP shard)
 
 add_test(NAME shard_ecompile_cfg
   COMMAND ${CMAKE_COMMAND}
@@ -101,26 +101,6 @@ add_test(NAME shard_ecompile_cfg
 set_tests_properties(shard_ecompile_cfg PROPERTIES DEPENDS testenv)
 set_tests_properties(shard_ecompile_cfg PROPERTIES FIXTURES_SETUP shard)
 
-add_test(NAME shard_testscript
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${testsuite}/scripts coretest/scripts
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-set_tests_properties(shard_testscript PROPERTIES DEPENDS testenv)
-set_tests_properties(shard_testscript PROPERTIES FIXTURES_SETUP shard)
-
-add_test(NAME shard_testconfig
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${testsuite}/config coretest/config
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-set_tests_properties(shard_testconfig PROPERTIES DEPENDS testenv)
-set_tests_properties(shard_testconfig PROPERTIES FIXTURES_SETUP shard)
-
-add_test(NAME shard_testpkgs
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${testsuite}/testpkgs coretest/testpkgs
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-set_tests_properties(shard_testpkgs PROPERTIES DEPENDS testenv)
-set_tests_properties(shard_testpkgs PROPERTIES FIXTURES_SETUP shard)
 
 # uoconvert part
 

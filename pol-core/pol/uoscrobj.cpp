@@ -923,7 +923,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( faster_casting().sum() );
     break;
   case MBR_FASTER_CAST_RECOVERY:
-    return new BLong( faster_casting().sum() );
+    return new BLong( faster_cast_recovery().sum() );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE:
     return new BLong( defence_increase().sum() );
@@ -1013,7 +1013,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( faster_casting().mod );
     break;
   case MBR_FASTER_CAST_RECOVERY_MOD:
-    return new BLong( faster_casting().mod );
+    return new BLong( faster_cast_recovery().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_MOD:
     return new BLong( defence_increase().mod );
@@ -4005,13 +4005,13 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
     return new BLong( multiid );
     break;
   case MBR_PILOT:
+  {
+    Mobile::Character* owner = pilot();
+    if ( owner != nullptr )
     {
-      Mobile::Character* owner = pilot();
-      if ( owner != nullptr )
-      {
-        return new Module::ECharacterRefObjImp( owner );
-      }
+      return new Module::ECharacterRefObjImp( owner );
     }
+  }
     return new BLong( 0 );
   default:
     return nullptr;
