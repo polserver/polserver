@@ -12,17 +12,15 @@ enable_pch(${lib_name})
 
 use_benchmark(${lib_name})
 
-#clib is our base lib, if this waits for boost extraction
-#its enough, the external libs can start to build already
-if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-  add_dependencies(${lib_name} boost)
-endif()
-use_boost(${lib_name})
-
 add_dependencies(${lib_name} git_rev)
 
 target_link_libraries(${lib_name} PUBLIC
-  fmt
+  libfmt
+  libboost_headers
+  #  libboost_regex
+  #  libboost_system
+  #  libboost_thread
+  libutf8
 )
 
 if (${linux})
@@ -40,7 +38,7 @@ if (${linux})
   endif()
 elseif(${windows})
   target_link_libraries(${lib_name} PUBLIC
-    stackwalk
+    libstackwalk
     ws2_32
     Psapi
     DbgHelp

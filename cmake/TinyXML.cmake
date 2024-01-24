@@ -1,4 +1,4 @@
-set(lib_name tinyxml)
+set(lib_name libtinyxml)
 
 add_library(${lib_name} STATIC
   # sorted !
@@ -20,4 +20,7 @@ if (${windows})
   )
 endif()
 
-set_target_properties (${lib_name} PROPERTIES FOLDER 3rdParty)
+set_target_properties (${lib_name} PROPERTIES 
+  INTERFACE_INCLUDE_DIRECTORIES ${POL_EXT_LIB_DIR}
+  FOLDER 3rdParty
+)

@@ -14,10 +14,5 @@ target_link_libraries(${lib_name} PUBLIC
   clib
   escriptgrammarlib
 )
-if (${linux})
-  target_link_libraries(${lib_name} PUBLIC
-    pthread    
-  )
-endif()
 
 use_tidy(${lib_name})

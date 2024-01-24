@@ -12,12 +12,6 @@ function(set_compile_flags target is_executable)
     )
   endif()
 
-  target_include_directories(${target} SYSTEM PRIVATE
-    ${BOOST_SOURCE_DIR} # boost
-    "${POL_EXT_LIB_DIR}" #antlr/, tinyxml/, etc
-    "${POL_EXT_LIB_DIR}/picojson-1.3.0" #pico
-  )
-
   target_compile_definitions(${target} PRIVATE
     INC_PASSERT=1
     __STDC_CONSTANT_MACROS
@@ -226,11 +220,6 @@ function (enable_pch target)
       set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD OFF)
       cotire(${target})
       set_target_properties (clean_cotire PROPERTIES FOLDER 3rdParty)
-      if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-        if(TARGET ${target}_pch)
-          add_dependencies(${target}_pch boost)
-        endif()
-      endif()
     else()
       if ("${argn}" MATCHES "REUSE.*" AND REUSE_PCH)
         target_precompile_headers(${target} REUSE_FROM clib)
@@ -244,59 +233,10 @@ function (enable_pch target)
   endif()
 endfunction()
 
-function(use_curl target)
-  target_include_directories(${target}
-    PUBLIC ${CURL_INSTALL_DIR}/include
-  )
-  target_link_libraries(${target} PUBLIC ${CURL_LIB})
-  if (NOT EXISTS ${CURL_LIB})
-    add_dependencies(${target} libcurl)
-  endif()
-  target_compile_definitions(${target} PRIVATE
-    CURL_STATICLIB
-  )
-  if (${linux})
-    target_link_libraries(${target} PUBLIC ssl)
-    if (APPLE)
-      pkg_search_module(LIBSSH2 REQUIRED libssh2 IMPORTED_TARGET)
-      if(TARGET PkgConfig::LIBSSH2)
-        target_link_libraries(${target} PUBLIC PkgConfig::LIBSSH2)
-      endif()
-      find_library(CoreFoundation_Library CoreFoundation)
-      find_library(CoreServices_Library CoreServices)
-      find_library(SystemConfiguration_Library SystemConfiguration)
-      target_link_libraries(${target} PUBLIC ${CoreFoundation_Library} ${CoreServices_Library} ${SystemConfiguration_Library})
-    endif()
-  else()
-    target_link_libraries(${target} PUBLIC wldap32)
-  endif()
-endfunction()
 
 function(use_benchmark target)
   if (ENABLE_BENCHMARK)
     target_link_libraries(${target} PUBLIC benchmark)
-  endif()
-endfunction()
-
-function(use_boost target)
-  target_link_libraries(${target} PUBLIC
-          ${BOOST_REGEX_LIB}
-          ${BOOST_SYSTEM_LIB}
-          ${BOOST_THREAD_LIB}
-          )
-endfunction()
-
-function(use_zlib target)
-  if(${windows})
-    if (NOT EXISTS ${ZLIB_LIB})
-      add_dependencies(${target} libz)
-    endif()
-    target_include_directories(${target}
-      PRIVATE ${ZLIB_INSTALL_DIR}/include
-    )
-    target_link_libraries(${target} PRIVATE ${ZLIB_LIB})
-  else()
-    target_link_libraries(${target} PRIVATE z)
   endif()
 endfunction()
 

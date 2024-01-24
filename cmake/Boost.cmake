@@ -48,7 +48,7 @@ endif()
 
 if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS ${BOOST_THREAD_LIB})
   message("  - will build in ${BOOST_SOURCE_DIR} toolset=${BOOST_TOOLSET} cxxflags=${BOOST_CXX_FLAGS}")
-  ExternalProject_Add(boost
+  ExternalProject_Add(boost_Ext
           SOURCE_DIR ${BOOST_SOURCE_DIR}
           INSTALL_COMMAND ""
           CONFIGURE_COMMAND ""
@@ -59,7 +59,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
           BUILD_IN_SOURCE 1
           LOG_OUTPUT_ON_FAILURE 1
           )
-  set_target_properties (boost PROPERTIES FOLDER 3rdParty)
+  set_target_properties (boost_Ext PROPERTIES FOLDER 3rdParty)
   if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
     message("  - will extract")
     ExternalProject_Add(boost_extract
@@ -77,10 +77,44 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
             )
     set_target_properties (boost_extract PROPERTIES FOLDER 3rdParty)
 
-    add_dependencies(boost boost_extract)
+    add_dependencies(boost_Ext boost_extract)
   else()
     message("  - will not extract")
   endif()
 else()
   message("  - will not build")
 endif()
+
+# imported target to add include/lib dir and additional dependencies
+add_library(libboost_headers INTERFACE IMPORTED)
+set_target_properties(libboost_headers PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
+)
+add_dependencies(libboost_headers libboost_Ext)
+
+add_library(libboost_regex STATIC IMPORTED)
+set_target_properties(libboost_regex PROPERTIES
+  IMPORTED_LOCATION ${BOOST_REGEX_LIB}
+  IMPORTED_IMPLIB ${BOOST_REGEX_LIB}
+  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
+  FOLDER 3rdParty
+)
+add_dependencies(libboost_regex libboost_Ext)
+
+add_library(libboost_system STATIC IMPORTED)
+set_target_properties(libboost_system PROPERTIES
+  IMPORTED_LOCATION ${BOOST_SYSTEM_LIB}
+  IMPORTED_IMPLIB ${BOOST_SYSTEM_LIB}
+  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
+  FOLDER 3rdParty
+)
+add_dependencies(libboost_system libboost_Ext)
+
+add_library(libboost_thread STATIC IMPORTED)
+set_target_properties(libboost_thread PROPERTIES
+  IMPORTED_LOCATION ${BOOST_THREAD_LIB}
+  IMPORTED_IMPLIB ${BOOST_THREAD_LIB}
+  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
+  FOLDER 3rdParty
+)
+add_dependencies(libboost_thread libboost_Ext)

@@ -11,7 +11,7 @@ warning_suppression(${lib_name})
 enable_pch(${lib_name})
 
 target_link_libraries(${lib_name} PUBLIC
-  kaitai
+  libkaitai
   clib
 )
 if(${linux})
