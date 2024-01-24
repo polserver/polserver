@@ -73,7 +73,10 @@ void CompoundStatementBuilder::add_statements( EscriptParser::StatementContext* 
   }
   else if ( auto foreach_statement = ctx->foreachStatement() )
   {
-    statements.push_back( foreach_loop( foreach_statement ) );
+    if ( auto statement = foreach_loop( foreach_statement ) )
+    {
+      statements.push_back( std::move( statement ) );
+    }
   }
   else if ( auto for_st = ctx->forStatement() )
   {
@@ -133,9 +136,12 @@ std::unique_ptr<BasicForLoop> CompoundStatementBuilder::basic_for_loop(
     EscriptParser::BasicForStatementContext* ctx, std::string label )
 {
   auto identifier = text( ctx->IDENTIFIER() );
-  auto first = expression( ctx->expression( 0 ) );
-  auto last = expression( ctx->expression( 1 ) );
-  auto body = block( ctx->block() );
+  auto size = ctx->expression().size();
+  auto first = expression( size > 0 ? ctx->expression( 0 ) : nullptr );
+  auto last = expression( size > 1 ? ctx->expression( 1 ) : nullptr );
+  auto body = ctx->block() ? block( ctx->block() )
+                           : std::make_unique<Block>( location_for( *ctx ),
+                                                      std::vector<std::unique_ptr<Statement>>() );
 
   return std::make_unique<BasicForLoop>( location_for( *ctx ), std::move( label ),
                                          std::move( identifier ), std::move( first ),
@@ -143,7 +149,7 @@ std::unique_ptr<BasicForLoop> CompoundStatementBuilder::basic_for_loop(
 }
 
 std::vector<std::unique_ptr<Statement>> CompoundStatementBuilder::block_statements(
-        EscriptParser::BlockContext* ctx )
+    EscriptParser::BlockContext* ctx )
 {
   std::vector<std::unique_ptr<Statement>> statements;
 
@@ -228,10 +234,14 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
 std::unique_ptr<CstyleForLoop> CompoundStatementBuilder::cstyle_for_loop(
     EscriptParser::CstyleForStatementContext* ctx, std::string label )
 {
-  auto initializer = expression( ctx->expression( 0 ) );
-  auto predicate = expression( ctx->expression( 1 ) );
-  auto advancer = expression( ctx->expression( 2 ) );
-  auto body = block( ctx->block() );
+  auto size = ctx->expression().size();
+  auto initializer = expression( size > 0 ? ctx->expression( 0 ) : nullptr );
+  auto predicate = expression( size > 1 ? ctx->expression( 1 ) : nullptr );
+  auto advancer = expression( size > 2 ? ctx->expression( 2 ) : nullptr );
+  auto body = ctx->block() ? block( ctx->block() )
+                           : std::make_unique<Block>( location_for( *ctx ),
+                                                      std::vector<std::unique_ptr<Statement>>() );
+
   return std::make_unique<CstyleForLoop>( location_for( *ctx ), std::move( label ),
                                           std::move( initializer ), std::move( predicate ),
                                           std::move( advancer ), std::move( body ) );
@@ -245,7 +255,9 @@ std::unique_ptr<DoWhileLoop> CompoundStatementBuilder::do_while_loop(
   if ( auto statement_label = ctx->statementLabel() )
     label = text( statement_label->IDENTIFIER() );
   auto body = block( ctx->block() );
-  auto predicate = expression( ctx->parExpression()->expression() );
+  auto parExpression = ctx->parExpression();
+
+  auto predicate = expression( parExpression ? parExpression->expression() : nullptr );
   return std::make_unique<DoWhileLoop>( source_location, std::move( label ), std::move( body ),
                                         std::move( predicate ) );
 }
@@ -260,6 +272,10 @@ std::unique_ptr<Statement> CompoundStatementBuilder::for_loop( EscriptParser::Fo
   else if ( auto basic = ctx->basicForStatement() )
   {
     return basic_for_loop( basic, std::move( label ) );
+  }
+  else if ( workspace.continue_on_error )
+  {
+    return std::make_unique<EmptyStatement>( location_for( *ctx ) );
   }
   else
   {
@@ -295,6 +311,10 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   {
     return expression( par_ex->expression() );
   }
+  else if ( workspace.continue_on_error )
+  {
+    return std::make_unique<UninitializedValue>( location_for( *ctx ) );
+  }
   else
   {
     location_for( *ctx ).internal_error( "unhandled foreach iterable expression" );
@@ -308,7 +328,15 @@ std::unique_ptr<ForeachLoop> CompoundStatementBuilder::foreach_loop(
   std::string label;
   if ( auto statement_label = ctx->statementLabel() )
     label = text( statement_label->IDENTIFIER() );
-  std::string iterator_name = text( ctx->IDENTIFIER() );
+  auto identifier = ctx->IDENTIFIER();
+  if ( identifier == nullptr )
+    return {};
+
+  auto foreachIterableExpression = ctx->foreachIterableExpression();
+  if ( !foreachIterableExpression )
+    return {};
+
+  std::string iterator_name = text( identifier );
   auto iterable = foreach_iterable_expression( ctx->foreachIterableExpression() );
   auto body = block( ctx->block() );
   return std::make_unique<ForeachLoop>( source_location, std::move( label ),
@@ -337,7 +365,11 @@ std::unique_ptr<Statement> CompoundStatementBuilder::if_statement(
     --clause_index;
     auto expression_ctx = par_expression.at( clause_index );
     auto expression_ast = expression( expression_ctx->expression() );
-    auto consequent_ast = block( blocks.at( clause_index ) );
+    auto consequent_ast =
+        blocks.size() > clause_index
+            ? block( blocks.at( clause_index ) )
+            : std::make_unique<Block>( location_for( *ctx ),
+                                       std::vector<std::unique_ptr<Statement>>() );
     auto alternative_ast =
         if_statement_ast ? std::move( if_statement_ast ) : std::move( else_clause );
     auto source_location = location_for( *expression_ctx );
@@ -384,7 +416,7 @@ std::unique_ptr<WhileLoop> CompoundStatementBuilder::while_loop(
   auto predicate = expression( ctx->parExpression()->expression() );
   auto body = block( ctx->block() );
   return std::make_unique<WhileLoop>( source_location, std::move( label ), std::move( predicate ),
-                                        std::move( body ) );
+                                      std::move( body ) );
 }
 
 }  // namespace Pol::Bscript::Compiler
