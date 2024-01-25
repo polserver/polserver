@@ -224,11 +224,15 @@ int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
   catch ( std::invalid_argument& )
   {
     report.error( location_for( *ctx ), "unable to convert integer value '{}'.", ctx->getText() );
+    if ( workspace.continue_on_error )
+      return 0;
     throw;
   }
   catch ( std::out_of_range& )
   {
     report.error( location_for( *ctx ), "integer value '{}' out of range.", ctx->getText() );
+    if ( workspace.continue_on_error )
+      return 0;
     throw;
   }
 
