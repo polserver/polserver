@@ -1,8 +1,8 @@
 # windows only: build stackwalker
-
+set(stackdir ${POL_EXT_LIB_DIR}/StackWalker-v14)
 set(libstackwalk_sources 
-  ${POL_EXT_LIB_DIR}/StackWalker/StackWalker.cpp
-  ${POL_EXT_LIB_DIR}/StackWalker/StackWalker.h
+  ${stackdir}/StackWalker/StackWalker.cpp
+  ${stackdir}/StackWalker/StackWalker.h
 )
 set(lib_name libstackwalk)
 
@@ -19,6 +19,6 @@ if (${windows})
 endif()
 
 set_target_properties (${lib_name} PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES ${POL_EXT_LIB_DIR}
+  INTERFACE_INCLUDE_DIRECTORIES ${stackdir}
   FOLDER 3rdParty
 )

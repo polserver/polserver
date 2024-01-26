@@ -23,11 +23,6 @@ target_link_libraries(${ex_name} PUBLIC
   libpicojson
   libcurl
 )
-if (${linux})
-  target_link_libraries(${ex_name} PUBLIC
-    crypto
-  )
-endif()
 
 if(HAVE_MYSQL)
   target_link_libraries(${ex_name} PUBLIC libsql)

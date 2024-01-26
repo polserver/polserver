@@ -1,5 +1,9 @@
 find_package(Java QUIET COMPONENTS Runtime)
 
+get_target_property (grammarbasedir escriptgrammarlib
+  INTERFACE_INCLUDE_DIRECTORIES)
+set(grammardir ${grammarbasedir}/EscriptGrammar)
+
 if(NOT ANTLR_EXECUTABLE)
   find_program(ANTLR_EXECUTABLE
     NAMES antlr.jar antlr4.jar antlr-4.jar antlr-4.13.1-complete.jar
@@ -10,14 +14,14 @@ if(Java_JAVA_EXECUTABLE AND ANTLR_EXECUTABLE)
   add_custom_target(escriptgrammar
     COMMAND ${Java_JAVA_EXECUTABLE} -jar ${ANTLR_EXECUTABLE}
       -Dlanguage=Cpp -package EscriptGrammar
-      ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptLexer.g4
-      -o ${POL_EXT_LIB_DIR}/EscriptGrammar
+      ${grammardir}/EscriptLexer.g4
+      -o ${grammardir}
     # You'll have to qualify the namespace antlr4::TokenStream
     # in the EscriptParser constructor when regenerating.
     COMMAND ${Java_JAVA_EXECUTABLE} -jar ${ANTLR_EXECUTABLE}
       -Dlanguage=Cpp -visitor -package EscriptGrammar
-      ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptParser.g4
-      -o ${POL_EXT_LIB_DIR}/EscriptGrammar
+      ${grammardir}/EscriptParser.g4
+      -o ${grammardir}
     COMMENT "Generating grammar files"
   )
 endif()
@@ -27,20 +31,20 @@ add_custom_target(escriptfiles
   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   VERBATIM
   SOURCES 
-    ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptParser.g4
-    ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptParser.h
-    ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptParser.cpp
-    ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptLexer.g4
-    ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptLexer.h
-    ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptLexer.cpp
+    ${grammardir}/EscriptParser.g4
+    ${grammardir}/EscriptParser.h
+    ${grammardir}/EscriptParser.cpp
+    ${grammardir}/EscriptLexer.g4
+    ${grammardir}/EscriptLexer.h
+    ${grammardir}/EscriptLexer.cpp
 )
 source_group(escriptgrammar FILES
-  ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptParser.g4
-  ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptParser.h
-  ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptParser.cpp
-  ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptLexer.g4
-  ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptLexer.h
-  ${POL_EXT_LIB_DIR}/EscriptGrammar/EscriptLexer.cpp
+  ${grammardir}/EscriptParser.g4
+  ${grammardir}/EscriptParser.h
+  ${grammardir}/EscriptParser.cpp
+  ${grammardir}/EscriptLexer.g4
+  ${grammardir}/EscriptLexer.h
+  ${grammardir}/EscriptLexer.cpp
 )
 set_target_properties(escriptfiles PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(escriptfiles PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)

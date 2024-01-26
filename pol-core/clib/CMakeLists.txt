@@ -16,28 +16,28 @@ add_dependencies(${lib_name} git_rev)
 
 target_link_libraries(${lib_name} PUBLIC
   libfmt
+  libutf8
   libboost_headers
   #  libboost_regex
   #  libboost_system
   #  libboost_thread
-  libutf8
 )
 
 if (${linux})
   if (APPLE)
     pkg_search_module(OPENSSL QUIET openssl)
-    target_include_directories(${lib_name} PUBLIC ${OPENSSL_INCLUDEDIR})
-    target_link_directories(${lib_name} PUBLIC ${OPENSSL_LIBDIR})
+    target_include_directories(${lib_name} PRIVATE ${OPENSSL_INCLUDEDIR})
+    target_link_directories(${lib_name} PRIVATE ${OPENSSL_LIBDIR})
   endif()
-  target_link_libraries(${lib_name} PUBLIC
+  target_link_libraries(${lib_name} PRIVATE
     crypto
     pthread
   )
   if (arm_proc AND NOT APPLE)
-    target_link_libraries(${lib_name} PUBLIC atomic)
+    target_link_libraries(${lib_name} PRIVATE atomic)
   endif()
 elseif(${windows})
-  target_link_libraries(${lib_name} PUBLIC
+  target_link_libraries(${lib_name} PRIVATE
     libstackwalk
     ws2_32
     Psapi

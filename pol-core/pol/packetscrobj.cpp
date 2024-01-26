@@ -18,7 +18,6 @@
 
 #include <iomanip>
 #include <stddef.h>
-#include <utf8/utf8.h>
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"

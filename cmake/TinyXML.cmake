@@ -1,11 +1,12 @@
 set(lib_name libtinyxml)
+set(tinydir ${POL_EXT_LIB_DIR}/tinyxml-2.6.2)
 
 add_library(${lib_name} STATIC
   # sorted !
-  ${POL_EXT_LIB_DIR}/tinyxml/tinystr.cpp 
-  ${POL_EXT_LIB_DIR}/tinyxml/tinyxml.cpp
-  ${POL_EXT_LIB_DIR}/tinyxml/tinyxmlerror.cpp 
-  ${POL_EXT_LIB_DIR}/tinyxml/tinyxmlparser.cpp 
+  ${tinydir}/tinyxml/tinystr.cpp 
+  ${tinydir}/tinyxml/tinyxml.cpp
+  ${tinydir}/tinyxml/tinyxmlerror.cpp 
+  ${tinydir}/tinyxml/tinyxmlparser.cpp 
 )
 
 set_compile_flags(${lib_name} 0)
@@ -21,6 +22,6 @@ if (${windows})
 endif()
 
 set_target_properties (${lib_name} PROPERTIES 
-  INTERFACE_INCLUDE_DIRECTORIES ${POL_EXT_LIB_DIR}
+  INTERFACE_INCLUDE_DIRECTORIES ${tinydir}
   FOLDER 3rdParty
 )
