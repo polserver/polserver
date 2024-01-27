@@ -1,0 +1,62 @@
+use os;
+use uo;
+use guilds;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_guild()
+  return 1;
+endprogram
+
+exported function load_save_guild()
+  if (testrun == 1)
+    var chr1:=createAccountWithChar("restart_test_guild1", "pass");
+    var chr2:=createAccountWithChar("restart_test_guild2", "pass");
+    var guild1:=CreateGuild();
+    var guild2:=CreateGuild();
+    var guild3:=CreateGuild();
+    if (!chr1 || !chr2 || !guild1 || !guild2 || !guild3)
+      return ret_error($"create failed {chr1} {chr2} {guild1} {guild2} {guild3}");
+    endif
+    guild1.setprop("name","test");
+    guild2.setprop("name","ally");
+    guild3.setprop("name","enemy");
+    guild1.addallyguild(guild2);
+    guild1.addenemyguild(guild3);
+    guild1.addmember(chr1);
+    guild1.addmember(chr2);
+  else
+    var guilds:=listguilds();
+    if (len(guilds)<3)
+      return ret_error($"failed to load guilds {guilds}");
+    endif
+    var test;
+    foreach g in guilds
+      if (g.getprop("name")=="test")
+        test:=g;
+      endif
+    endforeach
+    if (!test)
+      return ret_error("failed to find guild");
+    endif
+    if (test.allyguilds[1].getprop("name")!="ally")
+      return ret_error($"wrong ally {test.allyguilds}");
+    endif
+    if (test.enemyguilds[1].getprop("name")!="enemy")
+      return ret_error($"wrong enemy {test.enemyguilds}");
+    endif
+    var chr1:=FindAccount("restart_test_guild1").getcharacter(1);
+    var chr2:=FindAccount("restart_test_guild2").getcharacter(1);
+    if (len(test.members)!=2)
+      return ret_error($"lost members {test.members}");
+    endif
+    if (!test.ismember(chr1))
+      return ret_error($"{chr1.serial : #x} is not a member");
+    endif
+    if (!test.ismember(chr2))
+      return ret_error($"{chr2.serial : #x} is not a member");
+    endif
+  endif
+  return 1;
+endfunction

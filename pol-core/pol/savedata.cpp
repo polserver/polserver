@@ -83,8 +83,8 @@ void write_dirty_storage( Clib::StreamWriter& sw_data )
       if ( !item->orphan() )
       {
         // write the storage area header, and the item (but not any contents)
-        sw_data() << "StorageArea " << area->_name << pf_endl << "{" << pf_endl << "}" << pf_endl
-                  << pf_endl;
+        sw_data.begin( "StorageArea", area->_name );
+        sw_data.end();
 
         item->printSelfOn( sw_data );
         objStorageManager.modified_serials.push_back( item->serial );
@@ -261,7 +261,7 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elaps
     std::string index_pathname = Plib::systemstate.config.world_data_path + index_basename + ".ndt";
     Clib::open_file( ofs_data, data_pathname, std::ios::out );
     Clib::open_file( ofs_index, index_pathname, std::ios::out );
-    Clib::OFStreamWriter sw_data( &ofs_data );
+    Clib::StreamWriter sw_data( &ofs_data );
     write_system_data( sw_data );
     write_global_properties( sw_data );
 
@@ -318,5 +318,5 @@ void commit_incremental_saves()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -207,7 +207,6 @@ exported function test_item_FindSubstance()
 
     // Item is reserved, so should fail.
     res := FindSubstance( cnt, "goldcoin", 1 );
-    print($"got findsubstance res {res}");
     if (res)
       res := ret_error("Unexpected success in FindSubstance");
       break;

@@ -1,10 +1,10 @@
 # windows only: build stackwalker
-
-set(stackwalk_sources 
-  ${POL_EXT_LIB_DIR}/StackWalker/StackWalker.cpp
-  ${POL_EXT_LIB_DIR}/StackWalker/StackWalker.h
+set(stackdir ${POL_EXT_LIB_DIR}/StackWalker-v14)
+set(libstackwalk_sources 
+  ${stackdir}/StackWalker/StackWalker.cpp
+  ${stackdir}/StackWalker/StackWalker.h
 )
-set(lib_name stackwalk)
+set(lib_name libstackwalk)
 
 add_library(${lib_name} STATIC
   ${${lib_name}_sources}
@@ -18,4 +18,7 @@ if (${windows})
   )
 endif()
 
-set_target_properties (${lib_name} PROPERTIES FOLDER 3rdParty)
+set_target_properties (${lib_name} PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES ${stackdir}
+  FOLDER 3rdParty
+)

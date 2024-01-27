@@ -12,12 +12,9 @@ enable_pch(${lib_name})
 
 target_link_libraries(${lib_name} PUBLIC
   clib
+)
+target_link_libraries(${lib_name} PRIVATE
   escriptgrammarlib
 )
-if (${linux})
-  target_link_libraries(${lib_name} PUBLIC
-    pthread    
-  )
-endif()
 
 use_tidy(${lib_name})

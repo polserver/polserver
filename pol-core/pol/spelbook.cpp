@@ -281,7 +281,7 @@ void Spellbook::printProperties( Clib::StreamWriter& sw ) const
   base::printProperties( sw );
 
   for ( int i = 0; i < 8; ++i )
-    sw() << "\tSpellbits" << i << "\t" << (int)bitwise_contents[i] << pf_endl;
+    sw.add( fmt::format( "Spellbits{}", i ), (int)bitwise_contents[i] );
 }
 
 

@@ -1,0 +1,67 @@
+use os;
+use uo;
+use polsys;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_map()
+  return 1;
+endprogram
+
+// save/load test for things in Map class
+exported function load_save_map()
+  var props:={
+                 {"xwest", {"xwest",1}},
+                {"ynorth", {"ynorth",2}},
+                 {"xeast", {"xeast",10}},
+                {"ysouth", {"ysouth",20}},
+             {"gumpwidth", {"gumpwidth",100}},
+            {"gumpheight", {"gumpheight",200}},
+               {"facetid", {"facetid",3}},
+              {"editable", {"editable",1}}
+//               {"NumPins", {"",1}}, //tested via appendpin
+  };
+
+  if (testrun == 1)
+    var item := CreateItemAtLocation(10,11,-5, "restart_test_map",1,"britannia2");
+    item.name:="load_save_map";
+    if (!item)
+      return ret_error($"failed to create item {item}");
+    endif
+    SetGlobalProperty("test_item_storage_map", item.serial);
+    foreach prop in props
+      item.set_member(prop[2][1],prop[2][2]);
+    endforeach
+    item.appendpin(4,5);
+    item.appendpin(6,7);
+  else
+
+    var serial := GetGlobalProperty("test_item_storage_map");
+    if (!serial)
+      return ret_error("Global property not found");
+    endif
+
+    var item := SystemFindObjectBySerial(serial);
+    if (!item)
+      return ret_error($"Item with serial {serial:#x} does not exists: {item})");
+    endif
+    foreach prop in props
+      var val:=item.get_member(prop[2][1]);
+      if (val != prop[2][2])
+        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      endif
+    endforeach
+    var pins:=item.getpins();
+    if (len(pins)!=2)
+      return ret_error("invalid number of pins: {pins}");
+    endif
+    if (pins[1].x!=4 or pins[1].y!=5)
+      return ret_error($"invalid coord {pins[1]} != 4,5");
+    endif
+    if (pins[2].x!=6 or pins[2].y!=7)
+      return ret_error($"invalid coord {pins[2]} != 6,7");
+    endif
+  endif
+  return 1;
+endfunction

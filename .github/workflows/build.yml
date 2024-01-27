@@ -63,7 +63,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: lib/boost_1_83_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0-1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0-2
       - name: Cache cppdap
         uses: actions/cache@v3
         with:
@@ -151,12 +151,12 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
           #env:
           #POLCORE_TEST_FILTER: testitems
-      - name: Upload shard test log
-        if: matrix.config.nopch == 0
+      - name: Upload coretest folder
+        if: matrix.config.nopch == 0 && always()
         uses: actions/upload-artifact@v3
         with:
-          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
-          path: bin-build/coretest/log/pol.log
+          name: Testdir-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          path: bin-build/coretest/
 
       - name: Create Artefact
         if: matrix.config.nopch == 0

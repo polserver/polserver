@@ -27,7 +27,7 @@ namespace Pol
 {
 namespace Core
 {
-CPropProfiler::HitsCounter::HitsCounter() : hits( std::array<u64, 3>{{0, 0, 0}} ) {}
+CPropProfiler::HitsCounter::HitsCounter() : hits( std::array<u64, 3>{ { 0, 0, 0 } } ) {}
 
 u64& CPropProfiler::HitsCounter::operator[]( size_t idx )
 {
@@ -433,7 +433,7 @@ void PropertyList::printProperties( Clib::StreamWriter& sw ) const
     const std::string& first = prop.first;
     if ( first[0] != '#' )
     {
-      sw() << "\tCProp\t" << first << " " << prop.second.get() << pf_endl;
+      sw.add( "CProp", fmt::format( "{} {}", first, prop.second.get() ) );
     }
   }
 }
@@ -456,7 +456,7 @@ void PropertyList::printPropertiesAsStrings( Clib::StreamWriter& sw ) const
     const std::string& first = prop.first;
     if ( first[0] != '#' )
     {
-      sw() << "\t" << first << " " << prop.second.get() << pf_endl;
+      sw.add( first, prop.second.get() );
     }
   }
 }
@@ -597,5 +597,5 @@ Bscript::BObjectImp* CallPropertyListMethod( PropertyList& proplist, const char*
   else
     return nullptr;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

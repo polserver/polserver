@@ -57,7 +57,6 @@ protected:
   polclock_t last_run_clock_;
   friend class SchComparer;
   friend void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity );
-  friend void check_scheduled_tasks2( void );
 };
 
 inline polclock_t ScheduledTask::next_run_clock() const
@@ -66,7 +65,6 @@ inline polclock_t ScheduledTask::next_run_clock() const
 }
 
 void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity );
-void check_scheduled_tasks2( void );
 
 class PeriodicTask final : public ScheduledTask
 {

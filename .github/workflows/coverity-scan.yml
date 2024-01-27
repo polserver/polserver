@@ -59,11 +59,11 @@ jobs:
         run: |
           cd bin-build
           cmake .. -DNO_PCH=1 
-          cmake --build . --target libcurl
-          cmake --build . --target libantlr_ex
-          cmake --build . --target boost
-          cmake --build . --target kaitai
-          cmake --build . --target tinyxml
+          cmake --build . --target libcurl_Ext
+          cmake --build . --target libantlr_ext
+          cmake --build . --target boost_extract
+          cmake --build . --target kaitai_Ext
+          cmake --build . --target libtinyxml
 
 
       - name: Build with cov-build

@@ -29,11 +29,11 @@ SerialSet::SerialSet( Clib::ConfigElem& elem, const char* tag )
   }
 }
 
-void SerialSet::writeOn( Clib::StreamWriter& os, const char* tag ) const
+void SerialSet::writeOn( Clib::StreamWriter& sw, const char* tag ) const
 {
   for ( const_iterator citr = begin(), citrend = end(); citr != citrend; ++citr )
   {
-    os() << "\t" << tag << "\t0x" << fmt::hex( *citr ) << pf_endl;
+    sw.add( tag, Clib::hexint( *citr ) );
   }
 }
 
@@ -148,13 +148,13 @@ bool Guild::hasEnemy( const Guild* g2 ) const
 
 void Guild::printOn( Clib::StreamWriter& sw ) const
 {
-  sw() << "Guild" << pf_endl << "{" << pf_endl << "\tGuildId\t" << _guildid << pf_endl;
+  sw.begin( "Guild" );
+  sw.add( "GuildId", _guildid );
   _member_serials.writeOn( sw, "Member" );
   _allyguild_serials.writeOn( sw, "AllyGuild" );
   _enemyguild_serials.writeOn( sw, "EnemyGuild" );
   _proplist.printProperties( sw );
-  sw() << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw.end();
 }
 
 void Guild::addMember( unsigned int serial )
@@ -223,8 +223,9 @@ void read_guilds_dat()
 
 void write_guilds( Clib::StreamWriter& sw )
 {
-  sw() << "General" << pf_endl << "{" << pf_endl << "\tNextGuildId\t" << Core::gamestate.nextguildid
-       << pf_endl << "}" << pf_endl << pf_endl;
+  sw.begin( "General" );
+  sw.add( "NextGuildId", Core::gamestate.nextguildid );
+  sw.end();
 
   for ( const auto& _guild : Core::gamestate.guilds )
   {

@@ -13,7 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <picojson.h>
+#include <picojson/picojson.h>
 #include <string>
 
 #include "../../bscript/berror.h"

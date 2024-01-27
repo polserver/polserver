@@ -166,9 +166,9 @@ void UArmor::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
   if ( has_ar_mod() )
-    sw() << "\tAR_mod\t" << ar_mod() << pf_endl;
+    sw.add( "AR_mod", ar_mod() );
   if ( tmpl != nullptr && onhitscript_ != ARMOR_TMPL->on_hit_script )
-    sw() << "\tOnHitScript\t" << onhitscript_.relativename( tmpl->pkg ) << pf_endl;
+    sw.add( "OnHitScript", onhitscript_.relativename( tmpl->pkg ) );
 }
 
 void UArmor::readProperties( Clib::ConfigElem& elem )

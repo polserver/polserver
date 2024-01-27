@@ -1,0 +1,50 @@
+use os;
+use uo;
+use polsys;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_container()
+  return 1;
+endprogram
+
+// save/load test for things in Container class
+exported function load_save_container()
+  var props:={
+                {"Max_Items_mod", {"max_items_mod",10}},
+               {"Max_Weight_mod", {"max_weight_mod",11}},
+                {"Max_Slots_mod", {"max_slots_mod",12}},
+              {"NoDropException", {"no_drop_exception",1}}
+  };
+
+  if (testrun == 1)
+    var item := CreateItemAtLocation(10,11,-5, "restart_test_container",1,"britannia2");
+    item.name:="load_save_container";
+    if (!item)
+      return ret_error($"failed to create item {item}");
+    endif
+    SetGlobalProperty("test_item_storage_container", item.serial);
+    foreach prop in props
+      item.set_member(prop[2][1],prop[2][2]);
+    endforeach
+  else
+
+    var serial := GetGlobalProperty("test_item_storage_container");
+    if (!serial)
+      return ret_error("Global property not found");
+    endif
+
+    var item := SystemFindObjectBySerial(serial);
+    if (!item)
+      return ret_error($"Item with serial {serial:#x} does not exists: {item})");
+    endif
+    foreach prop in props
+      var val:=item.get_member(prop[2][1]);
+      if (val != prop[2][2])
+        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      endif
+    endforeach
+  endif
+  return 1;
+endfunction

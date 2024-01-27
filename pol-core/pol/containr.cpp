@@ -119,7 +119,7 @@ void UContainer::printContents( Clib::StreamWriter& sw ) const
     {
       if ( item->itemdesc().save_on_exit && item->saveonexit() )
       {
-        sw << *item;
+        item->printOn( sw );
         item->clear_dirty();
       }
     }
@@ -870,13 +870,13 @@ void UContainer::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
   if ( has_max_items_mod() )
-    sw() << "\tMax_Items_mod\t" << max_items_mod() << pf_endl;
+    sw.add( "Max_Items_mod", max_items_mod() );
   if ( has_max_weight_mod() )
-    sw() << "\tMax_Weight_mod\t" << max_weight_mod() << pf_endl;
+    sw.add( "Max_Weight_mod", max_weight_mod() );
   if ( has_max_slots_mod() )
-    sw() << "\tMax_Slots_mod\t" << max_slots_mod() << pf_endl;
+    sw.add( "Max_Slots_mod", max_slots_mod() );
   if ( no_drop_exception() != default_no_drop_exception() )
-    sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
+    sw.add( "NoDropException", no_drop_exception() );
 }
 
 void UContainer::readProperties( Clib::ConfigElem& elem )

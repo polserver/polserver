@@ -7,6 +7,7 @@
 
 #include "objecthash.h"
 
+#include <fstream>
 #include <stddef.h>
 
 #include "../clib/clib_endian.h"
@@ -128,15 +129,14 @@ u32 ObjectHash::GetNextUnusedCharSerial()
   return tempserial;
 };
 
-void ObjectHash::PrintContents( Clib::StreamWriter& sw ) const
+void ObjectHash::PrintContents( std::ofstream* os ) const
 {
   OH_const_iterator itr, itrend;
-  sw() << "Object Count: " << hash.size() << "\n";
+  *os << fmt::format( "Object Count: {}\n", hash.size() );
   for ( itr = hash.begin(), itrend = hash.end(); itr != itrend; ++itr )
   {
-    sw() << "type: " << itr->second->classname() << " serial: 0x"
-         << fmt::hexu( itr->second->serial ) << " name: " << itr->second->name() << "\n";
-    // itr->second->printOn( sw ); // its no more safe to try to print the complete object
+    *os << fmt::format( "type: {} serial: {:#X} name: {}\n", itr->second->classname(),
+                        itr->second->serial, itr->second->name() );
   }
 }
 

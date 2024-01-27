@@ -223,10 +223,13 @@ macro(cmake_fake_target)
       cmake/Curl.cmake
       cmake/EscriptGrammarLib.cmake
       cmake/escript_grammar.cmake
-      cmake/Format.cmake
+      cmake/Fmt.cmake
       cmake/Kaitai.cmake
+      cmake/PicoJson.cmake
+      cmake/SQL.cmake
       cmake/StackWalker.cmake
       cmake/TinyXML.cmake
+      cmake/UTF8.cmake
       cmake/ZLib.cmake
       cmake/release.cmake
       cmake/git_revision.cmake
@@ -245,10 +248,13 @@ macro(cmake_fake_target)
     cmake/Curl.cmake
     cmake/EscriptGrammarLib.cmake
     cmake/escript_grammar.cmake
-    cmake/Format.cmake
+    cmake/Fmt.cmake
     cmake/Kaitai.cmake
+    cmake/PicoJson.cmake
+    cmake/SQL.cmake
     cmake/StackWalker.cmake
     cmake/TinyXML.cmake
+    cmake/UTF8.cmake
     cmake/ZLib.cmake
     cmake/release.cmake
     cmake/git_revision.cmake
