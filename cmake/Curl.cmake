@@ -13,7 +13,7 @@ else()
 endif()
 
 if(NOT EXISTS "${CURL_LIB}")
-  ExternalProject_Add(libcurl
+  ExternalProject_Add(libcurl_Ext
     URL "${CURL_SOURCE_DIR}/../curl-8.2.1.zip"
     SOURCE_DIR  "${CURL_SOURCE_DIR}"
     PREFIX curl
@@ -30,7 +30,39 @@ if(NOT EXISTS "${CURL_LIB}")
     LOG_OUTPUT_ON_FAILURE 1
     DOWNLOAD_EXTRACT_TIMESTAMP 1
   )
-  set_target_properties (libcurl PROPERTIES FOLDER 3rdParty)
+  set_target_properties (libcurl_Ext PROPERTIES FOLDER 3rdParty)
+  file(MAKE_DIRECTORY ${CURL_INSTALL_DIR}/include) #directory has to exist during configure
 else()
   message("Curl already build")
 endif()
+
+# imported target to add include/lib dir and additional dependencies
+add_library(libcurl STATIC IMPORTED)
+set_target_properties(libcurl PROPERTIES
+  IMPORTED_LOCATION ${CURL_LIB}
+  IMPORTED_IMPLIB ${CURL_LIB}
+  INTERFACE_INCLUDE_DIRECTORIES ${CURL_INSTALL_DIR}/include
+  INTERFACE_COMPILE_DEFINITIONS CURL_STATICLIB
+  FOLDER 3rdParty
+)
+if (${linux})
+  set_property(TARGET libcurl 
+    PROPERTY INTERFACE_LINK_LIBRARIES ssl)
+  if (APPLE)
+    pkg_search_module(LIBSSH2 REQUIRED libssh2 IMPORTED_TARGET)
+    if(TARGET PkgConfig::LIBSSH2)
+      set_property(TARGET libcurl APPEND
+        PROPERTY INTERFACE_LINK_LIBRARIES PkgConfig::LIBSSH2)
+    endif()
+    find_library(CoreFoundation_Library CoreFoundation)
+    find_library(CoreServices_Library CoreServices)
+    find_library(SystemConfiguration_Library SystemConfiguration)
+    set_property(TARGET libcurl APPEND
+      PROPERTY INTERFACE_LINK_LIBRARIES 
+        ${CoreFoundation_Library} ${CoreServices_Library} ${SystemConfiguration_Library})
+  endif()
+else()
+  set_property(TARGET libcurl 
+    PROPERTY INTERFACE_LINK_LIBRARIES wldap32)
+endif()
+add_dependencies(libcurl libcurl_Ext)

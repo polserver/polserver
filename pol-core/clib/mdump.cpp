@@ -14,7 +14,7 @@
 #include <iterator>
 
 #pragma warning( disable : 4091 )  // unused typedef
-#include "../../lib/StackWalker/StackWalker.h"
+#include <StackWalker/StackWalker.h>
 
 #include "Header_Windows.h"
 #include <assert.h>
