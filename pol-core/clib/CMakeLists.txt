@@ -23,11 +23,17 @@ target_link_libraries(${lib_name} PUBLIC
   #  libboost_thread
 )
 
+#since clib is our baselib make here the include dirs public
+target_include_directories(${lib_name} PUBLIC
+  ${POLCORE_DIR} # path to pol-core
+  ${PROJECT_BINARY_DIR} #global config
+)
+
 if (${linux})
   if (APPLE)
     pkg_search_module(OPENSSL QUIET openssl)
     target_include_directories(${lib_name} PRIVATE ${OPENSSL_INCLUDEDIR})
-    target_link_directories(${lib_name} PRIVATE ${OPENSSL_LIBDIR})
+    target_link_directories(${lib_name} PUBLIC ${OPENSSL_LIBDIR})
   endif()
   target_link_libraries(${lib_name} PRIVATE
     crypto
