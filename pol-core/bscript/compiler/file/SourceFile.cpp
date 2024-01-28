@@ -133,6 +133,16 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   return module_unit;
 }
 
+std::vector<antlr4::Token*> SourceFile::get_comments_before( size_t tokenIndex )
+{
+  return tokens.getHiddenTokensToLeft( tokenIndex /*, EscriptGrammar::EscriptLexer::COMMENTS*/ );
+}
+
+std::vector<antlr4::Token*> SourceFile::get_comments_after( size_t tokenIndex )
+{
+  return tokens.getHiddenTokensToRight( tokenIndex /*, EscriptGrammar::EscriptLexer::COMMENTS*/ );
+}
+
 EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_unit(
     Report& report )
 {

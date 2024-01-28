@@ -34,6 +34,9 @@ public:
                                                                      const SourceFileIdentifier& );
   EscriptGrammar::EscriptParser::EvaluateUnitContext* get_evaluate_unit( Report& );
 
+  std::vector<antlr4::Token*> get_comments_before( size_t tokenIndex );
+  std::vector<antlr4::Token*> get_comments_after( size_t tokenIndex );
+
   const std::string pathname;
 
 private:

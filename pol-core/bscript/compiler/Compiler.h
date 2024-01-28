@@ -23,6 +23,7 @@ public:
   Compiler& operator=( const Compiler& ) = delete;
 
   bool compile_file( const std::string& filename );
+  bool format_file( const std::string& filename );
   bool write_ecl( const std::string& pathname );
   void write_listing( const std::string& pathname );
   void write_dbg( const std::string& pathname, bool include_debug_text );

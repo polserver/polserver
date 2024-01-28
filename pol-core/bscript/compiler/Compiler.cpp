@@ -6,7 +6,9 @@
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
+#include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileCache.h"
+#include "bscript/compiler/file/SourceFileFormatter.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/format/CompiledScriptSerializer.h"
 #include "bscript/compiler/format/DebugStoreSerializer.h"
@@ -77,6 +79,32 @@ void Compiler::write_included_filenames( const std::string& pathname )
 void Compiler::set_include_compile_mode()
 {
   user_function_inclusion = UserFunctionInclusion::All;
+}
+
+bool Compiler::format_file( const std::string& filename )
+{
+  try
+  {
+    auto pathname = Clib::FullPath( filename.c_str() );
+    auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
+    Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
+
+    auto sf = SourceFile::load( *ident, profile, report );
+
+    SourceFileFormatter formatter( *ident, sf, report );
+    auto result = formatter.format();
+
+    if ( report.error_count() )
+      return false;
+
+    INFO_PRINTLN( "Formatted:\n{}", result );
+  }
+  catch ( std::exception& ex )
+  {
+    ERROR_PRINTLN( ex.what() );
+    return false;
+  }
+  return true;
 }
 
 bool Compiler::compile_file( const std::string& filename )
