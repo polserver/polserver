@@ -11,15 +11,22 @@ class SourceLocation;
 class Report
 {
 public:
-  explicit Report( bool display_warnings );
+  explicit Report( bool display_warnings, bool display_errors = true );
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
   template <typename Str, typename... Args>
   inline void error( const SourceLocation& source_location, Str const& format, Args&&... args )
   {
-    auto msg = fmt::format( format, args... );
-    report_error( source_location, msg.c_str() );
+    if ( display_errors )
+    {
+      auto msg = fmt::format( format, args... );
+      report_error( source_location, msg.c_str() );
+    }
+    else
+    {
+      ++errors;
+    }
   }
 
   template <typename Str, typename... Args>
@@ -54,6 +61,10 @@ public:
       auto msg = fmt::format( format, args... );
       report_warning( source_location, msg.c_str() );
     }
+    else
+    {
+      ++warnings;
+    }
   }
 
   template <typename Str, typename... Args>
@@ -65,11 +76,14 @@ public:
   [[nodiscard]] unsigned error_count() const;
   [[nodiscard]] unsigned warning_count() const;
 
+  void reset();
+
 private:
   void report_error( const SourceLocation&, const char* msg );
   void report_warning( const SourceLocation&, const char* msg );
 
   const bool display_warnings;
+  const bool display_errors;
   unsigned errors;
   unsigned warnings;
 };

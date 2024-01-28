@@ -18,6 +18,10 @@ moduleUnit
     : moduleDeclarationStatement* EOF
     ;
 
+evaluateUnit
+    : expression EOF
+    ;
+
 moduleDeclarationStatement
     : moduleFunctionDeclaration
     | constStatement

@@ -27,6 +27,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitEvaluateUnit(EscriptParser::EvaluateUnitContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext *ctx) override {
     return visitChildren(ctx);
   }

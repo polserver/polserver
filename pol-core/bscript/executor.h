@@ -66,6 +66,14 @@ extern escript_profile_map EscriptProfileMap;
 #endif
 
 typedef std::vector<BObjectRef> ValueStackCont;
+
+class ExecutorDebugListener
+{
+public:
+  virtual void on_halt(){};
+  virtual void on_destroy(){};
+};
+
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
@@ -84,6 +92,41 @@ enum class ExecutorType
 {
   EXECUTOR,
   POL
+};
+
+enum class ExecutorDebugState
+{
+  ATTACHING,
+  ATTACHED,
+  INS_TRACE,
+  RUN,
+  BREAK_INTO,
+  STEP_INTO,
+  STEPPING_INTO,
+  STEP_OVER,
+  STEPPING_OVER,
+  STEP_OUT,
+};
+
+class ExecutorDebugEnvironment
+{
+public:
+  ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugListener> listener, bool set_attaching );
+
+  // Return `false` to skip the instruction from executing.
+  bool on_instruction( Executor& );
+  size_t sizeEstimate() const;
+
+  ExecutorDebugState debug_state;
+  std::set<unsigned> breakpoints;
+  std::set<unsigned> tmpbreakpoints;
+  struct
+  {
+    unsigned line;
+    size_t control;
+  } break_on_linechange_from;
+  unsigned bp_skip;
+  std::weak_ptr<ExecutorDebugListener> listener;
 };
 
 class Executor
@@ -373,20 +416,20 @@ public:
   bool halt() const;
   void sethalt( bool halt );
 
-  bool debugging() const;
-  void setdebugging( bool debugging );
-
-  void attach_debugger();
+  bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
+                        bool set_attaching = true );
   void detach_debugger();
   std::string dbg_get_instruction( size_t atPC ) const;
   void dbg_get_instruction( size_t atPC, std::string& os ) const;
   void dbg_ins_trace();
   void dbg_step_into();
   void dbg_step_over();
+  void dbg_step_out();
   void dbg_run();
   void dbg_break();
   void dbg_setbp( unsigned atPC );
   void dbg_clrbp( unsigned atPC );
+  void dbg_clrbps( const std::set<unsigned>& PCs );
   void dbg_clrallbp();
 
   bool exec();
@@ -409,25 +452,7 @@ private:
 
   bool runs_to_completion_;
 
-  bool debugging_;
-  enum DEBUG_STATE
-  {
-    DEBUG_STATE_NONE,
-    DEBUG_STATE_ATTACHING,
-    DEBUG_STATE_ATTACHED,
-    DEBUG_STATE_INS_TRACE,
-    DEBUG_STATE_INS_TRACE_BRK,
-    DEBUG_STATE_RUN,
-    DEBUG_STATE_BREAK_INTO,
-    DEBUG_STATE_STEP_INTO,
-    DEBUG_STATE_STEPPING_INTO,
-    DEBUG_STATE_STEP_OVER,
-    DEBUG_STATE_STEPPING_OVER
-  };
-  DEBUG_STATE debug_state_;
-  std::set<unsigned> breakpoints_;
-  std::set<unsigned> tmpbreakpoints_;
-  unsigned bp_skip_;
+  std::unique_ptr<ExecutorDebugEnvironment> dbg_env_;
 
   BObjectImp* func_result_;
 
@@ -474,25 +499,10 @@ inline bool Executor::error() const
   return error_;
 }
 
-inline void Executor::sethalt( bool halt )
-{
-  halt_ = halt;
-  calcrunnable();
-}
 inline bool Executor::halt() const
 {
   return halt_;
 }
-
-inline bool Executor::debugging() const
-{
-  return debugging_;
-}
-inline void Executor::setdebugging( bool debugging )
-{
-  debugging_ = debugging;
-}
-
 
 inline bool Executor::running_to_completion() const
 {

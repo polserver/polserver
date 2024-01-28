@@ -5,8 +5,11 @@
 
 namespace Pol::Bscript::Compiler
 {
-Report::Report( bool display_warnings )
-    : display_warnings( display_warnings ), errors( 0 ), warnings( 0 )
+Report::Report( bool display_warnings, bool display_errors )
+    : display_warnings( display_warnings ),
+      display_errors( display_errors ),
+      errors( 0 ),
+      warnings( 0 )
 {
 }
 
@@ -43,5 +46,11 @@ unsigned Report::warning_count() const
 {
   return warnings;
 }
+
+void Report::reset()
+{
+  errors = warnings = 0;
+}
+
 
 }  // namespace Pol::Bscript::Compiler

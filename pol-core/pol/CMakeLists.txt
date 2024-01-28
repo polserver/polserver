@@ -5,7 +5,7 @@ include(CMakeSources.cmake)
 
 add_executable(${ex_name}
   ${${ex_name}_sources}
-)    
+)
 
 add_modtbl_dependency(${ex_name})
 
@@ -17,6 +17,7 @@ use_benchmark(${ex_name})
 target_link_libraries(${ex_name} PUBLIC
   bscript
   clib
+  cppdap
   plib
   libtinyxml
   libz

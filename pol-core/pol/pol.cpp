@@ -1186,6 +1186,7 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting threads" );
   Core::start_threads();
   Network::start_aux_services();
+  Core::networkManager.initialize();
 
 #ifdef _WIN32
   Core::console_thread();
@@ -1208,7 +1209,6 @@ int xmain_inner( bool testing )
     Core::pol_sleep_ms( 1000 );
   }
   Core::checkpoint( "child threads have shut down" );
-
   Core::cancel_all_trades();
   Core::stop_gameclock();
   POLLOG_INFOLN( "Shutting down..." );

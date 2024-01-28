@@ -18,6 +18,10 @@ namespace Pol
 {
 namespace Network
 {
+namespace DAP
+{
+class DebugServer;
+}
 class AuxService;
 class Client;
 class ClientTransmit;
@@ -46,6 +50,7 @@ public:
   NetworkManager( const NetworkManager& ) = delete;
   NetworkManager& operator=( const NetworkManager& ) = delete;
 
+  void initialize();
   void deinialize();
   void kill_disconnected_clients();
 
@@ -101,7 +106,7 @@ public:
   std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
 
   std::vector<Network::IPRule> banned_ips;
-   
+
   struct Memory
   {
     size_t client_size;
@@ -110,6 +115,7 @@ public:
   };
 
 private:
+  std::unique_ptr<Network::DAP::DebugServer> _dap_debug_server;
 };
 
 extern NetworkManager networkManager;

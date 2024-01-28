@@ -160,7 +160,7 @@ size_t PackageList::sizeEstimate() const
 }
 
 Package::Package( const std::string& pkg_dir, Clib::ConfigElem& elem )
-    : dir_( pkg_dir ),
+    : dir_( Clib::normalized_dir_form( pkg_dir ) ),
       name_( elem.remove_string( "Name" ) ),
       version_( elem.remove_string( "Version", "0" ) ),
       core_required_( "" ),

@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+01-27-2024 Kevin:
+    Added: POL now exposes a Debug Adapter Protocol (DAP) server to provide debugging support. Any IDE or tooling that implements DAP, such as the vscode-escript extension (https://github.com/polserver/vscode-escript), can utilize this new debugging server. See pol.cfg setting DAPDebugPort.
 01-23-2024 Turley:
     Fixed: faster_cast_recovery/faster_cast_recovery_mod item member returned wrong value
     Fixed: attribute cap tenth value storing

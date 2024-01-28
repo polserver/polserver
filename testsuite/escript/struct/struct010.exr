@@ -1,1 +1,1 @@
-some fool used operator[] on a struct, with an Integer index
+PC=26: Struct members cannot be accessed by an integer index
