@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 #protect the user from himself
-if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+if(" ${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR "
     FATAL: In-source builds are not allowed.
            Remove CMakeCache.txt and CMakeFiles folder and
@@ -74,8 +74,8 @@ include(TestBigEndian)
 
 include(cmake/init.cmake)
 
-set(POL_EXT_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
-set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
+set(POL_EXT_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+set(output_bin_dir "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
 message("####################################")
 message("## ${PROJECT_NAME} - ${POL_VERSION_STR}")

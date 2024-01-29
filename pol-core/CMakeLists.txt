@@ -27,9 +27,6 @@ endif()
 
 set(POLCORE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-# For the next targets, add pol-core to the include search path (done in set_compiler_flags)
-set(INCLUDE_POLCORE_DIR 1)
-
 add_subdirectory(clib)
 add_subdirectory(bscript)
 add_subdirectory(plib)
@@ -52,8 +49,6 @@ endif()
 if (BUILD_ALL OR ONLY_POLTOOL)
   add_subdirectory(poltool)
 endif()
-
-unset(INCLUDE_POLCORE_DIR)
 
 add_subdirectory(doc)
 add_subdirectory(support)

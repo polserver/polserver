@@ -2,16 +2,7 @@ function(set_compile_flags target is_executable)
   message("* ${target}")
   target_include_directories(${target}  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
-    ${PROJECT_BINARY_DIR} #global config
   )
-
-  # Add 'pol-core' to the include search path of all the projects in it
-  if (${INCLUDE_POLCORE_DIR})
-    target_include_directories(${target} PRIVATE
-    ${POLCORE_DIR} # path to pol-core
-    )
-  endif()
-
   target_compile_definitions(${target} PRIVATE
     INC_PASSERT=1
     __STDC_CONSTANT_MACROS
