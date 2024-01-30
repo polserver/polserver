@@ -1,6 +1,6 @@
 set(grammardir ${POL_EXT_LIB_DIR}/Parser)
 
-set(escriptgrammarlib_sources 
+set(libescriptgrammar_sources
 ${grammardir}/EscriptGrammar/EscriptLexer.cpp
 ${grammardir}/EscriptGrammar/EscriptLexer.h
 ${grammardir}/EscriptGrammar/EscriptParser.cpp
