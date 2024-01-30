@@ -1,7 +1,7 @@
 # windows: build zlib
 # linux: interface to z
 if (${windows})
-  message("* zlib")
+  message("* libz")
   set(ZLIB_SOURCE_DIR "${POL_EXT_LIB_DIR}/zlib-1.3")
 
   set(ZLIB_INSTALL_DIR "${ZLIB_SOURCE_DIR}/builds")
@@ -25,12 +25,13 @@ if (${windows})
       LOG_BUILD 1
       LOG_INSTALL 1
       LOG_OUTPUT_ON_FAILURE 1
+      EXCLUDE_FROM_ALL 1
     )
     set_target_properties (libz_ext PROPERTIES FOLDER 3rdParty)
   
     file(MAKE_DIRECTORY ${ZLIB_INSTALL_DIR}/include) #directory has to exist during configure
   else()
-    message("Zlib already build")
+    message("  - already build")
   endif()
   # imported target to add include/lib dir and additional dependencies
   add_library(libz STATIC IMPORTED)

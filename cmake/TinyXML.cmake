@@ -2,6 +2,7 @@ set(lib_name libtinyxml)
 set(tinydir ${POL_EXT_LIB_DIR}/tinyxml-2.6.2)
 
 add_library(${lib_name} STATIC
+  EXCLUDE_FROM_ALL
   # sorted !
   ${tinydir}/tinyxml/tinystr.cpp 
   ${tinydir}/tinyxml/tinyxml.cpp

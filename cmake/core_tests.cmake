@@ -198,7 +198,7 @@ set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 
 # first test run
-find_package(Python3 COMPONENTS Interpreter)
+find_package(Python3 QUIET COMPONENTS Interpreter)
 if (${Python3_FOUND})
   add_test(NAME shard_test_1
     COMMAND ${CMAKE_COMMAND}
@@ -208,6 +208,7 @@ if (${Python3_FOUND})
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
 else()
+  message(" - core test without testclient python3 not found")
   add_test(NAME shard_test_1
     COMMAND pol
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest

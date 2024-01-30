@@ -33,15 +33,6 @@ option(ENABLE_FLYWEIGHT_REPORT "Enables flyweight memory report in memoryusage.l
 option(GCOV "Build for coverage" OFF)
 mark_as_advanced(NO_PCH USE_CCACHE ENABLE_BENCHMARK ENABLE_FLYWEIGHT_REPORT GCOV)
 
-option(BUILD_ALL "Build everything" ON)
-option(ONLY_ECOMPILE "Build only ecompile" OFF)
-option(ONLY_RUNECL "Build only runecl" OFF)
-option(ONLY_POL "Build only pol" OFF)
-option(ONLY_POLTOOL "Build only poltool" OFF)
-option(ONLY_UOCONVERT "Build only uoconvert" OFF)
-option(ONLY_UOTOOL "Build only uotool" OFF)
-mark_as_advanced(BUILD_ALL ONLY_ECOMPILE ONLY_RUNECL ONLY_POL ONLY_POLTOOL ONLY_UOCONVERT ONLY_UOTOOL)
-
 option(ENABLE_ASAN "Enables Address sanitizer" OFF)
 option(ENABLE_USAN "Enables Undefined sanitizer" OFF)
 option(ENABLE_MSAN "Enables Memory sanitizer" OFF)
@@ -59,9 +50,6 @@ mark_as_advanced(REUSE_PCH)
 # misc variables to be marked as advanced
 mark_as_advanced(CLANG_FORMAT_EXE ANTLR_EXECUTABLE)
 
-if(${ONLY_ECOMPILE} OR ${ONLY_RUNECL} OR ${ONLY_POL} OR ${ONLY_POLTOOL} OR ${ONLY_UOCONVERT} OR ${ONLY_UOTOOL})
-  set(BUILD_ALL OFF)
-endif()
 if(${ENABLE_TIDY})
   set(NO_PCH ON)
 endif()
@@ -144,15 +132,10 @@ include(cmake/EscriptGrammarLib.cmake)
 include(cmake/escript_grammar.cmake)
 include(cmake/Fmt.cmake)
 include(cmake/ZLib.cmake)
-if (${windows})
-  include(cmake/StackWalker.cmake)
-endif()
+include(cmake/StackWalker.cmake)
 include(cmake/Kaitai.cmake)
-if (BUILD_ALL OR ONLY_POL)
-  include(cmake/Curl.cmake)
-  include(cmake/Cppdap.cmake)
-  include(cmake/SQL.cmake)
-endif()
+include(cmake/Curl.cmake)
+include(cmake/SQL.cmake)
 include(cmake/TinyXML.cmake)
 include(cmake/PicoJson.cmake)
 include(cmake/UTF8.cmake)
@@ -163,47 +146,37 @@ add_subdirectory(pol-core)
 #cmake package target for creating archive
 release()
 
-if (BUILD_ALL OR ONLY_POL)
-  if (${CMAKE_VERSION} VERSION_GREATER "3.6.0")
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT pol)
-  endif()
-endif()
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT pol)
 
 add_polrelease_target()
 
 #ctest integration
-if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL) OR (ONLY_POLTOOL AND ONLY_UOCONVERT))
-  message("activating test target")
-  enable_testing()
+message("activating test target")
+enable_testing()
 
-  #splitted into each escript testfolder to allow parallel execution
-  if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
-    set(testdir ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/escript)
-    file(GLOB children RELATIVE ${testdir} ${testdir}/*)
+#splitted into each escript testfolder to allow parallel execution
+set(testdir ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/escript)
+file(GLOB children RELATIVE ${testdir} ${testdir}/*)
 
-    foreach(child ${children})
-      if(IS_DIRECTORY ${testdir}/${child})
-        string(FIND "${child}" "_" out)
-        if(${out} EQUAL 0)
-          continue()
-        endif()
-        add_test(NAME escript_${child}
-          COMMAND ${CMAKE_COMMAND}
-            -Dtestdir=${testdir}
-            -Dsubtest=${child}
-            -Decompile=${output_bin_dir}/ecompile
-            -Drunecl=${output_bin_dir}/runecl
-            -Derrfilesuffix=1
-            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
-          WORKING_DIRECTORY ${testdir}
-        )
-      endif()
-    endforeach()
+foreach(child ${children})
+  if(IS_DIRECTORY ${testdir}/${child})
+    string(FIND "${child}" "_" out)
+    if(${out} EQUAL 0)
+      continue()
+    endif()
+    add_test(NAME escript_${child}
+      COMMAND ${CMAKE_COMMAND}
+        -Dtestdir=${testdir}
+        -Dsubtest=${child}
+        -Decompile=${output_bin_dir}/ecompile
+        -Drunecl=${output_bin_dir}/runecl
+        -Derrfilesuffix=1
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
+      WORKING_DIRECTORY ${testdir}
+    )
   endif()
-  if (BUILD_ALL OR (ONLY_POLTOOL AND ONLY_UOCONVERT))
-    include(cmake/core_tests.cmake)
-  endif()
-endif()
+endforeach()
+include(cmake/core_tests.cmake)
 
 #clang-format target for modified and new files
 find_program(

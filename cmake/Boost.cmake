@@ -1,4 +1,4 @@
-message("* boost")
+message("* libboost")
 set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_83_0")
 # set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
@@ -18,12 +18,12 @@ elseif (msvc)
   endif()
 endif()
 
-if (NOT DEFINED BOOST_TOOLSET)
-  message(FATAL_ERROR "Unknown boost toolset to build")
-endif()
+#if (NOT DEFINED BOOST_TOOLSET)
+#  message(FATAL_ERROR "Unknown boost toolset to build")
+#endif()
 
-if (${windows})
-  set (BOOST_CONFIGURE_COMMAND "bootstrap.bat")
+#if (${windows})
+  #  set (BOOST_CONFIGURE_COMMAND "bootstrap.bat")
   #  set (BOOST_BUILD_COMMAND "b2.exe")
   #  set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.lib" )
   #  set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.lib" )
@@ -33,8 +33,8 @@ if (${windows})
   #  else()
   #    set (BOOST_CXX_FLAGS "-fms-runtime-lib=static")
   #  endif()
-else()
-  set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
+#else()
+  #  set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
   #  set (BOOST_BUILD_COMMAND "./b2")
   #  set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.a" )
   #  set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.a" )
@@ -44,26 +44,27 @@ else()
   #  foreach(OSX_ARCHITECTURE ${CMAKE_OSX_ARCHITECTURES})
   #    set (BOOST_CXX_FLAGS "${BOOST_CXX_FLAGS} -arch ${OSX_ARCHITECTURE}")
   #  endforeach()
-endif()
+#endif()
 
 set(boost_needs_extract FALSE)
-set(boost_needs_build FALSE)
+#set(boost_needs_build FALSE)
 if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   message("  - will extract")
-  ExternalProject_Add(boost_extract
-          URL "https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2"
-          SOURCE_DIR "${BOOST_SOURCE_DIR}"
-          CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
-          BUILD_COMMAND ""
-          INSTALL_COMMAND ""
-          BUILD_BYPRODUCTS "${BOOST_SOURCE_DIR}"
-          LOG_DOWNLOAD 1
-          LOG_CONFIGURE 1
-          BUILD_IN_SOURCE 1
-          LOG_OUTPUT_ON_FAILURE 1
-          DOWNLOAD_EXTRACT_TIMESTAMP 1
-          )
-  set_target_properties (boost_extract PROPERTIES FOLDER 3rdParty)
+  ExternalProject_Add(libboost_ext
+    URL "https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2"
+    SOURCE_DIR "${BOOST_SOURCE_DIR}"
+    CONFIGURE_COMMAND "" #${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    BUILD_BYPRODUCTS "${BOOST_SOURCE_DIR}"
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    BUILD_IN_SOURCE 1
+    LOG_OUTPUT_ON_FAILURE 1
+    DOWNLOAD_EXTRACT_TIMESTAMP 1
+    EXCLUDE_FROM_ALL 1
+  )
+  set_target_properties (libboost_ext PROPERTIES FOLDER 3rdParty)
   set(boost_needs_extract TRUE)
 else()
   message("  - will not extract")
@@ -97,7 +98,7 @@ set_target_properties(libboost_headers PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
 )
 if (boost_needs_extract)
-  add_dependencies(libboost_headers boost_extract)
+  add_dependencies(libboost_headers libboost_ext)
 endif()
 
 #add_library(libboost_regex STATIC IMPORTED)

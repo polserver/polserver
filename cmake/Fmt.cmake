@@ -1,6 +1,6 @@
 # https://github.com/fmtlib/fmt
 
-message("* format")
+message("* libfmt")
 
 set(FMT_SOURCE_DIR "${POL_EXT_LIB_DIR}/fmt-10.2.0")
 set(FMT_INSTALL_DIR "${FMT_SOURCE_DIR}/install")
@@ -21,22 +21,23 @@ else()
   set(FMT_LIB "${FMT_INSTALL_DIR}/lib/fmt.lib")
 endif()
 
-ExternalProject_Add(fmt_Ext
+ExternalProject_Add(libfmt_ext
   SOURCE_DIR  ${FMT_SOURCE_DIR}
-    PREFIX fmt
-    LIST_SEPARATOR |
-    CMAKE_ARGS ${FMT_ARGS}
-    BINARY_DIR ${FMT_SOURCE_DIR}/build
-    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
-    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
+  PREFIX fmt
+  LIST_SEPARATOR |
+  CMAKE_ARGS ${FMT_ARGS}
+  BINARY_DIR ${FMT_SOURCE_DIR}/build
+  BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
+  INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
 
-    BUILD_BYPRODUCTS ${FMT_LIB}
-    LOG_DOWNLOAD 1
-    LOG_CONFIGURE 1
-    LOG_BUILD 1
-    LOG_INSTALL 1
-    LOG_OUTPUT_ON_FAILURE 1
-  )
+  BUILD_BYPRODUCTS ${FMT_LIB}
+  LOG_DOWNLOAD 1
+  LOG_CONFIGURE 1
+  LOG_BUILD 1
+  LOG_INSTALL 1
+  LOG_OUTPUT_ON_FAILURE 1
+  EXCLUDE_FROM_ALL 1
+)
 
 # imported target to add include/lib dir and additional dependencies
 add_library(libfmt STATIC IMPORTED)
@@ -48,4 +49,4 @@ set_target_properties(libfmt PROPERTIES
 )
 file(MAKE_DIRECTORY ${FMT_INSTALL_DIR}/include) #directory has to exist during configure
 
-add_dependencies(libfmt fmt_Ext)
+add_dependencies(libfmt libfmt_ext)
