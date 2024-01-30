@@ -23,7 +23,12 @@ void VariableAssignmentStatement::accept( NodeVisitor& visitor )
 
 void VariableAssignmentStatement::describe_to( std::string& w ) const
 {
-  w += "variable-assignment-statement";
+  w += type();
+}
+
+std::string VariableAssignmentStatement::type() const
+{
+  return "variable-assignment-statement";
 }
 
 Identifier& VariableAssignmentStatement::identifier()

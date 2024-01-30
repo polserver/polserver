@@ -17,7 +17,12 @@ void UninitializedValue::accept( NodeVisitor& visitor )
 
 void UninitializedValue::describe_to( std::string& w ) const
 {
-  w += "uninitialized-value";
+  w += type();
+}
+
+std::string UninitializedValue::type() const
+{
+  return "uninitialized-value";
 }
 
 }  // namespace Pol::Bscript::Compiler

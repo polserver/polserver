@@ -18,7 +18,12 @@ void ValueConsumer::accept( NodeVisitor& visitor )
 
 void ValueConsumer::describe_to( std::string& w ) const
 {
-  w += "value-consumer";
+  w += type();
+}
+
+std::string ValueConsumer::type() const
+{
+  return "value-consumer";
 }
 
 }  // namespace Pol::Bscript::Compiler

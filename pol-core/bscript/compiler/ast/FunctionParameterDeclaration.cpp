@@ -32,12 +32,17 @@ void FunctionParameterDeclaration::accept( NodeVisitor& visitor )
 
 void FunctionParameterDeclaration::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "function-parameter-declaration({}", name );
+  fmt::format_to( std::back_inserter( w ), "{}({}", type(), name );
   if ( byref )
     w += ", byref";
   if ( unused )
     w += ", unused";
   w += ")";
+}
+
+std::string FunctionParameterDeclaration::type() const
+{
+  return "function-parameter-declaration";
 }
 
 Expression* FunctionParameterDeclaration::default_value()

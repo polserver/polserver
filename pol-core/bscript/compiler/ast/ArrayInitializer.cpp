@@ -18,7 +18,12 @@ void ArrayInitializer::accept( NodeVisitor& visitor )
 
 void ArrayInitializer::describe_to( std::string& w ) const
 {
-  w += "array-initializer";
+  w += type();
+}
+
+std::string ArrayInitializer::type() const
+{
+  return "array-initializer";
 }
 
 }  // namespace Pol::Bscript::Compiler

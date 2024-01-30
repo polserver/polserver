@@ -24,7 +24,12 @@ void ElementAssignment::accept( NodeVisitor& visitor )
 }
 void ElementAssignment::describe_to( std::string& w ) const
 {
-  w += "element-assignment";
+  w += type();
+}
+
+std::string ElementAssignment::type() const
+{
+  return "element-assignment";
 }
 
 ElementIndexes& ElementAssignment::indexes()

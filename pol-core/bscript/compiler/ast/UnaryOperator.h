@@ -19,6 +19,7 @@ public:
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
+  std::string type() const override;
 
   Expression& operand();
   std::unique_ptr<Expression> take_operand();

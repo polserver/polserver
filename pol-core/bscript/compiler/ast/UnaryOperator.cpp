@@ -22,7 +22,12 @@ void UnaryOperator::accept( NodeVisitor& visitor )
 
 void UnaryOperator::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "unary-operator({})", op );
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(), op );
+}
+
+std::string UnaryOperator::type() const
+{
+  return "unary-operator";
 }
 
 Expression& UnaryOperator::operand()

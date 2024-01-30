@@ -21,7 +21,12 @@ void ErrorInitializer::accept( NodeVisitor& visitor )
 
 void ErrorInitializer::describe_to( std::string& w ) const
 {
-  w += "error-initializer";
+  w += type();
+}
+
+std::string ErrorInitializer::type() const
+{
+  return "error-initializer";
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -21,7 +21,12 @@ void ElvisOperator::accept( NodeVisitor& visitor )
 
 void ElvisOperator::describe_to( std::string& w ) const
 {
-  w += "elvis-operator";
+  w += type();
+}
+
+std::string ElvisOperator::type() const
+{
+  return "elvis-operator";
 }
 
 Expression& ElvisOperator::lhs()

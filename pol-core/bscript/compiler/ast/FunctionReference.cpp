@@ -18,7 +18,12 @@ void FunctionReference::accept( NodeVisitor& visitor )
 
 void FunctionReference::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "function-reference(@{})", name );
+  fmt::format_to( std::back_inserter( w ), "{}(@{})", type(), name );
+}
+
+std::string FunctionReference::type() const
+{
+  return "function-reference";
 }
 
 }  // namespace Pol::Bscript::Compiler

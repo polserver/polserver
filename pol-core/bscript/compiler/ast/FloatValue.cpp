@@ -17,7 +17,12 @@ void FloatValue::accept( NodeVisitor& visitor )
 
 void FloatValue::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "float-value({})", value );
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(), value );
+}
+
+std::string FloatValue::type() const
+{
+  return "float-value";
 }
 
 }  // namespace Pol::Bscript::Compiler

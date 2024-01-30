@@ -3,6 +3,7 @@
 
 #include <fmt/format.h>
 #include <memory>
+#include <picojson/picojson.h>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -45,6 +46,8 @@ public:
 
   virtual void accept( NodeVisitor& visitor ) = 0;
   virtual void describe_to( std::string& ) const = 0;
+  virtual std::string type() const = 0;
+  virtual void describe_to( picojson::object& ) const {};
 
   [[nodiscard]] std::string describe() const;
   [[nodiscard]] std::string to_string_tree() const;
@@ -74,6 +77,7 @@ public:
   [[noreturn]] void internal_error( const std::string& msg ) const;
 
   static void describe_tree_to_indented( const Node&, std::string& w, unsigned indent );
+  static void json_tree( const Node&, picojson::object& w );
 };
 
 

@@ -42,10 +42,15 @@ void VarStatement::accept( NodeVisitor& visitor )
 
 void VarStatement::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "var-statement({}", name );
+  fmt::format_to( std::back_inserter( w ), "{}({}", type(), name );
   if ( initialize_as_empty_array )
     w += ", initialize-as-empty-array";
   w += ")";
+}
+
+std::string VarStatement::type() const
+{
+  return "var-statement";
 }
 
 }  // namespace Pol::Bscript::Compiler

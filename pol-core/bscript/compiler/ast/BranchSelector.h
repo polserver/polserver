@@ -24,6 +24,7 @@ public:
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
+  std::string type() const override;
 
   const BranchType branch_type;
   std::shared_ptr<FlowControlLabel> flow_control_label;

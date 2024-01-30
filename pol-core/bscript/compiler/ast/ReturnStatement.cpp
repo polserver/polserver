@@ -19,7 +19,12 @@ void ReturnStatement::accept( NodeVisitor& visitor )
 
 void ReturnStatement::describe_to( std::string& w ) const
 {
-  w += "return-statement";
+  w += type();
+}
+
+std::string ReturnStatement::type() const
+{
+  return "return-statement";
 }
 
 }  // namespace Pol::Bscript::Compiler

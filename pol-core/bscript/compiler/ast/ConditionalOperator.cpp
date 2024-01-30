@@ -28,7 +28,12 @@ void ConditionalOperator::accept( NodeVisitor& visitor )
 
 void ConditionalOperator::describe_to( std::string& w ) const
 {
-  w += "conditional-expression";
+  w += type();
+}
+
+std::string ConditionalOperator::type() const
+{
+  return "conditional-expression";
 }
 
 Expression& ConditionalOperator::conditional()

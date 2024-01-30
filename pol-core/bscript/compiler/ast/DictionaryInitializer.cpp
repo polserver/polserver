@@ -19,7 +19,12 @@ void DictionaryInitializer::accept( NodeVisitor& visitor )
 
 void DictionaryInitializer::describe_to( std::string& w ) const
 {
-  w += "dictionary-initializer";
+  w += type();
+}
+
+std::string DictionaryInitializer::type() const
+{
+  return "dictionary-initializer";
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -23,7 +23,12 @@ void ElementAccess::accept( NodeVisitor& visitor )
 
 void ElementAccess::describe_to( std::string& w ) const
 {
-  w += "element-access";
+  w += type();
+}
+
+std::string ElementAccess::type() const
+{
+  return "element-access";
 }
 
 ElementIndexes& ElementAccess::indexes()

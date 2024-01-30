@@ -18,8 +18,17 @@ void StringValue::accept( NodeVisitor& visitor )
 
 void StringValue::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "string-value({})",
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(),
                   Clib::getencodedquotedstring( value ) );
+}
+
+void StringValue::describe_to( picojson::object& o ) const {
+  o["value"] = picojson::value( value );
+}
+
+std::string StringValue::type() const
+{
+  return "string-value";
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -27,7 +27,12 @@ void BasicForLoop::accept( NodeVisitor& visitor )
 
 void BasicForLoop::describe_to( std::string& w ) const
 {
-  w += "basic-for-loop";
+  w += type();
+}
+
+std::string BasicForLoop::type() const
+{
+  return "basic-for-loop";
 }
 
 Expression& BasicForLoop::first()

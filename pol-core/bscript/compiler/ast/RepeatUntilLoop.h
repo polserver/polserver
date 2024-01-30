@@ -17,6 +17,7 @@ public:
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
+  std::string type() const override;
 
   Block& block();
   Expression& expression();

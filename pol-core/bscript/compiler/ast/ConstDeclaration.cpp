@@ -29,7 +29,12 @@ void ConstDeclaration::accept( NodeVisitor& visitor )
 
 void ConstDeclaration::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "const-declaration({})", identifier );
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(), identifier );
+}
+
+std::string ConstDeclaration::type() const
+{
+  return "const-declaration";
 }
 
 }  // namespace Pol::Bscript::Compiler

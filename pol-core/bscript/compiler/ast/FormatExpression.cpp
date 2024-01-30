@@ -24,7 +24,12 @@ void FormatExpression::accept( NodeVisitor& visitor )
 
 void FormatExpression::describe_to( std::string& w ) const
 {
-  w += "format-expression";
+  w += type();
+}
+
+std::string FormatExpression::type() const
+{
+  return "format-expression";
 }
 
 }  // namespace Pol::Bscript::Compiler

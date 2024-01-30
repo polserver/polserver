@@ -19,7 +19,12 @@ void CaseDispatchGroups::accept( NodeVisitor& visitor )
 
 void CaseDispatchGroups::describe_to( std::string& w ) const
 {
-  w += "case-dispatch-groups";
+  w += type();
+}
+
+std::string CaseDispatchGroups::type() const
+{
+  return "case-dispatch-groups";
 }
 
 CaseDispatchGroup& CaseDispatchGroups::dispatch_group( size_t index )

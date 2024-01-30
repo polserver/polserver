@@ -42,8 +42,8 @@ std::unique_ptr<Program> ProgramBuilder::program( EscriptParser::ProgramDeclarat
   auto body =
       std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
 
-  return std::make_unique<Program>( location_for( *ctx ), std::move( parameter_list ),
-                                    std::move( body ) );
+  return std::make_unique<Program>( location_for( *ctx ), text( ctx->IDENTIFIER() ),
+                                    std::move( parameter_list ), std::move( body ) );
 }
 
 }  // namespace Pol::Bscript::Compiler

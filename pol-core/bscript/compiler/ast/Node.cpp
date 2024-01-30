@@ -55,4 +55,44 @@ void Node::describe_tree_to_indented( const Node& node, std::string& w, unsigned
   }
 }
 
+void Node::json_tree( const Node& node, picojson::object& w )
+{
+  w.insert( std::pair<std::string, std::string>{ "type", node.type() } );
+  w["start"] = picojson::value( picojson::object( {
+      { "line_number",
+        picojson::value( static_cast<double>( node.source_location.range.start.line_number ) ) },
+      { "character_column", picojson::value( static_cast<double>(
+                                node.source_location.range.start.character_column ) ) },
+      { "token_index",
+        picojson::value( static_cast<double>( node.source_location.range.start.token_index ) ) },
+  } ) );
+  w["end"] = picojson::value( picojson::object( {
+      { "line_number",
+        picojson::value( static_cast<double>( node.source_location.range.end.line_number ) ) },
+      { "character_column",
+        picojson::value( static_cast<double>( node.source_location.range.end.character_column ) ) },
+      { "token_index",
+        picojson::value( static_cast<double>( node.source_location.range.end.token_index ) ) },
+  } ) );
+
+  node.describe_to( w );
+
+  if ( !node.children.empty() )
+  {
+    picojson::array json_children;
+    for ( const auto& child : node.children )
+    {
+      picojson::object child_obj;
+      if ( child )
+      {
+        json_tree( *child, child_obj );
+        json_children.push_back( picojson::value( child_obj ) );
+      }
+    }
+
+    w.insert(
+        std::pair<std::string, picojson::value>( "children", picojson::value( json_children ) ) );
+  }
+}
+
 }  // namespace Pol::Bscript::Compiler

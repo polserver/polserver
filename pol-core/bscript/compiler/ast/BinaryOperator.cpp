@@ -24,7 +24,12 @@ void BinaryOperator::accept( NodeVisitor& visitor )
 
 void BinaryOperator::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "binary-operator({})", op );
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(), op );
+}
+
+std::string BinaryOperator::type() const
+{
+  return "binary-operator";
 }
 
 Expression& BinaryOperator::lhs()

@@ -26,12 +26,17 @@ void MemberAssignment::accept( NodeVisitor& visitor )
 
 void MemberAssignment::describe_to( std::string& w ) const
 {
-  w += "member-assignment";
-  if ( consume )
-    w += "-statement";
+  w += type();
   fmt::format_to( std::back_inserter( w ), "({})", name );
   if ( known_member )
     fmt::format_to( std::back_inserter( w ), " (#{})", known_member->id );
+}
+
+std::string MemberAssignment::type() const
+{
+  if ( consume )
+    return "member-assignment-statement";
+  return "member-assignment";
 }
 
 Expression& MemberAssignment::entity()

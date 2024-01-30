@@ -30,7 +30,12 @@ void MethodCall::accept( NodeVisitor& visitor )
 
 void MethodCall::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "method-call({})", methodname );
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(), methodname );
+}
+
+std::string MethodCall::type() const
+{
+  return "method-call";
 }
 
 unsigned MethodCall::argument_count() const

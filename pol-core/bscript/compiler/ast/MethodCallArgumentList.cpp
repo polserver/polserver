@@ -18,7 +18,12 @@ void MethodCallArgumentList::accept( NodeVisitor& visitor )
 }
 void MethodCallArgumentList::describe_to( std::string& w ) const
 {
-  w += "method-call-argument-list";
+  w += type();
+}
+
+std::string MethodCallArgumentList::type() const
+{
+  return "method-call-argument-list";
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -12,6 +12,7 @@ public:
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
+  std::string type() const override;
 
   const std::string text;
   const unsigned start_index;

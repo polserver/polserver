@@ -13,13 +13,16 @@ class Variable;
 class Program : public Node
 {
 public:
-  Program( const SourceLocation&, std::unique_ptr<ProgramParameterList>,
+  Program( const SourceLocation&, const std::string&, std::unique_ptr<ProgramParameterList>,
            std::unique_ptr<FunctionBody> );
   ~Program() override;
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
+  std::string type() const override;
+  void describe_to( picojson::object& ) const override;
 
+  const std::string program_name;
   ProgramParameterList& parameter_list();
   FunctionBody& body();
 

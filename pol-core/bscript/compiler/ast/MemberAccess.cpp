@@ -23,7 +23,12 @@ void MemberAccess::accept( NodeVisitor& visitor )
 
 void MemberAccess::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "member-access({})", name );
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(), name );
+}
+
+std::string MemberAccess::type() const
+{
+  return "member-access";
 }
 
 std::unique_ptr<Expression> MemberAccess::take_entity()

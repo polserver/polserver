@@ -18,7 +18,12 @@ void TopLevelStatements::accept( NodeVisitor& visitor )
 
 void TopLevelStatements::describe_to( std::string& w ) const
 {
-  w += "top-level-statements";
+  w += type();
+}
+
+std::string TopLevelStatements::type() const
+{
+  return "top-level-statements";
 }
 
 }  // namespace Pol::Bscript::Compiler

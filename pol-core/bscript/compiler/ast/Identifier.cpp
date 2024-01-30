@@ -17,7 +17,12 @@ void Identifier::accept( NodeVisitor& visitor )
 
 void Identifier::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "identifier({})", name );
+  fmt::format_to( std::back_inserter( w ), "{}({})", type(), name );
+}
+
+std::string Identifier::type() const
+{
+  return "identifier";
 }
 
 }  // namespace Pol::Bscript::Compiler
