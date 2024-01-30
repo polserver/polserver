@@ -564,18 +564,6 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return interpolate_string( inter_string );
   }
-  else if ( ctx->UNINIT() )
-  {
-    return std::make_unique<UninitializedValue>( location_for( *ctx ) );
-  }
-  else if ( ctx->BOOL_TRUE() )
-  {
-    return std::make_unique<BooleanValue>( location_for( *ctx ), true );
-  }
-  else if ( ctx->BOOL_FALSE() )
-  {
-    return std::make_unique<BooleanValue>( location_for( *ctx ), false );
-  }
 
   location_for( *ctx ).internal_error( "unhandled primary expression" );
 }

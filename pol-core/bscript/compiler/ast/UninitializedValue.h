@@ -1,11 +1,11 @@
 #ifndef POLSERVER_UNINITIALIZEDVALUE_H
 #define POLSERVER_UNINITIALIZEDVALUE_H
 
-#include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/ast/Value.h"
 
 namespace Pol::Bscript::Compiler
 {
-class UninitializedValue : public Expression
+class UninitializedValue : public Value
 {
 public:
   explicit UninitializedValue( const SourceLocation& );
