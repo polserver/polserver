@@ -20,6 +20,7 @@ class BuilderWorkspace;
 class ConstDeclaration;
 class ModuleFunctionDeclaration;
 class Program;
+class Comments;
 class Report;
 class SourceFile;
 class SourceFileCache;
@@ -42,9 +43,11 @@ public:
   Constants constants;
 
   std::unique_ptr<TopLevelStatements> top_level_statements;
+  std::unique_ptr<Comments> comments;
   std::vector<std::unique_ptr<ModuleFunctionDeclaration>> module_function_declarations;
   std::vector<std::unique_ptr<UserFunction>> user_functions;
   std::unique_ptr<Program> program;
+
 
   // These reference ModuleFunctionDeclaration objects that are in module_functions
   std::vector<ModuleFunctionDeclaration*> referenced_module_function_declarations;

@@ -193,6 +193,20 @@ std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( size_t tokenIn
   return token_stream.getHiddenTokensToLeft( tokenIndex );
 }
 
+// std::vector<antlr4::Token*> SourceFile::get_comment_tokens()
+// {
+//   token_stream.reset();
+//   auto originalVector = token_stream.getTokens();
+//   auto isComment = []( antlr4::Token* token )
+//   { return token && token->getChannel() == EscriptGrammar::EscriptLexer::COMMENTS; };
+
+//   std::vector<antlr4::Token*> filteredVector;
+//   std::copy_if( originalVector.begin(), originalVector.end(), std::back_inserter( filteredVector ),
+//                 isComment );
+
+//   return std::vector<antlr4::Token*>();
+// }
+
 std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& position )
 {
   auto tokens = get_all_tokens();

@@ -22,6 +22,7 @@ struct Position
 {
   const unsigned short line_number;
   const unsigned short character_column;  // 1-based on line, as seen in an editor
+  const size_t token_index;
 };
 
 struct Range

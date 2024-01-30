@@ -34,21 +34,21 @@ std::string Program::type() const
   return "program";
 }
 
-void print(picojson::object&) {}
-template <typename T1, typename T2, typename... Types>
-void print( picojson::object& o, T1 var1, T2 var2, Types... var3 )
-{
-  o.insert( std::pair<T1, T2>( { var1, var2 } ) );
-  print( o, var3... );
-}
+// void print(picojson::object&) {}
+// template <typename T1, typename T2, typename... Types>
+// void print( picojson::object& o, T1 var1, T2 var2, Types... var3 )
+// {
+//   o.insert( std::pair<T1, T2>( { var1, var2 } ) );
+//   print( o, var3... );
+// }
 
 void Program::describe_to( picojson::object& o ) const
 {
-  print(o,
-     "id", program_name
-  );
+  // print(o,
+  //    "id", program_name
+  // );
   // o.insert( std::pair<std::string, std::string>( { "type", "program" } ) );
-  // o.insert( std::pair<std::string, std::string>( { "id", program_name } ) );
+  o.insert( std::pair<std::string, std::string>( { "id", program_name } ) );
 };
 
 ProgramParameterList& Program::parameter_list()

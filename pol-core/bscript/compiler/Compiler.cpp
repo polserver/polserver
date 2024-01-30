@@ -6,6 +6,7 @@
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/analyzer/SemanticTokensBuilder.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
+#include "bscript/compiler/astbuilder/JsonAstBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
@@ -14,6 +15,7 @@
 #include "bscript/compiler/format/DebugStoreSerializer.h"
 #include "bscript/compiler/format/ListingWriter.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/JsonAst.h"
 #include "bscript/compiler/optimizer/Optimizer.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "clib/fileutil.h"
@@ -154,6 +156,24 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
     return workspace;
   }
   return {};
+}
+
+std::string Compiler::build_ast( const std::string& pathname, Report& report, bool is_module )
+{
+  CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, false, profile,
+                                              report );
+
+  auto workspace = is_module ? workspace_builder.build_module( pathname )
+                             : workspace_builder.build( pathname, user_function_inclusion );
+  JsonAstBuilder json_ast_builder( source_loader, profile, report );
+  auto json_ast = json_ast_builder.build( pathname, is_module );
+  // Pol::Tools::HighPerfTimer timer;
+  // CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, false, true,
+  //                                             profile, report );
+  // auto workspace = is_module ? workspace_builder.build_module( pathname )
+  //                            : workspace_builder.build( pathname, user_function_inclusion );
+  // profile.build_workspace_micros += timer.ellapsed().count();
+  return json_ast;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,

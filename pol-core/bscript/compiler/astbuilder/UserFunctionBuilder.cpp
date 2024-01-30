@@ -51,7 +51,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_declaration(
     }
   }
   auto parameter_list =
-      std::make_unique<FunctionParameterList>( location_for( *ctx ), std::move( parameters ) );
+      std::make_unique<FunctionParameterList>( location_for( *ctx->functionParameters() ), std::move( parameters ) );
   auto body =
       std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
 

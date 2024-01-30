@@ -10,6 +10,7 @@ namespace Pol::Bscript::Compiler
 {
 class CompiledScript;
 class CompilerWorkspace;
+class JsonAst;
 class SourceFileCache;
 class SourceFileLoader;
 class Profile;
@@ -35,6 +36,7 @@ public:
   std::unique_ptr<CompilerWorkspace> analyze( const std::string& pathname, Report&, bool is_module,
                                               bool continue_on_error );
 
+  std::string build_ast( const std::string&, Report&, bool is_module );
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool is_module,
                                                       bool continue_on_error );
