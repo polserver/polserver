@@ -1,5 +1,7 @@
 # https://github.com/fmtlib/fmt
 
+include(GNUInstallDirs)
+
 message("* format")
 
 set(FMT_SOURCE_DIR "${POL_EXT_LIB_DIR}/fmt-10.2.0")
@@ -16,7 +18,7 @@ set(FMT_ARGS -DCMAKE_BUILD_TYPE=Release
    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
  )
 if (${linux})
-  set(FMT_LIB "${FMT_INSTALL_DIR}/lib/libfmt.a")
+  set(FMT_LIB "${FMT_INSTALL_DIR}/${CMAKE_INSTALL_LIBDIR}/libfmt.a")
 else()
   set(FMT_LIB "${FMT_INSTALL_DIR}/lib/fmt.lib")
 endif()
