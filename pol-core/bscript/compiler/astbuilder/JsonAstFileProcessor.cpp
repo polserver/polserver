@@ -33,7 +33,6 @@ JsonAstFileProcessor::JsonAstFileProcessor( const SourceFileIdentifier& source_f
 {
 }
 
-
 picojson::value JsonAstFileProcessor::process_compilation_unit( SourceFile& sf )
 {
   if ( auto compilation_unit = sf.get_compilation_unit( report, source_file_identifier ) )
@@ -43,7 +42,6 @@ picojson::value JsonAstFileProcessor::process_compilation_unit( SourceFile& sf )
   throw std::runtime_error( "No compilation unit in source file" );
 }
 
-
 picojson::value JsonAstFileProcessor::process_module_unit( SourceFile& sf )
 {
   if ( auto module_unit = sf.get_module_unit( report, source_file_identifier ) )
@@ -52,7 +50,6 @@ picojson::value JsonAstFileProcessor::process_module_unit( SourceFile& sf )
   }
   throw std::runtime_error( "No compilation unit in source file" );
 }
-
 
 antlrcpp::Any JsonAstFileProcessor::defaultResult()
 {
@@ -83,7 +80,7 @@ antlrcpp::Any JsonAstFileProcessor::aggregateResult( antlrcpp::Any /*picojson::a
   return accum;
 }
 
-picojson::value add( picojson::value v )
+picojson::value& add( picojson::value& v )
 {
   return v;
 }
@@ -109,7 +106,7 @@ picojson::value to_value( antlrcpp::Any arg )
 }
 
 template <typename T1, typename... Types>
-picojson::value add( picojson::value v, const std::string& var1, T1 var2, Types... var3 )
+picojson::value& add( picojson::value& v, const std::string& var1, T1 var2, Types... var3 )
 {
   if ( v.is<picojson::object>() )
   {
@@ -119,6 +116,12 @@ picojson::value add( picojson::value v, const std::string& var1, T1 var2, Types.
   return add( v, var3... );
 }
 
+template <typename T1, typename... Types>
+picojson::value add( antlrcpp::Any any_v, const std::string& var1, T1 var2, Types... var3 )
+{
+  auto v = std::any_cast<picojson::value>( any_v );
+  return add( v, var1, var2, var3... );
+}
 
 template <typename Rangeable, typename... Types>
 picojson::value new_node( Rangeable* ctx, const std::string& type, Types... var3 )
@@ -139,9 +142,10 @@ picojson::value new_node( Rangeable* ctx, const std::string& type, Types... var3
       { "token_index", picojson::value( static_cast<double>( range.end.token_index ) ) },
   } ) );
 
-  return add( picojson::value( w ), var3... );
+  picojson::value value( w );
+  add( value, var3... );
+  return std::move( value );
 };
-
 
 antlrcpp::Any JsonAstFileProcessor::visitCompilationUnit(
     EscriptGrammar::EscriptParser::CompilationUnitContext* ctx )
@@ -149,6 +153,85 @@ antlrcpp::Any JsonAstFileProcessor::visitCompilationUnit(
   return new_node( ctx, "file",                   //
                    "body", visitChildren( ctx ),  //
                    "module", false                //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitVarStatement(
+    EscriptGrammar::EscriptParser::VarStatementContext* ctx )
+{
+  auto declarations = visitVariableDeclarationList( ctx->variableDeclarationList() );
+
+  return new_node( ctx, "var-statement",         //
+                   "declarations", declarations  //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitWhileStatement(
+    EscriptGrammar::EscriptParser::WhileStatementContext* ctx )
+{
+  auto label = make_statement_label( ctx->statementLabel() );
+  auto body = visitBlock( ctx->block() );
+  auto test = visitExpression( ctx->parExpression()->expression() );
+
+  return new_node( ctx, "while-statement",  //
+                   "label", label,          //
+                   "test", test,            //
+                   "body", body             //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitVariableDeclaration(
+    EscriptGrammar::EscriptParser::VariableDeclarationContext* ctx )
+{
+  // auto const_declaration_ctx = ctx->constantDeclaration();
+  antlrcpp::Any init;
+
+  if ( auto variable_declaration_initializer = ctx->variableDeclarationInitializer() )
+  {
+    if ( auto expression = variable_declaration_initializer->expression() )
+    {
+      init = visitExpression( expression );
+    }
+
+    else if ( auto array = variable_declaration_initializer->ARRAY() )
+    {
+      init = new_node( ctx, "array-expression",     //
+                       "elements", defaultResult()  //
+      );
+    }
+  }
+
+  return new_node( ctx, "variable-declaration",                   //
+                   "name", make_identifier( ctx->IDENTIFIER() ),  //
+                   "init", init                                   //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitConstStatement(
+    EscriptGrammar::EscriptParser::ConstStatementContext* ctx )
+{
+  auto const_declaration_ctx = ctx->constantDeclaration();
+  antlrcpp::Any init;
+
+  if ( auto variable_declaration_initializer =
+           const_declaration_ctx->variableDeclarationInitializer() )
+  {
+    if ( auto expression = variable_declaration_initializer->expression() )
+    {
+      init = visitExpression( expression );
+    }
+
+    else if ( auto array = variable_declaration_initializer->ARRAY() )
+    {
+      init = new_node( ctx, "array-expression",     //
+                       "elements", defaultResult()  //
+      );
+    }
+  }
+
+  return new_node( ctx, "const-statement",                                          //
+                   "name", make_identifier( const_declaration_ctx->IDENTIFIER() ),  //
+                   "init", init                                                     //
   );
 }
 
@@ -166,6 +249,55 @@ antlrcpp::Any JsonAstFileProcessor::visitDictInitializerExpression(
                    "key", visitExpression( ctx->expression( 0 ) ),  //
                    "value", init                                    //
   );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitDoStatement(
+    EscriptGrammar::EscriptParser::DoStatementContext* ctx )
+{
+  auto label = make_statement_label( ctx->statementLabel() );
+  auto body = visitBlock( ctx->block() );
+  auto test = visitExpression( ctx->parExpression()->expression() );
+
+  return new_node( ctx, "do-statement",  //
+                   "label", label,       //
+                   "test", test,         //
+                   "body", body          //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitEnumListEntry(
+    EscriptGrammar::EscriptParser::EnumListEntryContext* ctx )
+{
+  antlrcpp::Any value;
+  auto identifier = make_identifier( ctx->IDENTIFIER() );
+
+  if ( auto expression = ctx->expression() )
+  {
+    value = visitExpression( expression );
+  }
+
+  return new_node( ctx, "enum-entry",         //
+                   "identifier", identifier,  //
+                   "value", value             //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitEnumStatement(
+    EscriptGrammar::EscriptParser::EnumStatementContext* ctx )
+{
+  auto identifier = make_identifier( ctx->IDENTIFIER() );
+  auto enums = visitEnumList( ctx->enumList() );
+
+  return new_node( ctx, "enum-statement",     //
+                   "identifier", identifier,  //
+                   "enums", enums             //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitExitStatement(
+    EscriptGrammar::EscriptParser::ExitStatementContext* ctx )
+{
+  return new_node( ctx, "exit-statement" );
 }
 
 antlrcpp::Any JsonAstFileProcessor::visitExplicitArrayInitializer(
@@ -238,9 +370,6 @@ antlrcpp::Any JsonAstFileProcessor::visitExpression(
   else if ( auto suffix = ctx->expressionSuffix() )
   {
     return expression_suffix( ctx->expression( 0 ), suffix );
-    // auto suffix_node = visitExpressionSuffix( suffix );
-    // add( suffix_node, "target", visitExpression( ctx->expression( 0 ) ) );
-    // result = expression_suffix( expression( ctx->expression()[0] ), suffix );
   }
   else if ( ctx->QUESTION() )
   {
@@ -250,8 +379,8 @@ antlrcpp::Any JsonAstFileProcessor::visitExpression(
                      "alternate", visitExpression( ctx->expression( 2 ) )     //
     );
   }
-  return visitChildren( ctx );
-  // return antlrcpp::Any();
+
+  return antlrcpp::Any();
 }
 
 antlrcpp::Any JsonAstFileProcessor::expression_suffix(
@@ -291,6 +420,7 @@ antlrcpp::Any JsonAstFileProcessor::expression_suffix(
                      "entity", visitExpression( expr_ctx )             //
     );
   }
+
   return antlrcpp::Any();
 }
 
@@ -305,6 +435,76 @@ antlrcpp::Any JsonAstFileProcessor::visitFloatLiteral(
   return visitChildren( ctx );
 }
 
+antlrcpp::Any JsonAstFileProcessor::visitForeachIterableExpression(
+    EscriptGrammar::EscriptParser::ForeachIterableExpressionContext* ctx )
+{
+  if ( auto parExpression = ctx->parExpression() )
+  {
+    return visitExpression( parExpression->expression() );
+  }
+  else if ( auto functionCall = ctx->functionCall() )
+  {
+    return visitFunctionCall( functionCall );
+  }
+  else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
+  {
+    return visitScopedFunctionCall( scopedFunctionCall );
+  }
+  else if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    return make_identifier( identifier );
+  }
+  else if ( auto explicitArrayInitializer = ctx->explicitArrayInitializer() )
+  {
+    return visitExplicitArrayInitializer( explicitArrayInitializer );
+  }
+  else if ( auto bareArrayInitializer = ctx->bareArrayInitializer() )
+  {
+    return visitBareArrayInitializer( bareArrayInitializer );
+  }
+
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitForeachStatement(
+    EscriptGrammar::EscriptParser::ForeachStatementContext* ctx )
+{
+  auto identifier = make_identifier( ctx->IDENTIFIER() );
+  auto label = make_statement_label( ctx->statementLabel() );
+  auto expression = visitForeachIterableExpression( ctx->foreachIterableExpression() );
+  auto body = visitBlock( ctx->block() );
+
+  return new_node( ctx, "foreach-statement",  //
+                   "identifier", identifier,  //
+                   "expression", expression,  //
+                   "label", label,            //
+                   "body", body               //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitForStatement(
+    EscriptGrammar::EscriptParser::ForStatementContext* ctx )
+{
+  auto label = make_statement_label( ctx->statementLabel() );
+
+  auto forGroup = ctx->forGroup();
+
+  if ( auto basicForStatement = forGroup->basicForStatement() )
+  {
+    return add( visitBasicForStatement( basicForStatement ),  //
+                "label", label                                //
+    );
+  }
+  else if ( auto cstyleForStatement = forGroup->cstyleForStatement() )
+  {
+    return add( visitCstyleForStatement( cstyleForStatement ),  //
+                "label", label                                  //
+    );
+  }
+
+  return antlrcpp::Any();
+}
+
 antlrcpp::Any JsonAstFileProcessor::visitFunctionCall(
     EscriptGrammar::EscriptParser::FunctionCallContext* ctx )
 {
@@ -317,36 +517,195 @@ antlrcpp::Any JsonAstFileProcessor::visitFunctionCall(
 antlrcpp::Any JsonAstFileProcessor::visitFunctionDeclaration(
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx )
 {
-  auto exported = ctx->EXPORTED() ? true : false;
+  bool exported = ctx->EXPORTED();
+  auto name = make_identifier( ctx->IDENTIFIER() );
   auto parameters = visitFunctionParameters( ctx->functionParameters() );
   auto body = visitBlock( ctx->block() );
 
-  return new_node( ctx, "function-declaration",                   //
-                   "name", make_identifier( ctx->IDENTIFIER() ),  //
-                   "parameters", parameters,                      //
-                   "exported", exported,                          //
-                   "body", body                                   //
+  return new_node( ctx, "function-declaration",  //
+                   "name", name,                 //
+                   "parameters", parameters,     //
+                   "exported", exported,         //
+                   "body", body                  //
   );
 }
 antlrcpp::Any JsonAstFileProcessor::visitFunctionParameter(
     EscriptGrammar::EscriptParser::FunctionParameterContext* ctx )
 {
   antlrcpp::Any init;
-  auto byref = ctx->BYREF() ? true : false;
-  auto unused = ctx->UNUSED() ? true : false;
+  bool byref = ctx->BYREF();
+  bool unused = ctx->UNUSED();
+  auto name = make_identifier( ctx->IDENTIFIER() );
 
   if ( auto expression = ctx->expression() )
   {
     init = visitExpression( expression );
   }
 
-  return new_node( ctx, "function-parameter",                     //
-                   "name", make_identifier( ctx->IDENTIFIER() ),  //
-                   "init", init,                                  //
-                   "byref", byref,                                //
-                   "unused", unused                               //
+  return new_node( ctx, "function-parameter",  //
+                   "name", name,               //
+                   "init", init,               //
+                   "byref", byref,             //
+                   "unused", unused            //
   );
 }
+
+antlrcpp::Any JsonAstFileProcessor::visitBreakStatement(
+    EscriptGrammar::EscriptParser::BreakStatementContext* ctx )
+{
+  antlrcpp::Any label;
+
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    label = make_identifier( identifier );
+  }
+
+  return new_node( ctx, "break-statement",  //
+                   "label", label           //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitSwitchBlockStatementGroup(
+    EscriptGrammar::EscriptParser::SwitchBlockStatementGroupContext* ctx )
+{
+  auto labels = defaultResult();
+  for ( const auto& switchLabel : ctx->switchLabel() )
+  {
+    labels = aggregateResult( labels, visitSwitchLabel( switchLabel ) );
+  }
+
+  auto body = visitBlock( ctx->block() );
+
+  return new_node( ctx, "switch-block",  //
+                   "labels", labels,     //
+                   "body", body          //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitSwitchLabel(
+    EscriptGrammar::EscriptParser::SwitchLabelContext* ctx )
+{
+  if ( auto integerLiteral = ctx->integerLiteral() )
+  {
+    return visitIntegerLiteral( integerLiteral );
+  }
+  else if ( auto boolLiteral = ctx->boolLiteral() )
+  {
+    return visitBoolLiteral( boolLiteral );
+  }
+  else if ( auto uninit = ctx->UNINIT() )
+  {
+    return new_node( uninit, "uninitialized-value" );
+  }
+  else if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    return make_identifier( identifier );
+  }
+  else if ( auto string_literal = ctx->STRING_LITERAL() )
+  {
+    return make_string_literal( string_literal );
+  }
+  else if ( ctx->DEFAULT() )
+  {
+    return new_node( ctx->DEFAULT(), "default-case-label" );
+  }
+
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitCaseStatement(
+    EscriptGrammar::EscriptParser::CaseStatementContext* ctx )
+{
+  auto label = make_statement_label( ctx->statementLabel() );
+  auto test = visitExpression( ctx->expression() );
+
+  auto cases = defaultResult();
+  for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
+  {
+    cases = aggregateResult( cases, visitSwitchBlockStatementGroup( switchBlockStatementGroup ) );
+  }
+
+  return new_node( ctx, "case-statement",  //
+                   "label", label,         //
+                   "test", test,           //
+                   "cases", cases          //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitContinueStatement(
+    EscriptGrammar::EscriptParser::ContinueStatementContext* ctx )
+{
+  antlrcpp::Any label;
+
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    label = make_identifier( identifier );
+  }
+
+  return new_node( ctx, "continue-statement",  //
+                   "label", label              //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitBasicForStatement(
+    EscriptGrammar::EscriptParser::BasicForStatementContext* ctx )
+{
+  auto identifier = make_identifier( ctx->IDENTIFIER() );
+  auto first = visitExpression( ctx->expression( 0 ) );
+  auto last = visitExpression( ctx->expression( 1 ) );
+
+  return new_node( ctx, "basic-for-statement",  //
+                   "identifier", identifier,    //
+                   "first", first,              //
+                   "last", last                 //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitCstyleForStatement(
+    EscriptGrammar::EscriptParser::CstyleForStatementContext* ctx )
+{
+  auto body = visitBlock( ctx->block() );
+  auto initializer = visitExpression( ctx->expression( 0 ) );
+  auto test = visitExpression( ctx->expression( 1 ) );
+  auto advancer = visitExpression( ctx->expression( 2 ) );
+
+  return new_node( ctx, "cstyle-for-statement",  //
+                   "initializer", initializer,   //
+                   "test", test,                 //
+                   "advancer", advancer,         //
+                   "body", body                  //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitRepeatStatement(
+    EscriptGrammar::EscriptParser::RepeatStatementContext* ctx )
+{
+  auto label = make_statement_label( ctx->statementLabel() );
+  auto body = visitBlock( ctx->block() );
+  auto test = visitExpression( ctx->expression() );
+
+  return new_node( ctx, "repeat-statement",  //
+                   "label", label,           //
+                   "body", body,             //
+                   "test", test              //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitReturnStatement(
+    EscriptGrammar::EscriptParser::ReturnStatementContext* ctx )
+{
+  antlrcpp::Any value;
+
+  if ( auto expression = ctx->expression() )
+  {
+    value = visitExpression( expression );
+  }
+
+  return new_node( ctx, "return-statement",  //
+                   "value", value            //
+  );
+}
+
 antlrcpp::Any JsonAstFileProcessor::visitScopedFunctionCall(
     EscriptGrammar::EscriptParser::ScopedFunctionCallContext* ctx )
 {
@@ -363,6 +722,58 @@ antlrcpp::Any JsonAstFileProcessor::visitFunctionReference(
   return new_node( ctx, "function-reference-expression",         //
                    "name", make_identifier( ctx->IDENTIFIER() )  //
   );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitGotoStatement(
+    EscriptGrammar::EscriptParser::GotoStatementContext* ctx )
+{
+  return new_node( ctx, "goto-statement",                         //
+                   "label", make_identifier( ctx->IDENTIFIER() )  //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitIfStatement(
+    EscriptGrammar::EscriptParser::IfStatementContext* ctx )
+{
+  auto blocks = ctx->block();
+  auto par_expression = ctx->parExpression();
+
+  antlrcpp::Any else_clause;
+
+  if ( ctx->ELSE() )
+  {
+    else_clause = visitBlock( blocks.at( blocks.size() - 1 ) );
+  }
+
+  picojson::value if_statement_ast;
+
+  size_t num_expressions = par_expression.size();
+  for ( auto clause_index = num_expressions; clause_index != 0; )
+  {
+    --clause_index;
+    auto expression_ctx = par_expression.at( clause_index );
+    auto expression_ast = visitExpression( expression_ctx->expression() );
+    antlrcpp::Any consequent_ast;
+
+    if ( blocks.size() > clause_index )
+    {
+      consequent_ast = visitBlock( blocks.at( clause_index ) );
+    }
+
+    auto alternative_ast = if_statement_ast.is<picojson::null>() ? std::move( else_clause )
+                                                                 : std::move( if_statement_ast );
+
+    bool elseif = clause_index != 0;
+
+    if_statement_ast = new_node( ctx, "if-statement",             //
+                                 "test", expression_ast,          //
+                                 "consequent", consequent_ast,    //
+                                 "alternative", alternative_ast,  //
+                                 "elseif", elseif                 //
+    );
+  }
+
+  return if_statement_ast;
 }
 
 antlrcpp::Any JsonAstFileProcessor::visitIncludeDeclaration(
@@ -421,6 +832,21 @@ antlrcpp::Any JsonAstFileProcessor::visitInterpolatedStringPart(
   );
 }
 
+antlrcpp::Any JsonAstFileProcessor::visitBoolLiteral(
+    EscriptGrammar::EscriptParser::BoolLiteralContext* ctx )
+{
+  if ( auto bool_false = ctx->BOOL_FALSE() )
+  {
+    return make_bool_literal( bool_false );
+  }
+  else if ( auto bool_true = ctx->BOOL_TRUE() )
+  {
+    return make_bool_literal( bool_true );
+  }
+
+  return antlrcpp::Any();
+}
+
 antlrcpp::Any JsonAstFileProcessor::visitIntegerLiteral(
     EscriptGrammar::EscriptParser::IntegerLiteralContext* ctx )
 {
@@ -457,31 +883,56 @@ antlrcpp::Any JsonAstFileProcessor::visitLiteral(
   return visitChildren( ctx );
 }
 
+antlrcpp::Any JsonAstFileProcessor::visitModuleFunctionDeclaration(
+    EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext* ctx )
+{
+  auto name = make_identifier( ctx->IDENTIFIER() );
+  antlrcpp::Any parameters;
+
+  if ( auto moduleFunctionParameterList = ctx->moduleFunctionParameterList() )
+  {
+    parameters = visitModuleFunctionParameterList( ctx->moduleFunctionParameterList() );
+  }
+  else
+  {
+    parameters = defaultResult();
+  }
+
+  return new_node( ctx, "module-function-declaration",  //
+                   "name", name,                        //
+                   "parameters", parameters             //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitModuleFunctionParameter(
+    EscriptGrammar::EscriptParser::ModuleFunctionParameterContext* ctx )
+{
+  antlrcpp::Any value;
+  auto name = make_identifier( ctx->IDENTIFIER() );
+
+  if ( auto expression = ctx->expression() )
+  {
+    value = visitExpression( expression );
+  }
+
+  return new_node( ctx, "module-function-parameter",  //
+                   "name", name,                      //
+                   "value", value                     //
+  );
+}
+
+antlrcpp::Any JsonAstFileProcessor::visitModuleUnit(
+    EscriptGrammar::EscriptParser::ModuleUnitContext* ctx )
+{
+  return new_node( ctx, "file",                   //
+                   "body", visitChildren( ctx ),  //
+                   "module", true                 //
+  );
+}
+
 antlrcpp::Any JsonAstFileProcessor::visitPrimary(
     EscriptGrammar::EscriptParser::PrimaryContext* ctx )
 {
-  /*
-  if ( auto identifier = ctx->IDENTIFIER() )
-  {
-    return make_identifier( identifier );
-  }
-  else if ( auto uninit = ctx->UNINIT() )
-  {
-    return new_node( uninit, "uninitialized-value" );
-  }
-  else if ( auto uninit = ctx->BOOL_TRUE() )
-  {
-    return new_node( uninit, "boolean-value",  //
-                     "value", true             //
-    );
-  }
-  else if ( auto uninit = ctx->BOOL_FALSE() )
-  {
-    return new_node( uninit, "uninitialized-value",  //
-                     "value", false                  //
-    );
-  }
-*/
   if ( auto literal = ctx->literal() )
   {
     return visitLiteral( literal );
@@ -490,9 +941,6 @@ antlrcpp::Any JsonAstFileProcessor::visitPrimary(
   {
     return visitExpression( parExpression->expression() );
   }
-  // else if (auto functionCall = ctx->functionCall()) { return make_function_call(functionCall,
-  // nullptr); } else if (auto scopedFunctionCall = ctx->scopedFunctionCall()) { return
-  // make_function_call(scopedFunctionCall->functionCall(), scopedFunctionCall->IDENTIFIER()); }
   else if ( auto functionCall = ctx->functionCall() )
   {
     return visitFunctionCall( functionCall );
@@ -546,7 +994,7 @@ antlrcpp::Any JsonAstFileProcessor::visitPrimary(
     return visitInterpolatedString( interpolatedString );
   }
 
-  return ctx->children.at( 0 )->accept( this );
+  return antlrcpp::Any();
 }
 
 antlrcpp::Any JsonAstFileProcessor::visitProgramDeclaration(
@@ -562,25 +1010,90 @@ antlrcpp::Any JsonAstFileProcessor::visitProgramDeclaration(
 antlrcpp::Any JsonAstFileProcessor::visitProgramParameter(
     EscriptGrammar::EscriptParser::ProgramParameterContext* ctx )
 {
+  antlrcpp::Any init;
+  bool unused = ctx->UNUSED();
+  if ( auto expression = ctx->expression() )
+  {
+    init = visitExpression( expression );
+  }
   return new_node( ctx, "program-parameter",                      //
                    "name", make_identifier( ctx->IDENTIFIER() ),  //
-                   "unused", ctx->UNUSED() ? true : false,        //
-                   "init",
-                   ctx->expression() ? visitExpression( ctx->expression() ) : antlrcpp::Any()  //
+                   "unused", unused,                              //
+                   "init", init                                   //
   );
 }
 
 antlrcpp::Any JsonAstFileProcessor::visitStatement(
     EscriptGrammar::EscriptParser::StatementContext* ctx )
 {
-  if ( auto expression = ctx->statementExpression )
+  if ( auto ifStatement = ctx->ifStatement() )
+  {
+    return visitIfStatement( ifStatement );
+  }
+  else if ( auto gotoStatement = ctx->gotoStatement() )
+  {
+    return visitGotoStatement( gotoStatement );
+  }
+  else if ( auto returnStatement = ctx->returnStatement() )
+  {
+    return visitReturnStatement( returnStatement );
+  }
+  else if ( auto constStatement = ctx->constStatement() )
+  {
+    return visitConstStatement( constStatement );
+  }
+  else if ( auto varStatement = ctx->varStatement() )
+  {
+    return visitVarStatement( varStatement );
+  }
+  else if ( auto doStatement = ctx->doStatement() )
+  {
+    return visitDoStatement( doStatement );
+  }
+  else if ( auto whileStatement = ctx->whileStatement() )
+  {
+    return visitWhileStatement( whileStatement );
+  }
+  else if ( auto exitStatement = ctx->exitStatement() )
+  {
+    return visitExitStatement( exitStatement );
+  }
+  else if ( auto breakStatement = ctx->breakStatement() )
+  {
+    return visitBreakStatement( breakStatement );
+  }
+  else if ( auto continueStatement = ctx->continueStatement() )
+  {
+    return visitContinueStatement( continueStatement );
+  }
+  else if ( auto forStatement = ctx->forStatement() )
+  {
+    return visitForStatement( forStatement );
+  }
+  else if ( auto foreachStatement = ctx->foreachStatement() )
+  {
+    return visitForeachStatement( foreachStatement );
+  }
+  else if ( auto repeatStatement = ctx->repeatStatement() )
+  {
+    return visitRepeatStatement( repeatStatement );
+  }
+  else if ( auto caseStatement = ctx->caseStatement() )
+  {
+    return visitCaseStatement( caseStatement );
+  }
+  else if ( auto enumStatement = ctx->enumStatement() )
+  {
+    return visitEnumStatement( enumStatement );
+  }
+  else if ( auto expression = ctx->statementExpression )
   {
     return new_node( ctx, "expression-statement",                 //
                      "expression", visitExpression( expression )  //
     );
   }
-  return visitChildren( ctx );
-  // return antlrcpp::Any();
+
+  return antlrcpp::Any();
 }
 
 antlrcpp::Any JsonAstFileProcessor::visitStringIdentifier(
@@ -629,15 +1142,17 @@ antlrcpp::Any JsonAstFileProcessor::visitUseDeclaration( EscriptParser::UseDecla
   );
 }
 
-
-antlrcpp::Any JsonAstFileProcessor::make_function_call(
-    EscriptGrammar::EscriptParser::FunctionCallContext* ctx, antlr4::tree::TerminalNode* scope )
+antlrcpp::Any JsonAstFileProcessor::make_statement_label(
+    EscriptGrammar::EscriptParser::StatementLabelContext* ctx )
 {
-  return new_node( ctx, "function-call-expression",                               //
-                   "callee", make_identifier( ctx->IDENTIFIER() ),                //
-                   "arguments", visitChildren( ctx ),                             //
-                   "scope", scope ? make_identifier( scope ) : picojson::value()  //
-  );
+  antlrcpp::Any label;
+
+  if ( ctx )
+  {
+    label = make_identifier( ctx->IDENTIFIER() );
+  }
+
+  return label;
 }
 
 antlrcpp::Any JsonAstFileProcessor::make_identifier( antlr4::tree::TerminalNode* terminal )
@@ -685,13 +1200,14 @@ antlrcpp::Any JsonAstFileProcessor::make_float_literal( antlr4::tree::TerminalNo
                    "raw", text                  //
   );
 }
+
 antlrcpp::Any JsonAstFileProcessor::make_bool_literal( antlr4::tree::TerminalNode* terminal )
 {
   auto text = terminal->getText();
   bool value = terminal->getSymbol()->getType() == EscriptGrammar::EscriptLexer::BOOL_TRUE;
-  return new_node( terminal, "float-literal",  //
-                   "value", value,             //
-                   "raw", text                 //
+  return new_node( terminal, "boolean-literal",  //
+                   "value", value,               //
+                   "raw", text                   //
   );
 }
 
