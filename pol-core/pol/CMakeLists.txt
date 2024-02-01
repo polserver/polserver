@@ -17,7 +17,7 @@ use_benchmark(${ex_name})
 target_link_libraries(${ex_name} PUBLIC
   bscript
   clib
-  cppdap
+  libcppdap
   plib
   libtinyxml
   libz

@@ -1,6 +1,6 @@
 find_package(Java QUIET COMPONENTS Runtime)
 
-get_target_property (grammarbasedir escriptgrammarlib
+get_target_property (grammarbasedir libescriptgrammar
   INTERFACE_INCLUDE_DIRECTORIES)
 set(grammardir ${grammarbasedir}/EscriptGrammar)
 
@@ -10,8 +10,8 @@ if(NOT ANTLR_EXECUTABLE)
   )
 endif()
 if(Java_JAVA_EXECUTABLE AND ANTLR_EXECUTABLE)
-  message("adding target 'escriptgrammar'")
-  add_custom_target(escriptgrammar
+  message("adding target 'escriptgrammar_codegen'")
+  add_custom_target(escriptgrammar_codegen
     COMMAND ${Java_JAVA_EXECUTABLE} -jar ${ANTLR_EXECUTABLE}
       -Dlanguage=Cpp -package EscriptGrammar
       ${grammardir}/EscriptLexer.g4

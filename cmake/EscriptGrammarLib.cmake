@@ -1,6 +1,6 @@
 set(grammardir ${POL_EXT_LIB_DIR}/Parser)
 
-set(escriptgrammarlib_sources 
+set(libescriptgrammar_sources
 ${grammardir}/EscriptGrammar/EscriptLexer.cpp
 ${grammardir}/EscriptGrammar/EscriptLexer.h
 ${grammardir}/EscriptGrammar/EscriptParser.cpp
@@ -11,9 +11,10 @@ ${grammardir}/EscriptGrammar/EscriptParserListener.cpp
 ${grammardir}/EscriptGrammar/EscriptParserListener.h
 )
  
-set(lib_name escriptgrammarlib)
+set(lib_name libescriptgrammar)
 
 add_library(${lib_name} STATIC
+  EXCLUDE_FROM_ALL
   ${${lib_name}_sources}
 )
 set_compile_flags(${lib_name} 0)

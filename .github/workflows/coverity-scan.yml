@@ -59,11 +59,14 @@ jobs:
         run: |
           cd bin-build
           cmake .. -DNO_PCH=1 
-          cmake --build . --target libcurl_Ext
+          cmake --build . --target libcurl_ext
           cmake --build . --target libantlr_ext
-          cmake --build . --target boost_extract
-          cmake --build . --target kaitai_Ext
+          cmake --build . --target libboost_ext
+          cmake --build . --target libkaitai_ext
           cmake --build . --target libtinyxml
+          cmake --build . --target libfmt_ext
+          cmake --build . --target libescriptgrammar
+          cmake --build . --target libcppdap_ext
 
 
       - name: Build with cov-build

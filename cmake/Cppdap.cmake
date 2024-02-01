@@ -1,4 +1,4 @@
-message("* cppdap")
+message("* libcppdap")
 
 set (CPPDAP_REPOSITORY "https://github.com/KevinEady/cppdap.git")
 set (CPPDAP_VERSION_REF "2a4c7cf")
@@ -25,7 +25,7 @@ set(CPPDAP_ARGS ${CPPDAP_FLAGS}
  )
 
 if(NOT EXISTS ${CPPDAP_LIB})
-  ExternalProject_Add(cppdap_Ext
+  ExternalProject_Add(libcppdap_ext
     GIT_REPOSITORY   ${CPPDAP_REPOSITORY}
     GIT_TAG          ${CPPDAP_VERSION_REF}
     GIT_SHALLOW      TRUE
@@ -36,20 +36,20 @@ if(NOT EXISTS ${CPPDAP_LIB})
     BUILD_IN_SOURCE  1
     INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --config Release --target install
     BUILD_BYPRODUCTS ${CPPDAP_LIB}
+    EXCLUDE_FROM_ALL 1
   )
 else()
-  message("  cppdap already built")
+  message("  - already built")
 endif()
 
-add_library(cppdap STATIC IMPORTED)
-set_target_properties(cppdap PROPERTIES IMPORTED_LOCATION ${CPPDAP_LIB})
-set_target_properties(cppdap PROPERTIES IMPORTED_IMPLIB ${CPPDAP_LIB})
-
-set_target_properties(cppdap PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CPPDAP_INSTALL_DIR}/include)
-
+add_library(libcppdap STATIC IMPORTED)
+set_target_properties(libcppdap PROPERTIES
+  IMPORTED_LOCATION ${CPPDAP_LIB}
+  IMPORTED_IMPLIB ${CPPDAP_LIB}
+  INTERFACE_INCLUDE_DIRECTORIES ${CPPDAP_INSTALL_DIR}/include
+  FOLDER 3rdParty
+)
 if(NOT EXISTS ${CPPDAP_LIB})
   file(MAKE_DIRECTORY ${CPPDAP_INSTALL_DIR}/include) #directory has to exist during configure
-  add_dependencies(cppdap cppdap_Ext)
+  add_dependencies(libcppdap libcppdap_ext)
 endif()
-
-set_target_properties (cppdap PROPERTIES FOLDER 3rdParty)

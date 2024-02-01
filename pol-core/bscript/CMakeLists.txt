@@ -12,9 +12,7 @@ enable_pch(${lib_name})
 
 target_link_libraries(${lib_name} PUBLIC
   clib
-)
-target_link_libraries(${lib_name} PUBLIC
-  escriptgrammarlib
+  libescriptgrammar
 )
 
 use_tidy(${lib_name})

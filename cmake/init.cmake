@@ -270,7 +270,7 @@ macro(cmake_fake_target)
 endmacro()
 
 macro(git_revision_target)
-  find_package(Git)
+  find_package(Git QUIET)
   if (NOT GIT_EXECUTABLE)
     message(WARNING "Git not found unable to store revision")
   endif()

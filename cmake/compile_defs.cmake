@@ -3,6 +3,7 @@ function(set_compile_flags target is_executable)
   target_include_directories(${target}  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
   )
+
   target_compile_definitions(${target} PRIVATE
     INC_PASSERT=1
     __STDC_CONSTANT_MACROS
@@ -50,7 +51,7 @@ function(set_compile_flags target is_executable)
       )
     endif()
   endif()
-
+  
   target_compile_features(${target} PUBLIC cxx_std_17)
 
   target_compile_options(${target} PRIVATE
@@ -60,7 +61,7 @@ function(set_compile_flags target is_executable)
       -Wall
       -Wextra
     >
-
+    
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
       -m${ARCH_BITS}
     >
