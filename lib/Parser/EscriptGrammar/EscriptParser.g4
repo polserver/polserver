@@ -284,9 +284,6 @@ primary
     | parExpression
     | functionCall
     | scopedFunctionCall
-    | UNINIT
-    | BOOL_TRUE
-    | BOOL_FALSE
     | IDENTIFIER
     | functionReference
     | explicitArrayInitializer
@@ -387,7 +384,9 @@ arrayInitializer
 literal
     : integerLiteral
     | floatLiteral
+    | boolLiteral
     | STRING_LITERAL
+    | UNINIT
     ;
 
 interpolatedString

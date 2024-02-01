@@ -1188,9 +1188,6 @@ public:
     ParExpressionContext *parExpression();
     FunctionCallContext *functionCall();
     ScopedFunctionCallContext *scopedFunctionCall();
-    antlr4::tree::TerminalNode *UNINIT();
-    antlr4::tree::TerminalNode *BOOL_TRUE();
-    antlr4::tree::TerminalNode *BOOL_FALSE();
     antlr4::tree::TerminalNode *IDENTIFIER();
     FunctionReferenceContext *functionReference();
     ExplicitArrayInitializerContext *explicitArrayInitializer();
@@ -1547,7 +1544,9 @@ public:
     virtual size_t getRuleIndex() const override;
     IntegerLiteralContext *integerLiteral();
     FloatLiteralContext *floatLiteral();
+    BoolLiteralContext *boolLiteral();
     antlr4::tree::TerminalNode *STRING_LITERAL();
+    antlr4::tree::TerminalNode *UNINIT();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

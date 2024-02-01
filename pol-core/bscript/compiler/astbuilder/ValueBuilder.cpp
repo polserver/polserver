@@ -8,6 +8,7 @@
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/FunctionLink.h"
@@ -184,6 +185,14 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   else if ( auto float_literal = ctx->floatLiteral() )
   {
     return float_value( float_literal );
+  }
+  else if ( auto bool_literal = ctx->boolLiteral() )
+  {
+    return bool_value( bool_literal );
+  }
+  else if ( ctx->UNINIT() )
+  {
+    return std::make_unique<UninitializedValue>( location_for( *ctx ) );
   }
   else
   {

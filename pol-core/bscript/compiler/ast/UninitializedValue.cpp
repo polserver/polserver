@@ -6,7 +6,7 @@
 namespace Pol::Bscript::Compiler
 {
 UninitializedValue::UninitializedValue( const SourceLocation& source_location )
-    : Expression( source_location )
+    : Value( source_location )
 {
 }
 
