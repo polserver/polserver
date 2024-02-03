@@ -50,8 +50,8 @@ public:
   EscriptGrammar::EscriptParser::EvaluateUnitContext* get_evaluate_unit( Report& );
 
   SemanticTokens get_tokens();
-  std::unique_ptr<antlr4::Token> get_token_at( const Position& position );
-  std::vector<std::unique_ptr<antlr4::Token>> get_all_tokens();
+  antlr4::Token* get_token_at( const Position& position );
+  std::vector<antlr4::Token*> get_all_tokens();
   std::vector<antlr4::Token*> get_hidden_tokens_before( const Position& position );
   std::vector<antlr4::Token*> get_hidden_tokens_before( size_t tokenIndex );
 
