@@ -225,8 +225,8 @@ std::vector<antlr4::Token*> SourceFile::get_all_tokens()
 SemanticTokens SourceFile::get_tokens()
 {
   SemanticTokens tokens;
-  lexer.reset();
-  for ( const auto& lexer_token : lexer.getAllTokens() )
+
+  for ( auto* lexer_token : token_stream.getTokens() )
   {
     auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
     if ( semantic_token )
