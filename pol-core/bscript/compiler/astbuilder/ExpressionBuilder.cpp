@@ -279,8 +279,9 @@ std::unique_ptr<ErrorInitializer> ExpressionBuilder::error(
           expression_source_ctx.internal_error(
               "Unable to determine identifier for struct initializer" );
 
-        auto value = expression_ctx->expression() ? expression( expression_ctx->expression() )
-                                                  : std::unique_ptr<Expression>();
+        auto value = expression_ctx->expression()
+                         ? expression( expression_ctx->expression() )
+                         : std::make_unique<UninitializedValue>( expression_source_ctx );
 
         identifiers.push_back( std::move( identifier ) );
         expressions.push_back( std::move( value ) );
