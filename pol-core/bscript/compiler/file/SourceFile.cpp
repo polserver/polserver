@@ -189,11 +189,10 @@ std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( const Position
 
 std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( size_t tokenIndex )
 {
-  token_stream.reset();
   return token_stream.getHiddenTokensToLeft( tokenIndex );
 }
 
-std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& position )
+antlr4::Token* SourceFile::get_token_at( const Position& position )
 {
   auto tokens = get_all_tokens();
   auto result =
@@ -207,22 +206,21 @@ std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& positio
                     } );
   if ( result != tokens.end() )
   {
-    return std::move( *result );
+    return *result;
   }
-  return {};
+  return nullptr;
 }
 
-std::vector<std::unique_ptr<antlr4::Token>> SourceFile::get_all_tokens()
+std::vector<antlr4::Token*> SourceFile::get_all_tokens()
 {
-  lexer.reset();
-  return lexer.getAllTokens();
+  return token_stream.getTokens();
 }
 
 SemanticTokens SourceFile::get_tokens()
 {
   SemanticTokens tokens;
-  lexer.reset();
-  for ( const auto& lexer_token : lexer.getAllTokens() )
+
+  for ( auto* lexer_token : token_stream.getTokens() )
   {
     auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
     if ( semantic_token )
