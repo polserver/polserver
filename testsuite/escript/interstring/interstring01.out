@@ -49,3 +49,27 @@ HelloabcWorld
 17.
 String
 Hello, {1_2_3}
+18.
+String
+{
+19.
+String
+{{
+20.
+String
+}
+21.
+String
+}}
+22.
+String
+{}
+23.
+String
+{{}}
+24.
+String
+{{_}}!{{
+25.
+String
+{{-}}!{-}

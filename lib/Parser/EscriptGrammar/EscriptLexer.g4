@@ -254,7 +254,7 @@ LBRACE_INSIDE:                  '{' { curlyLevels.push(1); } -> pushMode(DEFAULT
 REGULAR_CHAR_INSIDE:            EscapeSequence;
 DOUBLE_QUOTE_INSIDE:            '"' { interpolatedStringLevel--; } -> popMode;
 DOUBLE_RBRACE:                  '}}';
-STRING_LITERAL_INSIDE:          ~('{' | '\\' | '"')+;
+STRING_LITERAL_INSIDE:          ~('{' | '}' | '\\' | '"')+;
 
 mode INTERPOLATION_FORMAT;
 DOUBLE_RBRACE_INSIDE:           '}}' -> type(FORMAT_STRING);

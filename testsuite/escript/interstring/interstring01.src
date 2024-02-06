@@ -55,6 +55,7 @@ testPrint(t);
 t := $"Hello {"string":#x}";
 testPrint(t);
 
+// #15
 t := $"Hello, {@testPrint}";
 testPrint(t);
 
@@ -62,4 +63,30 @@ t := $"Hello{$"\x61\x62\x63"}World";
 testPrint(t);
 
 t := $"Hello, {{{"_".join(array{1,2,3})}}}";
+testPrint(t);
+
+t := $"{{";
+testPrint(t);
+
+t := $"{{{{";
+testPrint(t);
+
+// #20
+t := $"}}";
+testPrint(t);
+
+t := $"}}}}";
+testPrint(t);
+
+t := $"{{}}";
+testPrint(t);
+
+t := $"{{{{}}}}";
+testPrint(t);
+
+t := $"{{{{{"_"}}}}}!{{{{" - "}}}}"; // interstring MINUS string
+testPrint(t);
+
+// #25
+t := $"{{{{{"-"}}}}}!{{{"-"}}}";
 testPrint(t);
