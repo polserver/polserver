@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+02-06-2024 Kevin:
+    Fixed: Compiler error with escaping `}` inside interpolated strings.
 02-04-2024 Kevin:
     Fixed: Compiler crash on handling error member initializers with no expression initializer, eg. `error{ errortext }`.
 01-27-2024 Kevin:
