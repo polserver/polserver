@@ -164,16 +164,7 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
   case EscriptGrammar::EscriptLexer::STRING_LITERAL_INSIDE:
   case EscriptGrammar::EscriptLexer::DOUBLE_QUOTE_INSIDE:
   {
-    std::string str = token.getText();
-
-    // Replace CRLF with LF
-    size_t pos = 0;
-    while ( ( pos = str.find( "\r\n", pos ) ) != std::string::npos )
-    {
-      str.replace( pos, 2, "\n" );
-      pos += 1;
-    }
-
+    const auto& str = token.getText();
     const auto size = str.size();
 
     auto tokens = std::make_unique<std::list<SemanticToken>>();
@@ -189,6 +180,7 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
         ++line;
         character = 1;
         token_length = 0;
+        ++i;
       }
       else if ( str[i] == '\r' )
       {
