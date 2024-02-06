@@ -7,7 +7,7 @@ Licensed under [2-clause BSD license](http://opensource.org/licenses/BSD-2-Claus
 
 ## Version
 
-1.3.0 [![Build Status](https://travis-ci.org/kazuho/picojson.svg?branch=rel/1.3.0)](https://travis-ci.org/kazuho/picojson)
+1.3.1-dev [![Build Status](https://travis-ci.org/kazuho/picojson.svg?branch=master)](https://travis-ci.org/kazuho/picojson)
 
 ## Introduction
 
@@ -174,7 +174,7 @@ std::string json = v.serialize();
 <pre>
 picojson::value v;
 ...
-v.serialize(std::ostream_iterator(std::cout));
+v.serialize(std::ostream_iterator&lt;char&gt;(std::cout));
 </pre>
 
 ## Experimental support for int64_t

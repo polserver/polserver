@@ -33,118 +33,119 @@ JsonAstFileProcessor::JsonAstFileProcessor( const SourceFileIdentifier& source_f
 {
 }
 
-picojson::value JsonAstFileProcessor::process_compilation_unit( SourceFile& sf )
+antlrcpp::Any JsonAstFileProcessor::process_compilation_unit( SourceFile& sf )
 {
   if ( auto compilation_unit = sf.get_compilation_unit( report, source_file_identifier ) )
   {
-    return std::any_cast<picojson::value>( compilation_unit->accept( this ) );
+    return compilation_unit->accept( this );
   }
   throw std::runtime_error( "No compilation unit in source file" );
 }
 
-picojson::value JsonAstFileProcessor::process_module_unit( SourceFile& sf )
+antlrcpp::Any JsonAstFileProcessor::process_module_unit( SourceFile& sf )
 {
   if ( auto module_unit = sf.get_module_unit( report, source_file_identifier ) )
   {
-    return std::any_cast<picojson::value>( module_unit->accept( this ) );
+    return module_unit->accept( this );
   }
   throw std::runtime_error( "No compilation unit in source file" );
 }
 
 antlrcpp::Any JsonAstFileProcessor::defaultResult()
 {
-  return picojson::value( picojson::array() );
+  return picojson::value( picojson::array_type, false );
 }
 
 antlrcpp::Any JsonAstFileProcessor::aggregateResult( antlrcpp::Any /*picojson::array*/ aggregate,
                                                      antlrcpp::Any /*picojson::array*/ nextResult )
 {
-  // std::any_cast<picojson::array>( aggregate )
-  auto accum = std::any_cast<picojson::value>( aggregate );
-  auto next_res = std::any_cast<picojson::value>( nextResult );
-  // .push_back( std::any_cast<picojson::array>( nextResult ) );
+  auto* accum = std::any_cast<picojson::value>( &aggregate );
 
-  if ( accum.is<picojson::array>() )
+  if ( accum->is<picojson::array>() )
   {
-    if ( next_res.is<picojson::array>() )
+    auto* next_res = std::any_cast<picojson::value>( &nextResult );
+    auto& a = accum->get<picojson::array>();
+    if ( next_res->is<picojson::array>() )
     {
-      for ( auto const& v : next_res.get<picojson::array>() )
-        accum.get<picojson::array>().push_back( v );
+      auto& b = next_res->get<picojson::array>();
+      a.insert( a.end(), std::make_move_iterator( b.begin() ), std::make_move_iterator( b.end() ) );
     }
     else
     {
-      accum.get<picojson::array>().push_back( next_res );
+      a.emplace_back( std::move( *next_res ) );
     }
   }
 
-  return accum;
+  return aggregate;
 }
 
-picojson::value& add( picojson::value& v )
+void add( picojson::value* )
 {
-  return v;
-}
-
-template <typename T>
-picojson::value to_value( T arg )
-{
-  return picojson::value( arg );
-}
-
-template <>
-picojson::value to_value( int arg )
-{
-  return picojson::value( static_cast<double>( arg ) );
-}
-
-template <>
-picojson::value to_value( antlrcpp::Any arg )
-{
-  if ( arg.has_value() )
-    return picojson::value( std::any_cast<picojson::value>( arg ) );
-  return picojson::value();
+  return;
 }
 
 template <typename T1, typename... Types>
-picojson::value& add( picojson::value& v, const std::string& var1, T1 var2, Types... var3 )
+void add( picojson::value* v, std::string&& var1, T1&& var2, Types&&... var3 )
 {
-  if ( v.is<picojson::object>() )
+  if ( v->is<picojson::object>() )
   {
-    v.get<picojson::object>().insert(
-        std::pair<std::string, picojson::value>( { var1, to_value( var2 ) } ) );
+    auto& o = v->get<picojson::object>();
+    if constexpr ( std::is_same_v<std::decay_t<T1>, int> )
+    {
+      o[var1] = picojson::value( static_cast<double>( var2 ) );
+    }
+    else if constexpr ( std::is_same_v<std::decay_t<T1>, antlrcpp::Any> )
+    {
+      if ( var2.has_value() )
+      {
+        auto* v2 = std::any_cast<picojson::value>( &var2 );
+        o[var1] = std::move( *v2 );
+      }
+      else
+        o[var1];
+    }
+    else if constexpr ( std::is_same_v<std::decay_t<T1>, picojson::value> )
+    {
+      o[var1] = std::move( var2 );
+    }
+    else
+    {
+      o[var1] = picojson::value( var2 );
+    }
   }
-  return add( v, var3... );
+  add( v, std::forward<Types>( var3 )... );
 }
 
 template <typename T1, typename... Types>
-picojson::value add( antlrcpp::Any any_v, const std::string& var1, T1 var2, Types... var3 )
+void add( antlrcpp::Any* any_v, std::string&& var1, T1&& var2, Types&&... var3 )
 {
-  auto v = std::any_cast<picojson::value>( any_v );
-  return add( v, var1, var2, var3... );
+  auto* v = std::any_cast<picojson::value>( any_v );
+  add( v, std::forward<std::string>( var1 ), std::forward<T1>( var2 ),
+       std::forward<Types>( var3 )... );
 }
 
 template <typename Rangeable, typename... Types>
-picojson::value new_node( Rangeable* ctx, const std::string& type, Types... var3 )
+picojson::value new_node( Rangeable* ctx, const std::string&& type, Types&&... var3 )
 {
-  picojson::object w;
+  auto value = picojson::value( picojson::object_type, false );
   Range range( *ctx );
+  auto& obj = value.get<picojson::object>();
+  obj["type"] = picojson::value( type );
+  obj["start"] = picojson::value( picojson::object_type, false );
+  auto& start = obj["start"].get<picojson::object>();
+  start["line_number"] = picojson::value( static_cast<double>( range.start.line_number ) );
+  start["character_column"] =
+      picojson::value( static_cast<double>( range.start.character_column ) );
+  start["token_index"] = picojson::value( static_cast<double>( range.start.token_index ) );
 
-  w["type"] = picojson::value( type );
-  w["start"] = picojson::value( picojson::object( {
-      { "line_number", picojson::value( static_cast<double>( range.start.line_number ) ) },
-      { "character_column",
-        picojson::value( static_cast<double>( range.start.character_column ) ) },
-      { "token_index", picojson::value( static_cast<double>( range.start.token_index ) ) },
-  } ) );
-  w["end"] = picojson::value( picojson::object( {
-      { "line_number", picojson::value( static_cast<double>( range.end.line_number ) ) },
-      { "character_column", picojson::value( static_cast<double>( range.end.character_column ) ) },
-      { "token_index", picojson::value( static_cast<double>( range.end.token_index ) ) },
-  } ) );
+  obj["end"] = picojson::value( picojson::object_type, false );
+  auto& end = obj["end"].get<picojson::object>();
+  end["line_number"] = picojson::value( static_cast<double>( range.end.line_number ) );
+  end["character_column"] = picojson::value( static_cast<double>( range.end.character_column ) );
+  end["token_index"] = picojson::value( static_cast<double>( range.end.token_index ) );
 
-  picojson::value value( w );
-  add( value, var3... );
-  return std::move( value );
+  add( &value, std::forward<Types>( var3 )... );
+  return value;
 };
 
 antlrcpp::Any JsonAstFileProcessor::visitCompilationUnit(
@@ -173,10 +174,10 @@ antlrcpp::Any JsonAstFileProcessor::visitWhileStatement(
   auto body = visitBlock( ctx->block() );
   auto test = visitExpression( ctx->parExpression()->expression() );
 
-  return new_node( ctx, "while-statement",  //
-                   "label", label,          //
-                   "test", test,            //
-                   "body", body             //
+  return new_node( ctx, "while-statement",       //
+                   "label", std::move( label ),  //
+                   "test", std::move( test ),    //
+                   "body", std::move( body )     //
   );
 }
 
@@ -193,7 +194,7 @@ antlrcpp::Any JsonAstFileProcessor::visitVariableDeclaration(
       init = visitExpression( expression );
     }
 
-    else if ( auto array = variable_declaration_initializer->ARRAY() )
+    else if ( variable_declaration_initializer->ARRAY() )
     {
       init = new_node( ctx, "array-expression",     //
                        "elements", defaultResult()  //
@@ -203,7 +204,7 @@ antlrcpp::Any JsonAstFileProcessor::visitVariableDeclaration(
 
   return new_node( ctx, "variable-declaration",                   //
                    "name", make_identifier( ctx->IDENTIFIER() ),  //
-                   "init", init                                   //
+                   "init", std::move( init )                      //
   );
 }
 
@@ -221,7 +222,7 @@ antlrcpp::Any JsonAstFileProcessor::visitConstStatement(
       init = visitExpression( expression );
     }
 
-    else if ( auto array = variable_declaration_initializer->ARRAY() )
+    else if ( variable_declaration_initializer->ARRAY() )
     {
       init = new_node( ctx, "array-expression",     //
                        "elements", defaultResult()  //
@@ -231,7 +232,7 @@ antlrcpp::Any JsonAstFileProcessor::visitConstStatement(
 
   return new_node( ctx, "const-statement",                                          //
                    "name", make_identifier( const_declaration_ctx->IDENTIFIER() ),  //
-                   "init", init                                                     //
+                   "init", std::move( init )                                        //
   );
 }
 
@@ -247,7 +248,7 @@ antlrcpp::Any JsonAstFileProcessor::visitDictInitializerExpression(
 
   return new_node( ctx, "dictionary-initializer",                   //
                    "key", visitExpression( ctx->expression( 0 ) ),  //
-                   "value", init                                    //
+                   "value", std::move( init )                       //
   );
 }
 
@@ -258,10 +259,10 @@ antlrcpp::Any JsonAstFileProcessor::visitDoStatement(
   auto body = visitBlock( ctx->block() );
   auto test = visitExpression( ctx->parExpression()->expression() );
 
-  return new_node( ctx, "do-statement",  //
-                   "label", label,       //
-                   "test", test,         //
-                   "body", body          //
+  return new_node( ctx, "do-statement",          //
+                   "label", std::move( label ),  //
+                   "test", std::move( test ),    //
+                   "body", std::move( body )     //
   );
 }
 
@@ -276,9 +277,9 @@ antlrcpp::Any JsonAstFileProcessor::visitEnumListEntry(
     value = visitExpression( expression );
   }
 
-  return new_node( ctx, "enum-entry",         //
-                   "identifier", identifier,  //
-                   "value", value             //
+  return new_node( ctx, "enum-entry",                      //
+                   "identifier", std::move( identifier ),  //
+                   "value", std::move( value )             //
   );
 }
 
@@ -288,9 +289,9 @@ antlrcpp::Any JsonAstFileProcessor::visitEnumStatement(
   auto identifier = make_identifier( ctx->IDENTIFIER() );
   auto enums = visitEnumList( ctx->enumList() );
 
-  return new_node( ctx, "enum-statement",     //
-                   "identifier", identifier,  //
-                   "enums", enums             //
+  return new_node( ctx, "enum-statement",                  //
+                   "identifier", std::move( identifier ),  //
+                   "enums", std::move( enums )             //
   );
 }
 
@@ -408,7 +409,7 @@ antlrcpp::Any JsonAstFileProcessor::expression_suffix(
     }
 
     return new_node( expr_ctx, "member-access-expression",  //
-                     "name", accessor,                      //
+                     "name", std::move( accessor ),         //
                      "entity", visitExpression( expr_ctx )  //
     );
   }
@@ -474,11 +475,11 @@ antlrcpp::Any JsonAstFileProcessor::visitForeachStatement(
   auto expression = visitForeachIterableExpression( ctx->foreachIterableExpression() );
   auto body = visitBlock( ctx->block() );
 
-  return new_node( ctx, "foreach-statement",  //
-                   "identifier", identifier,  //
-                   "expression", expression,  //
-                   "label", label,            //
-                   "body", body               //
+  return new_node( ctx, "foreach-statement",               //
+                   "identifier", std::move( identifier ),  //
+                   "expression", std::move( expression ),  //
+                   "label", std::move( label ),            //
+                   "body", std::move( body )               //
   );
 }
 
@@ -491,15 +492,19 @@ antlrcpp::Any JsonAstFileProcessor::visitForStatement(
 
   if ( auto basicForStatement = forGroup->basicForStatement() )
   {
-    return add( visitBasicForStatement( basicForStatement ),  //
-                "label", label                                //
+    auto node = visitBasicForStatement( basicForStatement );
+    add( &node,                       //
+         "label", std::move( label )  //
     );
+    return node;
   }
   else if ( auto cstyleForStatement = forGroup->cstyleForStatement() )
   {
-    return add( visitCstyleForStatement( cstyleForStatement ),  //
-                "label", label                                  //
+    auto node = visitCstyleForStatement( cstyleForStatement );
+    add( &node,                       //
+         "label", std::move( label )  //
     );
+    return node;
   }
 
   return antlrcpp::Any();
@@ -522,11 +527,11 @@ antlrcpp::Any JsonAstFileProcessor::visitFunctionDeclaration(
   auto parameters = visitFunctionParameters( ctx->functionParameters() );
   auto body = visitBlock( ctx->block() );
 
-  return new_node( ctx, "function-declaration",  //
-                   "name", name,                 //
-                   "parameters", parameters,     //
-                   "exported", exported,         //
-                   "body", body                  //
+  return new_node( ctx, "function-declaration",            //
+                   "name", std::move( name ),              //
+                   "parameters", std::move( parameters ),  //
+                   "exported", std::move( exported ),      //
+                   "body", std::move( body )               //
   );
 }
 antlrcpp::Any JsonAstFileProcessor::visitFunctionParameter(
@@ -543,8 +548,8 @@ antlrcpp::Any JsonAstFileProcessor::visitFunctionParameter(
   }
 
   return new_node( ctx, "function-parameter",  //
-                   "name", name,               //
-                   "init", init,               //
+                   "name", std::move( name ),  //
+                   "init", std::move( init ),  //
                    "byref", byref,             //
                    "unused", unused            //
   );
@@ -560,8 +565,8 @@ antlrcpp::Any JsonAstFileProcessor::visitBreakStatement(
     label = make_identifier( identifier );
   }
 
-  return new_node( ctx, "break-statement",  //
-                   "label", label           //
+  return new_node( ctx, "break-statement",      //
+                   "label", std::move( label )  //
   );
 }
 
@@ -571,14 +576,14 @@ antlrcpp::Any JsonAstFileProcessor::visitSwitchBlockStatementGroup(
   auto labels = defaultResult();
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
-    labels = aggregateResult( labels, visitSwitchLabel( switchLabel ) );
+    labels = aggregateResult( std::move( labels ), visitSwitchLabel( switchLabel ) );
   }
 
   auto body = visitBlock( ctx->block() );
 
-  return new_node( ctx, "switch-block",  //
-                   "labels", labels,     //
-                   "body", body          //
+  return new_node( ctx, "switch-block",            //
+                   "labels", std::move( labels ),  //
+                   "body", std::move( body )       //
   );
 }
 
@@ -622,13 +627,14 @@ antlrcpp::Any JsonAstFileProcessor::visitCaseStatement(
   auto cases = defaultResult();
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
-    cases = aggregateResult( cases, visitSwitchBlockStatementGroup( switchBlockStatementGroup ) );
+    cases = aggregateResult( std::move( cases ),
+                             visitSwitchBlockStatementGroup( switchBlockStatementGroup ) );
   }
 
-  return new_node( ctx, "case-statement",  //
-                   "label", label,         //
-                   "test", test,           //
-                   "cases", cases          //
+  return new_node( ctx, "case-statement",        //
+                   "label", std::move( label ),  //
+                   "test", std::move( test ),    //
+                   "cases", std::move( cases )   //
   );
 }
 
@@ -642,8 +648,8 @@ antlrcpp::Any JsonAstFileProcessor::visitContinueStatement(
     label = make_identifier( identifier );
   }
 
-  return new_node( ctx, "continue-statement",  //
-                   "label", label              //
+  return new_node( ctx, "continue-statement",   //
+                   "label", std::move( label )  //
   );
 }
 
@@ -654,10 +660,10 @@ antlrcpp::Any JsonAstFileProcessor::visitBasicForStatement(
   auto first = visitExpression( ctx->expression( 0 ) );
   auto last = visitExpression( ctx->expression( 1 ) );
 
-  return new_node( ctx, "basic-for-statement",  //
-                   "identifier", identifier,    //
-                   "first", first,              //
-                   "last", last                 //
+  return new_node( ctx, "basic-for-statement",             //
+                   "identifier", std::move( identifier ),  //
+                   "first", std::move( first ),            //
+                   "last", std::move( last )               //
   );
 }
 
@@ -669,11 +675,11 @@ antlrcpp::Any JsonAstFileProcessor::visitCstyleForStatement(
   auto test = visitExpression( ctx->expression( 1 ) );
   auto advancer = visitExpression( ctx->expression( 2 ) );
 
-  return new_node( ctx, "cstyle-for-statement",  //
-                   "initializer", initializer,   //
-                   "test", test,                 //
-                   "advancer", advancer,         //
-                   "body", body                  //
+  return new_node( ctx, "cstyle-for-statement",              //
+                   "initializer", std::move( initializer ),  //
+                   "test", std::move( test ),                //
+                   "advancer", std::move( advancer ),        //
+                   "body", std::move( body )                 //
   );
 }
 
@@ -684,10 +690,10 @@ antlrcpp::Any JsonAstFileProcessor::visitRepeatStatement(
   auto body = visitBlock( ctx->block() );
   auto test = visitExpression( ctx->expression() );
 
-  return new_node( ctx, "repeat-statement",  //
-                   "label", label,           //
-                   "body", body,             //
-                   "test", test              //
+  return new_node( ctx, "repeat-statement",      //
+                   "label", std::move( label ),  //
+                   "body", std::move( body ),    //
+                   "test", std::move( test )     //
   );
 }
 
@@ -701,8 +707,8 @@ antlrcpp::Any JsonAstFileProcessor::visitReturnStatement(
     value = visitExpression( expression );
   }
 
-  return new_node( ctx, "return-statement",  //
-                   "value", value            //
+  return new_node( ctx, "return-statement",     //
+                   "value", std::move( value )  //
   );
 }
 
@@ -765,11 +771,11 @@ antlrcpp::Any JsonAstFileProcessor::visitIfStatement(
 
     bool elseif = clause_index != 0;
 
-    if_statement_ast = new_node( ctx, "if-statement",             //
-                                 "test", expression_ast,          //
-                                 "consequent", consequent_ast,    //
-                                 "alternative", alternative_ast,  //
-                                 "elseif", elseif                 //
+    if_statement_ast = new_node( ctx, "if-statement",                          //
+                                 "test", std::move( expression_ast ),          //
+                                 "consequent", std::move( consequent_ast ),    //
+                                 "alternative", std::move( alternative_ast ),  //
+                                 "elseif", elseif                              //
     );
   }
 
@@ -826,9 +832,9 @@ antlrcpp::Any JsonAstFileProcessor::visitInterpolatedStringPart(
     expression = make_string_literal( escaped, escaped->getText() );
   }
 
-  return new_node( ctx, "interpolated-string-part",  //
-                   "expression", expression,         //
-                   "format", format                  //
+  return new_node( ctx, "interpolated-string-part",        //
+                   "expression", std::move( expression ),  //
+                   "format", std::move( format )           //
   );
 }
 
@@ -891,16 +897,16 @@ antlrcpp::Any JsonAstFileProcessor::visitModuleFunctionDeclaration(
 
   if ( auto moduleFunctionParameterList = ctx->moduleFunctionParameterList() )
   {
-    parameters = visitModuleFunctionParameterList( ctx->moduleFunctionParameterList() );
+    parameters = visitModuleFunctionParameterList( moduleFunctionParameterList );
   }
   else
   {
     parameters = defaultResult();
   }
 
-  return new_node( ctx, "module-function-declaration",  //
-                   "name", name,                        //
-                   "parameters", parameters             //
+  return new_node( ctx, "module-function-declaration",    //
+                   "name", std::move( name ),             //
+                   "parameters", std::move( parameters )  //
   );
 }
 
@@ -916,8 +922,8 @@ antlrcpp::Any JsonAstFileProcessor::visitModuleFunctionParameter(
   }
 
   return new_node( ctx, "module-function-parameter",  //
-                   "name", name,                      //
-                   "value", value                     //
+                   "name", std::move( name ),         //
+                   "value", std::move( value )        //
   );
 }
 
@@ -1019,7 +1025,7 @@ antlrcpp::Any JsonAstFileProcessor::visitProgramParameter(
   return new_node( ctx, "program-parameter",                      //
                    "name", make_identifier( ctx->IDENTIFIER() ),  //
                    "unused", unused,                              //
-                   "init", init                                   //
+                   "init", std::move( init )                      //
   );
 }
 
@@ -1130,8 +1136,8 @@ antlrcpp::Any JsonAstFileProcessor::visitStructInitializerExpression(
     init = visitExpression( expression );
   }
   return new_node( ctx, "struct-initializer",  //
-                   "name", name,               //
-                   "init", init                //
+                   "name", std::move( name ),  //
+                   "init", std::move( init )   //
   );
 }
 

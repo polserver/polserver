@@ -150,6 +150,18 @@ int main(void)
     _ok(!v.contains("z"), "check not contains property");
   }
 
+  {
+    picojson::value v1;
+  	v1.set<picojson::object>(picojson::object());
+  	v1.get<picojson::object>()["114"] = picojson::value("514");
+  	v1.get<picojson::object>()["364"].set<picojson::array>(picojson::array());
+  	v1.get<picojson::object>()["364"].get<picojson::array>().push_back(picojson::value(334.0));
+  	picojson::value &v2 = v1.get<picojson::object>()["1919"];
+  	v2.set<picojson::object>(picojson::object());
+  	v2.get<picojson::object>()["893"] = picojson::value(810.0);
+    is(v1.serialize(), string("{\"114\":\"514\",\"1919\":{\"893\":810},\"364\":[334]}"), "modification succeed");
+  }
+
 #define TEST(json, msg) do {				\
     picojson::value v;					\
     const char *s = json;				\
@@ -256,14 +268,14 @@ int main(void)
   try {
     picojson::value v(std::numeric_limits<double>::quiet_NaN());
     _ok(false, "should not accept NaN");
-  } catch (std::overflow_error e) {
+  } catch (std::overflow_error& e) {
     _ok(true, "should not accept NaN");
   }
 
   try {
     picojson::value v(std::numeric_limits<double>::infinity());
     _ok(false, "should not accept infinity");
-  } catch (std::overflow_error e) {
+  } catch (std::overflow_error& e) {
     _ok(true, "should not accept infinity");
   }
 
@@ -272,7 +284,7 @@ int main(void)
     _ok(! v.is<bool>(), "is<wrong_type>() should return false");
     v.get<bool>();
     _ok(false, "get<wrong_type>() should raise an error");
-  } catch (std::runtime_error e) {
+  } catch (std::runtime_error& e) {
     _ok(true, "get<wrong_type>() should raise an error");
   }
 
@@ -306,6 +318,57 @@ int main(void)
     is(v.get<picojson::array>()[0].get<double>(), 1, "simple API value #0");
     _ok(v.get<picojson::array>()[1].is<std::string>(), "simple API type #1");
     is(v.get<picojson::array>()[1].get<std::string>(), "abc", "simple API value #1");
+  }
+
+  {
+    picojson::value v1((double) 0);
+    _ok(! v1.evaluate_as_boolean(), "((double) 0) is false");
+    picojson::value v2((double) 1);
+    _ok(v2.evaluate_as_boolean(), "((double) 1) is true");
+#ifdef PICOJSON_USE_INT64
+    picojson::value v3((int64_t) 0);
+    _ok(! v3.evaluate_as_boolean(), "((int64_t) 0) is false");
+    picojson::value v4((int64_t) 1);
+    _ok(v4.evaluate_as_boolean(), "((int64_t) 1) is true");
+#endif
+  }
+
+  {
+    picojson::value v;
+    std::string err;
+    const char *s = "123abc";
+    const char *reststr = picojson::parse(v, s, s + strlen(s), &err);
+    _ok(err.empty(), "should succeed");
+    _ok(v.is<double>(), "is number");
+    _ok(v.get<double>() == 123.0, "is 123");
+    is(*reststr, 'a', "should point at the next char");
+  }
+
+  {
+    std::string s = "[{\"a\":123}]", err;
+    picojson::value v;
+    picojson::default_parse_context ctx(&v, 2);
+    std::string::const_iterator end = picojson::_parse(ctx, s.begin(), s.end(), &err);
+    _ok(err.empty(), "should succeed");
+    _ok(end == s.end(), "should have consumed all input");
+    _ok(v.get(0).get("a").get<double>() == 123, "should return correct value");
+  }
+
+  {
+    std::string s = "[{\"a\":123}]", err;
+    picojson::value v;
+    picojson::default_parse_context ctx(&v, 1);
+    std::string::const_iterator end = picojson::_parse(ctx, s.begin(), s.end(), &err);
+    _ok(!err.empty(), "should fail");
+    _ok(v.is<picojson::array>(), "should get an array");
+    _ok(v.get(0).is<picojson::null>(), "that contains null");
+  }
+
+  {
+    std::string s = "[{\"a\":123}]", err;
+    picojson::null_parse_context ctx(1);
+    std::string::const_iterator end = picojson::_parse(ctx, s.begin(), s.end(), &err);
+    _ok(!err.empty(), "should fail");
   }
 
   return done_testing();
