@@ -4,7 +4,6 @@
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
-#include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/UserFunction.h"
 
 using EscriptGrammar::EscriptParser;
@@ -13,7 +12,7 @@ namespace Pol::Bscript::Compiler
 {
 UserFunctionBuilder::UserFunctionBuilder( const SourceFileIdentifier& source_file_identifier,
                                           BuilderWorkspace& workspace )
-  : CompoundStatementBuilder( source_file_identifier, workspace )
+    : CompoundStatementBuilder( source_file_identifier, workspace )
 {
 }
 
@@ -50,8 +49,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_declaration(
       }
     }
   }
-  auto parameter_list =
-      std::make_unique<FunctionParameterList>( location_for( *ctx->functionParameters() ), std::move( parameters ) );
+  auto parameter_list = std::make_unique<FunctionParameterList>(
+      location_for( *ctx->functionParameters() ), std::move( parameters ) );
   auto body =
       std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
 

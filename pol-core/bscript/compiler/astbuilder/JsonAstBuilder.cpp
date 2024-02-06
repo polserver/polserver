@@ -7,6 +7,7 @@
 #include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/JsonAst.h"
+#include "clib/timer.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -32,6 +33,7 @@ std::string JsonAstBuilder::build( const std::string& pathname, bool is_module )
   //   ); return {};
   // }
 
+  Tools::Timer<Tools::DebugT> timerload( "Sourcefile::load" );
   auto sf = SourceFile::load( *ident, source_loader, profile, report );
 
   if ( !sf || report.error_count() )
@@ -39,15 +41,22 @@ std::string JsonAstBuilder::build( const std::string& pathname, bool is_module )
     report.error( *ident, "Unable to load '{}'.", pathname );
     return {};
   }
+  timerload.stop();
 
   // auto json_ast = std::make_unique<JsonAst>();
 
   JsonAstFileProcessor json_ast_processor( *ident, profile, report );
 
-  picojson::value json_ast = is_module ? json_ast_processor.process_module_unit( *sf )
-                                       : json_ast_processor.process_compilation_unit( *sf );
+  Tools::Timer<Tools::DebugT> timerproc( "process" );
+  auto json_ast_any = is_module ? json_ast_processor.process_module_unit( *sf )
+                                : json_ast_processor.process_compilation_unit( *sf );
 
-  return json_ast.serialize();
+  auto* json_ast = std::any_cast<picojson::value>( &json_ast_any );
+  timerproc.stop();
+  Tools::Timer<Tools::DebugT> timers( "serialize" );
+  auto res = json_ast->serialize();
+  timers.stop();
+  return res;
   // SourceFileProcessor src_processor( *ident, workspace, true, user_function_inclusion );
 
   // workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident )

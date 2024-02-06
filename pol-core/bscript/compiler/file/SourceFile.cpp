@@ -149,8 +149,7 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   return module_unit;
 }
 
-EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_unit(
-    Report& report )
+EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_unit( Report& report )
 {
   if ( !evaluate_unit )
   {
@@ -201,7 +200,8 @@ std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( size_t tokenIn
 //   { return token && token->getChannel() == EscriptGrammar::EscriptLexer::COMMENTS; };
 
 //   std::vector<antlr4::Token*> filteredVector;
-//   std::copy_if( originalVector.begin(), originalVector.end(), std::back_inserter( filteredVector ),
+//   std::copy_if( originalVector.begin(), originalVector.end(), std::back_inserter( filteredVector
+//   ),
 //                 isComment );
 
 //   return std::vector<antlr4::Token*>();
