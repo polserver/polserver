@@ -173,29 +173,16 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
     size_t token_length = 0;
     for ( size_t i = 0; i < size; i++ )
     {
-      if ( str[i] == '\r' && i + 1 < size && str[i + 1] == '\n' )
+      if ( str[i] == '\r' || str[i] == '\n' )
       {
         tokens->push_back(
             SemanticToken{ line, character, token_length, SemanticTokenType::STRING, {} } );
         ++line;
         character = 1;
         token_length = 0;
-      }
-      else if ( str[i] == '\r' )
-      {
-        tokens->push_back(
-            SemanticToken{ line, character, token_length, SemanticTokenType::STRING, {} } );
-        ++line;
-        character = 1;
-        token_length = 0;
-      }
-      else if ( str[i] == '\n' )
-      {
-        tokens->push_back(
-            SemanticToken{ line, character, token_length, SemanticTokenType::STRING, {} } );
-        ++line;
-        character = 1;
-        token_length = 0;
+
+        if ( str[i] == '\r' && i + 1 < size && str[i + 1] == '\n' )
+          ++i;
       }
       else
       {
