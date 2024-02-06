@@ -98,7 +98,7 @@ add_test(NAME shard_ecompile_cfg
     -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_ecompile_cfg.cmake
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-set_tests_properties(shard_ecompile_cfg PROPERTIES DEPENDS testenv)
+set_tests_properties(shard_ecompile_cfg PROPERTIES DEPENDS shard_files)
 set_tests_properties(shard_ecompile_cfg PROPERTIES FIXTURES_SETUP shard)
 
 
