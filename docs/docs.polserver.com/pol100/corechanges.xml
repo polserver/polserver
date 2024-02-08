@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-06-2024</datemodified>
+		<datemodified>02-08-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>02-08-2024</date>
+			<author>Kukkino:</author>
+			<change type="Added">POL now accepts proxy protocol v2 if configured to in Listener in `uoclient.cfg` listener.</change>
+			<change type="Added">Gameservers in `servers.cfg` can now be filtered using `ProxyMatch` similar to `IPMatch` except for used proxy.</change>
+			<change type="Fixed">Gameservers `AcctMatch` and `IPMatch` can now be used at both at once (both conditions need to match).</change>
+		</entry>
 		<entry>
 			<date>02-06-2024</date>
 			<author>Kevin:</author>

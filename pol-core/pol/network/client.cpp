@@ -70,7 +70,7 @@ namespace Network
 {
 unsigned int Client::instance_counter_;
 
-ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient )
+ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient, bool use_proxy_protocol )
     : myClient( myClient ),
       thread_pid( static_cast<size_t>( -1 ) ),
       csocket( INVALID_SOCKET ),
@@ -80,7 +80,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient 
       encrypt_server_stream( false ),
       last_activity_at( 0 ),
       last_packet_at( 0 ),
-      recv_state( RECV_STATE_CRYPTSEED_WAIT ),
+      recv_state( use_proxy_protocol ? RECV_STATE_PROXYPROTOCOLHEADER_WAIT : RECV_STATE_CRYPTSEED_WAIT ),
       bufcheck1_AA( 0xAA ),
       buffer(),  // zero-initializes the buffer
       bufcheck2_55( 0x55 ),
@@ -99,10 +99,11 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient 
 {
   memset( &counters, 0, sizeof counters );
   memset( &ipaddr, 0, sizeof( ipaddr ) );
+  memset( &ipaddr_proxy, 0, sizeof( ipaddr_proxy ) );
 };
 
-Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
-    : ThreadedClient( encryption, *this ),
+Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption, bool use_proxy_protocol )
+    : ThreadedClient( encryption, *this, use_proxy_protocol ),
       acct( nullptr ),
       chr( nullptr ),
       Interface( aInterface ),

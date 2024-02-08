@@ -148,6 +148,7 @@ public:
   void closeConnection();
 
   std::string ipaddrAsString() const;
+  std::string ipaddrProxyAsString() const;
 
   // methods below should be protected?
   bool have_queued_data() const;
@@ -163,7 +164,7 @@ public:
   PacketLog stop_log();
 
 protected:
-  ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient );
+  ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient, bool use_proxy_protocol );
 
 public:
   // this reference is only needed because we have diagnostic messages that need the client
@@ -190,7 +191,9 @@ public:
     RECV_STATE_MSGTYPE_WAIT,
     RECV_STATE_MSGLEN_WAIT,
     RECV_STATE_MSGDATA_WAIT,
-    RECV_STATE_CLIENTVERSION_WAIT
+    RECV_STATE_CLIENTVERSION_WAIT,
+    RECV_STATE_PROXYPROTOCOLHEADER_WAIT,
+    RECV_STATE_PROXYPROTOCOLPAYLOAD_WAIT
   } recv_state;
 
   unsigned char bufcheck1_AA;
@@ -209,6 +212,7 @@ public:
   std::string fpLog;
 
   sockaddr ipaddr;
+  sockaddr ipaddr_proxy;
 
   bool disable_inactivity_timeout;
 
@@ -236,7 +240,7 @@ private:
 class Client : private ThreadedClient
 {
 public:
-  Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
+  Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption, bool use_proxy_protocol );
   Client( const Client& ) = delete;
   Client& operator=( const Client& ) = delete;
   ~Client();
@@ -246,9 +250,10 @@ public:
   ThreadedClient* session() { return static_cast<ThreadedClient*>( this ); }
   const ThreadedClient* session() const { return static_cast<const ThreadedClient*>( this ); }
 
-  // these remaining three members are ok to be public for now and will be wrapped later
+  // these remaining four members are ok to be public for now and will be wrapped later
   using ThreadedClient::csocket;
   using ThreadedClient::ipaddr;
+  using ThreadedClient::ipaddr_proxy;
   using ThreadedClient::msgtype_filter;
 
   // wrappers for ThreadedClient members

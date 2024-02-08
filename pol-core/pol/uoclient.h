@@ -103,6 +103,7 @@ public:
     port = std::move( l.port );
     aosresist = std::move( l.aosresist );
     sticky = std::move( l.sticky );
+    use_proxy_protocol = std::move( l.use_proxy_protocol );
     login_clients_size = l.login_clients_size.load();
     login_clients = std::move( l.login_clients );
   }
@@ -116,6 +117,7 @@ public:
   unsigned short port;
   bool aosresist;
   bool sticky;
+  bool use_proxy_protocol;
 
 private:
   std::atomic<size_t> login_clients_size;  // multiple threads want to know the login size

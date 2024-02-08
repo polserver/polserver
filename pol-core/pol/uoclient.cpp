@@ -34,6 +34,7 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
     : port( elem.remove_ushort( "PORT" ) ),
       aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
       sticky( elem.remove_bool( "KeepClients", false ) ),
+      use_proxy_protocol( elem.remove_bool( "UseProxyProtocol", false ) ),
       login_clients_size( 0 ),
       login_clients()
 

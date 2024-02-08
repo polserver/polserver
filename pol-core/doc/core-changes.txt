@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+02-08-2024 Kukkino:
+    Added: POL now accepts proxy protocol v2 if configured to in Listener in `uoclient.cfg` listener.
+    Added: Gameservers in `servers.cfg` can now be filtered using `ProxyMatch` similar to `IPMatch` except for used proxy.
+    Fixed: Gameservers `AcctMatch` and `IPMatch` can now be used at both at once (both conditions need to match).
 02-06-2024 Kevin:
     Fixed: Compiler error with escaping `}` inside interpolated strings.
 02-04-2024 Kevin:

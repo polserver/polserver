@@ -69,7 +69,7 @@ bool UoClientThread::create()
   socklen_t host_addrlen = sizeof host_addr;
 
   PolLock lck;
-  client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption );
+  client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption, _def->use_proxy_protocol );
 
   // TODO: move this into an initialization of ThreadedClient.
   client->csocket = _sck.release_handle();  // client cleans up its socket.
