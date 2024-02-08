@@ -99,27 +99,20 @@ public:
 
   bool has_valid_signature() const
   {
-    return signaure[0] == 0x0D && signaure[1] == 0x0A &&
-           signaure[2] == 0x0D && signaure[3] == 0x0A &&
-           signaure[4] == 0x00 && signaure[5] == 0x0D &&
-           signaure[6] == 0x0A && signaure[7] == 0x51 &&
-           signaure[8] == 0x55 && signaure[9] == 0x49 &&
-           signaure[10] == 0x54 && signaure[11] == 0x0A;
+    return signaure[0] == 0x0D && signaure[1] == 0x0A && signaure[2] == 0x0D &&
+           signaure[3] == 0x0A && signaure[4] == 0x00 && signaure[5] == 0x0D &&
+           signaure[6] == 0x0A && signaure[7] == 0x51 && signaure[8] == 0x55 &&
+           signaure[9] == 0x49 && signaure[10] == 0x54 && signaure[11] == 0x0A;
   }
 
-  bool has_valid_version() const
-  {
-    return version() == 2;
-  }
+  bool has_valid_version() const { return version() == 2; }
 
-  bool has_valid_command() const
-  {
-    return command() == PP_CMD_LOCAL || command() == PP_CMD_PROXY;
-  }
+  bool has_valid_command() const { return command() == PP_CMD_LOCAL || command() == PP_CMD_PROXY; }
 
   bool has_valid_address_family() const
   {
-    return address_family() == PP_AF_UNSPEC || address_family() == PP_AF_INET || address_family() == PP_AF_INET6 || address_family() == PP_AF_UNIX;
+    return address_family() == PP_AF_UNSPEC || address_family() == PP_AF_INET ||
+           address_family() == PP_AF_INET6 || address_family() == PP_AF_UNIX;
   }
 
   bool has_valid_protocol() const
