@@ -95,16 +95,16 @@ public:
   uint8_t address_family() const { return family_protocol_value >> 4; }
   uint8_t protocol() const { return family_protocol_value & 0xf; }
 
-  uint16_t payload_size() const { return ntohs(payload_size_value); }
+  uint16_t payload_size() const { return ntohs( payload_size_value ); }
 
   bool has_valid_signature() const
   {
     return signaure[0] == 0x0D && signaure[1] == 0x0A &&
-      signaure[2] == 0x0D && signaure[3] == 0x0A &&
-      signaure[4] == 0x00 && signaure[5] == 0x0D &&
-      signaure[6] == 0x0A && signaure[7] == 0x51 &&
-      signaure[8] == 0x55 && signaure[9] == 0x49 &&
-      signaure[10] == 0x54 && signaure[11] == 0x0A;
+           signaure[2] == 0x0D && signaure[3] == 0x0A &&
+           signaure[4] == 0x00 && signaure[5] == 0x0D &&
+           signaure[6] == 0x0A && signaure[7] == 0x51 &&
+           signaure[8] == 0x55 && signaure[9] == 0x49 &&
+           signaure[10] == 0x54 && signaure[11] == 0x0A;
   }
 
   bool has_valid_version() const
@@ -129,31 +129,35 @@ public:
 
   bool is_valid() const
   {
-    return has_valid_signature() && has_valid_version() && has_valid_command() && has_valid_address_family() && has_valid_protocol();
+    return has_valid_signature() && has_valid_version() && has_valid_command() &&
+           has_valid_address_family() && has_valid_protocol();
   }
 
 };
 
 // sanity check
-static_assert(sizeof(pp_header_v2) == 16);
+static_assert( sizeof( pp_header_v2 ) == 16 );
 
 union pp_payload_v2 {
   /* for TCP/UDP over IPv4, len = 12 */
-  struct {
+  struct
+  {
     uint32_t src_addr;
     uint32_t dst_addr;
     uint16_t src_port;
     uint16_t dst_port;
   } ipv4_addr;
   /* for TCP/UDP over IPv6, len = 36 */
-  struct {
+  struct
+  {
     uint8_t  src_addr[16];
     uint8_t  dst_addr[16];
     uint16_t src_port;
     uint16_t dst_port;
   } ipv6_addr;
   /* for AF_UNIX sockets, len = 216 */
-  struct {
+  struct
+  {
     uint8_t src_addr[108];
     uint8_t dst_addr[108];
   } unix_addr;
