@@ -385,7 +385,7 @@ antlrcpp::Any JsonAstFileProcessor::visitVariableDeclaration(
     else if ( auto arr = variable_declaration_initializer->ARRAY() )
     {
       Range r( *arr );
-      _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
+      _line_parts.emplace_back( "array", r.end, TokenPart::SPACE );
       init = new_node( ctx, "array-expression",     //
                        "elements", defaultResult()  //
       );
@@ -504,8 +504,16 @@ antlrcpp::Any JsonAstFileProcessor::visitExitStatement(
 antlrcpp::Any JsonAstFileProcessor::visitExplicitArrayInitializer(
     EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* ctx )
 {
-  return new_node( ctx, "array-expression",          //
-                   "elements", visitChildren( ctx )  //
+  Range r( *ctx );
+  _line_parts.emplace_back( "array", r.start, TokenPart::NONE );
+  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  size_t curcount = _line_parts.size();
+  auto childs = visitChildren( ctx );
+  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  if ( _line_parts.size() - 1 == curcount )
+    _line_parts.back().style |= TokenPart::ATTACHED;
+  return new_node( ctx, "array-expression",  //
+                   "elements", childs        //
   );
 }
 
@@ -528,8 +536,15 @@ antlrcpp::Any JsonAstFileProcessor::visitExplicitErrorInitializer(
 antlrcpp::Any JsonAstFileProcessor::visitBareArrayInitializer(
     EscriptGrammar::EscriptParser::BareArrayInitializerContext* ctx )
 {
-  return new_node( ctx, "array-expression",          //
-                   "elements", visitChildren( ctx )  //
+  Range r( *ctx );
+  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  size_t curcount = _line_parts.size();
+  auto childs = visitChildren( ctx );
+  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  if ( _line_parts.size() - 1 == curcount )
+    _line_parts.back().style |= TokenPart::ATTACHED;
+  return new_node( ctx, "array-expression",  //
+                   "elements", childs        //
   );
 }
 
@@ -566,7 +581,7 @@ antlrcpp::Any JsonAstFileProcessor::visitExpression(
   else if ( ctx->prefix )
   {
     Range r( ctx->prefix );
-    _line_parts.emplace_back( ctx->prefix->getText(), r.start, 0 );
+    _line_parts.emplace_back( ctx->prefix->getText(), r.start, TokenPart::NONE );
     auto e = visitExpression( ctx->expression( 0 ) );
     return new_node( ctx, "unary-expression",             //
                      "prefix", true,                      //
@@ -631,7 +646,7 @@ antlrcpp::Any JsonAstFileProcessor::expression_suffix(
     auto entity = visitExpression( expr_ctx );
     _line_parts.emplace_back( "[", r.start, TokenPart::ATTACHED );
     auto index = visitExpressionList( indexing->expressionList() );
-    _line_parts.emplace_back( "]", r.end, TokenPart::ATTACHED );
+    _line_parts.emplace_back( "]", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
     auto n = new_node( expr_ctx, "element-access-expression",  //
                        "indexes", index,                       //
                        "entity", entity                        //
@@ -1270,7 +1285,12 @@ antlrcpp::Any JsonAstFileProcessor::visitPrimary(
   }
   else if ( auto parExpression = ctx->parExpression() )
   {
-    return visitExpression( parExpression->expression() );
+    Range r( *parExpression );
+    _line_parts.emplace_back( "(", r.start, TokenPart::SPACE );
+    auto e = visitExpression( parExpression->expression() );
+
+    _line_parts.emplace_back( ")", r.end, TokenPart::SPACE );
+    return e;
   }
   else if ( auto functionCall = ctx->functionCall() )
   {

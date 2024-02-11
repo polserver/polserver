@@ -27,6 +27,7 @@ struct TokenPart
 {
   enum Style
   {
+    NONE = 0,
     ATTACHED = 1,
     SPACE = 2,
     BREAKPOINT = 4,
