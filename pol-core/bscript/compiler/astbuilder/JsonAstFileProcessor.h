@@ -1,6 +1,7 @@
 #ifndef POLSERVER_JSONASTFILEPROCESSOR_H
 #define POLSERVER_JSONASTFILEPROCESSOR_H
 
+#include "bscript/compiler/file/SourceLocation.h"
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
 #include <memory>
@@ -16,7 +17,31 @@ class Profile;
 class Report;
 class SourceFileIdentifier;
 class SourceFile;
-
+struct CommentInfo
+{
+  std::string text;
+  Position pos;
+  Position pos_end;
+};
+struct TokenPart
+{
+  enum Style
+  {
+    ATTACHED = 1,
+    SPACE = 2,
+    BREAKPOINT = 4,
+  };
+  std::string text = {};
+  size_t tokenid = 0;
+  int lineno = 0;
+  int style = 0;
+  TokenPart(){};
+  TokenPart( std::string&& text, const Position& pos, int style )
+      : text( std::move( text ) ),
+        tokenid( pos.token_index ),
+        lineno( pos.line_number ),
+        style( style ){};
+};
 class JsonAstFileProcessor : public EscriptGrammar::EscriptParserBaseVisitor
 {
 public:
@@ -24,6 +49,7 @@ public:
 
 public:
   // antlrcpp::Any visitChildren( antlr4::tree::ParseTree* node ) override;
+  std::string pretty();
   antlrcpp::Any defaultResult() override;
   antlrcpp::Any aggregateResult( antlrcpp::Any aggregate, antlrcpp::Any nextResult ) override;
 
@@ -73,8 +99,9 @@ public:
   antlrcpp::Any visitExplicitStructInitializer(
       EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* ctx ) override;
   antlrcpp::Any visitExpression( EscriptGrammar::EscriptParser::ExpressionContext* ctx ) override;
-  // antlrcpp::Any visitExpressionList(EscriptGrammar::EscriptParser::ExpressionListContext *ctx)
-  // override; antlrcpp::Any
+  antlrcpp::Any visitExpressionList(
+      EscriptGrammar::EscriptParser::ExpressionListContext* ctx ) override;
+  // antlrcpp::Any
   // visitExpressionSuffix(EscriptGrammar::EscriptParser::ExpressionSuffixContext *ctx) override;
   antlrcpp::Any visitFloatLiteral(
       EscriptGrammar::EscriptParser::FloatLiteralContext* ctx ) override;
@@ -168,9 +195,9 @@ public:
       EscriptGrammar::EscriptParser::VariableDeclarationContext* ctx ) override;
   // antlrcpp::Any
   // visitVariableDeclarationInitializer(EscriptGrammar::EscriptParser::VariableDeclarationInitializerContext
-  // *ctx) override; antlrcpp::Any
-  // visitVariableDeclarationList(EscriptGrammar::EscriptParser::VariableDeclarationListContext
   // *ctx) override;
+  antlrcpp::Any visitVariableDeclarationList(
+      EscriptGrammar::EscriptParser::VariableDeclarationListContext* ctx ) override;
   antlrcpp::Any visitVarStatement(
       EscriptGrammar::EscriptParser::VarStatementContext* ctx ) override;
   antlrcpp::Any visitWhileStatement(
@@ -179,10 +206,19 @@ public:
   antlrcpp::Any process_compilation_unit( SourceFile& );
   antlrcpp::Any process_module_unit( SourceFile& );
   // SourceLocation location_for( antlr4::ParserRuleContext& ) const;
+  std::vector<CommentInfo> _comments;
+
 private:
   const SourceFileIdentifier& source_file_identifier;
   Profile& profile;
   Report& report;
+  std::vector<std::string> _lines = {};
+  std::vector<TokenPart> _line_parts = {};
+  int _last_line = 0;
+  size_t _currident = 0;
+  void mergeComments();
+  void buildLine();
+  void collectComments( SourceFile& sf );
 
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
                                    EscriptGrammar::EscriptParser::ExpressionSuffixContext* );

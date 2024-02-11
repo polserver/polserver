@@ -10,6 +10,7 @@
 #include <system_error>
 #include <time.h>
 
+#include "bscript/compiler/Report.h"
 
 #include "bscript/compctx.h"
 #include "bscript/compiler/Compiler.h"
@@ -349,10 +350,21 @@ void compile_file_wrapper( const char* path )
 {
   try
   {
-    if ( compile_file( path ) )
+    Compiler::Profile profile;
+    Compiler::SourceFileLoader source_loader;
+    Compiler::SourceFileCache em_parse_tree_cache( source_loader, profile );
+    Compiler::SourceFileCache inc_parse_tree_cache( source_loader, profile );
+    auto compiler = std::make_unique<Compiler::Compiler>( source_loader, em_parse_tree_cache,
+                                                          inc_parse_tree_cache, profile );
+    Compiler::ConsoleReporter c( true, true );
+    Compiler::Report report( c );
+    auto res = compiler->build_ast( path, report, false );
+    INFO_PRINTLN( res );
+
+    /*if ( compile_file( path ) )
       ++summary.CompiledScripts;
     else
-      ++summary.UpToDateScripts;
+      ++summary.UpToDateScripts;*/
   }
   catch ( std::exception& )
   {

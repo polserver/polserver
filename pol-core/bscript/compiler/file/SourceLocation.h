@@ -20,9 +20,9 @@ class SourceFileIdentifier;
 
 struct Position
 {
-  const unsigned short line_number;
-  const unsigned short character_column;  // 1-based on line, as seen in an editor
-  const size_t token_index;
+  unsigned short line_number;
+  unsigned short character_column;  // 1-based on line, as seen in an editor
+  size_t token_index;
 };
 
 struct Range
