@@ -78,6 +78,7 @@ void JsonAstFileProcessor::collectComments( SourceFile& sf )
         auto t = info.text.find_first_not_of( "/ " );
         info.text.erase( 0, t );
         info.text = std::string( "// " ) + info.text;
+        info.linecomment = true;
       }
       else
       {
@@ -86,6 +87,7 @@ void JsonAstFileProcessor::collectComments( SourceFile& sf )
         auto t = info.text.find_last_not_of( "*/ " );
         info.text.erase( info.text.begin() + t + 1, info.text.end() );
         info.text = std::string( "/* " ) + info.text + " */";
+        info.linecomment = false;
       }
       info.pos = r.start;
       info.pos_end = r.end;
@@ -218,6 +220,8 @@ void JsonAstFileProcessor::mergeComments()
     if ( _line_parts[i].tokenid > _comments.front().pos.token_index )
     {
       TokenPart p{ std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE };
+      if ( _comments.front().linecomment )
+        p.style |= TokenPart::FORCED_BREAK;
       _line_parts.insert( _line_parts.begin() + i, p );
       _comments.erase( _comments.begin() );
     }
@@ -243,7 +247,7 @@ void JsonAstFileProcessor::buildLine()
   mergeComments();
 
   // fill lines with final strings splitted at breakpoints
-  std::vector<std::string> lines;
+  std::vector<std::pair<std::string, bool>> lines;
   std::string line;
   for ( size_t i = 0; i < _line_parts.size(); ++i )
   {
@@ -259,22 +263,36 @@ void JsonAstFileProcessor::buildLine()
       else
         line += ' ';
     }
-    // start a new line if breakpoint
-    if ( _line_parts[i].style & TokenPart::BREAKPOINT )
+    if ( _line_parts[i].style & TokenPart::FORCED_BREAK )
     {
-      lines.emplace_back( std::move( line ) );
+      lines.emplace_back( std::make_pair( std::move( line ), true ) );
+      line.clear();
+    }
+    // start a new line if breakpoint
+    else if ( _line_parts[i].style & TokenPart::BREAKPOINT )
+    {
+      // if the next part is attached, dont break now and instead after the attached one
+      if ( i + 1 < _line_parts.size() )
+      {
+        if ( _line_parts[i + 1].style & TokenPart::ATTACHED )
+        {
+          _line_parts[i + 1].style |= TokenPart::BREAKPOINT;
+          continue;
+        }
+      }
+      lines.emplace_back( std::make_pair( std::move( line ), false ) );
       line.clear();
     }
   }
   // add remainings
   if ( !line.empty() )
   {
-    lines.emplace_back( std::move( line ) );
+    lines.emplace_back( std::make_pair( std::move( line ), false ) );
     line.clear();
   }
   INFO_PRINTLN( "BREAK " );
-  for ( auto& l : lines )
-    INFO_PRINTLN( l );
+  for ( auto& [l, forced] : lines )
+    INFO_PRINTLN( "\"{}\"", l );
   // add newline from original sourcecode
   // TODO: it just adds one
   if ( _line_parts.front().lineno > _last_line + 1 )
@@ -283,7 +301,7 @@ void JsonAstFileProcessor::buildLine()
   }
   // build final lines
   size_t alignmentspace = 0;
-  for ( auto& l : lines )
+  for ( auto& [l, forced] : lines )
   {
     // following lines need to be aligned
     if ( line.empty() && alignmentspace )
@@ -296,7 +314,7 @@ void JsonAstFileProcessor::buildLine()
     }
     line += l;
     // linewidth reached add current line, start a new one
-    if ( line.size() > LINEWIDTH )
+    if ( line.size() > LINEWIDTH || forced )
     {
       _lines.emplace_back( std::move( line ) );
       line.clear();
@@ -329,7 +347,8 @@ antlrcpp::Any JsonAstFileProcessor::visitVarStatement(
   Range r( *ctx );
   _line_parts.emplace_back( "var", r.start, TokenPart::SPACE );
   auto declarations = visitVariableDeclarationList( ctx->variableDeclarationList() );
-  _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+  _line_parts.emplace_back( ";", r.end,
+                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
   return new_node( ctx, "var-statement",         //
                    "declarations", declarations  //
@@ -340,9 +359,19 @@ antlrcpp::Any JsonAstFileProcessor::visitWhileStatement(
     EscriptGrammar::EscriptParser::WhileStatementContext* ctx )
 {
   auto label = make_statement_label( ctx->statementLabel() );
-  auto body = visitBlock( ctx->block() );
-  auto test = visitExpression( ctx->parExpression()->expression() );
+  Range r( *ctx );
+  _line_parts.emplace_back( "while", r.start, TokenPart::SPACE );
+  _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  auto testc = ctx->parExpression()->expression();
+  auto test = visitExpression( testc );
+  _line_parts.emplace_back( ")", Range( *testc ).end, TokenPart::SPACE );
+  buildLine();
 
+  ++_currident;
+  auto body = visitBlock( ctx->block() );
+  --_currident;
+  _line_parts.emplace_back( "endwhile", r.end, TokenPart::SPACE );
+  buildLine();
   return new_node( ctx, "while-statement",       //
                    "label", std::move( label ),  //
                    "test", std::move( test ),    //
@@ -415,7 +444,8 @@ antlrcpp::Any JsonAstFileProcessor::visitConstStatement(
       Range r( *expression );
       _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
       init = visitExpression( expression );
-      _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+      _line_parts.emplace_back( ";", r.end,
+                                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     }
 
     else if ( variable_declaration_initializer->ARRAY() )
@@ -425,7 +455,8 @@ antlrcpp::Any JsonAstFileProcessor::visitConstStatement(
       init = new_node( ctx, "array-expression",     //
                        "elements", defaultResult()  //
       );
-      _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+      _line_parts.emplace_back( ";", r.end,
+                                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     }
   }
 
@@ -441,14 +472,21 @@ antlrcpp::Any JsonAstFileProcessor::visitDictInitializerExpression(
 {
   antlrcpp::Any init;
 
+  auto key = visitExpression( ctx->expression( 0 ) );
+
   if ( ctx->expression().size() > 1 )
   {
+    Range r( *ctx->expression( 1 ) );
+    _line_parts.emplace_back( "->", r.start, TokenPart::SPACE );
     init = visitExpression( ctx->expression( 1 ) );
   }
+  Range r( *ctx );
+  _line_parts.emplace_back( ",", r.end,
+                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
 
-  return new_node( ctx, "dictionary-initializer",                   //
-                   "key", visitExpression( ctx->expression( 0 ) ),  //
-                   "value", std::move( init )                       //
+  return new_node( ctx, "dictionary-initializer",  //
+                   "key", key,                     //
+                   "value", std::move( init )      //
   );
 }
 
@@ -520,16 +558,36 @@ antlrcpp::Any JsonAstFileProcessor::visitExplicitArrayInitializer(
 antlrcpp::Any JsonAstFileProcessor::visitExplicitDictInitializer(
     EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* ctx )
 {
-  return new_node( ctx, "dictionary-expression",    //
-                   "entries", visitChildren( ctx )  //
+  Range r( *ctx );
+  _line_parts.emplace_back( "dictionary", r.start, TokenPart::NONE );
+  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  size_t curcount = _line_parts.size();
+  auto childs = visitChildren( ctx );
+  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
+    _line_parts.pop_back();
+  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  if ( _line_parts.size() - 1 == curcount )
+    _line_parts.back().style |= TokenPart::ATTACHED;
+  return new_node( ctx, "dictionary-expression",  //
+                   "entries", childs              //
   );
 }
 
 antlrcpp::Any JsonAstFileProcessor::visitExplicitErrorInitializer(
     EscriptGrammar::EscriptParser::ExplicitErrorInitializerContext* ctx )
 {
-  return new_node( ctx, "error-expression",         //
-                   "members", visitChildren( ctx )  //
+  Range r( *ctx );
+  _line_parts.emplace_back( "error", r.start, TokenPart::NONE );
+  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  size_t curcount = _line_parts.size();
+  auto childs = visitChildren( ctx );
+  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
+    _line_parts.pop_back();
+  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  if ( _line_parts.size() - 1 == curcount )
+    _line_parts.back().style |= TokenPart::ATTACHED;
+  return new_node( ctx, "error-expression",  //
+                   "members", childs         //
   );
 }
 
@@ -551,8 +609,18 @@ antlrcpp::Any JsonAstFileProcessor::visitBareArrayInitializer(
 antlrcpp::Any JsonAstFileProcessor::visitExplicitStructInitializer(
     EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* ctx )
 {
-  return new_node( ctx, "struct-expression",        //
-                   "members", visitChildren( ctx )  //
+  Range r( *ctx );
+  _line_parts.emplace_back( "struct", r.start, TokenPart::NONE );
+  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  size_t curcount = _line_parts.size();
+  auto childs = visitChildren( ctx );
+  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
+    _line_parts.pop_back();
+  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  if ( _line_parts.size() - 1 == curcount )
+    _line_parts.back().style |= TokenPart::ATTACHED;
+  return new_node( ctx, "struct-expression",  //
+                   "members", childs          //
   );
 }
 
@@ -607,9 +675,14 @@ antlrcpp::Any JsonAstFileProcessor::visitExpression(
     auto left = visitExpression( ctx->expression( 0 ) );
     Range r( ctx->bop );
     auto op = ctx->bop->getText();
+    if ( op == "?:" )  // break before elvis
+      _line_parts.back().style |= TokenPart::BREAKPOINT;
+
     if ( op == "||" || op == "&&" )
       _line_parts.emplace_back( std::move( op ), r.start,
                                 TokenPart::SPACE | TokenPart::BREAKPOINT );
+    else if ( op == ".+" || op == ".-" || op == ".?" )
+      _line_parts.emplace_back( std::move( op ), r.start, TokenPart::ATTACHED );
     else
       _line_parts.emplace_back( std::move( op ), r.start, TokenPart::SPACE );
 
@@ -626,10 +699,19 @@ antlrcpp::Any JsonAstFileProcessor::visitExpression(
   }
   else if ( ctx->QUESTION() )
   {
-    return new_node( ctx, "conditional-expression",                           //
-                     "conditional", visitExpression( ctx->expression( 0 ) ),  //
-                     "consequent", visitExpression( ctx->expression( 1 ) ),   //
-                     "alternate", visitExpression( ctx->expression( 2 ) )     //
+    auto cond = visitExpression( ctx->expression( 0 ) );
+    Range rcond( *ctx->expression( 0 ) );
+    _line_parts.emplace_back( "?", rcond.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+    auto cons = visitExpression( ctx->expression( 1 ) );
+    Range rcons( *ctx->expression( 1 ) );
+    _line_parts.emplace_back( ":", rcons.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+
+    auto alt = visitExpression( ctx->expression( 2 ) );
+
+    return new_node( ctx, "conditional-expression",  //
+                     "conditional", cond,            //
+                     "consequent", cons,             //
+                     "alternate", alt                //
     );
   }
 
@@ -935,6 +1017,7 @@ antlrcpp::Any JsonAstFileProcessor::visitSwitchLabel(
   }
   else if ( auto uninit = ctx->UNINIT() )
   {
+    _line_parts.emplace_back( "uninit", Range( *uninit ).start, TokenPart::SPACE );
     return new_node( uninit, "uninitialized-value" );
   }
   else if ( auto identifier = ctx->IDENTIFIER() )
@@ -1022,8 +1105,19 @@ antlrcpp::Any JsonAstFileProcessor::visitRepeatStatement(
     EscriptGrammar::EscriptParser::RepeatStatementContext* ctx )
 {
   auto label = make_statement_label( ctx->statementLabel() );
+  Range r( *ctx );
+  _line_parts.emplace_back( "repeat", r.start, TokenPart::SPACE );
+  buildLine();
+
+  ++_currident;
   auto body = visitBlock( ctx->block() );
+  --_currident;
+
+  _line_parts.emplace_back( "until", Range( *ctx->expression() ).start, TokenPart::SPACE );
   auto test = visitExpression( ctx->expression() );
+  _line_parts.emplace_back( ";", Range( *ctx->expression() ).start,
+                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  buildLine();
 
   return new_node( ctx, "repeat-statement",      //
                    "label", std::move( label ),  //
@@ -1043,7 +1137,8 @@ antlrcpp::Any JsonAstFileProcessor::visitReturnStatement(
   {
     value = visitExpression( expression );
   }
-  _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+  _line_parts.emplace_back( ";", r.end,
+                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
 
   return new_node( ctx, "return-statement",     //
@@ -1302,6 +1397,7 @@ antlrcpp::Any JsonAstFileProcessor::visitPrimary(
   }
   else if ( auto uninit = ctx->UNINIT() )
   {
+    _line_parts.emplace_back( "uninit", Range( *uninit ).start, TokenPart::SPACE );
     return new_node( uninit, "uninitialized-value" );
   }
   else if ( auto bool_true = ctx->BOOL_TRUE() )
@@ -1473,7 +1569,8 @@ antlrcpp::Any JsonAstFileProcessor::visitStatement(
     );
 
     Range r( *ctx );
-    _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+    _line_parts.emplace_back( ";", r.end,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     buildLine();
     return a;
   }
@@ -1512,8 +1609,13 @@ antlrcpp::Any JsonAstFileProcessor::visitStructInitializerExpression(
 
   if ( auto expression = ctx->expression() )
   {
+    Range r( *expression );
+    _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
     init = visitExpression( expression );
   }
+  Range r( *ctx );
+  _line_parts.emplace_back( ",", r.end,
+                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   return new_node( ctx, "struct-initializer",  //
                    "name", std::move( name ),  //
                    "init", std::move( init )   //

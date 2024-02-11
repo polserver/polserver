@@ -20,6 +20,7 @@ class SourceFile;
 struct CommentInfo
 {
   std::string text;
+  bool linecomment;
   Position pos;
   Position pos_end;
 };
@@ -31,6 +32,7 @@ struct TokenPart
     ATTACHED = 1,
     SPACE = 2,
     BREAKPOINT = 4,
+    FORCED_BREAK = 8,
   };
   std::string text = {};
   size_t tokenid = 0;
