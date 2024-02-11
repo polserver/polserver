@@ -84,7 +84,7 @@ public:
   // visitDictInitializerExpressionList(EscriptGrammar::EscriptParser::DictInitializerExpressionListContext
   // *ctx) override;
   antlrcpp::Any visitDoStatement( EscriptGrammar::EscriptParser::DoStatementContext* ctx ) override;
-  // antlrcpp::Any visitEnumList(EscriptGrammar::EscriptParser::EnumListContext *ctx) override;
+  antlrcpp::Any visitEnumList( EscriptGrammar::EscriptParser::EnumListContext* ctx ) override;
   antlrcpp::Any visitEnumListEntry(
       EscriptGrammar::EscriptParser::EnumListEntryContext* ctx ) override;
   antlrcpp::Any visitEnumStatement(
