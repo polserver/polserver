@@ -6,6 +6,7 @@
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/JsonAst.h"
+#include "bscript/compilercfg.h"
 #include "clib/logfacility.h"
 
 #include <iostream>
@@ -15,7 +16,6 @@ using EscriptGrammar::EscriptParser;
 namespace Pol::Bscript::Compiler
 {
 const int IDENT_LEVEL = 2;
-const int LINEWIDTH = 80;
 
 PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier,
                                               Profile& profile, Report& report )
@@ -221,7 +221,7 @@ void PrettifyFileProcessor::buildLine()
     }
     line += l;
     // linewidth reached add current line, start a new one
-    if ( line.size() > LINEWIDTH || forced )
+    if ( line.size() > compilercfg.FormatterLineWidth || forced )
     {
       stripline( line );
       _lines.emplace_back( std::move( line ) );
