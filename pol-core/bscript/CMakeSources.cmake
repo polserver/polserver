@@ -186,14 +186,14 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ExpressionBuilder.h
   compiler/astbuilder/FunctionResolver.cpp
   compiler/astbuilder/FunctionResolver.h
-  compiler/astbuilder/JsonAstBuilder.cpp
-  compiler/astbuilder/JsonAstBuilder.h
-  compiler/astbuilder/JsonAstFileProcessor.cpp
-  compiler/astbuilder/JsonAstFileProcessor.h
   compiler/astbuilder/ModuleDeclarationBuilder.cpp
   compiler/astbuilder/ModuleDeclarationBuilder.h
   compiler/astbuilder/ModuleProcessor.cpp
   compiler/astbuilder/ModuleProcessor.h
+  compiler/astbuilder/PrettifyBuilder.cpp
+  compiler/astbuilder/PrettifyBuilder.h
+  compiler/astbuilder/PrettifyFileProcessor.cpp
+  compiler/astbuilder/PrettifyFileProcessor.h
   compiler/astbuilder/ProgramBuilder.cpp
   compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp

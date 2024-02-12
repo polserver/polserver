@@ -6,7 +6,7 @@
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/analyzer/SemanticTokensBuilder.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
-#include "bscript/compiler/astbuilder/JsonAstBuilder.h"
+#include "bscript/compiler/astbuilder/PrettifyBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
@@ -165,15 +165,8 @@ std::string Compiler::build_ast( const std::string& pathname, Report& report, bo
 
   auto workspace = is_module ? workspace_builder.build_module( pathname )
                              : workspace_builder.build( pathname, user_function_inclusion );
-  JsonAstBuilder json_ast_builder( source_loader, profile, report );
-  auto json_ast = json_ast_builder.build( pathname, is_module );
-  // Pol::Tools::HighPerfTimer timer;
-  // CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, false, true,
-  //                                             profile, report );
-  // auto workspace = is_module ? workspace_builder.build_module( pathname )
-  //                            : workspace_builder.build( pathname, user_function_inclusion );
-  // profile.build_workspace_micros += timer.ellapsed().count();
-  return json_ast;
+  PrettifyBuilder prettify_builder( source_loader, profile, report );
+  return prettify_builder.build( pathname, is_module );
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,

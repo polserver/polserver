@@ -1,5 +1,4 @@
-#ifndef POLSERVER_JSONASTFILEPROCESSOR_H
-#define POLSERVER_JSONASTFILEPROCESSOR_H
+#pragma once
 
 #include "bscript/compiler/file/SourceLocation.h"
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
@@ -7,9 +6,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-
-#include <picojson/picojson.h>
-
 
 namespace Pol::Bscript::Compiler
 {
@@ -45,16 +41,19 @@ struct TokenPart
         lineno( pos.line_number ),
         style( style ){};
 };
-class JsonAstFileProcessor : public EscriptGrammar::EscriptParserBaseVisitor
+
+class PrettifyFileProcessor : public EscriptGrammar::EscriptParserBaseVisitor
 {
 public:
-  JsonAstFileProcessor( const SourceFileIdentifier&, Profile&, Report& );
+  PrettifyFileProcessor( const SourceFileIdentifier&, Profile&, Report& );
 
 public:
+  std::string prettify() const;
+
+
   // antlrcpp::Any visitChildren( antlr4::tree::ParseTree* node ) override;
-  std::string pretty();
-  antlrcpp::Any defaultResult() override;
-  antlrcpp::Any aggregateResult( antlrcpp::Any aggregate, antlrcpp::Any nextResult ) override;
+  //  antlrcpp::Any defaultResult() override;
+  //  antlrcpp::Any aggregateResult( antlrcpp::Any aggregate, antlrcpp::Any nextResult ) override;
 
   // antlrcpp::Any visitArrayInitializer(EscriptGrammar::EscriptParser::ArrayInitializerContext
   // *ctx) override;
@@ -229,11 +228,8 @@ private:
   antlrcpp::Any make_statement_label( EscriptGrammar::EscriptParser::StatementLabelContext* );
   antlrcpp::Any make_identifier( antlr4::tree::TerminalNode* );
   antlrcpp::Any make_string_literal( antlr4::tree::TerminalNode* );
-  antlrcpp::Any make_string_literal( antlr4::tree::TerminalNode*, const std::string& text );
   antlrcpp::Any make_bool_literal( antlr4::tree::TerminalNode* );
   antlrcpp::Any make_integer_literal( antlr4::tree::TerminalNode* );
   antlrcpp::Any make_float_literal( antlr4::tree::TerminalNode* );
 };
 }  // namespace Pol::Bscript::Compiler
-
-#endif  // POLSERVER_JSONASTFILEPROCESSOR_H

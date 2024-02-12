@@ -1,4 +1,4 @@
-#include "JsonAstFileProcessor.h"
+#include "PrettifyFileProcessor.h"
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
@@ -7,8 +7,6 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/JsonAst.h"
 #include "clib/logfacility.h"
-
-#include <picojson/picojson.h>
 
 #include <iostream>
 
@@ -19,13 +17,13 @@ namespace Pol::Bscript::Compiler
 const int IDENT_LEVEL = 2;
 const int LINEWIDTH = 40;
 
-JsonAstFileProcessor::JsonAstFileProcessor( const SourceFileIdentifier& source_file_identifier,
-                                            Profile& profile, Report& report )
+PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier,
+                                              Profile& profile, Report& report )
     : source_file_identifier( source_file_identifier ), profile( profile ), report( report )
 {
 }
 
-antlrcpp::Any JsonAstFileProcessor::process_compilation_unit( SourceFile& sf )
+antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf )
 {
   if ( auto compilation_unit = sf.get_compilation_unit( report, source_file_identifier ) )
   {
@@ -35,7 +33,7 @@ antlrcpp::Any JsonAstFileProcessor::process_compilation_unit( SourceFile& sf )
   throw std::runtime_error( "No compilation unit in source file" );
 }
 
-antlrcpp::Any JsonAstFileProcessor::process_module_unit( SourceFile& sf )
+antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf )
 {
   if ( auto module_unit = sf.get_module_unit( report, source_file_identifier ) )
   {
@@ -44,12 +42,12 @@ antlrcpp::Any JsonAstFileProcessor::process_module_unit( SourceFile& sf )
   }
   throw std::runtime_error( "No compilation unit in source file" );
 }
-std::string JsonAstFileProcessor::pretty()
+std::string PrettifyFileProcessor::prettify() const
 {
   return fmt::format( "{}", fmt::join( _lines, "\n" ) );
 }
 
-void JsonAstFileProcessor::collectComments( SourceFile& sf )
+void PrettifyFileProcessor::collectComments( SourceFile& sf )
 {
   auto alltokens = sf.get_all_tokens();
 
@@ -91,106 +89,8 @@ void JsonAstFileProcessor::collectComments( SourceFile& sf )
     }
   }
 }
-antlrcpp::Any JsonAstFileProcessor::defaultResult()
-{
-  return picojson::value( picojson::array_type, false );
-}
 
-antlrcpp::Any JsonAstFileProcessor::aggregateResult( antlrcpp::Any /*picojson::array*/ aggregate,
-                                                     antlrcpp::Any /*picojson::array*/ nextResult )
-{
-  auto* accum = std::any_cast<picojson::value>( &aggregate );
-
-  if ( accum->is<picojson::array>() )
-  {
-    auto* next_res = std::any_cast<picojson::value>( &nextResult );
-    if ( !next_res )
-      return aggregate;
-    auto& a = accum->get<picojson::array>();
-    if ( next_res->is<picojson::array>() )
-    {
-      auto& b = next_res->get<picojson::array>();
-      a.insert( a.end(), std::make_move_iterator( b.begin() ), std::make_move_iterator( b.end() ) );
-    }
-    else
-    {
-      a.emplace_back( std::move( *next_res ) );
-    }
-  }
-
-  return aggregate;
-}
-
-void add( picojson::value* )
-{
-  return;
-}
-
-template <typename T1, typename... Types>
-void add( picojson::value* v, std::string&& var1, T1&& var2, Types&&... var3 )
-{
-  if ( v->is<picojson::object>() )
-  {
-    auto& o = v->get<picojson::object>();
-    if constexpr ( std::is_same_v<std::decay_t<T1>, int> )
-    {
-      o[var1] = picojson::value( static_cast<double>( var2 ) );
-    }
-    else if constexpr ( std::is_same_v<std::decay_t<T1>, antlrcpp::Any> )
-    {
-      if ( var2.has_value() )
-      {
-        auto* v2 = std::any_cast<picojson::value>( &var2 );
-        o[var1] = std::move( *v2 );
-      }
-      else
-        o[var1];
-    }
-    else if constexpr ( std::is_same_v<std::decay_t<T1>, picojson::value> )
-    {
-      o[var1] = std::move( var2 );
-    }
-    else
-    {
-      o[var1] = picojson::value( var2 );
-    }
-  }
-  add( v, std::forward<Types>( var3 )... );
-}
-
-template <typename T1, typename... Types>
-void add( antlrcpp::Any* any_v, std::string&& var1, T1&& var2, Types&&... var3 )
-{
-  auto* v = std::any_cast<picojson::value>( any_v );
-  add( v, std::forward<std::string>( var1 ), std::forward<T1>( var2 ),
-       std::forward<Types>( var3 )... );
-}
-
-template <typename Rangeable, typename... Types>
-picojson::value new_node( Rangeable* ctx, const std::string&& type, Types&&... var3 )
-{
-  auto value = picojson::value( picojson::object_type, false );
-  Range range( *ctx );
-  auto& obj = value.get<picojson::object>();
-  obj["type"] = picojson::value( type );
-  obj["start"] = picojson::value( picojson::object_type, false );
-  auto& start = obj["start"].get<picojson::object>();
-  start["line_number"] = picojson::value( static_cast<double>( range.start.line_number ) );
-  start["character_column"] =
-      picojson::value( static_cast<double>( range.start.character_column ) );
-  start["token_index"] = picojson::value( static_cast<double>( range.start.token_index ) );
-
-  obj["end"] = picojson::value( picojson::object_type, false );
-  auto& end = obj["end"].get<picojson::object>();
-  end["line_number"] = picojson::value( static_cast<double>( range.end.line_number ) );
-  end["character_column"] = picojson::value( static_cast<double>( range.end.character_column ) );
-  end["token_index"] = picojson::value( static_cast<double>( range.end.token_index ) );
-
-  add( &value, std::forward<Types>( var3 )... );
-  return value;
-};
-
-void JsonAstFileProcessor::mergeComments()
+void PrettifyFileProcessor::mergeComments()
 {
   // add comments before current line
   while ( !_comments.empty() )
@@ -241,7 +141,7 @@ void JsonAstFileProcessor::mergeComments()
   }
 }
 
-void JsonAstFileProcessor::buildLine()
+void PrettifyFileProcessor::buildLine()
 {
   mergeComments();
 
@@ -325,60 +225,51 @@ void JsonAstFileProcessor::buildLine()
   _line_parts.clear();
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitCompilationUnit(
+antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
     EscriptGrammar::EscriptParser::CompilationUnitContext* ctx )
 {
-  auto body = new_node( ctx, "file",                   //
-                        "body", visitChildren( ctx ),  //
-                        "module", false                //
-  );
+  visitChildren( ctx );
   while ( !_comments.empty() )
   {
     _lines.push_back( std::string( _currident * 2, ' ' ) + _comments.front().text );
     _comments.erase( _comments.begin() );
   }
-  return body;
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitVarStatement(
+antlrcpp::Any PrettifyFileProcessor::visitVarStatement(
     EscriptGrammar::EscriptParser::VarStatementContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "var", r.start, TokenPart::SPACE );
-  auto declarations = visitVariableDeclarationList( ctx->variableDeclarationList() );
+  visitVariableDeclarationList( ctx->variableDeclarationList() );
   _line_parts.emplace_back( ";", r.end,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
-  return new_node( ctx, "var-statement",         //
-                   "declarations", declarations  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitWhileStatement(
+antlrcpp::Any PrettifyFileProcessor::visitWhileStatement(
     EscriptGrammar::EscriptParser::WhileStatementContext* ctx )
 {
-  auto label = make_statement_label( ctx->statementLabel() );
+  make_statement_label( ctx->statementLabel() );
   Range r( *ctx );
   _line_parts.emplace_back( "while", r.start, TokenPart::SPACE );
   _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   auto testc = ctx->parExpression()->expression();
-  auto test = visitExpression( testc );
+  visitExpression( testc );
   _line_parts.emplace_back( ")", Range( *testc ).end, TokenPart::SPACE );
   buildLine();
 
   ++_currident;
-  auto body = visitBlock( ctx->block() );
+  visitBlock( ctx->block() );
   --_currident;
   _line_parts.emplace_back( "endwhile", r.end, TokenPart::SPACE );
   buildLine();
-  return new_node( ctx, "while-statement",       //
-                   "label", std::move( label ),  //
-                   "test", std::move( test ),    //
-                   "body", std::move( body )     //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitVariableDeclarationList(
+antlrcpp::Any PrettifyFileProcessor::visitVariableDeclarationList(
     EscriptGrammar::EscriptParser::VariableDeclarationListContext* ctx )
 {
   auto args = ctx->variableDeclaration();
@@ -389,17 +280,14 @@ antlrcpp::Any JsonAstFileProcessor::visitVariableDeclarationList(
       Range r( *args[i] );
       _line_parts.emplace_back( ",", r.start, TokenPart::SPACE | TokenPart::ATTACHED );
     }
-    auto test = visitVariableDeclaration( args[i] );
+    visitVariableDeclaration( args[i] );
   }
-
   return {};
 }
-antlrcpp::Any JsonAstFileProcessor::visitVariableDeclaration(
+antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
     EscriptGrammar::EscriptParser::VariableDeclarationContext* ctx )
 {
-  auto i = make_identifier( ctx->IDENTIFIER() );
-  // auto const_declaration_ctx = ctx->constantDeclaration();
-  antlrcpp::Any init;
+  make_identifier( ctx->IDENTIFIER() );
 
   if ( auto variable_declaration_initializer = ctx->variableDeclarationInitializer() )
   {
@@ -407,33 +295,25 @@ antlrcpp::Any JsonAstFileProcessor::visitVariableDeclaration(
     {
       Range r( *expression );
       _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
-      init = visitExpression( expression );
+      visitExpression( expression );
     }
 
     else if ( auto arr = variable_declaration_initializer->ARRAY() )
     {
       Range r( *arr );
       _line_parts.emplace_back( "array", r.end, TokenPart::SPACE );
-      init = new_node( ctx, "array-expression",     //
-                       "elements", defaultResult()  //
-      );
     }
   }
-
-  return new_node( ctx, "variable-declaration",  //
-                   "name", i,                    //
-                   "init", std::move( init )     //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitConstStatement(
+antlrcpp::Any PrettifyFileProcessor::visitConstStatement(
     EscriptGrammar::EscriptParser::ConstStatementContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "const", r.start, TokenPart::SPACE );
   auto const_declaration_ctx = ctx->constantDeclaration();
-  antlrcpp::Any init;
-  auto ident = make_identifier( const_declaration_ctx->IDENTIFIER() );
+  make_identifier( const_declaration_ctx->IDENTIFIER() );
 
   if ( auto variable_declaration_initializer =
            const_declaration_ctx->variableDeclarationInitializer() )
@@ -442,95 +322,77 @@ antlrcpp::Any JsonAstFileProcessor::visitConstStatement(
     {
       Range re( *expression );
       _line_parts.emplace_back( ":=", re.start, TokenPart::SPACE );
-      init = visitExpression( expression );
+      visitExpression( expression );
       _line_parts.emplace_back( ";", re.end,
                                 TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     }
 
-    else if ( variable_declaration_initializer->ARRAY() )
+    else if ( auto array = variable_declaration_initializer->ARRAY() )
     {
-      Range ra( *expression );
+      Range ra( *array );
       _line_parts.emplace_back( ":=", ra.start, TokenPart::SPACE );
-      init = new_node( ctx, "array-expression",     //
-                       "elements", defaultResult()  //
-      );
+      _line_parts.emplace_back( "array", ra.start, TokenPart::SPACE );
       _line_parts.emplace_back( ";", ra.end,
                                 TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     }
   }
 
   buildLine();
-  return new_node( ctx, "const-statement",      //
-                   "name", std::move( ident ),  //
-                   "init", std::move( init )    //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitDictInitializerExpression(
+antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpression(
     EscriptGrammar::EscriptParser::DictInitializerExpressionContext* ctx )
 {
-  antlrcpp::Any init;
-
-  auto key = visitExpression( ctx->expression( 0 ) );
+  visitExpression( ctx->expression( 0 ) );  // key
 
   if ( ctx->expression().size() > 1 )
   {
     Range r( *ctx->expression( 1 ) );
     _line_parts.emplace_back( "->", r.start, TokenPart::SPACE );
-    init = visitExpression( ctx->expression( 1 ) );
+    visitExpression( ctx->expression( 1 ) );
   }
   Range r( *ctx );
   _line_parts.emplace_back( ",", r.end,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
 
-  return new_node( ctx, "dictionary-initializer",  //
-                   "key", key,                     //
-                   "value", std::move( init )      //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitDoStatement(
+antlrcpp::Any PrettifyFileProcessor::visitDoStatement(
     EscriptGrammar::EscriptParser::DoStatementContext* ctx )
 {
-  auto label = make_statement_label( ctx->statementLabel() );
+  make_statement_label( ctx->statementLabel() );
   Range r( *ctx );
   _line_parts.emplace_back( "do", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
 
   ++_currident;
-  auto body = visitBlock( ctx->block() );
+  visitBlock( ctx->block() );
   --_currident;
 
   auto exp = ctx->parExpression()->expression();
   _line_parts.emplace_back( "dowhile", Range( *exp ).start, TokenPart::SPACE );
   _line_parts.emplace_back( "(", Range( *exp ).start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  auto test = visitExpression( exp );
-  _line_parts.emplace_back( ")", Range( *exp ).start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  visitExpression( exp );
+  _line_parts.emplace_back( ")", Range( *exp ).end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
-  return new_node( ctx, "do-statement",          //
-                   "label", std::move( label ),  //
-                   "test", std::move( test ),    //
-                   "body", std::move( body )     //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitEnumListEntry(
+antlrcpp::Any PrettifyFileProcessor::visitEnumListEntry(
     EscriptGrammar::EscriptParser::EnumListEntryContext* ctx )
 {
-  antlrcpp::Any value;
-  auto identifier = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
 
   if ( auto expression = ctx->expression() )
   {
     _line_parts.emplace_back( ":=", Range( *expression ).start, TokenPart::SPACE );
-    value = visitExpression( expression );
+    visitExpression( expression );
   }
-  return new_node( ctx, "enum-entry",                      //
-                   "identifier", std::move( identifier ),  //
-                   "value", std::move( value )             //
-  );
+  return {};
 }
-antlrcpp::Any JsonAstFileProcessor::visitEnumList(
+antlrcpp::Any PrettifyFileProcessor::visitEnumList(
     EscriptGrammar::EscriptParser::EnumListContext* ctx )
 
 {
@@ -544,16 +406,14 @@ antlrcpp::Any JsonAstFileProcessor::visitEnumList(
 
     buildLine();
   }
-  return new_node( ctx, "enum-entry",          //
-                   "value", picojson::value()  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitEnumStatement(
+antlrcpp::Any PrettifyFileProcessor::visitEnumStatement(
     EscriptGrammar::EscriptParser::EnumStatementContext* ctx )
 {
   _line_parts.emplace_back( "enum", Range( *ctx ).start, TokenPart::SPACE );
-  auto identifier = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   buildLine();
   ++_currident;
   auto enums = visitEnumList( ctx->enumList() );
@@ -561,108 +421,95 @@ antlrcpp::Any JsonAstFileProcessor::visitEnumStatement(
 
   _line_parts.emplace_back( "endenum", Range( *ctx ).end, TokenPart::SPACE );
   buildLine();
-  return new_node( ctx, "enum-statement",                  //
-                   "identifier", std::move( identifier ),  //
-                   "enums", std::move( enums )             //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitExitStatement(
+antlrcpp::Any PrettifyFileProcessor::visitExitStatement(
     EscriptGrammar::EscriptParser::ExitStatementContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "exit", r.start, TokenPart::NONE );
   _line_parts.emplace_back( ";", r.start, TokenPart::ATTACHED | TokenPart::SPACE );
   buildLine();
-  return new_node( ctx, "exit-statement" );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitExplicitArrayInitializer(
+antlrcpp::Any PrettifyFileProcessor::visitExplicitArrayInitializer(
     EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "array", r.start, TokenPart::NONE );
   _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  auto childs = visitChildren( ctx );
+  visitChildren( ctx );
   _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   if ( _line_parts.size() - 1 == curcount )
     _line_parts.back().style |= TokenPart::ATTACHED;
-  return new_node( ctx, "array-expression",  //
-                   "elements", childs        //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitExplicitDictInitializer(
+antlrcpp::Any PrettifyFileProcessor::visitExplicitDictInitializer(
     EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "dictionary", r.start, TokenPart::NONE );
   _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  auto childs = visitChildren( ctx );
+  visitChildren( ctx );
   if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
     _line_parts.pop_back();
   _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   if ( _line_parts.size() - 1 == curcount )
     _line_parts.back().style |= TokenPart::ATTACHED;
-  return new_node( ctx, "dictionary-expression",  //
-                   "entries", childs              //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitExplicitErrorInitializer(
+antlrcpp::Any PrettifyFileProcessor::visitExplicitErrorInitializer(
     EscriptGrammar::EscriptParser::ExplicitErrorInitializerContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "error", r.start, TokenPart::NONE );
   _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  auto childs = visitChildren( ctx );
+  visitChildren( ctx );
   if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
     _line_parts.pop_back();
   _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   if ( _line_parts.size() - 1 == curcount )
     _line_parts.back().style |= TokenPart::ATTACHED;
-  return new_node( ctx, "error-expression",  //
-                   "members", childs         //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitBareArrayInitializer(
+antlrcpp::Any PrettifyFileProcessor::visitBareArrayInitializer(
     EscriptGrammar::EscriptParser::BareArrayInitializerContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  auto childs = visitChildren( ctx );
+  visitChildren( ctx );
   _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   if ( _line_parts.size() - 1 == curcount )
     _line_parts.back().style |= TokenPart::ATTACHED;
-  return new_node( ctx, "array-expression",  //
-                   "elements", childs        //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitExplicitStructInitializer(
+antlrcpp::Any PrettifyFileProcessor::visitExplicitStructInitializer(
     EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "struct", r.start, TokenPart::NONE );
   _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  auto childs = visitChildren( ctx );
+  visitChildren( ctx );
   if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
     _line_parts.pop_back();
   _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   if ( _line_parts.size() - 1 == curcount )
     _line_parts.back().style |= TokenPart::ATTACHED;
-  return new_node( ctx, "struct-expression",  //
-                   "members", childs          //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitExpressionList(
+antlrcpp::Any PrettifyFileProcessor::visitExpressionList(
     EscriptGrammar::EscriptParser::ExpressionListContext* ctx )
 {
   auto args = ctx->expression();
@@ -674,43 +521,32 @@ antlrcpp::Any JsonAstFileProcessor::visitExpressionList(
       _line_parts.emplace_back( ",", r.start,
                                 TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     }
-    auto test = visitExpression( args[i] );
+    visitExpression( args[i] );
   }
 
   return {};
 }
-antlrcpp::Any JsonAstFileProcessor::visitExpression(
+antlrcpp::Any PrettifyFileProcessor::visitExpression(
     EscriptGrammar::EscriptParser::ExpressionContext* ctx )
 {
   if ( auto prim = ctx->primary() )
-    return visitPrimary( prim );
+    visitPrimary( prim );
   else if ( ctx->prefix )
   {
     Range r( ctx->prefix );
     _line_parts.emplace_back( ctx->prefix->getText(), r.start, TokenPart::NONE );
-    auto e = visitExpression( ctx->expression( 0 ) );
-    return new_node( ctx, "unary-expression",             //
-                     "prefix", true,                      //
-                     "operator", ctx->prefix->getText(),  //
-                     "argument", e                        //
-    );
+    visitExpression( ctx->expression( 0 ) );
   }
   else if ( ctx->postfix )
   {
     Range r( ctx->postfix );
-    auto e = visitExpression( ctx->expression( 0 ) );
+    visitExpression( ctx->expression( 0 ) );
     _line_parts.emplace_back( ctx->postfix->getText(), r.start,
                               TokenPart::SPACE | TokenPart::ATTACHED );
-    return new_node( ctx, "unary-expression",              //
-                     "prefix", false,                      //
-                     "operator", ctx->postfix->getText(),  //
-                     "argument", e                         //
-    );
   }
-
   else if ( ctx->bop && ctx->expression().size() == 2 )
   {
-    auto left = visitExpression( ctx->expression( 0 ) );
+    visitExpression( ctx->expression( 0 ) );  // left
     Range r( ctx->bop );
     auto op = ctx->bop->getText();
     if ( op == "?:" )  // break before elvis
@@ -724,99 +560,73 @@ antlrcpp::Any JsonAstFileProcessor::visitExpression(
     else
       _line_parts.emplace_back( std::move( op ), r.start, TokenPart::SPACE );
 
-    auto right = visitExpression( ctx->expression( 1 ) );
-    return new_node( ctx, "binary-expression",         //
-                     "left", left,                     //
-                     "operator", ctx->bop->getText(),  //
-                     "right", right                    //
-    );
+    visitExpression( ctx->expression( 1 ) );  // right
   }
   else if ( auto suffix = ctx->expressionSuffix() )
   {
-    return expression_suffix( ctx->expression( 0 ), suffix );
+    // TODO ?
+    expression_suffix( ctx->expression( 0 ), suffix );
   }
   else if ( ctx->QUESTION() )
   {
-    auto cond = visitExpression( ctx->expression( 0 ) );
+    visitExpression( ctx->expression( 0 ) );  // conditional
     Range rcond( *ctx->expression( 0 ) );
     _line_parts.emplace_back( "?", rcond.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
-    auto cons = visitExpression( ctx->expression( 1 ) );
+    visitExpression( ctx->expression( 1 ) );  // consequent
     Range rcons( *ctx->expression( 1 ) );
     _line_parts.emplace_back( ":", rcons.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
 
-    auto alt = visitExpression( ctx->expression( 2 ) );
-
-    return new_node( ctx, "conditional-expression",  //
-                     "conditional", cond,            //
-                     "consequent", cons,             //
-                     "alternate", alt                //
-    );
+    visitExpression( ctx->expression( 2 ) );  // alternate
   }
 
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::expression_suffix(
+antlrcpp::Any PrettifyFileProcessor::expression_suffix(
     EscriptGrammar::EscriptParser::ExpressionContext* expr_ctx,
     EscriptGrammar::EscriptParser::ExpressionSuffixContext* expr_suffix_ctx )
 {
   if ( auto indexing = expr_suffix_ctx->indexingSuffix() )
   {
     Range r( *indexing );
-    auto entity = visitExpression( expr_ctx );
+    visitExpression( expr_ctx );
     _line_parts.emplace_back( "[", r.start, TokenPart::ATTACHED );
-    auto index = visitExpressionList( indexing->expressionList() );
+    visitExpressionList( indexing->expressionList() );
     _line_parts.emplace_back( "]", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
-    auto n = new_node( expr_ctx, "element-access-expression",  //
-                       "indexes", index,                       //
-                       "entity", entity                        //
-    );
-    return n;
   }
   else if ( auto member = expr_suffix_ctx->navigationSuffix() )
   {
-    antlrcpp::Any accessor;
     Range r( *member );
-    auto expr = visitExpression( expr_ctx );
+    visitExpression( expr_ctx );
     _line_parts.emplace_back( ".", r.start, TokenPart::ATTACHED );
     if ( auto string_literal = member->STRING_LITERAL() )
     {
-      accessor = make_string_literal( string_literal );
+      make_string_literal( string_literal );
     }
     else if ( auto identifier = member->IDENTIFIER() )
     {
-      accessor = make_identifier( identifier );
+      make_identifier( identifier );
     }
-
-    return new_node( expr_ctx, "member-access-expression",  //
-                     "name", std::move( accessor ),         //
-                     "entity", std::move( expr )            //
-    );
   }
   else if ( auto method = expr_suffix_ctx->methodCallSuffix() )
   {
     Range r( *method );
-    auto entity = visitExpression( expr_ctx );
+    visitExpression( expr_ctx );
     _line_parts.emplace_back( ".", r.start, TokenPart::ATTACHED );
-    auto ident = make_identifier( method->IDENTIFIER() );
-    _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::ATTACHED );
+    make_identifier( method->IDENTIFIER() );
+    _line_parts.emplace_back( "(", r.start,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     auto cursize = _line_parts.size();
-    auto args = visitChildren( method );
+    visitChildren( method );
 
     _line_parts.emplace_back( ")", r.end, TokenPart::SPACE );
     if ( _line_parts.size() - 1 == cursize )
       _line_parts.back().style |= TokenPart::ATTACHED;
-    return new_node( expr_ctx, "method-call-expression",  //
-                     "name", ident,                       //
-                     "arguments", args,                   //
-                     "entity", entity                     //
-    );
   }
-
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitFloatLiteral(
+antlrcpp::Any PrettifyFileProcessor::visitFloatLiteral(
     EscriptGrammar::EscriptParser::FloatLiteralContext* ctx )
 {
   if ( auto float_literal = ctx->FLOAT_LITERAL() )
@@ -827,115 +637,95 @@ antlrcpp::Any JsonAstFileProcessor::visitFloatLiteral(
   return visitChildren( ctx );
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitForeachIterableExpression(
+antlrcpp::Any PrettifyFileProcessor::visitForeachIterableExpression(
     EscriptGrammar::EscriptParser::ForeachIterableExpressionContext* ctx )
 {
   if ( auto parExpression = ctx->parExpression() )
   {
-    return visitExpression( parExpression->expression() );
+    visitExpression( parExpression->expression() );
   }
   else if ( auto functionCall = ctx->functionCall() )
   {
-    return visitFunctionCall( functionCall );
+    visitFunctionCall( functionCall );
   }
   else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
   {
-    return visitScopedFunctionCall( scopedFunctionCall );
+    visitScopedFunctionCall( scopedFunctionCall );
   }
   else if ( auto identifier = ctx->IDENTIFIER() )
   {
-    return make_identifier( identifier );
+    make_identifier( identifier );
   }
   else if ( auto explicitArrayInitializer = ctx->explicitArrayInitializer() )
   {
-    return visitExplicitArrayInitializer( explicitArrayInitializer );
+    visitExplicitArrayInitializer( explicitArrayInitializer );
   }
   else if ( auto bareArrayInitializer = ctx->bareArrayInitializer() )
   {
-    return visitBareArrayInitializer( bareArrayInitializer );
+    visitBareArrayInitializer( bareArrayInitializer );
   }
-
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitForeachStatement(
+antlrcpp::Any PrettifyFileProcessor::visitForeachStatement(
     EscriptGrammar::EscriptParser::ForeachStatementContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "foreach", r.start, TokenPart::SPACE );
-  auto identifier = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   Range ri( *ctx->IDENTIFIER() );
   _line_parts.emplace_back( "in", ri.end, TokenPart::SPACE );
   _line_parts.emplace_back( "(", ri.end, TokenPart::SPACE );
-  auto label = make_statement_label( ctx->statementLabel() );
-  auto expression = visitForeachIterableExpression( ctx->foreachIterableExpression() );
+  make_statement_label( ctx->statementLabel() );
+  visitForeachIterableExpression( ctx->foreachIterableExpression() );
   _line_parts.emplace_back( ")", ri.end, TokenPart::SPACE );
   buildLine();
-  ++_currident;
 
-  auto body = visitBlock( ctx->block() );
+  ++_currident;
+  visitBlock( ctx->block() );
   --_currident;
+
   _line_parts.emplace_back( "endforeach", r.end, TokenPart::SPACE );
   buildLine();
 
-  return new_node( ctx, "foreach-statement",               //
-                   "identifier", std::move( identifier ),  //
-                   "expression", std::move( expression ),  //
-                   "label", std::move( label ),            //
-                   "body", std::move( body )               //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitForStatement(
+antlrcpp::Any PrettifyFileProcessor::visitForStatement(
     EscriptGrammar::EscriptParser::ForStatementContext* ctx )
 {
-  auto label = make_statement_label( ctx->statementLabel() );
+  make_statement_label( ctx->statementLabel() );
 
   auto forGroup = ctx->forGroup();
 
   if ( auto basicForStatement = forGroup->basicForStatement() )
   {
-    auto node = visitBasicForStatement( basicForStatement );
-    add( &node,                       //
-         "label", std::move( label )  //
-    );
-    return node;
+    visitBasicForStatement( basicForStatement );
   }
   else if ( auto cstyleForStatement = forGroup->cstyleForStatement() )
   {
-    auto node = visitCstyleForStatement( cstyleForStatement );
-    add( &node,                       //
-         "label", std::move( label )  //
-    );
-    return node;
+    visitCstyleForStatement( cstyleForStatement );
   }
-
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitFunctionCall(
+antlrcpp::Any PrettifyFileProcessor::visitFunctionCall(
     EscriptGrammar::EscriptParser::FunctionCallContext* ctx )
 {
-  auto i = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   Range r( *ctx );
 
   _line_parts.emplace_back( "(", r.start,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   auto cursize = _line_parts.size();
-  std::any any_args;
   if ( auto args = ctx->expressionList() )
-    any_args = visitExpressionList( args );
-  auto n = new_node( ctx, "function-call-expression",  //
-                     "callee", i,                      //
-                     "arguments", any_args,            //
-                     "scope", picojson::value()        //
-  );
+    visitExpressionList( args );
   _line_parts.emplace_back( ")", r.end, TokenPart::SPACE );
   if ( _line_parts.size() - 1 == cursize )
     _line_parts.back().style |= TokenPart::ATTACHED;
-  return n;
+  return {};
 }
-antlrcpp::Any JsonAstFileProcessor::visitFunctionDeclaration(
+antlrcpp::Any PrettifyFileProcessor::visitFunctionDeclaration(
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx )
 {
   Range r( *ctx );
@@ -946,12 +736,12 @@ antlrcpp::Any JsonAstFileProcessor::visitFunctionDeclaration(
     _line_parts.emplace_back( "exported", re.start, TokenPart::SPACE );
   }
   _line_parts.emplace_back( "function", r.start, TokenPart::SPACE );
-  auto name = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   Range rname( *ctx->IDENTIFIER() );
   _line_parts.emplace_back( "(", rname.end,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   auto cursize = _line_parts.size();
-  auto parameters = visitFunctionParameters( ctx->functionParameters() );
+  visitFunctionParameters( ctx->functionParameters() );
   if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
     _line_parts.pop_back();
   Range rparam( *ctx->functionParameters() );
@@ -961,23 +751,18 @@ antlrcpp::Any JsonAstFileProcessor::visitFunctionDeclaration(
     _line_parts.back().style |= TokenPart::ATTACHED;
   ;
   buildLine();
+
   ++_currident;
-  auto body = visitBlock( ctx->block() );
+  visitBlock( ctx->block() );
   --_currident;
+
   _line_parts.emplace_back( "endfunction", r.end, TokenPart::SPACE );
   buildLine();
-
-  return new_node( ctx, "function-declaration",            //
-                   "name", std::move( name ),              //
-                   "parameters", std::move( parameters ),  //
-                   "exported", (bool)exported,             //
-                   "body", std::move( body )               //
-  );
+  return {};
 }
-antlrcpp::Any JsonAstFileProcessor::visitFunctionParameter(
+antlrcpp::Any PrettifyFileProcessor::visitFunctionParameter(
     EscriptGrammar::EscriptParser::FunctionParameterContext* ctx )
 {
-  antlrcpp::Any init;
   auto byref = ctx->BYREF();
   if ( byref )
   {
@@ -990,62 +775,50 @@ antlrcpp::Any JsonAstFileProcessor::visitFunctionParameter(
     Range re( *unused );
     _line_parts.emplace_back( "unused", re.start, TokenPart::SPACE );
   }
-  auto name = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
 
   if ( auto expression = ctx->expression() )
   {
     Range re( *expression );
     _line_parts.emplace_back( ":=", re.start, TokenPart::SPACE );
-    init = visitExpression( expression );
+    visitExpression( expression );
   }
   Range re( *ctx );
   _line_parts.emplace_back( ",", re.end,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
 
-  return new_node( ctx, "function-parameter",  //
-                   "name", std::move( name ),  //
-                   "init", std::move( init ),  //
-                   "byref", (bool)byref,       //
-                   "unused", (bool)unused      //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitBreakStatement(
+antlrcpp::Any PrettifyFileProcessor::visitBreakStatement(
     EscriptGrammar::EscriptParser::BreakStatementContext* ctx )
 {
-  antlrcpp::Any label;
-
   if ( auto identifier = ctx->IDENTIFIER() )
   {
-    label = make_identifier( identifier );
+    make_identifier( identifier );
   }
 
   _line_parts.emplace_back( "break", Range( *ctx ).end, TokenPart::NONE );
   _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::SPACE );
   buildLine();
-  return new_node( ctx, "break-statement",      //
-                   "label", std::move( label )  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitSwitchBlockStatementGroup(
+antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
     EscriptGrammar::EscriptParser::SwitchBlockStatementGroupContext* ctx )
 {
-  auto labels = defaultResult();
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
     visitSwitchLabel( switchLabel );
   }
+  ++_currident;
+  visitBlock( ctx->block() );
+  --_currident;
 
-  auto body = visitBlock( ctx->block() );
-
-  return new_node( ctx, "switch-block",            //
-                   "labels", std::move( labels ),  //
-                   "body", std::move( body )       //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitSwitchLabel(
+antlrcpp::Any PrettifyFileProcessor::visitSwitchLabel(
     EscriptGrammar::EscriptParser::SwitchLabelContext* ctx )
 {
   if ( auto integerLiteral = ctx->integerLiteral() )
@@ -1085,188 +858,160 @@ antlrcpp::Any JsonAstFileProcessor::visitSwitchLabel(
                               TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
 
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitCaseStatement(
+antlrcpp::Any PrettifyFileProcessor::visitCaseStatement(
     EscriptGrammar::EscriptParser::CaseStatementContext* ctx )
 {
   Range r( *ctx );
-  auto label = make_statement_label( ctx->statementLabel() );
+  make_statement_label( ctx->statementLabel() );
   _line_parts.emplace_back( "case", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  auto test = visitExpression( ctx->expression() );
+  visitExpression( ctx->expression() );
   _line_parts.emplace_back( ")", Range( *ctx->expression() ).end,
                             TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
-  ++_currident;
-  auto cases = defaultResult();
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
     visitSwitchBlockStatementGroup( switchBlockStatementGroup );
   }
-  --_currident;
   _line_parts.emplace_back( "endcase", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
-  return new_node( ctx, "case-statement",        //
-                   "label", std::move( label ),  //
-                   "test", std::move( test ),    //
-                   "cases", std::move( cases )   //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitContinueStatement(
+antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
     EscriptGrammar::EscriptParser::ContinueStatementContext* ctx )
 {
-  antlrcpp::Any label;
-
   if ( auto identifier = ctx->IDENTIFIER() )
   {
-    label = make_identifier( identifier );
+    make_identifier( identifier );
   }
 
   _line_parts.emplace_back( "continue", Range( *ctx ).end, TokenPart::NONE );
   _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::SPACE );
   buildLine();
-  return new_node( ctx, "continue-statement",   //
-                   "label", std::move( label )  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitBasicForStatement(
+antlrcpp::Any PrettifyFileProcessor::visitBasicForStatement(
     EscriptGrammar::EscriptParser::BasicForStatementContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "for", r.start, TokenPart::SPACE );
-  auto identifier = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   _line_parts.emplace_back( ":=", Range( *ctx->IDENTIFIER() ).end, TokenPart::SPACE );
-  auto first = visitExpression( ctx->expression( 0 ) );
+  visitExpression( ctx->expression( 0 ) );
   _line_parts.emplace_back( "to", Range( *ctx->expression( 0 ) ).end, TokenPart::SPACE );
-  auto last = visitExpression( ctx->expression( 1 ) );
+  visitExpression( ctx->expression( 1 ) );
   buildLine();
 
   ++_currident;
-  auto body = visitBlock( ctx->block() );
+  visitBlock( ctx->block() );
   --_currident;
 
   _line_parts.emplace_back( "endfor", r.end, TokenPart::SPACE );
   buildLine();
 
-  return new_node( ctx, "basic-for-statement",             //
-                   "identifier", std::move( identifier ),  //
-                   "first", std::move( first ),            //
-                   "last", std::move( last )               //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitCstyleForStatement(
+antlrcpp::Any PrettifyFileProcessor::visitCstyleForStatement(
     EscriptGrammar::EscriptParser::CstyleForStatementContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "for", r.start, TokenPart::SPACE );
   _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  auto initializer = visitExpression( ctx->expression( 0 ) );
+  visitExpression( ctx->expression( 0 ) );
   _line_parts.emplace_back( ";", r.start,
                             TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
-  auto test = visitExpression( ctx->expression( 1 ) );
+  visitExpression( ctx->expression( 1 ) );
   _line_parts.emplace_back( ";", r.start,
                             TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
-  auto advancer = visitExpression( ctx->expression( 2 ) );
+  visitExpression( ctx->expression( 2 ) );
   _line_parts.emplace_back( ")", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
 
   buildLine();
+
   ++_currident;
-  auto body = visitBlock( ctx->block() );
+  visitBlock( ctx->block() );
   --_currident;
+
   _line_parts.emplace_back( "endfor", r.end, TokenPart::SPACE );
   buildLine();
-  return new_node( ctx, "cstyle-for-statement",              //
-                   "initializer", std::move( initializer ),  //
-                   "test", std::move( test ),                //
-                   "advancer", std::move( advancer ),        //
-                   "body", std::move( body )                 //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitRepeatStatement(
+antlrcpp::Any PrettifyFileProcessor::visitRepeatStatement(
     EscriptGrammar::EscriptParser::RepeatStatementContext* ctx )
 {
-  auto label = make_statement_label( ctx->statementLabel() );
+  make_statement_label( ctx->statementLabel() );
   Range r( *ctx );
   _line_parts.emplace_back( "repeat", r.start, TokenPart::SPACE );
   buildLine();
 
   ++_currident;
-  auto body = visitBlock( ctx->block() );
+  visitBlock( ctx->block() );
   --_currident;
 
   _line_parts.emplace_back( "until", Range( *ctx->expression() ).start, TokenPart::SPACE );
-  auto test = visitExpression( ctx->expression() );
+  visitExpression( ctx->expression() );
   _line_parts.emplace_back( ";", Range( *ctx->expression() ).start,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
 
-  return new_node( ctx, "repeat-statement",      //
-                   "label", std::move( label ),  //
-                   "body", std::move( body ),    //
-                   "test", std::move( test )     //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitReturnStatement(
+antlrcpp::Any PrettifyFileProcessor::visitReturnStatement(
     EscriptGrammar::EscriptParser::ReturnStatementContext* ctx )
 {
-  antlrcpp::Any value;
   Range r( *ctx );
   _line_parts.emplace_back( "return", r.start, TokenPart::SPACE );
 
   if ( auto expression = ctx->expression() )
   {
-    value = visitExpression( expression );
+    visitExpression( expression );
   }
   _line_parts.emplace_back( ";", r.end,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
-
-  return new_node( ctx, "return-statement",     //
-                   "value", std::move( value )  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitScopedFunctionCall(
+antlrcpp::Any PrettifyFileProcessor::visitScopedFunctionCall(
     EscriptGrammar::EscriptParser::ScopedFunctionCallContext* ctx )
 {
-  return new_node( ctx, "function-call-expression",                                 //
-                   "callee", make_identifier( ctx->functionCall()->IDENTIFIER() ),  //
-                   "arguments", visitChildren( ctx->functionCall() ),               //
-                   "scope", make_identifier( ctx->IDENTIFIER() )                    //
-  );
+  INFO_PRINTLN( "SCOPEDFUNCTIONCALL" );
+  // todo when?
+  make_identifier( ctx->functionCall()->IDENTIFIER() );  // callee
+  visitChildren( ctx->functionCall() );                  // arguments
+  make_identifier( ctx->IDENTIFIER() );                  // scope
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitFunctionReference(
+antlrcpp::Any PrettifyFileProcessor::visitFunctionReference(
     EscriptGrammar::EscriptParser::FunctionReferenceContext* ctx )
 {
   _line_parts.emplace_back( "@", Range( *ctx ).start, TokenPart::NONE );
-  return new_node( ctx, "function-reference-expression",         //
-                   "name", make_identifier( ctx->IDENTIFIER() )  //
-  );
+  make_identifier( ctx->IDENTIFIER() );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitGotoStatement(
+antlrcpp::Any PrettifyFileProcessor::visitGotoStatement(
     EscriptGrammar::EscriptParser::GotoStatementContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "goto", r.start, TokenPart::SPACE );
-  auto label = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   _line_parts.emplace_back( ";", r.end,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
-  return new_node( ctx, "goto-statement",  //
-                   "label", label          //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitIfStatement(
+antlrcpp::Any PrettifyFileProcessor::visitIfStatement(
     EscriptGrammar::EscriptParser::IfStatementContext* ctx )
 {
   auto blocks = ctx->block();
@@ -1306,53 +1051,42 @@ antlrcpp::Any JsonAstFileProcessor::visitIfStatement(
   return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitIncludeDeclaration(
+antlrcpp::Any PrettifyFileProcessor::visitIncludeDeclaration(
     EscriptGrammar::EscriptParser::IncludeDeclarationContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "include", r.start, TokenPart::SPACE );
-  auto id = visitStringIdentifier( ctx->stringIdentifier() );
+  visitStringIdentifier( ctx->stringIdentifier() );
   _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
   buildLine();
-  return new_node( ctx, "include-declaration",  //
-                   "specifier", id              //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitInterpolatedString(
+antlrcpp::Any PrettifyFileProcessor::visitInterpolatedString(
     EscriptGrammar::EscriptParser::InterpolatedStringContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "$", r.start, TokenPart::SPACE );
   _line_parts.emplace_back( "\"", r.start, TokenPart::ATTACHED );
-  INFO_PRINTLN( "RAW '{}'", ctx->getText() );
-  auto childs = visitChildren( ctx );
+  visitChildren( ctx );
   _line_parts.emplace_back( "\"", r.end, TokenPart::ATTACHED | TokenPart::SPACE );
-  return new_node( ctx, "interpolated-string-expression",  //
-                   "parts", childs                         //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitInterpolatedStringPart(
+antlrcpp::Any PrettifyFileProcessor::visitInterpolatedStringPart(
     EscriptGrammar::EscriptParser::InterpolatedStringPartContext* ctx )
 {
-  antlrcpp::Any format;
-  antlrcpp::Any expression;
   if ( auto expression_ctx = ctx->expression() )
   {
     Range r( *expression_ctx );
     _line_parts.emplace_back( "{", r.start, TokenPart::ATTACHED );
-    expression = visitExpression( expression_ctx );
+    visitExpression( expression_ctx );
 
     if ( auto format_string = ctx->FORMAT_STRING() )
     {
-      INFO_PRINTLN( "FORMAT {}", format_string->getText() );
       _line_parts.emplace_back( ":", Range( *format_string ).start, TokenPart::ATTACHED );
       _line_parts.emplace_back( format_string->getText(), Range( *format_string ).start,
                                 TokenPart::ATTACHED );
-      //      format = new_node( format_string, "format-string",  //
-      //                       "id", format_string->getText()   //
-      //  );
     }
     _line_parts.emplace_back( "}", r.end, TokenPart::ATTACHED );
   }
@@ -1361,46 +1095,39 @@ antlrcpp::Any JsonAstFileProcessor::visitInterpolatedStringPart(
   {
     _line_parts.emplace_back( string_literal->getText(), Range( *string_literal ).start,
                               TokenPart::ATTACHED );
-    //    expression = make_string_literal( string_literal, string_literal->getText() );
   }
   else if ( auto lbrace = ctx->DOUBLE_LBRACE_INSIDE() )
   {
     _line_parts.emplace_back( "{{", Range( *lbrace ).start, TokenPart::ATTACHED );
-    // expression = make_string_literal( lbrace, "{" );
   }
   else if ( auto rbrace = ctx->DOUBLE_RBRACE() )
   {
     _line_parts.emplace_back( "}}", Range( *rbrace ).start, TokenPart::ATTACHED );
-    //    expression = make_string_literal( rbrace, "}" );
   }
   else if ( auto escaped = ctx->REGULAR_CHAR_INSIDE() )
   {
     _line_parts.emplace_back( escaped->getText(), Range( *escaped ).start, TokenPart::ATTACHED );
-    //    expression = make_string_literal( escaped, escaped->getText() );
   }
 
-  return new_node( ctx, "interpolated-string-part",        //
-                   "expression", std::move( expression ),  //
-                   "format", std::move( format )           //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitBoolLiteral(
+antlrcpp::Any PrettifyFileProcessor::visitBoolLiteral(
     EscriptGrammar::EscriptParser::BoolLiteralContext* ctx )
 {
   if ( auto bool_false = ctx->BOOL_FALSE() )
   {
-    return make_bool_literal( bool_false );
+    make_bool_literal( bool_false );
   }
   else if ( auto bool_true = ctx->BOOL_TRUE() )
   {
-    return make_bool_literal( bool_true );
+    make_bool_literal( bool_true );
   }
 
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitIntegerLiteral(
+antlrcpp::Any PrettifyFileProcessor::visitIntegerLiteral(
     EscriptGrammar::EscriptParser::IntegerLiteralContext* ctx )
 {
   if ( auto decimal_literal = ctx->DECIMAL_LITERAL() )
@@ -1418,7 +1145,7 @@ antlrcpp::Any JsonAstFileProcessor::visitIntegerLiteral(
   return visitChildren( ctx );
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitLiteral(
+antlrcpp::Any PrettifyFileProcessor::visitLiteral(
     EscriptGrammar::EscriptParser::LiteralContext* ctx )
 {
   if ( auto string_literal = ctx->STRING_LITERAL() )
@@ -1436,54 +1163,39 @@ antlrcpp::Any JsonAstFileProcessor::visitLiteral(
   return visitChildren( ctx );
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitModuleFunctionDeclaration(
+antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionDeclaration(
     EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext* ctx )
 {
-  auto name = make_identifier( ctx->IDENTIFIER() );
-  antlrcpp::Any parameters;
+  make_identifier( ctx->IDENTIFIER() );
 
   if ( auto moduleFunctionParameterList = ctx->moduleFunctionParameterList() )
   {
-    parameters = visitModuleFunctionParameterList( moduleFunctionParameterList );
+    visitModuleFunctionParameterList( moduleFunctionParameterList );
   }
-  else
-  {
-    parameters = defaultResult();
-  }
-
-  return new_node( ctx, "module-function-declaration",    //
-                   "name", std::move( name ),             //
-                   "parameters", std::move( parameters )  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitModuleFunctionParameter(
+antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameter(
     EscriptGrammar::EscriptParser::ModuleFunctionParameterContext* ctx )
 {
-  antlrcpp::Any value;
-  auto name = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
 
   if ( auto expression = ctx->expression() )
   {
-    value = visitExpression( expression );
+    visitExpression( expression );
   }
 
-  return new_node( ctx, "module-function-parameter",  //
-                   "name", std::move( name ),         //
-                   "value", std::move( value )        //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitModuleUnit(
+antlrcpp::Any PrettifyFileProcessor::visitModuleUnit(
     EscriptGrammar::EscriptParser::ModuleUnitContext* ctx )
 {
-  return new_node( ctx, "file",                   //
-                   "body", visitChildren( ctx ),  //
-                   "module", true                 //
-  );
+  visitChildren( ctx );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitPrimary(
+antlrcpp::Any PrettifyFileProcessor::visitPrimary(
     EscriptGrammar::EscriptParser::PrimaryContext* ctx )
 {
   if ( auto literal = ctx->literal() )
@@ -1494,10 +1206,10 @@ antlrcpp::Any JsonAstFileProcessor::visitPrimary(
   {
     Range r( *parExpression );
     _line_parts.emplace_back( "(", r.start, TokenPart::SPACE );
-    auto e = visitExpression( parExpression->expression() );
+    visitExpression( parExpression->expression() );
 
     _line_parts.emplace_back( ")", r.end, TokenPart::SPACE );
-    return e;
+    return {};
   }
   else if ( auto functionCall = ctx->functionCall() )
   {
@@ -1510,7 +1222,7 @@ antlrcpp::Any JsonAstFileProcessor::visitPrimary(
   else if ( auto uninit = ctx->UNINIT() )
   {
     _line_parts.emplace_back( "uninit", Range( *uninit ).start, TokenPart::SPACE );
-    return new_node( uninit, "uninitialized-value" );
+    return {};
   }
   else if ( auto bool_true = ctx->BOOL_TRUE() )
   {
@@ -1553,18 +1265,18 @@ antlrcpp::Any JsonAstFileProcessor::visitPrimary(
     return visitInterpolatedString( interpolatedString );
   }
 
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitProgramDeclaration(
+antlrcpp::Any PrettifyFileProcessor::visitProgramDeclaration(
     EscriptGrammar::EscriptParser::ProgramDeclarationContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "program", r.start, TokenPart::SPACE );
-  auto ident = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::ATTACHED );
   auto cursize = _line_parts.size();
-  auto args = visitProgramParameters( ctx->programParameters() );
+  visitProgramParameters( ctx->programParameters() );
   if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
     _line_parts.pop_back();
   _line_parts.emplace_back( ")", r.start, TokenPart::SPACE );
@@ -1572,22 +1284,17 @@ antlrcpp::Any JsonAstFileProcessor::visitProgramDeclaration(
     _line_parts.back().style |= TokenPart::ATTACHED;
   buildLine();
   ++_currident;
-  auto block = visitBlock( ctx->block() );
+  visitBlock( ctx->block() );
   --_currident;
   _line_parts.emplace_back( "endprogram", r.end, TokenPart::SPACE );
   buildLine();
 
-  return new_node( ctx, "program",      //
-                   "name", ident,       //
-                   "parameters", args,  //
-                   "body", block        //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitProgramParameter(
+antlrcpp::Any PrettifyFileProcessor::visitProgramParameter(
     EscriptGrammar::EscriptParser::ProgramParameterContext* ctx )
 {
-  antlrcpp::Any init;
   auto unused = ctx->UNUSED();
   if ( unused )
   {
@@ -1595,23 +1302,19 @@ antlrcpp::Any JsonAstFileProcessor::visitProgramParameter(
     _line_parts.emplace_back( "unused", r.start, TokenPart::SPACE );
   }
 
-  auto id = make_identifier( ctx->IDENTIFIER() );
+  make_identifier( ctx->IDENTIFIER() );
   if ( auto expression = ctx->expression() )
   {
     Range r( *expression );
     _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
-    init = visitExpression( expression );
+    visitExpression( expression );
   }
   Range r( *ctx );
   _line_parts.emplace_back( ",", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
-  return new_node( ctx, "program-parameter",  //
-                   "name", id,                //
-                   "unused", (bool)unused,    //
-                   "init", std::move( init )  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitStatement(
+antlrcpp::Any PrettifyFileProcessor::visitStatement(
     EscriptGrammar::EscriptParser::StatementContext* ctx )
 {
   if ( auto ifStatement = ctx->ifStatement() )
@@ -1676,21 +1379,19 @@ antlrcpp::Any JsonAstFileProcessor::visitStatement(
   }
   else if ( auto expression = ctx->statementExpression )
   {
-    auto a = new_node( ctx, "expression-statement",                 //
-                       "expression", visitExpression( expression )  //
-    );
+    visitExpression( expression );
 
     Range r( *ctx );
     _line_parts.emplace_back( ";", r.end,
                               TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     buildLine();
-    return a;
+    return {};
   }
 
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitStringIdentifier(
+antlrcpp::Any PrettifyFileProcessor::visitStringIdentifier(
     EscriptGrammar::EscriptParser::StringIdentifierContext* ctx )
 {
   if ( auto identifier = ctx->IDENTIFIER() )
@@ -1701,134 +1402,90 @@ antlrcpp::Any JsonAstFileProcessor::visitStringIdentifier(
   {
     return make_string_literal( string_literal );
   }
-  return antlrcpp::Any();
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitStructInitializerExpression(
+antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpression(
     EscriptGrammar::EscriptParser::StructInitializerExpressionContext* ctx )
 {
-  antlrcpp::Any name;
-  antlrcpp::Any init;
-
   if ( auto identifier = ctx->IDENTIFIER() )
   {
-    name = make_identifier( identifier );
+    make_identifier( identifier );
   }
   else if ( auto string_literal = ctx->STRING_LITERAL() )
   {
-    name = make_string_literal( string_literal );
+    make_string_literal( string_literal );
   }
 
   if ( auto expression = ctx->expression() )
   {
     Range r( *expression );
     _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
-    init = visitExpression( expression );
+    visitExpression( expression );
   }
   Range r( *ctx );
   _line_parts.emplace_back( ",", r.end,
                             TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  return new_node( ctx, "struct-initializer",  //
-                   "name", std::move( name ),  //
-                   "init", std::move( init )   //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::visitUseDeclaration( EscriptParser::UseDeclarationContext* ctx )
+antlrcpp::Any PrettifyFileProcessor::visitUseDeclaration(
+    EscriptParser::UseDeclarationContext* ctx )
 {
   Range r( *ctx );
   _line_parts.emplace_back( "use", r.start, TokenPart::SPACE );
-  auto a = visitStringIdentifier( ctx->stringIdentifier() );
+  visitStringIdentifier( ctx->stringIdentifier() );
   _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
 
   buildLine();
-  return new_node( ctx, "use-declaration",  //
-                   "specifier", a           //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::make_statement_label(
+antlrcpp::Any PrettifyFileProcessor::make_statement_label(
     EscriptGrammar::EscriptParser::StatementLabelContext* ctx )
 {
-  antlrcpp::Any label;
-
   if ( ctx )
   {
-    label = make_identifier( ctx->IDENTIFIER() );
+    make_identifier( ctx->IDENTIFIER() );
     Range r( *ctx->IDENTIFIER() );
     _line_parts.emplace_back( ":", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
   }
-
-
-  return label;
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::make_identifier( antlr4::tree::TerminalNode* terminal )
+antlrcpp::Any PrettifyFileProcessor::make_identifier( antlr4::tree::TerminalNode* terminal )
 {
   Range r( *terminal );
   _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
-  return new_node( terminal, "identifier",    //
-                   "id", terminal->getText()  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::make_string_literal( antlr4::tree::TerminalNode* terminal,
-                                                         const std::string& text )
+antlrcpp::Any PrettifyFileProcessor::make_string_literal( antlr4::tree::TerminalNode* terminal )
 {
-  Range r( *terminal );
-  _line_parts.emplace_back( fmt::format( "\"{}\"", text ), r.start, TokenPart::SPACE );
-  return new_node( terminal, "string-value",  //
-                   "value", text,             //
-                   "raw", text                //
-  );
-}
-
-antlrcpp::Any JsonAstFileProcessor::make_string_literal( antlr4::tree::TerminalNode* terminal )
-{
-  auto text = terminal->getText();
   Range r( *terminal );
   _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
-
-  return new_node( terminal, "string-value",                      //
-                   "value", text.substr( 1, text.length() - 2 ),  //
-                   "raw", text                                    //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::make_integer_literal( antlr4::tree::TerminalNode* terminal )
+antlrcpp::Any PrettifyFileProcessor::make_integer_literal( antlr4::tree::TerminalNode* terminal )
 {
-  auto text = terminal->getText();
-
   Range r( *terminal );
   _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
-  return new_node( terminal, "integer-literal",  //
-                   "value", std::stoi( text ),   //
-                   "raw", text                   //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::make_float_literal( antlr4::tree::TerminalNode* terminal )
+antlrcpp::Any PrettifyFileProcessor::make_float_literal( antlr4::tree::TerminalNode* terminal )
 {
-  auto text = terminal->getText();
-
   Range r( *terminal );
   _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
-  return new_node( terminal, "float-literal",   //
-                   "value", std::stod( text ),  //
-                   "raw", text                  //
-  );
+  return {};
 }
 
-antlrcpp::Any JsonAstFileProcessor::make_bool_literal( antlr4::tree::TerminalNode* terminal )
+antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNode* terminal )
 {
-  auto text = terminal->getText();
-  bool value = terminal->getSymbol()->getType() == EscriptGrammar::EscriptLexer::BOOL_TRUE;
   Range r( *terminal );
   _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
-  return new_node( terminal, "boolean-literal",  //
-                   "value", value,               //
-                   "raw", text                   //
-  );
+  return {};
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -1,5 +1,4 @@
-#ifndef POLSERVER_JSONASTBUILDER_H
-#define POLSERVER_JSONASTBUILDER_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -10,15 +9,14 @@
 
 namespace Pol::Bscript::Compiler
 {
-class JsonAst;
 class Profile;
 class Report;
 class SourceFileLoader;
 
-class JsonAstBuilder
+class PrettifyBuilder
 {
 public:
-  JsonAstBuilder( SourceFileLoader& source_loader, Profile&, Report& );
+  PrettifyBuilder( SourceFileLoader& source_loader, Profile&, Report& );
 
   std::string build( const std::string& pathname, bool is_module );
 
@@ -28,5 +26,3 @@ public:
 };
 
 }  // namespace Pol::Bscript::Compiler
-
-#endif  // POLSERVER_JSONASTBUILDER_H
