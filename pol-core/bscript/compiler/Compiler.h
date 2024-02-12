@@ -36,7 +36,7 @@ public:
   std::unique_ptr<CompilerWorkspace> analyze( const std::string& pathname, Report&, bool is_module,
                                               bool continue_on_error );
 
-  bool format_file( const std::string& filename, bool is_module );
+  bool format_file( const std::string& filename, bool is_module, bool inplace );
 
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool is_module,

@@ -63,7 +63,8 @@ void ECompileMain::showHelp()
       "  Output is : filespec.ecl\n"
       "  Options:\n"
       "   Options: \n"
-      "       -F           format filespec"
+      "       -F           format filespec (print result)"
+      "       -Fi          format filespec (inplace)"
       "       -a           compile *.asp pages also\n"
       "       -A           automatically compile scripts in main and enabled packages\n"
       "       -Au          (as '-A' but only compile updated files)\n"
@@ -109,6 +110,7 @@ bool quiet = false;
 bool keep_building = false;
 bool force_update = false;
 bool format_source = false;
+bool format_source_inplace = false;
 bool show_timing_details = false;
 bool timing_quiet_override = false;
 bool expect_compile_failure = false;
@@ -208,7 +210,7 @@ bool format_file( const char* path )
 
   std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
-  bool success = compiler->format_file( path, ext.compare( ".em" ) == 0 );
+  bool success = compiler->format_file( path, ext.compare( ".em" ) == 0, format_source_inplace );
 
   if ( expect_compile_failure )
   {
@@ -563,8 +565,12 @@ int readargs( int argc, char** argv )
         break;
 
       case 'F':
+      {
+        if ( argv[i][2] && argv[i][2] == 'i' )
+          format_source_inplace = true;
         format_source = true;
         break;
+      }
 
       case 'f':
         force_update = true;

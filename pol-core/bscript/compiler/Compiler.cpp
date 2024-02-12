@@ -158,7 +158,7 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
   return {};
 }
 
-bool Compiler::format_file( const std::string& filename, bool is_module )
+bool Compiler::format_file( const std::string& filename, bool is_module, bool inplace )
 {
   ConsoleReporter reporter( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
   Report report( reporter );
@@ -167,6 +167,13 @@ bool Compiler::format_file( const std::string& filename, bool is_module )
   if ( report.error_count() )
     return false;
   INFO_PRINTLN( "\nFORMATTED:\n{}", formatted );
+  if ( inplace )
+  {
+    std::ofstream filestream;
+    filestream.open( filename, std::ios_base::out | std::ios_base::trunc );
+    filestream << formatted;
+    filestream.flush();
+  }
   return true;
 }
 

@@ -143,6 +143,14 @@ void PrettifyFileProcessor::mergeComments()
 
 void PrettifyFileProcessor::buildLine()
 {
+  auto stripline = []( std::string& line )
+  {
+    if ( !line.empty() )
+    {
+      auto lastchar = line.find_last_not_of( ' ' );
+      line.erase( line.begin() + lastchar + 1, line.end() );
+    }
+  };
   mergeComments();
 
   // fill lines with final strings splitted at breakpoints
@@ -215,12 +223,16 @@ void PrettifyFileProcessor::buildLine()
     // linewidth reached add current line, start a new one
     if ( line.size() > LINEWIDTH || forced )
     {
+      stripline( line );
       _lines.emplace_back( std::move( line ) );
       line.clear();
     }
   }
   if ( !line.empty() )
+  {
+    stripline( line );
     _lines.emplace_back( std::move( line ) );
+  }
   _last_line = _line_parts.back().lineno;
   _line_parts.clear();
 }
@@ -377,7 +389,8 @@ antlrcpp::Any PrettifyFileProcessor::visitDoStatement(
   _line_parts.emplace_back( "dowhile", Range( *exp ).start, TokenPart::SPACE );
   _line_parts.emplace_back( "(", Range( *exp ).start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   visitExpression( exp );
-  _line_parts.emplace_back( ")", Range( *exp ).end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  _line_parts.emplace_back( ")", Range( *exp ).end, TokenPart::NONE );
+  _line_parts.emplace_back( ";", Range( *exp ).end, TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
   return {};
 }
