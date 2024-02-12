@@ -493,9 +493,20 @@ antlrcpp::Any JsonAstFileProcessor::visitDoStatement(
     EscriptGrammar::EscriptParser::DoStatementContext* ctx )
 {
   auto label = make_statement_label( ctx->statementLabel() );
-  auto body = visitBlock( ctx->block() );
-  auto test = visitExpression( ctx->parExpression()->expression() );
+  Range r( *ctx );
+  _line_parts.emplace_back( "do", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  buildLine();
 
+  ++_currident;
+  auto body = visitBlock( ctx->block() );
+  --_currident;
+
+  auto exp = ctx->parExpression()->expression();
+  _line_parts.emplace_back( "dowhile", Range( *exp ).start, TokenPart::SPACE );
+  _line_parts.emplace_back( "(", Range( *exp ).start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  auto test = visitExpression( exp );
+  _line_parts.emplace_back( ")", Range( *exp ).start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  buildLine();
   return new_node( ctx, "do-statement",          //
                    "label", std::move( label ),  //
                    "test", std::move( test ),    //
@@ -559,6 +570,10 @@ antlrcpp::Any JsonAstFileProcessor::visitEnumStatement(
 antlrcpp::Any JsonAstFileProcessor::visitExitStatement(
     EscriptGrammar::EscriptParser::ExitStatementContext* ctx )
 {
+  Range r( *ctx );
+  _line_parts.emplace_back( "exit", r.start, TokenPart::NONE );
+  _line_parts.emplace_back( ";", r.start, TokenPart::ATTACHED | TokenPart::SPACE );
+  buildLine();
   return new_node( ctx, "exit-statement" );
 }
 
@@ -1019,7 +1034,7 @@ antlrcpp::Any JsonAstFileProcessor::visitSwitchBlockStatementGroup(
   auto labels = defaultResult();
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
-    labels = aggregateResult( std::move( labels ), visitSwitchLabel( switchLabel ) );
+    visitSwitchLabel( switchLabel );
   }
 
   auto body = visitBlock( ctx->block() );
@@ -1035,28 +1050,39 @@ antlrcpp::Any JsonAstFileProcessor::visitSwitchLabel(
 {
   if ( auto integerLiteral = ctx->integerLiteral() )
   {
-    return visitIntegerLiteral( integerLiteral );
+    visitIntegerLiteral( integerLiteral );
+    _line_parts.emplace_back( ":", Range( *integerLiteral ).end,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
   else if ( auto boolLiteral = ctx->boolLiteral() )
   {
-    return visitBoolLiteral( boolLiteral );
+    visitBoolLiteral( boolLiteral );
+    _line_parts.emplace_back( ":", Range( *boolLiteral ).end,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
   else if ( auto uninit = ctx->UNINIT() )
   {
     _line_parts.emplace_back( "uninit", Range( *uninit ).start, TokenPart::SPACE );
-    return new_node( uninit, "uninitialized-value" );
+    _line_parts.emplace_back( ":", Range( *uninit ).end,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
   else if ( auto identifier = ctx->IDENTIFIER() )
   {
-    return make_identifier( identifier );
+    make_identifier( identifier );
+    _line_parts.emplace_back( ":", Range( *identifier ).end,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
   else if ( auto string_literal = ctx->STRING_LITERAL() )
   {
-    return make_string_literal( string_literal );
+    make_string_literal( string_literal );
+    _line_parts.emplace_back( ":", Range( *string_literal ).end,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
-  else if ( ctx->DEFAULT() )
+  else if ( auto defaultctx = ctx->DEFAULT() )
   {
-    return new_node( ctx->DEFAULT(), "default-case-label" );
+    _line_parts.emplace_back( "default", Range( *defaultctx ).start, TokenPart::SPACE );
+    _line_parts.emplace_back( ":", Range( *defaultctx ).end,
+                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
 
   return antlrcpp::Any();
@@ -1065,16 +1091,23 @@ antlrcpp::Any JsonAstFileProcessor::visitSwitchLabel(
 antlrcpp::Any JsonAstFileProcessor::visitCaseStatement(
     EscriptGrammar::EscriptParser::CaseStatementContext* ctx )
 {
+  Range r( *ctx );
   auto label = make_statement_label( ctx->statementLabel() );
+  _line_parts.emplace_back( "case", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
   auto test = visitExpression( ctx->expression() );
-
+  _line_parts.emplace_back( ")", Range( *ctx->expression() ).end,
+                            TokenPart::SPACE | TokenPart::BREAKPOINT );
+  buildLine();
+  ++_currident;
   auto cases = defaultResult();
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
-    cases = aggregateResult( std::move( cases ),
-                             visitSwitchBlockStatementGroup( switchBlockStatementGroup ) );
+    visitSwitchBlockStatementGroup( switchBlockStatementGroup );
   }
-
+  --_currident;
+  _line_parts.emplace_back( "endcase", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  buildLine();
   return new_node( ctx, "case-statement",        //
                    "label", std::move( label ),  //
                    "test", std::move( test ),    //
@@ -1289,8 +1322,14 @@ antlrcpp::Any JsonAstFileProcessor::visitIncludeDeclaration(
 antlrcpp::Any JsonAstFileProcessor::visitInterpolatedString(
     EscriptGrammar::EscriptParser::InterpolatedStringContext* ctx )
 {
+  Range r( *ctx );
+  _line_parts.emplace_back( "$", r.start, TokenPart::SPACE );
+  _line_parts.emplace_back( "\"", r.start, TokenPart::ATTACHED );
+  INFO_PRINTLN( "RAW '{}'", ctx->getText() );
+  auto childs = visitChildren( ctx );
+  _line_parts.emplace_back( "\"", r.end, TokenPart::ATTACHED | TokenPart::SPACE );
   return new_node( ctx, "interpolated-string-expression",  //
-                   "parts", visitChildren( ctx )           //
+                   "parts", childs                         //
   );
 }
 
@@ -1301,31 +1340,43 @@ antlrcpp::Any JsonAstFileProcessor::visitInterpolatedStringPart(
   antlrcpp::Any expression;
   if ( auto expression_ctx = ctx->expression() )
   {
+    Range r( *expression_ctx );
+    _line_parts.emplace_back( "{", r.start, TokenPart::ATTACHED );
     expression = visitExpression( expression_ctx );
 
     if ( auto format_string = ctx->FORMAT_STRING() )
     {
-      format = new_node( format_string, "format-string",  //
-                         "id", format_string->getText()   //
-      );
+      INFO_PRINTLN( "FORMAT {}", format_string->getText() );
+      _line_parts.emplace_back( ":", Range( *format_string ).start, TokenPart::ATTACHED );
+      _line_parts.emplace_back( format_string->getText(), Range( *format_string ).start,
+                                TokenPart::ATTACHED );
+      //      format = new_node( format_string, "format-string",  //
+      //                       "id", format_string->getText()   //
+      //  );
     }
+    _line_parts.emplace_back( "}", r.end, TokenPart::ATTACHED );
   }
 
   else if ( auto string_literal = ctx->STRING_LITERAL_INSIDE() )
   {
-    expression = make_string_literal( string_literal, string_literal->getText() );
+    _line_parts.emplace_back( string_literal->getText(), Range( *string_literal ).start,
+                              TokenPart::ATTACHED );
+    //    expression = make_string_literal( string_literal, string_literal->getText() );
   }
   else if ( auto lbrace = ctx->DOUBLE_LBRACE_INSIDE() )
   {
-    expression = make_string_literal( lbrace, "{" );
+    _line_parts.emplace_back( "{{", Range( *lbrace ).start, TokenPart::ATTACHED );
+    // expression = make_string_literal( lbrace, "{" );
   }
   else if ( auto rbrace = ctx->DOUBLE_RBRACE() )
   {
-    expression = make_string_literal( rbrace, "}" );
+    _line_parts.emplace_back( "}}", Range( *rbrace ).start, TokenPart::ATTACHED );
+    //    expression = make_string_literal( rbrace, "}" );
   }
   else if ( auto escaped = ctx->REGULAR_CHAR_INSIDE() )
   {
-    expression = make_string_literal( escaped, escaped->getText() );
+    _line_parts.emplace_back( escaped->getText(), Range( *escaped ).start, TokenPart::ATTACHED );
+    //    expression = make_string_literal( escaped, escaped->getText() );
   }
 
   return new_node( ctx, "interpolated-string-part",        //

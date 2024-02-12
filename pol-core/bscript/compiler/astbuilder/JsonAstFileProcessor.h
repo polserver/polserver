@@ -209,7 +209,6 @@ public:
   antlrcpp::Any process_compilation_unit( SourceFile& );
   antlrcpp::Any process_module_unit( SourceFile& );
   // SourceLocation location_for( antlr4::ParserRuleContext& ) const;
-  std::vector<CommentInfo> _comments;
 
 private:
   const SourceFileIdentifier& source_file_identifier;
@@ -217,6 +216,7 @@ private:
   Report& report;
   std::vector<std::string> _lines = {};
   std::vector<TokenPart> _line_parts = {};
+  std::vector<CommentInfo> _comments = {};
   int _last_line = 0;
   size_t _currident = 0;
   void mergeComments();
