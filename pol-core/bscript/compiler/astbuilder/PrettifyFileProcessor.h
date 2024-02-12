@@ -234,3 +234,10 @@ private:
   antlrcpp::Any make_float_literal( antlr4::tree::TerminalNode* );
 };
 }  // namespace Pol::Bscript::Compiler
+
+template <>
+struct fmt::formatter<Pol::Bscript::Compiler::TokenPart> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Bscript::Compiler::TokenPart& t,
+                                        fmt::format_context& ctx ) const;
+};

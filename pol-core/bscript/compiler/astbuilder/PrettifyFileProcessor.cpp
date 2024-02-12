@@ -234,6 +234,8 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
     _lines.push_back( std::string( _currident * 2, ' ' ) + _comments.front().text );
     _comments.erase( _comments.begin() );
   }
+  if ( !_line_parts.empty() )
+    report.error( source_file_identifier, "left over formatting lines {}", _line_parts );
   return {};
 }
 
@@ -1213,6 +1215,8 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleUnit(
     _lines.push_back( std::string( _currident * 2, ' ' ) + _comments.front().text );
     _comments.erase( _comments.begin() );
   }
+  if ( !_line_parts.empty() )
+    report.error( source_file_identifier, "left over formatting lines {}", _line_parts );
   return {};
 }
 
@@ -1510,3 +1514,10 @@ antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNo
 }
 
 }  // namespace Pol::Bscript::Compiler
+
+fmt::format_context::iterator fmt::formatter<Pol::Bscript::Compiler::TokenPart>::format(
+    const Pol::Bscript::Compiler::TokenPart& t, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format(
+      fmt::format( "{} ({}:{})", t.text, t.style, t.lineno ), ctx );
+}
