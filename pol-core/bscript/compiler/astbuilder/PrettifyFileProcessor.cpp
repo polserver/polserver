@@ -15,7 +15,7 @@ using EscriptGrammar::EscriptParser;
 namespace Pol::Bscript::Compiler
 {
 const int IDENT_LEVEL = 2;
-const int LINEWIDTH = 40;
+const int LINEWIDTH = 80;
 
 PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier,
                                               Profile& profile, Report& report )
@@ -1167,11 +1167,23 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionDeclaration(
     EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext* ctx )
 {
   make_identifier( ctx->IDENTIFIER() );
-
+  Range rname( *ctx->IDENTIFIER() );
+  _line_parts.emplace_back( "(", rname.end,
+                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  auto cursize = _line_parts.size();
   if ( auto moduleFunctionParameterList = ctx->moduleFunctionParameterList() )
   {
     visitModuleFunctionParameterList( moduleFunctionParameterList );
   }
+  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
+    _line_parts.pop_back();
+  Range rparam( *ctx );
+  _line_parts.emplace_back( ")", rparam.end, TokenPart::NONE );
+  if ( _line_parts.size() - 1 == cursize )
+
+    _line_parts.back().style |= TokenPart::ATTACHED;
+  _line_parts.emplace_back( ";", rparam.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  buildLine();
   return {};
 }
 
@@ -1182,9 +1194,13 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameter(
 
   if ( auto expression = ctx->expression() )
   {
+    Range re( *expression );
+    _line_parts.emplace_back( ":=", re.start, TokenPart::SPACE );
     visitExpression( expression );
   }
-
+  Range r( *ctx );
+  _line_parts.emplace_back( ",", r.end,
+                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   return {};
 }
 
@@ -1192,6 +1208,11 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleUnit(
     EscriptGrammar::EscriptParser::ModuleUnitContext* ctx )
 {
   visitChildren( ctx );
+  while ( !_comments.empty() )
+  {
+    _lines.push_back( std::string( _currident * 2, ' ' ) + _comments.front().text );
+    _comments.erase( _comments.begin() );
+  }
   return {};
 }
 

@@ -10,6 +10,7 @@
 #include <system_error>
 #include <time.h>
 
+
 #include "bscript/compiler/Report.h"
 
 #include "bscript/compctx.h"
@@ -62,6 +63,7 @@ void ECompileMain::showHelp()
       "  Output is : filespec.ecl\n"
       "  Options:\n"
       "   Options: \n"
+      "       -F           format filespec"
       "       -a           compile *.asp pages also\n"
       "       -A           automatically compile scripts in main and enabled packages\n"
       "       -Au          (as '-A' but only compile updated files)\n"
@@ -106,6 +108,7 @@ int debug = 0;
 bool quiet = false;
 bool keep_building = false;
 bool force_update = false;
+bool format_source = false;
 bool show_timing_details = false;
 bool timing_quiet_override = false;
 bool expect_compile_failure = false;
@@ -182,6 +185,48 @@ std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins
     result.push_back( filenames.at( ins_filenum ) );
   }
   return result;
+}
+
+bool format_file( const char* path )
+{
+  std::string fname( path );
+  std::string filename_src = fname, ext( "" );
+
+  std::string::size_type pos = fname.rfind( '.' );
+  if ( pos != std::string::npos )
+    ext = fname.substr( pos );
+
+  if ( ext.compare( ".src" ) != 0 && ext.compare( ".inc" ) != 0 && ext.compare( ".em" ) != 0 )
+  {
+    compiler_error( "Didn't find '.src', '.inc', or '.em' extension on source filename '{}'!",
+                    path );
+    throw std::runtime_error( "Error in source filename" );
+  }
+
+  if ( !quiet )
+    INFO_PRINTLN( "Formatting: {}", path );
+
+  std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
+
+  bool success = compiler->format_file( path, ext.compare( ".em" ) == 0 );
+
+  if ( expect_compile_failure )
+  {
+    if ( !success )  // good, it failed
+    {
+      if ( !quiet )
+        INFO_PRINTLN( "Formatting failed as expected." );
+      return true;
+    }
+    else
+    {
+      throw std::runtime_error( "Formatting succeeded (-e indicates failure was expected)" );
+    }
+  }
+
+  if ( !success )
+    throw std::runtime_error( "Error formatting file" );
+  return true;
 }
 
 /**
@@ -346,25 +391,26 @@ bool compile_file( const char* path )
   return true;
 }
 
-void compile_file_wrapper( const char* path )
+bool process_file( const char* path )
+{
+  if ( format_source )
+  {
+    return format_file( path );
+  }
+  else
+  {
+    return compile_file( path );
+  }
+}
+
+void process_file_wrapper( const char* path )
 {
   try
   {
-    Compiler::Profile profile;
-    Compiler::SourceFileLoader source_loader;
-    Compiler::SourceFileCache em_parse_tree_cache( source_loader, profile );
-    Compiler::SourceFileCache inc_parse_tree_cache( source_loader, profile );
-    auto compiler = std::make_unique<Compiler::Compiler>( source_loader, em_parse_tree_cache,
-                                                          inc_parse_tree_cache, profile );
-    Compiler::ConsoleReporter c( true, true );
-    Compiler::Report report( c );
-    auto res = compiler->build_ast( path, report, false );
-    INFO_PRINTLN( res );
-
-    /*if ( compile_file( path ) )
+    if ( process_file( path ) )
       ++summary.CompiledScripts;
     else
-      ++summary.UpToDateScripts;*/
+      ++summary.UpToDateScripts;
   }
   catch ( std::exception& )
   {
@@ -516,6 +562,10 @@ int readargs( int argc, char** argv )
           compilercfg.GenerateDependencyInfo = true;
         break;
 
+      case 'F':
+        format_source = true;
+        break;
+
       case 'f':
         force_update = true;
         break;
@@ -602,17 +652,17 @@ void recurse_collect( const fs::path& basedir, std::set<std::string>* files, boo
   }
 }
 
-void serial_compile( const std::set<std::string>& files )
+void serial_process( const std::set<std::string>& files )
 {
   for ( const auto& file : files )
   {
     if ( Clib::exit_signalled )
       return;
-    compile_file_wrapper( file.c_str() );
+    process_file_wrapper( file.c_str() );
   }
 }
 
-void parallel_compile( const std::set<std::string>& files )
+void parallel_process( const std::set<std::string>& files )
 {
   std::atomic<unsigned> compiled_scripts( 0 );
   std::atomic<unsigned> uptodate_scripts( 0 );
@@ -633,7 +683,7 @@ void parallel_compile( const std::set<std::string>& files )
               return;
             try
             {
-              if ( compile_file( file.c_str() ) )
+              if ( process_file( file.c_str() ) )
                 ++compiled_scripts;
               else
                 ++uptodate_scripts;
@@ -674,9 +724,24 @@ void AutoCompile()
   for ( const auto& pkg : Plib::systemstate.packages )
     recurse_collect( fs::path( pkg->dir() ), &files, false );
   if ( compilercfg.ThreadedCompilation )
-    parallel_compile( files );
+    parallel_process( files );
   else
-    serial_compile( files );
+    serial_process( files );
+  compilercfg.OnlyCompileUpdatedScripts = save;
+}
+
+void AutoFormat()
+{
+  bool save = compilercfg.OnlyCompileUpdatedScripts;
+  compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
+  std::set<std::string> files;
+  recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
+  for ( const auto& pkg : Plib::systemstate.packages )
+    recurse_collect( fs::path( pkg->dir() ), &files, false );
+  if ( compilercfg.ThreadedCompilation )
+    parallel_process( files );
+  else
+    serial_process( files );
   compilercfg.OnlyCompileUpdatedScripts = save;
 }
 
@@ -727,9 +792,9 @@ bool run( int argc, char** argv, int* res )
         std::set<std::string> files;
         recurse_collect( fs::path( dir ), &files, compile_inc );
         if ( compilercfg.ThreadedCompilation )
-          parallel_compile( files );
+          parallel_process( files );
         else
-          serial_compile( files );
+          serial_process( files );
       }
       else if ( argv[i][1] == 'C' )
       {
@@ -741,9 +806,9 @@ bool run( int argc, char** argv, int* res )
     {
       any = true;
 #ifdef _WIN32
-      Clib::forspec( argv[i], compile_file_wrapper );
+      Clib::forspec( argv[i], process_file_wrapper );
 #else
-      compile_file_wrapper( argv[i] );
+      process_file_wrapper( argv[i] );
 #endif
     }
   }

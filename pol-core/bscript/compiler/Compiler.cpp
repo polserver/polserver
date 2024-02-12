@@ -158,15 +158,16 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
   return {};
 }
 
-std::string Compiler::build_ast( const std::string& pathname, Report& report, bool is_module )
+bool Compiler::format_file( const std::string& filename, bool is_module )
 {
-  CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, false, profile,
-                                              report );
-
-  auto workspace = is_module ? workspace_builder.build_module( pathname )
-                             : workspace_builder.build( pathname, user_function_inclusion );
+  ConsoleReporter reporter( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
+  Report report( reporter );
   PrettifyBuilder prettify_builder( source_loader, profile, report );
-  return prettify_builder.build( pathname, is_module );
+  auto formatted = prettify_builder.build( filename, is_module );
+  if ( report.error_count() )
+    return false;
+  INFO_PRINTLN( "\nFORMATTED:\n{}", formatted );
+  return true;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
