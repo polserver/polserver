@@ -20,21 +20,22 @@ struct CommentInfo
   Position pos;
   Position pos_end;
 };
+// structure to hold one token as string
 struct TokenPart
 {
   enum Style
   {
-    NONE = 0,
-    ATTACHED = 1,
-    SPACE = 2,
-    BREAKPOINT = 4,
-    FORCED_BREAK = 8,
+    NONE = 0,          // do nothing
+    ATTACHED = 1,      // override SPACE of preceding token
+    SPACE = 2,         // add a whitespace char after this token
+    BREAKPOINT = 4,    // potential linebreak
+    FORCED_BREAK = 8,  // force linebreak
   };
   std::string text = {};
   size_t tokenid = 0;
   int lineno = 0;
   int style = 0;
-  TokenPart(){};
+  TokenPart() = default;
   TokenPart( std::string&& text, const Position& pos, int style )
       : text( std::move( text ) ),
         tokenid( pos.token_index ),
