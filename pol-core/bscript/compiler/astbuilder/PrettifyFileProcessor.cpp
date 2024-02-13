@@ -549,7 +549,10 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression(
   else if ( ctx->prefix )
   {
     Range r( ctx->prefix );
-    _line_parts.emplace_back( ctx->prefix->getText(), r.start, TokenPart::NONE );
+    _line_parts.emplace_back( ctx->prefix->getText(), r.start,
+                              ctx->prefix->getType() == EscriptGrammar::EscriptLexer::BANG_B
+                                  ? TokenPart::SPACE
+                                  : TokenPart::NONE );
     visitExpression( ctx->expression( 0 ) );
   }
   else if ( ctx->postfix )
@@ -686,12 +689,12 @@ antlrcpp::Any PrettifyFileProcessor::visitForeachStatement(
     EscriptGrammar::EscriptParser::ForeachStatementContext* ctx )
 {
   Range r( *ctx );
+  make_statement_label( ctx->statementLabel() );
   _line_parts.emplace_back( "foreach", r.start, TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
   Range ri( *ctx->IDENTIFIER() );
   _line_parts.emplace_back( "in", ri.end, TokenPart::SPACE );
   _line_parts.emplace_back( "(", ri.end, TokenPart::SPACE );
-  make_statement_label( ctx->statementLabel() );
   visitForeachIterableExpression( ctx->foreachIterableExpression() );
   _line_parts.emplace_back( ")", ri.end, TokenPart::SPACE );
   buildLine();
@@ -808,13 +811,14 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameter(
 antlrcpp::Any PrettifyFileProcessor::visitBreakStatement(
     EscriptGrammar::EscriptParser::BreakStatementContext* ctx )
 {
+  _line_parts.emplace_back( "break", Range( *ctx ).end, TokenPart::SPACE );
+
   if ( auto identifier = ctx->IDENTIFIER() )
   {
     make_identifier( identifier );
   }
 
-  _line_parts.emplace_back( "break", Range( *ctx ).end, TokenPart::NONE );
-  _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::SPACE );
+  _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::ATTACHED );
   buildLine();
   return {};
 }
@@ -899,13 +903,14 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement(
 antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
     EscriptGrammar::EscriptParser::ContinueStatementContext* ctx )
 {
+  _line_parts.emplace_back( "continue", Range( *ctx ).end, TokenPart::SPACE );
+
   if ( auto identifier = ctx->IDENTIFIER() )
   {
     make_identifier( identifier );
   }
 
-  _line_parts.emplace_back( "continue", Range( *ctx ).end, TokenPart::NONE );
-  _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::SPACE );
+  _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::ATTACHED );
   buildLine();
   return {};
 }
@@ -1000,9 +1005,10 @@ antlrcpp::Any PrettifyFileProcessor::visitScopedFunctionCall(
 {
   INFO_PRINTLN( "SCOPEDFUNCTIONCALL" );
   // todo when?
-  make_identifier( ctx->functionCall()->IDENTIFIER() );  // callee
-  visitChildren( ctx->functionCall() );                  // arguments
-  make_identifier( ctx->IDENTIFIER() );                  // scope
+  make_identifier( ctx->IDENTIFIER() );  // scope
+  Range r( *ctx->COLONCOLON() );
+  _line_parts.emplace_back( "::", r.end, TokenPart::ATTACHED );
+  visitFunctionCall( ctx->functionCall() );
   return {};
 }
 
