@@ -10,6 +10,7 @@
 #include "clib/logfacility.h"
 
 #include <iostream>
+#include <utility>
 
 using EscriptGrammar::EscriptParser;
 
@@ -133,8 +134,7 @@ void PrettifyFileProcessor::mergeComments()
       if ( _comments.front().linecomment ||
            _comments.front().pos.token_index <= _line_parts.back().tokenid + 2 )
       {
-        _line_parts.emplace_back( std::move( _comments.front().text ), _comments.front().pos,
-                                  TokenPart::SPACE );
+        addToken( std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE );
         _comments.erase( _comments.begin() );
       }
     }
@@ -254,31 +254,39 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
 antlrcpp::Any PrettifyFileProcessor::visitVarStatement(
     EscriptGrammar::EscriptParser::VarStatementContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "var", r.start, TokenPart::SPACE );
+  addToken( "var", ctx->VAR(), TokenPart::SPACE );
   visitVariableDeclarationList( ctx->variableDeclarationList() );
-  _line_parts.emplace_back( ";", r.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
   return {};
 }
 
+antlrcpp::Any PrettifyFileProcessor::visitParExpression(
+    EscriptGrammar::EscriptParser::ParExpressionContext* ctx )
+{
+  addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::BREAKPOINT );
+  visitExpression( ctx->expression() );
+  addToken( ")", ctx->RPAREN(), TokenPart::SPACE );
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitBlock( EscriptGrammar::EscriptParser::BlockContext* ctx )
+{
+  ++_currident;
+  visitChildren( ctx );
+  --_currident;
+  return {};
+}
 antlrcpp::Any PrettifyFileProcessor::visitWhileStatement(
     EscriptGrammar::EscriptParser::WhileStatementContext* ctx )
 {
   make_statement_label( ctx->statementLabel() );
-  Range r( *ctx );
-  _line_parts.emplace_back( "while", r.start, TokenPart::SPACE );
-  _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  auto testc = ctx->parExpression()->expression();
-  visitExpression( testc );
-  _line_parts.emplace_back( ")", Range( *testc ).end, TokenPart::SPACE );
+  addToken( "while", ctx->WHILE(), TokenPart::SPACE );
+  visitParExpression( ctx->parExpression() );
   buildLine();
 
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
-  _line_parts.emplace_back( "endwhile", r.end, TokenPart::SPACE );
+  addToken( "endwhile", ctx->ENDWHILE(), TokenPart::SPACE );
   buildLine();
   return {};
 }
@@ -289,12 +297,10 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclarationList(
   auto args = ctx->variableDeclaration();
   for ( size_t i = 0; i < args.size(); ++i )
   {
-    if ( i > 0 )
-    {
-      Range r( *args[i] );
-      _line_parts.emplace_back( ",", r.start, TokenPart::SPACE | TokenPart::ATTACHED );
-    }
     visitVariableDeclaration( args[i] );
+    if ( i < args.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
   return {};
 }
@@ -305,18 +311,13 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
 
   if ( auto variable_declaration_initializer = ctx->variableDeclarationInitializer() )
   {
-    if ( auto expression = variable_declaration_initializer->expression() )
-    {
-      Range r( *expression );
-      _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
-      visitExpression( expression );
-    }
+    if ( auto assign = variable_declaration_initializer->ASSIGN() )
+      addToken( ":=", assign, TokenPart::SPACE );
 
+    if ( auto expression = variable_declaration_initializer->expression() )
+      visitExpression( expression );
     else if ( auto arr = variable_declaration_initializer->ARRAY() )
-    {
-      Range r( *arr );
-      _line_parts.emplace_back( "array", r.end, TokenPart::SPACE );
-    }
+      addToken( "array", arr, TokenPart::SPACE );
   }
   return {};
 }
@@ -324,32 +325,21 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
 antlrcpp::Any PrettifyFileProcessor::visitConstStatement(
     EscriptGrammar::EscriptParser::ConstStatementContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "const", r.start, TokenPart::SPACE );
+  addToken( "const", ctx->TOK_CONST(), TokenPart::SPACE );
   auto const_declaration_ctx = ctx->constantDeclaration();
   make_identifier( const_declaration_ctx->IDENTIFIER() );
 
   if ( auto variable_declaration_initializer =
            const_declaration_ctx->variableDeclarationInitializer() )
   {
+    if ( auto assign = variable_declaration_initializer->ASSIGN() )
+      addToken( ":=", assign, TokenPart::SPACE );
     if ( auto expression = variable_declaration_initializer->expression() )
-    {
-      Range re( *expression );
-      _line_parts.emplace_back( ":=", re.start, TokenPart::SPACE );
       visitExpression( expression );
-      _line_parts.emplace_back( ";", re.end,
-                                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-    }
-
     else if ( auto array = variable_declaration_initializer->ARRAY() )
-    {
-      Range ra( *array );
-      _line_parts.emplace_back( ":=", ra.start, TokenPart::SPACE );
-      _line_parts.emplace_back( "array", ra.start, TokenPart::SPACE );
-      _line_parts.emplace_back( ";", ra.end,
-                                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-    }
+      addToken( "array", array, TokenPart::SPACE );
   }
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
 
   buildLine();
   return {};
@@ -362,14 +352,9 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpression(
 
   if ( ctx->expression().size() > 1 )
   {
-    Range r( *ctx->expression( 1 ) );
-    _line_parts.emplace_back( "->", r.start, TokenPart::SPACE );
+    addToken( "->", ctx->ARROW(), TokenPart::SPACE );
     visitExpression( ctx->expression( 1 ) );
   }
-  Range r( *ctx );
-  _line_parts.emplace_back( ",", r.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-
   return {};
 }
 
@@ -377,20 +362,14 @@ antlrcpp::Any PrettifyFileProcessor::visitDoStatement(
     EscriptGrammar::EscriptParser::DoStatementContext* ctx )
 {
   make_statement_label( ctx->statementLabel() );
-  Range r( *ctx );
-  _line_parts.emplace_back( "do", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "do", ctx->DO(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
 
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
 
-  auto exp = ctx->parExpression()->expression();
-  _line_parts.emplace_back( "dowhile", Range( *exp ).start, TokenPart::SPACE );
-  _line_parts.emplace_back( "(", Range( *exp ).start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  visitExpression( exp );
-  _line_parts.emplace_back( ")", Range( *exp ).end, TokenPart::NONE );
-  _line_parts.emplace_back( ";", Range( *exp ).end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "dowhile", ctx->DOWHILE(), TokenPart::SPACE );
+  visitParExpression( ctx->parExpression() );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::BREAKPOINT | TokenPart::ATTACHED );
   buildLine();
   return {};
 }
@@ -402,7 +381,7 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumListEntry(
 
   if ( auto expression = ctx->expression() )
   {
-    _line_parts.emplace_back( ":=", Range( *expression ).start, TokenPart::SPACE );
+    addToken( ":=", ctx->ASSIGN(), TokenPart::SPACE );
     visitExpression( expression );
   }
   return {};
@@ -416,8 +395,7 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumList(
   {
     visitEnumListEntry( enums[i] );
     if ( i < enums.size() - 1 )
-      _line_parts.emplace_back( ",", Range( *enums[i] ).end,
-                                TokenPart::SPACE | TokenPart::ATTACHED );
+      addToken( ",", ctx->COMMA( i ), TokenPart::SPACE | TokenPart::ATTACHED );
 
     buildLine();
   }
@@ -427,14 +405,14 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumList(
 antlrcpp::Any PrettifyFileProcessor::visitEnumStatement(
     EscriptGrammar::EscriptParser::EnumStatementContext* ctx )
 {
-  _line_parts.emplace_back( "enum", Range( *ctx ).start, TokenPart::SPACE );
+  addToken( "enum", ctx->ENUM(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
   buildLine();
   ++_currident;
   auto enums = visitEnumList( ctx->enumList() );
   --_currident;
 
-  _line_parts.emplace_back( "endenum", Range( *ctx ).end, TokenPart::SPACE );
+  addToken( "endenum", ctx->ENDENUM(), TokenPart::SPACE );
   buildLine();
   return {};
 }
@@ -442,85 +420,139 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumStatement(
 antlrcpp::Any PrettifyFileProcessor::visitExitStatement(
     EscriptGrammar::EscriptParser::ExitStatementContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "exit", r.start, TokenPart::NONE );
-  _line_parts.emplace_back( ";", r.start, TokenPart::ATTACHED | TokenPart::SPACE );
+  addToken( "exit", ctx->EXIT(), TokenPart::SPACE );
+  addToken( ";", ctx->SEMI(), TokenPart::ATTACHED | TokenPart::SPACE );
   buildLine();
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitArrayInitializer(
+    EscriptGrammar::EscriptParser::ArrayInitializerContext* ctx )
+{
+  if ( auto lbrace = ctx->LBRACE() )
+    addToken( "{", lbrace, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  else if ( auto lparen = ctx->LPAREN() )
+    addToken( "(", lparen, TokenPart::SPACE | TokenPart::BREAKPOINT );
+
+  size_t curcount = _line_parts.size();
+  if ( auto expr = ctx->expressionList() )
+    visitExpressionList( expr );
+
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  if ( auto rbrace = ctx->RBRACE() )
+    addToken( "}", rbrace, style );
+  else if ( auto rparen = ctx->RPAREN() )
+    addToken( ")", rparen, style );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitExplicitArrayInitializer(
     EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "array", r.start, TokenPart::NONE );
-  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "array", ctx->ARRAY(), TokenPart::NONE );
+  if ( auto init = ctx->arrayInitializer() )
+    visitArrayInitializer( init );
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpressionList(
+    EscriptGrammar::EscriptParser::DictInitializerExpressionListContext* ctx )
+{
+  auto inits = ctx->dictInitializerExpression();
+  for ( size_t i = 0; i < inits.size(); ++i )
+  {
+    visitDictInitializerExpression( inits[i] );
+    if ( i < inits.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  }
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitDictInitializer(
+    EscriptGrammar::EscriptParser::DictInitializerContext* ctx )
+{
+  addToken( "{", ctx->LBRACE(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  visitChildren( ctx );
-  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  if ( _line_parts.size() - 1 == curcount )
-    _line_parts.back().style |= TokenPart::ATTACHED;
+  if ( auto expr = ctx->dictInitializerExpressionList() )
+    visitDictInitializerExpressionList( expr );
+
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  addToken( "}", ctx->RBRACE(), style );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitExplicitDictInitializer(
     EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "dictionary", r.start, TokenPart::NONE );
-  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "dictionary", ctx->DICTIONARY(), TokenPart::SPACE );
+  if ( auto init = ctx->dictInitializer() )
+    visitDictInitializer( init );
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpressionList(
+    EscriptGrammar::EscriptParser::StructInitializerExpressionListContext* ctx )
+{
+  auto inits = ctx->structInitializerExpression();
+  for ( size_t i = 0; i < inits.size(); ++i )
+  {
+    visitStructInitializerExpression( inits[i] );
+    if ( i < inits.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  }
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitStructInitializer(
+    EscriptGrammar::EscriptParser::StructInitializerContext* ctx )
+{
+  addToken( "{", ctx->LBRACE(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  visitChildren( ctx );
-  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
-    _line_parts.pop_back();
-  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  if ( _line_parts.size() - 1 == curcount )
-    _line_parts.back().style |= TokenPart::ATTACHED;
+  if ( auto expr = ctx->structInitializerExpressionList() )
+    visitStructInitializerExpressionList( expr );
+
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  addToken( "}", ctx->RBRACE(), style );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitExplicitErrorInitializer(
     EscriptGrammar::EscriptParser::ExplicitErrorInitializerContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "error", r.start, TokenPart::NONE );
-  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  size_t curcount = _line_parts.size();
-  visitChildren( ctx );
-  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
-    _line_parts.pop_back();
-  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  if ( _line_parts.size() - 1 == curcount )
-    _line_parts.back().style |= TokenPart::ATTACHED;
+  addToken( "error", ctx->TOK_ERROR(), TokenPart::SPACE );
+  if ( auto init = ctx->structInitializer() )
+    visitStructInitializer( init );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitBareArrayInitializer(
     EscriptGrammar::EscriptParser::BareArrayInitializerContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "{", ctx->LBRACE(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   size_t curcount = _line_parts.size();
-  visitChildren( ctx );
-  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  if ( _line_parts.size() - 1 == curcount )
-    _line_parts.back().style |= TokenPart::ATTACHED;
+  if ( auto expr = ctx->expressionList() )
+    visitExpressionList( expr );
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  addToken( "}", ctx->RBRACE(), style );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitExplicitStructInitializer(
     EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "struct", r.start, TokenPart::NONE );
-  _line_parts.emplace_back( "{", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  size_t curcount = _line_parts.size();
-  visitChildren( ctx );
-  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
-    _line_parts.pop_back();
-  _line_parts.emplace_back( "}", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  if ( _line_parts.size() - 1 == curcount )
-    _line_parts.back().style |= TokenPart::ATTACHED;
+  addToken( "struct", ctx->STRUCT(), TokenPart::SPACE );
+  if ( auto init = ctx->structInitializer() )
+    visitStructInitializer( init );
   return {};
 }
 
@@ -530,17 +562,14 @@ antlrcpp::Any PrettifyFileProcessor::visitExpressionList(
   auto args = ctx->expression();
   for ( size_t i = 0; i < args.size(); ++i )
   {
-    if ( i > 0 )
-    {
-      Range r( *args[i] );
-      _line_parts.emplace_back( ",", r.start,
-                                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-    }
     visitExpression( args[i] );
+    if ( i < args.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
-
   return {};
 }
+
 antlrcpp::Any PrettifyFileProcessor::visitExpression(
     EscriptGrammar::EscriptParser::ExpressionContext* ctx )
 {
@@ -549,18 +578,16 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression(
   else if ( ctx->prefix )
   {
     Range r( ctx->prefix );
-    _line_parts.emplace_back( ctx->prefix->getText(), r.start,
-                              ctx->prefix->getType() == EscriptGrammar::EscriptLexer::BANG_B
-                                  ? TokenPart::SPACE
-                                  : TokenPart::NONE );
+    addToken( ctx->prefix->getText(), r.start,
+              ctx->prefix->getType() == EscriptGrammar::EscriptLexer::BANG_B ? TokenPart::SPACE
+                                                                             : TokenPart::NONE );
     visitExpression( ctx->expression( 0 ) );
   }
   else if ( ctx->postfix )
   {
     Range r( ctx->postfix );
     visitExpression( ctx->expression( 0 ) );
-    _line_parts.emplace_back( ctx->postfix->getText(), r.start,
-                              TokenPart::SPACE | TokenPart::ATTACHED );
+    addToken( ctx->postfix->getText(), r.start, TokenPart::SPACE | TokenPart::ATTACHED );
   }
   else if ( ctx->bop && ctx->expression().size() == 2 )
   {
@@ -571,28 +598,24 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression(
       _line_parts.back().style |= TokenPart::BREAKPOINT;
 
     if ( op == "||" || op == "&&" )
-      _line_parts.emplace_back( std::move( op ), r.start,
-                                TokenPart::SPACE | TokenPart::BREAKPOINT );
+      addToken( std::move( op ), r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
     else if ( op == ".+" || op == ".-" || op == ".?" )
-      _line_parts.emplace_back( std::move( op ), r.start, TokenPart::ATTACHED );
+      addToken( std::move( op ), r.start, TokenPart::ATTACHED );
     else
-      _line_parts.emplace_back( std::move( op ), r.start, TokenPart::SPACE );
+      addToken( std::move( op ), r.start, TokenPart::SPACE );
 
     visitExpression( ctx->expression( 1 ) );  // right
   }
   else if ( auto suffix = ctx->expressionSuffix() )
   {
-    // TODO ?
     expression_suffix( ctx->expression( 0 ), suffix );
   }
   else if ( ctx->QUESTION() )
   {
     visitExpression( ctx->expression( 0 ) );  // conditional
-    Range rcond( *ctx->expression( 0 ) );
-    _line_parts.emplace_back( "?", rcond.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+    addToken( "?", ctx->QUESTION(), TokenPart::SPACE | TokenPart::BREAKPOINT );
     visitExpression( ctx->expression( 1 ) );  // consequent
-    Range rcons( *ctx->expression( 1 ) );
-    _line_parts.emplace_back( ":", rcons.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+    addToken( ":", ctx->COLON(), TokenPart::SPACE | TokenPart::BREAKPOINT );
 
     visitExpression( ctx->expression( 2 ) );  // alternate
   }
@@ -606,40 +629,35 @@ antlrcpp::Any PrettifyFileProcessor::expression_suffix(
 {
   if ( auto indexing = expr_suffix_ctx->indexingSuffix() )
   {
-    Range r( *indexing );
     visitExpression( expr_ctx );
-    _line_parts.emplace_back( "[", r.start, TokenPart::ATTACHED );
+    addToken( "[", indexing->LBRACK(), TokenPart::ATTACHED );
     visitExpressionList( indexing->expressionList() );
-    _line_parts.emplace_back( "]", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+    addToken( "]", indexing->RBRACK(), TokenPart::SPACE | TokenPart::ATTACHED );
   }
   else if ( auto member = expr_suffix_ctx->navigationSuffix() )
   {
-    Range r( *member );
     visitExpression( expr_ctx );
-    _line_parts.emplace_back( ".", r.start, TokenPart::ATTACHED );
+    addToken( ".", member->DOT(), TokenPart::ATTACHED );
     if ( auto string_literal = member->STRING_LITERAL() )
-    {
       make_string_literal( string_literal );
-    }
     else if ( auto identifier = member->IDENTIFIER() )
-    {
       make_identifier( identifier );
-    }
   }
   else if ( auto method = expr_suffix_ctx->methodCallSuffix() )
   {
-    Range r( *method );
     visitExpression( expr_ctx );
-    _line_parts.emplace_back( ".", r.start, TokenPart::ATTACHED );
+    addToken( ".", method->DOT(), TokenPart::ATTACHED );
     make_identifier( method->IDENTIFIER() );
-    _line_parts.emplace_back( "(", r.start,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-    auto cursize = _line_parts.size();
-    visitChildren( method );
+    addToken( "(", method->LPAREN(),
+              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+    size_t curcount = _line_parts.size();
+    if ( auto expr = method->expressionList() )
+      visitExpressionList( expr );
+    auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+    if ( _line_parts.size() == curcount )
+      style |= TokenPart::ATTACHED;
 
-    _line_parts.emplace_back( ")", r.end, TokenPart::SPACE );
-    if ( _line_parts.size() - 1 == cursize )
-      _line_parts.back().style |= TokenPart::ATTACHED;
+    addToken( ")", method->RPAREN(), style );
   }
   return {};
 }
@@ -660,7 +678,7 @@ antlrcpp::Any PrettifyFileProcessor::visitForeachIterableExpression(
 {
   if ( auto parExpression = ctx->parExpression() )
   {
-    visitExpression( parExpression->expression() );
+    visitParExpression( parExpression );
   }
   else if ( auto functionCall = ctx->functionCall() )
   {
@@ -688,24 +706,17 @@ antlrcpp::Any PrettifyFileProcessor::visitForeachIterableExpression(
 antlrcpp::Any PrettifyFileProcessor::visitForeachStatement(
     EscriptGrammar::EscriptParser::ForeachStatementContext* ctx )
 {
-  Range r( *ctx );
   make_statement_label( ctx->statementLabel() );
-  _line_parts.emplace_back( "foreach", r.start, TokenPart::SPACE );
+  addToken( "foreach", ctx->FOREACH(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  Range ri( *ctx->IDENTIFIER() );
-  _line_parts.emplace_back( "in", ri.end, TokenPart::SPACE );
-  _line_parts.emplace_back( "(", ri.end, TokenPart::SPACE );
+  addToken( "in", ctx->TOK_IN(), TokenPart::SPACE );
   visitForeachIterableExpression( ctx->foreachIterableExpression() );
-  _line_parts.emplace_back( ")", ri.end, TokenPart::SPACE );
   buildLine();
 
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
 
-  _line_parts.emplace_back( "endforeach", r.end, TokenPart::SPACE );
+  addToken( "endforeach", ctx->ENDFOREACH(), TokenPart::SPACE );
   buildLine();
-
   return {};
 }
 
@@ -716,14 +727,13 @@ antlrcpp::Any PrettifyFileProcessor::visitForStatement(
 
   auto forGroup = ctx->forGroup();
 
+  addToken( "for", ctx->FOR(), TokenPart::SPACE );
   if ( auto basicForStatement = forGroup->basicForStatement() )
-  {
     visitBasicForStatement( basicForStatement );
-  }
   else if ( auto cstyleForStatement = forGroup->cstyleForStatement() )
-  {
     visitCstyleForStatement( cstyleForStatement );
-  }
+  addToken( "endfor", ctx->ENDFOR(), TokenPart::SPACE );
+  buildLine();
   return {};
 }
 
@@ -731,94 +741,90 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionCall(
     EscriptGrammar::EscriptParser::FunctionCallContext* ctx )
 {
   make_identifier( ctx->IDENTIFIER() );
-  Range r( *ctx );
 
-  _line_parts.emplace_back( "(", r.start,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  auto cursize = _line_parts.size();
+  addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+
+  size_t curcount = _line_parts.size();
   if ( auto args = ctx->expressionList() )
     visitExpressionList( args );
-  _line_parts.emplace_back( ")", r.end, TokenPart::SPACE );
-  if ( _line_parts.size() - 1 == cursize )
-    _line_parts.back().style |= TokenPart::ATTACHED;
+
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  addToken( ")", ctx->RPAREN(), style );
   return {};
 }
 antlrcpp::Any PrettifyFileProcessor::visitFunctionDeclaration(
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx )
 {
-  Range r( *ctx );
-  auto exported = ctx->EXPORTED();
-  if ( exported )
-  {
-    Range re( *exported );
-    _line_parts.emplace_back( "exported", re.start, TokenPart::SPACE );
-  }
-  _line_parts.emplace_back( "function", r.start, TokenPart::SPACE );
+  if ( auto exported = ctx->EXPORTED() )
+    addToken( "exported", exported, TokenPart::SPACE );
+  addToken( "function", ctx->FUNCTION(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  Range rname( *ctx->IDENTIFIER() );
-  _line_parts.emplace_back( "(", rname.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  auto cursize = _line_parts.size();
   visitFunctionParameters( ctx->functionParameters() );
-  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
-    _line_parts.pop_back();
-  Range rparam( *ctx->functionParameters() );
-  _line_parts.emplace_back( ")", rparam.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  if ( _line_parts.size() - 1 == cursize )
 
-    _line_parts.back().style |= TokenPart::ATTACHED;
-  ;
-  buildLine();
-
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
 
-  _line_parts.emplace_back( "endfunction", r.end, TokenPart::SPACE );
+  addToken( "endfunction", ctx->ENDFUNCTION(), TokenPart::SPACE );
   buildLine();
   return {};
 }
+
+antlrcpp::Any PrettifyFileProcessor::visitFunctionParameters(
+    EscriptGrammar::EscriptParser::FunctionParametersContext* ctx )
+{
+  addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+
+  size_t curcount = _line_parts.size();
+  if ( auto args = ctx->functionParameterList() )
+    visitFunctionParameterList( args );
+
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  addToken( ")", ctx->RPAREN(), style );
+  buildLine();
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitFunctionParameterList(
+    EscriptGrammar::EscriptParser::FunctionParameterListContext* ctx )
+{
+  auto params = ctx->functionParameter();
+  for ( size_t i = 0; i < params.size(); ++i )
+  {
+    visitFunctionParameter( params[i] );
+    if ( i < params.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  }
+  return {};
+}
+
 antlrcpp::Any PrettifyFileProcessor::visitFunctionParameter(
     EscriptGrammar::EscriptParser::FunctionParameterContext* ctx )
 {
-  auto byref = ctx->BYREF();
-  if ( byref )
-  {
-    Range re( *byref );
-    _line_parts.emplace_back( "byref", re.start, TokenPart::SPACE );
-  }
-  auto unused = ctx->UNUSED();
-  if ( unused )
-  {
-    Range re( *unused );
-    _line_parts.emplace_back( "unused", re.start, TokenPart::SPACE );
-  }
+  if ( auto byref = ctx->BYREF() )
+    addToken( "byref", byref, TokenPart::SPACE );
+  if ( auto unused = ctx->UNUSED() )
+    addToken( "unused", unused, TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
 
   if ( auto expression = ctx->expression() )
   {
-    Range re( *expression );
-    _line_parts.emplace_back( ":=", re.start, TokenPart::SPACE );
+    addToken( ":=", ctx->ASSIGN(), TokenPart::SPACE );
     visitExpression( expression );
   }
-  Range re( *ctx );
-  _line_parts.emplace_back( ",", re.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitBreakStatement(
     EscriptGrammar::EscriptParser::BreakStatementContext* ctx )
 {
-  _line_parts.emplace_back( "break", Range( *ctx ).end, TokenPart::SPACE );
-
+  addToken( "break", ctx->BREAK(), TokenPart::SPACE );
   if ( auto identifier = ctx->IDENTIFIER() )
-  {
     make_identifier( identifier );
-  }
-
-  _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::ATTACHED );
+  addToken( ";", ctx->SEMI(), TokenPart::ATTACHED );
   buildLine();
   return {};
 }
@@ -830,10 +836,8 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
   {
     visitSwitchLabel( switchLabel );
   }
-  ++_currident;
+  // TODO force newline?
   visitBlock( ctx->block() );
-  --_currident;
-
   return {};
 }
 
@@ -841,61 +845,36 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchLabel(
     EscriptGrammar::EscriptParser::SwitchLabelContext* ctx )
 {
   if ( auto integerLiteral = ctx->integerLiteral() )
-  {
     visitIntegerLiteral( integerLiteral );
-    _line_parts.emplace_back( ":", Range( *integerLiteral ).end,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  }
   else if ( auto boolLiteral = ctx->boolLiteral() )
-  {
     visitBoolLiteral( boolLiteral );
-    _line_parts.emplace_back( ":", Range( *boolLiteral ).end,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  }
   else if ( auto uninit = ctx->UNINIT() )
-  {
-    _line_parts.emplace_back( "uninit", Range( *uninit ).start, TokenPart::SPACE );
-    _line_parts.emplace_back( ":", Range( *uninit ).end,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  }
+    addToken( "uninit", uninit, TokenPart::SPACE );
   else if ( auto identifier = ctx->IDENTIFIER() )
-  {
     make_identifier( identifier );
-    _line_parts.emplace_back( ":", Range( *identifier ).end,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  }
   else if ( auto string_literal = ctx->STRING_LITERAL() )
-  {
     make_string_literal( string_literal );
-    _line_parts.emplace_back( ":", Range( *string_literal ).end,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  }
   else if ( auto defaultctx = ctx->DEFAULT() )
-  {
-    _line_parts.emplace_back( "default", Range( *defaultctx ).start, TokenPart::SPACE );
-    _line_parts.emplace_back( ":", Range( *defaultctx ).end,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  }
+    addToken( "default", defaultctx, TokenPart::SPACE );
 
+  addToken( ":", ctx->COLON(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitCaseStatement(
     EscriptGrammar::EscriptParser::CaseStatementContext* ctx )
 {
-  Range r( *ctx );
   make_statement_label( ctx->statementLabel() );
-  _line_parts.emplace_back( "case", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-  _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "case", ctx->CASE(), TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   visitExpression( ctx->expression() );
-  _line_parts.emplace_back( ")", Range( *ctx->expression() ).end,
-                            TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( ")", ctx->RPAREN(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
     visitSwitchBlockStatementGroup( switchBlockStatementGroup );
   }
-  _line_parts.emplace_back( "endcase", r.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "endcase", ctx->ENDCASE(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
   return {};
 }
@@ -903,14 +882,12 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement(
 antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
     EscriptGrammar::EscriptParser::ContinueStatementContext* ctx )
 {
-  _line_parts.emplace_back( "continue", Range( *ctx ).end, TokenPart::SPACE );
+  addToken( "continue", ctx->CONTINUE(), TokenPart::SPACE );
 
   if ( auto identifier = ctx->IDENTIFIER() )
-  {
     make_identifier( identifier );
-  }
 
-  _line_parts.emplace_back( ";", Range( *ctx ).end, TokenPart::ATTACHED );
+  addToken( ";", ctx->SEMI(), TokenPart::ATTACHED );
   buildLine();
   return {};
 }
@@ -918,48 +895,30 @@ antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
 antlrcpp::Any PrettifyFileProcessor::visitBasicForStatement(
     EscriptGrammar::EscriptParser::BasicForStatementContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "for", r.start, TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  _line_parts.emplace_back( ":=", Range( *ctx->IDENTIFIER() ).end, TokenPart::SPACE );
+  addToken( ":=", ctx->ASSIGN(), TokenPart::SPACE );
   visitExpression( ctx->expression( 0 ) );
-  _line_parts.emplace_back( "to", Range( *ctx->expression( 0 ) ).end, TokenPart::SPACE );
+  addToken( "to", ctx->TO(), TokenPart::SPACE );
   visitExpression( ctx->expression( 1 ) );
   buildLine();
 
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
-
-  _line_parts.emplace_back( "endfor", r.end, TokenPart::SPACE );
-  buildLine();
-
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitCstyleForStatement(
     EscriptGrammar::EscriptParser::CstyleForStatementContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "for", r.start, TokenPart::SPACE );
-  _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   visitExpression( ctx->expression( 0 ) );
-  _line_parts.emplace_back( ";", r.start,
-                            TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( ";", ctx->SEMI( 0 ), TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
   visitExpression( ctx->expression( 1 ) );
-  _line_parts.emplace_back( ";", r.start,
-                            TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
+  addToken( ";", ctx->SEMI( 1 ), TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
   visitExpression( ctx->expression( 2 ) );
-  _line_parts.emplace_back( ")", r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-
+  addToken( ")", ctx->RPAREN(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
 
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
-
-  _line_parts.emplace_back( "endfor", r.end, TokenPart::SPACE );
-  buildLine();
   return {};
 }
 
@@ -967,35 +926,25 @@ antlrcpp::Any PrettifyFileProcessor::visitRepeatStatement(
     EscriptGrammar::EscriptParser::RepeatStatementContext* ctx )
 {
   make_statement_label( ctx->statementLabel() );
-  Range r( *ctx );
-  _line_parts.emplace_back( "repeat", r.start, TokenPart::SPACE );
+  addToken( "repeat", ctx->REPEAT(), TokenPart::SPACE );
   buildLine();
 
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
 
-  _line_parts.emplace_back( "until", Range( *ctx->expression() ).start, TokenPart::SPACE );
+  addToken( "until", ctx->UNTIL(), TokenPart::SPACE );
   visitExpression( ctx->expression() );
-  _line_parts.emplace_back( ";", Range( *ctx->expression() ).start,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
-
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitReturnStatement(
     EscriptGrammar::EscriptParser::ReturnStatementContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "return", r.start, TokenPart::SPACE );
-
+  addToken( "return", ctx->RETURN(), TokenPart::SPACE );
   if ( auto expression = ctx->expression() )
-  {
     visitExpression( expression );
-  }
-  _line_parts.emplace_back( ";", r.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
   return {};
 }
@@ -1003,11 +952,8 @@ antlrcpp::Any PrettifyFileProcessor::visitReturnStatement(
 antlrcpp::Any PrettifyFileProcessor::visitScopedFunctionCall(
     EscriptGrammar::EscriptParser::ScopedFunctionCallContext* ctx )
 {
-  INFO_PRINTLN( "SCOPEDFUNCTIONCALL" );
-  // todo when?
   make_identifier( ctx->IDENTIFIER() );  // scope
-  Range r( *ctx->COLONCOLON() );
-  _line_parts.emplace_back( "::", r.end, TokenPart::ATTACHED );
+  addToken( "::", ctx->COLONCOLON(), TokenPart::ATTACHED );
   visitFunctionCall( ctx->functionCall() );
   return {};
 }
@@ -1015,7 +961,7 @@ antlrcpp::Any PrettifyFileProcessor::visitScopedFunctionCall(
 antlrcpp::Any PrettifyFileProcessor::visitFunctionReference(
     EscriptGrammar::EscriptParser::FunctionReferenceContext* ctx )
 {
-  _line_parts.emplace_back( "@", Range( *ctx ).start, TokenPart::NONE );
+  addToken( "@", ctx->AT(), TokenPart::NONE );
   make_identifier( ctx->IDENTIFIER() );
   return {};
 }
@@ -1023,11 +969,9 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionReference(
 antlrcpp::Any PrettifyFileProcessor::visitGotoStatement(
     EscriptGrammar::EscriptParser::GotoStatementContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "goto", r.start, TokenPart::SPACE );
+  addToken( "goto", ctx->GOTO(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  _line_parts.emplace_back( ";", r.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   buildLine();
   return {};
 }
@@ -1041,33 +985,26 @@ antlrcpp::Any PrettifyFileProcessor::visitIfStatement(
   for ( size_t clause_index = 0; clause_index < num_expressions; ++clause_index )
   {
     auto expression_ctx = par_expression.at( clause_index );
-    Range rif( *expression_ctx );
     if ( !clause_index )
-      _line_parts.emplace_back( "if", rif.start, TokenPart::SPACE );
+      addToken( "if", ctx->IF(), TokenPart::SPACE );
     else
-      _line_parts.emplace_back( "elseif", rif.start, TokenPart::SPACE );
-    _line_parts.emplace_back( "(", rif.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-    auto expression_ast = visitExpression( expression_ctx->expression() );
-    _line_parts.emplace_back( ")", rif.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+      addToken( "elseif", ctx->ELSEIF( clause_index - 1 ), TokenPart::SPACE );
+    auto expression_ast = visitParExpression( expression_ctx );
+    if ( !clause_index && ctx->THEN() )
+      addToken( "then", ctx->THEN(), TokenPart::SPACE );
+
     buildLine();
 
     if ( blocks.size() > clause_index )
-    {
-      ++_currident;
       visitBlock( blocks.at( clause_index ) );
-      --_currident;
-    }
   }
   if ( ctx->ELSE() )
   {
-    Range r( *ctx->ELSE() );
-    _line_parts.emplace_back( "else", r.start, TokenPart::SPACE );
+    addToken( "else", ctx->ELSE(), TokenPart::SPACE );
     buildLine();
-    ++_currident;
     visitBlock( blocks.at( blocks.size() - 1 ) );
-    --_currident;
   }
-  _line_parts.emplace_back( "endif", Range( *ctx ).end, TokenPart::SPACE );
+  addToken( "endif", ctx->ENDIF(), TokenPart::SPACE );
   buildLine();
   return {};
 }
@@ -1075,10 +1012,9 @@ antlrcpp::Any PrettifyFileProcessor::visitIfStatement(
 antlrcpp::Any PrettifyFileProcessor::visitIncludeDeclaration(
     EscriptGrammar::EscriptParser::IncludeDeclarationContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "include", r.start, TokenPart::SPACE );
+  addToken( "include", ctx->INCLUDE(), TokenPart::SPACE );
   visitStringIdentifier( ctx->stringIdentifier() );
-  _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED );
   buildLine();
   return {};
 }
@@ -1086,48 +1022,45 @@ antlrcpp::Any PrettifyFileProcessor::visitIncludeDeclaration(
 antlrcpp::Any PrettifyFileProcessor::visitInterpolatedString(
     EscriptGrammar::EscriptParser::InterpolatedStringContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "$", r.start, TokenPart::SPACE );
-  _line_parts.emplace_back( "\"", r.start, TokenPart::ATTACHED );
+  addToken( "$\"", ctx->INTERPOLATED_STRING_START(), TokenPart::SPACE );
   visitChildren( ctx );
-  _line_parts.emplace_back( "\"", r.end, TokenPart::ATTACHED | TokenPart::SPACE );
+  addToken( "\"", ctx->DOUBLE_QUOTE_INSIDE(), TokenPart::ATTACHED | TokenPart::SPACE );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitInterpolatedStringPart(
     EscriptGrammar::EscriptParser::InterpolatedStringPartContext* ctx )
 {
+  // TODO
   if ( auto expression_ctx = ctx->expression() )
   {
     Range r( *expression_ctx );
-    _line_parts.emplace_back( "{", r.start, TokenPart::ATTACHED );
+    addToken( "{", r.start, TokenPart::ATTACHED );
     visitExpression( expression_ctx );
 
     if ( auto format_string = ctx->FORMAT_STRING() )
     {
-      _line_parts.emplace_back( ":", Range( *format_string ).start, TokenPart::ATTACHED );
-      _line_parts.emplace_back( format_string->getText(), Range( *format_string ).start,
-                                TokenPart::ATTACHED );
+      addToken( ":", Range( *format_string ).start, TokenPart::ATTACHED );
+      addToken( format_string->getText(), Range( *format_string ).start, TokenPart::ATTACHED );
     }
-    _line_parts.emplace_back( "}", r.end, TokenPart::ATTACHED );
+    addToken( "}", r.end, TokenPart::ATTACHED );
   }
 
   else if ( auto string_literal = ctx->STRING_LITERAL_INSIDE() )
   {
-    _line_parts.emplace_back( string_literal->getText(), Range( *string_literal ).start,
-                              TokenPart::ATTACHED );
+    addToken( string_literal->getText(), Range( *string_literal ).start, TokenPart::ATTACHED );
   }
   else if ( auto lbrace = ctx->DOUBLE_LBRACE_INSIDE() )
   {
-    _line_parts.emplace_back( "{{", Range( *lbrace ).start, TokenPart::ATTACHED );
+    addToken( "{{", Range( *lbrace ).start, TokenPart::ATTACHED );
   }
   else if ( auto rbrace = ctx->DOUBLE_RBRACE() )
   {
-    _line_parts.emplace_back( "}}", Range( *rbrace ).start, TokenPart::ATTACHED );
+    addToken( "}}", Range( *rbrace ).start, TokenPart::ATTACHED );
   }
   else if ( auto escaped = ctx->REGULAR_CHAR_INSIDE() )
   {
-    _line_parts.emplace_back( escaped->getText(), Range( *escaped ).start, TokenPart::ATTACHED );
+    addToken( escaped->getText(), Range( *escaped ).start, TokenPart::ATTACHED );
   }
 
   return {};
@@ -1137,14 +1070,9 @@ antlrcpp::Any PrettifyFileProcessor::visitBoolLiteral(
     EscriptGrammar::EscriptParser::BoolLiteralContext* ctx )
 {
   if ( auto bool_false = ctx->BOOL_FALSE() )
-  {
     make_bool_literal( bool_false );
-  }
   else if ( auto bool_true = ctx->BOOL_TRUE() )
-  {
     make_bool_literal( bool_true );
-  }
-
   return {};
 }
 
@@ -1170,17 +1098,11 @@ antlrcpp::Any PrettifyFileProcessor::visitLiteral(
     EscriptGrammar::EscriptParser::LiteralContext* ctx )
 {
   if ( auto string_literal = ctx->STRING_LITERAL() )
-  {
     return make_string_literal( string_literal );
-  }
   else if ( auto integer_literal = ctx->integerLiteral() )
-  {
     return visitIntegerLiteral( integer_literal );
-  }
   else if ( auto float_literal = ctx->floatLiteral() )
-  {
     return visitFloatLiteral( float_literal );
-  }
   return visitChildren( ctx );
 }
 
@@ -1189,22 +1111,32 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionDeclaration(
 {
   make_identifier( ctx->IDENTIFIER() );
   Range rname( *ctx->IDENTIFIER() );
-  _line_parts.emplace_back( "(", rname.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
-  auto cursize = _line_parts.size();
-  if ( auto moduleFunctionParameterList = ctx->moduleFunctionParameterList() )
-  {
-    visitModuleFunctionParameterList( moduleFunctionParameterList );
-  }
-  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
-    _line_parts.pop_back();
-  Range rparam( *ctx );
-  _line_parts.emplace_back( ")", rparam.end, TokenPart::NONE );
-  if ( _line_parts.size() - 1 == cursize )
+  addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
 
-    _line_parts.back().style |= TokenPart::ATTACHED;
-  _line_parts.emplace_back( ";", rparam.end, TokenPart::SPACE | TokenPart::BREAKPOINT );
+  size_t curcount = _line_parts.size();
+  if ( auto moduleFunctionParameterList = ctx->moduleFunctionParameterList() )
+    visitModuleFunctionParameterList( moduleFunctionParameterList );
+
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  addToken( ")", ctx->RPAREN(), style );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameterList(
+    EscriptGrammar::EscriptParser::ModuleFunctionParameterListContext* ctx )
+{
+  auto params = ctx->moduleFunctionParameter();
+  for ( size_t i = 0; i < params.size(); ++i )
+  {
+    visitModuleFunctionParameter( params[i] );
+    if ( i < params.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  }
   return {};
 }
 
@@ -1215,13 +1147,9 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameter(
 
   if ( auto expression = ctx->expression() )
   {
-    Range re( *expression );
-    _line_parts.emplace_back( ":=", re.start, TokenPart::SPACE );
+    addToken( ":=", ctx->ASSIGN(), TokenPart::SPACE );
     visitExpression( expression );
   }
-  Range r( *ctx );
-  _line_parts.emplace_back( ",", r.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   return {};
 }
 
@@ -1243,118 +1171,93 @@ antlrcpp::Any PrettifyFileProcessor::visitPrimary(
     EscriptGrammar::EscriptParser::PrimaryContext* ctx )
 {
   if ( auto literal = ctx->literal() )
-  {
     return visitLiteral( literal );
-  }
   else if ( auto parExpression = ctx->parExpression() )
-  {
-    Range r( *parExpression );
-    _line_parts.emplace_back( "(", r.start, TokenPart::SPACE );
-    visitExpression( parExpression->expression() );
-
-    _line_parts.emplace_back( ")", r.end, TokenPart::SPACE );
-    return {};
-  }
+    return visitParExpression( parExpression );
   else if ( auto functionCall = ctx->functionCall() )
-  {
     return visitFunctionCall( functionCall );
-  }
   else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
-  {
     return visitScopedFunctionCall( scopedFunctionCall );
-  }
   else if ( auto uninit = ctx->UNINIT() )
-  {
-    _line_parts.emplace_back( "uninit", Range( *uninit ).start, TokenPart::SPACE );
-    return {};
-  }
+    addToken( "uninit", Range( *uninit ).start, TokenPart::SPACE );
   else if ( auto bool_true = ctx->BOOL_TRUE() )
-  {
     return make_bool_literal( bool_true );
-  }
   else if ( auto bool_false = ctx->BOOL_FALSE() )
-  {
     return make_bool_literal( bool_false );
-  }
   else if ( auto identifier = ctx->IDENTIFIER() )
-  {
     return make_identifier( identifier );
-  }
   else if ( auto functionReference = ctx->functionReference() )
-  {
     return visitFunctionReference( functionReference );
-  }
   else if ( auto explicitArrayInitializer = ctx->explicitArrayInitializer() )
-  {
     return visitExplicitArrayInitializer( explicitArrayInitializer );
-  }
   else if ( auto explicitStructInitializer = ctx->explicitStructInitializer() )
-  {
     return visitExplicitStructInitializer( explicitStructInitializer );
-  }
   else if ( auto explicitDictInitializer = ctx->explicitDictInitializer() )
-  {
     return visitExplicitDictInitializer( explicitDictInitializer );
-  }
   else if ( auto explicitErrorInitializer = ctx->explicitErrorInitializer() )
-  {
     return visitExplicitErrorInitializer( explicitErrorInitializer );
-  }
   else if ( auto bareArrayInitializer = ctx->bareArrayInitializer() )
-  {
     return visitBareArrayInitializer( bareArrayInitializer );
-  }
   else if ( auto interpolatedString = ctx->interpolatedString() )
-  {
     return visitInterpolatedString( interpolatedString );
-  }
-
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitProgramDeclaration(
     EscriptGrammar::EscriptParser::ProgramDeclarationContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "program", r.start, TokenPart::SPACE );
+  addToken( "program", ctx->PROGRAM(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  _line_parts.emplace_back( "(", r.start, TokenPart::SPACE | TokenPart::ATTACHED );
-  auto cursize = _line_parts.size();
   visitProgramParameters( ctx->programParameters() );
-  if ( _line_parts.back().text == "," )  // arguments always add , remove the last one
-    _line_parts.pop_back();
-  _line_parts.emplace_back( ")", r.start, TokenPart::SPACE );
-  if ( _line_parts.size() - 1 == cursize )
-    _line_parts.back().style |= TokenPart::ATTACHED;
   buildLine();
-  ++_currident;
   visitBlock( ctx->block() );
-  --_currident;
-  _line_parts.emplace_back( "endprogram", r.end, TokenPart::SPACE );
+  addToken( "endprogram", ctx->ENDPROGRAM(), TokenPart::SPACE );
   buildLine();
+  return {};
+}
 
+antlrcpp::Any PrettifyFileProcessor::visitProgramParameterList(
+    EscriptGrammar::EscriptParser::ProgramParameterListContext* ctx )
+{
+  auto params = ctx->programParameter();
+  for ( size_t i = 0; i < params.size(); ++i )
+  {
+    visitProgramParameter( params[i] );
+    if ( i < params.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  }
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitProgramParameters(
+    EscriptGrammar::EscriptParser::ProgramParametersContext* ctx )
+{
+  addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+
+  size_t curcount = _line_parts.size();
+  if ( auto programParameterList = ctx->programParameterList() )
+    visitProgramParameterList( programParameterList );
+
+  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  if ( _line_parts.size() == curcount )
+    style |= TokenPart::ATTACHED;
+  addToken( ")", ctx->RPAREN(), style );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitProgramParameter(
     EscriptGrammar::EscriptParser::ProgramParameterContext* ctx )
 {
-  auto unused = ctx->UNUSED();
-  if ( unused )
-  {
-    Range r( *unused );
-    _line_parts.emplace_back( "unused", r.start, TokenPart::SPACE );
-  }
+  if ( auto unused = ctx->UNUSED() )
+    addToken( "unused", unused, TokenPart::SPACE );
 
   make_identifier( ctx->IDENTIFIER() );
   if ( auto expression = ctx->expression() )
   {
-    Range r( *expression );
-    _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
+    addToken( ":=", ctx->ASSIGN(), TokenPart::SPACE );
     visitExpression( expression );
   }
-  Range r( *ctx );
-  _line_parts.emplace_back( ",", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
   return {};
 }
 
@@ -1362,72 +1265,40 @@ antlrcpp::Any PrettifyFileProcessor::visitStatement(
     EscriptGrammar::EscriptParser::StatementContext* ctx )
 {
   if ( auto ifStatement = ctx->ifStatement() )
-  {
     return visitIfStatement( ifStatement );
-  }
   else if ( auto gotoStatement = ctx->gotoStatement() )
-  {
     return visitGotoStatement( gotoStatement );
-  }
   else if ( auto returnStatement = ctx->returnStatement() )
-  {
     return visitReturnStatement( returnStatement );
-  }
   else if ( auto constStatement = ctx->constStatement() )
-  {
     return visitConstStatement( constStatement );
-  }
   else if ( auto varStatement = ctx->varStatement() )
-  {
     return visitVarStatement( varStatement );
-  }
   else if ( auto doStatement = ctx->doStatement() )
-  {
     return visitDoStatement( doStatement );
-  }
   else if ( auto whileStatement = ctx->whileStatement() )
-  {
     return visitWhileStatement( whileStatement );
-  }
   else if ( auto exitStatement = ctx->exitStatement() )
-  {
     return visitExitStatement( exitStatement );
-  }
   else if ( auto breakStatement = ctx->breakStatement() )
-  {
     return visitBreakStatement( breakStatement );
-  }
   else if ( auto continueStatement = ctx->continueStatement() )
-  {
     return visitContinueStatement( continueStatement );
-  }
   else if ( auto forStatement = ctx->forStatement() )
-  {
     return visitForStatement( forStatement );
-  }
   else if ( auto foreachStatement = ctx->foreachStatement() )
-  {
     return visitForeachStatement( foreachStatement );
-  }
   else if ( auto repeatStatement = ctx->repeatStatement() )
-  {
     return visitRepeatStatement( repeatStatement );
-  }
   else if ( auto caseStatement = ctx->caseStatement() )
-  {
     return visitCaseStatement( caseStatement );
-  }
   else if ( auto enumStatement = ctx->enumStatement() )
-  {
     return visitEnumStatement( enumStatement );
-  }
   else if ( auto expression = ctx->statementExpression )
   {
     visitExpression( expression );
 
-    Range r( *ctx );
-    _line_parts.emplace_back( ";", r.end,
-                              TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+    addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
     buildLine();
     return {};
   }
@@ -1439,13 +1310,9 @@ antlrcpp::Any PrettifyFileProcessor::visitStringIdentifier(
     EscriptGrammar::EscriptParser::StringIdentifierContext* ctx )
 {
   if ( auto identifier = ctx->IDENTIFIER() )
-  {
     return make_identifier( identifier );
-  }
   else if ( auto string_literal = ctx->STRING_LITERAL() )
-  {
     return make_string_literal( string_literal );
-  }
   return {};
 }
 
@@ -1453,33 +1320,24 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpression(
     EscriptGrammar::EscriptParser::StructInitializerExpressionContext* ctx )
 {
   if ( auto identifier = ctx->IDENTIFIER() )
-  {
     make_identifier( identifier );
-  }
   else if ( auto string_literal = ctx->STRING_LITERAL() )
-  {
     make_string_literal( string_literal );
-  }
 
   if ( auto expression = ctx->expression() )
   {
-    Range r( *expression );
-    _line_parts.emplace_back( ":=", r.start, TokenPart::SPACE );
+    addToken( ":=", ctx->ASSIGN(), TokenPart::SPACE );
     visitExpression( expression );
   }
-  Range r( *ctx );
-  _line_parts.emplace_back( ",", r.end,
-                            TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitUseDeclaration(
     EscriptParser::UseDeclarationContext* ctx )
 {
-  Range r( *ctx );
-  _line_parts.emplace_back( "use", r.start, TokenPart::SPACE );
+  addToken( "use", ctx->USE(), TokenPart::SPACE );
   visitStringIdentifier( ctx->stringIdentifier() );
-  _line_parts.emplace_back( ";", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+  addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED );
 
   buildLine();
   return {};
@@ -1491,45 +1349,49 @@ antlrcpp::Any PrettifyFileProcessor::make_statement_label(
   if ( ctx )
   {
     make_identifier( ctx->IDENTIFIER() );
-    Range r( *ctx->IDENTIFIER() );
-    _line_parts.emplace_back( ":", r.end, TokenPart::SPACE | TokenPart::ATTACHED );
+    addToken( ":", ctx->COLON(), TokenPart::SPACE | TokenPart::ATTACHED );
   }
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::make_identifier( antlr4::tree::TerminalNode* terminal )
 {
-  Range r( *terminal );
-  _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
+  addToken( terminal->getText(), terminal, TokenPart::SPACE );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::make_string_literal( antlr4::tree::TerminalNode* terminal )
 {
-  Range r( *terminal );
-  _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
+  addToken( terminal->getText(), terminal, TokenPart::SPACE );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::make_integer_literal( antlr4::tree::TerminalNode* terminal )
 {
-  Range r( *terminal );
-  _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
+  addToken( terminal->getText(), terminal, TokenPart::SPACE );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::make_float_literal( antlr4::tree::TerminalNode* terminal )
 {
-  Range r( *terminal );
-  _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
+  addToken( terminal->getText(), terminal, TokenPart::SPACE );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNode* terminal )
 {
-  Range r( *terminal );
-  _line_parts.emplace_back( terminal->getText(), r.start, TokenPart::SPACE );
+  addToken( terminal->getText(), terminal, TokenPart::SPACE );
   return {};
+}
+
+void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, int style )
+{
+  _line_parts.emplace_back( std::forward<std::string>( text ), pos, style );
+}
+void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
+                                      int style )
+{
+  addToken( std::forward<std::string>( text ), Range( *terminal ).start, style );
 }
 
 }  // namespace Pol::Bscript::Compiler

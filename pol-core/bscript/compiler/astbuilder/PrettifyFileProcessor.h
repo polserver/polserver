@@ -56,13 +56,13 @@ public:
   //  antlrcpp::Any defaultResult() override;
   //  antlrcpp::Any aggregateResult( antlrcpp::Any aggregate, antlrcpp::Any nextResult ) override;
 
-  // antlrcpp::Any visitArrayInitializer(EscriptGrammar::EscriptParser::ArrayInitializerContext
-  // *ctx) override;
+  antlrcpp::Any visitArrayInitializer(
+      EscriptGrammar::EscriptParser::ArrayInitializerContext* ctx ) override;
   antlrcpp::Any visitBareArrayInitializer(
       EscriptGrammar::EscriptParser::BareArrayInitializerContext* ctx ) override;
   antlrcpp::Any visitBasicForStatement(
       EscriptGrammar::EscriptParser::BasicForStatementContext* ctx ) override;
-  // antlrcpp::Any visitBlock(EscriptGrammar::EscriptParser::BlockContext *ctx) override;
+  antlrcpp::Any visitBlock( EscriptGrammar::EscriptParser::BlockContext* ctx ) override;
   antlrcpp::Any visitBoolLiteral( EscriptGrammar::EscriptParser::BoolLiteralContext* ctx ) override;
   antlrcpp::Any visitBreakStatement(
       EscriptGrammar::EscriptParser::BreakStatementContext* ctx ) override;
@@ -76,13 +76,12 @@ public:
       EscriptGrammar::EscriptParser::ContinueStatementContext* ctx ) override;
   antlrcpp::Any visitCstyleForStatement(
       EscriptGrammar::EscriptParser::CstyleForStatementContext* ctx ) override;
-  // antlrcpp::Any visitDictInitializer(EscriptGrammar::EscriptParser::DictInitializerContext *ctx)
-  // override;
+  antlrcpp::Any visitDictInitializer(
+      EscriptGrammar::EscriptParser::DictInitializerContext* ctx ) override;
   antlrcpp::Any visitDictInitializerExpression(
       EscriptGrammar::EscriptParser::DictInitializerExpressionContext* ctx ) override;
-  // antlrcpp::Any
-  // visitDictInitializerExpressionList(EscriptGrammar::EscriptParser::DictInitializerExpressionListContext
-  // *ctx) override;
+  antlrcpp::Any visitDictInitializerExpressionList(
+      EscriptGrammar::EscriptParser::DictInitializerExpressionListContext* ctx ) override;
   antlrcpp::Any visitDoStatement( EscriptGrammar::EscriptParser::DoStatementContext* ctx ) override;
   antlrcpp::Any visitEnumList( EscriptGrammar::EscriptParser::EnumListContext* ctx ) override;
   antlrcpp::Any visitEnumListEntry(
@@ -104,8 +103,8 @@ public:
   antlrcpp::Any visitExpression( EscriptGrammar::EscriptParser::ExpressionContext* ctx ) override;
   antlrcpp::Any visitExpressionList(
       EscriptGrammar::EscriptParser::ExpressionListContext* ctx ) override;
-  // antlrcpp::Any
-  // visitExpressionSuffix(EscriptGrammar::EscriptParser::ExpressionSuffixContext *ctx) override;
+  //  antlrcpp::Any visitExpressionSuffix(
+  //      EscriptGrammar::EscriptParser::ExpressionSuffixContext* ctx ) override;
   antlrcpp::Any visitFloatLiteral(
       EscriptGrammar::EscriptParser::FloatLiteralContext* ctx ) override;
   antlrcpp::Any visitForeachIterableExpression(
@@ -121,11 +120,10 @@ public:
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitFunctionParameter(
       EscriptGrammar::EscriptParser::FunctionParameterContext* ctx ) override;
-  // antlrcpp::Any
-  // visitFunctionParameterList(EscriptGrammar::EscriptParser::FunctionParameterListContext *ctx)
-  // override; antlrcpp::Any
-  // visitFunctionParameters(EscriptGrammar::EscriptParser::FunctionParametersContext *ctx)
-  // override;
+  antlrcpp::Any visitFunctionParameterList(
+      EscriptGrammar::EscriptParser::FunctionParameterListContext* ctx ) override;
+  antlrcpp::Any visitFunctionParameters(
+      EscriptGrammar::EscriptParser::FunctionParametersContext* ctx ) override;
   antlrcpp::Any visitFunctionReference(
       EscriptGrammar::EscriptParser::FunctionReferenceContext* ctx ) override;
   antlrcpp::Any visitGotoStatement(
@@ -152,22 +150,22 @@ public:
       EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitModuleFunctionParameter(
       EscriptGrammar::EscriptParser::ModuleFunctionParameterContext* ctx ) override;
-  // antlrcpp::Any
-  // visitModuleFunctionParameterList(EscriptGrammar::EscriptParser::ModuleFunctionParameterListContext
-  // *ctx) override;
+  antlrcpp::Any visitModuleFunctionParameterList(
+      EscriptGrammar::EscriptParser::ModuleFunctionParameterListContext* ctx ) override;
   antlrcpp::Any visitModuleUnit( EscriptGrammar::EscriptParser::ModuleUnitContext* ctx ) override;
   // antlrcpp::Any visitNavigationSuffix(EscriptGrammar::EscriptParser::NavigationSuffixContext
-  // *ctx) override; antlrcpp::Any
-  // visitParExpression(EscriptGrammar::EscriptParser::ParExpressionContext *ctx) override;
+  // *ctx) override;
+  antlrcpp::Any visitParExpression(
+      EscriptGrammar::EscriptParser::ParExpressionContext* ctx ) override;
   antlrcpp::Any visitPrimary( EscriptGrammar::EscriptParser::PrimaryContext* ctx ) override;
   antlrcpp::Any visitProgramDeclaration(
       EscriptGrammar::EscriptParser::ProgramDeclarationContext* ctx ) override;
   antlrcpp::Any visitProgramParameter(
       EscriptGrammar::EscriptParser::ProgramParameterContext* ctx ) override;
-  // antlrcpp::Any
-  // visitProgramParameterList(EscriptGrammar::EscriptParser::ProgramParameterListContext *ctx)
-  // override; antlrcpp::Any
-  // visitProgramParameters(EscriptGrammar::EscriptParser::ProgramParametersContext *ctx) override;
+  antlrcpp::Any visitProgramParameterList(
+      EscriptGrammar::EscriptParser::ProgramParameterListContext* ctx ) override;
+  antlrcpp::Any visitProgramParameters(
+      EscriptGrammar::EscriptParser::ProgramParametersContext* ctx ) override;
   antlrcpp::Any visitRepeatStatement(
       EscriptGrammar::EscriptParser::RepeatStatementContext* ctx ) override;
   antlrcpp::Any visitReturnStatement(
@@ -179,13 +177,12 @@ public:
   // override;
   antlrcpp::Any visitStringIdentifier(
       EscriptGrammar::EscriptParser::StringIdentifierContext* ctx ) override;
-  // antlrcpp::Any visitStructInitializer(EscriptGrammar::EscriptParser::StructInitializerContext
-  // *ctx) override;
+  antlrcpp::Any visitStructInitializer(
+      EscriptGrammar::EscriptParser::StructInitializerContext* ctx ) override;
   antlrcpp::Any visitStructInitializerExpression(
       EscriptGrammar::EscriptParser::StructInitializerExpressionContext* ctx ) override;
-  // antlrcpp::Any
-  // visitStructInitializerExpressionList(EscriptGrammar::EscriptParser::StructInitializerExpressionListContext
-  // *ctx) override;
+  antlrcpp::Any visitStructInitializerExpressionList(
+      EscriptGrammar::EscriptParser::StructInitializerExpressionListContext* ctx ) override;
   antlrcpp::Any visitSwitchBlockStatementGroup(
       EscriptGrammar::EscriptParser::SwitchBlockStatementGroupContext* ctx ) override;
   antlrcpp::Any visitSwitchLabel( EscriptGrammar::EscriptParser::SwitchLabelContext* ctx ) override;
@@ -208,7 +205,6 @@ public:
 
   antlrcpp::Any process_compilation_unit( SourceFile& );
   antlrcpp::Any process_module_unit( SourceFile& );
-  // SourceLocation location_for( antlr4::ParserRuleContext& ) const;
 
 private:
   const SourceFileIdentifier& source_file_identifier;
@@ -221,6 +217,8 @@ private:
   size_t _currident = 0;
   void mergeComments();
   void buildLine();
+  void addToken( std::string&& text, const Position& pos, int style );
+  void addToken( std::string&& text, antlr4::tree::TerminalNode* terminal, int style );
   void collectComments( SourceFile& sf );
 
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
