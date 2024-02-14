@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <boost/asio/ip/network_v4.hpp>
 
 #include "../clib/network/socketsvc.h"
 #include "crypt/cryptkey.h"
@@ -103,7 +104,7 @@ public:
     port = std::move( l.port );
     aosresist = std::move( l.aosresist );
     sticky = std::move( l.sticky );
-    use_proxy_protocol = std::move( l.use_proxy_protocol );
+    allowed_proxies = std::move( l.allowed_proxies );
     login_clients_size = l.login_clients_size.load();
     login_clients = std::move( l.login_clients );
   }
@@ -117,7 +118,7 @@ public:
   unsigned short port;
   bool aosresist;
   bool sticky;
-  bool use_proxy_protocol;
+  std::vector<boost::asio::ip::network_v4> allowed_proxies;
 
 private:
   std::atomic<size_t> login_clients_size;  // multiple threads want to know the login size

@@ -28,6 +28,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <boost/asio/ip/network_v4.hpp>
 
 #include "../../clib/network/sockets.h"
 #include "../../clib/rawtypes.h"
@@ -164,7 +165,8 @@ public:
   PacketLog stop_log();
 
 protected:
-  ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient, bool use_proxy_protocol );
+  ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient, sockaddr& ipaddr,
+                  std::vector<boost::asio::ip::network_v4>& allowed_proxies );
 
 public:
   // this reference is only needed because we have diagnostic messages that need the client
@@ -178,6 +180,8 @@ public:
 
   Crypt::CCryptBase* cryptengine;
   bool encrypt_server_stream;  // encrypt the server stream (data sent to client)?
+
+  std::vector<boost::asio::ip::network_v4> allowed_proxies;
 
   // Will be set by clientthread
   std::atomic<Core::polclock_t> last_activity_at;
@@ -240,7 +244,8 @@ private:
 class Client : private ThreadedClient
 {
 public:
-  Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption, bool use_proxy_protocol );
+  Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption, sockaddr& ipaddr,
+          std::vector<boost::asio::ip::network_v4>& allowed_proxies );
   Client( const Client& ) = delete;
   Client& operator=( const Client& ) = delete;
   ~Client();

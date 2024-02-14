@@ -106,8 +106,21 @@ bool ip_check( Network::Client* client, int i )
 
 bool proxy_check( Network::Client* client, int i )
 {
+  bool is_proxied = client->ipaddr_proxy.sa_family != AF_UNSPEC;
+
   if ( networkManager.servers[i]->proxy_match.empty() )
-    return true;
+  {
+    // If there is no ProxyMatch element but client is connecting through proxy
+    // do not present this server.
+    return !is_proxied;
+  }
+
+  if ( !is_proxied )
+  {
+    // This server has ProxyMatch element(s) but client is not connecting through proxy
+    // so do not present this server.
+    return false;
+  }
 
   for ( unsigned j = 0; j < networkManager.servers[i]->proxy_match.size(); ++j )
   {

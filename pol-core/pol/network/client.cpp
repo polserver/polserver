@@ -70,8 +70,8 @@ namespace Network
 {
 unsigned int Client::instance_counter_;
 
-ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
-                                bool use_proxy_protocol )
+ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient, sockaddr& client_addr,
+                                std::vector<boost::asio::ip::network_v4>& allowed_proxies )
     : myClient( myClient ),
       thread_pid( static_cast<size_t>( -1 ) ),
       csocket( INVALID_SOCKET ),
@@ -81,8 +81,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
       encrypt_server_stream( false ),
       last_activity_at( 0 ),
       last_packet_at( 0 ),
-      recv_state( use_proxy_protocol ? RECV_STATE_PROXYPROTOCOLHEADER_WAIT
-                                     : RECV_STATE_CRYPTSEED_WAIT ),
+      recv_state( RECV_STATE_CRYPTSEED_WAIT ),
       bufcheck1_AA( 0xAA ),
       buffer(),  // zero-initializes the buffer
       bufcheck2_55( 0x55 ),
@@ -97,16 +96,38 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
       first_xmit_buffer( nullptr ),
       last_xmit_buffer( nullptr ),
       n_queued( 0 ),
-      queued_bytes_counter( 0 )
+      queued_bytes_counter( 0 ),
+      allowed_proxies( allowed_proxies )
 {
   memset( &counters, 0, sizeof counters );
-  memset( &ipaddr, 0, sizeof( ipaddr ) );
+  memcpy( &ipaddr, &client_addr, sizeof ipaddr );
   memset( &ipaddr_proxy, 0, sizeof( ipaddr_proxy ) );
+
+  if ( ipaddr.sa_family == AF_INET )
+  {
+    // accept proxy protocol only from allowed ips
+    auto ipaddrv4 = reinterpret_cast<sockaddr_in*>( &ipaddr );
+    auto my_address =
+#ifdef _WIN32
+        boost::asio::ip::address_v4( htonl(ipaddrv4->sin_addr.S_un.S_addr ) );
+#else
+        boost::asio::ip::address_v4( htonl(ipaddrv4->sin_addr.s_addr ) );
+#endif
+    auto my_network = boost::asio::ip::network_v4( my_address, 32 );
+    for ( const auto& allowed_proxy : allowed_proxies )
+    {
+      if ( my_network == allowed_proxy || my_network.is_subnet_of( allowed_proxy ) )
+      {
+        recv_state = RECV_STATE_PROXYPROTOCOLHEADER_WAIT;
+        break;
+      }
+    }
+  }
 };
 
-Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption,
-                bool use_proxy_protocol )
-    : ThreadedClient( encryption, *this, use_proxy_protocol ),
+Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption, sockaddr& ipaddr,
+                std::vector<boost::asio::ip::network_v4>& allowed_proxies )
+    : ThreadedClient( encryption, *this, ipaddr, allowed_proxies ),
       acct( nullptr ),
       chr( nullptr ),
       Interface( aInterface ),

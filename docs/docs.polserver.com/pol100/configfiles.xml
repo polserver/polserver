@@ -109,7 +109,7 @@ Listener
     KeepClients      (integer 0/1 {default 0})
     Encryption       (string encryption type {default none})
     AOSResistances   (integer 0/1)
-    UseProxyProtocol (integer 0/1 {default 0})
+    [AllowProxy      (IPaddrr)[/(netmask)]]...
 }
 [Listener ...]
 
@@ -129,7 +129,7 @@ Listener
         This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555.</explain>
     <explain>KeepClients: if set to 1 clients keep this listener port even after different gameserver select; actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort</explain>
     <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
-    <explain>UseProxyProtocol: expect incoming connection to use proxy protocol v2. Connections to this listener not using proxy protocol v2 will be rejected.</explain>
+    <explain>AllowProxy: Expect incoming connection from this network to use proxy protocol v2, connections not using valid proxy protocol v2 will be rejected. This element can be specified multiple times.</explain>
     <explain>MethodScript: General Methodscript for characters Deprecated!</explain>
     <related>attributes.cfg</related>
     <related>pol.cfg</related>
@@ -499,7 +499,7 @@ GameServer
     <explain>--lan-- attempts to find you non-routable LAN IP address, if any (i.e. '192.168.*.*' or '10.*.*.*').</explain>
     <explain>Port is the listening port of the Game Server, not the login server (though they may be the same). It's often the listener's Port in uoclients.cfg</explain>
     <explain>Example IPMatch value: 192.168.0.0/255.255.255.0 would prevent anyone with an IP address other than 192.168.0.* from seeing the gameserver.</explain>
-    <explain>ProxyMatch works same as IPMatch, except it matches against proxy address if there is one. If client is not conneting through proxy gameservers with this filter won't match.</explain>
+    <explain>ProxyMatch works similar to IPMatch, except it matches against proxy address if there is one. If client is not connecting through a proxy, gameservers with this filter won't match. If client is connecting through a proxy, gameservers without this filder won't match.</explain>
     <explain>AcctMatch lines have one account name per line, and are those accounts to show the given server to on login to the 'login server'.</explain>
     <related>movecost.cfg</related>
     <related>pol.cfg</related>
