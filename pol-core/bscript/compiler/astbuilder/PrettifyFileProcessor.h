@@ -35,12 +35,14 @@ struct TokenPart
   size_t tokenid = 0;
   int lineno = 0;
   int style = 0;
+  size_t group = 0;
   TokenPart() = default;
-  TokenPart( std::string&& text, const Position& pos, int style )
+  TokenPart( std::string&& text, const Position& pos, int style, size_t group )
       : text( std::move( text ) ),
         tokenid( pos.token_index ),
         lineno( pos.line_number ),
-        style( style ){};
+        style( style ),
+        group( group ){};
 };
 
 class PrettifyFileProcessor : public EscriptGrammar::EscriptParserBaseVisitor
@@ -208,13 +210,14 @@ public:
 
 private:
   const SourceFileIdentifier& source_file_identifier;
-  Profile& profile;
+  // Profile& profile;
   Report& report;
   std::vector<std::string> _lines = {};
   std::vector<TokenPart> _line_parts = {};
   std::vector<CommentInfo> _comments = {};
   int _last_line = 0;
   size_t _currident = 0;
+  size_t _currentgroup = 0;
   void mergeComments();
   void buildLine();
   void addToken( std::string&& text, const Position& pos, int style );

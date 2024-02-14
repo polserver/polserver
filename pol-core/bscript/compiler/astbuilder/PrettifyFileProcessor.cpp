@@ -19,8 +19,8 @@ namespace Pol::Bscript::Compiler
 const int IDENT_LEVEL = 2;
 
 PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier,
-                                              Profile& profile, Report& report )
-    : source_file_identifier( source_file_identifier ), profile( profile ), report( report )
+                                              Profile& /*profile*/, Report& report )
+    : source_file_identifier( source_file_identifier ) /*, profile( profile )*/, report( report )
 {
 }
 
@@ -64,9 +64,32 @@ void PrettifyFileProcessor::collectComments( SourceFile& sf )
       if ( comment->getType() == EscriptGrammar::EscriptLexer::LINE_COMMENT )
       {
         info.text.erase( 0, 2 );  // remove //
-        auto t = info.text.find_first_not_of( " \t" );
-        info.text.erase( 0, t );  // remove remaining whitespace
-        info.text = std::string( "// " ) + info.text;
+        auto firstchar = info.text.find_first_not_of( " \t" );
+        if ( info.text.empty() || firstchar == std::string::npos )
+        {
+          // empty or only whitespace
+          info.text = "//";
+        }
+        else if ( info.text.front() == '/' )
+        {
+          // assuming its ////// -> keep it
+          info.text = std::string( "//" ) + info.text;
+        }
+        else
+        {
+          if ( info.text[firstchar] == '/' || info.text.back() == '/' )
+          {
+            // assuming its //    // -> keep it
+            info.text = std::string( "//" ) + info.text;
+          }
+          else
+          {
+            info.text.erase( 0, firstchar );  // remove remaining whitespace
+            info.text = std::string( "// " ) + info.text;
+          }
+        }
+        auto lastchar = info.text.find_last_not_of( ' ' );
+        info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
         info.linecomment = true;
       }
       else
@@ -78,7 +101,7 @@ void PrettifyFileProcessor::collectComments( SourceFile& sf )
         auto lastchar = info.text.find_last_not_of( " \t" );
         info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
         // if its in the style of /*** blubb **/ dont add whitespace
-        if ( info.text.front() == '*' && info.text.back() == '*' )
+        if ( info.text.empty() || ( info.text.front() == '*' && info.text.back() == '*' ) )
           info.text = std::string( "/*" ) + info.text + "*/";
         else
           info.text = std::string( "/* " ) + info.text + " */";
@@ -116,7 +139,8 @@ void PrettifyFileProcessor::mergeComments()
       break;
     if ( _line_parts[i].tokenid > _comments.front().pos.token_index )
     {
-      TokenPart p{ std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE };
+      TokenPart p{ std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE,
+                   _currentgroup };
       if ( _comments.front().linecomment )
         p.style |= TokenPart::FORCED_BREAK;
       _line_parts.insert( _line_parts.begin() + i, p );
@@ -154,7 +178,7 @@ void PrettifyFileProcessor::buildLine()
   mergeComments();
 
   // fill lines with final strings splitted at breakpoints
-  std::vector<std::pair<std::string, bool>> lines;
+  std::vector<std::tuple<std::string, bool, size_t>> lines;
   std::string line;
   for ( size_t i = 0; i < _line_parts.size(); ++i )
   {
@@ -172,7 +196,7 @@ void PrettifyFileProcessor::buildLine()
     }
     if ( _line_parts[i].style & TokenPart::FORCED_BREAK )
     {
-      lines.emplace_back( std::make_pair( std::move( line ), true ) );
+      lines.emplace_back( std::make_tuple( std::move( line ), true, _line_parts[i].group ) );
       line.clear();
     }
     // start a new line if breakpoint
@@ -187,45 +211,94 @@ void PrettifyFileProcessor::buildLine()
           continue;
         }
       }
-      lines.emplace_back( std::make_pair( std::move( line ), false ) );
+      lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts[i].group ) );
       line.clear();
     }
   }
   // add remainings
   if ( !line.empty() )
   {
-    lines.emplace_back( std::make_pair( std::move( line ), false ) );
+    lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts.back().group ) );
     line.clear();
   }
   INFO_PRINTLN( "BREAK " );
-  for ( auto& [l, forced] : lines )
-    INFO_PRINTLN( "\"{}\"", l );
+  for ( auto& [l, forced, group] : lines )
+    INFO_PRINTLN( "\"{}\" {}", l, group );
   // add newline from original sourcecode
   // TODO: it just adds one
   if ( _line_parts.front().lineno > _last_line + 1 )
   {
     _lines.emplace_back( "" );
   }
-  // build final lines
-  size_t alignmentspace = 0;
-  for ( auto& [l, forced] : lines )
+
+  // sum up linelength, are groups inside
+  bool groups = false;
+  size_t linelength = 0;
+  for ( auto& [l, forced, group] : lines )
   {
-    // following lines need to be aligned
-    if ( line.empty() && alignmentspace )
-      line = std::string( alignmentspace, ' ' );
-    // first breakpoint defines the alignment and add initial ident level
-    if ( !alignmentspace )
+    if ( group != 0 )
+      groups = true;
+    linelength += l.size();
+  }
+
+  // split based on groups
+  if ( groups && linelength > compilercfg.FormatterLineWidth )
+  {
+    std::vector<size_t> alignmentspace = {};
+    size_t lastgroup = 0xffffFFFF;
+    for ( auto& [l, forced, group] : lines )
     {
-      alignmentspace = l.size() + _currident * IDENT_LEVEL;
-      line += std::string( _currident * IDENT_LEVEL, ' ' );
+      if ( lastgroup == 0xffffFFFF )
+        line += l;                   // first part
+      else if ( lastgroup < group )  // new group
+      {
+        // first store current size as alignment
+        alignmentspace.push_back( line.size() );
+        line += l;
+      }
+      else if ( lastgroup > group )  // descending
+      {
+        _lines.emplace_back( std::move( line ) );
+        // use last group alignment
+        line = std::string( alignmentspace.back(), ' ' );
+        // remove last group alignment
+        alignmentspace.pop_back();
+        line += l;
+      }
+      else  // same group
+      {
+        _lines.emplace_back( std::move( line ) );
+        // use current group alignment
+        line = std::string( alignmentspace.back(), ' ' );
+        line += l;
+      }
+
+      lastgroup = group;
     }
-    line += l;
-    // linewidth reached add current line, start a new one
-    if ( line.size() > compilercfg.FormatterLineWidth || forced )
+  }
+  else
+  {
+    // build final lines
+    size_t alignmentspace = 0;
+    for ( auto& [l, forced, group] : lines )
     {
-      stripline( line );
-      _lines.emplace_back( std::move( line ) );
-      line.clear();
+      // following lines need to be aligned
+      if ( line.empty() && alignmentspace )
+        line = std::string( alignmentspace, ' ' );
+      // first breakpoint defines the alignment and add initial ident level
+      if ( !alignmentspace )
+      {
+        alignmentspace = l.size() + _currident * IDENT_LEVEL;
+        line += std::string( _currident * IDENT_LEVEL, ' ' );
+      }
+      line += l;
+      // linewidth reached add current line, start a new one
+      if ( line.size() > compilercfg.FormatterLineWidth || forced )
+      {
+        stripline( line );
+        _lines.emplace_back( std::move( line ) );
+        line.clear();
+      }
     }
   }
   if ( !line.empty() )
@@ -513,9 +586,11 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializer(
     EscriptGrammar::EscriptParser::StructInitializerContext* ctx )
 {
   addToken( "{", ctx->LBRACE(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
+  ++_currentgroup;
   size_t curcount = _line_parts.size();
   if ( auto expr = ctx->structInitializerExpressionList() )
     visitStructInitializerExpressionList( expr );
+  --_currentgroup;
 
   auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
   if ( _line_parts.size() == curcount )
@@ -832,8 +907,8 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
     visitSwitchLabel( switchLabel );
+    buildLine();
   }
-  // TODO force newline?
   visitBlock( ctx->block() );
   return {};
 }
@@ -867,10 +942,12 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement(
   visitExpression( ctx->expression() );
   addToken( ")", ctx->RPAREN(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
+  ++_currident;
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
     visitSwitchBlockStatementGroup( switchBlockStatementGroup );
   }
+  --_currident;
   addToken( "endcase", ctx->ENDCASE(), TokenPart::SPACE | TokenPart::BREAKPOINT );
   buildLine();
   return {};
@@ -1382,7 +1459,7 @@ antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNo
 
 void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, int style )
 {
-  _line_parts.emplace_back( std::forward<std::string>( text ), pos, style );
+  _line_parts.emplace_back( std::forward<std::string>( text ), pos, style, _currentgroup );
 }
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
                                       int style )
