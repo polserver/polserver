@@ -219,6 +219,7 @@ private:
   void buildLine();
   void addToken( std::string&& text, const Position& pos, int style );
   void addToken( std::string&& text, antlr4::tree::TerminalNode* terminal, int style );
+  void addToken( std::string&& text, antlr4::Token* token, int style );
   void collectComments( SourceFile& sf );
 
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,

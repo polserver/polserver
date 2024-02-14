@@ -577,32 +577,29 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression(
     visitPrimary( prim );
   else if ( ctx->prefix )
   {
-    Range r( ctx->prefix );
-    addToken( ctx->prefix->getText(), r.start,
+    addToken( ctx->prefix->getText(), ctx->prefix,
               ctx->prefix->getType() == EscriptGrammar::EscriptLexer::BANG_B ? TokenPart::SPACE
                                                                              : TokenPart::NONE );
     visitExpression( ctx->expression( 0 ) );
   }
   else if ( ctx->postfix )
   {
-    Range r( ctx->postfix );
     visitExpression( ctx->expression( 0 ) );
-    addToken( ctx->postfix->getText(), r.start, TokenPart::SPACE | TokenPart::ATTACHED );
+    addToken( ctx->postfix->getText(), ctx->postfix, TokenPart::SPACE | TokenPart::ATTACHED );
   }
   else if ( ctx->bop && ctx->expression().size() == 2 )
   {
     visitExpression( ctx->expression( 0 ) );  // left
-    Range r( ctx->bop );
-    auto op = ctx->bop->getText();
-    if ( op == "?:" )  // break before elvis
+    if ( ctx->ELVIS() )                       // break before elvis
       _line_parts.back().style |= TokenPart::BREAKPOINT;
-
-    if ( op == "||" || op == "&&" )
-      addToken( std::move( op ), r.start, TokenPart::SPACE | TokenPart::BREAKPOINT );
-    else if ( op == ".+" || op == ".-" || op == ".?" )
-      addToken( std::move( op ), r.start, TokenPart::ATTACHED );
+    int style = TokenPart::NONE;
+    if ( ctx->OR_A() || ctx->OR_B() || ctx->AND_A() || ctx->AND_B() )
+      style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+    else if ( ctx->ADDMEMBER() || ctx->DELMEMBER() || ctx->CHKMEMBER() )
+      style = TokenPart::ATTACHED;
     else
-      addToken( std::move( op ), r.start, TokenPart::SPACE );
+      style = TokenPart::SPACE;
+    addToken( ctx->bop->getText(), ctx->bop, style );
 
     visitExpression( ctx->expression( 1 ) );  // right
   }
@@ -1031,36 +1028,36 @@ antlrcpp::Any PrettifyFileProcessor::visitInterpolatedString(
 antlrcpp::Any PrettifyFileProcessor::visitInterpolatedStringPart(
     EscriptGrammar::EscriptParser::InterpolatedStringPartContext* ctx )
 {
-  // TODO
   if ( auto expression_ctx = ctx->expression() )
   {
-    Range r( *expression_ctx );
-    addToken( "{", r.start, TokenPart::ATTACHED );
+    addToken( "{", ctx->LBRACE_INSIDE(), TokenPart::ATTACHED );
     visitExpression( expression_ctx );
 
     if ( auto format_string = ctx->FORMAT_STRING() )
     {
-      addToken( ":", Range( *format_string ).start, TokenPart::ATTACHED );
-      addToken( format_string->getText(), Range( *format_string ).start, TokenPart::ATTACHED );
+      addToken( ":", ctx->COLON(), TokenPart::ATTACHED );
+      addToken( format_string->getText(), format_string, TokenPart::ATTACHED );
     }
+    // TODO: this seems to be the only non token
+    Range r( *expression_ctx );
     addToken( "}", r.end, TokenPart::ATTACHED );
   }
 
   else if ( auto string_literal = ctx->STRING_LITERAL_INSIDE() )
   {
-    addToken( string_literal->getText(), Range( *string_literal ).start, TokenPart::ATTACHED );
+    addToken( string_literal->getText(), string_literal, TokenPart::ATTACHED );
   }
   else if ( auto lbrace = ctx->DOUBLE_LBRACE_INSIDE() )
   {
-    addToken( "{{", Range( *lbrace ).start, TokenPart::ATTACHED );
+    addToken( "{{", lbrace, TokenPart::ATTACHED );
   }
   else if ( auto rbrace = ctx->DOUBLE_RBRACE() )
   {
-    addToken( "}}", Range( *rbrace ).start, TokenPart::ATTACHED );
+    addToken( "}}", rbrace, TokenPart::ATTACHED );
   }
   else if ( auto escaped = ctx->REGULAR_CHAR_INSIDE() )
   {
-    addToken( escaped->getText(), Range( *escaped ).start, TokenPart::ATTACHED );
+    addToken( escaped->getText(), escaped, TokenPart::ATTACHED );
   }
 
   return {};
@@ -1110,7 +1107,6 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionDeclaration(
     EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext* ctx )
 {
   make_identifier( ctx->IDENTIFIER() );
-  Range rname( *ctx->IDENTIFIER() );
   addToken( "(", ctx->LPAREN(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
 
   size_t curcount = _line_parts.size();
@@ -1179,7 +1175,7 @@ antlrcpp::Any PrettifyFileProcessor::visitPrimary(
   else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
     return visitScopedFunctionCall( scopedFunctionCall );
   else if ( auto uninit = ctx->UNINIT() )
-    addToken( "uninit", Range( *uninit ).start, TokenPart::SPACE );
+    addToken( "uninit", uninit, TokenPart::SPACE );
   else if ( auto bool_true = ctx->BOOL_TRUE() )
     return make_bool_literal( bool_true );
   else if ( auto bool_false = ctx->BOOL_FALSE() )
@@ -1391,14 +1387,20 @@ void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, i
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
                                       int style )
 {
+  // TODO: terminal->getSymbol()->getText()
   addToken( std::forward<std::string>( text ), Range( *terminal ).start, style );
 }
 
+void PrettifyFileProcessor::addToken( std::string&& text, antlr4::Token* token, int style )
+{
+  // TODO: token->getText()
+  addToken( std::forward<std::string>( text ), Range( token ).start, style );
+}
 }  // namespace Pol::Bscript::Compiler
 
 fmt::format_context::iterator fmt::formatter<Pol::Bscript::Compiler::TokenPart>::format(
     const Pol::Bscript::Compiler::TokenPart& t, fmt::format_context& ctx ) const
 {
   return fmt::formatter<std::string>::format(
-      fmt::format( "{} ({}:{})", t.text, t.style, t.lineno ), ctx );
+      fmt::format( "{} ({}:{}:{})", t.text, t.style, t.lineno, t.tokenid ), ctx );
 }
