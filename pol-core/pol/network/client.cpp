@@ -80,6 +80,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
       disconnect( false ),
       cryptengine( create_crypt_engine( encryption ) ),
       encrypt_server_stream( false ),
+      allowed_proxies( allowed_proxies ),
       last_activity_at( 0 ),
       last_packet_at( 0 ),
       recv_state( RECV_STATE_CRYPTSEED_WAIT ),
@@ -97,8 +98,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
       first_xmit_buffer( nullptr ),
       last_xmit_buffer( nullptr ),
       n_queued( 0 ),
-      queued_bytes_counter( 0 ),
-      allowed_proxies( allowed_proxies )
+      queued_bytes_counter( 0 )
 {
   memset( &counters, 0, sizeof counters );
   memcpy( &ipaddr, &client_addr, sizeof ipaddr );

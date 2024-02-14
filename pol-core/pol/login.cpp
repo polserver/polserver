@@ -21,7 +21,6 @@
 
 #include <cstring>
 #include <string>
-#include <boost/asio/ip/address.hpp>
 
 #include "../clib/clib.h"
 #include "../clib/clib_MD5.h"
