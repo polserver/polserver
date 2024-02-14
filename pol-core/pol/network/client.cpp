@@ -70,7 +70,8 @@ namespace Network
 {
 unsigned int Client::instance_counter_;
 
-ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient, sockaddr& client_addr,
+ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
+                                sockaddr& client_addr,
                                 std::vector<boost::asio::ip::network_v4>& allowed_proxies )
     : myClient( myClient ),
       thread_pid( static_cast<size_t>( -1 ) ),
