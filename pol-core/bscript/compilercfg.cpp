@@ -61,6 +61,9 @@ void CompilerConfig::Read( const std::string& path )
   EmParseTreeCacheSize = elem.remove_int( "EmParseTreeCacheSize", 25 );
   IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
 
+
+  FormatterLineWidth = elem.remove_unsigned( "FormatterLineWidth", 80 );
+  FormatterKeepKeywords = elem.remove_bool( "FormatterKeepKeywords", false );
 // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
 #ifdef WIN32
@@ -130,6 +133,10 @@ void CompilerConfig::SetDefaults()
 
   EmParseTreeCacheSize = 25;
   IncParseTreeCacheSize = 50;
+
+
+  FormatterLineWidth = 80;
+  FormatterKeepKeywords = false;
 }
 
 CompilerConfig compilercfg;

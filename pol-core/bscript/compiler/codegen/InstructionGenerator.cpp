@@ -93,7 +93,7 @@ void InstructionGenerator::update_debug_location( const Node& node )
 
 void InstructionGenerator::update_debug_location( const SourceLocation& loc )
 {
-  emit.debug_file_line( loc.source_file_identifier->index, loc.line_number );
+  emit.debug_file_line( loc.source_file_identifier->index, loc.range.start.line_number );
 }
 
 void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )

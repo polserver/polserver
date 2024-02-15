@@ -179,6 +179,10 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ModuleDeclarationBuilder.h
   compiler/astbuilder/ModuleProcessor.cpp
   compiler/astbuilder/ModuleProcessor.h
+  compiler/astbuilder/PrettifyBuilder.cpp
+  compiler/astbuilder/PrettifyBuilder.h
+  compiler/astbuilder/PrettifyFileProcessor.cpp
+  compiler/astbuilder/PrettifyFileProcessor.h
   compiler/astbuilder/ProgramBuilder.cpp
   compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
