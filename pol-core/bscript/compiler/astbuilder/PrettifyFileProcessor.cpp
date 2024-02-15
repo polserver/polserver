@@ -28,6 +28,8 @@ antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf )
 {
   if ( auto compilation_unit = sf.get_compilation_unit( report, source_file_identifier ) )
   {
+    if ( report.error_count() )
+      return {};
     collectComments( sf );
     return compilation_unit->accept( this );
   }
@@ -38,6 +40,8 @@ antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf )
 {
   if ( auto module_unit = sf.get_module_unit( report, source_file_identifier ) )
   {
+    if ( report.error_count() )
+      return {};
     collectComments( sf );
     return module_unit->accept( this );
   }
@@ -202,15 +206,31 @@ void PrettifyFileProcessor::buildLine()
     // start a new line if breakpoint
     else if ( _line_parts[i].style & TokenPart::BREAKPOINT )
     {
-      // if the next part is attached, dont break now and instead after the attached one
+      // if the next part is attached, dont break now and instead later
+      // eg dont split blubb[1]()
+      bool skip = false;
       if ( i + 1 < _line_parts.size() )
       {
+        // next one is attached
         if ( _line_parts[i + 1].style & TokenPart::ATTACHED )
         {
-          _line_parts[i + 1].style |= TokenPart::BREAKPOINT;
-          continue;
+          // search for space or breakpoint
+          for ( size_t j = i + 1; j < _line_parts.size(); ++j )
+          {
+            if ( _line_parts[j].style & TokenPart::ATTACHED )
+              skip = true;
+            else if ( _line_parts[j].style & TokenPart::SPACE ||
+                      _line_parts[j].style & TokenPart::BREAKPOINT )
+            {
+              _line_parts[j].style |= TokenPart::BREAKPOINT;
+              skip = true;
+              break;
+            }
+          }
         }
       }
+      if ( skip )
+        continue;
       lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts[i].group ) );
       line.clear();
     }
@@ -242,6 +262,8 @@ void PrettifyFileProcessor::buildLine()
   }
 
   // split based on groups
+  // TODO groups could be the best for variable declarations
+  // other option eg function declaration
   if ( groups && linelength > compilercfg.FormatterLineWidth )
   {
     std::vector<size_t> alignmentspace = {};
@@ -1464,14 +1486,18 @@ void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, i
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
                                       int style )
 {
-  // TODO: terminal->getSymbol()->getText()
-  addToken( std::forward<std::string>( text ), Range( *terminal ).start, style );
+  if ( compilercfg.FormatterKeepKeywords )
+    addToken( terminal->getSymbol()->getText(), Range( *terminal ).start, style );
+  else
+    addToken( std::forward<std::string>( text ), Range( *terminal ).start, style );
 }
 
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::Token* token, int style )
 {
-  // TODO: token->getText()
-  addToken( std::forward<std::string>( text ), Range( token ).start, style );
+  if ( compilercfg.FormatterKeepKeywords )
+    addToken( token->getText(), Range( token ).start, style );
+  else
+    addToken( std::forward<std::string>( text ), Range( token ).start, style );
 }
 }  // namespace Pol::Bscript::Compiler
 

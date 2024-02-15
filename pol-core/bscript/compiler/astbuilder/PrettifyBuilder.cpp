@@ -37,6 +37,8 @@ std::string PrettifyBuilder::build( const std::string& pathname, bool is_module 
   else
     prettify_processor.process_compilation_unit( *sf );
 
+  if ( report.error_count() )
+    return {};
   return prettify_processor.prettify();
 }
 

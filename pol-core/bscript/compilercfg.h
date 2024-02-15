@@ -43,6 +43,7 @@ struct CompilerConfig
 
   // Formatter
   size_t FormatterLineWidth;
+  bool FormatterKeepKeywords;
 
   void Read( const std::string& path );
   void SetDefaults();
