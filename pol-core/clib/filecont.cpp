@@ -54,7 +54,7 @@ const char* FileContents::contents() const
   return contents_.c_str();
 }
 
-std::string& FileContent::str_contents() const
+std::string& FileContents::str_contents() const
 {
   return contents_;
 }
