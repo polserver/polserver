@@ -6,8 +6,10 @@
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compilercfg.h"
+#include "clib/filecont.h"
 #include "clib/logfacility.h"
 
+#include <algorithm>
 #include <iostream>
 #include <utility>
 
@@ -29,6 +31,7 @@ antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf )
   {
     if ( report.error_count() )
       return {};
+    load_raw_file();
     collectComments( sf );
     return compilation_unit->accept( this );
   }
@@ -41,6 +44,7 @@ antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf )
   {
     if ( report.error_count() )
       return {};
+    load_raw_file();
     collectComments( sf );
     return module_unit->accept( this );
   }
@@ -115,19 +119,69 @@ void PrettifyFileProcessor::collectComments( SourceFile& sf )
       _comments.emplace_back( std::move( info ) );
     }
   }
+
+  for ( const auto& c : _comments )
+  {
+    if ( c.text.find( "format-off" ) != std::string::npos )
+      _skiplines.emplace_back( c.pos, c.pos );
+    else if ( c.text.find( "format-on" ) != std::string::npos )
+      if ( !_skiplines.empty() )
+        _skiplines.back().end = c.pos_end;
+  }
+  if ( !_skiplines.empty() )
+  {
+    // set unmatched end to file eof
+    if ( _skiplines.back().start.line_number == _skiplines.back().end.line_number )
+      _skiplines.back().end.line_number = _rawlines.size() + 1;
+  }
+  // remove all comments between noformat ranges
+  _comments.erase( std::remove_if( _comments.begin(), _comments.end(),
+                                   [&]( auto& c )
+                                   {
+                                     for ( const auto& s : _skiplines )
+                                     {
+                                       if ( s.start.line_number <= c.pos.line_number &&
+                                            s.end.line_number >= c.pos.line_number )
+                                         return true;
+                                     }
+                                     return false;
+                                   } ),
+                   _comments.end() );
+  for ( const auto& c : _comments )
+    INFO_PRINTLN( "COMMENT {}", c.text );
 }
 
-void PrettifyFileProcessor::mergeComments()
+void PrettifyFileProcessor::mergeRawContent( int nextlineno )
+{
+  for ( auto itr = _skiplines.begin(); itr != _skiplines.end(); )
+  {
+    if ( itr->start.line_number < nextlineno )
+    {
+      mergeCommentsBefore( itr->start.line_number );
+      if ( itr->start.line_number > _last_line + 1 )  // TODO extra method
+        _lines.emplace_back( "" );
+      for ( size_t i = itr->start.line_number - 1; i < itr->end.line_number && i < _rawlines.size();
+            ++i )
+      {
+        _lines.emplace_back( _rawlines[i] );
+        _last_line = i + 1;
+      }
+      itr = _skiplines.erase( itr );
+      continue;
+    }
+    ++itr;
+  }
+}
+
+void PrettifyFileProcessor::mergeCommentsBefore( int nextlineno )
 {
   // add comments before current line
   while ( !_comments.empty() )
   {
-    if ( _comments.front().pos.line_number < _line_parts.front().lineno )
+    if ( _comments.front().pos.line_number < nextlineno )
     {
       if ( _comments.front().pos.line_number > _last_line + 1 )
-      {
         _lines.emplace_back( "" );
-      }
       _lines.push_back( std::string( _currident * IDENT_LEVEL, ' ' ) + _comments.front().text );
       _last_line = _comments.front().pos_end.line_number;
       _comments.erase( _comments.begin() );
@@ -135,6 +189,14 @@ void PrettifyFileProcessor::mergeComments()
     else
       break;
   }
+}
+
+void PrettifyFileProcessor::mergeComments()
+{
+  if ( _line_parts.empty() )
+    return;
+  mergeRawContent( _line_parts.front().lineno );
+  mergeCommentsBefore( _line_parts.front().lineno );
   // add comments inbetween
   for ( size_t i = 0; i < _line_parts.size(); )
   {
@@ -170,6 +232,8 @@ void PrettifyFileProcessor::mergeComments()
 
 void PrettifyFileProcessor::buildLine()
 {
+  if ( _line_parts.empty() )
+    return;
   auto stripline = []( std::string& line )
   {
     if ( !line.empty() )
@@ -270,7 +334,10 @@ void PrettifyFileProcessor::buildLine()
     for ( auto& [l, forced, group] : lines )
     {
       if ( lastgroup == 0xffffFFFF )
-        line += l;                   // first part
+      {
+        line += l;  // first part
+        alignmentspace.push_back( line.size() );
+      }
       else if ( lastgroup < group )  // new group
       {
         // first store current size as alignment
@@ -335,9 +402,14 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
     EscriptGrammar::EscriptParser::CompilationUnitContext* ctx )
 {
   visitChildren( ctx );
+  mergeRawContent( _last_line );
   while ( !_comments.empty() )
   {
+    if ( _comments.front().pos.line_number > _last_line + 1 )
+      _lines.emplace_back( "" );
     _lines.push_back( std::string( _currident * 2, ' ' ) + _comments.front().text );
+    _last_line = _comments.front().pos_end.line_number;
+    mergeRawContent( _last_line );
     _comments.erase( _comments.begin() );
   }
   if ( !_line_parts.empty() )
@@ -348,6 +420,7 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
 antlrcpp::Any PrettifyFileProcessor::visitVarStatement(
     EscriptGrammar::EscriptParser::VarStatementContext* ctx )
 {
+  INFO_PRINTLN( "VAR `{}`", ctx->getText() );
   addToken( "var", ctx->VAR(), TokenPart::SPACE );
   visitVariableDeclarationList( ctx->variableDeclarationList() );
   addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
@@ -1118,6 +1191,7 @@ antlrcpp::Any PrettifyFileProcessor::visitInterpolatedString(
     EscriptGrammar::EscriptParser::InterpolatedStringContext* ctx )
 {
   addToken( "$\"", ctx->INTERPOLATED_STRING_START(), TokenPart::SPACE );
+  INFO_PRINTLN( "ctx {}", ctx->getText() );
   visitChildren( ctx );
   addToken( "\"", ctx->DOUBLE_QUOTE_INSIDE(), TokenPart::ATTACHED | TokenPart::SPACE );
   return {};
@@ -1478,6 +1552,9 @@ antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNo
 
 void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, int style )
 {
+  for ( const auto& skip : _skiplines )
+    if ( skip.contains( pos ) )
+      return;
   _line_parts.emplace_back( std::forward<std::string>( text ), pos, style, _currentgroup );
 }
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
@@ -1495,6 +1572,32 @@ void PrettifyFileProcessor::addToken( std::string&& text, antlr4::Token* token, 
     addToken( token->getText(), Range( token ).start, style );
   else
     addToken( std::forward<std::string>( text ), Range( token ).start, style );
+}
+
+void PrettifyFileProcessor::load_raw_file()
+{
+  Clib::FileContents fc( source_file_identifier.pathname.c_str(), true );
+  const auto& contents = fc.str_contents();
+  std::string currline;
+  for ( size_t i = 0; i < contents.size(); ++i )
+  {
+    if ( contents[i] == '\r' && i + 1 < contents.size() && contents[i + 1] == '\n' )
+    {
+      ++i;
+      _rawlines.emplace_back( std::move( currline ) );
+      currline.clear();
+      continue;
+    }
+    if ( contents[i] == '\r' || contents[i] == '\n' )
+    {
+      _rawlines.emplace_back( std::move( currline ) );
+      currline.clear();
+    }
+    else
+      currline += contents[i];
+  }
+  if ( !currline.empty() )
+    _rawlines.emplace_back( std::move( currline ) );
 }
 }  // namespace Pol::Bscript::Compiler
 

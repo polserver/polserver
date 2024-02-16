@@ -27,8 +27,8 @@ struct Position
 
 struct Range
 {
-  const Position start;
-  const Position end;
+  Position start;
+  Position end;
   bool contains( const Position& ) const;
   bool contains( const Range& ) const;
   bool contains( unsigned short line_number, unsigned short character_column ) const;

@@ -212,19 +212,23 @@ private:
   const SourceFileIdentifier& source_file_identifier;
   // Profile& profile;
   Report& report;
+  std::vector<std::string> _rawlines = {};
   std::vector<std::string> _lines = {};
   std::vector<TokenPart> _line_parts = {};
   std::vector<CommentInfo> _comments = {};
+  std::vector<Range> _skiplines = {};
   int _last_line = 0;
   size_t _currident = 0;
   size_t _currentgroup = 0;
+  void mergeRawContent( int nextlineno );
   void mergeComments();
+  void mergeCommentsBefore( int nextlineno );
   void buildLine();
   void addToken( std::string&& text, const Position& pos, int style );
   void addToken( std::string&& text, antlr4::tree::TerminalNode* terminal, int style );
   void addToken( std::string&& text, antlr4::Token* token, int style );
   void collectComments( SourceFile& sf );
-
+  void load_raw_file();
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
                                    EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
 
