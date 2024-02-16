@@ -14,7 +14,7 @@ class FileContents
 public:
   FileContents( const char* filname, bool suppress_error_print = false );
 
-  std::string& str_contents() const;
+  const std::string& str_contents() const;
   const char* contents() const;
   void set_contents( const std::string& str );
 

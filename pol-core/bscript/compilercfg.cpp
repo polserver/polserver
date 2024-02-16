@@ -64,6 +64,9 @@ void CompilerConfig::Read( const std::string& path )
 
   FormatterLineWidth = elem.remove_unsigned( "FormatterLineWidth", 80 );
   FormatterKeepKeywords = elem.remove_bool( "FormatterKeepKeywords", false );
+  FormatterIdentLevel = elem.remove_ushort( "FormatterIdentLevel", 2 );
+  FormatterMergeEmptyLines = elem.remove_bool( "FormatterMergeEmptyLines", true );
+
 // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
 #ifdef WIN32
@@ -137,6 +140,8 @@ void CompilerConfig::SetDefaults()
 
   FormatterLineWidth = 80;
   FormatterKeepKeywords = false;
+  FormatterIdentLevel = 2;
+  FormatterMergeEmptyLines = true;
 }
 
 CompilerConfig compilercfg;

@@ -229,6 +229,8 @@ private:
   void addToken( std::string&& text, antlr4::Token* token, int style );
   void collectComments( SourceFile& sf );
   void load_raw_file();
+  void addEmptyLines( int line_number );
+
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
                                    EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
 

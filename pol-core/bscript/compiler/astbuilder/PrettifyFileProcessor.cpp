@@ -17,7 +17,6 @@ using EscriptGrammar::EscriptParser;
 
 namespace Pol::Bscript::Compiler
 {
-const int IDENT_LEVEL = 2;
 
 PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier,
                                               Profile& /*profile*/, Report& report )
@@ -147,8 +146,6 @@ void PrettifyFileProcessor::collectComments( SourceFile& sf )
                                      return false;
                                    } ),
                    _comments.end() );
-  for ( const auto& c : _comments )
-    INFO_PRINTLN( "COMMENT {}", c.text );
 }
 
 void PrettifyFileProcessor::mergeRawContent( int nextlineno )
@@ -158,8 +155,7 @@ void PrettifyFileProcessor::mergeRawContent( int nextlineno )
     if ( itr->start.line_number < nextlineno )
     {
       mergeCommentsBefore( itr->start.line_number );
-      if ( itr->start.line_number > _last_line + 1 )  // TODO extra method
-        _lines.emplace_back( "" );
+      addEmptyLines( itr->start.line_number );
       for ( size_t i = itr->start.line_number - 1; i < itr->end.line_number && i < _rawlines.size();
             ++i )
       {
@@ -180,9 +176,9 @@ void PrettifyFileProcessor::mergeCommentsBefore( int nextlineno )
   {
     if ( _comments.front().pos.line_number < nextlineno )
     {
-      if ( _comments.front().pos.line_number > _last_line + 1 )
-        _lines.emplace_back( "" );
-      _lines.push_back( std::string( _currident * IDENT_LEVEL, ' ' ) + _comments.front().text );
+      addEmptyLines( _comments.front().pos.line_number );
+      _lines.push_back( std::string( _currident * compilercfg.FormatterIdentLevel, ' ' ) +
+                        _comments.front().text );
       _last_line = _comments.front().pos_end.line_number;
       _comments.erase( _comments.begin() );
     }
@@ -308,11 +304,7 @@ void PrettifyFileProcessor::buildLine()
   for ( auto& [l, forced, group] : lines )
     INFO_PRINTLN( "\"{}\" {}", l, group );
   // add newline from original sourcecode
-  // TODO: it just adds one
-  if ( _line_parts.front().lineno > _last_line + 1 )
-  {
-    _lines.emplace_back( "" );
-  }
+  addEmptyLines( _line_parts.front().lineno );
 
   // sum up linelength, are groups inside
   bool groups = false;
@@ -376,8 +368,8 @@ void PrettifyFileProcessor::buildLine()
       // first breakpoint defines the alignment and add initial ident level
       if ( !alignmentspace )
       {
-        alignmentspace = l.size() + _currident * IDENT_LEVEL;
-        line += std::string( _currident * IDENT_LEVEL, ' ' );
+        alignmentspace = l.size() + _currident * compilercfg.FormatterIdentLevel;
+        line += std::string( _currident * compilercfg.FormatterIdentLevel, ' ' );
       }
       line += l;
       // linewidth reached add current line, start a new one
@@ -398,6 +390,24 @@ void PrettifyFileProcessor::buildLine()
   _line_parts.clear();
 }
 
+
+void PrettifyFileProcessor::addEmptyLines( int line_number )
+{
+  if ( compilercfg.FormatterMergeEmptyLines )
+  {
+    if ( line_number > _last_line + 1 )
+      _lines.emplace_back( "" );
+  }
+  else
+  {
+    while ( line_number > _last_line + 1 )
+    {
+      _lines.emplace_back( "" );
+      ++_last_line;
+    }
+  }
+}
+
 antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
     EscriptGrammar::EscriptParser::CompilationUnitContext* ctx )
 {
@@ -405,9 +415,9 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
   mergeRawContent( _last_line );
   while ( !_comments.empty() )
   {
-    if ( _comments.front().pos.line_number > _last_line + 1 )
-      _lines.emplace_back( "" );
-    _lines.push_back( std::string( _currident * 2, ' ' ) + _comments.front().text );
+    addEmptyLines( _comments.front().pos.line_number );
+    _lines.push_back( std::string( _currident * compilercfg.FormatterIdentLevel, ' ' ) +
+                      _comments.front().text );
     _last_line = _comments.front().pos_end.line_number;
     mergeRawContent( _last_line );
     _comments.erase( _comments.begin() );
@@ -420,7 +430,6 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
 antlrcpp::Any PrettifyFileProcessor::visitVarStatement(
     EscriptGrammar::EscriptParser::VarStatementContext* ctx )
 {
-  INFO_PRINTLN( "VAR `{}`", ctx->getText() );
   addToken( "var", ctx->VAR(), TokenPart::SPACE );
   visitVariableDeclarationList( ctx->variableDeclarationList() );
   addToken( ";", ctx->SEMI(), TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
@@ -597,13 +606,15 @@ antlrcpp::Any PrettifyFileProcessor::visitArrayInitializer(
     EscriptGrammar::EscriptParser::ArrayInitializerContext* ctx )
 {
   if ( auto lbrace = ctx->LBRACE() )
-    addToken( "{", lbrace, TokenPart::SPACE | TokenPart::BREAKPOINT );
+    addToken( "{", lbrace, TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
   else if ( auto lparen = ctx->LPAREN() )
-    addToken( "(", lparen, TokenPart::SPACE | TokenPart::BREAKPOINT );
+    addToken( "(", lparen, TokenPart::ATTACHED | TokenPart::SPACE | TokenPart::BREAKPOINT );
 
+  ++_currentgroup;
   size_t curcount = _line_parts.size();
   if ( auto expr = ctx->expressionList() )
     visitExpressionList( expr );
+  --_currentgroup;
 
   auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
   if ( _line_parts.size() == curcount )
@@ -618,9 +629,11 @@ antlrcpp::Any PrettifyFileProcessor::visitArrayInitializer(
 antlrcpp::Any PrettifyFileProcessor::visitExplicitArrayInitializer(
     EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* ctx )
 {
-  addToken( "array", ctx->ARRAY(), TokenPart::NONE );
+  ++_currentgroup;
+  addToken( "array", ctx->ARRAY(), TokenPart::SPACE );
   if ( auto init = ctx->arrayInitializer() )
     visitArrayInitializer( init );
+  --_currentgroup;
   return {};
 }
 
@@ -628,6 +641,7 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpressionList(
     EscriptGrammar::EscriptParser::DictInitializerExpressionListContext* ctx )
 {
   auto inits = ctx->dictInitializerExpression();
+  ++_currentgroup;
   for ( size_t i = 0; i < inits.size(); ++i )
   {
     visitDictInitializerExpression( inits[i] );
@@ -635,6 +649,7 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpressionList(
       addToken( ",", ctx->COMMA( i ),
                 TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT );
   }
+  --_currentgroup;
   return {};
 }
 
@@ -656,9 +671,11 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializer(
 antlrcpp::Any PrettifyFileProcessor::visitExplicitDictInitializer(
     EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* ctx )
 {
+  ++_currentgroup;
   addToken( "dictionary", ctx->DICTIONARY(), TokenPart::SPACE );
   if ( auto init = ctx->dictInitializer() )
     visitDictInitializer( init );
+  --_currentgroup;
   return {};
 }
 
@@ -706,9 +723,11 @@ antlrcpp::Any PrettifyFileProcessor::visitBareArrayInitializer(
     EscriptGrammar::EscriptParser::BareArrayInitializerContext* ctx )
 {
   addToken( "{", ctx->LBRACE(), TokenPart::SPACE | TokenPart::BREAKPOINT );
+  ++_currentgroup;
   size_t curcount = _line_parts.size();
   if ( auto expr = ctx->expressionList() )
     visitExpressionList( expr );
+  --_currentgroup;
   auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
   if ( _line_parts.size() == curcount )
     style |= TokenPart::ATTACHED;
@@ -719,9 +738,11 @@ antlrcpp::Any PrettifyFileProcessor::visitBareArrayInitializer(
 antlrcpp::Any PrettifyFileProcessor::visitExplicitStructInitializer(
     EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* ctx )
 {
+  ++_currentgroup;
   addToken( "struct", ctx->STRUCT(), TokenPart::SPACE );
   if ( auto init = ctx->structInitializer() )
     visitStructInitializer( init );
+  --_currentgroup;
   return {};
 }
 
@@ -1191,7 +1212,6 @@ antlrcpp::Any PrettifyFileProcessor::visitInterpolatedString(
     EscriptGrammar::EscriptParser::InterpolatedStringContext* ctx )
 {
   addToken( "$\"", ctx->INTERPOLATED_STRING_START(), TokenPart::SPACE );
-  INFO_PRINTLN( "ctx {}", ctx->getText() );
   visitChildren( ctx );
   addToken( "\"", ctx->DOUBLE_QUOTE_INSIDE(), TokenPart::ATTACHED | TokenPart::SPACE );
   return {};
@@ -1331,7 +1351,8 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleUnit(
   visitChildren( ctx );
   while ( !_comments.empty() )
   {
-    _lines.push_back( std::string( _currident * 2, ' ' ) + _comments.front().text );
+    _lines.push_back( std::string( _currident * compilercfg.FormatterIdentLevel, ' ' ) +
+                      _comments.front().text );
     _comments.erase( _comments.begin() );
   }
   if ( !_line_parts.empty() )

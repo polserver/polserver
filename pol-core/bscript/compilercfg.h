@@ -44,6 +44,8 @@ struct CompilerConfig
   // Formatter
   size_t FormatterLineWidth;
   bool FormatterKeepKeywords;
+  unsigned short FormatterIdentLevel;
+  bool FormatterMergeEmptyLines;
 
   void Read( const std::string& path );
   void SetDefaults();
