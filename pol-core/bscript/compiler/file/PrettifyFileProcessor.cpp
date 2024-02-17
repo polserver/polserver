@@ -369,6 +369,13 @@ void PrettifyFileProcessor::buildLine()
     size_t lastgroup = 0xffffFFFF;
     for ( auto& [l, forced, group] : lines )
     {
+      if ( forced )
+      {
+        line += l;
+        stripline( line );
+        _lines.emplace_back( std::move( line ) );
+        continue;
+      }
       if ( lastgroup == 0xffffFFFF )
       {
         line += l;  // first part
@@ -382,7 +389,9 @@ void PrettifyFileProcessor::buildLine()
       }
       else if ( lastgroup > group )  // descending
       {
-        _lines.emplace_back( std::move( line ) );
+        stripline( line );
+        if ( !line.empty() )
+          _lines.emplace_back( std::move( line ) );
         // use last group alignment
         line = alignmentSpacing( alignmentspace.back() );
         // remove last group alignment
@@ -391,7 +400,9 @@ void PrettifyFileProcessor::buildLine()
       }
       else  // same group
       {
-        _lines.emplace_back( std::move( line ) );
+        stripline( line );
+        if ( !line.empty() )
+          _lines.emplace_back( std::move( line ) );
         // use current group alignment
         line = alignmentSpacing( alignmentspace.back() );
         line += l;
@@ -1435,7 +1446,8 @@ antlrcpp::Any PrettifyFileProcessor::visitProgramParameterList(
   for ( size_t i = 0; i < params.size(); ++i )
   {
     visitProgramParameter( params[i] );
-    if ( i < params.size() - 1 )
+    // comma is optional here
+    if ( i < params.size() - 1 && ctx->COMMA( i ) )
       addToken( ",", ctx->COMMA( i ), delimiterStyle() );
   }
   return {};
