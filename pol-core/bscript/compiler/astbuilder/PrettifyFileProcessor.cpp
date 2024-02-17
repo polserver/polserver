@@ -49,6 +49,10 @@
   FormatterOperatorSpacing 1
   // use \r\n as newline instead of \n
   FormatterWindowsLineEndings 0
+  // use tabs instead of spaces
+  FormatterUseTabs 0
+  // tab width
+  FormatterTabWidth 4
 */
 
 namespace Pol::Bscript::Compiler
@@ -215,8 +219,7 @@ void PrettifyFileProcessor::mergeCommentsBefore( int nextlineno )
     if ( _comments.front().pos.line_number < nextlineno )
     {
       addEmptyLines( _comments.front().pos.line_number );
-      _lines.push_back( std::string( _currident * compilercfg.FormatterIdentLevel, ' ' ) +
-                        _comments.front().text );
+      _lines.push_back( identSpacing() + _comments.front().text );
       _last_line = _comments.front().pos_end.line_number;
       _comments.erase( _comments.begin() );
     }
@@ -376,7 +379,7 @@ void PrettifyFileProcessor::buildLine()
       {
         _lines.emplace_back( std::move( line ) );
         // use last group alignment
-        line = std::string( alignmentspace.back(), ' ' );
+        line = alignmentSpacing( alignmentspace.back() );
         // remove last group alignment
         alignmentspace.pop_back();
         line += l;
@@ -385,7 +388,7 @@ void PrettifyFileProcessor::buildLine()
       {
         _lines.emplace_back( std::move( line ) );
         // use current group alignment
-        line = std::string( alignmentspace.back(), ' ' );
+        line = alignmentSpacing( alignmentspace.back() );
         line += l;
       }
 
@@ -400,12 +403,13 @@ void PrettifyFileProcessor::buildLine()
     {
       // following lines need to be aligned
       if ( line.empty() && alignmentspace )
-        line = std::string( alignmentspace, ' ' );
+        line = alignmentSpacing( alignmentspace );
       // first breakpoint defines the alignment and add initial ident level
       if ( !alignmentspace )
       {
-        alignmentspace = l.size() + _currident * compilercfg.FormatterIdentLevel;
-        line += std::string( _currident * compilercfg.FormatterIdentLevel, ' ' );
+        auto ident = identSpacing();
+        alignmentspace = l.size() + ident.size();
+        line += ident;
       }
       line += l;
       // linewidth reached add current line, start a new one
@@ -452,8 +456,7 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
   while ( !_comments.empty() )
   {
     addEmptyLines( _comments.front().pos.line_number );
-    _lines.push_back( std::string( _currident * compilercfg.FormatterIdentLevel, ' ' ) +
-                      _comments.front().text );
+    _lines.push_back( identSpacing() + _comments.front().text );
     _last_line = _comments.front().pos_end.line_number;
     mergeRawContent( _last_line );
     _comments.erase( _comments.begin() );
@@ -1382,8 +1385,7 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleUnit( EscriptParser::ModuleUnitC
   visitChildren( ctx );
   while ( !_comments.empty() )
   {
-    _lines.push_back( std::string( _currident * compilercfg.FormatterIdentLevel, ' ' ) +
-                      _comments.front().text );
+    _lines.push_back( identSpacing() + _comments.front().text );
     _comments.erase( _comments.begin() );
   }
   if ( !_line_parts.empty() )
@@ -1691,6 +1693,26 @@ int PrettifyFileProcessor::operatorStyle()
   if ( !compilercfg.FormatterOperatorSpacing )
     return TokenPart::ATTACHED;
   return TokenPart::SPACE;
+}
+
+std::string PrettifyFileProcessor::identSpacing()
+{
+  if ( !compilercfg.FormatterUseTabs )
+    return std::string( _currident * compilercfg.FormatterIdentLevel, ' ' );
+  size_t total = _currident * compilercfg.FormatterIdentLevel;
+  size_t tabs = total / compilercfg.FormatterTabWidth;
+  size_t remaining = total % compilercfg.FormatterTabWidth;
+  return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
+}
+std::string PrettifyFileProcessor::alignmentSpacing( size_t count )
+{
+  if ( !count )
+    return {};
+  if ( !compilercfg.FormatterUseTabs )
+    return std::string( count, ' ' );
+  size_t tabs = count / compilercfg.FormatterTabWidth;
+  size_t remaining = count % compilercfg.FormatterTabWidth;
+  return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
 }
 
 void PrettifyFileProcessor::load_raw_file()

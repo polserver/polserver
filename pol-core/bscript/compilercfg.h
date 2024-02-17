@@ -56,6 +56,8 @@ struct CompilerConfig
   bool FormatterComparisonSpacing = true;
   bool FormatterOperatorSpacing = true;
   bool FormatterWindowsLineEndings = false;
+  bool FormatterUseTabs = false;
+  unsigned short FormatterTabWidth = 4;
 
   void Read( const std::string& path );
   void SetDefaults();

@@ -239,6 +239,8 @@ private:
   int assignmentStyle();
   int comparisonStyle();
   int operatorStyle();
+  std::string identSpacing();
+  std::string alignmentSpacing( size_t count );
 
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
                                    EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
