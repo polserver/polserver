@@ -13,6 +13,8 @@
 #include <iostream>
 #include <utility>
 
+// #define DEBUG_FORMAT_BREAK
+
 /*
   //LineWidth
   FormatterLineWidth 80
@@ -282,6 +284,7 @@ void PrettifyFileProcessor::buildLine()
   mergeComments();
 
   // fill lines with final strings splitted at breakpoints
+  // <splitted string, forcenewline, groupid>
   std::vector<std::tuple<std::string, bool, size_t>> lines;
   std::string line;
   for ( size_t i = 0; i < _line_parts.size(); ++i )
@@ -341,9 +344,11 @@ void PrettifyFileProcessor::buildLine()
     lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts.back().group ) );
     line.clear();
   }
+#ifdef DEBUG_FORMAT_BREAK
   INFO_PRINTLN( "BREAK " );
   for ( auto& [l, forced, group] : lines )
     INFO_PRINTLN( "\"{}\" {}", l, group );
+#endif
   // add newline from original sourcecode
   addEmptyLines( _line_parts.front().lineno );
 
@@ -452,15 +457,7 @@ antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
     EscriptParser::CompilationUnitContext* ctx )
 {
   visitChildren( ctx );
-  mergeRawContent( _last_line );
-  while ( !_comments.empty() )
-  {
-    addEmptyLines( _comments.front().pos.line_number );
-    _lines.push_back( identSpacing() + _comments.front().text );
-    _last_line = _comments.front().pos_end.line_number;
-    mergeRawContent( _last_line );
-    _comments.erase( _comments.begin() );
-  }
+  mergeEOFComments();
   if ( !_line_parts.empty() )
     report.error( source_file_identifier, "left over formatting lines {}", _line_parts );
   return {};
@@ -1383,11 +1380,7 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameter(
 antlrcpp::Any PrettifyFileProcessor::visitModuleUnit( EscriptParser::ModuleUnitContext* ctx )
 {
   visitChildren( ctx );
-  while ( !_comments.empty() )
-  {
-    _lines.push_back( identSpacing() + _comments.front().text );
-    _comments.erase( _comments.begin() );
-  }
+  mergeEOFComments();
   if ( !_line_parts.empty() )
     report.error( source_file_identifier, "left over formatting lines {}", _line_parts );
   return {};
@@ -1704,6 +1697,7 @@ std::string PrettifyFileProcessor::identSpacing()
   size_t remaining = total % compilercfg.FormatterTabWidth;
   return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
 }
+
 std::string PrettifyFileProcessor::alignmentSpacing( size_t count )
 {
   if ( !count )
@@ -1713,6 +1707,19 @@ std::string PrettifyFileProcessor::alignmentSpacing( size_t count )
   size_t tabs = count / compilercfg.FormatterTabWidth;
   size_t remaining = count % compilercfg.FormatterTabWidth;
   return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
+}
+
+void PrettifyFileProcessor::mergeEOFComments()
+{
+  mergeRawContent( _last_line );
+  while ( !_comments.empty() )
+  {
+    addEmptyLines( _comments.front().pos.line_number );
+    _lines.push_back( identSpacing() + _comments.front().text );
+    _last_line = _comments.front().pos_end.line_number;
+    mergeRawContent( _last_line );
+    _comments.erase( _comments.begin() );
+  }
 }
 
 void PrettifyFileProcessor::load_raw_file()

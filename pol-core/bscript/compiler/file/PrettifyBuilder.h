@@ -1,11 +1,6 @@
 #pragma once
 
-#include <memory>
 #include <string>
-#include <vector>
-
-#include "bscript/compiler/astbuilder/ProgramBuilder.h"
-#include "bscript/compiler/model/UserFunctionInclusion.h"
 
 namespace Pol::Bscript::Compiler
 {

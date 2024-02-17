@@ -1,12 +1,11 @@
 #include "PrettifyBuilder.h"
 
+#include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
-#include "bscript/compiler/astbuilder/PrettifyFileProcessor.h"
+#include "bscript/compiler/file/PrettifyFileProcessor.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
-#include "clib/timer.h"
-#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

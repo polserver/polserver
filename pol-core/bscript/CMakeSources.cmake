@@ -179,10 +179,6 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ModuleDeclarationBuilder.h
   compiler/astbuilder/ModuleProcessor.cpp
   compiler/astbuilder/ModuleProcessor.h
-  compiler/astbuilder/PrettifyBuilder.cpp
-  compiler/astbuilder/PrettifyBuilder.h
-  compiler/astbuilder/PrettifyFileProcessor.cpp
-  compiler/astbuilder/PrettifyFileProcessor.h
   compiler/astbuilder/ProgramBuilder.cpp
   compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
@@ -221,6 +217,10 @@ set (bscript_sources    # sorted !
   compiler/file/ConformingCharStream.h
   compiler/file/ErrorListener.cpp
   compiler/file/ErrorListener.h
+  compiler/file/PrettifyBuilder.cpp
+  compiler/file/PrettifyBuilder.h
+  compiler/file/PrettifyFileProcessor.cpp
+  compiler/file/PrettifyFileProcessor.h
   compiler/file/SourceFile.cpp
   compiler/file/SourceFile.h
   compiler/file/SourceFileCache.cpp

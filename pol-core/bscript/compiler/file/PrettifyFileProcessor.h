@@ -230,6 +230,7 @@ private:
   void collectComments( SourceFile& sf );
   void load_raw_file();
   void addEmptyLines( int line_number );
+  void mergeEOFComments();
   int closingParenthesisStyle( size_t begin_size );
   int closingBracketStyle( size_t begin_size );
   int openingParenthesisStyle();

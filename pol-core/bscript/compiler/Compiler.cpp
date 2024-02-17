@@ -5,8 +5,8 @@
 #include "bscript/compiler/analyzer/Disambiguator.h"
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
-#include "bscript/compiler/astbuilder/PrettifyBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
+#include "bscript/compiler/file/PrettifyBuilder.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/format/CompiledScriptSerializer.h"
@@ -135,7 +135,6 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   auto formatted = prettify_builder.build( filename, is_module );
   if ( report.error_count() )
     return false;
-  INFO_PRINTLN( "\nFORMATTED:\n{}", formatted );
   if ( inplace )
   {
     std::ofstream filestream;
@@ -143,6 +142,8 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
     filestream << formatted;
     filestream.flush();
   }
+  else
+    INFO_PRINTLN( formatted );
   return true;
 }
 
