@@ -103,12 +103,23 @@ void PrettifyFileProcessor::collectComments( SourceFile& sf )
   auto alltokens = sf.get_all_tokens();
 
   _comments.clear();
-  for ( const auto& comment : alltokens )
+  for ( size_t i = 0; i < alltokens.size(); ++i )
   {
+    const auto& comment = alltokens[i];
     if ( comment->getType() == EscriptLexer::COMMENT ||
          comment->getType() == EscriptLexer::LINE_COMMENT )
     {
-      Range r( &*comment );
+      Range startpos( &*comment );
+      Range endpos( &*comment );
+
+      // use whitespace token as start if its on the same line
+      // so that the tokenid of a comment is always the next tokenid after a "actual" token
+      if ( i > 0 )
+      {
+        if ( alltokens[i - 1]->getType() == EscriptLexer::WS &&
+             alltokens[i - 1]->getLine() == startpos.start.line_number )
+          startpos = Range( alltokens[i - 1] );
+      }
       CommentInfo info;
       info.text = comment->getText();
       if ( comment->getType() == EscriptLexer::LINE_COMMENT )
@@ -157,8 +168,8 @@ void PrettifyFileProcessor::collectComments( SourceFile& sf )
           info.text = std::string( "/* " ) + info.text + " */";
         info.linecomment = false;
       }
-      info.pos = r.start;
-      info.pos_end = r.end;
+      info.pos = startpos.start;
+      info.pos_end = endpos.end;
       _comments.emplace_back( std::move( info ) );
     }
   }
@@ -263,7 +274,6 @@ void PrettifyFileProcessor::mergeComments()
       _comments.erase( _comments.begin() );
     }
   }
-}
 }
 
 void PrettifyFileProcessor::buildLine()
