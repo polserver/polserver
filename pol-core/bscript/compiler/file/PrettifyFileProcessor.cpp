@@ -256,17 +256,14 @@ void PrettifyFileProcessor::mergeComments()
   // add comments at the end of the current line
   if ( !_comments.empty() )
   {
-    // next token could be terminator, but further away could be a new "line"
-    if ( _comments.front().pos.line_number == _line_parts.back().lineno )
+    if ( _comments.front().pos.line_number == _line_parts.back().lineno &&
+         _comments.front().pos.token_index <= _line_parts.back().tokenid + 1 )
     {
-      if ( _comments.front().linecomment ||
-           _comments.front().pos.token_index <= _line_parts.back().tokenid + 2 )
-      {
-        addToken( std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE );
-        _comments.erase( _comments.begin() );
-      }
+      addToken( std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE );
+      _comments.erase( _comments.begin() );
     }
   }
+}
 }
 
 void PrettifyFileProcessor::buildLine()
