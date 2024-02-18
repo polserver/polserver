@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bscript/compiler/file/PrettifyLineBuilder.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
@@ -13,47 +14,15 @@ class Profile;
 class Report;
 class SourceFileIdentifier;
 class SourceFile;
-struct CommentInfo
-{
-  std::string text;
-  bool linecomment;
-  Position pos;
-  Position pos_end;
-};
-// structure to hold one token as string
-struct TokenPart
-{
-  enum Style
-  {
-    NONE = 0,          // do nothing
-    ATTACHED = 1,      // override SPACE of preceding token
-    SPACE = 2,         // add a whitespace char after this token
-    BREAKPOINT = 4,    // potential linebreak
-    FORCED_BREAK = 8,  // force linebreak
-  };
-  std::string text = {};
-  size_t tokenid = 0;
-  int lineno = 0;
-  int style = 0;
-  size_t group = 0;
-  TokenPart() = default;
-  TokenPart( std::string&& text, const Position& pos, int style, size_t group )
-      : text( std::move( text ) ),
-        tokenid( pos.token_index ),
-        lineno( pos.line_number ),
-        style( style ),
-        group( group ){};
-};
 
 class PrettifyFileProcessor : public EscriptGrammar::EscriptParserBaseVisitor
 {
 public:
   PrettifyFileProcessor( const SourceFileIdentifier&, Profile&, Report& );
 
-public:
   std::string prettify() const;
 
-
+public:
   // antlrcpp::Any visitChildren( antlr4::tree::ParseTree* node ) override;
   //  antlrcpp::Any defaultResult() override;
   //  antlrcpp::Any aggregateResult( antlrcpp::Any aggregate, antlrcpp::Any nextResult ) override;
@@ -210,38 +179,17 @@ public:
 
 private:
   const SourceFileIdentifier& source_file_identifier;
-  // Profile& profile;
-  Report& report;
-  std::vector<std::string> _rawlines = {};
-  std::vector<std::string> _lines = {};
-  std::vector<TokenPart> _line_parts = {};
-  std::vector<CommentInfo> _comments = {};
-  std::vector<Range> _skiplines = {};
-  int _last_line = 0;
+  PrettifyLineBuilder linebuilder;
   size_t _currident = 0;
   size_t _currentgroup = 0;
-  void mergeRawContent( int nextlineno );
-  void mergeComments();
-  void mergeCommentsBefore( int nextlineno );
-  void buildLine();
+  // Profile& profile;
+  Report& report;
   void addToken( std::string&& text, const Position& pos, int style );
   void addToken( std::string&& text, antlr4::tree::TerminalNode* terminal, int style );
   void addToken( std::string&& text, antlr4::Token* token, int style );
-  void collectComments( SourceFile& sf );
-  void load_raw_file();
-  void addEmptyLines( int line_number );
-  void mergeEOFComments();
-  int closingParenthesisStyle( size_t begin_size );
-  int closingBracketStyle( size_t begin_size );
-  int openingParenthesisStyle();
-  int openingBracketStyle();
-  int delimiterStyle();
-  int terminatorStyle();
-  int assignmentStyle();
-  int comparisonStyle();
-  int operatorStyle();
-  std::string identSpacing();
-  std::string alignmentSpacing( size_t count );
+  void preprocess( SourceFile& sf );
+  std::vector<CommentInfo> collectComments( SourceFile& sf );
+  std::vector<std::string> load_raw_file();
 
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
                                    EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
@@ -254,10 +202,3 @@ private:
   antlrcpp::Any make_float_literal( antlr4::tree::TerminalNode* );
 };
 }  // namespace Pol::Bscript::Compiler
-
-template <>
-struct fmt::formatter<Pol::Bscript::Compiler::TokenPart> : fmt::formatter<std::string>
-{
-  fmt::format_context::iterator format( const Pol::Bscript::Compiler::TokenPart& t,
-                                        fmt::format_context& ctx ) const;
-};

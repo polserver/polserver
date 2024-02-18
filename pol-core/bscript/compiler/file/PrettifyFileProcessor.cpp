@@ -12,8 +12,7 @@
 #include <algorithm>
 #include <iostream>
 #include <utility>
-
-// #define DEBUG_FORMAT_BREAK
+#include <vector>
 
 /*
   //LineWidth
@@ -73,8 +72,7 @@ antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf )
   {
     if ( report.error_count() )
       return {};
-    load_raw_file();
-    collectComments( sf );
+    preprocess( sf );
     return compilation_unit->accept( this );
   }
   throw std::runtime_error( "No compilation unit in source file" );
@@ -86,416 +84,54 @@ antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf )
   {
     if ( report.error_count() )
       return {};
-    load_raw_file();
-    collectComments( sf );
+    preprocess( sf );
     return module_unit->accept( this );
   }
   throw std::runtime_error( "No compilation unit in source file" );
-}
-std::string PrettifyFileProcessor::prettify() const
-{
-  return fmt::format(
-      "{}", fmt::join( _lines, compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n" ) );
-}
-
-void PrettifyFileProcessor::collectComments( SourceFile& sf )
-{
-  auto alltokens = sf.get_all_tokens();
-
-  _comments.clear();
-  for ( size_t i = 0; i < alltokens.size(); ++i )
-  {
-    const auto& comment = alltokens[i];
-    if ( comment->getType() == EscriptLexer::COMMENT ||
-         comment->getType() == EscriptLexer::LINE_COMMENT )
-    {
-      Range startpos( &*comment );
-      Range endpos( &*comment );
-
-      // use whitespace token as start if its on the same line
-      // so that the tokenid of a comment is always the next tokenid after a "actual" token
-      if ( i > 0 )
-      {
-        if ( alltokens[i - 1]->getType() == EscriptLexer::WS &&
-             alltokens[i - 1]->getLine() == startpos.start.line_number )
-          startpos = Range( alltokens[i - 1] );
-      }
-      CommentInfo info;
-      info.text = comment->getText();
-      if ( comment->getType() == EscriptLexer::LINE_COMMENT )
-      {
-        info.text.erase( 0, 2 );  // remove //
-        auto firstchar = info.text.find_first_not_of( " \t" );
-        if ( info.text.empty() || firstchar == std::string::npos )
-        {
-          // empty or only whitespace
-          info.text = "//";
-        }
-        else if ( info.text.front() == '/' )
-        {
-          // assuming its ////// -> keep it
-          info.text = std::string( "//" ) + info.text;
-        }
-        else
-        {
-          if ( info.text[firstchar] == '/' || info.text.back() == '/' )
-          {
-            // assuming its //    // -> keep it
-            info.text = std::string( "//" ) + info.text;
-          }
-          else
-          {
-            info.text.erase( 0, firstchar );  // remove remaining whitespace
-            info.text = std::string( "// " ) + info.text;
-          }
-        }
-        auto lastchar = info.text.find_last_not_of( ' ' );
-        info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
-        info.linecomment = true;
-      }
-      else
-      {
-        info.text.erase( 0, 2 );  // remove /*
-        auto firstchar = info.text.find_first_not_of( " \t" );
-        info.text.erase( 0, firstchar );                          // remove remaining whitespace
-        info.text.erase( info.text.end() - 2, info.text.end() );  // remove */
-        auto lastchar = info.text.find_last_not_of( " \t" );
-        info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
-        // if its in the style of /*** blubb **/ dont add whitespace
-        if ( info.text.empty() || ( info.text.front() == '*' && info.text.back() == '*' ) )
-          info.text = std::string( "/*" ) + info.text + "*/";
-        else
-          info.text = std::string( "/* " ) + info.text + " */";
-        info.linecomment = false;
-      }
-      info.pos = startpos.start;
-      info.pos_end = endpos.end;
-      _comments.emplace_back( std::move( info ) );
-    }
-  }
-
-  for ( const auto& c : _comments )
-  {
-    if ( c.text.find( "format-off" ) != std::string::npos )
-      _skiplines.emplace_back( c.pos, c.pos );
-    else if ( c.text.find( "format-on" ) != std::string::npos )
-      if ( !_skiplines.empty() )
-        _skiplines.back().end = c.pos_end;
-  }
-  if ( !_skiplines.empty() )
-  {
-    // set unmatched end to file eof
-    if ( _skiplines.back().start.line_number == _skiplines.back().end.line_number )
-      _skiplines.back().end.line_number = _rawlines.size() + 1;
-  }
-  // remove all comments between noformat ranges
-  _comments.erase( std::remove_if( _comments.begin(), _comments.end(),
-                                   [&]( auto& c )
-                                   {
-                                     for ( const auto& s : _skiplines )
-                                     {
-                                       if ( s.start.line_number <= c.pos.line_number &&
-                                            s.end.line_number >= c.pos.line_number )
-                                         return true;
-                                     }
-                                     return false;
-                                   } ),
-                   _comments.end() );
-}
-
-void PrettifyFileProcessor::mergeRawContent( int nextlineno )
-{
-  for ( auto itr = _skiplines.begin(); itr != _skiplines.end(); )
-  {
-    if ( itr->start.line_number < nextlineno )
-    {
-      mergeCommentsBefore( itr->start.line_number );
-      addEmptyLines( itr->start.line_number );
-      for ( size_t i = itr->start.line_number - 1; i < itr->end.line_number && i < _rawlines.size();
-            ++i )
-      {
-        _lines.emplace_back( _rawlines[i] );
-        _last_line = i + 1;
-      }
-      itr = _skiplines.erase( itr );
-      continue;
-    }
-    ++itr;
-  }
-}
-
-void PrettifyFileProcessor::mergeCommentsBefore( int nextlineno )
-{
-  // add comments before current line
-  while ( !_comments.empty() )
-  {
-    if ( _comments.front().pos.line_number < nextlineno )
-    {
-      addEmptyLines( _comments.front().pos.line_number );
-      _lines.push_back( identSpacing() + _comments.front().text );
-      _last_line = _comments.front().pos_end.line_number;
-      _comments.erase( _comments.begin() );
-    }
-    else
-      break;
-  }
-}
-
-void PrettifyFileProcessor::mergeComments()
-{
-  if ( _line_parts.empty() )
-    return;
-  mergeRawContent( _line_parts.front().lineno );
-  mergeCommentsBefore( _line_parts.front().lineno );
-  // add comments inbetween
-  for ( size_t i = 0; i < _line_parts.size(); )
-  {
-    if ( _comments.empty() )
-      break;
-    if ( _line_parts[i].tokenid > _comments.front().pos.token_index )
-    {
-      TokenPart p{ std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE,
-                   _currentgroup };
-      if ( _comments.front().linecomment )
-        p.style |= TokenPart::FORCED_BREAK;
-      _line_parts.insert( _line_parts.begin() + i, p );
-      _comments.erase( _comments.begin() );
-    }
-    else
-      ++i;
-  }
-  // add comments at the end of the current line
-  if ( !_comments.empty() )
-  {
-    if ( _comments.front().pos.line_number == _line_parts.back().lineno &&
-         _comments.front().pos.token_index <= _line_parts.back().tokenid + 1 )
-    {
-      addToken( std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE );
-      _comments.erase( _comments.begin() );
-    }
-  }
-}
-
-void PrettifyFileProcessor::buildLine()
-{
-  if ( _line_parts.empty() )
-    return;
-  auto stripline = []( std::string& line )
-  {
-    if ( !line.empty() )
-    {
-      auto lastchar = line.find_last_not_of( ' ' );
-      line.erase( line.begin() + lastchar + 1, line.end() );
-    }
-  };
-  mergeComments();
-
-  // fill lines with final strings splitted at breakpoints
-  // <splitted string, forcenewline, groupid>
-  std::vector<std::tuple<std::string, bool, size_t>> lines;
-  std::string line;
-  for ( size_t i = 0; i < _line_parts.size(); ++i )
-  {
-    line += _line_parts[i].text;
-    // add space if set, but not if the following part is attached
-    if ( _line_parts[i].style & TokenPart::SPACE )
-    {
-      if ( i + 1 < _line_parts.size() )
-      {
-        if ( !( _line_parts[i + 1].style & TokenPart::ATTACHED ) )
-          line += ' ';
-      }
-      else
-        line += ' ';
-    }
-    if ( _line_parts[i].style & TokenPart::FORCED_BREAK )
-    {
-      lines.emplace_back( std::make_tuple( std::move( line ), true, _line_parts[i].group ) );
-      line.clear();
-    }
-    // start a new line if breakpoint
-    else if ( _line_parts[i].style & TokenPart::BREAKPOINT )
-    {
-      // if the next part is attached, dont break now and instead later
-      // eg dont split blubb[1]()
-      bool skip = false;
-      if ( i + 1 < _line_parts.size() )
-      {
-        // next one is attached
-        if ( _line_parts[i + 1].style & TokenPart::ATTACHED )
-        {
-          // search for space or breakpoint
-          for ( size_t j = i + 1; j < _line_parts.size(); ++j )
-          {
-            if ( _line_parts[j].style & TokenPart::ATTACHED )
-              skip = true;
-            else if ( _line_parts[j].style & TokenPart::SPACE ||
-                      _line_parts[j].style & TokenPart::BREAKPOINT )
-            {
-              _line_parts[j].style |= TokenPart::BREAKPOINT;
-              skip = true;
-              break;
-            }
-          }
-        }
-      }
-      if ( skip )
-        continue;
-      lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts[i].group ) );
-      line.clear();
-    }
-  }
-  // add remainings
-  if ( !line.empty() )
-  {
-    lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts.back().group ) );
-    line.clear();
-  }
-#ifdef DEBUG_FORMAT_BREAK
-  INFO_PRINTLN( "BREAK " );
-  for ( auto& [l, forced, group] : lines )
-    INFO_PRINTLN( "\"{}\" {}", l, group );
-#endif
-  // add newline from original sourcecode
-  addEmptyLines( _line_parts.front().lineno );
-
-  // sum up linelength, are groups inside
-  bool groups = false;
-  size_t linelength = 0;
-  for ( auto& [l, forced, group] : lines )
-  {
-    if ( group != 0 )
-      groups = true;
-    linelength += l.size();
-  }
-
-  // split based on groups
-  if ( groups && linelength > compilercfg.FormatterLineWidth )
-  {
-    std::vector<size_t> alignmentspace = {};
-    size_t lastgroup = 0xffffFFFF;
-    for ( auto& [l, forced, group] : lines )
-    {
-      if ( forced )
-      {
-        line += l;
-        stripline( line );
-        _lines.emplace_back( std::move( line ) );
-        continue;
-      }
-      if ( lastgroup == 0xffffFFFF )
-      {
-        line += l;  // first part
-        alignmentspace.push_back( line.size() );
-      }
-      else if ( lastgroup < group )  // new group
-      {
-        // first store current size as alignment
-        alignmentspace.push_back( line.size() );
-        line += l;
-      }
-      else if ( lastgroup > group )  // descending
-      {
-        stripline( line );
-        if ( !line.empty() )
-          _lines.emplace_back( std::move( line ) );
-        // use last group alignment
-        line = alignmentSpacing( alignmentspace.back() );
-        // remove last group alignment
-        alignmentspace.pop_back();
-        line += l;
-      }
-      else  // same group
-      {
-        stripline( line );
-        if ( !line.empty() )
-          _lines.emplace_back( std::move( line ) );
-        // use current group alignment
-        line = alignmentSpacing( alignmentspace.back() );
-        line += l;
-      }
-
-      lastgroup = group;
-    }
-  }
-  else  // split based on parts
-  {
-    // build final lines
-    size_t alignmentspace = 0;
-    for ( auto& [l, forced, group] : lines )
-    {
-      // following lines need to be aligned
-      if ( line.empty() && alignmentspace )
-        line = alignmentSpacing( alignmentspace );
-      // first breakpoint defines the alignment and add initial ident level
-      if ( !alignmentspace )
-      {
-        auto ident = identSpacing();
-        alignmentspace = l.size() + ident.size();
-        line += ident;
-      }
-      line += l;
-      // linewidth reached add current line, start a new one
-      if ( line.size() > compilercfg.FormatterLineWidth || forced )
-      {
-        stripline( line );
-        _lines.emplace_back( std::move( line ) );
-        line.clear();
-      }
-    }
-  }
-  if ( !line.empty() )
-  {
-    stripline( line );
-    _lines.emplace_back( std::move( line ) );
-  }
-  _last_line = _line_parts.back().lineno;
-  _line_parts.clear();
-}
-
-
-void PrettifyFileProcessor::addEmptyLines( int line_number )
-{
-  if ( compilercfg.FormatterMergeEmptyLines )
-  {
-    if ( line_number > _last_line + 1 )
-      _lines.emplace_back( "" );
-  }
-  else
-  {
-    while ( line_number > _last_line + 1 )
-    {
-      _lines.emplace_back( "" );
-      ++_last_line;
-    }
-  }
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitCompilationUnit(
     EscriptParser::CompilationUnitContext* ctx )
 {
   visitChildren( ctx );
-  mergeEOFComments();
-  if ( !_line_parts.empty() )
-    report.error( source_file_identifier, "left over formatting lines {}", _line_parts );
+  if ( !linebuilder.finalize() )
+    report.error( source_file_identifier, "left over formatting lines: {}",
+                  linebuilder.currentTokens() );
   return {};
 }
+
+antlrcpp::Any PrettifyFileProcessor::visitModuleUnit( EscriptParser::ModuleUnitContext* ctx )
+{
+  visitChildren( ctx );
+  if ( !linebuilder.finalize() )
+    report.error( source_file_identifier, "left over formatting lines: {}",
+                  linebuilder.currentTokens() );
+  return {};
+}
+
+
+std::string PrettifyFileProcessor::prettify() const
+{
+  return fmt::format( "{}", fmt::join( linebuilder.formattedLines(),
+                                       compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n" ) );
+}
+
 
 antlrcpp::Any PrettifyFileProcessor::visitVarStatement( EscriptParser::VarStatementContext* ctx )
 {
   addToken( "var", ctx->VAR(), TokenPart::SPACE );
   visitVariableDeclarationList( ctx->variableDeclarationList() );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitParExpression( EscriptParser::ParExpressionContext* ctx )
 {
-  addToken( "(", ctx->LPAREN(), openingParenthesisStyle() & ~TokenPart::ATTACHED );
-  auto curcount = _line_parts.size();
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() & ~TokenPart::ATTACHED );
+  auto curcount = linebuilder.currentTokens().size();
   visitExpression( ctx->expression() );
-  addToken( ")", ctx->RPAREN(), closingParenthesisStyle( curcount ) );
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
   return {};
 }
 
@@ -512,11 +148,11 @@ antlrcpp::Any PrettifyFileProcessor::visitWhileStatement(
   make_statement_label( ctx->statementLabel() );
   addToken( "while", ctx->WHILE(), TokenPart::SPACE );
   visitParExpression( ctx->parExpression() );
-  buildLine();
+  linebuilder.buildLine( _currident );
 
   visitBlock( ctx->block() );
   addToken( "endwhile", ctx->ENDWHILE(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -528,7 +164,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclarationList(
   {
     visitVariableDeclaration( args[i] );
     if ( i < args.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
   return {};
 }
@@ -540,7 +176,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
   if ( auto variable_declaration_initializer = ctx->variableDeclarationInitializer() )
   {
     if ( auto assign = variable_declaration_initializer->ASSIGN() )
-      addToken( ":=", assign, assignmentStyle() );
+      addToken( ":=", assign, linebuilder.assignmentStyle() );
 
     if ( auto expression = variable_declaration_initializer->expression() )
       visitExpression( expression );
@@ -561,15 +197,15 @@ antlrcpp::Any PrettifyFileProcessor::visitConstStatement(
            const_declaration_ctx->variableDeclarationInitializer() )
   {
     if ( auto assign = variable_declaration_initializer->ASSIGN() )
-      addToken( ":=", assign, assignmentStyle() );
+      addToken( ":=", assign, linebuilder.assignmentStyle() );
     if ( auto expression = variable_declaration_initializer->expression() )
       visitExpression( expression );
     else if ( auto array = variable_declaration_initializer->ARRAY() )
       addToken( "array", array, TokenPart::SPACE );
   }
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
 
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -580,7 +216,7 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpression(
 
   if ( ctx->expression().size() > 1 )
   {
-    addToken( "->", ctx->ARROW(), delimiterStyle() & ~TokenPart::BREAKPOINT );
+    addToken( "->", ctx->ARROW(), linebuilder.delimiterStyle() & ~TokenPart::BREAKPOINT );
     visitExpression( ctx->expression( 1 ) );
   }
   return {};
@@ -590,14 +226,14 @@ antlrcpp::Any PrettifyFileProcessor::visitDoStatement( EscriptParser::DoStatemen
 {
   make_statement_label( ctx->statementLabel() );
   addToken( "do", ctx->DO(), TokenPart::SPACE | TokenPart::BREAKPOINT );
-  buildLine();
+  linebuilder.buildLine( _currident );
 
   visitBlock( ctx->block() );
 
   addToken( "dowhile", ctx->DOWHILE(), TokenPart::SPACE );
   visitParExpression( ctx->parExpression() );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -607,7 +243,7 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumListEntry( EscriptParser::EnumList
 
   if ( auto expression = ctx->expression() )
   {
-    addToken( ":=", ctx->ASSIGN(), assignmentStyle() );
+    addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
     visitExpression( expression );
   }
   return {};
@@ -622,7 +258,7 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumList( EscriptParser::EnumListConte
     if ( i < enums.size() - 1 )
       addToken( ",", ctx->COMMA( i ), TokenPart::SPACE | TokenPart::ATTACHED );
 
-    buildLine();
+    linebuilder.buildLine( _currident );
   }
   return {};
 }
@@ -631,21 +267,21 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumStatement( EscriptParser::EnumStat
 {
   addToken( "enum", ctx->ENUM(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  buildLine();
+  linebuilder.buildLine( _currident );
   ++_currident;
   auto enums = visitEnumList( ctx->enumList() );
   --_currident;
 
   addToken( "endenum", ctx->ENDENUM(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitExitStatement( EscriptParser::ExitStatementContext* ctx )
 {
   addToken( "exit", ctx->EXIT(), TokenPart::SPACE );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -653,19 +289,19 @@ antlrcpp::Any PrettifyFileProcessor::visitArrayInitializer(
     EscriptParser::ArrayInitializerContext* ctx )
 {
   if ( auto lbrace = ctx->LBRACE() )
-    addToken( "{", lbrace, openingBracketStyle() );
+    addToken( "{", lbrace, linebuilder.openingBracketStyle() );
   else if ( auto lparen = ctx->LPAREN() )
-    addToken( "(", lparen, openingParenthesisStyle() );
+    addToken( "(", lparen, linebuilder.openingParenthesisStyle() );
   ++_currentgroup;
-  size_t curcount = _line_parts.size();
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto expr = ctx->expressionList() )
     visitExpressionList( expr );
   --_currentgroup;
 
   if ( auto rbrace = ctx->RBRACE() )
-    addToken( "}", rbrace, closingBracketStyle( curcount ) );
+    addToken( "}", rbrace, linebuilder.closingBracketStyle( curcount ) );
   else if ( auto rparen = ctx->RPAREN() )
-    addToken( ")", rparen, closingParenthesisStyle( curcount ) );
+    addToken( ")", rparen, linebuilder.closingParenthesisStyle( curcount ) );
   return {};
 }
 
@@ -689,7 +325,7 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpressionList(
   {
     visitDictInitializerExpression( inits[i] );
     if ( i < inits.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
   --_currentgroup;
   return {};
@@ -698,12 +334,12 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpressionList(
 antlrcpp::Any PrettifyFileProcessor::visitDictInitializer(
     EscriptParser::DictInitializerContext* ctx )
 {
-  addToken( "{", ctx->LBRACE(), openingBracketStyle() );
-  size_t curcount = _line_parts.size();
+  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() );
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto expr = ctx->dictInitializerExpressionList() )
     visitDictInitializerExpressionList( expr );
 
-  addToken( "}", ctx->RBRACE(), closingBracketStyle( curcount ) );
+  addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
   return {};
 }
 
@@ -726,7 +362,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpressionList(
   {
     visitStructInitializerExpression( inits[i] );
     if ( i < inits.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
   return {};
 }
@@ -734,14 +370,14 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpressionList(
 antlrcpp::Any PrettifyFileProcessor::visitStructInitializer(
     EscriptParser::StructInitializerContext* ctx )
 {
-  addToken( "{", ctx->LBRACE(), openingBracketStyle() );
+  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() );
   ++_currentgroup;
-  size_t curcount = _line_parts.size();
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto expr = ctx->structInitializerExpressionList() )
     visitStructInitializerExpressionList( expr );
   --_currentgroup;
 
-  addToken( "}", ctx->RBRACE(), closingBracketStyle( curcount ) );
+  addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
   return {};
 }
 
@@ -757,13 +393,13 @@ antlrcpp::Any PrettifyFileProcessor::visitExplicitErrorInitializer(
 antlrcpp::Any PrettifyFileProcessor::visitBareArrayInitializer(
     EscriptParser::BareArrayInitializerContext* ctx )
 {
-  addToken( "{", ctx->LBRACE(), openingBracketStyle() & ~TokenPart::ATTACHED );
+  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() & ~TokenPart::ATTACHED );
   ++_currentgroup;
-  size_t curcount = _line_parts.size();
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto expr = ctx->expressionList() )
     visitExpressionList( expr );
   --_currentgroup;
-  addToken( "}", ctx->RBRACE(), closingBracketStyle( curcount ) );
+  addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
   return {};
 }
 
@@ -786,7 +422,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpressionList(
   {
     visitExpression( args[i] );
     if ( i < args.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
   return {};
 }
@@ -829,7 +465,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     case EscriptLexer::MUL_ASSIGN:
     case EscriptLexer::DIV_ASSIGN:
     case EscriptLexer::MOD_ASSIGN:
-      style = assignmentStyle();
+      style = linebuilder.assignmentStyle();
       break;
     case EscriptLexer::TOK_IN:
       style = TokenPart::SPACE;
@@ -841,7 +477,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     case EscriptLexer::EQUAL:
     case EscriptLexer::NOTEQUAL_A:
     case EscriptLexer::NOTEQUAL_B:
-      style = comparisonStyle();
+      style = linebuilder.comparisonStyle();
       break;
     case EscriptLexer::ADD:
     case EscriptLexer::SUB:
@@ -852,13 +488,13 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     case EscriptLexer::RSHIFT:
     case EscriptLexer::BITAND:
     case EscriptLexer::BITOR:
-      style = operatorStyle();
+      style = linebuilder.operatorStyle();
       break;
     case EscriptLexer::ELVIS:
     {
-      if ( !_line_parts.empty() )
-        _line_parts.back().style |= TokenPart::BREAKPOINT;
-      style = TokenPart::SPACE;
+      // TODO before it sets breakpoint before
+      // if really needed should be a flag like attached
+      style = TokenPart::SPACE | TokenPart::BREAKPOINT;
       break;
     }
     default:
@@ -910,11 +546,11 @@ antlrcpp::Any PrettifyFileProcessor::expression_suffix(
     visitExpression( expr_ctx );
     addToken( ".", method->DOT(), TokenPart::ATTACHED );
     make_identifier( method->IDENTIFIER() );
-    addToken( "(", method->LPAREN(), openingParenthesisStyle() );
-    size_t curcount = _line_parts.size();
+    addToken( "(", method->LPAREN(), linebuilder.openingParenthesisStyle() );
+    size_t curcount = linebuilder.currentTokens().size();
     if ( auto expr = method->expressionList() )
       visitExpressionList( expr );
-    addToken( ")", method->RPAREN(), closingParenthesisStyle( curcount ) );
+    addToken( ")", method->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
   }
   return {};
 }
@@ -967,12 +603,12 @@ antlrcpp::Any PrettifyFileProcessor::visitForeachStatement(
   make_identifier( ctx->IDENTIFIER() );
   addToken( "in", ctx->TOK_IN(), TokenPart::SPACE );
   visitForeachIterableExpression( ctx->foreachIterableExpression() );
-  buildLine();
+  linebuilder.buildLine( _currident );
 
   visitBlock( ctx->block() );
 
   addToken( "endforeach", ctx->ENDFOREACH(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -988,7 +624,7 @@ antlrcpp::Any PrettifyFileProcessor::visitForStatement( EscriptParser::ForStatem
   else if ( auto cstyleForStatement = forGroup->cstyleForStatement() )
     visitCstyleForStatement( cstyleForStatement );
   addToken( "endfor", ctx->ENDFOR(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -996,13 +632,13 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionCall( EscriptParser::FunctionC
 {
   make_identifier( ctx->IDENTIFIER() );
 
-  addToken( "(", ctx->LPAREN(), openingParenthesisStyle() );
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
 
-  size_t curcount = _line_parts.size();
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto args = ctx->expressionList() )
     visitExpressionList( args );
 
-  addToken( ")", ctx->RPAREN(), closingParenthesisStyle( curcount ) );
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
   return {};
 }
 antlrcpp::Any PrettifyFileProcessor::visitFunctionDeclaration(
@@ -1017,21 +653,21 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionDeclaration(
   visitBlock( ctx->block() );
 
   addToken( "endfunction", ctx->ENDFUNCTION(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitFunctionParameters(
     EscriptParser::FunctionParametersContext* ctx )
 {
-  addToken( "(", ctx->LPAREN(), openingParenthesisStyle() );
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
 
-  size_t curcount = _line_parts.size();
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto args = ctx->functionParameterList() )
     visitFunctionParameterList( args );
 
-  addToken( ")", ctx->RPAREN(), closingParenthesisStyle( curcount ) );
-  buildLine();
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1043,7 +679,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameterList(
   {
     visitFunctionParameter( params[i] );
     if ( i < params.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
   return {};
 }
@@ -1059,7 +695,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameter(
 
   if ( auto expression = ctx->expression() )
   {
-    addToken( ":=", ctx->ASSIGN(), assignmentStyle() );
+    addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
     visitExpression( expression );
   }
   return {};
@@ -1071,8 +707,8 @@ antlrcpp::Any PrettifyFileProcessor::visitBreakStatement(
   addToken( "break", ctx->BREAK(), TokenPart::SPACE );
   if ( auto identifier = ctx->IDENTIFIER() )
     make_identifier( identifier );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1082,7 +718,7 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
     visitSwitchLabel( switchLabel );
-    buildLine();
+    linebuilder.buildLine( _currident );
   }
   visitBlock( ctx->block() );
   return {};
@@ -1111,11 +747,11 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement( EscriptParser::CaseStat
 {
   make_statement_label( ctx->statementLabel() );
   addToken( "case", ctx->CASE(), TokenPart::SPACE | TokenPart::BREAKPOINT );
-  addToken( "(", ctx->LPAREN(), openingParenthesisStyle() & ~TokenPart::ATTACHED );
-  auto curcount = _line_parts.size();
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() & ~TokenPart::ATTACHED );
+  auto curcount = linebuilder.currentTokens().size();
   visitExpression( ctx->expression() );
-  addToken( ")", ctx->RPAREN(), closingParenthesisStyle( curcount ) );
-  buildLine();
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  linebuilder.buildLine( _currident );
   ++_currident;
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
@@ -1123,7 +759,7 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement( EscriptParser::CaseStat
   }
   --_currident;
   addToken( "endcase", ctx->ENDCASE(), TokenPart::SPACE | TokenPart::BREAKPOINT );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1135,8 +771,8 @@ antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
   if ( auto identifier = ctx->IDENTIFIER() )
     make_identifier( identifier );
 
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1144,11 +780,11 @@ antlrcpp::Any PrettifyFileProcessor::visitBasicForStatement(
     EscriptParser::BasicForStatementContext* ctx )
 {
   make_identifier( ctx->IDENTIFIER() );
-  addToken( ":=", ctx->ASSIGN(), assignmentStyle() );
+  addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
   visitExpression( ctx->expression( 0 ) );
   addToken( "to", ctx->TO(), TokenPart::SPACE );
   visitExpression( ctx->expression( 1 ) );
-  buildLine();
+  linebuilder.buildLine( _currident );
 
   visitBlock( ctx->block() );
   return {};
@@ -1157,15 +793,15 @@ antlrcpp::Any PrettifyFileProcessor::visitBasicForStatement(
 antlrcpp::Any PrettifyFileProcessor::visitCstyleForStatement(
     EscriptParser::CstyleForStatementContext* ctx )
 {
-  addToken( "(", ctx->LPAREN(), openingParenthesisStyle() & ~TokenPart::ATTACHED );
-  auto curcount = _line_parts.size();
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() & ~TokenPart::ATTACHED );
+  auto curcount = linebuilder.currentTokens().size();
   visitExpression( ctx->expression( 0 ) );
-  addToken( ";", ctx->SEMI( 0 ), delimiterStyle() );
+  addToken( ";", ctx->SEMI( 0 ), linebuilder.delimiterStyle() );
   visitExpression( ctx->expression( 1 ) );
-  addToken( ";", ctx->SEMI( 1 ), delimiterStyle() );
+  addToken( ";", ctx->SEMI( 1 ), linebuilder.delimiterStyle() );
   visitExpression( ctx->expression( 2 ) );
-  addToken( ")", ctx->RPAREN(), closingParenthesisStyle( curcount ) );
-  buildLine();
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  linebuilder.buildLine( _currident );
 
   visitBlock( ctx->block() );
   return {};
@@ -1176,14 +812,14 @@ antlrcpp::Any PrettifyFileProcessor::visitRepeatStatement(
 {
   make_statement_label( ctx->statementLabel() );
   addToken( "repeat", ctx->REPEAT(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
 
   visitBlock( ctx->block() );
 
   addToken( "until", ctx->UNTIL(), TokenPart::SPACE );
   visitExpression( ctx->expression() );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1193,8 +829,8 @@ antlrcpp::Any PrettifyFileProcessor::visitReturnStatement(
   addToken( "return", ctx->RETURN(), TokenPart::SPACE );
   if ( auto expression = ctx->expression() )
     visitExpression( expression );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1219,8 +855,8 @@ antlrcpp::Any PrettifyFileProcessor::visitGotoStatement( EscriptParser::GotoStat
 {
   addToken( "goto", ctx->GOTO(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1240,7 +876,7 @@ antlrcpp::Any PrettifyFileProcessor::visitIfStatement( EscriptParser::IfStatemen
     if ( !clause_index && ctx->THEN() )
       addToken( "then", ctx->THEN(), TokenPart::SPACE );
 
-    buildLine();
+    linebuilder.buildLine( _currident );
 
     if ( blocks.size() > clause_index )
       visitBlock( blocks.at( clause_index ) );
@@ -1248,11 +884,11 @@ antlrcpp::Any PrettifyFileProcessor::visitIfStatement( EscriptParser::IfStatemen
   if ( ctx->ELSE() )
   {
     addToken( "else", ctx->ELSE(), TokenPart::SPACE );
-    buildLine();
+    linebuilder.buildLine( _currident );
     visitBlock( blocks.at( blocks.size() - 1 ) );
   }
   addToken( "endif", ctx->ENDIF(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1261,8 +897,8 @@ antlrcpp::Any PrettifyFileProcessor::visitIncludeDeclaration(
 {
   addToken( "include", ctx->INCLUDE(), TokenPart::SPACE );
   visitStringIdentifier( ctx->stringIdentifier() );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1358,14 +994,14 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionDeclaration(
     EscriptParser::ModuleFunctionDeclarationContext* ctx )
 {
   make_identifier( ctx->IDENTIFIER() );
-  addToken( "(", ctx->LPAREN(), openingParenthesisStyle() );
-  size_t curcount = _line_parts.size();
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto moduleFunctionParameterList = ctx->moduleFunctionParameterList() )
     visitModuleFunctionParameterList( moduleFunctionParameterList );
 
-  addToken( ")", ctx->RPAREN(), closingParenthesisStyle( curcount ) );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
-  buildLine();
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1377,7 +1013,7 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameterList(
   {
     visitModuleFunctionParameter( params[i] );
     if ( i < params.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
   return {};
 }
@@ -1389,18 +1025,9 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameter(
 
   if ( auto expression = ctx->expression() )
   {
-    addToken( ":=", ctx->ASSIGN(), assignmentStyle() );
+    addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
     visitExpression( expression );
   }
-  return {};
-}
-
-antlrcpp::Any PrettifyFileProcessor::visitModuleUnit( EscriptParser::ModuleUnitContext* ctx )
-{
-  visitChildren( ctx );
-  mergeEOFComments();
-  if ( !_line_parts.empty() )
-    report.error( source_file_identifier, "left over formatting lines {}", _line_parts );
   return {};
 }
 
@@ -1439,10 +1066,10 @@ antlrcpp::Any PrettifyFileProcessor::visitProgramDeclaration(
   addToken( "program", ctx->PROGRAM(), TokenPart::SPACE );
   make_identifier( ctx->IDENTIFIER() );
   visitProgramParameters( ctx->programParameters() );
-  buildLine();
+  linebuilder.buildLine( _currident );
   visitBlock( ctx->block() );
   addToken( "endprogram", ctx->ENDPROGRAM(), TokenPart::SPACE );
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1455,7 +1082,7 @@ antlrcpp::Any PrettifyFileProcessor::visitProgramParameterList(
     visitProgramParameter( params[i] );
     // comma is optional here
     if ( i < params.size() - 1 && ctx->COMMA( i ) )
-      addToken( ",", ctx->COMMA( i ), delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
   return {};
 }
@@ -1463,13 +1090,13 @@ antlrcpp::Any PrettifyFileProcessor::visitProgramParameterList(
 antlrcpp::Any PrettifyFileProcessor::visitProgramParameters(
     EscriptParser::ProgramParametersContext* ctx )
 {
-  addToken( "(", ctx->LPAREN(), openingParenthesisStyle() );
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
 
-  size_t curcount = _line_parts.size();
+  size_t curcount = linebuilder.currentTokens().size();
   if ( auto programParameterList = ctx->programParameterList() )
     visitProgramParameterList( programParameterList );
 
-  addToken( ")", ctx->RPAREN(), closingParenthesisStyle( curcount ) );
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
   return {};
 }
 
@@ -1482,7 +1109,7 @@ antlrcpp::Any PrettifyFileProcessor::visitProgramParameter(
   make_identifier( ctx->IDENTIFIER() );
   if ( auto expression = ctx->expression() )
   {
-    addToken( ":=", ctx->ASSIGN(), assignmentStyle() );
+    addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
     visitExpression( expression );
   }
   return {};
@@ -1524,8 +1151,8 @@ antlrcpp::Any PrettifyFileProcessor::visitStatement( EscriptParser::StatementCon
   {
     visitExpression( expression );
 
-    addToken( ";", ctx->SEMI(), terminatorStyle() );
-    buildLine();
+    addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+    linebuilder.buildLine( _currident );
     return {};
   }
 
@@ -1552,7 +1179,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpression(
 
   if ( auto expression = ctx->expression() )
   {
-    addToken( ":=", ctx->ASSIGN(), assignmentStyle() );
+    addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
     visitExpression( expression );
   }
   return {};
@@ -1563,9 +1190,9 @@ antlrcpp::Any PrettifyFileProcessor::visitUseDeclaration(
 {
   addToken( "use", ctx->USE(), TokenPart::SPACE );
   visitStringIdentifier( ctx->stringIdentifier() );
-  addToken( ";", ctx->SEMI(), terminatorStyle() );
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
 
-  buildLine();
+  linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -1612,10 +1239,7 @@ antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNo
 
 void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, int style )
 {
-  for ( const auto& skip : _skiplines )
-    if ( skip.contains( pos ) )
-      return;
-  _line_parts.emplace_back( std::forward<std::string>( text ), pos, style, _currentgroup );
+  linebuilder.addPart( { std::forward<std::string>( text ), pos, style, _currentgroup } );
 }
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
                                       int style )
@@ -1633,144 +1257,145 @@ void PrettifyFileProcessor::addToken( std::string&& text, antlr4::Token* token, 
     addToken( std::forward<std::string>( text ), Range( token ).start, style );
 }
 
-int PrettifyFileProcessor::closingParenthesisStyle( size_t begin_size )
+void PrettifyFileProcessor::preprocess( SourceFile& sf )
 {
-  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
-  if ( _line_parts.size() == begin_size )
+  auto rawlines = load_raw_file();
+  auto comments = collectComments( sf );
+  std::vector<Range> skiplines;
+  for ( const auto& c : comments )
   {
-    if ( !compilercfg.FormatterEmptyParenthesisSpacing )
-      style |= TokenPart::ATTACHED;
-    else if ( !_line_parts.empty() )
-      _line_parts.back().style |= TokenPart::SPACE;
+    if ( c.text.find( "format-off" ) != std::string::npos )
+      skiplines.emplace_back( c.pos, c.pos );
+    else if ( c.text.find( "format-on" ) != std::string::npos )
+      if ( !skiplines.empty() )
+        skiplines.back().end = c.pos_end;
   }
-  else if ( !compilercfg.FormatterParenthesisSpacing )
-    style |= TokenPart::ATTACHED;
-  return style;
-}
-
-int PrettifyFileProcessor::closingBracketStyle( size_t begin_size )
-{
-  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
-  if ( _line_parts.size() == begin_size )
+  if ( !skiplines.empty() )
   {
-    if ( !compilercfg.FormatterEmptyBracketSpacing )
-      style |= TokenPart::ATTACHED;
-    else if ( !_line_parts.empty() )
-      _line_parts.back().style |= TokenPart::SPACE;
+    // set unmatched end to file eof
+    if ( skiplines.back().start.line_number == skiplines.back().end.line_number )
+      skiplines.back().end.line_number = rawlines.size() + 1;
   }
-  else if ( !compilercfg.FormatterBracketSpacing )
-    style |= TokenPart::ATTACHED;
-  return style;
+  // remove all comments between noformat ranges
+  comments.erase( std::remove_if( comments.begin(), comments.end(),
+                                  [&]( auto& c )
+                                  {
+                                    for ( const auto& s : skiplines )
+                                    {
+                                      if ( s.start.line_number <= c.pos.line_number &&
+                                           s.end.line_number >= c.pos.line_number )
+                                        return true;
+                                    }
+                                    return false;
+                                  } ),
+                  comments.end() );
+  linebuilder.setComments( std::move( comments ) );
+  linebuilder.setSkipLines( std::move( skiplines ) );
+  linebuilder.setRawLines( std::move( rawlines ) );
 }
 
-int PrettifyFileProcessor::openingParenthesisStyle()
-{
-  return TokenPart::ATTACHED | TokenPart::BREAKPOINT |
-         ( compilercfg.FormatterParenthesisSpacing ? TokenPart::SPACE : TokenPart::NONE );
-}
-
-int PrettifyFileProcessor::openingBracketStyle()
-{
-  return TokenPart::ATTACHED | TokenPart::BREAKPOINT |
-         ( compilercfg.FormatterBracketSpacing ? TokenPart::SPACE : TokenPart::NONE );
-}
-
-int PrettifyFileProcessor::delimiterStyle()
-{
-  return TokenPart::ATTACHED | TokenPart::BREAKPOINT |
-         ( compilercfg.FormatterDelimiterSpacing ? TokenPart::SPACE : TokenPart::NONE );
-}
-
-int PrettifyFileProcessor::terminatorStyle()
-{
-  return TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT;
-}
-
-int PrettifyFileProcessor::assignmentStyle()
-{
-  if ( !compilercfg.FormatterAssignmentSpacing )
-    return TokenPart::ATTACHED;
-  return TokenPart::SPACE;
-}
-
-int PrettifyFileProcessor::comparisonStyle()
-{
-  if ( !compilercfg.FormatterComparisonSpacing )
-    return TokenPart::ATTACHED;
-  return TokenPart::SPACE;
-}
-
-int PrettifyFileProcessor::operatorStyle()
-{
-  if ( !compilercfg.FormatterOperatorSpacing )
-    return TokenPart::ATTACHED;
-  return TokenPart::SPACE;
-}
-
-std::string PrettifyFileProcessor::identSpacing()
-{
-  if ( !compilercfg.FormatterUseTabs )
-    return std::string( _currident * compilercfg.FormatterIdentLevel, ' ' );
-  size_t total = _currident * compilercfg.FormatterIdentLevel;
-  size_t tabs = total / compilercfg.FormatterTabWidth;
-  size_t remaining = total % compilercfg.FormatterTabWidth;
-  return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
-}
-
-std::string PrettifyFileProcessor::alignmentSpacing( size_t count )
-{
-  if ( !count )
-    return {};
-  if ( !compilercfg.FormatterUseTabs )
-    return std::string( count, ' ' );
-  size_t tabs = count / compilercfg.FormatterTabWidth;
-  size_t remaining = count % compilercfg.FormatterTabWidth;
-  return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
-}
-
-void PrettifyFileProcessor::mergeEOFComments()
-{
-  mergeRawContent( _last_line );
-  while ( !_comments.empty() )
-  {
-    addEmptyLines( _comments.front().pos.line_number );
-    _lines.push_back( identSpacing() + _comments.front().text );
-    _last_line = _comments.front().pos_end.line_number;
-    mergeRawContent( _last_line );
-    _comments.erase( _comments.begin() );
-  }
-}
-
-void PrettifyFileProcessor::load_raw_file()
+std::vector<std::string> PrettifyFileProcessor::load_raw_file()
 {
   Clib::FileContents fc( source_file_identifier.pathname.c_str(), true );
   const auto& contents = fc.str_contents();
+  std::vector<std::string> rawlines;
   std::string currline;
   for ( size_t i = 0; i < contents.size(); ++i )
   {
     if ( contents[i] == '\r' && i + 1 < contents.size() && contents[i + 1] == '\n' )
     {
       ++i;
-      _rawlines.emplace_back( std::move( currline ) );
+      rawlines.emplace_back( std::move( currline ) );
       currline.clear();
       continue;
     }
     if ( contents[i] == '\r' || contents[i] == '\n' )
     {
-      _rawlines.emplace_back( std::move( currline ) );
+      rawlines.emplace_back( std::move( currline ) );
       currline.clear();
     }
     else
       currline += contents[i];
   }
   if ( !currline.empty() )
-    _rawlines.emplace_back( std::move( currline ) );
+    rawlines.emplace_back( std::move( currline ) );
+  return rawlines;
+}
+
+std::vector<CommentInfo> PrettifyFileProcessor::collectComments( SourceFile& sf )
+{
+  auto alltokens = sf.get_all_tokens();
+  std::vector<CommentInfo> comments;
+  for ( size_t i = 0; i < alltokens.size(); ++i )
+  {
+    const auto& comment = alltokens[i];
+    if ( comment->getType() == EscriptLexer::COMMENT ||
+         comment->getType() == EscriptLexer::LINE_COMMENT )
+    {
+      Range startpos( &*comment );
+      Range endpos( &*comment );
+
+      // use whitespace token as start if its on the same line
+      // so that the tokenid of a comment is always the next tokenid after a "actual" token
+      if ( i > 0 )
+      {
+        if ( alltokens[i - 1]->getType() == EscriptLexer::WS &&
+             alltokens[i - 1]->getLine() == startpos.start.line_number )
+          startpos = Range( alltokens[i - 1] );
+      }
+      CommentInfo info;
+      info.text = comment->getText();
+      if ( comment->getType() == EscriptLexer::LINE_COMMENT )
+      {
+        info.text.erase( 0, 2 );  // remove //
+        auto firstchar = info.text.find_first_not_of( " \t" );
+        if ( info.text.empty() || firstchar == std::string::npos )
+        {
+          // empty or only whitespace
+          info.text = "//";
+        }
+        else if ( info.text.front() == '/' )
+        {
+          // assuming its ////// -> keep it
+          info.text = std::string( "//" ) + info.text;
+        }
+        else
+        {
+          if ( info.text[firstchar] == '/' || info.text.back() == '/' )
+          {
+            // assuming its //    // -> keep it
+            info.text = std::string( "//" ) + info.text;
+          }
+          else
+          {
+            info.text.erase( 0, firstchar );  // remove remaining whitespace
+            info.text = std::string( "// " ) + info.text;
+          }
+        }
+        auto lastchar = info.text.find_last_not_of( ' ' );
+        info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
+        info.linecomment = true;
+      }
+      else
+      {
+        info.text.erase( 0, 2 );  // remove /*
+        auto firstchar = info.text.find_first_not_of( " \t" );
+        info.text.erase( 0, firstchar );                          // remove remaining whitespace
+        info.text.erase( info.text.end() - 2, info.text.end() );  // remove */
+        auto lastchar = info.text.find_last_not_of( " \t" );
+        info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
+        // if its in the style of /*** blubb **/ dont add whitespace
+        if ( info.text.empty() || ( info.text.front() == '*' && info.text.back() == '*' ) )
+          info.text = std::string( "/*" ) + info.text + "*/";
+        else
+          info.text = std::string( "/* " ) + info.text + " */";
+        info.linecomment = false;
+      }
+      info.pos = startpos.start;
+      info.pos_end = endpos.end;
+      comments.emplace_back( std::move( info ) );
+    }
+  }
+  return comments;
 }
 }  // namespace Pol::Bscript::Compiler
-
-fmt::format_context::iterator fmt::formatter<Pol::Bscript::Compiler::TokenPart>::format(
-    const Pol::Bscript::Compiler::TokenPart& t, fmt::format_context& ctx ) const
-{
-  return fmt::formatter<std::string>::format(
-      fmt::format( "{} ({}:{}:{})", t.text, t.style, t.lineno, t.tokenid ), ctx );
-}

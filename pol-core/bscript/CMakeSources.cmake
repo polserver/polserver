@@ -221,6 +221,8 @@ set (bscript_sources    # sorted !
   compiler/file/PrettifyBuilder.h
   compiler/file/PrettifyFileProcessor.cpp
   compiler/file/PrettifyFileProcessor.h
+  compiler/file/PrettifyLineBuilder.cpp
+  compiler/file/PrettifyLineBuilder.h
   compiler/file/SourceFile.cpp
   compiler/file/SourceFile.h
   compiler/file/SourceFileCache.cpp
