@@ -3,6 +3,7 @@
 #include "bscript/compilercfg.h"
 #include "clib/filecont.h"
 #include "clib/logfacility.h"
+#include <EscriptGrammar/EscriptLexer.h>
 
 #include <algorithm>
 #include <iostream>
@@ -12,6 +13,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+using namespace EscriptGrammar;
 
 const std::vector<std::string>& PrettifyLineBuilder::formattedLines() const
 {
@@ -23,7 +25,7 @@ void PrettifyLineBuilder::setRawLines( std::vector<std::string> rawlines )
   _rawlines = std::move( rawlines );
 }
 
-void PrettifyLineBuilder::setComments( std::vector<CommentInfo> comments )
+void PrettifyLineBuilder::setComments( std::vector<FmtToken> comments )
 {
   _comments = std::move( comments );
 }
@@ -33,7 +35,7 @@ void PrettifyLineBuilder::setSkipLines( std::vector<Range> skiplines )
   _skiplines = std::move( skiplines );
 }
 
-void PrettifyLineBuilder::addPart( TokenPart part )
+void PrettifyLineBuilder::addPart( FmtToken part )
 {
   for ( const auto& skip : _skiplines )
     if ( skip.contains( part.pos ) )
@@ -47,7 +49,7 @@ bool PrettifyLineBuilder::finalize()
   return _line_parts.empty();
 }
 
-const std::vector<TokenPart>& PrettifyLineBuilder::currentTokens() const
+const std::vector<FmtToken>& PrettifyLineBuilder::currentTokens() const
 {
   return _line_parts;
 }
@@ -94,20 +96,18 @@ void PrettifyLineBuilder::mergeComments()
 {
   if ( _line_parts.empty() )
     return;
-  mergeRawContent( _line_parts.front().lineno );
-  mergeCommentsBefore( _line_parts.front().lineno );
+  mergeRawContent( _line_parts.front().pos.line_number );
+  mergeCommentsBefore( _line_parts.front().pos.line_number );
   // add comments inbetween
   for ( size_t i = 0; i < _line_parts.size(); )
   {
     if ( _comments.empty() )
       break;
-    if ( _line_parts[i].tokenid > _comments.front().pos.token_index )
+    if ( _line_parts[i].pos.token_index > _comments.front().pos.token_index )
     {
-      TokenPart p{ std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE,
-                   _currentgroup };
-      if ( _comments.front().linecomment )
-        p.style |= TokenPart::FORCED_BREAK;
-      _line_parts.insert( _line_parts.begin() + i, p );
+      auto info = _comments.front();
+      info.group = _currentgroup;
+      _line_parts.insert( _line_parts.begin() + i, std::move( info ) );
       _comments.erase( _comments.begin() );
     }
     else
@@ -116,11 +116,10 @@ void PrettifyLineBuilder::mergeComments()
   // add comments at the end of the current line
   if ( !_comments.empty() )
   {
-    if ( _comments.front().pos.line_number == _line_parts.back().lineno &&
-         _comments.front().pos.token_index <= _line_parts.back().tokenid + 1 )
+    if ( _comments.front().pos.line_number == _line_parts.back().pos.line_number &&
+         _comments.front().pos.token_index <= _line_parts.back().pos.token_index + 1 )
     {
-      addPart(
-          { std::move( _comments.front().text ), _comments.front().pos, TokenPart::SPACE, 0 } );
+      addPart( _comments.front() );
       _comments.erase( _comments.begin() );
     }
   }
@@ -149,23 +148,23 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
   {
     line += _line_parts[i].text;
     // add space if set, but not if the following part is attached
-    if ( _line_parts[i].style & TokenPart::SPACE )
+    if ( _line_parts[i].style & FmtToken::SPACE )
     {
       if ( i + 1 < _line_parts.size() )
       {
-        if ( !( _line_parts[i + 1].style & TokenPart::ATTACHED ) )
+        if ( !( _line_parts[i + 1].style & FmtToken::ATTACHED ) )
           line += ' ';
       }
       else
         line += ' ';
     }
-    if ( _line_parts[i].style & TokenPart::FORCED_BREAK )
+    if ( _line_parts[i].style & FmtToken::FORCED_BREAK )
     {
       lines.emplace_back( std::make_tuple( std::move( line ), true, _line_parts[i].group ) );
       line.clear();
     }
     // start a new line if breakpoint
-    else if ( _line_parts[i].style & TokenPart::BREAKPOINT )
+    else if ( _line_parts[i].style & FmtToken::BREAKPOINT )
     {
       // if the next part is attached, dont break now and instead later
       // eg dont split blubb[1]()
@@ -173,17 +172,17 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
       if ( i + 1 < _line_parts.size() )
       {
         // next one is attached
-        if ( _line_parts[i + 1].style & TokenPart::ATTACHED )
+        if ( _line_parts[i + 1].style & FmtToken::ATTACHED )
         {
           // search for space or breakpoint
           for ( size_t j = i + 1; j < _line_parts.size(); ++j )
           {
-            if ( _line_parts[j].style & TokenPart::ATTACHED )
+            if ( _line_parts[j].style & FmtToken::ATTACHED )
               skip = true;
-            else if ( _line_parts[j].style & TokenPart::SPACE ||
-                      _line_parts[j].style & TokenPart::BREAKPOINT )
+            else if ( _line_parts[j].style & FmtToken::SPACE ||
+                      _line_parts[j].style & FmtToken::BREAKPOINT )
             {
-              _line_parts[j].style |= TokenPart::BREAKPOINT;
+              _line_parts[j].style |= FmtToken::BREAKPOINT;
               skip = true;
               break;
             }
@@ -208,7 +207,7 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
     INFO_PRINTLN( "\"{}\" {}", l, group );
 #endif
   // add newline from original sourcecode
-  addEmptyLines( _line_parts.front().lineno );
+  addEmptyLines( _line_parts.front().pos.line_number );
 
   // sum up linelength, are groups inside
   bool groups = false;
@@ -300,7 +299,7 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
     stripline( line );
     _lines.emplace_back( std::move( line ) );
   }
-  _last_line = _line_parts.back().lineno;
+  _last_line = _line_parts.back().pos.line_number;
   _line_parts.clear();
 }
 
@@ -324,76 +323,76 @@ void PrettifyLineBuilder::addEmptyLines( int line_number )
 
 int PrettifyLineBuilder::closingParenthesisStyle( size_t begin_size )
 {
-  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  auto style = FmtToken::SPACE | FmtToken::BREAKPOINT;
   if ( _line_parts.size() == begin_size )
   {
     if ( !compilercfg.FormatterEmptyParenthesisSpacing )
-      style |= TokenPart::ATTACHED;
+      style |= FmtToken::ATTACHED;
     else if ( !_line_parts.empty() )
-      _line_parts.back().style |= TokenPart::SPACE;
+      _line_parts.back().style |= FmtToken::SPACE;
   }
   else if ( !compilercfg.FormatterParenthesisSpacing )
-    style |= TokenPart::ATTACHED;
+    style |= FmtToken::ATTACHED;
   return style;
 }
 
 int PrettifyLineBuilder::closingBracketStyle( size_t begin_size )
 {
-  auto style = TokenPart::SPACE | TokenPart::BREAKPOINT;
+  auto style = FmtToken::SPACE | FmtToken::BREAKPOINT;
   if ( _line_parts.size() == begin_size )
   {
     if ( !compilercfg.FormatterEmptyBracketSpacing )
-      style |= TokenPart::ATTACHED;
+      style |= FmtToken::ATTACHED;
     else if ( !_line_parts.empty() )
-      _line_parts.back().style |= TokenPart::SPACE;
+      _line_parts.back().style |= FmtToken::SPACE;
   }
   else if ( !compilercfg.FormatterBracketSpacing )
-    style |= TokenPart::ATTACHED;
+    style |= FmtToken::ATTACHED;
   return style;
 }
 
 int PrettifyLineBuilder::openingParenthesisStyle()
 {
-  return TokenPart::ATTACHED | TokenPart::BREAKPOINT |
-         ( compilercfg.FormatterParenthesisSpacing ? TokenPart::SPACE : TokenPart::NONE );
+  return FmtToken::ATTACHED | FmtToken::BREAKPOINT |
+         ( compilercfg.FormatterParenthesisSpacing ? FmtToken::SPACE : FmtToken::NONE );
 }
 
 int PrettifyLineBuilder::openingBracketStyle()
 {
-  return TokenPart::ATTACHED | TokenPart::BREAKPOINT |
-         ( compilercfg.FormatterBracketSpacing ? TokenPart::SPACE : TokenPart::NONE );
+  return FmtToken::ATTACHED | FmtToken::BREAKPOINT |
+         ( compilercfg.FormatterBracketSpacing ? FmtToken::SPACE : FmtToken::NONE );
 }
 
 int PrettifyLineBuilder::delimiterStyle()
 {
-  return TokenPart::ATTACHED | TokenPart::BREAKPOINT |
-         ( compilercfg.FormatterDelimiterSpacing ? TokenPart::SPACE : TokenPart::NONE );
+  return FmtToken::ATTACHED | FmtToken::BREAKPOINT |
+         ( compilercfg.FormatterDelimiterSpacing ? FmtToken::SPACE : FmtToken::NONE );
 }
 
 int PrettifyLineBuilder::terminatorStyle()
 {
-  return TokenPart::SPACE | TokenPart::ATTACHED | TokenPart::BREAKPOINT;
+  return FmtToken::SPACE | FmtToken::ATTACHED | FmtToken::BREAKPOINT;
 }
 
 int PrettifyLineBuilder::assignmentStyle()
 {
   if ( !compilercfg.FormatterAssignmentSpacing )
-    return TokenPart::ATTACHED;
-  return TokenPart::SPACE;
+    return FmtToken::ATTACHED;
+  return FmtToken::SPACE;
 }
 
 int PrettifyLineBuilder::comparisonStyle()
 {
   if ( !compilercfg.FormatterComparisonSpacing )
-    return TokenPart::ATTACHED;
-  return TokenPart::SPACE;
+    return FmtToken::ATTACHED;
+  return FmtToken::SPACE;
 }
 
 int PrettifyLineBuilder::operatorStyle()
 {
   if ( !compilercfg.FormatterOperatorSpacing )
-    return TokenPart::ATTACHED;
-  return TokenPart::SPACE;
+    return FmtToken::ATTACHED;
+  return FmtToken::SPACE;
 }
 
 std::string PrettifyLineBuilder::identSpacing()
@@ -432,9 +431,9 @@ void PrettifyLineBuilder::mergeEOFComments()
 
 }  // namespace Pol::Bscript::Compiler
 
-fmt::format_context::iterator fmt::formatter<Pol::Bscript::Compiler::TokenPart>::format(
-    const Pol::Bscript::Compiler::TokenPart& t, fmt::format_context& ctx ) const
+fmt::format_context::iterator fmt::formatter<Pol::Bscript::Compiler::FmtToken>::format(
+    const Pol::Bscript::Compiler::FmtToken& t, fmt::format_context& ctx ) const
 {
   return fmt::formatter<std::string>::format(
-      fmt::format( "{} ({}:{}:{})", t.text, t.style, t.lineno, t.tokenid ), ctx );
+      fmt::format( "{} ({}:{}:{})", t.text, t.style, t.pos.line_number, t.pos.token_index ), ctx );
 }

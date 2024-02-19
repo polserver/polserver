@@ -9,15 +9,49 @@
 
 namespace Pol::Bscript::Compiler
 {
-struct CommentInfo
+// TODO: something like that to set in FileProcessor all needed meta info to define the actual style
+enum class FmtContext
 {
-  std::string text;
-  bool linecomment;
-  Position pos;
-  Position pos_end;
+  NONE = 0,
+  KEYWORD = 1,  // space
+  KEYWORD_BREAKING,
+  LITERAL,
+  TERMINATOR,                    // terminatorStyle
+  OPENING_PARANTHESIS,           //
+  OPENING_PARANTHESIS_ATTACHED,  //
+  CLOSING_PARANTHESIS,           // closing..
+  OPENING_BRACKET,               //
+  OPENING_BRACKET_ATTACHED,      //
+  CLOSING_BRACKET,               //
+  DELIMITER,                     // delimiterStyle
+  DELIMITER_NONBREAKING,         // really?
+  DELIMITER_SPACE_ATTACHED,      // enum
+  ASSIGNMENT,
+  OPER_PREFIX,
+  OPER_PREFIX_SPACE,
+  OPER_POSTFIX,
+  BINARY_SPACE_ATTACHED,
+  BINARY_ATTACHED,
+  BINARY_SPACE_BREAK,  // assignment
+  BINARY_ASSIGNMENT,
+  BINARY_SPACE,
+  BINARY_COMPARISON,
+  BINARY_OPERATOR,
+  BINARY_ELVIS,
+  BINARY_QUESTION,
+  SUFFIX_ATTACHED,
+  COLON,
+  FUNC_REF,
+  INTER_STRING,
+  INTER_STRING_PART,
+  INTER_STRING_END,
+
+  LINE_COMMENT,
+  COMMENT,
 };
+
 // structure to hold one token as string
-struct TokenPart
+struct FmtToken
 {
   enum Style
   {
@@ -28,20 +62,22 @@ struct TokenPart
     FORCED_BREAK = 8,  // force linebreak
   };
   std::string text = {};
-  Position pos;
-  size_t tokenid = 0;  // TODO use pos
-  int lineno = 0;      // todo use pos
+  Position pos = {};
+  Position pos_end = {};
   int style = 0;
   size_t group = 0;
-  TokenPart() = default;
-  TokenPart( std::string&& text, const Position& pos, int style, size_t group )
+  int token_type = 0;
+  FmtContext context = FmtContext::NONE;
+  FmtToken() = default;
+  FmtToken( std::string&& text, const Position& pos, int style, size_t group, int token_type )
       : text( std::move( text ) ),
         pos( pos ),
-        tokenid( pos.token_index ),
-        lineno( pos.line_number ),
+        pos_end( pos ),
         style( style ),
-        group( group ){};
+        group( group ),
+        token_type( token_type ){};
 };
+
 class PrettifyLineBuilder
 {
 public:
@@ -49,12 +85,12 @@ public:
   const std::vector<std::string>& formattedLines() const;
 
   void setRawLines( std::vector<std::string> rawlines );
-  void setComments( std::vector<CommentInfo> comments );
+  void setComments( std::vector<FmtToken> comments );
   void setSkipLines( std::vector<Range> skiplines );
-  void addPart( TokenPart part );
+  void addPart( FmtToken part );
   void buildLine( size_t current_ident );
   bool finalize();
-  const std::vector<TokenPart>& currentTokens() const;
+  const std::vector<FmtToken>& currentTokens() const;
 
   int closingParenthesisStyle( size_t begin_size );
   int closingBracketStyle( size_t begin_size );
@@ -69,8 +105,8 @@ public:
 private:
   std::vector<std::string> _rawlines = {};
   std::vector<std::string> _lines = {};
-  std::vector<TokenPart> _line_parts = {};
-  std::vector<CommentInfo> _comments = {};
+  std::vector<FmtToken> _line_parts = {};
+  std::vector<FmtToken> _comments = {};
   std::vector<Range> _skiplines = {};
   int _last_line = 0;
   size_t _currident = 0;
@@ -86,8 +122,8 @@ private:
 }  // namespace Pol::Bscript::Compiler
 
 template <>
-struct fmt::formatter<Pol::Bscript::Compiler::TokenPart> : fmt::formatter<std::string>
+struct fmt::formatter<Pol::Bscript::Compiler::FmtToken> : fmt::formatter<std::string>
 {
-  fmt::format_context::iterator format( const Pol::Bscript::Compiler::TokenPart& t,
+  fmt::format_context::iterator format( const Pol::Bscript::Compiler::FmtToken& t,
                                         fmt::format_context& ctx ) const;
 };

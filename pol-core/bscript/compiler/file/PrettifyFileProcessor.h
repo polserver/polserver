@@ -184,11 +184,11 @@ private:
   size_t _currentgroup = 0;
   // Profile& profile;
   Report& report;
-  void addToken( std::string&& text, const Position& pos, int style );
+  void addToken( std::string&& text, const Position& pos, int style, int token_type );
   void addToken( std::string&& text, antlr4::tree::TerminalNode* terminal, int style );
   void addToken( std::string&& text, antlr4::Token* token, int style );
   void preprocess( SourceFile& sf );
-  std::vector<CommentInfo> collectComments( SourceFile& sf );
+  std::vector<FmtToken> collectComments( SourceFile& sf );
   std::vector<std::string> load_raw_file();
 
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
