@@ -216,7 +216,8 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpression(
 
   if ( ctx->expression().size() > 1 )
   {
-    addToken( "->", ctx->ARROW(), linebuilder.delimiterStyle() & ~FmtToken::BREAKPOINT );
+    addToken( "->", ctx->ARROW(),
+              linebuilder.delimiterStyle() & ~FmtToken::BREAKPOINT & ~FmtToken::ATTACHED );
     visitExpression( ctx->expression( 1 ) );
   }
   return {};
@@ -1385,6 +1386,7 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
       }
       else
       {
+        // TODO the original lineendings are kept.
         info.context = FmtContext::COMMENT;
         info.text.erase( 0, 2 );  // remove /*
         auto firstchar = info.text.find_first_not_of( " \t" );
@@ -1396,7 +1398,16 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
         if ( info.text.empty() || ( info.text.front() == '*' && info.text.back() == '*' ) )
           info.text = std::string( "/*" ) + info.text + "*/";
         else
-          info.text = std::string( "/* " ) + info.text + " */";
+        {
+          std::string text = "/*";
+          if ( info.text.front() != '\n' && info.text.front() != '\r' )
+            text += ' ';
+          text += info.text;
+          if ( info.text.back() != '\n' && info.text.back() != '\r' )
+            text += ' ';
+          text += "*/";
+          info.text = text;
+        }
       }
       info.pos = startpos.start;
       info.pos_end = endpos.end;
