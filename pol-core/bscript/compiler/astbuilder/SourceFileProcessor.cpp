@@ -42,8 +42,8 @@ void SourceFileProcessor::use_module( const std::string& module_name,
                                       SourceLocation& including_location,
                                       long long* micros_counted )
 {
-  std::string pathname = compilercfg.ModuleDirectory + module_name + ".em";
-
+  std::string pathname =
+      Clib::FullPath( ( compilercfg.ModuleDirectory + module_name + ".em" ).c_str() );
   if ( workspace.source_files.find( pathname ) != workspace.source_files.end() )
     return;
 
