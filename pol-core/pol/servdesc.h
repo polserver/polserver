@@ -24,6 +24,8 @@ public:
   unsigned short port;
   std::vector<unsigned int> ip_match;
   std::vector<unsigned int> ip_match_mask;
+  std::vector<unsigned int> proxy_match;
+  std::vector<unsigned int> proxy_match_mask;
   std::vector<std::string> acct_match;
   std::string hostname;
 };

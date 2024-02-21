@@ -38,6 +38,7 @@
 #include "pktbothid.h"
 #include "pktdef.h"
 #include "pktinid.h"
+#include "proxyprotocol.h"
 
 
 #define CLIENT_CHECKPOINT( x ) client->session()->checkpoint = x
@@ -463,6 +464,116 @@ bool process_data( Network::ThreadedClient* session )
     }
     // Else keep waiting for IP address.
   }
+  else if ( session->recv_state == Network::ThreadedClient::RECV_STATE_PROXYPROTOCOLHEADER_WAIT )
+  {
+    session->recv_remaining_nocrypt( sizeof( pp_header_v2 ) );
+
+    if ( session->bytes_received == sizeof( pp_header_v2 ) )
+    {
+      pp_header_v2* pp_header = reinterpret_cast<pp_header_v2*>( &session->buffer );
+
+      if ( !pp_header->is_valid() )
+      {
+        POLLOGLN( "Client#{} ({}): disconnected due to invalid proxy header",
+                  session->myClient.instance_,
+                  session->ipaddrAsString() );
+
+        // invalid header
+        session->forceDisconnect();
+        return false;
+      }
+
+      if ( pp_header->command() == PP_CMD_LOCAL && pp_header->payload_size() == 0 )
+      {
+        // for local command with zero payload there is nothing else to read => continue with the
+        // stream
+        session->recv_state = Network::ThreadedClient::RECV_STATE_CRYPTSEED_WAIT;
+        session->bytes_received = 0;
+      }
+      else
+      {
+        // other cases need to read payload first
+        session->recv_state = Network::ThreadedClient::RECV_STATE_PROXYPROTOCOLPAYLOAD_WAIT;
+      }
+    }
+    // Else keep waiting
+  }
+
+  if ( session->recv_state == Network::ThreadedClient::RECV_STATE_PROXYPROTOCOLPAYLOAD_WAIT )
+  {
+    pp_header_v2* pp_header = reinterpret_cast<pp_header_v2*>( &session->buffer );
+    session->recv_remaining_nocrypt( sizeof( pp_header_v2 ) + pp_header->payload_size() );
+
+    if ( session->bytes_received == sizeof( pp_header_v2 ) + pp_header->payload_size() )
+    {
+      pp_payload_v2* pp_payload =
+          reinterpret_cast<pp_payload_v2*>( &session->buffer[sizeof( pp_header_v2 )] );
+
+      if ( pp_header->command() == PP_CMD_LOCAL )
+      {
+        // local commands shouldn't have payload, but in case they do it should be skipped
+        session->recv_state = Network::ThreadedClient::RECV_STATE_CRYPTSEED_WAIT;
+        return true;
+      }
+
+      if ( pp_header->command() == PP_CMD_PROXY && pp_header->protocol() == PP_TP_STREAM )
+      {
+        bool was_proxied = false;
+
+        if ( pp_header->address_family() == PP_AF_INET &&
+             pp_header->payload_size() >= sizeof( pp_payload->ipv4_addr ) )
+        {
+          memcpy( &session->ipaddr_proxy, &session->ipaddr, sizeof(session->ipaddr_proxy) );
+          memset( &session->ipaddr, 0, sizeof( session->ipaddr ) );
+
+          auto ipaddr_in = reinterpret_cast<sockaddr_in*>( &session->ipaddr );
+          ipaddr_in->sin_family = AF_INET;
+          ipaddr_in->sin_port = pp_payload->ipv4_addr.src_port;
+          memcpy( &ipaddr_in->sin_addr, &pp_payload->ipv4_addr.src_addr,
+                  sizeof(ipaddr_in->sin_addr) );
+
+          was_proxied = true;
+        }
+
+        /* IPv6 isn't supported
+        if ( pp_header->address_family() == PP_AF_INET6 &&
+             pp_header->payload_size() >= sizeof( pp_payload->ipv6_addr ) )
+        {
+          memcpy( &session->ipaddr_proxy, &session->ipaddr, sizeof( session->ipaddr_proxy ) );
+          memset( &session->ipaddr, 0, sizeof( session->ipaddr ) );
+
+          auto ipaddr_in6 = reinterpret_cast<sockaddr_in6*>( &session->ipaddr );
+          ipaddr_in6->sin6_family = AF_INET6;
+          ipaddr_in6->sin6_port = pp_payload->ipv6_addr.src_port;
+          memcpy( &ipaddr_in6->sin6_addr, &pp_payload->ipv6_addr.src_addr,
+                  sizeof(ipaddr_in6->sin6_addr) );
+
+          was_proxied = true;
+        }
+        */
+
+        if ( was_proxied )
+        {
+          POLLOGLN( "Client#{} ({}): connected through proxy {}", session->myClient.instance_,
+            session->ipaddrAsString(),
+            session->ipaddrProxyAsString() );
+
+          session->recv_state = Network::ThreadedClient::RECV_STATE_CRYPTSEED_WAIT;
+          session->bytes_received = 0;
+          return true;
+        }
+      }
+
+      // unsupported combination
+      POLLOGLN( "Client#{} ({}): disconnected due to unsupported proxy payload",
+        session->myClient.instance_, session->ipaddrAsString() );
+
+      session->forceDisconnect();
+      return false;
+    }
+    // Else keep waiting
+  }
+
   if ( session->recv_state == Network::ThreadedClient::RECV_STATE_CLIENTVERSION_WAIT )
   {
     // receive and send to handler to get directly the version

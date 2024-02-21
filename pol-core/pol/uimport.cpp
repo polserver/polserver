@@ -1456,6 +1456,26 @@ void read_gameservers()
       }
     }
 
+    while ( elem.remove_prop( "PROXYMATCH", &iptext ) )
+    {
+      auto delim = iptext.find_first_of( '/' );
+      if ( delim != std::string::npos )
+      {
+        std::string ipaddr_str = iptext.substr( 0, delim );
+        std::string ipmask_str = iptext.substr( delim + 1 );
+        unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
+        unsigned int ipmask = inet_addr( ipmask_str.c_str() );
+        svr->proxy_match.push_back( ipaddr );
+        svr->proxy_match_mask.push_back( ipmask );
+      }
+      else
+      {
+        unsigned int ipaddr = inet_addr( iptext.c_str() );
+        svr->proxy_match.push_back( ipaddr );
+        svr->proxy_match_mask.push_back( 0xFFffFFffLu );
+      }
+    }
+
     while ( elem.remove_prop( "ACCTMATCH", &accttext ) )
     {
       svr->acct_match.push_back( accttext );

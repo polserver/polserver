@@ -69,11 +69,12 @@ bool UoClientThread::create()
   socklen_t host_addrlen = sizeof host_addr;
 
   PolLock lck;
-  client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption );
+  client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption,
+                                client_addr,
+                                _def->allowed_proxies );
 
   // TODO: move this into an initialization of ThreadedClient.
   client->csocket = _sck.release_handle();  // client cleans up its socket.
-  memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
 
   if ( _def->sticky )
     client->listen_port = _def->port;

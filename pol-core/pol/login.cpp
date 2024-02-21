@@ -80,10 +80,10 @@ bool acct_check( Network::Client* client, int i )
   return false;
 }
 
-bool server_applies( Network::Client* client, int i )
+bool ip_check( Network::Client* client, int i )
 {
   if ( networkManager.servers[i]->ip_match.empty() )
-    return acct_check( client, i );
+    return true;
 
   for ( unsigned j = 0; j < networkManager.servers[i]->ip_match.size(); ++j )
   {
@@ -101,6 +101,47 @@ bool server_applies( Network::Client* client, int i )
       return true;
   }
   return false;
+}
+
+bool proxy_check( Network::Client* client, int i )
+{
+  bool is_proxied = client->ipaddr_proxy.sa_family != AF_UNSPEC;
+
+  if ( networkManager.servers[i]->proxy_match.empty() )
+  {
+    // If there is no ProxyMatch element but client is connecting through proxy
+    // do not present this server.
+    return !is_proxied;
+  }
+
+  if ( !is_proxied )
+  {
+    // This server has ProxyMatch element(s) but client is not connecting through proxy
+    // so do not present this server.
+    return false;
+  }
+
+  for ( unsigned j = 0; j < networkManager.servers[i]->proxy_match.size(); ++j )
+  {
+    unsigned int addr1part, addr2part;
+    struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr_proxy );
+
+    addr1part =
+        networkManager.servers[i]->proxy_match[j] & networkManager.servers[i]->proxy_match_mask[j];
+#ifdef _WIN32
+    addr2part = sockin->sin_addr.S_un.S_addr & networkManager.servers[i]->proxy_match_mask[j];
+#else
+    addr2part = sockin->sin_addr.s_addr & networkManager.servers[i]->proxy_match_mask[j];
+#endif
+    if ( addr1part == addr2part )
+      return true;
+  }
+  return false;
+}
+
+bool server_applies( Network::Client* client, int i )
+{
+  return ip_check( client, i ) && proxy_check( client, i ) && acct_check( client, i );
 }
 
 void loginserver_login( Network::Client* client, PKTIN_80* msg )

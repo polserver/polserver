@@ -42,7 +42,8 @@ function(set_compile_flags target is_executable)
       WIN32
       NOMINMAX
       WINDOWS
-      WINVER=0x0501
+      WINVER=0x0601
+      _WIN32_WINNT=0x0601
       _CONSOLE
     )
     if (${ARCH_BITS} EQUAL "64")

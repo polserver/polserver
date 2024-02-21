@@ -34,11 +34,28 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
     : port( elem.remove_ushort( "PORT" ) ),
       aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
       sticky( elem.remove_bool( "KeepClients", false ) ),
+      allowed_proxies(),
       login_clients_size( 0 ),
       login_clients()
 
 {
   CalculateCryptKeys( elem.remove_string( "ENCRYPTION", "none" ), encryption );
+
+  std::string iptext;
+  while ( elem.remove_prop( "AllowProxy", &iptext ) )
+  {
+    auto delim = iptext.find_first_of( '/' );
+    if ( delim != std::string::npos )
+    {
+      auto network = boost::asio::ip::make_network_v4( iptext );
+      allowed_proxies.push_back( network );
+    }
+    else
+    {
+      auto ip = boost::asio::ip::make_address_v4( iptext );
+      allowed_proxies.push_back( boost::asio::ip::network_v4( ip, 32 ) );
+    }
+  }
 }
 
 size_t UoClientListener::estimateSize() const

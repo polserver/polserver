@@ -93,6 +93,11 @@ std::string ThreadedClient::ipaddrAsString() const
   return AddressToString( &this->ipaddr );
 }
 
+std::string ThreadedClient::ipaddrProxyAsString() const
+{
+  return AddressToString( &this->ipaddr_proxy );
+}
+
 void ThreadedClient::recv_remaining( int total_expected )
 {
   int count;
