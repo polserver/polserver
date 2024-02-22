@@ -1281,6 +1281,7 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf )
     if ( skiplines.back().start.line_number == skiplines.back().end.line_number )
       skiplines.back().end.line_number = rawlines.size() + 1;
   }
+
   // remove all comments between noformat ranges
   comments.erase( std::remove_if( comments.begin(), comments.end(),
                                   [&]( auto& c )
@@ -1337,8 +1338,8 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
     if ( comment->getType() == EscriptLexer::COMMENT ||
          comment->getType() == EscriptLexer::LINE_COMMENT )
     {
-      Range startpos( &*comment );
-      Range endpos( &*comment );
+      Range startpos( comment );
+      Range endpos( comment );
 
       // use whitespace token as start if its on the same line
       // so that the tokenid of a comment is always the next tokenid after a "actual" token

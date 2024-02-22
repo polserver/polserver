@@ -11,7 +11,7 @@
 
 namespace Pol::Bscript::Compiler
 {
-Position calculate_end_position( antlr4::Token* symbol )
+Position calculate_end_position( const antlr4::Token* symbol )
 {
   if ( !symbol )
   {
@@ -46,9 +46,11 @@ Position calculate_end_position( antlr4::Token* symbol )
   return Position{ line, character, symbol->getTokenIndex() };
 }
 
-Range::Range( const Position start, const Position end ) : start( start ), end( end ) {}
+Range::Range( Position start, Position end ) : start( std::move( start ) ), end( std::move( end ) )
+{
+}
 
-Range::Range( antlr4::ParserRuleContext& ctx )
+Range::Range( const antlr4::ParserRuleContext& ctx )
     : start( Position{ static_cast<unsigned short>( ctx.getStart()->getLine() ),
                        static_cast<unsigned short>( ctx.getStart()->getCharPositionInLine() + 1 ),
                        ctx.getStart()->getTokenIndex() } ),
@@ -56,7 +58,7 @@ Range::Range( antlr4::ParserRuleContext& ctx )
 {
 }
 
-Range::Range( antlr4::tree::TerminalNode& ctx )
+Range::Range( const antlr4::tree::TerminalNode& ctx )
     : start( Position{ static_cast<unsigned short>( ctx.getSymbol()->getLine() ),
                        static_cast<unsigned short>( ctx.getSymbol()->getCharPositionInLine() + 1 ),
                        ctx.getSymbol()->getTokenIndex() } ),
@@ -64,7 +66,7 @@ Range::Range( antlr4::tree::TerminalNode& ctx )
 {
 }
 
-Range::Range( antlr4::Token* token )
+Range::Range( const antlr4::Token* token )
     : start( Position{ static_cast<unsigned short>( token->getLine() ),
                        static_cast<unsigned short>( token->getCharPositionInLine() + 1 ),
                        token->getTokenIndex() } ),
@@ -87,13 +89,13 @@ SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifi
 }
 
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
-                                antlr4::ParserRuleContext& ctx )
+                                const antlr4::ParserRuleContext& ctx )
     : source_file_identifier( source_file_identifier ), range( ctx )
 {
 }
 
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
-                                antlr4::tree::TerminalNode& ctx )
+                                const antlr4::tree::TerminalNode& ctx )
     : source_file_identifier( source_file_identifier ), range( ctx )
 {
 }

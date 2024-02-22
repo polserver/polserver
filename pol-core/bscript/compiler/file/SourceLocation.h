@@ -33,10 +33,10 @@ struct Range
   bool contains( const Range& ) const;
   bool contains( unsigned short line_number, unsigned short character_column ) const;
 
-  Range( antlr4::ParserRuleContext& );
-  Range( antlr4::tree::TerminalNode& ctx );
-  Range( const Position start, const Position end );
-  Range( antlr4::Token* token );
+  Range( const antlr4::ParserRuleContext& );
+  Range( const antlr4::tree::TerminalNode& ctx );
+  Range( Position start, Position end );
+  Range( const antlr4::Token* token );
 };
 
 class SourceLocation
@@ -45,8 +45,8 @@ public:
   SourceLocation( const SourceFileIdentifier*, unsigned short line_number,
                   unsigned short character_column );
   SourceLocation( const SourceFileIdentifier*, const Range& );
-  SourceLocation( const SourceFileIdentifier*, antlr4::ParserRuleContext& );
-  SourceLocation( const SourceFileIdentifier*, antlr4::tree::TerminalNode& );
+  SourceLocation( const SourceFileIdentifier*, const antlr4::ParserRuleContext& );
+  SourceLocation( const SourceFileIdentifier*, const antlr4::tree::TerminalNode& );
 
   SourceLocation( const SourceLocation& ) = default;
   SourceLocation( SourceLocation&& ) = default;
