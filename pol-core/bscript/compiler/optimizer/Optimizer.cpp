@@ -97,6 +97,11 @@ void Optimizer::visit_children( Node& node )
 
     if ( optimized_replacement )
     {
+      if ( dynamic_cast<Identifier*>( node.children[i].get() ) )
+      {
+        optimized_replacement->unoptimized_node.swap( node.children[i] );
+      }
+
       node.children[i] = std::move( optimized_replacement );
     }
 
