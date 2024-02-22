@@ -46,7 +46,7 @@ void PrettifyLineBuilder::addPart( FmtToken part )
 bool PrettifyLineBuilder::finalize()
 {
   mergeEOFComments();
-  return _line_parts.empty();
+  return _line_parts.empty() && _comments.empty() && _skiplines.empty();
 }
 
 const std::vector<FmtToken>& PrettifyLineBuilder::currentTokens() const
@@ -58,7 +58,7 @@ void PrettifyLineBuilder::mergeRawContent( int nextlineno )
 {
   for ( auto itr = _skiplines.begin(); itr != _skiplines.end(); )
   {
-    if ( itr->start.line_number < nextlineno )
+    if ( nextlineno == -1 || itr->start.line_number < nextlineno )
     {
       mergeCommentsBefore( itr->start.line_number );
       addEmptyLines( itr->start.line_number );
@@ -490,6 +490,7 @@ void PrettifyLineBuilder::mergeEOFComments()
     mergeRawContent( _last_line );
     _comments.erase( _comments.begin() );
   }
+  mergeRawContent( -1 );
 }
 
 }  // namespace Pol::Bscript::Compiler
