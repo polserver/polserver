@@ -4,18 +4,19 @@
 namespace Pol::Bscript::Compiler
 {
 Node::Node( const SourceLocation& source_location, NodeVector children )
-    : children( std::move( children ) ), source_location( source_location )
+    : children( std::move( children ) ), unoptimized_node(), source_location( source_location )
 {
 }
 
 Node::Node( const SourceLocation& source_location, std::unique_ptr<Node> child )
-    : source_location( source_location )
+    : unoptimized_node(), source_location( source_location )
 {
   children.reserve( 1 );
   children.push_back( std::move( child ) );
 }
 
-Node::Node( const SourceLocation& source_location ) : children(), source_location( source_location )
+Node::Node( const SourceLocation& source_location )
+    : children(), unoptimized_node(), source_location( source_location )
 {
 }
 

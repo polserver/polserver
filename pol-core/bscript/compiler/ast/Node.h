@@ -88,6 +88,7 @@ public:
   }
 
   NodeVector children;
+  std::unique_ptr<Node> unoptimized_node;
 
   const SourceLocation source_location;
 
