@@ -58,6 +58,7 @@ struct CompilerConfig
   bool FormatterWindowsLineEndings = false;
   bool FormatterUseTabs = false;
   unsigned short FormatterTabWidth = 4;
+  bool FormatterInsertNewlineAtEOF = false;
 
   void Read( const std::string& path );
   void SetDefaults();

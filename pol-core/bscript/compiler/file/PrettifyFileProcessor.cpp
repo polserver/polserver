@@ -112,8 +112,12 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleUnit( EscriptParser::ModuleUnitC
 
 std::string PrettifyFileProcessor::prettify() const
 {
-  return fmt::format( "{}", fmt::join( linebuilder.formattedLines(),
-                                       compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n" ) );
+  auto result =
+      fmt::format( "{}", fmt::join( linebuilder.formattedLines(),
+                                    compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n" ) );
+  if ( compilercfg.FormatterInsertNewlineAtEOF && !result.empty() && result.back() != '\n' )
+    result += compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n";
+  return result;
 }
 
 

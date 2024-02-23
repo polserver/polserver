@@ -79,6 +79,7 @@ void CompilerConfig::Read( const std::string& path )
   FormatterWindowsLineEndings = elem.remove_bool( "FormatterWindowsLineEndings", false );
   FormatterUseTabs = elem.remove_bool( "FormatterUseTabs", false );
   FormatterTabWidth = elem.remove_ushort( "FormatterTabWidth", 4 );
+  FormatterInsertNewlineAtEOF = elem.remove_bool( "FormatterInsertNewlineAtEOF", false );
 
 // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.

@@ -242,3 +242,7 @@ ErrorOnFileCaseMissmatch=0
 # tab width
 # Default 4
 #FormatterTabWidth 4
+
+# Insert a newline at end of file if missing
+# Default 0
+#FormatterInsertNewlineAtEOF 0
