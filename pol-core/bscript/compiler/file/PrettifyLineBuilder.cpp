@@ -143,69 +143,71 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
   // fill lines with final strings splitted at breakpoints
   // <splitted string, forcenewline, groupid>
   std::vector<std::tuple<std::string, bool, size_t, size_t>> lines;
-  std::string line;
-  size_t firstgroup = 0;
-  for ( size_t i = 0; i < _line_parts.size(); ++i )
   {
-    if ( line.empty() )
-      firstgroup = _line_parts[i].group;
-    line += _line_parts[i].text;
-    // add space if set, but not if the following part is attached
-    if ( _line_parts[i].style & FmtToken::SPACE )
+    std::string line;
+    size_t firstgroup = 0;
+    for ( size_t i = 0; i < _line_parts.size(); ++i )
     {
-      if ( i + 1 < _line_parts.size() )
+      if ( line.empty() )
+        firstgroup = _line_parts[i].group;
+      line += _line_parts[i].text;
+      // add space if set, but not if the following part is attached
+      if ( _line_parts[i].style & FmtToken::SPACE )
       {
-        if ( !( _line_parts[i + 1].style & FmtToken::ATTACHED ) )
+        if ( i + 1 < _line_parts.size() )
+        {
+          if ( !( _line_parts[i + 1].style & FmtToken::ATTACHED ) )
+            line += ' ';
+        }
+        else
           line += ' ';
       }
-      else
-        line += ' ';
-    }
-    if ( _line_parts[i].style & FmtToken::FORCED_BREAK )
-    {
-      lines.emplace_back(
-          std::make_tuple( std::move( line ), true, _line_parts[i].group, firstgroup ) );
-      line.clear();
-    }
-    // start a new line if breakpoint
-    else if ( _line_parts[i].style & FmtToken::BREAKPOINT )
-    {
-      // if the next part is attached, dont break now and instead later
-      // eg dont split blubb[1]()
-      bool skip = false;
-      if ( i + 1 < _line_parts.size() )
+      if ( _line_parts[i].style & FmtToken::FORCED_BREAK )
       {
-        // next one is attached
-        if ( _line_parts[i + 1].style & FmtToken::ATTACHED )
+        lines.emplace_back(
+            std::make_tuple( std::move( line ), true, _line_parts[i].group, firstgroup ) );
+        line.clear();
+      }
+      // start a new line if breakpoint
+      else if ( _line_parts[i].style & FmtToken::BREAKPOINT )
+      {
+        // if the next part is attached, dont break now and instead later
+        // eg dont split blubb[1]()
+        bool skip = false;
+        if ( i + 1 < _line_parts.size() )
         {
-          // search for space or breakpoint
-          for ( size_t j = i + 1; j < _line_parts.size(); ++j )
+          // next one is attached
+          if ( _line_parts[i + 1].style & FmtToken::ATTACHED )
           {
-            if ( _line_parts[j].style & FmtToken::ATTACHED )
-              skip = true;
-            if ( _line_parts[j].style & FmtToken::SPACE ||
-                 _line_parts[j].style & FmtToken::BREAKPOINT )
+            // search for space or breakpoint
+            for ( size_t j = i + 1; j < _line_parts.size(); ++j )
             {
-              _line_parts[j].style |= FmtToken::BREAKPOINT;
-              skip = true;
-              break;
+              if ( _line_parts[j].style & FmtToken::ATTACHED )
+                skip = true;
+              if ( _line_parts[j].style & FmtToken::SPACE ||
+                   _line_parts[j].style & FmtToken::BREAKPOINT )
+              {
+                _line_parts[j].style |= FmtToken::BREAKPOINT;
+                skip = true;
+                break;
+              }
             }
           }
         }
+        if ( skip )
+          continue;
+        lines.emplace_back(
+            std::make_tuple( std::move( line ), false, _line_parts[i].group, firstgroup ) );
+        line.clear();
       }
-      if ( skip )
-        continue;
-      lines.emplace_back(
-          std::make_tuple( std::move( line ), false, _line_parts[i].group, firstgroup ) );
+    }
+    // add remainings
+    if ( !line.empty() )
+    {
+      lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts.back().group,
+                                           _line_parts.back().group ) );
       line.clear();
     }
-  }
-  // add remainings
-  if ( !line.empty() )
-  {
-    lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts.back().group,
-                                         _line_parts.back().group ) );
-    line.clear();
   }
 #ifdef DEBUG_FORMAT_BREAK
   INFO_PRINTLN( "BREAK " );
@@ -225,6 +227,7 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
     linelength += l.size();
   }
 
+  std::string line;
   // split based on groups
   if ( groups && linelength > compilercfg.FormatterLineWidth )
   {

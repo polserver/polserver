@@ -72,10 +72,10 @@ namespace Pol::Bscript::Compiler
 InstructionGenerator::InstructionGenerator(
     InstructionEmitter& emitter, std::map<std::string, FlowControlLabel>& user_function_labels,
     bool in_function )
-  : emitter( emitter ),
-    emit( emitter ),
-    user_function_labels( user_function_labels ),
-    in_function( in_function )
+    : emitter( emitter ),
+      emit( emitter ),
+      user_function_labels( user_function_labels ),
+      in_function( in_function )
 {
 }
 
@@ -93,7 +93,8 @@ void InstructionGenerator::update_debug_location( const Node& node )
 
 void InstructionGenerator::update_debug_location( const SourceLocation& loc )
 {
-  emit.debug_file_line( loc.source_file_identifier->index, loc.range.start.line_number );
+  emit.debug_file_line( loc.source_file_identifier->index,
+                        static_cast<unsigned>( loc.range.start.line_number ) );
 }
 
 void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )
