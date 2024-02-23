@@ -66,10 +66,10 @@ struct FmtToken
   Position pos_end = {};
   int style = 0;
   size_t group = 0;
-  int token_type = 0;
+  size_t token_type = 0;
   FmtContext context = FmtContext::NONE;
   FmtToken() = default;
-  FmtToken( std::string&& text, const Position& pos, int style, size_t group, int token_type )
+  FmtToken( std::string&& text, const Position& pos, int style, size_t group, size_t token_type )
       : text( std::move( text ) ),
         pos( pos ),
         pos_end( pos ),
@@ -108,13 +108,13 @@ private:
   std::vector<FmtToken> _line_parts = {};
   std::vector<FmtToken> _comments = {};
   std::vector<Range> _skiplines = {};
-  int _last_line = 0;
+  size_t _last_line = 0;
   size_t _currident = 0;
   size_t _currentgroup = 0;
-  void mergeRawContent( int nextlineno );
+  void mergeRawContent( size_t nextlineno );
   void mergeComments();
-  void mergeCommentsBefore( int nextlineno );
-  void addEmptyLines( int line_number );
+  void mergeCommentsBefore( size_t nextlineno );
+  void addEmptyLines( size_t line_number );
   void mergeEOFComments();
   std::string identSpacing();
   std::string alignmentSpacing( size_t count );

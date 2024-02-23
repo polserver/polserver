@@ -17,8 +17,8 @@ Position calculate_end_position( const antlr4::Token* symbol )
   {
     return Position{ 0, 0, 0 };
   }
-  auto line = static_cast<unsigned short>( symbol->getLine() );
-  auto character = static_cast<unsigned short>( symbol->getCharPositionInLine() + 1 );
+  auto line = symbol->getLine();
+  auto character = symbol->getCharPositionInLine() + 1;
   const auto& str = symbol->getText();
   const auto size = str.size();
 
@@ -51,34 +51,32 @@ Range::Range( Position start, Position end ) : start( std::move( start ) ), end(
 }
 
 Range::Range( const antlr4::ParserRuleContext& ctx )
-    : start( Position{ static_cast<unsigned short>( ctx.getStart()->getLine() ),
-                       static_cast<unsigned short>( ctx.getStart()->getCharPositionInLine() + 1 ),
+    : start( Position{ ctx.getStart()->getLine(), ctx.getStart()->getCharPositionInLine() + 1,
                        ctx.getStart()->getTokenIndex() } ),
       end( calculate_end_position( ctx.getStop() ) )
 {
 }
 
 Range::Range( const antlr4::tree::TerminalNode& ctx )
-    : start( Position{ static_cast<unsigned short>( ctx.getSymbol()->getLine() ),
-                       static_cast<unsigned short>( ctx.getSymbol()->getCharPositionInLine() + 1 ),
+    : start( Position{ ctx.getSymbol()->getLine(), ctx.getSymbol()->getCharPositionInLine() + 1,
                        ctx.getSymbol()->getTokenIndex() } ),
       end( calculate_end_position( ctx.getSymbol() ) )
 {
 }
 
 Range::Range( const antlr4::Token* token )
-    : start( Position{ static_cast<unsigned short>( token->getLine() ),
-                       static_cast<unsigned short>( token->getCharPositionInLine() + 1 ),
+    : start( Position{ token->getLine(), token->getCharPositionInLine() + 1,
                        token->getTokenIndex() } ),
       end( calculate_end_position( token ) )
 {
 }
 
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
-                                unsigned short line_number, unsigned short character_column )
+                                size_t line_number, size_t character_column )
     : source_file_identifier( source_file_identifier ),
       range( Position{ line_number, character_column, 0 },
-             Position{ USHRT_MAX, USHRT_MAX, std::numeric_limits<size_t>::max() } )
+             Position{ std::numeric_limits<size_t>::max(), std::numeric_limits<size_t>::max(),
+                       std::numeric_limits<size_t>::max() } )
 {
 }
 
@@ -105,7 +103,7 @@ bool Range::contains( const Position& position ) const
   return contains( position.line_number, position.character_column );
 }
 
-bool Range::contains( unsigned short line_number, unsigned short character_column ) const
+bool Range::contains( size_t line_number, size_t character_column ) const
 {
   if ( line_number < start.line_number || line_number > end.line_number )
   {

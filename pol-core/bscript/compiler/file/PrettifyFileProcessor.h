@@ -184,7 +184,7 @@ private:
   size_t _currentgroup = 0;
   // Profile& profile;
   Report& report;
-  void addToken( std::string&& text, const Position& pos, int style, int token_type );
+  void addToken( std::string&& text, const Position& pos, int style, size_t token_type );
   void addToken( std::string&& text, antlr4::tree::TerminalNode* terminal, int style );
   void addToken( std::string&& text, antlr4::Token* token, int style );
   void preprocess( SourceFile& sf );

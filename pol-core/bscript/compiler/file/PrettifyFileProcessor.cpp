@@ -1239,7 +1239,7 @@ antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNo
 }
 
 void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, int style,
-                                      int token_type )
+                                      size_t token_type )
 {
   linebuilder.addPart(
       { std::forward<std::string>( text ), pos, style, _currentgroup, token_type } );

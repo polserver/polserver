@@ -54,11 +54,11 @@ const std::vector<FmtToken>& PrettifyLineBuilder::currentTokens() const
   return _line_parts;
 }
 
-void PrettifyLineBuilder::mergeRawContent( int nextlineno )
+void PrettifyLineBuilder::mergeRawContent( size_t nextlineno )
 {
   for ( auto itr = _skiplines.begin(); itr != _skiplines.end(); )
   {
-    if ( nextlineno == -1 || itr->start.line_number < nextlineno )
+    if ( itr->start.line_number < nextlineno )
     {
       mergeCommentsBefore( itr->start.line_number );
       addEmptyLines( itr->start.line_number );
@@ -75,7 +75,7 @@ void PrettifyLineBuilder::mergeRawContent( int nextlineno )
   }
 }
 
-void PrettifyLineBuilder::mergeCommentsBefore( int nextlineno )
+void PrettifyLineBuilder::mergeCommentsBefore( size_t nextlineno )
 {
   // add comments before current line
   while ( !_comments.empty() )
@@ -367,7 +367,7 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
 }
 
 
-void PrettifyLineBuilder::addEmptyLines( int line_number )
+void PrettifyLineBuilder::addEmptyLines( size_t line_number )
 {
   if ( compilercfg.FormatterMergeEmptyLines )
   {
@@ -490,7 +490,8 @@ void PrettifyLineBuilder::mergeEOFComments()
     mergeRawContent( _last_line );
     _comments.erase( _comments.begin() );
   }
-  mergeRawContent( -1 );
+  // purge raw content
+  mergeRawContent( std::numeric_limits<size_t>::max() );
 }
 
 }  // namespace Pol::Bscript::Compiler
