@@ -115,7 +115,7 @@ private:
   void mergeComments();
   void mergeCommentsBefore( size_t nextlineno );
   void addEmptyLines( size_t line_number );
-  void mergeEOFComments();
+  void mergeEOFNonTokens();
   std::string identSpacing();
   std::string alignmentSpacing( size_t count );
 };

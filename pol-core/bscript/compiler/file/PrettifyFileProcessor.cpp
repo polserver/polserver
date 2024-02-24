@@ -1382,8 +1382,18 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
           }
           else
           {
-            info.text.erase( 0, firstchar );  // remove remaining whitespace
-            info.text = std::string( "// " ) + info.text;
+            // if its at the line start and line before was also a comment dont trim whitespaces
+            // (could be a header comment)
+            if ( startpos.start.character_column == 1 && !comments.empty() &&
+                 comments.back().pos.line_number == startpos.start.line_number - 1 )
+            {
+              info.text = std::string( "//" ) + info.text;
+            }
+            else
+            {
+              info.text.erase( 0, firstchar );  // remove remaining whitespace
+              info.text = std::string( "// " ) + info.text;
+            }
           }
         }
         auto lastchar = info.text.find_last_not_of( ' ' );
@@ -1391,7 +1401,6 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
       }
       else
       {
-        // TODO the original lineendings are kept.
         info.context = FmtContext::COMMENT;
         info.text.erase( 0, 2 );  // remove /*
         auto firstchar = info.text.find_first_not_of( " \t" );
@@ -1412,6 +1421,21 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
             text += ' ';
           text += "*/";
           info.text = text;
+        }
+        // split lines to use correct linenendings
+        std::string rawtext = std::move( info.text );
+        info.text.clear();
+        for ( size_t i = 0; i < rawtext.size(); ++i )
+        {
+          if ( rawtext[i] == '\r' && i + 1 < rawtext.size() && rawtext[i + 1] == '\n' )
+          {
+            ++i;
+            info.text += compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n";
+          }
+          else if ( rawtext[i] == '\r' || rawtext[i] == '\n' )
+            info.text += compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n";
+          else
+            info.text += rawtext[i];
         }
       }
       info.pos = startpos.start;

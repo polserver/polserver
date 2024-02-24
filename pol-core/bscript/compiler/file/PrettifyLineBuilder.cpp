@@ -45,7 +45,7 @@ void PrettifyLineBuilder::addPart( FmtToken part )
 
 bool PrettifyLineBuilder::finalize()
 {
-  mergeEOFComments();
+  mergeEOFNonTokens();
   return _line_parts.empty() && _comments.empty() && _skiplines.empty();
 }
 
@@ -482,7 +482,7 @@ std::string PrettifyLineBuilder::alignmentSpacing( size_t count )
   return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
 }
 
-void PrettifyLineBuilder::mergeEOFComments()
+void PrettifyLineBuilder::mergeEOFNonTokens()
 {
   mergeRawContent( _last_line );
   while ( !_comments.empty() )
@@ -495,6 +495,9 @@ void PrettifyLineBuilder::mergeEOFComments()
   }
   // purge raw content
   mergeRawContent( std::numeric_limits<size_t>::max() );
+  // if the original file ends with a newline, make sure to also end
+  if ( !_lines.empty() && !_lines.back().empty() && !_rawlines.empty() && _rawlines.back().empty() )
+    _lines.push_back( "" );
 }
 
 }  // namespace Pol::Bscript::Compiler
