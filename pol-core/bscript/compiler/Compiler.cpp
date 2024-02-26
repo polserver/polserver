@@ -6,6 +6,7 @@
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
+#include "bscript/compiler/file/PrettifyBuilder.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/format/CompiledScriptSerializer.h"
@@ -125,6 +126,25 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
     return;
 
   output = generate( std::move( workspace ) );
+}
+
+bool Compiler::format_file( const std::string& filename, bool is_module, bool inplace )
+{
+  Report report( false, true );
+  PrettifyBuilder prettify_builder( profile, report );
+  auto formatted = prettify_builder.build( filename, is_module );
+  if ( report.error_count() )
+    return false;
+  if ( inplace )
+  {
+    std::ofstream filestream;
+    filestream.open( filename, std::ios_base::out | std::ios_base::trunc );
+    filestream << formatted;
+    filestream.flush();
+  }
+  else
+    INFO_PRINTLN( formatted );
+  return true;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,

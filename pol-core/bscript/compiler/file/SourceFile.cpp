@@ -9,9 +9,11 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "compilercfg.h"
+#include <EscriptGrammar/EscriptParserVisitor.h>
 
 using EscriptGrammar::EscriptLexer;
 using EscriptGrammar::EscriptParser;
+using EscriptGrammar::EscriptParserVisitor;
 
 namespace Pol::Bscript::Compiler
 {
@@ -23,8 +25,8 @@ SourceFile::SourceFile( const std::string& pathname, const std::string& contents
       input( contents ),
       conformer( &input ),
       lexer( &conformer ),
-      tokens( &lexer ),
-      parser( &tokens ),
+      token_stream( &lexer ),
+      parser( &token_stream ),
       error_listener( pathname, profile ),
       compilation_unit( nullptr ),
       module_unit( nullptr ),
@@ -145,6 +147,59 @@ EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_uni
   ++access_count;
   propagate_errors_to( report, SourceFileIdentifier( 0, "<eval>" ) );
   return evaluate_unit;
+}
+
+std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( const Position& position )
+{
+  auto tokens = get_all_tokens();
+  size_t token_index = 0;
+  for ( const auto& token : tokens )
+  {
+    if ( token->getLine() == position.line_number &&
+         token->getCharPositionInLine() + 1 <= position.character_column &&
+         token->getCharPositionInLine() + 1 + token->getText().length() >=
+             position.character_column )
+    {
+      break;
+    }
+    token_index++;
+  }
+
+  if ( token_index < tokens.size() )
+  {
+    return get_hidden_tokens_before( token_index );
+  }
+
+  return std::vector<antlr4::Token*>();
+}
+
+std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( size_t tokenIndex )
+{
+  return token_stream.getHiddenTokensToLeft( tokenIndex );
+}
+
+antlr4::Token* SourceFile::get_token_at( const Position& position )
+{
+  auto tokens = get_all_tokens();
+  auto result =
+      std::find_if( tokens.begin(), tokens.end(),
+                    [&]( const auto& token )
+                    {
+                      return token->getLine() == position.line_number &&
+                             token->getCharPositionInLine() + 1 <= position.character_column &&
+                             token->getCharPositionInLine() + 1 + token->getText().length() >=
+                                 position.character_column;
+                    } );
+  if ( result != tokens.end() )
+  {
+    return *result;
+  }
+  return nullptr;
+}
+
+std::vector<antlr4::Token*> SourceFile::get_all_tokens()
+{
+  return token_stream.getTokens();
 }
 
 /**

@@ -217,6 +217,12 @@ set (bscript_sources    # sorted !
   compiler/file/ConformingCharStream.h
   compiler/file/ErrorListener.cpp
   compiler/file/ErrorListener.h
+  compiler/file/PrettifyBuilder.cpp
+  compiler/file/PrettifyBuilder.h
+  compiler/file/PrettifyFileProcessor.cpp
+  compiler/file/PrettifyFileProcessor.h
+  compiler/file/PrettifyLineBuilder.cpp
+  compiler/file/PrettifyLineBuilder.h
   compiler/file/SourceFile.cpp
   compiler/file/SourceFile.h
   compiler/file/SourceFileCache.cpp

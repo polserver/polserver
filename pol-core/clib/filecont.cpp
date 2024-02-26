@@ -54,6 +54,11 @@ const char* FileContents::contents() const
   return contents_.c_str();
 }
 
+const std::string& FileContents::str_contents() const
+{
+  return contents_;
+}
+
 /**
  * Replaces the internal content with a copy of the given one
  */

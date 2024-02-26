@@ -41,6 +41,25 @@ struct CompilerConfig
   int EmParseTreeCacheSize;
   int IncParseTreeCacheSize;
 
+  // Formatter
+  size_t FormatterLineWidth = 80;
+  bool FormatterKeepKeywords = false;
+  unsigned short FormatterIdentLevel = 2;
+  bool FormatterMergeEmptyLines = true;
+  bool FormatterEmptyParenthesisSpacing = false;
+  bool FormatterEmptyBracketSpacing = false;
+  bool FormatterConditionalParenthesisSpacing = true;
+  bool FormatterParenthesisSpacing = true;
+  bool FormatterBracketSpacing = true;
+  bool FormatterDelimiterSpacing = true;
+  bool FormatterAssignmentSpacing = true;
+  bool FormatterComparisonSpacing = true;
+  bool FormatterOperatorSpacing = true;
+  bool FormatterWindowsLineEndings = false;
+  bool FormatterUseTabs = false;
+  unsigned short FormatterTabWidth = 4;
+  bool FormatterInsertNewlineAtEOF = false;
+
   void Read( const std::string& path );
   void SetDefaults();
 };

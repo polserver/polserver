@@ -1,4 +1,12 @@
 -- POL100.2.0 --
+02-26-2024 Turley:
+    Added: ecompile option -F and -Fi
+           EScript formatter for .src and .inc (, .em) files, can be combined with -r and -A
+           -F prints the formatted source without touching thr original files
+           -Fi (inplace) formatting, rewrites the source file(s)
+           ecompile.cfg.example in the distribution contains all the options currently available (or online configuration files docs)
+           comments containing "format-off" disables the formatting until a comment containing "format-on" is found (or eof is reached)
+           this is a very early stage of the formatter, so dont expect perfect results
 02-08-2024 Kukkino:
     Added: POL now accepts proxy protocol v2 if configured to in Listener in `uoclient.cfg` listener.
     Added: Gameservers in `servers.cfg` can now be filtered using `ProxyMatch` similar to `IPMatch` except for used proxy.

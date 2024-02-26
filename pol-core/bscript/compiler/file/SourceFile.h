@@ -7,9 +7,18 @@
 
 #include "bscript/compiler/file/ConformingCharStream.h"
 #include "bscript/compiler/file/ErrorListener.h"
+#include "bscript/compiler/file/SourceLocation.h"
 #include <EscriptGrammar/EscriptLexer.h>
 #include <EscriptGrammar/EscriptParser.h>
+namespace antlr4
+{
+class ParserRuleContext;
+}
 
+namespace EscriptGrammar
+{
+class EscriptParserVisitor;
+}
 namespace Pol::Bscript::Compiler
 {
 class Profile;
@@ -34,13 +43,18 @@ public:
                                                                      const SourceFileIdentifier& );
   EscriptGrammar::EscriptParser::EvaluateUnitContext* get_evaluate_unit( Report& );
 
+  antlr4::Token* get_token_at( const Position& position );
+  std::vector<antlr4::Token*> get_all_tokens();
+  std::vector<antlr4::Token*> get_hidden_tokens_before( const Position& position );
+  std::vector<antlr4::Token*> get_hidden_tokens_before( size_t tokenIndex );
+
   const std::string pathname;
 
 private:
   antlr4::ANTLRInputStream input;
   ConformingCharStream conformer;
   EscriptGrammar::EscriptLexer lexer;
-  antlr4::CommonTokenStream tokens;
+  antlr4::CommonTokenStream token_stream;
   EscriptGrammar::EscriptParser parser;
   ErrorListener error_listener;
 

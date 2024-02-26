@@ -166,3 +166,83 @@ ErrorOnFileCaseMissmatch=0
 # Number of *.inc files to cache (new compiler only)
 # Default is 50
 #IncParseTreeCacheSize=50
+
+######################
+# Formatter settings #
+#     (-F / -Fi)     #
+######################
+
+# LineWidth
+# Default 80
+#FormatterLineWidth=80
+
+# keep original keyword spelling
+# Default 0
+#FormatterKeepKeywords=0
+
+# number of spaces for ident
+# Default 2
+#FormatterIdentLevel=2
+
+# multiple newlines get merged to a single
+# Default 1
+#FormatterMergeEmptyLines=1
+
+# space between emtpy parenthesis eg foo() vs foo( )
+# Default 0
+#FormatterEmptyParenthesisSpacing=0
+
+# space between emtpy brackets eg struct{} vs struct{ }
+# Default 0
+#FormatterEmptyBracketSpacing=0
+
+# space after/before parenthesis in conditionals
+# eg if ( true ) vs if (true)
+# Default 1
+#FormatterConditionalParenthesisSpacing=1
+
+# space after/before parenthesis
+# eg foo( true ) vs foo(true)
+# Default 1
+#FormatterParenthesisSpacing=1
+
+# space after/before brackets
+# eg array{ true } vs array{true}
+# Default 1
+#FormatterBracketSpacing=1
+
+# add space after delimiter comma or semi in for loops
+# eg {1, 2, 3} vs {1,2,3}
+# Default 1
+#FormatterDelimiterSpacing=1
+
+# add space around assignment
+# eg a := 1; vs a:=1;
+# Default 1
+#FormatterAssignmentSpacing=1
+
+# add space around comparison
+# eg a == 1 vs a==1
+# Default 1
+#FormatterComparisonSpacing=1
+
+# add space around operations
+# eg a + 1 vs a+1
+# Default 1
+#FormatterOperatorSpacing=1
+
+# use \r\n as newline instead of \n
+# Default 1 on windows 0 otherwise
+#FormatterWindowsLineEndings=0
+
+# use tabs instead of spaces
+# Default 0
+#FormatterUseTabs=0
+
+# tab width
+# Default 4
+#FormatterTabWidth=4
+
+# Insert a newline at end of file if missing
+# Default 0
+#FormatterInsertNewlineAtEOF=0

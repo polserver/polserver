@@ -30,6 +30,7 @@ public:
   void set_include_compile_mode();
 
   void compile_file_steps( const std::string& pathname, Report& );
+  bool format_file( const std::string& filename, bool is_module, bool inplace );
 
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report& );
