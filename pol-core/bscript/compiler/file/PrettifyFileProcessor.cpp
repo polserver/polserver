@@ -1425,17 +1425,17 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
         // split lines to use correct linenendings
         std::string rawtext = std::move( info.text );
         info.text.clear();
-        for ( size_t i = 0; i < rawtext.size(); ++i )
+        for ( size_t ri = 0; ri < rawtext.size(); ++ri )
         {
-          if ( rawtext[i] == '\r' && i + 1 < rawtext.size() && rawtext[i + 1] == '\n' )
+          if ( rawtext[ri] == '\r' && ri + 1 < rawtext.size() && rawtext[ri + 1] == '\n' )
           {
-            ++i;
+            ++ri;
             info.text += compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n";
           }
-          else if ( rawtext[i] == '\r' || rawtext[i] == '\n' )
+          else if ( rawtext[ri] == '\r' || rawtext[ri] == '\n' )
             info.text += compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n";
           else
-            info.text += rawtext[i];
+            info.text += rawtext[ri];
         }
       }
       info.pos = startpos.start;
