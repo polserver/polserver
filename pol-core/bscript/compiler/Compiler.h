@@ -13,6 +13,7 @@ class CompilerWorkspace;
 class SourceFileCache;
 class SourceFileLoader;
 class Profile;
+struct Range;
 class Report;
 
 class Compiler
@@ -35,6 +36,8 @@ public:
   bool format_file( const std::string& filename, bool is_module, bool inplace );
   std::unique_ptr<CompilerWorkspace> analyze( const std::string& pathname, Report&, bool is_module,
                                               bool continue_on_error );
+  std::string to_formatted_string( const std::string& filename, bool is_module,
+                                   std::optional<Range> format_range );
 
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool is_module,
