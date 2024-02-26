@@ -19,6 +19,12 @@ namespace Bscript
 {
 void CompilerConfig::Read( const std::string& path )
 {
+#ifdef _WIN32
+  bool win_platform = true;
+#else
+  bool win_platform = false;
+#endif
+
   Clib::ConfigFile cf( path.c_str() );
   Clib::ConfigElem elem;
   cf.readraw( elem );
@@ -76,7 +82,7 @@ void CompilerConfig::Read( const std::string& path )
   FormatterAssignmentSpacing = elem.remove_bool( "FormatterAssignmentSpacing", true );
   FormatterComparisonSpacing = elem.remove_bool( "FormatterComparisonSpacing", true );
   FormatterOperatorSpacing = elem.remove_bool( "FormatterOperatorSpacing", true );
-  FormatterWindowsLineEndings = elem.remove_bool( "FormatterWindowsLineEndings", false );
+  FormatterWindowsLineEndings = elem.remove_bool( "FormatterWindowsLineEndings", win_platform );
   FormatterUseTabs = elem.remove_bool( "FormatterUseTabs", false );
   FormatterTabWidth = elem.remove_ushort( "FormatterTabWidth", 4 );
   FormatterInsertNewlineAtEOF = elem.remove_bool( "FormatterInsertNewlineAtEOF", false );

@@ -1056,7 +1056,7 @@ PackageRoot (path to package root)
 [FormatterAssignmentSpacing (0/1 {default 1})]             // add space around assignment, eg a := 1; vs a:=1;
 [FormatterComparisonSpacing (0/1 {default 1})]             // add space around comparison, eg a == 1 vs a==1
 [FormatterOperatorSpacing (0/1 {default 1})]               // add space around operations, eg a + 1 vs a+1
-[FormatterWindowsLineEndings (0/1 {default 0})]            // use \r\n as newline instead of \n
+[FormatterWindowsLineEndings (0/1 {default 0/1})]            // use \r\n (windows default) as newline instead of \n (default otherwise)
 [FormatterUseTabs (0/1 {default 0})]                       // use tabs instead of spaces
 [FormatterTabWidth (0-N {default 4})]
 [FormatterInsertNewlineAtEOF (0/1 {default 0})]            // Insert a newline at end of file if missing

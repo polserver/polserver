@@ -232,7 +232,7 @@ ErrorOnFileCaseMissmatch=0
 #FormatterOperatorSpacing=1
 
 # use \r\n as newline instead of \n
-# Default 0
+# Default 1 on windows 0 otherwise
 #FormatterWindowsLineEndings=0
 
 # use tabs instead of spaces

@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-08-2024</datemodified>
+		<datemodified>02-26-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>02-26-2024</date>
+			<author>Turley:</author>
+			<change type="Added">ecompile option -F and -Fi<br/>
+EScript formatter for .src and .inc (, .em) files, can be combined with -r and -A<br/>
+-F prints the formatted source without touching thr original files<br/>
+-Fi (inplace) formatting, rewrites the source file(s)<br/>
+ecompile.cfg.example in the distribution contains all the options currently available (or online configuration files docs)<br/>
+comments containing &quot;format-off&quot; disables the formatting until a comment containing &quot;format-on&quot; is found (or eof is reached)<br/>
+this is a very early stage of the formatter, so dont expect perfect results</change>
+		</entry>
 		<entry>
 			<date>02-08-2024</date>
 			<author>Kukkino:</author>
