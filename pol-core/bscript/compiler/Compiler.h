@@ -2,6 +2,7 @@
 #define POLSERVER_COMPILER_H
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "bscript/compiler/model/UserFunctionInclusion.h"
