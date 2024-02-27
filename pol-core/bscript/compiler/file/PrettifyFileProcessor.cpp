@@ -4,8 +4,8 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/file/SourceFile.h"
-#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compilercfg.h"
 #include "clib/filecont.h"
 #include "clib/logfacility.h"
@@ -61,13 +61,17 @@ namespace Pol::Bscript::Compiler
 {
 using namespace EscriptGrammar;
 
-PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier, SourceFileLoader& source_loader,
-                                              Profile& /*profile*/, Report& report )
-    : source_file_identifier( source_file_identifier ) /*, profile( profile )*/, source_loader( source_loader ), report( report )
+PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier,
+                                              SourceFileLoader& source_loader, Profile& /*profile*/,
+                                              Report& report )
+    : source_file_identifier( source_file_identifier ) /*, profile( profile )*/,
+      source_loader( source_loader ),
+      report( report )
 {
 }
 
-antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf, std::optional<Range> format_range )
+antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf,
+                                                               std::optional<Range> format_range )
 {
   if ( auto compilation_unit = sf.get_compilation_unit( report, source_file_identifier ) )
   {
@@ -79,7 +83,8 @@ antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf, s
   throw std::runtime_error( "No compilation unit in source file" );
 }
 
-antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf, std::optional<Range> format_range )
+antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf,
+                                                          std::optional<Range> format_range )
 {
   if ( auto module_unit = sf.get_module_unit( report, source_file_identifier ) )
   {
@@ -1304,7 +1309,7 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
     {
       format_range_skip_foot =
           Range( Position{ format_range->end.line_number + 1, 0, 0 },
-                 Position{ rawlines.size(), column_for_line(rawlines.size()), 0 } );
+                 Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 } );
     }
   }
 
@@ -1346,9 +1351,10 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
       format_range_skip_foot = {};
       skiplines.clear();
       // skiplines.emplace_back( Position{ 1, 1, 0 },
-      //                         Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 } );
+      //                         Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 }
+      //                         );
       skiplines.emplace_back( Position{ 1, 0, 0 },
-                              Position{ rawlines.size(), column_for_line(rawlines.size()) , 0 } );
+                              Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 } );
     }
     else
     {
