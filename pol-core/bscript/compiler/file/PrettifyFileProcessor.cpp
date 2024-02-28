@@ -1280,7 +1280,7 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
   {
     if ( line <= rawlines.size() )
     {
-      return rawlines[line - 1].length();
+      return rawlines[line - 1].length() + 1;
     }
     return std::numeric_limits<size_t>::max();
   };
@@ -1299,16 +1299,16 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
     if ( format_range->start.line_number > 1 )
     {
       format_range_skip_head =
-          Range( Position{ 1, 0, 0 },
+          Range( Position{ 1, 1, 0 },
                  Position{ format_range->start.line_number - 1,
                            column_for_line( format_range->start.line_number - 1 ), 0 } );
     }
 
     // Only create skipline foot if format range ends before last line.
-    if ( format_range->end.line_number < rawlines.size() - 1 )
+    if ( format_range->end.line_number < rawlines.size() )
     {
       format_range_skip_foot =
-          Range( Position{ format_range->end.line_number + 1, 0, 0 },
+          Range( Position{ format_range->end.line_number + 1, 1, 0 },
                  Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 } );
     }
   }
