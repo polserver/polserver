@@ -10,3 +10,4 @@ Makefile
 __pycache__
 gen/
 build/
+.vscode
