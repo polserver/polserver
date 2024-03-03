@@ -35,7 +35,7 @@ public:
      */
   std::vector<Pos3d> coords;
 
-  Pos3d select_coordinate() const;
+  Pos4d select_coordinate() const;
   size_t estimateSize() const;
 };
 }  // namespace Core

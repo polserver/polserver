@@ -12,11 +12,11 @@ namespace Pol
 {
 namespace Core
 {
-Pos3d StartingLocation::select_coordinate() const
+Pos4d StartingLocation::select_coordinate() const
 {
   int sidx = Clib::random_int( static_cast<int>( coords.size() - 1 ) );
 
-  return coords[sidx];
+  return Pos4d( coords[sidx], realm );
 }
 
 size_t StartingLocation::estimateSize() const
