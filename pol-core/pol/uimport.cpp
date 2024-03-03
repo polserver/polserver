@@ -1298,16 +1298,24 @@ void read_starting_locations()
     loc->desc = elem.remove_string( "DESCRIPTION" );
     loc->mapid = elem.remove_ushort( "MAPID", 0 );
     loc->cliloc_desc = elem.remove_unsigned( "CLILOC", 1075072 );
-    loc->realm = find_realm( elem.remove_string( "REALM", "britannia" ) );
-
+    auto realmstr = elem.remove_string( "REALM", "britannia" );
+    loc->realm = find_realm( realmstr );
+    if ( !loc->realm )
+    {
+      ERROR_PRINTLN( "Unknown realm in startloc.cfg: '{}' for city {}, description {}", realmstr,
+                     loc->city, loc->desc );
+      throw std::runtime_error( "Configuration file error in startloc.cfg." );
+    }
     std::string coord;
     while ( elem.remove_prop( "Coordinate", &coord ) )
     {
       int x, y, z;
       if ( sscanf( coord.c_str(), "%d,%d,%d", &x, &y, &z ) == 3 )
       {
-        loc->coords.push_back(
-            Pos3d( static_cast<u16>( x ), static_cast<u16>( y ), static_cast<s8>( z ) ) );
+        auto pos = Pos3d( Clib::clamp_convert<u16>( x ), Clib::clamp_convert<u16>( y ),
+                          Clib::clamp_convert<s8>( z ) );
+        pos.crop( loc->realm );
+        loc->coords.emplace_back( std::move( pos ) );
       }
       else
       {

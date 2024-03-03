@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+03-03-2024 Turley:
+    Fixed: unknown realm in startloc.cfg now stops starting the core
 02-26-2024 Turley:
     Added: ecompile option -F and -Fi
            EScript formatter for .src and .inc (, .em) files, can be combined with -r and -A

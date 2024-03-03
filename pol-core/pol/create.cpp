@@ -317,9 +317,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   chr->color = cfBEu16( msg->SkinColor );
   chr->truecolor = chr->color;
 
-  Pos3d coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
-  Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
-  chr->setposition( Pos4d( coord, realm ) );
+  chr->setposition( gamestate.startlocations[msg->StartIndex]->select_coordinate() );
   chr->facing = Core::FACING_W;
   chr->position_changed();
 
@@ -661,10 +659,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   chr->color = cfBEu16( msg->skin_color );
   chr->truecolor = chr->color;
 
-  Pos3d coord = gamestate.startlocations[0]->select_coordinate();
-  Realms::Realm* realm = gamestate.startlocations[0]->realm;
-
-  chr->setposition( Pos4d( coord, realm ) );
+  chr->setposition( gamestate.startlocations[0]->select_coordinate() );
   chr->position_changed();
   chr->facing = Core::FACING_W;
 
@@ -1041,10 +1036,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   chr->color = cfBEu16( msg->SkinColor );
   chr->truecolor = chr->color;
 
-  Pos3d coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
-  Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
-
-  chr->setposition( Pos4d( coord, realm ) );
+  chr->setposition( gamestate.startlocations[msg->StartIndex]->select_coordinate() );
   chr->position_changed();
   chr->facing = Core::FACING_W;
 
