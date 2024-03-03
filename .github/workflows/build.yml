@@ -129,6 +129,13 @@ jobs:
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
+      - name: Start MySQL
+        if: matrix.config.os == 'ubuntu-latest'
+        shell: pwsh
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e "CREATE DATABASE IF NOT EXISTS poltest;" -uroot -proot
+          echo "POLCORE_TESTSQL=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Test (EScript)
         if: matrix.config.nopch == 0
         run: |
