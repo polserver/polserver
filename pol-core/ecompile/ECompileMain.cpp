@@ -10,6 +10,7 @@
 #include <system_error>
 #include <time.h>
 
+#include "EfswFileWatchListener.h"
 
 #include "bscript/compctx.h"
 #include "bscript/compiler/Compiler.h"
@@ -91,6 +92,7 @@ void ECompileMain::showHelp()
       "       -T[N]        use threaded compilation, force N threads to run\n"
       "       -vN          verbosity level\n"
       "       -w           display warnings\n"
+      "       -W           watch mode\n"
       "       -y           treat warnings as errors\n"
       "       -x           write external .dbg file\n"
       "       -xt          write external .dbg.txt info file\n"
@@ -112,6 +114,7 @@ bool show_timing_details = false;
 bool timing_quiet_override = false;
 bool expect_compile_failure = false;
 bool dont_optimize_object_members = false;
+bool watch_source = false;
 std::string EmPathEnv;   // "ECOMPILE_PATH_EM=xxx"
 std::string IncPathEnv;  // ECOMPILE_PATH_INC=yyy"
 std::string CfgPathEnv;  // ECOMPILE_CFG_PATH=zzz"
@@ -137,6 +140,14 @@ struct Comparison
 
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
 Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
+
+using DependencyInfo = std::map<std::string, std::set<std::string>>;
+// Map owner (sources) -> dependencies
+DependencyInfo owner_dependencies;
+// Map dependency -> owners (sources)
+DependencyInfo dependency_owners;
+
+std::set<std::string> compiled_dirs;
 
 std::unique_ptr<Compiler::Compiler> create_compiler()
 {
@@ -225,6 +236,47 @@ bool format_file( const char* path )
   if ( !success )
     throw std::runtime_error( "Error formatting file" );
   return true;
+}
+
+void add_dependency_info( const std::string& filename_src, const std::string& filename_dep )
+{
+
+  std::ifstream ifs( filename_dep.c_str() );
+  if ( !ifs.is_open() )
+  {
+    dependency_owners.emplace( filename_src, std::set<std::string>{ filename_src } );
+    // dependency_owners.emplace( filename_src, std::set<std::string>{ filename_src } );
+    return;
+  }
+
+  auto& dependencies = [&]() -> std::set<std::string>&
+  {
+    if ( auto itr = owner_dependencies.find( filename_src ); itr != owner_dependencies.end() )
+    {
+      itr->second.clear();
+      return itr->second;
+    }
+    else
+    {
+      owner_dependencies.emplace( filename_src, std::set<std::string>{} );
+      return owner_dependencies.find( filename_src )->second;
+    }
+  }();
+
+  std::string depname;
+  while ( getline( ifs, depname ) )
+  {
+
+    if ( auto itr = dependency_owners.find( depname ); itr != dependency_owners.end() )
+    {
+      itr->second.emplace( filename_src );
+    }
+    else
+    {
+      dependency_owners.emplace( depname, std::set<std::string>{ filename_src } );
+    }
+    dependencies.emplace(depname);
+  }
 }
 
 /**
@@ -397,7 +449,17 @@ bool process_file( const char* path )
   }
   else
   {
-    return compile_file( path );
+    fs::path filepath = fs::canonical( fs::path( path ) );
+
+    auto ext = filepath.extension().generic_string();
+    bool newly_compiled = compile_file( path );
+    if ( watch_source && ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 ||
+                           ext.compare( ".asp" ) == 0 ) )
+    {
+      add_dependency_info( filepath.generic_string(),
+                           filepath.replace_extension( ".dep" ).generic_string() );
+    }
+    return newly_compiled;
   }
 }
 
@@ -448,6 +510,11 @@ int readargs( int argc, char** argv )
     {
       switch ( arg[1] )
       {
+      case 'W':
+        watch_source = true;
+        compilercfg.GenerateDependencyInfo = true;
+        break;
+
       case 'A':  // skip it at this point.
         break;
 
@@ -714,6 +781,36 @@ void parallel_process( const std::set<std::string>& files )
 }
 
 
+void EnterWatchMode()
+{
+  efsw::FileWatcher fileWatcher;
+  EfswFileWatchListener listener( fileWatcher,
+                                  []( const std::string& filename )
+                                  {
+                                    try
+                                    {
+                                      compile_file( filename.c_str() );
+                                    }
+                                    catch ( std::runtime_error& ex )
+                                    {
+                                    }
+                                  } );
+  for ( const auto& dep_owners : dependency_owners )
+  {
+    listener.add_watch( dep_owners.first );
+  }
+  for ( const auto& directory : compiled_dirs )
+  {
+    listener.add_watch( directory );
+  }
+  // listener.add
+  fileWatcher.watch();
+  while ( !Clib::exit_signalled )
+  {
+    std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+  }
+}
+
 /**
  * Runs the compilation threads
  */
@@ -722,9 +819,13 @@ void AutoCompile()
   bool save = compilercfg.OnlyCompileUpdatedScripts;
   compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
   std::set<std::string> files;
+  compiled_dirs.emplace( compilercfg.PolScriptRoot );
   recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
   for ( const auto& pkg : Plib::systemstate.packages )
+  {
+    compiled_dirs.emplace( pkg->dir() );
     recurse_collect( fs::path( pkg->dir() ), &files, false );
+  }
   if ( compilercfg.ThreadedCompilation )
     parallel_process( files );
   else
@@ -774,6 +875,18 @@ bool run( int argc, char** argv, int* res )
 #endif
     {
       // -r[i] [<dir>]
+      // if ( argv[i][1] == 'W' )
+      // {
+      //   if ( any )
+      //   {
+      //     throw std::runtime_error( "Watch mode cannot be used with other ecompile options." );
+      //   }
+      //   else if ( argc <= i + 1 )
+      //   {
+      //     throw std::runtime_error( "Usage: -W <filespec.src>" );
+      //   }
+      //   return watch_file( argv[i + 1] );
+      // }
       if ( argv[i][1] == 'A' )
       {
         compilercfg.UpdateOnlyOnAutoCompile = ( argv[i][2] == 'u' );
@@ -792,6 +905,7 @@ bool run( int argc, char** argv, int* res )
           dir.assign( argv[i] );
 
         std::set<std::string> files;
+        compiled_dirs.emplace( dir );
         recurse_collect( fs::path( dir ), &files, compile_inc );
         if ( compilercfg.ThreadedCompilation )
           parallel_process( files );
@@ -819,6 +933,10 @@ bool run( int argc, char** argv, int* res )
   {
     any = true;
     AutoCompile();
+  }
+
+  if (watch_source) {
+    EnterWatchMode();
   }
 
   // Execution is completed: start final/cleanup tasks

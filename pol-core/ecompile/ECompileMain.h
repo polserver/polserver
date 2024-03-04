@@ -15,6 +15,8 @@ public:
   ECompileMain();
   virtual ~ECompileMain();
 
+  // static bool compile_file( const char* path );
+
 protected:
   virtual int main();
 
