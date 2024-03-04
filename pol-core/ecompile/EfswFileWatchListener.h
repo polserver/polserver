@@ -1,41 +1,49 @@
 #ifndef E_COMPILE_EFSWFILEWATCHLISTENER_H
 #define E_COMPILE_EFSWFILEWATCHLISTENER_H
 
-#include <efsw/efsw.hpp>
-// #include <efsw/System.hpp>
-// #include <efsw/FileSystem.hpp>
+#include "clib/wallclock.h"
 
+#include <efsw/efsw.hpp>
+#include <list>
 #include <map>
+#include <mutex>
 #include <set>
 #include <string>
-#include <functional>
 
 namespace Pol::ECompile
 {
-using DependencyModifiedCallback = std::function<void(const std::string&)>;
+static constexpr Clib::wallclock_diff_t DEBOUNCE = 200;
+
+class WatchFileMessage
+{
+public:
+  std::string filename;
+  std::string old_filename;
+};
 
 class EfswFileWatchListener : public efsw::FileWatchListener
 {
 public:
-EfswFileWatchListener(efsw::FileWatcher& watcher, DependencyModifiedCallback callback);
+EfswFileWatchListener(efsw::FileWatcher& watcher);
   void handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename,
                          efsw::Action action, std::string oldFilename ) override;
 
-  // void load_source( const std::string& filename );
-  void add_watch(const std::string& filename);
+  void add_watch_file(const std::string& filename);
+  void add_watch_dir(const std::string& dirname);
   void remove_watch(const std::string& filename);
-  // void add_watch_dir(const std::string& dirpath);
   bool is_watched( const std::string& dir, const std::string& filename );
+  void add_message(WatchFileMessage message);
+  void take_messages(std::list<WatchFileMessage>& messages);
+
 private:
   efsw::FileWatcher& watcher;
-  DependencyModifiedCallback callback;
   std::map<std::string, std::set<std::string>> dir_to_files;
   std::set<std::string> watched_dirs;
   std::map<std::string, efsw::WatchID> dir_to_watchid;
-  // std::map<std::string, std::set<std::string>> source_to_deps;
-  // std::map<std::string, std::string> dep_to_source;
 
-  // void upsert_source_and_dependents( const std::string& filename );
+  std::list<WatchFileMessage> messages;
+  mutable std::mutex _mutex;
+  Clib::wallclock_t handle_messages_by;
 };
 }  // namespace Pol::Bscript::Compiler
 #endif

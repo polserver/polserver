@@ -784,30 +784,46 @@ void parallel_process( const std::set<std::string>& files )
 void EnterWatchMode()
 {
   efsw::FileWatcher fileWatcher;
-  EfswFileWatchListener listener( fileWatcher,
-                                  []( const std::string& filename )
-                                  {
-                                    try
-                                    {
-                                      compile_file( filename.c_str() );
-                                    }
-                                    catch ( std::runtime_error& ex )
-                                    {
-                                    }
-                                  } );
+  EfswFileWatchListener listener( fileWatcher );
+
   for ( const auto& dep_owners : dependency_owners )
   {
-    listener.add_watch( dep_owners.first );
+    listener.add_watch_file( dep_owners.first );
   }
   for ( const auto& directory : compiled_dirs )
   {
-    listener.add_watch( directory );
+    listener.add_watch_dir( directory );
   }
-  // listener.add
+
   fileWatcher.watch();
+  std::list<WatchFileMessage> watch_messages;
+
   while ( !Clib::exit_signalled )
   {
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+    listener.take_messages( watch_messages );
+    if ( !watch_messages.empty() )
+    {
+      for ( auto const& message : watch_messages )
+      {
+        ERROR_PRINTLN( "Event: filename={}, old_filename={}", message.filename,
+                       message.old_filename );
+        // created or modified
+        if ( message.old_filename.empty() )
+        {
+          compile_file(message.filename.c_str());
+        }
+        // deleted
+        else if ( message.filename.empty() )
+        {
+        }
+        // moved
+        else
+        {
+        }
+      }
+      watch_messages.clear();
+    }
   }
 }
 
@@ -874,19 +890,6 @@ bool run( int argc, char** argv, int* res )
     if ( argv[i][0] == '/' || argv[i][0] == '-' )
 #endif
     {
-      // -r[i] [<dir>]
-      // if ( argv[i][1] == 'W' )
-      // {
-      //   if ( any )
-      //   {
-      //     throw std::runtime_error( "Watch mode cannot be used with other ecompile options." );
-      //   }
-      //   else if ( argc <= i + 1 )
-      //   {
-      //     throw std::runtime_error( "Usage: -W <filespec.src>" );
-      //   }
-      //   return watch_file( argv[i + 1] );
-      // }
       if ( argv[i][1] == 'A' )
       {
         compilercfg.UpdateOnlyOnAutoCompile = ( argv[i][2] == 'u' );

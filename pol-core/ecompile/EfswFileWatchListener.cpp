@@ -8,9 +8,8 @@ namespace fs = std::filesystem;
 
 namespace Pol::ECompile
 {
-EfswFileWatchListener::EfswFileWatchListener( efsw::FileWatcher& watcher,
-                                              DependencyModifiedCallback callback )
-    : watcher( watcher ), callback( callback )
+EfswFileWatchListener::EfswFileWatchListener( efsw::FileWatcher& watcher )
+    : watcher( watcher ), messages(), _mutex(), handle_messages_by(0)
 {
 }
 
@@ -18,44 +17,29 @@ void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const s
                                               const std::string& filename, efsw::Action action,
                                               std::string oldFilename )
 {
+  auto filepath = fs::path(dir) / fs::path(filename);
+  auto filepathstr = filepath.generic_string();
+  if (!is_watched(dir, filename)) {
+    return;
+  }
   switch ( action )
   {
-  case efsw::Actions::Add:
-    // std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Added"
-    //           << std::endl;
-    INFO_PRINTLN( "DIR ({}) FILE ({}) has event Added", dir, filename );
-    break;
   case efsw::Actions::Delete:
-    // std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Delete"
-    //           << std::endl;
     INFO_PRINTLN( "DIR ({}) FILE ({}) has event Delete", dir, filename );
+    add_message(WatchFileMessage{"", filepathstr});
     break;
   case efsw::Actions::Modified:
-  {
-    INFO_PRINTLN( "DIR ({}) FILE ({}) has event Modified", dir, filename );
-    if ( is_watched( dir, filename ) )
-    {
-      callback( ( fs::path( dir ) / filename ).generic_string() );
-    }
-    break;
-  }
+  case efsw::Actions::Add:
   case efsw::Actions::Moved:
-    // std::cout << "DIR (" << dir << ") FILE (" << filename << ") has event Moved from ("
-    //           << oldFilename << ")" << std::endl;
-    INFO_PRINTLN( "DIR ({}) FILE ({}) has event Moved from ({})", dir, filename, oldFilename );
+    INFO_PRINTLN( "DIR ({}) FILE ({}) has event Added/Modified/Moved", dir, filename );
+    add_message(WatchFileMessage{filepathstr, oldFilename});
     break;
   default:
-    // std::cout << "Should never happen!" << std::endl;
     break;
   }
 }
 
-// void EfswFileWatchListener::load_source( const std::string& filename )
-// {
-//   upsert_source_and_dependents( filename );
-// }
-
-void EfswFileWatchListener::add_watch( const std::string& filename )
+void EfswFileWatchListener::add_watch_file( const std::string& filename )
 {
   fs::path filepath( filename );
 
@@ -64,26 +48,30 @@ void EfswFileWatchListener::add_watch( const std::string& filename )
   if ( dir_to_watchid.find( dir ) == dir_to_watchid.end() )
   {
     auto watchID = watcher.addWatch( dir, this, false );
-    INFO_PRINTLN( "- {} [{}] {}", dir, watchID );
     dir_to_watchid.emplace( dir, watchID );
   }
-  if ( fs::is_directory( filepath ) )
+
+  auto basename = filepath.filename().generic_string();
+  auto itr = dir_to_files.find( dir );
+  if ( itr == dir_to_files.end() )
   {
-    watched_dirs.emplace( filename );
+    dir_to_files.emplace( dir, std::set<std::string>{ basename } );
   }
   else
   {
-    auto basename = filepath.filename().generic_string();
-    auto itr = dir_to_files.find( dir );
-    if ( itr == dir_to_files.end() )
-    {
-      dir_to_files.emplace( dir, std::set<std::string>{ basename } );
-    }
-    else
-    {
-      itr->second.emplace( basename );
-    }
+    itr->second.emplace( basename );
   }
+}
+
+void EfswFileWatchListener::add_watch_dir( const std::string& dirname )
+{
+  auto dir = fs::canonical(fs::path(dirname)).generic_string();
+  if ( dir_to_watchid.find( dir ) == dir_to_watchid.end() )
+  {
+    auto watchID = watcher.addWatch( dir, this, true );
+    dir_to_watchid.emplace( dir, watchID );
+  }
+  watched_dirs.emplace( dir );
 }
 
 void EfswFileWatchListener::remove_watch( const std::string& filename ) {
@@ -106,7 +94,6 @@ fs::path filepath( filename );
     auto dir_to_files_itr = dir_to_files.find( dir );
     if ( dir_to_files_itr != dir_to_files.end() )
     {
-      // itr->second.emplace( basename );
       auto &files = dir_to_files_itr->second;
       files.erase(basename);
       if (files.size() == 0)
@@ -125,42 +112,61 @@ fs::path filepath( filename );
   }
 }
 
-// void EfswFileWatchListener::add_watch_dir( const std::string& dirpath ) {}
-
-bool EfswFileWatchListener::is_watched( const std::string& dir, const std::string& filename )
+bool EfswFileWatchListener::is_watched( const std::string& dirname, const std::string& filename )
 {
-  // if ( watched_dirs.find(dir) !=
+  auto dir = fs::canonical( fs::path( dirname ) ).generic_string();
   auto dir_itr = dir_to_files.find( fs::canonical( dir ) );
-  if ( dir_itr == dir_to_files.end() )
+  if ( dir_itr != dir_to_files.end() )
   {
-    return false;
+    auto file_itr = dir_itr->second.find( filename );
+
+    if ( file_itr != dir_itr->second.end() )
+      return true;
   }
 
-  auto file_itr = dir_itr->second.find( filename );
-
-  return file_itr != dir_itr->second.end();
+  auto ext = fs::path( filename ).extension().generic_string();
+  if ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 || ext.compare( ".asp" ) == 0 )
+  {
+    for ( const auto& dir : watched_dirs )
+    {
+      if ( dirname.rfind( dir, 0 ) == 0 )
+      {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
-// void EfswFileWatchListener::upsert_source_and_dependents( const std::string& filename )
-// {
-//   callback( filename );
-//   fs::path filepath( filename );
+void EfswFileWatchListener::add_message( WatchFileMessage message )
+{
+  bool add = true;
+  {
+    std::lock_guard<std::mutex> lock( _mutex );
+    for ( auto itr = messages.begin(); itr != messages.end(); )
+    {
+      if ( itr->filename == message.filename && itr->old_filename == message.old_filename )
+      {
+        add = false;
+        break;
+      }
+    }
+    if ( add )
+    {
+      messages.push_back( message );
+      handle_messages_by = Clib::wallclock() + DEBOUNCE;
+    }
+  }
+}
 
-//   source_to_deps.find(filename);
-//   std::string filename_dep = filepath.replace_extension( ".dep" ).generic_string();
+void EfswFileWatchListener::take_messages(std::list<WatchFileMessage>& to_messages)
+{
+  std::lock_guard<std::mutex> lock( _mutex );
+  if (Clib::wallclock() > handle_messages_by)
+  {
+        to_messages.splice(to_messages.end(), messages);
 
-//   std::ifstream ifs( filename_dep.c_str() );
-
-//   if ( !ifs.is_open() )
-//   {
-//     throw std::runtime_error( "Could not load dependency information." );
-//   }
-
-//   std::string depname;
-//   while ( getline( ifs, depname ) )
-//   {
-//     add_watch( depname );
-//   }
-// }
+  }
+}
 
 }  // namespace Pol::ECompile
