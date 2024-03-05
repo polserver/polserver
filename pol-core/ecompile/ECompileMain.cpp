@@ -33,6 +33,10 @@
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
 
+#define VERBOSE_PRINTLN                 \
+  if ( compilercfg.VerbosityLevel > 0 ) \
+  INFO_PRINTLN
+
 namespace Pol
 {
 namespace ECompile
@@ -141,13 +145,13 @@ struct Comparison
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
 Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
 
-using DependencyInfo = std::map<std::string, std::set<std::string>>;
+using DependencyInfo = std::map<fs::path, std::set<fs::path>>;
 // Map owner (sources) -> dependencies
 DependencyInfo owner_dependencies;
 // Map dependency -> owners (sources)
 DependencyInfo dependency_owners;
 
-std::set<std::string> compiled_dirs;
+std::set<fs::path> compiled_dirs;
 
 std::unique_ptr<Compiler::Compiler> create_compiler()
 {
@@ -238,18 +242,17 @@ bool format_file( const char* path )
   return true;
 }
 
-void add_dependency_info( const std::string& filename_src, const std::string& filename_dep )
+void add_dependency_info( const fs::path& filename_src )
 {
-
+  auto filename_dep = fs::path( filename_src ).replace_extension( ".dep" );
   std::ifstream ifs( filename_dep.c_str() );
   if ( !ifs.is_open() )
   {
-    dependency_owners.emplace( filename_src, std::set<std::string>{ filename_src } );
-    // dependency_owners.emplace( filename_src, std::set<std::string>{ filename_src } );
+    dependency_owners[filename_src] = std::set<fs::path>{ filename_src };
     return;
   }
 
-  auto& dependencies = [&]() -> std::set<std::string>&
+  auto& dependencies = [&]() -> std::set<fs::path>&
   {
     if ( auto itr = owner_dependencies.find( filename_src ); itr != owner_dependencies.end() )
     {
@@ -258,7 +261,7 @@ void add_dependency_info( const std::string& filename_src, const std::string& fi
     }
     else
     {
-      owner_dependencies.emplace( filename_src, std::set<std::string>{} );
+      owner_dependencies.emplace( filename_src, std::set<fs::path>{} );
       return owner_dependencies.find( filename_src )->second;
     }
   }();
@@ -266,16 +269,16 @@ void add_dependency_info( const std::string& filename_src, const std::string& fi
   std::string depname;
   while ( getline( ifs, depname ) )
   {
-
-    if ( auto itr = dependency_owners.find( depname ); itr != dependency_owners.end() )
+    fs::path depnamepath = fs::canonical( fs::path( depname ) );
+    if ( auto itr = dependency_owners.find( depnamepath ); itr != dependency_owners.end() )
     {
       itr->second.emplace( filename_src );
     }
     else
     {
-      dependency_owners.emplace( depname, std::set<std::string>{ filename_src } );
+      dependency_owners.emplace( depnamepath, std::set<fs::path>{ filename_src } );
     }
-    dependencies.emplace(depname);
+    dependencies.emplace( depnamepath );
   }
 }
 
@@ -456,8 +459,7 @@ bool process_file( const char* path )
     if ( watch_source && ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 ||
                            ext.compare( ".asp" ) == 0 ) )
     {
-      add_dependency_info( filepath.generic_string(),
-                           filepath.replace_extension( ".dep" ).generic_string() );
+      add_dependency_info( filepath );
     }
     return newly_compiled;
   }
@@ -798,6 +800,7 @@ void EnterWatchMode()
   fileWatcher.watch();
   std::list<WatchFileMessage> watch_messages;
 
+  std::set<std::string> to_compile;
   while ( !Clib::exit_signalled )
   {
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -809,9 +812,14 @@ void EnterWatchMode()
         ERROR_PRINTLN( "Event: filename={}, old_filename={}", message.filename,
                        message.old_filename );
         // created or modified
+
         if ( message.old_filename.empty() )
         {
-          compile_file(message.filename.c_str());
+          if ( auto itr = dependency_owners.find( message.filename );
+               itr != dependency_owners.end() )
+          {
+            to_compile.insert( itr->second.begin(), itr->second.end() );
+          }
         }
         // deleted
         else if ( message.filename.empty() )
@@ -823,6 +831,44 @@ void EnterWatchMode()
         }
       }
       watch_messages.clear();
+
+      VERBOSE_PRINTLN( "To compile: {}", to_compile );
+      for ( const auto& filename : to_compile )
+      {
+        VERBOSE_PRINTLN( "Watch-compile: {}", filename );
+        //     auto old_deps = owner_dependencies[filename];
+        //     VERBOSE_PRINTLN("Old deps: {}", old_deps);
+        //     try
+        //     {
+        //       compile_file( filename.c_str() );
+        //     }
+        //     catch ( ... )
+        //     {
+        //     }
+        //     add_dependency_info(filename,
+        //     fs::path(filename).replace_extension(".dep").generic_string()); auto new_deps =
+        //     owner_dependencies[filename];
+        // // Determine removed strings
+        //     for ( const auto& str : old_deps )
+        //     {
+        //       if ( new_deps.find( str ) == new_deps.end() )
+        //       {
+        //         // std::cout << str << "\n";
+        //         listener.add_watch_file(str);
+        //       }
+        //     }
+
+        //     // Determine added strings
+        //     for ( const auto& str : new_deps )
+        //     {
+        //       if ( old_deps.find( str ) == old_deps.end() )
+        //       {
+        //         listener.remove_watch_file(str);
+        //         // std::cout << str << "\n";
+        //       }
+        //     }
+      }
+      to_compile.clear();
     }
   }
 }
@@ -835,11 +881,11 @@ void AutoCompile()
   bool save = compilercfg.OnlyCompileUpdatedScripts;
   compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
   std::set<std::string> files;
-  compiled_dirs.emplace( compilercfg.PolScriptRoot );
+  compiled_dirs.emplace( fs::canonical( compilercfg.PolScriptRoot ) );
   recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
   for ( const auto& pkg : Plib::systemstate.packages )
   {
-    compiled_dirs.emplace( pkg->dir() );
+    compiled_dirs.emplace( fs::canonical( pkg->dir() ) );
     recurse_collect( fs::path( pkg->dir() ), &files, false );
   }
   if ( compilercfg.ThreadedCompilation )
@@ -908,7 +954,7 @@ bool run( int argc, char** argv, int* res )
           dir.assign( argv[i] );
 
         std::set<std::string> files;
-        compiled_dirs.emplace( dir );
+        compiled_dirs.emplace( fs::canonical( dir ) );
         recurse_collect( fs::path( dir ), &files, compile_inc );
         if ( compilercfg.ThreadedCompilation )
           parallel_process( files );
@@ -938,7 +984,8 @@ bool run( int argc, char** argv, int* res )
     AutoCompile();
   }
 
-  if (watch_source) {
+  if ( watch_source )
+  {
     EnterWatchMode();
   }
 

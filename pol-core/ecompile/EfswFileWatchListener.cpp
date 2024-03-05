@@ -5,116 +5,151 @@
 #include <string>
 
 namespace fs = std::filesystem;
+template <>
+struct fmt::formatter<fs::path> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const fs::path& l, fmt::format_context& ctx ) const
+  {
+    {
+      return fmt::formatter<std::string>::format( l.generic_string(), ctx );
+    }
+  }
+};
 
 namespace Pol::ECompile
 {
 EfswFileWatchListener::EfswFileWatchListener( efsw::FileWatcher& watcher )
-    : watcher( watcher ), messages(), _mutex(), handle_messages_by(0)
+    : watcher( watcher ), mutex(), messages(), handle_messages_by( 0 )
 {
+}
+
+EfswFileWatchListener::~EfswFileWatchListener()
+{
+  for ( const auto& watchID : dir_to_watchid )
+  {
+    watcher.removeWatch( watchID.second );
+  }
 }
 
 void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const std::string& dir,
                                               const std::string& filename, efsw::Action action,
                                               std::string oldFilename )
 {
-  auto filepath = fs::path(dir) / fs::path(filename);
+  auto filepath = fs::path( dir ) / fs::path( filename );
   auto filepathstr = filepath.generic_string();
-  if (!is_watched(dir, filename)) {
+  if ( !is_watched( filepath ) )
+  {
     return;
   }
+
   switch ( action )
   {
   case efsw::Actions::Delete:
     INFO_PRINTLN( "DIR ({}) FILE ({}) has event Delete", dir, filename );
-    add_message(WatchFileMessage{"", filepathstr});
+    add_message( WatchFileMessage{ "", filepathstr } );
     break;
+
   case efsw::Actions::Modified:
   case efsw::Actions::Add:
   case efsw::Actions::Moved:
     INFO_PRINTLN( "DIR ({}) FILE ({}) has event Added/Modified/Moved", dir, filename );
-    add_message(WatchFileMessage{filepathstr, oldFilename});
+    add_message( WatchFileMessage{ filepathstr, oldFilename } );
     break;
+
   default:
     break;
   }
 }
 
-void EfswFileWatchListener::add_watch_file( const std::string& filename )
+void EfswFileWatchListener::add_watch_file( const fs::path& filepath )
 {
-  fs::path filepath( filename );
+  auto dir = filepath.parent_path();
+  efsw::WatchID watchID;
 
-  auto dir = filepath.parent_path().generic_string();
-
-  if ( dir_to_watchid.find( dir ) == dir_to_watchid.end() )
+  if ( auto itr = dir_to_watchid.find( dir ); itr != dir_to_watchid.end() )
   {
-    auto watchID = watcher.addWatch( dir, this, false );
-    dir_to_watchid.emplace( dir, watchID );
-  }
-
-  auto basename = filepath.filename().generic_string();
-  auto itr = dir_to_files.find( dir );
-  if ( itr == dir_to_files.end() )
-  {
-    dir_to_files.emplace( dir, std::set<std::string>{ basename } );
+    watchID = itr->second;
   }
   else
   {
-    itr->second.emplace( basename );
+    watchID = watcher.addWatch( dir.generic_string(), this, false );
+    ERROR_PRINTLN( "Add watch: {} [{}]", dir, watchID );
+    dir_to_watchid.emplace( dir, watchID );
+  }
+
+  auto filename = filepath.filename();
+  auto itr = dir_to_files.find( dir );
+  if ( itr == dir_to_files.end() )
+  {
+    dir_to_files.emplace( dir, std::set<fs::path>{ filename } );
+    ERROR_PRINTLN( "  Files: [{}]", filename );
+  }
+  else
+  {
+    itr->second.emplace( filename );
+    ERROR_PRINTLN(
+        "Update watch: {} [{}]\n"
+        "  Files: [{}]",
+        dir, watchID, itr->second );
   }
 }
 
-void EfswFileWatchListener::add_watch_dir( const std::string& dirname )
+void EfswFileWatchListener::add_watch_dir( const std::filesystem::path& dir )
 {
-  auto dir = fs::canonical(fs::path(dirname)).generic_string();
-  if ( dir_to_watchid.find( dir ) == dir_to_watchid.end() )
+  efsw::WatchID watchID;
+  if ( auto itr = dir_to_watchid.find( dir ); itr != dir_to_watchid.end() )
   {
-    auto watchID = watcher.addWatch( dir, this, true );
+    watchID = itr->second;
+    ERROR_PRINTLN( "Set as watch dir: {} [{}]", dir, watchID );
+  }
+  else
+  {
+    watchID = watcher.addWatch( dir, this, true );
     dir_to_watchid.emplace( dir, watchID );
+    ERROR_PRINTLN( "Add watch dir: {} [{}]", dir, watchID );
   }
   watched_dirs.emplace( dir );
 }
 
-void EfswFileWatchListener::remove_watch( const std::string& filename ) {
-fs::path filepath( filename );
+void EfswFileWatchListener::remove_watch_file( const std::filesystem::path& filepath )
+{
   bool remove_watch = false;
 
-  auto dir_to_watchid_itr = dir_to_watchid.end();
-
-  if ( auto watch_dir_itr = watched_dirs.find(filename); watch_dir_itr != watched_dirs.end())
+  auto dir = filepath.parent_path();
+  auto filename = filepath.filename();
+  auto dir_to_files_itr = dir_to_files.find( dir );
+  if ( dir_to_files_itr != dir_to_files.end() )
   {
-    watched_dirs.erase(watch_dir_itr);
-    dir_to_watchid_itr = dir_to_watchid.find(filename);
-    remove_watch = true;
-  }
-  else if (!fs::is_directory(filepath))
-  {
-    auto dir = filepath.parent_path().generic_string();
-    dir_to_watchid_itr = dir_to_watchid.find(dir);
-    auto basename = filepath.filename().generic_string();
-    auto dir_to_files_itr = dir_to_files.find( dir );
-    if ( dir_to_files_itr != dir_to_files.end() )
+    auto& files = dir_to_files_itr->second;
+    files.erase( filename );
+    if ( files.size() == 0 )
     {
-      auto &files = dir_to_files_itr->second;
-      files.erase(basename);
-      if (files.size() == 0)
-      {
-        dir_to_files.erase(dir_to_files_itr);
-      } else {
-        remove_watch = false;
-      }
+      dir_to_files.erase( dir_to_files_itr );
+      remove_watch = true;
+    }
+    else
+    {
+      remove_watch = false;
     }
   }
-  if ( remove_watch && dir_to_watchid_itr != dir_to_watchid.end() )
+
+  if ( remove_watch )
   {
-    ERROR_PRINTLN( "Remove watch {} [{}]", dir_to_watchid_itr->first, dir_to_watchid_itr->second );
-    watcher.removeWatch( dir_to_watchid_itr->second );
-    dir_to_watchid.erase( dir_to_watchid_itr );
+    if ( auto dir_to_watchid_itr = dir_to_watchid.find( dir );
+         dir_to_watchid_itr != dir_to_watchid.end() )
+    {
+      ERROR_PRINTLN( "Remove watch {} [{}]", dir_to_watchid_itr->first,
+                     dir_to_watchid_itr->second );
+      watcher.removeWatch( dir_to_watchid_itr->second );
+      dir_to_watchid.erase( dir_to_watchid_itr );
+    }
   }
 }
 
-bool EfswFileWatchListener::is_watched( const std::string& dirname, const std::string& filename )
+bool EfswFileWatchListener::is_watched( const std::filesystem::path& filepath )
 {
-  auto dir = fs::canonical( fs::path( dirname ) ).generic_string();
+  auto dir = filepath.parent_path();
+  auto filename = filepath.filename();
   auto dir_itr = dir_to_files.find( fs::canonical( dir ) );
   if ( dir_itr != dir_to_files.end() )
   {
@@ -127,6 +162,7 @@ bool EfswFileWatchListener::is_watched( const std::string& dirname, const std::s
   auto ext = fs::path( filename ).extension().generic_string();
   if ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 || ext.compare( ".asp" ) == 0 )
   {
+    auto dirname = dir.generic_string();
     for ( const auto& dir : watched_dirs )
     {
       if ( dirname.rfind( dir, 0 ) == 0 )
@@ -142,7 +178,7 @@ void EfswFileWatchListener::add_message( WatchFileMessage message )
 {
   bool add = true;
   {
-    std::lock_guard<std::mutex> lock( _mutex );
+    std::lock_guard<std::mutex> lock( mutex );
     for ( auto itr = messages.begin(); itr != messages.end(); )
     {
       if ( itr->filename == message.filename && itr->old_filename == message.old_filename )
@@ -159,13 +195,12 @@ void EfswFileWatchListener::add_message( WatchFileMessage message )
   }
 }
 
-void EfswFileWatchListener::take_messages(std::list<WatchFileMessage>& to_messages)
+void EfswFileWatchListener::take_messages( std::list<WatchFileMessage>& to_messages )
 {
-  std::lock_guard<std::mutex> lock( _mutex );
-  if (Clib::wallclock() > handle_messages_by)
+  std::lock_guard<std::mutex> lock( mutex );
+  if ( Clib::wallclock() > handle_messages_by )
   {
-        to_messages.splice(to_messages.end(), messages);
-
+    to_messages.splice( to_messages.end(), messages );
   }
 }
 

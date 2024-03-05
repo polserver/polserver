@@ -4,6 +4,7 @@
 #include "clib/wallclock.h"
 
 #include <efsw/efsw.hpp>
+#include <filesystem>
 #include <list>
 #include <map>
 #include <mutex>
@@ -24,26 +25,29 @@ public:
 class EfswFileWatchListener : public efsw::FileWatchListener
 {
 public:
-EfswFileWatchListener(efsw::FileWatcher& watcher);
+  EfswFileWatchListener( efsw::FileWatcher& watcher );
+  ~EfswFileWatchListener();
   void handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename,
                          efsw::Action action, std::string oldFilename ) override;
 
-  void add_watch_file(const std::string& filename);
-  void add_watch_dir(const std::string& dirname);
-  void remove_watch(const std::string& filename);
-  bool is_watched( const std::string& dir, const std::string& filename );
-  void add_message(WatchFileMessage message);
-  void take_messages(std::list<WatchFileMessage>& messages);
+  void add_watch_file( const std::filesystem::path& filepath );
+  void add_watch_dir( const std::filesystem::path& dirname );
+  void remove_watch_file( const std::filesystem::path& filepath );
+  bool is_watched( const std::filesystem::path& filepath );
+  void add_message( WatchFileMessage message );
+  void take_messages( std::list<WatchFileMessage>& messages );
 
 private:
   efsw::FileWatcher& watcher;
-  std::map<std::string, std::set<std::string>> dir_to_files;
-  std::set<std::string> watched_dirs;
-  std::map<std::string, efsw::WatchID> dir_to_watchid;
+  std::map<std::filesystem::path, std::set<std::filesystem::path>> dir_to_files;
+  std::set<std::filesystem::path> watched_dirs;
+  std::map<std::filesystem::path, efsw::WatchID> dir_to_watchid;
 
+  mutable std::mutex mutex;
+  // Access should be protected by `mutex`.
   std::list<WatchFileMessage> messages;
-  mutable std::mutex _mutex;
+  // Access should be protected by `mutex`.
   Clib::wallclock_t handle_messages_by;
 };
-}  // namespace Pol::Bscript::Compiler
+}  // namespace Pol::ECompile
 #endif
