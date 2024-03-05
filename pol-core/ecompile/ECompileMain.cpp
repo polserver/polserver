@@ -242,43 +242,45 @@ bool format_file( const char* path )
   return true;
 }
 
-void add_dependency_info( const fs::path& filename_src )
+void add_dependency_info( const fs::path& filepath_src,
+                          std::set<fs::path>* removed_dependencies = nullptr,
+                          std::set<fs::path>* new_dependencies = nullptr )
 {
-  auto filename_dep = fs::path( filename_src ).replace_extension( ".dep" );
-  std::ifstream ifs( filename_dep.c_str() );
-  if ( !ifs.is_open() )
+  auto filename_dep = fs::path( filepath_src ).replace_extension( ".dep" );
+
+  auto& dependencies = owner_dependencies[filepath_src];
+  auto previous_dependencies = dependencies;
+  dependencies.clear();
+
   {
-    dependency_owners[filename_src] = std::set<fs::path>{ filename_src };
-    return;
+    std::ifstream ifs( filename_dep.c_str() );
+    if ( ifs.is_open() )
+    {
+      std::string depname;
+      while ( getline( ifs, depname ) )
+      {
+        fs::path depnamepath = fs::canonical( fs::path( depname ) );
+        dependency_owners[depnamepath].emplace( filepath_src );
+        dependencies.emplace( depnamepath );
+      }
+    }
+    else
+    {
+      dependency_owners[filepath_src] = std::set<fs::path>{ filepath_src };
+      dependencies.emplace( filepath_src );
+    }
   }
 
-  auto& dependencies = [&]() -> std::set<fs::path>&
+  if ( removed_dependencies && new_dependencies )
   {
-    if ( auto itr = owner_dependencies.find( filename_src ); itr != owner_dependencies.end() )
-    {
-      itr->second.clear();
-      return itr->second;
-    }
-    else
-    {
-      owner_dependencies.emplace( filename_src, std::set<fs::path>{} );
-      return owner_dependencies.find( filename_src )->second;
-    }
-  }();
+    std::set_difference( previous_dependencies.begin(), previous_dependencies.end(),
+                         dependencies.begin(), dependencies.end(),
+                         std::inserter( *removed_dependencies, removed_dependencies->begin() ) );
 
-  std::string depname;
-  while ( getline( ifs, depname ) )
-  {
-    fs::path depnamepath = fs::canonical( fs::path( depname ) );
-    if ( auto itr = dependency_owners.find( depnamepath ); itr != dependency_owners.end() )
-    {
-      itr->second.emplace( filename_src );
-    }
-    else
-    {
-      dependency_owners.emplace( depnamepath, std::set<fs::path>{ filename_src } );
-    }
-    dependencies.emplace( depnamepath );
+
+    std::set_difference( dependencies.begin(), dependencies.end(), previous_dependencies.begin(),
+                         previous_dependencies.end(),
+                         std::inserter( *new_dependencies, new_dependencies->begin() ) );
   }
 }
 
@@ -515,6 +517,8 @@ int readargs( int argc, char** argv )
       case 'W':
         watch_source = true;
         compilercfg.GenerateDependencyInfo = true;
+        keep_building = true;
+        compilercfg.ThreadedCompilation = false; // limitation since dependency gathering is not thread-safe
         break;
 
       case 'A':  // skip it at this point.
@@ -785,8 +789,10 @@ void parallel_process( const std::set<std::string>& files )
 
 void EnterWatchMode()
 {
+  std::list<WatchFileMessage> watch_messages;
+  std::set<fs::path> to_compile;
   efsw::FileWatcher fileWatcher;
-  EfswFileWatchListener listener( fileWatcher );
+  EfswFileWatchListener listener( fileWatcher, std::set<fs::path>{ ".src", ".hsr", ".asp" } );
 
   for ( const auto& dep_owners : dependency_owners )
   {
@@ -797,10 +803,47 @@ void EnterWatchMode()
     listener.add_watch_dir( directory );
   }
 
-  fileWatcher.watch();
-  std::list<WatchFileMessage> watch_messages;
+  auto handle_compile_file = [&]( const fs::path& filepath )
+  {
+    // Existing file, compile all owners dependent on it.
+    if ( auto itr = dependency_owners.find( filepath ); itr != dependency_owners.end() )
+    {
+      to_compile.insert( itr->second.begin(), itr->second.end() );
+    }
+    // New file, compile only this file.
+    else
+    {
+      to_compile.emplace( filepath );
+    }
+  };
 
-  std::set<std::string> to_compile;
+  auto handle_delete_file = [&]( const fs::path& filepath )
+  {
+    if ( auto itr = owner_dependencies.find( filepath ); itr != owner_dependencies.end() )
+    {
+      // For all dependencies, remove the deleted file from list of
+      // dependency_owners. If that list is empty, we can remove the listener
+      // for that dependency.
+      for ( const auto& depnamepath : itr->second )
+      {
+        to_compile.erase( depnamepath );
+
+        if ( auto dependency_owner_itr = dependency_owners.find( depnamepath );
+             dependency_owner_itr != dependency_owners.end() )
+        {
+          dependency_owner_itr->second.erase( filepath );
+          if ( dependency_owner_itr->second.size() == 0 )
+          {
+            listener.remove_watch_file( dependency_owner_itr->first );
+            dependency_owners.erase( dependency_owner_itr );
+          }
+        }
+      }
+    }
+  };
+
+  fileWatcher.watch();
+
   while ( !Clib::exit_signalled )
   {
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -809,65 +852,60 @@ void EnterWatchMode()
     {
       for ( auto const& message : watch_messages )
       {
-        ERROR_PRINTLN( "Event: filename={}, old_filename={}", message.filename,
-                       message.old_filename );
-        // created or modified
+        const auto& filepath = message.filepath;
+        const auto& old_filepath = message.old_filepath;
+        VERBOSE_PRINTLN( "Event: filename={}, old_filename={}", filepath, old_filepath );
 
-        if ( message.old_filename.empty() )
+        // created or modified
+        if ( old_filepath.empty() )
         {
-          if ( auto itr = dependency_owners.find( message.filename );
-               itr != dependency_owners.end() )
-          {
-            to_compile.insert( itr->second.begin(), itr->second.end() );
-          }
+          handle_compile_file( filepath );
         }
         // deleted
-        else if ( message.filename.empty() )
+        else if ( filepath.empty() )
         {
+          handle_delete_file( old_filepath );
         }
         // moved
         else
         {
+          handle_delete_file( old_filepath );
+          handle_compile_file( filepath );
         }
       }
       watch_messages.clear();
 
       VERBOSE_PRINTLN( "To compile: {}", to_compile );
-      for ( const auto& filename : to_compile )
-      {
-        VERBOSE_PRINTLN( "Watch-compile: {}", filename );
-        //     auto old_deps = owner_dependencies[filename];
-        //     VERBOSE_PRINTLN("Old deps: {}", old_deps);
-        //     try
-        //     {
-        //       compile_file( filename.c_str() );
-        //     }
-        //     catch ( ... )
-        //     {
-        //     }
-        //     add_dependency_info(filename,
-        //     fs::path(filename).replace_extension(".dep").generic_string()); auto new_deps =
-        //     owner_dependencies[filename];
-        // // Determine removed strings
-        //     for ( const auto& str : old_deps )
-        //     {
-        //       if ( new_deps.find( str ) == new_deps.end() )
-        //       {
-        //         // std::cout << str << "\n";
-        //         listener.add_watch_file(str);
-        //       }
-        //     }
 
-        //     // Determine added strings
-        //     for ( const auto& str : new_deps )
-        //     {
-        //       if ( old_deps.find( str ) == old_deps.end() )
-        //       {
-        //         listener.remove_watch_file(str);
-        //         // std::cout << str << "\n";
-        //       }
-        //     }
+      for ( const auto& filepath : to_compile )
+      {
+        VERBOSE_PRINTLN( "Watch-compile: {}", filepath );
+        try
+        {
+          compile_file( filepath.c_str() );
+        }
+        catch ( ... )
+        {
+        }
+
+        std::set<fs::path> removed_dependencies;
+        std::set<fs::path> new_dependencies;
+
+        add_dependency_info( filepath, &removed_dependencies, &new_dependencies );
+
+        VERBOSE_PRINTLN( "New dependencies: {} Removed dependencies: {}", new_dependencies,
+                         removed_dependencies );
+
+        for ( const auto& depnamepath : removed_dependencies )
+        {
+          listener.remove_watch_file( depnamepath );
+        }
+        for ( const auto& depnamepath : new_dependencies )
+        {
+          listener.add_watch_file( depnamepath );
+        }
       }
+
       to_compile.clear();
     }
   }

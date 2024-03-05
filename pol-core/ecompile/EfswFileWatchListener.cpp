@@ -5,21 +5,23 @@
 #include <string>
 
 namespace fs = std::filesystem;
-template <>
-struct fmt::formatter<fs::path> : fmt::formatter<std::string>
+fmt::format_context::iterator fmt::formatter<fs::path>::format( const fs::path& l,
+                                                                fmt::format_context& ctx ) const
 {
-  fmt::format_context::iterator format( const fs::path& l, fmt::format_context& ctx ) const
   {
-    {
-      return fmt::formatter<std::string>::format( l.generic_string(), ctx );
-    }
+    return fmt::formatter<std::string>::format( l.generic_string(), ctx );
   }
-};
+}
 
 namespace Pol::ECompile
 {
-EfswFileWatchListener::EfswFileWatchListener( efsw::FileWatcher& watcher )
-    : watcher( watcher ), mutex(), messages(), handle_messages_by( 0 )
+EfswFileWatchListener::EfswFileWatchListener(
+    efsw::FileWatcher& watcher, const std::set<std::filesystem::path>& extension_filter )
+    : watcher( watcher ),
+      extension_filter( extension_filter ),
+      mutex(),
+      messages(),
+      handle_messages_by( 0 )
 {
 }
 
@@ -35,8 +37,9 @@ void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const s
                                               const std::string& filename, efsw::Action action,
                                               std::string oldFilename )
 {
-  auto filepath = fs::path( dir ) / fs::path( filename );
-  auto filepathstr = filepath.generic_string();
+  fs::path dirPath( dir );
+  auto filepath = dirPath / fs::path( filename );
+
   if ( !is_watched( filepath ) )
   {
     return;
@@ -45,15 +48,21 @@ void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const s
   switch ( action )
   {
   case efsw::Actions::Delete:
-    INFO_PRINTLN( "DIR ({}) FILE ({}) has event Delete", dir, filename );
-    add_message( WatchFileMessage{ "", filepathstr } );
+    INFO_PRINTLN( "Delete: {}", filepath );
+    add_message( WatchFileMessage{ fs::path( "" ), filepath } );
     break;
 
+  case efsw::Actions::Moved:
+  {
+    auto oldFilepath = dirPath / fs::path( oldFilename );
+    INFO_PRINTLN( "Moved: {} -> {}", filename, oldFilepath );
+    add_message( WatchFileMessage{ filepath, oldFilepath } );
+    break;
+  }
   case efsw::Actions::Modified:
   case efsw::Actions::Add:
-  case efsw::Actions::Moved:
-    INFO_PRINTLN( "DIR ({}) FILE ({}) has event Added/Modified/Moved", dir, filename );
-    add_message( WatchFileMessage{ filepathstr, oldFilename } );
+    INFO_PRINTLN( "Changed: {}", filename );
+    add_message( WatchFileMessage{ filepath, fs::path( "" ) } );
     break;
 
   default:
@@ -129,6 +138,7 @@ void EfswFileWatchListener::remove_watch_file( const std::filesystem::path& file
     }
     else
     {
+      ERROR_PRINTLN( "Remove watch file {}, keep watch {} tracking {}", filename, dir, files );
       remove_watch = false;
     }
   }
@@ -159,8 +169,8 @@ bool EfswFileWatchListener::is_watched( const std::filesystem::path& filepath )
       return true;
   }
 
-  auto ext = fs::path( filename ).extension().generic_string();
-  if ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 || ext.compare( ".asp" ) == 0 )
+  auto ext = fs::path( filename ).extension();
+  if ( extension_filter.find( ext ) != extension_filter.end() )
   {
     auto dirname = dir.generic_string();
     for ( const auto& dir : watched_dirs )
@@ -181,7 +191,7 @@ void EfswFileWatchListener::add_message( WatchFileMessage message )
     std::lock_guard<std::mutex> lock( mutex );
     for ( auto itr = messages.begin(); itr != messages.end(); )
     {
-      if ( itr->filename == message.filename && itr->old_filename == message.old_filename )
+      if ( itr->filepath == message.filepath && itr->old_filepath == message.old_filepath )
       {
         add = false;
         break;
