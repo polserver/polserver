@@ -142,12 +142,14 @@ void EfswFileWatchListener::add_message( WatchFileMessage&& message )
   bool add = true;
   {
     std::lock_guard<std::mutex> lock( mutex );
-    for ( auto itr = messages.begin(); itr != messages.end(); )
+    for ( const auto& other : messages )
     {
-      if ( itr->filepath == message.filepath && itr->old_filepath == message.old_filepath )
       {
-        add = false;
-        break;
+        if ( other.filepath == message.filepath && other.old_filepath == message.old_filepath )
+        {
+          add = false;
+          break;
+        }
       }
     }
     if ( add )

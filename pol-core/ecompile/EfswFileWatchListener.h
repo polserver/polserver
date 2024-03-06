@@ -25,7 +25,8 @@ public:
 class EfswFileWatchListener : public efsw::FileWatchListener
 {
 public:
-  EfswFileWatchListener( efsw::FileWatcher& watcher, const std::set<std::filesystem::path>& extension_filter );
+  EfswFileWatchListener( efsw::FileWatcher& watcher,
+                         const std::set<std::filesystem::path>& extension_filter );
   ~EfswFileWatchListener();
   void handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename,
                          efsw::Action action, std::string oldFilename ) override;

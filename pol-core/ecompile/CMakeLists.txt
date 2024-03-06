@@ -18,10 +18,5 @@ target_link_libraries(${ex_name} PUBLIC
 )
 dist(${ex_name} scripts)
 
-if(APPLE)
-	set(MAC_LIBS "-framework CoreFoundation" "-framework CoreServices")
-	target_link_libraries(${ex_name} PRIVATE ${MAC_LIBS})
-endif()
-
 use_tidy(${ex_name})
 enable_pch(${ex_name} REUSE)
