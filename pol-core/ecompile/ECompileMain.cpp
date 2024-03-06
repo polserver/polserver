@@ -251,14 +251,15 @@ void add_dependency_info( const fs::path& filepath_src,
   auto& dependencies = owner_dependencies[filepath_src];
   auto previous_dependencies = dependencies;
 
-  VERBOSE_PRINTLN("Dependencies for: {}", filepath_src);
+  VERBOSE_PRINTLN( "Dependencies for: {}", filepath_src );
   for ( const auto& dependency : previous_dependencies )
   {
     if ( auto itr = dependency_owners.find( dependency ); itr != dependency_owners.end() )
     {
+      // Remove deleted file from owners
       itr->second.erase( filepath_src );
       auto remaining = itr->second.size();
-      VERBOSE_PRINTLN("  - Removed dependency_owner link to {}, remaining owners={}", dependency, remaining);
+      VERBOSE_PRINTLN( "  - Removed {}, remaining owners={}", dependency, remaining );
       if ( remaining == 0 )
       {
         dependency_owners.erase( itr );
@@ -276,13 +277,14 @@ void add_dependency_info( const fs::path& filepath_src,
       while ( getline( ifs, depname ) )
       {
         fs::path depnamepath = fs::canonical( fs::path( depname ) );
+        auto& owners = dependency_owners[depnamepath];
         // Add this source as a dependency by:
         // (1) placing `filename_src` in the set of owners for `depnamepath`.
-        dependency_owners[depnamepath].emplace( filepath_src );
+        owners.emplace( filepath_src );
         // (2) placing `depnamepath` in the set of dependencies for this `filename_src`.
         dependencies.emplace( depnamepath );
+        VERBOSE_PRINTLN( "  - Added {}, owners={}", depnamepath, owners.size() );
       }
-      VERBOSE_PRINTLN("  - Set dependencies {}", dependencies);
     }
 
     // Could not load dependency information -- maybe failed compilation? We
@@ -483,20 +485,12 @@ bool process_file( const char* path )
   }
   else
   {
-    fs::path filepath = fs::canonical( fs::path( path ) );
-
-    auto ext = filepath.extension().generic_string();
-    bool newly_compiled = compile_file( path );
-    if ( watch_source && ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 ||
-                           ext.compare( ".asp" ) == 0 ) )
-    {
-      add_dependency_info( filepath );
-    }
-    return newly_compiled;
+    return compile_file( path );
   }
 }
 
-void process_file_wrapper( const char* path )
+void process_file_wrapper( const char* path, std::set<fs::path>* removed_dependencies = nullptr,
+                           std::set<fs::path>* new_dependencies = nullptr )
 {
   try
   {
@@ -511,6 +505,16 @@ void process_file_wrapper( const char* path )
     ++summary.ScriptsWithCompileErrors;
     if ( !keep_building )
       throw;
+  }
+
+  if ( watch_source )
+  {
+    fs::path filepath = fs::canonical( fs::path( path ) );
+    auto ext = filepath.extension().generic_string();
+    if ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 || ext.compare( ".asp" ) == 0 )
+    {
+      add_dependency_info( filepath, removed_dependencies, new_dependencies );
+    }
   }
 }
 
@@ -547,7 +551,8 @@ int readargs( int argc, char** argv )
         watch_source = true;
         compilercfg.GenerateDependencyInfo = true;
         keep_building = true;
-        compilercfg.ThreadedCompilation = false; // limitation since dependency gathering is not thread-safe
+        compilercfg.ThreadedCompilation =
+            false;  // limitation since dependency gathering is not thread-safe
         break;
 
       case 'A':  // skip it at this point.
@@ -815,13 +820,76 @@ void parallel_process( const std::set<std::string>& files )
   summary.ScriptsWithCompileErrors = error_scripts;
 }
 
+void DisplaySummary( const Tools::Timer<>& timer )
+{
+  std::string tmp = "Compilation Summary:\n";
+  if ( summary.ThreadCount )
+    tmp += fmt::format( "    Used {} threads\n", summary.ThreadCount );
+  if ( summary.CompiledScripts )
+    tmp += fmt::format( "    Compiled {} script{} in {} ms.\n", summary.CompiledScripts,
+                        ( summary.CompiledScripts == 1 ? "" : "s" ), timer.ellapsed() );
+
+  if ( summary.ScriptsWithCompileErrors )
+    tmp += fmt::format( "    {} of those script{} had errors.\n", summary.ScriptsWithCompileErrors,
+                        ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" ) );
+
+  if ( summary.UpToDateScripts )
+    tmp += fmt::format( "    {} script{} already up-to-date.\n", summary.UpToDateScripts,
+                        ( summary.UpToDateScripts == 1 ? " was" : "s were" ) );
+
+  if ( show_timing_details )
+  {
+    tmp += fmt::format( "    build workspace: {}\n",
+                        (long long)summary.profile.build_workspace_micros / 1000 );
+    tmp += fmt::format( "        - load *.em:   {}\n",
+                        (long long)summary.profile.load_em_micros / 1000 );
+    tmp += fmt::format( "       - parse *.em:   {} ({})\n",
+                        (long long)summary.profile.parse_em_micros / 1000,
+                        (long)summary.profile.parse_em_count );
+    tmp += fmt::format( "         - ast *.em:   {}\n",
+                        (long long)summary.profile.ast_em_micros / 1000 );
+    tmp += fmt::format( "      - parse *.inc:   {} ({})\n",
+                        (long long)summary.profile.parse_inc_micros / 1000,
+                        (long)summary.profile.parse_inc_count );
+    tmp += fmt::format( "        - ast *.inc:   {}\n",
+                        (long long)summary.profile.ast_inc_micros / 1000 );
+    tmp += fmt::format( "      - parse *.src:   {} ({})\n",
+                        (long long)summary.profile.parse_src_micros / 1000,
+                        (long)summary.profile.parse_src_count );
+    tmp += fmt::format( "        - ast *.src:   {}\n",
+                        (long long)summary.profile.ast_src_micros / 1000 );
+    tmp += fmt::format( "  resolve functions:   {}\n",
+                        (long long)summary.profile.ast_resolve_functions_micros / 1000 );
+    tmp += fmt::format( " register constants: {}\n",
+                        (long long)summary.profile.register_const_declarations_micros / 1000 );
+    tmp += fmt::format( "            analyze: {}\n",
+                        (long long)summary.profile.analyze_micros / 1000 );
+    tmp += fmt::format( "           optimize: {}\n",
+                        (long long)summary.profile.optimize_micros / 1000 );
+    tmp += fmt::format( "       disambiguate: {}\n",
+                        (long long)summary.profile.disambiguate_micros / 1000 );
+    tmp += fmt::format( "      generate code: {}\n",
+                        (long long)summary.profile.codegen_micros / 1000 );
+    tmp += fmt::format( "  prune cache (sel): {}\n",
+                        (long long)summary.profile.prune_cache_select_micros / 1000 );
+    tmp += fmt::format( "  prune cache (del): {}\n",
+                        (long long)summary.profile.prune_cache_delete_micros / 1000 );
+    tmp += "\n";
+    tmp += fmt::format( "      - ambiguities: {}\n", (long)summary.profile.ambiguities );
+    tmp += fmt::format( "       - cache hits: {}\n", (long)summary.profile.cache_hits );
+    tmp += fmt::format( "     - cache misses: {}\n", (long)summary.profile.cache_misses );
+  }
+
+  INFO_PRINTLN( tmp );
+}
 
 void EnterWatchMode()
 {
   std::list<WatchFileMessage> watch_messages;
   std::set<fs::path> to_compile;
   efsw::FileWatcher fileWatcher;
-  EfswFileWatchListener listener( fileWatcher, std::set<fs::path>{ ".src", ".hsr", ".asp", ".inc", ".em" } );
+  EfswFileWatchListener listener( fileWatcher,
+                                  std::set<fs::path>{ ".src", ".hsr", ".asp", ".inc", ".em" } );
 
   auto handle_compile_file = [&]( const fs::path& filepath )
   {
@@ -863,9 +931,12 @@ void EnterWatchMode()
           {
             //  Erase from map of dependency -> owners.
             dependency_owners.erase( owners_itr );
+            listener.remove_file( depnamepath );
+            VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
           }
         }
       }
+      owner_dependencies.erase( itr );
     }
   };
 
@@ -889,7 +960,7 @@ void EnterWatchMode()
 
   for ( const auto& directory : compiled_dirs )
   {
-    listener.add_dir( directory  );
+    listener.add_dir( directory );
   }
 
   for ( const auto& elem : compilercfg.PackageRoot )
@@ -934,46 +1005,61 @@ void EnterWatchMode()
       }
       watch_messages.clear();
 
-      VERBOSE_PRINTLN( "To compile: {}", to_compile );
-
-      for ( const auto& filepath : to_compile )
+      if ( !to_compile.empty() )
       {
-        VERBOSE_PRINTLN( "Watch-compile: {}", filepath );
-        try
+        summary.CompiledScripts = 0;
+        summary.UpToDateScripts = 0;
+        summary.ScriptsWithCompileErrors = 0;
+        em_parse_tree_cache.clear();
+        inc_parse_tree_cache.clear();
+
+        VERBOSE_PRINTLN( "To compile: {}", to_compile );
+
+        Tools::Timer<> timer;
+        for ( const auto& filepath : to_compile )
         {
-          compile_file( filepath.c_str() );
-        }
-        catch ( ... )
-        {
-        }
-
-        std::set<fs::path> removed_dependencies;
-        std::set<fs::path> new_dependencies;
-
-        add_dependency_info( filepath, &removed_dependencies, &new_dependencies );
-
-        VERBOSE_PRINTLN( "New dependencies: {} Removed dependencies: {}", new_dependencies,
-                         removed_dependencies );
-
-        for ( const auto& depnamepath : removed_dependencies )
-        {
-          // If a removed dependency has no owner set is empty, we can remove
-          // the listener for that dependency.
-          if ( dependency_owners.find( depnamepath ) == dependency_owners.end() )
+          std::set<fs::path> removed_dependencies;
+          std::set<fs::path> new_dependencies;
+          try
           {
-            VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
-            listener.remove_file( depnamepath );
+            process_file_wrapper( filepath.c_str(), &removed_dependencies, &new_dependencies );
+          }
+          catch ( ... )
+          {
+          }
+
+          VERBOSE_PRINTLN( "New dependencies: {} Removed dependencies: {}", new_dependencies,
+                           removed_dependencies );
+
+          for ( const auto& depnamepath : removed_dependencies )
+          {
+            // If a removed dependency has no owner set is empty, we can remove
+            // the listener for that dependency.
+            if ( dependency_owners.find( depnamepath ) == dependency_owners.end() )
+            {
+              if ( listener.remove_file( depnamepath ) )
+            {
+              VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
+              }
+            }
+          }
+
+          for ( const auto& depnamepath : new_dependencies )
+          {
+            if ( listener.add_file( depnamepath ) )
+          {
+            VERBOSE_PRINTLN( "Add watch file {}", depnamepath );
+            }
           }
         }
 
-        for ( const auto& depnamepath : new_dependencies )
+        timer.stop();
+        if ( compilercfg.DisplaySummary && !quiet )
         {
-          VERBOSE_PRINTLN( "Add watch file {}", depnamepath );
-          listener.add_file( depnamepath );
+          DisplaySummary( timer );
         }
+        to_compile.clear();
       }
-
-      to_compile.clear();
     }
   }
 }
@@ -1089,79 +1175,20 @@ bool run( int argc, char** argv, int* res )
     AutoCompile();
   }
 
+  // Execution is completed: start final/cleanup tasks
+  timer.stop();
+
+  if ( any && compilercfg.DisplaySummary && !quiet )
+  {
+    DisplaySummary( timer );
+  }
+
   if ( watch_source )
   {
     EnterWatchMode();
   }
 
-  // Execution is completed: start final/cleanup tasks
-  timer.stop();
-
   Plib::systemstate.deinitialize();
-
-  if ( any && compilercfg.DisplaySummary && !quiet )
-  {
-    std::string tmp = "Compilation Summary:\n";
-    if ( summary.ThreadCount )
-      tmp += fmt::format( "    Used {} threads\n", summary.ThreadCount );
-    if ( summary.CompiledScripts )
-      tmp += fmt::format( "    Compiled {} script{} in {} ms.\n", summary.CompiledScripts,
-                          ( summary.CompiledScripts == 1 ? "" : "s" ), timer.ellapsed() );
-
-    if ( summary.ScriptsWithCompileErrors )
-      tmp +=
-          fmt::format( "    {} of those script{} had errors.\n", summary.ScriptsWithCompileErrors,
-                       ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" ) );
-
-    if ( summary.UpToDateScripts )
-      tmp += fmt::format( "    {} script{} already up-to-date.\n", summary.UpToDateScripts,
-                          ( summary.UpToDateScripts == 1 ? " was" : "s were" ) );
-
-    if ( show_timing_details )
-    {
-      tmp += fmt::format( "    build workspace: {}\n",
-                          (long long)summary.profile.build_workspace_micros / 1000 );
-      tmp += fmt::format( "        - load *.em:   {}\n",
-                          (long long)summary.profile.load_em_micros / 1000 );
-      tmp += fmt::format( "       - parse *.em:   {} ({})\n",
-                          (long long)summary.profile.parse_em_micros / 1000,
-                          (long)summary.profile.parse_em_count );
-      tmp += fmt::format( "         - ast *.em:   {}\n",
-                          (long long)summary.profile.ast_em_micros / 1000 );
-      tmp += fmt::format( "      - parse *.inc:   {} ({})\n",
-                          (long long)summary.profile.parse_inc_micros / 1000,
-                          (long)summary.profile.parse_inc_count );
-      tmp += fmt::format( "        - ast *.inc:   {}\n",
-                          (long long)summary.profile.ast_inc_micros / 1000 );
-      tmp += fmt::format( "      - parse *.src:   {} ({})\n",
-                          (long long)summary.profile.parse_src_micros / 1000,
-                          (long)summary.profile.parse_src_count );
-      tmp += fmt::format( "        - ast *.src:   {}\n",
-                          (long long)summary.profile.ast_src_micros / 1000 );
-      tmp += fmt::format( "  resolve functions:   {}\n",
-                          (long long)summary.profile.ast_resolve_functions_micros / 1000 );
-      tmp += fmt::format( " register constants: {}\n",
-                          (long long)summary.profile.register_const_declarations_micros / 1000 );
-      tmp += fmt::format( "            analyze: {}\n",
-                          (long long)summary.profile.analyze_micros / 1000 );
-      tmp += fmt::format( "           optimize: {}\n",
-                          (long long)summary.profile.optimize_micros / 1000 );
-      tmp += fmt::format( "       disambiguate: {}\n",
-                          (long long)summary.profile.disambiguate_micros / 1000 );
-      tmp += fmt::format( "      generate code: {}\n",
-                          (long long)summary.profile.codegen_micros / 1000 );
-      tmp += fmt::format( "  prune cache (sel): {}\n",
-                          (long long)summary.profile.prune_cache_select_micros / 1000 );
-      tmp += fmt::format( "  prune cache (del): {}\n",
-                          (long long)summary.profile.prune_cache_delete_micros / 1000 );
-      tmp += "\n";
-      tmp += fmt::format( "      - ambiguities: {}\n", (long)summary.profile.ambiguities );
-      tmp += fmt::format( "       - cache hits: {}\n", (long)summary.profile.cache_hits );
-      tmp += fmt::format( "     - cache misses: {}\n", (long)summary.profile.cache_misses );
-    }
-
-    INFO_PRINTLN( tmp );
-  }
 
   if ( summary.ScriptsWithCompileErrors )
     *res = 1;

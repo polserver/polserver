@@ -23,6 +23,7 @@ public:
   std::shared_ptr<SourceFile> load( const SourceFileIdentifier&, Report& report );
 
   void keep_some();
+  void clear();
 
 private:
   unsigned keep;
