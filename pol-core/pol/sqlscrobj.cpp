@@ -243,7 +243,7 @@ bool BSQLConnection::isTrue() const
     return true;
   return false;
 }
-bool BSQLConnection::connect( const char* host, const char* user, const char* passwd )
+bool BSQLConnection::connect( const char* host, const char* user, const char* passwd, int port )
 {
   if ( !_conn->ptr() )
   {
@@ -251,7 +251,8 @@ bool BSQLConnection::connect( const char* host, const char* user, const char* pa
     _error = "No active MYSQL object instance.";
     return false;
   }
-  if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, nullptr, 0, nullptr, 0 ) )
+  // port == 0 means default sql port
+  if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, nullptr, port, nullptr, 0 ) )
   {
     _errno = mysql_errno( _conn->ptr() );
     _error = mysql_error( _conn->ptr() );
@@ -349,6 +350,18 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
   }
 
   return this->query( replaced );
+}
+
+std::string BSQLConnection::escape_string( const std::string& text ) const
+{
+  if ( !_conn->ptr() )  // TODO mmmh
+  {
+    return text;
+  }
+  std::string res( text.size() * 2 + 1, '\0' );
+  mysql_real_escape_string( _conn->ptr(), res.data(), text.data(), text.size() );
+  res.resize( res.find_first_of( '\0' ) );
+  return res;
 }
 
 std::string BSQLConnection::getLastError() const
