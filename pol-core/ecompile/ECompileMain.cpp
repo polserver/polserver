@@ -250,6 +250,22 @@ void add_dependency_info( const fs::path& filepath_src,
 
   auto& dependencies = owner_dependencies[filepath_src];
   auto previous_dependencies = dependencies;
+
+  VERBOSE_PRINTLN("Dependencies for: {}", filepath_src);
+  for ( const auto& dependency : previous_dependencies )
+  {
+    if ( auto itr = dependency_owners.find( dependency ); itr != dependency_owners.end() )
+    {
+      itr->second.erase( filepath_src );
+      auto remaining = itr->second.size();
+      VERBOSE_PRINTLN("  - Removed dependency_owner link to {}, remaining owners={}", dependency, remaining);
+      if ( remaining == 0 )
+      {
+        dependency_owners.erase( itr );
+      }
+    }
+  }
+
   dependencies.clear();
 
   {
@@ -260,10 +276,23 @@ void add_dependency_info( const fs::path& filepath_src,
       while ( getline( ifs, depname ) )
       {
         fs::path depnamepath = fs::canonical( fs::path( depname ) );
+        // Add this source as a dependency by:
+        // (1) placing `filename_src` in the set of owners for `depnamepath`.
         dependency_owners[depnamepath].emplace( filepath_src );
+        // (2) placing `depnamepath` in the set of dependencies for this `filename_src`.
         dependencies.emplace( depnamepath );
       }
+      VERBOSE_PRINTLN("  - Set dependencies {}", dependencies);
     }
+
+    // Could not load dependency information -- maybe failed compilation? We
+    // still add this source as a dependency of itself, such that it will be
+    // recompiled on next save.
+    //
+    // On failed compilation, the existing `.dep`
+    // remains, so we will use that information for recompilation (eg. a source
+    // failed to compile due to a bad include, changing the include should still
+    // recompile the source.)
     else
     {
       dependency_owners[filepath_src] = std::set<fs::path>{ filepath_src };
@@ -792,16 +821,7 @@ void EnterWatchMode()
   std::list<WatchFileMessage> watch_messages;
   std::set<fs::path> to_compile;
   efsw::FileWatcher fileWatcher;
-  EfswFileWatchListener listener( fileWatcher, std::set<fs::path>{ ".src", ".hsr", ".asp" } );
-
-  for ( const auto& dep_owners : dependency_owners )
-  {
-    listener.add_watch_file( dep_owners.first );
-  }
-  for ( const auto& directory : compiled_dirs )
-  {
-    listener.add_watch_dir( directory );
-  }
+  EfswFileWatchListener listener( fileWatcher, std::set<fs::path>{ ".src", ".hsr", ".asp", ".inc", ".em" } );
 
   auto handle_compile_file = [&]( const fs::path& filepath )
   {
@@ -810,37 +830,76 @@ void EnterWatchMode()
     {
       to_compile.insert( itr->second.begin(), itr->second.end() );
     }
-    // New file, compile only this file.
+    // New file, compile only this file (if it is compilable).
     else
     {
-      to_compile.emplace( filepath );
+      auto ext = filepath.extension();
+      if ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 || ext.compare( ".asp" ) == 0 )
+      {
+        to_compile.emplace( filepath );
+      }
     }
   };
 
   auto handle_delete_file = [&]( const fs::path& filepath )
   {
+    to_compile.erase( filepath );
     if ( auto itr = owner_dependencies.find( filepath ); itr != owner_dependencies.end() )
     {
-      // For all dependencies, remove the deleted file from list of
-      // dependency_owners. If that list is empty, we can remove the listener
-      // for that dependency.
+      // For all dependencies, remove the deleted file from set of owners for
+      // that dependency.
       for ( const auto& depnamepath : itr->second )
       {
-        to_compile.erase( depnamepath );
-
-        if ( auto dependency_owner_itr = dependency_owners.find( depnamepath );
-             dependency_owner_itr != dependency_owners.end() )
+        // If dependency exists in map of dependency -> owners
+        if ( auto owners_itr = dependency_owners.find( depnamepath );
+             owners_itr != dependency_owners.end() )
         {
-          dependency_owner_itr->second.erase( filepath );
-          if ( dependency_owner_itr->second.size() == 0 )
+          // Erase filepath from set of owners
+          owners_itr->second.erase( filepath );
+
+          // If owners set is empty, this dependency is no longer used by
+          // anything.
+          if ( owners_itr->second.empty() )
           {
-            listener.remove_watch_file( dependency_owner_itr->first );
-            dependency_owners.erase( dependency_owner_itr );
+            //  Erase from map of dependency -> owners.
+            dependency_owners.erase( owners_itr );
           }
         }
       }
     }
   };
+
+  auto add_dir = [&]( const std::string& elem )
+  {
+    fs::path dir( elem );
+    if ( fs::exists( dir ) )
+    {
+      auto dirpath = fs::canonical( dir );
+      if ( listener.add_watch_dir( dirpath ) )
+      {
+        VERBOSE_PRINTLN( "Add watch dir {}", dirpath );
+      }
+    }
+  };
+
+  for ( const auto& dep_owners : dependency_owners )
+  {
+    listener.add_file( dep_owners.first );
+  }
+
+  for ( const auto& directory : compiled_dirs )
+  {
+    listener.add_dir( directory  );
+  }
+
+  for ( const auto& elem : compilercfg.PackageRoot )
+  {
+    add_dir( elem );
+  }
+
+  add_dir( compilercfg.ModuleDirectory );
+  add_dir( compilercfg.IncludeDirectory );
+  add_dir( compilercfg.PolScriptRoot );
 
   fileWatcher.watch();
 
@@ -898,11 +957,19 @@ void EnterWatchMode()
 
         for ( const auto& depnamepath : removed_dependencies )
         {
-          listener.remove_watch_file( depnamepath );
+          // If a removed dependency has no owner set is empty, we can remove
+          // the listener for that dependency.
+          if ( dependency_owners.find( depnamepath ) == dependency_owners.end() )
+          {
+            VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
+            listener.remove_file( depnamepath );
+          }
         }
+
         for ( const auto& depnamepath : new_dependencies )
         {
-          listener.add_watch_file( depnamepath );
+          VERBOSE_PRINTLN( "Add watch file {}", depnamepath );
+          listener.add_file( depnamepath );
         }
       }
 

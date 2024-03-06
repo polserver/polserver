@@ -5,13 +5,6 @@
 #include <string>
 
 namespace fs = std::filesystem;
-fmt::format_context::iterator fmt::formatter<fs::path>::format( const fs::path& l,
-                                                                fmt::format_context& ctx ) const
-{
-  {
-    return fmt::formatter<std::string>::format( l.generic_string(), ctx );
-  }
-}
 
 namespace Pol::ECompile
 {
@@ -19,6 +12,8 @@ EfswFileWatchListener::EfswFileWatchListener(
     efsw::FileWatcher& watcher, const std::set<std::filesystem::path>& extension_filter )
     : watcher( watcher ),
       extension_filter( extension_filter ),
+      watched_dirs(),
+      watched_files(),
       mutex(),
       messages(),
       handle_messages_by( 0 )
@@ -27,12 +22,13 @@ EfswFileWatchListener::EfswFileWatchListener(
 
 EfswFileWatchListener::~EfswFileWatchListener()
 {
-  for ( const auto& watchID : dir_to_watchid )
+  for ( const auto& v : dir_to_watchid )
   {
-    watcher.removeWatch( watchID.second );
+    watcher.removeWatch( v.second );
   }
 }
 
+// Implements the libefsw virtual function for handling filesystem events.
 void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const std::string& dir,
                                               const std::string& filename, efsw::Action action,
                                               std::string oldFilename )
@@ -40,6 +36,7 @@ void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const s
   fs::path dirPath( dir );
   auto filepath = dirPath / fs::path( filename );
 
+  // Only send events for watched files
   if ( !is_watched( filepath ) )
   {
     return;
@@ -48,20 +45,20 @@ void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const s
   switch ( action )
   {
   case efsw::Actions::Delete:
-    INFO_PRINTLN( "Delete: {}", filepath );
+    // Delete message: Empty filepath, Non-empty old_filepath
     add_message( WatchFileMessage{ fs::path( "" ), filepath } );
     break;
 
   case efsw::Actions::Moved:
   {
+    // Moved message: Non-empty filepath, Non-empty old_filepath
     auto oldFilepath = dirPath / fs::path( oldFilename );
-    INFO_PRINTLN( "Moved: {} -> {}", filename, oldFilepath );
     add_message( WatchFileMessage{ filepath, oldFilepath } );
     break;
   }
   case efsw::Actions::Modified:
   case efsw::Actions::Add:
-    INFO_PRINTLN( "Changed: {}", filename );
+    // Changed message: Non-empty filepath, empty old_filepath
     add_message( WatchFileMessage{ filepath, fs::path( "" ) } );
     break;
 
@@ -70,106 +67,60 @@ void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const s
   }
 }
 
-void EfswFileWatchListener::add_watch_file( const fs::path& filepath )
+// Adds a file to watched files. Returns `true` if the file was newly added to
+// `watched_files`.
+bool EfswFileWatchListener::add_file( const fs::path& filepath )
 {
-  auto dir = filepath.parent_path();
-  efsw::WatchID watchID;
+  return watched_files.emplace( filepath ).second;
+}
 
-  if ( auto itr = dir_to_watchid.find( dir ); itr != dir_to_watchid.end() )
+
+// Adds a directory to watched directories. Returns `true` if the directory was newly added to
+// `watched_dirs`.
+bool EfswFileWatchListener::add_dir( const std::filesystem::path& dir )
+{
+  return watched_dirs.emplace( dir ).second;
+}
+
+
+// Adds a directory to the filesystem watcher. Returns `true` if the directory
+// has a newly added watchID added to `dir_to_watchid`.
+//
+// Throws if the filesystem watcher fails to add the watch.
+bool EfswFileWatchListener::add_watch_dir( const std::filesystem::path& dir )
+{
+  if ( auto itr = dir_to_watchid.find( dir ); itr == dir_to_watchid.end() )
   {
-    watchID = itr->second;
-  }
-  else
-  {
-    watchID = watcher.addWatch( dir.generic_string(), this, false );
-    ERROR_PRINTLN( "Add watch: {} [{}]", dir, watchID );
+    auto watchID = watcher.addWatch( dir.generic_string(), this, true );
+    if ( watchID < 0 )
+    {
+      throw std::runtime_error( "Failed to watch " + dir.generic_string() );
+    }
     dir_to_watchid.emplace( dir, watchID );
+    return true;
   }
 
-  auto filename = filepath.filename();
-  auto itr = dir_to_files.find( dir );
-  if ( itr == dir_to_files.end() )
-  {
-    dir_to_files.emplace( dir, std::set<fs::path>{ filename } );
-    ERROR_PRINTLN( "  Files: [{}]", filename );
-  }
-  else
-  {
-    itr->second.emplace( filename );
-    ERROR_PRINTLN(
-        "Update watch: {} [{}]\n"
-        "  Files: [{}]",
-        dir, watchID, itr->second );
-  }
+  return false;
 }
 
-void EfswFileWatchListener::add_watch_dir( const std::filesystem::path& dir )
+// Removes a file from watched files. Returns `true` if the file was removed
+// from `watched_files`.
+bool EfswFileWatchListener::remove_file( const std::filesystem::path& filepath )
 {
-  efsw::WatchID watchID;
-  if ( auto itr = dir_to_watchid.find( dir ); itr != dir_to_watchid.end() )
-  {
-    watchID = itr->second;
-    ERROR_PRINTLN( "Set as watch dir: {} [{}]", dir, watchID );
-  }
-  else
-  {
-    watchID = watcher.addWatch( dir, this, true );
-    dir_to_watchid.emplace( dir, watchID );
-    ERROR_PRINTLN( "Add watch dir: {} [{}]", dir, watchID );
-  }
-  watched_dirs.emplace( dir );
+  return watched_files.erase( filepath ) == 1;
 }
 
-void EfswFileWatchListener::remove_watch_file( const std::filesystem::path& filepath )
-{
-  bool remove_watch = false;
-
-  auto dir = filepath.parent_path();
-  auto filename = filepath.filename();
-  auto dir_to_files_itr = dir_to_files.find( dir );
-  if ( dir_to_files_itr != dir_to_files.end() )
-  {
-    auto& files = dir_to_files_itr->second;
-    files.erase( filename );
-    if ( files.size() == 0 )
-    {
-      dir_to_files.erase( dir_to_files_itr );
-      remove_watch = true;
-    }
-    else
-    {
-      ERROR_PRINTLN( "Remove watch file {}, keep watch {} tracking {}", filename, dir, files );
-      remove_watch = false;
-    }
-  }
-
-  if ( remove_watch )
-  {
-    if ( auto dir_to_watchid_itr = dir_to_watchid.find( dir );
-         dir_to_watchid_itr != dir_to_watchid.end() )
-    {
-      ERROR_PRINTLN( "Remove watch {} [{}]", dir_to_watchid_itr->first,
-                     dir_to_watchid_itr->second );
-      watcher.removeWatch( dir_to_watchid_itr->second );
-      dir_to_watchid.erase( dir_to_watchid_itr );
-    }
-  }
-}
-
+// Returns `true` if a file is watched. A file is watched if it is explicitly inside
+// `watched_files`, or it is in a subdirectory of any directory inside
+// `watched_dirs`.
 bool EfswFileWatchListener::is_watched( const std::filesystem::path& filepath )
 {
+  if ( watched_files.find( filepath ) != watched_files.end() )
+    return true;
+
   auto dir = filepath.parent_path();
-  auto filename = filepath.filename();
-  auto dir_itr = dir_to_files.find( fs::canonical( dir ) );
-  if ( dir_itr != dir_to_files.end() )
-  {
-    auto file_itr = dir_itr->second.find( filename );
+  auto ext = fs::path( filepath ).extension();
 
-    if ( file_itr != dir_itr->second.end() )
-      return true;
-  }
-
-  auto ext = fs::path( filename ).extension();
   if ( extension_filter.find( ext ) != extension_filter.end() )
   {
     auto dirname = dir.generic_string();
@@ -184,7 +135,9 @@ bool EfswFileWatchListener::is_watched( const std::filesystem::path& filepath )
   return false;
 }
 
-void EfswFileWatchListener::add_message( WatchFileMessage message )
+// Adds a `message` to the message queue. The messages is only added if there is
+// not one of the same `filepath` and `old_filepath`.
+void EfswFileWatchListener::add_message( WatchFileMessage&& message )
 {
   bool add = true;
   {
@@ -205,6 +158,9 @@ void EfswFileWatchListener::add_message( WatchFileMessage message )
   }
 }
 
+// Removes the messages and inserts them into the provided `to_message` list.
+// The messages are only removed if the `handle_messages_by` time clock has
+// passed.
 void EfswFileWatchListener::take_messages( std::list<WatchFileMessage>& to_messages )
 {
   std::lock_guard<std::mutex> lock( mutex );

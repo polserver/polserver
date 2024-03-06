@@ -1,7 +1,6 @@
 #ifndef E_COMPILE_EFSWFILEWATCHLISTENER_H
 #define E_COMPILE_EFSWFILEWATCHLISTENER_H
 
-#include "clib/logfacility.h"
 #include "clib/wallclock.h"
 
 #include <efsw/efsw.hpp>
@@ -31,18 +30,19 @@ public:
   void handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename,
                          efsw::Action action, std::string oldFilename ) override;
 
-  void add_watch_file( const std::filesystem::path& filepath );
-  void add_watch_dir( const std::filesystem::path& dirname );
-  void remove_watch_file( const std::filesystem::path& filepath );
+  bool add_file( const std::filesystem::path& filepath );
+  bool add_dir( const std::filesystem::path& dirname );
+  bool add_watch_dir( const std::filesystem::path& dirname );
+  bool remove_file( const std::filesystem::path& filepath );
   bool is_watched( const std::filesystem::path& filepath );
-  void add_message( WatchFileMessage message );
+  void add_message( WatchFileMessage&& message );
   void take_messages( std::list<WatchFileMessage>& messages );
 
 private:
   efsw::FileWatcher& watcher;
   std::set<std::filesystem::path> extension_filter;
-  std::map<std::filesystem::path, std::set<std::filesystem::path>> dir_to_files;
   std::set<std::filesystem::path> watched_dirs;
+  std::set<std::filesystem::path> watched_files;
   std::map<std::filesystem::path, efsw::WatchID> dir_to_watchid;
 
   mutable std::mutex mutex;
@@ -52,11 +52,5 @@ private:
   Clib::wallclock_t handle_messages_by;
 };
 }  // namespace Pol::ECompile
-
-template <>
-struct fmt::formatter<std::filesystem::path> : fmt::formatter<std::string>
-{
-  fmt::format_context::iterator format( const std::filesystem::path& l, fmt::format_context& ctx ) const;
-};
 
 #endif
