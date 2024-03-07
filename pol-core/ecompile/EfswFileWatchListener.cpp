@@ -118,15 +118,15 @@ bool EfswFileWatchListener::is_watched( const std::filesystem::path& filepath )
   if ( watched_files.find( filepath ) != watched_files.end() )
     return true;
 
-  auto dir = filepath.parent_path();
+  auto dirpath = filepath.parent_path();
   auto ext = fs::path( filepath ).extension();
 
   if ( extension_filter.find( ext ) != extension_filter.end() )
   {
-    auto dirname = dir.generic_string();
+    auto dirname = dirpath.generic_string();
     for ( const auto& dir : watched_dirs )
     {
-      if ( dirname.rfind( dir, 0 ) == 0 )
+      if ( dirname.rfind( dir.generic_string(), 0 ) == 0 )
       {
         return true;
       }

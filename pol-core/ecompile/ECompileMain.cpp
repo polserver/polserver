@@ -1022,7 +1022,8 @@ void EnterWatchMode()
           std::set<fs::path> new_dependencies;
           try
           {
-            process_file_wrapper( filepath.c_str(), &removed_dependencies, &new_dependencies );
+            process_file_wrapper( filepath.generic_string().c_str(), &removed_dependencies,
+                                  &new_dependencies );
           }
           catch ( ... )
           {
@@ -1038,8 +1039,8 @@ void EnterWatchMode()
             if ( dependency_owners.find( depnamepath ) == dependency_owners.end() )
             {
               if ( listener.remove_file( depnamepath ) )
-            {
-              VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
+              {
+                VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
               }
             }
           }
@@ -1047,8 +1048,8 @@ void EnterWatchMode()
           for ( const auto& depnamepath : new_dependencies )
           {
             if ( listener.add_file( depnamepath ) )
-          {
-            VERBOSE_PRINTLN( "Add watch file {}", depnamepath );
+            {
+              VERBOSE_PRINTLN( "Add watch file {}", depnamepath );
             }
           }
         }
@@ -1162,7 +1163,7 @@ bool run( int argc, char** argv, int* res )
     {
       any = true;
 #ifdef _WIN32
-      Clib::forspec( argv[i], process_file_wrapper );
+      Clib::forspec( argv[i], []( const char* pathname ) { process_file_wrapper( pathname ); } );
 #else
       process_file_wrapper( argv[i] );
 #endif
