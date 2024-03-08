@@ -12,10 +12,6 @@ else()
   set (EFSW_LIB "${EFSW_INSTALL_DIR}/lib/libefsw-static.a" )
 endif()
 
-if (${windows})
- # set(EFSW_FLAGS -DCMAKE_CXX_FLAGS_RELEASE="/MT" -DCMAKE_C_FLAGS_RELEASE="/MT")
-endif()
-
 set(EFSW_ARGS ${EFSW_FLAGS}
   -DCMAKE_INSTALL_PREFIX=${EFSW_INSTALL_DIR}
   -DCMAKE_BUILD_TYPE=Release
@@ -25,7 +21,11 @@ set(EFSW_ARGS ${EFSW_FLAGS}
   -DBUILD_TEST_APP=OFF
   -DBUILD_SHARED_LIBS=ON # The -static file isn't installed unless this is enabled?
   -DBUILD_STATIC_LIBS=ON
- ) 
+  -DCMAKE_USER_MAKE_RULES_OVERRIDE_CXX=${CMAKE_CURRENT_LIST_DIR}/cxx_flag_overrides.cmake
+  -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_CURRENT_LIST_DIR}/c_flag_overrides.cmake
+  -DCMAKE_VERBOSE_MAKEFILE=ON
+  -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+ )
 
 if(NOT EXISTS ${EFSW_LIB})
   ExternalProject_Add(libefsw_ext
@@ -37,6 +37,7 @@ if(NOT EXISTS ${EFSW_LIB})
     CMAKE_ARGS       ${EFSW_ARGS}
     SOURCE_DIR       "${EFSW_SOURCE_DIR}"
     BUILD_IN_SOURCE  1
+    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
     INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --config Release --target install
     BUILD_BYPRODUCTS ${EFSW_LIB}
     EXCLUDE_FROM_ALL 1
