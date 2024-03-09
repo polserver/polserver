@@ -14,34 +14,35 @@ else()
   set(ANTLR_LIB "${ANTLR_INSTALL_DIR}/lib/antlr4-runtime-static.lib")
 endif()
 
-ExternalProject_Add(libantlr_ext
-  SOURCE_DIR  ${ANTLR_SOURCE_DIR}
-  PREFIX antlr
-  LIST_SEPARATOR |
-  CMAKE_ARGS 
-    -DCMAKE_BUILD_TYPE=Release
-    -DCMAKE_INSTALL_PREFIX=${ANTLR_INSTALL_DIR}
-    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    -DWITH_LIBCXX=Off
-    -DANTLR_BUILD_SHARED=Off
-    -DANTLR_BUILD_CPP_TESTS=Off
-    -DCMAKE_OSX_ARCHITECTURES=${PIPED_OSX_ARCHITECTURES}
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-  BINARY_DIR ${ANTLR_SOURCE_DIR}/build
-  BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
-  INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
-
-  BUILD_BYPRODUCTS ${ANTLR_LIB}
-  LOG_DOWNLOAD 1
-  LOG_CONFIGURE 1
-  LOG_BUILD 1
-  LOG_INSTALL 1
-  LOG_OUTPUT_ON_FAILURE 1
-  EXCLUDE_FROM_ALL 1
-)
 if (NOT EXISTS ${ANTLR_LIB})
-  file(MAKE_DIRECTORY ${ANTLR_INCLUDE_DIR}) #directory has to exist during configure
+  ExternalProject_Add(libantlr_ext
+    SOURCE_DIR  ${ANTLR_SOURCE_DIR}
+    PREFIX antlr
+    LIST_SEPARATOR |
+    CMAKE_ARGS
+      -DCMAKE_BUILD_TYPE=Release
+      -DCMAKE_INSTALL_PREFIX=${ANTLR_INSTALL_DIR}
+      -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+      -DWITH_LIBCXX=Off
+      -DANTLR_BUILD_SHARED=Off
+      -DANTLR_BUILD_CPP_TESTS=Off
+      -DCMAKE_OSX_ARCHITECTURES=${PIPED_OSX_ARCHITECTURES}
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    BINARY_DIR ${ANTLR_SOURCE_DIR}/build
+    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
+    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
+
+    BUILD_BYPRODUCTS ${ANTLR_LIB}
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
+    LOG_OUTPUT_ON_FAILURE 1
+    EXCLUDE_FROM_ALL 1
+  )
+else()
+  message("  - already built")
 endif()
 
 # imported target to add include/lib dir and additional dependencies
@@ -53,4 +54,7 @@ set_target_properties(libantlr PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS ANTLR4CPP_STATIC
   FOLDER 3rdParty
 )
-add_dependencies(libantlr libantlr_ext)
+if (NOT EXISTS ${ANTLR_LIB})
+  file(MAKE_DIRECTORY ${ANTLR_INCLUDE_DIR}) #directory has to exist during configure
+  add_dependencies(libantlr libantlr_ext)
+endif()

@@ -12,7 +12,7 @@ else()
   set (EFSW_LIB "${EFSW_INSTALL_DIR}/lib/libefsw-static.a" )
 endif()
 
-set(EFSW_ARGS ${EFSW_FLAGS}
+set (EFSW_ARGS ${EFSW_FLAGS}
   -DCMAKE_INSTALL_PREFIX=${EFSW_INSTALL_DIR}
   -DCMAKE_BUILD_TYPE=Release
   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -24,7 +24,7 @@ set(EFSW_ARGS ${EFSW_FLAGS}
   -DCMAKE_USER_MAKE_RULES_OVERRIDE_CXX=${CMAKE_CURRENT_LIST_DIR}/cxx_flag_overrides.cmake
   -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_CURRENT_LIST_DIR}/c_flag_overrides.cmake
   -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
- )
+)
 
 if(NOT EXISTS ${EFSW_LIB})
   ExternalProject_Add(libefsw_ext
@@ -40,6 +40,11 @@ if(NOT EXISTS ${EFSW_LIB})
     INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --config Release --target install
     BUILD_BYPRODUCTS ${EFSW_LIB}
     EXCLUDE_FROM_ALL 1
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
+    LOG_OUTPUT_ON_FAILURE 1
   )
 else()
   message("  - already built")
