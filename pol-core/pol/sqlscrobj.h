@@ -129,7 +129,7 @@ public:
   bool close();
   Bscript::BObjectImp* getResultSet() const;
 
-  std::string escape_string( const std::string& text ) const;
+  bool escape_string( const std::string& text, std::string* escaped ) const;
 
   std::string getLastError() const;
   int getLastErrNo() const;

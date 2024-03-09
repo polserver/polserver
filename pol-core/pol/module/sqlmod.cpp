@@ -357,7 +357,10 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_escape_string()
   if ( !sql || !getStringParam( 1, text ) )
     return new BError( "Invalid parameters" );
 
-  return new String( sql->escape_string( text->value() ) );
+  std::string escaped;
+  if ( !sql->escape_string( text->value(), &escaped ) )
+    return new BError( "failed to escape string" );
+  return new String( escaped );
 }
 
 #else
