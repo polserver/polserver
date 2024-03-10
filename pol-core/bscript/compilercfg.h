@@ -30,6 +30,7 @@ struct CompilerConfig
   bool AutoCompileByDefault;
   bool UpdateOnlyOnAutoCompile;
   bool OnlyCompileUpdatedScripts;
+  bool WatchModeByDefault;
   bool DisplaySummary;
   bool DisplayUpToDateScripts;
   bool OptimizeObjectMembers;

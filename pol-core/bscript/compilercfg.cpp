@@ -53,6 +53,7 @@ void CompilerConfig::Read( const std::string& path )
   AutoCompileByDefault = elem.remove_bool( "AutoCompileByDefault", false );
   UpdateOnlyOnAutoCompile = elem.remove_bool( "UpdateOnlyOnAutoCompile", false );
   OnlyCompileUpdatedScripts = elem.remove_bool( "OnlyCompileUpdatedScripts", false );
+  WatchModeByDefault = elem.remove_bool( "WatchModeByDefault", false );
   DisplaySummary = elem.remove_bool( "DisplaySummary", false );
   OptimizeObjectMembers = elem.remove_bool( "OptimizeObjectMembers", true );
   ErrorOnWarning = elem.remove_bool( "ErrorOnWarning", false );

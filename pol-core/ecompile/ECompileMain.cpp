@@ -974,6 +974,9 @@ void EnterWatchMode()
 
   fileWatcher.watch();
 
+  INFO_PRINTLN( "Entering watch mode. Watching {} files and {} directories. Ctrl-C to stop...",
+                dependency_owners.size(), compiled_dirs.size() );
+
   while ( !Clib::exit_signalled )
   {
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
@@ -1018,6 +1021,11 @@ void EnterWatchMode()
         Tools::Timer<> timer;
         for ( const auto& filepath : to_compile )
         {
+          if ( Clib::exit_signalled )
+          {
+            break;
+          }
+
           std::set<fs::path> removed_dependencies;
           std::set<fs::path> new_dependencies;
           try
@@ -1251,15 +1259,6 @@ int ECompileMain::main()
 
   const std::vector<std::string>& binArgs = programArgs();
 
-  /**********************************************
-   * show help
-   **********************************************/
-  if ( binArgs.size() == 1 )
-  {
-    showHelp();
-    return 0;  // return "okay"
-  }
-
 /**********************************************
  * TODO: rework the following cruft from former uotool.cpp
  **********************************************/
@@ -1268,6 +1267,24 @@ int ECompileMain::main()
 #endif
 
   ECompile::read_config_file( s_argc, s_argv );
+
+  /**********************************************
+   * show help
+   **********************************************/
+  if ( binArgs.size() == 1 && !compilercfg.AutoCompileByDefault )
+  {
+    showHelp();
+    return 0;  // return "okay"
+  }
+
+  watch_source = compilercfg.WatchModeByDefault;
+  if ( watch_source )
+  {
+    compilercfg.GenerateDependencyInfo = true;
+    keep_building = true;
+    compilercfg.ThreadedCompilation =
+        false;  // limitation since dependency gathering is not thread-safe
+  }
 
   int res = ECompile::readargs( s_argc, s_argv );
   if ( res )
