@@ -1,0 +1,10 @@
+use os;
+
+include "testutil";
+var res := GetEnvironmentVariable( "POLCORE_TESTSQL" );
+if ( res != "1" )
+  syslog( "NO SQL TESTS", 0 );
+  return IGNORE_TEST;
+else
+  return 1;
+endif

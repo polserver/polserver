@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-03-2024</datemodified>
+		<datemodified>03-10-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>03-10-2024</date>
+			<author>Turley:</author>
+			<change type="Added">mysql_connect now also accepts port param for non standard ports</change>
+			<change type="Added">mysql_escape_string escapes given string</change>
+		</entry>
 		<entry>
 			<date>03-03-2024</date>
 			<author>Turley:</author>

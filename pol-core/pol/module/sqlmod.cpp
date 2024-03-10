@@ -41,9 +41,9 @@ size_t SQLExecutorModule::sizeEstimate() const
 BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uoexec,
                                                    const std::string host,
                                                    const std::string username,
-                                                   const std::string password )
+                                                   const std::string password, int port )
 {
-  auto msg = [uoexec, host, username, password]()
+  auto msg = [uoexec, host, username, password, port]()
   {
     std::unique_ptr<Core::BSQLConnection> sql;
     {
@@ -62,7 +62,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
         uoexec.get_weakptr()->revive();
       }
     }
-    else if ( !sql->connect( host.data(), username.data(), password.data() ) )
+    else if ( !sql->connect( host.data(), username.data(), password.data(), port ) )
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
@@ -237,12 +237,13 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_connect()
   const String* host = getStringParam( 0 );
   const String* username = getStringParam( 1 );
   const String* password = getStringParam( 2 );
-  if ( !host || !username || !password )
+  int port;
+  if ( !host || !username || !password || !getParam( 3, port ) )
   {
     return new BError( "Invalid parameters" );
   }
   return background_connect( uoexec().weakptr, host->getStringRep(), username->getStringRep(),
-                             password->getStringRep() );
+                             password->getStringRep(), port );
 }
 Bscript::BObjectImp* SQLExecutorModule::mf_mysql_select_db()
 {
@@ -305,7 +306,6 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_affected_rows()
 {
   Core::BSQLResultSet* result =
       static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
-  ;
   if ( !result )
   {
     return new BError( "Invalid parameters" );
@@ -317,7 +317,6 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_num_rows()
 {
   Core::BSQLResultSet* result =
       static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
-  ;
   if ( !result )
   {
     return new BError( "Invalid parameters" );
@@ -350,6 +349,20 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_fetch_row()
   return new Core::BSQLRow( result );
 }
 
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_escape_string()
+{
+  Core::BSQLConnection* sql =
+      static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
+  const String* text;
+  if ( !sql || !getStringParam( 1, text ) )
+    return new BError( "Invalid parameters" );
+
+  std::string escaped;
+  if ( !sql->escape_string( text->value(), &escaped ) )
+    return new BError( "failed to escape string" );
+  return new String( escaped );
+}
+
 #else
 
 #define MF_NO_MYSQL( funcName )                                      \
@@ -366,6 +379,7 @@ MF_NO_MYSQL( mf_mysql_affected_rows )
 MF_NO_MYSQL( mf_mysql_num_rows )
 MF_NO_MYSQL( mf_mysql_close )
 MF_NO_MYSQL( mf_mysql_fetch_row )
+MF_NO_MYSQL( mf_mysql_escape_string )
 #endif
 }  // namespace Module
 }  // namespace Pol

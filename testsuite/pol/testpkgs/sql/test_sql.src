@@ -1,0 +1,81 @@
+use uo;
+use os;
+use sql;
+
+include "testutil";
+
+var conn;
+program testsql()
+  conn := mysql_connect( "localhost", "root", "root" );
+  if ( !conn )
+    return ret_error( $"failed to connect: {conn}" );
+  endif
+  var db := mysql_select_db( conn, "poltest" );
+  if ( !db )
+    mysql_close( conn );
+    return ret_error( $"failed to select db: {db}" );
+  endif
+
+  var query := mysql_query( conn, "CREATE TABLE IF NOT EXISTS db_test (`key` int(11) NOT NULL, `val` varchar(128) NOT NULL, PRIMARY KEY (`key`))" );
+  if ( !query )
+    mysql_close( conn );
+    return ret_error( $"failed to create table {query}" );
+  endif
+  query := mysql_query( conn, "INSERT INTO db_test VALUES (1,'one'), (2,'two');" );
+  if ( !query )
+    mysql_close( conn );
+    return ret_error( $"failed to insert values {query}" );
+  endif
+  return 1;
+endprogram
+
+exported function sqlquery()
+  var res := mysql_query( conn, "SELECT val FROM db_test" );
+  var num := mysql_num_rows( res );
+  if ( num != 2 )
+    return ret_error( $"failed to get values {num}!=2 - {res}" );
+  endif
+  for i := 1 to ( mysql_num_rows( res ) )
+    var val := mysql_fetch_row( res )[1];
+    if ( i == 1 && val != "one" )
+      return ret_error( $"wrong value {val}!=one" );
+    elseif ( i == 2 && val != "two" )
+      return ret_error( $"wrong value {val}!=two" );
+    endif
+  endfor
+  return 1;
+endfunction
+
+exported function sqlquery_param()
+  var query := mysql_query( conn, "INSERT INTO db_test VALUES (3,?), (4,?);",
+    { "three", "four" } );
+  if ( !query )
+    return ret_error( $"failed to add values {query}" );
+  endif
+  var res := mysql_query( conn, "SELECT val FROM db_test" );
+  var num := mysql_num_rows( res );
+  if ( num != 4 )
+    return ret_error( $"failed to get values {num}!=4 - {res}" );
+  endif
+  for i := 1 to ( mysql_num_rows( res ) )
+    var val := mysql_fetch_row( res )[1];
+    if ( i == 1 && val != "one" )
+      return ret_error( $"wrong value {val}!=one" );
+    elseif ( i == 2 && val != "two" )
+      return ret_error( $"wrong value {val}!=two" );
+    elseif ( i == 3 && val != "three" )
+      return ret_error( $"wrong value {val}!=three" );
+    elseif ( i == 4 && val != "four" )
+      return ret_error( $"wrong value {val}!=four" );
+    endif
+  endfor
+  return 1;
+endfunction
+
+exported function sql_escape_string()
+  var text:=mysql_escape_string(conn,"blubb'");
+  if (text != "blubb\\'")
+    return ret_error( $"wrong value: {text}!=blubb\\'");
+  endif
+  return 1;
+endfunction

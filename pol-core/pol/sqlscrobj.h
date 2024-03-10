@@ -70,10 +70,7 @@ public:
   // forcebuiltin=false );
   virtual Bscript::BObjectImp* copy() const override;
   virtual std::string getStringRep() const override { return "SQLRow"; }
-  virtual size_t sizeEstimate() const override
-  {
-    return sizeof( *this ) + sizeof( MYSQL_FIELD );
-  }
+  virtual size_t sizeEstimate() const override { return sizeof( *this ) + sizeof( MYSQL_FIELD ); }
   virtual const char* typeOf() const override { return "SQLRow"; }
   virtual u8 typeOfInt() const override { return OTSQLRow; }
   virtual bool isTrue() const override { return _row != 0; };
@@ -99,10 +96,7 @@ public:
   bool has_result() const;
   virtual Bscript::BObjectImp* copy() const override;
   virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override
-  {
-    return sizeof( *this ) + sizeof( MYSQL_FIELD );
-  }
+  virtual size_t sizeEstimate() const override { return sizeof( *this ) + sizeof( MYSQL_FIELD ); }
   virtual const char* typeOf() const override { return "SQLResultSet"; }
   virtual u8 typeOfInt() const override { return OTSQLResultSet; }
   virtual bool isTrue() const override;
@@ -128,12 +122,14 @@ public:
   BSQLConnection();
   BSQLConnection( std::shared_ptr<ConnectionWrapper> conn );
   ~BSQLConnection();
-  bool connect( const char* host, const char* user, const char* passwd );
+  bool connect( const char* host, const char* user, const char* passwd, int port = 0 );
   bool query( const std::string query );
   bool query( const std::string query, const QueryParams params );
   bool select_db( const char* db );
   bool close();
   Bscript::BObjectImp* getResultSet() const;
+
+  bool escape_string( const std::string& text, std::string* escaped ) const;
 
   std::string getLastError() const;
   int getLastErrNo() const;
@@ -141,10 +137,9 @@ public:
 
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
   virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
-  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
-                                            UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
   virtual Bscript::BObjectImp* call_polmethod_id( const int id, UOExecutor& ex,
-                                               bool forcebuiltin = false ) override;
+                                                  bool forcebuiltin = false ) override;
   virtual Bscript::BObjectImp* copy() const override;
   virtual std::string getStringRep() const override;
   virtual size_t sizeEstimate() const override { return sizeof( *this ) + _error.capacity(); }
@@ -186,8 +181,8 @@ private:
   msg_queue _msgs;
 };
 void start_sql_service();
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif
 
