@@ -69,17 +69,17 @@ void EfswFileWatchListener::handleFileAction( efsw::WatchID /*watchid*/, const s
 
 // Adds a file to watched files. Returns `true` if the file was newly added to
 // `watched_files`.
-bool EfswFileWatchListener::add_file( const fs::path& filepath )
+bool EfswFileWatchListener::add_file( fs::path filepath )
 {
-  return watched_files.emplace( filepath ).second;
+  return watched_files.emplace( std::move( filepath ) ).second;
 }
 
 
 // Adds a directory to watched directories. Returns `true` if the directory was newly added to
 // `watched_dirs`.
-bool EfswFileWatchListener::add_dir( const std::filesystem::path& dir )
+bool EfswFileWatchListener::add_dir( fs::path dir )
 {
-  return watched_dirs.emplace( dir ).second;
+  return watched_dirs.emplace( std::move( dir ) ).second;
 }
 
 
@@ -87,7 +87,7 @@ bool EfswFileWatchListener::add_dir( const std::filesystem::path& dir )
 // has a newly added watchID added to `dir_to_watchid`.
 //
 // Throws if the filesystem watcher fails to add the watch.
-bool EfswFileWatchListener::add_watch_dir( const std::filesystem::path& dir )
+bool EfswFileWatchListener::add_watch_dir( std::filesystem::path dir )
 {
   if ( auto itr = dir_to_watchid.find( dir ); itr == dir_to_watchid.end() )
   {
@@ -96,7 +96,7 @@ bool EfswFileWatchListener::add_watch_dir( const std::filesystem::path& dir )
     {
       throw std::runtime_error( "Failed to watch " + dir.generic_string() );
     }
-    dir_to_watchid.emplace( dir, watchID );
+    dir_to_watchid.emplace( std::move( dir ), watchID );
     return true;
   }
 

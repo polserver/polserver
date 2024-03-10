@@ -31,9 +31,9 @@ public:
   void handleFileAction( efsw::WatchID watchid, const std::string& dir, const std::string& filename,
                          efsw::Action action, std::string oldFilename ) override;
 
-  bool add_file( const std::filesystem::path& filepath );
-  bool add_dir( const std::filesystem::path& dirname );
-  bool add_watch_dir( const std::filesystem::path& dirname );
+  bool add_file( std::filesystem::path filepath );
+  bool add_dir( std::filesystem::path dirname );
+  bool add_watch_dir( std::filesystem::path dirname );
   bool remove_file( const std::filesystem::path& filepath );
   bool is_watched( const std::filesystem::path& filepath );
   void add_message( WatchFileMessage&& message );
