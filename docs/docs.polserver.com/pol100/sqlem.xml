@@ -4,16 +4,16 @@
 <ESCRIPT>
 <fileheader fname="sql.em">
   <filedesc>Functions for interacting with a MySQL DBMS.
-You must have the MySQL headers and libraries installed.
-Only really tested with dynamically linking mysql libraries on Linux.</filedesc>
-  <datemodified>08/31/2015</datemodified>
+On Linux you must have the MySQL headers and libraries installed.</filedesc>
+  <datemodified>03/10/2024</datemodified>
 </fileheader>
 
 <function name="mysql_connect">
-  <prototype>mysql_connect(host,username,password := "")</prototype>
+  <prototype>mysql_connect(host,username,password := "", port := 0)</prototype>
   <parameter name="host" value="MySQL DBMS hostname, usually 'localhost'" />
   <parameter name="username" value="User Name for the connection" />
   <parameter name="password" value="Password for the connection" />
+  <parameter name="port" value="connection port, 0 for default port" />
   <explain>Connects to DMBS.</explain>
   <return>Connection on success</return>
 </function>
@@ -80,6 +80,14 @@ Only really tested with dynamically linking mysql libraries on Linux.</filedesc>
   <parameter name="connection" value="Connection object" />
   <explain>Closed the connection to DBMS.</explain>
   <return>1 on success</return>
+</function>
+
+<function name="mysql_escape_string">
+  <prototype>mysql_escape_string(connection, str)</prototype>
+  <parameter name="connection" value="Connection object" />
+  <parameter name="str" value="String to escape" />
+  <explain>Returns escaped string on success</explain>
+  <return>String on success, Error otherwise</return>
 </function>
 
 </ESCRIPT>

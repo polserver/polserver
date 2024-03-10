@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+03-10-2024 Turley:
+    Added: mysql_connect now also accepts port param for non standard ports
+    Added: mysql_escape_string escapes given string
 03-03-2024 Turley:
     Fixed: unknown realm in startloc.cfg now stops starting the core
 02-26-2024 Turley:
