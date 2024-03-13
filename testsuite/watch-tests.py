@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 import sys
 from typing import Awaitable
+import traceback
 
 # seconds; error if compilation doesn't occur within this duration
 ECOMPILE_WATCH_TIMEOUT=5
@@ -83,9 +84,23 @@ class EcompileExecutor:
 
         return self._compilation_future
 
-    def stop(self):
+    async def stop(self):
         self._process.kill()
+        await self._process.wait()
 
+
+# Apparently, we need to write _and_ touch the file for proper testing
+# functionality across win32, darwin, and linux...?
+def update_file(filename, text = None):
+    path = Path(filename)
+    old_text = None
+    with open(filename, 'r+' if path.is_file() else 'w+') as f:
+        old_text = f.read()
+        f.seek(0)
+        f.write(old_text if text is None else text)
+        f.truncate()
+    Path(filename).touch()
+    return old_text
 
 def Test(name):
     def decorator(func):
@@ -103,8 +118,6 @@ class TestRunner:
         self.executor = EcompileExecutor()
 
     async def run_tests(self):
-        failed_tests = []
-
         # This script gets created in the "new script" test.
         # Remvove it (if exists) before starting ecompile watch.
         new_script_path = Path("scripts/new_source_file.src")
@@ -123,15 +136,24 @@ class TestRunner:
             and hasattr(getattr(self, name), "test_name")
         ]
 
+        failed_tests = []
+        def report_failure(msg):
+            print(msg)
+            failed_tests.append(msg)
+
         for func in test_methods:
             try:
                 print(f"Running test: {func.test_name}")
                 await func()
                 print(f"Test passing: {func.test_name}")
+            except asyncio.TimeoutError:
+                report_failure(f"Test failing: {func.test_name}: Timed out")
             except Exception as e:
-                failed_tests.append(f"{func.test_name}: {e}")
+                report_failure(f"Test failing: {func.test_name}: {e}")
+                if type(e) != AssertionError:
+                    traceback.print_exception(e)
 
-        self.executor.stop()
+        await self.executor.stop()
 
         return failed_tests
 
@@ -139,7 +161,7 @@ class TestRunner:
     async def test01(self):
         compliation_future = self.executor.new_compliation_future()
 
-        Path("scripts/start.src").touch()
+        update_file("scripts/start.src")
 
         result = await asyncio.wait_for(compliation_future, timeout=ECOMPILE_WATCH_TIMEOUT)
         assert result['compiled'] == 1, f"Number of compiled scripts {result['compiled']} != 1"
@@ -148,7 +170,7 @@ class TestRunner:
     async def test02(self):
         compliation_future = self.executor.new_compliation_future()
 
-        Path("scripts/include/sysevent.inc").touch()
+        update_file("scripts/include/sysevent.inc")
 
         result = await asyncio.wait_for(compliation_future, timeout=ECOMPILE_WATCH_TIMEOUT)
         assert result['compiled'] > 0, f"Number of compiled scripts {result['compiled']} <= 0"
@@ -157,44 +179,32 @@ class TestRunner:
     async def test03(self):
         compliation_future = self.executor.new_compliation_future()
 
-        new_script_path = Path("scripts/new_source_file.src")
-        new_script_path.touch()
+        update_file("scripts/new_source_file.src", "")
 
         try:
             result = await asyncio.wait_for(compliation_future, timeout=ECOMPILE_WATCH_TIMEOUT)
             assert result['compiled'] == 1, f"Number of compiled scripts {result['compiled']} != 1"
         finally:
-            new_script_path.unlink()
+            Path("scripts/new_source_file.src").unlink()
 
     @Test("Editing an include to fail will successfully recompile sources when include is fixed")
     async def test04(self):
-        with open("scripts/include/sysevent.inc", 'r+') as f:
+        compliation_future = self.executor.new_compliation_future()
+        old_text = update_file("scripts/include/sysevent.inc", "foo")
+        try:
+            result = await asyncio.wait_for(compliation_future, timeout=ECOMPILE_WATCH_TIMEOUT)
+            assert result['compiled'] > 0, f"Number of compiled scripts with errored include {result['compiled']} <= 0"
+            assert result['errored'] > 0, f"Number of errored scripts with errored include {result['errored']} <= 0"
+
             compliation_future = self.executor.new_compliation_future()
 
-            text = f.read()
-            f.seek(0)
-            f.write('foo') # Missing semi-colon
-            f.truncate()
-
-            try:
-                result = await asyncio.wait_for(compliation_future, timeout=ECOMPILE_WATCH_TIMEOUT)
-                assert result['compiled'] > 0, f"Number of compiled scripts with errored include {result['compiled']} <= 0"
-                assert result['errored'] > 0, f"Number of errored scripts with errored include {result['errored']} <= 0"
-
-                compliation_future = self.executor.new_compliation_future()
-
-                f.seek(0)
-                f.write(text)
-                f.truncate()
-
-                result = await asyncio.wait_for(compliation_future, timeout=ECOMPILE_WATCH_TIMEOUT)
-                assert result['compiled'] > 0, f"Number of compiled scripts with fixed include {result['compiled']} <= 0"
-                assert result['errored'] == 0, f"Number of errored scripts with fixed include {result['errored']} != 0"
-            except Exception as e:
-                f.seek(0)
-                f.write(text)
-                f.truncate()
-                raise e
+            old_text = update_file("scripts/include/sysevent.inc", old_text)
+            result = await asyncio.wait_for(compliation_future, timeout=ECOMPILE_WATCH_TIMEOUT)
+            assert result['compiled'] > 0, f"Number of compiled scripts with fixed include {result['compiled']} <= 0"
+            assert result['errored'] == 0, f"Number of errored scripts with fixed include {result['errored']} != 0"
+        except Exception as e:
+            update_file("scripts/include/sysevent.inc", old_text)
+            raise e
 
 async def main():
     runner = TestRunner()
@@ -204,5 +214,7 @@ async def main():
         for failed_test in failed_tests:
             print(f" - {failed_test}")
         exit(1)
+    else:
+        print("All tests passed!")
 
 asyncio.run(main())
