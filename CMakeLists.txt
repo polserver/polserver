@@ -230,7 +230,7 @@ set_target_properties(test_pol PROPERTIES FOLDER !BuildTargets)
 message("  test_pol_fixture")
 add_custom_target(test_pol_fixture
   COMMAND ${CMAKE_CTEST_COMMAND}
-    -j2 --output-on-failure -E "(escript_|shard_test_|unittest_)" -C ${CMAKE_BUILD_TYPE}
+    -j2 --output-on-failure -E "(escript_|shard_test_|unittest_|ecompile_watch_test)" -C ${CMAKE_BUILD_TYPE}
   COMMENT "Run pol fixture tests"
   VERBATIM
   USES_TERMINAL
@@ -249,6 +249,18 @@ add_custom_target(test_pol_only
 set_target_properties(test_pol_only PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(test_pol_only PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 set_target_properties(test_pol_only PROPERTIES FOLDER !BuildTargets)
+
+message("  test_ecompile_watch")
+add_custom_target(test_ecompile_watch
+  COMMAND ${CMAKE_CTEST_COMMAND}
+    --verbose -R ecompile_watch_test -FA .* -C ${CMAKE_BUILD_TYPE}
+  COMMENT "Run ecompile watch tests"
+  VERBATIM
+  USES_TERMINAL
+)
+set_target_properties(test_ecompile_watch PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(test_ecompile_watch PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+set_target_properties(test_ecompile_watch PROPERTIES FOLDER !BuildTargets)
 
 message("  unittest_pol")
 add_custom_target(unittest_pol

@@ -105,8 +105,8 @@ set_tests_properties(shard_ecompile_cfg PROPERTIES FIXTURES_SETUP shard)
 # uoconvert part
 
 add_test(NAME uoconvert_map
-  COMMAND uoconvert map realm=britannia 
-    width=192 height=192 
+  COMMAND uoconvert map realm=britannia
+    width=192 height=192
     uodata=client
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
@@ -114,7 +114,7 @@ set_tests_properties( uoconvert_map PROPERTIES FIXTURES_REQUIRED client)
 set_tests_properties( uoconvert_map PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_statics
-  COMMAND uoconvert statics realm=britannia 
+  COMMAND uoconvert statics realm=britannia
     uodata=client
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
@@ -123,7 +123,7 @@ set_tests_properties( uoconvert_statics PROPERTIES FIXTURES_REQUIRED client)
 set_tests_properties( uoconvert_statics PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_maptile
-  COMMAND uoconvert maptile realm=britannia 
+  COMMAND uoconvert maptile realm=britannia
     uodata=client
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
@@ -207,6 +207,14 @@ if (${Python3_FOUND})
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_start.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
+  add_test(NAME ecompile_watch_test
+    COMMAND ${CMAKE_COMMAND}
+      -Decompile=$<TARGET_FILE:ecompile>
+      -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_ecompile_watch.cmake
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+    )
+    set_tests_properties(ecompile_watch_test PROPERTIES DEPENDS shard_ecompile_cfg)
 else()
   message(" - core test without testclient python3 not found")
   add_test(NAME shard_test_1
