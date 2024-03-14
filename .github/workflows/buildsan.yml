@@ -99,6 +99,10 @@ jobs:
 
       - name: Register problem matcher
         run: echo "::add-matcher::.github/problem-matchers/${{ matrix.config.c-compiler }}.json"
+      - name: Set mmap_rnd_bits
+        run: |
+          sudo sysctl vm.mmap_rnd_bits
+          sudo sysctl vm.mmap_rnd_bits=28
       - name: Config
         run: |
           cd bin-build
