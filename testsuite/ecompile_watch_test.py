@@ -1,4 +1,5 @@
 import asyncio
+import os
 from pathlib import Path
 import signal
 import subprocess
@@ -86,7 +87,13 @@ class EcompileExecutor:
         return self._compilation_future
 
     async def stop(self):
-        self._process.send_signal(signal.SIGINT)
+        # Using signal.CTRL_C_EVENT on Windows seems to also interrupt the Ninja
+        # build, therefore we will kill  on Windows, otherwise send SIGINT (to
+        # properly collect coverage, which only runs in Linux)
+        if os.name == 'nt':
+            self._process.kill()
+        else:
+            self._process.send_signal(signal.SIGINT)
         await asyncio.wait_for(self._process.wait(), timeout=ECOMPILE_WATCH_TIMEOUT)
 
 
