@@ -214,7 +214,7 @@ if (${Python3_FOUND})
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_ecompile_watch.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
     )
-    set_tests_properties(ecompile_watch_test PROPERTIES DEPENDS shard_ecompile_cfg)
+    set_tests_properties(ecompile_watch_test PROPERTIES FIXTURES_REQUIRED shard)
 else()
   message(" - core test without testclient python3 not found")
   add_test(NAME shard_test_1

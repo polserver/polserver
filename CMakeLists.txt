@@ -253,7 +253,7 @@ set_target_properties(test_pol_only PROPERTIES FOLDER !BuildTargets)
 message("  test_ecompile_watch")
 add_custom_target(test_ecompile_watch
   COMMAND ${CMAKE_CTEST_COMMAND}
-    --verbose -R ecompile_watch_test -FA .* -C ${CMAKE_BUILD_TYPE}
+    --verbose -R ecompile_watch_test -C ${CMAKE_BUILD_TYPE}
   COMMENT "Run ecompile watch tests"
   VERBATIM
   USES_TERMINAL

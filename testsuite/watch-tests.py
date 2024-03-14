@@ -63,7 +63,7 @@ class EcompileExecutor:
                 started_future.set_result(True)
 
     async def start(self):
-        command = [ECOMPILE_BIN, '-Au', '-W']
+        command = [ECOMPILE_BIN, '-v', '-Au', '-W']
         self._process = await asyncio.create_subprocess_exec(
             *command,
             stdout=subprocess.PIPE,
