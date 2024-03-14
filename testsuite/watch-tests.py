@@ -1,5 +1,6 @@
 import asyncio
 from pathlib import Path
+import signal
 import subprocess
 import sys
 from typing import Awaitable
@@ -85,8 +86,8 @@ class EcompileExecutor:
         return self._compilation_future
 
     async def stop(self):
-        self._process.kill()
-        await self._process.wait()
+        self._process.send_signal(signal.SIGINT)
+        await asyncio.wait_for(self._process.wait(), timeout=ECOMPILE_WATCH_TIMEOUT)
 
 
 # Apparently, we need to write _and_ touch the file for proper testing
