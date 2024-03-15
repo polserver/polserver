@@ -119,10 +119,10 @@ Listener
     <explain>MaxSkillID allows you to use new client skills, but setting it too high can crash older clients. You must define attributes.cfg/uoskills.cfg entries for each skillID up to MaxSkillID (default 57).</explain>
     <explain>The Protocol and Listener sections are optional. You need at least one Listener to accept client connections.</explain>
     <explain>Encryption: valid values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'.</explain>
-    <explain> 
+    <explain>
         Encryptions 'ignition', 'uorice', and 'none' all mean 'no encryption'.
         If the 'major.minor.build' is given, the encryption key will be calculated for
-        that client version. 
+        that client version.
         Example, '7.0.4' is a listener for client 7.0.4.1 (no patch)
     </explain>
     <explain>Each Listener section allows you to listen for different client encryption types on different ports.
@@ -1027,6 +1027,7 @@ PackageRoot (path to package root)
 [DisplayWarnings (0/1 {default 0})]           //same as -w flag
 [CompileAspPages (0/1 {default 0})]           //same as -a flag
 [OnlyCompileUpdatedScripts (0/1 {default 0})] //same as -u flag
+[WatchModeByDefault (0/1 {default 0})]        //Keep ecompile running to re-compile files that have changed.
 [GenerateDependencyInfo (0/1 {default 0})]    //Generate .dep files whether or not updating
 [DisplayUpToDateScripts (0/1 {default 0})]    //Display the "xxx/script.ecl is up-to-date" message, or not.
 [AutoCompileByDefault (0/1 {default 0})]      //If set, and you don't pass any script names or -r or -A,

@@ -10,6 +10,7 @@
 #include <system_error>
 #include <time.h>
 
+#include "EfswFileWatchListener.h"
 
 #include "bscript/compctx.h"
 #include "bscript/compiler/Compiler.h"
@@ -31,6 +32,10 @@
 #include "clib/timer.h"
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
+
+#define VERBOSE_PRINTLN                 \
+  if ( compilercfg.VerbosityLevel > 0 ) \
+  INFO_PRINTLN
 
 namespace Pol
 {
@@ -91,6 +96,7 @@ void ECompileMain::showHelp()
       "       -T[N]        use threaded compilation, force N threads to run\n"
       "       -vN          verbosity level\n"
       "       -w           display warnings\n"
+      "       -W           watch mode\n"
       "       -y           treat warnings as errors\n"
       "       -x           write external .dbg file\n"
       "       -xt          write external .dbg.txt info file\n"
@@ -112,6 +118,7 @@ bool show_timing_details = false;
 bool timing_quiet_override = false;
 bool expect_compile_failure = false;
 bool dont_optimize_object_members = false;
+bool watch_source = false;
 std::string EmPathEnv;   // "ECOMPILE_PATH_EM=xxx"
 std::string IncPathEnv;  // ECOMPILE_PATH_INC=yyy"
 std::string CfgPathEnv;  // ECOMPILE_CFG_PATH=zzz"
@@ -137,6 +144,14 @@ struct Comparison
 
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
 Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
+
+using DependencyInfo = std::map<fs::path, std::set<fs::path>>;
+// Map owner (sources) -> dependencies
+DependencyInfo owner_dependencies;
+// Map dependency -> owners (sources)
+DependencyInfo dependency_owners;
+
+std::set<fs::path> compiled_dirs;
 
 std::unique_ptr<Compiler::Compiler> create_compiler()
 {
@@ -225,6 +240,79 @@ bool format_file( const char* path )
   if ( !success )
     throw std::runtime_error( "Error formatting file" );
   return true;
+}
+
+void add_dependency_info( const fs::path& filepath_src,
+                          std::set<fs::path>* removed_dependencies = nullptr,
+                          std::set<fs::path>* new_dependencies = nullptr )
+{
+  auto filename_dep = fs::path( filepath_src ).replace_extension( ".dep" );
+
+  auto& dependencies = owner_dependencies[filepath_src];
+  auto previous_dependencies = dependencies;
+
+  VERBOSE_PRINTLN( "Dependencies for: {}", filepath_src );
+  for ( const auto& dependency : previous_dependencies )
+  {
+    if ( auto itr = dependency_owners.find( dependency ); itr != dependency_owners.end() )
+    {
+      // Remove deleted file from owners
+      itr->second.erase( filepath_src );
+      auto remaining = itr->second.size();
+      VERBOSE_PRINTLN( "  - Removed {}, remaining owners={}", dependency, remaining );
+      if ( remaining == 0 )
+      {
+        dependency_owners.erase( itr );
+      }
+    }
+  }
+
+  dependencies.clear();
+
+  {
+    std::ifstream ifs( filename_dep.c_str() );
+    if ( ifs.is_open() )
+    {
+      std::string depname;
+      while ( getline( ifs, depname ) )
+      {
+        fs::path depnamepath = fs::canonical( fs::path( depname ) );
+        auto& owners = dependency_owners[depnamepath];
+        // Add this source as a dependency by:
+        // (1) placing `filename_src` in the set of owners for `depnamepath`.
+        owners.emplace( filepath_src );
+        // (2) placing `depnamepath` in the set of dependencies for this `filename_src`.
+        dependencies.emplace( depnamepath );
+        VERBOSE_PRINTLN( "  - Added {}, owners={}", depnamepath, owners.size() );
+      }
+    }
+
+    // Could not load dependency information -- maybe failed compilation? We
+    // still add this source as a dependency of itself, such that it will be
+    // recompiled on next save.
+    //
+    // On failed compilation, the existing `.dep`
+    // remains, so we will use that information for recompilation (eg. a source
+    // failed to compile due to a bad include, changing the include should still
+    // recompile the source.)
+    else
+    {
+      dependency_owners[filepath_src] = std::set<fs::path>{ filepath_src };
+      dependencies.emplace( filepath_src );
+    }
+  }
+
+  if ( removed_dependencies && new_dependencies )
+  {
+    std::set_difference( previous_dependencies.begin(), previous_dependencies.end(),
+                         dependencies.begin(), dependencies.end(),
+                         std::inserter( *removed_dependencies, removed_dependencies->begin() ) );
+
+
+    std::set_difference( dependencies.begin(), dependencies.end(), previous_dependencies.begin(),
+                         previous_dependencies.end(),
+                         std::inserter( *new_dependencies, new_dependencies->begin() ) );
+  }
 }
 
 /**
@@ -401,7 +489,8 @@ bool process_file( const char* path )
   }
 }
 
-void process_file_wrapper( const char* path )
+void process_file_wrapper( const char* path, std::set<fs::path>* removed_dependencies = nullptr,
+                           std::set<fs::path>* new_dependencies = nullptr )
 {
   try
   {
@@ -416,6 +505,16 @@ void process_file_wrapper( const char* path )
     ++summary.ScriptsWithCompileErrors;
     if ( !keep_building )
       throw;
+  }
+
+  if ( watch_source )
+  {
+    fs::path filepath = fs::canonical( fs::path( path ) );
+    auto ext = filepath.extension().generic_string();
+    if ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 || ext.compare( ".asp" ) == 0 )
+    {
+      add_dependency_info( filepath, removed_dependencies, new_dependencies );
+    }
   }
 }
 
@@ -448,6 +547,14 @@ int readargs( int argc, char** argv )
     {
       switch ( arg[1] )
       {
+      case 'W':
+        watch_source = true;
+        compilercfg.GenerateDependencyInfo = true;
+        keep_building = true;
+        compilercfg.ThreadedCompilation =
+            false;  // limitation since dependency gathering is not thread-safe
+        break;
+
       case 'A':  // skip it at this point.
         break;
 
@@ -713,6 +820,258 @@ void parallel_process( const std::set<std::string>& files )
   summary.ScriptsWithCompileErrors = error_scripts;
 }
 
+void DisplaySummary( const Tools::Timer<>& timer )
+{
+  std::string tmp = "Compilation Summary:\n";
+  if ( summary.ThreadCount )
+    tmp += fmt::format( "    Used {} threads\n", summary.ThreadCount );
+  if ( summary.CompiledScripts )
+    tmp += fmt::format( "    Compiled {} script{} in {} ms.\n", summary.CompiledScripts,
+                        ( summary.CompiledScripts == 1 ? "" : "s" ), timer.ellapsed() );
+
+  if ( summary.ScriptsWithCompileErrors )
+    tmp += fmt::format( "    {} of those script{} had errors.\n", summary.ScriptsWithCompileErrors,
+                        ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" ) );
+
+  if ( summary.UpToDateScripts )
+    tmp += fmt::format( "    {} script{} already up-to-date.\n", summary.UpToDateScripts,
+                        ( summary.UpToDateScripts == 1 ? " was" : "s were" ) );
+
+  if ( show_timing_details )
+  {
+    tmp += fmt::format( "    build workspace: {}\n",
+                        (long long)summary.profile.build_workspace_micros / 1000 );
+    tmp += fmt::format( "        - load *.em:   {}\n",
+                        (long long)summary.profile.load_em_micros / 1000 );
+    tmp += fmt::format( "       - parse *.em:   {} ({})\n",
+                        (long long)summary.profile.parse_em_micros / 1000,
+                        (long)summary.profile.parse_em_count );
+    tmp += fmt::format( "         - ast *.em:   {}\n",
+                        (long long)summary.profile.ast_em_micros / 1000 );
+    tmp += fmt::format( "      - parse *.inc:   {} ({})\n",
+                        (long long)summary.profile.parse_inc_micros / 1000,
+                        (long)summary.profile.parse_inc_count );
+    tmp += fmt::format( "        - ast *.inc:   {}\n",
+                        (long long)summary.profile.ast_inc_micros / 1000 );
+    tmp += fmt::format( "      - parse *.src:   {} ({})\n",
+                        (long long)summary.profile.parse_src_micros / 1000,
+                        (long)summary.profile.parse_src_count );
+    tmp += fmt::format( "        - ast *.src:   {}\n",
+                        (long long)summary.profile.ast_src_micros / 1000 );
+    tmp += fmt::format( "  resolve functions:   {}\n",
+                        (long long)summary.profile.ast_resolve_functions_micros / 1000 );
+    tmp += fmt::format( " register constants: {}\n",
+                        (long long)summary.profile.register_const_declarations_micros / 1000 );
+    tmp += fmt::format( "            analyze: {}\n",
+                        (long long)summary.profile.analyze_micros / 1000 );
+    tmp += fmt::format( "           optimize: {}\n",
+                        (long long)summary.profile.optimize_micros / 1000 );
+    tmp += fmt::format( "       disambiguate: {}\n",
+                        (long long)summary.profile.disambiguate_micros / 1000 );
+    tmp += fmt::format( "      generate code: {}\n",
+                        (long long)summary.profile.codegen_micros / 1000 );
+    tmp += fmt::format( "  prune cache (sel): {}\n",
+                        (long long)summary.profile.prune_cache_select_micros / 1000 );
+    tmp += fmt::format( "  prune cache (del): {}\n",
+                        (long long)summary.profile.prune_cache_delete_micros / 1000 );
+    tmp += "\n";
+    tmp += fmt::format( "      - ambiguities: {}\n", (long)summary.profile.ambiguities );
+    tmp += fmt::format( "       - cache hits: {}\n", (long)summary.profile.cache_hits );
+    tmp += fmt::format( "     - cache misses: {}\n", (long)summary.profile.cache_misses );
+  }
+
+  INFO_PRINTLN( tmp );
+}
+
+void EnterWatchMode()
+{
+  std::list<WatchFileMessage> watch_messages;
+  std::set<fs::path> to_compile;
+  efsw::FileWatcher fileWatcher;
+  EfswFileWatchListener listener( fileWatcher,
+                                  std::set<fs::path>{ ".src", ".hsr", ".asp", ".inc", ".em" } );
+
+  auto handle_compile_file = [&]( const fs::path& filepath )
+  {
+    // Existing file, compile all owners dependent on it.
+    if ( auto itr = dependency_owners.find( filepath ); itr != dependency_owners.end() )
+    {
+      to_compile.insert( itr->second.begin(), itr->second.end() );
+    }
+    // New file, compile only this file (if it is compilable).
+    else
+    {
+      auto ext = filepath.extension();
+      if ( ext.compare( ".src" ) == 0 || ext.compare( ".hsr" ) == 0 || ext.compare( ".asp" ) == 0 )
+      {
+        to_compile.emplace( filepath );
+      }
+    }
+  };
+
+  auto handle_delete_file = [&]( const fs::path& filepath )
+  {
+    to_compile.erase( filepath );
+    if ( auto itr = owner_dependencies.find( filepath ); itr != owner_dependencies.end() )
+    {
+      // For all dependencies, remove the deleted file from set of owners for
+      // that dependency.
+      for ( const auto& depnamepath : itr->second )
+      {
+        // If dependency exists in map of dependency -> owners
+        if ( auto owners_itr = dependency_owners.find( depnamepath );
+             owners_itr != dependency_owners.end() )
+        {
+          // Erase filepath from set of owners
+          owners_itr->second.erase( filepath );
+
+          // If owners set is empty, this dependency is no longer used by
+          // anything.
+          if ( owners_itr->second.empty() )
+          {
+            //  Erase from map of dependency -> owners.
+            dependency_owners.erase( owners_itr );
+            listener.remove_file( depnamepath );
+            VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
+          }
+        }
+      }
+      owner_dependencies.erase( itr );
+    }
+  };
+
+  auto add_dir = [&]( const std::string& elem )
+  {
+    fs::path dir( elem );
+    if ( fs::exists( dir ) )
+    {
+      auto dirpath = fs::canonical( dir );
+      if ( listener.add_watch_dir( dirpath ) )
+      {
+        VERBOSE_PRINTLN( "Add watch dir {}", dirpath );
+      }
+    }
+  };
+
+  for ( const auto& dep_owners : dependency_owners )
+  {
+    listener.add_file( dep_owners.first );
+  }
+
+  for ( const auto& directory : compiled_dirs )
+  {
+    listener.add_dir( directory );
+  }
+
+  for ( const auto& elem : compilercfg.PackageRoot )
+  {
+    add_dir( elem );
+  }
+
+  add_dir( compilercfg.ModuleDirectory );
+  add_dir( compilercfg.IncludeDirectory );
+  add_dir( compilercfg.PolScriptRoot );
+
+  fileWatcher.watch();
+
+  INFO_PRINTLN( "Entering watch mode. Watching {} files and {} directories. Ctrl-C to stop...",
+                dependency_owners.size(), compiled_dirs.size() );
+
+  while ( !Clib::exit_signalled )
+  {
+    std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+    listener.take_messages( watch_messages );
+    if ( !watch_messages.empty() )
+    {
+      for ( auto const& message : watch_messages )
+      {
+        const auto& filepath = message.filepath;
+        const auto& old_filepath = message.old_filepath;
+        VERBOSE_PRINTLN( "Event: filename={}, old_filename={}", filepath, old_filepath );
+
+        // created or modified
+        if ( old_filepath.empty() )
+        {
+          handle_compile_file( filepath );
+        }
+        // deleted
+        else if ( filepath.empty() )
+        {
+          handle_delete_file( old_filepath );
+        }
+        // moved
+        else
+        {
+          handle_delete_file( old_filepath );
+          handle_compile_file( filepath );
+        }
+      }
+      watch_messages.clear();
+
+      if ( !to_compile.empty() )
+      {
+        summary.CompiledScripts = 0;
+        summary.UpToDateScripts = 0;
+        summary.ScriptsWithCompileErrors = 0;
+        em_parse_tree_cache.clear();
+        inc_parse_tree_cache.clear();
+
+        VERBOSE_PRINTLN( "To compile: {}", to_compile );
+
+        Tools::Timer<> timer;
+        for ( const auto& filepath : to_compile )
+        {
+          if ( Clib::exit_signalled )
+          {
+            break;
+          }
+
+          std::set<fs::path> removed_dependencies;
+          std::set<fs::path> new_dependencies;
+          try
+          {
+            process_file_wrapper( filepath.generic_string().c_str(), &removed_dependencies,
+                                  &new_dependencies );
+          }
+          catch ( ... )
+          {
+          }
+
+          VERBOSE_PRINTLN( "New dependencies: {} Removed dependencies: {}", new_dependencies,
+                           removed_dependencies );
+
+          for ( const auto& depnamepath : removed_dependencies )
+          {
+            // If a removed dependency has no owner set is empty, we can remove
+            // the listener for that dependency.
+            if ( dependency_owners.find( depnamepath ) == dependency_owners.end() )
+            {
+              if ( listener.remove_file( depnamepath ) )
+              {
+                VERBOSE_PRINTLN( "Remove watch file {}", depnamepath );
+              }
+            }
+          }
+
+          for ( const auto& depnamepath : new_dependencies )
+          {
+            if ( listener.add_file( depnamepath ) )
+            {
+              VERBOSE_PRINTLN( "Add watch file {}", depnamepath );
+            }
+          }
+        }
+
+        timer.stop();
+        if ( compilercfg.DisplaySummary && !quiet )
+        {
+          DisplaySummary( timer );
+        }
+        to_compile.clear();
+      }
+    }
+  }
+}
 
 /**
  * Runs the compilation threads
@@ -722,9 +1081,13 @@ void AutoCompile()
   bool save = compilercfg.OnlyCompileUpdatedScripts;
   compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
   std::set<std::string> files;
+  compiled_dirs.emplace( fs::canonical( compilercfg.PolScriptRoot ) );
   recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
   for ( const auto& pkg : Plib::systemstate.packages )
+  {
+    compiled_dirs.emplace( fs::canonical( pkg->dir() ) );
     recurse_collect( fs::path( pkg->dir() ), &files, false );
+  }
   if ( compilercfg.ThreadedCompilation )
     parallel_process( files );
   else
@@ -773,7 +1136,6 @@ bool run( int argc, char** argv, int* res )
     if ( argv[i][0] == '/' || argv[i][0] == '-' )
 #endif
     {
-      // -r[i] [<dir>]
       if ( argv[i][1] == 'A' )
       {
         compilercfg.UpdateOnlyOnAutoCompile = ( argv[i][2] == 'u' );
@@ -792,6 +1154,7 @@ bool run( int argc, char** argv, int* res )
           dir.assign( argv[i] );
 
         std::set<std::string> files;
+        compiled_dirs.emplace( fs::canonical( dir ) );
         recurse_collect( fs::path( dir ), &files, compile_inc );
         if ( compilercfg.ThreadedCompilation )
           parallel_process( files );
@@ -808,7 +1171,7 @@ bool run( int argc, char** argv, int* res )
     {
       any = true;
 #ifdef _WIN32
-      Clib::forspec( argv[i], process_file_wrapper );
+      Clib::forspec( argv[i], []( const char* pathname ) { process_file_wrapper( pathname ); } );
 #else
       process_file_wrapper( argv[i] );
 #endif
@@ -824,71 +1187,17 @@ bool run( int argc, char** argv, int* res )
   // Execution is completed: start final/cleanup tasks
   timer.stop();
 
-  Plib::systemstate.deinitialize();
-
   if ( any && compilercfg.DisplaySummary && !quiet )
   {
-    std::string tmp = "Compilation Summary:\n";
-    if ( summary.ThreadCount )
-      tmp += fmt::format( "    Used {} threads\n", summary.ThreadCount );
-    if ( summary.CompiledScripts )
-      tmp += fmt::format( "    Compiled {} script{} in {} ms.\n", summary.CompiledScripts,
-                          ( summary.CompiledScripts == 1 ? "" : "s" ), timer.ellapsed() );
-
-    if ( summary.ScriptsWithCompileErrors )
-      tmp +=
-          fmt::format( "    {} of those script{} had errors.\n", summary.ScriptsWithCompileErrors,
-                       ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" ) );
-
-    if ( summary.UpToDateScripts )
-      tmp += fmt::format( "    {} script{} already up-to-date.\n", summary.UpToDateScripts,
-                          ( summary.UpToDateScripts == 1 ? " was" : "s were" ) );
-
-    if ( show_timing_details )
-    {
-      tmp += fmt::format( "    build workspace: {}\n",
-                          (long long)summary.profile.build_workspace_micros / 1000 );
-      tmp += fmt::format( "        - load *.em:   {}\n",
-                          (long long)summary.profile.load_em_micros / 1000 );
-      tmp += fmt::format( "       - parse *.em:   {} ({})\n",
-                          (long long)summary.profile.parse_em_micros / 1000,
-                          (long)summary.profile.parse_em_count );
-      tmp += fmt::format( "         - ast *.em:   {}\n",
-                          (long long)summary.profile.ast_em_micros / 1000 );
-      tmp += fmt::format( "      - parse *.inc:   {} ({})\n",
-                          (long long)summary.profile.parse_inc_micros / 1000,
-                          (long)summary.profile.parse_inc_count );
-      tmp += fmt::format( "        - ast *.inc:   {}\n",
-                          (long long)summary.profile.ast_inc_micros / 1000 );
-      tmp += fmt::format( "      - parse *.src:   {} ({})\n",
-                          (long long)summary.profile.parse_src_micros / 1000,
-                          (long)summary.profile.parse_src_count );
-      tmp += fmt::format( "        - ast *.src:   {}\n",
-                          (long long)summary.profile.ast_src_micros / 1000 );
-      tmp += fmt::format( "  resolve functions:   {}\n",
-                          (long long)summary.profile.ast_resolve_functions_micros / 1000 );
-      tmp += fmt::format( " register constants: {}\n",
-                          (long long)summary.profile.register_const_declarations_micros / 1000 );
-      tmp += fmt::format( "            analyze: {}\n",
-                          (long long)summary.profile.analyze_micros / 1000 );
-      tmp += fmt::format( "           optimize: {}\n",
-                          (long long)summary.profile.optimize_micros / 1000 );
-      tmp += fmt::format( "       disambiguate: {}\n",
-                          (long long)summary.profile.disambiguate_micros / 1000 );
-      tmp += fmt::format( "      generate code: {}\n",
-                          (long long)summary.profile.codegen_micros / 1000 );
-      tmp += fmt::format( "  prune cache (sel): {}\n",
-                          (long long)summary.profile.prune_cache_select_micros / 1000 );
-      tmp += fmt::format( "  prune cache (del): {}\n",
-                          (long long)summary.profile.prune_cache_delete_micros / 1000 );
-      tmp += "\n";
-      tmp += fmt::format( "      - ambiguities: {}\n", (long)summary.profile.ambiguities );
-      tmp += fmt::format( "       - cache hits: {}\n", (long)summary.profile.cache_hits );
-      tmp += fmt::format( "     - cache misses: {}\n", (long)summary.profile.cache_misses );
-    }
-
-    INFO_PRINTLN( tmp );
+    DisplaySummary( timer );
   }
+
+  if ( watch_source )
+  {
+    EnterWatchMode();
+  }
+
+  Plib::systemstate.deinitialize();
 
   if ( summary.ScriptsWithCompileErrors )
     *res = 1;
@@ -950,15 +1259,6 @@ int ECompileMain::main()
 
   const std::vector<std::string>& binArgs = programArgs();
 
-  /**********************************************
-   * show help
-   **********************************************/
-  if ( binArgs.size() == 1 )
-  {
-    showHelp();
-    return 0;  // return "okay"
-  }
-
 /**********************************************
  * TODO: rework the following cruft from former uotool.cpp
  **********************************************/
@@ -967,6 +1267,24 @@ int ECompileMain::main()
 #endif
 
   ECompile::read_config_file( s_argc, s_argv );
+
+  /**********************************************
+   * show help
+   **********************************************/
+  if ( binArgs.size() == 1 && !compilercfg.AutoCompileByDefault )
+  {
+    showHelp();
+    return 0;  // return "okay"
+  }
+
+  watch_source = compilercfg.WatchModeByDefault;
+  if ( watch_source )
+  {
+    compilercfg.GenerateDependencyInfo = true;
+    keep_building = true;
+    compilercfg.ThreadedCompilation =
+        false;  // limitation since dependency gathering is not thread-safe
+  }
 
   int res = ECompile::readargs( s_argc, s_argv );
   if ( res )

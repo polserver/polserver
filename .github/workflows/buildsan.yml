@@ -136,6 +136,10 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
           #env:
           #POLCORE_TEST_FILTER: testitems
+      - name: Test (Ecompile Watch)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_ecompile_watch
       - name: Upload shard test log
         uses: actions/upload-artifact@v3
         with:

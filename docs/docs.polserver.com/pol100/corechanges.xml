@@ -2,9 +2,21 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-10-2024</datemodified>
+		<datemodified>03-14-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>03-14-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">ecompile option -W (watch mode) / ecompile.cfg option WatchModeByDefault<br/>
+Ecompile now includes a daemon watch mode! When using this mode,<br/>
+ecompile will stay running and watch for file system changes,<br/>
+recompiling scripts if they (or their dependent includes or modules)<br/>
+are changed. This works in conjunction with other options, such as -A<br/>
+for watching all scripts in the distro, or -r for watching all<br/>
+scripts in a specific folder.</change>
+			<change type="Note">When using watch mode, threaded-compilation is disabled.</change>
+		</entry>
 		<entry>
 			<date>03-10-2024</date>
 			<author>Turley:</author>

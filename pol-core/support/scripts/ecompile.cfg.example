@@ -93,6 +93,13 @@ UpdateOnlyOnAutoCompile=1
 OnlyCompileUpdatedScripts=1
 
 #
+# WatchModeByDefault
+# Keep ecompile running to re-compile files that have changed.
+# Default is 0
+#
+#WatchModeByDefault=0
+
+#
 # DisplaySummary
 # Displays overall totals after compilation, unless compilation aborted due to a compile error.
 # Default is 1
@@ -107,7 +114,7 @@ DisplaySummary=1
 GenerateDependencyInfo=1
 
 #
-# 
+#
 # Display the 'xxx/script.ecl is up-to-date' message, or not.
 # Default is 0
 #

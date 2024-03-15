@@ -87,4 +87,15 @@ void SourceFileCache::keep_some()
   profile.prune_cache_delete_micros += delete_timer.ellapsed().count();
 }
 
+void SourceFileCache::clear()
+{
+  std::unique_lock<std::mutex> lock( mutex, std::try_to_lock_t() );
+  if ( !lock.owns_lock() )
+    return;
+
+  Pol::Tools::HighPerfTimer delete_timer;
+  files.clear();
+  profile.prune_cache_delete_micros += delete_timer.ellapsed().count();
+}
+
 }  // namespace Pol::Bscript::Compiler

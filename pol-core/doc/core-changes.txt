@@ -1,4 +1,13 @@
 -- POL100.2.0 --
+03-14-2024 Kevin:
+    Added: ecompile option -W (watch mode) / ecompile.cfg option WatchModeByDefault
+           Ecompile now includes a daemon watch mode! When using this mode,
+           ecompile will stay running and watch for file system changes,
+           recompiling scripts if they (or their dependent includes or modules)
+           are changed. This works in conjunction with other options, such as -A
+           for watching all scripts in the distro, or -r for watching all
+           scripts in a specific folder.
+     Note: When using watch mode, threaded-compilation is disabled.
 03-10-2024 Turley:
     Added: mysql_connect now also accepts port param for non standard ports
     Added: mysql_escape_string escapes given string
