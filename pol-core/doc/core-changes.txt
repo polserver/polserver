@@ -1,4 +1,9 @@
 -- POL100.2.0 --
+03-16-2024 Kevin:
+    Added: item.weight_multiplier_mod to dynamically modify an item's weight.
+           For example, on an item that weighs 100 stone, setting this property
+           to 0.5 would have the item weigh 50 stone. Similarly, setting this
+           property to 2 would have the item weigh 200 stone.
 03-14-2024 Kevin:
     Added: ecompile option -W (watch mode) / ecompile.cfg option WatchModeByDefault
            Ecompile now includes a daemon watch mode! When using this mode,

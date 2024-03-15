@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-14-2024</datemodified>
+		<datemodified>03-16-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>03-16-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">item.weight_multiplier_mod to dynamically modify an item's weight.<br/>
+For example, on an item that weighs 100 stone, setting this property<br/>
+to 0.5 would have the item weigh 50 stone. Similarly, setting this<br/>
+property to 2 would have the item weigh 200 stone.</change>
+		</entry>
 		<entry>
 			<date>03-14-2024</date>
 			<author>Kevin:</author>
