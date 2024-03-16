@@ -1063,11 +1063,6 @@ void Item::spill_contents( Multi::UMulti* /*multi*/ ) {}
 
 unsigned int Item::weight_of( unsigned short amount ) const
 {
-  return weight_of( amount, weight_multiplier_mod() );
-}
-
-unsigned int Item::weight_of( unsigned short amount, double weight_multi_mod ) const
-{
   const ItemDesc& id = this->itemdesc();
   unsigned int amt = amount;
   amt *= id.weightmult;
@@ -1075,7 +1070,7 @@ unsigned int Item::weight_of( unsigned short amount, double weight_multi_mod ) c
   {
     amt = ( amt + id.weightdiv - 1 ) / id.weightdiv;
   }
-  return static_cast<unsigned int>( amt * weight_multi_mod );
+  return static_cast<unsigned int>( amt * weight_multiplier_mod() );
 }
 
 unsigned int Item::weight() const

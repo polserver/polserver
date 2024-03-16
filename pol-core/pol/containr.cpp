@@ -28,6 +28,7 @@
 
 #include "../bscript/executor.h"
 #include "../clib/cfgelem.h"
+#include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
@@ -227,7 +228,9 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
   // passert( !stateManager.gflag_enforce_container_limits || (held_weight_ + weight_delta <=
   // MAX_WEIGHT) );
 
-  held_weight_ += static_cast<unsigned short>( weight_delta );
+  int newweight = held_weight_;
+  newweight += weight_delta;
+  held_weight_ = Clib::clamp_convert<u16>( newweight );
   if ( container != nullptr )
   {
     container->add_bulk( 0, weight_delta );

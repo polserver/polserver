@@ -164,8 +164,7 @@ public:
   void reset_slot();
 
   virtual unsigned int item_count() const;
-  unsigned int weight_of( unsigned short amount ) const;  // uses current weight_multiplier_mod
-  unsigned int weight_of( unsigned short amount, double weight_multi_mod ) const;
+  unsigned int weight_of( unsigned short amount ) const;  // uses weight_multiplier_mod
   virtual unsigned int weight() const override;
 
   virtual std::string name() const override;

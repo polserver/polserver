@@ -1609,13 +1609,17 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
 
     if ( container )
     {
-      int current_weight = weight();
-      int will_be_new_weight = weight_of( amount_, value );
-      int weight_delta = will_be_new_weight - current_weight;
+      int old_weight = weight();
+      weight_multiplier_mod( value );
+      int new_weight = weight();
+      int weight_delta = new_weight - old_weight;
       container->add_bulk( 0, weight_delta );
     }
+    else
+    {
+      weight_multiplier_mod( value );
+    }
 
-    weight_multiplier_mod( value );
     increv();
     send_object_cache_to_inrange( this );
 
