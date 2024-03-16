@@ -115,6 +115,7 @@ Item* Item::clone() const
   item->physical_resist_cap( physical_resist_cap() );
   item->luck( luck() );
   item->swing_speed_increase( swing_speed_increase() );
+  item->weight_multiplier_mod( weight_multiplier_mod() );
 
 
   item->maxhp_mod( maxhp_mod() );
@@ -471,6 +472,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "NameSuffix", suffix );
   if ( no_drop() != default_no_drop() )
     sw.add( "NoDrop", no_drop() );
+  if ( has_weight_multiplier_mod() )
+    sw.add( "WeightMultiplierMod", weight_multiplier_mod() );
 }
 
 void Item::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -593,6 +596,8 @@ void Item::readProperties( Clib::ConfigElem& elem )
   value = static_cast<s16>( elem.remove_int( "SWINGSPEEDINCREASE", 0 ) );
   if ( value != 0 )
     swing_speed_increase( swing_speed_increase().setAsValue( value ) );
+
+  weight_multiplier_mod( elem.remove_double( "WEIGHTMULTIPLIERMOD", 1.0 ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )
@@ -858,7 +863,8 @@ bool Item::can_add_to_self( const Item& item, bool force_stacking )
       ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
         ( item.insured() == insured() ) && ( item.cursed() == cursed() ) &&
         ( item.graphic == graphic ) && ( item.color == color ) && ( item.quality() == quality() ) &&
-        ( !inuse() ) && ( can_add_to_self( item.amount_, force_stacking ) ) );
+        ( item.weight_multiplier_mod() == weight_multiplier_mod() ) && ( !inuse() ) &&
+        ( can_add_to_self( item.amount_, force_stacking ) ) );
   if ( res == true )
   {
     // NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes
@@ -1064,7 +1070,7 @@ unsigned int Item::weight_of( unsigned short amount ) const
   {
     amt = ( amt + id.weightdiv - 1 ) / id.weightdiv;
   }
-  return amt;
+  return static_cast<unsigned int>( amt * weight_multiplier_mod() );
 }
 
 unsigned int Item::weight() const

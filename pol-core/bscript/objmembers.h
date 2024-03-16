@@ -299,6 +299,7 @@ enum MemberID
   MBR_PARRYCHANCE_MOD,
   MBR_PILOT,
   MBR_BUFFS,
+  MBR_WEIGHT_MULTIPLIER_MOD,
 };
 
 inline auto format_as( MemberID id )

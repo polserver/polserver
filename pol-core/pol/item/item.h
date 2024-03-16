@@ -164,7 +164,7 @@ public:
   void reset_slot();
 
   virtual unsigned int item_count() const;
-  unsigned int weight_of( unsigned short amount ) const;
+  unsigned int weight_of( unsigned short amount ) const;  // uses weight_multiplier_mod
   virtual unsigned int weight() const override;
 
   virtual std::string name() const override;
@@ -297,6 +297,7 @@ public:
   DYN_PROPERTY_POINTER( house, Multi::UHouse*, Core::PROP_HOUSE );
 
   DYN_PROPERTY( quality, double, Core::PROP_QUALITY, getItemdescQuality() );
+  DYN_PROPERTY( weight_multiplier_mod, double, Core::PROP_WEIGHT_MULTIPLIER_MOD, 1.0 );
 
 private:
   /// sell and buyprice generated functions only private! (additional logic needed)

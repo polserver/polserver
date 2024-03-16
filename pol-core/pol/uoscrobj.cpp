@@ -1103,6 +1103,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BError( "This item is not owned by any character" );
     break;
   }
+  case MBR_WEIGHT_MULTIPLIER_MOD:
+    return new Double( weight_multiplier_mod() );
+    break;
   default:
     return nullptr;
   }
@@ -1572,6 +1575,8 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
   case MBR_NO_DROP:
     no_drop( value ? true : false );
     return new BLong( no_drop() );
+  case MBR_WEIGHT_MULTIPLIER_MOD:
+    return set_script_member_id_double( id, value );
   default:
     return nullptr;
   }
@@ -1595,6 +1600,41 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
   case MBR_QUALITY:
     quality( value );
     return new Double( value );
+  case MBR_WEIGHT_MULTIPLIER_MOD:
+  {
+    if ( value < 0.0 )
+    {
+      return new BError( "weight_multiplier_mod cannot be less than 0.0" );
+    }
+
+    if ( container )
+    {
+      int old_weight = weight();
+      weight_multiplier_mod( value );
+      int new_weight = weight();
+      int weight_delta = new_weight - old_weight;
+      container->add_bulk( 0, weight_delta );
+    }
+    else
+    {
+      weight_multiplier_mod( value );
+    }
+
+    increv();
+    send_object_cache_to_inrange( this );
+
+    auto cont = container;
+    while ( cont )
+    {
+      cont->increv();
+      send_object_cache_to_inrange( cont );
+      cont = cont->container;
+    }
+
+    UpdateCharacterWeight( this );
+    return new Double( weight_multiplier_mod() );
+    break;
+  }
   default:
     return nullptr;
   }

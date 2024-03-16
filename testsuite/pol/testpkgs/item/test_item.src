@@ -261,3 +261,77 @@ exported function test_item_FindSubstance()
 
   return res;
 endfunction
+
+exported function test_item_weight_mod()
+  var item := CreateItemAtLocation( 0, 0, 0, "goldcoin", 50000 );
+  if ( !item )
+    return ret_error( $"Failed to create item: {item}" );
+  endif
+
+  var unmodded_weight := item.weight;
+
+  var multiplier, expected;
+
+  multiplier := 0.5;
+  item.weight_multiplier_mod := multiplier;
+  expected := CInt( unmodded_weight * multiplier );
+
+  if ( item.weight != expected )
+    DestroyItem( item );
+    return ret_error( $"Item has incorrect weight when weight_multiplier_mod = {multiplier}: expected {expected} != actual {item.weight}" );
+  endif
+
+  multiplier := 2.0;
+  item.weight_multiplier_mod := multiplier;
+  expected := CInt( unmodded_weight * multiplier );
+
+  if ( item.weight != expected )
+    DestroyItem( item );
+    return ret_error( $"Item has incorrect weight when weight_multiplier_mod = {multiplier}: expected {expected} != actual {item.weight}" );
+  endif
+
+  DestroyItem( item );
+
+  return 1;
+endfunction
+
+exported function test_item_weight_mod_in_cont()
+  var cont := CreateItemAtLocation( 0, 0, 0, 0x200001 );
+  if ( !cont )
+    return ret_error( $"Failed to create container: {cont}" );
+  endif
+
+  var empty_weight := cont.weight;
+
+  var item := CreateItemInContainer( cont, "goldcoin", 50000 );
+  if ( !item )
+    DestroyItem( cont );
+    return ret_error( $"Failed to create item: {item}" );
+  endif
+
+  var unmodded_weight := item.weight;
+
+  var multiplier, expected;
+
+  multiplier := 0.5; // double
+  item.weight_multiplier_mod := multiplier;
+  expected := CInt( empty_weight + unmodded_weight * multiplier );
+
+  if ( cont.weight != expected )
+    DestroyItem( cont );
+    return ret_error( $"Container has incorrect weight when item.weight_multiplier_mod = {multiplier}: expected {expected} != actual {cont.weight}" );
+  endif
+
+  multiplier := 2; // int
+  item.weight_multiplier_mod := multiplier;
+  expected := CInt( empty_weight + unmodded_weight * multiplier );
+
+  if ( cont.weight != expected )
+    DestroyItem( cont );
+    return ret_error( $"Container has incorrect weight when item.weight_multiplier_mod = {multiplier}: expected {expected} != actual {cont.weight}" );
+  endif
+
+  DestroyItem( cont );
+
+  return 1;
+endfunction

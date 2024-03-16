@@ -145,6 +145,7 @@
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="weight_multiplier_mod" type="Double" access="r/w" mdesc="Multiplicative modifier when calculating an item's weight. For example, on an item that weighs 100 stone, setting this property to 0.5 would have the item weigh 50 stone." />
 <member mname="character_owner" type="OfflineCharacterRef" access="r/o" mdesc="Returns Character that owns the item, ie. the character whose backpack or equipped items contains the item." />
 <member mname="snoopscript" type="String" access="r/w" mdesc="double-click action script when owned by another character. set to empty string for itemdesc.cfg default script." />
 
