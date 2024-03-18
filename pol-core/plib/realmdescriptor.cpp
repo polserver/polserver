@@ -57,8 +57,16 @@ RealmDescriptor::RealmDescriptor( const std::string& realm_name, const std::stri
       season( elem.remove_unsigned( "season", 1 ) ),
       mapserver_type( Clib::strlowerASCII( elem.remove_string( "mapserver", "memory" ) ) ),
       grid_width( calc_grid_size( width ) ),
-      grid_height( calc_grid_size( height ) )
+      grid_height( calc_grid_size( height ) ),
+      version( elem.remove_ushort( "version", 0 ) )
 {
+  if ( version != RealmDescriptor::VERSION )
+  {
+    elem.throw_error(
+        fmt::format( "Invalid realm descriptor version: expecting version {}. "
+                     "Please regenerate realms using uoconvert.",
+                     RealmDescriptor::VERSION ) );
+  }
 }
 
 size_t RealmDescriptor::sizeEstimate() const

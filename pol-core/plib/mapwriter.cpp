@@ -14,6 +14,7 @@
 #include "../clib/iohelp.h"
 #include "mapcell.h"
 #include "mapsolid.h"
+#include "realmdescriptor.h"
 #include "uofile.h"
 
 
@@ -63,6 +64,7 @@ void MapWriter::WriteConfigFile()
   ofs_cfg << "    num_static_patches " << num_static_patches << std::endl;
   ofs_cfg << "    num_map_patches " << num_map_patches << std::endl;
   ofs_cfg << "    season 1" << std::endl;
+  ofs_cfg << "    version " << RealmDescriptor::VERSION << std::endl;
   ofs_cfg << "}" << std::endl;
 }
 

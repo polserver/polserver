@@ -25,6 +25,7 @@ class RealmDescriptor
 {
 public:
   static RealmDescriptor Load( const std::string& realm_name, const std::string& realm_path = "" );
+  static constexpr unsigned short VERSION = 1;
 
   std::string name;
   std::string file_path;
@@ -38,6 +39,7 @@ public:
   std::string mapserver_type;  // "memory" or "file"
   unsigned short grid_width;
   unsigned short grid_height;
+  unsigned short version;
 
   std::string path( const std::string& filename ) const;
   bool operator==( const RealmDescriptor& rdesc ) const
