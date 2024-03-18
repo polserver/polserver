@@ -10,13 +10,14 @@
 #ifndef PLIB_MAPBLOB_H
 #define PLIB_MAPBLOB_H
 
-#define SOLIDX_X_SIZE 16
-#define SOLIDX_X_SHIFT 4
-#define SOLIDX_X_CELLMASK 0xF
+#define SOLIDX_X_SIZE 8
+#define SOLIDX_X_SHIFT 3
+#define SOLIDX_X_CELLMASK 7
 
-#define SOLIDX_Y_SIZE 16
-#define SOLIDX_Y_SHIFT 4
-#define SOLIDX_Y_CELLMASK 0xF
+#define SOLIDX_Y_SIZE 8
+#define SOLIDX_Y_SHIFT 3
+#define SOLIDX_Y_CELLMASK 7
+
 namespace Pol
 {
 namespace Plib
@@ -33,7 +34,7 @@ struct SOLIDX2_ELEM
   unsigned int baseindex;
   unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
 };
-static_assert( sizeof( SOLIDX2_ELEM ) == 516, "size missmatch" );
+static_assert( sizeof( SOLIDX2_ELEM ) == 132, "size missmatch" );
 
 struct SOLIDS_ELEM
 {
