@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+03-18-2024 Kevin:
+    Fixed: Crash when going to certain map edge locations in Tokuno.
+     Note: This change requires recreating realms via uoconvert.
 03-16-2024 Kevin:
     Added: item.weight_multiplier_mod to dynamically modify an item's weight.
            For example, on an item that weighs 100 stone, setting this property
