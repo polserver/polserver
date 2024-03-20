@@ -1,0 +1,8 @@
+use os;
+use uo;
+
+program walkon( who, boat )
+  var test_pid := GetObjProperty( boat, "#TestPid" );
+  GetProcess( test_pid ).SendEvent( 1 );
+  return 1;
+endprogram

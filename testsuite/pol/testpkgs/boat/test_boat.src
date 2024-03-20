@@ -98,6 +98,38 @@ exported function test_script_method_both()
   return 1;
 endfunction
 
+exported function test_boat_walkon_script()
+  var boat := CreateMultiAtLocation( 10, 50, -4, 0x11004, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( $"Failed to create boat: {boat}" );
+  endif
+
+  SetObjProperty( boat, "#TestPid", GetPid() );
+
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 100, 100, 0 );
+
+  if ( !npc )
+    DestroyMulti( boat );
+    return ret_error( $"Failed to create npc: {npc}" );
+  endif
+
+  var res := MoveObjectToLocation( npc, boat.x + 1, boat.y + 1, boat.z );
+
+  if ( res )
+    res := os::wait_for_event( 5 );
+    if ( !res )
+      res := ret_error( "Event not received from walkon script" );
+    endif
+  endif
+
+  MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  DestroyMulti( boat );
+  npc.kill();
+  DestroyItem( npc.getcorpse() );
+
+  return res;
+endfunction
+
 /*exported function test_boat_realm_move()
   // crashed by wrongly converting coordinates between realms
   var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
