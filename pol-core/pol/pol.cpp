@@ -258,29 +258,25 @@ void start_client_char( Network::Client* client )
                                          client->chr->z(), &newz, &supporting_multi, &walkon ) )
   {
     client->chr->setposition( Pos4d( client->chr->pos() ).z( static_cast<s8>( newz ) ) );
-    // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( supporting_multi != nullptr )
     {
       supporting_multi->register_object( client->chr );
-      Multi::UHouse* this_house = supporting_multi->as_house();
-      if ( client->chr->registered_house == 0 )
+      if ( client->chr->registered_multi == 0 )
       {
-        client->chr->registered_house = supporting_multi->serial;
-
-        if ( this_house != nullptr )
-          this_house->walk_on( client->chr );
+        client->chr->registered_multi = supporting_multi->serial;
+        supporting_multi->walk_on( client->chr );
       }
     }
     else
     {
-      if ( client->chr->registered_house > 0 )
+      if ( client->chr->registered_multi > 0 )
       {
-        Multi::UMulti* multi = system_find_multi( client->chr->registered_house );
+        Multi::UMulti* multi = system_find_multi( client->chr->registered_multi );
         if ( multi != nullptr )
         {
           multi->unregister_object( client->chr );
         }
-        client->chr->registered_house = 0;
+        client->chr->registered_multi = 0;
       }
     }
     client->chr->position_changed();

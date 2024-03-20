@@ -96,8 +96,6 @@ public:
   virtual void register_object( Core::UObject* obj ) override;
   virtual void unregister_object( Core::UObject* obj ) override;
 
-  virtual void walk_on( Mobile::Character* chr ) override;
-
   virtual Core::Range3d current_box() const override;
 
   void ClearSquatters();

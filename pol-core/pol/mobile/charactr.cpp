@@ -325,7 +325,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       buffs_(),
       // MISC
       acct( nullptr ),
-      registered_house( 0 ),
+      registered_multi( 0 ),
       truecolor( 0 ),
       trueobjtype( 0 ),
       // Note, Item uses the named constructor idiom, but here, it is not used.
@@ -488,14 +488,14 @@ void Character::clear_gotten_item()
 void Character::destroy()
 {
   stop_skill_script();
-  if ( registered_house > 0 )
+  if ( registered_multi > 0 )
   {
-    Multi::UMulti* multi = Core::system_find_multi( registered_house );
+    Multi::UMulti* multi = Core::system_find_multi( registered_multi );
     if ( multi != nullptr )
     {
       multi->unregister_object( (UObject*)this );
     }
-    registered_house = 0;
+    registered_multi = 0;
   }
   base::destroy();
 }
@@ -590,8 +590,8 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   sw.add( "TrueColor", Clib::hexint( truecolor ) );
   sw.add( "TrueObjtype", Clib::hexint( trueobjtype ) );
 
-  if ( registered_house )
-    sw.add( "RegisteredHouse", Clib::hexint( registered_house ) );
+  if ( registered_multi )
+    sw.add( "RegisteredMulti", Clib::hexint( registered_multi ) );
 
   sw.add( "Gender", static_cast<int>( gender ) );
   sw.add( "Race", static_cast<int>( race ) );
@@ -829,7 +829,9 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   trueobjtype = elem.remove_unsigned( "TRUEOBJTYPE", objtype_ );  // dave 1/30/3
   graphic = static_cast<u16>( objtype_ );
 
-  registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
+  registered_multi = elem.remove_ulong( "REGISTEREDMULTI", 0 );
+  if ( registered_multi == 0 )
+    registered_multi = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
 
   base::readProperties( elem );
 
@@ -3897,29 +3899,26 @@ bool Character::move( unsigned char i_dir )
     {
       mountedsteps_++;
     }
-    // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( supporting_multi != nullptr )
     {
       supporting_multi->register_object( this );
-      Multi::UHouse* this_house = supporting_multi->as_house();
-      if ( this->registered_house == 0 )
-      {
-        this->registered_house = supporting_multi->serial;
 
-        if ( this_house != nullptr )
-          this_house->walk_on( this );
+      if ( this->registered_multi == 0 )
+      {
+        this->registered_multi = supporting_multi->serial;
+        supporting_multi->walk_on( this );
       }
     }
     else
     {
-      if ( registered_house > 0 )
+      if ( registered_multi > 0 )
       {
-        Multi::UMulti* multi = Core::system_find_multi( registered_house );
+        Multi::UMulti* multi = Core::system_find_multi( registered_multi );
         if ( multi != nullptr )
         {
           multi->unregister_object( (UObject*)this );
         }
-        registered_house = 0;
+        registered_multi = 0;
       }
     }
 
@@ -4325,7 +4324,7 @@ size_t Character::estimatedSize() const
   size_t size = base::estimatedSize() + uclang.capacity() + privs.estimatedSize() +
                 settings.estimatedSize() + sizeof( Core::AccountRef ) /*acct*/
                 + sizeof( Network::Client* )                          /*client*/
-                + sizeof( u32 )                                       /*registered_house*/
+                + sizeof( u32 )                                       /*registered_multi*/
                 + sizeof( unsigned char )                             /*cmdlevel_*/
                 + sizeof( u8 )                                        /*dir*/
                 + sizeof( Core::Pos4d )                               /*lastpos*/

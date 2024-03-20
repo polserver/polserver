@@ -42,9 +42,6 @@
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../realms/realm.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
 #include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobject.h"
@@ -924,7 +921,7 @@ Bscript::BObjectImp* destroy_house( UHouse* house )
   {
     Mobile::Character* chr = chr_contents.back();
     move_to_ground( chr );
-    chr->registered_house = 0;
+    chr->registered_multi = 0;
     chr_contents.pop_back();
   }
 
@@ -960,38 +957,6 @@ void UHouse::unregister_object( UObject* obj )
 void UHouse::ClearSquatters()
 {
   squatters_.clear();
-}
-
-void UHouse::walk_on( Mobile::Character* chr )
-{
-  const Items::ItemDesc& itemdesc = Items::find_itemdesc( objtype_ );
-  if ( !itemdesc.walk_on_script.empty() )
-  {
-    ref_ptr<Bscript::EScriptProgram> prog;
-    prog = find_script2( itemdesc.walk_on_script,
-                         true,  // complain if not found
-                         Plib::systemstate.config.cache_interactive_scripts );
-    if ( prog.get() != nullptr )
-    {
-      std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor() );
-      ex->addModule( new Module::UOExecutorModule( *ex ) );
-      if ( prog->haveProgram )
-      {
-        ex->pushArg( new Bscript::BLong( chr->lastpos.z() ) );
-        ex->pushArg( new Bscript::BLong( chr->lastpos.y() ) );
-        ex->pushArg( new Bscript::BLong( chr->lastpos.x() ) );
-        ex->pushArg( new Module::EItemRefObjImp( this ) );
-        ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
-      }
-
-      ex->priority( 100 );
-
-      if ( ex->setProgram( prog.get() ) )
-      {
-        schedule_executor( ex.release() );
-      }
-    }
-  }
 }
 
 void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )

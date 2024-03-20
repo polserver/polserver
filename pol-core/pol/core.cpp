@@ -94,29 +94,25 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
 
   chr->gradual_boost = new_boost;
   chr->position_changed();
-  // FIXME: Need to add Walkon checks for multi right here if type is house.
   if ( supporting_multi != nullptr )
   {
     supporting_multi->register_object( chr );
-    Multi::UHouse* this_house = supporting_multi->as_house();
-    if ( chr->registered_house == 0 )
+    if ( chr->registered_multi == 0 )
     {
-      chr->registered_house = supporting_multi->serial;
-
-      if ( this_house != nullptr )
-        this_house->walk_on( chr );
+      chr->registered_multi = supporting_multi->serial;
+      supporting_multi->walk_on( chr );
     }
   }
   else
   {
-    if ( chr->registered_house > 0 )
+    if ( chr->registered_multi > 0 )
     {
-      Multi::UMulti* multi = system_find_multi( chr->registered_house );
+      Multi::UMulti* multi = system_find_multi( chr->registered_multi );
       if ( multi != nullptr )
       {
         multi->unregister_object( chr );
       }
-      chr->registered_house = 0;
+      chr->registered_multi = 0;
     }
   }
 
