@@ -51,7 +51,7 @@ public:
   virtual u16 get_senditem_amount() const override;
 
   virtual void add( Item* item ) override;
-  void equip_and_add( Item* item, unsigned layer );
+  void equip_and_add( Item* item, unsigned idx );
   virtual void remove( iterator itr ) override;
 
   virtual void on_insert_add_item( Mobile::Character* mob, MoveType move,

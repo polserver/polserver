@@ -62,9 +62,9 @@ void UCorpse::add( Item* item )
   base::add( item );
 }
 
-void UCorpse::equip_and_add( Item* item, unsigned layer )
+void UCorpse::equip_and_add( Item* item, unsigned idx )
 {
-  can_equip_list_[layer].set( item );
+  can_equip_list_[idx].set( item );
   add_at_random_location( item );
 }
 
