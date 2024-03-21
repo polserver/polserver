@@ -938,6 +938,9 @@ Items::Item* UContainer::clone() const
 unsigned short UContainer::max_items() const
 {
   const auto max_items = desc.max_items + max_items_mod();
+  if ( max_items == 0 )
+    return MAX_CONTAINER_ITEMS;
+
   return static_cast<u16>( std::clamp( max_items, 1, MAX_CONTAINER_ITEMS ) );
 }
 
