@@ -193,6 +193,12 @@ class Container(Item):
   def __getitem__(self, key):
     return self.content[key]
 
+class Corpse(Container):
+  equip = {}
+
+  def __init__(self, client):
+    super().__init__(client)
+
 
 class Mobile(UOBject):
   ''' Represents a mobile in the world '''
@@ -768,10 +774,10 @@ class Client(threading.Thread):
       if pkt.serial in self.objects:
         obj = self.objects[pkt.serial]
         # Delete the object from equipment
-        if isinstance(obj, Item) and obj.parent is not None and isinstance(obj.parent, Mobile):
-          mobile = obj.parent
-          if mobile.equip is not None:
-            mobile.equip = {key:val for key, val in mobile.equip.items() if val != obj}
+        if isinstance(obj, Item) and obj.parent is not None and (isinstance(obj.parent, Mobile) or isinstance(obj.parent, Corpse)):
+          parent = obj.parent
+          if parent.equip is not None:
+            parent.equip = {key:val for key, val in parent.equip.items() if val != obj}
 
         if not self.disable_item_logging:
           obj=self.objects[pkt.serial]
@@ -806,6 +812,23 @@ class Client(threading.Thread):
 
     elif isinstance(pkt, packets.UpdateHealthPacket):
       self.handleUpdateVitalPacket(pkt, 'hp', 'maxhp', brain.Event.EVT_HP_CHANGED)
+
+    elif isinstance(pkt, packets.DeathActionPacket):
+      self.log.info("Got death for %x, corpse %x", pkt.serial, pkt.corpse_serial)
+      item = Corpse(self)
+      item.serial = pkt.corpse_serial
+      self.objects[item.serial] = item
+
+    elif isinstance(pkt, packets.CorpseEquipmentPacket):
+      # We don't add teh item, as there is a follow-up `AddItemsToContainerPacket`
+      # that creates them.
+      self.log.info("Got corpse equipment for %s, equip %s", pkt.serial, pkt.equip)
+      if pkt.serial in self.objects:
+        corpse = self.objects[pkt.serial]
+        if isinstance(corpse, Corpse):
+          for item in pkt.equip:
+            corpse.equip[item['layer']] = item['serial']
+
 
     elif isinstance(pkt, packets.UpdateManaPacket):
       self.handleUpdateVitalPacket(pkt, 'mana', 'maxmana', brain.Event.EVT_MANA_CHANGED)
@@ -1301,10 +1324,18 @@ class Client(threading.Thread):
       if todo.type == brain.Event.EVT_EXIT:
         return False
       elif todo.type == brain.Event.EVT_LIST_OBJS:
-        self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
+        if hasattr(todo, 'parent') and todo.parent in self.objects:
+          parent = self.objects[todo.parent]
+          if isinstance(parent, Container):
+            objs = { item.serial: item for item in parent.content }
+          else:
+            objs = []
+        else:
+          objs = self.objects.copy()
+        self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = objs))
       elif todo.type == brain.Event.EVT_LIST_EQUIPPED_ITEMS:
-        mobile = self.objects[todo.serial] if todo.serial in self.objects else None
-        self.brain.event(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, mobile = mobile))
+        owner = self.objects[todo.serial] if todo.serial in self.objects else None
+        self.brain.event(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, owner = owner))
       elif todo.type == brain.Event.EVT_DISABLE_ITEM_LOGGING:
         self.disable_item_logging = todo.value
         self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
