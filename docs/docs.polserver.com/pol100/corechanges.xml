@@ -2,17 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-20-2024</datemodified>
+		<datemodified>03-22-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
-			<date>03-20-2024</date>
+			<date>03-22-2024</date>
 			<author>Kevin:</author>
 			<change type="Changed">Equipment shown on a human corpses will now only show what was equipped<br/>
 at the time of the character's death. Previously, any equippable item<br/>
 on the corpse would show as equipped.</change>
 			<change type="Fixed">Hair items equipped on a corpse will no longer disappear when opening<br/>
 the corpse.</change>
+			<change type="Fixed">Containers with MaxItems 0 (default if unspecified) will correctly support<br/>
+the maximum allowed items (3200.)</change>
 		</entry>
 		<entry>
 			<date>03-18-2024</date>
