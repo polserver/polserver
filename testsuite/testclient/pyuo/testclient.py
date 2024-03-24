@@ -282,7 +282,7 @@ class PolServer:
           res["objs"][-1]["parent"]=o.parent.serial
     elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:
       res["objs"]=[]
-      if ev.owner is not None and ev.owner.equip is not None:
+      if ev.owner is not None and hasattr(ev.owner, 'equip') and ev.owner.equip is not None:
         for k,o in ev.owner.equip.items():
           res["objs"].append(
                 {'serial':o, 'layer':k} if isinstance(o, int) else
