@@ -2210,9 +2210,8 @@ void Character::die()
   // small lambdas to reduce the mess inside the loops
   auto _copy_item = [&]( Items::Item* _item ) {  // copy a item into the corpse
     Items::Item* copy = _item->clone();
-    copy->invisible( true );
     copy->movable( false );
-    corpse->add( copy );
+    corpse->equip_and_add( copy, copy->layer );
   };
   auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
     _item->setposition( corpse->pos() );
@@ -2299,7 +2298,7 @@ void Character::die()
     }
     else
     {
-      corpse->add_at_random_location( item );
+      corpse->equip_and_add( item, layer );
     }
     UPDATE_CHECKPOINT();
   }

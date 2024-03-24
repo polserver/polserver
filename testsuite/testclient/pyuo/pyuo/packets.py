@@ -1015,6 +1015,26 @@ class DrawObjectPacket(Packet):
 #    if not len(self.equip):
 #      self.duchar() # unused/closing
 
+class CorpseEquipmentPacket(Packet):
+  ''' Corpse clothing / equipment '''
+
+  cmd = 0x89
+  equip = []
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+
+    while True:
+      layer = self.duchar()
+      if layer == 0:
+        break
+
+      serial = self.duint()
+      self.equip.append({
+        'serial': serial,
+        'layer': layer
+      })
 
 class SeedPacket(Packet):
   ''' login seed to server '''
@@ -1295,6 +1315,17 @@ class UnicodeSpeechPacket(Packet):
     self.lang = self.dstring(4)
     self.name = self.dstring(30)
     self.msg = self.ducstring(self.length-48)
+
+class DeathActionPacket(Packet):
+  ''' Display death action '''
+
+  cmd = 0xaf
+  length = 13
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.corpse_serial = self.duint()
+    self.duint() # unknown (all 0)
 
 
 class SendGumpDialogPacket(Packet):

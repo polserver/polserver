@@ -69,7 +69,7 @@ class TestBrain(brain.Brain):
       elif todo=="move":
         self.client.move(arg)
       elif todo=="list_objects":
-        self.client.addTodo(brain.Event(brain.Event.EVT_LIST_OBJS))
+        self.client.addTodo(brain.Event(brain.Event.EVT_LIST_OBJS, parent = arg))
       elif todo=="list_equipped_items":
         self.client.addTodo(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, serial = arg))
       elif todo=="open_backpack":
@@ -282,9 +282,10 @@ class PolServer:
           res["objs"][-1]["parent"]=o.parent.serial
     elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:
       res["objs"]=[]
-      if ev.mobile is not None and ev.mobile.equip is not None:
-        for k,o in ev.mobile.equip.items():
+      if ev.owner is not None and ev.owner.equip is not None:
+        for k,o in ev.owner.equip.items():
           res["objs"].append(
+                {'serial':o, 'layer':k} if isinstance(o, int) else
                 {'serial':o.serial,
                  'color':o.color,
                  'layer':k,

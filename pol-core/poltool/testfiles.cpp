@@ -78,6 +78,14 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   additem( &item[0xe75], 0x00600002, 3, 21, 1, "backpack" );
   additem( &item[0xf3f], 0x04000800, 0, 0, 1, "arrow" );
   additem( &item[0xeed], 0x04000801, 0, 0, 0, "gold coin" );
+
+  additem( &item[0x2006], 0x00214000, 255, 0, 0, "corpse" );
+
+  // equipment
+  additem( &item[0x1517], 0x00404002, 1, 5, 1, "shirt" );
+  additem( &item[0x152e], 0x08400000, 2, 4, 1, "short pants" );
+  additem( &item[0x203b], 0x00400002, 0, 11, 0, "short hair" );
+
   // house 0x6b
   additem( &item[0x6], 0x00002050, 255, 0, 20, "wooden wall" );
   additem( &item[0x7], 0x00002050, 255, 0, 20, "wooden wall" );

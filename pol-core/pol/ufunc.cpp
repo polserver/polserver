@@ -497,12 +497,10 @@ void send_put_in_container_to_inrange( const Item* item )
 // An item is visible on a corpse if:
 //   - it's visible
 //   - or the chr has seeinvisitems() privilege
-//   - it's hair or beard
-bool can_see_on_corpse( const Client* client, const Item* item )
+// (note: hair items are not invisible on corpses)
+bool can_see_on_corpse( const Client* client, const Core::ItemRef& item )
 {
-  bool invisible =
-      ( item->invisible() && !client->chr->can_seeinvisitems() && item->layer != Core::LAYER_HAIR &&
-        item->layer != Core::LAYER_BEARD && item->layer != Core::LAYER_FACE );
+  bool invisible = ( item->invisible() && !client->chr->can_seeinvisitems() );
 
   return !invisible;
 }
@@ -517,9 +515,9 @@ void send_corpse_equip( Client* client, const UCorpse* corpse )
 
   for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
   {
-    Item* item2 = corpse->GetItemOnLayer( layer );
+    const auto& item2 = corpse->GetItemOnLayer( layer );
 
-    if ( !item2 )
+    if ( !item2 || item2->orphan() || item2->container != corpse )
       continue;
 
     if ( !can_see_on_corpse( client, item2 ) )
@@ -547,9 +545,9 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
 
   for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
   {
-    const Items::Item* item = corpse->GetItemOnLayer( layer );
+    const Core::ItemRef item = corpse->GetItemOnLayer( layer );
 
-    if ( !item )
+    if ( !item || item->orphan() || item->container != corpse )
       continue;
 
     if ( !can_see_on_corpse( client, item ) )

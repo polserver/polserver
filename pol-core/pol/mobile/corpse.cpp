@@ -31,7 +31,13 @@ UCorpse::UCorpse( const Items::ContainerDesc& descriptor )
     : UContainer( descriptor ), corpsetype( 0 ), ownerserial( 0 )
 {
   movable( false );
-  layer_list_.resize( HIGHEST_LAYER + 1, nullptr );
+  can_equip_list_.resize( HIGHEST_LAYER + 1 );
+}
+
+const Core::ItemRef& UCorpse::GetItemOnLayer( unsigned idx ) const
+{
+  passert( Items::valid_equip_layer( idx ) );
+  return can_equip_list_.at( idx );
 }
 
 bool UCorpse::take_contents_to_grave() const
@@ -47,7 +53,7 @@ void UCorpse::take_contents_to_grave( bool newvalue )
 void UCorpse::add( Item* item )
 {
   // When an item is added, check if it's equippable and add to the appropriate layer
-  if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == nullptr )
+  if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == item )
   {
     PutItemOnLayer( item );
   }
@@ -56,13 +62,19 @@ void UCorpse::add( Item* item )
   base::add( item );
 }
 
+void UCorpse::equip_and_add( Item* item, unsigned idx )
+{
+  can_equip_list_[idx].set( item );
+  add_at_random_location( item );
+}
+
 void UCorpse::remove( iterator itr )
 {
   Item* item = *itr;
 
   if ( Items::valid_equip_layer( item ) )
   {
-    Item* item_on_layer = GetItemOnLayer( item->tile_layer );
+    auto& item_on_layer = GetItemOnLayer( item->tile_layer );
 
     if ( item_on_layer != nullptr && item_on_layer->serial == item->serial )
     {
@@ -109,8 +121,6 @@ void UCorpse::PutItemOnLayer( Item* item )
   item->set_dirty();
   set_dirty();
   item->layer = item->tile_layer;
-  layer_list_[item->tile_layer] = Contents::value_type( item );
-  add_bulk( item );
 }
 
 void UCorpse::RemoveItemFromLayer( Item* item )
@@ -120,7 +130,6 @@ void UCorpse::RemoveItemFromLayer( Item* item )
 
   item->set_dirty();
   set_dirty();
-  layer_list_[item->tile_layer] = nullptr;
   item->layer = 0;
 }
 
@@ -152,7 +161,7 @@ size_t UCorpse::estimatedSize() const
   size_t size = base::estimatedSize() + sizeof( u16 ) /*corpsetype*/
                 + sizeof( u32 )                       /*ownerserial*/
                 // no estimateSize here element is in objhash
-                + 3 * sizeof( Items::Item** ) + layer_list_.capacity() * sizeof( Items::Item* );
+                + 3 * sizeof( Items::Item** ) + can_equip_list_.capacity() * sizeof( Items::Item* );
   return size;
 }
 
@@ -163,8 +172,9 @@ void UCorpse::on_insert_add_item( Mobile::Character* mob, MoveType move, Items::
   if ( Items::valid_equip_layer( new_item ) )
   {
     UCorpse* corpse = static_cast<UCorpse*>( this );
-    Item* item_on_layer = corpse->GetItemOnLayer( new_item->tile_layer );
-    if ( item_on_layer != nullptr && item_on_layer->serial == new_item->serial )
+    auto& item_on_layer = corpse->GetItemOnLayer( new_item->tile_layer );
+    if ( item_on_layer != nullptr && !item_on_layer->orphan() &&
+         item_on_layer->serial == new_item->serial )
     {
       send_corpse_equip_inrange( corpse );
     }

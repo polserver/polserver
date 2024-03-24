@@ -1,0 +1,125 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+var char;
+var char2;
+var npc;
+var corpse;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+endprogram
+
+function cleanup()
+  if ( npc )
+    npc.kill();
+    npc := 0;
+  endif
+  if ( corpse )
+    DestroyItem( corpse );
+    corpse := 0;
+  endif
+endfunction
+
+function cleanup_ret_error( err )
+  cleanup();
+  return ret_error( err );
+endfunction
+
+exported function test_corpse_equipment()
+  var res, corpse_equipment, corpse_content, goldcoin;
+
+  if ( !( res := MoveObjectToLocation( char, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION ) ) )
+    return cleanup_ret_error( $"Could not move player: {res}" );
+  endif
+
+  if ( !( npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 100, 100, 0 ) ) )
+    return cleanup_ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  if ( !( res := EquipFromTemplate( npc, "StartingEquipment" ) ) )
+    return cleanup_ret_error( $"Could not equip template: {res}" );
+  endif
+
+  if ( !( goldcoin := CreateItemInContainer( npc.backpack, "goldcoin", 1000 ) ) )
+    return cleanup_ret_error( $"Could not create goldcoin in backpack: {goldcoin}" );
+  endif
+
+  npc.kill();
+  npc := 0;
+  Sleep( 1 );
+
+  if ( !( corpse := ListItemsNearLocationOfType( 100, 100, 0, 1, 0x2006 )[1] ) )
+    return cleanup_ret_error( $"Could not find corpse" );
+  endif
+
+  //
+  // The corpse_content should only contain the equipped items (and not the goldcoin),
+  // as the container has not been opened.
+  //
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "list_equipped_items", arg := corpse.serial, id := 0 } );
+  if ( !( corpse_equipment := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } ) ) )
+    return cleanup_ret_error( $"Could not list corpse equipment: {corpse_equipment}" );
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "list_objects", arg := corpse.serial, id := 0 } );
+  if ( !( corpse_content := waitForClient( 0, { EVT_LIST_OBJS } ) ) )
+    return cleanup_ret_error( $"Could not get first corpse content: {corpse_content}" );
+  endif
+
+  var corpse_equipment_serials := array{};
+  foreach equipment in ( corpse_equipment.objs )
+    corpse_equipment_serials.append( equipment.serial );
+  endforeach
+
+  if ( Len( corpse_content.objs ) != Len( corpse_equipment.objs ) )
+    return cleanup_ret_error( $"corpse_content and corpse_equipment not equal: {corpse_content.objs} != {corpse_equipment.objs}" );
+  endif
+
+  foreach content in ( corpse_content.objs )
+    if ( !( content.serial in corpse_equipment_serials ) )
+      return cleanup_ret_error( $"Content {content.serial:x} not in corpse equipment" );
+    endif
+  endforeach
+
+  //
+  // After opening the corpse, goldcoin should now be in the corpse contents.
+  //
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "double_click", arg := corpse.serial, id := 0 } );
+  if ( !( res := waitForClient( 0, { EVT_DOUBLE_CLICK } ) ) )
+    return cleanup_ret_error( $"Could not double-click corpse: {res}" );
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "list_objects", arg := corpse.serial, id := 0 } );
+  if ( !( corpse_content := waitForClient( 0, { EVT_LIST_OBJS } ) ) )
+    return cleanup_ret_error( $"Could not get second corpse content: {corpse_content}" );
+  endif
+
+  res := ret_error( $"goldcoin {goldcoin.serial:x} not found in corpse_content: {corpse_content.objs}" );
+  foreach content in ( corpse_content.objs )
+    if ( content.serial == goldcoin.serial )
+      res := 1;
+    endif
+  endforeach
+
+  cleanup();
+  return res;
+endfunction
