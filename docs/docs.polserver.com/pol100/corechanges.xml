@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-22-2024</datemodified>
+		<datemodified>03-24-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>03-24-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">`lastrealm` parameter to WalkOnScript.</change>
+			<change type="Added">Boat WalkOnScript now triggers in the same manner as other Multis and Items.</change>
+		</entry>
 		<entry>
 			<date>03-22-2024</date>
 			<author>Kevin:</author>

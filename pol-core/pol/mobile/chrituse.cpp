@@ -8,6 +8,7 @@
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/eprog.h"
+#include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
@@ -15,6 +16,7 @@
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../module/uomod.h"
+#include "../realms/realm.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -110,6 +112,8 @@ void Item::walk_on( Mobile::Character* chr )
       ex->addModule( new Module::UOExecutorModule( *ex ) );
       if ( prog->haveProgram )
       {
+        ex->pushArg(
+            new Bscript::String( chr->lastpos.realm() ? chr->lastpos.realm()->name() : "" ) );
         ex->pushArg( new Bscript::BLong( chr->lastpos.z() ) );
         ex->pushArg( new Bscript::BLong( chr->lastpos.y() ) );
         ex->pushArg( new Bscript::BLong( chr->lastpos.x() ) );

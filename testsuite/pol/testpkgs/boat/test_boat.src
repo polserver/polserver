@@ -98,6 +98,78 @@ exported function test_script_method_both()
   return 1;
 endfunction
 
+exported function test_boat_walkon_script()
+  var boat := CreateMultiAtLocation( 10, 50, -4, 0x11004, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( $"Failed to create boat: {boat}" );
+  endif
+
+  SetObjProperty( boat, "#TestPid", GetPid() );
+
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 100, 100, 0 );
+
+  if ( !npc )
+    DestroyMulti( boat );
+    return ret_error( $"Failed to create npc: {npc}" );
+  endif
+
+  var lastpos := struct{ lastx := npc.x, lasty := npc.y, lastz := npc.z, lastrealm := npc.realm };
+  var res := MoveObjectToLocation( npc, boat.x + 1, boat.y + 1, boat.z );
+
+  if ( res )
+    res := os::wait_for_event( 5 );
+    if ( !res )
+      res := ret_error( "Event not received from walkon script" );
+    else
+      if ( res.lastx != lastpos.lastx || res.lasty != lastpos.lasty || res.lastz != lastpos.lastz || res.lastrealm != lastpos.lastrealm )
+        res := ret_error( $"Last position of npc {lastpos} != last position from walkon script {res}" );
+      else
+        res := 1;
+      endif
+    endif
+  endif
+
+  MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  DestroyMulti( boat );
+  npc.kill();
+
+  return res;
+endfunction
+
+exported function test_boat_walkon_script_oncreate()
+  var boat := CreateMultiAtLocation( 10, 50, -4, 0x11004, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( $"Failed to create boat: {boat}" );
+  endif
+
+  SetObjProperty( boat, "#TestPid", GetPid() );
+
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", boat.x + 1, boat.y + 1, boat.z );
+
+  if ( !npc )
+    DestroyMulti( boat );
+    return ret_error( $"Failed to create npc: {npc}" );
+  endif
+
+  var lastpos := struct{ lastx := 0, lasty := 0, lastz := 0, lastrealm := "" };
+  var res := os::wait_for_event( 5 );
+  if ( !res )
+    res := ret_error( "Event not received from walkon script" );
+  else
+    if ( res.lastx != lastpos.lastx || res.lasty != lastpos.lasty || res.lastz != lastpos.lastz || res.lastrealm != lastpos.lastrealm )
+      res := ret_error( $"Last position of npc {lastpos} != last position from walkon script {res}" );
+    else
+      res := 1;
+    endif
+  endif
+
+  MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  DestroyMulti( boat );
+  npc.kill();
+
+  return res;
+endfunction
+
 /*exported function test_boat_realm_move()
   // crashed by wrongly converting coordinates between realms
   var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);

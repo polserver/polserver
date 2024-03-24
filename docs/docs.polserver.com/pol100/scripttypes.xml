@@ -68,6 +68,7 @@ endprogram</example>
     <parameter name="lastx" value="Character's previous integer world coordinate" />
     <parameter name="lasty" value="Character's previous integer world coordinate" />
     <parameter name="lastz" value="Character's previous integer world coordinate" />
+    <parameter name="lastrealm" value="Character's previous realm world coordinate" />
     <return>Return value ignored</return>
     <schedtype>Normal</schedtype>
     <def_prio>100</def_prio>
@@ -75,13 +76,13 @@ endprogram</example>
     <wherelives>The 'program' in a .src file, in a package or /scripts/items</wherelives>
     <todefine>In the item's itemdesc.cfg entry, the 'WalkOnScript' property defines the location of the walk-on script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/items.</todefine>
     <explain>This interactive script is called when a client moves on an item (walk or teleports). This script is NOT attached to the character.</explain>
-    <explain>Doesn't work with Multis.</explain>
+    <explain>Note: The last position can be empty (last, lasty, lastz are 0; lastrealm is ""), eg. when creating an NPC on a multi.</explain>
     <example>
 use uo;
 use util;
-program my_example_walkonscript(character, item, lastx, lasty, lastz)
+program my_example_walkonscript(character, item, lastx, lasty, lastz, lastrealm)
     PrintTextAbove(item, "Ouch! " + character.name + ", don't step on me!");
-    MoveItemToLocation( item, lastx, lasty, lastz );
+    MoveItemToLocation( item, lastx, lasty, lastz, lastrealm );
 endprogram</example>
     <relatedobj>Character</relatedobj>
     <relatedobj>Item</relatedobj>
@@ -228,7 +229,7 @@ exported function discombobulate(flag1, message) //pass by reference here is ok 
     return 0;
 endfunction
 
-// So now, in another script, if 'widget' is a reference to 
+// So now, in another script, if 'widget' is a reference to
 // item 0xE000, call like this:
 widget.discombobulate(4,"Meaningless message");</example>
     <relatedobj>Item</relatedobj>
@@ -245,7 +246,7 @@ widget.discombobulate(4,"Meaningless message");</example>
     <parameter name="adding_item" value="Item Ref" />
     <parameter name="existing_stack" value="Item Ref" />
     <parameter name="amt_to_add" value="integer" />
-    
+
     <return>If 1, item is allowed to be inserted into the container, else it is not inserted.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -260,7 +261,7 @@ widget.discombobulate(4,"Meaningless message");</example>
     <example>
 use uo;
 const MAX_WEIGHT := 400;
-program my_example_caninsertscript(character, container, movetype, inserttype, 
+program my_example_caninsertscript(character, container, movetype, inserttype,
                                    adding_item, existing_stack, amount_to_add)
     if(character != error)
       if(inserttype == INSERT_ADD_ITEM)
@@ -277,20 +278,20 @@ program my_example_caninsertscript(character, container, movetype, inserttype,
             return 1;
           endif
         else //need to go by the amount to add
-          var weight_per_item := CDbl(existing_stack.weight) / CDbl(existing_stack.amount);         
+          var weight_per_item := CDbl(existing_stack.weight) / CDbl(existing_stack.amount);
           if(character.weight + (weight_per_item * amount_to_add) > MAX_WEIGHT)
             return 0;
           else
             return 1;
           endif
         endif
-      endif          
+      endif
     else
         return 1;
     endif
 endprogram</example>
     <example>
-UO.EM constants used with the 'movetype' parameter:    
+UO.EM constants used with the 'movetype' parameter:
 const MOVETYPE_PLAYER     := 0; // physically moved (dragged) by a player
 const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToContainer().)
 Insert scripts only:
@@ -334,7 +335,7 @@ program my_example_canremovescript(character, container, item)
         return 1;
 endprogram</example>
     <example>
-UO.EM constants used with the 'movetype' parameter:    
+UO.EM constants used with the 'movetype' parameter:
 const MOVETYPE_PLAYER     := 0; // physically moved (dragged) by a player
 const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToLocation().)</example>
     <relatedobj>Character</relatedobj>
@@ -365,13 +366,13 @@ const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToLocation().)
     <explain>This script allows side effects to be triggered as a result of the item insertion.</explain>
     <explain>IMPORTANT: the first parameter (character) MAY be passed as an uninitialized object if the item was not moved by character (i.e. by a script function or the core), so please check it before you use it.</explain>
     <explain>inserttype will be INSERT_ADD_ITEM if a new item is being inserted into the container (existing_stack and amt_to_add are uninit), or INSERT_INCREASE_STACK if an existing item's amount is merely being increased (and adding_item is uninit).</explain>
-    <explain>These are the times when onInsert scripts are called: Client drag/drop, vendor buy: when moving items to the player's backpack, vendor sell: when putting gold in the player's backpack, secure trade, when cancelling or confirming a trade, MoveItemToContainer, CreateItemInContainer, CreateItemInInventory, CreateItemInBackpack.</explain>    
+    <explain>These are the times when onInsert scripts are called: Client drag/drop, vendor buy: when moving items to the player's backpack, vendor sell: when putting gold in the player's backpack, secure trade, when cancelling or confirming a trade, MoveItemToContainer, CreateItemInContainer, CreateItemInInventory, CreateItemInBackpack.</explain>
     <example>
 use uo;
-program my_example_oninsertscript(character, container, movetype, inserttype, adding_item, 
+program my_example_oninsertscript(character, container, movetype, inserttype, adding_item,
                                   existing_stack, amount_to_add)
     if(inserttype == INSERT_INCREASE_STACK )
-      SendSysmessage(character,"You insert " + amount_to_add + " more " 
+      SendSysmessage(character,"You insert " + amount_to_add + " more "
                    + existing_stack.desc + " into the container.");
     else
       SendSysmessage(character,"You insert a " + adding_item.desc + " into the container.");
@@ -379,7 +380,7 @@ program my_example_oninsertscript(character, container, movetype, inserttype, ad
     PlaySoundEffectPrivate(character, SFX_INSERT, character);
 endprogram</example>
     <example>
-UO.EM constants used with the 'movetype' parameter:    
+UO.EM constants used with the 'movetype' parameter:
 const MOVETYPE_PLAYER     := 0; // physically moved (dragged) by a player
 const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToContainer().)
 Insert scripts only:
@@ -416,12 +417,12 @@ const INSERT_INCREASE_STACK  := 2;</example>
     <example>
 use uo;
 program my_example_onremovescript(character, container, item, item_amount)
-    SendSysmessage(character,"You removed " + item_amount + " " 
+    SendSysmessage(character,"You removed " + item_amount + " "
                    + item.desc + " from the container.");
     PlaySoundEffectPrivate(character, SFX_REMOVE, character);
 endprogram</example>
     <example>
-UO.EM constants used with the 'movetype' parameter:    
+UO.EM constants used with the 'movetype' parameter:
 const MOVETYPE_PLAYER     := 0; // physically moved (dragged) by a player
 const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToLocation().)</example>
     <relatedobj>Character</relatedobj>
@@ -551,7 +552,7 @@ use uo;
 program my_example_equiptest(character, item, startup)
     var firstletter := lower(character.name[1]);
     if(firstletter == "t")
-        SendSysmessage(character,"Sorry, character name starting with 
+        SendSysmessage(character,"Sorry, character name starting with
                        't' can't equip any items, for some reason.");
         return 0;
     else
@@ -764,9 +765,9 @@ endprogram</example>
     <explain>Lots of things can be done with this script type, including creating objects, destroying them, showing gump menus, teleporting, or anything that the core functions allow!</explain>
     <explain>'text' is all the text after the command name. I.e. '.createstack 0xEED 100' would make 'text' be '0xEED 100'. This is a great place to use SplitWords (note result is still a string, so use Cint() if expecting integers).</explain>
     <explain>Only one text command script may be active on a player at a time.</explain>
-    <explain>Unicode array: array of integers representing unicode characters</explain> 
+    <explain>Unicode array: array of integers representing unicode characters</explain>
     <example>
-// a teleport script. Should be entered with x y z numbers after the name.    
+// a teleport script. Should be entered with x y z numbers after the name.
 use uo;
 program textcmd( character, text )
     var arr := SplitWords( text );
@@ -819,7 +820,7 @@ program core_dblClickSelf(who, clicked)
 	if ( HasPDGraphic(clicked) )
 		return OPenPaperDoll(who, clicked);
 	endif
-	
+
 	return 0;
 endprogram
 
@@ -831,7 +832,7 @@ function HasPDGraphic(clicked)
 		403:	return 1; break; // Female ghost
 		987:	return 1; break; // GM robe
 	endcase
-	
+
 	return 0;
 endfunction
     </example>
@@ -1024,7 +1025,7 @@ endprogram</example>
     <explain>The script is 'attached' to the character, and he/she cannot use another skill or use an item until this skill script exits or calls Detach().</explain>
     <explain>The attributes.cfg entry defines the time delay for starting subsequent skill scripts</explain>
     <example>
-//example hide skill script   
+//example hide skill script
 use uo;
 program hideskill( character )
 	if(character.cmdlevel > 0)
@@ -1150,7 +1151,7 @@ print("my package starting..");
 //vitals.cfg defines MaximumFunction regen:GetLifeMaximumValueExported , etc.
 //Life vital funcs:
 use uo;
-exported function GetLifeMaximumValueExported(mob) 
+exported function GetLifeMaximumValueExported(mob)
 	return (GetAttribute(mob, ATTRIBUTEID_STRENGTH) * 100);
 endfunction</example>
     <relatedobj>Character</relatedobj>
@@ -1211,8 +1212,8 @@ endfunction</example>
     <explain><code>ConsumeAmmunition:</code></explain>
     <explain>params: CharRef attacker, ItemRef weapon. When called: the combat system goes to perform the ammunition consumption check. Note: This is overruled by an active Combat Hook Return: 0 disallow fire, 1 fire weapon, -1 use core consumption.</explain>
     <example>
-//Pushthrough hook example    
-//syshook.cfg defines: 
+//Pushthrough hook example
+//syshook.cfg defines:
 SystemHookScript pushhook.ecl
 {
 	Pushthrough Pushthrough
@@ -1228,7 +1229,7 @@ exported function Pushthrough(walker, obstructors)
 	//foreach mob in obstructors   //note, obstructors is an array of char refs
 	//	print(mob.name);
 	//endforeach
-	
+
 	if(GetVital(walker,"Stamina") &lt; GetVitalMaximumValue(walker,"Stamina"))
 		return 0;
 	else
@@ -1291,7 +1292,7 @@ endprogram</example>
     <todefine>This script is called for all Players.</todefine>
     <explain>This script allows control over what character may be removed by returning 1 or 0. This script is run critical, so try not to do too many calculations in it.</explain>
     <example>
-UO.EM constants used with the 'deleteby' parameter:    
+UO.EM constants used with the 'deleteby' parameter:
 const DELETE_BY_PLAYER := 0; // Delete-Request by Player
 const DELETE_BY_SCRIPT := 1; // Delete-Request by account.DeleteCharacter( index )
 </example>
@@ -1505,4 +1506,3 @@ endprogram</example>
 </scripttype>
 
 </ESCRIPT>
-

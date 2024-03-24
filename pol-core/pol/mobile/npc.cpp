@@ -124,14 +124,14 @@ void NPC::destroy()
 {
   // stop_scripts();
   wornitems->destroy_contents();
-  if ( registered_house > 0 )
+  if ( registered_multi > 0 )
   {
-    Multi::UMulti* multi = Core::system_find_multi( registered_house );
+    Multi::UMulti* multi = Core::system_find_multi( registered_multi );
     if ( multi != nullptr )
     {
       multi->unregister_object( (UObject*)this );
     }
-    registered_house = 0;
+    registered_multi = 0;
   }
   base::destroy();
 }

@@ -194,7 +194,7 @@ class Container(Item):
     return self.content[key]
 
 class Corpse(Container):
-  equip = {}
+  equip = None
 
   def __init__(self, client):
     super().__init__(client)
@@ -826,6 +826,7 @@ class Client(threading.Thread):
       if pkt.serial in self.objects:
         corpse = self.objects[pkt.serial]
         if isinstance(corpse, Corpse):
+          corpse.equip = {}
           for item in pkt.equip:
             corpse.equip[item['layer']] = item['serial']
 

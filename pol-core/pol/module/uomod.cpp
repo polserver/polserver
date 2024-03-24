@@ -1422,29 +1422,25 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
             send_char_data( zonechr->client, npc.get() );
         } );
     realm->notify_entered( *npc );
-    // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( dummy_multi )
     {
       dummy_multi->register_object( npc.get() );
-      Multi::UHouse* this_house = dummy_multi->as_house();
-      if ( npc->registered_house == 0 )
+      if ( npc->registered_multi == 0 )
       {
-        npc->registered_house = dummy_multi->serial;
-
-        if ( this_house != nullptr )
-          this_house->walk_on( npc.get() );
+        npc->registered_multi = dummy_multi->serial;
+        dummy_multi->walk_on( npc.get() );
       }
     }
     else
     {
-      if ( npc->registered_house > 0 )
+      if ( npc->registered_multi > 0 )
       {
-        Multi::UMulti* multi = system_find_multi( npc->registered_house );
+        Multi::UMulti* multi = system_find_multi( npc->registered_multi );
         if ( multi != nullptr )
         {
           multi->unregister_object( npc.get() );
         }
-        npc->registered_house = 0;
+        npc->registered_multi = 0;
       }
     }
     return new ECharacterRefObjImp( npc.get() );

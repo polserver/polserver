@@ -43,6 +43,11 @@ endfunction
 exported function test_corpse_equipment()
   var res, corpse_equipment, corpse_content, goldcoin;
 
+  // Clean up old, leftover corpses from other tests
+  foreach corpse in ListItemsNearLocationOfType( 100, 100, 0, 15, 0x2006 )
+    DestroyItem( corpse );
+  endforeach
+
   if ( !( res := MoveObjectToLocation( char, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION ) ) )
     return cleanup_ret_error( $"Could not move player: {res}" );
   endif

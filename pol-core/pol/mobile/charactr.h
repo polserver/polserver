@@ -862,7 +862,7 @@ protected:
   // MISC
 public:
   Core::AccountRef acct;
-  u32 registered_house;
+  u32 registered_multi;
   u16 truecolor;
   u32 trueobjtype;
   Plib::UGENDER gender;

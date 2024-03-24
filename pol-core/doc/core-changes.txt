@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+03-24-2024 Kevin:
+    Added: `lastrealm` parameter to WalkOnScript.
+    Added: Boat WalkOnScript now triggers in the same manner as other Multis and Items.
 03-22-2024 Kevin:
   Changed: Equipment shown on a human corpses will now only show what was equipped
            at the time of the character's death. Previously, any equippable item
