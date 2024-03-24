@@ -1,8 +1,8 @@
 use os;
 use uo;
 
-program walkon( who, boat )
+program walkon( who, boat, lastx, lasty, lastz, lastrealm )
   var test_pid := GetObjProperty( boat, "#TestPid" );
-  GetProcess( test_pid ).SendEvent( 1 );
+  GetProcess( test_pid ).SendEvent( struct{ lastx := lastx, lasty := lasty, lastz := lastz, lastrealm := lastrealm } );
   return 1;
 endprogram
