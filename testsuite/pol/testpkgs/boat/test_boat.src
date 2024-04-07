@@ -194,7 +194,7 @@ exported function test_sails_passable()
   return 1;
 endfunction
 
-exported function test_square_boat_collides()
+exported function test_sails_collides()
   // Tile (28,28) is sand, so if sails...
   // - collide: we can not build at (27,27)
 
