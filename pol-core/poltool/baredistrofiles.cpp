@@ -609,6 +609,13 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 "# Attempt to return item in origin container will be skipped.",
 "#",
 "UndoGetItemDropHere=0",
+"",
+"#",
+"# BoatSailsCollide - 1/0 (default 0)",
+"#",
+"# If enabled - boat sails will collide with objects in the world and cannot be passed through.",
+"#",
+"BoatSailsCollide=0"
                   } ) );
 
   distro.emplace( "config/startloc.cfg",

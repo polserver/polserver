@@ -615,6 +615,23 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
     };
     // end boat
   }
+
+  // A square boat, with mast in center, deck around mast, sails around deck
+  for ( int direction = 0; direction < 4; direction++ )
+  {
+    multis[0x12 + direction] = std::vector<T>{
+        elem( 0x3e6c, 0, 0, 0, 1 ),   elem( 0x3e8b, -1, -1, 0, 1 ), elem( 0x3e8b, -1, 0, 0, 1 ),
+        elem( 0x3e8b, -1, 1, 0, 1 ),  elem( 0x3e8b, 0, -1, 0, 1 ),  elem( 0x3e8b, 0, 1, 0, 1 ),
+        elem( 0x3e8b, 1, -1, 0, 1 ),  elem( 0x3e8b, 1, 0, 0, 1 ),   elem( 0x3e8b, 1, 1, 0, 1 ),
+        elem( 0x3e59, -2, -2, 0, 1 ), elem( 0x3e59, -2, -1, 0, 1 ), elem( 0x3e59, -2, 0, 0, 1 ),
+        elem( 0x3e59, -2, 1, 0, 1 ),  elem( 0x3e59, -2, 2, 0, 1 ),  elem( 0x3e59, -1, -2, 0, 1 ),
+        elem( 0x3e59, -1, 2, 0, 1 ),  elem( 0x3e59, 0, -2, 0, 1 ),  elem( 0x3e59, 0, 2, 0, 1 ),
+        elem( 0x3e59, 1, -2, 0, 1 ),  elem( 0x3e59, 1, 2, 0, 1 ),   elem( 0x3e59, 2, -2, 0, 1 ),
+        elem( 0x3e59, 2, -1, 0, 1 ),  elem( 0x3e59, 2, 0, 0, 1 ),   elem( 0x3e59, 2, 1, 0, 1 ),
+        elem( 0x3e59, 2, 2, 0, 1 ),
+    };
+  }
+
   multis[0x6b] = std::vector<T>{
       elem( 0x0066, -3, -3, 0, 1 ),  elem( 0x0009, -3, -3, 7, 1 ),  elem( 0x0064, -3, -2, 0, 1 ),
       elem( 0x0008, -3, -2, 7, 1 ),  elem( 0x0064, -3, -1, 0, 1 ),  elem( 0x0008, -3, -1, 7, 1 ),
