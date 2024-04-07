@@ -103,6 +103,8 @@ struct ServSpecOpt
   bool undo_get_item_enable_range_check;
   bool undo_get_item_drop_here;
 
+  bool boat_sails_collide;
+
   static void read_servspecopt();
   static void ssopt_parse_totalstats( Clib::ConfigElem& elem );
 };

@@ -172,6 +172,7 @@ public:
   static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z,
                          Realms::Realm* realm );  // TODO Pos
   static bool navigable( const MultiDef& md, const Core::Pos4d& desired_pos );
+  static bool objtype_passable( unsigned short graphic );
   void realm_changed();
   void adjust_traveller_z( s8 delta_z );
 
