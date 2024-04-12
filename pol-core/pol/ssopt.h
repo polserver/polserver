@@ -25,6 +25,7 @@
 #ifndef SSOPT_H
 #define SSOPT_H
 
+#include <atomic>
 #include <string>
 #include <vector>
 
@@ -41,9 +42,9 @@ struct ServSpecOpt
 {
   bool allow_secure_trading_in_warmode;
   unsigned int dblclick_wait;
-  bool decay_items;
-  unsigned int default_decay_time;
-  bool refresh_decay_after_boat_moves;
+  std::atomic<bool> decay_items;
+  std::atomic<unsigned int> default_decay_time;
+  std::atomic<bool> refresh_decay_after_boat_moves;
   unsigned short default_doubleclick_range;
   unsigned short default_accessible_range;
   unsigned short default_light_level;

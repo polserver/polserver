@@ -95,7 +95,7 @@ struct PolConfig
   bool disable_nagle;
   bool show_realm_info;
   bool enforce_mount_objtype;
-  bool single_thread_decay;
+  std::atomic<bool> single_thread_decay;
   std::atomic<bool> thread_decay_statistics;
 
   bool show_warning_gump;
