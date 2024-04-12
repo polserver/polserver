@@ -6,6 +6,7 @@ use file;
 include "testutil";
 
 program tests()
+  ReloadConfiguration(); // A crude attempt to catch issues with thread-safety and pol config & ssopts.
   var test_count:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
   syslog(
     $"\n{CONSOLE_COLOR_CYAN}##########################\n"
@@ -29,7 +30,7 @@ program tests()
   if (restartpkg)
     testpkgs.append(restartpkg);
   endif
-  
+
   var filter:=GetEnvironmentVariable("POLCORE_TEST_FILTER");
   if (filter)
     syslog("## using testfilter \""+filter+"\"\n",0,CONSOLE_COLOR_CYAN);
@@ -39,7 +40,7 @@ program tests()
     if (filter and !pkg[1].find(filter))
       continue;
     endif
-    
+
     if (test_count==2 and pkg[1]!="testrestart")
       continue;
     endif
@@ -76,11 +77,11 @@ program tests()
       if (script[2] == IGNORE_TEST)
         continue;
       endif
- 
+
       foreach func in (script[1].exported_functions)
         var startms:=ReadMillisecondClock();
         syslog("    Calling {}..".format(func),0,CONSOLE_COLOR_GREEN);
-        var res:=script[1].call(func);  
+        var res:=script[1].call(func);
         if (res != 1)
           syslog("      failed: "+res.errortext,0,CONSOLE_COLOR_RED);
           exitcode:=1;
@@ -98,7 +99,7 @@ program tests()
     endif
     syslog("..{}ms".format(ReadMillisecondClock()-pkgstartms),0,CONSOLE_COLOR_MAGENTA);
   endforeach
-  
+
   var result:=$"{CONSOLE_COLOR_GREEN}success";
   if (exitcode)
     result:=$"{CONSOLE_COLOR_RED}failed ";

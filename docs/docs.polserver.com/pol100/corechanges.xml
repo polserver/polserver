@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-24-2024</datemodified>
+		<datemodified>04-12-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>04-12-2024</date>
+			<author>Kevin:</author>
+			<change type="Changed">For thread-safety, the debug password in pol.cfg may no longer be changed<br/>
+when the server is running.</change>
+		</entry>
 		<entry>
 			<date>03-24-2024</date>
 			<author>Kevin:</author>

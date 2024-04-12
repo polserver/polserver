@@ -30,7 +30,7 @@ struct PolConfig
   std::string realm_data_path;
   std::string pidfile_path;
   std::atomic<bool> verbose;
-  unsigned short loglevel;  // 0=nothing 10=lots
+  std::atomic<unsigned short> loglevel;  // 0=nothing 10=lots
   unsigned short select_timeout_usecs;
   unsigned short loginserver_timeout_mins;
   bool watch_rpm;
@@ -69,6 +69,7 @@ struct PolConfig
   bool exp_los_checks_map;
   bool enable_debug_log;
 
+  // Debugger properties must be only when initial_load is true in read_pol_config.
   unsigned short debug_port;
   unsigned short dap_debug_port;
   std::string debug_password;
@@ -95,7 +96,7 @@ struct PolConfig
   bool show_realm_info;
   bool enforce_mount_objtype;
   bool single_thread_decay;
-  bool thread_decay_statistics;
+  std::atomic<bool> thread_decay_statistics;
 
   bool show_warning_gump;
   bool show_warning_item;
