@@ -98,6 +98,8 @@ void PolConfig::read_pol_config( bool initial_load )
 
     Plib::systemstate.config.debug_port = elem.remove_ushort( "DebugPort", 0 );
     Plib::systemstate.config.dap_debug_port = elem.remove_ushort( "DAPDebugPort", 0 );
+    Plib::systemstate.config.debug_password = elem.remove_string( "DebugPassword", "" );
+    Plib::systemstate.config.debug_local_only = elem.remove_bool( "DebugLocalOnly", true );
 
     Plib::systemstate.config.account_save = elem.remove_int( "AccountDataSave", -1 );
     if ( Plib::systemstate.config.account_save > 0 )
@@ -222,8 +224,6 @@ void PolConfig::read_pol_config( bool initial_load )
       elem.remove_bool( "DisplayUnknownPackets", false );
   Plib::systemstate.config.exp_los_checks_map = elem.remove_bool( "ExpLosChecksMap", true );
   Plib::systemstate.config.enable_debug_log = elem.remove_bool( "EnableDebugLog", false );
-  Plib::systemstate.config.debug_password = elem.remove_string( "DebugPassword", "" );
-  Plib::systemstate.config.debug_local_only = elem.remove_bool( "DebugLocalOnly", true );
 
   Plib::systemstate.config.log_traces_when_stuck =
       elem.remove_bool( "ThreadStacktracesWhenStuck", false );

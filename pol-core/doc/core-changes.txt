@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+04-12-2024 Kevin:
+  Changed: For thread-safety, the debug password in pol.cfg may no longer be changed
+           when the server is running.
 03-24-2024 Kevin:
     Added: `lastrealm` parameter to WalkOnScript.
     Added: Boat WalkOnScript now triggers in the same manner as other Multis and Items.
