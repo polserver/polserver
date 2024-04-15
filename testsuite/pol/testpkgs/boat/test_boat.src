@@ -206,12 +206,12 @@ exported function test_sails_collides()
 
   var boat := CreateMultiAtLocation( 27, 27, -4, 0x11005, CRMULTI_FACING_NORTH );
   if ( boat )
+    DestroyMulti( boat );
     RestoreConfiguration( config );
     return ret_error( $"Boat unexpectedly successfully created at {boat.x}, {boat.y}, {boat.z}, GetMapInfo: {GetMapInfo(
                       boat.x, boat.y )}" );
   endif
 
-  DestroyMulti( boat );
   RestoreConfiguration( config );
 
   return 1;
