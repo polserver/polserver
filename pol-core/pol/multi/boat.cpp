@@ -696,6 +696,9 @@ void UBoat::unregself()
   const MultiDef& md = multidef();
   for ( const auto& ele : md.hull )
   {
+    if ( objtype_passable( ele->objtype ) )
+      continue;
+
     Core::Pos2d hullpos = pos2d() + ele->relpos.xy();
 
     unsigned int gh = realm()->encode_global_hull( hullpos );
