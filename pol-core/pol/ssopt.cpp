@@ -144,6 +144,7 @@ void ServSpecOpt::read_servspecopt()
       elem.remove_ushort( "UndoGetItemEnableRangeCheck", false );
   settingsManager.ssopt.undo_get_item_drop_here =
       elem.remove_ushort( "UndoGetItemDropHere", false );
+  settingsManager.ssopt.boat_sails_collide = elem.remove_bool( "BoatSailsCollide", false );
 
   ssopt_parse_totalstats( elem );
 

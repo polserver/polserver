@@ -1,4 +1,11 @@
 -- POL100.2.0 --
+04-14-2024 Kevin:
+  Changed: Boat sails will now by default not collide with other objects in the
+           world. For example, large orc galleon ships "dock" properly at the coastline
+           with the ship's sails floating above the ground, and sails from multiple
+           boats can occupy the same space in the world.
+    Added: ServSpecOpt "BoatSailsCollide" 1/0 default 0.
+           This setting adjusts the behavior of boat sails' collision:
 04-12-2024 Kevin:
   Changed: For thread-safety, the debug password in pol.cfg may no longer be changed
            when the server is running.

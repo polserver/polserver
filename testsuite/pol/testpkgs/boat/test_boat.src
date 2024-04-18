@@ -1,6 +1,8 @@
-use uo;
-use os;
 use boat;
+use file;
+use os;
+use polsys;
+use uo;
 
 include "testutil";
 
@@ -168,6 +170,79 @@ exported function test_boat_walkon_script_oncreate()
   npc.kill();
 
   return res;
+endfunction
+
+exported function test_sails_passable()
+  // Tile (28,28) is sand, so if sails...
+  // - do not collide: we can build at (27,27)
+
+  var config := UpdateBoatSailsCollide( 0 );
+
+  if ( !config )
+    return config;
+  endif
+
+  var boat := CreateMultiAtLocation( 27, 27, -4, 0x11005, CRMULTI_FACING_NORTH );
+  if ( !boat )
+    RestoreConfiguration( config );
+    return ret_error( $"Failed to create boat: {boat}" );
+  endif
+
+  DestroyMulti( boat );
+  RestoreConfiguration( config );
+
+  return 1;
+endfunction
+
+exported function test_sails_collides()
+  // Tile (28,28) is sand, so if sails...
+  // - collide: we can not build at (27,27)
+
+  var config := UpdateBoatSailsCollide( 1 );
+
+  if ( !config )
+    return config;
+  endif
+
+  var boat := CreateMultiAtLocation( 27, 27, -4, 0x11005, CRMULTI_FACING_NORTH );
+  if ( boat )
+    DestroyMulti( boat );
+    RestoreConfiguration( config );
+    return ret_error( $"Boat unexpectedly successfully created at {boat.x}, {boat.y}, {boat.z}, GetMapInfo: {GetMapInfo(
+                      boat.x, boat.y )}" );
+  endif
+
+  RestoreConfiguration( config );
+
+  return 1;
+endfunction
+
+// This could be parameterized to also work with test_client_item_move's servspecopt changes
+function UpdateBoatSailsCollide( collides )
+  var originalConf := ReadFile( "::config/servspecopt.cfg" );
+  if ( originalConf == error )
+    return ret_error( $"Could not read config/servspecopt.cfg file: ${originalConf}" );
+  endif
+
+  var newConf := array;
+  foreach line in originalConf
+    if ( Find( line, "BoatSailsCollide", 1 ) )
+      continue;
+    endif
+    newConf.append( line );
+  endforeach
+  newConf.append( $"BoatSailsCollide={collides}" );
+
+  return RestoreConfiguration( newConf );
+endfunction
+
+function RestoreConfiguration( newConf )
+  var writeResult := WriteFile( "::config/servspecopt.cfg", newConf );
+  if ( writeResult == error )
+    return ret_error( $"Could not write config/servspecopt.cfg file: ${writeResult}" );
+  endif
+
+  return ReloadConfiguration();
 endfunction
 
 /*exported function test_boat_realm_move()

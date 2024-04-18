@@ -34,6 +34,7 @@
 #include "../../plib/systemstate.h"
 #include "../../plib/tiles.h"
 #include "../../plib/uconst.h"
+#include "../../plib/ustruct.h"
 #include "../containr.h"
 #include "../extobj.h"
 #include "../fnsearch.h"
@@ -661,6 +662,17 @@ UBoat* UBoat::as_boat()
   return this;
 }
 
+bool UBoat::objtype_passable( unsigned short objtype )
+{
+  if ( Core::settingsManager.ssopt.boat_sails_collide )
+    return false;
+
+  auto uoflags = Plib::systemstate.tile[objtype].uoflags;
+  bool passable = ( uoflags & Plib::USTRUCT_TILE::FLAG_FOLIAGE ) &&
+                  ( ~uoflags & Plib::USTRUCT_TILE::FLAG_BLOCKING );
+  return passable;
+}
+
 /* boats are a bit strange - they can move from side to side, forwards and
    backwards, without turning.
    */
@@ -669,6 +681,9 @@ void UBoat::regself()
   const MultiDef& md = multidef();
   for ( const auto& ele : md.hull )
   {
+    if ( objtype_passable( ele->objtype ) )
+      continue;
+
     Core::Pos2d hullpos = pos2d() + ele->relpos.xy();
 
     unsigned int gh = realm()->encode_global_hull( hullpos );
@@ -681,6 +696,9 @@ void UBoat::unregself()
   const MultiDef& md = multidef();
   for ( const auto& ele : md.hull )
   {
+    if ( objtype_passable( ele->objtype ) )
+      continue;
+
     Core::Pos2d hullpos = pos2d() + ele->relpos.xy();
 
     unsigned int gh = realm()->encode_global_hull( hullpos );
@@ -713,6 +731,10 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
 #ifdef DEBUG_BOATS
     INFO_PRINT( "[{}]", hullpos );
 #endif
+
+    if ( objtype_passable( ele->objtype ) )
+      continue;
+
     /*
      * See if any other ship hulls occupy this space
      */

@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-12-2024</datemodified>
+		<datemodified>04-14-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>04-14-2024</date>
+			<author>Kevin:</author>
+			<change type="Changed">Boat sails will now by default not collide with other objects in the<br/>
+world. For example, large orc galleon ships &quot;dock&quot; properly at the coastline<br/>
+with the ship's sails floating above the ground, and sails from multiple<br/>
+boats can occupy the same space in the world.</change>
+			<change type="Added">ServSpecOpt &quot;BoatSailsCollide&quot; 1/0 default 0.<br/>
+This setting adjusts the behavior of boat sails' collision:</change>
+		</entry>
 		<entry>
 			<date>04-12-2024</date>
 			<author>Kevin:</author>
