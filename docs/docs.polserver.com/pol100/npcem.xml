@@ -74,11 +74,13 @@
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
 	<related>NPC</related>
 	<related>UObject</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
     
 <function name="WalkAwayFrom">
@@ -89,11 +91,13 @@
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
 	<related>NPC</related>
 	<related>UObject</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
 
 <function name="RunToward">
@@ -104,11 +108,13 @@
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
 	<related>NPC</related>
 	<related>UObject</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
 
 <function name="RunAwayFrom">
@@ -119,11 +125,13 @@
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
 	<related>NPC</related>
 	<related>UObject</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
 
 <function name="TurnToward">
@@ -139,6 +147,7 @@ const FACE_FORCE := 0x1;</code></explain>
 	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
 	<related>NPC</related>
 	<related>UObject</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
 
 <function name="TurnAwayFrom">
@@ -154,6 +163,7 @@ const FACE_FORCE := 0x1;</code></explain>
 	<error>"Mobile specified cannot be seen" if object is a character and invisible</error>
 	<related>NPC</related>
 	<related>UObject</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
 
 <function name="WalkTowardLocation">
@@ -165,10 +175,12 @@ const FACE_FORCE := 0x1;</code></explain>
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Invalid Coordinates for Realm"</error>
 	<related>NPC</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
 
 <function name="WalkAwayFromLocation">
@@ -180,10 +192,12 @@ const FACE_FORCE := 0x1;</code></explain>
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Invalid Coordinates for Realm"</error>
 	<related>NPC</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>	
 	
 <function name="RunTowardLocation">
@@ -195,10 +209,12 @@ const FACE_FORCE := 0x1;</code></explain>
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Invalid Coordinates for Realm"</error>
 	<related>NPC</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>
 
 <function name="RunAwayFromLocation">
@@ -210,10 +226,12 @@ const FACE_FORCE := 0x1;</code></explain>
 	<explain>See the NPC members run_speed and use_adjustments. If use_adjustments is 1 the NPC will adjust the direction of the move to attempt to avoid small obsticles. Also, this function will always return true as a result. If it is 0, the NPC will not attempt to adjust the move, and the function will return false.</explain>
 	<explain>The success of this function is affected by the NPC's anchor point. See SetAnchor().</explain>
 	<explain>In the future, this function will activate a pathfinding system.</explain>
+	<explain>servspecopt.cfg NpcMinimumMovementDelay setting controls the maximum speed of NPC.</explain>
 	<return>Boolean for move success</return>
 	<error>"Invalid parameter type"</error>
 	<error>"Invalid Coordinates for Realm"</error>
 	<related>NPC</related>
+	<relatedcfg>servspecopt.cfg</relatedcfg>
 </function>	
 
 <function name="TurnTowardLocation">

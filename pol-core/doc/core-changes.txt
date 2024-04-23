@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+04-24-2024 Reloecc:
+    Added: `NpcMinimumMovementDelay` parameter to `servspecopt.cfg`. It controls maximum movement speed of NPCs.
 04-14-2024 Kevin:
   Changed: Boat sails will now by default not collide with other objects in the
            world. For example, large orc galleon ships "dock" properly at the coastline

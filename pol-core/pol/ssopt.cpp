@@ -145,6 +145,8 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.undo_get_item_drop_here =
       elem.remove_ushort( "UndoGetItemDropHere", false );
   settingsManager.ssopt.boat_sails_collide = elem.remove_bool( "BoatSailsCollide", false );
+  settingsManager.ssopt.npc_minimum_movement_delay =
+      elem.remove_ushort( "NpcMinimumMovementDelay", 250 );
 
   ssopt_parse_totalstats( elem );
 
