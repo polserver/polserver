@@ -615,7 +615,16 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 "#",
 "# If enabled - boat sails will collide with objects in the world and cannot be passed through.",
 "#",
-"BoatSailsCollide=0"
+"BoatSailsCollide=0",
+"",
+"#",
+"# NpcMinimumMovementDelay - ms (default 250)",
+"#",
+"# Related to NPC's run_speed attribute. It is used to define minimum delay in between NPC's movement steps.",
+"# Used by functions like WalkToward, RunAwayFrom and similar.",
+"# Lower the value to increase maximum speed of all NPCs. It is halved for running.",
+"#",
+"NpcMinimumMovementDelay=250"
                   } ) );
 
   distro.emplace( "config/startloc.cfg",

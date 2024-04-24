@@ -229,11 +229,12 @@ BObjectImp* NPCExecutorModule::move_self( Core::UFACING facing, bool run, bool a
     }
   }
 
-  // int base = 1000 - npc.dexterity() * 3;
-  int base = 1000 - npc.run_speed * 3;
-  if ( base < 250 )
-    base = 250;
-  u32 sleep = static_cast<u32>( base );
+  // int delay = 1000 - npc.dexterity() * 3;
+  int delay = std::max<int>(
+    1000 - npc.run_speed * 3,
+    Core::settingsManager.ssopt.npc_minimum_movement_delay
+  );
+  u32 sleep = static_cast<u32>( delay );
   os_module->SleepForMs( run ? ( sleep / 2 ) : sleep );
 
   // return new String( FacingStr(facing) );

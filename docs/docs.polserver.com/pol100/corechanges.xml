@@ -6,6 +6,12 @@
 	</header>
 	<version name="POL100.2.0">
 		<entry>
+			<date>04-24-2024</date>
+			<author>Reloecc:</author>
+			<change type="Added">`NpcMinimumMovementDelay` parameter to `servspecopt.cfg`.<br/>
+It controls maximum movement speed of NPCs.</change>
+		</entry>
+		<entry>
 			<date>04-14-2024</date>
 			<author>Kevin:</author>
 			<change type="Changed">Boat sails will now by default not collide with other objects in the<br/>
