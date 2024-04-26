@@ -107,6 +107,7 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
   if ( passert_abort )
   {
     POLLOG_ERRORLN( "Aborting due to assertion failure." );
+    Logging::global_logger->wait_for_empty_queue();
     abort();
   }
 

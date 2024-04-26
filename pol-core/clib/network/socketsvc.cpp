@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "logfacility.h"
+#include "passert.h"
 #include "socketsvc.h"
 #include "strutil.h"
 #include "threadhelp.h"
@@ -20,7 +21,7 @@ SocketListener::SocketListener( unsigned short port ) : _listen_sck()
   if ( !_listen_sck.listen( port ) )
   {
     POLLOG_ERRORLN( "Unable to open listen port {}", port );
-    abort();
+    passert_always( 0 );
   }
 }
 
@@ -31,7 +32,7 @@ SocketListener::SocketListener( unsigned short port, Socket::option opt ) : _lis
   if ( !_listen_sck.listen( port ) )
   {
     POLLOG_ERRORLN( "Unable to open listen port {}", port );
-    abort();
+    passert_always( 0 );
   }
 }
 
