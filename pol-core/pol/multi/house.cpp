@@ -180,7 +180,7 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
   {
     // Printing an error because this is supposed to not happen,
     // so it's probably a bug.
-    POLLOG_ERRORLN( "Out-of-range coordinates while trying to add Item {:#X} to House {:#X}",
+    POLLOG_ERRORLN( "Out-of-range coordinates while trying to add Item {:#x} to House {:#x}",
                     item->serial, serial );
     return false;
   }
@@ -508,7 +508,7 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
       if ( !add_component( Component( item ) ) )
       {
         std::string os =
-            fmt::format( "Couldn't add component {:#X} to house {:#X}.\n", item->serial, serial );
+            fmt::format( "Couldn't add component {:#x} to house {:#x}.\n", item->serial, serial );
         UHouse* contHouse = item->house();
         if ( contHouse == nullptr )
         {
@@ -517,7 +517,7 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
         else
         {
           fmt::format_to( std::back_inserter( os ),
-                          "This item is already part of house {:#X}.\n"
+                          "This item is already part of house {:#x}.\n"
                           "Allowing an item to be a component in two different houses was a bug,\n"
                           "please also fix your save data.",
                           contHouse->serial );
@@ -579,7 +579,7 @@ void UHouse::destroy_components()
   {
     Items::Item* item = components_.back().get();
     if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOGLN( "Destroying component {:#X}, serial={:#X}", item->objtype_, item->serial );
+      POLLOGLN( "Destroying component {:#x}, serial={:#x}", item->objtype_, item->serial );
     if ( !item->orphan() )
       Core::destroy_item( item );
     if ( Plib::systemstate.config.loglevel >= 5 )

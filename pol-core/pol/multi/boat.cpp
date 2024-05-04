@@ -259,7 +259,7 @@ void read_boat_cfg( void )
     }
     catch ( std::exception& )
     {
-      ERROR_PRINTLN( "Error occurred reading definition for boat {:#X}", multiid );
+      ERROR_PRINTLN( "Error occurred reading definition for boat {:#x}", multiid );
       throw;
     }
   }
@@ -315,7 +315,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   {
     if ( object_count >= max_count )
     {
-      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating movement packet",
+      POLLOG_INFOLN( "Boat {:#x} at {} with {} items is too full - truncating movement packet",
                      serial, pos(), travellers_.size() );
       break;
     }
@@ -332,7 +332,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   {
     if ( object_count >= max_count )
     {
-      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating movement packet",
+      POLLOG_INFOLN( "Boat {:#x} at {} with {} items is too full - truncating movement packet",
                      serial, pos(), travellers_.size() );
       break;
     }
@@ -419,7 +419,7 @@ void UBoat::send_display_boat( Network::Client* client )
   {
     if ( object_count >= max_count )
     {
-      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating display boat packet",
+      POLLOG_INFOLN( "Boat {:#x} at {} with {} items is too full - truncating display boat packet",
                      serial, pos(), travellers_.size() );
       break;
     }
@@ -450,7 +450,7 @@ void UBoat::send_display_boat( Network::Client* client )
       continue;
     if ( object_count >= max_count )
     {
-      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating display boat packet",
+      POLLOG_INFOLN( "Boat {:#x} at {} with {} items is too full - truncating display boat packet",
                      serial, pos(), travellers_.size() );
       break;
     }
@@ -1409,7 +1409,7 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
         u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
         POLLOG_ERRORLN(
             "Boat component is gotten or in a container and couldn't be moved together with the "
-            "boat: serial {:#X}\n, graphic: {:#X}, container: {:#X}.",
+            "boat: serial {:#x}\n, graphic: {:#x}, container: {:#x}.",
             item->serial, item->graphic, containerSerial );
         continue;
       }
@@ -1482,8 +1482,8 @@ void UBoat::move_components( Realms::Realm* /*oldrealm*/ )
         u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
         POLLOG_INFOLN(
             "Boat component is gotten or in a container and couldn't be moved together with the "
-            "boat: serial {:#X}\n"
-            ", graphic: {:#X}, container: {:#X}.",
+            "boat: serial {:#x}\n"
+            ", graphic: {:#x}, container: {:#x}.",
             item->serial, item->graphic, containerSerial );
         continue;
       }
@@ -1685,7 +1685,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
 
   if ( prog.get() == nullptr )
   {
-    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#x}", control_script.c_str(),
                     this->serial );
     return;
   }
@@ -1694,7 +1694,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
 
   if ( script == nullptr )
   {
-    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#x}", control_script.c_str(),
                     this->serial );
   }
   else
@@ -1784,7 +1784,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
 
   if ( prog.get() == nullptr )
   {
-    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#x}", control_script.c_str(),
                     boat->serial );
 
     return boatref;
@@ -1794,7 +1794,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
 
   if ( script == nullptr )
   {
-    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#x}", control_script.c_str(),
                     boat->serial );
   }
   else

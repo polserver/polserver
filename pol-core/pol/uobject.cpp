@@ -404,7 +404,7 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   auto* realm_tmp = find_realm( realmstr );
   if ( !realm_tmp )
   {
-    ERROR_PRINTLN( "{} '{}' ({:#X}): has an invalid realm property '{}'.", classname(), name(),
+    ERROR_PRINTLN( "{} '{}' ({:#x}): has an invalid realm property '{}'.", classname(), name(),
                    serial, realmstr );
     throw std::runtime_error( "Data integrity error" );
   }
@@ -520,7 +520,7 @@ void UObject::printOnDebug( Clib::StreamWriter& sw ) const
 bool UObject::setgraphic( u16 /*newgraphic*/ )
 {
   ERROR_PRINTLN(
-      "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: {:#X}",
+      "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: {:#x}",
       serial );
   return false;
 }

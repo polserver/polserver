@@ -182,13 +182,13 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   {
     if ( system_find_item( serial ) )
     {
-      ERROR_PRINTLN( "Duplicate item read from datafiles (Serial={:#X})", serial );
+      ERROR_PRINTLN( "Duplicate item read from datafiles (Serial={:#x})", serial );
       throw std::runtime_error( "Data integrity error" );
     }
   }
   if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
   {
-    ERROR_PRINTLN( "Item (Serial {:#X}) has no OBJTYPE property, omitting.", serial );
+    ERROR_PRINTLN( "Item (Serial {:#x}) has no OBJTYPE property, omitting.", serial );
     return nullptr;
   }
   if ( gamestate.old_objtype_conversions.count( objtype ) )
@@ -197,7 +197,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   Items::Item* item = Items::Item::create( objtype, serial );
   if ( item == nullptr )
   {
-    ERROR_PRINTLN( "Unable to create item: objtype={:#X}, serial={:#X}", objtype, serial );
+    ERROR_PRINTLN( "Unable to create item: objtype={:#x}, serial={:#x}", objtype, serial );
     if ( !Plib::systemstate.config.ignore_load_errors )
       throw std::runtime_error( "Item::create failed!" );
     else
@@ -340,12 +340,12 @@ void read_multi( Clib::ConfigElem& elem )
   }
   if ( system_find_multi( serial ) || system_find_item( serial ) )
   {
-    ERROR_PRINTLN( "Duplicate item read from datafiles (Serial={:#X})", serial );
+    ERROR_PRINTLN( "Duplicate item read from datafiles (Serial={:#x})", serial );
     throw std::runtime_error( "Data integrity error" );
   }
   if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
   {
-    ERROR_PRINTLN( "Multi (Serial {:#X}) has no OBJTYPE property, omitting.", serial );
+    ERROR_PRINTLN( "Multi (Serial {:#x}) has no OBJTYPE property, omitting.", serial );
     return;
   }
   if ( gamestate.old_objtype_conversions.count( objtype ) )
@@ -354,7 +354,7 @@ void read_multi( Clib::ConfigElem& elem )
   Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
   if ( multi == nullptr )
   {
-    ERROR_PRINTLN( "Unable to create multi: objtype={:#X}, serial={:#X}", objtype, serial );
+    ERROR_PRINTLN( "Unable to create multi: objtype={:#x}, serial={:#x}", objtype, serial );
     throw std::runtime_error( "Multi::create failed!" );
   }
   multi->readProperties( elem );
@@ -540,7 +540,7 @@ void import( Clib::ConfigElem& elem )
   objtype = elem.remove_unsigned( "OBJTYPE" );
   if ( objtype > Plib::systemstate.config.max_tile_id )
   {
-    ERROR_PRINTLN( "Importing file: {:#X} is out of range.", objtype );
+    ERROR_PRINTLN( "Importing file: {:#x} is out of range.", objtype );
     throw std::runtime_error( "Error while importing file." );
   }
 
@@ -548,7 +548,7 @@ void import( Clib::ConfigElem& elem )
 
   if ( item == nullptr )
   {
-    ERROR_PRINTLN( "Unable to import item: objtype={:#X}", objtype );
+    ERROR_PRINTLN( "Unable to import item: objtype={:#x}", objtype );
     throw std::runtime_error( "Item::create failed!" );
   }
 

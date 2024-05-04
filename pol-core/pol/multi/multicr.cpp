@@ -49,7 +49,7 @@ UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
   }
   else
   {
-    ERROR_PRINTLN( "Tried to create multi {:#X} but no definition exists in itemdesc.cfg",
+    ERROR_PRINTLN( "Tried to create multi {:#x} but no definition exists in itemdesc.cfg",
                    descriptor.objtype );
     return nullptr;
   }

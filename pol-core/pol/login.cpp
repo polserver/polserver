@@ -508,7 +508,7 @@ void delete_character( Accounts::Account* acct, Mobile::Character* chr, int char
 {
   if ( !chr->logged_in() )
   {
-    POLLOGLN( "Account {} deleting character {:#X}", acct->name(), chr->serial );
+    POLLOGLN( "Account {} deleting character {:#x}", acct->name(), chr->serial );
 
     chr->acct.clear();
     acct->clear_character( charidx );

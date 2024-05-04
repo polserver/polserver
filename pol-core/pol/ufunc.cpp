@@ -690,7 +690,7 @@ void update_item_to_inrange( const Item* item )
         update_wornitem_to_inrange( chr, item );
       }
       else
-        POLLOG_ERRORLN( "Ack! update_item_to_inrange: character {:#X} doesn't exist!",
+        POLLOG_ERRORLN( "Ack! update_item_to_inrange: character {:#x} doesn't exist!",
                         item->container->serial );
     }
     else
@@ -1530,7 +1530,7 @@ void destroy_item( Item* item )
 {
   if ( item->serial == 0 )
   {
-    POLLOG_ERRORLN( "destroy {}: {}, orphan! (old serial: {:#X})", item->description(),
+    POLLOG_ERRORLN( "destroy {}: {}, orphan! (old serial: {:#x})", item->description(),
                     item->classname(), ( cfBEu32( item->serial_ext ) ) );
   }
 

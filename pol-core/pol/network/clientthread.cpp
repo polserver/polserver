@@ -315,7 +315,7 @@ bool process_data( Network::ThreadedClient* session )
     unsigned char msgtype = session->buffer[0];
     session->last_msgtype = msgtype;  // CNXBUG
     if ( Plib::systemstate.config.verbose )
-      INFO_PRINTLN( "Incoming msg type: {:#X}", (int)msgtype );
+      INFO_PRINTLN( "Incoming msg type: {:#x}", (int)msgtype );
 
     if ( !Network::PacketRegistry::is_defined( msgtype ) )
     {
@@ -377,7 +377,7 @@ bool process_data( Network::ThreadedClient* session )
         Clib::SpinLockGuard guard( session->_fpLog_lock );
         if ( !session->fpLog.empty() )
         {
-          std::string tmp = fmt::format( "Client -> Server: {:#X}, {} bytes\n", msgtype,
+          std::string tmp = fmt::format( "Client -> Server: {:#x}, {} bytes\n", msgtype,
                                          session->message_length );
           Clib::fdump( std::back_inserter( tmp ), &session->buffer, session->message_length );
           FLEXLOGLN( session->fpLog, tmp );
@@ -385,7 +385,7 @@ bool process_data( Network::ThreadedClient* session )
       }
 
       if ( Plib::systemstate.config.verbose )
-        INFO_PRINTLN( "Message Received: Type {:#X}, Length {} bytes", (int)msgtype,
+        INFO_PRINTLN( "Message Received: Type {:#x}, Length {} bytes", (int)msgtype,
                       session->message_length );
 
       PolLock lck;  // multithread
@@ -413,7 +413,7 @@ bool process_data( Network::ThreadedClient* session )
         {
           // Such combinations of instance and acct happen quite often. Maybe this should become
           // Client->full_id() or something.
-          POLLOG_ERRORLN( "Client#{} ({}, Acct {}) sent non-allowed message type {:#X}.",
+          POLLOG_ERRORLN( "Client#{} ({}, Acct {}) sent non-allowed message type {:#x}.",
                           session->myClient.instance_, session->ipaddrAsString(),
                           ( session->myClient.acct ? session->myClient.acct->name() : "unknown" ),
                           (int)msgtype );
@@ -441,7 +441,7 @@ bool process_data( Network::ThreadedClient* session )
       {
         if ( Plib::systemstate.config.verbose )
         {
-          INFO_PRINTLN( "UOKR Seed Message Received: Type {:#X}", (int)cstype );
+          INFO_PRINTLN( "UOKR Seed Message Received: Type {:#x}", (int)cstype );
         }
         session->myClient.send_KR_encryption_response();
         session->myClient.setClientType( Network::CLIENTTYPE_UOKR );  // UO:KR logging in
@@ -452,7 +452,7 @@ bool process_data( Network::ThreadedClient* session )
         // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
         if ( Plib::systemstate.config.verbose )
         {
-          INFO_PRINTLN( "6.0.5.0+ Crypt Seed Message Received: Type {:#X}", (int)cstype );
+          INFO_PRINTLN( "6.0.5.0+ Crypt Seed Message Received: Type {:#x}", (int)cstype );
         }
         session->recv_state = Network::ThreadedClient::RECV_STATE_CLIENTVERSION_WAIT;
       }
@@ -621,7 +621,7 @@ bool check_inactivity( Network::ThreadedClient* session )
 void report_weird_packet( Network::ThreadedClient* session, const std::string& why )
 {
   std::string tmp = fmt::format(
-      "Client#{}: {} type {:#X}, {} bytes (IP: {}, Account: {})\n", session->myClient.instance_,
+      "Client#{}: {} type {:#x}, {} bytes (IP: {}, Account: {})\n", session->myClient.instance_,
       why, (int)session->buffer[0], session->bytes_received, session->ipaddrAsString(),
       ( session->myClient.acct != nullptr ) ? session->myClient.acct->name() : "None" );
 
@@ -651,7 +651,7 @@ void handle_unknown_packet( Network::ThreadedClient* session )
 void handle_undefined_packet( Network::ThreadedClient* session )
 {
   int msgtype = (int)session->buffer[0];
-  INFO_PRINTLN( "Undefined message type {:#X}", msgtype );
+  INFO_PRINTLN( "Undefined message type {:#x}", msgtype );
 
   // Tries to read as much of it out as possible
   session->recv_remaining( sizeof session->buffer / 2 );
@@ -763,7 +763,7 @@ void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
   }
   catch ( std::exception& ex )
   {
-    POLLOG_ERRORLN( "Client#{}: Exception in message handler {:#X}: {}", instance_, (int)msgtype,
+    POLLOG_ERRORLN( "Client#{}: Exception in message handler {:#x}: {}", instance_, (int)msgtype,
                     ex.what() );
 
     std::string tmp;

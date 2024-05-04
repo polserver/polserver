@@ -201,7 +201,7 @@ public:
     if ( std::numeric_limits<T>::max() < x )  // dont let the shard crash, a warning is better
     {
       POLLOG_ERRORLN(
-          "ERROR: Write: trying to write {} on offset {} for pkt {:#X}/{:#X} and only {} is "
+          "ERROR: Write: trying to write {} on offset {} for pkt {:#x}/{:#x} and only {} is "
           "allowed!",
           (int)x, offset, (int)ID, (int)SUB, std::numeric_limits<T>::max() );
       PktWriterTemplateSpecs::WriteHelper<T>::Write( std::numeric_limits<T>::max(), buffer,
@@ -233,7 +233,7 @@ public:
     if ( std::numeric_limits<T>::max() < x )  // dont let the shard crash, a warning is better
     {
       POLLOG_ERRORLN(
-          "ERROR: WriteFlipped: trying to write {} on offset {} for pkt {:#X}/{:#X} and only {} "
+          "ERROR: WriteFlipped: trying to write {} on offset {} for pkt {:#x}/{:#x} and only {} "
           "is allowed!",
           (int)x, offset, (int)ID, (int)SUB, std::numeric_limits<T>::max() );
       PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped( std::numeric_limits<T>::max(), buffer,

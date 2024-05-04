@@ -138,7 +138,7 @@ void handle_rename_char( Client* client, PKTIN_75* msg )
         if ( *p != ' ' && !isalpha( *p ) )
         {
           std::string tmp = fmt::format(
-              "Client#{} (account {}) attempted an invalid rename (packet {:#X}):\n{}",
+              "Client#{} (account {}) attempted an invalid rename (packet {:#x}):\n{}",
               client->instance_, ( client->acct != nullptr ) ? client->acct->name() : "unknown",
               (int)msg->msgtype, msg->name );
           Clib::fdump( std::back_inserter( tmp ), msg->name,

@@ -151,7 +151,7 @@ void UoConvertMain::create_maptile( const std::string& realmname )
           safe_getmapinfo( x, y, &z, &mi );
 
           if ( mi.landtile > 0x3FFF )
-            INFO_PRINTLN( "Tile {:#X} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
+            INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
 
           // for water, don't average with surrounding tiles.
           if ( Plib::landtile_uoflags_read( mi.landtile ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
@@ -453,7 +453,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       safe_getmapinfo( x, y, &z, &mi );
 
       if ( mi.landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#X} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
+        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
 
       // for water, don't average with surrounding tiles.
       if ( Plib::landtile_uoflags_read( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
@@ -464,7 +464,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       z = low_z;
 
       if ( mi.landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#X} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
+        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
 
       unsigned int lt_flags = Plib::landtile_uoflags_read( mi.landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )

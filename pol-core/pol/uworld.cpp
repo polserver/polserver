@@ -55,7 +55,7 @@ void remove_item_from_world( Items::Item* item )
   if ( itr == zone.items.end() )
   {
     POLLOG_ERRORLN(
-        "remove_item_from_world: item {:#X} at {} does not exist in world zone ( Old Serial: {:#X} "
+        "remove_item_from_world: item {:#x} at {} does not exist in world zone ( Old Serial: {:#x} "
         ")",
         item->serial, item->pos2d(), ( cfBEu32( item->serial_ext ) ) );
 
@@ -220,7 +220,7 @@ void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item )
     if ( itr == oldzone.items.end() )
     {
       POLLOG_ERRORLN(
-          "MoveItemWorldPosition: item {:#X} at old {} new {} does not exist in world zone.",
+          "MoveItemWorldPosition: item {:#x} at old {} new {} does not exist in world zone.",
           item->serial, oldpos, item->pos() );
 
       passert( itr != oldzone.items.end() );
@@ -258,7 +258,7 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
   }
 
   POLLOG_ERRORLN(
-      "ClrCharacterWorldPosition({}): mob ({:#X},{:#X}) supposedly at {} isn't in correct zone.",
+      "ClrCharacterWorldPosition({}): mob ({:#x},{:#x}) supposedly at {} isn't in correct zone.",
       msgreason, chr->serial, chr->serial_ext, chr->pos() );
 
   bool is_npc = chr->isa( Core::UOBJ_CLASS::CLASS_NPC );
@@ -292,7 +292,7 @@ bool check_single_zone_item_integrity( const Pos2d& pos, Realms::Realm* realm )
       Core::Pos2d wpos = zone_convert( item->pos() );
       if ( wpos != pos )
       {
-        POLLOG_ERRORLN( "Item {:#X} in zone {} but location is {} (zone {})", item->serial, pos,
+        POLLOG_ERRORLN( "Item {:#x} in zone {} but location is {} (zone {})", item->serial, pos,
                         item->pos(), wpos );
         return false;
       }
