@@ -16,8 +16,8 @@ void SuspiciousActs::GumpResponseWasUnexpected( Network::Client* client, u32 gum
   {
     POLLOG_INFOLN(
         "\n"
-        "Warning: Character {:#X} sent an unexpected gump menu selection. Gump ID {:#X}, "
-        "button ID {:#X}",
+        "Warning: Character {:#x} sent an unexpected gump menu selection. Gump ID {:#x}, "
+        "button ID {:#x}",
         client->chr->serial, gumpid, buttonid );
   }
 }
@@ -60,7 +60,7 @@ void SuspiciousActs::DropItemButNoneGotten( Network::Client* client, u32 dropped
 {
   if ( Plib::systemstate.config.show_warning_item )
   {
-    POLLOG_ERRORLN( "Character {:#X} tried to drop item {:#X}, but had not gotten an item.",
+    POLLOG_ERRORLN( "Character {:#x} tried to drop item {:#x}, but had not gotten an item.",
                     client->chr->serial, dropped_item_serial );
   }
 }
@@ -70,7 +70,7 @@ void SuspiciousActs::DropItemOtherThanGotten( Network::Client* client, u32 dropp
 {
   if ( Plib::systemstate.config.show_warning_item )
   {
-    POLLOG_ERRORLN( "Character {:#X} tried to drop item {:#X}, but instead had gotten item {:#X}.",
+    POLLOG_ERRORLN( "Character {:#x} tried to drop item {:#x}, but instead had gotten item {:#x}.",
                     client->chr->serial, dropped_item_serial, gotten_item_serial );
   }
 }
@@ -80,7 +80,7 @@ void SuspiciousActs::EquipItemButNoneGotten( Network::Client* client, u32 equipp
   if ( Plib::systemstate.config.show_warning_item )
   {
     POLLOG_ERRORLN(
-        "Character {:#X} tried to equip item {:#X}, which did not exist in gotten_items.",
+        "Character {:#x} tried to equip item {:#x}, which did not exist in gotten_items.",
         client->chr->serial, equipped_item_serial );
   }
 }
@@ -90,7 +90,7 @@ void SuspiciousActs::EquipItemOtherThanGotten( Network::Client* client, u32 equi
 {
   if ( Plib::systemstate.config.show_warning_item )
   {
-    POLLOG_ERRORLN( "Character {:#X} tried to equip item {:#X}, but had gotten item {:#X}",
+    POLLOG_ERRORLN( "Character {:#x} tried to equip item {:#x}, but had gotten item {:#x}",
                     client->chr->serial, equipped_item_serial, gotten_item_serial );
   }
 }
@@ -149,7 +149,7 @@ void SuspiciousActs::BoatMoveNotPilot( Network::Client* client, u32 multi_serial
   if ( Plib::systemstate.config.show_warning_boat_move )
   {
     POLLOG_ERRORLN(
-        "{}/{} tried to use a boat movement packet on a boat multi (serial {:#X}) that they are "
+        "{}/{} tried to use a boat movement packet on a boat multi (serial {:#x}) that they are "
         "not the pilot of.",
         client->acct->name(), client->chr->name(), multi_serial );
   }
@@ -161,7 +161,7 @@ void SuspiciousActs::BoatMoveOutOfRangeParameters( Network::Client* client, u32 
   if ( Plib::systemstate.config.show_warning_boat_move )
   {
     POLLOG_ERRORLN(
-        "{}/{} tried to use a boat movement packet on a boat multi (serial {:#X}) with "
+        "{}/{} tried to use a boat movement packet on a boat multi (serial {:#x}) with "
         "out-of-range parameters (direction = {}, speed = {}).",
         client->acct->name(), client->chr->name(), multi_serial, direction, speed );
   }

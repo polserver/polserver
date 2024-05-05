@@ -272,7 +272,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
   if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
   {
-    ERROR_PRINTLN( "itemdesc.cfg, objtype {:#X}  has no MaxHP specified.", objtype );
+    ERROR_PRINTLN( "itemdesc.cfg, objtype {:#x}  has no MaxHP specified.", objtype );
     elem.throw_error( "Configuration error" );
   }
 
@@ -340,7 +340,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     }
     else
     {
-      ERROR_PRINTLN( "itemdesc.cfg, objtype {:#X} : Resource '{}' is malformed.", objtype, temp );
+      ERROR_PRINTLN( "itemdesc.cfg, objtype {:#x} : Resource '{}' is malformed.", objtype, temp );
       throw std::runtime_error( "Configuration file error" );
     }
   }
@@ -349,7 +349,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   {
     if ( Core::gamestate.objtype_byname.count( temp.c_str() ) )
     {
-      ERROR_PRINTLN( "Warning! objtype {:#X} : ObjtypeName '{}' is the same as objtype {:#X}",
+      ERROR_PRINTLN( "Warning! objtype {:#x} : ObjtypeName '{}' is the same as objtype {:#x}",
                      objtype, temp, Core::gamestate.objtype_byname[temp.c_str()] );
       // throw runtime_error( "Configuration file error" );
     }
@@ -894,7 +894,7 @@ std::string ItemDesc::objtype_description() const
   std::string tmp;
   if ( pkg )
     fmt::format_to( std::back_inserter( tmp ), ":{}:", pkg->name() );
-  fmt::format_to( std::back_inserter( tmp ), "{} ({:#X})", objtypename, objtype );
+  fmt::format_to( std::back_inserter( tmp ), "{} ({:#x})", objtypename, objtype );
   return tmp;
 }
 
@@ -1320,12 +1320,12 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = nullptr )
     {
       auto objpkg = find_itemdesc( descriptor->objtype ).pkg;
       std::string tmp =
-          fmt::format( "Error: Objtype {:#X} is already defined in {}itemdesc.cfg",
+          fmt::format( "Error: Objtype {:#x} is already defined in {}itemdesc.cfg",
                        descriptor->objtype, objpkg == nullptr ? "config/" : objpkg->dir() );
       ERROR_PRINTLN( tmp );
 
       elem.throw_error(
-          fmt::format( "ObjType {:#X} defined more than once.", descriptor->objtype ) );
+          fmt::format( "ObjType {:#x} defined more than once.", descriptor->objtype ) );
     }
     Core::gamestate.desctable[descriptor->objtype] = descriptor;
 

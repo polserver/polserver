@@ -65,7 +65,7 @@ Item* Item::create( u32 objtype, u32 serial )
   }
   else
   {
-    std::string message = fmt::format( "Objtype not defined : {:#X}", objtype );
+    std::string message = fmt::format( "Objtype not defined : {:#x}", objtype );
 
     if ( !Plib::systemstate.config.ignore_load_errors )
       throw std::runtime_error( message );

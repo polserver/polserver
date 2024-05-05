@@ -5026,7 +5026,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 
   if ( Plib::systemstate.config.loglevel >= 12 )
   {
-    POLLOGLN( "[FindPath] Calling FindPath({}, {}, {}, {:#X}, {})", pos1, pos2, realm->name(),
+    POLLOGLN( "[FindPath] Calling FindPath({}, {}, {}, {:#x}, {})", pos1, pos2, realm->name(),
               flags, theSkirt );
     POLLOGLN( "[FindPath]   search for Blockers inside {}", range );
   }

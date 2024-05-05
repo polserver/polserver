@@ -543,7 +543,7 @@ void UContainer::remove( Items::Item* item )
 {
   if ( item->container != this )
   {
-    POLLOGLN( "UContainer::remove(Item*), serial={:#X}, item={:#X}, item->cont={:#X}", serial,
+    POLLOGLN( "UContainer::remove(Item*), serial={:#x}, item={:#x}, item->cont={:#x}", serial,
               item->serial, item->container->serial );
     passert_always( item->container == this );
     int* p = nullptr;

@@ -385,7 +385,7 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
   if ( multidef == nullptr )
   {
     ERROR_PRINTLN(
-        "Trying to add Multi to customhouse, multiid {:#X} multi definition doesn't exist!",
+        "Trying to add Multi to customhouse, multiid {:#x} multi definition doesn't exist!",
         multiid );
     return;
   }

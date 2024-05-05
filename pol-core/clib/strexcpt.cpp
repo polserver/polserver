@@ -35,13 +35,13 @@ namespace Clib
 void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
 {
   std::string tmp = fmt::format(
-      "Structured Exception Detected: {:#X}\n"
+      "Structured Exception Detected: {:#x}\n"
       "ExceptionRecord:\n"
-      "  Exception Code:    {:#X}\n"
-      "  Exception Flags:   {:#X}\n"
-      "  Exception Record:  {:#X}\n"
-      "  Exception Address: {:#X}\n"
-      "  NumberParameters:  {:#X}\n",
+      "  Exception Code:    {:#x}\n"
+      "  Exception Flags:   {:#x}\n"
+      "  Exception Record:  {:#x}\n"
+      "  Exception Address: {:#x}\n"
+      "  NumberParameters:  {:#x}\n",
       n, ex->ExceptionRecord->ExceptionCode, ex->ExceptionRecord->ExceptionFlags,
       (long long)( reinterpret_cast<const void*>( ex->ExceptionRecord->ExceptionRecord ) ),
       (long long)( reinterpret_cast<const void*>( ex->ExceptionRecord->ExceptionAddress ) ),
@@ -52,7 +52,7 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
     tmp += "  Exception Information:";
     for ( DWORD i = 0; i < ex->ExceptionRecord->NumberParameters; i++ )
     {
-      fmt::format_to( std::back_inserter( tmp ), "{}{:#X}",
+      fmt::format_to( std::back_inserter( tmp ), "{}{:#x}",
                       ( ( i & 7 ) == 0 ) ? "\n  " : "  ",  // print newline every 8 numbers
                       ex->ExceptionRecord->ExceptionInformation[i] );
     }
@@ -63,18 +63,18 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
 
   POLLOG_INFOLN(
       "ContextRecord:\n"
-      "  ContextFlags: {:#X}",
+      "  ContextFlags: {:#x}",
       ex->ContextRecord->ContextFlags );
   if ( ex->ContextRecord->ContextFlags & CONTEXT_DEBUG_REGISTERS )
   {
     POLLOG_INFOLN(
         "  CONTEXT_DEBUG_REGISTERS:\n"
-        "       Dr0: {:#X}\n"
-        "       Dr1: {:#X}\n"
-        "       Dr2: {:#X}\n"
-        "       Dr3: {:#X}\n"
-        "       Dr6: {:#X}\n"
-        "       Dr7: {:#X}",
+        "       Dr0: {:#x}\n"
+        "       Dr1: {:#x}\n"
+        "       Dr2: {:#x}\n"
+        "       Dr3: {:#x}\n"
+        "       Dr6: {:#x}\n"
+        "       Dr7: {:#x}",
         ex->ContextRecord->Dr0, ex->ContextRecord->Dr1, ex->ContextRecord->Dr2,
         ex->ContextRecord->Dr3, ex->ContextRecord->Dr6, ex->ContextRecord->Dr7 );
   }
@@ -82,10 +82,10 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
   {
     POLLOG_INFOLN(
         "  CONTEXT_SEGMENTS:\n"
-        "     SegGs: {:#X}\n"
-        "     SegFs: {:#X}\n"
-        "     SegEs: {:#X}\n"
-        "     SegDs: {:#X}",
+        "     SegGs: {:#x}\n"
+        "     SegFs: {:#x}\n"
+        "     SegEs: {:#x}\n"
+        "     SegDs: {:#x}",
         ex->ContextRecord->SegGs, ex->ContextRecord->SegFs, ex->ContextRecord->SegEs,
         ex->ContextRecord->SegDs );
   }
@@ -93,12 +93,12 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
   {
     POLLOG_INFOLN(
         "  CONTEXT_INTEGER:\n"
-        "       Edi: {:#X}\n"
-        "       Esi: {:#X}\n"
-        "       Ebx: {:#X}\n"
-        "       Edx: {:#X}\n"
-        "       Ecx: {:#X}\n"
-        "       Eax: {:#X}",
+        "       Edi: {:#x}\n"
+        "       Esi: {:#x}\n"
+        "       Ebx: {:#x}\n"
+        "       Edx: {:#x}\n"
+        "       Ecx: {:#x}\n"
+        "       Eax: {:#x}",
         ex->ContextRecord->Edi, ex->ContextRecord->Esi, ex->ContextRecord->Ebx,
         ex->ContextRecord->Edx, ex->ContextRecord->Ecx, ex->ContextRecord->Eax );
   }
@@ -106,12 +106,12 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
   {
     POLLOG_INFOLN(
         "  CONTEXT_CONTROL:\n"
-        "       Ebp: {:#X}\n"
-        "       Eip: {:#X}\n"
-        "     SegCs: {:#X}\n"
-        "    EFlags: {:#X}\n"
-        "       Esp: {:#X}\n"
-        "     SegSs: {:#X}",
+        "       Ebp: {:#x}\n"
+        "       Eip: {:#x}\n"
+        "     SegCs: {:#x}\n"
+        "    EFlags: {:#x}\n"
+        "       Esp: {:#x}\n"
+        "     SegSs: {:#x}",
         ex->ContextRecord->Ebp, ex->ContextRecord->Eip, ex->ContextRecord->SegCs,
         ex->ContextRecord->EFlags, ex->ContextRecord->Esp, ex->ContextRecord->SegSs );
 
@@ -129,7 +129,7 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
     {
       fmt::format_to( std::back_inserter( tmp ),
 
-                      "    {:#X}", eip );
+                      "    {:#x}", eip );
 
       if ( !IsBadReadPtr( ebp, sizeof *ebp ) )
       {
@@ -142,7 +142,7 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
       }
       if ( !IsBadReadPtr( ebp + 1, sizeof *ebp ) )
       {
-        fmt::format_to( std::back_inserter( tmp ), "    {:#X}", *( ebp + 1 ) );
+        fmt::format_to( std::back_inserter( tmp ), "    {:#x}", *( ebp + 1 ) );
         new_eip = *( ebp + 1 );
       }
       else

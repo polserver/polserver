@@ -562,7 +562,7 @@ int Character::charindex() const
       return i;
   }
 
-  POLLOG_INFOLN( "Warning: Can't find charidx for Character {:#X}", serial );
+  POLLOG_INFOLN( "Warning: Can't find charidx for Character {:#x}", serial );
   return -1;
 }
 
@@ -790,7 +790,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   {
     if ( Core::system_find_mobile( serial ) )
     {
-      ERROR_PRINTLN( "Character {:#X} defined more than once.", serial );
+      ERROR_PRINTLN( "Character {:#x} defined more than once.", serial );
       throw std::runtime_error( "Data integrity error" );
     }
   }
@@ -805,7 +805,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
     if ( charindex >= Plib::systemstate.config.character_slots )
     {
-      ERROR_PRINTLN( "Account {}: CHARIDX of {} is too high for character serial ({:#X})", acctname,
+      ERROR_PRINTLN( "Account {}: CHARIDX of {} is too high for character serial ({:#x})", acctname,
                      charindex, serial );
 
       throw std::runtime_error( "Data integrity error" );
@@ -837,7 +837,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
   if ( name_ == "" )
   {
-    ERROR_PRINTLN( "Character '{:#X}' has no name!", serial );
+    ERROR_PRINTLN( "Character '{:#x}' has no name!", serial );
     throw std::runtime_error( "Data integrity error" );
   }
   wornitems->serial = serial;
@@ -1311,8 +1311,8 @@ bool Character::equippable( const Items::Item* item ) const
     {
       POLLOG_INFOLN(
           "\n"
-          "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have a mount "
-          "graphic (current graphic: {:#X}). Check that the list of mounts in uoconvert.cfg is "
+          "Warning: Character {:#x} tried to mount Item {:#x}, but it doesn't have a mount "
+          "graphic (current graphic: {:#x}). Check that the list of mounts in uoconvert.cfg is "
           "correct and re-run uoconvert if necessary.",
           this->serial, item->serial, item->graphic );
     }
@@ -1338,7 +1338,7 @@ bool Character::equippable( const Items::Item* item ) const
   {
     POLLOG_INFOLN(
         "\n"
-        "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have the mount "
+        "Warning: Character {:#x} tried to mount Item {:#x}, but it doesn't have the mount "
         "objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.",
         this->serial, item->serial );
     return false;
@@ -2071,7 +2071,7 @@ void Character::on_death( Items::Item* corpse )
   }
   else
   {
-    ERROR_PRINTLN( "Create Character: Failed to equip death shroud {:#X}", death_shroud->graphic );
+    ERROR_PRINTLN( "Create Character: Failed to equip death shroud {:#x}", death_shroud->graphic );
     death_shroud->destroy();
   }
 

@@ -34,7 +34,7 @@ bool ObjectHash::Insert( UObject* obj )
   if ( itr != hash.end() )
   {
     if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOGLN( "ObjectHash insert failed for object serial {:#X}. (duplicate serial?)",
+      POLLOGLN( "ObjectHash insert failed for object serial {:#x}. (duplicate serial?)",
                 obj->serial );
     return false;
   }
@@ -135,7 +135,7 @@ void ObjectHash::PrintContents( std::ofstream* os ) const
   *os << fmt::format( "Object Count: {}\n", hash.size() );
   for ( itr = hash.begin(), itrend = hash.end(); itr != itrend; ++itr )
   {
-    *os << fmt::format( "type: {} serial: {:#X} name: {}\n", itr->second->classname(),
+    *os << fmt::format( "type: {} serial: {:#x} name: {}\n", itr->second->classname(),
                         itr->second->serial, itr->second->name() );
   }
 }

@@ -662,7 +662,7 @@ void NPC::start_script()
 
   if ( prog.get() == nullptr )
   {
-    ERROR_PRINTLN( "Unable to read script {} for NPC {}({:#X})", sd.name(), name(), serial );
+    ERROR_PRINTLN( "Unable to read script {} for NPC {}({:#x})", sd.name(), name(), serial );
     throw std::runtime_error( "Error loading NPCs" );
   }
 
@@ -672,7 +672,7 @@ void NPC::start_script()
   ex->addModule( uoemod );
   if ( ex->setProgram( prog.get() ) == false )
   {
-    ERROR_PRINTLN( "There was an error running script {} for NPC {}({:#X})", script.get(), name(),
+    ERROR_PRINTLN( "There was an error running script {} for NPC {}({:#x})", script.get(), name(),
                    serial );
     throw std::runtime_error( "Error loading NPCs" );
   }

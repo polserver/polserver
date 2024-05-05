@@ -274,7 +274,7 @@ void Client::transmit( const void* data, int len )
     Clib::SpinLockGuard guard( _fpLog_lock );
     if ( !fpLog.empty() )
     {
-      std::string tmp = fmt::format( "Server -> Client: {:#X}, {} bytes\n", msgtype, len );
+      std::string tmp = fmt::format( "Server -> Client: {:#x}, {} bytes\n", msgtype, len );
       Clib::fdump( std::back_inserter( tmp ), data, len );
       FLEXLOGLN( fpLog, tmp );
     }
@@ -284,7 +284,7 @@ void Client::transmit( const void* data, int len )
   if ( disconnect )
   {
     POLLOG_INFOLN( "Warning: Trying to send to a disconnected client! " );
-    std::string tmp = fmt::format( "Server -> Client: {:#X}, {} bytes\n", msgtype, len );
+    std::string tmp = fmt::format( "Server -> Client: {:#x}, {} bytes\n", msgtype, len );
     Clib::fdump( std::back_inserter( tmp ), data, len );
     POLLOG_INFOLN( tmp );
     return;

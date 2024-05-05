@@ -148,7 +148,7 @@ void insert_deferred_items()
       else
       {
         ERROR_PRINTLN(
-            "Item {:#X} is supposed to be on Character {:#X}, but that character cannot be ",
+            "Item {:#x} is supposed to be on Character {:#x}, but that character cannot be ",
             item->serial, container_serial );
 
         // Austin - Aug. 10, 2006
@@ -173,7 +173,7 @@ void insert_deferred_items()
       else
       {
         ERROR_PRINTLN(
-            "Item {:#X} is supposed to be in container {:#X}, but that container cannot be found.",
+            "Item {:#x} is supposed to be in container {:#x}, but that container cannot be found.",
             item->serial, container_serial );
 
         // Austin - Aug. 10, 2006
@@ -211,7 +211,7 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
   else
   {
     ERROR_PRINTLN(
-        "Item {:#X} is supposed to be equipped on Character {:#X}, but is not 'equippable' on that "
+        "Item {:#x} is supposed to be equipped on Character {:#x}, but is not 'equippable' on that "
         "character.",
         item->serial, chr->serial );
     UContainer* bp = chr->backpack();
@@ -279,13 +279,13 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     bool add_to_slot = cont->can_add_to_slot( slotIndex );
     if ( !canadd )
     {
-      ERROR_PRINTLN( "Can't add Item {:#X} to container {:#X}", item->serial, cont->serial );
+      ERROR_PRINTLN( "Can't add Item {:#x} to container {:#x}", item->serial, cont->serial );
       throw std::runtime_error( "Data file error" );
     }
 
     if ( !add_to_slot || !item->slot_index( slotIndex ) )
     {
-      ERROR_PRINTLN( "Can't add Item {:#X} to container {:#X} at slot {:#X}", item->serial,
+      ERROR_PRINTLN( "Can't add Item {:#x} to container {:#x} at slot {:#x}", item->serial,
                      cont->serial, slotIndex );
       throw std::runtime_error( "Data file error" );
     }

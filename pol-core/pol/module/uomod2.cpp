@@ -391,7 +391,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
   {
     POLLOG_INFO(
         "\n"
-        "Warning: Character {:#X} tried to buy items with an overflow from vendor {:#X}.\n",
+        "Warning: Character {:#x} tried to buy items with an overflow from vendor {:#x}.\n",
         client->chr->serial, vendor->serial );
     send_clear_vendorwindow( client, vendor );
     return;
@@ -2176,7 +2176,7 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
       valstack = new BObject( new BError( "Client selected an out-of-range color" ) );
 
       // unsigned short newcolor = ((color - 2) % 1000) + 2;
-      POLLOG_ERRORLN( "Client #{:d} (account {}) selected an out-of-range color {:#X}",
+      POLLOG_ERRORLN( "Client #{:d} (account {}) selected an out-of-range color {:#x}",
                       static_cast<unsigned long>( client->instance_ ),
                       ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" ), color );
     }
@@ -2364,7 +2364,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == nullptr )
   {
-    POLLOGLN( "Unable to find book {:#X} for character {:#X}", book_serial, client->chr->serial );
+    POLLOGLN( "Unable to find book {:#x} for character {:#x}", book_serial, client->chr->serial );
     return;
   }
 
@@ -2481,7 +2481,7 @@ void open_book_handler( Client* client, PKTBI_93* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == nullptr )
   {
-    POLLOGLN( "Unable to find book {:#X} for character {:#X}", book_serial, client->chr->serial );
+    POLLOGLN( "Unable to find book {:#x} for character {:#x}", book_serial, client->chr->serial );
     return;
   }
   BObjectImpRefVec params;
@@ -2661,7 +2661,7 @@ void popup_menu_selection_made( Network::Client* client, u32 serial, u16 id )
          serial )
       uoex.ValueStack.back().set( new BObject( new BLong( id ) ) );
     else
-      POLLOG_INFO( "{}/{} send an unexpected popup reply for {:#X}.\n", client->acct->name(),
+      POLLOG_INFO( "{}/{} send an unexpected popup reply for {:#x}.\n", client->acct->name(),
                       client->chr->name(), serial );
   }
 

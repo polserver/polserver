@@ -413,7 +413,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#X}", tmpitem->graphic );
+      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#x}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -428,7 +428,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#X}", tmpitem->graphic );
+      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#x}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -510,7 +510,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   client->chr = chr;
   client->acct->set_character( msg->CharNumber, client->chr );
 
-  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
+  POLLOGLN( "Account {} created character {:#x}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
@@ -765,7 +765,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#X}", tmpitem->graphic );
+      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#x}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -780,7 +780,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#X}", tmpitem->graphic );
+      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#x}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -795,7 +795,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINTLN( "Create Character: Failed to equip face {:#X}", tmpitem->graphic );
+      ERROR_PRINTLN( "Create Character: Failed to equip face {:#x}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -877,7 +877,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   client->chr = chr;
   client->acct->set_character( charslot, client->chr );
 
-  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
+  POLLOGLN( "Account {} created character {:#x}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
@@ -1180,7 +1180,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#X}", tmpitem->graphic );
+      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#x}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -1195,7 +1195,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#X}", tmpitem->graphic );
+      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#x}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -1277,7 +1277,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   client->chr = chr;
   client->acct->set_character( msg->CharNumber, client->chr );
 
-  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
+  POLLOGLN( "Account {} created character {:#x}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );

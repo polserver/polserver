@@ -91,7 +91,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
   if ( phd->function == nullptr && phd->SubCommands.empty() )
   {
     if ( phd->default_handler == nullptr )
-      POLLOGLN( "Expected packet hook function for msg {:#X} but was null!", (int)*message );
+      POLLOGLN( "Expected packet hook function for msg {:#x} but was null!", (int)*message );
     else  // only SendFunction is definied but default_handler is definied
       phd->default_handler( client, data );
     return;
@@ -300,9 +300,9 @@ static void packethook_warn_if_previously_defined( u8 msgid, PacketVersion pktve
   auto existing_out_func = hook_data->outgoing_function;
 
   if ( existing_in_func != nullptr )
-    POLLOGLN( "Packet hook receive function multiply defined for packet {:#X}!", (int)msgid );
+    POLLOGLN( "Packet hook receive function multiply defined for packet {:#x}!", (int)msgid );
   if ( existing_out_func != nullptr )
-    POLLOGLN( "Packet hook send function multiply defined for packet {:#X}!", (int)msgid );
+    POLLOGLN( "Packet hook send function multiply defined for packet {:#x}!", (int)msgid );
 }
 
 void load_packet_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
