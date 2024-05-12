@@ -932,6 +932,7 @@ ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::P
                                      Core::settingsManager.ssopt.default_container_max_items ) ),
       max_slots( static_cast<u8>(
           elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
+      held_weight_multiplier_mod( elem.remove_double( "HeldWeightMultiplierMod", 1.0 ) ),
       no_drop_exception( elem.remove_bool( "NoDropException", false ) ),
       can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
       on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
@@ -976,6 +977,7 @@ size_t ContainerDesc::estimatedSize() const
          + sizeof( u16 )                       /*max_items*/
          + sizeof( u8 )                        /*max_slots*/
          + sizeof( bool )                      /*no_drop_exception*/
+         + sizeof( double )                    /*held_weight_multiplier_mod*/
          + can_insert_script.estimatedSize() + on_insert_script.estimatedSize() +
          can_remove_script.estimatedSize() + on_remove_script.estimatedSize();
 }

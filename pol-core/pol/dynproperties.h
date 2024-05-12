@@ -178,6 +178,7 @@ enum DynPropTypes : u8
   PROP_ORIG_SWING_SPEED_INCREASE = 91,   // Npc
   PROP_PARRYCHANCE_MOD = 92,             // Character
   PROP_WEIGHT_MULTIPLIER_MOD = 93,       // Item
+  PROP_HELD_WEIGHT_MULTIPLIER_MOD = 94,  // Container
 
   PROP_FLAG_SIZE  // used for bitset size
 };

@@ -175,6 +175,8 @@ public:
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
                                                      int value ) override;  // id test
+  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) override;
+
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
                                 unsigned int* PC ) const override;
 
@@ -214,6 +216,7 @@ public:
   DYN_PROPERTY( max_items_mod, s16, Core::PROP_MAX_ITEMS_MOD, 0 );
   DYN_PROPERTY( max_slots_mod, s8, Core::PROP_MAX_SLOTS_MOD, 0 );
   DYN_PROPERTY( max_weight_mod, s16, Core::PROP_MAX_WEIGHT_MOD, 0 );
+  DYN_PROPERTY( held_weight_multiplier_mod, double, Core::PROP_HELD_WEIGHT_MULTIPLIER_MOD, 1.0 );
 
   bool no_drop_exception() const;
   void no_drop_exception( bool newvalue );

@@ -750,6 +750,17 @@ void Item::add_to_self( Item*& item )
   item = nullptr;
 }
 
+void Item::increv_send_object_recursive()
+{
+  auto item = this;
+  do
+  {
+    item->increv();
+    send_object_cache_to_inrange( item );
+    item = item->container;
+  } while ( item != nullptr );
+}
+
 #ifdef PERGON
 // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
 void Item::ct_merge_stacks_pergon( Item*& item_sub )

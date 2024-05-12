@@ -300,6 +300,7 @@ enum MemberID
   MBR_PILOT,
   MBR_BUFFS,
   MBR_WEIGHT_MULTIPLIER_MOD,
+  MBR_HELD_WEIGHT_MULTIPLIER_MOD, // 260
 };
 
 inline auto format_as( MemberID id )

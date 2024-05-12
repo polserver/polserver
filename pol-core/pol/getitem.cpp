@@ -222,6 +222,11 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     item->set_decay_after( 60 );
   }
 
+  if ( orig_container )
+  {
+    orig_container->increv_send_object_recursive();
+  }
+
   // FIXME : Are these all the possibilities for sources and updating, correctly?
   if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND )
   {
