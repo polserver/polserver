@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-14-2024</datemodified>
+		<datemodified>05-13-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>05-13-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">container.held_weight_multiplier_mod, item descriptor HeldWeightMultiplierMod to dynamically<br/>
+modify a container's held weight. For example, on a backpack (having weight 3 stones) that<br/>
+contains items totalling a weight of 100 stone, setting this property to 0.5 would have the<br/>
+backpack weigh 53 (3 + 100 * 0.5) stone. Similarly, setting this property to 2 would have<br/>
+the backpack weigh 203 stone.</change>
+		</entry>
 		<entry>
 			<date>04-24-2024</date>
 			<author>Reloecc:</author>
