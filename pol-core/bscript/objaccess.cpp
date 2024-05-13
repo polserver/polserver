@@ -275,7 +275,7 @@ ObjMember object_members[] = {
     { MBR_PILOT, "pilot", false },
     { MBR_BUFFS, "buffs", false },
     { MBR_WEIGHT_MULTIPLIER_MOD, "weight_multiplier_mod", false },
-    { MBR_HELD_WEIGHT_MULTIPLIER_MOD, "held_weight_multiplier_mod", false },
+    { MBR_HELD_WEIGHT_MULTIPLIER, "held_weight_multiplier", false },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

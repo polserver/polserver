@@ -62,7 +62,7 @@ UContainer::UContainer( const Items::ContainerDesc& id )
       held_item_count_( 0 )
 {
   no_drop_exception( id.no_drop_exception );
-  held_weight_multiplier_mod( id.held_weight_multiplier_mod );
+  held_weight_multiplier( id.held_weight_multiplier );
 }
 
 UContainer::~UContainer()
@@ -144,10 +144,10 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
     if ( contents_.size() + tli_diff >= MAX_CONTAINER_ITEMS )
       return false;
 
-    if ( weight() + weight_diff * held_weight_multiplier_mod() > USHRT_MAX )
+    if ( weight() + weight_diff * held_weight_multiplier() > USHRT_MAX )
       return false;
 
-    if ( ( held_weight_ + weight_diff ) * held_weight_multiplier_mod() > max_weight() )
+    if ( ( held_weight_ + weight_diff ) * held_weight_multiplier() > max_weight() )
       return false;
 
     if ( held_item_count_ + item_count_diff > max_items() )
@@ -155,8 +155,8 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
 
     if ( container != nullptr )
     {
-      int modded_diff = ( ( held_weight_ + weight_diff ) * held_weight_multiplier_mod() ) -
-                        ( held_weight_ * held_weight_multiplier_mod() );
+      int modded_diff = ( ( held_weight_ + weight_diff ) * held_weight_multiplier() ) -
+                        ( held_weight_ * held_weight_multiplier() );
       return container->can_add_bulk( 0, 0, modded_diff );
     }
     else
@@ -245,7 +245,7 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
 
 unsigned int UContainer::weight() const
 {
-  return Items::Item::weight() + held_weight_ * held_weight_multiplier_mod();
+  return Items::Item::weight() + held_weight_ * held_weight_multiplier();
 }
 
 unsigned int UContainer::item_count() const
@@ -885,8 +885,8 @@ void UContainer::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "Max_Slots_mod", max_slots_mod() );
   if ( no_drop_exception() != default_no_drop_exception() )
     sw.add( "NoDropException", no_drop_exception() );
-  if ( has_held_weight_multiplier_mod() )
-    sw.add( "HeldWeightMultiplierMod", held_weight_multiplier_mod() );
+  if ( has_held_weight_multiplier() )
+    sw.add( "HeldWeightMultiplier", held_weight_multiplier() );
 }
 
 void UContainer::readProperties( Clib::ConfigElem& elem )
@@ -896,8 +896,8 @@ void UContainer::readProperties( Clib::ConfigElem& elem )
   max_weight_mod( static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ) );
   max_slots_mod( static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ) );
   no_drop_exception( elem.remove_bool( "NoDropException", default_no_drop_exception() ) );
-  held_weight_multiplier_mod(
-      elem.remove_double( "HeldWeightMultiplierMod", desc.held_weight_multiplier_mod ) );
+  held_weight_multiplier(
+      elem.remove_double( "HeldWeightMultiplier", desc.held_weight_multiplier ) );
 }
 
 unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
@@ -940,7 +940,7 @@ Items::Item* UContainer::clone() const
   item->max_weight_mod( this->max_weight_mod() );
   item->max_slots_mod( this->max_slots_mod() );
   item->no_drop_exception( no_drop_exception() );
-  item->held_weight_multiplier_mod( held_weight_multiplier_mod() );
+  item->held_weight_multiplier( held_weight_multiplier() );
 
   return item;
 }

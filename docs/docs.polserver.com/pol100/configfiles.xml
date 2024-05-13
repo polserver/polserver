@@ -1570,7 +1570,7 @@ Container (objtype)
     [MaxItems       (int number {default to servspecopt.cfg})]
     [MaxSlots       (int 1-255 {default to servspecopt.cfg})]
 
-    [HeldWeightMultiplierMod    (double {default 1.0})]
+    [HeldWeightMultiplier    (double {default 1.0})]
 
     [NoDropException    (0/1 {default 0})]
     [CanInsertScript    (string scriptname)]

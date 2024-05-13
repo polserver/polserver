@@ -198,7 +198,7 @@ public:
   u16 max_items;
 
   u8 max_slots;
-  double held_weight_multiplier_mod;
+  double held_weight_multiplier;
 
   bool no_drop_exception;
 

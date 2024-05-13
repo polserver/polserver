@@ -344,15 +344,15 @@ function ret_error_not_equal( actual, expected, message )
   return 1;
 endfunction
 
-exported function test_held_weight_mod()
+exported function test_held_weight_multi()
   var ret, cont_half, cont_quarter, cont_normal, item, item_split;
   do
     cont_normal := CreateItemAtLocation( 0, 0, 0, "backpack" );
     if ( !cont_normal )
       ret := ret_error( $"Failed to create cont_normal: {cont_normal}" );
       break;
-    elseif ( cont_normal.held_weight_multiplier_mod != 1.0 )
-      ret := ret_error( $"cont_normal.held_weight_multiplier_mod ({cont_normal.held_weight_multiplier_mod}) != 1.0" );
+    elseif ( cont_normal.held_weight_multiplier != 1.0 )
+      ret := ret_error( $"cont_normal.held_weight_multiplier ({cont_normal.held_weight_multiplier}) != 1.0" );
       break;
     endif
     var cont_normal_weight_empty := 3; // cont_normal.weight;
@@ -363,7 +363,7 @@ exported function test_held_weight_mod()
     if ( !cont_half )
       ret := ret_error( $"Failed to create cont_half: {cont_half}" );
       break;
-    elseif ( !( ret := ret_error_not_equal( cont_half.held_weight_multiplier_mod, 0.5, $"cont_half.held_weight_multiplier_mod ({cont_half.held_weight_multiplier_mod}) != 0.5" ) ) )
+    elseif ( !( ret := ret_error_not_equal( cont_half.held_weight_multiplier, 0.5, $"cont_half.held_weight_multiplier ({cont_half.held_weight_multiplier}) != 0.5" ) ) )
       break;
     endif
 
@@ -371,7 +371,7 @@ exported function test_held_weight_mod()
 
     // Create item via default result from GetItemDescriptor
     var itemdesc := GetItemDescriptor( "heldweightmultipliermod_quarter" );
-    if ( !( ret := ret_error_not_equal( itemdesc.HeldWeightMultiplierMod, 0.25, $"itemdesc.HeldWeightMultiplierMod ({itemdesc.HeldWeightMultiplierMod}) != 0.25" ) ) )
+    if ( !( ret := ret_error_not_equal( itemdesc.HeldWeightMultiplier, 0.25, $"itemdesc.HeldWeightMultiplier ({itemdesc.HeldWeightMultiplier}) != 0.25" ) ) )
       break;
     endif
 
@@ -380,7 +380,7 @@ exported function test_held_weight_mod()
     if ( !cont_quarter )
       ret := ret_error( $"Failed to create cont_quarter: {cont_quarter}" );
       break;
-    elseif ( !( ret := ret_error_not_equal( cont_quarter.held_weight_multiplier_mod, 0.25, $"cont_quarter.held_weight_multiplier_mod ({cont_quarter.held_weight_multiplier_mod}) != 0.25" ) ) )
+    elseif ( !( ret := ret_error_not_equal( cont_quarter.held_weight_multiplier, 0.25, $"cont_quarter.held_weight_multiplier ({cont_quarter.held_weight_multiplier}) != 0.25" ) ) )
       break;
     endif
 
@@ -485,7 +485,7 @@ exported function test_held_weight_mod()
   return ret;
 endfunction
 
-exported function test_held_weight_mod_itemdesc()
+exported function test_held_weight_multi_itemdesc()
   var ret, item;
 
   do
@@ -494,14 +494,14 @@ exported function test_held_weight_mod_itemdesc()
       break;
     endif
 
-    itemdesc.HeldWeightMultiplierMod := 0.5;
+    itemdesc.HeldWeightMultiplier := 0.5;
 
     item := CreateItemAtLocation( 0, 0, 0, itemdesc );
     if ( !( ret := item ) )
       break;
     endif
 
-    if ( !( ret := ret_error_not_equal( item.held_weight_multiplier_mod, 0.5, $"item.held_weight_multiplier_mod ({item.held_weight_multiplier_mod}) != 0.5" ) ) )
+    if ( !( ret := ret_error_not_equal( item.held_weight_multiplier, 0.5, $"item.held_weight_multiplier ({item.held_weight_multiplier}) != 0.5" ) ) )
       break;
     endif
 
@@ -515,7 +515,7 @@ exported function test_held_weight_mod_itemdesc()
   return ret;
 endfunction
 
-exported function test_held_weight_mod_cont_full()
+exported function test_held_weight_multi_cont_full()
   var ret, cont_half;
 
   do
@@ -565,9 +565,9 @@ exported function test_held_weight_mod_cont_full()
 endfunction
 
 
-// Tests dynamically changing held_weight_multiplier_mod on containers at
+// Tests dynamically changing held_weight_multiplier on containers at
 // various depths inside other containers.
-exported function test_held_weight_mod_dynamic()
+exported function test_held_weight_multi_dynamic()
   var ret, cont1;
   do
     cont1 := CreateItemAtLocation( 0, 0, 0, "backpack" );
@@ -610,9 +610,9 @@ exported function test_held_weight_mod_dynamic()
       break;
     endif
 
-    cont1.held_weight_multiplier_mod := 0.5;
-    cont2.held_weight_multiplier_mod := 1;
-    cont3.held_weight_multiplier_mod := 1;
+    cont1.held_weight_multiplier := 0.5;
+    cont2.held_weight_multiplier := 1;
+    cont3.held_weight_multiplier := 1;
     expected_weight_cont3 := 103; // 100 + 3
     expected_weight_cont2 := 106; // (100 + 3) + 3
     expected_weight_cont1 := 56;  // ((100 + 3) + 3) * 0.5 + 3
@@ -622,9 +622,9 @@ exported function test_held_weight_mod_dynamic()
       break;
     endif
 
-    cont1.held_weight_multiplier_mod := 1;
-    cont2.held_weight_multiplier_mod := 0.5;
-    cont3.held_weight_multiplier_mod := 1;
+    cont1.held_weight_multiplier := 1;
+    cont2.held_weight_multiplier := 0.5;
+    cont3.held_weight_multiplier := 1;
     expected_weight_cont3 := 103; // 100 + 3
     expected_weight_cont2 := 54; // (100 + 3) * 0.5 + 3
     expected_weight_cont1 := 57;  // ((100 + 3) * 0.5 + 3) + 3
@@ -634,9 +634,9 @@ exported function test_held_weight_mod_dynamic()
       break;
     endif
 
-    cont1.held_weight_multiplier_mod := 1;
-    cont2.held_weight_multiplier_mod := 1;
-    cont3.held_weight_multiplier_mod := 0.5;
+    cont1.held_weight_multiplier := 1;
+    cont2.held_weight_multiplier := 1;
+    cont3.held_weight_multiplier := 0.5;
     expected_weight_cont3 := 53; // 100 * 0.5 + 3
     expected_weight_cont2 := 56; // (100 * 0.5 + 3) + 3
     expected_weight_cont1 := 59;  // ((100 * 0.5 + 3) + 3) + 3
@@ -646,9 +646,9 @@ exported function test_held_weight_mod_dynamic()
       break;
     endif
 
-    cont1.held_weight_multiplier_mod := 0.5;
-    cont2.held_weight_multiplier_mod := 1;
-    cont3.held_weight_multiplier_mod := 0.5;
+    cont1.held_weight_multiplier := 0.5;
+    cont2.held_weight_multiplier := 1;
+    cont3.held_weight_multiplier := 0.5;
     expected_weight_cont3 := 53; // 100 * 0.5 + 3
     expected_weight_cont2 := 56; // (100 * 0.5 + 3) + 3
     expected_weight_cont1 := 31;  // ((100 * 0.5 + 3) + 3) * 0.5 + 3

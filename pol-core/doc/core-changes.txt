@@ -1,6 +1,6 @@
 -- POL100.2.0 --
 05-13-2024 Kevin:
-    Added: container.held_weight_multiplier_mod, item descriptor HeldWeightMultiplierMod to dynamically
+    Added: container.held_weight_multiplier, item descriptor HeldWeightMultiplier to dynamically
            modify a container's held weight. For example, on a backpack (having weight 3 stones) that
            contains items totalling a weight of 100 stone, setting this property to 0.5 would have the
            backpack weigh 53 (3 + 100 * 0.5) stone. Similarly, setting this property to 2 would have
