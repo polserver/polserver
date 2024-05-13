@@ -13,6 +13,8 @@ modify a container's held weight. For example, on a backpack (having weight 3 st
 contains items totalling a weight of 100 stone, setting this property to 0.5 would have the<br/>
 backpack weigh 53 (3 + 100 * 0.5) stone. Similarly, setting this property to 2 would have<br/>
 the backpack weigh 203 stone.</change>
+			<change type="Fixed">Tooltip updates to client are now correctly triggered for some previously missing scenarios<br/>
+(eg. dragging an item from a container).</change>
 		</entry>
 		<entry>
 			<date>04-24-2024</date>

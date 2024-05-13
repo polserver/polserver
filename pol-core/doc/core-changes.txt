@@ -5,6 +5,8 @@
            contains items totalling a weight of 100 stone, setting this property to 0.5 would have the
            backpack weigh 53 (3 + 100 * 0.5) stone. Similarly, setting this property to 2 would have
            the backpack weigh 203 stone.
+    Fixed: Tooltip updates to client are now correctly triggered for some previously missing scenarios
+           (eg. dragging an item from a container).
 04-24-2024 Reloecc:
     Added: `NpcMinimumMovementDelay` parameter to `servspecopt.cfg`. It controls maximum movement speed of NPCs.
 04-14-2024 Kevin:
