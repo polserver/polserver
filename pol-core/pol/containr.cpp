@@ -234,7 +234,7 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
   // MAX_WEIGHT) );
 
   if ( container != nullptr )
-    container->add_bulk( 0, -weight() );
+    container->add_bulk( 0, -static_cast<int>( weight() ) );
   int newweight = held_weight_;
   newweight += weight_delta;
   held_weight_ = Clib::clamp_convert<u16>( newweight );
@@ -898,7 +898,6 @@ void UContainer::readProperties( Clib::ConfigElem& elem )
   no_drop_exception( elem.remove_bool( "NoDropException", default_no_drop_exception() ) );
   held_weight_multiplier_mod(
       elem.remove_double( "HeldWeightMultiplierMod", desc.held_weight_multiplier_mod ) );
-  INFO_PRINTLN( "readProperties held_weight_multiplier_mod = {}", held_weight_multiplier_mod() );
 }
 
 unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,

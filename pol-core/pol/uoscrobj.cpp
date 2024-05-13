@@ -3835,7 +3835,7 @@ Bscript::BObjectImp* UContainer::set_script_member_id_double( const int id, doub
   {
     if ( container )
     {
-      container->add_bulk( 0, -weight() );
+      container->add_bulk( 0, -static_cast<int>( weight() ) );
       held_weight_multiplier_mod( value );
       container->add_bulk( 0, weight() );
     }
