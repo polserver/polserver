@@ -477,3 +477,186 @@ exported function test_held_weight_mod()
 
   return ret;
 endfunction
+
+exported function test_held_weight_mod_itemdesc()
+  var ret, item;
+
+  do
+    var itemdesc := GetItemDescriptor("backpack");
+    if ( !( ret := itemdesc ) )
+      break;
+    endif
+
+    itemdesc.HeldWeightMultiplierMod := 0.5;
+
+    item := CreateItemAtLocation( 0, 0, 0, itemdesc );
+    if ( !( ret := item ) )
+      break;
+    endif
+
+    if ( !( ret := ret_error_not_equal( item.held_weight_multiplier_mod, 0.5, $"item.held_weight_multiplier_mod ({item.held_weight_multiplier_mod}) != 0.5" ) ) )
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( item )
+    DestroyItem( item );
+  endif
+
+  return ret;
+endfunction
+
+exported function test_held_weight_mod_cont_full()
+  var ret, cont_half;
+
+  do
+    cont_half := CreateItemAtLocation( 0, 0, 0, "heldweightmultipliermod_half" );
+
+    if ( !cont_half )
+      ret := ret_error( $"Failed to create cont_half: {cont_half}" );
+      break;
+    endif
+
+    var desc := GetItemDescriptor(cont_half.objtype);
+
+    // Fill container to 50% full (100 weight * 0.5 mod < 100 max weight)
+    var item1 := CreateItemInContainer( cont_half, "goldcoin_heavy", 100 );
+
+    if ( !item1 )
+      ret := ret_error( $"Failed to create item1: {item1}" );
+      break;
+    endif
+
+    // Fill container to 100% full (200 weight * 0.5 mod == 100 max weight)
+    var item2 := CreateItemInContainer( cont_half, "goldcoin_heavy2", 100 );
+
+    if ( !item2 )
+      ret := ret_error( $"Failed to create item2: {item2}" );
+      break;
+    endif
+
+    // Fail to create item because container is full
+    var held_weight_at_item2 := cont_half.weight - desc.weight;
+    var item3 := CreateItemInContainer( cont_half, "goldcoin", 1 );
+
+    if ( item3 )
+      var held_weight := cont_half.weight - desc.weight;
+      ret := ret_error( $"Erroneously successfully created item in full container: held_weight_at_item2={held_weight_at_item2} item3.weight={item3.weight} held_weight={held_weight} cont_half.maxweight={desc.MaxWeight}" );
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( cont_half )
+    DestroyItem( cont_half );
+  endif
+
+  return ret;
+endfunction
+
+
+// Tests dynamically changing held_weight_multiplier_mod on containers at
+// various depths inside other containers.
+exported function test_held_weight_mod_dynamic()
+  var ret, cont1;
+  do
+    cont1 := CreateItemAtLocation( 0, 0, 0, "backpack" );
+
+    if ( !cont1 )
+      ret := ret_error( $"Failed to create cont1: {cont1}" );
+      break;
+    endif
+
+    var cont2 := CreateItemInContainer( cont1, "backpack" );
+
+    if ( !cont2 )
+      ret := ret_error( $"Failed to create cont2: {cont2}" );
+      break;
+    endif
+
+    var cont3 := CreateItemInContainer( cont2, "backpack" );
+
+    if ( !cont3 )
+      ret := ret_error( $"Failed to create cont3: {cont3}" );
+      break;
+    endif
+
+    // Fill container
+    var item1 := CreateItemInContainer( cont3, "goldcoin_heavy", 100 );
+
+    if ( !item1 )
+      ret := ret_error( $"Failed to create item1: {item1}" );
+      break;
+    endif
+
+    var expected_weight_cont3, expected_weight_cont2, expected_weight_cont1, expected, actual;
+
+    expected_weight_cont3 := 103; // 100 + 3
+    expected_weight_cont2 := 106; // (100 + 3) + 3
+    expected_weight_cont1 := 109;  // ((100 + 3) + 3) + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier_mod := 0.5;
+    cont2.held_weight_multiplier_mod := 1;
+    cont3.held_weight_multiplier_mod := 1;
+    expected_weight_cont3 := 103; // 100 + 3
+    expected_weight_cont2 := 106; // (100 + 3) + 3
+    expected_weight_cont1 := 56;  // ((100 + 3) + 3) * 0.5 + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier_mod := 1;
+    cont2.held_weight_multiplier_mod := 0.5;
+    cont3.held_weight_multiplier_mod := 1;
+    expected_weight_cont3 := 103; // 100 + 3
+    expected_weight_cont2 := 54; // (100 + 3) * 0.5 + 3
+    expected_weight_cont1 := 57;  // ((100 + 3) * 0.5 + 3) + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier_mod := 1;
+    cont2.held_weight_multiplier_mod := 1;
+    cont3.held_weight_multiplier_mod := 0.5;
+    expected_weight_cont3 := 53; // 100 * 0.5 + 3
+    expected_weight_cont2 := 56; // (100 * 0.5 + 3) + 3
+    expected_weight_cont1 := 59;  // ((100 * 0.5 + 3) + 3) + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier_mod := 0.5;
+    cont2.held_weight_multiplier_mod := 1;
+    cont3.held_weight_multiplier_mod := 0.5;
+    expected_weight_cont3 := 53; // 100 * 0.5 + 3
+    expected_weight_cont2 := 56; // (100 * 0.5 + 3) + 3
+    expected_weight_cont1 := 31;  // ((100 * 0.5 + 3) + 3) * 0.5 + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( cont1 )
+    DestroyItem( cont1 );
+  endif
+
+  return ret;
+endfunction
