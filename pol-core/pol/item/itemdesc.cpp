@@ -962,6 +962,7 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "MaxWeight", new BLong( max_weight ) );
   descriptor->addMember( "MaxItems", new BLong( max_items ) );
   descriptor->addMember( "MaxSlots", new BLong( max_slots ) );
+  descriptor->addMember( "HeldWeightMultiplierMod", new Double( held_weight_multiplier_mod ) );
   descriptor->addMember( "NoDropException", new BLong( no_drop_exception ) );
   descriptor->addMember( "CanInsertScript", new String( can_insert_script.relativename( pkg ) ) );
   descriptor->addMember( "CanRemoveScript", new String( can_remove_script.relativename( pkg ) ) );

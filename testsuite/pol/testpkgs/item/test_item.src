@@ -357,6 +357,7 @@ exported function test_held_weight_mod()
     endif
     var cont_normal_weight_empty := 3; // cont_normal.weight;
 
+    // Create item via default entry in itemdesc.cfg
     cont_half := CreateItemAtLocation( 0, 0, 0, "heldweightmultipliermod_half" );
 
     if ( !cont_half )
@@ -368,7 +369,13 @@ exported function test_held_weight_mod()
 
     var cont_half_weight_empty := 50; // cont_half.weight;
 
-    cont_quarter := CreateItemAtLocation( 0, 0, 0, "heldweightmultipliermod_quarter" );
+    // Create item via default result from GetItemDescriptor
+    var itemdesc := GetItemDescriptor( "heldweightmultipliermod_quarter" );
+    if ( !( ret := ret_error_not_equal( itemdesc.HeldWeightMultiplierMod, 0.25, $"itemdesc.HeldWeightMultiplierMod ({itemdesc.HeldWeightMultiplierMod}) != 0.25" ) ) )
+      break;
+    endif
+
+    cont_quarter := CreateItemAtLocation( 0, 0, 0, itemdesc );
 
     if ( !cont_quarter )
       ret := ret_error( $"Failed to create cont_quarter: {cont_quarter}" );
