@@ -3815,6 +3815,8 @@ BObjectImp* UContainer::set_script_member_id( const int id, int value )
     return new BLong( no_drop_exception() );
   case MBR_WEIGHT_MULTIPLIER_MOD:
     return set_script_member_id_double( id, value );
+  case MBR_HELD_WEIGHT_MULTIPLIER_MOD:
+    return set_script_member_id_double( id, value );
   default:
     return nullptr;
   }
