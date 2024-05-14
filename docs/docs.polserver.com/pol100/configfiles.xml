@@ -1569,6 +1569,9 @@ Container (objtype)
     [MaxWeight      (int weight {default to servspecopt.cfg})]
     [MaxItems       (int number {default to servspecopt.cfg})]
     [MaxSlots       (int 1-255 {default to servspecopt.cfg})]
+
+    [HeldWeightMultiplier    (double {default 1.0})]
+
     [NoDropException    (0/1 {default 0})]
     [CanInsertScript    (string scriptname)]
     [OnInsertScript     (string scriptname)]

@@ -501,6 +501,7 @@
 <member mname="max_items_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, modifier for max items allowed in the container" />
 <member mname="max_weight_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, modifier for max weight allowed in the container" />
 <member mname="max_slots_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, modifier for max slots allowed in the container" />
+<member mname="held_weight_multiplier" type="Double" access="r/w" mdesc="Multiplicative modifier when calculating the container's held weight. For example, on an backpack (having weight 3 stones) that contains items totalling a weight of 100 stone, setting this property to 0.5 would have the backpack weigh 53 (3 + 100 * 0.5) stone." />
 <member mname="no_drop_exception" type="Boolean" access="r/w" mdesc="defines if npc is a valid target even if no_drop is set for the item" />
 </class>
 

@@ -179,6 +179,8 @@ public:
   bool has_only_default_cprops( const ItemDesc* compare = nullptr ) const;
   void add_to_self( Item*& item );  // deletes the item passed
 
+  void increv_send_object_recursive();
+
 #ifdef PERGON
   void ct_merge_stacks_pergon(
       Item*& item_sub );  // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks

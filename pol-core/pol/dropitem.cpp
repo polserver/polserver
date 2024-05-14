@@ -125,6 +125,8 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
     cont->on_insert_add_item( client->chr, UContainer::MT_PLAYER, item );
   }
 
+  item->increv_send_object_recursive();
+
   client->restart();
   return true;
 }
@@ -722,7 +724,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
               return true;
             u16 amtadded = item->getamount();
             exitem->add_to_self( item );
-            update_item_to_inrange( exitem );
+            exitem->increv_send_object_recursive();
 
             cont->on_insert_increase_stack( client->chr, UContainer::MT_PLAYER, exitem, amtadded );
 

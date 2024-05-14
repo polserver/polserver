@@ -932,6 +932,7 @@ ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::P
                                      Core::settingsManager.ssopt.default_container_max_items ) ),
       max_slots( static_cast<u8>(
           elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
+      held_weight_multiplier( elem.remove_double( "HeldWeightMultiplier", 1.0 ) ),
       no_drop_exception( elem.remove_bool( "NoDropException", false ) ),
       can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
       on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
@@ -961,6 +962,7 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "MaxWeight", new BLong( max_weight ) );
   descriptor->addMember( "MaxItems", new BLong( max_items ) );
   descriptor->addMember( "MaxSlots", new BLong( max_slots ) );
+  descriptor->addMember( "HeldWeightMultiplier", new Double( held_weight_multiplier ) );
   descriptor->addMember( "NoDropException", new BLong( no_drop_exception ) );
   descriptor->addMember( "CanInsertScript", new String( can_insert_script.relativename( pkg ) ) );
   descriptor->addMember( "CanRemoveScript", new String( can_remove_script.relativename( pkg ) ) );
@@ -976,6 +978,7 @@ size_t ContainerDesc::estimatedSize() const
          + sizeof( u16 )                       /*max_items*/
          + sizeof( u8 )                        /*max_slots*/
          + sizeof( bool )                      /*no_drop_exception*/
+         + sizeof( double )                    /*held_weight_multiplier*/
          + can_insert_script.estimatedSize() + on_insert_script.estimatedSize() +
          can_remove_script.estimatedSize() + on_remove_script.estimatedSize();
 }

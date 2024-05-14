@@ -1620,16 +1620,7 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
       weight_multiplier_mod( value );
     }
 
-    increv();
-    send_object_cache_to_inrange( this );
-
-    auto cont = container;
-    while ( cont )
-    {
-      cont->increv();
-      send_object_cache_to_inrange( cont );
-      cont = cont->container;
-    }
+    increv_send_object_recursive();
 
     UpdateCharacterWeight( this );
     return new Double( weight_multiplier_mod() );
@@ -3788,6 +3779,8 @@ BObjectImp* UContainer::get_script_member_id( const int id ) const
     break;
   case MBR_NO_DROP_EXCEPTION:
     return new BLong( no_drop_exception() );
+  case MBR_HELD_WEIGHT_MULTIPLIER:
+    return new Double( held_weight_multiplier() );
   default:
     return nullptr;
   }
@@ -3820,6 +3813,43 @@ BObjectImp* UContainer::set_script_member_id( const int id, int value )
   case MBR_NO_DROP_EXCEPTION:
     no_drop_exception( value ? true : false );
     return new BLong( no_drop_exception() );
+  case MBR_WEIGHT_MULTIPLIER_MOD:
+    return set_script_member_id_double( id, value );
+  case MBR_HELD_WEIGHT_MULTIPLIER:
+    return set_script_member_id_double( id, value );
+  default:
+    return nullptr;
+  }
+  return new BLong( value );
+}
+
+Bscript::BObjectImp* UContainer::set_script_member_id_double( const int id, double value )
+{
+  BObjectImp* imp = base::set_script_member_id_double( id, value );
+  if ( imp != nullptr )
+    return imp;
+
+  switch ( id )
+  {
+  case MBR_HELD_WEIGHT_MULTIPLIER:
+  {
+    if ( container )
+    {
+      container->add_bulk( 0, -static_cast<int>( weight() ) );
+      held_weight_multiplier( value );
+      container->add_bulk( 0, weight() );
+    }
+    else
+    {
+      held_weight_multiplier( value );
+    }
+
+    increv_send_object_recursive();
+
+    UpdateCharacterWeight( this );
+
+    return new Double( held_weight_multiplier() );
+  }
   default:
     return nullptr;
   }

@@ -335,3 +335,335 @@ exported function test_item_weight_mod_in_cont()
 
   return 1;
 endfunction
+
+function ret_error_not_equal( actual, expected, message )
+  if ( actual != expected )
+	  return ret_error( $"{message}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function test_held_weight_multi()
+  var ret, cont_half, cont_quarter, cont_normal, item, item_split;
+  do
+    cont_normal := CreateItemAtLocation( 0, 0, 0, "backpack" );
+    if ( !cont_normal )
+      ret := ret_error( $"Failed to create cont_normal: {cont_normal}" );
+      break;
+    elseif ( cont_normal.held_weight_multiplier != 1.0 )
+      ret := ret_error( $"cont_normal.held_weight_multiplier ({cont_normal.held_weight_multiplier}) != 1.0" );
+      break;
+    endif
+    var cont_normal_weight_empty := 3; // cont_normal.weight;
+
+    // Create item via default entry in itemdesc.cfg
+    cont_half := CreateItemAtLocation( 0, 0, 0, "heldweightmultipliermod_half" );
+
+    if ( !cont_half )
+      ret := ret_error( $"Failed to create cont_half: {cont_half}" );
+      break;
+    elseif ( !( ret := ret_error_not_equal( cont_half.held_weight_multiplier, 0.5, $"cont_half.held_weight_multiplier ({cont_half.held_weight_multiplier}) != 0.5" ) ) )
+      break;
+    endif
+
+    var cont_half_weight_empty := 50; // cont_half.weight;
+
+    // Create item via default result from GetItemDescriptor
+    var itemdesc := GetItemDescriptor( "heldweightmultipliermod_quarter" );
+    if ( !( ret := ret_error_not_equal( itemdesc.HeldWeightMultiplier, 0.25, $"itemdesc.HeldWeightMultiplier ({itemdesc.HeldWeightMultiplier}) != 0.25" ) ) )
+      break;
+    endif
+
+    cont_quarter := CreateItemAtLocation( 0, 0, 0, itemdesc );
+
+    if ( !cont_quarter )
+      ret := ret_error( $"Failed to create cont_quarter: {cont_quarter}" );
+      break;
+    elseif ( !( ret := ret_error_not_equal( cont_quarter.held_weight_multiplier, 0.25, $"cont_quarter.held_weight_multiplier ({cont_quarter.held_weight_multiplier}) != 0.25" ) ) )
+      break;
+    endif
+
+    var cont_quarter_weight_empty := 50; // cont_quarter.weight;
+
+    item := CreateItemAtLocation( 0, 0, 0, "goldcoin_heavy", amount := 100 );
+
+    if ( !item )
+      ret := ret_error( $"Failed to create item: {item}" );
+      break;
+    endif
+
+    if ( !( ret := ret_error_not_equal( item.weight, 100, $"item.weight ({item.weight}) != 100" ) ) )
+      break;
+    endif
+
+    // Move coins into half-container
+    if ( !( ret := MoveItemToContainer( item, cont_half ) ) )
+      break;
+    endif
+
+    var expected_weight_half := 100; // CInt(cont_half_weight_empty + item.weight * 0.5);
+
+    if ( !( ret := ret_error_not_equal( cont_half.weight, expected_weight_half, $"cont_half.weight ({cont_half.weight}) != expected_weight_half ({expected_weight_half})" ) ) )
+      break;
+    endif
+
+    // Move coins out of half-container and into quarter-container
+    if ( !( ret := MoveItemToContainer( item, cont_quarter ) ) )
+      break;
+    endif
+
+    // Weight of half-container should reset.
+    if ( !( ret := ret_error_not_equal( cont_half.weight, cont_half_weight_empty, $"cont_half.weight ({cont_half.weight}) != cont_half_weight_empty ({cont_half_weight_empty})" ) ) )
+      break;
+    endif
+
+    var expected_weight_quarter := 75; // CInt(cont_quarter_weight_empty + item.weight * 0.25);
+
+    if ( !( ret := ret_error_not_equal( cont_quarter.weight, expected_weight_quarter, $"cont_quarter.weight ({cont_quarter.weight}) != expected_weight_quarter ({expected_weight_quarter})" ) ) )
+      break;
+    endif
+
+    // Move half-container and quarter-container (which contains item) into normal-container
+    if ( !( ret := MoveItemToContainer( cont_quarter, cont_normal ) ) )
+      break;
+    elseif ( !( ret := MoveItemToContainer( cont_half, cont_normal ) ) )
+      break;
+    endif
+
+    var expected_weight_normal := 128; // CInt(cont_normal_weight_empty + cont_half_weight_empty + item.weight * 0.25 + cont_quarter_weight_empty);
+
+    if ( !( ret := ret_error_not_equal( cont_normal.weight, expected_weight_normal, $"cont_normal.weight ({cont_normal.weight}) != expected_weight_normal ({expected_weight_normal})" ) ) )
+      break;
+    endif
+
+    // split item into a new stack, moving 50 unscaled weight from quarter-container into half-container
+    item_split := item.splitStackInto( cont_half, 50 );
+    if ( !( ret := item_split ) )
+      break;
+    endif
+
+    expected_weight_quarter := 62; // CInt(cont_quarter_weight_empty + item.weight * 0.25);
+    expected_weight_half := 75; // CInt(cont_half_weight_empty + item_split.weight * 0.50);
+    expected_weight_normal := 140; // CInt(cont_normal_weight_empty + (cont_half_weight_empty + 50 * 0.25) + (cont_quarter_weight_empty + 50 * 0.50));
+
+    if ( !( ret := ret_error_not_equal( cont_normal.weight, expected_weight_normal, $"cont_normal.weight ({cont_normal.weight}) != expected_weight_normal ({expected_weight_normal})" ) ) )
+      break;
+    endif
+
+    if ( !( ret := ret_error_not_equal( cont_quarter.weight, expected_weight_quarter, $"cont_quarter.weight ({cont_quarter.weight}) != expected_weight_quarter ({expected_weight_quarter})" ) ) )
+      break;
+    endif
+
+    if ( !( ret := ret_error_not_equal( cont_half.weight, expected_weight_half, $"cont_half.weight ({cont_half.weight}) != expected_weight_half ({expected_weight_half})" ) ) )
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( item )
+	  DestroyItem( item );
+  endif
+
+  if ( item_split )
+	  DestroyItem( item_split );
+  endif
+
+  if ( cont_normal )
+	  DestroyItem( cont_normal );
+  endif
+
+  if ( cont_half )
+	  DestroyItem( cont_half );
+  endif
+
+  if ( cont_quarter )
+	  DestroyItem( cont_quarter );
+  endif
+
+  return ret;
+endfunction
+
+exported function test_held_weight_multi_itemdesc()
+  var ret, item;
+
+  do
+    var itemdesc := GetItemDescriptor("backpack");
+    if ( !( ret := itemdesc ) )
+      break;
+    endif
+
+    itemdesc.HeldWeightMultiplier := 0.5;
+
+    item := CreateItemAtLocation( 0, 0, 0, itemdesc );
+    if ( !( ret := item ) )
+      break;
+    endif
+
+    if ( !( ret := ret_error_not_equal( item.held_weight_multiplier, 0.5, $"item.held_weight_multiplier ({item.held_weight_multiplier}) != 0.5" ) ) )
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( item )
+    DestroyItem( item );
+  endif
+
+  return ret;
+endfunction
+
+exported function test_held_weight_multi_cont_full()
+  var ret, cont_half;
+
+  do
+    cont_half := CreateItemAtLocation( 0, 0, 0, "heldweightmultipliermod_half" );
+
+    if ( !cont_half )
+      ret := ret_error( $"Failed to create cont_half: {cont_half}" );
+      break;
+    endif
+
+    var desc := GetItemDescriptor(cont_half.objtype);
+
+    // Fill container to 50% full (100 weight * 0.5 mod < 100 max weight)
+    var item1 := CreateItemInContainer( cont_half, "goldcoin_heavy", 100 );
+
+    if ( !item1 )
+      ret := ret_error( $"Failed to create item1: {item1}" );
+      break;
+    endif
+
+    // Fill container to 100% full (200 weight * 0.5 mod == 100 max weight)
+    var item2 := CreateItemInContainer( cont_half, "goldcoin_heavy2", 100 );
+
+    if ( !item2 )
+      ret := ret_error( $"Failed to create item2: {item2}" );
+      break;
+    endif
+
+    // Fail to create item because container is full
+    var held_weight_at_item2 := cont_half.weight - desc.weight;
+    var item3 := CreateItemInContainer( cont_half, "goldcoin", 1 );
+
+    if ( item3 )
+      var held_weight := cont_half.weight - desc.weight;
+      ret := ret_error( $"Erroneously successfully created item in full container: held_weight_at_item2={held_weight_at_item2} item3.weight={item3.weight} held_weight={held_weight} cont_half.maxweight={desc.MaxWeight}" );
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( cont_half )
+    DestroyItem( cont_half );
+  endif
+
+  return ret;
+endfunction
+
+
+// Tests dynamically changing held_weight_multiplier on containers at
+// various depths inside other containers.
+exported function test_held_weight_multi_dynamic()
+  var ret, cont1;
+  do
+    cont1 := CreateItemAtLocation( 0, 0, 0, "backpack" );
+
+    if ( !cont1 )
+      ret := ret_error( $"Failed to create cont1: {cont1}" );
+      break;
+    endif
+
+    var cont2 := CreateItemInContainer( cont1, "backpack" );
+
+    if ( !cont2 )
+      ret := ret_error( $"Failed to create cont2: {cont2}" );
+      break;
+    endif
+
+    var cont3 := CreateItemInContainer( cont2, "backpack" );
+
+    if ( !cont3 )
+      ret := ret_error( $"Failed to create cont3: {cont3}" );
+      break;
+    endif
+
+    // Fill container
+    var item1 := CreateItemInContainer( cont3, "goldcoin_heavy", 100 );
+
+    if ( !item1 )
+      ret := ret_error( $"Failed to create item1: {item1}" );
+      break;
+    endif
+
+    var expected_weight_cont3, expected_weight_cont2, expected_weight_cont1, expected, actual;
+
+    expected_weight_cont3 := 103; // 100 + 3
+    expected_weight_cont2 := 106; // (100 + 3) + 3
+    expected_weight_cont1 := 109;  // ((100 + 3) + 3) + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier := 0.5;
+    cont2.held_weight_multiplier := 1;
+    cont3.held_weight_multiplier := 1;
+    expected_weight_cont3 := 103; // 100 + 3
+    expected_weight_cont2 := 106; // (100 + 3) + 3
+    expected_weight_cont1 := 56;  // ((100 + 3) + 3) * 0.5 + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier := 1;
+    cont2.held_weight_multiplier := 0.5;
+    cont3.held_weight_multiplier := 1;
+    expected_weight_cont3 := 103; // 100 + 3
+    expected_weight_cont2 := 54; // (100 + 3) * 0.5 + 3
+    expected_weight_cont1 := 57;  // ((100 + 3) * 0.5 + 3) + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier := 1;
+    cont2.held_weight_multiplier := 1;
+    cont3.held_weight_multiplier := 0.5;
+    expected_weight_cont3 := 53; // 100 * 0.5 + 3
+    expected_weight_cont2 := 56; // (100 * 0.5 + 3) + 3
+    expected_weight_cont1 := 59;  // ((100 * 0.5 + 3) + 3) + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    cont1.held_weight_multiplier := 0.5;
+    cont2.held_weight_multiplier := 1;
+    cont3.held_weight_multiplier := 0.5;
+    expected_weight_cont3 := 53; // 100 * 0.5 + 3
+    expected_weight_cont2 := 56; // (100 * 0.5 + 3) + 3
+    expected_weight_cont1 := 31;  // ((100 * 0.5 + 3) + 3) * 0.5 + 3
+    expected := array{ expected_weight_cont1, expected_weight_cont2, expected_weight_cont3 };
+    actual := array{ cont1.weight, cont2.weight, cont3.weight };
+    if ( !( ret := ret_error_not_equal( actual, expected, $"Weights unequal: actual ({actual}) != expected ({expected})" ) ) )
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( cont1 )
+    DestroyItem( cont1 );
+  endif
+
+  return ret;
+endfunction
