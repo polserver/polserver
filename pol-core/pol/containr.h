@@ -165,8 +165,9 @@ public:
 
   // TODO: rework these too.
   bool check_can_remove_script( Mobile::Character* chr, Items::Item* item,
-                                MoveType move = MT_PLAYER );
-  void on_remove( Mobile::Character* chr, Items::Item* item, MoveType move = MT_PLAYER );
+                                MoveType move = MT_PLAYER, u16 amount = 0 );
+  void on_remove( Mobile::Character* chr, Items::Item* item, MoveType move = MT_PLAYER,
+                  Items::Item* split_from = nullptr );
   virtual void printProperties( Clib::StreamWriter& sw ) const override;
   virtual void readProperties( Clib::ConfigElem& elem ) override;
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
