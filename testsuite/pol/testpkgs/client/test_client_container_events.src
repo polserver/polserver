@@ -57,7 +57,7 @@ exported function test_container_events()
       break;
     endif
 
-    if ( !( evs := drop_item( ret, item.serial, 0xFF, 0xFF, 0, container.serial, { "container_caninsert", "container_oninsert", EVT_DROP_ITEM } ) ) )
+    if ( !( evs := drop_item( ret, item.serial, 0xFF, 0xFF, 0, container.serial, { "container_caninsert", "container_oninsert" } ) ) )
       break;
     endif
 
@@ -99,7 +99,7 @@ exported function test_container_events()
       break;
     endif
 
-    if ( !( evs := drop_item( ret, remaining_item.serial, 0xFF, 0xFF, 0, item.serial, { "container_caninsert", "container_oninsert", EVT_DROP_ITEM } ) ) )
+    if ( !( evs := drop_item( ret, remaining_item.serial, 0xFF, 0xFF, 0, item.serial, { "container_caninsert", "container_oninsert" } ) ) )
       break;
     endif
 
@@ -124,7 +124,7 @@ exported function test_container_events()
     // ----------
     // Lift 250 coins from the container and drop into container (as a new item)
     // ----------
-    if ( !( evs := lift_item( ret, item.serial, 250, { "container_canremove", "container_onremove", EVT_LIFT_ITEM } ) ) )
+    if ( !( evs := lift_item( ret, item.serial, 250, { "container_canremove", "container_onremove" } ) ) )
       break;
     endif
 
