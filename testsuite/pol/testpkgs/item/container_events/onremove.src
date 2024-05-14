@@ -1,0 +1,9 @@
+use uo;
+use os;
+
+program onremovescript( character, container, item, item_amount, movetype, split_from )
+    GetProcess( GetObjProperty( container, "#TestPid") ).sendevent( struct{
+        type := "container_onremove",
+        args := { character, container, item, item_amount, movetype, split_from }
+    } );
+endprogram

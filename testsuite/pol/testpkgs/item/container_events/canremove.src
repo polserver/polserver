@@ -1,0 +1,16 @@
+use uo;
+use os;
+
+program canremovescript( character, container, item, movetype, item_amount )
+    GetProcess( GetObjProperty(container, "#TestPid") ).sendevent( struct{
+        type := "container_canremove",
+        args := { character, container, item, movetype, item_amount }
+    } );
+
+    // do not allow removing an odd amount of items
+    if (movetype == MOVETYPE_PLAYER)
+        return item_amount & 1 == 0;
+    endif
+
+    return 1;
+endprogram

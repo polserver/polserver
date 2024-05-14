@@ -1222,10 +1222,10 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def lift(self, obj):
+  def lift(self, obj, amount):
     ''' Sends a lift packet to server'''
     po = packets.LiftItemPacket()
-    po.fill(obj if type(obj) == int else obj.serial, 1)
+    po.fill(obj if type(obj) == int else obj.serial, amount)
     self.queue(po)
 
   @logincomplete

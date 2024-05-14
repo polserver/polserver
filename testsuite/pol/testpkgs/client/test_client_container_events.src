@@ -1,0 +1,204 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+use boat;
+use file;
+use polsys;
+
+var char;
+var charX := 100;
+var charY := 50;
+var clientcon := getClientConnection();
+
+program test_item_move()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+  return ret_error( "Could not find char at slot 1" );
+  endif
+
+  // Move character somewhere nice.
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+  return ret_error( $"Could not move character: ${res}" );
+  endif
+
+  return 1;
+endprogram
+
+exported function test_container_events()
+  var ret, container, item, remaining_item;
+  do
+    var evs, expected_caninsert_args, expected_oninsert_args, expected_canremove_args, expected_onremove_args;
+
+    container := CreateItemAtLocation( char.x, char.y, char.z, "container_events" );
+    if ( !container )
+      ret := ret_error( $"Could not create container: {container}" );
+      break;
+    endif
+
+    SetObjProperty( container, "#TestPid", GetPid() );
+
+    // ----------
+    // Create 750 coins on ground.
+    // ----------
+    item := CreateItemAtLocation( char.x, char.y, char.z, "goldcoin", amount := 750 );
+    if ( !item )
+      ret := ret_error( $"Could not create item: {item}" );
+      break;
+    endif
+
+    // ----------
+    // Lift and drop 500 coins from the ground into the container.
+    // ----------
+    if ( !( evs := lift_item( ret, item.serial, 500, { EVT_LIFT_ITEM } ) ) )
+      break;
+    endif
+
+    if ( !( evs := drop_item( ret, item.serial, 0xFF, 0xFF, 0, container.serial, { "container_caninsert", "container_oninsert", EVT_DROP_ITEM } ) ) )
+      break;
+    endif
+
+    expected_caninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_ADD_ITEM, item /* adding_item */, uninit /* existing_stack */, uninit /* amount_to_add */ };
+    expected_oninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_ADD_ITEM, item /* adding_item */, item /* existing_stack */, 500 };
+
+    if ( !( ret := ret_error_not_equal( evs.container_caninsert.args, expected_caninsert_args, $"evs.container_caninsert.args {evs.container_caninsert.args} != expected_caninsert_args {expected_caninsert_args}" ) ) )
+      break;
+    endif
+
+    if ( !( ret := ret_error_not_equal( evs.container_oninsert.args, expected_oninsert_args, $"evs.container_oninsert.args {evs.container_oninsert.args} != expected_oninsert_args {expected_oninsert_args}" ) ) )
+      break;
+    endif
+
+    // ----------
+    // Fail to lift 250 coins from the container, as cannot remove odd-amount items from the container because of the CanRemove script
+    // ----------
+    if ( !( evs := lift_item( ret, item.serial, 251, { "container_canremove", EVT_MOVE_ITEM_REJECTED } ) ) )
+      break;
+    endif
+
+    expected_canremove_args := { char, container, item, MOVETYPE_PLAYER, 251 };
+
+    if ( !( ret := ret_error_not_equal( evs.container_canremove.args, expected_canremove_args, $"evs.container_canremove.args {evs.container_canremove.args} != expected_canremove_args {expected_canremove_args}" ) ) )
+      break;
+    endif
+
+    // ----------
+    // Lift the remaining 250 from the ground and drop onto the stack of 500 in the container.
+    // ----------
+    remaining_item := ListItemsNearLocationOfType( char.x, char.y, LIST_IGNORE_Z, 0, "goldcoin" )[1];
+
+    if ( !remaining_item )
+      ret := ret_error( "Could not find remaining gold coin on ground." );
+      break;
+    endif
+
+    if ( !( evs := lift_item( ret, remaining_item.serial, 250, { EVT_LIFT_ITEM } ) ) )
+      break;
+    endif
+
+    if ( !( evs := drop_item( ret, remaining_item.serial, 0xFF, 0xFF, 0, item.serial, { "container_caninsert", "container_oninsert", EVT_DROP_ITEM } ) ) )
+      break;
+    endif
+
+    expected_caninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_INCREASE_STACK, remaining_item, item, 250 };
+    if ( !( ret := ret_error_not_equal( evs.container_caninsert.args, expected_caninsert_args, $"evs.container_caninsert.args {evs.container_caninsert.args} != expected_caninsert_args {expected_caninsert_args}" ) ) )
+      break;
+    endif
+
+    // `adding_item` is uninit, because the item is added between CanInsert
+    // and OnInsert, and is therefore stacked _into_ the existing stack in
+    // the container (ie. `item.amount == 750`). We still have the `250` as
+    // the `amount_to_add` parameter.
+    expected_oninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_INCREASE_STACK, uninit /* adding_item */, item, 250 };
+    if ( !( ret := ret_error_not_equal( evs.container_oninsert.args, expected_oninsert_args, $"evs.container_oninsert.args {evs.container_oninsert.args} != expected_oninsert_args {expected_oninsert_args}" ) ) )
+      break;
+    endif
+
+    if ( !( ret := ret_error_not_equal( item.amount, 750, $"item.amount ({item.amount}) != 750" ) ) )
+      break;
+    endif
+
+    // ----------
+    // Lift 250 coins from the container and drop into container (as a new item)
+    // ----------
+    if ( !( evs := lift_item( ret, item.serial, 250, { "container_canremove", "container_onremove", EVT_LIFT_ITEM } ) ) )
+      break;
+    endif
+
+    expected_canremove_args := { char, container, item, MOVETYPE_PLAYER, 250 };
+    if ( !( ret := ret_error_not_equal( evs.container_canremove.args, expected_canremove_args, $"evs.container_canremove.args {evs.container_canremove.args} != expected_canremove_args {expected_canremove_args}" ) ) )
+      break;
+    endif
+
+    remaining_item := EnumerateItemsInContainer( container )[1];
+    if ( !remaining_item )
+      ret := ret_error( "Could not find remaining gold coin on ground." );
+      break;
+    endif
+
+    expected_onremove_args := { char, container, item, 250, MOVETYPE_PLAYER, remaining_item /* split_from */ };
+    if ( !( ret := ret_error_not_equal( evs.container_onremove.args, expected_onremove_args, $"evs.container_onremove.args {evs.container_onremove.args} != expected_onremove_args {expected_onremove_args}" ) ) )
+      break;
+    endif
+
+    // Already tested caninsert/oninsert for new item above, so just checking for DROP_ITEM
+    if ( !( evs := drop_item( ret, item.serial, 1, 1, 0, container.serial, { EVT_DROP_ITEM } ) ) )
+      break;
+    endif
+
+    ret := 1;
+  dowhile ( false );
+
+  if ( container )
+    DestroyItem( container );
+  endif
+
+  if ( item )
+    DestroyItem( item );
+  endif
+
+  if ( remaining_item )
+    DestroyItem( remaining_item );
+  endif
+
+  return ret;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function get_container_events( byref err, container_events )
+  var evs := struct{};
+
+  foreach type in container_events
+    var ev;
+    while ( 1 )
+      ev := waitForClients( { type } );
+      if ( !ev )
+        return err := ev;
+      endif
+      evs[ev.type] := ev;
+      break;
+    endwhile
+  endforeach
+
+  return evs;
+endfunction
+
+function drop_item( byref err, serial, x, y, z, dropped_on_serial, container_events )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "drop_item", arg := struct{ serial := serial, x := x, y := y, z := z, dropped_on_serial := dropped_on_serial }, id := 0 } );
+
+  return get_container_events( err, container_events );
+endfunction
+
+function lift_item( byref err, serial, amount, container_events )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item", arg := struct{ serial := serial, amount := amount }, id := 0 } );
+
+  return get_container_events( err, container_events );
+endfunction
