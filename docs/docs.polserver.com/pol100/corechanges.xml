@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-15-2024</datemodified>
+		<datemodified>05-16-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>05-16-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">When removing a partial stack from a container, the `item` parameter in the container's<br/>
+OnRemoveScript will now be the partial stack itself (instead of the pre-split stack).</change>
+			<change type="Added">Parameter `split_from` to container OnRemoveScript</change>
+			<change type="Added">Parameter `amount` to container CanRemoveScript</change>
+		</entry>
 		<entry>
 			<date>05-15-2024</date>
 			<author>Kevin:</author>

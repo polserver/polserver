@@ -776,7 +776,8 @@ void UContainer::spill_contents( Multi::UMulti* multi )
 }
 
 
-void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType move )
+void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType move,
+                            Items::Item* split_from )
 {
   if ( !desc.on_remove_script.empty() )
   {
@@ -790,7 +791,8 @@ void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType 
     // Luth: 10/22/2008 - on_remove_script now called with all appropriate parameters
     call_script( desc.on_remove_script, chrParam, new Module::EItemRefObjImp( this ),
                  new Module::EItemRefObjImp( item ), new Bscript::BLong( item->getamount() ),
-                 new Bscript::BLong( move ) );
+                 new Bscript::BLong( move ),
+                 split_from ? split_from->make_ref() : Bscript::UninitObject::create() );
   }
 }
 
@@ -855,7 +857,8 @@ void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype,
   }
 }
 
-bool UContainer::check_can_remove_script( Mobile::Character* chr, Items::Item* item, MoveType move )
+bool UContainer::check_can_remove_script( Mobile::Character* chr, Items::Item* item, MoveType move,
+                                          u16 amount )
 {
   if ( !desc.can_remove_script.empty() )
   {
@@ -864,8 +867,12 @@ bool UContainer::check_can_remove_script( Mobile::Character* chr, Items::Item* i
       chrParam = chr->make_ref();
     else
       chrParam = Bscript::UninitObject::create();
+
+    if ( amount == 0 )
+      amount = item->getamount();
+
     return call_script( desc.can_remove_script, chrParam, make_ref(), item->make_ref(),
-                        new Bscript::BLong( move ) );
+                        new Bscript::BLong( move ), new Bscript::BLong( amount ) );
   }
   else
   {

@@ -90,11 +90,19 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             serial = arg))
       elif todo=="lift_item":
-        self.client.lift(arg)
+        if isinstance(arg, int):
+          serial = arg
+          amount = 1
+        else:
+          serial = arg['serial']
+          amount = arg['amount']
+
+        self.client.lift(serial, amount)
         self.server.addevent(
           brain.Event(brain.Event.EVT_LIFT_ITEM,
             clientid = self.id,
-            serial = arg))
+            serial = serial,
+            amount = amount))
       elif todo=="boat_move":
         self.client.boat_move(arg['serial'], arg['direction'], arg['speed'])
         self.server.addevent(

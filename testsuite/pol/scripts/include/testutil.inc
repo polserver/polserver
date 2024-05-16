@@ -6,6 +6,14 @@ function ret_error(str)
   return error{errortext:=str};
 endfunction
 
+function ret_error_not_equal( actual, expected, message )
+  if ( actual != expected )
+	  return ret_error( $"{message}" );
+  endif
+
+  return 1;
+endfunction
+
 function createAccountWithChar(accname, psw)
   var a:=FindAccount(accname);
   if (!a)

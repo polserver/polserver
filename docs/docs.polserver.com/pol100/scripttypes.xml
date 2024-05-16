@@ -311,11 +311,12 @@ const INSERT_INCREASE_STACK  := 2;</example>
 
 
 <scripttype name="CanRemoveScript">
-    <prototype>program canremovescript(character, container, item, movetype)</prototype>
+    <prototype>program canremovescript(character, container, item, movetype, amount)</prototype>
     <parameter name="character" value="Character Ref, or uninitialized, see below" />
     <parameter name="container" value="Container Ref" />
     <parameter name="item" value="Item Ref" />
     <parameter name="movetype" value="Integer" />
+    <parameter name="amount" value="Integer" />
     <return>If 1, item is allowed to be removed from the container, else it is not removed.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -400,12 +401,13 @@ const INSERT_INCREASE_STACK  := 2;</example>
 
 
 <scripttype name="OnRemoveScript">
-    <prototype>program onremovescript(character, container, item, item_amount, movetype)</prototype>
+    <prototype>program onremovescript(character, container, item, item_amount, movetype, split_from)</prototype>
     <parameter name="character" value="Character Ref, or uninitialized, see below" />
     <parameter name="container" value="Container Ref" />
     <parameter name="item" value="Item Ref" />
     <parameter name="item_amount" value="Integer" />
     <parameter name="movetype" value="Integer" />
+    <parameter name="split_from" value="Item Ref, or uninitialized, see below" />
     <return>return value ignored</return>
     <schedtype>Run-To-Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -414,6 +416,7 @@ const INSERT_INCREASE_STACK  := 2;</example>
     <todefine>In the item's itemdesc.cfg entry, the 'OnRemoveScript' property defines the location of the on-remove script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/control.</todefine>
     <explain>This script allows side effects to be triggered as a result of the item removal.</explain>
     <explain>IMPORTANT: the first parameter (character) MAY be passed as an uninitialized object if the item was not moved by character (i.e. by a script function or the core), so please check it before you use it.</explain>
+    <explain>split_from MAY be passed as an uninitialized object if the item was not created as a result of splitting an item's stack.</explain>
     <example>
 use uo;
 program my_example_onremovescript(character, container, item, item_amount)

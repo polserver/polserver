@@ -336,14 +336,6 @@ exported function test_item_weight_mod_in_cont()
   return 1;
 endfunction
 
-function ret_error_not_equal( actual, expected, message )
-  if ( actual != expected )
-	  return ret_error( $"{message}" );
-  endif
-
-  return 1;
-endfunction
-
 exported function test_held_weight_multi()
   var ret, cont_half, cont_quarter, cont_normal, item, item_split;
   do

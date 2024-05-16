@@ -127,7 +127,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   if ( item->container )
   {
-    if ( !item->container->check_can_remove_script( client->chr, item ) )
+    if ( !item->container->check_can_remove_script( client->chr, item,
+                                                    UContainer::MoveType::MT_PLAYER, amount ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
       return;
@@ -168,13 +169,6 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   item->gotten_by( client->chr );
   item->setposition( Pos4d( 0, 0, 0, item->realm() ) );  // don't let a boat carry it around
 
-  if ( orig_container != nullptr )
-  {
-    orig_container->on_remove( client->chr, item );
-    if ( item->orphan() )
-      return;
-  }
-
   /* Check for moving part of a stack.  Here are the possibilities:
       1) Client specified more amount than was in the stack.
       2) Client specified exactly what was in the stack.
@@ -194,6 +188,9 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
       new_item->setposition( orig_pos );
       if ( orig_container != nullptr )
       {
+        orig_container->on_remove( client->chr, item, UContainer::MoveType::MT_PLAYER, new_item );
+        if ( new_item->orphan() )
+          return;
         // NOTE: we just removed 'item' from its container,
         // so there's room for new_item.
         if ( !orig_container->can_add_to_slot( oldSlot ) || !item->slot_index( oldSlot ) )
@@ -219,6 +216,12 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   }
   else
   {
+    if ( orig_container )
+    {
+      orig_container->on_remove( client->chr, item );
+      if ( item->orphan() )
+        return;
+    }
     item->set_decay_after( 60 );
   }
 

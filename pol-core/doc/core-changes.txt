@@ -1,4 +1,9 @@
 -- POL100.2.0 --
+05-16-2024 Kevin:
+    Fixed: When removing a partial stack from a container, the `item` parameter in the container's
+           OnRemoveScript will now be the partial stack itself (instead of the pre-split stack).
+    Added: Parameter `split_from` to container OnRemoveScript
+    Added: Parameter `amount` to container CanRemoveScript
 05-15-2024 Kevin:
     Fixed: Client is now properly updated when adding a stack to a container which contains a matching
            stack (a regression introduced in previous core change)
