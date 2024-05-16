@@ -1,9 +1,12 @@
 -- POL100.2.0 --
-05-14-2024 Kevin:
+05-16-2024 Kevin:
     Fixed: When removing a partial stack from a container, the `item` parameter in the container's
            OnRemoveScript will now be the partial stack itself (instead of the pre-split stack).
     Added: Parameter `split_from` to container OnRemoveScript
     Added: Parameter `amount` to container CanRemoveScript
+05-15-2024 Kevin:
+    Fixed: Client is now properly updated when adding a stack to a container which contains a matching
+           stack (a regression introduced in previous core change)
 05-13-2024 Kevin:
     Added: container.held_weight_multiplier, item descriptor HeldWeightMultiplier to dynamically
            modify a container's held weight. For example, on a backpack (having weight 3 stones) that
