@@ -53,11 +53,11 @@ exported function test_container_events()
     // ----------
     // Lift and drop 500 coins from the ground into the container.
     // ----------
-    if ( !( evs := lift_item( ret, item.serial, 500, { EVT_LIFT_ITEM } ) ) )
+    if ( !( evs := lift_item( ret, item.serial, 500, {}, { EVT_LIFT_ITEM } ) ) )
       break;
     endif
 
-    if ( !( evs := drop_item( ret, item.serial, 0xFF, 0xFF, 0, container.serial, { "container_caninsert", "container_oninsert" } ) ) )
+    if ( !( evs := drop_item( ret, item.serial, 0xFF, 0xFF, 0, container.serial, { "container_caninsert", "container_oninsert" }, { EVT_DROP_ITEM } ) ) )
       break;
     endif
 
@@ -75,7 +75,7 @@ exported function test_container_events()
     // ----------
     // Fail to lift 250 coins from the container, as cannot remove odd-amount items from the container because of the CanRemove script
     // ----------
-    if ( !( evs := lift_item( ret, item.serial, 251, { "container_canremove", EVT_MOVE_ITEM_REJECTED } ) ) )
+    if ( !( evs := lift_item( ret, item.serial, 251, { "container_canremove", EVT_MOVE_ITEM_REJECTED }, {} ) ) )
       break;
     endif
 
@@ -95,11 +95,11 @@ exported function test_container_events()
       break;
     endif
 
-    if ( !( evs := lift_item( ret, remaining_item.serial, 250, { EVT_LIFT_ITEM } ) ) )
+    if ( !( evs := lift_item( ret, remaining_item.serial, 250, {}, { EVT_LIFT_ITEM } ) ) )
       break;
     endif
 
-    if ( !( evs := drop_item( ret, remaining_item.serial, 0xFF, 0xFF, 0, item.serial, { "container_caninsert", "container_oninsert" } ) ) )
+    if ( !( evs := drop_item( ret, remaining_item.serial, 0xFF, 0xFF, 0, item.serial, { "container_caninsert", "container_oninsert" }, { EVT_DROP_ITEM } ) ) )
       break;
     endif
 
@@ -124,7 +124,7 @@ exported function test_container_events()
     // ----------
     // Lift 250 coins from the container and drop into container (as a new item)
     // ----------
-    if ( !( evs := lift_item( ret, item.serial, 250, { "container_canremove", "container_onremove" } ) ) )
+    if ( !( evs := lift_item( ret, item.serial, 250, { "container_canremove", "container_onremove" }, { EVT_LIFT_ITEM } ) ) )
       break;
     endif
 
@@ -145,7 +145,7 @@ exported function test_container_events()
     endif
 
     // Already tested caninsert/oninsert for new item above, so just checking for DROP_ITEM
-    if ( !( evs := drop_item( ret, item.serial, 1, 1, 0, container.serial, { EVT_DROP_ITEM } ) ) )
+    if ( !( evs := drop_item( ret, item.serial, 1, 1, 0, container.serial, {}, { EVT_DROP_ITEM } ) ) )
       break;
     endif
 
@@ -171,34 +171,45 @@ endfunction
  * Helper functions
  */
 
-function get_container_events( byref err, container_events )
+function get_container_events( byref err, sequential_events, other_events )
   var evs := struct{};
+  var sequential_event_index := 1;
+  var other_event_index := 1;
 
-  foreach type in container_events
+  while ( evs.size() < sequential_events.size() + other_events.size() )
+    var events := ( sequential_event_index <= sequential_events.size() ? array{ sequential_events[sequential_event_index] } : array{} ) +
+      ( other_event_index <= other_events.size() ? array{ other_events[other_event_index] } : array{} );
+
     var ev;
     while ( 1 )
-      ev := waitForClients( { type } );
+      ev := waitForClients( events );
+
       if ( !ev )
         return err := ev;
+      elseif ( ev.type == other_events[other_event_index] )
+        other_event_index++;
+      elseif ( ev.type == sequential_events[sequential_event_index] )
+        sequential_event_index++;
       endif
+
       evs[ev.type] := ev;
       break;
     endwhile
-  endforeach
+  endwhile
 
   return evs;
 endfunction
 
-function drop_item( byref err, serial, x, y, z, dropped_on_serial, container_events )
+function drop_item( byref err, serial, x, y, z, dropped_on_serial, sequential_events, other_events )
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "drop_item", arg := struct{ serial := serial, x := x, y := y, z := z, dropped_on_serial := dropped_on_serial }, id := 0 } );
 
-  return get_container_events( err, container_events );
+  return get_container_events( err, sequential_events, other_events );
 endfunction
 
-function lift_item( byref err, serial, amount, container_events )
+function lift_item( byref err, serial, amount, sequential_events, other_events )
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "lift_item", arg := struct{ serial := serial, amount := amount }, id := 0 } );
 
-  return get_container_events( err, container_events );
+  return get_container_events( err, sequential_events, other_events );
 endfunction
