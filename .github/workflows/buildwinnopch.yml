@@ -74,8 +74,8 @@ jobs:
         run: |
           iwr -useb get.scoop.sh -outfile 'install.ps1'
           .\install.ps1 -RunAsAdmin
-          scoop install llvm@18.1.5 --global
-          #echo "::set-env name=PATH::$env:PATH"
+          scoop install llvm --global
+          echo "$env:PATH" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Force
 
       - name: Set CXX and CC
         shell: pwsh
