@@ -74,7 +74,7 @@ jobs:
         run: |
           iwr -useb get.scoop.sh -outfile 'install.ps1'
           .\install.ps1 -RunAsAdmin
-          scoop install llvm --global
+          scoop install llvm@18.1.5 --global
           #echo "::set-env name=PATH::$env:PATH"
 
       - name: Set CXX and CC
