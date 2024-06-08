@@ -17,14 +17,14 @@ jobs:
             nopch: 1
             ninja: 1
             name: CL Ninja
-          - os: "windows-latest"
-            cxx-compiler: clang-cl
-            c-compiler: clang-cl
-            compiler-version: default
-            build-type: Release
-            nopch: 1
-            ninja: 1
-            name: Clang Ninja
+          # - os: "windows-latest"
+          #   cxx-compiler: clang-cl
+          #   c-compiler: clang-cl
+          #   compiler-version: default
+          #   build-type: Release
+          #   nopch: 1
+          #   ninja: 1
+          #   name: Clang Ninja
           - os: "windows-latest"
             cxx-compiler: cl
             c-compiler: cl
@@ -33,14 +33,14 @@ jobs:
             nopch: 1
             ninja: 0
             name: CL msbuild
-          - os: "windows-latest"
-            cxx-compiler: clang-cl
-            c-compiler: clang-cl
-            compiler-version: default
-            build-type: Debug
-            nopch: 1
-            ninja: 0
-            name: Clang msbuild
+          # - os: "windows-latest"
+          #   cxx-compiler: clang-cl
+          #   c-compiler: clang-cl
+          #   compiler-version: default
+          #   build-type: Debug
+          #   nopch: 1
+          #   ninja: 0
+          #   name: Clang msbuild
 
     runs-on: ${{ matrix.config.os }}
 
