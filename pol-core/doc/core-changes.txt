@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+06-14-2024 Kukkino:
+    Fixed: Performance of containers held weight computations in deeply nested scenarios
 05-16-2024 Kevin:
     Fixed: When removing a partial stack from a container, the `item` parameter in the container's
            OnRemoveScript will now be the partial stack itself (instead of the pre-split stack).

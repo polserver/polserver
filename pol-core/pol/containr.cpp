@@ -228,18 +228,20 @@ void UContainer::remove_bulk( const Items::Item* item )
 
 void UContainer::add_bulk( int item_count_delta, int weight_delta )
 {
+  if ( item_count_delta == 0 && weight_delta == 0 )
+    return;
+
   held_item_count_ += item_count_delta;
 
   // passert( !stateManager.gflag_enforce_container_limits || (held_weight_ + weight_delta <=
   // MAX_WEIGHT) );
 
+  int oldweight = 0;
   if ( container != nullptr )
-    container->add_bulk( 0, -static_cast<int>( weight() ) );
-  int newweight = held_weight_;
-  newweight += weight_delta;
-  held_weight_ = Clib::clamp_convert<u16>( newweight );
+    oldweight = weight();
+  held_weight_ = Clib::clamp_convert<u16>( held_weight_ + weight_delta );
   if ( container != nullptr )
-    container->add_bulk( 0, weight() );
+    container->add_bulk( 0, weight() - oldweight );
 }
 
 
