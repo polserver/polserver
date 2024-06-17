@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-16-2024</datemodified>
+		<datemodified>06-14-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>06-14-2024</date>
+			<author>Kukkino:</author>
+			<change type="Fixed">Performance of containers held weight computations in deeply nested scenarios</change>
+		</entry>
 		<entry>
 			<date>05-16-2024</date>
 			<author>Kevin:</author>
