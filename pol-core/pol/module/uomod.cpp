@@ -1347,7 +1347,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     // FIXME sanity check
     elem.add_prop( "X", pos.x() );
     elem.add_prop( "Y", pos.y() );
-    elem.add_prop( "Z", (s32)pos.z() );
+    elem.add_prop( "Z", (s16)pos.z() );
     elem.add_prop( "Realm", pos.realm()->name() );
     if ( custom_struct != nullptr )
       replace_properties( elem, custom_struct );
