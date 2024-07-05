@@ -89,29 +89,25 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, const Core
 BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, const Core::Pos4d& newpos,
                                                  int flags )
 {
-  xcoord x = newpos.x();
-  zcoord y = newpos.y();
-  zcoord z = newpos.z();
-  Realms::Realm* newrealm = newpos.realm();
   Realms::Realm* oldrealm = boat->realm();
   {  // local scope for reg/unreg guard
     Multi::UBoat::BoatMoveGuard registerguard( boat );
-    if ( !boat->navigable( boat->multidef(), x, y, z, newrealm ) )
+    if ( !boat->navigable( boat->multidef(), newpos ) )
     {
       return new BError( "Position indicated is impassable" );
     }
   }
-  if ( newrealm !=
+  if ( newpos.realm() !=
        boat->realm() )  // boat->move_xy removes on xy change so only realm change check is needed
   {
     send_remove_object_to_inrange( boat );
   }
-  s8 deltaz = static_cast<s8>( z - boat->z() );
-  boat->setposition( Core::Pos4d( boat->pos().xy(), static_cast<s8>( z ), newrealm ) );
+  s8 deltaz = newpos.z() - boat->z();
+  boat->setposition( Core::Pos4d( boat->pos().xy(), newpos.z(), newpos.realm() ) );
 
   boat->adjust_traveller_z( deltaz );
   boat->realm_changed();
-  bool ok = boat->move_xy( x, y, flags, oldrealm );
+  bool ok = boat->move_xy( newpos.x(), newpos.y(), flags, oldrealm );
   return new BLong( ok );
 }
 

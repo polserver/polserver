@@ -68,8 +68,8 @@ public:
 
   static UMulti* create( const Items::ItemDesc& descriptor, u32 serial = 0 );
 
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
+                                               const Core::Pos4d& pos, int flags );
 
   virtual void double_click( Network::Client* client ) override;
   virtual void register_object( UObject* obj );

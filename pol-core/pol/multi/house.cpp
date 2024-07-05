@@ -788,11 +788,9 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned shor
   return false;
 }
 
-Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
-                                              Realms::Realm* realm, int flags )
+Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
+                                              const Core::Pos4d& pos, int flags )
 {
-  Core::Pos4d pos( x, y, z, realm );
-
   if ( !MultiDefByMultiIDExists( descriptor.multiid ) )
   {
     return new Bscript::BError(
