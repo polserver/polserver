@@ -959,8 +959,8 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       //      target on other realms. DUH!
       arr->addMember( "realm", new String( chr->realm()->name() ) );
 
-      Multi::UMulti* multi =
-          chr->realm()->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+      Multi::UMulti* multi = chr->realm()->find_supporting_multi(
+          Core::Pos3d( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z ) );
       if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 

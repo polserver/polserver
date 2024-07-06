@@ -27,7 +27,7 @@ void dummy() {}
 
 void map_test()
 {
-  Plib::MAPTILE_CELL cell = Core::gamestate.main_realm->getmaptile( 1453, 1794 );
+  Plib::MAPTILE_CELL cell = Core::gamestate.main_realm->getmaptile( Core::Pos2d( 1453, 1794 ) );
   INFO_PRINTLN( "{} {}", cell.landtile, cell.z );
 }
 

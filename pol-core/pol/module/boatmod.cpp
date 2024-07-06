@@ -43,17 +43,10 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
 Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
 {
   Multi::UBoat* boat = nullptr;
-  unsigned short x, y;
-  if ( getUBoatParam( 0, boat ) &&
-       getParam( 1, x, 0, static_cast<u16>( boat->realm()->width() ) ) &&
-       getParam( 2, y, 0, static_cast<u16>( boat->realm()->height() ) ) )
-  {
-    return new Bscript::BLong( boat->move_xy( x, y, 0, boat->realm() ) );
-  }
-  else
-  {
-    return new Bscript::BError( "Invalid Parameter type" );
-  }
+  Core::Pos2d pos;
+  if ( getUBoatParam( 0, boat ) && getPos2dParam( 1, 2, &pos, boat->realm() ) )
+    return new Bscript::BLong( boat->move_xy( pos, 0, boat->realm() ) );
+  return new Bscript::BError( "Invalid Parameter type" );
 }
 
 Bscript::BObjectImp* UBoatExecutorModule::mf_TurnBoat()

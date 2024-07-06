@@ -124,68 +124,20 @@ public:
 
   bool has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const;
 
-  bool navigable( unsigned short x, unsigned short y, short z, short height ) const  // TODO Pos
-  {
-    return navigable( Core::Pos3d( x, y, (s8)z ), height );
-  }
   bool navigable( const Core::Pos3d& p, short height ) const;
 
-  Multi::UMulti* find_supporting_multi( unsigned short x, unsigned short y,
-                                        short z ) const  // TODO Pos
-  {
-    return find_supporting_multi( Core::Pos3d( x, y, (s8)z ) );
-  }
   Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const;
 
-  bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const  // TODO Pos
-  {
-    return lowest_standheight( Core::Pos2d( x, y ), z );
-  }
   bool lowest_standheight( const Core::Pos2d& pos, short* z ) const;
-  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const  // TODO Pos
-  {
-    return findstatic( Core::Pos2d( x, y ), objtype );
-  }
   bool findstatic( const Core::Pos2d& pos, unsigned short objtype ) const;
-  void getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const
-  {
-    return getstatics( statics, Core::Pos2d( x, y ) );
-  }
   void getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos ) const;
-  bool groundheight( unsigned short x, unsigned short y, short* z ) const  // TODO Pos
-  {
-    return groundheight( Core::Pos2d( x, y ), z );
-  }
   bool groundheight( const Core::Pos2d& pos, short* z ) const;
-  Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const  // TODO Pos
-  {
-    return getmaptile( Core::Pos2d( x, y ) );
-  }
   Plib::MAPTILE_CELL getmaptile( const Core::Pos2d& pos ) const;
-  void getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y,
-                     unsigned int anyflags ) const  // TODO Pos
-  {
-    return getmapshapes( shapes, Core::Pos2d( x, y ), anyflags );
-  }
   void getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
                      unsigned int anyflags ) const;
-  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
-                   unsigned int flags ) const  // TODO Pos
-  {
-    return readmultis( vec, Core::Pos2d( x, y ), flags );
-  }
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags ) const;
-  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags,
-                   MultiList& mvec ) const  // TODO Pos
-  {
-    return readmultis( vec, Core::Pos2d( x, y ), flags, mvec );
-  }
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags,
                    MultiList& mvec ) const;
-  void readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const  // TODO Pos
-  {
-    return readmultis( vec, Core::Pos2d( x, y ) );
-  }
   void readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const;
 
   void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
@@ -201,7 +153,6 @@ public:
   unsigned getUOMapID() const;
   unsigned getNumStaticPatches() const;
   unsigned getNumMapPatches() const;
-  static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );  // TODO Pos
   static unsigned int encode_global_hull( const Core::Pos2d& pos );
 
 protected:
@@ -298,10 +249,6 @@ inline unsigned Realm::getNumMapPatches() const
 {
   return _descriptor.num_map_patches;
 };
-inline unsigned int Realm::encode_global_hull( unsigned short ax, unsigned short ay )
-{
-  return ( static_cast<unsigned int>( ax ) << 16 ) | ay;
-}
 inline unsigned int Realm::encode_global_hull( const Core::Pos2d& pos )
 {
   return ( static_cast<unsigned int>( pos.x() ) << 16 ) | pos.y();

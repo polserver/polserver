@@ -1846,7 +1846,7 @@ void register_with_supporting_multi( Item* item )
 {
   if ( item->container == nullptr )
   {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->x(), item->y(), item->z() );
+    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
     if ( multi )
       multi->register_object( item );
   }

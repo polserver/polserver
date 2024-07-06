@@ -706,12 +706,6 @@ void UBoat::unregself()
   }
 }
 
-bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z,
-                       Realms::Realm* realm )
-{
-  auto desired_pos = Core::Pos4d( x, y, Clib::clamp_convert<s8>( z ), realm );
-  return navigable( md, desired_pos );
-}
 // navigable: Can the ship sit here?  ie is every point on the hull on water,and not blocked?
 bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
 {
@@ -1247,24 +1241,24 @@ void UBoat::do_tellmoves()
 }
 
 // dave 3/26/3 added
-bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms::Realm* oldrealm )
+bool UBoat::move_xy( const Core::Pos2d& newp, int flags,
+                     Realms::Realm* oldrealm )  // Todo Pos refactor oldrealm??
 {
   bool result;
   BoatMoveGuard registerguard( this );
-
-  if ( ( flags & Core::MOVEITEM_FORCELOCATION ) ||
-       navigable( multidef(), newx, newy, z(), realm() ) )
+  Core::Pos4d newpos{ newp, z(), realm() };
+  if ( ( flags & Core::MOVEITEM_FORCELOCATION ) || navigable( multidef(), newpos ) )
   {
     BoatContext bc( *this );
 
     set_dirty();
-    move_multi_in_world( x(), y(), newx, newy, this, oldrealm );
+    move_multi_in_world( x(), y(), newpos.x(), newpos.y(), this, oldrealm );
 
     u16 oldx = x();
     u16 oldy = y();
-    setposition( Core::Pos4d( pos() ).x( newx ).y( newy ) );
+    setposition( newpos );
 
-    move_travellers( Core::FACING_N, bc, newx, newy,
+    move_travellers( Core::FACING_N, bc, newpos.x(), newpos.y(),
                      oldrealm );  // facing is ignored if params 3 & 4 are not USHRT_MAX
     move_components( oldrealm );
     // NOTE, send_boat_to_inrange pauses those it sends to.
@@ -1296,7 +1290,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 
   auto newpos = pos().move( move_dir );
 
-  if ( navigable( multidef(), newpos.x(), newpos.y(), newpos.z(), newpos.realm() ) )
+  if ( navigable( multidef(), newpos ) )
   {
     BoatContext bc( *this );
 
@@ -1527,7 +1521,7 @@ bool UBoat::turn( RELATIVE_DIR dir )
 
   const MultiDef& newmd = multi_ifturn( dir );
 
-  if ( navigable( newmd, x(), y(), z(), realm() ) )
+  if ( navigable( newmd, pos() ) )
   {
     BoatContext bc( *this );
     const BoatShape& old_boatshape = boatshape();

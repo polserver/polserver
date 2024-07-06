@@ -722,7 +722,7 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     if ( realm() != nullptr )
     {
       Multi::UMulti* multi;
-      if ( nullptr != ( multi = realm()->find_supporting_multi( x(), y(), z() ) ) )
+      if ( nullptr != ( multi = realm()->find_supporting_multi( pos3d() ) ) )
         return multi->make_ref();
       else
         return new BLong( 0 );
