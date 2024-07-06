@@ -10,22 +10,19 @@ namespace Pol
 {
 namespace Mobile
 {
-bool BoundingBox::contains( unsigned short x, unsigned short y ) const
+bool BoundingBox::contains( const Core::Pos2d& pos ) const
 {
   for ( const auto& elem : areas )
   {
-    if ( x >= elem.topleft.x && x <= elem.bottomright.x && y >= elem.topleft.y &&
-         y <= elem.bottomright.y )
-    {
+    if ( elem.contains( pos ) )
       return true;
-    }
   }
   return false;
 }
 
-void BoundingBox::addarea( const Area& area )
+void BoundingBox::addarea( Core::Range2d area )
 {
-  areas.push_back( area );
+  areas.emplace_back( std::move( area ) );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

@@ -4106,52 +4106,29 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
   {
   case MTH_MOVE_OFFLINE_MOBILES:
   {
-    Core::xcoord newx;
-    Core::ycoord newy;
-    Core::zcoord newz;
-
     if ( ex.numParams() == 3 )
     {
-      if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
-           ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
+      Core::Pos3d pos;
+      if ( ex.getPos3dParam( 0, 1, 2, &pos, realm() ) )
       {
-        if ( !realm()->valid( newx, newy, newz ) )
-          return new BError( "Coordinates are out of range" );
-
         set_dirty();
-        move_offline_mobiles( newx, newy, newz, realm() );
+        move_offline_mobiles( Core::Pos4d( pos, realm() ) );
         return new BLong( 1 );
       }
-      else
-        return new BError( "Invalid parameter type" );
+      return new BError( "Invalid parameter type" );
     }
-    else
+    else if ( ex.numParams() == 4 )
     {
-      if ( ex.numParams() == 4 )
+      Core::Pos4d pos;
+      if ( ex.getPos4dParam( 0, 1, 2, 3, &pos ) )
       {
-        const String* strrealm;
-        if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
-             ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
-             ex.getStringParam( 3, strrealm ) )
-        {
-          Realms::Realm* newrealm = Core::find_realm( strrealm->value() );
-          if ( !newrealm )
-            return new BError( "Realm not found" );
-
-          if ( !newrealm->valid( newx, newy, newz ) )
-            return new BError( "Coordinates are out of range" );
-
-          set_dirty();
-          move_offline_mobiles( newx, newy, newz, newrealm );
-          return new BLong( 1 );
-        }
-        else
-          return new BError( "Invalid parameter type" );
+        set_dirty();
+        move_offline_mobiles( pos );
+        return new BLong( 1 );
       }
-      else
-        return new BError( "Not enough parameters" );
+      return new BError( "Invalid parameter type" );
     }
-    break;
+    return new BError( "Not enough parameters" );
   }
   case MTH_SET_PILOT:
   {

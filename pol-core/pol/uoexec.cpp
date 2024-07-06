@@ -922,7 +922,7 @@ bool UOExecutor::getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos,
   if ( getParam( xparam, x ) && getParam( yparam, y ) )
   {
     *pos = Pos2d( x, y );
-    if ( realm && !realm->valid( x, y, 0 ) )
+    if ( realm && !realm->valid( *pos ) )
     {
       setFunctionResult( new Bscript::BError( "Invalid Coordinates for Realm" ) );
       return false;
@@ -940,7 +940,7 @@ bool UOExecutor::getPos3dParam( unsigned xparam, unsigned yparam, unsigned zpara
   if ( getParam( xparam, x ) && getParam( yparam, y ) && getParam( zparam, z ) )
   {
     *pos = Pos3d( x, y, z );
-    if ( realm && !realm->valid( x, y, z ) )
+    if ( realm && !realm->valid( *pos ) )
     {
       setFunctionResult( new Bscript::BError( "Invalid Coordinates for Realm" ) );
       return false;
@@ -960,7 +960,7 @@ bool UOExecutor::getPos4dParam( unsigned xparam, unsigned yparam, unsigned zpara
        getRealmParam( realmparam, &realm ) )
   {
     Pos3d p( x, y, z );
-    if ( !realm->valid( x, y, z ) )
+    if ( !realm->valid( p ) )
     {
       setFunctionResult( new Bscript::BError( "Invalid Coordinates for Realm" ) );
       return false;

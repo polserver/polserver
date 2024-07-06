@@ -3868,8 +3868,8 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     }
     else
     {
-      if ( !chr->realm()->valid( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ),
-                                 0 ) )
+      if ( !chr->realm()->valid(
+               Core::Pos2d( Clib::clamp_convert<u16>( x ), Clib::clamp_convert<u16>( y ) ) ) )
         return new BError( "Invalid Coordinates for Realm" );
       msg->Write<u8>( PKTOUT_BA_ARROW_ON );
       msg->WriteFlipped<u16>( static_cast<u16>( x & 0xFFFF ) );

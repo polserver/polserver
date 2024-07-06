@@ -24,7 +24,8 @@ void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned s
 
   short newz;
   Multi::UMulti* multi;
-  bool result = Core::gamestate.main_realm->dropheight( dropx, dropy, dropz, chrz, &newz, &multi );
+  bool result = Core::gamestate.main_realm->dropheight( Core::Pos3d( dropx, dropy, (s8)dropz ),
+                                                        chrz, &newz, &multi );
   tmp += fmt::format( "Got {},{}: ", result, newz );
   if ( exp_result != result )
   {

@@ -196,8 +196,7 @@ protected:
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
-  void move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z,
-                             Realms::Realm* new_realm );
+  void move_offline_mobiles( const Core::Pos4d& newpos );
   const MultiDef& multi_ifturn( RELATIVE_DIR dir );
   unsigned short multiid_ifturn( RELATIVE_DIR dir );
 

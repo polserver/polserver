@@ -3848,14 +3848,14 @@ bool Character::move( unsigned char i_dir )
       auto tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
-      bool walk1 = realm()->walkheight( this, tmp_pos.x(), tmp_pos.y(), tmp_pos.z(), &new_z,
-                                        nullptr, nullptr, nullptr );
+      bool walk1 =
+          realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr, nullptr, nullptr );
 
       tmp_facing = ( facing - 1 ) & 0x7;
       tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
-      if ( !walk1 && !realm()->walkheight( this, tmp_pos.x(), tmp_pos.y(), tmp_pos.z(), &new_z,
-                                           nullptr, nullptr, nullptr ) )
+      if ( !walk1 && !realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr,
+                                           nullptr, nullptr ) )
         return false;
     }
     auto new_pos = pos().move( static_cast<Core::UFACING>( facing ) );
@@ -3866,8 +3866,8 @@ bool Character::move( unsigned char i_dir )
     Items::Item* walkon_item;
 
     short current_boost = gradual_boost;
-    if ( !realm()->walkheight( this, new_pos.x(), new_pos.y(), new_pos.z(), &newz,
-                               &supporting_multi, &walkon_item, &current_boost ) )
+    if ( !realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
+                               &walkon_item, &current_boost ) )
       return false;
     new_pos.z( static_cast<s8>( newz ) );
     remote_containers_.clear();

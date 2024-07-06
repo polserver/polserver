@@ -1134,8 +1134,7 @@ bool UBoat::has_offline_mobiles() const
   return false;
 }
 
-void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z,
-                                  Realms::Realm* new_realm )
+void UBoat::move_offline_mobiles( const Core::Pos4d& newpos )
 {
   BoatContext bc( *this );
 
@@ -1150,8 +1149,7 @@ void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::
       if ( !chr->logged_in() )
       {
         chr->set_dirty();
-        chr->setposition(
-            Core::Pos4d( new_x, new_y, static_cast<signed char>( new_z ), new_realm ) );
+        chr->setposition( newpos );
         chr->realm_changed();  // not sure if neccessary...
         travellerRef.clear();
       }

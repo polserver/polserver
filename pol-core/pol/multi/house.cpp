@@ -706,18 +706,15 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
   return house;
 }
 
-bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned short myeast,
-                      unsigned short mysouth, Realms::Realm* realm )
+bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
 {
-  Core::Pos4d minpos( mywest, mynorth, 0, realm );
-  Core::Pos4d maxpos( myeast, mysouth, 0, realm );
   // TODO Pos maximum multi footprint, gamestate.update_range?
   Core::Range2d mybox( minpos, maxpos );
   Core::Range2d gridarea( Core::zone_convert( minpos - Core::Vec2d( 100, 100 ) ),
                           Core::zone_convert( maxpos + Core::Vec2d( 100, 100 ) ), nullptr );
   for ( const auto& gpos : gridarea )
   {
-    for ( const auto& multi : realm->getzone_grid( gpos ).multis )
+    for ( const auto& multi : minpos.realm()->getzone_grid( gpos ).multis )
     {
       // find out if any of our walls would fall within its footprint.
       auto otherbox = multi->current_box().range();
@@ -728,61 +725,49 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
   return false;
 }
 
-bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2,
-                       Realms::Realm* realm )
+bool objects_exist_in( const Core::Pos4d& p1, const Core::Pos4d& p2 )
 {
-  Core::Range2d gridarea( Core::zone_convert( Core::Pos4d( x1, y1, 0, realm ) ),
-                          Core::zone_convert( Core::Pos4d( x2, y2, 0, realm ) ), realm );
-  auto includes = [&]( const Core::UObject* obj )
-  {
-    if ( obj->x() >= x1 && obj->x() <= x2 && obj->y() >= y1 && obj->y() <= y2 )
-    {
-      return true;
-    }
-    return false;
-  };
+  Core::Range2d gridarea( Core::zone_convert( p1 ), Core::zone_convert( p2 ), nullptr );
+  Core::Range2d worldarea( p1, p2 );
   for ( const auto& gpos : gridarea )
   {
-    for ( const auto& chr : realm->getzone_grid( gpos ).characters )
+    for ( const auto& chr : p1.realm()->getzone_grid( gpos ).characters )
     {
-      if ( includes( chr ) )
+      if ( worldarea.contains( chr->pos2d() ) )
         return true;
     }
-    for ( const auto& chr : realm->getzone_grid( gpos ).npcs )
+    for ( const auto& chr : p1.realm()->getzone_grid( gpos ).npcs )
     {
-      if ( includes( chr ) )
+      if ( worldarea.contains( chr->pos2d() ) )
         return true;
     }
-    for ( const auto& item : realm->getzone_grid( gpos ).items )
+    for ( const auto& item : p1.realm()->getzone_grid( gpos ).items )
     {
-      if ( includes( item ) )
+      if ( worldarea.contains( item->pos2d() ) )
         return true;
     }
   }
   return false;
 }
 
-bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned short x2,
-                             unsigned short y2, s8 z, int /*flags*/, Realms::Realm* realm )
+bool statics_cause_problems( const Core::Pos4d& p1, const Core::Pos4d& p2 )
 {
-  for ( unsigned short x = x1; x <= x2; ++x )
+  Core::Range2d area( p1, p2 );
+  for ( const auto& p : area )
   {
-    for ( unsigned short y = y1; y <= y2; ++y )
+    short newz;
+    UMulti* multi;
+    Items::Item* item;
+    if ( !p1.realm()->walkheight( p, p1.z(), &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
     {
-      short newz;
-      UMulti* multi;
-      Items::Item* item;
-      if ( !realm->walkheight( x, y, z, &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
-      {
-        POLLOGLN( "Refusing to place house at {},{},{}: can't stand there", x, y, z );
-        return true;
-      }
-      if ( labs( z - newz ) > 2 )
-      {
-        POLLOGLN( "Refusing to place house at {},{},{}: result Z ({}) is too far afield", x, y, z,
-                  newz );
-        return true;
-      }
+      POLLOGLN( "Refusing to place house at {},{}: can't stand there", p, p1.z() );
+      return true;
+    }
+    if ( labs( p1.z() - newz ) > 2 )
+    {
+      POLLOGLN( "Refusing to place house at {},{}: result Z ({}) is too far afield", p, p1.z(),
+                newz );
+      return true;
     }
   }
   return false;
@@ -804,9 +789,8 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
   if ( ~flags & CRMULTI_IGNORE_MULTIS )
   {
-    if ( multis_exist_in( pos.x() + md->minrxyz.x() - 1, pos.y() + md->minrxyz.y() - 5,
-                          pos.x() + md->maxrxyz.x() + 1, pos.y() + md->maxrxyz.y() + 5,
-                          pos.realm() ) )
+    if ( multis_exist_in( pos + md->minrxyz - Core::Vec2d( 1, 5 ),
+                          pos + md->maxrxyz + Core::Vec2d( 1, 5 ) ) )
     {
       return new Bscript::BError( "Location intersects with another structure" );
     }
@@ -814,17 +798,16 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
   if ( ~flags & CRMULTI_IGNORE_OBJECTS )
   {
-    if ( objects_exist_in( pos.x() + md->minrxyz.x(), pos.y() + md->minrxyz.y(),
-                           pos.x() + md->maxrxyz.x(), pos.y() + md->maxrxyz.y(), pos.realm() ) )
+    if ( objects_exist_in( pos + md->minrxyz, pos + md->maxrxyz ) )
     {
       return new Bscript::BError( "Something is blocking that location" );
     }
   }
   if ( ~flags & CRMULTI_IGNORE_FLATNESS )
   {
-    if ( statics_cause_problems( pos.x() + md->minrxyz.x() - 1, pos.y() + md->minrxyz.y() - 1,
-                                 pos.x() + md->maxrxyz.x() + 1, pos.y() + md->maxrxyz.y() + 1,
-                                 pos.z(), flags, pos.realm() ) )
+    if ( statics_cause_problems( pos + md->minrxyz - Core::Vec2d( 1, 1 ),
+                                 pos + md->maxrxyz + Core::Vec2d( 1, 1 ) ) )
+
     {
       return new Bscript::BError( "That location is not suitable" );
     }
