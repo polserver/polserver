@@ -128,7 +128,7 @@ public:
   virtual size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
-  bool move_xy( unsigned short x, unsigned short y, int flags, Realms::Realm* oldrealm );
+  bool move_xy( const Core::Pos2d& newp, int flags, Realms::Realm* oldrealm );
 
   enum RELATIVE_DIR
   {
@@ -169,8 +169,6 @@ public:
   virtual Bscript::BObjectImp* make_ref() override;
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
-  static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z,
-                         Realms::Realm* realm );  // TODO Pos
   static bool navigable( const MultiDef& md, const Core::Pos4d& desired_pos );
   static bool objtype_passable( unsigned short graphic );
   void realm_changed();
@@ -196,8 +194,7 @@ protected:
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
-  void move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z,
-                             Realms::Realm* new_realm );
+  void move_offline_mobiles( const Core::Pos4d& newpos );
   const MultiDef& multi_ifturn( RELATIVE_DIR dir );
   unsigned short multiid_ifturn( RELATIVE_DIR dir );
 

@@ -934,10 +934,11 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
     auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( msg != nullptr )
     {
+      auto pos = Core::Pos3d( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
       BStruct* arr = new BStruct;
-      arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
-      arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
-      arr->addMember( "z", new BLong( msg->z ) );
+      arr->addMember( "x", new BLong( pos.x() ) );
+      arr->addMember( "y", new BLong( pos.y() ) );
+      arr->addMember( "z", new BLong( pos.z() ) );
       //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
       //      validate right here. Should we check map/static, or let that reside
       //      for scripts to run ListStatics? In theory, using Injection or similar,
@@ -959,8 +960,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       //      target on other realms. DUH!
       arr->addMember( "realm", new String( chr->realm()->name() ) );
 
-      Multi::UMulti* multi =
-          chr->realm()->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+      Multi::UMulti* multi = chr->realm()->find_supporting_multi( pos );
       if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 
@@ -3868,12 +3868,12 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     }
     else
     {
-      if ( !chr->realm()->valid( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ),
-                                 0 ) )
+      auto pos = Core::Pos2d( Clib::clamp_convert<u16>( x ), Clib::clamp_convert<u16>( y ) );
+      if ( !chr->realm()->valid( pos ) )
         return new BError( "Invalid Coordinates for Realm" );
       msg->Write<u8>( PKTOUT_BA_ARROW_ON );
-      msg->WriteFlipped<u16>( static_cast<u16>( x & 0xFFFF ) );
-      msg->WriteFlipped<u16>( static_cast<u16>( y & 0xFFFF ) );
+      msg->WriteFlipped<u16>( pos.x() );
+      msg->WriteFlipped<u16>( pos.y() );
       if ( usesNewPktSize )
         msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
     }

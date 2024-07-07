@@ -254,8 +254,8 @@ void start_client_char( Network::Client* client )
   Multi::UMulti* supporting_multi;
   Items::Item* walkon;
   short newz;
-  if ( client->chr->realm()->walkheight( client->chr, client->chr->x(), client->chr->y(),
-                                         client->chr->z(), &newz, &supporting_multi, &walkon ) )
+  if ( client->chr->realm()->walkheight( client->chr, client->chr->pos2d(), client->chr->z(), &newz,
+                                         &supporting_multi, &walkon ) )
   {
     client->chr->setposition( Pos4d( client->chr->pos() ).z( static_cast<s8>( newz ) ) );
     if ( supporting_multi != nullptr )

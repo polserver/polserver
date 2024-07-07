@@ -52,9 +52,9 @@ namespace Core
 ///     before destroying the container.
 ///
 
-void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
+void decay_worldzone( const Pos2d& pos, Realms::Realm* realm )
 {
-  Zone& zone = realm->getzone_grid( (u16)wx, (u16)wy );
+  Zone& zone = realm->getzone_grid( pos );
   gameclock_t now = read_gameclock();
   bool statistics = Plib::systemstate.config.thread_decay_statistics;
 
@@ -68,7 +68,7 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
         const Items::ItemDesc& descriptor = item->itemdesc();
         if ( !descriptor.decays_on_multis )
         {
-          Multi::UMulti* multi = realm->find_supporting_multi( item->x(), item->y(), item->z() );
+          Multi::UMulti* multi = realm->find_supporting_multi( item->pos3d() );
           if ( multi == nullptr )
             stateManager.decay_statistics.temp_count_active++;
         }
@@ -86,7 +86,7 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
       }
 
       const Items::ItemDesc& descriptor = item->itemdesc();
-      Multi::UMulti* multi = realm->find_supporting_multi( item->x(), item->y(), item->z() );
+      Multi::UMulti* multi = realm->find_supporting_multi( item->pos3d() );
 
       // some things don't decay on multis:
       if ( multi != nullptr && !descriptor.decays_on_multis )
@@ -116,36 +116,33 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
 ///     once every 10 minutes
 ///
 
-void decay_single_zone( Realms::Realm* realm, unsigned gridx, unsigned gridy, unsigned& wx,
-                        unsigned& wy )
+void decay_single_zone( Realms::Realm* realm, const Pos2d& gridsize, Pos2d& pos )
 {
-  if ( ++wx >= gridx )
+  pos += Vec2d( 1, 0 );
+  if ( pos.x() >= gridsize.x() )
   {
-    wx = 0;
-    if ( ++wy >= gridy )
-    {
-      wy = 0;
-    }
+    pos.x( 0 );
+    pos += Vec2d( 0, 1 );
+    if ( pos.y() >= gridsize.y() )
+      pos.y( 0 );
   }
-  decay_worldzone( wx, wy, realm );
+  decay_worldzone( pos, realm );
 }
 
 void decay_thread( void* arg )  // Realm*
 {
-  unsigned wx = ~0u;
-  unsigned wy = 0;
+  Pos2d pos{ 0, 0 };
   Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
 
-  unsigned gridwidth = realm->grid_width();
-  unsigned gridheight = realm->grid_height();
+  const auto& gridsize = realm->gridarea().se();
 
-  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
+  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridsize.x() * gridsize.y() );
   while ( !Clib::exit_signalled )
   {
     {
       PolLock lck;
       polclock_checkin();
-      decay_single_zone( realm, gridwidth, gridheight, wx, wy );
+      decay_single_zone( realm, gridsize, pos );
       restart_all_clients();
     }
     // sweep entire world every 10 minutes
@@ -157,16 +154,14 @@ void decay_thread( void* arg )  // Realm*
 
 void decay_thread_shadow( void* arg )  // Realm*
 {
-  unsigned wx = ~0u;
-  unsigned wy = 0;
+  Pos2d pos{ 0, 0 };
   unsigned id = static_cast<Realms::Realm*>( arg )->shadowid;
 
   if ( gamestate.shadowrealms_by_id[id] == nullptr )
     return;
-  unsigned gridwidth = gamestate.shadowrealms_by_id[id]->grid_width();
-  unsigned gridheight = gamestate.shadowrealms_by_id[id]->grid_height();
+  const auto& gridsize = gamestate.shadowrealms_by_id[id]->gridarea().se();
 
-  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
+  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridsize.x() * gridsize.y() );
   while ( !Clib::exit_signalled )
   {
     {
@@ -174,7 +169,7 @@ void decay_thread_shadow( void* arg )  // Realm*
       polclock_checkin();
       if ( gamestate.shadowrealms_by_id[id] == nullptr )  // is realm still there?
         break;
-      decay_single_zone( gamestate.shadowrealms_by_id[id], gridwidth, gridheight, wx, wy );
+      decay_single_zone( gamestate.shadowrealms_by_id[id], gridsize, pos );
       restart_all_clients();
     }
     // sweep entire world every 10 minutes
@@ -184,27 +179,24 @@ void decay_thread_shadow( void* arg )  // Realm*
   }
 }
 
-bool should_switch_realm( size_t index, unsigned x, unsigned y, unsigned* gridx, unsigned* gridy )
+bool should_switch_realm( size_t index, const Pos2d& pos, Core::Pos2d* gridsize )
 {
-  (void)x;
   if ( index >= gamestate.Realms.size() )
     return true;
   Realms::Realm* realm = gamestate.Realms[index];
   if ( realm == nullptr )
     return true;
 
-  ( *gridx ) = realm->grid_width();
-  ( *gridy ) = realm->grid_height();
+  ( *gridsize ) = realm->gridarea().se();
 
   // check if ++y would result in reset
-  if ( y + 1 >= ( *gridy ) )
+  if ( pos.y() + 1 >= gridsize->y() )
     return true;
   return false;
 }
 
-void decay_single_thread( void* arg )
+void decay_single_thread( void* /*arg*/ )
 {
-  (void)arg;
   // calculate total grid count, based on current realms
   unsigned total_grid_count = 0;
   for ( const auto& realm : gamestate.Realms )
@@ -221,17 +213,15 @@ void decay_single_thread( void* arg )
   sleeptime = std::min( std::max( sleeptime, 30u ), 500u );  // limit to 30ms-500ms
   bool init = true;
   size_t realm_index = ~0u;
-  unsigned wx = 0;
-  unsigned wy = 0;
-  unsigned gridx = 0;
-  unsigned gridy = 0;
+  Pos2d pos{ 0, 0 };
+  Pos2d gridsize = Pos2d( 0, 0 );
   while ( !Clib::exit_signalled )
   {
     {
       PolLock lck;
       polclock_checkin();
       // check if realm_index is still valid and if y is still in valid range
-      if ( should_switch_realm( realm_index, wx, wy, &gridx, &gridy ) )
+      if ( should_switch_realm( realm_index, pos, &gridsize ) )
       {
         ++realm_index;
         if ( realm_index >= gamestate.Realms.size() )
@@ -259,22 +249,23 @@ void decay_single_thread( void* arg )
           }
           init = false;
         }
-        wx = 0;
-        wy = 0;
+        pos.x( 0 ).y( 0 );
       }
       else
       {
-        if ( ++wx >= gridx )
+        pos += Vec2d( 1, 0 );
+        if ( pos.x() >= gridsize.x() )
         {
-          wx = 0;
-          if ( ++wy >= gridy )
+          pos.x( 0 );
+          pos += Vec2d( 0, 1 );
+          if ( pos.y() >= gridsize.y() )
           {
             POLLOG_ERRORLN( "SHOULD NEVER HAPPEN" );
-            wy = 0;
+            pos.y( 0 );
           }
         }
       }
-      decay_worldzone( wx, wy, gamestate.Realms[realm_index] );
+      decay_worldzone( pos, gamestate.Realms[realm_index] );
       restart_all_clients();
     }
     pol_sleep_ms( sleeptime );

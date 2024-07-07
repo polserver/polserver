@@ -107,7 +107,7 @@ BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, const Core:
 
   boat->adjust_traveller_z( deltaz );
   boat->realm_changed();
-  bool ok = boat->move_xy( newpos.x(), newpos.y(), flags, oldrealm );
+  bool ok = boat->move_xy( newpos.xy(), flags, oldrealm );
   return new BLong( ok );
 }
 

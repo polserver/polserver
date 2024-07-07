@@ -172,13 +172,13 @@ bool ResourceDef::findmarker( const Pos4d& pos, unsigned int objtype )
   if ( !landtiles_.count( Items::getgraphic( objtype ) ) &&
        !tiles_.count( Items::getgraphic( objtype ) ) )
     return false;
-  if ( pos.realm()->findstatic( pos.x(), pos.y(), static_cast<unsigned short>( objtype ) ) )
+  if ( pos.realm()->findstatic( pos.xy(), static_cast<unsigned short>( objtype ) ) )
   {
     return true;
   }
 
   // FIXME range can be bad
-  Plib::MAPTILE_CELL cell = pos.realm()->getmaptile( pos.x(), pos.y() );
+  Plib::MAPTILE_CELL cell = pos.realm()->getmaptile( pos.xy() );
   return ( cell.landtile == objtype );  // FIXME blech! objtype == landtile? eh? well broken anyway.
 }
 
@@ -191,7 +191,7 @@ void ResourceDef::counttiles()
   {
     for ( const auto& p : realm->area() )
     {
-      Plib::MAPTILE_CELL cell = realm->getmaptile( p.x(), p.y() );
+      Plib::MAPTILE_CELL cell = realm->getmaptile( p );
 
       if ( landtiles_.count( cell.landtile ) )
       {

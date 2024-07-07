@@ -81,24 +81,22 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
   {
-    WorldIterator<MobileFilter>::InRange( chr, chr->los_size(),
-                                          [&]( Mobile::Character* zonechr )
-                                          {
-                                            Multi::UMulti* multi =
-                                                zonechr->realm()->find_supporting_multi(
-                                                    zonechr->x(), zonechr->y(), zonechr->z() );
+    WorldIterator<MobileFilter>::InRange(
+        chr, chr->los_size(),
+        [&]( Mobile::Character* zonechr )
+        {
+          Multi::UMulti* multi = zonechr->realm()->find_supporting_multi( zonechr->pos3d() );
 
-                                            if ( multi != nullptr && multi->serial == serial )
-                                              return;
+          if ( multi != nullptr && multi->serial == serial )
+            return;
 
-                                            send_char_if_newly_inrange( zonechr, client );
-                                          } );
+          send_char_if_newly_inrange( zonechr, client );
+        } );
     WorldIterator<ItemFilter>::InMaxVisualRange(
         chr,
         [&]( Items::Item* zoneitem )
         {
-          Multi::UMulti* multi = zoneitem->realm()->find_supporting_multi(
-              zoneitem->x(), zoneitem->y(), zoneitem->z() );
+          Multi::UMulti* multi = zoneitem->realm()->find_supporting_multi( zoneitem->pos3d() );
 
           if ( multi != nullptr && multi->serial == serial )
             return;
