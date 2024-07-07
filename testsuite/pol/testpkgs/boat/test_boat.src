@@ -20,6 +20,12 @@ exported function create()
     DestroyMulti(res);
     return ret_error(er);
   endif
+  if (res.portplank.x != 10 || res.portplank.y != 48 || res.portplank.z != -4)
+    var er:="Wrong portplank pos: {},{},{}".format(res.portplank.x, res.portplank.y, res.portplank.z);
+    DestroyMulti(res);
+    return ret_error(er);
+  endif
+
   for i:=1 to 5
     sleepms(10);
     if (res.getprop("started"))
@@ -269,3 +275,76 @@ endfunction
   DestroyMulti(boat);
   return 1;
 endfunction*/
+
+exported function test_boat_turn_travellers()
+  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!boat)
+    return ret_error("Failed to create boat "+boat);
+  endif
+  var item:=CreateItemAtLocation(10,51,0,0xf3f);
+  if (!item)
+    DestroyMulti(boat);
+    return ret_error($"Failed to create item {item}");
+  endif
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
+  if ( !npc )
+    DestroyItem(item);
+    DestroyMulti(boat);
+    return ret_error( $"Failed to create npc: {npc}" );
+  endif
+  var checks:={
+    {1,4,  9,50, 10,49}, // right
+    {3,2, 10,51,  9,50}, // left
+    {2,6, 10,49, 11,50}, // around
+    {0,6, 10,49, 11,50}  // nothing
+  };
+  var result:=1;
+  foreach check in checks
+    var res:=TurnBoat(boat,check[1]);
+    if (!res)
+      result:=ret_error($"Failed to turn {check} {res}");
+      break;
+    endif
+    if (boat.facing != check[2] || item.x != check[3] || item.y != check[4] || npc.x != check[5] || npc.y != check[6])
+      result := ret_error($"Check failed {check}: facing {boat.facing} item {item.x},{item.y} npc {npc.x},{npc.y}");
+      break;
+    endif
+  endforeach
+  MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  npc.kill();
+  DestroyItem(item);
+  DestroyMulti(boat);
+  return result;
+endfunction
+
+exported function test_boat_move_travellers()
+  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!boat)
+    return ret_error("Failed to create boat "+boat);
+  endif
+  var item:=CreateItemAtLocation(10,51,0,0xf3f);
+  if (!item)
+    DestroyMulti(boat);
+    return ret_error($"Failed to create item {item}");
+  endif
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
+  if ( !npc )
+    DestroyItem(item);
+    DestroyMulti(boat);
+    return ret_error( $"Failed to create npc: {npc}" );
+  endif
+  var result:=1;
+  var res:=MoveBoat(boat,0);
+  if (!res)
+    result:=ret_error($"Failed to move {res}");
+  else
+    if ( item.x != 10 || item.y != 50 || npc.x != 9 || npc.y != 49)
+      result := ret_error($"Move failed: item {item.x},{item.y} npc {npc.x},{npc.y}");
+    endif
+  endif
+  MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  npc.kill();
+  DestroyItem(item);
+  DestroyMulti(boat);
+  return result;
+endfunction
