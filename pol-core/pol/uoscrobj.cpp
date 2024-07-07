@@ -4109,24 +4109,20 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.numParams() == 3 )
     {
       Core::Pos3d pos;
-      if ( ex.getPos3dParam( 0, 1, 2, &pos, realm() ) )
-      {
-        set_dirty();
-        move_offline_mobiles( Core::Pos4d( pos, realm() ) );
-        return new BLong( 1 );
-      }
-      return new BError( "Invalid parameter type" );
+      if ( !ex.getPos3dParam( 0, 1, 2, &pos, realm() ) )
+        return new BError( "Invalid parameter type" );
+      set_dirty();
+      move_offline_mobiles( Core::Pos4d( pos, realm() ) );
+      return new BLong( 1 );
     }
     else if ( ex.numParams() == 4 )
     {
       Core::Pos4d pos;
-      if ( ex.getPos4dParam( 0, 1, 2, 3, &pos ) )
-      {
-        set_dirty();
-        move_offline_mobiles( pos );
-        return new BLong( 1 );
-      }
-      return new BError( "Invalid parameter type" );
+      if ( !ex.getPos4dParam( 0, 1, 2, 3, &pos ) )
+        return new BError( "Invalid parameter type" );
+      set_dirty();
+      move_offline_mobiles( pos );
+      return new BLong( 1 );
     }
     return new BError( "Not enough parameters" );
   }
