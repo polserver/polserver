@@ -77,9 +77,7 @@ struct BoatShape
     unsigned int objtype;
     unsigned short graphic;
     unsigned short altgraphic;
-    unsigned short xdelta;
-    unsigned short ydelta;
-    signed short zdelta;
+    Core::Vec3d delta;
     ComponentShape( const std::string& str, const std::string& altstr, unsigned char type );
     ComponentShape( const std::string& str, unsigned char type );
   };
@@ -99,10 +97,9 @@ class UBoat final : public UMulti
   class BoatContext
   {
     const MultiDef& mdef;
-    unsigned short x;  // TODO Pos2d
-    unsigned short y;
+    Core::Pos4d oldpos;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), x( ub.x() ), y( ub.y() ){};
+    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), oldpos( ub.pos() ){};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };
@@ -130,7 +127,7 @@ public:
   bool move( Core::UFACING dir, u8 speed, bool relative );
   bool move_xy( const Core::Pos2d& newp, int flags, Realms::Realm* oldrealm );
 
-  enum RELATIVE_DIR
+  enum RELATIVE_DIR  // order matters! facing = ( ( dir * 2 ) + facing ) & 7;
   {
     NO_TURN,
     RIGHT,
@@ -143,10 +140,6 @@ public:
   virtual void unregister_object( Core::UObject* obj ) override;
   Core::UFACING boat_facing() const;
 
-  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx,
-                         u16 newy, bool relative );
-  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy,
-                                    bool relative );
   void send_display_boat( Network::Client* client );
   void send_display_boat_to_inrange( u16 oldx = USHRT_MAX, u16 oldy = USHRT_MAX );
   void send_boat( Network::Client* client );
@@ -192,7 +185,6 @@ protected:
                         unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX,
                         Realms::Realm* oldrealm = nullptr );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
-  void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
   void move_offline_mobiles( const Core::Pos4d& newpos );
   const MultiDef& multi_ifturn( RELATIVE_DIR dir );
@@ -226,6 +218,13 @@ protected:
   friend struct BoatMoveGuard;
 
 private:
+  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed,
+                         const Core::Pos4d& newpos, bool relative ) const;
+  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, const Core::Pos4d& newpos,
+                                    bool relative ) const;
+
+  Core::Pos4d turn_coords( const Core::Pos4d& oldpos, RELATIVE_DIR dir ) const;
+  u8 turn_facing( u8 oldfacing, RELATIVE_DIR dir ) const;
   void create_components();
   typedef Core::UObjectRef Traveller;
   typedef std::vector<Traveller> Travellers;
