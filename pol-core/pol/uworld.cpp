@@ -84,10 +84,10 @@ void remove_multi_from_world( Multi::UMulti* multi )
   zone.multis.erase( itr );
 }
 
-void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& newpos )
+void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& oldpos )
 {
-  Zone& oldzone = multi->realm()->getzone( multi->pos2d() );
-  Zone& newzone = newpos.realm()->getzone( newpos.xy() );
+  Zone& oldzone = oldpos.realm()->getzone( oldpos.xy() );
+  Zone& newzone = multi->realm()->getzone( multi->pos2d() );
 
   if ( &oldzone != &newzone )
   {
@@ -98,10 +98,10 @@ void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& newpos )
     newzone.multis.push_back( multi );
   }
 
-  if ( multi->realm() != newpos.realm() )
+  if ( multi->realm() != oldpos.realm() )
   {
-    multi->realm()->remove_multi( *multi );
-    newpos.realm()->add_multi( *multi );
+    oldpos.realm()->remove_multi( *multi );
+    multi->realm()->add_multi( *multi );
   }
 }
 

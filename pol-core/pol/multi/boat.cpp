@@ -1042,9 +1042,9 @@ bool UBoat::move_to( const Core::Pos4d& newpos, int flags )
     BoatContext bc( *this );
 
     set_dirty();
-    move_multi_in_world( this, newpos );
 
     setposition( newpos );
+    move_multi_in_world( this, bc.oldpos );
 
     move_travellers( bc );
     move_components();
@@ -1077,8 +1077,8 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 
   set_dirty();
 
-  move_multi_in_world( this, newpos );
   setposition( newpos );
+  move_multi_in_world( this, bc.oldpos );
   move_travellers( bc );
   move_components();
 

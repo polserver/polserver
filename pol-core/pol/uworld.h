@@ -45,7 +45,7 @@ void remove_item_from_world( Items::Item* item );
 
 void add_multi_to_world( Multi::UMulti* multi );
 void remove_multi_from_world( Multi::UMulti* multi );
-void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& newpos );
+void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& oldpos );
 
 void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
