@@ -392,8 +392,6 @@ public:
 
   void ins_initforeach( const Instruction& ins );
   void ins_stepforeach( const Instruction& ins );
-  void ins_initforeach2( const Instruction& ins );
-  void ins_stepforeach2( const Instruction& ins );
 
   void ins_casejmp( const Instruction& ins );
   void ins_initfor( const Instruction& ins );
