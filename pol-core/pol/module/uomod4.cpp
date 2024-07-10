@@ -24,6 +24,7 @@
 #include "../item/item.h"
 #include "../mobile/charactr.h"
 #include "../multi/boat.h"
+#include "../multi/multidef.h"
 #include "../polclass.h"
 #include "../ufunc.h"
 #include "../uobject.h"
@@ -89,25 +90,17 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, const Core
 BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, const Core::Pos4d& newpos,
                                                  int flags )
 {
-  Realms::Realm* oldrealm = boat->realm();
-  {  // local scope for reg/unreg guard
+  // checked also in move_to, but to keep the error message leave it here
+  if ( !( flags & MOVEITEM_FORCELOCATION ) )
+  {
     Multi::UBoat::BoatMoveGuard registerguard( boat );
     if ( !boat->navigable( boat->multidef(), newpos ) )
-    {
       return new BError( "Position indicated is impassable" );
-    }
   }
-  if ( newpos.realm() !=
-       boat->realm() )  // boat->move_xy removes on xy change so only realm change check is needed
-  {
-    send_remove_object_to_inrange( boat );
-  }
-  s8 deltaz = newpos.z() - boat->z();
-  boat->setposition( Core::Pos4d( boat->pos().xy(), newpos.z(), newpos.realm() ) );
-
-  boat->adjust_traveller_z( deltaz );
-  boat->realm_changed();
-  bool ok = boat->move_xy( newpos.xy(), flags, oldrealm );
+  // always check if boat would fit into realm
+  else if ( !boat->can_fit_at_location( boat->multidef(), newpos ) )
+    return new BError( "Boat does not fit into map" );
+  bool ok = boat->move_to( newpos, flags );
   return new BLong( ok );
 }
 

@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-14-2024</datemodified>
+		<datemodified>07-10-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-10-2024</date>
+			<author>Turley:</author>
+			<change type="Fixed">Boat movement to the edge of a realm no more crashes</change>
+			<change type="Fixed">Moving a Boat via MoveObjectToLocation checks realms boundary and returns an error if it doesnt fit.</change>
+		</entry>
 		<entry>
 			<date>06-14-2024</date>
 			<author>Kukkino:</author>
@@ -38,8 +44,7 @@ the backpack weigh 203 stone.</change>
 		<entry>
 			<date>04-24-2024</date>
 			<author>Reloecc:</author>
-			<change type="Added">`NpcMinimumMovementDelay` parameter to `servspecopt.cfg`.<br/>
-It controls maximum movement speed of NPCs.</change>
+			<change type="Added">`NpcMinimumMovementDelay` parameter to `servspecopt.cfg`. It controls maximum movement speed of NPCs.</change>
 		</entry>
 		<entry>
 			<date>04-14-2024</date>

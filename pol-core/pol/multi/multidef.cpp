@@ -30,11 +30,6 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
       type( UNKNOWN ),
       elems(),
 
-      xbase( 0 ),
-      xsize( 0 ),
-      ybase( 0 ),
-      ysize( 0 ),
-
       minrxyz(),
       maxrxyz(),
       max_radius( 0 )

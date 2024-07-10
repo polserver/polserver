@@ -86,7 +86,7 @@ struct BoatShape
 
   static bool objtype_is_component( unsigned int objtype );
   BoatShape( Clib::ConfigElem& elem );
-  BoatShape();
+  BoatShape() = default;
   size_t estimateSize() const;
 };
 
@@ -126,7 +126,7 @@ public:
   virtual size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
-  bool move_xy( const Core::Pos2d& newp, int flags, Realms::Realm* oldrealm );
+  bool move_to( const Core::Pos4d& newpos, int flags );
 
   enum RELATIVE_DIR  // order matters! facing = ( ( dir * 2 ) + facing ) & 7;
   {
@@ -164,9 +164,8 @@ public:
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
   static bool navigable( const MultiDef& md, const Core::Pos4d& desired_pos );
+  static bool can_fit_at_location( const MultiDef& md, const Core::Pos4d& desired_pos );
   static bool objtype_passable( unsigned short graphic );
-  void realm_changed();
-  void adjust_traveller_z( s8 delta_z );
 
   virtual void on_color_changed() override;
 
@@ -182,8 +181,7 @@ public:
 
 protected:
   Core::ItemRef mountpiece;
-  void move_travellers( const BoatContext& oldlocation, unsigned short x, unsigned short y,
-                        Realms::Realm* oldrealm = nullptr );
+  void move_travellers( const BoatContext& oldlocation );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
   void move_offline_mobiles( const Core::Pos4d& newpos );
@@ -196,7 +194,7 @@ protected:
   void rescan_components();
   void reread_components();
   void transform_components( const BoatShape& old_boatshape );
-  void move_components( Realms::Realm* oldrealm );
+  void move_components();
 
   explicit UBoat( const Items::ItemDesc& descriptor );
   virtual void fixInvalidGraphic() override;
@@ -219,16 +217,13 @@ protected:
 
 private:
   void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed,
-                         const Core::Pos4d& newpos, bool relative ) const;
-  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, const Core::Pos4d& newpos,
-                                    bool relative ) const;
+                         bool relative ) const;
 
   Core::Pos4d turn_coords( const Core::Pos4d& oldpos, RELATIVE_DIR dir ) const;
   u8 turn_facing( u8 oldfacing, RELATIVE_DIR dir ) const;
   void create_components();
   void move_boat_item( Items::Item* item, const Core::Pos4d& newpos );
-  void move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos,
-                         Realms::Realm* oldrealm );
+  void move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos );
   typedef Core::UObjectRef Traveller;
   typedef std::vector<Traveller> Travellers;
   Travellers travellers_;
