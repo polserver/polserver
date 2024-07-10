@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+07-10-2024 Turley:
+    Fixed: Boat movement to the edge of a realm no more crashes
+    Fixed: Moving a Boat via MoveObjectToLocation checks realms boundary and returns an error if it doesnt fit.
 06-14-2024 Kukkino:
     Fixed: Performance of containers held weight computations in deeply nested scenarios
 05-16-2024 Kevin:
