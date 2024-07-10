@@ -11,6 +11,7 @@
 #define BOAT_H
 
 #include <climits>
+#include <optional>
 #include <stddef.h>
 #include <string>
 #include <vector>
@@ -141,7 +142,7 @@ public:
   Core::UFACING boat_facing() const;
 
   void send_display_boat( Network::Client* client );
-  void send_display_boat_to_inrange( u16 oldx = USHRT_MAX, u16 oldy = USHRT_MAX );
+  void send_display_boat_to_inrange( const std::optional<Core::Pos4d>& oldpos );
   void send_boat( Network::Client* client );
   void send_boat_old( Network::Client* client );
   void send_boat_newly_inrange( Network::Client* client );
@@ -181,8 +182,7 @@ public:
 
 protected:
   Core::ItemRef mountpiece;
-  void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation,
-                        unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX,
+  void move_travellers( const BoatContext& oldlocation, unsigned short x, unsigned short y,
                         Realms::Realm* oldrealm = nullptr );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
@@ -195,7 +195,7 @@ protected:
   const BoatShape& boatshape() const;
   void rescan_components();
   void reread_components();
-  void transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm );
+  void transform_components( const BoatShape& old_boatshape );
   void move_components( Realms::Realm* oldrealm );
 
   explicit UBoat( const Items::ItemDesc& descriptor );
@@ -226,6 +226,9 @@ private:
   Core::Pos4d turn_coords( const Core::Pos4d& oldpos, RELATIVE_DIR dir ) const;
   u8 turn_facing( u8 oldfacing, RELATIVE_DIR dir ) const;
   void create_components();
+  void move_boat_item( Items::Item* item, const Core::Pos4d& newpos );
+  void move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos,
+                         Realms::Realm* oldrealm );
   typedef Core::UObjectRef Traveller;
   typedef std::vector<Traveller> Travellers;
   Travellers travellers_;
