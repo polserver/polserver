@@ -1189,46 +1189,7 @@ ContIterator* ObjArray::createIterator( BObject* pIterVal )
    */
 void Executor::ins_initforeach( const Instruction& ins )
 {
-  Locals2->push_back( BObjectRef() );  // the iterator
-
-  // this is almost like popParam, only we don't want a copy.
-  BObjectRef objref = getObjRef();
-  Locals2->push_back( BObjectRef() );
-  Locals2->back().set( objref.get() );
-
-  Locals2->push_back( BObjectRef() );
-  Locals2->back().set( new BObject( new BLong( 0 ) ) );
-
-  PC = ins.token.lval;
-}
-
-
-void Executor::ins_stepforeach( const Instruction& ins )
-{
-  unsigned locsize = static_cast<unsigned int>( Locals2->size() );
-  ObjArray* arr = static_cast<ObjArray*>( ( *Locals2 )[locsize - 2]->impptr() );
-  if ( !arr->isa( BObjectImp::OTArray ) )
-    return;
-  BLong* blong = static_cast<BLong*>( ( *Locals2 )[locsize - 1]->impptr() );
-
-  if ( blong->increment() > int( arr->ref_arr.size() ) )
-    return;
-
-  BObjectRef& objref = arr->ref_arr[blong->value() - 1];
-  BObject* elem = objref.get();
-  if ( elem == nullptr )
-  {
-    elem = new BObject( UninitObject::create() );
-    objref.set( elem );
-  }
-  ( *Locals2 )[locsize - 3].set( elem );
-  PC = ins.token.lval;
-}
-
-void Executor::ins_initforeach2( const Instruction& ins )
-{
-  Locals2->push_back( BObjectRef() );  // the iterator
-
+  Locals2->push_back( BObjectRef( UninitObject::create() ) );  // the iterator
 
   auto pIterVal = new BObject( UninitObject::create() );
 
@@ -1241,16 +1202,18 @@ void Executor::ins_initforeach2( const Instruction& ins )
   Locals2->push_back( BObjectRef() );
   Locals2->back().set( pIterVal );
 
+  // Jump to to the corresponding `stepforeach` instruction, advancing the iterator.
   PC = ins.token.lval;
 }
 
-
-void Executor::ins_stepforeach2( const Instruction& ins )
+void Executor::ins_stepforeach( const Instruction& ins )
 {
   size_t locsize = Locals2->size();
   ContIterator* pIter = static_cast<ContIterator*>( ( *Locals2 )[locsize - 2]->impptr() );
 
   BObject* next = pIter->step();
+  // If iterator has a value, set it on the locals stack and jump to the
+  // corresponding instruction after `initforeach`.
   if ( next != nullptr )
   {
     ( *Locals2 )[locsize - 3].set( next );
@@ -3024,9 +2987,9 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
   switch ( token.id )
   {
   case INS_INITFOREACH:
-    return &Executor::ins_initforeach2;
+    return &Executor::ins_initforeach;
   case INS_STEPFOREACH:
-    return &Executor::ins_stepforeach2;
+    return &Executor::ins_stepforeach;
   case INS_INITFOR:
     return &Executor::ins_initfor;
   case INS_NEXTFOR:
