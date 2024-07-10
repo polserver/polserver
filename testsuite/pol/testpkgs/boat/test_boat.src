@@ -251,30 +251,60 @@ function RestoreConfiguration( newConf )
   return ReloadConfiguration();
 endfunction
 
-/*exported function test_boat_realm_move()
-  // crashed by wrongly converting coordinates between realms
+exported function test_boat_realm_move()
   var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
   if (!boat)
     return ret_error("Failed to create boat "+boat);
   endif
-
-  var res:=MoveObjectToLocation(boat,1580,150,0,"britannia2",MOVEOBJECT_FORCELOCATION);
-  if (!res || boat.x != 1580 || boat.y != 150 || boat.realm != "britannia2")
-    var err:=$"Failed initial move: {res}:{boat.x},{boat.y},{boat.realm}";
+  var item:=CreateItemAtLocation(10,51,0,0xf3f);
+  if (!item)
     DestroyMulti(boat);
-    return ret_error(err);
+    return ret_error($"Failed to create item {item}");
   endif
-
-  res:=MoveObjectToLocation(boat,10,10,0,"britannia",MOVEOBJECT_FORCELOCATION);
-  if (!res || boat.x != 10 || boat.y != 10 || boat.realm != "britannia")
-    var err:=$"Failed to move: {res}:{boat.x},{boat.y},{boat.realm}";
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
+  if ( !npc )
+    DestroyItem(item);
     DestroyMulti(boat);
-    return ret_error(err);
+    return ret_error( $"Failed to create npc: {npc}" );
   endif
+  var result:=1;
+  do
+    var res:=MoveObjectToLocation(boat,1580,150,0,"britannia2",MOVEOBJECT_FORCELOCATION);
+    if (!res || boat.x != 1580 || boat.y != 150 || boat.z != 0 || boat.realm != "britannia2")
+      result := ret_error($"Failed initial move: {res}:{boat.x},{boat.y},{boat.z},{boat.realm}");
+      break;
+    elseif ( item.x != 1580 || item.y != 151 || item.z != 4 || item.realm != "britannia2")
+      result := ret_error($"Initial move failed: item {item.x},{item.y},{item.z},{item.realm}");
+      break;
+    elseif (npc.x != 1579 || npc.y != 150 || npc.z != 3 || npc.realm != "britannia2")
+      result := ret_error($"Initial move failed: npc {npc.x},{npc.y},{npc.z},{npc.realm}");
+      break;
+    elseif (boat.portplank.x != 1580 || boat.portplank.y != 148 || boat.portplank.z != 0 || boat.portplank.realm != "britannia2")
+      result:=ret_error("Initial move failed: portplank {},{},{},{}".format(boat.portplank.x, boat.portplank.y, boat.portplank.z, boat.portplank.realm));
+      break;
+    endif
 
+    res:=MoveObjectToLocation(boat,10,10,-4,"britannia",MOVEOBJECT_FORCELOCATION);
+    if (!res || boat.x != 10 || boat.y != 10 || boat.z != -4|| boat.realm != "britannia")
+      result:=ret_error($"Failed to move: {res}:{boat.x},{boat.y},{boat.z},{boat.realm}");
+      break;
+    elseif ( item.x != 10 || item.y != 11 || item.z != 0 || item.realm != "britannia")
+      result := ret_error($"Move failed: item {item.x},{item.y},{item.z},{item.realm}");
+      break;
+    elseif (npc.x != 9 || npc.y != 10 || npc.z != -1 || npc.realm != "britannia")
+      result := ret_error($"Move failed: npc {npc.x},{npc.y},{npc.z},{npc.realm}");
+      break;
+    elseif (boat.portplank.x != 10 || boat.portplank.y != 8 || boat.portplank.z != -4 || boat.portplank.realm != "britannia")
+      result:=ret_error("Move failed: portplank {},{},{},{}".format(boat.portplank.x, boat.portplank.y, boat.portplank.z, boat.portplank.realm));
+      break;
+    endif
+  dowhile(0);
+  MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  npc.kill();
+  DestroyItem(item);
   DestroyMulti(boat);
-  return 1;
-endfunction*/
+  return result;
+endfunction
 
 exported function test_boat_turn_travellers()
   var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
@@ -338,13 +368,73 @@ exported function test_boat_move_travellers()
   if (!res)
     result:=ret_error($"Failed to move {res}");
   else
-    if ( item.x != 10 || item.y != 50 || npc.x != 9 || npc.y != 49)
-      result := ret_error($"Move failed: item {item.x},{item.y} npc {npc.x},{npc.y}");
+    if ( item.x != 10 || item.y != 50 || item.z != 0 || 
+         npc.x != 9 || npc.y != 49 || npc.z != -1 )
+      result := ret_error($"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
+    elseif (boat.portplank.x != 10 || boat.portplank.y != 47 || boat.portplank.z != -4)
+      result:=ret_error("Wrong portplank pos: {},{},{}".format(res.portplank.x, res.portplank.y, res.portplank.z));
     endif
   endif
   MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
   npc.kill();
   DestroyItem(item);
+  DestroyMulti(boat);
+  return result;
+endfunction
+
+exported function test_boat_moveloc_travellers()
+  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!boat)
+    return ret_error("Failed to create boat "+boat);
+  endif
+  var item:=CreateItemAtLocation(10,51,0,0xf3f);
+  if (!item)
+    DestroyMulti(boat);
+    return ret_error($"Failed to create item {item}");
+  endif
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
+  if ( !npc )
+    DestroyItem(item);
+    DestroyMulti(boat);
+    return ret_error( $"Failed to create npc: {npc}" );
+  endif
+  var result:=1;
+  var res:=MoveObjectToLocation(boat,180,150,10,flags:=MOVEOBJECT_FORCELOCATION);
+  if (!res)
+    result:=ret_error($"Failed to move {res}");
+  else
+    if ( item.x != 180 || item.y != 151 || item.z != 14 || 
+         npc.x != 179 || npc.y != 150 || npc.z != 13 )
+      result := ret_error($"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
+    elseif (boat.portplank.x != 180 || boat.portplank.y != 148 || boat.portplank.z != 10)
+      result:=ret_error("Wrong portplank pos: {},{},{}".format(boat.portplank.x, boat.portplank.y, boat.portplank.z));
+    endif
+  endif
+  MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  npc.kill();
+  DestroyItem(item);
+  DestroyMulti(boat);
+  return result;
+endfunction
+
+exported function test_boat_move_outside_realm()
+  var boat:=CreateMultiAtLocation(180,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!boat)
+    return ret_error("Failed to create boat "+boat);
+  endif
+  var result:=ret_error("didnt stop moving");
+  while (boat.x < 190)
+    var res:=MoveBoatRelative(boat,0);
+    if (!res)
+      if (boat.x == 186)
+        result := 1;
+        break;
+      else
+        result := ret_error($"moved to far: {boat.x}");
+        break;
+      endif
+    endif
+  endwhile
   DestroyMulti(boat);
   return result;
 endfunction

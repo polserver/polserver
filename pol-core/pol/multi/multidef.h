@@ -65,11 +65,6 @@ public:
 
   std::vector<MULTI_ELEM> elems;
 
-  short xbase;  // x[0] is really x[xbase]
-  short xsize;
-  short ybase;
-  short ysize;
-
   typedef std::vector<const MULTI_ELEM*> HullList;
   HullList hull;
   HullList internal_hull;

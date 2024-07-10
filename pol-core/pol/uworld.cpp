@@ -68,14 +68,14 @@ void remove_item_from_world( Items::Item* item )
 
 void add_multi_to_world( Multi::UMulti* multi )
 {
-  Zone& zone = multi->realm()->getzone( multi->pos().xy() );
+  Zone& zone = multi->realm()->getzone( multi->pos2d() );
   zone.multis.push_back( multi );
   multi->realm()->add_multi( *multi );
 }
 
 void remove_multi_from_world( Multi::UMulti* multi )
 {
-  Zone& zone = multi->realm()->getzone( multi->pos().xy() );
+  Zone& zone = multi->realm()->getzone( multi->pos2d() );
   ZoneMultis::iterator itr = std::find( zone.multis.begin(), zone.multis.end(), multi );
 
   passert( itr != zone.multis.end() );
@@ -84,11 +84,10 @@ void remove_multi_from_world( Multi::UMulti* multi )
   zone.multis.erase( itr );
 }
 
-void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                          unsigned short newy, Multi::UMulti* multi, Realms::Realm* oldrealm )
+void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& newpos )
 {
-  Zone& oldzone = oldrealm->getzone( Core::Pos2d( oldx, oldy ) );
-  Zone& newzone = multi->realm()->getzone( Core::Pos2d( newx, newy ) );
+  Zone& oldzone = multi->realm()->getzone( multi->pos2d() );
+  Zone& newzone = newpos.realm()->getzone( newpos.xy() );
 
   if ( &oldzone != &newzone )
   {
@@ -99,10 +98,10 @@ void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned sho
     newzone.multis.push_back( multi );
   }
 
-  if ( multi->realm() != oldrealm )
+  if ( multi->realm() != newpos.realm() )
   {
-    oldrealm->remove_multi( *multi );
-    multi->realm()->add_multi( *multi );
+    multi->realm()->remove_multi( *multi );
+    newpos.realm()->add_multi( *multi );
   }
 }
 

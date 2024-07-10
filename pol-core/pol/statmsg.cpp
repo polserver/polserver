@@ -34,7 +34,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   PacketOut<Network::PktOut_11> msg;
   msg->offset += 2;  // msglen
   msg->Write<u32>( chr->serial_ext );
-  msg->Write( Clib::strUtf8ToCp1252(chr->name()).c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 30, false );
   bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
   if ( networkManager.uoclient_general.hits.any )
   {
@@ -144,7 +144,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
       auto cap = chr->physical_resist_cap().sum();
       value = std::min( cap, value );
     }
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+    msg->WriteFlipped<s16>( value );
   }
   else
     msg->WriteFlipped<u16>( chr->ar() );
@@ -175,28 +175,28 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
       auto cap = chr->fire_resist_cap().sum();
       value = std::min( cap, value );
     }
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+    msg->WriteFlipped<s16>( value );
     value = chr->cold_resist().sum();
     if ( chr->has_cold_resist_cap() && !ignore_caps )
     {
       auto cap = chr->cold_resist_cap().sum();
       value = std::min( cap, value );
     }
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+    msg->WriteFlipped<s16>( value );
     value = chr->poison_resist().sum();
     if ( chr->has_poison_resist_cap() && !ignore_caps )
     {
       auto cap = chr->poison_resist_cap().sum();
       value = std::min( cap, value );
     }
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+    msg->WriteFlipped<s16>( value );
     value = chr->energy_resist().sum();
     if ( chr->has_energy_resist_cap() && !ignore_caps )
     {
       auto cap = chr->energy_resist_cap().sum();
       value = std::min( cap, value );
     }
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+    msg->WriteFlipped<s16>( value );
     msg->WriteFlipped<u16>( static_cast<u16>( chr->luck().sum() ) );
 
     msg->WriteFlipped<u16>( chr->min_weapon_damage() );
@@ -223,8 +223,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
       auto cap = chr->defence_increase_cap().sum();
       value = std::min( cap, value );
     }
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value )
-                                                            : value ) );  // Defense chance increase
+    msg->WriteFlipped<s16>( value );  // Defense chance increase
     msg->WriteFlipped<u16>(
         static_cast<u16>( chr->defence_increase_cap().sum() ) );  // Defense chance cap increase
     msg->WriteFlipped<u16>( static_cast<u16>( chr->hit_chance().sum() ) );  // Hit chance increase
@@ -278,7 +277,7 @@ void send_short_statmsg( Network::Client* client, Mobile::Character* chr )
   PacketOut<Network::PktOut_11> msg;
   msg->offset += 2;  // msglen
   msg->Write<u32>( chr->serial_ext );
-  msg->Write( Clib::strUtf8ToCp1252(chr->name()).c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 30, false );
 
   if ( networkManager.uoclient_general.hits.any )
   {
