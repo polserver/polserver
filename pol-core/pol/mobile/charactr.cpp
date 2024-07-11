@@ -2813,7 +2813,7 @@ void Character::swing_task_func( Character* chr )
   THREAD_CHECKPOINT( tasks, 800 );
   INFO_PRINTLN_TRACE( 20 )( "swing_task_func({:#x})", chr->serial );
   chr->mob_flags_.set( MOB_FLAGS::READY_TO_SWING );
-  chr->check_attack_after_move();
+  chr->check_attack_after_move( false );
   THREAD_CHECKPOINT( tasks, 899 );
 }
 
@@ -3432,7 +3432,7 @@ void Character::attack( Character* opponent )
   }
 }
 
-void Character::check_attack_after_move()
+void Character::check_attack_after_move( bool check_opponents_after_check )
 {
   FUNCTION_CHECKPOINT( check_attack_after_move, 1 );
   Character* opponent = get_attackable_opponent();
@@ -3468,6 +3468,19 @@ void Character::check_attack_after_move()
     }
   }
   FUNCTION_CHECKPOINT( check_attack_after_move, 0 );
+
+  if ( check_opponents_after_check )
+  {
+    if ( opponent_ != nullptr )
+      opponent_->check_attack_after_move( false );
+
+    // attacking can change the opponent_of array drastically.
+    std::set<Character*> tmp( opponent_of );
+    for ( auto& chr : tmp )
+    {
+      chr->check_attack_after_move( false );
+    }
+  }
 }
 
 
@@ -3675,6 +3688,11 @@ void Character::unhide()
         } );
 
     realm()->notify_unhid( *this );
+
+    if ( opponent_ != nullptr && !Clib::exit_signalled )
+    {
+      check_attack_after_move( true );
+    }
   }
 }
 
@@ -4036,17 +4054,7 @@ void Character::tellmove()
   // 2018-06-16)
   realm()->notify_moved( *this );
 
-  check_attack_after_move();
-
-  if ( opponent_ != nullptr )
-    opponent_->check_attack_after_move();
-
-  // attacking can change the opponent_of array drastically.
-  std::set<Character*> tmp( opponent_of );
-  for ( auto& chr : tmp )
-  {
-    chr->check_attack_after_move();
-  }
+  check_attack_after_move( true );
 
   move_reason = OTHER;
 }
