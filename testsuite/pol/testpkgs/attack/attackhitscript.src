@@ -1,0 +1,23 @@
+use uo;
+use os;
+use polsys;
+
+program MainHitScript( attacker, defender, weapon, armor, basedamage, rawdamage )
+  var pid := GetObjProperty( attacker, "#TestPid" );
+  if ( pid )
+    var ev := struct{
+      type := "HIT",
+      attacker := attacker,
+      "attacker.name" := attacker.name,
+      defender := defender,
+      "defender.name" := defender.name,
+      weapon := weapon,
+      armor := armor,
+      basedamage := basedamage,
+      rawdamage := rawdamage,
+      gameclock := ReadGameClock()
+    };
+
+    GetProcess( pid ).SendEvent( ev );
+  endif
+endprogram

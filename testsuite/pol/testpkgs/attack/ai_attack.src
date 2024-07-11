@@ -1,0 +1,25 @@
+use uo;
+use os;
+use npc;
+
+include "sysevent";
+
+program enteredarea()
+  var me := self();
+
+  while ( me )
+    var ev := wait_for_event( 5 );
+    if ( ev )
+      if ( ev.type == SYSEVENT_ENGAGED )
+        SetOpponent( ev.source );
+        Sleep(2); // Sleep to set ready-swing.
+        var ev := struct{
+          type := "BEFORE_UNHIDE",
+          gameclock := ReadGameClock()
+        };
+        GetProcess( GetObjProperty( me, "#TestPid" ) ).SendEvent( ev );
+        me.hidden := 0;
+      endif
+    endif
+  endwhile
+endprogram

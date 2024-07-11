@@ -1,0 +1,9 @@
+use uo;
+
+foreach mob in ( listmobilesinbox( 0, 0, -200, 10000, 10000, 2000 ) )
+  mob.kill();
+endforeach
+
+foreach item in ( listitemsinboxofobjtype( 0x2006, 0, 0, -200, 10000, 10000, 2000 ) )
+  destroyitem( item );
+endforeach
