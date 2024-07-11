@@ -1,0 +1,98 @@
+use uo;
+use os;
+
+include "testutil";
+include "sysevent";
+
+program npc_ai()
+  return 1;
+endprogram
+
+// Create two NPCs, where `npc1` hides, attacks `npc2`, waits 2 seconds, then unhides.
+// Check that both NPCs attack each other at game clock time `t` and `t + 1` (since
+// npcdesc stats give swing speed of 1s).
+exported function attack_on_unhide()
+  var npc1 := CreateNPCFromTemplate( ":testattack:test_attack", 100, 100, 0 );
+
+  if ( !npc1 )
+    return ret_error( "Could not create NPC: " + npc1 );
+  endif
+
+  npc1.hitchance_mod := 1000;
+  SetObjProperty( npc1, "#TestPid", GetPid() );
+  SetName( npc1, "npc1" );
+  npc1.hidden := 1;
+
+  var npc2 := CreateNPCFromTemplate( ":testattack:test_attack", 101, 101, 0 );
+
+  if ( !npc2 )
+    return ret_error( "Could not create NPC: " + npc2 );
+  endif
+
+  npc2.hitchance_mod := 1000;
+  SetObjProperty( npc2, "#TestPid", GetPid() );
+  SetName( npc2, "npc2" );
+
+  // Send an event to npc1 to attack npc2 + unhide.
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2 } );
+
+  var initial_ev := wait_for_event( 5 );
+  if ( !initial_ev )
+    return ret_error( "No event for NPC BEFORE_UNHIDE" );
+  elseif ( initial_ev.type != "BEFORE_UNHIDE" )
+    return ret_error( "Unexpected first event type: expected 'BEFORE_UNHIDE', actual '{initial_ev.type}'" );
+  endif
+
+  // Collect the first four events
+  var evs := array{};
+
+  while ( true )
+    var ev := wait_for_event( 5 );
+    if ( ev )
+      evs.append( ev );
+      if ( evs.size() >= 4 )
+        break;
+      endif
+      continue;
+    endif
+
+    return ret_error( "No event from NPC script received." );
+  endwhile
+
+  // clocks[speed] = (100*15000)/((50 dex+100)*100 weapon speed)
+  // clocks=100 corresponds to a +1 change in ReadGameClock()
+  // The attack order should be:
+  // - npc1 hits npc2 at time t
+  // - npc2 hits npc1 at time t
+  // - npc1 hits npc2 at time t+1
+  // - npc2 hits npc1 at time t+2
+
+  var t := initial_ev.gameclock;
+  var err;
+
+  if ( !assert_attack( err, evs, 1, npc1, npc2, t ) )
+    return err;
+  elseif ( !assert_attack( err, evs, 2, npc2, npc1, t ) )
+    return err;
+  elseif ( !assert_attack( err, evs, 3, npc1, npc2, t + 1 ) )
+    return err;
+  elseif ( !assert_attack( err, evs, 4, npc2, npc1, t + 1 ) )
+    return err;
+  endif
+
+  // NPC and corpse cleanup handled in cleanup.src
+
+  return 1;
+endfunction
+
+function assert_attack( byref err, byref evs, index, attacker, defender, gameclock )
+  var ev := evs[index];
+  if ( ev.attacker != attacker )
+    return err := ret_error( $"Unexpected attacker at index {index}: expected '{attacker.name}' ({attacker.serial}), actual '{ev.attacker.name}' ({ev.attacker.serial})\n\nEvents: {PackJSON(evs, true)}" );
+  elseif ( ev.defender != defender )
+    return err := ret_error( $"Unexpected defender at index {index}: expected '{defender.name}' ({defender.serial}), actual '{ev.defender.name}' ({ev.defender.serial})\n\nEvents: {PackJSON(evs, true)}" );
+  elseif ( ev.gameclock != gameclock )
+    return err := ret_error( $"Unexpected gameclock at index {index}: expected {gameclock}, actual ({ev.gameclock})\n\nEvents: {PackJSON(evs, true)}" );
+  endif
+  return 1;
+endfunction
