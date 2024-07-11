@@ -12,7 +12,7 @@ program enteredarea()
     if ( ev )
       if ( ev.type == SYSEVENT_ENGAGED )
         SetOpponent( ev.source );
-        Sleep(2);
+        Sleep(2); // Sleep to set ready-swing.
         var ev := struct{
           type := "BEFORE_UNHIDE",
           gameclock := ReadGameClock()

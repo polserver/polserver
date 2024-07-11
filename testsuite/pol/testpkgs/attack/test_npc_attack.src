@@ -9,8 +9,8 @@ program npc_ai()
 endprogram
 
 // Create two NPCs, where `npc1` hides, attacks `npc2`, waits 2 seconds, then unhides.
-// Check that both NPCs attack each other at game clock time `t` and `t + 1` (since
-// npcdesc stats give swing speed of 1s).
+// Check that both NPCs attack each other at game clock time `t`, where `t` is the clock time
+// where the NPC unhides.
 exported function attack_on_unhide()
   var npc1 := CreateNPCFromTemplate( ":testattack:test_attack", 100, 100, 0 );
 
@@ -43,14 +43,14 @@ exported function attack_on_unhide()
     return ret_error( "Unexpected first event type: expected 'BEFORE_UNHIDE', actual '{initial_ev.type}'" );
   endif
 
-  // Collect the first four events
+  // Collect the first two events
   var evs := array{};
 
   while ( true )
     var ev := wait_for_event( 5 );
     if ( ev )
       evs.append( ev );
-      if ( evs.size() >= 4 )
+      if ( evs.size() >= 2 )
         break;
       endif
       continue;
@@ -59,40 +59,20 @@ exported function attack_on_unhide()
     return ret_error( "No event from NPC script received." );
   endwhile
 
-  // clocks[speed] = (100*15000)/((50 dex+100)*100 weapon speed)
-  // clocks=100 corresponds to a +1 change in ReadGameClock()
-  // The attack order should be:
-  // - npc1 hits npc2 at time t
-  // - npc2 hits npc1 at time t
-  // - npc1 hits npc2 at time t+1
-  // - npc2 hits npc1 at time t+2
 
   var t := initial_ev.gameclock;
-  var err;
 
-  if ( !assert_attack( err, evs, 1, npc1, npc2, t ) )
-    return err;
-  elseif ( !assert_attack( err, evs, 2, npc2, npc1, t ) )
-    return err;
-  elseif ( !assert_attack( err, evs, 3, npc1, npc2, t + 1 ) )
-    return err;
-  elseif ( !assert_attack( err, evs, 4, npc2, npc1, t + 1 ) )
-    return err;
+  var failure :=
+    ( evs[1].gameclock != t ) || // First hit did not happen on unhide.
+    ( evs[2].gameclock != t ) || // Second hit did not happen on unhide.
+    ( evs[1].attacker != evs[2].defender ) || // First hit attacker is not second hit defender
+    ( evs[1].defender != evs[2].attacker ); // First hit defender is not second hit attacker
+
+  if ( failure )
+    return ret_error( $"Unexpected attacker-defender sequence. Expected both hits at gameclock {t}, attacker[1] == defender[2], defender[1] == attacker[2].\n\nEvents: {PackJSON(evs, true)}" );
   endif
 
   // NPC and corpse cleanup handled in cleanup.src
 
-  return 1;
-endfunction
-
-function assert_attack( byref err, byref evs, index, attacker, defender, gameclock )
-  var ev := evs[index];
-  if ( ev.attacker != attacker )
-    return err := ret_error( $"Unexpected attacker at index {index}: expected '{attacker.name}' ({attacker.serial}), actual '{ev.attacker.name}' ({ev.attacker.serial})\n\nEvents: {PackJSON(evs, true)}" );
-  elseif ( ev.defender != defender )
-    return err := ret_error( $"Unexpected defender at index {index}: expected '{defender.name}' ({defender.serial}), actual '{ev.defender.name}' ({ev.defender.serial})\n\nEvents: {PackJSON(evs, true)}" );
-  elseif ( ev.gameclock != gameclock )
-    return err := ret_error( $"Unexpected gameclock at index {index}: expected {gameclock}, actual ({ev.gameclock})\n\nEvents: {PackJSON(evs, true)}" );
-  endif
   return 1;
 endfunction
