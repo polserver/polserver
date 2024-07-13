@@ -3,16 +3,44 @@
  * @par History
  */
 
-#ifndef __DECAY_H
-#define __DECAY_H
+#pragma once
 
-namespace Pol
+#include "base/range.h"
+
+namespace Pol::Testing
 {
-namespace Core
+void decay_test();
+}
+namespace Pol::Realms
 {
-void decay_thread( void* );
-void decay_thread_shadow( void* );
-void decay_single_thread( void* );
-}  // namespace Core
-}  // namespace Pol
-#endif
+class Realm;
+}
+
+namespace Pol::Core
+{
+class Decay
+{
+public:
+  Decay() = default;
+  static void decay_thread( void* arg );
+  void after_realms_size_changed();
+  void on_delete_realm( Realms::Realm* realm );
+
+  static constexpr int SKIP_FURTHER_CHECKS = 2;
+
+private:
+  void threadloop();
+  void step();
+  bool should_switch_realm() const;
+  void switch_realm();
+  void decay_worldzone();
+  void calculate_sleeptime();
+
+  unsigned sleeptime = 0;
+  size_t realm_index = ~0lu;
+  Range2d area;
+  Range2dItr area_itr;
+
+  friend void Pol::Testing::decay_test();
+};
+}  // namespace Pol::Core

@@ -31,7 +31,6 @@ namespace fs = std::filesystem;
 bool load_realms()
 {
   Realms::Realm* temprealm;
-  int realm_counter = 0;
   std::error_code ec;
   for ( const auto& dir_entry :
         fs::directory_iterator( Plib::systemstate.config.realm_data_path, ec ) )
@@ -50,20 +49,13 @@ bool load_realms()
     temprealm = new Realms::Realm( realm_name, dir_entry.path().u8string() );
     POLLOG_INFOLN( "Completed in {} ms.", timer.ellapsed() );
     gamestate.Realms.push_back( temprealm );
-    ++realm_counter;
 
     // To-Fix - Nasty kludge assuming 'britannia' is the default realm
     // May want to make this configurable in later core releases.
     if ( realm_name == "britannia" )
       gamestate.main_realm = temprealm;
   }
-  //  main_realm = new DummyRealm();
-  gamestate.baserealm_count = realm_counter;
-  gamestate.shadowrealm_count = 0;
-  if ( realm_counter > 0 )
-    return true;
-  else
-    return false;
+  return !gamestate.Realms.empty();
 }
 
 Realms::Realm* find_realm( const std::string& name )
@@ -89,9 +81,8 @@ bool defined_realm( const std::string& name )
 void add_realm( const std::string& name, Realms::Realm* base )
 {
   Realms::Realm* r = new Realms::Realm( name, base );
-  r->shadowid = ++gamestate.shadowrealm_count;
-  gamestate.shadowrealms_by_id[r->shadowid] = r;
   gamestate.Realms.push_back( r );
+  gamestate.decay.after_realms_size_changed();
 }
 
 void remove_realm( const std::string& name )
@@ -102,9 +93,10 @@ void remove_realm( const std::string& name )
     if ( ( *itr )->name() == name )
     {
       gamestate.storage.on_delete_realm( *itr );
-      gamestate.shadowrealms_by_id[( *itr )->shadowid] = nullptr;  // used inside the decaythread
+      gamestate.decay.on_delete_realm( *itr );
       delete *itr;
       gamestate.Realms.erase( itr );
+      gamestate.decay.after_realms_size_changed();
       break;
     }
   }

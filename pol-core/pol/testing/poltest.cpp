@@ -17,7 +17,7 @@ namespace Pol
 {
 namespace Testing
 {
-#define RUNTEST( t )              \
+#define RUNTEST( t )               \
   INFO_PRINTLN( " - {}", ( #t ) ); \
   t();
 
@@ -51,6 +51,8 @@ bool run_pol_tests()
   RUNTEST( range3d_test )
 
   RUNTEST( test_curlfeatures )
+
+  RUNTEST( decay_test )
   //  RUNTEST( dummy )
 
   UnitTest::display_test_results();

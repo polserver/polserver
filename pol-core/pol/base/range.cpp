@@ -30,6 +30,17 @@ Range2dItr& Range2dItr::operator++()
   }
   return *this;
 }
+Range2dItr& Range2dItr::operator--()
+{
+  if ( _v.x() > _xstart )
+    _v -= Vec2d( 1, 0 );
+  else
+  {
+    _v.x( _xbound );
+    _v -= Vec2d( 0, 1 );
+  }
+  return *this;
+}
 
 Range2d::Range2d( const Pos2d& p1, const Pos2d& p2, const Realms::Realm* realm )
 {

@@ -791,23 +791,7 @@ void start_threads()
   if ( settingsManager.ssopt.decay_items )
   {
     checkpoint( "start decay thread" );
-    if ( Plib::systemstate.config.single_thread_decay )
-    {
-      threadhelp::start_thread( decay_single_thread, "Decay", nullptr );
-    }
-    else
-    {
-      std::vector<Realms::Realm*>::iterator itr;
-      for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
-      {
-        std::ostringstream thname;
-        thname << "Decay_" << ( *itr )->name();
-        if ( ( *itr )->is_shadowrealm )
-          threadhelp::start_thread( decay_thread_shadow, thname.str().c_str(), (void*)( *itr ) );
-        else
-          threadhelp::start_thread( decay_thread, thname.str().c_str(), (void*)( *itr ) );
-      }
-    }
+    threadhelp::start_thread( Decay::decay_thread, "Decay", nullptr );
   }
   else
   {

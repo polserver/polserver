@@ -252,7 +252,6 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.show_realm_info = elem.remove_bool( "ShowRealmInfo", false );
 
   Plib::systemstate.config.enforce_mount_objtype = elem.remove_bool( "EnforceMountObjtype", false );
-  Plib::systemstate.config.single_thread_decay = elem.remove_bool( "SingleThreadDecay", false );
   Plib::systemstate.config.thread_decay_statistics =
       elem.remove_bool( "ThreadDecayStatistics", false );
 
