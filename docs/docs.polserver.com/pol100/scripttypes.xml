@@ -4,7 +4,7 @@
 <ESCRIPT>
 <fileheader name="POL Script Types">
   <desc>This is a list of all the different script types used in the POL system. Some only pertain to specific objects, and/or specifc events, as described.</desc>
-  <datemodified>12/14/2019</datemodified>
+  <datemodified>07/13/2024</datemodified>
 </fileheader>
 
 
@@ -1195,7 +1195,7 @@ endfunction</example>
     <explain><code>OnCast:</code></explain>
     <explain>params: CharRef character, Int SpellID. When called: When char casts a spell (including macros) before all checks. Return: 0 if you wish POL to perform the checks and casting, 1 if you want to handle it fully scriptside.</explain>
     <explain><code>CanDecay:</code></explain>
-    <explain>params: ItemRef item. When called: When item should decay. Return: 0  core decay will ignore item and continue on the cycler, 1 core decay will handle the item as normal.</explain>
+    <explain>params: ItemRef item. When called: When item should decay. Return: 0  core decay will ignore item and continue on the cycler, 1 core decay will handle the item as normal, 2 skip all following checks (currently if decay on multis is allowed)</explain>
     <explain><code>Ouch:</code></explain>
     <explain>params: CharRef mobile, Int lastx, Int lasty, Int, lastz. When called: When mobiles falls at least 22 tiles.</explain>
     <explain><code>CanDie:</code></explain>
