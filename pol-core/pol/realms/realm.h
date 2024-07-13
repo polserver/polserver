@@ -73,8 +73,8 @@ public:
   unsigned short height() const;
   unsigned short grid_width() const;
   unsigned short grid_height() const;
-  Core::Range2d area() const;
-  Core::Range2d gridarea() const;
+  const Core::Range2d& area() const;
+  const Core::Range2d& gridarea() const;
 
   Core::Zone& getzone_grid( const Core::Pos2d& pos ) const;
   Core::Zone& getzone( const Core::Pos2d& p ) const;
@@ -262,11 +262,11 @@ inline unsigned short Realm::height() const
 {
   return _descriptor.height;
 }
-inline Core::Range2d Realm::area() const
+inline const Core::Range2d& Realm::area() const
 {
   return _area;
 }
-inline Core::Range2d Realm::gridarea() const
+inline const Core::Range2d& Realm::gridarea() const
 {
   return _gridarea;
 }
