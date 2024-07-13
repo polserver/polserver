@@ -4,6 +4,7 @@
  */
 
 #pragma once
+#include <atomic>
 
 #include "base/range.h"
 
@@ -36,7 +37,7 @@ private:
   void decay_worldzone();
   void calculate_sleeptime();
 
-  unsigned sleeptime = 0;
+  std::atomic<unsigned> sleeptime = 0;
   size_t realm_index = ~0lu;
   Range2d area;
   Range2dItr area_itr;
