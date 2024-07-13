@@ -4,15 +4,10 @@ use os;
 include "testutil";
 include "sysevent";
 
-program npc_ai()
-  return 1;
-endprogram
+var npc1, npc2;
 
-// Create two NPCs, where `npc1` hides, attacks `npc2`, waits 2 seconds, then unhides.
-// Check that both NPCs attack each other at game clock time `t`, where `t` is the clock time
-// where the NPC unhides.
-exported function attack_on_unhide()
-  var npc1 := CreateNPCFromTemplate( ":testattack:test_attack", 100, 100, 0 );
+program npc_ai()
+  npc1 := CreateNPCFromTemplate( ":testattack:test_attack", 100, 100, 0 );
 
   if ( !npc1 )
     return ret_error( "Could not create NPC: " + npc1 );
@@ -23,7 +18,7 @@ exported function attack_on_unhide()
   SetName( npc1, "npc1" );
   npc1.hidden := 1;
 
-  var npc2 := CreateNPCFromTemplate( ":testattack:test_attack", 101, 101, 0 );
+  npc2 := CreateNPCFromTemplate( ":testattack:test_attack", 101, 101, 0 );
 
   if ( !npc2 )
     return ret_error( "Could not create NPC: " + npc2 );
@@ -33,35 +28,111 @@ exported function attack_on_unhide()
   SetObjProperty( npc2, "#TestPid", GetPid() );
   SetName( npc2, "npc2" );
 
-  // Send an event to npc1 to attack npc2 + unhide.
-  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2 } );
+  return 1;
+endprogram
 
-  var initial_ev := wait_for_event( 5 );
-  if ( !initial_ev )
-    return ret_error( "No event for NPC BEFORE_UNHIDE" );
-  elseif ( initial_ev.type != "BEFORE_UNHIDE" )
-    return ret_error( "Unexpected first event type: expected 'BEFORE_UNHIDE', actual '{initial_ev.type}'" );
+// Tests that when an attacker unhides, it will attack opponent.
+// `npc1` hides, attacks `npc2`, waits 2 seconds, then unhides. Check that both
+// NPCs attack each other at game clock time `t`, where `t` is the clock time where
+// the NPC unhides.
+exported function attack_on_unhide_attacker()
+  var err, evs, t;
+
+  reset_npcs();
+
+  // Hide npc1
+  npc1.hidden := 1;
+
+  // Send an event to npc1 to attack npc2 + unhide.
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2, sleep := 2, unhide := true } );
+
+  var initial_evs := collect_events( 1, "No event for NPC BEFORE_UNHIDE" );
+  if ( !initial_evs )
+    return initial_evs;
+  elseif ( initial_evs[1].type != "BEFORE_UNHIDE" )
+    return ret_error( "Unexpected first event type: expected 'BEFORE_UNHIDE', actual '{initial_evs[1].type}'" );
   endif
 
-  // Collect the first two events
-  var evs := array{};
+  // Collect two attack events
+  if (!(evs := collect_events( 2 )))
+    return evs;
+  endif
 
-  while ( true )
-    var ev := wait_for_event( 5 );
-    if ( ev )
-      evs.append( ev );
-      if ( evs.size() >= 2 )
-        break;
-      endif
-      continue;
-    endif
+  // The attack should happen when npc1 unhid.
+  t := initial_evs[1].gameclock;
 
-    return ret_error( "No event from NPC script received." );
-  endwhile
+  if (!validate_events(err, evs, t))
+    return err;
+  endif
+
+  // NPC and corpse cleanup handled in cleanup.src
+
+  return 1;
+endfunction
+
+// Tests that when an defender unhides, its attacker will still attack.
+// `npc1` attacks `npc2`, `npc2` hides and clears opponent, waits 2 seconds, then unhides.
+// Check that both NPCs attack each other (since `npc2` did NOT clear opponent) at game
+// clock time `t`, where `t` is the clock time where the NPC unhides.
+exported function attack_on_unhide_defender()
+  var err, evs, t;
+
+  reset_npcs();
+
+  // npc1 attacks npc2
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2, sleep := 0, unhide := false } );
+
+  // Collect two attack events
+  if (!(evs := collect_events( 2 )))
+    return evs;
+  endif
+
+  // Both attacks should happen at the same time
+  t := evs[1].gameclock;
+
+  if (!validate_events(err, evs, t))
+    return err;
+  endif
+
+  // Hide npc2, clear its opponent, and sleep to reset npc1's swing timer.
+  npc2.hidden := 1;
+  npc2.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
+  Sleep(2);
+
+  // Unhide npc2. Since npc1 is still attacking, both should get a hit.
+  npc2.hidden := 0;
+
+  // Both attacks should happen at the same time, when npc2 unhid.
+  t := ReadGameClock();
+
+  // Collect two attack events
+  if (!(evs := collect_events( 2 )))
+    return evs;
+  endif
+
+  if (!validate_events(err, evs, t))
+    return err;
+  endif
+
+  // NPC and corpse cleanup handled in cleanup.src
+
+  return 1;
+endfunction
 
 
-  var t := initial_ev.gameclock;
+/**
+ * Helper functions
+ */
 
+// Send event to both npcs to clear opponent.
+function reset_npcs()
+  npc1.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
+  npc2.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
+  clear_event_queue();
+endfunction
+
+// Ensure gameclock and attacker-defender sequence of two events.
+function validate_events(byref err, byref evs, t)
   var failure :=
     ( evs[1].gameclock != t ) || // First hit did not happen on unhide.
     ( evs[2].gameclock != t ) || // Second hit did not happen on unhide.
@@ -69,10 +140,28 @@ exported function attack_on_unhide()
     ( evs[1].defender != evs[2].attacker ); // First hit defender is not second hit attacker
 
   if ( failure )
-    return ret_error( $"Unexpected attacker-defender sequence. Expected both hits at gameclock {t}, attacker[1] == defender[2], defender[1] == attacker[2].\n\nEvents: {PackJSON(evs, true)}" );
+    return err := ret_error( $"Unexpected attacker-defender sequence. Expected both hits at gameclock {t}, attacker[1] == defender[2], defender[1] == attacker[2].\n\nEvents: {PackJSON(evs, true)}" );
   endif
 
-  // NPC and corpse cleanup handled in cleanup.src
-
   return 1;
+endfunction
+
+// Collect a number of events
+function collect_events( count, errorMessage := "No event from NPC script received." )
+  var evs := array{};
+
+  while ( true )
+    var ev := wait_for_event( 5 );
+    if ( ev )
+      evs.append( ev );
+      if ( evs.size() >= count )
+        break;
+      endif
+      continue;
+    endif
+
+    return ret_error( errorMessage );
+  endwhile
+
+  return evs;
 endfunction

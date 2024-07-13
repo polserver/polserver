@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-11-2024</datemodified>
+		<datemodified>07-13-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-13-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">An attacking character will now attack immediately when their opponent unhides.</change>
+		</entry>
 		<entry>
 			<date>07-11-2024</date>
 			<author>Kevin:</author>

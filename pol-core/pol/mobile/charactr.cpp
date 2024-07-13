@@ -3689,7 +3689,7 @@ void Character::unhide()
 
     realm()->notify_unhid( *this );
 
-    if ( opponent_ != nullptr && !Clib::exit_signalled )
+    if ( !Clib::exit_signalled )
     {
       check_attack_after_move( true );
     }
