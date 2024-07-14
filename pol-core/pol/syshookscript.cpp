@@ -104,7 +104,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp
 
     uoexec.exec();
 
-    bool istrue = check_bool();
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -133,7 +133,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp
 
     uoexec.exec();
 
-    bool istrue = check_bool();
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -161,7 +161,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     uoexec.exec();
 
-    bool istrue = check_bool();
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -188,7 +188,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0 )
 
     uoexec.exec();
 
-    bool istrue = check_bool();
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -216,7 +216,7 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
 
     uoexec.exec();
 
-    std::string ret = check_string();
+    std::string ret = expect_string();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -245,7 +245,7 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
 
     uoexec.exec();
 
-    std::string ret = check_string();
+    std::string ret = expect_string();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -272,7 +272,7 @@ int ExportScript::call_long( unsigned PC, BObjectImp* p0 )
 
     uoexec.exec();
 
-    int ret = check_int();
+    int ret = expect_int();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -300,7 +300,7 @@ int ExportScript::call_long( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     uoexec.exec();
 
-    int ret = check_int();
+    int ret = expect_int();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -332,7 +332,7 @@ BObjectImp* ExportScript::call( unsigned PC, BObjectImp* p0, std::vector<BObject
 
     uoexec.exec();
 
-    BObjectImp* ret = check_imp();
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -363,7 +363,7 @@ BObject ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImpRefVec& pmore
     }
 
     uoexec.exec();
-    BObjectImp* ret = check_imp();
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -391,7 +391,7 @@ BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     uoexec.exec();
 
-    BObjectImp* ret = check_imp();
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -419,7 +419,7 @@ BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1, 
     uoexec.pushArg( p2 );
 
     uoexec.exec();
-    BObjectImp* ret = check_imp();
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -467,7 +467,7 @@ size_t ExportScript::estimateSize() const
   return sd.estimatedSize() + uoexec.sizeEstimate();
 }
 
-bool ExportScript::check_bool()
+bool ExportScript::expect_bool()
 {
   if ( uoexec.error() || uoexec.ValueStack.empty() )
     return false;
@@ -476,7 +476,7 @@ bool ExportScript::check_bool()
   return istrue;
 }
 
-int ExportScript::check_int()
+int ExportScript::expect_int()
 {
   if ( uoexec.error() || uoexec.ValueStack.empty() )
     return 0;
@@ -499,7 +499,7 @@ int ExportScript::check_int()
   return ret;
 }
 
-std::string ExportScript::check_string()
+std::string ExportScript::expect_string()
 {
   if ( uoexec.error() || uoexec.ValueStack.empty() )
     return "error";
@@ -508,7 +508,7 @@ std::string ExportScript::check_string()
   return ret;
 }
 
-BObjectImp* ExportScript::check_imp()
+BObjectImp* ExportScript::expect_imp()
 {
   if ( uoexec.error() )
     return new BError( "Error during execution" );

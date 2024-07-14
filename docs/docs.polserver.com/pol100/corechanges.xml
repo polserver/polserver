@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-13-2024</datemodified>
+		<datemodified>07-14-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-14-2024</date>
+			<author>Turley:</author>
+			<change type="Removed">pol.cfg SingleThreadDecay setting</change>
+			<change type="Changed">syshook CanDecay: returning 2 skips further core checks.<br/>
+Currently meaning that the item will decay even if inside of a multi and decayonmulti is false.<br/>
+Returning true/false or 1/0 still have the same meaning.</change>
+		</entry>
 		<entry>
 			<date>07-13-2024</date>
 			<author>Kevin:</author>
