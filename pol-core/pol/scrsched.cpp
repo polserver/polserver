@@ -290,6 +290,7 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* p
   ex.set_running_to_completion( true );
 
   Clib::scripts_thread_script = ex.scriptname();
+  Clib::scripts_thread_exec_wptr = ex.basic_weakptr;
 
   if ( Plib::systemstate.config.report_rtc_scripts )
     INFO_PRINT( "Script {} running..", ex.scriptname() );
@@ -359,6 +360,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   ex.set_running_to_completion( true );
 
   Clib::scripts_thread_script = ex.scriptname();
+  Clib::scripts_thread_exec_wptr = ex.basic_weakptr;
 
   int i = 0;
   bool reported = false;

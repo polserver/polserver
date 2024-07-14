@@ -34,6 +34,7 @@ bool passert_shutdown_due_to_assertion = false;
 
 std::string scripts_thread_script;
 unsigned scripts_thread_scriptPC;
+weak_ptr<Bscript::Executor> scripts_thread_exec_wptr( nullptr );
 
 #ifdef _WIN32
 void force_backtrace( bool /*complete*/ )

@@ -202,6 +202,7 @@ Executor::Executor()
       dbg_env_( nullptr ),
       func_result_( nullptr )
 {
+  basic_weakptr.set( this );
   Clib::SpinLockGuard lock( _executor_lock );
   ++executor_count;
   executor_instances.insert( this );
@@ -3339,6 +3340,7 @@ bool Executor::exec()
   passert( !error_ );
 
   Clib::scripts_thread_script = scriptname();
+  Clib::scripts_thread_exec_wptr = basic_weakptr;
 
   set_running_to_completion( true );
   while ( runnable() )

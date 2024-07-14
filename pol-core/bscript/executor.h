@@ -28,6 +28,7 @@
 
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "../clib/weakptr.h"
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
@@ -153,6 +154,10 @@ public:
   };
   DEBUG_LEVEL debug_level;
   unsigned PC;  // program counter
+
+  // TODO figure out how to not replicate this object across Executor and
+  // UOExecutor.
+  weak_ptr_owner<Executor> basic_weakptr;
 
   bool AttachFunctionalityModules();
 
