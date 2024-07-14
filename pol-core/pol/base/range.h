@@ -15,6 +15,7 @@ private:
   u16 _xstart;
 
 public:
+  Range2dItr() = default;
   Range2dItr( Pos2d v, const Pos2d& v_max );
 
   typedef Pos2d value_type;
@@ -28,6 +29,7 @@ public:
   bool operator!=( const Range2dItr& other ) const;
   // does someone really need itr++?
   Range2dItr& operator++();
+  Range2dItr& operator--();
 };
 
 class Range2d

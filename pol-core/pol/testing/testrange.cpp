@@ -94,7 +94,7 @@ void range2d_test()
         }
         return true;
       },
-      true, "itr" );
+      true, "++itr" );
 
   UnitTest( [&]() { return fmt::format( "{:->25}", Range2d( p1, p2, r ) ); },
             "--( ( 1, 2 ) - ( 3, 4 ) )", "format padding" );
@@ -112,6 +112,33 @@ void range2d_test()
         return r1.intersect( r2 );
       },
       true, "(2,2,2,2).intersect(3,3,5,5)" );
+
+  UnitTest(
+      [&]()
+      {
+        Range2d a( p1, p2, r );
+        std::vector<Pos2d> rangeres;
+        auto itr = a.end();
+        do
+          rangeres.push_back( *( --itr ) );
+        while ( itr != a.begin() );
+        std::vector<Pos2d> res{ { { 3, 4 },
+                                  { 2, 4 },
+                                  { 1, 4 },
+                                  { 3, 3 },
+                                  { 2, 3 },
+                                  { 1, 3 },
+                                  { 3, 2 },
+                                  { 2, 2 },
+                                  { 1, 2 } } };
+        if ( rangeres == res )
+          return true;
+        INFO_PRINTLN( "size: {} {}", rangeres.size(), res.size() );
+        for ( size_t i = 0; i < res.size(); ++i )
+          INFO_PRINTLN( "{} {}", res[i], rangeres[i] );
+        return false;
+      },
+      true, "--itr" );
 }
 
 void range3d_test()

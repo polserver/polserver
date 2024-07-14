@@ -65,7 +65,6 @@ public:
   explicit Realm( const std::string& realm_name, Realm* realm );
   ~Realm();
   bool is_shadowrealm;
-  unsigned int shadowid;
   Realm* baserealm;
   const std::string shadowname;
 

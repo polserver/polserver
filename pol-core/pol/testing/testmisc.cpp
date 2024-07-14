@@ -372,6 +372,5 @@ void test_curlfeatures()
   else
     UnitTest::inc_successes();
 }
-
 }  // namespace Testing
 }  // namespace Pol

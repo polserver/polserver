@@ -55,7 +55,7 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
       if ( args != exportedfunc->nargs )
       {
         INFO_PRINTLN( "Exported function {} in script {} takes {} parameters, expected {}", name,
-                     scriptname(), exportedfunc->nargs, args );
+                      scriptname(), exportedfunc->nargs, args );
         return false;
       }
       PC = exportedfunc->PC;
@@ -76,7 +76,7 @@ bool ExportScript::FindExportedFunction( const char* name, unsigned args, unsign
       if ( args != exportedfunc->nargs )
       {
         INFO_PRINTLN( "Exported function {} in script {} takes {} parameters, expected {}", name,
-                     scriptname(), exportedfunc->nargs, args );
+                      scriptname(), exportedfunc->nargs, args );
         return false;
       }
       PC = exportedfunc->PC;
@@ -85,7 +85,6 @@ bool ExportScript::FindExportedFunction( const char* name, unsigned args, unsign
   }
   return false;
 }
-
 
 bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2,
                          BObjectImp* p3 )
@@ -105,17 +104,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp
 
     uoexec.exec();
 
-    bool istrue;
-
-    if ( uoexec.error() )
-      istrue = false;
-    else if ( uoexec.ValueStack.empty() )
-      istrue = false;
-    else
-    {
-      istrue = uoexec.ValueStack.back().get()->isTrue();
-      uoexec.ValueStack.pop_back();
-    }
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -144,17 +133,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp
 
     uoexec.exec();
 
-    bool istrue;
-
-    if ( uoexec.error() )
-      istrue = false;
-    else if ( uoexec.ValueStack.empty() )
-      istrue = false;
-    else
-    {
-      istrue = uoexec.ValueStack.back().get()->isTrue();
-      uoexec.ValueStack.pop_back();
-    }
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -182,17 +161,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     uoexec.exec();
 
-    bool istrue;
-
-    if ( uoexec.error() )
-      istrue = false;
-    else if ( uoexec.ValueStack.empty() )
-      istrue = false;
-    else
-    {
-      istrue = uoexec.ValueStack.back().get()->isTrue();
-      uoexec.ValueStack.pop_back();
-    }
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -219,17 +188,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0 )
 
     uoexec.exec();
 
-    bool istrue;
-
-    if ( uoexec.error() )
-      istrue = false;
-    else if ( uoexec.ValueStack.empty() )
-      istrue = false;
-    else
-    {
-      istrue = uoexec.ValueStack.back().get()->isTrue();
-      uoexec.ValueStack.pop_back();
-    }
+    bool istrue = expect_bool();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -241,6 +200,7 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0 )
     return false;
   }
 }
+
 std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 {
   try
@@ -256,17 +216,7 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
 
     uoexec.exec();
 
-    std::string ret;
-
-    if ( uoexec.error() )
-      ret = "error";
-    else if ( uoexec.ValueStack.empty() )
-      ret = "error";
-    else
-    {
-      ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
-      uoexec.ValueStack.pop_back();
-    }
+    std::string ret = expect_string();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -295,17 +245,7 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
 
     uoexec.exec();
 
-    std::string ret;
-
-    if ( uoexec.error() )
-      ret = "error";
-    else if ( uoexec.ValueStack.empty() )
-      ret = "error";
-    else
-    {
-      ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
-      uoexec.ValueStack.pop_back();
-    }
+    std::string ret = expect_string();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -332,26 +272,7 @@ int ExportScript::call_long( unsigned PC, BObjectImp* p0 )
 
     uoexec.exec();
 
-    int ret;
-
-    if ( uoexec.error() )
-      ret = 0;
-    else if ( uoexec.ValueStack.empty() )
-      ret = 0;
-    else
-    {
-      BObjectImp* imp = uoexec.ValueStack.back().get()->impptr();
-      if ( imp->isa( BObjectImp::OTLong ) )
-      {
-        BLong* pLong = static_cast<BLong*>( imp );
-        ret = pLong->value();
-      }
-      else
-      {
-        ret = 0;
-      }
-      uoexec.ValueStack.pop_back();
-    }
+    int ret = expect_int();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -379,26 +300,7 @@ int ExportScript::call_long( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     uoexec.exec();
 
-    int ret;
-
-    if ( uoexec.error() )
-      ret = 0;
-    else if ( uoexec.ValueStack.empty() )
-      ret = 0;
-    else
-    {
-      BObjectImp* imp = uoexec.ValueStack.back().get()->impptr();
-      if ( imp->isa( BObjectImp::OTLong ) )
-      {
-        BLong* pLong = static_cast<BLong*>( imp );
-        ret = pLong->value();
-      }
-      else
-      {
-        ret = 0;
-      }
-      uoexec.ValueStack.pop_back();
-    }
+    int ret = expect_int();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -430,17 +332,7 @@ BObjectImp* ExportScript::call( unsigned PC, BObjectImp* p0, std::vector<BObject
 
     uoexec.exec();
 
-    BObjectImp* ret;
-
-    if ( uoexec.error() )
-      ret = new BError( "Error during execution" );
-    else if ( uoexec.ValueStack.empty() )
-      ret = new BError( "There was no return value??" );
-    else
-    {
-      ret = uoexec.ValueStack.back()->impptr()->copy();
-      uoexec.ValueStack.pop_back();
-    }
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -471,17 +363,7 @@ BObject ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImpRefVec& pmore
     }
 
     uoexec.exec();
-    BObjectImp* ret;
-
-    if ( uoexec.error() )
-      ret = new BError( "Error during execution" );
-    else if ( uoexec.ValueStack.empty() )
-      ret = new BError( "There was no return value??" );
-    else
-    {
-      ret = uoexec.ValueStack.back()->impptr()->copy();
-      uoexec.ValueStack.pop_back();
-    }
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -509,17 +391,7 @@ BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     uoexec.exec();
 
-    BObjectImp* ret;
-
-    if ( uoexec.error() )
-      ret = new BError( "Error during execution" );
-    else if ( uoexec.ValueStack.empty() )
-      ret = new BError( "There was no return value??" );
-    else
-    {
-      ret = uoexec.ValueStack.back()->impptr()->copy();
-      uoexec.ValueStack.pop_back();
-    }
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -547,17 +419,7 @@ BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1, 
     uoexec.pushArg( p2 );
 
     uoexec.exec();
-    BObjectImp* ret;
-
-    if ( uoexec.error() )
-      ret = new BError( "Error during execution" );
-    else if ( uoexec.ValueStack.empty() )
-      ret = new BError( "There was no return value??" );
-    else
-    {
-      ret = uoexec.ValueStack.back()->impptr()->copy();
-      uoexec.ValueStack.pop_back();
-    }
+    BObjectImp* ret = expect_imp();
 
     // delete current state and reenable backup
     LoadStack( backup );
@@ -603,6 +465,59 @@ void ExportScript::LoadStack( BackupStruct& backup )
 size_t ExportScript::estimateSize() const
 {
   return sd.estimatedSize() + uoexec.sizeEstimate();
+}
+
+bool ExportScript::expect_bool()
+{
+  if ( uoexec.error() || uoexec.ValueStack.empty() )
+    return false;
+  bool istrue = uoexec.ValueStack.back().get()->isTrue();
+  uoexec.ValueStack.pop_back();
+  return istrue;
+}
+
+int ExportScript::expect_int()
+{
+  if ( uoexec.error() || uoexec.ValueStack.empty() )
+    return 0;
+  int ret;
+  BObjectImp* imp = uoexec.ValueStack.back().get()->impptr();
+  if ( imp->isa( BObjectImp::OTLong ) )
+  {
+    BLong* pLong = static_cast<BLong*>( imp );
+    ret = pLong->value();
+  }
+  else if ( imp->isa( BObjectImp::OTBoolean ) )
+  {
+    ret = imp->isTrue() ? 1 : 0;
+  }
+  else
+  {
+    ret = 0;
+  }
+  uoexec.ValueStack.pop_back();
+  return ret;
+}
+
+std::string ExportScript::expect_string()
+{
+  if ( uoexec.error() || uoexec.ValueStack.empty() )
+    return "error";
+  auto ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
+  uoexec.ValueStack.pop_back();
+  return ret;
+}
+
+BObjectImp* ExportScript::expect_imp()
+{
+  if ( uoexec.error() )
+    return new BError( "Error during execution" );
+  else if ( uoexec.ValueStack.empty() )
+    return new BError( "There was no return value??" );
+
+  auto ret = uoexec.ValueStack.back()->impptr()->copy();
+  uoexec.ValueStack.pop_back();
+  return ret;
 }
 }  // namespace Core
 }  // namespace Pol

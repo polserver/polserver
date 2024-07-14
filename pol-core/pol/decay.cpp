@@ -31,9 +31,7 @@
 #include "uworld.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 ///
 /// [1] Item Decay Criteria
@@ -52,9 +50,10 @@ namespace Core
 ///     before destroying the container.
 ///
 
-void decay_worldzone( const Pos2d& pos, Realms::Realm* realm )
+void Decay::decay_worldzone()
 {
-  Zone& zone = realm->getzone_grid( pos );
+  auto* realm = gamestate.Realms[realm_index];
+  Zone& zone = realm->getzone_grid( *area_itr );
   gameclock_t now = read_gameclock();
   bool statistics = Plib::systemstate.config.thread_decay_statistics;
 
@@ -79,19 +78,25 @@ void decay_worldzone( const Pos2d& pos, Realms::Realm* realm )
     if ( item->should_decay( now ) )
     {
       // check the CanDecay syshook first if it returns 1 go over to other checks
+      bool skipchecks = false;
       if ( gamestate.system_hooks.can_decay )
       {
-        if ( !gamestate.system_hooks.can_decay->call( new Module::EItemRefObjImp( item ) ) )
+        auto res =
+            gamestate.system_hooks.can_decay->call_long( new Module::EItemRefObjImp( item ) );
+        if ( !res )
           continue;
+        if ( res == SKIP_FURTHER_CHECKS )
+          skipchecks = true;
       }
 
       const Items::ItemDesc& descriptor = item->itemdesc();
       Multi::UMulti* multi = realm->find_supporting_multi( item->pos3d() );
-
-      // some things don't decay on multis:
-      if ( multi != nullptr && !descriptor.decays_on_multis )
-        continue;
-
+      if ( !skipchecks )
+      {
+        // some things don't decay on multis:
+        if ( multi != nullptr && !descriptor.decays_on_multis )
+          continue;
+      }
       if ( statistics )
         stateManager.decay_statistics.temp_count_decayed++;
 
@@ -109,93 +114,73 @@ void decay_worldzone( const Pos2d& pos, Realms::Realm* realm )
   }
 }
 
-
-///
-/// [3] Decay Sweep
-///     Each 64x64 tile World Zone is checked for decay approximately
-///     once every 10 minutes
-///
-
-void decay_single_zone( Realms::Realm* realm, const Pos2d& gridsize, Pos2d& pos )
+// check if realm_index is still valid and if y is still in valid range
+bool Decay::should_switch_realm() const
 {
-  pos += Vec2d( 1, 0 );
-  if ( pos.x() >= gridsize.x() )
-  {
-    pos.x( 0 );
-    pos += Vec2d( 0, 1 );
-    if ( pos.y() >= gridsize.y() )
-      pos.y( 0 );
-  }
-  decay_worldzone( pos, realm );
-}
-
-void decay_thread( void* arg )  // Realm*
-{
-  Pos2d pos{ 0, 0 };
-  Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
-
-  const auto& gridsize = realm->gridarea().se();
-
-  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridsize.x() * gridsize.y() );
-  while ( !Clib::exit_signalled )
-  {
-    {
-      PolLock lck;
-      polclock_checkin();
-      decay_single_zone( realm, gridsize, pos );
-      restart_all_clients();
-    }
-    // sweep entire world every 10 minutes
-    // (60 * 10 * 1000) / (96 * 64) -> (600000 / 6144) -> 97 ms
-
-    pol_sleep_ms( sleeptime );
-  }
-}
-
-void decay_thread_shadow( void* arg )  // Realm*
-{
-  Pos2d pos{ 0, 0 };
-  unsigned id = static_cast<Realms::Realm*>( arg )->shadowid;
-
-  if ( gamestate.shadowrealms_by_id[id] == nullptr )
-    return;
-  const auto& gridsize = gamestate.shadowrealms_by_id[id]->gridarea().se();
-
-  unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridsize.x() * gridsize.y() );
-  while ( !Clib::exit_signalled )
-  {
-    {
-      PolLock lck;
-      polclock_checkin();
-      if ( gamestate.shadowrealms_by_id[id] == nullptr )  // is realm still there?
-        break;
-      decay_single_zone( gamestate.shadowrealms_by_id[id], gridsize, pos );
-      restart_all_clients();
-    }
-    // sweep entire world every 10 minutes
-    // (60 * 10 * 1000) / (96 * 64) -> (600000 / 6144) -> 97 ms
-
-    pol_sleep_ms( sleeptime );
-  }
-}
-
-bool should_switch_realm( size_t index, const Pos2d& pos, Core::Pos2d* gridsize )
-{
-  if ( index >= gamestate.Realms.size() )
+  if ( realm_index >= gamestate.Realms.size() )
     return true;
-  Realms::Realm* realm = gamestate.Realms[index];
-  if ( realm == nullptr )
+  if ( gamestate.Realms[realm_index] == nullptr )
     return true;
-
-  ( *gridsize ) = realm->gridarea().se();
-
-  // check if ++y would result in reset
-  if ( pos.y() + 1 >= gridsize->y() )
+  if ( area_itr == area.end() )
     return true;
   return false;
 }
 
-void decay_single_thread( void* /*arg*/ )
+void Decay::switch_realm()
+{
+  ++realm_index;
+  if ( realm_index >= gamestate.Realms.size() )
+  {
+    realm_index = 0;
+    if ( Plib::systemstate.config.thread_decay_statistics )
+    {
+      auto& stat = stateManager.decay_statistics;
+      stat.decayed.update( stat.temp_count_decayed );
+      stat.active_decay.update( stat.temp_count_active );
+      stat.temp_count_decayed = 0;
+      stat.temp_count_active = 0;
+      POLLOG_INFOLN(
+          "DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} mean "
+          "{} variance {} runs {}",
+          stat.decayed.max(), stat.decayed.mean(), stat.decayed.variance(), stat.decayed.count(),
+          stat.active_decay.max(), stat.active_decay.mean(), stat.active_decay.variance(),
+          stat.active_decay.count() );
+    }
+  }
+  area = gamestate.Realms[realm_index]->gridarea();
+  area_itr = area.begin();
+}
+
+void Decay::step()
+{
+  ++area_itr;
+  if ( should_switch_realm() )
+    switch_realm();
+  decay_worldzone();
+}
+
+
+void Decay::on_delete_realm( Realms::Realm* realm )
+{
+  if ( realm_index >= gamestate.Realms.size() )  // uninit state
+    return;
+  if ( realm != gamestate.Realms[realm_index] )
+    return;
+  if ( realm_index + 1 >= gamestate.Realms.size() )  // already at the end
+    return;
+  // since the first realms are not deletable its save to subtract one and go to the end
+  // due to the ++itr in step the realm will be switched
+  --realm_index;
+  area = gamestate.Realms[realm_index]->gridarea();
+  area_itr = --area.end();
+}
+
+void Decay::after_realms_size_changed()
+{
+  calculate_sleeptime();
+}
+
+void Decay::calculate_sleeptime()
 {
   // calculate total grid count, based on current realms
   unsigned total_grid_count = 0;
@@ -205,71 +190,34 @@ void decay_single_thread( void* /*arg*/ )
   }
   if ( !total_grid_count )
   {
+    sleeptime = 0;
     POLLOG_ERRORLN( "No realm grids?!" );
     return;
   }
   // sweep every realm ~10minutes -> 36ms for 6 realms
-  unsigned sleeptime = ( 60 * 10L * 1000 ) / total_grid_count;
-  sleeptime = std::min( std::max( sleeptime, 30u ), 500u );  // limit to 30ms-500ms
-  bool init = true;
-  size_t realm_index = ~0u;
-  Pos2d pos{ 0, 0 };
-  Pos2d gridsize = Pos2d( 0, 0 );
+  // limit to 30ms-500ms
+  sleeptime = std::clamp( ( 60u * 10u * 1000u ) / total_grid_count, 30u, 500u );
+}
+void Decay::decay_thread( void* /*arg*/ )
+{
+  auto& decay = gamestate.decay;
+  decay.calculate_sleeptime();
+  decay.threadloop();
+}
+
+void Decay::threadloop()
+{
   while ( !Clib::exit_signalled )
   {
+    if ( !sleeptime )
+      return;
     {
       PolLock lck;
       polclock_checkin();
-      // check if realm_index is still valid and if y is still in valid range
-      if ( should_switch_realm( realm_index, pos, &gridsize ) )
-      {
-        ++realm_index;
-        if ( realm_index >= gamestate.Realms.size() )
-        {
-          realm_index = 0;
-          if ( !init && Plib::systemstate.config.thread_decay_statistics )
-          {
-            stateManager.decay_statistics.decayed.update(
-                stateManager.decay_statistics.temp_count_decayed );
-            stateManager.decay_statistics.active_decay.update(
-                stateManager.decay_statistics.temp_count_active );
-            stateManager.decay_statistics.temp_count_decayed = 0;
-            stateManager.decay_statistics.temp_count_active = 0;
-            POLLOG_INFOLN(
-                "DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} mean "
-                "{} variance {} runs {}",
-                stateManager.decay_statistics.decayed.max(),
-                stateManager.decay_statistics.decayed.mean(),
-                stateManager.decay_statistics.decayed.variance(),
-                stateManager.decay_statistics.decayed.count(),
-                stateManager.decay_statistics.active_decay.max(),
-                stateManager.decay_statistics.active_decay.mean(),
-                stateManager.decay_statistics.active_decay.variance(),
-                stateManager.decay_statistics.active_decay.count() );
-          }
-          init = false;
-        }
-        pos.x( 0 ).y( 0 );
-      }
-      else
-      {
-        pos += Vec2d( 1, 0 );
-        if ( pos.x() >= gridsize.x() )
-        {
-          pos.x( 0 );
-          pos += Vec2d( 0, 1 );
-          if ( pos.y() >= gridsize.y() )
-          {
-            POLLOG_ERRORLN( "SHOULD NEVER HAPPEN" );
-            pos.y( 0 );
-          }
-        }
-      }
-      decay_worldzone( pos, gamestate.Realms[realm_index] );
+      step();
       restart_all_clients();
     }
     pol_sleep_ms( sleeptime );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

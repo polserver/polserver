@@ -390,6 +390,7 @@ set (pol_sources  # sorted !
   tasks.h
   testing/poltest.cpp
   testing/poltest.h
+  testing/testdecay.cpp
   testing/testdrop.cpp
   testing/testenv.cpp
   testing/testenv.h

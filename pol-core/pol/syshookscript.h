@@ -70,10 +70,15 @@ public:
   friend class SystemHook;
 
 private:
+  bool expect_bool();
+  int expect_int();
+  std::string expect_string();
+  Bscript::BObjectImp* expect_imp();
+
   ScriptDef sd;
   UOExecutor uoexec;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif
