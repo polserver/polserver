@@ -1,0 +1,57 @@
+include "error002-1";
+
+var __dirname := get_dirname();
+
+clean_and_print_stacktrace( sync_core_error() );
+
+clean_and_print_stacktrace( nested_error() );
+
+clean_and_print_stacktrace( error002_1() );
+
+function nested_error()
+  return nested_error_1();
+endfunction
+
+function nested_error_1()
+  return nested_error_2();
+endfunction
+
+function nested_error_2()
+  return error{ errortext := "Nested error" };
+endfunction
+
+function sync_core_error()
+  return Unpack( array{} );
+endfunction
+
+function clean_and_print_stacktrace( err )
+  var st := err.stacktrace();
+  var length := st.size();
+
+  while ( true )
+    st[__dirname] := "";
+
+    if ( st.size() == st[__dirname] )
+      break;
+    endif
+
+    length := st.size();
+  endwhile
+
+  print( st );
+endfunction
+
+function get_dirname()
+  var st := error{}.stacktrace();
+  var open := st.find( "(" );
+  var close := st.find( ":" );
+  var scriptname := st[open + 1, close - open - 1];
+  var parts := SplitWords( scriptname, "/" );
+  var delim := "/";
+  if ( parts.len() == 1 )
+    parts := SplitWords( scriptname, "\\" );
+    delim := "\\";
+  endif
+  parts := parts[1, parts.size() - 1];
+  return delim.join( parts ) + delim;
+endfunction

@@ -1,0 +1,12 @@
+Invalid parameter type
+    at sync_core_error (error002.src:24)
+    at <program> (error002.src:5)
+Nested error
+    at nested_error_2 (error002.src:20)
+    at nested_error_1 (error002.src:16)
+    at nested_error (error002.src:12)
+    at <program> (error002.src:7)
+Error in error002_2
+    at error002_2 (error002-2.inc:2)
+    at error002_1 (error002-1.inc:4)
+    at <program> (error002.src:9)
