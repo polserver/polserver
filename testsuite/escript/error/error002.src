@@ -44,11 +44,11 @@ endfunction
 function get_dirname()
   var st := error{}.stacktrace();
   var open := st.find( "(" );
-  var close := st.find( ":" );
+  var close := st.find( ")" );
   var scriptname := st[open + 1, close - open - 1];
   var parts := SplitWords( scriptname, "/" );
   var delim := "/";
-  if ( parts.len() == 1 )
+  if ( parts.size() == 1 )
     parts := SplitWords( scriptname, "\\" );
     delim := "\\";
   endif
