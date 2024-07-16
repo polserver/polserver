@@ -25,7 +25,7 @@ Bscript::BObjectImp* BasicIoExecutorModule::mf_Print()
   if ( !exec.getStringParam( 1, color ) )
     return new Bscript::BError( "Invalid parameter type" );
 
-  auto message = exec.getParamImp( 0 )->getStringRep();
+  const auto& message = exec.getParamImp( 0 )->getStringRep();
 
   if ( Plib::systemstate.config.enable_colored_output && color->length() )
   {
