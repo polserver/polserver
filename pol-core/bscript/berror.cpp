@@ -140,6 +140,43 @@ BObjectImp* BError::call_method_id( const int id, Executor& ex, bool )
   {
   case MTH_STACKTRACE:
   {
+    bool returnAsObject = false;
+
+    if ( ex.numParams() > 0 && !ex.getParam( 0, returnAsObject ) )
+    {
+      return new BError( "Invalid parameter type" );
+    }
+
+    if ( returnAsObject )
+    {
+      if ( script_->read_dbg_file() != 0 )
+      {
+        return UninitObject::create();
+      }
+
+      std::unique_ptr<ObjArray> arr( new ObjArray );
+
+      for ( const auto& PC : stack_ )
+      {
+        auto filename = script_->dbg_filenames[script_->dbg_filenum[PC]];
+        auto line = script_->dbg_linenum[PC];
+        auto dbgFunction =
+            std::find_if( script_->dbg_functions.begin(), script_->dbg_functions.end(),
+                          [&]( auto& i ) { return i.firstPC <= PC && PC <= i.lastPC; } );
+
+        std::string functionName =
+            dbgFunction != script_->dbg_functions.end() ? dbgFunction->name : "<program>";
+
+        std::unique_ptr<BStruct> entry( new BStruct );
+        entry->addMember( "file", new String( filename ) );
+        entry->addMember( "line", new BLong( line ) );
+        entry->addMember( "name", new String( functionName ) );
+        arr->addElement( entry.release() );
+      }
+
+      return arr.release();
+    }
+
     auto errortext = FindMember( "errortext" );
 
     std::string message = errortext == nullptr ? "Error" : errortext->getStringRep();
