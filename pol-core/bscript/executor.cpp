@@ -3462,6 +3462,16 @@ void Executor::detach_debugger()
   dbg_env_.reset();
   sethalt( false );
 }
+
+void Executor::print_to_debugger( const std::string& message )
+{
+  if ( dbg_env_ )
+  {
+    if ( std::shared_ptr<ExecutorDebugListener> listener = dbg_env_->listener.lock() )
+      listener->on_print( message );
+  }
+}
+
 void Executor::dbg_ins_trace()
 {
   if ( dbg_env_ )

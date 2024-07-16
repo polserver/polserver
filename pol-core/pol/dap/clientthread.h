@@ -42,6 +42,8 @@ public:
 
   void on_destroy() override;
 
+  void on_print( const std::string& output ) override;
+
 private:
   // Handlers
   dap::ConfigurationDoneResponse handle_configurationDone( const dap::ConfigurationDoneRequest& );

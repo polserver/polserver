@@ -24,15 +24,20 @@ Bscript::BObjectImp* BasicIoExecutorModule::mf_Print()
   const Bscript::String* color;
   if ( !exec.getStringParam( 1, color ) )
     return new Bscript::BError( "Invalid parameter type" );
+
+  auto message = exec.getParamImp( 0 )->getStringRep();
+
   if ( Plib::systemstate.config.enable_colored_output && color->length() )
   {
-    INFO_PRINTLN( "{}{}{}", color->value(), exec.getParamImp( 0 )->getStringRep(),
-                 Clib::Logging::CONSOLE_RESET_COLOR );
+    INFO_PRINTLN( "{}{}{}", color->value(), message, Clib::Logging::CONSOLE_RESET_COLOR );
   }
   else
   {
-    INFO_PRINTLN( exec.getParamImp( 0 )->getStringRep() );
+    INFO_PRINTLN( message );
   }
+
+  exec.print_to_debugger( message );
+
   return new Bscript::UninitObject;
 }
 }  // namespace Pol::Module
