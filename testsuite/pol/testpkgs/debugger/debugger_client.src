@@ -103,6 +103,17 @@ function run_launch_test()
         return err;
     endif
 
+    // Wait for event: output
+    var output;
+    if ( !( output := event_received( err, "output" ) ) )
+        return err;
+    endif
+
+    if ( output.category != "stdout" || output.output != "Loop finished!\n" )
+        return ret_error( $"Incorrect output event. Expected category='stdout', output='Loop finished!\\n', got category='{output.category}', output='{output.output}'" );
+    endif
+
+
     // Wait for event: exited
     if (!event_received(err, "exited"))
         return err;

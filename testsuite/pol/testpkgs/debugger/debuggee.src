@@ -18,6 +18,13 @@ program main(running)
         var shadowed_result := funcShadowed("funcShadowed:param1");
         Sleepms(1);
     dowhile (running && running != "stop");
+
+    // This only prints in the "launch" test, as the "attach" test never finishes the loop.
+    //
+    // [NB: The "launch" test kills this script once the test finishes, whereas the "launch"
+    // script waits for this script to exit.]
+
+    print( "Loop finished!" );
 endprogram
 
 function func1( func1_param1, func1_param2, func1_param3 )
