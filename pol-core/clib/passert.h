@@ -12,6 +12,7 @@
 #define CLIB_PASSERT_H
 
 #include "compilerspecifics.h"
+#include "weakptr.h"
 #include <string>
 
 #ifndef INC_PASSERT
@@ -27,6 +28,10 @@
 #endif
 namespace Pol
 {
+namespace Bscript
+{
+class Executor;
+}
 namespace Clib
 {
 // what to do on an assertion failure:

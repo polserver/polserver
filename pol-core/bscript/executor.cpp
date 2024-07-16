@@ -998,11 +998,19 @@ void Executor::execFunc( const Token& token )
     {
       BObject obj( resimp );
     }
+    if ( func_result_->isa( BObjectImp::OTError ) )
+    {
+      static_cast<BError*>( func_result_ )->attach_stack( this );
+    }
     ValueStack.push_back( BObjectRef( new BObject( func_result_ ) ) );
     func_result_ = nullptr;
   }
   else if ( resimp )
   {
+    if ( resimp->isa( BObjectImp::OTError ) )
+    {
+      static_cast<BError*>( resimp )->attach_stack( this );
+    }
     ValueStack.push_back( BObjectRef( new BObject( resimp ) ) );
   }
   else
@@ -2834,7 +2842,7 @@ void Executor::ins_string( const Instruction& ins )
 }
 void Executor::ins_error( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BError() ) ) );
+  ValueStack.push_back( BObjectRef( new BObject( new BError( this ) ) ) );
 }
 void Executor::ins_struct( const Instruction& /*ins*/ )
 {

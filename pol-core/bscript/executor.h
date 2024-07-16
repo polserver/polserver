@@ -28,6 +28,7 @@
 
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "../clib/weakptr.h"
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"

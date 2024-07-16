@@ -58,7 +58,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Insufficient memory" ) ) );
+            new BObject( new BError( "Insufficient memory", uoexec.get_weakptr() ) ) );
         uoexec.get_weakptr()->revive();
       }
     }
@@ -70,7 +70,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
+            new BObject( new BError( sql->getLastError(), uoexec.get_weakptr() ) ) );
         uoexec.get_weakptr()->revive();
       }
     }
@@ -116,7 +116,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Invalid parameters" ) ) );
+            new BObject( new BError( "Invalid parameters", uoexec.get_weakptr() ) ) );
         uoexec.get_weakptr()->revive();
       }
     }
@@ -128,7 +128,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sqlRef->getLastError() ) ) );
+            new BObject( new BError( sqlRef->getLastError(), uoexec.get_weakptr() ) ) );
         uoexec.get_weakptr()->revive();
       }
     }
@@ -190,7 +190,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Invalid parameters" ) ) );
+            new BObject( new BError( "Invalid parameters", uoexec.get_weakptr() ) ) );
         uoexec.get_weakptr()->revive();
       }
     }
@@ -202,7 +202,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sqlRef->getLastError() ) ) );
+            new BObject( new BError( sqlRef->getLastError(), uoexec.get_weakptr() ) ) );
         uoexec.get_weakptr()->revive();
       }
     }

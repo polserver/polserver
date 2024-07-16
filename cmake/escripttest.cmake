@@ -17,7 +17,7 @@ endif()
 # set(keepfailedformats TRUE)
 
 function (cleanup scriptname)
-  foreach (ext .ecl .tst .unformatted.src .formatted.src)
+  foreach (ext .ecl .tst .unformatted.src .formatted.src .dbg)
     if(EXISTS "${scriptname}${ext}")
       if ("${ext}" STREQUAL ".formatted.src" AND DEFINED keepfailedformats)
         continue()

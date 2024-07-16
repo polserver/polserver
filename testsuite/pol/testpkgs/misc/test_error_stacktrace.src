@@ -1,0 +1,26 @@
+use os;
+include "testutil";
+
+program test_httprequest()
+    return 1;
+endprogram
+
+exported function test_error_stacktrace()
+    var err := HTTPRequest( "http://127.0.0.1:0" );
+    var expected := error{}.stacktrace( true )[1];
+
+    if ( !err.errortext )
+        return ret_error( $"HTTPRequest succeeded unexpectedly: {err}" );
+    endif
+
+    var actual := err.stacktrace( true )[1];
+
+    expected.line -= 1; // subtract 1 since the HTTPRequest is a line above
+
+    if (!actual || !actual.line || !actual.file || !actual.name )
+        return ret_error( $"No stacktrace frame? Got {actual}" );
+    elseif ( actual.line != expected.line || actual.file != expected.file || actual.name != expected.name )
+        return ret_error( $"Expected {expected}, actual {actual}" );
+    endif
+    return 1;
+endfunction
