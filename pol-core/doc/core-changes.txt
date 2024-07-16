@@ -1,6 +1,7 @@
 -- POL100.2.0 --
 07-16-2024 Kevin:
     Added: When using the debugger, an attached script's `Print()` calls will now show in the Debug Console.
+           The log message includes the source location of the `Print()` call.
 07-14-2024 Turley:
   Removed: pol.cfg SingleThreadDecay setting
   Changed: syshook CanDecay: returning 2 skips further core checks.
