@@ -31,15 +31,17 @@ class BError final : public BStruct
 {
 public:
   typedef BStruct base;
-  BError();
-  explicit BError( const char* errortext );
-  explicit BError( const std::string& errortext );
+  BError( Bscript::Executor* exec = nullptr );
+  explicit BError( const char* errortext, Bscript::Executor* exec = nullptr );
+  explicit BError( const std::string& errortext, Bscript::Executor* exec = nullptr );
 
   static BObjectImp* unpack( std::istream& is );
 
   virtual size_t sizeEstimate() const override;
 
   static unsigned int creations();
+
+  void attach_stack( Bscript::Executor* exec );
 
 protected:
   BError( const BError& i );
@@ -63,7 +65,6 @@ protected:
 
 private:
   static unsigned int creations_;
-  void attach_stack();
   std::vector<unsigned int> stack_;
   ref_ptr<Bscript::EScriptProgram> script_;
 };

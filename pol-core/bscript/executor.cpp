@@ -202,7 +202,6 @@ Executor::Executor()
       dbg_env_( nullptr ),
       func_result_( nullptr )
 {
-  basic_weakptr.set( this );
   Clib::SpinLockGuard lock( _executor_lock );
   ++executor_count;
   executor_instances.insert( this );
@@ -999,11 +998,19 @@ void Executor::execFunc( const Token& token )
     {
       BObject obj( resimp );
     }
+    if ( func_result_->isa( BObjectImp::OTError ) )
+    {
+      static_cast<BError*>( func_result_ )->attach_stack( this );
+    }
     ValueStack.push_back( BObjectRef( new BObject( func_result_ ) ) );
     func_result_ = nullptr;
   }
   else if ( resimp )
   {
+    if ( resimp->isa( BObjectImp::OTError ) )
+    {
+      static_cast<BError*>( resimp )->attach_stack( this );
+    }
     ValueStack.push_back( BObjectRef( new BObject( resimp ) ) );
   }
   else
@@ -2835,7 +2842,7 @@ void Executor::ins_string( const Instruction& ins )
 }
 void Executor::ins_error( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BError() ) ) );
+  ValueStack.push_back( BObjectRef( new BObject( new BError( this ) ) ) );
 }
 void Executor::ins_struct( const Instruction& /*ins*/ )
 {
@@ -3340,7 +3347,6 @@ bool Executor::exec()
   passert( !error_ );
 
   Clib::scripts_thread_script = scriptname();
-  Clib::scripts_thread_exec_wptr = basic_weakptr;
 
   set_running_to_completion( true );
   while ( runnable() )

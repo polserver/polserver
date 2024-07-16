@@ -20,11 +20,10 @@ unsigned int BError::creations()
   return creations_;
 }
 
-BError::BError() : BStruct( OTError )
+BError::BError( Bscript::Executor* exec ) : BStruct( OTError )
 {
   ++creations_;
-  // TODO identify which constructors actually need this call.
-  attach_stack();
+  attach_stack( exec );
 }
 
 BError::BError( const BError& other ) : BStruct( other, OTError )
@@ -37,21 +36,20 @@ BError::BError( const BError& other ) : BStruct( other, OTError )
 BError::BError( std::istream& is, unsigned size ) : BStruct( is, size, OTError )
 {
   ++creations_;
-  attach_stack();
 }
 
-BError::BError( const char* err ) : BStruct( OTError )
+BError::BError( const char* err, Bscript::Executor* exec ) : BStruct( OTError )
 {
   ++creations_;
   addMember( "errortext", new String( err ) );
-  attach_stack();
+  attach_stack( exec );
 }
 
-BError::BError( const std::string& err ) : BStruct( OTError )
+BError::BError( const std::string& err, Bscript::Executor* exec ) : BStruct( OTError )
 {
   ++creations_;
   addMember( "errortext", new String( err ) );
-  attach_stack();
+  attach_stack( exec );
 }
 
 
@@ -179,14 +177,12 @@ BObjectImp* BError::call_method_id( const int id, Executor& ex, bool )
   }
 }
 
-void BError::attach_stack()
+void BError::attach_stack( Bscript::Executor* exec )
 {
-  if ( !Clib::scripts_thread_exec_wptr.exists() )
+  if ( !exec )
   {
     return;
   }
-
-  Executor* exec = Clib::scripts_thread_exec_wptr.get_weakptr();
 
   EScriptProgram* prog = const_cast<EScriptProgram*>( exec->prog() );
   script_.set( prog );

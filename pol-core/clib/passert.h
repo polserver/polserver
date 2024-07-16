@@ -43,7 +43,6 @@ extern bool passert_shutdown_due_to_assertion;
 
 extern std::string scripts_thread_script;
 extern unsigned scripts_thread_scriptPC;
-extern weak_ptr<Pol::Bscript::Executor> scripts_thread_exec_wptr;
 
 //#if !defined(INC_PASSERT) && defined(NDEBUG)
 //#define INC_PASSERT 0

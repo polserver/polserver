@@ -183,7 +183,6 @@ void ScriptScheduler::run_ready()
     runlist.pop_front();  // remove it directly, since itr can get invalid during execution
 
     Clib::scripts_thread_script = ex->scriptname();
-    Clib::scripts_thread_exec_wptr = ex->basic_weakptr;
 
     int inscount = 0;
     int totcount = 0;

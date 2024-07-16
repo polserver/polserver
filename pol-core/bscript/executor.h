@@ -155,10 +155,6 @@ public:
   DEBUG_LEVEL debug_level;
   unsigned PC;  // program counter
 
-  // TODO figure out how to not replicate this object across Executor and
-  // UOExecutor.
-  weak_ptr_owner<Executor> basic_weakptr;
-
   bool AttachFunctionalityModules();
 
 
