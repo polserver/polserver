@@ -632,8 +632,8 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               }
               if ( !success_open )
               {
-                uoexec_w.get_weakptr()->ValueStack.back().set(
-                    new BObject( new BError( "Error connecting to client" ) ) );
+                uoexec_w.get_weakptr()->ValueStack.back().set( new BObject(
+                    new BError( "Error connecting to client", uoexec_w.get_weakptr() ) ) );
                 uoexec_w.get_weakptr()->revive();
                 return;
               }
@@ -812,8 +812,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
                 /* Check for errors */
                 if ( res != CURLE_OK )
                 {
-                  uoexec_w.get_weakptr()->ValueStack.back().set(
-                      new BObject( new BError( curl_easy_strerror( res ) ) ) );
+                  uoexec_w.get_weakptr()->ValueStack.back().set( new BObject(
+                      new BError( curl_easy_strerror( res ), uoexec_w.get_weakptr() ) ) );
                 }
                 else
                 {
@@ -830,8 +830,9 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
                     }
                     else
                     {
-                      response->addMember( new String( "status" ),
-                                           new BError( curl_easy_strerror( res ) ) );
+                      response->addMember(
+                          new String( "status" ),
+                          new BError( curl_easy_strerror( res ), uoexec_w.get_weakptr() ) );
                     }
 
                     response->addMember( new String( "statusText" ),
