@@ -69,6 +69,21 @@ void DebugClientThread::on_print( const std::string& output )
   dap::OutputEvent event;
   event.category = "stdout";
   event.output = output + "\n";
+
+  // The `ExecutorDebugListener` methods are called from the script thread
+  // (which runs inside a PolLock), so no need to lock. Additionally, the
+  // `UOExecutor` should always exist, as these methods are all called within an
+  // `Executor` instance method, but check just in case. Not a real performance
+  // hit, since this is only called when printing with the debugger is attached.
+  if ( _uoexec_wptr.exists() )
+  {
+    UOExecutor* exec = _uoexec_wptr.get_weakptr();
+    dap::Source source;
+    source.path = _script->dbg_filenames[_script->dbg_filenum[exec->PC]];
+    event.source = source;
+    event.line = _script->dbg_linenum[exec->PC];
+  }
+
   _session->send( event );
 }
 
