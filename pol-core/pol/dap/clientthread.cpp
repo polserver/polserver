@@ -64,6 +64,14 @@ void DebugClientThread::on_destroy()
   _exit_sent = true;
 }
 
+void DebugClientThread::on_print( const std::string& output )
+{
+  dap::OutputEvent event;
+  event.category = "stdout";
+  event.output = output + "\n";
+  _session->send( event );
+}
+
 dap::ConfigurationDoneResponse DebugClientThread::handle_configurationDone(
     const dap::ConfigurationDoneRequest& )
 {

@@ -72,6 +72,7 @@ class ExecutorDebugListener
 public:
   virtual void on_halt(){};
   virtual void on_destroy(){};
+  virtual void on_print( const std::string& /*str*/ ){};
 };
 
 // FIXME: how to make this a nested struct in Executor?
@@ -417,6 +418,7 @@ public:
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
                         bool set_attaching = true );
   void detach_debugger();
+  void print_to_debugger( const std::string& message );
   std::string dbg_get_instruction( size_t atPC ) const;
   void dbg_get_instruction( size_t atPC, std::string& os ) const;
   void dbg_ins_trace();

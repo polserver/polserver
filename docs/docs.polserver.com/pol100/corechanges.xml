@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-14-2024</datemodified>
+		<datemodified>07-16-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-16-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">When using the debugger, an attached script's `Print()` calls will now show in the Debug Console.</change>
+		</entry>
 		<entry>
 			<date>07-14-2024</date>
 			<author>Turley:</author>
