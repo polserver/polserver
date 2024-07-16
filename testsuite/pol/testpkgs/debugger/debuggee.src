@@ -24,7 +24,7 @@ program main(running)
     // [NB: The "launch" test kills this script once the test finishes, whereas the "launch"
     // script waits for this script to exit.]
 
-    print( "Loop finished!" );
+    print( "Loop finished!" ); /*print*/
 endprogram
 
 function func1( func1_param1, func1_param2, func1_param3 )

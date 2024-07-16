@@ -46,6 +46,19 @@ program auxservice(conn, params)
 endprogram
 
 function run_launch_test()
+    // Get script source
+    var source := ReadFile( "debuggee.src" );
+    if (!source)
+        return ret_error(source);
+    endif
+
+    var print_linenum;
+    foreach line in source
+        if (line.find("/*print*/"))
+            print_linenum := _line_iter;
+        endif
+    endforeach
+
     var err;
 
     // Send request: initialize
@@ -109,10 +122,21 @@ function run_launch_test()
         return err;
     endif
 
-    if ( output.category != "stdout" || output.output != "Loop finished!\n" )
-        return ret_error( $"Incorrect output event. Expected category='stdout', output='Loop finished!\\n', got category='{output.category}', output='{output.output}'" );
-    endif
+    var expected := struct{
+        category := "stdout",
+        output := "Loop finished!\n",
+        line := print_linenum,
+        source := struct{
+            path := stackTrace.stackFrames[1].source.path
+        }
+    };
 
+    if ( output.category != expected.category ||
+        output.output != expected.output ||
+        output.line != expected.line ||
+        output.source.path != expected.source.path )
+            return ret_error( $"Incorrect output event. Expected: {expected}, actual {output}" );
+    endif
 
     // Wait for event: exited
     if (!event_received(err, "exited"))
