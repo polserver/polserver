@@ -1686,7 +1686,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       The ContinuationCallback receives three arguments:
 
       - `Executor&`
-      - `BContinuationImp* continuation`: The continuation, with methods to
+      - `BContinuation* continuation`: The continuation, with methods to
         handle the continuation (call the function again; finalize)
       - `BObjectRef result`: The result of the user function call specified in
         `makeContinuation`.
@@ -1697,7 +1697,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       */
       auto callback = [this, filteredObj = BObjectRef( new ObjArray ),
                        processedObj = BObjectRef( new BLong( 1 ) )](
-                          Executor& ex, BContinuationImp* continuation,
+                          Executor& ex, BContinuation* continuation,
                           BObjectRef result ) -> BObjectImp*
       {
         auto filtered = static_cast<ObjArray*>( filteredObj->impptr() );

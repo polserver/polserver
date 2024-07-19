@@ -8,22 +8,21 @@ namespace Pol
 namespace Bscript
 {
 class Executor;
-class BContinuationImp;
+class BContinuation;
 class BFunctionRef;
 
 struct ContinuationCallbackWrapper
 {
-  BObjectImp* ( *call )( Executor&, BContinuationImp*, void* /*wrapper data*/,
-                         BObjectRef /*result*/ );
+  BObjectImp* ( *call )( Executor&, BContinuation*, void* /*wrapper data*/, BObjectRef /*result*/ );
   void ( *free )( void* );
   size_t ( *size )();
 };
 
-class BContinuationImp : public BObjectImp
+class BContinuation : public BObjectImp
 {
 public:
-  BContinuationImp( BObjectRef funcref, ContinuationCallbackWrapper wrapper, void* wrapperData );
-  ~BContinuationImp();
+  BContinuation( BObjectRef funcref, ContinuationCallbackWrapper wrapper, void* wrapperData );
+  ~BContinuation();
 
   BObjectImp* continueWith( Executor& exec, BObjectRef result );
   BFunctionRef* func() { return static_cast<BFunctionRef*>( funcref_->impptr() ); }

@@ -8,7 +8,7 @@ struct CallbackData
 {
   CallbackData( Callback callback ) : callback( callback ) {}
 
-  static BObjectImp* call( Executor& exec, BContinuationImp* continuation, void* data,
+  static BObjectImp* call( Executor& exec, BContinuation* continuation, void* data,
                            BObjectRef result )
   {
     CallbackData* cbData = static_cast<CallbackData*>( data );
@@ -29,7 +29,7 @@ private:
   Callback callback;
 };
 
-// returns BError* or BContinuationImp*
+// returns BError* or BContinuation*
 template <typename Callback>
 BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args )
 {
@@ -59,7 +59,7 @@ BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, B
 
   CallbackData<Callback>* details = new CallbackData<Callback>( callback );
 
-  return new BContinuationImp(
+  return new BContinuation(
       std::move( funcref ),
       { CallbackData<Callback>::call, CallbackData<Callback>::free, CallbackData<Callback>::size },
       details );

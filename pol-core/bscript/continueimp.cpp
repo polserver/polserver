@@ -5,8 +5,8 @@ namespace Pol
 {
 namespace Bscript
 {
-BContinuationImp::BContinuationImp( BObjectRef funcref, ContinuationCallbackWrapper wrapper,
-                                    void* wrapperData )
+BContinuation::BContinuation( BObjectRef funcref, ContinuationCallbackWrapper wrapper,
+                              void* wrapperData )
     : BObjectImp( BObjectImp::OTContinuation ),
       funcref_( std::move( funcref ) ),
       wrapper_( wrapper ),
@@ -14,27 +14,27 @@ BContinuationImp::BContinuationImp( BObjectRef funcref, ContinuationCallbackWrap
 {
 }
 
-BContinuationImp::~BContinuationImp()
+BContinuation::~BContinuation()
 {
   wrapper_.free( wrapperData_ );
 }
 
-BObjectImp* BContinuationImp::continueWith( Executor& exec, BObjectRef result )
+BObjectImp* BContinuation::continueWith( Executor& exec, BObjectRef result )
 {
   return wrapper_.call( exec, this, wrapperData_, std::move( result ) );
 }
 
-BObjectImp* BContinuationImp::copy( void ) const
+BObjectImp* BContinuation::copy( void ) const
 {
   return nullptr;
 }
 
-size_t BContinuationImp::sizeEstimate() const
+size_t BContinuation::sizeEstimate() const
 {
-  return sizeof( BContinuationImp ) + wrapper_.size();
+  return sizeof( BContinuation ) + wrapper_.size();
 }
 
-std::string BContinuationImp::getStringRep() const
+std::string BContinuation::getStringRep() const
 {
   return "<continuation>";
 }

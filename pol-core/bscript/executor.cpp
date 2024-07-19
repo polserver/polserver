@@ -2575,7 +2575,7 @@ void Executor::ins_func( const Instruction& ins )
 
 void Executor::ins_call_method_id( const Instruction& ins )
 {
-  BContinuationImp* continuation = nullptr;
+  BContinuation* continuation = nullptr;
   unsigned nparams = ins.token.type;
 
   do
@@ -2613,7 +2613,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
 
     if ( imp && imp->isa( BObjectImp::OTContinuation ) )
     {
-      continuation = static_cast<BContinuationImp*>( imp );
+      continuation = static_cast<BContinuation*>( imp );
 
       cleanParams();
       nparams = continuation->numParams();
@@ -2749,7 +2749,7 @@ void Executor::ins_jsr_userfunc( const Instruction& ins )
   ins_jsr_userfunc( ins, nullptr );
 }
 
-void Executor::ins_jsr_userfunc( const Instruction& ins, BContinuationImp* continuation )
+void Executor::ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation )
 {
   ReturnContext rc;
   rc.PC = PC;
@@ -2859,7 +2859,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     auto result = ValueStack.back();
     ValueStack.pop_back();
 
-    auto* imp = static_cast<BContinuationImp*>( continuation->impptr() )
+    auto* imp = static_cast<BContinuation*>( continuation->impptr() )
                     ->continueWith( *this, std::move( result ) );
 
     // If the the continuation callback returned a continuation, handle the jump.
@@ -2867,7 +2867,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     {
       // Delete imp at end of scope.
       BObject bobj( imp );
-      auto continuation = static_cast<BContinuationImp*>( imp );
+      auto continuation = static_cast<BContinuation*>( imp );
 
       BObjectRef objref = ValueStack.back();
       auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
@@ -3758,7 +3758,7 @@ unsigned long Executor::GetTimeUs()
 }
 #endif
 #endif
-BContinuationImp* Executor::withContinuation( BContinuationImp* continuation, BObjectRefVec args )
+BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectRefVec args )
 {
   auto* func = continuation->func();
 

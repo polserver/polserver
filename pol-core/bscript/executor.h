@@ -47,7 +47,7 @@ void list_script( UOExecutor* uoexec );
 }  // namespace Core
 namespace Bscript
 {
-class BContinuationImp;
+class BContinuation;
 class BFunctionRef;
 class Executor;
 class ExecutorModule;
@@ -199,12 +199,12 @@ protected:
 public:
   // Creates a new continuation object, to call `funcref` with arguments `args`, and then call
   // `callback` with the return value.
-  // Returns `BContinuationImp*` on success, `BError*` on failure.
+  // Returns `BContinuation*` on success, `BError*` on failure.
   template <typename Callback>
   BObjectImp* makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args = {} );
 
   // Runs the continuation object with arguments `args`.
-  BContinuationImp* withContinuation( BContinuationImp* continuation, BObjectRefVec args = {} );
+  BContinuation* withContinuation( BContinuation* continuation, BObjectRefVec args = {} );
 
   int makeString( unsigned param );
   bool hasParams( unsigned howmany ) const { return ( fparams.size() >= howmany ); }
@@ -387,7 +387,7 @@ public:
   void ins_makelocal( const Instruction& ins );
   void ins_jsr_userfunc( const Instruction& ins );
   // takes ownership of `continuation`
-  void ins_jsr_userfunc( const Instruction& ins, BContinuationImp* continuation );
+  void ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation );
   void ins_pop_param( const Instruction& ins );
   void ins_pop_param_byref( const Instruction& ins );
   void ins_get_arg( const Instruction& ins );
