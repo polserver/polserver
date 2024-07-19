@@ -22,6 +22,7 @@
 #include "../clib/strutil.h"
 #include "berror.h"
 #include "config.h"
+#include "continueimp.h"
 #include "contiter.h"
 #include "dict.h"
 #include "eprog.h"
@@ -2574,63 +2575,85 @@ void Executor::ins_func( const Instruction& ins )
 
 void Executor::ins_call_method_id( const Instruction& ins )
 {
+  BContinuationImp* continuation = nullptr;
   unsigned nparams = ins.token.type;
-  getParams( nparams );
 
-  if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
+  do
   {
-    BObjectRef objref = ValueStack.back();
-    auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
-    Instruction jmp;
-    if ( funcr->validCall( ins.token.lval, *this, &jmp ) )
+    getParams( nparams );
+    if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
     {
-      // params need to be on the stack, without current objectref
-      ValueStack.pop_back();
-      for ( auto& p : fparams )
-        ValueStack.push_back( p );
-      // jump to function
-      ins_jsr_userfunc( jmp );
-      fparams.clear();
-      // switch to new block
-      ins_makelocal( jmp );
-      return;
+      BObjectRef objref = ValueStack.back();
+      auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+      Instruction jmp;
+      if ( funcr->validCall( continuation ? -1 : ins.token.lval, *this, &jmp ) )
+      {
+        // params need to be on the stack, without current objectref
+        ValueStack.pop_back();
+        for ( auto& p : fparams )
+          ValueStack.push_back( p );
+        // jump to function
+        ins_jsr_userfunc( jmp, continuation );
+        fparams.clear();
+        // switch to new block
+        ins_makelocal( jmp );
+        return;
+      }
     }
-  }
-  size_t stacksize = ValueStack.size();  // ValueStack can grow
+    size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
-  std::stringstream strm;
-  strm << "MTHID_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.lval;
-  if ( !fparams.empty() )
-    strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-  std::string name( strm.str() );
-  unsigned long profile_start = GetTimeUs();
+    std::stringstream strm;
+    strm << "MTHID_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.lval;
+    if ( !fparams.empty() )
+      strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
+    std::string name( strm.str() );
+    unsigned long profile_start = GetTimeUs();
 #endif
-  BObjectImp* imp = ValueStack.back()->impptr()->call_method_id( ins.token.lval, *this );
-#ifdef ESCRIPT_PROFILE
-  profile_escript( name, profile_start );
-#endif
-  BObjectRef& objref = ValueStack[stacksize - 1];
-  if ( func_result_ )
-  {
-    if ( imp )
+    BObjectImp* imp = ValueStack.back()->impptr()->call_method_id( ins.token.lval, *this );
+
+    if ( imp && imp->isa( BObjectImp::OTContinuation ) )
     {
-      BObject obj( imp );
+      continuation = static_cast<BContinuationImp*>( imp );
+
+      cleanParams();
+      nparams = continuation->numParams();
+
+      // Next on the stack is a `FuncRef` that we need to call. We will continue the loop and handle
+      // it.
+
+      // Prior to handling the `FuncRef` in the next loop, it will move from ValueStack to fparam.
+      // Then, having a `continuation` set while processing the `FuncRef`, will create the proper
+      // jumps.
+
+      continue;
     }
 
-    objref.set( new BObject( func_result_ ) );
-    func_result_ = nullptr;
-  }
-  else if ( imp )
-  {
-    objref.set( new BObject( imp ) );
-  }
-  else
-  {
-    objref.set( new BObject( UninitObject::create() ) );
-  }
+#ifdef ESCRIPT_PROFILE
+    profile_escript( name, profile_start );
+#endif
+    BObjectRef& objref = ValueStack[stacksize - 1];
+    if ( func_result_ )
+    {
+      if ( imp )
+      {
+        BObject obj( imp );
+      }
 
-  cleanParams();
-  return;
+      objref.set( new BObject( func_result_ ) );
+      func_result_ = nullptr;
+    }
+    else if ( imp )
+    {
+      objref.set( new BObject( imp ) );
+    }
+    else
+    {
+      objref.set( new BObject( UninitObject::create() ) );
+    }
+
+    cleanParams();
+    return;
+  } while ( true );
 }
 
 void Executor::ins_call_method( const Instruction& ins )
@@ -2723,9 +2746,18 @@ void Executor::ins_makelocal( const Instruction& /*ins*/ )
 // CTRL_JSR_USERFUNC:
 void Executor::ins_jsr_userfunc( const Instruction& ins )
 {
+  ins_jsr_userfunc( ins, nullptr );
+}
+
+void Executor::ins_jsr_userfunc( const Instruction& ins, BContinuationImp* continuation )
+{
   ReturnContext rc;
   rc.PC = PC;
   rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
+  if ( continuation )
+  {
+    rc.Continuation.set( new BObject( continuation ) );
+  }
   ControlStack.push_back( rc );
 
   PC = (unsigned)ins.token.lval;
@@ -2799,8 +2831,15 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     seterror( true );
     return;
   }
+  BObjectRef continuation;
   ReturnContext& rc = ControlStack.back();
   PC = rc.PC;
+
+  if ( rc.Continuation.get() != nullptr )
+  {
+    continuation = rc.Continuation;
+  }
+
   // FIXME do something with rc.ValueStackDepth
   ControlStack.pop_back();
 
@@ -2813,6 +2852,43 @@ void Executor::ins_return( const Instruction& /*ins*/ )
   {
     Locals2 = upperLocals2.back();
     upperLocals2.pop_back();
+  }
+
+  if ( continuation != nullptr )
+  {
+    auto result = ValueStack.back();
+    ValueStack.pop_back();
+
+    auto* imp = static_cast<BContinuationImp*>( continuation->impptr() )
+                    ->continueWith( *this, std::move( result ) );
+
+    // If the the continuation callback returned a continuation, handle the jump.
+    if ( imp && imp->isa( BObjectImp::OTContinuation ) )
+    {
+      // Delete imp at end of scope.
+      BObject bobj( imp );
+      auto continuation = static_cast<BContinuationImp*>( imp );
+
+      BObjectRef objref = ValueStack.back();
+      auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+      Instruction jmp;
+      if ( funcr->validCall( -1, *this, &jmp ) )
+      {
+        // params need to be on the stack, without current objectref
+        ValueStack.pop_back();
+        for ( auto& p : fparams )
+          ValueStack.push_back( p );
+        // jump to function
+        ins_jsr_userfunc( jmp, continuation );
+        fparams.clear();
+        // switch to new block
+        ins_makelocal( jmp );
+      }
+    }
+    else
+    {
+      ValueStack.push_back( BObjectRef( new BObject( imp ) ) );
+    }
   }
 }
 
@@ -3682,5 +3758,29 @@ unsigned long Executor::GetTimeUs()
 }
 #endif
 #endif
+BContinuationImp* Executor::withContinuation( BContinuationImp* continuation, BObjectRefVec args )
+{
+  auto* func = continuation->func();
+
+  // Add function reference to stack
+  ValueStack.push_back( BObjectRef( new BObject( func ) ) );
+
+  // Add function arguments to value stack. Add arguments if there are not enough.  Remove if
+  // there are too many
+  while ( func->numParams() > args.size() )
+  {
+    args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+  }
+
+  // Resize and erase the state in `args` since it was moved above.
+  args.resize( func->numParams() );
+
+  // Move all arguments to the value stack
+  fparams.insert( fparams.end(), std::make_move_iterator( args.begin() ),
+                  std::make_move_iterator( args.end() ) );
+  args.erase( args.begin(), args.end() );
+
+  return continuation;
+}
 }  // namespace Bscript
 }  // namespace Pol

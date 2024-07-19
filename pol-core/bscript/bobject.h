@@ -116,6 +116,7 @@ public:
     OTFuncRef = 39,
     OTExportScript = 40,
     OTStorageArea = 41,
+    OTContinuation = 42,
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -827,6 +828,7 @@ public:
   virtual size_t sizeEstimate() const override;
   bool validCall( const int id, Executor& ex, Instruction* inst ) const;
   bool validCall( const char* methodname, Executor& ex, Instruction* inst ) const;
+  size_t numParams() const;
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const override;

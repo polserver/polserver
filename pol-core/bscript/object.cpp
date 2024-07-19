@@ -23,8 +23,10 @@
 #include "berror.h"
 #include "bobject.h"
 #include "bstruct.h"
+#include "continueimp.h"
 #include "dict.h"
 #include "executor.h"
+#include "executor.inl.h"
 #include "impstr.h"
 #include "object.h"
 #include "objmembers.h"
@@ -1653,6 +1655,86 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         return new BError( "array.randomentry() doesn't take parameters." );
     }
     break;
+  case MTH_FILTER:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      // Some functions may allow optional arguments, so it is up to the caller
+      // of `withContinuation` to validate argument count. If not handled,
+      // arguments will be shrunk and expanded (with uninit) as needed.
+      auto func = static_cast<BFunctionRef*>( param0 );
+      if ( func->numParams() != 1 )
+        return new BError( "Invalid parameter type" );
+
+      // If nothing to filter, return an empty array, since nothing to call the function with.
+      if ( ref_arr.empty() )
+        return new ObjArray();
+
+      // Arguments for user function call.
+      // Add the first element of the array to the call args.
+      BObjectRefVec args;
+      args.push_back( ref_arr.front() );
+
+      /*
+      The ContinuationCallback receives three arguments:
+
+      - `Executor&`
+      - `BContinuationImp* continuation`: The continuation, with methods to
+        handle the continuation (call the function again; finalize)
+      - `BObjectRef result`: The result of the user function call specified in
+        `makeContinuation`.
+
+      Return the `BObjectImp`:
+      - Call the user function again by returning a continuation
+      - Return something else to provide that value back to the script.
+      */
+      auto callback = [this, filteredObj = BObjectRef( new ObjArray ),
+                       processedObj = BObjectRef( new BLong( 1 ) )](
+                          Executor& ex, BContinuationImp* continuation,
+                          BObjectRef result ) -> BObjectImp*
+      {
+        auto filtered = static_cast<ObjArray*>( filteredObj->impptr() );
+        auto processed = static_cast<BLong*>( processedObj->impptr() );
+
+        // Do something with result.
+        // If the result is true, add it to the filtered array.
+        if ( result->isTrue() )
+        {
+          filtered->ref_arr.push_back( ref_arr[processed->value() - 1] );
+        }
+
+        // If the processed index is the last element, return the filtered array.
+        if ( processed->value() >= static_cast<int>( ref_arr.size() ) )
+        {
+          return filtered;
+        }
+        // Otherwise, increment the processed index and call the function again.
+        else
+        {
+          // Increment the processed counter.
+          processed->increment();
+
+          BObjectRefVec args;
+          args.push_back( ref_arr[processed->value() - 1] );
+
+          // Return this continuation with the new arguments.
+          return ex.withContinuation( continuation, args );
+        }
+      };
+
+      // Create a new continuation for a user function call.
+      return ex.makeContinuation( BObjectRef( new BObject( func ) ), callback, args );
+
+      break;
+    }
+
   case MTH_CYCLE:
     if ( name_arr.empty() )
     {
@@ -1984,7 +2066,7 @@ BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )
 
 bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) const
 {
-  if ( id != MTH_CALL )
+  if ( id != -1 && id != MTH_CALL )
     return false;
   if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
     return false;
@@ -2001,6 +2083,11 @@ bool BFunctionRef::validCall( const char* methodname, Executor& ex, Instruction*
   if ( objmethod == nullptr )
     return false;
   return validCall( objmethod->id, ex, inst );
+}
+
+size_t BFunctionRef::numParams() const
+{
+  return num_params_;
 }
 
 BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )

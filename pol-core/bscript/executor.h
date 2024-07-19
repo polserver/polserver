@@ -8,7 +8,6 @@
 #ifndef __EXECUTOR_H
 #define __EXECUTOR_H
 
-
 #include "pol_global_config.h"
 
 #ifndef __EXECTYPE_H
@@ -28,10 +27,11 @@
 
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "berror.h"
 #include "bobject.h"
+#include "continueimp.h"
 #include "eprog.h"
 #include "executortype.h"
-
 
 #ifdef ESCRIPT_PROFILE
 #include <map>
@@ -47,6 +47,8 @@ void list_script( UOExecutor* uoexec );
 }  // namespace Core
 namespace Bscript
 {
+class BContinuationImp;
+class BFunctionRef;
 class Executor;
 class ExecutorModule;
 class ModuleFunction;
@@ -80,6 +82,7 @@ struct ReturnContext
 {
   unsigned PC;
   unsigned ValueStackDepth;
+  BObjectRef Continuation = BObjectRef();
 };
 
 struct BackupStruct
@@ -194,6 +197,15 @@ protected:
   void cleanParams();
 
 public:
+  // Creates a new continuation object, to call `funcref` with arguments `args`, and then call
+  // `callback` with the return value.
+  // Returns `BContinuationImp*` on success, `BError*` on failure.
+  template <typename Callback>
+  BObjectImp* makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args = {} );
+
+  // Runs the continuation object with arguments `args`.
+  BContinuationImp* withContinuation( BContinuationImp* continuation, BObjectRefVec args = {} );
+
   int makeString( unsigned param );
   bool hasParams( unsigned howmany ) const { return ( fparams.size() >= howmany ); }
   size_t numParams() const { return fparams.size(); }
@@ -374,6 +386,8 @@ public:
   void ins_progend( const Instruction& ins );
   void ins_makelocal( const Instruction& ins );
   void ins_jsr_userfunc( const Instruction& ins );
+  // takes ownership of `continuation`
+  void ins_jsr_userfunc( const Instruction& ins, BContinuationImp* continuation );
   void ins_pop_param( const Instruction& ins );
   void ins_pop_param_byref( const Instruction& ins );
   void ins_get_arg( const Instruction& ins );
