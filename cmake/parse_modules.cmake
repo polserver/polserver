@@ -11,6 +11,7 @@ set(MODMAP_datafile DataFileExecutorModule datastore 1)
 set(MODMAP_file FileAccessExecutorModule filemod 1)
 set(MODMAP_math MathExecutorModule mathmod 1)
 set(MODMAP_util UtilExecutorModule utilmod 1)
+set(MODMAP_sqlite SQLiteExecutorModule sqlitemod 1)
 
 # The remaining modules are PolModules, not usable by runecl and only within pol
 set(MODMAP_attributes AttributeExecutorModule attributemod 0)

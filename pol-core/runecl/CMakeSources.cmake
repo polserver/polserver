@@ -9,6 +9,7 @@ set (runecl_sources  # sorted !
   ../pol/module/datastore.cpp
   ../pol/module/filemod.cpp 
   ../pol/module/mathmod.cpp
+  ../pol/module/sqlitemod.cpp
   ../pol/module/utilmod.cpp 
   ../pol/proplist.cpp
   ../pol/xmlfilescrobj.cpp

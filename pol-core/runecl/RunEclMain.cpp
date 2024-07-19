@@ -32,6 +32,7 @@
 #include "../pol/module/datastore.h"
 #include "../pol/module/filemod.h"
 #include "../pol/module/mathmod.h"
+#include "../pol/module/sqlitemod.h"
 #include "../pol/module/utilmod.h"
 #include "../pol/polcfg.h"
 
@@ -85,6 +86,7 @@ void RunEclMain::dumpScript( std::string fileName )
   exe.addModule( new FileAccessExecutorModule( exe ) );
   exe.addModule( new ConfigFileExecutorModule( exe ) );
   exe.addModule( new DataFileExecutorModule( exe ) );
+  exe.addModule( new SQLiteExecutorModule( exe ) );
 
   ref_ptr<EScriptProgram> program( new EScriptProgram );
   program->read( fileName.c_str() );
@@ -115,6 +117,7 @@ int RunEclMain::runeclScript( std::string fileName )
   exe.addModule( new FileAccessExecutorModule( exe ) );
   exe.addModule( new ConfigFileExecutorModule( exe ) );
   exe.addModule( new DataFileExecutorModule( exe ) );
+  exe.addModule( new SQLiteExecutorModule( exe ) );
 
   ref_ptr<EScriptProgram> program( new EScriptProgram );
   if ( program->read( fileName.c_str() ) )

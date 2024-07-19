@@ -68,6 +68,7 @@ install(FILES
   scripts/party.em
   scripts/polsys.em
   scripts/sql.em
+  scripts/sqlite.em
   scripts/storage.em
   scripts/unicode.em
   scripts/uo.em

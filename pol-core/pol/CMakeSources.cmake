@@ -203,6 +203,8 @@ set (pol_sources  # sorted !
   module/partymod.h
   module/polsystemmod.cpp
   module/polsystemmod.h
+  module/sqlitemod.cpp
+  module/sqlitemod.h
   module/sqlmod.cpp
   module/sqlmod.h
   module/storagemod.cpp

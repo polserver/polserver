@@ -40,6 +40,7 @@
 #include "module/mathmod.h"
 #include "module/partymod.h"
 #include "module/polsystemmod.h"
+#include "module/sqlitemod.h"
 #include "module/sqlmod.h"
 #include "module/storagemod.h"
 #include "module/unimod.h"
@@ -277,6 +278,7 @@ void add_common_exmods( UOExecutor& ex )
   ex.addModule( new PartyExecutorModule( ex ) );
   ex.addModule( new SQLExecutorModule( ex ) );
   ex.addModule( CreateFileAccessExecutorModule( ex ) );
+  ex.addModule( new SQLiteExecutorModule( ex ) );
 }
 
 bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* prog )
