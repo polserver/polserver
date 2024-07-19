@@ -141,7 +141,7 @@ jobs:
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_ecompile_watch
       - name: Upload shard test log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log

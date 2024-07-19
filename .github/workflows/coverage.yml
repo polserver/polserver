@@ -126,12 +126,12 @@ jobs:
           genhtml --demangle-cpp pol-core.info -o coverage
           cmake -E tar c coverage.zip --format=zip coverage
       - name: Upload shard test log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Coveragelog
           path: bin-build/coverage.zip
