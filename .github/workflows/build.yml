@@ -69,6 +69,11 @@ jobs:
         with:
           path: lib/cppdap-2a4c7cf
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-2a4c7cf
+      - name: Cache SQLiteCpp
+        uses: actions/cache@v3
+        with:
+          path: lib/SQLiteCpp-3.3.1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-SQLiteCpp-3.3.1
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
