@@ -19,6 +19,8 @@ target_link_libraries(${ex_name} PUBLIC
   plib
   libtinyxml
   libpicojson
+  libsqlitecpp1
+  libsqlitecpp2
 )
 
 dist(${ex_name} scripts)

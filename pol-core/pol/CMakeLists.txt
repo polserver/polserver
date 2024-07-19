@@ -23,6 +23,8 @@ target_link_libraries(${ex_name} PUBLIC
   libz
   libpicojson
   libcurl
+  libsqlitecpp1
+  libsqlitecpp2
 )
 
 if(HAVE_MYSQL)

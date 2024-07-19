@@ -227,6 +227,7 @@ macro(cmake_fake_target)
       cmake/Kaitai.cmake
       cmake/PicoJson.cmake
       cmake/SQL.cmake
+      cmake/SQLiteCpp.cmake
       cmake/StackWalker.cmake
       cmake/TinyXML.cmake
       cmake/UTF8.cmake
@@ -252,6 +253,7 @@ macro(cmake_fake_target)
     cmake/Kaitai.cmake
     cmake/PicoJson.cmake
     cmake/SQL.cmake
+    cmake/SQLiteCpp.cmake
     cmake/StackWalker.cmake
     cmake/TinyXML.cmake
     cmake/UTF8.cmake
