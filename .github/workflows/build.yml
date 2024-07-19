@@ -44,28 +44,28 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - uses: seanmiddleditch/gha-setup-vsdevenv@v4
+      - uses: compnerd/gha-setup-vsdevenv@v6
       - name: Cache curl
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/curl-8.2.1
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1-2
       - name: Cache antlr
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.13.1
       - name: Cache boost
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/boost_1_83_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0-2
       - name: Cache cppdap
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/cppdap-2a4c7cf
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-2a4c7cf
@@ -167,7 +167,7 @@ jobs:
           #POLCORE_TEST_FILTER: testitems
       - name: Upload coretest folder
         if: matrix.config.nopch == 0 && always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Testdir-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/

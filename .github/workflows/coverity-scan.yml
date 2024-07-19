@@ -17,7 +17,7 @@ jobs:
             build-type: Release
     runs-on: ${{ matrix.config.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |
@@ -32,17 +32,17 @@ jobs:
           }
           sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install uuid-dev -y
-          
+
           $cmake_version = "3.16.2"
           $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
           wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
           tar -xf "$cmake_archive.tar.gz"
-          
+
           chmod +x "$cmake_archive/bin/cmake"
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin"  | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           # I'm to dumb to get coverity to work with non default compiler
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 800 --slave /usr/bin/g++ g++ /usr/bin/g++-11
-      
+
       - name: Download Coverity Build Tool
         run: |
           wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=polserver%2Fpolserver" -O cov-analysis-linux64.tar.gz
@@ -58,7 +58,7 @@ jobs:
       - name: Build 3rd party libs
         run: |
           cd bin-build
-          cmake .. -DNO_PCH=1 
+          cmake .. -DNO_PCH=1
           cmake --build . --target libcurl_ext
           cmake --build . --target libantlr_ext
           cmake --build . --target libboost_ext
