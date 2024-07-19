@@ -1667,7 +1667,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         return new BError( "Invalid parameter type" );
 
       // Some functions may allow optional arguments, so it is up to the caller
-      // of `withContinuation` to validate argument count. If not handled,
+      // of `makeContinuation` to validate argument count. If not handled,
       // arguments will be shrunk and expanded (with uninit) as needed.
       auto func = static_cast<BFunctionRef*>( param0 );
       if ( func->numParams() != 1 )
@@ -1731,9 +1731,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
 
       // Create a new continuation for a user function call.
       return ex.makeContinuation( BObjectRef( new BObject( func ) ), callback, args );
-
-      break;
     }
+    break;
 
   case MTH_CYCLE:
     if ( name_arr.empty() )

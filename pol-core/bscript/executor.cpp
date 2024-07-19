@@ -2576,7 +2576,7 @@ void Executor::ins_func( const Instruction& ins )
 void Executor::ins_call_method_id( const Instruction& ins )
 {
   BContinuation* continuation = nullptr;
-  unsigned nparams = ins.token.type;
+  size_t nparams = ins.token.type;
 
   do
   {
@@ -2867,7 +2867,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     {
       // Delete imp at end of scope.
       BObject bobj( imp );
-      auto continuation = static_cast<BContinuation*>( imp );
+      auto cont = static_cast<BContinuation*>( imp );
 
       BObjectRef objref = ValueStack.back();
       auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
@@ -2879,7 +2879,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
         for ( auto& p : fparams )
           ValueStack.push_back( p );
         // jump to function
-        ins_jsr_userfunc( jmp, continuation );
+        ins_jsr_userfunc( jmp, cont );
         fparams.clear();
         // switch to new block
         ins_makelocal( jmp );
