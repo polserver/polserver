@@ -11,7 +11,6 @@ set(MODMAP_datafile DataFileExecutorModule datastore 1)
 set(MODMAP_file FileAccessExecutorModule filemod 1)
 set(MODMAP_math MathExecutorModule mathmod 1)
 set(MODMAP_util UtilExecutorModule utilmod 1)
-set(MODMAP_sqlite SQLiteExecutorModule sqlitemod 1)
 
 # The remaining modules are PolModules, not usable by runecl and only within pol
 set(MODMAP_attributes AttributeExecutorModule attributemod 0)
@@ -28,6 +27,7 @@ set(MODMAP_storage StorageExecutorModule storagemod 0)
 set(MODMAP_unicode UnicodeExecutorModule unimod 0)
 set(MODMAP_uo UOExecutorModule uomod 0)
 set(MODMAP_vitals VitalExecutorModule vitalmod 0)
+set(MODMAP_sqlite SQLiteExecutorModule sqlitemod 0)
 
 if(NOT EM_FOLDER)
   message(FATAL_ERROR "No EM_FOLDER set")

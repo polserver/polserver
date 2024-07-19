@@ -14,7 +14,7 @@ using namespace Pol::Bscript;
 namespace Pol::Module
 {
 SQLiteExecutorModule::SQLiteExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<SQLiteExecutorModule, Bscript::ExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<SQLiteExecutorModule, Core::PolModule>( exec )
 {
 }
 

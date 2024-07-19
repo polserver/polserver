@@ -1,3 +1,0 @@
-use sqlite;
-
-print(Sqlite3_Test());

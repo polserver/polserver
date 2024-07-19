@@ -1,0 +1,15 @@
+use sqlite;
+
+include "testutil";
+
+program setup()
+  return 1;
+endprogram
+
+exported function test_sqlite3()
+  var res := Sqlite3_Test();
+  if ( res != 1 )
+    return ret_error( $"Unexpected value from Sqlite3_Test: expected 1, got {res}" );
+  endif
+  return 1;
+endfunction

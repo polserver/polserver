@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol::Bscript
 {
@@ -11,7 +11,7 @@ class Executor;
 namespace Pol::Module
 {
 class SQLiteExecutorModule
-    : public Bscript::TmplExecutorModule<SQLiteExecutorModule, Bscript::ExecutorModule>
+    : public Bscript::TmplExecutorModule<SQLiteExecutorModule, Core::PolModule>
 {
 public:
   [[nodiscard]] Bscript::BObjectImp* mf_Sqlite3_Test();
