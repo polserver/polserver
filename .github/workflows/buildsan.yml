@@ -9,19 +9,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - san: -DENABLE_TSAN=1
+          - san: TSAN
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
             build-type: RelWithDebInfo
             name: ThreadSanitizer
-          - san: -DENABLE_ASAN=1
+          - san: ASAN
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
             build-type: RelWithDebInfo
             name: AddressSanitizer
-          - san: -DENABLE_USAN=1
+          - san: USAN
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
@@ -106,7 +106,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} ${{ matrix.config.san }}
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -DENABLE_${{ matrix.config.san }}=1
       - name: Build
         run: |
           cd bin-build
@@ -143,7 +143,7 @@ jobs:
       - name: Upload shard test log
         uses: actions/upload-artifact@v4
         with:
-          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.san }}
           path: bin-build/coretest/log/pol.log
 
   notify_on_failure:
