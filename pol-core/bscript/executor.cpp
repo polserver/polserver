@@ -2576,7 +2576,7 @@ void Executor::ins_func( const Instruction& ins )
 void Executor::ins_call_method_id( const Instruction& ins )
 {
   BContinuation* continuation = nullptr;
-  size_t nparams = ins.token.type;
+  unsigned nparams = ins.token.type;
 
   do
   {
@@ -2616,7 +2616,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       continuation = static_cast<BContinuation*>( imp );
 
       cleanParams();
-      nparams = continuation->numParams();
+      nparams = static_cast<unsigned int>( continuation->numParams() );
 
       // Next on the stack is a `FuncRef` that we need to call. We will continue the loop and handle
       // it.
