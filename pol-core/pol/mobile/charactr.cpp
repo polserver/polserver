@@ -4009,7 +4009,7 @@ void Character::realm_changed()
     Core::send_map_difs( client );
     if ( Core::settingsManager.ssopt.core_sends_season )
       Core::send_season_info( client );
-    Core::send_short_statmsg( client, this );
+    Core::send_full_statmsg( client, this );
     Core::send_feature_enable( client );
   }
 }
