@@ -97,6 +97,9 @@ public:
       EscriptGrammar::EscriptParser::FunctionParametersContext* ctx ) override;
   antlrcpp::Any visitFunctionReference(
       EscriptGrammar::EscriptParser::FunctionReferenceContext* ctx ) override;
+  // TODO Update these when time permits
+  antlrcpp::Any visitFunctionExpression(
+      EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx ) override;
   antlrcpp::Any visitGotoStatement(
       EscriptGrammar::EscriptParser::GotoStatementContext* ctx ) override;
   // antlrcpp::Any visitIdentifierList(EscriptGrammar::EscriptParser::IdentifierListContext *ctx)

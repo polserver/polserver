@@ -235,6 +235,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitFunctionExpression(EscriptParser::FunctionExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) override {
     return visitChildren(ctx);
   }

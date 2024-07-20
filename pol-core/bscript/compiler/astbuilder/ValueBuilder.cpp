@@ -78,6 +78,13 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
   return function_reference;
 }
 
+std::unique_ptr<BooleanValue> ValueBuilder::function_expression(
+    EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
+{
+  auto loc = location_for( *ctx );
+  return std::make_unique<BooleanValue>( loc, true );
+}
+
 std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
     EscriptParser::IntegerLiteralContext* ctx )
 {

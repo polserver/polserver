@@ -1,0 +1,6 @@
+var foo, bar;
+// probably the most common case
+print(function (i, j, k) { return 1; });
+print(function {});
+print(function () { return 1; });
+print(function (i, byref j, k) { return 1; });

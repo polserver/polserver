@@ -26,6 +26,14 @@ public:
   std::unique_ptr<FunctionReference> function_reference(
       EscriptGrammar::EscriptParser::FunctionReferenceContext* );
 
+  // TODO Implement as...?
+  // - `Compiler::FunctionExpression`
+  // - `Compiler::Function`
+  // - `Compiler::Functor`
+
+  std::unique_ptr<BooleanValue> function_expression(
+      EscriptGrammar::EscriptParser::FunctionExpressionContext* );
+
   std::unique_ptr<IntegerValue> integer_value(
       EscriptGrammar::EscriptParser::IntegerLiteralContext* );
 

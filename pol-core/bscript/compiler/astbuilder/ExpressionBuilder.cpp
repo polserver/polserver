@@ -565,6 +565,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return function_reference( fr );
   }
+  else if ( auto fe = ctx->functionExpression() )
+  {
+    return function_expression( fe );
+  }
   else if ( auto error_init = ctx->explicitErrorInitializer() )
   {
     return error( error_init );
