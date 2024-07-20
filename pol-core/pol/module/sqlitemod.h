@@ -14,7 +14,7 @@ class SQLiteExecutorModule
     : public Bscript::TmplExecutorModule<SQLiteExecutorModule, Core::PolModule>
 {
 public:
-  [[nodiscard]] Bscript::BObjectImp* mf_Sqlite3_Test();
+  [[nodiscard]] Bscript::BObjectImp* mf_sqlite_open();
 
   SQLiteExecutorModule( Bscript::Executor& exec );
 };

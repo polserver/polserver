@@ -18,6 +18,8 @@
 #include "../sqlscrobj.h"
 #include "../uoexec.h"
 
+#include "sqlmod.inl.h"
+
 #include <module_defs/sql.h>
 
 namespace Pol
@@ -34,70 +36,6 @@ SQLExecutorModule::SQLExecutorModule( Bscript::Executor& exec )
 size_t SQLExecutorModule::sizeEstimate() const
 {
   return sizeof( *this );
-}
-
-#ifdef HAVE_MYSQL
-
-BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uoexec,
-                                                   const std::string host,
-                                                   const std::string username,
-                                                   const std::string password, int port )
-{
-  auto msg = [uoexec, host, username, password, port]()
-  {
-    std::unique_ptr<Core::BSQLConnection> sql;
-    {
-      Core::PolLock lck;
-      sql = std::unique_ptr<Core::BSQLConnection>( new Core::BSQLConnection() );
-    }
-    if ( sql->getLastErrNo() )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Insufficient memory" ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-    else if ( !sql->connect( host.data(), username.data(), password.data(), port ) )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-    else
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql.release() ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-  };
-
-  if ( !uoexec->suspend() )
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        uoexec->scriptname(), uoexec->PC );
-    return new Bscript::BError( "Script can't be blocked" );
-  }
-
-  Core::networkManager.sql_service->push( std::move( msg ) );
-  return new BLong( 0 );
 }
 
 Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoexec,
@@ -232,6 +170,8 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
   return new BLong( 0 );
 }
 
+#ifdef HAVE_MYSQL
+
 Bscript::BObjectImp* SQLExecutorModule::mf_mysql_connect()
 {
   const String* host = getStringParam( 0 );
@@ -242,8 +182,12 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_connect()
   {
     return new BError( "Invalid parameters" );
   }
-  return background_connect( uoexec().weakptr, host->getStringRep(), username->getStringRep(),
-                             password->getStringRep(), port );
+
+  auto connector = [host = host->getStringRep(), username = username->getStringRep(),
+                    password = password->getStringRep(), port]( Core::BSQLConnection* conn )
+  { return conn->connect( host.c_str(), username.c_str(), password.c_str(), port ); };
+
+  return background_connect<Core::BSQLConnection>( uoexec().weakptr, connector );
 }
 Bscript::BObjectImp* SQLExecutorModule::mf_mysql_select_db()
 {

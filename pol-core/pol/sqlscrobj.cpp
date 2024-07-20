@@ -12,6 +12,7 @@
 
 #include "../bscript/bobject.h"
 
+#include <SQLiteCpp/SQLiteCpp.h>
 
 #ifdef HAVE_MYSQL
 
@@ -20,6 +21,7 @@
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 #include "../clib/esignal.h"
+#include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/threadhelp.h"
 #include "globals/network.h"
@@ -214,8 +216,10 @@ Bscript::BObjectImp* BSQLConnection::getResultSet() const
   }
   return new BError( "Unknown error getting ResultSet" );
 }
-BSQLConnection::BSQLConnection()
-    : PolObjectImp( OTSQLConnection ), _conn( new ConnectionWrapper ), _errno( 0 )
+
+BSQLConnectionBase::BSQLConnectionBase() : PolObjectImp( OTSQLConnection ) {}
+
+BSQLConnection::BSQLConnection() : BSQLConnectionBase(), _conn( new ConnectionWrapper ), _errno( 0 )
 {
   _conn->set( mysql_init( nullptr ) );
   if ( !_conn->ptr() )
@@ -226,7 +230,7 @@ BSQLConnection::BSQLConnection()
 }
 
 BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn )
-    : PolObjectImp( OTSQLConnection ), _conn( conn ), _errno( 0 )
+    : BSQLConnectionBase(), _conn( conn ), _errno( 0 )
 {
 }
 
@@ -453,6 +457,98 @@ MYSQL_RES* ResultWrapper::ptr()
   return _result;
 }
 
+BSQLiteDatabase::BSQLiteDatabase() : BSQLConnectionBase() {}
+
+BSQLiteDatabase::~BSQLiteDatabase() {}
+
+template <typename Callback>
+bool BSQLiteDatabase::withErrorHandler( Callback callback )
+{
+  try
+  {
+    callback();
+    return true;
+  }
+  catch ( SQLite::Exception& e )
+  {
+    _error = e.what();
+    _errno = e.getErrorCode();
+    return false;
+  }
+  catch ( std::exception& e )
+  {
+    _error = e.what();
+    _errno = -1;
+    return false;
+  }
+  catch ( ... )
+  {
+    _error = "Unknown error";
+    _errno = -1;
+    return false;
+  }
+}
+
+bool BSQLiteDatabase::open( const std::string& filename )
+{
+  return withErrorHandler(
+      [&]()
+      {
+        {
+          // TODO persist db
+          SQLite::Database db( filename, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE );
+
+          db.exec( "DROP TABLE IF EXISTS test" );
+
+          // Begin transaction
+          SQLite::Transaction transaction( db );
+
+          db.exec( "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)" );
+
+          db.exec( "INSERT INTO test VALUES (NULL, \"test\")" );
+
+          transaction.commit();
+        }
+
+        Clib::RemoveFile( filename );
+      } );
+}
+
+bool BSQLiteDatabase::query( const std::string /*query*/ )
+{
+  return false;
+}
+
+bool BSQLiteDatabase::query( const std::string /*query*/, const QueryParams /*params*/ )
+{
+  return false;
+}
+
+bool BSQLiteDatabase::select_db( const char* /*db*/ )
+{
+  return false;
+}
+
+bool BSQLiteDatabase::close()
+{
+  return false;
+}
+
+std::string BSQLiteDatabase::getLastError() const
+{
+  return _error;
+}
+
+int BSQLiteDatabase::getLastErrNo() const
+{
+  // TODO
+  return 0;
+}
+
+Bscript::BObjectImp* BSQLiteDatabase::copy() const
+{
+  return new BSQLiteDatabase();
+}
 
 void sql_service_thread_stub()
 {

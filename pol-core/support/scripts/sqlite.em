@@ -2,4 +2,4 @@
 // SQLite related functions
 //
 
-Sqlite3_Test();
+sqlite_open( filename );

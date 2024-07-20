@@ -114,25 +114,46 @@ class SQLService;
 typedef std::vector<std::string> QueryParam;
 typedef std::shared_ptr<QueryParam> QueryParams;
 
-class BSQLConnection final : public Core::PolObjectImp
+class BSQLConnectionBase : public Core::PolObjectImp
+{
+public:
+  BSQLConnectionBase();
+  virtual ~BSQLConnectionBase() = default;
+
+  virtual bool query( const std::string query ) = 0;
+  virtual bool query( const std::string query, const QueryParams params ) = 0;
+  virtual bool select_db( const char* db ) = 0;
+  virtual bool close() = 0;
+
+  virtual std::string getLastError() const = 0;
+  virtual int getLastErrNo() const = 0;
+
+  virtual Bscript::BObjectImp* copy() const override = 0;
+  virtual std::string getStringRep() const override { return typeOf(); }
+  virtual size_t sizeEstimate() const override = 0;
+  virtual const char* typeOf() const override = 0;
+  virtual u8 typeOfInt() const override = 0;
+};
+
+class BSQLConnection final : public Core::BSQLConnectionBase
 {
   class ConnectionWrapper;
 
 public:
   BSQLConnection();
   BSQLConnection( std::shared_ptr<ConnectionWrapper> conn );
-  ~BSQLConnection();
+  virtual ~BSQLConnection() override;
   bool connect( const char* host, const char* user, const char* passwd, int port = 0 );
-  bool query( const std::string query );
-  bool query( const std::string query, const QueryParams params );
-  bool select_db( const char* db );
-  bool close();
+  virtual bool query( const std::string query ) override;
+  virtual bool query( const std::string query, const QueryParams params ) override;
+  virtual bool select_db( const char* db ) override;
+  virtual bool close() override;
   Bscript::BObjectImp* getResultSet() const;
 
   bool escape_string( const std::string& text, std::string* escaped ) const;
 
-  std::string getLastError() const;
-  int getLastErrNo() const;
+  virtual std::string getLastError() const override;
+  virtual int getLastErrNo() const override;
   std::shared_ptr<ConnectionWrapper> getConnection() const;
 
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
@@ -164,6 +185,34 @@ private:
   private:
     MYSQL* _conn;
   };
+};
+
+class BSQLiteDatabase final : public Core::BSQLConnectionBase
+{
+public:
+  BSQLiteDatabase();
+  virtual ~BSQLiteDatabase() override;
+
+  bool open( const std::string& filename );
+  virtual bool query( const std::string query ) override;
+  virtual bool query( const std::string query, const QueryParams params ) override;
+  virtual bool select_db( const char* db ) override;
+  virtual bool close() override;
+
+  virtual std::string getLastError() const override;
+  virtual int getLastErrNo() const override;
+
+  virtual Bscript::BObjectImp* copy() const override;
+  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
+  virtual const char* typeOf() const override { return "SQLiteDatabase"; }
+  virtual u8 typeOfInt() const override { return OTSQLiteDatabase; }
+
+private:
+  template <typename Callback>
+  bool withErrorHandler( Callback callback );
+
+  int _errno;
+  std::string _error;
 };
 
 class SQLService

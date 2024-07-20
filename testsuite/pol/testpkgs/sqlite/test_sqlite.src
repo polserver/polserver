@@ -6,10 +6,21 @@ program setup()
   return 1;
 endprogram
 
-exported function test_sqlite3()
-  var res := Sqlite3_Test();
-  if ( res != 1 )
-    return ret_error( $"Unexpected value from Sqlite3_Test: expected 1, got {res}" );
+exported function test_sqlite_success()
+  var res := sqlite_open( "transaction.db3" );
+  var actual := TypeOfInt( res );
+  if ( actual != OT_SQLITEDB )
+    return ret_error( $"Unexpected value from sqlite_open: expected OT_SQLITEDB ({OT_SQLITEDB}), got {actual}" );
+  endif
+  return 1;
+endfunction
+
+exported function test_sqlite_error()
+  // error{ errortext = "unable to open database file" }
+  var res := sqlite_open( "dir/does/not\\ exist/transaction.db3" );
+
+  if ( res != error )
+    return ret_error( $"Unexpected value from sqlite_open: expected error, got {res}" );
   endif
   return 1;
 endfunction

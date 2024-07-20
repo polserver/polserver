@@ -1,8 +1,12 @@
 #include "sqlitemod.h"
+
+#include "../sqlscrobj.h"
 #include "bscript/berror.h"
 #include "bscript/executor.h"
-#include "clib/fileutil.h"
+#include "bscript/impstr.h"
 #include "clib/logfacility.h"
+#include "sqlmod.h"
+#include "sqlmod.inl.h"
 
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <SQLiteCpp/VariadicBind.h>
@@ -18,34 +22,18 @@ SQLiteExecutorModule::SQLiteExecutorModule( Bscript::Executor& exec )
 {
 }
 
-BObjectImp* SQLiteExecutorModule::mf_Sqlite3_Test()
+BObjectImp* SQLiteExecutorModule::mf_sqlite_open()
 {
-  int nb = -1;
-
-  try
+  const String* filename = getStringParam( 0 );
+  if ( !filename )
   {
-    SQLite::Database db( "transaction.db3", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE );
-
-    db.exec( "DROP TABLE IF EXISTS test" );
-
-    // Begin transaction
-    SQLite::Transaction transaction( db );
-
-    db.exec( "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)" );
-
-    nb = db.exec( "INSERT INTO test VALUES (NULL, \"test\")" );
-
-    // Commit transaction
-    transaction.commit();
+    return new BError( "Invalid parameters" );
   }
-  catch ( std::exception& e )
-  {
-    return new BError( e.what() );
-  }
-  
-  // Delete file... for now :)
-  Clib::RemoveFile( "transaction.db3" );
-  
-  return new BLong( nb );
+
+  auto connector = [filename = filename->getStringRep()]( Core::BSQLiteDatabase* conn )
+  { return conn->open( filename ); };
+
+  return SQLExecutorModule::background_connect<Core::BSQLiteDatabase>( uoexec().weakptr,
+                                                                       connector );
 }
 }  // namespace Pol::Module

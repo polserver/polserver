@@ -32,8 +32,9 @@ namespace Pol
 {
 namespace Core
 {
-class BSQLConnection;
-}
+class BSQLConnectionBase;
+class BSQLConnection;  // To remove after all background functions migrated to BSQLConnectionBase
+}  // namespace Core
 namespace Module
 {
 class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule, Core::PolModule>
@@ -52,17 +53,16 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_mysql_field_name();
   [[nodiscard]] Bscript::BObjectImp* mf_mysql_escape_string();
 
+  virtual size_t sizeEstimate() const override;
+
+  template <typename SQLConnectionType, typename SQLConnectionConnector>
   static Bscript::BObjectImp* background_connect( weak_ptr<Core::UOExecutor> uoexec,
-                                                  const std::string host,
-                                                  const std::string username,
-                                                  const std::string password, int port );
+                                                  SQLConnectionConnector connector );
   static Bscript::BObjectImp* background_select( weak_ptr<Core::UOExecutor> uoexec,
                                                  Core::BSQLConnection* sql, const std::string db );
   static Bscript::BObjectImp* background_query( weak_ptr<Core::UOExecutor> uoexec,
                                                 Core::BSQLConnection* sql, const std::string query,
                                                 const Bscript::ObjArray* params );
-
-  virtual size_t sizeEstimate() const override;
 };
 }  // namespace Module
 }  // namespace Pol
