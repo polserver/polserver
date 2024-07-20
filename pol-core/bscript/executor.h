@@ -197,13 +197,29 @@ protected:
   void cleanParams();
 
 public:
-  // Creates a new continuation object, to call `funcref` with arguments `args`, and then call
-  // `callback` with the return value.
-  // Returns `BContinuation*` on success, `BError*` on failure.
+  // Creates a new continuation object to call `funcref` with arguments `args`,
+  // calling a core `callback` with the return value.
+  //
+  // Responsible for moving the arguments to the `ValueStack` stack,
+  // expanding/shrinking as needed. The executor, when seeing a `BContinuation`
+  // inside `ins_call_method_id`, will "translate" it to a `BFunctionRef` to
+  // call. The handling of `BFunctionRef`s _inside_ `ins_call_method_id`
+  // requires arguments to be on `ValueStack`.
+  //
+  // Since this runs inside `ins_call_method_id`, it can **only** be used in
+  // `<object>.<method>` calls. Extending where this is called will require
+  // changing implementation.
+  //
+  // Returns `BContinuation*` on success, `BError*` on failure (if provided
+  // funcref is not a BFunctionRef).
   template <typename Callback>
   BObjectImp* makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args = {} );
 
-  // Runs the continuation object with arguments `args`.
+  // Runs the existing continuation object with arguments `args`.
+  //
+  // Responsible for moving the arguments to the `fparams` stack. The handling
+  // of `BFunctionRef`s _outside_ `ins_call_method_id` requires arguments to be
+  // on `fparams` (as they are moved to `ValueStack` in `ins_call_method_id`).
   BContinuation* withContinuation( BContinuation* continuation, BObjectRefVec args = {} );
 
   int makeString( unsigned param );

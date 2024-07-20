@@ -2600,6 +2600,11 @@ void Executor::ins_call_method_id( const Instruction& ins )
         return;
       }
     }
+    // If there _was_ a continuation to be handled (from previous loop
+    // iteration), there must have been a FuncRef on the stack. Otherwise,
+    // `continuation` may leak.
+    passert_always( continuation == nullptr );
+
     size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
     std::stringstream strm;
@@ -2653,7 +2658,10 @@ void Executor::ins_call_method_id( const Instruction& ins )
 
     cleanParams();
     return;
-  } while ( true );
+  }
+  // This condition should only ever evaluate to `true` once. In the second loop
+  // iteration, handling the FuncRef will return out of this method.
+  while ( continuation != nullptr );
 }
 
 void Executor::ins_call_method( const Instruction& ins )
@@ -2865,8 +2873,8 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     // If the the continuation callback returned a continuation, handle the jump.
     if ( imp && imp->isa( BObjectImp::OTContinuation ) )
     {
-      // Delete imp at end of scope.
-      BObject bobj( imp );
+      // Do not delete imp, as the ReturnContext created in `ins_jsr_userfunc`
+      // takes ownership.
       auto cont = static_cast<BContinuation*>( imp );
 
       BObjectRef objref = ValueStack.back();
@@ -2883,6 +2891,11 @@ void Executor::ins_return( const Instruction& /*ins*/ )
         fparams.clear();
         // switch to new block
         ins_makelocal( jmp );
+      }
+      else
+      {
+        // Delete `imp` since a ReturnContext was not created.
+        BObject bobj( imp );
       }
     }
     else
@@ -3775,7 +3788,7 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
   // Resize and erase the state in `args` since it was moved above.
   args.resize( func->numParams() );
 
-  // Move all arguments to the value stack
+  // Move all arguments to the fparams stack
   fparams.insert( fparams.end(), std::make_move_iterator( args.begin() ),
                   std::make_move_iterator( args.end() ) );
   args.erase( args.begin(), args.end() );

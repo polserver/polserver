@@ -1691,9 +1691,11 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       - `BObjectRef result`: The result of the user function call specified in
         `makeContinuation`.
 
-      Return the `BObjectImp`:
-      - Call the user function again by returning a continuation
-      - Return something else to provide that value back to the script.
+      Returns a `BObjectImp`:
+      - Call the user function again by returning the same continuation via
+        `ex.withContinuation`.
+      - Return something else (in this case, the filtered array) to provide that
+        value back to the script.
       */
       auto callback = [this, filteredObj = BObjectRef( new ObjArray ),
                        processedObj = BObjectRef( new BLong( 1 ) )](
