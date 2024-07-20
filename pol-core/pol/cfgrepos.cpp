@@ -30,6 +30,7 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
@@ -98,13 +99,11 @@ StoredConfigElem::equal_range( const std::string& propname ) const
 
 size_t StoredConfigElem::estimateSize() const
 {
-  size_t size = 0;
+  size_t size = Clib::memsize( propimps_ );
   for ( const auto& pair : propimps_ )
   {
-    size_t elemsize = sizeof( ref_ptr<Bscript::BObjectImp> );
     if ( pair.second.get() != nullptr )
-      elemsize = pair.second->sizeEstimate();
-    size += ( sizeof( pair.first ) + elemsize ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+      size += pair.second->sizeEstimate();
   }
   return size;
 }
@@ -240,12 +239,11 @@ size_t StoredConfigFile::estimateSize() const
   {
     size_t elemsize = sizeof( ElemRef );
     if ( pair.second.get() != nullptr )
-      elemsize = pair.second->estimateSize();
+      elemsize += pair.second->estimateSize();
     size += ( pair.first.capacity() + elemsize ) + ( sizeof( void* ) * 3 + 1 ) / 2;
   }
   // both maps share the same ref
-  size += ( ( sizeof( int ) + sizeof( ElemRef ) ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-          elements_bynum_.size();
+  size += Clib::memsize( elements_bynum_ );
   return size;
 }
 
@@ -370,7 +368,7 @@ void ConfigFiles_log_stuff()
               Core::configurationbuffer.oldcfgfiles.size() );
 
   LEAKLOG( "{};{};", Core::configurationbuffer.cfgfiles.size(),
-              Core::configurationbuffer.oldcfgfiles.size() );
+           Core::configurationbuffer.oldcfgfiles.size() );
 }
 #endif
 }  // namespace Core

@@ -275,15 +275,15 @@ public:
 protected:
   Core::UOExecutor* uoexec_control();
 
-  unsigned int decayat_gameclock_;
-  u16 amount_;
-  u8 slot_index_;
-
   boost_utils::script_name_flystring on_use_script_;
   boost_utils::script_name_flystring equip_script_;
   boost_utils::script_name_flystring unequip_script_;
   boost_utils::script_name_flystring snoop_script_;
   mutable const ItemDesc* _itemdesc;
+
+  unsigned int decayat_gameclock_;
+  u16 amount_;
+  u8 slot_index_;
 
 public:
   u8 layer;

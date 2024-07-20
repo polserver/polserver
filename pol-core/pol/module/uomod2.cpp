@@ -2801,7 +2801,7 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     old->uoexec().revive();
 
     old = nullptr;
-    chr->on_popup_menu_selection = nullptr;
+    chr->client->gd->on_popup_menu_selection = nullptr;
   }
 
   // Suspend the script first
@@ -2816,7 +2816,7 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   }
 
   // Prepare to restart the script once the response arrives
-  chr->on_popup_menu_selection = popup_menu_selection_made;
+  chr->client->gd->on_popup_menu_selection = popup_menu_selection_made;
   chr->client->gd->popup_menu_selection_uoemod = this;
   popup_menu_selection_chr = chr;
   popup_menu_selection_above = above;

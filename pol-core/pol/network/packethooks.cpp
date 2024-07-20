@@ -29,6 +29,7 @@
 #include "../../clib/logfacility.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../plib/pkg.h"
 #include "../globals/network.h"
@@ -481,9 +482,9 @@ void PacketHookData::initializeGameData( std::vector<std::unique_ptr<PacketHookD
 size_t PacketHookData::estimateSize() const
 {
   size_t size = sizeof( PacketHookData ) + 2 * sizeof( Core::ExportedFunction );
+  size += Clib::memsize( SubCommands );
   for ( const auto& subs : SubCommands )
   {
-    size += ( sizeof( u32 ) + sizeof( PacketHookData* ) + ( sizeof( void* ) * 3 + 1 ) / 2 );
     if ( subs.second != nullptr )
       size += subs.second->estimateSize();
   }

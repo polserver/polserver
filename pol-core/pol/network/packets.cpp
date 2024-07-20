@@ -12,6 +12,7 @@
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/spinlock.h"
+#include "../../clib/stlutil.h"
 #include "packethelper.h"
 #include "packetinterface.h"
 #include "pktboth.h"
@@ -154,10 +155,9 @@ void PacketsSingleton::ReAddPacket( PacketInterface* pkt )
 
 size_t PacketsSingleton::estimateSize() const
 {
-  size_t size = sizeof( PacketsSingleton );
+  size_t size = sizeof( PacketsSingleton ) + Clib::memsize( packets );
   for ( const auto& pkts : packets )
   {
-    size += sizeof( pkts.first ) + ( sizeof( void* ) * 3 + 1 ) / 2;
     size += pkts.second->estimateSize();
   }
   return size;
@@ -288,10 +288,9 @@ size_t PacketQueueSubs::Count() const
 size_t PacketQueueSubs::estimateSize() const
 {
   Clib::SpinLockGuard lock( _lock );
-  size_t size = sizeof( PacketQueueSubs );
+  size_t size = sizeof( PacketQueueSubs ) + Clib::memsize( _packets );
   for ( const auto& pkts : _packets )
   {
-    size += sizeof( pkts.first ) + ( sizeof( void* ) * 3 + 1 ) / 2;
     if ( pkts.second.size() )
       size += pkts.second.front()->estimateSize() * pkts.second.size();
   }

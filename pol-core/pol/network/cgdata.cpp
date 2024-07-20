@@ -9,15 +9,19 @@
 
 #include <cstddef>
 
+#include "../../clib/stlutil.h"
 #include "../containr.h"
 #include "../fnsearch.h"
+#include "../menu.h"
 #include "../mobile/npc.h"
 #include "../module/unimod.h"
 #include "../module/uomod.h"
 #include "../multi/customhouses.h"
 #include "../multi/house.h"
 #include "../multi/multi.h"
+#include "../target.h"
 #include "../uoexec.h"
+#include "pktin.h"
 
 namespace Pol
 {
@@ -35,10 +39,14 @@ ClientGameData::ClientGameData()
       selcolor_uoemod( nullptr ),
       prompt_uniemod( nullptr ),
       justice_region( nullptr ),
-      lightlevel( 0 ),
       // light_region(nullptr),
       music_region( nullptr ),
       weather_region( nullptr ),
+      tcursor2( nullptr ),
+      menu( nullptr ),
+      on_menu_selection( nullptr ),
+      on_popup_menu_selection( nullptr ),
+      lightlevel( 0 ),
       custom_house_serial( 0 ),
       custom_house_chrserial( 0 ),
       update_range( Plib::RANGE_VISUAL )
@@ -162,8 +170,7 @@ void ClientGameData::remove_gumpmods( Module::UOExecutorModule* uoemod )
 size_t ClientGameData::estimatedSize() const
 {
   size_t size = sizeof( ClientGameData );
-  size += 3 * sizeof( void* ) +
-          gumpmods.size() * ( sizeof( Module::UOExecutorModule* ) + 3 * sizeof( void* ) );
+  size += Clib::memsize( gumpmods );
   return size;
 }
 }  // namespace Network

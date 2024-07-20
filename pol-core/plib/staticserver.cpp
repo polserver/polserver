@@ -12,6 +12,7 @@
 #include "../clib/binaryfile.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
 #include "staticblock.h"
@@ -134,10 +135,8 @@ void StaticServer::getstatics( StaticEntryList& statics, unsigned short x, unsig
 
 size_t StaticServer::sizeEstimate() const
 {
-  size_t size = sizeof( *this ) + _descriptor.sizeEstimate();
-  size += 3 * sizeof( STATIC_INDEX* ) + _index.capacity() * sizeof( STATIC_INDEX );
-  size += 3 * sizeof( STATIC_ENTRY* ) + _statics.capacity() * sizeof( STATIC_ENTRY );
-  return size;
+  return sizeof( *this ) + _descriptor.sizeEstimate() + Clib::memsize( _index ) +
+         Clib::memsize( _statics );
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

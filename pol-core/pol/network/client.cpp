@@ -27,6 +27,7 @@
 #include "../../bscript/impstr.h"
 #include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"  //CNXBUG
 #include "../../clib/wallclock.h"
 #include "../accounts/account.h"
@@ -110,9 +111,9 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
     auto ipaddrv4 = reinterpret_cast<sockaddr_in*>( &ipaddr );
     auto my_address =
 #ifdef _WIN32
-        boost::asio::ip::address_v4( htonl(ipaddrv4->sin_addr.S_un.S_addr ) );
+        boost::asio::ip::address_v4( htonl( ipaddrv4->sin_addr.S_un.S_addr ) );
 #else
-        boost::asio::ip::address_v4( htonl(ipaddrv4->sin_addr.s_addr ) );
+        boost::asio::ip::address_v4( htonl( ipaddrv4->sin_addr.s_addr ) );
 #endif
     auto my_network = boost::asio::ip::network_v4( my_address, 32 );
     for ( const auto& allowed_proxy : allowed_proxies )
@@ -721,18 +722,28 @@ u8 Client::update_range() const
   return gd->update_range;
 }
 
-// TODO: Add estimatedSize() to ThreadedClient and move the corresponding members
 size_t Client::estimatedSize() const
 {
   Clib::SpinLockGuard guard( _fpLog_lock );
-  size_t size = sizeof( Client ) + fpLog.capacity() + version_.capacity();
-  Core::XmitBuffer* buffer_size = first_xmit_buffer;
-  while ( buffer_size != nullptr )
-  {
-    size += sizeof( buffer_size ) + buffer_size->lenleft;
-    buffer_size = buffer_size->next;
-  }
-  size += 3 * sizeof( PacketThrottler* ) + movementqueue.size() * sizeof( PacketThrottler );
+  size_t size = ThreadedClient::estimatedSize();
+  size += sizeof( void* ) * 3                              /*acct, chr, Interface*/
+          + sizeof( bool )                                 /* ready */
+          + sizeof( unsigned short )                       /* listenpoint */
+          + sizeof( bool )                                 /* aosresist */
+          + sizeof( std::atomic<int> )                     /* pause_count */
+          + sizeof( void* )                                /* gd */
+          + sizeof( unsigned int )                         /* instance_ */
+          + sizeof( u16 )                                  /* UOExpansionFlag */
+          + sizeof( u32 )                                  /* UOExpansionFlagClient */
+          + sizeof( u16 )                                  /* ClientType */
+          + sizeof( Clib::wallclock_t )                    /* next_movement */
+          + sizeof( u8 )                                   /* movementsequence */
+          + version_.capacity() + sizeof( Core::PKTIN_D9 ) /* clientinfo_*/
+          + sizeof( bool )                                 /* paused_ */
+          + sizeof( VersionDetailStruct )                  /* versiondetail_ */
+          + sizeof( weak_ptr_owner<Client> )               /*weakptr*/
+      ;
+  size += Clib::memsize( movementqueue );
   if ( gd != nullptr )
     size += gd->estimatedSize();
   return size;
@@ -740,6 +751,17 @@ size_t Client::estimatedSize() const
 
 // Threaded client stuff
 
+size_t ThreadedClient::estimatedSize() const
+{
+  size_t size = sizeof( ThreadedClient ) + Clib::memsize( allowed_proxies ) + fpLog.capacity();
+  Core::XmitBuffer* buffer_size = first_xmit_buffer;
+  while ( buffer_size != nullptr )
+  {
+    size += sizeof( buffer_size ) + buffer_size->lenleft;
+    buffer_size = buffer_size->next;
+  }
+  return size;
+}
 void ThreadedClient::closeConnection()
 {
   std::lock_guard<std::mutex> lock( _socketMutex );

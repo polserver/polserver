@@ -3,6 +3,7 @@
 
 #include <string.h>
 
+#include "../../clib/stlutil.h"
 #include "../cfgrepos.h"
 #include "../module/datastoreimp.h"
 
@@ -48,23 +49,21 @@ ConfigurationBuffer::Memory ConfigurationBuffer::estimateSize() const
 
 
   usage.cfg_count = cfgfiles.size();
+  usage.cfg_size += Clib::memsize( cfgfiles );
   for ( const auto& pair : cfgfiles )
   {
-    size_t cfgsize = 0;
     if ( pair.second.get() != nullptr )
-      cfgsize += pair.second->estimateSize();
-    usage.cfg_size += ( pair.first.capacity() + cfgsize ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+      usage.cfg_size += pair.second->estimateSize();
   }
 
   usage.datastore_count = datastore.size();
+  usage.datastore_size += Clib::memsize( datastore );
   for ( const auto& data : datastore )
   {
-    usage.datastore_size += ( data.first.capacity() + sizeof( Module::DataStoreFile* ) +
-                              ( sizeof( void* ) * 3 + 1 ) / 2 );
     if ( data.second != nullptr )
       usage.datastore_size += data.second->estimateSize();
   }
   return usage;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

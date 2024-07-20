@@ -813,45 +813,37 @@ void NPC::inform_enteredarea( Character* whoentered )
 
 void NPC::inform_moved( Character* moved )
 {
-  // 8-26-05    Austin
-  // Note: This does not look at realms at all, just X Y coords.
-  // ^is_visible_to_me checks realm - Turley
-
-  if ( ex != nullptr )
+  if ( ex == nullptr )
+    return;
+  passert( moved != nullptr );
+  if ( ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) ) &&
+       can_accept_area_event_by( moved ) )
   {
-    bool signaled = false;
-    passert( moved != nullptr );
-    if ( ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) ) &&
-         can_accept_area_event_by( moved ) )
-    {
-      bool are_inrange = in_range( moved, ex->area_size );
-      bool were_inrange = in_range( moved->lastpos, ex->area_size );
+    bool are_inrange = in_range( moved, ex->area_size );
+    bool were_inrange = in_range( moved->lastpos, ex->area_size );
 
-      if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-           is_visible_to_me( moved ) )
+    if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
+         is_visible_to_me( moved ) )
+    {
+      if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
       {
-        if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
-        {
-          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
-          signaled = true;
-        }
-        else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
-        {
-          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
-          signaled = true;
-        }
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+        return;
+      }
+      else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
+      {
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+        return;
       }
     }
+  }
 
-    if ( !signaled )  // only send moved event if left/enteredarea wasnt send
-    {
-      if ( ( moved == opponent_ ) && ( ex->eventmask & ( Core::EVID_OPPONENT_MOVED ) ) )
-      {
-        if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-             is_visible_to_me( moved ) )
-          ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
-      }
-    }
+  // only send moved event if left/enteredarea wasnt send
+  if ( ( moved == opponent_ ) && ( ex->eventmask & ( Core::EVID_OPPONENT_MOVED ) ) )
+  {
+    if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
+         is_visible_to_me( moved ) )
+      ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
   }
 }
 
@@ -859,26 +851,23 @@ void NPC::inform_moved( Character* moved )
 // This NPC moved.  Tell him about other mobiles that have "entered" his area
 // (through his own movement)
 //
-
 void NPC::inform_imoved( Character* chr )
 {
-  if ( ex != nullptr )
+  if ( ex == nullptr )
+    return;
+  passert( chr != nullptr );
+  if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) &&
+       can_accept_area_event_by( chr ) )
   {
-    passert( chr != nullptr );
-    if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) &&
-         can_accept_area_event_by( chr ) )
-    {
-      bool are_inrange = in_range( chr, ex->area_size );
-      bool were_inrange = lastpos.in_range( chr->pos(), ex->area_size );
+    bool are_inrange = in_range( chr, ex->area_size );
+    bool were_inrange = lastpos.in_range( chr->pos(), ex->area_size );
 
-      if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-           is_visible_to_me( chr ) )
-      {
-        if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
-          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, chr ) );
-        else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
-          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, chr ) );
-      }
+    if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) || is_visible_to_me( chr ) )
+    {
+      if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, chr ) );
+      else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, chr ) );
     }
   }
 }

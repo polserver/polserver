@@ -7,6 +7,7 @@
 
 #include "../clib/binaryfile.h"
 #include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "mapblock.h"
 
 namespace Pol
@@ -41,9 +42,7 @@ MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) cons
 
 size_t InMemoryMapServer::sizeEstimate() const
 {
-  size_t size = sizeof( *this ) + MapServer::sizeEstimate();
-  size += 3 * sizeof( MAPBLOCK* ) + _mapblocks.capacity() * sizeof( MAPBLOCK );
-  return size;
+  return sizeof( *this ) + MapServer::sizeEstimate() + Clib::memsize( _mapblocks );
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

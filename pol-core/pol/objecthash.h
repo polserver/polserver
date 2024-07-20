@@ -72,6 +72,8 @@ public:
 
   void RegisterCleanDeletedSerial( u32 serial );
 
+  size_t estimateSize() const;
+
 private:
   hs hash;
   OH_iterator reap_iterator;

@@ -32,6 +32,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
+#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 #include "../plib/uconst.h"
 #include "globals/state.h"
@@ -75,7 +76,7 @@ size_t UContainer::estimatedSize() const
   const size_t size = base::estimatedSize() + sizeof( u16 ) /*held_weight_*/
                       + sizeof( unsigned int )              /*held_item_count_*/
                       // no estimateSize here element is in objhash
-                      + 3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
+                      + Clib::memsize( contents_ );
   return size;
 }
 

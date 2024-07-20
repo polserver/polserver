@@ -299,10 +299,6 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       trading_cont(),
       trading_with( nullptr ),
       // SCRIPT
-      tcursor2( nullptr ),
-      menu( nullptr ),
-      on_menu_selection( nullptr ),
-      on_popup_menu_selection( nullptr ),
       script_ex( nullptr ),
       spell_task( nullptr ),
       // CLIENT
@@ -326,13 +322,13 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // MISC
       acct( nullptr ),
       registered_multi( 0 ),
-      truecolor( 0 ),
+      last_corpse( 0 ),
       trueobjtype( 0 ),
+      truecolor( 0 ),
       // Note, Item uses the named constructor idiom, but here, it is not used.
       // this is probably okay, but something to keep in mind.
       gender( Plib::GENDER_MALE ),
-      race( Plib::RACE_HUMAN ),
-      last_corpse( 0 )
+      race( Plib::RACE_HUMAN )
 {
   logged_in( true );  // so initialization scripts etc can see
 
@@ -417,8 +413,6 @@ void Character::disconnect_cleanup()
 {
   if ( is_trading() )
     Core::cancel_trade( this );
-
-  tcursor2 = nullptr;
 
   stop_skill_script();
   on_loggoff_party( this );
@@ -4164,21 +4158,20 @@ u16 Character::intelligence() const
 
 bool Character::target_cursor_busy() const
 {
-  if ( tcursor2 != nullptr )
-    return true;
-  if ( client && client->gd && client->gd->target_cursor_uoemod != nullptr )
+  if ( client && client->gd && client->gd->tcursor2 && client->gd->target_cursor_uoemod != nullptr )
     return true;
   return false;
 }
 
-// get_legal_item removed, wasn't being used. - MuadDib
-
 void Character::cancel_menu()
 {
-  menu.clear();
-  if ( on_menu_selection != nullptr )
-    on_menu_selection( client, nullptr, nullptr );
-  on_menu_selection = nullptr;
+  if ( client )
+  {
+    client->gd->menu.clear();
+    if ( client->gd->on_menu_selection != nullptr )
+      client->gd->on_menu_selection( client, nullptr, nullptr );
+    client->gd->on_menu_selection = nullptr;
+  }
 }
 
 bool Character::is_trading() const
@@ -4345,8 +4338,6 @@ size_t Character::estimatedSize() const
                 + sizeof( Plib::URACE )                               /*race*/
                 + sizeof( short )                                     /*gradual_boost*/
                 + sizeof( u32 )                                       /*last_corpse*/
-                + sizeof( Core::TargetCursor* )                       /*tcursor2*/
-                + sizeof( weak_ptr<Core::Menu> )                      /*menu*/
                 + sizeof( u16 )                                       /*_last_textcolor*/
                 + sizeof( ref_ptr<Core::WornItemsContainer> )         /*wornitems_ref*/
                 + sizeof( unsigned short )                            /*ar_*/
@@ -4369,26 +4360,11 @@ size_t Character::estimatedSize() const
                 + sizeof( Core::AttributeFlags<MOB_FLAGS> )  /*mob_flags_*/
       ;
 
-  size += 3 * sizeof( AttributeValue* ) + attributes.capacity() * sizeof( AttributeValue );
-  size += 3 * sizeof( VitalValue* ) + vitals.capacity() * sizeof( VitalValue );
-  size += 3 * sizeof( Items::UArmor** ) + armor_.capacity() * sizeof( Items::UArmor* );
-  size += 3 * sizeof( Core::ItemRef* ) + remote_containers_.capacity() * sizeof( Core::ItemRef );
-
-  size += 3 * sizeof( void* ) + opponent_of.size() * ( sizeof( Character* ) + 3 * sizeof( void* ) );
-
-  size += aggressor_to_.size() * ( sizeof( Core::CharacterRef ) + sizeof( Core::polclock_t ) +
-                                   ( sizeof( void* ) * 3 + 1 ) / 2 );
-  size += lawfully_damaged_.size() * ( sizeof( Core::CharacterRef ) + sizeof( Core::polclock_t ) +
-                                       ( sizeof( void* ) * 3 + 1 ) / 2 );
-
-  size +=
-      3 * sizeof( void* ) + to_be_reportable_.size() * ( sizeof( USERIAL ) + 3 * sizeof( void* ) );
-  size +=
-      3 * sizeof( void* ) + reportable_.size() * ( sizeof( reportable_t ) + 3 * sizeof( void* ) );
-
-  size +=
-      3 * sizeof( void* ) + buffs_.size() * ( sizeof( u16 ) + sizeof( Buff ) + sizeof( void* ) );
-
+  size += Clib::memsize( attributes ) + Clib::memsize( vitals ) + Clib::memsize( armor_ ) +
+          Clib::memsize( remote_containers_ ) + Clib::memsize( opponent_of ) +
+          Clib::memsize( aggressor_to_ ) + Clib::memsize( lawfully_damaged_ ) +
+          Clib::memsize( to_be_reportable_ ) + Clib::memsize( reportable_ ) +
+          Clib::memsize( buffs_ );
   return size;
 }
 

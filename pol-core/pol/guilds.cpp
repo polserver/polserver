@@ -8,6 +8,7 @@
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
 #include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 #include "../plib/systemstate.h"
 #include "fnsearch.h"
@@ -266,13 +267,9 @@ Guild* Guild::FindGuild( unsigned int guildid )
 size_t Guild::estimateSize() const
 {
   return sizeof( unsigned int ) /*_guildid*/
-         + 3 * sizeof( void* ) +
-         _member_serials.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) ) +
-         3 * sizeof( void* ) +
-         _allyguild_serials.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) ) +
-         3 * sizeof( void* ) +
-         _enemyguild_serials.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) ) +
-         _proplist.estimatedSize() + sizeof( bool ); /*_disbanded*/
+         + Clib::memsize( _member_serials ) + Clib::memsize( _allyguild_serials ) +
+         Clib::memsize( _enemyguild_serials ) + _proplist.estimatedSize() +
+         sizeof( bool ); /*_disbanded*/
 }
 }  // namespace Core
 }  // namespace Pol

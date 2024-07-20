@@ -16,6 +16,7 @@
 #include "../../clib/cfgelem.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../clib/strutil.h"
 #include "../../plib/pkg.h"
@@ -114,8 +115,7 @@ void ArmorDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 size_t ArmorDesc::estimatedSize() const
 {
   size_t size = base::estimatedSize() + sizeof( unsigned short ) /*ar*/
-                + on_hit_script.estimatedSize();
-  size += 3 * sizeof( void* ) + zones.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) );
+                + on_hit_script.estimatedSize() + Clib::memsize( zones );
   return size;
 }
 

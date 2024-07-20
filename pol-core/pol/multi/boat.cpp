@@ -178,7 +178,7 @@ bool BoatShape::objtype_is_component( unsigned int objtype )
 
 size_t BoatShape::estimateSize() const
 {
-  return 3 * sizeof( ComponentShape* ) + Componentshapes.capacity() * sizeof( ComponentShape );
+  return Clib::memsize( Componentshapes );
 }
 
 unsigned int get_component_objtype( unsigned char type )
@@ -1614,8 +1614,7 @@ size_t UBoat::estimatedSize() const
                 + sizeof( Items::Item* )                       /*starboardplank*/
                 + sizeof( Items::Item* )                       /*hold*/
                 // no estimateSize here element is in objhash
-                + 3 * sizeof( Traveller* ) + travellers_.capacity() * sizeof( Traveller ) +
-                3 * sizeof( Items::Item** ) + Components.capacity() * sizeof( Items::Item* );
+                + Clib::memsize( travellers_ ) + Clib::memsize( Components );
   return size;
 }
 

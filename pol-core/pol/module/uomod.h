@@ -317,9 +317,6 @@ public:
   Mobile::Character* textentry_chr;
   Mobile::Character* resurrect_chr;
   Mobile::Character* selcolor_chr;
-
-  int target_options;
-
   Mobile::Character* attached_chr_;
   Mobile::Character* attached_npc_;
   Core::ItemRef attached_item_;
@@ -328,6 +325,7 @@ public:
   bool is_reserved_to_me( Items::Item* item );
   std::vector<Core::ItemRef> reserved_items_;
 
+  int target_options;
   bool registered_for_speech_events;
 
   explicit UOExecutorModule( Core::UOExecutor& exec );

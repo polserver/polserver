@@ -24,6 +24,7 @@
 #include "../../clib/network/sckutil.h"
 #include "../../clib/network/socketsvc.h"
 #include "../../clib/network/wnsckt.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/threadhelp.h"
 #include "../../plib/pkg.h"
 #include "../globals/network.h"
@@ -321,10 +322,9 @@ void AuxService::run()
 
 size_t AuxService::estimateSize() const
 {
-  size_t size =
-      sizeof( Plib::Package* ) + _scriptdef.estimatedSize() + sizeof( unsigned short ) /*_port*/
-      + 3 * sizeof( unsigned int* ) + _aux_ip_match.capacity() * sizeof( unsigned int ) +
-      3 * sizeof( unsigned int* ) + _aux_ip_match_mask.capacity() * sizeof( unsigned int );
+  size_t size = sizeof( Plib::Package* ) + _scriptdef.estimatedSize() +
+                sizeof( unsigned short ) /*_port*/
+                + Clib::memsize( _aux_ip_match ) + Clib::memsize( _aux_ip_match_mask );
   return size;
 }
 

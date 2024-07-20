@@ -9,6 +9,7 @@
 
 #include "realm.h"
 
+#include "clib/stlutil.h"
 #include "plib/mapserver.h"
 #include "plib/maptileserver.h"
 #include "plib/poltype.h"
@@ -90,15 +91,11 @@ size_t Realm::sizeEstimate() const
   for ( const auto& p : gridarea() )
   {
     const auto& gzone = getzone_grid( p );
-    size += 3 * sizeof( void** ) + gzone.characters.capacity() * sizeof( void* );
-    size += 3 * sizeof( void** ) + gzone.npcs.capacity() * sizeof( void* );
-    size += 3 * sizeof( void** ) + gzone.items.capacity() * sizeof( void* );
-    size += 3 * sizeof( void** ) + gzone.multis.capacity() * sizeof( void* );
+    size += Clib::memsize( gzone.characters ) + Clib::memsize( gzone.npcs ) +
+            Clib::memsize( gzone.items ) + Clib::memsize( gzone.multis );
   }
 
-  // estimated set footprint
-  size +=
-      3 * sizeof( void* ) + global_hulls.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) );
+  size += Clib::memsize( global_hulls );
   size += _descriptor.sizeEstimate() + ( ( !_mapserver ) ? 0 : _mapserver->sizeEstimate() ) +
           ( ( !_staticserver ) ? 0 : _staticserver->sizeEstimate() ) +
           ( ( !_maptileserver ) ? 0 : _maptileserver->sizeEstimate() );

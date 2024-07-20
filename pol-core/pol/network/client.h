@@ -23,12 +23,12 @@
 #define __CLIENT_H
 
 #include <atomic>
+#include <boost/asio/ip/network_v4.hpp>
 #include <cstring>
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <string>
-#include <boost/asio/ip/network_v4.hpp>
 
 #include "../../clib/network/sockets.h"
 #include "../../clib/rawtypes.h"
@@ -142,6 +142,7 @@ enum class PacketLog
 class ThreadedClient
 {
 public:
+  virtual ~ThreadedClient() = default;
   bool isReallyConnected() const;
   bool isConnected() const;
 
@@ -167,6 +168,8 @@ public:
 protected:
   ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient, sockaddr& ipaddr,
                   std::vector<boost::asio::ip::network_v4>& allowed_proxies );
+
+  size_t estimatedSize() const;
 
 public:
   // this reference is only needed because we have diagnostic messages that need the client

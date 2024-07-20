@@ -23,6 +23,7 @@
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/rawtypes.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
@@ -60,14 +61,13 @@ size_t DataFileContents::estimateSize() const
   size_t size = sizeof( DataStoreFile* ) /*dsf*/
                 + sizeof( bool );        /*dirty*/
 
+  size += Clib::memsize( elements_by_string );
   for ( const auto& ele : elements_by_string )
   {
-    size += ele.first.capacity() + sizeof( DataFileElementRef ) + ( sizeof( void* ) * 3 + 1 ) / 2;
     if ( ele.second.get() != nullptr )
       size += ele.second->proplist.estimatedSize();
   }
-  size += ( sizeof( int ) + sizeof( DataFileElementRef ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-          elements_by_integer.size();
+  size += Clib::memsize( elements_by_integer );
   return size;
 }
 

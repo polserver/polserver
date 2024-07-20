@@ -62,17 +62,8 @@ Menu& Menu::operator=( const Menu& rhs )
 
 size_t Menu::estimateSize() const
 {
-  size_t size = sizeof( Menu );
-  size += 3 * sizeof( MenuItem* ) + menuitems_.capacity() * sizeof( MenuItem );
-  return size;
+  return sizeof( Menu ) + Clib::memsize( menuitems_ );
 }
-
-/*
-u16 GetMenuId( void )
-{
-static u16 next_menuid =
-}
-*/
 
 // TODO:: rewrite using std::find() and stlutil.h case insensitive string cmp
 //         -- leaving the warning here as a reminder --
@@ -103,7 +94,7 @@ void Menu::read_menus()
   if ( !Clib::FileExists( "config/menus.cfg" ) )
   {
     if ( Plib::systemstate.config.loglevel > 1 )
-      INFO_PRINTLN("File config/menus.cfg not found, skipping.");
+      INFO_PRINTLN( "File config/menus.cfg not found, skipping." );
     return;
   }
 
@@ -254,7 +245,7 @@ void Menu::read_menus()
         }
         else
         {
-          INFO_PRINTLN("Unable to find SubMenu {}",mi->submenu_name);
+          INFO_PRINTLN( "Unable to find SubMenu {}", mi->submenu_name );
         }
       }
     }

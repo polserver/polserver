@@ -20,6 +20,7 @@
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 #include "../plib/poltype.h"
 #include "../plib/systemstate.h"
@@ -54,9 +55,7 @@ StorageArea::~StorageArea()
 
 size_t StorageArea::estimateSize() const
 {
-  size_t size = _name.capacity();
-  for ( const auto& item : _items )
-    size += item.first.capacity() + sizeof( Items::Item* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+  size_t size = _name.capacity() + Clib::memsize( _items );
   return size;
 }
 
@@ -282,10 +281,9 @@ void Storage::clear()
 
 size_t Storage::estimateSize() const
 {
-  size_t size = 0;
+  size_t size = Clib::memsize( areas );
   for ( const auto& area : areas )
   {
-    size += area.first.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
     if ( area.second != nullptr )
       size += area.second->estimateSize();
   }
