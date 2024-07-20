@@ -1,0 +1,46 @@
+print( array{ 1, 2, 3, 4, 5 }.filter( @Always ) );
+print( array{ 1, 2, 3, 4, 5 }.filter( @IfEven ) );
+print( array{ 1, 2, 3, 4, 5 }.filter( @IfOddIndex ) );
+print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArray ) );
+print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArrayByrefShrink ) );
+print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArrayByrefAdd ) );
+print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyElementByref ) );
+
+function Always()
+  return true;
+endfunction
+
+function IfEven( element )
+  return ( element % 2 ) == 0;
+endfunction
+
+function IfOddIndex( unused element, index )
+  return ( index % 2 ) == 1;
+endfunction
+
+// Changing the byref array will affect the original array that is being filtered
+function ModifyArrayByrefShrink( unused element, unused index, byref arr )
+  arr.shrink( 0 );
+  return true;
+endfunction
+
+// Changing the byref array will affect the original array that is being
+// filtered. This function modifies the array length, but the filter should stop
+// at the original index. Modifying the element via array access also does nothing to the returned filter array.
+function ModifyArrayByrefAdd( element, index, byref arr )
+  arr[index] := element * 200;
+  arr[index + 1] := element * 10;
+  return true;
+endfunction
+
+// Changing the copied array will not affect the original array that is being filtered
+function ModifyArray( unused element, unused index, arr )
+  arr.shrink( 0 );
+  return true;
+endfunction
+
+// Cannot modify element
+function ModifyElementByref( byref element )
+  element := "changed";
+  return true;
+endfunction
