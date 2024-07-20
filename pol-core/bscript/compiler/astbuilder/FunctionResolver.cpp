@@ -6,6 +6,7 @@
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/astbuilder/AvailableUserFunction.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/FunctionLink.h"
 
@@ -49,6 +50,16 @@ void FunctionResolver::register_function_link( const std::string& name,
   {
     unresolved_function_links_by_name[name].push_back( std::move( function_link ) );
   }
+}
+
+std::string FunctionResolver::register_function_expression(
+    const SourceLocation& source_location,
+    EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
+{
+  auto name = function_expression_name( source_location );
+  auto auf = AvailableUserFunction{ source_location, ctx };
+  available_user_function_parse_trees.insert( { name, auf } );
+  return name;
 }
 
 void FunctionResolver::register_module_function( ModuleFunctionDeclaration* mf )
@@ -114,6 +125,14 @@ bool FunctionResolver::resolve( std::vector<AvailableUserFunction>& to_build_ast
   }
 
   return !to_build_ast.empty();
+}
+
+std::string FunctionResolver::function_expression_name(
+    const SourceLocation& source_location )
+{
+  return fmt::format( "funcexpr@{}:{}:{}", source_location.source_file_identifier->index,
+                           source_location.range.start.line_number,
+                           source_location.range.start.character_column );
 }
 
 void FunctionResolver::register_available_user_function_parse_tree(

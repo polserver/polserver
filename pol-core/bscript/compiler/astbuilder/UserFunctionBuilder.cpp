@@ -4,8 +4,8 @@
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
-#include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/astbuilder/FunctionResolver.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -13,7 +13,7 @@ namespace Pol::Bscript::Compiler
 {
 UserFunctionBuilder::UserFunctionBuilder( const SourceFileIdentifier& source_file_identifier,
                                           BuilderWorkspace& workspace )
-  : CompoundStatementBuilder( source_file_identifier, workspace )
+    : CompoundStatementBuilder( source_file_identifier, workspace )
 {
 }
 
@@ -21,6 +21,21 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_declaration(
     EscriptParser::FunctionDeclarationContext* ctx )
 {
   std::string name = text( ctx->IDENTIFIER() );
+  return make_user_function( name, ctx, ctx->EXPORTED(), ctx->ENDFUNCTION() );
+}
+
+std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
+    EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
+{
+  std::string name = FunctionResolver::function_expression_name( location_for( *ctx->FUNCTION() ) );
+  return make_user_function( name, ctx, false, ctx->RBRACE() );
+}
+
+template <typename ParserContext>
+std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
+    const std::string& name, ParserContext* ctx, bool exported,
+    antlr4::tree::TerminalNode* end_token )
+{
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
   if ( auto function_parameters = ctx->functionParameters() )
   {
@@ -55,10 +70,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_declaration(
   auto body =
       std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
 
-  bool exported = ctx->EXPORTED() != nullptr;
   return std::make_unique<UserFunction>( location_for( *ctx ), exported, std::move( name ),
                                          std::move( parameter_list ), std::move( body ),
-                                         location_for( *ctx->ENDFUNCTION() ) );
+                                         location_for( *end_token ) );
 }
-
 }  // namespace Pol::Bscript::Compiler

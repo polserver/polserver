@@ -13,6 +13,7 @@
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 #include "clib/strutil.h"
 
 using EscriptGrammar::EscriptParser;
@@ -83,6 +84,11 @@ std::unique_ptr<FunctionExpression> ValueBuilder::function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   auto loc = location_for( *ctx );
+  auto function_name = workspace.function_resolver.register_function_expression( loc, ctx );
+
+  workspace.compiler_workspace.all_function_locations.emplace( function_name, loc );
+  workspace.function_resolver.force_reference( function_name, loc );
+
   return std::make_unique<FunctionExpression>( loc, true );
 }
 
