@@ -30,6 +30,7 @@
 #include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
@@ -434,6 +435,12 @@ void InstructionGenerator::visit_function_parameter_declaration(
     emit.pop_param_byref( node.name );
   else
     emit.pop_param( node.name );
+}
+
+void InstructionGenerator::visit_function_expression( FunctionExpression& node )
+{
+  update_debug_location( node );
+  emit.value( node.value );
 }
 
 void InstructionGenerator::visit_function_reference( FunctionReference& function_reference )

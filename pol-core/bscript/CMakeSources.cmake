@@ -92,6 +92,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionBody.h
   compiler/ast/FunctionCall.cpp
   compiler/ast/FunctionCall.h
+  compiler/ast/FunctionExpression.cpp
+  compiler/ast/FunctionExpression.h
   compiler/ast/FunctionParameterDeclaration.cpp
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp

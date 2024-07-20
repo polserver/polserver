@@ -38,6 +38,7 @@ class FunctionBody;
 class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
+class FunctionExpression;
 class FunctionReference;
 class Identifier;
 class IfThenElseStatement;
@@ -104,6 +105,7 @@ public:
   virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
   virtual void visit_function_parameter_list( FunctionParameterList& );
+  virtual void visit_function_expression( FunctionExpression& );
   virtual void visit_function_reference( FunctionReference& );
   virtual void visit_identifier( Identifier& );
   virtual void visit_if_then_else_statement( IfThenElseStatement& );

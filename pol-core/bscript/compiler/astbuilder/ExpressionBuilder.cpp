@@ -15,6 +15,7 @@
 #include "bscript/compiler/ast/ErrorInitializer.h"
 #include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"

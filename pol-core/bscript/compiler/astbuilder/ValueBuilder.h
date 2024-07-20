@@ -10,6 +10,7 @@ namespace Pol::Bscript::Compiler
 class BooleanValue;
 class IntegerValue;
 class FloatValue;
+class FunctionExpression;
 class FunctionReference;
 class StringValue;
 class Value;
@@ -26,12 +27,7 @@ public:
   std::unique_ptr<FunctionReference> function_reference(
       EscriptGrammar::EscriptParser::FunctionReferenceContext* );
 
-  // TODO Implement as...?
-  // - `Compiler::FunctionExpression`
-  // - `Compiler::Function`
-  // - `Compiler::Functor`
-
-  std::unique_ptr<BooleanValue> function_expression(
+  std::unique_ptr<FunctionExpression> function_expression(
       EscriptGrammar::EscriptParser::FunctionExpressionContext* );
 
   std::unique_ptr<IntegerValue> integer_value(

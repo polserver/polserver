@@ -5,6 +5,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/FloatValue.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/StringValue.h"
@@ -78,11 +79,11 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
   return function_reference;
 }
 
-std::unique_ptr<BooleanValue> ValueBuilder::function_expression(
+std::unique_ptr<FunctionExpression> ValueBuilder::function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   auto loc = location_for( *ctx );
-  return std::make_unique<BooleanValue>( loc, true );
+  return std::make_unique<FunctionExpression>( loc, true );
 }
 
 std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
