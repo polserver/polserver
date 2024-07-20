@@ -30,6 +30,7 @@
 #include "execmodl.h"
 #include "fmodule.h"
 #include "impstr.h"
+#include "objmethods.h"
 #include "str.h"
 #include "token.h"
 #include "tokens.h"
@@ -2586,7 +2587,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       BObjectRef objref = ValueStack.back();
       auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
       Instruction jmp;
-      if ( funcr->validCall( continuation ? -1 : ins.token.lval, *this, &jmp ) )
+      if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
         // params need to be on the stack, without current objectref
         ValueStack.pop_back();
@@ -2880,7 +2881,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       BObjectRef objref = ValueStack.back();
       auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
       Instruction jmp;
-      if ( funcr->validCall( -1, *this, &jmp ) )
+      if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
         // params need to be on the stack, without current objectref
         ValueStack.pop_back();
@@ -3791,7 +3792,6 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
   // Move all arguments to the fparams stack
   fparams.insert( fparams.end(), std::make_move_iterator( args.begin() ),
                   std::make_move_iterator( args.end() ) );
-  args.erase( args.begin(), args.end() );
 
   return continuation;
 }

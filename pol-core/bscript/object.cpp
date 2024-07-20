@@ -1666,54 +1666,61 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       if ( !param0 )
         return new BError( "Invalid parameter type" );
 
-      // Some functions may allow optional arguments, so it is up to the caller
-      // of `makeContinuation` to validate argument count. If not handled,
-      // arguments will be shrunk and expanded (with uninit) as needed.
-      auto func = static_cast<BFunctionRef*>( param0 );
-      if ( func->numParams() != 1 )
-        return new BError( "Invalid parameter type" );
+      // The filter callback allows optional arguments, so no need to check the
+      // number of arguments for the passed function reference. Arguments passed
+      // will be shrunk and expanded (with uninit) as needed.
 
       // If nothing to filter, return an empty array, since nothing to call the function with.
       if ( ref_arr.empty() )
         return new ObjArray();
 
       // Arguments for user function call.
-      // Add the first element of the array to the call args.
+      // - the element
+      // - the index of the element
+      // - the array itself
       BObjectRefVec args;
       args.push_back( ref_arr.front() );
+      args.push_back( BObjectRef( new BLong( 1 ) ) );
+      args.push_back( BObjectRef( this ) );
 
-      /*
-      The ContinuationCallback receives three arguments:
-
-      - `Executor&`
-      - `BContinuation* continuation`: The continuation, with methods to
-        handle the continuation (call the function again; finalize)
-      - `BObjectRef result`: The result of the user function call specified in
-        `makeContinuation`.
-
-      Returns a `BObjectImp`:
-      - Call the user function again by returning the same continuation via
-        `ex.withContinuation`.
-      - Return something else (in this case, the filtered array) to provide that
-        value back to the script.
-      */
-      auto callback = [this, filteredObj = BObjectRef( new ObjArray ),
-                       processedObj = BObjectRef( new BLong( 1 ) )](
+      // The ContinuationCallback receives three arguments:
+      //
+      // - `Executor&`
+      // - `BContinuation* continuation`: The continuation, with methods to handle
+      //   the continuation (call the function again; finalize)
+      // - `BObjectRef result`: The result of the user function call specified in
+      //   `makeContinuation`.
+      //
+      // We pass to the lambda a reference to the element in case the user
+      // function modifies ref_arr.
+      //
+      // Returns a `BObjectImp`:
+      // - Call the user function again by returning the same continuation via
+      //   `ex.withContinuation`.
+      // - Return something else (in this case, the filtered array) to provide
+      //   that value back to the script.
+      auto callback = [this, filteredRef = BObjectRef( new ObjArray ),
+                       processedRef = BObjectRef( new BLong( 1 ) ),
+                       elementRef = BObjectRef( new BObject( args[0]->impptr() ) ),
+                       initialSize = static_cast<int>( ref_arr.size() )](
                           Executor& ex, BContinuation* continuation,
                           BObjectRef result ) -> BObjectImp*
       {
-        auto filtered = static_cast<ObjArray*>( filteredObj->impptr() );
-        auto processed = static_cast<BLong*>( processedObj->impptr() );
+        auto filtered = static_cast<ObjArray*>( filteredRef->impptr() );
+        auto processed = static_cast<BLong*>( processedRef->impptr() );
 
         // Do something with result.
         // If the result is true, add it to the filtered array.
         if ( result->isTrue() )
         {
-          filtered->ref_arr.push_back( ref_arr[processed->value() - 1] );
+          filtered->ref_arr.push_back( BObjectRef( elementRef->impptr() ) );
         }
 
-        // If the processed index is the last element, return the filtered array.
-        if ( processed->value() >= static_cast<int>( ref_arr.size() ) )
+        // If the processed index is the last element, return the filtered
+        // array. Also check if the processed index is greater than the initial
+        // size of the array, as the user function may have modified the array.
+        if ( processed->value() >= initialSize ||
+             processed->value() >= static_cast<int>( ref_arr.size() ) )
         {
           return filtered;
         }
@@ -1725,14 +1732,19 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
 
           BObjectRefVec args;
           args.push_back( ref_arr[processed->value() - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed->value() ) ) ) );
+          args.push_back( BObjectRef( new BObject( this ) ) );
+
+          elementRef->setimp( args[0]->impptr() );
 
           // Return this continuation with the new arguments.
-          return ex.withContinuation( continuation, args );
+          return ex.withContinuation( continuation, std::move( args ) );
         }
       };
 
       // Create a new continuation for a user function call.
-      return ex.makeContinuation( BObjectRef( new BObject( func ) ), callback, args );
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
     }
     break;
 
@@ -2067,7 +2079,7 @@ BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )
 
 bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) const
 {
-  if ( id != -1 && id != MTH_CALL )
+  if ( id != MTH_CALL )
     return false;
   if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
     return false;

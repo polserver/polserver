@@ -55,7 +55,6 @@ BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, B
   // Move all arguments to the value stack
   ValueStack.insert( ValueStack.end(), std::make_move_iterator( args.begin() ),
                      std::make_move_iterator( args.end() ) );
-  args.erase( args.begin(), args.end() );
 
   CallbackData<Callback>* details = new CallbackData<Callback>( callback );
 
