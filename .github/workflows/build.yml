@@ -201,17 +201,17 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Download artefacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Nightly-Linux-g++
           path: Nightly-Linux-g++
       - name: Download artefacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Nightly-Linux-clang++
           path: Nightly-Linux-clang++
       - name: Download artefacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Nightly-Windows-cl
           path: Nightly-Windows-cl
