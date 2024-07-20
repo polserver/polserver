@@ -1,0 +1,8 @@
+function (i, j, k) { return 1; };
+function {};
+function () { return 1; };
+function (i, byref j, k) { return 1; };
+
+
+use file;
+print( "\n".join( ReadFile( "./funcexpr/listfile.lst" ) ) );

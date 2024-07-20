@@ -1,0 +1,30 @@
+0: true (boolean)
+1: # (consume)
+2: true (boolean)
+3: # (consume)
+4: true (boolean)
+5: # (consume)
+6: true (boolean)
+7: # (consume)
+8: "\n" (string) len=1 offset=0x1
+9: "./funcexpr/listfile.lst" (string) len=23 offset=0x3
+10: call module function (1, 0): ReadFile
+11: call-method-id 'join' (#142, 1 arguments)
+12: "" (string) len=0 offset=0x2
+13: call module function (0, 0): Print
+14: # (consume)
+15: progend
+16: pop param 'k'
+17: pop param 'j'
+18: pop param 'i'
+19: 1 (integer) offset=0x21
+20: return
+21: 0 (integer) offset=0x25
+22: return
+23: 1 (integer) offset=0x29
+24: return
+25: pop param 'k'
+26: pop param byref 'j'
+27: pop param 'i'
+28: 1 (integer) offset=0x2d
+29: return

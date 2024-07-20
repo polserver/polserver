@@ -17,7 +17,7 @@ endif()
 # set(keepfailedformats TRUE)
 
 function (cleanup scriptname)
-  foreach (ext .ecl .tst .unformatted.src .formatted.src)
+  foreach (ext .ecl .tst .lst .unformatted.src .formatted.src)
     if(EXISTS "${scriptname}${ext}")
       if ("${ext}" STREQUAL ".formatted.src" AND DEFINED keepfailedformats)
         continue()
@@ -116,7 +116,7 @@ function (testwithcompiler formatoption)
     endif()
 
     if (EXISTS "${testdir}/${scriptname}.out" OR EXISTS "${testdir}/${scriptname}.err")
-      execute_process( COMMAND ${ecompile} -q -C ecompile.cfg ${script}
+      execute_process( COMMAND ${ecompile} -l -q -C ecompile.cfg ${script}
         RESULT_VARIABLE ecompile_res
         OUTPUT_VARIABLE ecompile_out
         ERROR_VARIABLE ecompile_out)
