@@ -440,7 +440,7 @@ void InstructionGenerator::visit_function_parameter_declaration(
 void InstructionGenerator::visit_function_expression( FunctionExpression& node )
 {
   update_debug_location( node );
-  emit.value( node.value );
+  emit.value( true );
 }
 
 void InstructionGenerator::visit_function_reference( FunctionReference& function_reference )

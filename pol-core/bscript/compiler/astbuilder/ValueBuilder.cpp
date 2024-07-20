@@ -12,8 +12,8 @@
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceLocation.h"
-#include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/FunctionLink.h"
 #include "clib/strutil.h"
 
 using EscriptGrammar::EscriptParser;
@@ -84,12 +84,16 @@ std::unique_ptr<FunctionExpression> ValueBuilder::function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   auto loc = location_for( *ctx );
-  auto function_name = workspace.function_resolver.register_function_expression( loc, ctx );
+  auto name = workspace.function_resolver.register_function_expression( loc, ctx );
 
-  workspace.compiler_workspace.all_function_locations.emplace( function_name, loc );
-  workspace.function_resolver.force_reference( function_name, loc );
+  workspace.compiler_workspace.all_function_locations.emplace( name, loc );
+  workspace.function_resolver.force_reference( name, loc );
 
-  return std::make_unique<FunctionExpression>( loc, true );
+  auto function_link = std::make_shared<FunctionLink>( loc );
+
+  workspace.function_resolver.register_function_link( name, function_link );
+
+  return std::make_unique<FunctionExpression>( loc, function_link );
 }
 
 std::unique_ptr<IntegerValue> ValueBuilder::integer_value(

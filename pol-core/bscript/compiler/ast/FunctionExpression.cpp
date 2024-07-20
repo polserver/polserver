@@ -3,11 +3,13 @@
 #include <fmt/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
 {
-FunctionExpression::FunctionExpression( const SourceLocation& source_location, bool value )
-    : Value( source_location ), value( value )
+FunctionExpression::FunctionExpression( const SourceLocation& source_location,
+                                        std::shared_ptr<FunctionLink> function_link )
+    : Value( source_location ), function_link( std::move( function_link ) )
 {
 }
 
@@ -18,7 +20,7 @@ void FunctionExpression::accept( NodeVisitor& visitor )
 
 void FunctionExpression::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "boolean-value({})", value );
+  fmt::format_to( std::back_inserter( w ), "boolean-value({})", true );
 }
 
 }  // namespace Pol::Bscript::Compiler

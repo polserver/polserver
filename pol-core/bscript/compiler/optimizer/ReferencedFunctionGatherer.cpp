@@ -1,6 +1,7 @@
 #include "ReferencedFunctionGatherer.h"
 
 #include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/model/FunctionLink.h"
@@ -30,6 +31,11 @@ void ReferencedFunctionGatherer::visit_function_call( FunctionCall& fc )
 }
 
 void ReferencedFunctionGatherer::visit_function_reference( FunctionReference& fr )
+{
+  reference( *fr.function_link );
+}
+
+void ReferencedFunctionGatherer::visit_function_expression( FunctionExpression& fr )
 {
   reference( *fr.function_link );
 }
