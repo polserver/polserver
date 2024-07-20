@@ -9,19 +9,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - san: -DENABLE_TSAN=1
+          - san: TSAN
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
             build-type: RelWithDebInfo
             name: ThreadSanitizer
-          - san: -DENABLE_ASAN=1
+          - san: ASAN
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
             build-type: RelWithDebInfo
             name: AddressSanitizer
-          - san: -DENABLE_USAN=1
+          - san: USAN
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
@@ -31,27 +31,27 @@ jobs:
     runs-on: "ubuntu-latest"
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
       - name: Cache curl
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/curl-8.2.1
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1
       - name: Cache antlr
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.13.1
       - name: Cache boost
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/boost_1_83_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0-2
       - name: Cache cppdap
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: lib/cppdap-2a4c7cf
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-2a4c7cf
@@ -106,7 +106,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} ${{ matrix.config.san }}
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -DENABLE_${{ matrix.config.san }}=1
       - name: Build
         run: |
           cd bin-build
@@ -141,9 +141,9 @@ jobs:
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_ecompile_watch
       - name: Upload shard test log
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.san }}
           path: bin-build/coretest/log/pol.log
 
   notify_on_failure:
