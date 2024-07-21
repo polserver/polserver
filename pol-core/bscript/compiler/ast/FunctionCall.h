@@ -15,7 +15,7 @@ class FunctionCall : public Expression
 {
 public:
   FunctionCall( const SourceLocation&, std::string scope, std::string name,
-                std::vector<std::unique_ptr<Argument>> arguments );
+                std::unique_ptr<Node> callee, std::vector<std::unique_ptr<Argument>> arguments );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;

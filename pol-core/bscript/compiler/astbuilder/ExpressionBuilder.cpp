@@ -405,15 +405,34 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
 std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
     EscriptParser::FunctionCallContext* ctx, const std::string& scope )
 {
-  auto method_name = text( ctx->IDENTIFIER() );
+  std::string method_name;
 
   auto arguments = value_arguments( ctx->expressionList() );
 
-  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), scope, method_name,
-                                                       std::move( arguments ) );
+  std::unique_ptr<Expression> callee = nullptr;
 
-  std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
-  workspace.function_resolver.register_function_link( key, function_call->function_link );
+  if ( auto parExpression = ctx->parExpression() )
+  {
+    callee = this->expression( parExpression->expression() );
+  }
+  else if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    method_name = text( identifier );
+  }
+  else
+  {
+    location_for( *ctx ).internal_error( "no callee or method name for function call" );
+  }
+
+  auto function_call = std::make_unique<FunctionCall>(
+      location_for( *ctx ), scope, method_name, std::move( callee ), std::move( arguments ) );
+
+  // Register function link if the function call callee is a method name.
+  if ( !method_name.empty() )
+  {
+    std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
+    workspace.function_resolver.register_function_link( key, function_call->function_link );
+  }
 
   return function_call;
 }

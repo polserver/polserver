@@ -272,6 +272,31 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 
 void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 {
+  if ( fc.method_name.empty() )
+  {
+    // For function calls where the callee is not an identifier, take the
+    // arguments as-is. We don't support named args, as we don't know the
+    // function to execute until runtime.
+    auto any_named = std::find_if( fc.children.begin() + 1, fc.children.end(),
+                                   []( const std::unique_ptr<Node>& node )
+                                   {
+                                     const auto& arg_name =
+                                         static_cast<Argument*>( node.get() )->identifier;
+                                     return !arg_name.empty();
+                                   } );
+
+    if ( any_named != fc.children.end() )
+    {
+      report.error( fc, "In function call: Cannot use named arguments here." );
+
+      return;
+    }
+
+    visit_children( fc );
+
+    return;
+  }
+
   // here we turn the arguments passed (which can be named or positional)
   // into the final_arguments vector, which is just one parameter per
   // argument, in the correct order.

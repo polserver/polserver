@@ -386,22 +386,32 @@ void InstructionGenerator::visit_foreach_loop( ForeachLoop& loop )
 
 void InstructionGenerator::visit_function_call( FunctionCall& call )
 {
-  visit_children( call );
-
-  update_debug_location( call );
-  if ( auto mf = call.function_link->module_function_declaration() )
+  if ( call.method_name.empty() )
   {
-    emit.call_modulefunc( *mf );
-  }
-  else if ( auto uf = call.function_link->user_function() )
-  {
-    FlowControlLabel& label = user_function_labels[uf->name];
-    emit.makelocal();
-    emit.call_userfunc( label );
+    visit_children( call );
+    update_debug_location( call );
+    // Subtract 1 because the first child is the callee.
+    emit.call_method_id( MTH_CALL, call.children.size() - 1 );
   }
   else
   {
-    call.internal_error( "neither a module function nor a user function?" );
+    visit_children( call );
+
+    update_debug_location( call );
+    if ( auto mf = call.function_link->module_function_declaration() )
+    {
+      emit.call_modulefunc( *mf );
+    }
+    else if ( auto uf = call.function_link->user_function() )
+    {
+      FlowControlLabel& label = user_function_labels[uf->name];
+      emit.makelocal();
+      emit.call_userfunc( label );
+    }
+    else
+    {
+      call.internal_error( "neither a module function nor a user function?" );
+    }
   }
 }
 

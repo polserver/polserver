@@ -1,1 +1,1 @@
-bug006.src:11:23: error: mismatched input '{' expecting ')'
+bug006.src:11:15: error: missing ';' at '('

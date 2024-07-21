@@ -342,7 +342,7 @@ methodCallSuffix
     ;
 
 functionCall
-    : IDENTIFIER '(' expressionList? ')'
+    : ( IDENTIFIER | parExpression ) '(' expressionList? ')'
     ;
 
 structInitializerExpression
