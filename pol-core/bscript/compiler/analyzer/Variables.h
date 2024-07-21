@@ -25,6 +25,8 @@ public:
   std::shared_ptr<Variable> create( const std::string& name, FunctionDepth, BlockDepth, WarnOn,
                                     const SourceLocation& );
 
+  std::shared_ptr<Variable> capture( std::shared_ptr<Variable>& );
+
   [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name ) const;
 
   void restore_shadowed( std::shared_ptr<Variable> );

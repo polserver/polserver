@@ -55,9 +55,11 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       report( report ),
       globals( VariableScope::Global, report ),
       locals( VariableScope::Local, report ),
+      captures( VariableScope::Capture, report ),
       break_scopes( locals, report ),
       continue_scopes( locals, report ),
-      local_scopes( locals, report )
+      local_scopes( locals, report ),
+      capture_scopes( captures, report )
 {
 }
 
@@ -458,9 +460,24 @@ void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
 {
   if ( auto user_function = node.function_link->user_function() )
   {
-    user_function->accept( *this );
+    LocalVariableScope capture_scope( capture_scopes, user_function->capture_variable_scope_info );
+
+    visit_user_function( *user_function );
+
+    auto capture_count = user_function->capture_variable_scope_info.variables.size();
+
+    if ( capture_count > 0 )
+    {
+      report.warning( node, "{} depth={} captures={}", user_function->name,
+                      local_scopes.current_function_depth(), capture_count );
+
+      for ( const auto& variable : user_function->capture_variable_scope_info.variables )
+      {
+        report.warning( node, "  - {} depth={} index={}", variable->name, variable->function_depth,
+                        variable->index );
+      }
+    }
   }
-  report.warning( node, "not implemented" );
 }
 
 void SemanticAnalyzer::visit_function_reference( FunctionReference& node )
@@ -477,10 +494,14 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   {
     if ( local->function_depth != local_scopes.current_function_depth() )
     {
-      report.warning( node, "Local variable '{}' is in captured in function depth {} index {}", node.name, local->function_depth, local->index );
+      auto captured = capture_scopes.current_local_scope()->capture( local );
+      node.variable = captured;
     }
-    local->mark_used();
-    node.variable = local;
+    else
+    {
+      local->mark_used();
+      node.variable = local;
+    }
   }
   else if ( auto global = globals.find( node.name ) )
   {

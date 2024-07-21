@@ -25,6 +25,7 @@ public:
   const SourceLocation endfunction_location;
 
   LocalVariableScopeInfo local_variable_scope_info;
+  LocalVariableScopeInfo capture_variable_scope_info;
 
   FunctionBody& body();
 };

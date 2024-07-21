@@ -7,8 +7,10 @@
 #include <memory>
 
 #include "bscript/compiler/analyzer/FlowControlScopes.h"
+#include "bscript/compiler/analyzer/LocalVariableScope.h"
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"
 #include "bscript/compiler/analyzer/Variables.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
 #include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
@@ -65,9 +67,11 @@ private:
 
   Variables globals;
   Variables locals;
+  Variables captures;
   FlowControlScopes break_scopes;
   FlowControlScopes continue_scopes;
   LocalVariableScopes local_scopes;
+  LocalVariableScopes capture_scopes;
 };
 
 }  // namespace Pol::Bscript::Compiler

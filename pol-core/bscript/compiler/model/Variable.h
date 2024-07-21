@@ -17,6 +17,9 @@ public:
   Variable( VariableScope, std::string name, FunctionDepth, BlockDepth, VariableIndex, WarnOn,
             const SourceLocation& source_location );
 
+  // Copy constructor used for capturing
+  Variable( const Variable& other );
+
   void mark_used();
   [[nodiscard]] bool was_used() const;
 

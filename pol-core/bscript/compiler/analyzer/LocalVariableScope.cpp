@@ -63,4 +63,15 @@ std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, W
   return local;
 }
 
+std::shared_ptr<Variable> LocalVariableScope::capture( std::shared_ptr<Variable>& other )
+{
+  auto local = scopes.local_variables.capture( other );
+
+  other->mark_used();
+
+  local_variable_scope_info.variables.push_back( local );
+
+  return local;
+}
+
 }  // namespace Pol::Bscript::Compiler

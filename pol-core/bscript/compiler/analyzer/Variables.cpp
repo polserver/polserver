@@ -25,6 +25,13 @@ std::shared_ptr<Variable> Variables::create( const std::string& name, FunctionDe
   return variable;
 }
 
+std::shared_ptr<Variable> Variables::capture( std::shared_ptr<Variable>& other )
+{
+  variables_by_name[other->name] = other;
+  names_by_index.push_back( other->name );
+  return other;
+}
+
 std::shared_ptr<Variable> Variables::find( const std::string& name ) const
 {
   auto itr = variables_by_name.find( name );

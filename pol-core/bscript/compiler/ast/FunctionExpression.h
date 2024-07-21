@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bscript/compiler/ast/Value.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {

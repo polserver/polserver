@@ -18,6 +18,18 @@ Variable::Variable( VariableScope scope, std::string name, FunctionDepth functio
 {
 }
 
+Variable::Variable( const Variable& other )
+    : scope( other.scope ),
+      name( other.name ),
+      function_depth( other.function_depth ),
+      block_depth( other.block_depth ),
+      index( other.index ),
+      warn_on( other.warn_on ),
+      source_location( other.source_location ),
+      used( other.used )
+{
+}
+
 void Variable::mark_used()
 {
   used = true;

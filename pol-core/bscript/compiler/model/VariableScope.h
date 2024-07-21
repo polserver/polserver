@@ -6,7 +6,8 @@ namespace Pol::Bscript::Compiler
 enum class VariableScope
 {
   Local,
-  Global
+  Global,
+  Capture
 };
 
 }  // namespace Pol::Bscript::Compiler
