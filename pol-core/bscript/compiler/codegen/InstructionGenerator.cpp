@@ -386,7 +386,7 @@ void InstructionGenerator::visit_foreach_loop( ForeachLoop& loop )
 
 void InstructionGenerator::visit_function_call( FunctionCall& call )
 {
-  if ( call.method_name.empty() )
+  if ( !call.function_link->function() )
   {
     visit_children( call );
     update_debug_location( call );

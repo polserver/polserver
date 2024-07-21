@@ -27,7 +27,7 @@ public:
   const std::shared_ptr<FunctionLink> function_link;
 
   const std::string scope;
-  const std::string method_name;
+  std::string method_name;
 };
 
 }  // namespace Pol::Bscript::Compiler

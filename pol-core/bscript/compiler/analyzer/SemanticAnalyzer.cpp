@@ -272,8 +272,18 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 
 void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 {
-  if ( fc.method_name.empty() )
+  // No function linked through FunctionResolver
+  if ( !fc.function_link->function() )
   {
+    // Method name may be set to variable name, eg: `var foo; foo();` If so,
+    // clear it out and insert it at the children start to set as callee.
+    if ( !fc.method_name.empty() )
+    {
+      auto callee = std::make_unique<Identifier>( fc.source_location, fc.method_name );
+      fc.children.insert( fc.children.begin(), std::move( callee ) );
+      fc.method_name = "";
+    }
+
     // For function calls where the callee is not an identifier, take the
     // arguments as-is. We don't support named args, as we don't know the
     // function to execute until runtime.
