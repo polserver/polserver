@@ -22,6 +22,7 @@
 #include "bscript/compiler/ast/ForeachLoop.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
@@ -82,7 +83,10 @@ void SemanticAnalyzer::analyze()
 
   for ( auto& user_function : workspace.user_functions )
   {
-    user_function->accept( *this );
+    if ( !user_function->expression )
+    {
+      user_function->accept( *this );
+    }
   }
 
   workspace.global_variable_names = globals.get_names();
@@ -450,6 +454,15 @@ void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDe
   local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
 }
 
+void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
+{
+  if ( auto user_function = node.function_link->user_function() )
+  {
+    user_function->accept( *this );
+  }
+  report.warning( node, "not implemented" );
+}
+
 void SemanticAnalyzer::visit_function_reference( FunctionReference& node )
 {
   if ( !node.function_link->function() )
@@ -462,6 +475,10 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
 {
   if ( auto local = locals.find( node.name ) )
   {
+    if ( local->function_depth != local_scopes.current_function_depth() )
+    {
+      report.warning( node, "Local variable '{}' is in captured in function depth {} index {}", node.name, local->function_depth, local->index );
+    }
     local->mark_used();
     node.variable = local;
   }
@@ -548,7 +565,7 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
                     node.name, node.name.length(), max_name_length );
     }
   }
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info, 1 );
 
   visit_children( node );
 }
@@ -581,7 +598,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
       return;
     }
 
-    node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
+    node.variable = globals.create( node.name, 0, 0, WarnOn::Never, node.source_location );
   }
   visit_children( node );
 }

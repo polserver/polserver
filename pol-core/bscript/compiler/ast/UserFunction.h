@@ -13,7 +13,7 @@ class Variable;
 class UserFunction : public Function
 {
 public:
-  UserFunction( const SourceLocation&, bool exported, std::string name,
+  UserFunction( const SourceLocation&, bool exported, bool expression, std::string name,
                 std::unique_ptr<FunctionParameterList>, std::unique_ptr<FunctionBody>,
                 const SourceLocation& endfunction_location );
 
@@ -21,6 +21,7 @@ public:
   void describe_to( std::string& ) const override;
 
   const bool exported;
+  const bool expression;
   const SourceLocation endfunction_location;
 
   LocalVariableScopeInfo local_variable_scope_info;

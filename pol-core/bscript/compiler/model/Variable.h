@@ -14,7 +14,7 @@ class SourceLocation;
 class Variable
 {
 public:
-  Variable( VariableScope, std::string name, BlockDepth, VariableIndex, WarnOn,
+  Variable( VariableScope, std::string name, FunctionDepth, BlockDepth, VariableIndex, WarnOn,
             const SourceLocation& source_location );
 
   void mark_used();
@@ -22,6 +22,7 @@ public:
 
   const VariableScope scope;
   const std::string name;
+  const FunctionDepth function_depth;
   const BlockDepth block_depth;
   const VariableIndex index;
   const WarnOn warn_on;

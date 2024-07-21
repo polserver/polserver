@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "bscript/compiler/model/SimpleTypes.h"
+
 namespace Pol::Bscript::Compiler
 {
 class LocalVariableScope;
@@ -15,6 +17,7 @@ public:
   LocalVariableScopes( Variables& locals, Report& report );
 
   LocalVariableScope* current_local_scope();
+  FunctionDepth current_function_depth();
 
 private:
   friend class LocalVariableScope;

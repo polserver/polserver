@@ -70,8 +70,11 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
   auto body =
       std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
 
-  return std::make_unique<UserFunction>( location_for( *ctx ), exported, std::move( name ),
-                                         std::move( parameter_list ), std::move( body ),
-                                         location_for( *end_token ) );
+  constexpr bool expression =
+      std::is_same<ParserContext, EscriptGrammar::EscriptParser::FunctionExpressionContext>::value;
+
+  return std::make_unique<UserFunction>( location_for( *ctx ), exported, expression,
+                                         std::move( name ), std::move( parameter_list ),
+                                         std::move( body ), location_for( *end_token ) );
 }
 }  // namespace Pol::Bscript::Compiler

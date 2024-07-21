@@ -6,10 +6,10 @@
 #include <string>
 #include <vector>
 
-#include "clib/maputil.h"
 #include "bscript/compiler/model/SimpleTypes.h"
 #include "bscript/compiler/model/VariableScope.h"
 #include "bscript/compiler/model/WarnOn.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -22,7 +22,7 @@ class Variables
 public:
   Variables( VariableScope, Report& );
 
-  std::shared_ptr<Variable> create( const std::string& name, BlockDepth, WarnOn,
+  std::shared_ptr<Variable> create( const std::string& name, FunctionDepth, BlockDepth, WarnOn,
                                     const SourceLocation& );
 
   [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name ) const;

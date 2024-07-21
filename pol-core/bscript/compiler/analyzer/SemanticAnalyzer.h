@@ -6,10 +6,10 @@
 #include <map>
 #include <memory>
 
-#include "clib/maputil.h"
 #include "bscript/compiler/analyzer/FlowControlScopes.h"
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"
 #include "bscript/compiler/analyzer/Variables.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -39,6 +39,7 @@ public:
   void visit_function_call( FunctionCall& ) override;
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;
+  void visit_function_expression( FunctionExpression& ) override;
   void visit_function_reference( FunctionReference& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_jump_statement( JumpStatement& ) override;

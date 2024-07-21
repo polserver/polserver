@@ -19,8 +19,8 @@ class Variable;
 class LocalVariableScope
 {
 public:
-  explicit LocalVariableScope( LocalVariableScopes&,
-                               LocalVariableScopeInfo& );
+  explicit LocalVariableScope( LocalVariableScopes&, LocalVariableScopeInfo&,
+                               FunctionDepth depth_increment = 0 );
   ~LocalVariableScope();
 
   std::shared_ptr<Variable> create( const std::string& name, WarnOn, const SourceLocation& );
@@ -32,6 +32,9 @@ private:
   const unsigned prev_locals;
   std::vector<std::shared_ptr<Variable>> shadowing;
   LocalVariableScopeInfo& local_variable_scope_info;
+
+public:
+  const FunctionDepth function_depth;
 };
 
 }  // namespace Pol::Bscript::Compiler
