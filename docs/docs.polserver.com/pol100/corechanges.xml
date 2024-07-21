@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-16-2024</datemodified>
+		<datemodified>07-21-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-21-2024</date>
+			<author>Kukkino:</author>
+			<change type="Fixed">Changing realm will now send full status to player to prevent showing scaled hp/maxhp.</change>
+		</entry>
 		<entry>
 			<date>07-16-2024</date>
 			<author>Kevin:</author>
