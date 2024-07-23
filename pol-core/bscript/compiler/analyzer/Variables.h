@@ -16,18 +16,22 @@ namespace Pol::Bscript::Compiler
 class Report;
 class SourceLocation;
 class Variable;
+class FunctionVariableScope;
 
 class Variables
 {
 public:
   Variables( VariableScope, Report& );
 
-  std::shared_ptr<Variable> create( const std::string& name, FunctionDepth, BlockDepth, WarnOn,
+  std::shared_ptr<Variable> create( const std::string& name, BlockDepth, WarnOn,
                                     const SourceLocation& );
 
   std::shared_ptr<Variable> capture( std::shared_ptr<Variable>& );
 
-  [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name ) const;
+  // `function_ancestor_count` is set 0 if in the variable is defined in the current function, 1 for
+  // function above, ...
+  [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name,
+                                                int* function_ancestor_count = nullptr ) const;
 
   void restore_shadowed( std::shared_ptr<Variable> );
 
@@ -40,10 +44,20 @@ private:
   const VariableScope scope;
   Report& report;
 
-  typedef std::map<std::string, std::shared_ptr<Variable>, Clib::ci_cmp_pred> VariableMap;
+  // Encapsulates the current variable stack across function expresions
+  struct VariablesInfo
+  {
+    typedef std::map<std::string, std::shared_ptr<Variable>, Clib::ci_cmp_pred> VariableMap;
 
-  VariableMap variables_by_name;
-  std::vector<std::string> names_by_index;
+    VariableMap variables_by_name;
+    std::vector<std::string> names_by_index;
+  };
+
+  std::vector<VariablesInfo> variable_info_stack;
+  VariablesInfo& current();
+
+  // Used to reset the variable indexs for new function expressions
+  friend class FunctionVariableScope;
 };
 
 }  // namespace Pol::Bscript::Compiler

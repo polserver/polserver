@@ -16,6 +16,7 @@
 #endif
 #include "bscript/compiler/codegen/CodeEmitter.h"
 #include "bscript/compiler/codegen/DataEmitter.h"
+#include "bscript/compiler/model/SimpleTypes.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/DebugStore.h"
 
@@ -50,7 +51,8 @@ public:
   unsigned enter_debug_block( const LocalVariableScopeInfo& );
   void set_debug_block( unsigned );
 
-  void access_variable( const Variable& );
+  void access_variable( const Variable&, VariableIndex function_params_count,
+                        VariableIndex function_capture_count );
   void array_append();
   void array_create();
   void array_declare();
@@ -71,7 +73,7 @@ public:
   void consume();
   void ctrl_statementbegin( unsigned file_index, unsigned file_offset,
                             const std::string& source_text );
-  void declare_variable( const Variable& );
+  void declare_variable( const Variable&, VariableIndex function_capture_count );
   void dictionary_create();
   void dictionary_add_member();
   void error_create();
@@ -79,6 +81,7 @@ public:
   void foreach_init( FlowControlLabel& );
   void foreach_step( FlowControlLabel& );
   void function_reference( unsigned parameter_count, FlowControlLabel& );
+  void functor_create();
   void get_arg( const std::string& name );
   void get_member( const std::string& name );
   void get_member_id( MemberID );
@@ -109,6 +112,9 @@ public:
   void value( int );
   void value( bool );
   void value( const std::string& );
+  // Create an empty value. Use patch_value to set the value later.
+  template <typename T>
+  unsigned int value();
   void interpolate_string( unsigned count );
   void format_expression();
 
@@ -119,6 +125,8 @@ public:
                             unsigned last_address );
 
   void patch_offset( unsigned index, unsigned offset );
+  template <typename T>
+  void patch_value( unsigned index, T value );
 
 private:
   unsigned emit_data( const std::string& );
@@ -134,6 +142,21 @@ private:
 
   DebugStore::InstructionInfo debug_instruction_info{};
 };
+
+template <>
+inline unsigned int InstructionEmitter::value<int>()
+{
+  auto offset = next_instruction_address();
+  emit_token( TOK_LONG, TYP_OPERAND, 0 );
+  return offset;
+}
+
+template <>
+inline void InstructionEmitter::patch_value( unsigned index, int v )
+{
+  unsigned offset = data_emitter.append( v );
+  patch_offset( index, offset );
+}
 
 }  // namespace Pol::Bscript::Compiler
 

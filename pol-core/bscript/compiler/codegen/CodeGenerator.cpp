@@ -66,10 +66,10 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 }
 
 CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
-    ModuleDeclarationRegistrar& module_declaration_registrar )
-  : module_declaration_registrar( module_declaration_registrar ),
-    emitter( emitter ),
-    emit( emitter )
+                              ModuleDeclarationRegistrar& module_declaration_registrar )
+    : module_declaration_registrar( module_declaration_registrar ),
+      emitter( emitter ),
+      emit( emitter )
 {
 }
 
@@ -79,21 +79,24 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
   emitter.debug_file_line( 0, 1 );
 
   std::map<std::string, FlowControlLabel> user_function_labels;
-  InstructionGenerator outer_instruction_generator( emitter, user_function_labels, false );
-  InstructionGenerator function_instruction_generator( emitter, user_function_labels, true );
+  InstructionGenerator generator( emitter, user_function_labels );
 
-  workspace.top_level_statements->accept( outer_instruction_generator );
+  workspace.top_level_statements->accept( generator );
 
   if ( auto& program = workspace.program )
   {
-    program->accept( outer_instruction_generator );
+    program->accept( generator );
   }
 
   emit.progend();
 
   for ( auto& user_function : workspace.user_functions )
   {
-    user_function->accept( function_instruction_generator );
+    // Function expressions are handled inside InstructionGenerator visit_function_expression
+    if ( !user_function->expression )
+    {
+      user_function->accept( generator );
+    }
   }
 }
 

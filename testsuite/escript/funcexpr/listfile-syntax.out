@@ -1,0 +1,44 @@
+0: 0 (integer) offset=0xb
+1: create-functor instructions=5
+2: pop param 'k'
+3: pop param 'j'
+4: pop param 'i'
+5: 1 (integer) offset=0x7
+6: return
+7: # (consume)
+8: 0 (integer) offset=0x13
+9: create-functor instructions=2
+10: 0 (integer) offset=0xf
+11: return
+12: # (consume)
+13: 0 (integer) offset=0x1b
+14: create-functor instructions=2
+15: 1 (integer) offset=0x17
+16: return
+17: # (consume)
+18: 0 (integer) offset=0x23
+19: create-functor instructions=5
+20: pop param 'k'
+21: pop param byref 'j'
+22: pop param 'i'
+23: 1 (integer) offset=0x1f
+24: return
+25: # (consume)
+26: "listfile-syntax" (string) len=15 offset=0x27
+27: makelocal
+28: jsr userfunc @31
+29: # (consume)
+30: progend
+31: pop param 'test'
+32: "\n" (string) len=1 offset=0x3c
+33: "./funcexpr/" (string) len=11 offset=0x3e
+34: local variable #0
+35: ".lst" (string) len=4 offset=0x4a
+36: interpolate string (3 parts)
+37: call module function (1, 0): ReadFile
+38: call-method-id 'join' (#142, 1 arguments)
+39: "" (string) len=0 offset=0x2
+40: call module function (0, 0): Print
+41: # (consume)
+42: 0 (integer) offset=0x4f
+43: return

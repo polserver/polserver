@@ -3113,6 +3113,23 @@ void Executor::ins_funcref( const Instruction& ins )
       new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
 }
 
+// Skeleton implementation to pass tests
+void Executor::ins_functor( const Instruction& ins )
+{
+  int capture_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
+  ValueStack.pop_back();
+  while ( capture_count > 0 )
+  {
+    BObjectRef ref = ValueStack.back();
+    ValueStack.pop_back();
+    capture_count--;
+  }
+
+  ValueStack.push_back( BObjectRef( new BBoolean( true ) ) );
+
+  PC += ins.token.lval;
+}
+
 void Executor::ins_nop( const Instruction& /*ins*/ ) {}
 
 ExecInstrFunc Executor::GetInstrFunc( const Token& token )
@@ -3156,6 +3173,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_dictionary;
   case TOK_FUNCREF:
     return &Executor::ins_funcref;
+  case TOK_FUNCTOR:
+    return &Executor::ins_functor;
   case INS_UNINIT:
     return &Executor::ins_uninit;
   case TOK_IDENT:

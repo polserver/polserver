@@ -429,6 +429,7 @@ public:
   void ins_nextfor( const Instruction& ins );
 
   void ins_funcref( const Instruction& ins );
+  void ins_functor( const Instruction& ins );
 
   static int ins_casejmp_findlong( const Token& token, BLong* blong );
   static int ins_casejmp_findbool( const Token& token, BBoolean* bbool );

@@ -10,16 +10,12 @@
 namespace Pol::Bscript::Compiler
 {
 LocalVariableScope::LocalVariableScope( LocalVariableScopes& scopes,
-                                        LocalVariableScopeInfo& local_variable_scope_info,
-                                        FunctionDepth depth_increment )
+                                        LocalVariableScopeInfo& local_variable_scope_info )
     : scopes( scopes ),
       report( scopes.report ),
       block_depth( scopes.local_variable_scopes.size() ),
       prev_locals( scopes.local_variables.count() ),
-      local_variable_scope_info( local_variable_scope_info ),
-      function_depth( depth_increment + ( scopes.current_local_scope() == nullptr
-                                              ? 0
-                                              : scopes.current_local_scope()->function_depth ) )
+      local_variable_scope_info( local_variable_scope_info )
 {
   local_variable_scope_info.base_index = prev_locals;
   scopes.local_variable_scopes.push_back( this );
@@ -52,11 +48,8 @@ std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, W
     }
     shadowing.push_back( existing );
   }
-  auto function_depth =
-      scopes.current_local_scope() == nullptr ? 0 : scopes.current_local_scope()->function_depth;
 
-  auto local =
-      scopes.local_variables.create( name, function_depth, block_depth, warn_on, source_location );
+  auto local = scopes.local_variables.create( name, block_depth, warn_on, source_location );
 
   local_variable_scope_info.variables.push_back( local );
 

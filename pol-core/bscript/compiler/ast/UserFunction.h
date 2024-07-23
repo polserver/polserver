@@ -27,6 +27,8 @@ public:
   LocalVariableScopeInfo local_variable_scope_info;
   LocalVariableScopeInfo capture_variable_scope_info;
 
+  unsigned capture_count() const;
+
   FunctionBody& body();
 };
 

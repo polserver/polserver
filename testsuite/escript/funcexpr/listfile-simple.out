@@ -1,0 +1,39 @@
+0: "" (string) len=0 offset=0x1
+1: if false goto 21
+2: declare local #0
+3: # (consume)
+4: local variable #0
+5: 1 (integer) offset=0xa
+6: create-functor instructions=12
+7: pop param 'a'
+8: pop param 'b'
+9: declare local #2
+10: # (consume)
+11: local variable #1
+12: # (consume)
+13: local variable #0
+14: # (consume)
+15: local variable #2
+16: # (consume)
+17: 0 (integer) offset=0x6
+18: return
+19: # (consume)
+20: leave block (remove 1 locals)
+21: "listfile-simple" (string) len=15 offset=0xe
+22: makelocal
+23: jsr userfunc @26
+24: # (consume)
+25: progend
+26: pop param 'test'
+27: "\n" (string) len=1 offset=0x23
+28: "./funcexpr/" (string) len=11 offset=0x25
+29: local variable #0
+30: ".lst" (string) len=4 offset=0x31
+31: interpolate string (3 parts)
+32: call module function (1, 0): ReadFile
+33: call-method-id 'join' (#142, 1 arguments)
+34: "" (string) len=0 offset=0x1
+35: call module function (0, 0): Print
+36: # (consume)
+37: 0 (integer) offset=0x36
+38: return

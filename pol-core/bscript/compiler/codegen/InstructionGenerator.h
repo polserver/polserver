@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <map>
+#include <stack>
 #include <string>
 
 namespace Pol::Bscript::Compiler
@@ -16,8 +17,7 @@ class InstructionGenerator : public NodeVisitor
 {
 public:
   InstructionGenerator( InstructionEmitter&,
-                        std::map<std::string, FlowControlLabel>& user_function_labels,
-                        bool in_function);
+                        std::map<std::string, FlowControlLabel>& user_function_labels );
 
   void generate( Node& );
 
@@ -82,7 +82,7 @@ private:
   InstructionEmitter& emit;
 
   std::map<std::string, FlowControlLabel>& user_function_labels;
-  const bool in_function;
+  std::stack<UserFunction*> user_functions;
 };
 
 }  // namespace Pol::Bscript::Compiler

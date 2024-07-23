@@ -19,11 +19,11 @@ namespace Pol::Bscript::Compiler
 InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data, DebugStore& debug,
                                         ExportedFunctions& exported_functions,
                                         ModuleDeclarationRegistrar& module_declaration_registrar )
-  : code_emitter( code ),
-    data_emitter( data ),
-    debug( debug ),
-    exported_functions( exported_functions ),
-    module_declaration_registrar( module_declaration_registrar )
+    : code_emitter( code ),
+      data_emitter( data ),
+      debug( debug ),
+      exported_functions( exported_functions ),
+      module_declaration_registrar( module_declaration_registrar )
 {
   initialize_data();
 }
@@ -59,10 +59,41 @@ void InstructionEmitter::set_debug_block( unsigned block_index )
   debug_instruction_info.block_index = block_index;
 }
 
-void InstructionEmitter::access_variable( const Variable& v )
+// - When visiting an identifier:
+// - If type == Capture: set to Local and ValueStack offset will be current function's param count +
+// this variable index
+// - If type == Local: if offset >= function param count, add current function's capture count
+void InstructionEmitter::access_variable( const Variable& v, VariableIndex function_params_count,
+                                          VariableIndex function_capture_count )
 {
-  BTokenId token_id = v.scope == VariableScope::Global ? TOK_GLOBALVAR : TOK_LOCALVAR;
-  emit_token( token_id, TYP_OPERAND, v.index );
+  BTokenId token_id;
+  unsigned offset;
+
+  if ( v.scope == VariableScope::Capture )
+  {
+    token_id = TOK_LOCALVAR;
+
+    offset = v.index + function_params_count;
+  }
+  else if ( v.scope == VariableScope::Local )
+  {
+    token_id = TOK_LOCALVAR;
+
+    if ( v.index >= function_params_count )
+    {
+      offset = v.index + function_capture_count;
+    }
+    else
+    {
+      offset = v.index;
+    }
+  }
+  else
+  {
+    token_id = TOK_GLOBALVAR;
+    offset = v.index;
+  }
+  emit_token( token_id, TYP_OPERAND, offset );
 }
 
 void InstructionEmitter::array_append()
@@ -184,10 +215,23 @@ void InstructionEmitter::ctrl_statementbegin( unsigned file_index, unsigned file
   emit_token( CTRL_STATEMENTBEGIN, TYP_CONTROL, offset );
 }
 
-void InstructionEmitter::declare_variable( const Variable& v )
+// - When declaring an identifier:
+// - If type == Local: if offset >= function param count, add current function's capture count
+void InstructionEmitter::declare_variable( const Variable& v, VariableIndex function_capture_count )
 {
+  int offset;
+
+  if ( v.scope == VariableScope::Local && v.index >= function_capture_count )
+  {
+    offset = v.index + function_capture_count;
+  }
+  else
+  {
+    offset = v.index;
+  }
+
   BTokenId token_id = v.scope == VariableScope::Global ? RSV_GLOBAL : RSV_LOCAL;
-  emit_token( token_id, TYP_RESERVED, v.index );
+  emit_token( token_id, TYP_RESERVED, offset );
 }
 
 void InstructionEmitter::dictionary_create()
@@ -223,6 +267,11 @@ void InstructionEmitter::foreach_step( FlowControlLabel& label )
 void InstructionEmitter::function_reference( unsigned parameter_count, FlowControlLabel& label )
 {
   register_with_label( label, emit_token( TOK_FUNCREF, (BTokenType)parameter_count ) );
+}
+
+void InstructionEmitter::functor_create()
+{
+  emit_token( TOK_FUNCTOR, TYP_OPERAND );
 }
 
 void InstructionEmitter::get_arg( const std::string& name )

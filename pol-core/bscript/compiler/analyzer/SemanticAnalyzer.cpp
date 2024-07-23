@@ -5,6 +5,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/analyzer/FlowControlScope.h"
+#include "bscript/compiler/analyzer/FunctionVariableScope.h"
 #include "bscript/compiler/analyzer/LocalVariableScope.h"
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"
 #include "bscript/compiler/ast/Argument.h"
@@ -460,21 +461,36 @@ void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
 {
   if ( auto user_function = node.function_link->user_function() )
   {
-    LocalVariableScope capture_scope( capture_scopes, user_function->capture_variable_scope_info );
+    {
+      LocalVariableScope capture_scope( capture_scopes,
+                                        user_function->capture_variable_scope_info );
+      FunctionVariableScope new_function_scope( locals );
+      visit_user_function( *user_function );
+    }
 
-    visit_user_function( *user_function );
-
-    auto capture_count = user_function->capture_variable_scope_info.variables.size();
-
+    auto capture_count = user_function->capture_count();
     if ( capture_count > 0 )
     {
-      report.warning( node, "{} depth={} captures={}", user_function->name,
-                      local_scopes.current_function_depth(), capture_count );
+      report.warning( node, "{} locals={} captures={}", user_function->name,
+                      user_function->parameter_count(), capture_count );
 
+      report.warning( node, "  - captures:" );
       for ( const auto& variable : user_function->capture_variable_scope_info.variables )
       {
-        report.warning( node, "  - {} depth={} index={}", variable->name, variable->function_depth,
-                        variable->index );
+        report.warning( node, "    - {} index={}", variable->name, variable->index );
+      }
+
+      // Update all function indexes, because the captured variables will go first on the stack.
+      if ( user_function->parameter_count() > 0 )
+      {
+        report.warning( node, "  - locals:", user_function->name, user_function->parameter_count(),
+                        capture_count );
+        for ( const auto& variable : user_function->local_variable_scope_info.variables )
+        {
+          report.warning( node, "    - {} index={}->{}", variable->name, variable->index,
+                          variable->index + capture_count );
+          // variable->index += capture_count;
+        }
       }
     }
   }
@@ -490,17 +506,16 @@ void SemanticAnalyzer::visit_function_reference( FunctionReference& node )
 
 void SemanticAnalyzer::visit_identifier( Identifier& node )
 {
-  if ( auto local = locals.find( node.name ) )
+  int function_ancestor_count;
+
+  if ( auto local = locals.find( node.name, &function_ancestor_count ) )
   {
-    if ( local->function_depth != local_scopes.current_function_depth() )
+    local->mark_used();
+    node.variable = local;
+
+    if ( function_ancestor_count > 0 )
     {
-      auto captured = capture_scopes.current_local_scope()->capture( local );
-      node.variable = captured;
-    }
-    else
-    {
-      local->mark_used();
-      node.variable = local;
+      node.variable = capture_scopes.current_local_scope()->capture( local );
     }
   }
   else if ( auto global = globals.find( node.name ) )
@@ -586,7 +601,7 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
                     node.name, node.name.length(), max_name_length );
     }
   }
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info, 1 );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
 
   visit_children( node );
 }
@@ -619,7 +634,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
       return;
     }
 
-    node.variable = globals.create( node.name, 0, 0, WarnOn::Never, node.source_location );
+    node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
   }
   visit_children( node );
 }

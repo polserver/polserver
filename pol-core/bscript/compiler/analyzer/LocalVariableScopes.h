@@ -17,7 +17,6 @@ public:
   LocalVariableScopes( Variables& locals, Report& report );
 
   LocalVariableScope* current_local_scope();
-  FunctionDepth current_function_depth();
 
 private:
   friend class LocalVariableScope;

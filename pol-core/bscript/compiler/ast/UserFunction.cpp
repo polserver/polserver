@@ -31,6 +31,11 @@ void UserFunction::describe_to( std::string& w ) const
   fmt::format_to( std::back_inserter( w ), "user-function({})", name );
 }
 
+unsigned UserFunction::capture_count() const
+{
+  return capture_variable_scope_info.variables.size();
+}
+
 FunctionBody& UserFunction::body()
 {
   return child<FunctionBody>( 1 );

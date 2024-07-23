@@ -1,0 +1,17 @@
+include "listfile";
+
+if ("") // create a local scope
+
+  var a; // declare local 0
+
+  function (b) { // create functor, 1 capture (a -> local 0)
+
+      var c; // declare local 2, as bound `c` takes local #2
+
+      a; // access local 1
+      b; // access local 0
+      c; // access local 2
+  };
+endif
+
+print_listfile( "listfile-simple" );
