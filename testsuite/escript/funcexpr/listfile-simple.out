@@ -5,8 +5,8 @@
 4: local variable #0
 5: 1 (integer) offset=0xa
 6: create-functor instructions=12
-7: pop param 'a'
-8: pop param 'b'
+7: pop param 'b'
+8: pop param 'a'
 9: declare local #2
 10: # (consume)
 11: local variable #1

@@ -735,12 +735,17 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
 
   FlowControlLabel& label = user_function_labels[user_function.name];
   emit.label( label );
+
+  // Pop function parameters
+  user_function.child<FunctionParameterList>( 0 ).accept( *this );
+
+  // Pop caputured variables
   for ( const auto& variable : user_function.capture_variable_scope_info.variables )
   {
     emit.pop_param( variable->name );
   }
 
-  visit_children( user_function );
+  user_function.body().accept( *this );
 
   if ( !dynamic_cast<ReturnStatement*>( user_function.body().last_statement() ) )
   {
