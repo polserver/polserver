@@ -1699,15 +1699,13 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       //   `ex.withContinuation`.
       // - Return something else (in this case, the filtered array) to provide
       //   that value back to the script.
-      auto callback = [this, filteredRef = BObjectRef( new ObjArray ),
-                       processedRef = BObjectRef( new BLong( 1 ) ),
-                       elementRef = BObjectRef( new BObject( args[0]->impptr() ) ),
+      auto callback = [this, filteredRef = BObjectRef( new ObjArray ), processed = 1,
+                       elementRef = BObjectRef( new BObject( args[0]->impptr()->copy() ) ),
                        initialSize = static_cast<int>( ref_arr.size() )](
                           Executor& ex, BContinuation* continuation,
-                          BObjectRef result ) -> BObjectImp*
+                          BObjectRef result ) mutable -> BObjectImp*
       {
         auto filtered = static_cast<ObjArray*>( filteredRef->impptr() );
-        auto processed = static_cast<BLong*>( processedRef->impptr() );
 
         // Do something with result.
         // If the result is true, add it to the filtered array.
@@ -1719,8 +1717,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         // If the processed index is the last element, return the filtered
         // array. Also check if the processed index is greater than the initial
         // size of the array, as the user function may have modified the array.
-        if ( processed->value() >= initialSize ||
-             processed->value() >= static_cast<int>( ref_arr.size() ) )
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
         {
           return filtered;
         }
@@ -1728,14 +1725,14 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         else
         {
           // Increment the processed counter.
-          processed->increment();
+          ++processed;
 
           BObjectRefVec args;
-          args.push_back( ref_arr[processed->value() - 1] );
-          args.push_back( BObjectRef( new BObject( new BLong( processed->value() ) ) ) );
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
           args.push_back( BObjectRef( new BObject( this ) ) );
 
-          elementRef->setimp( args[0]->impptr() );
+          elementRef->setimp( args[0]->impptr()->copy() );
 
           // Return this continuation with the new arguments.
           return ex.withContinuation( continuation, std::move( args ) );

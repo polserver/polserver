@@ -494,6 +494,32 @@ void Executor::setFunctionResult( BObjectImp* imp )
   func_result_ = imp;
 }
 
+void Executor::printStack( const std::string& message )
+{
+  if ( !message.empty() )
+  {
+    INFO_PRINTLN( message );
+  }
+
+  size_t i = 0;
+  for ( auto riter = fparams.rbegin(); riter != fparams.rend(); ++riter )
+  {
+    auto* ptr = riter->get()->impptr();
+    INFO_PRINTLN( "fparam[{} @ {}] {}", static_cast<void*>( ptr ), i, ptr->getStringRep() );
+    i++;
+  }
+
+  i = 0;
+  for ( auto riter = ValueStack.rbegin(); riter != ValueStack.rend(); ++riter )
+  {
+    auto* ptr = riter->get()->impptr();
+    INFO_PRINTLN( "vstack[{} @ {}] {}", static_cast<void*>( ptr ), i, ptr->getStringRep() );
+    i++;
+  }
+
+  INFO_PRINTLN( "---" );
+}
+
 bool Executor::getParam( unsigned param, int& value, int maxval )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
@@ -2624,6 +2650,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       cleanParams();
       nparams = static_cast<unsigned int>( continuation->numParams() );
 
+      printStack( "End of call_method_id" );
       // Next on the stack is a `FuncRef` that we need to call. We will continue the loop and handle
       // it.
 
@@ -2699,7 +2726,12 @@ void Executor::ins_call_method( const Instruction& ins )
   std::string name( strm.str() );
   unsigned long profile_start = GetTimeUs();
 #endif
-  BObjectImp* imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
+  BObjectImp* imp;
+
+  if ( strcmp( ins.token.tokval(), "impptr" ) == 0 )
+    imp = new String( fmt::format( "{}", static_cast<void*>( this ) ) );
+  else
+    imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
@@ -2901,8 +2933,14 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     }
     else
     {
+      // Remove the original `this` receiver from the stack, eg. remove `array{}` from
+      // `array{}.filter(...)`
+      ValueStack.pop_back();
+
+      // Add the result to the stack.
       ValueStack.push_back( BObjectRef( new BObject( imp ) ) );
     }
+    printStack( fmt::format( "End of ins_return, PC={}", PC ) );
   }
 }
 
@@ -3792,6 +3830,8 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
   // Move all arguments to the fparams stack
   fparams.insert( fparams.end(), std::make_move_iterator( args.begin() ),
                   std::make_move_iterator( args.end() ) );
+
+  printStack( "End of withContinuation" );
 
   return continuation;
 }

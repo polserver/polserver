@@ -486,6 +486,8 @@ private:
 
   BObjectImp* func_result_;
 
+  void printStack( const std::string& message );
+
 private:  // not implemented
   Executor( const Executor& exec );
   Executor& operator=( const Executor& exec );
