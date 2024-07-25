@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-21-2024</datemodified>
+		<datemodified>07-25-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-25-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">The compiler now supports any expression as the callee for a function call,</change>
+			<change type="eg">`var func := @FunctionObject; func( 1, 2, 3 )`. For now, only function<br/>
+references (ie. a variable that holds or a function that returns a<br/>
+`@FunctionObject`) can be called in this manner.</change>
+		</entry>
 		<entry>
 			<date>07-21-2024</date>
 			<author>Kukkino:</author>

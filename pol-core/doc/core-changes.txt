@@ -1,4 +1,9 @@
 -- POL100.2.0 --
+07-25-2024 Kevin:
+    Added: The compiler now supports any expression as the callee for a function call,
+           eg: `var func := @FunctionObject; func( 1, 2, 3 )`. For now, only function
+           references (ie. a variable that holds or a function that returns a
+           `@FunctionObject`) can be called in this manner.
 07-21-2024 Kukkino:
     Fixed: Changing realm will now send full status to player to prevent showing scaled hp/maxhp.
 07-16-2024 Kevin:
