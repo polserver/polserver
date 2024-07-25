@@ -1,0 +1,23 @@
+include "listfile";
+
+if ("")
+
+var a;
+
+// Creates a chain of functors using zero captures, each using its own local function parameter `a`
+function (a) {
+  a;
+  function (a) {
+    a;
+    function (a) {
+      a;
+      function (a) {
+        a;
+      };
+    };
+  };
+};
+
+endif
+
+print_listfile("listfile-nested-3");

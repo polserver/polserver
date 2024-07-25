@@ -1,0 +1,22 @@
+include "listfile";
+
+function curry(f) // curry(f) does the currying transform
+  return function(a) {
+    return function(b) {
+      // Change this to `f(a, b)` when expressions-as-callee feature lands.
+      return f.call(a, b);
+    };
+  };
+endfunction
+
+// usage
+function sum(a, b)
+  return a + b;
+endfunction
+
+var curriedSum := curry(@sum);
+
+// Change this to `curriedSum(1)(2)` when expressions-as-callee feature lands.
+curriedSum.call(1).call(2);
+
+print_listfile("listfile-curry");

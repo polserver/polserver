@@ -1,0 +1,143 @@
+0: "" (string) len=0 offset=0x1
+1: if false goto 80
+2: declare local #0
+3: # (consume)
+4: local variable #0
+5: 1 (integer) offset=0x38
+6: create-functor instructions=71
+    7: pop param 'a'
+    8: local variable #0
+    9: 1 (integer) offset=0x30
+    10: create-functor instructions=64
+        11: pop param 'b'
+        12: pop param 'a'
+        13: local variable #1
+        14: # (consume)
+        15: 0 (integer) offset=0x12
+        16: create-functor instructions=16
+            17: pop param 'a'
+            18: local variable #0
+            19: # (consume)
+            20: 0 (integer) offset=0xa
+            21: create-functor instructions=6
+                22: declare local #0
+                23: # (consume)
+                24: local variable #0
+                25: # (consume)
+                26: 0 (integer) offset=0x6
+                27: return
+            28: # (consume)
+            29: local variable #0
+            30: # (consume)
+            31: 0 (integer) offset=0xe
+            32: return
+        33: # (consume)
+        34: local variable #1
+        35: 1 (integer) offset=0x28
+        36: create-functor instructions=31
+            37: pop param 'e'
+            38: pop param 'd'
+            39: pop param 'c'
+            40: pop param 'a'
+            41: local variable #3
+            42: # (consume)
+            43: local variable #2
+            44: local variable #1
+            45: local variable #0
+            46: 3 (integer) offset=0x20
+            47: create-functor instructions=15
+                48: pop param 'c'
+                49: pop param 'd'
+                50: pop param 'e'
+                51: declare local #0
+                52: # (consume)
+                53: local variable #3
+                54: # (consume)
+                55: local variable #0
+                56: # (consume)
+                57: local variable #1
+                58: # (consume)
+                59: local variable #2
+                60: # (consume)
+                61: 0 (integer) offset=0x1c
+                62: return
+            63: # (consume)
+            64: local variable #3
+            65: # (consume)
+            66: 0 (integer) offset=0x24
+            67: return
+        68: # (consume)
+        69: declare local #2
+        70: # (consume)
+        71: local variable #2
+        72: # (consume)
+        73: 0 (integer) offset=0x2c
+        74: return
+    75: # (consume)
+    76: 0 (integer) offset=0x34
+    77: return
+78: # (consume)
+79: leave block (remove 1 locals)
+80: "listfile-complex-1" (string) len=18 offset=0x3c
+81: makelocal
+82: jsr userfunc @85
+83: # (consume)
+84: progend
+85: pop param 'test'
+86: declare local #1
+87: "./funcexpr/" (string) len=11 offset=0x54
+88: local variable #0
+89: ".lst" (string) len=4 offset=0x60
+90: interpolate string (3 parts)
+91: call module function (1, 0): ReadFile
+92: :=
+93: # (consume)
+94: local variable #1
+95: if true goto 100
+96: local variable #1
+97: "" (string) len=0 offset=0x1
+98: call module function (0, 0): Print
+99: return
+100: declare local #2
+101: "" (string) len=0 offset=0x1
+102: :=
+103: # (consume)
+104: local variable #1
+105: initforeach @139
+106: local variable #2
+107: local variable #3
+108: interpolate string (2 parts)
+109: "" (string) len=0 offset=0x1
+110: call module function (0, 0): Print
+111: # (consume)
+112: local variable #3
+113: " " (string) len=1 offset=0x65
+114: "create-functor" (string) len=14 offset=0x67
+115: interpolate string (2 parts)
+116: TOK_ARRAY_SUBSCRIPT
+117: if false goto 123
+118: local variable #2
+119: "    " (string) len=4 offset=0x76
+120: interpolate string (2 parts)
+121: local #2 :=
+122: goto 139
+123: local variable #3
+124: " " (string) len=1 offset=0x65
+125: "return" (string) len=6 offset=0x7b
+126: interpolate string (2 parts)
+127: TOK_ARRAY_SUBSCRIPT
+128: if false goto 139
+129: local variable #2
+130: 1 (integer) offset=0x82
+131: local variable #2
+132: call-method-id 'length' (#141, 0 arguments)
+133: 4 (integer) offset=0x86
+134: -
+135: multi subscript get (2 indexes)
+136: peek at top of stack; skip 1 instructions if true, otherwise consume it
+137: "" (string) len=0 offset=0x1
+138: local #2 :=
+139: stepforeach @106
+140: leave block (remove 3 locals)
+141: 0 (integer) offset=0x8a
+142: return
