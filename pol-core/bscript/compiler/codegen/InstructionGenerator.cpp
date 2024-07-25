@@ -394,7 +394,7 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
     visit_children( call );
     update_debug_location( call );
     // Subtract 1 because the first child is the callee.
-    emit.call_method_id( MTH_CALL, call.children.size() - 1 );
+    emit.call_method_id( MTH_CALL, static_cast<unsigned int>( call.children.size() - 1 ) );
   }
   else
   {
