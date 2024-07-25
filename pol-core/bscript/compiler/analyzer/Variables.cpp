@@ -1,6 +1,7 @@
 #include "Variables.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/adaptor/sliced.hpp>
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceLocation.h"
@@ -21,8 +22,9 @@ std::shared_ptr<Variable> Variables::create( const std::string& name, BlockDepth
   {
     report.error( source_location, "Too many variables" );
   }
-  auto variable = std::make_shared<Variable>(
-      scope, name, block_depth, static_cast<VariableIndex>( index ), warn_on, source_location );
+  auto variable =
+      std::make_shared<Variable>( scope, name, block_depth, static_cast<VariableIndex>( index ),
+                                  warn_on, nullptr, source_location );
   current().variables_by_name[name] = variable;
   current().names_by_index.push_back( name );
   return variable;
@@ -41,33 +43,38 @@ std::shared_ptr<Variable> Variables::capture( std::shared_ptr<Variable>& other )
   auto index = current().names_by_index.size();
   auto captured =
       std::make_shared<Variable>( VariableScope::Capture, other->name, other->block_depth, index,
-                                  other->warn_on, other->source_location );
+                                  other->warn_on, other, other->source_location );
 
   current().variables_by_name[other->name] = captured;
   current().names_by_index.push_back( captured->name );
   return captured;
 }
 
-std::shared_ptr<Variable> Variables::find( const std::string& name,
-                                           int* function_ancestor_count ) const
+void Variables::add( std::shared_ptr<Variable>& other )
 {
-  if ( function_ancestor_count )
-  {
-    *function_ancestor_count = 0;
-  }
+  current().variables_by_name[other->name] = other;
+  current().names_by_index.push_back( other->name );
+}
 
-  for ( auto const& info : boost::adaptors::reverse( variable_info_stack ) )
+std::shared_ptr<Variable> Variables::find( const std::string& name ) const
+{
+  auto itr = variable_info_stack.back().variables_by_name.find( name );
+  return ( itr != variable_info_stack.back().variables_by_name.end() )
+             ? ( *itr ).second
+             : std::shared_ptr<Variable>();
+}
+
+std::shared_ptr<Variable> Variables::find_in_ancestors( const std::string& name ) const
+{
+  for ( const auto& info : variable_info_stack |
+                               boost::adaptors::sliced( 0, variable_info_stack.size() - 1 ) |
+                               boost::adaptors::reversed )
   {
     auto itr = info.variables_by_name.find( name );
 
     if ( itr != info.variables_by_name.end() )
     {
       return ( *itr ).second;
-    }
-
-    if ( function_ancestor_count )
-    {
-      ++( *function_ancestor_count );
     }
   }
   return nullptr;

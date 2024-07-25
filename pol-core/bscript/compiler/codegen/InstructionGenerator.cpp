@@ -458,7 +458,7 @@ void InstructionGenerator::visit_function_expression( FunctionExpression& node )
 
     for ( const auto& variable : user_function->capture_variable_scope_info.variables )
     {
-      emit.access_variable( *variable, function_params_count, function_capture_count );
+      emit.access_variable( *variable->capturing, function_params_count, function_capture_count );
     }
 
     auto capture_count_index = emit.value<int>();

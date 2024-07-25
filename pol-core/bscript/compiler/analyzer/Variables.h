@@ -27,11 +27,13 @@ public:
                                     const SourceLocation& );
 
   std::shared_ptr<Variable> capture( std::shared_ptr<Variable>& );
+  void add( std::shared_ptr<Variable>& );
 
-  // `function_ancestor_count` is set 0 if in the variable is defined in the current function, 1 for
-  // function above, ...
-  [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name,
-                                                int* function_ancestor_count = nullptr ) const;
+  // Looks in parent and all ancestor function variable scopes
+  [[nodiscard]] std::shared_ptr<Variable> find_in_ancestors( const std::string& name ) const;
+
+  // Only looks in current function variable scope
+  [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name ) const;
 
   void restore_shadowed( std::shared_ptr<Variable> );
 

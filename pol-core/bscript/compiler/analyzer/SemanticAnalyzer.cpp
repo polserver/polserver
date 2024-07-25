@@ -461,11 +461,45 @@ void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
 {
   if ( auto user_function = node.function_link->user_function() )
   {
+    // Create a new capture scope for this function. It must be in a new C++
+    // scope for to add the captures to
+    // `user_function->capture_variable_scope_info` via the user function
+    // visitor.
     {
+      FunctionVariableScope new_capture_scope( captures );
       LocalVariableScope capture_scope( capture_scopes,
                                         user_function->capture_variable_scope_info );
       FunctionVariableScope new_function_scope( locals );
       visit_user_function( *user_function );
+    }
+
+    // Since the capture_scope was popped (above), any _existing_ capture scope refers to
+    // the parent function expression in the tree. Adjust that function to inherit this function's
+    // captures.
+    if ( auto cap_scope = capture_scopes.current_local_scope() )
+    {
+      for ( auto& variable : user_function->capture_variable_scope_info.variables )
+      {
+        // If the capture is not local, we must capture it
+        if ( !locals.find( variable->name ) )
+        {
+          // If already captured, set the variables capture to the existing.
+          if ( auto captured = captures.find( variable->name ) )
+          {
+            variable->capturing = captured;
+          }
+          // Otherwise, create new.
+          else if ( !captures.find( variable->name ) )
+          {
+            // Create a new capture variable in the parent function..
+            auto captured = cap_scope->capture( variable->capturing );
+
+            // Set function expression's captured variable to this newly created
+            // one.
+            variable->capturing = captured;
+          }
+        }
+      }
     }
 
     auto capture_count = user_function->capture_count();
@@ -506,17 +540,32 @@ void SemanticAnalyzer::visit_function_reference( FunctionReference& node )
 
 void SemanticAnalyzer::visit_identifier( Identifier& node )
 {
-  int function_ancestor_count;
+  // Resolution order:
+  //
+  // local function -> local captures -> ancestor (above) functions -> globals
+  //
 
-  if ( auto local = locals.find( node.name, &function_ancestor_count ) )
+  if ( auto local = locals.find( node.name ) )
   {
     local->mark_used();
-    node.variable = local;
 
-    if ( function_ancestor_count > 0 )
-    {
-      node.variable = capture_scopes.current_local_scope()->capture( local );
-    }
+    node.variable = local;
+  }
+  else if ( auto captured = captures.find( node.name ) )
+  {
+    // Should already be marked used as it's not newly created (done below).
+    // There is no `captures.find_in_ancestors()` check because if an upper
+    // capture was found, we still need to capture it for our own function (done
+    // below).
+    node.variable = captured;
+  }
+  else if ( auto local = locals.find_in_ancestors( node.name ) )
+  {
+    // Capture the variable. In a deeply nested capture, this will reference the
+    // local in the ancestor function. The function expression visitor will swap
+    // the 'capturing' to a local-safe variable.
+    node.variable = capture_scopes.current_local_scope()->capture( local );
+    node.variable->mark_used();
   }
   else if ( auto global = globals.find( node.name ) )
   {

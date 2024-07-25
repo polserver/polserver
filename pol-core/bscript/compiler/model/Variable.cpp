@@ -5,13 +5,15 @@
 namespace Pol::Bscript::Compiler
 {
 Variable::Variable( VariableScope scope, std::string name, BlockDepth block_depth,
-                    VariableIndex index, WarnOn warn_on, const SourceLocation& source_location )
+                    VariableIndex index, WarnOn warn_on, std::shared_ptr<Variable> capturing,
+                    const SourceLocation& source_location )
     : scope( scope ),
       name( std::move( name ) ),
       block_depth( block_depth ),
       index( index ),
       warn_on( warn_on ),
       source_location( source_location ),
+      capturing( std::move( capturing ) ),
       used( false )
 {
 }

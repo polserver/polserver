@@ -15,7 +15,7 @@ class Variable
 {
 public:
   Variable( VariableScope, std::string name, BlockDepth, VariableIndex, WarnOn,
-            const SourceLocation& source_location );
+            std::shared_ptr<Variable> capturing, const SourceLocation& source_location );
 
 
   void mark_used();
@@ -27,6 +27,7 @@ public:
   const VariableIndex index;
   const WarnOn warn_on;
   const SourceLocation& source_location;
+  std::shared_ptr<Variable> capturing;
 
 private:
   bool used;
