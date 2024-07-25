@@ -386,8 +386,11 @@ void InstructionGenerator::visit_foreach_loop( ForeachLoop& loop )
 
 void InstructionGenerator::visit_function_call( FunctionCall& call )
 {
+  // A function call will have no link if it is an expression call, eg. `(foo)(1,2)`.
   if ( !call.function_link->function() )
   {
+    // Visiting the children emits the instructions for each arguments in the order necessary for a
+    // `MTH_CALL`.
     visit_children( call );
     update_debug_location( call );
     // Subtract 1 because the first child is the callee.
