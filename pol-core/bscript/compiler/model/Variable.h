@@ -1,6 +1,7 @@
 #ifndef POLSERVER_VARIABLE_H
 #define POLSERVER_VARIABLE_H
 
+#include <memory>
 #include <string>
 
 #include "bscript/compiler/model/SimpleTypes.h"
