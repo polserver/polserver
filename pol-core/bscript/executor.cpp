@@ -496,6 +496,9 @@ void Executor::setFunctionResult( BObjectImp* imp )
 
 void Executor::printStack( const std::string& message )
 {
+  if ( debug_level < INSTRUCTIONS )
+    return;
+
   if ( !message.empty() )
   {
     INFO_PRINTLN( message );
@@ -2650,7 +2653,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       cleanParams();
       nparams = static_cast<unsigned int>( continuation->numParams() );
 
-      printStack( "End of call_method_id" );
+      printStack( "Prior to funcref.call()" );
       // Next on the stack is a `FuncRef` that we need to call. We will continue the loop and handle
       // it.
 
@@ -2940,7 +2943,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       // Add the result to the stack.
       ValueStack.push_back( BObjectRef( new BObject( imp ) ) );
     }
-    printStack( fmt::format( "End of ins_return, PC={}", PC ) );
+    printStack( fmt::format( "Continuation end of ins_return, jumping to PC={}", PC ) );
   }
 }
 
