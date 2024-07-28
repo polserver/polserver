@@ -8,7 +8,6 @@
 #ifndef __EXECUTOR_H
 #define __EXECUTOR_H
 
-
 #include "pol_global_config.h"
 
 #ifndef __EXECTYPE_H
@@ -28,10 +27,11 @@
 
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "berror.h"
 #include "bobject.h"
+#include "continueimp.h"
 #include "eprog.h"
 #include "executortype.h"
-
 
 #ifdef ESCRIPT_PROFILE
 #include <map>
@@ -47,6 +47,8 @@ void list_script( UOExecutor* uoexec );
 }  // namespace Core
 namespace Bscript
 {
+class BContinuation;
+class BFunctionRef;
 class Executor;
 class ExecutorModule;
 class ModuleFunction;
@@ -80,6 +82,7 @@ struct ReturnContext
 {
   unsigned PC;
   unsigned ValueStackDepth;
+  BObjectRef Continuation = BObjectRef();
 };
 
 struct BackupStruct
@@ -194,6 +197,31 @@ protected:
   void cleanParams();
 
 public:
+  // Creates a new continuation object to call `funcref` with arguments `args`,
+  // calling a core `callback` with the return value.
+  //
+  // Responsible for moving the arguments to the `ValueStack` stack,
+  // expanding/shrinking as needed. The executor, when seeing a `BContinuation`
+  // inside `ins_call_method_id`, will "translate" it to a `BFunctionRef` to
+  // call. The handling of `BFunctionRef`s _inside_ `ins_call_method_id`
+  // requires arguments to be on `ValueStack`.
+  //
+  // Since this runs inside `ins_call_method_id`, it can **only** be used in
+  // `<object>.<method>` calls. Extending where this is called will require
+  // changing implementation.
+  //
+  // Returns `BContinuation*` on success, `BError*` on failure (if provided
+  // funcref is not a BFunctionRef).
+  template <typename Callback>
+  BObjectImp* makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args = {} );
+
+  // Runs the existing continuation object with arguments `args`.
+  //
+  // Responsible for moving the arguments to the `fparams` stack. The handling
+  // of `BFunctionRef`s _outside_ `ins_call_method_id` requires arguments to be
+  // on `fparams` (as they are moved to `ValueStack` in `ins_call_method_id`).
+  BContinuation* withContinuation( BContinuation* continuation, BObjectRefVec args = {} );
+
   int makeString( unsigned param );
   bool hasParams( unsigned howmany ) const { return ( fparams.size() >= howmany ); }
   size_t numParams() const { return fparams.size(); }
@@ -374,6 +402,8 @@ public:
   void ins_progend( const Instruction& ins );
   void ins_makelocal( const Instruction& ins );
   void ins_jsr_userfunc( const Instruction& ins );
+  // takes ownership of `continuation`
+  void ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation );
   void ins_pop_param( const Instruction& ins );
   void ins_pop_param_byref( const Instruction& ins );
   void ins_get_arg( const Instruction& ins );
@@ -455,6 +485,8 @@ private:
   std::unique_ptr<ExecutorDebugEnvironment> dbg_env_;
 
   BObjectImp* func_result_;
+
+  void printStack( const std::string& message );
 
 private:  // not implemented
   Executor( const Executor& exec );

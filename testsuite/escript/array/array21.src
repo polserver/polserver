@@ -1,0 +1,5 @@
+print( array{ 1, 2, 3, 4, 5 }.filter( @IsEven ) );
+
+function IsEven( number )
+  return ( number % 2 ) == 0;
+endfunction

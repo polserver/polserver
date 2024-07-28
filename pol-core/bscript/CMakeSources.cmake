@@ -299,6 +299,8 @@ set (bscript_sources    # sorted !
   compilercfg.h
   compmodl.h
   config.h
+  continueimp.cpp
+  continueimp.h
   contiter.h
   dbl.cpp
   dict.cpp
@@ -319,6 +321,7 @@ set (bscript_sources    # sorted !
   exectype.h
   executor.cpp
   executor.h
+  executor.inl.h
   executortype.h
   expression.cpp
   expression.h
