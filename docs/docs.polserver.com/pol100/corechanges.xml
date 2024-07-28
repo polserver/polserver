@@ -8,6 +8,7 @@
 		<entry>
 			<date>07-28-2024</date>
 			<author>Kevin:</author>
+			<change type="Added">Array script method `filter(FunctionObject testFn)`.</change>
 			<change type="Added">The compiler now supports any expression as the callee for a function call,</change>
 			<change type="eg">`var func := @FunctionObject; func( 1, 2, 3 )` or `func( 1 )( 2 )( 3 )`.<br/>
 For now, only function references (ie. a variable that holds or a function<br/>

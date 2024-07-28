@@ -666,6 +666,7 @@ Pre-intialize with var a := array { 53, 76, 32 };</explain>
 <method proto="randomentry()" returns="value/error" desc="returns random array entry" />
 <method proto="cycle([int count])" returns="true/error" desc="will move array [count] steps backwards or forwards in-place as it were a conveyor belt. {1, 2, 3}.cycle() Will make it: {3, 1, 2}. Accepts a negative value as a shift to move different direction" />
 <method proto="sorted_insert(obj, sub_index:=0, reverse:=0)" returns="true/error" desc="Inserts obj into already sorted array. sub_index and reverse parameter have to match the sorting criteria of the array." />
+<method proto="filter(FunctionObject testFn)" returns="array" desc="Returns a new array containing just the elements that pass the test function. If no elements pass the test, an empty array is returned. `testFn` is a function that can accept up to three parameters: `element` - The current element being processed ; `index` - The index of the current element being processed ; `array` - The array filter() was called upon" />
 </class>
 
 
