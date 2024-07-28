@@ -177,14 +177,8 @@ ContIterator* BStruct::createIterator( BObject* pIterVal )
 
 size_t BStruct::sizeEstimate() const
 {
-  size_t size = sizeof( BStruct );
-  for ( const auto& elem : contents_ )
-  {
-    const std::string& bkey = elem.first;
-    const BObjectRef& bvalref = elem.second;
-    size += bkey.capacity() + bvalref.sizeEstimate() + ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
-  return size;
+  return sizeof( BStruct ) +
+         Clib::memsize( contents_, []( const auto& v ) { return v.sizeEstimate(); } );
 }
 
 size_t BStruct::mapcount() const
@@ -467,5 +461,5 @@ const BStruct::Contents& BStruct::contents() const
 {
   return contents_;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

@@ -40,11 +40,6 @@ const u64& CPropProfiler::HitsCounter::operator[]( size_t idx ) const
   return hits[idx];
 }
 
-size_t CPropProfiler::HitsCounter::sizeEstimate() const
-{
-  return sizeof( void* ) + sizeof( u64 ) * hits.size();
-}
-
 /** Given an UOBJ_CLASS, returns the corresponding Type for profiling */
 CPropProfiler::Type CPropProfiler::class_to_type( UOBJ_CLASS oclass )
 {
@@ -304,26 +299,17 @@ void CPropProfiler::dumpProfile( std::ostream& os ) const
 size_t CPropProfiler::estimateSize() const
 {
   /// Size of base empty containers
-  size_t ret = sizeof( Clib::SpinLock ) + sizeof( _proplistsLock ) + sizeof( _hits ) +
-               sizeof( _proplists ) + sizeof( void* ) * 2;
-
+  size_t ret = sizeof( CPropProfiler );
   /// + size of proplists
   {
     Clib::SpinLockGuard lock( _proplistsLock );
-    ret += ( sizeof( PropertyList* ) + sizeof( Type ) ) * _proplists->size();
+    ret += Clib::memsize( *_proplists );
   }
 
   /// + size of hits
   {
     Clib::SpinLockGuard lock( _hitsLock );
-    for ( auto itr1 = _hits->begin(); itr1 != _hits->end(); ++itr1 )
-    {
-      ret += sizeof( Type ) + sizeof( HitsEntries );
-      for ( auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); ++itr2 )
-      {
-        ret += itr2->first.size() + itr2->second.sizeEstimate();
-      }
-    }
+    ret += Clib::memsize( *_hits, []( const auto& v ) { return Clib::memsize( v ); } );
   }
 
   return ret;

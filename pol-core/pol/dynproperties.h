@@ -53,6 +53,7 @@
 
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
 #include "gameclck.h"
 
 namespace Pol
@@ -60,27 +61,39 @@ namespace Pol
 namespace Core
 {
 // define to generate 3 methods for get/set/has
-#define DYN_PROPERTY( name, type, id, defaultvalue )                                         \
-  type name() const                                                                          \
-  {                                                                                          \
-    type val;                                                                                \
-    if ( getmember<type>( id, &val ) )                                                       \
-      return val;                                                                            \
-    return defaultvalue;                                                                     \
-  };                                                                                         \
-  void name( const type& val ) { setmember( id, val, static_cast<type>( defaultvalue ) ); }; \
-  bool has_##name() const { return hasmember( id ); }
+#define DYN_PROPERTY( name, type, id, defaultvalue )         \
+  type name() const                                          \
+  {                                                          \
+    type val;                                                \
+    if ( getmember<type>( id, &val ) )                       \
+      return val;                                            \
+    return defaultvalue;                                     \
+  };                                                         \
+  void name( const type& val )                               \
+  {                                                          \
+    setmember( id, val, static_cast<type>( defaultvalue ) ); \
+  };                                                         \
+  bool has_##name() const                                    \
+  {                                                          \
+    return hasmember( id );                                  \
+  }
 // define to generate 3 methods for get/set/has
-#define DYN_PROPERTY_POINTER( name, type, id )            \
-  type name() const                                       \
-  {                                                       \
-    type val;                                             \
-    if ( getmember<type>( id, &val ) )                    \
-      return val;                                         \
-    return nullptr;                                       \
-  };                                                      \
-  void name( type val ) { setmemberPointer( id, val ); }; \
-  bool has_##name() const { return hasmember( id ); }
+#define DYN_PROPERTY_POINTER( name, type, id ) \
+  type name() const                            \
+  {                                            \
+    type val;                                  \
+    if ( getmember<type>( id, &val ) )         \
+      return val;                              \
+    return nullptr;                            \
+  };                                           \
+  void name( type val )                        \
+  {                                            \
+    setmemberPointer( id, val );               \
+  };                                           \
+  bool has_##name() const                      \
+  {                                            \
+    return hasmember( id );                    \
+  }
 // enum for the propertys
 enum DynPropTypes : u8
 {
@@ -565,7 +578,7 @@ inline void PropHolderContainer<Storage>::removeValue( DynPropTypes type )
 template <class Storage>
 inline size_t PropHolderContainer<Storage>::estimateSize() const
 {
-  return 3 * sizeof( void* ) + _props.capacity() * sizeof( PropHolder<Storage> );
+  return Clib::memsize( _props );
 }
 
 

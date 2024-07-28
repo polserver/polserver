@@ -11,6 +11,7 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
 #include "../plib/pkg.h"
 #include "globals/network.h"
 #include "mobile/attribute.h"
@@ -60,8 +61,10 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
 
 size_t UoClientListener::estimateSize() const
 {
-  size_t size = sizeof( UoClientListener );
-  size += login_clients_size * ( sizeof( UoClientThread ) + 3 * sizeof( void* ) );
+  size_t size = sizeof( UoClientListener ) + Clib::memsize( allowed_proxies );
+  size +=
+      login_clients_size * ( sizeof( UoClientThread ) +
+                             3 * sizeof( void* ) );  // use the atomic size instead of the container
   return size;
 }
 

@@ -108,18 +108,58 @@ size_t _mapimp( const M& container )
   }
   return ( sizeof( K ) + sizeof( V ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
 }
+template <typename M, class Func>
+size_t _mapimp( const M& container, Func f )
+{
+  using K = typename M::key_type;
+  if constexpr ( std::is_same_v<K, std::string> )
+  {
+    size_t size = ( ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+    for ( const auto& p : container )
+      size += p.first.capacity() + f( p.second );
+    return size;
+  }
+  size_t size = ( sizeof( K ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+  for ( const auto& p : container )
+    size += f( p.second );
+  return size;
+}
 }  // namespace
 
 template <typename T>
 size_t memsize( const std::vector<T>& container )
 {
+  if constexpr ( std::is_same_v<T, std::string> )
+  {
+    size_t size = 3 * sizeof( void* );
+    for ( const auto& t : container )
+      size += t.capacity();
+    size += ( container.capacity() - container.size() ) * sizeof( T );
+    return size;
+  }
   return 3 * sizeof( void* ) + container.capacity() * sizeof( T );
+}
+template <typename T, class Func>
+size_t memsize( const std::vector<T>& container, Func f )
+{
+  size_t size = 3 * sizeof( void* );
+  for ( const auto& t : container )
+    size += f( t );
+  size += ( container.capacity() - container.size() ) * sizeof( T );
+  return size;
 }
 
 template <typename T>
 size_t memsize( const std::set<T>& container )
 {
-  return 3 * sizeof( void* ) + container.size() * sizeof( T ) + 3 * sizeof( void* );
+  if constexpr ( std::is_same_v<T, std::string> )
+  {
+    size_t size = 3 * sizeof( void* );
+    for ( const auto& t : container )
+      size += t.capacity() + 3 * sizeof( void* );
+    return size;
+  }
+  return 3 * sizeof( void* ) + container.size() * ( sizeof( T ) + 3 * sizeof( void* ) );
 }
 
 template <typename K, typename V, typename C>
@@ -127,11 +167,34 @@ size_t memsize( const std::map<K, V, C>& container )
 {
   return _mapimp( container );
 }
+template <typename K, typename V, typename C>
+size_t memsize( const std::map<const K, V, C>& container )
+{
+  return _mapimp( container );
+}
+template <typename K, typename V, typename C, class Func>
+size_t memsize( const std::map<K, V, C>& container, Func f )
+{
+  return _mapimp( container, f );
+}
+template <typename K, typename V, typename C, class Func>
+size_t memsize( const std::map<const K, V, C>& container, Func f )
+{
+  return _mapimp( container, f );
+}
+template <typename K, typename V, typename C, class Func>
+size_t memsize_keyvalue( const std::map<K, V, C>& container, Func f )
+{
+  size_t size = ( ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+  for ( const auto& p : container )
+    size += f( p.first ) + f( p.second );
+  return size;
+}
 
 template <typename T>
 size_t memsize( const std::unordered_set<T>& container )
 {
-  return 3 * sizeof( void* ) + container.size() * sizeof( T ) + 3 * sizeof( void* );
+  return 3 * sizeof( void* ) + container.size() * ( sizeof( T ) + 3 * sizeof( void* ) );
 }
 
 template <typename K, typename V, typename C>

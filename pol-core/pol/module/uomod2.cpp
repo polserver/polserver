@@ -1280,14 +1280,8 @@ BObjectImp* BIntHash::copy() const
 
 size_t BIntHash::sizeEstimate() const
 {
-  size_t size =
-      sizeof( BIntHash ) +
-      ( sizeof( int ) + sizeof( BObjectRef ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * contents_.size();
-  for ( const auto& p : contents_ )
-  {
-    size += p.second.sizeEstimate();
-  }
-  return size;
+  return sizeof( BIntHash ) +
+         Clib::memsize( contents_, []( const auto& v ) { return v.sizeEstimate(); } );
 }
 
 std::string BIntHash::getStringRep() const

@@ -76,12 +76,7 @@ StringSet::const_iterator StringSet::end() const
 
 size_t StringSet::estimatedSize() const
 {
-  size_t size = sizeof( StringSet ) + 3 * sizeof( void* );
-  for ( const auto& str : strings_ )
-  {
-    size += str.capacity() + 3 * sizeof( void* );
-  }
-  return size;
+  return Clib::memsize( strings_ );
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
