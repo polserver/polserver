@@ -1,0 +1,12 @@
+var a := 0;
+
+// Calling `add_one` four times increases `a` to `4`.
+add_one( a )( a )( a )( a );
+
+print( a );
+
+function add_one( byref a )
+  ++a;
+
+  return @add_one;
+endfunction
