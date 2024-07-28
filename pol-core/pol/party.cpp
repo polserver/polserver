@@ -28,6 +28,7 @@
 #include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 #include "../plib/systemstate.h"
 #include "clfunc.h"
@@ -786,9 +787,8 @@ std::vector<Mobile::Character*> Party::get_members( bool include_offline ) const
 
 size_t Party::estimateSize() const
 {
-  return 3 * sizeof( u32* ) + _member_serials.capacity() * sizeof( u32 ) + 3 * sizeof( u32* ) +
-         _candidates_serials.capacity() * sizeof( u32 ) + 3 * sizeof( u32* ) +
-         _offlinemember_serials.capacity() * sizeof( u32 ) + sizeof( u32 ) /*_leaderserial*/
+  return Clib::memsize( _member_serials ) + Clib::memsize( _candidates_serials ) +
+         Clib::memsize( _offlinemember_serials ) + sizeof( u32 ) /*_leaderserial*/
          + _proplist.estimatedSize();
 }
 

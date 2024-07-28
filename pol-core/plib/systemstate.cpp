@@ -35,15 +35,14 @@ size_t SystemState::estimatedSize() const
 {
   size_t size = sizeof( SystemState );
 
-  size += sizeof( std::vector<Tile> ) + sizeof( Tile ) * tile.capacity();
+  size += Clib::memsize( tile ) + Clib::memsize( packages ) + Clib::memsize( packages_byname );
 
-  size += 3 * sizeof( Package** ) + packages.capacity() * sizeof( Package* );
   for ( const auto& pkg : packages )
     if ( pkg != nullptr )
       size += pkg->estimateSize();
 
   for ( const auto& pkg_pair : packages_byname )
-    size += pkg_pair.first.capacity() + sizeof( Package* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += pkg_pair.first.capacity();
   return size;
 }
 }  // namespace Plib

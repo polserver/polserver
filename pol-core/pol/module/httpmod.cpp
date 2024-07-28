@@ -8,6 +8,7 @@
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/network/wnsckt.h"
+#include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
 #include "../uoexec.h"
 
@@ -374,9 +375,7 @@ void HttpExecutorModule::read_query_ip()
 
 size_t HttpExecutorModule::sizeEstimate() const
 {
-  size_t size = sizeof( *this );
-  for ( const auto& v : params_ )
-    size += v.first.capacity() + v.second.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
+  size_t size = sizeof( *this ) + Clib::memsize( params_ );
   return size;
 }
 }  // namespace Module

@@ -12,6 +12,7 @@
 
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 #include "../plib/systemstate.h"
 #include "accounts/account.h"
@@ -270,6 +271,14 @@ void ObjectHash::CleanDeleted()
 void ObjectHash::RegisterCleanDeletedSerial( u32 serial )
 {
   clean_deleted.insert( serial );
+}
+size_t ObjectHash::estimateSize() const
+{
+  size_t size = sizeof( ObjectHash );
+  size += Clib::memsize( dirty_deleted );
+  size += Clib::memsize( clean_deleted );
+  size += Clib::memsize( hash );
+  return size;
 }
 }  // namespace Core
 }  // namespace Pol

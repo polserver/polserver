@@ -230,7 +230,7 @@ bool FileAccess::AppliesToPath( const std::string& path, const Plib::Package* fi
 size_t FileAccess::estimateSize() const
 {
   size_t size = sizeof( FileAccess );
-  size += Packages.size() * ( sizeof( void* ) + 3 * sizeof( void* ) );
+  size += Clib::memsize( Packages );
 
   for ( const auto& d : Directories )
     size += sizeof( decltype( Directories )::value_type ) + d.second.capacity();

@@ -8,6 +8,7 @@
 
 #include "clib/cfgelem.h"
 #include "clib/random.h"
+#include "clib/stlutil.h"
 
 #include "globals/uvars.h"
 
@@ -26,8 +27,7 @@ MusicRegion::MusicRegion( Clib::ConfigElem& elem, RegionId id ) : Region( elem, 
 
 size_t MusicRegion::estimateSize() const
 {
-  return base::estimateSize() + 3 * sizeof( unsigned short* ) +
-         midilist_.capacity() * sizeof( unsigned short );
+  return base::estimateSize() + Clib::memsize( midilist_ );
 }
 
 unsigned short MusicRegion::getmidi() const

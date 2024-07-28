@@ -1039,12 +1039,12 @@ BObjectImp* ObjArray::copy( void ) const
 size_t ObjArray::sizeEstimate() const
 {
   size_t size = sizeof( ObjArray );
-  size += 3 * sizeof( BObjectRef* ) + ref_arr.capacity() * sizeof( BObjectRef );
+  size += Clib::memsize( ref_arr );
   for ( const auto& elem : ref_arr )
   {
     size += elem.sizeEstimate();
   }
-  size += 3 * sizeof( std::string* ) + name_arr.capacity() * sizeof( std::string );
+  size += Clib::memsize( name_arr );
   for ( const auto& elem : name_arr )
   {
     size += elem.capacity();
@@ -1437,7 +1437,7 @@ long ObjArray::contains( const BObjectImp& imp ) const
       if ( bo == nullptr )
       {
         INFO_PRINTLN( "{} - '{} in array{{}}' check. Invalid data at index {}",
-                     Clib::scripts_thread_script, imp, ( itr - ref_arr.begin() ) + 1 );
+                      Clib::scripts_thread_script, imp, ( itr - ref_arr.begin() ) + 1 );
         continue;
       }
       else if ( *( bo->impptr() ) == imp )

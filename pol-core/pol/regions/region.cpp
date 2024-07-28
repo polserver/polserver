@@ -183,19 +183,16 @@ size_t RegionGroupBase::estimateSize() const
   {
     size += region->estimateSize();
   }
+  size += Clib::memsize( regionrealms );
   for ( const auto& realm : regionrealms )
   {
     if ( realm.first == nullptr )
       continue;
     unsigned int gridheight = realm.first->height() / ZONE_SIZE;
-    size += gridheight * sizeof( RegionId ) + sizeof( Realms::Realm* ) +
-            ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += gridheight * sizeof( RegionId );
   }
   size += name_.capacity();
-  for ( const auto& realm : regions_byname_ )
-  {
-    size += realm.first.capacity() + sizeof( Region* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
+  size += Clib::memsize( regions_byname_ );
   return size;
 }
 

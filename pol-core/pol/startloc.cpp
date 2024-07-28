@@ -7,6 +7,7 @@
 #include "startloc.h"
 
 #include "../clib/random.h"
+#include "../clib/stlutil.h"
 
 namespace Pol
 {
@@ -24,7 +25,7 @@ size_t StartingLocation::estimateSize() const
   size_t size = city.capacity() + desc.capacity() + sizeof( Realms::Realm* ) /*realm*/
                 + sizeof( unsigned short )                                   /*mapid*/
                 + sizeof( unsigned long )                                    /*cliloc_desc*/
-                + 3 * sizeof( Pos3d* ) + coords.capacity() * sizeof( Pos3d );
+                + Clib::memsize( coords );
   return size;
 }
 }  // namespace Core

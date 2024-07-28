@@ -12,6 +12,7 @@
 
 #include "clib/cfgelem.h"
 #include "clib/rawtypes.h"
+#include "clib/stlutil.h"
 
 #include "globals/uvars.h"
 #include "realms/realm.h"
@@ -108,12 +109,12 @@ WeatherDef::~WeatherDef()
 size_t WeatherDef::estimateSize() const
 {
   size_t size = RegionGroup<WeatherRegion>::estimateSize();
+  size += Clib::memsize( default_regionrealms );
 
   for ( const auto& realm : default_regionrealms )
   {
     unsigned int gridheight = realm.first->height() / ZONE_SIZE;
-    size += gridheight * sizeof( RegionId ) + sizeof( Realms::Realm* ) +
-            ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += gridheight * sizeof( RegionId );
   }
   return size;
 }

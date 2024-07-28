@@ -147,8 +147,7 @@ NetworkManager::Memory NetworkManager::estimateSize() const
   memset( &usage, 0, sizeof( usage ) );
   usage.misc = sizeof( NetworkManager );
 
-  usage.client_size =
-      3 * sizeof( Network::Client** ) + clients.capacity() * sizeof( Network::Client* );
+  usage.client_size = Clib::memsize( clients );
   usage.client_count = clients.size();
   for ( const auto& client : clients )
   {
@@ -156,8 +155,7 @@ NetworkManager::Memory NetworkManager::estimateSize() const
       usage.client_size += client->estimatedSize();
   }
 
-  usage.misc +=
-      3 * sizeof( ServerDescription** ) + servers.capacity() * sizeof( ServerDescription* );
+  usage.misc += Clib::memsize( servers );
   for ( const auto& server : servers )
     if ( server != nullptr )
       usage.misc += server->estimateSize();
@@ -166,25 +164,21 @@ NetworkManager::Memory NetworkManager::estimateSize() const
   usage.misc += sizeof( SQLService ); /* sql_service */
 #endif
   usage.misc += sizeof( Network::UOClientInterface ); /*uo_client_interface*/
-  usage.misc +=
-      3 * sizeof( Network::AuxService** ) + auxservices.capacity() * sizeof( Network::AuxService* );
+  usage.misc += Clib::memsize( auxservices );
   for ( const auto& aux : auxservices )
     if ( aux != nullptr )
       usage.misc += aux->estimateSize();
 
   usage.misc += uoclient_general.estimateSize();
   usage.misc += uoclient_protocol.estimateSize();
-  usage.misc += 3 * sizeof( UoClientListener* );
+  usage.misc += Clib::memsize( uoclient_listeners );
   for ( const auto& listener : uoclient_listeners )
     usage.misc += listener.estimateSize();
 
   usage.misc +=
       3 * ( sizeof( MessageTypeFilter ) ); /*login_filter, game_filter, disconnected_filter*/
 
-  usage.misc += 3 * sizeof( std::unique_ptr<Network::PacketHookData>* ) +
-                packet_hook_data.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
-  usage.misc += 3 * sizeof( std::unique_ptr<Network::PacketHookData>* ) +
-                packet_hook_data_v2.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
+  usage.misc += Clib::memsize( packet_hook_data ) + Clib::memsize( packet_hook_data_v2 );
   for ( const auto& hook : packet_hook_data )
   {
     if ( hook != nullptr )
@@ -200,8 +194,7 @@ NetworkManager::Memory NetworkManager::estimateSize() const
   usage.misc += sizeof( Network::ClientTransmit );
   usage.misc += sizeof( threadhelp::DynTaskThreadPool );
 
-  usage.misc += 3 * sizeof( Network::IPRule* ) + banned_ips.capacity() * sizeof( Network::IPRule );
-
+  usage.misc += Clib::memsize( banned_ips );
   return usage;
 }
 }  // namespace Core

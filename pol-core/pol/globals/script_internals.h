@@ -105,7 +105,7 @@ public:
 
 
 private:
-  ExecList runlist;
+  ExecList runlist;  // TODO std::deque is the worst option, do we really need the guarantees?
   ExecList ranlist;
   HoldList holdlist;
   NoTimeoutHoldList notimeoutholdlist;

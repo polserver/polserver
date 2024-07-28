@@ -32,6 +32,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/timer.h"
 #include "../plib/poltype.h"
@@ -1347,9 +1348,9 @@ size_t ServerDescription::estimateSize() const
 {
   size_t size = name.capacity() + 4 * sizeof( unsigned char ) /*ip*/
                 + sizeof( unsigned short )                    /*port*/
-                + 3 * sizeof( unsigned int* ) + ip_match.capacity() * sizeof( unsigned int ) +
-                3 * sizeof( unsigned int* ) + ip_match_mask.capacity() * sizeof( unsigned int ) +
-                3 * sizeof( std::string* ) + hostname.capacity();
+                + Clib::memsize( ip_match ) + Clib::memsize( ip_match_mask ) +
+                Clib::memsize( proxy_match ) + Clib::memsize( proxy_match_mask ) +
+                hostname.capacity();
   for ( const auto& s : acct_match )
     size += s.capacity();
   return size;

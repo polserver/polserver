@@ -88,6 +88,7 @@
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
+#include "../../clib/stlutil.h"
 #include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
@@ -204,12 +205,12 @@ UOExecutorModule::UOExecutorModule( UOExecutor& exec )
       textentry_chr( nullptr ),
       resurrect_chr( nullptr ),
       selcolor_chr( nullptr ),
-      target_options( 0 ),
       attached_chr_( nullptr ),
       attached_npc_( nullptr ),
       attached_item_( nullptr ),
       controller_( nullptr ),
       reserved_items_(),
+      target_options( 0 ),
       registered_for_speech_events( false )
 {
 }
@@ -1640,8 +1641,8 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  chr->menu = menu->getWeakPtr();
-  chr->on_menu_selection = menu_selection_made;
+  chr->client->gd->menu = menu->getWeakPtr();
+  chr->client->gd->on_menu_selection = menu_selection_made;
   chr->client->gd->menu_selection_uoemod = this;
   menu_selection_chr = chr;
 
@@ -5266,8 +5267,7 @@ BObjectImp* UOExecutorModule::mf_GetMidpointCircleCoords( /* xcenter, ycenter, r
 
 size_t UOExecutorModule::sizeEstimate() const
 {
-  size_t size = sizeof( *this );
-  size += 3 * sizeof( Core::ItemRef* ) + reserved_items_.capacity() * sizeof( Core::ItemRef );
+  size_t size = sizeof( *this ) + Clib::memsize( reserved_items_ );
   return size;
 }
 }  // namespace Module

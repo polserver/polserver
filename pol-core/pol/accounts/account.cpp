@@ -15,6 +15,7 @@
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib_MD5.h"
 #include "../../clib/rawtypes.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../plib/systemstate.h"
 #include "../cmdlevel.h"
@@ -158,7 +159,7 @@ size_t Account::estimatedSize() const
 {
   size_t size =
       sizeof( Account ) + name_.capacity() + password_.capacity() + passwordhash_.capacity();
-  size += 3 * sizeof( Core::CharacterRef* ) + characters_.capacity() * sizeof( Core::CharacterRef );
+  size += Clib::memsize( characters_ );
   size += props_.estimatedSize();
   size += default_privs_.estimatedSize();
   size += options_.estimatedSize();

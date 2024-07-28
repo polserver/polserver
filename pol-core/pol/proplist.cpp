@@ -16,6 +16,7 @@
 #include "../bscript/objmethods.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
@@ -362,9 +363,7 @@ PropertyList::PropertyList( const PropertyList& props ) : properties()
 size_t PropertyList::estimatedSize() const
 {
   size_t size = sizeof( PropertyList );
-  size += properties.size() *
-          ( sizeof( boost_utils::cprop_name_flystring ) +
-            sizeof( boost_utils::cprop_value_flystring ) + ( sizeof( void* ) * 3 + 1 ) / 2 );
+  size += Clib::memsize( properties );
   return size;
 }
 

@@ -68,15 +68,12 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   Memory usage;
   memset( &usage, 0, sizeof( usage ) );
 
-  usage.script_size =
-      sizeof( int )            /*priority_divide*/
-      + sizeof( unsigned int ) /*next_pid*/
-      + ( sizeof( unsigned int ) + sizeof( UOExecutor* ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-            pidlist.size();
-
+  usage.script_size = sizeof( int )            /*priority_divide*/
+                      + sizeof( unsigned int ) /*next_pid*/
+                      + Clib::memsize( pidlist );
+  usage.scriptstorage_size = Clib::memsize( scrstore );
   for ( const auto& script : scrstore )
   {
-    usage.scriptstorage_size += ( sizeof( void* ) * 3 + 1 ) / 2;
     usage.scriptstorage_size += script.first.capacity();
     if ( script.second.get() != nullptr )
       usage.scriptstorage_size += script.second->sizeEstimate();
@@ -86,7 +83,7 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   std::string verbose_w;
   if ( verbose )
     verbose_w = GET_LOG_FILESTAMP + "\n";
-  usage.script_size += 3 * sizeof( UOExecutor** ) + runlist.size() * sizeof( UOExecutor* );
+  usage.script_size += Clib::memsize( runlist );
   if ( verbose )
     verbose_w += "runlist:\n";
   for ( const auto& exec : runlist )
@@ -101,7 +98,7 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   }
   usage.script_count += runlist.size();
 
-  usage.script_size += 3 * sizeof( UOExecutor** ) + ranlist.size() * sizeof( UOExecutor* );
+  usage.script_size += Clib::memsize( ranlist );
   if ( verbose )
     verbose_w += "ranlist:\n";
   for ( const auto& exec : ranlist )
@@ -118,6 +115,7 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
 
   if ( verbose )
     verbose_w += "holdlist:\n";
+  usage.script_size += Clib::memsize( holdlist );
   for ( const auto& hold : holdlist )
   {
     if ( hold.second != nullptr )
@@ -127,18 +125,17 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
         fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold.second->scriptname(),
                         hold.second->sizeEstimate() );
     }
-    usage.script_size += sizeof( Core::polclock_t ) + ( sizeof( void* ) * 3 + 1 ) / 2;
   }
   usage.script_count += holdlist.size();
 
-  usage.script_size += 3 * sizeof( void* );
+  usage.script_size += Clib::memsize( notimeoutholdlist );
   if ( verbose )
     verbose_w += "notimeoutholdlist:\n";
   for ( const auto& hold : notimeoutholdlist )
   {
     if ( hold != nullptr )
     {
-      usage.script_size += hold->sizeEstimate() + 3 * sizeof( void* );
+      usage.script_size += hold->sizeEstimate();
       if ( verbose )
         fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
                         hold->sizeEstimate() );
@@ -146,14 +143,14 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   }
   usage.script_count += notimeoutholdlist.size();
 
-  usage.script_size += 3 * sizeof( void* );
+  usage.script_size += Clib::memsize( debuggerholdlist );
   if ( verbose )
     verbose_w += "debuggerholdlist:\n";
   for ( const auto& hold : debuggerholdlist )
   {
     if ( hold != nullptr )
     {
-      usage.script_size += hold->sizeEstimate() + 3 * sizeof( void* );
+      usage.script_size += hold->sizeEstimate();
       if ( verbose )
         fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
                         hold->sizeEstimate() );

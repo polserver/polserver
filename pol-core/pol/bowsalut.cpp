@@ -53,7 +53,7 @@ bool MobileTranslate::has_graphic( u16 graphic ) const
 
 size_t MobileTranslate::estimateSize() const
 {
-  return sizeof( MobileTranslate ) + 3 * sizeof( u16* ) + graphics.capacity() * sizeof( u16 );
+  return sizeof( MobileTranslate ) + Clib::memsize( graphics );
 }
 
 

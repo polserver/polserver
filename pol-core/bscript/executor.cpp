@@ -83,9 +83,7 @@ ExecutorDebugEnvironment::ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugL
 
 size_t ExecutorDebugEnvironment::sizeEstimate() const
 {
-  size_t size = sizeof( *this );
-  size += 3 * sizeof( unsigned* ) + breakpoints.size() * sizeof( unsigned );
-  size += 3 * sizeof( unsigned* ) + tmpbreakpoints.size() * sizeof( unsigned );
+  size_t size = sizeof( *this ) + Clib::memsize( breakpoints ) + Clib::memsize( tmpbreakpoints );
   return size;
 }
 
@@ -3558,7 +3556,7 @@ void Executor::dbg_clrallbp()
 size_t Executor::sizeEstimate() const
 {
   size_t size = sizeof( *this );
-  size += 3 * sizeof( BObjectRefVec** ) + upperLocals2.size() * sizeof( BObjectRefVec* );
+  size += Clib::memsize( upperLocals2 );
   for ( const auto& bojectrefvec : upperLocals2 )
   {
     size += 3 * sizeof( BObjectRef* ) + bojectrefvec->capacity() * sizeof( BObjectRef );
@@ -3568,27 +3566,27 @@ size_t Executor::sizeEstimate() const
         size += bojectref->sizeEstimate();
     }
   }
-  size += 3 * sizeof( ReturnContext* ) + ControlStack.size() * sizeof( ReturnContext );
+  size += Clib::memsize( ControlStack );
 
-  size += 3 * sizeof( BObjectRef* ) + Locals2->size() * sizeof( BObjectRef );
+  size += Clib::memsize( *Locals2 );
   for ( const auto& bojectref : *Locals2 )
   {
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
   }
-  size += 3 * sizeof( BObjectRef* ) + Globals2.size() * sizeof( BObjectRef );
+  size += Clib::memsize( Globals2 );
   for ( const auto& bojectref : Globals2 )
   {
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
   }
-  size += 3 * sizeof( BObjectRef* ) + ValueStack.size() * sizeof( BObjectRef );
+  size += Clib::memsize( ValueStack );
   for ( const auto& bojectref : ValueStack )
   {
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
   }
-  size += 3 * sizeof( BObjectRef* ) + fparams.capacity() * sizeof( BObjectRef );
+  size += Clib::memsize( fparams );
   for ( const auto& bojectref : fparams )
   {
     if ( bojectref != nullptr )
@@ -3599,8 +3597,7 @@ size_t Executor::sizeEstimate() const
     if ( module != nullptr )
       size += module->sizeEstimate();
   }
-  size += 3 * sizeof( ExecutorModule** ) + execmodules.capacity() * sizeof( ExecutorModule* );
-  size += 3 * sizeof( ExecutorModule** ) + availmodules.capacity() * sizeof( ExecutorModule* );
+  size += Clib::memsize( execmodules ) + Clib::memsize( availmodules );
   size += dbg_env_ != nullptr ? dbg_env_->sizeEstimate() : 0;
   size += func_result_ != nullptr ? func_result_->sizeEstimate() : 0;
   return size;

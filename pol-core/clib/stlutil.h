@@ -8,15 +8,21 @@
  */
 
 
-#ifndef STLUTIL_H
-#define STLUTIL_H
+#pragma once
 
 #include <cstring>
+#include <deque>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
 #include <sstream>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
-namespace Pol
-{
-namespace Clib
+namespace Pol::Clib
 {
 template <class T>
 void delete_all( T& coll )
@@ -75,7 +81,95 @@ constexpr size_t arsize( T ( & )[N] )
 {
   return N;
 }
-}  // namespace Clib
-}  // namespace Pol
 
-#endif
+// Memory size estimation of std containers
+// highly implementation specific, so just a rough guess
+namespace
+{
+template <typename M>
+size_t _mapimp( const M& container )
+{
+  using K = typename M::key_type;
+  using V = typename M::mapped_type;
+  // use string capacity if key&value or just key is string
+  if constexpr ( std::is_same_v<K, std::string> && std::is_same_v<V, std::string> )
+  {
+    size_t size = ( ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+    for ( const auto& p : container )
+      size += p.first.capacity() + p.second.capacity();
+    return size;
+  }
+  if constexpr ( std::is_same_v<K, std::string> )
+  {
+    size_t size = ( sizeof( V ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+    for ( const auto& p : container )
+      size += p.first.capacity();
+    return size;
+  }
+  return ( sizeof( K ) + sizeof( V ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+}
+}  // namespace
+
+template <typename T>
+size_t memsize( const std::vector<T>& container )
+{
+  return 3 * sizeof( void* ) + container.capacity() * sizeof( T );
+}
+
+template <typename T>
+size_t memsize( const std::set<T>& container )
+{
+  return 3 * sizeof( void* ) + container.size() * sizeof( T ) + 3 * sizeof( void* );
+}
+
+template <typename K, typename V, typename C>
+size_t memsize( const std::map<K, V, C>& container )
+{
+  return _mapimp( container );
+}
+
+template <typename T>
+size_t memsize( const std::unordered_set<T>& container )
+{
+  return 3 * sizeof( void* ) + container.size() * sizeof( T ) + 3 * sizeof( void* );
+}
+
+template <typename K, typename V, typename C>
+size_t memsize( const std::unordered_map<K, V, C>& container )
+{
+  return _mapimp( container );
+}
+
+template <typename K, typename V, typename C>
+size_t memsize( const std::multimap<K, V, C>& container )
+{
+  return _mapimp( container );
+}
+
+template <typename T>
+size_t memsize( const std::deque<T>& container )
+{
+  // roughly like a list
+  return 3 * sizeof( void* ) + container.size() * ( sizeof( T ) + 2 * sizeof( void* ) );
+}
+
+template <typename T, typename C>
+size_t memsize( const std::queue<T, C>& container )
+{
+  // assuming we use the default imp of container a deque
+  return 3 * sizeof( void* ) + container.size() * ( sizeof( T ) + 2 * sizeof( void* ) );
+}
+
+template <typename T, typename K, typename C>
+size_t memsize( const std::priority_queue<T, K, C>& container )
+{
+  return 3 * sizeof( void* ) + container.size() * sizeof( T );
+}
+
+template <typename T>
+size_t memsize( const std::list<T>& container )
+{
+  return 3 * sizeof( void* ) + container.size() * ( sizeof( T ) + 2 * sizeof( void* ) );
+}
+}  // namespace Pol::Clib
+

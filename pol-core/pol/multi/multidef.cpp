@@ -16,6 +16,7 @@
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../globals/multidefs.h"
 
@@ -248,16 +249,8 @@ bool MultiDef::within_multi( const Core::Vec2d& relxy ) const
 size_t MultiDef::estimateSize() const
 {
   size_t size = sizeof( MultiDef );
-  size += 3 * sizeof( MULTI_ELEM* ) + elems.capacity() * sizeof( MULTI_ELEM );
-  size += 3 * sizeof( MULTI_ELEM** ) + hull.capacity() * sizeof( MULTI_ELEM* );
-  size += 3 * sizeof( MULTI_ELEM** ) + internal_hull.capacity() * sizeof( MULTI_ELEM* );
-
-  size += 3 * sizeof( void* ) + hull2.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) );
-  size += 3 * sizeof( void* ) +
-          internal_hull2.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) );
-
-  size += ( sizeof( unsigned short ) + sizeof( MULTI_ELEM* ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-          components.size();
+  size += Clib::memsize( elems ) + Clib::memsize( hull ) + Clib::memsize( internal_hull ) +
+          Clib::memsize( hull2 ) + Clib::memsize( internal_hull2 ) + Clib::memsize( components );
   return size;
 }
 

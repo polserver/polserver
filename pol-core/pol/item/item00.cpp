@@ -25,10 +25,10 @@ namespace Items
 Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
     : UObject( id.objtype, uobj_class ),
       container( nullptr ),
+      _itemdesc( nullptr ),
       decayat_gameclock_( 0 ),
       amount_( 1 ),
       slot_index_( 0 ),
-      _itemdesc( nullptr ),
       layer( 0 ),
       hp_( id.maxhp )
 {

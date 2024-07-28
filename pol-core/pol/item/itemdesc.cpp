@@ -911,8 +911,7 @@ size_t ItemDesc::estimatedSize() const
   size_t size = sizeof( ItemDesc ) + objtypename.capacity() + tooltip.capacity() +
                 walk_on_script.estimatedSize() + on_use_script.estimatedSize() +
                 control_script.estimatedSize() + create_script.estimatedSize() +
-                destroy_script.estimatedSize() + 3 * sizeof( ResourceComponent* ) +
-                resources.capacity() * sizeof( ResourceComponent ) + props.estimatedSize();
+                destroy_script.estimatedSize() + Clib::memsize( resources ) + props.estimatedSize();
   size += 3 * sizeof( void* );
   for ( const auto& ignore : ignore_cprops )
   {

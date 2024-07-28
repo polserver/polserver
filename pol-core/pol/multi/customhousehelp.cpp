@@ -7,6 +7,7 @@
 
 
 #include "../../clib/rawtypes.h"
+#include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
 #include "customhouses.h"
 
@@ -211,15 +212,13 @@ void CustomHouseElements::SetWidth( u32 _width )
 
 size_t CustomHouseElements::estimatedSize() const
 {
-  size_t size = sizeof( CustomHouseElements );
-  size += 3 * sizeof( HouseFloor* ) + data.capacity() * sizeof( HouseFloor );
+  size_t size = sizeof( CustomHouseElements ) + Clib::memsize( data );
   for ( const auto& floor : data )
   {
-    size += 3 * sizeof( std::list<CUSTOM_HOUSE_ELEMENT>* ) +
-            floor.capacity() * sizeof( std::list<CUSTOM_HOUSE_ELEMENT> );
+    size += Clib::memsize( floor );
     for ( const auto& l : floor )
     {
-      size += 3 * sizeof( CUSTOM_HOUSE_ELEMENT* ) + l.size() * sizeof( CUSTOM_HOUSE_ELEMENT );
+      size += Clib::memsize( l );
     }
   }
   return size;
@@ -238,5 +237,5 @@ void CustomHouseElements::AddElement( CUSTOM_HOUSE_ELEMENT& elem )
 
   data.at( x ).at( y ).push_back( elem );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

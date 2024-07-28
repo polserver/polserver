@@ -426,34 +426,35 @@ GameState::Memory GameState::estimateSize() const
   Memory usage;
   memset( &usage, 0, sizeof( usage ) );
 
-  usage.misc = sizeof( GameState );
+  usage.misc = sizeof( GameState ) + Clib::memsize( cmdlevels );
   for ( const auto& ele : cmdlevels )
     usage.misc += ele.estimateSize();
 
+  usage.misc += Clib::memsize( npc_templates );
   for ( const auto& ele : npc_templates )
   {
-    usage.misc += ele.first.capacity() + sizeof( NpcTemplate* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
     if ( ele.second )
       usage.misc += ele.second->estimateSize();
   }
 
+  usage.misc += Clib::memsize( npc_template_elems );
   for ( const auto& ele : npc_template_elems )
   {
-    usage.misc +=
-        ele.first.capacity() + ele.second.estimateSize() + ( sizeof( void* ) * 3 + 1 ) / 2;
+    usage.misc += ele.second.estimateSize();
   }
 
   usage.misc += sizeof( std::unique_ptr<Core::PropertyList> ) + global_properties->estimatedSize();
 
 
   usage.account_count = accounts.size();
-  usage.account_size += 3 * sizeof( AccountRef* ) + accounts.capacity() * sizeof( AccountRef );
+  usage.account_size += Clib::memsize( accounts );
   for ( const auto& acc : accounts )
   {
     if ( acc.get() != nullptr )
       usage.account_size += acc->estimatedSize();
   }
 
+  usage.misc += Clib::memsize( startlocations );
   for ( const auto& loc : startlocations )
   {
     if ( loc != nullptr )
@@ -476,138 +477,108 @@ GameState::Memory GameState::estimateSize() const
 
   usage.misc += storage.estimateSize();
 
+  usage.misc += Clib::memsize( parties );
   for ( const auto& party : parties )
     if ( party.get() != nullptr )
       usage.misc += party->estimateSize();
 
+  usage.misc += Clib::memsize( guilds );
   for ( const auto& guild : guilds )
     if ( guild.second.get() != nullptr )
-      usage.misc +=
-          sizeof( unsigned int ) + guild.second->estimateSize() + ( sizeof( void* ) * 3 + 1 ) / 2;
+      usage.misc += guild.second->estimateSize();
 
+  usage.misc += Clib::memsize( Realms );
   for ( const auto& realm : Realms )
   {
     if ( realm != nullptr )
       usage.realm_size += realm->sizeEstimate();
   }
 
+  usage.misc += Clib::memsize( attributes );
   for ( const auto& attr : attributes )
   {
     if ( attr != nullptr )
       usage.misc += attr->estimateSize();
   }
 
-  for ( const auto& attr : attributes_byname )
-  {
-    usage.misc +=
-        attr.first.capacity() + sizeof( Mobile::Attribute* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
+  usage.misc += Clib::memsize( attributes_byname );
 
-  usage.misc += 3 * sizeof( USpell** ) + spells.capacity() * sizeof( USpell* );
+  usage.misc += Clib::memsize( spells );
   for ( const auto& spell : spells )
   {
     if ( spell != nullptr )
       usage.misc += spell->estimateSize();
   }
-  usage.misc += 3 * sizeof( SpellCircle** ) +
-                spellcircles.capacity() * ( sizeof( SpellCircle* ) + sizeof( SpellCircle ) );
+  usage.misc += Clib::memsize( spellcircles );
 
-  usage.misc += 3 * sizeof( ExportScript** ) + export_scripts.capacity() * sizeof( ExportScript* );
+  usage.misc += Clib::memsize( export_scripts );
   for ( const auto& script : export_scripts )
   {
     if ( script != nullptr )
       usage.misc += script->estimateSize();
   }
 
-  for ( const auto& name : tipfilenames )
-  {
-    usage.misc += name.capacity();
-  }
+  usage.misc += Clib::memsize( tipfilenames );
 
   for ( const auto& zone : armorzones )
   {
-    usage.misc += zone.name.capacity() + sizeof( double ) + 3 * sizeof( unsigned short* ) +
-                  zone.layers.capacity() * sizeof( unsigned short );
+    usage.misc += zone.name.capacity() + sizeof( double ) + Clib::memsize( zone.layers );
   }
 
-  usage.misc += 3 * sizeof( Vital** ) + vitals.capacity() * sizeof( Vital* );
+  usage.misc += Clib::memsize( vitals );
   for ( const auto& vital : vitals )
   {
     if ( vital != nullptr )
       usage.misc += vital->estimateSize();
   }
-  for ( const auto& vital : vitals_byname )
-    usage.misc += vital.first.capacity() + sizeof( Vital* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+  usage.misc += Clib::memsize( vitals_byname );
 
-
-  usage.misc += ( sizeof( u32 ) + sizeof( Items::ItemDesc* ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-                desctable.size();
+  usage.misc += Clib::memsize( desctable );
   for ( const auto& elem : desctable )
   {
     if ( elem.second != nullptr )
       usage.misc += elem.second->estimatedSize();
   }
+  usage.misc += Clib::memsize( dynamic_item_descriptors );
   for ( const auto& elem : dynamic_item_descriptors )
   {
     if ( elem != nullptr )
       usage.misc += elem->estimatedSize();
   }
-  usage.misc +=
-      ( sizeof( unsigned int ) + sizeof( unsigned int ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-      old_objtype_conversions.size();
+  usage.misc += Clib::memsize( old_objtype_conversions );
 
-  for ( const auto& elem : objtype_byname )
-    usage.misc += elem.first.capacity() + sizeof( u32 ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+  usage.misc += Clib::memsize( objtype_byname );
 
+  usage.misc += Clib::memsize( resourcedefs );
   for ( const auto& elem : resourcedefs )
   {
-    usage.misc += elem.first.capacity() + sizeof( ResourceDef* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
     if ( elem.second != nullptr )
       usage.misc += elem.second->estimateSize();
   }
-  for ( const auto& elem : intrinsic_equipments )
-  {
-    usage.misc += elem.first.first.capacity() + sizeof( u8 ) + sizeof( Items::Equipment* ) +
-                  ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
+  usage.misc += Clib::memsize( intrinsic_equipments );
+  usage.misc += Clib::memsize( boatshapes );
   for ( const auto& elem : boatshapes )
   {
-    usage.misc += sizeof( u16 ) + sizeof( Multi::BoatShape* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
     if ( elem.second != nullptr )
       usage.misc += elem.second->estimateSize();
   }
 
+  usage.misc += Clib::memsize( animation_translates );
   for ( const auto& elem : animation_translates )
   {
-    usage.misc +=
-        elem.first.capacity() + elem.second.estimateSize() + ( sizeof( void* ) * 3 + 1 ) / 2;
+    usage.misc += elem.second.estimateSize();
   }
 
   for ( const auto& elem : console_commands )
   {
     usage.misc += elem.estimateSize();
   }
-  usage.misc += ( sizeof( UOExecutor* ) + sizeof( ListenPoint* ) + sizeof( ListenPoint ) +
-                  ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-                listen_points.size();
-  for ( const auto& elem : mime_types )
-  {
-    usage.misc += elem.first.capacity() + elem.second.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
-
-  usage.misc += task_queue.size() * ( sizeof( ScheduledTask* ) + sizeof( ScheduledTask ) );
-
-  for ( const auto& elem : Global_Ignore_CProps )
-    usage.misc += elem.capacity() + 3 * sizeof( void* );
-
-  for ( const auto& elem : textcmds )
-  {
-    usage.misc += elem.first.capacity() + sizeof( elem.second ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
-  for ( const auto& elem : paramtextcmds )
-  {
-    usage.misc += elem.first.capacity() + sizeof( elem.second ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
+  usage.misc += Clib::memsize( listen_points );
+  usage.misc += Clib::memsize( mime_types );
+  usage.misc += Clib::memsize( task_queue );
+  usage.misc += Clib::memsize( Global_Ignore_CProps );
+  usage.misc += Clib::memsize( textcmds );
+  usage.misc += Clib::memsize( paramtextcmds );
 
   for ( const auto& elem : uo_skills )
   {

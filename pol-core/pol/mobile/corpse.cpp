@@ -14,6 +14,7 @@
 #include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../containr.h"
 #include "../globals/uvars.h"
@@ -161,7 +162,7 @@ size_t UCorpse::estimatedSize() const
   size_t size = base::estimatedSize() + sizeof( u16 ) /*corpsetype*/
                 + sizeof( u32 )                       /*ownerserial*/
                 // no estimateSize here element is in objhash
-                + 3 * sizeof( Items::Item** ) + can_equip_list_.capacity() * sizeof( Items::Item* );
+                + Clib::memsize( can_equip_list_ );
   return size;
 }
 

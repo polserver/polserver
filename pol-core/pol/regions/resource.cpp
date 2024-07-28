@@ -7,16 +7,18 @@
 
 #include "resource.h"
 
-#include "../bscript/berror.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/random.h"
-#include "../clib/streamsaver.h"
-#include "../plib/maptile.h"
-#include "../plib/systemstate.h"
+#include "bscript/berror.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/random.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "plib/maptile.h"
+#include "plib/systemstate.h"
+
 #include "globals/state.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
@@ -436,12 +438,10 @@ void ResourceDef::write( Clib::StreamWriter& sw ) const
 
 size_t ResourceDef::estimateSize() const
 {
-  size_t size =
-      RegionGroup<ResourceRegion>::estimateSize() + sizeof( unsigned int ) /*initial_units_*/
-      + sizeof( int )                                                      /*current_units_*/
-      + 3 * sizeof( void* ) +
-      landtiles_.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) ) + 3 * sizeof( void* ) +
-      tiles_.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) );
+  size_t size = RegionGroup<ResourceRegion>::estimateSize() +
+                sizeof( unsigned int ) /*initial_units_*/
+                + sizeof( int )        /*current_units_*/
+                + Clib::memsize( landtiles_ ) + Clib::memsize( tiles_ );
   return size;
 }
 
@@ -461,8 +461,7 @@ size_t ResourceRegion::estimateSize() const
       Region::estimateSize() +
       5 * sizeof( unsigned int ) /*tilecount_ units_per_area_ seconds_per_regrow_ capacity_ units_*/
       + sizeof( time_t )         /*last_regen_*/
-      + ( sizeof( unsigned int ) + sizeof( unsigned short ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-            depletions_.size();
+      + Clib::memsize( depletions_ );
   return size;
 }
 

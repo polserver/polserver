@@ -14,6 +14,7 @@
 #include "clib/network/sckutil.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
+#include "clib/stlutil.h"
 #include "clib/threadhelp.h"
 #include "clib/weakptr.h"
 #include "plib/systemstate.h"
@@ -1388,7 +1389,7 @@ size_t OSExecutorModule::sizeEstimate() const
     if ( obj != nullptr )
       size += obj->sizeEstimate();
   }
-  size += 3 * sizeof( Bscript::BObjectImp** ) + events_.size() * sizeof( Bscript::BObjectImp* );
+  size += Clib::memsize( events_ );
   return size;
 }
 }  // namespace Module
