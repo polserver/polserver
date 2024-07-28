@@ -557,6 +557,15 @@ antlrcpp::Any PrettifyFileProcessor::expression_suffix(
       visitExpressionList( expr );
     addToken( ")", method->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
   }
+  else if ( auto method = expr_suffix_ctx->functionCallSuffix() )
+  {
+    visitExpression( expr_ctx );
+    addToken( "(", method->LPAREN(), linebuilder.openingParenthesisStyle() );
+    size_t curcount = linebuilder.currentTokens().size();
+    if ( auto expr = method->expressionList() )
+      visitExpressionList( expr );
+    addToken( ")", method->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  }
   return {};
 }
 

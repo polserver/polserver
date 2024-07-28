@@ -405,34 +405,27 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
 std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
     EscriptParser::FunctionCallContext* ctx, const std::string& scope )
 {
-  std::string method_name;
+  auto method_name = text( ctx->IDENTIFIER() );
 
   auto arguments = value_arguments( ctx->expressionList() );
 
-  std::unique_ptr<Expression> callee = nullptr;
+  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), scope, method_name,
+                                                       nullptr, std::move( arguments ) );
 
-  if ( auto parExpression = ctx->parExpression() )
-  {
-    callee = this->expression( parExpression->expression() );
-  }
-  else if ( auto identifier = ctx->IDENTIFIER() )
-  {
-    method_name = text( identifier );
-  }
-  else
-  {
-    location_for( *ctx ).internal_error( "no callee or method name for function call" );
-  }
+  std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
+  workspace.function_resolver.register_function_link( key, function_call->function_link );
+
+  return function_call;
+}
+
+std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
+    std::unique_ptr<Expression> callee,
+    EscriptGrammar::EscriptParser::FunctionCallSuffixContext* ctx )
+{
+  auto arguments = value_arguments( ctx->expressionList() );
 
   auto function_call = std::make_unique<FunctionCall>(
-      location_for( *ctx ), scope, method_name, std::move( callee ), std::move( arguments ) );
-
-  // Register function link if the function call callee is a method name.
-  if ( !method_name.empty() )
-  {
-    std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
-    workspace.function_resolver.register_function_link( key, function_call->function_link );
-  }
+      location_for( *ctx ), "", "", std::move( callee ), std::move( arguments ) );
 
   return function_call;
 }
@@ -478,6 +471,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   else if ( auto method = ctx->methodCallSuffix() )
   {
     return method_call( std::move( lhs ), method );
+  }
+  else if ( auto function_call_suffix = ctx->functionCallSuffix() )
+  {
+    return function_call( std::move( lhs ), function_call_suffix );
   }
   else
   {

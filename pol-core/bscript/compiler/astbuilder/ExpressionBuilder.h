@@ -70,6 +70,9 @@ public:
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const std::string& scope );
 
+  std::unique_ptr<FunctionCall> function_call(
+      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::FunctionCallSuffixContext* );
+
   std::unique_ptr<MethodCall> method_call(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::MethodCallSuffixContext* );
 
