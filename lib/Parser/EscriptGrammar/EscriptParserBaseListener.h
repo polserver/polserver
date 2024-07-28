@@ -215,6 +215,9 @@ public:
   virtual void enterMethodCallSuffix(EscriptParser::MethodCallSuffixContext * /*ctx*/) override { }
   virtual void exitMethodCallSuffix(EscriptParser::MethodCallSuffixContext * /*ctx*/) override { }
 
+  virtual void enterFunctionCallSuffix(EscriptParser::FunctionCallSuffixContext * /*ctx*/) override { }
+  virtual void exitFunctionCallSuffix(EscriptParser::FunctionCallSuffixContext * /*ctx*/) override { }
+
   virtual void enterFunctionCall(EscriptParser::FunctionCallContext * /*ctx*/) override { }
   virtual void exitFunctionCall(EscriptParser::FunctionCallContext * /*ctx*/) override { }
 

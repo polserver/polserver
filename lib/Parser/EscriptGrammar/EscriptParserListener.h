@@ -213,6 +213,9 @@ public:
   virtual void enterMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) = 0;
   virtual void exitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) = 0;
 
+  virtual void enterFunctionCallSuffix(EscriptParser::FunctionCallSuffixContext *ctx) = 0;
+  virtual void exitFunctionCallSuffix(EscriptParser::FunctionCallSuffixContext *ctx) = 0;
+
   virtual void enterFunctionCall(EscriptParser::FunctionCallContext *ctx) = 0;
   virtual void exitFunctionCall(EscriptParser::FunctionCallContext *ctx) = 0;
 

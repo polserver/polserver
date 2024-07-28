@@ -152,6 +152,8 @@ public:
 
     virtual std::any visitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *context) = 0;
 
+    virtual std::any visitFunctionCallSuffix(EscriptParser::FunctionCallSuffixContext *context) = 0;
+
     virtual std::any visitFunctionCall(EscriptParser::FunctionCallContext *context) = 0;
 
     virtual std::any visitStructInitializerExpression(EscriptParser::StructInitializerExpressionContext *context) = 0;
