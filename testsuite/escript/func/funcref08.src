@@ -1,0 +1,4 @@
+// This is technically valid, but the callee does not implement MTH_CALL so
+// results in a BError.
+
+print( 4("hello") );

@@ -1,0 +1,7 @@
+// The callee expression, `@sum`, implements MTH_CALL
+
+print( @sum( 1, 2 ) );
+
+function sum( a, b )
+  return a + b;
+endfunction

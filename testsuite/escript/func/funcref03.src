@@ -1,0 +1,8 @@
+var sum_ := @sum;
+print( sum_( 3, 4 ) );
+
+print( ( @sum )( 1, 2 ) );
+
+function sum( a, b )
+  return a + b;
+endfunction

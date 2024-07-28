@@ -65,12 +65,12 @@ public:
     RuleExplicitStructInitializer = 55, RuleExplicitDictInitializer = 56,
     RuleExplicitErrorInitializer = 57, RuleBareArrayInitializer = 58, RuleParExpression = 59,
     RuleExpressionList = 60, RuleExpressionSuffix = 61, RuleIndexingSuffix = 62,
-    RuleNavigationSuffix = 63, RuleMethodCallSuffix = 64, RuleFunctionCall = 65,
-    RuleStructInitializerExpression = 66, RuleStructInitializerExpressionList = 67,
-    RuleStructInitializer = 68, RuleDictInitializerExpression = 69, RuleDictInitializerExpressionList = 70,
-    RuleDictInitializer = 71, RuleArrayInitializer = 72, RuleLiteral = 73,
-    RuleInterpolatedString = 74, RuleInterpolatedStringPart = 75, RuleIntegerLiteral = 76,
-    RuleFloatLiteral = 77, RuleBoolLiteral = 78
+    RuleNavigationSuffix = 63, RuleMethodCallSuffix = 64, RuleFunctionCallSuffix = 65,
+    RuleFunctionCall = 66, RuleStructInitializerExpression = 67, RuleStructInitializerExpressionList = 68,
+    RuleStructInitializer = 69, RuleDictInitializerExpression = 70, RuleDictInitializerExpressionList = 71,
+    RuleDictInitializer = 72, RuleArrayInitializer = 73, RuleLiteral = 74,
+    RuleInterpolatedString = 75, RuleInterpolatedStringPart = 76, RuleIntegerLiteral = 77,
+    RuleFloatLiteral = 78, RuleBoolLiteral = 79
   };
 
   explicit EscriptParser(antlr4::TokenStream *input);
@@ -157,6 +157,7 @@ public:
   class IndexingSuffixContext;
   class NavigationSuffixContext;
   class MethodCallSuffixContext;
+  class FunctionCallSuffixContext;
   class FunctionCallContext;
   class StructInitializerExpressionContext;
   class StructInitializerExpressionListContext;
@@ -1330,6 +1331,7 @@ public:
     IndexingSuffixContext *indexingSuffix();
     MethodCallSuffixContext *methodCallSuffix();
     NavigationSuffixContext *navigationSuffix();
+    FunctionCallSuffixContext *functionCallSuffix();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1392,6 +1394,23 @@ public:
   };
 
   MethodCallSuffixContext* methodCallSuffix();
+
+  class  FunctionCallSuffixContext : public antlr4::ParserRuleContext {
+  public:
+    FunctionCallSuffixContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LPAREN();
+    antlr4::tree::TerminalNode *RPAREN();
+    ExpressionListContext *expressionList();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+
+  };
+
+  FunctionCallSuffixContext* functionCallSuffix();
 
   class  FunctionCallContext : public antlr4::ParserRuleContext {
   public:

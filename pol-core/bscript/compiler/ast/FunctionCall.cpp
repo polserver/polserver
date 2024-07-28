@@ -6,6 +6,7 @@
 
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
+#include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/file/SourceLocation.h"
@@ -14,12 +15,19 @@
 namespace Pol::Bscript::Compiler
 {
 FunctionCall::FunctionCall( const SourceLocation& source_location, std::string scope,
-                            std::string name, std::vector<std::unique_ptr<Argument>> children )
-    : Expression( source_location, std::move( children ) ),
+                            std::string name, std::unique_ptr<Node> callee,
+                            std::vector<std::unique_ptr<Argument>> arguments )
+    : Expression( source_location, std::move( arguments ) ),
       function_link( std::make_shared<FunctionLink>( source_location ) ),
       scope( std::move( scope ) ),
       method_name( std::move( name ) )
 {
+  if ( callee )
+  {
+    // Add the callee at the beginning of the children, as that is the order
+    // needed for the instruction generator.
+    children.insert( children.begin(), std::move( callee ) );
+  }
 }
 
 void FunctionCall::accept( NodeVisitor& visitor )

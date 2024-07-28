@@ -410,10 +410,22 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   auto arguments = value_arguments( ctx->expressionList() );
 
   auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), scope, method_name,
-                                                       std::move( arguments ) );
+                                                       nullptr, std::move( arguments ) );
 
   std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
   workspace.function_resolver.register_function_link( key, function_call->function_link );
+
+  return function_call;
+}
+
+std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
+    std::unique_ptr<Expression> callee,
+    EscriptGrammar::EscriptParser::FunctionCallSuffixContext* ctx )
+{
+  auto arguments = value_arguments( ctx->expressionList() );
+
+  auto function_call = std::make_unique<FunctionCall>(
+      location_for( *ctx ), "", "", std::move( callee ), std::move( arguments ) );
 
   return function_call;
 }
@@ -459,6 +471,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   else if ( auto method = ctx->methodCallSuffix() )
   {
     return method_call( std::move( lhs ), method );
+  }
+  else if ( auto function_call_suffix = ctx->functionCallSuffix() )
+  {
+    return function_call( std::move( lhs ), function_call_suffix );
   }
   else
   {

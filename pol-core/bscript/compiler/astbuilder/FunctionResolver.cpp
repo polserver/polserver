@@ -106,9 +106,8 @@ bool FunctionResolver::resolve( std::vector<AvailableUserFunction>& to_build_ast
       }
       else
       {
-        // complain, super complain
-        const std::shared_ptr<FunctionLink>& function_link = ( function_links )[0];
-        report.error( function_link->source_location, "User Function '{}' not found.", name );
+        // Do not complain here, as the identifier in `name` may be a variable.
+        // Error handled in SemanticAnalyzer.
         unresolved_itr = unresolved_function_links_by_name.erase( unresolved_itr );
       }
     }

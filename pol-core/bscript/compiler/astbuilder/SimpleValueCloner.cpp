@@ -8,6 +8,7 @@
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
 #include "bscript/compiler/ast/ErrorInitializer.h"
+#include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/Identifier.h"
@@ -97,10 +98,19 @@ void SimpleValueCloner::visit_function_call( FunctionCall& fc )
   if ( fc.function_link->module_function_declaration() && fc.children.empty() )
   {
     std::vector<std::unique_ptr<Argument>> no_args;
-    auto new_fc = std::make_unique<FunctionCall>( use_source_location, fc.scope, fc.method_name,
-                                                  std::move( no_args ) );
-    new_fc->function_link->link_to( fc.function_link->function() );
-    cloned_value = std::move( new_fc );
+
+    if ( !fc.method_name.empty() )
+    {
+      auto new_fc = std::make_unique<FunctionCall>( use_source_location, fc.scope, fc.method_name,
+                                                    nullptr, std::move( no_args ) );
+      new_fc->function_link->link_to( fc.function_link->function() );
+      cloned_value = std::move( new_fc );
+    }
+    else
+    {
+      report.error( fc,
+                    "Cannot clone function call because it does not have method name as callee." );
+    }
   }
 }
 

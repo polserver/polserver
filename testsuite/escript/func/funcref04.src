@@ -1,0 +1,11 @@
+// `sum` should be called either:
+//
+// - a function: `sum(...)` for compile-time errors
+// - a funcref: `@sum.call(...)` for run-time errors
+// - an expression: `(@sum)(...)` for run-time errors
+//
+print( ( sum )( 1, 2 ) );
+
+function sum( a, b )
+  return a + b;
+endfunction

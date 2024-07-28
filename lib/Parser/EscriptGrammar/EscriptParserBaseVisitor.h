@@ -279,6 +279,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitFunctionCallSuffix(EscriptParser::FunctionCallSuffixContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitFunctionCall(EscriptParser::FunctionCallContext *ctx) override {
     return visitChildren(ctx);
   }
