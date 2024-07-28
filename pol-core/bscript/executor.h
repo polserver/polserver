@@ -67,8 +67,6 @@ typedef std::map<std::string, profile_instr> escript_profile_map;
 extern escript_profile_map EscriptProfileMap;
 #endif
 
-typedef std::vector<BObjectRef> ValueStackCont;
-
 class ExecutorDebugListener
 {
 public:

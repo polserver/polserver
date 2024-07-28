@@ -439,6 +439,7 @@ void InstructionGenerator::visit_function_parameter_declaration(
 // The function expression generation emits the following instructions:
 // - captured vars
 // - captured vars count
+// - parameter count
 // - create-functor <instructions count>
 // - function instructions
 void InstructionGenerator::visit_function_expression( FunctionExpression& node )
@@ -447,21 +448,14 @@ void InstructionGenerator::visit_function_expression( FunctionExpression& node )
   if ( auto user_function = node.function_link->user_function() )
   {
     // Push the captured variables
-    int function_params_count = 0;
-    int function_capture_count = 0;
-
-    if ( !user_functions.empty() )
-    {
-      function_params_count = user_functions.top()->parameter_count();
-      function_capture_count = user_functions.top()->capture_count();
-    }
-
     for ( const auto& variable : user_function->capture_variable_scope_info.variables )
     {
-      emit.access_variable( *variable->capturing, function_params_count, function_capture_count );
+      emit_access_variable( *variable->capturing );
     }
 
     auto capture_count_index = emit.value<int>();
+
+    emit.value( static_cast<int>( user_function->parameter_count() ) );
 
     emit.functor_create();
     auto index = emitter.next_instruction_address() - 1;
@@ -505,16 +499,7 @@ void InstructionGenerator::visit_identifier( Identifier& node )
   update_debug_location( node );
   if ( auto var = node.variable )
   {
-    int function_params_count = 0;
-    int function_capture_count = 0;
-
-    if ( !user_functions.empty() )
-    {
-      function_params_count = user_functions.top()->parameter_count();
-      function_capture_count = user_functions.top()->capture_count();
-    }
-
-    emit.access_variable( *var, function_params_count, function_capture_count );
+    emit_access_variable( *var );
   }
   else
   {
@@ -858,4 +843,17 @@ void InstructionGenerator::visit_conditional_operator( ConditionalOperator& node
   emit.label( *node.alternate_label );
 }
 
+void InstructionGenerator::emit_access_variable( Variable& variable )
+{
+  int function_params_count = 0;
+  int function_capture_count = 0;
+
+  if ( !user_functions.empty() )
+  {
+    function_params_count = user_functions.top()->parameter_count();
+    function_capture_count = user_functions.top()->capture_count();
+  }
+
+  emit.access_variable( variable, function_params_count, function_capture_count );
+}
 }  // namespace Pol::Bscript::Compiler

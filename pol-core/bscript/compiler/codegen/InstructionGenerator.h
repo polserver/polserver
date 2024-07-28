@@ -12,6 +12,7 @@ namespace Pol::Bscript::Compiler
 class FlowControlLabel;
 class InstructionEmitter;
 class SourceLocation;
+class Variable;
 
 class InstructionGenerator : public NodeVisitor
 {
@@ -75,6 +76,8 @@ public:
   void visit_conditional_operator( ConditionalOperator& ) override;
 
 private:
+  void emit_access_variable( Variable& );
+
   // There are two of these because sometimes when calling a method
   // on InstructionEmitter, the variable name reads better as a noun,
   // and sometimes it reads better as a verb.

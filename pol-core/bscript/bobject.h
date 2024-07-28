@@ -57,6 +57,8 @@ class Double;
 class String;
 class ObjArray;
 
+typedef std::vector<BObjectRef> ValueStackCont;
+
 class BObjectImp : public ref_counted
 {
 public:
@@ -821,7 +823,8 @@ class BFunctionRef final : public BObjectImp
   typedef BObjectImp base;
 
 public:
-  BFunctionRef( int progcounter, int param_count, const std::string& scriptname );
+  BFunctionRef( int progcounter, int param_count, const std::string& scriptname,
+                ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -848,6 +851,9 @@ private:
   unsigned int pc_;
   int num_params_;
   std::string script_name_;
+
+public:
+  ValueStackCont captures;
 };
 class BApplicObjType
 {

@@ -2028,16 +2028,18 @@ std::string BBoolean::getStringRep() const
 }
 
 
-BFunctionRef::BFunctionRef( int progcounter, int param_count, const std::string& scriptname )
+BFunctionRef::BFunctionRef( int progcounter, int param_count, const std::string& scriptname,
+                            ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       pc_( progcounter ),
       num_params_( param_count ),
-      script_name_( scriptname )
+      script_name_( scriptname ),
+      captures( std::move( captures ) )
 {
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.pc_, B.num_params_, B.script_name_ )
+    : BFunctionRef( B.pc_, B.num_params_, B.script_name_, ValueStackCont( B.captures ) )
 {
 }
 

@@ -2620,6 +2620,11 @@ void Executor::ins_call_method_id( const Instruction& ins )
       {
         // params need to be on the stack, without current objectref
         ValueStack.pop_back();
+
+        // Push captured parameters onto the stack prior to function parameters.
+        for ( auto& p : funcr->captures )
+          ValueStack.push_back( p );
+
         for ( auto& p : fparams )
           ValueStack.push_back( p );
         // jump to function
@@ -3110,22 +3115,29 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 void Executor::ins_funcref( const Instruction& ins )
 {
   ValueStack.push_back( BObjectRef(
-      new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
+      new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname(), {} ) ) ) );
 }
 
 // Skeleton implementation to pass tests
 void Executor::ins_functor( const Instruction& ins )
 {
+  int parameter_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
+  ValueStack.pop_back();
+
   int capture_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
   ValueStack.pop_back();
+
+  auto captures = ValueStackCont();
   while ( capture_count > 0 )
   {
-    BObjectRef ref = ValueStack.back();
+    captures.push_back( ValueStack.back() );
     ValueStack.pop_back();
     capture_count--;
   }
 
-  ValueStack.push_back( BObjectRef( new BBoolean( true ) ) );
+  auto func = new BFunctionRef( PC, parameter_count, scriptname(), std::move( captures ) );
+
+  ValueStack.push_back( BObjectRef( func ) );
 
   PC += ins.token.lval;
 }
