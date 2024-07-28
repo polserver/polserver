@@ -2729,12 +2729,16 @@ void Executor::ins_call_method( const Instruction& ins )
   std::string name( strm.str() );
   unsigned long profile_start = GetTimeUs();
 #endif
+#ifdef BOBJECTIMP_DEBUG
   BObjectImp* imp;
 
   if ( strcmp( ins.token.tokval(), "impptr" ) == 0 )
     imp = new String( fmt::format( "{}", static_cast<void*>( this ) ) );
   else
     imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
+#else
+  BObjectImp* imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
+#endif
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
