@@ -427,7 +427,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpressionList(
   {
     visitExpression( args[i] );
     if ( i < args.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
   }
   return {};
 }
@@ -457,7 +457,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     case EscriptLexer::OR_B:
     case EscriptLexer::AND_A:
     case EscriptLexer::AND_B:
-      style = FmtToken::SPACE | FmtToken::BREAKPOINT;
+      style = FmtToken::SPACE | FmtToken::BREAKPOINT | FmtToken::PREFERRED_BREAK;
       break;
     case EscriptLexer::ADDMEMBER:
     case EscriptLexer::DELMEMBER:
@@ -693,7 +693,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameterList(
   {
     visitFunctionParameter( params[i] );
     if ( i < params.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
   }
   return {};
 }
@@ -1047,7 +1047,7 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionParameterList(
   {
     visitModuleFunctionParameter( params[i] );
     if ( i < params.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
   }
   return {};
 }
@@ -1118,7 +1118,7 @@ antlrcpp::Any PrettifyFileProcessor::visitProgramParameterList(
     visitProgramParameter( params[i] );
     // comma is optional here
     if ( i < params.size() - 1 && ctx->COMMA( i ) )
-      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
   }
   return {};
 }
