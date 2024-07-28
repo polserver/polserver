@@ -4,20 +4,20 @@ if ("")
 
 var a;
 
-function () { // Captures a implicitly
-  function (b) { // Captures a
+@() { // Captures a implicitly
+  @(b) { // Captures a
     a;
-    function (a) { // Does not capture `a`, so expect a 0-capture functure around this line
+    @(a) { // Does not capture `a`, so expect a 0-capture functure around this line
       a;
-      function () { // Does not capture `a`, so expect a 0-capture functure around this line
+      @() { // Does not capture `a`, so expect a 0-capture functure around this line
         var a;
         a;
       };
       a;
     };
-    function (c, d, e) { // Captures a
+    @(c, d, e) { // Captures a
       a;
-      function () { // Does not capture `a` but captures 'c', 'd', 'e' so expect a 3-capture functure around this line
+      @() { // Does not capture `a` but captures 'c', 'd', 'e' so expect a 3-capture functure around this line
         var a;
         a;
         c;

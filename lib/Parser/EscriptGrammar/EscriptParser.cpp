@@ -342,7 +342,7 @@ void escriptparserParserInitialize() {
   	0,602,604,3,152,76,0,603,590,1,0,0,0,603,591,1,0,0,0,603,592,1,0,0,0,
   	603,593,1,0,0,0,603,594,1,0,0,0,603,595,1,0,0,0,603,596,1,0,0,0,603,597,
   	1,0,0,0,603,598,1,0,0,0,603,599,1,0,0,0,603,600,1,0,0,0,603,601,1,0,0,
-  	0,603,602,1,0,0,0,604,107,1,0,0,0,605,607,5,15,0,0,606,608,3,94,47,0,
+  	0,603,602,1,0,0,0,604,107,1,0,0,0,605,607,5,116,0,0,606,608,3,94,47,0,
   	607,606,1,0,0,0,607,608,1,0,0,0,608,609,1,0,0,0,609,610,5,82,0,0,610,
   	611,3,62,31,0,611,612,5,83,0,0,612,109,1,0,0,0,613,615,5,64,0,0,614,616,
   	3,148,74,0,615,614,1,0,0,0,615,616,1,0,0,0,616,111,1,0,0,0,617,619,5,
@@ -1092,44 +1092,86 @@ EscriptParser::TopLevelDeclarationContext* EscriptParser::topLevelDeclaration() 
   try {
     setState(211);
     _errHandler->sync(this);
-    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 6, _ctx)) {
-    case 1: {
-      enterOuterAlt(_localctx, 1);
-      setState(206);
-      useDeclaration();
-      break;
-    }
+    switch (_input->LA(1)) {
+      case EscriptParser::USE: {
+        enterOuterAlt(_localctx, 1);
+        setState(206);
+        useDeclaration();
+        break;
+      }
 
-    case 2: {
-      enterOuterAlt(_localctx, 2);
-      setState(207);
-      includeDeclaration();
-      break;
-    }
+      case EscriptParser::INCLUDE: {
+        enterOuterAlt(_localctx, 2);
+        setState(207);
+        includeDeclaration();
+        break;
+      }
 
-    case 3: {
-      enterOuterAlt(_localctx, 3);
-      setState(208);
-      programDeclaration();
-      break;
-    }
+      case EscriptParser::PROGRAM: {
+        enterOuterAlt(_localctx, 3);
+        setState(208);
+        programDeclaration();
+        break;
+      }
 
-    case 4: {
-      enterOuterAlt(_localctx, 4);
-      setState(209);
-      functionDeclaration();
-      break;
-    }
+      case EscriptParser::FUNCTION:
+      case EscriptParser::EXPORTED: {
+        enterOuterAlt(_localctx, 4);
+        setState(209);
+        functionDeclaration();
+        break;
+      }
 
-    case 5: {
-      enterOuterAlt(_localctx, 5);
-      setState(210);
-      statement();
-      break;
-    }
+      case EscriptParser::IF:
+      case EscriptParser::GOTO:
+      case EscriptParser::RETURN:
+      case EscriptParser::TOK_CONST:
+      case EscriptParser::VAR:
+      case EscriptParser::DO:
+      case EscriptParser::WHILE:
+      case EscriptParser::EXIT:
+      case EscriptParser::BREAK:
+      case EscriptParser::CONTINUE:
+      case EscriptParser::FOR:
+      case EscriptParser::FOREACH:
+      case EscriptParser::REPEAT:
+      case EscriptParser::CASE:
+      case EscriptParser::ENUM:
+      case EscriptParser::BANG_A:
+      case EscriptParser::BANG_B:
+      case EscriptParser::TOK_ERROR:
+      case EscriptParser::DICTIONARY:
+      case EscriptParser::STRUCT:
+      case EscriptParser::ARRAY:
+      case EscriptParser::UNINIT:
+      case EscriptParser::BOOL_TRUE:
+      case EscriptParser::BOOL_FALSE:
+      case EscriptParser::DECIMAL_LITERAL:
+      case EscriptParser::HEX_LITERAL:
+      case EscriptParser::OCT_LITERAL:
+      case EscriptParser::BINARY_LITERAL:
+      case EscriptParser::FLOAT_LITERAL:
+      case EscriptParser::HEX_FLOAT_LITERAL:
+      case EscriptParser::STRING_LITERAL:
+      case EscriptParser::INTERPOLATED_STRING_START:
+      case EscriptParser::LPAREN:
+      case EscriptParser::LBRACE:
+      case EscriptParser::ADD:
+      case EscriptParser::SUB:
+      case EscriptParser::SEMI:
+      case EscriptParser::TILDE:
+      case EscriptParser::AT:
+      case EscriptParser::INC:
+      case EscriptParser::DEC:
+      case EscriptParser::IDENTIFIER: {
+        enterOuterAlt(_localctx, 5);
+        setState(210);
+        statement();
+        break;
+      }
 
     default:
-      break;
+      throw NoViableAltException(this);
     }
 
   }
@@ -2135,7 +2177,7 @@ EscriptParser::ReturnStatementContext* EscriptParser::returnStatement() {
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
       setState(288);
       expression(0);
@@ -5430,7 +5472,6 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
     setState(539);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
-      case EscriptParser::FUNCTION:
       case EscriptParser::TOK_ERROR:
       case EscriptParser::DICTIONARY:
       case EscriptParser::STRUCT:
@@ -6002,8 +6043,8 @@ EscriptParser::FunctionExpressionContext::FunctionExpressionContext(ParserRuleCo
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::FunctionExpressionContext::FUNCTION() {
-  return getToken(EscriptParser::FUNCTION, 0);
+tree::TerminalNode* EscriptParser::FunctionExpressionContext::AT() {
+  return getToken(EscriptParser::AT, 0);
 }
 
 tree::TerminalNode* EscriptParser::FunctionExpressionContext::LBRACE() {
@@ -6062,7 +6103,7 @@ EscriptParser::FunctionExpressionContext* EscriptParser::functionExpression() {
   try {
     enterOuterAlt(_localctx, 1);
     setState(605);
-    match(EscriptParser::FUNCTION);
+    match(EscriptParser::AT);
     setState(607);
     _errHandler->sync(this);
 
@@ -6472,7 +6513,7 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(630);
         expressionList();
@@ -6491,7 +6532,7 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(635);
         expressionList();
@@ -7013,7 +7054,7 @@ EscriptParser::MethodCallSuffixContext* EscriptParser::methodCallSuffix() {
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
       setState(671);
       expressionList();
@@ -7095,7 +7136,7 @@ EscriptParser::FunctionCallSuffixContext* EscriptParser::functionCallSuffix() {
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
       setState(677);
       expressionList();
@@ -7183,7 +7224,7 @@ EscriptParser::FunctionCallContext* EscriptParser::functionCall() {
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
       setState(684);
       expressionList();
@@ -7758,7 +7799,7 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(737);
         dictInitializerExpressionList();
@@ -7777,7 +7818,7 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(742);
         dictInitializerExpressionList();
@@ -7884,7 +7925,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(751);
         expressionList();
@@ -7903,7 +7944,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(756);
         expressionList();
@@ -7925,7 +7966,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(763);
         expressionList();
@@ -7944,7 +7985,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & -3242591731706724352) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
         ((1ULL << (_la - 64)) & 4726527809026293753) != 0)) {
         setState(768);
         expressionList();

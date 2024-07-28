@@ -1214,7 +1214,7 @@ public:
   public:
     FunctionExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *FUNCTION();
+    antlr4::tree::TerminalNode *AT();
     antlr4::tree::TerminalNode *LBRACE();
     BlockContext *block();
     antlr4::tree::TerminalNode *RBRACE();

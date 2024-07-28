@@ -9,10 +9,10 @@ var a;
 // This tests that when bubbling up captures from inner to outer function,
 // variables are not duplicated / recaptured.
 
-function () {
-  function () {
-    function () {
-      function () {
+@() {
+  @() {
+    @() {
+      @() {
         a;
       };
       a;

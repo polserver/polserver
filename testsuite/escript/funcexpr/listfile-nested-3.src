@@ -5,13 +5,13 @@ if ("")
 var a;
 
 // Creates a chain of functors using zero captures, each using its own local function parameter `a`
-function (a) {
+@(a) {
   a;
-  function (a) {
+  @(a) {
     a;
-    function (a) {
+    @(a) {
       a;
-      function (a) {
+      @(a) {
         a;
       };
     };

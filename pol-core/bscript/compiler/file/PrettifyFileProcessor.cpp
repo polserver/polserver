@@ -868,7 +868,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionReference(
 antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
-  addToken( "function", ctx->FUNCTION(), FmtToken::SPACE );
+  addToken( "@", ctx->AT(), FmtToken::SPACE );
 
   if ( auto params = ctx->functionParameters() )
     visitFunctionParameters( params );

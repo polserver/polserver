@@ -1,9 +1,9 @@
 include "listfile";
 
-function (i, j, k) { return 1; };
-function {};
-function () { return 1; };
-function (i, byref j, k) { return 1; };
+@(i, j, k) { return 1; };
+@{};
+@() { return 1; };
+@(i, byref j, k) { return 1; };
 
 
 print_listfile( "listfile-syntax" );

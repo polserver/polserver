@@ -1,8 +1,7 @@
 function curry( f ) // curry(f) does the currying transform
-  return function ( a ) {
-    return function ( b ) {
-      // Change this to `f(a, b)` when expressions-as-callee feature lands.
-      return f.call( a, b );
+  return @( a ) {
+    return @( b ) {
+      return f( a, b );
     };
   };
 endfunction

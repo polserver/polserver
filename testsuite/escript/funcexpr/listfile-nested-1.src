@@ -5,10 +5,10 @@ if ("")
 // Add some extra locals to make sure the local variable numbering is correct.
 var foo, a, bar;
 
-function () {
-  function () {
-    function () {
-      function () {
+@() {
+  @() {
+    @() {
+      @() {
         a;
         a;
         a;

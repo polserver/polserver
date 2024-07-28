@@ -298,7 +298,7 @@ primary
     ;
 
 functionExpression
-    : FUNCTION functionParameters? LBRACE block RBRACE
+    : AT functionParameters? LBRACE block RBRACE
     ;
 
 explicitArrayInitializer

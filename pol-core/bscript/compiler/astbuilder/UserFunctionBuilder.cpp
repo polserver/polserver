@@ -27,7 +27,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_declaration(
 std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
-  std::string name = FunctionResolver::function_expression_name( location_for( *ctx->FUNCTION() ) );
+  std::string name = FunctionResolver::function_expression_name( location_for( *ctx->AT() ) );
   return make_user_function( name, ctx, false, ctx->RBRACE() );
 }
 

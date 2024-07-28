@@ -6,17 +6,17 @@ var a, b, c;
 
 // A more complex example...
 
-function () {
+@() {
     b; // Local 1 in parent becomes local 0 here
-    function(c) { // c not captured
-        function(b) { // b not captured
+    @(c) { // c not captured
+        @(b) { // b not captured
             a; // captured
             c; // captured from parent
             var a; // create new local
-            function() {
+            @() {
                 a; // captures local from parent
                 var b;
-                function(c) { // creates c
+                @(c) { // creates c
                     a;
                     b;
                     c;

@@ -9,16 +9,16 @@ if ("")
 //
 // This tests that when bubbling up captures from inner to outer function,
 // variables are not duplicated / recaptured.
-function () {
+@() {
   a;
   a;
-  function () {
+  @() {
     a;
     a;
-    function () {
+    @() {
       a;
       a;
-      function () {
+      @() {
         a;
         a;
       };
