@@ -50,12 +50,6 @@ std::shared_ptr<Variable> Variables::capture( std::shared_ptr<Variable>& other )
   return captured;
 }
 
-void Variables::add( std::shared_ptr<Variable>& other )
-{
-  current().variables_by_name[other->name] = other;
-  current().names_by_index.push_back( other->name );
-}
-
 std::shared_ptr<Variable> Variables::find( const std::string& name ) const
 {
   auto itr = variable_info_stack.back().variables_by_name.find( name );

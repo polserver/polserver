@@ -27,7 +27,6 @@ public:
                                     const SourceLocation& );
 
   std::shared_ptr<Variable> capture( std::shared_ptr<Variable>& );
-  void add( std::shared_ptr<Variable>& );
 
   // Looks in parent and all ancestor function variable scopes
   [[nodiscard]] std::shared_ptr<Variable> find_in_ancestors( const std::string& name ) const;
