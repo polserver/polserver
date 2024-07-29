@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+07-29-2024 Kevin:
+    Added: Compiler support for function expressions via syntax `@(param1, param2, ..., paramN) { ... }`.
+           See the Racalac Escript Guide for additional details.
 07-28-2024 Kevin:
     Added: Array script method `filter(FunctionObject testFn)`.
     Added: The compiler now supports any expression as the callee for a function call,
