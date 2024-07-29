@@ -1,6 +1,13 @@
 -- POL100.2.0 --
 07-29-2024 Kevin:
     Added: Compiler support for function expressions via syntax `@(param1, param2, ..., paramN) { ... }`.
+           For example, to get all hidden online players:
+
+            var all_hidden := EnumerateOnlinePlayers()
+              .filter( @( player ) {
+                return player.hidden;
+              });
+
            See the Racalac Escript Guide for additional details.
 07-28-2024 Kevin:
     Added: Array script method `filter(FunctionObject testFn)`.

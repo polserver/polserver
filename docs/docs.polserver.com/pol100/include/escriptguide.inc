@@ -2558,16 +2558,18 @@ scope.</p>
 <div class="doc-guide-pre"><pre>
 
 program test_filter( who )
-  var arr := array{ 1, 2, 3, 4, 5 };
+  var items := EnumerateItemsInContainer( who.backpack );
 
-  var even := arr.filter( @( elem ) {
+  var colored_items := items.filter( @( item ) {
+    var has_color := item.color > 0;
+
     // Capture the 'who' variable
-    SendSysMessage( who, $"Processing: {elem}" );
+    SendSysMessage( who, $"Is {item.desc} colored? {has_color}" );
 
-    return ( elem % 2 ) == 0;
+    return has_color;
   });
 
-  SendSysMessage(who, $"Even numbers: {", ".join( even )}");
+  SendSysMessage(who, $"You have {colored_items.size()} colored items.");
 endprogram
 </pre></div>
 

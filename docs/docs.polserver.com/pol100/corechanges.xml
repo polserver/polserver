@@ -9,6 +9,11 @@
 			<date>07-29-2024</date>
 			<author>Kevin:</author>
 			<change type="Added">Compiler support for function expressions via syntax `@(param1, param2, ..., paramN) { ... }`.<br/>
+For example, to get all hidden online players:<br/>
+ var all_hidden := EnumerateOnlinePlayers()<br/>
+   .filter( @( player ) {<br/>
+     return player.hidden;<br/>
+   });<br/>
 See the Racalac Escript Guide for additional details.</change>
 		</entry>
 		<entry>

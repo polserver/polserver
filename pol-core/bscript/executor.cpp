@@ -3120,9 +3120,11 @@ void Executor::ins_funcref( const Instruction& ins )
 
 void Executor::ins_functor( const Instruction& ins )
 {
+  passert_always( ValueStack.back()->isa( BObjectImp::OTLong ) );
   int parameter_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
   ValueStack.pop_back();
 
+  passert_always( ValueStack.back()->isa( BObjectImp::OTLong ) );
   int capture_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
   ValueStack.pop_back();
 
