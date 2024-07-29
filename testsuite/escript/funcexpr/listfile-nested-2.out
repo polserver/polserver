@@ -1,0 +1,124 @@
+0: "" (string) len=0 offset=0x1
+1: if false goto 61
+2: declare local #0
+3: # (consume)
+4: local variable #0
+5: 1 (integer) offset=0x30
+6: 0 (integer) offset=0x2
+7: create-functor instructions=51
+    8: pop param 'a'
+    9: local variable #0
+    10: # (consume)
+    11: local variable #0
+    12: # (consume)
+    13: local variable #0
+    14: 1 (integer) offset=0x28
+    15: 0 (integer) offset=0x8
+    16: create-functor instructions=39
+        17: pop param 'a'
+        18: local variable #0
+        19: # (consume)
+        20: local variable #0
+        21: # (consume)
+        22: local variable #0
+        23: 1 (integer) offset=0x20
+        24: 0 (integer) offset=0xc
+        25: create-functor instructions=23
+            26: pop param 'a'
+            27: local variable #0
+            28: # (consume)
+            29: local variable #0
+            30: # (consume)
+            31: local variable #0
+            32: 1 (integer) offset=0x18
+            33: 0 (integer) offset=0x10
+            34: create-functor instructions=7
+                35: pop param 'a'
+                36: local variable #0
+                37: # (consume)
+                38: local variable #0
+                39: # (consume)
+                40: 0 (integer) offset=0x14
+                41: return
+            42: # (consume)
+            43: local variable #0
+            44: # (consume)
+            45: local variable #0
+            46: # (consume)
+            47: 0 (integer) offset=0x1c
+            48: return
+        49: # (consume)
+        50: local variable #0
+        51: # (consume)
+        52: local variable #0
+        53: # (consume)
+        54: 0 (integer) offset=0x24
+        55: return
+    56: # (consume)
+    57: 0 (integer) offset=0x2c
+    58: return
+59: # (consume)
+60: leave block (remove 1 locals)
+61: "listfile-nested-2" (string) len=17 offset=0x34
+62: makelocal
+63: jsr userfunc @66
+64: # (consume)
+65: progend
+66: pop param 'test'
+67: declare local #1
+68: "./funcexpr/" (string) len=11 offset=0x4b
+69: local variable #0
+70: ".lst" (string) len=4 offset=0x57
+71: interpolate string (3 parts)
+72: call module function (1, 0): ReadFile
+73: :=
+74: # (consume)
+75: local variable #1
+76: if true goto 81
+77: local variable #1
+78: "" (string) len=0 offset=0x1
+79: call module function (0, 0): Print
+80: return
+81: declare local #2
+82: "" (string) len=0 offset=0x1
+83: :=
+84: # (consume)
+85: local variable #1
+86: initforeach @120
+87: local variable #2
+88: local variable #3
+89: interpolate string (2 parts)
+90: "" (string) len=0 offset=0x1
+91: call module function (0, 0): Print
+92: # (consume)
+93: local variable #3
+94: " " (string) len=1 offset=0x5c
+95: "create-functor" (string) len=14 offset=0x5e
+96: interpolate string (2 parts)
+97: TOK_ARRAY_SUBSCRIPT
+98: if false goto 104
+99: local variable #2
+100: "    " (string) len=4 offset=0x6d
+101: interpolate string (2 parts)
+102: local #2 :=
+103: goto 120
+104: local variable #3
+105: " " (string) len=1 offset=0x5c
+106: "return" (string) len=6 offset=0x72
+107: interpolate string (2 parts)
+108: TOK_ARRAY_SUBSCRIPT
+109: if false goto 120
+110: local variable #2
+111: 1 (integer) offset=0x79
+112: local variable #2
+113: call-method-id 'length' (#141, 0 arguments)
+114: 4 (integer) offset=0x7d
+115: -
+116: multi subscript get (2 indexes)
+117: peek at top of stack; skip 1 instructions if true, otherwise consume it
+118: "" (string) len=0 offset=0x1
+119: local #2 :=
+120: stepforeach @87
+121: leave block (remove 3 locals)
+122: 0 (integer) offset=0x81
+123: return

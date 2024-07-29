@@ -865,6 +865,26 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionReference(
   return {};
 }
 
+antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
+    EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
+{
+  addToken( "@", ctx->AT(), FmtToken::SPACE );
+
+  if ( auto params = ctx->functionParameters() )
+    visitFunctionParameters( params );
+
+  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() );
+
+  ++_currentgroup;
+  size_t curcount = linebuilder.currentTokens().size();
+  visitBlock( ctx->block() );
+  --_currentgroup;
+
+  addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
+
+  return {};
+}
+
 antlrcpp::Any PrettifyFileProcessor::visitGotoStatement( EscriptParser::GotoStatementContext* ctx )
 {
   addToken( "goto", ctx->GOTO(), FmtToken::SPACE );
@@ -1059,6 +1079,8 @@ antlrcpp::Any PrettifyFileProcessor::visitPrimary( EscriptParser::PrimaryContext
     return make_identifier( identifier );
   else if ( auto functionReference = ctx->functionReference() )
     return visitFunctionReference( functionReference );
+  else if ( auto functionExpression = ctx->functionExpression() )
+    return visitFunctionExpression( functionExpression );
   else if ( auto explicitArrayInitializer = ctx->explicitArrayInitializer() )
     return visitExplicitArrayInitializer( explicitArrayInitializer );
   else if ( auto explicitStructInitializer = ctx->explicitStructInitializer() )

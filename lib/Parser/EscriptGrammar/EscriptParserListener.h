@@ -180,6 +180,9 @@ public:
   virtual void enterPrimary(EscriptParser::PrimaryContext *ctx) = 0;
   virtual void exitPrimary(EscriptParser::PrimaryContext *ctx) = 0;
 
+  virtual void enterFunctionExpression(EscriptParser::FunctionExpressionContext *ctx) = 0;
+  virtual void exitFunctionExpression(EscriptParser::FunctionExpressionContext *ctx) = 0;
+
   virtual void enterExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) = 0;
   virtual void exitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) = 0;
 

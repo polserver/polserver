@@ -288,12 +288,17 @@ primary
     | scopedFunctionCall
     | IDENTIFIER
     | functionReference
+    | functionExpression
     | explicitArrayInitializer
     | explicitStructInitializer
     | explicitDictInitializer
     | explicitErrorInitializer
     | bareArrayInitializer
     | interpolatedString
+    ;
+
+functionExpression
+    : AT functionParameters? LBRACE block RBRACE
     ;
 
 explicitArrayInitializer

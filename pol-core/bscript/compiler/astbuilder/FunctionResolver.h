@@ -33,10 +33,14 @@ public:
       const SourceLocation&, EscriptGrammar::EscriptParser::FunctionDeclarationContext* );
   void register_function_link( const std::string& name,
                                std::shared_ptr<FunctionLink> function_link );
+  std::string register_function_expression(
+      const SourceLocation&, EscriptGrammar::EscriptParser::FunctionExpressionContext* );
   void register_module_function( ModuleFunctionDeclaration* );
   void register_user_function( UserFunction* );
 
   bool resolve( std::vector<AvailableUserFunction>& user_functions_to_build );
+
+  static std::string function_expression_name( const SourceLocation& );
 
 private:
 

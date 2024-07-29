@@ -13,5 +13,4 @@ LocalVariableScope* LocalVariableScopes::current_local_scope()
 {
   return local_variable_scopes.empty() ? nullptr : local_variable_scopes.back();
 }
-
 }  // namespace Pol::Bscript::Compiler

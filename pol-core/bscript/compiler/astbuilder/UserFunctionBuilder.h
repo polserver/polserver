@@ -14,6 +14,14 @@ public:
 
   std::unique_ptr<UserFunction> function_declaration(
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* );
+  std::unique_ptr<UserFunction> function_expression(
+      EscriptGrammar::EscriptParser::FunctionExpressionContext* );
+
+private:
+  template <typename ParserContext>
+  std::unique_ptr<UserFunction> make_user_function( const std::string& name, ParserContext* context,
+                                                    bool exported,
+                                                    antlr4::tree::TerminalNode* end_token );
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -130,6 +130,8 @@ public:
 
     virtual std::any visitPrimary(EscriptParser::PrimaryContext *context) = 0;
 
+    virtual std::any visitFunctionExpression(EscriptParser::FunctionExpressionContext *context) = 0;
+
     virtual std::any visitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *context) = 0;
 
     virtual std::any visitExplicitStructInitializer(EscriptParser::ExplicitStructInitializerContext *context) = 0;

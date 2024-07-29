@@ -1,0 +1,9 @@
+// Captures itself
+var fib := @( n ) {
+  if ( n <= 1 )
+    return n;
+  endif
+  return fib( n - 1 ) + fib( n - 2 );
+};
+
+print( fib( 9 ) );

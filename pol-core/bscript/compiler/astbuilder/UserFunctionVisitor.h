@@ -20,6 +20,9 @@ public:
   antlrcpp::Any visitFunctionDeclaration(
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* ) override;
 
+  antlrcpp::Any visitFunctionExpression(
+      EscriptGrammar::EscriptParser::FunctionExpressionContext* ) override;
+
 private:
   BuilderWorkspace& workspace;
 

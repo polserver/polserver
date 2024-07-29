@@ -7,6 +7,6 @@ namespace Pol::Bscript::Compiler
 {
 using BlockDepth = size_t;
 using VariableIndex = unsigned;
-}
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_SIMPLETYPES_H

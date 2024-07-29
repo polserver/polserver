@@ -9,13 +9,14 @@
 
 namespace Pol::Bscript::Compiler
 {
-UserFunction::UserFunction( const SourceLocation& source_location, bool exported, std::string name,
-                            std::unique_ptr<FunctionParameterList> parameter_list,
+UserFunction::UserFunction( const SourceLocation& source_location, bool exported, bool expression,
+                            std::string name, std::unique_ptr<FunctionParameterList> parameter_list,
                             std::unique_ptr<FunctionBody> body,
                             const SourceLocation& endfunction_location )
     : Function( source_location, std::move( name ), std::move( parameter_list ),
                 std::move( body ) ),
       exported( exported ),
+      expression( expression ),
       endfunction_location( endfunction_location )
 {
 }
@@ -28,6 +29,11 @@ void UserFunction::accept( NodeVisitor& visitor )
 void UserFunction::describe_to( std::string& w ) const
 {
   fmt::format_to( std::back_inserter( w ), "user-function({})", name );
+}
+
+unsigned UserFunction::capture_count() const
+{
+  return static_cast<unsigned>( capture_variable_scope_info.variables.size() );
 }
 
 FunctionBody& UserFunction::body()

@@ -1,0 +1,23 @@
+include "listfile";
+
+if ("")
+
+// Add some extra locals to make sure the local variable numbering is correct.
+var foo, a, bar;
+
+@() {
+  @() {
+    @() {
+      @() {
+        a;
+        a;
+        a;
+        a;
+      };
+    };
+  };
+};
+
+endif
+
+print_listfile("listfile-nested-1");

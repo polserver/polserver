@@ -61,16 +61,17 @@ public:
     RuleConstantDeclaration = 42, RuleVariableDeclaration = 43, RuleProgramParameters = 44,
     RuleProgramParameterList = 45, RuleProgramParameter = 46, RuleFunctionParameters = 47,
     RuleFunctionParameterList = 48, RuleFunctionParameter = 49, RuleScopedFunctionCall = 50,
-    RuleFunctionReference = 51, RuleExpression = 52, RulePrimary = 53, RuleExplicitArrayInitializer = 54,
-    RuleExplicitStructInitializer = 55, RuleExplicitDictInitializer = 56,
-    RuleExplicitErrorInitializer = 57, RuleBareArrayInitializer = 58, RuleParExpression = 59,
-    RuleExpressionList = 60, RuleExpressionSuffix = 61, RuleIndexingSuffix = 62,
-    RuleNavigationSuffix = 63, RuleMethodCallSuffix = 64, RuleFunctionCallSuffix = 65,
-    RuleFunctionCall = 66, RuleStructInitializerExpression = 67, RuleStructInitializerExpressionList = 68,
-    RuleStructInitializer = 69, RuleDictInitializerExpression = 70, RuleDictInitializerExpressionList = 71,
-    RuleDictInitializer = 72, RuleArrayInitializer = 73, RuleLiteral = 74,
-    RuleInterpolatedString = 75, RuleInterpolatedStringPart = 76, RuleIntegerLiteral = 77,
-    RuleFloatLiteral = 78, RuleBoolLiteral = 79
+    RuleFunctionReference = 51, RuleExpression = 52, RulePrimary = 53, RuleFunctionExpression = 54,
+    RuleExplicitArrayInitializer = 55, RuleExplicitStructInitializer = 56,
+    RuleExplicitDictInitializer = 57, RuleExplicitErrorInitializer = 58,
+    RuleBareArrayInitializer = 59, RuleParExpression = 60, RuleExpressionList = 61,
+    RuleExpressionSuffix = 62, RuleIndexingSuffix = 63, RuleNavigationSuffix = 64,
+    RuleMethodCallSuffix = 65, RuleFunctionCallSuffix = 66, RuleFunctionCall = 67,
+    RuleStructInitializerExpression = 68, RuleStructInitializerExpressionList = 69,
+    RuleStructInitializer = 70, RuleDictInitializerExpression = 71, RuleDictInitializerExpressionList = 72,
+    RuleDictInitializer = 73, RuleArrayInitializer = 74, RuleLiteral = 75,
+    RuleInterpolatedString = 76, RuleInterpolatedStringPart = 77, RuleIntegerLiteral = 78,
+    RuleFloatLiteral = 79, RuleBoolLiteral = 80
   };
 
   explicit EscriptParser(antlr4::TokenStream *input);
@@ -146,6 +147,7 @@ public:
   class FunctionReferenceContext;
   class ExpressionContext;
   class PrimaryContext;
+  class FunctionExpressionContext;
   class ExplicitArrayInitializerContext;
   class ExplicitStructInitializerContext;
   class ExplicitDictInitializerContext;
@@ -1191,6 +1193,7 @@ public:
     ScopedFunctionCallContext *scopedFunctionCall();
     antlr4::tree::TerminalNode *IDENTIFIER();
     FunctionReferenceContext *functionReference();
+    FunctionExpressionContext *functionExpression();
     ExplicitArrayInitializerContext *explicitArrayInitializer();
     ExplicitStructInitializerContext *explicitStructInitializer();
     ExplicitDictInitializerContext *explicitDictInitializer();
@@ -1206,6 +1209,25 @@ public:
   };
 
   PrimaryContext* primary();
+
+  class  FunctionExpressionContext : public antlr4::ParserRuleContext {
+  public:
+    FunctionExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *AT();
+    antlr4::tree::TerminalNode *LBRACE();
+    BlockContext *block();
+    antlr4::tree::TerminalNode *RBRACE();
+    FunctionParametersContext *functionParameters();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+
+  };
+
+  FunctionExpressionContext* functionExpression();
 
   class  ExplicitArrayInitializerContext : public antlr4::ParserRuleContext {
   public:

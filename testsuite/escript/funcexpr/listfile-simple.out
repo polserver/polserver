@@ -1,0 +1,85 @@
+0: "" (string) len=0 offset=0x1
+1: if false goto 22
+2: declare local #0
+3: # (consume)
+4: local variable #0
+5: 1 (integer) offset=0xe
+6: 1 (integer) offset=0x2
+7: create-functor instructions=12
+    8: pop param 'b'
+    9: pop param 'a'
+    10: declare local #2
+    11: # (consume)
+    12: local variable #1
+    13: # (consume)
+    14: local variable #0
+    15: # (consume)
+    16: local variable #2
+    17: # (consume)
+    18: 0 (integer) offset=0xa
+    19: return
+20: # (consume)
+21: leave block (remove 1 locals)
+22: "listfile-simple" (string) len=15 offset=0x12
+23: makelocal
+24: jsr userfunc @27
+25: # (consume)
+26: progend
+27: pop param 'test'
+28: declare local #1
+29: "./funcexpr/" (string) len=11 offset=0x27
+30: local variable #0
+31: ".lst" (string) len=4 offset=0x33
+32: interpolate string (3 parts)
+33: call module function (1, 0): ReadFile
+34: :=
+35: # (consume)
+36: local variable #1
+37: if true goto 42
+38: local variable #1
+39: "" (string) len=0 offset=0x1
+40: call module function (0, 0): Print
+41: return
+42: declare local #2
+43: "" (string) len=0 offset=0x1
+44: :=
+45: # (consume)
+46: local variable #1
+47: initforeach @81
+48: local variable #2
+49: local variable #3
+50: interpolate string (2 parts)
+51: "" (string) len=0 offset=0x1
+52: call module function (0, 0): Print
+53: # (consume)
+54: local variable #3
+55: " " (string) len=1 offset=0x38
+56: "create-functor" (string) len=14 offset=0x3a
+57: interpolate string (2 parts)
+58: TOK_ARRAY_SUBSCRIPT
+59: if false goto 65
+60: local variable #2
+61: "    " (string) len=4 offset=0x49
+62: interpolate string (2 parts)
+63: local #2 :=
+64: goto 81
+65: local variable #3
+66: " " (string) len=1 offset=0x38
+67: "return" (string) len=6 offset=0x4e
+68: interpolate string (2 parts)
+69: TOK_ARRAY_SUBSCRIPT
+70: if false goto 81
+71: local variable #2
+72: 1 (integer) offset=0x55
+73: local variable #2
+74: call-method-id 'length' (#141, 0 arguments)
+75: 4 (integer) offset=0x59
+76: -
+77: multi subscript get (2 indexes)
+78: peek at top of stack; skip 1 instructions if true, otherwise consume it
+79: "" (string) len=0 offset=0x1
+80: local #2 :=
+81: stepforeach @48
+82: leave block (remove 3 locals)
+83: 0 (integer) offset=0x5d
+84: return

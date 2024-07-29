@@ -1,0 +1,35 @@
+include "listfile";
+
+if ("")
+
+  var a;
+
+// Inner functions are preceeded and followed `a`. All variable accesses should
+// all show up as `local param #0` in lst.
+//
+// This tests that when bubbling up captures from inner to outer function,
+// variables are not duplicated / recaptured.
+@() {
+  a;
+  a;
+  @() {
+    a;
+    a;
+    @() {
+      a;
+      a;
+      @() {
+        a;
+        a;
+      };
+      a;
+      a;
+    };
+    a;
+    a;
+  };
+};
+
+endif
+
+print_listfile("listfile-nested-2");

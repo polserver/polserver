@@ -15,6 +15,7 @@
 #include "bscript/compiler/ast/ErrorInitializer.h"
 #include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
@@ -564,6 +565,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto fr = ctx->functionReference() )
   {
     return function_reference( fr );
+  }
+  else if ( auto fe = ctx->functionExpression() )
+  {
+    return function_expression( fe );
   }
   else if ( auto error_init = ctx->explicitErrorInitializer() )
   {

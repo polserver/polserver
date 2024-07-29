@@ -32,6 +32,7 @@
 #include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
@@ -212,6 +213,11 @@ void NodeVisitor::visit_function_parameter_declaration( FunctionParameterDeclara
 }
 
 void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_function_expression( FunctionExpression& node )
 {
   visit_children( node );
 }

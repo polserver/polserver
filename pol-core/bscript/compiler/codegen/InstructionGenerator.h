@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <map>
+#include <stack>
 #include <string>
 
 namespace Pol::Bscript::Compiler
@@ -11,13 +12,13 @@ namespace Pol::Bscript::Compiler
 class FlowControlLabel;
 class InstructionEmitter;
 class SourceLocation;
+class Variable;
 
 class InstructionGenerator : public NodeVisitor
 {
 public:
   InstructionGenerator( InstructionEmitter&,
-                        std::map<std::string, FlowControlLabel>& user_function_labels,
-                        bool in_function);
+                        std::map<std::string, FlowControlLabel>& user_function_labels );
 
   void generate( Node& );
 
@@ -46,6 +47,7 @@ public:
   void visit_function_call( FunctionCall& ) override;
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;
+  void visit_function_expression( FunctionExpression& ) override;
   void visit_function_reference( FunctionReference& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
@@ -74,6 +76,8 @@ public:
   void visit_conditional_operator( ConditionalOperator& ) override;
 
 private:
+  void emit_access_variable( Variable& );
+
   // There are two of these because sometimes when calling a method
   // on InstructionEmitter, the variable name reads better as a noun,
   // and sometimes it reads better as a verb.
@@ -81,7 +85,7 @@ private:
   InstructionEmitter& emit;
 
   std::map<std::string, FlowControlLabel>& user_function_labels;
-  const bool in_function;
+  std::stack<UserFunction*> user_functions;
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -82,6 +82,8 @@ apologies if I explain some things in annoyingly simple terms.</p>
   </li><li><a href="#chap11d">Dictionaries</a>
   </li><li><a href="#chap11e">Function Calls by Reference</a>
   </li><li><a href="#chap11f">Interpolated Strings</a></li></ul>
+  </li><li><a href="#chap11g">Function Objects</a></li></ul>
+  </li><li><a href="#chap11h">Function Expressions</a></li></ul>
 <p></p>
 
 <p><b><a href="#app2">Appendix A: Gump Tag Descriptions</a></b></p>
@@ -2499,8 +2501,82 @@ specify <i>two</i> of the same brace:</p>
   Print($"{{ hello }}"); // will print "{ hello }"
 </pre></div>
 
-<br />
 <br/>
+<br/>
+
+<p><b><a name="chap11g">Function Objects</a></b></p>
+<br />
+<p>A user function can be utilized as a value (eg. used as an argument to a
+function) by referencing the function with a <code>@</code> prefix. The
+referenced function can be executed via the 'call' method --
+<code>value.call( arguments... )</code>.</p>
+
+<p>Starting with POL 100.2.0, a function object can be executed via the regular
+function call syntax -- <code>value( arguments... )</code>.</p>
+
+<div class="doc-guide-pre"><pre>
+use os;
+use uo;
+
+// A function that logs to the console
+function ConsoleLogger( message )
+  Print( message );
+endfunction
+
+// A function that logs to all players via broadcast
+function BroadcastLogger( message )
+  Broadcast( message );
+endfunction
+
+program main( who )
+ // Use a logger based on some runtime configuration
+ var logger := ( GetEnvironmentVariable( "POL_ENV" ) == "development" ) ?
+    @BroadcastLogger :
+    @ConsoleLogger;
+
+  logger.call( "Activity started". );
+  // Or in POL 100.2+: logger( "Activity started." );
+
+  // ...
+endprogram
+</pre></div>
+
+<br/>
+<br/>
+
+<p><b><a name="chap11h">Function Expressions</a></b></p>
+<br />
+<p>Added in: POL 100.2.0</p>
+<br />
+<p>A function expression is a convenient way of defining an anonymous function
+object (a closure) right at the location where it's invoked or created. A
+function expression is created via the syntax <code>@(param1, param2, ...,
+paramN) { ... }</code>. This will create a new Function Object, automatically
+capturing any variables within the function body that are defined in the current
+scope.</p>
+
+<div class="doc-guide-pre"><pre>
+
+program test_filter( who )
+  var items := EnumerateItemsInContainer( who.backpack );
+
+  var colored_items := items.filter( @( item ) {
+    var has_color := item.color > 0;
+
+    // Capture the 'who' variable
+    SendSysMessage( who, $"Is {item.desc} colored? {has_color}" );
+
+    return has_color;
+  });
+
+  SendSysMessage(who, $"You have {colored_items.size()} colored items.");
+endprogram
+</pre></div>
+
+Variables are captured <i>by reference</i>, meaning that any modification to the
+variable's value will reflect in any other locations that access the variable.
+This is useful for creating closures that can be used to encapsulate stateful
+behavior.
 
 <!-- ====================================================================== -->
 

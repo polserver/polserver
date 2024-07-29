@@ -16,6 +16,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/FlowControlScope.h
   compiler/analyzer/FlowControlScopes.cpp
   compiler/analyzer/FlowControlScopes.h
+  compiler/analyzer/FunctionVariableScope.cpp
+  compiler/analyzer/FunctionVariableScope.h
   compiler/analyzer/LocalVariableScope.cpp
   compiler/analyzer/LocalVariableScope.h
   compiler/analyzer/LocalVariableScopes.cpp
@@ -92,6 +94,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionBody.h
   compiler/ast/FunctionCall.cpp
   compiler/ast/FunctionCall.h
+  compiler/ast/FunctionExpression.cpp
+  compiler/ast/FunctionExpression.h
   compiler/ast/FunctionParameterDeclaration.cpp
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp

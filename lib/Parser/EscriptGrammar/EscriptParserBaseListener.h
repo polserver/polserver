@@ -182,6 +182,9 @@ public:
   virtual void enterPrimary(EscriptParser::PrimaryContext * /*ctx*/) override { }
   virtual void exitPrimary(EscriptParser::PrimaryContext * /*ctx*/) override { }
 
+  virtual void enterFunctionExpression(EscriptParser::FunctionExpressionContext * /*ctx*/) override { }
+  virtual void exitFunctionExpression(EscriptParser::FunctionExpressionContext * /*ctx*/) override { }
+
   virtual void enterExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext * /*ctx*/) override { }
   virtual void exitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext * /*ctx*/) override { }
 

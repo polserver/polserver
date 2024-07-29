@@ -1,0 +1,8 @@
+include "listfile";
+include "curry";
+
+var curriedSum := curry(@sum);
+
+curriedSum(1)(2);
+
+print_listfile("listfile-curry");

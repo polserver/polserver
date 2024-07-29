@@ -1,0 +1,36 @@
+include "listfile";
+
+if ("")
+
+var a;
+
+@() { // Captures a implicitly
+  @(b) { // Captures a
+    a;
+    @(a) { // Does not capture `a`, so expect a 0-capture functure around this line
+      a;
+      @() { // Does not capture `a`, so expect a 0-capture functure around this line
+        var a;
+        a;
+      };
+      a;
+    };
+    @(c, d, e) { // Captures a
+      a;
+      @() { // Does not capture `a` but captures 'c', 'd', 'e' so expect a 3-capture functure around this line
+        var a;
+        a;
+        c;
+        d;
+        e;
+      };
+      a;
+    };
+    var a;
+    a;
+  };
+};
+
+endif
+
+print_listfile("listfile-complex-1");

@@ -30,6 +30,7 @@
 #include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
@@ -70,12 +71,11 @@
 namespace Pol::Bscript::Compiler
 {
 InstructionGenerator::InstructionGenerator(
-    InstructionEmitter& emitter, std::map<std::string, FlowControlLabel>& user_function_labels,
-    bool in_function )
+    InstructionEmitter& emitter, std::map<std::string, FlowControlLabel>& user_function_labels )
     : emitter( emitter ),
       emit( emitter ),
       user_function_labels( user_function_labels ),
-      in_function( in_function )
+      user_functions()
 {
 }
 
@@ -436,6 +436,50 @@ void InstructionGenerator::visit_function_parameter_declaration(
     emit.pop_param( node.name );
 }
 
+// The function expression generation emits the following instructions:
+// - captured vars
+// - captured vars count
+// - parameter count
+// - create-functor <instructions count>
+// - function instructions
+void InstructionGenerator::visit_function_expression( FunctionExpression& node )
+{
+  update_debug_location( node );
+  if ( auto user_function = node.function_link->user_function() )
+  {
+    // Push the captured variables
+    for ( const auto& variable : user_function->capture_variable_scope_info.variables )
+    {
+      emit_access_variable( *variable->capturing );
+    }
+
+    auto capture_count_index = emit.value<int>();
+
+    emit.value( static_cast<int>( user_function->parameter_count() ) );
+
+    emit.functor_create();
+    auto index = emitter.next_instruction_address() - 1;
+
+    user_function->accept( *this );
+
+    auto instrs_count = emitter.next_instruction_address() - index - 1;
+
+    // Ensure the capture count does not exceed maximum positive signed `int` size.
+    if ( user_function->capture_count() >
+         static_cast<unsigned int>( std::numeric_limits<int>::max() ) )
+    {
+      node.internal_error( "capture count too large" );
+    }
+
+    emit.patch_offset( index, instrs_count );
+    emit.patch_value( capture_count_index, static_cast<int>( user_function->capture_count() ) );
+  }
+  else
+  {
+    node.internal_error( "user function for function expression not found" );
+  }
+}
+
 void InstructionGenerator::visit_function_reference( FunctionReference& function_reference )
 {
   if ( auto uf = function_reference.function_link->user_function() )
@@ -455,7 +499,7 @@ void InstructionGenerator::visit_identifier( Identifier& node )
   update_debug_location( node );
   if ( auto var = node.variable )
   {
-    emit.access_variable( *var );
+    emit_access_variable( *var );
   }
   else
   {
@@ -605,7 +649,7 @@ void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
   visit_children( ret );
 
   update_debug_location( ret );
-  if ( in_function )
+  if ( !user_functions.empty() )
   {
     emit.return_from_user_function();
   }
@@ -653,6 +697,7 @@ void InstructionGenerator::visit_uninitialized_value( UninitializedValue& node )
 
 void InstructionGenerator::visit_user_function( UserFunction& user_function )
 {
+  user_functions.push( &user_function );
   unsigned first_instruction_address = emitter.next_instruction_address();
   DebugBlockGuard debug_block_guard( emitter, user_function.local_variable_scope_info );
 
@@ -675,7 +720,17 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
 
   FlowControlLabel& label = user_function_labels[user_function.name];
   emit.label( label );
-  visit_children( user_function );
+
+  // Pop function parameters
+  user_function.child<FunctionParameterList>( 0 ).accept( *this );
+
+  // Pop caputured variables
+  for ( const auto& variable : user_function.capture_variable_scope_info.variables )
+  {
+    emit.pop_param( variable->name );
+  }
+
+  user_function.body().accept( *this );
 
   if ( !dynamic_cast<ReturnStatement*>( user_function.body().last_statement() ) )
   {
@@ -687,6 +742,7 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   unsigned last_instruction_address = emitter.next_instruction_address() - 1;
   emitter.debug_user_function( user_function.name, first_instruction_address,
                                last_instruction_address );
+  user_functions.pop();
 }
 
 void InstructionGenerator::visit_value_consumer( ValueConsumer& node )
@@ -704,7 +760,15 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
   update_debug_location( node );
   if ( !node.variable )
     node.internal_error( "variable is not defined" );
-  emit.declare_variable( *node.variable );
+
+  int function_capture_count = 0;
+
+  if ( !user_functions.empty() )
+  {
+    function_capture_count = user_functions.top()->capture_count();
+  }
+
+  emit.declare_variable( *node.variable, function_capture_count );
 
   if ( node.initialize_as_empty_array )
   {
@@ -779,4 +843,17 @@ void InstructionGenerator::visit_conditional_operator( ConditionalOperator& node
   emit.label( *node.alternate_label );
 }
 
+void InstructionGenerator::emit_access_variable( Variable& variable )
+{
+  int function_params_count = 0;
+  int function_capture_count = 0;
+
+  if ( !user_functions.empty() )
+  {
+    function_params_count = user_functions.top()->parameter_count();
+    function_capture_count = user_functions.top()->capture_count();
+  }
+
+  emit.access_variable( variable, function_params_count, function_capture_count );
+}
 }  // namespace Pol::Bscript::Compiler

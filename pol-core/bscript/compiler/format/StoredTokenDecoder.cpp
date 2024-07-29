@@ -365,6 +365,12 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
                     getObjMember( tkn.offset )->code, tkn.offset );
     break;
 
+  case TOK_FUNCTOR:
+  {
+    fmt::format_to( std::back_inserter( w ), "create-functor instructions={}", tkn.offset );
+    break;
+  }
+
   case TOK_FUNCREF:
   {
     fmt::format_to( std::back_inserter( w ),

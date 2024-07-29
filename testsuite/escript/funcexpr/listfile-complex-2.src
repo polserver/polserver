@@ -1,0 +1,33 @@
+include "listfile";
+
+if ("")
+
+var a, b, c;
+
+// A more complex example...
+
+@() {
+    b; // Local 1 in parent becomes local 0 here
+    @(c) { // c not captured
+        @(b) { // b not captured
+            a; // captured
+            c; // captured from parent
+            var a; // create new local
+            @() {
+                a; // captures local from parent
+                var b;
+                @(c) { // creates c
+                    a;
+                    b;
+                    c;
+                };
+            };
+        };
+        a; // captured
+        c; // local parameter
+    };
+};
+
+endif
+
+print_listfile("listfile-complex-2");
