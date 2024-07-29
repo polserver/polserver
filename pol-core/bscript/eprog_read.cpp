@@ -299,6 +299,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     token.lval = st.offset;
     return 0;
   case TOK_FUNCREF:
+  case TOK_FUNCTOR:
     token.lval = st.offset;
     return 0;
 
