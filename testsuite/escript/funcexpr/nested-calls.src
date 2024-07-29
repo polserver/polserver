@@ -1,0 +1,9 @@
+var complexOperation := @(x, y) {
+    return @(z) {
+        return x * y + z - (x + y);
+    };
+};
+
+print(complexOperation(1, 2)(3));  // 1 * 2 + 3 - (1 + 2) = 2
+print(complexOperation(4, 5)(6));  // 4 * 5 + 6 - (4 + 5) = 17
+print(complexOperation(7, 8)(9));  // 7 * 8 + 9 - (7 + 8) = 50
