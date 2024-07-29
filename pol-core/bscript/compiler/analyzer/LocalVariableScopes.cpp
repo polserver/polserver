@@ -1,8 +1,5 @@
 #include "LocalVariableScopes.h"
 
-#include <limits>
-
-#include "bscript/compiler/analyzer/LocalVariableScope.h"
 #include "bscript/compiler/analyzer/Variables.h"
 
 namespace Pol::Bscript::Compiler

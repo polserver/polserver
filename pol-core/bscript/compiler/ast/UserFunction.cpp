@@ -33,7 +33,7 @@ void UserFunction::describe_to( std::string& w ) const
 
 unsigned UserFunction::capture_count() const
 {
-  return capture_variable_scope_info.variables.size();
+  return static_cast<unsigned>( capture_variable_scope_info.variables.size() );
 }
 
 FunctionBody& UserFunction::body()

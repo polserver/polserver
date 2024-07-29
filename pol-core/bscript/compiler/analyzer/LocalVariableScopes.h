@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "bscript/compiler/model/SimpleTypes.h"
-
 namespace Pol::Bscript::Compiler
 {
 class LocalVariableScope;

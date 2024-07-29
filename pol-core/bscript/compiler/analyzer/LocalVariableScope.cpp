@@ -48,7 +48,6 @@ std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, W
     }
     shadowing.push_back( existing );
   }
-
   auto local = scopes.local_variables.create( name, block_depth, warn_on, source_location );
 
   local_variable_scope_info.variables.push_back( local );

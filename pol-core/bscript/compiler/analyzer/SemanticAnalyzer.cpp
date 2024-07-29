@@ -86,6 +86,7 @@ void SemanticAnalyzer::analyze()
 
   for ( auto& user_function : workspace.user_functions )
   {
+    // Function expressions are analyzed within visit_function_expression.
     if ( !user_function->expression )
     {
       user_function->accept( *this );
@@ -491,39 +492,11 @@ void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
           // Otherwise, create new.
           else if ( !captures.find( variable->name ) )
           {
-            // Create a new capture variable in the parent function..
-            auto captured = cap_scope->capture( variable->capturing );
-
-            // Set function expression's captured variable to this newly created
-            // one.
-            variable->capturing = captured;
+            // Create a new capture variable in the parent function, setting
+            // this function expression's captured variable to this newly
+            // created one.
+            variable->capturing = cap_scope->capture( variable->capturing );
           }
-        }
-      }
-    }
-
-    auto capture_count = user_function->capture_count();
-    if ( capture_count > 0 )
-    {
-      report.warning( node, "{} locals={} captures={}", user_function->name,
-                      user_function->parameter_count(), capture_count );
-
-      report.warning( node, "  - captures:" );
-      for ( const auto& variable : user_function->capture_variable_scope_info.variables )
-      {
-        report.warning( node, "    - {} index={}", variable->name, variable->index );
-      }
-
-      // Update all function indexes, because the captured variables will go first on the stack.
-      if ( user_function->parameter_count() > 0 )
-      {
-        report.warning( node, "  - locals:", user_function->name, user_function->parameter_count(),
-                        capture_count );
-        for ( const auto& variable : user_function->local_variable_scope_info.variables )
-        {
-          report.warning( node, "    - {} index={}->{}", variable->name, variable->index,
-                          variable->index + capture_count );
-          // variable->index += capture_count;
         }
       }
     }
@@ -548,7 +521,6 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   if ( auto local = locals.find( node.name ) )
   {
     local->mark_used();
-
     node.variable = local;
   }
   else if ( auto captured = captures.find( node.name ) )
@@ -559,12 +531,12 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     // below).
     node.variable = captured;
   }
-  else if ( auto local = locals.find_in_ancestors( node.name ) )
+  else if ( auto ancestor = locals.find_in_ancestors( node.name ) )
   {
     // Capture the variable. In a deeply nested capture, this will reference the
     // local in the ancestor function. The function expression visitor will swap
     // the 'capturing' to a local-safe variable.
-    node.variable = capture_scopes.current_local_scope()->capture( local );
+    node.variable = capture_scopes.current_local_scope()->capture( ancestor );
     node.variable->mark_used();
   }
   else if ( auto global = globals.find( node.name ) )

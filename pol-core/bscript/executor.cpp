@@ -3118,7 +3118,6 @@ void Executor::ins_funcref( const Instruction& ins )
       new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname(), {} ) ) ) );
 }
 
-// Skeleton implementation to pass tests
 void Executor::ins_functor( const Instruction& ins )
 {
   int parameter_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
