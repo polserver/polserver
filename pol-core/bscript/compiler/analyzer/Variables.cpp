@@ -40,7 +40,7 @@ std::shared_ptr<Variable> Variables::capture( std::shared_ptr<Variable>& other )
   // - If type == Capture: ValueStack offset will be current function's param count + this variable
   // index
   // - If type == Local: if offset > function param count, add current function's capture count
-  auto index = current().names_by_index.size();
+  auto index = static_cast<VariableIndex>( current().names_by_index.size() );
   auto captured =
       std::make_shared<Variable>( VariableScope::Capture, other->name, other->block_depth, index,
                                   other->warn_on, other, other->source_location );
