@@ -71,16 +71,10 @@ size_t CmdLevel::estimateSize() const
 {
   size_t size = name.capacity() + sizeof( unsigned char ); /*cmdlevel*/
 
-  size += 3 * sizeof( SearchDir* );
+  size += Clib::memsize( searchlist );
   for ( const auto& ele : searchlist )
-  {
-    size += sizeof( Plib::Package* ) + ele.dir.capacity();
-  }
-  size += 3 * sizeof( std::string* );
-  for ( const auto& ele : aliases )
-  {
-    size += ele.capacity();
-  }
+    size += ele.dir.capacity();
+  size += Clib::memsize( aliases );
   return size;
 }
 

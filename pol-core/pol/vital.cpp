@@ -12,6 +12,7 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "../plib/pkg.h"
 #include "checkpnt.h"
 #include "globals/uvars.h"
@@ -59,9 +60,8 @@ Vital::~Vital()
 
 size_t Vital::estimateSize() const
 {
-  size_t size = sizeof( Vital ) + name.capacity() + 3 * sizeof( ExportedFunction );
-  for ( const auto& alias : aliases )
-    size += alias.capacity();
+  size_t size = sizeof( Vital ) + name.capacity();
+  size += Clib::memsize( aliases );
   return size;
 }
 

@@ -912,11 +912,7 @@ size_t ItemDesc::estimatedSize() const
                 walk_on_script.estimatedSize() + on_use_script.estimatedSize() +
                 control_script.estimatedSize() + create_script.estimatedSize() +
                 destroy_script.estimatedSize() + Clib::memsize( resources ) + props.estimatedSize();
-  size += 3 * sizeof( void* );
-  for ( const auto& ignore : ignore_cprops )
-  {
-    size += ignore.capacity() + 3 * sizeof( void* );
-  }
+  size += Clib::memsize( ignore_cprops );
   return size;
 }
 

@@ -40,13 +40,9 @@ ConfigurationBuffer::Memory ConfigurationBuffer::estimateSize() const
   Memory usage;
   memset( &usage, 0, sizeof( usage ) );
 
-  usage.misc = 3 * sizeof( std::string* );
-  for ( const auto& oldcfg : oldcfgfiles )
-    usage.misc += oldcfg.capacity();
-  usage.misc += 3 * sizeof( Module::FileAccess* );
-  for ( const auto& rule : file_access_rules )
-    usage.misc += rule.estimateSize();
-
+  usage.misc = Clib::memsize( oldcfgfiles );
+  usage.misc +=
+      Clib::memsize( file_access_rules, []( const auto& v ) { return v.estimateSize(); } );
 
   usage.cfg_count = cfgfiles.size();
   usage.cfg_size += Clib::memsize( cfgfiles );

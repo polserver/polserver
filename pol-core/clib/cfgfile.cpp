@@ -55,10 +55,7 @@ ConfigElem::~ConfigElem() {}
 
 size_t ConfigElem::estimateSize() const
 {
-  size_t size = ConfigElemBase::estimateSize();
-  for ( const auto& ele : properties )
-    size += ele.first.capacity() + ele.second.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
-  return size;
+  return ConfigElemBase::estimateSize() + Clib::memsize( properties );
 }
 
 

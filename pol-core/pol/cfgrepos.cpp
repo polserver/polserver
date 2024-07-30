@@ -235,13 +235,13 @@ size_t StoredConfigFile::estimateSize() const
   size_t size = sizeof( bool )      /* bool reload*/
                 + sizeof( time_t ); /* time_t modified_*/
 
-  for ( const auto& pair : elements_byname_ )
-  {
-    size_t elemsize = sizeof( ElemRef );
-    if ( pair.second.get() != nullptr )
-      elemsize += pair.second->estimateSize();
-    size += ( pair.first.capacity() + elemsize ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-  }
+  size += Clib::memsize( elements_byname_,
+                         []( const auto& v )
+                         {
+                           if ( v.get() )
+                             return sizeof( ElemRef ) + v->estimateSize();
+                           return sizeof( ElemRef );
+                         } );
   // both maps share the same ref
   size += Clib::memsize( elements_bynum_ );
   return size;

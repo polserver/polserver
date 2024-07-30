@@ -27,12 +27,12 @@ namespace Bscript
 {
 class BObjectImp;
 class Executor;
-}
+}  // namespace Bscript
 namespace Clib
 {
 class ConfigElem;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Core
 {
 class PropertyList;
@@ -98,7 +98,6 @@ private:
     HitsCounter();
     u64& operator[]( size_t idx );
     const u64& operator[]( size_t idx ) const;
-    size_t sizeEstimate() const;
 
   private:
     /// 0=read, 1=write, 2=erase
@@ -169,6 +168,6 @@ Bscript::BObjectImp* CallPropertyListMethod( PropertyList& proplist, const char*
                                              Bscript::Executor& ex, bool& changed );
 Bscript::BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const int id,
                                                 Bscript::Executor& ex, bool& changed );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
