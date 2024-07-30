@@ -64,17 +64,19 @@ class UMulti : public Items::Item
   typedef Items::Item base;
 
 public:
-  u16 multiid;
-
   static UMulti* create( const Items::ItemDesc& descriptor, u32 serial = 0 );
 
   static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
                                                const Core::Pos4d& pos, int flags );
 
+  u16 multiid() const { return multiid_; }
+
   virtual void double_click( Network::Client* client ) override;
   virtual void register_object( UObject* obj );
   virtual void unregister_object( UObject* obj );
   virtual bool script_isa( unsigned isatype ) const override;
+
+  virtual bool setgraphic( u16 newobjtype ) override;
 
   const MultiDef& multidef() const;
   virtual class UBoat* as_boat();
@@ -101,7 +103,8 @@ protected:
   virtual const char* classname() const override;
   friend class ref_ptr<UMulti>;
 
-private:
+  u16 multiid_;
+
   // virtual void destroy(void);
 };
 

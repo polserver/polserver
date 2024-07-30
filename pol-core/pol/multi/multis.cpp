@@ -31,7 +31,7 @@ namespace Multi
 {
 UMulti::UMulti( const Items::ItemDesc& itemdesc ) : Item( itemdesc, Core::UOBJ_CLASS::CLASS_MULTI )
 {
-  multiid = itemdesc.multiid;
+  multiid_ = itemdesc.multiid;
 
   if ( !MultiDefByMultiIDExists( itemdesc.multiid ) )
   {
@@ -72,9 +72,9 @@ const char* UMulti::classname() const
 
 const MultiDef& UMulti::multidef() const
 {
-  passert( MultiDefByMultiIDExists( multiid ) );
+  passert( MultiDefByMultiIDExists( multiid_ ) );
 
-  return *MultiDefByMultiID( multiid );
+  return *MultiDefByMultiID( multiid_ );
 }
 
 Bscript::BStruct* UMulti::footprint() const

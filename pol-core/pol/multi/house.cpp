@@ -289,7 +289,7 @@ Bscript::BObjectImp* UHouse::get_script_member_id( const int id ) const  /// id 
     return new BLong( IsEditing() );
     break;
   case MBR_MULTIID:
-    return new BLong( multiid );
+    return new BLong( multiid_ );
     break;
   case MBR_HOUSEPARTS:
     if ( !IsCustom() )
@@ -478,6 +478,23 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
     }
     break;
   }
+  case MTH_SET_MULTIID:
+  {
+    if ( IsEditing() )
+      return new BError( "House is currently been edited" );
+    else if ( !ex.hasParams( 1 ) )
+      return new BError( "Not enough parameters" );
+
+    int multiid;
+    if ( ex.getParam( 0, multiid ) )
+    {
+      // TODO check footprint
+      // TODO modify dynamics
+      // TODO trigger walkoff, walkons?
+      return new BLong( 1 );
+    }
+    break;
+  }
 
   default:
     return nullptr;
@@ -498,7 +515,7 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
   u32 tmp_serial;
-  multiid = elem.remove_ushort( "MultiID", this->multidef().multiid );
+  multiid_ = elem.remove_ushort( "MultiID", this->multidef().multiid );
 
   while ( elem.remove_prop( "Component", &tmp_serial ) )
   {
@@ -552,7 +569,7 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
 
-  sw.add( "MultiID", multiid );
+  sw.add( "MultiID", multiid_ );
 
   for ( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end;
         ++itr )
