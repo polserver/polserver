@@ -1745,6 +1745,255 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
     }
     break;
 
+  case MTH_MAP:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      if ( ref_arr.empty() )
+        return new ObjArray();
+
+      // Arguments for user function call.
+      // - the element
+      // - the index of the element
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( ref_arr.front() );
+      args.push_back( BObjectRef( new BLong( 1 ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback = [this, mappedRef = BObjectRef( new ObjArray ), processed = 1,
+                       elementRef = BObjectRef( new BObject( args[0]->impptr()->copy() ) ),
+                       initialSize = static_cast<int>( ref_arr.size() )](
+                          Executor& ex, BContinuation* continuation,
+                          BObjectRef result ) mutable -> BObjectImp*
+      {
+        auto mapped = static_cast<ObjArray*>( mappedRef->impptr() );
+
+        mapped->ref_arr.push_back( BObjectRef( result->impptr() ) );
+
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return mapped;
+        }
+        else
+        {
+          // Increment the processed counter.
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( BObjectRef( new BObject( this ) ) );
+
+          elementRef->setimp( args[0]->impptr()->copy() );
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
+  case MTH_REDUCE:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* accumulator;
+      int processed;
+
+      // If an initial accumulator value was passed in, use it. Otherwise, use
+      // the first element of the array, erroring if the array is empty.
+      if ( ex.numParams() > 1 )
+      {
+        accumulator = ex.getParamImp( 1 );
+        processed = 1;
+      }
+      else if ( ref_arr.empty() )
+      {
+        return new BError( "Reduce of empty array with no initial value" );
+      }
+      else
+      {
+        accumulator = ref_arr[0]->impptr()->copy();
+        processed = 2;
+      }
+
+      // Return the accumulator if there is no more to process, eg:
+      // {}.reduce(@{}, "accum") or {"accum"}.reduce(@{})
+      if ( processed > static_cast<int>( ref_arr.size() ) )
+      {
+        return accumulator;
+      }
+
+      // Arguments for user function call.
+      // - accumulator
+      // - current value
+      // - current index
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( BObjectRef( accumulator ) );
+      args.push_back( BObjectRef( ref_arr[processed - 1] ) );
+      args.push_back( BObjectRef( new BLong( processed ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback = [this, processed = processed,
+                       initialSize = static_cast<int>( ref_arr.size() )](
+                          Executor& ex, BContinuation* continuation,
+                          BObjectRef result /* accumulator */ ) mutable -> BObjectImp*
+      {
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return result->impptr();
+        }
+        else
+        {
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( result );
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( BObjectRef( new BObject( this ) ) );
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
+  case MTH_FIND:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      if ( ref_arr.empty() )
+        return new ObjArray();
+
+      // Arguments for user function call.
+      // - the element
+      // - the index of the element
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( ref_arr.front() );
+      args.push_back( BObjectRef( new BLong( 1 ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback =
+          [this, processed = 1, elementRef = BObjectRef( new BObject( args[0]->impptr()->copy() ) ),
+           initialSize = static_cast<int>( ref_arr.size() )](
+              Executor& ex, BContinuation* continuation, BObjectRef result ) mutable -> BObjectImp*
+      {
+        if ( result->isTrue() )
+        {
+          return elementRef->impptr();
+        }
+
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return UninitObject::create();
+        }
+        else
+        {
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( BObjectRef( new BObject( this ) ) );
+
+          elementRef->setimp( args[0]->impptr()->copy() );
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
+  case MTH_FINDINDEX:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      if ( ref_arr.empty() )
+        return new BLong( 0 );
+
+      // Arguments for user function call.
+      // - the element
+      // - the index of the element
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( ref_arr.front() );
+      args.push_back( BObjectRef( new BLong( 1 ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback =
+          [this, processed = 1, elementRef = BObjectRef( new BObject( args[0]->impptr()->copy() ) ),
+           initialSize = static_cast<int>( ref_arr.size() )](
+              Executor& ex, BContinuation* continuation, BObjectRef result ) mutable -> BObjectImp*
+      {
+        if ( result->isTrue() )
+        {
+          return new BLong( processed );
+        }
+
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return new BLong( 0 );
+        }
+        else
+        {
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( BObjectRef( new BObject( this ) ) );
+
+          elementRef->setimp( args[0]->impptr()->copy() );
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
   case MTH_CYCLE:
     if ( name_arr.empty() )
     {
