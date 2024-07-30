@@ -361,12 +361,16 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
 
 
 void Realm::readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
-                          Core::ItemsVector& walkon_items, bool doors_block,
-                          unsigned int flags ) const
+                          Core::ItemsVector& walkon_items, bool doors_block, unsigned int flags,
+                          Multi::UMulti* skip_dynamics_for ) const
 {
   Core::ZoneItems& witems = getzone( pos ).items;
   for ( const auto& item : witems )
   {
+    if ( skip_dynamics_for != nullptr &&
+         find_supporting_multi( item->pos3d() ) == skip_dynamics_for )
+      continue;
+
     if ( item->pos() == pos )
     {
       if ( Plib::tile_flags( item->graphic ) & flags )
@@ -393,7 +397,7 @@ void Realm::readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
 // new Z given new X, Y, and old Z.
 bool Realm::walkheight( const Core::Pos2d& pos, short oldz, short* newz, Multi::UMulti** pmulti,
                         Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
-                        short* gradual_boost )
+                        short* gradual_boost, Multi::UMulti* skip_shapes_for )
 {
   if ( !valid( pos ) )
   {
@@ -407,11 +411,11 @@ bool Realm::walkheight( const Core::Pos2d& pos, short oldz, short* newz, Multi::
   mvec.clear();
   walkon_items.clear();
 
-  read_walkable_dynamics( shapes, pos, walkon_items, doors_block /* true */ );
+  read_walkable_dynamics( shapes, pos, walkon_items, doors_block /* true */, skip_shapes_for );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
-  readmultis( shapes, pos, flags, mvec );
+  readmultis( shapes, pos, flags, mvec, skip_shapes_for );
   getmapshapes( shapes, pos, flags );
 
   bool result;
@@ -746,12 +750,15 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos,
 }
 
 void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int anyflags,
-                        MultiList& mvec ) const
+                        MultiList& mvec, Multi::UMulti* skip_shapes_for ) const
 {
   Core::WorldIterator<Core::MultiFilter>::InRange(
       pos, this, 64,
       [&]( Multi::UMulti* multi )
       {
+        if ( multi == skip_shapes_for )
+          return;
+
         Multi::UHouse* house = multi->as_house();
         Core::Vec2d delta = pos - multi->pos().xy();
         if ( house != nullptr && house->IsCustom() )

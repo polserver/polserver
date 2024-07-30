@@ -482,18 +482,32 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
   {
     if ( IsEditing() )
       return new BError( "House is currently been edited" );
-    else if ( !ex.hasParams( 1 ) )
+    else if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
 
     int multiid;
-    if ( ex.getParam( 0, multiid ) )
+    int flags;
+
+    if ( !ex.getParam( 0, multiid ) || !ex.getParam( 1, flags ) )
+      break;
+
+    if ( !MultiDefByMultiIDExists( multiid ) )
     {
-      // TODO check footprint
-      // TODO modify dynamics
-      // TODO trigger walkoff, walkons?
-      return new BLong( 1 );
+      return new Bscript::BError(
+          fmt::format( "Multi definition not found for House, multiid=0x{x}", multiid ) );
     }
-    break;
+
+    const MultiDef* md = MultiDefByMultiID( multiid );
+    std::string why_not;
+
+    if ( !is_valid_position( md, pos(), flags, why_not, this ) )
+    {
+      return new BError( why_not );
+    }
+
+    change_multiid( multiid, flags & CRMULTI_RECREATE_COMPONENTS );
+
+    return new BLong( 1 );
   }
 
   default:
@@ -602,6 +616,88 @@ void UHouse::destroy_components()
     if ( Plib::systemstate.config.loglevel >= 5 )
       POLLOGLN( "Component destroyed" );
     components_.pop_back();
+  }
+}
+
+void UHouse::change_multiid( u16 multiid, bool recreate_components )
+{
+  // Used for sorting and difference calculation
+  auto comparator = []( Core::UObject* a, Core::UObject* b ) { return a->serial < b->serial; };
+
+  ItemList itemlist;
+  MobileList old_moblist;
+  list_contents( this, itemlist, old_moblist );
+  old_moblist.sort( comparator );
+
+  multiid_ = multiid;
+  send_multi_to_inrange( this );
+
+  MobileList new_moblist;
+  list_contents( this, itemlist, new_moblist );
+  new_moblist.sort( comparator );
+
+  auto on_mob_added = [&]( Mobile::Character* chr )
+  {
+    register_object( chr );
+
+    if ( chr->registered_multi == 0 )
+    {
+      chr->registered_multi = this->serial;
+      this->walk_on( chr );
+    }
+  };
+
+  auto on_mob_removed = [&]( Mobile::Character* chr ) { unregister_object( chr ); };
+
+  // Traverse both vectors
+  auto old_itr = old_moblist.begin();
+  auto new_itr = new_moblist.begin();
+
+  while ( old_itr != old_moblist.end() && new_itr != new_moblist.end() )
+  {
+    if ( comparator( *old_itr, *new_itr ) )
+    {
+      on_mob_removed( *old_itr );
+      ++old_itr;
+    }
+    else if ( comparator( *new_itr, *old_itr ) )
+    {
+      on_mob_added( *new_itr );
+      ++new_itr;
+    }
+    else
+    {
+      ++old_itr;
+      ++new_itr;
+    }
+  }
+
+  // Remaining elements in old are removed
+  while ( old_itr != old_moblist.end() )
+  {
+    on_mob_removed( *old_itr );
+    ++old_itr;
+  }
+
+  // Remaining elements in new are added
+  while ( new_itr != new_moblist.end() )
+  {
+    on_mob_added( *new_itr );
+    ++new_itr;
+  }
+
+  // Recreate components (if specified)
+  if ( recreate_components )
+  {
+    for ( auto& component : components_ )
+    {
+      if ( !component->orphan() )
+        Core::destroy_item( component.get() );
+    }
+
+    components_.clear();
+
+    create_components();
   }
 }
 
@@ -723,7 +819,8 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
   return house;
 }
 
-bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
+bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos,
+                      Multi::UMulti* ignore_existing )
 {
   // TODO Pos maximum multi footprint, gamestate.update_range?
   Core::Range2d mybox( minpos, maxpos );
@@ -733,6 +830,9 @@ bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
   {
     for ( const auto& multi : minpos.realm()->getzone_grid( gpos ).multis )
     {
+      if ( ignore_existing == multi )
+        continue;
+
       // find out if any of our walls would fall within its footprint.
       auto otherbox = multi->current_box().range();
       if ( mybox.intersect( otherbox ) )
@@ -742,7 +842,8 @@ bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
   return false;
 }
 
-bool objects_exist_in( const Core::Pos4d& p1, const Core::Pos4d& p2 )
+bool objects_exist_in( const Core::Pos4d& p1, const Core::Pos4d& p2,
+                       Multi::UMulti* ignore_existing )
 {
   Core::Range2d gridarea( Core::zone_convert( p1 ), Core::zone_convert( p2 ), nullptr );
   Core::Range2d worldarea( p1, p2 );
@@ -750,16 +851,27 @@ bool objects_exist_in( const Core::Pos4d& p1, const Core::Pos4d& p2 )
   {
     for ( const auto& chr : p1.realm()->getzone_grid( gpos ).characters )
     {
+      if ( ignore_existing != nullptr && chr->registered_multi == ignore_existing->serial )
+        continue;
+
       if ( worldarea.contains( chr->pos2d() ) )
         return true;
     }
     for ( const auto& chr : p1.realm()->getzone_grid( gpos ).npcs )
     {
+      if ( ignore_existing != nullptr && chr->registered_multi == ignore_existing->serial )
+        continue;
+
       if ( worldarea.contains( chr->pos2d() ) )
         return true;
     }
     for ( const auto& item : p1.realm()->getzone_grid( gpos ).items )
     {
+      if ( ignore_existing != nullptr &&
+           ( item->house() == ignore_existing ||
+             p1.realm()->find_supporting_multi( item->pos3d() ) == ignore_existing ) )
+        continue;
+
       if ( worldarea.contains( item->pos2d() ) )
         return true;
     }
@@ -767,7 +879,8 @@ bool objects_exist_in( const Core::Pos4d& p1, const Core::Pos4d& p2 )
   return false;
 }
 
-bool statics_cause_problems( const Core::Pos4d& p1, const Core::Pos4d& p2 )
+bool statics_cause_problems( const Core::Pos4d& p1, const Core::Pos4d& p2,
+                             Multi::UMulti* ignore_existing )
 {
   Core::Range2d area( p1, p2 );
   for ( const auto& p : area )
@@ -775,10 +888,14 @@ bool statics_cause_problems( const Core::Pos4d& p1, const Core::Pos4d& p2 )
     short newz;
     UMulti* multi;
     Items::Item* item;
-    if ( !p1.realm()->walkheight( p, p1.z(), &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
+    if ( !p1.realm()->walkheight( p, p1.z(), &newz, &multi, &item, true, Plib::MOVEMODE_LAND,
+                                  nullptr, ignore_existing ) )
     {
-      POLLOGLN( "Refusing to place house at {},{}: can't stand there", p, p1.z() );
-      return true;
+      if ( multi != ignore_existing )
+      {
+        POLLOGLN( "Refusing to place house at {},{}: can't stand there", p, p1.z() );
+        return true;
+      }
     }
     if ( labs( p1.z() - newz ) > 2 )
     {
@@ -788,6 +905,43 @@ bool statics_cause_problems( const Core::Pos4d& p1, const Core::Pos4d& p2 )
     }
   }
   return false;
+}
+
+bool UHouse::is_valid_position( const MultiDef* md, const Core::Pos4d& pos, int flags,
+                                std::string& why_not, UMulti* existing )
+{
+  using namespace Bscript;
+
+  if ( !pos.can_move_to( md->minrxyz.xy() ) || !pos.can_move_to( md->maxrxyz.xy() ) )
+    return why_not = "That location is out of bounds", false;
+
+  auto corner_ne = pos + md->minrxyz;
+  auto corner_sw = pos + md->maxrxyz;
+  if ( ~flags & CRMULTI_IGNORE_MULTIS )
+  {
+    // TODO: it seems to be more restrictive then original server
+    // see https://uo.stratics.com/homes/betterhomes/bhc_placing.shtml
+    // should we change it or keep it that way?
+    const auto additional_gap = Core::Vec2d( 1, 5 );
+    if ( multis_exist_in( corner_ne - additional_gap, corner_sw + additional_gap, existing ) )
+      return why_not = "Location intersects with another structure", false;
+  }
+
+  if ( ~flags & CRMULTI_IGNORE_OBJECTS )
+  {
+    if ( objects_exist_in( corner_ne, corner_sw, existing ) )
+      return why_not = "Something is blocking that location", false;
+  }
+  if ( ~flags & CRMULTI_IGNORE_FLATNESS )
+  {
+    const auto additional_gap = Core::Vec2d( 1, 1 );
+    if ( statics_cause_problems( corner_ne - additional_gap, corner_sw + additional_gap,
+                                 existing ) )
+
+      return why_not = "That location is not suitable", false;
+  }
+
+  return true;
 }
 
 Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
@@ -800,33 +954,11 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
         ", multiid=" + Clib::hexint( descriptor.multiid ) );
   }
   const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
+  std::string why_not;
 
-  if ( !pos.can_move_to( md->minrxyz.xy() ) || !pos.can_move_to( md->maxrxyz.xy() ) )
-    return new Bscript::BError( "That location is out of bounds" );
-
-  auto corner_ne = pos + md->minrxyz;
-  auto corner_sw = pos + md->maxrxyz;
-  if ( ~flags & CRMULTI_IGNORE_MULTIS )
+  if ( !is_valid_position( md, pos, flags, why_not, nullptr ) )
   {
-    // TODO: it seems to be more restrictive then original server
-    // see https://uo.stratics.com/homes/betterhomes/bhc_placing.shtml
-    // should we change it or keep it that way?
-    const auto additional_gap = Core::Vec2d( 1, 5 );
-    if ( multis_exist_in( corner_ne - additional_gap, corner_sw + additional_gap ) )
-      return new Bscript::BError( "Location intersects with another structure" );
-  }
-
-  if ( ~flags & CRMULTI_IGNORE_OBJECTS )
-  {
-    if ( objects_exist_in( corner_ne, corner_sw ) )
-      return new Bscript::BError( "Something is blocking that location" );
-  }
-  if ( ~flags & CRMULTI_IGNORE_FLATNESS )
-  {
-    const auto additional_gap = Core::Vec2d( 1, 1 );
-    if ( statics_cause_problems( corner_ne - additional_gap, corner_sw + additional_gap ) )
-
-      return new Bscript::BError( "That location is not suitable" );
+    return new Bscript::BError( why_not );
   }
 
   UHouse* house = new UHouse( descriptor );

@@ -107,7 +107,7 @@ public:
 
   bool walkheight( const Core::Pos2d& p, short oldz, short* newz, Multi::UMulti** pmulti,
                    Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
-                   short* gradual_boost = nullptr );
+                   short* gradual_boost = nullptr, Multi::UMulti* skip_shapes_for = nullptr );
   bool walkheight( const Mobile::Character* chr, const Core::Pos2d& p, short oldz, short* newz,
                    Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost = nullptr );
 
@@ -136,16 +136,19 @@ public:
                      unsigned int anyflags ) const;
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags ) const;
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags,
-                   MultiList& mvec ) const;
+                   MultiList& mvec, Multi::UMulti* skip_shapes_for = nullptr ) const;
   void readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const;
 
   void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
-                     Core::ItemsVector& walkon_items, bool doors_block, unsigned int flags ) const;
+                     Core::ItemsVector& walkon_items, bool doors_block, unsigned int flags,
+                     Multi::UMulti* skip_dynamics_for = nullptr ) const;
 
   void read_walkable_dynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
-                               Core::ItemsVector& walkon_items, bool doors_block ) const
+                               Core::ItemsVector& walkon_items, bool doors_block,
+                               Multi::UMulti* skip_dynamics_for = nullptr ) const
   {
-    return readdynamics( vec, pos, walkon_items, doors_block, Plib::FLAG::WALKBLOCK );
+    return readdynamics( vec, pos, walkon_items, doors_block, Plib::FLAG::WALKBLOCK,
+                         skip_dynamics_for );
   }
 
   std::set<unsigned int> global_hulls;  // xy-smashed together
