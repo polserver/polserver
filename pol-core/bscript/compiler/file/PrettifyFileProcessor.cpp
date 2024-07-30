@@ -457,7 +457,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     case EscriptLexer::OR_B:
     case EscriptLexer::AND_A:
     case EscriptLexer::AND_B:
-      style = FmtToken::SPACE | FmtToken::BREAKPOINT | FmtToken::PREFERRED_BREAK;
+      style = FmtToken::SPACE | FmtToken::BREAKPOINT | FmtToken::PREFERRED_BREAK_LOGICAL;
       break;
     case EscriptLexer::ADDMEMBER:
     case EscriptLexer::DELMEMBER:

@@ -55,12 +55,13 @@ struct FmtToken
 {
   enum Style
   {
-    NONE = 0,              // do nothing
-    ATTACHED = 1,          // override SPACE of preceding token
-    SPACE = 2,             // add a whitespace char after this token
-    BREAKPOINT = 4,        // potential linebreak
-    FORCED_BREAK = 8,      // force linebreak
-    PREFERRED_BREAK = 16,  // preferred linebreak eg && or , in params
+    NONE = 0,                      // do nothing
+    ATTACHED = 1,                  // override SPACE of preceding token
+    SPACE = 2,                     // add a whitespace char after this token
+    BREAKPOINT = 4,                // potential linebreak
+    FORCED_BREAK = 8,              // force linebreak
+    PREFERRED_BREAK = 16,          // preferred linebreak , in params
+    PREFERRED_BREAK_LOGICAL = 32,  // preferred linebreak eg &&
   };
   std::string text = {};
   Position pos = {};

@@ -220,6 +220,7 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
   // sum up linelength, are groups inside or preferred breaks
   bool groups = false;
   bool has_preferred = false;
+  bool has_preferred_logical = false;
   size_t linelength = 0;
   for ( auto& [l, group, firstgroup, style] : lines )
   {
@@ -227,6 +228,8 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
       groups = true;
     if ( style & FmtToken::PREFERRED_BREAK )
       has_preferred = true;
+    if ( style & FmtToken::PREFERRED_BREAK_LOGICAL )
+      has_preferred_logical = true;
     linelength += l.size();
   }
 
@@ -340,12 +343,17 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
   else  // split based on parts
   {
     // with preferred breaks
-    if ( has_preferred )
+    if ( has_preferred || has_preferred_logical )
     {
       // first join parts until a forced/preferred break
       size_t alignmentspace = 0;
       std::vector<std::pair<std::string, int>> parts;
       std::string tmp;
+      // if breaks exists from logical "and/or" we only split based on them
+      // in a long if-statement we want to break line on the logical points and not mixed with
+      // commas from functions
+      int breakflag =
+          has_preferred_logical ? FmtToken::PREFERRED_BREAK_LOGICAL : FmtToken::PREFERRED_BREAK;
       for ( auto& [l, group, firstgroup, style] : lines )
       {
         if ( !alignmentspace )
@@ -357,7 +365,7 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
           continue;
         }
         tmp += l;
-        if ( style & FmtToken::FORCED_BREAK || style & FmtToken::PREFERRED_BREAK )
+        if ( ( style & FmtToken::FORCED_BREAK ) || ( style & breakflag ) )
         {
           parts.push_back( { std::move( tmp ), style } );
           tmp.clear();
