@@ -1,0 +1,35 @@
+print( array{ "a", "b", "c", "d", "e" }.map( @ConstantString ) );
+print( array{ "a", "b", "c", "d", "e" }.map( @ToIndex ) );
+print( array{ "a", "b", "c", "d", "e" }.map( @ToUpper ) );
+print( array{ "a", "b", "c", "d", "e" }.map( @UsesAllParameters ) );
+
+print( array{}.map( @DoNotCall ) ); // Returns new, empty array
+
+// Test with a name_arr'd array
+var arr := array{ "hello" };
+arr.+name := "hello";
+print( arr.map( @DoNotCall ) );
+
+// Errors
+print( array{}.map() );
+print( array{}.map( "foo" ) );
+
+function ConstantString()
+  return "!";
+endfunction
+
+function ToIndex( unused element, index )
+  return index;
+endfunction
+
+function ToUpper( element )
+  return Upper( element );
+endfunction
+
+function UsesAllParameters( element, index, arr )
+  return $"{element}{arr[index]}";
+endfunction
+
+function DoNotCall()
+  exit;
+endfunction
