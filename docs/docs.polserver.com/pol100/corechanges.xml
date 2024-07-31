@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-29-2024</datemodified>
+		<datemodified>07-31-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-31-2024</date>
+			<author>Turley:</author>
+			<change type="Improved">EScript ECompile Formatter: formatting of if statements and function parameters</change>
+		</entry>
 		<entry>
 			<date>07-29-2024</date>
 			<author>Kevin:</author>
