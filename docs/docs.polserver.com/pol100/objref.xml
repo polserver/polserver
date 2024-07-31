@@ -653,7 +653,8 @@ Pre-intialize with var d := dictionary { "abx" -> 72, "xyz" -> 32 };</explain>
 <class name="Array">
 <explain>Data structure for linear storage, dynamically resizes to fit more elements.
 Declare with var a := array;
-Pre-intialize with var a := array { 53, 76, 32 };</explain>
+Pre-intialize with var a := array { 53, 76, 32 };
+Note that functional methods (find, findIndex, filter, map, reduce) will return uninit on arrays that have named members, eg. an array where `arr.+name` has been used.</explain>
 <method proto="exists(index)" returns="error/int">Returns 1 if index is in array.</method>
 <method proto="size()" returns="int">number of elements in the array</method>
 <method proto="erase(int index)" returns="true/false">erases the element at index</method>
@@ -666,7 +667,59 @@ Pre-intialize with var a := array { 53, 76, 32 };</explain>
 <method proto="randomentry()" returns="value/error">returns random array entry</method>
 <method proto="cycle([int count])" returns="true/error">will move array [count] steps backwards or forwards in-place as it were a conveyor belt. {1, 2, 3}.cycle() Will make it: {3, 1, 2}. Accepts a negative value as a shift to move different direction</method>
 <method proto="sorted_insert(obj, sub_index:=0, reverse:=0)" returns="true/error">Inserts obj into already sorted array. sub_index and reverse parameter have to match the sorting criteria of the array.</method>
-<method proto="filter(FunctionObject testFn)" returns="array">Returns a new array containing just the elements that pass the test function. If no elements pass the test, an empty array is returned. `testFn` is a function that can accept up to three parameters: `element` - The current element being processed ; `index` - The index of the current element being processed ; `array` - The array filter() was called upon</method>
+<method proto="filter(FunctionObject testFn)" returns="array">
+	Returns a new array containing just the elements that pass the test function. If no elements pass the test, an empty array is returned.<br/>
+	<br/>
+	<code>testFn</code> is a function that can accept up to three parameters:<br/>
+	<ul style='font-size: 12px'>
+		<li><code>element</code>: The current element being processed</li>
+		<li><code>index</code>: The index of the current element being processed</li>
+		<li><code>array</code>: The array <code>filter()</code> was called upon</li>
+	</ul>
+</method>
+<method proto="find(FunctionObject testFn)" returns="array">
+	Returns the first element in the provided array that satisfies the provided testing function. If no elements satisfy the testing function, <code>&lt;uninitialized object&gt;</code> is returned.<br/>
+	<br/>
+	<code>testFn</code> is a function that can accept up to three parameters:<br/>
+	<ul style='font-size: 12px'>
+		<li><code>element</code>: The current element being processed</li>
+		<li><code>index</code>: The index of the current element being processed</li>
+		<li><code>array</code>: The array <code>find()</code> was called upon</li>
+	</ul>
+</method>
+<method proto="findIndex(FunctionObject testFn)" returns="array">
+	Returns the index of the first element in an array that satisfies the provided testing function. If no elements satisfy the testing function, 0 is returned.<br/>
+	<br/>
+	<code>testFn</code> is a function that can accept up to three parameters:<br/>
+	<ul style='font-size: 12px'>
+		<li><code>element</code>: The current element being processed</li>
+		<li><code>index</code>: The index of the current element being processed</li>
+		<li><code>array</code>: The array <code>findIndex()</code> was called upon</li>
+	</ul>
+</method>
+<method proto="map(FunctionObject mapFn)" returns="array">
+	Returns a new array populated with the results of calling a provided mapping function on every element in the calling array.<br/>
+	<br/>
+	<code>mapFn</code> is a function that can accept up to three parameters:<br/>
+	<ul style='font-size: 12px'>
+		<li><code>element</code>: The current element being processed</li>
+		<li><code>index</code>: The index of the current element being processed</li>
+		<li><code>array</code>: The array <code>map()</code> was called upon</li>
+	</ul>
+</method>
+<method proto="reduce(FunctionObject reducerFn, [initialValue])" returns="any">
+	Executes a user-supplied reducer callback function on each element of the array, in order, passing in the return value from the calculation on the preceding element. The final result of running the reducer across all elements of the array is a single value. The first time that the callback is run there is no 'return value of the previous calculation'. If supplied, an initial value may be used in its place. Otherwise the array element at index 1 is used as the initial value and iteration starts from the next element (index 2 instead of index 1).<br/>
+	<br/>
+	<code>reducerFn</code> is a function that can accept up to four parameters:<br/>
+	<ul style='font-size: 12px'>
+		<li><code>accumulator</code>: The value resulting from the previous call to <code>reducerFn</code>. On the first call, its value is <code>initialValue</code> if the latter is specified; otherwise its value is <code>array[1]</code></li>
+		<li><code>currentValue</code>: The value of the current element. On the first call, its value is <code>array[1]</code> if <code>initialValue</code> is specified; otherwise its value is <code>array[2]</code>.</li>
+		<li><code>currentIndex</code>: The index position of <code>currentValue</code> in the array. On the first call, its value is <code>1</code> if <code>initialValue</code> is specified, otherwise <code>2</code>.</li>
+		<li><code>array</code>: The array <code>reduce()</code> was called upon</li>
+	</ul>
+	<br/>
+	For additional examples and discussions, see Racalac's Escript Guide.
+</method>
 </class>
 
 
