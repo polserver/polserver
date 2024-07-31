@@ -1,0 +1,77 @@
+use uo;
+use os;
+use boat;
+
+include "testutil";
+
+program test_house()
+  return 1;
+endprogram
+
+exported function keep_components()
+  var multi:=CreateMultiAtLocation(100,75,0, "SmallHouse");
+  if (!multi)
+    return ret_error($"Failed to create multi: {multi}");
+  endif
+
+  var res := @{
+    if (multi.multiid != 0x6b)
+      return ret_error($"Incorrect initial multiid, expected 0x6b, actual 0x{multi.multiid:x}");
+    endif
+
+    var initial_components := multi.components;
+
+    var res := multi.set_multiid(0x6c, CRMULTI_KEEP_COMPONENTS);
+    if (!res)
+      return ret_error($"multi.set_multiid failed: {res}");
+    endif
+
+    if (multi.multiid != 0x6c)
+      return ret_error($"Incorrect new multiid, expected 0x6c, actual 0x{multi.multiid:x} ");
+    endif
+
+    if (multi.components != initial_components)
+      return ret_error($"Components changed");
+    endif
+
+    return 1;
+  }();
+
+  DestroyMulti(multi);
+  return res;
+endfunction
+
+
+exported function recreate_components()
+  var multi:=CreateMultiAtLocation(100,75,0, "SmallHouse");
+  if (!multi)
+    return ret_error($"Failed to create multi: {multi}");
+  endif
+
+  var res := @{
+    if (multi.multiid != 0x6b)
+      return ret_error($"Incorrect initial multiid, expected 0x6b, actual 0x{multi.multiid:x}");
+    endif
+
+    var initial_components := multi.components;
+
+    var res := multi.set_multiid(0x6c, CRMULTI_RECREATE_COMPONENTS);
+    if (!res)
+      return ret_error($"multi.set_multiid failed: {res}");
+    endif
+
+    if (multi.multiid != 0x6c)
+      return ret_error($"Incorrect new multiid, expected 0x6c, actual 0x{multi.multiid:x}");
+    endif
+
+    if (multi.components == initial_components)
+      return ret_error($"Components did not change");
+    endif
+
+    return 1;
+  }();
+
+  DestroyMulti(multi);
+  return res;
+endfunction
+
