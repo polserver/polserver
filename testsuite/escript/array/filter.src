@@ -6,6 +6,19 @@ print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArrayByrefShrink ) );
 print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArrayByrefAdd ) );
 print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyElementByref ) );
 
+
+print( array{}.find( @DoNotCall ) ); // Returns new, empty array
+
+// Test with a name_arr'd array
+var arr := array{ "hello" };
+arr.+name := "hello";
+print( arr.map( @DoNotCall ) );
+
+// Errors
+print( array{}.filter() );
+print( array{}.filter( "foo" ) );
+
+
 function Always()
   return true;
 endfunction
@@ -43,4 +56,8 @@ endfunction
 function ModifyElementByref( byref element )
   element := "changed";
   return true;
+endfunction
+
+function DoNotCall()
+  exit;
 endfunction
