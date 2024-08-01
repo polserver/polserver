@@ -195,6 +195,8 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   additem( &item[0x3ee4], 0x00000040, 255, 4, 3, "ship" );
   additem( &item[0x3ee6], 0x00000040, 255, 5, 3, "ship" );
   // end first boat
+  additem( &item[0x31f4], 0x00000201, 255, 0, 0, "dirt" );
+
   additem( &item.back(), 1, 2, 3, 4, "test" );
 }
 
@@ -702,6 +704,34 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
       elem( 0x04ae, 21, 0, 0, 1 ),  elem( 0x04ae, 22, 0, 0, 1 ),  elem( 0x04ae, 23, 0, 0, 1 ),
       elem( 0x04ae, 24, 0, 0, 1 ),  elem( 0x04ae, 25, 0, 0, 1 ),  elem( 0x04ae, 26, 0, 0, 1 ),
       elem( 0x04ae, 27, 0, 0, 1 ),  elem( 0x04ae, 28, 0, 0, 1 ),  elem( 0x04ae, 29, 0, 0, 1 ) };
+
+  // A 6x6 dirt plot with a missing 2x2 hole in the northwest
+  multis[0x13ea] = std::vector<T>{
+      elem( 0x31F4, -2, -2, 0, 1 ), elem( 0x31F4, -2, -1, 0, 1 ), elem( 0x31F4, -2, 0, 0, 1 ),
+      elem( 0x31F4, -2, 1, 0, 1 ),  elem( 0x31F4, -2, 2, 0, 1 ),  elem( 0x31F4, -2, 3, 0, 1 ),
+      elem( 0x31F4, -1, -2, 0, 1 ), elem( 0x31F4, -1, 1, 0, 1 ),  elem( 0x31F4, -1, 2, 0, 1 ),
+      elem( 0x31F4, -1, 3, 0, 1 ),  elem( 0x31F4, 0, -2, 0, 1 ),  elem( 0x31F4, 0, 1, 0, 1 ),
+      elem( 0x31F4, 0, 2, 0, 1 ),   elem( 0x31F4, 0, 3, 0, 1 ),   elem( 0x31F4, 1, -2, 0, 1 ),
+      elem( 0x31F4, 1, -1, 0, 1 ),  elem( 0x31F4, 1, 0, 0, 1 ),   elem( 0x31F4, 1, 1, 0, 1 ),
+      elem( 0x31F4, 1, 2, 0, 1 ),   elem( 0x31F4, 1, 3, 0, 1 ),   elem( 0x31F4, 2, -2, 0, 1 ),
+      elem( 0x31F4, 2, -1, 0, 1 ),  elem( 0x31F4, 2, 0, 0, 1 ),   elem( 0x31F4, 2, 1, 0, 1 ),
+      elem( 0x31F4, 2, 2, 0, 1 ),   elem( 0x31F4, 2, 3, 0, 1 ),   elem( 0x31F4, 3, -2, 0, 1 ),
+      elem( 0x31F4, 3, -1, 0, 1 ),  elem( 0x31F4, 3, 0, 0, 1 ),   elem( 0x31F4, 3, 1, 0, 1 ),
+      elem( 0x31F4, 3, 2, 0, 1 ),   elem( 0x31F4, 3, 3, 0, 1 ) };
+
+  // A 6x6 dirt plot with a missing 2x2 hole in the southeast
+  multis[0x13eb] = std::vector<T>{
+      elem( 0x31F4, -2, -2, 0, 1 ), elem( 0x31F4, -2, -1, 0, 1 ), elem( 0x31F4, -2, 0, 0, 1 ),
+      elem( 0x31F4, -2, 1, 0, 1 ),  elem( 0x31F4, -2, 2, 0, 1 ),  elem( 0x31F4, -2, 3, 0, 1 ),
+      elem( 0x31F4, -1, -2, 0, 1 ), elem( 0x31F4, -1, -1, 0, 1 ), elem( 0x31F4, -1, 0, 0, 1 ),
+      elem( 0x31F4, -1, 1, 0, 1 ),  elem( 0x31F4, -1, 2, 0, 1 ),  elem( 0x31F4, -1, 3, 0, 1 ),
+      elem( 0x31F4, 0, -2, 0, 1 ),  elem( 0x31F4, 0, -1, 0, 1 ),  elem( 0x31F4, 0, 0, 0, 1 ),
+      elem( 0x31F4, 0, 1, 0, 1 ),   elem( 0x31F4, 0, 2, 0, 1 ),   elem( 0x31F4, 0, 3, 0, 1 ),
+      elem( 0x31F4, 1, -2, 0, 1 ),  elem( 0x31F4, 1, -1, 0, 1 ),  elem( 0x31F4, 1, 0, 0, 1 ),
+      elem( 0x31F4, 1, 3, 0, 1 ),   elem( 0x31F4, 2, -2, 0, 1 ),  elem( 0x31F4, 2, -1, 0, 1 ),
+      elem( 0x31F4, 2, 0, 0, 1 ),   elem( 0x31F4, 2, 3, 0, 1 ),   elem( 0x31F4, 3, -2, 0, 1 ),
+      elem( 0x31F4, 3, -1, 0, 1 ),  elem( 0x31F4, 3, 0, 0, 1 ),   elem( 0x31F4, 3, 1, 0, 1 ),
+      elem( 0x31F4, 3, 2, 0, 1 ),   elem( 0x31F4, 3, 3, 0, 1 ) };
 }
 
 template <typename T>
