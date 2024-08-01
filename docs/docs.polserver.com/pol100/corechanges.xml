@@ -8,6 +8,7 @@
 		<entry>
 			<date>08-01-2024</date>
 			<author>Kevin:</author>
+			<change type="Fixed">Resolved an issue where function expression assignments to locals and captures was mis-targetted.</change>
 			<change type="Fixed">Resolved an issue where function expression captures were not being captured by reference.</change>
 		</entry>
 		<entry>

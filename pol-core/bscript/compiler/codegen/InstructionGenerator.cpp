@@ -792,7 +792,16 @@ void InstructionGenerator::visit_variable_assignment_statement( VariableAssignme
   auto& identifier = node.identifier();
   auto& variable = identifier.variable;
 
-  emit.assign_variable( *variable );
+  int function_params_count = 0;
+  int function_capture_count = 0;
+
+  if ( !user_functions.empty() )
+  {
+    function_params_count = user_functions.top()->parameter_count();
+    function_capture_count = user_functions.top()->capture_count();
+  }
+
+  emit.assign_variable( *variable, function_params_count, function_capture_count );
 }
 
 void InstructionGenerator::visit_while_loop( WhileLoop& loop )
