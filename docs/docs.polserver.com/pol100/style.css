@@ -598,15 +598,15 @@ pre {
 	margin-left: 3px;
 }
 
-#doc-table-dark {
+.doc-table-dark {
   background-color: #f4edc3;
 }
 
-#doc-table-med {
+.doc-table-med {
   background-color: #f4eeca;
 }
 
-#doc-table-light {
+.doc-table-light {
   background-color: #f5f1d8;
 }
 

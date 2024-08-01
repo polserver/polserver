@@ -141,7 +141,7 @@
   													<xsl:value-of select="@type"/>
   												</td>
   												<td>
-  													<xsl:value-of select="@mdesc"/>
+                                                  <xsl:copy-of select="node()"/>
   												</td>
   												<td>
   													<xsl:value-of select="@access"/>
@@ -157,7 +157,7 @@
   													<xsl:value-of select="@type"/>
   												</td>
   												<td>
-  													<xsl:value-of select="@mdesc"/>
+                                                  <xsl:copy-of select="node()"/>
   												</td>
   												<td>
   													<xsl:value-of select="@access"/>
@@ -195,7 +195,7 @@
   													<xsl:value-of select="@returns"/>
   												</td>
   												<td colspan="2">
-  													<xsl:value-of select="@desc"/>
+                                                  <xsl:copy-of select="node()"/>
   												</td>
   											</tr>
   										</xsl:when>
@@ -208,7 +208,7 @@
   													<xsl:value-of select="@returns"/>
   												</td>
   												<td colspan="2">
-  													<xsl:value-of select="@desc"/>
+                                                  <xsl:copy-of select="node()"/>
   												</td>
   											</tr>
   										</xsl:otherwise>

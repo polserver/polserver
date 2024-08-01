@@ -33,29 +33,29 @@
 <child>Character</child>
 <child>Item</child>
 <explain>The base UO Object class</explain>
-<member mname="x" type="Integer" access="r/o" mdesc="x coordinate" />
-<member mname="y" type="Integer" access="r/o" mdesc="y coordinate" />
-<member mname="z" type="Integer" access="r/o" mdesc="z coordinate" />
-<member mname="realm" type="String" access="r/o" mdesc="case-sensitive name of the realm" />
-<member mname="name" type="String" access="r/w" mdesc="name string (for items use .desc for single-click text, this does not include suffix or formatting)" />
-<member mname="objtype" type="Integer" access="r/o" mdesc="object type as defined in itemdesc.cfg" />
-<member mname="graphic" type="Integer" access="r/w" mdesc="art id number" />
-<member mname="serial" type="Integer" access="r/o" mdesc="unique object identifier" />
-<member mname="color" type="Integer" access="r/w" mdesc="color value (0 to 0xFFF)" />
-<member mname="facing" type="Integer" access="r/w" mdesc="facing or the object (meaningful for mobiles and light-emitting items) range 0-127" />
-<member mname="height" type="Integer" access="r/o" mdesc="height of the graphic as defined in tiledata.mul" />
-<member mname="dirty" type="Boolean" access="r/o" mdesc="This is set when anything on the object changes, and cleared on world save" />
-<member mname="weight" type="Integer" access="r/o" mdesc="weight of the graphic as defined in tiledata.mul" />
-<member mname="multi" type="Multi" access="r/o" mdesc="MultiRef for the Multi the object is on" />
-<member mname="specific_name" type="Boolean" access="r/o" mdesc="Set if a specific name is set, otherwise like itemdesc name false." />
+<member mname="x" type="Integer" access="r/o">x coordinate</member>
+<member mname="y" type="Integer" access="r/o">y coordinate</member>
+<member mname="z" type="Integer" access="r/o">z coordinate</member>
+<member mname="realm" type="String" access="r/o">case-sensitive name of the realm</member>
+<member mname="name" type="String" access="r/w">name string (for items use .desc for single-click text, this does not include suffix or formatting)</member>
+<member mname="objtype" type="Integer" access="r/o">object type as defined in itemdesc.cfg</member>
+<member mname="graphic" type="Integer" access="r/w">art id number</member>
+<member mname="serial" type="Integer" access="r/o">unique object identifier</member>
+<member mname="color" type="Integer" access="r/w">color value (0 to 0xFFF)</member>
+<member mname="facing" type="Integer" access="r/w">facing or the object (meaningful for mobiles and light-emitting items) range 0-127</member>
+<member mname="height" type="Integer" access="r/o">height of the graphic as defined in tiledata.mul</member>
+<member mname="dirty" type="Boolean" access="r/o">This is set when anything on the object changes, and cleared on world save</member>
+<member mname="weight" type="Integer" access="r/o">weight of the graphic as defined in tiledata.mul</member>
+<member mname="multi" type="Multi" access="r/o">MultiRef for the Multi the object is on</member>
+<member mname="specific_name" type="Boolean" access="r/o">Set if a specific name is set, otherwise like itemdesc name false.</member>
 
-<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
-<method proto="isa(POLCLASS_*)" returns="boolean" desc="True if the derived class is the same as the passed class type (see uo.em for all constants)" />
-<method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
-<method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
-<method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
-<method desc="Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;Eric&quot;) is the same as obj.name := &quot;Eric&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error" />
-<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
+<method proto="propnames()" returns="Array">Returns an array of property name strings.</method>
+<method proto="isa(POLCLASS_*)" returns="boolean">True if the derived class is the same as the passed class type (see uo.em for all constants)</method>
+<method proto="getprop(string propname)" returns="script object/error">Returns an unpacked script object (i.e. int,string,array,etc)</method>
+<method proto="setprop(string propname, object propval)" returns="true/error">Sets a packable object to a property.</method>
+<method proto="eraseprop(string propname)" returns="true/error">Erases the property named 'propname'.</method>
+<method>Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;Eric&quot;) is the same as obj.name := &quot;Eric&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error</method>
+<method>Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
 </class>
 
 
@@ -66,112 +66,112 @@
 <child>Map</child>
 <child>Multi</child>
 <explain>Represents a physical item in the world.</explain>
-<member mname="amount" type="Integer" access="r/o" mdesc="stack size" />
-<member mname="layer" type="Integer" access="r/o" mdesc="equipment layer" />
-<member mname="container" type="Item" access="r/o" mdesc="item contained in" />
-<member mname="usescript" type="String" access="r/w" mdesc="double-click action script. set to empty string for itemdesc.cfg default script." />
-<member mname="equipscript" type="String" access="r/w" mdesc="script run when item equipped on a character" />
-<member mname="unequipscript" type="String" access="r/w" mdesc="script run when item unequipped" />
-<member mname="desc" type="String" access="r/o" mdesc="single click description string (formatted name and suffix added to it without formatting if it exists)" />
-<member mname="movable" type="Boolean" access="r/w" mdesc="true if player may move the item" />
-<member mname="invisible" type="Boolean" access="r/w" mdesc="true if the item is invisible" />
-<member mname="decayat" type="Integer" access="r/w" mdesc="game clock value after which this item might decay. 0=do not decay" />
-<member mname="sellprice" type="Integer" access="r/w" mdesc="Amount of gold an NPC sells this item for. 0=not for sale, -1=itemdesc default." />
-<member mname="buyprice" type="Integer" access="r/w" mdesc="Amount of gold an NPC buys this item for. 0=not for sale, -1=itemdesc default." />
-<member mname="newbie" type="Boolean" access="r/w" mdesc="true if the item remains with the ghost when player dies" />
-<member mname="insured" type="Boolean" access="r/w" mdesc="like newbie, but it gets reset to 0 whenever it saves an item from dropping" />
-<member mname="cursed" type="Boolean" access="r/w" mdesc="true if item is cursed; does not have any special core handling other than preventing cursed and non-cursed items from stacking together." />
-<member mname="item_count" type="Integer" access="r/o" mdesc="number of items in container including the container itself (1 if this item is not a container or an empty container)" />
-<member mname="stackable" type="Integer" access="r/o" mdesc="return is based on POL Decided stackability of item." />
-<member mname="tile_layer" type="Integer" access="r/o" mdesc="returns the Layer setting in the Tiles.cfg/Tiledata" />
-<member mname="resist_fire" type="Integer" access="r/o" mdesc="Total AOS+ armor factor." />
-<member mname="resist_cold" type="Integer" access="r/o" mdesc="Total AOS+ armor factor." />
-<member mname="resist_energy" type="Integer" access="r/o" mdesc="Total AOS+ armor factor." />
-<member mname="resist_poison" type="Integer" access="r/o" mdesc="Total AOS+ armor factor." />
-<member mname="resist_physical" type="Integer" access="r/o" mdesc="Total AOS+ armor factor." />
-<member mname="resist_fire_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier" />
-<member mname="resist_cold_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier" />
-<member mname="resist_energy_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier" />
-<member mname="resist_poison_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier" />
-<member mname="resist_physical_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier" />
-<member mname="saveonexit" type="Boolean" access="r/w" mdesc="default 1, if you set this to 0 the item and (if container, it's contents) will NOT be saved to datafile" />
-<member mname="damage_fire" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_cold" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_energy" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_poison" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_physical" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_fire_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_cold_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_energy_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_poison_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_physical_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="getgottenby" type="Character" access="r/o" mdesc="Returns CharRef of Player holding item, Error if not being held" />
-<member mname="process" type="Script" access="r/o" mdesc="Control script reference, error on none" />
-<member mname="doubleclickrange" type="Integer" access="r/o" mdesc="Max distance for using this item" />
-<member mname="quality" type="Double" access="r/w" mdesc="1.0=Average and default" />
-<member mname="hp" type="Integer" access="r/w" mdesc="Hit points of item" />
-<member mname="maxhp_mod" type="Integer" access="r/w" mdesc="Maximum Hit Point modification" />
-<member mname="maxhp" type="Integer" access="r/o" mdesc="Maximum Hit Points of item" />
-<member mname="name_suffix" type="String" access="r/w" mdesc="For adding crafter marks or such, will be appended to desc" />
-<member mname="house" type="House" access="r/o" mdesc="Returns a reference to the House this item is component of, if any" />
-<member mname="no_drop" type="Boolean" access="r/w" mdesc="If set no drop of this item is allowed, except no_drop_exception is set for target" />
-<member mname="lower_reagent_cost" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="spell_damage_increase" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="faster_casting" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="faster_cast_recovery" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="defence_increase" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="defence_increase_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="lower_mana_cost" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="hit_chance" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="resist_fire_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="resist_cold_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="resist_energy_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="luck" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
-<member mname="swing_speed_increase" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60." />
-<member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="hit_chance_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="resist_fire_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="resist_cold_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="resist_energy_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="resist_physical_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="resist_poison_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="lower_reagent_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="spell_damage_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
-<member mname="weight_multiplier_mod" type="Double" access="r/w" mdesc="Multiplicative modifier when calculating an item's weight. For example, on an item that weighs 100 stone, setting this property to 0.5 would have the item weigh 50 stone." />
-<member mname="character_owner" type="OfflineCharacterRef" access="r/o" mdesc="Returns Character that owns the item, ie. the character whose backpack or equipped items contains the item." />
-<member mname="snoopscript" type="String" access="r/w" mdesc="double-click action script when owned by another character. set to empty string for itemdesc.cfg default script." />
+<member mname="amount" type="Integer" access="r/o">stack size</member>
+<member mname="layer" type="Integer" access="r/o">equipment layer</member>
+<member mname="container" type="Item" access="r/o">item contained in</member>
+<member mname="usescript" type="String" access="r/w">double-click action script. set to empty string for itemdesc.cfg default script.</member>
+<member mname="equipscript" type="String" access="r/w">script run when item equipped on a character</member>
+<member mname="unequipscript" type="String" access="r/w">script run when item unequipped</member>
+<member mname="desc" type="String" access="r/o">single click description string (formatted name and suffix added to it without formatting if it exists)</member>
+<member mname="movable" type="Boolean" access="r/w">true if player may move the item</member>
+<member mname="invisible" type="Boolean" access="r/w">true if the item is invisible</member>
+<member mname="decayat" type="Integer" access="r/w">game clock value after which this item might decay. 0=do not decay</member>
+<member mname="sellprice" type="Integer" access="r/w">Amount of gold an NPC sells this item for. 0=not for sale, -1=itemdesc default.</member>
+<member mname="buyprice" type="Integer" access="r/w">Amount of gold an NPC buys this item for. 0=not for sale, -1=itemdesc default.</member>
+<member mname="newbie" type="Boolean" access="r/w">true if the item remains with the ghost when player dies</member>
+<member mname="insured" type="Boolean" access="r/w">like newbie, but it gets reset to 0 whenever it saves an item from dropping</member>
+<member mname="cursed" type="Boolean" access="r/w">true if item is cursed; does not have any special core handling other than preventing cursed and non-cursed items from stacking together.</member>
+<member mname="item_count" type="Integer" access="r/o">number of items in container including the container itself (1 if this item is not a container or an empty container)</member>
+<member mname="stackable" type="Integer" access="r/o">return is based on POL Decided stackability of item.</member>
+<member mname="tile_layer" type="Integer" access="r/o">returns the Layer setting in the Tiles.cfg/Tiledata</member>
+<member mname="resist_fire" type="Integer" access="r/o">Total AOS+ armor factor.</member>
+<member mname="resist_cold" type="Integer" access="r/o">Total AOS+ armor factor.</member>
+<member mname="resist_energy" type="Integer" access="r/o">Total AOS+ armor factor.</member>
+<member mname="resist_poison" type="Integer" access="r/o">Total AOS+ armor factor.</member>
+<member mname="resist_physical" type="Integer" access="r/o">Total AOS+ armor factor.</member>
+<member mname="resist_fire_mod" type="Integer" access="r/w">AOS+ Armor factor modifier</member>
+<member mname="resist_cold_mod" type="Integer" access="r/w">AOS+ Armor factor modifier</member>
+<member mname="resist_energy_mod" type="Integer" access="r/w">AOS+ Armor factor modifier</member>
+<member mname="resist_poison_mod" type="Integer" access="r/w">AOS+ Armor factor modifier</member>
+<member mname="resist_physical_mod" type="Integer" access="r/w">AOS+ Armor factor modifier</member>
+<member mname="saveonexit" type="Boolean" access="r/w">default 1, if you set this to 0 the item and (if container, it's contents) will NOT be saved to datafile</member>
+<member mname="damage_fire" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_cold" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_energy" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_poison" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_physical" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_fire_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_cold_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_energy_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_poison_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_physical_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="getgottenby" type="Character" access="r/o">Returns CharRef of Player holding item, Error if not being held</member>
+<member mname="process" type="Script" access="r/o">Control script reference, error on none</member>
+<member mname="doubleclickrange" type="Integer" access="r/o">Max distance for using this item</member>
+<member mname="quality" type="Double" access="r/w">1.0=Average and default</member>
+<member mname="hp" type="Integer" access="r/w">Hit points of item</member>
+<member mname="maxhp_mod" type="Integer" access="r/w">Maximum Hit Point modification</member>
+<member mname="maxhp" type="Integer" access="r/o">Maximum Hit Points of item</member>
+<member mname="name_suffix" type="String" access="r/w">For adding crafter marks or such, will be appended to desc</member>
+<member mname="house" type="House" access="r/o">Returns a reference to the House this item is component of, if any</member>
+<member mname="no_drop" type="Boolean" access="r/w">If set no drop of this item is allowed, except no_drop_exception is set for target</member>
+<member mname="lower_reagent_cost" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="spell_damage_increase" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="faster_casting" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="faster_cast_recovery" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="defence_increase" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="defence_increase_cap" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="lower_mana_cost" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="hit_chance" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="resist_fire_cap" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="resist_cold_cap" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="resist_energy_cap" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="resist_physical_cap" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="resist_poison_cap" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="luck" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
+<member mname="swing_speed_increase" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60.</member>
+<member mname="defence_increase_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="defence_increase_cap_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="lower_mana_cost_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="hit_chance_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="resist_fire_cap_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="resist_cold_cap_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="resist_energy_cap_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="resist_physical_cap_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="resist_poison_cap_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="lower_reagent_cost_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="spell_damage_increase_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="faster_casting_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="faster_cast_recovery_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="luck_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="swing_speed_increase_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="weight_multiplier_mod" type="Double" access="r/w">Multiplicative modifier when calculating an item's weight. For example, on an item that weighs 100 stone, setting this property to 0.5 would have the item weigh 50 stone.</member>
+<member mname="character_owner" type="OfflineCharacterRef" access="r/o">Returns Character that owns the item, ie. the character whose backpack or equipped items contains the item.</member>
+<member mname="snoopscript" type="String" access="r/w">double-click action script when owned by another character. set to empty string for itemdesc.cfg default script.</member>
 
 
-<method proto="splitStackAt(x, y, z, realm, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates" />
-<method proto="splitStackInto(container, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack into the container" />
-<method proto="hasExistingStack(container)" returns="Item" desc="Checks if there is an existing stack in a container or not, returns the ItemRef of the stack if it exists" />
+<method proto="splitStackAt(x, y, z, realm, amount)" returns="Item">Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates</method>
+<method proto="splitStackInto(container, amount)" returns="Item">Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack into the container</method>
+<method proto="hasExistingStack(container)" returns="Item">Checks if there is an existing stack in a container or not, returns the ItemRef of the stack if it exists</method>
 </class>
 
 
 <class name="Map">
 <parent>Item</parent>
 <explain>A Map item that shows a a map image in a gump when double clicked.</explain>
-<member mname="xeast" type="Integer" access="r/w" mdesc="east gump edge (world coord)" />
-<member mname="xwest" type="Integer" access="r/w" mdesc="west gump edge (world coord)" />
-<member mname="ynorth" type="Integer" access="r/w" mdesc="north gump edge (world coord)" />
-<member mname="ysouth" type="Integer" access="r/w" mdesc="south gump edge (world coord)" />
-<member mname="gumpwidth" type="Integer" access="r/w" mdesc="width in pixels of map gump" />
-<member mname="gumpheight" type="Integer" access="r/w" mdesc="height in pixels of map gump" />
-<member mname="facetid" type="Integer" access="r/w" mdesc="This has actually nothing to do with realms, the value is the same as in FacetXX.mul file" />
-<member mname="editable" type="Boolean" access="r/w" mdesc="If true, pins on the map can be moved" />
+<member mname="xeast" type="Integer" access="r/w">east gump edge (world coord)</member>
+<member mname="xwest" type="Integer" access="r/w">west gump edge (world coord)</member>
+<member mname="ynorth" type="Integer" access="r/w">north gump edge (world coord)</member>
+<member mname="ysouth" type="Integer" access="r/w">south gump edge (world coord)</member>
+<member mname="gumpwidth" type="Integer" access="r/w">width in pixels of map gump</member>
+<member mname="gumpheight" type="Integer" access="r/w">height in pixels of map gump</member>
+<member mname="facetid" type="Integer" access="r/w">This has actually nothing to do with realms, the value is the same as in FacetXX.mul file</member>
+<member mname="editable" type="Boolean" access="r/w">If true, pins on the map can be moved</member>
 
-<method proto="getpins()" returns="array" desc="returns array of structs{x,y} of pins for the map" />
-<method proto="insertpin(int index, int x, int y)" returns="true/error" desc="insert pin{x,y} before index" />
-<method proto="appendpin(int x, int y)" returns="true/error" desc="append pin{x,y} to end of course" />
-<method proto="erasepin(int index)" returns="true/error" desc="erase pin at index" />
+<method proto="getpins()" returns="array">returns array of structs{x,y} of pins for the map</method>
+<method proto="insertpin(int index, int x, int y)" returns="true/error">insert pin{x,y} before index</method>
+<method proto="appendpin(int x, int y)" returns="true/error">append pin{x,y} to end of course</method>
+<method proto="erasepin(int index)" returns="true/error">erase pin at index</method>
 </class>
 
 
@@ -179,168 +179,168 @@
 <parent>UObject</parent>
 <child>NPC</child>
 <explain>A mobile object that exists in the world (NPC or player character)</explain>
-<member mname="warmode" type="Integer" access="r/o" mdesc="1 if in warmode" />
-<member mname="movemode" type="String" access="r/o" mdesc="movemode string {default 'L'} like from NPCDesc.cfg" />
-<member mname="gender" type="Integer" access="r/w" mdesc="0=male 1=female" />
-<member mname="trueobjtype" type="Integer" access="r/w" mdesc="original objtype" />
-<member mname="truecolor" type="Integer" access="r/w" mdesc="original color" />
-<member mname="ar_mod" type="Integer" access="r/w" mdesc="Armor factor modifier" />
-<member mname="resist_fire" type="Integer" access="r/o" mdesc="Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry." />
-<member mname="resist_cold" type="Integer" access="r/o" mdesc="Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry." />
-<member mname="resist_energy" type="Integer" access="r/o" mdesc="Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry." />
-<member mname="resist_poison" type="Integer" access="r/o" mdesc="Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry." />
-<member mname="resist_physical" type="Integer" access="r/o" mdesc="Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry." />
-<member mname="resist_fire_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier (Player)" />
-<member mname="resist_cold_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier (Player)" />
-<member mname="resist_energy_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier (Player)" />
-<member mname="resist_poison_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier (Player)" />
-<member mname="resist_physical_mod" type="Integer" access="r/w" mdesc="AOS+ Armor factor modifier (Player)" />
-<member mname="hidden" type="Boolean" access="r/w" mdesc="1 = normal players cannot see" />
-<member mname="concealed" type="Integer" access="r/w" mdesc="concealed below this value cannot see" />
-<member mname="frozen" type="Boolean" access="r/w" mdesc="1 = player is frozen (by a GM)" />
-<member mname="paralyzed" type="Boolean" access="r/w" mdesc="1 = player is paralyzed" />
-<member mname="poisoned" type="Boolean" access="r/w" mdesc="1 = player is poisoned, just makes the health bar green or not" />
-<member mname="stealthsteps" type="Integer" access="r/w" mdesc="number of walk steps left until player is revealed" />
-<member mname="mountedsteps" type="Integer" access="r/w" mdesc="number of steps taken while character was mounted" />
-<member mname="squelched" type="Integer" access="r/o" mdesc="1 = player cannot speak" />
-<member mname="dead" type="Integer" access="r/o" mdesc="1 = player is dead" />
-<member mname="ar" type="Integer" access="r/o" mdesc="Total armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry." />
-<member mname="shield" type="Armor" access="r/o" mdesc="Returns the ItemRef of the sheild, if any, is worn." />
-<member mname="backpack" type="Item" access="r/o" mdesc="Reference to character's pack (if any)" />
-<member mname="trading_with" type="Character" access="r/o" mdesc="Reference to character they are trading with (if any)" />
-<member mname="tradewindow" type="Container" access="r/o" mdesc="Reference to the trade container if the char has an active trade, error if no active trade" />
-<member mname="weapon" type="Item" access="r/o" mdesc="Reference to character's weapon (if any)" />
-<member mname="acct" type="Account" access="r/o" mdesc="Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)" />
-<member mname="acctname" type="String" access="r/o" mdesc="Account name string (if not NPC)" />
-<member mname="cmdlevel" type="Integer" access="r/w" mdesc="command level of character" />
-<member mname="cmdlevelstr" type="String" access="r/o" mdesc="string name of command level" />
-<member mname="criminal" type="Integer" access="r/o" mdesc="1 = player is temporally criminal (gray) or murderer (red) (see also temporally_criminal)" />
-<member mname="temporally_criminal" type="Integer" access="r/o" mdesc="1 = player is temporally criminal (gray) (see also criminal)" />
-<member mname="ip" type="String" access="r/o" mdesc="IP Address string (deprecated, will be removed in next release, use Client instead)" />
-<member mname="cursor" type="Boolean" access="r/o" mdesc="True if the client has an active target cursor" />
-<member mname="gump" type="Boolean" access="r/o" mdesc="True if the client has any active gumps from SendGump" />
-<member mname="prompt" type="Boolean" access="r/o" mdesc="True if the client has any active String or Unicode prompt windows" />
-<member mname="gold" type="Integer" access="r/o" mdesc="Amount of gold in character's pack" />
-<member mname="title_prefix" type="String" access="r/w" mdesc="String placed before name i.e. Lord Racalac" />
-<member mname="title_suffix" type="String" access="r/w" mdesc="String placed after name i.e. Racalac the Brave" />
-<member mname="title_guild" type="String" access="r/w" mdesc="String guild title i.e. [ROX, super d00d] Racalac" />
-<member mname="title_race" type="String" access="r/w" mdesc="String race title after suffix in paperdoll" />
-<member mname="guildid" type="Integer" access="r/o" mdesc="guild ID number" />
-<member mname="guild" type="Guild" access="r/o" mdesc="guild object reference" />
-<member mname="murderer" type="Boolean" access="r/w" mdesc="1 = player flagged murderer (red)" />
-<member mname="attached" type="Script" access="r/o" mdesc="Script reference for attached script" />
-<member mname="reportables" type="Array" access="r/o" mdesc="(reputation system) Array of Structs: { serial, killer, gameclock }, serial = killer's serial, killer = 'offline mobile reference' to the killer, gameclock = game time when the death occurred" />
-<member mname="clientversion" type="String" access="r/o" mdesc="UO Client version string" />
-<member mname="clientinfo" type="Struct" access="r/o" mdesc="UO Client information struct (check out core-changes.txt for an example) (deprecated, will be removed in next release, use Client instead)" />
-<member mname="clientver_detail" type="Struct" access="r/o" mdesc="UO Client version string as Struct of Ints {major;minor;rev;patch} (deprecated, will be removed in next release, use Client instead)" />
-<member mname="delay_mod" type="Integer" access="r/w" mdesc="Weapon Delay modifier, milliseconds" />
-<member mname="createdat" type="Integer" access="r/o" mdesc="PolClock when character was created" />
-<member mname="opponent" type="MobileRef" access="r/o" mdesc="Mobile reference if a combat opponent is selected." />
-<member mname="connected" type="Boolean" access="r/o" mdesc="To determine if the character is actively connected to the game. Is set to 1 before logon/reconnect scripts are run and 0 right before logofftest is run. Will return 1 on NPC." />
-<member mname="uclang" type="String" access="r/o" mdesc="Reports the Unicode Language string client sends during logon." />
-<member mname="race" type="Integer" access="r/w" mdesc="Set/get the ML/SA race (new constants in UO.EM: RACE_HUMAN, RACE_ELF,RACE_GARGOYLE). You have to set visual graphic by yourself if you change value (Human male/female = 0x190/0x191 / Elf male/female = 0x25d/0x25e / Gargoyle male/female = 0x029a/0x029b). You can choose Race at Char creation if your UOExpansion and UOFeature settings fit." />
-<member mname="hitchance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the hitchance from the attacker (+- int in thousandth)" />
-<member mname="evasionchance_mod" type="Integer" access="r/w" mdesc="Subtractive modificator of the hitchance from the defender (+- int in thousandth)" />
-<member mname="parrychance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the parry_chance from the defender (+- int in thousandth)" />
-<member mname="carrying_capacity" type="Integer" access="r/o" mdesc="Current carrying capacity. Defined as (40 + 3.5*chr.strength + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod. Note that characters can go above their carrying capacity, but will run out of stamina much faster." />
-<member mname="carrying_capacity_mod" type="Integer" access="r/w" mdesc="Carrying capacity modifier. Is taken into account prior to global ssopt modifier." />
-<member mname="statcap" type="Integer" access="r/w" mdesc="AOS+ Statcap entry in statusbar, default 255" />
-<member mname="skillcap" type="Integer" access="r/w" mdesc="This is for storage of overall skillcap, default 700" />
-<member mname="followers_max" type="Integer" access="r/w" mdesc="Max followers for statmsg packet, default 0 "/>
-<member mname="followers" type="Integer" access="r/w" mdesc="This is for storage for the Followers byte in statmsg packet, default 0 "/>
-<member mname="tithing" type="Integer" access="r/w" mdesc="Tithing for statmsg packet, default 0 "/>
-<member mname="party" type="Party" access="r/o" mdesc="party object reference"/>
-<member mname="candidate_of_party" type="Party" access="r/o" mdesc="party object reference"/>
-<member mname="partycanloot" type="Boolean" access="r/o" mdesc="True if client has set the loot rights"/>
-<member mname="damage_fire" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_cold" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_energy" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_poison" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_physical" type="Integer" access="r/o" mdesc="Total AOS+ damage factor." />
-<member mname="damage_fire_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_cold_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_energy_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_poison_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="damage_physical_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
-<member mname="movecost_walk_mod" type="Double" access="r/w" mdesc="multiplier for stamina consum on movement" />
-<member mname="movecost_run_mod" type="Double" access="r/w" mdesc="multiplier for stamina consum on movement" />
-<member mname="movecost_walk_mounted_mod" type="Double" access="r/w" mdesc="multiplier for stamina consum on movement" />
-<member mname="movecost_run_mounted_mod" type="Double" access="r/w" mdesc="multiplier for stamina consum on movement" />
-<member mname="aggressorto" type="Array" access="r/o" mdesc="list of mobiles this character is flagged as aggressor on repsys" />
-<member mname="lawfullydamaged" type="Array" access="r/o" mdesc="list of mobiles this character is flagged as lawfully damaged on repsys" />
-<member mname="uo_expansion_client" type="Integer" access="r/o" mdesc="client send expansion info flag (deprecated, will be removed in next release, use Client instead)" />
-<member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield (deprecated, will be removed in next release, use Client instead)" />
-<member mname="deafed" type="Integer" access="r/o" mdesc="1 = player cannot hear" />
-<member mname="client" type="Client" access="r/o" mdesc="returns ClientRef object or error" />
-<member mname="house_editing" type="Boolean" access="r/o" mdesc="1 if character is currently editing an house"/>
-<member mname="lastcoord" type="Struct" access="r/o" mdesc="position before the last walk packet as struct{lastx,lasty,lastz}"/>
-<member mname="active_skill" type="Boolean" access="r/o" mdesc="1 if character has an active attached skill script"/>
-<member mname="casting_spell" type="Bool" access="r/o" mdesc="1 if character has an active attached spell script"/>
-<member mname="last_textcolor" type="Struct" access="r/o" mdesc="last text color used by the character. Values are between 2 and 1001. Returns 0 if not yet spoken. (will not be saved inside of the datafile)"/>
-<member mname="lower_reagent_cost" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="spell_damage_increase" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="faster_casting" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="faster_cast_recovery" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="defence_increase" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="defence_increase_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="lower_mana_cost" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="hit_chance" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="resist_fire_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="resist_cold_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="resist_energy_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="luck" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
-<member mname="swing_speed_increase" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60." />
-<member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="hit_chance_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="resist_fire_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="resist_cold_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="resist_energy_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="resist_physical_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="resist_poison_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="lower_reagent_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="spell_damage_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="buffs" type="dictionary" access="r/o" mdesc="Returns the current active buffs added via addBuff as dictionary. Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}." />
+<member mname="warmode" type="Integer" access="r/o">1 if in warmode</member>
+<member mname="movemode" type="String" access="r/o">movemode string {default 'L'} like from NPCDesc.cfg</member>
+<member mname="gender" type="Integer" access="r/w">0=male 1=female</member>
+<member mname="trueobjtype" type="Integer" access="r/w">original objtype</member>
+<member mname="truecolor" type="Integer" access="r/w">original color</member>
+<member mname="ar_mod" type="Integer" access="r/w">Armor factor modifier</member>
+<member mname="resist_fire" type="Integer" access="r/o">Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry.</member>
+<member mname="resist_cold" type="Integer" access="r/o">Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry.</member>
+<member mname="resist_energy" type="Integer" access="r/o">Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry.</member>
+<member mname="resist_poison" type="Integer" access="r/o">Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry.</member>
+<member mname="resist_physical" type="Integer" access="r/o">Total AOS+ armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry.</member>
+<member mname="resist_fire_mod" type="Integer" access="r/w">AOS+ Armor factor modifier (Player)</member>
+<member mname="resist_cold_mod" type="Integer" access="r/w">AOS+ Armor factor modifier (Player)</member>
+<member mname="resist_energy_mod" type="Integer" access="r/w">AOS+ Armor factor modifier (Player)</member>
+<member mname="resist_poison_mod" type="Integer" access="r/w">AOS+ Armor factor modifier (Player)</member>
+<member mname="resist_physical_mod" type="Integer" access="r/w">AOS+ Armor factor modifier (Player)</member>
+<member mname="hidden" type="Boolean" access="r/w">1 = normal players cannot see</member>
+<member mname="concealed" type="Integer" access="r/w">concealed below this value cannot see</member>
+<member mname="frozen" type="Boolean" access="r/w">1 = player is frozen (by a GM)</member>
+<member mname="paralyzed" type="Boolean" access="r/w">1 = player is paralyzed</member>
+<member mname="poisoned" type="Boolean" access="r/w">1 = player is poisoned, just makes the health bar green or not</member>
+<member mname="stealthsteps" type="Integer" access="r/w">number of walk steps left until player is revealed</member>
+<member mname="mountedsteps" type="Integer" access="r/w">number of steps taken while character was mounted</member>
+<member mname="squelched" type="Integer" access="r/o">1 = player cannot speak</member>
+<member mname="dead" type="Integer" access="r/o">1 = player is dead</member>
+<member mname="ar" type="Integer" access="r/o">Total armor factor. If it's an NPC without armor equipped, it will return its intrinsic armor value taken from NpcDesc AR entry.</member>
+<member mname="shield" type="Armor" access="r/o">Returns the ItemRef of the sheild, if any, is worn.</member>
+<member mname="backpack" type="Item" access="r/o">Reference to character's pack (if any)</member>
+<member mname="trading_with" type="Character" access="r/o">Reference to character they are trading with (if any)</member>
+<member mname="tradewindow" type="Container" access="r/o">Reference to the trade container if the char has an active trade, error if no active trade</member>
+<member mname="weapon" type="Item" access="r/o">Reference to character's weapon (if any)</member>
+<member mname="acct" type="Account" access="r/o">Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)</member>
+<member mname="acctname" type="String" access="r/o">Account name string (if not NPC)</member>
+<member mname="cmdlevel" type="Integer" access="r/w">command level of character</member>
+<member mname="cmdlevelstr" type="String" access="r/o">string name of command level</member>
+<member mname="criminal" type="Integer" access="r/o">1 = player is temporally criminal (gray) or murderer (red) (see also temporally_criminal)</member>
+<member mname="temporally_criminal" type="Integer" access="r/o">1 = player is temporally criminal (gray) (see also criminal)</member>
+<member mname="ip" type="String" access="r/o">IP Address string (deprecated, will be removed in next release, use Client instead)</member>
+<member mname="cursor" type="Boolean" access="r/o">True if the client has an active target cursor</member>
+<member mname="gump" type="Boolean" access="r/o">True if the client has any active gumps from SendGump</member>
+<member mname="prompt" type="Boolean" access="r/o">True if the client has any active String or Unicode prompt windows</member>
+<member mname="gold" type="Integer" access="r/o">Amount of gold in character's pack</member>
+<member mname="title_prefix" type="String" access="r/w">String placed before name i.e. Lord Racalac</member>
+<member mname="title_suffix" type="String" access="r/w">String placed after name i.e. Racalac the Brave</member>
+<member mname="title_guild" type="String" access="r/w">String guild title i.e. [ROX, super d00d] Racalac</member>
+<member mname="title_race" type="String" access="r/w">String race title after suffix in paperdoll</member>
+<member mname="guildid" type="Integer" access="r/o">guild ID number</member>
+<member mname="guild" type="Guild" access="r/o">guild object reference</member>
+<member mname="murderer" type="Boolean" access="r/w">1 = player flagged murderer (red)</member>
+<member mname="attached" type="Script" access="r/o">Script reference for attached script</member>
+<member mname="reportables" type="Array" access="r/o">(reputation system) Array of Structs: { serial, killer, gameclock }, serial = killer's serial, killer = 'offline mobile reference' to the killer, gameclock = game time when the death occurred</member>
+<member mname="clientversion" type="String" access="r/o">UO Client version string</member>
+<member mname="clientinfo" type="Struct" access="r/o">UO Client information struct (check out core-changes.txt for an example) (deprecated, will be removed in next release, use Client instead)</member>
+<member mname="clientver_detail" type="Struct" access="r/o">UO Client version string as Struct of Ints {major;minor;rev;patch} (deprecated, will be removed in next release, use Client instead)</member>
+<member mname="delay_mod" type="Integer" access="r/w">Weapon Delay modifier, milliseconds</member>
+<member mname="createdat" type="Integer" access="r/o">PolClock when character was created</member>
+<member mname="opponent" type="MobileRef" access="r/o">Mobile reference if a combat opponent is selected.</member>
+<member mname="connected" type="Boolean" access="r/o">To determine if the character is actively connected to the game. Is set to 1 before logon/reconnect scripts are run and 0 right before logofftest is run. Will return 1 on NPC.</member>
+<member mname="uclang" type="String" access="r/o">Reports the Unicode Language string client sends during logon.</member>
+<member mname="race" type="Integer" access="r/w">Set/get the ML/SA race (new constants in UO.EM: RACE_HUMAN, RACE_ELF,RACE_GARGOYLE). You have to set visual graphic by yourself if you change value (Human male/female = 0x190/0x191 / Elf male/female = 0x25d/0x25e / Gargoyle male/female = 0x029a/0x029b). You can choose Race at Char creation if your UOExpansion and UOFeature settings fit.</member>
+<member mname="hitchance_mod" type="Integer" access="r/w">Additive modificator of the hitchance from the attacker (+- int in thousandth)</member>
+<member mname="evasionchance_mod" type="Integer" access="r/w">Subtractive modificator of the hitchance from the defender (+- int in thousandth)</member>
+<member mname="parrychance_mod" type="Integer" access="r/w">Additive modificator of the parry_chance from the defender (+- int in thousandth)</member>
+<member mname="carrying_capacity" type="Integer" access="r/o">Current carrying capacity. Defined as (40 + 3.5*chr.strength + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod. Note that characters can go above their carrying capacity, but will run out of stamina much faster.</member>
+<member mname="carrying_capacity_mod" type="Integer" access="r/w">Carrying capacity modifier. Is taken into account prior to global ssopt modifier.</member>
+<member mname="statcap" type="Integer" access="r/w">AOS+ Statcap entry in statusbar, default 255</member>
+<member mname="skillcap" type="Integer" access="r/w">This is for storage of overall skillcap, default 700</member>
+<member mname="followers_max" type="Integer" access="r/w">Max followers for statmsg packet, default 0 </member>
+<member mname="followers" type="Integer" access="r/w">This is for storage for the Followers byte in statmsg packet, default 0 </member>
+<member mname="tithing" type="Integer" access="r/w">Tithing for statmsg packet, default 0 </member>
+<member mname="party" type="Party" access="r/o">party object reference</member>
+<member mname="candidate_of_party" type="Party" access="r/o">party object reference</member>
+<member mname="partycanloot" type="Boolean" access="r/o">True if client has set the loot rights</member>
+<member mname="damage_fire" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_cold" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_energy" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_poison" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_physical" type="Integer" access="r/o">Total AOS+ damage factor.</member>
+<member mname="damage_fire_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_cold_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_energy_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_poison_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="damage_physical_mod" type="Integer" access="r/w">AOS+ damage modifier</member>
+<member mname="movecost_walk_mod" type="Double" access="r/w">multiplier for stamina consum on movement</member>
+<member mname="movecost_run_mod" type="Double" access="r/w">multiplier for stamina consum on movement</member>
+<member mname="movecost_walk_mounted_mod" type="Double" access="r/w">multiplier for stamina consum on movement</member>
+<member mname="movecost_run_mounted_mod" type="Double" access="r/w">multiplier for stamina consum on movement</member>
+<member mname="aggressorto" type="Array" access="r/o">list of mobiles this character is flagged as aggressor on repsys</member>
+<member mname="lawfullydamaged" type="Array" access="r/o">list of mobiles this character is flagged as lawfully damaged on repsys</member>
+<member mname="uo_expansion_client" type="Integer" access="r/o">client send expansion info flag (deprecated, will be removed in next release, use Client instead)</member>
+<member mname="clienttype" type="Integer" access="r/o">clientversion type bitfield (deprecated, will be removed in next release, use Client instead)</member>
+<member mname="deafed" type="Integer" access="r/o">1 = player cannot hear</member>
+<member mname="client" type="Client" access="r/o">returns ClientRef object or error</member>
+<member mname="house_editing" type="Boolean" access="r/o">1 if character is currently editing an house</member>
+<member mname="lastcoord" type="Struct" access="r/o">position before the last walk packet as struct{lastx,lasty,lastz}</member>
+<member mname="active_skill" type="Boolean" access="r/o">1 if character has an active attached skill script</member>
+<member mname="casting_spell" type="Bool" access="r/o">1 if character has an active attached spell script</member>
+<member mname="last_textcolor" type="Struct" access="r/o">last text color used by the character. Values are between 2 and 1001. Returns 0 if not yet spoken. (will not be saved inside of the datafile)</member>
+<member mname="lower_reagent_cost" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="spell_damage_increase" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="faster_casting" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="faster_cast_recovery" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="defence_increase" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="defence_increase_cap" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="lower_mana_cost" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="hit_chance" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="resist_fire_cap" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="resist_cold_cap" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="resist_energy_cap" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="resist_physical_cap" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="resist_poison_cap" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="luck" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
+<member mname="swing_speed_increase" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60.</member>
+<member mname="defence_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="defence_increase_cap_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="lower_mana_cost_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="hit_chance_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="resist_fire_cap_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="resist_cold_cap_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="resist_energy_cap_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="resist_physical_cap_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="resist_poison_cap_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="lower_reagent_cost_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="spell_damage_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="faster_casting_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="faster_cast_recovery_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="luck_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="swing_speed_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="buffs" type="dictionary" access="r/o">Returns the current active buffs added via addBuff as dictionary. Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}.</member>
 
-<method proto="setpoisoned(bool)" returns="true/error" desc="sets the character poisoned, controller of calling script is flagged as in repsystem" />
-<method proto="setparalyzed(bool)" returns="true/error" desc="sets the character paralyzed, controller of calling script is flagged as in repsystem" />
-<method proto="setcriminal(int level)" returns="true/error" desc="sets the character criminal. level multiplies the CriminalFlagInterval as defined in repsys.cfg. level=0 clears criminal timer." />
-<method proto="setlightlevel(int level, int duration)" returns="true" desc="sets the light level of the character to 'level' for 'duration' seconds" />
-<method proto="squelch(int duration)" returns="int/error" desc="character cannot talk for 'duration' seconds. -1 means forever. 0 clears the squelch" />
-<method proto="enable(string setting)" returns="true/error" desc="enables the 'granted' privilege to the character" />
-<method proto="disable(string setting)" returns="true" desc="disables the 'granted' privilege to the character" />
-<method proto="enabled(string setting)" returns="true/false" desc="true if the privilege is enabled" />
-<method proto="privileges()" returns="dictionary" desc="Dictionary where keys are privilege name, value is 0/1 boolean." />
-<method proto="setcmdlevel(string cmdlevel)" returns="true/error" desc="grants the command level to the char as defined in cmds.cfg" />
-<method proto="spendgold(int amount)" returns="true/error" desc="if enough gold, removes it from the player's pack" />
-<method proto="setmurderer(bool)" returns="true/error" desc="flags the character as a murderer (red)" />
-<method proto="removereportable(int serial, int gameclock)" returns="true/error" desc="removes the killer with 'serial' from the reportables list that was added at 'gameclock'" />
-<method proto="getgottenitem()" returns="error/ItemRef" desc="returns an ItemRef to the item held on the player's cursor, if any." />
-<method proto="cleargottenitem()" returns="true/error" desc="Returns 'dragged' item to original location." />
-<method proto="setwarmode(boolean)" returns="integer/error" desc="Sets the internal warmode flag and sends the update to the player. Returns the new warmode value." />
-<method proto="getcorpse()" returns="Corpse" desc="Returns an item reference to the most recent corpse made." />
-<method proto="attack_once([MobileRef opp])" returns="true/error" desc="Attacks once without modifing the swingtimer. If no opp is given attacks current attackable opponent, else attacks given opponent (but checks if still attackable)" />
-<method proto="setswingtimer(int time)" returns="true/error" desc="If opponent is set sets swingtimer to given ms time." />
-<method proto="kill([MobileRef killer])" returns="true" desc="Kills character ignoring invul, if killer is set repsys:OnDamage is called" />
-<method proto="setfacing(string/int direction, flags := FACE_NORMAL)" returns="true/error" desc="Sets Facing to given direction. If FACE_FORCE is set frozen/paralysed is not checked" />
-<method proto="compareversion(string Version)" returns="true/false" desc="true if Client Version >= given Versionstring" />
-<method proto="setAggressorTo(MobileRef chr)" returns="true/error" desc="sets aggressor for repsys.cfg:AggressorFlagTimeout seconds for given chr" />
-<method proto="setLawfullydamagedTo(MobileRef chr)" returns="true/error" desc="sets lawfullydamaged for repsys.cfg:AggressorFlagTimeout seconds for given chr" />
-<method proto="clearAggressorTo(MobileRef chr)" returns="true/error" desc="clears aggressor entry for given chr" />
-<method proto="clearLawfullydamagedTo(MobileRef chr)" returns="true/error" desc="clears lawfullydamaged entry for given chr" />
-<method proto="deaf(int duration)" returns="int/error" desc="character cannot hear for 'duration' seconds. -1 means forever. 0 clears the deaf" />
-<method proto="setseason(int season_id,int playsound )" returns="int/error" desc="Used to send the Season packet 0xBC to a single character, doesnt resend the lightlevel or weather." />
-<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name])" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string; separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, &quot;1234 5678&quot;); Optional arguments_name parameters needs a client higher then 5.x and modifies the cliloc_name." />
-<method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
-<method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
-<method proto="disableSkillsFor(int duration)" returns="duration/error" desc="Disables skill scripts for given seconds" />
+<method proto="setpoisoned(bool)" returns="true/error">sets the character poisoned, controller of calling script is flagged as in repsystem</method>
+<method proto="setparalyzed(bool)" returns="true/error">sets the character paralyzed, controller of calling script is flagged as in repsystem</method>
+<method proto="setcriminal(int level)" returns="true/error">sets the character criminal. level multiplies the CriminalFlagInterval as defined in repsys.cfg. level=0 clears criminal timer.</method>
+<method proto="setlightlevel(int level, int duration)" returns="true">sets the light level of the character to 'level' for 'duration' seconds</method>
+<method proto="squelch(int duration)" returns="int/error">character cannot talk for 'duration' seconds. -1 means forever. 0 clears the squelch</method>
+<method proto="enable(string setting)" returns="true/error">enables the 'granted' privilege to the character</method>
+<method proto="disable(string setting)" returns="true">disables the 'granted' privilege to the character</method>
+<method proto="enabled(string setting)" returns="true/false">true if the privilege is enabled</method>
+<method proto="privileges()" returns="dictionary">Dictionary where keys are privilege name, value is 0/1 boolean.</method>
+<method proto="setcmdlevel(string cmdlevel)" returns="true/error">grants the command level to the char as defined in cmds.cfg</method>
+<method proto="spendgold(int amount)" returns="true/error">if enough gold, removes it from the player's pack</method>
+<method proto="setmurderer(bool)" returns="true/error">flags the character as a murderer (red)</method>
+<method proto="removereportable(int serial, int gameclock)" returns="true/error">removes the killer with 'serial' from the reportables list that was added at 'gameclock'</method>
+<method proto="getgottenitem()" returns="error/ItemRef">returns an ItemRef to the item held on the player's cursor, if any.</method>
+<method proto="cleargottenitem()" returns="true/error">Returns 'dragged' item to original location.</method>
+<method proto="setwarmode(boolean)" returns="integer/error">Sets the internal warmode flag and sends the update to the player. Returns the new warmode value.</method>
+<method proto="getcorpse()" returns="Corpse">Returns an item reference to the most recent corpse made.</method>
+<method proto="attack_once([MobileRef opp])" returns="true/error">Attacks once without modifing the swingtimer. If no opp is given attacks current attackable opponent, else attacks given opponent (but checks if still attackable)</method>
+<method proto="setswingtimer(int time)" returns="true/error">If opponent is set sets swingtimer to given ms time.</method>
+<method proto="kill([MobileRef killer])" returns="true">Kills character ignoring invul, if killer is set repsys:OnDamage is called</method>
+<method proto="setfacing(string/int direction, flags := FACE_NORMAL)" returns="true/error">Sets Facing to given direction. If FACE_FORCE is set frozen/paralysed is not checked</method>
+<method proto="compareversion(string Version)" returns="true/false">true if Client Version >= given Versionstring</method>
+<method proto="setAggressorTo(MobileRef chr)" returns="true/error">sets aggressor for repsys.cfg:AggressorFlagTimeout seconds for given chr</method>
+<method proto="setLawfullydamagedTo(MobileRef chr)" returns="true/error">sets lawfullydamaged for repsys.cfg:AggressorFlagTimeout seconds for given chr</method>
+<method proto="clearAggressorTo(MobileRef chr)" returns="true/error">clears aggressor entry for given chr</method>
+<method proto="clearLawfullydamagedTo(MobileRef chr)" returns="true/error">clears lawfullydamaged entry for given chr</method>
+<method proto="deaf(int duration)" returns="int/error">character cannot hear for 'duration' seconds. -1 means forever. 0 clears the deaf</method>
+<method proto="setseason(int season_id,int playsound )" returns="int/error">Used to send the Season packet 0xBC to a single character, doesnt resend the lightlevel or weather.</method>
+<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name])" returns="true/error">Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string; separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, &quot;1234 5678&quot;); Optional arguments_name parameters needs a client higher then 5.x and modifies the cliloc_name.</method>
+<method proto="clearBuffs()" returns="true/error">Removes all buffs from Character's buff bar.</method>
+<method proto="delBuff(int icon_id)" returns="true/error">Removes a buff from Character's buff bar.</method>
+<method proto="disableSkillsFor(int duration)" returns="duration/error">Disables skill scripts for given seconds</method>
 </class>
 
 
@@ -348,112 +348,112 @@
 <parent>Character</parent>
 <explain>A Non-Player Character mobile object</explain>
 
-<member mname="alignment" type="Integer" access="r/o" mdesc="NPC template alignment." />
-<member mname="npctemplate" type="String" access="r/o" mdesc="NPC template name in npcdesc.cfg" />
-<member mname="master" type="Character" access="r/o" mdesc="controlling player character, false if none" />
-<member mname="process" type="Script" access="r/o" mdesc="Control script reference, error on none" />
-<member mname="eventmask" type="Integer" access="r/o" mdesc="bitwise-ORd list of sysevents that have been enabled, error if no control script running" />
-<member mname="speech_color" type="Integer" access="r/w" mdesc="NPC speech text color" />
-<member mname="speech_font" type="Integer" access="r/w" mdesc="NPC speech text font" />
-<member mname="script" type="String" access="r/w" mdesc="control script name" />
-<member mname="use_adjustments" type="Boolean" access="r/w" mdesc="Use movement adjustments to avoid single-tile obsticals" />
-<member mname="run_speed" type="Integer" access="r/w" mdesc="NPC walk delay (maximum 250)" />
-<member mname="saveonexit" type="Boolean" access="r/w" mdesc="default 1, if you set this to 0 the npc and all items contained within it's wornitems container will NOT be saved to datafile" />
-<member mname="no_drop_exception" type="Boolean" access="r/w" mdesc="defines if npc is a valid target even if no_drop is set for the item" />
+<member mname="alignment" type="Integer" access="r/o">NPC template alignment.</member>
+<member mname="npctemplate" type="String" access="r/o">NPC template name in npcdesc.cfg</member>
+<member mname="master" type="Character" access="r/o">controlling player character, false if none</member>
+<member mname="process" type="Script" access="r/o">Control script reference, error on none</member>
+<member mname="eventmask" type="Integer" access="r/o">bitwise-ORd list of sysevents that have been enabled, error if no control script running</member>
+<member mname="speech_color" type="Integer" access="r/w">NPC speech text color</member>
+<member mname="speech_font" type="Integer" access="r/w">NPC speech text font</member>
+<member mname="script" type="String" access="r/w">control script name</member>
+<member mname="use_adjustments" type="Boolean" access="r/w">Use movement adjustments to avoid single-tile obsticals</member>
+<member mname="run_speed" type="Integer" access="r/w">NPC walk delay (maximum 250)</member>
+<member mname="saveonexit" type="Boolean" access="r/w">default 1, if you set this to 0 the npc and all items contained within it's wornitems container will NOT be saved to datafile</member>
+<member mname="no_drop_exception" type="Boolean" access="r/w">defines if npc is a valid target even if no_drop is set for the item</member>
 
-<method proto="setmaster(CharacterRef master)" returns="true/false" desc="Sets the master character for the NPC, if not passed, clears master." />
+<method proto="setmaster(CharacterRef master)" returns="true/false">Sets the master character for the NPC, if not passed, clears master.</method>
 </class>
 
 
 <class name="Boat">
 <parent>Multi</parent>
 <explain>A Multi object that moves in water.</explain>
-<member mname="items" type="Array" access="r/o" mdesc="Array of Item References on the deck of the boat" />
-<member mname="mobiles" type="Array" access="r/o" mdesc="Array of Character References on the deck" />
-<member mname="has_offline_mobiles" type="Boolean" access="r/o" mdesc="true if players are logged out on the deck" />
-<member mname="tillerman" type="Item" access="r/o" mdesc="ItemRef to the tillerman item" />
-<member mname="portplank" type="Item" access="r/o" mdesc="ItemRef to the left-side plank item" />
-<member mname="starboardplank" type="Item" access="r/o" mdesc="ItemRef to the right-side plank item" />
-<member mname="hold" type="Item" access="r/o" mdesc="ItemRef to the hold container item" />
-<member mname="rope" type="Array" access="r/o" mdesc="array of ItemRefs of all the rope components on the boat, or empty array if none" />
-<member mname="wheel" type="Array" access="r/o" mdesc="array of ItemRefs of all the wheel components on the boat, or empty array if none" />
-<member mname="hull" type="Array" access="r/o" mdesc="array of ItemRefs of all the hull components on the boat, or empty array if none" />
-<member mname="tiller" type="Array" access="r/o" mdesc="array of ItemRefs of all the tiller components on the boat, or empty array if none" />
-<member mname="rudder" type="Array" access="r/o" mdesc="array of ItemRefs of all the rudder components on the boat, or empty array if none" />
-<member mname="sails" type="Array" access="r/o" mdesc="array of ItemRefs of all the sails components on the boat, or empty array if none" />
-<member mname="storage" type="Array" access="r/o" mdesc="array of ItemRefs of all the storage components on the boat, or empty array if none" />
-<member mname="weaponslot" type="Array" access="r/o" mdesc="array of ItemRefs of all the weaponslot components on the boat, or empty array if none" />
-<member mname="components" type="Array" access="r/o" mdesc="array of ItemRefs of all the components on the boat" />
-<member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
-<member mname="pilot" type="Character" access="r/o" mdesc="pilot of boat (if any)" />
+<member mname="items" type="Array" access="r/o">Array of Item References on the deck of the boat</member>
+<member mname="mobiles" type="Array" access="r/o">Array of Character References on the deck</member>
+<member mname="has_offline_mobiles" type="Boolean" access="r/o">true if players are logged out on the deck</member>
+<member mname="tillerman" type="Item" access="r/o">ItemRef to the tillerman item</member>
+<member mname="portplank" type="Item" access="r/o">ItemRef to the left-side plank item</member>
+<member mname="starboardplank" type="Item" access="r/o">ItemRef to the right-side plank item</member>
+<member mname="hold" type="Item" access="r/o">ItemRef to the hold container item</member>
+<member mname="rope" type="Array" access="r/o">array of ItemRefs of all the rope components on the boat, or empty array if none</member>
+<member mname="wheel" type="Array" access="r/o">array of ItemRefs of all the wheel components on the boat, or empty array if none</member>
+<member mname="hull" type="Array" access="r/o">array of ItemRefs of all the hull components on the boat, or empty array if none</member>
+<member mname="tiller" type="Array" access="r/o">array of ItemRefs of all the tiller components on the boat, or empty array if none</member>
+<member mname="rudder" type="Array" access="r/o">array of ItemRefs of all the rudder components on the boat, or empty array if none</member>
+<member mname="sails" type="Array" access="r/o">array of ItemRefs of all the sails components on the boat, or empty array if none</member>
+<member mname="storage" type="Array" access="r/o">array of ItemRefs of all the storage components on the boat, or empty array if none</member>
+<member mname="weaponslot" type="Array" access="r/o">array of ItemRefs of all the weaponslot components on the boat, or empty array if none</member>
+<member mname="components" type="Array" access="r/o">array of ItemRefs of all the components on the boat</member>
+<member mname="multiid" type="Integer" access="r/o">id for this kind of multi</member>
+<member mname="pilot" type="Character" access="r/o">pilot of boat (if any)</member>
 
-<method proto="move_offline_mobiles(int x, int y, int z[, string realm])" returns="true/false" desc="moves offline mobiles on boat to x,y,z. If realm is not set, Boat-realm is used." />
-<method proto="set_pilot(Character | 0)" returns="true/false" desc="Sets the boat pilot to the provided character; removes pilot if `0` is passed. Mouse movements from the boat's pilot will be sent to the boat's control script. See event SYSEVENT_BOAT_MOVEMENT for more details. Possible errors: The boat is already being piloted; The boat does not have a running process; That character is not connected; The boat does not have that character on it; The boat mount piece is not equippable by that character; The client for that character does not support High Seas Adventure" />
-<method proto="set_alternate_multiid(int)" returns="true/error" desc="Used to change a boat's multi to an alternative multi defined in its itemdesc file. Alternate ids are referenced with an integer based on the order they are defined in the itemdesc file starting from 1, with the base multi id being 0."/>
+<method proto="move_offline_mobiles(int x, int y, int z[, string realm])" returns="true/false">moves offline mobiles on boat to x,y,z. If realm is not set, Boat-realm is used.</method>
+<method proto="set_pilot(Character | 0)" returns="true/false">Sets the boat pilot to the provided character; removes pilot if `0` is passed. Mouse movements from the boat's pilot will be sent to the boat's control script. See event SYSEVENT_BOAT_MOVEMENT for more details. Possible errors: The boat is already being piloted; The boat does not have a running process; That character is not connected; The boat does not have that character on it; The boat mount piece is not equippable by that character; The client for that character does not support High Seas Adventure</method>
+<method proto="set_alternate_multiid(int)" returns="true/error">Used to change a boat's multi to an alternative multi defined in its itemdesc file. Alternate ids are referenced with an integer based on the order they are defined in the itemdesc file starting from 1, with the base multi id being 0.</method>
 </class>
 
 
 <class name="House">
 <parent>Multi</parent>
 <explain>A Multi object where players hoard items.</explain>
-<member mname="components" type="Array" access="r/o" mdesc="Array of House components, i.e. sign, doors" />
-<member mname="items" type="Array" access="r/o" mdesc="Array of Item References in the house" />
-<member mname="mobiles" type="Array" access="r/o" mdesc="Array of Character References in the house" />
-<member mname="custom" type="Boolean" access="r/o" mdesc="1 = custom house" />
-<member mname="house_editing" type="Boolean" access="r/o" mdesc="1 if the house is currently being edited" />
-<member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
-<member mname="house_parts" type="Integer" access="r/o" mdesc="returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house. When in edit mode returns the current working design. To get the real coords from an elem add house.x/y" />
+<member mname="components" type="Array" access="r/o">Array of House components, i.e. sign, doors</member>
+<member mname="items" type="Array" access="r/o">Array of Item References in the house</member>
+<member mname="mobiles" type="Array" access="r/o">Array of Character References in the house</member>
+<member mname="custom" type="Boolean" access="r/o">1 = custom house</member>
+<member mname="house_editing" type="Boolean" access="r/o">1 if the house is currently being edited</member>
+<member mname="multiid" type="Integer" access="r/o">id for this kind of multi</member>
+<member mname="house_parts" type="Integer" access="r/o">returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house. When in edit mode returns the current working design. To get the real coords from an elem add house.x/y</member>
 
-<method proto="setcustom(bool custom)" returns="true/error" desc="Sets the house as custom. Setting to 1 is needed before SendHousingTool() works." />
-<method proto="add_component(ItemRef)" returns="true/error" desc="Add item to House components" />
-<method proto="erase_component(ItemRef)" returns="true/error" desc="Erase item from House components" />
-<method proto="addhousepart(int graphic, int xoffset, int yoffset, int z)" returns="true/error" desc="Adds a part to the custom house design." />
-<method proto="erasehousepart(int graphic, int xoffset, int yoffset, int z)" returns="true/error" desc="Removes a part from the custom house design." />
-<method proto="acceptcommit(Character chr, bool commit)" returns="true/error" desc="If commit is 0 then drops the not committed custom house changes or accept them instead" />
-<method proto="cancelediting(Character chr, bool drop_changes)" returns="true/error" desc="Stops editing mode. If drop_changes is true, drops all non committed changes" />
+<method proto="setcustom(bool custom)" returns="true/error">Sets the house as custom. Setting to 1 is needed before SendHousingTool() works.</method>
+<method proto="add_component(ItemRef)" returns="true/error">Add item to House components</method>
+<method proto="erase_component(ItemRef)" returns="true/error">Erase item from House components</method>
+<method proto="addhousepart(int graphic, int xoffset, int yoffset, int z)" returns="true/error">Adds a part to the custom house design.</method>
+<method proto="erasehousepart(int graphic, int xoffset, int yoffset, int z)" returns="true/error">Removes a part from the custom house design.</method>
+<method proto="acceptcommit(Character chr, bool commit)" returns="true/error">If commit is 0 then drops the not committed custom house changes or accept them instead</method>
+<method proto="cancelediting(Character chr, bool drop_changes)" returns="true/error">Stops editing mode. If drop_changes is true, drops all non committed changes</method>
 </class>
 
 
 <class name="Door">
 <parent>Lockable</parent>
 <explain>A door item that automatically closes.</explain>
-<member mname="isopen" type="Boolean" access="r/o" mdesc="true if the door is open" />
+<member mname="isopen" type="Boolean" access="r/o">true if the door is open</member>
 
-<method proto="open()" returns="true" desc="opens the door" />
-<method proto="close()" returns="true" desc="closes the door" />
-<method proto="toggle()" returns="true" desc="toggles the door to the other state" />
+<method proto="open()" returns="true">opens the door</method>
+<method proto="close()" returns="true">closes the door</method>
+<method proto="toggle()" returns="true">toggles the door to the other state</method>
 </class>
 
 
 <class name="Account">
 <explain>Object describing a player's game account</explain>
-<member mname="name" type="String" access="r/o" mdesc="the name of the account" />
-<member mname="enabled" type="Boolean" access="r/o" mdesc="true if enabled" />
-<member mname="banned" type="Boolean" access="r/o" mdesc="true if banned" />
-<member mname="usernamepasswordhash" type="String" access="r/o" mdesc="MD5 username+password hash string" />
-<member mname="uo_expansion" type="String" access="r/o" mdesc="used uo-expansion" />
-<member mname="defaultcmdlevel" type="Integer" access="r/o" mdesc="the number for the accounts default command level" />
+<member mname="name" type="String" access="r/o">the name of the account</member>
+<member mname="enabled" type="Boolean" access="r/o">true if enabled</member>
+<member mname="banned" type="Boolean" access="r/o">true if banned</member>
+<member mname="usernamepasswordhash" type="String" access="r/o">MD5 username+password hash string</member>
+<member mname="uo_expansion" type="String" access="r/o">used uo-expansion</member>
+<member mname="defaultcmdlevel" type="Integer" access="r/o">the number for the accounts default command level</member>
 
-<method proto="addcharacter(index)" returns="nothing/error" desc="If Index is 0 (.AddCharacter(0)), it will find the next available slot on the account. (Otherwise pass 1-5) Will create a naked, uncolored, male character named 'new character' at 1, 1, 1 on Britannia. No scripts are ran for this method of character creation. Edit this new character via the script creating it." />
-<method proto="ban()" returns="true" desc="bans the account" />
-<method proto="unban()" returns="true" desc="unbans the account" />
-<method proto="enable()" returns="true" desc="enables the account" />
-<method proto="disable()" returns="true" desc="disables the account" />
-<method proto="setpassword(string newpass)" returns="true/error" desc="sets the account password to newpass" />
-<method proto="checkpassword(string pass)" returns="boolean/error" desc="returns true if 'pass' is the account's password" />
-<method proto="setname(string newname, string newpass)" returns="true/error" desc="sets the account name to newname, password to newpass. The parameter newpass is only optional if you have clear text passwords (RetainCleartextPasswords) - which you shouldn't." />
-<method proto="getcharacter(integer slot)" returns="true/OfflineCharacterRef" desc="gets an OfflineCharacterRef for the character in slot 'slot'. returns error if not character in that slot (1..5)" />
-<method proto="deletecharacter(integer slot) " returns="true/error" desc="Deletes character in slot 'slot'. returns error if not character in that slot (1..5)" />
-<method proto="delete()" returns="true/error" desc="Delete this empty account." />
-<method proto="split(string newacctname, integer slot)" returns="AccountRef/error" desc="Create a new account and move character to it. On success returns a reference to the new account." />
-<method proto="move_char(string destacctname, integer slot)" returns="true/error" desc="Move character from this account to destination account. You can use it to flip chars on same account too." />
-<method proto="getprop(string propname)" returns="true/error" desc="GetObjProperty for account objects." />
-<method proto="setprop(string propname, propval)" returns="true" desc="SetObjProperty for account objects." />
-<method proto="eraseprop(string propname)" returns="true" desc="EraseObjProperty for account objects." />
-<method proto="propnames()" returns="Array" desc="returns an array of cprop names on this account" />
-<method proto="set_uo_expansion(string expansion)" returns="true/error" desc="This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF / HSA -> 0x387DF / TOL -> 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default)." />
-<method proto="setdefaultcmdlevel(integer number)" returns="true/error" desc="Set the account's default command level." />
-<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
+<method proto="addcharacter(index)" returns="nothing/error">If Index is 0 (.AddCharacter(0)), it will find the next available slot on the account. (Otherwise pass 1-5) Will create a naked, uncolored, male character named 'new character' at 1, 1, 1 on Britannia. No scripts are ran for this method of character creation. Edit this new character via the script creating it.</method>
+<method proto="ban()" returns="true">bans the account</method>
+<method proto="unban()" returns="true">unbans the account</method>
+<method proto="enable()" returns="true">enables the account</method>
+<method proto="disable()" returns="true">disables the account</method>
+<method proto="setpassword(string newpass)" returns="true/error">sets the account password to newpass</method>
+<method proto="checkpassword(string pass)" returns="boolean/error">returns true if 'pass' is the account's password</method>
+<method proto="setname(string newname, string newpass)" returns="true/error">sets the account name to newname, password to newpass. The parameter newpass is only optional if you have clear text passwords (RetainCleartextPasswords) - which you shouldn't.</method>
+<method proto="getcharacter(integer slot)" returns="true/OfflineCharacterRef">gets an OfflineCharacterRef for the character in slot 'slot'. returns error if not character in that slot (1..5)</method>
+<method proto="deletecharacter(integer slot) " returns="true/error">Deletes character in slot 'slot'. returns error if not character in that slot (1..5)</method>
+<method proto="delete()" returns="true/error">Delete this empty account.</method>
+<method proto="split(string newacctname, integer slot)" returns="AccountRef/error">Create a new account and move character to it. On success returns a reference to the new account.</method>
+<method proto="move_char(string destacctname, integer slot)" returns="true/error">Move character from this account to destination account. You can use it to flip chars on same account too.</method>
+<method proto="getprop(string propname)" returns="true/error">GetObjProperty for account objects.</method>
+<method proto="setprop(string propname, propval)" returns="true">SetObjProperty for account objects.</method>
+<method proto="eraseprop(string propname)" returns="true">EraseObjProperty for account objects.</method>
+<method proto="propnames()" returns="Array">returns an array of cprop names on this account</method>
+<method proto="set_uo_expansion(string expansion)" returns="true/error">This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF / HSA -> 0x387DF / TOL -> 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default).</method>
+<method proto="setdefaultcmdlevel(integer number)" returns="true/error">Set the account's default command level.</method>
+<method>Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
 </class>
 
 
@@ -462,15 +462,15 @@
 <child>Door</child>
 <child>Container</child>
 <explain>Class containing concrete subclasses which can 'lock'</explain>
-<member mname="locked" type="Boolean" access="r/w" mdesc="true if the item is locked" />
+<member mname="locked" type="Boolean" access="r/w">true if the item is locked</member>
 </class>
 
 
 <class name="Corpse">
 <parent>Container</parent>
 <explain>Objects that are created when character objects are killed</explain>
-<member mname="corpsetype" type="Integer" access="r/o" mdesc="ObjType of the Character killed" />
-<member mname="ownerserial" type="Integer" access="r/o" mdesc="Serial of the Mobile that died" />
+<member mname="corpsetype" type="Integer" access="r/o">ObjType of the Character killed</member>
+<member mname="ownerserial" type="Integer" access="r/o">Serial of the Mobile that died</member>
 </class>
 
 
@@ -479,17 +479,17 @@
 <child>Weapon</child>
 <child>Armor</child>
 <explain>Class containing concrete subclasses which are equipable and have hit points</explain>
-<member mname="intrinsic" type="Boolean" access="r/o" mdesc="Intrinsic Equipment?" />
+<member mname="intrinsic" type="Boolean" access="r/o">Intrinsic Equipment?</member>
 </class>
 
 
 <class name="Weapon">
 <parent>Equipment</parent>
 <explain>Equipable items that deal damage in combat</explain>
-<member mname="dmg_mod" type="Integer" access="r/w" mdesc="Damage Modifier" />
-<member mname="speed_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, an optional way to delay if you want to use the default speed math and just add to that" />
-<member mname="attribute" type="String" access="r/o" mdesc="Attribute name this weapon uses as a skill" />
-<member mname="hitscript" type="String" access="r/w" mdesc="Script name that runs when weapon makes a hit" />
+<member mname="dmg_mod" type="Integer" access="r/w">Damage Modifier</member>
+<member mname="speed_mod" type="Integer" access="r/w">from -32768 to 32767, an optional way to delay if you want to use the default speed math and just add to that</member>
+<member mname="attribute" type="String" access="r/o">Attribute name this weapon uses as a skill</member>
+<member mname="hitscript" type="String" access="r/w">Script name that runs when weapon makes a hit</member>
 </class>
 
 
@@ -498,11 +498,11 @@
 <child>Corpse</child>
 <child>Spellbook</child>
 <explain>Items that can be locked, and have other items inside them</explain>
-<member mname="max_items_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, modifier for max items allowed in the container" />
-<member mname="max_weight_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, modifier for max weight allowed in the container" />
-<member mname="max_slots_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, modifier for max slots allowed in the container" />
-<member mname="held_weight_multiplier" type="Double" access="r/w" mdesc="Multiplicative modifier when calculating the container's held weight. For example, on an backpack (having weight 3 stones) that contains items totalling a weight of 100 stone, setting this property to 0.5 would have the backpack weigh 53 (3 + 100 * 0.5) stone." />
-<member mname="no_drop_exception" type="Boolean" access="r/w" mdesc="defines if npc is a valid target even if no_drop is set for the item" />
+<member mname="max_items_mod" type="Integer" access="r/w">from -32768 to 32767, modifier for max items allowed in the container</member>
+<member mname="max_weight_mod" type="Integer" access="r/w">from -32768 to 32767, modifier for max weight allowed in the container</member>
+<member mname="max_slots_mod" type="Integer" access="r/w">from -32768 to 32767, modifier for max slots allowed in the container</member>
+<member mname="held_weight_multiplier" type="Double" access="r/w">Multiplicative modifier when calculating the container's held weight. For example, on an backpack (having weight 3 stones) that contains items totalling a weight of 100 stone, setting this property to 0.5 would have the backpack weigh 53 (3 + 100 * 0.5) stone.</member>
+<member mname="no_drop_exception" type="Boolean" access="r/w">defines if npc is a valid target even if no_drop is set for the item</member>
 </class>
 
 
@@ -511,129 +511,129 @@
 <child>House</child>
 <child>Boat</child>
 <explain>Special items that display as many pieces of a large structure, as defined in multi.cfg</explain>
-<member mname="footprint" type="Struct" access="r/o" mdesc="returns a struct with 'xmin', 'xmax', 'ymin', 'ymax' of the world coordinates the multi occupies." />
+<member mname="footprint" type="Struct" access="r/o">returns a struct with 'xmin', 'xmax', 'ymin', 'ymax' of the world coordinates the multi occupies.</member>
 </class>
 
 
 <class name="Armor">
 <parent>Equipment</parent>
 <explain>Equipable items that protect against damage in combat</explain>
-<member mname="ar_mod" type="Integer" access="r/w" mdesc="Armor factor modifier" />
-<member mname="ar" type="Integer" access="r/o" mdesc="Modified armor factor" />
-<member mname="ar_base" type="Integer" access="r/o" mdesc="Base armor factor (as in itemdesc.cfg)" />
-<member mname="onhitscript" type="String" access="r/w" mdesc="Script name that runs when armor is hit" />
+<member mname="ar_mod" type="Integer" access="r/w">Armor factor modifier</member>
+<member mname="ar" type="Integer" access="r/o">Modified armor factor</member>
+<member mname="ar_base" type="Integer" access="r/o">Base armor factor (as in itemdesc.cfg)</member>
+<member mname="onhitscript" type="String" access="r/w">Script name that runs when armor is hit</member>
 </class>
 
 
 <class name="Polcore">
 <explain>Object containing server data</explain>
-<member mname="itemcount" type="Integer" access="r/o" mdesc="Total Item Count" />
-<member mname="mobilecount" type="Integer" access="r/o" mdesc="Total Mobile Count" />
-<member mname="uptime" type="Integer" access="r/o" mdesc="Uptime in seconds" />
-<member mname="sysload" type="Integer" access="r/o" mdesc="System Load" />
-<member mname="sysload_severity" type="Integer" access="r/o" mdesc="System Load Severity" />
-<member mname="bytes_sent" type="Double" access="r/o" mdesc="Number of bytes sent to clients" />
-<member mname="bytes_received" type="Double" access="r/o" mdesc="Number of bytes received from clients" />
-<member mname="version" type="Integer" access="r/o" mdesc="Version, i.e. 95" />
-<member mname="systime" type="Integer" access="r/o" mdesc="UNIX time()" />
-<member mname="events_per_min" type="Integer" access="r/o" mdesc="Events per minute" />
-<member mname="skill_checks_per_min" type="Integer" access="r/o" mdesc="Skill checks per minute" />
-<member mname="combat_operations_per_min" type="Integer" access="r/o" mdesc="Combat operations per minute" />
-<member mname="error_creations_per_min" type="Integer" access="r/o" mdesc="Script errors per minute" />
-<member mname="tasks_ontime_per_min" type="Integer" access="r/o" mdesc="Tasks ontime per minute" />
-<member mname="tasks_late_per_min" type="Integer" access="r/o" mdesc="Tasks late per minute" />
-<member mname="tasks_late_ticks_per_min" type="Integer" access="r/o" mdesc="Tasks late ticks per minute" />
-<member mname="scripts_late_per_min" type="Integer" access="r/o" mdesc="Scripts late per minute" />
-<member mname="scripts_ontime_per_min" type="Integer" access="r/o" mdesc="Scripts on time per minute" />
-<member mname="instr_per_min" type="Integer" access="r/o" mdesc="Script instructions per minute" />
-<member mname="priority_divide" type="Integer" access="r/o" mdesc="Priority Divide" />
-<member mname="verstr" type="String" access="r/o" mdesc="Version String" />
-<member mname="compiledatetime" type="String" access="r/o" mdesc="Compile Date and Time" />
-<member mname="packages" type="Array" access="r/o" mdesc="Array of enabled package names" />
-<member mname="running_scripts" type="Array" access="r/o" mdesc="Array of running script objects" />
-<member mname="all_scripts" type="Array" access="r/o" mdesc="Array of all cached script objects" />
-<member mname="script_profiles" type="Array" access="r/o" mdesc="Array of structs: struct have members name, instr, invocations, instr_per_invoc, instr_percent" />
-<member mdesc="struct of arrays of structs - iostats[&quot;sent&quot;array-&gt;256 elements of struct[&quot;count&quot;,&quot;bytes&quot;],&quot;received&quot;array-&gt;256 elements of struct[&quot;count&quot;,&quot;bytes&quot;]]" mname="iostats" access="r/o" type="Integer" />
-<member mname="queued_iostats" type="Array" access="r/o" mdesc="structure same as iostats, but for queued I/O stats" />
-<member mname="pkt_status" type="Array" access="r/o" mdesc="returns and array of info structures about packets currently in the queue" />
-<member mname="memory_usage" type="Integer" access="r/o" mdesc="current process usage in KB" />
-<member mname="last_character_serial" type="Integer" access="r/o" mdesc="Last character serial number assigned by core" />
-<member mname="last_item_serial" type="Integer" access="r/o" mdesc="Last item serial number assigned by core" />
+<member mname="itemcount" type="Integer" access="r/o">Total Item Count</member>
+<member mname="mobilecount" type="Integer" access="r/o">Total Mobile Count</member>
+<member mname="uptime" type="Integer" access="r/o">Uptime in seconds</member>
+<member mname="sysload" type="Integer" access="r/o">System Load</member>
+<member mname="sysload_severity" type="Integer" access="r/o">System Load Severity</member>
+<member mname="bytes_sent" type="Double" access="r/o">Number of bytes sent to clients</member>
+<member mname="bytes_received" type="Double" access="r/o">Number of bytes received from clients</member>
+<member mname="version" type="Integer" access="r/o">Version, i.e. 95</member>
+<member mname="systime" type="Integer" access="r/o">UNIX time()</member>
+<member mname="events_per_min" type="Integer" access="r/o">Events per minute</member>
+<member mname="skill_checks_per_min" type="Integer" access="r/o">Skill checks per minute</member>
+<member mname="combat_operations_per_min" type="Integer" access="r/o">Combat operations per minute</member>
+<member mname="error_creations_per_min" type="Integer" access="r/o">Script errors per minute</member>
+<member mname="tasks_ontime_per_min" type="Integer" access="r/o">Tasks ontime per minute</member>
+<member mname="tasks_late_per_min" type="Integer" access="r/o">Tasks late per minute</member>
+<member mname="tasks_late_ticks_per_min" type="Integer" access="r/o">Tasks late ticks per minute</member>
+<member mname="scripts_late_per_min" type="Integer" access="r/o">Scripts late per minute</member>
+<member mname="scripts_ontime_per_min" type="Integer" access="r/o">Scripts on time per minute</member>
+<member mname="instr_per_min" type="Integer" access="r/o">Script instructions per minute</member>
+<member mname="priority_divide" type="Integer" access="r/o">Priority Divide</member>
+<member mname="verstr" type="String" access="r/o">Version String</member>
+<member mname="compiledatetime" type="String" access="r/o">Compile Date and Time</member>
+<member mname="packages" type="Array" access="r/o">Array of enabled package names</member>
+<member mname="running_scripts" type="Array" access="r/o">Array of running script objects</member>
+<member mname="all_scripts" type="Array" access="r/o">Array of all cached script objects</member>
+<member mname="script_profiles" type="Array" access="r/o">Array of structs: struct have members name, instr, invocations, instr_per_invoc, instr_percent</member>
+<member>struct of arrays of structs - iostats[&quot;sent&quot;array-&gt;256 elements of struct[&quot;count&quot;,&quot;bytes&quot;],&quot;received&quot;array-&gt;256 elements of struct[&quot;count&quot;,&quot;bytes&quot;]]" mname="iostats" access="r/o" type="Integer</member>
+<member mname="queued_iostats" type="Array" access="r/o">structure same as iostats, but for queued I/O stats</member>
+<member mname="pkt_status" type="Array" access="r/o">returns and array of info structures about packets currently in the queue</member>
+<member mname="memory_usage" type="Integer" access="r/o">current process usage in KB</member>
+<member mname="last_character_serial" type="Integer" access="r/o">Last character serial number assigned by core</member>
+<member mname="last_item_serial" type="Integer" access="r/o">Last item serial number assigned by core</member>
 
-<method proto="log_profile(bool clear)" returns="true/false" desc="Writes the script profile to the log, optionally clearing it after." />
-<method proto="set_priority_divide(int divide)" returns="true/false" desc="Sets the priority divide to 'divide'" />
-<method proto="clear_script_profile_counters()" returns="true/false" desc="Clears the script profile counters"/>
-<member mname="poldir" type="String" access="r/o" mdesc="Directory of the POL executable" />
-<method proto="internal(integer)" returns="unspecified" desc="developer methods, not officially published"/>
+<method proto="log_profile(bool clear)" returns="true/false">Writes the script profile to the log, optionally clearing it after.</method>
+<method proto="set_priority_divide(int divide)" returns="true/false">Sets the priority divide to 'divide'</method>
+<method proto="clear_script_profile_counters()" returns="true/false">Clears the script profile counters</method>
+<member mname="poldir" type="String" access="r/o">Directory of the POL executable</member>
+<method proto="internal(integer)" returns="unspecified">developer methods, not officially published</method>
 </class>
 
 <class name="Datafile">
 <explain>Object representing a data file in a data store</explain>
-<method proto="CreateElement(key)" returns="error/DataFileElemRef" desc="key is int or string, depending on datafile flags" />
-<method proto="FindElement(key)" returns="error/DataFileElemRef" desc="see key notes above" />
-<method proto="DeleteElement(key)" returns="error/true" desc="see key notes above"/>
-<method proto="Keys()" returns="array" desc="array of ints or strings, depending on datafile flags"/>
+<method proto="CreateElement(key)" returns="error/DataFileElemRef">key is int or string, depending on datafile flags</method>
+<method proto="FindElement(key)" returns="error/DataFileElemRef">see key notes above</method>
+<method proto="DeleteElement(key)" returns="error/true">see key notes above</method>
+<method proto="Keys()" returns="array">array of ints or strings, depending on datafile flags</method>
 </class>
 
 
 <class name="DataFileElement">
 <explain>A data element inside a datastore file</explain>
-<method proto="GetProp(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
-<method proto="SetProp(string propname, object propvalue)" returns="true/error" desc="Sets a packable object to a property" />
-<method proto="EraseProp(string propname)" returns="true/error" desc="Erases the property named 'propname'" />
-<method proto="PropNames()" returns="array" desc="Returns an array of property name strings" />
+<method proto="GetProp(string propname)" returns="script object/error">Returns an unpacked script object (i.e. int,string,array,etc)</method>
+<method proto="SetProp(string propname, object propvalue)" returns="true/error">Sets a packable object to a property</method>
+<method proto="EraseProp(string propname)" returns="true/error">Erases the property named 'propname'</method>
+<method proto="PropNames()" returns="array">Returns an array of property name strings</method>
 </class>
 
 
 <class name="Script">
 <explain>Object representing a script in the system</explain>
-<member mname="pid" type="Integer" access="r/o" mdesc="Process ID" />
-<member mname="name" type="String" access="r/o" mdesc="Script name" />
-<member mname="state" type="String" access="r/o" mdesc="Script state" />
-<member mname="instr_cycles" type="Integer" access="r/o" mdesc="Instruction Cycles" />
-<member mname="sleep_cycles" type="Integer" access="r/o" mdesc="Sleep Cycles" />
-<member mname="consec_cycles" type="Integer" access="r/o" mdesc="Consecutive Cycles" />
-<member mname="pc" type="Integer" access="r/o" mdesc="Program Counter" />
-<member mname="call_depth" type="Integer" access="r/o" mdesc="Call depth" />
-<member mname="num_globals" type="Integer" access="r/o" mdesc="Number of global variables" />
-<member mname="var_size" type="Integer" access="r/o" mdesc="Estimated size of global variables and current local variables" />
-<member mname="globals" type="Dictionary" access="r/o" mdesc="Dictionary of global variable name=>value pairs" />
+<member mname="pid" type="Integer" access="r/o">Process ID</member>
+<member mname="name" type="String" access="r/o">Script name</member>
+<member mname="state" type="String" access="r/o">Script state</member>
+<member mname="instr_cycles" type="Integer" access="r/o">Instruction Cycles</member>
+<member mname="sleep_cycles" type="Integer" access="r/o">Sleep Cycles</member>
+<member mname="consec_cycles" type="Integer" access="r/o">Consecutive Cycles</member>
+<member mname="pc" type="Integer" access="r/o">Program Counter</member>
+<member mname="call_depth" type="Integer" access="r/o">Call depth</member>
+<member mname="num_globals" type="Integer" access="r/o">Number of global variables</member>
+<member mname="var_size" type="Integer" access="r/o">Estimated size of global variables and current local variables</member>
+<member mname="globals" type="Dictionary" access="r/o">Dictionary of global variable name=>value pairs</member>
 <member mname="attached_to" type="Object" access="r/o" mdesc="Mobile or Item where Script is attached to.
 If it's attached to a Character, it will return the Character.
 If it's an AI-Script it will return the NPC.
 If it's a ControlScript it will return the Item.
 Checks are made in the order above." />
-<member mname="controller" type="MobileRef" access="r/o" mdesc="Mobile which is responsible for damage etc." />
-<member mname="package" type="PackageRef" access="r/o" mdesc="Reference to the package where this script exists, returns error &quot;Script has no package&quot; if script is from a system folder" />
+<member mname="controller" type="MobileRef" access="r/o">Mobile which is responsible for damage etc.</member>
+<member mname="package" type="PackageRef" access="r/o">Reference to the package where this script exists, returns error &quot;Script has no package&quot; if script is from a system folder</member>
 
-<method proto="sendevent(obj event)" returns="error/true" desc="sends a event to this script (usually a struct)" />
-<method proto="kill()" returns="true" desc="Kills this script" />
-<method proto="loadsymbols()" returns="Boolean" desc="Loads the .dbg file" />
-<method proto="clear_event_queue()" returns="true" desc="clears the event queue of the script"/>
-<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
+<method proto="sendevent(obj event)" returns="error/true">sends a event to this script (usually a struct)</method>
+<method proto="kill()" returns="true">Kills this script</method>
+<method proto="loadsymbols()" returns="Boolean">Loads the .dbg file</method>
+<method proto="clear_event_queue()" returns="true">clears the event queue of the script</method>
+<method>Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
 </class>
 
 
 <class name="Guild">
 <explain>Object representing a player guild association</explain>
-<member mname="members" type="Array" access="r/o" mdesc="Array of Character Refs who are guild members" />
-<member mname="allyguilds" type="Array" access="r/o" mdesc="Array of GuildRefs who are allied guilds" />
-<member mname="enemyguilds" type="Array" access="r/o" mdesc="Array of GuildRefs who are enemy guilds" />
-<member mname="guildid" type="Integer" access="r/o" mdesc="Guild ID number" />
+<member mname="members" type="Array" access="r/o">Array of Character Refs who are guild members</member>
+<member mname="allyguilds" type="Array" access="r/o">Array of GuildRefs who are allied guilds</member>
+<member mname="enemyguilds" type="Array" access="r/o">Array of GuildRefs who are enemy guilds</member>
+<member mname="guildid" type="Integer" access="r/o">Guild ID number</member>
 
-<method proto="ismember(Character)" returns="error/true" desc="true if the character is a member of the guild" />
-<method proto="isallyguild(GuildRef)" returns="true/error" desc="true if the guild is an ally" />
-<method proto="isenemyguild(GuildRef)" returns="true/error" desc="true if the guild is an enemy"/>
-<method proto="addmember(CharacterRef)" returns="true/error" desc="adds a character to the guild" />
-<method proto="addallyguild(GuildRef)" returns="true/error" desc="adds an ally guild" />
-<method proto="addenemyguild(GuildRef)" returns="true/error" desc="adds an enemy guild" />
-<method proto="removemember(CharacterRef)" returns="true/error" desc="removes a character member" />
-<method proto="removeallyguild(GuildRef)" returns="true/error" desc="removes an ally guild" />
-<method proto="removeenemyguild(GuildRef)" returns="true/error" desc="removes an enemy guild" />
-<method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
-<method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
-<method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
-<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
+<method proto="ismember(Character)" returns="error/true">true if the character is a member of the guild</method>
+<method proto="isallyguild(GuildRef)" returns="true/error">true if the guild is an ally</method>
+<method proto="isenemyguild(GuildRef)" returns="true/error">true if the guild is an enemy</method>
+<method proto="addmember(CharacterRef)" returns="true/error">adds a character to the guild</method>
+<method proto="addallyguild(GuildRef)" returns="true/error">adds an ally guild</method>
+<method proto="addenemyguild(GuildRef)" returns="true/error">adds an enemy guild</method>
+<method proto="removemember(CharacterRef)" returns="true/error">removes a character member</method>
+<method proto="removeallyguild(GuildRef)" returns="true/error">removes an ally guild</method>
+<method proto="removeenemyguild(GuildRef)" returns="true/error">removes an enemy guild</method>
+<method proto="getprop(string propname)" returns="script object/error">Returns an unpacked script object (i.e. int,string,array,etc)</method>
+<method proto="setprop(string propname, object propval)" returns="true/error">Sets a packable object to a property.</method>
+<method proto="eraseprop(string propname)" returns="true/error">Erases the property named 'propname'.</method>
+<method proto="propnames()" returns="Array">Returns an array of property name strings.</method>
 </class>
 
 
@@ -641,12 +641,12 @@ Checks are made in the order above." />
 <explain>Data structure for key->value pairs (i.e."associative array"). Keys may be intgers, strings, reals, mobrefs, or itemrefs.
 Declare with var d := dictionary.
 Pre-intialize with var d := dictionary { "abx" -> 72, "xyz" -> 32 };</explain>
-<method proto="size()" returns="int" desc="number of pairs in dictionary" />
-<method proto="erase(key)" returns="true/error" desc="erases a pair from the dict" />
-<method proto="insert(key, value)" returns="error/int" desc="inserts a pair into the dict, returns new size"/>
-<method proto="exists(key)" returns="error/int" desc="if exists, returns count of matching key"/>
-<method proto="keys()" returns="array" desc="returns an array of the keys" />
-<method proto="[key]" returns="value" desc="gets value at key, or uninit if key doesn't exist" />
+<method proto="size()" returns="int">number of pairs in dictionary</method>
+<method proto="erase(key)" returns="true/error">erases a pair from the dict</method>
+<method proto="insert(key, value)" returns="error/int">inserts a pair into the dict, returns new size</method>
+<method proto="exists(key)" returns="error/int">if exists, returns count of matching key</method>
+<method proto="keys()" returns="array">returns an array of the keys</method>
+<method proto="[key]" returns="value">gets value at key, or uninit if key doesn't exist</method>
 </class>
 
 
@@ -654,27 +654,27 @@ Pre-intialize with var d := dictionary { "abx" -> 72, "xyz" -> 32 };</explain>
 <explain>Data structure for linear storage, dynamically resizes to fit more elements.
 Declare with var a := array;
 Pre-intialize with var a := array { 53, 76, 32 };</explain>
-<method proto="exists(index)" returns="error/int" desc="Returns 1 if index is in array." />
-<method proto="size()" returns="int" desc="number of elements in the array" />
-<method proto="erase(int index)" returns="true/false" desc="erases the element at index" />
-<method proto="insert(int index, object)" returns="void/error" desc="inserts a new object into the array at index"/>
-<method proto="shrink(index)" returns="true/error" desc="erases index to end of array"/>
-<method proto="append(object)" returns="true/error" desc="inserts object in the end of the array" />
-<method proto="reverse()" returns="true" desc="reverses the elements of the array" />
-<method proto="sort(int sub_index:=0)" returns="true/error" desc="sorts the elements of the array, or if sub_index is given sorts array of arrays using the given index for sorting" />
-<method proto="+ array" returns="array" desc="concatinates 2 arrays" />
-<method proto="randomentry()" returns="value/error" desc="returns random array entry" />
-<method proto="cycle([int count])" returns="true/error" desc="will move array [count] steps backwards or forwards in-place as it were a conveyor belt. {1, 2, 3}.cycle() Will make it: {3, 1, 2}. Accepts a negative value as a shift to move different direction" />
-<method proto="sorted_insert(obj, sub_index:=0, reverse:=0)" returns="true/error" desc="Inserts obj into already sorted array. sub_index and reverse parameter have to match the sorting criteria of the array." />
-<method proto="filter(FunctionObject testFn)" returns="array" desc="Returns a new array containing just the elements that pass the test function. If no elements pass the test, an empty array is returned. `testFn` is a function that can accept up to three parameters: `element` - The current element being processed ; `index` - The index of the current element being processed ; `array` - The array filter() was called upon" />
+<method proto="exists(index)" returns="error/int">Returns 1 if index is in array.</method>
+<method proto="size()" returns="int">number of elements in the array</method>
+<method proto="erase(int index)" returns="true/false">erases the element at index</method>
+<method proto="insert(int index, object)" returns="void/error">inserts a new object into the array at index</method>
+<method proto="shrink(index)" returns="true/error">erases index to end of array</method>
+<method proto="append(object)" returns="true/error">inserts object in the end of the array</method>
+<method proto="reverse()" returns="true">reverses the elements of the array</method>
+<method proto="sort(int sub_index:=0)" returns="true/error">sorts the elements of the array, or if sub_index is given sorts array of arrays using the given index for sorting</method>
+<method proto="+ array" returns="array">concatinates 2 arrays</method>
+<method proto="randomentry()" returns="value/error">returns random array entry</method>
+<method proto="cycle([int count])" returns="true/error">will move array [count] steps backwards or forwards in-place as it were a conveyor belt. {1, 2, 3}.cycle() Will make it: {3, 1, 2}. Accepts a negative value as a shift to move different direction</method>
+<method proto="sorted_insert(obj, sub_index:=0, reverse:=0)" returns="true/error">Inserts obj into already sorted array. sub_index and reverse parameter have to match the sorting criteria of the array.</method>
+<method proto="filter(FunctionObject testFn)" returns="array">Returns a new array containing just the elements that pass the test function. If no elements pass the test, an empty array is returned. `testFn` is a function that can accept up to three parameters: `element` - The current element being processed ; `index` - The index of the current element being processed ; `array` - The array filter() was called upon</method>
 </class>
 
 
 <class name="AuxConnection">
 <explain>An object passed to an Aux Service Script that allows the script to transmit and recieve packed data over a TCP/IP port. use wait_for_event() in the service script to recieve data. </explain>
-<member mname="ip" type="String" access="r/o" mdesc="Originating IP on the AuxConnection Pipe" />
+<member mname="ip" type="String" access="r/o">Originating IP on the AuxConnection Pipe</member>
 
-<method proto="transmit(object o)" returns="error/0" desc="Transmits the packable object 'o' over the Aux connection. If the connection script has the AUXSVC_ASSUME_STRING script option, then the parameter object `o` is sent as a string and not unpacked. If the Aux Connection was created with the ignore_line_breaks option, then a CRLF will not be appended to the message. " />
+<method proto="transmit(object o)" returns="error/0">Transmits the packable object 'o' over the Aux connection. If the connection script has the AUXSVC_ASSUME_STRING script option, then the parameter object `o` is sent as a string and not unpacked. If the Aux Connection was created with the ignore_line_breaks option, then a CRLF will not be appended to the message. </method>
 </class>
 
 
@@ -684,21 +684,21 @@ Comparing this object against the keyword 'error' allows the scripter to know if
 It always evaluates as false in boolean contexts.
 Declare with var e := error;
 Pre-intialize with var e := error { errortext := "error message" };</explain>
-<member mname="errortext" type="String" access="r/w" mdesc="Informational Error string" />
+<member mname="errortext" type="String" access="r/w">Informational Error string</member>
 </class>
 
 
 <class name="String">
 <explain>An ordered collection of ascii (1-byte) characters.
 Declare and pre-initialize with var s := "my string"</explain>
-<method desc="'Substring': returns a new string from the character range between start and length, inclusive. Returns error if index out of range. Ex: var str := &quot;yomama&quot;; str[2,3] would return &quot;oma&quot;." proto="[start,length]" returns="string" />
-<method proto="[substr]" returns="string/uninit" desc="seaches the string for 'substr'. If found, returns the first character of the substring, else uninitialized object. " />
-<method proto="[substr] := replace_str" returns="string" desc="finds the first occurance of 'substr' and replaces substr with 'replace_str'. returns the new string."/>
-<method proto="+ string" returns="string" desc="concatenates the strings, returns the new string."/>
-<method proto="length()" returns="int" desc="returns number of characters in the string"/>
-<method proto="find(search,[start])" returns="int" desc="returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str, but unlike the basic.em function the Start parameter is optional if not given it searches the whole string"/>
-<method proto="upper()" returns="string" desc="returns like upper(str) the uppercase version and also modifies the str"/>
-<method proto="lower()" returns="string" desc="returns like lower(str) the lowercase version and also modifies the str"/>
+<method>'Substring': returns a new string from the character range between start and length, inclusive. Returns error if index out of range. Ex: var str := &quot;yomama&quot;; str[2,3] would return &quot;oma&quot;." proto="[start,length]" returns="string</method>
+<method proto="[substr]" returns="string/uninit">seaches the string for 'substr'. If found, returns the first character of the substring, else uninitialized object. </method>
+<method proto="[substr] := replace_str" returns="string">finds the first occurance of 'substr' and replaces substr with 'replace_str'. returns the new string.</method>
+<method proto="+ string" returns="string">concatenates the strings, returns the new string.</method>
+<method proto="length()" returns="int">returns number of characters in the string</method>
+<method proto="find(search,[start])" returns="int">returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str, but unlike the basic.em function the Start parameter is optional if not given it searches the whole string</method>
+<method proto="upper()" returns="string">returns like upper(str) the uppercase version and also modifies the str</method>
+<method proto="lower()" returns="string">returns like lower(str) the lowercase version and also modifies the str</method>
 <method proto="format(args)" returns="string" desc="formats a string using the data from args.
 	Accepts the following format:
 	{:x} for hex representation
@@ -726,7 +726,7 @@ Declare and pre-initialize with var s := "my string"</explain>
 
 	Character or item members are accessed the same way:
 	&quot;{1.name}, your shield {2.desc} has {2.hp} hp&quot;.format(who, who.shield) -> &quot;Admin, your shield Buckler of Death has 150 hp&quot;"/>
-<method proto="join(array)" returns="string" desc="returns a string which is the concatenation of the array elements, seperated by str"/>
+<method proto="join(array)" returns="string">returns a string which is the concatenation of the array elements, seperated by str</method>
 </class>
 
 
@@ -734,107 +734,107 @@ Declare and pre-initialize with var s := "my string"</explain>
 <explain>Data structure with explicitly named members (keys). Keys may be only be strings.
 Declare with var s := struct;
 Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
-<method proto="exists(key)" returns="error/int" desc="if exists, returns count of matching key"/>
-<method proto="size()" returns="int" desc="number of keys in the struct" />
-<method proto="insert(int index, object)" returns="int/error" desc="inserts a new object into the struct for key. Returns size."/>
-<method proto="keys()" returns="array" desc="returns an array of the keys" />
-<method proto=".+member" returns="n/a" desc="struct.+member adds a member" />
-<method proto=".member" returns="value" desc="gets value of member" />
-<method proto="[member]" returns="value" desc="gets value of member ONLY when member is a string! no using integers here like an array."/>
-<method proto="erase(key)" returns="error/int" desc="removes given key" />
-<method proto=".-member" returns="n/a" desc="struct.-member removes a member" />
-<method proto=".?member" returns="int" desc="struct.?member returns count of matching member" />
+<method proto="exists(key)" returns="error/int">if exists, returns count of matching key</method>
+<method proto="size()" returns="int">number of keys in the struct</method>
+<method proto="insert(int index, object)" returns="int/error">inserts a new object into the struct for key. Returns size.</method>
+<method proto="keys()" returns="array">returns an array of the keys</method>
+<method proto=".+member" returns="n/a">struct.+member adds a member</method>
+<method proto=".member" returns="value">gets value of member</method>
+<method proto="[member]" returns="value">gets value of member ONLY when member is a string! no using integers here like an array.</method>
+<method proto="erase(key)" returns="error/int">removes given key</method>
+<method proto=".-member" returns="n/a">struct.-member removes a member</method>
+<method proto=".?member" returns="int">struct.?member returns count of matching member</method>
 </class>
 
 
 <class name="Package">
 <explain>Object representing a package in the system</explain>
-<member mname="name" type="String" access="r/o" mdesc="Package name" />
-<member mname="version" type="String" access="r/o" mdesc="Package version" />
-<member mname="supports_http" type="Boolean" access="r/o" mdesc="Does the Package supports www?" />
-<member mname="npcdesc" type="Boolean" access="r/o" mdesc="Does the Package hold an own npcdesc.cfg?" />
-<member mname="dir" type="String" access="r/o" mdesc="Package directory path" />
-<member mname="desc" type="String" access="r/o" mdesc="name + directory" />
+<member mname="name" type="String" access="r/o">Package name</member>
+<member mname="version" type="String" access="r/o">Package version</member>
+<member mname="supports_http" type="Boolean" access="r/o">Does the Package supports www?</member>
+<member mname="npcdesc" type="Boolean" access="r/o">Does the Package hold an own npcdesc.cfg?</member>
+<member mname="dir" type="String" access="r/o">Package directory path</member>
+<member mname="desc" type="String" access="r/o">name + directory</member>
 </class>
 
 
 <class name="Packet">
 <explain>Object representing a binary packet. Print(Packet) returns string of Packet contents.</explain>
 <explain>Packets that are pre-character selection will now report a struct to a packethook with the member "ip"</explain>
-<method proto="SendPacket(Character)" returns="true/error" desc="Sends this packet to character." />
-<method proto="SendAreaPacket(int x, int y, int range, string realm)" returns="integer/error" desc="Sends this packet to all the players in range of x,y. Returns integer number of clients this packet was successfully sent to." />
-<method proto="GetSize()" returns="integer" desc="Returns size of packet data in bytes." />
-<method proto="GetInt8(int offset)" returns="integer/error" desc="Gets 8-bit (1 byte) value at offset (0-based)." />
-<method proto="GetInt16(int offset)" returns="integer/error" desc="Gets 16-bit (2 byte) value at offset (0-based). Automatically converts to Big-Endian." />
-<method proto="GetInt32(int offset)" returns="integer/error" desc="Gets 32-bit (4 byte) value at offset (0-based). Automatically converts to Big-Endian." />
-<method proto="GetInt16Flipped(int offset)" returns="integer/error" desc="Gets 16-bit (2 byte) value at offset (0-based). Automatically converts to Low-Endian." />
-<method proto="GetInt32Flipped(int offset)" returns="integer/error" desc="Gets 32-bit (4 byte) value at offset (0-based). Automatically converts to Low-Endian." />
-<method proto="GetString(int offset, int length)" returns="string/error" desc="Gets a string (1-byte characters) at offset (0-based) for length characters." />
-<method proto="GetUnicodeString(int offset, int length)" returns="array/error" desc="Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES)." />
-<method proto="GetUnicodeStringFlipped(int offset, int length)" returns="array/error" desc="Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES). With Flipped Byte Order (for specific packet support)" />
-<method proto="SetSize(int newsize)" returns="integer/error" desc="Sets the new size of the packet, possibly destroying data if packet size was decreased. Updates the encoded size for variable length packets, not allowed for fixed-length packets. Returns the old size of the packet." />
-<method proto="SetInt8(int offset, int value)" returns="true/error" desc="Sets an 8-bit (1-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets." />
-<method proto="SetInt16(int offset, int value)" returns="true/error" desc="Sets an 16-bit (2-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Big-Endian." />
-<method proto="SetInt32(int offset, int value)" returns="true/error" desc="Sets an 32-bit (4-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Big-Endian. NOTE: currently there's a compiler problem setting 0xFFFFFFFF, it gets converted to 0x7FFFFFFF. Use multiple SetInt16 or SetInt8 calls for now." />
-<method proto="SetInt16Flipped(int offset, int value)" returns="true/error" desc="Sets an 16-bit (2-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Low-Endian." />
-<method proto="SetInt32Flipped(int offset, int value)" returns="true/error" desc="Sets an 32-bit (4-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Low-Endian. NOTE: currently there's a compiler problem setting 0xFFFFFFFF, it gets converted to 0x7FFFFFFF. Use multiple SetInt16 or SetInt8 calls for now." />
-<method proto="SetString(int offset, string string, int nullterminate)" returns="true/error" desc="Sets a string value at offset (0-based). If offset plus length of string is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a 0 terminator." />
-<method proto="SetUnicodeString(int offset, array unicode character, int nullterminate)" returns="true/error" desc="Sets a unicode string at offset (0-based). If offset plus length of string (2*number of members in the array) is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte values. See unicode.em for useful functions. CAscZ in basic.em is useful for character sets that use the ascii/ansi standard." />
-<method proto="SetUnicodeStringFlipped(int offset, array unicode character, int nullterminate)" returns="true/error" desc="Sets a unicode string at offset (0-based). If offset plus length of string (2*number of members in the array) is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte values. See unicode.em for useful functions. CAscZ in basic.em is useful for character sets that use the ascii/ansi standard. With Flipped Byte Order (for specific packet support)" />
-<method proto="SetUtf8String(int offset, string string, int nullterminate)" returns="true/error" desc="Sets a UTF-8 encoded string value at offset (0-based). If offset plus length of string is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a 0 terminator." />
+<method proto="SendPacket(Character)" returns="true/error">Sends this packet to character.</method>
+<method proto="SendAreaPacket(int x, int y, int range, string realm)" returns="integer/error">Sends this packet to all the players in range of x,y. Returns integer number of clients this packet was successfully sent to.</method>
+<method proto="GetSize()" returns="integer">Returns size of packet data in bytes.</method>
+<method proto="GetInt8(int offset)" returns="integer/error">Gets 8-bit (1 byte) value at offset (0-based).</method>
+<method proto="GetInt16(int offset)" returns="integer/error">Gets 16-bit (2 byte) value at offset (0-based). Automatically converts to Big-Endian.</method>
+<method proto="GetInt32(int offset)" returns="integer/error">Gets 32-bit (4 byte) value at offset (0-based). Automatically converts to Big-Endian.</method>
+<method proto="GetInt16Flipped(int offset)" returns="integer/error">Gets 16-bit (2 byte) value at offset (0-based). Automatically converts to Low-Endian.</method>
+<method proto="GetInt32Flipped(int offset)" returns="integer/error">Gets 32-bit (4 byte) value at offset (0-based). Automatically converts to Low-Endian.</method>
+<method proto="GetString(int offset, int length)" returns="string/error">Gets a string (1-byte characters) at offset (0-based) for length characters.</method>
+<method proto="GetUnicodeString(int offset, int length)" returns="array/error">Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES).</method>
+<method proto="GetUnicodeStringFlipped(int offset, int length)" returns="array/error">Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES). With Flipped Byte Order (for specific packet support)</method>
+<method proto="SetSize(int newsize)" returns="integer/error">Sets the new size of the packet, possibly destroying data if packet size was decreased. Updates the encoded size for variable length packets, not allowed for fixed-length packets. Returns the old size of the packet.</method>
+<method proto="SetInt8(int offset, int value)" returns="true/error">Sets an 8-bit (1-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets.</method>
+<method proto="SetInt16(int offset, int value)" returns="true/error">Sets an 16-bit (2-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Big-Endian.</method>
+<method proto="SetInt32(int offset, int value)" returns="true/error">Sets an 32-bit (4-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Big-Endian. NOTE: currently there's a compiler problem setting 0xFFFFFFFF, it gets converted to 0x7FFFFFFF. Use multiple SetInt16 or SetInt8 calls for now.</method>
+<method proto="SetInt16Flipped(int offset, int value)" returns="true/error">Sets an 16-bit (2-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Low-Endian.</method>
+<method proto="SetInt32Flipped(int offset, int value)" returns="true/error">Sets an 32-bit (4-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Low-Endian. NOTE: currently there's a compiler problem setting 0xFFFFFFFF, it gets converted to 0x7FFFFFFF. Use multiple SetInt16 or SetInt8 calls for now.</method>
+<method proto="SetString(int offset, string string, int nullterminate)" returns="true/error">Sets a string value at offset (0-based). If offset plus length of string is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a 0 terminator.</method>
+<method proto="SetUnicodeString(int offset, array unicode character, int nullterminate)" returns="true/error">Sets a unicode string at offset (0-based). If offset plus length of string (2*number of members in the array) is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte values. See unicode.em for useful functions. CAscZ in basic.em is useful for character sets that use the ascii/ansi standard.</method>
+<method proto="SetUnicodeStringFlipped(int offset, array unicode character, int nullterminate)" returns="true/error">Sets a unicode string at offset (0-based). If offset plus length of string (2*number of members in the array) is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte values. See unicode.em for useful functions. CAscZ in basic.em is useful for character sets that use the ascii/ansi standard. With Flipped Byte Order (for specific packet support)</method>
+<method proto="SetUtf8String(int offset, string string, int nullterminate)" returns="true/error">Sets a UTF-8 encoded string value at offset (0-based). If offset plus length of string is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a 0 terminator.</method>
 </class>
 
 
 <class name="Party">
 <explain>Object representing a player party association</explain>
-<member mname="members" type="Array" access="r/o" mdesc="Array of Offline Character Refs who are party members" />
-<member mname="candidates" type="Array" access="r/o" mdesc="Array of Offline Character Refs who are party candidates" />
-<member mname="leader" type="OfflineCharRef" access="r/o" mdesc="Offline Character Ref of leader" />
+<member mname="members" type="Array" access="r/o">Array of Offline Character Refs who are party members</member>
+<member mname="candidates" type="Array" access="r/o">Array of Offline Character Refs who are party candidates</member>
+<member mname="leader" type="OfflineCharRef" access="r/o">Offline Character Ref of leader</member>
 
-<method proto="setleader(CharacterRef)" returns="error/true" desc="Sets new leader." />
-<method proto="addmember(CharacterRef)" returns="error/true" desc="Adds a character to the party. If the player is already candidate of another party, this function will fail." />
-<method proto="addcandidate(CharacterRef)" returns="error/true" desc="Adds a character to the party as candidate." />
-<method proto="removemember(CharacterRef)" returns="true/error" desc="Removes a character member." />
-<method proto="removecandidate(CharacterRef)" returns="true/error" desc="Removes a character candidate." />
-<method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)." />
-<method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
-<method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
-<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
+<method proto="setleader(CharacterRef)" returns="error/true">Sets new leader.</method>
+<method proto="addmember(CharacterRef)" returns="error/true">Adds a character to the party. If the player is already candidate of another party, this function will fail.</method>
+<method proto="addcandidate(CharacterRef)" returns="error/true">Adds a character to the party as candidate.</method>
+<method proto="removemember(CharacterRef)" returns="true/error">Removes a character member.</method>
+<method proto="removecandidate(CharacterRef)" returns="true/error">Removes a character candidate.</method>
+<method proto="getprop(string propname)" returns="script object/error">Returns an unpacked script object (i.e. int,string,array,etc).</method>
+<method proto="setprop(string propname, object propval)" returns="true/error">Sets a packable object to a property.</method>
+<method proto="eraseprop(string propname)" returns="true/error">Erases the property named 'propname'.</method>
+<method proto="propnames()" returns="Array">Returns an array of property name strings.</method>
 </class>
 
 
 <class name="BinaryFile">
 <explain>Object representing a binaryfile.</explain>
-<method proto="Close()" returns="integer" desc="Closes the underlying stream." />
-<method proto="Size()" returns="integer/error" desc="Returns filesize in bytes." />
-<method proto="Seek(int offset, int seekdir)" returns="integer/error" desc="Seeks to position. See file.em constants for seekdir" />
-<method proto="Tell()" returns="integer/error" desc="Returns current position." />
-<method proto="Peek()" returns="integer/error" desc="Reads and returns the next byte without extracting it (-1 if eof is reached)." />
-<method proto="Flush()" returns="integer" desc="Writes all unwritten chars from buffer to file." />
-<method proto="GetInt8()" returns="integer/error" desc="Gets unsigned 8-bit (1 byte) value." />
-<method proto="GetInt16()" returns="integer/error" desc="Gets unsigned 16-bit (2 byte) value." />
-<method proto="GetInt32()" returns="integer/error" desc="Gets unsigned 32-bit (4 byte) value." />
-<method proto="GetSInt8()" returns="integer/error" desc="Gets signed 8-bit (1 byte) value." />
-<method proto="GetSInt16()" returns="integer/error" desc="Gets signed 16-bit (2 byte) value." />
-<method proto="GetSInt32()" returns="integer/error" desc="Gets signed 32-bit (4 byte) value." />
-<method proto="GetString(int length)" returns="string/error" desc="Gets a string (1-byte characters) for length characters." />
-<method proto="SetInt8()" returns="1/error" desc="Sets unsigned 8-bit (1 byte) value." />
-<method proto="SetInt16()" returns="1/error" desc="Sets unsigned 16-bit (2 byte) value." />
-<method proto="SetInt32()" returns="1/error" desc="Sets unsigned 32-bit (4 byte) value." />
-<method proto="SetSInt8()" returns="1/error" desc="Sets signed 8-bit (1 byte) value." />
-<method proto="SetSInt16()" returns="1/error" desc="Sets signed 16-bit (2 byte) value." />
-<method proto="SetSInt32()" returns="1/error" desc="Sets signed 32-bit (4 byte) value." />
-<method proto="SetString(string string, int nullterminate)" returns="1/error" desc="Sets a string. Set nullterminate to 1 if you want to automatically append a 0 terminator." />
+<method proto="Close()" returns="integer">Closes the underlying stream.</method>
+<method proto="Size()" returns="integer/error">Returns filesize in bytes.</method>
+<method proto="Seek(int offset, int seekdir)" returns="integer/error">Seeks to position. See file.em constants for seekdir</method>
+<method proto="Tell()" returns="integer/error">Returns current position.</method>
+<method proto="Peek()" returns="integer/error">Reads and returns the next byte without extracting it (-1 if eof is reached).</method>
+<method proto="Flush()" returns="integer">Writes all unwritten chars from buffer to file.</method>
+<method proto="GetInt8()" returns="integer/error">Gets unsigned 8-bit (1 byte) value.</method>
+<method proto="GetInt16()" returns="integer/error">Gets unsigned 16-bit (2 byte) value.</method>
+<method proto="GetInt32()" returns="integer/error">Gets unsigned 32-bit (4 byte) value.</method>
+<method proto="GetSInt8()" returns="integer/error">Gets signed 8-bit (1 byte) value.</method>
+<method proto="GetSInt16()" returns="integer/error">Gets signed 16-bit (2 byte) value.</method>
+<method proto="GetSInt32()" returns="integer/error">Gets signed 32-bit (4 byte) value.</method>
+<method proto="GetString(int length)" returns="string/error">Gets a string (1-byte characters) for length characters.</method>
+<method proto="SetInt8()" returns="1/error">Sets unsigned 8-bit (1 byte) value.</method>
+<method proto="SetInt16()" returns="1/error">Sets unsigned 16-bit (2 byte) value.</method>
+<method proto="SetInt32()" returns="1/error">Sets unsigned 32-bit (4 byte) value.</method>
+<method proto="SetSInt8()" returns="1/error">Sets signed 8-bit (1 byte) value.</method>
+<method proto="SetSInt16()" returns="1/error">Sets signed 16-bit (2 byte) value.</method>
+<method proto="SetSInt32()" returns="1/error">Sets signed 32-bit (4 byte) value.</method>
+<method proto="SetString(string string, int nullterminate)" returns="1/error">Sets a string. Set nullterminate to 1 if you want to automatically append a 0 terminator.</method>
 </class>
 
 
 <class name="Spellbook">
 <parent>Container</parent>
 <explain>Object representing a Spellbook.</explain>
-<method proto="RemoveSpell(int spellid)" returns="1/0/error" desc="Removes given spellid." />
-<method proto="AddSpell(int spellid)" returns="1/0/error" desc="Adds given spellid." />
-<method proto="Spells()" returns="array" desc="Returns array of SpellIDs" />
-<method proto="HasSpell(int spellid)" returns="1/0/error" desc="Checks if given spellid is inside the spellbook." />
+<method proto="RemoveSpell(int spellid)" returns="1/0/error">Removes given spellid.</method>
+<method proto="AddSpell(int spellid)" returns="1/0/error">Adds given spellid.</method>
+<method proto="Spells()" returns="array">Returns array of SpellIDs</method>
+<method proto="HasSpell(int spellid)" returns="1/0/error">Checks if given spellid is inside the spellbook.</method>
 </class>
 
 
@@ -844,19 +844,19 @@ The ClientRef is important when having packethooks which are active before chara
 access to the Client and not the Character.
 Because the ClientRef contains most information that was in the Character before, it becomes redundant to have those
 methods and properties in the Character and they will be removed in a future release.</explain>
-<member mname="acctname" type="String" access="r/o" mdesc="Account name string" />
-<member mname="acct" type="Account" access="r/o" mdesc="Account reference" />
-<member mname="ip" type="String" access="r/o" mdesc="IP Address string" />
-<member mname="port" type="Integer" access="r/o" mdesc="connected listen port" />
-<member mname="clientversion" type="String" access="r/o" mdesc="UO Client version string" />
-<member mname="clientinfo" type="Struct" access="r/o" mdesc="UO Client information struct (check out core-changes.txt for an example)" />
-<member mname="clientver_detail" type="Struct" access="r/o" mdesc="UO Client version string as Struct of Ints {major;minor;rev;patch}" />
-<member mname="uo_expansion_client" type="Integer" access="r/o" mdesc="client send expansion info flag" />
-<member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield" />
-<member mname="last_activity_at" type="Integer" access="r/o" mdesc="POL clock when last activity has been made" />
-<member mname="last_packet_at" type="Integer" access="r/o" mdesc="POL clock when last packet has been received" />
-<member mname="disable_inactivity_timeout" type="Boolean" access="r/w" mdesc="If true, client will not be disconnected due to inactivity." />
-<method proto="compareversion(string Version)" returns="true/false" desc="true if Client Version >= given Versionstring" />
+<member mname="acctname" type="String" access="r/o">Account name string</member>
+<member mname="acct" type="Account" access="r/o">Account reference</member>
+<member mname="ip" type="String" access="r/o">IP Address string</member>
+<member mname="port" type="Integer" access="r/o">connected listen port</member>
+<member mname="clientversion" type="String" access="r/o">UO Client version string</member>
+<member mname="clientinfo" type="Struct" access="r/o">UO Client information struct (check out core-changes.txt for an example)</member>
+<member mname="clientver_detail" type="Struct" access="r/o">UO Client version string as Struct of Ints {major;minor;rev;patch}</member>
+<member mname="uo_expansion_client" type="Integer" access="r/o">client send expansion info flag</member>
+<member mname="clienttype" type="Integer" access="r/o">clientversion type bitfield</member>
+<member mname="last_activity_at" type="Integer" access="r/o">POL clock when last activity has been made</member>
+<member mname="last_packet_at" type="Integer" access="r/o">POL clock when last packet has been received</member>
+<member mname="disable_inactivity_timeout" type="Boolean" access="r/w">If true, client will not be disconnected due to inactivity.</member>
+<method proto="compareversion(string Version)" returns="true/false">true if Client Version >= given Versionstring</method>
 </class>
 
 
@@ -864,22 +864,22 @@ methods and properties in the Character and they will be removed in a future rel
 <explain>Object representing a list of all storage areas.
 It is iterable: iterates over StorageArea objects.
 It supports the [] operator: its behavior is similar to FindStorageArea()</explain>
-<member mname="count" type="Integer" access="r/o" mdesc="Number of storage areas" />
+<member mname="count" type="Integer" access="r/o">Number of storage areas</member>
 </class>
 
 
 <class name="StorageArea">
 <explain>Object representing a storage area.
 It is iterable: iterates over Item objects (root items in storage area).</explain>
-<member mname="count" type="Integer" access="r/o" mdesc="Number of root items in this storage area" />
-<member mname="totalcount" type="Integer" access="r/o" mdesc="Number of items in this storage area" />
+<member mname="count" type="Integer" access="r/o">Number of root items in this storage area</member>
+<member mname="totalcount" type="Integer" access="r/o">Number of items in this storage area</member>
 </class>
 
 
 <class name="FunctionObject">
 <explain>Object representing a function. Created via "var f:=@myfunc;"
 Object can be copied inside the same script, but cannot be stored in cprops or transfered to a different script.</explain>
-<method proto="call(...)" returns="unspecified" desc="Calls the underlying function, arguments and return value are the same as the original function." />
+<method proto="call(...)" returns="unspecified">Calls the underlying function, arguments and return value are the same as the original function.</method>
 </class>
 
 <class name="Boolean">
@@ -889,41 +889,41 @@ Object can be copied inside the same script, but cannot be stored in cprops or t
 <class name="XMLFile">
 <explain>Object representing a XML file.
 ForEach support: iterates over all child nodes, iterator is XMLNode object _iterator_iter is integer index.</explain>
-<method proto="removexmlnode(integer/string/XMLNode)" returns="1/0" desc="removes node by index, first node with given name or passed one." />
-<method proto="setxmldeclaration(string version, string encoding, string standalone)" returns="1" desc="Sets the xml declaration." />
-<method proto="appendxmlnode(string value, [struct{attributes}])" returns="Created node on success." desc="Appends node with name value and given attributes (key=name, value=value)." />
-<method proto="appendxmlcomment(string value)" returns="1" desc="Adds comment." />
-<method proto="savexml(string filename)" returns="1/0" desc="Saves to file." />
-<method proto="xmltostring([string ident])" returns="String" desc="Returns XML as string, identation is by default \t." />
-<method proto="[key]" returns="XMLNode" desc="If key is integer returns node of given index, if key is a string returns first node with key as name." />
+<method proto="removexmlnode(integer/string/XMLNode)" returns="1/0">removes node by index, first node with given name or passed one.</method>
+<method proto="setxmldeclaration(string version, string encoding, string standalone)" returns="1">Sets the xml declaration.</method>
+<method proto="appendxmlnode(string value, [struct{attributes}])" returns="Created node on success.">Appends node with name value and given attributes (key=name, value=value).</method>
+<method proto="appendxmlcomment(string value)" returns="1">Adds comment.</method>
+<method proto="savexml(string filename)" returns="1/0">Saves to file.</method>
+<method proto="xmltostring([string ident])" returns="String">Returns XML as string, identation is by default \t.</method>
+<method proto="[key]" returns="XMLNode">If key is integer returns node of given index, if key is a string returns first node with key as name.</method>
 </class>
 
 <class name="XMLNode">
 <explain>Object representing a XML node.
 ForEach support: iterates over all child nodes, iterator is XMLNode object _iterator_iter is integer index.</explain>
-<member mname="attributes" type="XMLAttributes" access="r/o" mdesc="Returns attribute object of node." />
-<member mname="type" type="String" access="r/o" mdesc="Returns type string (XMLComment, XMLDeclaration, XMLDocument, XMLElement, XMLText, XMLTypeCount, XMLUnknown)." />
-<method proto="removexmlnode(integer/string/XMLNode)" returns="1/0" desc="removes node by index, first node with given name or passed one." />
-<method proto="clonenode()" returns="XMLNode" desc="Create a copy of node which is then valid longer then the file object." />
-<method proto="firstxmlchild([string value])" returns="XMLNode" desc="Returns first children or first with given name." />
-<method proto="nextxmlsibling([string value])" returns="XMLNode" desc="Returns next sibling or first with given name." />
-<method proto="appendxmlnode(string value, [struct{attributes}])" returns="Created node on success." desc="Appends node with name value and given attributes (key=name, value=value)." />
-<method proto="appendxmlcomment(string value)" returns="1" desc="Adds comment." />
-<method proto="setxmlattribute(struct{attributes})" returns="Parent node on success." desc="Sets node attributes (key=name, value=value)." />
-<method proto="removexmlattribute(string key)" returns="Parent node on success." desc="Removes attribute with given name." />
-<method proto="appendxmltext(string text)" returns="1" desc="Adds node text." />
+<member mname="attributes" type="XMLAttributes" access="r/o">Returns attribute object of node.</member>
+<member mname="type" type="String" access="r/o">Returns type string (XMLComment, XMLDeclaration, XMLDocument, XMLElement, XMLText, XMLTypeCount, XMLUnknown).</member>
+<method proto="removexmlnode(integer/string/XMLNode)" returns="1/0">removes node by index, first node with given name or passed one.</method>
+<method proto="clonenode()" returns="XMLNode">Create a copy of node which is then valid longer then the file object.</method>
+<method proto="firstxmlchild([string value])" returns="XMLNode">Returns first children or first with given name.</method>
+<method proto="nextxmlsibling([string value])" returns="XMLNode">Returns next sibling or first with given name.</method>
+<method proto="appendxmlnode(string value, [struct{attributes}])" returns="Created node on success.">Appends node with name value and given attributes (key=name, value=value).</method>
+<method proto="appendxmlcomment(string value)" returns="1">Adds comment.</method>
+<method proto="setxmlattribute(struct{attributes})" returns="Parent node on success.">Sets node attributes (key=name, value=value).</method>
+<method proto="removexmlattribute(string key)" returns="Parent node on success.">Removes attribute with given name.</method>
+<method proto="appendxmltext(string text)" returns="1">Adds node text.</method>
 </class>
 
 <class name="XMLAttributes">
 <explain>Object representing XML attributes of a node.
 ForEach support: iterates over all attributes, iterator is a struct with key=attributename and value=attributevalue, _iterator_iter is integer index.</explain>
-<method proto="propnames()" returns="Array of Strings" desc="Returns array of all attribute names." />
-<method proto="[key]" returns="String/Error" desc="Returns attribute value." />
+<method proto="propnames()" returns="Array of Strings">Returns array of all attribute names.</method>
+<method proto="[key]" returns="String/Error">Returns attribute value.</method>
 </class>
 
 <class name="ExportedScript">
 <explain>Object representing a script loaded via OS::LoadExportedScript(). The script will be alive as long as the object exists.</explain>
-<member mname="exported_functions" type="Array of Strings" access="r/o" mdesc="Returns names of all exported functions." />
-<method proto="call(function name, [array of args])" returns="Object/Error" desc="Calls the given function with the optional arguments and returns the function return value. Calling script will be blocked until the function returns and will be executed non-critical or critical depending on the calling script." />
+<member mname="exported_functions" type="Array of Strings" access="r/o">Returns names of all exported functions.</member>
+<method proto="call(function name, [array of args])" returns="Object/Error">Calls the given function with the optional arguments and returns the function return value. Calling script will be blocked until the function returns and will be executed non-critical or critical depending on the calling script.</method>
 </class>
 </ESCRIPT>
