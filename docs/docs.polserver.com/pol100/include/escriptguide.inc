@@ -90,6 +90,8 @@ apologies if I explain some things in annoyingly simple terms.</p>
 
 <p><b><a href="#appB">Appendix B: Operator Precedence</a></b></p>
 
+<p><b><a href="#appC">Appendix C: Functional Programming with Arrays</a></b></p>
+
 <p><b><a href="#appX">Appendix X: Revision History</a></b></p>
 
 <br/>
@@ -2878,6 +2880,168 @@ behavior.
 <br/>
 
 <!-- ====================================================================== -->
+<h3><a name="appC">Functional Programming with Arrays</a></h3>
+<br/>
+<p>Added in: POL 100.2.0</p>
+<p>
+  Arrays now offer several methods that accept a user function as an argument.
+  This allows better use of functional programming within Escript. Functional
+  programming is a way of writing code where you use functions to work with data.
+  This makes your code cleaner and easier to understand. One of the places where
+  this is really helpful is when working with arrays. Escript has some built-in
+  methods that make it easy to use functional programming with arrays. These
+  methods include <code>filter</code>, <code>map</code>, <code>find</code>,
+  <code>findIndex</code>, and <code>reduce</code>. Let's take a look at what
+  each of these does and how you can use them.
+</p>
+
+<h4><code>filter</code></h4>
+<p>
+  The filter method lets you create a new array with only the elements that
+  pass a test you provide.
+</p>
+
+<div class="doc-guide-pre"><pre>
+var hidden_players := EnumerateOnlinePlayers()
+  .filter( @( player ) {
+    return player.hidden;
+  });
+</pre></div>
+
+<p>
+  In this example, <code>filter</code> checks each player to see if it is hidden
+  and creates a new array with only the hidden players.
+</p>
+
+<h4><code>map</code></h4>
+<p>
+  The <code>map</code> method creates a new array by applying a function to each
+  element of the original array.
+</p>
+
+<div class="doc-guide-pre"><pre>
+var serials := ListItemsNearLocation( x, y, z, range )
+  .map( @( item ) {
+    return item.serial
+  });
+</pre></div>
+
+<p>
+  Here, <code>map</code> takes each item near location <code>(x, y, z)</code>
+  and gets its serial, then puts the results in a new array.
+</p>
+
+<h4><code>find</code></h4>
+<p>
+  The <code>find</code> method returns the first element in the array that
+  passes a test you provide. If no elements pass the test, it returns
+  <code>&lt;uninitialized object&gt;</code>.
+</p>
+
+<div class="doc-guide-pre"><pre>
+var locked_item := EnumerateItemsInContainer( container )
+  .find( @( item ) {
+    return item.locked;
+  });
+</pre></div>
+
+<p>This example finds the locked item in the container.</p>
+
+<h4><code>findIndex</code></h4>
+<p>
+  The <code>findIndex</code> method works like find, but instead of returning
+  the element, it returns the index (position) of the first element that passes
+  the test. If no elements pass the test, it returns <code>0</code>.
+</p>
+
+<div class="doc-guide-pre"><pre>
+// Get a list of quests
+var quests := array{
+  struct{ completed := true, name := "Quest 1" },
+  struct{ completed := false, name := "Quest 2" },
+  // ...
+};
+
+var incomplete_quest_index := quests
+  .findIndex( @( quest ) {
+    return !quest.completed;
+  });
+</pre></div>
+
+<p>
+  In this example, <code>findIndex</code> gives the position of the first
+  incomplete quest in the array.
+</p>
+
+<h4><code>reduce</code></h4>
+<p>
+  The <code>reduce</code> method combines all elements in the array into a
+  single value by applying a function you provide. This is useful for tasks like
+  summing up values. It behaves differently depending on if an optional initial
+  value is provided.
+</p>
+
+<div class="doc-guide-pre"><pre>
+var total_arrows = EnumerateItemsInContainer( who.backpack )
+  .reduce( @( sum, item ) {
+    return item.objtype == 0x0f3f ? ( sum + item.amount ) : sum;
+  }, 0);
+</pre></div>
+
+<p>
+  Here, reduce calculates the total number of arrows by adding the item amount,
+  only if the item's object type is <code>0x0f3f</code> -- arrows. <code>0</code>
+  is passed as the initial value parameter to <code>.reduce()</code>, meaning that
+  the sum starts at <code>0</code> and <code>item</code> will be the first item in
+  the list of items inside the container. If the item is an arrow, we return
+  <code>sum</code> plus the item's amount. Otherwise, we return <code>sum</code>
+  as is.
+</p>
+
+<div class="doc-guide-pre"><pre>
+var total = array{ 1, 5, 12, 4 }
+  .reduce( @( sum, element ) {
+    return sum + element
+  });
+</pre></div>
+
+
+<p>
+  Here, reduce calculates the sum of the elements. Since no initial value is
+  provided, the first element in the array is used as the initial value for
+  <code>sum</code>. The second element is passed as <code>element</code>. The
+  function returns the sum of the two elements. This sum is then used as the
+  new <code>sum</code> for the next iteration, and so on.
+</p>
+
+<h4><b>Advanced Techniques</b></h4>
+<p>
+  Each of the functional array methods receive two additional arguments: the
+  index of the current element and the array itself. This allows you to write more
+  complex functions that depend on the position of the element in the array or the
+  array itself.
+</p>
+
+<div class="doc-guide-pre"><pre>
+var players_with_ranking := "".join(
+  EnumerateOnlinePlayers()
+    .map( @( player, index, arr ) {
+      return $"{index} / {arr.size()} -> {player.name}";
+    })
+);
+</pre></div>
+
+<p>
+  This example uses <code>map</code> to create a new array of strings, each
+  containing a player's name and their position in the array. Since the original
+  array is passed as a parameter (as <code>arr</code>), you do not need to call
+  <code>EnumerateOnlinePlayers()</code> again to find their position!
+</p>
+
+<br/>
+<br/>
+
+<!-- ====================================================================== -->
 <h3><a name="appX">Appendix X: Revision History</a></h3>
 <br/>
 
@@ -2921,4 +3085,10 @@ Cleaned HTML code. - Bodom</p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Interpolated Strings by Kevin<br>
 <p>v0.11: 14/03/2020<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Conditional Operator, Operator Precendences by Kevin<br>
+</p>
+<p>v0.12: 29/07/2024<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Function Expressions by Kevin<br>
+</p>
+<p>v0.13: 02/08/2024<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Functional Programming with Arrays by Kevin<br>
 </p>
