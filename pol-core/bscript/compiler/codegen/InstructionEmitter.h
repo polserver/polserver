@@ -60,7 +60,8 @@ public:
   void assign_subscript_consume();
   void assign_subscript();
   void assign_multisubscript( unsigned indexes );
-  void assign_variable( const Variable& );
+  void assign_variable( const Variable&, VariableIndex function_params_count,
+                        VariableIndex function_capture_count );
   void basic_for_init( FlowControlLabel& );
   void basic_for_next( FlowControlLabel& );
   void binary_operator( BTokenId token_id );

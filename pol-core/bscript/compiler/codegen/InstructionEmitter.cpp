@@ -133,10 +133,38 @@ void InstructionEmitter::assign_multisubscript( unsigned indexes )
   emit_token( INS_MULTISUBSCRIPT_ASSIGN, TYP_UNARY_OPERATOR, indexes );
 }
 
-void InstructionEmitter::assign_variable( const Variable& v )
+void InstructionEmitter::assign_variable( const Variable& v, VariableIndex function_params_count,
+                                          VariableIndex function_capture_count )
 {
-  auto token_id = v.scope == VariableScope::Global ? INS_ASSIGN_GLOBALVAR : INS_ASSIGN_LOCALVAR;
-  emit_token( token_id, TYP_UNARY_OPERATOR, v.index );
+  BTokenId token_id;
+  unsigned offset;
+
+  if ( v.scope == VariableScope::Capture )
+  {
+    token_id = INS_ASSIGN_LOCALVAR;
+
+    offset = v.index + function_params_count;
+  }
+  else if ( v.scope == VariableScope::Local )
+  {
+    token_id = INS_ASSIGN_LOCALVAR;
+
+    if ( v.index >= function_params_count )
+    {
+      offset = v.index + function_capture_count;
+    }
+    else
+    {
+      offset = v.index;
+    }
+  }
+  else
+  {
+    token_id = INS_ASSIGN_GLOBALVAR;
+    offset = v.index;
+  }
+
+  emit_token( token_id, TYP_UNARY_OPERATOR, offset );
 }
 
 void InstructionEmitter::basic_for_init( FlowControlLabel& label )
