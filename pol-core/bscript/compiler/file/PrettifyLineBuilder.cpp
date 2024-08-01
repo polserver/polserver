@@ -141,8 +141,8 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
   mergeComments();
 
   // fill lines with final strings splitted at breakpoints
-  // <splitted string, forcenewline, groupid>
-  std::vector<std::tuple<std::string, bool, size_t, size_t>> lines;
+  // <splitted string, groupid, firstgroup, style>
+  std::vector<std::tuple<std::string, size_t, size_t, int>> lines;
   {
     std::string line;
     size_t firstgroup = 0;
@@ -164,8 +164,8 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
       }
       if ( _line_parts[i].style & FmtToken::FORCED_BREAK )
       {
-        lines.emplace_back(
-            std::make_tuple( std::move( line ), true, _line_parts[i].group, firstgroup ) );
+        lines.emplace_back( std::make_tuple( std::move( line ), _line_parts[i].group, firstgroup,
+                                             _line_parts[i].style ) );
         line.clear();
       }
       // start a new line if breakpoint
@@ -196,34 +196,40 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
         }
         if ( skip )
           continue;
-        lines.emplace_back(
-            std::make_tuple( std::move( line ), false, _line_parts[i].group, firstgroup ) );
+        lines.emplace_back( std::make_tuple( std::move( line ), _line_parts[i].group, firstgroup,
+                                             _line_parts[i].style ) );
         line.clear();
       }
     }
     // add remainings
     if ( !line.empty() )
     {
-      lines.emplace_back( std::make_tuple( std::move( line ), false, _line_parts.back().group,
-                                           _line_parts.back().group ) );
+      lines.emplace_back( std::make_tuple( std::move( line ), _line_parts.back().group,
+                                           _line_parts.back().group, _line_parts.back().style ) );
       line.clear();
     }
   }
 #ifdef DEBUG_FORMAT_BREAK
   INFO_PRINTLN( "BREAK " );
-  for ( auto& [l, forced, group, firstgroup] : lines )
-    INFO_PRINTLN( "\"{}\" {}-{}", l, group, firstgroup );
+  for ( auto& [l, group, firstgroup, style] : lines )
+    INFO_PRINTLN( "\"{}\" {}-{} ->{}", l, group, firstgroup, style );
 #endif
   // add newline from original sourcecode
   addEmptyLines( _line_parts.front().pos.line_number );
 
-  // sum up linelength, are groups inside
+  // sum up linelength, are groups inside or preferred breaks
   bool groups = false;
+  bool has_preferred = false;
+  bool has_preferred_logical = false;
   size_t linelength = 0;
-  for ( auto& [l, forced, group, firstgroup] : lines )
+  for ( auto& [l, group, firstgroup, style] : lines )
   {
     if ( group != 0 )
       groups = true;
+    if ( style & FmtToken::PREFERRED_BREAK )
+      has_preferred = true;
+    if ( style & FmtToken::PREFERRED_BREAK_LOGICAL )
+      has_preferred_logical = true;
     linelength += l.size();
   }
 
@@ -238,9 +244,9 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
     auto ident = identSpacing();
     line = ident;
     bool groupdiffered = false;
-    for ( auto& [l, forced, group, firstgroup] : lines )
+    for ( auto& [l, group, firstgroup, style] : lines )
     {
-      if ( forced )
+      if ( style & FmtToken::FORCED_BREAK )
       {
         line += l;
         stripline( line );
@@ -336,27 +342,88 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
   }
   else  // split based on parts
   {
-    // build final lines
-    size_t alignmentspace = 0;
-    for ( auto& [l, forced, group, firstgroup] : lines )
+    // with preferred breaks
+    if ( has_preferred || has_preferred_logical )
     {
-      // following lines need to be aligned
-      if ( line.empty() && alignmentspace )
-        line = alignmentSpacing( alignmentspace );
-      // first breakpoint defines the alignment and add initial ident level
-      if ( !alignmentspace )
+      // first join parts until a forced/preferred break
+      size_t alignmentspace = 0;
+      std::vector<std::pair<std::string, int>> parts;
+      std::string tmp;
+      // if breaks exists from logical "and/or" we only split based on them
+      // in a long if-statement we want to break line on the logical points and not mixed with
+      // commas from functions
+      int breakflag =
+          has_preferred_logical ? FmtToken::PREFERRED_BREAK_LOGICAL : FmtToken::PREFERRED_BREAK;
+      for ( auto& [l, group, firstgroup, style] : lines )
       {
-        auto ident = identSpacing();
-        alignmentspace = l.size() + ident.size();
-        line += ident;
+        if ( !alignmentspace )
+        {
+          auto ident = identSpacing();
+          alignmentspace = l.size() + ident.size();
+          line += ident;
+          parts.push_back( { l, FmtToken::NONE } );
+          continue;
+        }
+        tmp += l;
+        if ( ( style & FmtToken::FORCED_BREAK ) || ( style & breakflag ) )
+        {
+          parts.push_back( { std::move( tmp ), style } );
+          tmp.clear();
+        }
       }
-      line += l;
-      // linewidth reached add current line, start a new one
-      if ( line.size() > compilercfg.FormatterLineWidth || forced )
+      if ( !tmp.empty() )
+        parts.push_back( { tmp, FmtToken::NONE } );
+      // now build the actual line(s)
+      bool alignpart = false;
+      for ( auto& [l, style] : parts )
       {
-        stripline( line );
-        _lines.emplace_back( std::move( line ) );
-        line.clear();
+#ifdef DEBUG_FORMAT_BREAK
+        INFO_PRINTLN( "'{}'{} -{} FILTERED", l, l.size(), style );
+#endif
+        if ( line.empty() && alignmentspace && alignpart )
+          line = alignmentSpacing( alignmentspace );
+        alignpart = true;  // otherwise first part would get spacing
+        // with a margin of 50% start a new line before
+        if ( ( line.size() + ( l.size() / 2 ) ) > compilercfg.FormatterLineWidth )
+        {
+          stripline( line );
+          _lines.emplace_back( std::move( line ) );
+          line = alignmentSpacing( alignmentspace );
+        }
+        line += l;
+        // linewidth reached add current line, start a new one
+        if ( line.size() > compilercfg.FormatterLineWidth || style & FmtToken::FORCED_BREAK )
+        {
+          stripline( line );
+          _lines.emplace_back( std::move( line ) );
+          line.clear();
+        }
+      }
+    }
+    else  // simple splitting
+    {
+      // build final lines
+      size_t alignmentspace = 0;
+      for ( auto& [l, group, firstgroup, style] : lines )
+      {
+        // following lines need to be aligned
+        if ( line.empty() && alignmentspace )
+          line = alignmentSpacing( alignmentspace );
+        // first breakpoint defines the alignment and add initial ident level
+        if ( !alignmentspace )
+        {
+          auto ident = identSpacing();
+          alignmentspace = l.size() + ident.size();
+          line += ident;
+        }
+        line += l;
+        // linewidth reached add current line, start a new one
+        if ( line.size() > compilercfg.FormatterLineWidth || style & FmtToken::FORCED_BREAK )
+        {
+          stripline( line );
+          _lines.emplace_back( std::move( line ) );
+          line.clear();
+        }
       }
     }
   }

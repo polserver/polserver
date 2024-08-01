@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+07-31-2024 Turley:
+ Improved: EScript ECompile Formatter: formatting of if statements and function parameters
 07-29-2024 Kevin:
     Added: Compiler support for function expressions via syntax `@(param1, param2, ..., paramN) { ... }`.
            For example, to get all hidden online players:
