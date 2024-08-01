@@ -7,7 +7,7 @@
 6: 1 (integer) offset=0x2
 7: create-functor instructions=12
     8: pop param 'b'
-    9: pop param 'a'
+    9: pop param byref 'a'
     10: declare local #2
     11: # (consume)
     12: local variable #1

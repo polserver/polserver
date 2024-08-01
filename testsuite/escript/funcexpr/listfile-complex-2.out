@@ -11,8 +11,8 @@
 10: 2 (integer) offset=0x40
 11: 0 (integer) offset=0x2
 12: create-functor instructions=65
-    13: pop param 'b'
-    14: pop param 'a'
+    13: pop param byref 'b'
+    14: pop param byref 'a'
     15: local variable #0
     16: # (consume)
     17: local variable #1
@@ -20,15 +20,15 @@
     19: 1 (integer) offset=0xa
     20: create-functor instructions=54
         21: pop param 'c'
-        22: pop param 'a'
+        22: pop param byref 'a'
         23: local variable #1
         24: local variable #0
         25: 2 (integer) offset=0x30
         26: 1 (integer) offset=0x10
         27: create-functor instructions=40
             28: pop param 'b'
-            29: pop param 'a'
-            30: pop param 'c'
+            29: pop param byref 'a'
+            30: pop param byref 'c'
             31: local variable #1
             32: # (consume)
             33: local variable #2
@@ -39,7 +39,7 @@
             38: 1 (integer) offset=0x28
             39: 0 (integer) offset=0x14
             40: create-functor instructions=24
-                41: pop param 'a'
+                41: pop param byref 'a'
                 42: local variable #0
                 43: # (consume)
                 44: declare local #0
@@ -50,8 +50,8 @@
                 49: 1 (integer) offset=0x18
                 50: create-functor instructions=11
                     51: pop param 'c'
-                    52: pop param 'a'
-                    53: pop param 'b'
+                    52: pop param byref 'a'
+                    53: pop param byref 'b'
                     54: local variable #1
                     55: # (consume)
                     56: local variable #2

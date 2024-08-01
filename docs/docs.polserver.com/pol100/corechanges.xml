@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-31-2024</datemodified>
+		<datemodified>08-01-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-01-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Resolved an issue where function expression captures were not being captured by reference.</change>
+		</entry>
 		<entry>
 			<date>07-31-2024</date>
 			<author>Turley:</author>
