@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-01-2024 Kevin:
+    Fixed: Resolved an issue where function expression captures were not being captured by reference.
 07-31-2024 Turley:
  Improved: EScript ECompile Formatter: formatting of if statements and function parameters
 07-29-2024 Kevin:
