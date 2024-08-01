@@ -21,15 +21,15 @@
 20: 1 (integer) offset=0x1a
 21: create-functor instructions=16
     22: pop param 'a'
-    23: pop param 'f'
+    23: pop param byref 'f'
     24: local variable #1
     25: local variable #0
     26: 2 (integer) offset=0x26
     27: 1 (integer) offset=0x20
     28: create-functor instructions=8
         29: pop param 'b'
-        30: pop param 'f'
-        31: pop param 'a'
+        30: pop param byref 'f'
+        31: pop param byref 'a'
         32: local variable #1
         33: local variable #2
         34: local variable #0

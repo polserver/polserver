@@ -1,0 +1,11 @@
+// Captures itself
+var arr := array{};
+var push := @( n ) {
+  print( arr );
+  arr.append( n );
+  print( arr );
+};
+
+print( arr );
+push( 5 );
+print( arr );

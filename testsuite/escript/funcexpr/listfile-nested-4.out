@@ -6,22 +6,22 @@
 5: 1 (integer) offset=0x30
 6: 0 (integer) offset=0x2
 7: create-functor instructions=35
-    8: pop param 'a'
+    8: pop param byref 'a'
     9: local variable #0
     10: 1 (integer) offset=0x28
     11: 0 (integer) offset=0x8
     12: create-functor instructions=25
-        13: pop param 'a'
+        13: pop param byref 'a'
         14: local variable #0
         15: 1 (integer) offset=0x20
         16: 0 (integer) offset=0xc
         17: create-functor instructions=15
-            18: pop param 'a'
+            18: pop param byref 'a'
             19: local variable #0
             20: 1 (integer) offset=0x18
             21: 0 (integer) offset=0x10
             22: create-functor instructions=5
-                23: pop param 'a'
+                23: pop param byref 'a'
                 24: local variable #0
                 25: # (consume)
                 26: 0 (integer) offset=0x14
