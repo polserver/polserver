@@ -727,7 +727,7 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   // Pop caputured variables
   for ( const auto& variable : user_function.capture_variable_scope_info.variables )
   {
-    emit.pop_param( variable->name );
+    emit.pop_param_byref( variable->name );
   }
 
   user_function.body().accept( *this );
