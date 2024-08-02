@@ -244,7 +244,7 @@ functionParameterList
     ;
 
 functionParameter
-    : BYREF? UNUSED? IDENTIFIER (':=' expression)?
+    : BYREF? UNUSED? IDENTIFIER ELLIPSIS? (':=' expression)?
     ;
 
 // EXPRESSIONS
