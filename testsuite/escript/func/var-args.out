@@ -1,0 +1,55 @@
+sum of {  }
+sum of 0 + {  }
+sum of 0 + 1 + {  }
+-
+sum of { 0 }
+sum of 0 + { 1 }
+sum of 0 + 1 + { 2 }
+-
+sum of { 0, 1, 2 }
+sum of 0 + { 1, 2, 3 }
+sum of 0 + 1 + { 2, 3, 4 }
+-
+sum of {  }
+sum of 0 + {  }
+sum of 0 + 1 + {  }
+-
+sum of { 0 }
+sum of 0 + { 1 }
+sum of 0 + 1 + { 2 }
+-
+sum of { 0, 1, 2 }
+sum of 0 + { 1, 2, 3 }
+sum of 0 + 1 + { 2, 3, 4 }
+-
+sum of {  }
+sum of 0 + {  }
+sum of 0 + 1 + {  }
+-
+sum of { 0 }
+sum of 0 + { 1 }
+sum of 0 + 1 + { 2 }
+-
+sum of { 0, 1, 2 }
+sum of 0 + { 1, 2, 3 }
+sum of 0 + 1 + { 2, 3, 4 }
+-
+1
+1
+1
+1
+1
+1
+1
+1
+1
+-
+1
+1
+1
+1
+1
+1
+1
+1
+1

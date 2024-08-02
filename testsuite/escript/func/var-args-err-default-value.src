@@ -1,0 +1,5 @@
+function sum( args ... := 1 )
+  return $"sum of {args}";
+endfunction
+
+sum();
