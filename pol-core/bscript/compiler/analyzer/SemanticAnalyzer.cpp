@@ -1,6 +1,7 @@
 #include "SemanticAnalyzer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <list>
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Constants.h"
@@ -322,10 +323,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   typedef std::map<std::string, std::unique_ptr<Expression>> ArgumentList;
   ArgumentList arguments_passed;
 
+  typedef std::list<std::unique_ptr<Expression>> VariadicArguments;
+  VariadicArguments variadic_arguments;
+
   bool any_named = false;
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
   auto parameters = fc.parameters();
+  auto is_callee_variadic = parameters.size() && parameters.back().get().rest;
 
   for ( auto& arg_unique_ptr : arguments )
   {
@@ -340,14 +345,28 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         return;
       }
 
+      // Too many arguments passed?
       if ( arguments_passed.size() >= parameters.size() )
       {
-        report.error( arg, "In call to '{}': Too many arguments passed.  Expected {}, got {}.",
-                      fc.method_name, parameters.size(), arguments.size() );
-        continue;
-      }
+        // Allowed if variadic
+        if ( is_callee_variadic )
+        {
+          variadic_arguments.push_back( arg.take_expression() );
 
-      arg_name = parameters.at( arguments_passed.size() ).get().name;
+          // Do not add to `arguments_passed`, so continue.
+          continue;
+        }
+        else
+        {
+          report.error( arg, "In call to '{}': Too many arguments passed.  Expected {}, got {}.",
+                        fc.method_name, parameters.size(), arguments.size() );
+          continue;
+        }
+      }
+      else
+      {
+        arg_name = parameters.at( arguments_passed.size() ).get().name;
+      }
     }
     else
     {
@@ -388,7 +407,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
           return;
         }
       }
-      else
+      else if ( !param.rest )
       {
         report.error( fc,
                       "In call to '{}': Parameter '{}' was not passed, and there is no default.",
@@ -403,15 +422,26 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     }
   }
 
-  for ( auto& unused_argument : arguments_passed )
+  if ( is_callee_variadic )
   {
-    report.error(
-        *unused_argument.second,
-        "In call to '{}': Parameter '{}' passed by name, but the function has no such parameter.",
-        fc.method_name, unused_argument.first );
+    // Push the leftover arguments into the call.
+    for ( auto& arg : variadic_arguments )
+    {
+      final_arguments.push_back( std::move( arg ) );
+    }
   }
-  if ( !arguments_passed.empty() || arguments.size() > parameters.size() )
-    return;
+  else
+  {
+    for ( auto& unused_argument : arguments_passed )
+    {
+      report.error(
+          *unused_argument.second,
+          "In call to '{}': Parameter '{}' passed by name, but the function has no such parameter.",
+          fc.method_name, unused_argument.first );
+    }
+    if ( !arguments_passed.empty() || arguments.size() > parameters.size() )
+      return;
+  }
 
   fc.children = std::move( final_arguments );
 
@@ -421,9 +451,23 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
 void SemanticAnalyzer::visit_function_parameter_list( FunctionParameterList& node )
 {
+  // A rest parameter can only be the last parameter in the list. Since we
+  // iterate in reverse, start at `true` and set to `false` after first
+  // iteration.
+  bool can_have_rest_parameter = true;
+
   for ( auto& child : boost::adaptors::reverse( node.children ) )
   {
     child->accept( *this );
+
+    bool has_rest_parameter = static_cast<FunctionParameterDeclaration*>( child.get() )->rest;
+
+    if ( has_rest_parameter && !can_have_rest_parameter )
+    {
+      report.error( *child, "Rest parameter must be the last parameter in the list." );
+    }
+
+    can_have_rest_parameter = false;
   }
 }
 
@@ -448,6 +492,13 @@ void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDe
     report.error( node, "Parameter '{}' already defined.", node.name );
     return;
   }
+
+  if ( node.rest && node.default_value() )
+  {
+    report.error( node, "Rest parameter '{}' cannot have a default value.", node.name );
+    return;
+  }
+
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
 
   if ( report_function_name_conflict( node.source_location, node.name, "function parameter" ) )
