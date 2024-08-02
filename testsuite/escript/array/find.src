@@ -1,0 +1,28 @@
+print( array{ 1, 2, 3, 4, 5 }.find( @Always ) );
+print( array{ 1, 2, 3, 4, 5 }.find( @{ return 0; } ) ); // Never
+print( array{ 1, 2, 3, 4, 5 }.find( @( element ) { return ( element % 2 ) == 0; })); // IfEven
+print( array{ 1, 2, 3, 4, 5 }.find( @IfHighestIndex ) );
+
+print( array{}.find( @DoNotCall ) ); // Returns new, empty array
+
+// Test with a name_arr'd array
+var arr := array{ "hello" };
+arr.+name := "hello";
+print( arr.map( @DoNotCall ) );
+
+// Errors
+print( array{}.find() );
+print( array{}.find( "foo" ) );
+
+
+function Always()
+  return true;
+endfunction
+
+function IfHighestIndex( unused element, index, byref arr )
+  return index == arr.size();
+endfunction
+
+function DoNotCall()
+  exit;
+endfunction

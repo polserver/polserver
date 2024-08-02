@@ -1699,8 +1699,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       //   `ex.withContinuation`.
       // - Return something else (in this case, the filtered array) to provide
       //   that value back to the script.
-      auto callback = [this, filteredRef = BObjectRef( new ObjArray ), processed = 1,
-                       elementRef = BObjectRef( new BObject( args[0]->impptr()->copy() ) ),
+      auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
+                       filteredRef = BObjectRef( new ObjArray ),
                        initialSize = static_cast<int>( ref_arr.size() )](
                           Executor& ex, BContinuation* continuation,
                           BObjectRef result ) mutable -> BObjectImp*
@@ -1713,6 +1713,13 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         {
           filtered->ref_arr.push_back( BObjectRef( elementRef->impptr() ) );
         }
+
+        // If thisArray was modified for some reason to no longer be an array,
+        // return the filtered array.
+        if ( !thisArray->isa( OTArray ) )
+          return filtered;
+
+        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
 
         // If the processed index is the last element, return the filtered
         // array. Also check if the processed index is greater than the initial
@@ -1730,9 +1737,9 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
           BObjectRefVec args;
           args.push_back( ref_arr[processed - 1] );
           args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
-          args.push_back( BObjectRef( new BObject( this ) ) );
+          args.push_back( thisArray );
 
-          elementRef->setimp( args[0]->impptr()->copy() );
+          elementRef = args[0];
 
           // Return this continuation with the new arguments.
           return ex.withContinuation( continuation, std::move( args ) );
@@ -1740,6 +1747,275 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       };
 
       // Create a new continuation for a user function call.
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
+  case MTH_MAP:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      if ( ref_arr.empty() )
+        return new ObjArray();
+
+      // Arguments for user function call.
+      // - the element
+      // - the index of the element
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( ref_arr.front() );
+      args.push_back( BObjectRef( new BLong( 1 ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
+                       mappedRef = BObjectRef( new ObjArray ),
+                       initialSize = static_cast<int>( ref_arr.size() )](
+                          Executor& ex, BContinuation* continuation,
+                          BObjectRef result ) mutable -> BObjectImp*
+      {
+        auto mapped = static_cast<ObjArray*>( mappedRef->impptr() );
+
+        mapped->ref_arr.push_back( BObjectRef( result->impptr() ) );
+
+        if ( !thisArray->isa( OTArray ) )
+          return mapped;
+
+        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return mapped;
+        }
+        else
+        {
+          // Increment the processed counter.
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( thisArray );
+
+          elementRef = args[0];
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
+  case MTH_REDUCE:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* accumulator;
+      int processed;
+
+      // If an initial accumulator value was passed in, use it. Otherwise, use
+      // the first element of the array, erroring if the array is empty.
+      if ( ex.numParams() > 1 )
+      {
+        accumulator = ex.getParamImp( 1 );
+        processed = 1;
+      }
+      else if ( ref_arr.empty() )
+      {
+        return new BError( "Reduce of empty array with no initial value" );
+      }
+      else
+      {
+        accumulator = ref_arr[0]->impptr();
+        processed = 2;
+      }
+
+      // Return the accumulator if there is no more to process, eg:
+      // {}.reduce(@{}, "accum") or {"accum"}.reduce(@{})
+      if ( processed > static_cast<int>( ref_arr.size() ) )
+      {
+        return accumulator;
+      }
+
+      // Arguments for user function call.
+      // - accumulator
+      // - current value
+      // - current index
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( BObjectRef( accumulator ) );
+      args.push_back( BObjectRef( ref_arr[processed - 1] ) );
+      args.push_back( BObjectRef( new BLong( processed ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback = [thisArray = args[3], processed = processed,
+                       initialSize = static_cast<int>( ref_arr.size() )](
+                          Executor& ex, BContinuation* continuation,
+                          BObjectRef result /* accumulator */ ) mutable -> BObjectImp*
+      {
+        if ( !thisArray->isa( OTArray ) )
+          return result->impptr();
+
+        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return result->impptr();
+        }
+        else
+        {
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( result );
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( thisArray );
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
+  case MTH_FIND:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      if ( ref_arr.empty() )
+        return new ObjArray();
+
+      // Arguments for user function call.
+      // - the element
+      // - the index of the element
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( ref_arr.front() );
+      args.push_back( BObjectRef( new BLong( 1 ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
+                       initialSize = static_cast<int>( ref_arr.size() )](
+                          Executor& ex, BContinuation* continuation,
+                          BObjectRef result ) mutable -> BObjectImp*
+      {
+        if ( result->isTrue() )
+        {
+          return elementRef->impptr();
+        }
+
+        if ( !thisArray->isa( OTArray ) )
+          return UninitObject::create();
+
+        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return UninitObject::create();
+        }
+        else
+        {
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( thisArray );
+
+          elementRef = args[0];
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+                                  std::move( args ) );
+    }
+    break;
+
+  case MTH_FINDINDEX:
+    if ( name_arr.empty() )
+    {
+      if ( ex.numParams() < 1 )
+        return new BError( "Invalid parameter type" );
+
+      BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTFuncRef );
+
+      if ( !param0 )
+        return new BError( "Invalid parameter type" );
+
+      if ( ref_arr.empty() )
+        return new BLong( 0 );
+
+      // Arguments for user function call.
+      // - the element
+      // - the index of the element
+      // - the array itself
+      BObjectRefVec args;
+      args.push_back( ref_arr.front() );
+      args.push_back( BObjectRef( new BLong( 1 ) ) );
+      args.push_back( BObjectRef( this ) );
+
+      auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
+                       initialSize = static_cast<int>( ref_arr.size() )](
+                          Executor& ex, BContinuation* continuation,
+                          BObjectRef result ) mutable -> BObjectImp*
+      {
+        if ( result->isTrue() )
+        {
+          return new BLong( processed );
+        }
+
+        if ( !thisArray->isa( OTArray ) )
+          return new BLong( 0 );
+
+        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+
+        if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
+        {
+          return new BLong( 0 );
+        }
+        else
+        {
+          ++processed;
+
+          BObjectRefVec args;
+          args.push_back( ref_arr[processed - 1] );
+          args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
+          args.push_back( thisArray );
+
+          elementRef->setimp( args[0]->impptr() );
+
+          return ex.withContinuation( continuation, std::move( args ) );
+        }
+      };
+
       return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
                                   std::move( args ) );
     }

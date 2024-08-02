@@ -1,0 +1,12 @@
+{ 1, 2, 3, 4, 5 }
+{ 2, 4 }
+{ 1, 3, 5 }
+{ 1, 2, 3, 4, 5 }
+{ 1 }
+{ 200, 2000, 20000, 200000, 2000000 }
+{ 200, 2000, 20000, 200000, 2000000, 100000 }
+{ changed, changed, changed, changed, changed }
+{  }
+<uninitialized object>
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Invalid parameter type" }

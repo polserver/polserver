@@ -1,0 +1,27 @@
+print( array{ "a", "b", "c", "D", "e" }.findIndex( @Always ) );
+print( array{ "a", "b", "c", "D", "e" }.findIndex( @{ return 0; } ) ); // Never
+print( array{ "a", "b", "c", "D", "e" }.findIndex( @( element ) { return element == "D"; })); // IfEquals
+print( array{ "a", "b", "c", "D", "e" }.findIndex( @IfHighestIndex ) );
+
+print( array{}.findIndex( @DoNotCall ) ); // Returns 0
+
+// Test with a name_arr'd array
+var arr := array{ "hello" };
+arr.+name := "hello";
+print( arr.findIndex( @DoNotCall ) );
+
+// Errors
+print( array{}.findIndex() );
+print( array{}.findIndex( "foo" ) );
+
+function Always()
+  return true;
+endfunction
+
+function IfHighestIndex( unused element, index, byref arr )
+  return index == arr.size();
+endfunction
+
+function DoNotCall()
+  exit;
+endfunction

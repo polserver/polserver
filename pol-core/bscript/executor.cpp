@@ -2912,8 +2912,11 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     auto result = ValueStack.back();
     ValueStack.pop_back();
 
-    auto* imp = static_cast<BContinuation*>( continuation->impptr() )
-                    ->continueWith( *this, std::move( result ) );
+    // Do not move the `result` object, as the continuation callback may return
+    // the result's BObjectImp*. If we move `result`, the BObjectImp* will be
+    // deleted when the callback ends.
+    auto* imp =
+        static_cast<BContinuation*>( continuation->impptr() )->continueWith( *this, result );
 
     // If the the continuation callback returned a continuation, handle the jump.
     if ( imp && imp->isa( BObjectImp::OTContinuation ) )

@@ -1,0 +1,11 @@
+15
+0
+1
+-9
+error{ errortext = "Reduce of empty array with no initial value" }
+3.25
+36
+<uninitialized object>
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Invalid parameter type" }
+Finished!

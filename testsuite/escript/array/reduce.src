@@ -1,0 +1,48 @@
+// Test matrix:
+// Array length (=0, =1, >1) x Accumulator (none, with) = 6 prints
+
+// >1 length, no accumulator
+print( array{ 1, 2, 3, 4, 5 }.reduce( @Sum ) ); // 15
+
+// >1 length, with accumulator
+print( array{ 1, 2, 3, 4, 5 }.reduce( @Sum, -15 ) ); // 0
+
+// =1 length, no accumulator
+print( array{ 1 }.reduce( @DoNotCall ) ); // 1
+
+// =1 length, with accumulator
+print( array{ 1 }.reduce( @Sum, -10 ) ); // -9
+
+// =0 length, no accumulator
+print( array{}.reduce( @DoNotCall ) ); // Returns an error
+
+// =0 length, with accumulator
+print( array{}.reduce( @DoNotCall, 3.25 ) ); // 3.25
+
+// Final test uses all callback parameters
+// (0+4+1+4) -> (9+5+2+5) -> (21+6+3+6) = 36
+print( array{ 4, 5, 6 }.reduce( @UsesAllParameters, 0 ) );
+
+// Test with a name_arr'd array
+var arr := array{ "hello" };
+arr.+name := "hello";
+print( arr.reduce( @DoNotCall ) );
+
+// Errors
+print( array{}.reduce() );
+print( array{}.reduce( "foo" ) );
+
+print( "Finished!" );
+
+function Sum( accumulator, currentValue )
+  return accumulator + currentValue;
+endfunction
+
+function UsesAllParameters( accumulator, currentValue, currentIndex, arr )
+  return accumulator + currentValue + currentIndex + arr[currentIndex];
+endfunction
+
+// If this function gets called, script will exit, without printing the final "Finished!"
+function DoNotCall()
+  exit;
+endfunction

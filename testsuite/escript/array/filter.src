@@ -1,10 +1,26 @@
+var arr;
 print( array{ 1, 2, 3, 4, 5 }.filter( @Always ) );
 print( array{ 1, 2, 3, 4, 5 }.filter( @IfEven ) );
 print( array{ 1, 2, 3, 4, 5 }.filter( @IfOddIndex ) );
 print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArray ) );
 print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArrayByrefShrink ) );
-print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyArrayByrefAdd ) );
+arr := array{ 1, 2, 3, 4, 5 };
+print( arr.filter( @ModifyArrayByrefAdd ) );
+print( arr );
 print( array{ 1, 2, 3, 4, 5 }.filter( @ModifyElementByref ) );
+
+
+print( array{}.find( @DoNotCall ) ); // Returns new, empty array
+
+// Test with a name_arr'd array
+arr := array{ "hello" };
+arr.+name := "hello";
+print( arr.map( @DoNotCall ) );
+
+// Errors
+print( array{}.filter() );
+print( array{}.filter( "foo" ) );
+
 
 function Always()
   return true;
@@ -24,9 +40,9 @@ function ModifyArrayByrefShrink( unused element, unused index, byref arr )
   return true;
 endfunction
 
-// Changing the byref array will affect the original array that is being
-// filtered. This function modifies the array length, but the filter should stop
-// at the original index. Modifying the element via array access also does nothing to the returned filter array.
+// Elements are modified by changing arr[index]. More elements are added to the
+// array as well. The filtered array will stop at the original size (5) but the
+// array filter was called upon will have been modified (6).
 function ModifyArrayByrefAdd( element, index, byref arr )
   arr[index] := element * 200;
   arr[index + 1] := element * 10;
@@ -43,4 +59,8 @@ endfunction
 function ModifyElementByref( byref element )
   element := "changed";
   return true;
+endfunction
+
+function DoNotCall()
+  exit;
 endfunction

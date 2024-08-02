@@ -186,7 +186,10 @@ enum MethodID
   MTH_SETUTF8STRING,
   MTH_SET_PILOT,  // 155
   MTH_SET_ALTERNATE_MULTIID,
-  MTH_FILTER
+  MTH_FILTER,
+  MTH_REDUCE,
+  MTH_MAP,
+  MTH_FINDINDEX, // 160
 };
 
 inline auto format_as( MethodID id )
