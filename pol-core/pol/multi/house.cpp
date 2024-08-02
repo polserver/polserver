@@ -891,7 +891,7 @@ bool statics_cause_problems( const Core::Pos4d& p1, const Core::Pos4d& p2,
     if ( !p1.realm()->walkheight( p, p1.z(), &newz, &multi, &item, true, Plib::MOVEMODE_LAND,
                                   nullptr, ignore_existing ) )
     {
-      if ( multi != ignore_existing )
+      if ( ignore_existing != nullptr && multi != ignore_existing )
       {
         POLLOGLN( "Refusing to place house at {},{}: can't stand there", p, p1.z() );
         return true;
