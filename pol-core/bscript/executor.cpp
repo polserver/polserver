@@ -2642,10 +2642,26 @@ void Executor::ins_call_method_id( const Instruction& ins )
     {
       continuation = static_cast<BContinuation*>( imp );
 
-      cleanParams();
-      nparams = static_cast<unsigned int>( continuation->numParams() );
+      // Set nparams, so the next loop iteration's `getParams` will know how many arguments to
+      // move.
+      nparams = continuation->args.size();
 
-      printStack( "Prior to funcref.call()" );
+      // Add function reference to stack
+      ValueStack.push_back( BObjectRef( continuation->func() ) );
+
+      // Move all arguments to the value stack
+      ValueStack.insert( ValueStack.end(), std::make_move_iterator( continuation->args.begin() ),
+                         std::make_move_iterator( continuation->args.end() ) );
+
+      continuation->args.clear();
+
+      cleanParams();
+
+      printStack( fmt::format(
+          "call_method_id continuation arguments added to ValueStack, prior to getParams({}) and "
+          "funcref.call()",
+          nparams ) );
+
       // Next on the stack is a `FuncRef` that we need to call. We will continue the loop and handle
       // it.
 
@@ -2902,14 +2918,26 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     {
       // Do not delete imp, as the ReturnContext created in `ins_jsr_userfunc`
       // takes ownership.
-      auto cont = static_cast<BContinuation*>( imp );
+      auto continuation = static_cast<BContinuation*>( imp );
+
+      // Add function reference to stack
+      ValueStack.push_back( BObjectRef( new BObject( continuation->func() ) ) );
+
+      // Move all arguments to the fparams stack
+      fparams.insert( fparams.end(), std::make_move_iterator( continuation->args.begin() ),
+                      std::make_move_iterator( continuation->args.end() ) );
+
+      continuation->args.clear();
+
+      printStack(
+          "continuation callback returned a continuation; continuation args added to fparams" );
 
       BObjectRef objref = ValueStack.back();
       auto funcr = objref->impptr<BFunctionRef>();
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
-        call_function_reference( funcr, cont, jmp );
+        call_function_reference( funcr, continuation, jmp );
       }
       else
       {
@@ -3879,9 +3907,6 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
 {
   auto* func = continuation->func();
 
-  // Add function reference to stack
-  ValueStack.push_back( BObjectRef( new BObject( func ) ) );
-
   // Add function arguments to value stack. Add arguments if there are not enough.  Remove if
   // there are too many
   while ( func->numParams() > args.size() )
@@ -3889,14 +3914,11 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
     args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
   }
 
-  // Resize and erase the state in `args` since it was moved above.
-  args.resize( func->numParams() );
+  // Resize args only for non-varadic functions
+  if ( !func->variadic() )
+    args.resize( func->numParams() );
 
-  // Move all arguments to the fparams stack
-  fparams.insert( fparams.end(), std::make_move_iterator( args.begin() ),
-                  std::make_move_iterator( args.end() ) );
-
-  printStack( "End of withContinuation" );
+  continuation->args = std::move( args );
 
   return continuation;
 }
