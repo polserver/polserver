@@ -486,15 +486,36 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       return new BError( "Not enough parameters" );
 
     int multiid;
-    int flags;
+    BObjectImp* multiid_imp = ex.getParamImp( 0 );
 
-    if ( !ex.getParam( 0, multiid ) || !ex.getParam( 1, flags ) )
+    // If passing an integer, it's a multiid and NOT an objtype id
+    if ( multiid_imp->isa( BObjectImp::OTLong ) )
+    {
+      multiid = static_cast<BLong*>( multiid_imp )->value();
+    }
+    // If a string, get the multiid of the itemdesc of the name passed.
+    else if ( multiid_imp->isa( BObjectImp::OTString ) )
+    {
+      const Items::ItemDesc* itemdesc_out;
+      if ( !ex.getObjtypeParam( 0, itemdesc_out ) || itemdesc_out->multiid == 0 )
+      {
+        return new BError( "Invalid parameter type" );
+      }
+      multiid = itemdesc_out->multiid;
+    }
+    else
+    {
+      break;
+    }
+
+    int flags;
+    if ( !ex.getParam( 1, flags ) )
       break;
 
     if ( !MultiDefByMultiIDExists( multiid ) )
     {
       return new Bscript::BError(
-          fmt::format( "Multi definition not found for House, multiid=0x{x}", multiid ) );
+          fmt::format( "Multi definition not found for House, multiid=0x{:x}", multiid ) );
     }
 
     const MultiDef* md = MultiDefByMultiID( multiid );
