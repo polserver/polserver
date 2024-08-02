@@ -206,11 +206,17 @@ public:
   virtual void enterExpressionList(EscriptParser::ExpressionListContext * /*ctx*/) override { }
   virtual void exitExpressionList(EscriptParser::ExpressionListContext * /*ctx*/) override { }
 
+  virtual void enterExpressionListEntry(EscriptParser::ExpressionListEntryContext * /*ctx*/) override { }
+  virtual void exitExpressionListEntry(EscriptParser::ExpressionListEntryContext * /*ctx*/) override { }
+
   virtual void enterExpressionSuffix(EscriptParser::ExpressionSuffixContext * /*ctx*/) override { }
   virtual void exitExpressionSuffix(EscriptParser::ExpressionSuffixContext * /*ctx*/) override { }
 
   virtual void enterIndexingSuffix(EscriptParser::IndexingSuffixContext * /*ctx*/) override { }
   virtual void exitIndexingSuffix(EscriptParser::IndexingSuffixContext * /*ctx*/) override { }
+
+  virtual void enterIndexList(EscriptParser::IndexListContext * /*ctx*/) override { }
+  virtual void exitIndexList(EscriptParser::IndexListContext * /*ctx*/) override { }
 
   virtual void enterNavigationSuffix(EscriptParser::NavigationSuffixContext * /*ctx*/) override { }
   virtual void exitNavigationSuffix(EscriptParser::NavigationSuffixContext * /*ctx*/) override { }

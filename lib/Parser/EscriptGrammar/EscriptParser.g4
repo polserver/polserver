@@ -327,7 +327,11 @@ parExpression
     ;
 
 expressionList
-    : expression (',' expression)*
+    : expressionListEntry (',' expressionListEntry)*
+    ;
+
+expressionListEntry
+    : expression ELLIPSIS?
     ;
 
 expressionSuffix
@@ -338,7 +342,11 @@ expressionSuffix
     ;
 
 indexingSuffix
-    : LBRACK expressionList RBRACK
+    : LBRACK indexList RBRACK
+    ;
+
+indexList
+    : expression (',' expression)*
     ;
 
 navigationSuffix
