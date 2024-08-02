@@ -838,8 +838,8 @@ public:
   virtual size_t sizeEstimate() const override;
   bool validCall( const int id, Executor& ex, Instruction* inst ) const;
   bool validCall( const char* methodname, Executor& ex, Instruction* inst ) const;
-  void setupCall( Executor& );
   size_t numParams() const;
+  bool variadic() const;
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const override;

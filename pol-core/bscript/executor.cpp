@@ -2618,12 +2618,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       Instruction jmp;
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
-        funcr->setupCall( *this );
-
-        // jump to function
-        ins_jsr_userfunc( jmp, continuation );
-        // switch to new block
-        ins_makelocal( jmp );
+        call_function_reference( funcr, continuation, jmp );
         return;
       }
     }
@@ -2704,15 +2699,7 @@ void Executor::ins_call_method( const Instruction& ins )
     Instruction jmp;
     if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
     {
-      // params need to be on the stack, without current objectref
-      ValueStack.pop_back();
-      for ( auto& p : fparams )
-        ValueStack.push_back( p );
-      // jump to function
-      ins_jsr_userfunc( jmp );
-      fparams.clear();
-      // switch to new block
-      ins_makelocal( jmp );
+      call_function_reference( funcr, nullptr, jmp );
       return;
     }
   }
@@ -2922,15 +2909,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
-        // params need to be on the stack, without current objectref
-        ValueStack.pop_back();
-        for ( auto& p : fparams )
-          ValueStack.push_back( p );
-        // jump to function
-        ins_jsr_userfunc( jmp, cont );
-        fparams.clear();
-        // switch to new block
-        ins_makelocal( jmp );
+        call_function_reference( funcr, cont, jmp );
       }
       else
       {
@@ -3498,6 +3477,51 @@ void Executor::show_context( std::string& os, unsigned atPC )
     dbg_get_instruction( i, os );
     os += '\n';
   }
+}
+
+void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* continuation,
+                                        const Instruction& jmp )
+{
+  // params need to be on the stack, without current objectref
+  ValueStack.pop_back();
+
+  // Push captured parameters onto the stack prior to function parameters.
+  for ( auto& p : funcr->captures )
+    ValueStack.push_back( p );
+
+  if ( funcr->variadic() )
+  {
+    passert_always( funcr->numParams() > 0 );
+    auto num_nonrest_args = static_cast<unsigned>( funcr->numParams() - 1 );
+
+    auto rest_arg = std::make_unique<ObjArray>();
+
+    for ( size_t i = 0; i < fparams.size(); ++i )
+    {
+      auto& p = fparams[i];
+
+      if ( i < num_nonrest_args )
+      {
+        ValueStack.push_back( p );
+      }
+      else
+      {
+        rest_arg->ref_arr.push_back( p );
+      }
+    }
+    ValueStack.push_back( BObjectRef( rest_arg.release() ) );
+  }
+  else
+  {
+    for ( auto& p : fparams )
+      ValueStack.push_back( p );
+  }
+
+  // jump to function
+  ins_jsr_userfunc( jmp, continuation );
+  fparams.clear();
+  // switch to new block
+  ins_makelocal( jmp );
 }
 
 bool Executor::exec()

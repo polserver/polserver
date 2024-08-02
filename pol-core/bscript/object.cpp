@@ -2385,49 +2385,14 @@ bool BFunctionRef::validCall( const char* methodname, Executor& ex, Instruction*
   return validCall( objmethod->id, ex, inst );
 }
 
-void BFunctionRef::setupCall( Executor& ex )
-{
-  // params need to be on the stack, without current objectref
-  ex.ValueStack.pop_back();
-
-  // Push captured parameters onto the stack prior to function parameters.
-  for ( auto& p : captures )
-    ex.ValueStack.push_back( p );
-
-  if ( variadic_ )
-  {
-    passert_always( num_params_ > 0 );
-    auto num_nonrest_args = static_cast<unsigned>( num_params_ - 1 );
-
-    auto rest_arg = std::make_unique<ObjArray>();
-
-    for ( size_t i = 0; i < ex.fparams.size(); ++i )
-    {
-      auto& p = ex.fparams[i];
-
-      if ( i < num_nonrest_args )
-      {
-        ex.ValueStack.push_back( p );
-      }
-      else
-      {
-        rest_arg->ref_arr.push_back( p );
-      }
-    }
-    ex.ValueStack.push_back( BObjectRef( rest_arg.release() ) );
-  }
-  else
-  {
-    for ( auto& p : ex.fparams )
-      ex.ValueStack.push_back( p );
-  }
-
-  ex.fparams.clear();
-}
-
 size_t BFunctionRef::numParams() const
 {
   return num_params_;
+}
+
+bool BFunctionRef::variadic() const
+{
+  return variadic_;
 }
 
 BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
