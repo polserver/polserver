@@ -12,9 +12,9 @@ class FunctionParameterDeclaration : public Node
 {
 public:
   FunctionParameterDeclaration( const SourceLocation& source_location, std::string name, bool byref,
-                                bool unused, std::unique_ptr<Expression> default_value );
+                                bool unused, bool rest, std::unique_ptr<Expression> default_value );
   FunctionParameterDeclaration( const SourceLocation& source_location, std::string name, bool byref,
-                                bool unused );
+                                bool unused, bool rest );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
@@ -24,6 +24,7 @@ public:
   const std::string name;
   const bool byref;
   const bool unused;
+  const bool rest;
 };
 
 }  // namespace Pol::Bscript::Compiler

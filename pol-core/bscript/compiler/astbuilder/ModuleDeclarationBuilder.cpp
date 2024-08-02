@@ -29,18 +29,19 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
       std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
       bool byref = false;
       bool unused = false;
+      bool rest = false;
 
       if ( auto expr_ctx = param->expression() )
       {
         auto default_value = expression( expr_ctx );
         parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-            location_for( *param ), std::move( parameter_name ), byref, unused,
+            location_for( *param ), std::move( parameter_name ), byref, unused, rest,
             std::move( default_value ) );
       }
       else
       {
         parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-            location_for( *param ), std::move( parameter_name ), byref, unused );
+            location_for( *param ), std::move( parameter_name ), byref, unused, rest );
       }
       parameters.push_back( std::move( parameter_declaration ) );
     }

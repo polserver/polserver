@@ -47,18 +47,19 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
         std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
         bool byref = param->BYREF() != nullptr;
         bool unused = param->UNUSED() != nullptr;
+        bool rest = param->ELLIPSIS() != nullptr;
 
         if ( auto expr_ctx = param->expression() )
         {
           auto default_value = expression( expr_ctx );
           parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-              location_for( *param ), std::move( parameter_name ), byref, unused,
+              location_for( *param ), std::move( parameter_name ), byref, unused, rest,
               std::move( default_value ) );
         }
         else
         {
           parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-              location_for( *param ), std::move( parameter_name ), byref, unused );
+              location_for( *param ), std::move( parameter_name ), byref, unused, rest );
         }
 
         parameters.push_back( std::move( parameter_declaration ) );

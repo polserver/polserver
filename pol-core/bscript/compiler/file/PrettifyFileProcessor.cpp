@@ -707,6 +707,9 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameter(
     addToken( "unused", unused, FmtToken::SPACE );
   make_identifier( ctx->IDENTIFIER() );
 
+  if ( ctx->ELLIPSIS() )
+    addToken( "...", ctx->ELLIPSIS(), FmtToken::SPACE );
+
   if ( auto expression = ctx->expression() )
   {
     addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
