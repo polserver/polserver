@@ -434,9 +434,12 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
       {
         visit_children( call );
       }
+
+      // Update the debug location to the function call after emitting the
+      // arguments.
+      update_debug_location( call );
     };
 
-    update_debug_location( call );
     if ( auto mf = call.function_link->module_function_declaration() )
     {
       emit_args( *mf );
