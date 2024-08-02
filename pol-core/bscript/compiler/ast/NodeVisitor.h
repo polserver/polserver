@@ -55,6 +55,7 @@ class ProgramParameterDeclaration;
 class ProgramParameterList;
 class RepeatUntilLoop;
 class ReturnStatement;
+class SpreadElement;
 class MemberAssignment;
 class MemberAssignmentByOperator;
 class StringValue;
@@ -122,6 +123,7 @@ public:
   virtual void visit_program_parameter_list( ProgramParameterList& );
   virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
+  virtual void visit_spread_element( SpreadElement& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_interpolate_string( InterpolateString& );
   virtual void visit_format_expression( FormatExpression& );

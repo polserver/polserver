@@ -109,6 +109,7 @@ public:
       EscriptGrammar::EscriptParser::IncludeDeclarationContext* ctx ) override;
   // antlrcpp::Any visitIndexingSuffix(EscriptGrammar::EscriptParser::IndexingSuffixContext *ctx)
   // override;
+  antlrcpp::Any visitIndexList( EscriptGrammar::EscriptParser::IndexListContext* ctx ) override;
   antlrcpp::Any visitIntegerLiteral(
       EscriptGrammar::EscriptParser::IntegerLiteralContext* ctx ) override;
   antlrcpp::Any visitInterpolatedString(

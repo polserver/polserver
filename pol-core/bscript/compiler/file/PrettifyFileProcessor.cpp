@@ -422,6 +422,22 @@ antlrcpp::Any PrettifyFileProcessor::visitExplicitStructInitializer(
 antlrcpp::Any PrettifyFileProcessor::visitExpressionList(
     EscriptParser::ExpressionListContext* ctx )
 {
+  auto args = ctx->expressionListEntry();
+  for ( size_t i = 0; i < args.size(); ++i )
+  {
+    visitExpression( args[i]->expression() );
+
+    if ( args[i]->ELLIPSIS() )
+      addToken( "...", args[i]->ELLIPSIS(), FmtToken::SPACE );
+
+    if ( i < args.size() - 1 )
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
+  }
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitIndexList( EscriptParser::IndexListContext* ctx )
+{
   auto args = ctx->expression();
   for ( size_t i = 0; i < args.size(); ++i )
   {
@@ -534,7 +550,7 @@ antlrcpp::Any PrettifyFileProcessor::expression_suffix(
   {
     visitExpression( expr_ctx );
     addToken( "[", indexing->LBRACK(), FmtToken::ATTACHED );
-    visitExpressionList( indexing->expressionList() );
+    visitIndexList( indexing->indexList() );
     addToken( "]", indexing->RBRACK(), FmtToken::SPACE | FmtToken::ATTACHED );
   }
   else if ( auto member = expr_suffix_ctx->navigationSuffix() )

@@ -1,0 +1,25 @@
+var foo;
+
+function bar( a, b, c, d, unused args ...) endfunction
+function Sleep(unused a) endfunction
+
+// bareArrayInitializer
+{ 1 , 2, foo... };
+
+// functionCallSuffix
+( foo ) ( 1, 2, foo... );
+
+// indexingSuffix -- NOT ALLOWED
+// foo[1, 2, foo...];
+
+// but the indexingSuffix can have children that are spread
+foo[1, "!!!!"];
+
+// methodCallSuffix
+foo.bar( 1, 2, foo... );
+
+// functionCall
+// bar( a:=1, d:=2, c:=3, b:=4, foo... );
+
+// arrayInitializer
+array{ 1, 2, foo... };

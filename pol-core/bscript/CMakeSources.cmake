@@ -142,6 +142,8 @@ set (bscript_sources    # sorted !
   compiler/ast/RepeatUntilLoop.h
   compiler/ast/ReturnStatement.cpp
   compiler/ast/ReturnStatement.h
+  compiler/ast/SpreadElement.cpp
+  compiler/ast/SpreadElement.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp

@@ -7,8 +7,10 @@
 namespace Pol::Bscript::Compiler
 {
 Argument::Argument( const SourceLocation& source_location, std::string identifier,
-                    std::unique_ptr<Expression> expression )
-    : Node( source_location, std::move( expression ) ), identifier( std::move( identifier ) )
+                    std::unique_ptr<Expression> expression, bool spread )
+    : Node( source_location, std::move( expression ) ),
+      identifier( std::move( identifier ) ),
+      spread( spread )
 {
 }
 
@@ -19,7 +21,7 @@ void Argument::accept( NodeVisitor& visitor )
 
 void Argument::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "argument({})", identifier );
+  fmt::format_to( std::back_inserter( w ), "argument({}{})", spread ? "..." : "", identifier );
 }
 
 std::unique_ptr<Expression> Argument::take_expression()
