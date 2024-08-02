@@ -292,9 +292,14 @@ void InstructionEmitter::foreach_step( FlowControlLabel& label )
   register_with_label( label, emit_token( INS_STEPFOREACH, TYP_RESERVED ) );
 }
 
-void InstructionEmitter::function_reference( unsigned parameter_count, FlowControlLabel& label )
+void InstructionEmitter::function_reference( unsigned parameter_count, bool is_variadic,
+                                             FlowControlLabel& label )
 {
-  register_with_label( label, emit_token( TOK_FUNCREF, (BTokenType)parameter_count ) );
+  // Encode the parameter count and variadic flag into a single byte, with
+  // variadic flag in the high bit.
+  auto type = static_cast<BTokenType>( parameter_count | ( is_variadic << 7 ) );
+
+  register_with_label( label, emit_token( TOK_FUNCREF, type ) );
 }
 
 void InstructionEmitter::functor_create()

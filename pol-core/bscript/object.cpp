@@ -2305,17 +2305,19 @@ std::string BBoolean::getStringRep() const
 
 
 BFunctionRef::BFunctionRef( int progcounter, int param_count, const std::string& scriptname,
-                            ValueStackCont&& captures )
+                            bool variadic, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       pc_( progcounter ),
       num_params_( param_count ),
       script_name_( scriptname ),
+      variadic_( variadic ),
       captures( std::move( captures ) )
 {
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.pc_, B.num_params_, B.script_name_, ValueStackCont( B.captures ) )
+    : BFunctionRef( B.pc_, B.num_params_, B.script_name_, B.variadic_,
+                    ValueStackCont( B.captures ) )
 {
 }
 
@@ -2356,8 +2358,18 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
 {
   if ( id != MTH_CALL )
     return false;
-  if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
-    return false;
+
+  if ( variadic_ )
+  {
+    if ( num_params_ <= 0 || ex.numParams() < static_cast<size_t>( num_params_ - 1 ) )
+      return false;
+  }
+  else
+  {
+    if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
+      return false;
+  }
+
   if ( ex.scriptname() != script_name_ )
     return false;
   inst->func = &Executor::ins_nop;
@@ -2371,6 +2383,46 @@ bool BFunctionRef::validCall( const char* methodname, Executor& ex, Instruction*
   if ( objmethod == nullptr )
     return false;
   return validCall( objmethod->id, ex, inst );
+}
+
+void BFunctionRef::setupCall( Executor& ex )
+{
+  // params need to be on the stack, without current objectref
+  ex.ValueStack.pop_back();
+
+  // Push captured parameters onto the stack prior to function parameters.
+  for ( auto& p : captures )
+    ex.ValueStack.push_back( p );
+
+  if ( variadic_ )
+  {
+    passert_always( num_params_ > 0 );
+    auto num_nonrest_args = static_cast<unsigned>( num_params_ - 1 );
+
+    auto rest_arg = std::make_unique<ObjArray>();
+
+    for ( size_t i = 0; i < ex.fparams.size(); ++i )
+    {
+      auto& p = ex.fparams[i];
+
+      if ( i < num_nonrest_args )
+      {
+        ex.ValueStack.push_back( p );
+      }
+      else
+      {
+        rest_arg->ref_arr.push_back( p );
+      }
+    }
+    ex.ValueStack.push_back( BObjectRef( rest_arg.release() ) );
+  }
+  else
+  {
+    for ( auto& p : ex.fparams )
+      ex.ValueStack.push_back( p );
+  }
+
+  ex.fparams.clear();
 }
 
 size_t BFunctionRef::numParams() const

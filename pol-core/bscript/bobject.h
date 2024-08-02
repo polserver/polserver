@@ -827,7 +827,7 @@ class BFunctionRef final : public BObjectImp
   typedef BObjectImp base;
 
 public:
-  BFunctionRef( int progcounter, int param_count, const std::string& scriptname,
+  BFunctionRef( int progcounter, int param_count, const std::string& scriptname, bool variadic,
                 ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
@@ -838,6 +838,7 @@ public:
   virtual size_t sizeEstimate() const override;
   bool validCall( const int id, Executor& ex, Instruction* inst ) const;
   bool validCall( const char* methodname, Executor& ex, Instruction* inst ) const;
+  void setupCall( Executor& );
   size_t numParams() const;
 
 public:  // Class Machinery
@@ -855,6 +856,7 @@ private:
   unsigned int pc_;
   int num_params_;
   std::string script_name_;
+  bool variadic_;
 
 public:
   ValueStackCont captures;

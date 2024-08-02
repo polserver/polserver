@@ -2618,18 +2618,10 @@ void Executor::ins_call_method_id( const Instruction& ins )
       Instruction jmp;
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
-        // params need to be on the stack, without current objectref
-        ValueStack.pop_back();
+        funcr->setupCall( *this );
 
-        // Push captured parameters onto the stack prior to function parameters.
-        for ( auto& p : funcr->captures )
-          ValueStack.push_back( p );
-
-        for ( auto& p : fparams )
-          ValueStack.push_back( p );
         // jump to function
         ins_jsr_userfunc( jmp, continuation );
-        fparams.clear();
         // switch to new block
         ins_makelocal( jmp );
         return;
@@ -3117,12 +3109,18 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 // case TOK_FUNCREF:
 void Executor::ins_funcref( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef(
-      new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname(), {} ) ) ) );
+  int param_count = ins.token.type & ~0x80;
+  bool variadic = ins.token.type >> 7;
+  ValueStack.push_back( BObjectRef( new BObject(
+      new BFunctionRef( ins.token.lval, param_count, scriptname(), variadic, {} ) ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
 {
+  passert_always( ValueStack.back()->isa( BObjectImp::OTBoolean ) );
+  bool variadic = static_cast<BBoolean*>( ValueStack.back()->impptr() )->value();
+  ValueStack.pop_back();
+
   passert_always( ValueStack.back()->isa( BObjectImp::OTLong ) );
   int parameter_count = ValueStack.back()->impptr<BLong>()->value();
   ValueStack.pop_back();
@@ -3139,7 +3137,8 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func = new BFunctionRef( PC, parameter_count, scriptname(), std::move( captures ) );
+  auto func =
+      new BFunctionRef( PC, parameter_count, scriptname(), variadic, std::move( captures ) );
 
   ValueStack.push_back( BObjectRef( func ) );
 
