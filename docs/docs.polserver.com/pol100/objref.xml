@@ -411,6 +411,15 @@
 <method proto="erasehousepart(int graphic, int xoffset, int yoffset, int z)" returns="true/error">Removes a part from the custom house design.</method>
 <method proto="acceptcommit(Character chr, bool commit)" returns="true/error">If commit is 0 then drops the not committed custom house changes or accept them instead</method>
 <method proto="cancelediting(Character chr, bool drop_changes)" returns="true/error">Stops editing mode. If drop_changes is true, drops all non committed changes</method>
+<method proto="set_multiid(int multiid | string name, [flags])" returns="true/error">
+	Set the multi's <code>multiid</code>, changing its shape. If
+	<code>name</code> is passed, will use the MultiID as defined by that item
+	descriptor. Uses the same flags as <code>CreateMultiAtLocation()</code> and
+	can return the same errors. To either keep or recreate the components (eg.
+	doors, house signs, ...), pass either <code>CRMULTI_KEEP_COMPONENTS</code>
+	or <code>CRMULTI_RECREATE_COMPONENTS</code> respectively. See module function
+	<code>CreateMultiAtLocation</code> in uo.em for more information.
+</method>
 </class>
 
 
