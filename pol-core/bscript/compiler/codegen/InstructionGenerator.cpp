@@ -407,13 +407,17 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
     // Spreaded elements go into the value stack for expression-as-callee
     // function calls, eg. in `(foo)(...spread)`.
     spread_modes.push( SpreadMode::ValueStack );
+
+    // Emit this so the executor can keep track of how many arguments are passed to the method.
+    emit.storestackcount();
+
     // Visiting the children emits the instructions for each arguments in the order necessary for a
     // `MTH_CALL`.
     visit_children( call );
     spread_modes.pop();
     update_debug_location( call );
     // Subtract 1 because the first child is the callee.
-    emit.call_method_id( MTH_CALL, static_cast<unsigned int>( call.children.size() - 1 ) );
+    emit.call_method_id( MTH_CALL );
     // Constructing array from rest arguments is done in executor for dynamic function calls.
   }
   else
@@ -666,20 +670,23 @@ void InstructionGenerator::visit_method_call( MethodCall& method_call )
   // Spreaded elements go into the value stack in method calls, in
   // eg. `foo.bar(...spread)`
   spread_modes.push( SpreadMode::ValueStack );
+
+  // Emit this so the executor can keep track of how many arguments are passed to the method.
+  emit.storestackcount();
+
   visit_children( method_call );
   spread_modes.pop();
 
   update_debug_location( method_call );
-  auto argument_count = method_call.argument_count();
   if ( auto km = method_call.known_method )
   {
-    emit.call_method_id( km->id, argument_count );
+    emit.call_method_id( km->id );
   }
   else
   {
     std::string method_name = method_call.methodname;
     Clib::mklowerASCII( method_name );
-    emit.call_method( method_name, argument_count );
+    emit.call_method( method_name );
   }
 }
 

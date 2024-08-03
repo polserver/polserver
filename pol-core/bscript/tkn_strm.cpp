@@ -202,8 +202,7 @@ void Token::printOn( std::ostream& os ) const
     break;
 
   case INS_CALL_METHOD_ID:
-    os << "Call Method id " << getObjMethod( lval )->code << " (#" << lval << ", "
-       << static_cast<int>( type ) << " params)";
+    os << "Call Method id " << getObjMethod( lval )->code << " (#" << lval << ")";
     break;
   case TOK_IN:
     os << "in";
@@ -398,6 +397,9 @@ void Token::printOn( std::ostream& os ) const
     break;
   case CTRL_MAKELOCAL:
     os << "makelocal";
+    break;
+  case CTRL_STORESTACKCOUNT:
+    os << "storestackcount";
     break;
   case CTRL_JSR_USERFUNC:
     os << "jmp userfunc @" << lval;

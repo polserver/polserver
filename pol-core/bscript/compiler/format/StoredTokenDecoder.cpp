@@ -152,6 +152,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
   case CTRL_MAKELOCAL:
     w += "makelocal";
     break;
+  case CTRL_STORESTACKCOUNT:
+    w += "storestackcount";
+    break;
   case CTRL_JSR_USERFUNC:
     fmt::format_to( std::back_inserter( w ), "jsr userfunc @{}", tkn.offset );
     break;
@@ -340,8 +343,8 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
                     getObjMember( tkn.type )->code, tkn.type );
     break;
   case INS_CALL_METHOD_ID:
-    fmt::format_to( std::back_inserter( w ), "call-method-id '{}' (#{}, {} arguments)",
-                    getObjMethod( tkn.offset )->code, tkn.offset, tkn.type );
+    fmt::format_to( std::back_inserter( w ), "call-method-id '{}' (#{})",
+                    getObjMethod( tkn.offset )->code, tkn.offset );
     break;
 
   case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:

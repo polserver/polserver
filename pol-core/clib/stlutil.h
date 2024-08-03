@@ -17,6 +17,7 @@
 #include <queue>
 #include <set>
 #include <sstream>
+#include <stack>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -139,6 +140,14 @@ size_t memsize( const std::vector<T>& container )
   }
   return 3 * sizeof( void* ) + container.capacity() * sizeof( T );
 }
+
+template <typename T>
+size_t memsize( const std::stack<T>& /*container*/ )
+{
+  // FIXME implementation
+  return 0;
+}
+
 template <typename T, class Func>
 size_t memsize( const std::vector<T>& container, Func f )
 {

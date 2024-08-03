@@ -1,4 +1,4 @@
-var foo;
+var foo:={};
 
 function bar( a, b, c, d, unused args ...) endfunction
 function Sleep(unused a) endfunction

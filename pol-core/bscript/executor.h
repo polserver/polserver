@@ -165,6 +165,9 @@ public:
 
   std::vector<BObjectRefVec*> upperLocals2;
 
+  // used in calculating how many arguments to pop from the ValueStack after a call-method-id
+  std::stack<size_t> MethodArgsValueStackCount;
+
   std::vector<ReturnContext> ControlStack;
 
   BObjectRefVec* Locals2;
@@ -322,6 +325,7 @@ public:
   void ins_struct( const Instruction& ins );
   void ins_array( const Instruction& ins );
   void ins_dictionary( const Instruction& ins );
+  void ins_spread( const Instruction& ins );
   void ins_uninit( const Instruction& ins );
   void ins_ident( const Instruction& ins );
   void ins_unminus( const Instruction& ins );
@@ -401,6 +405,7 @@ public:
   void ins_statementbegin( const Instruction& ins );
   void ins_progend( const Instruction& ins );
   void ins_makelocal( const Instruction& ins );
+  void ins_storestackcount( const Instruction& ins );
   void ins_jsr_userfunc( const Instruction& ins );
   // takes ownership of `continuation`
   void ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation );

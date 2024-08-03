@@ -161,7 +161,7 @@ void EScriptProgram::addToken( const Token& token )
           StoredToken(
               token.module, token.id,
               static_cast<BTokenType>(
-                  token.lval ),  // # of params, stored in Token.lval, saved in StoredToken.type
+                  0 ),  // # of params is calculated via difference by `storestackcount` instruction
               sympos ),
           &tokpos );
     }
@@ -216,6 +216,7 @@ void EScriptProgram::addToken( const Token& token )
     switch ( token.id )
     {
     case CTRL_MAKELOCAL:
+    case CTRL_STORESTACKCOUNT:
       tokens.append_tok( StoredToken( token.module, token.id, token.type ) );
       break;
 

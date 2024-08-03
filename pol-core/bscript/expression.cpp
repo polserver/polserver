@@ -377,7 +377,7 @@ int Expression::get_num_tokens( int idx ) const
     // the CTRL_MAKELOCAL + the parameters
     children = static_cast<int>( 1 + tkn->userfunc->parameters.size() );
   }
-  else if ( tkn->id == CTRL_MAKELOCAL )
+  else if ( tkn->id == CTRL_MAKELOCAL || tkn->id == CTRL_STORESTACKCOUNT )
   {
     children = 0;
   }
