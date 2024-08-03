@@ -1,0 +1,90 @@
+include "module-stubs";
+
+print( test( true ) );
+print( "----" );
+print( test( false ) );
+
+function test( has_success )
+  return with_tracker( @(track) {
+    var item := track( CreateItemAtLocation(1, 2, 3, 0xeed ) );
+    if ( !item )
+      return item;
+    endif
+
+    var multi := track( CreateMultiAtLocation(1, 2, 3, "SmallHouse" ) );
+    if ( !multi )
+      return multi;
+    endif
+
+    var multi2 := track( CreateMultiAtLocation(1, 2, 3, has_success ? "SmallHouse" : error{}), @(what) {
+      print( $"DisposeCustom on '{what}' but do something with item '{item}' first" );
+    });
+
+    if ( !multi2 )
+      return multi2;
+    endif
+
+    var npc := track( CreateNPCFromTemplate("brigand", 1, 2, 3) );
+    if ( !npc )
+      return npc;
+    endif
+
+    print( $"In test: item={item} multi={multi} multi2={multi2} npc={npc}" );
+
+    return 1;
+  });
+endfunction
+
+function DisposeCustom( what )
+  print( $"DisposeCustom {what}" );
+endfunction
+
+//////////////////////////////////////////////////////
+
+function with_tracker( tracked_fn )
+  var resources := array{ };
+
+  var cleanup := @{
+    while ( resources.size() )
+      var resource_entry := resources[resources.size()];
+      var resource := resource_entry[1];
+      var cleanup_fn := resource_entry[2];
+
+      cleanup_fn( resource );
+      resources.shrink( resources.size() - 1 );
+    endwhile
+  };
+
+  var track := @( args... ){
+    var resource := args[1];
+
+    if ( !resource )
+      cleanup();
+      return resource;
+    endif
+
+    var finalizer;
+
+    if ( TypeOfInt(args[2]) == OT_FUNCOBJECT )
+      finalizer := args[2];
+    else
+      var type := TypeOfInt_( resource );
+
+      case ( type )
+        OT_ITEMREF: finalizer := @DisposeItem;
+        OT_MULTIREF: finalizer := @DisposeMulti;
+        OT_MOBILEREF: finalizer := @DisposeNpc;
+        default: finalizer := @(what) { print( $"Cannot dispose @{what}" ); };
+      endcase
+    endif
+
+    resources.append( { resource, finalizer });
+    return resource;
+  };
+
+  var result := tracked_fn( track );
+
+  cleanup();
+
+  return result;
+endfunction
