@@ -17,6 +17,7 @@
 #include "bscript/compiler/codegen/CodeEmitter.h"
 #include "bscript/compiler/codegen/DataEmitter.h"
 #include "bscript/compiler/model/SimpleTypes.h"
+#include "bscript/compiler/model/SpreadMode.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/DebugStore.h"
 
@@ -105,6 +106,7 @@ public:
   void set_member_id_consume( MemberID member_id );
   void set_member_consume( const std::string& name );
   void set_member_by_operator( BTokenId, MemberID );
+  void spread( SpreadMode mode );
   void struct_create();
   void struct_add_uninit_member( const std::string& name );
   void struct_add_member( const std::string& name );

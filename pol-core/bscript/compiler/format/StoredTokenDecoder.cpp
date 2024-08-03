@@ -365,6 +365,16 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
                     getObjMember( tkn.offset )->code, tkn.offset );
     break;
 
+  case TOK_SPREAD:
+  {
+    fmt::format_to( std::back_inserter( w ), "{} (TOK_SPREAD)",
+                    tkn.offset == 0   ? "spread-into-array"
+                    : tkn.offset == 1 ? "spread into value stack"
+                                      : "unknown spread" );
+
+    break;
+  }
+
   case TOK_FUNCTOR:
   {
     fmt::format_to( std::back_inserter( w ),

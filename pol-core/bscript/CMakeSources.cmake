@@ -255,6 +255,7 @@ set (bscript_sources    # sorted !
   compiler/model/FunctionLink.h
   compiler/model/LocalVariableScopeInfo.h
   compiler/model/SimpleTypes.h
+  compiler/model/SpreadMode.h
   compiler/model/UserFunctionInclusion.h
   compiler/model/Variable.cpp
   compiler/model/Variable.h
