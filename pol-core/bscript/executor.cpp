@@ -215,17 +215,21 @@ Executor::Executor()
 
 Executor::~Executor()
 {
+  {
+    Clib::SpinLockGuard lock( _executor_lock );
+    --executor_count;
+    executor_instances.erase( this );
+  }
+  cleanup();
+}
+void Executor::cleanup()
+{
   if ( dbg_env_ )
   {
     if ( std::shared_ptr<ExecutorDebugListener> listener = dbg_env_->listener.lock() )
       listener->on_destroy();
   }
 
-  {
-    Clib::SpinLockGuard lock( _executor_lock );
-    --executor_count;
-    executor_instances.erase( this );
-  }
   delete Locals2;
   Locals2 = nullptr;
 
@@ -2915,8 +2919,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     // Do not move the `result` object, as the continuation callback may return
     // the result's BObjectImp*. If we move `result`, the BObjectImp* will be
     // deleted when the callback ends.
-    auto* imp =
-        continuation->impptr<BContinuation>()->continueWith( *this, result );
+    auto* imp = continuation->impptr<BContinuation>()->continueWith( *this, result );
 
     // If the the continuation callback returned a continuation, handle the jump.
     if ( imp && imp->isa( BObjectImp::OTContinuation ) )

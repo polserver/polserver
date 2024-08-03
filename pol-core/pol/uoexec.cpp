@@ -75,6 +75,11 @@ UOExecutor::~UOExecutor()
 
   pParent = nullptr;
   pChild = nullptr;
+  // we need to call base class destructor method here
+  // the modules need UOExecutor in its own Deconstructor
+  // once the deconstructor of the baseclass runs its now longer
+  // a UOExecutor and we run into undefined behaviour
+  cleanup();
 }
 
 bool UOExecutor::suspend()
