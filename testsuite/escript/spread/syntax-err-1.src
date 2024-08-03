@@ -1,0 +1,5 @@
+var foo;
+function bar( a, b, c, d, unused args ...) endfunction
+
+// errors nice
+bar( a:=1, d:=2, b:=4, foo... );

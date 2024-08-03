@@ -1,0 +1,1 @@
+syntax-err-3.src:3:5: error: In call to 'foo': Spread operator can only be used in variadic functions.
