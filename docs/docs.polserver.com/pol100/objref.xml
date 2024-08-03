@@ -54,8 +54,8 @@
 <method proto="getprop(string propname)" returns="script object/error">Returns an unpacked script object (i.e. int,string,array,etc)</method>
 <method proto="setprop(string propname, object propval)" returns="true/error">Sets a packable object to a property.</method>
 <method proto="eraseprop(string propname)" returns="true/error">Erases the property named 'propname'.</method>
-<method>Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;Eric&quot;) is the same as obj.name := &quot;Eric&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error</method>
-<method>Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
+<method proto="set_member(string membername, obj value)" returns="object, new value of member or error">Sets the built-in member 'membername' to 'value'. obj.set_member("name","Eric") is the same as obj.name := "Eric"</method>
+<method proto="get_member(string membername)" returns="object, value of member or error">Gets the value of the built-in member 'membername'. var objname := obj.get_member("name") is the same as var objname := obj.name</method>
 </class>
 
 
@@ -337,7 +337,7 @@
 <method proto="clearLawfullydamagedTo(MobileRef chr)" returns="true/error">clears lawfullydamaged entry for given chr</method>
 <method proto="deaf(int duration)" returns="int/error">character cannot hear for 'duration' seconds. -1 means forever. 0 clears the deaf</method>
 <method proto="setseason(int season_id,int playsound )" returns="int/error">Used to send the Season packet 0xBC to a single character, doesnt resend the lightlevel or weather.</method>
-<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name])" returns="true/error">Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string; separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, &quot;1234 5678&quot;); Optional arguments_name parameters needs a client higher then 5.x and modifies the cliloc_name.</method>
+<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name])" returns="true/error">Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string; separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, "1234 5678"); Optional arguments_name parameters needs a client higher then 5.x and modifies the cliloc_name.</method>
 <method proto="clearBuffs()" returns="true/error">Removes all buffs from Character's buff bar.</method>
 <method proto="delBuff(int icon_id)" returns="true/error">Removes a buff from Character's buff bar.</method>
 <method proto="disableSkillsFor(int duration)" returns="duration/error">Disables skill scripts for given seconds</method>
@@ -388,7 +388,7 @@
 <member mname="pilot" type="Character" access="r/o">pilot of boat (if any)</member>
 
 <method proto="move_offline_mobiles(int x, int y, int z[, string realm])" returns="true/false">moves offline mobiles on boat to x,y,z. If realm is not set, Boat-realm is used.</method>
-<method proto="set_pilot(Character | 0)" returns="true/false">Sets the boat pilot to the provided character; removes pilot if `0` is passed. Mouse movements from the boat's pilot will be sent to the boat's control script. See event SYSEVENT_BOAT_MOVEMENT for more details. Possible errors: The boat is already being piloted; The boat does not have a running process; That character is not connected; The boat does not have that character on it; The boat mount piece is not equippable by that character; The client for that character does not support High Seas Adventure</method>
+<method proto="set_pilot(Character | 0)" returns="true/false">Sets the boat pilot to the provided character; removes pilot if <code>0</code> is passed. Mouse movements from the boat's pilot will be sent to the boat's control script. See event SYSEVENT_BOAT_MOVEMENT for more details. Possible errors: The boat is already being piloted; The boat does not have a running process; That character is not connected; The boat does not have that character on it; The boat mount piece is not equippable by that character; The client for that character does not support High Seas Adventure</method>
 <method proto="set_alternate_multiid(int)" returns="true/error">Used to change a boat's multi to an alternative multi defined in its itemdesc file. Alternate ids are referenced with an integer based on the order they are defined in the itemdesc file starting from 1, with the base multi id being 0.</method>
 </class>
 
@@ -451,9 +451,9 @@
 <method proto="setprop(string propname, propval)" returns="true">SetObjProperty for account objects.</method>
 <method proto="eraseprop(string propname)" returns="true">EraseObjProperty for account objects.</method>
 <method proto="propnames()" returns="Array">returns an array of cprop names on this account</method>
-<method proto="set_uo_expansion(string expansion)" returns="true/error">This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF / HSA -> 0x387DF / TOL -> 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default).</method>
+<method proto="set_uo_expansion(string expansion)" returns="true/error">This determines what flag is sent with packet 0xB9 during login (Nothing -&gt; 0x0000 / T2A -&gt; 0x0001 / LBR -&gt; 0x0002 / AOS -&gt; 0x801b / SE -&gt; 0x805b / ML -&gt; 0x80db / KR -&gt; 0x86DB / SA -&gt; 0x187DF / HSA -&gt; 0x387DF / TOL -&gt; 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default).</method>
 <method proto="setdefaultcmdlevel(integer number)" returns="true/error">Set the account's default command level.</method>
-<method>Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
+<method proto="get_member(string membername)" returns="object, value of member or error">Gets the value of the built-in member 'membername'. var objname := obj.get_member("name") is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
 </class>
 
 
@@ -553,17 +553,17 @@
 <member mname="running_scripts" type="Array" access="r/o">Array of running script objects</member>
 <member mname="all_scripts" type="Array" access="r/o">Array of all cached script objects</member>
 <member mname="script_profiles" type="Array" access="r/o">Array of structs: struct have members name, instr, invocations, instr_per_invoc, instr_percent</member>
-<member>struct of arrays of structs - iostats[&quot;sent&quot;array-&gt;256 elements of struct[&quot;count&quot;,&quot;bytes&quot;],&quot;received&quot;array-&gt;256 elements of struct[&quot;count&quot;,&quot;bytes&quot;]]" mname="iostats" access="r/o" type="Integer</member>
+<member mname="iostats" access="r/o" type="Integer">struct of arrays of structs - iostats["sent"array-&gt;256 elements of struct["count","bytes"],"received"array-&gt;256 elements of struct["count","bytes"]]</member>
 <member mname="queued_iostats" type="Array" access="r/o">structure same as iostats, but for queued I/O stats</member>
 <member mname="pkt_status" type="Array" access="r/o">returns and array of info structures about packets currently in the queue</member>
 <member mname="memory_usage" type="Integer" access="r/o">current process usage in KB</member>
 <member mname="last_character_serial" type="Integer" access="r/o">Last character serial number assigned by core</member>
 <member mname="last_item_serial" type="Integer" access="r/o">Last item serial number assigned by core</member>
+<member mname="poldir" type="String" access="r/o">Directory of the POL executable</member>
 
 <method proto="log_profile(bool clear)" returns="true/false">Writes the script profile to the log, optionally clearing it after.</method>
 <method proto="set_priority_divide(int divide)" returns="true/false">Sets the priority divide to 'divide'</method>
 <method proto="clear_script_profile_counters()" returns="true/false">Clears the script profile counters</method>
-<member mname="poldir" type="String" access="r/o">Directory of the POL executable</member>
 <method proto="internal(integer)" returns="unspecified">developer methods, not officially published</method>
 </class>
 
@@ -598,19 +598,19 @@
 <member mname="num_globals" type="Integer" access="r/o">Number of global variables</member>
 <member mname="var_size" type="Integer" access="r/o">Estimated size of global variables and current local variables</member>
 <member mname="globals" type="Dictionary" access="r/o">Dictionary of global variable name=>value pairs</member>
-<member mname="attached_to" type="Object" access="r/o" mdesc="Mobile or Item where Script is attached to.
+<member mname="attached_to" type="Object" access="r/o">Mobile or Item where Script is attached to.
 If it's attached to a Character, it will return the Character.
 If it's an AI-Script it will return the NPC.
 If it's a ControlScript it will return the Item.
-Checks are made in the order above." />
+Checks are made in the order above.</member>
 <member mname="controller" type="MobileRef" access="r/o">Mobile which is responsible for damage etc.</member>
-<member mname="package" type="PackageRef" access="r/o">Reference to the package where this script exists, returns error &quot;Script has no package&quot; if script is from a system folder</member>
+<member mname="package" type="PackageRef" access="r/o">Reference to the package where this script exists, returns error "Script has no package" if script is from a system folder</member>
 
 <method proto="sendevent(obj event)" returns="error/true">sends a event to this script (usually a struct)</method>
 <method proto="kill()" returns="true">Kills this script</method>
 <method proto="loadsymbols()" returns="Boolean">Loads the .dbg file</method>
 <method proto="clear_event_queue()" returns="true">clears the event queue of the script</method>
-<method>Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
+<method proto="get_member(string membername)" returns="object, value of member or error">Gets the value of the built-in member 'membername'. var objname := obj.get_member("name") is the same as var objname := obj.name</method>
 </class>
 
 
@@ -638,9 +638,9 @@ Checks are made in the order above." />
 
 
 <class name="Dictionary">
-<explain>Data structure for key->value pairs (i.e."associative array"). Keys may be intgers, strings, reals, mobrefs, or itemrefs.
+<explain>Data structure for key-&gt;value pairs (i.e."associative array"). Keys may be intgers, strings, reals, mobrefs, or itemrefs.
 Declare with var d := dictionary.
-Pre-intialize with var d := dictionary { "abx" -> 72, "xyz" -> 32 };</explain>
+Pre-intialize with var d := dictionary { "abx" -&gt; 72, "xyz" -&gt; 32 };</explain>
 <method proto="size()" returns="int">number of pairs in dictionary</method>
 <method proto="erase(key)" returns="true/error">erases a pair from the dict</method>
 <method proto="insert(key, value)" returns="error/int">inserts a pair into the dict, returns new size</method>
@@ -654,7 +654,7 @@ Pre-intialize with var d := dictionary { "abx" -> 72, "xyz" -> 32 };</explain>
 <explain>Data structure for linear storage, dynamically resizes to fit more elements.
 Declare with var a := array;
 Pre-intialize with var a := array { 53, 76, 32 };
-Note that functional methods (find, findIndex, filter, map, reduce) will return uninit on arrays that have named members, eg. an array where `arr.+name` has been used.</explain>
+Note that functional methods (find, findIndex, filter, map, reduce) will return uninit on arrays that have named members, eg. an array where <code>arr.+name</code> has been used.</explain>
 <method proto="exists(index)" returns="error/int">Returns 1 if index is in array.</method>
 <method proto="size()" returns="int">number of elements in the array</method>
 <method proto="erase(int index)" returns="true/false">erases the element at index</method>
@@ -687,7 +687,7 @@ Note that functional methods (find, findIndex, filter, map, reduce) will return 
 		<li><code>array</code>: The array <code>find()</code> was called upon</li>
 	</ul>
 </method>
-<method proto="findIndex(FunctionObject testFn)" returns="array">
+<method proto="findIndex(FunctionObject testFn)" returns="integer">
 	Returns the index of the first element in an array that satisfies the provided testing function. If no elements satisfy the testing function, 0 is returned.<br/>
 	<br/>
 	<code>testFn</code> is a function that can accept up to three parameters:<br/>
@@ -727,7 +727,7 @@ Note that functional methods (find, findIndex, filter, map, reduce) will return 
 <explain>An object passed to an Aux Service Script that allows the script to transmit and recieve packed data over a TCP/IP port. use wait_for_event() in the service script to recieve data. </explain>
 <member mname="ip" type="String" access="r/o">Originating IP on the AuxConnection Pipe</member>
 
-<method proto="transmit(object o)" returns="error/0">Transmits the packable object 'o' over the Aux connection. If the connection script has the AUXSVC_ASSUME_STRING script option, then the parameter object `o` is sent as a string and not unpacked. If the Aux Connection was created with the ignore_line_breaks option, then a CRLF will not be appended to the message. </method>
+<method proto="transmit(object o)" returns="error/0">Transmits the packable object 'o' over the Aux connection. If the connection script has the AUXSVC_ASSUME_STRING script option, then the parameter object <code>o</code> is sent as a string and not unpacked. If the Aux Connection was created with the ignore_line_breaks option, then a CRLF will not be appended to the message. </method>
 </class>
 
 
@@ -744,7 +744,7 @@ Pre-intialize with var e := error { errortext := "error message" };</explain>
 <class name="String">
 <explain>An ordered collection of ascii (1-byte) characters.
 Declare and pre-initialize with var s := "my string"</explain>
-<method>'Substring': returns a new string from the character range between start and length, inclusive. Returns error if index out of range. Ex: var str := &quot;yomama&quot;; str[2,3] would return &quot;oma&quot;." proto="[start,length]" returns="string</method>
+<method proto="[start,length]" returns="string">'Substring': returns a new string from the character range between start and length, inclusive. Returns error if index out of range. Ex: var str := "yomama"; str[2,3] would return "oma".</method>
 <method proto="[substr]" returns="string/uninit">seaches the string for 'substr'. If found, returns the first character of the substring, else uninitialized object. </method>
 <method proto="[substr] := replace_str" returns="string">finds the first occurance of 'substr' and replaces substr with 'replace_str'. returns the new string.</method>
 <method proto="+ string" returns="string">concatenates the strings, returns the new string.</method>
@@ -752,33 +752,33 @@ Declare and pre-initialize with var s := "my string"</explain>
 <method proto="find(search,[start])" returns="int">returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str, but unlike the basic.em function the Start parameter is optional if not given it searches the whole string</method>
 <method proto="upper()" returns="string">returns like upper(str) the uppercase version and also modifies the str</method>
 <method proto="lower()" returns="string">returns like lower(str) the lowercase version and also modifies the str</method>
-<method proto="format(args)" returns="string" desc="formats a string using the data from args.
-	Accepts the following format:
-	{:x} for hex representation
-	{:o} for octal
-	{:b} for binary
-
-	Add a # to get notation prefix, e.g.:
-	&quot;{:x}&quot;.format(10) -> &quot;a&quot;
-	&quot;{:#x}&quot;.format(10) -> &quot;0xa&quot;
-
-	Parameters can be simple:
-	&quot;You have {} gold coins&quot;.format(120) -> &quot;You have 120 gold coins&quot;
-
-	and are unpacked implicitly by their order:
-	&quot;{} hits {} for {} of damage&quot;.format(&quot;John&quot;, &quot;Bob&quot;, 120) -> &quot;John hits Bob for 120 of damage&quot;
-
-	However you can specify parameters explicitly (first argument is at 1):
-	&quot;You hit {2} for {1} damage&quot;.format(120, &quot;John Doe&quot;) -> &quot;You hit John Doe for 120 damage&quot;
-
-	Format allows accessing object members:
-	&quot;Spell {1.spell_name} requires reagents: {1.reagents}&quot;.format(struct{spell_name:=&quot;Fire Wrath&quot;, &quot;Ba, Bm, Ga&quot;}) -> &quot;Spell Fire Wrath requires reagents: Ba, Bm, Ga&quot;
-
-	Implicit members also work:
-	&quot;{name} you hit level {level}&quot;.format(struct{name:=&quot;Jane Doe&quot;, level:=4}) -> &quot;Jane Doe you hit level 4&quot;
-
-	Character or item members are accessed the same way:
-	&quot;{1.name}, your shield {2.desc} has {2.hp} hp&quot;.format(who, who.shield) -> &quot;Admin, your shield Buckler of Death has 150 hp&quot;"/>
+<method proto="format(args)" returns="string">formats a string using the data from args.<br/>
+	Accepts the following format:<br/>
+	{:x} for hex representation<br/>
+	{:o} for octal<br/>
+	{:b} for binary<br/>
+	<br/>
+	Add a # to get notation prefix, e.g.:<br/>
+	"{:x}".format(10) -&gt; "a"<br/>
+	"{:#x}".format(10) -&gt; "0xa"<br/>
+	<br/>
+	Parameters can be simple:<br/>
+	"You have {} gold coins".format(120) -&gt; "You have 120 gold coins"<br/>
+	<br/>
+	and are unpacked implicitly by their order:<br/>
+	"{} hits {} for {} of damage".format("John", "Bob", 120) -&gt; "John hits Bob for 120 of damage"<br/>
+	<br/>
+	However you can specify parameters explicitly (first argument is at 1):<br/>
+	"You hit {2} for {1} damage".format(120, "John Doe") -&gt; "You hit John Doe for 120 damage"<br/>
+	<br/>
+	Format allows accessing object members:<br/>
+	"Spell {1.spell_name} requires reagents: {1.reagents}".format(struct{spell_name:="Fire Wrath", "Ba, Bm, Ga"}) -&gt; "Spell Fire Wrath requires reagents: Ba, Bm, Ga"<br/>
+	<br/>
+	Implicit members also work:<br/>
+	"{name} you hit level {level}".format(struct{name:="Jane Doe", level:=4}) -&gt; "Jane Doe you hit level 4"<br/>
+	<br/>
+	Character or item members are accessed the same way:<br/>
+	"{1.name}, your shield {2.desc} has {2.hp} hp".format(who, who.shield) -&gt; "Admin, your shield Buckler of Death has 150 hp"</method>
 <method proto="join(array)" returns="string">returns a string which is the concatenation of the array elements, seperated by str</method>
 </class>
 
