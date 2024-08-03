@@ -1,22 +1,18 @@
+<!ENTITY % XHTML1-strict PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "https://www.w3.org/TR/html4/strict.dtd">
+
 <!ELEMENT ESCRIPT (fileheader,class*)>
-<!ELEMENT fileheader (header,pre,datemodified)>
+<!ELEMENT fileheader (header,datemodified)>
   <!ELEMENT header (#PCDATA)>
-  <!ELEMENT pre (#PCDATA | a )*>
-    <!ATTLIST pre xml:space (preserve) #FIXED 'preserve'>
-    <!ELEMENT  a (#PCDATA)>
-    <!ATTLIST a href CDATA #REQUIRED>
   <!ELEMENT datemodified (#PCDATA)>
 <!ELEMENT class (parent?, child*, explain*, member*, method*)>
   <!ATTLIST class name CDATA #REQUIRED>
   <!ELEMENT parent (#PCDATA)>
   <!ELEMENT child (#PCDATA)>
   <!ELEMENT explain (#PCDATA)>
-  <!ELEMENT member EMPTY>
+  <!ELEMENT member (#PCDATA | %XHTML1-strict;)*>
   <!ATTLIST member mname CDATA #REQUIRED>
   <!ATTLIST member type CDATA #REQUIRED>
   <!ATTLIST member access CDATA #REQUIRED>
-  <!ATTLIST member mdesc CDATA #REQUIRED>
-  <!ELEMENT method EMPTY>
+  <!ELEMENT method (#PCDATA | %XHTML1-strict;)*>
   <!ATTLIST method proto CDATA #REQUIRED>
   <!ATTLIST method returns CDATA #REQUIRED>
-  <!ATTLIST method desc CDATA #REQUIRED>
