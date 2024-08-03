@@ -52,6 +52,8 @@ class MultiDef;
 const int CRMULTI_IGNORE_MULTIS = 0x0001;
 const int CRMULTI_IGNORE_OBJECTS = 0x0002;
 const int CRMULTI_IGNORE_FLATNESS = 0x0004;
+const int CRMULTI_RECREATE_COMPONENTS = 0x0008;
+
 const int CRMULTI_FACING_NORTH = 0x0000;
 const int CRMULTI_FACING_EAST = 0x0100;
 const int CRMULTI_FACING_SOUTH = 0x0200;
@@ -64,17 +66,19 @@ class UMulti : public Items::Item
   typedef Items::Item base;
 
 public:
-  u16 multiid;
-
   static UMulti* create( const Items::ItemDesc& descriptor, u32 serial = 0 );
 
   static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
                                                const Core::Pos4d& pos, int flags );
 
+  u16 multiid() const { return multiid_; }
+
   virtual void double_click( Network::Client* client ) override;
   virtual void register_object( UObject* obj );
   virtual void unregister_object( UObject* obj );
   virtual bool script_isa( unsigned isatype ) const override;
+
+  virtual bool setgraphic( u16 newobjtype ) override;
 
   const MultiDef& multidef() const;
   virtual class UBoat* as_boat();
@@ -101,7 +105,8 @@ protected:
   virtual const char* classname() const override;
   friend class ref_ptr<UMulti>;
 
-private:
+  u16 multiid_;
+
   // virtual void destroy(void);
 };
 

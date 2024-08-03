@@ -1,0 +1,10 @@
+use os;
+use uo;
+
+program walk_on_bantile( who, tile )
+  GetProcess( GetObjProperty( who, "#TestPid" ) ).SendEvent( struct{
+    type := "walkon",
+    who := who,
+    tile := tile
+  });
+endprogram

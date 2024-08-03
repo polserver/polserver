@@ -5,11 +5,16 @@
 ////////////////////////////////////////////////////////////////
 
 // CreateMulti flags
-// only for house creation:
+// only for house creation and house.set_multiid():
 const CRMULTI_IGNORE_MULTIS     := 0x0001;  // ignore intersecting multis
 const CRMULTI_IGNORE_OBJECTS    := 0x0002;  // ignore dynamic objects
 const CRMULTI_IGNORE_WORLDZ     := 0x0004;  // ignore standability, relative Z, world height
 const CRMULTI_IGNORE_ALL        := 0x0007;
+
+// only for house.set_multiid():
+const CRMULTI_KEEP_COMPONENTS     := 0x0000;
+const CRMULTI_RECREATE_COMPONENTS := 0x0008;
+
 // only for boat creation:
 const CRMULTI_FACING_NORTH      := 0x0000;
 const CRMULTI_FACING_EAST       := 0x0100;

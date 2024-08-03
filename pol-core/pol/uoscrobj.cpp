@@ -4072,7 +4072,7 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
     return new BLong( has_offline_mobiles() ? 1 : 0 );
     break;
   case MBR_MULTIID:
-    return new BLong( multiid );
+    return new BLong( multiid_ );
     break;
   case MBR_PILOT:
   {
@@ -4169,9 +4169,9 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
     {
       UBoat::BoatMoveGuard guard( this );
       u16 new_multiid = desc.alternates[index];
-      u16 base_multi = multiid & ~3u;
-      u16 multioffset = multiid - base_multi;
-      multiid = new_multiid + multioffset;
+      u16 base_multi = multiid_ & ~3u;
+      u16 multioffset = multiid_ - base_multi;
+      multiid_ = new_multiid + multioffset;
     }
     transform_components( boatshape() );
     send_display_boat_to_inrange( {} );
@@ -5126,6 +5126,11 @@ namespace Multi
 bool UMulti::script_isa( unsigned isatype ) const
 {
   return ( isatype == Core::POLCLASS_MULTI ) || base::script_isa( isatype );
+}
+
+bool UMulti::setgraphic( u16 /* newobjtype */ )
+{
+  return false;
 }
 
 bool UBoat::script_isa( unsigned isatype ) const

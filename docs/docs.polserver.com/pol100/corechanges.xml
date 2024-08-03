@@ -6,6 +6,11 @@
 	</header>
 	<version name="POL100.2.0">
 		<entry>
+			<date>08-03-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">House script method `set_multiid( int multiid | string name )`</change>
+		</entry>
+		<entry>
 			<date>08-02-2024</date>
 			<author>Kevin:</author>
 			<change type="Added">Array script method `find(FunctionObject testFn)`.</change>

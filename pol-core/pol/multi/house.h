@@ -60,7 +60,7 @@ namespace Multi
 {
 typedef std::list<Items::Item*> ItemList;
 typedef std::list<Mobile::Character*> MobileList;
-
+class MultiDef;
 
 class UHouse final : public UMulti
 {
@@ -74,7 +74,12 @@ class UHouse final : public UMulti
 public:
   static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
                                                const Core::Pos4d& pos, int flags );
+
+  static bool is_valid_position( const Multi::MultiDef* md, const Core::Pos4d& pos, int flags,
+                                 std::string& why_not, Multi::UMulti* existing );
+
   void destroy_components();
+  void change_multiid( u16 multiid, bool recreate_components );
 
   CustomHouseDesign CurrentDesign;
   CustomHouseDesign WorkingDesign;

@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-03-2024 Kevin:
+    Added: House script method `set_multiid( int multiid | string name )`
 08-02-2024 Kevin:
     Added: Array script method `find(FunctionObject testFn)`.
     Added: Array script method `findIndex(FunctionObject testFn)`.

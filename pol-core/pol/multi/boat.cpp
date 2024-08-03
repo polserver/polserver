@@ -601,7 +601,7 @@ UBoat::UBoat( const Items::ItemDesc& descriptor )
       hold( nullptr ),
       mountpiece( nullptr )
 {
-  passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
+  passert( Core::gamestate.boatshapes.count( multiid_ ) != 0 );
 }
 
 UBoat* UBoat::as_boat()
@@ -1121,7 +1121,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 
 inline unsigned short UBoat::multiid_ifturn( RELATIVE_DIR dir )
 {
-  return ( multiid & ~3u ) | ( ( multiid + dir ) & 3 );
+  return ( multiid_ & ~3u ) | ( ( multiid_ + dir ) & 3 );
 }
 
 const MultiDef& UBoat::multi_ifturn( RELATIVE_DIR dir )
@@ -1133,13 +1133,13 @@ const MultiDef& UBoat::multi_ifturn( RELATIVE_DIR dir )
 
 Core::UFACING UBoat::boat_facing() const
 {
-  return static_cast<Core::UFACING>( ( multiid & 3 ) * 2 );
+  return static_cast<Core::UFACING>( ( multiid_ & 3 ) * 2 );
 }
 
 const BoatShape& UBoat::boatshape() const
 {
-  passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
-  return *Core::gamestate.boatshapes[multiid];
+  passert( Core::gamestate.boatshapes.count( multiid_ ) != 0 );
+  return *Core::gamestate.boatshapes[multiid_];
 }
 
 
@@ -1236,7 +1236,7 @@ bool UBoat::turn( RELATIVE_DIR dir )
   const BoatShape& old_boatshape = boatshape();
 
   set_dirty();
-  multiid = multiid_ifturn( dir );
+  multiid_ = multiid_ifturn( dir );
 
   turn_travellers( dir, bc );
   transform_components( old_boatshape );
@@ -1310,7 +1310,7 @@ void UBoat::fixInvalidGraphic()
   if ( !Core::settingsManager.polvar.DataWrittenBy99OrLater )
   {
     passert_always_r( graphic >= 0x4000, "Unexpected boat graphic < 0x4000 in POL < 099 data" );
-    multiid = graphic - 0x4000;
+    multiid_ = graphic - 0x4000;
   }
   base::fixInvalidGraphic();
 }
@@ -1323,7 +1323,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   // but it was using 0x4000 + id as graphic instead. Not respecting
   // this would rotate most of the boats during POL098 -> POL99 migration
   if ( Core::settingsManager.polvar.DataWrittenBy99OrLater )
-    multiid = elem.remove_ushort( "MultiID", this->multidef().multiid );
+    multiid_ = elem.remove_ushort( "MultiID", this->multidef().multiid );
 
   BoatContext bc( *this );
   u32 tmp_serial;
@@ -1402,7 +1402,7 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
 
-  sw.add( "MultiID", multiid );
+  sw.add( "MultiID", multiid_ );
 
   BoatContext bc( *this );
 
@@ -1452,7 +1452,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor,
   }
 
   UBoat* boat = new UBoat( descriptor );
-  boat->multiid = multiid;
+  boat->multiid_ = multiid;
   boat->serial = Core::GetNewItemSerialNumber();
   boat->serial_ext = ctBEu32( boat->serial );
   boat->setposition( pos );

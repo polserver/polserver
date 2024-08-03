@@ -839,7 +839,7 @@ void CustomHousesClear( Core::PKTBI_D7* msg )
   house->WorkingCompressed.swap( newvec );
 
   // add foundation back to design
-  house->WorkingDesign.AddMultiAtOffset( house->multiid, 0, 0, 0 );
+  house->WorkingDesign.AddMultiAtOffset( house->multiid(), 0, 0, 0 );
   if ( chr != nullptr && chr->client != nullptr )
     CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 
@@ -1158,7 +1158,7 @@ void UHouse::CustomHouseSetInitialState()
   BackupDesign.Clear();
   BackupDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
 
-  CurrentDesign.AddMultiAtOffset( multiid, 0, 0, 0 );
+  CurrentDesign.AddMultiAtOffset( multiid_, 0, 0, 0 );
   WorkingDesign = CurrentDesign;
   BackupDesign = CurrentDesign;
   std::vector<u8> newvec;
