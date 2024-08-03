@@ -645,7 +645,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
           Bscript::BObject* vobj = inarr->ref_arr[1].get();
           if ( nobj != nullptr && nobj->isa( Bscript::BObjectImp::OTString ) && vobj != nullptr )
           {
-            Bscript::String* namestr = static_cast<Bscript::String*>( nobj->impptr() );
+            Bscript::String* namestr = nobj->impptr<Bscript::String>();
             std::string value = vobj->impptr()->getStringRep();
 
             ofs << "\t" << namestr->value() << "\t" << value << std::endl;
@@ -654,7 +654,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
       }
       else if ( bo->isa( Bscript::BObjectImp::OTStruct ) )
       {
-        Bscript::BStruct* instruct = static_cast<Bscript::BStruct*>( bo->impptr() );
+        Bscript::BStruct* instruct = bo->impptr<Bscript::BStruct>();
         const Bscript::BObjectImp* name_imp = instruct->FindMember( "name" );
         const Bscript::BObjectImp* value_imp = instruct->FindMember( "value" );
         if ( name_imp && name_imp->isa( Bscript::BObjectImp::OTString ) && value_imp )

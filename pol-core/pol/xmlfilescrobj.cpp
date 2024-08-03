@@ -121,7 +121,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
         }
       }
       file.LinkEndChild( elem.release() );
-      return new BXmlNode(file.LastChild());
+      return new BXmlNode( file.LastChild() );
     }
     break;
   }
@@ -244,7 +244,7 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
 {
   if ( obj->isa( OTString ) )
   {
-    const String* keystr = static_cast<const String*>( obj.impptr() );
+    const String* keystr = obj.impptr<String>();
     TiXmlNode* node = file.FirstChild( keystr->value() );
     if ( node )
       return BObjectRef( new BXmlNode( node ) );
@@ -417,7 +417,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
 
       TiXmlElement* nodeelem = node->ToElement();
       nodeelem->LinkEndChild( elem.release() );
-      return new BXmlNode(nodeelem->LastChild());
+      return new BXmlNode( nodeelem->LastChild() );
     }
     break;
   }
@@ -455,8 +455,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         else
           elem->SetAttribute( name, ref->getStringRep() );
       }
-      return new BXmlNode(elem);
-     
+      return new BXmlNode( elem );
     }
     break;
   }
@@ -469,7 +468,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     {
       TiXmlElement* elem = node->ToElement();
       elem->RemoveAttribute( pstr->value() );
-      return new BXmlNode(elem);
+      return new BXmlNode( elem );
     }
     break;
   }
@@ -516,7 +515,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     {
       TiXmlElement* elem = node->ToElement();
       elem->LinkEndChild( new TiXmlText( pstr->value() ) );
-      return new BXmlNode(elem->LastChild());
+      return new BXmlNode( elem->LastChild() );
     }
     break;
   }
@@ -534,7 +533,7 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
 {
   if ( obj->isa( OTString ) )
   {
-    const String* keystr = static_cast<const String*>( obj.impptr() );
+    const String* keystr = obj.impptr<String>();
     TiXmlNode* child = node->FirstChild( keystr->value() );
     if ( child )
       return BObjectRef( new BXmlNode( child ) );
@@ -614,7 +613,7 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
 {
   if ( obj->isa( OTString ) )
   {
-    const String* keystr = static_cast<const String*>( obj.impptr() );
+    const String* keystr = obj.impptr<String>();
     const std::string* attrib = node->Attribute( keystr->value() );
     if ( attrib )
       return BObjectRef( new String( attrib->c_str(), String::Tainted::YES ) );

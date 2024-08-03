@@ -402,8 +402,10 @@ public:
   friend std::ostream& operator<<( std::ostream&, const BObject& );
   void printOn( std::ostream& ) const;
 
-  BObjectImp* impptr();
-  const BObjectImp* impptr() const;
+  template <typename T = BObjectImp>
+  T* impptr();
+  template <typename T = BObjectImp>
+  const T* impptr() const;
   BObjectImp& impref();
   const BObjectImp& impref() const;
 
@@ -434,14 +436,16 @@ inline bool BObject::isa( BObjectImp::BObjectType type ) const
   return objimp->isa( type );
 }
 
-inline BObjectImp* BObject::impptr()
+template <typename T>
+inline T* BObject::impptr()
 {
-  return objimp.get();
+  return static_cast<T*>( objimp.get() );
 }
 
-inline const BObjectImp* BObject::impptr() const
+template <typename T>
+inline const T* BObject::impptr() const
 {
-  return objimp.get();
+  return static_cast<T*>( objimp.get() );
 }
 
 inline BObjectImp& BObject::impref()

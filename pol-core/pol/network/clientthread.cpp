@@ -475,8 +475,7 @@ bool process_data( Network::ThreadedClient* session )
       if ( !pp_header->is_valid() )
       {
         POLLOGLN( "Client#{} ({}): disconnected due to invalid proxy header",
-                  session->myClient.instance_,
-                  session->ipaddrAsString() );
+                  session->myClient.instance_, session->ipaddrAsString() );
 
         // invalid header
         session->forceDisconnect();
@@ -523,14 +522,14 @@ bool process_data( Network::ThreadedClient* session )
         if ( pp_header->address_family() == PP_AF_INET &&
              pp_header->payload_size() >= sizeof( pp_payload->ipv4_addr ) )
         {
-          memcpy( &session->ipaddr_proxy, &session->ipaddr, sizeof(session->ipaddr_proxy) );
+          memcpy( &session->ipaddr_proxy, &session->ipaddr, sizeof( session->ipaddr_proxy ) );
           memset( &session->ipaddr, 0, sizeof( session->ipaddr ) );
 
           auto ipaddr_in = reinterpret_cast<sockaddr_in*>( &session->ipaddr );
           ipaddr_in->sin_family = AF_INET;
           ipaddr_in->sin_port = pp_payload->ipv4_addr.src_port;
           memcpy( &ipaddr_in->sin_addr, &pp_payload->ipv4_addr.src_addr,
-                  sizeof(ipaddr_in->sin_addr) );
+                  sizeof( ipaddr_in->sin_addr ) );
 
           was_proxied = true;
         }
@@ -555,8 +554,7 @@ bool process_data( Network::ThreadedClient* session )
         if ( was_proxied )
         {
           POLLOGLN( "Client#{} ({}): connected through proxy {}", session->myClient.instance_,
-            session->ipaddrAsString(),
-            session->ipaddrProxyAsString() );
+                    session->ipaddrAsString(), session->ipaddrProxyAsString() );
 
           session->recv_state = Network::ThreadedClient::RECV_STATE_CRYPTSEED_WAIT;
           session->bytes_received = 0;
@@ -566,7 +564,7 @@ bool process_data( Network::ThreadedClient* session )
 
       // unsupported combination
       POLLOGLN( "Client#{} ({}): disconnected due to unsupported proxy payload",
-        session->myClient.instance_, session->ipaddrAsString() );
+                session->myClient.instance_, session->ipaddrAsString() );
 
       session->forceDisconnect();
       return false;
@@ -712,7 +710,7 @@ int Client::test_logoff()
     Bscript::BObject bobj( run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ) ) );
     if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
     {
-      const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
+      const Bscript::BLong* blong = bobj.impptr<Bscript::BLong>();
       seconds_wait = blong->value();
     }
   }

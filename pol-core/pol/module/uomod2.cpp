@@ -2240,7 +2240,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   int nlines;
   if ( nlines_ob.isa( BObjectImp::OTLong ) )
   {
-    BLong* blong = static_cast<BLong*>( nlines_ob.impptr() );
+    BLong* blong = nlines_ob.impptr<BLong>();
     nlines = blong->value();
   }
   else
@@ -2281,7 +2281,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
     msg->Write<u32>( book->serial_ext );
     msg->WriteFlipped<u16>( static_cast<u16>( npages ) );
 
-    ObjArray* arr = static_cast<ObjArray*>( contents_ob.impptr() );
+    ObjArray* arr = contents_ob.impptr<ObjArray>();
 
     int linenum = 1;
     for ( int page = 1; page <= npages; ++page )
@@ -2368,7 +2368,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
     int nlines;
     if ( nlines_ob.isa( BObjectImp::OTLong ) )
     {
-      BLong* blong = static_cast<BLong*>( nlines_ob.impptr() );
+      BLong* blong = nlines_ob.impptr<BLong>();
       nlines = blong->value();
     }
     else

@@ -675,10 +675,10 @@ void Party::send_member_msg_public( Mobile::Character* chr, const std::string& t
       if ( obj->isa( Bscript::BObjectImp::OTArray ) )
         utf16text =
             std::unique_ptr<Bscript::String>(
-                Bscript::String::fromUCArray( static_cast<Bscript::ObjArray*>( obj.impptr() ) ) )
+                Bscript::String::fromUCArray( obj.impptr<Bscript::ObjArray>() ) )
                 ->toUTF16();
       else
-        utf16text = static_cast<Bscript::String*>( obj.impptr() )->toUTF16();
+        utf16text = obj.impptr<Bscript::String>()->toUTF16();
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {
@@ -724,10 +724,10 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
       if ( obj->isa( Bscript::BObjectImp::OTArray ) )
         utf16text =
             std::unique_ptr<Bscript::String>(
-                Bscript::String::fromUCArray( static_cast<Bscript::ObjArray*>( obj.impptr() ) ) )
+                Bscript::String::fromUCArray( obj.impptr<Bscript::ObjArray>() ) )
                 ->toUTF16();
       else
-        utf16text = static_cast<Bscript::String*>( obj.impptr() )->toUTF16();
+        utf16text = obj.impptr<Bscript::String>()->toUTF16();
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {

@@ -38,7 +38,7 @@ BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, B
     return new BError( "Invalid parameter type" );
   }
 
-  auto func = static_cast<BFunctionRef*>( funcref->impptr() );
+  auto func = funcref->impptr<BFunctionRef>();
 
   // Add function reference to stack
   ValueStack.push_back( funcref );
