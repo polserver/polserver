@@ -1614,15 +1614,15 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         {
           if ( ref.get() == nullptr || !ref.get()->isa( OTArray ) )
             return new BError( "Invalid array" );
-          auto sub_arr = static_cast<ObjArray*>( ref.get()->impptr() );
+          auto sub_arr = ref.get()->impptr<ObjArray>();
           if ( sub_arr->ref_arr.size() < static_cast<size_t>( sub_index ) )
             return new BError( "Subindex to large" );
         }
         sort( ref_arr.begin(), ref_arr.end(),
               [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool
               {
-                auto sub_arr1 = static_cast<ObjArray*>( x1.get()->impptr() );
-                auto sub_arr2 = static_cast<ObjArray*>( x2.get()->impptr() );
+                auto sub_arr1 = x1.get()->impptr<ObjArray>();
+                auto sub_arr2 = x2.get()->impptr<ObjArray>();
                 auto sub1 = sub_arr1->ref_arr[sub_index - 1];
                 auto sub2 = sub_arr2->ref_arr[sub_index - 1];
                 const BObject* b1 = sub1.get();
@@ -1705,7 +1705,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
                           Executor& ex, BContinuation* continuation,
                           BObjectRef result ) mutable -> BObjectImp*
       {
-        auto filtered = static_cast<ObjArray*>( filteredRef->impptr() );
+        auto filtered = filteredRef->impptr<ObjArray>();
 
         // Do something with result.
         // If the result is true, add it to the filtered array.
@@ -1719,7 +1719,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         if ( !thisArray->isa( OTArray ) )
           return filtered;
 
-        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+        const auto& ref_arr = thisArray->impptr<ObjArray>()->ref_arr;
 
         // If the processed index is the last element, return the filtered
         // array. Also check if the processed index is greater than the initial
@@ -1781,14 +1781,14 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
                           Executor& ex, BContinuation* continuation,
                           BObjectRef result ) mutable -> BObjectImp*
       {
-        auto mapped = static_cast<ObjArray*>( mappedRef->impptr() );
+        auto mapped = mappedRef->impptr<ObjArray>();
 
         mapped->ref_arr.push_back( BObjectRef( result->impptr() ) );
 
         if ( !thisArray->isa( OTArray ) )
           return mapped;
 
-        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+        const auto& ref_arr = thisArray->impptr<ObjArray>()->ref_arr;
 
         if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
         {
@@ -1872,7 +1872,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         if ( !thisArray->isa( OTArray ) )
           return result->impptr();
 
-        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+        const auto& ref_arr = thisArray->impptr<ObjArray>()->ref_arr;
 
         if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
         {
@@ -1933,7 +1933,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         if ( !thisArray->isa( OTArray ) )
           return UninitObject::create();
 
-        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+        const auto& ref_arr = thisArray->impptr<ObjArray>()->ref_arr;
 
         if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
         {
@@ -1995,7 +1995,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         if ( !thisArray->isa( OTArray ) )
           return new BLong( 0 );
 
-        const auto& ref_arr = static_cast<ObjArray*>( thisArray->impptr() )->ref_arr;
+        const auto& ref_arr = thisArray->impptr<ObjArray>()->ref_arr;
 
         if ( processed >= initialSize || processed >= static_cast<int>( ref_arr.size() ) )
         {
@@ -2106,8 +2106,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
           return false;
         if ( x2.get() == nullptr || !x2.get()->isa( OTArray ) )
           return false;
-        auto sub_arr1 = static_cast<ObjArray*>( x1.get()->impptr() );
-        auto sub_arr2 = static_cast<ObjArray*>( x2.get()->impptr() );
+        auto sub_arr1 = x1.get()->impptr<ObjArray>();
+        auto sub_arr2 = x2.get()->impptr<ObjArray>();
         if ( sub_arr1->ref_arr.size() < static_cast<size_t>( sub_index ) )
           return false;
         if ( sub_arr2->ref_arr.size() < static_cast<size_t>( sub_index ) )

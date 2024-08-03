@@ -1098,7 +1098,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     {
       if ( !( cont->isa( OTArray ) ) )
         return new BError( "string.join expects an array" );
-      ObjArray* container = static_cast<ObjArray*>( cont->impptr() );
+      ObjArray* container = cont->impptr<ObjArray>();
       // no empty check here on purpose
       OSTRINGSTREAM joined;
       bool first = true;

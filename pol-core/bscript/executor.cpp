@@ -908,12 +908,12 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
     return false;
   if ( obj->isa( BObjectImp::OTString ) )
   {
-    pstr = static_cast<String*>( obj->impptr() );
+    pstr = obj->impptr<String>();
     return true;
   }
   else if ( obj->isa( BObjectImp::OTArray ) )
   {
-    String* str = String::fromUCArray( static_cast<ObjArray*>( obj->impptr() ) );
+    String* str = String::fromUCArray( obj->impptr<ObjArray>() );
     fparams[param].set( new BObject( str ) );  // store raw pointer
     pstr = str;
     return true;
@@ -1238,7 +1238,7 @@ void Executor::ins_initforeach( const Instruction& ins )
 void Executor::ins_stepforeach( const Instruction& ins )
 {
   size_t locsize = Locals2->size();
-  ContIterator* pIter = static_cast<ContIterator*>( ( *Locals2 )[locsize - 2]->impptr() );
+  ContIterator* pIter = ( *Locals2 )[locsize - 2]->impptr<ContIterator>();
 
   BObject* next = pIter->step();
   // If iterator has a value, set it on the locals stack and jump to the
@@ -2458,7 +2458,7 @@ void Executor::ins_dictionary_addmember( const Instruction& /*ins*/ )
 
   BObjectRef dictref = ValueStack.back();
   BObject& dictob = *dictref;
-  BDictionary* dict = static_cast<BDictionary*>( dictob.impptr() );
+  BDictionary* dict = dictob.impptr<BDictionary>();
 
   if ( keyob.count() != 1 || keyimp->count() != 1 )
   {
@@ -2614,7 +2614,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
     if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
     {
       BObjectRef objref = ValueStack.back();
-      auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+      auto funcr = objref->impptr<BFunctionRef>();
       Instruction jmp;
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
@@ -2708,7 +2708,7 @@ void Executor::ins_call_method( const Instruction& ins )
   if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
   {
     BObjectRef objref = ValueStack.back();
-    auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+    auto funcr = objref->impptr<BFunctionRef>();
     Instruction jmp;
     if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
     {
@@ -2916,7 +2916,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     // the result's BObjectImp*. If we move `result`, the BObjectImp* will be
     // deleted when the callback ends.
     auto* imp =
-        static_cast<BContinuation*>( continuation->impptr() )->continueWith( *this, result );
+        continuation->impptr<BContinuation>()->continueWith( *this, result );
 
     // If the the continuation callback returned a continuation, handle the jump.
     if ( imp && imp->isa( BObjectImp::OTContinuation ) )
@@ -2926,7 +2926,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       auto cont = static_cast<BContinuation*>( imp );
 
       BObjectRef objref = ValueStack.back();
-      auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+      auto funcr = objref->impptr<BFunctionRef>();
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
@@ -3124,11 +3124,11 @@ void Executor::ins_funcref( const Instruction& ins )
 void Executor::ins_functor( const Instruction& ins )
 {
   passert_always( ValueStack.back()->isa( BObjectImp::OTLong ) );
-  int parameter_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
+  int parameter_count = ValueStack.back()->impptr<BLong>()->value();
   ValueStack.pop_back();
 
   passert_always( ValueStack.back()->isa( BObjectImp::OTLong ) );
-  int capture_count = static_cast<BLong*>( ValueStack.back()->impptr() )->value();
+  int capture_count = ValueStack.back()->impptr<BLong>()->value();
   ValueStack.pop_back();
 
   auto captures = ValueStackCont();

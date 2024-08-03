@@ -773,7 +773,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
     if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
-      time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
+      time_self = imp.impptr<Bscript::BLong>()->value();
     else
       time_self = Core::read_gameclock();
   }
@@ -785,7 +785,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_sub.c_str() ) );
     if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
-      time_sub = static_cast<Bscript::BLong*>( imp.impptr() )->value();
+      time_sub = imp.impptr<Bscript::BLong>()->value();
     else
       time_sub = Core::read_gameclock();
   }
@@ -821,7 +821,7 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
     if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
-      time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
+      time_self = imp.impptr<Bscript::BLong>()->value();
     else
       time_self = Core::read_gameclock();
   }

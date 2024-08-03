@@ -241,7 +241,7 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
 {
   if ( obj->isa( OTString ) )
   {
-    const String* keystr = static_cast<const String*>( obj.impptr() );
+    const String* keystr = obj.impptr<String>();
 
     auto itr = contents_.find( keystr->value() );
     if ( itr != contents_.end() )
@@ -325,7 +325,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
-      String* strkey = static_cast<String*>( keyobj->impptr() );
+      String* strkey = keyobj->impptr<String>();
       int nremove = static_cast<int>( contents_.erase( strkey->value() ) );
       return new BLong( nremove );
     }
@@ -340,7 +340,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
-      String* strkey = static_cast<String*>( keyobj->impptr() );
+      String* strkey = keyobj->impptr<String>();
       contents_[strkey->value()] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
       return new BLong( static_cast<int>( contents_.size() ) );
     }
@@ -354,7 +354,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
-      String* strkey = static_cast<String*>( keyobj->impptr() );
+      String* strkey = keyobj->impptr<String>();
       int count = static_cast<int>( contents_.count( strkey->value() ) );
       return new BLong( count );
     }

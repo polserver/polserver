@@ -1706,7 +1706,7 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
         continue;
       if ( !bo->isa( BObjectImp::OTLong ) )
         continue;
-      BLong* blong = static_cast<BLong*>( bo->impptr() );
+      BLong* blong = bo->impptr<BLong>();
       unsigned int objtype = static_cast<u32>( blong->value() );
 
       ref_ptr<StoredConfigElem> celem = cfile->findelem( objtype );

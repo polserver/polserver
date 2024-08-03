@@ -25,8 +25,8 @@ public:
   ~BContinuation();
 
   BObjectImp* continueWith( Executor& exec, BObjectRef result );
-  BFunctionRef* func() { return static_cast<BFunctionRef*>( funcref_->impptr() ); }
-  size_t numParams() const { return static_cast<BFunctionRef*>( funcref_->impptr() )->numParams(); }
+  BFunctionRef* func() { return funcref_->impptr<BFunctionRef>(); }
+  size_t numParams() const { return funcref_->impptr<BFunctionRef>()->numParams(); }
 
   BObjectImp* copy( void ) const override;
   size_t sizeEstimate() const override;

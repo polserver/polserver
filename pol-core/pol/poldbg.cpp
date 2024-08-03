@@ -693,7 +693,7 @@ std::string DebugContext::cmd_call( const std::string& rest, Results& /*results*
       {
         return "Parameters must be an array.";
       }
-      ObjArray* arr = static_cast<ObjArray*>( params.impptr() );
+      ObjArray* arr = params.impptr<ObjArray>();
       for ( int i = static_cast<int>( arr->ref_arr.size() - 1 ); i >= 0; --i )
       {
         ex.pushArg( arr->ref_arr[i]->impptr() );

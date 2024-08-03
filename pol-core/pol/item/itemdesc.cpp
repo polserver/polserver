@@ -1214,7 +1214,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       {
         OSTRINGSTREAM os;
         // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* ignorecp = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
+        Bscript::ObjArray* ignorecp = itr->second->impptr<Bscript::ObjArray>();
         const Bscript::ObjArray::Cont& conts = ignorecp->ref_arr;
         Bscript::ObjArray::Cont::const_iterator aitr;
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
@@ -1235,7 +1235,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       if ( val_imp->isa( Bscript::BObjectImp::OTArray ) )
       {
         // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* coverage = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
+        Bscript::ObjArray* coverage = itr->second->impptr<Bscript::ObjArray>();
         const Bscript::ObjArray::Cont& conts = coverage->ref_arr;
         Bscript::ObjArray::Cont::const_iterator aitr;
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
