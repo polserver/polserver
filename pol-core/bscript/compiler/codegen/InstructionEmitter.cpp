@@ -186,15 +186,15 @@ void InstructionEmitter::binary_operator( BTokenId token_id )
   emit_token( token_id, TYP_OPERATOR );
 }
 
-void InstructionEmitter::call_method_id( MethodID method_id )
+void InstructionEmitter::call_method_id( MethodID method_id, unsigned argument_count )
 {
-  emit_token( INS_CALL_METHOD_ID, (BTokenType)0, method_id );
+  emit_token( INS_CALL_METHOD_ID, (BTokenType)argument_count, method_id );
 }
 
-void InstructionEmitter::call_method( const std::string& name )
+void InstructionEmitter::call_method( const std::string& name, unsigned argument_count )
 {
   unsigned offset = emit_data( name );
-  emit_token( INS_CALL_METHOD, (BTokenType)0, offset );
+  emit_token( INS_CALL_METHOD, (BTokenType)argument_count, offset );
 }
 
 void InstructionEmitter::call_modulefunc(
@@ -369,11 +369,6 @@ void InstructionEmitter::leaveblock( unsigned local_vars_to_remove )
 void InstructionEmitter::makelocal()
 {
   emit_token( CTRL_MAKELOCAL, TYP_CONTROL );
-}
-
-void InstructionEmitter::storestackcount()
-{
-  emit_token( CTRL_STORESTACKCOUNT, TYP_CONTROL );
 }
 
 void InstructionEmitter::pop_param( const std::string& name )

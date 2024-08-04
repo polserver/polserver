@@ -2610,12 +2610,7 @@ void Executor::ins_func( const Instruction& ins )
 void Executor::ins_call_method_id( const Instruction& ins )
 {
   BContinuation* continuation = nullptr;
-  passert_always( !MethodArgsValueStackCount.empty() );
-
-  // -1 because the object itself is on the stack
-  auto nparams = static_cast<unsigned>( ValueStack.size() - MethodArgsValueStackCount.top() - 1 );
-
-  MethodArgsValueStackCount.pop();
+  unsigned nparams = ins.token.type;
 
   do
   {
@@ -2714,13 +2709,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
 
 void Executor::ins_call_method( const Instruction& ins )
 {
-  passert_always( !MethodArgsValueStackCount.empty() );
-
-  // -1 because the object itself is on the stack
-  auto nparams = static_cast<unsigned>( ValueStack.size() - MethodArgsValueStackCount.top() - 1 );
-
-  MethodArgsValueStackCount.pop();
-
+  unsigned nparams = ins.token.lval;
   getParams( nparams );
 
   if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
@@ -2804,11 +2793,6 @@ void Executor::ins_makelocal( const Instruction& /*ins*/ )
   if ( Locals2 )
     upperLocals2.push_back( Locals2 );
   Locals2 = new BObjectRefVec;
-}
-
-void Executor::ins_storestackcount( const Instruction& /*ins*/ )
-{
-  MethodArgsValueStackCount.push( ValueStack.size() );
 }
 
 // CTRL_JSR_USERFUNC:
@@ -3007,40 +2991,6 @@ void Executor::ins_dictionary( const Instruction& /*ins*/ )
 {
   ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
 }
-
-void Executor::ins_spread( const Instruction& ins )
-{
-  BObjectRef ref = ValueStack.back();
-  ValueStack.pop_back();
-
-  auto mode = ins.token.lval;
-
-  if ( !ref->isa( BObjectImp::OTArray ) )
-  {
-    DEBUGLOGLN(
-        "Error in script '{}':\n"
-        "\tAttempt to use spread operator on non-array.",
-        prog_->name, PC );
-
-    return;
-  }
-
-  auto arr = static_cast<ObjArray*>( ref->impptr() );
-
-  if ( mode == 0 )
-  {
-    passert_always( !ValueStack.empty() );
-    auto& stack_arr_ref = ValueStack.back();
-    passert_always( stack_arr_ref->impptr()->isa( BObjectImp::OTArray ) );
-    auto stack_arr = static_cast<ObjArray*>( stack_arr_ref->impptr() );
-    stack_arr->ref_arr.insert( stack_arr->ref_arr.end(), arr->ref_arr.begin(), arr->ref_arr.end() );
-  }
-  else if ( mode == 1 )
-  {
-    ValueStack.insert( ValueStack.end(), arr->ref_arr.begin(), arr->ref_arr.end() );
-  }
-}
-
 void Executor::ins_uninit( const Instruction& /*ins*/ )
 {
   ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
@@ -3239,8 +3189,6 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_error;
   case TOK_STRUCT:
     return &Executor::ins_struct;
-  case TOK_SPREAD:
-    return &Executor::ins_spread;
   case TOK_ARRAY:
     return &Executor::ins_array;
   case TOK_DICTIONARY:
@@ -3341,8 +3289,6 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_statementbegin;
   case CTRL_MAKELOCAL:
     return &Executor::ins_makelocal;
-  case CTRL_STORESTACKCOUNT:
-    return &Executor::ins_storestackcount;
   case CTRL_JSR_USERFUNC:
     return &Executor::ins_jsr_userfunc;
   case INS_POP_PARAM:
@@ -3831,7 +3777,6 @@ void Executor::dbg_clrallbp()
 size_t Executor::sizeEstimate() const
 {
   size_t size = sizeof( *this );
-  size += Clib::memsize( MethodArgsValueStackCount );
   size += Clib::memsize( upperLocals2 );
   for ( const auto& bobjectrefvec : upperLocals2 )
   {

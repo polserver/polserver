@@ -69,8 +69,8 @@ public:
   void basic_for_init( FlowControlLabel& );
   void basic_for_next( FlowControlLabel& );
   void binary_operator( BTokenId token_id );
-  void call_method( const std::string& name );
-  void call_method_id( MethodID method_id );
+  void call_method( const std::string& name, unsigned argument_count );
+  void call_method_id( MethodID method_id, unsigned argument_count );
   void call_modulefunc( const ModuleFunctionDeclaration& );
   void call_userfunc( FlowControlLabel& );
   unsigned casejmp();
@@ -96,7 +96,6 @@ public:
   void label( FlowControlLabel& );
   void leaveblock( unsigned local_vars_to_remove );
   void makelocal();
-  void storestackcount();
   void pop_param( const std::string& name );
   void pop_param_byref( const std::string& name );
   void progend();
