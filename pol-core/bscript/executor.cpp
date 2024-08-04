@@ -323,8 +323,11 @@ void Executor::expandParams()
       // Remove the spread
       fparams.erase( fparams.begin() + i );
 
-      auto pIterVal = new BObject( UninitObject::create() );
-      ContIterator* pIter = spread->object->impptr()->createIterator( pIterVal );
+      BObjectRef refIter( new BObject( UninitObject::create() ) );
+
+      auto pIter = std::unique_ptr<ContIterator>(
+          spread->object->impptr()->createIterator( refIter.get() ) );
+
       BObject* next = pIter->step();
 
       int added = 0;
@@ -2536,8 +2539,11 @@ void Executor::ins_insert_into( const Instruction& /*ins*/ )
   if ( right->isa( BObjectImp::OTSpread ) )
   {
     BSpread* spread = right.impptr<BSpread>();
-    auto pIterVal = new BObject( UninitObject::create() );
-    ContIterator* pIter = spread->object->impptr()->createIterator( pIterVal );
+    BObjectRef refIter( new BObject( UninitObject::create() ) );
+
+    auto pIter =
+        std::unique_ptr<ContIterator>( spread->object->impptr()->createIterator( refIter.get() ) );
+
     BObject* next = pIter->step();
     while ( next != nullptr )
     {
@@ -2660,7 +2666,6 @@ void Executor::ins_call_method_id( const Instruction& ins )
   do
   {
     getParams( nparams );
-
     if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
     {
       BObjectRef objref = ValueStack.back();
