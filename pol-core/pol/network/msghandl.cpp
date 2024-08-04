@@ -105,23 +105,33 @@ void PacketRegistry::set_extended_handler( UEXTMSGID submsgtype,
 //               MESSAGE_HANDLER( PKTBI_2C, handle_resurrect_menu );
 //
 //  will register the fixed-length packet 2C with callback "handle_ressurect_menu"
-#define MESSAGE_HANDLER( type, func )                                             \
-  PacketRegistry::set_handler( type##_ID, sizeof( type ),                         \
-                               reinterpret_cast<Network::PktHandlerFunc>( func ), \
-                               Network::PacketVersion::V1 )
+#define MESSAGE_HANDLER( type, func )                      \
+  PacketRegistry::set_handler(                             \
+      type##_ID, sizeof( type ),                           \
+      []( Network::Client* client, void* msg ) -> void     \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, \
+      Network::PacketVersion::V1 )
 
-#define MESSAGE_HANDLER_VARLEN( type, func )                                                   \
-  PacketRegistry::set_handler( type##_ID, MSGLEN_2BYTELEN_DATA, (Network::PktHandlerFunc)func, \
-                               Network::PacketVersion::V1 )
+#define MESSAGE_HANDLER_VARLEN( type, func )               \
+  PacketRegistry::set_handler(                             \
+      type##_ID, MSGLEN_2BYTELEN_DATA,                     \
+      []( Network::Client* client, void* msg ) -> void     \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, \
+      Network::PacketVersion::V1 )
 
-#define MESSAGE_HANDLER_V2( type, func )                                          \
-  PacketRegistry::set_handler( type##_ID, sizeof( type ),                         \
-                               reinterpret_cast<Network::PktHandlerFunc>( func ), \
-                               Network::PacketVersion::V2 )
+#define MESSAGE_HANDLER_V2( type, func )                   \
+  PacketRegistry::set_handler(                             \
+      type##_ID, sizeof( type ),                           \
+      []( Network::Client* client, void* msg ) -> void     \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, \
+      Network::PacketVersion::V2 )
 
-#define MESSAGE_HANDLER_VARLEN_V2( type, func )                                                \
-  PacketRegistry::set_handler( type##_ID, MSGLEN_2BYTELEN_DATA, (Network::PktHandlerFunc)func, \
-                               Network::PacketVersion::V2 )
+#define MESSAGE_HANDLER_VARLEN_V2( type, func )            \
+  PacketRegistry::set_handler(                             \
+      type##_ID, MSGLEN_2BYTELEN_DATA,                     \
+      []( Network::Client* client, void* msg ) -> void     \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, \
+      Network::PacketVersion::V2 )
 
 void PacketRegistry::initialize_msg_handlers()
 {
