@@ -2644,7 +2644,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
 
       // Set nparams, so the next loop iteration's `getParams` will know how many arguments to
       // move.
-      nparams = continuation->args.size();
+      nparams = static_cast<unsigned int>( continuation->args.size() );
 
       // Add function reference to stack
       ValueStack.push_back( BObjectRef( continuation->func() ) );
@@ -2918,16 +2918,16 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     {
       // Do not delete imp, as the ReturnContext created in `ins_jsr_userfunc`
       // takes ownership.
-      auto continuation = static_cast<BContinuation*>( imp );
+      auto cont = static_cast<BContinuation*>( imp );
 
       // Add function reference to stack
-      ValueStack.push_back( BObjectRef( new BObject( continuation->func() ) ) );
+      ValueStack.push_back( BObjectRef( new BObject( cont->func() ) ) );
 
       // Move all arguments to the fparams stack
-      fparams.insert( fparams.end(), std::make_move_iterator( continuation->args.begin() ),
-                      std::make_move_iterator( continuation->args.end() ) );
+      fparams.insert( fparams.end(), std::make_move_iterator( cont->args.begin() ),
+                      std::make_move_iterator( cont->args.end() ) );
 
-      continuation->args.clear();
+      cont->args.clear();
 
       printStack(
           "continuation callback returned a continuation; continuation args added to fparams" );
@@ -2937,7 +2937,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
-        call_function_reference( funcr, continuation, jmp );
+        call_function_reference( funcr, cont, jmp );
       }
       else
       {
