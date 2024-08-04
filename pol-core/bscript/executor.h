@@ -469,6 +469,9 @@ public:
   void show_context( unsigned atPC );
   void show_context( std::string& os, unsigned atPC );
 
+  void call_function_reference( BFunctionRef* funcref, BContinuation* continuation,
+                                const Instruction& jmp );
+
   int getDebugLevel() { return debug_level; }
   void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }
   void setViewMode( bool vm ) { viewmode_ = vm; }

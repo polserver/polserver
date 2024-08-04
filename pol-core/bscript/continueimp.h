@@ -21,12 +21,12 @@ struct ContinuationCallbackWrapper
 class BContinuation : public BObjectImp
 {
 public:
-  BContinuation( BObjectRef funcref, ContinuationCallbackWrapper wrapper, void* wrapperData );
+  BContinuation( BObjectRef funcref, BObjectRefVec args, ContinuationCallbackWrapper wrapper,
+                 void* wrapperData );
   ~BContinuation();
 
   BObjectImp* continueWith( Executor& exec, BObjectRef result );
-  BFunctionRef* func() { return funcref_->impptr<BFunctionRef>(); }
-  size_t numParams() const { return funcref_->impptr<BFunctionRef>()->numParams(); }
+  BFunctionRef* func();
 
   BObjectImp* copy( void ) const override;
   size_t sizeEstimate() const override;
@@ -36,6 +36,9 @@ private:
   BObjectRef funcref_;
   ContinuationCallbackWrapper wrapper_;
   void* wrapperData_;
+
+public:
+  BObjectRefVec args;
 };
 }  // namespace Bscript
 }  // namespace Pol

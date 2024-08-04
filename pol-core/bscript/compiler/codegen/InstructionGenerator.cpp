@@ -395,18 +395,59 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
     update_debug_location( call );
     // Subtract 1 because the first child is the callee.
     emit.call_method_id( MTH_CALL, static_cast<unsigned int>( call.children.size() - 1 ) );
+    // Constructing array from rest arguments is done in executor for dynamic function calls.
   }
   else
   {
-    visit_children( call );
+    auto emit_args = [&]( Function& function )
+    {
+      if ( function.is_variadic() )
+      {
+        auto num_nonrest_args = function.parameter_count() - 1;
 
-    update_debug_location( call );
+        // Push real args, then create an array for the last rest arg.
+        // All children for a non-expression-as-callee FunctionCalls are arguments.
+        for ( unsigned i = 0; i < call.children.size(); ++i )
+        {
+          // Create the array once we've reached the rest argument.
+          if ( i == num_nonrest_args )
+          {
+            emit.array_create();
+          }
+
+          call.children[i]->accept( *this );
+
+          // Add to the array if we're past the non-rest arguments.
+          if ( i >= num_nonrest_args )
+          {
+            emit.array_append();
+          }
+        }
+
+        // If there was no rest argument, create an empty array.
+        if ( call.children.size() <= num_nonrest_args )
+        {
+          emit.array_create();
+        }
+      }
+      else
+      {
+        visit_children( call );
+      }
+
+      // Update the debug location to the function call after emitting the
+      // arguments.
+      update_debug_location( call );
+    };
+
     if ( auto mf = call.function_link->module_function_declaration() )
     {
+      emit_args( *mf );
       emit.call_modulefunc( *mf );
     }
     else if ( auto uf = call.function_link->user_function() )
     {
+      emit_args( *uf );
       FlowControlLabel& label = user_function_labels[uf->name];
       emit.makelocal();
       emit.call_userfunc( label );
@@ -440,8 +481,11 @@ void InstructionGenerator::visit_function_parameter_declaration(
 // - captured vars
 // - captured vars count
 // - parameter count
+// - is variadic
 // - create-functor <instructions count>
 // - function instructions
+//
+// TODO maybe use a data area to encapsulate counts + variadic flag?
 void InstructionGenerator::visit_function_expression( FunctionExpression& node )
 {
   update_debug_location( node );
@@ -456,6 +500,7 @@ void InstructionGenerator::visit_function_expression( FunctionExpression& node )
     auto capture_count_index = emit.value<int>();
 
     emit.value( static_cast<int>( user_function->parameter_count() ) );
+    emit.value( user_function->is_variadic() );
 
     emit.functor_create();
     auto index = emitter.next_instruction_address() - 1;
@@ -486,7 +531,13 @@ void InstructionGenerator::visit_function_reference( FunctionReference& function
   {
     update_debug_location( function_reference );
     FlowControlLabel& label = user_function_labels[uf->name];
-    emit.function_reference( uf->parameter_count(), label );
+
+    // Since we encode the 'is variadic' as the top bit, 0x7f parameters allowed.
+    if ( uf->parameter_count() >= 0x80 )
+    {
+      function_reference.internal_error( "too many parameters" );
+    }
+    emit.function_reference( uf->parameter_count(), uf->is_variadic(), label );
   }
   else
   {

@@ -27,6 +27,22 @@ unsigned Function::parameter_count() const
   return static_cast<unsigned>( children.at( 0 )->children.size() );
 }
 
+bool Function::is_variadic() const
+{
+  // The variadic argument, if present, is the last one
+  if ( parameter_count() > 0 )
+  {
+    const auto& parameter_list = children.at( 0 );
+
+    auto parameter =
+        static_cast<FunctionParameterDeclaration*>( parameter_list->children.back().get() );
+
+    return parameter->rest;
+  }
+
+  return false;
+}
+
 std::vector<std::reference_wrapper<FunctionParameterDeclaration>> Function::parameters()
 {
   std::vector<std::reference_wrapper<FunctionParameterDeclaration>> params;

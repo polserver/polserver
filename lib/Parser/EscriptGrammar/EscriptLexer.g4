@@ -65,6 +65,7 @@ FLOAT:              'float';
 DOUBLE:             'double';
 AS:                 'as';
 IS:                 'is';
+ELLIPSIS:           '...';
 
 // Operators
 AND_A:              '&&';

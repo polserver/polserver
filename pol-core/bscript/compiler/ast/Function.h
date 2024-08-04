@@ -17,6 +17,7 @@ public:
   Function( const SourceLocation&, std::string name, std::unique_ptr<FunctionParameterList> );
 
   unsigned parameter_count() const;
+  bool is_variadic() const;
   std::vector<std::reference_wrapper<FunctionParameterDeclaration>> parameters();
 
   const std::string name;

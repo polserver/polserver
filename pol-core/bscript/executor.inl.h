@@ -40,26 +40,21 @@ BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, B
 
   auto func = funcref->impptr<BFunctionRef>();
 
-  // Add function reference to stack
-  ValueStack.push_back( funcref );
-
   // Add function arguments to value stack. Add arguments if there are not enough.  Remove if
   // there are too many
   while ( func->numParams() > args.size() )
   {
     args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
   }
-  // Resize and erase the state in `args` since it was moved above.
-  args.resize( func->numParams() );
 
-  // Move all arguments to the value stack
-  ValueStack.insert( ValueStack.end(), std::make_move_iterator( args.begin() ),
-                     std::make_move_iterator( args.end() ) );
+  // Resize args only for non-varadic functions
+  if ( !func->variadic() )
+    args.resize( func->numParams() );
 
   CallbackData<Callback>* details = new CallbackData<Callback>( callback );
 
   return new BContinuation(
-      std::move( funcref ),
+      std::move( funcref ), std::move( args ),
       { CallbackData<Callback>::call, CallbackData<Callback>::free, CallbackData<Callback>::size },
       details );
 }

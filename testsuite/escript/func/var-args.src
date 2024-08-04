@@ -1,0 +1,116 @@
+function sum( args ... )
+  return $"sum of {args}";
+endfunction
+
+function sumWithArg( arg0, args ... )
+  return $"sum of {arg0} + {args}";
+endfunction
+
+function sumWithArgs( arg0, arg1, args ... )
+  return $"sum of {arg0} + {arg1} + {args}";
+endfunction
+
+// -----
+// Tests via static calls `func(...)`
+// -----
+
+// Pass no arg
+print( sum() );
+print( sumWithArg( 0 ) );
+print( sumWithArgs( 0, 1 ) );
+print( "-" );
+
+// Pass one arg
+print( sum( 0 ) );
+print( sumWithArg( 0, 1 ) );
+print( sumWithArgs( 0, 1, 2 ) );
+print( "-" );
+
+// Pass multiple args
+print( sum( 0, 1, 2 ) );
+print( sumWithArg( 0, 1, 2, 3 ) );
+print( sumWithArgs( 0, 1, 2, 3, 4 ) );
+print( "-" );
+
+// -----
+// Tests via expression call `@func.call(...)`
+// -----
+
+// Pass no arg
+print( @sum.call() );
+print( @sumWithArg.call( 0 ) );
+print( @sumWithArgs.call( 0, 1 ) );
+print( "-" );
+
+// Pass one arg
+print( @sum.call( 0 ) );
+print( @sumWithArg.call( 0, 1 ) );
+print( @sumWithArgs.call( 0, 1, 2 ) );
+print( "-" );
+
+// Pass multiple args
+print( @sum.call( 0, 1, 2 ) );
+print( @sumWithArg.call( 0, 1, 2, 3 ) );
+print( @sumWithArgs.call( 0, 1, 2, 3, 4 ) );
+print( "-" );
+
+// -----
+// Tests via function expression call `(@(<args>){})(...)`
+// -----
+
+var sum_functor := @( args ... ) {
+  return $"sum of {args}";
+};
+
+var sumWithArg_functor := @( arg0, args ... ) {
+  return $"sum of {arg0} + {args}";
+};
+
+var sumWithArgs_functor := @( arg0, arg1, args ... ) {
+  return $"sum of {arg0} + {arg1} + {args}";
+};
+
+// Pass no arg
+print( sum_functor.call() );
+print( sumWithArg_functor.call( 0 ) );
+print( sumWithArgs_functor.call( 0, 1 ) );
+print( "-" );
+
+// Pass one arg
+print( sum_functor.call( 0 ) );
+print( sumWithArg_functor.call( 0, 1 ) );
+print( sumWithArgs_functor.call( 0, 1, 2 ) );
+print( "-" );
+
+// Pass multiple args
+print( sum_functor.call( 0, 1, 2 ) );
+print( sumWithArg_functor.call( 0, 1, 2, 3 ) );
+print( sumWithArgs_functor.call( 0, 1, 2, 3, 4 ) );
+print( "-" );
+
+// -----
+// Simple sanity checks cross `func()` and `@func.call()`
+// -----
+print( sum() == @sum.call() );
+print( sumWithArg( 0 ) == @sumWithArg.call( 0 ) );
+print( sumWithArgs( 0, 1 ) == @sumWithArgs.call( 0, 1 ) );
+print( sum( 0 ) == @sum.call( 0 ) );
+print( sumWithArg( 0, 1 ) == @sumWithArg.call( 0, 1 ) );
+print( sumWithArgs( 0, 1, 2 ) == @sumWithArgs.call( 0, 1, 2 ) );
+print( sum( 0, 1, 2 ) == @sum.call( 0, 1, 2 ) );
+print( sumWithArg( 0, 1, 2, 3 ) == @sumWithArg.call( 0, 1, 2, 3 ) );
+print( sumWithArgs( 0, 1, 2, 3, 4 ) == @sumWithArgs.call( 0, 1, 2, 3, 4 ) );
+print( "-" );
+
+// -----
+// Simple sanity checks cross `func()` and `(@(<args>){})(...)`
+// -----
+print( sum() == sum_functor() );
+print( sumWithArg( 0 ) == sumWithArg_functor( 0 ) );
+print( sumWithArgs( 0, 1 ) == sumWithArgs_functor( 0, 1 ) );
+print( sum( 0 ) == sum_functor( 0 ) );
+print( sumWithArg( 0, 1 ) == sumWithArg_functor( 0, 1 ) );
+print( sumWithArgs( 0, 1, 2 ) == sumWithArgs_functor( 0, 1, 2 ) );
+print( sum( 0, 1, 2 ) == sum_functor( 0, 1, 2 ) );
+print( sumWithArg( 0, 1, 2, 3 ) == sumWithArg_functor( 0, 1, 2, 3 ) );
+print( sumWithArgs( 0, 1, 2, 3, 4 ) == sumWithArgs_functor( 0, 1, 2, 3, 4 ) );

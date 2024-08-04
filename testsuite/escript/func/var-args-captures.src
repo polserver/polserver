@@ -1,0 +1,44 @@
+// -----
+// Tests via function expression call `(@(<args>){})(...)` with captures
+// -----
+
+if ("1") // make local block
+  var cap0 := -1;
+
+  var sum_functor := @( args ... ) {
+    return $"sum of {cap0} + {args}";
+  };
+
+  var sumWithArg_functor := @( arg0, args ... ) {
+    var loc0 := 123;
+    // capture cap0, arg0, loc0; and args
+    return (@(){
+      if (loc0 != 123)
+        return error{};
+      endif
+      return $"sum of {cap0} + {arg0} + {args}";
+    })();
+  };
+
+  var sumWithArgs_functor := @( arg0, arg1, args ... ) {
+    return $"sum of {cap0} + {arg0} + {arg1} + {args}";
+  };
+
+  // Pass no arg
+  print( sum_functor.call() );
+  print( sumWithArg_functor.call( 0 ) );
+  print( sumWithArgs_functor.call( 0, 1 ) );
+  print( "-" );
+
+  // Pass one arg
+  print( sum_functor.call( 0 ) );
+  print( sumWithArg_functor.call( 0, 1 ) );
+  print( sumWithArgs_functor.call( 0, 1, 2 ) );
+  print( "-" );
+
+  // Pass multiple args
+  print( sum_functor.call( 0, 1, 2 ) );
+  print( sumWithArg_functor.call( 0, 1, 2, 3 ) );
+  print( sumWithArgs_functor.call( 0, 1, 2, 3, 4 ) );
+
+endif

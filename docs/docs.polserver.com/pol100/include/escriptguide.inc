@@ -1,5 +1,5 @@
-<h1>Racalac's eScript Reference and Guide (POL 100.1.0)<br>
-<font size="2">(Last Updated: March 14, 2021)</font></h1>
+<h1>Racalac's eScript Reference and Guide (POL 100.2.0)<br>
+<div style="font-size: 0.82em">(Last Updated: August 4, 2024)</div>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -91,6 +91,8 @@ apologies if I explain some things in annoyingly simple terms.</p>
 <p><b><a href="#appB">Appendix B: Operator Precedence</a></b></p>
 
 <p><b><a href="#appC">Appendix C: Functional Programming with Arrays</a></b></p>
+
+<p><b><a href="#appD">Appendix D: Variadic User Functions</a></b></p>
 
 <p><b><a href="#appX">Appendix X: Revision History</a></b></p>
 
@@ -2883,6 +2885,7 @@ behavior.
 <h3><a name="appC">Functional Programming with Arrays</a></h3>
 <br/>
 <p>Added in: POL 100.2.0</p>
+<br/>
 <p>
   Arrays now offer several methods that accept a user function as an argument.
   This allows better use of functional programming within Escript. Functional
@@ -2894,8 +2897,10 @@ behavior.
   <code>findIndex</code>, and <code>reduce</code>. Let's take a look at what
   each of these does and how you can use them.
 </p>
+<br/>
 
 <h4><code>filter</code></h4>
+<br/>
 <p>
   The filter method lets you create a new array with only the elements that
   pass a test you provide.
@@ -2912,8 +2917,10 @@ var hidden_players := EnumerateOnlinePlayers()
   In this example, <code>filter</code> checks each player to see if it is hidden
   and creates a new array with only the hidden players.
 </p>
+<br/>
 
 <h4><code>map</code></h4>
+<br/>
 <p>
   The <code>map</code> method creates a new array by applying a function to each
   element of the original array.
@@ -2930,8 +2937,10 @@ var serials := ListItemsNearLocation( x, y, z, range )
   Here, <code>map</code> takes each item near location <code>(x, y, z)</code>
   and gets its serial, then puts the results in a new array.
 </p>
+<br/>
 
 <h4><code>find</code></h4>
+<br/>
 <p>
   The <code>find</code> method returns the first element in the array that
   passes a test you provide. If no elements pass the test, it returns
@@ -2946,8 +2955,10 @@ var locked_item := EnumerateItemsInContainer( container )
 </pre></div>
 
 <p>This example finds the locked item in the container.</p>
+<br/>
 
 <h4><code>findIndex</code></h4>
+<br/>
 <p>
   The <code>findIndex</code> method works like find, but instead of returning
   the element, it returns the index (position) of the first element that passes
@@ -2972,8 +2983,10 @@ var incomplete_quest_index := quests
   In this example, <code>findIndex</code> gives the position of the first
   incomplete quest in the array.
 </p>
+<br/>
 
 <h4><code>reduce</code></h4>
+<br/>
 <p>
   The <code>reduce</code> method combines all elements in the array into a
   single value by applying a function you provide. This is useful for tasks like
@@ -3005,7 +3018,6 @@ var total = array{ 1, 5, 12, 4 }
   });
 </pre></div>
 
-
 <p>
   Here, reduce calculates the sum of the elements. Since no initial value is
   provided, the first element in the array is used as the initial value for
@@ -3013,8 +3025,10 @@ var total = array{ 1, 5, 12, 4 }
   function returns the sum of the two elements. This sum is then used as the
   new <code>sum</code> for the next iteration, and so on.
 </p>
+<br/>
 
 <h4><b>Advanced Techniques</b></h4>
+<br/>
 <p>
   Each of the functional array methods receive two additional arguments: the
   index of the current element and the array itself. This allows you to write more
@@ -3041,6 +3055,60 @@ var players_with_ranking := "".join(
 <br/>
 <br/>
 
+<!-- ====================================================================== -->
+<h3><a name="appD">Variadic User Functions</a></h3>
+<br/>
+<p>Added in: POL 100.2.0</p>
+<br/>
+<p>
+  User functions can accept any number of arguments by using the 'rest
+  parameter' syntax. This allows you to write functions that can take a variable
+  number of arguments, making your code more flexible and easier to use. To
+  create a variadic user function, you use the <code>...</code> syntax in the
+  function definition. The rest parameter is an array that contains all the
+  arguments passed to the function. Here's an example of a variadic user
+  function that calculates the sum of all its arguments:
+</p>
+
+<div class="doc-guide-pre"><pre>
+  function Sum( numbers... )
+    var total := 0;
+
+    foreach number in numbers
+      total += number;
+    endforeach
+
+    return total;
+  endfunction
+</pre></div>
+
+<p>You can call this function with any number of arguments:</p>
+
+<div class="doc-guide-pre"><pre>
+  var sum1 := Sum( 1, 2, 3 ); // sum1 = 6
+  var sum2 := Sum( 1, 2, 3, 4, 5 ); // sum2 = 15
+</pre></div>
+
+<p>
+  The rest parameter can be used with other parameters as well. The rest
+  parameter must be the last parameter in the function definition. When calling
+  a variadic user function with multiple parameters, each parameter prior to the
+  rest parameter <b>must</b> be provided. The rest parameter will then capture
+  any remaining arguments.
+</p>
+
+<div class="doc-guide-pre"><pre>
+  function SendMessageToPlayers( message, players... )
+    foreach player in players
+      SendSysMessage( player, $"[Server] {message}" );
+    endforeach
+  endfunction
+
+  SendMessageToPlayers( "Hello!", player1, player2, player3 );
+</pre></div>
+
+<br/>
+<br/>
 <!-- ====================================================================== -->
 <h3><a name="appX">Appendix X: Revision History</a></h3>
 <br/>
@@ -3091,4 +3159,7 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.13: 02/08/2024<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Functional Programming with Arrays by Kevin<br>
+</p>
+<p>v0.14: 04/08/2024<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Variadic User Functions by Kevin<br>
 </p>

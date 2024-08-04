@@ -1,0 +1,20 @@
+function sum( args ... )
+  return $"sum of {args}";
+endfunction
+
+function sumWithArg( arg0, args ... )
+  return $"sum of {arg0} + {args}";
+endfunction
+
+function sumWithArgs( arg0, arg1, args ... )
+  return $"sum of {arg0} + {arg1} + {args}";
+endfunction
+
+// This is technically allowed, passing a value for the rest parameter. It will
+// be wrapped as a single `array{ value }` in the function.
+
+print( sum( args := 0 ) );
+print( sumWithArg( 0, args := 1 ) );
+
+// Since it's a named arg, can appear anywhere
+print( sumWithArgs( 0, args := 2, arg1 := 1 ) );

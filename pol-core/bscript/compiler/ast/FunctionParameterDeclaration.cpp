@@ -9,19 +9,24 @@
 namespace Pol::Bscript::Compiler
 {
 FunctionParameterDeclaration::FunctionParameterDeclaration(
-    const SourceLocation& source_location, std::string name, bool byref, bool unused,
+    const SourceLocation& source_location, std::string name, bool byref, bool unused, bool rest,
     std::unique_ptr<Expression> default_value )
     : Node( source_location, std::move( default_value ) ),
       name( std::move( name ) ),
       byref( byref ),
-      unused( unused )
+      unused( unused ),
+      rest( rest )
 {
 }
 
 FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation& source_location,
                                                             std::string name, bool byref,
-                                                            bool unused )
-    : Node( source_location ), name( std::move( name ) ), byref( byref ), unused( unused )
+                                                            bool unused, bool rest )
+    : Node( source_location ),
+      name( std::move( name ) ),
+      byref( byref ),
+      unused( unused ),
+      rest( rest )
 {
 }
 
@@ -33,6 +38,8 @@ void FunctionParameterDeclaration::accept( NodeVisitor& visitor )
 void FunctionParameterDeclaration::describe_to( std::string& w ) const
 {
   fmt::format_to( std::back_inserter( w ), "function-parameter-declaration({}", name );
+  if ( rest )
+    w += "...";
   if ( byref )
     w += ", byref";
   if ( unused )

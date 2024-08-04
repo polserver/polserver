@@ -1,4 +1,17 @@
 -- POL100.2.0 --
+08-04-2024 Kevin:
+    Added: Support for variadic user functions -- user functions that accept any number of arguments.
+           For example, to define a function that sends a message to any number of players:
+
+             function SendMessageToPlayers( message, players... )
+                foreach player in players
+                  SendSysMessage( player, $"[Server] {message}" );
+                endforeach
+              endfunction
+
+              SendMessageToPlayers( "Hello!", player1, player2, player3 );
+
+          See the Racalac Escript Guide for additional details.
 08-03-2024 Kevin:
     Added: House script method `set_multiid( int multiid | string name )`
 08-02-2024 Kevin:

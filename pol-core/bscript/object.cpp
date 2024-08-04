@@ -2305,17 +2305,19 @@ std::string BBoolean::getStringRep() const
 
 
 BFunctionRef::BFunctionRef( int progcounter, int param_count, const std::string& scriptname,
-                            ValueStackCont&& captures )
+                            bool variadic, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       pc_( progcounter ),
       num_params_( param_count ),
       script_name_( scriptname ),
+      variadic_( variadic ),
       captures( std::move( captures ) )
 {
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.pc_, B.num_params_, B.script_name_, ValueStackCont( B.captures ) )
+    : BFunctionRef( B.pc_, B.num_params_, B.script_name_, B.variadic_,
+                    ValueStackCont( B.captures ) )
 {
 }
 
@@ -2356,8 +2358,18 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
 {
   if ( id != MTH_CALL )
     return false;
-  if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
-    return false;
+
+  if ( variadic_ )
+  {
+    if ( num_params_ <= 0 || ex.numParams() < static_cast<size_t>( num_params_ - 1 ) )
+      return false;
+  }
+  else
+  {
+    if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
+      return false;
+  }
+
   if ( ex.scriptname() != script_name_ )
     return false;
   inst->func = &Executor::ins_nop;
@@ -2376,6 +2388,11 @@ bool BFunctionRef::validCall( const char* methodname, Executor& ex, Instruction*
 size_t BFunctionRef::numParams() const
 {
   return num_params_;
+}
+
+bool BFunctionRef::variadic() const
+{
+  return variadic_;
 }
 
 BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )

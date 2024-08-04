@@ -1,0 +1,1 @@
+var-args-err-last-param.src:1:15: error: Rest parameter must be the last parameter in the list.

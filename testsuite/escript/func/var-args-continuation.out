@@ -1,0 +1,17 @@
+args={ a, 1, { a } }
+element=a args={ 1, { a } }
+element=a index=1 args={ { a } }
+element=a index=1 arr={ a } args={ <uninitialized object> }
+-
+args={ a, 1, { a, b, c } }
+args={ b, 2, { a, b, c } }
+args={ c, 3, { a, b, c } }
+element=a args={ 1, { a, b, c } }
+element=b args={ 2, { a, b, c } }
+element=c args={ 3, { a, b, c } }
+element=a index=1 args={ { a, b, c } }
+element=b index=2 args={ { a, b, c } }
+element=c index=3 args={ { a, b, c } }
+element=a index=1 arr={ a, b, c } args={ <uninitialized object> }
+element=b index=2 arr={ a, b, c } args={ <uninitialized object> }
+element=c index=3 arr={ a, b, c } args={ <uninitialized object> }
