@@ -2,9 +2,22 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-02-2024</datemodified>
+		<datemodified>08-04-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-04-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Support for variadic user functions -- user functions that accept any number of arguments.<br/>
+For example, to define a function that sends a message to any number of players:<br/>
+  function SendMessageToPlayers( message, players... )<br/>
+     foreach player in players<br/>
+       SendSysMessage( player, $&quot;[Server] {message}&quot; );<br/>
+     endforeach<br/>
+   endfunction<br/>
+   SendMessageToPlayers( &quot;Hello!&quot;, player1, player2, player3 );<br/>
+See the Racalac Escript Guide for additional details.</change>
+		</entry>
 		<entry>
 			<date>08-03-2024</date>
 			<author>Kevin:</author>
