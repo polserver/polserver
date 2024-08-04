@@ -102,25 +102,11 @@ void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )
 {
   update_debug_location( node );
   emit.array_create();
-
-  // Spreaded elements go into the current array for array initializers, eg. in
-  // `{ ...spread }`.
-  spread_modes.push( SpreadMode::Array );
-
   for ( const auto& child : node.children )
   {
-    bool is_spread = dynamic_cast<SpreadElement*>( child.get() );
-
     child->accept( *this );
-
-    // Spreaded elements are handled via `visit_spread_element`, and will emit the instruction to
-    // spread the element into the array (based on spread_mode)
-    if ( !is_spread )
-    {
-      emit.array_append();
-    }
+    emit.array_append();
   }
-  spread_modes.pop();
 }
 
 void InstructionGenerator::visit_basic_for_loop( BasicForLoop& loop )
@@ -404,13 +390,9 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
   // A function call will have no link if it is an expression call, eg. `(foo)(1,2)`.
   if ( !call.function_link->function() )
   {
-    // Spreaded elements go into the value stack for expression-as-callee
-    // function calls, eg. in `(foo)(...spread)`.
-    spread_modes.push( SpreadMode::ValueStack );
     // Visiting the children emits the instructions for each arguments in the order necessary for a
     // `MTH_CALL`.
     visit_children( call );
-    spread_modes.pop();
     update_debug_location( call );
     // Subtract 1 because the first child is the callee.
     emit.call_method_id( MTH_CALL, static_cast<unsigned int>( call.children.size() - 1 ) );
@@ -423,9 +405,6 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
       if ( function.is_variadic() )
       {
         auto num_nonrest_args = function.parameter_count() - 1;
-
-        // Spreaded elements go into the current array for variadic function calls.
-        spread_modes.push( SpreadMode::Array );
 
         // Push real args, then create an array for the last rest arg.
         // All children for a non-expression-as-callee FunctionCalls are arguments.
@@ -448,14 +427,12 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
 
           call.children[i]->accept( *this );
 
-          // Add to the array if we're past the non-rest arguments and is not spread element.
-          if ( i >= num_nonrest_args && !is_spread )
+          if ( i >= num_nonrest_args )
           {
+            // `ins_insert_into` for arrays will spread BSpread's at runtime.
             emit.array_append();
           }
         }
-
-        spread_modes.pop();
 
         // If there was no rest argument, create an empty array.
         if ( call.children.size() <= num_nonrest_args )
@@ -663,11 +640,7 @@ void InstructionGenerator::visit_member_assignment_by_operator( MemberAssignment
 
 void InstructionGenerator::visit_method_call( MethodCall& method_call )
 {
-  // Spreaded elements go into the value stack in method calls, in
-  // eg. `foo.bar(...spread)`
-  spread_modes.push( SpreadMode::ValueStack );
   visit_children( method_call );
-  spread_modes.pop();
 
   update_debug_location( method_call );
   auto argument_count = method_call.argument_count();
@@ -738,15 +711,9 @@ void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
 
 void InstructionGenerator::visit_spread_element( SpreadElement& node )
 {
-  if ( spread_modes.empty() )
-  {
-    node.internal_error( "spread element outside of array initializer" );
-    return;
-  }
-  // auto mode = spread_modes.empty() ? SpreadMode::Array : spread_modes.top();
   visit_children( node );
   update_debug_location( node );
-  emit.spread( spread_modes.top() );
+  emit.spread();
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )

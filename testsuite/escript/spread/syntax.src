@@ -1,13 +1,14 @@
-var foo;
+var foo := {3};
 
 function bar( a, b, c, d, unused args ...) endfunction
-function Sleep(unused a) endfunction
 
 // bareArrayInitializer
 { 1 , 2, foo... };
+{ 1 , 2, foo..., foo..., { 1 , 2, foo..., foo... }... };
 
 // functionCallSuffix
-( foo ) ( 1, 2, foo... );
+( @bar ) ( foo... );
+( @bar ) ( foo..., 1, 2, foo..., {1, 2, 3}..., {{1,2,3}...,4} );
 
 // indexingSuffix -- NOT ALLOWED
 // foo[1, 2, foo...];

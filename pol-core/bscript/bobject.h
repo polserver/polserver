@@ -122,6 +122,7 @@ public:
     // Used internally only during executor runtime. Can be modified without
     // breaking compatibility.
     OTContinuation = 100,
+    OTSpread = 101,
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -861,6 +862,28 @@ private:
 public:
   ValueStackCont captures;
 };
+
+class BSpread final : public BObjectImp
+{
+public:
+  BSpread( BObjectRef obj );
+  BSpread( const BSpread& B );
+
+private:
+  ~BSpread() {}
+
+public:
+  virtual size_t sizeEstimate() const override;
+
+public:  // Class Machinery
+  virtual BObjectImp* copy() const override;
+  virtual bool isTrue() const override;
+  virtual std::string getStringRep() const override;
+
+  BObjectRef object;
+};
+
+
 class BApplicObjType
 {
 };

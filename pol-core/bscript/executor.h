@@ -192,6 +192,7 @@ public:
 
 protected:
   int getParams( unsigned howMany );
+  void expandParams();
   void cleanParams();
 
 public:
@@ -320,6 +321,7 @@ public:
   void ins_string( const Instruction& ins );
   void ins_error( const Instruction& ins );
   void ins_struct( const Instruction& ins );
+  void ins_spread( const Instruction& ins );
   void ins_array( const Instruction& ins );
   void ins_dictionary( const Instruction& ins );
   void ins_uninit( const Instruction& ins );

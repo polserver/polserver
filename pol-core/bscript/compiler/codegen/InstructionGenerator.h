@@ -2,7 +2,6 @@
 #define POLSERVER_INSTRUCTIONGENERATOR_H
 
 #include "bscript/compiler/ast/NodeVisitor.h"
-#include "bscript/compiler/model/SpreadMode.h"
 
 #include <map>
 #include <stack>
@@ -88,7 +87,6 @@ private:
 
   std::map<std::string, FlowControlLabel>& user_function_labels;
   std::stack<UserFunction*> user_functions;
-  std::stack<SpreadMode> spread_modes;
 };
 
 }  // namespace Pol::Bscript::Compiler

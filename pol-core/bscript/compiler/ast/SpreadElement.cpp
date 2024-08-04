@@ -16,7 +16,7 @@ void SpreadElement::accept( NodeVisitor& visitor )
 
 void SpreadElement::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "string-value({})", "!" );
+  fmt::format_to( std::back_inserter( w ), "spread-element" );
 }
 
 }  // namespace Pol::Bscript::Compiler

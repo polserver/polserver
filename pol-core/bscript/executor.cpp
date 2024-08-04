@@ -306,7 +306,37 @@ int Executor::getParams( unsigned howMany )
       ValueStack.pop_back();
     }
   }
+  expandParams();
   return 0;
+}
+
+void Executor::expandParams()
+{
+  for ( auto i = static_cast<int>( fparams.size() ) - 1; i >= 0; --i )
+  {
+    if ( fparams[i]->isa( BObjectImp::OTSpread ) )
+    {
+      // defer destruction
+      BObjectRef obj( fparams[i] );
+      BSpread* spread = obj->impptr<BSpread>();
+
+      // Remove the spread
+      fparams.erase( fparams.begin() + i );
+
+      auto pIterVal = new BObject( UninitObject::create() );
+      ContIterator* pIter = spread->object->impptr()->createIterator( pIterVal );
+      BObject* next = pIter->step();
+
+      int added = 0;
+      while ( next != nullptr )
+      {
+        fparams.insert( fparams.begin() + i + added, BObjectRef( next ) );
+        next = pIter->step();
+        added++;
+      }
+      i += added;
+    }
+  }
 }
 
 void Executor::cleanParams()
@@ -2503,7 +2533,22 @@ void Executor::ins_insert_into( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  left.impref().operInsertInto( left, right.impref() );
+  if ( right->isa( BObjectImp::OTSpread ) )
+  {
+    BSpread* spread = right.impptr<BSpread>();
+    auto pIterVal = new BObject( UninitObject::create() );
+    ContIterator* pIter = spread->object->impptr()->createIterator( pIterVal );
+    BObject* next = pIter->step();
+    while ( next != nullptr )
+    {
+      left.impref().operInsertInto( left, next->impref() );
+      next = pIter->step();
+    }
+  }
+  else
+  {
+    left.impref().operInsertInto( left, right.impref() );
+  }
 }
 
 void Executor::ins_plusequal( const Instruction& /*ins*/ )
@@ -2615,6 +2660,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
   do
   {
     getParams( nparams );
+
     if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
     {
       BObjectRef objref = ValueStack.back();
@@ -2983,6 +3029,12 @@ void Executor::ins_struct( const Instruction& /*ins*/ )
 {
   ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
 }
+void Executor::ins_spread( const Instruction& /*ins*/ )
+{
+  auto spread = new BSpread( ValueStack.back() );
+  ValueStack.pop_back();
+  ValueStack.push_back( BObjectRef( new BObject( spread ) ) );
+}
 void Executor::ins_array( const Instruction& /*ins*/ )
 {
   ValueStack.push_back( BObjectRef( new BObject( new ObjArray ) ) );
@@ -3189,6 +3241,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_error;
   case TOK_STRUCT:
     return &Executor::ins_struct;
+  case TOK_SPREAD:
+    return &Executor::ins_spread;
   case TOK_ARRAY:
     return &Executor::ins_array;
   case TOK_DICTIONARY:

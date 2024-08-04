@@ -2405,5 +2405,30 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /
     return nullptr;
   }
 }
+
+BSpread::BSpread( BObjectRef obj ) : BObjectImp( OTSpread ), object( obj ) {}
+
+BSpread::BSpread( const BSpread& B ) : BObjectImp( OTSpread ), object( B.object ) {}
+
+size_t BSpread::sizeEstimate() const
+{
+  return sizeof( BSpread ) + object.sizeEstimate();
+}
+
+BObjectImp* BSpread::copy() const
+{
+  return new BSpread( *this );
+}
+
+bool BSpread::isTrue() const
+{
+  return object->isTrue();
+}
+
+std::string BSpread::getStringRep() const
+{
+  return "Spread";
+}
+
 }  // namespace Bscript
 }  // namespace Pol
