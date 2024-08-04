@@ -295,6 +295,8 @@ public:
 public:
   Executor();
   virtual ~Executor();
+  Executor( const Executor& exec ) = delete;
+  Executor& operator=( const Executor& exec ) = delete;
 
   void addModule( ExecutorModule* module );  // NOTE, executor deletes its modules when done
   ExecutorModule* findModule( const std::string& name );
@@ -487,13 +489,13 @@ private:
 
   void printStack( const std::string& message );
 
-private:  // not implemented
-  Executor( const Executor& exec );
-  Executor& operator=( const Executor& exec );
+private:
 #ifdef ESCRIPT_PROFILE
   unsigned long GetTimeUs();
   void profile_escript( std::string name, unsigned long profile_start );
 #endif
+protected:
+  void cleanup();
 };
 
 inline const std::string& Executor::scriptname() const
