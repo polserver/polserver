@@ -2705,24 +2705,22 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     if ( entries.size() >= 255 )  // overflow
       return new BError( "Too many entries in menu" );
     Entry entry;
-    if ( imp->isa( BObjectImp::OTLong ) )
+    if ( auto* lng = impptrIf<BLong>( imp ) )
     {
       // Short form: menu is just an int
-      const BLong* lng = static_cast<BLong*>( imp );
       entry.cliloc = lng->value();
     }
-    else if ( imp->isa( BObjectImp::OTStruct ) )
+    else if ( auto* elem = impptrIf<BStruct>( imp ) )
     {
       // Full form: menu is a struct
-      BStruct* elem = static_cast<BStruct*>( imp );
 
       BObjectImp* cl = const_cast<BObjectImp*>( elem->FindMember( "cliloc" ) );
       if ( cl == nullptr )
         return new BError( "Missing cliloc for menu element" );
-      if ( !cl->isa( BObjectImp::OTLong ) )
+      if ( auto* lng = impptrIf<BLong>( cl ) )
+        entry.cliloc = lng->value();
+      else
         return new BError( "Invalid cliloc for menu element" );
-      const BLong* lng = static_cast<BLong*>( cl );
-      entry.cliloc = lng->value();
 
       const BObjectImp* ds = elem->FindMember( "disabled" );
       if ( ds != nullptr && ds->isTrue() )
@@ -2733,9 +2731,8 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
         entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_ARROW;
 
       BObjectImp* co = const_cast<BObjectImp*>( elem->FindMember( "color" ) );
-      if ( co != nullptr && co->isa( BObjectImp::OTLong ) )
+      if ( auto* colng = impptrIf<BLong>( co ) )
       {
-        const BLong* colng = static_cast<BLong*>( co );
         entry.color = static_cast<u16>( colng->value() );
         entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR;
       }

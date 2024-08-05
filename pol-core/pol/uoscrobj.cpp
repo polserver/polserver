@@ -161,21 +161,12 @@ BObjectRef ECharacterRefObjImp::get_member( const char* membername )
 BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( value->isa( BObjectImp::OTLong ) )
-  {
-    BLong* lng = static_cast<BLong*>( value );
-    result = obj_->set_script_member_id( id, lng->value() );
-  }
-  else if ( value->isa( BObjectImp::OTString ) )
-  {
-    String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
-  }
-  else if ( value->isa( BObjectImp::OTDouble ) )
-  {
-    Double* dbl = static_cast<Double*>( value );
-    result = obj_->set_script_member_id_double( id, dbl->value() );
-  }
+  if ( auto* v = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, v->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -323,21 +314,12 @@ BObjectRef EItemRefObjImp::get_member( const char* membername )
 BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( value->isa( BObjectImp::OTLong ) )
-  {
-    BLong* lng = static_cast<BLong*>( value );
-    result = obj_->set_script_member_id( id, lng->value() );
-  }
-  else if ( value->isa( BObjectImp::OTString ) )
-  {
-    String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
-  }
-  else if ( value->isa( BObjectImp::OTDouble ) )
-  {
-    Double* dbl = static_cast<Double*>( value );
-    result = obj_->set_script_member_id_double( id, dbl->value() );
-  }
+  if ( auto* v = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, v->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -463,21 +445,12 @@ BObjectRef EUBoatRefObjImp::get_member( const char* membername )
 BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( value->isa( BObjectImp::OTLong ) )
-  {
-    BLong* lng = static_cast<BLong*>( value );
-    result = obj_->set_script_member_id( id, lng->value() );
-  }
-  else if ( value->isa( BObjectImp::OTString ) )
-  {
-    String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
-  }
-  else if ( value->isa( BObjectImp::OTDouble ) )
-  {
-    Double* dbl = static_cast<Double*>( value );
-    result = obj_->set_script_member_id_double( id, dbl->value() );
-  }
+  if ( auto* v = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, v->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -618,21 +591,12 @@ BObjectRef EMultiRefObjImp::get_member( const char* membername )
 BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( value->isa( BObjectImp::OTLong ) )
-  {
-    BLong* lng = static_cast<BLong*>( value );
-    result = obj_->set_script_member_id( id, lng->value() );
-  }
-  else if ( value->isa( BObjectImp::OTString ) )
-  {
-    String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
-  }
-  else if ( value->isa( BObjectImp::OTDouble ) )
-  {
-    Double* dbl = static_cast<Double*>( value );
-    result = obj_->set_script_member_id_double( id, dbl->value() );
-  }
+  if ( auto* v = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
+  else if ( auto* v = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, v->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -3241,16 +3205,14 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Invalid flags for parameter 1" );
 
     BObjectImp* param0 = ex.getParamImp( 0 );
-    if ( param0->isa( BObjectImp::OTString ) )
+    if ( auto* v = impptrIf<String>( param0 ) )
     {
-      const char* szDir = ex.paramAsString( 0 );
-      if ( DecodeFacing( szDir, i_facing ) == false )
+      if ( DecodeFacing( v->data(), i_facing ) == false )
         return new BError( "Invalid string for parameter 0" );
     }
-    else if ( param0->isa( BObjectImp::OTLong ) )
+    else if ( auto* v = impptrIf<BLong>( param0 ) )
     {
-      BLong* blong = static_cast<BLong*>( param0 );
-      i_facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+      i_facing = static_cast<Core::UFACING>( v->value() & PKTIN_02_FACING_MASK );
     }
     else
       return new BError( "Invalid type for parameter 0" );
@@ -4135,14 +4097,10 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
 
     BObjectImp* impMaybeZero = ex.getParamImp( 0 );
 
-    if ( impMaybeZero->isa( BObjectImp::OTLong ) )
+    if ( auto* value = impptrIf<BLong>( impMaybeZero ) )
     {
-      auto value = static_cast<BLong*>( impMaybeZero )->value();
-
-      if ( value != 0 )
+      if ( value->value() != 0 )
         return new BError( "Invalid parameters" );
-
-
       return set_pilot( nullptr );
     }
     else
@@ -4312,21 +4270,12 @@ BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.getStringParam( 0, mname ) && ( objimp = ex.getParamImp( 1 ) ) != nullptr )
     {
       BObjectImp* ret;
-      if ( objimp->isa( BObjectImp::OTLong ) )
-      {
-        BLong* lng = static_cast<BLong*>( objimp );
-        ret = set_script_member( mname->value().c_str(), lng->value() );
-      }
-      else if ( objimp->isa( BObjectImp::OTDouble ) )
-      {
-        Double* dbl = static_cast<Double*>( objimp );
-        ret = set_script_member_double( mname->value().c_str(), dbl->value() );
-      }
-      else if ( objimp->isa( BObjectImp::OTString ) )
-      {
-        String* str = static_cast<String*>( objimp );
-        ret = set_script_member( mname->value().c_str(), str->value() );
-      }
+      if ( auto* v = impptrIf<BLong>( objimp ) )
+        ret = set_script_member( mname->value().c_str(), v->value() );
+      else if ( auto* v = impptrIf<Double>( objimp ) )
+        ret = set_script_member_double( mname->value().c_str(), v->value() );
+      else if ( auto* v = impptrIf<String>( objimp ) )
+        ret = set_script_member( mname->value().c_str(), v->value() );
       else
         return new BError( "Invalid value type" );
 
@@ -4809,11 +4758,8 @@ BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value, boo
     return BObjectRef( new BError( "Client not ready or disconnected" ) );
 
   BObjectImp* result = nullptr;
-  if ( value->isa( BObjectImp::OTLong ) )
-  {
-    BLong* lng = static_cast<BLong*>( value );
-    result = obj_->set_script_member_id( id, lng->value() );
-  }
+  if ( auto* v = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, v->value() );
 
   if ( result != nullptr )
     return BObjectRef( result );

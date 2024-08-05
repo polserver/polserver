@@ -50,25 +50,13 @@ BasicExecutorModule::BasicExecutorModule( Executor& exec )
 Bscript::BObjectImp* BasicExecutorModule::mf_Len()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( Bscript::BObjectImp::OTArray ) )
-  {
-    Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( imp );
-    return new BLong( static_cast<int>( arr->ref_arr.size() ) );
-  }
-  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
-  {
-    Bscript::String* str = static_cast<Bscript::String*>( imp );
-    return new BLong( static_cast<int>( str->length() ) );
-  }
-  else if ( imp->isa( Bscript::BObjectImp::OTError ) )
-  {
-    BError* err = static_cast<BError*>( imp );
-    return new BLong( static_cast<int>( err->mapcount() ) );
-  }
-  else
-  {
-    return new BLong( 0 );
-  }
+  if ( auto* v = impptrIf<Bscript::ObjArray>( imp ) )
+    return new BLong( static_cast<int>( v->ref_arr.size() ) );
+  else if ( auto* v = impptrIf<Bscript::String>( imp ) )
+    return new BLong( static_cast<int>( v->length() ) );
+  else if ( auto* v = impptrIf<Bscript::BError>( imp ) )
+    return new BLong( static_cast<int>( v->mapcount() ) );
+  return new BLong( 0 );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_Find()
@@ -96,11 +84,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStr()
 Bscript::BObjectImp* BasicExecutorModule::mf_Trim()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( !( imp->isa( Bscript::BObjectImp::OTString ) ) )
-  {
+  auto* str = impptrIf<Bscript::String>( imp );
+  if ( !str )
     return new BError( "Param 1 must be a string." );
-  }
-  String* string = static_cast<String*>( imp );
   int type = static_cast<int>( exec.paramAsLong( 1 ) );
   const char* cset = exec.paramAsString( 2 );
   if ( type > 3 )
@@ -108,7 +94,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Trim()
   if ( type < 1 )
     type = 1;
 
-  return string->ETrim( cset, type );
+  return str->ETrim( cset, type );
 }
 
 /*
@@ -253,46 +239,24 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CInt()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( imp->isa( Bscript::BObjectImp::OTLong ) )
-  {
     return imp->copy();
-  }
-  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
-  {
-    String* str = static_cast<String*>( imp );
-    return new BLong( strtoul( str->data(), nullptr, 0 ) );
-  }
-  else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
-  {
-    Double* dbl = static_cast<Double*>( imp );
-    return new BLong( static_cast<int>( dbl->value() ) );
-  }
-  else
-  {
-    return new BLong( 0 );
-  }
+  else if ( auto* v = impptrIf<String>( imp ) )
+    return new BLong( strtoul( v->data(), nullptr, 0 ) );
+  else if ( auto* v = impptrIf<Double>( imp ) )
+    return new BLong( static_cast<int>( v->value() ) );
+  return new BLong( 0 );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_CDbl()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( Bscript::BObjectImp::OTLong ) )
-  {
-    BLong* lng = static_cast<BLong*>( imp );
-    return new Double( lng->value() );
-  }
-  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
-  {
-    String* str = static_cast<String*>( imp );
-    return new Double( strtod( str->data(), nullptr ) );
-  }
+  if ( auto* v = impptrIf<BLong>( imp ) )
+    return new Double( v->value() );
+  else if ( auto* v = impptrIf<String>( imp ) )
+    return new Double( strtod( v->data(), nullptr ) );
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
-  {
     return imp->copy();
-  }
-  else
-  {
-    return new Double( 0 );
-  }
+  return new Double( 0 );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_CStr()
@@ -304,9 +268,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CStr()
 Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( Bscript::BObjectImp::OTString ) )
+  if ( auto* str = impptrIf<String>( imp ) )
   {
-    String* str = static_cast<String*>( imp );
     std::unique_ptr<String> substr( str->StrStr( 1, 1 ) );
     const auto& utf16 = substr->toUTF16();
     if ( utf16.empty() )
@@ -365,32 +328,26 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
 Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+  if ( auto* v = impptrIf<BLong>( imp ) )
   {
-    BLong* plong = static_cast<BLong*>( imp );
     char s[20];
-    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( plong->value() ) );
+    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( v->value() ) );
     return new String( s );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
+  else if ( auto* v = impptrIf<Double>( imp ) )
   {
-    Double* pdbl = static_cast<Double*>( imp );
     char s[20];
-    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( pdbl->value() ) );
+    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( v->value() ) );
     return new String( s );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
+  else if ( auto* v = impptrIf<String>( imp ) )
   {
-    String* str = static_cast<String*>( imp );
     char s[20];
     snprintf( s, Clib::arsize( s ), "0x%X",
-              static_cast<unsigned int>( strtoul( str->data(), nullptr, 0 ) ) );
+              static_cast<unsigned int>( strtoul( v->data(), nullptr, 0 ) ) );
     return new String( s );
   }
-  else
-  {
-    return new BError( "Hex() expects an Integer, Real, or String" );
-  }
+  return new BError( "Hex() expects an Integer, Real, or String" );
 }
 
 #ifdef __unix__
@@ -426,10 +383,9 @@ char* itoa( int value, char* result, int base )
 Bscript::BObjectImp* BasicExecutorModule::mf_Bin()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+  if ( auto* v = impptrIf<BLong>( imp ) )
   {
-    BLong* plong = static_cast<BLong*>( imp );
-    int number = plong->value();
+    int number = v->value();
 #ifdef __APPLE__
     std::string bits = std::bitset<2>( number ).to_string();
     return new String( bits );
@@ -438,10 +394,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Bin()
     return new String( itoa( number, buffer, 2 ) );
 #endif
   }
-  else
-  {
-    return new BError( "Bin() expects an Integer" );
-  }
+  return new BError( "Bin() expects an Integer" );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
@@ -567,31 +520,29 @@ Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
   return new BLong( imp->typeOfInt() );
 }
 
-picojson::value recurseE2J( BObjectImp* v )
+picojson::value recurseE2J( BObjectImp* value )
 {
-  if ( v->isa( BObjectImp::OTString ) )
+  if ( auto* v = impptrIf<String>( value ) )
   {
     return picojson::value( v->getStringRep() );
   }
-  else if ( v->isa( BObjectImp::OTLong ) )
+  else if ( auto* v = impptrIf<BLong>( value ) )
   {
-    int intVal = static_cast<BLong*>( v )->value();
-    return picojson::value( static_cast<double>( intVal ) );
+    return picojson::value( static_cast<double>( v->value() ) );
   }
-  else if ( v->isa( BObjectImp::OTDouble ) )
+  else if ( auto* v = impptrIf<Double>( value ) )
   {
-    return picojson::value( static_cast<Double*>( v )->value() );
+    return picojson::value( v->value() );
   }
-  else if ( v->isa( BObjectImp::OTBoolean ) )
+  else if ( auto* v = impptrIf<BBoolean>( value ) )
   {
-    return picojson::value( static_cast<BBoolean*>( v )->value() );
+    return picojson::value( v->value() );
   }
-  else if ( v->isa( BObjectImp::OTArray ) )
+  else if ( auto* v = impptrIf<ObjArray>( value ) )
   {
-    ObjArray* arr = static_cast<ObjArray*>( v );
     picojson::array jsonArr;
 
-    for ( const auto& elem : arr->ref_arr )
+    for ( const auto& elem : v->ref_arr )
     {
       BObject* bo = elem.get();
       if ( bo == nullptr )
@@ -601,22 +552,20 @@ picojson::value recurseE2J( BObjectImp* v )
     }
     return picojson::value( jsonArr );
   }
-  else if ( v->isa( BObjectImp::OTStruct ) )
+  else if ( auto* v = impptrIf<BStruct>( value ) )
   {
-    BStruct* bstruct = static_cast<BStruct*>( v );
     picojson::object jsonObj;
-    for ( const auto& content : bstruct->contents() )
+    for ( const auto& content : v->contents() )
     {
       BObjectImp* imp = content.second->impptr();
       jsonObj.insert( std::pair<std::string, picojson::value>( content.first, recurseE2J( imp ) ) );
     }
     return picojson::value( jsonObj );
   }
-  else if ( v->isa( BObjectImp::OTDictionary ) )
+  else if ( auto* v = impptrIf<BDictionary>( value ) )
   {
-    BDictionary* cpropdict = static_cast<Bscript::BDictionary*>( v );
     picojson::object jsonObj;
-    for ( const auto& content : cpropdict->contents() )
+    for ( const auto& content : v->contents() )
     {
       BObjectImp* imp = content.second->impptr();
       jsonObj.insert( std::pair<std::string, picojson::value>( content.first->getStringRep(),
@@ -695,19 +644,11 @@ Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
 Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( Bscript::BObjectImp::OTLong ) )
-  {
-    BLong* plong = static_cast<BLong*>( imp );
-    return new BBoolean( plong->value() != 0 );
-  }
-  else if ( imp->isa( Bscript::BObjectImp::OTBoolean ) )
-  {
-    return new BBoolean( *static_cast<BBoolean*>( imp ) );
-  }
-  else
-  {
-    return new BError( "Boolean() expects an Integer or Boolean" );
-  }
+  if ( auto* v = impptrIf<BLong>( imp ) )
+    return new BBoolean( v->value() != 0 );
+  else if ( auto* v = impptrIf<BBoolean>( imp ) )
+    return new BBoolean( *v );
+  return new BError( "Boolean() expects an Integer or Boolean" );
 }
 
 /*

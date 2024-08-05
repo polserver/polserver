@@ -482,19 +482,12 @@ int ExportScript::expect_int()
     return 0;
   int ret;
   BObjectImp* imp = uoexec.ValueStack.back().get()->impptr();
-  if ( imp->isa( BObjectImp::OTLong ) )
-  {
-    BLong* pLong = static_cast<BLong*>( imp );
-    ret = pLong->value();
-  }
-  else if ( imp->isa( BObjectImp::OTBoolean ) )
-  {
-    ret = imp->isTrue() ? 1 : 0;
-  }
+  if ( auto* v = impptrIf<BLong>( imp ) )
+    ret = v->value();
+  else if ( auto* v = impptrIf<BBoolean>( imp ) )
+    ret = v->isTrue() ? 1 : 0;
   else
-  {
     ret = 0;
-  }
   uoexec.ValueStack.pop_back();
   return ret;
 }

@@ -410,7 +410,6 @@ T* impptrIf( BObjectImp* objimp )
   impif_e( BObjectImp::OTFuncRef, BFunctionRef );
   impif_e( BObjectImp::OTContinuation, BContinuation );
   else static_assert( always_false<T>::value, "unsupported type" );
-  return nullptr;
 #undef impif_i
 #undef impif_e
 #undef impif_return
