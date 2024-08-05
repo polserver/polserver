@@ -1,0 +1,22 @@
+function Sum( a, b, c )
+  return a + b + c;
+endfunction
+
+program main( who )
+  var numbers, total;
+
+  numbers := array{ 1, 2, 3 };
+
+  // Compile-time error! Spread operator can only be used in variadic functions
+  // total := Sum( numbers... );
+
+  // Okay! Use the expression-as-callee syntax
+  total := (@Sum)( numbers... );  // Or: @Sum.call( numbers... )
+  Print( total ); // Output: 6
+
+  // Calling @Sum with the wrong number of arguments will result in an error:
+  numbers := { 1, 2 };
+  total := (@Sum)( numbers... );
+  Print( total ); // Output: Invalid argument count: expected 3, got 2
+
+endprogram

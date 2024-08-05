@@ -2,6 +2,37 @@
 08-06-2024 Kevin:
   Changed: Performance improvements handling function references in the executor during runtime.
            These changes increases the Escript version, therefore a recompilation of all scripts is required.
+08-05-2024 Kevin:
+    Added: Support for spread operator -- used to expand an array's elements into arguments of
+           a function call or elements of a new array.
+
+           For example, to pass an array's elements as arguments to a function call:
+
+             function SendMessageToPlayers( message, players... )
+               foreach player in players
+                 SendSysMessage( player, $"[Server] {message}" );
+                endforeach
+             endfunction
+
+             var players := array{};
+
+             if (condition1)
+               // Add a single player to the array
+               players.append( player1 );
+             endif
+
+             if (condition2)
+               // Get an array of players from somewhere else
+               var more_players := GetMorePlayers();
+
+               // Set `players` to a new array of the elements from both `players` and `more_players`
+               players := { players..., more_players... };
+             endif
+
+             // Pass all the elements of `players` as arguments
+             SendMessageToPlayers( "Hello!", players... );
+
+          See the Racalac Escript Guide for additional details.
 08-04-2024 Kevin:
     Added: Support for variadic user functions -- user functions that accept any number of arguments.
            For example, to define a function that sends a message to any number of players:
