@@ -37,6 +37,7 @@ namespace Bscript
 #define ESCRIPT_FILE_VER_000F 0x000F /*unicode*/
 #define ESCRIPT_FILE_VER_0010 0x0010 /*interpolated strings*/
 #define ESCRIPT_FILE_VER_0011 0x0011 /*uninit keyword*/
+#define ESCRIPT_FILE_VER_0012 0x0012 /*funcref table*/
 
 /*
     NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
@@ -44,7 +45,7 @@ namespace Bscript
     and report this to users when an older compiled version
     is attempted to be executed - TJ
     */
-#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_0011 )
+#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_0012 )
 
 struct BSCRIPT_FILE_HDR
 {
@@ -68,7 +69,8 @@ enum BSCRIPT_SECTION
   BSCRIPT_SECTION_SYMBOLS = 3,
   BSCRIPT_SECTION_PROGDEF = 4,
   BSCRIPT_SECTION_GLOBALVARNAMES = 5,
-  BSCRIPT_SECTION_EXPORTED_FUNCTIONS = 6
+  BSCRIPT_SECTION_EXPORTED_FUNCTIONS = 6,
+  BSCRIPT_SECTION_FUNCTION_REFERENCES = 7,
 };
 
 
@@ -122,6 +124,14 @@ struct BSCRIPT_EXPORTED_FUNCTION
   unsigned PC;
 };
 static_assert( sizeof( BSCRIPT_EXPORTED_FUNCTION ) == 41, "size missmatch" );
+
+struct BSCRIPT_FUNCTION_REFERENCE
+{
+  int parameter_count;
+  int capture_count;
+  bool is_variadic;
+};
+static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 9, "size missmatch" );
 
 #pragma pack( pop )
 }  // namespace Bscript

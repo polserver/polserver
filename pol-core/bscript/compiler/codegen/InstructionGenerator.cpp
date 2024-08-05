@@ -497,12 +497,7 @@ void InstructionGenerator::visit_function_expression( FunctionExpression& node )
       emit_access_variable( *variable->capturing );
     }
 
-    auto capture_count_index = emit.value<int>();
-
-    emit.value( static_cast<int>( user_function->parameter_count() ) );
-    emit.value( user_function->is_variadic() );
-
-    emit.functor_create();
+    emit.functor_create( *user_function );
     auto index = emitter.next_instruction_address() - 1;
 
     user_function->accept( *this );
@@ -517,7 +512,6 @@ void InstructionGenerator::visit_function_expression( FunctionExpression& node )
     }
 
     emit.patch_offset( index, instrs_count );
-    emit.patch_value( capture_count_index, static_cast<int>( user_function->capture_count() ) );
   }
   else
   {

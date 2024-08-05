@@ -255,11 +255,10 @@ int RunEclMain::main()
    **********************************************/
   if ( !m_quiet )
   {
-    double vernum = 1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
     ERROR_PRINTLN(
-        "EScript Executor v{}\n"
+        "EScript Executor v1.{}\n"
         "{}\n",
-        vernum, POL_COPYRIGHT );
+        ESCRIPT_FILE_VER_CURRENT, POL_COPYRIGHT );
   }
 
   /**********************************************

@@ -76,6 +76,19 @@ struct EPExportedFunction
   }
 };
 
+struct EPFunctionReference
+{
+  int parameter_count;
+  int capture_count;
+  bool is_variadic;
+
+  bool operator==( const EPFunctionReference& other ) const
+  {
+    return parameter_count == other.parameter_count && capture_count == other.capture_count &&
+           is_variadic == other.is_variadic;
+  }
+};
+
 struct EPDbgFunction
 {
   std::string name;
@@ -118,6 +131,7 @@ public:
   int read_module( FILE* fp );
   int read_globalvarnames( FILE* fp );
   int read_exported_functions( FILE* fp, BSCRIPT_SECTION_HDR* hdr );
+  int read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr );
   int _readToken( Token& token, unsigned position ) const;
   int create_instructions();
 
@@ -131,6 +145,7 @@ public:
   std::vector<std::string> function_decls;
 
   std::vector<EPExportedFunction> exported_functions;
+  std::vector<EPFunctionReference> function_references;
 
   // executor only:
   unsigned short version;
@@ -194,6 +209,6 @@ public:
   unsigned sourcelines_count;
   unsigned fileline_count;
 };
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif
