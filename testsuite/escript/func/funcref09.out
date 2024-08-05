@@ -1,0 +1,11 @@
+0
+error{ errortext = "Invalid argument count: expected 1, got 0" }
+error{ errortext = "Invalid argument count: expected 2, got 0" }
+error{ errortext = "Invalid argument count: expected 2+, got 0" }
+error{ errortext = "Invalid argument count: expected 3, got 0" }
+-
+error{ errortext = "Invalid argument count: expected 0, got 1" }
+0
+error{ errortext = "Invalid argument count: expected 2, got 1" }
+error{ errortext = "Invalid argument count: expected 2+, got 1" }
+error{ errortext = "Invalid argument count: expected 3, got 1" }

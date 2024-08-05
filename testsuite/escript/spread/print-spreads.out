@@ -17,14 +17,14 @@ args={ 1, 2 }
 args={ 1, 2, 3 }
 -
 functionCallSuffix
-<uninitialized object>
+error{ errortext = "Invalid argument count: expected 1+, got 0" }
 a=1 args={  }
 a=1 args={ 2 }
 a=1 args={ 2, 3 }
 -
 functionCallSuffix
-<uninitialized object>
-<uninitialized object>
+error{ errortext = "Invalid argument count: expected 2+, got 0" }
+error{ errortext = "Invalid argument count: expected 2+, got 1" }
 a=1 b=2 args={  }
 a=1 b=2 args={ 3 }
 -
@@ -63,7 +63,7 @@ a=1 args={ 2, x }
 a=1 args={ 2, 3, x }
 -
 functionCallSuffix
-<uninitialized object>
+error{ errortext = "Invalid argument count: expected 2+, got 1" }
 a=1 b=x args={  }
 a=1 b=2 args={ x }
 a=1 b=2 args={ 3, x }

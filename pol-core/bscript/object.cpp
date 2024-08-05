@@ -2395,12 +2395,30 @@ bool BFunctionRef::variadic() const
   return variadic_;
 }
 
-BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
+BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
   switch ( id )
   {
+    // This is only entered if `ins_call_method_id` did _not_ do the call jump.
   case MTH_CALL:
-    return nullptr;  // handled directly
+  {
+    if ( variadic_ )
+    {
+      // A variadic function should always have at least the rest argument as a parameter, but guard
+      // for size_t underflow
+      passert_always( num_params_ > 0 );
+      auto expected_args = static_cast<size_t>( num_params_ - 1 );
+
+      return new BError( fmt::format( "Invalid argument count: expected {}+, got {}", expected_args,
+                                      ex.numParams() ) );
+    }
+    else
+    {
+      if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
+        return new BError( fmt::format( "Invalid argument count: expected {}, got {}", num_params_,
+                                        ex.numParams() ) );
+    }
+  }
   default:
     return nullptr;
   }
