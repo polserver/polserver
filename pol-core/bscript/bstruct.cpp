@@ -47,13 +47,11 @@ BStruct::BStruct( std::istream& is, unsigned size, BObjectType type )
   {
     BObjectImp* keyimp = BObjectImp::unpack( is );
     BObjectImp* valimp = BObjectImp::unpack( is );
-    if ( keyimp != nullptr && valimp != nullptr && keyimp->isa( OTString ) )
+    if ( auto* key = impptrIf<String>( keyimp ); valimp && key )
     {
-      String* str = static_cast<String*>( keyimp );
+      contents_[key->value()].set( new BObject( valimp ) );
 
-      contents_[str->value()].set( new BObject( valimp ) );
-
-      BObject cleaner( str );
+      BObject cleaner( key );
     }
     else
     {
@@ -266,13 +264,11 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
 
 BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
 {
-  if ( idx->isa( OTString ) )
+  if ( auto* key = impptrIf<String>( idx ) )
   {
     BObjectImp* new_target = copy ? target->copy() : target;
 
-    String* keystr = static_cast<String*>( idx );
-
-    auto itr = contents_.find( keystr->value() );
+    auto itr = contents_.find( key->value() );
     if ( itr != contents_.end() )
     {
       BObjectRef& oref = ( *itr ).second;
@@ -281,7 +277,7 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
     }
     else
     {
-      contents_[keystr->value()].set( new BObject( new_target ) );
+      contents_[key->value()].set( new BObject( new_target ) );
       return new_target;
     }
   }
