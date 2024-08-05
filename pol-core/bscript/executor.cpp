@@ -3119,10 +3119,13 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 // case TOK_FUNCREF:
 void Executor::ins_funcref( const Instruction& ins )
 {
-  int param_count = ins.token.type & ~0x80;
-  bool variadic = ins.token.type >> 7;
-  ValueStack.push_back( BObjectRef( new BObject(
-      new BFunctionRef( ins.token.lval, param_count, scriptname(), variadic, {} ) ) ) );
+  auto funcref_index = static_cast<int>( ins.token.type );
+
+  const auto& ep_funcref = prog_->function_references[funcref_index];
+
+  ValueStack.push_back( BObjectRef(
+      new BObject( new BFunctionRef( ins.token.lval, ep_funcref.parameter_count, scriptname(),
+                                     ep_funcref.is_variadic, {} /* captures */ ) ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )

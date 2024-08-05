@@ -1,5 +1,5 @@
 0: declare global #0
-1: Function Ref --function name not available-- @93
+1: create-funcref index=0 pc=93 (TOK_FUNCREF)
 2: makelocal
 3: jsr userfunc @17
 4: :=
@@ -17,12 +17,12 @@
 16: progend
 17: pop param 'f'
 18: local variable #0
-19: create-functor index=0 instructions=14 (TOK_FUNCTOR)
+19: create-functor index=1 instructions=14 (TOK_FUNCTOR)
     20: pop param 'a'
     21: pop param byref 'f'
     22: local variable #1
     23: local variable #0
-    24: create-functor index=1 instructions=8 (TOK_FUNCTOR)
+    24: create-functor index=2 instructions=8 (TOK_FUNCTOR)
         25: pop param 'b'
         26: pop param byref 'f'
         27: pop param byref 'a'

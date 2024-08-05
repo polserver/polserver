@@ -525,13 +525,7 @@ void InstructionGenerator::visit_function_reference( FunctionReference& function
   {
     update_debug_location( function_reference );
     FlowControlLabel& label = user_function_labels[uf->name];
-
-    // Since we encode the 'is variadic' as the top bit, 0x7f parameters allowed.
-    if ( uf->parameter_count() >= 0x80 )
-    {
-      function_reference.internal_error( "too many parameters" );
-    }
-    emit.function_reference( uf->parameter_count(), uf->is_variadic(), label );
+    emit.function_reference( *uf, label );
   }
   else
   {
