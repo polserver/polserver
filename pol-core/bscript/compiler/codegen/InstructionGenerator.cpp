@@ -48,6 +48,7 @@
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
+#include "bscript/compiler/ast/SpreadElement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
@@ -409,6 +410,15 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
         // All children for a non-expression-as-callee FunctionCalls are arguments.
         for ( unsigned i = 0; i < call.children.size(); ++i )
         {
+          bool is_spread = dynamic_cast<SpreadElement*>( call.children[i].get() );
+
+          if ( is_spread && i < num_nonrest_args )
+          {
+            // Should be caught by semantic analyzer
+            call.internal_error( "spread operator used in location before rest arguments" );
+            return;
+          }
+
           // Create the array once we've reached the rest argument.
           if ( i == num_nonrest_args )
           {
@@ -417,9 +427,9 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
 
           call.children[i]->accept( *this );
 
-          // Add to the array if we're past the non-rest arguments.
           if ( i >= num_nonrest_args )
           {
+            // `ins_insert_into` for arrays will spread BSpread's at runtime.
             emit.array_append();
           }
         }
@@ -432,6 +442,7 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
       }
       else
       {
+        // Cannot use spread operator in non-variadic function calls.
         visit_children( call );
       }
 
@@ -696,6 +707,13 @@ void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
   {
     emit.progend();
   }
+}
+
+void InstructionGenerator::visit_spread_element( SpreadElement& node )
+{
+  visit_children( node );
+  update_debug_location( node );
+  emit.spread();
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )

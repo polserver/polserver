@@ -1,0 +1,28 @@
+// Prints error messages for invalid number of arguments passed
+
+print( @args0() );
+print( @args1() );
+print( @args2() );
+print( @args2plus() );
+print( @args3() );
+print( "-" );
+print( @args0(1) );
+print( @args1(1) );
+print( @args2(1) );
+print( @args2plus(1) );
+print( @args3(1) );
+
+function args0()
+endfunction
+
+function args1( a )
+endfunction
+
+function args2( a, b )
+endfunction
+
+function args2plus( a, b, c... )
+endfunction
+
+function args3( a, b, c )
+endfunction

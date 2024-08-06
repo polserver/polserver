@@ -267,11 +267,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitExpressionListEntry(EscriptParser::ExpressionListEntryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual std::any visitIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIndexList(EscriptParser::IndexListContext *ctx) override {
     return visitChildren(ctx);
   }
 

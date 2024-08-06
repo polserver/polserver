@@ -1,0 +1,160 @@
+bareArrayInitializer
+{  }
+{ 1 }
+{ 1, 2 }
+{ 1, 2, 3 }
+-
+arrayInitializer
+{  }
+{ 1 }
+{ 1, 2 }
+{ 1, 2, 3 }
+-
+functionCallSuffix
+args={  }
+args={ 1 }
+args={ 1, 2 }
+args={ 1, 2, 3 }
+-
+functionCallSuffix
+error{ errortext = "Invalid argument count: expected 1+, got 0" }
+a=1 args={  }
+a=1 args={ 2 }
+a=1 args={ 2, 3 }
+-
+functionCallSuffix
+error{ errortext = "Invalid argument count: expected 2+, got 0" }
+error{ errortext = "Invalid argument count: expected 2+, got 1" }
+a=1 b=2 args={  }
+a=1 b=2 args={ 3 }
+-
+methodCallSuffix
+error{ errortext = "struct.insert(key,value) requires two parameters." }
+s=struct{  }
+-
+functionCall
+args={  }
+a=1 args={  }
+a=1 b=2 args={  }
+a=1 b=2 c=3 args={  }
+-----
+bareArrayInitializer
+{ x }
+{ 1, x }
+{ 1, 2, x }
+{ 1, 2, 3, x }
+-
+arrayInitializer
+{ x }
+{ 1, x }
+{ 1, 2, x }
+{ 1, 2, 3, x }
+-
+functionCallSuffix
+args={ x }
+args={ 1, x }
+args={ 1, 2, x }
+args={ 1, 2, 3, x }
+-
+functionCallSuffix
+a=x args={  }
+a=1 args={ x }
+a=1 args={ 2, x }
+a=1 args={ 2, 3, x }
+-
+functionCallSuffix
+error{ errortext = "Invalid argument count: expected 2+, got 1" }
+a=1 b=x args={  }
+a=1 b=2 args={ x }
+a=1 b=2 args={ 3, x }
+-
+methodCallSuffix
+error{ errortext = "struct.insert(key,value) requires two parameters." }
+s=struct{  }
+-
+functionCall
+args={ x }
+a=1 args={ x }
+a=1 b=2 args={ x }
+a=1 b=2 c=3 args={ x }
+-----
+bareArrayInitializer
+{ x, y }
+{ 1, x, y }
+{ 1, 2, x, y }
+{ 1, 2, 3, x, y }
+-
+arrayInitializer
+{ x, y }
+{ 1, x, y }
+{ 1, 2, x, y }
+{ 1, 2, 3, x, y }
+-
+functionCallSuffix
+args={ x, y }
+args={ 1, x, y }
+args={ 1, 2, x, y }
+args={ 1, 2, 3, x, y }
+-
+functionCallSuffix
+a=x args={ y }
+a=1 args={ x, y }
+a=1 args={ 2, x, y }
+a=1 args={ 2, 3, x, y }
+-
+functionCallSuffix
+a=x b=y args={  }
+a=1 b=x args={ y }
+a=1 b=2 args={ x, y }
+a=1 b=2 args={ 3, x, y }
+-
+methodCallSuffix
+1
+s=struct{ x = "y" }
+-
+functionCall
+args={ x, y }
+a=1 args={ x, y }
+a=1 b=2 args={ x, y }
+a=1 b=2 c=3 args={ x, y }
+-----
+bareArrayInitializer
+{ x, y, z }
+{ 1, x, y, z }
+{ 1, 2, x, y, z }
+{ 1, 2, 3, x, y, z }
+-
+arrayInitializer
+{ x, y, z }
+{ 1, x, y, z }
+{ 1, 2, x, y, z }
+{ 1, 2, 3, x, y, z }
+-
+functionCallSuffix
+args={ x, y, z }
+args={ 1, x, y, z }
+args={ 1, 2, x, y, z }
+args={ 1, 2, 3, x, y, z }
+-
+functionCallSuffix
+a=x args={ y, z }
+a=1 args={ x, y, z }
+a=1 args={ 2, x, y, z }
+a=1 args={ 2, 3, x, y, z }
+-
+functionCallSuffix
+a=x b=y args={ z }
+a=1 b=x args={ y, z }
+a=1 b=2 args={ x, y, z }
+a=1 b=2 args={ 3, x, y, z }
+-
+methodCallSuffix
+error{ errortext = "struct.insert(key,value) requires two parameters." }
+s=struct{  }
+-
+functionCall
+args={ x, y, z }
+a=1 args={ x, y, z }
+a=1 b=2 args={ x, y, z }
+a=1 b=2 c=3 args={ x, y, z }
+-----

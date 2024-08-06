@@ -420,6 +420,11 @@ void InstructionEmitter::set_member_by_operator( BTokenId token_id, MemberID mem
   emit_token( token_id, TYP_UNARY_OPERATOR, member_id );
 }
 
+void InstructionEmitter::spread()
+{
+  emit_token( TOK_SPREAD, TYP_OPERAND );
+}
+
 unsigned InstructionEmitter::skip_if_true_else_consume()
 {
   return emit_token( INS_SKIPIFTRUE_ELSE_CONSUME, TYP_CONTROL );

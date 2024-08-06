@@ -26,6 +26,7 @@
 #include "bscript/compiler/ast/MethodCall.h"
 #include "bscript/compiler/ast/MethodCallArgumentList.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/SpreadElement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
@@ -217,7 +218,7 @@ std::unique_ptr<DictionaryInitializer> ExpressionBuilder::dictionary_initializer
 }
 
 std::unique_ptr<ElementAccess> ExpressionBuilder::element_access(
-    std::unique_ptr<Expression> lhs, EscriptParser::ExpressionListContext* ctx )
+    std::unique_ptr<Expression> lhs, EscriptParser::IndexListContext* ctx )
 {
   auto source_location = location_for( *ctx );
 
@@ -300,9 +301,9 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
   std::vector<std::unique_ptr<Expression>> expressions;
   if ( ctx )
   {
-    for ( auto expression_ctx : ctx->expression() )
+    for ( auto entry_ctx : ctx->expressionListEntry() )
     {
-      expressions.push_back( expression( expression_ctx ) );
+      expressions.push_back( expression( entry_ctx->expression(), false, entry_ctx->ELLIPSIS() ) );
     }
   }
   return expressions;
@@ -366,7 +367,7 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::ExpressionContext* ctx,
-                                                           bool consume )
+                                                           bool consume, bool spread )
 {
   std::unique_ptr<Expression> result;
   if ( auto prim = ctx->primary() )
@@ -395,7 +396,12 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
     location_for( *ctx ).internal_error( "unhandled expression" );
   }
 
-  if (consume)
+  if ( spread )
+  {
+    result = std::make_unique<SpreadElement>( location_for( *ctx ), std::move( result ) );
+  }
+
+  if ( consume )
   {
     result = consume_expression_result( std::move( result ) );
   }
@@ -463,7 +469,7 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
 {
   if ( auto indexing = ctx->indexingSuffix() )
   {
-    return element_access( std::move( lhs ), indexing->expressionList() );
+    return element_access( std::move( lhs ), indexing->indexList() );
   }
   else if ( auto member = ctx->navigationSuffix() )
   {
@@ -640,12 +646,13 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
 
   if ( ctx )
   {
-    for ( auto argument_context : ctx->expression() )
+    for ( auto argument_context : ctx->expressionListEntry() )
     {
       auto loc = location_for( *argument_context );
 
       std::string name;
-      auto value = expression( argument_context );
+      auto value =
+          expression( argument_context->expression(), false, argument_context->ELLIPSIS() );
 
       if ( auto binary_operator = dynamic_cast<BinaryOperator*>( value.get() ) )
       {
@@ -658,7 +665,8 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
           }
         }
       }
-      auto argument = std::make_unique<Argument>( loc, std::move( name ), std::move( value ) );
+      auto argument = std::make_unique<Argument>( loc, std::move( name ), std::move( value ),
+                                                  argument_context->ELLIPSIS() );
       arguments.push_back( std::move( argument ) );
     }
   }

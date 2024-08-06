@@ -1,0 +1,26 @@
+var foo := {3};
+
+function bar( a, b, c, d, unused args ...) endfunction
+
+// bareArrayInitializer
+{ 1 , 2, foo... };
+{ 1 , 2, foo..., foo..., { 1 , 2, foo..., foo... }... };
+
+// functionCallSuffix
+( @bar ) ( foo... );
+( @bar ) ( foo..., 1, 2, foo..., {1, 2, 3}..., {{1,2,3}...,4} );
+
+// indexingSuffix -- NOT ALLOWED
+// foo[1, 2, foo...];
+
+// but the indexingSuffix can have children that are spread
+foo[1, { 1, 2, foo... }];
+
+// methodCallSuffix
+foo.bar( 1, 2, foo... );
+
+// functionCall
+bar( a:=1, d:=2, c:=3, b:=4, foo... );
+
+// arrayInitializer
+array{ 1, 2, foo... };

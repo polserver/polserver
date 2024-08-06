@@ -204,11 +204,17 @@ public:
   virtual void enterExpressionList(EscriptParser::ExpressionListContext *ctx) = 0;
   virtual void exitExpressionList(EscriptParser::ExpressionListContext *ctx) = 0;
 
+  virtual void enterExpressionListEntry(EscriptParser::ExpressionListEntryContext *ctx) = 0;
+  virtual void exitExpressionListEntry(EscriptParser::ExpressionListEntryContext *ctx) = 0;
+
   virtual void enterExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) = 0;
   virtual void exitExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) = 0;
 
   virtual void enterIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) = 0;
   virtual void exitIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) = 0;
+
+  virtual void enterIndexList(EscriptParser::IndexListContext *ctx) = 0;
+  virtual void exitIndexList(EscriptParser::IndexListContext *ctx) = 0;
 
   virtual void enterNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) = 0;
   virtual void exitNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) = 0;

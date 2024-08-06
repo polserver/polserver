@@ -1,0 +1,10 @@
+In test: item=item multi=multi multi2=multi npc=npc
+DisposeNpc
+DisposeCustom on 'multi' but do something with item 'item' first
+DisposeMulti
+DisposeItem
+1
+----
+DisposeMulti
+DisposeItem
+error{ errortext = "Invalid parameter type" }

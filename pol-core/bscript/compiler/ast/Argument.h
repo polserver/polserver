@@ -11,12 +11,14 @@ class Expression;
 class Argument : public Node
 {
 public:
-  Argument( const SourceLocation&, std::string identifier, std::unique_ptr<Expression> );
+  Argument( const SourceLocation&, std::string identifier, std::unique_ptr<Expression>,
+            bool spread );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
 
   const std::string identifier;  // can be empty if not specified
+  const bool spread;
 
   std::unique_ptr<Expression> take_expression();
 };

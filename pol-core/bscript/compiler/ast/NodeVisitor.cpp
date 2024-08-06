@@ -50,6 +50,7 @@
 #include "bscript/compiler/ast/ProgramParameterList.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
+#include "bscript/compiler/ast/SpreadElement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
@@ -289,6 +290,11 @@ void NodeVisitor::visit_repeat_until_loop( RepeatUntilLoop& node )
 }
 
 void NodeVisitor::visit_return_statement( ReturnStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_spread_element( SpreadElement& node )
 {
   visit_children( node );
 }

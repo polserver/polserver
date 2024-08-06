@@ -46,7 +46,7 @@ public:
       EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* );
 
   std::unique_ptr<ElementAccess> element_access(
-      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::ExpressionListContext* );
+      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::IndexListContext* );
 
   std::unique_ptr<ElvisOperator> elvis_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
@@ -58,7 +58,7 @@ public:
       EscriptGrammar::EscriptParser::ExplicitErrorInitializerContext* );
 
   std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext*,
-                                          bool consume = false );
+                                          bool consume = false, bool spread = false );
 
   std::vector<std::unique_ptr<Expression>> expressions(
       EscriptGrammar::EscriptParser::ArrayInitializerContext* );

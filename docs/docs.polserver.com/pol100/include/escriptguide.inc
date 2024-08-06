@@ -1,5 +1,8 @@
-<h1>Racalac's eScript Reference and Guide (POL 100.2.0)<br>
-<div style="font-size: 0.82em">(Last Updated: August 4, 2024)</div>
+<h1>
+  Racalac's eScript Reference and Guide (POL 100.2.0)
+  <div style="font-size: 0.82em">(Last Updated: August 5, 2024)</div>
+</h1>
+<br/>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -75,15 +78,18 @@ apologies if I explain some things in annoyingly simple terms.</p>
 
 <p><b><a href="#chap11">Chapter 11: Advanced Data Types and Functions</a></b>
 
-</p><ul>
-  <li><a href="#chap11a">Global Properties</a>
-  </li><li><a href="#chap11b">Arrays</a>
-  </li><li><a href="#chap11c">Structs</a>
-  </li><li><a href="#chap11d">Dictionaries</a>
-  </li><li><a href="#chap11e">Function Calls by Reference</a>
-  </li><li><a href="#chap11f">Interpolated Strings</a></li></ul>
-  </li><li><a href="#chap11g">Function Objects</a></li></ul>
-  </li><li><a href="#chap11h">Function Expressions</a></li></ul>
+</p>
+<ul>
+  <li><a href="#chap11a">Global Properties</a></li>
+  <li><a href="#chap11b">Arrays</a></li>
+  <li><a href="#chap11c">Structs</a></li>
+  <li><a href="#chap11d">Dictionaries</a></li>
+  <li><a href="#chap11e">Function Calls by Reference</a></li>
+  <li><a href="#chap11f">Interpolated Strings</a></li></li>
+  <li><a href="#chap11g">Function Objects</a></li></li>
+  <li><a href="#chap11h">Function Expressions</a></li></li>
+  <li><a href="#chap11i">Spread Operator</a></li>
+</ul>
 <p></p>
 
 <p><b><a href="#app2">Appendix A: Gump Tag Descriptions</a></b></p>
@@ -2582,6 +2588,123 @@ variable's value will reflect in any other locations that access the variable.
 This is useful for creating closures that can be used to encapsulate stateful
 behavior.
 
+<br/>
+<br/>
+<!-- ====================================================================== -->
+<p><b><a name="chap11i">Spread Operator</a></b></p>
+
+<br/>
+<p>Added in: POL 100.2.0</p>
+<br/>
+<p>
+  The spread operator is a convenient way to expand an array into individual
+  elements. This is useful when you want to pass an array as arguments to a
+  function. It can also be used in the array initializer when creating a new
+  array. The spread operator is denoted by the
+  <code>...</code> syntax.
+</p>
+
+<div class="doc-guide-pre"><pre>
+function Sum( numbers... )
+  var total := 0;
+  foreach number in numbers
+    total += number;
+  endforeach
+
+  return total;
+endfunction
+
+program main( who )
+  var numbers1 := array{ 1, 2, 3 };
+  var numbers2 := array{ 4, 5, 6 };
+  var total := Sum( numbers1..., numbers2... );
+  Print( total ); // Output: 21
+endprogram
+</pre></div>
+
+<p>
+  The spread operator can also be used in the array initializer to concatenate
+  multiple arrays into a single array.
+</p>
+
+<div class="doc-guide-pre"><pre>
+program main( who )
+  var numbers1 := array{ 1, 2, 3 };
+  var numbers2 := array{ 4, 5, 6 };
+
+  var numbers := array{ numbers1..., numbers2... };
+  Print( numbers ); // Output: { 1, 2, 3, 4, 5, 6 }
+endprogram
+</pre></div>
+
+<p>
+For function calls, the spread operator can only be used on variadic functions,
+ie. those that accept a variable number of arguments. Using the spread operator
+with non-variadic functions will result in a compile-time error. To bypass this,
+you can use the "expression-as-callee" syntax, calling the the function through
+a function object via <code>@</code>. If the correct number of arguments are not
+passed after spreading arguments, an error will be returned instead of executing
+the function.
+</p>
+
+</p>
+
+<div class="doc-guide-pre"><pre>
+function Sum( a, b, c )
+  return a + b + c;
+endfunction
+
+program main( who )
+  var numbers, total, sum;
+
+  numbers := array{ 1, 2, 3 };
+
+  // Compile-time error! Spread operator can only be used in variadic functions
+  // total := Sum( numbers... );
+
+  // Okay! Use the expression-as-callee syntax
+  total := (@Sum)( numbers... );  // Or: @Sum.call( numbers... )
+  Print( total ); // Output: 6
+
+  // Calling @Sum with the wrong number of arguments will result in an error:
+  numbers := { 1, 2 };
+  total := (@Sum)( numbers... );
+  Print( total ); // Output: Invalid argument count: expected 3, got 2
+
+endprogram
+
+</pre></div>
+
+<p>
+  Using the spread operator on dictionaries and structs result in
+  expanding the values of that object:
+</p>
+
+<div class="doc-guide-pre"><pre>
+function Sum( numbers... )
+  var total := 0;
+  foreach number in numbers
+    total += number;
+  endforeach
+
+  return total;
+endfunction
+
+program main( who )
+  // Spread a dictionary's values into a function
+  var dict := dictionary{ "a" -> 1, "b" -> 2, "c" -> 3 };
+  var total := Sum( dict... );
+  Print( total ); // Output: 6
+
+  // Spread a struct's values into an array.
+  // `lastcoords` is a struct{ x := 123, y := 456, z := 789 }
+  var coords := array{ who.lastcoords... };
+  Print( ", ".join( coords ) ); // Output: 123, 456, 789
+endprogram
+</pre></div>
+
+<br/>
+<br/>
 <!-- ====================================================================== -->
 
 </p><h3><a name="app2">Appendix A: GUMP Tag Descriptions</a></h3>
@@ -3162,4 +3285,7 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.14: 04/08/2024<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Variadic User Functions by Kevin<br>
+</p>
+<p>v0.15: 05/08/2024<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Spread Operator by Kevin<br>
 </p>

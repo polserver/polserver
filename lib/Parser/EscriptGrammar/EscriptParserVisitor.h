@@ -146,9 +146,13 @@ public:
 
     virtual std::any visitExpressionList(EscriptParser::ExpressionListContext *context) = 0;
 
+    virtual std::any visitExpressionListEntry(EscriptParser::ExpressionListEntryContext *context) = 0;
+
     virtual std::any visitExpressionSuffix(EscriptParser::ExpressionSuffixContext *context) = 0;
 
     virtual std::any visitIndexingSuffix(EscriptParser::IndexingSuffixContext *context) = 0;
+
+    virtual std::any visitIndexList(EscriptParser::IndexListContext *context) = 0;
 
     virtual std::any visitNavigationSuffix(EscriptParser::NavigationSuffixContext *context) = 0;
 

@@ -1,0 +1,2 @@
+6
+error{ errortext = "Invalid argument count: expected 3, got 2" }

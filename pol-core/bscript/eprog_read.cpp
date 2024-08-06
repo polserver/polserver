@@ -305,10 +305,9 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SKIPIFTRUE_ELSE_CONSUME:
   case TOK_BOOL:
   case TOK_INTERPOLATE_STRING:
-    token.lval = st.offset;
-    return 0;
   case TOK_FUNCREF:
   case TOK_FUNCTOR:
+  case TOK_SPREAD:
     token.lval = st.offset;
     return 0;
 

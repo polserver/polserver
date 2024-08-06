@@ -2395,15 +2395,52 @@ bool BFunctionRef::variadic() const
   return variadic_;
 }
 
-BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
+BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
   switch ( id )
   {
+  // This is only entered if `ins_call_method_id` did _not_ do the call jump.
   case MTH_CALL:
-    return nullptr;  // handled directly
+  {
+    if ( variadic_ )
+    {
+      return new BError( fmt::format( "Invalid argument count: expected {}+, got {}",
+                                      static_cast<int>( num_params_ ) - 1, ex.numParams() ) );
+    }
+    else
+    {
+      return new BError( fmt::format( "Invalid argument count: expected {}, got {}", num_params_,
+                                      ex.numParams() ) );
+    }
+  }
   default:
     return nullptr;
   }
 }
+
+BSpread::BSpread( BObjectRef obj ) : BObjectImp( OTSpread ), object( obj ) {}
+
+BSpread::BSpread( const BSpread& B ) : BObjectImp( OTSpread ), object( B.object ) {}
+
+size_t BSpread::sizeEstimate() const
+{
+  return sizeof( BSpread ) + object.sizeEstimate();
+}
+
+BObjectImp* BSpread::copy() const
+{
+  return new BSpread( *this );
+}
+
+bool BSpread::isTrue() const
+{
+  return object->isTrue();
+}
+
+std::string BSpread::getStringRep() const
+{
+  return "Spread";
+}
+
 }  // namespace Bscript
 }  // namespace Pol

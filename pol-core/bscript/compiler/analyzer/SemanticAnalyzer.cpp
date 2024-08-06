@@ -327,6 +327,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   VariadicArguments variadic_arguments;
 
   bool any_named = false;
+  auto uf = fc.function_link->user_function();
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
   auto parameters = fc.parameters();
@@ -336,9 +337,40 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   {
     auto& arg = *arg_unique_ptr;
     std::string arg_name = arg.identifier;
+
+    if ( arg.spread )
+    {
+      if ( !uf )  // a module function
+      {
+        report.error( arg,
+                      "In call to '{}': Spread operator cannot be used in module function call.",
+                      fc.method_name );
+        return;
+      }
+      else if ( !uf->is_variadic() )
+      {
+        report.error( arg,
+                      "In call to '{}': Spread operator can only be used in variadic functions.",
+                      fc.method_name );
+        return;
+      }
+      else if ( arguments_passed.size() < parameters.size() - 1 )
+      {
+        report.error( arg,
+                      "In call to '{}': Spread operator can only be used for arguments on or after "
+                      "the formal rest parameter.",
+                      fc.method_name );
+        return;
+      }
+    }
+
     if ( arg_name.empty() )
     {
-      if ( any_named )
+      // Allow spread elements to come after named arguments, eg:
+      //
+      //  `foo( optA := 1, optB := 2, ... c )`
+      //
+      if ( any_named && !arg.spread )
       {
         report.error( arg, "In call to '{}': Unnamed args cannot follow named args.",
                       fc.method_name );

@@ -1,0 +1,108 @@
+include "module-stubs";
+
+print( test( true ) );
+print( "----" );
+print( test( false ) );
+
+function test( has_success )
+  return with_resources(
+    @{ return CreateItemAtLocation(1, 2, 3, 0xeed); },
+
+    @{ return CreateMultiAtLocation(1, 2, 3, "SmallHouse"); },
+
+    with_dispose(
+      @{ return CreateMultiAtLocation(1, 2, 3, has_success ? "SmallHouse" : error{}); },
+      @( what, item, unused multi /*from the first SmallHouse*/ ) {
+        print( $"DisposeCustom on '{what}' but do something with item '{item}' first" );
+      }
+    ),
+
+    @{ return CreateNPCFromTemplate("brigand", 1, 2, 3); },
+
+    @(item, multi, multi2, npc) {
+      print( $"In test: item={item} multi={multi} multi2={multi2} npc={npc}" );
+
+      return 1;
+    }
+  );
+endfunction
+
+function DisposeCustom( what )
+  print( $"DisposeCustom {what}" );
+endfunction
+
+//////////////////////////////////////////////////////
+
+function with_dispose( resource, finalizer )
+  return array{ resource, finalizer };
+endfunction
+
+function with_resources( args... )
+  var resources := array{};
+
+  var cleanup := @{
+    while ( resources.size() )
+      var resource_entry := resources[resources.size()];
+      var resource := resource_entry[1];
+      var cleanup_fn := resource_entry[2];
+
+      resources.shrink( resources.size() - 1 );
+
+      var call_args := resources.map( @( resource ) {
+        return resource[1];
+      });
+
+      cleanup_fn( resource, call_args... );
+    endwhile
+  };
+
+  foreach arg in args
+    if (_arg_iter == args.size())
+
+      var call_args := resources.map( @( resource ) {
+        return resource[1];
+      });
+
+      var result := arg( call_args... );
+
+      cleanup();
+
+      return result;
+    endif
+
+    if (TypeOfInt(arg) == OT_ARRAY)
+      var resource := (arg[1])();
+
+      if (!resource)
+        cleanup();
+        return resource;
+      endif
+
+      var finalizer := arg[2];
+
+      resources.append( with_dispose( resource, finalizer ) );
+
+    elseif (TypeOfInt(arg) == OT_FUNCOBJECT)
+      var resource := arg();
+
+      if (!resource)
+        cleanup();
+        return resource;
+      endif
+
+      var finalizer;
+
+      var type := TypeOfInt_( resource );
+
+      case ( type )
+        OT_ITEMREF: finalizer := @DisposeItem;
+        OT_MULTIREF: finalizer := @DisposeMulti;
+        OT_MOBILEREF: finalizer := @DisposeNpc;
+        default: finalizer := @(what) { print( $"Cannot dispose @{what}" ); };
+      endcase
+
+      resources.append( with_dispose(resource, finalizer) );
+    endif
+
+  endforeach
+endfunction
