@@ -43,6 +43,11 @@ void CompilerWorkspace::accept( NodeVisitor& visitor )
   {
     user_function->accept( visitor );
   }
+
+  for ( auto& class_decl : class_declarations )
+  {
+    class_decl->accept( visitor );
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler

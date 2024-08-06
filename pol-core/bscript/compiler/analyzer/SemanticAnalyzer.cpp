@@ -18,6 +18,7 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
@@ -94,6 +95,11 @@ void SemanticAnalyzer::analyze()
     }
   }
 
+  for ( auto& class_decl : workspace.class_declarations )
+  {
+    class_decl->accept( *this );
+  }
+
   workspace.global_variable_names = globals.get_names();
 }
 
@@ -129,6 +135,14 @@ void SemanticAnalyzer::visit_block( Block& block )
   LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
+}
+
+void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
+{
+  std::string str;
+  Node::describe_tree_to_indented( node, str, 0 );
+  report.warning( node, "tree:\n{} ", str );
+  visit_children( node );
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor

@@ -66,6 +66,18 @@ public:
     return static_cast<T&>( *children.at( index ) );
   }
 
+  template <typename T>
+  void get_children( std::vector<std::reference_wrapper<T>>& result ) const
+  {
+    for ( auto& child : children )
+    {
+      if ( auto casted = dynamic_cast<T*>( child.get() ) )
+      {
+        result.emplace_back( *casted );
+      }
+    }
+  }
+
   NodeVector children;
 
   const SourceLocation source_location;

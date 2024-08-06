@@ -3,6 +3,8 @@
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/ast/VarStatement.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -24,6 +26,24 @@ void ClassDeclaration::accept( NodeVisitor& visitor )
 void ClassDeclaration::describe_to( std::string& w ) const
 {
   fmt::format_to( std::back_inserter( w ), "class-declaration({})", name );
+}
+
+std::vector<std::reference_wrapper<UserFunction>> ClassDeclaration::functions()
+{
+  std::vector<std::reference_wrapper<UserFunction>> functs;
+
+  children[1]->get_children( functs );
+
+  return functs;
+}
+
+std::vector<std::reference_wrapper<VarStatement>> ClassDeclaration::variables()
+{
+  std::vector<std::reference_wrapper<VarStatement>> vars;
+
+  children[1]->get_children( vars );
+
+  return vars;
 }
 
 }  // namespace Pol::Bscript::Compiler

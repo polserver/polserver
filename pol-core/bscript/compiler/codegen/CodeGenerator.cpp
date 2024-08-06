@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "StoredToken.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterList.h"
@@ -105,6 +106,11 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
     {
       user_function->accept( generator );
     }
+  }
+
+  for ( auto& class_decl : workspace.class_declarations )
+  {
+    class_decl->accept( generator );
   }
 }
 

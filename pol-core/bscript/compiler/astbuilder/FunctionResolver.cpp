@@ -94,10 +94,15 @@ void FunctionResolver::register_user_function( UserFunction* uf )
   resolved_functions_by_name[uf->name] = uf;
 }
 
-void FunctionResolver::register_class_declaration( ClassDeclaration* /*cd*/ )
+void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 {
   // TODO: Implement this
-  // resolved_functions_by_name[cd->name] = cd;
+  auto funcs = cd->functions();
+
+  if (funcs.empty())
+    return;
+
+  resolved_functions_by_name[cd->name] = &( funcs[0].get() );
 }
 
 bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )

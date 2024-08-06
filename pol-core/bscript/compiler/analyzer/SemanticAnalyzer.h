@@ -29,6 +29,7 @@ public:
 
   void visit_basic_for_loop( BasicForLoop& ) override;
   void visit_block( Block& ) override;
+  void visit_class_declaration( ClassDeclaration& ) override;
   void visit_case_statement( CaseStatement& ) override;
   void visit_case_dispatch_group( CaseDispatchGroup& ) override;
   void visit_case_dispatch_selectors( CaseDispatchSelectors& ) override;

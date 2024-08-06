@@ -1,0 +1,45 @@
+// TODO make this a class and do analysis on this
+var BaseClass;
+
+class Animal( BaseClass )
+
+  // TODO make this work
+  var staticVar := 1 + 2;
+
+  function Animal( byref this, name )
+    this.name := name;
+    print( staticVar );
+  endfunction
+
+endclass
+
+var myobj := struct{};
+Animal( myobj, "name" );
+print( myobj );
+
+// errors correctly
+// print( staticVar );
+
+// TODO
+// print( Animal::staticVar );
+
+/*
+- class-declaration(Animal)
+  - class-parameter-list
+    - identifier(BaseClass)
+  - class-block
+    - var-statement(staticVar)
+      - integer-value(3)
+    - user-function(Animal)
+      - function-parameter-list
+        - function-parameter-declaration(this, byref)
+        - function-parameter-declaration(name)
+      - user-function-body
+        - member-assignment-statement(name) (#3)
+          - identifier(this)
+          - identifier(name)
+        - value-consumer
+          - function-call(print)
+            - argument()
+              - identifier(staticVar)
+*/
