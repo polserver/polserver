@@ -796,6 +796,57 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement( EscriptParser::CaseStat
   return {};
 }
 
+antlrcpp::Any PrettifyFileProcessor::visitClassBody(
+    EscriptGrammar::EscriptParser::ClassBodyContext* ctx )
+{
+  ++_currident;
+  visitChildren( ctx );
+  --_currident;
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitClassDeclaration(
+    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
+{
+  addToken( "class", ctx->CLASS(), FmtToken::SPACE );
+  make_identifier( ctx->IDENTIFIER() );
+  visitClassParameters( ctx->classParameters() );
+
+  visitClassBody( ctx->classBody() );
+
+  addToken( "endclass", ctx->ENDCLASS(), FmtToken::SPACE );
+  linebuilder.buildLine( _currident );
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitClassParameters(
+    EscriptGrammar::EscriptParser::ClassParametersContext* ctx )
+{
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
+
+  size_t curcount = linebuilder.currentTokens().size();
+  if ( auto args = ctx->classParameterList() )
+    visitClassParameterList( args );
+
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  linebuilder.buildLine( _currident );
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitClassParameterList(
+    EscriptGrammar::EscriptParser::ClassParameterListContext* ctx )
+{
+  auto params = ctx->IDENTIFIER();
+  for ( size_t i = 0; i < params.size(); ++i )
+  {
+    make_identifier( params[i] );
+    if ( i < params.size() - 1 )
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
+  }
+
+  return {};
+}
+
 antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
     EscriptParser::ContinueStatementContext* ctx )
 {
