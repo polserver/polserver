@@ -295,12 +295,13 @@ antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
 antlrcpp::Any SourceFileProcessor::visitClassDeclaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
 {
-auto loc = location_for( *ctx );
+  auto loc = location_for( *ctx );
   workspace.function_resolver.register_available_class_decl( loc, ctx );
-  const std::string& class_name = tree_builder.text( ctx->IDENTIFIER() );
-  workspace.compiler_workspace.all_function_locations.emplace( class_name, loc );
+  const std::string& name = tree_builder.text( ctx->IDENTIFIER() );
+  workspace.compiler_workspace.all_class_locations.emplace( name, loc );
+  // This should be fine...?
   if ( user_function_inclusion == UserFunctionInclusion::All )
-    workspace.function_resolver.force_reference( class_name, loc );
+    workspace.function_resolver.force_reference( name, loc );
   return antlrcpp::Any();
 }
 

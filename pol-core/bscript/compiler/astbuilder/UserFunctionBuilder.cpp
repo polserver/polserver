@@ -31,6 +31,12 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
   return make_user_function( name, ctx, false, ctx->RBRACE() );
 }
 
+std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
+    EscriptGrammar::EscriptParser::ClassDeclarationContext* )
+{
+  return {};
+}
+
 template <typename ParserContext>
 std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
     const std::string& name, ParserContext* ctx, bool exported,

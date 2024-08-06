@@ -50,6 +50,8 @@ set (bscript_sources    # sorted !
   compiler/ast/CaseDispatchSelectors.h
   compiler/ast/CaseStatement.cpp
   compiler/ast/CaseStatement.h
+  compiler/ast/ClassDeclaration.cpp
+  compiler/ast/ClassDeclaration.h
   compiler/ast/ConditionalOperator.cpp
   compiler/ast/ConditionalOperator.h
   compiler/ast/ConstDeclaration.cpp

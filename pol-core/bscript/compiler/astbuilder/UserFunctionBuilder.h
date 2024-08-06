@@ -6,6 +6,7 @@
 namespace Pol::Bscript::Compiler
 {
 class UserFunction;
+class ClassDeclaration;
 
 class UserFunctionBuilder : public CompoundStatementBuilder
 {
@@ -16,6 +17,8 @@ public:
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* );
   std::unique_ptr<UserFunction> function_expression(
       EscriptGrammar::EscriptParser::FunctionExpressionContext* );
+  std::unique_ptr<ClassDeclaration> class_declaration(
+      EscriptGrammar::EscriptParser::ClassDeclarationContext* );
 
 private:
   template <typename ParserContext>

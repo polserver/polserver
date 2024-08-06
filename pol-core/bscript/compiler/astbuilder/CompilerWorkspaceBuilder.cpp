@@ -76,12 +76,12 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
   std::vector<AvailableParseTree> to_build;
   while ( workspace.function_resolver.resolve( to_build ) )
   {
-    for ( auto& auf : to_build )
+    for ( auto& apt : to_build )
     {
-      UserFunctionVisitor user_function_visitor( *auf.source_location.source_file_identifier,
+      UserFunctionVisitor user_function_visitor( *apt.source_location.source_file_identifier,
                                                  workspace );
 
-      auf.parse_rule_context->accept( &user_function_visitor );
+      apt.parse_rule_context->accept( &user_function_visitor );
     }
     to_build.clear();
   }

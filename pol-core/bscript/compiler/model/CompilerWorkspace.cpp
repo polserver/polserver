@@ -1,10 +1,11 @@
 #include "CompilerWorkspace.h"
 
+#include "bscript/compiler/analyzer/Constants.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
-#include "bscript/compiler/analyzer/Constants.h"
-#include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 

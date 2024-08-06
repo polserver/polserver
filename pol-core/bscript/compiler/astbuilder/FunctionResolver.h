@@ -7,12 +7,13 @@
 
 #include <EscriptGrammar/EscriptParser.h>
 
-#include "clib/maputil.h"
 #include "bscript/compiler/file/SourceLocation.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {
 struct AvailableParseTree;
+class ClassDeclaration;
 class Function;
 class FunctionLink;
 class ModuleFunctionDeclaration;
@@ -39,6 +40,7 @@ public:
       const SourceLocation&, EscriptGrammar::EscriptParser::FunctionExpressionContext* );
   void register_module_function( ModuleFunctionDeclaration* );
   void register_user_function( UserFunction* );
+  void register_class_declaration( ClassDeclaration* );
 
   bool resolve( std::vector<AvailableParseTree>& user_functions_to_build );
 

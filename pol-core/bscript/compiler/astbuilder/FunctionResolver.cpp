@@ -2,6 +2,7 @@
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/Function.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
@@ -91,6 +92,12 @@ void FunctionResolver::register_module_function( ModuleFunctionDeclaration* mf )
 void FunctionResolver::register_user_function( UserFunction* uf )
 {
   resolved_functions_by_name[uf->name] = uf;
+}
+
+void FunctionResolver::register_class_declaration( ClassDeclaration* /*cd*/ )
+{
+  // TODO: Implement this
+  // resolved_functions_by_name[cd->name] = cd;
 }
 
 bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
