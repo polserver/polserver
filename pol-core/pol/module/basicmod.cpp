@@ -328,23 +328,23 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
 Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( auto* v = impptrIf<BLong>( imp ) )
+  if ( auto* l = impptrIf<BLong>( imp ) )
   {
     char s[20];
-    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( v->value() ) );
+    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( l->value() ) );
     return new String( s );
   }
-  else if ( auto* v = impptrIf<Double>( imp ) )
+  else if ( auto* d = impptrIf<Double>( imp ) )
   {
     char s[20];
-    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( v->value() ) );
+    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( d->value() ) );
     return new String( s );
   }
-  else if ( auto* v = impptrIf<String>( imp ) )
+  else if ( auto* simp = impptrIf<String>( imp ) )
   {
     char s[20];
     snprintf( s, Clib::arsize( s ), "0x%X",
-              static_cast<unsigned int>( strtoul( v->data(), nullptr, 0 ) ) );
+              static_cast<unsigned int>( strtoul( simp->data(), nullptr, 0 ) ) );
     return new String( s );
   }
   return new BError( "Hex() expects an Integer, Real, or String" );
@@ -522,27 +522,27 @@ Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
 
 picojson::value recurseE2J( BObjectImp* value )
 {
-  if ( auto* v = impptrIf<String>( value ) )
+  if ( auto* s = impptrIf<String>( value ) )
   {
-    return picojson::value( v->getStringRep() );
+    return picojson::value( s->getStringRep() );
   }
-  else if ( auto* v = impptrIf<BLong>( value ) )
+  else if ( auto* l = impptrIf<BLong>( value ) )
   {
-    return picojson::value( static_cast<double>( v->value() ) );
+    return picojson::value( static_cast<double>( l->value() ) );
   }
-  else if ( auto* v = impptrIf<Double>( value ) )
+  else if ( auto* d = impptrIf<Double>( value ) )
   {
-    return picojson::value( v->value() );
+    return picojson::value( d->value() );
   }
-  else if ( auto* v = impptrIf<BBoolean>( value ) )
+  else if ( auto* b = impptrIf<BBoolean>( value ) )
   {
-    return picojson::value( v->value() );
+    return picojson::value( b->value() );
   }
-  else if ( auto* v = impptrIf<ObjArray>( value ) )
+  else if ( auto* a = impptrIf<ObjArray>( value ) )
   {
     picojson::array jsonArr;
 
-    for ( const auto& elem : v->ref_arr )
+    for ( const auto& elem : a->ref_arr )
     {
       BObject* bo = elem.get();
       if ( bo == nullptr )
@@ -552,20 +552,20 @@ picojson::value recurseE2J( BObjectImp* value )
     }
     return picojson::value( jsonArr );
   }
-  else if ( auto* v = impptrIf<BStruct>( value ) )
+  else if ( auto* bstruct = impptrIf<BStruct>( value ) )
   {
     picojson::object jsonObj;
-    for ( const auto& content : v->contents() )
+    for ( const auto& content : bstruct->contents() )
     {
       BObjectImp* imp = content.second->impptr();
       jsonObj.insert( std::pair<std::string, picojson::value>( content.first, recurseE2J( imp ) ) );
     }
     return picojson::value( jsonObj );
   }
-  else if ( auto* v = impptrIf<BDictionary>( value ) )
+  else if ( auto* dict = impptrIf<BDictionary>( value ) )
   {
     picojson::object jsonObj;
-    for ( const auto& content : v->contents() )
+    for ( const auto& content : dict->contents() )
     {
       BObjectImp* imp = content.second->impptr();
       jsonObj.insert( std::pair<std::string, picojson::value>( content.first->getStringRep(),
@@ -644,10 +644,10 @@ Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
 Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( auto* v = impptrIf<BLong>( imp ) )
-    return new BBoolean( v->value() != 0 );
-  else if ( auto* v = impptrIf<BBoolean>( imp ) )
-    return new BBoolean( *v );
+  if ( auto* l = impptrIf<BLong>( imp ) )
+    return new BBoolean( l->value() != 0 );
+  else if ( auto* b = impptrIf<BBoolean>( imp ) )
+    return new BBoolean( *b );
   return new BError( "Boolean() expects an Integer or Boolean" );
 }
 

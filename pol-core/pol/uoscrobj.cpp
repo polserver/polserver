@@ -161,12 +161,12 @@ BObjectRef ECharacterRefObjImp::get_member( const char* membername )
 BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( auto* v = impptrIf<BLong>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<String>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<Double>( value ) )
-    result = obj_->set_script_member_id_double( id, v->value() );
+  if ( auto* l = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, l->value() );
+  else if ( auto* s = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, s->value() );
+  else if ( auto* d = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, d->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -314,12 +314,12 @@ BObjectRef EItemRefObjImp::get_member( const char* membername )
 BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( auto* v = impptrIf<BLong>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<String>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<Double>( value ) )
-    result = obj_->set_script_member_id_double( id, v->value() );
+  if ( auto* l = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, l->value() );
+  else if ( auto* s = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, s->value() );
+  else if ( auto* d = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, d->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -445,12 +445,12 @@ BObjectRef EUBoatRefObjImp::get_member( const char* membername )
 BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( auto* v = impptrIf<BLong>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<String>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<Double>( value ) )
-    result = obj_->set_script_member_id_double( id, v->value() );
+  if ( auto* l = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, l->value() );
+  else if ( auto* s = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, s->value() );
+  else if ( auto* d = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, d->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -591,12 +591,12 @@ BObjectRef EMultiRefObjImp::get_member( const char* membername )
 BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   BObjectImp* result = nullptr;
-  if ( auto* v = impptrIf<BLong>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<String>( value ) )
-    result = obj_->set_script_member_id( id, v->value() );
-  else if ( auto* v = impptrIf<Double>( value ) )
-    result = obj_->set_script_member_id_double( id, v->value() );
+  if ( auto* l = impptrIf<BLong>( value ) )
+    result = obj_->set_script_member_id( id, l->value() );
+  else if ( auto* s = impptrIf<String>( value ) )
+    result = obj_->set_script_member_id( id, s->value() );
+  else if ( auto* d = impptrIf<Double>( value ) )
+    result = obj_->set_script_member_id_double( id, d->value() );
   if ( result != nullptr )
     return BObjectRef( result );
   return BObjectRef( UninitObject::create() );
@@ -3205,14 +3205,14 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Invalid flags for parameter 1" );
 
     BObjectImp* param0 = ex.getParamImp( 0 );
-    if ( auto* v = impptrIf<String>( param0 ) )
+    if ( auto* s = impptrIf<String>( param0 ) )
     {
-      if ( DecodeFacing( v->data(), i_facing ) == false )
+      if ( DecodeFacing( s->data(), i_facing ) == false )
         return new BError( "Invalid string for parameter 0" );
     }
-    else if ( auto* v = impptrIf<BLong>( param0 ) )
+    else if ( auto* l = impptrIf<BLong>( param0 ) )
     {
-      i_facing = static_cast<Core::UFACING>( v->value() & PKTIN_02_FACING_MASK );
+      i_facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
     }
     else
       return new BError( "Invalid type for parameter 0" );
@@ -4270,12 +4270,12 @@ BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.getStringParam( 0, mname ) && ( objimp = ex.getParamImp( 1 ) ) != nullptr )
     {
       BObjectImp* ret;
-      if ( auto* v = impptrIf<BLong>( objimp ) )
-        ret = set_script_member( mname->value().c_str(), v->value() );
-      else if ( auto* v = impptrIf<Double>( objimp ) )
-        ret = set_script_member_double( mname->value().c_str(), v->value() );
-      else if ( auto* v = impptrIf<String>( objimp ) )
-        ret = set_script_member( mname->value().c_str(), v->value() );
+      if ( auto* l = impptrIf<BLong>( objimp ) )
+        ret = set_script_member( mname->value().c_str(), l->value() );
+      else if ( auto* d = impptrIf<Double>( objimp ) )
+        ret = set_script_member_double( mname->value().c_str(), d->value() );
+      else if ( auto* s = impptrIf<String>( objimp ) )
+        ret = set_script_member( mname->value().c_str(), s->value() );
       else
         return new BError( "Invalid value type" );
 

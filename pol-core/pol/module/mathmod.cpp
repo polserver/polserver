@@ -274,13 +274,13 @@ math::Abs(-1.5) = 1.5
 Bscript::BObjectImp* MathExecutorModule::mf_Abs()
 {
   BObjectImp* imp = getParamImp( 0 );
-  if ( auto* value = impptrIf<Double>( imp ) )
+  if ( auto* d = impptrIf<Double>( imp ) )
   {
-    return new Double( fabs( value->value() ) );
+    return new Double( fabs( d->value() ) );
   }
-  else if ( auto* value = impptrIf<BLong>( imp ) )
+  else if ( auto* l = impptrIf<BLong>( imp ) )
   {
-    return new BLong( labs( value->value() ) );
+    return new BLong( labs( l->value() ) );
   }
   else
   {
