@@ -395,10 +395,10 @@ double Executor::paramAsDouble( unsigned param )
 int Executor::paramAsLong( unsigned param )
 {
   BObjectImp* objimp = getParam( param )->impptr();
-  if ( auto* v = impptrIf<BLong>( objimp ) )
-    return v->value();
-  else if ( auto* v = impptrIf<Double>( objimp ) )
-    return static_cast<int>( v->value() );
+  if ( auto* l = impptrIf<BLong>( objimp ) )
+    return l->value();
+  else if ( auto* d = impptrIf<Double>( objimp ) )
+    return static_cast<int>( d->value() );
   return 0;
 }
 BObject* Executor::getParam( unsigned param )
@@ -611,14 +611,14 @@ bool Executor::getParam( unsigned param, int& value, int minval, int maxval )
 bool Executor::getRealParam( unsigned param, double& value )
 {
   BObjectImp* imp = getParamImp( param );
-  if ( auto* v = impptrIf<Double>( imp ) )
+  if ( auto* d = impptrIf<Double>( imp ) )
   {
-    value = v->value();
+    value = d->value();
     return true;
   }
-  else if ( auto* v = impptrIf<BLong>( imp ) )
+  else if ( auto* l = impptrIf<BLong>( imp ) )
   {
-    value = v->value();
+    value = l->value();
     return true;
   }
   else
@@ -909,14 +909,14 @@ bool Executor::getParam( unsigned param, signed char& value )
 bool Executor::getParam( unsigned param, bool& value )
 {
   BObjectImp* imp = getParamImp( param );
-  if ( auto* v = impptrIf<BBoolean>( imp ) )
+  if ( auto* b = impptrIf<BBoolean>( imp ) )
   {
-    value = v->value();
+    value = b->value();
     return true;
   }
-  else if ( auto* v = impptrIf<BLong>( imp ) )
+  else if ( auto* l = impptrIf<BLong>( imp ) )
   {
-    value = v->isTrue();
+    value = l->isTrue();
     return true;
   }
   else
@@ -1310,10 +1310,10 @@ void Executor::ins_nextfor( const Instruction& ins )
   BObjectImp* itr = ( *Locals2 )[locsize - 2]->impptr();
   BObjectImp* end = ( *Locals2 )[locsize - 1]->impptr();
 
-  if ( auto* v = impptrIf<BLong>( itr ) )
-    v->increment();
-  else if ( auto* v = impptrIf<Double>( itr ) )
-    v->increment();
+  if ( auto* l = impptrIf<BLong>( itr ) )
+    l->increment();
+  else if ( auto* d = impptrIf<Double>( itr ) )
+    d->increment();
 
   if ( *end >= *itr )
   {
@@ -1510,12 +1510,12 @@ void Executor::ins_casejmp( const Instruction& ins )
 {
   BObjectRef& objref = ValueStack.back();
   BObjectImp* objimp = objref->impptr();
-  if ( auto* v = impptrIf<BLong>( objimp ) )
-    PC = ins_casejmp_findlong( ins.token, v );
-  else if ( auto* v = impptrIf<String>( objimp ) )
-    PC = ins_casejmp_findstring( ins.token, v );
-  else if ( auto* v = impptrIf<BBoolean>( objimp ) )
-    PC = ins_casejmp_findbool( ins.token, v );
+  if ( auto* l = impptrIf<BLong>( objimp ) )
+    PC = ins_casejmp_findlong( ins.token, l );
+  else if ( auto* s = impptrIf<String>( objimp ) )
+    PC = ins_casejmp_findstring( ins.token, s );
+  else if ( auto* b = impptrIf<BBoolean>( objimp ) )
+    PC = ins_casejmp_findbool( ins.token, b );
   else if ( impptrIf<UninitObject>( objimp ) )
     PC = ins_casejmp_finduninit( ins.token );
   else
@@ -2669,8 +2669,9 @@ void Executor::ins_call_method_id( const Instruction& ins )
 #endif
     BObjectImp* imp = ValueStack.back()->impptr()->call_method_id( ins.token.lval, *this );
 
-    if ( ( continuation = impptrIf<BContinuation>( imp ) ) )
+    if ( auto* cont = impptrIf<BContinuation>( imp ) )
     {
+      continuation = cont;
       // Set nparams, so the next loop iteration's `getParams` will know how many arguments to
       // move.
       nparams = static_cast<unsigned int>( continuation->args.size() );

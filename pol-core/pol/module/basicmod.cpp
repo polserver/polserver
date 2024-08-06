@@ -50,12 +50,12 @@ BasicExecutorModule::BasicExecutorModule( Executor& exec )
 Bscript::BObjectImp* BasicExecutorModule::mf_Len()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( auto* v = impptrIf<Bscript::ObjArray>( imp ) )
-    return new BLong( static_cast<int>( v->ref_arr.size() ) );
-  else if ( auto* v = impptrIf<Bscript::String>( imp ) )
-    return new BLong( static_cast<int>( v->length() ) );
-  else if ( auto* v = impptrIf<Bscript::BError>( imp ) )
-    return new BLong( static_cast<int>( v->mapcount() ) );
+  if ( auto* a = impptrIf<Bscript::ObjArray>( imp ) )
+    return new BLong( static_cast<int>( a->ref_arr.size() ) );
+  else if ( auto* s = impptrIf<Bscript::String>( imp ) )
+    return new BLong( static_cast<int>( s->length() ) );
+  else if ( auto* e = impptrIf<Bscript::BError>( imp ) )
+    return new BLong( static_cast<int>( e->mapcount() ) );
   return new BLong( 0 );
 }
 
@@ -240,20 +240,20 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CInt()
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( imp->isa( Bscript::BObjectImp::OTLong ) )
     return imp->copy();
-  else if ( auto* v = impptrIf<String>( imp ) )
-    return new BLong( strtoul( v->data(), nullptr, 0 ) );
-  else if ( auto* v = impptrIf<Double>( imp ) )
-    return new BLong( static_cast<int>( v->value() ) );
+  else if ( auto* s = impptrIf<String>( imp ) )
+    return new BLong( strtoul( s->data(), nullptr, 0 ) );
+  else if ( auto* d = impptrIf<Double>( imp ) )
+    return new BLong( static_cast<int>( d->value() ) );
   return new BLong( 0 );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_CDbl()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  if ( auto* v = impptrIf<BLong>( imp ) )
-    return new Double( v->value() );
-  else if ( auto* v = impptrIf<String>( imp ) )
-    return new Double( strtod( v->data(), nullptr ) );
+  if ( auto* l = impptrIf<BLong>( imp ) )
+    return new Double( l->value() );
+  else if ( auto* s = impptrIf<String>( imp ) )
+    return new Double( strtod( s->data(), nullptr ) );
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
     return imp->copy();
   return new Double( 0 );
