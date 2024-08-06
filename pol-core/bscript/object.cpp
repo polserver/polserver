@@ -2399,24 +2399,18 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*for
 {
   switch ( id )
   {
-    // This is only entered if `ins_call_method_id` did _not_ do the call jump.
+  // This is only entered if `ins_call_method_id` did _not_ do the call jump.
   case MTH_CALL:
   {
     if ( variadic_ )
     {
-      // A variadic function should always have at least the rest argument as a parameter, but guard
-      // for size_t underflow
-      passert_always( num_params_ > 0 );
-      auto expected_args = static_cast<size_t>( num_params_ - 1 );
-
-      return new BError( fmt::format( "Invalid argument count: expected {}+, got {}", expected_args,
-                                      ex.numParams() ) );
+      return new BError( fmt::format( "Invalid argument count: expected {}+, got {}",
+                                      static_cast<int>( num_params_ ) - 1, ex.numParams() ) );
     }
     else
     {
-      if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
-        return new BError( fmt::format( "Invalid argument count: expected {}, got {}", num_params_,
-                                        ex.numParams() ) );
+      return new BError( fmt::format( "Invalid argument count: expected {}, got {}", num_params_,
+                                      ex.numParams() ) );
     }
   }
   default:
