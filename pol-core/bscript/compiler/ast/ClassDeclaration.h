@@ -4,13 +4,16 @@
 
 namespace Pol::Bscript::Compiler
 {
+class ClassParameterList;
+class ClassBody;
 class NodeVisitor;
 
 class ClassDeclaration : public Node
 {
 public:
-  // TODO the other nodes
-  ClassDeclaration( const SourceLocation& source_location, std::string name );
+  ClassDeclaration( const SourceLocation& source_location, std::string name,
+                    std::unique_ptr<ClassParameterList> parameters,
+                    std::unique_ptr<ClassBody> body );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;

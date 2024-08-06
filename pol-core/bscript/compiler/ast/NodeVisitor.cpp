@@ -12,7 +12,9 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
+#include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
@@ -135,7 +137,16 @@ void NodeVisitor::visit_cstyle_for_loop( CstyleForLoop& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_class_body( ClassBody& node )
+{
+  visit_children( node );
+}
 void NodeVisitor::visit_class_declaration( ClassDeclaration& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_class_parameter_list( ClassParameterList& node )
 {
   visit_children( node );
 }

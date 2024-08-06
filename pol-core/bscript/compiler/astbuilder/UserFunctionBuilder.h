@@ -7,7 +7,10 @@ namespace Pol::Bscript::Compiler
 {
 class UserFunction;
 class ClassDeclaration;
+class ClassVariableList;
+class ClassMethodList;
 
+// TODO rename this as it also builds classes
 class UserFunctionBuilder : public CompoundStatementBuilder
 {
 public:

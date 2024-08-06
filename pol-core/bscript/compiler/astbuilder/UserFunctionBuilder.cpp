@@ -1,10 +1,15 @@
 #include "UserFunctionBuilder.h"
 
+#include "bscript/compiler/ast/ClassBody.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
 
 using EscriptGrammar::EscriptParser;
@@ -32,9 +37,54 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
 }
 
 std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
-    EscriptGrammar::EscriptParser::ClassDeclarationContext* )
+    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
 {
-  return {};
+  std::string name = text( ctx->IDENTIFIER() );
+  std::vector<std::unique_ptr<Identifier>> parameters;
+
+  if ( auto function_parameters = ctx->classParameters() )
+  {
+    if ( auto param_list = function_parameters->classParameterList() )
+    {
+      for ( auto parameter_name : param_list->IDENTIFIER() )
+      {
+        parameters.push_back( std::make_unique<Identifier>( location_for( *parameter_name ),
+                                                            text( parameter_name ) ) );
+      }
+    }
+  }
+
+  NodeVector statements;
+
+  if ( auto classBody = ctx->classBody() )
+  {
+    for ( auto classStatement : classBody->classStatement() )
+    {
+      if ( auto variable = classStatement->varStatement() )
+      {
+        std::vector<std::unique_ptr<Statement>> variables;
+        add_var_statements( variable, variables );
+        for ( auto& var : variables )
+        {
+          statements.push_back( std::move( var ) );
+        }
+      }
+      else if ( auto method = classStatement->functionDeclaration() )
+      {
+        statements.push_back( function_declaration( method ) );
+      }
+    }
+  }
+
+  auto body = std::make_unique<ClassBody>( location_for( *ctx ), std::move( statements ) );
+
+  auto parameter_list =
+      std::make_unique<ClassParameterList>( location_for( *ctx ), std::move( parameters ) );
+
+  auto class_decl = std::make_unique<ClassDeclaration>(
+      location_for( *ctx ), name, std::move( parameter_list ), std::move( body ) );
+
+  return class_decl;
 }
 
 template <typename ParserContext>
