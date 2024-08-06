@@ -10,7 +10,7 @@
 namespace Pol::Bscript::Compiler
 {
 UserFunction::UserFunction( const SourceLocation& source_location, bool exported, bool expression,
-                            bool class_method, std::string name,
+                            UserFunctionType type, std::string name,
                             std::unique_ptr<FunctionParameterList> parameter_list,
                             std::unique_ptr<FunctionBody> body,
                             const SourceLocation& endfunction_location )
@@ -18,7 +18,7 @@ UserFunction::UserFunction( const SourceLocation& source_location, bool exported
                 std::move( body ) ),
       exported( exported ),
       expression( expression ),
-      class_method( class_method ),
+      type( type ),
       endfunction_location( endfunction_location )
 {
 }

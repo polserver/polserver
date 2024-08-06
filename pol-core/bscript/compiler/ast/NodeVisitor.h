@@ -18,6 +18,7 @@ class CaseDispatchGroups;
 class CaseDispatchSelectors;
 class ClassBody;
 class ClassDeclaration;
+class ClassInstance;
 class ClassParameterList;
 class ConditionalOperator;
 class ConstDeclaration;
@@ -93,6 +94,7 @@ public:
   virtual void visit_cstyle_for_loop( CstyleForLoop& );
   virtual void visit_class_body( ClassBody& );
   virtual void visit_class_declaration( ClassDeclaration& );
+  virtual void visit_class_instance( ClassInstance& );
   virtual void visit_class_parameter_list( ClassParameterList& );
   virtual void visit_debug_statement_marker( DebugStatementMarker& );
   virtual void visit_dictionary_entry( DictionaryEntry& );

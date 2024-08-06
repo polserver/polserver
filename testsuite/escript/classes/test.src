@@ -12,8 +12,11 @@ class Animal( BaseClass )
 endclass
 
 var myobj := struct{};
-Animal( myobj, "name" );
+@Animal( myobj, "name" );
 print( myobj );
+
+// Compiles, but runtime error:
+// Animal( "name" );
 
 // TODO scope it correctly to Animal::staticVar
 print( $"Global scope staticVar={staticVar}" );

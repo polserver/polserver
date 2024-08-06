@@ -16,8 +16,9 @@ class UserFunctionBuilder : public CompoundStatementBuilder
 public:
   UserFunctionBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
+  // Pass empty string as class_name for global static user functions.
   std::unique_ptr<UserFunction> function_declaration(
-      EscriptGrammar::EscriptParser::FunctionDeclarationContext*, bool from_class_decl );
+      EscriptGrammar::EscriptParser::FunctionDeclarationContext*, const std::string& class_name );
   std::unique_ptr<UserFunction> function_expression(
       EscriptGrammar::EscriptParser::FunctionExpressionContext* );
   std::unique_ptr<ClassDeclaration> class_declaration(
@@ -26,7 +27,7 @@ public:
 private:
   template <typename ParserContext>
   std::unique_ptr<UserFunction> make_user_function( const std::string& name, ParserContext* context,
-                                                    bool exported, bool from_class_decl,
+                                                    bool exported, const std::string& class_name,
                                                     antlr4::tree::TerminalNode* end_token );
 };
 

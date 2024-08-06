@@ -20,6 +20,7 @@
 #include "bscript/compiler/ast/CaseStatement.h"
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
@@ -365,6 +366,22 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
   auto parameters = fc.parameters();
+  bool has_class_inst_parameter = false;
+
+  if ( auto uf = fc.function_link->user_function() )
+  {
+    // Constructor functions are defined as `Constr( this )` and called statically via `Constr()`.
+    // Provide a `this` parameter at this function call site.
+    if ( uf->type == UserFunctionType::Constructor )
+    {
+      arguments_passed["this"] = std::make_unique<ClassInstance>( fc.source_location );
+
+      // Since a `this` argument is generated for constructor functions, disallow passing an
+      // argument named `this`.
+      has_class_inst_parameter = true;
+    }
+  }
+
   auto is_callee_variadic = parameters.size() && parameters.back().get().rest;
 
   for ( auto& arg_unique_ptr : arguments )
@@ -424,8 +441,11 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         }
         else
         {
+          auto expected_args =
+              static_cast<int>( parameters.size() ) - ( has_class_inst_parameter ? 1 : 0 );
+
           report.error( arg, "In call to '{}': Too many arguments passed.  Expected {}, got {}.",
-                        fc.method_name, parameters.size(), arguments.size() );
+                        fc.method_name, expected_args, arguments.size() );
           continue;
         }
       }
@@ -438,6 +458,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     {
       any_named = true;
     }
+
+    if ( has_class_inst_parameter && Clib::caseInsensitiveEqual( arg_name, "this" ) )
+    {
+      report.error( arg, "In call to '{}': Cannot pass 'this' to constructor function.",
+                    fc.method_name );
+      return;
+    }
+
     if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
     {
       report.error( arg, "In call to '{}': Parameter '{}' passed more than once.", fc.method_name,

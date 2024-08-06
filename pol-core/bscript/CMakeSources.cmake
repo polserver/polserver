@@ -50,10 +50,12 @@ set (bscript_sources    # sorted !
   compiler/ast/CaseDispatchSelectors.h
   compiler/ast/CaseStatement.cpp
   compiler/ast/CaseStatement.h
-  compiler/ast/ClassDeclaration.cpp
-  compiler/ast/ClassDeclaration.h
   compiler/ast/ClassBody.cpp
   compiler/ast/ClassBody.h
+  compiler/ast/ClassDeclaration.cpp
+  compiler/ast/ClassDeclaration.h
+  compiler/ast/ClassInstance.cpp
+  compiler/ast/ClassInstance.h
   compiler/ast/ClassParameterList.cpp
   compiler/ast/ClassParameterList.h
   compiler/ast/ConditionalOperator.cpp
@@ -262,6 +264,7 @@ set (bscript_sources    # sorted !
   compiler/model/LocalVariableScopeInfo.h
   compiler/model/SimpleTypes.h
   compiler/model/UserFunctionInclusion.h
+  compiler/model/UserFunctionType.h
   compiler/model/Variable.cpp
   compiler/model/Variable.h
   compiler/model/VariableScope.h
