@@ -1,5 +1,4 @@
-// TODO make this a class and do analysis on this
-var BaseClass;
+class BaseClass endclass
 
 class Animal( BaseClass )
 

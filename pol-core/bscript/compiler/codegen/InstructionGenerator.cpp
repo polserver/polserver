@@ -1,6 +1,7 @@
 #include "InstructionGenerator.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/adaptor/sliced.hpp>
 
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
@@ -12,6 +13,7 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
@@ -240,6 +242,17 @@ void InstructionGenerator::visit_branch_selector( BranchSelector& node )
     break;
   case BranchSelector::Never:
     break;
+  }
+}
+
+void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
+{
+  // Skip visiting the parameter list (child 0), as their nodes (Identifier) do not
+  // generate any instructions.
+
+  for ( const auto& child : node.children | boost::adaptors::sliced( 1, node.children.size() ) )
+  {
+    child->accept( *this );
   }
 }
 

@@ -18,6 +18,7 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
+#include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
@@ -141,10 +142,27 @@ void SemanticAnalyzer::visit_block( Block& block )
 
 void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 {
-  std::string str;
-  Node::describe_tree_to_indented( node, str, 0 );
-  report.warning( node, "tree:\n{} ", str );
-  visit_children( node );
+  const auto& class_name = node.name;
+
+  for ( auto& class_parameter : node.parameters() )
+  {
+    const auto& baseclass_name = class_parameter.get().name;
+    auto itr = workspace.all_class_locations.find( baseclass_name );
+    if ( itr == workspace.all_class_locations.end() )
+    {
+      report.error( class_parameter.get(), "Class '{}' references unknown base class '{}'",
+                    class_name, baseclass_name );
+    }
+    else
+    {
+      // TODO ?
+    }
+  }
+
+  for ( auto& user_function : node.functions() )
+  {
+    user_function.get().accept( *this );
+  }
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor

@@ -6,6 +6,7 @@ namespace Pol::Bscript::Compiler
 {
 class ClassParameterList;
 class ClassBody;
+class Identifier;
 class NodeVisitor;
 class VarStatement;
 class UserFunction;
@@ -20,7 +21,7 @@ public:
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
   std::vector<std::reference_wrapper<UserFunction>> functions();
-  std::vector<std::reference_wrapper<VarStatement>> variables();
+  std::vector<std::reference_wrapper<Identifier>> parameters();
 
   const std::string name;
 };

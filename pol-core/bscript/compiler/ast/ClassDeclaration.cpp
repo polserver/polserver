@@ -2,6 +2,7 @@
 
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
+#include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
@@ -32,18 +33,16 @@ std::vector<std::reference_wrapper<UserFunction>> ClassDeclaration::functions()
 {
   std::vector<std::reference_wrapper<UserFunction>> functs;
 
-  children[1]->get_children( functs );
+  child<ClassBody>( 1 ).get_children<UserFunction>( functs );
 
   return functs;
 }
-
-std::vector<std::reference_wrapper<VarStatement>> ClassDeclaration::variables()
+std::vector<std::reference_wrapper<Identifier>> ClassDeclaration::parameters()
 {
-  std::vector<std::reference_wrapper<VarStatement>> vars;
+  std::vector<std::reference_wrapper<Identifier>> params;
 
-  children[1]->get_children( vars );
+  child<ClassParameterList>( 0 ).get_children<Identifier>( params );
 
-  return vars;
+  return params;
 }
-
 }  // namespace Pol::Bscript::Compiler
