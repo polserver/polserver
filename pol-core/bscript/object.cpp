@@ -2304,19 +2304,20 @@ std::string BBoolean::getStringRep() const
 }
 
 
-BFunctionRef::BFunctionRef( int progcounter, int param_count, const std::string& scriptname,
-                            bool variadic, ValueStackCont&& captures )
+BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count,
+                            bool variadic, ValueStackCont globals, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
+      prog_( program ),
       pc_( progcounter ),
       num_params_( param_count ),
-      script_name_( scriptname ),
       variadic_( variadic ),
+      globals( globals ),
       captures( std::move( captures ) )
 {
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.pc_, B.num_params_, B.script_name_, B.variadic_,
+    : BFunctionRef( B.prog_, B.pc_, B.num_params_, B.variadic_, B.globals,
                     ValueStackCont( B.captures ) )
 {
 }
@@ -2328,7 +2329,7 @@ BObjectImp* BFunctionRef::copy() const
 
 size_t BFunctionRef::sizeEstimate() const
 {
-  return sizeof( BFunctionRef );
+  return sizeof( BFunctionRef ) + Clib::memsize( captures ) + prog_->sizeEstimate();
 }
 
 bool BFunctionRef::isTrue() const
@@ -2370,8 +2371,6 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
       return false;
   }
 
-  if ( ex.scriptname() != script_name_ )
-    return false;
   inst->func = &Executor::ins_nop;
   inst->token.lval = pc_;
   return true;
@@ -2393,6 +2392,11 @@ size_t BFunctionRef::numParams() const
 bool BFunctionRef::variadic() const
 {
   return variadic_;
+}
+
+ref_ptr<EScriptProgram> BFunctionRef::prog() const
+{
+  return prog_;
 }
 
 BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )

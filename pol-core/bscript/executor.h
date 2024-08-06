@@ -20,6 +20,7 @@
 
 #include <exception>
 #include <memory>
+#include <optional>
 #include <set>
 #include <stack>
 #include <string>
@@ -50,6 +51,7 @@ namespace Bscript
 class BContinuation;
 class BFunctionRef;
 class Executor;
+class EScriptProgram;
 class ExecutorModule;
 class ModuleFunction;
 class String;
@@ -78,9 +80,23 @@ public:
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
+  struct External
+  {
+    External( ref_ptr<EScriptProgram> program, std::vector<ExecutorModule*> modules,
+              BObjectRefVec globals )
+        : Program( program ), Modules( modules ), Globals( globals )
+    {
+    }
+    ref_ptr<EScriptProgram> Program;
+    std::vector<ExecutorModule*> Modules;
+    BObjectRefVec Globals;
+  };
+
   unsigned PC;
   unsigned ValueStackDepth;
   BObjectRef Continuation = BObjectRef();
+
+  std::optional<External> ExternalContext;
 };
 
 struct BackupStruct
@@ -404,8 +420,6 @@ public:
   void ins_progend( const Instruction& ins );
   void ins_makelocal( const Instruction& ins );
   void ins_jsr_userfunc( const Instruction& ins );
-  // takes ownership of `continuation`
-  void ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation );
   void ins_pop_param( const Instruction& ins );
   void ins_pop_param_byref( const Instruction& ins );
   void ins_get_arg( const Instruction& ins );
@@ -447,6 +461,10 @@ public:
 
   bool halt() const;
   void sethalt( bool halt );
+
+  // takes ownership of `continuation`
+  void jump( int target_PC, BContinuation* continuation, BFunctionRef* funcref );
+
 
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
                         bool set_attaching = true );

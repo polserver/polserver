@@ -2820,10 +2820,10 @@ void Executor::ins_makelocal( const Instruction& /*ins*/ )
 // CTRL_JSR_USERFUNC:
 void Executor::ins_jsr_userfunc( const Instruction& ins )
 {
-  ins_jsr_userfunc( ins, nullptr );
+  jump( ins.token.lval, nullptr, nullptr );
 }
 
-void Executor::ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation )
+void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* funcref )
 {
   ReturnContext rc;
   rc.PC = PC;
@@ -2832,9 +2832,40 @@ void Executor::ins_jsr_userfunc( const Instruction& ins, BContinuation* continua
   {
     rc.Continuation.set( new BObject( continuation ) );
   }
+
+  // Only store our global context if the function is external to the current program.
+  if ( funcref != nullptr && funcref->prog() != prog_ )
+  {
+    // Store external context for the return path.
+    rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
+
+    // Set the prog and globals (if required) to the external function's,
+    // updating nLines and execmodules.
+    prog_ = funcref->prog();
+
+    // TODO future improvement: do not copy the globals, but instead point our
+    // current globals to the funcref's globals.
+    Globals2 = funcref->globals;
+
+    nLines = static_cast<unsigned int>( prog_->instr.size() );
+
+    // Re-attach modules, as the external user function's module function call
+    // instructions refer to modules by index.
+    execmodules.clear();
+
+    if ( !viewmode_ )
+    {
+      if ( !AttachFunctionalityModules() )
+      {
+        POLLOGLN( "Could not attach modules for external function call jump" );
+        seterror( true );
+      }
+    }
+  }
+
   ControlStack.push_back( rc );
 
-  PC = (unsigned)ins.token.lval;
+  PC = target_PC;
   if ( ControlStack.size() >= escript_config.max_call_depth )
   {
     std::string tmp = fmt::format(
@@ -2914,9 +2945,6 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     continuation = rc.Continuation;
   }
 
-  // FIXME do something with rc.ValueStackDepth
-  ControlStack.pop_back();
-
   if ( Locals2 )
   {
     delete Locals2;
@@ -2927,6 +2955,17 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     Locals2 = upperLocals2.back();
     upperLocals2.pop_back();
   }
+
+  if ( rc.ExternalContext.has_value() )
+  {
+    prog_ = rc.ExternalContext->Program;
+    nLines = static_cast<unsigned int>( prog_->instr.size() );
+    execmodules = rc.ExternalContext->Modules;
+    Globals2 = rc.ExternalContext->Globals;
+  }
+
+  // FIXME do something with rc.ValueStackDepth
+  ControlStack.pop_back();
 
   if ( continuation != nullptr )
   {
@@ -3151,8 +3190,8 @@ void Executor::ins_funcref( const Instruction& ins )
   const auto& ep_funcref = prog_->function_references[funcref_index];
 
   ValueStack.push_back( BObjectRef(
-      new BObject( new BFunctionRef( ins.token.lval, ep_funcref.parameter_count, scriptname(),
-                                     ep_funcref.is_variadic, {} /* captures */ ) ) ) );
+      new BObject( new BFunctionRef( prog_, ins.token.lval, ep_funcref.parameter_count,
+                                     ep_funcref.is_variadic, Globals2, {} /* captures */ ) ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3171,8 +3210,8 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func = new BFunctionRef( PC, ep_funcref.parameter_count, scriptname(),
-                                ep_funcref.is_variadic, std::move( captures ) );
+  auto func = new BFunctionRef( prog_, PC, ep_funcref.parameter_count, ep_funcref.is_variadic,
+                                Globals2, std::move( captures ) );
 
   ValueStack.push_back( BObjectRef( func ) );
 
@@ -3575,7 +3614,7 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
   }
 
   // jump to function
-  ins_jsr_userfunc( jmp, continuation );
+  jump( jmp.token.lval, continuation, funcr );
   fparams.clear();
   // switch to new block
   ins_makelocal( jmp );

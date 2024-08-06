@@ -1,0 +1,21 @@
+include "testutil";
+
+use os;
+
+program CallAndSend( funcref )
+  var ev := wait_for_event( 2 );
+  if ( !ev )
+    return ev;
+  elseif ( ev.type != "call" )
+    return ret_error( $"Unexpected event {ev}" );
+  endif
+
+  var args := ev.args;
+  var pid := ev.pid;
+  var mapper := ev.mapper;
+
+  // Using a continuation (MTH_FILTER) on a user function inside a different program
+  var res := funcref( args.map( mapper ) ... );
+
+  GetProcess( pid ).SendEvent( struct{ type := "return", result := res } );
+endprogram

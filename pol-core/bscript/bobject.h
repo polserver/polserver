@@ -23,6 +23,8 @@
 
 #include <fmt/ostream.h>
 
+#include "eprog.h"
+
 #include "../clib/fixalloc.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
@@ -886,8 +888,8 @@ class BFunctionRef final : public BObjectImp
   typedef BObjectImp base;
 
 public:
-  BFunctionRef( int progcounter, int param_count, const std::string& scriptname, bool variadic,
-                ValueStackCont&& captures );
+  BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count, bool variadic,
+                ValueStackCont globals, ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -899,6 +901,7 @@ public:
   bool validCall( const char* methodname, Executor& ex, Instruction* inst ) const;
   size_t numParams() const;
   bool variadic() const;
+  ref_ptr<EScriptProgram> prog() const;
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const override;
@@ -912,12 +915,15 @@ public:  // Class Machinery
                                       bool forcebuiltin = false ) override;
 
 private:
+  // Need to reference the program, not the Executor, as the exec that created
+  // this funcref could be destroyed by the time the funcref gets called
+  ref_ptr<EScriptProgram> prog_;
   unsigned int pc_;
   int num_params_;
-  std::string script_name_;
   bool variadic_;
 
 public:
+  ValueStackCont globals;
   ValueStackCont captures;
 };
 
