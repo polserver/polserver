@@ -2717,8 +2717,8 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
       BObjectImp* cl = const_cast<BObjectImp*>( elem->FindMember( "cliloc" ) );
       if ( cl == nullptr )
         return new BError( "Missing cliloc for menu element" );
-      if ( auto* lng = impptrIf<BLong>( cl ) )
-        entry.cliloc = lng->value();
+      if ( auto* lngcliloc = impptrIf<BLong>( cl ) )
+        entry.cliloc = lngcliloc->value();
       else
         return new BError( "Invalid cliloc for menu element" );
 

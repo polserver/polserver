@@ -482,10 +482,10 @@ int ExportScript::expect_int()
     return 0;
   int ret;
   BObjectImp* imp = uoexec.ValueStack.back().get()->impptr();
-  if ( auto* v = impptrIf<BLong>( imp ) )
-    ret = v->value();
-  else if ( auto* v = impptrIf<BBoolean>( imp ) )
-    ret = v->isTrue() ? 1 : 0;
+  if ( auto* l = impptrIf<BLong>( imp ) )
+    ret = l->value();
+  else if ( auto* b = impptrIf<BBoolean>( imp ) )
+    ret = b->isTrue() ? 1 : 0;
   else
     ret = 0;
   uoexec.ValueStack.pop_back();

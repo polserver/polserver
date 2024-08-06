@@ -102,9 +102,9 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
   {
     BObjectImp* param0 = exec.getParamImp( 0 );
 
-    if ( auto* v = impptrIf<String>( param0 ) )
+    if ( auto* s = impptrIf<String>( param0 ) )
     {
-      const char* dir = v->data();
+      const char* dir = s->data();
       Core::UFACING facing;
 
       if ( Mobile::DecodeFacing( dir, facing ) == false )
@@ -119,9 +119,9 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
 
       return new BLong( npc.could_move( facing ) ? 1 : 0 );
     }
-    else if ( auto* v = impptrIf<BLong>( param0 ) )
+    else if ( auto* l = impptrIf<BLong>( param0 ) )
     {
-      Core::UFACING facing = static_cast<Core::UFACING>( v->value() & PKTIN_02_FACING_MASK );
+      Core::UFACING facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
       return new BLong( npc.could_move( facing ) ? 1 : 0 );
     }
     else
@@ -274,9 +274,9 @@ BObjectImp* NPCExecutorModule::mf_Face()
 
   Core::UFACING i_facing;
 
-  if ( auto* v = impptrIf<String>( param0 ) )
+  if ( auto* s = impptrIf<String>( param0 ) )
   {
-    const char* dir = v->data();
+    const char* dir = s->data();
 
     if ( Mobile::DecodeFacing( dir, i_facing ) == false )
     {
@@ -288,9 +288,9 @@ BObjectImp* NPCExecutorModule::mf_Face()
       return nullptr;
     }
   }
-  else if ( auto* v = impptrIf<BLong>( param0 ) )
+  else if ( auto* l = impptrIf<BLong>( param0 ) )
   {
-    i_facing = static_cast<Core::UFACING>( v->value() & PKTIN_02_FACING_MASK );
+    i_facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
   }
   else
   {
@@ -314,9 +314,9 @@ BObjectImp* NPCExecutorModule::mf_Move()
 {
   BObjectImp* param0 = exec.getParamImp( 0 );
 
-  if ( auto* v = impptrIf<String>( param0 ) )
+  if ( auto* s = impptrIf<String>( param0 ) )
   {
-    const char* dir = v->data();
+    const char* dir = s->data();
     Core::UFACING facing;
 
     if ( Mobile::DecodeFacing( dir, facing ) == false )
@@ -331,9 +331,9 @@ BObjectImp* NPCExecutorModule::mf_Move()
 
     return move_self( facing, false );
   }
-  else if ( auto* v = impptrIf<BLong>( param0 ) )
+  else if ( auto* l = impptrIf<BLong>( param0 ) )
   {
-    Core::UFACING facing = static_cast<Core::UFACING>( v->value() & PKTIN_02_FACING_MASK );
+    Core::UFACING facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
     return move_self( facing, false );
   }
   else if ( param0->isa( BObjectImp::OTApplicObj ) )
