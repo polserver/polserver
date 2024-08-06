@@ -44,9 +44,30 @@ topLevelDeclaration
     | includeDeclaration
     | programDeclaration
     | functionDeclaration
+    | classDeclaration
     | statement
     ;
 
+classDeclaration
+    : CLASS IDENTIFIER classParameters? classBody ENDCLASS
+    ;
+
+classParameters
+    : '(' classParameterList? ')'
+    ;
+
+classParameterList
+    : IDENTIFIER (',' IDENTIFIER)*
+    ;
+
+classBody
+    : classStatement*
+    ;
+
+classStatement
+    : functionDeclaration
+    | varStatement
+    ;
 
 functionDeclaration
     : EXPORTED? FUNCTION IDENTIFIER functionParameters block ENDFUNCTION

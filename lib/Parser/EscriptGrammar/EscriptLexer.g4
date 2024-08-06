@@ -47,6 +47,8 @@ DEFAULT:            'default';
 ENDCASE:            'endcase';
 ENUM:               'enum';
 ENDENUM:            'endenum';
+CLASS:              'class';
+ENDCLASS:           'endclass';
 
 // Reserved words (future)
 DOWNTO:             'downto';

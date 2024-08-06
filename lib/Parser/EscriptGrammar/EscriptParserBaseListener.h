@@ -44,6 +44,21 @@ public:
   virtual void enterTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext * /*ctx*/) override { }
   virtual void exitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext * /*ctx*/) override { }
 
+  virtual void enterClassDeclaration(EscriptParser::ClassDeclarationContext * /*ctx*/) override { }
+  virtual void exitClassDeclaration(EscriptParser::ClassDeclarationContext * /*ctx*/) override { }
+
+  virtual void enterClassParameters(EscriptParser::ClassParametersContext * /*ctx*/) override { }
+  virtual void exitClassParameters(EscriptParser::ClassParametersContext * /*ctx*/) override { }
+
+  virtual void enterClassParameterList(EscriptParser::ClassParameterListContext * /*ctx*/) override { }
+  virtual void exitClassParameterList(EscriptParser::ClassParameterListContext * /*ctx*/) override { }
+
+  virtual void enterClassBody(EscriptParser::ClassBodyContext * /*ctx*/) override { }
+  virtual void exitClassBody(EscriptParser::ClassBodyContext * /*ctx*/) override { }
+
+  virtual void enterClassStatement(EscriptParser::ClassStatementContext * /*ctx*/) override { }
+  virtual void exitClassStatement(EscriptParser::ClassStatementContext * /*ctx*/) override { }
+
   virtual void enterFunctionDeclaration(EscriptParser::FunctionDeclarationContext * /*ctx*/) override { }
   virtual void exitFunctionDeclaration(EscriptParser::FunctionDeclarationContext * /*ctx*/) override { }
 

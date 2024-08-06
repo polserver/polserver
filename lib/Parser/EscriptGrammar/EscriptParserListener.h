@@ -42,6 +42,21 @@ public:
   virtual void enterTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *ctx) = 0;
   virtual void exitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *ctx) = 0;
 
+  virtual void enterClassDeclaration(EscriptParser::ClassDeclarationContext *ctx) = 0;
+  virtual void exitClassDeclaration(EscriptParser::ClassDeclarationContext *ctx) = 0;
+
+  virtual void enterClassParameters(EscriptParser::ClassParametersContext *ctx) = 0;
+  virtual void exitClassParameters(EscriptParser::ClassParametersContext *ctx) = 0;
+
+  virtual void enterClassParameterList(EscriptParser::ClassParameterListContext *ctx) = 0;
+  virtual void exitClassParameterList(EscriptParser::ClassParameterListContext *ctx) = 0;
+
+  virtual void enterClassBody(EscriptParser::ClassBodyContext *ctx) = 0;
+  virtual void exitClassBody(EscriptParser::ClassBodyContext *ctx) = 0;
+
+  virtual void enterClassStatement(EscriptParser::ClassStatementContext *ctx) = 0;
+  virtual void exitClassStatement(EscriptParser::ClassStatementContext *ctx) = 0;
+
   virtual void enterFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) = 0;
   virtual void exitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) = 0;
 
