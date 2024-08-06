@@ -73,7 +73,7 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
 {
   Pol::Tools::HighPerfTimer timer;
 
-  std::vector<AvailableUserFunction> to_build;
+  std::vector<AvailableParseTree> to_build;
   while ( workspace.function_resolver.resolve( to_build ) )
   {
     for ( auto& auf : to_build )

@@ -38,6 +38,12 @@ void FunctionResolver::register_available_user_function(
                                                ctx->EXPORTED() );
 }
 
+void FunctionResolver::register_available_class_decl(
+    const SourceLocation& loc, EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
+{
+  register_available_class_decl_parse_tree( loc, ctx, ctx->IDENTIFIER() );
+}
+
 void FunctionResolver::register_function_link( const std::string& name,
                                                std::shared_ptr<FunctionLink> function_link )
 {
@@ -57,8 +63,8 @@ std::string FunctionResolver::register_function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   auto name = function_expression_name( source_location );
-  auto auf = AvailableUserFunction{ source_location, ctx };
-  available_user_function_parse_trees.insert( { name, auf } );
+  auto apt = AvailableParseTree{ source_location, ctx, false };
+  available_parse_trees.insert( { name, apt } );
   return name;
 }
 
@@ -67,8 +73,8 @@ void FunctionResolver::register_module_function( ModuleFunctionDeclaration* mf )
   const auto& name = mf->name;
   auto scoped_name = mf->module_name + "::" + name;
 
-  auto itr = available_user_function_parse_trees.find( name );
-  if ( itr != available_user_function_parse_trees.end() )
+  auto itr = available_parse_trees.find( name );
+  if ( itr != available_parse_trees.end() )
   {
     const auto& previous = ( *itr ).second;
 
@@ -87,7 +93,7 @@ void FunctionResolver::register_user_function( UserFunction* uf )
   resolved_functions_by_name[uf->name] = uf;
 }
 
-bool FunctionResolver::resolve( std::vector<AvailableUserFunction>& to_build_ast )
+bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
 {
   for ( auto unresolved_itr = unresolved_function_links_by_name.begin();
         unresolved_itr != unresolved_function_links_by_name.end(); )
@@ -108,11 +114,11 @@ bool FunctionResolver::resolve( std::vector<AvailableUserFunction>& to_build_ast
     }
     else
     {
-      auto available_itr = available_user_function_parse_trees.find( name );
-      if ( available_itr != available_user_function_parse_trees.end() )
+      auto available_itr = available_parse_trees.find( name );
+      if ( available_itr != available_parse_trees.end() )
       {
         to_build_ast.push_back( ( *available_itr ).second );
-        available_user_function_parse_trees.erase( available_itr );
+        available_parse_trees.erase( available_itr );
         ++unresolved_itr;
       }
       else
@@ -127,12 +133,11 @@ bool FunctionResolver::resolve( std::vector<AvailableUserFunction>& to_build_ast
   return !to_build_ast.empty();
 }
 
-std::string FunctionResolver::function_expression_name(
-    const SourceLocation& source_location )
+std::string FunctionResolver::function_expression_name( const SourceLocation& source_location )
 {
   return fmt::format( "funcexpr@{}:{}:{}", source_location.source_file_identifier->index,
-                           source_location.range.start.line_number,
-                           source_location.range.start.character_column );
+                      source_location.range.start.line_number,
+                      source_location.range.start.character_column );
 }
 
 void FunctionResolver::register_available_user_function_parse_tree(
@@ -140,15 +145,25 @@ void FunctionResolver::register_available_user_function_parse_tree(
     antlr4::tree::TerminalNode* identifier, antlr4::tree::TerminalNode* exported )
 {
   std::string name = identifier->getSymbol()->getText();
-  auto itr = available_user_function_parse_trees.find( name );
-  if ( itr != available_user_function_parse_trees.end() )
+  auto itr = available_parse_trees.find( name );
+  if ( itr != available_parse_trees.end() )
   {
-    AvailableUserFunction& previous = ( *itr ).second;
+    AvailableParseTree& previous = ( *itr ).second;
 
-    report.error( source_location,
-                  "Function '{}' defined more than once.\n"
-                  "  Previous declaration: {}",
-                  name, previous.source_location );
+    if ( previous.class_declaration )
+    {
+      report.error( source_location,
+                    "Class '{}' conflicts with User Function of the same name.\n"
+                    "  Previous declaration: {}",
+                    name, previous.source_location );
+    }
+    else
+    {
+      report.error( source_location,
+                    "Function '{}' defined more than once.\n"
+                    "  Previous declaration: {}",
+                    name, previous.source_location );
+    }
   }
 
   auto itr2 = resolved_functions_by_name.find( name );
@@ -162,8 +177,8 @@ void FunctionResolver::register_available_user_function_parse_tree(
                   name, previous->source_location );
   }
 
-  auto auf = AvailableUserFunction{ source_location, ctx };
-  available_user_function_parse_trees.insert( { name, auf } );
+  auto apt = AvailableParseTree{ source_location, ctx, false };
+  available_parse_trees.insert( { name, apt } );
 
   if ( exported )
   {
@@ -172,6 +187,47 @@ void FunctionResolver::register_available_user_function_parse_tree(
     // just make sure there is an entry, so that we build an AST for it
     unresolved_function_links_by_name[function_name];
   }
+}
+
+void FunctionResolver::register_available_class_decl_parse_tree(
+    const SourceLocation& source_location, antlr4::ParserRuleContext* ctx,
+    antlr4::tree::TerminalNode* identifier )
+{
+  std::string name = identifier->getSymbol()->getText();
+  auto itr = available_parse_trees.find( name );
+  if ( itr != available_parse_trees.end() )
+  {
+    AvailableParseTree& previous = ( *itr ).second;
+    if ( !previous.class_declaration )
+    {
+      report.error( source_location,
+                    "Class '{}' conflicts with User Function of the same name.\n"
+                    "  Previous declaration: {}",
+                    name, previous.source_location );
+    }
+    else
+    {
+      report.error( source_location,
+                    "Class '{}' defined more than once.\n"
+                    "  Previous declaration: {}",
+                    name, previous.source_location );
+    }
+  }
+
+  auto itr2 = resolved_functions_by_name.find( name );
+  if ( itr2 != resolved_functions_by_name.end() )
+  {
+    auto* previous = ( *itr2 ).second;
+
+    report.error( source_location,
+                  "Class '{}' conflicts with Module Function of the same name.\n"
+                  "  Module Function declaration: {}",
+                  name, previous->source_location );
+  }
+
+
+  auto apt = AvailableParseTree{ source_location, ctx, true };
+  available_parse_trees.insert( { name, apt } );
 }
 
 }  // namespace Pol::Bscript::Compiler
