@@ -17,7 +17,7 @@ public:
   UserFunctionBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
   std::unique_ptr<UserFunction> function_declaration(
-      EscriptGrammar::EscriptParser::FunctionDeclarationContext* );
+      EscriptGrammar::EscriptParser::FunctionDeclarationContext*, bool from_class_decl );
   std::unique_ptr<UserFunction> function_expression(
       EscriptGrammar::EscriptParser::FunctionExpressionContext* );
   std::unique_ptr<ClassDeclaration> class_declaration(
@@ -26,7 +26,7 @@ public:
 private:
   template <typename ParserContext>
   std::unique_ptr<UserFunction> make_user_function( const std::string& name, ParserContext* context,
-                                                    bool exported,
+                                                    bool exported, bool from_class_decl,
                                                     antlr4::tree::TerminalNode* end_token );
 };
 
