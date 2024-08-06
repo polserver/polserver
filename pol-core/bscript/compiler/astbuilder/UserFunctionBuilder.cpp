@@ -39,7 +39,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
 std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
 {
-  std::string name = text( ctx->IDENTIFIER() );
+  std::string class_name = text( ctx->IDENTIFIER() );
   std::vector<std::unique_ptr<Identifier>> parameters;
 
   if ( auto function_parameters = ctx->classParameters() )
@@ -60,16 +60,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   {
     for ( auto classStatement : classBody->classStatement() )
     {
-      if ( auto variable = classStatement->varStatement() )
-      {
-        std::vector<std::unique_ptr<Statement>> variables;
-        add_var_statements( variable, variables );
-        for ( auto& var : variables )
-        {
-          statements.push_back( std::move( var ) );
-        }
-      }
-      else if ( auto method = classStatement->functionDeclaration() )
+      // var statements are already included in top_level_statements by the SourceFileProcessor
+      if ( auto method = classStatement->functionDeclaration() )
       {
         auto func_decl = function_declaration( method, true );
         statements.push_back( std::move( func_decl ) );
@@ -83,7 +75,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
       std::make_unique<ClassParameterList>( location_for( *ctx ), std::move( parameters ) );
 
   auto class_decl = std::make_unique<ClassDeclaration>(
-      location_for( *ctx ), name, std::move( parameter_list ), std::move( body ) );
+      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( body ) );
 
   return class_decl;
 }

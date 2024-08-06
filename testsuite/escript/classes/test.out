@@ -1,2 +1,4 @@
-<uninitialized object>
+3
+Animal constructor staticVar=value for static after printing
 struct{ name = "name" }
+Global scope staticVar=value for static after printing

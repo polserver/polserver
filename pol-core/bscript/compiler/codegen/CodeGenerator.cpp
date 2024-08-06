@@ -97,6 +97,16 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
     program->accept( generator );
   }
 
+
+  // for ( auto& class_decl : workspace.class_declarations )
+  // {
+  //   for (const auto& variable : class_decl->variables()) {
+  //       // variable.get()->accept(generator);
+  //   }
+  //   // class_decl->accept( generator );
+  //   }
+  // }
+
   emit.progend();
 
   for ( auto& user_function : workspace.user_functions )
@@ -131,10 +141,8 @@ void CodeGenerator::register_module_functions_alphabetically( CompilerWorkspace&
 
 void CodeGenerator::sort_module_functions_by_module_name( CompilerWorkspace& workspace )
 {
-  auto sortByModuleName = []( ModuleFunctionDeclaration* d1,
-                              ModuleFunctionDeclaration* d2 ) -> bool {
-    return d1->module_name < d2->module_name;
-  };
+  auto sortByModuleName = []( ModuleFunctionDeclaration* d1, ModuleFunctionDeclaration* d2 ) -> bool
+  { return d1->module_name < d2->module_name; };
 
   std::sort( workspace.referenced_module_function_declarations.begin(),
              workspace.referenced_module_function_declarations.end(), sortByModuleName );
@@ -143,9 +151,8 @@ void CodeGenerator::sort_module_functions_by_module_name( CompilerWorkspace& wor
 void CodeGenerator::sort_module_functions_alphabetically( CompilerWorkspace& workspace )
 {
   auto sortByModuleFunctionName = []( ModuleFunctionDeclaration* d1,
-                                      ModuleFunctionDeclaration* d2 ) -> bool {
-    return d1->name < d2->name;
-  };
+                                      ModuleFunctionDeclaration* d2 ) -> bool
+  { return d1->name < d2->name; };
 
   std::sort( workspace.referenced_module_function_declarations.begin(),
              workspace.referenced_module_function_declarations.end(), sortByModuleFunctionName );
@@ -154,9 +161,8 @@ void CodeGenerator::sort_module_functions_alphabetically( CompilerWorkspace& wor
 void CodeGenerator::sort_user_functions_alphabetically( CompilerWorkspace& workspace )
 {
   auto sortByName = []( const std::unique_ptr<UserFunction>& s1,
-                        const std::unique_ptr<UserFunction>& s2 ) -> bool {
-    return s1->name < s2->name;
-  };
+                        const std::unique_ptr<UserFunction>& s2 ) -> bool
+  { return s1->name < s2->name; };
 
   std::sort( workspace.user_functions.begin(), workspace.user_functions.end(), sortByName );
 }

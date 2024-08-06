@@ -95,6 +95,8 @@ void SemanticAnalyzer::analyze()
     }
   }
 
+  // Class declarations do not have var statements as children, so we do not get
+  // 'duplicate variable' errors.
   for ( auto& class_decl : workspace.class_declarations )
   {
     class_decl->accept( *this );

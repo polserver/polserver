@@ -3,12 +3,11 @@ var BaseClass;
 
 class Animal( BaseClass )
 
-  // TODO make this work
-  var staticVar := 1 + 2;
+  var staticVar := Print(1 + 2) ?: "value for static after printing";
 
   function Animal( byref this, name )
     this.name := name;
-    print( staticVar );
+    print( $"Animal constructor staticVar={staticVar}" );
   endfunction
 
 endclass
@@ -17,8 +16,8 @@ var myobj := struct{};
 Animal( myobj, "name" );
 print( myobj );
 
-// errors correctly
-// print( staticVar );
+// TODO scope it correctly to Animal::staticVar
+print( $"Global scope staticVar={staticVar}" );
 
 // TODO
 // print( Animal::staticVar );

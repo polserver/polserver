@@ -5,7 +5,8 @@
 namespace Pol::Bscript::Compiler
 {
 class NodeVisitor;
-
+// Only contains user functions as children, as variable statements are added in
+// `top_level_statements` by SourceFileProcessor.
 class ClassBody : public Statement
 {
 public:
