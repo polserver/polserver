@@ -16,12 +16,14 @@ class StoredToken;
 namespace Pol::Bscript::Compiler
 {
 class ExportedFunction;
+class FunctionReferenceDescriptor;
 class SourceFileIdentifier;
 class ModuleDescriptor;
 
 using CodeSection = std::vector<StoredToken>;
 using DataSection = std::vector<std::byte>;
 using ExportedFunctions = std::vector<ExportedFunction>;
+using FunctionReferences = std::vector<FunctionReferenceDescriptor>;
 using ModuleDescriptors = std::vector<ModuleDescriptor>;
 using SourceFileIdentifiers = std::vector<std::unique_ptr<SourceFileIdentifier>>;
 
@@ -33,13 +35,10 @@ public:
     const unsigned parameter_count;
   };
 
-  CompiledScript( CodeSection code_section,
-                  DataSection data_section,
-                  DebugStore debug,
+  CompiledScript( CodeSection code_section, DataSection data_section, DebugStore debug,
                   ExportedFunctions exported_functions,
-                  std::vector<std::string> global_variable_names,
-                  ModuleDescriptors modules,
-                  std::unique_ptr<ProgramInfo>,
+                  std::vector<std::string> global_variable_names, ModuleDescriptors modules,
+                  FunctionReferences function_references, std::unique_ptr<ProgramInfo>,
                   SourceFileIdentifiers );
   ~CompiledScript();
   CompiledScript( const CompiledScript& ) = delete;
@@ -51,6 +50,7 @@ public:
   const ExportedFunctions exported_functions;
   const std::vector<std::string> global_variable_names;
   const ModuleDescriptors module_descriptors;
+  const FunctionReferences function_references;
   const std::unique_ptr<ProgramInfo> program_info;
   const SourceFileIdentifiers source_file_identifiers;
 };

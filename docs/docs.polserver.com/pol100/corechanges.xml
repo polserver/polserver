@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-04-2024</datemodified>
+		<datemodified>08-06-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-06-2024</date>
+			<author>Kevin:</author>
+			<change type="Changed">Performance improvements handling function references in the executor during runtime.<br/>
+These changes increases the Escript version, therefore a recompilation of all scripts is required.</change>
+		</entry>
 		<entry>
 			<date>08-04-2024</date>
 			<author>Kevin:</author>

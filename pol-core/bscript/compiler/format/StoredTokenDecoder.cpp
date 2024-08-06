@@ -367,17 +367,17 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case TOK_FUNCTOR:
   {
-    fmt::format_to( std::back_inserter( w ), "create-functor instructions={}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ),
+                    "create-functor index={} instructions={} (TOK_FUNCTOR)",
+                    static_cast<int>( tkn.type ), tkn.offset );
     break;
   }
 
   case TOK_FUNCREF:
   {
     fmt::format_to( std::back_inserter( w ),
-                    "Function Ref "
-                    "--function name not available--"
-                    " @{}",
-                    tkn.offset );
+                    "create-funcref index={} pc={} (TOK_FUNCREF)",
+                    static_cast<int>( tkn.type ), tkn.offset );
     break;
   }
 

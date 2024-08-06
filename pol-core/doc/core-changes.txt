@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+08-06-2024 Kevin:
+  Changed: Performance improvements handling function references in the executor during runtime.
+           These changes increases the Escript version, therefore a recompilation of all scripts is required.
 08-04-2024 Kevin:
     Added: Support for variadic user functions -- user functions that accept any number of arguments.
            For example, to define a function that sends a message to any number of players:

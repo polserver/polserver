@@ -3119,25 +3119,22 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 // case TOK_FUNCREF:
 void Executor::ins_funcref( const Instruction& ins )
 {
-  int param_count = ins.token.type & ~0x80;
-  bool variadic = ins.token.type >> 7;
-  ValueStack.push_back( BObjectRef( new BObject(
-      new BFunctionRef( ins.token.lval, param_count, scriptname(), variadic, {} ) ) ) );
+  auto funcref_index = static_cast<int>( ins.token.type );
+
+  const auto& ep_funcref = prog_->function_references[funcref_index];
+
+  ValueStack.push_back( BObjectRef(
+      new BObject( new BFunctionRef( ins.token.lval, ep_funcref.parameter_count, scriptname(),
+                                     ep_funcref.is_variadic, {} /* captures */ ) ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
 {
-  passert_always( ValueStack.back()->isa( BObjectImp::OTBoolean ) );
-  bool variadic = static_cast<BBoolean*>( ValueStack.back()->impptr() )->value();
-  ValueStack.pop_back();
+  auto funcref_index = static_cast<int>( ins.token.type );
 
-  passert_always( ValueStack.back()->isa( BObjectImp::OTLong ) );
-  int parameter_count = ValueStack.back()->impptr<BLong>()->value();
-  ValueStack.pop_back();
+  const auto& ep_funcref = prog_->function_references[funcref_index];
 
-  passert_always( ValueStack.back()->isa( BObjectImp::OTLong ) );
-  int capture_count = ValueStack.back()->impptr<BLong>()->value();
-  ValueStack.pop_back();
+  int capture_count = ep_funcref.capture_count;
 
   auto captures = ValueStackCont();
   while ( capture_count > 0 )
@@ -3147,8 +3144,8 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func =
-      new BFunctionRef( PC, parameter_count, scriptname(), variadic, std::move( captures ) );
+  auto func = new BFunctionRef( PC, ep_funcref.parameter_count, scriptname(),
+                                ep_funcref.is_variadic, std::move( captures ) );
 
   ValueStack.push_back( BObjectRef( func ) );
 

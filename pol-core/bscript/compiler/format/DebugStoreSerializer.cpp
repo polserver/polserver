@@ -1,9 +1,11 @@
 #include "DebugStoreSerializer.h"
 
+#include <fmt/format.h>
 #include <fstream>
 
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/DebugBlock.h"
+#include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
@@ -122,6 +124,19 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     ofs.write( reinterpret_cast<char*>( &tmp ), sizeof tmp );
     tmp = user_function.last_instruction;
     ofs.write( reinterpret_cast<char*>( &tmp ), sizeof tmp );
+  }
+  if ( text_ofs && !compiled_script.function_references.empty() )
+  {
+    int index = 0;
+    *text_ofs << "Function references:\n";
+    for ( const auto& function_reference : compiled_script.function_references )
+    {
+      *text_ofs << fmt::format( " {}: parameters={}, captures={}, variadic={}", index++,
+                                function_reference.parameter_count(),
+                                function_reference.capture_count(),
+                                function_reference.is_variadic() )
+                << std::endl;
+    }
   }
 }
 

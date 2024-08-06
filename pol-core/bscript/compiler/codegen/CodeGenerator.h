@@ -7,6 +7,7 @@ namespace Pol::Bscript::Compiler
 {
 class CompiledScript;
 class CompilerWorkspace;
+class FunctionReferenceRegistrar;
 class InstructionEmitter;
 class ModuleDeclarationRegistrar;
 
@@ -16,7 +17,7 @@ public:
   static std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace> );
 
 private:
-  CodeGenerator( InstructionEmitter& , ModuleDeclarationRegistrar& );
+  CodeGenerator( InstructionEmitter&, ModuleDeclarationRegistrar& );
 
   void generate_instructions( CompilerWorkspace& );
 

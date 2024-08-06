@@ -112,6 +112,15 @@ int EScriptProgram::read( const char* fname )
           return -1;
         }
         break;
+      case BSCRIPT_SECTION_FUNCTION_REFERENCES:
+        if ( read_function_references( fp, &sechdr ) )
+        {
+          ERROR_PRINTLN( "Error loading script {}: error reading function references section",
+                         fname );
+          fclose( fp );
+          return -1;
+        }
+        break;
       default:
         ERROR_PRINTLN( "Error loading script {}: unknown section type {}", fname, sechdr.type );
         fclose( fp );
@@ -396,6 +405,25 @@ int EScriptProgram::read_exported_functions( FILE* fp, BSCRIPT_SECTION_HDR* hdr 
     exported_functions.push_back( ef );
     if ( ( mth = getKnownObjMethod( ef.name.c_str() ) ) != nullptr )
       mth->overridden = true;
+  }
+  return 0;
+}
+
+int EScriptProgram::read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr )
+{
+  BSCRIPT_FUNCTION_REFERENCE bfr;
+
+  unsigned nfuncrefs = hdr->length / sizeof bfr;
+  while ( nfuncrefs-- )
+  {
+    if ( fread( &bfr, sizeof bfr, 1, fp ) != 1 )
+      return -1;
+    EPFunctionReference fr;
+    fr.parameter_count = bfr.parameter_count;
+    fr.capture_count = bfr.capture_count;
+    fr.is_variadic = bfr.is_variadic;
+
+    function_references.push_back( fr );
   }
   return 0;
 }

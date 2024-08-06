@@ -2,7 +2,9 @@
 
 #include "StoredToken.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/codegen/CaseJumpDataBlock.h"
+#include "bscript/compiler/codegen/FunctionReferenceRegistrar.h"
 #include "bscript/compiler/codegen/ModuleDeclarationRegistrar.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"
@@ -18,12 +20,14 @@ namespace Pol::Bscript::Compiler
 {
 InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data, DebugStore& debug,
                                         ExportedFunctions& exported_functions,
-                                        ModuleDeclarationRegistrar& module_declaration_registrar )
+                                        ModuleDeclarationRegistrar& module_declaration_registrar,
+                                        FunctionReferenceRegistrar& function_reference_registrar )
     : code_emitter( code ),
       data_emitter( data ),
       debug( debug ),
       exported_functions( exported_functions ),
-      module_declaration_registrar( module_declaration_registrar )
+      module_declaration_registrar( module_declaration_registrar ),
+      function_reference_registrar( function_reference_registrar )
 {
   initialize_data();
 }
@@ -292,19 +296,27 @@ void InstructionEmitter::foreach_step( FlowControlLabel& label )
   register_with_label( label, emit_token( INS_STEPFOREACH, TYP_RESERVED ) );
 }
 
-void InstructionEmitter::function_reference( unsigned parameter_count, bool is_variadic,
-                                             FlowControlLabel& label )
+void InstructionEmitter::function_reference( const UserFunction& uf, FlowControlLabel& label )
 {
-  // Encode the parameter count and variadic flag into a single byte, with
-  // variadic flag in the high bit.
-  auto type = static_cast<BTokenType>( parameter_count | ( is_variadic << 7 ) );
+  unsigned index;
+
+  function_reference_registrar.lookup_or_register_reference( uf, index );
+
+  auto type = static_cast<BTokenType>( index );
 
   register_with_label( label, emit_token( TOK_FUNCREF, type ) );
 }
 
-void InstructionEmitter::functor_create()
+void InstructionEmitter::functor_create( const UserFunction& uf )
 {
-  emit_token( TOK_FUNCTOR, TYP_OPERAND );
+  unsigned reference_index;
+  function_reference_registrar.lookup_or_register_reference( uf, reference_index );
+  StoredToken token( static_cast<unsigned char>( Mod_Basic ), TOK_FUNCTOR,
+                     static_cast<BTokenType>(
+                         reference_index ),  // index to the EScriptProgram's function_references,
+                                             // stored in Token.lval, saved in StoredToken.type
+                     0 );
+  append_token( token );
 }
 
 void InstructionEmitter::get_arg( const std::string& name )

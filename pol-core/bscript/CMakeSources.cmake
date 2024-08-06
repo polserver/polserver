@@ -211,6 +211,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/DataEmitter.h
   compiler/codegen/DebugBlockGuard.cpp
   compiler/codegen/DebugBlockGuard.h
+  compiler/codegen/FunctionReferenceRegistrar.cpp
+  compiler/codegen/FunctionReferenceRegistrar.h
   compiler/codegen/InstructionEmitter.cpp
   compiler/codegen/InstructionEmitter.h
   compiler/codegen/InstructionGenerator.cpp
@@ -284,6 +286,8 @@ set (bscript_sources    # sorted !
   compiler/representation/DebugStore.h
   compiler/representation/ExportedFunction.cpp
   compiler/representation/ExportedFunction.h
+  compiler/representation/FunctionReferenceDescriptor.cpp
+  compiler/representation/FunctionReferenceDescriptor.h
   compiler/representation/ModuleDescriptor.cpp
   compiler/representation/ModuleDescriptor.h
   compiler/representation/ModuleFunctionDescriptor.cpp

@@ -3,13 +3,14 @@
 #include <cstring>
 #include <fstream>
 
-#include "clib/clib.h"
-#include "clib/logfacility.h"
+#include "StoredToken.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
+#include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
-#include "StoredToken.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
@@ -94,6 +95,22 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       bef.nargs = elem.parameter_count;
       bef.PC = elem.entrypoint_program_counter;
       ofs.write( reinterpret_cast<const char*>( &bef ), sizeof bef );
+    }
+  }
+
+  if ( !compiled_script.function_references.empty() )
+  {
+    BSCRIPT_FUNCTION_REFERENCE bfr{};
+    sechdr.type = BSCRIPT_SECTION_FUNCTION_REFERENCES;
+    sechdr.length =
+        static_cast<unsigned int>( compiled_script.function_references.size() * sizeof bfr );
+    ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );
+    for ( auto& elem : compiled_script.function_references )
+    {
+      bfr.parameter_count = elem.parameter_count();
+      bfr.capture_count = elem.capture_count();
+      bfr.is_variadic = elem.is_variadic();
+      ofs.write( reinterpret_cast<const char*>( &bfr ), sizeof bfr );
     }
   }
 }
