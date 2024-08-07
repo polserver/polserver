@@ -2645,6 +2645,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       Instruction jmp;
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
+        BObjectRef funcobj( ValueStack->back() );  // valuestack gets modified, protect BFunctionRef
         call_function_reference( funcr, continuation, jmp );
         return;
       }
@@ -2739,6 +2740,7 @@ void Executor::ins_call_method( const Instruction& ins )
     Instruction jmp;
     if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
     {
+      BObjectRef funcobj( ValueStack->back() );  // valuestack gets modified, protect BFunctionRef
       call_function_reference( funcr, nullptr, jmp );
       return;
     }
