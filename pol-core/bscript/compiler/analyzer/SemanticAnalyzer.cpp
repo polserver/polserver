@@ -2,6 +2,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 #include <list>
+#include <set>
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Constants.h"
@@ -23,6 +24,7 @@
 #include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
+#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
 #include "bscript/compiler/ast/FunctionBody.h"
@@ -145,6 +147,10 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 {
   const auto& class_name = node.name;
 
+  // Will need the order for something, i'm sure...
+  std::vector<std::string> ordered_baseclasses;
+  std::set<std::string, Clib::ci_cmp_pred> named_baseclasses;
+
   for ( auto& class_parameter : node.parameters() )
   {
     const auto& baseclass_name = class_parameter.get().name;
@@ -154,9 +160,19 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
       report.error( class_parameter.get(), "Class '{}' references unknown base class '{}'",
                     class_name, baseclass_name );
     }
+
+    bool previously_referenced =
+        named_baseclasses.find( baseclass_name ) != named_baseclasses.end();
+
+    if ( previously_referenced )
+    {
+      report.error( class_parameter.get(), "Class '{}' references base class '{}' multiple times.",
+                    class_name, baseclass_name );
+    }
     else
     {
-      // TODO ?
+      ordered_baseclasses.push_back( baseclass_name );
+      named_baseclasses.emplace( baseclass_name );
     }
   }
 
@@ -284,6 +300,16 @@ void SemanticAnalyzer::visit_case_dispatch_selectors( CaseDispatchSelectors& sel
 void SemanticAnalyzer::visit_cstyle_for_loop( CstyleForLoop& loop )
 {
   visit_loop_statement( loop );
+}
+
+// TODO implementation
+void SemanticAnalyzer::visit_default_constructor_function( DefaultConstructorFunction& )
+{
+  // TODO check that class can be default constructed.
+  //
+  // We do not visit children, and the Optimizer will remove this node. (The instruction generator
+  // will still emit the ins_classinst_create instruction instruction from the `Foo()` function
+  // call)
 }
 
 void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )

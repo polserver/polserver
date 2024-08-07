@@ -4,7 +4,7 @@ class Animal( BaseClass )
 
   var staticVar := Print(1 + 2) ?: "value for static after printing";
 
-  function Animal( byref this, name )
+  function Animal( this, name )
     this.name := name;
     print( $"Animal constructor staticVar={staticVar}" );
     return this;

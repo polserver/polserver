@@ -24,6 +24,7 @@ class ConditionalOperator;
 class ConstDeclaration;
 class CstyleForLoop;
 class DebugStatementMarker;
+class DefaultConstructorFunction;
 class DictionaryEntry;
 class DictionaryInitializer;
 class DoWhileLoop;
@@ -97,6 +98,7 @@ public:
   virtual void visit_class_instance( ClassInstance& );
   virtual void visit_class_parameter_list( ClassParameterList& );
   virtual void visit_debug_statement_marker( DebugStatementMarker& );
+  virtual void visit_default_constructor_function( DefaultConstructorFunction& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );
   virtual void visit_do_while_loop( DoWhileLoop& );

@@ -45,4 +45,16 @@ std::vector<std::reference_wrapper<Identifier>> ClassDeclaration::parameters()
 
   return params;
 }
+
+UserFunction* ClassDeclaration::constructor()
+{
+  for ( auto& f : functions() )
+  {
+    if ( f.get().type == UserFunctionType::Constructor )
+    {
+      return &f.get();
+    }
+  }
+  return nullptr;
+}
 }  // namespace Pol::Bscript::Compiler

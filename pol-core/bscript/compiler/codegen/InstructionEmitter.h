@@ -96,6 +96,7 @@ public:
   void label( FlowControlLabel& );
   void leaveblock( unsigned local_vars_to_remove );
   void makelocal();
+  void method_this();
   void pop_param( const std::string& name );
   void pop_param_byref( const std::string& name );
   void progend();

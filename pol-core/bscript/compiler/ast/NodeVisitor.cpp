@@ -20,6 +20,7 @@
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
+#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
@@ -158,6 +159,11 @@ void NodeVisitor::visit_class_parameter_list( ClassParameterList& node )
 }
 
 void NodeVisitor::visit_debug_statement_marker( DebugStatementMarker& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_default_constructor_function( DefaultConstructorFunction& node )
 {
   visit_children( node );
 }

@@ -96,13 +96,8 @@ void FunctionResolver::register_user_function( UserFunction* uf )
 
 void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 {
-  // TODO: Implement this
-  auto funcs = cd->functions();
-
-  if (funcs.empty())
-    return;
-
-  resolved_functions_by_name[cd->name] = &( funcs[0].get() );
+  resolved_classes_by_name[cd->name] = cd;
+  resolved_functions_by_name[cd->name] = cd->constructor();
 }
 
 bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )

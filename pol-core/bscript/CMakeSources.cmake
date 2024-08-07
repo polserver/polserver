@@ -66,6 +66,8 @@ set (bscript_sources    # sorted !
   compiler/ast/CstyleForLoop.h
   compiler/ast/DebugStatementMarker.cpp
   compiler/ast/DebugStatementMarker.h
+  compiler/ast/DefaultConstructorFunction.cpp
+  compiler/ast/DefaultConstructorFunction.h
   compiler/ast/DictionaryEntry.cpp
   compiler/ast/DictionaryEntry.h
   compiler/ast/DictionaryInitializer.cpp

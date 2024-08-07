@@ -22,6 +22,7 @@ public:
   void describe_to( std::string& ) const override;
   std::vector<std::reference_wrapper<UserFunction>> functions();
   std::vector<std::reference_wrapper<Identifier>> parameters();
+  UserFunction* constructor();
 
   const std::string name;
 };

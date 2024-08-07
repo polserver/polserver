@@ -59,12 +59,15 @@ private:
   using AvailableParseTreeMap = std::map<std::string, AvailableParseTree, Clib::ci_cmp_pred>;
 
   using FunctionMap = std::map<std::string, Function*, Clib::ci_cmp_pred>;
+  using ClassDeclarationMap = std::map<std::string, ClassDeclaration*, Clib::ci_cmp_pred>;
 
   using FunctionReferenceMap =
       std::map<std::string, std::vector<std::shared_ptr<FunctionLink>>, Clib::ci_cmp_pred>;
 
   AvailableParseTreeMap available_parse_trees;
   FunctionMap resolved_functions_by_name;
+  // TODO use this
+  ClassDeclarationMap resolved_classes_by_name;
   FunctionReferenceMap unresolved_function_links_by_name;
 };
 

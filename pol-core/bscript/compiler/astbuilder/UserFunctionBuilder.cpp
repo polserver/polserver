@@ -1,13 +1,17 @@
 #include "UserFunctionBuilder.h"
 
+#include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
+#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
+#include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/Identifier.h"
+#include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
@@ -77,6 +81,22 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   auto class_decl = std::make_unique<ClassDeclaration>(
       location_for( *ctx ), class_name, std::move( parameter_list ), std::move( body ) );
 
+  if ( class_decl->constructor() == nullptr )
+  {
+    // If no user-defined constructor present, create a constructor that just calls 'super()'. The semantic
+    // analyzer will catch errors re. missing parameters, etc.
+    auto constructor =
+        std::make_unique<DefaultConstructorFunction>( location_for( *ctx ), class_name );
+
+    class_decl->child<ClassBody>( 1 ).children.push_back( std::move( constructor ) );
+
+    // Sanity check!
+    if ( class_decl->constructor() == nullptr )
+    {
+      class_decl->internal_error( "failed to create default constructor for class" );
+    }
+  }
+
   return class_decl;
 }
 
@@ -97,17 +117,21 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
       for ( auto param : param_list->functionParameter() )
       {
         std::string parameter_name = text( param->IDENTIFIER() );
+        bool is_this_arg = false;
 
         if ( first )
         {
           if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+          {
             class_method = true;
+            is_this_arg = true;
+          }
 
           first = false;
         }
 
         std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
-        bool byref = param->BYREF() != nullptr;
+        bool byref = param->BYREF() != nullptr || is_this_arg;
         bool unused = param->UNUSED() != nullptr;
         bool rest = param->ELLIPSIS() != nullptr;
 

@@ -19,6 +19,7 @@
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
+#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
@@ -272,6 +273,17 @@ void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& m
   emit.ctrl_statementbegin( source_file, marker.start_index, marker.text );
 
   visit_children( marker );
+}
+
+// Called when emitting the instructions for a compiler-generated, default constructor function.
+// This will _most likely_ need to be completely rewritten to handle the super-chaining.
+void InstructionGenerator::visit_default_constructor_function( DefaultConstructorFunction& node )
+{
+  FlowControlLabel& label = user_function_labels[node.name];
+  emit.label( label );
+  visit_children( node );            // emits the `pop this` from the function param decl
+  emit.method_this();                // push `this` on the stack
+  emit.return_from_user_function();  // return from the function
 }
 
 void InstructionGenerator::visit_dictionary_initializer( DictionaryInitializer& node )
