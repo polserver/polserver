@@ -218,6 +218,11 @@ void InstructionEmitter::call_userfunc( FlowControlLabel& label )
   register_with_label( label, addr );
 }
 
+void InstructionEmitter::classinst_create()
+{
+  emit_token( TOK_CLASSINST, TYP_OPERAND );
+}
+
 unsigned InstructionEmitter::casejmp()
 {
   return emit_token( INS_CASEJMP, TYP_RESERVED );

@@ -7,40 +7,23 @@ class Animal( BaseClass )
   function Animal( byref this, name )
     this.name := name;
     print( $"Animal constructor staticVar={staticVar}" );
+    return this;
   endfunction
 
 endclass
 
-var myobj := struct{};
-@Animal( myobj, "name" );
-print( myobj );
+// Compile-time constructor call. Creates a class instance, and (TODO) attachs vtable
+var compile_obj := Animal( "compile-time ctor call" );
+print( $"compile_obj={compile_obj}" );
 
-// Compiles, but runtime error:
-// Animal( "name" );
+
+// Run-time constructor call. Does not attach vtable in this scenario, but calls the user function
+var runtime_obj := dictionary{};
+@Animal( runtime_obj, "runtime ctor call" );
+print( $"runtime_obj={runtime_obj}" );
 
 // TODO scope it correctly to Animal::staticVar
 print( $"Global scope staticVar={staticVar}" );
 
 // TODO
 // print( Animal::staticVar );
-
-/*
-- class-declaration(Animal)
-  - class-parameter-list
-    - identifier(BaseClass)
-  - class-block
-    - var-statement(staticVar)
-      - integer-value(3)
-    - user-function(Animal)
-      - function-parameter-list
-        - function-parameter-declaration(this, byref)
-        - function-parameter-declaration(name)
-      - user-function-body
-        - member-assignment-statement(name) (#3)
-          - identifier(this)
-          - identifier(name)
-        - value-consumer
-          - function-call(print)
-            - argument()
-              - identifier(staticVar)
-*/

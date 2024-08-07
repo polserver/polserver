@@ -1,4 +1,6 @@
 3
 Animal constructor staticVar=value for static after printing
-struct{ name = "name" }
+compile_obj=struct{ name = "compile-time ctor call" }
+Animal constructor staticVar=value for static after printing
+runtime_obj=dict{ "name" -> "runtime ctor call" }
 Global scope staticVar=value for static after printing

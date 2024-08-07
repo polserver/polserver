@@ -14,6 +14,7 @@
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
@@ -254,6 +255,12 @@ void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
   {
     child->accept( *this );
   }
+}
+
+void InstructionGenerator::visit_class_instance( ClassInstance& node )
+{
+  update_debug_location( node );
+  emit.classinst_create();
 }
 
 void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& marker )

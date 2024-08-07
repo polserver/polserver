@@ -34,6 +34,7 @@ public:
   void visit_boolean_value( BooleanValue& ) override;
   void visit_branch_selector( BranchSelector& ) override;
   void visit_class_declaration( ClassDeclaration& ) override;
+  void visit_class_instance( ClassInstance& ) override;
   void visit_debug_statement_marker( DebugStatementMarker& ) override;
   void visit_dictionary_entry( DictionaryEntry& ) override;
   void visit_dictionary_initializer( DictionaryInitializer& ) override;

@@ -72,6 +72,7 @@ public:
   void call_method_id( MethodID method_id, unsigned argument_count );
   void call_modulefunc( const ModuleFunctionDeclaration& );
   void call_userfunc( FlowControlLabel& );
+  void classinst_create();
   unsigned casejmp();
   unsigned case_dispatch_table( const CaseJumpDataBlock& );
   void consume();
