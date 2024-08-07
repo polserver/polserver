@@ -33,12 +33,9 @@ private:
 template <typename Callback>
 BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args )
 {
-  if ( !funcref->isa( BObjectImp::OTFuncRef ) )
-  {
+  auto* func = funcref->impptr_if<BFunctionRef>();
+  if ( !func )
     return new BError( "Invalid parameter type" );
-  }
-
-  auto func = funcref->impptr<BFunctionRef>();
 
   // Add function arguments to value stack. Add arguments if there are not enough.  Remove if
   // there are too many

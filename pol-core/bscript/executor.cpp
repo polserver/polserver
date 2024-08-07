@@ -314,11 +314,10 @@ void Executor::expandParams()
 {
   for ( auto i = static_cast<int>( fparams.size() ) - 1; i >= 0; --i )
   {
-    if ( fparams[i]->isa( BObjectImp::OTSpread ) )
+    if ( auto* spread = fparams[i]->impptr_if<BSpread>() )
     {
       // defer destruction
-      BObjectRef obj( fparams[i] );
-      BSpread* spread = obj->impptr<BSpread>();
+      BObjectRef obj( spread );
 
       // Remove the spread
       fparams.erase( fparams.begin() + i );
@@ -937,14 +936,14 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
   BObject* obj = getParam( param );
   if ( !obj )
     return false;
-  if ( obj->isa( BObjectImp::OTString ) )
+  if ( auto* s = obj->impptr_if<String>() )
   {
-    pstr = obj->impptr<String>();
+    pstr = s;
     return true;
   }
-  else if ( obj->isa( BObjectImp::OTArray ) )
+  else if ( auto* a = obj->impptr_if<ObjArray>() )
   {
-    String* str = String::fromUCArray( obj->impptr<ObjArray>() );
+    String* str = String::fromUCArray( a );
     fparams[param].set( new BObject( str ) );  // store raw pointer
     pstr = str;
     return true;
@@ -2512,9 +2511,8 @@ void Executor::ins_insert_into( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  if ( right->isa( BObjectImp::OTSpread ) )
+  if ( auto* spread = right.impptr_if<BSpread>() )
   {
-    BSpread* spread = right.impptr<BSpread>();
     BObjectRef refIter( new BObject( UninitObject::create() ) );
 
     auto pIter =
@@ -2642,10 +2640,8 @@ void Executor::ins_call_method_id( const Instruction& ins )
   do
   {
     getParams( nparams );
-    if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
+    if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
     {
-      BObjectRef objref = ValueStack.back();
-      auto funcr = objref->impptr<BFunctionRef>();
       Instruction jmp;
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
@@ -2738,10 +2734,8 @@ void Executor::ins_call_method( const Instruction& ins )
   unsigned nparams = ins.token.lval;
   getParams( nparams );
 
-  if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
+  if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
   {
-    BObjectRef objref = ValueStack.back();
-    auto funcr = objref->impptr<BFunctionRef>();
     Instruction jmp;
     if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
     {

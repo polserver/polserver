@@ -63,6 +63,7 @@ class BDictionary;
 class BBoolean;
 class BFunctionRef;
 class BContinuation;
+class BSpread;
 
 typedef std::vector<BObjectRef> ValueStackCont;
 
@@ -409,6 +410,7 @@ T* impptrIf( BObjectImp* objimp )
   impif_e( BObjectImp::OTBoolean, BBoolean );
   impif_e( BObjectImp::OTFuncRef, BFunctionRef );
   impif_e( BObjectImp::OTContinuation, BContinuation );
+  impif_e( BObjectImp::OTSpread, BSpread );
   else static_assert( always_false<T>::value, "unsupported type" );
 #undef impif_i
 #undef impif_e
