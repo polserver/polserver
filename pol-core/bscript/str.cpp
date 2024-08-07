@@ -825,56 +825,56 @@ bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string&
 
   if ( frmt.find( 'b' ) != std::string::npos )
   {
-    if ( !what->isa( BObjectImp::OTLong ) )
+    if ( auto* plong = impptrIf<BLong>( what ) )
+    {
+      int n = plong->value();
+      if ( frmt.find( '#' ) != std::string::npos )
+        to_stream << ( ( n < 0 ) ? "-" : "" ) << "0b";
+      int_to_binstr( n, to_stream );
+    }
+    else
     {
       to_stream << "<needs Int>";
       return false;
     }
-    BLong* plong = static_cast<BLong*>( what );
-    int n = plong->value();
-    if ( frmt.find( '#' ) != std::string::npos )
-      to_stream << ( ( n < 0 ) ? "-" : "" ) << "0b";
-    int_to_binstr( n, to_stream );
   }
   else if ( frmt.find( 'x' ) != std::string::npos )
   {
-    if ( !what->isa( BObjectImp::OTLong ) )
+    if ( auto* plong = impptrIf<BLong>( what ) )
+    {
+      int n = plong->value();
+      if ( frmt.find( '#' ) != std::string::npos )
+        to_stream << "0x";
+      to_stream << std::hex << n << std::dec;
+    }
+    else
     {
       to_stream << "<needs Int>";
       return false;
     }
-    BLong* plong = static_cast<BLong*>( what );
-    int n = plong->value();
-    if ( frmt.find( '#' ) != std::string::npos )
-      to_stream << "0x";
-    to_stream << std::hex << n << std::dec;
   }
   else if ( frmt.find( 'o' ) != std::string::npos )
   {
-    if ( !what->isa( BObjectImp::OTLong ) )
+    if ( auto* plong = impptrIf<BLong>( what ) )
+    {
+      int n = plong->value();
+      if ( frmt.find( '#' ) != std::string::npos )
+        to_stream << "0o";
+      to_stream << std::oct << n << std::dec;
+    }
+    else
     {
       to_stream << "<needs Int>";
       return false;
     }
-    BLong* plong = static_cast<BLong*>( what );
-    int n = plong->value();
-    if ( frmt.find( '#' ) != std::string::npos )
-      to_stream << "0o";
-    to_stream << std::oct << n << std::dec;
   }
   else if ( frmt.find( 'd' ) != std::string::npos )
   {
     int n;
-    if ( what->isa( BObjectImp::OTLong ) )
-    {
-      BLong* plong = static_cast<BLong*>( what );
+    if ( auto* plong = impptrIf<BLong>( what ) )
       n = plong->value();
-    }
-    else if ( what->isa( BObjectImp::OTDouble ) )
-    {
-      Double* pdbl = static_cast<Double*>( what );
+    else if ( auto* pdbl = impptrIf<Double>( what ) )
       n = (int)pdbl->value();
-    }
     else
     {
       to_stream << "<needs Int, Double>";
@@ -1247,10 +1247,8 @@ String* String::fromUCArray( ObjArray* array, bool break_first_null )
   {
     if ( !c )
       continue;
-    BObjectImp* imp = c.get()->impptr();
-    if ( imp && imp->isa( BObjectImp::OTLong ) )
+    if ( auto* blong = c.get()->impptr_if<BLong>() )
     {
-      BLong* blong = static_cast<BLong*>( imp );
       if ( blong->value() == 0 && break_first_null )
         break;
       utf16.push_back( blong->value() & 0xFFFF );

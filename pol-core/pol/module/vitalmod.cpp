@@ -81,8 +81,7 @@ BObjectImp* VitalExecutorModule::mf_HealDamage()
 {
   Mobile::Character* chr;
   int amount;
-  if ( getCharacterParam( 0, chr ) && getParam( 1, amount ) && amount >= 0 &&
-       amount <= USHRT_MAX )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, amount ) && amount >= 0 && amount <= USHRT_MAX )
   {
     Mobile::Character* controller = GetUOController();
     if ( controller )
@@ -226,11 +225,10 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       bool calc_attr = false;
       bool calc_vital = false;
 
-      if ( param1->isa( BObjectImp::OTLong ) )
-        calc_attr = static_cast<BLong*>( param1 )->isTrue();
-      else if ( param1->isa( BObjectImp::OTString ) )
+      if ( auto* v = impptrIf<BLong>( param1 ) )
+        calc_attr = v->isTrue();
+      else if ( auto* attrname = impptrIf<String>( param1 ) )
       {
-        String* attrname = static_cast<String*>( param1 );
         Mobile::Attribute* attr = Mobile::Attribute::FindAttribute( attrname->value() );
         if ( attr == nullptr )
           return new BError( "Attribute not defined: " + attrname->value() );
@@ -239,11 +237,10 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       else
         return new BError( "Invalid parameter type" );
 
-      if ( param2->isa( BObjectImp::OTLong ) )
-        calc_vital = static_cast<BLong*>( param2 )->isTrue();
-      else if ( param2->isa( BObjectImp::OTString ) )
+      if ( auto* v = impptrIf<BLong>( param2 ) )
+        calc_vital = v->isTrue();
+      else if ( auto* vitalname = impptrIf<String>( param2 ) )
       {
-        String* vitalname = static_cast<String*>( param2 );
         Core::Vital* vital = Core::FindVital( vitalname->value() );
         if ( vital == nullptr )
           return new BError( "Vital not defined: " + vitalname->value() );

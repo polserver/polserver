@@ -164,46 +164,42 @@ Bscript::BObjectImp* MathExecutorModule::mf_Root()
   double x, y;
   if ( getRealParam( 0, x ) && getRealParam( 1, y ) )
   {
-    return new Bscript::Double( pow( x, 1.0 / y ) );
+    return new Double( pow( x, 1.0 / y ) );
   }
   else
   {
-    return new Bscript::BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
   }
 }
 
 Bscript::BObjectImp* MathExecutorModule::mf_Min()
 {
-  Bscript::BObjectImp* impX = getParamImp( 0 );
-  Bscript::BObjectImp* impY = getParamImp( 1 );
-  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impX->isa( Bscript::BObjectImp::OTLong ) ) ) &&
-       ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
+  BObjectImp* impX = getParamImp( 0 );
+  BObjectImp* impY = getParamImp( 1 );
+  if ( ( ( impX->isa( BObjectImp::OTDouble ) ) || ( impX->isa( BObjectImp::OTLong ) ) ) &&
+       ( ( impY->isa( BObjectImp::OTDouble ) ) || ( impY->isa( BObjectImp::OTLong ) ) ) )
   {
     if ( *impX < *impY )
       return impX->copy();
     else
       return impY->copy();
   }
-  else if ( impX->isa( Bscript::BObjectImp::OTArray ) )
+  else if ( auto* value = impptrIf<ObjArray>( impX ) )
   {
-    Bscript::ObjArray* value = static_cast<Bscript::ObjArray*>( impX );
     if ( value->ref_arr.empty() )
-      return new Bscript::BError( "Array empty" );
+      return new BError( "Array empty" );
 
-    Bscript::BObjectImp* compare = nullptr;
-    for ( std::vector<Bscript::BObjectRef>::iterator itr = value->ref_arr.begin();
+    BObjectImp* compare = nullptr;
+    for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin();
           itr != value->ref_arr.end(); ++itr )
     {
       if ( itr->get() )
       {
-        Bscript::BObject* bo = ( itr->get() );
+        BObject* bo = ( itr->get() );
 
         if ( bo == nullptr )
           continue;
-        if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
-             ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
+        if ( ( bo->isa( BObjectImp::OTDouble ) ) || ( bo->isa( BObjectImp::OTLong ) ) )
         {
           if ( compare == nullptr )
             compare = bo->impptr();
@@ -215,44 +211,40 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
     if ( compare != nullptr )
       return ( compare->copy() );
     else
-      return new Bscript::BError( "No Integer/Double elements" );
+      return new BError( "No Integer/Double elements" );
   }
   else
-    return new Bscript::BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* MathExecutorModule::mf_Max()
 {
-  Bscript::BObjectImp* impX = getParamImp( 0 );
-  Bscript::BObjectImp* impY = getParamImp( 1 );
-  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impX->isa( Bscript::BObjectImp::OTLong ) ) ) &&
-       ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
+  BObjectImp* impX = getParamImp( 0 );
+  BObjectImp* impY = getParamImp( 1 );
+  if ( ( ( impX->isa( BObjectImp::OTDouble ) ) || ( impX->isa( BObjectImp::OTLong ) ) ) &&
+       ( ( impY->isa( BObjectImp::OTDouble ) ) || ( impY->isa( BObjectImp::OTLong ) ) ) )
   {
     if ( *impX < *impY )
       return impY->copy();
     else
       return impX->copy();
   }
-  else if ( impX->isa( Bscript::BObjectImp::OTArray ) )
+  else if ( auto* value = impptrIf<ObjArray>( impX ) )
   {
-    Bscript::ObjArray* value = static_cast<Bscript::ObjArray*>( impX );
     if ( value->ref_arr.empty() )
-      return new Bscript::BError( "Array empty" );
+      return new BError( "Array empty" );
 
-    Bscript::BObjectImp* compare = nullptr;
+    BObjectImp* compare = nullptr;
     for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin();
           itr != value->ref_arr.end(); ++itr )
     {
       if ( itr->get() )
       {
-        Bscript::BObject* bo = ( itr->get() );
+        BObject* bo = ( itr->get() );
 
         if ( bo == nullptr )
           continue;
-        if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
-             ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
+        if ( ( bo->isa( BObjectImp::OTDouble ) ) || ( bo->isa( BObjectImp::OTLong ) ) )
         {
           if ( compare == nullptr )
             compare = bo->impptr();
@@ -264,10 +256,10 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
     if ( compare != nullptr )
       return ( compare->copy() );
     else
-      return new Bscript::BError( "No Integer/Double elements" );
+      return new BError( "No Integer/Double elements" );
   }
   else
-    return new Bscript::BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
 }
 
 /*
@@ -281,16 +273,14 @@ math::Abs(-1.5) = 1.5
 */
 Bscript::BObjectImp* MathExecutorModule::mf_Abs()
 {
-  Bscript::BObjectImp* imp = getParamImp( 0 );
-  if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
+  BObjectImp* imp = getParamImp( 0 );
+  if ( auto* d = impptrIf<Double>( imp ) )
   {
-    double value = static_cast<Double*>( imp )->value();
-    return new Double( fabs( value ) );
+    return new Double( fabs( d->value() ) );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+  else if ( auto* l = impptrIf<BLong>( imp ) )
   {
-    int value = static_cast<BLong*>( imp )->value();
-    return new BLong( labs( value ) );
+    return new BLong( labs( l->value() ) );
   }
   else
   {
