@@ -255,6 +255,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitScopedIdentifier(EscriptParser::ScopedIdentifierContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitFunctionExpression(EscriptParser::FunctionExpressionContext *ctx) override {
     return visitChildren(ctx);
   }

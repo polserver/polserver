@@ -58,28 +58,28 @@ void escriptlexerLexerInitialize() {
 #endif
   auto staticData = std::make_unique<EscriptLexerStaticData>(
     std::vector<std::string>{
-      "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST",
-      "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION",
-      "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR",
-      "TO", "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM",
-      "CASE", "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "CLASS", "ENDCLASS",
-      "DOWNTO", "STEP", "REFERENCE", "TOK_OUT", "INOUT", "BYVAL", "STRING",
-      "TOK_LONG", "INTEGER", "UNSIGNED", "SIGNED", "REAL", "FLOAT", "DOUBLE",
-      "AS", "IS", "ELLIPSIS", "AND_A", "AND_B", "AND", "OR_A", "OR_B", "OR",
-      "BANG_A", "BANG_B", "BANG", "BYREF", "UNUSED", "TOK_ERROR", "HASH",
-      "DICTIONARY", "STRUCT", "ARRAY", "STACK", "TOK_IN", "UNINIT", "BOOL_TRUE",
-      "BOOL_FALSE", "DECIMAL_LITERAL", "HEX_LITERAL", "OCT_LITERAL", "BINARY_LITERAL",
-      "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", "STRING_LITERAL", "INTERPOLATED_STRING_START",
-      "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT",
-      "ARROW", "MUL", "DIV", "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN",
-      "MUL_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", "LE", "LT", "GE", "GT",
-      "RSHIFT", "LSHIFT", "BITAND", "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B",
-      "NOTEQUAL", "EQUAL_DEPRECATED", "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER",
-      "CHKMEMBER", "SEMI", "COMMA", "TILDE", "AT", "COLONCOLON", "COLON",
-      "INC", "DEC", "ELVIS", "QUESTION", "WS", "COMMENT", "LINE_COMMENT",
-      "IDENTIFIER", "ExponentPart", "EscapeSequence", "HexDigits", "HexDigit",
-      "Digits", "LetterOrDigit", "Letter", "DOUBLE_LBRACE_INSIDE", "LBRACE_INSIDE",
-      "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE", "DOUBLE_RBRACE", "STRING_LITERAL_INSIDE",
+      "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST", 
+      "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION", 
+      "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR", 
+      "TO", "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM", 
+      "CASE", "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "CLASS", "ENDCLASS", 
+      "DOWNTO", "STEP", "REFERENCE", "TOK_OUT", "INOUT", "BYVAL", "STRING", 
+      "TOK_LONG", "INTEGER", "UNSIGNED", "SIGNED", "REAL", "FLOAT", "DOUBLE", 
+      "AS", "IS", "ELLIPSIS", "AND_A", "AND_B", "AND", "OR_A", "OR_B", "OR", 
+      "BANG_A", "BANG_B", "BANG", "BYREF", "UNUSED", "TOK_ERROR", "HASH", 
+      "DICTIONARY", "STRUCT", "ARRAY", "STACK", "TOK_IN", "UNINIT", "BOOL_TRUE", 
+      "BOOL_FALSE", "DECIMAL_LITERAL", "HEX_LITERAL", "OCT_LITERAL", "BINARY_LITERAL", 
+      "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", "STRING_LITERAL", "INTERPOLATED_STRING_START", 
+      "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", 
+      "ARROW", "MUL", "DIV", "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN", 
+      "MUL_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", "LE", "LT", "GE", "GT", 
+      "RSHIFT", "LSHIFT", "BITAND", "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B", 
+      "NOTEQUAL", "EQUAL_DEPRECATED", "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", 
+      "CHKMEMBER", "SEMI", "COMMA", "TILDE", "AT", "COLONCOLON", "COLON", 
+      "INC", "DEC", "ELVIS", "QUESTION", "WS", "COMMENT", "LINE_COMMENT", 
+      "IDENTIFIER", "ExponentPart", "EscapeSequence", "HexDigits", "HexDigit", 
+      "Digits", "LetterOrDigit", "Letter", "DOUBLE_LBRACE_INSIDE", "LBRACE_INSIDE", 
+      "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE", "DOUBLE_RBRACE", "STRING_LITERAL_INSIDE", 
       "DOUBLE_RBRACE_INSIDE", "CLOSE_RBRACE_INSIDE", "FORMAT_STRING"
     },
     std::vector<std::string>{
@@ -89,46 +89,46 @@ void escriptlexerLexerInitialize() {
       "DEFAULT_MODE", "INTERPOLATION_STRING", "INTERPOLATION_FORMAT"
     },
     std::vector<std::string>{
-      "", "'if'", "'then'", "'elseif'", "'endif'", "'else'", "'goto'", "'return'",
-      "'const'", "'var'", "'do'", "'dowhile'", "'while'", "'endwhile'",
-      "'exit'", "'function'", "'endfunction'", "'exported'", "'use'", "'include'",
-      "'break'", "'continue'", "'for'", "'endfor'", "'to'", "'foreach'",
-      "'endforeach'", "'repeat'", "'until'", "'program'", "'endprogram'",
-      "'case'", "'default'", "'endcase'", "'enum'", "'endenum'", "'class'",
-      "'endclass'", "'downto'", "'step'", "'reference'", "'out'", "'inout'",
-      "'ByVal'", "'string'", "'long'", "'integer'", "'unsigned'", "'signed'",
-      "'real'", "'float'", "'double'", "'as'", "'is'", "'...'", "'&&'",
-      "'and'", "'||'", "'or'", "'!'", "'not'", "'byref'", "'unused'", "'error'",
-      "'hash'", "'dictionary'", "'struct'", "'array'", "'stack'", "'in'",
-      "'uninit'", "'true'", "'false'", "", "", "", "", "", "", "", "", "'('",
-      "')'", "'['", "']'", "'{'", "'}'", "'.'", "'->'", "'*'", "'/'", "'%'",
-      "'+'", "'-'", "'+='", "'-='", "'*='", "'/='", "'%='", "'<='", "'<'",
-      "'>='", "'>'", "'>>'", "'<<'", "'&'", "'^'", "'|'", "'<>'", "'!='",
-      "'='", "'=='", "':='", "'.+'", "'.-'", "'.\\u003F'", "';'", "','",
-      "'~'", "'@'", "'::'", "':'", "'++'", "'--'", "'\\u003F:'", "'\\u003F'",
+      "", "'if'", "'then'", "'elseif'", "'endif'", "'else'", "'goto'", "'return'", 
+      "'const'", "'var'", "'do'", "'dowhile'", "'while'", "'endwhile'", 
+      "'exit'", "'function'", "'endfunction'", "'exported'", "'use'", "'include'", 
+      "'break'", "'continue'", "'for'", "'endfor'", "'to'", "'foreach'", 
+      "'endforeach'", "'repeat'", "'until'", "'program'", "'endprogram'", 
+      "'case'", "'default'", "'endcase'", "'enum'", "'endenum'", "'class'", 
+      "'endclass'", "'downto'", "'step'", "'reference'", "'out'", "'inout'", 
+      "'ByVal'", "'string'", "'long'", "'integer'", "'unsigned'", "'signed'", 
+      "'real'", "'float'", "'double'", "'as'", "'is'", "'...'", "'&&'", 
+      "'and'", "'||'", "'or'", "'!'", "'not'", "'byref'", "'unused'", "'error'", 
+      "'hash'", "'dictionary'", "'struct'", "'array'", "'stack'", "'in'", 
+      "'uninit'", "'true'", "'false'", "", "", "", "", "", "", "", "", "'('", 
+      "')'", "'['", "']'", "'{'", "'}'", "'.'", "'->'", "'*'", "'/'", "'%'", 
+      "'+'", "'-'", "'+='", "'-='", "'*='", "'/='", "'%='", "'<='", "'<'", 
+      "'>='", "'>'", "'>>'", "'<<'", "'&'", "'^'", "'|'", "'<>'", "'!='", 
+      "'='", "'=='", "':='", "'.+'", "'.-'", "'.\\u003F'", "';'", "','", 
+      "'~'", "'@'", "'::'", "':'", "'++'", "'--'", "'\\u003F:'", "'\\u003F'", 
       "", "", "", "", "'{{'"
     },
     std::vector<std::string>{
-      "", "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST",
-      "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION",
-      "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR",
-      "TO", "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM",
-      "CASE", "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "CLASS", "ENDCLASS",
-      "DOWNTO", "STEP", "REFERENCE", "TOK_OUT", "INOUT", "BYVAL", "STRING",
-      "TOK_LONG", "INTEGER", "UNSIGNED", "SIGNED", "REAL", "FLOAT", "DOUBLE",
-      "AS", "IS", "ELLIPSIS", "AND_A", "AND_B", "OR_A", "OR_B", "BANG_A",
-      "BANG_B", "BYREF", "UNUSED", "TOK_ERROR", "HASH", "DICTIONARY", "STRUCT",
-      "ARRAY", "STACK", "TOK_IN", "UNINIT", "BOOL_TRUE", "BOOL_FALSE", "DECIMAL_LITERAL",
-      "HEX_LITERAL", "OCT_LITERAL", "BINARY_LITERAL", "FLOAT_LITERAL", "HEX_FLOAT_LITERAL",
-      "STRING_LITERAL", "INTERPOLATED_STRING_START", "LPAREN", "RPAREN",
-      "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", "ARROW", "MUL", "DIV",
-      "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN",
-      "MOD_ASSIGN", "LE", "LT", "GE", "GT", "RSHIFT", "LSHIFT", "BITAND",
-      "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B", "EQUAL_DEPRECATED",
-      "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", "CHKMEMBER", "SEMI",
-      "COMMA", "TILDE", "AT", "COLONCOLON", "COLON", "INC", "DEC", "ELVIS",
-      "QUESTION", "WS", "COMMENT", "LINE_COMMENT", "IDENTIFIER", "DOUBLE_LBRACE_INSIDE",
-      "LBRACE_INSIDE", "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE", "DOUBLE_RBRACE",
+      "", "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST", 
+      "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION", 
+      "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR", 
+      "TO", "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM", 
+      "CASE", "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "CLASS", "ENDCLASS", 
+      "DOWNTO", "STEP", "REFERENCE", "TOK_OUT", "INOUT", "BYVAL", "STRING", 
+      "TOK_LONG", "INTEGER", "UNSIGNED", "SIGNED", "REAL", "FLOAT", "DOUBLE", 
+      "AS", "IS", "ELLIPSIS", "AND_A", "AND_B", "OR_A", "OR_B", "BANG_A", 
+      "BANG_B", "BYREF", "UNUSED", "TOK_ERROR", "HASH", "DICTIONARY", "STRUCT", 
+      "ARRAY", "STACK", "TOK_IN", "UNINIT", "BOOL_TRUE", "BOOL_FALSE", "DECIMAL_LITERAL", 
+      "HEX_LITERAL", "OCT_LITERAL", "BINARY_LITERAL", "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", 
+      "STRING_LITERAL", "INTERPOLATED_STRING_START", "LPAREN", "RPAREN", 
+      "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", "ARROW", "MUL", "DIV", 
+      "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", 
+      "MOD_ASSIGN", "LE", "LT", "GE", "GT", "RSHIFT", "LSHIFT", "BITAND", 
+      "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B", "EQUAL_DEPRECATED", 
+      "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", "CHKMEMBER", "SEMI", 
+      "COMMA", "TILDE", "AT", "COLONCOLON", "COLON", "INC", "DEC", "ELVIS", 
+      "QUESTION", "WS", "COMMENT", "LINE_COMMENT", "IDENTIFIER", "DOUBLE_LBRACE_INSIDE", 
+      "LBRACE_INSIDE", "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE", "DOUBLE_RBRACE", 
       "STRING_LITERAL_INSIDE", "CLOSE_RBRACE_INSIDE", "FORMAT_STRING"
     }
   );
@@ -509,7 +509,7 @@ void escriptlexerLexerInitialize() {
 
   const size_t count = staticData->atn->getNumberOfDecisions();
   staticData->decisionToDFA.reserve(count);
-  for (size_t i = 0; i < count; i++) {
+  for (size_t i = 0; i < count; i++) { 
     staticData->decisionToDFA.emplace_back(staticData->atn->getDecisionState(i), i);
   }
   escriptlexerLexerStaticData = staticData.release();
@@ -581,7 +581,7 @@ void EscriptLexer::INTERPOLATED_STRING_STARTAction(antlr4::RuleContext *context,
 
 void EscriptLexer::LBRACEAction(antlr4::RuleContext *context, size_t actionIndex) {
   switch (actionIndex) {
-    case 1:
+    case 1: 
         if ( interpolatedStringLevel > 0 )
           {
             auto currentLevel = curlyLevels.top();
@@ -597,7 +597,7 @@ void EscriptLexer::LBRACEAction(antlr4::RuleContext *context, size_t actionIndex
 
 void EscriptLexer::RBRACEAction(antlr4::RuleContext *context, size_t actionIndex) {
   switch (actionIndex) {
-    case 2:
+    case 2: 
         if ( interpolatedStringLevel > 0 )
           {
             auto currentLevel = curlyLevels.top();
@@ -619,7 +619,7 @@ void EscriptLexer::RBRACEAction(antlr4::RuleContext *context, size_t actionIndex
 
 void EscriptLexer::COLONAction(antlr4::RuleContext *context, size_t actionIndex) {
   switch (actionIndex) {
-    case 3:
+    case 3: 
             if (interpolatedStringLevel > 0)
             {
                 int ind = 1;

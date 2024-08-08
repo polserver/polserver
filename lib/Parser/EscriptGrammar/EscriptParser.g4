@@ -166,6 +166,7 @@ forStatement
 foreachIterableExpression
     : functionCall
     | scopedFunctionCall
+    | scopedIdentifier
     | IDENTIFIER
     | parExpression
     | bareArrayInitializer
@@ -211,7 +212,7 @@ switchBlockStatementGroup
     ;
 
 switchLabel
-    : (integerLiteral | boolLiteral | UNINIT | IDENTIFIER | STRING_LITERAL) ':'
+    : (integerLiteral | boolLiteral | scopedIdentifier | UNINIT | IDENTIFIER | STRING_LITERAL) ':'
     | DEFAULT ':'
     ;
 
@@ -277,7 +278,7 @@ scopedFunctionCall
     ;
 
 functionReference
-    : '@' IDENTIFIER
+    : '@' (scope=IDENTIFIER '::')? function=IDENTIFIER
     ;
 
 expression
@@ -307,6 +308,7 @@ primary
     | parExpression
     | functionCall
     | scopedFunctionCall
+    | scopedIdentifier
     | IDENTIFIER
     | functionReference
     | functionExpression
@@ -317,6 +319,9 @@ primary
     | bareArrayInitializer
     | interpolatedString
     ;
+
+scopedIdentifier
+    : scope=IDENTIFIER '::' identifier=IDENTIFIER;
 
 functionExpression
     : AT functionParameters? LBRACE block RBRACE
