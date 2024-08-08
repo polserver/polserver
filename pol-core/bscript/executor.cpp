@@ -2839,8 +2839,8 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
     // Store external context for the return path.
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
 
-    // Set the prog and globals (if required) to the external function's,
-    // updating nLines and execmodules.
+    // Set the prog and globals to the external function's, updating nLines and
+    // execmodules.
     prog_ = funcref->prog();
 
     // TODO future improvement: do not copy the globals, but instead point our
@@ -3189,9 +3189,9 @@ void Executor::ins_funcref( const Instruction& ins )
 
   const auto& ep_funcref = prog_->function_references[funcref_index];
 
-  ValueStack.push_back( BObjectRef(
-      new BObject( new BFunctionRef( prog_, ins.token.lval, ep_funcref.parameter_count,
-                                     ep_funcref.is_variadic, Globals2, {} /* captures */ ) ) ) );
+  ValueStack.push_back(
+      BObjectRef( new BFunctionRef( prog_, ins.token.lval, ep_funcref.parameter_count,
+                                    ep_funcref.is_variadic, Globals2, {} /* captures */ ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )

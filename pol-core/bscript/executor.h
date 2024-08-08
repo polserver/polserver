@@ -462,7 +462,9 @@ public:
   bool halt() const;
   void sethalt( bool halt );
 
-  // takes ownership of `continuation`
+  // Takes ownership of `continuation`. If `funcref` is present, checks if jump
+  // is "external" (ie. current program is different than funcref's), and if so,
+  // sets up members (Globals2, nLines, prog_, execmodules) accordingly.
   void jump( int target_PC, BContinuation* continuation, BFunctionRef* funcref );
 
 
