@@ -394,7 +394,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   auto parameters = fc.parameters();
   bool has_class_inst_parameter = false;
 
-  if ( auto uf = fc.function_link->user_function() )
+  if ( uf )
   {
     // Constructor functions are defined as `Constr( this )` and called statically via `Constr()`.
     // Provide a `this` parameter at this function call site.

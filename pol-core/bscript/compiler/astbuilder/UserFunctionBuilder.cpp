@@ -53,8 +53,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
       for ( auto parameter_name : param_list->IDENTIFIER() )
       {
         // TODO add scope
-        parameters.push_back( std::make_unique<Identifier>( location_for( *parameter_name ),
-                                                            "", text( parameter_name ) ) );
+        parameters.push_back( std::make_unique<Identifier>( location_for( *parameter_name ), "",
+                                                            text( parameter_name ) ) );
       }
     }
   }
@@ -84,8 +84,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   if ( class_decl->constructor() == nullptr )
   {
-    // If no user-defined constructor present, create a constructor that just calls 'super()'. The semantic
-    // analyzer will catch errors re. missing parameters, etc.
+    // If no user-defined constructor present, create a constructor that just calls 'super()'. The
+    // semantic analyzer will catch errors re. missing parameters, etc.
     auto constructor =
         std::make_unique<DefaultConstructorFunction>( location_for( *ctx ), class_name );
 

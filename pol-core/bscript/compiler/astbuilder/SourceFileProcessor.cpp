@@ -306,8 +306,8 @@ antlrcpp::Any SourceFileProcessor::visitClassDeclaration(
   //   class Foo var staticVar := 2; endclass
   //   print(Foo::staticVar == 2);  // true
   //
-  for ( auto& statement : ctx->classBody()->classStatement() )
-    if ( auto var_statement = statement->varStatement() )
+  for ( auto& class_statement : ctx->classBody()->classStatement() )
+    if ( auto var_statement = class_statement->varStatement() )
     {
       std::vector<std::unique_ptr<Statement>> statements;
 

@@ -14,7 +14,8 @@ Describes the type of a user function. In the following snippet:
 
     function AnotherStaticFunction() endfunction
 
-`Dog` is a Constructor function, `eat` is a Method user function, and `StaticFunction` and `AnotherStaticFunction` are Static functions.
+`Dog` is a Constructor function, `eat` is a Method user function, and `StaticFunction` and
+`AnotherStaticFunction` are Static functions.
 
  */
 enum class UserFunctionType
