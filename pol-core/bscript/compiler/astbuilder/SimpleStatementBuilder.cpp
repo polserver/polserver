@@ -120,7 +120,8 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
       {
         // The optimizer runs later, so we don't necessarily know the value of
         // the previous enum value.  The optimizer will sort it out.
-        auto lhs = std::make_unique<Identifier>( source_location, last_identifier );
+        // TODO add scope
+        auto lhs = std::make_unique<Identifier>( source_location, "", last_identifier );
         auto one = std::make_unique<IntegerValue>( source_location, 1 );
         value = std::make_unique<BinaryOperator>( source_location, std::move( lhs ), "+", TOK_ADD,
                                                   std::move( one ) );

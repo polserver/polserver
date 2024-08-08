@@ -52,8 +52,9 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     {
       for ( auto parameter_name : param_list->IDENTIFIER() )
       {
+        // TODO add scope
         parameters.push_back( std::make_unique<Identifier>( location_for( *parameter_name ),
-                                                            text( parameter_name ) ) );
+                                                            "", text( parameter_name ) ) );
       }
     }
   }

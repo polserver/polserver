@@ -189,10 +189,14 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
       {
         selectors.push_back( integer_value( integer_literal ) );
       }
+      else if ( auto scopedIdentifier = group_label->scopedIdentifier() )
+      {
+        selectors.push_back( scoped_identifier( scopedIdentifier ) );
+      }
       else if ( auto identifier = group_label->IDENTIFIER() )
       {
         selectors.push_back(
-            std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) ) );
+            std::make_unique<Identifier>( location_for( *identifier ), "", text( identifier ) ) );
       }
       else if ( auto string_literal = group_label->STRING_LITERAL() )
       {
@@ -271,9 +275,13 @@ std::unique_ptr<Statement> CompoundStatementBuilder::for_loop( EscriptParser::Fo
 std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expression(
     EscriptParser::ForeachIterableExpressionContext* ctx )
 {
-  if ( auto identifier = ctx->IDENTIFIER() )
+  if ( auto scoped_ident = ctx->scopedIdentifier() )
   {
-    return std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) );
+    return scoped_identifier( scoped_ident );
+  }
+  else if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    return std::make_unique<Identifier>( location_for( *identifier ), "", text( identifier ) );
   }
   else if ( auto m_call = ctx->functionCall() )
   {

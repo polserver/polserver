@@ -349,7 +349,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( !fc.method_name.empty() )
     {
-      auto callee = std::make_unique<Identifier>( fc.source_location, fc.method_name );
+      auto callee = std::make_unique<Identifier>( fc.source_location, fc.scope, fc.method_name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
       fc.method_name = "";
     }

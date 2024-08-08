@@ -606,6 +606,10 @@ antlrcpp::Any PrettifyFileProcessor::visitForeachIterableExpression(
   {
     visitFunctionCall( functionCall );
   }
+  else if ( auto scopedIdentifier = ctx->scopedIdentifier() )
+  {
+    visitScopedIdentifier( scopedIdentifier );
+  }
   else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
   {
     visitScopedFunctionCall( scopedFunctionCall );
@@ -763,6 +767,8 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchLabel( EscriptParser::SwitchLabe
     visitIntegerLiteral( integerLiteral );
   else if ( auto boolLiteral = ctx->boolLiteral() )
     visitBoolLiteral( boolLiteral );
+  else if ( auto scopedIdentifier = ctx->scopedIdentifier() )
+    visitScopedIdentifier( scopedIdentifier );
   else if ( auto uninit = ctx->UNINIT() )
     addToken( "uninit", uninit, FmtToken::SPACE );
   else if ( auto identifier = ctx->IDENTIFIER() )
@@ -927,11 +933,27 @@ antlrcpp::Any PrettifyFileProcessor::visitScopedFunctionCall(
   return {};
 }
 
+antlrcpp::Any PrettifyFileProcessor::visitScopedIdentifier(
+    EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
+{
+  addToken( ctx->scope->getText(), ctx->scope, FmtToken::NONE );
+  addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
+  addToken( ctx->identifier->getText(), ctx->scope, FmtToken::NONE );
+  return {};
+}
+
 antlrcpp::Any PrettifyFileProcessor::visitFunctionReference(
     EscriptParser::FunctionReferenceContext* ctx )
 {
   addToken( "@", ctx->AT(), FmtToken::NONE );
-  make_identifier( ctx->IDENTIFIER() );
+
+  if ( ctx->scope )
+  {
+    addToken( ctx->scope->getText(), ctx->scope, FmtToken::NONE );
+    addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
+  }
+
+  addToken( ctx->function->getText(), ctx->function, FmtToken::SPACE );
   return {};
 }
 
@@ -1143,6 +1165,8 @@ antlrcpp::Any PrettifyFileProcessor::visitPrimary( EscriptParser::PrimaryContext
     return visitParExpression( parExpression );
   else if ( auto functionCall = ctx->functionCall() )
     return visitFunctionCall( functionCall );
+  else if ( auto scopedIdentifier = ctx->scopedIdentifier() )
+    return visitScopedIdentifier( scopedIdentifier );
   else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
     return visitScopedFunctionCall( scopedFunctionCall );
   else if ( auto identifier = ctx->IDENTIFIER() )

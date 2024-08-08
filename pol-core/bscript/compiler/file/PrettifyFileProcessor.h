@@ -154,6 +154,8 @@ public:
       EscriptGrammar::EscriptParser::ReturnStatementContext* ctx ) override;
   antlrcpp::Any visitScopedFunctionCall(
       EscriptGrammar::EscriptParser::ScopedFunctionCallContext* ctx ) override;
+  antlrcpp::Any visitScopedIdentifier(
+      EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx ) override;
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ctx ) override;
   // antlrcpp::Any visitStatementLabel(EscriptGrammar::EscriptParser::StatementLabelContext *ctx)
   // override;
