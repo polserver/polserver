@@ -97,16 +97,6 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
     program->accept( generator );
   }
 
-
-  // for ( auto& class_decl : workspace.class_declarations )
-  // {
-  //   for (const auto& variable : class_decl->variables()) {
-  //       // variable.get()->accept(generator);
-  //   }
-  //   // class_decl->accept( generator );
-  //   }
-  // }
-
   emit.progend();
 
   for ( auto& user_function : workspace.user_functions )

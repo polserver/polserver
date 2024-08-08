@@ -8,24 +8,24 @@
 
 namespace Pol::Bscript::Compiler
 {
-VarStatement::VarStatement( const SourceLocation& source_location, std::string class_name,
+VarStatement::VarStatement( const SourceLocation& source_location, std::string scope,
                             std::string name, std::unique_ptr<Expression> initializer )
     : Statement( source_location, std::move( initializer ) ),
-      class_name( std::move( class_name ) ),
+      scope( std::move( scope ) ),
       name( std::move( name ) )
 {
 }
 
-VarStatement::VarStatement( const SourceLocation& source_location, std::string class_name,
+VarStatement::VarStatement( const SourceLocation& source_location, std::string scope,
                             std::string name )
-    : Statement( source_location ), class_name( std::move( class_name ) ), name( std::move( name ) )
+    : Statement( source_location ), scope( std::move( scope ) ), name( std::move( name ) )
 {
 }
 
-VarStatement::VarStatement( const SourceLocation& source_location, std::string class_name,
+VarStatement::VarStatement( const SourceLocation& source_location, std::string scope,
                             std::string name, bool initialize_as_empty_array )
     : Statement( source_location ),
-      class_name( std::move( class_name ) ),
+      scope( std::move( scope ) ),
       name( std::move( name ) ),
       initialize_as_empty_array( initialize_as_empty_array )
 {
@@ -38,8 +38,8 @@ void VarStatement::accept( NodeVisitor& visitor )
 
 void VarStatement::describe_to( std::string& w ) const
 {
-  auto class_prefix = class_name.empty() ? "" : fmt::format( "{}::", class_name );
-  fmt::format_to( std::back_inserter( w ), "var-statement({}{}", class_prefix, name );
+  auto scope_prefix = scope.empty() ? "" : fmt::format( "{}::", scope );
+  fmt::format_to( std::back_inserter( w ), "var-statement({}{}", scope_prefix, name );
   if ( initialize_as_empty_array )
     w += ", initialize-as-empty-array";
   w += ")";

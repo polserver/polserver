@@ -15,7 +15,9 @@ UserFunctionVisitor::UserFunctionVisitor( const SourceFileIdentifier& sfi, Build
 antlrcpp::Any UserFunctionVisitor::visitFunctionDeclaration(
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx )
 {
-  auto uf = tree_builder.function_declaration( ctx, "" );
+  // The UserFunctionVisitor will only visit function declarations when in global scope, as class
+  // functions are handled through the class declaration. This may change in the scoping PR.
+  auto uf = tree_builder.function_declaration( ctx, "" /* class name */ );
   workspace.function_resolver.register_user_function( uf.get() );
   workspace.compiler_workspace.user_functions.push_back( std::move( uf ) );
   return antlrcpp::Any();
