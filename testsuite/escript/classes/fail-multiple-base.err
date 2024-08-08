@@ -1,0 +1,1 @@
+fail-multiple-base.src:3:27: error: Class 'Animal' references base class 'BaseClass1' multiple times.

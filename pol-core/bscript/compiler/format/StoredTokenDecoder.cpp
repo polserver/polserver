@@ -281,6 +281,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
   case TOK_STRUCT:
     w += "create empty struct";
     break;
+  case TOK_CLASSINST:
+    w += "create class instance";
+    break;
   case INS_SUBSCRIPT_ASSIGN:
     w += "subscript assign";
     break;

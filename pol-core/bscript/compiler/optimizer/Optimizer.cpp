@@ -8,6 +8,7 @@
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
@@ -71,6 +72,11 @@ void Optimizer::optimize( CompilerWorkspace& workspace,
     {
       gatherer.reference( uf );
     }
+  }
+
+  for ( auto& cd : workspace.class_declarations )
+  {
+    cd->accept( gatherer );
   }
 
   workspace.referenced_module_function_declarations =

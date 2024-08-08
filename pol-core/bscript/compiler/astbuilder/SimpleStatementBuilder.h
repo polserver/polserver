@@ -20,6 +20,7 @@ public:
                                    std::vector<std::unique_ptr<Statement>>& );
 
   void add_var_statements( EscriptGrammar::EscriptParser::VarStatementContext*,
+                           const std::string& class_name,
                            std::vector<std::unique_ptr<Statement>>& );
 
   std::unique_ptr<JumpStatement> break_statement(

@@ -20,6 +20,7 @@ class ErrorInitializer;
 class Expression;
 class FormatExpression;
 class FunctionCall;
+class Identifier;
 class InterpolateString;
 class MemberAccess;
 class MethodCall;
@@ -92,6 +93,8 @@ public:
 
   std::unique_ptr<FunctionCall> scoped_function_call(
       EscriptGrammar::EscriptParser::ScopedFunctionCallContext* );
+  std::unique_ptr<Identifier> scoped_identifier(
+      EscriptGrammar::EscriptParser::ScopedIdentifierContext* );
 
   std::unique_ptr<Expression> struct_initializer(
       EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* );

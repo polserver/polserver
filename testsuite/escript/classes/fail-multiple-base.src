@@ -1,0 +1,6 @@
+class BaseClass1 endclass
+
+class Animal( BaseClass1, BaseClass1 )
+endclass
+
+Animal();

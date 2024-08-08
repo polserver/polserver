@@ -1,0 +1,6 @@
+// TODO scope it correctly to Animal::staticVar
+print( $"Global scope staticVar={staticVar}" );
+
+class Animal
+  var staticVar;
+endclass

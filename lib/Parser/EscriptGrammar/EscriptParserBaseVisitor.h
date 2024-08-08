@@ -51,6 +51,26 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitClassDeclaration(EscriptParser::ClassDeclarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitClassParameters(EscriptParser::ClassParametersContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitClassParameterList(EscriptParser::ClassParameterListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitClassBody(EscriptParser::ClassBodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitClassStatement(EscriptParser::ClassStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -232,6 +252,10 @@ public:
   }
 
   virtual std::any visitPrimary(EscriptParser::PrimaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitScopedIdentifier(EscriptParser::ScopedIdentifierContext *ctx) override {
     return visitChildren(ctx);
   }
 

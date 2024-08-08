@@ -1,0 +1,29 @@
+class BaseClass endclass
+
+class Animal( BaseClass )
+
+  var staticVar := Print(1 + 2) ?: "value for static after printing";
+
+  function Animal( this, name )
+    this.name := name;
+    print( $"Animal constructor staticVar={staticVar}" );
+    return this;
+  endfunction
+
+endclass
+
+// Compile-time constructor call. Creates a class instance, and (TODO) attachs vtable
+var compile_obj := Animal( "compile-time ctor call" );
+print( $"compile_obj={compile_obj}" );
+
+
+// Run-time constructor call. Does not attach vtable in this scenario, but calls the user function
+var runtime_obj := dictionary{};
+@Animal( runtime_obj, "runtime ctor call" );
+print( $"runtime_obj={runtime_obj}" );
+
+// TODO scope it correctly to Animal::staticVar
+print( $"Global scope staticVar={staticVar}" );
+
+// TODO
+// print( Animal::staticVar );
