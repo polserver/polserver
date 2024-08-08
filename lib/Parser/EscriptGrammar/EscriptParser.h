@@ -942,7 +942,6 @@ public:
     antlr4::tree::TerminalNode *COLON();
     IntegerLiteralContext *integerLiteral();
     BoolLiteralContext *boolLiteral();
-    ScopedIdentifierContext *scopedIdentifier();
     antlr4::tree::TerminalNode *UNINIT();
     antlr4::tree::TerminalNode *IDENTIFIER();
     antlr4::tree::TerminalNode *STRING_LITERAL();

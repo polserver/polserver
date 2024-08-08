@@ -69,8 +69,9 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
     EscriptParser::FunctionReferenceContext* ctx )
 {
   auto source_location = location_for( *ctx );
-  auto scope = ctx->scope ? ctx->scope->getText() : "";
-  auto name = ctx->function->getText();
+
+  // This will be updated in the scoping pr.
+  auto name = text( ctx->function );
 
   auto function_link = std::make_shared<FunctionLink>( source_location );
   auto function_reference =

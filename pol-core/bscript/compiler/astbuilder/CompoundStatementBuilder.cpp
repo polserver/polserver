@@ -189,10 +189,6 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
       {
         selectors.push_back( integer_value( integer_literal ) );
       }
-      else if ( auto scopedIdentifier = group_label->scopedIdentifier() )
-      {
-        selectors.push_back( scoped_identifier( scopedIdentifier ) );
-      }
       else if ( auto identifier = group_label->IDENTIFIER() )
       {
         selectors.push_back(

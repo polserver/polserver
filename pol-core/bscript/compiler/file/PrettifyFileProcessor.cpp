@@ -767,8 +767,6 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchLabel( EscriptParser::SwitchLabe
     visitIntegerLiteral( integerLiteral );
   else if ( auto boolLiteral = ctx->boolLiteral() )
     visitBoolLiteral( boolLiteral );
-  else if ( auto scopedIdentifier = ctx->scopedIdentifier() )
-    visitScopedIdentifier( scopedIdentifier );
   else if ( auto uninit = ctx->UNINIT() )
     addToken( "uninit", uninit, FmtToken::SPACE );
   else if ( auto identifier = ctx->IDENTIFIER() )
