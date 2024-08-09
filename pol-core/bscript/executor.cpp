@@ -193,8 +193,6 @@ Executor::Executor()
       run_ok_( false ),
       debug_level( NONE ),
       PC( 0 ),
-      Globals(),
-      Globals2( Globals ),
       Locals2( new BObjectRefVec ),
       nLines( 0 ),
       current_module_function( nullptr ),
@@ -983,18 +981,9 @@ int Executor::getToken( Token& token, unsigned position )
 
 bool Executor::setProgram( EScriptProgram* i_prog )
 {
+  prog_.set( i_prog );
   prog_ok_ = false;
   seterror( true );
-
-  // Do not allow changing the program. Another executor may be referencing our
-  // globals.
-  if ( prog_.get() != nullptr )
-  {
-    return false;
-  }
-
-  prog_.set( i_prog );
-
   if ( !viewmode_ )
   {
     if ( !AttachFunctionalityModules() )
@@ -2847,15 +2836,15 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
   // Only store our global context if the function is external to the current program.
   if ( funcref != nullptr && funcref->prog() != prog_ )
   {
-    // Store current context for the return using current Globals2 reference.
-    rc.ExternalContext =
-        ReturnContext::External( prog_, std::move( execmodules ), &Globals2, funcref );
+    // Store external context for the return path.
+    rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
 
     // Set the prog and globals to the external function's, updating nLines and
     // execmodules.
     prog_ = funcref->prog();
 
-    // Change the current Globals2 reference to the function's globals.
+    // TODO future improvement: do not copy the globals, but instead point our
+    // current globals to the funcref's globals.
     Globals2 = funcref->globals;
 
     nLines = static_cast<unsigned int>( prog_->instr.size() );
@@ -2972,8 +2961,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     prog_ = rc.ExternalContext->Program;
     nLines = static_cast<unsigned int>( prog_->instr.size() );
     execmodules = rc.ExternalContext->Modules;
-    // Restore the Globals reference to the return context's globals.
-    Globals2 = *rc.ExternalContext->Globals;
+    Globals2 = rc.ExternalContext->Globals;
   }
 
   // FIXME do something with rc.ValueStackDepth

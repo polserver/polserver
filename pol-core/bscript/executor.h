@@ -83,22 +83,13 @@ struct ReturnContext
   struct External
   {
     External( ref_ptr<EScriptProgram> program, std::vector<ExecutorModule*> modules,
-              BObjectRefVec* globals, BFunctionRef* funcref )
-        : Program( program ),
-          Modules( modules ),
-          Globals( globals ),
-          FuncRef( BObjectRef( funcref ) )
+              BObjectRefVec globals )
+        : Program( program ), Modules( modules ), Globals( globals )
     {
     }
     ref_ptr<EScriptProgram> Program;
     std::vector<ExecutorModule*> Modules;
-    // Pointer to the Executor's current globals, referencing globals held by
-    // the Executor (when creating the first context) or the BFunctionRef (any
-    // thereafter).
-    BObjectRefVec* Globals;
-    // Reference to the BFunctionRef that was called. Prevents deletion of the
-    // globals if the Executor that created the function reference is destroyed.
-    BObjectRef FuncRef;
+    BObjectRefVec Globals;
   };
 
   unsigned PC;
@@ -186,17 +177,7 @@ public:
 
   bool setProgram( EScriptProgram* prog );
 
-private:
-  // Holds the globals for this executor, created at Executor construction. The
-  // member is private, as any public access should be done through the
-  // (historically-named) Globals2 reference.
-  BObjectRefVec Globals;
-
-public:
-  // Holds a reference for the globals to use for instructions and any general
-  // public access. The reference is changed in `jump()`, when jumping to a
-  // function reference that holds instructions from another prgoram.
-  BObjectRefVec& Globals2;
+  BObjectRefVec Globals2;
 
   std::vector<BObjectRefVec*> upperLocals2;
 
