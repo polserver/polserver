@@ -192,7 +192,7 @@ FrameReference::FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgra
 GlobalReference::GlobalReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* _script )
     : contents()
 {
-  BObjectRefVec::iterator itr = uoexec->Globals2.begin(), end = uoexec->Globals2.end();
+  BObjectRefVec::iterator itr = uoexec->Globals2->begin(), end = uoexec->Globals2->end();
 
   for ( unsigned idx = 0; itr != end; ++itr, ++idx )
   {

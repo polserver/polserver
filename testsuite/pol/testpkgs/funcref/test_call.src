@@ -1,0 +1,120 @@
+include "testutil";
+
+use os;
+
+program setup()
+  return 1;
+endprogram
+
+var glob := 1;
+var myOtherGlob := "myOtherGlob";
+
+exported function test_call()
+  var res := run_script_to_completion( ":testfuncref:external", @user_func );
+
+  if ( res != "called foo(), res=return from user_func" )
+    return ret_error( $"incorrect return value from run_script_to_completion. got: {res}" );
+  elseif ( glob != "glob set inside user_func" )
+    return ret_error( $"incorrect global value for 'glob': {glob}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function test_call_noglobals()
+  var res := run_script_to_completion( ":testfuncref:external", @user_func_no_globals );
+
+  if ( res != "called foo(), res=return from user_func_no_globals" )
+    return ret_error( $"incorrect return value from run_script_to_completion. got: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function test_call_embedded_globals()
+  var res := run_script_to_completion( ":testfuncref:external", @embedded_globals );
+
+  if ( res != "called foo(), res=return from embedded_globals" )
+    return ret_error( $"incorrect return value from run_script_to_completion. got: {res}" );
+  elseif ( glob != "glob set inside embedded_globals" )
+    return ret_error( $"incorrect global value for 'glob': {glob}" );
+  endif
+
+  return 1;
+endfunction
+
+// Spawns a script (the 'destroyed' script) that sends its own user-func to
+// another script (the 'call' script). The 'destroyed' script then ends. This
+// test script sends event to the 'call' script which calls the 'destroy'd
+// script's user function, as well a function in test script (the 'mapper' function.)
+exported function test_call_destroyed_executor()
+  var res := start_script( ":testfuncref:destroyed", GetPid() );
+
+  if ( !res )
+    return res;
+  endif
+
+  var destroyed_pid := res.pid;
+
+  var ev := wait_for_event( 1 );
+
+  if ( !ev )
+    return ev;
+  elseif ( ev.type != "spawned" )
+    return ret_error( $"Unexpected event {ev}" );
+  elseif ( !ev.result )
+    return ev.result;
+  endif
+
+  var spawned := ev.result;
+
+  outer: do
+    for i := 1 to 5
+      if ( !GetProcess( destroyed_pid ) )
+        break outer;
+      endif
+      Sleepms( 1 );
+    endfor
+    return ret_error( $"Spawned process not destroyed in time" );
+  dowhile ( 0 );
+
+  spawned.SendEvent( struct{
+    type := "call",
+    pid := GetPid(),
+    args := { 1, 2, 3 },
+    mapper := @(what) { return what * 100; }
+  } );
+
+  ev := wait_for_event( 1 );
+
+  if ( !ev )
+    return ret_error( $"no return from 'call' event: {ev}" );
+  elseif ( ev.type != "return" )
+    return ret_error( $"Unexpected event {ev}" );
+  endif
+
+  var result := ev.result;
+
+  // the three globals in `destroyed` + the arguments array passed above,
+  // passed through the mapper function.
+  var expected := "dg0 dg1 dg2 DestroyedUserFunc({ 100, 200, 300 })";
+
+  return ret_error_not_equal( result, expected,
+                              $"Unexpected return from call, expected '{expected}', actual '{result}'" );
+endfunction
+
+function user_func()
+  glob := "glob set inside user_func";
+  return "return from user_func";
+endfunction
+
+function user_func_no_globals()
+  return "return from user_func_no_globals";
+endfunction
+
+function embedded_globals()
+      return @{ return @{ glob := "glob set inside embedded_globals";
+      return "return from embedded_globals";
+    }();
+  }();
+endfunction

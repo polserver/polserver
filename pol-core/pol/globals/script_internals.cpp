@@ -396,7 +396,7 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
     }
     size_t i = 0;
     log += "\nGlobals\n";
-    for ( const auto& global : exec->Globals2 )
+    for ( const auto& global : ( *exec->Globals2 ) )
     {
       fmt::format_to(
           std::back_inserter( log ), "  {} ({}) {}\n",

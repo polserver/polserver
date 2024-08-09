@@ -2,9 +2,38 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-06-2024</datemodified>
+		<datemodified>08-08-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-08-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Function Objects can now be called across different scripts.<br/>
+For example, an item use script can pass to pass an &quot;initializer&quot;<br/>
+function to another script that provides a new color for the item as<br/>
+a parameter:<br/>
+  program item_usescript( who, item )<br/>
+    // Find the color changer process.<br/>
+    var color_changer := GetProcess( ... );<br/>
+    // Send it an event, containing the item and the initializer function.<br/>
+    color_changer.SendEvent( struct{<br/>
+      type := &quot;new&quot;,<br/>
+      item := item,<br/>
+      initializer := @SetupItem<br/>
+    } );<br/>
+    // Wait for the script to send us a result.<br/>
+    do<br/>
+      if ( Wait_For_Event( 1 ) )<br/>
+        break;<br/>
+      endif<br/>
+    while ( true );<br/>
+    SendSysMessage( who, $&quot;Item color changed: {item.color}&quot; );<br/>
+  endprogram<br/>
+  function SetupItem( item, color )<br/>
+    Print( $&quot;Changing color: {item.color} -&gt; {color}&quot; );<br/>
+    item.color := color;<br/>
+  endfunction</change>
+		</entry>
 		<entry>
 			<date>08-06-2024</date>
 			<author>Kevin:</author>

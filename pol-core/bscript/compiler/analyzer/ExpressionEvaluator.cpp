@@ -58,7 +58,7 @@ EvaluationVisitor::EvaluationVisitor( Executor* exec, EScriptProgram* script )
 void EvaluationVisitor::visit_identifier( Identifier& identifier )
 {
   visit_children( identifier );
-  BObjectRefVec::const_iterator itr = _exec->Globals2.begin(), end = _exec->Globals2.end();
+  BObjectRefVec::const_iterator itr = _exec->Globals2->begin(), end = _exec->Globals2->end();
   BObjectRef result;
 
   unsigned block = _script->dbg_ins_blocks[_exec->PC];
@@ -84,7 +84,7 @@ void EvaluationVisitor::visit_identifier( Identifier& identifier )
   {
     if ( _script->globalvarnames.size() > idx && _script->globalvarnames[idx] == identifier.name )
     {
-      stack.push( _exec->Globals2[idx] );
+      stack.push( ( *_exec->Globals2 )[idx] );
       return;
     }
   }

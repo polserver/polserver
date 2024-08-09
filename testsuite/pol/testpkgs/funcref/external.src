@@ -1,0 +1,9 @@
+var ext_glob0 := "xg0";
+var ext_glob1 := "xg1";
+var ext_glob2 := "xg2";
+
+program external( foo )
+    var res := foo();
+
+    return $"called foo(), res={res}";
+endprogram

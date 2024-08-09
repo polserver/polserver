@@ -1,4 +1,36 @@
 -- POL100.2.0 --
+08-08-2024 Kevin:
+    Added: Function Objects can now be called across different scripts.
+
+           For example, an item use script can pass to pass an "initializer"
+           function to another script that provides a new color for the item as
+           a parameter:
+
+             program item_usescript( who, item )
+               // Find the color changer process.
+               var color_changer := GetProcess( ... );
+
+               // Send it an event, containing the item and the initializer function.
+               color_changer.SendEvent( struct{
+                 type := "new",
+                 item := item,
+                 initializer := @SetupItem
+               } );
+
+               // Wait for the script to send us a result.
+               do
+                 if ( Wait_For_Event( 1 ) )
+                   break;
+                 endif
+               while ( true );
+
+               SendSysMessage( who, $"Item color changed: {item.color}" );
+             endprogram
+
+             function SetupItem( item, color )
+               Print( $"Changing color: {item.color} -> {color}" );
+               item.color := color;
+             endfunction
 08-06-2024 Kevin:
   Changed: Performance improvements handling function references in the executor during runtime.
            These changes increases the Escript version, therefore a recompilation of all scripts is required.

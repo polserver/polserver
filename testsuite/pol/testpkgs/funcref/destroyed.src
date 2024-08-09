@@ -1,0 +1,16 @@
+use os;
+
+var dest_glob0 := "dg0";
+var dest_glob1 := "dg1";
+var dest_glob2 := "dg2";
+
+program destroyed( test_pid )
+  var res := start_script( ":testfuncref:call-and-send", @DestroyedUserFunc );
+  GetProcess( test_pid ).SendEvent( struct{ type := "spawned", result := res } );
+  return 1;
+endprogram
+
+function DestroyedUserFunc( args ... )
+  dest_glob1 := $"{dest_glob0} {dest_glob1} {dest_glob2} DestroyedUserFunc({args})";
+  return dest_glob1;
+endfunction
