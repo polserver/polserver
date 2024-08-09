@@ -695,8 +695,8 @@ void deschedule_executor( UOExecutor* ex )
 void list_script( UOExecutor* uoexec )
 {
   std::string tmp = uoexec->prog_->name.get();
-  if ( !uoexec->Globals2.empty() )
-    tmp += fmt::format( " Gl={}", uoexec->Globals2.size() );
+  if ( !uoexec->Globals2->empty() )
+    tmp += fmt::format( " Gl={}", uoexec->Globals2->size() );
   if ( uoexec->Locals2 && !uoexec->Locals2->empty() )
     tmp += fmt::format( " Lc={}", uoexec->Locals2->size() );
   if ( !uoexec->ValueStack.empty() )

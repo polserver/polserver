@@ -1150,7 +1150,7 @@ std::string DebugContext::cmd_globalvars( Results& results )
   if ( !prog->debug_loaded )
     return "No debug information available.";
 
-  BObjectRefVec::const_iterator itr = uoexec->Globals2.begin(), end = uoexec->Globals2.end();
+  BObjectRefVec::const_iterator itr = uoexec->Globals2->begin(), end = uoexec->Globals2->end();
 
   for ( unsigned idx = 0; itr != end; ++itr, ++idx )
   {
@@ -1286,9 +1286,9 @@ std::string DebugContext::cmd_getglobalpacked( const std::string& rest )
   // const EScriptProgram* prog = uoexec->prog();
 
   unsigned varidx = atoi( rest.c_str() );
-  if ( varidx >= uoexec->Globals2.size() )
+  if ( varidx >= uoexec->Globals2->size() )
     return "Error: Index out of range";
-  return "Value: " + uoexec->Globals2[varidx]->impref().pack();
+  return "Value: " + ( *uoexec->Globals2 )[varidx]->impref().pack();
 }
 std::string DebugContext::cmd_setlocalpacked( const std::string& rest )
 {
@@ -1335,10 +1335,10 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
   is >> space;
   is.setf( std::ios::skipws );
 
-  if ( varidx >= uoexec->Globals2.size() )
+  if ( varidx >= uoexec->Globals2->size() )
     return "Error: Index out of range";
 
-  BObjectRef& ref = uoexec->Globals2[varidx];
+  BObjectRef& ref = ( *uoexec->Globals2 )[varidx];
   BObject& obj = *ref;
   BObjectImp* newimp = BObjectImp::unpack( is );
   if ( newimp == nullptr )
@@ -1346,7 +1346,7 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
 
   obj.setimp( newimp );
 
-  return "Value: " + uoexec->Globals2[varidx]->impref().pack();
+  return "Value: " + ref->impref().pack();
 }
 
 

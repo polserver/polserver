@@ -2305,7 +2305,8 @@ std::string BBoolean::getStringRep() const
 
 
 BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count,
-                            bool variadic, ValueStackCont globals, ValueStackCont&& captures )
+                            bool variadic, std::shared_ptr<ValueStackCont> globals,
+                            ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       prog_( program ),
       pc_( progcounter ),

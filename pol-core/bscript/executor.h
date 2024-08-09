@@ -83,13 +83,13 @@ struct ReturnContext
   struct External
   {
     External( ref_ptr<EScriptProgram> program, std::vector<ExecutorModule*> modules,
-              BObjectRefVec globals )
+              std::shared_ptr<BObjectRefVec> globals )
         : Program( program ), Modules( modules ), Globals( globals )
     {
     }
     ref_ptr<EScriptProgram> Program;
     std::vector<ExecutorModule*> Modules;
-    BObjectRefVec Globals;
+    std::shared_ptr<BObjectRefVec> Globals;
   };
 
   unsigned PC;
@@ -177,7 +177,7 @@ public:
 
   bool setProgram( EScriptProgram* prog );
 
-  BObjectRefVec Globals2;
+  std::shared_ptr<BObjectRefVec> Globals2;
 
   std::vector<BObjectRefVec*> upperLocals2;
 

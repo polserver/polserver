@@ -889,7 +889,7 @@ class BFunctionRef final : public BObjectImp
 
 public:
   BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count, bool variadic,
-                ValueStackCont globals, ValueStackCont&& captures );
+                std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -923,7 +923,7 @@ private:
   bool variadic_;
 
 public:
-  ValueStackCont globals;
+  std::shared_ptr<ValueStackCont> globals;
   ValueStackCont captures;
 };
 

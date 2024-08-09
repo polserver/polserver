@@ -193,6 +193,7 @@ Executor::Executor()
       run_ok_( false ),
       debug_level( NONE ),
       PC( 0 ),
+      Globals2( new BObjectRefVec ),
       Locals2( new BObjectRefVec ),
       nLines( 0 ),
       current_module_function( nullptr ),
@@ -966,8 +967,8 @@ BObjectRef& Executor::LocalVar( unsigned int varnum )
 
 BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
-  passert( varnum < Globals2.size() );
-  return Globals2[varnum];
+  passert( varnum < Globals2->size() );
+  return ( *Globals2 )[varnum];
 }
 
 int Executor::getToken( Token& token, unsigned position )
@@ -992,11 +993,11 @@ bool Executor::setProgram( EScriptProgram* i_prog )
 
   nLines = static_cast<unsigned int>( prog_->instr.size() );
 
-  Globals2.clear();
+  Globals2->clear();
   for ( unsigned i = 0; i < prog_->nglobals; ++i )
   {
-    Globals2.push_back( BObjectRef() );
-    Globals2.back().set( new BObject( UninitObject::create() ) );
+    Globals2->push_back( BObjectRef() );
+    Globals2->back().set( new BObject( UninitObject::create() ) );
   }
 
   prog_ok_ = true;
@@ -1627,7 +1628,7 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
-  ValueStack.push_back( Globals2[ins.token.lval] );
+  ValueStack.push_back( ( *Globals2 )[ins.token.lval] );
 }
 
 // case TOK_LONG:
@@ -1879,7 +1880,7 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
-  BObjectRef& gvar = Globals2[ins.token.lval];
+  BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
 
@@ -2909,7 +2910,7 @@ void Executor::ins_leave_block( const Instruction& ins )
   else  // at global level.  ick.
   {
     for ( int i = 0; i < ins.token.lval; i++ )
-      Globals2.pop_back();
+      Globals2->pop_back();
   }
 }
 
@@ -3863,8 +3864,8 @@ size_t Executor::sizeEstimate() const
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
   }
-  size += Clib::memsize( Globals2 );
-  for ( const auto& bojectref : Globals2 )
+  size += Clib::memsize( *Globals2 );
+  for ( const auto& bojectref : *Globals2 )
   {
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
