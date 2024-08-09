@@ -87,7 +87,8 @@ bool Compiler::compile_file( const std::string& filename )
   {
     auto pathname = Clib::FullPath( filename.c_str() );
 
-    Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
+    Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning,
+                   true /* display errors */, compilercfg.DisplayDebugs );
 
     compile_file_steps( pathname, report );
     display_outcome( pathname, report );

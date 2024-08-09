@@ -5,9 +5,10 @@
 
 namespace Pol::Bscript::Compiler
 {
-Report::Report( bool display_warnings, bool display_errors )
+Report::Report( bool display_warnings, bool display_errors, bool display_debugs )
     : display_warnings( display_warnings ),
       display_errors( display_errors ),
+      display_debugs( display_debugs ),
       errors( 0 ),
       warnings( 0 )
 {

@@ -567,7 +567,7 @@ int readargs( int argc, char** argv )
         break;
 
       case 'd':
-        debug = 1;
+        compilercfg.DisplayDebugs = setting_value( arg );
         break;
 
       case 'D':
