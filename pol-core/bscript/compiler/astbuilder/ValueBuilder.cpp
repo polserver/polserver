@@ -22,7 +22,7 @@ namespace Pol::Bscript::Compiler
 {
 ValueBuilder::ValueBuilder( const SourceFileIdentifier& source_file_identifier,
                             BuilderWorkspace& workspace )
-    : TreeBuilder( source_file_identifier, workspace )
+    : TreeBuilder( source_file_identifier, workspace ), current_scope( "" )
 {
 }
 
@@ -70,14 +70,14 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
 {
   auto source_location = location_for( *ctx );
 
-  // This will be updated in the scoping pr.
   auto name = text( ctx->function );
+  auto scope = ctx->scope ? text( ctx->scope ) : "";
 
-  auto function_link = std::make_shared<FunctionLink>( source_location );
+  auto function_link = std::make_shared<FunctionLink>( source_location, current_scope );
   auto function_reference =
       std::make_unique<FunctionReference>( source_location, name, function_link );
 
-  workspace.function_resolver.register_function_link( name, function_link );
+  workspace.function_resolver.register_function_link( scope, name, function_link );
 
   return function_reference;
 }
@@ -89,11 +89,10 @@ std::unique_ptr<FunctionExpression> ValueBuilder::function_expression(
   auto name = workspace.function_resolver.register_function_expression( loc, ctx );
 
   workspace.compiler_workspace.all_function_locations.emplace( name, loc );
-  workspace.function_resolver.force_reference( name, loc );
+  workspace.function_resolver.force_reference( current_scope, name, loc );
 
-  auto function_link = std::make_shared<FunctionLink>( loc );
-
-  workspace.function_resolver.register_function_link( name, function_link );
+  auto function_link = std::make_shared<FunctionLink>( loc, current_scope /* calling scope */ );
+  workspace.function_resolver.register_function_link( "" /* call scope */, name, function_link );
 
   return std::make_unique<FunctionExpression>( loc, function_link );
 }

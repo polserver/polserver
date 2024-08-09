@@ -14,8 +14,9 @@ class UserFunction;
 class FunctionCall : public Expression
 {
 public:
-  FunctionCall( const SourceLocation&, std::string scope, std::string name,
-                std::unique_ptr<Node> callee, std::vector<std::unique_ptr<Argument>> arguments );
+  FunctionCall( const SourceLocation&, std::string calling_scope, std::string scope,
+                std::string name, std::unique_ptr<Node> callee,
+                std::vector<std::unique_ptr<Argument>> arguments );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
@@ -26,7 +27,11 @@ public:
 
   const std::shared_ptr<FunctionLink> function_link;
 
-  const std::string scope;
+  // Used in FunctionResolver. If the function does not exist under
+  // `method_name`, check `calling_scope::method_name` (if calling scope
+  // exists).
+  const std::string calling_scope;
+  const std::string call_scope;
   std::string method_name;
 };
 

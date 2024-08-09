@@ -40,6 +40,11 @@ public:
 
   std::unique_ptr<Value> value( EscriptGrammar::EscriptParser::LiteralContext* );
 
+  // Pushed and popped in UserFunctionVisitor.
+  //
+  // Used when constructing a FunctionCall's `calling_scope`.
+  std::string current_scope;
+
 private:
   int to_int( EscriptGrammar::EscriptParser::IntegerLiteralContext* );
 };

@@ -6,7 +6,7 @@ class Animal
   var str := "string";
   var num := 1;
 
-  function StaticFunc() return "Animal::StaticFunc"; endfunction
+  function StaticFunc() print("Animal::StaticFunc"); endfunction
 endclass
 
 

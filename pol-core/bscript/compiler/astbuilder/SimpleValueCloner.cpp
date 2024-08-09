@@ -101,8 +101,9 @@ void SimpleValueCloner::visit_function_call( FunctionCall& fc )
 
     if ( !fc.method_name.empty() )
     {
-      auto new_fc = std::make_unique<FunctionCall>( use_source_location, fc.scope, fc.method_name,
-                                                    nullptr, std::move( no_args ) );
+      auto new_fc =
+          std::make_unique<FunctionCall>( use_source_location, fc.calling_scope, fc.call_scope,
+                                          fc.method_name, nullptr, std::move( no_args ) );
       new_fc->function_link->link_to( fc.function_link->function() );
       cloned_value = std::move( new_fc );
     }

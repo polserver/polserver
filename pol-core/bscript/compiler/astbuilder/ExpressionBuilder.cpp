@@ -323,7 +323,7 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
       {
         expr = format_expression( std::move( expr ), format );
       }
-      expressions.push_back( std::move(expr) );
+      expressions.push_back( std::move( expr ) );
     }
     else if ( auto string_literal = interstringPart_ctx->STRING_LITERAL_INSIDE() )
     {
@@ -348,7 +348,6 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
       location_for( *interstringPart_ctx )
           .internal_error( "unhandled context in interpolated string part" );
     }
-
   }
   return expressions;
 }
@@ -416,11 +415,11 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
 
   auto arguments = value_arguments( ctx->expressionList() );
 
-  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), scope, method_name,
-                                                       nullptr, std::move( arguments ) );
+  auto function_call = std::make_unique<FunctionCall>(
+      location_for( *ctx ), current_scope, scope, method_name, nullptr, std::move( arguments ) );
 
-  std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
-  workspace.function_resolver.register_function_link( key, function_call->function_link );
+  workspace.function_resolver.register_function_link( scope, method_name,
+                                                      function_call->function_link );
 
   return function_call;
 }
@@ -431,8 +430,10 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
 {
   auto arguments = value_arguments( ctx->expressionList() );
 
-  auto function_call = std::make_unique<FunctionCall>(
-      location_for( *ctx ), "", "", std::move( callee ), std::move( arguments ) );
+  // Expression-as-callee functions, eg. `(variable)(args...)` do not have a call scope or name.
+  auto function_call =
+      std::make_unique<FunctionCall>( location_for( *ctx ), current_scope, "" /* call scope */,
+                                      "" /* name */, std::move( callee ), std::move( arguments ) );
 
   return function_call;
 }

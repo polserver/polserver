@@ -12,7 +12,7 @@ class UserFunction;
 class FunctionLink
 {
 public:
-  explicit FunctionLink( const SourceLocation& );
+  explicit FunctionLink( const SourceLocation&, std::string calling_scope );
   FunctionLink( const FunctionLink& ) = delete;
   FunctionLink& operator=( const FunctionLink& ) = delete;
 
@@ -23,6 +23,9 @@ public:
   void link_to( Function* );
 
   const SourceLocation source_location;
+
+  // eg. `Animal` when calling any function inside the `Animal` class
+  const std::string calling_scope;
 
 private:
   Function* linked_function;

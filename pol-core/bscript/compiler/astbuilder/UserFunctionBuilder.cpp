@@ -12,8 +12,10 @@
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/Statement.h"
+#include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
 
 using EscriptGrammar::EscriptParser;
@@ -59,44 +61,46 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     }
   }
 
-  NodeVector statements;
+  bool has_constructor = false;
+  std::vector<std::string> function_names;
 
   if ( auto classBody = ctx->classBody() )
   {
     for ( auto classStatement : classBody->classStatement() )
     {
-      // var statements are already included in top_level_statements by the SourceFileProcessor
-      if ( auto method = classStatement->functionDeclaration() )
+      if ( auto func_decl = classStatement->functionDeclaration() )
       {
-        auto func_decl = function_declaration( method, class_name );
-        statements.push_back( std::move( func_decl ) );
+        // Register the user function as an available parse tree.
+        workspace.function_resolver.register_available_user_function( location_for( *func_decl ),
+                                                                      func_decl, class_name );
+
+        function_names.push_back( text( func_decl->IDENTIFIER() ) );
+
+        bool is_constructor =
+            Clib::caseInsensitiveEqual( class_name, text( func_decl->IDENTIFIER() ) );
+
+        has_constructor |= is_constructor;
       }
     }
   }
 
-  auto body = std::make_unique<ClassBody>( location_for( *ctx ), std::move( statements ) );
+  std::unique_ptr<DefaultConstructorFunction> constructor;
 
   auto parameter_list =
       std::make_unique<ClassParameterList>( location_for( *ctx ), std::move( parameters ) );
 
-  auto class_decl = std::make_unique<ClassDeclaration>(
-      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( body ) );
-
-  if ( class_decl->constructor() == nullptr )
+  if ( !has_constructor )
   {
     // If no user-defined constructor present, create a constructor that just calls 'super()'. The
     // semantic analyzer will catch errors re. missing parameters, etc.
-    auto constructor =
-        std::make_unique<DefaultConstructorFunction>( location_for( *ctx ), class_name );
+    constructor = std::make_unique<DefaultConstructorFunction>( location_for( *ctx ), class_name );
 
-    class_decl->child<ClassBody>( 1 ).children.push_back( std::move( constructor ) );
-
-    // Sanity check!
-    if ( class_decl->constructor() == nullptr )
-    {
-      class_decl->internal_error( "failed to create default constructor for class" );
-    }
+    workspace.function_resolver.register_user_function( class_name, constructor.get() );
   }
+
+  auto class_decl = std::make_unique<ClassDeclaration>(
+      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
+      std::move( constructor ) );
 
   return class_decl;
 }
@@ -168,7 +172,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
                                                : UserFunctionType::Method;
 
   return std::make_unique<UserFunction>( location_for( *ctx ), exported, expression, type,
-                                         std::move( name ), std::move( parameter_list ),
+                                         class_name, std::move( name ), std::move( parameter_list ),
                                          std::move( body ), location_for( *end_token ) );
 }
 }  // namespace Pol::Bscript::Compiler
