@@ -41,6 +41,13 @@ public:
       EscriptGrammar::EscriptParser::BreakStatementContext* ctx ) override;
   antlrcpp::Any visitCaseStatement(
       EscriptGrammar::EscriptParser::CaseStatementContext* ctx ) override;
+  antlrcpp::Any visitClassBody( EscriptGrammar::EscriptParser::ClassBodyContext* ctx ) override;
+  antlrcpp::Any visitClassDeclaration(
+      EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx ) override;
+  antlrcpp::Any visitClassParameters(
+      EscriptGrammar::EscriptParser::ClassParametersContext* ctx ) override;
+  antlrcpp::Any visitClassParameterList(
+      EscriptGrammar::EscriptParser::ClassParameterListContext* ctx ) override;
   antlrcpp::Any visitCompilationUnit(
       EscriptGrammar::EscriptParser::CompilationUnitContext* ctx ) override;
   antlrcpp::Any visitConstStatement(
@@ -149,6 +156,8 @@ public:
       EscriptGrammar::EscriptParser::ReturnStatementContext* ctx ) override;
   antlrcpp::Any visitScopedFunctionCall(
       EscriptGrammar::EscriptParser::ScopedFunctionCallContext* ctx ) override;
+  antlrcpp::Any visitScopedIdentifier(
+      EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx ) override;
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ctx ) override;
   // antlrcpp::Any visitStatementLabel(EscriptGrammar::EscriptParser::StatementLabelContext *ctx)
   // override;

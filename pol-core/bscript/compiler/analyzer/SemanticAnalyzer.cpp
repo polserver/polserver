@@ -2,6 +2,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 #include <list>
+#include <set>
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Constants.h"
@@ -18,8 +19,12 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
+#include "bscript/compiler/ast/ClassBody.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
+#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
 #include "bscript/compiler/ast/FunctionBody.h"
@@ -94,6 +99,13 @@ void SemanticAnalyzer::analyze()
     }
   }
 
+  // Class declarations do not have var statements as children, so we do not get
+  // 'duplicate variable' errors.
+  for ( auto& class_decl : workspace.class_declarations )
+  {
+    class_decl->accept( *this );
+  }
+
   workspace.global_variable_names = globals.get_names();
 }
 
@@ -129,6 +141,45 @@ void SemanticAnalyzer::visit_block( Block& block )
   LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
+}
+
+void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
+{
+  const auto& class_name = node.name;
+
+  // Will need the order for something, i'm sure...
+  std::vector<std::string> ordered_baseclasses;
+  std::set<std::string, Clib::ci_cmp_pred> named_baseclasses;
+
+  for ( auto& class_parameter : node.parameters() )
+  {
+    const auto& baseclass_name = class_parameter.get().name;
+    auto itr = workspace.all_class_locations.find( baseclass_name );
+    if ( itr == workspace.all_class_locations.end() )
+    {
+      report.error( class_parameter.get(), "Class '{}' references unknown base class '{}'",
+                    class_name, baseclass_name );
+    }
+
+    bool previously_referenced =
+        named_baseclasses.find( baseclass_name ) != named_baseclasses.end();
+
+    if ( previously_referenced )
+    {
+      report.error( class_parameter.get(), "Class '{}' references base class '{}' multiple times.",
+                    class_name, baseclass_name );
+    }
+    else
+    {
+      ordered_baseclasses.push_back( baseclass_name );
+      named_baseclasses.emplace( baseclass_name );
+    }
+  }
+
+  for ( auto& user_function : node.functions() )
+  {
+    user_function.get().accept( *this );
+  }
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor
@@ -251,6 +302,16 @@ void SemanticAnalyzer::visit_cstyle_for_loop( CstyleForLoop& loop )
   visit_loop_statement( loop );
 }
 
+// TODO implementation
+void SemanticAnalyzer::visit_default_constructor_function( DefaultConstructorFunction& )
+{
+  // TODO check that class can be default constructed.
+  //
+  // We do not visit children, and the Optimizer will remove this node. (The instruction generator
+  // will still emit the ins_classinst_create instruction instruction from the `Foo()` function
+  // call)
+}
+
 void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )
 {
   visit_loop_statement( do_while );
@@ -288,7 +349,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( !fc.method_name.empty() )
     {
-      auto callee = std::make_unique<Identifier>( fc.source_location, fc.method_name );
+      auto callee = std::make_unique<Identifier>( fc.source_location, fc.scope, fc.method_name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
       fc.method_name = "";
     }
@@ -331,6 +392,22 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
   auto parameters = fc.parameters();
+  bool has_class_inst_parameter = false;
+
+  if ( uf )
+  {
+    // Constructor functions are defined as `Constr( this )` and called statically via `Constr()`.
+    // Provide a `this` parameter at this function call site.
+    if ( uf->type == UserFunctionType::Constructor )
+    {
+      arguments_passed["this"] = std::make_unique<ClassInstance>( fc.source_location );
+
+      // Since a `this` argument is generated for constructor functions, disallow passing an
+      // argument named `this`.
+      has_class_inst_parameter = true;
+    }
+  }
+
   auto is_callee_variadic = parameters.size() && parameters.back().get().rest;
 
   for ( auto& arg_unique_ptr : arguments )
@@ -390,8 +467,11 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         }
         else
         {
+          auto expected_args =
+              static_cast<int>( parameters.size() ) - ( has_class_inst_parameter ? 1 : 0 );
+
           report.error( arg, "In call to '{}': Too many arguments passed.  Expected {}, got {}.",
-                        fc.method_name, parameters.size(), arguments.size() );
+                        fc.method_name, expected_args, arguments.size() );
           continue;
         }
       }
@@ -404,6 +484,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     {
       any_named = true;
     }
+
+    if ( has_class_inst_parameter && Clib::caseInsensitiveEqual( arg_name, "this" ) )
+    {
+      report.error( arg, "In call to '{}': Cannot pass 'this' to constructor function.",
+                    fc.method_name );
+      return;
+    }
+
     if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
     {
       report.error( arg, "In call to '{}': Parameter '{}' passed more than once.", fc.method_name,

@@ -8,6 +8,7 @@
 namespace antlr4
 {
   class ParserRuleContext;
+  class Token;
   namespace tree
   {
     class TerminalNode;
@@ -32,6 +33,7 @@ public:
   SourceLocation location_for( antlr4::tree::TerminalNode& ) const;
 
   std::string text( antlr4::tree::TerminalNode* );
+  std::string text( antlr4::Token* );
 protected:
 
   Report& report;
