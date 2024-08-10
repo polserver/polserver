@@ -149,7 +149,7 @@ BObjectImp* GetGlobals( const UOExecutor* uoexec )
 {
   BDictionary* dict = new BDictionary;
 
-  BObjectRefVec::const_iterator itr = uoexec->Globals2.begin(), end = uoexec->Globals2.end();
+  BObjectRefVec::const_iterator itr = uoexec->Globals2->begin(), end = uoexec->Globals2->end();
 
   for ( unsigned idx = 0; itr != end; ++itr, ++idx )
   {
@@ -207,7 +207,7 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
   case MBR_CALL_DEPTH:
     return BObjectRef( new BLong( static_cast<int>( uoexec->ControlStack.size() ) ) );
   case MBR_NUM_GLOBALS:
-    return BObjectRef( new BLong( static_cast<int>( uoexec->Globals2.size() ) ) );
+    return BObjectRef( new BLong( static_cast<int>( uoexec->Globals2->size() ) ) );
   case MBR_VAR_SIZE:
     return BObjectRef( new BLong( static_cast<int>( uoexec->sizeEstimate() ) ) );
   case MBR_GLOBALS:

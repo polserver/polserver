@@ -20,6 +20,7 @@
 
 #include <exception>
 #include <memory>
+#include <optional>
 #include <set>
 #include <stack>
 #include <string>
@@ -50,6 +51,7 @@ namespace Bscript
 class BContinuation;
 class BFunctionRef;
 class Executor;
+class EScriptProgram;
 class ExecutorModule;
 class ModuleFunction;
 class String;
@@ -78,9 +80,25 @@ public:
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
+  struct External
+  {
+    External( ref_ptr<EScriptProgram> program, std::vector<ExecutorModule*> modules,
+              std::shared_ptr<BObjectRefVec> globals )
+        : Program( std::move( program ) ),
+          Modules( std::move( modules ) ),
+          Globals( std::move( globals ) )
+    {
+    }
+    ref_ptr<EScriptProgram> Program;
+    std::vector<ExecutorModule*> Modules;
+    std::shared_ptr<BObjectRefVec> Globals;
+  };
+
   unsigned PC;
   unsigned ValueStackDepth;
   BObjectRef Continuation = BObjectRef();
+
+  std::optional<External> ExternalContext;
 };
 
 struct BackupStruct
@@ -161,7 +179,7 @@ public:
 
   bool setProgram( EScriptProgram* prog );
 
-  BObjectRefVec Globals2;
+  std::shared_ptr<BObjectRefVec> Globals2;
 
   std::vector<BObjectRefVec*> upperLocals2;
 
@@ -404,8 +422,6 @@ public:
   void ins_progend( const Instruction& ins );
   void ins_makelocal( const Instruction& ins );
   void ins_jsr_userfunc( const Instruction& ins );
-  // takes ownership of `continuation`
-  void ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation );
   void ins_pop_param( const Instruction& ins );
   void ins_pop_param_byref( const Instruction& ins );
   void ins_get_arg( const Instruction& ins );
@@ -447,6 +463,12 @@ public:
 
   bool halt() const;
   void sethalt( bool halt );
+
+  // Takes ownership of `continuation`. If `funcref` is present, checks if jump
+  // is "external" (ie. current program is different than funcref's), and if so,
+  // sets up members (Globals2, nLines, prog_, execmodules) accordingly.
+  void jump( int target_PC, BContinuation* continuation, BFunctionRef* funcref );
+
 
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
                         bool set_attaching = true );

@@ -193,6 +193,7 @@ Executor::Executor()
       run_ok_( false ),
       debug_level( NONE ),
       PC( 0 ),
+      Globals2( std::make_shared<BObjectRefVec>() ),
       Locals2( new BObjectRefVec ),
       nLines( 0 ),
       current_module_function( nullptr ),
@@ -966,8 +967,8 @@ BObjectRef& Executor::LocalVar( unsigned int varnum )
 
 BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
-  passert( varnum < Globals2.size() );
-  return Globals2[varnum];
+  passert( varnum < Globals2->size() );
+  return ( *Globals2 )[varnum];
 }
 
 int Executor::getToken( Token& token, unsigned position )
@@ -992,11 +993,11 @@ bool Executor::setProgram( EScriptProgram* i_prog )
 
   nLines = static_cast<unsigned int>( prog_->instr.size() );
 
-  Globals2.clear();
+  Globals2->clear();
   for ( unsigned i = 0; i < prog_->nglobals; ++i )
   {
-    Globals2.push_back( BObjectRef() );
-    Globals2.back().set( new BObject( UninitObject::create() ) );
+    Globals2->push_back( BObjectRef() );
+    Globals2->back().set( new BObject( UninitObject::create() ) );
   }
 
   prog_ok_ = true;
@@ -1627,7 +1628,7 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
-  ValueStack.push_back( Globals2[ins.token.lval] );
+  ValueStack.push_back( ( *Globals2 )[ins.token.lval] );
 }
 
 // case TOK_LONG:
@@ -1879,7 +1880,7 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
-  BObjectRef& gvar = Globals2[ins.token.lval];
+  BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
 
@@ -2820,10 +2821,10 @@ void Executor::ins_makelocal( const Instruction& /*ins*/ )
 // CTRL_JSR_USERFUNC:
 void Executor::ins_jsr_userfunc( const Instruction& ins )
 {
-  ins_jsr_userfunc( ins, nullptr );
+  jump( ins.token.lval, nullptr, nullptr );
 }
 
-void Executor::ins_jsr_userfunc( const Instruction& ins, BContinuation* continuation )
+void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* funcref )
 {
   ReturnContext rc;
   rc.PC = PC;
@@ -2832,9 +2833,38 @@ void Executor::ins_jsr_userfunc( const Instruction& ins, BContinuation* continua
   {
     rc.Continuation.set( new BObject( continuation ) );
   }
+
+  // Only store our global context if the function is external to the current program.
+  if ( funcref != nullptr && funcref->prog() != prog_ )
+  {
+    // Store external context for the return path.
+    rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
+
+    // Set the prog and globals to the external function's, updating nLines and
+    // execmodules.
+    prog_ = funcref->prog();
+
+    Globals2 = funcref->globals;
+
+    nLines = static_cast<unsigned int>( prog_->instr.size() );
+
+    // Re-attach modules, as the external user function's module function call
+    // instructions refer to modules by index.
+    execmodules.clear();
+
+    if ( !viewmode_ )
+    {
+      if ( !AttachFunctionalityModules() )
+      {
+        POLLOGLN( "Could not attach modules for external function call jump" );
+        seterror( true );
+      }
+    }
+  }
+
   ControlStack.push_back( rc );
 
-  PC = (unsigned)ins.token.lval;
+  PC = target_PC;
   if ( ControlStack.size() >= escript_config.max_call_depth )
   {
     std::string tmp = fmt::format(
@@ -2878,7 +2908,7 @@ void Executor::ins_leave_block( const Instruction& ins )
   else  // at global level.  ick.
   {
     for ( int i = 0; i < ins.token.lval; i++ )
-      Globals2.pop_back();
+      Globals2->pop_back();
   }
 }
 
@@ -2914,9 +2944,6 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     continuation = rc.Continuation;
   }
 
-  // FIXME do something with rc.ValueStackDepth
-  ControlStack.pop_back();
-
   if ( Locals2 )
   {
     delete Locals2;
@@ -2927,6 +2954,17 @@ void Executor::ins_return( const Instruction& /*ins*/ )
     Locals2 = upperLocals2.back();
     upperLocals2.pop_back();
   }
+
+  if ( rc.ExternalContext.has_value() )
+  {
+    prog_ = std::move( rc.ExternalContext->Program );
+    nLines = static_cast<unsigned int>( prog_->instr.size() );
+    execmodules = std::move( rc.ExternalContext->Modules );
+    Globals2 = std::move( rc.ExternalContext->Globals );
+  }
+
+  // FIXME do something with rc.ValueStackDepth
+  ControlStack.pop_back();
 
   if ( continuation != nullptr )
   {
@@ -3150,9 +3188,9 @@ void Executor::ins_funcref( const Instruction& ins )
 
   const auto& ep_funcref = prog_->function_references[funcref_index];
 
-  ValueStack.push_back( BObjectRef(
-      new BObject( new BFunctionRef( ins.token.lval, ep_funcref.parameter_count, scriptname(),
-                                     ep_funcref.is_variadic, {} /* captures */ ) ) ) );
+  ValueStack.push_back(
+      BObjectRef( new BFunctionRef( prog_, ins.token.lval, ep_funcref.parameter_count,
+                                    ep_funcref.is_variadic, Globals2, {} /* captures */ ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3171,8 +3209,8 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func = new BFunctionRef( PC, ep_funcref.parameter_count, scriptname(),
-                                ep_funcref.is_variadic, std::move( captures ) );
+  auto func = new BFunctionRef( prog_, PC, ep_funcref.parameter_count, ep_funcref.is_variadic,
+                                Globals2, std::move( captures ) );
 
   ValueStack.push_back( BObjectRef( func ) );
 
@@ -3575,7 +3613,7 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
   }
 
   // jump to function
-  ins_jsr_userfunc( jmp, continuation );
+  jump( jmp.token.lval, continuation, funcr );
   fparams.clear();
   // switch to new block
   ins_makelocal( jmp );
@@ -3824,8 +3862,8 @@ size_t Executor::sizeEstimate() const
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
   }
-  size += Clib::memsize( Globals2 );
-  for ( const auto& bojectref : Globals2 )
+  size += Clib::memsize( *Globals2 );
+  for ( const auto& bojectref : *Globals2 )
   {
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
