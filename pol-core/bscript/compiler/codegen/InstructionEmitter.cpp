@@ -218,6 +218,11 @@ void InstructionEmitter::call_userfunc( FlowControlLabel& label )
   register_with_label( label, addr );
 }
 
+void InstructionEmitter::classinst_create()
+{
+  emit_token( TOK_CLASSINST, TYP_OPERAND );
+}
+
 unsigned InstructionEmitter::casejmp()
 {
   return emit_token( INS_CASEJMP, TYP_RESERVED );
@@ -369,6 +374,13 @@ void InstructionEmitter::leaveblock( unsigned local_vars_to_remove )
 void InstructionEmitter::makelocal()
 {
   emit_token( CTRL_MAKELOCAL, TYP_CONTROL );
+}
+
+// Only really used in the default constructor generation. The `this` variable is always the first
+// parameter/local variable. Will most likely be removed once super() is implemented.
+void InstructionEmitter::method_this()
+{
+  emit_token( TOK_LOCALVAR, TYP_OPERAND, 0 );
 }
 
 void InstructionEmitter::pop_param( const std::string& name )

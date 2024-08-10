@@ -12,11 +12,12 @@ class Variable;
 class Identifier : public Expression
 {
 public:
-  Identifier( const SourceLocation&, std::string name );
+  Identifier( const SourceLocation&, std::string scope, std::string name );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
 
+  const std::string scope;
   const std::string name;
 
   std::shared_ptr<Variable> variable;
