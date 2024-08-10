@@ -292,6 +292,42 @@ antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
   return antlrcpp::Any();
 }
 
+antlrcpp::Any SourceFileProcessor::visitClassDeclaration(
+    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
+{
+  auto loc = location_for( *ctx );
+  workspace.function_resolver.register_available_class_decl( loc, ctx );
+  auto class_name = tree_builder.text( ctx->IDENTIFIER() );
+
+  // Add var statements to top-level, as their declaration + execution needs to happen in-line with
+  // other statements:
+  //
+  //   Foo::staticVar;  // compilation error
+  //   class Foo var staticVar := 2; endclass
+  //   print(Foo::staticVar == 2);  // true
+  //
+  for ( auto& class_statement : ctx->classBody()->classStatement() )
+    if ( auto var_statement = class_statement->varStatement() )
+    {
+      std::vector<std::unique_ptr<Statement>> statements;
+
+      tree_builder.add_var_statements( var_statement, class_name, statements );
+
+      for ( auto& statement : statements )
+      {
+        workspace.compiler_workspace.top_level_statements->children.push_back(
+            std::move( statement ) );
+      }
+    }
+
+  const std::string& name = tree_builder.text( ctx->IDENTIFIER() );
+  workspace.compiler_workspace.all_class_locations.emplace( name, loc );
+  // This should be fine...?
+  if ( user_function_inclusion == UserFunctionInclusion::All )
+    workspace.function_resolver.force_reference( name, loc );
+  return antlrcpp::Any();
+}
+
 antlrcpp::Any SourceFileProcessor::visitIncludeDeclaration(
     EscriptParser::IncludeDeclarationContext* ctx )
 {

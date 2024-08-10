@@ -36,4 +36,9 @@ std::string TreeBuilder::text( antlr4::tree::TerminalNode* terminal )
   return terminal->getSymbol()->getText();
 }
 
+std::string TreeBuilder::text( antlr4::Token* token )
+{
+  return token->getText();
+}
+
 }  // namespace Pol::Bscript::Compiler

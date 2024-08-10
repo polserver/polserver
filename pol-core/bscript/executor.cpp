@@ -3030,6 +3030,13 @@ void Executor::ins_double( const Instruction& ins )
 {
   ValueStack.push_back( BObjectRef( new BObject( new Double( ins.token.dval ) ) ) );
 }
+
+// TODO skeleton
+void Executor::ins_classinst( const Instruction& /*ins*/ )
+{
+  ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
+}
+
 void Executor::ins_string( const Instruction& ins )
 {
   ValueStack.push_back( BObjectRef( new BObject( new String( ins.token.tokval() ) ) ) );
@@ -3256,6 +3263,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_struct;
   case TOK_SPREAD:
     return &Executor::ins_spread;
+  case TOK_CLASSINST:
+    return &Executor::ins_classinst;
   case TOK_ARRAY:
     return &Executor::ins_array;
   case TOK_DICTIONARY:

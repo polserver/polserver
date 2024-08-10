@@ -3,6 +3,7 @@
 
 #include "bscript/compiler/ast/Function.h"
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/model/UserFunctionType.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -13,15 +14,16 @@ class Variable;
 class UserFunction : public Function
 {
 public:
-  UserFunction( const SourceLocation&, bool exported, bool expression, std::string name,
-                std::unique_ptr<FunctionParameterList>, std::unique_ptr<FunctionBody>,
-                const SourceLocation& endfunction_location );
+  UserFunction( const SourceLocation&, bool exported, bool expression, UserFunctionType type,
+                std::string name, std::unique_ptr<FunctionParameterList>,
+                std::unique_ptr<FunctionBody>, const SourceLocation& endfunction_location );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
 
   const bool exported;
   const bool expression;
+  const UserFunctionType type;
   const SourceLocation endfunction_location;
 
   LocalVariableScopeInfo local_variable_scope_info;

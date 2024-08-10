@@ -38,6 +38,16 @@ public:
 
     virtual std::any visitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *context) = 0;
 
+    virtual std::any visitClassDeclaration(EscriptParser::ClassDeclarationContext *context) = 0;
+
+    virtual std::any visitClassParameters(EscriptParser::ClassParametersContext *context) = 0;
+
+    virtual std::any visitClassParameterList(EscriptParser::ClassParameterListContext *context) = 0;
+
+    virtual std::any visitClassBody(EscriptParser::ClassBodyContext *context) = 0;
+
+    virtual std::any visitClassStatement(EscriptParser::ClassStatementContext *context) = 0;
+
     virtual std::any visitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *context) = 0;
 
     virtual std::any visitStringIdentifier(EscriptParser::StringIdentifierContext *context) = 0;
@@ -129,6 +139,8 @@ public:
     virtual std::any visitExpression(EscriptParser::ExpressionContext *context) = 0;
 
     virtual std::any visitPrimary(EscriptParser::PrimaryContext *context) = 0;
+
+    virtual std::any visitScopedIdentifier(EscriptParser::ScopedIdentifierContext *context) = 0;
 
     virtual std::any visitFunctionExpression(EscriptParser::FunctionExpressionContext *context) = 0;
 
