@@ -44,6 +44,8 @@ public:
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ) override;
   antlrcpp::Any visitUseDeclaration(
       EscriptGrammar::EscriptParser::UseDeclarationContext* ) override;
+  antlrcpp::Any visitClassDeclaration(
+      EscriptGrammar::EscriptParser::ClassDeclarationContext* ) override;
 
   SourceLocation location_for( antlr4::ParserRuleContext& ) const;
 

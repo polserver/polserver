@@ -1,0 +1,31 @@
+
+class Animal()
+  function Animal( this, name )
+    this.name := name;
+  endfunction
+endclass
+
+class Walker()
+  function Walker( this, walk_speed )
+    this.walk_speed := walk_speed;
+  endfunction
+  function Speak( this )
+    print( "Woof!" );
+  endfunction
+endclass
+
+class Dog(Animal, Walker)
+  var static_var;
+
+  function Dog( this, name, breed, speed )
+    Animal( name );
+    Walker( speed );
+    this.walk_speed := walk_speed;
+  endfunction
+endclass
+
+// var dog := Dog(name, breed, speed);
+// dog.Speak( );
+
+// Dog.Speak( dog );
+

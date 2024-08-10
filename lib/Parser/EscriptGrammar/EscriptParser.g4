@@ -44,9 +44,30 @@ topLevelDeclaration
     | includeDeclaration
     | programDeclaration
     | functionDeclaration
+    | classDeclaration
     | statement
     ;
 
+classDeclaration
+    : CLASS IDENTIFIER classParameters? classBody ENDCLASS
+    ;
+
+classParameters
+    : '(' classParameterList? ')'
+    ;
+
+classParameterList
+    : IDENTIFIER (',' IDENTIFIER)*
+    ;
+
+classBody
+    : classStatement*
+    ;
+
+classStatement
+    : functionDeclaration
+    | varStatement
+    ;
 
 functionDeclaration
     : EXPORTED? FUNCTION IDENTIFIER functionParameters block ENDFUNCTION
@@ -145,6 +166,7 @@ forStatement
 foreachIterableExpression
     : functionCall
     | scopedFunctionCall
+    | scopedIdentifier
     | IDENTIFIER
     | parExpression
     | bareArrayInitializer
@@ -256,7 +278,7 @@ scopedFunctionCall
     ;
 
 functionReference
-    : '@' IDENTIFIER
+    : '@' (scope=IDENTIFIER '::')? function=IDENTIFIER
     ;
 
 expression
@@ -286,6 +308,7 @@ primary
     | parExpression
     | functionCall
     | scopedFunctionCall
+    | scopedIdentifier
     | IDENTIFIER
     | functionReference
     | functionExpression
@@ -296,6 +319,9 @@ primary
     | bareArrayInitializer
     | interpolatedString
     ;
+
+scopedIdentifier
+    : scope=IDENTIFIER '::' identifier=IDENTIFIER;
 
 functionExpression
     : AT functionParameters? LBRACE block RBRACE

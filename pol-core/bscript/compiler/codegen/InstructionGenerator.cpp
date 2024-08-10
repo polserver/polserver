@@ -1,6 +1,7 @@
 #include "InstructionGenerator.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/adaptor/sliced.hpp>
 
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
@@ -12,10 +13,13 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
+#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
@@ -243,6 +247,23 @@ void InstructionGenerator::visit_branch_selector( BranchSelector& node )
   }
 }
 
+void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
+{
+  // Skip visiting the parameter list (child 0), as their nodes (Identifier) do not
+  // generate any instructions.
+
+  for ( const auto& child : node.children | boost::adaptors::sliced( 1, node.children.size() ) )
+  {
+    child->accept( *this );
+  }
+}
+
+void InstructionGenerator::visit_class_instance( ClassInstance& node )
+{
+  update_debug_location( node );
+  emit.classinst_create();
+}
+
 void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& marker )
 {
   emit.debug_statementbegin();
@@ -252,6 +273,17 @@ void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& m
   emit.ctrl_statementbegin( source_file, marker.start_index, marker.text );
 
   visit_children( marker );
+}
+
+// Called when emitting the instructions for a compiler-generated, default constructor function.
+// This will _most likely_ need to be completely rewritten to handle the super-chaining.
+void InstructionGenerator::visit_default_constructor_function( DefaultConstructorFunction& node )
+{
+  FlowControlLabel& label = user_function_labels[node.name];
+  emit.label( label );
+  visit_children( node );            // emits the `pop this` from the function param decl
+  emit.method_this();                // push `this` on the stack
+  emit.return_from_user_function();  // return from the function
 }
 
 void InstructionGenerator::visit_dictionary_initializer( DictionaryInitializer& node )

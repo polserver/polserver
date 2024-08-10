@@ -10,6 +10,7 @@
 
 #include "strutil.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <utf8/utf8.h>
@@ -337,6 +338,11 @@ std::string strCp1252ToUtf8( const std::string &cp1252string )
     utf8::unchecked::append(cp1252ToUnicode(*itr++), inserter);
   }
   return outstring;
+}
+
+bool caseInsensitiveEqual( const std::string& input, const std::string& test )
+{
+  return boost::iequals( input, test );
 }
 
 
