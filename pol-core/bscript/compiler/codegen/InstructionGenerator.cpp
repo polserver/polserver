@@ -247,15 +247,9 @@ void InstructionGenerator::visit_branch_selector( BranchSelector& node )
   }
 }
 
-void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
+void InstructionGenerator::visit_class_parameter_list( ClassParameterList& /*node*/ )
 {
-  // Skip visiting the parameter list (child 0), as their nodes (Identifier) do not
-  // generate any instructions.
-
-  for ( const auto& child : node.children | boost::adaptors::sliced( 1, node.children.size() ) )
-  {
-    child->accept( *this );
-  }
+  // Identifiers for class parameters are not used in the generated code.
 }
 
 void InstructionGenerator::visit_class_instance( ClassInstance& node )

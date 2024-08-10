@@ -66,7 +66,8 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       break_scopes( locals, report ),
       continue_scopes( locals, report ),
       local_scopes( locals, report ),
-      capture_scopes( captures, report )
+      capture_scopes( captures, report ),
+      current_scope( "" )
 {
 }
 
@@ -175,7 +176,6 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
       named_baseclasses.emplace( baseclass_name );
     }
   }
-
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor
@@ -346,7 +346,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     if ( !fc.method_name.empty() )
     {
       auto callee =
-          std::make_unique<Identifier>( fc.source_location, fc.call_scope, fc.method_name );
+          std::make_unique<Identifier>( fc.source_location, fc.calling_scope, fc.method_name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
       fc.method_name = "";
     }
@@ -711,7 +711,19 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   {
     node.variable = global;
   }
-  else
+  else if ( !current_scope.empty() )
+  {
+    const auto scoped_name = fmt::format( "{}::{}", current_scope, node.name );
+
+    // We do not support nested classes, so if there is a `current_scope`, it would only _ever_
+    // exist in globals.
+    if ( auto scoped_global = globals.find( scoped_name ) )
+    {
+      node.variable = scoped_global;
+    }
+  }
+
+  if ( !node.variable )
   {
     report.error( node, "Unknown identifier '{}'.", node.name );
     return;
@@ -780,6 +792,7 @@ void SemanticAnalyzer::visit_repeat_until_loop( RepeatUntilLoop& node )
 
 void SemanticAnalyzer::visit_user_function( UserFunction& node )
 {
+  current_scope += node.module_name;
   if ( node.exported )
   {
     unsigned max_name_length = sizeof( Pol::Bscript::BSCRIPT_EXPORTED_FUNCTION::funcname ) - 1;
@@ -793,37 +806,44 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
   LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
 
   visit_children( node );
+  current_scope.resize( current_scope.size() - node.module_name.size() );
 }
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 {
-  if ( auto constant = workspace.constants.find( node.name ) )
+  // A scoped variable's `name` will be `scope::name` if a scope exists,
+  // otherwise just `name`.
+  auto maybe_scoped_name =
+      node.scope.empty() ? node.name : fmt::format( "{}::{}", node.scope, node.name );
+
+  // Since this is a scoped check, we can have `Animal::FOO` and a constant `FOO`.
+  if ( auto constant = workspace.constants.find( maybe_scoped_name ) )
   {
     report.error( node,
                   "Cannot define a variable with the same name as constant '{}'.\n"
                   "  See also: {}",
-                  node.name, constant->source_location );
+                  maybe_scoped_name, constant->source_location );
     return;
   }
 
-  report_function_name_conflict( node.source_location, node.name, "variable" );
+  report_function_name_conflict( node.source_location, maybe_scoped_name, "variable" );
 
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
-    node.variable = local_scope->create( node.name, WarnOn::Never, node.source_location );
+    node.variable = local_scope->create( maybe_scoped_name, WarnOn::Never, node.source_location );
   }
   else
   {
-    if ( auto existing = globals.find( node.name ) )
+    if ( auto existing = globals.find( maybe_scoped_name ) )
     {
       report.error( node,
                     "Global variable '{}' already defined.\n"
                     "  See also: {}",
-                    node.name, existing->source_location );
+                    maybe_scoped_name, existing->source_location );
       return;
     }
 
-    node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
+    node.variable = globals.create( maybe_scoped_name, 0, WarnOn::Never, node.source_location );
   }
   visit_children( node );
 }

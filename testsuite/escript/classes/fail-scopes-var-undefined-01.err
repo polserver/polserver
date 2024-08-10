@@ -1,0 +1,1 @@
+fail-scopes-var-undefined-01.src:7:9: error: Unknown identifier 'Animal::variable'.

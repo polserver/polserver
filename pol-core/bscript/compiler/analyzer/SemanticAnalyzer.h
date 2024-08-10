@@ -71,6 +71,11 @@ private:
   FlowControlScopes continue_scopes;
   LocalVariableScopes local_scopes;
   LocalVariableScopes capture_scopes;
+  // Pushed and popped in visit_user_function,
+  //
+  // Used in visit_identifier. If the variable does not exist under `name`,
+  // check `current_scope::name` (if current scope exists).
+  std::string current_scope;
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -22,8 +22,4 @@ var runtime_obj := dictionary{};
 @Animal( runtime_obj, "runtime ctor call" );
 print( $"runtime_obj={runtime_obj}" );
 
-// TODO scope it correctly to Animal::staticVar
-print( $"Global scope staticVar={staticVar}" );
-
-// TODO
-// print( Animal::staticVar );
+print( $"Global scope staticVar={Animal::staticVar}" );

@@ -1,0 +1,40 @@
+// Various shadowing of the name 'variable' and accessing variables via
+// 'Animal::variable' and 'variable';
+
+var variable := "global var";
+
+const constant := "global const";
+
+class Animal
+    var variable := "class var";
+
+    // not actually a constant, but we can have a scoped-variable that shadows a constant.
+    // TODO maybe add warning? should this be allowed at all?
+    var constant := "class var constant";
+
+    function StaticFunc( variable )
+        print( $"StaticFunc variable={variable}" );
+        print( $"StaticFunc constant={constant}" );
+        print( $"StaticFunc Animal::variable={Animal::variable}" );
+        print( $"StaticFunc Animal::constant={Animal::constant}" );
+
+        if ("1")
+            var variable := "local var";
+            print( $"StaticFunc.local variable={variable}" );
+            print( $"StaticFunc.local Animal::variable={Animal::variable}" );
+        endif
+    endfunction
+
+    function TestFor()
+        for variable := 1 to 2
+            print( $"TestFor variable={variable} to 2" );
+        endfor
+    endfunction
+endclass
+
+
+print( $"constant={constant}" );
+print( $"global variable={variable}" );
+print( $"global Animal::variable={Animal::variable}" );
+Animal::StaticFunc( "func param" );
+Animal::TestFor();
