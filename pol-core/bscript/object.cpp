@@ -2308,11 +2308,11 @@ BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, in
                             bool variadic, std::shared_ptr<ValueStackCont> globals,
                             ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
-      prog_( program ),
+      prog_( std::move( program ) ),
       pc_( progcounter ),
       num_params_( param_count ),
       variadic_( variadic ),
-      globals( globals ),
+      globals( std::move( globals ) ),
       captures( std::move( captures ) )
 {
 }

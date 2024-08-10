@@ -193,7 +193,7 @@ Executor::Executor()
       run_ok_( false ),
       debug_level( NONE ),
       PC( 0 ),
-      Globals2( new BObjectRefVec ),
+      Globals2( std::make_shared<BObjectRefVec>() ),
       Locals2( new BObjectRefVec ),
       nLines( 0 ),
       current_module_function( nullptr ),
@@ -2844,8 +2844,6 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
     // execmodules.
     prog_ = funcref->prog();
 
-    // TODO future improvement: do not copy the globals, but instead point our
-    // current globals to the funcref's globals.
     Globals2 = funcref->globals;
 
     nLines = static_cast<unsigned int>( prog_->instr.size() );
@@ -2959,10 +2957,10 @@ void Executor::ins_return( const Instruction& /*ins*/ )
 
   if ( rc.ExternalContext.has_value() )
   {
-    prog_ = rc.ExternalContext->Program;
+    prog_ = std::move( rc.ExternalContext->Program );
     nLines = static_cast<unsigned int>( prog_->instr.size() );
-    execmodules = rc.ExternalContext->Modules;
-    Globals2 = rc.ExternalContext->Globals;
+    execmodules = std::move( rc.ExternalContext->Modules );
+    Globals2 = std::move( rc.ExternalContext->Globals );
   }
 
   // FIXME do something with rc.ValueStackDepth

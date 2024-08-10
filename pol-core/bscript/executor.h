@@ -84,7 +84,9 @@ struct ReturnContext
   {
     External( ref_ptr<EScriptProgram> program, std::vector<ExecutorModule*> modules,
               std::shared_ptr<BObjectRefVec> globals )
-        : Program( program ), Modules( modules ), Globals( globals )
+        : Program( std::move( program ) ),
+          Modules( std::move( modules ) ),
+          Globals( std::move( globals ) )
     {
     }
     ref_ptr<EScriptProgram> Program;
