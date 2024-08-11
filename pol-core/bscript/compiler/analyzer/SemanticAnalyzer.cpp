@@ -808,7 +808,7 @@ void SemanticAnalyzer::visit_repeat_until_loop( RepeatUntilLoop& node )
 void SemanticAnalyzer::visit_user_function( UserFunction& node )
 {
   // Track current scope for use in visit_identifier
-  current_scope_name = ScopeName( node.module_name );
+  current_scope_name = ScopeName( node.scope );
   if ( node.exported )
   {
     unsigned max_name_length = sizeof( Pol::Bscript::BSCRIPT_EXPORTED_FUNCTION::funcname ) - 1;

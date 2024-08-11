@@ -9,7 +9,7 @@ namespace Pol::Bscript::Compiler
 Function::Function( const SourceLocation& source_location, std::string scope, std::string name,
                     std::unique_ptr<FunctionParameterList> parameter_list,
                     std::unique_ptr<FunctionBody> body )
-    : Node( source_location ), module_name( std::move( scope ) ), name( std::move( name ) )
+    : Node( source_location ), scope( std::move( scope ) ), name( std::move( name ) )
 {
   children.reserve( 2 );
   children.push_back( std::move( parameter_list ) );
@@ -19,7 +19,7 @@ Function::Function( const SourceLocation& source_location, std::string scope, st
 Function::Function( const SourceLocation& source_location, std::string scope, std::string name,
                     std::unique_ptr<FunctionParameterList> parameter_list )
     : Node( source_location, std::move( parameter_list ) ),
-      module_name( std::move( scope ) ),
+      scope( std::move( scope ) ),
       name( std::move( name ) )
 {
 }
@@ -47,12 +47,12 @@ bool Function::is_variadic() const
 
 std::string Function::scoped_name() const
 {
-  if ( module_name.empty() )
+  if ( scope.empty() )
   {
     return name;
   }
 
-  return fmt::format( "{}::{}", module_name, name );
+  return fmt::format( "{}::{}", scope, name );
 }
 
 std::vector<std::reference_wrapper<FunctionParameterDeclaration>> Function::parameters()

@@ -67,7 +67,7 @@ void FunctionResolver::register_function_link( const ScopableName& name,
     {
       function_link->link_to( resolved_function );
       report.debug( function_link->source_location, "linking {} to {}::{} [already registered]",
-                    name.string(), resolved_function->module_name, resolved_function->name );
+                    name.string(), resolved_function->scope, resolved_function->name );
       return true;
     }
     return false;
@@ -120,7 +120,7 @@ void FunctionResolver::register_module_function( ModuleFunctionDeclaration* mf )
   }
 
   resolved_functions[{ ScopeName::Global, name }] = mf;
-  resolved_functions[{ mf->module_name, name }] = mf;
+  resolved_functions[{ mf->scope, name }] = mf;
 }
 
 void FunctionResolver::register_user_function( const std::string& scope, UserFunction* uf )
@@ -161,7 +161,7 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
           ( *function_link_itr )->link_to( resolved_function );
           function_link_itr = ( *unresolved_itr ).second.erase( function_link_itr );
           report.debug( function_link->source_location, "linking ({}, {}) to {}::{}",
-                        call_scope.string(), name.string(), resolved_function->module_name,
+                        call_scope.string(), name.string(), resolved_function->scope,
                         resolved_function->name );
           return true;
         }

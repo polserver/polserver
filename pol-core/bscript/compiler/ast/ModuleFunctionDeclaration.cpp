@@ -24,8 +24,7 @@ void ModuleFunctionDeclaration::accept( NodeVisitor& visitor )
 
 void ModuleFunctionDeclaration::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "module-function-declaration({}::{})", module_name,
-                  name );
+  fmt::format_to( std::back_inserter( w ), "module-function-declaration({}::{})", scope, name );
 }
 
 }  // namespace Pol::Bscript::Compiler

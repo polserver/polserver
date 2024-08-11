@@ -24,7 +24,7 @@ public:
 
   // TODO rename this to `scope`. Keeping as module_name for now to avoid too
   // many changes.
-  const std::string module_name;
+  const std::string scope;
   const std::string name;
 };
 
