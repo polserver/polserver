@@ -7,4 +7,9 @@
 const constant := 1;
 class Animal()
     var constant := 2;
+
+    var foo;
 endclass
+
+// Must reference the class to get the parse tree visited.
+Animal::foo;

@@ -33,6 +33,7 @@
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/ScopeName.h"
 
 using EscriptGrammar::EscriptParser;
@@ -614,9 +615,26 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
 std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
     EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
 {
-  ScopeName scope_name( ctx->scope ? text( ctx->scope ) : "" );
-  ScopableName name( std::move( scope_name ), text( ctx->identifier ) );
-  return std::make_unique<Identifier>( location_for( *ctx ), std::move( name ) );
+  if ( ctx->scope )
+  {
+    ScopeName scope_name( text( ctx->scope ) );
+    if ( !scope_name.global() )
+    {
+      // Force a reference to the class so it will be visited by the UserFunctionVisitor.
+      workspace.function_resolver.force_reference( scope_name );
+    }
+
+    ScopableName scoped_name( std::move( scope_name ), text( ctx->identifier ) );
+
+    return std::make_unique<Identifier>( location_for( *ctx ), std::move( scoped_name ) );
+  }
+  else
+  {
+    ScopableName scoped_name( ScopeName::Global, text( ctx->identifier ) );
+
+    return std::make_unique<Identifier>(
+        location_for( *ctx ), ScopableName( ScopeName::Global, text( ctx->identifier ) ) );
+  }
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(

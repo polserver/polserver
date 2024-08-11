@@ -17,6 +17,7 @@
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -43,7 +44,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
 }
 
 std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
-    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
+    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx, Node* class_body )
 {
   std::string class_name = text( ctx->IDENTIFIER() );
   std::vector<std::unique_ptr<Identifier>> parameters;
@@ -69,17 +70,31 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     {
       if ( auto func_decl = classStatement->functionDeclaration() )
       {
+        auto func_name = text( func_decl->IDENTIFIER() );
+        auto func_loc = location_for( *func_decl );
         // Register the user function as an available parse tree.
-        workspace.function_resolver.register_available_scoped_function( location_for( *func_decl ),
-                                                                        class_name, func_decl );
+        workspace.function_resolver.register_available_scoped_function( func_loc, class_name,
+                                                                        func_decl );
 
-        function_names.push_back( text( func_decl->IDENTIFIER() ) );
+        function_names.push_back( func_name );
 
         // TODO this doesn't check for `this`, will be handled in the construction PR.
-        bool is_constructor =
-            Clib::caseInsensitiveEqual( class_name, text( func_decl->IDENTIFIER() ) );
+        bool is_constructor = Clib::caseInsensitiveEqual( class_name, func_name );
 
         has_constructor |= is_constructor;
+        workspace.compiler_workspace.all_function_locations.emplace(
+            ScopableName( class_name, func_name ).string(), func_loc );
+      }
+      else if ( auto var_statement = classStatement->varStatement() )
+      {
+        std::vector<std::unique_ptr<Statement>> statements;
+
+        add_var_statements( var_statement, class_name, statements );
+
+        for ( auto& statement : statements )
+        {
+          class_body->children.push_back( std::move( statement ) );
+        }
       }
     }
   }
@@ -100,7 +115,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   auto class_decl = std::make_unique<ClassDeclaration>(
       location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
-      std::move( constructor ) );
+      class_body, std::move( constructor ) );
 
   return class_decl;
 }

@@ -1,0 +1,11 @@
+// A class cannot have a variable and function with the same name.
+
+class Animal()
+    var foo := "foo";
+
+    function foo()
+    endfunction
+endclass
+
+// Reference the class
+Animal::foo();
