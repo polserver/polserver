@@ -2,6 +2,7 @@
 #define POLSERVER_IDENTIFIER_H
 
 #include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/model/ScopableName.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -12,7 +13,9 @@ class Variable;
 class Identifier : public Expression
 {
 public:
-  Identifier( const SourceLocation&, std::string calling_scope, std::string name );
+  Identifier( const SourceLocation&, const std::string& calling_scope,
+              const ScopableName& scoped_name );
+  Identifier( const SourceLocation&, const std::string& calling_scope, const std::string& name );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
@@ -21,7 +24,8 @@ public:
   // Used in SemanticAnalyzer. If the identifer does not exist under `name`,
   // check `calling_scope::name` (if calling scope exists).
   const std::string calling_scope;
-  const std::string name;
+  const ScopableName scoped_name;
+  const std::string& name() const;
 
   std::shared_ptr<Variable> variable;
 };

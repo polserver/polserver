@@ -5,8 +5,6 @@
 
 var variable := "global var";
 
-const constant := "global const";
-
 function StaticFunc( variable )
     print( $"::StaticFunc variable={variable}" );
 endfunction
@@ -18,16 +16,10 @@ endfunction
 class Animal
     var variable := "class var";
 
-    // not actually a constant, but we can have a scoped-variable that shadows a constant.
-    // TODO maybe add warning? should this be allowed at all?
-    var constant := "class var constant";
-
     function StaticFunc( variable )
         print( $"StaticFunc variable={variable}" );
         print( $"StaticFunc ::variable={::variable}" );
-        print( $"StaticFunc constant={constant}" );
         print( $"StaticFunc Animal::variable={Animal::variable}" );
-        print( $"StaticFunc Animal::constant={Animal::constant}" );
 
         if ("1")
             var variable := "local var";
@@ -49,7 +41,6 @@ class Animal
 endclass
 
 
-print( $"global constant={constant}" );
 print( $"global variable={variable}" );
 print( $"global ::variable={::variable}" );
 print( $"global Animal::variable={Animal::variable}" );

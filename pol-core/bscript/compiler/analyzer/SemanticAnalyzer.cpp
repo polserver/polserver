@@ -67,7 +67,7 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       continue_scopes( locals, report ),
       local_scopes( locals, report ),
       capture_scopes( captures, report ),
-      current_scope( "" )
+      current_scope_name( ScopeName::Global )
 {
 }
 
@@ -154,7 +154,7 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 
   for ( auto& class_parameter : node.parameters() )
   {
-    const auto& baseclass_name = class_parameter.get().name;
+    const auto& baseclass_name = class_parameter.get().scoped_name.name;
     auto itr = workspace.all_class_locations.find( baseclass_name );
     if ( itr == workspace.all_class_locations.end() )
     {
@@ -270,7 +270,7 @@ public:
 
   void visit_identifier( Identifier& identifier ) override
   {
-    report.error( identifier, "Case selector '{}' is not a constant.", identifier.name );
+    report.error( identifier, "Case selector '{}' is not a constant.", identifier.name() );
   }
 
   void visit_string_value( StringValue& sv ) override
@@ -345,8 +345,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )
     {
-      auto callee = std::make_unique<Identifier>( fc.source_location, fc.calling_scope,
-                                                  fc.scoped_name->name );
+      auto callee =
+          std::make_unique<Identifier>( fc.source_location, fc.calling_scope, *fc.scoped_name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
       fc.scoped_name.reset();
     }
@@ -684,49 +684,64 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
 {
   // Resolution order:
   //
-  // local function -> local captures -> ancestor (above) functions -> globals
+  // if scoped: globals only
+  // otherwise: local function -> local captures -> ancestor (above) functions -> globals
   //
+  const auto& name = node.scoped_name.string();
 
-  if ( auto local = locals.find( node.name ) )
+  // If there is a scope, whether it is (":foo") empty or not ("Animal:foo"),
+  // only check globals. We do not support nested classes, so if there is a
+  // variable with that name, it would only _ever_ exist in globals.
+  if ( !node.scoped_name.scope.empty() )
   {
-    local->mark_used();
-    node.variable = local;
-  }
-  else if ( auto captured = captures.find( node.name ) )
-  {
-    // Should already be marked used as it's not newly created (done below).
-    // There is no `captures.find_in_ancestors()` check because if an upper
-    // capture was found, we still need to capture it for our own function (done
-    // below).
-    node.variable = captured;
-  }
-  else if ( auto ancestor = locals.find_in_ancestors( node.name ) )
-  {
-    // Capture the variable. In a deeply nested capture, this will reference the
-    // local in the ancestor function. The function expression visitor will swap
-    // the 'capturing' to a local-safe variable.
-    node.variable = capture_scopes.current_local_scope()->capture( ancestor );
-    node.variable->mark_used();
-  }
-  else if ( auto global = globals.find( node.name ) )
-  {
-    node.variable = global;
-  }
-  else if ( !current_scope.empty() )
-  {
-    const auto scoped_name = fmt::format( "{}::{}", current_scope, node.name );
-
-    // We do not support nested classes, so if there is a `current_scope`, it would only _ever_
-    // exist in globals.
-    if ( auto scoped_global = globals.find( scoped_name ) )
+    if ( auto scoped_global = globals.find( name ) )
     {
       node.variable = scoped_global;
+    }
+  }
+  else
+  {
+    if ( auto local = locals.find( name ) )
+    {
+      local->mark_used();
+      node.variable = local;
+    }
+    else if ( auto captured = captures.find( name ) )
+    {
+      // Should already be marked used as it's not newly created (done below).
+      // There is no `captures.find_in_ancestors()` check because if an upper
+      // capture was found, we still need to capture it for our own function (done
+      // below).
+      node.variable = captured;
+    }
+    else if ( auto ancestor = locals.find_in_ancestors( name ) )
+    {
+      // Capture the variable. In a deeply nested capture, this will reference the
+      // local in the ancestor function. The function expression visitor will swap
+      // the 'capturing' to a local-safe variable.
+      node.variable = capture_scopes.current_local_scope()->capture( ancestor );
+      node.variable->mark_used();
+    }
+    else if ( auto global = globals.find( name ) )
+    {
+      node.variable = global;
+    }
+    else if ( current_scope_name.exists() )
+    {
+      const auto scoped_name = ScopableName( current_scope_name, node.name() ).string();
+
+      // We do not support nested classes, so if there is a `current_scope`, it would only _ever_
+      // exist in globals.
+      if ( auto scoped_global = globals.find( scoped_name ) )
+      {
+        node.variable = scoped_global;
+      }
     }
   }
 
   if ( !node.variable )
   {
-    report.error( node, "Unknown identifier '{}'.", node.name );
+    report.error( node, "Unknown identifier '{}'.", name );
     return;
   }
 }
@@ -793,7 +808,8 @@ void SemanticAnalyzer::visit_repeat_until_loop( RepeatUntilLoop& node )
 
 void SemanticAnalyzer::visit_user_function( UserFunction& node )
 {
-  current_scope += node.module_name;
+  // Track current scope for use in visit_identifier
+  current_scope_name = ScopeName( node.module_name );
   if ( node.exported )
   {
     unsigned max_name_length = sizeof( Pol::Bscript::BSCRIPT_EXPORTED_FUNCTION::funcname ) - 1;
@@ -804,26 +820,28 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
                     node.name, node.name.length(), max_name_length );
     }
   }
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
 
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
   visit_children( node );
-  current_scope.resize( current_scope.size() - node.module_name.size() );
+  // We do not allow nested scope names
+  current_scope_name = ScopeName::Global;
 }
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 {
   // A scoped variable's `name` will be `scope::name` if a scope exists,
   // otherwise just `name`.
-  auto maybe_scoped_name =
-      node.scope.empty() ? node.name : fmt::format( "{}::{}", node.scope, node.name );
+  auto maybe_scoped_name = ScopableName( node.scope, node.name ).string();
 
-  // Since this is a scoped check, we can have `Animal::FOO` and a constant `FOO`.
-  if ( auto constant = workspace.constants.find( maybe_scoped_name ) )
+  // node.scope.empty() ? node.name : fmt::format( "{}::{}", node.scope, node.name );
+
+  // Since this is not scoped check, we cannot have `Animal::FOO` and a constant `FOO`.
+  if ( auto constant = workspace.constants.find( node.name ) )
   {
     report.error( node,
                   "Cannot define a variable with the same name as constant '{}'.\n"
                   "  See also: {}",
-                  maybe_scoped_name, constant->source_location );
+                  node.name, constant->source_location );
     return;
   }
 
@@ -864,7 +882,7 @@ void SemanticAnalyzer::visit_variable_assignment_statement( VariableAssignmentSt
           // we have something like
           //      a := a := expr;
           report.warning( node, "Double-assignment to the same variable '{}'.",
-                          node.identifier().name );
+                          node.identifier().name() );
         }
       }
     }

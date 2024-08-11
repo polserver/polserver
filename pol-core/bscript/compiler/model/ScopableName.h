@@ -9,8 +9,6 @@ class ScopableName
 public:
   ScopableName( const ScopeName& scope, const std::string& name );
   ScopableName( const std::string& scope, const std::string& name );
-  ScopableName( ScopableName&& other ) noexcept;
-  ScopableName( const ScopableName& );
 
   // True if the scope is non-empty.
   bool scoped() const;

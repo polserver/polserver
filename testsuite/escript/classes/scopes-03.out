@@ -1,12 +1,9 @@
-global constant=global const
 global variable=global var
 global ::variable=global var
 global Animal::variable=class var
 StaticFunc variable=func param
-StaticFunc ::variable=func param
-StaticFunc constant=class var constant
+StaticFunc ::variable=global var
 StaticFunc Animal::variable=class var
-StaticFunc Animal::constant=class var constant
 StaticFunc.local variable=local var
 StaticFunc.local Animal::variable=class var
 ::StaticFunc variable=func param

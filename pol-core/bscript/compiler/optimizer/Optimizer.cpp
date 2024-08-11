@@ -201,15 +201,20 @@ void Optimizer::visit_const_declaration( ConstDeclaration& constant )
 void Optimizer::visit_identifier( Identifier& identifier )
 {
   // We don't have constants with a calling-scoped right now, so any identifiers
-  // outside of a calling scope (eg. a class function) will be just
+  // that do not have a scope will be just
   // `identifier`, whereas identifiers inside a calling scope will be
   // `scope::identifier`. This allows classes to have variables with the same
   // name as constants.
-  auto name = identifier.maybe_scoped_name();
-  if ( auto constant = constants.find( name ) )
+
+  // We don't have scoped constants, so if an identifier has a scope, it cannot be optimized.
+  if ( !identifier.scoped_name.scope.exists() )
   {
-    SimpleValueCloner cloner( report, identifier.source_location );
-    optimized_replacement = cloner.clone( constant->expression() );
+    auto name = identifier.maybe_scoped_name();
+    if ( auto constant = constants.find( name ) )
+    {
+      SimpleValueCloner cloner( report, identifier.source_location );
+      optimized_replacement = cloner.clone( constant->expression() );
+    }
   }
 }
 

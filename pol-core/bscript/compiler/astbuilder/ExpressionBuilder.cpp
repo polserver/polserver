@@ -111,7 +111,7 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
     //   - an expression: evaluate and use as the field name
     if ( auto identifier = dynamic_cast<Identifier*>( rhs.get() ) )
     {
-      rhs = std::make_unique<StringValue>( rhs->source_location, identifier->name );
+      rhs = std::make_unique<StringValue>( rhs->source_location, identifier->scoped_name.string() );
     }
   }
 
@@ -613,12 +613,9 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
 std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
     EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
 {
-  std::string scope = ctx->scope ? text( ctx->scope ) : "";
-
-  // Use `scope::name` only if scope is not empty.
-  // TODO fix this in next commit, for var scoping fix for `::variable`
-  auto name = fmt::format( "{}{}", scope.empty() ? "" : ( scope + "::" ), text( ctx->identifier ) );
-  return std::make_unique<Identifier>( location_for( *ctx ), current_scope, name );
+  ScopeName scope_name( ctx->scope ? text( ctx->scope ) : "" );
+  ScopableName name( std::move( scope_name ), text( ctx->identifier ) );
+  return std::make_unique<Identifier>( location_for( *ctx ), current_scope, std::move( name ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
@@ -679,7 +676,10 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
         {
           if ( auto identifier = dynamic_cast<Identifier*>( &binary_operator->lhs() ) )
           {
-            name = identifier->name;
+            // TODO we dont support `foo(Animal::bar = 1)` ... we may need this for super() if we
+            // want to support multiple inheritance where multiple base classes share the same
+            // parameter name.
+            name = identifier->name();
             value = binary_operator->take_rhs();
           }
         }

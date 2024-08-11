@@ -12,6 +12,8 @@ class Variable;
 class VarStatement : public Statement
 {
 public:
+  // We have to keep track of scope in VarStatement, as class var statements are
+  // "hoisted" to the top-level statements of the script.
   VarStatement( const SourceLocation&, std::string scope, std::string name,
                 std::unique_ptr<Expression> initializer );
   VarStatement( const SourceLocation&, std::string scope, std::string name );
