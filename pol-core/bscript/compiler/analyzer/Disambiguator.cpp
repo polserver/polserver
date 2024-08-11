@@ -55,7 +55,7 @@ void Disambiguator::visit_case_dispatch_group( CaseDispatchGroup& dispatch_group
         //    - the first statement in the block is a LabelableStatement
         //    - the last selector is a non-constant identifier
         //    - the Optimizer already optimized any constant (Identifier) to its resolved value.
-        labelable->relabel( last_selector_as_identifier->name );
+        labelable->relabel( last_selector_as_identifier->name() );
         selectors.children.pop_back();
       }
     }

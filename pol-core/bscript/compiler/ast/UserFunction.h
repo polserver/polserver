@@ -15,7 +15,7 @@ class UserFunction : public Function
 {
 public:
   UserFunction( const SourceLocation&, bool exported, bool expression, UserFunctionType type,
-                std::string name, std::unique_ptr<FunctionParameterList>,
+                std::string scope, std::string name, std::unique_ptr<FunctionParameterList>,
                 std::unique_ptr<FunctionBody>, const SourceLocation& endfunction_location );
 
   void accept( NodeVisitor& ) override;

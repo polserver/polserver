@@ -25,6 +25,7 @@ struct CompilerConfig
   bool GenerateDebugTextInfo;
   int VerbosityLevel;
   bool DisplayWarnings;
+  bool DisplayDebugs;
   bool GenerateDependencyInfo;
   bool CompileAspPages;
   bool AutoCompileByDefault;

@@ -33,6 +33,7 @@
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -110,7 +111,7 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
     //   - an expression: evaluate and use as the field name
     if ( auto identifier = dynamic_cast<Identifier*>( rhs.get() ) )
     {
-      rhs = std::make_unique<StringValue>( rhs->source_location, identifier->name );
+      rhs = std::make_unique<StringValue>( rhs->source_location, identifier->scoped_name.string() );
     }
   }
 
@@ -323,7 +324,7 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
       {
         expr = format_expression( std::move( expr ), format );
       }
-      expressions.push_back( std::move(expr) );
+      expressions.push_back( std::move( expr ) );
     }
     else if ( auto string_literal = interstringPart_ctx->STRING_LITERAL_INSIDE() )
     {
@@ -348,7 +349,6 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
       location_for( *interstringPart_ctx )
           .internal_error( "unhandled context in interpolated string part" );
     }
-
   }
   return expressions;
 }
@@ -410,17 +410,19 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
 }
 
 std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
-    EscriptParser::FunctionCallContext* ctx, const std::string& scope )
+    EscriptParser::FunctionCallContext* ctx, const ScopeName& scope )
 {
   auto method_name = text( ctx->IDENTIFIER() );
 
   auto arguments = value_arguments( ctx->expressionList() );
 
-  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), scope, method_name,
-                                                       nullptr, std::move( arguments ) );
+  ScopableName name( scope, method_name );
 
-  std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
-  workspace.function_resolver.register_function_link( key, function_call->function_link );
+  auto function_call = std::make_unique<FunctionCall>(
+      location_for( *ctx ), current_scope_name.string(), name, std::move( arguments ) );
+
+  workspace.function_resolver.register_function_link( std::move( name ),
+                                                      function_call->function_link );
 
   return function_call;
 }
@@ -431,8 +433,9 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
 {
   auto arguments = value_arguments( ctx->expressionList() );
 
-  auto function_call = std::make_unique<FunctionCall>(
-      location_for( *ctx ), "", "", std::move( callee ), std::move( arguments ) );
+  auto function_call =
+      std::make_unique<FunctionCall>( location_for( *ctx ), current_scope_name.string(),
+                                      std::move( callee ), std::move( arguments ) );
 
   return function_call;
 }
@@ -554,11 +557,11 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   }
   else if ( auto identifier = ctx->IDENTIFIER() )
   {
-    return std::make_unique<Identifier>( location_for( *ctx ), "", text( identifier ) );
+    return std::make_unique<Identifier>( location_for( *ctx ), text( identifier ) );
   }
   else if ( auto f_call = ctx->functionCall() )
   {
-    return function_call( f_call, "" );
+    return function_call( f_call, ScopeName::None );
   }
   else if ( auto scoped_f_call = ctx->scopedFunctionCall() )
   {
@@ -603,14 +606,17 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
 std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
     EscriptParser::ScopedFunctionCallContext* ctx )
 {
-  return function_call( ctx->functionCall(), text( ctx->IDENTIFIER() ) );
+  auto id = ctx->IDENTIFIER();
+  auto scope = id ? ScopeName( text( id ) ) : ScopeName::Global;
+  return function_call( ctx->functionCall(), scope );
 }
 
 std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
     EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
 {
-  return std::make_unique<Identifier>( location_for( *ctx ), text( ctx->scope ),
-                                       text( ctx->identifier ) );
+  ScopeName scope_name( ctx->scope ? text( ctx->scope ) : "" );
+  ScopableName name( std::move( scope_name ), text( ctx->identifier ) );
+  return std::make_unique<Identifier>( location_for( *ctx ), std::move( name ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
@@ -671,7 +677,10 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
         {
           if ( auto identifier = dynamic_cast<Identifier*>( &binary_operator->lhs() ) )
           {
-            name = identifier->name;
+            // TODO we dont support `foo(Animal::bar = 1)` ... we may need this for super() if we
+            // want to support multiple inheritance where multiple base classes share the same
+            // parameter name.
+            name = identifier->name();
             value = binary_operator->take_rhs();
           }
         }

@@ -132,7 +132,7 @@ void CodeGenerator::register_module_functions_alphabetically( CompilerWorkspace&
 void CodeGenerator::sort_module_functions_by_module_name( CompilerWorkspace& workspace )
 {
   auto sortByModuleName = []( ModuleFunctionDeclaration* d1, ModuleFunctionDeclaration* d2 ) -> bool
-  { return d1->module_name < d2->module_name; };
+  { return d1->scope < d2->scope; };
 
   std::sort( workspace.referenced_module_function_declarations.begin(),
              workspace.referenced_module_function_declarations.end(), sortByModuleName );

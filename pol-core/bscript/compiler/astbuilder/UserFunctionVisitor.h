@@ -15,7 +15,7 @@ class BuilderWorkspace;
 class UserFunctionVisitor : public EscriptGrammar::EscriptParserBaseVisitor
 {
 public:
-  UserFunctionVisitor( const SourceFileIdentifier&, BuilderWorkspace& );
+  UserFunctionVisitor( const SourceFileIdentifier&, BuilderWorkspace&, const std::string& scope );
 
   antlrcpp::Any visitFunctionDeclaration(
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* ) override;
@@ -30,6 +30,7 @@ private:
   BuilderWorkspace& workspace;
 
   UserFunctionBuilder tree_builder;
+  const std::string scope;
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -1,0 +1,1 @@
+fail-scopes-const-shadowing.src:9:9: error: Cannot define a variable with the same name as constant 'constant'.

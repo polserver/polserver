@@ -31,6 +31,7 @@
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -192,7 +193,7 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
       else if ( auto identifier = group_label->IDENTIFIER() )
       {
         selectors.push_back(
-            std::make_unique<Identifier>( location_for( *identifier ), "", text( identifier ) ) );
+            std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) ) );
       }
       else if ( auto string_literal = group_label->STRING_LITERAL() )
       {
@@ -277,11 +278,11 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   }
   else if ( auto identifier = ctx->IDENTIFIER() )
   {
-    return std::make_unique<Identifier>( location_for( *identifier ), "", text( identifier ) );
+    return std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) );
   }
   else if ( auto m_call = ctx->functionCall() )
   {
-    return function_call( m_call, "" );
+    return function_call( m_call, ScopeName::None );
   }
   else if ( auto scoped_call = ctx->scopedFunctionCall() )
   {

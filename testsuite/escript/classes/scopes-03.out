@@ -1,0 +1,15 @@
+global variable=global var
+global ::variable=global var
+global Animal::variable=class var
+StaticFunc variable=func param
+StaticFunc ::variable=global var
+StaticFunc Animal::variable=class var
+StaticFunc.local variable=local var
+StaticFunc.local Animal::variable=class var
+::StaticFunc variable=func param
+---
+TestFor variable=1 to 2
+TestFor variable=2 to 2
+---
+Animal::TestFuncCall called
+::TestFuncCall called

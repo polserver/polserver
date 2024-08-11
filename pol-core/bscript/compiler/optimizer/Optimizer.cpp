@@ -200,10 +200,15 @@ void Optimizer::visit_const_declaration( ConstDeclaration& constant )
 
 void Optimizer::visit_identifier( Identifier& identifier )
 {
-  if ( auto constant = constants.find( identifier.name ) )
+  // We don't have scoped constants, so only global identifiers can be optimized.
+  if ( identifier.scoped_name.scope.global() )
   {
-    SimpleValueCloner cloner( report, identifier.source_location );
-    optimized_replacement = cloner.clone( constant->expression() );
+    auto name = identifier.string();
+    if ( auto constant = constants.find( name ) )
+    {
+      SimpleValueCloner cloner( report, identifier.source_location );
+      optimized_replacement = cloner.clone( constant->expression() );
+    }
   }
 }
 

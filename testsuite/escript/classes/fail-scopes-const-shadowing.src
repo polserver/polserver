@@ -1,0 +1,10 @@
+// A class-variable cannot shadow a constant, because the Optimizer will not
+// be able to determine if an un-scoped identifier used in an expression
+// references the constant or the class variable. The Optimizer runs _before_
+// the Semantic Analyzer, so Identifier -> Variable information is not yet available.
+//
+
+const constant := 1;
+class Animal()
+    var constant := 2;
+endclass
