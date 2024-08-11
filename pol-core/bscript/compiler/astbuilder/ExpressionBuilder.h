@@ -2,6 +2,7 @@
 #define POLSERVER_EXPRESSIONBUILDER_H
 
 #include "bscript/compiler/astbuilder/ValueBuilder.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 #ifndef __TOKENS_H
 #include "bscript/tokens.h"
@@ -69,7 +70,7 @@ public:
       std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> );
 
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
-                                               const std::string& scope );
+                                               const ScopeName& scope );
 
   std::unique_ptr<FunctionCall> function_call(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::FunctionCallSuffixContext* );

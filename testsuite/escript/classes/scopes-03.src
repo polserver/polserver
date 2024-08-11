@@ -1,0 +1,53 @@
+// Various shadowing of the name 'variable' and accessing variables via
+// 'Animal::variable' and 'variable';
+
+// Incorrectly handles ::variable TODO fix in next commit
+
+var variable := "global var";
+
+function StaticFunc( variable )
+    print( $"::StaticFunc variable={variable}" );
+endfunction
+
+function TestFuncCall()
+    print( $"::TestFuncCall called" );
+endfunction
+
+class Animal
+    var variable := "class var";
+
+    function StaticFunc( variable )
+        print( $"StaticFunc variable={variable}" );
+        print( $"StaticFunc ::variable={::variable}" );
+        print( $"StaticFunc Animal::variable={Animal::variable}" );
+
+        if ("1")
+            var variable := "local var";
+            print( $"StaticFunc.local variable={variable}" );
+            print( $"StaticFunc.local Animal::variable={Animal::variable}" );
+        endif
+    endfunction
+
+    function TestFor()
+        for variable := 1 to 2
+            print( $"TestFor variable={variable} to 2" );
+        endfor
+    endfunction
+
+    function TestFuncCall()
+        print( $"Animal::TestFuncCall called" );
+        ::TestFuncCall( );
+    endfunction
+endclass
+
+
+print( $"global variable={variable}" );
+print( $"global ::variable={::variable}" );
+print( $"global Animal::variable={Animal::variable}" );
+Animal::StaticFunc( "func param" );
+::StaticFunc( "func param" );
+
+print( "---" );
+Animal::TestFor();
+print( "---" );
+Animal::TestFuncCall();

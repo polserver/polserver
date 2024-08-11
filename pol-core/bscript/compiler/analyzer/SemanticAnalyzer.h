@@ -9,6 +9,7 @@
 #include "bscript/compiler/analyzer/FlowControlScopes.h"
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"
 #include "bscript/compiler/analyzer/Variables.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -71,6 +72,11 @@ private:
   FlowControlScopes continue_scopes;
   LocalVariableScopes local_scopes;
   LocalVariableScopes capture_scopes;
+  // Pushed and popped in visit_user_function,
+  //
+  // Used in visit_identifier. If the variable does not exist under `name`,
+  // check `current_scope::name` (if current scope exists).
+  ScopeName current_scope_name;
 };
 
 }  // namespace Pol::Bscript::Compiler

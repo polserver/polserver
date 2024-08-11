@@ -61,6 +61,11 @@ void EvaluationVisitor::visit_identifier( Identifier& identifier )
   BObjectRefVec::const_iterator itr = _exec->Globals2->begin(), end = _exec->Globals2->end();
   BObjectRef result;
 
+  if ( !identifier.scoped_name.scope.empty() )
+    throw_invalid_expression();
+
+  auto name = identifier.name();
+
   unsigned block = _script->dbg_ins_blocks[_exec->PC];
   size_t left = _exec->Locals2->size();
 
@@ -71,7 +76,7 @@ void EvaluationVisitor::visit_identifier( Identifier& identifier )
       block = _script->blocks[block].parentblockidx;
     }
     size_t varidx = left - 1 - _script->blocks[block].parentvariables;
-    if ( _script->blocks[block].localvarnames[varidx] == identifier.name )
+    if ( _script->blocks[block].localvarnames[varidx] == name )
     {
       stack.push( ( *_exec->Locals2 )[left - 1] );
       return;
@@ -82,14 +87,14 @@ void EvaluationVisitor::visit_identifier( Identifier& identifier )
   // Then check globals
   for ( unsigned idx = 0; itr != end; ++itr, ++idx )
   {
-    if ( _script->globalvarnames.size() > idx && _script->globalvarnames[idx] == identifier.name )
+    if ( _script->globalvarnames.size() > idx && _script->globalvarnames[idx] == name )
     {
       stack.push( ( *_exec->Globals2 )[idx] );
       return;
     }
   }
 
-  throw std::runtime_error( "Unknown variable " + identifier.name );
+  throw std::runtime_error( "Unknown variable " + name );
 }
 
 void EvaluationVisitor::visit_float_value( FloatValue& node )

@@ -12,7 +12,8 @@ namespace Pol::Bscript::Compiler
 DefaultConstructorFunction::DefaultConstructorFunction( const SourceLocation& loc,
                                                         const std::string& class_name )
     : UserFunction(
-          loc, false, false, UserFunctionType::Constructor, class_name /* function name */,
+          loc, false, false, UserFunctionType::Constructor, class_name /* scope */,
+          class_name /* function name */,
           std::make_unique<FunctionParameterList>(
               loc, std::vector<std::unique_ptr<FunctionParameterDeclaration>>() ),
           std::make_unique<FunctionBody>( loc, std::vector<std::unique_ptr<Statement>>() ), loc )

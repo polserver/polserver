@@ -180,7 +180,7 @@ set (bscript_sources    # sorted !
   compiler/ast/VarStatement.h
   compiler/ast/WhileLoop.cpp
   compiler/ast/WhileLoop.h
-  compiler/astbuilder/AvailableUserFunction.h
+  compiler/astbuilder/AvailableParseTree.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
@@ -264,6 +264,10 @@ set (bscript_sources    # sorted !
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
   compiler/model/LocalVariableScopeInfo.h
+  compiler/model/ScopableName.cpp
+  compiler/model/ScopableName.h
+  compiler/model/ScopeName.cpp
+  compiler/model/ScopeName.h
   compiler/model/SimpleTypes.h
   compiler/model/UserFunctionInclusion.h
   compiler/model/UserFunctionType.h

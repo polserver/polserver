@@ -2,6 +2,7 @@
 #define POLSERVER_VALUEBUILDER_H
 
 #include "bscript/compiler/astbuilder/TreeBuilder.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 #include <EscriptGrammar/EscriptParser.h>
 
@@ -39,6 +40,11 @@ public:
   std::string unquote( antlr4::tree::TerminalNode* string_literal, bool expect_quotes = true );
 
   std::unique_ptr<Value> value( EscriptGrammar::EscriptParser::LiteralContext* );
+
+  // Pushed and popped in UserFunctionVisitor.
+  //
+  // Used when constructing a FunctionCall's `calling_scope`.
+  ScopeName current_scope_name;
 
 private:
   int to_int( EscriptGrammar::EscriptParser::IntegerLiteralContext* );

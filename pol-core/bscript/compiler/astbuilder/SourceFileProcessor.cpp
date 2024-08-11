@@ -3,11 +3,13 @@
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
-#include "bscript/compiler/astbuilder/AvailableUserFunction.h"
+#include "bscript/compiler/astbuilder/AvailableParseTree.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/astbuilder/FunctionResolver.h"
 #include "bscript/compiler/astbuilder/ModuleProcessor.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileCache.h"
@@ -280,15 +282,15 @@ void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationC
   use_module( modulename, source_location, micros_used );
 }
 
+// Visits global user functions. Class functions are visited in UserFunctionVisitor.
 antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
     EscriptParser::FunctionDeclarationContext* ctx )
 {
   auto loc = location_for( *ctx );
-  workspace.function_resolver.register_available_user_function( loc, ctx );
+  bool force_reference = user_function_inclusion == UserFunctionInclusion::All;
+  workspace.function_resolver.register_available_user_function( loc, ctx, force_reference );
   const std::string& function_name = tree_builder.text( ctx->IDENTIFIER() );
   workspace.compiler_workspace.all_function_locations.emplace( function_name, loc );
-  if ( user_function_inclusion == UserFunctionInclusion::All )
-    workspace.function_resolver.force_reference( function_name, loc );
   return antlrcpp::Any();
 }
 
@@ -296,9 +298,10 @@ antlrcpp::Any SourceFileProcessor::visitClassDeclaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
 {
   auto loc = location_for( *ctx );
-  workspace.function_resolver.register_available_class_decl( loc, ctx );
   auto class_name = tree_builder.text( ctx->IDENTIFIER() );
 
+  // TODO change this, as discussed: vars should only get added if the class is referenced
+  //
   // Add var statements to top-level, as their declaration + execution needs to happen in-line with
   // other statements:
   //
@@ -320,11 +323,21 @@ antlrcpp::Any SourceFileProcessor::visitClassDeclaration(
       }
     }
 
-  const std::string& name = tree_builder.text( ctx->IDENTIFIER() );
-  workspace.compiler_workspace.all_class_locations.emplace( name, loc );
-  // This should be fine...?
+  workspace.function_resolver.register_available_class_declaration( loc, class_name, ctx );
+  workspace.compiler_workspace.all_class_locations.emplace( class_name, loc );
+
   if ( user_function_inclusion == UserFunctionInclusion::All )
-    workspace.function_resolver.force_reference( name, loc );
+  {
+    for ( auto classStatement : ctx->classBody()->classStatement() )
+    {
+      if ( auto func_decl = classStatement->functionDeclaration() )
+      {
+        auto function_name = tree_builder.text( func_decl->IDENTIFIER() );
+        workspace.function_resolver.force_reference( ScopableName( class_name, function_name ),
+                                                     loc );
+      }
+    }
+  }
   return antlrcpp::Any();
 }
 

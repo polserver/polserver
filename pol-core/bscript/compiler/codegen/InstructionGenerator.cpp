@@ -247,15 +247,9 @@ void InstructionGenerator::visit_branch_selector( BranchSelector& node )
   }
 }
 
-void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
+void InstructionGenerator::visit_class_parameter_list( ClassParameterList& /*node*/ )
 {
-  // Skip visiting the parameter list (child 0), as their nodes (Identifier) do not
-  // generate any instructions.
-
-  for ( const auto& child : node.children | boost::adaptors::sliced( 1, node.children.size() ) )
-  {
-    child->accept( *this );
-  }
+  // Identifiers for class parameters are not used in the generated code.
 }
 
 void InstructionGenerator::visit_class_instance( ClassInstance& node )
@@ -279,7 +273,7 @@ void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& m
 // This will _most likely_ need to be completely rewritten to handle the super-chaining.
 void InstructionGenerator::visit_default_constructor_function( DefaultConstructorFunction& node )
 {
-  FlowControlLabel& label = user_function_labels[node.name];
+  FlowControlLabel& label = user_function_labels[node.scoped_name()];
   emit.label( label );
   visit_children( node );            // emits the `pop this` from the function param decl
   emit.method_this();                // push `this` on the stack
@@ -491,7 +485,7 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
     else if ( auto uf = call.function_link->user_function() )
     {
       emit_args( *uf );
-      FlowControlLabel& label = user_function_labels[uf->name];
+      FlowControlLabel& label = user_function_labels[uf->scoped_name()];
       emit.makelocal();
       emit.call_userfunc( label );
     }
@@ -567,7 +561,7 @@ void InstructionGenerator::visit_function_reference( FunctionReference& function
   if ( auto uf = function_reference.function_link->user_function() )
   {
     update_debug_location( function_reference );
-    FlowControlLabel& label = user_function_labels[uf->name];
+    FlowControlLabel& label = user_function_labels[uf->scoped_name()];
     emit.function_reference( *uf, label );
   }
   else
@@ -807,7 +801,7 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
                                         user_function.parameter_count() );
   }
 
-  FlowControlLabel& label = user_function_labels[user_function.name];
+  FlowControlLabel& label = user_function_labels[user_function.scoped_name()];
   emit.label( label );
 
   // Pop function parameters
