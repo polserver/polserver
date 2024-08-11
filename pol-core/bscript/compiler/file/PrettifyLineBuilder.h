@@ -13,7 +13,10 @@ namespace Pol::Bscript::Compiler
 enum class FmtContext
 {
   NONE = 0,
-  KEYWORD = 1,  // space
+  VAR_STATEMENT,
+  VAR_COMMA,
+
+  KEYWORD,  // space
   KEYWORD_BREAKING,
   LITERAL,
   TERMINATOR,                    // terminatorStyle
@@ -62,6 +65,7 @@ struct FmtToken
     FORCED_BREAK = 8,              // force linebreak
     PREFERRED_BREAK = 16,          // preferred linebreak , in params
     PREFERRED_BREAK_LOGICAL = 32,  // preferred linebreak eg &&
+    PREFERRED_BREAK_VAR = 64,
   };
   std::string text = {};
   Position pos = {};
@@ -71,13 +75,15 @@ struct FmtToken
   size_t token_type = 0;
   FmtContext context = FmtContext::NONE;
   FmtToken() = default;
-  FmtToken( std::string&& text, const Position& pos, int style, size_t group, size_t token_type )
+  FmtToken( std::string&& text, const Position& pos, int style, size_t group, size_t token_type,
+            FmtContext context )
       : text( std::move( text ) ),
         pos( pos ),
         pos_end( pos ),
         style( style ),
         group( group ),
-        token_type( token_type ){};
+        token_type( token_type ),
+        context( context ){};
 };
 
 class PrettifyLineBuilder
@@ -96,13 +102,13 @@ public:
 
   int closingParenthesisStyle( size_t begin_size );
   int closingBracketStyle( size_t begin_size );
-  int openingParenthesisStyle();
-  int openingBracketStyle();
-  int delimiterStyle();
-  int terminatorStyle();
-  int assignmentStyle();
-  int comparisonStyle();
-  int operatorStyle();
+  int openingParenthesisStyle() const;
+  int openingBracketStyle() const;
+  int delimiterStyle() const;
+  int terminatorStyle() const;
+  int assignmentStyle() const;
+  int comparisonStyle() const;
+  int operatorStyle() const;
 
 private:
   std::vector<std::string> _rawlines = {};
@@ -118,8 +124,19 @@ private:
   void mergeCommentsBefore( size_t nextlineno );
   void addEmptyLines( size_t line_number );
   void mergeEOFNonTokens();
-  std::string identSpacing();
-  std::string alignmentSpacing( size_t count );
+  std::string identSpacing() const;
+  std::string alignmentSpacing( size_t count ) const;
+  void stripline( std::string& line ) const;
+  // TODO needs also context, simply use a merged FmtToken?
+  // <splitted string, groupid, firstgroup, style>
+  using LineSplit = std::tuple<std::string, size_t, size_t, int>;
+  std::vector<LineSplit> buildLineSplits();
+  std::vector<std::string> createBasedOnGroups( const std::vector<LineSplit>& lines ) const;
+  std::vector<std::string> createBasedOnPreferredBreaks( const std::vector<LineSplit>& lines,
+                                                         bool logical ) const;
+  std::vector<std::string> createSimple( const std::vector<LineSplit>& lines ) const;
+  void parenthesisAlign( const std::vector<std::string>& finallines, size_t alignmentspace,
+                         std::string& line ) const;
 };
 }  // namespace Pol::Bscript::Compiler
 

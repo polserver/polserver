@@ -123,7 +123,7 @@ std::string PrettifyFileProcessor::prettify() const
 
 antlrcpp::Any PrettifyFileProcessor::visitVarStatement( EscriptParser::VarStatementContext* ctx )
 {
-  addToken( "var", ctx->VAR(), FmtToken::SPACE );
+  addToken( "var", ctx->VAR(), FmtToken::SPACE, FmtContext::VAR_STATEMENT );
   visitVariableDeclarationList( ctx->variableDeclarationList() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
   linebuilder.buildLine( _currident );
@@ -168,7 +168,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclarationList(
   {
     visitVariableDeclaration( args[i] );
     if ( i < args.size() - 1 )
-      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle(), FmtContext::VAR_COMMA );
   }
   return {};
 }
@@ -1293,27 +1293,29 @@ antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNo
 }
 
 void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, int style,
-                                      size_t token_type )
+                                      size_t token_type, FmtContext context )
 {
   linebuilder.addPart(
-      { std::forward<std::string>( text ), pos, style, _currentgroup, token_type } );
+      { std::forward<std::string>( text ), pos, style, _currentgroup, token_type, context } );
 }
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
-                                      int style )
+                                      int style, FmtContext context )
 {
   if ( compilercfg.FormatterKeepKeywords )
     addToken( terminal->getSymbol()->getText(), Range( *terminal ).start, style,
-              terminal->getSymbol()->getType() );
+              terminal->getSymbol()->getType(), context );
   else
     addToken( std::forward<std::string>( text ), Range( *terminal ).start, style,
-              terminal->getSymbol()->getType() );
+              terminal->getSymbol()->getType(), context );
 }
-void PrettifyFileProcessor::addToken( std::string&& text, antlr4::Token* token, int style )
+void PrettifyFileProcessor::addToken( std::string&& text, antlr4::Token* token, int style,
+                                      FmtContext context )
 {
   if ( compilercfg.FormatterKeepKeywords )
-    addToken( token->getText(), Range( token ).start, style, token->getType() );
+    addToken( token->getText(), Range( token ).start, style, token->getType(), context );
   else
-    addToken( std::forward<std::string>( text ), Range( token ).start, style, token->getType() );
+    addToken( std::forward<std::string>( text ), Range( token ).start, style, token->getType(),
+              context );
 }
 
 void PrettifyFileProcessor::preprocess( SourceFile& sf )
