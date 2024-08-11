@@ -11,7 +11,7 @@ class SourceLocation;
 class Report
 {
 public:
-  explicit Report( bool display_warnings, bool display_errors = true );
+  explicit Report( bool display_warnings, bool display_errors = true, bool display_debug = false );
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
@@ -73,6 +73,22 @@ public:
     warning( node.source_location, format, args... );
   }
 
+  template <typename Str, typename... Args>
+  inline void debug( const SourceLocation& source_location, Str const& format, Args&&... args )
+  {
+    if ( display_debugs )
+    {
+      auto msg = fmt::format( format, args... );
+      report_debug( source_location, msg.c_str() );
+    }
+  }
+
+  template <typename Str, typename... Args>
+  inline void debug( const Node& node, Str const& format, Args&&... args )
+  {
+    debug( node.source_location, format, args... );
+  }
+
   [[nodiscard]] unsigned error_count() const;
   [[nodiscard]] unsigned warning_count() const;
 
@@ -81,9 +97,11 @@ public:
 private:
   void report_error( const SourceLocation&, const char* msg );
   void report_warning( const SourceLocation&, const char* msg );
+  void report_debug( const SourceLocation&, const char* msg );
 
   const bool display_warnings;
   const bool display_errors;
+  const bool display_debugs;
   unsigned errors;
   unsigned warnings;
 };

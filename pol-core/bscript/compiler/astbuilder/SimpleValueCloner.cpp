@@ -99,10 +99,10 @@ void SimpleValueCloner::visit_function_call( FunctionCall& fc )
   {
     std::vector<std::unique_ptr<Argument>> no_args;
 
-    if ( !fc.method_name.empty() )
+    if ( fc.scoped_name )
     {
-      auto new_fc = std::make_unique<FunctionCall>( use_source_location, fc.scope, fc.method_name,
-                                                    nullptr, std::move( no_args ) );
+      auto new_fc = std::make_unique<FunctionCall>( use_source_location, fc.calling_scope,
+                                                    *fc.scoped_name, std::move( no_args ) );
       new_fc->function_link->link_to( fc.function_link->function() );
       cloned_value = std::move( new_fc );
     }
@@ -116,7 +116,7 @@ void SimpleValueCloner::visit_function_call( FunctionCall& fc )
 
 void SimpleValueCloner::visit_identifier( Identifier& ident )
 {
-  report.error( ident, "Cannot clone '{}' because it is not a constant.", ident.name );
+  report.error( ident, "Cannot clone '{}' because it is not a constant.", ident.string() );
 }
 
 void SimpleValueCloner::visit_integer_value( IntegerValue& iv )

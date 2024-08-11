@@ -18,8 +18,6 @@ public:
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
-
-  const std::string module_name;
 };
 
 }  // namespace Pol::Bscript::Compiler

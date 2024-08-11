@@ -12,14 +12,19 @@ class FunctionBody;
 class Function : public Node
 {
 public:
-  Function( const SourceLocation&, std::string name, std::unique_ptr<FunctionParameterList>,
-            std::unique_ptr<FunctionBody> );
-  Function( const SourceLocation&, std::string name, std::unique_ptr<FunctionParameterList> );
+  Function( const SourceLocation&, std::string scope, std::string name,
+            std::unique_ptr<FunctionParameterList>, std::unique_ptr<FunctionBody> );
+  Function( const SourceLocation&, std::string scope, std::string name,
+            std::unique_ptr<FunctionParameterList> );
 
   unsigned parameter_count() const;
   bool is_variadic() const;
+  std::string scoped_name() const;
   std::vector<std::reference_wrapper<FunctionParameterDeclaration>> parameters();
 
+  // TODO rename this to `scope`. Keeping as module_name for now to avoid too
+  // many changes.
+  const std::string scope;
   const std::string name;
 };
 

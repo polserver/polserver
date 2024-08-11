@@ -17,11 +17,11 @@ void ModuleDeclarationRegistrar::register_modulefunc(
 
 void ModuleDeclarationRegistrar::register_module( const ModuleFunctionDeclaration& node )
 {
-  auto& module_name = node.module_name;
+  auto& module_name = node.scope;
   auto module_itr = registered_modules.find( module_name );
   if ( module_itr == registered_modules.end() )
   {
-    auto module_index = static_cast<unsigned>(registered_modules.size());
+    auto module_index = static_cast<unsigned>( registered_modules.size() );
 
     registered_modules[module_name] = std::make_unique<EmittedModule>( module_index );
     module_names_in_order.push_back( module_name );
@@ -31,7 +31,7 @@ void ModuleDeclarationRegistrar::register_module( const ModuleFunctionDeclaratio
 void ModuleDeclarationRegistrar::lookup_or_register_module_function(
     const ModuleFunctionDeclaration& node, unsigned& module_index, unsigned& function_index )
 {
-  auto& module_name = node.module_name;
+  auto& module_name = node.scope;
   auto& function_name = node.name;
   auto argument_count = node.parameter_count();
 

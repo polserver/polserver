@@ -1,0 +1,4 @@
+::StaticFunc foo=bar
+Animal::StaticFunc foo=3
+Animal::StaticFunc foo=2
+Animal::StaticFunc foo=1

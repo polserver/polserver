@@ -33,7 +33,7 @@ public:
   void visit_block( Block& ) override;
   void visit_boolean_value( BooleanValue& ) override;
   void visit_branch_selector( BranchSelector& ) override;
-  void visit_class_declaration( ClassDeclaration& ) override;
+  void visit_class_parameter_list( ClassParameterList& ) override;
   void visit_class_instance( ClassInstance& ) override;
   void visit_debug_statement_marker( DebugStatementMarker& ) override;
   void visit_default_constructor_function( DefaultConstructorFunction& ) override;
