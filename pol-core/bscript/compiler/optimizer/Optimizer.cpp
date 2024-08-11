@@ -206,10 +206,10 @@ void Optimizer::visit_identifier( Identifier& identifier )
   // `scope::identifier`. This allows classes to have variables with the same
   // name as constants.
 
-  // We don't have scoped constants, so if an identifier has a scope, it cannot be optimized.
-  if ( !identifier.scoped_name.scope.exists() )
+  // We don't have scoped constants, so only global identifiers can be optimized.
+  if ( identifier.scoped_name.scope.global() )
   {
-    auto name = identifier.maybe_scoped_name();
+    auto name = identifier.string();
     if ( auto constant = constants.find( name ) )
     {
       SimpleValueCloner cloner( report, identifier.source_location );

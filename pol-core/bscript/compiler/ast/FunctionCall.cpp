@@ -42,8 +42,7 @@ void FunctionCall::accept( NodeVisitor& visitor )
 
 void FunctionCall::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "function-call({})",
-                  scoped_name->maybe_scoped_string() );
+  fmt::format_to( std::back_inserter( w ), "function-call({})", scoped_name->string() );
 }
 
 std::vector<std::unique_ptr<Argument>> FunctionCall::take_arguments()
@@ -65,12 +64,12 @@ std::vector<std::reference_wrapper<FunctionParameterDeclaration>> FunctionCall::
     internal_error( "function has not been resolved" );
 }
 
-std::string FunctionCall::maybe_scoped_name() const
+std::string FunctionCall::string() const
 {
   // Should only be used on compile-time function calls (ie. not an
-  // expression-as-callee function call)
+  // expression-as-callee function call) that actually have a ScopedName.
   if ( scoped_name )
-    return scoped_name->maybe_scoped_string();
+    return scoped_name->string();
   return "";
 }
 }  // namespace Pol::Bscript::Compiler

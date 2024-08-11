@@ -116,8 +116,7 @@ void SimpleValueCloner::visit_function_call( FunctionCall& fc )
 
 void SimpleValueCloner::visit_identifier( Identifier& ident )
 {
-  report.error( ident, "Cannot clone '{}' because it is not a constant.",
-                ident.maybe_scoped_name() );
+  report.error( ident, "Cannot clone '{}' because it is not a constant.", ident.string() );
 }
 
 void SimpleValueCloner::visit_integer_value( IntegerValue& iv )

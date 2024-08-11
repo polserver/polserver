@@ -72,7 +72,7 @@ void FunctionResolver::register_function_link( const ScopableName& name,
   };
 
   // If call scope given, check that specific one.
-  if ( name.scope.exists() && resolve_if_existing( name ) )
+  if ( !name.scope.global() && resolve_if_existing( name ) )
     return;
 
   // If calling scope is present, check that first, eg. nside Animal class, `foo()` checks
@@ -223,7 +223,6 @@ void FunctionResolver::register_available_user_function_parse_tree(
     const ScopableName& name, bool force_reference )
 {
   const auto& unscoped_name = name.name;
-  // ScopableName name( scope_name, unscoped_name );
 
   // Eg."foo" or "Animal::foo"
   auto scoped_name = name.string();
@@ -241,7 +240,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
     report.error( source_location,
                   "Function '{}' defined more than once.\n"
                   "  Previous declaration: {}",
-                  name.maybe_scoped_string(), previous.source_location );
+                  scoped_name, previous.source_location );
   }
 
   auto itr2 = resolved_functions.find( { scope, unscoped_name } );
@@ -256,7 +255,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
     report.error( source_location,
                   "User Function '{}' conflicts with {} of the same name.\n"
                   "  {} declaration: {}",
-                  name.maybe_scoped_string(), what, what, previous->source_location );
+                  scoped_name, what, what, previous->source_location );
   }
 
   auto itr3 = available_class_decl_parse_trees.find( scope );
@@ -267,7 +266,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
     report.error( source_location,
                   "User Function '{}' conflicts with Class of the same name.\n"
                   "  Class declaration: {}",
-                  name.maybe_scoped_string(), previous.source_location );
+                  scoped_name, previous.source_location );
   }
 
   auto apt = AvailableParseTree{ source_location, ctx, scope };
@@ -353,7 +352,7 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
   // If a call scope was given, _only_ check that one.
   // eg. `Animal::foo()` will only search for `Animal::foo()`, disregarding a possible parent
   // scoped `::foo()`
-  if ( call.scoped() )
+  if ( !call.global() )
   {
     auto scoped_call_name = call.string();
     itr = available_user_function_parse_trees.find( scoped_call_name );

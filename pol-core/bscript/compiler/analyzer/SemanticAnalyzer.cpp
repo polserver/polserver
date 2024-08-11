@@ -345,8 +345,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )
     {
-      auto callee =
-          std::make_unique<Identifier>( fc.source_location, fc.calling_scope, *fc.scoped_name );
+      auto callee = std::make_unique<Identifier>( fc.source_location, *fc.scoped_name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
       fc.scoped_name.reset();
     }
@@ -407,7 +406,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
   auto is_callee_variadic = parameters.size() && parameters.back().get().rest;
 
-  const auto method_name = fc.maybe_scoped_name();
+  const auto method_name = fc.string();
 
   for ( auto& arg_unique_ptr : arguments )
   {
@@ -726,7 +725,7 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     {
       node.variable = global;
     }
-    else if ( current_scope_name.exists() )
+    else if ( !current_scope_name.global() )
     {
       const auto scoped_name = ScopableName( current_scope_name, node.name() ).string();
 

@@ -5,15 +5,13 @@
 
 namespace Pol::Bscript::Compiler
 {
-Identifier::Identifier( const SourceLocation& loc, const std::string& calling_scope,
-                        const ScopableName& scoped_name )
-    : Expression( loc ), calling_scope( calling_scope ), scoped_name( scoped_name )
+Identifier::Identifier( const SourceLocation& loc, const ScopableName& scoped_name )
+    : Expression( loc ), scoped_name( scoped_name )
 
 {
 }
-Identifier::Identifier( const SourceLocation& loc, const std::string& calling_scope,
-                        const std::string& name )
-    : Identifier( loc, calling_scope, ScopableName( ScopeName::None, name ) )
+Identifier::Identifier( const SourceLocation& loc, const std::string& name )
+    : Identifier( loc, ScopableName( ScopeName::None, name ) )
 {
 }
 
@@ -24,11 +22,10 @@ void Identifier::accept( NodeVisitor& visitor )
 
 void Identifier::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "identifier({}{})", scoped_name.string(),
-                  calling_scope.empty() ? "" : ( " in " + calling_scope ) );
+  fmt::format_to( std::back_inserter( w ), "identifier({})", scoped_name.string() );
 }
 
-std::string Identifier::maybe_scoped_name() const
+std::string Identifier::string() const
 {
   return scoped_name.string();
 }

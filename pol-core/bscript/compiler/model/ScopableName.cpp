@@ -16,28 +16,14 @@ ScopableName::ScopableName( const std::string& scope, const std::string& name )
 {
 }
 
-ScopableName::ScopableName( ScopableName&& other ) noexcept
-    : scope( std::move( other.scope ) ), name( std::move( other.name ) )
+bool ScopableName::global() const
 {
-}
-
-ScopableName::ScopableName( const ScopableName& other ) : scope( other.scope ), name( other.name )
-{
-}
-
-bool ScopableName::scoped() const
-{
-  return scope.exists();
+  return scope.global();
 }
 
 std::string ScopableName::string() const
 {
-  return fmt::format( "{}{}{}", scope.string(), scoped() ? "::" : "", name );
-}
-
-std::string ScopableName::maybe_scoped_string() const
-{
-  return fmt::format( "{}{}{}", scope.string(), scope.exists() ? "::" : "", name );
+  return fmt::format( "{}{}{}", scope.string(), scope.global() ? "" : "::", name );
 }
 
 bool ScopableName::operator<( const ScopableName& other ) const
@@ -56,14 +42,14 @@ bool ScopableName::operator<( const ScopableName& other ) const
       return false;
     }
   }
-  else if ( scope.exists() && other.scope.exists() )
-  {
-    // Current object has scope, other doesn't
-    return false;  // Current object is greater
-  }
-  else if ( !scope.exists() && other.scope.exists() )
+  else if ( !scope.empty() && other.scope.empty() )
   {
     // Current object doesn't have scope, other does
+    return false;  // Current object is greater
+  }
+  else if ( scope.empty() && !other.scope.empty() )
+  {
+    // Current object has scope, other doesn't
     return true;  // Current object is less
   }
 

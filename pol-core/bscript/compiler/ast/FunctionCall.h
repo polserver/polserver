@@ -40,7 +40,7 @@ public:
   std::unique_ptr<ScopableName> scoped_name;
 
   // Eg. `foo()` or `Animal::foo()`
-  std::string maybe_scoped_name() const;
+  std::string string() const;
 };
 
 }  // namespace Pol::Bscript::Compiler

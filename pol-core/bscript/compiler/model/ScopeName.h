@@ -12,8 +12,8 @@ public:
   ScopeName( const std::string& name );
   ScopeName();
 
-  // True if scope is non-global scope
-  bool exists() const;
+  // True if scope is global scope
+  bool global() const;
 
   // True if scope was not specified
   bool empty() const;

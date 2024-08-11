@@ -556,7 +556,7 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   }
   else if ( auto identifier = ctx->IDENTIFIER() )
   {
-    return std::make_unique<Identifier>( location_for( *ctx ), current_scope, text( identifier ) );
+    return std::make_unique<Identifier>( location_for( *ctx ), text( identifier ) );
   }
   else if ( auto f_call = ctx->functionCall() )
   {
@@ -615,7 +615,7 @@ std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
 {
   ScopeName scope_name( ctx->scope ? text( ctx->scope ) : "" );
   ScopableName name( std::move( scope_name ), text( ctx->identifier ) );
-  return std::make_unique<Identifier>( location_for( *ctx ), current_scope, std::move( name ) );
+  return std::make_unique<Identifier>( location_for( *ctx ), std::move( name ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(

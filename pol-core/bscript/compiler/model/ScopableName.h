@@ -10,15 +10,11 @@ public:
   ScopableName( const ScopeName& scope, const std::string& name );
   ScopableName( const std::string& scope, const std::string& name );
 
-  // True if the scope is non-empty.
-  bool scoped() const;
+  // True if the scope is global.
+  bool global() const;
 
-  // Returns ::foo, foo, Animal::foo
+  // Returns foo, Animal::foo but never ::foo
   std::string string() const;
-
-  // Returns foo, Animal::foo. Should only be used in displaying messages to
-  // users, otherwise there will be an ambiguity between foo and ::foo.
-  std::string maybe_scoped_string() const;
 
   bool operator<( const ScopableName& other ) const;
 

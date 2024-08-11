@@ -11,9 +11,9 @@ ScopeName::ScopeName( const std::string& name ) : std::optional<std::string>( na
 
 ScopeName::ScopeName() : std::optional<std::string>( std::nullopt ) {}
 
-bool ScopeName::exists() const
+bool ScopeName::global() const
 {
-  return has_value() && !value().empty();
+  return empty() || value().empty();
 }
 
 bool ScopeName::empty() const

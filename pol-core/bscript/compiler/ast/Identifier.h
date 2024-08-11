@@ -13,20 +13,20 @@ class Variable;
 class Identifier : public Expression
 {
 public:
-  Identifier( const SourceLocation&, const std::string& calling_scope,
-              const ScopableName& scoped_name );
-  Identifier( const SourceLocation&, const std::string& calling_scope, const std::string& name );
+  Identifier( const SourceLocation&, const ScopableName& scoped_name );
+  Identifier( const SourceLocation&, const std::string& name );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
-  std::string maybe_scoped_name() const;
 
-  // Used in SemanticAnalyzer. If the identifer does not exist under `name`,
-  // check `calling_scope::name` (if calling scope exists).
-  const std::string calling_scope;
-  const ScopableName scoped_name;
+  // Returns foo, Animal::foo but never ::foo
+  std::string string() const;
+
+  // Returns foo, neve Animal::foo or ::foo
   const std::string& name() const;
 
+  // Used in SemanticAnalyzer to differentiate between "foo" and "::foo".
+  const ScopableName scoped_name;
   std::shared_ptr<Variable> variable;
 };
 
