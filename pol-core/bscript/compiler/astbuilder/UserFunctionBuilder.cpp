@@ -4,7 +4,6 @@
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
-#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
@@ -61,7 +60,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     }
   }
 
-  bool has_constructor = false;
   std::vector<std::string> function_names;
 
   if ( auto classBody = ctx->classBody() )
@@ -78,10 +76,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
         function_names.push_back( func_name );
 
-        // TODO this doesn't check for `this`, will be handled in the construction PR.
-        bool is_constructor = Clib::caseInsensitiveEqual( class_name, func_name );
-
-        has_constructor |= is_constructor;
         workspace.compiler_workspace.all_function_locations.emplace(
             ScopableName( class_name, func_name ).string(), func_loc );
       }
@@ -99,23 +93,12 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     }
   }
 
-  std::unique_ptr<DefaultConstructorFunction> constructor;
-
   auto parameter_list =
       std::make_unique<ClassParameterList>( location_for( *ctx ), std::move( parameters ) );
 
-  if ( !has_constructor )
-  {
-    // If no user-defined constructor present, create a constructor that just calls 'super()'. The
-    // semantic analyzer will catch errors re. missing parameters, etc.
-    constructor = std::make_unique<DefaultConstructorFunction>( location_for( *ctx ), class_name );
-
-    workspace.function_resolver.register_user_function( class_name, constructor.get() );
-  }
-
-  auto class_decl = std::make_unique<ClassDeclaration>(
-      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
-      class_body, std::move( constructor ) );
+  auto class_decl = std::make_unique<ClassDeclaration>( location_for( *ctx ), class_name,
+                                                        std::move( parameter_list ),
+                                                        std::move( function_names ), class_body );
 
   return class_decl;
 }

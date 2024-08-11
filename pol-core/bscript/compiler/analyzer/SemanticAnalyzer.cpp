@@ -24,7 +24,6 @@
 #include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
-#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
 #include "bscript/compiler/ast/FunctionBody.h"
@@ -298,16 +297,6 @@ void SemanticAnalyzer::visit_cstyle_for_loop( CstyleForLoop& loop )
   visit_loop_statement( loop );
 }
 
-// TODO implementation
-void SemanticAnalyzer::visit_default_constructor_function( DefaultConstructorFunction& )
-{
-  // TODO check that class can be default constructed.
-  //
-  // We do not visit children, and the Optimizer will remove this node. (The instruction generator
-  // will still emit the ins_classinst_create instruction instruction from the `Foo()` function
-  // call)
-}
-
 void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )
 {
   visit_loop_statement( do_while );
@@ -345,6 +334,32 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )
     {
+      // If the a function is a class, then it did not expose a constructor (since
+      // there was no function linked).
+
+      // If a function call is eg. `Animal()` with no scope, check the string as-is.
+      std::string class_name = fc.string();
+
+      auto class_itr = workspace.all_class_locations.find( class_name );
+      if ( class_itr == workspace.all_class_locations.end() )
+      {
+        class_name = fc.scoped_name->scope.string();
+
+        class_itr = workspace.all_class_locations.find( class_name );
+        if ( class_itr == workspace.all_class_locations.end() )
+        {
+          class_name.clear();
+        }
+      }
+
+      if ( !class_name.empty() )
+      {
+        report.error( fc,
+                      "In function call: Class '{}' does not expose a constructor.\n"
+                      "  See also: {}",
+                      class_name, class_itr->second );
+      }
+
       auto callee = std::make_unique<Identifier>( fc.source_location, *fc.scoped_name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
       fc.scoped_name.reset();

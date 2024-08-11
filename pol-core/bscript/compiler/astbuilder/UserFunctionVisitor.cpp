@@ -1,7 +1,6 @@
 #include "UserFunctionVisitor.h"
 
 #include "bscript/compiler/ast/ClassDeclaration.h"
-#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
