@@ -2,6 +2,7 @@
 #define POLSERVER_VALUEBUILDER_H
 
 #include "bscript/compiler/astbuilder/TreeBuilder.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 #include <EscriptGrammar/EscriptParser.h>
 
@@ -43,7 +44,7 @@ public:
   // Pushed and popped in UserFunctionVisitor.
   //
   // Used when constructing a FunctionCall's `calling_scope`.
-  std::string current_scope;
+  ScopeName current_scope_name;
 
 private:
   int to_int( EscriptGrammar::EscriptParser::IntegerLiteralContext* );

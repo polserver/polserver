@@ -418,10 +418,11 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
 
   ScopableName name( scope, method_name );
 
-  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), current_scope, name,
-                                                       std::move( arguments ) );
+  auto function_call = std::make_unique<FunctionCall>(
+      location_for( *ctx ), current_scope_name.string(), name, std::move( arguments ) );
 
-  workspace.function_resolver.register_function_link( name, function_call->function_link );
+  workspace.function_resolver.register_function_link( std::move( name ),
+                                                      function_call->function_link );
 
   return function_call;
 }
@@ -432,9 +433,9 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
 {
   auto arguments = value_arguments( ctx->expressionList() );
 
-  // Expression-as-callee functions, eg. `(variable)(args...)` do not have a call scope or name.
-  auto function_call = std::make_unique<FunctionCall>(
-      location_for( *ctx ), current_scope, std::move( callee ), std::move( arguments ) );
+  auto function_call =
+      std::make_unique<FunctionCall>( location_for( *ctx ), current_scope_name.string(),
+                                      std::move( callee ), std::move( arguments ) );
 
   return function_call;
 }

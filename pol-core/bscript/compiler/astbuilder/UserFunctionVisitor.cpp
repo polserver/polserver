@@ -19,7 +19,7 @@ antlrcpp::Any UserFunctionVisitor::visitFunctionDeclaration(
 {
   if ( !scope.empty() )
   {
-    tree_builder.current_scope += scope;
+    tree_builder.current_scope_name = ScopeName( scope );
   }
 
   auto uf = tree_builder.function_declaration( ctx, scope );
@@ -31,7 +31,7 @@ antlrcpp::Any UserFunctionVisitor::visitFunctionDeclaration(
 
   if ( !scope.empty() )
   {
-    tree_builder.current_scope.resize( tree_builder.current_scope.size() - scope.size() );
+    tree_builder.current_scope_name = ScopeName::Global;
   }
 
   return antlrcpp::Any();
@@ -40,7 +40,6 @@ antlrcpp::Any UserFunctionVisitor::visitFunctionDeclaration(
 antlrcpp::Any UserFunctionVisitor::visitFunctionExpression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
-  // TODO implement scoped function expressions
   auto uf = tree_builder.function_expression( ctx );
   workspace.function_resolver.register_user_function( "", uf.get() );
   workspace.compiler_workspace.user_functions.push_back( std::move( uf ) );

@@ -29,7 +29,9 @@ void FunctionResolver::register_available_user_function(
 {
   ScopableName name( ScopeName::Global, ctx->IDENTIFIER()->getText() );
 
-  // Exported functions are always forced to be referenced.
+  // Exported functions are always forced to be referenced so the code generator
+  // will emit the function's instructions, even though there is no FunctionCall
+  // to it.
   register_available_user_function_parse_tree( source_location, ctx, std::move( name ),
                                                force_reference || ctx->EXPORTED() );
 }
@@ -63,7 +65,7 @@ void FunctionResolver::register_function_link( const ScopableName& name,
     resolved_function = check_existing( key );
     if ( resolved_function )
     {
-      ( function_link )->link_to( resolved_function );
+      function_link->link_to( resolved_function );
       report.debug( function_link->source_location, "linking {} to {}::{} [already registered]",
                     name.string(), resolved_function->module_name, resolved_function->name );
       return true;
@@ -75,12 +77,16 @@ void FunctionResolver::register_function_link( const ScopableName& name,
   if ( !name.scope.global() && resolve_if_existing( name ) )
     return;
 
-  // If calling scope is present, check that first, eg. nside Animal class, `foo()` checks
-  // `Animal::foo()` first.
+  // If calling scope present, check, eg. inside Animal class, `foo()` checks
+  // `Animal::foo()`.
   if ( !calling_scope.empty() && resolve_if_existing( { calling_scope, unscoped_name } ) )
     return;
 
-  // Check global scope, only if calling scope is empty
+  // Check global scope, only if calling scope is empty. If we are inside eg.
+  // `class Animal` and call `foo()`, we do not want to link to an
+  // _already-registered_ global function `foo()`. Adding this unresolved
+  // function link with a empty scope name will eventually resolve it to the
+  // correctly scoped function.
   if ( calling_scope.empty() &&
        resolve_if_existing( ScopableName( ScopeName::Global, unscoped_name ) ) )
     return;
@@ -181,8 +187,8 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
       if ( !call_scope.empty() && link_handled( { call_scope, unscoped_name } ) )
         continue;
 
-      // If calling scope is present, check that first, eg. nside Animal class, `foo()` checks
-      // `Animal::foo()` first.
+      // If calling scope present, check, eg. inside Animal class, `foo()`
+      // checks `Animal::foo()`.
       if ( !calling_scope.empty() && link_handled( { calling_scope, unscoped_name } ) )
         continue;
 
@@ -224,7 +230,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
 {
   const auto& unscoped_name = name.name;
 
-  // Eg."foo" or "Animal::foo"
+  // Eg. "foo" or "Animal::foo"
   auto scoped_name = name.string();
 
   // Eg. "", "Animal"

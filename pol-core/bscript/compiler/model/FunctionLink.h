@@ -7,6 +7,7 @@ namespace Pol::Bscript::Compiler
 {
 class Function;
 class ModuleFunctionDeclaration;
+class ScopeName;
 class UserFunction;
 
 class FunctionLink

@@ -22,7 +22,7 @@ namespace Pol::Bscript::Compiler
 {
 ValueBuilder::ValueBuilder( const SourceFileIdentifier& source_file_identifier,
                             BuilderWorkspace& workspace )
-    : TreeBuilder( source_file_identifier, workspace ), current_scope( "" )
+    : TreeBuilder( source_file_identifier, workspace ), current_scope_name( ScopeName::Global )
 {
 }
 
@@ -73,7 +73,8 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
   auto name = text( ctx->function );
   auto scope = ctx->scope ? ScopeName( text( ctx->scope ) ) : ScopeName::None;
 
-  auto function_link = std::make_shared<FunctionLink>( source_location, current_scope );
+  auto function_link =
+      std::make_shared<FunctionLink>( source_location, current_scope_name.string() );
   auto function_reference =
       std::make_unique<FunctionReference>( source_location, name, function_link );
 
@@ -91,7 +92,8 @@ std::unique_ptr<FunctionExpression> ValueBuilder::function_expression(
   workspace.compiler_workspace.all_function_locations.emplace( name, loc );
   workspace.function_resolver.force_reference( ScopableName( ScopeName::Global, name ), loc );
 
-  auto function_link = std::make_shared<FunctionLink>( loc, current_scope /* calling scope */ );
+  auto function_link =
+      std::make_shared<FunctionLink>( loc, current_scope_name.string() /* calling scope */ );
 
   // A unique name, as it is based on source location, so registering the link
   // in global scope is okay.

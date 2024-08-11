@@ -22,7 +22,7 @@ public:
   // Returns foo, Animal::foo but never ::foo
   std::string string() const;
 
-  // Returns foo, neve Animal::foo or ::foo
+  // Returns foo, never Animal::foo or ::foo
   const std::string& name() const;
 
   // Used in SemanticAnalyzer to differentiate between "foo" and "::foo".
