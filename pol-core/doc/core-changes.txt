@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+08-11-2024 Turley:
+  Changed: EScript Formatter
+           variable declaration list if it doesnt fit to the line, split on the commas.
+           if a newline happens while a parenthesis is open align the following line with this parenthesis.
 08-08-2024 Kevin:
     Added: Function Objects can now be called across different scripts.
 

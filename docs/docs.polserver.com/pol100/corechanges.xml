@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-08-2024</datemodified>
+		<datemodified>08-11-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-11-2024</date>
+			<author>Turley:</author>
+			<change type="Changed">EScript Formatter<br/>
+variable declaration list if it doesnt fit to the line, split on the commas.<br/>
+if a newline happens while a parenthesis is open align the following line with this parenthesis.</change>
+		</entry>
 		<entry>
 			<date>08-08-2024</date>
 			<author>Kevin:</author>
