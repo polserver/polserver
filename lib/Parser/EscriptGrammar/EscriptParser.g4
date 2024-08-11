@@ -274,11 +274,11 @@ functionParameter
 // Currently no module functions return a function reference, so no need to
 // support eg. `uo::Foo( bar )( baz )`.
 scopedFunctionCall
-    : IDENTIFIER '::' functionCall
+    : IDENTIFIER? '::' functionCall
     ;
 
 functionReference
-    : '@' (scope=IDENTIFIER '::')? function=IDENTIFIER
+    : '@' (scope=IDENTIFIER? '::')? function=IDENTIFIER
     ;
 
 expression
@@ -321,7 +321,7 @@ primary
     ;
 
 scopedIdentifier
-    : scope=IDENTIFIER '::' identifier=IDENTIFIER;
+    : scope=IDENTIFIER? '::' identifier=IDENTIFIER;
 
 functionExpression
     : AT functionParameters? LBRACE block RBRACE
