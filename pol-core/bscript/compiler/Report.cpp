@@ -38,6 +38,17 @@ void Report::report_warning( const SourceLocation& source_location, const char* 
   }
 }
 
+void Report::report_debug( const SourceLocation& source_location, const char* msg )
+{
+  try
+  {
+    ERROR_PRINTLN( "{}: debug: {}", source_location, msg );
+  }
+  catch ( ... )
+  {
+  }
+}
+
 unsigned Report::error_count() const
 {
   return errors;

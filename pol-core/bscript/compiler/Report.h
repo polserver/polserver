@@ -79,14 +79,14 @@ public:
     if ( display_debugs )
     {
       auto msg = fmt::format( format, args... );
-      report_warning( source_location, msg.c_str() );
+      report_debug( source_location, msg.c_str() );
     }
   }
 
   template <typename Str, typename... Args>
   inline void debug( const Node& node, Str const& format, Args&&... args )
   {
-    warning( node.source_location, format, args... );
+    debug( node.source_location, format, args... );
   }
 
   [[nodiscard]] unsigned error_count() const;
@@ -97,6 +97,7 @@ public:
 private:
   void report_error( const SourceLocation&, const char* msg );
   void report_warning( const SourceLocation&, const char* msg );
+  void report_debug( const SourceLocation&, const char* msg );
 
   const bool display_warnings;
   const bool display_errors;
