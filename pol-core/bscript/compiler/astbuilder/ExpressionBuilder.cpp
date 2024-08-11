@@ -33,6 +33,7 @@
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -409,17 +410,18 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
 }
 
 std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
-    EscriptParser::FunctionCallContext* ctx, const std::string& scope )
+    EscriptParser::FunctionCallContext* ctx, const ScopeName& scope )
 {
   auto method_name = text( ctx->IDENTIFIER() );
 
   auto arguments = value_arguments( ctx->expressionList() );
 
-  auto function_call = std::make_unique<FunctionCall>(
-      location_for( *ctx ), current_scope, scope, method_name, nullptr, std::move( arguments ) );
+  ScopableName name( scope, method_name );
 
-  workspace.function_resolver.register_function_link( scope, method_name,
-                                                      function_call->function_link );
+  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), current_scope, name,
+                                                       std::move( arguments ) );
+
+  workspace.function_resolver.register_function_link( name, function_call->function_link );
 
   return function_call;
 }
@@ -431,9 +433,8 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   auto arguments = value_arguments( ctx->expressionList() );
 
   // Expression-as-callee functions, eg. `(variable)(args...)` do not have a call scope or name.
-  auto function_call =
-      std::make_unique<FunctionCall>( location_for( *ctx ), current_scope, "" /* call scope */,
-                                      "" /* name */, std::move( callee ), std::move( arguments ) );
+  auto function_call = std::make_unique<FunctionCall>(
+      location_for( *ctx ), current_scope, std::move( callee ), std::move( arguments ) );
 
   return function_call;
 }
@@ -559,7 +560,7 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   }
   else if ( auto f_call = ctx->functionCall() )
   {
-    return function_call( f_call, "" );
+    return function_call( f_call, ScopeName::None );
   }
   else if ( auto scoped_f_call = ctx->scopedFunctionCall() )
   {
@@ -604,13 +605,19 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
 std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
     EscriptParser::ScopedFunctionCallContext* ctx )
 {
-  return function_call( ctx->functionCall(), text( ctx->IDENTIFIER() ) );
+  auto id = ctx->IDENTIFIER();
+  auto scope = id ? ScopeName( text( id ) ) : ScopeName::Global;
+  return function_call( ctx->functionCall(), scope );
 }
 
 std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
     EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
 {
-  auto name = fmt::format( "{}::{}", text( ctx->scope ), text( ctx->identifier ) );
+  std::string scope = ctx->scope ? text( ctx->scope ) : "";
+
+  // Use `scope::name` only if scope is not empty.
+  // TODO fix this in next commit, for var scoping fix for `::variable`
+  auto name = fmt::format( "{}{}", scope.empty() ? "" : ( scope + "::" ), text( ctx->identifier ) );
   return std::make_unique<Identifier>( location_for( *ctx ), current_scope, name );
 }
 

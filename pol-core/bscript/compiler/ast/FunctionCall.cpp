@@ -15,21 +15,24 @@
 namespace Pol::Bscript::Compiler
 {
 FunctionCall::FunctionCall( const SourceLocation& source_location, std::string calling_scope,
-                            std::string call_scope, std::string name, std::unique_ptr<Node> callee,
+                            ScopableName scoped_name,
                             std::vector<std::unique_ptr<Argument>> arguments )
     : Expression( source_location, std::move( arguments ) ),
-      function_link(
-          std::make_shared<FunctionLink>( source_location, calling_scope ) ),
+      function_link( std::make_shared<FunctionLink>( source_location, calling_scope ) ),
       calling_scope( std::move( calling_scope ) ),
-      call_scope( std::move( call_scope ) ),
-      method_name( std::move( name ) )
+      scoped_name( std::make_unique<ScopableName>( std::move( scoped_name ) ) )
 {
-  if ( callee )
-  {
-    // Add the callee at the beginning of the children, as that is the order
-    // needed for the instruction generator.
-    children.insert( children.begin(), std::move( callee ) );
-  }
+}
+
+FunctionCall::FunctionCall( const SourceLocation& source_location, std::string calling_scope,
+                            std::unique_ptr<Node> callee,
+                            std::vector<std::unique_ptr<Argument>> arguments )
+    : Expression( source_location, std::move( arguments ) ),
+      function_link( std::make_shared<FunctionLink>( source_location, calling_scope ) ),
+      calling_scope( std::move( calling_scope ) ),
+      scoped_name( nullptr )  // FunctionCalls with expression-as-callees do not have a scoped name
+{
+  children.insert( children.begin(), std::move( callee ) );
 }
 
 void FunctionCall::accept( NodeVisitor& visitor )
@@ -39,7 +42,8 @@ void FunctionCall::accept( NodeVisitor& visitor )
 
 void FunctionCall::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "function-call({})", method_name );
+  fmt::format_to( std::back_inserter( w ), "function-call({})",
+                  scoped_name->maybe_scoped_string() );
 }
 
 std::vector<std::unique_ptr<Argument>> FunctionCall::take_arguments()
@@ -61,4 +65,12 @@ std::vector<std::reference_wrapper<FunctionParameterDeclaration>> FunctionCall::
     internal_error( "function has not been resolved" );
 }
 
+std::string FunctionCall::maybe_scoped_name() const
+{
+  // Should only be used on compile-time function calls (ie. not an
+  // expression-as-callee function call)
+  if ( scoped_name )
+    return scoped_name->maybe_scoped_string();
+  return "";
+}
 }  // namespace Pol::Bscript::Compiler

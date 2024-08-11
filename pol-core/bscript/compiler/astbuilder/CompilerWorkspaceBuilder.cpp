@@ -74,8 +74,12 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
   Pol::Tools::HighPerfTimer timer;
 
   std::vector<AvailableParseTree> to_build;
+  int resolves_done = 0;
   while ( workspace.function_resolver.resolve( to_build ) )
   {
+    Pol::Tools::HighPerfTimer resolve_timer;
+    ++resolves_done;
+
     for ( auto& apt : to_build )
     {
       UserFunctionVisitor user_function_visitor( *apt.source_location.source_file_identifier,
@@ -83,8 +87,11 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
 
       apt.parse_rule_context->accept( &user_function_visitor );
     }
+    report.debug( *workspace.compiler_workspace.top_level_statements,
+                  "Resolution {} complete with {} parse trees in {} micros.", resolves_done,
+                  to_build.size(), resolve_timer.ellapsed().count() );
     to_build.clear();
-  }
+  };
 
   workspace.profile.ast_resolve_functions_micros += timer.ellapsed().count();
 }

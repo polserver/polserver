@@ -934,7 +934,8 @@ antlrcpp::Any PrettifyFileProcessor::visitScopedFunctionCall(
 antlrcpp::Any PrettifyFileProcessor::visitScopedIdentifier(
     EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
 {
-  addToken( ctx->scope->getText(), ctx->scope, FmtToken::NONE );
+  if ( ctx->scope )
+    addToken( ctx->scope->getText(), ctx->scope, FmtToken::NONE );
   addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
   addToken( ctx->identifier->getText(), ctx->scope, FmtToken::NONE );
   return {};

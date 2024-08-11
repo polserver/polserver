@@ -71,13 +71,13 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
   auto source_location = location_for( *ctx );
 
   auto name = text( ctx->function );
-  auto scope = ctx->scope ? text( ctx->scope ) : "";
+  auto scope = ctx->scope ? ScopeName( text( ctx->scope ) ) : ScopeName::None;
 
   auto function_link = std::make_shared<FunctionLink>( source_location, current_scope );
   auto function_reference =
       std::make_unique<FunctionReference>( source_location, name, function_link );
 
-  workspace.function_resolver.register_function_link( scope, name, function_link );
+  workspace.function_resolver.register_function_link( ScopableName( scope, name ), function_link );
 
   return function_reference;
 }
@@ -89,10 +89,14 @@ std::unique_ptr<FunctionExpression> ValueBuilder::function_expression(
   auto name = workspace.function_resolver.register_function_expression( loc, ctx );
 
   workspace.compiler_workspace.all_function_locations.emplace( name, loc );
-  workspace.function_resolver.force_reference( current_scope, name, loc );
+  workspace.function_resolver.force_reference( ScopableName( ScopeName::Global, name ), loc );
 
   auto function_link = std::make_shared<FunctionLink>( loc, current_scope /* calling scope */ );
-  workspace.function_resolver.register_function_link( "" /* call scope */, name, function_link );
+
+  // A unique name, as it is based on source location, so registering the link
+  // in global scope is okay.
+  workspace.function_resolver.register_function_link( ScopableName( ScopeName::Global, name ),
+                                                      function_link );
 
   return std::make_unique<FunctionExpression>( loc, function_link );
 }

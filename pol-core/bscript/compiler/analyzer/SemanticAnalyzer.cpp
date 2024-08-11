@@ -343,12 +343,12 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   {
     // Method name may be set to variable name, eg: `var foo; foo();` If so,
     // clear it out and insert it at the children start to set as callee.
-    if ( !fc.method_name.empty() )
+    if ( fc.scoped_name )
     {
-      auto callee =
-          std::make_unique<Identifier>( fc.source_location, fc.calling_scope, fc.method_name );
+      auto callee = std::make_unique<Identifier>( fc.source_location, fc.calling_scope,
+                                                  fc.scoped_name->name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
-      fc.method_name = "";
+      fc.scoped_name.reset();
     }
 
     // For function calls where the callee is not an identifier, take the
@@ -407,6 +407,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
   auto is_callee_variadic = parameters.size() && parameters.back().get().rest;
 
+  const auto method_name = fc.maybe_scoped_name();
+
   for ( auto& arg_unique_ptr : arguments )
   {
     auto& arg = *arg_unique_ptr;
@@ -418,14 +420,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       {
         report.error( arg,
                       "In call to '{}': Spread operator cannot be used in module function call.",
-                      fc.method_name );
+                      method_name );
         return;
       }
       else if ( !uf->is_variadic() )
       {
         report.error( arg,
                       "In call to '{}': Spread operator can only be used in variadic functions.",
-                      fc.method_name );
+                      method_name );
         return;
       }
       else if ( arguments_passed.size() < parameters.size() - 1 )
@@ -433,7 +435,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         report.error( arg,
                       "In call to '{}': Spread operator can only be used for arguments on or after "
                       "the formal rest parameter.",
-                      fc.method_name );
+                      method_name );
         return;
       }
     }
@@ -446,8 +448,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       //
       if ( any_named && !arg.spread )
       {
-        report.error( arg, "In call to '{}': Unnamed args cannot follow named args.",
-                      fc.method_name );
+        report.error( arg, "In call to '{}': Unnamed args cannot follow named args.", method_name );
         return;
       }
 
@@ -468,7 +469,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
               static_cast<int>( parameters.size() ) - ( has_class_inst_parameter ? 1 : 0 );
 
           report.error( arg, "In call to '{}': Too many arguments passed.  Expected {}, got {}.",
-                        fc.method_name, expected_args, arguments.size() );
+                        method_name, expected_args, arguments.size() );
           continue;
         }
       }
@@ -485,13 +486,13 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     if ( has_class_inst_parameter && Clib::caseInsensitiveEqual( arg_name, "this" ) )
     {
       report.error( arg, "In call to '{}': Cannot pass 'this' to constructor function.",
-                    fc.method_name );
+                    method_name );
       return;
     }
 
     if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
     {
-      report.error( arg, "In call to '{}': Parameter '{}' passed more than once.", fc.method_name,
+      report.error( arg, "In call to '{}': Parameter '{}' passed more than once.", method_name,
                     arg_name );
       return;
     }
@@ -520,7 +521,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         {
           report.error(
               param, "In call to '{}': Unable to create argument from default for parameter '{}'.",
-              fc.method_name, param.name );
+              method_name, param.name );
           return;
         }
       }
@@ -528,7 +529,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       {
         report.error( fc,
                       "In call to '{}': Parameter '{}' was not passed, and there is no default.",
-                      fc.method_name, param.name );
+                      method_name, param.name );
         return;
       }
     }
@@ -554,7 +555,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       report.error(
           *unused_argument.second,
           "In call to '{}': Parameter '{}' passed by name, but the function has no such parameter.",
-          fc.method_name, unused_argument.first );
+          method_name, unused_argument.first );
     }
     if ( !arguments_passed.empty() || arguments.size() > parameters.size() )
       return;

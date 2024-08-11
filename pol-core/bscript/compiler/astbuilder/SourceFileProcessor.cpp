@@ -9,6 +9,7 @@
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/astbuilder/AvailableParseTree.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/astbuilder/FunctionResolver.h"
 #include "bscript/compiler/astbuilder/ModuleProcessor.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileCache.h"
@@ -286,11 +287,10 @@ antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
     EscriptParser::FunctionDeclarationContext* ctx )
 {
   auto loc = location_for( *ctx );
-  workspace.function_resolver.register_available_user_function( loc, ctx, "" );
+  bool force_reference = user_function_inclusion == UserFunctionInclusion::All;
+  workspace.function_resolver.register_available_user_function( loc, ctx, force_reference );
   const std::string& function_name = tree_builder.text( ctx->IDENTIFIER() );
   workspace.compiler_workspace.all_function_locations.emplace( function_name, loc );
-  if ( user_function_inclusion == UserFunctionInclusion::All )
-    workspace.function_resolver.force_reference( "" /* scope */, function_name, loc );
   return antlrcpp::Any();
 }
 
@@ -333,7 +333,8 @@ antlrcpp::Any SourceFileProcessor::visitClassDeclaration(
       if ( auto func_decl = classStatement->functionDeclaration() )
       {
         auto function_name = tree_builder.text( func_decl->IDENTIFIER() );
-        workspace.function_resolver.force_reference( class_name, function_name, loc );
+        workspace.function_resolver.force_reference( ScopableName( class_name, function_name ),
+                                                     loc );
       }
     }
   }

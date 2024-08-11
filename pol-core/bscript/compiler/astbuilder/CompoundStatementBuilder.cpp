@@ -31,6 +31,7 @@
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -282,7 +283,7 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   }
   else if ( auto m_call = ctx->functionCall() )
   {
-    return function_call( m_call, "" );
+    return function_call( m_call, ScopeName::None );
   }
   else if ( auto scoped_call = ctx->scopedFunctionCall() )
   {

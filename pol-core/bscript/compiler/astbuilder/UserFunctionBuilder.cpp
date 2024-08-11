@@ -70,11 +70,12 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
       if ( auto func_decl = classStatement->functionDeclaration() )
       {
         // Register the user function as an available parse tree.
-        workspace.function_resolver.register_available_user_function( location_for( *func_decl ),
-                                                                      func_decl, class_name );
+        workspace.function_resolver.register_available_scoped_function( location_for( *func_decl ),
+                                                                        class_name, func_decl );
 
         function_names.push_back( text( func_decl->IDENTIFIER() ) );
 
+        // TODO this doesn't check for `this`, will be handled in the construction PR.
         bool is_constructor =
             Clib::caseInsensitiveEqual( class_name, text( func_decl->IDENTIFIER() ) );
 
