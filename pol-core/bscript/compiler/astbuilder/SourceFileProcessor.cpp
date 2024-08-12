@@ -2,6 +2,7 @@
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/Program.h"
@@ -300,31 +301,25 @@ antlrcpp::Any SourceFileProcessor::visitClassDeclaration(
   auto loc = location_for( *ctx );
   auto class_name = tree_builder.text( ctx->IDENTIFIER() );
 
-  // TODO change this, as discussed: vars should only get added if the class is referenced
-  //
-  // Add var statements to top-level, as their declaration + execution needs to happen in-line with
-  // other statements:
+  // Add var statements to top-level, as their declaration + semantic analysis
+  // needs to happen in-line with other statements:
   //
   //   Foo::staticVar;  // compilation error
   //   class Foo var staticVar := 2; endclass
   //   print(Foo::staticVar == 2);  // true
   //
-  for ( auto& class_statement : ctx->classBody()->classStatement() )
-    if ( auto var_statement = class_statement->varStatement() )
-    {
-      std::vector<std::unique_ptr<Statement>> statements;
+  // We add this `ClassBody` to the top level statements now. When the
+  // UserFunctionVisitor visits the class declaration, it will add its variable
+  // statements to this node.
+  auto var_statement_holder = std::make_unique<ClassBody>( loc );
 
-      tree_builder.add_var_statements( var_statement, class_name, statements );
+  workspace.function_resolver.register_available_class_declaration( loc, class_name, ctx,
+                                                                    var_statement_holder.get() );
 
-      for ( auto& statement : statements )
-      {
-        workspace.compiler_workspace.top_level_statements->children.push_back(
-            std::move( statement ) );
-      }
-    }
-
-  workspace.function_resolver.register_available_class_declaration( loc, class_name, ctx );
   workspace.compiler_workspace.all_class_locations.emplace( class_name, loc );
+
+  workspace.compiler_workspace.top_level_statements->children.push_back(
+      std::move( var_statement_holder ) );
 
   if ( user_function_inclusion == UserFunctionInclusion::All )
   {

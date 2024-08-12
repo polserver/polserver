@@ -11,6 +11,14 @@
 #include <algorithm>
 #include <limits>
 
+#ifdef __GNUC__
+#include <strings.h>
+#endif
+
+#ifdef _MSC_VER
+#include <string.h>
+#endif
+
 #ifndef __STDDEF_H
 #include "stddef.h"
 #endif

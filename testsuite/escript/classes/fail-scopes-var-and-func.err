@@ -1,0 +1,1 @@
+fail-scopes-var-and-func.src:4:9: error: Cannot define a variable with the same name as function 'Animal::foo'.

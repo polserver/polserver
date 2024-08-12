@@ -897,7 +897,8 @@ bool SemanticAnalyzer::report_function_name_conflict( const SourceLocation& refe
                                                       const std::string& function_name,
                                                       const std::string& element_description )
 {
-  return report_function_name_conflict( workspace, report, referencing_loc, function_name,
+  return report_function_name_conflict( workspace, report, referencing_loc,
+                                        ScopableName( current_scope_name, function_name ).string(),
                                         element_description );
 }
 

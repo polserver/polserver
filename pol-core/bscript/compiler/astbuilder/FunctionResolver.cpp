@@ -23,6 +23,17 @@ void FunctionResolver::force_reference( const ScopableName& name, const SourceLo
   register_function_link( name, std::make_shared<FunctionLink>( loc, "" /* calling scope */ ) );
 }
 
+void FunctionResolver::force_reference( const ScopeName& scope_name )
+{
+  auto name = scope_name.string();
+  auto itr = resolved_classes.find( name );
+  if ( itr != resolved_classes.end() )
+  {
+    return;
+  }
+  unresolved_classes.emplace( name );
+}
+
 void FunctionResolver::register_available_user_function(
     const SourceLocation& source_location,
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx, bool force_reference )
@@ -48,9 +59,10 @@ void FunctionResolver::register_available_scoped_function(
 
 void FunctionResolver::register_available_class_declaration(
     const SourceLocation& loc, const ScopeName& class_name,
-    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
+    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx,
+    Node* top_level_statements_child_node )
 {
-  register_available_class_decl_parse_tree( loc, ctx, class_name );
+  register_available_class_decl_parse_tree( loc, ctx, class_name, top_level_statements_child_node );
 }
 
 void FunctionResolver::register_function_link( const ScopableName& name,
@@ -73,23 +85,28 @@ void FunctionResolver::register_function_link( const ScopableName& name,
     return false;
   };
 
-  // If call scope given, check that specific one.
-  if ( !name.scope.global() && resolve_if_existing( name ) )
-    return;
+  // If a call scope was given, _only_ check that one.
+  if ( !name.scope.global() )
+  {
+    if ( resolve_if_existing( name ) )
+      return;
+  }
+  else
+  {
+    // If calling scope present, check, eg. inside Animal class, `foo()` checks
+    // `Animal::foo()`.
+    if ( !calling_scope.empty() && resolve_if_existing( { calling_scope, unscoped_name } ) )
+      return;
 
-  // If calling scope present, check, eg. inside Animal class, `foo()` checks
-  // `Animal::foo()`.
-  if ( !calling_scope.empty() && resolve_if_existing( { calling_scope, unscoped_name } ) )
-    return;
-
-  // Check global scope, only if calling scope is empty. If we are inside eg.
-  // `class Animal` and call `foo()`, we do not want to link to an
-  // _already-registered_ global function `foo()`. Adding this unresolved
-  // function link with a empty scope name will eventually resolve it to the
-  // correctly scoped function.
-  if ( calling_scope.empty() &&
-       resolve_if_existing( ScopableName( ScopeName::Global, unscoped_name ) ) )
-    return;
+    // Check global scope, only if calling scope is empty. If we are inside eg.
+    // `class Animal` and call `foo()`, we do not want to link to an
+    // _already-registered_ global function `foo()`. Adding this unresolved
+    // function link with a empty scope name will eventually resolve it to the
+    // correctly scoped function.
+    if ( calling_scope.empty() &&
+         resolve_if_existing( ScopableName( ScopeName::Global, unscoped_name ) ) )
+      return;
+  }
 
   unresolved_function_links[name].push_back( std::move( function_link ) );
 }
@@ -99,7 +116,7 @@ std::string FunctionResolver::register_function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   auto name = function_expression_name( source_location );
-  auto apt = AvailableParseTree{ source_location, ctx, "" };
+  auto apt = AvailableParseTree{ source_location, ctx, "", nullptr };
   available_user_function_parse_trees.insert( { name, apt } );
   return name;
 }
@@ -134,6 +151,11 @@ void FunctionResolver::register_user_function( const std::string& scope, UserFun
   {
     resolved_functions[{ ScopeName::Global, name }] = uf;
   }
+}
+
+void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
+{
+  resolved_classes[cd->name] = cd;
 }
 
 bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
@@ -184,17 +206,23 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
 
       report.debug( function_link->source_location, "resolving {}", name.string() );
 
-      if ( !call_scope.empty() && link_handled( { call_scope, unscoped_name } ) )
-        continue;
+      // If a call scope was given, _only_ check that one.
+      if ( !call_scope.empty() )
+      {
+        if ( link_handled( { call_scope, unscoped_name } ) )
+          continue;
+      }
+      else
+      {
+        // If calling scope present, check, eg. inside Animal class, `foo()`
+        // checks `Animal::foo()`.
+        if ( !calling_scope.empty() && link_handled( { calling_scope, unscoped_name } ) )
+          continue;
 
-      // If calling scope present, check, eg. inside Animal class, `foo()`
-      // checks `Animal::foo()`.
-      if ( !calling_scope.empty() && link_handled( { calling_scope, unscoped_name } ) )
-        continue;
-
-      // Check global scope
-      if ( link_handled( { ScopeName::Global, unscoped_name } ) )
-        continue;
+        // Check global scope
+        if ( link_handled( { ScopeName::Global, unscoped_name } ) )
+          continue;
+      }
 
       // Link was not handled, move to the next one
       ++function_link_itr;
@@ -209,6 +237,21 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
     {
       // Do not complain here, as the identifier in `[scope::]name` may be a variable.
       // Error handled in SemanticAnalyzer.
+      ++unresolved_itr;
+    }
+  }
+
+  for ( auto unresolved_itr = unresolved_classes.begin();
+        unresolved_itr != unresolved_classes.end(); )
+  {
+    auto& class_name = *unresolved_itr;
+
+    if ( build_if_available( to_build_ast, "", ScopableName( class_name, "" ) ) )
+    {
+      unresolved_itr = unresolved_classes.erase( unresolved_itr );
+    }
+    else
+    {
       ++unresolved_itr;
     }
   }
@@ -275,7 +318,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
                   scoped_name, previous.source_location );
   }
 
-  auto apt = AvailableParseTree{ source_location, ctx, scope };
+  auto apt = AvailableParseTree{ source_location, ctx, scope, nullptr };
   available_user_function_parse_trees.insert( { scoped_name, apt } );
 
   if ( scope == name.name )
@@ -295,7 +338,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
 
 void FunctionResolver::register_available_class_decl_parse_tree(
     const SourceLocation& source_location, antlr4::ParserRuleContext* ctx,
-    const ScopeName& scope_name )
+    const ScopeName& scope_name, Node* top_level_statements_child_node )
 {
   const auto name = scope_name.string();
   report.debug( source_location, "registering class apt ({}).", name );
@@ -335,7 +378,7 @@ void FunctionResolver::register_available_class_decl_parse_tree(
                   name, what, what, previous->source_location );
   }
 
-  auto apt = AvailableParseTree{ source_location, ctx, name };
+  auto apt = AvailableParseTree{ source_location, ctx, name, top_level_statements_child_node };
   available_class_decl_parse_trees.insert( { name, apt } );
 }
 

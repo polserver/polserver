@@ -1,0 +1,4 @@
+BasicioExt::Print what=root i=3
+BasicioExt::Print what=no-scope i=2
+BasicioExt::Print what=with-scope i=1
+BasicioExt::Print what=funcref i=0
