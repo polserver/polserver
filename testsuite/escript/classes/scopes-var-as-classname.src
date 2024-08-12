@@ -1,0 +1,18 @@
+// A class can have a variable the same as the classname. We should not error on
+// a call, but we should error when used as a base-class (test TODO)
+
+class Animal()
+  var Animal := @( arg0 ){
+    print( $"arg0={arg0}" );
+  };
+endclass
+
+(Animal::Animal)( "parExpression" );
+Animal::Animal( "functionCallSuffix" );
+
+// fail:
+// @Animal::Animal( "functionReference" );
+
+// fail (TODO, move to fail test once implemented):
+class Dog(Animal) endclass
+

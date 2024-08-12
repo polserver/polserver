@@ -3,6 +3,7 @@
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
@@ -17,6 +18,7 @@
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -46,7 +48,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx, Node* class_body )
 {
   std::string class_name = text( ctx->IDENTIFIER() );
-  std::vector<std::unique_ptr<Identifier>> parameters;
+  std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
 
   if ( auto function_parameters = ctx->classParameters() )
   {
@@ -54,13 +56,21 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     {
       for ( auto parameter_name : param_list->IDENTIFIER() )
       {
-        parameters.push_back( std::make_unique<Identifier>( location_for( *parameter_name ),
-                                                            text( parameter_name ) ) );
+        auto baseclass_name = text( parameter_name );
+
+        auto class_param_decl = std::make_unique<ClassParameterDeclaration>(
+            location_for( *parameter_name ), baseclass_name );
+
+        workspace.function_resolver.register_function_link(
+            ScopableName( baseclass_name, baseclass_name ), class_param_decl->constructor_link );
+
+        parameters.push_back( std::move( class_param_decl ) );
       }
     }
   }
 
   std::vector<std::string> function_names;
+  std::shared_ptr<FunctionLink> constructor_link = nullptr;
 
   if ( auto classBody = ctx->classBody() )
   {
@@ -75,6 +85,29 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
                                                                         func_decl );
 
         function_names.push_back( func_name );
+
+        // Check if the function is a constructor:
+        // 1. The function name is the same as the class name.
+        if ( func_name == class_name )
+        {
+          // 2. The function has parameters.
+          if ( auto param_list = func_decl->functionParameters()->functionParameterList() )
+          {
+            for ( auto param : param_list->functionParameter() )
+            {
+              std::string parameter_name = text( param->IDENTIFIER() );
+
+              // 3. The first parameter is named `this`.
+              if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+              {
+                constructor_link = std::make_shared<FunctionLink>( func_loc, class_name );
+                workspace.function_resolver.register_function_link(
+                    ScopableName( class_name, class_name ), constructor_link );
+              }
+              break;
+            }
+          }
+        }
 
         workspace.compiler_workspace.all_function_locations.emplace(
             ScopableName( class_name, func_name ).string(), func_loc );
@@ -96,9 +129,10 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   auto parameter_list =
       std::make_unique<ClassParameterList>( location_for( *ctx ), std::move( parameters ) );
 
-  auto class_decl = std::make_unique<ClassDeclaration>( location_for( *ctx ), class_name,
-                                                        std::move( parameter_list ),
-                                                        std::move( function_names ), class_body );
+
+  auto class_decl = std::make_unique<ClassDeclaration>(
+      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
+      class_body, std::move( constructor_link ) );
 
   return class_decl;
 }

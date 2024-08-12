@@ -149,6 +149,8 @@ void FunctionResolver::register_user_function( const std::string& scope, UserFun
   if ( uf->type == UserFunctionType::Constructor )
   {
     resolved_functions[{ ScopeName::Global, name }] = uf;
+    report.debug( uf->source_location, "registering uf ({}, {}).", ScopeName::Global.string(),
+                  name );
   }
 }
 

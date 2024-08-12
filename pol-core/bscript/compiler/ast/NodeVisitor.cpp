@@ -15,6 +15,7 @@
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ClassInstance.h"
+#include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
@@ -148,6 +149,11 @@ void NodeVisitor::visit_class_declaration( ClassDeclaration& node )
 }
 
 void NodeVisitor::visit_class_instance( ClassInstance& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_class_parameter_declaration( ClassParameterDeclaration& node )
 {
   visit_children( node );
 }

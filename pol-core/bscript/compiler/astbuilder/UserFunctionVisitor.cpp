@@ -27,8 +27,6 @@ antlrcpp::Any UserFunctionVisitor::visitFunctionDeclaration(
 
   auto uf = tree_builder.function_declaration( ctx, scope );
   workspace.function_resolver.register_user_function( scope, uf.get() );
-  if ( uf->type == UserFunctionType::Constructor )
-    workspace.function_resolver.register_user_function( "", uf.get() );
 
   workspace.compiler_workspace.user_functions.push_back( std::move( uf ) );
 

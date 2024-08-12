@@ -22,6 +22,7 @@
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ClassInstance.h"
+#include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
@@ -150,15 +151,23 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
   // Will need the order for something, i'm sure...
   std::vector<std::string> ordered_baseclasses;
   std::set<std::string, Clib::ci_cmp_pred> named_baseclasses;
+  report.debug( node, "Class '{}' declared with {} parameters", class_name,
+                node.parameters().size() );
 
   for ( auto& class_parameter : node.parameters() )
   {
-    const auto& baseclass_name = class_parameter.get().scoped_name.name;
+    const auto& baseclass_name = class_parameter.get().name;
     auto itr = workspace.all_class_locations.find( baseclass_name );
     if ( itr == workspace.all_class_locations.end() )
     {
       report.error( class_parameter.get(), "Class '{}' references unknown base class '{}'",
                     class_name, baseclass_name );
+    }
+
+    if ( baseclass_name == class_name )
+    {
+      report.error( class_parameter.get(), "Class '{}' references itself as a base class.",
+                    class_name );
     }
 
     bool previously_referenced =
@@ -173,6 +182,8 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
     {
       ordered_baseclasses.push_back( baseclass_name );
       named_baseclasses.emplace( baseclass_name );
+      report.debug( class_parameter.get(), "Class '{}' references base class '{}'", class_name,
+                    baseclass_name );
     }
   }
 }
@@ -354,10 +365,19 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
       if ( !class_name.empty() )
       {
-        report.error( fc,
-                      "In function call: Class '{}' does not expose a constructor.\n"
-                      "  See also: {}",
-                      class_name, class_itr->second );
+        // There may be a variable named the same as the class, eg:
+        //
+        //   class Animal() var Animal; endclass
+        //
+        // If that is the case, there will be a global named
+        // `class_name::class_name`. We will not error in this case.
+        if ( !globals.find( ScopableName( class_name, class_name ).string() ) )
+        {
+          report.error( fc,
+                        "In function call: Class '{}' does not expose a constructor.\n"
+                        "  See also: {}",
+                        class_name, class_itr->second );
+        }
       }
 
       auto callee = std::make_unique<Identifier>( fc.source_location, *fc.scoped_name );
@@ -753,7 +773,10 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     }
   }
 
-  if ( !node.variable )
+  // Do not error if accessing a class name that does not expose a constructor,
+  // as that is handled by visit_function_call.
+  if ( !node.variable &&
+       workspace.all_class_locations.find( name ) == workspace.all_class_locations.end() )
   {
     report.error( node, "Unknown identifier '{}'.", name );
     return;

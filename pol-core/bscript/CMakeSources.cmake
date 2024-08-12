@@ -56,6 +56,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ClassDeclaration.h
   compiler/ast/ClassInstance.cpp
   compiler/ast/ClassInstance.h
+  compiler/ast/ClassParameterDeclaration.cpp
+  compiler/ast/ClassParameterDeclaration.h
   compiler/ast/ClassParameterList.cpp
   compiler/ast/ClassParameterList.h
   compiler/ast/ConditionalOperator.cpp

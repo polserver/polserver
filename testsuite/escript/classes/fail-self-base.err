@@ -1,0 +1,1 @@
+fail-self-base.src:4:14: error: Class 'Animal' references itself as a base class.

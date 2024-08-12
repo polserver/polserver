@@ -1,0 +1,8 @@
+// A class can have a variable the same as the classname, but that cannot be
+// referenced as a (compile-time) user function.
+
+class Animal(Animal)
+  function Animal( this ) endfunction
+endclass
+
+Animal();
