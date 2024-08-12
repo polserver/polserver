@@ -1,0 +1,10 @@
+// Variables are not visited (and therefore not emitted) if the class is never referenced.
+
+const constant := 1;
+class Animal()
+    var constant := 1;
+    var foo;
+endclass
+
+// Uncomment for an error:
+// Animal::foo;

@@ -25,4 +25,20 @@ std::string ScopeName::string() const
 {
   return value_or( "" );
 }
+bool ScopeName::operator<( const ScopeName& other ) const
+{
+  if ( !has_value() && !other.has_value() )
+  {
+    return false;
+  }
+  if ( !has_value() && other.has_value() )
+  {
+    return true;
+  }
+  if ( has_value() && !other.has_value() )
+  {
+    return false;
+  }
+  return stricmp( value().c_str(), other.value().c_str() ) < 0;
+}
 }  // namespace Pol::Bscript::Compiler
