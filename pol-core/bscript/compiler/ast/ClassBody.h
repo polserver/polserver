@@ -5,12 +5,12 @@
 namespace Pol::Bscript::Compiler
 {
 class NodeVisitor;
-// Only contains user functions as children, as variable statements are added in
-// `top_level_statements` by SourceFileProcessor.
+// Contains no children when initially constructed in SourceFileProcessor.
+// UserFunctionVisitor will add children once referenced.
 class ClassBody : public Statement
 {
 public:
-  ClassBody( const SourceLocation&, NodeVector statements );
+  ClassBody( const SourceLocation& );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;

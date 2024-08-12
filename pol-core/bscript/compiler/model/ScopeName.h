@@ -23,5 +23,7 @@ public:
 
   static ScopeName Global;
   static ScopeName None;
+
+  bool operator<( const ScopeName& other ) const;
 };
 }  // namespace Pol::Bscript::Compiler

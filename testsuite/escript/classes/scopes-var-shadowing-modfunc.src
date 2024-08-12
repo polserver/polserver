@@ -1,0 +1,15 @@
+// Variables can shadow user functions
+
+class Animal()
+    var print := "foo";
+
+    function Test()
+        ::print( Print + "bar" );
+    endfunction
+endclass
+
+// Global scope can access the var
+print( Animal::Print );
+
+// Test that a function inside class can access
+Animal::test();

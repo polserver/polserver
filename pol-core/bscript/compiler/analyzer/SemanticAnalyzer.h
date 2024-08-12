@@ -59,7 +59,7 @@ private:
                                       const std::string& element_description );
   static bool report_function_name_conflict( const CompilerWorkspace&, Report&,
                                              const SourceLocation&,
-                                             const std::string& function_name,
+                                             const std::string& scoped_function_name,
                                              const std::string& element_description );
 
   CompilerWorkspace& workspace;

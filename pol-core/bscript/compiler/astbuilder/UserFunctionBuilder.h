@@ -9,6 +9,7 @@ class UserFunction;
 class ClassDeclaration;
 class ClassVariableList;
 class ClassMethodList;
+class Node;
 
 // TODO rename this as it also builds classes
 class UserFunctionBuilder : public CompoundStatementBuilder
@@ -22,7 +23,7 @@ public:
   std::unique_ptr<UserFunction> function_expression(
       EscriptGrammar::EscriptParser::FunctionExpressionContext* );
   std::unique_ptr<ClassDeclaration> class_declaration(
-      EscriptGrammar::EscriptParser::ClassDeclarationContext* );
+      EscriptGrammar::EscriptParser::ClassDeclarationContext*, Node* class_body );
 
 private:
   template <typename ParserContext>

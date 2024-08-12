@@ -9,8 +9,12 @@
 namespace Pol::Bscript::Compiler
 {
 UserFunctionVisitor::UserFunctionVisitor( const SourceFileIdentifier& sfi, BuilderWorkspace& ws,
-                                          const std::string& scope )
-    : workspace( ws ), tree_builder( sfi, ws ), scope( scope )
+                                          const std::string& scope,
+                                          Node* top_level_statements_child_node )
+    : workspace( ws ),
+      tree_builder( sfi, ws ),
+      scope( scope ),
+      top_level_statements_child_node( top_level_statements_child_node )
 {
 }
 
@@ -49,7 +53,8 @@ antlrcpp::Any UserFunctionVisitor::visitFunctionExpression(
 antlrcpp::Any UserFunctionVisitor::visitClassDeclaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
 {
-  auto cd = tree_builder.class_declaration( ctx );
+  auto cd = tree_builder.class_declaration( ctx, top_level_statements_child_node );
+  workspace.function_resolver.register_class_declaration( cd.get() );
   workspace.compiler_workspace.class_declarations.push_back( std::move( cd ) );
   return antlrcpp::Any();
 }
