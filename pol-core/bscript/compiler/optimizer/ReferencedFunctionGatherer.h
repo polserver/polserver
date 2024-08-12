@@ -27,6 +27,9 @@ public:
   void visit_function_call( FunctionCall& ) override;
   void visit_function_reference( FunctionReference& ) override;
   void visit_function_expression( FunctionExpression& ) override;
+
+  // Visiting a class parameter (that is, a base-class) will reference its
+  // constructor.
   void visit_class_parameter_declaration( ClassParameterDeclaration& ) override;
 
   void reference( FunctionLink& link );

@@ -29,8 +29,13 @@ public:
   // eg. `Animal` when calling any function inside the `Animal` class
   const std::string calling_scope;
 
-  // If a FunctionLink can only be linked to a constructor. Used inside
-  // UserFunctionBuilder::visit_class_declaration
+  // If a FunctionLink can only be linked to a constructor (ie. the function's
+  // `type`  is `UserFunctionType::Constructor`). Used inside:
+  //
+  // - `UserFunctionBuilder::class_declaration` to link a function to its own
+  //   constructor,
+  // - `ClassParameterDeclaration` to link a class parameter (that is, a
+  //   base-class) to its a constructor constructor
   const bool require_ctor;
 
 private:

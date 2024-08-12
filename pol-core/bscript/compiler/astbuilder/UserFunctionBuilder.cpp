@@ -61,6 +61,9 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         auto class_param_decl = std::make_unique<ClassParameterDeclaration>(
             location_for( *parameter_name ), baseclass_name );
 
+        // Register with the FunctionResolver the class parameter's constructor
+        // link. It will get resolved to the class constructor during the
+        // second-pass AST visiting.
         workspace.function_resolver.register_function_link(
             ScopableName( baseclass_name, baseclass_name ), class_param_decl->constructor_link );
 

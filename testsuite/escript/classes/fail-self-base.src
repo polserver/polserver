@@ -1,5 +1,4 @@
-// A class can have a variable the same as the classname, but that cannot be
-// referenced as a (compile-time) user function.
+// A class cannot reference itself as a base class.
 
 class Animal(Animal)
   function Animal( this ) endfunction

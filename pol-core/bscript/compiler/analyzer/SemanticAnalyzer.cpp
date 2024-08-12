@@ -151,6 +151,9 @@ void SemanticAnalyzer::visit_class_parameter_declaration( ClassParameterDeclarat
   {
     auto msg = fmt::format( "Base class '{}' does not define a constructor.", node.name );
 
+    // Check if the named function exists. If it does, then the reason it wasn't
+    // linked is because it is not a constructor. This happens because of a
+    // missing `this` parameter.
     auto func_itr =
         workspace.all_function_locations.find( ScopableName( node.name, node.name ).string() );
 

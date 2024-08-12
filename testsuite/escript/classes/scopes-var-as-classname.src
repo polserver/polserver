@@ -1,5 +1,5 @@
 // A class can have a variable the same as the classname. We should not error on
-// a call, but we should error when used as a base-class (test TODO)
+// a call, but we should error when used as a base-class
 
 class Animal()
   var Animal := @( arg0 ){
