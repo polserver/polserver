@@ -27,6 +27,7 @@ public:
   void visit_function_call( FunctionCall& ) override;
   void visit_function_reference( FunctionReference& ) override;
   void visit_function_expression( FunctionExpression& ) override;
+  void visit_class_parameter_declaration( ClassParameterDeclaration& ) override;
 
   void reference( FunctionLink& link );
   void reference( ModuleFunctionDeclaration* );

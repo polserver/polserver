@@ -9,7 +9,8 @@ ClassParameterDeclaration::ClassParameterDeclaration( const SourceLocation& sour
                                                       std::string name )
     : Node( source_location ),
       name( std::move( name ) ),
-      constructor_link( std::make_shared<FunctionLink>( source_location, "" /* calling scope */ ) )
+      constructor_link( std::make_shared<FunctionLink>( source_location, "" /* calling scope */,
+                                                        true /* require_ctor */ ) )
 {
 }
 

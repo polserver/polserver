@@ -180,6 +180,7 @@ set (bscript_sources    # sorted !
   compiler/ast/VarStatement.h
   compiler/ast/WhileLoop.cpp
   compiler/ast/WhileLoop.h
+  compiler/astbuilder/AvailableParseTree.cpp
   compiler/astbuilder/AvailableParseTree.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h

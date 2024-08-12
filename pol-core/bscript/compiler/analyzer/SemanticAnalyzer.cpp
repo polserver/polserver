@@ -144,6 +144,30 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 }
 
+void SemanticAnalyzer::visit_class_parameter_declaration( ClassParameterDeclaration& node )
+{
+  auto constructor = node.constructor_link->function();
+  if ( !constructor )
+  {
+    auto msg = fmt::format( "Base class '{}' does not define a constructor.", node.name );
+
+    auto func_itr =
+        workspace.all_function_locations.find( ScopableName( node.name, node.name ).string() );
+
+    if ( func_itr != workspace.all_function_locations.end() )
+    {
+      msg += fmt::format( "\n  See also (missing 'this' parameter?): {}", func_itr->second );
+    }
+
+    report.error( node, msg );
+  }
+  else
+  {
+    report.debug( node, "Class parameter '{}' references constructor '{}' at {}", node.name,
+                  constructor->scoped_name(), constructor->source_location );
+  }
+}
+
 void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 {
   const auto& class_name = node.name;
@@ -186,6 +210,8 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
                     baseclass_name );
     }
   }
+
+  visit_children( node );
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor
@@ -345,7 +371,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )
     {
-      // If the a function is a class, then it did not expose a constructor (since
+      // If the a function is a class, then it did not define a constructor (since
       // there was no function linked).
 
       // If a function call is eg. `Animal()` with no scope, check the string as-is.
@@ -373,10 +399,18 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         // `class_name::class_name`. We will not error in this case.
         if ( !globals.find( ScopableName( class_name, class_name ).string() ) )
         {
-          report.error( fc,
-                        "In function call: Class '{}' does not expose a constructor.\n"
-                        "  See also: {}",
-                        class_name, class_itr->second );
+          auto msg = fmt::format( "In function call: Class '{}' does not define a constructor.",
+                                  class_name );
+
+          auto func_itr = workspace.all_function_locations.find(
+              ScopableName( class_name, class_name ).string() );
+
+          if ( func_itr != workspace.all_function_locations.end() )
+          {
+            msg += fmt::format( "\n  See also (missing 'this' parameter?): {}", func_itr->second );
+          }
+
+          report.error( fc, msg );
         }
       }
 
@@ -773,7 +807,7 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     }
   }
 
-  // Do not error if accessing a class name that does not expose a constructor,
+  // Do not error if accessing a class name that does not define a constructor,
   // as that is handled by visit_function_call.
   if ( !node.variable &&
        workspace.all_class_locations.find( name ) == workspace.all_class_locations.end() )

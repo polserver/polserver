@@ -1,1 +1,1 @@
-fail-no-ctor-01.src:4:12: error: In function call: Class 'Animal' does not expose a constructor.
+fail-no-ctor-01.src:4:12: error: In function call: Class 'Animal' does not define a constructor.

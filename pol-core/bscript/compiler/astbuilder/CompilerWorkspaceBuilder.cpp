@@ -79,9 +79,12 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
   {
     Pol::Tools::HighPerfTimer resolve_timer;
     ++resolves_done;
+    report.debug( *workspace.compiler_workspace.top_level_statements, "Resolution {} starting.",
+                  resolves_done );
 
     for ( auto& apt : to_build )
     {
+      report.debug( *workspace.compiler_workspace.top_level_statements, "Resolving {}", apt );
       UserFunctionVisitor user_function_visitor( *apt.source_location.source_file_identifier,
                                                  workspace, apt.scope,
                                                  apt.top_level_statements_child_node );

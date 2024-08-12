@@ -100,7 +100,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
               // 3. The first parameter is named `this`.
               if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
               {
-                constructor_link = std::make_shared<FunctionLink>( func_loc, class_name );
+                constructor_link = std::make_shared<FunctionLink>( func_loc, class_name,
+                                                                   true /* requires_ctor */ );
                 workspace.function_resolver.register_function_link(
                     ScopableName( class_name, class_name ), constructor_link );
               }

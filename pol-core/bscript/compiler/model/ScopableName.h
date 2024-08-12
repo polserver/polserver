@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fmt/format.h>
+
 #include "bscript/compiler/model/ScopeName.h"
 
 namespace Pol::Bscript::Compiler
@@ -37,3 +39,10 @@ public:
   std::string name;
 };
 }  // namespace Pol::Bscript::Compiler
+
+template <>
+struct fmt::formatter<Pol::Bscript::Compiler::ScopableName> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Bscript::Compiler::ScopableName& apt,
+                                        fmt::format_context& ctx ) const;
+};
