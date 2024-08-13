@@ -59,6 +59,7 @@
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
+#include "bscript/compiler/ast/SuperFunction.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UserFunction.h"
@@ -346,6 +347,11 @@ void NodeVisitor::visit_struct_initializer( StructInitializer& node )
 }
 
 void NodeVisitor::visit_struct_member_initializer( StructMemberInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_super_function( SuperFunction& node )
 {
   visit_children( node );
 }

@@ -64,7 +64,6 @@ private:
                                              const std::string& scoped_function_name,
                                              const std::string& element_description );
 
-  void prepare_super_call( FunctionCall& );
   CompilerWorkspace& workspace;
   Report& report;
 

@@ -1,5 +1,6 @@
 #include "UserFunctionBuilder.h"
 
+#include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
@@ -51,6 +52,9 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   std::string class_name = text( ctx->IDENTIFIER() );
   std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
   std::vector<std::shared_ptr<ClassLink>> base_classes;
+  std::vector<std::string> function_names;
+  bool has_ctor = false;
+  bool is_child = false;
 
   if ( auto function_parameters = ctx->classParameters() )
   {
@@ -75,13 +79,11 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         workspace.function_resolver.register_function_link(
             ScopableName( baseclass_name, baseclass_name ), class_param_decl->constructor_link );
 
+        is_child = true;
         parameters.push_back( std::move( class_param_decl ) );
       }
     }
   }
-
-  std::vector<std::string> function_names;
-  bool has_ctor = false;
 
   if ( auto classBody = ctx->classBody() )
   {
@@ -91,9 +93,20 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
       {
         auto func_name = text( func_decl->IDENTIFIER() );
         auto func_loc = location_for( *func_decl );
-        // Register the user function as an available parse tree.
-        workspace.function_resolver.register_available_scoped_function( func_loc, class_name,
-                                                                        func_decl );
+
+        // Register the user function as an available parse tree only if it is not `super` for child
+        // classes.
+        auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
+
+        if ( is_super && is_child )
+        {
+          workspace.report.error( func_loc, "The 'super' function is reserved for child classes." );
+        }
+        else
+        {
+          workspace.function_resolver.register_available_scoped_function( func_loc, class_name,
+                                                                          func_decl );
+        }
 
         function_names.push_back( func_name );
 
@@ -143,9 +156,19 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
       location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
       class_body, std::move( base_classes ) );
 
+  // Only register the ClassDeclaration's ctor FunctionLink if there _is_ a ctor.
   if ( has_ctor )
+  {
     workspace.function_resolver.register_function_link( ScopableName( class_name, class_name ),
                                                         class_decl->constructor_link );
+
+    // Only register the super() function if the class is a child.
+    if ( is_child )
+    {
+      workspace.function_resolver.register_available_generated_function(
+          location_for( *ctx ), ScopableName( class_name, "super" ), class_decl.get() );
+    }
+  }
 
   return class_decl;
 }

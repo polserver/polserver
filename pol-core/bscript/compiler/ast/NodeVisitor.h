@@ -66,6 +66,7 @@ class MemberAssignmentByOperator;
 class StringValue;
 class StructInitializer;
 class StructMemberInitializer;
+class SuperFunction;
 class TopLevelStatements;
 class UnaryOperator;
 class UninitializedValue;
@@ -139,6 +140,7 @@ public:
   virtual void visit_format_expression( FormatExpression& );
   virtual void visit_struct_initializer( StructInitializer& );
   virtual void visit_struct_member_initializer( StructMemberInitializer& );
+  virtual void visit_super_function( SuperFunction& );
   virtual void visit_top_level_statements( TopLevelStatements& );
   virtual void visit_unary_operator( UnaryOperator& );
   virtual void visit_uninitialized_value( UninitializedValue& );

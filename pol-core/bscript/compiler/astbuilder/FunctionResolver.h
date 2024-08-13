@@ -23,6 +23,7 @@ class FunctionLink;
 class ModuleFunctionDeclaration;
 class Report;
 class UserFunction;
+class SuperFunction;
 
 class FunctionResolver
 {
@@ -35,6 +36,9 @@ public:
 
   // Force reference to a class
   void force_reference( const ScopeName& name, const SourceLocation& );
+
+  void register_available_generated_function( const SourceLocation&, const ScopableName& name,
+                                              Node* context );
 
   void register_available_user_function( const SourceLocation&,
                                          EscriptGrammar::EscriptParser::FunctionDeclarationContext*,
@@ -63,6 +67,8 @@ public:
   static std::string function_expression_name( const SourceLocation& );
 
 private:
+  void register_available_function_parse_tree( const SourceLocation&, const ScopableName& name,
+                                               const AvailableParseTree& apt );
   void register_available_user_function_parse_tree( const SourceLocation&,
                                                     antlr4::ParserRuleContext*,
                                                     const ScopableName& name,

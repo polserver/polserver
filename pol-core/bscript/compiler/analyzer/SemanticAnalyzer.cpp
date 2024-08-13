@@ -110,20 +110,6 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
-
-  // Take any generated super() functions during semantic analysis.
-  for ( auto& class_decl : workspace.class_declarations )
-  {
-    auto super = class_decl->take_super();
-    // Create a new function variable scope. `super` is almost like a captured
-    // function.
-    if ( super )
-    {
-      FunctionVariableScope new_function_scope( locals );
-      visit_user_function( *super );
-      workspace.user_functions.push_back( std::move( super ) );
-    }
-  }
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
@@ -380,39 +366,6 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
   node.block().accept( *this );
 }
 
-void SemanticAnalyzer::prepare_super_call( FunctionCall& fc )
-{
-  if ( user_functions.empty() )
-  {
-    report.error( fc, "In function call: super() can only be used in constructor functions." );
-    return;
-  }
-
-  auto uf = user_functions.top();
-
-  if ( uf->type != UserFunctionType::Constructor )
-  {
-    report.error( fc, "In function call: super() can only be used in constructor functions." );
-    return;
-  }
-
-  auto cd = uf->class_link->class_declaration();
-
-  if ( !cd )
-  {
-    uf->internal_error( "no class declaration" );
-    return;
-  }
-
-  // Will return nullptr if super cannot be made, eg. if one of the base classes
-  // does not define a constructor.
-  auto super = cd->make_super( fc.source_location );
-
-  // Linking to nullptr will cause the `visit_function_call()` for super() to be
-  // unlinked, resulting in a compile error.
-  fc.function_link->link_to( super );
-}
-
 ScopeName& SemanticAnalyzer::current_scope_name()
 {
   return current_scope_names.top();
@@ -421,15 +374,13 @@ ScopeName& SemanticAnalyzer::current_scope_name()
 void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 {
   bool is_super_call =
-      !fc.function_link->function() &&  // no linked function
-      fc.scoped_name &&                 // there is a name in the call (ie. not an expression)
-      Clib::caseInsensitiveEqual( fc.scoped_name->string(), "super" );  // the name is "super"
+      // The linked function is a SuperFunction
+      ( fc.function_link->user_function() &&
+        fc.function_link->user_function()->type == UserFunctionType::Super ) ||
 
-  if ( is_super_call )
-  {
-    // Will add a function link on success
-    prepare_super_call( fc );
-  }
+      ( !fc.function_link->function() &&  // no linked function
+        fc.scoped_name &&                 // there is a name in the call (ie. not an expression)
+        Clib::caseInsensitiveEqual( fc.scoped_name->string(), "super" ) );  // the name is "super"
 
   // No function linked through FunctionResolver
   if ( !fc.function_link->function() )
@@ -438,14 +389,6 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )
     {
-      // If we tried to make a super and it failed, then we received an error
-      // because of some other reason (eg. base-class does not implement
-      // constructor.)
-      if ( is_super_call )
-      {
-        return;
-      }
-
       // If the a function is a class, then it did not define a constructor (since
       // there was no function linked).
 
@@ -534,14 +477,32 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   auto parameters = fc.parameters();
   bool has_class_inst_parameter = false;
 
-  bool in_super_func =
-      !user_functions.empty() && user_functions.top()->type == UserFunctionType::Super;
+  bool in_super_func = false;
+  bool in_constructor_func = false;
+
+  if ( !user_functions.empty() )
+  {
+    if ( user_functions.top()->type == UserFunctionType::Super )
+    {
+      in_super_func = true;
+    }
+    else if ( user_functions.top()->type == UserFunctionType::Constructor )
+    {
+      in_constructor_func = true;
+    }
+  }
 
   if ( uf )
   {
     // Constructor functions are defined as `Constr( this )` and called statically via `Constr()`.
     // Provide a `this` parameter at this function call site.
-    if ( uf->type == UserFunctionType::Constructor && !in_super_func )
+    if ( is_super_call && !in_constructor_func )
+    {
+      report.error( fc, "In call to '{}': super() can only be used in constructor functions.",
+                    uf->name );
+      return;
+    }
+    else if ( uf->type == UserFunctionType::Constructor && !in_super_func )
     {
       // A super call inherits the `this` argument
       if ( is_super_call )

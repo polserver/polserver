@@ -28,6 +28,14 @@ void FunctionResolver::force_reference( const ScopeName& scope_name, const Sourc
   register_class_link( scope_name, std::make_shared<ClassLink>( loc, scope_name.string() ) );
 }
 
+void FunctionResolver::register_available_generated_function( const SourceLocation& loc,
+                                                              const ScopableName& name,
+                                                              Node* context )
+{
+  auto apt = AvailableParseTree{ loc, nullptr, name.string(), context };
+  register_available_function_parse_tree( loc, name, std::move( apt ) );
+}
+
 void FunctionResolver::register_available_user_function(
     const SourceLocation& source_location,
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx, bool force_reference )
@@ -284,10 +292,8 @@ std::string FunctionResolver::function_expression_name( const SourceLocation& so
                       source_location.range.start.character_column );
 }
 
-void FunctionResolver::register_available_user_function_parse_tree(
-    const SourceLocation& source_location, antlr4::ParserRuleContext* ctx,
-    // const ScopeName& scope_name, antlr4::tree::TerminalNode* identifier,
-    const ScopableName& name, bool force_reference )
+void FunctionResolver::register_available_function_parse_tree(
+    const SourceLocation& source_location, const ScopableName& name, const AvailableParseTree& apt )
 {
   const auto& unscoped_name = name.name;
 
@@ -336,14 +342,21 @@ void FunctionResolver::register_available_user_function_parse_tree(
                   scoped_name, previous.source_location );
   }
 
-  auto apt = AvailableParseTree{ source_location, ctx, scope, nullptr };
   available_user_function_parse_trees.insert( { scoped_name, apt } );
+}
+
+void FunctionResolver::register_available_user_function_parse_tree(
+    const SourceLocation& source_location, antlr4::ParserRuleContext* ctx, const ScopableName& name,
+    bool force_reference )
+{
+  register_available_function_parse_tree( source_location, name,
+                                          { source_location, ctx, name.scope.string(), nullptr } );
 
   if ( force_reference )
   {
     // just make sure there is an entry, so that we build an AST for it
-    register_function_link(
-        name, std::make_shared<FunctionLink>( source_location, scope /* calling scope */ ) );
+    register_function_link( name, std::make_shared<FunctionLink>(
+                                      source_location, name.scope.string() /* calling scope */ ) );
   }
 }
 

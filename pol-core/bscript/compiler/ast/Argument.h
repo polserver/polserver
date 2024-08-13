@@ -19,7 +19,9 @@ public:
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
 
+  // can be empty if not specified
   const std::unique_ptr<ScopableName> identifier;
+
   const bool spread;
 
   std::unique_ptr<Expression> take_expression();

@@ -38,9 +38,6 @@ public:
   // CompilerWorkspace::user_functions.
   std::vector<std::shared_ptr<ClassLink>> base_class_links;
 
-  UserFunction* make_super( const SourceLocation& );
-  std::unique_ptr<UserFunction> take_super();
-
 private:
   std::unique_ptr<UserFunction> super;
 };

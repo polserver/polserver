@@ -162,6 +162,8 @@ set (bscript_sources    # sorted !
   compiler/ast/StructInitializer.h
   compiler/ast/StructMemberInitializer.cpp
   compiler/ast/StructMemberInitializer.h
+  compiler/ast/SuperFunction.cpp
+  compiler/ast/SuperFunction.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp
@@ -192,6 +194,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ExpressionBuilder.h
   compiler/astbuilder/FunctionResolver.cpp
   compiler/astbuilder/FunctionResolver.h
+  compiler/astbuilder/GeneratedFunctionBuilder.cpp
+  compiler/astbuilder/GeneratedFunctionBuilder.h
   compiler/astbuilder/ModuleDeclarationBuilder.cpp
   compiler/astbuilder/ModuleDeclarationBuilder.h
   compiler/astbuilder/ModuleProcessor.cpp
