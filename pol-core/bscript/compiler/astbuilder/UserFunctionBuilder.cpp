@@ -204,8 +204,6 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
   }
   auto parameter_list =
       std::make_unique<FunctionParameterList>( location_for( *ctx ), std::move( parameters ) );
-  auto body =
-      std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
 
   constexpr bool expression =
       std::is_same<ParserContext, EscriptGrammar::EscriptParser::FunctionExpressionContext>::value;
@@ -215,6 +213,13 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
   UserFunctionType type = !class_method        ? UserFunctionType::Static
                           : constructor_method ? UserFunctionType::Constructor
                                                : UserFunctionType::Method;
+
+  in_constructor_function.push( type == UserFunctionType::Constructor );
+
+  auto body =
+      std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
+
+  in_constructor_function.pop();
 
   std::shared_ptr<ClassLink> class_link;
   if ( !class_name.empty() )

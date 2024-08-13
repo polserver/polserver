@@ -24,6 +24,7 @@ ValueBuilder::ValueBuilder( const SourceFileIdentifier& source_file_identifier,
                             BuilderWorkspace& workspace )
     : TreeBuilder( source_file_identifier, workspace ), current_scope_name( ScopeName::Global )
 {
+  in_constructor_function.push( false );
 }
 
 std::unique_ptr<BooleanValue> ValueBuilder::bool_value(

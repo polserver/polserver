@@ -1,0 +1,1 @@
+fail-return-in-ctor.src:6:9: error: Cannot return a value from a constructor function.

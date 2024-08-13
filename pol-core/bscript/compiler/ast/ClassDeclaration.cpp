@@ -21,8 +21,6 @@
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopableName.h"
 
-#include "clib/logfacility.h"
-
 namespace Pol::Bscript::Compiler
 {
 ClassDeclaration::ClassDeclaration( const SourceLocation& source_location, std::string name,
@@ -161,8 +159,6 @@ UserFunction* ClassDeclaration::make_super( const SourceLocation& loc )
 
   std::string desc;
   Node::describe_tree_to_indented( *super, desc, 0 );
-
-  INFO_PRINTLN( "Super function: {}", desc );
 
   this->super = std::move( super );
 

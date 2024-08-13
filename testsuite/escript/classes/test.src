@@ -9,7 +9,7 @@ class Animal( BaseClass )
   function Animal( this, name )
     this.name := name;
     print( $"Animal constructor staticVar={staticVar}" );
-    return this;
+    return; // can have empty returns
   endfunction
 
 endclass

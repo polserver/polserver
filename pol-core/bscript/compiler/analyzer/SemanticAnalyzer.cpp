@@ -41,6 +41,7 @@
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
+#include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
@@ -1060,6 +1061,21 @@ void SemanticAnalyzer::visit_program_parameter_declaration( ProgramParameterDecl
 void SemanticAnalyzer::visit_repeat_until_loop( RepeatUntilLoop& node )
 {
   visit_loop_statement( node );
+}
+
+void SemanticAnalyzer::visit_return_statement( ReturnStatement& node )
+{
+  if ( !user_functions.empty() )
+  {
+    auto uf = user_functions.top();
+
+    if ( uf->type == UserFunctionType::Constructor && !node.children.empty() )
+    {
+      report.error( node, "Cannot return a value from a constructor function." );
+    }
+  }
+
+  visit_children( node );
 }
 
 void SemanticAnalyzer::visit_user_function( UserFunction& node )
