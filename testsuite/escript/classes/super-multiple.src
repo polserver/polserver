@@ -33,9 +33,10 @@ class Foo( BaseClass1, BaseClass2 )
     super( BaseClass2::arg0 := "scoped-c2.arg0", BaseClass1::arg0 := "scoped-c1.arg0", BaseClass1::arg1 := "scoped-c1.arg1" );
     print( "---" );
 
-    // TODO handle allowing arg1 un-scoped since there is only one named arg1.
-    // super( BaseClass2::arg0 := "scoped-c2.arg0", BaseClass1::arg0 := "scoped-c1.arg0", arg1 := "scoped-c1.arg1" );
-    // print( "---" );
+    // And do not need to scope uniquely-named arguments (arg1)
+    super( BaseClass2::arg0 := "scoped-c2.arg0", arg1 := "scoped-c1.arg1", BaseClass1::arg0 := "scoped-c1.arg0" );
+    print( "---" );
+
     this.child := arg0;
     return this; // TODO auto-return this in constructors, do not allow expression in ctor `return`s
   endfunction

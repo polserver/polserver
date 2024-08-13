@@ -533,14 +533,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   auto parameters = fc.parameters();
   bool has_class_inst_parameter = false;
 
-  bool is_from_super =
+  bool in_super_func =
       !user_functions.empty() && user_functions.top()->type == UserFunctionType::Super;
 
   if ( uf )
   {
     // Constructor functions are defined as `Constr( this )` and called statically via `Constr()`.
     // Provide a `this` parameter at this function call site.
-    if ( uf->type == UserFunctionType::Constructor && !is_from_super )
+    if ( uf->type == UserFunctionType::Constructor && !in_super_func )
     {
       // A super call inherits the `this` argument
       if ( is_super_call )
@@ -551,8 +551,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                               fc.source_location,
                               std::make_unique<Identifier>( fc.source_location, "this" ), false ) );
 
-        report.debug( fc, "using ctor Identifier is_super_call={} is_from_super={} uf->name={}",
-                      is_super_call, is_from_super, uf->name );
+        report.debug( fc, "using ctor Identifier is_super_call={} in_super_func={} uf->name={}",
+                      is_super_call, in_super_func, uf->name );
       }
       else
       {
@@ -562,8 +562,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                               fc.source_location,
                               std::make_unique<ClassInstance>( fc.source_location ), false ) );
 
-        report.debug( fc, "using ClassInstance is_super_call={} is_from_super={} uf->name={}",
-                      is_super_call, is_from_super, uf->name );
+        report.debug( fc, "using ClassInstance is_super_call={} in_super_func={} uf->name={}",
+                      is_super_call, in_super_func, uf->name );
       }
       // Since a `this` argument is generated for constructor functions, disallow passing an
       // argument named `this`.
@@ -577,8 +577,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                             fc.source_location,
                             std::make_unique<Identifier>( fc.source_location, "this" ), false ) );
 
-      report.debug( fc, "using super Identifier is_super_call={} is_from_super={} uf->name={}",
-                    is_super_call, is_from_super, uf->name );
+      report.debug( fc, "using super Identifier is_super_call={} in_super_func={} uf->name={}",
+                    is_super_call, in_super_func, uf->name );
     }
   }
 
@@ -659,7 +659,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     {
       any_named = true;
 
-      if ( has_class_inst_parameter && !is_from_super && !is_super_call &&
+      if ( has_class_inst_parameter && !in_super_func && !is_super_call &&
            Clib::caseInsensitiveEqual( arg_name, "this" ) )
       {
         report.error( arg, "In call to '{}': Cannot pass 'this' to constructor function.",
@@ -674,6 +674,69 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                     arg_name );
       return;
     }
+
+    // Inside a call to super(), if the arg is un-scoped, find the base class it belongs to. Error
+    // if ambiguous.
+    if ( is_super_call )
+    {
+      if ( arg.identifier && arg.identifier->global() && arg.identifier->string() != "this" )
+      {
+        std::string base_class;
+        std::string first_location;
+        std::string err_msg;
+
+        auto add_location = [this]( std::string& where, const std::string& class_name )
+        {
+          fmt::format_to( std::back_inserter( where ), "  See: {}", class_name );
+
+          auto funct_itr = workspace.all_function_locations.find(
+              ScopableName( class_name, class_name ).string() );
+          if ( funct_itr != workspace.all_function_locations.end() )
+          {
+            fmt::format_to( std::back_inserter( where ), " {}\n", funct_itr->second );
+          }
+          else
+          {
+            where += "\n";
+          }
+        };
+
+        for ( auto& param_ref : parameters )
+        {
+          auto& param = param_ref.get();
+          const auto& param_name = param.name.name;
+          if ( Clib::caseInsensitiveEqual( param_name, arg_name ) )
+          {
+            if ( !base_class.empty() )
+            {
+              if ( err_msg.empty() )
+              {
+                fmt::format_to( std::back_inserter( err_msg ),
+                                "In call to '{}': Ambiguous parameter '{}'.\n{}", method_name,
+                                param_name, first_location );
+              }
+
+              add_location( err_msg, param.name.scope.string() );
+            }
+            else
+            {
+              base_class = param.name.scope.string();
+
+              add_location( first_location, base_class );
+            }
+          }
+        }
+        if ( !err_msg.empty() )
+        {
+          report.error( fc, err_msg );
+        }
+        else
+        {
+          arg_name = ScopableName( base_class, arg_name ).string();
+        }
+      }
+    }
+
 
     arguments_passed[arg_name] = arg.take_expression();
   }
