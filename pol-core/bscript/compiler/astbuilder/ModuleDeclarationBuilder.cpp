@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/model/ScopableName.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -11,7 +12,7 @@ namespace Pol::Bscript::Compiler
 {
 ModuleDeclarationBuilder::ModuleDeclarationBuilder(
     const SourceFileIdentifier& source_file_identifier, BuilderWorkspace& workspace )
-  : SimpleStatementBuilder( source_file_identifier, workspace )
+    : SimpleStatementBuilder( source_file_identifier, workspace )
 {
 }
 
@@ -25,7 +26,7 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
   {
     for ( auto param : param_list->moduleFunctionParameter() )
     {
-      std::string parameter_name = text( param->IDENTIFIER() );
+      ScopableName parameter_name( ScopeName::None, text( param->IDENTIFIER() ) );
       std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
       bool byref = false;
       bool unused = false;

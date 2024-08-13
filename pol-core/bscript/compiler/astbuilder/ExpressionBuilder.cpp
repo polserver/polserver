@@ -686,7 +686,8 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
     {
       auto loc = location_for( *argument_context );
 
-      std::string name;
+      std::unique_ptr<Argument> argument = nullptr;
+
       auto value =
           expression( argument_context->expression(), false, argument_context->ELLIPSIS() );
 
@@ -696,13 +697,20 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
         {
           if ( auto identifier = dynamic_cast<Identifier*>( &binary_operator->lhs() ) )
           {
-            name = identifier->scoped_name.string();
+            ScopableName name( identifier->scoped_name );
             value = binary_operator->take_rhs();
+            argument = std::make_unique<Argument>( loc, name, std::move( value ),
+                                                   argument_context->ELLIPSIS() );
           }
         }
       }
-      auto argument = std::make_unique<Argument>( loc, std::move( name ), std::move( value ),
-                                                  argument_context->ELLIPSIS() );
+
+      if ( !argument )
+      {
+        argument =
+            std::make_unique<Argument>( loc, std::move( value ), argument_context->ELLIPSIS() );
+      }
+
       arguments.push_back( std::move( argument ) );
     }
   }

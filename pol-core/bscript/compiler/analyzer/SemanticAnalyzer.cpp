@@ -501,7 +501,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                                    {
                                      const auto& arg_name =
                                          static_cast<Argument*>( node.get() )->identifier;
-                                     return !arg_name.empty();
+                                     return arg_name != nullptr;
                                    } );
 
     if ( any_named != fc.children.end() )
@@ -548,7 +548,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         // Super will use "this" argument
         arguments.insert( arguments.begin(),
                           std::make_unique<Argument>(
-                              fc.source_location, "" /* unnamed arg */,
+                              fc.source_location,
                               std::make_unique<Identifier>( fc.source_location, "this" ), false ) );
 
         report.debug( fc, "using ctor Identifier is_super_call={} is_from_super={} uf->name={}",
@@ -559,7 +559,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         // Constructor will create a new "this" instance
         arguments.insert( arguments.begin(),
                           std::make_unique<Argument>(
-                              fc.source_location, "" /* unnamed arg */,
+                              fc.source_location,
                               std::make_unique<ClassInstance>( fc.source_location ), false ) );
 
         report.debug( fc, "using ClassInstance is_super_call={} is_from_super={} uf->name={}",
@@ -574,7 +574,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       // Super will use "this" argument
       arguments.insert( arguments.begin(),
                         std::make_unique<Argument>(
-                            fc.source_location, "" /* unnamed arg */,
+                            fc.source_location,
                             std::make_unique<Identifier>( fc.source_location, "this" ), false ) );
 
       report.debug( fc, "using super Identifier is_super_call={} is_from_super={} uf->name={}",
@@ -589,7 +589,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   for ( auto& arg_unique_ptr : arguments )
   {
     auto& arg = *arg_unique_ptr;
-    std::string arg_name = arg.identifier;
+    std::string arg_name = arg.identifier ? arg.identifier->string() : "";
 
     if ( arg.spread )
     {
@@ -652,7 +652,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       }
       else
       {
-        arg_name = parameters.at( arguments_passed.size() ).get().name;
+        arg_name = parameters.at( arguments_passed.size() ).get().name.string();
       }
     }
     else
@@ -683,7 +683,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   for ( auto& param_ref : parameters )
   {
     FunctionParameterDeclaration& param = param_ref.get();
-    auto itr = arguments_passed.find( param.name );
+    auto itr = arguments_passed.find( param.name.string() );
     if ( itr == arguments_passed.end() )
     {
       if ( auto default_value = param.default_value() )
@@ -706,9 +706,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       else if ( !param.rest )
       {
         report.error( fc,
-                      "In call to '{}': Parameter '{}' was not passed, and there is no default. "
-                      "is_from_super={} is_super_call={}",
-                      method_name, param.name, is_from_super, is_super_call );
+                      "In call to '{}': Parameter '{}' was not passed, and there is no default.",
+                      method_name, param.name );
         return;
       }
     }
@@ -770,6 +769,7 @@ void SemanticAnalyzer::visit_function_parameter_list( FunctionParameterList& nod
 
 void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDeclaration& node )
 {
+  auto node_name = node.name.string();
   if ( auto default_value = node.default_value() )
   {
     ConstantValidator validator;
@@ -780,30 +780,30 @@ void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDe
       report.error( node,
                     "Parameter '{}' has a disallowed default.  Only simple operands are allowed as "
                     "default arguments.",
-                    node.name );
+                    node_name );
       // but continue, to avoid unknown identifier errors
     }
   }
-  if ( auto existing = locals.find( node.name ) )
+  if ( auto existing = locals.find( node_name ) )
   {
-    report.error( node, "Parameter '{}' already defined.", node.name );
+    report.error( node, "Parameter '{}' already defined.", node_name );
     return;
   }
 
   if ( node.rest && node.default_value() )
   {
-    report.error( node, "Rest parameter '{}' cannot have a default value.", node.name );
+    report.error( node, "Rest parameter '{}' cannot have a default value.", node_name );
     return;
   }
 
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
 
-  if ( report_function_name_conflict( node.source_location, node.name, "function parameter" ) )
+  if ( report_function_name_conflict( node.source_location, node_name, "function parameter" ) )
   {
     warn_on = WarnOn::Never;
   }
 
-  local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
+  local_scopes.current_local_scope()->create( node_name, warn_on, node.source_location );
 }
 
 void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )

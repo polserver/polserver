@@ -166,12 +166,12 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
       bool first = !class_name.empty();
       for ( auto param : param_list->functionParameter() )
       {
-        std::string parameter_name = text( param->IDENTIFIER() );
+        ScopableName parameter_name( ScopeName::None, text( param->IDENTIFIER() ) );
         bool is_this_arg = false;
 
         if ( first )
         {
-          if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+          if ( Clib::caseInsensitiveEqual( parameter_name.string(), "this" ) )
           {
             class_method = true;
             is_this_arg = true;

@@ -21,6 +21,8 @@
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopableName.h"
 
+#include "clib/logfacility.h"
+
 namespace Pol::Bscript::Compiler
 {
 ClassDeclaration::ClassDeclaration( const SourceLocation& source_location, std::string name,
@@ -108,7 +110,8 @@ UserFunction* ClassDeclaration::make_super( const SourceLocation& loc )
   auto& body = super->child<FunctionBody>( 1 ).children;
 
   function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-      loc, "this", true /* byref */, false /* unused */, false /* rest */ ) );
+      loc, ScopableName( ScopeName::None, "this" ), true /* byref */, false /* unused */,
+      false /* rest */ ) );
 
   for ( auto base_class_ctor : boost::adaptors::reverse( base_class_ctors ) )
   {
@@ -121,14 +124,14 @@ UserFunction* ClassDeclaration::make_super( const SourceLocation& loc )
     for ( auto& param_ref : params )
     {
       auto& param = param_ref.get();
-      ScopableName scoped_name( base_class_ctor->name, param.name );
 
       // Skip the first `this` parameter of the function declaration, as we've already added it.
       if ( !first )
       {
         // TODO how does this work with duplicate names across multiple base classes
         function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-            loc, scoped_name.string(), param.byref, param.unused, param.rest ) );
+            loc, ScopableName( base_class_ctor->name, param.name.name ), param.byref, param.unused,
+            param.rest ) );
       }
       call_arguments.insert(
           call_arguments.end(),
@@ -137,7 +140,7 @@ UserFunction* ClassDeclaration::make_super( const SourceLocation& loc )
               std::make_unique<Identifier>(
                   param.source_location,
                   ScopableName( first ? ScopeName::None : ScopeName( base_class_ctor->name ),
-                                param.name ) ),
+                                param.name.name ) ),
               false ) );
 
       first = false;
@@ -158,6 +161,8 @@ UserFunction* ClassDeclaration::make_super( const SourceLocation& loc )
 
   std::string desc;
   Node::describe_tree_to_indented( *super, desc, 0 );
+
+  INFO_PRINTLN( "Super function: {}", desc );
 
   this->super = std::move( super );
 

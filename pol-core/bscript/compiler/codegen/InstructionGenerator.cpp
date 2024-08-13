@@ -497,9 +497,9 @@ void InstructionGenerator::visit_function_parameter_declaration(
 {
   update_debug_location( node );
   if ( node.byref )
-    emit.pop_param_byref( node.name );
+    emit.pop_param_byref( node.name.string() );
   else
-    emit.pop_param( node.name );
+    emit.pop_param( node.name.string() );
 }
 
 // The function expression generation emits the following instructions:
