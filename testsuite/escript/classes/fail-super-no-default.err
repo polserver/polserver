@@ -1,0 +1,1 @@
+fail-super-no-default.src:16:5: error: In call to 'super': Parameter 'A::a0' was not passed, and there is no default.

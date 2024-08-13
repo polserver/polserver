@@ -1,0 +1,47 @@
+/*
+
+Diamond problem:
+
+   A
+  / \
+ B   C
+  \ /
+   D
+
+Currently, super will end up calling A ctor twice. This will be fixed with executor implementations.
+
+*/
+
+class A()
+  function A( this, a0 )
+    print( "A" );
+    return this;
+  endfunction
+endclass
+
+class B(A)
+  function B( this, b0 )
+    super( b0 );
+    print( "B" );
+    return this;
+  endfunction
+endclass
+
+class C(A)
+  function C( this, c0 )
+    super( c0 );
+    print( "C" );
+    return this;
+  endfunction
+endclass
+
+class D(B, C)
+  function D( this, d0 )
+    super( B::b0 := d0, C::c0 := d0 );
+    print( "D" );
+    return this;
+  endfunction
+endclass
+
+var obj := D( "foo" );
+print(obj);
