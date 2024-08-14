@@ -49,7 +49,7 @@ topLevelDeclaration
     ;
 
 classDeclaration
-    : CLASS IDENTIFIER classParameters? classBody ENDCLASS
+    : CLASS IDENTIFIER classParameters classBody ENDCLASS
     ;
 
 classParameters

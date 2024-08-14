@@ -1,7 +1,8 @@
   // Parser tests where scoped identifiers have been added. Execution will change
   // once implementation is done. See comments for future changes.
 
-  class Animal var arr := array{ 1, 2, 3 };
+class Animal()
+  var arr := array{ 1, 2, 3 };
   var str := "string";
   var num := 1;
 

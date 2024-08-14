@@ -1,6 +1,6 @@
 // Accessing a non-existant scoped variable inside its own scope fails.
 
-class Animal
+class Animal()
     var variable_exists;
     function StaticFunc()
         Animal::variable_exists;

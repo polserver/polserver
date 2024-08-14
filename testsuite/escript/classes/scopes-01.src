@@ -1,6 +1,6 @@
 // Animal::StaticFunc refers to itself without scope. It should prefer its own definition over ::StaticFunc.
 
-class Animal
+class Animal()
     function StaticFunc( foo )
         if ( foo )
             print ( $"Animal::StaticFunc foo={foo}" );
