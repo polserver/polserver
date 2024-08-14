@@ -72,7 +72,9 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
   auto source_location = location_for( *ctx );
 
   auto name = text( ctx->function );
-  auto scope = ctx->scope ? ScopeName( text( ctx->scope ) ) : ScopeName::None;
+  auto scope = ctx->scope          ? ScopeName( text( ctx->scope ) )  // scope exists
+               : ctx->COLONCOLON() ? ScopeName::Global                // colon exists
+                                   : ScopeName::None;                 // has no scope specified
 
   auto function_link =
       std::make_shared<FunctionLink>( source_location, current_scope_name.string() );

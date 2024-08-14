@@ -1,5 +1,4 @@
 // A non-child class can define a super method function that accesses a global variable named super.
-// **BUGGED** looks like function resolver for funcrefs is wrong
 
 var super := @(i){ print( $"funcexpr called i={i}"); };
 
@@ -18,12 +17,7 @@ class Foo()
             return;
         endif
 
-        // TODO FIX THIS BUG
-        // There is no globally declared function named 'super', so should throw compiler error
-        // and is currently linking to <calling_scope>::super. Once bug fixed, change to the below line:
-        // super( this, i - 1 );
-
-        @::super(this, i - 1);
+        super( this, i - 1 );
     endfunction
 endclass
 
