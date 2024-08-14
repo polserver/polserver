@@ -1,0 +1,48 @@
+// Currently, multiple base classes will be visited in order. TODO sem analysis
+// will require named arguments when having multiple base classes
+
+class BaseClass1()
+  function BaseClass1( this, arg0, arg1 )
+    print( $"BaseClass1 arg0={arg0} arg1={arg1}" );
+    this.base1 := { this.base1 ?: {}... , {arg0,arg1} };
+    return this; // TODO auto-return this in constructors, do not allow expression in ctor `return`s
+  endfunction
+endclass
+
+class BaseClass2()
+  function BaseClass2( this, arg0 )
+    print( $"BaseClass2 arg0={arg0}" );
+    //this.base2 := arg0;
+    this.base2 := { this.base2 ?: {}... , {arg0} };
+    return this; // TODO auto-return this in constructors, do not allow expression in ctor `return`s
+  endfunction
+endclass
+
+
+class Foo( BaseClass1, BaseClass2 )
+  function Foo( this, arg0 )
+    // Will "expand" arguments in order
+    super( "unscoped-arg0", "unscoped-arg1", "unscoped-arg2" );
+    print( "---" );
+
+    // Can be scoped ...
+    super( BaseClass1::arg0 := "scoped-c1.arg0", BaseClass1::arg1 := "scoped-c1.arg1", BaseClass2::arg0 := "scoped-c2.arg0" );
+    print( "---" );
+
+    // ... in any order, eg. putting Class2 first
+    super( BaseClass2::arg0 := "scoped-c2.arg0", BaseClass1::arg0 := "scoped-c1.arg0", BaseClass1::arg1 := "scoped-c1.arg1" );
+    print( "---" );
+
+    // TODO handle allowing arg1 un-scoped since there is only one named arg1.
+    // super( BaseClass2::arg0 := "scoped-c2.arg0", BaseClass1::arg0 := "scoped-c1.arg0", arg1 := "scoped-c1.arg1" );
+    // print( "---" );
+    this.child := arg0;
+    return this; // TODO auto-return this in constructors, do not allow expression in ctor `return`s
+  endfunction
+endclass
+
+var obj := Foo( "foo" );
+
+// We'll see that obj.base1 always contains a value of *-arg0/1, and obj.base2
+// will have "unscoped-arg2" and scoped arg0s
+print( PackJSON( obj, true ) );

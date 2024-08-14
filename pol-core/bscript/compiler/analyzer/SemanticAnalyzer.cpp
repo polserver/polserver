@@ -48,6 +48,7 @@
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
+#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/Variable.h"
@@ -66,9 +67,9 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       break_scopes( locals, report ),
       continue_scopes( locals, report ),
       local_scopes( locals, report ),
-      capture_scopes( captures, report ),
-      current_scope_name( ScopeName::Global )
+      capture_scopes( captures, report )
 {
+  current_scope_names.push( ScopeName::Global );
 }
 
 SemanticAnalyzer::~SemanticAnalyzer() = default;
@@ -108,6 +109,20 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
+
+  // Take any generated super() functions during semantic analysis.
+  for ( auto& class_decl : workspace.class_declarations )
+  {
+    auto super = class_decl->take_super();
+    // Create a new function variable scope. `super` is almost like a captured
+    // function.
+    if ( super )
+    {
+      FunctionVariableScope new_function_scope( locals );
+      visit_user_function( *super );
+      workspace.user_functions.push_back( std::move( super ) );
+    }
+  }
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
@@ -211,10 +226,9 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
       named_baseclasses.emplace( baseclass_name );
       report.debug( class_parameter.get(), "Class '{}' references base class '{}'", class_name,
                     baseclass_name );
+      visit_class_parameter_declaration( class_parameter.get() );
     }
   }
-
-  visit_children( node );
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor
@@ -365,8 +379,57 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
   node.block().accept( *this );
 }
 
+void SemanticAnalyzer::prepare_super_call( FunctionCall& fc )
+{
+  if ( user_functions.empty() )
+  {
+    report.error( fc, "In function call: super() can only be used in constructor functions." );
+    return;
+  }
+
+  auto uf = user_functions.top();
+
+  if ( uf->type != UserFunctionType::Constructor )
+  {
+    report.error( fc, "In function call: super() can only be used in constructor functions." );
+    return;
+  }
+
+  auto cd = uf->class_link->class_declaration();
+
+  if ( !cd )
+  {
+    uf->internal_error( "no class declaration" );
+    return;
+  }
+
+  // Will return nullptr if super cannot be made, eg. if one of the base classes
+  // does not define a constructor.
+  auto super = cd->make_super( fc.source_location );
+
+  // Linking to nullptr will cause the `visit_function_call()` for super() to be
+  // unlinked, resulting in a compile error.
+  fc.function_link->link_to( super );
+}
+
+ScopeName& SemanticAnalyzer::current_scope_name()
+{
+  return current_scope_names.top();
+}
+
 void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 {
+  bool is_super_call =
+      !fc.function_link->function() &&  // no linked function
+      fc.scoped_name &&                 // there is a name in the call (ie. not an expression)
+      Clib::caseInsensitiveEqual( fc.scoped_name->string(), "super" );  // the name is "super"
+
+  if ( is_super_call )
+  {
+    // Will add a function link on success
+    prepare_super_call( fc );
+  }
+
   // No function linked through FunctionResolver
   if ( !fc.function_link->function() )
   {
@@ -374,6 +437,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )
     {
+      // If we tried to make a super and it failed, then we received an error
+      // because of some other reason (eg. base-class does not implement
+      // constructor.)
+      if ( is_super_call )
+      {
+        return;
+      }
+
       // If the a function is a class, then it did not define a constructor (since
       // there was no function linked).
 
@@ -462,17 +533,52 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   auto parameters = fc.parameters();
   bool has_class_inst_parameter = false;
 
+  bool is_from_super =
+      !user_functions.empty() && user_functions.top()->type == UserFunctionType::Super;
+
   if ( uf )
   {
     // Constructor functions are defined as `Constr( this )` and called statically via `Constr()`.
     // Provide a `this` parameter at this function call site.
-    if ( uf->type == UserFunctionType::Constructor )
+    if ( uf->type == UserFunctionType::Constructor && !is_from_super )
     {
-      arguments_passed["this"] = std::make_unique<ClassInstance>( fc.source_location );
+      // A super call inherits the `this` argument
+      if ( is_super_call )
+      {
+        // Super will use "this" argument
+        arguments.insert( arguments.begin(),
+                          std::make_unique<Argument>(
+                              fc.source_location, "" /* unnamed arg */,
+                              std::make_unique<Identifier>( fc.source_location, "this" ), false ) );
 
+        report.debug( fc, "using ctor Identifier is_super_call={} is_from_super={} uf->name={}",
+                      is_super_call, is_from_super, uf->name );
+      }
+      else
+      {
+        // Constructor will create a new "this" instance
+        arguments.insert( arguments.begin(),
+                          std::make_unique<Argument>(
+                              fc.source_location, "" /* unnamed arg */,
+                              std::make_unique<ClassInstance>( fc.source_location ), false ) );
+
+        report.debug( fc, "using ClassInstance is_super_call={} is_from_super={} uf->name={}",
+                      is_super_call, is_from_super, uf->name );
+      }
       // Since a `this` argument is generated for constructor functions, disallow passing an
       // argument named `this`.
       has_class_inst_parameter = true;
+    }
+    else if ( uf->type == UserFunctionType::Super )
+    {
+      // Super will use "this" argument
+      arguments.insert( arguments.begin(),
+                        std::make_unique<Argument>(
+                            fc.source_location, "" /* unnamed arg */,
+                            std::make_unique<Identifier>( fc.source_location, "this" ), false ) );
+
+      report.debug( fc, "using super Identifier is_super_call={} is_from_super={} uf->name={}",
+                    is_super_call, is_from_super, uf->name );
     }
   }
 
@@ -552,13 +658,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     else
     {
       any_named = true;
-    }
 
-    if ( has_class_inst_parameter && Clib::caseInsensitiveEqual( arg_name, "this" ) )
-    {
-      report.error( arg, "In call to '{}': Cannot pass 'this' to constructor function.",
-                    method_name );
-      return;
+      if ( has_class_inst_parameter && !is_from_super && !is_super_call &&
+           Clib::caseInsensitiveEqual( arg_name, "this" ) )
+      {
+        report.error( arg, "In call to '{}': Cannot pass 'this' to constructor function.",
+                      method_name );
+        return;
+      }
     }
 
     if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
@@ -599,8 +706,9 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       else if ( !param.rest )
       {
         report.error( fc,
-                      "In call to '{}': Parameter '{}' was not passed, and there is no default.",
-                      method_name, param.name );
+                      "In call to '{}': Parameter '{}' was not passed, and there is no default. "
+                      "is_from_super={} is_super_call={}",
+                      method_name, param.name, is_from_super, is_super_call );
         return;
       }
     }
@@ -623,10 +731,10 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   {
     for ( auto& unused_argument : arguments_passed )
     {
-      report.error(
-          *unused_argument.second,
-          "In call to '{}': Parameter '{}' passed by name, but the function has no such parameter.",
-          method_name, unused_argument.first );
+      report.error( *unused_argument.second,
+                    "In call to '{}': Parameter '{}' passed by name, but the function has no "
+                    "such parameter.",
+                    method_name, unused_argument.first );
     }
     if ( !arguments_passed.empty() || arguments.size() > parameters.size() )
       return;
@@ -755,19 +863,30 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
 {
   // Resolution order:
   //
-  // if scoped: globals only
+  // if scoped: locals -> globals
   // otherwise: local function -> local captures -> ancestor (above) functions -> globals
   //
   const auto& name = node.scoped_name.string();
 
   // If there is a scope, whether it is (":foo") empty or not ("Animal:foo"),
-  // only check globals. We do not support nested classes, so if there is a
-  // variable with that name, it would only _ever_ exist in globals.
+  // we need to check both globals and locals.
   if ( !node.scoped_name.scope.empty() )
   {
-    if ( auto scoped_global = globals.find( name ) )
+    if ( !node.scoped_name.scope.global() )
     {
-      node.variable = scoped_global;
+      if ( auto local = locals.find( name ) )
+      {
+        local->mark_used();
+        node.variable = local;
+      }
+    }
+    // Did not find it in locals, check globals
+    if ( !node.variable )
+    {
+      if ( auto scoped_global = globals.find( name ) )
+      {
+        node.variable = scoped_global;
+      }
     }
   }
   else
@@ -797,9 +916,9 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     {
       node.variable = global;
     }
-    else if ( !current_scope_name.global() )
+    else if ( !current_scope_name().global() )
     {
-      const auto scoped_name = ScopableName( current_scope_name, node.name() ).string();
+      const auto scoped_name = ScopableName( current_scope_name(), node.name() ).string();
 
       // We do not support nested classes, so if there is a `current_scope`, it would only _ever_
       // exist in globals.
@@ -883,7 +1002,8 @@ void SemanticAnalyzer::visit_repeat_until_loop( RepeatUntilLoop& node )
 void SemanticAnalyzer::visit_user_function( UserFunction& node )
 {
   // Track current scope for use in visit_identifier
-  current_scope_name = ScopeName( node.scope );
+  current_scope_names.push( ScopeName( node.scope ) );
+  user_functions.emplace( &node );
   if ( node.exported )
   {
     unsigned max_name_length = sizeof( Pol::Bscript::BSCRIPT_EXPORTED_FUNCTION::funcname ) - 1;
@@ -898,7 +1018,9 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
   LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
   visit_children( node );
   // We do not allow nested scope names
-  current_scope_name = ScopeName::Global;
+  // TODO fix this because of funcexprs
+  user_functions.pop();
+  current_scope_names.pop();
 }
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
@@ -972,9 +1094,9 @@ bool SemanticAnalyzer::report_function_name_conflict( const SourceLocation& refe
                                                       const std::string& function_name,
                                                       const std::string& element_description )
 {
-  return report_function_name_conflict( workspace, report, referencing_loc,
-                                        ScopableName( current_scope_name, function_name ).string(),
-                                        element_description );
+  return report_function_name_conflict(
+      workspace, report, referencing_loc,
+      ScopableName( current_scope_name(), function_name ).string(), element_description );
 }
 
 bool SemanticAnalyzer::report_function_name_conflict( const CompilerWorkspace& workspace,

@@ -1,0 +1,1 @@
+fail-super-base-no-ctor.src:8:12: error: Base class 'BaseClass' does not define a constructor.

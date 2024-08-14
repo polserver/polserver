@@ -258,6 +258,8 @@ set (bscript_sources    # sorted !
   compiler/format/ListingWriter.h
   compiler/format/StoredTokenDecoder.cpp
   compiler/format/StoredTokenDecoder.h
+  compiler/model/ClassLink.cpp
+  compiler/model/ClassLink.h
   compiler/model/CompilerWorkspace.cpp
   compiler/model/CompilerWorkspace.h
   compiler/model/FlowControlLabel.cpp

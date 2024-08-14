@@ -5,6 +5,7 @@
 
 #include <map>
 #include <memory>
+#include <stack>
 
 #include "bscript/compiler/analyzer/FlowControlScopes.h"
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"
@@ -62,6 +63,7 @@ private:
                                              const std::string& scoped_function_name,
                                              const std::string& element_description );
 
+  void prepare_super_call( FunctionCall& );
   CompilerWorkspace& workspace;
   Report& report;
 
@@ -72,11 +74,15 @@ private:
   FlowControlScopes continue_scopes;
   LocalVariableScopes local_scopes;
   LocalVariableScopes capture_scopes;
-  // Pushed and popped in visit_user_function,
+  // Pushed and popped in visit_user_function.
   //
   // Used in visit_identifier. If the variable does not exist under `name`,
   // check `current_scope::name` (if current scope exists).
-  ScopeName current_scope_name;
+  std::stack<ScopeName> current_scope_names;
+  ScopeName& current_scope_name();
+
+  // Needed to handle super() calls
+  std::stack<UserFunction*> user_functions;
 };
 
 }  // namespace Pol::Bscript::Compiler
