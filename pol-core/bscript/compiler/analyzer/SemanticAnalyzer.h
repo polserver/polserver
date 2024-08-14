@@ -31,11 +31,11 @@ public:
   void visit_basic_for_loop( BasicForLoop& ) override;
   void visit_block( Block& ) override;
   void visit_class_declaration( ClassDeclaration& ) override;
+  void visit_class_parameter_declaration( ClassParameterDeclaration& ) override;
   void visit_case_statement( CaseStatement& ) override;
   void visit_case_dispatch_group( CaseDispatchGroup& ) override;
   void visit_case_dispatch_selectors( CaseDispatchSelectors& ) override;
   void visit_cstyle_for_loop( CstyleForLoop& ) override;
-  void visit_default_constructor_function( DefaultConstructorFunction& ) override;
   void visit_do_while_loop( DoWhileLoop& ) override;
   void visit_foreach_loop( ForeachLoop& ) override;
   void visit_function_call( FunctionCall& ) override;

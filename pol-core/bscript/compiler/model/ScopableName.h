@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fmt/format.h>
+
 #include "bscript/compiler/model/ScopeName.h"
 
 namespace Pol::Bscript::Compiler
@@ -16,9 +18,31 @@ public:
   // Returns foo, Animal::foo but never ::foo
   std::string string() const;
 
+  // `this` ScopableName is equal to `other` if `this` is referencing `other` as
+  // a constructor, ie. if <nullopt>::Foo == Foo::Foo.
+  //
+  // Since _only_ the FunctionResolver uses a container of ScopableNames, this
+  // specific behavior works. If using inside any different context, this may
+  // need to change. Used in a maps for:
+  //
+  // - unresolved function calls to their linkes, eg:
+  //
+  //      <nullopt>::Foo  ->  Foo()
+  //      Foo::Foo        ->  Foo::Foo()
+  //      ::print         ->  ::print()
+  //
+  // - resolved functions (which always have a scope, either global or a class,
+  //   never <nullopt>)
   bool operator<( const ScopableName& other ) const;
 
   ScopeName scope;
   std::string name;
 };
 }  // namespace Pol::Bscript::Compiler
+
+template <>
+struct fmt::formatter<Pol::Bscript::Compiler::ScopableName> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Bscript::Compiler::ScopableName& apt,
+                                        fmt::format_context& ctx ) const;
+};

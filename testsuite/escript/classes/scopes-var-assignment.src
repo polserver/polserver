@@ -1,0 +1,23 @@
+// Testing assignment of global, class, and local variables.
+
+var foo := "global before";
+
+class Animal()
+  var foo := "class before";
+  // static function named as same as class
+  function Animal( foo )
+    print( foo );
+    print( ::foo );
+    print( Animal::foo );
+
+    Animal::foo := "class after";
+    foo := "param after";
+    ::foo := "global after";
+
+    print( foo );
+    print( ::foo );
+    print( Animal::foo );
+  endfunction
+endclass
+
+Animal::Animal( "param before" );

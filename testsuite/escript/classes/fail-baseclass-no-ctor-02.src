@@ -1,0 +1,16 @@
+// A base class must define a constructor (BaseClass2 missing `this`)
+
+class BaseClass1()
+  function BaseClass1( this ) endfunction
+endclass
+
+class BaseClass2()
+  // Missing this
+  function BaseClass2() endfunction
+endclass
+
+class Animal(BaseClass1, BaseClass2)
+  function Animal( this ) endfunction
+endclass
+
+Animal();
