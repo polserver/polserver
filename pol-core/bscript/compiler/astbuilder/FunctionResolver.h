@@ -88,13 +88,18 @@ private:
 
   // Returns Function if the key's `{call_scope, name}` exists in
   // `resolved_functions_by_name`, otherwise nullptr.
-  Function* check_existing( const ScopableName& key ) const;
+  Function* check_existing( const ScopableName& key, bool requires_constructor ) const;
 
   // Checks if `{call_scope, name}` exists in either
-  // `available_user_function_parse_trees` as a function or a class (that would eventually provide
-  // the function) inside `available_class_decl_parse_trees`, using `calling_scope` for context.
+  // `available_user_function_parse_trees` as a function or a class (that would
+  // eventually provide the function) inside `available_class_decl_parse_trees`,
+  // using `calling_scope` for context.
   bool build_if_available( std::vector<AvailableParseTree>& to_build_ast,
                            const std::string& calling_scope, const ScopableName& call );
+
+  // Given a scoped name, looks for an existing function in `resolved_functions`. If found, links
+  // the function and returns `true`; otherwise, returns `false`.
+  bool resolve_if_existing( const ScopableName&, std::shared_ptr<FunctionLink>& );
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -22,9 +22,9 @@
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ClassInstance.h"
+#include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
-#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
 #include "bscript/compiler/ast/FunctionBody.h"
@@ -144,6 +144,33 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 }
 
+void SemanticAnalyzer::visit_class_parameter_declaration( ClassParameterDeclaration& node )
+{
+  auto constructor = node.constructor_link->function();
+  if ( !constructor )
+  {
+    auto msg = fmt::format( "Base class '{}' does not define a constructor.", node.name );
+
+    // Check if the named function exists. If it does, then the reason it wasn't
+    // linked is because it is not a constructor. This happens because of a
+    // missing `this` parameter.
+    auto func_itr =
+        workspace.all_function_locations.find( ScopableName( node.name, node.name ).string() );
+
+    if ( func_itr != workspace.all_function_locations.end() )
+    {
+      msg += fmt::format( "\n  See also (missing 'this' parameter?): {}", func_itr->second );
+    }
+
+    report.error( node, msg );
+  }
+  else
+  {
+    report.debug( node, "Class parameter '{}' references constructor '{}' at {}", node.name,
+                  constructor->scoped_name(), constructor->source_location );
+  }
+}
+
 void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 {
   const auto& class_name = node.name;
@@ -151,15 +178,23 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
   // Will need the order for something, i'm sure...
   std::vector<std::string> ordered_baseclasses;
   std::set<std::string, Clib::ci_cmp_pred> named_baseclasses;
+  report.debug( node, "Class '{}' declared with {} parameters", class_name,
+                node.parameters().size() );
 
   for ( auto& class_parameter : node.parameters() )
   {
-    const auto& baseclass_name = class_parameter.get().scoped_name.name;
+    const auto& baseclass_name = class_parameter.get().name;
     auto itr = workspace.all_class_locations.find( baseclass_name );
     if ( itr == workspace.all_class_locations.end() )
     {
       report.error( class_parameter.get(), "Class '{}' references unknown base class '{}'",
                     class_name, baseclass_name );
+    }
+
+    if ( baseclass_name == class_name )
+    {
+      report.error( class_parameter.get(), "Class '{}' references itself as a base class.",
+                    class_name );
     }
 
     bool previously_referenced =
@@ -174,8 +209,12 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
     {
       ordered_baseclasses.push_back( baseclass_name );
       named_baseclasses.emplace( baseclass_name );
+      report.debug( class_parameter.get(), "Class '{}' references base class '{}'", class_name,
+                    baseclass_name );
     }
   }
+
+  visit_children( node );
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor
@@ -298,16 +337,6 @@ void SemanticAnalyzer::visit_cstyle_for_loop( CstyleForLoop& loop )
   visit_loop_statement( loop );
 }
 
-// TODO implementation
-void SemanticAnalyzer::visit_default_constructor_function( DefaultConstructorFunction& )
-{
-  // TODO check that class can be default constructed.
-  //
-  // We do not visit children, and the Optimizer will remove this node. (The instruction generator
-  // will still emit the ins_classinst_create instruction instruction from the `Foo()` function
-  // call)
-}
-
 void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )
 {
   visit_loop_statement( do_while );
@@ -345,6 +374,49 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )
     {
+      // If the a function is a class, then it did not define a constructor (since
+      // there was no function linked).
+
+      // If a function call is eg. `Animal()` with no scope, check the string as-is.
+      std::string class_name = fc.string();
+
+      auto class_itr = workspace.all_class_locations.find( class_name );
+      if ( class_itr == workspace.all_class_locations.end() )
+      {
+        class_name = fc.scoped_name->scope.string();
+
+        class_itr = workspace.all_class_locations.find( class_name );
+        if ( class_itr == workspace.all_class_locations.end() )
+        {
+          class_name.clear();
+        }
+      }
+
+      if ( !class_name.empty() )
+      {
+        // There may be a variable named the same as the class, eg:
+        //
+        //   class Animal() var Animal; endclass
+        //
+        // If that is the case, there will be a global named
+        // `class_name::class_name`. We will not error in this case.
+        if ( !globals.find( ScopableName( class_name, class_name ).string() ) )
+        {
+          auto msg = fmt::format( "In function call: Class '{}' does not define a constructor.",
+                                  class_name );
+
+          auto func_itr = workspace.all_function_locations.find(
+              ScopableName( class_name, class_name ).string() );
+
+          if ( func_itr != workspace.all_function_locations.end() )
+          {
+            msg += fmt::format( "\n  See also (missing 'this' parameter?): {}", func_itr->second );
+          }
+
+          report.error( fc, msg );
+        }
+      }
+
       auto callee = std::make_unique<Identifier>( fc.source_location, *fc.scoped_name );
       fc.children.insert( fc.children.begin(), std::move( callee ) );
       fc.scoped_name.reset();
@@ -738,7 +810,10 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     }
   }
 
-  if ( !node.variable )
+  // Do not error if accessing a class name that does not define a constructor,
+  // as that is handled by visit_function_call.
+  if ( !node.variable &&
+       workspace.all_class_locations.find( name ) == workspace.all_class_locations.end() )
   {
     report.error( node, "Unknown identifier '{}'.", name );
     return;

@@ -1,0 +1,12 @@
+// A class can have a variable the same as the classname, but that cannot be
+// referenced as a (compile-time) user function.
+
+class Animal()
+  var Animal := @( arg0 ){
+    print( $"arg0={arg0}" );
+  };
+endclass
+
+// This currently gives an error about 'Animal not found'. TODO implement
+// ScopableName inside AST FunctionReference node.
+@Animal::Animal( "functionReference" );

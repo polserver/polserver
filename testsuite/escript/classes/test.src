@@ -1,4 +1,6 @@
-class BaseClass endclass
+class BaseClass
+  function BaseClass( this ) endfunction
+endclass
 
 class Animal( BaseClass )
 

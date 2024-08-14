@@ -1,5 +1,6 @@
 #include "ReferencedFunctionGatherer.h"
 
+#include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionReference.h"
@@ -38,6 +39,11 @@ void ReferencedFunctionGatherer::visit_function_reference( FunctionReference& fr
 void ReferencedFunctionGatherer::visit_function_expression( FunctionExpression& fr )
 {
   reference( *fr.function_link );
+}
+
+void ReferencedFunctionGatherer::visit_class_parameter_declaration( ClassParameterDeclaration& cpd )
+{
+  reference( *cpd.constructor_link );
 }
 
 void ReferencedFunctionGatherer::reference( FunctionLink& link )

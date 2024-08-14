@@ -3,8 +3,8 @@
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
-#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
@@ -18,6 +18,7 @@
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -47,7 +48,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx, Node* class_body )
 {
   std::string class_name = text( ctx->IDENTIFIER() );
-  std::vector<std::unique_ptr<Identifier>> parameters;
+  std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
 
   if ( auto function_parameters = ctx->classParameters() )
   {
@@ -55,14 +56,24 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     {
       for ( auto parameter_name : param_list->IDENTIFIER() )
       {
-        parameters.push_back( std::make_unique<Identifier>( location_for( *parameter_name ),
-                                                            text( parameter_name ) ) );
+        auto baseclass_name = text( parameter_name );
+
+        auto class_param_decl = std::make_unique<ClassParameterDeclaration>(
+            location_for( *parameter_name ), baseclass_name );
+
+        // Register with the FunctionResolver the class parameter's constructor
+        // link. It will get resolved to the class constructor during the
+        // second-pass AST visiting.
+        workspace.function_resolver.register_function_link(
+            ScopableName( baseclass_name, baseclass_name ), class_param_decl->constructor_link );
+
+        parameters.push_back( std::move( class_param_decl ) );
       }
     }
   }
 
-  bool has_constructor = false;
   std::vector<std::string> function_names;
+  std::shared_ptr<FunctionLink> constructor_link = nullptr;
 
   if ( auto classBody = ctx->classBody() )
   {
@@ -78,10 +89,30 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
         function_names.push_back( func_name );
 
-        // TODO this doesn't check for `this`, will be handled in the construction PR.
-        bool is_constructor = Clib::caseInsensitiveEqual( class_name, func_name );
+        // Check if the function is a constructor:
+        // 1. The function name is the same as the class name.
+        if ( func_name == class_name )
+        {
+          // 2. The function has parameters.
+          if ( auto param_list = func_decl->functionParameters()->functionParameterList() )
+          {
+            for ( auto param : param_list->functionParameter() )
+            {
+              std::string parameter_name = text( param->IDENTIFIER() );
 
-        has_constructor |= is_constructor;
+              // 3. The first parameter is named `this`.
+              if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+              {
+                constructor_link = std::make_shared<FunctionLink>( func_loc, class_name,
+                                                                   true /* requires_ctor */ );
+                workspace.function_resolver.register_function_link(
+                    ScopableName( class_name, class_name ), constructor_link );
+              }
+              break;
+            }
+          }
+        }
+
         workspace.compiler_workspace.all_function_locations.emplace(
             ScopableName( class_name, func_name ).string(), func_loc );
       }
@@ -99,23 +130,13 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     }
   }
 
-  std::unique_ptr<DefaultConstructorFunction> constructor;
-
   auto parameter_list =
       std::make_unique<ClassParameterList>( location_for( *ctx ), std::move( parameters ) );
 
-  if ( !has_constructor )
-  {
-    // If no user-defined constructor present, create a constructor that just calls 'super()'. The
-    // semantic analyzer will catch errors re. missing parameters, etc.
-    constructor = std::make_unique<DefaultConstructorFunction>( location_for( *ctx ), class_name );
-
-    workspace.function_resolver.register_user_function( class_name, constructor.get() );
-  }
 
   auto class_decl = std::make_unique<ClassDeclaration>(
       location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
-      class_body, std::move( constructor ) );
+      class_body, std::move( constructor_link ) );
 
   return class_decl;
 }
