@@ -1,0 +1,7 @@
+// A class cannot reference itself as a base class.
+
+class Animal(Animal)
+  function Animal( this ) endfunction
+endclass
+
+Animal();

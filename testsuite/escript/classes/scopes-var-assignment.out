@@ -1,0 +1,6 @@
+param before
+global before
+class before
+param after
+global after
+class after

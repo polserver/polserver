@@ -4,7 +4,6 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
-#include "bscript/compiler/ast/DefaultConstructorFunction.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"

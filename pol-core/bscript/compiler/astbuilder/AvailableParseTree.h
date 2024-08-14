@@ -24,3 +24,10 @@ struct AvailableParseTree
   Node* top_level_statements_child_node;
 };
 }  // namespace Pol::Bscript::Compiler
+
+template <>
+struct fmt::formatter<Pol::Bscript::Compiler::AvailableParseTree> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Bscript::Compiler::AvailableParseTree& apt,
+                                        fmt::format_context& ctx ) const;
+};

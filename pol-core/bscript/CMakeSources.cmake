@@ -56,6 +56,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ClassDeclaration.h
   compiler/ast/ClassInstance.cpp
   compiler/ast/ClassInstance.h
+  compiler/ast/ClassParameterDeclaration.cpp
+  compiler/ast/ClassParameterDeclaration.h
   compiler/ast/ClassParameterList.cpp
   compiler/ast/ClassParameterList.h
   compiler/ast/ConditionalOperator.cpp
@@ -66,8 +68,6 @@ set (bscript_sources    # sorted !
   compiler/ast/CstyleForLoop.h
   compiler/ast/DebugStatementMarker.cpp
   compiler/ast/DebugStatementMarker.h
-  compiler/ast/DefaultConstructorFunction.cpp
-  compiler/ast/DefaultConstructorFunction.h
   compiler/ast/DictionaryEntry.cpp
   compiler/ast/DictionaryEntry.h
   compiler/ast/DictionaryInitializer.cpp
@@ -180,6 +180,7 @@ set (bscript_sources    # sorted !
   compiler/ast/VarStatement.h
   compiler/ast/WhileLoop.cpp
   compiler/ast/WhileLoop.h
+  compiler/astbuilder/AvailableParseTree.cpp
   compiler/astbuilder/AvailableParseTree.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
