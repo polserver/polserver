@@ -74,7 +74,8 @@ private:
   FlowControlScopes continue_scopes;
   LocalVariableScopes local_scopes;
   LocalVariableScopes capture_scopes;
-  // Pushed and popped in visit_user_function.
+  // Pushed and popped in visit_user_function. Needs to be a stack
+  // because we _do_ have nested functions (via function expressions).
   //
   // Used in visit_identifier. If the variable does not exist under `name`,
   // check `current_scope::name` (if current scope exists).

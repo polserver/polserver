@@ -1057,8 +1057,6 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
 
   LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
   visit_children( node );
-  // We do not allow nested scope names
-  // TODO fix this because of funcexprs
   user_functions.pop();
   current_scope_names.pop();
 }

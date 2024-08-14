@@ -34,8 +34,10 @@ public:
   // Will have no function linked if class has no constructor defined.
   const std::shared_ptr<FunctionLink> constructor_link;
 
-  // Filled by SemanticAnalyzer with functions owned in
-  // CompilerWorkspace::user_functions.
+  // Passed as ctor parameter by UserFunctionBuilder when generating this AST
+  // node. The class links are immediately registered (inside
+  // UserFunctionBuilder) with the FunctionResolver so their parse trees will be
+  // visited by the second-pass UserFunctionVisitor.
   std::vector<std::shared_ptr<ClassLink>> base_class_links;
 
 private:
