@@ -1,5 +1,7 @@
 #include "FunctionResolver.h"
 
+#include <list>
+
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
@@ -215,10 +217,42 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
       }
       else
       {
-        // If calling scope present, check, eg. inside Animal class, `foo()`
-        // checks `Animal::foo()`.
-        if ( !calling_scope.empty() && link_handled( { calling_scope, unscoped_name } ) )
-          continue;
+        if ( !calling_scope.empty() )
+        {
+          std::set<std::string> visited;
+          std::list<std::string> to_link( { calling_scope } );
+          bool handled = false;
+
+          for ( auto itr = to_link.begin(); !handled && itr != to_link.end(); itr++ )
+          {
+            auto cd_itr = resolved_classes.find( *itr );
+            if ( cd_itr == resolved_classes.end() )
+              continue;
+
+            auto cd = cd_itr->second;
+            if ( visited.find( cd->name ) != visited.end() )
+              continue;
+
+            visited.insert( cd->name );
+
+            if ( link_handled( { cd->name, unscoped_name } ) )
+            {
+              handled = true;
+              break;
+            }
+
+            for ( const auto& base_cd_link : cd->base_class_links )
+            {
+              if ( auto base_cd = base_cd_link->class_declaration() )
+              {
+                to_link.push_back( base_cd->name );
+              }
+            }
+          }
+
+          if ( handled )
+            continue;
+        }
 
         // Check global scope
         if ( link_handled( { ScopeName::Global, unscoped_name } ) )
@@ -471,16 +505,50 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
   // Inside a scope, eg. `Animal`...
   if ( !calling_scope.empty() )
   {
-    // Check if exists in calling scope, eg. `foo()` checks `Animal::foo()`
-    auto scoped_call_name = fmt::format( "{}::{}", calling_scope, call.name );
-    itr = available_user_function_parse_trees.find( scoped_call_name );
-    if ( itr != available_user_function_parse_trees.end() )
+    // Check if exists in given `scope`, eg. `foo()` checks `Animal::foo()`
+    auto handled_by_scope = [&]( const std::string& scope )
     {
-      to_build_ast.push_back( ( *itr ).second );
-      report.debug( ( *itr ).second.source_location, "adding to build funct [scoped] {}: {}",
-                    to_build_ast.back(), scoped_call_name );
-      available_user_function_parse_trees.erase( itr );
-      return true;
+      auto scoped_call_name = fmt::format( "{}::{}", scope, call.name );
+      itr = available_user_function_parse_trees.find( scoped_call_name );
+      if ( itr != available_user_function_parse_trees.end() )
+      {
+        to_build_ast.push_back( ( *itr ).second );
+        report.debug( ( *itr ).second.source_location, "adding to build funct [scoped] {}: {}",
+                      to_build_ast.back(), scoped_call_name );
+        available_user_function_parse_trees.erase( itr );
+        return true;
+      }
+      return false;
+    };
+
+    std::set<std::string> visited;
+    std::list<std::string> to_link( { calling_scope } );
+
+    for ( auto itr = to_link.begin(); itr != to_link.end(); itr++ )
+    {
+      auto cd_itr = resolved_classes.find( *itr );
+      if ( cd_itr == resolved_classes.end() )
+        continue;
+
+      auto cd = cd_itr->second;
+      if ( visited.find( cd->name ) != visited.end() )
+        continue;
+
+      visited.insert( cd->name );
+
+      if ( handled_by_scope( cd->name ) )
+      {
+        itr = to_link.end();
+        break;
+      }
+
+      for ( const auto& base_cd_link : cd->base_class_links )
+      {
+        if ( auto base_cd = base_cd_link->class_declaration() )
+        {
+          to_link.push_back( base_cd->name );
+        }
+      }
     }
   }
 
@@ -545,7 +613,7 @@ bool FunctionResolver::resolve_if_existing( const ScopableName& key,
   if ( resolved_function )
   {
     function_link->link_to( resolved_function );
-    report.debug( function_link->source_location, "linking {} to {}::{} @ {}", key.string(),
+    report.debug( function_link->source_location, "linking {} to {}::{} @ {}", key,
                   resolved_function->scope, resolved_function->name, (void*)resolved_function );
     return true;
   }
