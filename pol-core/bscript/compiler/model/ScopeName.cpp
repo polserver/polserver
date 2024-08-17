@@ -1,11 +1,13 @@
 #include "ScopeName.h"
 
 #include "clib/clib.h"
+#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {
 ScopeName ScopeName::Global = ScopeName( "" );
 ScopeName ScopeName::None = ScopeName();
+ScopeName ScopeName::Super = ScopeName( "super" );
 
 ScopeName::ScopeName( const std::string& name ) : std::optional<std::string>( name ) {}
 
@@ -14,6 +16,11 @@ ScopeName::ScopeName() : std::optional<std::string>( std::nullopt ) {}
 bool ScopeName::global() const
 {
   return empty() || value().empty();
+}
+
+bool ScopeName::super() const
+{
+  return has_value() && Clib::caseInsensitiveEqual( value(), ScopeName::Super.value() );
 }
 
 bool ScopeName::empty() const

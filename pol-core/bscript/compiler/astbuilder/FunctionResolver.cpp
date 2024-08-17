@@ -191,6 +191,12 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
       // Link the function if possible, otherwise try to build it.
       auto link_handled = [&]( const ScopableName& key )
       {
+        // A super:: call cannot be handled by the current call scope.
+        if ( call_scope.super() && Clib::caseInsensitiveEqual( key.scope.string(), calling_scope ) )
+        {
+          return false;
+        }
+
         if ( resolve_if_existing( key, function_link ) )
         {
           // Remove this function link from the list of links.
@@ -209,8 +215,8 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
 
       report.debug( function_link->source_location, "resolving funct link {}", name );
 
-      // If a call scope was given, _only_ check that one.
-      if ( !call_scope.empty() )
+      // If a call scope was given, _only_ check that one (except super::).
+      if ( !call_scope.empty() && !call_scope.super() )
       {
         if ( link_handled( { call_scope, unscoped_name } ) )
           continue;
@@ -254,8 +260,8 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
             continue;
         }
 
-        // Check global scope
-        if ( link_handled( { ScopeName::Global, unscoped_name } ) )
+        // Check global scope (if not explicitly calling super:: scope)
+        if ( !call_scope.super() && link_handled( { ScopeName::Global, unscoped_name } ) )
           continue;
       }
 
@@ -476,10 +482,10 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
 {
   AvailableParseTreeMap::iterator itr;
 
-  // If a call scope was given, _only_ check that one.
+  // If a call scope was given, _only_ check that one (except if super:: provided)
   // eg. `Animal::foo()` will only search for `Animal::foo()`, disregarding a possible parent
-  // scoped `::foo()`
-  if ( !call.global() )
+  // scoped `::foo()`.
+  if ( !call.global() && !call.scope.super() )
   {
     itr = available_user_function_parse_trees.find( call.string() );
     if ( itr != available_user_function_parse_trees.end() )
@@ -508,6 +514,11 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
     // Check if exists in given `scope`, eg. `foo()` checks `Animal::foo()`
     auto handled_by_scope = [&]( const std::string& scope )
     {
+      // Skip checking current scope if doing `super::` call.
+      if ( call.scope.super() && Clib::caseInsensitiveEqual( scope, calling_scope ) )
+      {
+        return false;
+      }
       auto scoped_call_name = fmt::format( "{}::{}", scope, call.name );
       itr = available_user_function_parse_trees.find( scoped_call_name );
       if ( itr != available_user_function_parse_trees.end() )

@@ -45,6 +45,12 @@ class Foo( BaseClass1, BaseClass2  )
     Method1( this ); // In base1
     Method2( this ); // In base2
     Method3( this ); // In Foo and base1
+    print("-");
+    super::Common( this ); // In base1 and base2
+    super::Method0( this ); // In base0
+    super::Method1( this ); // In base1
+    super::Method2( this ); // In base2
+    super::Method3( this ); // In Foo and base1
   endfunction
 
   function Method3( this )
