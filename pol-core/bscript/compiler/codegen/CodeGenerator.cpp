@@ -9,6 +9,7 @@
 #include "bscript/compiler/ast/ProgramParameterList.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/codegen/ClassDeclarationRegistrar.h"
 #include "bscript/compiler/codegen/FunctionReferenceRegistrar.h"
 #include "bscript/compiler/codegen/InstructionEmitter.h"
 #include "bscript/compiler/codegen/InstructionGenerator.h"
@@ -16,6 +17,7 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
@@ -49,11 +51,13 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 
   ModuleDeclarationRegistrar module_declaration_registrar;
   FunctionReferenceRegistrar function_reference_registrar;
+  ClassDeclarationRegistrar class_declaration_registrar;
 
-  InstructionEmitter instruction_emitter( code, data, debug, exported_functions,
-                                          module_declaration_registrar,
-                                          function_reference_registrar );
-  CodeGenerator generator( instruction_emitter, module_declaration_registrar );
+  InstructionEmitter instruction_emitter(
+      code, data, debug, exported_functions, module_declaration_registrar,
+      function_reference_registrar, class_declaration_registrar );
+  CodeGenerator generator( instruction_emitter, module_declaration_registrar,
+                           class_declaration_registrar );
 
   generator.register_module_functions_alphabetically( *workspace );
 
@@ -67,16 +71,20 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
   std::vector<FunctionReferenceDescriptor> function_references =
       function_reference_registrar.take_descriptors();
 
+  std::vector<ClassDescriptor> class_descriptors = class_declaration_registrar.take_descriptors();
+
   return std::make_unique<CompiledScript>(
       std::move( code ), std::move( data ), std::move( debug ), std::move( exported_functions ),
       std::move( workspace->global_variable_names ), std::move( module_descriptors ),
-      std::move( function_references ), std::move( program_info ),
+      std::move( function_references ), std::move( class_descriptors ), std::move( program_info ),
       std::move( workspace->referenced_source_file_identifiers ) );
 }
 
 CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
-                              ModuleDeclarationRegistrar& module_declaration_registrar )
+                              ModuleDeclarationRegistrar& module_declaration_registrar,
+                              ClassDeclarationRegistrar& class_declaration_registrar )
     : module_declaration_registrar( module_declaration_registrar ),
+      class_declaration_registrar( class_declaration_registrar ),
       emitter( emitter ),
       emit( emitter )
 {

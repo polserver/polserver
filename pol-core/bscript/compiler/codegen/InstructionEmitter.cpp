@@ -1,13 +1,21 @@
 #include "InstructionEmitter.h"
 
+#include <list>
+#include <set>
+
 #include "StoredToken.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/codegen/CaseJumpDataBlock.h"
+#include "bscript/compiler/codegen/ClassDeclarationRegistrar.h"
 #include "bscript/compiler/codegen/FunctionReferenceRegistrar.h"
 #include "bscript/compiler/codegen/ModuleDeclarationRegistrar.h"
+#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/model/ScopableName.h"
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
@@ -21,13 +29,15 @@ namespace Pol::Bscript::Compiler
 InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data, DebugStore& debug,
                                         ExportedFunctions& exported_functions,
                                         ModuleDeclarationRegistrar& module_declaration_registrar,
-                                        FunctionReferenceRegistrar& function_reference_registrar )
+                                        FunctionReferenceRegistrar& function_reference_registrar,
+                                        ClassDeclarationRegistrar& class_declaration_registrar )
     : code_emitter( code ),
       data_emitter( data ),
       debug( debug ),
       exported_functions( exported_functions ),
       module_declaration_registrar( module_declaration_registrar ),
-      function_reference_registrar( function_reference_registrar )
+      function_reference_registrar( function_reference_registrar ),
+      class_declaration_registrar( class_declaration_registrar )
 {
   initialize_data();
 }
@@ -42,6 +52,99 @@ void InstructionEmitter::register_exported_function( FlowControlLabel& label,
                                                      const std::string& name, unsigned parameters )
 {
   exported_functions.emplace_back( name, parameters, label.address() );
+}
+
+void InstructionEmitter::register_class_declaration(
+    ClassDeclaration& node, std::map<std::string, FlowControlLabel>& user_function_labels )
+{
+  std::set<std::string> visited;
+  std::set<std::string, Clib::ci_cmp_pred> visited_methods;
+
+  std::vector<unsigned> constructor_offsets;
+  std::map<std::string, unsigned> method_offsets;
+  std::list<ClassDeclaration*> to_link( { &node } );
+
+  const auto& class_name = node.name;
+  auto class_name_offset = this->emit_data( class_name );
+
+  node.debug( fmt::format( "Registering class: {}", node.name ) );
+  for ( auto itr = to_link.begin(); itr != to_link.end(); ++itr )
+  {
+    auto cd = *itr;
+    if ( visited.find( cd->name ) != visited.end() )
+      continue;
+
+    visited.insert( cd->name );
+    cd->debug( fmt::format( "Class {} with {} methods", cd->name, cd->method_names.size() ) );
+
+    if ( cd->constructor_link )
+    {
+      auto uf = cd->constructor_link->user_function();
+      // Should never happen
+      if ( !uf )
+      {
+        cd->internal_error( fmt::format( "constructor {} no function linked", cd->name ) );
+      }
+
+      auto ctor_itr = user_function_labels.find( ScopableName( cd->name, cd->name ).string() );
+      if ( ctor_itr == user_function_labels.end() )
+      {
+        cd->debug( fmt::format( " - Constructor: {} PC=???", cd->name ) );
+        cd->internal_error(
+            fmt::format( "Constructor {} not found in user_function_labels", cd->name ) );
+      }
+      constructor_offsets.push_back( ctor_itr->second.address() );
+    }
+
+    for ( const auto& method : cd->method_names )
+    {
+      auto method_itr = user_function_labels.find( ScopableName( cd->name, method ).string() );
+      if ( method_itr == user_function_labels.end() )
+      {
+        cd->debug( fmt::format( " - Method: {} label=???", method ) );
+        cd->internal_error( fmt::format( "Method {} not found in user_function_labels", method ) );
+      }
+
+      auto addr = method_itr->second.address();
+      if ( addr == 0 )
+      {
+        cd->debug( fmt::format( " - Method: {} PC=???", method ) );
+        cd->internal_error( fmt::format( "Method {} has no PC for attached label", method ) );
+      }
+
+      cd->debug( fmt::format(
+          " - Method: {} PC={}{}", method, method_itr->second.address(),
+          method_offsets.find( method ) != method_offsets.end() ? " [ignored]" : "" ) );
+
+      if ( method_offsets.find( method ) == method_offsets.end() )
+      {
+        method_offsets[method] = method_itr->second.address();
+      }
+    }
+
+    for ( const auto& base_cd_link : cd->base_class_links )
+    {
+      if ( auto base_cd = base_cd_link->class_declaration() )
+      {
+        to_link.push_back( base_cd );
+      }
+    }
+  }
+  node.debug( fmt::format( "Class: {}", node.name ) );
+  if ( !constructor_offsets.empty() )
+  {
+    for ( const auto& offset : constructor_offsets )
+    {
+      node.debug( fmt::format( " - Constructor @ PC={} ", offset ) );
+    }
+  }
+  if ( !method_offsets.empty() )
+  {
+    for ( const auto& [method_name, method_offset] : method_offsets )
+    {
+      node.debug( fmt::format( " - Method {} @ PC={} ", method_name, method_offset ) );
+    }
+  }
 }
 
 unsigned InstructionEmitter::enter_debug_block(
