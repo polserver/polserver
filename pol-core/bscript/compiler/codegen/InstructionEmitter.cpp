@@ -86,7 +86,7 @@ void InstructionEmitter::register_class_declaration(
     {
       if ( auto uf = cd->constructor_link->user_function() )
       {
-        auto ctor_itr = user_function_labels.find( ScopableName( cd->name, cd->name ).string() );
+        auto ctor_itr = user_function_labels.find( uf->scoped_name() );
         if ( ctor_itr == user_function_labels.end() )
         {
           report.debug( *cd, " - Constructor: {} PC=???", cd->name );
