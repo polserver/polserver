@@ -149,7 +149,7 @@ bool GeneratedFunctionBuilder::super_function( std::unique_ptr<SuperFunction>& s
     }
 
     auto fc = std::make_unique<FunctionCall>(
-        loc, "name", ScopableName( base_class_ctor->name, base_class_ctor->name ),
+        loc, base_class_ctor->name, ScopableName( base_class_ctor->name, base_class_ctor->name ),
         std::move( call_arguments ) );
 
     fc->function_link->link_to( base_class_ctor );
