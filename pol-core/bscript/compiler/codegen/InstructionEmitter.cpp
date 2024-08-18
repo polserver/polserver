@@ -4,6 +4,7 @@
 #include <set>
 
 #include "StoredToken.h"
+#include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
@@ -32,14 +33,16 @@ InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data, De
                                         ExportedFunctions& exported_functions,
                                         ModuleDeclarationRegistrar& module_declaration_registrar,
                                         FunctionReferenceRegistrar& function_reference_registrar,
-                                        ClassDeclarationRegistrar& class_declaration_registrar )
+                                        ClassDeclarationRegistrar& class_declaration_registrar,
+                                        Report& report )
     : code_emitter( code ),
       data_emitter( data ),
       debug( debug ),
       exported_functions( exported_functions ),
       module_declaration_registrar( module_declaration_registrar ),
       function_reference_registrar( function_reference_registrar ),
-      class_declaration_registrar( class_declaration_registrar )
+      class_declaration_registrar( class_declaration_registrar ),
+      report( report )
 {
   initialize_data();
 }
@@ -69,7 +72,7 @@ void InstructionEmitter::register_class_declaration(
   const auto& class_name = node.name;
   auto class_name_offset = this->emit_data( class_name );
 
-  node.debug( fmt::format( "Registering class: {}", node.name ) );
+  report.debug( node, "Registering class: {}", node.name );
   for ( auto itr = to_link.begin(); itr != to_link.end(); ++itr )
   {
     auto cd = *itr;
@@ -77,7 +80,7 @@ void InstructionEmitter::register_class_declaration(
       continue;
 
     visited.insert( cd->name );
-    cd->debug( fmt::format( "Class {} with {} methods", cd->name, cd->methods.size() ) );
+    report.debug( *cd, "Class {} with {} methods", cd->name, cd->methods.size() );
 
     if ( cd->constructor_link )
     {
@@ -91,7 +94,7 @@ void InstructionEmitter::register_class_declaration(
       auto ctor_itr = user_function_labels.find( ScopableName( cd->name, cd->name ).string() );
       if ( ctor_itr == user_function_labels.end() )
       {
-        cd->debug( fmt::format( " - Constructor: {} PC=???", cd->name ) );
+        report.debug( *cd, " - Constructor: {} PC=???", cd->name );
         cd->internal_error(
             fmt::format( "Constructor {} not found in user_function_labels", cd->name ) );
       }
@@ -110,13 +113,13 @@ void InstructionEmitter::register_class_declaration(
       auto method_itr = user_function_labels.find( ScopableName( cd->name, method ).string() );
       if ( method_itr == user_function_labels.end() )
       {
-        cd->debug( fmt::format( " - Method: {} label=???", method ) );
+        report.debug( *cd, " - Method: {} label=???", method );
         cd->internal_error( fmt::format( "Method {} not found in user_function_labels", method ) );
       }
       auto address = method_itr->second.address();
       if ( address == 0 )
       {
-        cd->debug( fmt::format( " - Method: {} PC=???", method ) );
+        report.debug( *cd, " - Method: {} PC=???", method );
         cd->internal_error( fmt::format( "Method {} has no PC for attached label", method ) );
       }
 
@@ -128,13 +131,12 @@ void InstructionEmitter::register_class_declaration(
         function_reference_registrar.lookup_or_register_reference( *uf, funcref_index );
         auto name_offset = this->emit_data( method );
         method_descriptors.emplace_back( name_offset, address, funcref_index );
-        cd->debug( fmt::format( " - Method: {} PC={} funcref_index={}", method,
-                                method_itr->second.address(), funcref_index ) );
+        report.debug( *cd, " - Method: {} PC={} funcref_index={}", method,
+                      method_itr->second.address(), funcref_index );
       }
       else
       {
-        cd->debug(
-            fmt::format( " - Method: {} PC={} [ignored]", method, method_itr->second.address() ) );
+        report.debug( *cd, " - Method: {} PC={} [ignored]", method, method_itr->second.address() );
       }
     }
 
@@ -146,18 +148,18 @@ void InstructionEmitter::register_class_declaration(
       }
     }
   }
-  node.debug( fmt::format( "Class: {}", node.name ) );
+  report.debug( node, fmt::format( "Class: {}", node.name ) );
 
   for ( const auto& offset : constructor_addresses )
   {
-    node.debug( fmt::format( " - Constructor @ PC={} ", offset ) );
+    report.debug( node, fmt::format( " - Constructor @ PC={} ", offset ) );
   }
 
   for ( const auto& method_info : method_descriptors )
   {
-    node.debug( fmt::format( " - Method @ PC={} name_offset={} funcref_index={} ",
-                             method_info.address, method_info.name_offset,
-                             method_info.function_reference_index ) );
+    report.debug( node, fmt::format( " - Method @ PC={} name_offset={} funcref_index={} ",
+                                     method_info.address, method_info.name_offset,
+                                     method_info.function_reference_index ) );
   }
 
   class_declaration_registrar.register_class( class_name_offset, constructor_addresses,

@@ -28,7 +28,7 @@
 namespace Pol::Bscript::Compiler
 {
 std::unique_ptr<CompiledScript> CodeGenerator::generate(
-    std::unique_ptr<CompilerWorkspace> workspace )
+    std::unique_ptr<CompilerWorkspace> workspace, Report& report )
 {
   auto program_info =
       workspace->program
@@ -56,7 +56,7 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 
   InstructionEmitter instruction_emitter(
       code, data, debug, exported_functions, module_declaration_registrar,
-      function_reference_registrar, class_declaration_registrar );
+      function_reference_registrar, class_declaration_registrar, report );
   CodeGenerator generator( instruction_emitter, module_declaration_registrar );
 
   generator.register_module_functions_alphabetically( *workspace );

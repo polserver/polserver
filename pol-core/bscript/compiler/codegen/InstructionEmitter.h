@@ -41,13 +41,14 @@ class UserFunction;
 class Node;
 class Variable;
 class SourceLocation;
+class Report;
 
 class InstructionEmitter
 {
 public:
   InstructionEmitter( CodeSection& code, DataSection& data, DebugStore& debug,
                       ExportedFunctions& exported_functions, ModuleDeclarationRegistrar&,
-                      FunctionReferenceRegistrar&, ClassDeclarationRegistrar& );
+                      FunctionReferenceRegistrar&, ClassDeclarationRegistrar&, Report& );
 
   void initialize_data();
 
@@ -150,6 +151,7 @@ private:
   ClassDeclarationRegistrar& class_declaration_registrar;
 
   DebugStore::InstructionInfo debug_instruction_info{};
+  Report& report;
 };
 }  // namespace Pol::Bscript::Compiler
 
