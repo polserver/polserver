@@ -13,7 +13,7 @@ function TestFuncCall()
     print( $"::TestFuncCall called" );
 endfunction
 
-class Animal
+class Animal()
     var variable := "class var";
 
     function StaticFunc( variable )

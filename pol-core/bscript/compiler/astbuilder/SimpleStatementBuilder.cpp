@@ -159,10 +159,19 @@ std::unique_ptr<ReturnStatement> SimpleStatementBuilder::return_statement(
   auto source_location = location_for( *ctx );
 
   std::unique_ptr<Expression> result;
+
+  // Always emit the expression if it exists, so we can get semantic analysis
+  // errors.
   if ( auto expression_ctx = ctx->expression() )
+  {
     result = expression( expression_ctx );
+  }
   else
-    result = std::unique_ptr<Expression>( new StringValue( source_location, "" ) );
+  {
+    // Only emit the empty string if we're not in a constructor function.
+    if ( !in_constructor_function.top() )
+      result = std::unique_ptr<Expression>( new StringValue( source_location, "" ) );
+  }
 
   return std::make_unique<ReturnStatement>( source_location, std::move( result ) );
 }

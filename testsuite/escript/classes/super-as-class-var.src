@@ -1,0 +1,28 @@
+// A child class can define a super class var and access it. Can also access it in other scopes.
+
+class BaseClass()
+    function BaseClass( this )
+        print( $"BaseClass::BaseClass Foo::super={Foo::super}" );
+    endfunction
+endclass
+
+class Foo( BaseClass )
+    var super := "Foo::super";
+    function Foo( this )
+        super();
+        print( $"Foo::foo super={super}" );
+    endfunction
+endclass
+
+var obj := Foo();
+
+// Access in global scope
+print( $"global Foo::super={Foo::super}" );
+
+(@{ print( $"@functor Foo::super={Foo::super}" ); })(); // Access in funcref scope
+Test();
+
+function Test()
+    // Access in function scope
+    print( $"::Test Foo::super={Foo::super}");
+endfunction

@@ -1,0 +1,1 @@
+fail-super-as-child-class-func.src:13:5: error: The 'super' function is reserved for child classes.

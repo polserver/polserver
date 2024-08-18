@@ -1,0 +1,15 @@
+// A non-child class can define a super method function
+
+class Foo()
+    function Foo( this )
+    endfunction
+
+    function super( this )
+        print("Foo::super(this) called");
+    endfunction
+endclass
+
+var obj := Foo();
+
+// TODO cange to obj.super() when executor implementation complete
+Foo::super( obj );

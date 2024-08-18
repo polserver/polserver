@@ -1,0 +1,5 @@
+BaseClass::BaseClass Foo::super=Foo::super
+Foo::foo super=Foo::super
+global Foo::super=Foo::super
+@functor Foo::super=Foo::super
+::Test Foo::super=Foo::super

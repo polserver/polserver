@@ -100,6 +100,8 @@ public:
   void pop_param_byref( const std::string& name );
   void progend();
   void return_from_user_function();
+  // Emit the 'this' variable, always stored at local `this_offset`.
+  void return_from_constructor_function( unsigned int this_offset );
   unsigned skip_if_true_else_consume();
   void set_member( const std::string& name );
   void set_member_id( MemberID member_id );

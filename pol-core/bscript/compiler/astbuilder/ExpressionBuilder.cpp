@@ -615,25 +615,26 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
 std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
     EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
 {
+  auto loc = location_for( *ctx );
   if ( ctx->scope )
   {
     ScopeName scope_name( text( ctx->scope ) );
     if ( !scope_name.global() )
     {
       // Force a reference to the class so it will be visited by the UserFunctionVisitor.
-      workspace.function_resolver.force_reference( scope_name );
+      workspace.function_resolver.force_reference( scope_name, loc );
     }
 
     ScopableName scoped_name( std::move( scope_name ), text( ctx->identifier ) );
 
-    return std::make_unique<Identifier>( location_for( *ctx ), std::move( scoped_name ) );
+    return std::make_unique<Identifier>( loc, std::move( scoped_name ) );
   }
   else
   {
     ScopableName scoped_name( ScopeName::Global, text( ctx->identifier ) );
 
     return std::make_unique<Identifier>(
-        location_for( *ctx ), ScopableName( ScopeName::Global, text( ctx->identifier ) ) );
+        loc, ScopableName( ScopeName::Global, text( ctx->identifier ) ) );
   }
 }
 
@@ -685,7 +686,8 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
     {
       auto loc = location_for( *argument_context );
 
-      std::string name;
+      std::unique_ptr<Argument> argument = nullptr;
+
       auto value =
           expression( argument_context->expression(), false, argument_context->ELLIPSIS() );
 
@@ -695,16 +697,20 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
         {
           if ( auto identifier = dynamic_cast<Identifier*>( &binary_operator->lhs() ) )
           {
-            // TODO we dont support `foo(Animal::bar = 1)` ... we may need this for super() if we
-            // want to support multiple inheritance where multiple base classes share the same
-            // parameter name.
-            name = identifier->name();
+            ScopableName name( identifier->scoped_name );
             value = binary_operator->take_rhs();
+            argument = std::make_unique<Argument>( loc, name, std::move( value ),
+                                                   argument_context->ELLIPSIS() );
           }
         }
       }
-      auto argument = std::make_unique<Argument>( loc, std::move( name ), std::move( value ),
-                                                  argument_context->ELLIPSIS() );
+
+      if ( !argument )
+      {
+        argument =
+            std::make_unique<Argument>( loc, std::move( value ), argument_context->ELLIPSIS() );
+      }
+
       arguments.push_back( std::move( argument ) );
     }
   }

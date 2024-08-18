@@ -497,9 +497,9 @@ void InstructionGenerator::visit_function_parameter_declaration(
 {
   update_debug_location( node );
   if ( node.byref )
-    emit.pop_param_byref( node.name );
+    emit.pop_param_byref( node.name.string() );
   else
-    emit.pop_param( node.name );
+    emit.pop_param( node.name.string() );
 }
 
 // The function expression generation emits the following instructions:
@@ -708,18 +708,35 @@ void InstructionGenerator::visit_repeat_until_loop( RepeatUntilLoop& loop )
 
 void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
 {
-  emit.debug_statementbegin();
+  auto user_function = user_functions.empty() ? nullptr : user_functions.top();
 
-  visit_children( ret );
-
-  update_debug_location( ret );
-  if ( !user_functions.empty() )
+  if ( user_function && user_function->type == UserFunctionType::Constructor )
   {
-    emit.return_from_user_function();
+    // Semantic analyzer will ensure a return statement in a constructor does not have any
+    // children, but lets be sure.
+    if ( !ret.children.empty() )
+    {
+      ret.internal_error( "return statement in constructor should not have children" );
+    }
+
+    // This emitter method also emits the `this` variable based off parameter offset.
+    emit.return_from_constructor_function( user_function->parameter_count() - 1 );
   }
   else
   {
-    emit.progend();
+    emit.debug_statementbegin();
+
+    visit_children( ret );
+
+    update_debug_location( ret );
+    if ( user_function )
+    {
+      emit.return_from_user_function();
+    }
+    else
+    {
+      emit.progend();
+    }
   }
 }
 
@@ -807,8 +824,15 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   {
     emit.debug_statementbegin();
     update_debug_location( user_function.endfunction_location );
-    emit.value( 0 );
-    emit.return_from_user_function();
+    if ( user_function.type == UserFunctionType::Constructor )
+    {
+      emit.return_from_constructor_function( user_function.parameter_count() - 1 );
+    }
+    else
+    {
+      emit.value( 0 );
+      emit.return_from_user_function();
+    }
   }
   unsigned last_instruction_address = emitter.next_instruction_address() - 1;
   emitter.debug_user_function( user_function.name, first_instruction_address,
