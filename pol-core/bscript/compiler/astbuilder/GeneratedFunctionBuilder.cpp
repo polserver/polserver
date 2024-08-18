@@ -1,9 +1,11 @@
 #include "GeneratedFunctionBuilder.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/adaptor/sliced.hpp>
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Argument.h"
+#include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
@@ -11,6 +13,7 @@
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
+#include "bscript/compiler/ast/SpreadElement.h"
 #include "bscript/compiler/ast/SuperFunction.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
@@ -69,6 +72,21 @@ bool GeneratedFunctionBuilder::super_function( std::unique_ptr<SuperFunction>& s
       loc, ScopableName( ScopeName::None, "this" ), true /* byref */, false /* unused */,
       false /* rest */ ) );
 
+  // Our super() alias'ed parameter can be a rest parameter only if the not-last
+  // constructors are not variadic.
+  bool can_use_rest = true;
+
+  for ( const auto* base_class_ctor :
+        base_class_ctors | boost::adaptors::reversed |
+            boost::adaptors::sliced( 0, base_class_ctors.size() - 1 ) )
+  {
+    if ( base_class_ctor->is_variadic() )
+    {
+      can_use_rest = false;
+      break;
+    }
+  }
+
   for ( auto base_class_ctor : boost::adaptors::reverse( base_class_ctors ) )
   {
     auto params = base_class_ctor->parameters();
@@ -84,20 +102,48 @@ bool GeneratedFunctionBuilder::super_function( std::unique_ptr<SuperFunction>& s
       // Skip the first `this` parameter of the function declaration, as we've already added it.
       if ( !first )
       {
-        // TODO how does this work with duplicate names across multiple base classes
-        function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-            loc, ScopableName( base_class_ctor->name, param.name.name ), param.byref, param.unused,
-            param.rest ) );
+        // If the base ctor parameter is a rest param, our super() function parameter
+        // will _not_ be a rest, but a regular variable with a default [empty]
+        // array value. This only applies if we _cannot_ use rest parameters.
+        if ( param.rest && !can_use_rest )
+        {
+          function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
+              loc, ScopableName( base_class_ctor->name, param.name.name ), param.byref,
+              param.unused, false,
+              std::make_unique<ArrayInitializer>( param.source_location,
+                                                  std::vector<std::unique_ptr<Expression>>() ) ) );
+        }
+        else
+        {
+          // This super() alias'ed parameter is a rest parameter if the base
+          // ctor's parameter is rest _and_ we can use a rest parameter.
+          function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
+              loc, ScopableName( base_class_ctor->name, param.name.name ), param.byref,
+              param.unused, param.rest && can_use_rest ) );
+        }
       }
-      call_arguments.insert(
-          call_arguments.end(),
-          std::make_unique<Argument>(
-              param.source_location, param.name,
-              std::make_unique<Identifier>(
-                  param.source_location,
-                  ScopableName( first ? ScopeName::None : ScopeName( base_class_ctor->name ),
-                                param.name.name ) ),
-              false ) );
+
+      // By default, the function call argument inside this super()'s function
+      // declaration will just be the super() alias'ed parameter.
+      std::unique_ptr<Expression> call_argument = std::make_unique<Identifier>(
+          param.source_location,
+          ScopableName( first ? ScopeName::None : ScopeName( base_class_ctor->name ),
+                        param.name.name ) );
+
+      // If the base ctor parameter is a rest param, the base_ctor() function
+      // call will spread the super() function parameter -- an array -- into
+      // the base constructor.
+      if ( param.rest )
+      {
+        // Passing an element that is not spreadable (eg. a string) will result
+        // in an empty array passed to the base constructor.
+        call_argument =
+            std::make_unique<SpreadElement>( param.source_location, std::move( call_argument ) );
+      }
+
+      call_arguments.insert( call_arguments.end(),
+                             std::make_unique<Argument>( param.source_location, param.name,
+                                                         std::move( call_argument ), param.rest ) );
 
       first = false;
     }
