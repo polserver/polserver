@@ -129,7 +129,12 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
               // 2. The first parameter is named `this`.
               if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
               {
-                // 3a. The function name is the same as the class name: constructor
+                // Force a reference to the method so it'll be included in instruction generation +
+                // function table.
+                workspace.function_resolver.force_reference( ScopableName( class_name, func_name ),
+                                                             func_loc );
+
+                // 3. The function name is the same as the class name: constructor
                 if ( func_name == class_name )
                 {
                   has_ctor = true;
