@@ -550,7 +550,6 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
 
       if ( handled_by_scope( cd->name ) )
       {
-        to_check_itr = to_check.end();
         break;
       }
 
