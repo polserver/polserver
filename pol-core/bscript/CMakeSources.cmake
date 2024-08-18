@@ -316,6 +316,8 @@ set (bscript_sources    # sorted !
   compiler/representation/ExportedFunction.h
   compiler/representation/FunctionReferenceDescriptor.cpp
   compiler/representation/FunctionReferenceDescriptor.h
+  compiler/representation/MethodDescriptor.cpp
+  compiler/representation/MethodDescriptor.h
   compiler/representation/ModuleDescriptor.cpp
   compiler/representation/ModuleDescriptor.h
   compiler/representation/ModuleFunctionDescriptor.cpp

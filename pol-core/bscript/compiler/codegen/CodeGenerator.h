@@ -10,7 +10,6 @@ class CompilerWorkspace;
 class FunctionReferenceRegistrar;
 class InstructionEmitter;
 class ModuleDeclarationRegistrar;
-class ClassDeclarationRegistrar;
 
 class CodeGenerator
 {
@@ -18,7 +17,7 @@ public:
   static std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace> );
 
 private:
-  CodeGenerator( InstructionEmitter&, ModuleDeclarationRegistrar&, ClassDeclarationRegistrar& );
+  CodeGenerator( InstructionEmitter&, ModuleDeclarationRegistrar& );
 
   void generate_instructions( CompilerWorkspace& );
 
@@ -31,7 +30,6 @@ private:
 
 private:
   ModuleDeclarationRegistrar& module_declaration_registrar;
-  ClassDeclarationRegistrar& class_declaration_registrar;
 
   // Verb vs noun - see InstructionGenerator for reasoning
   InstructionEmitter& emitter;

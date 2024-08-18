@@ -21,6 +21,7 @@
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
+#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 
@@ -56,8 +57,7 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
   InstructionEmitter instruction_emitter(
       code, data, debug, exported_functions, module_declaration_registrar,
       function_reference_registrar, class_declaration_registrar );
-  CodeGenerator generator( instruction_emitter, module_declaration_registrar,
-                           class_declaration_registrar );
+  CodeGenerator generator( instruction_emitter, module_declaration_registrar );
 
   generator.register_module_functions_alphabetically( *workspace );
 
@@ -81,10 +81,8 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 }
 
 CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
-                              ModuleDeclarationRegistrar& module_declaration_registrar,
-                              ClassDeclarationRegistrar& class_declaration_registrar )
+                              ModuleDeclarationRegistrar& module_declaration_registrar )
     : module_declaration_registrar( module_declaration_registrar ),
-      class_declaration_registrar( class_declaration_registrar ),
       emitter( emitter ),
       emit( emitter )
 {

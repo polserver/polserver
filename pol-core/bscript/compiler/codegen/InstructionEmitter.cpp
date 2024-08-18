@@ -17,8 +17,10 @@
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"
 #include "bscript/compiler/model/ScopableName.h"
 #include "bscript/compiler/model/Variable.h"
+#include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
+#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "escriptv.h"
 #include "modules.h"
 #include "token.h"
@@ -59,9 +61,9 @@ void InstructionEmitter::register_class_declaration(
 {
   std::set<std::string> visited;
   std::set<std::string, Clib::ci_cmp_pred> visited_methods;
-
-  std::vector<unsigned> constructor_offsets;
-  std::map<std::string, unsigned> method_offsets;
+  std::vector<unsigned> constructor_addresses;
+  std::set<std::string> method_names;
+  std::vector<MethodDescriptor> method_descriptors;
   std::list<ClassDeclaration*> to_link( { &node } );
 
   const auto& class_name = node.name;
@@ -75,7 +77,7 @@ void InstructionEmitter::register_class_declaration(
       continue;
 
     visited.insert( cd->name );
-    cd->debug( fmt::format( "Class {} with {} methods", cd->name, cd->method_names.size() ) );
+    cd->debug( fmt::format( "Class {} with {} methods", cd->name, cd->methods.size() ) );
 
     if ( cd->constructor_link )
     {
@@ -93,32 +95,46 @@ void InstructionEmitter::register_class_declaration(
         cd->internal_error(
             fmt::format( "Constructor {} not found in user_function_labels", cd->name ) );
       }
-      constructor_offsets.push_back( ctor_itr->second.address() );
+      constructor_addresses.push_back( ctor_itr->second.address() );
     }
 
-    for ( const auto& method : cd->method_names )
+    for ( const auto& [method, uf_link] : cd->methods )
     {
+      auto uf = uf_link->user_function();
+
+      if ( !uf )
+      {
+        cd->internal_error( fmt::format( "method {} no function linked", method ) );
+      }
+
       auto method_itr = user_function_labels.find( ScopableName( cd->name, method ).string() );
       if ( method_itr == user_function_labels.end() )
       {
         cd->debug( fmt::format( " - Method: {} label=???", method ) );
         cd->internal_error( fmt::format( "Method {} not found in user_function_labels", method ) );
       }
-
-      auto addr = method_itr->second.address();
-      if ( addr == 0 )
+      auto address = method_itr->second.address();
+      if ( address == 0 )
       {
         cd->debug( fmt::format( " - Method: {} PC=???", method ) );
         cd->internal_error( fmt::format( "Method {} has no PC for attached label", method ) );
       }
 
-      cd->debug( fmt::format(
-          " - Method: {} PC={}{}", method, method_itr->second.address(),
-          method_offsets.find( method ) != method_offsets.end() ? " [ignored]" : "" ) );
+      bool use_method = method_names.find( method ) == method_names.end();
 
-      if ( method_offsets.find( method ) == method_offsets.end() )
+      if ( use_method )
       {
-        method_offsets[method] = method_itr->second.address();
+        unsigned funcref_index;
+        function_reference_registrar.lookup_or_register_reference( *uf, funcref_index );
+        auto name_offset = this->emit_data( method );
+        method_descriptors.emplace_back( name_offset, address, funcref_index );
+        cd->debug( fmt::format( " - Method: {} PC={} funcref_index={}", method,
+                                method_itr->second.address(), funcref_index ) );
+      }
+      else
+      {
+        cd->debug(
+            fmt::format( " - Method: {} PC={} [ignored]", method, method_itr->second.address() ) );
       }
     }
 
@@ -131,20 +147,21 @@ void InstructionEmitter::register_class_declaration(
     }
   }
   node.debug( fmt::format( "Class: {}", node.name ) );
-  if ( !constructor_offsets.empty() )
+
+  for ( const auto& offset : constructor_addresses )
   {
-    for ( const auto& offset : constructor_offsets )
-    {
-      node.debug( fmt::format( " - Constructor @ PC={} ", offset ) );
-    }
+    node.debug( fmt::format( " - Constructor @ PC={} ", offset ) );
   }
-  if ( !method_offsets.empty() )
+
+  for ( const auto& method_info : method_descriptors )
   {
-    for ( const auto& [method_name, method_offset] : method_offsets )
-    {
-      node.debug( fmt::format( " - Method {} @ PC={} ", method_name, method_offset ) );
-    }
+    node.debug( fmt::format( " - Method @ PC={} name_offset={} funcref_index={} ",
+                             method_info.address, method_info.name_offset,
+                             method_info.function_reference_index ) );
   }
+
+  class_declaration_registrar.register_class( class_name_offset, constructor_addresses,
+                                              method_descriptors );
 }
 
 unsigned InstructionEmitter::enter_debug_block(
