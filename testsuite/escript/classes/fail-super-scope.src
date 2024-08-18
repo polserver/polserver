@@ -1,0 +1,17 @@
+// Various tests with calling a super-class's method in an unscoped manner
+
+class BaseClass()
+  function BaseClass( this )
+  endfunction
+endclass
+
+class Foo( BaseClass  )
+  function Foo( this )
+    super::Method( this );
+  endfunction
+
+  function Method( this )
+  endfunction
+endclass
+
+Foo();

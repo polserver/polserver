@@ -51,8 +51,11 @@ antlrcpp::Any UserFunctionVisitor::visitClassDeclaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
 {
   auto cd = tree_builder.class_declaration( ctx, top_level_statements_child_node );
-  workspace.function_resolver.register_class_declaration( cd.get() );
-  workspace.compiler_workspace.class_declarations.push_back( std::move( cd ) );
+  if ( cd )
+  {
+    workspace.function_resolver.register_class_declaration( cd.get() );
+    workspace.compiler_workspace.class_declarations.push_back( std::move( cd ) );
+  }
   return antlrcpp::Any();
 }
 
