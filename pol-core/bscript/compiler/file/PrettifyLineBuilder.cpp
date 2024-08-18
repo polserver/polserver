@@ -83,7 +83,7 @@ void PrettifyLineBuilder::mergeCommentsBefore( size_t nextlineno )
     if ( _comments.front().pos.line_number < nextlineno )
     {
       addEmptyLines( _comments.front().pos.line_number );
-      _lines.push_back( identSpacing() + _comments.front().text );
+      _lines.push_back( indentSpacing() + _comments.front().text );
       _last_line = _comments.front().pos_end.line_number;
       _comments.erase( _comments.begin() );
     }
@@ -287,7 +287,7 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
       lineparts.push_back( currline );
     return lineparts;
   };
-  auto ident = identSpacing();
+  auto indent = indentSpacing();
   size_t room = compilercfg.FormatterLineWidth - line.size();
   size_t end_group = 0;
   // where does the group end?
@@ -318,7 +318,7 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
   if ( total_valid && total.size() + line.size() < compilercfg.FormatterLineWidth )
   {
     if ( !alignmentspace->count( part.group ) )
-      ( *alignmentspace )[part.group] = line.size() - ident.size();
+      ( *alignmentspace )[part.group] = line.size() - indent.size();
     line += total;
     stripline( line );
     finallines->emplace_back( std::move( line ) );
@@ -357,13 +357,13 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
   }
   // we found a solution
   if ( !alignmentspace->count( part.group ) )
-    ( *alignmentspace )[part.group] = line.size() - ident.size();
+    ( *alignmentspace )[part.group] = line.size() - indent.size();
   for ( const auto& lpart : lineparts )
   {
     if ( line.empty() )
     {
       line = alignmentSpacing( ( *alignmentspace )[part.firstgroup] );
-      line += ident;
+      line += indent;
     }
     line += lpart;
     stripline( line );
@@ -382,8 +382,8 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
   std::map<size_t, size_t> alignmentspace = {};
   size_t lastgroup = 0xffffFFFF;
   bool newline = false;
-  auto ident = identSpacing();
-  line = ident;
+  auto indent = indentSpacing();
+  line = indent;
   bool groupdiffered = false;
   size_t i = 0, skipuntil = 0, tried_binpack_until = 0;
   for ( const auto& part : lines )
@@ -408,7 +408,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
               finallines.back() += ' ';  // needed since already stripped
             finallines.back() += part.text;
             stripline( finallines.back() );
-            line = ident;
+            line = indent;
             ++i;
             continue;
           }
@@ -420,30 +420,31 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
       if ( alignmentspace.find( part.firstgroup ) == alignmentspace.end() )
         alignmentspace[part.firstgroup] = alignmentspace[part.firstgroup - 1];
       line = alignmentSpacing( alignmentspace[part.firstgroup] );
-      line += ident;
+      line += indent;
     }
     if ( part.style & FmtToken::FORCED_BREAK )
     {
       auto nonspace = line.find_first_not_of( " \t" );
       line += part.text;
-      // do not ident comments if they start at the beginning
+      // do not indent comments if they start at the beginning
       if ( part.context == FmtContext::LINE_COMMENT || part.context == FmtContext::COMMENT )
         if ( part.pos.character_column < 4 &&
-             nonspace == std::string::npos )  // TODO startpos does not include original space ident
+             nonspace ==
+                 std::string::npos )  // TODO startpos does not include original space indent
           line = part.text;
       stripline( line );
       finallines.emplace_back( std::move( line ) );
       line.clear();
       line = alignmentSpacing( alignmentspace[part.firstgroup] );
-      line += ident;
+      line += indent;
       ++i;
       continue;
     }
     if ( lastgroup == 0xffffFFFF )
     {
       line += part.text;  // first part
-      alignmentspace[part.firstgroup] = line.size() - ident.size();
-      alignmentspace[part.group] = line.size() - ident.size();
+      alignmentspace[part.firstgroup] = line.size() - indent.size();
+      alignmentspace[part.group] = line.size() - indent.size();
       newline = true;
 #ifdef DEBUG_FORMAT_BREAK
       INFO_PRINTLN( "first {} {} a{}", line, part.firstgroup, alignmentspace );
@@ -486,7 +487,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
       if ( !alignmentspace.count( part.firstgroup ) )
       {
         newgroup = true;
-        alignmentspace[part.firstgroup] = line.size() - ident.size();
+        alignmentspace[part.firstgroup] = line.size() - indent.size();
       }
       // if its not a new group and not a fresh line start a new one
       // nested structs eg should start at the same line
@@ -496,7 +497,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
         if ( !line.empty() )
           finallines.emplace_back( std::move( line ) );
         line = alignmentSpacing( alignmentspace[part.firstgroup] );
-        line += ident;
+        line += indent;
         line += part.text;
         newline = true;
 #ifdef DEBUG_FORMAT_BREAK
@@ -511,7 +512,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
 #endif
       }
       if ( !alignmentspace.count( part.group ) )
-        alignmentspace[part.group] = line.size() - ident.size();
+        alignmentspace[part.group] = line.size() - indent.size();
     }
     else if ( lastgroup > part.firstgroup )  // descending
     {
@@ -520,7 +521,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
       if ( !line.empty() )
         finallines.emplace_back( std::move( line ) );
       line = alignmentSpacing( alignmentspace[part.firstgroup] );
-      line += ident;
+      line += indent;
       line += part.text;
 #ifdef DEBUG_FORMAT_BREAK
       INFO_PRINTLN( "desc {} - {}", line, alignmentspace );
@@ -536,7 +537,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
         if ( !line.empty() )
           finallines.emplace_back( std::move( line ) );
         line = alignmentSpacing( alignmentspace[part.firstgroup] );
-        line += ident;
+        line += indent;
       }
       line += part.text;
 #ifdef DEBUG_FORMAT_BREAK
@@ -548,7 +549,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
         if ( !line.empty() )
           finallines.emplace_back( std::move( line ) );
         line = alignmentSpacing( alignmentspace[part.firstgroup] );
-        line += ident;
+        line += indent;
       }
     }
 
@@ -617,9 +618,9 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
   {
     if ( !alignmentspace )
     {
-      auto ident = identSpacing();
-      alignmentspace = part.text.size() + ident.size();
-      line += ident;
+      auto indent = indentSpacing();
+      alignmentspace = part.text.size() + indent.size();
+      line += indent;
       parts.push_back( { part.text, FmtToken::NONE } );
       continue;
     }
@@ -699,12 +700,12 @@ std::vector<std::string> PrettifyLineBuilder::createSimple(
     // following lines need to be aligned
     if ( line.empty() && alignmentspace )
       line = alignmentSpacing( alignmentspace );
-    // first breakpoint defines the alignment and add initial ident level
+    // first breakpoint defines the alignment and add initial indent level
     if ( !alignmentspace )
     {
-      auto ident = identSpacing();
-      alignmentspace = part.text.size() + ident.size();
-      line += ident;
+      auto indent = indentSpacing();
+      alignmentspace = part.text.size() + indent.size();
+      line += indent;
     }
     line += part.text;
     bool forcebreakVarToLong{ false };
@@ -761,9 +762,9 @@ void PrettifyLineBuilder::stripline( std::string& line ) const
   line.erase( line.begin() + lastchar + 1, line.end() );
 }
 
-void PrettifyLineBuilder::buildLine( size_t current_ident )
+void PrettifyLineBuilder::buildLine( size_t current_indent )
 {
-  _currident = current_ident;
+  _currindent = current_indent;
   if ( _line_parts.empty() )
     return;
   mergeComments();
@@ -954,11 +955,11 @@ int PrettifyLineBuilder::operatorStyle() const
   return FmtToken::SPACE;
 }
 
-std::string PrettifyLineBuilder::identSpacing() const
+std::string PrettifyLineBuilder::indentSpacing() const
 {
   if ( !compilercfg.FormatterUseTabs )
-    return std::string( _currident * compilercfg.FormatterIdentLevel, ' ' );
-  size_t total = _currident * compilercfg.FormatterIdentLevel;
+    return std::string( _currindent * compilercfg.FormatterIndentLevel, ' ' );
+  size_t total = _currindent * compilercfg.FormatterIndentLevel;
   size_t tabs = total / compilercfg.FormatterTabWidth;
   size_t remaining = total % compilercfg.FormatterTabWidth;
   return std::string( tabs, '\t' ) + std::string( remaining, ' ' );
@@ -981,7 +982,7 @@ void PrettifyLineBuilder::mergeEOFNonTokens()
   while ( !_comments.empty() )
   {
     addEmptyLines( _comments.front().pos.line_number );
-    _lines.push_back( identSpacing() + _comments.front().text );
+    _lines.push_back( indentSpacing() + _comments.front().text );
     _last_line = _comments.front().pos_end.line_number;
     mergeRawContent( _last_line );
     _comments.erase( _comments.begin() );

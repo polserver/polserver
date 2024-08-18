@@ -45,7 +45,7 @@ struct CompilerConfig
   // Formatter
   size_t FormatterLineWidth = 80;
   bool FormatterKeepKeywords = false;
-  unsigned short FormatterIdentLevel = 2;
+  unsigned short FormatterIndentLevel = 2;
   bool FormatterMergeEmptyLines = true;
   bool FormatterEmptyParenthesisSpacing = false;
   bool FormatterEmptyBracketSpacing = false;

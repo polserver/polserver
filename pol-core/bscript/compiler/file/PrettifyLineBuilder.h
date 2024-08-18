@@ -109,7 +109,7 @@ public:
   void setComments( std::vector<FmtToken> comments );
   void setSkipLines( std::vector<Range> skiplines );
   void addPart( FmtToken part );
-  void buildLine( size_t current_ident );
+  void buildLine( size_t current_indent );
   bool finalize();
   const std::vector<FmtToken>& currentTokens() const;
 
@@ -130,14 +130,14 @@ private:
   std::vector<FmtToken> _comments = {};
   std::vector<Range> _skiplines = {};
   size_t _last_line = 0;
-  size_t _currident = 0;
+  size_t _currindent = 0;
   size_t _currentgroup = 0;
   void mergeRawContent( size_t nextlineno );
   void mergeComments();
   void mergeCommentsBefore( size_t nextlineno );
   void addEmptyLines( size_t line_number );
   void mergeEOFNonTokens();
-  std::string identSpacing() const;
+  std::string indentSpacing() const;
   std::string alignmentSpacing( size_t count ) const;
   void stripline( std::string& line ) const;
 

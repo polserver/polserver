@@ -71,7 +71,7 @@ void CompilerConfig::Read( const std::string& path )
 
   FormatterLineWidth = elem.remove_unsigned( "FormatterLineWidth", 80 );
   FormatterKeepKeywords = elem.remove_bool( "FormatterKeepKeywords", false );
-  FormatterIdentLevel = elem.remove_ushort( "FormatterIdentLevel", 2 );
+  FormatterIndentLevel = elem.remove_ushort( "FormatterIndentLevel", 2 );
   FormatterMergeEmptyLines = elem.remove_bool( "FormatterMergeEmptyLines", true );
   FormatterEmptyParenthesisSpacing = elem.remove_bool( "FormatterEmptyParenthesisSpacing", false );
   FormatterEmptyBracketSpacing = elem.remove_bool( "FormatterEmptyBracketSpacing", false );

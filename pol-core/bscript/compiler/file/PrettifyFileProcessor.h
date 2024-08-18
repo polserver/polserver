@@ -186,7 +186,7 @@ public:
 private:
   const SourceFileIdentifier& source_file_identifier;
   PrettifyLineBuilder linebuilder;
-  size_t _currident = 0;
+  size_t _currindent = 0;
   size_t _currentgroup = 0;
   bool _suppressnewline = false;
   FmtToken::Scope _currentscope = FmtToken::Scope::NONE;

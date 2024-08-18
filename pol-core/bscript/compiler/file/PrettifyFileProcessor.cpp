@@ -19,8 +19,8 @@
   FormatterLineWidth 80
   // keep original keyword spelling
   FormatterKeepKeywords 0
-  // number of spaces for ident
-  FormatterIdentLevel 2
+  // number of spaces for indent
+  FormatterIndentLevel 2
   // multiple newlines get merged to a single
   FormatterMergeEmptyLines 1
   // space between emtpy parenthesis eg foo() vs foo( )
@@ -128,7 +128,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVarStatement( EscriptParser::VarStatem
   visitVariableDeclarationList( ctx->variableDeclarationList() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
   _currentscope &= ~FmtToken::Scope::VAR;
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -143,9 +143,9 @@ antlrcpp::Any PrettifyFileProcessor::visitParExpression( EscriptParser::ParExpre
 
 antlrcpp::Any PrettifyFileProcessor::visitBlock( EscriptParser::BlockContext* ctx )
 {
-  ++_currident;
+  ++_currindent;
   visitChildren( ctx );
-  --_currident;
+  --_currindent;
   return {};
 }
 antlrcpp::Any PrettifyFileProcessor::visitWhileStatement(
@@ -154,11 +154,11 @@ antlrcpp::Any PrettifyFileProcessor::visitWhileStatement(
   make_statement_label( ctx->statementLabel() );
   addToken( "while", ctx->WHILE(), FmtToken::SPACE );
   visitParExpression( ctx->parExpression() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
 
   visitBlock( ctx->block() );
   addToken( "endwhile", ctx->ENDWHILE(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -214,7 +214,7 @@ antlrcpp::Any PrettifyFileProcessor::visitConstStatement(
   }
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
 
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -236,14 +236,14 @@ antlrcpp::Any PrettifyFileProcessor::visitDoStatement( EscriptParser::DoStatemen
 {
   make_statement_label( ctx->statementLabel() );
   addToken( "do", ctx->DO(), FmtToken::SPACE | FmtToken::BREAKPOINT );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
 
   visitBlock( ctx->block() );
 
   addToken( "dowhile", ctx->DOWHILE(), FmtToken::SPACE );
   visitParExpression( ctx->parExpression() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -268,7 +268,7 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumList( EscriptParser::EnumListConte
     if ( i < enums.size() - 1 )
       addToken( ",", ctx->COMMA( i ), FmtToken::SPACE | FmtToken::ATTACHED );
 
-    linebuilder.buildLine( _currident );
+    linebuilder.buildLine( _currindent );
   }
   return {};
 }
@@ -277,13 +277,13 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumStatement( EscriptParser::EnumStat
 {
   addToken( "enum", ctx->ENUM(), FmtToken::SPACE );
   make_identifier( ctx->IDENTIFIER() );
-  linebuilder.buildLine( _currident );
-  ++_currident;
+  linebuilder.buildLine( _currindent );
+  ++_currindent;
   auto enums = visitEnumList( ctx->enumList() );
-  --_currident;
+  --_currindent;
 
   addToken( "endenum", ctx->ENDENUM(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -291,7 +291,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExitStatement( EscriptParser::ExitStat
 {
   addToken( "exit", ctx->EXIT(), FmtToken::SPACE );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -647,12 +647,12 @@ antlrcpp::Any PrettifyFileProcessor::visitForeachStatement(
   make_identifier( ctx->IDENTIFIER() );
   addToken( "in", ctx->TOK_IN(), FmtToken::SPACE );
   visitForeachIterableExpression( ctx->foreachIterableExpression() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
 
   visitBlock( ctx->block() );
 
   addToken( "endforeach", ctx->ENDFOREACH(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -668,7 +668,7 @@ antlrcpp::Any PrettifyFileProcessor::visitForStatement( EscriptParser::ForStatem
   else if ( auto cstyleForStatement = forGroup->cstyleForStatement() )
     visitCstyleForStatement( cstyleForStatement );
   addToken( "endfor", ctx->ENDFOR(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -699,7 +699,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionDeclaration(
   visitBlock( ctx->block() );
 
   addToken( "endfunction", ctx->ENDFUNCTION(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -717,7 +717,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameters(
     closingstyle |= FmtToken::SPACE;
   addToken( ")", ctx->RPAREN(), closingstyle );
   if ( !_suppressnewline )
-    linebuilder.buildLine( _currident );
+    linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -761,7 +761,7 @@ antlrcpp::Any PrettifyFileProcessor::visitBreakStatement(
   if ( auto identifier = ctx->IDENTIFIER() )
     make_identifier( identifier );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -771,7 +771,7 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
     visitSwitchLabel( switchLabel );
-    linebuilder.buildLine( _currident );
+    linebuilder.buildLine( _currindent );
   }
   visitBlock( ctx->block() );
   return {};
@@ -804,15 +804,15 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement( EscriptParser::CaseStat
   auto curcount = linebuilder.currentTokens().size();
   visitExpression( ctx->expression() );
   addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
-  linebuilder.buildLine( _currident );
-  ++_currident;
+  linebuilder.buildLine( _currindent );
+  ++_currindent;
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
     visitSwitchBlockStatementGroup( switchBlockStatementGroup );
   }
-  --_currident;
+  --_currindent;
   addToken( "endcase", ctx->ENDCASE(), FmtToken::SPACE | FmtToken::BREAKPOINT );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -825,7 +825,7 @@ antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
     make_identifier( identifier );
 
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -837,7 +837,7 @@ antlrcpp::Any PrettifyFileProcessor::visitBasicForStatement(
   visitExpression( ctx->expression( 0 ) );
   addToken( "to", ctx->TO(), FmtToken::SPACE );
   visitExpression( ctx->expression( 1 ) );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
 
   visitBlock( ctx->block() );
   return {};
@@ -854,7 +854,7 @@ antlrcpp::Any PrettifyFileProcessor::visitCstyleForStatement(
   addToken( ";", ctx->SEMI( 1 ), linebuilder.delimiterStyle() );
   visitExpression( ctx->expression( 2 ) );
   addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
 
   visitBlock( ctx->block() );
   return {};
@@ -865,14 +865,14 @@ antlrcpp::Any PrettifyFileProcessor::visitRepeatStatement(
 {
   make_statement_label( ctx->statementLabel() );
   addToken( "repeat", ctx->REPEAT(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
 
   visitBlock( ctx->block() );
 
   addToken( "until", ctx->UNTIL(), FmtToken::SPACE );
   visitExpression( ctx->expression() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -883,7 +883,7 @@ antlrcpp::Any PrettifyFileProcessor::visitReturnStatement(
   if ( auto expression = ctx->expression() )
     visitExpression( expression );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -916,7 +916,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
 
   // we want the starting { at the same line and not attached
   addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() & ~FmtToken::ATTACHED );
-  linebuilder.buildLine( _currident );  // now start a newline
+  linebuilder.buildLine( _currindent );  // now start a newline
 
   ++_currentgroup;
   size_t curcount = linebuilder.currentTokens().size();
@@ -933,7 +933,7 @@ antlrcpp::Any PrettifyFileProcessor::visitGotoStatement( EscriptParser::GotoStat
   addToken( "goto", ctx->GOTO(), FmtToken::SPACE );
   make_identifier( ctx->IDENTIFIER() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -953,7 +953,7 @@ antlrcpp::Any PrettifyFileProcessor::visitIfStatement( EscriptParser::IfStatemen
     if ( !clause_index && ctx->THEN() )
       addToken( "then", ctx->THEN(), FmtToken::SPACE );
 
-    linebuilder.buildLine( _currident );
+    linebuilder.buildLine( _currindent );
 
     if ( blocks.size() > clause_index )
       visitBlock( blocks.at( clause_index ) );
@@ -961,11 +961,11 @@ antlrcpp::Any PrettifyFileProcessor::visitIfStatement( EscriptParser::IfStatemen
   if ( ctx->ELSE() )
   {
     addToken( "else", ctx->ELSE(), FmtToken::SPACE );
-    linebuilder.buildLine( _currident );
+    linebuilder.buildLine( _currindent );
     visitBlock( blocks.at( blocks.size() - 1 ) );
   }
   addToken( "endif", ctx->ENDIF(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -975,7 +975,7 @@ antlrcpp::Any PrettifyFileProcessor::visitIncludeDeclaration(
   addToken( "include", ctx->INCLUDE(), FmtToken::SPACE );
   visitStringIdentifier( ctx->stringIdentifier() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -1078,7 +1078,7 @@ antlrcpp::Any PrettifyFileProcessor::visitModuleFunctionDeclaration(
 
   addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -1145,10 +1145,10 @@ antlrcpp::Any PrettifyFileProcessor::visitProgramDeclaration(
   addToken( "program", ctx->PROGRAM(), FmtToken::SPACE );
   make_identifier( ctx->IDENTIFIER() );
   visitProgramParameters( ctx->programParameters() );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   visitBlock( ctx->block() );
   addToken( "endprogram", ctx->ENDPROGRAM(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -1232,7 +1232,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStatement( EscriptParser::StatementCon
 
     addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
     _currentscope &= ~FmtToken::Scope::VAR;  // matches with assignment inside of visitExpression
-    linebuilder.buildLine( _currident );
+    linebuilder.buildLine( _currindent );
     return {};
   }
 
@@ -1272,7 +1272,7 @@ antlrcpp::Any PrettifyFileProcessor::visitUseDeclaration(
   visitStringIdentifier( ctx->stringIdentifier() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
 
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 

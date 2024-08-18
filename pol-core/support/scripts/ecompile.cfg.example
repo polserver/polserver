@@ -187,9 +187,9 @@ ErrorOnFileCaseMissmatch=0
 # Default 0
 #FormatterKeepKeywords=0
 
-# number of spaces for ident
+# number of spaces for indent
 # Default 2
-#FormatterIdentLevel=2
+#FormatterIndentLevel=2
 
 # multiple newlines get merged to a single
 # Default 1
