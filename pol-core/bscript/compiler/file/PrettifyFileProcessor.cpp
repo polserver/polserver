@@ -299,7 +299,7 @@ antlrcpp::Any PrettifyFileProcessor::visitArrayInitializer(
     EscriptParser::ArrayInitializerContext* ctx )
 {
   if ( auto lbrace = ctx->LBRACE() )
-    addToken( "{", lbrace, linebuilder.openingBracketStyle() );
+    addToken( "{", lbrace, linebuilder.openingBracketStyle( true ) );
   else if ( auto lparen = ctx->LPAREN() )
     addToken( "(", lparen, linebuilder.openingParenthesisStyle() );
   ++_currentgroup;
@@ -346,7 +346,7 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpressionList(
 antlrcpp::Any PrettifyFileProcessor::visitDictInitializer(
     EscriptParser::DictInitializerContext* ctx )
 {
-  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() );
+  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle( true ) );
   size_t curcount = linebuilder.currentTokens().size();
   if ( auto expr = ctx->dictInitializerExpressionList() )
     visitDictInitializerExpressionList( expr );
@@ -384,7 +384,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpressionList(
 antlrcpp::Any PrettifyFileProcessor::visitStructInitializer(
     EscriptParser::StructInitializerContext* ctx )
 {
-  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() );
+  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle( true ) );
   ++_currentgroup;
   size_t curcount = linebuilder.currentTokens().size();
   if ( auto expr = ctx->structInitializerExpressionList() )
@@ -768,12 +768,17 @@ antlrcpp::Any PrettifyFileProcessor::visitBreakStatement(
 antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
     EscriptParser::SwitchBlockStatementGroupContext* ctx )
 {
+  if ( ctx->switchLabel().size() == 1 )
+    linebuilder.markPackableLineStart();
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
     visitSwitchLabel( switchLabel );
     linebuilder.buildLine( _currindent );
   }
   visitBlock( ctx->block() );
+  linebuilder.markPackableLineEnd();
+  if ( ctx->switchLabel().size() == 1 )
+    linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -907,7 +912,8 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionReference(
 antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
-  addToken( "@", ctx->AT(), FmtToken::SPACE );
+  addToken( "@", ctx->AT(), FmtToken::NONE );
+
 
   _suppressnewline = true;  // functionparams force newline
   if ( auto params = ctx->functionParameters() )
@@ -916,6 +922,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
 
   // we want the starting { at the same line and not attached
   addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() & ~FmtToken::ATTACHED );
+  linebuilder.markPackableLineStart();
   linebuilder.buildLine( _currindent );  // now start a newline
 
   ++_currentgroup;
@@ -924,7 +931,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
   --_currentgroup;
 
   addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
-
+  linebuilder.markPackableLineEnd();
   return {};
 }
 

@@ -218,6 +218,11 @@ ErrorOnFileCaseMissmatch=0
 # Default 1
 #FormatterBracketSpacing=1
 
+# no space between type and opening bracket
+# eg struct{} vs struct {}
+# Default 1
+#FormatterBracketAttachToType=1
+
 # add space after delimiter comma or semi in for loops
 # eg {1, 2, 3} vs {1,2,3}
 # Default 1
@@ -258,3 +263,7 @@ ErrorOnFileCaseMissmatch=0
 # replace tabs with spaces (if UseTabs is off)
 # Default 1
 #FormatterFormatInsideComments=1
+
+# allow single line case blocks and functionrefs
+# Default 1
+#FormatterAllowSingleLines=1

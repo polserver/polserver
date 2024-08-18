@@ -88,8 +88,10 @@ void CompilerConfig::Read( const std::string& path )
   FormatterTabWidth = elem.remove_ushort( "FormatterTabWidth", 4 );
   FormatterInsertNewlineAtEOF = elem.remove_bool( "FormatterInsertNewlineAtEOF", false );
   FormatterFormatInsideComments = elem.remove_bool( "FormatterFormatInsideComments", true );
+  FormatterBracketAttachToType = elem.remove_bool( "FormatterBracketAttachToType", true );
+  FormatterAllowSingleLines = elem.remove_bool( "FormatterAllowSingleLines", true );
 
-// This is where we TRY to validate full paths from what was provided in the
+  // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
 #ifdef WIN32
   std::string MyPath = path.c_str();

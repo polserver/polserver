@@ -116,12 +116,15 @@ public:
   int closingParenthesisStyle( size_t begin_size );
   int closingBracketStyle( size_t begin_size );
   int openingParenthesisStyle() const;
-  int openingBracketStyle() const;
+  int openingBracketStyle( bool typeinit = false ) const;
   int delimiterStyle() const;
   int terminatorStyle() const;
   int assignmentStyle() const;
   int comparisonStyle() const;
   int operatorStyle() const;
+
+  void markPackableLineStart();
+  void markPackableLineEnd();
 
 private:
   std::vector<std::string> _rawlines = {};
@@ -132,6 +135,9 @@ private:
   size_t _last_line = 0;
   size_t _currindent = 0;
   size_t _currentgroup = 0;
+  size_t _packablelinestart = 0;
+  bool _packableline_allowed = false;
+  bool _packablelineend = 0;
   void mergeRawContent( size_t nextlineno );
   void mergeComments();
   void mergeCommentsBefore( size_t nextlineno );
@@ -153,6 +159,7 @@ private:
                 std::vector<std::string>* finallines, std::map<size_t, size_t>* alignmentspace,
                 size_t* skipindex ) const;
   void alignComments( std::vector<std::string>& finallines );
+  void packLines();
 };
 
 // operator for enum bitflag handling

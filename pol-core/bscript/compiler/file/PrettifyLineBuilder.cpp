@@ -65,6 +65,7 @@ void PrettifyLineBuilder::mergeRawContent( size_t nextlineno )
       for ( size_t i = itr->start.line_number - 1; i < itr->end.line_number && i < _rawlines.size();
             ++i )
       {
+        _packableline_allowed = false;
         _lines.emplace_back( _rawlines[i] );
         _last_line = i + 1;
       }
@@ -84,6 +85,13 @@ void PrettifyLineBuilder::mergeCommentsBefore( size_t nextlineno )
     {
       addEmptyLines( _comments.front().pos.line_number );
       _lines.push_back( indentSpacing() + _comments.front().text );
+      if ( _packableline_allowed &&
+           _packablelinestart ==
+               _lines.size() - 1 )  // potential packed line not yet build, so safe to add a comment
+        ++_packablelinestart;
+      else if ( _comments.front().style & FmtToken::FORCED_BREAK )
+        _packableline_allowed = false;
+
       _last_line = _comments.front().pos_end.line_number;
       _comments.erase( _comments.begin() );
     }
@@ -105,6 +113,7 @@ void PrettifyLineBuilder::mergeComments()
       break;
     if ( _line_parts[i].pos.token_index > _comments.front().pos.token_index )
     {
+      _packableline_allowed = false;
       auto info = _comments.front();
       info.group = i ? _line_parts[i - 1].group : _currentgroup;
       _line_parts.insert( _line_parts.begin() + i, std::move( info ) );
@@ -119,6 +128,7 @@ void PrettifyLineBuilder::mergeComments()
     if ( _comments.front().pos.line_number == _line_parts.back().pos.line_number &&
          _comments.front().pos.token_index <= _line_parts.back().pos.token_index + 1 )
     {
+      _packableline_allowed = false;
       addPart( _comments.front() );
       _comments.erase( _comments.begin() );
     }
@@ -180,6 +190,8 @@ std::vector<FmtToken> PrettifyLineBuilder::buildLineSplits()
         }
       }
     }
+    if ( _line_parts[i].style & FmtToken::FORCED_BREAK )
+      _packableline_allowed = false;
     if ( _line_parts[i].style & FmtToken::FORCED_BREAK ||
          ( has_varcomma && ( _line_parts[i].context == FmtContext::VAR_STATEMENT ||
                              _line_parts[i].context == FmtContext::VAR_COMMA ) ) )
@@ -376,6 +388,7 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
 std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
     const std::vector<FmtToken>& lines ) const
 {
+  // TODO align closing brackets better
   std::vector<std::string> finallines;
   std::string line;
   // store for each group the alignment
@@ -766,7 +779,10 @@ void PrettifyLineBuilder::buildLine( size_t current_indent )
 {
   _currindent = current_indent;
   if ( _line_parts.empty() )
+  {
+    packLines();
     return;
+  }
   mergeComments();
 
   // fill lines with final strings splitted at breakpoints
@@ -828,6 +844,45 @@ void PrettifyLineBuilder::buildLine( size_t current_indent )
                  std::make_move_iterator( finallines.end() ) );
   _last_line = _line_parts.back().pos.line_number;
   _line_parts.clear();
+
+  packLines();
+}
+
+void PrettifyLineBuilder::packLines()
+{
+  if ( !_packableline_allowed || !_packablelineend || !compilercfg.FormatterAllowSingleLines )
+    return;
+  _packableline_allowed = false;
+  _packablelineend = false;
+
+  std::string packedline;
+  size_t count_term = 0;
+  for ( size_t i = _packablelinestart; i < _lines.size(); ++i )
+  {
+    auto l = _lines[i];
+    // TODO better solution? i dont want to allow multiple small statements in a line
+    count_term += std::count_if( l.begin(), l.end(), []( char c ) { return c == ';'; } );
+    stripline( l );
+    if ( packedline.empty() )
+      packedline += l;
+    else
+    {
+      auto begin = _lines[i].find_first_not_of( " \t" );
+      if ( begin > 0 && begin != std::string::npos )
+        l.erase( 0, begin );
+      packedline += " " + l;
+    }
+  }
+  if ( packedline.empty() )
+    return;
+
+  // in funcref means only a single line can be included since it also ends with ';'
+  // case block means 2 statements can be included
+  if ( count_term < 3 && packedline.size() <= compilercfg.FormatterLineWidth )
+  {
+    _lines.resize( _packablelinestart );
+    _lines.push_back( std::move( packedline ) );
+  }
 }
 
 void PrettifyLineBuilder::alignComments( std::vector<std::string>& finallines )
@@ -917,8 +972,11 @@ int PrettifyLineBuilder::openingParenthesisStyle() const
          ( compilercfg.FormatterParenthesisSpacing ? FmtToken::SPACE : FmtToken::NONE );
 }
 
-int PrettifyLineBuilder::openingBracketStyle() const
+int PrettifyLineBuilder::openingBracketStyle( bool typeinit ) const
 {
+  if ( typeinit && !compilercfg.FormatterBracketAttachToType )
+    return FmtToken::BREAKPOINT |
+           ( compilercfg.FormatterBracketSpacing ? FmtToken::SPACE : FmtToken::NONE );
   return FmtToken::ATTACHED | FmtToken::BREAKPOINT |
          ( compilercfg.FormatterBracketSpacing ? FmtToken::SPACE : FmtToken::NONE );
 }
@@ -992,6 +1050,17 @@ void PrettifyLineBuilder::mergeEOFNonTokens()
   // if the original file ends with a newline, make sure to also end
   if ( !_lines.empty() && !_lines.back().empty() && !_rawlines.empty() && _rawlines.back().empty() )
     _lines.push_back( "" );
+}
+
+void PrettifyLineBuilder::markPackableLineStart()
+{
+  _packablelinestart = _lines.size();
+  _packableline_allowed = true;
+  _packablelineend = false;
+}
+void PrettifyLineBuilder::markPackableLineEnd()
+{
+  _packablelineend = true;
 }
 
 }  // namespace Pol::Bscript::Compiler

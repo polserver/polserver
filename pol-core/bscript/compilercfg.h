@@ -61,6 +61,8 @@ struct CompilerConfig
   unsigned short FormatterTabWidth = 4;
   bool FormatterInsertNewlineAtEOF = false;
   bool FormatterFormatInsideComments = true;
+  bool FormatterBracketAttachToType = true;
+  bool FormatterAllowSingleLines = true;
 
   void Read( const std::string& path );
   void SetDefaults();
