@@ -129,6 +129,7 @@ void InstructionEmitter::register_class_declaration(
         method_descriptors.emplace_back( name_offset, address, funcref_index );
         report.debug( *cd, " - Method: {} PC={} funcref_index={}", method,
                       method_itr->second.address(), funcref_index );
+        method_names.insert( method );
       }
       else
       {
