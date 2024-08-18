@@ -1435,7 +1435,7 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
       info.token_type = comment->getType();
       info.style = FmtToken::SPACE;
       // replace tabs with spaces if not active
-      if ( !compilercfg.FormatterUseTabs )
+      if ( compilercfg.FormatterFormatInsideComments && !compilercfg.FormatterUseTabs )
       {
         auto it = info.text.find( '\t' );
         while ( it != std::string::npos )
@@ -1481,14 +1481,18 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
       else
       {
         info.context = FmtContext::COMMENT;
-        info.text.erase( 0, 2 );  // remove /*
-        auto firstchar = info.text.find_first_not_of( " \t" );
-        info.text.erase( 0, firstchar );                          // remove remaining whitespace
+        info.text.erase( 0, 2 );                                  // remove /*
         info.text.erase( info.text.end() - 2, info.text.end() );  // remove */
-        auto lastchar = info.text.find_last_not_of( " \t" );
-        info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
+        if ( compilercfg.FormatterFormatInsideComments )
+        {
+          auto firstchar = info.text.find_first_not_of( " \t" );
+          info.text.erase( 0, firstchar );  // remove remaining whitespace
+          auto lastchar = info.text.find_last_not_of( " \t" );
+          info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
+        }
         // if its in the style of /*** blubb **/ dont add whitespace
-        if ( info.text.empty() || ( info.text.front() == '*' && info.text.back() == '*' ) )
+        if ( !compilercfg.FormatterFormatInsideComments || info.text.empty() ||
+             ( info.text.front() == '*' && info.text.back() == '*' ) )
           info.text = std::string( "/*" ) + info.text + "*/";
         else
         {

@@ -60,6 +60,7 @@ struct CompilerConfig
   bool FormatterUseTabs = false;
   unsigned short FormatterTabWidth = 4;
   bool FormatterInsertNewlineAtEOF = false;
+  bool FormatterFormatInsideComments = true;
 
   void Read( const std::string& path );
   void SetDefaults();

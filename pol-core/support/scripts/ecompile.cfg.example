@@ -253,3 +253,8 @@ ErrorOnFileCaseMissmatch=0
 # Insert a newline at end of file if missing
 # Default 0
 #FormatterInsertNewlineAtEOF=0
+
+# Strip extra space inside comments
+# replace tabs with spaces (if UseTabs is off)
+# Default 1
+#FormatterFormatInsideComments=1

@@ -656,10 +656,13 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
     {
       // TODO if next is linecomment dont split now, but split comment
       stripline( line );
-      if ( !logical )
-        parenthesisAlign( finallines, alignmentspace, line );
-      finallines.emplace_back( std::move( line ) );
-      line = alignmentSpacing( alignmentspace );
+      if ( !line.empty() )  // line contained only alignment
+      {
+        if ( !logical )
+          parenthesisAlign( finallines, alignmentspace, line );
+        finallines.emplace_back( std::move( line ) );
+        line = alignmentSpacing( alignmentspace );
+      }
     }
     line += l;
     // linewidth reached add current line, start a new one
