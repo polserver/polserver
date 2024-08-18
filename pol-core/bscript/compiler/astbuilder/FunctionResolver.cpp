@@ -226,12 +226,13 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
         if ( !calling_scope.empty() )
         {
           std::set<std::string> visited;
-          std::list<std::string> to_link( { calling_scope } );
+          std::list<std::string> to_check( { calling_scope } );
           bool handled = false;
 
-          for ( auto itr = to_link.begin(); !handled && itr != to_link.end(); itr++ )
+          for ( auto to_check_itr = to_check.begin(); !handled && to_check_itr != to_check.end();
+                ++to_check_itr )
           {
-            auto cd_itr = resolved_classes.find( *itr );
+            auto cd_itr = resolved_classes.find( *to_check_itr );
             if ( cd_itr == resolved_classes.end() )
               continue;
 
@@ -251,7 +252,7 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
             {
               if ( auto base_cd = base_cd_link->class_declaration() )
               {
-                to_link.push_back( base_cd->name );
+                to_check.push_back( base_cd->name );
               }
             }
           }
@@ -533,11 +534,11 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
     };
 
     std::set<std::string> visited;
-    std::list<std::string> to_link( { calling_scope } );
+    std::list<std::string> to_check( { calling_scope } );
 
-    for ( auto itr = to_link.begin(); itr != to_link.end(); itr++ )
+    for ( auto to_check_itr = to_check.begin(); to_check_itr != to_check.end(); ++to_check_itr )
     {
-      auto cd_itr = resolved_classes.find( *itr );
+      auto cd_itr = resolved_classes.find( *to_check_itr );
       if ( cd_itr == resolved_classes.end() )
         continue;
 
@@ -549,7 +550,7 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
 
       if ( handled_by_scope( cd->name ) )
       {
-        itr = to_link.end();
+        to_check_itr = to_check.end();
         break;
       }
 
@@ -557,7 +558,7 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
       {
         if ( auto base_cd = base_cd_link->class_declaration() )
         {
-          to_link.push_back( base_cd->name );
+          to_check.push_back( base_cd->name );
         }
       }
     }
