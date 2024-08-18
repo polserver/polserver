@@ -84,21 +84,17 @@ void InstructionEmitter::register_class_declaration(
 
     if ( cd->constructor_link )
     {
-      auto uf = cd->constructor_link->user_function();
-      // Should never happen
-      if ( !uf )
+      if ( auto uf = cd->constructor_link->user_function() )
       {
-        cd->internal_error( fmt::format( "constructor {} no function linked", cd->name ) );
+        auto ctor_itr = user_function_labels.find( ScopableName( cd->name, cd->name ).string() );
+        if ( ctor_itr == user_function_labels.end() )
+        {
+          report.debug( *cd, " - Constructor: {} PC=???", cd->name );
+          cd->internal_error(
+              fmt::format( "Constructor {} not found in user_function_labels", cd->name ) );
+        }
+        constructor_addresses.push_back( ctor_itr->second.address() );
       }
-
-      auto ctor_itr = user_function_labels.find( ScopableName( cd->name, cd->name ).string() );
-      if ( ctor_itr == user_function_labels.end() )
-      {
-        report.debug( *cd, " - Constructor: {} PC=???", cd->name );
-        cd->internal_error(
-            fmt::format( "Constructor {} not found in user_function_labels", cd->name ) );
-      }
-      constructor_addresses.push_back( ctor_itr->second.address() );
     }
 
     for ( const auto& [method, uf_link] : cd->methods )
