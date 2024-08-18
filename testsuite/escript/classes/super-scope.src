@@ -1,0 +1,72 @@
+// Various tests with calling a super-class's method in an unscoped manner
+
+class BaseClass0()
+  function BaseClass0( this )
+  endfunction
+  function Method0( this )
+    print( $"BaseClass0::Method0 this={this}" );
+  endfunction
+endclass
+
+class BaseClass1(BaseClass0)
+  function BaseClass1( this )
+  endfunction
+
+  function Method1( this )
+    print( $"BaseClass1::Method1 this={this}" );
+  endfunction
+
+  function Common( this )
+    print( $"BaseClass1::Common this={this}" );
+  endfunction
+
+  function Method3( this )
+    print( $"BaseClass1::Method3 this={this}" );
+  endfunction
+endclass
+
+class BaseClass2()
+  function BaseClass2( this )
+  endfunction
+
+  function Method2( this )
+    print( $"BaseClass2::Method2 this={this}" );
+  endfunction
+
+  function Common( this )
+    print( $"BaseClass2::Common this={this}" );
+  endfunction
+endclass
+
+class Foo( BaseClass1, BaseClass2  )
+  function Foo( this )
+    Common( this ); // In base1 and base2
+    Method0( this ); // In base0
+    Method1( this ); // In base1
+    Method2( this ); // In base2
+    Method3( this ); // In Foo and base1
+    print("-");
+    super::Common( this ); // In base1 and base2
+    super::Method0( this ); // In base0
+    super::Method1( this ); // In base1
+    super::Method2( this ); // In base2
+    super::Method3( this ); // In Foo and base1
+  endfunction
+
+  function Method3( this )
+    print( $"Foo::Method3 this={this}" );
+  endfunction
+endclass
+
+Foo();
+
+print( "----" );
+
+// Order of base classes matters: Since BaseClass2 is first, `Common()` links to `BaseClass2::Common`.
+class Bar( BaseClass2, BaseClass1 )
+  function Bar( this )
+    Common( this ); // In base1 and base2
+  endfunction
+endclass
+
+Bar();

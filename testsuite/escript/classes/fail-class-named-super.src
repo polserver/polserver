@@ -1,0 +1,4 @@
+class SUPER()
+endclass
+
+SUPER();

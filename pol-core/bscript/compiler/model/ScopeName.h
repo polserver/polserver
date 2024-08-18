@@ -15,6 +15,9 @@ public:
   // True if scope is global scope
   bool global() const;
 
+  // True if scope is super scope
+  bool super() const;
+
   // True if scope was not specified
   bool empty() const;
 
@@ -23,6 +26,7 @@ public:
 
   static ScopeName Global;
   static ScopeName None;
+  static ScopeName Super;
 
   bool operator<( const ScopeName& other ) const;
 };

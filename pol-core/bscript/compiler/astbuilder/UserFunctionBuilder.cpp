@@ -50,6 +50,14 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx, Node* class_body )
 {
   std::string class_name = text( ctx->IDENTIFIER() );
+
+  if ( Clib::caseInsensitiveEqual( class_name, "super" ) )
+  {
+    workspace.report.error( location_for( *ctx->IDENTIFIER() ),
+                            "The class name 'super' is reserved." );
+    return nullptr;
+  }
+
   std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
   std::vector<std::shared_ptr<ClassLink>> base_classes;
   std::vector<std::string> function_names;
