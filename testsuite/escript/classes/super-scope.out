@@ -1,0 +1,13 @@
+BaseClass1::Common this=struct{  }
+BaseClass0::Method0 this=struct{  }
+BaseClass1::Method1 this=struct{  }
+BaseClass2::Method2 this=struct{  }
+Foo::Method3 this=struct{  }
+-
+BaseClass1::Common this=struct{  }
+BaseClass0::Method0 this=struct{  }
+BaseClass1::Method1 this=struct{  }
+BaseClass2::Method2 this=struct{  }
+BaseClass1::Method3 this=struct{  }
+----
+BaseClass2::Common this=struct{  }

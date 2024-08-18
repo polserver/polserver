@@ -1,0 +1,1 @@
+fail-super-scope.src:10:12: error: Unknown identifier 'super::Method'.
