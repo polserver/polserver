@@ -71,6 +71,7 @@ enum BSCRIPT_SECTION
   BSCRIPT_SECTION_GLOBALVARNAMES = 5,
   BSCRIPT_SECTION_EXPORTED_FUNCTIONS = 6,
   BSCRIPT_SECTION_FUNCTION_REFERENCES = 7,
+  BSCRIPT_SECTION_CLASS_TABLE = 8,
 };
 
 
@@ -132,6 +133,35 @@ struct BSCRIPT_FUNCTION_REFERENCE
   bool is_variadic;
 };
 static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 9, "size missmatch" );
+
+struct BSCRIPT_CLASS_TABLE
+{
+  unsigned class_count;
+};
+
+static_assert( sizeof( BSCRIPT_CLASS_TABLE ) == 4, "size missmatch" );
+
+struct BSCRIPT_CLASS_TABLE_ENTRY
+{
+  unsigned name_offset;
+  unsigned constructor_count;
+  unsigned method_count;
+};
+
+struct BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY
+{
+  unsigned address;
+};
+static_assert( sizeof( BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY ) == 4, "size missmatch" );
+
+struct BSCRIPT_CLASS_TABLE_METHOD_ENTRY
+{
+  unsigned name_offset;
+  unsigned address;
+  unsigned function_reference_index;
+};
+
+static_assert( sizeof( BSCRIPT_CLASS_TABLE_METHOD_ENTRY ) == 12, "size missmatch" );
 
 #pragma pack( pop )
 }  // namespace Bscript
