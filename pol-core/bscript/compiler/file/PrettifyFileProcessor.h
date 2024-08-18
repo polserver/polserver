@@ -188,6 +188,7 @@ private:
   PrettifyLineBuilder linebuilder;
   size_t _currident = 0;
   size_t _currentgroup = 0;
+  bool _suppressnewline = false;
   FmtToken::Scope _currentscope = FmtToken::Scope::NONE;
   // Profile& profile;
   Report& report;

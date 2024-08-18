@@ -726,10 +726,13 @@ std::vector<std::string> PrettifyLineBuilder::createSimple(
     {
       // TODO if next is linecomment dont split now, but split comment
       // be extra generous if we only have a few chars left
-      if ( i + 1 == lines.size() - 1 && lines[i + 1].text.size() < 4 )
+      if ( ( part.style & FmtToken::FORCED_BREAK ) == 0 )
       {
-        ++i;
-        continue;
+        if ( i + 1 == lines.size() - 1 && lines[i + 1].text.size() < 4 )
+        {
+          ++i;
+          continue;
+        }
       }
       stripline( line );
       parenthesisAlign( finallines, alignmentspace, line );
@@ -765,7 +768,7 @@ void PrettifyLineBuilder::buildLine( size_t current_ident )
   // fill lines with final strings splitted at breakpoints
   auto lines = buildLineSplits();
 #ifdef DEBUG_FORMAT_BREAK
-  INFO_PRINTLN( "BREAK " );
+  INFO_PRINTLN( "BREAK" );
   for ( const auto& part : lines )
     INFO_PRINTLN( "\"{}\" {}-{} ->{} :{}", part.text, part.group, part.firstgroup, part.style,
                   (int)part.scope );

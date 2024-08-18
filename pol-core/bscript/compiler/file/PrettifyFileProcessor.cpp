@@ -712,8 +712,12 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameters(
   if ( auto args = ctx->functionParameterList() )
     visitFunctionParameterList( args );
 
-  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
-  linebuilder.buildLine( _currident );
+  auto closingstyle = linebuilder.closingParenthesisStyle( curcount );
+  if ( _suppressnewline )  // add space if newline is suppressed
+    closingstyle |= FmtToken::SPACE;
+  addToken( ")", ctx->RPAREN(), closingstyle );
+  if ( !_suppressnewline )
+    linebuilder.buildLine( _currident );
   return {};
 }
 
@@ -905,10 +909,14 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
 {
   addToken( "@", ctx->AT(), FmtToken::SPACE );
 
+  _suppressnewline = true;  // functionparams force newline
   if ( auto params = ctx->functionParameters() )
     visitFunctionParameters( params );
+  _suppressnewline = false;
 
-  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() );
+  // we want the starting { at the same line and not attached
+  addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() & ~FmtToken::ATTACHED );
+  linebuilder.buildLine( _currident );  // now start a newline
 
   ++_currentgroup;
   size_t curcount = linebuilder.currentTokens().size();
