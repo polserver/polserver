@@ -1,6 +1,8 @@
 #ifndef POLSERVER_VALUEBUILDER_H
 #define POLSERVER_VALUEBUILDER_H
 
+#include <stack>
+
 #include "bscript/compiler/astbuilder/TreeBuilder.h"
 #include "bscript/compiler/model/ScopeName.h"
 
@@ -45,6 +47,12 @@ public:
   //
   // Used when constructing a FunctionCall's `calling_scope`.
   ScopeName current_scope_name;
+
+  // Pushed and popped in UserFunctionVisitor.
+  //
+  // Needed to determine if a return statement should have a child: constructor
+  // functions do not have a child.
+  std::stack<bool> in_constructor_function;
 
 private:
   int to_int( EscriptGrammar::EscriptParser::IntegerLiteralContext* );

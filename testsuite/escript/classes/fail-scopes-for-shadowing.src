@@ -1,6 +1,6 @@
 // Various shadowing of the name 'variable' gives error
 
-class Animal
+class Animal()
     function StaticFunc( variable )
         for variable := 1 to 5
         endfor

@@ -398,6 +398,15 @@ void InstructionEmitter::return_from_user_function()
   emit_token( RSV_RETURN, TYP_RESERVED );
 }
 
+void InstructionEmitter::return_from_constructor_function( unsigned this_offset )
+{
+  // Emit `this`
+  emit_token( TOK_LOCALVAR, TYP_OPERAND, this_offset );
+
+  // Emit a return
+  return_from_user_function();
+}
+
 void InstructionEmitter::set_member_id_consume( MemberID member_id )
 {
   emit_token( INS_SET_MEMBER_ID_CONSUME, TYP_UNARY_OPERATOR, member_id );

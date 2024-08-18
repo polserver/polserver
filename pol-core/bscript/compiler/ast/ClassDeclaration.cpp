@@ -1,23 +1,25 @@
 #include "ClassDeclaration.h"
 
-
 #include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/ast/UserFunction.h"
-#include "bscript/compiler/ast/VarStatement.h"
+#include "bscript/compiler/model/ClassLink.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
 {
 ClassDeclaration::ClassDeclaration( const SourceLocation& source_location, std::string name,
                                     std::unique_ptr<ClassParameterList> parameters,
                                     std::vector<std::string> function_names, Node* class_body,
-                                    std::shared_ptr<FunctionLink> constructor )
+                                    std::vector<std::shared_ptr<ClassLink>> base_class_links )
     : Node( source_location, std::move( parameters ) ),
       name( std::move( name ) ),
       function_names( std::move( function_names ) ),
       class_body( class_body ),
-      constructor( std::move( constructor ) )
+      constructor_link(
+          std::make_unique<FunctionLink>( source_location, name, true /* requires_ctor */ ) ),
+      base_class_links( std::move( base_class_links ) )
 {
 }
 

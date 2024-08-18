@@ -6,6 +6,7 @@ namespace Pol::Bscript::Compiler
 {
 class ClassParameterList;
 class ClassBody;
+class ClassLink;
 class ClassParameterDeclaration;
 class NodeVisitor;
 class VarStatement;
@@ -18,7 +19,7 @@ public:
   ClassDeclaration( const SourceLocation& source_location, std::string name,
                     std::unique_ptr<ClassParameterList> parameters,
                     std::vector<std::string> function_names, Node* body,
-                    std::shared_ptr<FunctionLink> constructor );
+                    std::vector<std::shared_ptr<ClassLink>> base_classes );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
@@ -30,8 +31,17 @@ public:
   // Owned by top_level_statements
   Node* class_body;
 
-  // Will be null if class has no constructor declared.
-  const std::shared_ptr<FunctionLink> constructor;
+  // Will have no function linked if class has no constructor defined.
+  const std::shared_ptr<FunctionLink> constructor_link;
+
+  // Passed as ctor parameter by UserFunctionBuilder when generating this AST
+  // node. The class links are immediately registered (inside
+  // UserFunctionBuilder) with the FunctionResolver so their parse trees will be
+  // visited by the second-pass UserFunctionVisitor.
+  std::vector<std::shared_ptr<ClassLink>> base_class_links;
+
+private:
+  std::unique_ptr<UserFunction> super;
 };
 
 }  // namespace Pol::Bscript::Compiler

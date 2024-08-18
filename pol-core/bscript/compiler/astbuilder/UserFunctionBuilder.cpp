@@ -1,5 +1,6 @@
 #include "UserFunctionBuilder.h"
 
+#include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ClassBody.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
@@ -17,6 +18,7 @@
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
+#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 
@@ -49,6 +51,10 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 {
   std::string class_name = text( ctx->IDENTIFIER() );
   std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
+  std::vector<std::shared_ptr<ClassLink>> base_classes;
+  std::vector<std::string> function_names;
+  bool has_ctor = false;
+  bool is_child = false;
 
   if ( auto function_parameters = ctx->classParameters() )
   {
@@ -64,16 +70,20 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         // Register with the FunctionResolver the class parameter's constructor
         // link. It will get resolved to the class constructor during the
         // second-pass AST visiting.
+        base_classes.push_back(
+            std::make_shared<ClassLink>( location_for( *parameter_name ), baseclass_name ) );
+
+        workspace.function_resolver.register_class_link( ScopeName( baseclass_name ),
+                                                         base_classes.back() );
+
         workspace.function_resolver.register_function_link(
             ScopableName( baseclass_name, baseclass_name ), class_param_decl->constructor_link );
 
+        is_child = true;
         parameters.push_back( std::move( class_param_decl ) );
       }
     }
   }
-
-  std::vector<std::string> function_names;
-  std::shared_ptr<FunctionLink> constructor_link = nullptr;
 
   if ( auto classBody = ctx->classBody() )
   {
@@ -83,9 +93,20 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
       {
         auto func_name = text( func_decl->IDENTIFIER() );
         auto func_loc = location_for( *func_decl );
-        // Register the user function as an available parse tree.
-        workspace.function_resolver.register_available_scoped_function( func_loc, class_name,
-                                                                        func_decl );
+
+        // Register the user function as an available parse tree only if it is not `super` for child
+        // classes.
+        auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
+
+        if ( is_super && is_child )
+        {
+          workspace.report.error( func_loc, "The 'super' function is reserved for child classes." );
+        }
+        else
+        {
+          workspace.function_resolver.register_available_scoped_function( func_loc, class_name,
+                                                                          func_decl );
+        }
 
         function_names.push_back( func_name );
 
@@ -103,10 +124,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
               // 3. The first parameter is named `this`.
               if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
               {
-                constructor_link = std::make_shared<FunctionLink>( func_loc, class_name,
-                                                                   true /* requires_ctor */ );
-                workspace.function_resolver.register_function_link(
-                    ScopableName( class_name, class_name ), constructor_link );
+                has_ctor = true;
               }
               break;
             }
@@ -136,7 +154,21 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   auto class_decl = std::make_unique<ClassDeclaration>(
       location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
-      class_body, std::move( constructor_link ) );
+      class_body, std::move( base_classes ) );
+
+  // Only register the ClassDeclaration's ctor FunctionLink if there _is_ a ctor.
+  if ( has_ctor )
+  {
+    workspace.function_resolver.register_function_link( ScopableName( class_name, class_name ),
+                                                        class_decl->constructor_link );
+
+    // Only register the super() function if the class is a child.
+    if ( is_child )
+    {
+      workspace.function_resolver.register_available_generated_function(
+          location_for( *ctx ), ScopableName( class_name, "super" ), class_decl.get() );
+    }
+  }
 
   return class_decl;
 }
@@ -157,12 +189,12 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
       bool first = !class_name.empty();
       for ( auto param : param_list->functionParameter() )
       {
-        std::string parameter_name = text( param->IDENTIFIER() );
+        ScopableName parameter_name( ScopeName::None, text( param->IDENTIFIER() ) );
         bool is_this_arg = false;
 
         if ( first )
         {
-          if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+          if ( Clib::caseInsensitiveEqual( parameter_name.string(), "this" ) )
           {
             class_method = true;
             is_this_arg = true;
@@ -195,8 +227,6 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
   }
   auto parameter_list =
       std::make_unique<FunctionParameterList>( location_for( *ctx ), std::move( parameters ) );
-  auto body =
-      std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
 
   constexpr bool expression =
       std::is_same<ParserContext, EscriptGrammar::EscriptParser::FunctionExpressionContext>::value;
@@ -207,8 +237,23 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
                           : constructor_method ? UserFunctionType::Constructor
                                                : UserFunctionType::Method;
 
+  in_constructor_function.push( type == UserFunctionType::Constructor );
+
+  auto body =
+      std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
+
+  in_constructor_function.pop();
+
+  std::shared_ptr<ClassLink> class_link;
+  if ( !class_name.empty() )
+  {
+    class_link = std::make_shared<ClassLink>( location_for( *ctx ), class_name );
+    workspace.function_resolver.register_class_link( ScopeName( class_name ), class_link );
+  }
+
   return std::make_unique<UserFunction>( location_for( *ctx ), exported, expression, type,
                                          class_name, std::move( name ), std::move( parameter_list ),
-                                         std::move( body ), location_for( *end_token ) );
+                                         std::move( body ), location_for( *end_token ),
+                                         std::move( class_link ) );
 }
 }  // namespace Pol::Bscript::Compiler

@@ -17,11 +17,13 @@ namespace Pol::Bscript::Compiler
 {
 struct AvailableParseTree;
 class ClassDeclaration;
+class ClassLink;
 class Function;
 class FunctionLink;
 class ModuleFunctionDeclaration;
 class Report;
 class UserFunction;
+class SuperFunction;
 
 class FunctionResolver
 {
@@ -33,7 +35,10 @@ public:
   void force_reference( const ScopableName& name, const SourceLocation& );
 
   // Force reference to a class
-  void force_reference( const ScopeName& name );
+  void force_reference( const ScopeName& name, const SourceLocation& );
+
+  void register_available_generated_function( const SourceLocation&, const ScopableName& name,
+                                              Node* context );
 
   void register_available_user_function( const SourceLocation&,
                                          EscriptGrammar::EscriptParser::FunctionDeclarationContext*,
@@ -50,6 +55,7 @@ public:
 
   void register_function_link( const ScopableName& name,
                                std::shared_ptr<FunctionLink> function_link );
+  void register_class_link( const ScopeName& name, std::shared_ptr<ClassLink> class_link );
   std::string register_function_expression(
       const SourceLocation&, EscriptGrammar::EscriptParser::FunctionExpressionContext* );
   void register_module_function( ModuleFunctionDeclaration* );
@@ -61,6 +67,8 @@ public:
   static std::string function_expression_name( const SourceLocation& );
 
 private:
+  void register_available_function_parse_tree( const SourceLocation&, const ScopableName& name,
+                                               const AvailableParseTree& apt );
   void register_available_user_function_parse_tree( const SourceLocation&,
                                                     antlr4::ParserRuleContext*,
                                                     const ScopableName& name,
@@ -75,7 +83,7 @@ private:
   using ClassDeclarationMap = std::map<ScopeName, ClassDeclaration*>;
 
   using FunctionReferenceMap = std::map<ScopableName, std::vector<std::shared_ptr<FunctionLink>>>;
-  using ClassReferenceMap = std::set<ScopeName>;
+  using ClassReferenceMap = std::map<ScopeName, std::vector<std::shared_ptr<ClassLink>>>;
 
   using AvailableParseTreeMap = std::map<std::string, AvailableParseTree, Clib::ci_cmp_pred>;
 
@@ -89,6 +97,7 @@ private:
   // Returns Function if the key's `{call_scope, name}` exists in
   // `resolved_functions_by_name`, otherwise nullptr.
   Function* check_existing( const ScopableName& key, bool requires_constructor ) const;
+  ClassDeclaration* check_existing( const ScopeName& key ) const;
 
   // Checks if `{call_scope, name}` exists in either
   // `available_user_function_parse_trees` as a function or a class (that would
@@ -96,10 +105,12 @@ private:
   // using `calling_scope` for context.
   bool build_if_available( std::vector<AvailableParseTree>& to_build_ast,
                            const std::string& calling_scope, const ScopableName& call );
+  bool build_if_available( std::vector<AvailableParseTree>& to_build_ast, const ScopeName& call );
 
   // Given a scoped name, looks for an existing function in `resolved_functions`. If found, links
   // the function and returns `true`; otherwise, returns `false`.
   bool resolve_if_existing( const ScopableName&, std::shared_ptr<FunctionLink>& );
+  bool resolve_if_existing( const ScopeName&, std::shared_ptr<ClassLink>& );
 };
 
 }  // namespace Pol::Bscript::Compiler

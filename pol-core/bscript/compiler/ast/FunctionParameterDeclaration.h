@@ -2,6 +2,7 @@
 #define POLSERVER_FUNCTIONPARAMETERDECLARATION_H
 
 #include "bscript/compiler/ast/Node.h"
+#include "bscript/compiler/model/ScopableName.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -11,17 +12,18 @@ class Expression;
 class FunctionParameterDeclaration : public Node
 {
 public:
-  FunctionParameterDeclaration( const SourceLocation& source_location, std::string name, bool byref,
-                                bool unused, bool rest, std::unique_ptr<Expression> default_value );
-  FunctionParameterDeclaration( const SourceLocation& source_location, std::string name, bool byref,
-                                bool unused, bool rest );
+  FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
+                                bool byref, bool unused, bool rest,
+                                std::unique_ptr<Expression> default_value );
+  FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
+                                bool byref, bool unused, bool rest );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
 
   Expression* default_value();
 
-  const std::string name;
+  const ScopableName name;
   const bool byref;
   const bool unused;
   const bool rest;

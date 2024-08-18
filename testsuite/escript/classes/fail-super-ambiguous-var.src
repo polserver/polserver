@@ -1,0 +1,20 @@
+// Ambiguous base-class constructor parameter arg0
+
+class BaseClass1()
+  function BaseClass1( this, arg0 )
+  endfunction
+endclass
+
+class BaseClass2()
+  function BaseClass2( this, arg0 )
+  endfunction
+endclass
+
+
+class Foo( BaseClass1, BaseClass2 )
+  function Foo( this )
+    super( arg0 := "foo" );
+  endfunction
+endclass
+
+Foo();

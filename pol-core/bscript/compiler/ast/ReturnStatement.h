@@ -10,6 +10,7 @@ class Expression;
 class ReturnStatement : public Statement
 {
 public:
+  // `expression` is nullable (inside constructor functions)
   ReturnStatement( const SourceLocation& source_location, std::unique_ptr<Expression> expression );
 
   void accept( NodeVisitor& visitor ) override;

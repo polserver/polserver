@@ -1,0 +1,1 @@
+fail-super-outside-ctor.src:13:5: error: In call to 'super': super() can only be used in constructor functions.

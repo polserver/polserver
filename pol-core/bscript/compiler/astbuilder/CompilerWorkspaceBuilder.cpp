@@ -2,13 +2,16 @@
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/Statement.h"
+#include "bscript/compiler/ast/SuperFunction.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/astbuilder/AvailableParseTree.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/astbuilder/GeneratedFunctionBuilder.h"
 #include "bscript/compiler/astbuilder/SourceFileProcessor.h"
 #include "bscript/compiler/astbuilder/UserFunctionVisitor.h"
 #include "bscript/compiler/file/SourceFile.h"
@@ -74,6 +77,8 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
   Pol::Tools::HighPerfTimer timer;
 
   std::vector<AvailableParseTree> to_build;
+  std::vector<std::unique_ptr<SuperFunction>> super_functions;
+
   int resolves_done = 0;
   while ( workspace.function_resolver.resolve( to_build ) )
   {
@@ -84,18 +89,44 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
 
     for ( auto& apt : to_build )
     {
-      report.debug( *workspace.compiler_workspace.top_level_statements, "Resolving {}", apt );
-      UserFunctionVisitor user_function_visitor( *apt.source_location.source_file_identifier,
-                                                 workspace, apt.scope,
-                                                 apt.top_level_statements_child_node );
-
-      apt.parse_rule_context->accept( &user_function_visitor );
+      if ( apt.parse_rule_context )
+      {
+        report.debug( *workspace.compiler_workspace.top_level_statements, "Resolving {}", apt );
+        UserFunctionVisitor user_function_visitor( *apt.source_location.source_file_identifier,
+                                                   workspace, apt.scope,
+                                                   apt.top_level_statements_child_node );
+        apt.parse_rule_context->accept( &user_function_visitor );
+      }
+      else
+      {
+        if ( auto cd = dynamic_cast<ClassDeclaration*>( apt.top_level_statements_child_node ) )
+        {
+          auto super = std::make_unique<SuperFunction>( cd->source_location, cd );
+          workspace.function_resolver.register_user_function( cd->name, super.get() );
+          super_functions.push_back( std::move( super ) );
+        }
+      }
     }
     report.debug( *workspace.compiler_workspace.top_level_statements,
                   "Resolution {} complete with {} parse trees in {} micros.", resolves_done,
                   to_build.size(), resolve_timer.ellapsed().count() );
     to_build.clear();
   };
+
+  // We must build the super functions _after_ the AST resolution: super
+  // functions reference class links.
+  for ( auto& super : super_functions )
+  {
+    GeneratedFunctionBuilder tree_builder( *super->source_location.source_file_identifier,
+                                           workspace );
+
+    tree_builder.super_function( super );
+
+    report.debug( *workspace.compiler_workspace.top_level_statements,
+                  "Super function {} takes {} params", super->name, super->parameter_count() );
+
+    workspace.compiler_workspace.user_functions.push_back( std::move( super ) );
+  }
 
   workspace.profile.ast_resolve_functions_micros += timer.ellapsed().count();
 }

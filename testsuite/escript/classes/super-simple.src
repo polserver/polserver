@@ -1,0 +1,15 @@
+class BaseClass()
+  function BaseClass( this, arg0 )
+    this.base := arg0;
+  endfunction
+endclass
+
+class Foo( BaseClass )
+  function Foo( this, arg0 )
+    super( "bar" );
+    this.child := arg0;
+  endfunction
+endclass
+
+var obj := Foo( "foo" );
+print( obj );

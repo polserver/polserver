@@ -7,6 +7,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class ClassLink;
 class FunctionParameterList;
 class FunctionBody;
 class Variable;
@@ -16,7 +17,8 @@ class UserFunction : public Function
 public:
   UserFunction( const SourceLocation&, bool exported, bool expression, UserFunctionType type,
                 std::string scope, std::string name, std::unique_ptr<FunctionParameterList>,
-                std::unique_ptr<FunctionBody>, const SourceLocation& endfunction_location );
+                std::unique_ptr<FunctionBody>, const SourceLocation& endfunction_location,
+                std::shared_ptr<ClassLink> );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
@@ -25,6 +27,7 @@ public:
   const bool expression;
   const UserFunctionType type;
   const SourceLocation endfunction_location;
+  std::shared_ptr<ClassLink> class_link;
 
   LocalVariableScopeInfo local_variable_scope_info;
   LocalVariableScopeInfo capture_variable_scope_info;

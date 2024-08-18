@@ -1,0 +1,17 @@
+class BaseClass()
+  function BaseClass( this )
+    print("super!");
+  endfunction
+endclass
+
+class Foo( BaseClass )
+  function Foo( this )
+    super();
+  endfunction
+
+  function Method()
+    super();
+  endfunction
+endclass
+
+Foo::Method();
