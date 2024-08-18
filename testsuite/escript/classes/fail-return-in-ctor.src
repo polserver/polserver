@@ -1,0 +1,10 @@
+// Cannot return a value. Testing with empty string, as that was what is used in
+// a return statement with no expression.
+
+class Animal()
+    function Animal( this )
+        return "";
+    endfunction
+endclass
+
+Animal();

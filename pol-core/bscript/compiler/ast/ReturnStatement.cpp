@@ -8,8 +8,12 @@ namespace Pol::Bscript::Compiler
 {
 ReturnStatement::ReturnStatement( const SourceLocation& source_location,
                                   std::unique_ptr<Expression> expression )
-    : Statement( source_location, std::move( expression ) )
+    : Statement( source_location )
 {
+  if ( expression )
+  {
+    children.push_back( std::move( expression ) );
+  }
 }
 
 void ReturnStatement::accept( NodeVisitor& visitor )

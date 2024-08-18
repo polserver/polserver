@@ -8,7 +8,7 @@ endfunction
 
 StaticFunc( "bar" );
 
-class Animal
+class Animal()
     function StaticFunc( foo )
         if ( foo )
             print ( $"Animal::StaticFunc foo={foo}" );

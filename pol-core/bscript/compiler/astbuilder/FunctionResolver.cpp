@@ -9,6 +9,7 @@
 #include "bscript/compiler/astbuilder/AvailableParseTree.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "clib/strutil.h"
 
@@ -22,15 +23,17 @@ void FunctionResolver::force_reference( const ScopableName& name, const SourceLo
   register_function_link( name, std::make_shared<FunctionLink>( loc, "" /* calling scope */ ) );
 }
 
-void FunctionResolver::force_reference( const ScopeName& scope_name )
+void FunctionResolver::force_reference( const ScopeName& scope_name, const SourceLocation& loc )
 {
-  auto name = scope_name.string();
-  auto itr = resolved_classes.find( name );
-  if ( itr != resolved_classes.end() )
-  {
-    return;
-  }
-  unresolved_classes.emplace( name );
+  register_class_link( scope_name, std::make_shared<ClassLink>( loc, scope_name.string() ) );
+}
+
+void FunctionResolver::register_available_generated_function( const SourceLocation& loc,
+                                                              const ScopableName& name,
+                                                              Node* context )
+{
+  auto apt = AvailableParseTree{ loc, nullptr, name.string(), context };
+  register_available_function_parse_tree( loc, name, std::move( apt ) );
 }
 
 void FunctionResolver::register_available_user_function(
@@ -64,6 +67,15 @@ void FunctionResolver::register_available_class_declaration(
   register_available_class_decl_parse_tree( loc, ctx, class_name, top_level_statements_child_node );
 }
 
+void FunctionResolver::register_class_link( const ScopeName& name,
+                                            std::shared_ptr<ClassLink> class_link )
+{
+  if ( resolve_if_existing( name, class_link ) )
+    return;
+
+  unresolved_classes[name].push_back( std::move( class_link ) );
+}
+
 void FunctionResolver::register_function_link( const ScopableName& name,
                                                std::shared_ptr<FunctionLink> function_link )
 {
@@ -93,6 +105,8 @@ void FunctionResolver::register_function_link( const ScopableName& name,
          resolve_if_existing( ScopableName( ScopeName::Global, unscoped_name ), function_link ) )
       return;
   }
+
+  report.debug( function_link->source_location, "registering funct link {}", name.string() );
 
   unresolved_function_links[name].push_back( std::move( function_link ) );
 }
@@ -184,14 +198,14 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
 
         if ( build_if_available( to_build_ast, calling_scope, key ) )
         {
-        // Keep the link in the list, as it may be resolved later.
+          // Keep the link in the list, as it may be resolved later.
           ++function_link_itr;
           return true;
         }
         return false;
       };
 
-      report.debug( function_link->source_location, "resolving {}", name.string() );
+      report.debug( function_link->source_location, "resolving funct link {}", name );
 
       // If a call scope was given, _only_ check that one.
       if ( !call_scope.empty() )
@@ -231,9 +245,34 @@ bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
   for ( auto unresolved_itr = unresolved_classes.begin();
         unresolved_itr != unresolved_classes.end(); )
   {
-    auto& class_name = *unresolved_itr;
+    auto scope = unresolved_itr->first;
 
-    if ( build_if_available( to_build_ast, "", ScopableName( class_name, "" ) ) )
+    for ( auto class_link_itr = ( *unresolved_itr ).second.begin();
+          class_link_itr != ( *unresolved_itr ).second.end(); )
+    {
+      auto& class_link = *class_link_itr;
+
+      report.debug( class_link->source_location, "resolving class link {}", scope.string() );
+
+      // Link the function if possible, otherwise try to build it.
+      if ( resolve_if_existing( scope, class_link ) )
+      {
+        // Remove this function link from the list of links.
+        class_link_itr = ( *unresolved_itr ).second.erase( class_link_itr );
+      }
+      else if ( build_if_available( to_build_ast, scope ) )
+      {
+        // Keep the link in the list, as it may be resolved later.
+        class_link_itr = ( *unresolved_itr ).second.erase( class_link_itr );
+      }
+      else
+      {
+        ++class_link_itr;
+      }
+    }
+
+    // If all links were resolved, remove the entry.
+    if ( ( *unresolved_itr ).second.empty() )
     {
       unresolved_itr = unresolved_classes.erase( unresolved_itr );
     }
@@ -253,10 +292,8 @@ std::string FunctionResolver::function_expression_name( const SourceLocation& so
                       source_location.range.start.character_column );
 }
 
-void FunctionResolver::register_available_user_function_parse_tree(
-    const SourceLocation& source_location, antlr4::ParserRuleContext* ctx,
-    // const ScopeName& scope_name, antlr4::tree::TerminalNode* identifier,
-    const ScopableName& name, bool force_reference )
+void FunctionResolver::register_available_function_parse_tree(
+    const SourceLocation& source_location, const ScopableName& name, const AvailableParseTree& apt )
 {
   const auto& unscoped_name = name.name;
 
@@ -305,14 +342,21 @@ void FunctionResolver::register_available_user_function_parse_tree(
                   scoped_name, previous.source_location );
   }
 
-  auto apt = AvailableParseTree{ source_location, ctx, scope, nullptr };
   available_user_function_parse_trees.insert( { scoped_name, apt } );
+}
+
+void FunctionResolver::register_available_user_function_parse_tree(
+    const SourceLocation& source_location, antlr4::ParserRuleContext* ctx, const ScopableName& name,
+    bool force_reference )
+{
+  register_available_function_parse_tree( source_location, name,
+                                          { source_location, ctx, name.scope.string(), nullptr } );
 
   if ( force_reference )
   {
     // just make sure there is an entry, so that we build an AST for it
-    register_function_link(
-        name, std::make_shared<FunctionLink>( source_location, scope /* calling scope */ ) );
+    register_function_link( name, std::make_shared<FunctionLink>(
+                                      source_location, name.scope.string() /* calling scope */ ) );
   }
 }
 
@@ -382,6 +426,16 @@ Function* FunctionResolver::check_existing( const ScopableName& key,
   return nullptr;
 }
 
+ClassDeclaration* FunctionResolver::check_existing( const ScopeName& key ) const
+{
+  auto itr = resolved_classes.find( key );
+  if ( itr != resolved_classes.end() )
+  {
+    return ( *itr ).second;
+  }
+  return nullptr;
+}
+
 bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_build_ast,
                                            const std::string& calling_scope,
                                            const ScopableName& call )
@@ -405,13 +459,8 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
 
     // Check if there is a class available with that scope, as it could provide this function
     // later.
-    itr = available_class_decl_parse_trees.find( call.scope.string() );
-    if ( itr != available_class_decl_parse_trees.end() )
+    if ( build_if_available( to_build_ast, call.scope ) )
     {
-      to_build_ast.push_back( ( *itr ).second );
-      report.debug( ( *itr ).second.source_location, "adding to build class [call.scope] {}: {}",
-                    to_build_ast.back(), call.scope.string() );
-      available_class_decl_parse_trees.erase( itr );
       return true;
     }
 
@@ -436,14 +485,26 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
   }
 
   // Check if there is a class available with the function name.
-  itr = available_class_decl_parse_trees.find( call.name );
-  if ( itr != available_class_decl_parse_trees.end() )
+  if ( build_if_available( to_build_ast, call.name ) )
   {
-    to_build_ast.push_back( ( *itr ).second );
-    report.debug( ( *itr ).second.source_location, "adding to build class [call.name] {}: {}",
-                  to_build_ast.back(), call.name );
-    available_class_decl_parse_trees.erase( itr );
     return true;
+  }
+
+  // If call scope is empty, check if function is a constructor, eg. Foo() -> Foo::Foo
+  // The register_user_function will only register the function in global scope if it _is_ a
+  // constructor.
+  if ( call.scope.global() )
+  {
+    auto scoped_call_name = fmt::format( "{}::{}", call.name, call.name );
+    itr = available_user_function_parse_trees.find( scoped_call_name );
+    if ( itr != available_user_function_parse_trees.end() )
+    {
+      to_build_ast.push_back( ( *itr ).second );
+      report.debug( ( *itr ).second.source_location, "adding to build funct [ctor?] {}: {}",
+                    to_build_ast.back(), scoped_call_name );
+      available_user_function_parse_trees.erase( itr );
+      return true;
+    }
   }
 
   // Check if exists in global scope.
@@ -459,6 +520,23 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
 
   return false;
 }
+
+bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_build_ast,
+                                           const ScopeName& scope )
+{
+  auto itr = available_class_decl_parse_trees.find( scope.string() );
+  if ( itr != available_class_decl_parse_trees.end() )
+  {
+    to_build_ast.push_back( ( *itr ).second );
+    report.debug( ( *itr ).second.source_location, "adding to build class [call.scope] {}: {}",
+                  to_build_ast.back(), scope.string() );
+    available_class_decl_parse_trees.erase( itr );
+    return true;
+  }
+
+  return false;
+}
+
 bool FunctionResolver::resolve_if_existing( const ScopableName& key,
                                             std::shared_ptr<FunctionLink>& function_link )
 {
@@ -469,6 +547,22 @@ bool FunctionResolver::resolve_if_existing( const ScopableName& key,
     function_link->link_to( resolved_function );
     report.debug( function_link->source_location, "linking {} to {}::{} @ {}", key.string(),
                   resolved_function->scope, resolved_function->name, (void*)resolved_function );
+    return true;
+  }
+
+  return false;
+}
+
+bool FunctionResolver::resolve_if_existing( const ScopeName& scope,
+                                            std::shared_ptr<ClassLink>& class_link )
+{
+  auto resolved_class = check_existing( scope );
+
+  if ( resolved_class )
+  {
+    class_link->link_to( resolved_class );
+    report.debug( class_link->source_location, "linking class {} to {} @ {}", scope.string(),
+                  resolved_class->name, (void*)resolved_class );
     return true;
   }
 

@@ -14,9 +14,13 @@ Describes the type of a user function. In the following snippet:
 
     function AnotherStaticFunction() endfunction
 
-`Dog` is a Constructor function, `eat` is a Method user function, and `StaticFunction` and
-`AnotherStaticFunction` are Static functions.
+`Dog` is a Constructor function, `eat` is a Method user function, and
+`StaticFunction` and `AnotherStaticFunction` are Static functions.
 
+`Super` is a compiler-generated function, created when encountering a `super()`
+call inside a constructor. A Super function call Constructor functionss
+explicitly passing a `this`, whereas regularly a Constructor function call will
+_generate_ a `this` argument.
  */
 enum class UserFunctionType
 {
@@ -24,6 +28,7 @@ enum class UserFunctionType
   Static,
   Constructor,
   Method,
+  Super,
 };
 
 }  // namespace Pol::Bscript::Compiler

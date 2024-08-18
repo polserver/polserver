@@ -9,7 +9,7 @@
 namespace Pol::Bscript::Compiler
 {
 FunctionParameterDeclaration::FunctionParameterDeclaration(
-    const SourceLocation& source_location, std::string name, bool byref, bool unused, bool rest,
+    const SourceLocation& source_location, ScopableName name, bool byref, bool unused, bool rest,
     std::unique_ptr<Expression> default_value )
     : Node( source_location, std::move( default_value ) ),
       name( std::move( name ) ),
@@ -20,7 +20,7 @@ FunctionParameterDeclaration::FunctionParameterDeclaration(
 }
 
 FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation& source_location,
-                                                            std::string name, bool byref,
+                                                            ScopableName name, bool byref,
                                                             bool unused, bool rest )
     : Node( source_location ),
       name( std::move( name ) ),
@@ -37,7 +37,7 @@ void FunctionParameterDeclaration::accept( NodeVisitor& visitor )
 
 void FunctionParameterDeclaration::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "function-parameter-declaration({}", name );
+  fmt::format_to( std::back_inserter( w ), "function-parameter-declaration({}", name.string() );
   if ( rest )
     w += "...";
   if ( byref )

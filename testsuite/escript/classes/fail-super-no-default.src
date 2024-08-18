@@ -1,0 +1,25 @@
+class A()
+  function A( this, a0 )
+  endfunction
+endclass
+
+class B(A)
+  function B( this, b0 )
+    super();
+  endfunction
+endclass
+
+class C(A)
+  function C( this, c0 )
+    super();
+  endfunction
+endclass
+
+class D(B, C)
+  function D( this, d0 )
+    super();
+  endfunction
+endclass
+
+var obj := D( "foo" );
+print(obj);

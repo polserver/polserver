@@ -1,0 +1,9 @@
+foo::super called i=2
+funcexpr called i=2
+--
+foo::super called i=1
+funcexpr called i=1
+--
+foo::super called i=0
+funcexpr called i=0
+--

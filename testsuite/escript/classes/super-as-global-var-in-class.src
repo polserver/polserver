@@ -1,0 +1,27 @@
+// A non-child class can define a super method function that accesses a global variable named super.
+
+var super := @(i){ print( $"funcexpr called i={i}"); };
+
+class Foo()
+    function Foo( this )
+    endfunction
+
+    function super( this, i )
+        print( $"foo::super called i={i}" );
+
+        // Execute super as a global variable
+        ::super( i );
+
+        print( "--" );
+        if ( i == 0 )
+            return;
+        endif
+
+        super( this, i - 1 );
+    endfunction
+endclass
+
+var obj := Foo();
+
+// TODO cange to obj.super() when executor implementation complete
+Foo::super( obj, 2 );
