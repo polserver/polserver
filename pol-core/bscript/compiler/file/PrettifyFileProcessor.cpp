@@ -123,9 +123,11 @@ std::string PrettifyFileProcessor::prettify() const
 
 antlrcpp::Any PrettifyFileProcessor::visitVarStatement( EscriptParser::VarStatementContext* ctx )
 {
+  _currentscope |= FmtToken::Scope::VAR;
   addToken( "var", ctx->VAR(), FmtToken::SPACE, FmtContext::VAR_STATEMENT );
   visitVariableDeclarationList( ctx->variableDeclarationList() );
   addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  _currentscope &= ~FmtToken::Scope::VAR;
   linebuilder.buildLine( _currident );
   return {};
 }
@@ -179,6 +181,8 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
 
   if ( auto variable_declaration_initializer = ctx->variableDeclarationInitializer() )
   {
+    _currentscope |= FmtToken::Scope::VAR;
+
     if ( auto assign = variable_declaration_initializer->ASSIGN() )
       addToken( ":=", assign, linebuilder.assignmentStyle() );
 
@@ -186,6 +190,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
       visitExpression( expression );
     else if ( auto arr = variable_declaration_initializer->ARRAY() )
       addToken( "array", arr, FmtToken::SPACE );
+    _currentscope &= ~FmtToken::Scope::VAR;
   }
   return {};
 }
@@ -314,9 +319,11 @@ antlrcpp::Any PrettifyFileProcessor::visitExplicitArrayInitializer(
     EscriptParser::ExplicitArrayInitializerContext* ctx )
 {
   ++_currentgroup;
+  _currentscope |= FmtToken::Scope::ARRAY;
   addToken( "array", ctx->ARRAY(), FmtToken::SPACE );
   if ( auto init = ctx->arrayInitializer() )
     visitArrayInitializer( init );
+  _currentscope &= ~FmtToken::Scope::ARRAY;
   --_currentgroup;
   return {};
 }
@@ -352,9 +359,11 @@ antlrcpp::Any PrettifyFileProcessor::visitExplicitDictInitializer(
     EscriptParser::ExplicitDictInitializerContext* ctx )
 {
   ++_currentgroup;
+  _currentscope |= FmtToken::Scope::DICT;
   addToken( "dictionary", ctx->DICTIONARY(), FmtToken::SPACE );
   if ( auto init = ctx->dictInitializer() )
     visitDictInitializer( init );
+  _currentscope &= ~FmtToken::Scope::DICT;
   --_currentgroup;
   return {};
 }
@@ -398,6 +407,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExplicitErrorInitializer(
 antlrcpp::Any PrettifyFileProcessor::visitBareArrayInitializer(
     EscriptParser::BareArrayInitializerContext* ctx )
 {
+  _currentscope |= FmtToken::Scope::ARRAY;
   addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() & ~FmtToken::ATTACHED );
   ++_currentgroup;
   size_t curcount = linebuilder.currentTokens().size();
@@ -405,6 +415,7 @@ antlrcpp::Any PrettifyFileProcessor::visitBareArrayInitializer(
     visitExpressionList( expr );
   --_currentgroup;
   addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
+  _currentscope &= ~FmtToken::Scope::ARRAY;
   return {};
 }
 
@@ -412,9 +423,11 @@ antlrcpp::Any PrettifyFileProcessor::visitExplicitStructInitializer(
     EscriptParser::ExplicitStructInitializerContext* ctx )
 {
   ++_currentgroup;
+  _currentscope |= FmtToken::Scope::STRUCT;
   addToken( "struct", ctx->STRUCT(), FmtToken::SPACE );
   if ( auto init = ctx->structInitializer() )
     visitStructInitializer( init );
+  _currentscope &= ~FmtToken::Scope::STRUCT;
   --_currentgroup;
   return {};
 }
@@ -486,6 +499,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     case EscriptLexer::MUL_ASSIGN:
     case EscriptLexer::DIV_ASSIGN:
     case EscriptLexer::MOD_ASSIGN:
+      _currentscope |= FmtToken::Scope::VAR;  // matches with visitStatement
       style = linebuilder.assignmentStyle();
       break;
     case EscriptLexer::TOK_IN:
@@ -661,6 +675,7 @@ antlrcpp::Any PrettifyFileProcessor::visitForStatement( EscriptParser::ForStatem
 antlrcpp::Any PrettifyFileProcessor::visitFunctionCall( EscriptParser::FunctionCallContext* ctx )
 {
   make_identifier( ctx->IDENTIFIER() );
+  _currentscope |= FmtToken::Scope::FUNCTION;
 
   addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
 
@@ -669,6 +684,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionCall( EscriptParser::FunctionC
     visitExpressionList( args );
 
   addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  _currentscope &= ~FmtToken::Scope::FUNCTION;
   return {};
 }
 antlrcpp::Any PrettifyFileProcessor::visitFunctionDeclaration(
@@ -1207,6 +1223,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStatement( EscriptParser::StatementCon
     visitExpression( expression );
 
     addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+    _currentscope &= ~FmtToken::Scope::VAR;  // matches with assignment inside of visitExpression
     linebuilder.buildLine( _currident );
     return {};
   }
@@ -1295,8 +1312,8 @@ antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNo
 void PrettifyFileProcessor::addToken( std::string&& text, const Position& pos, int style,
                                       size_t token_type, FmtContext context )
 {
-  linebuilder.addPart(
-      { std::forward<std::string>( text ), pos, style, _currentgroup, token_type, context } );
+  linebuilder.addPart( { std::forward<std::string>( text ), pos, style, _currentgroup, token_type,
+                         context, _currentscope } );
 }
 void PrettifyFileProcessor::addToken( std::string&& text, antlr4::tree::TerminalNode* terminal,
                                       int style, FmtContext context )
@@ -1409,6 +1426,23 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
       info.text = comment->getText();
       info.token_type = comment->getType();
       info.style = FmtToken::SPACE;
+      // replace tabs with spaces if not active
+      if ( !compilercfg.FormatterUseTabs )
+      {
+        auto it = info.text.find( '\t' );
+        while ( it != std::string::npos )
+        {
+          // replacing tabs inbetween is a bit more complicated...
+          // the size is based on the next tabstop which is eg 4
+          // if its multiline we need to calc it based on the last newline
+          auto lastnewline = info.text.find_last_of( '\n', it );
+          if ( lastnewline == std::string::npos )
+            lastnewline = 0;
+          auto delta = ( it - lastnewline ) % compilercfg.FormatterTabWidth;
+          info.text.replace( it, 1, std::string( compilercfg.FormatterTabWidth - delta, ' ' ) );
+          it = info.text.find( '\t' );
+        }
+      }
       if ( info.token_type == EscriptLexer::LINE_COMMENT )
       {
         info.context = FmtContext::LINE_COMMENT;
@@ -1427,26 +1461,11 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
         }
         else
         {
-          if ( info.text[firstchar] == '/' || info.text.back() == '/' )
-          {
-            // assuming its //    // -> keep it
-            info.text = std::string( "//" ) + info.text;
-          }
+          // add space if non is there
+          if ( info.text.front() != ' ' )
+            info.text = std::string( "// " ) + info.text;
           else
-          {
-            // if its at the line start and line before was also a comment dont trim whitespaces
-            // (could be a header comment)
-            if ( startpos.start.character_column == 1 && !comments.empty() &&
-                 comments.back().pos.line_number == startpos.start.line_number - 1 )
-            {
-              info.text = std::string( "//" ) + info.text;
-            }
-            else
-            {
-              info.text.erase( 0, firstchar );  // remove remaining whitespace
-              info.text = std::string( "// " ) + info.text;
-            }
-          }
+            info.text = std::string( "//" ) + info.text;
         }
         auto lastchar = info.text.find_last_not_of( ' ' );
         info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
@@ -1482,10 +1501,16 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
           if ( rawtext[ri] == '\r' && ri + 1 < rawtext.size() && rawtext[ri + 1] == '\n' )
           {
             ++ri;
+            auto lastchar = info.text.find_last_not_of( ' ' );
+            info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
             info.text += compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n";
           }
           else if ( rawtext[ri] == '\r' || rawtext[ri] == '\n' )
+          {
+            auto lastchar = info.text.find_last_not_of( ' ' );
+            info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
             info.text += compilercfg.FormatterWindowsLineEndings ? "\r\n" : "\n";
+          }
           else
             info.text += rawtext[ri];
         }

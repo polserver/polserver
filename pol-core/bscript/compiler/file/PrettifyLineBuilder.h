@@ -13,9 +13,12 @@ namespace Pol::Bscript::Compiler
 enum class FmtContext
 {
   NONE = 0,
+  LINE_COMMENT,
+  COMMENT,
   VAR_STATEMENT,
   VAR_COMMA,
 
+  // unused:
   KEYWORD,  // space
   KEYWORD_BREAKING,
   LITERAL,
@@ -49,8 +52,6 @@ enum class FmtContext
   INTER_STRING_PART,
   INTER_STRING_END,
 
-  LINE_COMMENT,
-  COMMENT,
 };
 
 // structure to hold one token as string
@@ -67,23 +68,35 @@ struct FmtToken
     PREFERRED_BREAK_LOGICAL = 32,  // preferred linebreak eg &&
     PREFERRED_BREAK_VAR = 64,
   };
+  enum class Scope : uint8_t
+  {
+    NONE = 0,
+    VAR = 1,
+    FUNCTION = 2,
+    ARRAY = 4,
+    STRUCT = 8,
+    DICT = 16,
+  };
   std::string text = {};
   Position pos = {};
   Position pos_end = {};
   int style = 0;
   size_t group = 0;
+  size_t firstgroup = 0;  // internally set
   size_t token_type = 0;
   FmtContext context = FmtContext::NONE;
+  Scope scope = Scope::NONE;
   FmtToken() = default;
   FmtToken( std::string&& text, const Position& pos, int style, size_t group, size_t token_type,
-            FmtContext context )
+            FmtContext context, Scope scope )
       : text( std::move( text ) ),
         pos( pos ),
         pos_end( pos ),
         style( style ),
         group( group ),
         token_type( token_type ),
-        context( context ){};
+        context( context ),
+        scope( scope ){};
 };
 
 class PrettifyLineBuilder
@@ -127,17 +140,46 @@ private:
   std::string identSpacing() const;
   std::string alignmentSpacing( size_t count ) const;
   void stripline( std::string& line ) const;
-  // TODO needs also context, simply use a merged FmtToken?
-  // <splitted string, groupid, firstgroup, style>
-  using LineSplit = std::tuple<std::string, size_t, size_t, int>;
-  std::vector<LineSplit> buildLineSplits();
-  std::vector<std::string> createBasedOnGroups( const std::vector<LineSplit>& lines ) const;
-  std::vector<std::string> createBasedOnPreferredBreaks( const std::vector<LineSplit>& lines,
+
+  std::vector<FmtToken> buildLineSplits();
+  std::vector<std::string> createBasedOnGroups( const std::vector<FmtToken>& lines ) const;
+  std::vector<std::string> createBasedOnPreferredBreaks( const std::vector<FmtToken>& lines,
                                                          bool logical ) const;
-  std::vector<std::string> createSimple( const std::vector<LineSplit>& lines ) const;
+  std::vector<std::string> createSimple( const std::vector<FmtToken>& lines ) const;
   void parenthesisAlign( const std::vector<std::string>& finallines, size_t alignmentspace,
                          std::string& line ) const;
+  bool binPack( const FmtToken& part, std::string line, size_t index,
+                const std::vector<FmtToken>& lines, bool only_single_line,
+                std::vector<std::string>* finallines, std::map<size_t, size_t>* alignmentspace,
+                size_t* skipindex ) const;
+  void alignComments( std::vector<std::string>& finallines );
 };
+
+// operator for enum bitflag handling
+constexpr enum FmtToken::Scope operator~( const enum FmtToken::Scope a )
+{
+  return static_cast<enum FmtToken::Scope>( ~static_cast<uint8_t>( a ) );
+}
+constexpr enum FmtToken::Scope operator|( const enum FmtToken::Scope a,
+                                          const enum FmtToken::Scope b )
+{
+  return static_cast<enum FmtToken::Scope>( static_cast<uint8_t>( a ) | static_cast<uint8_t>( b ) );
+}
+constexpr enum FmtToken::Scope operator&( const enum FmtToken::Scope a,
+                                          const enum FmtToken::Scope b )
+{
+  return static_cast<enum FmtToken::Scope>( static_cast<uint8_t>( a ) & static_cast<uint8_t>( b ) );
+}
+constexpr enum FmtToken::Scope& operator|=( enum FmtToken::Scope& a, const enum FmtToken::Scope b )
+{
+  a = a | b;
+  return a;
+}
+constexpr enum FmtToken::Scope& operator&=( enum FmtToken::Scope& a, const enum FmtToken::Scope b )
+{
+  a = a & b;
+  return a;
+}
 }  // namespace Pol::Bscript::Compiler
 
 template <>

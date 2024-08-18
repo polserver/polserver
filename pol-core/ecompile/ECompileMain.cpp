@@ -211,9 +211,10 @@ bool format_file( const char* path )
 
   if ( ext.compare( ".src" ) != 0 && ext.compare( ".inc" ) != 0 && ext.compare( ".em" ) != 0 )
   {
-    compiler_error( "Didn't find '.src', '.inc', or '.em' extension on source filename '{}'!",
-                    path );
-    throw std::runtime_error( "Error in source filename" );
+    compiler_error(
+        "Didn't find '.src', '.inc', or '.em' extension on source filename '{}'! ..Ignoring",
+        path );
+    return true;
   }
 
   if ( !quiet )
