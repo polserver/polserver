@@ -129,11 +129,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
               // 2. The first parameter is named `this`.
               if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
               {
-                // Force a reference to the method so it'll be included in instruction generation +
-                // function table.
-                workspace.function_resolver.force_reference( ScopableName( class_name, func_name ),
-                                                             func_loc );
-
                 // 3. The function name is the same as the class name: constructor
                 if ( func_name == class_name )
                 {
@@ -269,6 +264,17 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
   {
     class_link = std::make_shared<ClassLink>( location_for( *ctx ), class_name );
     workspace.function_resolver.register_class_link( ScopeName( class_name ), class_link );
+    auto cd = class_link->class_declaration();
+
+    // Should never happen, since the only reason this user function can be
+    // visited is because the class has been registered.
+    if ( !cd )
+      class_link->source_location.internal_error( "ClassLink has no ClassDeclaration" );
+
+    // The `methods` object only contains methods, as the constructor is in the `constructor_link`.
+    if ( type == UserFunctionType::Method )
+      workspace.function_resolver.register_function_link( ScopableName( class_name, name ),
+                                                          cd->methods[name] );
   }
 
   return std::make_unique<UserFunction>( location_for( *ctx ), exported, expression, type,
