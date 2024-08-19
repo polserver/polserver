@@ -60,7 +60,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
   std::vector<std::shared_ptr<ClassLink>> base_classes;
-  std::vector<std::string> function_names;
+  std::vector<std::string> method_names;
   bool has_ctor = false;
   bool is_child = false;
 
@@ -116,24 +116,31 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
                                                                           func_decl );
         }
 
-        function_names.push_back( func_name );
 
         // Check if the function is a constructor:
-        // 1. The function name is the same as the class name.
-        if ( func_name == class_name )
+        // 1. The function has parameters.
+        if ( auto param_list = func_decl->functionParameters()->functionParameterList() )
         {
-          // 2. The function has parameters.
-          if ( auto param_list = func_decl->functionParameters()->functionParameterList() )
           {
             for ( auto param : param_list->functionParameter() )
             {
               std::string parameter_name = text( param->IDENTIFIER() );
 
-              // 3. The first parameter is named `this`.
+              // 2. The first parameter is named `this`.
               if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
               {
-                has_ctor = true;
+                // 3. The function name is the same as the class name: constructor
+                if ( func_name == class_name )
+                {
+                  has_ctor = true;
+                }
+                // 3b. Otherwise: method
+                else
+                {
+                  method_names.push_back( func_name );
+                }
               }
+
               break;
             }
           }
@@ -161,7 +168,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
 
   auto class_decl = std::make_unique<ClassDeclaration>(
-      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( function_names ),
+      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( method_names ),
       class_body, std::move( base_classes ) );
 
   // Only register the ClassDeclaration's ctor FunctionLink if there _is_ a ctor.
@@ -257,6 +264,17 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
   {
     class_link = std::make_shared<ClassLink>( location_for( *ctx ), class_name );
     workspace.function_resolver.register_class_link( ScopeName( class_name ), class_link );
+    auto cd = class_link->class_declaration();
+
+    // Should never happen, since the only reason this user function can be
+    // visited is because the class has been registered.
+    if ( !cd )
+      class_link->source_location.internal_error( "ClassLink has no ClassDeclaration" );
+
+    // The `methods` object only contains methods, as the constructor is in the `constructor_link`.
+    if ( type == UserFunctionType::Method )
+      workspace.function_resolver.register_function_link( ScopableName( class_name, name ),
+                                                          cd->methods[name] );
   }
 
   return std::make_unique<UserFunction>( location_for( *ctx ), exported, expression, type,

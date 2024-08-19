@@ -246,9 +246,9 @@ void InstructionGenerator::visit_branch_selector( BranchSelector& node )
   }
 }
 
-void InstructionGenerator::visit_class_parameter_list( ClassParameterList& /*node*/ )
+void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
 {
-  // Identifiers for class parameters are not used in the generated code.
+  emitter.register_class_declaration( node, user_function_labels );
 }
 
 void InstructionGenerator::visit_class_instance( ClassInstance& node )

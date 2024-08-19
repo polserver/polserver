@@ -1,6 +1,7 @@
 #ifndef POLSERVER_INSTRUCTIONEMITTER_H
 #define POLSERVER_INSTRUCTIONEMITTER_H
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -32,24 +33,28 @@ class CompiledScript;
 class FlowControlLabel;
 class LocalVariableScopeInfo;
 class ModuleDeclarationRegistrar;
+class ClassDeclaration;
+class ClassDeclarationRegistrar;
 class ModuleFunctionDeclaration;
 class FunctionReferenceRegistrar;
 class UserFunction;
 class Node;
 class Variable;
 class SourceLocation;
+class Report;
 
 class InstructionEmitter
 {
 public:
   InstructionEmitter( CodeSection& code, DataSection& data, DebugStore& debug,
                       ExportedFunctions& exported_functions, ModuleDeclarationRegistrar&,
-                      FunctionReferenceRegistrar& );
+                      FunctionReferenceRegistrar&, ClassDeclarationRegistrar&, Report& );
 
   void initialize_data();
 
   void register_exported_function( FlowControlLabel& label, const std::string& name,
                                    unsigned arguments );
+  void register_class_declaration( ClassDeclaration&, std::map<std::string, FlowControlLabel>& );
 
   unsigned enter_debug_block( const LocalVariableScopeInfo& );
   void set_debug_block( unsigned );
@@ -143,8 +148,10 @@ private:
   ExportedFunctions& exported_functions;
   ModuleDeclarationRegistrar& module_declaration_registrar;
   FunctionReferenceRegistrar& function_reference_registrar;
+  ClassDeclarationRegistrar& class_declaration_registrar;
 
   DebugStore::InstructionInfo debug_instruction_info{};
+  Report& report;
 };
 }  // namespace Pol::Bscript::Compiler
 

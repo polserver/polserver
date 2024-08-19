@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "bscript/compiler/ast/Node.h"
 #include "bscript/compiler/astbuilder/AvailableParseTree.h"
 namespace Pol::Bscript::Compiler
@@ -18,7 +20,7 @@ class ClassDeclaration : public Node
 public:
   ClassDeclaration( const SourceLocation& source_location, std::string name,
                     std::unique_ptr<ClassParameterList> parameters,
-                    std::vector<std::string> function_names, Node* body,
+                    const std::vector<std::string>& method_names, Node* body,
                     std::vector<std::shared_ptr<ClassLink>> base_classes );
 
   void accept( NodeVisitor& visitor ) override;
@@ -26,7 +28,10 @@ public:
   std::vector<std::reference_wrapper<ClassParameterDeclaration>> parameters();
 
   const std::string name;
-  std::vector<std::string> function_names;
+
+  // Only contains functions that are `UserFunctionType::Method`, ie. a first
+  // `this` parameter and not a constructor.
+  std::map<std::string, std::shared_ptr<FunctionLink>, Clib::ci_cmp_pred> methods;
 
   // Owned by top_level_statements
   Node* class_body;
