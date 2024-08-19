@@ -125,6 +125,7 @@ public:
 
   void markPackableLineStart();
   void markPackableLineEnd();
+  void alignSingleLineSwitchStatements( size_t start );
 
 private:
   std::vector<std::string> _rawlines = {};

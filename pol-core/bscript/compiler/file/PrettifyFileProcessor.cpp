@@ -811,11 +811,13 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement( EscriptParser::CaseStat
   addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
   linebuilder.buildLine( _currindent );
   ++_currindent;
+  size_t start = linebuilder.formattedLines().size();
   for ( const auto& switchBlockStatementGroup : ctx->switchBlockStatementGroup() )
   {
     visitSwitchBlockStatementGroup( switchBlockStatementGroup );
   }
   --_currindent;
+  linebuilder.alignSingleLineSwitchStatements( start );
   addToken( "endcase", ctx->ENDCASE(), FmtToken::SPACE | FmtToken::BREAKPOINT );
   linebuilder.buildLine( _currindent );
   return {};

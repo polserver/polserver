@@ -128,7 +128,7 @@ void PrettifyLineBuilder::mergeComments()
     if ( _comments.front().pos.line_number == _line_parts.back().pos.line_number &&
          _comments.front().pos.token_index <= _line_parts.back().pos.token_index + 1 )
     {
-      _packableline_allowed = false;
+      // no disable of packableline since its at the end
       addPart( _comments.front() );
       _comments.erase( _comments.begin() );
     }
@@ -190,7 +190,8 @@ std::vector<FmtToken> PrettifyLineBuilder::buildLineSplits()
         }
       }
     }
-    if ( _line_parts[i].style & FmtToken::FORCED_BREAK )
+    // if a forced break does not appear at the end disallow merging the lines
+    if ( _line_parts[i].style & FmtToken::FORCED_BREAK && i < _line_parts.size() - 1 )
       _packableline_allowed = false;
     if ( _line_parts[i].style & FmtToken::FORCED_BREAK ||
          ( has_varcomma && ( _line_parts[i].context == FmtContext::VAR_STATEMENT ||
@@ -605,7 +606,8 @@ void PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& fina
            line;
     // if its a operator eg +/- align the actual "data" so subtract 2
     auto space = line.find_first_not_of( " \t" );
-    if ( space != std::string::npos && space + 1 < line.size() && line[space + 1] == ' ' )
+    if ( space != std::string::npos && space > 1 && space + 1 < line.size() &&
+         line[space + 1] == ' ' )
     {
       // TODO tabs...
       if ( !compilercfg.FormatterUseTabs )
@@ -669,9 +671,10 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
     if ( ( line.size() + ( l.size() * 0.75 ) ) > compilercfg.FormatterLineWidth )
     {
       // TODO if next is linecomment dont split now, but split comment
-      stripline( line );
-      if ( !line.empty() )  // line contained only alignment
+      auto space = line.find_first_not_of( " \t" );
+      if ( space != std::string::npos )  // line contained only alignment
       {
+        stripline( line );
         if ( !logical )
           parenthesisAlign( finallines, alignmentspace, line );
         finallines.emplace_back( std::move( line ) );
@@ -1061,6 +1064,48 @@ void PrettifyLineBuilder::markPackableLineStart()
 void PrettifyLineBuilder::markPackableLineEnd()
 {
   _packablelineend = true;
+}
+
+void PrettifyLineBuilder::alignSingleLineSwitchStatements( size_t start )
+{
+  std::vector<size_t> statementstart;
+  // collect label end
+  for ( size_t i = start; i < _lines.size(); ++i )
+  {
+    auto labelend = _lines[i].find( ":" );
+    if ( labelend == std::string::npos )
+    {
+      statementstart.push_back( 0 );
+      continue;
+    }
+    // TODO guessing game..
+    if ( _lines[i].find( "//" ) < labelend || _lines[i].find( "/*" ) < labelend ||
+         _lines[i].find( ":=" ) <= labelend )
+    {
+      statementstart.push_back( 0 );
+      continue;
+    }
+    auto statement = _lines[i].find_first_not_of( " \t", labelend + 1 );
+    if ( statement == std::string::npos )
+    {
+      statementstart.push_back( 0 );
+      continue;
+    }
+
+    statementstart.push_back( statement );
+  }
+  if ( statementstart.empty() )
+    return;
+
+  auto max = *std::max_element( statementstart.begin(), statementstart.end() );
+  if ( max == 0 )
+    return;
+  for ( size_t i = start; i < _lines.size(); ++i )
+  {
+    if ( !statementstart[i - start] || max == statementstart[i - start] )
+      continue;
+    _lines[i].insert( statementstart[i - start], max - statementstart[i - start], ' ' );
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler
