@@ -125,6 +125,7 @@ public:
 
   void markPackableLineStart();
   void markPackableLineEnd();
+  void markLastTokensAsSwitchLabel();
   void alignSingleLineSwitchStatements( size_t start );
 
 private:
@@ -136,9 +137,12 @@ private:
   size_t _last_line = 0;
   size_t _currindent = 0;
   size_t _currentgroup = 0;
+  // needed for switch label alignment
   size_t _packablelinestart = 0;
   bool _packableline_allowed = false;
   bool _packablelineend = 0;
+  std::vector<std::string> _packable_switch_labels = {};
+
   void mergeRawContent( size_t nextlineno );
   void mergeComments();
   void mergeCommentsBefore( size_t nextlineno );

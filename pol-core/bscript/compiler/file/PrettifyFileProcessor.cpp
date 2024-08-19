@@ -798,6 +798,7 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchLabel( EscriptParser::SwitchLabe
     addToken( "default", defaultctx, FmtToken::SPACE );
 
   addToken( ":", ctx->COLON(), FmtToken::SPACE | FmtToken::ATTACHED | FmtToken::BREAKPOINT );
+  linebuilder.markLastTokensAsSwitchLabel();
   return {};
 }
 

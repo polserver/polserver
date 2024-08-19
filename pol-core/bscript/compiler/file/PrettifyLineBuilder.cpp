@@ -854,7 +854,11 @@ void PrettifyLineBuilder::buildLine( size_t current_indent )
 void PrettifyLineBuilder::packLines()
 {
   if ( !_packableline_allowed || !_packablelineend || !compilercfg.FormatterAllowSingleLines )
+  {
+    if ( !_lines.empty() && _lines.back().find( "//" ) != std::string::npos )
+      _packableline_allowed = false;
     return;
+  }
   _packableline_allowed = false;
   _packablelineend = false;
 
@@ -864,6 +868,8 @@ void PrettifyLineBuilder::packLines()
   {
     auto l = _lines[i];
     // TODO better solution? i dont want to allow multiple small statements in a line
+    // TODO not more then 3 lines? would for switch prevent packing of `blubb: if(blah) return x;
+    // endif`
     count_term += std::count_if( l.begin(), l.end(), []( char c ) { return c == ';'; } );
     stripline( l );
     if ( packedline.empty() )
@@ -1066,45 +1072,73 @@ void PrettifyLineBuilder::markPackableLineEnd()
   _packablelineend = true;
 }
 
+void PrettifyLineBuilder::markLastTokensAsSwitchLabel()
+{
+  if ( _line_parts.size() < 2 )
+    return;
+  _packable_switch_labels.push_back( _line_parts[_line_parts.size() - 2].text +
+                                     _line_parts[_line_parts.size() - 1].text );
+}
 void PrettifyLineBuilder::alignSingleLineSwitchStatements( size_t start )
 {
-  std::vector<size_t> statementstart;
-  // collect label end
+  size_t l_index = 0;
+  std::vector<std::pair<size_t, size_t>> statementstart;
+  std::optional<std::pair<size_t, size_t>> default_start;
+  // collect label starts based on stored labels
+  // default: is collected extra
   for ( size_t i = start; i < _lines.size(); ++i )
   {
-    auto labelend = _lines[i].find( ":" );
+    if ( _packable_switch_labels.size() <= l_index )
+      break;
+    const auto& label = _packable_switch_labels[l_index];
+    auto labelend = _lines[i].find( label );
     if ( labelend == std::string::npos )
-    {
-      statementstart.push_back( 0 );
       continue;
-    }
-    // TODO guessing game..
-    if ( _lines[i].find( "//" ) < labelend || _lines[i].find( "/*" ) < labelend ||
-         _lines[i].find( ":=" ) <= labelend )
+    // there should be only whitespace before (could be in a comment)
+    bool empty{ true };
+    for ( size_t w = 0; w < labelend; ++w )
     {
-      statementstart.push_back( 0 );
-      continue;
+      if ( _lines[i][w] != ' ' && _lines[i][w] != '\t' )
+      {
+        empty = false;
+        break;
+      }
     }
-    auto statement = _lines[i].find_first_not_of( " \t", labelend + 1 );
-    if ( statement == std::string::npos )
-    {
-      statementstart.push_back( 0 );
+    if ( !empty )
       continue;
-    }
 
-    statementstart.push_back( statement );
+    ++l_index;  // ~valid match, so next one
+    // nothing following no need to align or consider as max
+    auto next = _lines[i].find_first_not_of( " \t", labelend + label.size() );
+    if ( next == std::string::npos )
+      continue;
+
+    if ( label == "default:" )
+      default_start = std::make_pair( i, labelend + label.size() );
+    else
+      statementstart.push_back( { i, labelend + label.size() } );
   }
+  _packable_switch_labels.clear();
   if ( statementstart.empty() )
     return;
 
-  auto max = *std::max_element( statementstart.begin(), statementstart.end() );
+  auto max = std::max_element( statementstart.begin(), statementstart.end(),
+                               []( auto& a, auto& b ) { return a.second < b.second; } )
+                 ->second;
   if ( max == 0 )
     return;
-  for ( size_t i = start; i < _lines.size(); ++i )
+  for ( auto& [line, pos] : statementstart )
   {
-    if ( !statementstart[i - start] || max == statementstart[i - start] )
+    if ( pos == max )
       continue;
-    _lines[i].insert( statementstart[i - start], max - statementstart[i - start], ' ' );
+    _lines[line].insert( pos, max - pos, ' ' );
+  }
+  // we have a default, but only align it if its not the "biggest"
+  if ( default_start )
+  {
+    if ( max > default_start->second )
+      _lines[default_start->first].insert( default_start->second, max - default_start->second,
+                                           ' ' );
   }
 }
 
