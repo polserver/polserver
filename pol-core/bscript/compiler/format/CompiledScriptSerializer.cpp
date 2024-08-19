@@ -4,9 +4,11 @@
 #include <fstream>
 
 #include "StoredToken.h"
+#include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
+#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 #include "clib/clib.h"
@@ -111,6 +113,46 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       bfr.capture_count = elem.capture_count();
       bfr.is_variadic = elem.is_variadic();
       ofs.write( reinterpret_cast<const char*>( &bfr ), sizeof bfr );
+    }
+  }
+
+  if ( !compiled_script.class_descriptors.empty() )
+  {
+    BSCRIPT_CLASS_TABLE bct{};
+    sechdr.type = BSCRIPT_SECTION_CLASS_TABLE;
+    sechdr.length = static_cast<unsigned int>( sizeof bct );
+    ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );
+
+    bct.class_count = static_cast<unsigned int>( compiled_script.class_descriptors.size() );
+    ofs.write( reinterpret_cast<const char*>( &bct ), sizeof bct );
+
+    // For each class...
+    for ( const auto& elem : compiled_script.class_descriptors )
+    {
+      // Handle class entry
+      BSCRIPT_CLASS_TABLE_ENTRY bcte{};
+      bcte.name_offset = elem.name_offset;
+      bcte.constructor_count = static_cast<unsigned>( elem.constructor_addresses.size() );
+      bcte.method_count = static_cast<unsigned>( elem.methods.size() );
+      ofs.write( reinterpret_cast<const char*>( &bcte ), sizeof bcte );
+
+      // Handle constructors
+      for ( const auto& constructor_address : elem.constructor_addresses )
+      {
+        BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce{};
+        bctce.address = constructor_address;
+        ofs.write( reinterpret_cast<const char*>( &bctce ), sizeof bctce );
+      }
+
+      // Handle methods
+      for ( const auto& method : elem.methods )
+      {
+        BSCRIPT_CLASS_TABLE_METHOD_ENTRY bctme{};
+        bctme.name_offset = method.name_offset;
+        bctme.address = method.address;
+        bctme.function_reference_index = method.function_reference_index;
+        ofs.write( reinterpret_cast<const char*>( &bctme ), sizeof bctme );
+      }
     }
   }
 }

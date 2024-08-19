@@ -126,7 +126,7 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
   if ( report.error_count() )
     return;
 
-  output = generate( std::move( workspace ) );
+  output = generate( std::move( workspace ), report );
 }
 
 bool Compiler::format_file( const std::string& filename, bool is_module, bool inplace )
@@ -192,10 +192,11 @@ void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
   profile.analyze_micros += timer.ellapsed().count();
 }
 
-std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWorkspace> workspace )
+std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWorkspace> workspace,
+                                                    Report& report )
 {
   Pol::Tools::HighPerfTimer codegen_timer;
-  auto compiled_script = CodeGenerator::generate( std::move( workspace ) );
+  auto compiled_script = CodeGenerator::generate( std::move( workspace ), report );
   profile.codegen_micros += codegen_timer.ellapsed().count();
   return compiled_script;
 }

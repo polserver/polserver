@@ -6,6 +6,7 @@
 
 #include <cstdio>
 #include <exception>
+#include <map>
 #include <string>
 
 #include "../clib/logfacility.h"
@@ -117,6 +118,14 @@ int EScriptProgram::read( const char* fname )
         {
           ERROR_PRINTLN( "Error loading script {}: error reading function references section",
                          fname );
+          fclose( fp );
+          return -1;
+        }
+        break;
+      case BSCRIPT_SECTION_CLASS_TABLE:
+        if ( read_class_table( fp ) )
+        {
+          ERROR_PRINTLN( "Error loading script {}: error reading class table section", fname );
           fclose( fp );
           return -1;
         }
@@ -423,6 +432,50 @@ int EScriptProgram::read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr
     fr.is_variadic = bfr.is_variadic;
 
     function_references.push_back( fr );
+  }
+  return 0;
+}
+
+int EScriptProgram::read_class_table( FILE* fp )
+{
+  BSCRIPT_CLASS_TABLE bct;
+  if ( fread( &bct, sizeof bct, 1, fp ) != 1 )
+    return -1;
+
+  // For each class...
+  while ( bct.class_count-- )
+  {
+    // Handle class
+    BSCRIPT_CLASS_TABLE_ENTRY bcte;
+    if ( fread( &bcte, sizeof bcte, 1, fp ) != 1 )
+      return -1;
+
+    // Handle constructors
+    std::vector<unsigned> constructor_addresses;
+    constructor_addresses.resize( bcte.constructor_count );
+
+    while ( bcte.constructor_count-- )
+    {
+      BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce;
+      if ( fread( &bctce, sizeof bctce, 1, fp ) != 1 )
+        return -1;
+      constructor_addresses.push_back( bctce.address );
+    }
+
+    // Handle methods
+    EPMethodMap methods;
+    while ( bcte.method_count-- )
+    {
+      BSCRIPT_CLASS_TABLE_METHOD_ENTRY bctme;
+      if ( fread( &bctme, sizeof bctme, 1, fp ) != 1 )
+        return -1;
+
+      methods[bctme.name_offset] =
+          EPMethodDescriptor{ bctme.address, bctme.function_reference_index };
+    }
+
+    class_descriptors.push_back( EPClassDescriptor{
+        bcte.name_offset, std::move( constructor_addresses ), std::move( methods ) } );
   }
   return 0;
 }

@@ -218,6 +218,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ValueBuilder.h
   compiler/codegen/CaseDispatchGroupVisitor.cpp
   compiler/codegen/CaseDispatchGroupVisitor.h
+  compiler/codegen/ClassDeclarationRegistrar.cpp
+  compiler/codegen/ClassDeclarationRegistrar.h
   compiler/codegen/CaseJumpDataBlock.cpp
   compiler/codegen/CaseJumpDataBlock.h
   compiler/codegen/CodeEmitter.cpp
@@ -302,6 +304,8 @@ set (bscript_sources    # sorted !
   compiler/optimizer/UnaryOperatorOptimizer.h
   compiler/optimizer/ValueConsumerOptimizer.cpp
   compiler/optimizer/ValueConsumerOptimizer.h
+  compiler/representation/ClassDescriptor.cpp
+  compiler/representation/ClassDescriptor.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/DebugBlock.cpp
@@ -312,6 +316,8 @@ set (bscript_sources    # sorted !
   compiler/representation/ExportedFunction.h
   compiler/representation/FunctionReferenceDescriptor.cpp
   compiler/representation/FunctionReferenceDescriptor.h
+  compiler/representation/MethodDescriptor.cpp
+  compiler/representation/MethodDescriptor.h
   compiler/representation/ModuleDescriptor.cpp
   compiler/representation/ModuleDescriptor.h
   compiler/representation/ModuleFunctionDescriptor.cpp
