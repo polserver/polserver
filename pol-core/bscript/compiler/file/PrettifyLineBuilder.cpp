@@ -864,12 +864,15 @@ void PrettifyLineBuilder::packLines()
 
   std::string packedline;
   size_t count_term = 0;
+  // 3 lines max
+  // for case its "label: blubb; break;
+  // for funcrefs its @(){ blubb; };
+  if ( _lines.size() - _packablelinestart >= 4 )
+    return;
   for ( size_t i = _packablelinestart; i < _lines.size(); ++i )
   {
     auto l = _lines[i];
     // TODO better solution? i dont want to allow multiple small statements in a line
-    // TODO not more then 3 lines? would for switch prevent packing of `blubb: if(blah) return x;
-    // endif`
     count_term += std::count_if( l.begin(), l.end(), []( char c ) { return c == ';'; } );
     stripline( l );
     if ( packedline.empty() )
