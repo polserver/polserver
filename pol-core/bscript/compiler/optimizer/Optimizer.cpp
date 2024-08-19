@@ -41,9 +41,11 @@ void Optimizer::optimize( CompilerWorkspace& workspace,
   workspace.accept( *this );
 
   std::vector<UserFunction*> all_user_functions;
-  if ( user_function_inclusion == UserFunctionInclusion::All )
+  for ( auto& user_function : workspace.user_functions )
   {
-    for ( auto& user_function : workspace.user_functions )
+    if ( user_function_inclusion == UserFunctionInclusion::All ||
+         user_function->type == UserFunctionType::Method ||
+         user_function->type == UserFunctionType::Constructor )
     {
       all_user_functions.push_back( user_function.get() );
     }
@@ -66,9 +68,10 @@ void Optimizer::optimize( CompilerWorkspace& workspace,
   {
     gatherer.reference( uf );
   }
-  if ( user_function_inclusion == UserFunctionInclusion::All )
+  for ( auto& uf : all_user_functions )
   {
-    for ( auto& uf : all_user_functions )
+    if ( user_function_inclusion == UserFunctionInclusion::All ||
+         uf->type == UserFunctionType::Method || uf->type == UserFunctionType::Constructor )
     {
       gatherer.reference( uf );
     }

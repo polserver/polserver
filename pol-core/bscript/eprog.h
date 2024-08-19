@@ -9,11 +9,13 @@
 #define BSCRIPT_EPROG_H
 
 #include <iosfwd>
+#include <map>
 #include <stdio.h>
 #include <string>
 #include <vector>
 
 #include "../clib/boostutils.h"
+#include "../clib/maputil.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "executortype.h"
@@ -89,6 +91,23 @@ struct EPFunctionReference
   }
 };
 
+struct EPMethodDescriptor
+{
+  unsigned address;
+  unsigned function_reference_index;
+};
+
+using EPConstructorList = std::vector<unsigned>;
+
+using EPMethodMap = std::map<unsigned /* name_offset */, EPMethodDescriptor>;
+
+struct EPClassDescriptor
+{
+  unsigned name_offset;
+  EPConstructorList constructor_addresses;
+  EPMethodMap methods;
+};
+
 struct EPDbgFunction
 {
   std::string name;
@@ -132,6 +151,7 @@ public:
   int read_globalvarnames( FILE* fp );
   int read_exported_functions( FILE* fp, BSCRIPT_SECTION_HDR* hdr );
   int read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr );
+  int read_class_table( FILE* fp );
   int _readToken( Token& token, unsigned position ) const;
   int create_instructions();
 
@@ -146,6 +166,7 @@ public:
 
   std::vector<EPExportedFunction> exported_functions;
   std::vector<EPFunctionReference> function_references;
+  std::vector<EPClassDescriptor> class_descriptors;
 
   // executor only:
   unsigned short version;

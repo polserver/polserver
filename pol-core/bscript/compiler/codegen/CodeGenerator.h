@@ -10,11 +10,13 @@ class CompilerWorkspace;
 class FunctionReferenceRegistrar;
 class InstructionEmitter;
 class ModuleDeclarationRegistrar;
+class Report;
 
 class CodeGenerator
 {
 public:
-  static std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace> );
+  static std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace>,
+                                                   Report& report );
 
 private:
   CodeGenerator( InstructionEmitter&, ModuleDeclarationRegistrar& );

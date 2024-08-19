@@ -3,9 +3,11 @@
 #include <fmt/format.h>
 #include <fstream>
 
+#include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/DebugBlock.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
+#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
@@ -136,6 +138,64 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
                                 function_reference.capture_count(),
                                 function_reference.is_variadic() )
                 << std::endl;
+    }
+  }
+
+  if ( text_ofs && !compiled_script.class_descriptors.empty() )
+  {
+    // Used if the offset is out-of-bounds (should never really happen)
+    const char* unknown_name = "<unknown name>";
+    int index = 0;
+    *text_ofs << "Class descriptors:\n";
+    for ( const auto& class_descriptor : compiled_script.class_descriptors )
+    {
+      if ( class_descriptor.name_offset >= compiled_script.data.size() )
+      {
+        *text_ofs << "Invalid class descriptor name offset: " << class_descriptor.name_offset
+                  << std::endl;
+        continue;
+      }
+      const char* class_name = class_descriptor.name_offset < compiled_script.data.size()
+                                   ? reinterpret_cast<const char*>( compiled_script.data.data() +
+                                                                    class_descriptor.name_offset )
+                                   : unknown_name;
+
+      // Handle class
+      *text_ofs << fmt::format( " {}: name={}, constructors={}, methods={}", index++, class_name,
+                                class_descriptor.constructor_addresses.size(),
+                                class_descriptor.methods.size() )
+                << std::endl;
+
+      // Handle constructors
+      if ( !class_descriptor.constructor_addresses.empty() )
+      {
+        *text_ofs << "    - Constructor chain:";
+        for ( const auto& constructor_address : class_descriptor.constructor_addresses )
+        {
+          *text_ofs << fmt::format( " {}", constructor_address );
+        }
+        *text_ofs << std::endl;
+      }
+
+      // Handle methods
+      if ( !class_descriptor.methods.empty() )
+      {
+        *text_ofs << "    - Methods:";
+
+        for ( const auto& method_descriptor : class_descriptor.methods )
+        {
+          const char* method_name =
+              method_descriptor.name_offset < compiled_script.data.size()
+                  ? reinterpret_cast<const char*>( compiled_script.data.data() +
+                                                   method_descriptor.name_offset )
+                  : unknown_name;
+
+          *text_ofs << fmt::format( "\n      - {}: PC={} FuncRef={}", method_name,
+                                    method_descriptor.address,
+                                    method_descriptor.function_reference_index );
+        }
+        *text_ofs << std::endl;
+      }
     }
   }
 }
