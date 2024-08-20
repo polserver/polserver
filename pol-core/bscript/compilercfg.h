@@ -62,7 +62,10 @@ struct CompilerConfig
   bool FormatterInsertNewlineAtEOF = false;
   bool FormatterFormatInsideComments = true;
   bool FormatterBracketAttachToType = true;
-  bool FormatterAllowSingleLines = true;
+  bool FormatterAlignTrailingComments = true;
+  bool FormatterAlignConsecutiveShortCaseStatements = true;
+  bool FormatterAllowShortCaseLabelsOnASingleLine = true;
+  bool FormatterAllowShortFuncRefsOnASingleLine = true;
 
   void Read( const std::string& path );
   void SetDefaults();

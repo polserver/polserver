@@ -853,27 +853,26 @@ void PrettifyLineBuilder::buildLine( size_t current_indent )
 
 void PrettifyLineBuilder::packLines()
 {
-  if ( !_packableline_allowed || !_packablelineend || !compilercfg.FormatterAllowSingleLines )
-  {
-    if ( !_lines.empty() && _lines.back().find( "//" ) != std::string::npos )
-      _packableline_allowed = false;
+  if ( !_packableline_allowed || !_packablelineend )
     return;
-  }
   _packableline_allowed = false;
   _packablelineend = false;
 
-  std::string packedline;
-  size_t count_term = 0;
   // 3 lines max
   // for case its "label: blubb; break;
   // for funcrefs its @(){ blubb; };
   if ( _lines.size() - _packablelinestart >= 4 )
     return;
+  std::string packedline;
   for ( size_t i = _packablelinestart; i < _lines.size(); ++i )
   {
     auto l = _lines[i];
-    // TODO better solution? i dont want to allow multiple small statements in a line
-    count_term += std::count_if( l.begin(), l.end(), []( char c ) { return c == ';'; } );
+    if ( l.find( "//" ) != std::string::npos )
+    {
+      // if the line comment is not at the end we cannot pack
+      if ( i < _lines.size() - 1 )
+        return;
+    }
     stripline( l );
     if ( packedline.empty() )
       packedline += l;
@@ -888,9 +887,7 @@ void PrettifyLineBuilder::packLines()
   if ( packedline.empty() )
     return;
 
-  // in funcref means only a single line can be included since it also ends with ';'
-  // case block means 2 statements can be included
-  if ( count_term < 3 && packedline.size() <= compilercfg.FormatterLineWidth )
+  if ( packedline.size() <= compilercfg.FormatterLineWidth )
   {
     _lines.resize( _packablelinestart );
     _lines.push_back( std::move( packedline ) );
@@ -899,6 +896,8 @@ void PrettifyLineBuilder::packLines()
 
 void PrettifyLineBuilder::alignComments( std::vector<std::string>& finallines )
 {
+  if ( !compilercfg.FormatterAlignTrailingComments )
+    return;
   std::vector<size_t> commentstart;
   // collect comment columns
   for ( size_t i = 0; i < finallines.size(); ++i )
@@ -1084,6 +1083,9 @@ void PrettifyLineBuilder::markLastTokensAsSwitchLabel()
 }
 void PrettifyLineBuilder::alignSingleLineSwitchStatements( size_t start )
 {
+  if ( !compilercfg.FormatterAlignConsecutiveShortCaseStatements ||
+       !compilercfg.FormatterAllowShortCaseLabelsOnASingleLine )
+    return;
   size_t l_index = 0;
   std::vector<std::pair<size_t, size_t>> statementstart;
   std::optional<std::pair<size_t, size_t>> default_start;

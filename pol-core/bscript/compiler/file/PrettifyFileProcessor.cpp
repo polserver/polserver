@@ -36,6 +36,9 @@
   // space after/before brackets
   // eg array{ true } vs array{true}
   FormatterBracketSpacing 1
+  // no space between type and opening brackect
+  // eg struct{} vs struct {}
+  FormatterBracketAttachToType 1
   // add space after delimiter comma or semi in for loops
   // eg {1, 2, 3} vs {1,2,3}
   FormatterDelimiterSpacing 1
@@ -54,6 +57,16 @@
   FormatterUseTabs 0
   // tab width
   FormatterTabWidth 4
+  // Insert a newline at end of file if missing
+  FormatterInsertNewlineAtEOF 0
+  // align trailing comments in a statement
+  FormatterAlignTrailingComments 1
+  // short case labels will be contracted to a single line
+  FormatterAllowShortCaseLabelsOnASingleLine 1
+  // short function references will be contracted to a single line
+  FormatterAllowShortFuncRefsOnASingleLine 1
+  // align short case statements needs FormatterAllowShortCaseLabelsOnASingleLine
+  FormatterAlignConsecutiveShortCaseStatements 1
 */
 
 namespace Pol::Bscript::Compiler
@@ -769,14 +782,16 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
     EscriptParser::SwitchBlockStatementGroupContext* ctx )
 {
   if ( ctx->switchLabel().size() == 1 )
-    linebuilder.markPackableLineStart();
+    if ( compilercfg.FormatterAllowShortCaseLabelsOnASingleLine )
+      linebuilder.markPackableLineStart();
   for ( const auto& switchLabel : ctx->switchLabel() )
   {
     visitSwitchLabel( switchLabel );
     linebuilder.buildLine( _currindent );
   }
   visitBlock( ctx->block() );
-  linebuilder.markPackableLineEnd();
+  if ( compilercfg.FormatterAllowShortCaseLabelsOnASingleLine )
+    linebuilder.markPackableLineEnd();
   if ( ctx->switchLabel().size() == 1 )
     linebuilder.buildLine( _currindent );
   return {};
@@ -925,7 +940,8 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
 
   // we want the starting { at the same line and not attached
   addToken( "{", ctx->LBRACE(), linebuilder.openingBracketStyle() & ~FmtToken::ATTACHED );
-  linebuilder.markPackableLineStart();
+  if ( compilercfg.FormatterAllowShortFuncRefsOnASingleLine )
+    linebuilder.markPackableLineStart();
   linebuilder.buildLine( _currindent );  // now start a newline
 
   ++_currentgroup;
@@ -934,7 +950,8 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionExpression(
   --_currentgroup;
 
   addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
-  linebuilder.markPackableLineEnd();
+  if ( compilercfg.FormatterAllowShortFuncRefsOnASingleLine )
+    linebuilder.markPackableLineEnd();
   return {};
 }
 
