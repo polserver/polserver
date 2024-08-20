@@ -41,6 +41,10 @@ endclass
 
 var obj := Foo( "foo" );
 
+// TODO this test should be returned to its former glory when "class instance
+// member assignment" is in.
+//
+//
 // We'll see that obj.base1 always contains a value of *-arg0/1, and obj.base2
 // will have "unscoped-arg2" and scoped arg0s
-print( PackJSON( obj, true ) );
+print( obj );

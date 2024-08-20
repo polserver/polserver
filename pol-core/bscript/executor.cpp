@@ -20,6 +20,7 @@
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "bclassinstance.h"
 #include "berror.h"
 #include "config.h"
 #include "continueimp.h"
@@ -3032,9 +3033,9 @@ void Executor::ins_double( const Instruction& ins )
 }
 
 // TODO skeleton
-void Executor::ins_classinst( const Instruction& /*ins*/ )
+void Executor::ins_classinst( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
+  ValueStack.push_back( BObjectRef( new BClassInstance( prog_, ins.token.dval, Globals2 ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )

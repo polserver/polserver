@@ -64,6 +64,7 @@ class BStruct;
 class BDictionary;
 class BBoolean;
 class BFunctionRef;
+class BClassInstance;
 class BContinuation;
 class BSpread;
 
@@ -128,6 +129,7 @@ public:
     OTFuncRef = 39,
     OTExportScript = 40,
     OTStorageArea = 41,
+    OTClassInstance = 42,
 
     // Used internally only during executor runtime. Can be modified without
     // breaking compatibility.
@@ -411,6 +413,7 @@ T* impptrIf( BObjectImp* objimp )
   impif_e( BObjectImp::OTStruct, BStruct );
   impif_e( BObjectImp::OTBoolean, BBoolean );
   impif_e( BObjectImp::OTFuncRef, BFunctionRef );
+  impif_e( BObjectImp::OTClassInstance, BClassInstance );
   impif_e( BObjectImp::OTContinuation, BContinuation );
   impif_e( BObjectImp::OTSpread, BSpread );
   else static_assert( always_false<T>::value, "unsupported type" );
