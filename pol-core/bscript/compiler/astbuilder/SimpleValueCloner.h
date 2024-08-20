@@ -9,6 +9,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class Expression;
 class Report;
 
 class SimpleValueCloner : private NodeVisitor
@@ -16,7 +17,7 @@ class SimpleValueCloner : private NodeVisitor
 public:
   explicit SimpleValueCloner( Report&, const SourceLocation& );
 
-  std::unique_ptr<Node> clone( Node& );
+  std::unique_ptr<Expression> clone( Expression& );
 
   void visit_array_initializer( ArrayInitializer& ) override;
   void visit_boolean_value( BooleanValue& ) override;
@@ -34,7 +35,7 @@ public:
 
 private:
   Report& report;
-  std::unique_ptr<Node> cloned_value;
+  std::unique_ptr<Expression> cloned_value;
   SourceLocation use_source_location;
 };
 

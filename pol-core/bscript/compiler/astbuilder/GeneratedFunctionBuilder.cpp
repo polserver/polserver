@@ -18,6 +18,7 @@
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/astbuilder/SimpleValueCloner.h"
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopableName.h"
@@ -113,13 +114,38 @@ void GeneratedFunctionBuilder::super_function( std::unique_ptr<SuperFunction>& s
                 std::make_unique<ArrayInitializer>(
                     param.source_location, std::vector<std::unique_ptr<Expression>>() ) ) );
           }
+          // If the base ctor parameter has a default value, our super() function
+          // parameter will have the same default value.
+          else if ( auto default_value = param.default_value() )
+          {
+            SimpleValueCloner cloner( report, default_value->source_location );
+
+            // Value must be cloneable
+            if ( auto final_argument = cloner.clone( *default_value ) )
+            {
+              function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
+                  loc, ScopableName( base_class_ctor->name, param.name.name ), param.byref,
+                  param.unused, false, std::move( final_argument ) ) );
+            }
+            else
+            {
+              report.error( class_declaration->source_location,
+                            "In construction of '{}': Unable to create argument from default for "
+                            "parameter '{}'.\n"
+                            "  See also: {}",
+                            super->scoped_name(), param.name, param.source_location );
+              return;
+            }
+          }
           else
           {
             // This super() alias'ed parameter is a rest parameter if the base
             // ctor's parameter is rest _and_ we can use a rest parameter.
+            auto is_rest_param = param.rest && can_use_rest;
+
             function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
                 loc, ScopableName( base_class_ctor->name, param.name.name ), param.byref,
-                param.unused, param.rest && can_use_rest ) );
+                param.unused, is_rest_param ) );
           }
         }
 
