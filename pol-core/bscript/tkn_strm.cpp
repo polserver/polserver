@@ -370,7 +370,7 @@ void Token::printOn( std::ostream& os ) const
     os << "struct";
     break;
   case TOK_CLASSINST:
-    os << "class instance";
+    os << "class instance #" << lval;
     break;
   case INS_UNINIT:
     os << "uninit";

@@ -4,8 +4,9 @@
 
 namespace Pol::Bscript::Compiler
 {
-ClassInstance::ClassInstance( const SourceLocation& source_location )
-    : Expression( source_location )
+ClassInstance::ClassInstance( const SourceLocation& source_location,
+                              ClassDeclaration* class_declaration )
+    : Expression( source_location ), class_declaration( class_declaration )
 {
 }
 

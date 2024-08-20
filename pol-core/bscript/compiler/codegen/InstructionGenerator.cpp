@@ -75,10 +75,12 @@
 namespace Pol::Bscript::Compiler
 {
 InstructionGenerator::InstructionGenerator(
-    InstructionEmitter& emitter, std::map<std::string, FlowControlLabel>& user_function_labels )
+    InstructionEmitter& emitter, std::map<std::string, FlowControlLabel>& user_function_labels,
+    const std::map<std::string, size_t>& class_declaration_indexes )
     : emitter( emitter ),
       emit( emitter ),
       user_function_labels( user_function_labels ),
+      class_declaration_indexes( class_declaration_indexes ),
       user_functions()
 {
 }
@@ -254,7 +256,11 @@ void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
 void InstructionGenerator::visit_class_instance( ClassInstance& node )
 {
   update_debug_location( node );
-  emit.classinst_create();
+
+  auto index =
+      static_cast<unsigned>( class_declaration_indexes.at( node.class_declaration->name ) );
+
+  emit.classinst_create( index );
 }
 
 void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& marker )
