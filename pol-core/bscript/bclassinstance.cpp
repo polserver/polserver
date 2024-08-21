@@ -1,5 +1,9 @@
 #include "bclassinstance.h"
 
+#include "berror.h"
+#include "bobject.h"
+#include "objmethods.h"
+
 namespace Pol::Bscript
 {
 BClassInstance::BClassInstance( ref_ptr<EScriptProgram> program, int index,
@@ -8,7 +12,7 @@ BClassInstance::BClassInstance( ref_ptr<EScriptProgram> program, int index,
 {
 }
 
-BClassInstance::BClassInstance( const BClassInstance& B ) : BStruct( OTClassInstance )
+BClassInstance::BClassInstance( const BClassInstance& B ) : BStruct( B, OTClassInstance )
 {
   prog_ = B.prog_;
   index_ = B.index_;
@@ -25,6 +29,69 @@ ref_ptr<EScriptProgram> BClassInstance::prog() const
   return prog_;
 }
 
+bool BClassInstance::findMethod( const char* method_name, BFunctionRef*& funcref )
+{
+  const auto& methods = prog_->class_descriptors[index_].methods;
+  auto method_itr =
+      std::find_if( methods.begin(), methods.end(),
+                    [&]( const auto& it )
+                    {
+                      if ( it.first < prog_->symbols.length() )
+                      {
+                        return stricmp( method_name, prog_->symbols.array() + it.first ) == 0;
+                      }
+                      return false;
+                    } );
+
+  if ( method_itr == methods.end() )
+    return false;
+
+  auto cache_itr = class_method_funcrefs_.find( method_itr->second.address );
+
+  if ( cache_itr == class_method_funcrefs_.end() )
+  {
+    const auto& funcref_table_entry =
+        prog_->function_references.at( method_itr->second.function_reference_index );
+
+    // Subtract 1 from parameter_count of  so BFunctionRef::valid_call will
+    // think a call is valid _without_ the `this`. The Executor adds `this`
+    // after the validity check.
+    //
+    // Eg: `function foo(this, arg0)` (two params) -> `this.foo(arg0)` (one param)
+    auto param_count = funcref_table_entry.parameter_count - 1;
+
+    class_method_funcrefs_[method_itr->second.address] = BObjectRef(
+        new BFunctionRef( prog_, static_cast<int>( method_itr->second.address ), param_count,
+                          funcref_table_entry.is_variadic, globals, ValueStackCont{} ) );
+  }
+
+  funcref = class_method_funcrefs_[method_itr->second.address].get()->impptr_if<BFunctionRef>();
+
+  return funcref != nullptr;
+}
+
+void BClassInstance::packonto( std::ostream& os ) const
+{
+  // A class cannot be serialized
+  os << "u";
+}
+
+const char* BClassInstance::typetag() const
+{
+  // Return the class name as the type tag.
+  return prog_->symbols.array() + prog_->class_descriptors[index_].name_offset;
+}
+
+const char* BClassInstance::typeOf() const
+{
+  return "Class";
+}
+
+u8 BClassInstance::typeOfInt() const
+{
+  return OTClassInstance;
+}
+
 BObjectImp* BClassInstance::copy() const
 {
   return new BClassInstance( *this );
@@ -33,6 +100,21 @@ BObjectImp* BClassInstance::copy() const
 bool BClassInstance::isTrue() const
 {
   return true;
+}
+
+BObjectImp* BClassInstance::call_method( const char* methodname, Executor& /*ex*/ )
+{
+  // The Executor handles call_method/call_method_id directly, similar to
+  // BFunctionRefs. The BClassInstance method functions only get called if the
+  // Executor fails to handle them, which only happens if there is an error in
+  // the call setup.
+  return new BError( fmt::format( "Method '{}' not found in class '{}'", methodname, typetag() ) );
+}
+
+BObjectImp* BClassInstance::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+{
+  auto method = getObjMethod( id );
+  return call_method( method->code, ex );
 }
 
 std::string BClassInstance::getStringRep() const

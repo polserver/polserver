@@ -1,13 +1,13 @@
-BaseClass1::Common this=<class Bar>
-BaseClass0::Method0 this=<class Bar>
-BaseClass1::Method1 this=<class Bar>
-BaseClass2::Method2 this=<class Bar>
-Foo::Method3 this=<class Bar>
+BaseClass1::Common this=<class Foo>
+BaseClass0::Method0 this=<class Foo>
+BaseClass1::Method1 this=<class Foo>
+BaseClass2::Method2 this=<class Foo>
+Foo::Method3 this=<class Foo>
 -
-BaseClass1::Common this=<class Bar>
-BaseClass0::Method0 this=<class Bar>
-BaseClass1::Method1 this=<class Bar>
-BaseClass2::Method2 this=<class Bar>
-BaseClass1::Method3 this=<class Bar>
+BaseClass1::Common this=<class Foo>
+BaseClass0::Method0 this=<class Foo>
+BaseClass1::Method1 this=<class Foo>
+BaseClass2::Method2 this=<class Foo>
+BaseClass1::Method3 this=<class Foo>
 ----
 BaseClass2::Common this=<class Bar>

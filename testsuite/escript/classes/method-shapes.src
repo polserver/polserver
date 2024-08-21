@@ -1,0 +1,112 @@
+// This is a test of multiple inheritance based off a sample Python (see end of file)
+
+class Rectangle()
+  function Rectangle( this, width, height )
+    this.width := width;
+    this.height := height;
+  endfunction
+
+  function area(this)
+    return this.width * this.height;
+  endfunction
+
+  function perimeter( this )
+    return 2 * ( this.width + this.height );
+  endfunction
+endclass
+
+class Circle()
+  function Circle( this, radius )
+    this.radius := radius;
+  endfunction
+
+  function area( this )
+    return 3.14159 * this.radius * this.radius;
+  endfunction
+
+  function circumference( this )
+    return 2 * 3.14159 * this.radius;
+  endfunction
+endclass
+
+class Colored()
+  function Colored( this, color )
+    this.color := color;
+  endfunction
+
+  function get_color( this )
+    return this.color;
+  endfunction
+endclass
+
+class ColoredRectangle( Rectangle, Colored )
+  function ColoredRectangle( this, width, height, color )
+    super( width, height, color := color );
+    // Or, depending on how ambiguous the parameters are:
+    // super( width := width, height := height, color := color );
+    // super( Rectangle::width := width, Rectangle::height := height, Colored::color := color );
+  endfunction
+endclass
+
+class ColoredCircle( Circle, Colored )
+  function ColoredCircle( this, radius, color )
+    super( Circle::radius := radius, Colored::color := color );
+  endfunction
+endclass
+
+
+// Example Usage
+var colored_rect := ColoredRectangle(4, 6, "blue");
+print( $"Colored Rectangle - Area: {colored_rect.area()}, Perimeter: {colored_rect.perimeter()}, Color: {colored_rect.get_color()}" );
+
+var colored_circle := ColoredCircle(5, "red");
+print( $"Colored Circle - Area: {colored_circle.area()}, Circumference: {colored_circle.circumference()}, Color: {colored_circle.get_color()}" );
+
+/*
+# Equivalent Python classes
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        return self.width * self.height
+
+    def perimeter(self):
+        return 2 * (self.width + self.height)
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+    def area(self):
+        return 3.14159 * self.radius ** 2
+
+    def circumference(self):
+        return 2 * 3.14159 * self.radius
+
+class Colored:
+    def __init__(self, color):
+        self.color = color
+
+    def get_color(self):
+        return self.color
+
+class ColoredRectangle(Rectangle, Colored):
+    def __init__(self, width, height, color):
+        Rectangle.__init__(self, width, height)
+        Colored.__init__(self, color)
+
+class ColoredCircle(Circle, Colored):
+    def __init__(self, radius, color):
+        Circle.__init__(self, radius)
+        Colored.__init__(self, color)
+
+# Example Usage
+colored_rect = ColoredRectangle(4, 6, "blue")
+print(f"Colored Rectangle - Area: {colored_rect.area()}, Perimeter: {colored_rect.perimeter()}, Color: {colored_rect.get_color()}")
+
+colored_circle = ColoredCircle(5, "red")
+print(f"Colored Circle - Area: {colored_circle.area()}, Circumference: {colored_circle.circumference()}, Color: {colored_circle.get_color()}")
+
+*/

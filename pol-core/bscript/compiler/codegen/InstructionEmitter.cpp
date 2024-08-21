@@ -103,7 +103,7 @@ void InstructionEmitter::register_class_declaration(
 
       if ( !uf )
       {
-        cd->internal_error( fmt::format( "method {} no function linked", method ) );
+        cd->internal_error( fmt::format( "method {}::{} no function linked", cd->name, method ) );
       }
 
       auto method_itr = user_function_labels.find( ScopableName( cd->name, method ).string() );

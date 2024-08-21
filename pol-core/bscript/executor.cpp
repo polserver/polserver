@@ -2737,6 +2737,23 @@ void Executor::ins_call_method( const Instruction& ins )
   unsigned nparams = ins.token.lval;
   getParams( nparams );
 
+  if ( auto* classinst = ValueStack.back()->impptr_if<BClassInstance>() )
+  {
+    BFunctionRef* funcr = nullptr;
+    if ( classinst->findMethod( ins.token.tokval(), funcr ) )
+    {
+      // return new BError( fmt::format( "Method {} not found.", ins.token.tokval() ) );
+      Instruction jmp;
+      if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
+      {
+        fparams.insert( fparams.begin(), ValueStack.back() );
+        BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
+        call_function_reference( funcr, nullptr, jmp );
+        return;
+      }
+    }
+  }
+
   if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
   {
     Instruction jmp;
@@ -3035,7 +3052,7 @@ void Executor::ins_double( const Instruction& ins )
 // TODO skeleton
 void Executor::ins_classinst( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BClassInstance( prog_, ins.token.dval, Globals2 ) ) );
+  ValueStack.push_back( BObjectRef( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )
