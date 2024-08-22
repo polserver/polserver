@@ -146,33 +146,6 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 }
 
-void SemanticAnalyzer::visit_class_parameter_declaration( ClassParameterDeclaration& node )
-{
-  auto constructor = node.constructor_link->function();
-  if ( !constructor )
-  {
-    auto msg = fmt::format( "Base class '{}' does not define a constructor.", node.name );
-
-    // Check if the named function exists. If it does, then the reason it wasn't
-    // linked is because it is not a constructor. This happens because of a
-    // missing `this` parameter.
-    auto func_itr =
-        workspace.all_function_locations.find( ScopableName( node.name, node.name ).string() );
-
-    if ( func_itr != workspace.all_function_locations.end() )
-    {
-      msg += fmt::format( "\n  See also (missing 'this' parameter?): {}", func_itr->second );
-    }
-
-    report.error( node, msg );
-  }
-  else
-  {
-    report.debug( node, "Class parameter '{}' references constructor '{}' at {}", node.name,
-                  constructor->scoped_name(), constructor->source_location );
-  }
-}
-
 void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 {
   const auto& class_name = node.name;
@@ -213,7 +186,6 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
       named_baseclasses.emplace( baseclass_name );
       report.debug( class_parameter.get(), "Class '{}' references base class '{}'", class_name,
                     baseclass_name );
-      visit_class_parameter_declaration( class_parameter.get() );
     }
   }
 }
@@ -533,6 +505,11 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     }
     else if ( uf->type == UserFunctionType::Super )
     {
+      if ( uf->body().children.empty() )
+      {
+        report.error( fc, "In call to '{}': No base class defines a constructor.", uf->name );
+        return;
+      }
       // Super will use "this" argument
       arguments.insert( arguments.begin(),
                         std::make_unique<Argument>(

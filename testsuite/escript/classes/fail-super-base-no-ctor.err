@@ -1,1 +1,1 @@
-fail-super-base-no-ctor.src:8:12: error: Base class 'BaseClass' does not define a constructor.
+fail-super-base-no-ctor.src:10:5: error: In call to 'super': No base class defines a constructor.

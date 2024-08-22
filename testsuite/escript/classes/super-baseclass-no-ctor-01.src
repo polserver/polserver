@@ -1,0 +1,23 @@
+// A base class does not need to define a constructor (BaseClass2 missing ctor function)
+
+class BaseClass1()
+  function BaseClass1( this )
+    print( $"BaseClass1::BaseClass1 this={this}" );
+  endfunction
+endclass
+
+class BaseClass2()
+  function Method2( this )
+    print( $"BaseClass2::Method2 this={this}" );
+  endfunction
+endclass
+
+class Animal(BaseClass1, BaseClass2)
+  function Animal( this )
+    super();
+    print( $"Animal::Animal this={this}" );
+    Method2( this );
+  endfunction
+endclass
+
+Animal();

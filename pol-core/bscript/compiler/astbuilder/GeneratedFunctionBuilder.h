@@ -10,7 +10,7 @@ class GeneratedFunctionBuilder : public CompoundStatementBuilder
 {
 public:
   GeneratedFunctionBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
-  bool super_function( std::unique_ptr<SuperFunction>& );
+  void super_function( std::unique_ptr<SuperFunction>& );
 };
 
 }  // namespace Pol::Bscript::Compiler

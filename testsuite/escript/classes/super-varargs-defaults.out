@@ -1,0 +1,3 @@
+BaseClass1::BaseClass1 this=struct{  } arg0=bc1.0 args={  }
+BaseClass2::BaseClass2 this=struct{  } arg0=bc2.0 args={  }
+BaseClass3::BaseClass3 this=struct{  } args={  }
