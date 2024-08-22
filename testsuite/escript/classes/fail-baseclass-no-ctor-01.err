@@ -1,1 +1,0 @@
-fail-baseclass-no-ctor-01.src:10:26: error: Base class 'BaseClass2' does not define a constructor.

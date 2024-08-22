@@ -1,0 +1,17 @@
+// Cannot use `super()` because BaseClass uses uncloneable default
+// parameter, _even if_ a value is given at the call site.
+
+class BaseClass()
+  function BaseClass( this, arg0 := array{1,2,3} )
+  endfunction
+endclass
+
+///////////
+
+class Foo( BaseClass )
+  function Foo( this )
+    super( "value given" );
+  endfunction
+endclass
+
+Foo();

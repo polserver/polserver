@@ -1,0 +1,30 @@
+// Test varargs with base class?
+
+class BaseClass1()
+  function BaseClass1( this, arg0 := "bc1.0", args... )
+    print( $"BaseClass1::BaseClass1 this={this} arg0={arg0} args={args}" );
+    //print( $"BaseClass1::BaseClass1 this={this} arg0={arg0}" );
+  endfunction
+endclass
+
+class BaseClass2()
+  function BaseClass2( this, arg0 := "bc2.0", args... )
+    print( $"BaseClass2::BaseClass2 this={this} arg0={arg0} args={args}" );
+  endfunction
+endclass
+
+class BaseClass3()
+  function BaseClass3( this, args... )
+    print( $"BaseClass3::BaseClass3 this={this} args={args}" );
+  endfunction
+endclass
+
+///////////
+
+class Foo( BaseClass1, BaseClass2, BaseClass3  )
+  function Foo( this )
+    super();
+  endfunction
+endclass
+
+Foo();

@@ -1,1 +1,0 @@
-fail-baseclass-no-ctor-03.src:8:15: error: Base class 'BaseClass' does not define a constructor.
