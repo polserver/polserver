@@ -10,4 +10,38 @@ BaseClass2 arg0=scoped-c2.arg0
 BaseClass1 arg0=scoped-c1.arg0 arg1=scoped-c1.arg1
 BaseClass2 arg0=scoped-c2.arg0
 ---
-<class Foo>
+base1=[
+  [
+    "unscoped-arg0",
+    "unscoped-arg1"
+  ],
+  [
+    "scoped-c1.arg0",
+    "scoped-c1.arg1"
+  ],
+  [
+    "scoped-c1.arg0",
+    "scoped-c1.arg1"
+  ],
+  [
+    "scoped-c1.arg0",
+    "scoped-c1.arg1"
+  ]
+]
+
+base2=[
+  [
+    "unscoped-arg2"
+  ],
+  [
+    "scoped-c2.arg0"
+  ],
+  [
+    "scoped-c2.arg0"
+  ],
+  [
+    "scoped-c2.arg0"
+  ]
+]
+
+child="foo"
