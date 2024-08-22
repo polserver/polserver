@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 
 #include "bstruct.h"
 
@@ -29,6 +30,7 @@ public:
 // Inherited from BStruct
   virtual const char* typetag() const override;
 
+  std::set<unsigned> constructors_called;
 
 public:  // Class Machinery
   virtual const char* typeOf() const override;

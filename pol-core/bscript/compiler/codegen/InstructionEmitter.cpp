@@ -337,6 +337,11 @@ void InstructionEmitter::call_userfunc( FlowControlLabel& label )
   register_with_label( label, addr );
 }
 
+void InstructionEmitter::check_mro( unsigned offset )
+{
+  emit_token( INS_CHECK_MRO, TYP_CONTROL, offset );
+}
+
 void InstructionEmitter::classinst_create( unsigned index )
 {
   emit_token( TOK_CLASSINST, TYP_OPERAND, index );

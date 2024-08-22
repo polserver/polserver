@@ -2856,6 +2856,62 @@ void Executor::ins_makelocal( const Instruction& /*ins*/ )
   Locals2 = new BObjectRefVec;
 }
 
+void Executor::ins_check_mro( const Instruction& ins )
+{
+  auto classinst_offset = ins.token.lval;
+
+  if ( classinst_offset > static_cast<int>( ValueStack.size() ) || ValueStack.empty() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO offset error! offset={}, ValueStack.size={} ({},PC={})",
+                    classinst_offset, ValueStack.size(), prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  const auto& classinst_ref = ValueStack.at( ValueStack.size() - classinst_offset - 1 );
+
+  auto classinst = classinst_ref->impptr_if<BClassInstance>();
+  if ( classinst == nullptr )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO on non-class instance! type={} ({},PC={})",
+                    classinst_ref->impptr()->typeOf(), prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  if ( nLines < PC + 1 )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO instruction out of bounds! nLines={} ({},PC={})",
+                    nLines, prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  const Instruction& jsr_ins = prog_->instr.at( PC + 1 );
+  if ( jsr_ins.func != &Executor::ins_jsr_userfunc )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO instruction not followed by JSR_USERFUNC! ({},PC={})",
+                    prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  auto ctor_addr = jsr_ins.token.lval;
+
+  auto ctor_called_itr = classinst->constructors_called.find( ctor_addr );
+  if ( ctor_called_itr != classinst->constructors_called.end() )
+  {
+    // Constructor has been called: clear arguments and skip jump instructions (makelocal,
+    // jsr_userfunc)
+    ValueStack.resize( ValueStack.size() - ins.token.lval );
+    PC += 2;
+  }
+  else
+  {
+    classinst->constructors_called.insert( ctor_addr );
+  }
+}
+
 // CTRL_JSR_USERFUNC:
 void Executor::ins_jsr_userfunc( const Instruction& ins )
 {
@@ -3403,6 +3459,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_statementbegin;
   case CTRL_MAKELOCAL:
     return &Executor::ins_makelocal;
+  case INS_CHECK_MRO:
+    return &Executor::ins_check_mro;
   case CTRL_JSR_USERFUNC:
     return &Executor::ins_jsr_userfunc;
   case INS_POP_PARAM:

@@ -422,6 +422,7 @@ public:
   void ins_statementbegin( const Instruction& ins );
   void ins_progend( const Instruction& ins );
   void ins_makelocal( const Instruction& ins );
+  void ins_check_mro( const Instruction& ins );
   void ins_jsr_userfunc( const Instruction& ins );
   void ins_pop_param( const Instruction& ins );
   void ins_pop_param_byref( const Instruction& ins );

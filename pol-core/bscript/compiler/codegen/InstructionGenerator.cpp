@@ -480,6 +480,18 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
     {
       emit_args( *uf );
       FlowControlLabel& label = user_function_labels[uf->scoped_name()];
+      if ( !user_functions.empty() && user_functions.top()->type == UserFunctionType::Super )
+      {
+        if ( call.children.empty() )
+        {
+          call.internal_error( "super call missing 'this'" );
+        }
+
+        auto classinst_offset = call.children.size() - 1;
+
+        emit.check_mro( classinst_offset );
+      }
+
       emit.makelocal();
       emit.call_userfunc( label );
     }
