@@ -1,0 +1,3 @@
+BaseClass1::BaseClass1 this=struct{  }
+Animal::Animal this=struct{  }
+BaseClass2::Method2 this=struct{  }

@@ -26,7 +26,7 @@ SimpleValueCloner::SimpleValueCloner( Report& report, const SourceLocation& use_
 {
 }
 
-std::unique_ptr<Node> SimpleValueCloner::clone( Node& node )
+std::unique_ptr<Expression> SimpleValueCloner::clone( Expression& node )
 {
   node.accept( *this );
   return std::move( cloned_value );
