@@ -2736,13 +2736,34 @@ void Executor::ins_call_method( const Instruction& ins )
 {
   unsigned nparams = ins.token.lval;
   getParams( nparams );
+  BObjectImp* callee = ValueStack.back()->impptr();
 
   if ( auto* classinst = ValueStack.back()->impptr_if<BClassInstance>() )
   {
     BFunctionRef* funcr = nullptr;
-    if ( classinst->findMethod( ins.token.tokval(), funcr ) )
+
+    auto method_name = ins.token.tokval();
+
+    // Prefer members over class methods by checking contents first.
+    auto member_itr = classinst->contents().find( method_name );
+
+    if ( member_itr != classinst->contents().end() )
     {
-      // return new BError( fmt::format( "Method {} not found.", ins.token.tokval() ) );
+      // If the member exists and is NOT a function reference, we will still try
+      // to "call" it. This is _intentional_, and will result in a runtime
+      // BError. This is similar to `var foo := 3; print(foo.bar());`, resulting
+      // in a "Method 'bar' not found" error.
+      callee = member_itr->second.get()->impptr();
+
+      funcr = member_itr->second.get()->impptr_if<BFunctionRef>();
+    }
+    else
+    {
+      funcr = classinst->findMethod( method_name );
+    }
+
+    if ( funcr != nullptr )
+    {
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
@@ -2753,8 +2774,7 @@ void Executor::ins_call_method( const Instruction& ins )
       }
     }
   }
-
-  if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
+  else if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
   {
     Instruction jmp;
     if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
@@ -2768,7 +2788,7 @@ void Executor::ins_call_method( const Instruction& ins )
   size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
-  strm << "MTH_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.tokval();
+  strm << "MTH_" << callee->typeOf() << " ." << ins.token.tokval();
   if ( !fparams.empty() )
     strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
   std::string name( strm.str() );
@@ -2778,11 +2798,11 @@ void Executor::ins_call_method( const Instruction& ins )
   BObjectImp* imp;
 
   if ( strcmp( ins.token.tokval(), "impptr" ) == 0 )
-    imp = new String( fmt::format( "{}", static_cast<void*>( this ) ) );
+    imp = new String( fmt::format( "{}", static_cast<void*>( callee ) ) );
   else
-    imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
+    imp = callee->call_method( ins.token.tokval(), *this );
 #else
-  BObjectImp* imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
+  BObjectImp* imp = callee->call_method( ins.token.tokval(), *this );
 #endif
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );

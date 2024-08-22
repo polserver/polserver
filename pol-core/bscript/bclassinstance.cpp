@@ -29,7 +29,7 @@ ref_ptr<EScriptProgram> BClassInstance::prog() const
   return prog_;
 }
 
-bool BClassInstance::findMethod( const char* method_name, BFunctionRef*& funcref )
+BFunctionRef* BClassInstance::findMethod( const char* method_name )
 {
   const auto& methods = prog_->class_descriptors[index_].methods;
   auto method_itr =
@@ -44,7 +44,7 @@ bool BClassInstance::findMethod( const char* method_name, BFunctionRef*& funcref
                     } );
 
   if ( method_itr == methods.end() )
-    return false;
+    return nullptr;
 
   auto cache_itr = class_method_funcrefs_.find( method_itr->second.address );
 
@@ -65,9 +65,7 @@ bool BClassInstance::findMethod( const char* method_name, BFunctionRef*& funcref
                           funcref_table_entry.is_variadic, globals, ValueStackCont{} ) );
   }
 
-  funcref = class_method_funcrefs_[method_itr->second.address].get()->impptr_if<BFunctionRef>();
-
-  return funcref != nullptr;
+  return class_method_funcrefs_[method_itr->second.address].get()->impptr_if<BFunctionRef>();
 }
 
 void BClassInstance::packonto( std::ostream& os ) const

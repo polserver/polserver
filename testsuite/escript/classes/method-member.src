@@ -1,0 +1,28 @@
+// Add a funcref member and call it.
+
+class Foo()
+  function Foo( this, name )
+    this.name := name;
+    this.bar := @( prefix ) {
+      print( $"{prefix}: {this.name}" );
+    };
+    this.baz := @StaticFunc;
+    this.number := 1234;
+  endfunction
+endclass
+
+function StaticFunc( arg0 )
+  print( $"::StaticFunc arg0={arg0}" );
+endfunction
+
+var foo := Foo( "NAME" );
+foo.bar("PREFIX");
+foo.baz("ARG0");
+print( $"foo.name equals 'NAME'? {foo.name == "NAME"}" );
+
+// Method not found error: errortext = "Method 'blubb' not found in class 'Foo'"
+print(foo.blubb());
+
+// Member not callable, but we still try to "call" it: errortext = "Method 'number' not found"
+// Notice the different error message from a not found method.
+print(foo.number());

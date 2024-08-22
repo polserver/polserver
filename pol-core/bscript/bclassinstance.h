@@ -23,7 +23,8 @@ private:
 public:
   virtual size_t sizeEstimate() const override;
   ref_ptr<EScriptProgram> prog() const;
-  bool findMethod( const char* method_name, BFunctionRef*& funcref );
+  // returns nullptr if no function found
+  BFunctionRef* findMethod( const char* method_name );
 
 // Inherited from BStruct
   virtual const char* typetag() const override;
