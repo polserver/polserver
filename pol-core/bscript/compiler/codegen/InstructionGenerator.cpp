@@ -487,7 +487,8 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
           call.internal_error( "super call missing 'this'" );
         }
 
-        auto classinst_offset = call.children.size() - 1;
+        // Arg to cast can never be negative, since size is >= 1.
+        auto classinst_offset = static_cast<unsigned>( call.children.size() - 1 );
 
         emit.check_mro( classinst_offset );
       }
