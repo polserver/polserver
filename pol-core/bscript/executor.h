@@ -19,11 +19,13 @@
 #endif
 
 #include <exception>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
 #include <stack>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../clib/refptr.h"
@@ -525,6 +527,16 @@ private:
 #endif
 protected:
   void cleanup();
+
+  struct ClassMethodKey
+  {
+    ref_ptr<EScriptProgram> prog;
+    unsigned index;
+    std::string method_name;
+    bool operator<( const ClassMethodKey& other ) const;
+  };
+
+  std::map<ClassMethodKey, BObjectRef /*function ref*/> class_methods;
 };
 
 inline const std::string& Executor::scriptname() const

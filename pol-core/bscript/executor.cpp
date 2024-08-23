@@ -2759,7 +2759,24 @@ void Executor::ins_call_method( const Instruction& ins )
     }
     else
     {
-      funcr = classinst->findMethod( method_name );
+      // Have we already looked up this method?
+      ClassMethodKey key{ prog_, classinst->index(), method_name };
+      auto cache_itr = class_methods.find( key );
+      if ( cache_itr != class_methods.end() )
+      {
+        funcr = cache_itr->second->impptr_if<BFunctionRef>();
+      }
+      else
+      {
+        // Does the class define this method?
+        funcr = classinst->makeMethod( method_name );
+
+        if ( funcr != nullptr )
+        {
+          // Cache the method for future lookups
+          class_methods[key] = BObjectRef( funcr );
+        }
+      }
     }
 
     if ( funcr != nullptr )
@@ -3993,6 +4010,7 @@ size_t Executor::sizeEstimate() const
   size += Clib::memsize( execmodules ) + Clib::memsize( availmodules );
   size += dbg_env_ != nullptr ? dbg_env_->sizeEstimate() : 0;
   size += func_result_ != nullptr ? func_result_->sizeEstimate() : 0;
+  size += Clib::memsize( class_methods );
   return size;
 }
 
@@ -4093,6 +4111,24 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
   continuation->args = std::move( args );
 
   return continuation;
+}
+
+bool Executor::ClassMethodKey::operator<( const ClassMethodKey& other ) const
+{
+  // Compare the program pointers
+  if ( prog < other.prog )
+    return true;
+  if ( prog > other.prog )
+    return false;
+
+  // Compare the indices
+  if ( index < other.index )
+    return true;
+  if ( index > other.index )
+    return false;
+
+  // Perform a case-insensitive comparison for method_name using stricmp
+  return stricmp( method_name.c_str(), other.method_name.c_str() ) < 0;
 }
 }  // namespace Bscript
 }  // namespace Pol

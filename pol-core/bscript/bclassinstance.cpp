@@ -29,7 +29,12 @@ ref_ptr<EScriptProgram> BClassInstance::prog() const
   return prog_;
 }
 
-BFunctionRef* BClassInstance::findMethod( const char* method_name )
+unsigned BClassInstance::index() const
+{
+  return index_;
+}
+
+BFunctionRef* BClassInstance::makeMethod( const char* method_name )
 {
   const auto& methods = prog_->class_descriptors[index_].methods;
   auto method_itr =
@@ -46,26 +51,18 @@ BFunctionRef* BClassInstance::findMethod( const char* method_name )
   if ( method_itr == methods.end() )
     return nullptr;
 
-  auto cache_itr = class_method_funcrefs_.find( method_itr->second.address );
+  const auto& funcref_table_entry =
+      prog_->function_references.at( method_itr->second.function_reference_index );
 
-  if ( cache_itr == class_method_funcrefs_.end() )
-  {
-    const auto& funcref_table_entry =
-        prog_->function_references.at( method_itr->second.function_reference_index );
+  // Subtract 1 from parameter_count of  so BFunctionRef::valid_call will
+  // think a call is valid _without_ the `this`. The Executor adds `this`
+  // after the validity check.
+  //
+  // Eg: `function foo(this, arg0)` (two params) -> `this.foo(arg0)` (one param)
+  auto param_count = funcref_table_entry.parameter_count - 1;
 
-    // Subtract 1 from parameter_count of  so BFunctionRef::valid_call will
-    // think a call is valid _without_ the `this`. The Executor adds `this`
-    // after the validity check.
-    //
-    // Eg: `function foo(this, arg0)` (two params) -> `this.foo(arg0)` (one param)
-    auto param_count = funcref_table_entry.parameter_count - 1;
-
-    class_method_funcrefs_[method_itr->second.address] = BObjectRef(
-        new BFunctionRef( prog_, static_cast<int>( method_itr->second.address ), param_count,
-                          funcref_table_entry.is_variadic, globals, ValueStackCont{} ) );
-  }
-
-  return class_method_funcrefs_[method_itr->second.address].get()->impptr_if<BFunctionRef>();
+  return new BFunctionRef( prog_, static_cast<int>( method_itr->second.address ), param_count,
+                           funcref_table_entry.is_variadic, globals, ValueStackCont{} );
 }
 
 void BClassInstance::packonto( std::ostream& os ) const

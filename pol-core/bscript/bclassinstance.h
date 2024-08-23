@@ -24,8 +24,9 @@ private:
 public:
   virtual size_t sizeEstimate() const override;
   ref_ptr<EScriptProgram> prog() const;
+  unsigned index() const;
   // returns nullptr if no function found
-  BFunctionRef* findMethod( const char* method_name );
+  BFunctionRef* makeMethod( const char* method_name );
 
 // Inherited from BStruct
   virtual const char* typetag() const override;
@@ -47,7 +48,6 @@ public:  // Class Machinery
 private:
   ref_ptr<EScriptProgram> prog_;
   unsigned int index_;
-  std::map<unsigned /*pc*/, BObjectRef> class_method_funcrefs_;
 
 public:
   std::shared_ptr<ValueStackCont> globals;
