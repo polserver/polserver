@@ -452,15 +452,16 @@ int EScriptProgram::read_class_table( FILE* fp )
       return -1;
 
     // Handle constructors
-    std::vector<unsigned> constructor_addresses;
-    constructor_addresses.resize( bcte.constructor_count );
+    EPConstructorList constructors;
+    constructors.reserve( bcte.constructor_count );
 
     while ( bcte.constructor_count-- )
     {
       BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce;
       if ( fread( &bctce, sizeof bctce, 1, fp ) != 1 )
         return -1;
-      constructor_addresses.push_back( bctce.address );
+      constructors.push_back(
+          EPMethodDescriptor{ bctce.address, bctce.function_reference_index } );
     }
 
     // Handle methods
@@ -476,7 +477,7 @@ int EScriptProgram::read_class_table( FILE* fp )
     }
 
     class_descriptors.push_back( EPClassDescriptor{
-        bcte.name_offset, std::move( constructor_addresses ), std::move( methods ) } );
+        bcte.name_offset, std::move( constructors ), std::move( methods ) } );
   }
   return 0;
 }

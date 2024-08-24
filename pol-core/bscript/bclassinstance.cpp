@@ -2,6 +2,7 @@
 
 #include "berror.h"
 #include "bobject.h"
+#include "objmembers.h"
 #include "objmethods.h"
 
 namespace Pol::Bscript
@@ -110,6 +111,32 @@ BObjectImp* BClassInstance::call_method_id( const int id, Executor& ex, bool /*f
 {
   auto method = getObjMethod( id );
   return call_method( method->code, ex );
+}
+
+BObjectRef BClassInstance::get_member_id( const int id )
+{
+  if ( id == MBR_FUNCTION )
+  {
+    if ( index_ < prog_->class_descriptors.size() )
+    {
+      const auto& constructors = prog_->class_descriptors.at( index_ ).constructors;
+      if ( !constructors.empty() )
+      {
+        auto address = constructors.front().address;
+        auto funcref_index = constructors.front().function_reference_index;
+        if ( funcref_index < prog_->function_references.size() )
+        {
+          const auto& funcref_entry = prog_->function_references.at( funcref_index );
+
+          return BObjectRef(
+              new BFunctionRef( prog_, static_cast<int>( address ), funcref_entry.parameter_count,
+                                funcref_entry.is_variadic, globals, ValueStackCont{} ) );
+        }
+      }
+    }
+  }
+
+  return base::get_member_id( id );
 }
 
 std::string BClassInstance::getStringRep() const

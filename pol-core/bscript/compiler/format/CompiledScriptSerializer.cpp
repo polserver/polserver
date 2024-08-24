@@ -8,7 +8,6 @@
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
-#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 #include "clib/clib.h"
@@ -132,15 +131,16 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       // Handle class entry
       BSCRIPT_CLASS_TABLE_ENTRY bcte{};
       bcte.name_offset = elem.name_offset;
-      bcte.constructor_count = static_cast<unsigned>( elem.constructor_addresses.size() );
+      bcte.constructor_count = static_cast<unsigned>( elem.constructors.size() );
       bcte.method_count = static_cast<unsigned>( elem.methods.size() );
       ofs.write( reinterpret_cast<const char*>( &bcte ), sizeof bcte );
 
       // Handle constructors
-      for ( const auto& constructor_address : elem.constructor_addresses )
+      for ( const auto& constructor : elem.constructors )
       {
         BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce{};
-        bctce.address = constructor_address;
+        bctce.address = constructor.address;
+        bctce.function_reference_index = constructor.function_reference_index;
         ofs.write( reinterpret_cast<const char*>( &bctce ), sizeof bctce );
       }
 

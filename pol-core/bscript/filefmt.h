@@ -147,12 +147,14 @@ struct BSCRIPT_CLASS_TABLE_ENTRY
   unsigned constructor_count;
   unsigned method_count;
 };
+static_assert( sizeof( BSCRIPT_CLASS_TABLE_ENTRY ) == 12, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY
 {
   unsigned address;
+  unsigned function_reference_index;
 };
-static_assert( sizeof( BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY ) == 4, "size missmatch" );
+static_assert( sizeof( BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY ) == 8, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE_METHOD_ENTRY
 {

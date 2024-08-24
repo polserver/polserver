@@ -7,7 +7,6 @@
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/DebugBlock.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
-#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
@@ -162,17 +161,17 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
 
       // Handle class
       *text_ofs << fmt::format( " {}: name={}, constructors={}, methods={}", index++, class_name,
-                                class_descriptor.constructor_addresses.size(),
+                                class_descriptor.constructors.size(),
                                 class_descriptor.methods.size() )
                 << std::endl;
 
       // Handle constructors
-      if ( !class_descriptor.constructor_addresses.empty() )
+      if ( !class_descriptor.constructors.empty() )
       {
         *text_ofs << "    - Constructor chain:";
-        for ( const auto& constructor_address : class_descriptor.constructor_addresses )
+        for ( const auto& constructor : class_descriptor.constructors )
         {
-          *text_ofs << fmt::format( " {}", constructor_address );
+          *text_ofs << fmt::format( " {}", constructor.address );
         }
         *text_ofs << std::endl;
       }

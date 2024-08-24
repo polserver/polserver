@@ -2367,9 +2367,11 @@ BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
     return new BBoolean( false );
 
   // Find the address in the constructor addresses.
-  auto& addresses = prog_->class_descriptors[classinst->index()].constructor_addresses;
+  auto& addresses = prog_->class_descriptors[classinst->index()].constructors;
 
-  auto result = std::find( addresses.begin(), addresses.end(), pc_ ) != addresses.end();
+  auto result =
+      std::find_if( addresses.begin(), addresses.end(),
+                    [this]( const auto& addr ) { return addr.address == pc_; } ) != addresses.end();
   return new BBoolean( result );
 }
 

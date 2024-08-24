@@ -97,14 +97,14 @@ struct EPMethodDescriptor
   unsigned function_reference_index;
 };
 
-using EPConstructorList = std::vector<unsigned>;
+using EPConstructorList = std::vector<EPMethodDescriptor>;
 
 using EPMethodMap = std::map<unsigned /* name_offset */, EPMethodDescriptor>;
 
 struct EPClassDescriptor
 {
   unsigned name_offset;
-  EPConstructorList constructor_addresses;
+  EPConstructorList constructors;
   EPMethodMap methods;
 };
 

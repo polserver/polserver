@@ -1,0 +1,8 @@
+A::A this=<class A>
+B::B this=<class B>
+FunctionObject
+FunctionObject
+A::A this=struct{  }
+B::B this=struct{  }
+struct{  }
+struct{  }

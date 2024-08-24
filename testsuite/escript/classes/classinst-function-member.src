@@ -1,0 +1,25 @@
+// Tests the 'is' operator with class instances
+
+class A()
+  function A( this )
+    print( $"A::A this={this}" );
+  endfunction
+endclass
+
+class B()
+  function B( this )
+    print( $"B::B this={this}" );
+  endfunction
+endclass
+
+var a := A();
+var b := B();
+
+print( a.function );
+print( b.function );
+
+var aa := ( a.function )( struct{} );
+var bb := b.function.call( struct{} );
+
+print( aa );
+print( bb );

@@ -557,7 +557,7 @@ antlrcpp::Any PrettifyFileProcessor::expression_suffix(
   {
     visitExpression( expr_ctx );
     addToken( ".", function_suffix->DOT(), FmtToken::ATTACHED );
-    addToken( "function", function_suffix->FUNCTION(), FmtToken::ATTACHED );
+    addToken( "function", function_suffix->FUNCTION(), FmtToken::SPACE );
   }
   else if ( auto member = expr_suffix_ctx->navigationSuffix() )
   {

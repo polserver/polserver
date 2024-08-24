@@ -2901,15 +2901,6 @@ void Executor::ins_check_mro( const Instruction& ins )
 
   const auto& classinst_ref = ValueStack.at( ValueStack.size() - classinst_offset - 1 );
 
-  auto classinst = classinst_ref->impptr_if<BClassInstance>();
-  if ( classinst == nullptr )
-  {
-    POLLOG_ERRORLN( "Fatal error: Check MRO on non-class instance! type={} ({},PC={})",
-                    classinst_ref->impptr()->typeOf(), prog_->name, PC );
-    seterror( true );
-    return;
-  }
-
   if ( nLines < PC + 1 )
   {
     POLLOG_ERRORLN( "Fatal error: Check MRO instruction out of bounds! nLines={} ({},PC={})",
@@ -2929,11 +2920,11 @@ void Executor::ins_check_mro( const Instruction& ins )
 
   auto ctor_addr = jsr_ins.token.lval;
 
-  auto ctor_called_itr = classinst->constructors_called.find( ctor_addr );
-  if ( ctor_called_itr != classinst->constructors_called.end() )
+  auto classinst = classinst_ref->impptr_if<BClassInstance>();
+  if ( classinst == nullptr || classinst->constructors_called.find( ctor_addr ) != classinst->constructors_called.end() )
   {
-    // Constructor has been called: clear arguments and skip jump instructions (makelocal,
-    // jsr_userfunc)
+    // Constructor has been called, or `this` is not a class instance: clear
+    // arguments and skip jump instructions (makelocal, jsr_userfunc)
     ValueStack.resize( ValueStack.size() - ins.token.lval );
     PC += 2;
   }
