@@ -189,6 +189,8 @@ BTokenId ExpressionBuilder::binary_operator_token(
     return TOK_CHKMEMBER;
   else if ( ctx->DELMEMBER() )
     return TOK_DELMEMBER;
+  else if ( ctx->IS() )
+    return TOK_IS;
   else
     location_for( *ctx ).internal_error( "unrecognized binary operator" );
 }

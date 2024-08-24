@@ -20,6 +20,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
+#include "bclassinstance.h"
 #include "berror.h"
 #include "bobject.h"
 #include "bstruct.h"
@@ -355,6 +356,16 @@ BObjectRef BObjectImp::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices
     BObjectRef ref = OperSubscript( *index );
     return ( *ref ).impptr()->OperMultiSubscript( indices );
   }
+}
+
+BObjectImp* BObjectImp::selfIsObjImp( const BObjectImp& objimp ) const
+{
+  return objimp.selfIsObj( *this );
+}
+
+BObjectImp* BObjectImp::selfIsObj( const BObjectImp& ) const
+{
+  return new BBoolean( false );
 }
 
 BObjectImp* BObjectImp::selfPlusObjImp( const BObjectImp& objimp ) const
@@ -2341,6 +2352,25 @@ bool BFunctionRef::isTrue() const
 bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
 {
   return false;
+}
+
+BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
+{
+  auto classinst = dynamic_cast<const BClassInstance*>( &other );
+  if ( !classinst )
+    return new BBoolean( false );
+
+  if ( classinst->prog() != prog_ )
+    return new BBoolean( false );
+
+  if ( classinst->index() > prog_->class_descriptors.size() )
+    return new BBoolean( false );
+
+  // Find the address in the constructor addresses.
+  auto& addresses = prog_->class_descriptors[classinst->index()].constructor_addresses;
+
+  auto result = std::find( addresses.begin(), addresses.end(), pc_ ) != addresses.end();
+  return new BBoolean( result );
 }
 
 std::string BFunctionRef::getStringRep() const

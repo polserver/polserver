@@ -2092,6 +2092,20 @@ void Executor::ins_modulus( const Instruction& /*ins*/ )
 
   leftref.set( new BObject( right.impref().selfModulusObjImp( left.impref() ) ) );
 }
+
+// TOK_IS:
+void Executor::ins_is( const Instruction& /*ins*/ )
+{
+  BObjectRef rightref = ValueStack.back();
+  ValueStack.pop_back();
+  BObjectRef& leftref = ValueStack.back();
+
+  BObject& right = *rightref;
+  BObject& left = *leftref;
+
+  leftref.set( new BObject( right.impref().selfIsObjImp( left.impref() ) ) );
+}
+
 // TOK_BSRIGHT:
 void Executor::ins_bitshift_right( const Instruction& /*ins*/ )
 {
@@ -3536,6 +3550,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_dictionary_addmember;
   case TOK_IN:
     return &Executor::ins_in;
+  case TOK_IS:
+    return &Executor::ins_is;
   case INS_ADDMEMBER2:
     return &Executor::ins_addmember2;
   case INS_ADDMEMBER_ASSIGN:

@@ -392,6 +392,8 @@ public:
   void ins_div( const Instruction& ins );
   void ins_modulus( const Instruction& ins );
 
+  void ins_is( const Instruction& ins );
+
   void ins_interpolate_string( const Instruction& ins );
   void ins_format_expression( const Instruction& ins );
 

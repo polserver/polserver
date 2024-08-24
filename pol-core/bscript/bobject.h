@@ -180,6 +180,9 @@ public:
   virtual bool operator>=( const BObjectImp& objimp ) const;
   virtual bool operator!=( const BObjectImp& objimp ) const;
 
+  virtual BObjectImp* selfIsObjImp( const BObjectImp& objimp ) const;
+  virtual BObjectImp* selfIsObj( const BObjectImp& objimp ) const;
+
   virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfPlusObj( const BLong& objimp ) const;
@@ -918,7 +921,7 @@ public:  // Class Machinery
   virtual BObjectImp* copy() const override;
   virtual bool isTrue() const override;
   virtual bool operator==( const BObjectImp& objimp ) const override;
-
+  virtual BObjectImp* selfIsObjImp( const BObjectImp& ) const override;
   virtual std::string getStringRep() const override;
 
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;

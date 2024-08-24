@@ -91,6 +91,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     w += ">=";
     break;
 
+  case TOK_IS:
+    w += "is";
+    break;
+
   case TOK_AND:
     w += "&& (logical and)";
     break;
