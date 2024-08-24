@@ -21,7 +21,7 @@ BClassInstance::BClassInstance( const BClassInstance& B ) : BStruct( B, OTClassI
 
 size_t BClassInstance::sizeEstimate() const
 {
-  return sizeof( BClassInstance ) + prog_->sizeEstimate();
+  return sizeof( BClassInstance );
 }
 
 ref_ptr<EScriptProgram> BClassInstance::prog() const
