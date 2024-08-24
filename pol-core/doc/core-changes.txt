@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+08-24-2024 Kevin:
+    Fixed: Resolved an issue where the Z coordinate of objects on a boat was incorrectly
+           calculated during turns (introduced in the 07-08-2024 nightly build).
 08-11-2024 Turley:
   Changed: EScript Formatter
            variable declaration list if it doesnt fit to the line, split on the commas.
