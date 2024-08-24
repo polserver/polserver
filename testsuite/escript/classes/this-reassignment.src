@@ -33,3 +33,9 @@ endclass
 
 var f2 := Foo2();
 print( f2 );
+
+print( "----" );
+
+// As usual, we can re-assign the variable that _holds_ a class instance.
+f2 := "abc";
+print( f2 );

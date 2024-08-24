@@ -7,3 +7,5 @@ Foo2::Foo2 this=<class Foo2>
 BaseClass::BaseClass this=<class Foo2>
 <class Foo2>
 <class Foo2>
+----
+abc

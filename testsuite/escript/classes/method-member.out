@@ -1,5 +1,7 @@
-PREFIX: NAME
+Member PREFIX: NAME
 ::StaticFunc arg0=ARG0
 foo.name equals 'NAME'? 1
 error{ errortext = "Method 'blubb' not found in class 'Foo'" }
 error{ errortext = "Method 'number' not found" }
+----
+Class PREFIX2 NAME2

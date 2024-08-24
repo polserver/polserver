@@ -1,13 +1,20 @@
 // Add a funcref member and call it.
 
 class Foo()
-  function Foo( this, name )
+  function Foo( this, name, use_member )
     this.name := name;
-    this.bar := @( prefix ) {
-      print( $"{prefix}: {this.name}" );
-    };
+    if ( use_member )
+      this.bar := @( prefix ) {
+        print( $"Member {prefix}: {this.name}" );
+      };
+    endif
     this.baz := @StaticFunc;
     this.number := 1234;
+  endfunction
+
+  // Should not be called, since `this.bar` is assigned in ctor.
+  function bar( this, prefix )
+    print( $"Class {prefix} {this.name}");
   endfunction
 endclass
 
@@ -15,7 +22,7 @@ function StaticFunc( arg0 )
   print( $"::StaticFunc arg0={arg0}" );
 endfunction
 
-var foo := Foo( "NAME" );
+var foo := Foo( "NAME", true );
 foo.bar("PREFIX");
 foo.baz("ARG0");
 print( $"foo.name equals 'NAME'? {foo.name == "NAME"}" );
@@ -26,3 +33,9 @@ print(foo.blubb());
 // Member not callable, but we still try to "call" it: errortext = "Method 'number' not found"
 // Notice the different error message from a not found method.
 print(foo.number());
+
+print( "----" );
+
+// Create a new Foo that does _not_ assign a member
+foo := Foo( "NAME2", false );
+foo.bar("PREFIX2");
