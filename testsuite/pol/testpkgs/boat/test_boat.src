@@ -322,11 +322,13 @@ exported function test_boat_turn_travellers()
     DestroyMulti(boat);
     return ret_error( $"Failed to create npc: {npc}" );
   endif
+
+  // The `z` coords of objects should not change.
   var checks:={
-    {1,4,  9,50, 10,49}, // right
-    {3,2, 10,51,  9,50}, // left
-    {2,6, 10,49, 11,50}, // around
-    {0,6, 10,49, 11,50}  // nothing
+    {1,4,  9,50,item.z, 10,49,npc.z}, // right
+    {3,2, 10,51,item.z,  9,50,npc.z}, // left
+    {2,6, 10,49,item.z, 11,50,npc.z}, // around
+    {0,6, 10,49,item.z, 11,50,npc.z}  // nothing
   };
   var result:=1;
   foreach check in checks
@@ -335,8 +337,8 @@ exported function test_boat_turn_travellers()
       result:=ret_error($"Failed to turn {check} {res}");
       break;
     endif
-    if (boat.facing != check[2] || item.x != check[3] || item.y != check[4] || npc.x != check[5] || npc.y != check[6])
-      result := ret_error($"Check failed {check}: facing {boat.facing} item {item.x},{item.y} npc {npc.x},{npc.y}");
+    if (boat.facing != check[2] || item.x != check[3] || item.y != check[4] || item.z != check[5] || npc.x != check[6] || npc.y != check[7] || npc.z != check[8])
+      result := ret_error($"Check failed {check}: facing {boat.facing} item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
       break;
     endif
   endforeach
@@ -368,7 +370,7 @@ exported function test_boat_move_travellers()
   if (!res)
     result:=ret_error($"Failed to move {res}");
   else
-    if ( item.x != 10 || item.y != 50 || item.z != 0 || 
+    if ( item.x != 10 || item.y != 50 || item.z != 0 ||
          npc.x != 9 || npc.y != 49 || npc.z != -1 )
       result := ret_error($"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
     elseif (boat.portplank.x != 10 || boat.portplank.y != 47 || boat.portplank.z != -4)
@@ -403,7 +405,7 @@ exported function test_boat_moveloc_travellers()
   if (!res)
     result:=ret_error($"Failed to move {res}");
   else
-    if ( item.x != 180 || item.y != 151 || item.z != 14 || 
+    if ( item.x != 180 || item.y != 151 || item.z != 14 ||
          npc.x != 179 || npc.y != 150 || npc.z != 13 )
       result := ret_error($"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
     elseif (boat.portplank.x != 180 || boat.portplank.y != 148 || boat.portplank.z != 10)

@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-11-2024</datemodified>
+		<datemodified>08-24-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-24-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Resolved an issue where the Z coordinate of objects on a boat was incorrectly<br/>
+calculated during turns (introduced in the 07-08-2024 nightly build).</change>
+		</entry>
 		<entry>
 			<date>08-11-2024</date>
 			<author>Turley:</author>
