@@ -292,6 +292,7 @@ expression
     | expression bop='?:' expression
     | expression bop='in' expression
     | expression bop=('<=' | '>=' | '>' | '<') expression
+    | expression bop='is' expression
     | expression bop='=' { notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n"); } expression
     | expression bop=('==' | '!=' | '<>') expression
     | expression bop=('&&' | 'and') expression

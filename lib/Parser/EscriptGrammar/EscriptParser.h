@@ -23,11 +23,11 @@ public:
     ENDPROGRAM = 30, CASE = 31, DEFAULT = 32, ENDCASE = 33, ENUM = 34, ENDENUM = 35, 
     CLASS = 36, ENDCLASS = 37, DOWNTO = 38, STEP = 39, REFERENCE = 40, TOK_OUT = 41, 
     INOUT = 42, BYVAL = 43, STRING = 44, TOK_LONG = 45, INTEGER = 46, UNSIGNED = 47, 
-    SIGNED = 48, REAL = 49, FLOAT = 50, DOUBLE = 51, AS = 52, IS = 53, ELLIPSIS = 54, 
-    AND_A = 55, AND_B = 56, OR_A = 57, OR_B = 58, BANG_A = 59, BANG_B = 60, 
-    BYREF = 61, UNUSED = 62, TOK_ERROR = 63, HASH = 64, DICTIONARY = 65, 
-    STRUCT = 66, ARRAY = 67, STACK = 68, TOK_IN = 69, UNINIT = 70, BOOL_TRUE = 71, 
-    BOOL_FALSE = 72, DECIMAL_LITERAL = 73, HEX_LITERAL = 74, OCT_LITERAL = 75, 
+    SIGNED = 48, REAL = 49, FLOAT = 50, DOUBLE = 51, AS = 52, ELLIPSIS = 53, 
+    AND_A = 54, AND_B = 55, OR_A = 56, OR_B = 57, BANG_A = 58, BANG_B = 59, 
+    BYREF = 60, UNUSED = 61, TOK_ERROR = 62, HASH = 63, DICTIONARY = 64, 
+    STRUCT = 65, ARRAY = 66, STACK = 67, TOK_IN = 68, UNINIT = 69, BOOL_TRUE = 70, 
+    BOOL_FALSE = 71, IS = 72, DECIMAL_LITERAL = 73, HEX_LITERAL = 74, OCT_LITERAL = 75, 
     BINARY_LITERAL = 76, FLOAT_LITERAL = 77, HEX_FLOAT_LITERAL = 78, STRING_LITERAL = 79, 
     INTERPOLATED_STRING_START = 80, LPAREN = 81, RPAREN = 82, LBRACK = 83, 
     RBRACK = 84, LBRACE = 85, RBRACE = 86, DOT = 87, ARROW = 88, MUL = 89, 
@@ -1256,6 +1256,7 @@ public:
     antlr4::tree::TerminalNode *GE();
     antlr4::tree::TerminalNode *GT();
     antlr4::tree::TerminalNode *LT();
+    antlr4::tree::TerminalNode *IS();
     antlr4::tree::TerminalNode *EQUAL_DEPRECATED();
     antlr4::tree::TerminalNode *EQUAL();
     antlr4::tree::TerminalNode *NOTEQUAL_B();
