@@ -3142,10 +3142,10 @@ void Executor::ins_double( const Instruction& ins )
   ValueStack.push_back( BObjectRef( new BObject( new Double( ins.token.dval ) ) ) );
 }
 
-// TODO skeleton
 void Executor::ins_classinst( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) );
+  ValueStack.push_back(
+      BObjectRef( new BConstObject( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )

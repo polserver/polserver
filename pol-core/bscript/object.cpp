@@ -42,6 +42,7 @@ namespace Pol
 namespace Bscript
 {
 Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
+Clib::fixed_allocator<sizeof( BConstObject ), 256> bconstobject_alloc;
 Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
 Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
 Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;

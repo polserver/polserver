@@ -423,13 +423,12 @@ T* impptrIf( BObjectImp* objimp )
 #undef impif_test
 }
 
-class BObject final : public ref_counted
+class BObject : public ref_counted
 {
 public:
   explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp ) { passert( objimp ); }
   BObject( const BObject& obj ) : ref_counted(), objimp( obj.objimp ) {}
-  ~BObject() = default;
-  // NOTE: BObject should not be derived from!
+  virtual ~BObject() = default;
   size_t sizeEstimate() const;
 
   void* operator new( std::size_t len );
@@ -444,7 +443,6 @@ public:
 
   BObjectImp* operator->() const { return objimp.get(); }
   bool isTrue() const { return objimp->isTrue(); }
-  void assign( const BObjectImp& objimp );
 
   BObject* clone() const;
 
@@ -465,13 +463,34 @@ public:
   template <typename T = BObjectImp>
   const T& impref() const;
 
-  void setimp( BObjectImp* imp );
+  virtual void setimp( BObjectImp* imp );
 
 private:
   ref_ptr<BObjectImp> objimp;
 
-  BObject& operator=( const BObject& obj );
 };
+
+class BConstObject : public BObject
+{
+public:
+  explicit BConstObject( BObjectImp* objimp ) : BObject( objimp ) {}
+  ~BConstObject() override = default;
+  void setimp( BObjectImp* ) override{ /* do nothing */ };
+  void* operator new( std::size_t len );
+  void operator delete( void* );
+};
+
+extern Clib::fixed_allocator<sizeof( BConstObject ), 256> bconstobject_alloc;
+
+inline void* BConstObject::operator new( std::size_t /*len*/ )
+{
+  return bconstobject_alloc.allocate();
+}
+
+inline void BConstObject::operator delete( void* p )
+{
+  bconstobject_alloc.deallocate( p );
+}
 
 typedef std::vector<ref_ptr<BObjectImp>> BObjectImpRefVec;
 

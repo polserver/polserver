@@ -1,0 +1,9 @@
+Foo1::Foo1 this=<class Foo1>
+BaseClass::BaseClass this=<class Foo1>
+Foo1::Foo1 this=<class Foo1>
+<class Foo1>
+----
+Foo2::Foo2 this=<class Foo2>
+BaseClass::BaseClass this=<class Foo2>
+<class Foo2>
+<class Foo2>

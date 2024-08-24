@@ -1,0 +1,35 @@
+// Tests with modifying `this` in the constructor.
+// We should never see `uninit` in the output.
+
+class BaseClass()
+  function BaseClass( this )
+    print( $"BaseClass::BaseClass this={this}" );
+  endfunction
+endclass
+
+// Call super() before modifying this
+class Foo1( BaseClass )
+  function Foo1( this )
+    print( $"Foo1::Foo1 this={this}" );
+    super();
+    this := uninit;
+    print( $"Foo1::Foo1 this={this}" );
+  endfunction
+endclass
+
+var f1 := Foo1();
+print( f1 );
+print( "----" );
+
+// Call super() after modifying this
+class Foo2( BaseClass )
+  function Foo2( this )
+    print( $"Foo2::Foo2 this={this}" );
+    this := uninit;
+    super();
+    print( this );
+  endfunction
+endclass
+
+var f2 := Foo2();
+print( f2 );
