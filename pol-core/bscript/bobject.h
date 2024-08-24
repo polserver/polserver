@@ -476,21 +476,9 @@ public:
   explicit BConstObject( BObjectImp* objimp ) : BObject( objimp ) {}
   ~BConstObject() override = default;
   void setimp( BObjectImp* ) override{ /* do nothing */ };
-  void* operator new( std::size_t len );
-  void operator delete( void* );
+  // This class does not use a specific fixed allocator, sharing the BObject
+  // one. Do not add new members to this class.
 };
-
-extern Clib::fixed_allocator<sizeof( BConstObject ), 256> bconstobject_alloc;
-
-inline void* BConstObject::operator new( std::size_t /*len*/ )
-{
-  return bconstobject_alloc.allocate();
-}
-
-inline void BConstObject::operator delete( void* p )
-{
-  bconstobject_alloc.deallocate( p );
-}
 
 typedef std::vector<ref_ptr<BObjectImp>> BObjectImpRefVec;
 
