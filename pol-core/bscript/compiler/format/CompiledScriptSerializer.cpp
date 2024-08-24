@@ -108,6 +108,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
     ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );
     for ( auto& elem : compiled_script.function_references )
     {
+      bfr.address = elem.address();
       bfr.parameter_count = elem.parameter_count();
       bfr.capture_count = elem.capture_count();
       bfr.is_variadic = elem.is_variadic();
@@ -139,7 +140,6 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       for ( const auto& constructor : elem.constructors )
       {
         BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce{};
-        bctce.address = constructor.address;
         bctce.function_reference_index = constructor.function_reference_index;
         ofs.write( reinterpret_cast<const char*>( &bctce ), sizeof bctce );
       }
@@ -149,7 +149,6 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       {
         BSCRIPT_CLASS_TABLE_METHOD_ENTRY bctme{};
         bctme.name_offset = method.name_offset;
-        bctme.address = method.address;
         bctme.function_reference_index = method.function_reference_index;
         ofs.write( reinterpret_cast<const char*>( &bctme ), sizeof bctme );
       }

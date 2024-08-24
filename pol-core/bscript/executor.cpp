@@ -2921,7 +2921,8 @@ void Executor::ins_check_mro( const Instruction& ins )
   auto ctor_addr = jsr_ins.token.lval;
 
   auto classinst = classinst_ref->impptr_if<BClassInstance>();
-  if ( classinst == nullptr || classinst->constructors_called.find( ctor_addr ) != classinst->constructors_called.end() )
+  if ( classinst == nullptr ||
+       classinst->constructors_called.find( ctor_addr ) != classinst->constructors_called.end() )
   {
     // Constructor has been called, or `this` is not a class instance: clear
     // arguments and skip jump instructions (makelocal, jsr_userfunc)
@@ -3307,12 +3308,18 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 // case TOK_FUNCREF:
 void Executor::ins_funcref( const Instruction& ins )
 {
-  auto funcref_index = static_cast<int>( ins.token.type );
+  if ( ins.token.lval >= static_cast<int>( prog_->function_references.size() ) )
+  {
+    POLLOG_ERRORLN( "Function reference index out of bounds: {} >= {}", ins.token.lval,
+                    prog_->function_references.size() );
+    seterror( true );
+    return;
+  }
 
-  const auto& ep_funcref = prog_->function_references[funcref_index];
+  const auto& ep_funcref = prog_->function_references.at( ins.token.lval );
 
   ValueStack.push_back(
-      BObjectRef( new BFunctionRef( prog_, ins.token.lval, ep_funcref.parameter_count,
+      BObjectRef( new BFunctionRef( prog_, ep_funcref.address, ep_funcref.parameter_count,
                                     ep_funcref.is_variadic, Globals2, {} /* captures */ ) ) );
 }
 

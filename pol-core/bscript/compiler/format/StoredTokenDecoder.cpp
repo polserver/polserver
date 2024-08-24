@@ -392,8 +392,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case TOK_FUNCREF:
   {
-    fmt::format_to( std::back_inserter( w ), "create-funcref index={} pc={} (TOK_FUNCREF)",
-                    static_cast<int>( tkn.type ), tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "create-funcref index={} (TOK_FUNCREF)", tkn.offset );
     break;
   }
 

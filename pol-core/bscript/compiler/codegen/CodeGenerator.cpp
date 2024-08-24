@@ -53,6 +53,11 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
   FunctionReferenceRegistrar function_reference_registrar;
   ClassDeclarationRegistrar class_declaration_registrar;
 
+  // This method must own user_function_labels, as the
+  // FunctionReferenceRegistrar uses references to these labels until their
+  // descriptors are grabbed via `take_descriptors` (also in this method).
+  std::map<std::string, FlowControlLabel> user_function_labels;
+
   InstructionEmitter instruction_emitter(
       code, data, debug, exported_functions, module_declaration_registrar,
       function_reference_registrar, class_declaration_registrar, report );
@@ -92,8 +97,7 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
   emitter.debug_statementbegin();
   emitter.debug_file_line( 0, 1 );
 
-  std::map<std::string, FlowControlLabel> user_function_labels;
-  InstructionGenerator generator( emitter, user_function_labels,
+  InstructionGenerator generator( emitter, workspace.user_function_labels,
                                   workspace.class_declaration_indexes );
 
   workspace.top_level_statements->accept( generator );

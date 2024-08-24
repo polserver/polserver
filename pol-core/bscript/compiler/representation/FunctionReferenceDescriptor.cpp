@@ -2,12 +2,18 @@
 
 namespace Pol::Bscript::Compiler
 {
-FunctionReferenceDescriptor::FunctionReferenceDescriptor( int parameter_count, int capture_count,
-                                                          bool is_variadic )
-    : parameter_count_( parameter_count ),
+FunctionReferenceDescriptor::FunctionReferenceDescriptor( unsigned address, int parameter_count,
+                                                          int capture_count, bool is_variadic )
+    : address_( address ),
+      parameter_count_( parameter_count ),
       capture_count_( capture_count ),
       is_variadic_( is_variadic )
 {
+}
+
+unsigned FunctionReferenceDescriptor::address() const
+{
+  return address_;
 }
 
 int FunctionReferenceDescriptor::parameter_count() const

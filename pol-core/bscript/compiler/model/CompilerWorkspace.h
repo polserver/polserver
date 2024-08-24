@@ -14,6 +14,7 @@ namespace Pol::Bscript::Compiler
 {
 class Block;
 class ClassDeclaration;
+class FlowControlLabel;
 class ConstDeclaration;
 class ModuleFunctionDeclaration;
 class Program;
@@ -50,6 +51,7 @@ public:
   std::map<std::string, SourceLocation, Clib::ci_cmp_pred> all_class_locations;
 
   std::vector<std::string> global_variable_names;
+  std::map<std::string, FlowControlLabel> user_function_labels;
 };
 
 }  // namespace Pol::Bscript::Compiler

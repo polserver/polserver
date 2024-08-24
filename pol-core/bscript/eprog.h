@@ -80,20 +80,21 @@ struct EPExportedFunction
 
 struct EPFunctionReference
 {
+  unsigned address;
   int parameter_count;
   int capture_count;
   bool is_variadic;
 
   bool operator==( const EPFunctionReference& other ) const
   {
-    return parameter_count == other.parameter_count && capture_count == other.capture_count &&
-           is_variadic == other.is_variadic;
+    return address == other.address && parameter_count == other.parameter_count &&
+           capture_count == other.capture_count && is_variadic == other.is_variadic;
   }
 };
 
 struct EPMethodDescriptor
 {
-  unsigned address;
+  // unsigned address;
   unsigned function_reference_index;
 };
 

@@ -62,7 +62,8 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
   // Eg: `function foo(this, arg0)` (two params) -> `this.foo(arg0)` (one param)
   auto param_count = funcref_table_entry.parameter_count - 1;
 
-  return new BFunctionRef( prog_, static_cast<int>( method_itr->second.address ), param_count,
+
+  return new BFunctionRef( prog_, funcref_table_entry.address, param_count,
                            funcref_table_entry.is_variadic, globals, ValueStackCont{} );
 }
 
@@ -122,15 +123,14 @@ BObjectRef BClassInstance::get_member_id( const int id )
       const auto& constructors = prog_->class_descriptors.at( index_ ).constructors;
       if ( !constructors.empty() )
       {
-        auto address = constructors.front().address;
         auto funcref_index = constructors.front().function_reference_index;
         if ( funcref_index < prog_->function_references.size() )
         {
           const auto& funcref_entry = prog_->function_references.at( funcref_index );
 
-          return BObjectRef(
-              new BFunctionRef( prog_, static_cast<int>( address ), funcref_entry.parameter_count,
-                                funcref_entry.is_variadic, globals, ValueStackCont{} ) );
+          return BObjectRef( new BFunctionRef(
+              prog_, static_cast<int>( funcref_entry.address ), funcref_entry.parameter_count,
+              funcref_entry.is_variadic, globals, ValueStackCont{} ) );
         }
       }
     }

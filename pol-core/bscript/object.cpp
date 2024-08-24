@@ -2370,8 +2370,13 @@ BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
   auto& addresses = prog_->class_descriptors[classinst->index()].constructors;
 
   auto result =
-      std::find_if( addresses.begin(), addresses.end(),
-                    [this]( const auto& addr ) { return addr.address == pc_; } ) != addresses.end();
+      std::find_if(
+          addresses.begin(), addresses.end(),
+          [this]( const EPMethodDescriptor& address )
+          {
+            return address.function_reference_index < prog_->function_references.size() &&
+                   prog_->function_references.at( address.function_reference_index ).address == pc_;
+          } ) != addresses.end();
   return new BBoolean( result );
 }
 

@@ -128,11 +128,12 @@ static_assert( sizeof( BSCRIPT_EXPORTED_FUNCTION ) == 41, "size missmatch" );
 
 struct BSCRIPT_FUNCTION_REFERENCE
 {
+  unsigned address;
   int parameter_count;
   int capture_count;
   bool is_variadic;
 };
-static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 9, "size missmatch" );
+static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 13, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE
 {
@@ -151,19 +152,17 @@ static_assert( sizeof( BSCRIPT_CLASS_TABLE_ENTRY ) == 12, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY
 {
-  unsigned address;
   unsigned function_reference_index;
 };
-static_assert( sizeof( BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY ) == 8, "size missmatch" );
+static_assert( sizeof( BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY ) == 4, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE_METHOD_ENTRY
 {
   unsigned name_offset;
-  unsigned address;
   unsigned function_reference_index;
 };
 
-static_assert( sizeof( BSCRIPT_CLASS_TABLE_METHOD_ENTRY ) == 12, "size missmatch" );
+static_assert( sizeof( BSCRIPT_CLASS_TABLE_METHOD_ENTRY ) == 8, "size missmatch" );
 
 #pragma pack( pop )
 }  // namespace Bscript

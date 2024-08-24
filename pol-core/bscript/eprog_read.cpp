@@ -428,6 +428,7 @@ int EScriptProgram::read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr
     if ( fread( &bfr, sizeof bfr, 1, fp ) != 1 )
       return -1;
     EPFunctionReference fr;
+    fr.address = bfr.address;
     fr.parameter_count = bfr.parameter_count;
     fr.capture_count = bfr.capture_count;
     fr.is_variadic = bfr.is_variadic;
@@ -460,8 +461,7 @@ int EScriptProgram::read_class_table( FILE* fp )
       BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce;
       if ( fread( &bctce, sizeof bctce, 1, fp ) != 1 )
         return -1;
-      constructors.push_back(
-          EPMethodDescriptor{ bctce.address, bctce.function_reference_index } );
+      constructors.push_back( EPMethodDescriptor{ bctce.function_reference_index } );
     }
 
     // Handle methods
@@ -472,12 +472,11 @@ int EScriptProgram::read_class_table( FILE* fp )
       if ( fread( &bctme, sizeof bctme, 1, fp ) != 1 )
         return -1;
 
-      methods[bctme.name_offset] =
-          EPMethodDescriptor{ bctme.address, bctme.function_reference_index };
+      methods[bctme.name_offset] = EPMethodDescriptor{ bctme.function_reference_index };
     }
 
-    class_descriptors.push_back( EPClassDescriptor{
-        bcte.name_offset, std::move( constructors ), std::move( methods ) } );
+    class_descriptors.push_back(
+        EPClassDescriptor{ bcte.name_offset, std::move( constructors ), std::move( methods ) } );
   }
   return 0;
 }

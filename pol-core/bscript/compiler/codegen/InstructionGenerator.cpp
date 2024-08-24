@@ -541,7 +541,11 @@ void InstructionGenerator::visit_function_expression( FunctionExpression& node )
       emit_access_variable( *variable->capturing );
     }
 
-    emit.functor_create( *user_function );
+    // Create a new FlowControlLabel via operator[] on user_function_labels. Its
+    // address will be assigned when visiting the user function (below).
+    auto& label = user_function_labels[user_function->scoped_name()];
+
+    emit.functor_create( *user_function, label );
     auto index = emitter.next_instruction_address() - 1;
 
     user_function->accept( *this );
