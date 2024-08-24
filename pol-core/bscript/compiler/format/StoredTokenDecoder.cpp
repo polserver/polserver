@@ -339,15 +339,15 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case INS_GET_MEMBER_ID:
     fmt::format_to( std::back_inserter( w ), "get-member-id '{}' ({})",
-                    getObjMember( tkn.type )->code, tkn.type );
+                    getObjMember( tkn.offset )->code, tkn.offset );
     break;
   case INS_SET_MEMBER_ID:
     fmt::format_to( std::back_inserter( w ), "set-member-id '{}' ({})",
-                    getObjMember( tkn.type )->code, tkn.type );
+                    getObjMember( tkn.offset )->code, tkn.offset );
     break;
   case INS_SET_MEMBER_ID_CONSUME:
     fmt::format_to( std::back_inserter( w ), "set-member-id-consume '{}' ({})",
-                    getObjMember( tkn.type )->code, tkn.type );
+                    getObjMember( tkn.offset )->code, tkn.offset );
     break;
   case INS_CALL_METHOD_ID:
     fmt::format_to( std::back_inserter( w ), "call-method-id '{}' (#{}, {} arguments)",

@@ -13,6 +13,7 @@ class MemberAccess : public Expression
 {
 public:
   MemberAccess( const SourceLocation&, std::unique_ptr<Expression> lhs, std::string name );
+  MemberAccess( const SourceLocation&, std::unique_ptr<Expression> lhs, MemberID );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;

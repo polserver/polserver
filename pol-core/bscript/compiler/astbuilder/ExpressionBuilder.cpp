@@ -481,6 +481,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   {
     return navigation( std::move( lhs ), member );
   }
+  else if ( auto function_suffix = ctx->functionSuffix() )
+  {
+    return navigation( std::move( lhs ), function_suffix );
+  }
   else if ( auto method = ctx->methodCallSuffix() )
   {
     return method_call( std::move( lhs ), method );
@@ -493,6 +497,12 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   {
     location_for( *ctx ).internal_error( "unhandled navigation suffix" );
   }
+}
+
+std::unique_ptr<MemberAccess> ExpressionBuilder::navigation(
+    std::unique_ptr<Expression> lhs, EscriptParser::FunctionSuffixContext* ctx )
+{
+  return std::make_unique<MemberAccess>( location_for( *ctx ), std::move( lhs ), MBR_FUNCTION );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::prefix_unary_operator(

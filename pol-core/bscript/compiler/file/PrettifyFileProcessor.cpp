@@ -553,6 +553,12 @@ antlrcpp::Any PrettifyFileProcessor::expression_suffix(
     visitIndexList( indexing->indexList() );
     addToken( "]", indexing->RBRACK(), FmtToken::SPACE | FmtToken::ATTACHED );
   }
+  else if ( auto function_suffix = expr_suffix_ctx->functionSuffix() )
+  {
+    visitExpression( expr_ctx );
+    addToken( ".", function_suffix->DOT(), FmtToken::ATTACHED );
+    addToken( "function", function_suffix->FUNCTION(), FmtToken::ATTACHED );
+  }
   else if ( auto member = expr_suffix_ctx->navigationSuffix() )
   {
     visitExpression( expr_ctx );

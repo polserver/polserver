@@ -16,6 +16,14 @@ MemberAccess::MemberAccess( const SourceLocation& source_location, std::unique_p
 {
 }
 
+MemberAccess::MemberAccess( const SourceLocation& source_location, std::unique_ptr<Expression> lhs,
+                            MemberID member_id )
+    : Expression( source_location, std::move( lhs ) ),
+      name( Pol::Bscript::getObjMember( member_id )->code ),
+      known_member( Pol::Bscript::getObjMember( member_id ) )
+{
+}
+
 void MemberAccess::accept( NodeVisitor& visitor )
 {
   visitor.visit_member_access( *this );

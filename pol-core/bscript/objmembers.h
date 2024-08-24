@@ -301,6 +301,7 @@ enum MemberID
   MBR_BUFFS,
   MBR_WEIGHT_MULTIPLIER_MOD,
   MBR_HELD_WEIGHT_MULTIPLIER, // 260
+  MBR_FUNCTION,
 };
 
 inline auto format_as( MemberID id )
@@ -313,6 +314,7 @@ typedef struct
   MemberID id;
   char code[30];
   bool read_only;
+  bool hidden; // if true, script use of `obj.code` will never be optimized to `id`.
 } ObjMember;
 
 extern ObjMember object_members[];
