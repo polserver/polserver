@@ -239,6 +239,9 @@ public:
   virtual void enterNavigationSuffix(EscriptParser::NavigationSuffixContext * /*ctx*/) override { }
   virtual void exitNavigationSuffix(EscriptParser::NavigationSuffixContext * /*ctx*/) override { }
 
+  virtual void enterFunctionSuffix(EscriptParser::FunctionSuffixContext * /*ctx*/) override { }
+  virtual void exitFunctionSuffix(EscriptParser::FunctionSuffixContext * /*ctx*/) override { }
+
   virtual void enterMethodCallSuffix(EscriptParser::MethodCallSuffixContext * /*ctx*/) override { }
   virtual void exitMethodCallSuffix(EscriptParser::MethodCallSuffixContext * /*ctx*/) override { }
 

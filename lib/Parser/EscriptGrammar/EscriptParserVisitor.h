@@ -168,6 +168,8 @@ public:
 
     virtual std::any visitNavigationSuffix(EscriptParser::NavigationSuffixContext *context) = 0;
 
+    virtual std::any visitFunctionSuffix(EscriptParser::FunctionSuffixContext *context) = 0;
+
     virtual std::any visitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *context) = 0;
 
     virtual std::any visitFunctionCallSuffix(EscriptParser::FunctionCallSuffixContext *context) = 0;

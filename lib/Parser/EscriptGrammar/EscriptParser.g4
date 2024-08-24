@@ -365,6 +365,7 @@ expressionSuffix
     : indexingSuffix
     | methodCallSuffix
     | navigationSuffix
+    | functionSuffix
     | functionCallSuffix
     ;
 
@@ -378,6 +379,10 @@ indexList
 
 navigationSuffix
     : '.' ( IDENTIFIER | STRING_LITERAL )
+    ;
+
+functionSuffix
+    : '.' FUNCTION
     ;
 
 methodCallSuffix
