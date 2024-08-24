@@ -12,7 +12,6 @@
 #include <sstream>
 #include <string>
 
-#include "../../bscript/bstruct.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/passert.h"
