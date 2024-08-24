@@ -429,6 +429,7 @@ public:
   explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp ) { passert( objimp ); }
   BObject( const BObject& obj ) : ref_counted(), objimp( obj.objimp ) {}
   virtual ~BObject() = default;
+  BObject& operator=(const BObject&) = delete;
   size_t sizeEstimate() const;
 
   void* operator new( std::size_t len );
