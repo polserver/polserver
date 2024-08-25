@@ -153,7 +153,8 @@ void InstructionEmitter::register_class_declaration(
 
   for ( const auto& constructor : constructor_descriptors )
   {
-    report.debug( node, fmt::format( " - Constructor @ FuncRef={}", constructor.function_reference_index ) );
+    report.debug(
+        node, fmt::format( " - Constructor @ FuncRef={}", constructor.function_reference_index ) );
   }
 
   for ( const auto& method_info : method_descriptors )

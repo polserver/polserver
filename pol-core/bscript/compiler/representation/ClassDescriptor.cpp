@@ -2,7 +2,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-ClassDescriptor::ClassDescriptor( unsigned name_offset, std::vector<ConstructorDescriptor> constructors,
+ClassDescriptor::ClassDescriptor( unsigned name_offset,
+                                  std::vector<ConstructorDescriptor> constructors,
                                   std::vector<MethodDescriptor> methods )
     : name_offset( name_offset ),
       constructors( std::move( constructors ) ),
