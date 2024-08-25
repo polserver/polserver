@@ -7,3 +7,6 @@ A::A this=<class A>
 B::B this=<class B> args={ foo, bar }
 <class A>
 <class B>
+----
+1
+0

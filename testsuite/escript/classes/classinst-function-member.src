@@ -25,3 +25,9 @@ var bb := b.function.new("foo","bar");
 
 print( aa );
 print( bb );
+
+print( "----" );
+
+// Equality checks
+print( aa == aa );
+print( aa == bb );
