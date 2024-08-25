@@ -17,7 +17,8 @@ public:
   FunctionReferenceRegistrar();
 
 
-  std::vector<FunctionReferenceDescriptor> take_descriptors();
+  std::vector<FunctionReferenceDescriptor> take_descriptors(
+      const std::map<std::string, size_t>& class_declaration_indexes );
 
   void lookup_or_register_reference( const UserFunction& node, FlowControlLabel& label,
                                      unsigned& index );

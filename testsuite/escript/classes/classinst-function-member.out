@@ -1,8 +1,9 @@
 A::A this=<class A>
-B::B this=<class B>
+B::B this=<class B> args={ args }
 FunctionObject
 FunctionObject
-A::A this=struct{  }
-B::B this=struct{  }
-struct{  }
-struct{  }
+----
+A::A this=<class A>
+B::B this=<class B> args={ foo, bar }
+<class A>
+<class B>

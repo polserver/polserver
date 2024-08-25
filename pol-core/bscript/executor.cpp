@@ -2662,7 +2662,8 @@ void Executor::ins_call_method_id( const Instruction& ins )
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
         BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
-        call_function_reference( funcr, continuation, jmp );
+        bool add_new_classinst = ins.token.lval == MTH_NEW;
+        call_function_reference( funcr, continuation, jmp, add_new_classinst );
         return;
       }
     }
@@ -2800,7 +2801,7 @@ void Executor::ins_call_method( const Instruction& ins )
       {
         fparams.insert( fparams.begin(), ValueStack.back() );
         BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
-        call_function_reference( funcr, nullptr, jmp );
+        call_function_reference( funcr, nullptr, jmp, false );
         return;
       }
     }
@@ -2811,7 +2812,7 @@ void Executor::ins_call_method( const Instruction& ins )
     if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
     {
       BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
-      call_function_reference( funcr, nullptr, jmp );
+      call_function_reference( funcr, nullptr, jmp, false );
       return;
     }
   }
@@ -3116,7 +3117,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
-        call_function_reference( funcr, cont, jmp );
+        call_function_reference( funcr, cont, jmp, false );
       }
       else
       {
@@ -3318,9 +3319,9 @@ void Executor::ins_funcref( const Instruction& ins )
 
   const auto& ep_funcref = prog_->function_references.at( ins.token.lval );
 
-  ValueStack.push_back(
-      BObjectRef( new BFunctionRef( prog_, ep_funcref.address, ep_funcref.parameter_count,
-                                    ep_funcref.is_variadic, Globals2, {} /* captures */ ) ) );
+  ValueStack.push_back( BObjectRef( new BFunctionRef(
+      prog_, ep_funcref.address, ep_funcref.parameter_count, ep_funcref.is_variadic,
+      ep_funcref.class_index, Globals2, {} /* captures */ ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3340,7 +3341,7 @@ void Executor::ins_functor( const Instruction& ins )
   }
 
   auto func = new BFunctionRef( prog_, PC, ep_funcref.parameter_count, ep_funcref.is_variadic,
-                                Globals2, std::move( captures ) );
+                                ep_funcref.class_index, Globals2, std::move( captures ) );
 
   ValueStack.push_back( BObjectRef( func ) );
 
@@ -3711,7 +3712,7 @@ void Executor::show_context( std::string& os, unsigned atPC )
 }
 
 void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* continuation,
-                                        const Instruction& jmp )
+                                        const Instruction& jmp, bool add_new_classinst )
 {
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
@@ -3719,6 +3720,20 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
   // Push captured parameters onto the stack prior to function parameters.
   for ( auto& p : funcr->captures )
     ValueStack.push_back( p );
+
+  if ( add_new_classinst )
+  {
+    if ( funcr->class_index() >= prog_->class_descriptors.size() )
+    {
+      POLLOG_ERRORLN( "Class index out of bounds: {} >= {} ({},PC={})", funcr->class_index(),
+                      prog_->class_descriptors.size(), prog_->name, PC );
+      seterror( true );
+      return;
+    }
+
+    fparams.insert( fparams.begin(), BObjectRef( new BConstObject( new BClassInstance(
+                                         prog_, funcr->class_index(), Globals2 ) ) ) );
+  }
 
   if ( funcr->variadic() )
   {

@@ -64,7 +64,8 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
 
 
   return new BFunctionRef( prog_, funcref_table_entry.address, param_count,
-                           funcref_table_entry.is_variadic, globals, ValueStackCont{} );
+                           funcref_table_entry.is_variadic, funcref_table_entry.class_index,
+                           globals, ValueStackCont{} );
 }
 
 void BClassInstance::packonto( std::ostream& os ) const
@@ -130,7 +131,7 @@ BObjectRef BClassInstance::get_member_id( const int id )
 
           return BObjectRef( new BFunctionRef(
               prog_, static_cast<int>( funcref_entry.address ), funcref_entry.parameter_count,
-              funcref_entry.is_variadic, globals, ValueStackCont{} ) );
+              funcref_entry.is_variadic, funcref_entry.class_index, globals, ValueStackCont{} ) );
         }
       }
     }

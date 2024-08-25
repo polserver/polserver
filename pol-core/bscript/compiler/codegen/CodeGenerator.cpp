@@ -73,7 +73,7 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
       module_declaration_registrar.take_module_descriptors();
 
   std::vector<FunctionReferenceDescriptor> function_references =
-      function_reference_registrar.take_descriptors();
+      function_reference_registrar.take_descriptors( workspace->class_declaration_indexes );
 
   std::vector<ClassDescriptor> class_descriptors = class_declaration_registrar.take_descriptors();
 

@@ -132,8 +132,9 @@ struct BSCRIPT_FUNCTION_REFERENCE
   int parameter_count;
   int capture_count;
   bool is_variadic;
+  unsigned class_index;
 };
-static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 13, "size missmatch" );
+static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 17, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE
 {

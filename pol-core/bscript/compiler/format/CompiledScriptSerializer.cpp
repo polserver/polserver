@@ -112,6 +112,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       bfr.parameter_count = elem.parameter_count();
       bfr.capture_count = elem.capture_count();
       bfr.is_variadic = elem.is_variadic();
+      bfr.class_index = elem.class_index();
       ofs.write( reinterpret_cast<const char*>( &bfr ), sizeof bfr );
     }
   }

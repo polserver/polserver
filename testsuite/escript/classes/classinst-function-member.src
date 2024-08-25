@@ -7,19 +7,21 @@ class A()
 endclass
 
 class B()
-  function B( this )
-    print( $"B::B this={this}" );
+  function B( this, args... )
+    print( $"B::B this={this} args={args}" );
   endfunction
 endclass
 
 var a := A();
-var b := B();
+var b := B("args");
 
 print( a.function );
 print( b.function );
 
-var aa := ( a.function )( struct{} );
-var bb := b.function.call( struct{} );
+print("----");
+
+var aa := ( a.function ).new();
+var bb := b.function.new("foo","bar");
 
 print( aa );
 print( bb );

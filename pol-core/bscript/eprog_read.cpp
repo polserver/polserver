@@ -432,6 +432,7 @@ int EScriptProgram::read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr
     fr.parameter_count = bfr.parameter_count;
     fr.capture_count = bfr.capture_count;
     fr.is_variadic = bfr.is_variadic;
+    fr.class_index = bfr.class_index;
 
     function_references.push_back( fr );
   }

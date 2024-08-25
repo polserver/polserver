@@ -470,6 +470,7 @@ ObjMethod object_methods[] = {
     { MTH_MAP, "map", false },
     { MTH_FINDINDEX, "findindex", false },  // 160
     { MTH_SET_MULTIID, "set_multiid", false },
+    { MTH_NEW, "new", false },
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )

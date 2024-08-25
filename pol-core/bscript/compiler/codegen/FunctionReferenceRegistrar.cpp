@@ -1,7 +1,11 @@
 #include "FunctionReferenceRegistrar.h"
 
+#include <limits.h>
+
+#include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
@@ -25,7 +29,8 @@ void FunctionReferenceRegistrar::register_function_reference( const UserFunction
   }
 }
 
-std::vector<FunctionReferenceDescriptor> FunctionReferenceRegistrar::take_descriptors()
+std::vector<FunctionReferenceDescriptor> FunctionReferenceRegistrar::take_descriptors(
+    const std::map<std::string, size_t>& class_declaration_indexes )
 {
   std::vector<FunctionReferenceDescriptor> descriptors;
 
@@ -38,8 +43,28 @@ std::vector<FunctionReferenceDescriptor> FunctionReferenceRegistrar::take_descri
           "cannot take funcref descriptors as funcref has no address" );
     }
 
+    unsigned class_index = std::numeric_limits<unsigned>::max();
+
+    if ( v->user_function.class_link )
+    {
+      if ( auto cd = v->user_function.class_link->class_declaration() )
+      {
+        auto cd_itr = class_declaration_indexes.find( cd->name );
+
+        if ( cd_itr == class_declaration_indexes.end() )
+        {
+          v->user_function.internal_error(
+              "cannot take funcref descriptors as funcref has no class declaration"
+              "index" );
+        }
+
+        class_index = cd_itr->second;
+      }
+    }
+
     descriptors.emplace_back( v->label.address(), v->user_function.parameter_count(),
-                              v->user_function.capture_count(), v->user_function.is_variadic() );
+                              v->user_function.capture_count(), v->user_function.is_variadic(),
+                              class_index );
   }
 
   registered_references.clear();

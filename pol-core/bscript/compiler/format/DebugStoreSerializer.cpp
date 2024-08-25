@@ -131,10 +131,11 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     *text_ofs << "Function references:\n";
     for ( const auto& function_reference : compiled_script.function_references )
     {
-      *text_ofs << fmt::format( " {}: address={}, parameters={}, captures={}, variadic={}", index++,
-                                function_reference.address(), function_reference.parameter_count(),
-                                function_reference.capture_count(),
-                                function_reference.is_variadic() )
+      *text_ofs << fmt::format(
+                       " {}: address={}, parameters={}, captures={}, variadic={}, class_index={}",
+                       index++, function_reference.address(), function_reference.parameter_count(),
+                       function_reference.capture_count(), function_reference.is_variadic(),
+                       function_reference.class_index() )
                 << std::endl;
     }
   }

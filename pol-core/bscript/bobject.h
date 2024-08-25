@@ -903,7 +903,8 @@ class BFunctionRef final : public BObjectImp
 
 public:
   BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count, bool variadic,
-                std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures );
+                unsigned class_index, std::shared_ptr<ValueStackCont> globals,
+                ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -916,6 +917,7 @@ public:
   size_t numParams() const;
   bool variadic() const;
   ref_ptr<EScriptProgram> prog() const;
+  unsigned class_index() const;
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const override;
@@ -935,6 +937,7 @@ private:
   unsigned int pc_;
   int num_params_;
   bool variadic_;
+  unsigned class_index_;
 
 public:
   std::shared_ptr<ValueStackCont> globals;
