@@ -2484,8 +2484,7 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*for
     if ( variadic_ )
     {
       return new BError( fmt::format( "Invalid argument count: expected {}+, got {}",
-                                      static_cast<int>( num_params_ ) - 2 /* remove 'this' */,
-                                      ex.numParams() ) );
+                                      num_params_ - 2 /* remove 'this' */, ex.numParams() ) );
     }
     else
     {
