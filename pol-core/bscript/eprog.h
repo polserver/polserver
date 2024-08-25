@@ -96,7 +96,6 @@ struct EPFunctionReference
 
 struct EPMethodDescriptor
 {
-  // unsigned address;
   unsigned function_reference_index;
 };
 

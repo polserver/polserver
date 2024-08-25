@@ -2415,12 +2415,12 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
   {
     if ( variadic_ )
     {
-      if ( passed_args < num_params_ - 2 /* remove this, optional rest arg */ )
+      if ( passed_args < num_params_ - 2 /* remove 'this', optional rest arg */ )
         return false;
     }
     else
     {
-      if ( passed_args != num_params_ - 1 /* remove this */ )
+      if ( passed_args != num_params_ - 1 /* remove 'this' */ )
         return false;
     }
   }
@@ -2484,13 +2484,13 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*for
     if ( variadic_ )
     {
       return new BError( fmt::format( "Invalid argument count: expected {}+, got {}",
-                                      static_cast<int>( num_params_ ) - 2 /*remove this*/,
+                                      static_cast<int>( num_params_ ) - 2 /* remove 'this' */,
                                       ex.numParams() ) );
     }
     else
     {
       return new BError( fmt::format( "Invalid argument count: expected {}, got {}",
-                                      num_params_ - 1 /*remove this*/, ex.numParams() ) );
+                                      num_params_ - 1 /* remove 'this' */, ex.numParams() ) );
     }
   }
   default:
