@@ -1,0 +1,31 @@
+// Can construct an object through its base-class ctor
+// TODO implement this
+
+class A()
+  function A( this )
+    print( $"A::A this={this}" );
+  endfunction
+  function Foo()
+  endfunction
+endclass
+
+class B(A)
+  function MethodB( this )
+    print( $"B::MethodB this={this}" );
+  endfunction
+endclass
+
+class C(A)
+  function MethodB( this )
+    print( $"C::MethodB this={this}" );
+  endfunction
+endclass
+
+class D(C, B)
+  function D( this )
+    //super();
+  endfunction
+endclass
+
+var a := A();
+var b := B();

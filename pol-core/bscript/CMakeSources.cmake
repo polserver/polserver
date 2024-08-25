@@ -162,8 +162,8 @@ set (bscript_sources    # sorted !
   compiler/ast/StructInitializer.h
   compiler/ast/StructMemberInitializer.cpp
   compiler/ast/StructMemberInitializer.h
-  compiler/ast/SuperFunction.cpp
-  compiler/ast/SuperFunction.h
+  compiler/ast/GeneratedFunction.cpp
+  compiler/ast/GeneratedFunction.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp

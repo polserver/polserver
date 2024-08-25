@@ -32,10 +32,10 @@ void FunctionResolver::force_reference( const ScopeName& scope_name, const Sourc
 
 void FunctionResolver::register_available_generated_function( const SourceLocation& loc,
                                                               const ScopableName& name,
-                                                              Node* context )
+                                                              Node* context, UserFunctionType type )
 {
-  auto apt = AvailableParseTree{ loc, nullptr, name.string(), context };
-  register_available_function_parse_tree( loc, name, std::move( apt ) );
+  auto agf = std::make_unique<AvailableGeneratedFunction>( loc, context, name, type );
+  register_available_function_parse_tree( loc, name, std::move( agf ) );
 }
 
 void FunctionResolver::register_available_user_function(
@@ -118,8 +118,9 @@ std::string FunctionResolver::register_function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   auto name = function_expression_name( source_location );
-  auto apt = AvailableParseTree{ source_location, ctx, "", nullptr };
-  available_user_function_parse_trees.insert( { name, apt } );
+  auto apt =
+      std::make_unique<AvailableParseTree>( source_location, ctx, ScopeName::Global, nullptr );
+  available_user_function_parse_trees[name] = std::move( apt );
   return name;
 }
 
@@ -132,7 +133,7 @@ void FunctionResolver::register_module_function( ModuleFunctionDeclaration* mf )
   {
     const auto& previous = ( *itr ).second;
 
-    report.error( previous.source_location,
+    report.error( previous->source_location,
                   "User Function '{}' conflicts with Module Function of the same name.\n"
                   "  Module Function declaration: {}",
                   name, mf->source_location );
@@ -186,7 +187,8 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
   }
 }
 
-bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )
+bool FunctionResolver::resolve(
+    std::vector<std::unique_ptr<AvailableSecondPassTarget>>& to_build_ast )
 {
   // Attempt to link all unresolved function links
   for ( auto unresolved_itr = unresolved_function_links.begin();
@@ -347,7 +349,8 @@ std::string FunctionResolver::function_expression_name( const SourceLocation& so
 }
 
 void FunctionResolver::register_available_function_parse_tree(
-    const SourceLocation& source_location, const ScopableName& name, const AvailableParseTree& apt )
+    const SourceLocation& source_location, const ScopableName& name,
+    std::unique_ptr<AvailableSecondPassTarget> apt )
 {
   const auto& unscoped_name = name.name;
 
@@ -362,12 +365,12 @@ void FunctionResolver::register_available_function_parse_tree(
   auto itr = available_user_function_parse_trees.find( scoped_name );
   if ( itr != available_user_function_parse_trees.end() )
   {
-    AvailableParseTree& previous = ( *itr ).second;
+    auto& previous = ( *itr ).second;
 
     report.error( source_location,
                   "Function '{}' defined more than once.\n"
                   "  Previous declaration: {}",
-                  scoped_name, previous.source_location );
+                  scoped_name, previous->source_location );
   }
 
   auto itr2 = resolved_functions.find( { scope, unscoped_name } );
@@ -388,23 +391,25 @@ void FunctionResolver::register_available_function_parse_tree(
   auto itr3 = available_class_decl_parse_trees.find( scope );
   if ( itr3 != available_class_decl_parse_trees.end() )
   {
-    auto previous = ( *itr3 ).second;
+    auto& previous = ( *itr3 ).second;
 
     report.error( source_location,
                   "User Function '{}' conflicts with Class of the same name.\n"
                   "  Class declaration: {}",
-                  scoped_name, previous.source_location );
+                  scoped_name, previous->source_location );
   }
 
-  available_user_function_parse_trees.insert( { scoped_name, apt } );
+  // available_user_function_parse_trees.insert( { scoped_name, apt } );
+  available_user_function_parse_trees[scoped_name] = std::move( apt );
 }
 
 void FunctionResolver::register_available_user_function_parse_tree(
     const SourceLocation& source_location, antlr4::ParserRuleContext* ctx, const ScopableName& name,
     bool force_reference )
 {
-  register_available_function_parse_tree( source_location, name,
-                                          { source_location, ctx, name.scope.string(), nullptr } );
+  register_available_function_parse_tree(
+      source_location, name,
+      std::make_unique<AvailableParseTree>( source_location, ctx, name.scope.string(), nullptr ) );
 
   if ( force_reference )
   {
@@ -423,22 +428,22 @@ void FunctionResolver::register_available_class_decl_parse_tree(
   auto itr = available_user_function_parse_trees.find( name );
   if ( itr != available_user_function_parse_trees.end() )
   {
-    AvailableParseTree& previous = ( *itr ).second;
+    auto& previous = ( *itr ).second;
 
     report.error( source_location,
                   "Class '{}' conflicts with User Function of the same name.\n"
                   "  Previous declaration: {}",
-                  name, previous.source_location );
+                  name, previous->source_location );
   }
 
   auto itr2 = available_class_decl_parse_trees.find( name );
   if ( itr2 != available_class_decl_parse_trees.end() )
   {
-    AvailableParseTree& previous = ( *itr2 ).second;
+    auto& previous = ( *itr2 ).second;
     report.error( source_location,
                   "Class '{}' defined more than once.\n"
                   "  Previous declaration: {}",
-                  name, previous.source_location );
+                  name, previous->source_location );
   }
 
   auto itr3 = resolved_functions.find( { ScopeName::Global, name } );
@@ -456,8 +461,9 @@ void FunctionResolver::register_available_class_decl_parse_tree(
                   name, what, what, previous->source_location );
   }
 
-  auto apt = AvailableParseTree{ source_location, ctx, name, top_level_statements_child_node };
-  available_class_decl_parse_trees.insert( { name, apt } );
+  auto apt = std::make_unique<AvailableParseTree>( source_location, ctx, name,
+                                                   top_level_statements_child_node );
+  available_class_decl_parse_trees[name] = std::move( apt );
 }
 
 Function* FunctionResolver::check_existing( const ScopableName& key,
@@ -490,9 +496,9 @@ ClassDeclaration* FunctionResolver::check_existing( const ScopeName& key ) const
   return nullptr;
 }
 
-bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_build_ast,
-                                           const std::string& calling_scope,
-                                           const ScopableName& call )
+bool FunctionResolver::build_if_available(
+    std::vector<std::unique_ptr<AvailableSecondPassTarget>>& to_build_ast,
+    const std::string& calling_scope, const ScopableName& call )
 {
   AvailableParseTreeMap::iterator itr;
 
@@ -504,10 +510,10 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
     itr = available_user_function_parse_trees.find( call.string() );
     if ( itr != available_user_function_parse_trees.end() )
     {
-      to_build_ast.push_back( ( *itr ).second );
-      report.debug( ( *itr ).second.source_location, "adding to build funct [call] {}: {}",
-                    to_build_ast.back(), call.string() );
+      to_build_ast.push_back( std::move( ( *itr ).second ) );
       available_user_function_parse_trees.erase( itr );
+      report.debug( to_build_ast.back()->source_location, "adding to build funct [call] {}: {}",
+                    *to_build_ast.back(), call.string() );
       return true;
     }
 
@@ -537,10 +543,10 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
       itr = available_user_function_parse_trees.find( scoped_call_name );
       if ( itr != available_user_function_parse_trees.end() )
       {
-        to_build_ast.push_back( ( *itr ).second );
-        report.debug( ( *itr ).second.source_location, "adding to build funct [scoped] {}: {}",
-                      to_build_ast.back(), scoped_call_name );
+        to_build_ast.push_back( std::move( ( *itr ).second ) );
         available_user_function_parse_trees.erase( itr );
+        report.debug( to_build_ast.back()->source_location, "adding to build funct [scoped] {}: {}",
+                      *to_build_ast.back(), scoped_call_name );
         return true;
       }
       return false;
@@ -591,10 +597,10 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
     itr = available_user_function_parse_trees.find( scoped_call_name );
     if ( itr != available_user_function_parse_trees.end() )
     {
-      to_build_ast.push_back( ( *itr ).second );
-      report.debug( ( *itr ).second.source_location, "adding to build funct [ctor?] {}: {}",
-                    to_build_ast.back(), scoped_call_name );
+      to_build_ast.push_back( std::move( ( *itr ).second ) );
       available_user_function_parse_trees.erase( itr );
+      report.debug( to_build_ast.back()->source_location, "adding to build funct [ctor?] {}: {}",
+                    *to_build_ast.back(), scoped_call_name );
       return true;
     }
   }
@@ -603,26 +609,26 @@ bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_b
   itr = available_user_function_parse_trees.find( call.name );
   if ( itr != available_user_function_parse_trees.end() )
   {
-    to_build_ast.push_back( ( *itr ).second );
-    report.debug( ( *itr ).second.source_location, "adding to build funct [global] {}: {}",
-                  to_build_ast.back(), call.name );
+    to_build_ast.push_back( std::move( ( *itr ).second ) );
     available_user_function_parse_trees.erase( itr );
+    report.debug( to_build_ast.back()->source_location, "adding to build funct [global] {}: {}",
+                  *to_build_ast.back(), call.name );
     return true;
   }
 
   return false;
 }
 
-bool FunctionResolver::build_if_available( std::vector<AvailableParseTree>& to_build_ast,
-                                           const ScopeName& scope )
+bool FunctionResolver::build_if_available(
+    std::vector<std::unique_ptr<AvailableSecondPassTarget>>& to_build_ast, const ScopeName& scope )
 {
   auto itr = available_class_decl_parse_trees.find( scope.string() );
   if ( itr != available_class_decl_parse_trees.end() )
   {
-    to_build_ast.push_back( ( *itr ).second );
-    report.debug( ( *itr ).second.source_location, "adding to build class [call.scope] {}: {}",
-                  to_build_ast.back(), scope.string() );
+    to_build_ast.push_back( std::move( ( *itr ).second ) );
     available_class_decl_parse_trees.erase( itr );
+    report.debug( to_build_ast.back()->source_location, "adding to build class [call.scope] {}: {}",
+                  *to_build_ast.back(), scope.string() );
     return true;
   }
 

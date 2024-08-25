@@ -61,8 +61,12 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
   std::vector<std::shared_ptr<ClassLink>> base_classes;
   std::vector<std::string> method_names;
-  bool has_ctor = false;
+  std::unique_ptr<FunctionLink> constructor_link;
   bool is_child = false;
+
+  // True if the function and class name are equal. "Maybe" because it may not have `this`
+  // as a first parameter.
+  bool maybe_has_ctor = false;
 
   if ( auto function_parameters = ctx->classParameters() )
   {
@@ -106,6 +110,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         // classes.
         auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
 
+        maybe_has_ctor |= Clib::caseInsensitiveEqual( func_name, class_name );
+
         if ( is_super && is_child )
         {
           workspace.report.error( func_loc, "The 'super' function is reserved for child classes." );
@@ -132,7 +138,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
                 // 3. The function name is the same as the class name: constructor
                 if ( func_name == class_name )
                 {
-                  has_ctor = true;
+                  constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
+                                                                     true /* requires_ctor */ );
                 }
                 // 3b. Otherwise: method
                 else
@@ -168,11 +175,11 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
 
   auto class_decl = std::make_unique<ClassDeclaration>(
-      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( method_names ),
-      class_body, std::move( base_classes ) );
+      location_for( *ctx ), class_name, std::move( parameter_list ), std::move( constructor_link ),
+      std::move( method_names ), class_body, std::move( base_classes ) );
 
   // Only register the ClassDeclaration's ctor FunctionLink if there _is_ a ctor.
-  if ( has_ctor )
+  if ( class_decl->constructor_link )
   {
     workspace.function_resolver.register_function_link( ScopableName( class_name, class_name ),
                                                         class_decl->constructor_link );
@@ -181,8 +188,18 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
     if ( is_child )
     {
       workspace.function_resolver.register_available_generated_function(
-          location_for( *ctx ), ScopableName( class_name, "super" ), class_decl.get() );
+          location_for( *ctx ), ScopableName( class_name, "super" ), class_decl.get(),
+          UserFunctionType::Super );
     }
+  }
+  // Can only create a constructor if (1) there is no function already defined
+  // with the class name (regardless if it is an actual constructor or not) and
+  // (2) there are parameters.
+  else if ( !maybe_has_ctor && class_decl->parameters().size() > 0 )
+  {
+    workspace.function_resolver.register_available_generated_function(
+        location_for( *ctx ), ScopableName( class_name, class_name ), class_decl.get(),
+        UserFunctionType::Constructor );
   }
 
   return class_decl;

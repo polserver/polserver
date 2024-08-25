@@ -11,10 +11,10 @@
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/SpreadElement.h"
-#include "bscript/compiler/ast/SuperFunction.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
@@ -31,12 +31,12 @@ GeneratedFunctionBuilder::GeneratedFunctionBuilder( const SourceFileIdentifier& 
 {
 }
 
-void GeneratedFunctionBuilder::super_function( std::unique_ptr<SuperFunction>& super )
+void GeneratedFunctionBuilder::super_function( std::unique_ptr<GeneratedFunction>& super )
 {
   std::vector<UserFunction*> base_class_ctors;
   std::set<ClassDeclaration*> visited;
   std::vector<std::shared_ptr<ClassLink>> to_link;
-  auto class_declaration = super->class_declaration;
+  auto class_declaration = super->class_declaration();
   const auto& loc = class_declaration->source_location;
 
   to_link.insert( to_link.end(), class_declaration->base_class_links.begin(),
@@ -54,9 +54,12 @@ void GeneratedFunctionBuilder::super_function( std::unique_ptr<SuperFunction>& s
       }
       visited.insert( base_cd );
 
-      if ( auto base_class_ctor = base_cd->constructor_link->user_function() )
+      if ( auto constructor_link = base_cd->constructor_link )
       {
-        base_class_ctors.push_back( base_class_ctor );
+        if ( auto base_class_ctor = constructor_link->user_function() )
+        {
+          base_class_ctors.push_back( base_class_ctor );
+        }
       }
     }
   }
@@ -191,5 +194,10 @@ void GeneratedFunctionBuilder::super_function( std::unique_ptr<SuperFunction>& s
   std::string desc;
   Node::describe_tree_to_indented( *super, desc, 0 );
   workspace.report.debug( loc, "Super function: {}", desc );
+}
+
+void GeneratedFunctionBuilder::constructor_function(
+    std::unique_ptr<GeneratedFunction>& /* constructor */ )
+{
 }
 }  // namespace Pol::Bscript::Compiler
