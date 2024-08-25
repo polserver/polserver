@@ -385,6 +385,10 @@ int Expression::get_num_tokens( int idx ) const
   {
     children = 0;
   }
+  else if ( tkn->id == INS_CHECK_MRO )
+  {
+    children = 0;
+  }
   else
   {
     passert_always( 0 );

@@ -94,7 +94,8 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
   emitter.debug_file_line( 0, 1 );
 
   std::map<std::string, FlowControlLabel> user_function_labels;
-  InstructionGenerator generator( emitter, user_function_labels );
+  InstructionGenerator generator( emitter, user_function_labels,
+                                  workspace.class_declaration_indexes );
 
   workspace.top_level_statements->accept( generator );
 

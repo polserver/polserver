@@ -490,11 +490,24 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       }
       else
       {
+        // Find the class declaration for the function.
+        auto class_itr =
+            std::find_if( workspace.class_declarations.begin(), workspace.class_declarations.end(),
+                          [&uf]( const std::unique_ptr<ClassDeclaration>& class_decl )
+                          { return class_decl->name == uf->name; } );
+
+        // Should never happen
+        if ( class_itr == workspace.class_declarations.end() )
+        {
+          uf->internal_error( fmt::format( "no class declaration found for '{}'", uf->name ) );
+        }
+
         // Constructor will create a new "this" instance
-        arguments.insert( arguments.begin(),
-                          std::make_unique<Argument>(
-                              fc.source_location,
-                              std::make_unique<ClassInstance>( fc.source_location ), false ) );
+        arguments.insert(
+            arguments.begin(),
+            std::make_unique<Argument>(
+                fc.source_location,
+                std::make_unique<ClassInstance>( fc.source_location, class_itr->get() ), false ) );
 
         report.debug( fc, "using ClassInstance is_super_call={} in_super_func={} uf->name={}",
                       is_super_call, in_super_func, uf->name );

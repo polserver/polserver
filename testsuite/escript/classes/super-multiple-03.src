@@ -16,21 +16,37 @@ class BaseClass2()
   endfunction
 endclass
 
-
-class Foo( BaseClass1, BaseClass2 )
-  function Foo( this, arg0 )
+class Foo1( BaseClass1, BaseClass2 )
+  function Foo1( this, arg0 )
     // Will "expand" arguments in order
     super( "unscoped-arg0", "unscoped-arg1", "unscoped-arg2" );
     print( "---" );
+    this.child := arg0;
+  endfunction
+endclass
 
+class Foo2( BaseClass1, BaseClass2 )
+  function Foo2( this, arg0 )
     // Can be scoped ...
     super( BaseClass1::arg0 := "scoped-c1.arg0", BaseClass1::arg1 := "scoped-c1.arg1", BaseClass2::arg0 := "scoped-c2.arg0" );
     print( "---" );
 
+    this.child := arg0;
+  endfunction
+endclass
+
+class Foo3( BaseClass1, BaseClass2 )
+  function Foo3( this, arg0 )
     // ... in any order, eg. putting Class2 first
     super( BaseClass2::arg0 := "scoped-c2.arg0", BaseClass1::arg0 := "scoped-c1.arg0", BaseClass1::arg1 := "scoped-c1.arg1" );
     print( "---" );
 
+    this.child := arg0;
+  endfunction
+endclass
+
+class Foo4( BaseClass1, BaseClass2 )
+  function Foo4( this, arg0 )
     // And do not need to scope uniquely-named arguments (arg1)
     super( BaseClass2::arg0 := "scoped-c2.arg0", arg1 := "scoped-c1.arg1", BaseClass1::arg0 := "scoped-c1.arg0" );
     print( "---" );
@@ -39,8 +55,7 @@ class Foo( BaseClass1, BaseClass2 )
   endfunction
 endclass
 
-var obj := Foo( "foo" );
-
-// We'll see that obj.base1 always contains a value of *-arg0/1, and obj.base2
-// will have "unscoped-arg2" and scoped arg0s
-print( PackJSON( obj, true ) );
+var foo1 := Foo1( "foo" );
+var foo2 := Foo2( "foo" );
+var foo3 := Foo3( "foo" );
+var foo4 := Foo4( "foo" );

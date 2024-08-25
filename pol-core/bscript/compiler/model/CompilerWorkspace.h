@@ -38,6 +38,7 @@ public:
   std::vector<std::unique_ptr<ModuleFunctionDeclaration>> module_function_declarations;
   std::vector<std::unique_ptr<UserFunction>> user_functions;
   std::vector<std::unique_ptr<ClassDeclaration>> class_declarations;
+  std::map<std::string, size_t> class_declaration_indexes;
   std::unique_ptr<Program> program;
 
   // These reference ModuleFunctionDeclaration objects that are in module_functions

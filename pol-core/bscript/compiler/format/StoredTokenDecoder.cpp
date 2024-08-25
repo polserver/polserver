@@ -152,6 +152,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
   case CTRL_MAKELOCAL:
     w += "makelocal";
     break;
+  case INS_CHECK_MRO:
+    fmt::format_to( std::back_inserter( w ), "check mro (this @ offset {})", tkn.offset );
+    break;
   case CTRL_JSR_USERFUNC:
     fmt::format_to( std::back_inserter( w ), "jsr userfunc @{}", tkn.offset );
     break;
@@ -282,7 +285,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     w += "create empty struct";
     break;
   case TOK_CLASSINST:
-    w += "create class instance";
+    fmt::format_to( std::back_inserter( w ), "create class instance (index={})", tkn.offset );
     break;
   case INS_SUBSCRIPT_ASSIGN:
     w += "subscript assign";
@@ -385,8 +388,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case TOK_FUNCREF:
   {
-    fmt::format_to( std::back_inserter( w ),
-                    "create-funcref index={} pc={} (TOK_FUNCREF)",
+    fmt::format_to( std::back_inserter( w ), "create-funcref index={} pc={} (TOK_FUNCREF)",
                     static_cast<int>( tkn.type ), tkn.offset );
     break;
   }

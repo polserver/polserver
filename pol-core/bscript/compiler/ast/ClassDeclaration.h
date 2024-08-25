@@ -44,9 +44,6 @@ public:
   // UserFunctionBuilder) with the FunctionResolver so their parse trees will be
   // visited by the second-pass UserFunctionVisitor.
   std::vector<std::shared_ptr<ClassLink>> base_class_links;
-
-private:
-  std::unique_ptr<UserFunction> super;
 };
 
 }  // namespace Pol::Bscript::Compiler
