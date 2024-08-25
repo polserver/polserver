@@ -1,0 +1,84 @@
+// Equivalency between Scope::Method and obj.Method()
+
+class A()
+  function A( this )
+  endfunction
+  function MethodA( this )
+    print( $"A::MethodA this={this}" );
+  endfunction
+  function Common( this )
+    print( $"A::Common this={this}" );
+  endfunction
+  function SuperScope( this )
+    print( $"A::SuperScope this={this}" );
+  endfunction
+endclass
+
+class B(A)
+  function B( this )
+    super();
+  endfunction
+  function MethodB( this )
+    print( $"B::MethodB this={this}" );
+  endfunction
+  function Common( this )
+    print( $"B::Common this={this}" );
+  endfunction
+  function SuperScope( this )
+    super::SuperScope( this );
+    print( $"B::SuperScope this={this}" );
+  endfunction
+endclass
+
+class C(A)
+  function C( this )
+    super();
+  endfunction
+  function MethodC( this )
+    print( $"C::MethodC this={this}" );
+  endfunction
+  function Common( this )
+    print( $"C::Common this={this}" );
+  endfunction
+  function SuperScope( this )
+    super::SuperScope( this );
+    print( $"C::SuperScope this={this}" );
+  endfunction
+endclass
+
+class D(B, C)
+  function D( this )
+    super();
+    //MethodA( this );
+  endfunction
+  function MethodD( this )
+    print( $"D::MethodD this={this}" );
+  endfunction
+  function Common( this )
+    print( $"D::Common this={this}" );
+  endfunction
+
+  function SuperScope( this )
+    // Since "B" is first, this will call "B::SuperScope"
+    super::SuperScope( this );
+    print( $"D::SuperScope this={this}" );
+  endfunction
+endclass
+
+var obj := D();
+obj.MethodD();
+obj.MethodC();
+obj.MethodB();
+obj.Common();
+print( "-" );
+D::MethodD( obj );
+D::MethodC( obj );
+D::MethodB( obj );
+D::MethodA( obj );
+D::Common( obj );
+
+print( "----" );
+
+obj.SuperScope();
+print( "-" );
+D::SuperScope( obj );

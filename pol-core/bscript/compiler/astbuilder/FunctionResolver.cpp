@@ -228,53 +228,57 @@ bool FunctionResolver::resolve(
         return false;
       };
 
+      auto handled_by_scopes = [&]( const std::string& starting_scope )
+      {
+        std::set<std::string> visited;
+        std::list<std::string> to_check( { starting_scope } );
+        bool handled = false;
+
+        for ( auto to_check_itr = to_check.begin(); !handled && to_check_itr != to_check.end();
+              to_check_itr = to_check.erase( to_check_itr ) )
+        {
+          if ( visited.find( *to_check_itr ) != visited.end() )
+            continue;
+
+          visited.insert( *to_check_itr );
+
+          if ( link_handled( { *to_check_itr, unscoped_name } ) )
+          {
+            return true;
+          }
+
+          auto cd_itr = resolved_classes.find( *to_check_itr );
+          if ( cd_itr == resolved_classes.end() )
+            continue;
+
+          auto cd = cd_itr->second;
+
+          for ( const auto& base_cd_link : cd->base_class_links )
+          {
+            if ( auto base_cd = base_cd_link->class_declaration() )
+            {
+              to_check.push_back( base_cd->name );
+            }
+          }
+        }
+
+        return false;
+      };
+
       report.debug( function_link->source_location, "resolving funct link {}", name );
 
-      // If a call scope was given, _only_ check that one (except super::).
+      // If a call scope was given (except super::), we check that call scope
+      // and its ancestors _without_ checking Global (ie. skipping the check
+      // done in the `else` block)
       if ( !call_scope.empty() && !call_scope.super() )
       {
-        if ( link_handled( { call_scope, unscoped_name } ) )
+        if ( handled_by_scopes( call_scope.string() ) )
           continue;
       }
       else
       {
-        if ( !calling_scope.empty() )
-        {
-          std::set<std::string> visited;
-          std::list<std::string> to_check( { calling_scope } );
-          bool handled = false;
-
-          for ( auto to_check_itr = to_check.begin(); !handled && to_check_itr != to_check.end();
-                ++to_check_itr )
-          {
-            auto cd_itr = resolved_classes.find( *to_check_itr );
-            if ( cd_itr == resolved_classes.end() )
-              continue;
-
-            auto cd = cd_itr->second;
-            if ( visited.find( cd->name ) != visited.end() )
-              continue;
-
-            visited.insert( cd->name );
-
-            if ( link_handled( { cd->name, unscoped_name } ) )
-            {
-              handled = true;
-              break;
-            }
-
-            for ( const auto& base_cd_link : cd->base_class_links )
-            {
-              if ( auto base_cd = base_cd_link->class_declaration() )
-              {
-                to_check.push_back( base_cd->name );
-              }
-            }
-          }
-
-          if ( handled )
-            continue;
-        }
+        if ( !calling_scope.empty() && handled_by_scopes( calling_scope ) )
+          continue;
 
         // Check global scope (if not explicitly calling super:: scope)
         if ( !call_scope.super() && link_handled( { ScopeName::Global, unscoped_name } ) )
@@ -554,7 +558,8 @@ bool FunctionResolver::build_if_available(
     std::set<std::string> visited;
     std::list<std::string> to_check( { calling_scope } );
 
-    for ( auto to_check_itr = to_check.begin(); to_check_itr != to_check.end(); ++to_check_itr )
+    for ( auto to_check_itr = to_check.begin(); to_check_itr != to_check.end();
+          to_check_itr = to_check.erase( to_check_itr ) )
     {
       auto cd_itr = resolved_classes.find( *to_check_itr );
       if ( cd_itr == resolved_classes.end() )
