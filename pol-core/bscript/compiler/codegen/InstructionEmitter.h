@@ -54,7 +54,8 @@ public:
 
   void register_exported_function( FlowControlLabel& label, const std::string& name,
                                    unsigned arguments );
-  void register_class_declaration( ClassDeclaration&, std::map<std::string, FlowControlLabel>& );
+  void register_class_declaration( const ClassDeclaration&,
+                                   std::map<std::string, FlowControlLabel>& );
 
   unsigned enter_debug_block( const LocalVariableScopeInfo& );
   void set_debug_block( unsigned );
@@ -73,11 +74,12 @@ public:
   void basic_for_init( FlowControlLabel& );
   void basic_for_next( FlowControlLabel& );
   void binary_operator( BTokenId token_id );
+  void check_mro( unsigned offset );
   void call_method( const std::string& name, unsigned argument_count );
   void call_method_id( MethodID method_id, unsigned argument_count );
   void call_modulefunc( const ModuleFunctionDeclaration& );
   void call_userfunc( FlowControlLabel& );
-  void classinst_create();
+  void classinst_create( unsigned index );
   unsigned casejmp();
   unsigned case_dispatch_table( const CaseJumpDataBlock& );
   void consume();

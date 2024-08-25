@@ -64,6 +64,7 @@ class BStruct;
 class BDictionary;
 class BBoolean;
 class BFunctionRef;
+class BClassInstance;
 class BContinuation;
 class BSpread;
 
@@ -128,6 +129,7 @@ public:
     OTFuncRef = 39,
     OTExportScript = 40,
     OTStorageArea = 41,
+    OTClassInstance = 42,
 
     // Used internally only during executor runtime. Can be modified without
     // breaking compatibility.
@@ -411,6 +413,7 @@ T* impptrIf( BObjectImp* objimp )
   impif_e( BObjectImp::OTStruct, BStruct );
   impif_e( BObjectImp::OTBoolean, BBoolean );
   impif_e( BObjectImp::OTFuncRef, BFunctionRef );
+  impif_e( BObjectImp::OTClassInstance, BClassInstance );
   impif_e( BObjectImp::OTContinuation, BContinuation );
   impif_e( BObjectImp::OTSpread, BSpread );
   else static_assert( always_false<T>::value, "unsupported type" );
@@ -420,13 +423,13 @@ T* impptrIf( BObjectImp* objimp )
 #undef impif_test
 }
 
-class BObject final : public ref_counted
+class BObject : public ref_counted
 {
 public:
   explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp ) { passert( objimp ); }
   BObject( const BObject& obj ) : ref_counted(), objimp( obj.objimp ) {}
-  ~BObject() = default;
-  // NOTE: BObject should not be derived from!
+  virtual ~BObject() = default;
+  BObject& operator=(const BObject&) = delete;
   size_t sizeEstimate() const;
 
   void* operator new( std::size_t len );
@@ -441,7 +444,6 @@ public:
 
   BObjectImp* operator->() const { return objimp.get(); }
   bool isTrue() const { return objimp->isTrue(); }
-  void assign( const BObjectImp& objimp );
 
   BObject* clone() const;
 
@@ -462,12 +464,21 @@ public:
   template <typename T = BObjectImp>
   const T& impref() const;
 
-  void setimp( BObjectImp* imp );
+  virtual void setimp( BObjectImp* imp );
 
 private:
   ref_ptr<BObjectImp> objimp;
 
-  BObject& operator=( const BObject& obj );
+};
+
+class BConstObject : public BObject
+{
+public:
+  explicit BConstObject( BObjectImp* objimp ) : BObject( objimp ) {}
+  ~BConstObject() override = default;
+  void setimp( BObjectImp* ) override{ /* do nothing */ };
+  // This class does not use a specific fixed allocator, sharing the BObject
+  // one. Do not add new members to this class.
 };
 
 typedef std::vector<ref_ptr<BObjectImp>> BObjectImpRefVec;

@@ -1,0 +1,12 @@
+class Foo()
+  function Foo( this, name )
+    this.name := name;
+  endfunction
+
+  function print( this, prefix )
+    ::print( $"{prefix}: {this.name}!" );
+  endfunction
+endclass
+
+var obj := Foo( "NAME" );
+obj.print("PREFIX");

@@ -54,6 +54,8 @@ antlrcpp::Any UserFunctionVisitor::visitClassDeclaration(
   if ( cd )
   {
     workspace.function_resolver.register_class_declaration( cd.get() );
+    workspace.compiler_workspace.class_declaration_indexes[cd->name] =
+        workspace.compiler_workspace.class_declarations.size();
     workspace.compiler_workspace.class_declarations.push_back( std::move( cd ) );
   }
   return antlrcpp::Any();

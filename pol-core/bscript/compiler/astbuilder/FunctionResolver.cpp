@@ -171,6 +171,19 @@ void FunctionResolver::register_user_function( const std::string& scope, UserFun
 void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 {
   resolved_classes[cd->name] = cd;
+
+  // Since we are _registering_ the class declaration, that means either the
+  // user has actively instantiated the class via `Foo()` or a base class has
+  // requested `Foo`. Register all the class' methods and include them at
+  // instruction generation. See also: `Optimizer::optimize` where Methods and
+  // Constructors are force-referenced.
+  //
+  // The `methods` object only contains methods, as the constructor is in the
+  // `constructor_link`.
+  for ( const auto& [method_name, function_link] : cd->methods )
+  {
+    register_function_link( { cd->name, method_name }, function_link );
+  }
 }
 
 bool FunctionResolver::resolve( std::vector<AvailableParseTree>& to_build_ast )

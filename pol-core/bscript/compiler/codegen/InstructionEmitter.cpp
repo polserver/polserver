@@ -60,14 +60,14 @@ void InstructionEmitter::register_exported_function( FlowControlLabel& label,
 }
 
 void InstructionEmitter::register_class_declaration(
-    ClassDeclaration& node, std::map<std::string, FlowControlLabel>& user_function_labels )
+    const ClassDeclaration& node, std::map<std::string, FlowControlLabel>& user_function_labels )
 {
   std::set<std::string> visited;
   std::set<std::string, Clib::ci_cmp_pred> visited_methods;
   std::vector<unsigned> constructor_addresses;
   std::set<std::string> method_names;
   std::vector<MethodDescriptor> method_descriptors;
-  std::list<ClassDeclaration*> to_link( { &node } );
+  std::list<const ClassDeclaration*> to_link( { &node } );
 
   const auto& class_name = node.name;
   auto class_name_offset = this->emit_data( class_name );
@@ -103,7 +103,7 @@ void InstructionEmitter::register_class_declaration(
 
       if ( !uf )
       {
-        cd->internal_error( fmt::format( "method {} no function linked", method ) );
+        cd->internal_error( fmt::format( "method {}::{} no function linked", cd->name, method ) );
       }
 
       auto method_itr = user_function_labels.find( ScopableName( cd->name, method ).string() );
@@ -337,9 +337,14 @@ void InstructionEmitter::call_userfunc( FlowControlLabel& label )
   register_with_label( label, addr );
 }
 
-void InstructionEmitter::classinst_create()
+void InstructionEmitter::check_mro( unsigned offset )
 {
-  emit_token( TOK_CLASSINST, TYP_OPERAND );
+  emit_token( INS_CHECK_MRO, TYP_CONTROL, offset );
+}
+
+void InstructionEmitter::classinst_create( unsigned index )
+{
+  emit_token( TOK_CLASSINST, TYP_OPERAND, index );
 }
 
 unsigned InstructionEmitter::casejmp()

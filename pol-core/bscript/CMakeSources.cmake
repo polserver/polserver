@@ -325,6 +325,8 @@ set (bscript_sources    # sorted !
   compiler/Profile.h
   compiler/Report.cpp
   compiler/Report.h
+  bclassinstance.cpp
+  bclassinstance.h
   berror.cpp
   berror.h
   blong.cpp

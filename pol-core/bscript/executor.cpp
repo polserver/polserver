@@ -20,6 +20,7 @@
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "bclassinstance.h"
 #include "berror.h"
 #include "config.h"
 #include "continueimp.h"
@@ -2735,8 +2736,62 @@ void Executor::ins_call_method( const Instruction& ins )
 {
   unsigned nparams = ins.token.lval;
   getParams( nparams );
+  BObjectImp* callee = ValueStack.back()->impptr();
 
-  if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
+  if ( auto* classinst = ValueStack.back()->impptr_if<BClassInstance>() )
+  {
+    BFunctionRef* funcr = nullptr;
+
+    auto method_name = ins.token.tokval();
+
+    // Prefer members over class methods by checking contents first.
+    auto member_itr = classinst->contents().find( method_name );
+
+    if ( member_itr != classinst->contents().end() )
+    {
+      // If the member exists and is NOT a function reference, we will still try
+      // to "call" it. This is _intentional_, and will result in a runtime
+      // BError. This is similar to `var foo := 3; print(foo.bar());`, resulting
+      // in a "Method 'bar' not found" error.
+      callee = member_itr->second.get()->impptr();
+
+      funcr = member_itr->second.get()->impptr_if<BFunctionRef>();
+    }
+    else
+    {
+      // Have we already looked up this method?
+      ClassMethodKey key{ prog_, classinst->index(), method_name };
+      auto cache_itr = class_methods.find( key );
+      if ( cache_itr != class_methods.end() )
+      {
+        funcr = cache_itr->second->impptr_if<BFunctionRef>();
+      }
+      else
+      {
+        // Does the class define this method?
+        funcr = classinst->makeMethod( method_name );
+
+        if ( funcr != nullptr )
+        {
+          // Cache the method for future lookups
+          class_methods[key] = BObjectRef( funcr );
+        }
+      }
+    }
+
+    if ( funcr != nullptr )
+    {
+      Instruction jmp;
+      if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
+      {
+        fparams.insert( fparams.begin(), ValueStack.back() );
+        BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
+        call_function_reference( funcr, nullptr, jmp );
+        return;
+      }
+    }
+  }
+  else if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
   {
     Instruction jmp;
     if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
@@ -2750,7 +2805,7 @@ void Executor::ins_call_method( const Instruction& ins )
   size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
-  strm << "MTH_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.tokval();
+  strm << "MTH_" << callee->typeOf() << " ." << ins.token.tokval();
   if ( !fparams.empty() )
     strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
   std::string name( strm.str() );
@@ -2760,11 +2815,11 @@ void Executor::ins_call_method( const Instruction& ins )
   BObjectImp* imp;
 
   if ( strcmp( ins.token.tokval(), "impptr" ) == 0 )
-    imp = new String( fmt::format( "{}", static_cast<void*>( this ) ) );
+    imp = new String( fmt::format( "{}", static_cast<void*>( callee ) ) );
   else
-    imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
+    imp = callee->call_method( ins.token.tokval(), *this );
 #else
-  BObjectImp* imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
+  BObjectImp* imp = callee->call_method( ins.token.tokval(), *this );
 #endif
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
@@ -2816,6 +2871,62 @@ void Executor::ins_makelocal( const Instruction& /*ins*/ )
   if ( Locals2 )
     upperLocals2.push_back( Locals2 );
   Locals2 = new BObjectRefVec;
+}
+
+void Executor::ins_check_mro( const Instruction& ins )
+{
+  auto classinst_offset = ins.token.lval;
+
+  if ( classinst_offset > static_cast<int>( ValueStack.size() ) || ValueStack.empty() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO offset error! offset={}, ValueStack.size={} ({},PC={})",
+                    classinst_offset, ValueStack.size(), prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  const auto& classinst_ref = ValueStack.at( ValueStack.size() - classinst_offset - 1 );
+
+  auto classinst = classinst_ref->impptr_if<BClassInstance>();
+  if ( classinst == nullptr )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO on non-class instance! type={} ({},PC={})",
+                    classinst_ref->impptr()->typeOf(), prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  if ( nLines < PC + 1 )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO instruction out of bounds! nLines={} ({},PC={})",
+                    nLines, prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  const Instruction& jsr_ins = prog_->instr.at( PC + 1 );
+  if ( jsr_ins.func != &Executor::ins_jsr_userfunc )
+  {
+    POLLOG_ERRORLN( "Fatal error: Check MRO instruction not followed by JSR_USERFUNC! ({},PC={})",
+                    prog_->name, PC );
+    seterror( true );
+    return;
+  }
+
+  auto ctor_addr = jsr_ins.token.lval;
+
+  auto ctor_called_itr = classinst->constructors_called.find( ctor_addr );
+  if ( ctor_called_itr != classinst->constructors_called.end() )
+  {
+    // Constructor has been called: clear arguments and skip jump instructions (makelocal,
+    // jsr_userfunc)
+    ValueStack.resize( ValueStack.size() - ins.token.lval );
+    PC += 2;
+  }
+  else
+  {
+    classinst->constructors_called.insert( ctor_addr );
+  }
 }
 
 // CTRL_JSR_USERFUNC:
@@ -3031,10 +3142,10 @@ void Executor::ins_double( const Instruction& ins )
   ValueStack.push_back( BObjectRef( new BObject( new Double( ins.token.dval ) ) ) );
 }
 
-// TODO skeleton
-void Executor::ins_classinst( const Instruction& /*ins*/ )
+void Executor::ins_classinst( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
+  ValueStack.push_back(
+      BObjectRef( new BConstObject( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )
@@ -3365,6 +3476,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_statementbegin;
   case CTRL_MAKELOCAL:
     return &Executor::ins_makelocal;
+  case INS_CHECK_MRO:
+    return &Executor::ins_check_mro;
   case CTRL_JSR_USERFUNC:
     return &Executor::ins_jsr_userfunc;
   case INS_POP_PARAM:
@@ -3897,6 +4010,7 @@ size_t Executor::sizeEstimate() const
   size += Clib::memsize( execmodules ) + Clib::memsize( availmodules );
   size += dbg_env_ != nullptr ? dbg_env_->sizeEstimate() : 0;
   size += func_result_ != nullptr ? func_result_->sizeEstimate() : 0;
+  size += Clib::memsize( class_methods );
   return size;
 }
 
@@ -3997,6 +4111,24 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
   continuation->args = std::move( args );
 
   return continuation;
+}
+
+bool Executor::ClassMethodKey::operator<( const ClassMethodKey& other ) const
+{
+  // Compare the program pointers
+  if ( prog < other.prog )
+    return true;
+  if ( prog > other.prog )
+    return false;
+
+  // Compare the indices
+  if ( index < other.index )
+    return true;
+  if ( index > other.index )
+    return false;
+
+  // Perform a case-insensitive comparison for method_name using stricmp
+  return stricmp( method_name.c_str(), other.method_name.c_str() ) < 0;
 }
 }  // namespace Bscript
 }  // namespace Pol

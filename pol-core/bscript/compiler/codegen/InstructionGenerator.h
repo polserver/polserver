@@ -18,7 +18,8 @@ class InstructionGenerator : public NodeVisitor
 {
 public:
   InstructionGenerator( InstructionEmitter&,
-                        std::map<std::string, FlowControlLabel>& user_function_labels );
+                        std::map<std::string, FlowControlLabel>& user_function_labels,
+                        const std::map<std::string, size_t>& class_declaration_indexes );
 
   void generate( Node& );
 
@@ -88,6 +89,7 @@ private:
   InstructionEmitter& emit;
 
   std::map<std::string, FlowControlLabel>& user_function_labels;
+  const std::map<std::string, size_t>& class_declaration_indexes;
   std::stack<UserFunction*> user_functions;
 };
 
