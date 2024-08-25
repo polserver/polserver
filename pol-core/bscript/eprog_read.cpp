@@ -302,6 +302,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SET_MEMBER_ID:
   case INS_SET_MEMBER_ID_CONSUME:
   case INS_CALL_METHOD_ID:
+  case INS_CHECK_MRO:
   case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:

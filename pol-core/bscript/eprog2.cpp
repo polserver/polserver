@@ -233,6 +233,7 @@ void EScriptProgram::addToken( const Token& token )
     }
     break;
 
+    case INS_CHECK_MRO:
     case INS_SKIPIFTRUE_ELSE_CONSUME:
     {
       unsigned sympos = token.lval;

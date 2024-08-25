@@ -1,1 +1,1 @@
-struct{ base = "bar", child = "foo" }
+<class Foo>
