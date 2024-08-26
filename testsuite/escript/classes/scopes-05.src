@@ -1,9 +1,8 @@
 // Can construct an object through its base-class ctor
-// TODO implement this
 
 class A()
-  function A( this )
-    print( $"A::A this={this}" );
+  function A( this, arg0 )
+    print( $"A::A this={this} arg0={arg0}" );
   endfunction
   function Foo()
   endfunction
@@ -23,9 +22,11 @@ endclass
 
 class D(C, B)
   function D( this )
-    //super();
+    super( "super-arg0" );
   endfunction
 endclass
 
-var a := A();
-var b := B();
+var a := A( "arg0" );
+var b := B( "arg0" );
+var c := C( "arg0" );
+var d := D();

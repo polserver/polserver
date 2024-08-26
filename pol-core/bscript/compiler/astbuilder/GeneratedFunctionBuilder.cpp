@@ -11,6 +11,7 @@
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
@@ -61,6 +62,8 @@ void GeneratedFunctionBuilder::super_function( std::unique_ptr<GeneratedFunction
           base_class_ctors.push_back( base_class_ctor );
         }
       }
+      to_link.insert( to_link.end(), base_cd->base_class_links.begin(),
+                      base_cd->base_class_links.end() );
     }
   }
 
@@ -196,8 +199,145 @@ void GeneratedFunctionBuilder::super_function( std::unique_ptr<GeneratedFunction
   workspace.report.debug( loc, "Super function: {}", desc );
 }
 
-void GeneratedFunctionBuilder::constructor_function(
-    std::unique_ptr<GeneratedFunction>& /* constructor */ )
+void GeneratedFunctionBuilder::constructor_function( std::unique_ptr<GeneratedFunction>& super )
 {
+  std::set<ClassDeclaration*> visited;
+  std::vector<std::shared_ptr<ClassLink>> to_visit;
+  auto class_declaration = super->class_declaration();
+  const auto& loc = class_declaration->source_location;
+  UserFunction* base_class_ctor = nullptr;
+  auto& function_parameters = super->child<FunctionParameterList>( 0 ).children;
+  // auto& body = super->child<FunctionBody>( 1 ).children;
+
+  to_visit.insert( to_visit.end(), class_declaration->base_class_links.begin(),
+                   class_declaration->base_class_links.end() );
+
+  while ( !to_visit.empty() )
+  {
+    auto base_class_link = to_visit.back();
+    to_visit.pop_back();
+    if ( auto base_cd = base_class_link->class_declaration() )
+    {
+      if ( visited.find( base_cd ) != visited.end() )
+      {
+        continue;
+      }
+      visited.insert( base_cd );
+
+      if ( auto constructor_link = base_cd->constructor_link )
+      {
+        if ( auto ctor = constructor_link->user_function() )
+        {
+          base_class_ctor = ctor;
+          to_visit.clear();
+          break;
+        }
+      }
+    }
+  }
+
+  if ( base_class_ctor != nullptr )
+  {
+    auto& body = super->child<FunctionBody>( 1 ).children;
+    function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
+        loc, ScopableName( ScopeName::None, "this" ), true /* byref */, false /* unused */,
+        false /* rest */ ) );
+
+    auto params = base_class_ctor->parameters();
+
+    auto call_arguments = std::vector<std::unique_ptr<Argument>>();
+
+    bool first = true;
+
+    for ( auto& param_ref : params )
+    {
+      auto& param = param_ref.get();
+
+      // Skip the first `this` parameter of the function declaration, as we've already added it.
+      if ( !first )
+      {
+        // If the base ctor parameter is a rest param, our super() function parameter
+        // will _not_ be a rest, but a regular variable with a default [empty]
+        // array value. This only applies if we _cannot_ use rest parameters.
+        if ( param.rest )
+        {
+          function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
+              loc, ScopableName( ScopeName::None, param.name.name ), param.byref, param.unused,
+              false,
+              std::make_unique<ArrayInitializer>( param.source_location,
+                                                  std::vector<std::unique_ptr<Expression>>() ) ) );
+        }
+        // If the base ctor parameter has a default value, our super() function
+        // parameter will have the same default value.
+        else if ( auto default_value = param.default_value() )
+        {
+          SimpleValueCloner cloner( report, default_value->source_location );
+
+          // Value must be cloneable
+          if ( auto final_argument = cloner.clone( *default_value ) )
+          {
+            function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
+                loc, ScopableName( ScopeName::None, param.name.name ), param.byref, param.unused,
+                false, std::move( final_argument ) ) );
+          }
+          else
+          {
+            report.error( class_declaration->source_location,
+                          "In construction of '{}': Unable to create argument from default for "
+                          "parameter '{}'.\n"
+                          "  See also: {}",
+                          super->scoped_name(), param.name, param.source_location );
+            return;
+          }
+        }
+        else
+        {
+          // This super() alias'ed parameter is a rest parameter if the base
+          // ctor's parameter is rest _and_ we can use a rest parameter.
+          // auto is_rest_param = param.rest && can_use_rest;
+
+          function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
+              loc, ScopableName( ScopeName::None, param.name.name ), param.byref, param.unused,
+              param.rest ) );
+        }
+      }
+
+      // By default, the function call argument inside this super()'s function
+      // declaration will just be the super() alias'ed parameter.
+      std::unique_ptr<Expression> call_argument =
+          std::make_unique<Identifier>( param.source_location, param.name );
+
+      // If the base ctor parameter is a rest param, the base_ctor() function
+      // call will spread the super() function parameter -- an array -- into
+      // the base constructor.
+      if ( param.rest )
+      {
+        // Passing an element that is not spreadable (eg. a string) will result
+        // in an empty array passed to the base constructor.
+        call_argument =
+            std::make_unique<SpreadElement>( param.source_location, std::move( call_argument ) );
+      }
+
+      call_arguments.insert( call_arguments.end(),
+                             std::make_unique<Argument>( param.source_location,
+                                                         std::move( call_argument ), param.rest ) );
+
+      first = false;
+    }
+
+    auto callee = std::make_unique<FunctionReference>(
+        loc, base_class_ctor->name, std::make_unique<FunctionLink>( loc, base_class_ctor->name ) );
+
+    callee->function_link->link_to( base_class_ctor );
+
+    auto fc = std::make_unique<FunctionCall>( loc, base_class_ctor->name, std::move( callee ),
+                                              std::move( call_arguments ) );
+
+    auto value_consumer = std::make_unique<ValueConsumer>( fc->source_location, std::move( fc ) );
+    body.push_back( std::move( value_consumer ) );
+  }
+  std::string desc;
+  Node::describe_tree_to_indented( *super, desc, 0 );
+  workspace.report.debug( loc, "Ctor {} function: {}", super->name, desc );
 }
 }  // namespace Pol::Bscript::Compiler
