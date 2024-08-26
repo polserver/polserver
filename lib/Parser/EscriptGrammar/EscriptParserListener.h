@@ -237,9 +237,6 @@ public:
   virtual void enterNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) = 0;
   virtual void exitNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) = 0;
 
-  virtual void enterFunctionSuffix(EscriptParser::FunctionSuffixContext *ctx) = 0;
-  virtual void exitFunctionSuffix(EscriptParser::FunctionSuffixContext *ctx) = 0;
-
   virtual void enterMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) = 0;
   virtual void exitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) = 0;
 
