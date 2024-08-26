@@ -80,8 +80,7 @@ public:
 
   std::unique_ptr<MemberAccess> navigation(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* );
-  std::unique_ptr<MemberAccess> navigation( std::unique_ptr<Expression> lhs,
-                                            EscriptGrammar::EscriptParser::FunctionSuffixContext* );
+
   std::unique_ptr<Expression> expression_suffix(
       std::unique_ptr<Expression> lhs,
       EscriptGrammar::EscriptParser::ExpressionSuffixContext* );

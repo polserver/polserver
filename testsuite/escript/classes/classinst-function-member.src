@@ -31,3 +31,21 @@ print( "----" );
 // Equality checks
 print( aa == aa );
 print( aa == bb );
+
+print( "----" );
+
+// Cannot assign 'function' member to classinst
+
+a.function := uninit;
+print( a.function );
+
+print( "----" );
+
+// Checking that old functionality doesn't break
+
+var obj := struct{};
+obj["function"] := "function string";
+print( obj["function"] );
+
+// Old implementation would have a compiler error here:
+print( obj.function );

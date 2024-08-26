@@ -10,3 +10,8 @@ B::B this=<class B> args={ foo, bar }
 ----
 1
 0
+----
+FunctionObject
+----
+function string
+function string

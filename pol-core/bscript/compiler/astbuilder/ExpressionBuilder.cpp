@@ -465,8 +465,10 @@ std::unique_ptr<MemberAccess> ExpressionBuilder::navigation(
     name = text( identifier );
   else if ( auto string_literal = ctx->STRING_LITERAL() )
     name = unquote( string_literal );
+  else if ( auto function_keyword = ctx->FUNCTION() )
+    name = text( function_keyword );
   else
-    loc.internal_error( "member_access: need string literal or identifier" );
+    loc.internal_error( "member_access: need string literal, function keyword, or identifier" );
   return std::make_unique<MemberAccess>( loc, std::move( lhs ), std::move( name ) );
 }
 
@@ -481,10 +483,6 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   {
     return navigation( std::move( lhs ), member );
   }
-  else if ( auto function_suffix = ctx->functionSuffix() )
-  {
-    return navigation( std::move( lhs ), function_suffix );
-  }
   else if ( auto method = ctx->methodCallSuffix() )
   {
     return method_call( std::move( lhs ), method );
@@ -497,12 +495,6 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   {
     location_for( *ctx ).internal_error( "unhandled navigation suffix" );
   }
-}
-
-std::unique_ptr<MemberAccess> ExpressionBuilder::navigation(
-    std::unique_ptr<Expression> lhs, EscriptParser::FunctionSuffixContext* ctx )
-{
-  return std::make_unique<MemberAccess>( location_for( *ctx ), std::move( lhs ), MBR_FUNCTION );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::prefix_unary_operator(
