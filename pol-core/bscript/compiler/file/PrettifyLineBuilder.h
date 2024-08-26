@@ -17,7 +17,8 @@ enum class FmtContext
   COMMENT,
   VAR_STATEMENT,
   VAR_COMMA,
-
+  PREFERRED_BREAK_START,
+  PREFERRED_BREAK_END,
   // unused:
   KEYWORD,  // space
   KEYWORD_BREAKING,
@@ -157,7 +158,7 @@ private:
   std::vector<std::string> createBasedOnPreferredBreaks( const std::vector<FmtToken>& lines,
                                                          bool logical ) const;
   std::vector<std::string> createSimple( const std::vector<FmtToken>& lines ) const;
-  void parenthesisAlign( const std::vector<std::string>& finallines, size_t alignmentspace,
+  bool parenthesisAlign( const std::vector<std::string>& finallines, size_t alignmentspace,
                          std::string& line ) const;
   bool binPack( const FmtToken& part, std::string line, size_t index,
                 const std::vector<FmtToken>& lines, bool only_single_line,

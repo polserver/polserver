@@ -162,6 +162,8 @@ std::vector<FmtToken> PrettifyLineBuilder::buildLineSplits()
       part.context = _line_parts[i].context;
     }
     part.text += _line_parts[i].text;
+    if ( part.context == FmtContext::NONE )
+      part.context = _line_parts[i].context;
     // add space if set, but not if the following part is attached
     if ( _line_parts[i].style & FmtToken::SPACE )
     {
@@ -580,7 +582,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
 
 // helper to find the alignment of the last open parenthesis and use this as alignment for the next
 // line
-void PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& finallines,
+bool PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& finallines,
                                             size_t alignmentspace, std::string& line ) const
 {
   std::vector<size_t> parenthesisalign;
@@ -600,10 +602,13 @@ void PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& fina
   {
     // if its at the end of last line start at the beginning
     if ( parenthesisalign.back() >= ( finallines.back().size() - 1 ) )
-      return;
-    line = alignmentSpacing( parenthesisalign.back() - alignmentspace +
-                             ( compilercfg.FormatterBracketSpacing ? 2 : 1 ) ) +
-           line;
+      return true;
+    if ( parenthesisalign.back() + ( compilercfg.FormatterBracketSpacing ? 2 : 1 ) >
+         alignmentspace )
+
+      line = alignmentSpacing( parenthesisalign.back() +
+                               ( compilercfg.FormatterBracketSpacing ? 2 : 1 ) - alignmentspace ) +
+             line;
     // if its a operator eg +/- align the actual "data" so subtract 2
     auto space = line.find_first_not_of( " \t" );
     if ( space != std::string::npos && space > 1 && space + 1 < line.size() &&
@@ -613,7 +618,9 @@ void PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& fina
       if ( !compilercfg.FormatterUseTabs )
         line.erase( 0, 2 );
     }
+    return true;
   }
+  return false;
 }
 
 std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
@@ -623,12 +630,15 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
   std::string line;
   // first join parts until a forced/preferred break
   size_t alignmentspace = 0;
-  std::vector<std::pair<std::string, int>> parts;
+  size_t assignpos = std::string::npos;
+  std::vector<std::tuple<std::string, int, FmtContext>> parts;
   std::string tmp;
   // if breaks exists from logical "and/or" we only split based on them
   // in a long if-statement we want to break line on the logical points and not mixed with
   // commas from functions
   int breakflag = logical ? FmtToken::PREFERRED_BREAK_LOGICAL : FmtToken::PREFERRED_BREAK;
+  std::vector<size_t> parenthesisalign;
+  FmtContext tmpcontext = FmtContext::NONE;
   for ( const auto& part : lines )
   {
     if ( !alignmentspace )
@@ -636,49 +646,136 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
       auto indent = indentSpacing();
       alignmentspace = part.text.size() + indent.size();
       line += indent;
-      parts.push_back( { part.text, FmtToken::NONE } );
+      parts.push_back( { part.text, FmtToken::NONE, part.context } );
+      assignpos = part.text.find( ":=" );
+      if ( assignpos != std::string::npos )
+        assignpos += indent.size() + 2;
       continue;
     }
     // if it gets to long we still have to split the line
     if ( tmp.size() + part.text.size() > compilercfg.FormatterLineWidth )
     {
-      parts.push_back( { std::move( tmp ), part.style } );
+      parts.push_back( { std::move( tmp ), FmtToken::NONE, tmpcontext } );
       tmp.clear();
+      tmpcontext = part.context;
+    }
+    size_t i = 0;
+    for ( auto c : tmp )
+    {
+      if ( c == '(' )
+        parenthesisalign.push_back( i );
+      else if ( c == ')' && !parenthesisalign.empty() )
+        parenthesisalign.pop_back();
+      ++i;
+    }
+    // something closed split it
+    if ( parenthesisalign.empty() )
+    {
+      parts.push_back( { std::move( tmp ), FmtToken::NONE, tmpcontext } );
+      tmp.clear();
+      tmpcontext = part.context;
     }
     tmp += part.text;
+    if ( tmpcontext == FmtContext::NONE )
+      tmpcontext = part.context;
+    else if ( tmpcontext == FmtContext::PREFERRED_BREAK_START &&
+              part.context == FmtContext::PREFERRED_BREAK_END )
+      tmpcontext = FmtContext::NONE;  // start and stop so clear
 
     if ( ( part.style & FmtToken::FORCED_BREAK ) ||
          ( part.style & FmtToken::PREFERRED_BREAK_VAR ) || ( part.style & breakflag ) )
     {
-      parts.push_back( { std::move( tmp ), part.style } );
+      parts.push_back( { std::move( tmp ), part.style, tmpcontext } );
       tmp.clear();
+      tmpcontext = part.context;
     }
   }
   if ( !tmp.empty() )
-    parts.push_back( { tmp, FmtToken::NONE } );
+    parts.push_back( { tmp, FmtToken::NONE, tmpcontext } );
   // now build the actual line(s)
   bool alignpart = false;
-  for ( auto& [l, style] : parts )
+  size_t parti = 0;
+  for ( auto& [l, style, context] : parts )
   {
 #ifdef DEBUG_FORMAT_BREAK
-    INFO_PRINTLN( "'{}'{} -{} FILTERED", l, l.size(), style );
+    INFO_PRINTLN( "'{}'{} -{} {} FILTERED", l, l.size(), style, (int)context );
 #endif
     if ( line.empty() && alignmentspace && alignpart )
       line = alignmentSpacing( alignmentspace );
 
     alignpart = true;  // otherwise first part would get spacing
+    bool newcontext_longer = false;
+    // if we start a new parenthesis group check if it fit completely
+    auto currlinespace = line.find_first_not_of( " \t" );
+    if ( context == FmtContext::PREFERRED_BREAK_START && currlinespace != std::string::npos )
+    {
+      size_t prefferedsize = l.size();
+      for ( size_t j = parti + 1; j < parts.size(); ++j )
+      {
+        prefferedsize += std::get<0>( parts[j] ).size();
+        if ( std::get<2>( parts[j] ) == FmtContext::PREFERRED_BREAK_END )
+        {
+          // does not fit into current line, start a new one
+          if ( prefferedsize + line.size() > compilercfg.FormatterLineWidth )
+            newcontext_longer = true;
+          break;
+        }
+      }
+    }
     // with a margin of 75% start a new line before
-    if ( ( line.size() + ( l.size() * 0.75 ) ) > compilercfg.FormatterLineWidth )
+    if ( ( ( line.size() + ( l.size() * 0.75 ) ) > compilercfg.FormatterLineWidth ) ||
+         newcontext_longer )
     {
       // TODO if next is linecomment dont split now, but split comment
+      std::string origline = line;  // parenthesisAlign modifies
       auto space = line.find_first_not_of( " \t" );
       if ( space != std::string::npos )  // line contained only alignment
       {
-        stripline( line );
         if ( !logical )
-          parenthesisAlign( finallines, alignmentspace, line );
-        finallines.emplace_back( std::move( line ) );
-        line = alignmentSpacing( alignmentspace );
+        {
+          if ( !parenthesisAlign( finallines, alignmentspace, line ) )
+          {
+            if ( assignpos != std::string::npos )
+            {
+              space = line.find_first_not_of( " \t" );
+              if ( space > assignpos )  // TODO operator shift of 2
+                line.erase( 0, space - assignpos );
+            }
+          }
+        }
+        // line shrinks due to align, check again
+        if ( newcontext_longer ||
+             ( line.size() + ( l.size() * 0.75 ) ) > compilercfg.FormatterLineWidth )
+        {
+          bool skip = false;
+          if ( parti == parts.size() - 1 )  // last
+          {
+            if ( l.size() < 4 ||
+                 line.size() + l.size() <= compilercfg.FormatterLineWidth )  // small
+              skip = true;
+            else if ( !l.empty() && l[0] == '/' )  // comment
+              skip = true;
+          }
+          else if ( auto c = line.find_last_not_of( " \t" );
+                    c != std::string::npos &&
+                    ( line[c] == '(' || ( finallines.empty() &&
+                                          line.size() < compilercfg.FormatterLineWidth * 0.3 ) ) )
+          {
+            // a bracket just started, dont directly start a newline
+            // or no completed line (prevents eg empty "var" line)
+            skip = true;
+          }
+          if ( !skip )
+          {
+            stripline( line );
+            finallines.emplace_back( std::move( line ) );
+            line = alignmentSpacing( alignmentspace );
+          }
+          else
+            line = origline;
+        }
+        else
+          line = origline;
       }
     }
     line += l;
@@ -687,12 +784,39 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
          style & FmtToken::PREFERRED_BREAK_VAR )
     {
       // TODO if next is linecomment dont split now, but split comment
-      stripline( line );
+      std::string origline = line;  // parenthesisAlign modifies
       if ( !logical )
-        parenthesisAlign( finallines, alignmentspace, line );
-      finallines.emplace_back( std::move( line ) );
-      line.clear();
+      {
+        if ( !parenthesisAlign( finallines, alignmentspace, line ) )
+        {
+          if ( assignpos != std::string::npos )
+          {
+            auto space = line.find_first_not_of( " \t" );
+            if ( space > assignpos )  // TODO operator shift of 2
+              line.erase( 0, space - assignpos );
+          }
+        }
+      }
+      bool startnew = true;
+      if ( style & FmtToken::FORCED_BREAK || style & FmtToken::PREFERRED_BREAK_VAR )
+        startnew = true;
+      else if ( line.size() < compilercfg.FormatterLineWidth )
+        startnew = false;
+      else if ( parti + 1 == parts.size() - 1 && std::get<0>( parts[parti + 1] ).size() < 4 )
+        startnew = false;  // next is last and small so add it
+      else if ( parti + 1 == parts.size() - 1 && !std::get<0>( parts[parti + 1] ).empty() &&
+                std::get<0>( parts[parti + 1] )[0] == '/' )
+        startnew = false;  // next is last and comment so add it
+      if ( startnew )
+      {
+        stripline( line );
+        finallines.emplace_back( std::move( line ) );
+        line.clear();
+      }
+      else
+        line = origline;
     }
+    ++parti;
   }
   if ( !line.empty() )
   {
@@ -793,8 +917,8 @@ void PrettifyLineBuilder::buildLine( size_t current_indent )
 #ifdef DEBUG_FORMAT_BREAK
   INFO_PRINTLN( "BREAK" );
   for ( const auto& part : lines )
-    INFO_PRINTLN( "\"{}\" {}-{} ->{} :{}", part.text, part.group, part.firstgroup, part.style,
-                  (int)part.scope );
+    INFO_PRINTLN( "\"{}\" {}-{} ->{} :{}-{}", part.text, part.group, part.firstgroup, part.style,
+                  (int)part.scope, (int)part.context );
 #endif
   // add newline from original sourcecode
   addEmptyLines( _line_parts.front().pos.line_number );

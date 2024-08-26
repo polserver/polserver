@@ -690,13 +690,15 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionCall( EscriptParser::FunctionC
   make_identifier( ctx->IDENTIFIER() );
   _currentscope |= FmtToken::Scope::FUNCTION;
 
-  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle(),
+            FmtContext::PREFERRED_BREAK_START );
 
   size_t curcount = linebuilder.currentTokens().size();
   if ( auto args = ctx->expressionList() )
     visitExpressionList( args );
 
-  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
+  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ),
+            FmtContext::PREFERRED_BREAK_END );
   _currentscope &= ~FmtToken::Scope::FUNCTION;
   return {};
 }
@@ -719,7 +721,8 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionDeclaration(
 antlrcpp::Any PrettifyFileProcessor::visitFunctionParameters(
     EscriptParser::FunctionParametersContext* ctx )
 {
-  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle(),
+            FmtContext::PREFERRED_BREAK_START );
 
   size_t curcount = linebuilder.currentTokens().size();
   if ( auto args = ctx->functionParameterList() )
@@ -728,7 +731,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameters(
   auto closingstyle = linebuilder.closingParenthesisStyle( curcount );
   if ( _suppressnewline )  // add space if newline is suppressed
     closingstyle |= FmtToken::SPACE;
-  addToken( ")", ctx->RPAREN(), closingstyle );
+  addToken( ")", ctx->RPAREN(), closingstyle, FmtContext::PREFERRED_BREAK_END );
   if ( !_suppressnewline )
     linebuilder.buildLine( _currindent );
   return {};
