@@ -2,6 +2,7 @@
 
 #include "berror.h"
 #include "bobject.h"
+#include "objmembers.h"
 #include "objmethods.h"
 
 namespace Pol::Bscript
@@ -61,8 +62,10 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
   // Eg: `function foo(this, arg0)` (two params) -> `this.foo(arg0)` (one param)
   auto param_count = funcref_table_entry.parameter_count - 1;
 
-  return new BFunctionRef( prog_, static_cast<int>( method_itr->second.address ), param_count,
-                           funcref_table_entry.is_variadic, globals, ValueStackCont{} );
+
+  return new BFunctionRef( prog_, funcref_table_entry.address, param_count,
+                           funcref_table_entry.is_variadic, funcref_table_entry.class_index,
+                           globals, ValueStackCont{} );
 }
 
 void BClassInstance::packonto( std::ostream& os ) const
@@ -110,6 +113,31 @@ BObjectImp* BClassInstance::call_method_id( const int id, Executor& ex, bool /*f
 {
   auto method = getObjMethod( id );
   return call_method( method->code, ex );
+}
+
+BObjectRef BClassInstance::get_member_id( const int id )
+{
+  if ( id == MBR_FUNCTION )
+  {
+    if ( index_ < prog_->class_descriptors.size() )
+    {
+      const auto& constructors = prog_->class_descriptors.at( index_ ).constructors;
+      if ( !constructors.empty() )
+      {
+        auto funcref_index = constructors.front().function_reference_index;
+        if ( funcref_index < prog_->function_references.size() )
+        {
+          const auto& funcref_entry = prog_->function_references.at( funcref_index );
+
+          return BObjectRef( new BFunctionRef(
+              prog_, static_cast<int>( funcref_entry.address ), funcref_entry.parameter_count,
+              funcref_entry.is_variadic, funcref_entry.class_index, globals, ValueStackCont{} ) );
+        }
+      }
+    }
+  }
+
+  return base::get_member_id( id );
 }
 
 std::string BClassInstance::getStringRep() const

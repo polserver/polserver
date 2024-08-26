@@ -7,13 +7,12 @@
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/DebugBlock.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
-#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
 {
 DebugStoreSerializer::DebugStoreSerializer( CompiledScript& compiled_script )
-  : compiled_script( compiled_script ), debug_store( compiled_script.debug )
+    : compiled_script( compiled_script ), debug_store( compiled_script.debug )
 {
 }
 
@@ -89,8 +88,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
 
     unsigned int varfirst = block.base_index;
-    auto varlast =
-        static_cast<unsigned int>( varfirst + block.local_variable_names.size() - 1 );
+    auto varlast = static_cast<unsigned int>( varfirst + block.local_variable_names.size() - 1 );
     if ( varlast >= varfirst )
     {
       if ( text_ofs )
@@ -133,10 +131,11 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     *text_ofs << "Function references:\n";
     for ( const auto& function_reference : compiled_script.function_references )
     {
-      *text_ofs << fmt::format( " {}: parameters={}, captures={}, variadic={}", index++,
-                                function_reference.parameter_count(),
-                                function_reference.capture_count(),
-                                function_reference.is_variadic() )
+      *text_ofs << fmt::format(
+                       " {}: address={}, parameters={}, captures={}, variadic={}, class_index={}",
+                       index++, function_reference.address(), function_reference.parameter_count(),
+                       function_reference.capture_count(), function_reference.is_variadic(),
+                       function_reference.class_index() )
                 << std::endl;
     }
   }
@@ -162,17 +161,17 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
 
       // Handle class
       *text_ofs << fmt::format( " {}: name={}, constructors={}, methods={}", index++, class_name,
-                                class_descriptor.constructor_addresses.size(),
+                                class_descriptor.constructors.size(),
                                 class_descriptor.methods.size() )
                 << std::endl;
 
       // Handle constructors
-      if ( !class_descriptor.constructor_addresses.empty() )
+      if ( !class_descriptor.constructors.empty() )
       {
-        *text_ofs << "    - Constructor chain:";
-        for ( const auto& constructor_address : class_descriptor.constructor_addresses )
+        *text_ofs << "    - Constructor chain (funcref idxs):";
+        for ( const auto& constructor : class_descriptor.constructors )
         {
-          *text_ofs << fmt::format( " {}", constructor_address );
+          *text_ofs << fmt::format( " {}", constructor.function_reference_index );
         }
         *text_ofs << std::endl;
       }

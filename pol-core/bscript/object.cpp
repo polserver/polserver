@@ -20,6 +20,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
+#include "bclassinstance.h"
 #include "berror.h"
 #include "bobject.h"
 #include "bstruct.h"
@@ -355,6 +356,16 @@ BObjectRef BObjectImp::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices
     BObjectRef ref = OperSubscript( *index );
     return ( *ref ).impptr()->OperMultiSubscript( indices );
   }
+}
+
+BObjectImp* BObjectImp::selfIsObjImp( const BObjectImp& objimp ) const
+{
+  return objimp.selfIsObj( *this );
+}
+
+BObjectImp* BObjectImp::selfIsObj( const BObjectImp& ) const
+{
+  return new BBoolean( false );
 }
 
 BObjectImp* BObjectImp::selfPlusObjImp( const BObjectImp& objimp ) const
@@ -2305,20 +2316,21 @@ std::string BBoolean::getStringRep() const
 
 
 BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count,
-                            bool variadic, std::shared_ptr<ValueStackCont> globals,
-                            ValueStackCont&& captures )
+                            bool variadic, unsigned class_index,
+                            std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       prog_( std::move( program ) ),
       pc_( progcounter ),
       num_params_( param_count ),
       variadic_( variadic ),
+      class_index_( class_index ),
       globals( std::move( globals ) ),
       captures( std::move( captures ) )
 {
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.prog_, B.pc_, B.num_params_, B.variadic_, B.globals,
+    : BFunctionRef( B.prog_, B.pc_, B.num_params_, B.variadic_, B.class_index_, B.globals,
                     ValueStackCont( B.captures ) )
 {
 }
@@ -2343,6 +2355,32 @@ bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
   return false;
 }
 
+BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
+{
+  auto classinst = dynamic_cast<const BClassInstance*>( &other );
+  if ( !classinst )
+    return new BBoolean( false );
+
+  if ( classinst->prog() != prog_ )
+    return new BBoolean( false );
+
+  if ( classinst->index() > prog_->class_descriptors.size() )
+    return new BBoolean( false );
+
+  // Find the address in the constructor addresses.
+  auto& addresses = prog_->class_descriptors[classinst->index()].constructors;
+
+  auto result =
+      std::find_if(
+          addresses.begin(), addresses.end(),
+          [this]( const EPMethodDescriptor& address )
+          {
+            return address.function_reference_index < prog_->function_references.size() &&
+                   prog_->function_references.at( address.function_reference_index ).address == pc_;
+          } ) != addresses.end();
+  return new BBoolean( result );
+}
+
 std::string BFunctionRef::getStringRep() const
 {
   return "FunctionObject";
@@ -2358,20 +2396,38 @@ BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )
 
 bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) const
 {
-  if ( id != MTH_CALL )
-    return false;
+  auto passed_args = static_cast<int>( ex.numParams() );
 
-  if ( variadic_ )
+  if ( id == MTH_CALL )
   {
-    if ( num_params_ <= 0 || ex.numParams() < static_cast<size_t>( num_params_ - 1 ) )
-      return false;
+    if ( variadic_ )
+    {
+      if ( passed_args < num_params_ - 1 /* remove optional rest arg */ )
+        return false;
+    }
+    else
+    {
+      if ( passed_args != num_params_ )
+        return false;
+    }
+  }
+  else if ( id == MTH_NEW )
+  {
+    if ( variadic_ )
+    {
+      if ( passed_args < num_params_ - 2 /* remove 'this', optional rest arg */ )
+        return false;
+    }
+    else
+    {
+      if ( passed_args != num_params_ - 1 /* remove 'this' */ )
+        return false;
+    }
   }
   else
   {
-    if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
-      return false;
+    return false;
   }
-
   inst->func = &Executor::ins_nop;
   inst->token.lval = pc_;
   return true;
@@ -2400,11 +2456,16 @@ ref_ptr<EScriptProgram> BFunctionRef::prog() const
   return prog_;
 }
 
+unsigned BFunctionRef::class_index() const
+{
+  return class_index_;
+}
+
 BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
+  // These are only entered if `ins_call_method_id` did _not_ do the call jump.
   switch ( id )
   {
-  // This is only entered if `ins_call_method_id` did _not_ do the call jump.
   case MTH_CALL:
   {
     if ( variadic_ )
@@ -2416,6 +2477,19 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*for
     {
       return new BError( fmt::format( "Invalid argument count: expected {}, got {}", num_params_,
                                       ex.numParams() ) );
+    }
+  }
+  case MTH_NEW:
+  {
+    if ( variadic_ )
+    {
+      return new BError( fmt::format( "Invalid argument count: expected {}+, got {}",
+                                      num_params_ - 2 /* remove 'this' */, ex.numParams() ) );
+    }
+    else
+    {
+      return new BError( fmt::format( "Invalid argument count: expected {}, got {}",
+                                      num_params_ - 1 /* remove 'this' */, ex.numParams() ) );
     }
   }
   default:

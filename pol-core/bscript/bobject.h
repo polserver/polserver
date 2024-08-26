@@ -180,6 +180,9 @@ public:
   virtual bool operator>=( const BObjectImp& objimp ) const;
   virtual bool operator!=( const BObjectImp& objimp ) const;
 
+  virtual BObjectImp* selfIsObjImp( const BObjectImp& objimp ) const;
+  virtual BObjectImp* selfIsObj( const BObjectImp& objimp ) const;
+
   virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfPlusObj( const BLong& objimp ) const;
@@ -900,7 +903,8 @@ class BFunctionRef final : public BObjectImp
 
 public:
   BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count, bool variadic,
-                std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures );
+                unsigned class_index, std::shared_ptr<ValueStackCont> globals,
+                ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -913,12 +917,13 @@ public:
   size_t numParams() const;
   bool variadic() const;
   ref_ptr<EScriptProgram> prog() const;
+  unsigned class_index() const;
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const override;
   virtual bool isTrue() const override;
   virtual bool operator==( const BObjectImp& objimp ) const override;
-
+  virtual BObjectImp* selfIsObjImp( const BObjectImp& ) const override;
   virtual std::string getStringRep() const override;
 
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
@@ -932,6 +937,7 @@ private:
   unsigned int pc_;
   int num_params_;
   bool variadic_;
+  unsigned class_index_;
 
 public:
   std::shared_ptr<ValueStackCont> globals;

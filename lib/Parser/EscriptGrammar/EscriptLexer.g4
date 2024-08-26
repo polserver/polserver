@@ -66,7 +66,6 @@ REAL:               'real';
 FLOAT:              'float';
 DOUBLE:             'double';
 AS:                 'as';
-IS:                 'is';
 ELLIPSIS:           '...';
 
 // Operators
@@ -91,6 +90,7 @@ TOK_IN:             'in';
 UNINIT:             'uninit';
 BOOL_TRUE:          'true';
 BOOL_FALSE:         'false';
+IS:                 'is';
 
 // Literals
 

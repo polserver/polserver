@@ -308,6 +308,8 @@ set (bscript_sources    # sorted !
   compiler/representation/ClassDescriptor.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
+  compiler/representation/ConstructorDescriptor.cpp
+  compiler/representation/ConstructorDescriptor.h
   compiler/representation/DebugBlock.cpp
   compiler/representation/DebugBlock.h
   compiler/representation/DebugStore.cpp

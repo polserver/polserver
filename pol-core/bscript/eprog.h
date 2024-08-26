@@ -80,31 +80,33 @@ struct EPExportedFunction
 
 struct EPFunctionReference
 {
+  unsigned address;
   int parameter_count;
   int capture_count;
   bool is_variadic;
+  unsigned class_index;  // max = no class
 
   bool operator==( const EPFunctionReference& other ) const
   {
-    return parameter_count == other.parameter_count && capture_count == other.capture_count &&
-           is_variadic == other.is_variadic;
+    return address == other.address && parameter_count == other.parameter_count &&
+           capture_count == other.capture_count && is_variadic == other.is_variadic &&
+           class_index == other.class_index;
   }
 };
 
 struct EPMethodDescriptor
 {
-  unsigned address;
   unsigned function_reference_index;
 };
 
-using EPConstructorList = std::vector<unsigned>;
+using EPConstructorList = std::vector<EPMethodDescriptor>;
 
 using EPMethodMap = std::map<unsigned /* name_offset */, EPMethodDescriptor>;
 
 struct EPClassDescriptor
 {
   unsigned name_offset;
-  EPConstructorList constructor_addresses;
+  EPConstructorList constructors;
   EPMethodMap methods;
 };
 

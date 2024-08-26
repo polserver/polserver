@@ -1,0 +1,56 @@
+// Tests the 'is' operator with class instances
+
+class A()
+  function A( this )
+  endfunction
+endclass
+
+class B( A )
+  function B( this )
+    super();
+  endfunction
+endclass
+
+class C( A )
+  function C( this )
+    super();
+  endfunction
+endclass
+
+class D( B, C )
+  function D( this )
+    super();
+  endfunction
+endclass
+
+class E( B, C )
+  function E( this )
+    super();
+  endfunction
+endclass
+
+var d := D(), e := E();
+print( d is @A );
+print( d is @B );
+print( d is @C );
+print( d is @D ); // true
+print( d is @E ); // false
+print( "--" );
+print( e is @A );
+print( e is @B );
+print( e is @C );
+print( e is @D ); // false
+print( e is @E ); // true
+
+print( "----" );
+
+foreach ctor in ( struct{ A := @A, B := @B, C := @C, D := @D, E := @E } )
+  print( $"d is {_ctor_iter} = {( d is ctor ? "1" : "0" )} ; e is {_ctor_iter} = {(
+         e is ctor ? "1" : "0" )}" );
+endforeach
+
+print( "----" );
+
+// Some other `is` tests..
+print( d is "hello" );
+print( "hello" is "hello" );

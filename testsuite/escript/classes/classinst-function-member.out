@@ -1,0 +1,17 @@
+A::A this=<class A>
+B::B this=<class B> args={ args }
+FunctionObject
+FunctionObject
+----
+A::A this=<class A>
+B::B this=<class B> args={ foo, bar }
+<class A>
+<class B>
+----
+1
+0
+----
+FunctionObject
+----
+function string
+function string
