@@ -10,272 +10,273 @@ namespace Pol
 namespace Bscript
 {
 ObjMember object_members[] = {
-    // MBR_*, "name", read_only
-    { MBR_X, "x", true },  // 0
-    { MBR_Y, "y", true },  // 1
-    { MBR_Z, "z", true },
-    { MBR_NAME, "name", false },
-    { MBR_OBJTYPE, "objtype", true },
-    { MBR_GRAPHIC, "graphic", false },  // 5
-    { MBR_SERIAL, "serial", true },
-    { MBR_COLOR, "color", false },
-    { MBR_HEIGHT, "height", true },
-    { MBR_FACING, "facing", false },
-    { MBR_DIRTY, "dirty", true },  // 10
-    { MBR_WEIGHT, "weight", true },
-    { MBR_MULTI, "multi", true },
-    { MBR_AMOUNT, "amount", true },  // item
-    { MBR_LAYER, "layer", true },
-    { MBR_CONTAINER, "container", true },  // 15
-    { MBR_USESCRIPT, "usescript", false },
-    { MBR_EQUIPSCRIPT, "equipscript", false },
-    { MBR_UNEQUIPSCRIPT, "unequipscript", false },
-    { MBR_DESC, "desc", false },
-    { MBR_MOVABLE, "movable", false },  // 20
-    { MBR_INVISIBLE, "invisible", false },
-    { MBR_DECAYAT, "decayat", false },
-    { MBR_SELLPRICE, "sellprice", false },
-    { MBR_BUYPRICE, "buyprice", false },
-    { MBR_NEWBIE, "newbie", false },  // 25
-    { MBR_ITEM_COUNT, "item_count", true },
-    { MBR_WARMODE, "warmode", true },  // character
-    { MBR_GENDER, "gender", false },
-    { MBR_TRUEOBJTYPE, "trueobjtype", false },
-    { MBR_TRUECOLOR, "truecolor", false },  // 30
-    { MBR_AR_MOD, "ar_mod", false },
-    { MBR_HIDDEN, "hidden", false },
-    { MBR_CONCEALED, "concealed", false },
-    { MBR_FROZEN, "frozen", false },
-    { MBR_PARALYZED, "paralyzed", false },  // 35
-    { MBR_POISONED, "poisoned", false },
-    { MBR_STEALTHSTEPS, "stealthsteps", false },
-    { MBR_SQUELCHED, "squelched", true },
-    { MBR_DEAD, "dead", true },
-    { MBR_AR, "ar", true },  // 40
-    { MBR_BACKPACK, "backpack", true },
-    { MBR_WEAPON, "weapon", true },
-    { MBR_SHIELD, "shield", true },
-    { MBR_ACCTNAME, "acctname", true },
-    { MBR_ACCT, "acct", true },  // 45
-    { MBR_CMDLEVEL, "cmdlevel", false },
-    { MBR_CMDLEVELSTR, "cmdlevelstr", true },
-    { MBR_CRIMINAL, "criminal", true },
-    { MBR_IP, "ip", true },
-    { MBR_GOLD, "gold", true },  // 50
-    { MBR_TITLE_PREFIX, "title_prefix", false },
-    { MBR_TITLE_SUFFIX, "title_suffix", false },
-    { MBR_TITLE_GUILD, "title_guild", false },
-    { MBR_TITLE_RACE, "title_race", false },
-    { MBR_GUILDID, "guildid", true },  // 55
-    { MBR_GUILD, "guild", true },
-    { MBR_MURDERER, "murderer", false },
-    { MBR_ATTACHED, "attached", true },
-    { MBR_CLIENTVERSION, "clientversion", true },
-    { MBR_REPORTABLES, "reportables", true },  // 60
-    { MBR_SCRIPT, "script", false },           // npc
-    { MBR_NPCTEMPLATE, "npctemplate", true },
-    { MBR_MASTER, "master", true },
-    { MBR_PROCESS, "process", true },
-    { MBR_EVENTMASK, "eventmask", true },  // 65
-    { MBR_SPEECH_COLOR, "speech_color", false },
-    { MBR_SPEECH_FONT, "speech_font", false },
-    { MBR_USE_ADJUSTMENTS, "use_adjustments", false },
-    { MBR_RUN_SPEED, "run_speed", false },
-    { MBR_LOCKED, "locked", false },         // lockable //70
-    { MBR_CORPSETYPE, "corpsetype", true },  // corpse
-    { MBR_TILLERMAN, "tillerman", true },    // boat
-    { MBR_PORTPLANK, "portplank", true },
-    { MBR_STARBOARDPLANK, "starboardplank", true },
-    { MBR_HOLD, "hold", true },  // 75
-    { MBR_HAS_OFFLINE_MOBILES, "has_offline_mobiles", true },
-    { MBR_COMPONENTS, "components", true },  // house
-    { MBR_ITEMS, "items", true },            // multi
-    { MBR_MOBILES, "mobiles", true },
-    { MBR_XEAST, "xeast", false },  // map //80
-    { MBR_XWEST, "xwest", false },
-    { MBR_YNORTH, "ynorth", false },
-    { MBR_YSOUTH, "ysouth", false },
-    { MBR_GUMPWIDTH, "gumpwidth", false },
-    { MBR_GUMPHEIGHT, "gumpheight", false },  // 85
-    { MBR_ISOPEN, "isopen", true },           // door
-    { MBR_QUALITY, "quality", false },        // equipment
-    { MBR_HP, "hp", false },
-    { MBR_MAXHP_MOD, "maxhp_mod", false },
-    { MBR_MAXHP, "maxhp", true },       // 90
-    { MBR_DMG_MOD, "dmg_mod", false },  // weapon
-    { MBR_ATTRIBUTE, "attribute", true },
-    { MBR_INTRINSIC, "intrinsic", true },
-    { MBR_HITSCRIPT, "hitscript", false },
-    { MBR_AR_BASE, "ar_base", true },  // 95
-    { MBR_ONHIT_SCRIPT, "onhitscript", false },
-    { MBR_ENABLED, "enabled", true },  // account
-    { MBR_BANNED, "banned", true },
-    { MBR_USERNAMEPASSWORDHASH, "usernamepasswordhash", true },
-    { MBR_MEMBERS, "members", true },  // guild //100
-    { MBR_ALLYGUILDS, "allyguilds", true },
-    { MBR_ENEMYGUILDS, "enemyguilds", true },
-    { MBR_PID, "pid", true },  // script
-    { MBR_STATE, "state", true },
-    { MBR_INSTR_CYCLES, "instr_cycles", true },  // 105
-    { MBR_SLEEP_CYCLES, "sleep_cycles", true },
-    { MBR_CONSEC_CYCLES, "consec_cycles", true },
-    { MBR_PC, "pc", true },
-    { MBR_CALL_DEPTH, "call_depth", true },
-    { MBR_NUM_GLOBALS, "num_globals", true },  // 110
-    { MBR_VAR_SIZE, "var_size", true },
-    { MBR_REALM, "realm", true },
-    { MBR_UO_EXPANSION, "uo_expansion", true },
-    { MBR_CUSTOM, "custom", true },    // house
-    { MBR_GLOBALS, "globals", true },  // 115
-    { MBR_FOOTPRINT, "footprint", true },
-    { MBR_CLIENTINFO, "clientinfo", true },
-    { MBR_DELAY_MOD, "delay_mod", false },
-    { MBR_CREATEDAT, "createdat", true },
-    { MBR_OPPONENT, "opponent", true },  // 120
-    { MBR_CONNECTED, "connected", true },
-    { MBR_ATTACHED_TO, "attached_to", true },
-    { MBR_CONTROLLER, "controller", true },
-    { MBR_OWNERSERIAL, "ownerserial", true },
-    { MBR_DEFAULTCMDLEVEL, "defaultcmdlevel", true },  // 125
-    { MBR_UCLANG, "uclang", true },
-    { MBR_RACE, "race", false },
-    { MBR_TRADING_WITH, "trading_with", false },
-    { MBR_TRADE_CONTAINER, "trade_container", false },
-    { MBR_ALIGNMENT, "alignment", false },  // 130
-    { MBR_CURSOR, "cursor", false },
-    { MBR_GUMP, "gump", false },
-    { MBR_PROMPT, "prompt", false },
-    { MBR_STACKABLE, "stackable", false },
-    { MBR_MOVEMODE, "movemode", false },  // 135
-    { MBR_HITCHANCE_MOD, "hitchance_mod", false },
-    { MBR_EVASIONCHANCE_MOD, "evasionchance_mod", false },
-    { MBR_TILE_LAYER, "tile_layer", true },
-    { MBR_CLIENTVERSIONDETAIL, "clientver_detail", true },
-    { MBR_SAVEONEXIT, "saveonexit", true },  // 140
-    { MBR_FIRE_RESIST, "resist_fire", true },
-    { MBR_COLD_RESIST, "resist_cold", true },
-    { MBR_ENERGY_RESIST, "resist_energy", true },
-    { MBR_POISON_RESIST, "resist_poison", true },
-    { MBR_PHYSICAL_RESIST, "resist_physical", true },  // 145
-    { MBR_FIRE_RESIST_MOD, "resist_fire_mod", true },
-    { MBR_COLD_RESIST_MOD, "resist_cold_mod", true },
-    { MBR_ENERGY_RESIST_MOD, "resist_energy_mod", true },
-    { MBR_POISON_RESIST_MOD, "resist_poison_mod", true },
-    { MBR_PHYSICAL_RESIST_MOD, "resist_physical_mod", true },  // 150
-    { MBR_STATCAP, "statcap", false },
-    { MBR_SKILLCAP, "skillcap", false },
-    { MBR_LUCK, "luck", false },
-    { MBR_FOLLOWERSMAX, "followers_max", false },
-    { MBR_TITHING, "tithing", false },  // 155
-    { MBR_FOLLOWERS, "followers", false },
-    { MBR_FIRE_DAMAGE, "damage_fire", true },
-    { MBR_COLD_DAMAGE, "damage_cold", true },
-    { MBR_ENERGY_DAMAGE, "damage_energy", true },
-    { MBR_POISON_DAMAGE, "damage_poison", true },  // 160
-    { MBR_PHYSICAL_DAMAGE, "damage_physical", true },
-    { MBR_FIRE_DAMAGE_MOD, "damage_fire_mod", true },
-    { MBR_COLD_DAMAGE_MOD, "damage_cold_mod", true },
-    { MBR_ENERGY_DAMAGE_MOD, "damage_energy_mod", true },
-    { MBR_POISON_DAMAGE_MOD, "damage_poison_mod", true },  // 165
-    { MBR_PHYSICAL_DAMAGE_MOD, "damage_physical_mod", true },
-    { MBR_PARTY, "party", true },
-    { MBR_LEADER, "leader", true },
-    { MBR_PARTYLOOT, "partycanloot", true },
-    { MBR_CANDIDATE_OF_PARTY, "candidate_of_party", true },  // 170
-    { MBR_CANDIDATES, "candidates", true },
-    { MBR_MOVECOST_WALK, "movecost_walk_mod", true },
-    { MBR_MOVECOST_RUN, "movecost_run_mod", true },
-    { MBR_MOVECOST_WALK_MOUNTED, "movecost_walk_mounted_mod", true },
-    { MBR_MOVECOST_RUN_MOUNTED, "movecost_run_mounted_mod", true },  // 175
-    { MBR_AGGRESSORTO, "aggressorto", true },
-    { MBR_LAWFULLYDAMAGED, "lawfullydamaged", true },
-    { MBR_GETGOTTENBY, "getgottenby", true },
-    { MBR_UO_EXPANSION_CLIENT, "uo_expansion_client", true },
-    { MBR_CLIENTTYPE, "clienttype", true },  // 180
-    { MBR_DEAFENED, "deafed", true },
-    { MBR_CLIENT, "client", true },
-    { MBR_TYPE, "type", true },
-    { MBR_ATTRIBUTES, "attributes", true },
-    { MBR_EDITING, "house_editing", true },  // 185
-    { MBR_HOUSEPARTS, "house_parts", true },
-    { MBR_DOUBLECLICKRANGE, "doubleclickrange", false },
-    { MBR_MOUNTEDSTEPS, "mountedsteps", false },
+    // MBR_*, "name", read_only, hidden
+    { MBR_X, "x" },  // 0
+    { MBR_Y, "y" },  // 1
+    { MBR_Z, "z" },
+    { MBR_NAME, "name" },
+    { MBR_OBJTYPE, "objtype" },
+    { MBR_GRAPHIC, "graphic" },  // 5
+    { MBR_SERIAL, "serial" },
+    { MBR_COLOR, "color" },
+    { MBR_HEIGHT, "height" },
+    { MBR_FACING, "facing" },
+    { MBR_DIRTY, "dirty" },  // 10
+    { MBR_WEIGHT, "weight" },
+    { MBR_MULTI, "multi" },
+    { MBR_AMOUNT, "amount" },  // item
+    { MBR_LAYER, "layer" },
+    { MBR_CONTAINER, "container" },  // 15
+    { MBR_USESCRIPT, "usescript" },
+    { MBR_EQUIPSCRIPT, "equipscript" },
+    { MBR_UNEQUIPSCRIPT, "unequipscript" },
+    { MBR_DESC, "desc" },
+    { MBR_MOVABLE, "movable" },  // 20
+    { MBR_INVISIBLE, "invisible" },
+    { MBR_DECAYAT, "decayat" },
+    { MBR_SELLPRICE, "sellprice" },
+    { MBR_BUYPRICE, "buyprice" },
+    { MBR_NEWBIE, "newbie" },  // 25
+    { MBR_ITEM_COUNT, "item_count" },
+    { MBR_WARMODE, "warmode" },  // character
+    { MBR_GENDER, "gender" },
+    { MBR_TRUEOBJTYPE, "trueobjtype" },
+    { MBR_TRUECOLOR, "truecolor" },  // 30
+    { MBR_AR_MOD, "ar_mod" },
+    { MBR_HIDDEN, "hidden" },
+    { MBR_CONCEALED, "concealed" },
+    { MBR_FROZEN, "frozen" },
+    { MBR_PARALYZED, "paralyzed" },  // 35
+    { MBR_POISONED, "poisoned" },
+    { MBR_STEALTHSTEPS, "stealthsteps" },
+    { MBR_SQUELCHED, "squelched" },
+    { MBR_DEAD, "dead" },
+    { MBR_AR, "ar" },  // 40
+    { MBR_BACKPACK, "backpack" },
+    { MBR_WEAPON, "weapon" },
+    { MBR_SHIELD, "shield" },
+    { MBR_ACCTNAME, "acctname" },
+    { MBR_ACCT, "acct" },  // 45
+    { MBR_CMDLEVEL, "cmdlevel" },
+    { MBR_CMDLEVELSTR, "cmdlevelstr" },
+    { MBR_CRIMINAL, "criminal" },
+    { MBR_IP, "ip" },
+    { MBR_GOLD, "gold" },  // 50
+    { MBR_TITLE_PREFIX, "title_prefix" },
+    { MBR_TITLE_SUFFIX, "title_suffix" },
+    { MBR_TITLE_GUILD, "title_guild" },
+    { MBR_TITLE_RACE, "title_race" },
+    { MBR_GUILDID, "guildid" },  // 55
+    { MBR_GUILD, "guild" },
+    { MBR_MURDERER, "murderer" },
+    { MBR_ATTACHED, "attached" },
+    { MBR_CLIENTVERSION, "clientversion" },
+    { MBR_REPORTABLES, "reportables" },  // 60
+    { MBR_SCRIPT, "script" },            // npc
+    { MBR_NPCTEMPLATE, "npctemplate" },
+    { MBR_MASTER, "master" },
+    { MBR_PROCESS, "process" },
+    { MBR_EVENTMASK, "eventmask" },  // 65
+    { MBR_SPEECH_COLOR, "speech_color" },
+    { MBR_SPEECH_FONT, "speech_font" },
+    { MBR_USE_ADJUSTMENTS, "use_adjustments" },
+    { MBR_RUN_SPEED, "run_speed" },
+    { MBR_LOCKED, "locked" },          // lockable //70
+    { MBR_CORPSETYPE, "corpsetype" },  // corpse
+    { MBR_TILLERMAN, "tillerman" },    // boat
+    { MBR_PORTPLANK, "portplank" },
+    { MBR_STARBOARDPLANK, "starboardplank" },
+    { MBR_HOLD, "hold" },  // 75
+    { MBR_HAS_OFFLINE_MOBILES, "has_offline_mobiles" },
+    { MBR_COMPONENTS, "components" },  // house
+    { MBR_ITEMS, "items" },            // multi
+    { MBR_MOBILES, "mobiles" },
+    { MBR_XEAST, "xeast" },  // map //80
+    { MBR_XWEST, "xwest" },
+    { MBR_YNORTH, "ynorth" },
+    { MBR_YSOUTH, "ysouth" },
+    { MBR_GUMPWIDTH, "gumpwidth" },
+    { MBR_GUMPHEIGHT, "gumpheight" },  // 85
+    { MBR_ISOPEN, "isopen" },          // door
+    { MBR_QUALITY, "quality" },        // equipment
+    { MBR_HP, "hp" },
+    { MBR_MAXHP_MOD, "maxhp_mod" },
+    { MBR_MAXHP, "maxhp" },      // 90
+    { MBR_DMG_MOD, "dmg_mod" },  // weapon
+    { MBR_ATTRIBUTE, "attribute" },
+    { MBR_INTRINSIC, "intrinsic" },
+    { MBR_HITSCRIPT, "hitscript" },
+    { MBR_AR_BASE, "ar_base" },  // 95
+    { MBR_ONHIT_SCRIPT, "onhitscript" },
+    { MBR_ENABLED, "enabled" },  // account
+    { MBR_BANNED, "banned" },
+    { MBR_USERNAMEPASSWORDHASH, "usernamepasswordhash" },
+    { MBR_MEMBERS, "members" },  // guild //100
+    { MBR_ALLYGUILDS, "allyguilds" },
+    { MBR_ENEMYGUILDS, "enemyguilds" },
+    { MBR_PID, "pid" },  // script
+    { MBR_STATE, "state" },
+    { MBR_INSTR_CYCLES, "instr_cycles" },  // 105
+    { MBR_SLEEP_CYCLES, "sleep_cycles" },
+    { MBR_CONSEC_CYCLES, "consec_cycles" },
+    { MBR_PC, "pc" },
+    { MBR_CALL_DEPTH, "call_depth" },
+    { MBR_NUM_GLOBALS, "num_globals" },  // 110
+    { MBR_VAR_SIZE, "var_size" },
+    { MBR_REALM, "realm" },
+    { MBR_UO_EXPANSION, "uo_expansion" },
+    { MBR_CUSTOM, "custom" },    // house
+    { MBR_GLOBALS, "globals" },  // 115
+    { MBR_FOOTPRINT, "footprint" },
+    { MBR_CLIENTINFO, "clientinfo" },
+    { MBR_DELAY_MOD, "delay_mod" },
+    { MBR_CREATEDAT, "createdat" },
+    { MBR_OPPONENT, "opponent" },  // 120
+    { MBR_CONNECTED, "connected" },
+    { MBR_ATTACHED_TO, "attached_to" },
+    { MBR_CONTROLLER, "controller" },
+    { MBR_OWNERSERIAL, "ownerserial" },
+    { MBR_DEFAULTCMDLEVEL, "defaultcmdlevel" },  // 125
+    { MBR_UCLANG, "uclang" },
+    { MBR_RACE, "race" },
+    { MBR_TRADING_WITH, "trading_with" },
+    { MBR_TRADE_CONTAINER, "trade_container" },
+    { MBR_ALIGNMENT, "alignment" },  // 130
+    { MBR_CURSOR, "cursor" },
+    { MBR_GUMP, "gump" },
+    { MBR_PROMPT, "prompt" },
+    { MBR_STACKABLE, "stackable" },
+    { MBR_MOVEMODE, "movemode" },  // 135
+    { MBR_HITCHANCE_MOD, "hitchance_mod" },
+    { MBR_EVASIONCHANCE_MOD, "evasionchance_mod" },
+    { MBR_TILE_LAYER, "tile_layer" },
+    { MBR_CLIENTVERSIONDETAIL, "clientver_detail" },
+    { MBR_SAVEONEXIT, "saveonexit" },  // 140
+    { MBR_FIRE_RESIST, "resist_fire" },
+    { MBR_COLD_RESIST, "resist_cold" },
+    { MBR_ENERGY_RESIST, "resist_energy" },
+    { MBR_POISON_RESIST, "resist_poison" },
+    { MBR_PHYSICAL_RESIST, "resist_physical" },  // 145
+    { MBR_FIRE_RESIST_MOD, "resist_fire_mod" },
+    { MBR_COLD_RESIST_MOD, "resist_cold_mod" },
+    { MBR_ENERGY_RESIST_MOD, "resist_energy_mod" },
+    { MBR_POISON_RESIST_MOD, "resist_poison_mod" },
+    { MBR_PHYSICAL_RESIST_MOD, "resist_physical_mod" },  // 150
+    { MBR_STATCAP, "statcap" },
+    { MBR_SKILLCAP, "skillcap" },
+    { MBR_LUCK, "luck" },
+    { MBR_FOLLOWERSMAX, "followers_max" },
+    { MBR_TITHING, "tithing" },  // 155
+    { MBR_FOLLOWERS, "followers" },
+    { MBR_FIRE_DAMAGE, "damage_fire" },
+    { MBR_COLD_DAMAGE, "damage_cold" },
+    { MBR_ENERGY_DAMAGE, "damage_energy" },
+    { MBR_POISON_DAMAGE, "damage_poison" },  // 160
+    { MBR_PHYSICAL_DAMAGE, "damage_physical" },
+    { MBR_FIRE_DAMAGE_MOD, "damage_fire_mod" },
+    { MBR_COLD_DAMAGE_MOD, "damage_cold_mod" },
+    { MBR_ENERGY_DAMAGE_MOD, "damage_energy_mod" },
+    { MBR_POISON_DAMAGE_MOD, "damage_poison_mod" },  // 165
+    { MBR_PHYSICAL_DAMAGE_MOD, "damage_physical_mod" },
+    { MBR_PARTY, "party" },
+    { MBR_LEADER, "leader" },
+    { MBR_PARTYLOOT, "partycanloot" },
+    { MBR_CANDIDATE_OF_PARTY, "candidate_of_party" },  // 170
+    { MBR_CANDIDATES, "candidates" },
+    { MBR_MOVECOST_WALK, "movecost_walk_mod" },
+    { MBR_MOVECOST_RUN, "movecost_run_mod" },
+    { MBR_MOVECOST_WALK_MOUNTED, "movecost_walk_mounted_mod" },
+    { MBR_MOVECOST_RUN_MOUNTED, "movecost_run_mounted_mod" },  // 175
+    { MBR_AGGRESSORTO, "aggressorto" },
+    { MBR_LAWFULLYDAMAGED, "lawfullydamaged" },
+    { MBR_GETGOTTENBY, "getgottenby" },
+    { MBR_UO_EXPANSION_CLIENT, "uo_expansion_client" },
+    { MBR_CLIENTTYPE, "clienttype" },  // 180
+    { MBR_DEAFENED, "deafed" },
+    { MBR_CLIENT, "client" },
+    { MBR_TYPE, "type" },
+    { MBR_ATTRIBUTES, "attributes" },
+    { MBR_EDITING, "house_editing" },  // 185
+    { MBR_HOUSEPARTS, "house_parts" },
+    { MBR_DOUBLECLICKRANGE, "doubleclickrange" },
+    { MBR_MOUNTEDSTEPS, "mountedsteps" },
     // New boat stuff start
-    { MBR_ROPE, "rope", true },
-    { MBR_WHEEL, "wheel", true },  // 190
-    { MBR_HULL, "hull", true },
-    { MBR_TILLER, "tiller", true },
-    { MBR_RUDDER, "rudder", true },
-    { MBR_SAILS, "sails", true },
-    { MBR_STORAGE, "storage", true },  // 195
-    { MBR_WEAPONSLOT, "weaponslot", true },
+    { MBR_ROPE, "rope" },
+    { MBR_WHEEL, "wheel" },  // 190
+    { MBR_HULL, "hull" },
+    { MBR_TILLER, "tiller" },
+    { MBR_RUDDER, "rudder" },
+    { MBR_SAILS, "sails" },
+    { MBR_STORAGE, "storage" },  // 195
+    { MBR_WEAPONSLOT, "weaponslot" },
     // New boat stuff end
-    { MBR_MULTIID, "multiid", true },
-    { MBR_TRADEWINDOW, "tradewindow", true },
-    { MBR_LASTCOORD, "lastcoord", true },
-    { MBR_FACETID, "facetid", true },  // 200
-    { MBR_EDITABLE, "editable", true },
-    { MBR_ACTIVE_SKILL, "active_skill", true },
-    { MBR_CASTING_SPELL, "casting_spell", true },
-    { MBR_CARRYINGCAPACITY_MOD, "carrying_capacity_mod", false },
-    { MBR_MAX_ITEMS_MOD, "max_items_mod", false },  // 205
-    { MBR_MAX_WEIGHT_MOD, "max_weight_mod", false },
-    { MBR_MAX_SLOTS_MOD, "max_slots_mod", false },
-    { MBR_SPEED_MOD, "speed_mod", false },
-    { MBR_NAME_SUFFIX, "name_suffix", false },
-    { MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true },  // 210
-    { MBR_LAST_TEXTCOLOR, "last_textcolor", true },
-    { MBR_INSURED, "insured", false },
-    { MBR_LAST_ACTIVITY_AT, "last_activity_at", false },
-    { MBR_LAST_PACKET_AT, "last_packet_at", false },
-    { MBR_HOUSE, "house", true },  // 215, Item
-    { MBR_SPECIFIC_NAME, "specific_name", true },
-    { MBR_CARRYINGCAPACITY, "carrying_capacity", true },
-    { MBR_NO_DROP, "no_drop", false },
-    { MBR_NO_DROP_EXCEPTION, "no_drop_exception", false },
-    { MBR_PORT, "port", false },  // 220
+    { MBR_MULTIID, "multiid" },
+    { MBR_TRADEWINDOW, "tradewindow" },
+    { MBR_LASTCOORD, "lastcoord" },
+    { MBR_FACETID, "facetid" },  // 200
+    { MBR_EDITABLE, "editable" },
+    { MBR_ACTIVE_SKILL, "active_skill" },
+    { MBR_CASTING_SPELL, "casting_spell" },
+    { MBR_CARRYINGCAPACITY_MOD, "carrying_capacity_mod" },
+    { MBR_MAX_ITEMS_MOD, "max_items_mod" },  // 205
+    { MBR_MAX_WEIGHT_MOD, "max_weight_mod" },
+    { MBR_MAX_SLOTS_MOD, "max_slots_mod" },
+    { MBR_SPEED_MOD, "speed_mod" },
+    { MBR_NAME_SUFFIX, "name_suffix" },
+    { MBR_TEMPORALLY_CRIMINAL, "temporally_criminal" },  // 210
+    { MBR_LAST_TEXTCOLOR, "last_textcolor" },
+    { MBR_INSURED, "insured" },
+    { MBR_LAST_ACTIVITY_AT, "last_activity_at" },
+    { MBR_LAST_PACKET_AT, "last_packet_at" },
+    { MBR_HOUSE, "house" },  // 215, Item
+    { MBR_SPECIFIC_NAME, "specific_name" },
+    { MBR_CARRYINGCAPACITY, "carrying_capacity" },
+    { MBR_NO_DROP, "no_drop" },
+    { MBR_NO_DROP_EXCEPTION, "no_drop_exception" },
+    { MBR_PORT, "port" },  // 220
     // Additions for new properties
-    { MBR_LOWER_REAG_COST, "lower_reagent_cost", true },
-    { MBR_SPELL_DAMAGE_INCREASE, "spell_damage_increase", true },
-    { MBR_FASTER_CASTING, "faster_casting", true },
-    { MBR_FASTER_CAST_RECOVERY, "faster_cast_recovery", true },
-    { MBR_DEFENCE_CHANCE_INCREASE, "defence_increase", true },  // 225
-    { MBR_DEFENCE_CHANCE_INCREASE_CAP, "defence_increase_cap", true },
-    { MBR_LOWER_MANA_COST, "lower_mana_cost", true },
-    { MBR_FIRE_RESIST_CAP, "resist_fire_cap", true },
-    { MBR_COLD_RESIST_CAP, "resist_cold_cap", true },
-    { MBR_ENERGY_RESIST_CAP, "resist_energy_cap", true },  // 230
-    { MBR_POISON_RESIST_CAP, "resist_poison_cap", true },
-    { MBR_PHYSICAL_RESIST_CAP, "resist_physical_cap", true },
-    { MBR_HIT_CHANCE, "hit_chance", true },
+    { MBR_LOWER_REAG_COST, "lower_reagent_cost" },
+    { MBR_SPELL_DAMAGE_INCREASE, "spell_damage_increase" },
+    { MBR_FASTER_CASTING, "faster_casting" },
+    { MBR_FASTER_CAST_RECOVERY, "faster_cast_recovery" },
+    { MBR_DEFENCE_CHANCE_INCREASE, "defence_increase" },  // 225
+    { MBR_DEFENCE_CHANCE_INCREASE_CAP, "defence_increase_cap" },
+    { MBR_LOWER_MANA_COST, "lower_mana_cost" },
+    { MBR_FIRE_RESIST_CAP, "resist_fire_cap" },
+    { MBR_COLD_RESIST_CAP, "resist_cold_cap" },
+    { MBR_ENERGY_RESIST_CAP, "resist_energy_cap" },  // 230
+    { MBR_POISON_RESIST_CAP, "resist_poison_cap" },
+    { MBR_PHYSICAL_RESIST_CAP, "resist_physical_cap" },
+    { MBR_HIT_CHANCE, "hit_chance" },
     // Additions for new properties mods
-    { MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod", false },
-    { MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod", false },
-    { MBR_FASTER_CASTING_MOD, "faster_casting_mod", false },  // 235
-    { MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod", false },
-    { MBR_DEFENCE_CHANCE_INCREASE_MOD, "defence_increase_mod", false },
-    { MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD, "defence_increase_cap_mod", false },
-    { MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod", false },
-    { MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false },  // 240
-    { MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false },
-    { MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false },
-    { MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false },
-    { MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false },
-    { MBR_LUCK_MOD, "luck_mod", false },  // 245
-    { MBR_HIT_CHANCE_MOD, "hit_chance_mod", false },
-    { MBR_PACKAGE, "package", true },
-    { MBR_SWING_SPEED_INCREASE, "swing_speed_increase", true },
-    { MBR_SWING_SPEED_INCREASE_MOD, "swing_speed_increase_mod", false },
-    { MBR_EXPORTED_FUNCTIONS, "exported_functions", false },  // 250
-    { MBR_DISABLE_INACTIVITY_TIMEOUT, "disable_inactivity_timeout", false },
-    { MBR_CURSED, "cursed", false },
-    { MBR_SNOOPSCRIPT, "snoopscript", false },
-    { MBR_CHARACTER_OWNER, "character_owner", true },
-    { MBR_PARRYCHANCE_MOD, "parrychance_mod", false },  // 255
-    { MBR_PILOT, "pilot", false },
-    { MBR_BUFFS, "buffs", false },
-    { MBR_WEIGHT_MULTIPLIER_MOD, "weight_multiplier_mod", false },
-    { MBR_HELD_WEIGHT_MULTIPLIER, "held_weight_multiplier", false },
+    { MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod" },
+    { MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod" },
+    { MBR_FASTER_CASTING_MOD, "faster_casting_mod" },  // 235
+    { MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod" },
+    { MBR_DEFENCE_CHANCE_INCREASE_MOD, "defence_increase_mod" },
+    { MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD, "defence_increase_cap_mod" },
+    { MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod" },
+    { MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod" },  // 240
+    { MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod" },
+    { MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod" },
+    { MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod" },
+    { MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod" },
+    { MBR_LUCK_MOD, "luck_mod" },  // 245
+    { MBR_HIT_CHANCE_MOD, "hit_chance_mod" },
+    { MBR_PACKAGE, "package" },
+    { MBR_SWING_SPEED_INCREASE, "swing_speed_increase" },
+    { MBR_SWING_SPEED_INCREASE_MOD, "swing_speed_increase_mod" },
+    { MBR_EXPORTED_FUNCTIONS, "exported_functions" },  // 250
+    { MBR_DISABLE_INACTIVITY_TIMEOUT, "disable_inactivity_timeout" },
+    { MBR_CURSED, "cursed" },
+    { MBR_SNOOPSCRIPT, "snoopscript" },
+    { MBR_CHARACTER_OWNER, "character_owner" },
+    { MBR_PARRYCHANCE_MOD, "parrychance_mod" },  // 255
+    { MBR_PILOT, "pilot" },
+    { MBR_BUFFS, "buffs" },
+    { MBR_WEIGHT_MULTIPLIER_MOD, "weight_multiplier_mod" },
+    { MBR_HELD_WEIGHT_MULTIPLIER, "held_weight_multiplier" },
+    { MBR_FUNCTION, "function" },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
@@ -468,6 +469,7 @@ ObjMethod object_methods[] = {
     { MTH_MAP, "map", false },
     { MTH_FINDINDEX, "findindex", false },  // 160
     { MTH_SET_MULTIID, "set_multiid", false },
+    { MTH_NEW, "new", false },
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )

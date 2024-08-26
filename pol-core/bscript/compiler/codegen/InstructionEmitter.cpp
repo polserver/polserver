@@ -20,8 +20,8 @@
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
+#include "bscript/compiler/representation/ConstructorDescriptor.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
-#include "bscript/compiler/representation/MethodDescriptor.h"
 #include "escriptv.h"
 #include "modules.h"
 #include "token.h"
@@ -64,7 +64,7 @@ void InstructionEmitter::register_class_declaration(
 {
   std::set<std::string> visited;
   std::set<std::string, Clib::ci_cmp_pred> visited_methods;
-  std::vector<unsigned> constructor_addresses;
+  std::vector<ConstructorDescriptor> constructor_descriptors;
   std::set<std::string> method_names;
   std::vector<MethodDescriptor> method_descriptors;
   std::list<const ClassDeclaration*> to_link( { &node } );
@@ -93,7 +93,10 @@ void InstructionEmitter::register_class_declaration(
           cd->internal_error(
               fmt::format( "Constructor {} not found in user_function_labels", cd->name ) );
         }
-        constructor_addresses.push_back( ctor_itr->second.address() );
+        unsigned funcref_index;
+        function_reference_registrar.lookup_or_register_reference( *uf, ctor_itr->second,
+                                                                   funcref_index );
+        constructor_descriptors.push_back( funcref_index );
       }
     }
 
@@ -124,7 +127,8 @@ void InstructionEmitter::register_class_declaration(
       if ( use_method )
       {
         unsigned funcref_index;
-        function_reference_registrar.lookup_or_register_reference( *uf, funcref_index );
+        function_reference_registrar.lookup_or_register_reference( *uf, method_itr->second,
+                                                                   funcref_index );
         auto name_offset = this->emit_data( method );
         method_descriptors.emplace_back( name_offset, address, funcref_index );
         report.debug( *cd, " - Method: {} PC={} funcref_index={}", method,
@@ -147,9 +151,10 @@ void InstructionEmitter::register_class_declaration(
   }
   report.debug( node, fmt::format( "Class: {}", node.name ) );
 
-  for ( const auto& offset : constructor_addresses )
+  for ( const auto& constructor : constructor_descriptors )
   {
-    report.debug( node, fmt::format( " - Constructor @ PC={} ", offset ) );
+    report.debug(
+        node, fmt::format( " - Constructor @ FuncRef={}", constructor.function_reference_index ) );
   }
 
   for ( const auto& method_info : method_descriptors )
@@ -159,7 +164,7 @@ void InstructionEmitter::register_class_declaration(
                                      method_info.function_reference_index ) );
   }
 
-  class_declaration_registrar.register_class( class_name_offset, constructor_addresses,
+  class_declaration_registrar.register_class( class_name_offset, constructor_descriptors,
                                               method_descriptors );
 }
 
@@ -429,17 +434,15 @@ void InstructionEmitter::function_reference( const UserFunction& uf, FlowControl
 {
   unsigned index;
 
-  function_reference_registrar.lookup_or_register_reference( uf, index );
+  function_reference_registrar.lookup_or_register_reference( uf, label, index );
 
-  auto type = static_cast<BTokenType>( index );
-
-  register_with_label( label, emit_token( TOK_FUNCREF, type ) );
+  emit_token( TOK_FUNCREF, TYP_OPERAND, index );
 }
 
-void InstructionEmitter::functor_create( const UserFunction& uf )
+void InstructionEmitter::functor_create( const UserFunction& uf, FlowControlLabel& label )
 {
   unsigned reference_index;
-  function_reference_registrar.lookup_or_register_reference( uf, reference_index );
+  function_reference_registrar.lookup_or_register_reference( uf, label, reference_index );
   StoredToken token( static_cast<unsigned char>( Mod_Basic ), TOK_FUNCTOR,
                      static_cast<BTokenType>(
                          reference_index ),  // index to the EScriptProgram's function_references,

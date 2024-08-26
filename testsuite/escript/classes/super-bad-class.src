@@ -1,0 +1,22 @@
+// Do not call super() if the `this` is invalid
+
+class BaseClass()
+  function BaseClass( this )
+    print( $"BaseClass::BaseClass this={this}" );
+  endfunction
+endclass
+
+class Foo( BaseClass )
+  function Foo( this )
+    super();
+    print( $"Foo::Foo this={this}" );
+  endfunction
+endclass
+
+
+print( Foo() );
+
+print( "----" );
+
+// Will call Foo() but not BaseClass(), as super() is skipped
+print( @Foo.call(struct{}) );

@@ -1,0 +1,20 @@
+true
+true
+true
+true
+false
+--
+true
+true
+true
+false
+true
+----
+d is A = 1 ; e is A = 1
+d is B = 1 ; e is B = 1
+d is C = 1 ; e is C = 1
+d is D = 1 ; e is D = 0
+d is E = 0 ; e is E = 1
+----
+false
+false

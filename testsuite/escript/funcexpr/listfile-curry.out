@@ -1,5 +1,5 @@
 0: declare global #0
-1: create-funcref index=0 pc=93 (TOK_FUNCREF)
+1: create-funcref index=0 (TOK_FUNCREF)
 2: makelocal
 3: jsr userfunc @17
 4: :=
