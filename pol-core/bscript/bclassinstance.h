@@ -41,6 +41,7 @@ public:  // Class Machinery
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
   virtual BObjectImp* call_method_id( const int id, Executor& ex,
                                       bool forcebuiltin = false ) override;
+  virtual BObjectRef get_member_id( const int id ) override;
   virtual void packonto( std::ostream& os ) const override;
 
   virtual std::string getStringRep() const override;

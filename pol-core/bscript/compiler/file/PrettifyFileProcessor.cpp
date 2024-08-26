@@ -603,6 +603,8 @@ antlrcpp::Any PrettifyFileProcessor::expression_suffix(
       make_string_literal( string_literal );
     else if ( auto identifier = member->IDENTIFIER() )
       make_identifier( identifier );
+    else if ( auto function_keyword = member->FUNCTION() )
+      make_identifier( function_keyword );
   }
   else if ( auto method = expr_suffix_ctx->methodCallSuffix() )
   {

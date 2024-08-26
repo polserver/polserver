@@ -134,11 +134,9 @@ void EScriptProgram::addToken( const Token& token )
       break;
     case TOK_GLOBALVAR:
     case TOK_LOCALVAR:
+    case TOK_FUNCREF:
       sympos = token.lval;
       break;
-    case TOK_FUNCREF:
-      // num params in type
-      type = static_cast<BTokenType>( token.userfunc->parameters.size() );
     default:
       break;
     }

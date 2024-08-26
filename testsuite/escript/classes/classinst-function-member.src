@@ -1,0 +1,51 @@
+// Tests the 'is' operator with class instances
+
+class A()
+  function A( this )
+    print( $"A::A this={this}" );
+  endfunction
+endclass
+
+class B()
+  function B( this, args... )
+    print( $"B::B this={this} args={args}" );
+  endfunction
+endclass
+
+var a := A();
+var b := B("args");
+
+print( a.function );
+print( b.function );
+
+print("----");
+
+var aa := ( a.function ).new();
+var bb := b.function.new("foo","bar");
+
+print( aa );
+print( bb );
+
+print( "----" );
+
+// Equality checks
+print( aa == aa );
+print( aa == bb );
+
+print( "----" );
+
+// Cannot assign 'function' member to classinst
+
+a.function := uninit;
+print( a.function );
+
+print( "----" );
+
+// Checking that old functionality doesn't break
+
+var obj := struct{};
+obj["function"] := "function string";
+print( obj["function"] );
+
+// Old implementation would have a compiler error here:
+print( obj.function );

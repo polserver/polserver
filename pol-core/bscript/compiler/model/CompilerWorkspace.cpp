@@ -8,6 +8,7 @@
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/model/FlowControlLabel.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -392,6 +392,8 @@ public:
   void ins_div( const Instruction& ins );
   void ins_modulus( const Instruction& ins );
 
+  void ins_is( const Instruction& ins );
+
   void ins_interpolate_string( const Instruction& ins );
   void ins_format_expression( const Instruction& ins );
 
@@ -498,7 +500,7 @@ public:
   void show_context( std::string& os, unsigned atPC );
 
   void call_function_reference( BFunctionRef* funcref, BContinuation* continuation,
-                                const Instruction& jmp );
+                                const Instruction& jmp, bool add_new_classinst );
 
   int getDebugLevel() { return debug_level; }
   void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }
