@@ -58,7 +58,7 @@ std::vector<FunctionReferenceDescriptor> FunctionReferenceRegistrar::take_descri
               "index" );
         }
 
-        class_index = cd_itr->second;
+        class_index = static_cast<unsigned>( cd_itr->second );
       }
     }
 
