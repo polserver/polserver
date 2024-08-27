@@ -399,7 +399,6 @@ void FunctionResolver::register_available_function_parse_tree(
                   scoped_name, previous->source_location );
   }
 
-  // available_user_function_parse_trees.insert( { scoped_name, apt } );
   available_user_function_parse_trees[scoped_name] = std::move( apt );
 }
 
@@ -409,7 +408,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
 {
   register_available_function_parse_tree(
       source_location, name,
-      std::make_unique<AvailableParseTree>( source_location, ctx, name.scope.string(), nullptr ) );
+      std::make_unique<AvailableParseTree>( source_location, ctx, name.scope, nullptr ) );
 
   if ( force_reference )
   {
@@ -461,7 +460,7 @@ void FunctionResolver::register_available_class_decl_parse_tree(
                   name, what, what, previous->source_location );
   }
 
-  auto apt = std::make_unique<AvailableParseTree>( source_location, ctx, name,
+  auto apt = std::make_unique<AvailableParseTree>( source_location, ctx, scope_name,
                                                    top_level_statements_child_node );
   available_class_decl_parse_trees[name] = std::move( apt );
 }

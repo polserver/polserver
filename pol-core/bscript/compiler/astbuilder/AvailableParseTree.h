@@ -22,6 +22,7 @@ public:
   enum class Type;
 
   AvailableSecondPassTarget( const SourceLocation& loc, Type type, Node* context );
+  virtual ~AvailableSecondPassTarget() = default;
 
   SourceLocation source_location;
   Type type;
@@ -42,6 +43,7 @@ class AvailableGeneratedFunction : public AvailableSecondPassTarget
 public:
   AvailableGeneratedFunction( const SourceLocation& loc, Node* context, const ScopableName& name,
                               UserFunctionType type );
+  virtual ~AvailableGeneratedFunction() = default;
 
   ScopableName name;
   UserFunctionType type;
@@ -53,6 +55,7 @@ public:
   AvailableParseTree( const SourceLocation& loc, antlr4::ParserRuleContext* parse_rule_context,
                       const ScopeName& scope, Node* context );
   antlr4::ParserRuleContext* const parse_rule_context;
+  virtual ~AvailableParseTree() = default;
 
   ScopeName scope;
 };
