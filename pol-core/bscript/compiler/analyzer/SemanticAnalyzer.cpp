@@ -498,6 +498,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       }
       else
       {
+        if ( dynamic_cast<GeneratedFunction*>( uf ) != nullptr )
+        {
+          if ( uf->body().children.empty() )
+          {
+            report.error( fc, "In call to '{}': No base class defines a constructor.", uf->name );
+            return;
+          }
+        }
         // Find the class declaration for the function.
         auto class_itr =
             std::find_if( workspace.class_declarations.begin(), workspace.class_declarations.end(),
