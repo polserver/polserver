@@ -19,6 +19,7 @@ public:
 
   unsigned parameter_count() const;
   bool is_variadic() const;
+  // TODO implement ScopableName and update GeneratedFunctionBuilder
   std::string scoped_name() const;
   std::vector<std::reference_wrapper<FunctionParameterDeclaration>> parameters();
 

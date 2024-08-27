@@ -33,6 +33,7 @@
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
+#include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/JumpStatement.h"
@@ -451,6 +452,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
   bool in_super_func = false;
   bool in_constructor_func = false;
+  bool in_generated_function = false;
 
   if ( !user_functions.empty() )
   {
@@ -461,20 +463,26 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     else if ( user_functions.top()->type == UserFunctionType::Constructor )
     {
       in_constructor_func = true;
+      in_generated_function = dynamic_cast<GeneratedFunction*>( user_functions.top() );
     }
   }
 
   if ( uf )
   {
-    // Constructor functions are defined as `Constr( this )` and called statically via `Constr()`.
-    // Provide a `this` parameter at this function call site.
+    // A super() call can only be used in a constructor function.
+    // TODO this means we need to disallow @super function refs
     if ( is_super_call && !in_constructor_func )
     {
       report.error( fc, "In call to '{}': super() can only be used in constructor functions.",
                     uf->name );
       return;
     }
-    else if ( uf->type == UserFunctionType::Constructor && !in_super_func )
+    // Constructor functions are defined as `Constr( this )` and called
+    // statically via `Constr()`. Provide a `this` parameter at this function
+    // call site. Only do this when calling constructors outside of a
+    // compiler-generated function (ie. super or generated constructor)
+    else if ( uf->type == UserFunctionType::Constructor && !in_generated_function &&
+              !in_super_func )
     {
       // A super call inherits the `this` argument
       if ( is_super_call )

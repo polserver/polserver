@@ -38,7 +38,7 @@ public:
   Node* class_body;
 
   // `nullptr` if class has no constructor defined.
-  const std::shared_ptr<FunctionLink> constructor_link;
+  std::shared_ptr<FunctionLink> constructor_link;
 
   // Passed as ctor parameter by UserFunctionBuilder when generating this AST
   // node. The class links are immediately registered (inside

@@ -107,7 +107,21 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
         auto super =
             std::make_unique<GeneratedFunction>( cd->source_location, cd, agf->type, name );
         workspace.function_resolver.register_user_function( cd->name, super.get() );
-        generated_functions.push_back( std::move( super ) );
+
+        // We have to generate the constructor functions first, so that super()
+        // can properly call them. This ordering mechanism is an artifact of the
+        // way the generated functions are scheduled to build by
+        // FunctionResolver.
+        //
+        // The UserFunctionBuilder registers super() and ctor generated
+        // functions as _available_ without any logic. If there was better logic
+        // at registration (eg. when a base ClassDeclaration is registered,
+        // register children classes' super() as available), this ordering here
+        // would not be needed.
+        if ( agf->type == UserFunctionType::Super )
+          generated_functions.push_back( std::move( super ) );
+        else
+          generated_functions.insert( generated_functions.begin(), std::move( super ) );
       }
     }
     report.debug( *workspace.compiler_workspace.top_level_statements,

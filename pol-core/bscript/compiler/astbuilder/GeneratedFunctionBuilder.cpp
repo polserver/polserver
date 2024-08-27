@@ -252,6 +252,7 @@ void GeneratedFunctionBuilder::constructor_function(
     }
   }
 
+  // TODO remove duplicate code from `super_function`
   if ( base_class_ctor != nullptr )
   {
     auto& function_parameters = constructor->child<FunctionParameterList>( 0 ).children;
@@ -302,14 +303,12 @@ void GeneratedFunctionBuilder::constructor_function(
                                                          std::move( call_argument ), param.rest ) );
       first = false;
     }
-
-    auto callee = std::make_unique<FunctionReference>(
-        loc, base_class_ctor->name, std::make_unique<FunctionLink>( loc, base_class_ctor->name ) );
-
-    callee->function_link->link_to( base_class_ctor );
-
-    auto fc = std::make_unique<FunctionCall>( loc, base_class_ctor->name, std::move( callee ),
+    // TODO update after Function implements ScopableName
+    auto fc = std::make_unique<FunctionCall>( loc, base_class_ctor->name,
+                                              ScopableName( constructor->name, constructor->name ),
                                               std::move( call_arguments ) );
+
+    fc->function_link->link_to( base_class_ctor );
 
     auto value_consumer = std::make_unique<ValueConsumer>( fc->source_location, std::move( fc ) );
     body.push_back( std::move( value_consumer ) );
