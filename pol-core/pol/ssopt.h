@@ -95,7 +95,7 @@ struct ServSpecOpt
   std::vector<std::string> total_stats_at_creation;
   bool seperate_speechtoken;
   bool core_sends_guildmsgs;
-  bool mobiles_block_npc_movement;
+  unsigned short mobiles_block_npc_movement;
 
   unsigned char default_character_height;
   bool enable_worldmap_packets;

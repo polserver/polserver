@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-24-2024</datemodified>
+		<datemodified>08-27-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-27-2024</date>
+			<author>Reloecc:</author>
+			<change type="Changed">ssopt.MobilesBlockNpcMovement now accepts values 0/1/2. Earlier 0 = false, 1 = true.<br/>
+			2 = new behavior, where npcs of the same master are allowed to walk on top of each other. Backward compatible.</change>
+		</entry>
 		<entry>
 			<date>08-24-2024</date>
 			<author>Kevin:</author>

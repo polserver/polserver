@@ -387,7 +387,7 @@ Spell (int spellid)
 [SpeedHack_FootWalkDelay        (int milliseconds {default 380})]
 [SeperateSpeechTokens           (0/1 {default 0})]
 [CoreGuildMessages              (0/1 {default 1})]
-[MobilesBlockNpcMovement        (0/1 {default 1})]
+[MobilesBlockNpcMovement        (0/1/2 {default 1})]
 [DefaultCharacterHeight         (1-32 {default 15})]
 [EnableWorldMapPackets          (0/1 (default 0))]
 [UndoGetItemEnableRangeCheck    (0/1 {default 0})]
@@ -456,7 +456,10 @@ for RegisterForSpeechEvents() you get speech with and without Tokens when settin
 and no speech without Tokens setting LISTENPT_NO_SPEECH<br/>
 Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   <explain><i>CoreGuildMessages:</i> used to determine if core should handle guild and alliance messages</explain>
-  <explain><i>MobilesBlockNpcMovement:</i> use to determine if mobiles block the movement of npcs</explain>
+  <explain><i>MobilesBlockNpcMovement:</i> use to determine if mobiles block the movement of npcs.<br/>
+0 - Npcs are not blocked by other mobiles, but followers of the same master do not walk/run on each other.<br/>
+1 - All mobiles block movement of other npcs. PushThrough hook is not called in such case at all.<br/>
+2 - Mobiles do not block movement. You can still hook the PushThrough to stop movement if needed.</explain>
   <explain><i>DefaultCharacterHeight:</i> This is the default (and never changed so far) height for Characters and NPCs.<br/>
   Default value is 15. Back in the POL095 days is was 9, so consider 9-15 as your "safe" play range.<br/>
   Anything outside that range could cause weird movement behavior.<br/>

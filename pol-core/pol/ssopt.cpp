@@ -127,7 +127,7 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.seperate_speechtoken = elem.remove_bool( "SeperateSpeechTokens", false );
   settingsManager.ssopt.core_sends_guildmsgs = elem.remove_bool( "CoreGuildMessages", true );
   settingsManager.ssopt.mobiles_block_npc_movement =
-      elem.remove_bool( "MobilesBlockNpcMovement", true );
+      elem.remove_ushort( "MobilesBlockNpcMovement", 1 );
 
   unsigned char default_character_height =
       static_cast<unsigned char>( elem.remove_ushort( "DefaultCharacterHeight", 15 ) );
