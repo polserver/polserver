@@ -2,31 +2,30 @@
 
 class A()
   function A( this, arg0 )
+    this.arg0 := arg0;
     print( $"A::A this={this} arg0={arg0}" );
-  endfunction
-  function Foo()
   endfunction
 endclass
 
 class B(A)
-  function MethodB( this )
-    print( $"B::MethodB this={this}" );
-  endfunction
 endclass
 
 class C(A)
-  function MethodB( this )
-    print( $"C::MethodB this={this}" );
-  endfunction
 endclass
 
 class D(C, B)
   function D( this )
-    super( "super-arg0" );
+    super( "argD" );
+    print( $"D::D this={this} this.arg0={this.arg0}" );
   endfunction
 endclass
 
-var a := A( "arg0" );
-var b := B( "arg0" );
-var c := C( "arg0" );
+
+var a := A( "argA" );
+print( "----" );
+var b := B( "argB" );
+print( "----" );
+var c := C( "argC" );
+print( "----" );
 var d := D();
+

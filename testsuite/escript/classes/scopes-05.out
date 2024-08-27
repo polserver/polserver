@@ -1,4 +1,9 @@
-A::A this=<class A> arg0=arg0
-A::A this=<class B> arg0=arg0
-A::A this=<class C> arg0=arg0
-A::A this=<class D> arg0=super-arg0
+A::A this=<class A> arg0=argA
+----
+A::A this=<class B> arg0=argB
+----
+A::A this=<class C> arg0=argC
+----
+A::A this=<class D> arg0=argD
+A::A this=<class D> arg0=argD
+D::D this=<class D> this.arg0=argD

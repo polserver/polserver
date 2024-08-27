@@ -221,12 +221,12 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
       bool first = !class_name.empty();
       for ( auto param : param_list->functionParameter() )
       {
-        ScopableName parameter_name( ScopeName::None, text( param->IDENTIFIER() ) );
+        auto param_text = text( param->IDENTIFIER() );
         bool is_this_arg = false;
 
         if ( first )
         {
-          if ( Clib::caseInsensitiveEqual( parameter_name.string(), "this" ) )
+          if ( Clib::caseInsensitiveEqual( param_text, "this" ) )
           {
             class_method = true;
             is_this_arg = true;
@@ -234,6 +234,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
 
           first = false;
         }
+
+        auto parameter_name = ScopableName( ScopeName::None, param_text );
 
         std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
         bool byref = param->BYREF() != nullptr || is_this_arg;
