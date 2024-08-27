@@ -444,10 +444,17 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
       line += part.text;
       // do not indent comments if they start at the beginning
       if ( part.context == FmtContext::LINE_COMMENT || part.context == FmtContext::COMMENT )
+      {
         if ( part.pos.character_column < 4 &&
              nonspace ==
                  std::string::npos )  // TODO startpos does not include original space indent
-          line = part.text;
+        {
+          auto nonspace_part = part.text.find_first_not_of( " \t" );
+          // is the comment really at the beginning
+          if ( nonspace_part != std::string::npos && part.text[nonspace_part] == '/' )
+            line = part.text;
+        }
+      }
       stripline( line );
       finallines.emplace_back( std::move( line ) );
       line.clear();
@@ -580,8 +587,8 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
   return finallines;
 }
 
-// helper to find the alignment of the last open parenthesis and use this as alignment for the next
-// line
+// helper to find the alignment of the last open parenthesis and use this as alignment for the
+// next line
 bool PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& finallines,
                                             size_t alignmentspace, std::string& line ) const
 {
