@@ -93,7 +93,6 @@ void GeneratedFunctionBuilder::constructor_function(
   to_visit.insert( to_visit.end(), class_declaration->base_class_links.begin(),
                    class_declaration->base_class_links.end() );
 
-  // while ( !to_visit.empty() )
   for ( auto to_link_itr = to_visit.begin(); to_link_itr != to_visit.end();
         to_link_itr = to_visit.erase( to_link_itr ) )
   {
