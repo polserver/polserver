@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include "../clib/rawtypes.h"
+
 namespace Pol
 {
 namespace Clib
@@ -38,6 +40,14 @@ class ConfigElem;
 
 namespace Core
 {
+
+enum MOVEBLOCKMODE : u8
+{
+  MOVEBLOCKMODE_SAME_MASTER = 0,
+  MOVEBLOCKMODE_ALL = 1,
+  MOVEBLOCKMODE_NONE = 2
+};
+
 struct ServSpecOpt
 {
   bool allow_secure_trading_in_warmode;
@@ -95,7 +105,7 @@ struct ServSpecOpt
   std::vector<std::string> total_stats_at_creation;
   bool seperate_speechtoken;
   bool core_sends_guildmsgs;
-  unsigned short mobiles_block_npc_movement;
+  MOVEBLOCKMODE mobiles_block_npc_movement;
 
   unsigned char default_character_height;
   bool enable_worldmap_packets;

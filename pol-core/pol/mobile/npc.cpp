@@ -198,16 +198,19 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
 {
   if ( can_freemove() )
     return false;
-  if ( Core::settingsManager.ssopt.mobiles_block_npc_movement == 2 )
+
+  Core::MOVEBLOCKMODE moveBlockMode = Core::settingsManager.ssopt.mobiles_block_npc_movement;
+
+  if ( moveBlockMode == Core::MOVEBLOCKMODE_NONE )
     return false;
-  if ( !this->master() && Core::settingsManager.ssopt.mobiles_block_npc_movement == 0 )
+  if ( !this->master() && moveBlockMode == Core::MOVEBLOCKMODE_SAME_MASTER )
     return false;
 
   auto new_pos = pos().move( fdir );
 
   Core::Pos2d gridp = Core::zone_convert( new_pos );
 
-  if ( Core::settingsManager.ssopt.mobiles_block_npc_movement == 1 )
+  if ( moveBlockMode == Core::MOVEBLOCKMODE_ALL )
   {
     for ( const auto& chr : realm()->getzone_grid( gridp ).characters )
     {
@@ -226,7 +229,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
     if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
     {
       // Do not allow npcs of same master running on top of each other
-      if ( Core::settingsManager.ssopt.mobiles_block_npc_movement == 0 )
+      if ( moveBlockMode == Core::MOVEBLOCKMODE_SAME_MASTER )
       {
         NPC* npc = static_cast<NPC*>( chr );
         if ( npc->master() && this->master() == npc->master() && !npc->dead() &&
