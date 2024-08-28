@@ -42,7 +42,14 @@ void FunctionCall::accept( NodeVisitor& visitor )
 
 void FunctionCall::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "function-call({})", scoped_name->string() );
+  if ( scoped_name )
+  {
+    fmt::format_to( std::back_inserter( w ), "function-call({})", scoped_name->string() );
+  }
+  else
+  {
+    fmt::format_to( std::back_inserter( w ), "expression-as-callee function-call" );
+  }
 }
 
 std::vector<std::unique_ptr<Argument>> FunctionCall::take_arguments()
