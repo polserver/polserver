@@ -150,27 +150,34 @@ void SemanticAnalyzer::visit_block( Block& block )
 void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 {
   const auto& class_name = node.name;
-
-  // Will need the order for something, i'm sure...
-  std::vector<std::string> ordered_baseclasses;
   std::set<std::string, Clib::ci_cmp_pred> named_baseclasses;
+  std::list<ClassDeclaration*> to_visit;
+  std::set<ClassDeclaration*> visited;
+
   report.debug( node, "Class '{}' declared with {} parameters", class_name,
                 node.parameters().size() );
 
-  for ( auto& class_parameter : node.parameters() )
+  for ( const auto& base_class_link : node.base_class_links )
   {
-    const auto& baseclass_name = class_parameter.get().name;
+    const auto& baseclass_name = base_class_link->name;
     auto itr = workspace.all_class_locations.find( baseclass_name );
     if ( itr == workspace.all_class_locations.end() )
     {
-      report.error( class_parameter.get(), "Class '{}' references unknown base class '{}'",
-                    class_name, baseclass_name );
+      report.error( base_class_link->source_location,
+                    "Class '{}' references unknown base class '{}'", class_name, baseclass_name );
+    }
+    else
+    {
+      if ( auto cd = base_class_link->class_declaration() )
+        to_visit.push_back( cd );
+      else
+        node.internal_error( "no class linked for base class" );
     }
 
-    if ( baseclass_name == class_name )
+    if ( Clib::caseInsensitiveEqual( baseclass_name, class_name ) )
     {
-      report.error( class_parameter.get(), "Class '{}' references itself as a base class.",
-                    class_name );
+      report.error( base_class_link->source_location,
+                    "Class '{}' references itself as a base class.", class_name );
     }
 
     bool previously_referenced =
@@ -178,15 +185,45 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
 
     if ( previously_referenced )
     {
-      report.error( class_parameter.get(), "Class '{}' references base class '{}' multiple times.",
-                    class_name, baseclass_name );
+      report.error( base_class_link->source_location,
+                    "Class '{}' references base class '{}' multiple times.", class_name,
+                    baseclass_name );
     }
     else
     {
-      ordered_baseclasses.push_back( baseclass_name );
       named_baseclasses.emplace( baseclass_name );
-      report.debug( class_parameter.get(), "Class '{}' references base class '{}'", class_name,
-                    baseclass_name );
+      report.debug( base_class_link->source_location, "Class '{}' references base class '{}'",
+                    class_name, baseclass_name );
+    }
+  }
+
+  for ( auto to_visit_itr = to_visit.begin(); to_visit_itr != to_visit.end();
+        to_visit_itr = to_visit.erase( to_visit_itr ) )
+  {
+    auto cd = *to_visit_itr;
+    if ( visited.find( cd ) != visited.end() )
+    {
+      continue;
+    }
+
+    visited.insert( cd );
+
+    if ( cd == &node )
+    {
+      report.error( node, "Class '{}' references itself as a base class through inheritance.",
+                    class_name );
+    }
+
+    for ( const auto& base_class_link : cd->base_class_links )
+    {
+      if ( auto base_cd = base_class_link->class_declaration() )
+      {
+        to_visit.push_back( base_cd );
+      }
+      else
+      {
+        cd->internal_error( "no class linked for base class" );
+      }
     }
   }
 }
