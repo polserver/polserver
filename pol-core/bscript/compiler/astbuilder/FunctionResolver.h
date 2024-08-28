@@ -11,11 +11,12 @@
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/ScopableName.h"
 #include "bscript/compiler/model/ScopeName.h"
+#include "bscript/compiler/model/UserFunctionType.h"
 #include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {
-struct AvailableParseTree;
+class AvailableSecondPassTarget;
 class ClassDeclaration;
 class ClassLink;
 class Function;
@@ -23,7 +24,7 @@ class FunctionLink;
 class ModuleFunctionDeclaration;
 class Report;
 class UserFunction;
-class SuperFunction;
+class GeneratedFunction;
 
 class FunctionResolver
 {
@@ -38,7 +39,7 @@ public:
   void force_reference( const ScopeName& name, const SourceLocation& );
 
   void register_available_generated_function( const SourceLocation&, const ScopableName& name,
-                                              Node* context );
+                                              Node* context, UserFunctionType type );
 
   void register_available_user_function( const SourceLocation&,
                                          EscriptGrammar::EscriptParser::FunctionDeclarationContext*,
@@ -62,13 +63,13 @@ public:
   void register_user_function( const std::string& scope, UserFunction* );
   void register_class_declaration( ClassDeclaration* );
 
-  bool resolve( std::vector<AvailableParseTree>& user_functions_to_build );
+  bool resolve( std::vector<std::unique_ptr<AvailableSecondPassTarget>>& user_functions_to_build );
 
   static std::string function_expression_name( const SourceLocation& );
 
 private:
   void register_available_function_parse_tree( const SourceLocation&, const ScopableName& name,
-                                               const AvailableParseTree& apt );
+                                               std::unique_ptr<AvailableSecondPassTarget> apt );
   void register_available_user_function_parse_tree( const SourceLocation&,
                                                     antlr4::ParserRuleContext*,
                                                     const ScopableName& name,
@@ -85,7 +86,8 @@ private:
   using FunctionReferenceMap = std::map<ScopableName, std::vector<std::shared_ptr<FunctionLink>>>;
   using ClassReferenceMap = std::map<ScopeName, std::vector<std::shared_ptr<ClassLink>>>;
 
-  using AvailableParseTreeMap = std::map<std::string, AvailableParseTree, Clib::ci_cmp_pred>;
+  using AvailableParseTreeMap =
+      std::map<std::string, std::unique_ptr<AvailableSecondPassTarget>, Clib::ci_cmp_pred>;
 
   AvailableParseTreeMap available_user_function_parse_trees;
   AvailableParseTreeMap available_class_decl_parse_trees;
@@ -103,9 +105,10 @@ private:
   // `available_user_function_parse_trees` as a function or a class (that would
   // eventually provide the function) inside `available_class_decl_parse_trees`,
   // using `calling_scope` for context.
-  bool build_if_available( std::vector<AvailableParseTree>& to_build_ast,
+  bool build_if_available( std::vector<std::unique_ptr<AvailableSecondPassTarget>>& to_build_ast,
                            const std::string& calling_scope, const ScopableName& call );
-  bool build_if_available( std::vector<AvailableParseTree>& to_build_ast, const ScopeName& call );
+  bool build_if_available( std::vector<std::unique_ptr<AvailableSecondPassTarget>>& to_build_ast,
+                           const ScopeName& call );
 
   // Given a scoped name, looks for an existing function in `resolved_functions`. If found, links
   // the function and returns `true`; otherwise, returns `false`.

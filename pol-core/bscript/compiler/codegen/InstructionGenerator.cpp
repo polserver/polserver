@@ -37,6 +37,7 @@
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
+#include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
 #include "bscript/compiler/ast/IntegerValue.h"
@@ -480,11 +481,14 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
     {
       emit_args( *uf );
       FlowControlLabel& label = user_function_labels[uf->scoped_name()];
-      if ( !user_functions.empty() && user_functions.top()->type == UserFunctionType::Super )
+      // Emit the `check_mro` instruction if the current function is a generated
+      // function (super or generated constructor).
+      if ( !user_functions.empty() &&
+           dynamic_cast<GeneratedFunction*>( user_functions.top() ) != nullptr )
       {
         if ( call.children.empty() )
         {
-          call.internal_error( "super call missing 'this'" );
+          call.internal_error( "super/ctor call missing 'this'" );
         }
 
         // Arg to cast can never be negative, since size is >= 1.

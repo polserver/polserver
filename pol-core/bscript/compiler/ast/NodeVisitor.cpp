@@ -40,6 +40,7 @@
 #include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
 #include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
@@ -59,7 +60,6 @@
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
-#include "bscript/compiler/ast/SuperFunction.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UserFunction.h"
@@ -351,7 +351,7 @@ void NodeVisitor::visit_struct_member_initializer( StructMemberInitializer& node
   visit_children( node );
 }
 
-void NodeVisitor::visit_super_function( SuperFunction& node )
+void NodeVisitor::visit_generated_function( GeneratedFunction& node )
 {
   visit_children( node );
 }

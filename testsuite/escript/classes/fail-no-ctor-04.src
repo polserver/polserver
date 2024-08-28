@@ -1,0 +1,13 @@
+// No base class defines a constructor
+
+class BaseClass1()
+endclass
+
+class BaseClass2()
+endclass
+
+class Animal( BaseClass1, BaseClass2 )
+endclass
+
+var obj := Animal();
+print( obj );

@@ -20,6 +20,7 @@ class ClassDeclaration : public Node
 public:
   ClassDeclaration( const SourceLocation& source_location, std::string name,
                     std::unique_ptr<ClassParameterList> parameters,
+                    std::shared_ptr<FunctionLink> constructor_link,
                     const std::vector<std::string>& method_names, Node* body,
                     std::vector<std::shared_ptr<ClassLink>> base_classes );
 
@@ -36,8 +37,8 @@ public:
   // Owned by top_level_statements
   Node* class_body;
 
-  // Will have no function linked if class has no constructor defined.
-  const std::shared_ptr<FunctionLink> constructor_link;
+  // `nullptr` if class has no constructor defined.
+  std::shared_ptr<FunctionLink> constructor_link;
 
   // Passed as ctor parameter by UserFunctionBuilder when generating this AST
   // node. The class links are immediately registered (inside

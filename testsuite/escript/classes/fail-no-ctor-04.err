@@ -1,0 +1,1 @@
+fail-no-ctor-04.src:12:12: error: In call to 'Animal': No base class defines a constructor.
