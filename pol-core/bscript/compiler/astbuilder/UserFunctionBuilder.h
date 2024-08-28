@@ -11,7 +11,6 @@ class ClassVariableList;
 class ClassMethodList;
 class Node;
 
-// TODO rename this as it also builds classes
 class UserFunctionBuilder : public CompoundStatementBuilder
 {
 public:

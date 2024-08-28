@@ -1,0 +1,14 @@
+// Cannot create a reference to the super() function.
+
+class BaseClass()
+  function BaseClass( this )
+  endfunction
+endclass
+
+class Foo( BaseClass )
+  function Foo( this )
+    print( @super );
+  endfunction
+endclass
+
+Foo();
