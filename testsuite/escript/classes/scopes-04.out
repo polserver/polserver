@@ -1,0 +1,18 @@
+D::MethodD this=<class D>
+C::MethodC this=<class D>
+B::MethodB this=<class D>
+D::Common this=<class D>
+-
+D::MethodD this=<class D>
+C::MethodC this=<class D>
+B::MethodB this=<class D>
+A::MethodA this=<class D>
+D::Common this=<class D>
+----
+A::SuperScope this=<class D>
+B::SuperScope this=<class D>
+D::SuperScope this=<class D>
+-
+A::SuperScope this=<class D>
+B::SuperScope this=<class D>
+D::SuperScope this=<class D>
