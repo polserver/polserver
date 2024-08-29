@@ -1,8 +1,6 @@
 // Various shadowing of the name 'variable' and accessing variables via
 // 'Animal::variable' and 'variable';
 
-// Incorrectly handles ::variable TODO fix in next commit
-
 var variable := "global var";
 
 function StaticFunc( variable )

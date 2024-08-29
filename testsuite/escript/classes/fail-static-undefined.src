@@ -1,4 +1,4 @@
-// TODO scope it correctly to Animal::staticVar
+// Fail: the class-scoped `staticVar` is not accessible globally.
 print( $"Global scope staticVar={staticVar}" );
 
 class Animal()
