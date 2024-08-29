@@ -507,7 +507,6 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   if ( uf )
   {
     // A super() call can only be used in a constructor function.
-    // TODO this means we need to disallow @super function refs
     if ( is_super_call && !in_constructor_func )
     {
       report.error( fc, "In call to '{}': super() can only be used in constructor functions.",
@@ -921,7 +920,14 @@ void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
 
 void SemanticAnalyzer::visit_function_reference( FunctionReference& node )
 {
-  if ( !node.function_link->function() )
+  if ( auto function = node.function_link->user_function() )
+  {
+    if ( function->type == UserFunctionType::Super )
+    {
+      report.error( node, "Cannot reference super() function." );
+    }
+  }
+  else
   {
     report.error( node, "User function '{}' not found", node.name );
   }

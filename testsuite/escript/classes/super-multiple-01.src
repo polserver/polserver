@@ -1,6 +1,3 @@
-// Currently, multiple base classes will be visited in order. TODO sem analysis
-// will require named arguments when having multiple base classes
-
 class BaseClass1()
   function BaseClass1( this, arg0, arg1 )
     print( $"BaseClass1 arg0={arg0} arg1={arg1}" );

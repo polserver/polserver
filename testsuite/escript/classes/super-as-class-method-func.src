@@ -11,5 +11,8 @@ endclass
 
 var obj := Foo();
 
-// TODO cange to obj.super() when executor implementation complete
+
 Foo::super( obj );
+print( "----" );
+
+obj.super();
