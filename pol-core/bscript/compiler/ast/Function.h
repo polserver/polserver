@@ -19,12 +19,14 @@ public:
 
   unsigned parameter_count() const;
   bool is_variadic() const;
-  // TODO implement ScopableName and update GeneratedFunctionBuilder
+
+  // Function does not use ScopableName. ScopableName is only needed when we
+  // must differentiate between an _empty_ scope and a _global_ scope. This is
+  // not the case for Functions, as there is no difference between empty and
+  // global.
   std::string scoped_name() const;
   std::vector<std::reference_wrapper<FunctionParameterDeclaration>> parameters();
 
-  // TODO rename this to `scope`. Keeping as module_name for now to avoid too
-  // many changes.
   const std::string scope;
   const std::string name;
 };

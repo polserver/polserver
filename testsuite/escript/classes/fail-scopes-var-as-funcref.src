@@ -7,6 +7,4 @@ class Animal()
   };
 endclass
 
-// This currently gives an error about 'Animal not found'. TODO implement
-// ScopableName inside AST FunctionReference node.
 @Animal::Animal( "functionReference" );
