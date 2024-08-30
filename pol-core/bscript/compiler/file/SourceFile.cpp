@@ -287,11 +287,12 @@ std::string preprocess_web_script( const std::string& input )
     output += "WriteHtmlRaw( \"" + acc + "\");\n";
   return output;
 }
-// We do not need to switch between the BailErrorStrategy and DefaultErrorStrategy multiple times,
-// as a SourceFile will only ever access _one_ specific unit function (`get_module_unit`, etc),
-// which get cached once parsed.
-// We try to parse with the SLL prediction mode first (set in the SourceFile constructor). If that
-// fails, try the default LL parser. See
+
+// We do not need to switch between the BailErrorStrategy and
+// DefaultErrorStrategy multiple times, as a SourceFile will only ever access
+// _one_ specific unit function (`get_module_unit`, etc), which get cached once
+// parsed. We try to parse with the SLL prediction mode first (set in the
+// SourceFile constructor). If that fails, try the default LL parser. See
 // https://github.com/antlr/antlr4/issues/374#issuecomment-30952357
 template <typename T, typename Fn>
 inline T* SourceFile::two_stage_parse( Fn callback )
@@ -301,7 +302,7 @@ inline T* SourceFile::two_stage_parse( Fn callback )
     // SLL set in constructor
     return callback();
   }
-  catch ( antlr4::RuntimeException& ex )
+  catch ( antlr4::RuntimeException& )
   {
     // Switch to (default) LL.
     token_stream.reset();
