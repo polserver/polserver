@@ -36,7 +36,9 @@ SourceFile::SourceFile( const std::string& pathname, const std::string& contents
   input.name = pathname;
 
   lexer.removeErrorListeners();
+  lexer.addErrorListener( &error_listener );
   parser.removeErrorListeners();
+  parser.addErrorListener( &error_listener );
 
   parser.getInterpreter<antlr4::atn::ParserATNSimulator>()->setPredictionMode(
       antlr4::atn::PredictionMode::SLL );
@@ -304,8 +306,6 @@ inline T* SourceFile::two_stage_parse( Fn callback )
     // Switch to (default) LL.
     token_stream.reset();
     parser.reset();
-    lexer.addErrorListener( &error_listener );
-    parser.addErrorListener( &error_listener );
     parser.getInterpreter<antlr4::atn::ParserATNSimulator>()->setPredictionMode(
         antlr4::atn::PredictionMode::LL );
     parser.setErrorHandler( std::make_shared<antlr4::DefaultErrorStrategy>() );
