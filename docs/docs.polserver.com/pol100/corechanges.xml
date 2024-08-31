@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-30-2024</datemodified>
+		<datemodified>08-31-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-31-2024</date>
+			<author>Turley:</author>
+			<change type="Fixed">multiple problems with the EScript formatter</change>
+			<change type="Added">more ecompile.cfg options for the formatter, see ecompile.cfg.example for details<br/>
+FormatterBracketAttachToType, FormatterFormatInsideComments, FormatterAlignTrailingComments,<br/>
+FormatterAllowShortCaseLabelsOnASingleLine, FormatterAllowShortFuncRefsOnASingleLine, FormatterAlignConsecutiveShortCaseStatements</change>
+		</entry>
 		<entry>
 			<date>08-30-2024</date>
 			<author>Kevin:</author>
