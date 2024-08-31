@@ -1095,12 +1095,19 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
   user_functions.emplace( &node );
   if ( node.exported )
   {
-    unsigned max_name_length = sizeof( Pol::Bscript::BSCRIPT_EXPORTED_FUNCTION::funcname ) - 1;
-    if ( node.name.length() > max_name_length )
+    if ( !node.scope.empty() )
     {
-      report.error( node,
-                    "Exported function name '{}' is too long at {} characters.  Max length: {}",
-                    node.name, node.name.length(), max_name_length );
+      report.error( node, "Exported function '{}' cannot be scoped.", node.scoped_name() );
+    }
+    else
+    {
+      unsigned max_name_length = sizeof( Pol::Bscript::BSCRIPT_EXPORTED_FUNCTION::funcname ) - 1;
+      if ( node.name.length() > max_name_length )
+      {
+        report.error( node,
+                      "Exported function name '{}' is too long at {} characters.  Max length: {}",
+                      node.name, node.name.length(), max_name_length );
+      }
     }
   }
 
