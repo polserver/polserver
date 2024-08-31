@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-30-2024 Kevin:
+    Added: Performance improvements to the compiler
 08-27-2024 Reloecc:
   Changed: ssopt.MobilesBlockNpcMovement now accepts values 0/1/2. Earlier 0 = false, 1 = true.
            2 = new behavior, where npcs of the same master are allowed to walk on top of each other. Backward compatible.
