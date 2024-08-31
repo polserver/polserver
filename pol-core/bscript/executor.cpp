@@ -2750,6 +2750,8 @@ void Executor::ins_call_method_id( const Instruction& ins )
 void Executor::ins_call_method( const Instruction& ins )
 {
   unsigned nparams = ins.token.lval;
+  auto method_name = ins.token.tokval();
+
   getParams( nparams );
   BObjectImp* callee = ValueStack.back()->impptr();
 
@@ -2789,6 +2791,12 @@ void Executor::ins_call_method( const Instruction& ins )
         {
           // Cache the method for future lookups
           class_methods[key] = BObjectRef( funcr );
+
+          // Switch the callee to the function reference: if the
+          // funcr->validCall fails, we will go into the funcref
+          // ins_call_method, giving the error about invalid parameter counts.
+          callee = funcr;
+          method_name = getObjMethod( MTH_CALL )->code;
         }
       }
     }
@@ -2808,7 +2816,7 @@ void Executor::ins_call_method( const Instruction& ins )
   else if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
   {
     Instruction jmp;
-    if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
+    if ( funcr->validCall( method_name, *this, &jmp ) )
     {
       BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
       call_function_reference( funcr, nullptr, jmp, false );
@@ -2819,7 +2827,7 @@ void Executor::ins_call_method( const Instruction& ins )
   size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
-  strm << "MTH_" << callee->typeOf() << " ." << ins.token.tokval();
+  strm << "MTH_" << callee->typeOf() << " ." << method_name;
   if ( !fparams.empty() )
     strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
   std::string name( strm.str() );
@@ -2828,12 +2836,12 @@ void Executor::ins_call_method( const Instruction& ins )
 #ifdef BOBJECTIMP_DEBUG
   BObjectImp* imp;
 
-  if ( strcmp( ins.token.tokval(), "impptr" ) == 0 )
+  if ( strcmp( method_name, "impptr" ) == 0 )
     imp = new String( fmt::format( "{}", static_cast<void*>( callee ) ) );
   else
-    imp = callee->call_method( ins.token.tokval(), *this );
+    imp = callee->call_method( method_name, *this );
 #else
-  BObjectImp* imp = callee->call_method( ins.token.tokval(), *this );
+  BObjectImp* imp = callee->call_method( method_name, *this );
 #endif
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
