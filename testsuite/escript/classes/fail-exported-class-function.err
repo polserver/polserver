@@ -1,0 +1,1 @@
+fail-exported-class-function.src:4:3: error: Exported function 'Animal::foo' cannot be scoped.
