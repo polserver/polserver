@@ -266,16 +266,16 @@ ErrorOnFileCaseMissmatch=0
 
 # align trailing comments in a statement eg arrays
 # Default 1
-#FormatterAlignTrailingComments 1
+#FormatterAlignTrailingComments=1
 
 # short case labels will be contracted to a single line
 # Default 1
-#FormatterAllowShortCaseLabelsOnASingleLine 1
+#FormatterAllowShortCaseLabelsOnASingleLine=1
 
 # short function references will be contracted to a single line
 # Default 1
-#FormatterAllowShortFuncRefsOnASingleLine 1
+#FormatterAllowShortFuncRefsOnASingleLine=1
 
 # align short case statements, needs FormatterAllowShortCaseLabelsOnASingleLine
 # Default 1
-#FormatterAlignConsecutiveShortCaseStatements 1
+#FormatterAlignConsecutiveShortCaseStatements=1
