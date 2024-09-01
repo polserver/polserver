@@ -93,6 +93,63 @@ void InstructionGenerator::generate( Node& node )
   node.accept( *this );
 }
 
+void InstructionGenerator::generate_default_parameters( const UserFunction& user_function )
+{
+  // Emit instructions for default parameters only for method functions or those that have a
+  // function reference.
+  if ( user_function.type == UserFunctionType::Method ||
+       emitter.has_function_reference( user_function ) )
+  {
+    FlowControlLabel& label = user_function_labels[user_function.scoped_name()];
+
+    if ( !label.has_address() )
+    {
+      user_function.internal_error( "function reference label not set" );
+    }
+
+    std::vector<std::reference_wrapper<FunctionParameterDeclaration>> params;
+    user_function.child<FunctionParameterList>( 0 ).get_children( params );
+
+    // Track if the function has any default parameters.
+    bool any_default_params = false;
+
+    // Emit the default arguments for parameters in declaration order.
+    for ( auto& param_ref : params )
+    {
+      auto& param = param_ref.get();
+      auto default_value = param.default_value();
+
+      if ( default_value || param.rest )
+      {
+        auto label_name =
+            FlowControlLabel::label_for_user_function_default_argument( user_function, param );
+
+        unsigned param_address = emitter.next_instruction_address();
+
+        user_function_labels[label_name].assign_address( param_address );
+
+        if ( default_value )
+        {
+          default_value->accept( *this );
+        }
+        else  // a rest param
+        {
+          emit.array_create();
+        }
+
+        any_default_params = true;
+      }
+    }
+
+    // Jump to the actual user function if there are default parameters. Once
+    // hitting the jump, the user function's pop params will be called.
+    if ( any_default_params )
+    {
+      emit.jmp_always( label );
+    }
+  }
+}
+
 void InstructionGenerator::update_debug_location( const Node& node )
 {
   update_debug_location( node.source_location );
@@ -247,11 +304,6 @@ void InstructionGenerator::visit_branch_selector( BranchSelector& node )
   case BranchSelector::Never:
     break;
   }
-}
-
-void InstructionGenerator::visit_class_declaration( ClassDeclaration& node )
-{
-  emitter.register_class_declaration( node, user_function_labels );
 }
 
 void InstructionGenerator::visit_class_instance( ClassInstance& node )
@@ -864,54 +916,6 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   unsigned last_instruction_address = emitter.next_instruction_address() - 1;
   emitter.debug_user_function( user_function.name, first_instruction_address,
                                last_instruction_address );
-
-  // Emit instructions for default parameters only for method functions or those that have a
-  // function reference.
-  // TODO will need to move this to a second-pass user function visitor.
-  if ( user_function.type == UserFunctionType::Method ||
-       emitter.has_function_reference( user_function ) )
-  {
-    std::vector<std::reference_wrapper<FunctionParameterDeclaration>> params;
-    user_function.child<FunctionParameterList>( 0 ).get_children( params );
-
-    // Track if the function has any default parameters.
-    bool any_default_params = false;
-
-    // Emit the default arguments for parameters in declaration order.
-    for ( auto& param_ref : params )
-    {
-      auto& param = param_ref.get();
-      auto default_value = param.default_value();
-
-      if ( default_value || param.rest )
-      {
-        auto label_name =
-            FlowControlLabel::label_for_user_function_default_argument( user_function, param );
-
-        unsigned param_address = emitter.next_instruction_address();
-
-        user_function_labels[label_name].assign_address( param_address );
-
-        if ( default_value )
-        {
-          default_value->accept( *this );
-        }
-        else  // a rest param
-        {
-          emit.array_create();
-        }
-
-        any_default_params = true;
-      }
-    }
-
-    // Jump to the actual user function if there are default parameters. Now, the ValueStack will
-    // have the correct
-    if ( any_default_params )
-    {
-      emit.jmp_always( label );
-    }
-  }
 
   user_functions.pop();
 }

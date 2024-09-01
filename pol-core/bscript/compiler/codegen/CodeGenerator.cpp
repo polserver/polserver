@@ -114,9 +114,20 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
     }
   }
 
+  // The default parameter generation needs to happen after generating the
+  // instructions for the user functions, as only class method functions and
+  // user functions with a registered function reference emit their default
+  // arguments. Since a user function may be registered as a function reference
+  // only _during_ some other user function's generation, we are only sure a
+  // user function has a function reference after generating all of them.
+  for ( const auto& user_function : workspace.user_functions )
+  {
+    generator.generate_default_parameters( *user_function.get() );
+  }
+
   for ( auto& class_decl : workspace.class_declarations )
   {
-    class_decl->accept( generator );
+    emitter.register_class_declaration( *class_decl, workspace.user_function_labels );
   }
 }
 
