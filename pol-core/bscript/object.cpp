@@ -2357,10 +2357,11 @@ bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
 
 BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
 {
-  auto classinst = dynamic_cast<const BClassInstance*>( &other );
-  if ( !classinst )
+  auto classinstref = dynamic_cast<const BClassInstanceRef*>( &other );
+  if ( !classinstref )
     return new BBoolean( false );
 
+  auto classinst = classinstref->instance();
   if ( classinst->prog() != prog_ )
     return new BBoolean( false );
 
