@@ -38,6 +38,7 @@
 #include <iosfwd>
 #include <stack>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace Pol
@@ -905,9 +906,8 @@ class BFunctionRef final : public BObjectImp
   typedef BObjectImp base;
 
 public:
-  BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count, bool variadic,
-                unsigned class_index, std::shared_ptr<ValueStackCont> globals,
-                ValueStackCont&& captures );
+  BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_reference_index,
+                std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -917,10 +917,17 @@ public:
   virtual size_t sizeEstimate() const override;
   bool validCall( const int id, Executor& ex, Instruction* inst ) const;
   bool validCall( const char* methodname, Executor& ex, Instruction* inst ) const;
-  size_t numParams() const;
+  int numParams() const;
+  unsigned pc() const;
   bool variadic() const;
   ref_ptr<EScriptProgram> prog() const;
   unsigned class_index() const;
+  bool constructor() const;
+  bool class_method() const;
+  const std::vector<unsigned>& default_parameter_addresses() const;
+  int default_parameter_count() const;
+  std::pair<int /*min count*/, int /*max count*/> expected_args() const;
+
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const override;
@@ -937,10 +944,7 @@ private:
   // Need to reference the program, not the Executor, as the exec that created
   // this funcref could be destroyed by the time the funcref gets called
   ref_ptr<EScriptProgram> prog_;
-  unsigned int pc_;
-  int num_params_;
-  bool variadic_;
-  unsigned class_index_;
+  unsigned function_reference_index_;
 
 public:
   std::shared_ptr<ValueStackCont> globals;

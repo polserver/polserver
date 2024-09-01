@@ -421,6 +421,7 @@ int EScriptProgram::read_exported_functions( FILE* fp, BSCRIPT_SECTION_HDR* hdr 
 int EScriptProgram::read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr )
 {
   BSCRIPT_FUNCTION_REFERENCE bfr;
+  BSCRIPT_FUNCTION_REFERENCE_DEFAULT_PARAMETER bfrdp;
 
   unsigned nfuncrefs = hdr->length / sizeof bfr;
   while ( nfuncrefs-- )
@@ -433,6 +434,17 @@ int EScriptProgram::read_function_references( FILE* fp, BSCRIPT_SECTION_HDR* hdr
     fr.capture_count = bfr.capture_count;
     fr.is_variadic = bfr.is_variadic;
     fr.class_index = bfr.class_index;
+    fr.is_constructor = bfr.is_constructor;
+
+    auto default_parameter_count = bfr.default_parameter_count;
+
+    while ( default_parameter_count-- )
+    {
+      if ( fread( &bfrdp, sizeof bfrdp, 1, fp ) != 1 )
+        return -1;
+
+      fr.default_parameter_addresses.push_back( bfrdp.address );
+    }
 
     function_references.push_back( fr );
   }

@@ -1,13 +1,15 @@
 #ifndef POLSERVER_FLOWCONTROLLABEL_H
 #define POLSERVER_FLOWCONTROLLABEL_H
 
-#include <vector>
-
 #include <optional>
+#include <string>
+#include <vector>
 
 namespace Pol::Bscript::Compiler
 {
+class FunctionParameterDeclaration;
 class InstructionEmitter;
+class UserFunction;
 
 class FlowControlLabel
 {
@@ -20,6 +22,9 @@ public:
 
   void assign_address( unsigned );
   void add_referencing_instruction_address( unsigned );
+
+  static std::string label_for_user_function_default_argument(
+      const UserFunction&, const FunctionParameterDeclaration& );
 
 private:
   std::optional<unsigned> maybe_address;

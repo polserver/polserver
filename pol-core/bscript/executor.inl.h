@@ -39,7 +39,7 @@ BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, B
 
   // Add function arguments to value stack. Add arguments if there are not enough.  Remove if
   // there are too many
-  while ( func->numParams() > args.size() )
+  while ( func->numParams() > static_cast<int>( args.size() ) )
   {
     args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
   }

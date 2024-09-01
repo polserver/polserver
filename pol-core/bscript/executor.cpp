@@ -2659,11 +2659,27 @@ void Executor::ins_call_method_id( const Instruction& ins )
     if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
     {
       Instruction jmp;
+      bool add_new_classinst = ins.token.lval == MTH_NEW;
+
+      if ( add_new_classinst )
+      {
+        if ( funcr->class_index() >= prog_->class_descriptors.size() )
+        {
+          POLLOG_ERRORLN( "Class index out of bounds: {} >= {} ({},PC={})", funcr->class_index(),
+                          prog_->class_descriptors.size(), prog_->name, PC );
+          seterror( true );
+          return;
+        }
+
+        fparams.insert( fparams.begin(),
+                        BObjectRef( new BConstObject( new BClassInstanceRef(
+                            new BClassInstance( prog_, funcr->class_index(), Globals2 ) ) ) ) );
+      }
+
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
         BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
-        bool add_new_classinst = ins.token.lval == MTH_NEW;
-        call_function_reference( funcr, continuation, jmp, add_new_classinst );
+        call_function_reference( funcr, continuation, jmp );
         return;
       }
     }
@@ -2780,7 +2796,12 @@ void Executor::ins_call_method( const Instruction& ins )
       auto cache_itr = class_methods.find( key );
       if ( cache_itr != class_methods.end() )
       {
+        // Switch the callee to the function reference: if the
+        // funcr->validCall fails, we will go into the funcref
+        // ins_call_method, giving the error about invalid parameter counts.
         funcr = cache_itr->second->impptr_if<BFunctionRef>();
+        callee = funcr;
+        method_name = getObjMethod( MTH_CALL )->code;
       }
       else
       {
@@ -2792,9 +2813,7 @@ void Executor::ins_call_method( const Instruction& ins )
           // Cache the method for future lookups
           class_methods[key] = BObjectRef( funcr );
 
-          // Switch the callee to the function reference: if the
-          // funcr->validCall fails, we will go into the funcref
-          // ins_call_method, giving the error about invalid parameter counts.
+          // Switch the callee to the function reference.
           callee = funcr;
           method_name = getObjMethod( MTH_CALL )->code;
         }
@@ -2804,11 +2823,18 @@ void Executor::ins_call_method( const Instruction& ins )
     if ( funcr != nullptr )
     {
       Instruction jmp;
-      if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
+      // Add `this` to the front of the argument list only for class methods,
+      // skipping eg. an instance member function reference set via
+      // `this.foo := @(){};`.
+      if ( funcr->class_method() )
       {
         fparams.insert( fparams.begin(), ValueStack.back() );
+      }
+
+      if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
+      {
         BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
-        call_function_reference( funcr, nullptr, jmp, false );
+        call_function_reference( funcr, nullptr, jmp );
         return;
       }
     }
@@ -2819,7 +2845,7 @@ void Executor::ins_call_method( const Instruction& ins )
     if ( funcr->validCall( method_name, *this, &jmp ) )
     {
       BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
-      call_function_reference( funcr, nullptr, jmp, false );
+      call_function_reference( funcr, nullptr, jmp );
       return;
     }
   }
@@ -3125,7 +3151,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
-        call_function_reference( funcr, cont, jmp, false );
+        call_function_reference( funcr, cont, jmp );
       }
       else
       {
@@ -3325,11 +3351,10 @@ void Executor::ins_funcref( const Instruction& ins )
     return;
   }
 
-  const auto& ep_funcref = prog_->function_references.at( ins.token.lval );
+  auto funcref_index = static_cast<unsigned>( ins.token.lval );
 
-  ValueStack.push_back( BObjectRef( new BFunctionRef(
-      prog_, ep_funcref.address, ep_funcref.parameter_count, ep_funcref.is_variadic,
-      ep_funcref.class_index, Globals2, {} /* captures */ ) ) );
+  ValueStack.push_back(
+      BObjectRef( new BFunctionRef( prog_, funcref_index, Globals2, {} /* captures */ ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3348,8 +3373,7 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func = new BFunctionRef( prog_, PC, ep_funcref.parameter_count, ep_funcref.is_variadic,
-                                ep_funcref.class_index, Globals2, std::move( captures ) );
+  auto func = new BFunctionRef( prog_, funcref_index, Globals2, std::move( captures ) );
 
   ValueStack.push_back( BObjectRef( func ) );
 
@@ -3720,7 +3744,7 @@ void Executor::show_context( std::string& os, unsigned atPC )
 }
 
 void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* continuation,
-                                        const Instruction& jmp, bool add_new_classinst )
+                                        const Instruction& jmp )
 {
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
@@ -3729,28 +3753,16 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
   for ( auto& p : funcr->captures )
     ValueStack.push_back( p );
 
-  if ( add_new_classinst )
-  {
-    if ( funcr->class_index() >= prog_->class_descriptors.size() )
-    {
-      POLLOG_ERRORLN( "Class index out of bounds: {} >= {} ({},PC={})", funcr->class_index(),
-                      prog_->class_descriptors.size(), prog_->name, PC );
-      seterror( true );
-      return;
-    }
+  auto nparams = static_cast<int>( fparams.size() );
 
-    fparams.insert( fparams.begin(), BObjectRef( new BConstObject( new BClassInstance(
-                                         prog_, funcr->class_index(), Globals2 ) ) ) );
-  }
-
-  if ( funcr->variadic() )
+  // Do we need to create an array{} for a variadic function call?
+  if ( funcr->variadic() && nparams >= funcr->numParams() )
   {
-    passert_always( funcr->numParams() > 0 );
-    auto num_nonrest_args = static_cast<unsigned>( funcr->numParams() - 1 );
+    auto num_nonrest_args = funcr->numParams() - 1;
 
     auto rest_arg = std::make_unique<ObjArray>();
 
-    for ( size_t i = 0; i < fparams.size(); ++i )
+    for ( int i = 0; i < static_cast<int>( fparams.size() ); ++i )
     {
       auto& p = fparams[i];
 
@@ -3765,6 +3777,7 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
     }
     ValueStack.push_back( BObjectRef( rest_arg.release() ) );
   }
+  // If not, then the array will be created via the regular default-parameter handling
   else
   {
     for ( auto& p : fparams )
@@ -4136,7 +4149,7 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
 
   // Add function arguments to value stack. Add arguments if there are not enough.  Remove if
   // there are too many
-  while ( func->numParams() > args.size() )
+  while ( func->numParams() > static_cast<int>( args.size() ) )
   {
     args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
   }
