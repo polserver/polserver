@@ -916,7 +916,6 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   unsigned last_instruction_address = emitter.next_instruction_address() - 1;
   emitter.debug_user_function( user_function.name, first_instruction_address,
                                last_instruction_address );
-
   user_functions.pop();
 }
 

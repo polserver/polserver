@@ -2801,7 +2801,7 @@ void Executor::ins_call_method( const Instruction& ins )
         // ins_call_method, giving the error about invalid parameter counts.
         funcr = cache_itr->second->impptr_if<BFunctionRef>();
         callee = funcr;
-        method_name = getObjMethod( MTH_CALL )->code;
+        method_name = getObjMethod( MTH_CALL_METHOD )->code;
       }
       else
       {
@@ -2815,7 +2815,7 @@ void Executor::ins_call_method( const Instruction& ins )
 
           // Switch the callee to the function reference.
           callee = funcr;
-          method_name = getObjMethod( MTH_CALL )->code;
+          method_name = getObjMethod( MTH_CALL_METHOD )->code;
         }
       }
     }
@@ -2823,15 +2823,22 @@ void Executor::ins_call_method( const Instruction& ins )
     if ( funcr != nullptr )
     {
       Instruction jmp;
+      int id;
+
       // Add `this` to the front of the argument list only for class methods,
       // skipping eg. an instance member function reference set via
       // `this.foo := @(){};`.
       if ( funcr->class_method() )
       {
+        id = MTH_CALL_METHOD;
         fparams.insert( fparams.begin(), ValueStack.back() );
       }
+      else
+      {
+        id = MTH_CALL;
+      }
 
-      if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
+      if ( funcr->validCall( id, *this, &jmp ) )
       {
         BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
         call_function_reference( funcr, nullptr, jmp );

@@ -2398,7 +2398,7 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
 
   auto [expected_min_args, expected_max_args] = expected_args();
 
-  if ( id != MTH_CALL && id != MTH_NEW )
+  if ( id != MTH_CALL && id != MTH_NEW && id != MTH_CALL_METHOD )
     return false;
 
   if ( passed_args < expected_min_args || ( passed_args > expected_max_args && !variadic() ) )
@@ -2485,21 +2485,35 @@ std::pair<int, int> BFunctionRef::expected_args() const
 
 BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
+  bool adjust_for_this = false;
+
   // These are only entered if `ins_call_method_id` did _not_ do the call jump.
   switch ( id )
   {
   case MTH_NEW:
+    // intentional fallthrough
+  case MTH_CALL_METHOD:
+    adjust_for_this = true;
+    // intentional fallthrough
   case MTH_CALL:
   {
-    // TODO need to subtract 1 for `this`
     auto [expected_min_args, expected_max_args] = expected_args();
+    auto param_count = ex.numParams();
+
+    if ( adjust_for_this )
+    {
+      --expected_min_args;
+      --expected_max_args;
+      --param_count;
+    }
+
     auto expected_arg_string = variadic() ? fmt::format( "{}+", expected_min_args )
                                : ( expected_min_args == expected_max_args )
                                    ? std::to_string( expected_min_args )
                                    : fmt::format( "{}-{}", expected_min_args, expected_max_args );
 
     return new BError( fmt::format( "Invalid argument count: expected {}, got {}",
-                                    expected_arg_string, ex.numParams() ) );
+                                    expected_arg_string, param_count ) );
   }
   default:
     return nullptr;

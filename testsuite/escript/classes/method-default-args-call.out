@@ -1,19 +1,19 @@
-error{ errortext = "Invalid argument count: expected 2, got 1" }
+error{ errortext = "Invalid argument count: expected 1, got 0" }
 Foo::MethodA this=<class Foo> arg0=a0
-error{ errortext = "Invalid argument count: expected 2, got 3" }
+error{ errortext = "Invalid argument count: expected 1, got 2" }
 -
-error{ errortext = "Invalid argument count: expected 2-3, got 1" }
+error{ errortext = "Invalid argument count: expected 1-2, got 0" }
 Foo::MethodB this=<class Foo> arg0=a0 arg1=default.a1
 Foo::MethodB this=<class Foo> arg0=a0 arg1=a1
-error{ errortext = "Invalid argument count: expected 2-3, got 4" }
+error{ errortext = "Invalid argument count: expected 1-2, got 3" }
 -
-error{ errortext = "Invalid argument count: expected 2-4, got 1" }
+error{ errortext = "Invalid argument count: expected 1-3, got 0" }
 Foo::MethodC this=<class Foo> arg0=a0 arg1=default.a1 arg2=default.a2
 Foo::MethodC this=<class Foo> arg0=a0 arg1=a1 arg2=default.a2
 Foo::MethodC this=<class Foo> arg0=a0 arg1=a1 arg2=a2
-error{ errortext = "Invalid argument count: expected 2-4, got 5" }
+error{ errortext = "Invalid argument count: expected 1-3, got 4" }
 -
-error{ errortext = "Invalid argument count: expected 2+, got 1" }
+error{ errortext = "Invalid argument count: expected 1+, got 0" }
 Foo::MethodD this=<class Foo> arg0=a0 arg1=default.a1 arg2=default.a2 args={  }
 Foo::MethodD this=<class Foo> arg0=a0 arg1=a1 arg2=default.a2 args={  }
 Foo::MethodD this=<class Foo> arg0=a0 arg1=a1 arg2=a2 args={  }
