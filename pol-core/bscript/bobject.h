@@ -926,8 +926,10 @@ public:
   bool class_method() const;
   const std::vector<unsigned>& default_parameter_addresses() const;
   int default_parameter_count() const;
-  std::pair<int /*min count*/, int /*max count*/> expected_args() const;
 
+  // Does not consider variadic functions. Caller must handle variadic()
+  // explicitly!
+  std::pair<int /*min count*/, int /*max count*/> expected_args() const;
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const override;

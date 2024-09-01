@@ -2491,6 +2491,8 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*for
   switch ( id )
   {
   case MTH_NEW:
+    if ( !constructor() )
+      return new BError( "Function is not a constructor" );
     // intentional fallthrough
   case MTH_CALL_METHOD:
     adjust_for_this = true;
