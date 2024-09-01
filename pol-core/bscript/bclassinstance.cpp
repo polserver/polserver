@@ -2,6 +2,7 @@
 
 #include "berror.h"
 #include "bobject.h"
+#include "clib/stlutil.h"
 #include "objmembers.h"
 #include "objmethods.h"
 
@@ -92,7 +93,8 @@ u8 BClassInstance::typeOfInt() const
 
 BObjectImp* BClassInstance::copy() const
 {
-  return new BClassInstance( *this );
+  passert_always_r( false, "BClassInstance::copy() should never be called" );
+  return nullptr;
 }
 
 bool BClassInstance::isTrue() const
@@ -144,5 +146,93 @@ std::string BClassInstance::getStringRep() const
 {
   auto class_name = prog_->symbols.array() + prog_->class_descriptors[index_].name_offset;
   return fmt::format( "<class {}>", class_name );
+}
+
+BClassInstanceRef::BClassInstanceRef( BClassInstance* inst )
+    : BObjectImp( BObjectType::OTClassInstanceRef ), class_instance_( inst )
+{
+}
+
+size_t BClassInstanceRef::sizeEstimate() const
+{
+  return sizeof( BClassInstanceRef ) + class_instance_->sizeEstimate();
+}
+const char* BClassInstanceRef::typeOf() const
+{
+  return class_instance_->typeOf();
+}
+u8 BClassInstanceRef::typeOfInt() const
+{
+  return class_instance_->typeOfInt();
+}
+
+BObjectImp* BClassInstanceRef::copy() const
+{
+  return new BClassInstanceRef( class_instance_.get() );
+}
+
+bool BClassInstanceRef::isTrue() const
+{
+  return true;
+}
+
+BObjectImp* BClassInstanceRef::call_method( const char* methodname, Executor& ex )
+{
+  return class_instance_->call_method( methodname, ex );
+}
+
+BObjectImp* BClassInstanceRef::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+{
+  return class_instance_->call_method_id( id, ex, forcebuiltin );
+}
+
+BObjectRef BClassInstanceRef::get_member_id( const int id )
+{
+  return class_instance_->get_member_id( id );
+}
+
+std::string BClassInstanceRef::getStringRep() const
+{
+  return class_instance_->getStringRep();
+}
+
+ContIterator* BClassInstanceRef::createIterator( BObject* pIterVal )
+{
+  return class_instance_->createIterator( pIterVal );
+}
+
+BObjectRef BClassInstanceRef::OperSubscript( const BObject& obj )
+{
+  return class_instance_->OperSubscript( obj );
+}
+
+BObjectRef BClassInstanceRef::set_member( const char* membername, BObjectImp* value, bool copy )
+{
+  return class_instance_->set_member( membername, value, copy );
+}
+
+BObjectRef BClassInstanceRef::get_member( const char* membername )
+{
+  return class_instance_->get_member( membername );
+}
+
+BObjectRef BClassInstanceRef::operDotPlus( const char* name )
+{
+  return class_instance_->operDotPlus( name );
+}
+
+BObjectRef BClassInstanceRef::operDotMinus( const char* name )
+{
+  return class_instance_->operDotMinus( name );
+}
+
+BObjectRef BClassInstanceRef::operDotQMark( const char* name )
+{
+  return class_instance_->operDotQMark( name );
+}
+
+BObjectImp* BClassInstanceRef::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
+{
+  return class_instance_->array_assign( idx, target, copy );
 }
 }  // namespace Pol::Bscript

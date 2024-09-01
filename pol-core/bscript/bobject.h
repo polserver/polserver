@@ -65,6 +65,7 @@ class BDictionary;
 class BBoolean;
 class BFunctionRef;
 class BClassInstance;
+class BClassInstanceRef;
 class BContinuation;
 class BSpread;
 
@@ -129,12 +130,13 @@ public:
     OTFuncRef = 39,
     OTExportScript = 40,
     OTStorageArea = 41,
-    OTClassInstance = 42,
+    OTClassInstanceRef = 42,
 
     // Used internally only during executor runtime. Can be modified without
     // breaking compatibility.
     OTContinuation = 100,
     OTSpread = 101,
+    OTClassInstance = 102,
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -416,7 +418,9 @@ T* impptrIf( BObjectImp* objimp )
   impif_e( BObjectImp::OTStruct, BStruct );
   impif_e( BObjectImp::OTBoolean, BBoolean );
   impif_e( BObjectImp::OTFuncRef, BFunctionRef );
-  impif_e( BObjectImp::OTClassInstance, BClassInstance );
+  // BClassInstance objects are never given to scripts directly, so no need for
+  // inclusion here (so far...)
+  impif_e( BObjectImp::OTClassInstanceRef, BClassInstanceRef );
   impif_e( BObjectImp::OTContinuation, BContinuation );
   impif_e( BObjectImp::OTSpread, BSpread );
   else static_assert( always_false<T>::value, "unsupported type" );
@@ -432,7 +436,7 @@ public:
   explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp ) { passert( objimp ); }
   BObject( const BObject& obj ) : ref_counted(), objimp( obj.objimp ) {}
   virtual ~BObject() = default;
-  BObject& operator=(const BObject&) = delete;
+  BObject& operator=( const BObject& ) = delete;
   size_t sizeEstimate() const;
 
   void* operator new( std::size_t len );
@@ -471,7 +475,6 @@ public:
 
 private:
   ref_ptr<BObjectImp> objimp;
-
 };
 
 class BConstObject : public BObject
