@@ -25,6 +25,7 @@ namespace Pol
 namespace Bscript
 {
 class ContIterator;
+class BClassInstanceRef;
 class Executor;
 }  // namespace Bscript
 }  // namespace Pol
@@ -82,6 +83,7 @@ protected:
   virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
 
   friend class BStructIterator;
+  friend class BClassInstanceRef;
 
 private:
   Contents contents_;

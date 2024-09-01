@@ -2750,14 +2750,15 @@ void Executor::ins_call_method_id( const Instruction& ins )
 void Executor::ins_call_method( const Instruction& ins )
 {
   unsigned nparams = ins.token.lval;
+  auto method_name = ins.token.tokval();
+
   getParams( nparams );
   BObjectImp* callee = ValueStack.back()->impptr();
 
-  if ( auto* classinst = ValueStack.back()->impptr_if<BClassInstance>() )
+  if ( auto* classinstref = ValueStack.back()->impptr_if<BClassInstanceRef>() )
   {
     BFunctionRef* funcr = nullptr;
-
-    auto method_name = ins.token.tokval();
+    auto classinst = classinstref->instance();
 
     // Prefer members over class methods by checking contents first.
     auto member_itr = classinst->contents().find( method_name );
@@ -2790,6 +2791,12 @@ void Executor::ins_call_method( const Instruction& ins )
         {
           // Cache the method for future lookups
           class_methods[key] = BObjectRef( funcr );
+
+          // Switch the callee to the function reference: if the
+          // funcr->validCall fails, we will go into the funcref
+          // ins_call_method, giving the error about invalid parameter counts.
+          callee = funcr;
+          method_name = getObjMethod( MTH_CALL )->code;
         }
       }
     }
@@ -2809,7 +2816,7 @@ void Executor::ins_call_method( const Instruction& ins )
   else if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
   {
     Instruction jmp;
-    if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
+    if ( funcr->validCall( method_name, *this, &jmp ) )
     {
       BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
       call_function_reference( funcr, nullptr, jmp, false );
@@ -2820,7 +2827,7 @@ void Executor::ins_call_method( const Instruction& ins )
   size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
-  strm << "MTH_" << callee->typeOf() << " ." << ins.token.tokval();
+  strm << "MTH_" << callee->typeOf() << " ." << method_name;
   if ( !fparams.empty() )
     strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
   std::string name( strm.str() );
@@ -2829,12 +2836,12 @@ void Executor::ins_call_method( const Instruction& ins )
 #ifdef BOBJECTIMP_DEBUG
   BObjectImp* imp;
 
-  if ( strcmp( ins.token.tokval(), "impptr" ) == 0 )
+  if ( strcmp( method_name, "impptr" ) == 0 )
     imp = new String( fmt::format( "{}", static_cast<void*>( callee ) ) );
   else
-    imp = callee->call_method( ins.token.tokval(), *this );
+    imp = callee->call_method( method_name, *this );
 #else
-  BObjectImp* imp = callee->call_method( ins.token.tokval(), *this );
+  BObjectImp* imp = callee->call_method( method_name, *this );
 #endif
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
@@ -2921,18 +2928,19 @@ void Executor::ins_check_mro( const Instruction& ins )
 
   auto ctor_addr = jsr_ins.token.lval;
 
-  auto classinst = classinst_ref->impptr_if<BClassInstance>();
-  if ( classinst == nullptr ||
-       classinst->constructors_called.find( ctor_addr ) != classinst->constructors_called.end() )
+  auto classinstref = classinst_ref->impptr_if<BClassInstanceRef>();
+
+  if ( classinstref != nullptr && classinstref->instance()->constructors_called.find( ctor_addr ) ==
+                                      classinstref->instance()->constructors_called.end() )
+  {
+    classinstref->instance()->constructors_called.insert( ctor_addr );
+  }
+  else
   {
     // Constructor has been called, or `this` is not a class instance: clear
     // arguments and skip jump instructions (makelocal, jsr_userfunc)
     ValueStack.resize( ValueStack.size() - ins.token.lval );
     PC += 2;
-  }
-  else
-  {
-    classinst->constructors_called.insert( ctor_addr );
   }
 }
 
@@ -3151,8 +3159,8 @@ void Executor::ins_double( const Instruction& ins )
 
 void Executor::ins_classinst( const Instruction& ins )
 {
-  ValueStack.push_back(
-      BObjectRef( new BConstObject( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) );
+  ValueStack.push_back( BObjectRef( new BConstObject(
+      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )
