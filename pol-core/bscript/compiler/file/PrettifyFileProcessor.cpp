@@ -1485,55 +1485,74 @@ std::vector<FmtToken> PrettifyFileProcessor::collectComments( SourceFile& sf )
       {
         info.context = FmtContext::LINE_COMMENT;
         info.style |= FmtToken::FORCED_BREAK;
-        info.text.erase( 0, 2 );  // remove //
-        auto firstchar = info.text.find_first_not_of( " \t" );
-        if ( info.text.empty() || firstchar == std::string::npos )
+        if ( compilercfg.FormatterFormatInsideComments )
         {
-          // empty or only whitespace
-          info.text = "//";
-        }
-        else if ( info.text.front() == '/' )
-        {
-          // assuming its ////// -> keep it
-          info.text = std::string( "//" ) + info.text;
-        }
-        else
-        {
-          // add space if non is there
-          if ( info.text.front() != ' ' )
-            info.text = std::string( "// " ) + info.text;
-          else
+          info.text.erase( 0, 2 );  // remove //
+          auto firstchar = info.text.find_first_not_of( " \t" );
+          if ( info.text.empty() || firstchar == std::string::npos )
+          {
+            // empty or only whitespace
+            info.text = "//";
+          }
+          else if ( info.text.front() == '/' )
+          {
+            // assuming its ////// -> keep it
             info.text = std::string( "//" ) + info.text;
+          }
+          else
+          {
+            // add space if non is there
+            if ( info.text.front() != ' ' )
+              info.text = std::string( "// " ) + info.text;
+            else
+              info.text = std::string( "//" ) + info.text;
+          }
+          auto lastchar = info.text.find_last_not_of( ' ' );
+          info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
         }
-        auto lastchar = info.text.find_last_not_of( ' ' );
-        info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
       }
       else
       {
         info.context = FmtContext::COMMENT;
-        info.text.erase( 0, 2 );                                  // remove /*
-        info.text.erase( info.text.end() - 2, info.text.end() );  // remove */
         if ( compilercfg.FormatterFormatInsideComments )
         {
+          info.text.erase( 0, 2 );                                  // remove /*
+          info.text.erase( info.text.end() - 2, info.text.end() );  // remove */
           auto firstchar = info.text.find_first_not_of( " \t" );
-          info.text.erase( 0, firstchar );  // remove remaining whitespace
+          // remove remaining whitespace
+          info.text.erase( 0, firstchar );
           auto lastchar = info.text.find_last_not_of( " \t" );
           info.text.erase( info.text.begin() + lastchar + 1, info.text.end() );
-        }
-        // if its in the style of /*** blubb **/ dont add whitespace
-        if ( !compilercfg.FormatterFormatInsideComments || info.text.empty() ||
-             ( info.text.front() == '*' && info.text.back() == '*' ) )
-          info.text = std::string( "/*" ) + info.text + "*/";
-        else
-        {
-          std::string text = "/*";
-          if ( info.text.front() != '\n' && info.text.front() != '\r' )
-            text += ' ';
-          text += info.text;
-          if ( info.text.back() != '\n' && info.text.back() != '\r' )
-            text += ' ';
-          text += "*/";
-          info.text = text;
+          if ( info.text.empty() )
+            info.text = std::string( "/*" ) + info.text + "*/";
+          else
+          {
+            std::string text = "/*";
+            // if its in the style of "/** blubb" or "/*\n"  dont add whitespace
+            if ( info.text.front() != '\n' && info.text.front() != '\r' &&
+                 info.text.front() != '*' )
+              text += ' ';
+            text += info.text;
+            // if its in the style of "blubb **/" or "\n*/"  dont add whitespace
+            if ( info.text.back() != '\n' && info.text.back() != '\r' && info.text.back() != '*' )
+              text += ' ';
+
+            // detect aligned "*/"
+            // /*
+            //  *
+            //  */
+            if ( info.text.back() == '\n' || info.text.back() == '\r' )
+            {
+              auto lastnewline = text.find_last_of( "\n\r", text.size() - 2 );
+              if ( lastnewline != std::string::npos && lastnewline + 2 < text.size() )
+              {
+                if ( text[lastnewline + 1] == ' ' && text[lastnewline + 2] == '*' )
+                  text += ' ';
+              }
+            }
+            text += "*/";
+            info.text = text;
+          }
         }
         // split lines to use correct linenendings
         std::string rawtext = std::move( info.text );
