@@ -1,5 +1,6 @@
 #include "InstructionEmitter.h"
 
+#include <limits>
 #include <list>
 #include <set>
 
@@ -71,8 +72,30 @@ void InstructionEmitter::register_class_declaration(
 
   const auto& class_name = node.name;
   auto class_name_offset = this->emit_data( class_name );
+  unsigned constructor_function_reference_index = std::numeric_limits<unsigned>::max();
 
   report.debug( node, "Registering class: {}", node.name );
+
+  if ( node.constructor_link )
+  {
+    if ( auto uf = node.constructor_link->user_function() )
+    {
+      auto ctor_itr = user_function_labels.find( uf->scoped_name() );
+
+      if ( ctor_itr == user_function_labels.end() )
+      {
+        uf->internal_error(
+            fmt::format( "Constructor {} not found in user_function_labels", uf->scoped_name() ) );
+      }
+
+      function_reference_registrar.lookup_or_register_reference(
+          *uf, ctor_itr->second, constructor_function_reference_index );
+    }
+  }
+  if ( constructor_function_reference_index < std::numeric_limits<unsigned>::max() )
+    report.debug( node, " - Constructor at FuncRef index {}",
+                  constructor_function_reference_index );
+
   for ( auto itr = to_link.begin(); itr != to_link.end(); ++itr )
   {
     auto cd = *itr;
@@ -86,17 +109,8 @@ void InstructionEmitter::register_class_declaration(
     {
       if ( auto uf = cd->constructor_link->user_function() )
       {
-        auto ctor_itr = user_function_labels.find( uf->scoped_name() );
-        if ( ctor_itr == user_function_labels.end() )
-        {
-          report.debug( *cd, " - Constructor: {} PC=???", cd->name );
-          cd->internal_error(
-              fmt::format( "Constructor {} not found in user_function_labels", cd->name ) );
-        }
-        unsigned funcref_index;
-        function_reference_registrar.lookup_or_register_reference( *uf, ctor_itr->second,
-                                                                   funcref_index );
-        constructor_descriptors.push_back( funcref_index );
+        auto type_tag_offset = emit_data( cd->type_tag() );
+        constructor_descriptors.push_back( type_tag_offset );
       }
     }
 
@@ -154,7 +168,7 @@ void InstructionEmitter::register_class_declaration(
   for ( const auto& constructor : constructor_descriptors )
   {
     report.debug(
-        node, fmt::format( " - Constructor @ FuncRef={}", constructor.function_reference_index ) );
+        node, fmt::format( " - Constructor @ type_tag_offset={}", constructor.type_tag_offset ) );
   }
 
   for ( const auto& method_info : method_descriptors )
@@ -164,8 +178,9 @@ void InstructionEmitter::register_class_declaration(
                                      method_info.function_reference_index ) );
   }
 
-  class_declaration_registrar.register_class( class_name_offset, constructor_descriptors,
-                                              method_descriptors );
+  class_declaration_registrar.register_class( class_name_offset,
+                                              constructor_function_reference_index,
+                                              constructor_descriptors, method_descriptors );
 }
 
 unsigned InstructionEmitter::enter_debug_block(
