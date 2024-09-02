@@ -3762,7 +3762,14 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
 
   auto nparams = static_cast<int>( fparams.size() );
 
-  // Do we need to create an array{} for a variadic function call?
+  // Handle variadic functions special. Construct an array{} corresponding to
+  // the rest parameter (the last parameter for the function). The logic for the
+  // condition:
+  // - if true, the last argument in the call may not be an array{}, so we need
+  //   to construct one (which is why the condition is `>=` and not `>`).
+  // - if false, then the address we're jumping to will be a "default argument
+  //   address" and _not_ the user function directly, which will create the
+  //   array{}. (NB: The address/PC comes from BFunctionRef::validCall)
   if ( funcr->variadic() && nparams >= funcr->numParams() )
   {
     auto num_nonrest_args = funcr->numParams() - 1;
@@ -3784,7 +3791,9 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
     }
     ValueStack.push_back( BObjectRef( rest_arg.release() ) );
   }
-  // If not, then the array will be created via the regular default-parameter handling
+  // The array{} will be created via the regular default-parameter handling by
+  // jumping to the address/PC which pushes an empty array{} on the ValueStack
+  // prior to jumping to the user function.
   else
   {
     for ( auto& p : fparams )
