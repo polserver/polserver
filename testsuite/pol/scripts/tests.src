@@ -83,13 +83,13 @@ program tests()
         var startms:=ReadMillisecondClock();
         syslog("    Calling {}..".format(func),0,CONSOLE_COLOR_GREEN);
         var res:=script[1].call(func, {resources});
+        resources.cleanup();
         if (res != 1)
           syslog("      failed: "+res.errortext,0,CONSOLE_COLOR_RED);
           exitcode:=1;
           continue;
         endif
         syslog("    ..{}ms".format(ReadMillisecondClock()-startms),0,CONSOLE_COLOR_GREEN);
-        resources.cleanup();
       endforeach
       syslog("  ..{}ms".format(ReadMillisecondClock()-scriptstartms),0,CONSOLE_COLOR_GREEN);
     endforeach
