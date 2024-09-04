@@ -105,13 +105,10 @@ void InstructionEmitter::register_class_declaration(
     visited.insert( cd->name );
     report.debug( *cd, "Class {} with {} methods", cd->name, cd->methods.size() );
 
-    if ( cd->constructor_link )
+    if ( cd->constructor_link && cd->constructor_link->user_function() )
     {
-      if ( auto uf = cd->constructor_link->user_function() )
-      {
-        auto type_tag_offset = emit_data( cd->type_tag() );
-        constructor_descriptors.push_back( type_tag_offset );
-      }
+      auto type_tag_offset = emit_data( cd->type_tag() );
+      constructor_descriptors.push_back( type_tag_offset );
     }
 
     for ( const auto& [method, uf_link] : cd->methods )
