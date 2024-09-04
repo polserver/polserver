@@ -53,11 +53,6 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
   FunctionReferenceRegistrar function_reference_registrar;
   ClassDeclarationRegistrar class_declaration_registrar;
 
-  // This method must own user_function_labels, as the
-  // FunctionReferenceRegistrar uses references to these labels until their
-  // descriptors are grabbed via `take_descriptors` (also in this method).
-  std::map<std::string, FlowControlLabel> user_function_labels;
-
   InstructionEmitter instruction_emitter(
       code, data, debug, exported_functions, module_declaration_registrar,
       function_reference_registrar, class_declaration_registrar, report );
@@ -73,7 +68,8 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
       module_declaration_registrar.take_module_descriptors();
 
   std::vector<FunctionReferenceDescriptor> function_references =
-      function_reference_registrar.take_descriptors( workspace->class_declaration_indexes );
+      function_reference_registrar.take_descriptors( workspace->class_declaration_indexes,
+                                                     workspace->user_function_labels );
 
   std::vector<ClassDescriptor> class_descriptors = class_declaration_registrar.take_descriptors();
 
@@ -118,9 +114,20 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
     }
   }
 
+  // The default parameter generation needs to happen after generating the
+  // instructions for the user functions, as only class method functions and
+  // user functions with a registered function reference emit their default
+  // arguments. Since a user function may be registered as a function reference
+  // only _during_ some other user function's generation, we are only sure a
+  // user function has a function reference after generating all of them.
+  for ( const auto& user_function : workspace.user_functions )
+  {
+    generator.generate_default_parameters( *user_function.get() );
+  }
+
   for ( auto& class_decl : workspace.class_declarations )
   {
-    class_decl->accept( generator );
+    emitter.register_class_declaration( *class_decl, workspace.user_function_labels );
   }
 }
 

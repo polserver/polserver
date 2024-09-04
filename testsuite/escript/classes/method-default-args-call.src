@@ -1,0 +1,47 @@
+// Test method calls with default args and variadic args
+
+class Foo()
+  function Foo( this )
+  endfunction
+
+  function MethodA( this, arg0 )
+    return $"Foo::MethodA this={this} arg0={arg0}";
+  endfunction
+
+  function MethodB( this, arg0, arg1 := "default.a1" )
+    return $"Foo::MethodB this={this} arg0={arg0} arg1={arg1}";
+  endfunction
+
+  function MethodC( this, arg0, arg1 := "default.a1", arg2 := "default.a2" )
+    return $"Foo::MethodC this={this} arg0={arg0} arg1={arg1} arg2={arg2}";
+  endfunction
+
+  function MethodD( this, arg0, arg1 := "default.a1", arg2 := "default.a2", args ... )
+    return $"Foo::MethodD this={this} arg0={arg0} arg1={arg1} arg2={arg2} args={args}";
+  endfunction
+endclass
+
+var obj := Foo();
+
+print( obj.MethodA() );
+print( obj.MethodA( "a0" ) );
+print( obj.MethodA( "a0", "a1" ) );
+print( "-" );
+print( obj.MethodB() );
+print( obj.MethodB( "a0" ) );
+print( obj.MethodB( "a0", "a1" ) );
+print( obj.MethodB( "a0", "a1", "a2" ) );
+print( "-" );
+print( obj.MethodC() );
+print( obj.MethodC( "a0" ) );
+print( obj.MethodC( "a0", "a1" ) );
+print( obj.MethodC( "a0", "a1", "a2" ) );
+print( obj.MethodC( "a0", "a1", "a2", "a3" ) );
+print( "-" );
+print( obj.MethodD() );
+print( obj.MethodD( "a0" ) );
+print( obj.MethodD( "a0", "a1" ) );
+print( obj.MethodD( "a0", "a1", "a2" ) );
+print( obj.MethodD( "a0", "a1", "a2", "a3" ) );
+print( obj.MethodD( "a0", "a1", "a2", "a3", "a4" ) );
+print( obj.MethodD( "a0", "a1", "a2", "a3", "a4", "a5" ) );

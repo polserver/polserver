@@ -1,0 +1,2 @@
+<class ClassA>
+error{ errortext = "Function is not a constructor" }

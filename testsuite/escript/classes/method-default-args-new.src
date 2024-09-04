@@ -1,0 +1,70 @@
+// Test MTH_NEW calls with default args and variadic args
+
+class ClassA()
+  function ClassA( this, arg0 )
+    this.arg0 := arg0;
+  endfunction
+
+  function stringify( this )
+    return $"ClassA::stringify this={this} this.arg0={this.arg0}";
+  endfunction
+endclass
+
+class ClassB()
+  function ClassB( this, arg0, arg1 := "default.a1" )
+    this.arg0 := arg0;
+    this.arg1 := arg1;
+  endfunction
+
+  function stringify( this )
+    return $"ClassB::stringify this={this} this.arg0={this.arg0} this.arg1={this.arg1}";
+  endfunction
+endclass
+
+class ClassC()
+  function ClassC( this, arg0, arg1 := "default.a1", arg2 := "default.a2" )
+    this.arg0 := arg0;
+    this.arg1 := arg1;
+    this.arg2 := arg2;
+  endfunction
+
+  function stringify( this )
+    return $"ClassC::stringify this={this} this.arg0={this.arg0} this.arg1={this.arg1} this.arg2={this.arg2}";
+  endfunction
+endclass
+
+class ClassD()
+  function ClassD( this, arg0, arg1 := "default.a1", arg2 := "default.a2", args ... )
+    this.arg0 := arg0;
+    this.arg1 := arg1;
+    this.arg2 := arg2;
+    this.args := args;
+  endfunction
+
+  function stringify( this )
+    return $"ClassD::ClassD this={this} this.arg0={this.arg0} this.arg1={this.arg1} this.arg2={this.arg2} this.args={this.args}";
+  endfunction
+endclass
+
+print( @ClassA.new() );
+print( @ClassA.new( "a0" ).stringify() );
+print( @ClassA.new( "a0", "a1" ) );
+print( "-" );
+print( @ClassB.new() );
+print( @ClassB.new( "a0" ).stringify() );
+print( @ClassB.new( "a0", "a1" ).stringify() );
+print( @ClassB.new( "a0", "a1", "a2" ) );
+print( "-" );
+print( @ClassC.new() );
+print( @ClassC.new( "a0" ).stringify() );
+print( @ClassC.new( "a0", "a1" ).stringify() );
+print( @ClassC.new( "a0", "a1", "a2" ).stringify() );
+print( @ClassC.new( "a0", "a1", "a2", "a3" ) );
+print( "-" );
+print( @ClassD.new() );
+print( @ClassD.new( "a0" ).stringify() );
+print( @ClassD.new( "a0", "a1" ).stringify() );
+print( @ClassD.new( "a0", "a1", "a2" ).stringify() );
+print( @ClassD.new( "a0", "a1", "a2", "a3" ).stringify() );
+print( @ClassD.new( "a0", "a1", "a2", "a3", "a4" ).stringify() );
+print( @ClassD.new( "a0", "a1", "a2", "a3", "a4", "a5" ).stringify() );

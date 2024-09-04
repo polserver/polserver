@@ -85,12 +85,20 @@ struct EPFunctionReference
   int capture_count;
   bool is_variadic;
   unsigned class_index;  // max = no class
+  bool is_constructor;
+  std::vector<unsigned> default_parameter_addresses;
+
+  unsigned default_parameter_count() const
+  {
+    return static_cast<unsigned>( default_parameter_addresses.size() );
+  }
 
   bool operator==( const EPFunctionReference& other ) const
   {
     return address == other.address && parameter_count == other.parameter_count &&
            capture_count == other.capture_count && is_variadic == other.is_variadic &&
-           class_index == other.class_index;
+           class_index == other.class_index && is_constructor == other.is_constructor &&
+           default_parameter_addresses == other.default_parameter_addresses;
   }
 };
 

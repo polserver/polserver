@@ -66,6 +66,14 @@ public:
     return static_cast<T&>( *children.at( index ) );
   }
 
+  template <class T>
+  const T& child( size_t index ) const
+  {
+    if ( index >= children.size() )
+      internal_error( "no child at index " + std::to_string( index ) );
+    return static_cast<const T&>( *children.at( index ) );
+  }
+
   template <typename T>
   void get_children( std::vector<std::reference_wrapper<T>>& result ) const
   {
