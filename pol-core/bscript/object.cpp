@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <istream>
+#include <limits>
 #include <stddef.h>
 #include <string>
 
@@ -2314,24 +2315,19 @@ std::string BBoolean::getStringRep() const
   return bval_ ? "true" : "false";
 }
 
-
-BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, int progcounter, int param_count,
-                            bool variadic, unsigned class_index,
+BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_reference_index,
                             std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       prog_( std::move( program ) ),
-      pc_( progcounter ),
-      num_params_( param_count ),
-      variadic_( variadic ),
-      class_index_( class_index ),
+      function_reference_index_( function_reference_index ),
       globals( std::move( globals ) ),
       captures( std::move( captures ) )
 {
+  passert( function_reference_index_ < prog_->function_references.size() );
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.prog_, B.pc_, B.num_params_, B.variadic_, B.class_index_, B.globals,
-                    ValueStackCont( B.captures ) )
+    : BFunctionRef( B.prog_, B.function_reference_index_, B.globals, ValueStackCont( B.captures ) )
 {
 }
 
@@ -2377,7 +2373,8 @@ BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
           [this]( const EPMethodDescriptor& address )
           {
             return address.function_reference_index < prog_->function_references.size() &&
-                   prog_->function_references.at( address.function_reference_index ).address == pc_;
+                   prog_->function_references.at( address.function_reference_index ).address ==
+                       pc();
           } ) != addresses.end();
   return new BBoolean( result );
 }
@@ -2399,38 +2396,29 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
 {
   auto passed_args = static_cast<int>( ex.numParams() );
 
-  if ( id == MTH_CALL )
+  auto [expected_min_args, expected_max_args] = expected_args();
+
+  if ( id != MTH_CALL && id != MTH_NEW && id != MTH_CALL_METHOD )
+    return false;
+
+  if ( passed_args < expected_min_args || ( passed_args > expected_max_args && !variadic() ) )
+    return false;
+
+  inst->func = &Executor::ins_nop;
+
+  if ( passed_args >= expected_max_args )
   {
-    if ( variadic_ )
-    {
-      if ( passed_args < num_params_ - 1 /* remove optional rest arg */ )
-        return false;
-    }
-    else
-    {
-      if ( passed_args != num_params_ )
-        return false;
-    }
-  }
-  else if ( id == MTH_NEW )
-  {
-    if ( variadic_ )
-    {
-      if ( passed_args < num_params_ - 2 /* remove 'this', optional rest arg */ )
-        return false;
-    }
-    else
-    {
-      if ( passed_args != num_params_ - 1 /* remove 'this' */ )
-        return false;
-    }
+    inst->token.lval = pc();
   }
   else
   {
-    return false;
+    auto default_parameter_address_index = expected_max_args - passed_args - 1;
+    passert( default_parameter_address_index >= 0 &&
+             default_parameter_address_index <
+                 static_cast<int>( default_parameter_addresses().size() ) );
+    inst->token.lval = default_parameter_addresses().at( default_parameter_address_index );
   }
-  inst->func = &Executor::ins_nop;
-  inst->token.lval = pc_;
+
   return true;
 }
 
@@ -2442,14 +2430,19 @@ bool BFunctionRef::validCall( const char* methodname, Executor& ex, Instruction*
   return validCall( objmethod->id, ex, inst );
 }
 
-size_t BFunctionRef::numParams() const
+int BFunctionRef::numParams() const
 {
-  return num_params_;
+  return prog_->function_references[function_reference_index_].parameter_count;
+}
+
+unsigned BFunctionRef::pc() const
+{
+  return prog_->function_references[function_reference_index_].address;
 }
 
 bool BFunctionRef::variadic() const
 {
-  return variadic_;
+  return prog_->function_references[function_reference_index_].is_variadic;
 }
 
 ref_ptr<EScriptProgram> BFunctionRef::prog() const
@@ -2459,39 +2452,70 @@ ref_ptr<EScriptProgram> BFunctionRef::prog() const
 
 unsigned BFunctionRef::class_index() const
 {
-  return class_index_;
+  return prog_->function_references[function_reference_index_].class_index;
+}
+
+bool BFunctionRef::constructor() const
+{
+  return prog_->function_references[function_reference_index_].is_constructor;
+}
+
+bool BFunctionRef::class_method() const
+{
+  return prog_->function_references[function_reference_index_].class_index <
+         std::numeric_limits<unsigned>::max();
+}
+
+const std::vector<unsigned>& BFunctionRef::default_parameter_addresses() const
+{
+  return prog_->function_references[function_reference_index_].default_parameter_addresses;
+}
+
+int BFunctionRef::default_parameter_count() const
+{
+  return static_cast<int>( default_parameter_addresses().size() );
+}
+
+std::pair<int, int> BFunctionRef::expected_args() const
+{
+  auto expected_min_args = numParams() - default_parameter_count();  // remove default parameters
+
+  return { expected_min_args, expected_min_args + default_parameter_count() };
 }
 
 BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
+  bool adjust_for_this = false;
+
   // These are only entered if `ins_call_method_id` did _not_ do the call jump.
   switch ( id )
   {
+  case MTH_NEW:
+    if ( !constructor() )
+      return new BError( "Function is not a constructor" );
+    // intentional fallthrough
+  case MTH_CALL_METHOD:
+    adjust_for_this = true;
+    // intentional fallthrough
   case MTH_CALL:
   {
-    if ( variadic_ )
+    auto [expected_min_args, expected_max_args] = expected_args();
+    auto param_count = ex.numParams();
+
+    if ( adjust_for_this )
     {
-      return new BError( fmt::format( "Invalid argument count: expected {}+, got {}",
-                                      static_cast<int>( num_params_ ) - 1, ex.numParams() ) );
+      --expected_min_args;
+      --expected_max_args;
+      --param_count;
     }
-    else
-    {
-      return new BError( fmt::format( "Invalid argument count: expected {}, got {}", num_params_,
-                                      ex.numParams() ) );
-    }
-  }
-  case MTH_NEW:
-  {
-    if ( variadic_ )
-    {
-      return new BError( fmt::format( "Invalid argument count: expected {}+, got {}",
-                                      num_params_ - 2 /* remove 'this' */, ex.numParams() ) );
-    }
-    else
-    {
-      return new BError( fmt::format( "Invalid argument count: expected {}, got {}",
-                                      num_params_ - 1 /* remove 'this' */, ex.numParams() ) );
-    }
+
+    auto expected_arg_string = variadic() ? fmt::format( "{}+", expected_min_args )
+                               : ( expected_min_args == expected_max_args )
+                                   ? std::to_string( expected_min_args )
+                                   : fmt::format( "{}-{}", expected_min_args, expected_max_args );
+
+    return new BError( fmt::format( "Invalid argument count: expected {}, got {}",
+                                    expected_arg_string, param_count ) );
   }
   default:
     return nullptr;

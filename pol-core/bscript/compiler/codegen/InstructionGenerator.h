@@ -22,6 +22,7 @@ public:
                         const std::map<std::string, size_t>& class_declaration_indexes );
 
   void generate( Node& );
+  void generate_default_parameters( const UserFunction& );
 
   void update_debug_location( const Node& );
   void update_debug_location( const SourceLocation& );
@@ -34,7 +35,6 @@ public:
   void visit_block( Block& ) override;
   void visit_boolean_value( BooleanValue& ) override;
   void visit_branch_selector( BranchSelector& ) override;
-  void visit_class_declaration( ClassDeclaration& ) override;
   void visit_class_instance( ClassInstance& ) override;
   void visit_debug_statement_marker( DebugStatementMarker& ) override;
   void visit_dictionary_entry( DictionaryEntry& ) override;

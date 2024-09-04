@@ -134,8 +134,16 @@ struct BSCRIPT_FUNCTION_REFERENCE
   int capture_count;
   bool is_variadic;
   unsigned class_index;
+  bool is_constructor;
+  unsigned default_parameter_count;
 };
-static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 17, "size missmatch" );
+static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE ) == 22, "size missmatch" );
+
+struct BSCRIPT_FUNCTION_REFERENCE_DEFAULT_PARAMETER
+{
+  unsigned address;
+};
+static_assert( sizeof( BSCRIPT_FUNCTION_REFERENCE_DEFAULT_PARAMETER ) == 4, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE
 {

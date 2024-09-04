@@ -688,6 +688,12 @@ void InstructionEmitter::patch_offset( unsigned index, unsigned offset )
   code_emitter.update_offset( index, offset );
 }
 
+bool InstructionEmitter::has_function_reference( const UserFunction& uf )
+{
+  unsigned index;
+  return function_reference_registrar.lookup_reference( uf, index );
+}
+
 void InstructionEmitter::register_with_label( FlowControlLabel& label, unsigned offset )
 {
   if ( label.has_address() )

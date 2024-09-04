@@ -2659,11 +2659,27 @@ void Executor::ins_call_method_id( const Instruction& ins )
     if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
     {
       Instruction jmp;
+      bool add_new_classinst = ins.token.lval == MTH_NEW;
+
+      if ( add_new_classinst )
+      {
+        if ( funcr->class_index() >= prog_->class_descriptors.size() )
+        {
+          POLLOG_ERRORLN( "Class index out of bounds: {} >= {} ({},PC={})", funcr->class_index(),
+                          prog_->class_descriptors.size(), prog_->name, PC );
+          seterror( true );
+          return;
+        }
+
+        fparams.insert( fparams.begin(),
+                        BObjectRef( new BConstObject( new BClassInstanceRef(
+                            new BClassInstance( prog_, funcr->class_index(), Globals2 ) ) ) ) );
+      }
+
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
       {
         BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
-        bool add_new_classinst = ins.token.lval == MTH_NEW;
-        call_function_reference( funcr, continuation, jmp, add_new_classinst );
+        call_function_reference( funcr, continuation, jmp );
         return;
       }
     }
@@ -2780,7 +2796,12 @@ void Executor::ins_call_method( const Instruction& ins )
       auto cache_itr = class_methods.find( key );
       if ( cache_itr != class_methods.end() )
       {
+        // Switch the callee to the function reference: if the
+        // funcr->validCall fails, we will go into the funcref
+        // ins_call_method, giving the error about invalid parameter counts.
         funcr = cache_itr->second->impptr_if<BFunctionRef>();
+        callee = funcr;
+        method_name = getObjMethod( MTH_CALL_METHOD )->code;
       }
       else
       {
@@ -2792,11 +2813,9 @@ void Executor::ins_call_method( const Instruction& ins )
           // Cache the method for future lookups
           class_methods[key] = BObjectRef( funcr );
 
-          // Switch the callee to the function reference: if the
-          // funcr->validCall fails, we will go into the funcref
-          // ins_call_method, giving the error about invalid parameter counts.
+          // Switch the callee to the function reference.
           callee = funcr;
-          method_name = getObjMethod( MTH_CALL )->code;
+          method_name = getObjMethod( MTH_CALL_METHOD )->code;
         }
       }
     }
@@ -2804,11 +2823,25 @@ void Executor::ins_call_method( const Instruction& ins )
     if ( funcr != nullptr )
     {
       Instruction jmp;
-      if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
+      int id;
+
+      // Add `this` to the front of the argument list only for class methods,
+      // skipping eg. an instance member function reference set via
+      // `this.foo := @(){};`.
+      if ( funcr->class_method() )
       {
+        id = MTH_CALL_METHOD;
         fparams.insert( fparams.begin(), ValueStack.back() );
+      }
+      else
+      {
+        id = MTH_CALL;
+      }
+
+      if ( funcr->validCall( id, *this, &jmp ) )
+      {
         BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
-        call_function_reference( funcr, nullptr, jmp, false );
+        call_function_reference( funcr, nullptr, jmp );
         return;
       }
     }
@@ -2819,7 +2852,7 @@ void Executor::ins_call_method( const Instruction& ins )
     if ( funcr->validCall( method_name, *this, &jmp ) )
     {
       BObjectRef funcobj( ValueStack.back() );  // valuestack gets modified, protect BFunctionRef
-      call_function_reference( funcr, nullptr, jmp, false );
+      call_function_reference( funcr, nullptr, jmp );
       return;
     }
   }
@@ -3125,7 +3158,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       Instruction jmp;
       if ( funcr->validCall( MTH_CALL, *this, &jmp ) )
       {
-        call_function_reference( funcr, cont, jmp, false );
+        call_function_reference( funcr, cont, jmp );
       }
       else
       {
@@ -3325,11 +3358,10 @@ void Executor::ins_funcref( const Instruction& ins )
     return;
   }
 
-  const auto& ep_funcref = prog_->function_references.at( ins.token.lval );
+  auto funcref_index = static_cast<unsigned>( ins.token.lval );
 
-  ValueStack.push_back( BObjectRef( new BFunctionRef(
-      prog_, ep_funcref.address, ep_funcref.parameter_count, ep_funcref.is_variadic,
-      ep_funcref.class_index, Globals2, {} /* captures */ ) ) );
+  ValueStack.push_back(
+      BObjectRef( new BFunctionRef( prog_, funcref_index, Globals2, {} /* captures */ ) ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3348,8 +3380,7 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func = new BFunctionRef( prog_, PC, ep_funcref.parameter_count, ep_funcref.is_variadic,
-                                ep_funcref.class_index, Globals2, std::move( captures ) );
+  auto func = new BFunctionRef( prog_, funcref_index, Globals2, std::move( captures ) );
 
   ValueStack.push_back( BObjectRef( func ) );
 
@@ -3720,7 +3751,7 @@ void Executor::show_context( std::string& os, unsigned atPC )
 }
 
 void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* continuation,
-                                        const Instruction& jmp, bool add_new_classinst )
+                                        const Instruction& jmp )
 {
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
@@ -3729,28 +3760,23 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
   for ( auto& p : funcr->captures )
     ValueStack.push_back( p );
 
-  if ( add_new_classinst )
-  {
-    if ( funcr->class_index() >= prog_->class_descriptors.size() )
-    {
-      POLLOG_ERRORLN( "Class index out of bounds: {} >= {} ({},PC={})", funcr->class_index(),
-                      prog_->class_descriptors.size(), prog_->name, PC );
-      seterror( true );
-      return;
-    }
+  auto nparams = static_cast<int>( fparams.size() );
 
-    fparams.insert( fparams.begin(), BObjectRef( new BConstObject( new BClassInstance(
-                                         prog_, funcr->class_index(), Globals2 ) ) ) );
-  }
-
-  if ( funcr->variadic() )
+  // Handle variadic functions special. Construct an array{} corresponding to
+  // the rest parameter (the last parameter for the function). The logic for the
+  // condition:
+  // - if true, the last argument in the call may not be an array{}, so we need
+  //   to construct one (which is why the condition is `>=` and not `>`).
+  // - if false, then the address we're jumping to will be a "default argument
+  //   address" and _not_ the user function directly, which will create the
+  //   array{}. (NB: The address/PC comes from BFunctionRef::validCall)
+  if ( funcr->variadic() && nparams >= funcr->numParams() )
   {
-    passert_always( funcr->numParams() > 0 );
-    auto num_nonrest_args = static_cast<unsigned>( funcr->numParams() - 1 );
+    auto num_nonrest_args = funcr->numParams() - 1;
 
     auto rest_arg = std::make_unique<ObjArray>();
 
-    for ( size_t i = 0; i < fparams.size(); ++i )
+    for ( int i = 0; i < static_cast<int>( fparams.size() ); ++i )
     {
       auto& p = fparams[i];
 
@@ -3765,6 +3791,9 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
     }
     ValueStack.push_back( BObjectRef( rest_arg.release() ) );
   }
+  // The array{} will be created via the regular default-parameter handling by
+  // jumping to the address/PC which pushes an empty array{} on the ValueStack
+  // prior to jumping to the user function.
   else
   {
     for ( auto& p : fparams )
@@ -4136,7 +4165,7 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
 
   // Add function arguments to value stack. Add arguments if there are not enough.  Remove if
   // there are too many
-  while ( func->numParams() > args.size() )
+  while ( func->numParams() > static_cast<int>( args.size() ) )
   {
     args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
   }
