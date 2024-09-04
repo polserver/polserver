@@ -1,0 +1,14 @@
+// Test MTH_NEW call on a funcref that is not a ctor
+
+class ClassA()
+  function ClassA( this, arg0 )
+    this.arg0 := arg0;
+  endfunction
+
+  function stringify( this )
+    return $"ClassA::stringify this={this} this.arg0={this.arg0}";
+  endfunction
+endclass
+
+print( @ClassA.new( "a0" ) );
+print( @ClassA::stringify.new( "a0 ") );

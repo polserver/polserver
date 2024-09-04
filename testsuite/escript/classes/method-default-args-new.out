@@ -1,0 +1,22 @@
+error{ errortext = "Invalid argument count: expected 1, got 0" }
+ClassA::stringify this=<class ClassA> this.arg0=a0
+error{ errortext = "Invalid argument count: expected 1, got 2" }
+-
+error{ errortext = "Invalid argument count: expected 1-2, got 0" }
+ClassB::stringify this=<class ClassB> this.arg0=a0 this.arg1=default.a1
+ClassB::stringify this=<class ClassB> this.arg0=a0 this.arg1=a1
+error{ errortext = "Invalid argument count: expected 1-2, got 3" }
+-
+error{ errortext = "Invalid argument count: expected 1-3, got 0" }
+ClassC::stringify this=<class ClassC> this.arg0=a0 this.arg1=default.a1 this.arg2=default.a2
+ClassC::stringify this=<class ClassC> this.arg0=a0 this.arg1=a1 this.arg2=default.a2
+ClassC::stringify this=<class ClassC> this.arg0=a0 this.arg1=a1 this.arg2=a2
+error{ errortext = "Invalid argument count: expected 1-3, got 4" }
+-
+error{ errortext = "Invalid argument count: expected 1+, got 0" }
+ClassD::ClassD this=<class ClassD> this.arg0=a0 this.arg1=default.a1 this.arg2=default.a2 this.args={  }
+ClassD::ClassD this=<class ClassD> this.arg0=a0 this.arg1=a1 this.arg2=default.a2 this.args={  }
+ClassD::ClassD this=<class ClassD> this.arg0=a0 this.arg1=a1 this.arg2=a2 this.args={  }
+ClassD::ClassD this=<class ClassD> this.arg0=a0 this.arg1=a1 this.arg2=a2 this.args={ a3 }
+ClassD::ClassD this=<class ClassD> this.arg0=a0 this.arg1=a1 this.arg2=a2 this.args={ a3, a4 }
+ClassD::ClassD this=<class ClassD> this.arg0=a0 this.arg1=a1 this.arg2=a2 this.args={ a3, a4, a5 }

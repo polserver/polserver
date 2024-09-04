@@ -113,7 +113,18 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       bfr.capture_count = elem.capture_count();
       bfr.is_variadic = elem.is_variadic();
       bfr.class_index = elem.class_index();
+      bfr.is_constructor = elem.is_constructor();
+      bfr.default_parameter_count =
+          static_cast<unsigned>( elem.default_parameter_addresses().size() );
+
       ofs.write( reinterpret_cast<const char*>( &bfr ), sizeof bfr );
+
+      for ( const auto& default_parameter_address : elem.default_parameter_addresses() )
+      {
+        BSCRIPT_FUNCTION_REFERENCE_DEFAULT_PARAMETER bfrdp{};
+        bfrdp.address = default_parameter_address;
+        ofs.write( reinterpret_cast<const char*>( &bfrdp ), sizeof bfrdp );
+      }
     }
   }
 

@@ -53,20 +53,8 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
   if ( method_itr == methods.end() )
     return nullptr;
 
-  const auto& funcref_table_entry =
-      prog_->function_references.at( method_itr->second.function_reference_index );
-
-  // Subtract 1 from parameter_count of  so BFunctionRef::valid_call will
-  // think a call is valid _without_ the `this`. The Executor adds `this`
-  // after the validity check.
-  //
-  // Eg: `function foo(this, arg0)` (two params) -> `this.foo(arg0)` (one param)
-  auto param_count = funcref_table_entry.parameter_count - 1;
-
-
-  return new BFunctionRef( prog_, funcref_table_entry.address, param_count,
-                           funcref_table_entry.is_variadic, funcref_table_entry.class_index,
-                           globals, ValueStackCont{} );
+  return new BFunctionRef( prog_, method_itr->second.function_reference_index, globals,
+                           ValueStackCont{} );
 }
 
 void BClassInstance::packonto( std::ostream& os ) const
@@ -129,11 +117,7 @@ BObjectRef BClassInstance::get_member_id( const int id )
         auto funcref_index = constructors.front().function_reference_index;
         if ( funcref_index < prog_->function_references.size() )
         {
-          const auto& funcref_entry = prog_->function_references.at( funcref_index );
-
-          return BObjectRef( new BFunctionRef(
-              prog_, static_cast<int>( funcref_entry.address ), funcref_entry.parameter_count,
-              funcref_entry.is_variadic, funcref_entry.class_index, globals, ValueStackCont{} ) );
+          return BObjectRef( new BFunctionRef( prog_, funcref_index, globals, ValueStackCont{} ) );
         }
       }
     }

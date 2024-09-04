@@ -18,10 +18,13 @@ public:
 
 
   std::vector<FunctionReferenceDescriptor> take_descriptors(
-      const std::map<std::string, size_t>& class_declaration_indexes );
+      const std::map<std::string, size_t>& class_declaration_indexes,
+      const std::map<std::string, FlowControlLabel>& user_function_labels );
 
   void lookup_or_register_reference( const UserFunction& node, FlowControlLabel& label,
                                      unsigned& index );
+
+  bool lookup_reference( const UserFunction& node, unsigned& index );
 
 private:
   struct EmittedReference
