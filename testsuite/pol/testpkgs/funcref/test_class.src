@@ -12,11 +12,11 @@ exported function test_class_is()
   var res := {};
 
   var expected := {
-    { true, false, false, false, false },
-    { true, true, false, false, false },
-    { true, false, true, false, false },
-    { true, true, true, true, false },
-    { true, true, true, false, true }
+    { 1, 0, 0, 0, 0 },
+    { 1, 1, 0, 0, 0 },
+    { 1, 0, 1, 0, 0 },
+    { 1, 1, 1, 1, 0 },
+    { 1, 1, 1, 0, 1 }
   };
 
   foreach obj in objs

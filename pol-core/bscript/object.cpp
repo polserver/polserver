@@ -2355,14 +2355,14 @@ BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
 {
   auto classinstref = dynamic_cast<const BClassInstanceRef*>( &other );
   if ( !classinstref )
-    return new BBoolean( false );
+    return new BLong( 0 );
 
   auto classinst = classinstref->instance();
 
   // Class index could be maxint if the function reference is not a class
   // method.
   if ( class_index() >= prog_->class_descriptors.size() )
-    return new BBoolean( false );
+    return new BLong( 0 );
 
   const auto& my_constructors = prog_->class_descriptors.at( class_index() ).constructors;
   passert( !my_constructors.empty() );
@@ -2378,7 +2378,7 @@ BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
     for ( const auto& other_descriptor : other_descriptors )
     {
       if ( my_descriptor.type_tag_offset == other_descriptor.type_tag_offset )
-        return new BBoolean( true );
+        return new BLong( 1 );
     }
   }
   // For different programs, we must check for string equality.
@@ -2389,11 +2389,11 @@ BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
     {
       auto other_type_tag = classinst->prog()->symbols.array() + other_descriptor.type_tag_offset;
       if ( strcmp( type_tag, other_type_tag ) == 0 )
-        return new BBoolean( true );
+        return new BLong( 1 );
     }
   }
 
-  return new BBoolean( false );
+  return new BLong( 0 );
 }
 
 std::string BFunctionRef::getStringRep() const
