@@ -160,10 +160,10 @@ private:
   std::vector<std::string> createSimple( const std::vector<FmtToken>& lines ) const;
   bool parenthesisAlign( const std::vector<std::string>& finallines, size_t alignmentspace,
                          std::string& line ) const;
-  bool binPack( const FmtToken& part, std::string line, size_t index,
+  bool binPack( const FmtToken& part, std::string line, size_t index, size_t upto,
                 const std::vector<FmtToken>& lines, bool only_single_line,
                 std::vector<std::string>* finallines, std::map<size_t, size_t>* alignmentspace,
-                size_t* skipindex ) const;
+                size_t* skipindex, const std::map<size_t, size_t>& initial_alignmentspace ) const;
   void alignComments( std::vector<std::string>& finallines );
   void packLines();
 };
