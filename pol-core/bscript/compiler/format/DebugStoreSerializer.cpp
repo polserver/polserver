@@ -168,10 +168,13 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
       // Handle constructors
       if ( !class_descriptor.constructors.empty() )
       {
-        *text_ofs << "    - Constructor chain (funcref idxs):";
+        *text_ofs << "    - Constructor chain (type tag offset):";
         for ( const auto& constructor : class_descriptor.constructors )
         {
-          *text_ofs << fmt::format( " {}", constructor.function_reference_index );
+          *text_ofs << fmt::format( "\n      - {} ({})",
+                                    reinterpret_cast<const char*>( compiled_script.data.data() +
+                                                                   constructor.type_tag_offset ),
+                                    constructor.type_tag_offset );
         }
         *text_ofs << std::endl;
       }

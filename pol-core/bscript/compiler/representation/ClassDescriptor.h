@@ -11,10 +11,12 @@ namespace Pol::Bscript::Compiler
 class ClassDescriptor
 {
 public:
-  ClassDescriptor( unsigned name_offset, std::vector<ConstructorDescriptor> constructors,
+  ClassDescriptor( unsigned name_offset, unsigned constructor_function_reference_index,
+                   std::vector<ConstructorDescriptor> constructors,
                    std::vector<MethodDescriptor> methods );
 
   const unsigned name_offset;
+  const unsigned constructor_function_reference_index;
   const std::vector<ConstructorDescriptor> constructors;
   const std::vector<MethodDescriptor> methods;
 };

@@ -2,8 +2,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-ConstructorDescriptor::ConstructorDescriptor( unsigned function_reference_index )
-    : function_reference_index( function_reference_index )
+ConstructorDescriptor::ConstructorDescriptor( unsigned type_tag_offset )
+    : type_tag_offset( type_tag_offset )
 {
 }
 }  // namespace Pol::Bscript::Compiler

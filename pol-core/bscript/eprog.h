@@ -106,14 +106,19 @@ struct EPMethodDescriptor
 {
   unsigned function_reference_index;
 };
+struct EPConstructorDescriptor
+{
+  unsigned type_tag_offset;
+};
 
-using EPConstructorList = std::vector<EPMethodDescriptor>;
+using EPConstructorList = std::vector<EPConstructorDescriptor>;
 
 using EPMethodMap = std::map<unsigned /* name_offset */, EPMethodDescriptor>;
 
 struct EPClassDescriptor
 {
   unsigned name_offset;
+  unsigned constructor_function_reference_index;
   EPConstructorList constructors;
   EPMethodMap methods;
 };

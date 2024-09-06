@@ -12,6 +12,7 @@ BClassInstance::BClassInstance( ref_ptr<EScriptProgram> program, int index,
                                 std::shared_ptr<ValueStackCont> globals )
     : BStruct( OTClassInstance ), prog_( program ), index_( index ), globals( std::move( globals ) )
 {
+  passert( index_ < prog_->class_descriptors.size() );
 }
 
 BClassInstance::BClassInstance( const BClassInstance& B ) : BStruct( B, OTClassInstance )
@@ -109,18 +110,10 @@ BObjectRef BClassInstance::get_member_id( const int id )
 {
   if ( id == MBR_FUNCTION )
   {
-    if ( index_ < prog_->class_descriptors.size() )
-    {
-      const auto& constructors = prog_->class_descriptors.at( index_ ).constructors;
-      if ( !constructors.empty() )
-      {
-        auto funcref_index = constructors.front().function_reference_index;
-        if ( funcref_index < prog_->function_references.size() )
-        {
-          return BObjectRef( new BFunctionRef( prog_, funcref_index, globals, ValueStackCont{} ) );
-        }
-      }
-    }
+    const auto funcref_index =
+        prog_->class_descriptors.at( index_ ).constructor_function_reference_index;
+
+    return BObjectRef( new BFunctionRef( prog_, funcref_index, globals, ValueStackCont{} ) );
   }
 
   return base::get_member_id( id );

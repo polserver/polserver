@@ -2355,28 +2355,45 @@ BObjectImp* BFunctionRef::selfIsObjImp( const BObjectImp& other ) const
 {
   auto classinstref = dynamic_cast<const BClassInstanceRef*>( &other );
   if ( !classinstref )
-    return new BBoolean( false );
+    return new BLong( 0 );
 
   auto classinst = classinstref->instance();
-  if ( classinst->prog() != prog_ )
-    return new BBoolean( false );
 
-  if ( classinst->index() > prog_->class_descriptors.size() )
-    return new BBoolean( false );
+  // Class index could be maxint if the function reference is not a class
+  // method.
+  if ( class_index() >= prog_->class_descriptors.size() )
+    return new BLong( 0 );
 
-  // Find the address in the constructor addresses.
-  auto& addresses = prog_->class_descriptors[classinst->index()].constructors;
+  const auto& my_constructors = prog_->class_descriptors.at( class_index() ).constructors;
+  passert( !my_constructors.empty() );
+  const auto& my_descriptor = my_constructors.front();
 
-  auto result =
-      std::find_if(
-          addresses.begin(), addresses.end(),
-          [this]( const EPMethodDescriptor& address )
-          {
-            return address.function_reference_index < prog_->function_references.size() &&
-                   prog_->function_references.at( address.function_reference_index ).address ==
-                       pc();
-          } ) != addresses.end();
-  return new BBoolean( result );
+  const auto& other_descriptors =
+      classinst->prog()->class_descriptors.at( classinst->index() ).constructors;
+
+  // An optimization for same program: since strings are never duplicated inside
+  // the data section, we can just check for offset equality.
+  if ( prog_ == classinst->prog() )
+  {
+    for ( const auto& other_descriptor : other_descriptors )
+    {
+      if ( my_descriptor.type_tag_offset == other_descriptor.type_tag_offset )
+        return new BLong( 1 );
+    }
+  }
+  // For different programs, we must check for string equality.
+  else
+  {
+    auto type_tag = prog_->symbols.array() + my_descriptor.type_tag_offset;
+    for ( const auto& other_descriptor : other_descriptors )
+    {
+      auto other_type_tag = classinst->prog()->symbols.array() + other_descriptor.type_tag_offset;
+      if ( strcmp( type_tag, other_type_tag ) == 0 )
+        return new BLong( 1 );
+    }
+  }
+
+  return new BLong( 0 );
 }
 
 std::string BFunctionRef::getStringRep() const

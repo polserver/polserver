@@ -144,6 +144,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       // Handle class entry
       BSCRIPT_CLASS_TABLE_ENTRY bcte{};
       bcte.name_offset = elem.name_offset;
+      bcte.constructor_function_reference_index = elem.constructor_function_reference_index;
       bcte.constructor_count = static_cast<unsigned>( elem.constructors.size() );
       bcte.method_count = static_cast<unsigned>( elem.methods.size() );
       ofs.write( reinterpret_cast<const char*>( &bcte ), sizeof bcte );
@@ -152,7 +153,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
       for ( const auto& constructor : elem.constructors )
       {
         BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce{};
-        bctce.function_reference_index = constructor.function_reference_index;
+        bctce.type_tag_offset = constructor.type_tag_offset;
         ofs.write( reinterpret_cast<const char*>( &bctce ), sizeof bctce );
       }
 
