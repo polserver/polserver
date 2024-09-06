@@ -1,0 +1,41 @@
+use os;
+
+include "testutil";
+include "class-def";
+
+program setup()
+  return 1;
+endprogram
+
+exported function test_class_is()
+  var objs := { A(), B(), C(), D(), E() };
+  var res := {};
+
+  var expected := {
+    { 1, 0, 0, 0, 0 },
+    { 1, 1, 0, 0, 0 },
+    { 1, 0, 1, 0, 0 },
+    { 1, 1, 1, 1, 0 },
+    { 1, 1, 1, 0, 1 }
+  };
+
+  foreach obj in objs
+    res.append( run_script_to_completion( ":testfuncref:check-class-is", obj ) );
+  endforeach
+
+  return ret_error_not_equal( res, expected, $"Unexpected aggegate, expected {expected} got {res}" );
+endfunction
+
+exported function test_set_class_members()
+  var obj := A();
+  obj.set_from_test := 1;
+  var res := run_script_to_completion( ":testfuncref:set-class-member", obj );
+
+  if (obj.set_from_script != 1)
+    return ret_error( $"Unexpected obj.set_from_script: expected 1, got {obj.set_from_script}" );
+  elseif (obj.set_from_test != 1)
+    return ret_error( $"Unexpected obj.set_from_test: expected 1, got {obj.set_from_test}" );
+  endif
+
+  return 1;
+endfunction

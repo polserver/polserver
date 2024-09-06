@@ -155,14 +155,15 @@ static_assert( sizeof( BSCRIPT_CLASS_TABLE ) == 4, "size missmatch" );
 struct BSCRIPT_CLASS_TABLE_ENTRY
 {
   unsigned name_offset;
+  unsigned constructor_function_reference_index;
   unsigned constructor_count;
   unsigned method_count;
 };
-static_assert( sizeof( BSCRIPT_CLASS_TABLE_ENTRY ) == 12, "size missmatch" );
+static_assert( sizeof( BSCRIPT_CLASS_TABLE_ENTRY ) == 16, "size missmatch" );
 
 struct BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY
 {
-  unsigned function_reference_index;
+  unsigned type_tag_offset;
 };
 static_assert( sizeof( BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY ) == 4, "size missmatch" );
 

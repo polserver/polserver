@@ -5,8 +5,8 @@ namespace Pol::Bscript::Compiler
 class ConstructorDescriptor
 {
 public:
-  ConstructorDescriptor( unsigned function_reference_index );
+  ConstructorDescriptor( unsigned type_tag_offset );
 
-  const unsigned function_reference_index;
+  const unsigned type_tag_offset;
 };
 }  // namespace Pol::Bscript::Compiler
