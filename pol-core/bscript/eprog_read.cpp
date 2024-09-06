@@ -474,7 +474,7 @@ int EScriptProgram::read_class_table( FILE* fp )
       BSCRIPT_CLASS_TABLE_CONSTRUCTOR_ENTRY bctce;
       if ( fread( &bctce, sizeof bctce, 1, fp ) != 1 )
         return -1;
-      constructors.push_back( EPMethodDescriptor{ bctce.function_reference_index } );
+      constructors.push_back( EPConstructorDescriptor{ bctce.type_tag_offset } );
     }
 
     // Handle methods
@@ -489,7 +489,8 @@ int EScriptProgram::read_class_table( FILE* fp )
     }
 
     class_descriptors.push_back(
-        EPClassDescriptor{ bcte.name_offset, std::move( constructors ), std::move( methods ) } );
+        EPClassDescriptor{ bcte.name_offset, bcte.constructor_function_reference_index,
+                           std::move( constructors ), std::move( methods ) } );
   }
   return 0;
 }

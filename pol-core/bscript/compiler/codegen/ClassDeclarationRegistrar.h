@@ -13,7 +13,7 @@ class ClassDeclarationRegistrar
 public:
   ClassDeclarationRegistrar();
 
-  void register_class( unsigned class_name_offset,
+  void register_class( unsigned class_name_offset, unsigned constructor_function_reference_index,
                        const std::vector<ConstructorDescriptor>& constructor_descriptors,
                        const std::vector<MethodDescriptor>& method_descriptors );
 
