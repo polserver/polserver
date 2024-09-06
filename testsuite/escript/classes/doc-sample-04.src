@@ -1,0 +1,21 @@
+class Colorable()
+  function Colorable( this, color )
+    this.color := color;
+  endfunction
+endclass
+
+class Drawable()
+  function Drawable( this, x, y )
+    this.x := x;
+    this.y := y;
+  endfunction
+endclass
+
+class Shape( Colorable, Drawable )
+  function Shape( this, color, x, y )
+    super( color, x, y );
+  endfunction
+endclass
+
+var shape := Shape( "red", 1, 2 );
+print( $"{shape.color} {shape.x} {shape.y}" ); // Output: red 1 2

@@ -1,0 +1,22 @@
+class Person()
+  function Person( this, name, age )
+    this.name := name;
+    this.age := age;
+  endfunction
+
+  function greeting( this )
+    return $"Hello, my name is {this.name} and I am {this.age} years old.";
+  endfunction
+
+  function rename( this, new_name )
+    this.name := new_name;
+    Print( $"Name changed to {this.name}" );
+  endfunction
+endclass
+
+var john := Person( "John", 30 );
+var greeting := john.greeting();
+
+Print( greeting ); // Output: Hello, my name is John and I am 30 years old.
+
+john.rename( "Johnny" ); // Output: Name changed to Johnny

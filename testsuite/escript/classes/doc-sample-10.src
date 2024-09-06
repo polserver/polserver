@@ -1,0 +1,22 @@
+class A()
+  function A( this )
+  endfunction
+endclass
+
+class B()
+  function B( this )
+  endfunction
+endclass
+
+class C( A, B )
+  function C( this )
+    super();
+  endfunction
+endclass
+
+var c := C();
+Print( c is @C ); // Output: 1
+Print( c is @A ); // Output: 1 (since C is a subclass of A)
+
+var b := B();
+Print( b is @C ); // Output: 0
