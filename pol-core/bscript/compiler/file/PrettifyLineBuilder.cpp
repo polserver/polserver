@@ -441,6 +441,20 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
           }
         }
       }
+      // last element still fits
+      if ( i + 1 == lines.size() &&
+           ( part.text.size() + finallines.back().size() <= compilercfg.FormatterLineWidth ) )
+      {
+        if ( !( lines[i - 1].style & FmtToken::FORCED_BREAK ) )
+        {
+          if ( lines[i - 1].style & FmtToken::SPACE )
+            finallines.back() += ' ';  // needed since already stripped
+          finallines.back() += part.text;
+          stripline( finallines.back() );
+          ++i;
+          continue;
+        }
+      }
     }
     if ( line.empty() && !alignmentspace.empty() )
     {
