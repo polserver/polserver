@@ -685,6 +685,22 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
 #ifdef DEBUG_FORMAT_BREAK
     INFO_PRINTLN( "remaining {}", line );
 #endif
+    // look for something like ); and add it to the last line
+    if ( auto nonspace = line.find_first_not_of( " \t" );
+         nonspace != std::string::npos && line.size() - nonspace < 4 )
+    {
+      if ( lines.size() >= 2 )
+      {
+        if ( !( lines[lines.size() - 2].style & FmtToken::FORCED_BREAK ) )
+        {
+          if ( lines[lines.size() - 2].style & FmtToken::SPACE )
+            finallines.back() += ' ';  // needed since already stripped
+          finallines.back() += line.erase( 0, nonspace );
+          stripline( finallines.back() );
+          return finallines;
+        }
+      }
+    }
     stripline( line );
     finallines.emplace_back( std::move( line ) );
   }
