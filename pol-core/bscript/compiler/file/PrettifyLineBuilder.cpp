@@ -710,7 +710,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
 // helper to find the alignment of the last open parenthesis and use this as alignment for the
 // next line
 bool PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& finallines,
-                                            size_t alignmentspace, std::string& line ) const
+                                            std::string& line ) const
 {
   std::vector<size_t> parenthesisalign;
   for ( const auto& finalline : finallines )
@@ -722,32 +722,43 @@ bool PrettifyLineBuilder::parenthesisAlign( const std::vector<std::string>& fina
         parenthesisalign.push_back( i );
       else if ( c == ')' && !parenthesisalign.empty() )
         parenthesisalign.pop_back();
-      ++i;
+      if ( c == '\t' )
+        i += compilercfg.FormatterTabWidth;
+      else
+        ++i;
     }
   }
-  if ( !parenthesisalign.empty() )
-  {
-    // if its at the end of last line start at the beginning
-    if ( parenthesisalign.back() >= ( finallines.back().size() - 1 ) )
-      return true;
-    if ( parenthesisalign.back() + ( compilercfg.FormatterBracketSpacing ? 2 : 1 ) >
-         alignmentspace )
+  if ( parenthesisalign.empty() )
+    return false;
 
-      line = alignmentSpacing( parenthesisalign.back() +
-                               ( compilercfg.FormatterBracketSpacing ? 2 : 1 ) - alignmentspace ) +
-             line;
-    // if its a operator eg +/- align the actual "data" so subtract 2
-    auto space = line.find_first_not_of( " \t" );
-    if ( space != std::string::npos && space > 1 && space + 1 < line.size() &&
-         line[space + 1] == ' ' )
-    {
-      // TODO tabs...
-      if ( !compilercfg.FormatterUseTabs )
-        line.erase( 0, 2 );
-    }
+  // if its at the end of last line start at the beginning
+  if ( parenthesisalign.back() >= ( finallines.back().size() - 1 ) )
     return true;
+  size_t alignment = line.find_first_not_of( " \t" );
+  if ( alignment == std::string::npos )
+    alignment = line.size();
+  if ( compilercfg.FormatterUseTabs )
+    alignment *= compilercfg.FormatterTabWidth;
+  if ( parenthesisalign.back() + ( compilercfg.FormatterBracketSpacing ? 2 : 1 ) > alignment )
+  {
+    auto newspace = alignmentSpacing( parenthesisalign.back() +
+                                      ( compilercfg.FormatterBracketSpacing ? 2 : 1 ) );
+    auto space = line.find_first_not_of( " \t" );
+    line.erase( 0, space );
+    line = newspace + line;
   }
-  return false;
+  // if its a operator +-*/<> align the actual "data" so subtract 2
+  auto space = line.find_first_not_of( " \t" );
+  if ( space != std::string::npos && space > 1 && space + 1 < line.size() &&
+       line[space + 1] == ' ' &&
+       ( line[space] == '+' || line[space] == '-' || line[space] == '*' || line[space] == '/' ||
+         line[space] == '<' || line[space] == '>' ) )
+  {
+    // TODO tabs...
+    if ( !compilercfg.FormatterUseTabs )
+      line.erase( 0, 2 );
+  }
+  return true;
 }
 
 std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
@@ -814,7 +825,10 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
     {
       parts.push_back( { std::move( tmp ), part.style, tmpcontext } );
       tmp.clear();
-      tmpcontext = part.context;
+      if ( part.context != FmtContext::PREFERRED_BREAK_END )
+        tmpcontext = part.context;
+      else
+        tmpcontext = FmtContext::NONE;
     }
   }
   if ( !tmp.empty() )
@@ -829,6 +843,9 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
 #endif
     if ( line.empty() && alignmentspace && alignpart )
       line = alignmentSpacing( alignmentspace );
+
+    if ( !logical )  // align line directly to have the correct linelen
+      parenthesisAlign( finallines, line );
 
     alignpart = true;  // otherwise first part would get spacing
     bool newcontext_longer = false;
@@ -860,7 +877,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
       {
         if ( !logical )
         {
-          if ( !parenthesisAlign( finallines, alignmentspace, line ) )
+          if ( !parenthesisAlign( finallines, line ) )
           {
             if ( assignpos != std::string::npos )
             {
@@ -914,7 +931,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
       std::string origline = line;  // parenthesisAlign modifies
       if ( !logical )
       {
-        if ( !parenthesisAlign( finallines, alignmentspace, line ) )
+        if ( !parenthesisAlign( finallines, line ) )
         {
           if ( assignpos != std::string::npos )
           {
@@ -949,7 +966,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
   {
     stripline( line );
     if ( !logical )
-      parenthesisAlign( finallines, alignmentspace, line );
+      parenthesisAlign( finallines, line );
     finallines.emplace_back( std::move( line ) );
   }
   return finallines;
@@ -1006,7 +1023,7 @@ std::vector<std::string> PrettifyLineBuilder::createSimple(
         }
       }
       stripline( line );
-      parenthesisAlign( finallines, alignmentspace, line );
+      parenthesisAlign( finallines, line );
       finallines.emplace_back( std::move( line ) );
       line.clear();
     }
@@ -1015,7 +1032,7 @@ std::vector<std::string> PrettifyLineBuilder::createSimple(
   if ( !line.empty() )
   {
     stripline( line );
-    parenthesisAlign( finallines, alignmentspace, line );
+    parenthesisAlign( finallines, line );
     finallines.emplace_back( std::move( line ) );
   }
   return finallines;

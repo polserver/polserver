@@ -158,8 +158,7 @@ private:
   std::vector<std::string> createBasedOnPreferredBreaks( const std::vector<FmtToken>& lines,
                                                          bool logical ) const;
   std::vector<std::string> createSimple( const std::vector<FmtToken>& lines ) const;
-  bool parenthesisAlign( const std::vector<std::string>& finallines, size_t alignmentspace,
-                         std::string& line ) const;
+  bool parenthesisAlign( const std::vector<std::string>& finallines, std::string& line ) const;
   bool binPack( const FmtToken& part, std::string line, size_t index, size_t upto,
                 const std::vector<FmtToken>& lines, bool only_single_line,
                 std::vector<std::string>* finallines, std::map<size_t, size_t>* alignmentspace,
