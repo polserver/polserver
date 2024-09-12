@@ -16,7 +16,7 @@
 
 /*
   //LineWidth
-  FormatterLineWidth 80
+  FormatterLineWidth 100
   // keep original keyword spelling
   FormatterKeepKeywords 0
   // number of spaces for indent
@@ -58,7 +58,7 @@
   // tab width
   FormatterTabWidth 4
   // Insert a newline at end of file if missing
-  FormatterInsertNewlineAtEOF 0
+  FormatterInsertNewlineAtEOF 1
   // align trailing comments in a statement
   FormatterAlignTrailingComments 1
   // short case labels will be contracted to a single line

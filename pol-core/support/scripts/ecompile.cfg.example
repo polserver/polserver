@@ -180,8 +180,8 @@ ErrorOnFileCaseMissmatch=0
 ######################
 
 # LineWidth
-# Default 80
-#FormatterLineWidth=80
+# Default 100
+#FormatterLineWidth=100
 
 # keep original keyword spelling
 # Default 0
@@ -256,8 +256,8 @@ ErrorOnFileCaseMissmatch=0
 #FormatterTabWidth=4
 
 # Insert a newline at end of file if missing
-# Default 0
-#FormatterInsertNewlineAtEOF=0
+# Default 1
+#FormatterInsertNewlineAtEOF=1
 
 # Strip extra space inside comments
 # replace tabs with spaces (if UseTabs is off)

@@ -1,9 +1,10 @@
 -- POL100.2.0 --
-08-31-2024 Turley:
+09-12-2024 Turley:
     Fixed: multiple problems with the EScript formatter
     Added: more ecompile.cfg options for the formatter, see ecompile.cfg.example for details
            FormatterBracketAttachToType, FormatterFormatInsideComments, FormatterAlignTrailingComments,
            FormatterAllowShortCaseLabelsOnASingleLine, FormatterAllowShortFuncRefsOnASingleLine, FormatterAlignConsecutiveShortCaseStatements
+     Note: should be now "production" ready, default settings are just our personal preferences
 08-30-2024 Kevin:
     Added: Performance improvements to the compiler
 08-27-2024 Reloecc:

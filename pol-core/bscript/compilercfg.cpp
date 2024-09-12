@@ -69,7 +69,7 @@ void CompilerConfig::Read( const std::string& path )
   IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
 
 
-  FormatterLineWidth = elem.remove_unsigned( "FormatterLineWidth", 80 );
+  FormatterLineWidth = elem.remove_unsigned( "FormatterLineWidth", 100 );
   FormatterKeepKeywords = elem.remove_bool( "FormatterKeepKeywords", false );
   FormatterIndentLevel = elem.remove_ushort( "FormatterIndentLevel", 2 );
   FormatterMergeEmptyLines = elem.remove_bool( "FormatterMergeEmptyLines", true );
@@ -86,7 +86,7 @@ void CompilerConfig::Read( const std::string& path )
   FormatterWindowsLineEndings = elem.remove_bool( "FormatterWindowsLineEndings", win_platform );
   FormatterUseTabs = elem.remove_bool( "FormatterUseTabs", false );
   FormatterTabWidth = elem.remove_ushort( "FormatterTabWidth", 4 );
-  FormatterInsertNewlineAtEOF = elem.remove_bool( "FormatterInsertNewlineAtEOF", false );
+  FormatterInsertNewlineAtEOF = elem.remove_bool( "FormatterInsertNewlineAtEOF", true );
   FormatterFormatInsideComments = elem.remove_bool( "FormatterFormatInsideComments", true );
   FormatterBracketAttachToType = elem.remove_bool( "FormatterBracketAttachToType", true );
   FormatterAlignTrailingComments = elem.remove_bool( "FormatterAlignTrailingComments", true );

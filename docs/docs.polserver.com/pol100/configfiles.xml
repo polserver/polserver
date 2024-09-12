@@ -1051,7 +1051,7 @@ PackageRoot (path to package root)
 [IncParseTreeCacheSize (0-N {default 50})]    //Cache parse trees for this number of *.inc files
 
 // Formatter Options (-F -Fi)
-[FormatterLineWidth (0-N {default 80})]
+[FormatterLineWidth (0-N {default 100})]
 [FormatterKeepKeywords (0/1 {default 0})]                  // keep original keyword spelling
 [FormatterIndentLevel (0-N {default 2})]                   // number of spaces for indent
 [FormatterMergeEmptyLines (0/1 {default 1})]               // multiple newlines get merged to a single
@@ -1068,7 +1068,7 @@ PackageRoot (path to package root)
 [FormatterWindowsLineEndings (0/1 {default 0/1})]          // use \r\n (windows default) as newline instead of \n (default otherwise)
 [FormatterUseTabs (0/1 {default 0})]                       // use tabs instead of spaces
 [FormatterTabWidth (0-N {default 4})]
-[FormatterInsertNewlineAtEOF (0/1 {default 0})]            // Insert a newline at end of file if missing
+[FormatterInsertNewlineAtEOF (0/1 {default 1})]            // Insert a newline at end of file if missing
 [FormatterFormatInsideComments (0/1 {default 1})]          // Strip extra space inside comments, replace tabs with spaces (if UseTabs is off)
 [FormatterAlignTrailingComments (0/1 {default 1})]         // align trailing comments in a statement eg arrays
 [FormatterAllowShortCaseLabelsOnASingleLine (0/1 {default 1})] // short case labels will be contracted to a single line
