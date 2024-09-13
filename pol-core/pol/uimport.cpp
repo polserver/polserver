@@ -442,9 +442,9 @@ void read_pol_dat()
         "\n"
         "{} must contain a section similar to: \n"
         "System\n"
-        "{\n"
+        "{{\n"
         "\tCoreVersion 99\n"
-        "}\n"
+        "}}\n"
         "\n"
         "Ensure that the CoreVersion matches the version that created your data files!",
         polfile, polfile );
