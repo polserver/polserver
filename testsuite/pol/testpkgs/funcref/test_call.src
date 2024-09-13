@@ -82,8 +82,8 @@ exported function test_call_destroyed_executor()
                              pid := GetPid(),
                              args := { 1, 2, 3 },
                              mapper := @( what ) {
-    return what * 100;
-  } } );
+                              return what * 100;
+                            } } );
 
   ev := wait_for_event( 1 );
 

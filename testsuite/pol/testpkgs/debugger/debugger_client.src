@@ -54,7 +54,7 @@ function run_launch_test()
 
   var print_linenum;
   foreach line in source
-    if ( line.find( "/*print*/" ) )
+    if ( line.find( "/* print */" ) )
       print_linenum := _line_iter;
     endif
   endforeach
@@ -237,7 +237,7 @@ function run_attach_test( debuggee_pid )
 
   var setting_breakpoints := array{};
   foreach line in source
-    if ( line.find( "/*set_bp*/" ) )
+    if ( line.find( "/* set_bp */" ) )
       setting_breakpoints.append( struct{ line := _line_iter } );
     endif
   endforeach
