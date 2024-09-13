@@ -5,113 +5,123 @@ include "testutil";
 include "communication";
 
 program setup()
-  if (!clientTestActive())
-    syslog("NO CLIENT TESTS",0);
+  if ( !clientTestActive() )
+    syslog( "NO CLIENT TESTS", 0 );
     return IGNORE_TEST;
   endif
   // create two accounts with one char
-  var char:=createAccountWithChar("testclient0", "pass");
-  var char2:=createAccountWithChar("testclient1", "pass");
-  if (!char || !char2)
+  var char := createAccountWithChar( "testclient0", "pass" );
+  var char2 := createAccountWithChar( "testclient1", "pass" );
+  if ( !char || !char2 )
     return !char ? char : char2;
   endif
-  var res:=setup_char(0,char);
-  if (!res)
+  var res := setup_char( 0, char );
+  if ( !res )
     return res;
   endif
-  res := setup_char(1,char2);
-  if (!res)
+  res := setup_char( 1, char2 );
+  if ( !res )
     return res;
   endif
 
   // start auxiliary script for client communication
-  var i:=1;
-  while (1)
-    var res := OpenConnection("127.0.0.1",50000,"clientconnection",GetProcess(),1,1);
-    if (res)
+  var i := 1;
+  while ( 1 )
+    var res := OpenConnection( "127.0.0.1", 50000, "clientconnection", GetProcess(), 1, 1 );
+    if ( res )
       break;
     endif
-    sleep(1);
+    sleep( 1 );
     ++i;
-    if (i>10)
-      return ret_error("Failed to connect to testclient");
+    if ( i > 10 )
+      return ret_error( "Failed to connect to testclient" );
     endif
   endwhile
   var clientcon;
-  while (1)
-    var res:=GetGlobalProperty("#clientcon");
-    if (res)
-      clientcon:=GetProcess(res);
+  while ( 1 )
+    var res := GetGlobalProperty( "#clientcon" );
+    if ( res )
+      clientcon := GetProcess( res );
       break;
     endif
-    sleepms(5);
+    sleepms( 5 );
   endwhile
 
   // let both clients connect
-  clientcon.sendevent(struct{todo:="connect",account:="testclient0", psw:="pass", chrindex:=0, name:="Client1", id:=0});
-  clientcon.sendevent(struct{todo:="connect",account:="testclient1", psw:="pass", chrindex:=0, name:="Client2", id:=1});
-  var init0:=0,init1:=0;
-  while (1)
-    var ev:=WaitForClients({EVT_INIT});
-    if (!ev)
-      return ret_error("Failed to connect");
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := "testclient0",
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "Client1",
+                               id := 0 } );
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := "testclient1",
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "Client2",
+                               id := 1 } );
+  var init0 := 0, init1 := 0;
+  while ( 1 )
+    var ev := WaitForClients( { EVT_INIT } );
+    if ( !ev )
+      return ret_error( "Failed to connect" );
     endif
-    if (ev.id==0)
-      init0:=1;
-    elseif (ev.id==1)
-      init1:=1;
+    if ( ev.id == 0 )
+      init0 := 1;
+    elseif ( ev.id == 1 )
+      init1 := 1;
     endif
-    if (init0 && init1 && char.client && char2.client)
+    if ( init0 && init1 && char.client && char2.client )
       break;
     endif
   endwhile
-  update_vitals(char);
-  update_vitals(char2);
-  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  MoveObjectToLocation(char2, 200,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  update_vitals( char );
+  update_vitals( char2 );
+  MoveObjectToLocation( char, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+  MoveObjectToLocation( char2, 200, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
 
   // wait for initinal vital signals
-  var vital0:={},vital1:={};
-  while (1)
-    var ev:=WaitForClients({EVT_HP_CHANGED,EVT_MANA_CHANGED,EVT_STAM_CHANGED});
-    if (!ev)
-      return ret_error("Failed to wait for vital update");
+  var vital0 := {}, vital1 := {};
+  while ( 1 )
+    var ev := WaitForClients( { EVT_HP_CHANGED, EVT_MANA_CHANGED, EVT_STAM_CHANGED } );
+    if ( !ev )
+      return ret_error( "Failed to wait for vital update" );
     endif
-    if (ev.id==0 && ev.serial==char.serial)
-      if (!(ev.type in vital0))
-        vital0.append(ev.type);
+    if ( ev.id == 0 && ev.serial == char.serial )
+      if ( !( ev.type in vital0 ) )
+        vital0.append( ev.type );
       endif
-    elseif (ev.id==1 && ev.serial==char2.serial)
-      if (!(ev.type in vital1))
-        vital1.append(ev.type);
+    elseif ( ev.id == 1 && ev.serial == char2.serial )
+      if ( !( ev.type in vital1 ) )
+        vital1.append( ev.type );
       endif
     endif
-    if (len(vital0)==3 && len(vital1)==3)
+    if ( len( vital0 ) == 3 && len( vital1 ) == 3 )
       break;
     endif
   endwhile
   return 1;
 endprogram
 
-function setup_char(id, char)
-  setname(char,"Client"+id);
-  if (char.backpack)
-    DestroyItem(char.backpack);
+function setup_char( id, char )
+  setname( char, "Client" + id );
+  if ( char.backpack )
+    DestroyItem( char.backpack );
   endif
-  var backpack:=CreateItemAtLocation(0,0,0,0xE75);
-  var res:=EquipItem(char,backpack);
-  if (!res)
-    return ret_error("Failed to equip backpack "+backpack+" "+res);
+  var backpack := CreateItemAtLocation( 0, 0, 0, 0xE75 );
+  var res := EquipItem( char, backpack );
+  if ( !res )
+    return ret_error( "Failed to equip backpack " + backpack + " " + res );
   endif
-  setAttributeBaseValue(char,"STR",1000);
-  setAttributeBaseValue(char,"INT",1000);
-  setAttributeBaseValue(char,"DEX",1000);
+  setAttributeBaseValue( char, "STR", 1000 );
+  setAttributeBaseValue( char, "INT", 1000 );
+  setAttributeBaseValue( char, "DEX", 1000 );
   return 1;
 endfunction
 
-function update_vitals(char)
-  recalcVitals(char);
-  setVital(char, "Hits", getVitalMaximumValue(char,"Hits"));
-  setVital(char, "Mana", getVitalMaximumValue(char,"Mana"));
-  setVital(char, "Stamina", getVitalMaximumValue(char,"Stamina"));
+function update_vitals( char )
+  recalcVitals( char );
+  setVital( char, "Hits", getVitalMaximumValue( char, "Hits" ) );
+  setVital( char, "Mana", getVitalMaximumValue( char, "Mana" ) );
+  setVital( char, "Stamina", getVitalMaximumValue( char, "Stamina" ) );
 endfunction

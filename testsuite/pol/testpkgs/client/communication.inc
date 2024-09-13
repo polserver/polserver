@@ -2,7 +2,7 @@ use os;
 use attributes;
 use vitals;
 
-//see pyuo/brain.py method typestr()
+// see pyuo/brain.py method typestr()
 const EVT_INIT := "init";
 const EVT_EXIT := "exit";
 const EVT_HP_CHANGED := "hp_changed";
@@ -31,8 +31,8 @@ const EVT_OWNCREATE := "owncreate";
 const EVT_GUMP := "gump";
 
 function clientTestActive()
-  var testclient:=GetEnvironmentVariable("POLCORE_TESTCLIENT")=="TRUE";
-  if (!testclient)
+  var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
+  if ( !testclient )
     return 0;
   endif
   return 1;
@@ -40,34 +40,34 @@ endfunction
 
 // get client connection auxiliary scriptref and transfers ownership, meaning client events get send to the calling script
 function getClientConnection()
-  var res:=GetGlobalProperty("#clientcon");
-  var proc := GetProcess(res);
-  proc.sendevent(struct{ownership:=GetProcess()});
+  var res := GetGlobalProperty( "#clientcon" );
+  var proc := GetProcess( res );
+  proc.sendevent( struct{ ownership := GetProcess() } );
   return proc;
 endfunction
 
 // wait for events of given types and of given client id
-function waitForClient(id, types, timeout := 10)
-  while (1)
-    var ev:=Wait_For_Event(timeout);
-    if (!ev)
-      return ret_error("no signal received");
+function waitForClient( id, types, timeout := 10 )
+  while ( 1 )
+    var ev := Wait_For_Event( timeout );
+    if ( !ev )
+      return ret_error( "no signal received" );
     endif
-    if (ev.id != id || !(ev.type in types))
+    if ( ev.id != id || !( ev.type in types ) )
       continue;
     endif
     return ev;
   endwhile
 endfunction
 
-function waitForClients(types)
+function waitForClients( types )
   // wait for events of given types of any client
-  while (1)
-    var ev:=Wait_For_Event(10);
-    if (!ev)
-      return ret_error("no signal received");
+  while ( 1 )
+    var ev := Wait_For_Event( 10 );
+    if ( !ev )
+      return ret_error( "no signal received" );
     endif
-    if (!(ev.type in types))
+    if ( !( ev.type in types ) )
       continue;
     endif
     return ev;

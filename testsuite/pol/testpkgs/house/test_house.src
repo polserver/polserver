@@ -6,71 +6,71 @@ include "testutil";
 
 var multi;
 program test_house()
-  multi:=CreateMultiAtLocation(50,50,0,0x12000);
-  if (!multi)
-    return ret_error("Failed to create multi "+multi);
+  multi := CreateMultiAtLocation( 50, 50, 0, 0x12000 );
+  if ( !multi )
+    return ret_error( "Failed to create multi " + multi );
   endif
-  if (multi.x != 50 || multi.y != 50 || multi.z != 0 || multi.multiid != 0x6b)
-    var er:="Wrong pos or multiid: {},{},{} {}".format(multi.x, multi.y, multi.z, multi.multiid);
-    return ret_error(er);
+  if ( multi.x != 50 || multi.y != 50 || multi.z != 0 || multi.multiid != 0x6b )
+    var er := "Wrong pos or multiid: {},{},{} {}".format( multi.x, multi.y, multi.z, multi.multiid );
+    return ret_error( er );
   endif
   return 1;
 endprogram
 
 exported function components()
-  if (multi.components.size()!=2)
-    return ret_error("Components count does not match: "+multi.components.size());
+  if ( multi.components.size() != 2 )
+    return ret_error( "Components count does not match: " + multi.components.size() );
   endif
-  foreach comp in (multi.components)
-    if (comp.graphic == 0x6a5)
-      if (comp.x!=50 || comp.y!=53 || comp.z!=7)
-        return ret_error("Wrong door pos:{},{},{}".format(comp.x,comp.y,comp.z));
+  foreach comp in ( multi.components )
+    if ( comp.graphic == 0x6a5 )
+      if ( comp.x != 50 || comp.y != 53 || comp.z != 7 )
+        return ret_error( "Wrong door pos:{},{},{}".format( comp.x, comp.y, comp.z ) );
       endif
-    elseif (comp.graphic == 0xbd2)
-      if (comp.x!=52 || comp.y!=54 || comp.z!=5)
-        return ret_error("Wrong sign pos:{},{},{}".format(comp.x,comp.y,comp.z));
+    elseif ( comp.graphic == 0xbd2 )
+      if ( comp.x != 52 || comp.y != 54 || comp.z != 5 )
+        return ret_error( "Wrong sign pos:{},{},{}".format( comp.x, comp.y, comp.z ) );
       endif
     else
-      return ret_error("Invalid component: "+hex(comp.graphic));
-    endif 
+      return ret_error( "Invalid component: " + hex( comp.graphic ) );
+    endif
   endforeach
   return 1;
 endfunction
 
 exported function footprint()
-  var fp:=multi.footprint;
-  if (fp.xmin != 47 || fp.ymin != 47 || fp.xmax != 54 || fp.ymax != 54)
-    return ret_error("Invalid foodprint: "+fp);
+  var fp := multi.footprint;
+  if ( fp.xmin != 47 || fp.ymin != 47 || fp.xmax != 54 || fp.ymax != 54 )
+    return ret_error( "Invalid foodprint: " + fp );
   endif
   return 1;
 endfunction
 
 exported function move_item()
-  var item:=CreateItemAtLocation(0,0,0, 0x3e3f);
-  item.movable:=1;
-  if (item.multi)
-    return ret_error("Item is already inside of a multi "+item.multi);
+  var item := CreateItemAtLocation( 0, 0, 0, 0x3e3f );
+  item.movable := 1;
+  if ( item.multi )
+    return ret_error( "Item is already inside of a multi " + item.multi );
   endif
-  var res:=MoveObjectToLocation(item,multi.x,multi.y,5);
-  if (!res)
-    return ret_error("failed to move to multi: "+res);
+  var res := MoveObjectToLocation( item, multi.x, multi.y, 5 );
+  if ( !res )
+    return ret_error( "failed to move to multi: " + res );
   endif
-  if (item.z != 7)
-    return ret_error("Wrong standing height: "+item.z);
+  if ( item.z != 7 )
+    return ret_error( "Wrong standing height: " + item.z );
   endif
-  if (item.multi.serial != multi.serial)
-    return ret_error("Item not part of multi: "+item.multi);
+  if ( item.multi.serial != multi.serial )
+    return ret_error( "Item not part of multi: " + item.multi );
   endif
-  if (item.serial == multi.items[0].serial)
-    return ret_error("Item not part of multi: "+multi.items);
+  if ( item.serial == multi.items[0].serial )
+    return ret_error( "Item not part of multi: " + multi.items );
   endif
-  res:=MoveObjectToLocation(item,0,0,0,flags:=MOVEOBJECT_FORCELOCATION);
-  if (!res)
-    return ret_error("failed to move back to world: "+res);
+  res := MoveObjectToLocation( item, 0, 0, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( "failed to move back to world: " + res );
   endif
-  if (item.multi)
-    return ret_error("Item still part of multi: "+item.multi);
+  if ( item.multi )
+    return ret_error( "Item still part of multi: " + item.multi );
   endif
-  DestroyItem(item);
+  DestroyItem( item );
   return 1;
 endfunction

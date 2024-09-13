@@ -9,27 +9,27 @@ var char;
 var clientcon := getClientConnection();
 
 program chartests()
-  var a:=FindAccount("testclient0");
-  char:=a.getcharacter(1);
-  if (!char)
-    return ret_error("Could not find char at slot 1");
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
   endif
 endprogram
 
 exported function show_gump_simple()
   Clear_Event_Queue();
-  var cmds:={"hello","world"};
-  var texts:={"more","text"};
-  SendDialogGump(char,cmds,texts);
-  var ev:=waitForClient(0, {EVT_GUMP});
-  if (!ev)
+  var cmds := { "hello", "world" };
+  var texts := { "more", "text" };
+  SendDialogGump( char, cmds, texts );
+  var ev := waitForClient( 0, { EVT_GUMP } );
+  if ( !ev )
     return ev;
   endif
-  if (ev.commands!=cmds)
-    return ret_error($"wrong gump cmdstring: {ev}");
+  if ( ev.commands != cmds )
+    return ret_error( $"wrong gump cmdstring: {ev}" );
   endif
-  if (ev.texts!=texts)
-    return ret_error($"wrong gump textstring: {ev}");
+  if ( ev.texts != texts )
+    return ret_error( $"wrong gump textstring: {ev}" );
   endif
   return 1;
 endfunction

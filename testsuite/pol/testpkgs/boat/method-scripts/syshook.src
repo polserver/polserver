@@ -1,12 +1,12 @@
 program Install()
-	Print( "Custom SysHook Boat Class Methods Installed." );
-	return 1;
+  Print( "Custom SysHook Boat Class Methods Installed." );
+  return 1;
 endprogram
 
-exported function IsSysHookBoat(unused boat)
-    return 1;
+exported function IsSysHookBoat( unused boat )
+  return 1;
 endfunction
 
-exported function WhereDefined(unused boat)
-    return "syshook";
+exported function WhereDefined( unused boat )
+  return "syshook";
 endfunction

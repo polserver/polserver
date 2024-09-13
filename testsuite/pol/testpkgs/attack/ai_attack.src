@@ -21,10 +21,7 @@ program enteredarea()
         endif
 
         if ( ev.unhide )
-          var ev := struct{
-            type := "BEFORE_UNHIDE",
-            gameclock := ReadGameClock()
-          };
+          var ev := struct{ type := "BEFORE_UNHIDE", gameclock := ReadGameClock() };
           GetProcess( GetObjProperty( me, "#TestPid" ) ).SendEvent( ev );
           me.hidden := 0;
         endif

@@ -9,9 +9,9 @@ program testpolsystem()
 endprogram
 
 exported function test_md5()
-  var res := MD5Encrypt("Hello World");
-  if (res != "b10a8db164e0754105b7a99be72e3fe5")
-    return ret_error($"failed to generate hash, got {res}");
+  var res := MD5Encrypt( "Hello World" );
+  if ( res != "b10a8db164e0754105b7a99be72e3fe5" )
+    return ret_error( $"failed to generate hash, got {res}" );
   endif
   return 1;
 endfunction
