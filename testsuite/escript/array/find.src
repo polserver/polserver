@@ -1,6 +1,6 @@
 print( array{ 1, 2, 3, 4, 5 }.find( @Always ) );
-print( array{ 1, 2, 3, 4, 5 }.find( @{ return 0; } )); // Never
-print( array{ 1, 2, 3, 4, 5 }.find( @( element ) { return ( element % 2 ) == 0; } )); // IfEven
+print( array{ 1, 2, 3, 4, 5 }.find( @{ return 0; } ) ); // Never
+print( array{ 1, 2, 3, 4, 5 }.find( @( element ) { return ( element % 2 ) == 0; } ) ); // IfEven
 print( array{ 1, 2, 3, 4, 5 }.find( @IfHighestIndex ) );
 
 print( array{}.find( @DoNotCall ) ); // Returns new, empty array

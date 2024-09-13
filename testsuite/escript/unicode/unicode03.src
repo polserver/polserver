@@ -1,3 +1,3 @@
-// invalid Utf8 (wrong file encoding) but sanitizable "ge√§ndert"
-var t := "ge√§ndert";
+// invalid Utf8 (wrong file encoding) but sanitizable "ge‰ndert"
+var t := "ge‰ndert";
 print( t );

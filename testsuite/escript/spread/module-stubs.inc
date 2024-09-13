@@ -2,10 +2,12 @@ function CreateItemAtLocation( unused x, unused y, unused z, unused objtype, unu
                                unused realm := "britannia" )
   return "item";
 endfunction
+
 function CreateMultiAtLocation( unused x, unused y, unused z, objtype, unused flags := 0,
                                 unused realm := "britannia" )
   return TypeOfInt( objtype ) == OT_STRING ? "multi" : error{ errortext := "Invalid parameter type" };
 endfunction
+
 function CreateNpcFromTemplate( unused template, unused x, unused y, unused z,
                                 unused override_properties := 0, unused realm := "britannia",
                                 unused forcelocation := 0 )
@@ -23,9 +25,11 @@ endfunction
 function DisposeItem( unused what ... )
   print( "DisposeItem" );
 endfunction
+
 function DisposeMulti( unused what ... )
   print( "DisposeMulti" );
 endfunction
+
 function DisposeNpc( unused what ... )
   print( "DisposeNpc" );
 endfunction

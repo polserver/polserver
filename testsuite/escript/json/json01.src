@@ -1,7 +1,6 @@
 program main()
   var expr := struct{ "a" := "hello there",
-                      "b" := Boolean(
-                      1 ),
+                      "b" := Boolean( 1 ),
                       "c" := array{ Boolean( 0 ), uninit },
                       "d" := struct{ "key" := "value" } };
   var json := PackJSON( expr );

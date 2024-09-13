@@ -5,8 +5,14 @@ var plus := curry( @sum );
 var times := curry( @mul );
 var minus := curry( @sub );
 
+// format-off
 // ( (4+8) - (5+1) ) * ( (3+2) - (1+2) )
-var result := times( minus( plus( 4 )( 8 ) )( plus( 5 )( 1 ) ) )( minus( plus( 3 )( 2 ) )( plus( 1 )(
-                     2 ) ) );
+var result :=
+  times(
+    minus( plus( 4 )( 8 ) )( plus( 5 )( 1 ) )
+  )(
+    minus( plus( 3 )( 2 ) )( plus( 1 )( 2 ) )
+  )
+;
 
 print( result ); // 12
