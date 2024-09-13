@@ -320,35 +320,32 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
 void load_packages( const std::string& basedir, bool quiet )
 {
   std::error_code ec;
-  for ( const auto& dir_entry : fs::directory_iterator( basedir, ec ) )
+  for ( auto dir_itr = fs::recursive_directory_iterator( basedir, ec );
+        dir_itr != fs::recursive_directory_iterator(); ++dir_itr )
   {
-    if ( !dir_entry.is_directory() )
+    if ( !dir_itr->is_directory() )
       continue;
-    if ( auto fn = dir_entry.path().filename().u8string();
+    if ( auto fn = dir_itr->path().filename().u8string();
          !fn.empty() && ( *fn.begin() == '.' || fn == "template" ) )
+    {
+      dir_itr.disable_recursion_pending();
       continue;
-    const auto pkg_dir = dir_entry.path();
-    const auto pkg_cfg = pkg_dir / "pkg.cfg";
-    if ( fs::exists( pkg_cfg ) )
-    {
-      Clib::ConfigFile cf( pkg_cfg.u8string().c_str() );
-      Clib::ConfigElem elem;
-
-      cf.readraw( elem );
-
-      if ( ( elem.remove_bool( "Enabled" ) == true || fs::exists( pkg_dir / "enabled.pkg" ) ) &&
-           !fs::exists( pkg_dir / "disabled.pkg" ) )
-      {
-        if ( !quiet )
-          INFO_PRINTLN( "Loading package in {}", pkg_dir.u8string() );
-        load_package( pkg_dir.u8string() + "/", elem, quiet );
-
-        load_packages( pkg_dir.u8string(), quiet );
-      }
     }
-    else
+    const auto pkg_dir = dir_itr->path();
+    const auto pkg_cfg = pkg_dir / "pkg.cfg";
+    if ( !fs::exists( pkg_cfg ) )
+      continue;
+    Clib::ConfigFile cf( pkg_cfg.u8string().c_str() );
+    Clib::ConfigElem elem;
+
+    cf.readraw( elem );
+
+    if ( ( elem.remove_bool( "Enabled" ) == true || fs::exists( pkg_dir / "enabled.pkg" ) ) &&
+         !fs::exists( pkg_dir / "disabled.pkg" ) )
     {
-      load_packages( pkg_dir.u8string(), quiet );
+      if ( !quiet )
+        INFO_PRINTLN( "Loading package in {}", pkg_dir.u8string() );
+      load_package( pkg_dir.u8string() + "/", elem, quiet );
     }
   }
 }

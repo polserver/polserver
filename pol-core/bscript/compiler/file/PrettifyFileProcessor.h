@@ -4,6 +4,8 @@
 #include "bscript/compiler/file/SourceLocation.h"
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
+#include "PrettifyLineBuilder.h"
+
 #include <memory>
 #include <optional>
 #include <string>
@@ -184,8 +186,10 @@ public:
 private:
   const SourceFileIdentifier& source_file_identifier;
   PrettifyLineBuilder linebuilder;
-  size_t _currident = 0;
+  size_t _currindent = 0;
   size_t _currentgroup = 0;
+  bool _suppressnewline = false;
+  FmtToken::Scope _currentscope = FmtToken::Scope::NONE;
   // Profile& profile;
   Report& report;
   void addToken( std::string&& text, const Position& pos, int style, size_t token_type,

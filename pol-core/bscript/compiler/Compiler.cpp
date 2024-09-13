@@ -138,7 +138,7 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   if ( inplace )
   {
     std::ofstream filestream;
-    filestream.open( filename, std::ios_base::out | std::ios_base::trunc );
+    filestream.open( filename, std::ios_base::out | std::ios_base::trunc | std::ios::binary );
     filestream << formatted;
     filestream.flush();
   }

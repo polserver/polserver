@@ -160,7 +160,7 @@ std::unique_ptr<Compiler::Compiler> create_compiler()
   return compiler;
 }
 
-void compile_inc( const char* path )
+void compile_inc( const std::string& path )
 {
   if ( !quiet )
     INFO_PRINTLN( "Compiling: {}", path );
@@ -200,20 +200,20 @@ std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins
   return result;
 }
 
-bool format_file( const char* path )
+bool format_file( const std::string& path )
 {
-  std::string fname( path );
-  std::string filename_src = fname, ext( "" );
+  std::string ext( "" );
 
-  std::string::size_type pos = fname.rfind( '.' );
+  std::string::size_type pos = path.rfind( '.' );
   if ( pos != std::string::npos )
-    ext = fname.substr( pos );
+    ext = path.substr( pos );
 
   if ( ext.compare( ".src" ) != 0 && ext.compare( ".inc" ) != 0 && ext.compare( ".em" ) != 0 )
   {
-    compiler_error( "Didn't find '.src', '.inc', or '.em' extension on source filename '{}'!",
-                    path );
-    throw std::runtime_error( "Error in source filename" );
+    compiler_error(
+        "Didn't find '.src', '.inc', or '.em' extension on source filename '{}'! ..Ignoring",
+        path );
+    return true;
   }
 
   if ( !quiet )
@@ -221,7 +221,8 @@ bool format_file( const char* path )
 
   std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
-  bool success = compiler->format_file( path, ext.compare( ".em" ) == 0, format_source_inplace );
+  bool success =
+      compiler->format_file( path.c_str(), ext.compare( ".em" ) == 0, format_source_inplace );
 
   if ( expect_compile_failure )
   {
@@ -323,14 +324,13 @@ void add_dependency_info( const fs::path& filepath_src,
  * @param path path of the file to be compiled
  * @return TRUE if the file was compiled, FALSE otherwise (eg. the file is up-to-date)
  */
-bool compile_file( const char* path )
+bool compile_file( const std::string& path )
 {
-  std::string fname( path );
-  std::string filename_src = fname, ext( "" );
+  std::string ext( "" );
 
-  std::string::size_type pos = fname.rfind( '.' );
+  std::string::size_type pos = path.rfind( '.' );
   if ( pos != std::string::npos )
-    ext = fname.substr( pos );
+    ext = path.substr( pos );
 
   if ( !ext.compare( ".inc" ) )
   {
@@ -344,6 +344,7 @@ bool compile_file( const char* path )
                     path );
     throw std::runtime_error( "Error in source filename" );
   }
+  std::string fname = path;
   std::string filename_ecl = fname.replace( pos, 4, ".ecl" );
   std::string filename_lst = fname.replace( pos, 4, ".lst" );
   std::string filename_dep = fname.replace( pos, 4, ".dep" );
@@ -353,10 +354,10 @@ bool compile_file( const char* path )
   {
     bool all_old = true;
     unsigned int ecl_timestamp = Clib::GetFileTimestamp( filename_ecl.c_str() );
-    if ( Clib::GetFileTimestamp( filename_src.c_str() ) >= ecl_timestamp )
+    if ( Clib::GetFileTimestamp( path.c_str() ) >= ecl_timestamp )
     {
       if ( compilercfg.VerbosityLevel > 0 )
-        INFO_PRINTLN( "{} is newer than {}", filename_src, filename_ecl );
+        INFO_PRINTLN( "{} is newer than {}", path, filename_ecl );
       all_old = false;
     }
 
@@ -400,7 +401,7 @@ bool compile_file( const char* path )
 
     std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
-    bool success = compiler->compile_file( path );
+    bool success = compiler->compile_file( path.c_str() );
 
     em_parse_tree_cache.keep_some();
     inc_parse_tree_cache.keep_some();
@@ -477,19 +478,15 @@ bool compile_file( const char* path )
   return true;
 }
 
-bool process_file( const char* path )
+bool process_file( const std::string& path )
 {
   if ( format_source )
-  {
     return format_file( path );
-  }
-  else
-  {
-    return compile_file( path );
-  }
+  return compile_file( path );
 }
 
-void process_file_wrapper( const char* path, std::set<fs::path>* removed_dependencies = nullptr,
+void process_file_wrapper( const std::string& path,
+                           std::set<fs::path>* removed_dependencies = nullptr,
                            std::set<fs::path>* new_dependencies = nullptr )
 {
   try
@@ -731,48 +728,53 @@ void apply_configuration()
   inc_parse_tree_cache.configure( compilercfg.IncParseTreeCacheSize );
 }
 
-void recurse_collect( const fs::path& basedir, std::set<std::string>* files, bool inc_files )
+void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
+                   const std::function<void( const std::string& )>& callback )
 {
-  if ( !fs::is_directory( basedir ) )
+  std::set<std::string> files;
+  for ( const auto& basedir : basedirs )
+  {
+    if ( !fs::is_directory( basedir ) )
+      continue;
+    std::error_code ec;
+    for ( auto dir_itr = fs::recursive_directory_iterator( basedir, ec );
+          dir_itr != fs::recursive_directory_iterator(); ++dir_itr )
+    {
+      if ( Clib::exit_signalled )
+        return;
+      if ( auto fn = dir_itr->path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+      {
+        if ( dir_itr->is_directory() )
+          dir_itr.disable_recursion_pending();
+        continue;
+      }
+      else if ( !dir_itr->is_regular_file() )
+        continue;
+      const auto ext = dir_itr->path().extension();
+      if ( inc_files )
+      {
+        if ( !ext.compare( ".inc" ) )
+          if ( files.insert( dir_itr->path().u8string() ).second )
+            callback( dir_itr->path().u8string() );
+      }
+      else if ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
+                ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) )
+      {
+        if ( files.insert( dir_itr->path().u8string() ).second )
+          callback( dir_itr->path().u8string() );
+      }
+    }
+  }
+}
+
+void process_dirs( const std::vector<fs::path>& dirs, bool compile_inc )
+{
+  if ( !compilercfg.ThreadedCompilation )
+  {
+    recurse_call( dirs, compile_inc,
+                  []( const std::string& file ) { process_file_wrapper( file ); } );
     return;
-  std::error_code ec;
-  for ( auto dir_itr = fs::recursive_directory_iterator( basedir, ec );
-        dir_itr != fs::recursive_directory_iterator(); ++dir_itr )
-  {
-    if ( auto fn = dir_itr->path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
-    {
-      if ( dir_itr->is_directory() )
-        dir_itr.disable_recursion_pending();
-      continue;
-    }
-    else if ( !dir_itr->is_regular_file() )
-      continue;
-    const auto ext = dir_itr->path().extension();
-    if ( inc_files )
-    {
-      if ( !ext.compare( ".inc" ) )
-        files->insert( dir_itr->path().u8string() );
-    }
-    else if ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
-              ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) )
-    {
-      files->insert( dir_itr->path().u8string() );
-    }
   }
-}
-
-void serial_process( const std::set<std::string>& files )
-{
-  for ( const auto& file : files )
-  {
-    if ( Clib::exit_signalled )
-      return;
-    process_file_wrapper( file.c_str() );
-  }
-}
-
-void parallel_process( const std::set<std::string>& files )
-{
   std::atomic<unsigned> compiled_scripts( 0 );
   std::atomic<unsigned> uptodate_scripts( 0 );
   std::atomic<unsigned> error_scripts( 0 );
@@ -783,16 +785,16 @@ void parallel_process( const std::set<std::string>& files )
       thread_count = static_cast<unsigned>( compilercfg.NumberOfThreads );
     threadhelp::TaskThreadPool pool( thread_count, "ecompile" );
     summary.ThreadCount = pool.size();
-    for ( const auto& file : files )
+    auto callback = [&]( const std::string& file )
     {
       pool.push(
-          [&]()
+          [&, file]()
           {
             if ( !par_keep_building || Clib::exit_signalled )
               return;
             try
             {
-              if ( process_file( file.c_str() ) )
+              if ( process_file( file ) )
                 ++compiled_scripts;
               else
                 ++uptodate_scripts;
@@ -803,9 +805,7 @@ void parallel_process( const std::set<std::string>& files )
               ++error_scripts;
               compiler_error( "failed to compile {}: {}", file, e.what() );
               if ( !keep_building )
-              {
                 par_keep_building = false;
-              }
             }
             catch ( ... )
             {
@@ -813,7 +813,8 @@ void parallel_process( const std::set<std::string>& files )
               Clib::force_backtrace();
             }
           } );
-    }
+    };
+    recurse_call( dirs, compile_inc, callback );
   }
   summary.CompiledScripts = compiled_scripts;
   summary.UpToDateScripts = uptodate_scripts;
@@ -1030,7 +1031,7 @@ void EnterWatchMode()
           std::set<fs::path> new_dependencies;
           try
           {
-            process_file_wrapper( filepath.generic_string().c_str(), &removed_dependencies,
+            process_file_wrapper( filepath.generic_string(), &removed_dependencies,
                                   &new_dependencies );
           }
           catch ( ... )
@@ -1078,35 +1079,26 @@ void EnterWatchMode()
  */
 void AutoCompile()
 {
+  // Load and analyze the package structure
+  for ( const auto& elem : compilercfg.PackageRoot )
+  {
+    Plib::load_packages( elem, false /* quiet */ );
+  }
+  Plib::replace_packages();
+  Plib::check_package_deps();
+
   bool save = compilercfg.OnlyCompileUpdatedScripts;
   compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
-  std::set<std::string> files;
+  std::vector<fs::path> dirs;
   compiled_dirs.emplace( fs::canonical( compilercfg.PolScriptRoot ) );
-  recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
+
+  dirs.emplace_back( compilercfg.PolScriptRoot );
   for ( const auto& pkg : Plib::systemstate.packages )
   {
     compiled_dirs.emplace( fs::canonical( pkg->dir() ) );
-    recurse_collect( fs::path( pkg->dir() ), &files, false );
+    dirs.emplace_back( pkg->dir() );
   }
-  if ( compilercfg.ThreadedCompilation )
-    parallel_process( files );
-  else
-    serial_process( files );
-  compilercfg.OnlyCompileUpdatedScripts = save;
-}
-
-void AutoFormat()
-{
-  bool save = compilercfg.OnlyCompileUpdatedScripts;
-  compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
-  std::set<std::string> files;
-  recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
-  for ( const auto& pkg : Plib::systemstate.packages )
-    recurse_collect( fs::path( pkg->dir() ), &files, false );
-  if ( compilercfg.ThreadedCompilation )
-    parallel_process( files );
-  else
-    serial_process( files );
+  process_dirs( dirs, false );
   compilercfg.OnlyCompileUpdatedScripts = save;
 }
 
@@ -1116,13 +1108,6 @@ void AutoFormat()
 bool run( int argc, char** argv, int* res )
 {
   Clib::enable_exit_signaller();
-  // Load and analyze the package structure
-  for ( const auto& elem : compilercfg.PackageRoot )
-  {
-    Plib::load_packages( elem, true /* quiet */ );
-  }
-  Plib::replace_packages();
-  Plib::check_package_deps();
 
   // Determine the run mode and do the compile itself
   Tools::Timer<> timer;
@@ -1153,13 +1138,8 @@ bool run( int argc, char** argv, int* res )
         if ( i < argc && argv[i] && argv[i][0] != '-' )
           dir.assign( argv[i] );
 
-        std::set<std::string> files;
         compiled_dirs.emplace( fs::canonical( dir ) );
-        recurse_collect( fs::path( dir ), &files, compile_inc );
-        if ( compilercfg.ThreadedCompilation )
-          parallel_process( files );
-        else
-          serial_process( files );
+        process_dirs( { dir }, compile_inc );
       }
       else if ( argv[i][1] == 'C' )
       {

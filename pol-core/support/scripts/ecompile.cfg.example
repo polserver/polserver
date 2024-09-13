@@ -180,16 +180,16 @@ ErrorOnFileCaseMissmatch=0
 ######################
 
 # LineWidth
-# Default 80
-#FormatterLineWidth=80
+# Default 100
+#FormatterLineWidth=100
 
 # keep original keyword spelling
 # Default 0
 #FormatterKeepKeywords=0
 
-# number of spaces for ident
+# number of spaces for indent
 # Default 2
-#FormatterIdentLevel=2
+#FormatterIndentLevel=2
 
 # multiple newlines get merged to a single
 # Default 1
@@ -217,6 +217,11 @@ ErrorOnFileCaseMissmatch=0
 # eg array{ true } vs array{true}
 # Default 1
 #FormatterBracketSpacing=1
+
+# no space between type and opening bracket
+# eg struct{} vs struct {}
+# Default 1
+#FormatterBracketAttachToType=1
 
 # add space after delimiter comma or semi in for loops
 # eg {1, 2, 3} vs {1,2,3}
@@ -251,5 +256,26 @@ ErrorOnFileCaseMissmatch=0
 #FormatterTabWidth=4
 
 # Insert a newline at end of file if missing
-# Default 0
-#FormatterInsertNewlineAtEOF=0
+# Default 1
+#FormatterInsertNewlineAtEOF=1
+
+# Strip extra space inside comments
+# replace tabs with spaces (if UseTabs is off)
+# Default 1
+#FormatterFormatInsideComments=1
+
+# align trailing comments in a statement eg arrays
+# Default 1
+#FormatterAlignTrailingComments=1
+
+# short case labels will be contracted to a single line
+# Default 1
+#FormatterAllowShortCaseLabelsOnASingleLine=1
+
+# short function references will be contracted to a single line
+# Default 1
+#FormatterAllowShortFuncRefsOnASingleLine=1
+
+# align short case statements, needs FormatterAllowShortCaseLabelsOnASingleLine
+# Default 1
+#FormatterAlignConsecutiveShortCaseStatements=1
