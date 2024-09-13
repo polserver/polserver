@@ -1,1 +1,1 @@
-A const dictionary must be empty.
+:1:12: error: A const dictionary must be empty.

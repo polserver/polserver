@@ -1,1 +1,1 @@
-ref001.src:2:12: error: extraneous input 'b' expecting ';'
+:2:12: error: extraneous input 'b' expecting ';'

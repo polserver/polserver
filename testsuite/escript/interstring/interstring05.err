@@ -1,1 +1,1 @@
-interstring05.src:1:15: error: Expected expression following interpolated string part start
+:1:15: error: Expected expression following interpolated string part start

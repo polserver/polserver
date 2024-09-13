@@ -1,1 +1,1 @@
-syntax09.src:1:16: error: no viable alternative at input '{ 4, +,'
+:1:16: error: no viable alternative at input '{ 4, +,'

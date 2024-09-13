@@ -1,1 +1,1 @@
-condexpr04.src:1:6: error: missing ';' at '('
+:1:6: error: missing ';' at '('

@@ -1,1 +1,1 @@
-switch19-duplicate-integer.src:5:5: error: case statement already has a selector for integer value 7.
+:4:3: error: case statement already has a selector for integer value 7.

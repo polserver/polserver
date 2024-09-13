@@ -1,1 +1,1 @@
-crash001.inc:3:24: error: missing ';' at '{'
+:3:24: error: missing ';' at '{'

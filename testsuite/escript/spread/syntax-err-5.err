@@ -1,1 +1,1 @@
-syntax-err-5.src:3:10: error: extraneous input '...'
+:3:10: error: extraneous input '...' expecting ']'
