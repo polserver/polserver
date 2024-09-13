@@ -1,6 +1,6 @@
 var a := 0;
 
-while (a)
-    print("incorrect - should not be taken");
+while ( a )
+  print( "incorrect - should not be taken" );
 endwhile
-print("correct - exits loop");
+print( "correct - exits loop" );

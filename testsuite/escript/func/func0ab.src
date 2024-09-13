@@ -1,13 +1,13 @@
 function foo2( a, b, e )
-	return a+b+e;
+  return a + b + e;
 endfunction
 
-function foo( a, b,c,d )
-	return a*b+c*d-foo2( 12,c,2 );
+function foo( a, b, c, d )
+  return a * b + c * d - foo2( 12, c, 2 );
 endfunction
 
 var a;
 
 a := foo( 2, 3.5, 6.7, 9 );
 
-print(a);
+print( a );

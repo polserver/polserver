@@ -1,7 +1,5 @@
 var x;
-case (x)
-    default:
-        print("first");
-    default:
-        print("second");
+case ( x )
+  default: print( "first" );
+  default: print( "second" );
 endcase

@@ -1,16 +1,12 @@
 // switch02
-// 
+//
 
 var a := "hello";
-case (a)
-    "abc":
-        print( "first" );
-    "hello":
-        print( "second" );
-    "def":
-        print( "third" );
-    default:
-        print( "none of the above" );
+case ( a )
+  "abc":   print( "first" );
+  "hello": print( "second" );
+  "def":   print( "third" );
+  default: print( "none of the above" );
 endcase
 
 print( "done" );

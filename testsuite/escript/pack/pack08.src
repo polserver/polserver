@@ -1,9 +1,9 @@
 include "packtst";
 
 var ob := dictionary;
-ob[ "hey" ] := 57;
-ob[ "you" ] := 73;
-ob[ "blah" ] := "test";
+ob["hey"] := 57;
+ob["you"] := 73;
+ob["blah"] := "test";
 
 var rep := "d3:S4:blahS4:testS3:heyi57S3:youi73";
 

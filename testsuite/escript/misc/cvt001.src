@@ -1,7 +1,7 @@
 var a := "abc";
 var b := "";
 
-print( CAsc(a) );
+print( CAsc( a ) );
 print( CAsc( a[0] ) );
 print( CAsc( a[1] ) );
 print( CAsc( a[2] ) );
@@ -10,6 +10,6 @@ print( CChr( 0x41 ) );
 print( CChr( 0xed ) );
 
 print( CAsc( CChr( 0xef ) ) );
-print( CAsc(b) );
+print( CAsc( b ) );
 print( CAscZ( "hello" ) );
 print( CChrZ( { 0x41, 0x42, 0x43, 0x44 } ) );

@@ -1,17 +1,17 @@
 program test()
 
-	var startX := 3, endX := 8;
-	var startY := 2, endY := 7;
+  var startX := 3, endX := 8;
+  var startY := 2, endY := 7;
 
-	var fooY := 2;
-	while (startX <= endX)
-		while (startY <= endY)
-			print( "startX=" +startX + ", startY=" + startY );
-			startY := startY + 1;
-		endwhile
-		startY := fooY;
-		startX := startX + 1;
-		print( "startX=" + startX );
-	endwhile
+  var fooY := 2;
+  while ( startX <= endX )
+    while ( startY <= endY )
+      print( "startX=" + startX + ", startY=" + startY );
+      startY := startY + 1;
+    endwhile
+    startY := fooY;
+    startX := startX + 1;
+    print( "startX=" + startX );
+  endwhile
 
 endprogram

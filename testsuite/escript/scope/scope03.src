@@ -2,10 +2,10 @@
 
 var a := 6;
 
-if (1)
-    var a;
-    a := 5;
-    print( "1. A=" + a );
+if ( 1 )
+  var a;
+  a := 5;
+  print( "1. A=" + a );
 endif
 
 print( "2. A=" + a );

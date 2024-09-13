@@ -1,10 +1,10 @@
-function foo(b)
-    print(b);
+function foo( b )
+  print( b );
 endfunction
 
 var a;
 a.print( "hi there" );
-a.foo("hi again");
+a.foo( "hi again" );
 
 print( "meth001" );
 // really the instructions are being tested here..

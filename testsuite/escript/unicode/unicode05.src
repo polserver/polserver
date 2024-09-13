@@ -1,7 +1,7 @@
-var a:="you should test with some special russian letters like ёЁйЙьЬъЪ ";
-print(lower(a));
-print(upper(a));
-print(pack(a));
-print(unpack(pack(a)));
-print(encodebase64(a));
-print(decodebase64(encodebase64(a)));
+var a := "you should test with some special russian letters like ёЁйЙьЬъЪ ";
+print( lower( a ) );
+print( upper( a ) );
+print( pack( a ) );
+print( unpack( pack( a ) ) );
+print( encodebase64( a ) );
+print( decodebase64( encodebase64( a ) ) );

@@ -7,5 +7,5 @@ var a := 1;
 var b := 8;
 
 for a := a to b
-   print(a);
+  print( a );
 endfor

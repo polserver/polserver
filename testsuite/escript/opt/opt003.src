@@ -1,6 +1,6 @@
 var x := 2;
-if (x)
-    print(1);
-elseif (3)
-    print(2);
+if ( x )
+  print( 1 );
+elseif ( 3 )
+  print( 2 );
 endif

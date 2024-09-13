@@ -11,12 +11,12 @@ program main( who )
   // total := Sum( numbers... );
 
   // Okay! Use the expression-as-callee syntax
-  total := (@Sum)( numbers... );  // Or: @Sum.call( numbers... )
+  total := ( @Sum )( numbers ... ); // Or: @Sum.call( numbers... )
   Print( total ); // Output: 6
 
   // Calling @Sum with the wrong number of arguments will result in an error:
   numbers := { 1, 2 };
-  total := (@Sum)( numbers... );
+  total := ( @Sum )( numbers ... );
   Print( total ); // Output: Invalid argument count: expected 3, got 2
 
 endprogram

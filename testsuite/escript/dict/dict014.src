@@ -1,5 +1,5 @@
 
 var a := "X";
 var b := "Y";
-var d := dictionary { a+"abc", a+"def" -> "ghi"+b };
-print(d);
+var d := dictionary{ a + "abc", a + "def" -> "ghi" + b };
+print( d );

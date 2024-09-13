@@ -1,1 +1,1 @@
-﻿print("more BOM");
+print( "more BOM" );

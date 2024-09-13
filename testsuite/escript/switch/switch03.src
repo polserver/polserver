@@ -1,16 +1,12 @@
 // switch02
-// 
+//
 
 var a := 7;
-case (a)
-    4:
-        print( "four" );
-    5:
-        print( "five" );
-    6:
-        print( "six" );
-    default:
-        print( "none of the above" );
+case ( a )
+  4: print( "four" );
+  5: print( "five" );
+  6: print( "six" );
+  default: print( "none of the above" );
 endcase
 
 print( "done" );

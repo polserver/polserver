@@ -1,10 +1,10 @@
 var a := 0;
 var b := 0;
 
-if (a)
-    print("incorrect - first path");
-elseif (b)
-    print("incorrect - second path");
+if ( a )
+  print( "incorrect - first path" );
+elseif ( b )
+  print( "incorrect - second path" );
 endif
 
-print("correct - neither");
+print( "correct - neither" );

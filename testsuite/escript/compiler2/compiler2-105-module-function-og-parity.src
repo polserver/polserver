@@ -1,5 +1,5 @@
 var ev;
 var following;
 following := ev.upper; // OG compiler assigns (used to assign) basic.Upper() to function index #0 here
-print(Lower("A"));
-print(Upper("b"));
+print( Lower( "A" ) );
+print( Upper( "b" ) );

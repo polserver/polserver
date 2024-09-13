@@ -1,11 +1,11 @@
 
 function bar( r )
-    return r*3;
+  return r * 3;
 endfunction
 
 program foo()
-    var t := struct{ a, b := struct { f := 6+7, g := bar(6), h := "xyz" }, c := "abc" };
-    t.a := 5;
-    print(t);
+  var t := struct{ a, b := struct{ f := 6 + 7, g := bar( 6 ), h := "xyz" }, c := "abc" };
+  t.a := 5;
+  print( t );
 
 endprogram

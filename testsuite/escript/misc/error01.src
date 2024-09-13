@@ -1,8 +1,8 @@
 
 var i := "";
 
-if (i == error)
-    print( "error!" );
+if ( i == error )
+  print( "error!" );
 else
-    print( "success!" );
+  print( "success!" );
 endif

@@ -2,6 +2,6 @@ program main( who )
   var numbers1 := array{ 1, 2, 3 };
   var numbers2 := array{ 4, 5, 6 };
 
-  var numbers := array{ numbers1..., numbers2... };
+  var numbers := array{ numbers1 ..., numbers2 ... };
   Print( numbers ); // Output: { 1, 2, 3, 4, 5, 6 }
 endprogram

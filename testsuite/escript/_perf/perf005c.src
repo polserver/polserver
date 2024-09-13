@@ -6,12 +6,12 @@ setup();
 var x;
 
 foreach elem in arr
-    case (elem)
-        5: x := elem;
-       37: x := elem;
-       40: x := elem;
-       default: x := elem;
-    endcase
+  case ( elem )
+    5:  x := elem;
+    37: x := elem;
+    40: x := elem;
+    default: x := elem;
+  endcase
 endforeach
 
 print( "done" );

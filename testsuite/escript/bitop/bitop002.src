@@ -3,6 +3,6 @@ const bit02 := 0x02;
 
 const bit03 := bit01 | bit02;
 
-print(bit01);
-print(bit02);
-print(bit03);
+print( bit01 );
+print( bit02 );
+print( bit03 );

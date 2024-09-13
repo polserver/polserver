@@ -1,23 +1,21 @@
 include "listfile";
 
-if ("")
+if ( "" )
 
-var a;
+  var a;
 
-// Creates a chain of functors using zero captures, each using its own local function parameter `a`
-@(a) {
-  a;
-  @(a) {
+  // Creates a chain of functors using zero captures, each using its own local function parameter `a`
+  @( a ) {
     a;
-    @(a) {
+    @( a ) {
       a;
-      @(a) {
+      @( a ) {
         a;
+        @( a ) { a; };
       };
     };
   };
-};
 
 endif
 
-print_listfile("listfile-nested-3");
+print_listfile( "listfile-nested-3" );

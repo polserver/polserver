@@ -1,10 +1,10 @@
 
 var i;
-for( i := 0; i < 10; i := i + 1 )
-    var a := i + 4;
-    if (i > 4)
-        continue;
-    endif
-    print( "I=" + i + ", A=" + a );
+for ( i := 0; i < 10; i := i + 1 )
+  var a := i + 4;
+  if ( i > 4 )
+    continue;
+  endif
+  print( "I=" + i + ", A=" + a );
 endfor
 print( "done" );

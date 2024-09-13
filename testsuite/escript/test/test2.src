@@ -1,4 +1,7 @@
-print( "hello world!");
-if (5 == 6)  print( "equal, ..."); endif
-if ("TEST"=="TEST") print("ah ha!"); endif
-
+print( "hello world!" );
+if ( 5 == 6 )
+  print( "equal, ..." );
+endif
+if ( "TEST" == "TEST" )
+  print( "ah ha!" );
+endif

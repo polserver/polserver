@@ -1,7 +1,7 @@
 enum X
-    A := 6,
-    B := 7,
-    A := 8    // a compiler error here would be nice
+  A := 6,
+  B := 7,
+  A := 8 // a compiler error here would be nice
 endenum
 
-print(A); // current behavior is 6
+print( A ); // current behavior is 6

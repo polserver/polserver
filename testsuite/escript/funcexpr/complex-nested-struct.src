@@ -3,84 +3,66 @@
 // The most-inner function will create a local (circumstantially, inside an
 // `if`-block) to test returning locals.
 
-var level1 := @(a, b, c) {
-  return struct{
-    fnA1 := @(d, e, f) {
-      return struct{
-        fnB1 := @(g, h, i) {
-          return struct{
-            fnC1 := @(j, unused k, l) {
-              var res := a + b + c + d + e + f + g + h + i + j;
-              if (res > 0)
-                var out_local := res * l;
-                return out_local;
-              endif
-              return res;
-            },
-
-            fnC2 := @(j, unused k, l) {
-              var res := a * b * c * d * e * f * g * h * i * j;
-              if (res > 0)
-                var out_local := res / l;
-                return out_local;
-              endif
-              return res;
-            },
-
-            fnC3 := @(j, unused k, l) {
-              var res := a - b - c - d - e - f - g - h - i - j;
-              if (res > 0)
-                var out_local := res + l;
-                return out_local;
-              endif
-              return res;
-            }
-          };
-        },
-
-        fnB2 := @(g, h, i) {
-          return struct{
-            fnC1 := @(j, unused k, l) {
-              var res := a * b + c + d + e + f + g + h + i + j;
-              if (res > 0)
-                var out_local := res * l;
-                return out_local;
-              endif
-              return res;
-            },
-
-            fnC2 := @(j, unused k, l) {
-              var res := a + b * c * d * e * f * g * h * i * j;
-              if (res > 0)
-                var out_local := res / l;
-                return out_local;
-              endif
-              return res;
-            },
-
-            fnC3 := @(j, unused k, l) {
-              var res := a - b * c - d - e - f - g - h - i - j;
-              if (res > 0)
-                var out_local := res + l;
-                return out_local;
-              endif
-              return res;
-            }
-          };
-        }
-      };
-    }
-  };
+var level1 := @( a, b, c ) {
+  return struct{ fnA1 := @( d, e, f ) {
+    return struct{ fnB1 := @( g, h, i ) {
+      return struct{ fnC1 := @( j, unused k, l ) {
+        var res := a + b + c + d + e + f + g + h + i + j;
+        if ( res > 0 )
+          var out_local := res * l;
+          return out_local;
+        endif
+        return res;
+      }, fnC2 := @( j, unused k, l ) {
+        var res := a * b * c * d * e * f * g * h * i * j;
+        if ( res > 0 )
+          var out_local := res / l;
+          return out_local;
+        endif
+        return res;
+      }, fnC3 := @( j, unused k, l ) {
+        var res := a - b - c - d - e - f - g - h - i - j;
+        if ( res > 0 )
+          var out_local := res + l;
+          return out_local;
+        endif
+        return res;
+      } };
+    }, fnB2 := @( g, h, i ) {
+      return struct{ fnC1 := @( j, unused k, l ) {
+        var res := a * b + c + d + e + f + g + h + i + j;
+        if ( res > 0 )
+          var out_local := res * l;
+          return out_local;
+        endif
+        return res;
+      }, fnC2 := @( j, unused k, l ) {
+        var res := a + b * c * d * e * f * g * h * i * j;
+        if ( res > 0 )
+          var out_local := res / l;
+          return out_local;
+        endif
+        return res;
+      }, fnC3 := @( j, unused k, l ) {
+        var res := a - b * c - d - e - f - g - h - i - j;
+        if ( res > 0 )
+          var out_local := res + l;
+          return out_local;
+        endif
+        return res;
+      } };
+    } };
+  } };
 };
 
 // (a + b + c + d + e + f + g + h + i + j) * l since inner expression is >0
 // (-7 + -6 + -1 + 4 + -4 + 17 + 9 + 3 + 15 + -10) * -7 = -140
-print(level1(-7, -6, -1).fnA1.call(4, -4, 17).fnB1.call(9, 3, 15).fnC1.call(-10, -7, -7));
+print( level1( -7, -6, -1 ).fnA1.call( 4, -4, 17 ).fnB1.call( 9, 3, 15 ).fnC1.call( -10, -7, -7 ) );
 
 // a * b + c + d + e + f + g + h + i + j
 // -3 * -1 + 2 + -7 + -4 + -5 + -2 + 7 + 1 + -1 = -6
-print(level1(-3, -1, 2).fnA1.call(-7, -4, -5).fnB2.call(-2, 7, 1).fnC1.call(-1, 1, 5));
+print( level1( -3, -1, 2 ).fnA1.call( -7, -4, -5 ).fnB2.call( -2, 7, 1 ).fnC1.call( -1, 1, 5 ) );
 
 // a - b * c - d - e - f - g - h - i - j
 // 10 - 2 * 11 - 10 - 2 - 4 - -8 - -1 - -5 - 10 = -24
-print(level1(10, 2, 11).fnA1.call(10, 2, 4).fnB2.call(-8, -1, -5).fnC3.call(10, -3, 1));
+print( level1( 10, 2, 11 ).fnA1.call( 10, 2, 4 ).fnB2.call( -8, -1, -5 ).fnC3.call( 10, -3, 1 ) );

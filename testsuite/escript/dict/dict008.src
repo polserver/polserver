@@ -1,19 +1,18 @@
 program tc_etest( who )
   var searchin := dictionary;
-      searchin["woot"] := dictionary;
-      searchin["roar"] := dictionary;
-  
+  searchin["woot"] := dictionary;
+  searchin["roar"] := dictionary;
+
   var key := dictionary;
-      key["cheese"] := 400;
-      
+  key["cheese"] := 400;
+
   print( "Approaching check..." );
-  
-  if( !searchin[key] )
+
+  if ( !searchin[key] )
     print( "No match." );
   else
     print( "Match" );
   endif
-  
+
   print( "Finished check." );
 endprogram
-

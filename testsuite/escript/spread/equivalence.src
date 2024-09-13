@@ -2,80 +2,185 @@
 // and function reference (runtime-arg checks). Does more funky things
 // with spreads, eg. multiple and nested.
 
-function args0( args... )
-    return $"args={args}";
+function args0( args ... )
+  return $"args={args}";
 endfunction
 
-function args1( a, args... )
-    return $"a={a} args={args}";
+function args1( a, args ... )
+  return $"a={a} args={args}";
 endfunction
 
-function args2( a, b, args... )
-    return $"a={a} b={b} args={args}";
+function args2( a, b, args ... )
+  return $"a={a} b={b} args={args}";
 endfunction
 
-function Times10( byref what ) return what * 10; endfunction
-function Times100( byref what ) return what * 100; endfunction
-function Times1000( byref what ) return what * 1000; endfunction
+function Times10( byref what )
+  return what * 10;
+endfunction
+function Times100( byref what )
+  return what * 100;
+endfunction
+function Times1000( byref what )
+  return what * 1000;
+endfunction
 
 var total := 0;
 var sum := 0;
 
-function add(result)
-    ++total;
-    sum += result;
+function add( result )
+  ++total;
+  sum += result;
 endfunction
 
-var spreads := {
-    {},
-    {1},
-    {1, 2},
-    {1, 2, 3}
-};
+var spreads := { {}, { 1 }, { 1, 2 }, { 1, 2, 3 } };
 
 foreach spread in spreads
-    add((@args0)(spread...)  == args0(spread...));
-    add((@args0)("a", spread...)  == args0("a", spread...));
-    add((@args0)("a", "b", spread...)  == args0("a", "b", spread...));
-    add((@args0)("a", "b", "c", spread...)  == args0("a", "b", "c", spread...));
+  add( ( @args0 )( spread ... ) == args0( spread ... ) );
+  add( ( @args0 )( "a", spread ... ) == args0( "a", spread ... ) );
+  add( ( @args0 )( "a", "b", spread ... ) == args0( "a", "b", spread ... ) );
+  add( ( @args0 )( "a", "b", "c", spread ... ) == args0( "a", "b", "c", spread ... ) );
 
-    // Multiple spreads, with non-spread args before, after, and in-between
-    add((@args0)(spread..., spread...)  == args0(spread..., spread...));
-    add((@args0)("a", spread..., "a", spread...)  == args0("a", spread..., "a", spread...));
-    add((@args0)("a", "b", spread..., "a", "b", spread...)  == args0("a", "b", spread..., "a", "b", spread...));
-    add((@args0)("a", "b", "c", spread..., "a", "b", "c", spread...)  == args0("a", "b", "c", spread..., "a", "b", "c", spread...));
+  // Multiple spreads, with non-spread args before, after, and in-between
+  add( ( @args0 )( spread ..., spread ... ) == args0( spread ..., spread ... ) );
+  add( ( @args0 )( "a", spread ..., "a", spread ... ) == args0( "a", spread ..., "a", spread ... ) );
+  add( ( @args0 )( "a", "b", spread ..., "a", "b",
+                   spread ... ) == args0( "a", "b", spread ..., "a", "b", spread ... ) );
+  add( ( @args0 )( "a", "b", "c", spread ..., "a", "b", "c",
+                   spread ... ) == args0( "a", "b", "c", spread ..., "a", "b", "c", spread ... ) );
 
-    // Nested spreads, with non-spread args before and after.
-    add((@args0)( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) == args0( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) );
-    add((@args0)( "a", "b", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "y", "z" ) == args0( "a", "b", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "y", "z" ) );
-    add((@args0)( "a", "b", "c", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "x", "y", "z" ) == args0( "a", "b", "c", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "x", "y", "z" ) );
+  // Nested spreads, with non-spread args before and after.
+  add( ( @args0 )( "a", { spread ...,
+                          { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                          ... }
+       ...,
+       "z" )
+       == args0(
+       "a",
+       {
+                          spread ...,
+                          { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                          ... } ..., "z" ) );
+  add( ( @args0 )( "a", "b", { spread ...,
+                               { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                               ... }
+       ...,
+       "y",
+       "z" )
+       == args0(
+       "a",
+       "b",
+       {
+                               spread ...,
+                               { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                               ... } ..., "y", "z" ) );
+  add( ( @args0 )( "a", "b", "c", { spread ...,
+                                    { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                                    ... }
+       ...,
+       "x",
+       "y",
+       "z" )
+       == args0(
+       "a",
+       "b",
+       "c",
+       {
+                                    spread ...,
+                                    { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                                    ... } ..., "x", "y", "z" ) );
 
-    // compile error, "a" not passed; see below tests for runtime error
-    // add((@args1)(spread...)  == args2(spread...));
-    add((@args1)("a", spread...)  == args1("a", spread...));
-    add((@args1)("a", "b", spread...)  == args1("a", "b", spread...));
-    add((@args1)("a", "b", "c", spread...)  == args1("a", "b", "c", spread...));
-    add((@args1)("a", spread..., "a", spread...)  == args1("a", spread..., "a", spread...));
-    add((@args1)("a", "b", spread..., "a", "b", spread...)  == args1("a", "b", spread..., "a", "b", spread...));
-    add((@args1)("a", "b", "c", spread..., "a", "b", "c", spread...)  == args1("a", "b", "c", spread..., "a", "b", "c", spread...));
-    add((@args1)( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) == args1( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) );
-    add((@args1)( "a", "b", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "y", "z" ) == args1( "a", "b", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "y", "z" ) );
-    add((@args1)( "a", "b", "c", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "x", "y", "z" ) == args1( "a", "b", "c", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "x", "y", "z" ) );
+  // compile error, "a" not passed; see below tests for runtime error
+  // add((@args1)(spread...)  == args2(spread...));
+  add( ( @args1 )( "a", spread ... ) == args1( "a", spread ... ) );
+  add( ( @args1 )( "a", "b", spread ... ) == args1( "a", "b", spread ... ) );
+  add( ( @args1 )( "a", "b", "c", spread ... ) == args1( "a", "b", "c", spread ... ) );
+  add( ( @args1 )( "a", spread ..., "a", spread ... ) == args1( "a", spread ..., "a", spread ... ) );
+  add( ( @args1 )( "a", "b", spread ..., "a", "b",
+                   spread ... ) == args1( "a", "b", spread ..., "a", "b", spread ... ) );
+  add( ( @args1 )( "a", "b", "c", spread ..., "a", "b", "c",
+                   spread ... ) == args1( "a", "b", "c", spread ..., "a", "b", "c", spread ... ) );
+  add( ( @args1 )( "a", { spread ...,
+                          { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                          ... }
+       ...,
+       "z" )
+       == args1(
+       "a",
+       {
+                          spread ...,
+                          { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                          ... } ..., "z" ) );
+  add( ( @args1 )( "a", "b", { spread ...,
+                               { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                               ... }
+       ...,
+       "y",
+       "z" )
+       == args1(
+       "a",
+       "b",
+       {
+                               spread ...,
+                               { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                               ... } ..., "y", "z" ) );
+  add( ( @args1 )( "a", "b", "c", { spread ...,
+                                    { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                                    ... }
+       ...,
+       "x",
+       "y",
+       "z" )
+       == args1(
+       "a",
+       "b",
+       "c",
+       {
+                                    spread ...,
+                                    { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                                    ... } ..., "x", "y", "z" ) );
 
-    // compile error, "a" and "b" not passed
-    // add((@args2)(spread...)  == args2(spread...));
-    // compile error, "b" not passed
-    // add((@args2)("a", spread...)  == args2("a", spread...));
-    add((@args2)("a", "b", spread...)  == args2("a", "b", spread...));
-    add((@args2)("a", "b", "c", spread...)  == args2("a", "b", "c", spread...));
-    // compile error, "b" not passed
-    // add((@args2)("a", spread..., "a", spread...)  == args2("a", spread..., "a", spread...));
-    add((@args2)("a", "b", spread..., "a", "b", spread...)  == args2("a", "b", spread..., "a", "b", spread...));
-    add((@args2)("a", "b", "c", spread..., "a", "b", "c", spread...)  == args2("a", "b", "c", spread..., "a", "b", "c", spread...));
-    // compile error, "b" not passed
-    // add((@args2)( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) == args2( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) );
-    add((@args2)( "a", "b", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "y", "z" ) == args2( "a", "b", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "y", "z" ) );
-    add((@args2)( "a", "b", "c", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "x", "y", "z" ) == args2( "a", "b", "c", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "x", "y", "z" ) );
+  // compile error, "a" and "b" not passed
+  // add((@args2)(spread...)  == args2(spread...));
+  // compile error, "b" not passed
+  // add((@args2)("a", spread...)  == args2("a", spread...));
+  add( ( @args2 )( "a", "b", spread ... ) == args2( "a", "b", spread ... ) );
+  add( ( @args2 )( "a", "b", "c", spread ... ) == args2( "a", "b", "c", spread ... ) );
+  // compile error, "b" not passed
+  // add((@args2)("a", spread..., "a", spread...)  == args2("a", spread..., "a", spread...));
+  add( ( @args2 )( "a", "b", spread ..., "a", "b",
+                   spread ... ) == args2( "a", "b", spread ..., "a", "b", spread ... ) );
+  add( ( @args2 )( "a", "b", "c", spread ..., "a", "b", "c",
+                   spread ... ) == args2( "a", "b", "c", spread ..., "a", "b", "c", spread ... ) );
+  // compile error, "b" not passed
+  // add((@args2)( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) == args2( "a", { spread..., { spread.map(@Times10)..., spread.map(@Times100)... }... }... , "z" ) );
+  add( ( @args2 )( "a", "b", { spread ...,
+                               { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                               ... }
+       ...,
+       "y",
+       "z" )
+       == args2(
+       "a",
+       "b",
+       {
+                               spread ...,
+                               { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                               ... } ..., "y", "z" ) );
+  add( ( @args2 )( "a", "b", "c", { spread ...,
+                                    { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                                    ... }
+       ...,
+       "x",
+       "y",
+       "z" )
+       == args2(
+       "a",
+       "b",
+       "c",
+       {
+                                    spread ...,
+                                    { spread.map( @Times10 ) ..., spread.map( @Times100 ) ... }
+                                    ... } ..., "x", "y", "z" ) );
 
 endforeach
 
@@ -83,15 +188,15 @@ endforeach
 // if the correct number of arguments are not passed.  Maybe make this a BError and not
 // uninit?
 foreach spread in spreads
-    if ( spread.size() < 1 )
-        // `args1` expects 1 argument, but spread has 0 elements.
-        add((@args1)(spread...) == uninit);
-    endif
+  if ( spread.size() < 1 )
+    // `args1` expects 1 argument, but spread has 0 elements.
+    add( ( @args1 )( spread ... ) == uninit );
+  endif
 
-    if ( spread.size() < 2 )
-        // `args2` expects 2 arguments, but spread has 0-1 elements.
-        add((@args2)(spread...) == uninit);
-    endif
+  if ( spread.size() < 2 )
+    // `args2` expects 2 arguments, but spread has 0-1 elements.
+    add( ( @args2 )( spread ... ) == uninit );
+  endif
 endforeach
 
 print( $"{sum}/{total}" );

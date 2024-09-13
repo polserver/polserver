@@ -1,7 +1,7 @@
 enum FOO
-	FOO_A := 2,  
-	FOO_B,
-	FOO_C
+  FOO_A := 2,
+  FOO_B,
+  FOO_C
 endenum
 
 print( FOO_A );

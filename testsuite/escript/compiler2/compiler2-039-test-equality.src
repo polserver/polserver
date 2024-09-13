@@ -1,7 +1,6 @@
 var a := 6;
-if (a == 6)
-    print("correct");
+if ( a == 6 )
+  print( "correct" );
 else
-    print("incorrect");
+  print( "incorrect" );
 endif
-

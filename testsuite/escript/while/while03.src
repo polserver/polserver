@@ -1,7 +1,7 @@
 
 var cont := 4;
-while (cont)
-    print( "cont: " + cont );
-    cont := cont - 1;
-    break;
+while ( cont )
+  print( "cont: " + cont );
+  cont := cont - 1;
+  break;
 endwhile

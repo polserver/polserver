@@ -1,13 +1,13 @@
 var a := "testvalue";
 
-if ("FRED" < "WILMA")
-    print( "1: Success");
+if ( "FRED" < "WILMA" )
+  print( "1: Success" );
 else
-    print( "1: Failure!");
+  print( "1: Failure!" );
 endif
 
-if ("WILMA" < "FRED")
-    print( "2: Failure" );
+if ( "WILMA" < "FRED" )
+  print( "2: Failure" );
 else
-    print( "2: Success" );
+  print( "2: Success" );
 endif

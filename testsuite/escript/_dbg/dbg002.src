@@ -1,14 +1,14 @@
 function fooa()
-    var a;
-    a := 2;
-    return a;
+  var a;
+  a := 2;
+  return a;
 endfunction
 
 function foob()
-    var b;
-    b := 4;
-    return b;
+  var b;
+  b := 4;
+  return b;
 endfunction
 
 fooa();
-foob();    
+foob();

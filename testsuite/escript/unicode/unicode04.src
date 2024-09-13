@@ -1,2 +1,2 @@
-﻿print("useless BOM");
+print( "useless BOM" );
 include "unicode04";

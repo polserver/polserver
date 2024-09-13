@@ -1,17 +1,17 @@
 enum FOO
-	FOO_A,
-	FOO_B,
-	FOO_C
+  FOO_A,
+  FOO_B,
+  FOO_C
 endenum
 
 function bar( a := FOO_B )
-	print( "a=" + a );
+  print( "a=" + a );
 endfunction
 
-bar(1);
-bar(2);
+bar( 1 );
+bar( 2 );
 bar();
-bar(FOO_C);
+bar( FOO_C );
 /**** Expected Output Begins: *****
 1
 2

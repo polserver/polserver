@@ -1,4 +1,4 @@
 var a := 57;
 print( a );
-print( pack(a) );
-print( unpack( pack(a) ) );
+print( pack( a ) );
+print( unpack( pack( a ) ) );

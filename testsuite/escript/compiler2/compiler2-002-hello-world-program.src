@@ -1,4 +1,3 @@
 program hi()
-    print("hello, world");
+  print( "hello, world" );
 endprogram
-

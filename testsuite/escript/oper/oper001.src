@@ -1,48 +1,48 @@
 program test_operators()
-    /* integer plus something: */
-        test_plus( 2, 3, 5 );
-        test_plus( 3, 6.5, 9.5 );
-        test_plus( 3, "4", "34" );
+  /* integer plus something: */
+  test_plus( 2, 3, 5 );
+  test_plus( 3, 6.5, 9.5 );
+  test_plus( 3, "4", "34" );
 
-    /* string plus something */
-        test_plus( "a", "b", "ab" );
-        test_plus( "a", 4, "a4" );
-        test_plus( "7", 3, "73" );
-        test_plus( "7", "3", "73" );
-        test_plus( "a", 6.5, "a6.5" );
-        test_plus( "3", 4.3, "34.3" );
+  /* string plus something */
+  test_plus( "a", "b", "ab" );
+  test_plus( "a", 4, "a4" );
+  test_plus( "7", 3, "73" );
+  test_plus( "7", "3", "73" );
+  test_plus( "a", 6.5, "a6.5" );
+  test_plus( "3", 4.3, "34.3" );
 
-    /* real plus something */
-        test_plus( 1.7, 3, 4.7 );
-        test_plus( 3.2, 6.5, 9.7 );
-        test_plus( 3.1, "4", "3.14" );
-      
-    /* integer minus something */
-        test_minus( 2, 3, -1 );
-        test_minus( 7, 2.3, 4.7 );
-        test_minus( 12, "2", "1" );
-        test_minus( 12, "a", "12" );
+  /* real plus something */
+  test_plus( 1.7, 3, 4.7 );
+  test_plus( 3.2, 6.5, 9.7 );
+  test_plus( 3.1, "4", "3.14" );
+
+  /* integer minus something */
+  test_minus( 2, 3, -1 );
+  test_minus( 7, 2.3, 4.7 );
+  test_minus( 12, "2", "1" );
+  test_minus( 12, "a", "12" );
 
 endprogram
 
 function test_plus( a, b, exp )
-    var res := a + b;
-    print( "testing " + a + " + " + b + " expects " + exp );
-    print( "  result: " + res );
-    if (res == exp)
-        print( "  Success!" );
-    else
-        print( "  Failure!" );
-    endif
+  var res := a + b;
+  print( "testing " + a + " + " + b + " expects " + exp );
+  print( "  result: " + res );
+  if ( res == exp )
+    print( "  Success!" );
+  else
+    print( "  Failure!" );
+  endif
 endfunction
 
 function test_minus( a, b, exp )
-    var res := a - b;
-    print( "testing " + a + " - " + b + " expects " + exp );
-    print( "  result: " + res );
-    if (res == exp)
-        print( "  Success!" );
-    else
-        print( "  Failure!" );
-    endif
+  var res := a - b;
+  print( "testing " + a + " - " + b + " expects " + exp );
+  print( "  result: " + res );
+  if ( res == exp )
+    print( "  Success!" );
+  else
+    print( "  Failure!" );
+  endif
 endfunction

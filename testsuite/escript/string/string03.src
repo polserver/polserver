@@ -1,13 +1,13 @@
 var a := "testvalue";
 
-if ("s" == a[3])
-    print( "1: Success");
+if ( "s" == a[3] )
+  print( "1: Success" );
 else
-    print( "1: Failure!");
+  print( "1: Failure!" );
 endif
 
-if ("f" == a[2])
-    print( "2: Failure" );
+if ( "f" == a[2] )
+  print( "2: Failure" );
 else
-    print( "2: Success" );
+  print( "2: Success" );
 endif

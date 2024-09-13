@@ -1,38 +1,37 @@
-print("testing length");
-foreach str in {"","1234","1"}
-	print("testing '"+str+"' length: "+len(str) );
-	if (len(str)!=str.length())
-		print("failed size "+len(str)+"!="+str.length());
-	endif
+print( "testing length" );
+foreach str in { "", "1234", "1" }
+  print( "testing '" + str + "' length: " + len( str ) );
+  if ( len( str ) != str.length() )
+    print( "failed size " + len( str ) + "!=" + str.length() );
+  endif
 endforeach
 
-print("\ntesting join");
-var str:=",";
-var arr := {1,"2",3.1,4,5};
-arr[10]:="test";
-var res:=str.join(arr);
-print(str);
-print(res);
-print("\none "+"test".join({1}));
+print( "\ntesting join" );
+var str := ",";
+var arr := { 1, "2", 3.1, 4, 5 };
+arr[10] := "test";
+var res := str.join( arr );
+print( str );
+print( res );
+print( "\none " + "test".join( { 1 } ) );
 
-print("\nemptytest '"+ "empty".join({})+"'");
+print( "\nemptytest '" + "empty".join( {} ) + "'" );
 
-print("\ntesting upper");
-str:="asbcxysd";
-var orig:=str;
-var up:=str.upper();
-print(up);
-print("\ntesting lower");
-print(up.lower());
-if (up != orig)
-	print("compare failed");
+print( "\ntesting upper" );
+str := "asbcxysd";
+var orig := str;
+var up := str.upper();
+print( up );
+print( "\ntesting lower" );
+print( up.lower() );
+if ( up != orig )
+  print( "compare failed" );
 endif
 
-print("\ntesting find");
-str:="1234567";
-print(str.find("2",1));
-print(str.find("2",3));
-print(str.find("7"));
-print(str.find("1"));
-print(str.find("1",1));
-
+print( "\ntesting find" );
+str := "1234567";
+print( str.find( "2", 1 ) );
+print( str.find( "2", 3 ) );
+print( str.find( "7" ) );
+print( str.find( "1" ) );
+print( str.find( "1", 1 ) );

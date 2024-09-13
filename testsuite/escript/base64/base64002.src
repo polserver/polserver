@@ -1,7 +1,7 @@
 var str := "dGVzdA==";
-var decoded := decodeBase64(str);
-print(str);
-print(decoded);
+var decoded := decodeBase64( str );
+print( str );
+print( decoded );
 if ( decoded == "test" )
-print("success");
+  print( "success" );
 endif

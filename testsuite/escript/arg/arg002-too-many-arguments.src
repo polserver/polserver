@@ -1,5 +1,5 @@
 use uo;
 
-program test_ecompile(who)
-    SendSysMessage(who, "text", 0, 1, 1); // too many params for SendSysMessage
+program test_ecompile( who )
+  SendSysMessage( who, "text", 0, 1, 1 ); // too many params for SendSysMessage
 endprogram

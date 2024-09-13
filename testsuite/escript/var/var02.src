@@ -2,7 +2,7 @@ var x := 1;
 
 print( x );
 
-if (1)
-    var y := 2;
-    print( y );
+if ( 1 )
+  var y := 2;
+  print( y );
 endif

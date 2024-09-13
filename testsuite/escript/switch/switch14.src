@@ -1,7 +1,7 @@
 program test()
- var uselessvar := 1;
- case (uselessvar)
- 1: var testvar; break;
- endcase
+  var uselessvar := 1;
+  case ( uselessvar )
+    1: var testvar; break;
+  endcase
   print( "end" );
 endprogram

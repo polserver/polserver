@@ -1,6 +1,6 @@
 const BAR := 6;
 
 function foo( a := BAR / 3, b := "blah" )
-    print( a + " " + b );
+  print( a + " " + b );
 endfunction
 foo();

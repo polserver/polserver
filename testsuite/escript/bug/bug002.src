@@ -5,8 +5,8 @@ ret.+Amt;
 ret.Ret := 1;
 ret.Amt := 2;
 
-print("got = " + ret);
+print( "got = " + ret );
 
-//Result is:
+// Result is:
 
-//got == {<uninitialized object>, 2}
+// got == {<uninitialized object>, 2}

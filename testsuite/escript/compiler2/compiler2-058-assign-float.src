@@ -1,3 +1,2 @@
 var d := 1.4;
-print(d);
-
+print( d );

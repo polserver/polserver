@@ -6,7 +6,7 @@ setup();
 var x;
 
 foreach elem in arr
-    x := elem;
+  x := elem;
 endforeach
 
 print( "done" );

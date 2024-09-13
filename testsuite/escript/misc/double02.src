@@ -2,17 +2,17 @@ use math;
 
 program MathTest()
 
-var result := CInt((64.1+0.1)*10.0);
-Print("Result of CInt((64.1+0.1)*10.0) = "+result);
+  var result := CInt( ( 64.1 + 0.1 ) * 10.0 );
+  Print( "Result of CInt((64.1+0.1)*10.0) = " + result );
 
-var val := 64.1;
-print( "val(64.1)=" + val );
-val := val + 0.1;
-print( "val(64.2)=" + val );
-val := val * 10;
-print( "val(642)=" + val );
+  var val := 64.1;
+  print( "val(64.1)=" + val );
+  val := val + 0.1;
+  print( "val(64.2)=" + val );
+  val := val * 10;
+  print( "val(642)=" + val );
 
-val := CInt( val );
-print( "val(642)=" + val );
+  val := CInt( val );
+  print( "val(642)=" + val );
 
 endprogram

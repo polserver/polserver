@@ -1,11 +1,11 @@
 var a;
 
 function foo()
-    var b;
-    foreach c in a
-        var x;
-    endforeach
-    var d;
+  var b;
+  foreach c in a
+    var x;
+  endforeach
+  var d;
 endfunction
 
 foo();

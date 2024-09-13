@@ -1,8 +1,5 @@
 include "support";
 
 var nothing;
-print(
-  foo( 0 )
-    ?: bar( nothing )
-    ?: baz( "z" ) // not called (short-circuit)
-);
+print( foo( 0 ) ?: bar( nothing ) ?: baz( "z" ) // not called (short-circuit)
+       );

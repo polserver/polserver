@@ -1,12 +1,11 @@
 use math;
 
 function foo()
-    return "hi";
+  return "hi";
 endfunction
 
 // this is not allowed:
 const A := foo();
 
-print(foo());
-print(A);
-
+print( foo() );
+print( A );

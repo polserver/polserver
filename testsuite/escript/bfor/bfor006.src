@@ -1,13 +1,13 @@
-function txtcmd_addpath ( params )
+function txtcmd_addpath( params )
 
   params := SplitWords( params );
 
-		var phrase := "";
-		var arraylength := len( params );
+  var phrase := "";
+  var arraylength := len( params );
 
-		for a := 3 to arraylength
-			phrase := phrase + params[a] + " ";
-		endfor
+  for a := 3 to arraylength
+    phrase := phrase + params[a] + " ";
+  endfor
   print( phrase );
 
 endfunction

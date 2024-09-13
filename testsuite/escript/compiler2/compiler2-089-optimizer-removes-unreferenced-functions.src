@@ -4,22 +4,22 @@
 
 const ZERO := 0;
 
-function caller(x)
-    if (!ZERO)
-       included();
-    else
-       optimized_out();
-    endif
+function caller( x )
+  if ( !ZERO )
+    included();
+  else
+    optimized_out();
+  endif
 endfunction
 
 function included()
-    return "included";
+  return "included";
 endfunction
 
 function optimized_out()
-    return "optimized out";
+  return "optimized out";
 endfunction
 
 program foo()
-    print(caller(2));
+  print( caller( 2 ) );
 endprogram
