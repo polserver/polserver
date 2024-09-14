@@ -3,21 +3,22 @@
 //  CONSTANTS
 //
 ////////////////////////////////////////////////////////////////
-
+// format-off
 // Constants for texttype flags in the Say() and SayUC() functions
 const SAY_TEXTTYPE_DEFAULT := "default";
 const SAY_TEXTTYPE_WHISPER := "whisper";
-const SAY_TEXTTYPE_YELL := "yell";
+const SAY_TEXTTYPE_YELL    := "yell";
 
 // Constant for Unicode Language flag in the SayUC() function
 const SAY_LANG := "ENU";
 
 // Constants for doevent flag in Say() and SayUC() functions
 const SAY_DOEVENT_DISABLE := 0x0;
-const SAY_DOEVENT_ENABLE := 0x1;
+const SAY_DOEVENT_ENABLE  := 0x1;
 
 const FACE_NORMAL := 0x0;
-const FACE_FORCE := 0x1;
+const FACE_FORCE  := 0x1;
+// format-on
 
 ////////////////////////////////////////////////////////////////
 //

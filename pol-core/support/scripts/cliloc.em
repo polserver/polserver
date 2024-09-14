@@ -2,11 +2,13 @@
 // Cliloc Message related functions
 //
 
+// format-off
 //
 // CONSTANTS
 //
-const _DEFAULT_CLFONT := 3;
+const _DEFAULT_CLFONT  := 3;
 const _DEFAULT_CLCOLOR := 0x3B2;
+// format-on
 
 //
 // Functions

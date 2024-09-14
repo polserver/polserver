@@ -1,9 +1,10 @@
+// format-off
 // MoveBoat flags
-
 const BOAT_SPEED_ONE_TILE := 1;
-const BOAT_SPEED_SLOW := 2;
-const BOAT_SPEED_MEDIUM := 3;
-const BOAT_SPEED_FAST := 4;
+const BOAT_SPEED_SLOW     := 2;
+const BOAT_SPEED_MEDIUM   := 3;
+const BOAT_SPEED_FAST     := 4;
+// format-on
 
 // MoveBoat: moves a boat in the direction of an absolute facing
 // 0=N, 1=NE, 2=E, etc

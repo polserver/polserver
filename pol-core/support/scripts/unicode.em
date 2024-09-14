@@ -4,16 +4,18 @@
 //
 ////////////////////////////////////////////////////////////////
 
+// format-off
 //
 // Constants for PrintTextAbove*
 //
-const JOURNAL_UC_PRINT_NAME := 0x00; // Implicit.  Print's the object's description / npc's name in the journal.
+const JOURNAL_UC_PRINT_NAME    := 0x00; // Implicit.  Print's the object's description / npc's name in the journal.
 const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.
 
 // Don't use these outside this file, use FONT_* from client.inc
-const _DEFAULT_UCFONT := 3;
-const _DEFAULT_UCCOLOR := 0x3B2;
+const _DEFAULT_UCFONT             := 3;
+const _DEFAULT_UCCOLOR            := 0x3B2;
 const _DEFAULT_UCTEXT_REQUIREDCMD := 0;
+// format-on
 
 ////////////////////////////////////////////////////////////////
 //

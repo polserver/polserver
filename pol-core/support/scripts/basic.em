@@ -1,52 +1,52 @@
-const TRIM_LEFT := 0x1; // Trim whitespace from Left of string.
+// format-off
+const TRIM_LEFT  := 0x1; // Trim whitespace from Left of string.
 const TRIM_RIGHT := 0x2; // Trim whitespace from Right of string.
-const TRIM_BOTH := 0x3; // Trim whitespace from Left and Right of string.
+const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.
 
 // TypeOfInt() constants
-const OT_UNKNOWN := 0;
-const OT_UNINIT := 1;
-const OT_STRING := 2;
-const OT_LONG := 3;
-const OT_DOUBLE := 4;
-const OT_ARRAY := 5;
-const OT_APPLICPTR := 6;
-const OT_APPLICOBJ := 7;
-const OT_ERROR := 8;
-const OT_DICTIONARY := 9;
-const OT_STRUCT := 10;
-const OT_PACKET := 11;
-const OT_BINARYFILE := 12;
-const OT_XMLFILE := 13;
-const OT_XMLNODE := 14;
-const OT_XMLATTRIBUTES := 15;
-const OT_POLCOREREF := 16;
-const OT_ACCOUNTREF := 17;
-const OT_CONFIGFILEREF := 18;
-const OT_CONFIGELEMREF := 19;
-const OT_DATAFILEREF := 20;
-const OT_DATAELEMREF := 21;
-const OT_GUILDREF := 22;
-const OT_PARTYREF := 23;
-const OT_BOUNDINGBOX := 24;
-const OT_DEBUGCONTEXT := 25;
-const OT_SCRIPTEXREF := 26;
-const OT_PACKAGE := 27;
-const OT_MENUREF := 28;
-const OT_MOBILEREF := 29;
+const OT_UNKNOWN          :=  0;
+const OT_UNINIT           :=  1;
+const OT_STRING           :=  2;
+const OT_LONG             :=  3;
+const OT_DOUBLE           :=  4;
+const OT_ARRAY            :=  5;
+const OT_APPLICPTR        :=  6;
+const OT_APPLICOBJ        :=  7;
+const OT_ERROR            :=  8;
+const OT_DICTIONARY       :=  9;
+const OT_STRUCT           := 10;
+const OT_PACKET           := 11;
+const OT_BINARYFILE       := 12;
+const OT_XMLFILE          := 13;
+const OT_XMLNODE          := 14;
+const OT_XMLATTRIBUTES    := 15;
+const OT_POLCOREREF       := 16;
+const OT_ACCOUNTREF       := 17;
+const OT_CONFIGFILEREF    := 18;
+const OT_CONFIGELEMREF    := 19;
+const OT_DATAFILEREF      := 20;
+const OT_DATAELEMREF      := 21;
+const OT_GUILDREF         := 22;
+const OT_PARTYREF         := 23;
+const OT_BOUNDINGBOX      := 24;
+const OT_DEBUGCONTEXT     := 25;
+const OT_SCRIPTEXREF      := 26;
+const OT_PACKAGE          := 27;
+const OT_MENUREF          := 28;
+const OT_MOBILEREF        := 29;
 const OT_OFFLINEMOBILEREF := 30;
-const OT_ITEMREF := 31;
-const OT_BOATREF := 32;
-const OT_MULTIREF := 33;
-const OT_CLIENTREF := 34;
-// Only applicable if SQL is active and compiled.
-const OT_SQLCONN := 35;
-const OT_SQLRESULT := 36;
-const OT_SQLROW := 37;
-
-const OT_BOOLEAN := 38;
-const OT_FUNCOBJECT := 39;
-const OT_EXPORTEDSCRIPT := 40;
-const OT_STORAGEAREA := 41;
+const OT_ITEMREF          := 31;
+const OT_BOATREF          := 32;
+const OT_MULTIREF         := 33;
+const OT_CLIENTREF        := 34;
+const OT_SQLCONN          := 35; // Only applicable if SQL is active and compiled.
+const OT_SQLRESULT        := 36;
+const OT_SQLROW           := 37;
+const OT_BOOLEAN          := 38;
+const OT_FUNCOBJECT       := 39;
+const OT_EXPORTEDSCRIPT   := 40;
+const OT_STORAGEAREA      := 41;
+// format-on
 
 // returns the one-based index of Search within Str after position Start
 Find( Str, Search, Start );

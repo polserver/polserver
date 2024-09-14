@@ -1,9 +1,11 @@
+// format-off
 //
 // OpenDataFile flags:
 //
 // can specify only one of the following:
-const DF_KEYTYPE_STRING := 0x00; // default
+const DF_KEYTYPE_STRING  := 0x00; // default
 const DF_KEYTYPE_INTEGER := 0x01;
+// format-on
 
 //
 // Functions
