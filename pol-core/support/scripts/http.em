@@ -1,6 +1,6 @@
 // WriteStatus( code, reason = "" )
 //
-// Writes the HTTP status code with optional reason. Can only be used before any 
+// Writes the HTTP status code with optional reason. Can only be used before any
 // WriteHeader(), WriteHtml(), and WriteHtmlRaw() functions. If data has already
 // been sent via these calls, then WriteStatus() will return an
 // error.
@@ -9,12 +9,12 @@ WriteStatus( code, reason := "" );
 // WriteHeader( name, value )
 //
 // Writes a header to the "virtual webpage" that's to be sent
-// to the connecting browser. Can only be used before any 
+// to the connecting browser. Can only be used before any
 // WriteHtml() or WriteHtmlRaw() commands and after optionally WriteStatus(). If data has already
 // been sent via these calls, then WriteHeader() will return an
 // error.
 //
-// This function can also be used to change the content type from 
+// This function can also be used to change the content type from
 // the default "text/html" by writing a Content-Type header name.
 WriteHeader( name, value );
 

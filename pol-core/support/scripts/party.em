@@ -4,7 +4,7 @@
 
 CreateParty( leader, firstmember );
 
-DisbandParty( partyref ); 
+DisbandParty( partyref );
 
 SendPartyMsg( party, character, uctext );
 

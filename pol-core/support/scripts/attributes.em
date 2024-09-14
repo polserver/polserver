@@ -25,13 +25,12 @@ GetAttributeTemporaryMod( character, attrname );
 GetAttributeLock( character, attrname );
 SetAttributeLock( character, attrname, lockstate );
 
-GetAttributeDefaultCap ( attrname );
+GetAttributeDefaultCap( attrname );
 GetAttributeCap( character, attrname );
 SetAttributeCap( character, attrname, capvalue );
 
 SetAttributeBaseValue( character, attrname, basevalue_tenths ); // obsoletes SetRawSkill
 SetAttributeTemporaryMod( character, attrname, tempmod_tenths ); // obsoletes mob.strength_mod etc
-
 
 BaseSkillToRawSkill( baseskill );
 RawSkillToBaseSkill( rawskill );

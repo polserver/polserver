@@ -2,9 +2,8 @@
 // OpenDataFile flags:
 //
 // can specify only one of the following:
-const DF_KEYTYPE_STRING       := 0x00; // default
-const DF_KEYTYPE_INTEGER      := 0x01;
-
+const DF_KEYTYPE_STRING := 0x00; // default
+const DF_KEYTYPE_INTEGER := 0x01;
 
 //
 // Functions
@@ -12,9 +11,9 @@ const DF_KEYTYPE_INTEGER      := 0x01;
 ListDataFiles();
 CreateDataFile( filespec, flags := DF_KEYTYPE_STRING );
 OpenDataFile( filespec ); // fails if does not exist
-//DataFileExists( filespec );
-//DeleteDataFile( filespec );
-//RenameDataFile( oldfilespec, newfilespec );
+// DataFileExists( filespec );
+// DeleteDataFile( filespec );
+// RenameDataFile( oldfilespec, newfilespec );
 UnloadDataFile( filespec );
 
 // Object: DataFile datafile;
