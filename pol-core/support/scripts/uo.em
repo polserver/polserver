@@ -258,8 +258,7 @@ AddMenuItem( menu, objtype, text, color := 0 );
 ApplyConstraint( objlist, configfile, propertyname, minvalue );
 AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth );
 Attach( character );
-Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR,
-           required_cmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
+Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, required_cmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
 CancelTarget( of_whom );
 CanWalk( movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM );
 CheckLineOfSight( object1, object2 );
@@ -280,8 +279,7 @@ CreateItemInContainer( container, objtype, amount := 1, x := -1, y := -1 );
 CreateItemInInventory( container, objtype, amount := 1, x := -1, y := -1 );
 CreateMenu( title );
 CreateMultiAtLocation( x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM );
-CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM,
-                       forcelocation := 0 );
+CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM, forcelocation := 0 );
 DestroyItem( item );
 DestroyMulti( multi );
 Detach();
@@ -298,8 +296,7 @@ EraseGlobalProperty( propname );
 EraseObjProperty( object, propname );
 FindAccount( acctname );
 FindObjtypeInContainer( container, objtype, flags := FINDOBJTYPE_RECURSIVE );
-FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES,
-          searchskirt := 5, movemode := "L" );
+FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode := "L" );
 FindSubstance( container, objtype, amount, makeinuse := 0, flags := 0 );
 GetAmount( item );
 GetCommandHelp( character, command );
@@ -323,8 +320,7 @@ GetRegionString( resource, x, y, propertyname, realm := _DEFAULT_REALM );
 GetSpellDifficulty( spellid );
 GetStandingHeight( x, y, startz, realm := _DEFAULT_REALM );
 GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM, includeitems := 1 );
-GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM,
-                        movemode := "L", doors_block := 0 );
+GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0 );
 GetWorldHeight( x, y, realm := _DEFAULT_REALM );
 GrantPrivilege( character, privilege );
 HarvestResource( resource, x, y, b, n, realm := _DEFAULT_REALM ); // returns b*a where 0 <= a <= n
@@ -355,32 +351,22 @@ MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack :=
 MoveItemToSecureTradeWin( item, character );
 MoveObjectToLocation( object, x, y, z, realm := _DEFAULT_REALM, flags := MOVEOBJECT_NORMAL );
 OpenPaperdoll( towhom, forwhom );
-PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD,
-               repeatflag := ACTION_NOREPEAT, delay := 1 );
+PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD, repeatflag := ACTION_NOREPEAT, delay := 1 );
 PlayLightningBoltEffect( center_object );
 PlayMovingEffect( source, target, effect, speed, loop := 0, explode := 0 );
-PlayMovingEffectEx( source, target, effect, speed, duration := 0, hue := 0, render := 0,
-                    fixeddirection := 0, explode := 0, effect3d := 0, effect3dexplode := 0,
-                    effect3dsound := 0 );
-PlayMovingEffectXYZ( srcx, srcy, srcz, dstx, dsty, dstz, effect, speed, loop := 0, explode := 0,
-                     realm := _DEFAULT_REALM );
-PlayMovingEffectXYZEx( srcx, srcy, srcz, dstx, dsty, dstz, realm := _DEFAULT_REALM, effect, speed,
-                       duration := 0, hue := 0, render := 0, fixeddirection := 0, explode := 0,
-                       effect3d := 0, effect3dexplode := 0, effect3dsound := 0 );
+PlayMovingEffectEx( source, target, effect, speed, duration := 0, hue := 0, render := 0, fixeddirection := 0, explode := 0, effect3d := 0, effect3dexplode := 0, effect3dsound := 0 );
+PlayMovingEffectXYZ( srcx, srcy, srcz, dstx, dsty, dstz, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM );
+PlayMovingEffectXYZEx( srcx, srcy, srcz, dstx, dsty, dstz, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, fixeddirection := 0, explode := 0, effect3d := 0, effect3dexplode := 0, effect3dsound := 0 );
 PlayObjectCenteredEffect( center, effect, speed, loop := 0 );
-PlayObjectCenteredEffectEx( center, effect, speed, duration := 0, hue := 0, render := 0, layer := 0,
-                            effect3d := 0 );
+PlayObjectCenteredEffectEx( center, effect, speed, duration := 0, hue := 0, render := 0, layer := 0, effect3d := 0 );
 PlaySoundEffect( object, effect );
 PlaySoundEffectPrivate( object, effect, playfor );
 PlaySoundEffectXYZ( x, y, z, effect, realm := _DEFAULT_REALM );
 PlayMusic( chr, music_id := 0 );
 PlayStationaryEffect( x, y, z, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM );
-PlayStationaryEffectEx( x, y, z, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0,
-                        render := 0, effect3d := 0 );
-PrintTextAbove( above_object, text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR,
-                journal_print := JOURNAL_PRINT_NAME );
-PrintTextAbovePrivate( above_object, text, character, font := _DEFAULT_TEXT_FONT,
-                       color := _DEFAULT_TEXT_COLOR, journal_print := JOURNAL_PRINT_NAME );
+PlayStationaryEffectEx( x, y, z, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, effect3d := 0 );
+PrintTextAbove( above_object, text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, journal_print := JOURNAL_PRINT_NAME );
+PrintTextAbovePrivate( above_object, text, character, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, journal_print := JOURNAL_PRINT_NAME );
 ReadGameClock();
 RegisterForSpeechEvents( at_object, range, flags := 0 );
 ReleaseItem( item );
@@ -394,8 +380,7 @@ SecureTradeWin( character, character2 );
 SelectColor( character, item );
 SelectMenuItem2( character, menuname );
 SendBuyWindow( character, container, vendor, items, flags := 0 );
-SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNEDITABLE_TEXT,
-                 editable_text := CHARPROFILE_NO_EDITABLE_TEXT );
+SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNEDITABLE_TEXT, editable_text := CHARPROFILE_NO_EDITABLE_TEXT );
 SendCharacterRaceChanger( character );
 SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0, gumpid := 0 );
 SendEvent( npc, event );
@@ -412,8 +397,7 @@ SendSkillWindow( towhom, forwhom );
 SendStatus( character );
 SendStringAsTipWindow( character, text );
 SendSysMessage( character, text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
-SendTextEntryGump( who, line1, cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NORMAL, maximum := 40,
-                   line2 := "" );
+SendTextEntryGump( who, line1, cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NORMAL, maximum := 40, line2 := "" );
 SendViewContainer( character, container );
 SetGlobalProperty( propname, propval );
 SetName( object, name );
