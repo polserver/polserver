@@ -152,7 +152,7 @@ std::vector<FmtToken> PrettifyLineBuilder::buildLineSplits()
   for ( size_t i = 0; i < _line_parts.size(); ++i )
   {
 #ifdef DEBUG_FORMAT_BREAK
-    INFO_PRINTLN( "\"{}\" {}", _line_parts[i].text, _line_parts[i].group );
+    INFO_PRINTLN( "\"{}\" {} {}", _line_parts[i].text, _line_parts[i].group, _line_parts[i].style );
 #endif
     if ( part.text.empty() )
     {
@@ -260,7 +260,8 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
                                    size_t upto, const std::vector<FmtToken>& lines,
                                    bool only_single_line, std::vector<std::string>* finallines,
                                    std::map<size_t, size_t>* alignmentspace, size_t* skipindex,
-                                   const std::map<size_t, size_t>& initial_alignmentspace ) const
+                                   const std::map<size_t, size_t>& initial_alignmentspace,
+                                   std::string& newpart ) const
 {
   auto packTaktic =
       []( size_t index, size_t end_group, size_t max_len, const std::vector<FmtToken>& lines )
@@ -340,6 +341,7 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
     if ( !alignmentspace->count( part.group ) )
       ( *alignmentspace )[part.group] = line.size() - indent.size();
     line += total;
+    newpart = total;
     stripline( line );
     finallines->emplace_back( std::move( line ) );
     line.clear();
@@ -383,6 +385,7 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
   // we found a solution
   if ( !alignmentspace->count( part.group ) )
     ( *alignmentspace )[part.group] = line.size() - indent.size();
+  newpart = "";
   for ( const auto& lpart : lineparts )
   {
     if ( line.empty() )
@@ -391,6 +394,7 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
       line += indent;
     }
     line += lpart;
+    newpart += lpart;
     stripline( line );
     finallines->emplace_back( std::move( line ) );
     line.clear();
@@ -399,7 +403,7 @@ bool PrettifyLineBuilder::binPack( const FmtToken& part, std::string line, size_
 }
 
 std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
-    const std::vector<FmtToken>& lines ) const
+    std::vector<FmtToken>& lines ) const
 {
   // TODO align closing brackets better
   std::vector<std::string> finallines;
@@ -413,7 +417,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
   line = indent;
   bool groupdiffered = false;
   size_t i = 0, skipuntil = 0, tried_binpack_until = 0;
-  for ( const auto& part : lines )
+  for ( auto& part : lines )
   {
     if ( skipuntil > i )  // already handled during binpack
     {
@@ -508,8 +512,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
         alignmentspace = initial_alignmentspace;
       continue;
     }
-
-    if ( tried_binpack_until < i )
+    if ( tried_binpack_until <= i )
     {
       size_t upto = lines.size() - 1;
       // check for nested groups, binpack is not allowed for these eg array of struct
@@ -554,8 +557,9 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
         INFO_PRINTLN( "trybinpack {}->{} {}->{}", i, upto, lines[i].text, lines[upto].text );
 #endif
         size_t skip;
+        std::string newpart;
         if ( binPack( part, line, i, upto, lines, tried_binpack_until > 0, &finallines,
-                      &alignmentspace, &skip, initial_alignmentspace ) )
+                      &alignmentspace, &skip, initial_alignmentspace, newpart ) )
         {
 #ifdef DEBUG_FORMAT_BREAK
           INFO_PRINTLN( "binpack {}->{} {}->{}", i, upto, lines[i].text, lines[skip - 1].text );
@@ -578,8 +582,9 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
           line.clear();
           line = alignmentSpacing( alignmentspace[part.firstgroup] );
           line += indent;
+          std::string tmp;
           if ( binPack( part, line, i, upto, lines, tried_binpack_until > 0, &finallines,
-                        &alignmentspace, &skip, initial_alignmentspace ) )
+                        &alignmentspace, &skip, initial_alignmentspace, tmp ) )
           {
 #ifdef DEBUG_FORMAT_BREAK
             INFO_PRINTLN( "binpack2 {}->{} {}->{}", i, upto, lines[i].text, lines[skip - 1].text );
@@ -599,6 +604,41 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
           }
         }
         tried_binpack_until = skip;
+      }
+    }
+    if ( lines[i].context == FmtContext::PREFERRED_BREAK_START )
+    {
+      // try to pack function calls, by modifying the current part
+      size_t upto = lines.size() - 1;
+      for ( size_t j = i + 1; j < lines.size(); ++j )
+      {
+        if ( lines[j].context == FmtContext::PREFERRED_BREAK_END )
+        {
+          upto = j;
+          break;
+        }
+      }
+#ifdef DEBUG_FORMAT_BREAK
+      INFO_PRINTLN( "trybinpackfunc {}->{} {}->{}", i, upto, lines[i].text, lines[upto].text );
+#endif
+      size_t skip;
+      std::string oldline = line;
+      std::string newpart;
+      if ( binPack( part, line, i, upto, lines, true, &finallines, &alignmentspace, &skip,
+                    initial_alignmentspace, newpart ) )
+      {
+#ifdef DEBUG_FORMAT_BREAK
+        INFO_PRINTLN( "binpackfunc {}->{} {}->{}", i, upto, lines[i].text, lines[skip - 1].text );
+#endif
+        skipuntil = skip;
+        // dont keep spacing over var,
+        if ( part.style & FmtToken::PREFERRED_BREAK_VAR )
+          alignmentspace = initial_alignmentspace;
+        // use the packed text as current part
+        part.text = newpart;
+        finallines.pop_back();
+        line = oldline;
+        part.group = lines[skip].group;
       }
     }
     if ( lastgroup < part.firstgroup )  // new group
@@ -1215,10 +1255,10 @@ void PrettifyLineBuilder::addEmptyLines( size_t line_number )
   }
 }
 
-int PrettifyLineBuilder::closingParenthesisStyle( size_t begin_size )
+int PrettifyLineBuilder::closingParenthesisStyle( bool args )
 {
   auto style = FmtToken::SPACE | FmtToken::BREAKPOINT;
-  if ( _line_parts.size() == begin_size )
+  if ( !args )
   {
     if ( !compilercfg.FormatterEmptyParenthesisSpacing )
       style |= FmtToken::ATTACHED;
