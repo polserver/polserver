@@ -123,7 +123,7 @@ struct PolConfig
      Simple rectangular distance is used - if the x's differ by <= 18, and the y's differ
      by <= 18, you're in range.  If either is out of range, you're out.
      */
-  u8 visual_range;
+  std::uint8_t visual_range;
 
   bool enable_colored_output;
 
