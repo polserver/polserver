@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-12-2024</datemodified>
+		<datemodified>09-16-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>09-16-2024</date>
+			<author>Kukkino:</author>
+			<change type="Added">VisualRange setting to pol.cfg. This setting declares how far clients can see. Note that the same<br/>
+value needs to be set on both server and in client (usually 18 or 21).</change>
+		</entry>
 		<entry>
 			<date>09-12-2024</date>
 			<author>Turley:</author>
