@@ -34,6 +34,9 @@
            See the Racalac Escript Guide for additional details.
 09-27-2024 Turley:
     Fixed: EScript formatter missing spaces while packing function refs, better packing of function calls in eg structs
+09-16-2024 Kukkino:
+    Added: VisualRange setting to pol.cfg. This setting declares how far clients can see. Note that the same
+           value needs to be set on both server and in client (usually 18 or 21).
 09-12-2024 Turley:
     Fixed: multiple problems with the EScript formatter
     Added: more ecompile.cfg options for the formatter, see ecompile.cfg.example for details
