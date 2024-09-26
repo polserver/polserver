@@ -2418,6 +2418,9 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
   if ( id != MTH_CALL && id != MTH_NEW && id != MTH_CALL_METHOD )
     return false;
 
+  if ( id == MTH_NEW && !constructor() )
+    return false;
+
   if ( passed_args < expected_min_args || ( passed_args > expected_max_args && !variadic() ) )
     return false;
 
