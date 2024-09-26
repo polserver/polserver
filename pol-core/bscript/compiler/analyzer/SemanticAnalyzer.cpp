@@ -1003,10 +1003,7 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     }
   }
 
-  // Do not error if accessing a class name that does not define a constructor,
-  // as that is handled by visit_function_call.
-  if ( !node.variable &&
-       workspace.all_class_locations.find( name ) == workspace.all_class_locations.end() )
+  if ( !node.variable )
   {
     report.error( node, "Unknown identifier '{}'.", name );
     return;
