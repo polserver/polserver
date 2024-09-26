@@ -171,8 +171,8 @@ GameState::GameState()
       uo_skills(),
       task_thread_pool(),
       decay(),
-      max_update_range( Plib::RANGE_VISUAL ),
-      max_update_range_client( Plib::RANGE_VISUAL ),
+      max_update_range( 0 ),
+      max_update_range_client( 0 ),
       max_update_range_multi( 0 )
 
 {
@@ -185,7 +185,11 @@ GameState::~GameState()
   // or make sure that the globals get deconstructed before eg the flyweight string container
 }
 
-
+void GameState::initialize_range_from_config( u16 range )
+{
+  max_update_range_client = range;
+  max_update_range = max_update_range_multi + max_update_range_client;
+}
 void GameState::update_range_from_multis()
 {
   for ( const auto& m_pair : Multi::multidef_buffer.multidefs_by_multiid )
