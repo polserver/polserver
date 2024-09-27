@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+09-27-2024 Turley:
+    Fixed: EScript formatter missing spaces while packing function refs, better packing of function calls in eg structs
 09-12-2024 Turley:
     Fixed: multiple problems with the EScript formatter
     Added: more ecompile.cfg options for the formatter, see ecompile.cfg.example for details
