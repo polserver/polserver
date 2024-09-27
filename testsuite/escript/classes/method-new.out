@@ -1,2 +1,12 @@
+error{ errortext = "Invalid argument count: expected 1, got 0" }
 <class ClassA>
+error{ errortext = "Invalid argument count: expected 1, got 2" }
+error{ errortext = "Function is not a constructor" }
+error{ errortext = "Function is not a constructor" }
+error{ errortext = "Function is not a constructor" }
+error{ errortext = "Function is not a constructor" }
+error{ errortext = "Function is not a constructor" }
+error{ errortext = "Function is not a constructor" }
+error{ errortext = "Function is not a constructor" }
+error{ errortext = "Function is not a constructor" }
 error{ errortext = "Function is not a constructor" }
