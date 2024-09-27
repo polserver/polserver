@@ -2663,17 +2663,12 @@ void Executor::ins_call_method_id( const Instruction& ins )
 
       if ( add_new_classinst )
       {
-        if ( funcr->class_index() >= prog_->class_descriptors.size() )
+        if ( funcr->constructor() )
         {
-          POLLOG_ERRORLN( "Class index out of bounds: {} >= {} ({},PC={})", funcr->class_index(),
-                          prog_->class_descriptors.size(), prog_->name, PC );
-          seterror( true );
-          return;
+          fparams.insert( fparams.begin(),
+                          BObjectRef( new BConstObject( new BClassInstanceRef(
+                              new BClassInstance( prog_, funcr->class_index(), Globals2 ) ) ) ) );
         }
-
-        fparams.insert( fparams.begin(),
-                        BObjectRef( new BConstObject( new BClassInstanceRef(
-                            new BClassInstance( prog_, funcr->class_index(), Globals2 ) ) ) ) );
       }
 
       if ( funcr->validCall( continuation ? MTH_CALL : ins.token.lval, *this, &jmp ) )
