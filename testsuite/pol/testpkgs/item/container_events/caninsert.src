@@ -11,5 +11,5 @@ program caninsertscript( character, container, movetype, inserttype, adding_item
                                                                                      adding_item,
                                                                                      existing_stack,
                                                                                      amount_to_add }
-                                                                   } );
+                                                                                     } );
 endprogram

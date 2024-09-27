@@ -85,8 +85,7 @@ exported function test_container_events()
     // Fail to lift 250 coins from the container, as cannot remove odd-amount items from the container because of the CanRemove script
     // ----------
     if ( !( evs := lift_item( ret, item.serial, 251, { "container_canremove",
-                                                       EVT_MOVE_ITEM_REJECTED },
-         {} ) ) )
+                                                       EVT_MOVE_ITEM_REJECTED }, {} ) ) )
       break;
     endif
 

@@ -379,7 +379,8 @@ function run_attach_test( debuggee_pid )
   if ( !( setVariable := request_succeeded( err, "setVariable", struct{ name := "was_paused",
                                                                         value := "1",
                                                                         variablesReference := scopes.scopes[1].variablesReference
-                                                                } ) ) )
+                                                                        }
+       ) ) )
     return err;
   endif
 
@@ -447,15 +448,16 @@ function run_attach_test( debuggee_pid )
                                                                         value := "1.5",
                                                                         variablesReference := scopes.scopes[Len(
                                                                         scopes.scopes )].variablesReference
-                                                                } ) ) )
+                                                                        }
+       ) ) )
     return err;
   endif
 
   // Send request: evaluate
   if ( !( evaluate := request_succeeded( err, "evaluate", struct{ expression := "global_float",
                                                                   frameId := stackTrace.stackFrames[Len(
-                                                                  stackTrace.stackFrames )].id
-                                                          } ) ) )
+                                                                  stackTrace.stackFrames )].id }
+       ) ) )
     return err;
   endif
 

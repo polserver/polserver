@@ -33,10 +33,9 @@ var optests := array{ "1234",
                       -6,
                       12.11,
                       0.0,
-                      -8.8,
-                      array{ "a", "b", "c", 19 },
-                      dictionary{ "1234" -> "456", "eeee" -> 0 },
-                      struct{ a := t, b := 21, c := "0" },
+                      -8.8, array{ "a", "b", "c", 19 },
+                            dictionary{ "1234" -> "456", "eeee" -> 0 },
+                            struct{ a := t, b := 21, c := "0" },
                       error{ errortext := "ERROR" }, uninit };
 
 // Binary operators

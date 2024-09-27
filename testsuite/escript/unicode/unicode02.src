@@ -21,9 +21,8 @@ var optests := array{ "1234",
                       "b",
                       "ab",
                       "a",
-                      "caterpillar",
-                      array{ "α", "β", "γ", 19 },
-                      dictionary{ "ⅠⅡⅢⅣ" -> "𐄜𐄝𐄞", "eeee" -> 0 } };
+                      "caterpillar", array{ "α", "β", "γ", 19 },
+                                     dictionary{ "ⅠⅡⅢⅣ" -> "𐄜𐄝𐄞", "eeee" -> 0 } };
 
 // Binary operators
 foreach ot in optests
