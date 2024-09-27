@@ -691,7 +691,10 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
     else  // same group
     {
       // only if we already had a different group split the line
-      if ( groupdiffered )
+      bool closing = false;
+      if ( !part.text.empty() )
+        closing = part.text[0] == ')';  // shouldnt force a new line
+      if ( groupdiffered && !closing )
       {
         newline = false;
         stripline( line );
@@ -702,7 +705,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
       }
       line += part.text;
 #ifdef DEBUG_FORMAT_BREAK
-      INFO_PRINTLN( "same {} - {}", line, alignmentspace );
+      INFO_PRINTLN( "same {} - {} {} {}", line, alignmentspace, groupdiffered, part.text );
 #endif
       if ( line.size() > compilercfg.FormatterLineWidth )
       {
