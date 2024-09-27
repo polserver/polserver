@@ -1,4 +1,4 @@
-// Test MTH_NEW call on a funcref that is not a ctor
+// Test MTH_NEW call on a funcref that is not a ctor for both class and non-class methods
 
 class ClassA()
   function ClassA( this, arg0 )
@@ -8,7 +8,29 @@ class ClassA()
   function stringify( this )
     return $"ClassA::stringify this={this} this.arg0={this.arg0}";
   endfunction
+
+  function staticfunc()
+  endfunction
 endclass
 
+function GlobalFunction()
+endfunction
+
+print( @ClassA.new() );
 print( @ClassA.new( "a0" ) );
-print( @ClassA::stringify.new( "a0 ") );
+print( @ClassA.new( "a0", "a1" ) );
+
+// (a) class method
+print( @ClassA::stringify.new() );
+print( @ClassA::stringify.new( "a0" ) );
+print( @ClassA::stringify.new( "a0", "a1" ) );
+
+// (b) global function
+print( @GlobalFunction.new() );
+print( @GlobalFunction.new( "a0" ) );
+print( @GlobalFunction.new( "a0", "a1" ) );
+
+// (c) class static function
+print( @ClassA::staticfunc.new() );
+print( @ClassA::staticfunc.new( "a0" ) );
+print( @ClassA::staticfunc.new( "a0", "a1" ) );
