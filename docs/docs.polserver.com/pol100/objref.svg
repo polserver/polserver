@@ -214,11 +214,19 @@
 </a>
 </g>
 </g>
+<!-- classinstanceref -->
+<g id="node42" class="node">
+<title>client</title>
+<g id="a_node42"><a xlink:href="#ClassInstanceRef" xlink:title="ClassInstanceRef" target="_top">
+<text text-anchor="middle" x="454.6" y="-219.4" font-family="monospace" font-size="12.00" fill="blue">ClassInstanceRef</text>
+</a>
+</g>
+</g>
 <!-- client -->
 <g id="node22" class="node">
 <title>client</title>
 <g id="a_node22"><a xlink:href="#Client" xlink:title="Client" target="_top">
-<text text-anchor="middle" x="454.6" y="-219.4" font-family="monospace" font-size="12.00" fill="blue">Client</text>
+<text text-anchor="middle" x="454.6" y="-197.8" font-family="monospace" font-size="12.00" fill="blue">Client</text>
 </a>
 </g>
 </g>
@@ -226,7 +234,7 @@
 <g id="node23" class="node">
 <title>datafile</title>
 <g id="a_node23"><a xlink:href="#Datafile" xlink:title="Datafile" target="_top">
-<text text-anchor="middle" x="454.6" y="-197.8" font-family="monospace" font-size="12.00" fill="blue">Datafile</text>
+<text text-anchor="middle" x="454.6" y="-176.2" font-family="monospace" font-size="12.00" fill="blue">Datafile</text>
 </a>
 </g>
 </g>
@@ -234,7 +242,7 @@
 <g id="node24" class="node">
 <title>datafileelement</title>
 <g id="a_node24"><a xlink:href="#DataFileElement" xlink:title="DataFileElement" target="_top">
-<text text-anchor="middle" x="454.6" y="-176.2" font-family="monospace" font-size="12.00" fill="blue">DataFileElement</text>
+<text text-anchor="middle" x="454.6" y="-154.6" font-family="monospace" font-size="12.00" fill="blue">DataFileElement</text>
 </a>
 </g>
 </g>
@@ -242,7 +250,7 @@
 <g id="node25" class="node">
 <title>dictionary</title>
 <g id="a_node25"><a xlink:href="#Dictionary" xlink:title="Dictionary" target="_top">
-<text text-anchor="middle" x="454.6" y="-154.6" font-family="monospace" font-size="12.00" fill="blue">Dictionary</text>
+<text text-anchor="middle" x="454.6" y="-133" font-family="monospace" font-size="12.00" fill="blue">Dictionary</text>
 </a>
 </g>
 </g>
@@ -250,119 +258,7 @@
 <g id="node26" class="node">
 <title>error</title>
 <g id="a_node26"><a xlink:href="#Error" xlink:title="Error" target="_top">
-<text text-anchor="middle" x="454.6" y="-133" font-family="monospace" font-size="12.00" fill="blue">Error</text>
-</a>
-</g>
-</g>
-<!-- functionobject -->
-<g id="node27" class="node">
-<title>functionobject</title>
-<g id="a_node27"><a xlink:href="#FunctionObject" xlink:title="FunctionObject" target="_top">
-<text text-anchor="middle" x="454.6" y="-111.4" font-family="monospace" font-size="12.00" fill="blue">FunctionObject</text>
-</a>
-</g>
-</g>
-<!-- guild -->
-<g id="node28" class="node">
-<title>guild</title>
-<g id="a_node28"><a xlink:href="#Guild" xlink:title="Guild" target="_top">
-<text text-anchor="middle" x="454.6" y="-89.8" font-family="monospace" font-size="12.00" fill="blue">Guild</text>
-</a>
-</g>
-</g>
-<!-- package -->
-<g id="node29" class="node">
-<title>package</title>
-<g id="a_node29"><a xlink:href="#Package" xlink:title="Package" target="_top">
-<text text-anchor="middle" x="454.6" y="-68.2" font-family="monospace" font-size="12.00" fill="blue">Package</text>
-</a>
-</g>
-</g>
-<!-- packet -->
-<g id="node30" class="node">
-<title>packet</title>
-<g id="a_node30"><a xlink:href="#Packet" xlink:title="Packet" target="_top">
-<text text-anchor="middle" x="454.6" y="-46.6" font-family="monospace" font-size="12.00" fill="blue">Packet</text>
-</a>
-</g>
-</g>
-<!-- party -->
-<g id="node31" class="node">
-<title>party</title>
-<g id="a_node31"><a xlink:href="#Party" xlink:title="Party" target="_top">
-<text text-anchor="middle" x="454.6" y="-25" font-family="monospace" font-size="12.00" fill="blue">Party</text>
-</a>
-</g>
-</g>
-<!-- polcore -->
-<g id="node32" class="node">
-<title>polcore</title>
-<g id="a_node32"><a xlink:href="#Polcore" xlink:title="PolCore" target="_top">
-<text text-anchor="middle" x="454.6" y="-3.4" font-family="monospace" font-size="12.00" fill="blue">PolCore</text>
-</a>
-</g>
-</g>
-<!-- script -->
-<g id="node33" class="node">
-<title>script</title>
-<g id="a_node33"><a xlink:href="#Script" xlink:title="Script" target="_top">
-<text text-anchor="middle" x="562.6" y="-219.4" font-family="monospace" font-size="12.00" fill="blue">Script</text>
-</a>
-</g>
-</g>
-<!-- struct -->
-<g id="node34" class="node">
-<title>struct</title>
-<g id="a_node34"><a xlink:href="#Struct" xlink:title="Struct" target="_top">
-<text text-anchor="middle" x="562.6" y="-197.8" font-family="monospace" font-size="12.00" fill="blue">Struct</text>
-</a>
-</g>
-</g>
-<!-- string -->
-<g id="node35" class="node">
-<title>string</title>
-<g id="a_node35"><a xlink:href="#String" xlink:title="String" target="_top">
-<text text-anchor="middle" x="562.6" y="-176.2" font-family="monospace" font-size="12.00" fill="blue">String</text>
-</a>
-</g>
-</g>
-<!-- storageareas -->
-<g id="node36" class="node">
-<title>storageareas</title>
-<g id="a_node36"><a xlink:href="#StorageAreas" xlink:title="StorageAreas" target="_top">
-<text text-anchor="middle" x="562.6" y="-154.6" font-family="monospace" font-size="12.00" fill="blue">StorageAreas</text>
-</a>
-</g>
-</g>
-<!-- storagearea -->
-<g id="node37" class="node">
-<title>storagearea</title>
-<g id="a_node37"><a xlink:href="#StorageArea" xlink:title="StorageArea" target="_top">
-<text text-anchor="middle" x="562.6" y="-133" font-family="monospace" font-size="12.00" fill="blue">StorageArea</text>
-</a>
-</g>
-</g>
-<!-- xmlfile -->
-<g id="node38" class="node">
-<title>xmlfile</title>
-<g id="a_node38"><a xlink:href="#XMLFile" xlink:title="XMLFile" target="_top">
-<text text-anchor="middle" x="562.6" y="-111.4" font-family="monospace" font-size="12.00" fill="blue">XMLFile</text>
-</a>
-</g>
-</g>
-<!-- xmlnode -->
-<g id="node39" class="node">
-<title>xmlnode</title>
-<g id="a_node39"><a xlink:href="#XMLNode" xlink:title="XMLNode" target="_top">
-<text text-anchor="middle" x="562.6" y="-89.8" font-family="monospace" font-size="12.00" fill="blue">XMLNode</text>
-</a>
-</g>
-</g>
-<!-- xmlattributes -->
-<g id="node40" class="node">
-<title>xmlattributes</title>
-<g id="a_node40"><a xlink:href="#XMLAttributes" xlink:title="XMLAttributes" target="_top">
-<text text-anchor="middle" x="562.6" y="-68.2" font-family="monospace" font-size="12.00" fill="blue">XMLAttributes</text>
+<text text-anchor="middle" x="454.6" y="-111.4" font-family="monospace" font-size="12.00" fill="blue">Error</text>
 </a>
 </g>
 </g>
@@ -370,7 +266,119 @@
 <g id="node41" class="node">
 <title>exportedscript</title>
 <g id="a_node41"><a xlink:href="#ExportedScript" xlink:title="ExportedScript" target="_top">
-<text text-anchor="middle" x="562.6" y="-46.6" font-family="monospace" font-size="12.00" fill="blue">ExportedScript</text>
+<text text-anchor="middle" x="454.6" y="-89.8" font-family="monospace" font-size="12.00" fill="blue">ExportedScript</text>
+</a>
+</g>
+</g>
+<!-- functionobject -->
+<g id="node27" class="node">
+<title>functionobject</title>
+<g id="a_node27"><a xlink:href="#FunctionObject" xlink:title="FunctionObject" target="_top">
+<text text-anchor="middle" x="454.6" y="-68.2" font-family="monospace" font-size="12.00" fill="blue">FunctionObject</text>
+</a>
+</g>
+</g>
+<!-- guild -->
+<g id="node28" class="node">
+<title>guild</title>
+<g id="a_node28"><a xlink:href="#Guild" xlink:title="Guild" target="_top">
+<text text-anchor="middle" x="454.6" y="-46.6" font-family="monospace" font-size="12.00" fill="blue">Guild</text>
+</a>
+</g>
+</g>
+<!-- package -->
+<g id="node29" class="node">
+<title>package</title>
+<g id="a_node29"><a xlink:href="#Package" xlink:title="Package" target="_top">
+<text text-anchor="middle" x="454.6" y="-25" font-family="monospace" font-size="12.00" fill="blue">Package</text>
+</a>
+</g>
+</g>
+<!-- packet -->
+<g id="node30" class="node">
+<title>packet</title>
+<g id="a_node30"><a xlink:href="#Packet" xlink:title="Packet" target="_top">
+<text text-anchor="middle" x="454.6" y="-3.4" font-family="monospace" font-size="12.00" fill="blue">Packet</text>
+</a>
+</g>
+</g>
+<!-- party -->
+<g id="node31" class="node">
+<title>party</title>
+<g id="a_node31"><a xlink:href="#Party" xlink:title="Party" target="_top">
+<text text-anchor="middle" x="562.6" y="-219.4" font-family="monospace" font-size="12.00" fill="blue">Party</text>
+</a>
+</g>
+</g>
+<!-- polcore -->
+<g id="node32" class="node">
+<title>polcore</title>
+<g id="a_node32"><a xlink:href="#Polcore" xlink:title="PolCore" target="_top">
+<text text-anchor="middle" x="562.6" y="-197.8" font-family="monospace" font-size="12.00" fill="blue">PolCore</text>
+</a>
+</g>
+</g>
+<!-- script -->
+<g id="node33" class="node">
+<title>script</title>
+<g id="a_node33"><a xlink:href="#Script" xlink:title="Script" target="_top">
+<text text-anchor="middle" x="562.6" y="-176.2" font-family="monospace" font-size="12.00" fill="blue">Script</text>
+</a>
+</g>
+</g>
+<!-- struct -->
+<g id="node34" class="node">
+<title>struct</title>
+<g id="a_node34"><a xlink:href="#Struct" xlink:title="Struct" target="_top">
+<text text-anchor="middle" x="562.6" y="-154.6" font-family="monospace" font-size="12.00" fill="blue">Struct</text>
+</a>
+</g>
+</g>
+<!-- string -->
+<g id="node35" class="node">
+<title>string</title>
+<g id="a_node35"><a xlink:href="#String" xlink:title="String" target="_top">
+<text text-anchor="middle" x="562.6" y="-133" font-family="monospace" font-size="12.00" fill="blue">String</text>
+</a>
+</g>
+</g>
+<!-- storageareas -->
+<g id="node36" class="node">
+<title>storageareas</title>
+<g id="a_node36"><a xlink:href="#StorageAreas" xlink:title="StorageAreas" target="_top">
+<text text-anchor="middle" x="562.6" y="-111.4" font-family="monospace" font-size="12.00" fill="blue">StorageAreas</text>
+</a>
+</g>
+</g>
+<!-- storagearea -->
+<g id="node37" class="node">
+<title>storagearea</title>
+<g id="a_node37"><a xlink:href="#StorageArea" xlink:title="StorageArea" target="_top">
+<text text-anchor="middle" x="562.6" y="-89.8" font-family="monospace" font-size="12.00" fill="blue">StorageArea</text>
+</a>
+</g>
+</g>
+<!-- xmlfile -->
+<g id="node38" class="node">
+<title>xmlfile</title>
+<g id="a_node38"><a xlink:href="#XMLFile" xlink:title="XMLFile" target="_top">
+<text text-anchor="middle" x="562.6" y="-68.2" font-family="monospace" font-size="12.00" fill="blue">XMLFile</text>
+</a>
+</g>
+</g>
+<!-- xmlnode -->
+<g id="node39" class="node">
+<title>xmlnode</title>
+<g id="a_node39"><a xlink:href="#XMLNode" xlink:title="XMLNode" target="_top">
+<text text-anchor="middle" x="562.6" y="-46.6" font-family="monospace" font-size="12.00" fill="blue">XMLNode</text>
+</a>
+</g>
+</g>
+<!-- xmlattributes -->
+<g id="node40" class="node">
+<title>xmlattributes</title>
+<g id="a_node40"><a xlink:href="#XMLAttributes" xlink:title="XMLAttributes" target="_top">
+<text text-anchor="middle" x="562.6" y="-25" font-family="monospace" font-size="12.00" fill="blue">XMLAttributes</text>
 </a>
 </g>
 </g>
