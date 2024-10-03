@@ -114,7 +114,7 @@ public:
   bool finalize();
   const std::vector<FmtToken>& currentTokens() const;
 
-  int closingParenthesisStyle( size_t begin_size );
+  int closingParenthesisStyle( bool args );
   int closingBracketStyle( size_t begin_size );
   int openingParenthesisStyle() const;
   int openingBracketStyle( bool typeinit = false ) const;
@@ -154,7 +154,7 @@ private:
   void stripline( std::string& line ) const;
 
   std::vector<FmtToken> buildLineSplits();
-  std::vector<std::string> createBasedOnGroups( const std::vector<FmtToken>& lines ) const;
+  std::vector<std::string> createBasedOnGroups( std::vector<FmtToken>& lines ) const;
   std::vector<std::string> createBasedOnPreferredBreaks( const std::vector<FmtToken>& lines,
                                                          bool logical ) const;
   std::vector<std::string> createSimple( const std::vector<FmtToken>& lines ) const;
@@ -162,7 +162,8 @@ private:
   bool binPack( const FmtToken& part, std::string line, size_t index, size_t upto,
                 const std::vector<FmtToken>& lines, bool only_single_line,
                 std::vector<std::string>* finallines, std::map<size_t, size_t>* alignmentspace,
-                size_t* skipindex, const std::map<size_t, size_t>& initial_alignmentspace ) const;
+                size_t* skipindex, const std::map<size_t, size_t>& initial_alignmentspace,
+                std::string& newpart ) const;
   void alignComments( std::vector<std::string>& finallines );
   void packLines();
 };

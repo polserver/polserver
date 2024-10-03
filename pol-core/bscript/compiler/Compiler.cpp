@@ -130,6 +130,9 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 
 bool Compiler::format_file( const std::string& filename, bool is_module, bool inplace )
 {
+  if ( !Clib::filesize( filename.c_str() ) )
+    return true;
+
   Report report( false, true );
   PrettifyBuilder prettify_builder( profile, report );
   auto formatted = prettify_builder.build( filename, is_module );

@@ -1082,7 +1082,7 @@ void AutoCompile()
   // Load and analyze the package structure
   for ( const auto& elem : compilercfg.PackageRoot )
   {
-    Plib::load_packages( elem, false /* quiet */ );
+    Plib::load_packages( elem, true /* quiet */ );
   }
   Plib::replace_packages();
   Plib::check_package_deps();
