@@ -1,0 +1,25 @@
+class Animal()
+  var animal_count := 0;
+
+  function Animal( this, type )
+    this.type := type;
+    this.id := ++animal_count;
+  endfunction
+
+  function Print( this )
+    basicio::Print( $"Animal {this.id} is a {this.type}" );
+  endfunction
+endclass
+
+var dog := Animal( "dog" );
+print( dog.id );  // Output: 1
+
+dog.Print(); // Output: Animal 1 is a dog
+Animal::Print( dog ); // Output: Animal 1 is a dog
+
+print( Animal::animal_count ); // Output: 1
+
+var cat := Animal( "cat" );
+cat.Print(); // Output: Animal 2 is a cat
+
+// print( animal_count ); // Compiler error!

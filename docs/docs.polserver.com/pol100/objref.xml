@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>08/03/2024</datemodified>
+<datemodified>10/03/2024</datemodified>
 </fileheader>
 
 
@@ -901,6 +901,17 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 </class>
 
 
+<class name="ClassInstanceRef">
+<explain>A reference to an Escript class instance, created via calling a class constructor via <code>ClassName()</code> or <code>@ClassName.new()</code>. A class instance behaves similarly like a <a href="#Struct">Struct</a>, and can have string members attached to it.</explain>
+<method proto=".+member" returns="n/a">add member</method>
+<method proto=".member" returns="value">gets value of member</method>
+<method proto="[member]" returns="value">gets value of member ONLY when member is a string</method>
+<method proto=".-member" returns="n/a">removes a member</method>
+<method proto=".?member" returns="int">returns count of matching member</method>
+<!-- keep extra space in front of &lt; for sorting in the rendered objref file... -->
+<method proto=" &lt;script function name&gt;(...)" returns="unspecified">A class instance has methods for each instance method defined for the class. See the Escript guide for more information.</method>
+</class>
+
 <class name="Client">
 <explain>Object representing a connected client.
 The ClientRef is important when having packethooks which are active before characters are selected, when you only have
@@ -943,6 +954,7 @@ It is iterable: iterates over Item objects (root items in storage area).</explai
 <explain>Object representing a function. Created via "var f:=@myfunc;"
 Object can be copied inside the same script, but cannot be stored in cprops or transfered to a different script.</explain>
 <method proto="call(...)" returns="unspecified">Calls the underlying function, arguments and return value are the same as the original function.</method>
+<method proto="new(...)" returns="ClassInstanceRef">Returns a new instance of a class whose constructor is this <code>FunctionObject</code>, calling the class constructor function with a new <code>this</code> instance.</method>
 </class>
 
 <class name="Boolean">

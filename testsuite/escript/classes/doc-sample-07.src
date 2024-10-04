@@ -1,0 +1,21 @@
+class A()
+  function A( this )
+    Print( "A constructor" );
+  endfunction
+endclass
+
+class B()
+  function B( this )
+    Print( "B constructor" );
+  endfunction
+endclass
+
+class C( A, B )
+  function C( this )
+    @B::B( this );
+    @A::A( this );
+    Print( "C constructor" );
+  endfunction
+endclass
+
+var c := C(); // Output: B constructor, A constructor, C constructor

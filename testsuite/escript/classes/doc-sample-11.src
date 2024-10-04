@@ -1,0 +1,11 @@
+class Person()
+  function Person( this, name, age )
+    this.name := name;
+    this.age := age;
+  endfunction
+endclass
+
+var person := Person( "Alice", 25 );
+var other_person := person.function.new( "Bob", 30 );
+
+print( $"{other_person.name} is {other_person.age} years old." ); // Output: Bob is 30 years old.
