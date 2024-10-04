@@ -1,4 +1,4 @@
 print( "hello" );
-var a,b;
-b := len(a);
-print(b);
+var a, b;
+b := len( a );
+print( b );

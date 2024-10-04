@@ -1,7 +1,7 @@
 
 var i;
-for( i := 0; i < 1000; i := i + 1 )
-    var a := i + 4;
-    var b := a + 6;
+for ( i := 0; i < 1000; i := i + 1 )
+  var a := i + 4;
+  var b := a + 6;
 endfor
 print( "done" );

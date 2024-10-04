@@ -1,14 +1,14 @@
 program foo()
-	var i:=1;
-	var a1 := array{i};
-	var a2 := array{};
-	var a3 := array{};
-	a2.append(i);
-	a2.insert(i,i);
-	a3[i]:=i;
-	i+=1;
-	print(i);
-	print(a1); // arrays should not change
-	print(a2);
-	print(a3);
+  var i := 1;
+  var a1 := array{ i };
+  var a2 := array{};
+  var a3 := array{};
+  a2.append( i );
+  a2.insert( i, i );
+  a3[i] := i;
+  i += 1;
+  print( i );
+  print( a1 ); // arrays should not change
+  print( a2 );
+  print( a3 );
 endprogram

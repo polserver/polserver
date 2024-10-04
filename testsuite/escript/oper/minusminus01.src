@@ -1,49 +1,49 @@
-var i:=3;
-while (--i>0)
- print("while");
+var i := 3;
+while ( --i > 0 )
+  print( "while" );
 endwhile
-print(i);
+print( i );
 
-for (i:=3;i>0;--i)
-  print("for");
+for ( i := 3; i > 0; --i )
+  print( "for" );
 endfor
-print(i);
-print(--i);
+print( i );
+print( --i );
 
-i:=3;
-function p(i)
-  print("in func after --");
-  print(i);
+i := 3;
+function p( i )
+  print( "in func after --" );
+  print( i );
   --i;
 endfunction
-p(--i);
-print("i after func call "+cstr(i));
+p( --i );
+print( "i after func call " + cstr( i ) );
 
-i:=3;
-function pp(byref i)
-  print("in func after --");
-  print(i);
+i := 3;
+function pp( byref i )
+  print( "in func after --" );
+  print( i );
   --i;
 endfunction
-pp(--i);
-print("i after func call "+cstr(i));
+pp( --i );
+print( "i after func call " + cstr( i ) );
 
-var ii:=--i;
-print(ii);
-ii-=--i;
-print(ii);
-ii:=1-(--i);
-print(ii);
+var ii := --i;
+print( ii );
+ii -= --i;
+print( ii );
+ii := 1 - ( --i );
+print( ii );
 
-var d:=1.5;
-print(--d);
+var d := 1.5;
+print( --d );
 
-const c:=1;
+const c := 1;
 --c;
-print("should not change {}".format(c));
-print("should change {}".format(--c));
+print( "should not change {}".format( c ) );
+print( "should change {}".format( --c ) );
 
-var e:={1};
-print(--e);
+var e := { 1 };
+print( --e );
 --e[1];
-print(e);
+print( e );

@@ -1,46 +1,46 @@
 program test()
-    var a := { 1,12,3,32,57 };
-    
-    print( "initial" );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  var a := { 1, 12, 3, 32, 57 };
 
-    print( "shrink(17)" );
-    a.shrink( 17 );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  print( "initial" );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
 
-    print( "shrink(6)" );
-    a.shrink( 6 );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  print( "shrink(17)" );
+  a.shrink( 17 );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
 
-    print( "shrink(5)" );
-    a.shrink( 5 );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  print( "shrink(6)" );
+  a.shrink( 6 );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
 
-    print( "shrink(3)" );
-    a.shrink( 3 );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  print( "shrink(5)" );
+  a.shrink( 5 );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
 
-    print( "shrink(0)" );
-    a.shrink( 0 );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  print( "shrink(3)" );
+  a.shrink( 3 );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
+
+  print( "shrink(0)" );
+  a.shrink( 0 );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
 endprogram
 
 /**** Expected Output Begins: *****

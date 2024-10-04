@@ -1,5 +1,5 @@
 include "packtst";
 
-var ob := { 76e+16, error { errortext := "oh no" } };
+var ob := { 76e+16, error{ errortext := "oh no" } };
 var rep := "a2:r7.6e+17e1:S9:errortextS5:oh no";
 test_pack( ob, rep );

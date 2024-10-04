@@ -1,5 +1,6 @@
-var d:= "d62:ui1ui2ui3ui4ui5ui6ui7ui8ui9ui10ui11ui12ui13ui14ui15"+  "ui16ui17ui18ui19ui20ui21ui22ui23ui24ui25ui26ui27ui28ui29" +  "ui30ui31ui32ui33ui34ui35ui36ui37ui38ui39ui40ui41ui42ui43" +  "ui44ui45ui46ui47ui48ui49ui50ui51ui52ui53" +
- "ui54ui55ui56ui57ui58ui59ui60ui61ui62";
+var d := "d62:ui1ui2ui3ui4ui5ui6ui7ui8ui9ui10ui11ui12ui13ui14ui15" + "ui16ui17ui18ui19ui20ui21ui22ui23ui24ui25ui26ui27ui28ui29"
+                                                                   + "ui30ui31ui32ui33ui34ui35ui36ui37ui38ui39ui40ui41ui42ui43"
+                                                                   + "ui44ui45ui46ui47ui48ui49ui50ui51ui52ui53" + "ui54ui55ui56ui57ui58ui59ui60ui61ui62";
 
-var u := unpack(d);
+var u := unpack( d );
 print( u );

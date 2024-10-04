@@ -3,51 +3,51 @@ use uo;
 use polsys;
 include "testutil";
 
-var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
 
 program test_item()
   return 1;
 endprogram
 
 exported function test_saveonexit()
-  if (testrun == 1)
+  if ( testrun == 1 )
     // Test setting SaveOnExit in item descriptor successfully changes item save behavior
-    var desc := GetItemDescriptor(0xeed);
+    var desc := GetItemDescriptor( 0xeed );
     desc.SaveOnExit := 0;
-    var item := CreateItemAtLocation(55,55,0, desc);
-    if (!item) 
-      return ret_error($"Could not create should-not-save item in first server run: {item}");
+    var item := CreateItemAtLocation( 55, 55, 0, desc );
+    if ( !item )
+      return ret_error( $"Could not create should-not-save item in first server run: {item}" );
     endif
-    SetGlobalProperty("test_item_shouldNotExist", item.serial);
+    SetGlobalProperty( "test_item_shouldNotExist", item.serial );
 
     // Change SaveOnExit to true, to enable saving the item
     desc.SaveOnExit := 1;
-    var item2 := CreateItemAtLocation(55,55,0, desc);
-    if (!item2) 
-      return ret_error($"Could not create should-save item in first server run: {item2}");
+    var item2 := CreateItemAtLocation( 55, 55, 0, desc );
+    if ( !item2 )
+      return ret_error( $"Could not create should-save item in first server run: {item2}" );
     endif
-    SetGlobalProperty("test_item_shouldExist", item2.serial);
+    SetGlobalProperty( "test_item_shouldExist", item2.serial );
   else
     // Check that the item that should not exist does not exist
-    var serial := GetGlobalProperty("test_item_shouldNotExist");
-    if (!serial)
-      return ret_error("Global property test_item_shouldNotExist not found");
+    var serial := GetGlobalProperty( "test_item_shouldNotExist" );
+    if ( !serial )
+      return ret_error( "Global property test_item_shouldNotExist not found" );
     endif
 
-    var item := SystemFindObjectBySerial(serial);
-    if (item)
-      return ret_error($"Item with serial {item.serial:#x} erroneously exists: {item.desc} (objtype {item.objtype:#x}) at ({item.x}, {item.y}, {item.z})");
+    var item := SystemFindObjectBySerial( serial );
+    if ( item )
+      return ret_error( $"Item with serial {item.serial:#x} erroneously exists: {item.desc} (objtype {item.objtype:#x}) at ({item.x}, {item.y}, {item.z})" );
     endif
 
     // Check that the item that should exist does exist
-    var serial2 := GetGlobalProperty("test_item_shouldExist");
-    if (!serial2)
-      return ret_error("Global property test_item_shouldExist not found");
+    var serial2 := GetGlobalProperty( "test_item_shouldExist" );
+    if ( !serial2 )
+      return ret_error( "Global property test_item_shouldExist not found" );
     endif
 
-    var item2 := SystemFindObjectBySerial(serial2);
-    if (!item2)
-      return ret_error($"Item with serial {serial2:#x} does not exists: {item2})");
+    var item2 := SystemFindObjectBySerial( serial2 );
+    if ( !item2 )
+      return ret_error( $"Item with serial {serial2:#x} does not exists: {item2})" );
     endif
   endif
   return 1;
@@ -55,56 +55,106 @@ endfunction
 
 // save/load test for things in Item
 exported function load_save_item()
-  var props:={
-                  {"Name", {"name","load_save_item"}},
-//                 {"Layer", {"",1}},
-               {"Movable", {"movable",1}},
-             {"Invisible", {"invisible",1}},
-                {"Cursed", {"cursed",1}},
-           {"OnUseScript", {"usescript","myusescript"}},
-           {"EquipScript", {"equipscript","myequipscript"}},
-         {"UnequipScript", {"unequipscript","myunequipscript"}},
-           {"SnoopScript", {"snoopscript","mysnoopscript"}},
-               {"DecayAt", {"decayat",12345678}},
-             {"SellPrice", {"sellprice",111}},
-              {"BuyPrice", {"buyprice",110}},
-                {"Newbie", {"newbie",1}},
-               {"Insured", {"insured",1}},
-             {"MaxHp_mod", {"maxhp_mod",200}},
-                    {"Hp", {"hp",123}},
-               {"Quality", {"quality",1.123}},
-            {"NameSuffix", {"name_suffix","my_suffix"}},
-                {"NoDrop", {"no_drop",1}}
-  };
+  var props := { { "Name",
+                   { "name", "load_save_item" }
+                 }, //                 {"Layer", {"",1}},
+                 {
+                   "Movable",
+                   { "movable", 1 }
+                 },
+                 {
+                   "Invisible",
+                   { "invisible", 1 }
+                 },
+                 {
+                   "Cursed",
+                   { "cursed", 1 }
+                 },
+                 {
+                   "OnUseScript",
+                   { "usescript", "myusescript" }
+                 },
+                 {
+                   "EquipScript",
+                   { "equipscript", "myequipscript" }
+                 },
+                 {
+                   "UnequipScript",
+                   { "unequipscript", "myunequipscript" }
+                 },
+                 {
+                   "SnoopScript",
+                   { "snoopscript", "mysnoopscript" }
+                 },
+                 {
+                   "DecayAt",
+                   { "decayat", 12345678 }
+                 },
+                 {
+                   "SellPrice",
+                   { "sellprice", 111 }
+                 },
+                 {
+                   "BuyPrice",
+                   { "buyprice", 110 }
+                 },
+                 {
+                   "Newbie",
+                   { "newbie", 1 }
+                 },
+                 {
+                   "Insured",
+                   { "insured", 1 }
+                 },
+                 {
+                   "MaxHp_mod",
+                   { "maxhp_mod", 200 }
+                 },
+                 {
+                   "Hp",
+                   { "hp", 123 }
+                 },
+                 {
+                   "Quality",
+                   { "quality", 1.123 }
+                 },
+                 {
+                   "NameSuffix",
+                   { "name_suffix", "my_suffix" }
+                 },
+                 {
+                   "NoDrop",
+                   { "no_drop", 1 }
+                 } };
 
-  if (testrun == 1)
-    var item := CreateItemAtLocation(10,11,-5, 0xf3f,1234,"britannia2");
-    if (!item)
-      return ret_error($"failed to create item {item}");
+  if ( testrun == 1 )
+    var item := CreateItemAtLocation( 10, 11, -5, 0xf3f, 1234, "britannia2" );
+    if ( !item )
+      return ret_error( $"failed to create item {item}" );
     endif
-    SetGlobalProperty("test_item_storage_item", item.serial);
+    SetGlobalProperty( "test_item_storage_item", item.serial );
     foreach prop in props
-      item.set_member(prop[2][1],prop[2][2]);
+      item.set_member( prop[2][1], prop[2][2] );
     endforeach
   else
 
-    var serial := GetGlobalProperty("test_item_storage_item");
-    if (!serial)
-      return ret_error("Global property not found");
+    var serial := GetGlobalProperty( "test_item_storage_item" );
+    if ( !serial )
+      return ret_error( "Global property not found" );
     endif
 
-    var item := SystemFindObjectBySerial(serial);
-    if (!item)
-      return ret_error($"Item with serial {serial:#x} does not exists: {item})");
+    var item := SystemFindObjectBySerial( serial );
+    if ( !item )
+      return ret_error( $"Item with serial {serial:#x} does not exists: {item})" );
     endif
     foreach prop in props
-      var val:=item.get_member(prop[2][1]);
-      if (val != prop[2][2])
-        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      var val := item.get_member( prop[2][1] );
+      if ( val != prop[2][2] )
+        return ret_error( $"Member {prop[2][1]} {prop[2][2]} != {val}" );
       endif
     endforeach
-    if (item.amount != 1234)
-      return ret_error($"wrong amount {item.amount} != 1234");
+    if ( item.amount != 1234 )
+      return ret_error( $"wrong amount {item.amount} != 1234" );
     endif
   endif
   return 1;
@@ -112,7 +162,7 @@ endfunction
 
 // save/load test for things in Item (descriptor only)
 exported function load_save_item_descriptor()
-  var desc := GetItemDescriptor("restart_test");
+  var desc := GetItemDescriptor( "restart_test" );
   desc.FireResist := 1;
   desc.ColdResist := 2;
   desc.EnergyResist := 3;
@@ -137,54 +187,123 @@ exported function load_save_item_descriptor()
   desc.PoisonResistCap := 22;
   desc.Luck := 23;
   desc.SwingSpeedIncrease := 24;
-  var props:={
-            {"FireResist", {"resist_fire", desc.FireResist}},
-            {"ColdResist", {"resist_cold", desc.ColdResist}},
-          {"EnergyResist", {"resist_energy", desc.EnergyResist}},
-          {"PoisonResist", {"resist_poison", desc.PoisonResist}},
-        {"PhysicalResist", {"resist_physical", desc.PhysicalResist}},
-            {"FireDamage", {"damage_fire", desc.FireDamage}},
-            {"ColdDamage", {"damage_cold", desc.ColdDamage}},
-          {"EnergyDamage", {"damage_energy", desc.EnergyDamage}},
-          {"PoisonDamage", {"damage_poison", desc.PoisonDamage}},
-        {"PhysicalDamage", {"damage_physical", desc.PhysicalDamage}},
-      {"LowerReagentCost", {"lower_reagent_cost", desc.LowerReagentCost}},
-   {"SpellDamageIncrease", {"spell_damage_increase", desc.SpellDamageIncrease}},
-         {"FasterCasting", {"faster_casting", desc.FasterCasting}},
-    {"FasterCastRecovery", {"faster_cast_recovery", desc.FasterCastRecovery}},
-       {"DefenceIncrease", {"defence_increase", desc.DefenceIncrease}},
-    {"DefenceIncreaseCap", {"defence_increase_cap", desc.DefenceIncreaseCap}},
-         {"LowerManaCost", {"lower_mana_cost", desc.LowerManaCost}},
-         {"FireResistCap", {"resist_fire_cap", desc.FireResistCap}},
-         {"ColdResistCap", {"resist_cold_cap", desc.ColdResistCap}},
-       {"EnergyResistCap", {"resist_energy_cap", desc.EnergyResistCap}},
-     {"PhysicalResistCap", {"resist_physical_cap", desc.PhysicalResistCap}},
-       {"PoisonResistCap", {"resist_poison_cap", desc.PoisonResistCap}},
-                  {"Luck", {"luck", desc.Luck}},
-    {"SwingSpeedIncrease", {"swing_speed_increase", desc.SwingSpeedIncrease}}
-  };
-  if (testrun == 1)
-    var item := CreateItemAtLocation(10,11,-5, desc,1,"britannia2");
-    item.name:="load_save_item_descriptor";
-    if (!item)
-      return ret_error($"failed to create item {item}");
+  var props := { { "FireResist",
+                   { "resist_fire", desc.FireResist }
+                 },
+                 {
+                   "ColdResist",
+                   { "resist_cold", desc.ColdResist }
+                 },
+                 {
+                   "EnergyResist",
+                   { "resist_energy", desc.EnergyResist }
+                 },
+                 {
+                   "PoisonResist",
+                   { "resist_poison", desc.PoisonResist }
+                 },
+                 {
+                   "PhysicalResist",
+                   { "resist_physical", desc.PhysicalResist }
+                 },
+                 {
+                   "FireDamage",
+                   { "damage_fire", desc.FireDamage }
+                 },
+                 {
+                   "ColdDamage",
+                   { "damage_cold", desc.ColdDamage }
+                 },
+                 {
+                   "EnergyDamage",
+                   { "damage_energy", desc.EnergyDamage }
+                 },
+                 {
+                   "PoisonDamage",
+                   { "damage_poison", desc.PoisonDamage }
+                 },
+                 {
+                   "PhysicalDamage",
+                   { "damage_physical", desc.PhysicalDamage }
+                 },
+                 {
+                   "LowerReagentCost",
+                   { "lower_reagent_cost", desc.LowerReagentCost }
+                 },
+                 {
+                   "SpellDamageIncrease",
+                   { "spell_damage_increase", desc.SpellDamageIncrease }
+                 },
+                 {
+                   "FasterCasting",
+                   { "faster_casting", desc.FasterCasting }
+                 },
+                 {
+                   "FasterCastRecovery",
+                   { "faster_cast_recovery", desc.FasterCastRecovery }
+                 },
+                 {
+                   "DefenceIncrease",
+                   { "defence_increase", desc.DefenceIncrease }
+                 },
+                 {
+                   "DefenceIncreaseCap",
+                   { "defence_increase_cap", desc.DefenceIncreaseCap }
+                 },
+                 {
+                   "LowerManaCost",
+                   { "lower_mana_cost", desc.LowerManaCost }
+                 },
+                 {
+                   "FireResistCap",
+                   { "resist_fire_cap", desc.FireResistCap }
+                 },
+                 {
+                   "ColdResistCap",
+                   { "resist_cold_cap", desc.ColdResistCap }
+                 },
+                 {
+                   "EnergyResistCap",
+                   { "resist_energy_cap", desc.EnergyResistCap }
+                 },
+                 {
+                   "PhysicalResistCap",
+                   { "resist_physical_cap", desc.PhysicalResistCap }
+                 },
+                 {
+                   "PoisonResistCap",
+                   { "resist_poison_cap", desc.PoisonResistCap }
+                 },
+                 {
+                   "Luck",
+                   { "luck", desc.Luck }
+                 },
+                 {
+                   "SwingSpeedIncrease",
+                   { "swing_speed_increase", desc.SwingSpeedIncrease }
+                 } };
+  if ( testrun == 1 )
+    var item := CreateItemAtLocation( 10, 11, -5, desc, 1, "britannia2" );
+    item.name := "load_save_item_descriptor";
+    if ( !item )
+      return ret_error( $"failed to create item {item}" );
     endif
-    SetGlobalProperty("test_item_storage_item_descriptor", item.serial);
+    SetGlobalProperty( "test_item_storage_item_descriptor", item.serial );
   else
 
-    var serial := GetGlobalProperty("test_item_storage_item_descriptor");
-    if (!serial)
-      return ret_error("Global property not found");
+    var serial := GetGlobalProperty( "test_item_storage_item_descriptor" );
+    if ( !serial )
+      return ret_error( "Global property not found" );
     endif
 
-    var item := SystemFindObjectBySerial(serial);
-    if (!item)
-      return ret_error($"Item with serial {serial:#x} does not exists: {item})");
+    var item := SystemFindObjectBySerial( serial );
+    if ( !item )
+      return ret_error( $"Item with serial {serial:#x} does not exists: {item})" );
     endif
     foreach prop in props
-      var val:=item.get_member(prop[2][1]);
-      if (val != prop[2][2])
-        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      var val := item.get_member( prop[2][1] );
+      if ( val != prop[2][2] )
+        return ret_error( $"Member {prop[2][1]} {prop[2][2]} != {val}" );
       endif
     endforeach
   endif
@@ -193,40 +312,40 @@ endfunction
 
 // save/load test for things in Item (container)
 exported function load_save_item_in_container()
-  if (testrun == 1)
-    var cnt := CreateItemAtLocation(10,11,-5, "restart_test_container",1,"britannia2");
-    if (!cnt)
-      return ret_error($"failed to create item {cnt}");
+  if ( testrun == 1 )
+    var cnt := CreateItemAtLocation( 10, 11, -5, "restart_test_container", 1, "britannia2" );
+    if ( !cnt )
+      return ret_error( $"failed to create item {cnt}" );
     endif
-    cnt.name:="load_save_cnt_for_item";
-    var item := CreateItemInContainer(cnt, 0xeed, 1, 2, 3);
-    if (!item)
-      return ret_error($"failed to create item {item}");
+    cnt.name := "load_save_cnt_for_item";
+    var item := CreateItemInContainer( cnt, 0xeed, 1, 2, 3 );
+    if ( !item )
+      return ret_error( $"failed to create item {item}" );
     endif
-    item.name:="load_save_item_in_container";
-    SetGlobalProperty("test_item_storage_item_in_cnt", item.serial);
-    SetGlobalProperty("test_item_storage_cnt_item_in_cnt", cnt.serial);
+    item.name := "load_save_item_in_container";
+    SetGlobalProperty( "test_item_storage_item_in_cnt", item.serial );
+    SetGlobalProperty( "test_item_storage_cnt_item_in_cnt", cnt.serial );
   else
 
-    var serial := GetGlobalProperty("test_item_storage_item_in_cnt");
-    var serialcnt := GetGlobalProperty("test_item_storage_cnt_item_in_cnt");
-    if (!serial || !serialcnt)
-      return ret_error("Global property not found");
+    var serial := GetGlobalProperty( "test_item_storage_item_in_cnt" );
+    var serialcnt := GetGlobalProperty( "test_item_storage_cnt_item_in_cnt" );
+    if ( !serial || !serialcnt )
+      return ret_error( "Global property not found" );
     endif
 
-    var item := SystemFindObjectBySerial(serial);
-    if (!item)
-      return ret_error($"Item with serial {serial:#x} does not exists: {item})");
+    var item := SystemFindObjectBySerial( serial );
+    if ( !item )
+      return ret_error( $"Item with serial {serial:#x} does not exists: {item})" );
     endif
-    var cnt := SystemFindObjectBySerial(serialcnt);
-    if (!cnt)
-      return ret_error($"Cnt with serial {serialcnt:#x} does not exists: {cnt})");
+    var cnt := SystemFindObjectBySerial( serialcnt );
+    if ( !cnt )
+      return ret_error( $"Cnt with serial {serialcnt:#x} does not exists: {cnt})" );
     endif
-    if (item.container != cnt)
-      return ret_error($"Item not in container: {item.container} != {cnt.serial}");
+    if ( item.container != cnt )
+      return ret_error( $"Item not in container: {item.container} != {cnt.serial}" );
     endif
-    if (item.x != 2 || item.y != 3)
-      return ret_error($"wrong coordinates ({item.x},{item.y}) != (2,3)");
+    if ( item.x != 2 || item.y != 3 )
+      return ret_error( $"wrong coordinates ({item.x},{item.y}) != (2,3)" );
     endif
   endif
   return 1;

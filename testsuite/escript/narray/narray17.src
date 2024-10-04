@@ -1,19 +1,19 @@
 program test()
-    
-    var b := { { 0, 0 } };
-    print( b );
 
-    b.insert( 1, { 21, 31 } );
-    print( b );
-    b.erase( 11 );
+  var b := { { 0, 0 } };
+  print( b );
 
-    b.insert( 1, { 22, 32 } );
-    print( b );
-    b.erase( 11 );
+  b.insert( 1, { 21, 31 } );
+  print( b );
+  b.erase( 11 );
 
-    b.insert( 1, { 23, 33 } );
-    print( b );
-    b.erase( 11 );
+  b.insert( 1, { 22, 32 } );
+  print( b );
+  b.erase( 11 );
+
+  b.insert( 1, { 23, 33 } );
+  print( b );
+  b.erase( 11 );
 
 endprogram
 

@@ -15,7 +15,6 @@ function filter_array( byref arr, func )
   return result;
 endfunction
 
-
 // Some functions with alternating byref options
 var filter_func1 := @( element, index, arr ) {
   arr[index] := element * 2;
@@ -24,14 +23,14 @@ var filter_func1 := @( element, index, arr ) {
   return true;
 };
 
-var filter_func2 := @(byref element, index, arr) {
+var filter_func2 := @( byref element, index, arr ) {
   arr[index] := element * 2;
   element := arr[index];
   arr[index + 1] := element * 3;
   return true;
 };
 
-var filter_func3 := @(element, index, byref arr) {
+var filter_func3 := @( element, index, byref arr ) {
   arr[index] := element * 2;
   element := arr[index];
   arr[index + 1] := element * 3;
@@ -42,14 +41,14 @@ foreach func in ( array{ filter_func1, filter_func2, filter_func3 } )
   var f, filtered_poly, filtered_builtin;
 
   // Filter using "polyfill"
-  f := array{ 1,2,3,4,5 };
+  f := array{ 1, 2, 3, 4, 5 };
   filtered_poly := filter_array( f, func );
   print( $"filtered_poly={filtered_poly}" );
   print( $"f={f}" );
 
   // Filter using built-in
-  f := array{ 1,2,3,4,5 };
-  filtered_builtin := f.filter(func);
+  f := array{ 1, 2, 3, 4, 5 };
+  filtered_builtin := f.filter( func );
   print( $"filtered_builtin={filtered_builtin}" );
   print( $"f={f}" );
 

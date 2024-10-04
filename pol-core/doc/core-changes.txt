@@ -1,4 +1,20 @@
 -- POL100.2.0 --
+09-27-2024 Turley:
+    Fixed: EScript formatter missing spaces while packing function refs, better packing of function calls in eg structs
+09-12-2024 Turley:
+    Fixed: multiple problems with the EScript formatter
+    Added: more ecompile.cfg options for the formatter, see ecompile.cfg.example for details
+           FormatterBracketAttachToType, FormatterFormatInsideComments, FormatterAlignTrailingComments,
+           FormatterAllowShortCaseLabelsOnASingleLine, FormatterAllowShortFuncRefsOnASingleLine, FormatterAlignConsecutiveShortCaseStatements
+     Note: should be now "production" ready, default settings are just our personal preferences
+08-30-2024 Kevin:
+    Added: Performance improvements to the compiler
+08-27-2024 Reloecc:
+  Changed: ssopt.MobilesBlockNpcMovement now accepts values 0/1/2. Earlier 0 = false, 1 = true.
+           2 = new behavior, where npcs of the same master are allowed to walk on top of each other. Backward compatible.
+08-24-2024 Kevin:
+    Fixed: Resolved an issue where the Z coordinate of objects on a boat was incorrectly
+           calculated during turns (introduced in the 07-08-2024 nightly build).
 08-11-2024 Turley:
   Changed: EScript Formatter
            variable declaration list if it doesnt fit to the line, split on the commas.

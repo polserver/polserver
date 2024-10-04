@@ -560,7 +560,10 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 "",
 "#",
 "# MobilesBlockNpcMovement",
-"# If enabled mobiles will block the movement of npcs.",
+"# Mobiles will block the movement of npcs.",
+"# 0 = Npcs are not blocked by other mobiles, but followers of the same master do not walk/run on each other."
+"# 1 = All mobiles block movement of other npcs. PushThrough hook is not called for such movement."
+"# 2 = Mobiles do not block movement. You can hook the PushThrough to stop movement if needed.",
 "# Default is 1",
 "#",
 "MobilesBlockNpcMovement=1",

@@ -1,5 +1,6 @@
 include "support";
 
+// format-off
 print(
   foo( 0 )
     ?: bar( "y" )

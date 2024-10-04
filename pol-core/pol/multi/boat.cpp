@@ -846,17 +846,17 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
 
 Core::Pos4d UBoat::turn_coords( const Core::Pos4d& oldpos, RELATIVE_DIR dir ) const
 {
-  Core::Vec2d delta = oldpos.xy() - pos2d();
+  Core::Vec3d delta = oldpos.xyz() - pos3d();
   switch ( dir )
   {
   case LEFT:
-    delta = Core::Vec2d( delta.y(), -delta.x() );
+    delta = Core::Vec3d( delta.y(), -delta.x(), delta.z() );
     break;
   case AROUND:
     delta.x( -delta.x() ).y( -delta.y() );
     break;
   case RIGHT:
-    delta = Core::Vec2d( -delta.y(), delta.x() );
+    delta = Core::Vec3d( -delta.y(), delta.x(), delta.z() );
     break;
   case NO_TURN:
     return oldpos;

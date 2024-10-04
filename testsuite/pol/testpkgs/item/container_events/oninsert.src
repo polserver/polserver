@@ -1,9 +1,15 @@
 use uo;
 use os;
 
-program oninsertscript( character, container, movetype, inserttype, adding_item, existing_stack, amount_to_add )
-    GetProcess( GetObjProperty( container, "#TestPid") ).sendevent( struct{
-        type := "container_oninsert",
-        args := { character, container, movetype, inserttype, adding_item, existing_stack, amount_to_add }
-    } );
+program oninsertscript( character, container, movetype, inserttype, adding_item, existing_stack,
+                        amount_to_add )
+  GetProcess( GetObjProperty( container, "#TestPid" ) ).sendevent( struct{ type := "container_oninsert",
+                                                                           args := { character,
+                                                                                     container,
+                                                                                     movetype,
+                                                                                     inserttype,
+                                                                                     adding_item,
+                                                                                     existing_stack,
+                                                                                     amount_to_add }
+                                                                                     } );
 endprogram

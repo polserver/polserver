@@ -1,13 +1,13 @@
 var cmd := "marion walk N";
 
-if (cmd["marion"])
-    print( "ok!" );
+if ( cmd["marion"] )
+  print( "ok!" );
 else
-    print( "failure 1!" );
+  print( "failure 1!" );
 endif
 
-if (cmd["blah"])
-    print( "failure 2!" );
+if ( cmd["blah"] )
+  print( "failure 2!" );
 else
-    print( "ok!" );
+  print( "ok!" );
 endif

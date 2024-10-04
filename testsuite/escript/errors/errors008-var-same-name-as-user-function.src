@@ -2,7 +2,7 @@
 function xyz()
 endfunction
 
-if (1)
-    var xyz := 3;
-    print( xyz );
+if ( 1 )
+  var xyz := 3;
+  print( xyz );
 endif

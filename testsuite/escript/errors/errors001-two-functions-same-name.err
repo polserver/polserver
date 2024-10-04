@@ -1,1 +1,1 @@
-errors001-two-functions-same-name.src:6:1: error: Function 'foo' defined more than once.
+:6:1: error: Function 'foo' defined more than once.

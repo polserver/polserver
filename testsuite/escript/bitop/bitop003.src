@@ -1,7 +1,6 @@
 const bit01 := 0x01;
-const bitNot01 := ~ (bit01);
+const bitNot01 := ~( bit01 );
 
-
-print(bit01);
-print(bitNot01);
-print(Hex(bitNot01));
+print( bit01 );
+print( bitNot01 );
+print( Hex( bitNot01 ) );

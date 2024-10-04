@@ -1,11 +1,11 @@
 // switch11
-// 
+//
 
 function foo( p )
-    case (p)
-        4: return "four";
-        default:
-    endcase
+  case ( p )
+    4: return "four";
+    default:
+  endcase
 endfunction
 
 print( foo( 1 ) );

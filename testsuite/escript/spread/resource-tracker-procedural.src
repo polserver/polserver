@@ -5,26 +5,27 @@ print( "----" );
 print( test( false ) );
 
 function test( has_success )
-  return with_tracker( @(track) {
-    var item := track( CreateItemAtLocation(1, 2, 3, 0xeed ) );
+  return with_tracker( @( track ) {
+    var item := track( CreateItemAtLocation( 1, 2, 3, 0xeed ) );
     if ( !item )
       return item;
     endif
 
-    var multi := track( CreateMultiAtLocation(1, 2, 3, "SmallHouse" ) );
+    var multi := track( CreateMultiAtLocation( 1, 2, 3, "SmallHouse" ) );
     if ( !multi )
       return multi;
     endif
 
-    var multi2 := track( CreateMultiAtLocation(1, 2, 3, has_success ? "SmallHouse" : error{}), @(what) {
+    var multi2 := track( CreateMultiAtLocation( 1, 2, 3, has_success ?
+                         "SmallHouse" : error{} ), @( what ) {
       print( $"DisposeCustom on '{what}' but do something with item '{item}' first" );
-    });
+    } );
 
     if ( !multi2 )
       return multi2;
     endif
 
-    var npc := track( CreateNPCFromTemplate("brigand", 1, 2, 3) );
+    var npc := track( CreateNPCFromTemplate( "brigand", 1, 2, 3 ) );
     if ( !npc )
       return npc;
     endif
@@ -32,7 +33,7 @@ function test( has_success )
     print( $"In test: item={item} multi={multi} multi2={multi2} npc={npc}" );
 
     return 1;
-  });
+  } );
 endfunction
 
 function DisposeCustom( what )
@@ -42,7 +43,7 @@ endfunction
 //////////////////////////////////////////////////////
 
 function with_tracker( tracked_fn )
-  var resources := array{ };
+  var resources := array{};
 
   var cleanup := @{
     while ( resources.size() )
@@ -55,7 +56,7 @@ function with_tracker( tracked_fn )
     endwhile
   };
 
-  var track := @( args... ){
+  var track := @( args ... ) {
     var resource := args[1];
 
     if ( !resource )
@@ -65,20 +66,21 @@ function with_tracker( tracked_fn )
 
     var finalizer;
 
-    if ( TypeOfInt(args[2]) == OT_FUNCOBJECT )
+    if ( TypeOfInt( args[2] ) == OT_FUNCOBJECT )
       finalizer := args[2];
     else
       var type := TypeOfInt_( resource );
 
       case ( type )
-        OT_ITEMREF: finalizer := @DisposeItem;
-        OT_MULTIREF: finalizer := @DisposeMulti;
+        OT_ITEMREF:   finalizer := @DisposeItem;
+        OT_MULTIREF:  finalizer := @DisposeMulti;
         OT_MOBILEREF: finalizer := @DisposeNpc;
-        default: finalizer := @(what) { print( $"Cannot dispose @{what}" ); };
+        default:
+          finalizer := @( what ) { print( $"Cannot dispose @{what}" ); };
       endcase
     endif
 
-    resources.append( { resource, finalizer });
+    resources.append( { resource, finalizer } );
     return resource;
   };
 

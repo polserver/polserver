@@ -2,9 +2,9 @@ const A := 4;
 const B := 5;
 
 var x := 7;
-print(0);
-if (x == 5)
-    print(1);
-elseif (A == B)
-    print(2);
+print( 0 );
+if ( x == 5 )
+  print( 1 );
+elseif ( A == B )
+  print( 2 );
 endif

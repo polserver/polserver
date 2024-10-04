@@ -1,6 +1,4 @@
 
-
-
 var v := struct;
 v.+mem;
 
@@ -9,10 +7,10 @@ d[1] := 5;
 d[2] := 6;
 
 print( d[1] );
-print( d[2]);
+print( d[2] );
 
 v.mem := d;
 var a := v.mem[1];
-print(a);
+print( a );
 a := v.mem[2];
-print(a);
+print( a );

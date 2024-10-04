@@ -2,11 +2,13 @@
 // Cliloc Message related functions
 //
 
+// format-off
 //
 // CONSTANTS
 //
 const _DEFAULT_CLFONT  := 3;
 const _DEFAULT_CLCOLOR := 0x3B2;
+// format-on
 
 //
 // Functions
@@ -19,14 +21,14 @@ const _DEFAULT_CLCOLOR := 0x3B2;
 // Font : Font
 // Color : Color
 //
-// Argument example: 
-// take number 1042762: 
-// "Only ~1_AMOUNT~ gold could be deposited. A check for ~2_CHECK_AMOUNT~ gold was returned to you." 
-// the arguments string may have "100 thousand\t25 hundred", which in turn would modify the string: 
+// Argument example:
+// take number 1042762:
+// "Only ~1_AMOUNT~ gold could be deposited. A check for ~2_CHECK_AMOUNT~ gold was returned to you."
+// the arguments string may have "100 thousand\t25 hundred", which in turn would modify the string:
 // "Only 100 thousand gold could be deposited. A check for 25 hundred gold was returned to you."
-SendSysMessageCL( character, cliloc_num, uc_text:="", font:=_DEFAULT_CLFONT , color:=_DEFAULT_CLCOLOR);
+SendSysMessageCL( character, cliloc_num, uc_text := "", font := _DEFAULT_CLFONT, color := _DEFAULT_CLCOLOR );
 
-PrintTextAboveCL( character, cliloc_num, uc_text:="", font:=_DEFAULT_CLFONT , color:=_DEFAULT_CLCOLOR);
+PrintTextAboveCL( character, cliloc_num, uc_text := "", font := _DEFAULT_CLFONT, color := _DEFAULT_CLCOLOR );
 
 // Object : Object text is to appear over.
-PrintTextAbovePrivateCL( character, object, cliloc_num, uc_text:="", font:=_DEFAULT_CLFONT , color:=_DEFAULT_CLCOLOR);
+PrintTextAbovePrivateCL( character, object, cliloc_num, uc_text := "", font := _DEFAULT_CLFONT, color := _DEFAULT_CLCOLOR );

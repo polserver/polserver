@@ -1,11 +1,10 @@
 var a := "the global var";
 
-print(a);
+print( a );
 
 program foo()
-   var a := "the local var";
-   print(a);
+  var a := "the local var";
+  print( a );
 endprogram
 
-print(a);
-
+print( a );

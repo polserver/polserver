@@ -1,5 +1,5 @@
 var a := 1;
-if (a)
-    var b := "hi";
-    print(b);
+if ( a )
+  var b := "hi";
+  print( b );
 endif

@@ -1,10 +1,10 @@
 // Scope07 - a variable with the same name as a program argument
 // cannot be declared at the top level of the program block.
 
-program foo(bar)
-    if ( 1 )
-        var bar; // this is ok
-        bar := "x";
-        print(bar);
-    endif
+program foo( bar )
+  if ( 1 )
+    var bar; // this is ok
+    bar := "x";
+    print( bar );
+  endif
 endprogram

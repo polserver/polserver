@@ -1,1 +1,1 @@
-func09.src:3:33: error: missing ')' at ';'
+:3:33: error: missing ')' at ';'

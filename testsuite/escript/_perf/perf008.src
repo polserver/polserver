@@ -1,19 +1,19 @@
 var n := 10000;
 
-var a,b,c,d,t;
+var a, b, c, d, t;
 a := 7;
 b := 2;
 c := 5;
 d := 8;
-while( n )
-    t := a-b;
-    t := a+c;
-    t := c+d;
-    d := c+b;
-    if (d < c)
-        t := a;
-    else
-        t := c;
-    endif
-    n := n - 1;
+while ( n )
+  t := a - b;
+  t := a + c;
+  t := c + d;
+  d := c + b;
+  if ( d < c )
+    t := a;
+  else
+    t := c;
+  endif
+  n := n - 1;
 endwhile

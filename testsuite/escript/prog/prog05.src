@@ -1,9 +1,9 @@
-program foo( unused a, unused b)
-	print( "hello world" );
+program foo( unused a, unused b )
+  print( "hello world" );
 
-	print( "sum: " + sum(1, 2) );
+  print( "sum: " + sum( 1, 2 ) );
 endprogram
 
-function sum(first, unused second)
-	return first + second;
+function sum( first, unused second )
+  return first + second;
 endfunction

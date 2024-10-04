@@ -1,4 +1,4 @@
-var foo := {88,88};
+var foo := { 88, 88 };
 foo[4] := 90;
-foo := CChrZ(foo);
-print(foo);
+foo := CChrZ( foo );
+print( foo );

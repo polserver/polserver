@@ -1,4 +1,4 @@
 include "packtst";
 
 var a := "hello world";
-test_pack( a[1,5], "shello" );
+test_pack( a[1, 5], "shello" );

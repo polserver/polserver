@@ -3,7 +3,7 @@ use uo;
 use polsys;
 include "testutil";
 
-var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
 
 program test_weapon()
   return 1;
@@ -11,37 +11,43 @@ endprogram
 
 // save/load test for things in Weapon class
 exported function load_save_weapon()
-  var props:={
-                {"dmg_mod", {"dmg_mod",1}},
-              {"speed_mod", {"speed_mod",2}},
-              {"HitScript", {"hitscript",":testrestart:myhitscript"}}
-  };
+  var props := { { "dmg_mod",
+                   { "dmg_mod", 1 }
+                 },
+                 {
+                   "speed_mod",
+                   { "speed_mod", 2 }
+                 },
+                 {
+                   "HitScript",
+                   { "hitscript", ":testrestart:myhitscript" }
+                 } };
 
-  if (testrun == 1)
-    var item := CreateItemAtLocation(10,11,-5, "restart_test_weapon",1,"britannia2");
-    item.name:="load_save_weapon";
-    if (!item)
-      return ret_error($"failed to create item {item}");
+  if ( testrun == 1 )
+    var item := CreateItemAtLocation( 10, 11, -5, "restart_test_weapon", 1, "britannia2" );
+    item.name := "load_save_weapon";
+    if ( !item )
+      return ret_error( $"failed to create item {item}" );
     endif
-    SetGlobalProperty("test_item_storage_weapon", item.serial);
+    SetGlobalProperty( "test_item_storage_weapon", item.serial );
     foreach prop in props
-      item.set_member(prop[2][1],prop[2][2]);
+      item.set_member( prop[2][1], prop[2][2] );
     endforeach
   else
 
-    var serial := GetGlobalProperty("test_item_storage_weapon");
-    if (!serial)
-      return ret_error("Global property not found");
+    var serial := GetGlobalProperty( "test_item_storage_weapon" );
+    if ( !serial )
+      return ret_error( "Global property not found" );
     endif
 
-    var item := SystemFindObjectBySerial(serial);
-    if (!item)
-      return ret_error($"Item with serial {serial:#x} does not exists: {item})");
+    var item := SystemFindObjectBySerial( serial );
+    if ( !item )
+      return ret_error( $"Item with serial {serial:#x} does not exists: {item})" );
     endif
     foreach prop in props
-      var val:=item.get_member(prop[2][1]);
-      if (val != prop[2][2])
-        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      var val := item.get_member( prop[2][1] );
+      if ( val != prop[2][2] )
+        return ret_error( $"Member {prop[2][1]} {prop[2][2]} != {val}" );
       endif
     endforeach
   endif

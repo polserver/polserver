@@ -3,6 +3,6 @@
 //    ("w x y z");
 //    print(a)
 // endforeach
-foreach a in SplitWords("w x y z");
-    print(a);
+foreach a in SplitWords( "w x y z" )
+  print( a );
 endforeach

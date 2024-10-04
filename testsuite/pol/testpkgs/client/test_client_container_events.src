@@ -16,13 +16,13 @@ program test_item_move()
   var a := FindAccount( "testclient0" );
   char := a.getcharacter( 1 );
   if ( !char )
-  return ret_error( "Could not find char at slot 1" );
+    return ret_error( "Could not find char at slot 1" );
   endif
 
   // Move character somewhere nice.
   var res := MoveObjectToLocation( char, charX, charY, 0 );
   if ( !res )
-  return ret_error( $"Could not move character: ${res}" );
+    return ret_error( $"Could not move character: ${res}" );
   endif
 
   return 1;
@@ -31,7 +31,8 @@ endprogram
 exported function test_container_events()
   var ret, container, item, remaining_item;
   do
-    var evs, expected_caninsert_args, expected_oninsert_args, expected_canremove_args, expected_onremove_args;
+    var evs, expected_caninsert_args, expected_oninsert_args, expected_canremove_args,
+        expected_onremove_args;
 
     container := CreateItemAtLocation( char.x, char.y, char.z, "container_events" );
     if ( !container )
@@ -57,31 +58,42 @@ exported function test_container_events()
       break;
     endif
 
-    if ( !( evs := drop_item( ret, item.serial, 0xFF, 0xFF, 0, container.serial, { "container_caninsert", "container_oninsert" }, { EVT_DROP_ITEM } ) ) )
+    if ( !( evs := drop_item( ret, item.serial, 0xFF, 0xFF, 0, container.serial, { "container_caninsert",
+                                                                                   "container_oninsert" },
+         { EVT_DROP_ITEM } ) ) )
       break;
     endif
 
-    expected_caninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_ADD_ITEM, item /* adding_item */, uninit /* existing_stack */, uninit /* amount_to_add */ };
-    expected_oninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_ADD_ITEM, item /* adding_item */, item /* existing_stack */, 500 };
+    expected_caninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_ADD_ITEM, item /* adding_item */,
+                                 uninit /* existing_stack */, uninit /* amount_to_add */ };
+    expected_oninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_ADD_ITEM, item /* adding_item */,
+                                item /* existing_stack */, 500 };
 
-    if ( !( ret := ret_error_not_equal( evs.container_caninsert.args, expected_caninsert_args, $"evs.container_caninsert.args {evs.container_caninsert.args} != expected_caninsert_args {expected_caninsert_args}" ) ) )
+    if ( !( ret := ret_error_not_equal( evs.container_caninsert.args, expected_caninsert_args,
+                                        $"evs.container_caninsert.args {evs.container_caninsert.args} != expected_caninsert_args {expected_caninsert_args}"
+                                        ) ) )
       break;
     endif
 
-    if ( !( ret := ret_error_not_equal( evs.container_oninsert.args, expected_oninsert_args, $"evs.container_oninsert.args {evs.container_oninsert.args} != expected_oninsert_args {expected_oninsert_args}" ) ) )
+    if ( !( ret := ret_error_not_equal( evs.container_oninsert.args, expected_oninsert_args,
+                                        $"evs.container_oninsert.args {evs.container_oninsert.args} != expected_oninsert_args {expected_oninsert_args}"
+                                        ) ) )
       break;
     endif
 
     // ----------
     // Fail to lift 250 coins from the container, as cannot remove odd-amount items from the container because of the CanRemove script
     // ----------
-    if ( !( evs := lift_item( ret, item.serial, 251, { "container_canremove", EVT_MOVE_ITEM_REJECTED }, {} ) ) )
+    if ( !( evs := lift_item( ret, item.serial, 251, { "container_canremove",
+                                                       EVT_MOVE_ITEM_REJECTED }, {} ) ) )
       break;
     endif
 
     expected_canremove_args := { char, container, item, MOVETYPE_PLAYER, 251 };
 
-    if ( !( ret := ret_error_not_equal( evs.container_canremove.args, expected_canremove_args, $"evs.container_canremove.args {evs.container_canremove.args} != expected_canremove_args {expected_canremove_args}" ) ) )
+    if ( !( ret := ret_error_not_equal( evs.container_canremove.args, expected_canremove_args,
+                                        $"evs.container_canremove.args {evs.container_canremove.args} != expected_canremove_args {expected_canremove_args}"
+                                        ) ) )
       break;
     endif
 
@@ -99,12 +111,17 @@ exported function test_container_events()
       break;
     endif
 
-    if ( !( evs := drop_item( ret, remaining_item.serial, 0xFF, 0xFF, 0, item.serial, { "container_caninsert", "container_oninsert" }, { EVT_DROP_ITEM } ) ) )
+    if ( !( evs := drop_item( ret, remaining_item.serial, 0xFF, 0xFF, 0, item.serial, { "container_caninsert",
+                                                                                        "container_oninsert" },
+         { EVT_DROP_ITEM } ) ) )
       break;
     endif
 
-    expected_caninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_INCREASE_STACK, remaining_item, item, 250 };
-    if ( !( ret := ret_error_not_equal( evs.container_caninsert.args, expected_caninsert_args, $"evs.container_caninsert.args {evs.container_caninsert.args} != expected_caninsert_args {expected_caninsert_args}" ) ) )
+    expected_caninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_INCREASE_STACK,
+                                 remaining_item, item, 250 };
+    if ( !( ret := ret_error_not_equal( evs.container_caninsert.args, expected_caninsert_args,
+                                        $"evs.container_caninsert.args {evs.container_caninsert.args} != expected_caninsert_args {expected_caninsert_args}"
+                                        ) ) )
       break;
     endif
 
@@ -112,8 +129,11 @@ exported function test_container_events()
     // and OnInsert, and is therefore stacked _into_ the existing stack in
     // the container (ie. `item.amount == 750`). We still have the `250` as
     // the `amount_to_add` parameter.
-    expected_oninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_INCREASE_STACK, uninit /* adding_item */, item, 250 };
-    if ( !( ret := ret_error_not_equal( evs.container_oninsert.args, expected_oninsert_args, $"evs.container_oninsert.args {evs.container_oninsert.args} != expected_oninsert_args {expected_oninsert_args}" ) ) )
+    expected_oninsert_args := { char, container, MOVETYPE_PLAYER, INSERT_INCREASE_STACK,
+                                uninit /* adding_item */, item, 250 };
+    if ( !( ret := ret_error_not_equal( evs.container_oninsert.args, expected_oninsert_args,
+                                        $"evs.container_oninsert.args {evs.container_oninsert.args} != expected_oninsert_args {expected_oninsert_args}"
+                                        ) ) )
       break;
     endif
 
@@ -124,12 +144,16 @@ exported function test_container_events()
     // ----------
     // Lift 250 coins from the container and drop into container (as a new item)
     // ----------
-    if ( !( evs := lift_item( ret, item.serial, 250, { "container_canremove", "container_onremove" }, { EVT_LIFT_ITEM } ) ) )
+    if ( !( evs := lift_item( ret, item.serial, 250, { "container_canremove",
+                                                       "container_onremove" },
+         { EVT_LIFT_ITEM } ) ) )
       break;
     endif
 
     expected_canremove_args := { char, container, item, MOVETYPE_PLAYER, 250 };
-    if ( !( ret := ret_error_not_equal( evs.container_canremove.args, expected_canremove_args, $"evs.container_canremove.args {evs.container_canremove.args} != expected_canremove_args {expected_canremove_args}" ) ) )
+    if ( !( ret := ret_error_not_equal( evs.container_canremove.args, expected_canremove_args,
+                                        $"evs.container_canremove.args {evs.container_canremove.args} != expected_canremove_args {expected_canremove_args}"
+                                        ) ) )
       break;
     endif
 
@@ -139,8 +163,11 @@ exported function test_container_events()
       break;
     endif
 
-    expected_onremove_args := { char, container, item, 250, MOVETYPE_PLAYER, remaining_item /* split_from */ };
-    if ( !( ret := ret_error_not_equal( evs.container_onremove.args, expected_onremove_args, $"evs.container_onremove.args {evs.container_onremove.args} != expected_onremove_args {expected_onremove_args}" ) ) )
+    expected_onremove_args := { char, container, item, 250, MOVETYPE_PLAYER,
+                                remaining_item /* split_from */ };
+    if ( !( ret := ret_error_not_equal( evs.container_onremove.args, expected_onremove_args,
+                                        $"evs.container_onremove.args {evs.container_onremove.args} != expected_onremove_args {expected_onremove_args}"
+                                        ) ) )
       break;
     endif
 
@@ -177,8 +204,13 @@ function get_container_events( byref err, sequential_events, other_events )
   var other_event_index := 1;
 
   while ( evs.size() < sequential_events.size() + other_events.size() )
-    var events := ( sequential_event_index <= sequential_events.size() ? array{ sequential_events[sequential_event_index] } : array{} ) +
-      ( other_event_index <= other_events.size() ? array{ other_events[other_event_index] } : array{} );
+    var events := ( sequential_event_index <= sequential_events.size() ? array{ sequential_events[sequential_event_index] }
+                    : array{}
+                    )
+                    + (
+                    other_event_index <= other_events.size()
+                    ? array{ other_events[other_event_index] }
+                    : array{} );
 
     var ev;
     while ( 1 )
@@ -202,14 +234,19 @@ endfunction
 
 function drop_item( byref err, serial, x, y, z, dropped_on_serial, sequential_events, other_events )
   Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "drop_item", arg := struct{ serial := serial, x := x, y := y, z := z, dropped_on_serial := dropped_on_serial }, id := 0 } );
+  clientcon.sendevent( struct{ todo := "drop_item",
+                               arg := struct{ serial := serial, x := x, y := y,
+                                              z := z, dropped_on_serial := dropped_on_serial },
+                               id := 0 } );
 
   return get_container_events( err, sequential_events, other_events );
 endfunction
 
 function lift_item( byref err, serial, amount, sequential_events, other_events )
   Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "lift_item", arg := struct{ serial := serial, amount := amount }, id := 0 } );
+  clientcon.sendevent( struct{ todo := "lift_item",
+                               arg := struct{ serial := serial, amount := amount },
+                               id := 0 } );
 
   return get_container_events( err, sequential_events, other_events );
 endfunction

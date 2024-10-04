@@ -1,8 +1,8 @@
 program textcmd_test( who )
-    var props := "0x1001";
-    Print("Props --> "+Props);
-    var tmp;
-    tmp := props[3,1];
-    Print("Props --> "+Props);
-    Print("Tmp --> "+tmp);
-Endprogram
+  var props := "0x1001";
+  Print( "Props --> " + Props );
+  var tmp;
+  tmp := props[3, 1];
+  Print( "Props --> " + Props );
+  Print( "Tmp --> " + tmp );
+endprogram

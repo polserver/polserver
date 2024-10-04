@@ -1,1 +1,1 @@
-switch17-duplicate-default.src:5:5: error: case statement already has a default clause.
+:4:3: error: case statement already has a default clause.

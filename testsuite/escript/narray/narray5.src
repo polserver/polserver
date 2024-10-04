@@ -1,11 +1,11 @@
 program test()
 
-	var a := { };
+  var a := {};
 
-	a[1] := "hello";
-	a[4] := "world";
+  a[1] := "hello";
+  a[4] := "world";
 
-	print( a[1] );
-	print( a[4] );
+  print( a[1] );
+  print( a[4] );
 
 endprogram

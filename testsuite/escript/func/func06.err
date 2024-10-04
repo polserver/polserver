@@ -1,1 +1,1 @@
-func06.src:5:15: error: Parameter 'a' has a disallowed default.  Only simple operands are allowed as default arguments.
+:5:15: error: Parameter 'a' has a disallowed default.  Only simple operands are allowed as default arguments.

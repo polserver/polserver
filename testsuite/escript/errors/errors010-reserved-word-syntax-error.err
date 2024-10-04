@@ -1,1 +1,1 @@
-errors010-reserved-word-syntax-error.src:1:5: error: Did not expect reserved word 'is' in this context.
+:1:5: error: Did not expect reserved word 'is' in this context.

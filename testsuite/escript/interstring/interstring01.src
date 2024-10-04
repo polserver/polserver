@@ -1,92 +1,92 @@
 var t, id1, id2;
 var n := 0;
 
-function testPrint(num)
-	n += 1;
-	print(CStr(n) + ".");
-	print(TypeOf(t));
-	print(t);
+function testPrint( num )
+  n += 1;
+  print( CStr( n ) + "." );
+  print( TypeOf( t ) );
+  print( t );
 endfunction
 
 t := $""; // zero parts
-testPrint(t);
+testPrint( t );
 
 t := $"foo"; // one part, string
-testPrint(t);
+testPrint( t );
 
 t := $"{1}"; // one part, expression -> integer literal
-testPrint(t);
+testPrint( t );
 
 id1 := 0xbad.beefp4;
-t := $"{id1}";  // one part, expression -> identifier -> hex float literal
-testPrint(t);
+t := $"{id1}"; // one part, expression -> identifier -> hex float literal
+testPrint( t );
 
 // #5
 t := $"foo{""}"; // two parts
-testPrint(t);
+testPrint( t );
 
 t := $"{1}bar"; // one part, expression -> integer literal
-testPrint(t);
+testPrint( t );
 
 id1 := "foo";
 id2 := "bar";
-t := $"{id1}{id2}";  // two parts
-testPrint(t);
+t := $"{id1}{id2}"; // two parts
+testPrint( t );
 
 t := $"{uninit}";
-testPrint(t);
+testPrint( t );
 
 t := $"!{uninit}";
-testPrint(t);
+testPrint( t );
 
 // #10
 t := $"{uninit}!";
-testPrint(t);
+testPrint( t );
 
 t := $"!{uninit}!";
-testPrint(t);
+testPrint( t );
 
-t := $"{CAsc("a")}"; // expression -> function call, that returns a Long
-testPrint(t);
+t := $"{CAsc( "a" )}"; // expression -> function call, that returns a Long
+testPrint( t );
 
 t := $"{48879:#x}";
-testPrint(t);
+testPrint( t );
 
 t := $"Hello {"string":#x}";
-testPrint(t);
+testPrint( t );
 
 // #15
 t := $"Hello, {@testPrint}";
-testPrint(t);
+testPrint( t );
 
 t := $"Hello{$"\x61\x62\x63"}World";
-testPrint(t);
+testPrint( t );
 
-t := $"Hello, {{{"_".join(array{1,2,3})}}}";
-testPrint(t);
+t := $"Hello, {{{"_".join( array{ 1, 2, 3 } )}}}";
+testPrint( t );
 
 t := $"{{";
-testPrint(t);
+testPrint( t );
 
 t := $"{{{{";
-testPrint(t);
+testPrint( t );
 
 // #20
 t := $"}}";
-testPrint(t);
+testPrint( t );
 
 t := $"}}}}";
-testPrint(t);
+testPrint( t );
 
 t := $"{{}}";
-testPrint(t);
+testPrint( t );
 
 t := $"{{{{}}}}";
-testPrint(t);
+testPrint( t );
 
 t := $"{{{{{"_"}}}}}!{{{{" - "}}}}"; // interstring MINUS string
-testPrint(t);
+testPrint( t );
 
 // #25
 t := $"{{{{{"-"}}}}}!{{{"-"}}}";
-testPrint(t);
+testPrint( t );

@@ -9,12 +9,11 @@
 use storage;
 
 program display_area()
-    var h := 10;
-    var w := 20;
-    print("Area is " +CStr(area(h, w)));
+  var h := 10;
+  var w := 20;
+  print( "Area is " + CStr( area( h, w ) ) );
 endprogram
 
-function area(ht, wd)
-    return ht * wd;
+function area( ht, wd )
+  return ht * wd;
 endfunction
-

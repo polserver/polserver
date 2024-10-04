@@ -1,1 +1,1 @@
-print("{0}".format("hello"));
+print( "{0}".format( "hello" ) );

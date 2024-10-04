@@ -6,4 +6,4 @@ x := 3;
 x := 4;
 x := 5;
 
-print(x);
+print( x );

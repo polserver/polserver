@@ -1,7 +1,7 @@
-exported function foo(a,b)
-   print( a + b );
-   return a+b;
+exported function foo( a, b )
+  print( a + b );
+  return a + b;
 endfunction
 
-foo(3,2);
-foo("a","cd");
+foo( 3, 2 );
+foo( "a", "cd" );

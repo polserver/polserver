@@ -1,10 +1,10 @@
 
 var cont := 3;
 
-while (cont)
-    var a := cont + 17;
-    print( "cont: " + cont );
-    print( "a:    " + a );
-    break;
-    cont := cont - 1;
+while ( cont )
+  var a := cont + 17;
+  print( "cont: " + cont );
+  print( "a:    " + a );
+  break;
+  cont := cont - 1;
 endwhile

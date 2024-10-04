@@ -1,7 +1,7 @@
 var a := 1;
 
-while (a)
-    print("correct - should be taken (once)");
-    a := 0;
+while ( a )
+  print( "correct - should be taken (once)" );
+  a := 0;
 endwhile
-print("correct - loop should exit");
+print( "correct - loop should exit" );

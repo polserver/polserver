@@ -5,127 +5,130 @@ program test_httprequest()
   return 1;
 endprogram
 
-function createUrl(order)
+function createUrl( order )
   return $"http://127.0.0.1:5006/pkg/webserver/test.ecl?testPid={GetPid()}&order={order}&status=200&body=Okay&headers=%5B%7B%22name%22%3A%22test1%22%2C%22value%22%3A%22value1%22%7D%5D";
 endfunction
 
 // Checks if status, headers, and body were written based off expected values
-function checkEvent(expected) 
-  var ev := os::wait_for_event(15);
-  if (!ev)
-    return ret_error($"www wait_for_event failed, returned {ev}");
+function checkEvent( expected )
+  var ev := os::wait_for_event( 15 );
+  if ( !ev )
+    return ret_error( $"www wait_for_event failed, returned {ev}" );
   endif
 
-  if (ev.status != expected.status || ev.headers != expected.headers || ev.body != expected.body)
-    return ret_error($"www event values (status = {ev.status}, headers = {ev.headers}, body = {ev.body}) not as expected (status = {expected.status}, headers = {expected.headers}, body = {expected.body})");
+  if ( ev.status != expected.status || ev.headers != expected.headers || ev.body != expected.body )
+    return ret_error( $"www event values (status = {ev.status}, headers = {ev.headers}, body = {ev.body}) not as expected (status = {expected.status}, headers = {expected.headers}, body = {expected.body})" );
   endif
 
   return 1;
 endfunction
 
 exported function test_www_status_headers_body()
-  var res := HTTPRequest(createUrl("status,headers,body"));
-  return checkEvent(struct{status := 1, headers := 1, body := 1});
+  var res := HTTPRequest( createUrl( "status,headers,body" ) );
+  return checkEvent( struct{ status := 1, headers := 1, body := 1 } );
 endfunction
 
 exported function test_www_status_body_headers()
-  var res := HTTPRequest(createUrl("status,body,headers"));
-  return checkEvent(struct{status := 1, headers := error, body := 1});
+  var res := HTTPRequest( createUrl( "status,body,headers" ) );
+  return checkEvent( struct{ status := 1, headers := error, body := 1 } );
 endfunction
 
 exported function test_www_headers_status_body()
-  var res := HTTPRequest(createUrl("headers,status,body"));
-  return checkEvent(struct{status := error, headers := 1, body := 1});
+  var res := HTTPRequest( createUrl( "headers,status,body" ) );
+  return checkEvent( struct{ status := error, headers := 1, body := 1 } );
 endfunction
 
 exported function test_www_headers_body_status()
-  var res := HTTPRequest(createUrl("headers,body,status"));
-  return checkEvent(struct{status := error, headers := 1, body := 1});
+  var res := HTTPRequest( createUrl( "headers,body,status" ) );
+  return checkEvent( struct{ status := error, headers := 1, body := 1 } );
 endfunction
 exported function test_www_body_headers_status()
-  var res := HTTPRequest(createUrl("body,headers,status"));
-  return checkEvent(struct{status := error, headers := error, body := 1});
+  var res := HTTPRequest( createUrl( "body,headers,status" ) );
+  return checkEvent( struct{ status := error, headers := error, body := 1 } );
 endfunction
 
 exported function test_www_body_status_headers()
-  var res := HTTPRequest(createUrl("body,status,headers"));
-  return checkEvent(struct{status := error, headers := error, body := 1});
+  var res := HTTPRequest( createUrl( "body,status,headers" ) );
+  return checkEvent( struct{ status := error, headers := error, body := 1 } );
 endfunction
 
 exported function test_www_status_body()
-  var res := HTTPRequest(createUrl("status,body"));
-  return checkEvent(struct{status := 1, body := 1});
+  var res := HTTPRequest( createUrl( "status,body" ) );
+  return checkEvent( struct{ status := 1, body := 1 } );
 endfunction
 
 exported function test_www_body_status()
-  var res := HTTPRequest(createUrl("body,status"));
-  return checkEvent(struct{status := error, body := 1});
+  var res := HTTPRequest( createUrl( "body,status" ) );
+  return checkEvent( struct{ status := error, body := 1 } );
 endfunction
 
 exported function test_www_headers_body()
-  var res := HTTPRequest(createUrl("headers,body"));
-  return checkEvent(struct{headers := 1, body := 1});
+  var res := HTTPRequest( createUrl( "headers,body" ) );
+  return checkEvent( struct{ headers := 1, body := 1 } );
 endfunction
 
 exported function test_www_status_headers()
-  var res := HTTPRequest(createUrl("status,headers"));
-  return checkEvent(struct{status := 1, headers := 1});
+  var res := HTTPRequest( createUrl( "status,headers" ) );
+  return checkEvent( struct{ status := 1, headers := 1 } );
 endfunction
 
 exported function test_www_headers_status()
-  var res := HTTPRequest(createUrl("headers,status"));
-  return checkEvent(struct{status := error, headers := 1});
+  var res := HTTPRequest( createUrl( "headers,status" ) );
+  return checkEvent( struct{ status := error, headers := 1 } );
 endfunction
 
 exported function test_www_body_headers()
-  var res := HTTPRequest(createUrl("body,headers"));
-  return checkEvent(struct{headers := error, body := 1});
+  var res := HTTPRequest( createUrl( "body,headers" ) );
+  return checkEvent( struct{ headers := error, body := 1 } );
 endfunction
 
 // Make sure status code, status text, and content-type are sent even if no Write*() was performed inside script
 exported function test_www_defaults()
-  var res := HTTPRequest($"http://127.0.0.1:5006/pkg/webserver/test.ecl", flags := HTTPREQUEST_EXTENDED_RESPONSE);
+  var res := HTTPRequest( $"http://127.0.0.1:5006/pkg/webserver/test.ecl",
+                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
 
   var actual := res.status;
   var expected := 200;
-  if (actual != expected)
-    return ret_error($"HTTPRequest returned status {actual}, expecting {expected}");
+  if ( actual != expected )
+    return ret_error( $"HTTPRequest returned status {actual}, expecting {expected}" );
   endif
 
   actual := res.statusText;
   expected := "OK";
-  if (actual != expected)
-    return ret_error($"HTTPRequest returned statusText '{actual}', expecting '{expected}'");
+  if ( actual != expected )
+    return ret_error( $"HTTPRequest returned statusText '{actual}', expecting '{expected}'" );
   endif
 
   actual := res.headers["content-type"];
   expected := "text/html";
-  if (actual != expected)
-    return ret_error($"HTTPRequest returned headers['content-type'] '{actual}', expecting '{expected}'");
+  if ( actual != expected )
+    return ret_error( $"HTTPRequest returned headers['content-type'] '{actual}', expecting '{expected}'" );
   endif
   return 1;
 endfunction
 
 // Check if Content-Type can be overwritten
 exported function test_www_custom_content_type()
-  var res := HTTPRequest($"http://127.0.0.1:5006/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22content-type%22%2C%22value%22%3A%22text%2Fplain%22%7D%5D", flags := HTTPREQUEST_EXTENDED_RESPONSE);
+  var res := HTTPRequest( $"http://127.0.0.1:5006/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22content-type%22%2C%22value%22%3A%22text%2Fplain%22%7D%5D",
+                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
 
   var actual := res.headers["content-type"];
   var expected := "text/plain";
-  if (actual != expected)
-    return ret_error($"HTTPRequest returned headers['content-type'] '{actual}', expecting '{expected}'");
+  if ( actual != expected )
+    return ret_error( $"HTTPRequest returned headers['content-type'] '{actual}', expecting '{expected}'" );
   endif
   return 1;
 endfunction
 
 // Check status reason phrase can be overwritten
 exported function test_www_custom_status_reason()
-  var res := HTTPRequest($"http://127.0.0.1:5006/pkg/webserver/test.ecl?status=200&statusText=Alright", flags := HTTPREQUEST_EXTENDED_RESPONSE);
+  var res := HTTPRequest( $"http://127.0.0.1:5006/pkg/webserver/test.ecl?status=200&statusText=Alright",
+                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
 
   var actual := res.statusText;
   var expected := "Alright";
-  if (actual != expected)
-    return ret_error($"HTTPRequest returned statusText '{actual}', expecting '{expected}'");
+  if ( actual != expected )
+    return ret_error( $"HTTPRequest returned statusText '{actual}', expecting '{expected}'" );
   endif
   return 1;
 endfunction

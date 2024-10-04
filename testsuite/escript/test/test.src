@@ -1,59 +1,62 @@
-var a,b,c,d,e,p,r,ab, aab;
+var a, b, c, d, e, p, r, ab, aab;
 
-if (5 == 6) 
-    print( "equal, ...");
+if ( 5 == 6 )
+  print( "equal, ..." );
 endif
 
-IF ("TEST" == "TEST") then print( "Equal again!"); endif
+if ( "TEST" == "TEST" ) then
+  print( "Equal again!" );
+endif
 PRINT( "Hello World!" );
 
-A:="TEST" + "STRING";
-PRINT("A="+A);
+A := "TEST" + "STRING";
+PRINT( "A=" + A );
 
-B:="TEST" - "STRING";
-PRINT("B=" + B);
+B := "TEST" - "STRING";
+PRINT( "B=" + B );
 
-C:=A - "TS";
-PRINT("C=" + C);
+C := A - "TS";
+PRINT( "C=" + C );
 
-D:=A - "TEST";
-PRINT("D=" +D);
+D := A - "TEST";
+PRINT( "D=" + D );
 
-E:=A - "ING";
-print("E=" + E);
+E := A - "ING";
+print( "E=" + E );
 
-print( "A="+A);
-IF ( 7==7+0 )  A := 6; endif
-print( "A="+A);
+print( "A=" + A );
+if ( 7 == 7 + 0 )
+  A := 6;
+endif
+print( "A=" + A );
 
-A:=7;
-A:="Hello";
-B:="Hello";
+A := 7;
+A := "Hello";
+B := "Hello";
 
-AAb:=2;
-A:=2;
-C:=5;
-D:=6;
-P:=7;
-R:=8;
-if ( A == B ) 
+AAb := 2;
+A := 2;
+C := 5;
+D := 6;
+P := 7;
+R := 8;
+if ( A == B )
   C := d;
 else
-  if (1)
+  if ( 1 )
     R := P;
   else
     C := A;
   endif
 endif
-print( A+" "+C+" "+D+" "+P+" "+R);
-print( "hello world!");
-D := 5+7/(6+2);
-C :=5;
-A :=B+C;
-AB :="HELLO AGAIN";
-print( AB);
-print( D);
-print( C);
-print( A);
-print( B);
-
+print( A + " " + C + " " + D + " " + P + " " + R );
+print( "hello world!" );
+D := 5 + 7 / ( 6 + 2 );
+C := 5;
+A := B + C;
+AB := "HELLO AGAIN";
+print( AB );
+print( D );
+print( C );
+print( A );
+print( B );

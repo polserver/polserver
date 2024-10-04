@@ -1,19 +1,18 @@
 
 var cont := 6;
 
-outer:
-while (cont)
-    print( "cont: " + cont );
-    cont := cont - 1;
-    if (cont == 3)
-        var x := 1;
-        while( x < 5)
-            print( "X=" + X );
-            if (x == cont)
-                continue outer;
-            endif
-            x := x + 1;
-        endwhile
-    endif
-    print( "cont2: " + cont );
+outer: while ( cont )
+  print( "cont: " + cont );
+  cont := cont - 1;
+  if ( cont == 3 )
+    var x := 1;
+    while ( x < 5 )
+      print( "X=" + X );
+      if ( x == cont )
+        continue outer;
+      endif
+      x := x + 1;
+    endwhile
+  endif
+  print( "cont2: " + cont );
 endwhile

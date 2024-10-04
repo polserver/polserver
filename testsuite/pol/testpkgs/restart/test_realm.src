@@ -3,22 +3,22 @@ use uo;
 use polsys;
 include "testutil";
 
-var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
 
 program test_realm()
   return 1;
 endprogram
 
 exported function load_save_shadowrealm()
-  if (testrun == 1)
-    var r:= addrealm("savetest_realm", "britannia2");
-    if (!r)
-      return ret_error($"failed to add: {r}");
+  if ( testrun == 1 )
+    var r := addrealm( "savetest_realm", "britannia2" );
+    if ( !r )
+      return ret_error( $"failed to add: {r}" );
     endif
   else
-    var r:=Realms("savetest_realm");
-    if (!r || r.mapid!=1)
-      return ret_error("failed to load realm");
+    var r := Realms( "savetest_realm" );
+    if ( !r || r.mapid != 1 )
+      return ret_error( "failed to load realm" );
     endif
   endif
   return 1;

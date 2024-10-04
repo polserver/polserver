@@ -1,9 +1,9 @@
-function bar(y)
-    print(y);
+function bar( y )
+  print( y );
 endfunction
 
-function foo(x := bar(3))
-    print(x);
+function foo( x := bar( 3 ) )
+  print( x );
 endfunction
 
-foo(6);
+foo( 6 );

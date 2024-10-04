@@ -1,4 +1,4 @@
-var x := array { 4, 3 };
-var y := array { 5, 2, 3 };
+var x := array{ 4, 3 };
+var y := array{ 5, 2, 3 };
 var z := x + y;
-print(z);
+print( z );

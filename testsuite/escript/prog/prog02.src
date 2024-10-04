@@ -1,6 +1,6 @@
 program foo( a, b )
-	print( "hello world" );
-	print( "a: " + a );
-	print( "b: " + b );
-	var c := 7;
+  print( "hello world" );
+  print( "a: " + a );
+  print( "b: " + b );
+  var c := 7;
 endprogram

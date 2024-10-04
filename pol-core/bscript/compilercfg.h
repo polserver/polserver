@@ -46,7 +46,7 @@ struct CompilerConfig
   // Formatter
   size_t FormatterLineWidth = 80;
   bool FormatterKeepKeywords = false;
-  unsigned short FormatterIdentLevel = 2;
+  unsigned short FormatterIndentLevel = 2;
   bool FormatterMergeEmptyLines = true;
   bool FormatterEmptyParenthesisSpacing = false;
   bool FormatterEmptyBracketSpacing = false;
@@ -61,6 +61,12 @@ struct CompilerConfig
   bool FormatterUseTabs = false;
   unsigned short FormatterTabWidth = 4;
   bool FormatterInsertNewlineAtEOF = false;
+  bool FormatterFormatInsideComments = true;
+  bool FormatterBracketAttachToType = true;
+  bool FormatterAlignTrailingComments = true;
+  bool FormatterAlignConsecutiveShortCaseStatements = true;
+  bool FormatterAllowShortCaseLabelsOnASingleLine = true;
+  bool FormatterAllowShortFuncRefsOnASingleLine = true;
 
   void Read( const std::string& path );
   void SetDefaults();

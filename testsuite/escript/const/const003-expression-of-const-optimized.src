@@ -3,4 +3,3 @@ const BAR := FOO * 3;
 
 print( FOO );
 print( BAR );
-

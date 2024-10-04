@@ -1,1 +1,1 @@
-print(Compare("\\", "\\"));
+print( Compare( "\\", "\\" ) );

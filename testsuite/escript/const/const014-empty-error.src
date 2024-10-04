@@ -1,2 +1,2 @@
-const X := error {};
-print(X);
+const X := error{};
+print( X );

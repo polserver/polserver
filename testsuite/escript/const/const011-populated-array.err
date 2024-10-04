@@ -1,1 +1,1 @@
-A const array must be empty.
+:1:12: error: A const array must be empty.

@@ -4,7 +4,7 @@ use attributes;
 use vitals;
 include "testutil";
 
-var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
 
 program test_char()
   return 1;
@@ -12,146 +12,209 @@ endprogram
 
 // save/load test for things in Character class
 exported function load_save_character()
-  var props:={
-//               {"Account", {"",1}}, // indirect
+  var props := {    //               {"Account", {"",1}}, // indirect
 //               {"CharIdx", {"",1}}, // indirect
-              {"CmdLevel", {"cmdlevel",1}},
-             {"Concealed", {"concealed",1}},
-             {"TrueColor", {"truecolor",105}},
-           {"TrueObjtype", {"trueobjtype",0x166}},
-//       {"RegisteredHouse", {"",1}},
-                {"Gender", {"gender",1}},
-                  {"Race", {"race",RACE_GARGOYLE}},
-//                  {"Dead", {"",1}}, // other test
-          {"MountedSteps", {"mountedsteps",7}},
-                {"Hidden", {"hidden",1}},
-                {"Frozen", {"frozen",1}},
-       {"MovementWalkMod", {"movecost_walk_mod",8.1}},
-        {"MovementRunMod", {"movecost_run_mod",8.2}},
-{"MovementWalkMountedMod", {"movecost_walk_mounted_mod",8.3}},
- {"MovementRunMountedMod", {"movecost_run_mounted_mod",8.4}},
-   {"CarryingCapacityMod", {"carrying_capacity_mod",9}},
-//           {"pAttr->name", {"",1}}, // functions
+                 { "CmdLevel",
+                   { "cmdlevel", 1 }
+                 },
+                 {
+                   "Concealed",
+                   { "concealed", 1 }
+                 },
+                 {
+                   "TrueColor",
+                   { "truecolor", 105 }
+                 },
+                 {
+                   "TrueObjtype",
+                   { "trueobjtype", 0x166 }
+                 }, //       {"RegisteredHouse", {"",1}},
+                 {
+                   "Gender",
+                   { "gender", 1 }
+                 },
+                 {
+                   "Race",
+                   { "race", RACE_GARGOYLE }
+                 }, //                  {"Dead", {"",1}}, // other test
+                 {
+                   "MountedSteps",
+                   { "mountedsteps", 7 }
+                 },
+                 {
+                   "Hidden",
+                   { "hidden", 1 }
+                 },
+                 {
+                   "Frozen",
+                   { "frozen", 1 }
+                 },
+                 {
+                   "MovementWalkMod",
+                   { "movecost_walk_mod", 8.1 }
+                 },
+                 {
+                   "MovementRunMod",
+                   { "movecost_run_mod", 8.2 }
+                 },
+                 {
+                   "MovementWalkMountedMod",
+                   { "movecost_walk_mounted_mod", 8.3 }
+                 },
+                 {
+                   "MovementRunMountedMod",
+                   { "movecost_run_mounted_mod", 8.4 }
+                 },
+                 {
+                   "CarryingCapacityMod",
+                   { "carrying_capacity_mod", 9 }
+                 }, //           {"pAttr->name", {"",1}}, // functions
 //          {"pVital->name", {"",1}}, // npc?
-               {"Statcap", {"statcap",256}},
-              {"Skillcap", {"skillcap",701}},
-             {"Followers", {"followers",9}},
-          {"FollowersMax", {"followers_max",10}},
-               {"Tithing", {"tithing",11}},
-//              {"MoveMode", {"",1}},
+                 {
+                   "Statcap",
+                   { "statcap", 256 }
+                 },
+                 {
+                   "Skillcap",
+                   { "skillcap", 701 }
+                 },
+                 {
+                   "Followers",
+                   { "followers", 9 }
+                 },
+                 {
+                   "FollowersMax",
+                   { "followers_max", 10 }
+                 },
+                 {
+                   "Tithing",
+                   { "tithing", 11 }
+                 }, //              {"MoveMode", {"",1}},
 //                 {"Privs", {"",1}}, //method
 //              {"Settings", {"",1}}, //method
 //             {"CreatedAt", {"",1}},
 //        {"SquelchedUntil", {"",1}}, //method
 //         {"DeafenedUntil", {"",1}}, //method
-           {"TitlePrefix", {"title_prefix","myprefix"}},
-           {"TitleSuffix", {"title_suffix","mysuffix"}},
-            {"TitleGuild", {"title_guild","myguild"}},
-             {"TitleRace", {"title_race","myrace"}},
-              {"Murderer", {"murderer",1}}
-//          {"PartyCanLoot", {"",1}}, // client only settable?
-//            {"Reportable", {"",1}}, // other test
-//            {"LastCorpse", {"",1}}, // other test
-  };
+                 {
+                   "TitlePrefix",
+                   { "title_prefix", "myprefix" }
+                 },
+                 {
+                   "TitleSuffix",
+                   { "title_suffix", "mysuffix" }
+                 },
+                 {
+                   "TitleGuild",
+                   { "title_guild", "myguild" }
+                 },
+                 {
+                   "TitleRace",
+                   { "title_race", "myrace" }
+                 },
+                 {
+                   "Murderer",
+                   { "murderer", 1 }
+                 }  //          {"PartyCanLoot", {"",1}}, // client only settable?
+                 //            {"Reportable", {"",1}}, // other test
+                 //            {"LastCorpse", {"",1}}, // other test
+                 };
 
-  if (testrun == 1)
-    var chr:=createAccountWithChar("restart_test_char", "pass");
-    if (!chr)
+  if ( testrun == 1 )
+    var chr := createAccountWithChar( "restart_test_char", "pass" );
+    if ( !chr )
       return chr;
     endif
     foreach prop in props
-      chr.set_member(prop[2][1],prop[2][2]);
+      chr.set_member( prop[2][1], prop[2][2] );
     endforeach
-    grantprivilege(chr,"hiddenattack");
-    grantprivilege(chr,"runwhilestealth");
-    chr.enable("hiddenattack");
-    SetAttributeBaseValue(chr,"Strength",900);
-    SetAttributeCap(chr,"Strength",950);
-    SetAttributeLock(chr,"Strength",ATTRIBUTE_LOCK_DOWN);
-    SetAttributeBaseValue(chr,"INT",901);
-    SetAttributeCap(chr,"INT",1002);
-    SetAttributeLock(chr,"INT",ATTRIBUTE_LOCK_LOCKED);
+    grantprivilege( chr, "hiddenattack" );
+    grantprivilege( chr, "runwhilestealth" );
+    chr.enable( "hiddenattack" );
+    SetAttributeBaseValue( chr, "Strength", 900 );
+    SetAttributeCap( chr, "Strength", 950 );
+    SetAttributeLock( chr, "Strength", ATTRIBUTE_LOCK_DOWN );
+    SetAttributeBaseValue( chr, "INT", 901 );
+    SetAttributeCap( chr, "INT", 1002 );
+    SetAttributeLock( chr, "INT", ATTRIBUTE_LOCK_LOCKED );
 
-    chr.deaf(300);
-    chr.squelch(400);
+    chr.deaf( 300 );
+    chr.squelch( 400 );
   else
 
-    var a:=FindAccount("restart_test_char");
-    if (!a)
-      return ret_error("failed to find account");
+    var a := FindAccount( "restart_test_char" );
+    if ( !a )
+      return ret_error( "failed to find account" );
     endif
-    var chr:=a.getcharacter(1);
-    if (!chr)
-      return ret_error("failed to find char");
+    var chr := a.getcharacter( 1 );
+    if ( !chr )
+      return ret_error( "failed to find char" );
     endif
     foreach prop in props
-      var val:=chr.get_member(prop[2][1]);
-      if (val != prop[2][2])
-        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      var val := chr.get_member( prop[2][1] );
+      if ( val != prop[2][2] )
+        return ret_error( $"Member {prop[2][1]} {prop[2][2]} != {val}" );
       endif
     endforeach
-    if (!chr.enabled("hiddenattack"))
-      return ret_error("priv not enabled");
+    if ( !chr.enabled( "hiddenattack" ) )
+      return ret_error( "priv not enabled" );
     endif
-    if (chr.enabled("runwhilestealth"))
-      return ret_error("priv is enabled");
+    if ( chr.enabled( "runwhilestealth" ) )
+      return ret_error( "priv is enabled" );
     endif
-    if (chr.privileges().size()!=2)
-      return ret_error($"wrong number of privs {chr.privileges()}");
+    if ( chr.privileges().size() != 2 )
+      return ret_error( $"wrong number of privs {chr.privileges()}" );
     endif
-    var v:={ GetAttributeBaseValue(chr,"Strength"),
-             GetAttributeCap(chr,"Strength"),
-             GetAttributeLock(chr,"Strength") };
-    if (v != {900,950,ATTRIBUTE_LOCK_DOWN})
-      return ret_error($"invalid STR values {v}");
+    var v := { GetAttributeBaseValue( chr, "Strength" ), GetAttributeCap(
+               chr, "Strength" ), GetAttributeLock( chr, "Strength" ) };
+    if ( v != { 900, 950, ATTRIBUTE_LOCK_DOWN } )
+      return ret_error( $"invalid STR values {v}" );
     endif
-    v:={ GetAttributeBaseValue(chr,"INT"),
-         GetAttributeCap(chr,"INT"),
-         GetAttributeLock(chr,"INT") };
-    if (v != {901,1002,ATTRIBUTE_LOCK_LOCKED})
-      return ret_error($"invalid INT values {v}");
+    v := { GetAttributeBaseValue( chr, "INT" ), GetAttributeCap(
+           chr, "INT" ), GetAttributeLock( chr, "INT" ) };
+    if ( v != { 901, 1002, ATTRIBUTE_LOCK_LOCKED } )
+      return ret_error( $"invalid INT values {v}" );
     endif
-    if (!chr.deafed)
-      return ret_error("failed to save deaf status");
+    if ( !chr.deafed )
+      return ret_error( "failed to save deaf status" );
     endif
-    if (!chr.squelched)
-      return ret_error("failed to save squelch status");
+    if ( !chr.squelched )
+      return ret_error( "failed to save squelch status" );
     endif
   endif
   return 1;
 endfunction
 
 exported function load_save_character_dead()
-  if (testrun == 1)
-    var chr:=createAccountWithChar("restart_test_chardead", "pass");
-    if (!chr)
+  if ( testrun == 1 )
+    var chr := createAccountWithChar( "restart_test_chardead", "pass" );
+    if ( !chr )
       return chr;
     endif
-    var chr1:=createAccountWithChar("restart_test_charkiller", "pass");
-    if (!chr1)
+    var chr1 := createAccountWithChar( "restart_test_charkiller", "pass" );
+    if ( !chr1 )
       return chr1;
     endif
-    chr.kill(chr1);
-    chr.setprop("testcorpse",chr.getcorpse().serial);
+    chr.kill( chr1 );
+    chr.setprop( "testcorpse", chr.getcorpse().serial );
   else
 
-    var chr:=FindAccount("restart_test_chardead").getcharacter(1);
-    if (!chr)
-      return ret_error("failed to find char");
+    var chr := FindAccount( "restart_test_chardead" ).getcharacter( 1 );
+    if ( !chr )
+      return ret_error( "failed to find char" );
     endif
-    var chr1:=FindAccount("restart_test_charkiller").getcharacter(1);
-    if (!chr)
-      return ret_error("failed to find char");
+    var chr1 := FindAccount( "restart_test_charkiller" ).getcharacter( 1 );
+    if ( !chr )
+      return ret_error( "failed to find char" );
     endif
 
-    if (!chr.dead)
-      return ret_error("chr is not dead");
+    if ( !chr.dead )
+      return ret_error( "chr is not dead" );
     endif
-    if (chr.getcorpse().serial != chr.getprop("testcorpse"))
-      return ret_error("failed to save corpse");
+    if ( chr.getcorpse().serial != chr.getprop( "testcorpse" ) )
+      return ret_error( "failed to save corpse" );
     endif
-    if (len(chr.reportables)!=1 || chr.reportables[1].killer != chr1)
-      return ret_error($"Invalid reportables: {chr.reportables}");
+    if ( len( chr.reportables ) != 1 || chr.reportables[1].killer != chr1 )
+      return ret_error( $"Invalid reportables: {chr.reportables}" );
     endif
   endif
   return 1;

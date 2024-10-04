@@ -3,14 +3,14 @@ var a array;
 a[1] := 42;
 a[2] := 4;
 
-if (5 in a)
-    print( "Failure! (1)" );
+if ( 5 in a )
+  print( "Failure! (1)" );
 else
-    print( "Success! (1)" );
+  print( "Success! (1)" );
 endif
 
-if (0 in a)
-    print( "Failure! (2)" );
+if ( 0 in a )
+  print( "Failure! (2)" );
 else
-    print( "Success! (2)" );
+  print( "Success! (2)" );
 endif

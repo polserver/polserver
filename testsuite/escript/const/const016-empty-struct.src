@@ -1,2 +1,2 @@
-const X := struct {};
-print(X);
+const X := struct{};
+print( X );

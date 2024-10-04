@@ -2,7 +2,7 @@ use os;
 use uo;
 include "testutil";
 
-var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
 
 program test_boat()
   return 1;
@@ -10,44 +10,42 @@ endprogram
 
 // save/load test for things in Boat class
 exported function load_save_boat()
-  var props:={
-                {"MultiID", {"multiid",0x0}}
-  };
+  var props := { { "MultiID", { "multiid", 0x0 } } };
 
-  if (testrun == 1)
-    var boat:=CreateMultiAtLocation(10,50,-4,0x11000);
-    boat.name:="load_save_boat";
-    if (!boat)
-      return ret_error($"failed to create boat {boat}");
+  if ( testrun == 1 )
+    var boat := CreateMultiAtLocation( 10, 50, -4, 0x11000 );
+    boat.name := "load_save_boat";
+    if ( !boat )
+      return ret_error( $"failed to create boat {boat}" );
     endif
-    var npc:=CreateNPCFromTemplate(":testrestart:restart_npc",9,50,0);
-    boat.setprop("npc",npc.serial);
-    SetGlobalProperty("test_storage_boat", boat.serial);
+    var npc := CreateNPCFromTemplate( ":testrestart:restart_npc", 9, 50, 0 );
+    boat.setprop( "npc", npc.serial );
+    SetGlobalProperty( "test_storage_boat", boat.serial );
   else
 
-    var serial := GetGlobalProperty("test_storage_boat");
-    if (!serial)
-      return ret_error("Global property not found");
+    var serial := GetGlobalProperty( "test_storage_boat" );
+    if ( !serial )
+      return ret_error( "Global property not found" );
     endif
 
-    var boat := SystemFindObjectBySerial(serial);
-    if (!boat)
-      return ret_error($"Boat with serial {serial:#x} does not exists: {boat})");
+    var boat := SystemFindObjectBySerial( serial );
+    if ( !boat )
+      return ret_error( $"Boat with serial {serial:#x} does not exists: {boat})" );
     endif
     foreach prop in props
-      var val:=boat.get_member(prop[2][1]);
-      if (val != prop[2][2])
-        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      var val := boat.get_member( prop[2][1] );
+      if ( val != prop[2][2] )
+        return ret_error( $"Member {prop[2][1]} {prop[2][2]} != {val}" );
       endif
     endforeach
-    if (len(boat.components)!=4)
-      return ret_error($"invalid components: {boat.components}");
+    if ( len( boat.components ) != 4 )
+      return ret_error( $"invalid components: {boat.components}" );
     endif
-    if (len(boat.mobiles)!=1)
-      return ret_error($"invalid traveller size: {boat.mobiles}");
+    if ( len( boat.mobiles ) != 1 )
+      return ret_error( $"invalid traveller size: {boat.mobiles}" );
     endif
-    if (boat.mobiles[1].serial != boat.getprop("npc"))
-      return ret_error($"invalid traveller {boat.mobiles[1].serial} != "+boat.getprop("npc"));
+    if ( boat.mobiles[1].serial != boat.getprop( "npc" ) )
+      return ret_error( $"invalid traveller {boat.mobiles[1].serial} != " + boat.getprop( "npc" ) );
     endif
 
   endif

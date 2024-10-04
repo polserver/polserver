@@ -1,28 +1,28 @@
 var g := 4; // global
 
-if (1)
-var z := 0; // local 0
-var func := @( a, b ) {
-  var c := "local 3";
-  if ( a + b > 0 )
-    c := a + b;
-    z := c + 1;
-    g := g + 1;
-  endif
+if ( 1 )
+  var z := 0; // local 0
+  var func := @( a, b ) {
+    var c := "local 3";
+    if ( a + b > 0 )
+      c := a + b;
+      z := c + 1;
+      g := g + 1;
+    endif
 
-  // previous, bugged output:
-  //
-  //  z=3
-  //  a=1
-  //  b=local 31
-  //  c=local 3
+    // previous, bugged output:
+    //
+    //  z=3
+    //  a=1
+    //  b=local 31
+    //  c=local 3
 
-  print( $"z={z}" ); // z=4
-  print( $"a={a}" ); // a=1
-  print( $"b={b}" ); // b=2
-  print( $"c={c}" ); // c=3
-  print( $"g={g}" ); // g=5
-};
+    print( $"z={z}" ); // z=4
+    print( $"a={a}" ); // a=1
+    print( $"b={b}" ); // b=2
+    print( $"c={c}" ); // c=3
+    print( $"g={g}" ); // g=5
+  };
 
-func( 1, 2 );
+  func( 1, 2 );
 endif

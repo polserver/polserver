@@ -8,31 +8,39 @@ program map_info()
 endprogram
 
 exported function mapinfo()
-  var errortext:="";
-  for x:=31 to 33
-    for y:=20 to 30
-      var info:=GetMapInfo(x,y);
-      if (y<28)
-        if (info.landtile != 0xa8 || info.z != -5)
-          errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0xa8,-5,info.landtile,info.z);
+  var errortext := "";
+  for x := 31 to 33
+    for y := 20 to 30
+      var info := GetMapInfo( x, y );
+      if ( y < 28 )
+        if ( info.landtile != 0xa8 || info.z != -5 )
+          errortext += "Wrong mapinfo {},{}: expected {},{} got {},{}\n".format( x, y, 0xa8, -5,
+                                                                                 info.landtile,
+                                                                                 info.z );
         endif
-      elseif (y==28)
-        if (info.landtile != 0x17 || info.z != -2)
-          errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0x17,-3,info.landtile,info.z);
+      elseif ( y == 28 )
+        if ( info.landtile != 0x17 || info.z != -2 )
+          errortext += "Wrong mapinfo {},{}: expected {},{} got {},{}\n".format( x, y, 0x17, -3,
+                                                                                 info.landtile,
+                                                                                 info.z );
         endif
-      elseif (y==29)
-        if (info.landtile != 0x17 || info.z != 0)
-          errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0x17,0,info.landtile,info.z);
+      elseif ( y == 29 )
+        if ( info.landtile != 0x17 || info.z != 0 )
+          errortext += "Wrong mapinfo {},{}: expected {},{} got {},{}\n".format( x, y, 0x17, 0,
+                                                                                 info.landtile,
+                                                                                 info.z );
         endif
-      elseif (y>=30)
-        if (info.landtile != 0x3 || info.z != 0)
-          errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0x3,0,info.landtile,info.z);
+      elseif ( y >= 30 )
+        if ( info.landtile != 0x3 || info.z != 0 )
+          errortext += "Wrong mapinfo {},{}: expected {},{} got {},{}\n".format( x, y, 0x3, 0,
+                                                                                 info.landtile,
+                                                                                 info.z );
         endif
       endif
     endfor
   endfor
-  if (len(errortext))
-    return ret_error(errortext);
+  if ( len( errortext ) )
+    return ret_error( errortext );
   endif
   return 1;
 endfunction

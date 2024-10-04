@@ -1,71 +1,71 @@
 // do crazy senseless stuff
 // nothing should crash
 program foo()
-	var a;
-	var test:={a,struct,dictionary,array,"",1,1.0};
+  var a;
+  var test := { a, struct, dictionary, array, "", 1, 1.0 };
 
-	foreach t1 in test
-		foreach t2 in test
-			print(!t1);
-			print(~t1);
-			print(-t1);
-			print(+t1);
-			print(t1*t2);
-			print(t2*t1);
-			print(t1/t2);
-			print(t2/t1);
-			print(t1+t2);
-			print(t2+t1);
-			print(t1-t2);
-			print(t2-t1);
-			print(t1%t2);
-			print(t2%t1);
-			print(t1&t2);
-			print(t2&t1);
-			print(t1^t2);
-			print(t2^t1);
-			print(t1|t2);
-			print(t2|t1);
-			print(t1>>t2);
-			print(t2>>t1);
-			print(t1<<t2);
-			print(t2<<t1);
-			PlusEqual(t1,t2);
-			PlusEqual(t2,t1);
-			MinusEqual(t1,t2);
-			MinusEqual(t2,t1);
-			TimesEqual(t1,t2);
-			TimesEqual(t2,t1);
-			DivEqual(t1,t2);
-			DivEqual(t2,t1);
-			ModulusEqual(t1,t2);
-			ModulusEqual(t2,t1);
-		endforeach
-	endforeach
+  foreach t1 in test
+    foreach t2 in test
+      print( !t1 );
+      print( ~t1 );
+      print( -t1 );
+      print( +t1 );
+      print( t1 * t2 );
+      print( t2 * t1 );
+      print( t1 / t2 );
+      print( t2 / t1 );
+      print( t1 + t2 );
+      print( t2 + t1 );
+      print( t1 - t2 );
+      print( t2 - t1 );
+      print( t1 % t2 );
+      print( t2 % t1 );
+      print( t1 & t2 );
+      print( t2 & t1 );
+      print( t1 ^ t2 );
+      print( t2 ^ t1 );
+      print( t1 | t2 );
+      print( t2 | t1 );
+      print( t1 >> t2 );
+      print( t2 >> t1 );
+      print( t1 << t2 );
+      print( t2 << t1 );
+      PlusEqual( t1, t2 );
+      PlusEqual( t2, t1 );
+      MinusEqual( t1, t2 );
+      MinusEqual( t2, t1 );
+      TimesEqual( t1, t2 );
+      TimesEqual( t2, t1 );
+      DivEqual( t1, t2 );
+      DivEqual( t2, t1 );
+      ModulusEqual( t1, t2 );
+      ModulusEqual( t2, t1 );
+    endforeach
+  endforeach
 endprogram
 
-function PlusEqual(t1,t2)
-	var t:=t1;
-	t+=t2;
-	print(t);
+function PlusEqual( t1, t2 )
+  var t := t1;
+  t += t2;
+  print( t );
 endfunction
-function MinusEqual(t1,t2)
-	var t:=t1;
-	t-=t2;
-	print(t);
+function MinusEqual( t1, t2 )
+  var t := t1;
+  t -= t2;
+  print( t );
 endfunction
-function TimesEqual(t1,t2)
-	var t:=t1;
-	t*=t2;
-	print(t);
+function TimesEqual( t1, t2 )
+  var t := t1;
+  t *= t2;
+  print( t );
 endfunction
-function DivEqual(t1,t2)
-	var t:=t1;
-	t/=t2;
-	print(t);
+function DivEqual( t1, t2 )
+  var t := t1;
+  t /= t2;
+  print( t );
 endfunction
-function ModulusEqual(t1,t2)
-	var t:=t1;
-	t%=t2;
-	print(t);
+function ModulusEqual( t1, t2 )
+  var t := t1;
+  t %= t2;
+  print( t );
 endfunction

@@ -6,4 +6,4 @@ dt1b();
 dt2b();
 dt2a();
 
-print("ok");
+print( "ok" );

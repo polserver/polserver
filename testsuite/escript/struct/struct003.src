@@ -4,4 +4,4 @@ a.+name;
 
 a.name := "x";
 
-print(a);
+print( a );

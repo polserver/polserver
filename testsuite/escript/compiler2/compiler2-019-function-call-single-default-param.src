@@ -1,6 +1,6 @@
-function display(s := "this is the default")
-    print(s);
+function display( s := "this is the default" )
+  print( s );
 endfunction
 
 display();
-display("not the default");
+display( "not the default" );

@@ -1,9 +1,9 @@
 function foo( byref a )
-    a := 5;
+  a := 5;
 endfunction
 
-var b := struct { c, d };
+var b := struct{ c, d };
 b.c := 17;
-print(b);
-foo(b.c);
-print(b);
+print( b );
+foo( b.c );
+print( b );

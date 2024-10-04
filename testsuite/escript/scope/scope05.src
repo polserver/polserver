@@ -1,11 +1,11 @@
 // Scope05 - make sure locals can't be declared twice in the same block.
 // this should fail to compile
 
-if (1)
-    var a;
-    a := 5;
-    print( "1. A=" + a );
-    var a;
-    a := 6;
-    print( "2. A=" + a );
+if ( 1 )
+  var a;
+  a := 5;
+  print( "1. A=" + a );
+  var a;
+  a := 6;
+  print( "2. A=" + a );
 endif

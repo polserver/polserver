@@ -1,5 +1,5 @@
 var a;
 a := +a;
 
-//2015-19-12 Bodom, this is not a syntax error, it's unary +, meanining noop
-print(a);
+// 2015-19-12 Bodom, this is not a syntax error, it's unary +, meanining noop
+print( a );

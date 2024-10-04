@@ -1,2 +1,2 @@
-const X := dictionary { "a" -> "b" };
-print(X);
+const X := dictionary{ "a" -> "b" };
+print( X );

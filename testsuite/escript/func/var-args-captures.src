@@ -2,7 +2,7 @@
 // Tests via function expression call `(@(<args>){})(...)` with captures
 // -----
 
-if ("1") // make local block
+if ( "1" ) // make local block
   var cap0 := -1;
 
   var sum_functor := @( args ... ) {
@@ -12,12 +12,12 @@ if ("1") // make local block
   var sumWithArg_functor := @( arg0, args ... ) {
     var loc0 := 123;
     // capture cap0, arg0, loc0; and args
-    return (@(){
-      if (loc0 != 123)
+    return ( @() {
+      if ( loc0 != 123 )
         return error{};
       endif
       return $"sum of {cap0} + {arg0} + {args}";
-    })();
+    } )();
   };
 
   var sumWithArgs_functor := @( arg0, arg1, args ... ) {

@@ -9,7 +9,7 @@ dict.insert( a[3], 3 );
 print( dict );
 
 var b := pack( dict );
-print(b);
+print( b );
 
-var c := unpack(b);
-print(c);
+var c := unpack( b );
+print( c );

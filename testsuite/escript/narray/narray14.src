@@ -1,9 +1,9 @@
 program test()
-    
-    var b := { 1, 4, 6, 3, 7, 12, 72, 3 };
-    print( b );
-    b.reverse();
-    print( b );
+
+  var b := { 1, 4, 6, 3, 7, 12, 72, 3 };
+  print( b );
+  b.reverse();
+  print( b );
 
 endprogram
 

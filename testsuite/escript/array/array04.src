@@ -1,10 +1,10 @@
 var a array;
 
 a[1] := "hello";
-print( len(a));
+print( len( a ) );
 
 a[4] := "world";
-print( len(a));
+print( len( a ) );
 
 a[2] := "there";
-print( len(a));
+print( len( a ) );

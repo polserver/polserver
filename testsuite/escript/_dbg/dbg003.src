@@ -1,19 +1,19 @@
 function fooa()
-    var a;
-    a := 2;
-    return a;
+  var a;
+  a := 2;
+  return a;
 endfunction
 
 function foob()
-    var b;
-    b := 4;
-    if (b)
-        var x;
-        x := 2;
-        return x;
-    endif
-    return b;
+  var b;
+  b := 4;
+  if ( b )
+    var x;
+    x := 2;
+    return x;
+  endif
+  return b;
 endfunction
 
 fooa();
-foob();    
+foob();

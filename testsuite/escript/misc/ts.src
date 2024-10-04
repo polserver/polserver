@@ -1,11 +1,10 @@
 var v;
 
-print("Testing arithmetic operators.");
-print(5+7);
-print(7-5);
-print(7*5);
-print(7/5);
-print(7+"hello");
-v := 7+"hello" - "7h";
-print(v);
-
+print( "Testing arithmetic operators." );
+print( 5 + 7 );
+print( 7 - 5 );
+print( 7 * 5 );
+print( 7 / 5 );
+print( 7 + "hello" );
+v := 7 + "hello" - "7h";
+print( v );

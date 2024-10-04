@@ -4,7 +4,6 @@
 // Tests comparison operators
 // All tests expected to be true
 
-
 // Int and Double
 var i1 := 1;
 var d1 := 1.0;
@@ -38,7 +37,7 @@ print( d2 >= d2 );
 var sa := "aaaaaaaaaaaa";
 var sb := "bbbbbbbbbbbb";
 print( sa != sb );
-print( sa == StrReplace(sa,"b","a") );
+print( sa == StrReplace( sa, "b", "a" ) );
 print( sa < sb );
 print( sa <= sb );
 print( sb > sa );
@@ -64,7 +63,7 @@ print( d1 >= un );
 // Array
 var a1 := array{ 1, 2, 3 };
 var a2 := array{ 2, 3, 4 };
-var a3 := array{ i1, i2, i2+1 };
+var a3 := array{ i1, i2, i2 + 1 };
 print( a1 != a2 );
 print( a1 == a3 );
 

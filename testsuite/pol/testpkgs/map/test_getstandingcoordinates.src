@@ -4,67 +4,65 @@ use os;
 include "testutil";
 
 program getstanding()
-    return 1;
+  return 1;
 endprogram
 
-var expected_data := array{
-    struct{ "x" := 28, "y" := 82, "z" := -2 },
-    struct{ "x" := 29, "y" := 82, "z" := 0 },
-    struct{ "x" := 30, "y" := 82, "z" := 0 },
-    struct{ "x" := 28, "y" := 83, "z" := -2 },
-    struct{ "x" := 29, "y" := 83, "z" := 0 },
-    struct{ "x" := 30, "y" := 83, "z" := 0 },
-    struct{ "x" := 28, "y" := 84, "z" := -2 },
-    struct{ "x" := 29, "y" := 84, "z" := 0 },
-    struct{ "x" := 30, "y" := 84, "z" := 0 },
-    struct{ "x" := 28, "y" := 85, "z" := -2 },
-    struct{ "x" := 29, "y" := 85, "z" := 0 },
-    struct{ "x" := 30, "y" := 85, "z" := 0 },
-    struct{ "x" := 28, "y" := 86, "z" := -2 },
-    struct{ "x" := 29, "y" := 86, "z" := 0 },
-    struct{ "x" := 30, "y" := 86, "z" := 0 },
-    struct{ "x" := 28, "y" := 87, "z" := -2 },
-    struct{ "x" := 29, "y" := 87, "z" := 0 },
-    struct{ "x" := 30, "y" := 87, "z" := 0 },
-    struct{ "x" := 28, "y" := 88, "z" := -2 },
-    struct{ "x" := 29, "y" := 88, "z" := 0 },
-    struct{ "x" := 30, "y" := 88, "z" := 0 },
-    struct{ "x" := 28, "y" := 89, "z" := -2 },
-    struct{ "x" := 29, "y" := 89, "z" := 0 },
-    struct{ "x" := 30, "y" := 89, "z" := 0 },
-    struct{ "x" := 28, "y" := 90, "z" := -2 },
-    struct{ "x" := 29, "y" := 90, "z" := 0 },
-    struct{ "x" := 30, "y" := 90, "z" := 0 },
-    struct{ "x" := 28, "y" := 91, "z" := -2 },
-    struct{ "x" := 29, "y" := 91, "z" := 0 },
-    struct{ "x" := 30, "y" := 91, "z" := 0 },
-    struct{ "x" := 28, "y" := 92, "z" := -2 },
-    struct{ "x" := 29, "y" := 92, "z" := 0 },
-    struct{ "x" := 30, "y" := 92, "z" := 0 }
-};
+var expected_data := array{ struct{ "x" := 28, "y" := 82, "z" := -2 },
+                            struct{ "x" := 29, "y" := 82, "z" := 0 },
+                            struct{ "x" := 30, "y" := 82, "z" := 0 },
+                            struct{ "x" := 28, "y" := 83, "z" := -2 },
+                            struct{ "x" := 29, "y" := 83, "z" := 0 },
+                            struct{ "x" := 30, "y" := 83, "z" := 0 },
+                            struct{ "x" := 28, "y" := 84, "z" := -2 },
+                            struct{ "x" := 29, "y" := 84, "z" := 0 },
+                            struct{ "x" := 30, "y" := 84, "z" := 0 },
+                            struct{ "x" := 28, "y" := 85, "z" := -2 },
+                            struct{ "x" := 29, "y" := 85, "z" := 0 },
+                            struct{ "x" := 30, "y" := 85, "z" := 0 },
+                            struct{ "x" := 28, "y" := 86, "z" := -2 },
+                            struct{ "x" := 29, "y" := 86, "z" := 0 },
+                            struct{ "x" := 30, "y" := 86, "z" := 0 },
+                            struct{ "x" := 28, "y" := 87, "z" := -2 },
+                            struct{ "x" := 29, "y" := 87, "z" := 0 },
+                            struct{ "x" := 30, "y" := 87, "z" := 0 },
+                            struct{ "x" := 28, "y" := 88, "z" := -2 },
+                            struct{ "x" := 29, "y" := 88, "z" := 0 },
+                            struct{ "x" := 30, "y" := 88, "z" := 0 },
+                            struct{ "x" := 28, "y" := 89, "z" := -2 },
+                            struct{ "x" := 29, "y" := 89, "z" := 0 },
+                            struct{ "x" := 30, "y" := 89, "z" := 0 },
+                            struct{ "x" := 28, "y" := 90, "z" := -2 },
+                            struct{ "x" := 29, "y" := 90, "z" := 0 },
+                            struct{ "x" := 30, "y" := 90, "z" := 0 },
+                            struct{ "x" := 28, "y" := 91, "z" := -2 },
+                            struct{ "x" := 29, "y" := 91, "z" := 0 },
+                            struct{ "x" := 30, "y" := 91, "z" := 0 },
+                            struct{ "x" := 28, "y" := 92, "z" := -2 },
+                            struct{ "x" := 29, "y" := 92, "z" := 0 },
+                            struct{ "x" := 30, "y" := 92, "z" := 0 } };
 
 exported function getstanding()
-    var coords := GetStandingCoordinates(25, 87, 5);
+  var coords := GetStandingCoordinates( 25, 87, 5 );
 
-    // Uncomment this block to generate a preformatted list of the function's return values, for updating expected_data above
+  // Uncomment this block to generate a preformatted list of the function's return values, for updating expected_data above
 
-    // foreach coord in (coords)
-    //     var multi := coords.multi ? $", \"multi\" := {coord.multi}" : "";
-    //     var comma := _coord_iter == coords.size() ? "" : ",";
-    //     print($"    struct\{ \"x\" := {coord.x}, \"y\" := {coord.y}, \"z\" := {coord.z}{multi} \}{comma}");
-    // endforeach
+  // foreach coord in (coords)
+  //     var multi := coords.multi ? $", \"multi\" := {coord.multi}" : "";
+  //     var comma := _coord_iter == coords.size() ? "" : ",";
+  //     print($"    struct\{ \"x\" := {coord.x}, \"y\" := {coord.y}, \"z\" := {coord.z}{multi} \}{comma}");
+  // endforeach
 
-    var i;
-    for (i := 1; i <= coords.size(); i++)
-        var coord := coords[i];
-        var expected := expected_data[i];
-        if (coord.x != expected.x || coord.y != expected.y || coord.z != expected.z)
-            return ret_error($"Invalid data returned at index {i}. Expected {expected}; got {coord}");
-        endif
-    endfor
-    
-    if (coords.size() != expected_data.size())
-        return ret_error($"Invalid number of coordinates returned. Expected {expected_data.size()}; got {coords.size()}");
+  var i;
+  for ( i := 1; i <= coords.size(); i++ )
+    var coord := coords[i];
+    var expected := expected_data[i];
+    if ( coord.x != expected.x || coord.y != expected.y || coord.z != expected.z )
+      return ret_error( $"Invalid data returned at index {i}. Expected {expected}; got {coord}" );
     endif
-    return 1;
+  endfor
+
+  if ( coords.size() != expected_data.size() )
+    return ret_error( $"Invalid number of coordinates returned. Expected {expected_data.size()}; got {coords.size()}" );
+  endif
+  return 1;
 endfunction

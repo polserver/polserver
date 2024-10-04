@@ -1,18 +1,18 @@
 
 program f()
-    foo( 1, 2 );
+  foo( 1, 2 );
 endprogram
 
 function foo( a, b )
-    if (a)
-        print( "a true" );
-        if (b)
-            print( "b true" );
-        else
-            print( "b false" );
-        endif
+  if ( a )
+    print( "a true" );
+    if ( b )
+      print( "b true" );
     else
-        print( "a false" );
-        return;
+      print( "b false" );
     endif
+  else
+    print( "a false" );
+    return;
+  endif
 endfunction

@@ -1,8 +1,7 @@
-if (not (5 < 3))
-    print( "ok");
+if ( not ( 5 < 3 ) )
+  print( "ok" );
 endif
 
-if (!(5<3))
-    print( "ok");
+if ( !( 5 < 3 ) )
+  print( "ok" );
 endif
-

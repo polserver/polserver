@@ -1,13 +1,12 @@
-var str :="abcd";
+var str := "abcd";
 
 var dict := dictionary;
-for i:=1 to 4
-    dict.insert(str[i],i);
+for i := 1 to 4
+  dict.insert( str[i], i );
 endfor
-print("dict: "+dict);
+print( "dict: " + dict );
 // everything works fine untill now
 
-for  i:=1 to 4
-    print("i: "+i+"result: "+dict[str[i]]);
+for i := 1 to 4
+  print( "i: " + i + "result: " + dict[str[i]] );
 endfor
-

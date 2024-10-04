@@ -1,7 +1,7 @@
-function foo(a, b)
-    print(a);
-    print(b);
+function foo( a, b )
+  print( a );
+  print( b );
 endfunction
 
-var f:=@foo;
-f.call("X", "yy");
+var f := @foo;
+f.call( "X", "yy" );

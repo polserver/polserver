@@ -1,13 +1,11 @@
 var x;
-case (x)
-    "abc":
-        print("first");
-    "abc":
-        print("second");
+case ( x )
+  "abc": print( "first" );
+  "abc": print( "second" );
 endcase
 
 // The OG compiler does not detect the above as an error.
 function foo()
-    a;
+  a;
 endfunction
 foo();

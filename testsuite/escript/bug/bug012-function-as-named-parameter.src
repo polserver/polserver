@@ -8,10 +8,10 @@
 // and still pass the argument by name.
 //
 function anything( s )
-   return "the argument value is " + s;
+  return "the argument value is " + s;
 endfunction
 
 program print_anything()
-    var s := anything("as expected");
-    print( anything := s );
+  var s := anything( "as expected" );
+  print( anything := s );
 endprogram

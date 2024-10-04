@@ -1,4 +1,4 @@
 var a := "hello world";
 var space := 4;
-print( a[space+2, 6] );
-print( a[6,6] );
+print( a[space + 2, 6] );
+print( a[6, 6] );

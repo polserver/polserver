@@ -7,146 +7,144 @@ program testloadexported()
 endprogram
 
 exported function loadexported_basic()
-  var script:=LoadExportedScript("exported.ecl");
-  if (script[2]!=1)
-    return ret_error("Program did not load");
+  var script := LoadExportedScript( "exported.ecl" );
+  if ( script[2] != 1 )
+    return ret_error( "Program did not load" );
   endif
-  if (len(script[1].exported_functions)!=3)
-    return ret_error("didnt found 2 functions");
+  if ( len( script[1].exported_functions ) != 3 )
+    return ret_error( "didnt found 2 functions" );
   endif
-  var res:=script[1].call("func1");
-  if (res !=2)
-    return ret_error("func1 failed {}".format(res));
+  var res := script[1].call( "func1" );
+  if ( res != 2 )
+    return ret_error( "func1 failed {}".format( res ) );
   endif
-  res:=script[1].call("func2");
-  if (res !=3)
-    return ret_error("func2 failed {}".format(res));
+  res := script[1].call( "func2" );
+  if ( res != 3 )
+    return ret_error( "func2 failed {}".format( res ) );
   endif
   return 1;
 endfunction
 
-function copy_exported(script)
-  var res:=script[1].call("func1");
-  if (res !=2)
-    return ret_error("func1 failed {}".format(res));
+function copy_exported( script )
+  var res := script[1].call( "func1" );
+  if ( res != 2 )
+    return ret_error( "func1 failed {}".format( res ) );
   endif
   return res;
 endfunction
 
 exported function loadexported_copy()
-  var script:=LoadExportedScript("exported.ecl");
-  if (script[2]!=1)
-    return ret_error("Program did not load");
+  var script := LoadExportedScript( "exported.ecl" );
+  if ( script[2] != 1 )
+    return ret_error( "Program did not load" );
   endif
-  var res:=copy_exported(script[1]);
-  if (!res)
+  var res := copy_exported( script[1] );
+  if ( !res )
     return res;
   endif
-  res:=script[1].call("func2");
-  if (res !=3)
-    return ret_error("func2 failed {}".format(res));
+  res := script[1].call( "func2" );
+  if ( res != 3 )
+    return ret_error( "func2 failed {}".format( res ) );
   endif
-  return 1; 
+  return 1;
 endfunction
 
 exported function loadexported_critical()
-  set_critical(1);
-  var script:=LoadExportedScript("exported.ecl");
-  if (script[2]!=1)
-    set_critical(0);
-    return ret_error("Program did not load");
+  set_critical( 1 );
+  var script := LoadExportedScript( "exported.ecl" );
+  if ( script[2] != 1 )
+    set_critical( 0 );
+    return ret_error( "Program did not load" );
   endif
-  if (len(script[1].exported_functions)!=3)
-    set_critical(0);
-    return ret_error("didnt found 2 functions");
+  if ( len( script[1].exported_functions ) != 3 )
+    set_critical( 0 );
+    return ret_error( "didnt found 2 functions" );
   endif
-  var res:=script[1].call("func1");
-  if (res !=2)
-    set_critical(0);
-    return ret_error("func1 failed {}".format(res));
+  var res := script[1].call( "func1" );
+  if ( res != 2 )
+    set_critical( 0 );
+    return ret_error( "func1 failed {}".format( res ) );
   endif
-  res:=script[1].call("func2");
-  if (res !=3)
-    set_critical(0);
-    return ret_error("func2 failed {}".format(res));
+  res := script[1].call( "func2" );
+  if ( res != 3 )
+    set_critical( 0 );
+    return ret_error( "func2 failed {}".format( res ) );
   endif
-  set_critical(0);
+  set_critical( 0 );
   return 1;
 endfunction
 
 exported function loadexported_args()
-  var args:={"te","st"};
-  var script:=LoadExportedScript("exportedargs.ecl",args);
-  if (script[2]!="te_st_")
-    return ret_error("Program did not accepted args: {}".format(script[2]));
+  var args := { "te", "st" };
+  var script := LoadExportedScript( "exportedargs.ecl", args );
+  if ( script[2] != "te_st_" )
+    return ret_error( "Program did not accepted args: {}".format( script[2] ) );
   endif
-  if (args[1]!="te" || args[2]!="st")
-    return ret_error("program modified args {}".format(args));
+  if ( args[1] != "te" || args[2] != "st" )
+    return ret_error( "program modified args {}".format( args ) );
   endif
-  var res:=script[1].call("func",args);
-  if (res !="te_st_")
-    return ret_error("func failed {}".format(res));
+  var res := script[1].call( "func", args );
+  if ( res != "te_st_" )
+    return ret_error( "func failed {}".format( res ) );
   endif
-  if (args[1]!="te" || args[2]!="st")
-    return ret_error("func modified args {}".format(args));
+  if ( args[1] != "te" || args[2] != "st" )
+    return ret_error( "func modified args {}".format( args ) );
   endif
-  res:=script[1].call("funcbyref",args);
-  if (res !="te_st_")
-    return ret_error("funcbyref failed {}".format(res));
+  res := script[1].call( "funcbyref", args );
+  if ( res != "te_st_" )
+    return ret_error( "funcbyref failed {}".format( res ) );
   endif
-  if (args[1]!="te_" || args[2]!="st")
-    return ret_error("funcbyref did not modified args {}".format(args));
+  if ( args[1] != "te_" || args[2] != "st" )
+    return ret_error( "funcbyref did not modified args {}".format( args ) );
   endif
   return 1;
 endfunction
 
 exported function loadexported_critical_load()
-  set_critical(1);
-  var script:=LoadExportedScript("exported.ecl");
-  if (script[2]!=1)
-    set_critical(0);
-    return ret_error("Program did not load");
+  set_critical( 1 );
+  var script := LoadExportedScript( "exported.ecl" );
+  if ( script[2] != 1 )
+    set_critical( 0 );
+    return ret_error( "Program did not load" );
   endif
-  set_critical(0);
-  var res:=script[1].call("func1");
-  if (res !=2)
-    return ret_error("func1 failed {}".format(res));
+  set_critical( 0 );
+  var res := script[1].call( "func1" );
+  if ( res != 2 )
+    return ret_error( "func1 failed {}".format( res ) );
   endif
   return 1;
 endfunction
 
 exported function loadexported_critical_call()
-  var script:=LoadExportedScript("exported.ecl");
-  if (script[2]!=1)
-    return ret_error("Program did not load");
+  var script := LoadExportedScript( "exported.ecl" );
+  if ( script[2] != 1 )
+    return ret_error( "Program did not load" );
   endif
-  set_critical(1);
-  var res:=script[1].call("func1");
-  if (res !=2)
-    set_critical(0);
-    return ret_error("func1 failed {}".format(res));
+  set_critical( 1 );
+  var res := script[1].call( "func1" );
+  if ( res != 2 )
+    set_critical( 0 );
+    return ret_error( "func1 failed {}".format( res ) );
   endif
-  script:=0; // gc script
-  set_critical(0);
+  script := 0; // gc script
+  set_critical( 0 );
   return 1;
 endfunction
 
 exported function loadexported_simultaneous()
   // one of the scripts should fail to call the function, crashes otherwise
-  var script:=LoadExportedScript("exported.ecl");
-  if (script[2]!=1)
-    return ret_error("Program did not load");
+  var script := LoadExportedScript( "exported.ecl" );
+  if ( script[2] != 1 )
+    return ret_error( "Program did not load" );
   endif
   for i := 1 to 2
-    start_script("simultaneous_loadexported", { script[1], i });
+    start_script( "simultaneous_loadexported", { script[1], i } );
   endfor
-  while (!getglobalproperty("#sim_loadexported1")
-      || !getglobalproperty("#sim_loadexported2"))
-    sleepms(10);
+  while ( !getglobalproperty( "#sim_loadexported1" ) || !getglobalproperty( "#sim_loadexported2" ) )
+    sleepms( 10 );
   endwhile
-  if (getglobalproperty("#sim_loadexported1") +
-      getglobalproperty("#sim_loadexported2")!=3)
-    return ret_error("one call did not fail, or both failed");
+  if ( getglobalproperty( "#sim_loadexported1" ) + getglobalproperty( "#sim_loadexported2" ) != 3 )
+    return ret_error( "one call did not fail, or both failed" );
   endif
   return 1;
 endfunction

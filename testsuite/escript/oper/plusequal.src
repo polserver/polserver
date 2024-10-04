@@ -1,10 +1,10 @@
 
-var arr:={1,2,3};
-var text:="";
+var arr := { 1, 2, 3 };
+var text := "";
 foreach a in arr
-	text+=" "+a;
+  text += " " + a;
 endforeach
-print(text);
-text:="";
-text+=arr[1];
-print(text);
+print( text );
+text := "";
+text += arr[1];
+print( text );

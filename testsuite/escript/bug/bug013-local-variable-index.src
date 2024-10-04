@@ -4,14 +4,13 @@
 // The executor doesn't use the variable index, which is why this didn't cause problems.
 
 program foo()
-   var a;             // should be 0
-   if ( a )
-       var b;         // should be 1    actually emitted 0
-       var c;         // should be 2    actually emitted 1
-       if ( b )
-           var d;     // should be 3    actually emitted 0
-           print(d);
-       endif
-   endif
+  var a; // should be 0
+  if ( a )
+    var b; // should be 1    actually emitted 0
+    var c; // should be 2    actually emitted 1
+    if ( b )
+      var d; // should be 3    actually emitted 0
+      print( d );
+    endif
+  endif
 endprogram
-

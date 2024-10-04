@@ -39,6 +39,10 @@ SourceFile::SourceFile( const std::string& pathname, const std::string& contents
   lexer.addErrorListener( &error_listener );
   parser.removeErrorListeners();
   parser.addErrorListener( &error_listener );
+
+  parser.getInterpreter<antlr4::atn::ParserATNSimulator>()->setPredictionMode(
+      antlr4::atn::PredictionMode::SLL );
+  parser.setErrorHandler( std::make_shared<antlr4::BailErrorStrategy>() );
 }
 
 SourceFile::~SourceFile() = default;
@@ -114,7 +118,8 @@ EscriptGrammar::EscriptParser::CompilationUnitContext* SourceFile::get_compilati
   {
     std::lock_guard<std::mutex> guard( mutex );
     if ( !compilation_unit )
-      compilation_unit = parser.compilationUnit();
+      compilation_unit = two_stage_parse<EscriptGrammar::EscriptParser::CompilationUnitContext>(
+          [&] { return parser.compilationUnit(); } );
   }
   ++access_count;
   propagate_errors_to( report, ident );
@@ -128,21 +133,22 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   {
     std::lock_guard<std::mutex> guard( mutex );
     if ( !module_unit )
-      module_unit = parser.moduleUnit();
+      module_unit = two_stage_parse<EscriptGrammar::EscriptParser::ModuleUnitContext>(
+          [&] { return parser.moduleUnit(); } );
   }
   ++access_count;
   propagate_errors_to( report, ident );
   return module_unit;
 }
 
-EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_unit(
-    Report& report )
+EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_unit( Report& report )
 {
   if ( !evaluate_unit )
   {
     std::lock_guard<std::mutex> guard( mutex );
     if ( !evaluate_unit )
-      evaluate_unit = parser.evaluateUnit();
+      evaluate_unit = two_stage_parse<EscriptGrammar::EscriptParser::EvaluateUnitContext>(
+          [&] { return parser.evaluateUnit(); } );
   }
   ++access_count;
   propagate_errors_to( report, SourceFileIdentifier( 0, "<eval>" ) );
@@ -280,6 +286,32 @@ std::string preprocess_web_script( const std::string& input )
   if ( !acc.empty() )
     output += "WriteHtmlRaw( \"" + acc + "\");\n";
   return output;
+}
+
+// We do not need to switch between the BailErrorStrategy and
+// DefaultErrorStrategy multiple times, as a SourceFile will only ever access
+// _one_ specific unit function (`get_module_unit`, etc), which get cached once
+// parsed. We try to parse with the SLL prediction mode first (set in the
+// SourceFile constructor). If that fails, try the default LL parser. See
+// https://github.com/antlr/antlr4/issues/374#issuecomment-30952357
+template <typename T, typename Fn>
+inline T* SourceFile::two_stage_parse( Fn callback )
+{
+  try
+  {
+    // SLL set in constructor
+    return callback();
+  }
+  catch ( antlr4::RuntimeException& )
+  {
+    // Switch to (default) LL.
+    token_stream.reset();
+    parser.reset();
+    parser.getInterpreter<antlr4::atn::ParserATNSimulator>()->setPredictionMode(
+        antlr4::atn::PredictionMode::LL );
+    parser.setErrorHandler( std::make_shared<antlr4::DefaultErrorStrategy>() );
+    return callback();
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler

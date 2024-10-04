@@ -3,4 +3,3 @@ include "packtst";
 var ob := 12345678.12345678;
 var rep := "r12345678.12345678";
 test_pack( ob, rep );
-

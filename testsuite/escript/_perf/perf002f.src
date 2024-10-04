@@ -5,8 +5,8 @@ arr[10000] := 1000;
 
 var wi := 1;
 foreach i in arr
-    i := wi;
-    wi += 1;
+  i := wi;
+  wi += 1;
 endforeach
 
 print( "done" );

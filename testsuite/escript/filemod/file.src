@@ -1,7 +1,7 @@
 use file;
 
-print(ReadFile(":filetest:normal.file"));
-print(ReadFile(":filetest:bom.file"));
-var c:=ReadFile(":filetest:iso.file");
-print(c);
-print(c[1].find("ü"));
+print( ReadFile( ":filetest:normal.file" ) );
+print( ReadFile( ":filetest:bom.file" ) );
+var c := ReadFile( ":filetest:iso.file" );
+print( c );
+print( c[1].find( "ü" ) );

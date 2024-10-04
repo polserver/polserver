@@ -2,5 +2,4 @@ const FIRST_PART := 4;
 const SECOND_PART := 7;
 const VALUE := FIRST_PART + SECOND_PART;
 
-print(VALUE);
-
+print( VALUE );

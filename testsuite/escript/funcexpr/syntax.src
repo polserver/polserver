@@ -1,6 +1,6 @@
 var foo, bar;
 // probably the most common case
-print(@(i, j, k) { return 1; });
-print(@{});
-print(@() { return 1; });
-print(@(i, byref j, k) { return 1; });
+print( @( i, j, k ) { return 1; } );
+print( @{ } );
+print( @() { return 1; } );
+print( @( i, byref j, k ) { return 1; } );

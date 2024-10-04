@@ -1,16 +1,15 @@
 // switch06
-// 
+//
 
 function foo( p )
-    case (p)
-        4: return "four";
-        5: return "five";
-        "fourteen": return 14;
-        "thirteen": return 13;
-        default: return "NOTA: " + p;
-    endcase
+  case ( p )
+    4:          return "four";
+    5:          return "five";
+    "fourteen": return 14;
+    "thirteen": return 13;
+    default:    return "NOTA: " + p;
+  endcase
 endfunction
-
 
 print( foo( 1 ) );
 print( foo( 4 ) );

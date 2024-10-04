@@ -1,9 +1,9 @@
-print( 2+3);
-print( 100+3000);
-print( -47 + 47);
-print( -47 + 90);
-print( 100-50);
-print( 100-20);
-print( 34 * 42);
-print( 12 / 2);
-print( 11 / 2);
+print( 2 + 3 );
+print( 100 + 3000 );
+print( -47 + 47 );
+print( -47 + 90 );
+print( 100 - 50 );
+print( 100 - 20 );
+print( 34 * 42 );
+print( 12 / 2 );
+print( 11 / 2 );

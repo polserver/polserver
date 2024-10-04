@@ -1,6 +1,6 @@
-function display(a, b)
-    print(a);
-    print(b);
+function display( a, b )
+  print( a );
+  print( b );
 endfunction
 
-display("hello", "world");
+display( "hello", "world" );

@@ -3,8 +3,8 @@ const B := 5;
 
 var x := 7;
 
-if (x == 5)
-    print(1);
-elseif (A != B)
-    print(2);
+if ( x == 5 )
+  print( 1 );
+elseif ( A != B )
+  print( 2 );
 endif

@@ -1,27 +1,25 @@
 include "listfile";
 
-if ("")
+if ( "" )
 
-var a;
+  var a;
 
-// Each inner function is followed by `a`, and should all use `local 0`.
-//
-// This tests that when bubbling up captures from inner to outer function,
-// variables are not duplicated / recaptured.
+  // Each inner function is followed by `a`, and should all use `local 0`.
+  //
+  // This tests that when bubbling up captures from inner to outer function,
+  // variables are not duplicated / recaptured.
 
-@() {
   @() {
     @() {
       @() {
+        @() { a; };
         a;
       };
       a;
     };
     a;
   };
-  a;
-};
 
 endif
 
-print_listfile("listfile-nested-4");
+print_listfile( "listfile-nested-4" );

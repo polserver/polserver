@@ -1,16 +1,16 @@
 var a;
 
 function foo()
-    foreach c in a
-        var x;
-    endforeach
-    if (a)
-        // var d;
-    endif
-    var e;
-    while(1)
-        e := a;
-    endwhile
+  foreach c in a
+    var x;
+  endforeach
+  if ( a )
+  // var d;
+  endif
+  var e;
+  while ( 1 )
+    e := a;
+  endwhile
 endfunction
 
 foo();

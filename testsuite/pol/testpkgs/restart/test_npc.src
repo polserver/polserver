@@ -3,7 +3,7 @@ use uo;
 use vitals;
 include "testutil";
 
-var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
 
 program test_npc()
   return 1;
@@ -11,132 +11,219 @@ endprogram
 
 // save/load test for things in NPC class
 exported function load_save_npc()
-  var override:=struct{
-    AR := 101,
-    script := "restartnpcscript",
-    SpeechColor := 102,
-    SpeechFont := 103,
-    RunSpeed := 210,
-    UseAdjustments := 0,
-    FireResist := 1,
-    ColdResist := 2,
-    EnergyResist := 3,
-    PoisonResist := 4,
-    PhysicalResist := 5,
-    FireDamage := 6,
-    ColdDamage := 7,
-    EnergyDamage := 8,
-    PoisonDamage := 9,
-    PhysicalDamage := 10,
-    LowerReagentCost := 11,
-    SpellDamageIncrease := 12,
-    FasterCasting := 13,
-    FasterCastRecovery := 14,
-    DefenceIncrease := 15,
-    DefenceIncreaseCap := 16,
-    LowerManaCost := 17,
-    FireResistCap := 18,
-    ColdResistCap := 19,
-    EnergyResistCap := 20,
-    PhysicalResistCap := 21,
-    PoisonResistCap := 22,
-    Luck := 23,
-    SwingSpeedIncrease := 24,
-    NoDropException := 1
-  };
-  var props:={
-//       {"RegisteredHouse", {"",1}},
-                    {"AR", {"ar", override.AR}},
-                {"script", {"script", override.script}},
-//                {"master", {"",1}}, //method
-           {"SpeechColor", {"speech_color", override.SpeechColor}},
-            {"SpeechFont", {"speech_font", override.SpeechFont}},
-              {"RunSpeed", {"run_speed",210}},
-        {"UseAdjustments", {"use_adjustments",0}},
-            {"FireResist", {"resist_fire", override.FireResist}},
-            {"ColdResist", {"resist_cold", override.ColdResist}},
-          {"EnergyResist", {"resist_energy", override.EnergyResist}},
-          {"PoisonResist", {"resist_poison", override.PoisonResist}},
-        {"PhysicalResist", {"resist_physical", override.PhysicalResist}},
-            {"FireDamage", {"damage_fire", override.FireDamage}},
-            {"ColdDamage", {"damage_cold", override.ColdDamage}},
-          {"EnergyDamage", {"damage_energy", override.EnergyDamage}},
-          {"PoisonDamage", {"damage_poison", override.PoisonDamage}},
-        {"PhysicalDamage", {"damage_physical", override.PhysicalDamage}},
-      {"LowerReagentCost", {"lower_reagent_cost", override.LowerReagentCost}},
-   {"SpellDamageIncrease", {"spell_damage_increase", override.SpellDamageIncrease}},
-         {"FasterCasting", {"faster_casting", override.FasterCasting}},
-    {"FasterCastRecovery", {"faster_cast_recovery", override.FasterCastRecovery}},
-       {"DefenceIncrease", {"defence_increase", override.DefenceIncrease}},
-    {"DefenceIncreaseCap", {"defence_increase_cap", override.DefenceIncreaseCap}},
-         {"LowerManaCost", {"lower_mana_cost", override.LowerManaCost}},
-         {"FireResistCap", {"resist_fire_cap", override.FireResistCap}},
-         {"ColdResistCap", {"resist_cold_cap", override.ColdResistCap}},
-       {"EnergyResistCap", {"resist_energy_cap", override.EnergyResistCap}},
-     {"PhysicalResistCap", {"resist_physical_cap", override.PhysicalResistCap}},
-       {"PoisonResistCap", {"resist_poison_cap", override.PoisonResistCap}},
-                  {"Luck", {"luck", override.Luck}},
-    {"SwingSpeedIncrease", {"swing_speed_increase", override.SwingSpeedIncrease}},
-       {"NoDropException", {"no_drop_exception",1}}
-  };
-  if (testrun == 1)
-    var npc:=CreateNPCFromTemplate(":testrestart:restart_npc",49,50,0,override,"britannia2");
-    if (!npc)
-      return ret_error($"failed to create npc {npc}");
+  var override := struct{ AR := 101,
+                          script := "restartnpcscript",
+                          SpeechColor := 102,
+                          SpeechFont := 103,
+                          RunSpeed := 210,
+                          UseAdjustments := 0,
+                          FireResist := 1,
+                          ColdResist := 2,
+                          EnergyResist := 3,
+                          PoisonResist := 4,
+                          PhysicalResist := 5,
+                          FireDamage := 6,
+                          ColdDamage := 7,
+                          EnergyDamage := 8,
+                          PoisonDamage := 9,
+                          PhysicalDamage := 10,
+                          LowerReagentCost := 11,
+                          SpellDamageIncrease := 12,
+                          FasterCasting := 13,
+                          FasterCastRecovery := 14,
+                          DefenceIncrease := 15,
+                          DefenceIncreaseCap := 16,
+                          LowerManaCost := 17,
+                          FireResistCap := 18,
+                          ColdResistCap := 19,
+                          EnergyResistCap := 20,
+                          PhysicalResistCap := 21,
+                          PoisonResistCap := 22,
+                          Luck := 23,
+                          SwingSpeedIncrease := 24,
+                          NoDropException := 1 };
+  var props := {    //       {"RegisteredHouse", {"",1}},
+                 { "AR",
+                   { "ar", override.AR }
+                 },
+                 {
+                   "script",
+                   { "script", override.script }
+                 }, //                {"master", {"",1}}, //method
+                 {
+                   "SpeechColor",
+                   { "speech_color", override.SpeechColor }
+                 },
+                 {
+                   "SpeechFont",
+                   { "speech_font", override.SpeechFont }
+                 },
+                 {
+                   "RunSpeed",
+                   { "run_speed", 210 }
+                 },
+                 {
+                   "UseAdjustments",
+                   { "use_adjustments", 0 }
+                 },
+                 {
+                   "FireResist",
+                   { "resist_fire", override.FireResist }
+                 },
+                 {
+                   "ColdResist",
+                   { "resist_cold", override.ColdResist }
+                 },
+                 {
+                   "EnergyResist",
+                   { "resist_energy", override.EnergyResist }
+                 },
+                 {
+                   "PoisonResist",
+                   { "resist_poison", override.PoisonResist }
+                 },
+                 {
+                   "PhysicalResist",
+                   { "resist_physical", override.PhysicalResist }
+                 },
+                 {
+                   "FireDamage",
+                   { "damage_fire", override.FireDamage }
+                 },
+                 {
+                   "ColdDamage",
+                   { "damage_cold", override.ColdDamage }
+                 },
+                 {
+                   "EnergyDamage",
+                   { "damage_energy", override.EnergyDamage }
+                 },
+                 {
+                   "PoisonDamage",
+                   { "damage_poison", override.PoisonDamage }
+                 },
+                 {
+                   "PhysicalDamage",
+                   { "damage_physical", override.PhysicalDamage }
+                 },
+                 {
+                   "LowerReagentCost",
+                   { "lower_reagent_cost", override.LowerReagentCost }
+                 },
+                 {
+                   "SpellDamageIncrease",
+                   { "spell_damage_increase", override.SpellDamageIncrease }
+                 },
+                 {
+                   "FasterCasting",
+                   { "faster_casting", override.FasterCasting }
+                 },
+                 {
+                   "FasterCastRecovery",
+                   { "faster_cast_recovery", override.FasterCastRecovery }
+                 },
+                 {
+                   "DefenceIncrease",
+                   { "defence_increase", override.DefenceIncrease }
+                 },
+                 {
+                   "DefenceIncreaseCap",
+                   { "defence_increase_cap", override.DefenceIncreaseCap }
+                 },
+                 {
+                   "LowerManaCost",
+                   { "lower_mana_cost", override.LowerManaCost }
+                 },
+                 {
+                   "FireResistCap",
+                   { "resist_fire_cap", override.FireResistCap }
+                 },
+                 {
+                   "ColdResistCap",
+                   { "resist_cold_cap", override.ColdResistCap }
+                 },
+                 {
+                   "EnergyResistCap",
+                   { "resist_energy_cap", override.EnergyResistCap }
+                 },
+                 {
+                   "PhysicalResistCap",
+                   { "resist_physical_cap", override.PhysicalResistCap }
+                 },
+                 {
+                   "PoisonResistCap",
+                   { "resist_poison_cap", override.PoisonResistCap }
+                 },
+                 {
+                   "Luck",
+                   { "luck", override.Luck }
+                 },
+                 {
+                   "SwingSpeedIncrease",
+                   { "swing_speed_increase", override.SwingSpeedIncrease }
+                 },
+                 {
+                   "NoDropException",
+                   { "no_drop_exception", 1 }
+                 } };
+  if ( testrun == 1 )
+    var npc := CreateNPCFromTemplate( ":testrestart:restart_npc", 49, 50, 0, override, "britannia2" );
+    if ( !npc )
+      return ret_error( $"failed to create npc {npc}" );
     endif
-    var chr:=createAccountWithChar("restart_test_charnpc_master", "pass");
-    setname(npc,"storage_test");
-    npc.setmaster(chr);
+    var chr := createAccountWithChar( "restart_test_charnpc_master", "pass" );
+    setname( npc, "storage_test" );
+    npc.setmaster( chr );
 
-    SetGlobalProperty("test_storage_npc", npc.serial);
+    SetGlobalProperty( "test_storage_npc", npc.serial );
   else
 
-    var serial := GetGlobalProperty("test_storage_npc");
-    if (!serial)
-      return ret_error("Global property not found");
+    var serial := GetGlobalProperty( "test_storage_npc" );
+    if ( !serial )
+      return ret_error( "Global property not found" );
     endif
 
-    var npc := SystemFindObjectBySerial(serial);
-    if (!npc)
-      return ret_error($"Npc with serial {serial:#x} does not exists: {npc})");
+    var npc := SystemFindObjectBySerial( serial );
+    if ( !npc )
+      return ret_error( $"Npc with serial {serial:#x} does not exists: {npc})" );
     endif
     foreach prop in props
-      var val:=npc.get_member(prop[2][1]);
-      if (val != prop[2][2])
-        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      var val := npc.get_member( prop[2][1] );
+      if ( val != prop[2][2] )
+        return ret_error( $"Member {prop[2][1]} {prop[2][2]} != {val}" );
       endif
     endforeach
-    var chr:=FindAccount("restart_test_charnpc_master").getcharacter(1);
-    if (!chr)
-      return ret_error("failed to find char");
+    var chr := FindAccount( "restart_test_charnpc_master" ).getcharacter( 1 );
+    if ( !chr )
+      return ret_error( "failed to find char" );
     endif
-    if (npc.master != chr)
-      return ret_error("master not saved");
+    if ( npc.master != chr )
+      return ret_error( "master not saved" );
     endif
-    if (getvital(npc,"Mana") != 20000)
-      return ret_error("Wrong Mana value: "+getvital(npc,"Mana"));
+    if ( getvital( npc, "Mana" ) != 20000 )
+      return ret_error( "Wrong Mana value: " + getvital( npc, "Mana" ) );
     endif
   endif
   return 1;
 endfunction
 
 exported function test_saveonexit()
-  if (testrun == 1)
-    var npc:=CreateNPCFromTemplate(":testrestart:restart_npc",49,50,0);
-    if (!npc)
-      return ret_error($"failed to create npc {npc}");
+  if ( testrun == 1 )
+    var npc := CreateNPCFromTemplate( ":testrestart:restart_npc", 49, 50, 0 );
+    if ( !npc )
+      return ret_error( $"failed to create npc {npc}" );
     endif
-    npc.saveonexit:=0;
-    SetGlobalProperty("test_npc_shouldNotExist", npc.serial);
+    npc.saveonexit := 0;
+    SetGlobalProperty( "test_npc_shouldNotExist", npc.serial );
   else
-    var serial := GetGlobalProperty("test_npc_shouldNotExist");
-    if (!serial)
-      return ret_error("Global property test_npc_shouldNotExist not found");
+    var serial := GetGlobalProperty( "test_npc_shouldNotExist" );
+    if ( !serial )
+      return ret_error( "Global property test_npc_shouldNotExist not found" );
     endif
 
-    var npc := SystemFindObjectBySerial(serial);
-    if (npc)
-      return ret_error($"Npc with serial {npc.serial:#x} erroneously exists");
+    var npc := SystemFindObjectBySerial( serial );
+    if ( npc )
+      return ret_error( $"Npc with serial {npc.serial:#x} erroneously exists" );
     endif
 
   endif

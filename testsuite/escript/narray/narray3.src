@@ -3,27 +3,27 @@ var a := {};
 a[1] := "hello";
 a[4] := "world";
 
-print( a[1]);
-print( a[4]);
+print( a[1] );
+print( a[4] );
 
 a[4] := "hey";
-print( a[1]);
-print( a[4]);
+print( a[1] );
+print( a[4] );
 
 var b;
 
 b := a;
 
-print( "b created, initialized");
-print( a[1]);
-print( a[4]);
-print( b[1]);
-print( b[4]);
+print( "b created, initialized" );
+print( a[1] );
+print( a[4] );
+print( b[1] );
+print( b[4] );
 
 a[1] := "changed a";
 
-print( "a modified");
-print( a[1]);
-print( a[4]);
-print( b[1]);
-print( b[4]);
+print( "a modified" );
+print( a[1] );
+print( a[4] );
+print( b[1] );
+print( b[4] );

@@ -1,4 +1,4 @@
 
 var a := "X";
-var d := dictionary { a+"abc", a+"def" -> "ghi" };
-print(d);
+var d := dictionary{ a + "abc", a + "def" -> "ghi" };
+print( d );

@@ -1,1 +1,1 @@
-errors009-int-out-of-range.src:1:10: error: integer value '123456789123456789' out of range.
+:1:10: error: integer value '123456789123456789' out of range.

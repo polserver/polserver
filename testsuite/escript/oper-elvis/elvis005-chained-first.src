@@ -1,5 +1,6 @@
 include "support";
 
+// format-off
 print(
   foo( "x" )
     ?: bar( "y" ) // not called (short-circuit)

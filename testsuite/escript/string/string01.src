@@ -1,4 +1,3 @@
-if ("test" == "test")
-    print( "1: Success" );
+if ( "test" == "test" )
+  print( "1: Success" );
 endif
-

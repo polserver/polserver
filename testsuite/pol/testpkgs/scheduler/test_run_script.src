@@ -7,8 +7,8 @@ program test_runscript()
 endprogram
 
 exported function run()
-  if (run_script("test_run_script",{})!=1)
-    return ret_error("failed to run script");
+  if ( run_script( "test_run_script", {} ) != 1 )
+    return ret_error( "failed to run script" );
   endif
   return 1;
 endfunction

@@ -1,7 +1,7 @@
 
 program test()
-    var x := "hello world again,blah";
-    foreach a in SplitWords(x)
-        print("A: " + a);
-    endforeach
+  var x := "hello world again,blah";
+  foreach a in SplitWords( x )
+    print( "A: " + a );
+  endforeach
 endprogram

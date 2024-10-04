@@ -1,9 +1,9 @@
 var x := 1;
-print(x);
+print( x );
 
-if (1)
-    var x := 2;
-    print(x);
+if ( 1 )
+  var x := 2;
+  print( x );
 endif
 
-print(x);
+print( x );

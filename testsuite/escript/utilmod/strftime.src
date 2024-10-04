@@ -1,9 +1,8 @@
 use util;
-print(strformattime("%"));
-print(strformattime("%-"));
-print(typeof(strformattime("%Y",1)));
-print(strformattime("ancient %S time",1));
-var v:=strformattime("reserve buffer %T%T%T%T%T%T",1);
-print(len(v));
-print(v[len(v)-4,5]);
-
+print( strformattime( "%" ) );
+print( strformattime( "%-" ) );
+print( typeof( strformattime( "%Y", 1 ) ) );
+print( strformattime( "ancient %S time", 1 ) );
+var v := strformattime( "reserve buffer %T%T%T%T%T%T", 1 );
+print( len( v ) );
+print( v[len( v ) - 4, 5] );

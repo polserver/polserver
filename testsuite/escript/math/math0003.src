@@ -3,7 +3,7 @@ use math;
 var x := ConstPi();
 x := x / 10000000.0;
 
-print( "x is " + FormatRealToString(x,40) );
+print( "x is " + FormatRealToString( x, 40 ) );
 
 print( "raw" );
 print( 5.0 );
@@ -16,4 +16,3 @@ print( FormatRealToString( 5.0, 40 ) );
 print( FormatRealToString( 0.5, 40 ) );
 print( FormatRealToString( 0.00005, 40 ) );
 print( FormatRealToString( 1, 40 ) );
-

@@ -2,7 +2,7 @@ use os;
 use uo;
 include "testutil";
 
-var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
 
 // nothing really to test
 // only an otherwise unused variable gets stored??

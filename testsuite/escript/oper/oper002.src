@@ -1,27 +1,26 @@
 var s1 := "abcd";
 var s2 := "defg";
 
-if (s1 < s2)
-    print( "s1 < s2:    OK" );
+if ( s1 < s2 )
+  print( "s1 < s2:    OK" );
 else
-    print( "s1 >= s2:   FAILED" );
+  print( "s1 >= s2:   FAILED" );
 endif
 
-if (s1[1] < s2)
-    print( "s1[1] < s2: OK" );
+if ( s1[1] < s2 )
+  print( "s1[1] < s2: OK" );
 else
-    print( "s1[1] < s2: FAILED" );
+  print( "s1[1] < s2: FAILED" );
 endif
 
-if ("abcd" < "d")
-    print( "abcd < d:   OK" );
+if ( "abcd" < "d" )
+  print( "abcd < d:   OK" );
 else
-    print( "abcd < d:   FAILED" );
+  print( "abcd < d:   FAILED" );
 endif
 
-if (s1 < s2[1])
-    print( "s1 < s2[1]: OK" );
+if ( s1 < s2[1] )
+  print( "s1 < s2[1]: OK" );
 else
-    print( "s1 < s2[1]: FAILED" );
+  print( "s1 < s2[1]: FAILED" );
 endif
-

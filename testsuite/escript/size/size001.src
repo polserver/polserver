@@ -1,6 +1,6 @@
 var QueueList;
 
-QueueList := { };
+QueueList := {};
 
-Print("Size:"+QueueList.Size());
-Print("Len :"+Len(QueueList));
+Print( "Size:" + QueueList.Size() );
+Print( "Len :" + Len( QueueList ) );

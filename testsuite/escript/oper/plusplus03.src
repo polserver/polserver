@@ -1,51 +1,50 @@
-var i:=1;
-while (i++<3)
- print("while");
+var i := 1;
+while ( i++ < 3 )
+  print( "while" );
 endwhile
-print(i);
+print( i );
 
-for (i:=1;i<3;i++)
-  print("for");
+for ( i := 1; i < 3; i++ )
+  print( "for" );
 endfor
-print(i);
-print(i++);
+print( i );
+print( i++ );
 
-i:=1;
-function p(i)
-  print("in func after ++");
-  print(i);
+i := 1;
+function p( i )
+  print( "in func after ++" );
+  print( i );
   i++;
 endfunction
-p(i++);
-print("i after func call "+cstr(i));
+p( i++ );
+print( "i after func call " + cstr( i ) );
 
-i:=1;
-function pp(byref i)
-  print("in func after ++");
-  print(i);
+i := 1;
+function pp( byref i )
+  print( "in func after ++" );
+  print( i );
   i++;
 endfunction
-pp(i++); // since its post inc, the original i isnt passed to the func
-print("i after func call "+cstr(i)); // in contrast to ++i pp() does not change outer scope i
+pp( i++ ); // since its post inc, the original i isnt passed to the func
+print( "i after func call " + cstr( i ) ); // in contrast to ++i pp() does not change outer scope i
 
-var ii:=i++;
-print(ii);
-ii+=i++;
-print(ii);
-ii:=1+(i++);
-print(ii);
+var ii := i++;
+print( ii );
+ii += i++;
+print( ii );
+ii := 1 + ( i++ );
+print( ii );
 
-var j:=3;
-i:=2;
-var b:=i+ j++;
-print(b);
+var j := 3;
+i := 2;
+var b := i + j++;
+print( b );
 
-var d:=1.5;
+var d := 1.5;
 d++;
-print(d);
+print( d );
 
-const c:=1;
+const c := 1;
 c++;
-print("should not change {}".format(c));
-print("should still not change {}".format(c++));
-
+print( "should not change {}".format( c ) );
+print( "should still not change {}".format( c++ ) );

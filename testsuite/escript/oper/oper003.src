@@ -1,6 +1,4 @@
 
-
-
 var v := struct;
 v.+mem;
 
@@ -13,6 +11,6 @@ print( d.exists( "c" ) );
 
 v.mem := d;
 var a := v.mem.exists( "a" );
-print(a);
+print( a );
 a := v.mem.exists( "c" );
-print(a);
+print( a );

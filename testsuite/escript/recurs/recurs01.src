@@ -1,9 +1,9 @@
-function fac(x)
-    if (x == 1)
-        return 1;
-    else
-        return x * fac(x-1);
-    endif
+function fac( x )
+  if ( x == 1 )
+    return 1;
+  else
+    return x * fac( x - 1 );
+  endif
 endfunction
 
-print( fac(4) );
+print( fac( 4 ) );

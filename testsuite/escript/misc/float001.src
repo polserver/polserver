@@ -1,13 +1,13 @@
-var theitem := struct { quality };
+var theitem := struct{ quality };
 
- theitem.quality := 1.4;
+theitem.quality := 1.4;
 
-  if (theitem.quality < 1.4)
-    print ("Quality is < 1.4");
-  endif
-  if (theitem.quality == 1.4)
-    print ("Quality is == 1.4");
-  endif
-  if (theitem.quality > 1.4)
-    print ("Quality is > 1.4");
-  endif
+if ( theitem.quality < 1.4 )
+  print( "Quality is < 1.4" );
+endif
+if ( theitem.quality == 1.4 )
+  print( "Quality is == 1.4" );
+endif
+if ( theitem.quality > 1.4 )
+  print( "Quality is > 1.4" );
+endif

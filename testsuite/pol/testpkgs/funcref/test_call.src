@@ -78,12 +78,11 @@ exported function test_call_destroyed_executor()
     return ret_error( $"Spawned process not destroyed in time" );
   dowhile ( 0 );
 
-  spawned.SendEvent( struct{
-    type := "call",
-    pid := GetPid(),
-    args := { 1, 2, 3 },
-    mapper := @(what) { return what * 100; }
-  } );
+  spawned.SendEvent( struct{ type := "call",
+                             pid := GetPid(), args := { 1, 2, 3 },
+                             mapper := @( what ) {
+    return what * 100;
+  } } );
 
   ev := wait_for_event( 1 );
 
@@ -113,7 +112,9 @@ function user_func_no_globals()
 endfunction
 
 function embedded_globals()
-      return @{ return @{ glob := "glob set inside embedded_globals";
+  return @{
+    return @{
+      glob := "glob set inside embedded_globals";
       return "return from embedded_globals";
     }();
   }();

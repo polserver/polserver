@@ -1,1 +1,1 @@
-print("tab"+CChr(0x9)+"bell"+CChr(0x7)+"bell");
+print( "tab" + CChr( 0x9 ) + "bell" + CChr( 0x7 ) + "bell" );

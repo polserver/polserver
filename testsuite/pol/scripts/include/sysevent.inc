@@ -11,7 +11,7 @@
 //
 //
 
-
+// format-off
 const SYSEVENT_SPEECH               := 0x00000001;
 
 const SYSEVENT_ENGAGED              := 0x00000002;

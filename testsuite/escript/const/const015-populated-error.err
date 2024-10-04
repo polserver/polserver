@@ -1,1 +1,1 @@
-A const error must be empty.
+:1:12: error: A const error must be empty.

@@ -15,26 +15,26 @@ function create_npc( resources, x, y, multi)
   var npc := ResourceManager::CreateNPCFromTemplate( resources, ":testnpc:probe_npc", x, y, 0, override_properties := struct{ CProps := dictionary{ "#TestPid" -> GetPid() } } );
   if ( !npc )
     return npc;
-  elseif (multi)
-    if (npc.multi != multi)
-      return ret_error($"Incorrect npc.multi, expected {multi.serial}, got {npc.multi.serial ?: npc.multi}");
+  elseif ( multi )
+    if ( npc.multi != multi )
+      return ret_error( $"Incorrect npc.multi, expected {multi.serial}, got {npc.multi.serial ?: npc.multi}" );
     endif
 
-    Sleepms(1);
-    var ev := wait_for_event(0);
-    if (!ev)
-      return ret_error( $"No walkon event received for {npc.serial}");
+    Sleepms( 1 );
+    var ev := wait_for_event( 0 );
+    if ( !ev )
+      return ret_error( $"No walkon event received for {npc.serial}" );
 
-    elseif (ev.who != npc)
-      return ret_error($"Incorrect walkon ev.who, expected {npc.serial}, got {ev.who.serial ?: ev.who}");
+    elseif ( ev.who != npc )
+      return ret_error( $"Incorrect walkon ev.who, expected {npc.serial}, got {ev.who.serial ?: ev.who}" );
 
-    elseif (ev.tile.serial != multi.serial) // Must check serial since tile = ItemRef and is multi = MultiRef
-      return ret_error($"Incorrect walkon ev.tile, expected {multi.serial}, got {ev.tile.serial ?: ev.tile}");
+    elseif ( ev.tile.serial != multi.serial ) // Must check serial since tile = ItemRef and is multi = MultiRef
+      return ret_error( $"Incorrect walkon ev.tile, expected {multi.serial}, got {ev.tile.serial ?: ev.tile}" );
     endif
   else
-    if (npc.multi)
+    if ( npc.multi )
       clear_event_queue();
-      return ret_error("Incorrect npc.multi, expected no multi, got {npc.multi.serial}");
+      return ret_error( "Incorrect npc.multi, expected no multi, got {npc.multi.serial}" );
     endif
   endif
 

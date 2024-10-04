@@ -1,13 +1,13 @@
-var s:=struct{a:=0};
-print(s);
+var s := struct{ a := 0 };
+print( s );
 s.a++;
-print(s);
+print( s );
 ++s.a;
-print(s);
-print(s.a++);
-print(++s.a);
+print( s );
+print( s.a++ );
+print( ++s.a );
 
-var s1:=struct{a:=s1.a++};
-print(s1);
-var s2:=struct{a:=0++, b:=++1};
-print(s2);
+var s1 := struct{ a := s1.a++ };
+print( s1 );
+var s2 := struct{ a := 0++, b := ++1 };
+print( s2 );

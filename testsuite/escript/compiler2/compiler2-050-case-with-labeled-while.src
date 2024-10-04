@@ -4,17 +4,14 @@
 // and change it to be the label of the outer while-loop.
 
 var a := 5;
-case (a)
-    4:
-        outer:
-        while (1)
-            inner:
-            while(1)
-                break outer;
-            endwhile
-        endwhile
-
-    5:
-        print( "five" );
+case ( a )
+  4:
+  outer:
+    while ( 1 )
+      inner: while ( 1 )
+        break outer;
+      endwhile
+    endwhile
+  5: print( "five" );
 endcase
-print("done");
+print( "done" );

@@ -1,6 +1,6 @@
 function foo()
-    print("correct");
+  print( "correct" );
 endfunction
 
-var f:=@foo;
+var f := @foo;
 f.call();

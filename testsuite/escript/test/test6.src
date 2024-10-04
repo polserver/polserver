@@ -1,9 +1,9 @@
-print( "this is a test script.");
-print("This is really more correct,");
-print("But the parser is currently somewhat");
-print("flexible.");
-print( "This kind of " + ("Thing" + " " + "is") + " trouble, though,");
-print( "because after the parser sees a left paren, it exits on the");
-print( "next one (if it is parsing a function).");
+print( "this is a test script." );
+print( "This is really more correct," );
+print( "But the parser is currently somewhat" );
+print( "flexible." );
+print( "This kind of " + ( "Thing" + " " + "is" ) + " trouble, though," );
+print( "because after the parser sees a left paren, it exits on the" );
+print( "next one (if it is parsing a function)." );
 
-print("This " + "is " + ("the correct fucking way" - " fucking") + " to do this.");
+print( "This " + "is " + ( "the correct fucking way" - " fucking" ) + " to do this." );

@@ -6,15 +6,15 @@ setup();
 var x;
 
 foreach elem in arr
-    if (elem == 5)
-        x := elem;
-    elseif (elem == 37)
-        x := elem;
-    elseif (elem == 40)
-        x := elem;
-    else
-	    x := elem;
-    endif	        
+  if ( elem == 5 )
+    x := elem;
+  elseif ( elem == 37 )
+    x := elem;
+  elseif ( elem == 40 )
+    x := elem;
+  else
+    x := elem;
+  endif
 endforeach
 
 print( "done" );

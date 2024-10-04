@@ -1,24 +1,24 @@
-var a:=Boolean(1);
-var b:=Boolean(0);
-print(a); // true
-print(b); // false
-print(pack(a));
-print(pack(b));
-print(unpack(pack(a))); // true
-print(unpack(pack(b))); // false
-print(typeof(a));
-print(typeofint(a));
-print(cstr(a));
-print(!b); // true
-print(a==b); // false
-var c:=a;
-a:= Boolean(0);
-print(a); // false
-print(c); // true
+var a := Boolean( 1 );
+var b := Boolean( 0 );
+print( a ); // true
+print( b ); // false
+print( pack( a ) );
+print( pack( b ) );
+print( unpack( pack( a ) ) ); // true
+print( unpack( pack( b ) ) ); // false
+print( typeof( a ) );
+print( typeofint( a ) );
+print( cstr( a ) );
+print( !b ); // true
+print( a == b ); // false
+var c := a;
+a := Boolean( 0 );
+print( a ); // false
+print( c ); // true
 
-if (c)
-  print("c is true");
+if ( c )
+  print( "c is true" );
 endif
-if (!a)
-  print("a is false");
+if ( !a )
+  print( "a is false" );
 endif

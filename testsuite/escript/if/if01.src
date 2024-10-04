@@ -1,10 +1,9 @@
 use basic;
 
-if (1)
-	print( "hello world" );
-endif;
+if ( 1 )
+  print( "hello world" );
+endif
 
 // note the semicolon up there, after the endif
-
 
 print( "hello world again" );

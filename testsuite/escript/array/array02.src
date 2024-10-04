@@ -9,4 +9,3 @@ print( a[4] );
 a[4] := "hey";
 print( a[1] );
 print( a[4] );
-

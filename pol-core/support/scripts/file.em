@@ -1,13 +1,14 @@
 ////////////////////////////////////////////////////////////////
 //
-//	CONSTANTS
+//  CONSTANTS
 //
 ////////////////////////////////////////////////////////////////
 
+// format-off
 // LogToFile constants
 const LOG_DATETIME := 1; // log Core-Style DateTimeStr in front of log entry
 
-//BinaryFile constants
+// BinaryFile constants
 const OPENMODE_IN    := 0x01; // (input) Allow input operations on the stream
 const OPENMODE_OUT   := 0x02; // (output) Allow output operations on the stream
 const OPENMODE_ATE   := 0x04; // (at end) Set the stream's position indicator to the end of the stream on opening
@@ -26,10 +27,11 @@ const LISTDIR_LIST_DIRS      := 0x1;
 const LISTDIR_DONT_LIST_DIRS := 0x0;
 const LISTDIR_NO_FILES       := "";
 const LISTDIR_ALL_FILES      := "*";
+// format-on
 
 ////////////////////////////////////////////////////////////////
 //
-//	FUNCTIONS
+//  FUNCTIONS
 //
 ////////////////////////////////////////////////////////////////
 
@@ -45,4 +47,4 @@ CreateDirectory( dirname );
 ListDirectory( dirname, extension := LISTDIR_ALL_FILES, listdirs := LISTDIR_DONT_LIST_DIRS );
 
 OpenXMLFile( filename );
-CreateXMLFile( );
+CreateXMLFile();

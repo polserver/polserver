@@ -1,4 +1,3 @@
 var a;
 
-a.SetForArea("a", "b");
-
+a.SetForArea( "a", "b" );

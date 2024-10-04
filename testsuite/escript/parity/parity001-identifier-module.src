@@ -1,5 +1,4 @@
 var a := struct;
 a.+print := "x";
 a.+hex := "y";
-print(a);
-
+print( a );

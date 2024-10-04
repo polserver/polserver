@@ -1,4 +1,4 @@
-var d := dictionary { 5 -> "hey", 7 -> "you" };
-print(d);
+var d := dictionary{ 5 -> "hey", 7 -> "you" };
+print( d );
 print( d[5] );
 print( d[7] );

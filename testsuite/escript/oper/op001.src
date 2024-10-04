@@ -1,14 +1,14 @@
 var a;
 
 var b := 5;
-if (a < b)
-    print( "a<b" );
+if ( a < b )
+  print( "a<b" );
 else
-    print ("! (a<b)" );
+  print( "! (a<b)" );
 endif
 
-if (b < a)
-    print( "b<a" );
+if ( b < a )
+  print( "b<a" );
 else
-    print( "! (b<a)" );
+  print( "! (b<a)" );
 endif

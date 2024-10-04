@@ -1,1 +1,1 @@
-bug.src:4:17: error: missing ';' at '('
+:4:17: error: missing ';' at '('

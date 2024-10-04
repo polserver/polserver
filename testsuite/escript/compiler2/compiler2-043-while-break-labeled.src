@@ -1,13 +1,12 @@
 var a := 6;
 var b := 2;
 
-outer:
-while (a)
-    print("a");
-    while(b)
-        print("b");
-        break outer;
-        print("c");
-    endwhile
-    print("d");
+outer: while ( a )
+  print( "a" );
+  while ( b )
+    print( "b" );
+    break outer;
+    print( "c" );
+  endwhile
+  print( "d" );
 endwhile

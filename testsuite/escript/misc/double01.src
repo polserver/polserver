@@ -2,7 +2,7 @@ use math;
 
 program MathTest()
 
-var result := CInt((64.1+0.1)*10.0);
-Print("Result of CInt((64.1+0.1)*10.0) = "+result);
+  var result := CInt( ( 64.1 + 0.1 ) * 10.0 );
+  Print( "Result of CInt((64.1+0.1)*10.0) = " + result );
 
 endprogram

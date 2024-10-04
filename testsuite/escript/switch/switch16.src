@@ -5,24 +5,24 @@ const CONST_false := false;
 const CONST_uninit := uninit;
 const CONST_string := "string";
 
-foreach value in array{1, 0, true, false, uninit, "string", struct{} }
-  case(value)
-    1: print("Got 1");
-    0: print("Got 0");
-    true: print("Got true");
-    false: print("Got false");
-    uninit: print("Got uninit");
-    "string": print("Got string");
-    default: print("Got default");
+foreach value in array{ 1, 0, true, false, uninit, "string", struct{} }
+  case ( value )
+    1:        print( "Got 1" );
+    0:        print( "Got 0" );
+    true:     print( "Got true" );
+    false:    print( "Got false" );
+    uninit:   print( "Got uninit" );
+    "string": print( "Got string" );
+    default:  print( "Got default" );
   endcase
 
-  case(value)
-    CONST_1: print("Got 1");
-    CONST_0: print("Got 0");
-    CONST_true: print("Got true");
-    CONST_false: print("Got false");
-    CONST_uninit: print("Got uninit");
-    CONST_string: print("Got string");
-    default: print("Got default");
+  case ( value )
+    CONST_1:      print( "Got 1" );
+    CONST_0:      print( "Got 0" );
+    CONST_true:   print( "Got true" );
+    CONST_false:  print( "Got false" );
+    CONST_uninit: print( "Got uninit" );
+    CONST_string: print( "Got string" );
+    default:      print( "Got default" );
   endcase
 endforeach

@@ -1,23 +1,23 @@
 program test()
-    var a := { 1,12,3,32,57 };
-    
-	foreach i in a
-	    print( i );
-	endforeach
+  var a := { 1, 12, 3, 32, 57 };
 
-    print( "deleting 3rd element" );
-    a.erase( 3 );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  foreach i in a
+    print( i );
+  endforeach
 
-    print( "deleting 4th element" );
-    a.erase( 4 );
-	foreach i in a
-	    print( i );
-	endforeach
-    print( "size: " + a.size() );
+  print( "deleting 3rd element" );
+  a.erase( 3 );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
+
+  print( "deleting 4th element" );
+  a.erase( 4 );
+  foreach i in a
+    print( i );
+  endforeach
+  print( "size: " + a.size() );
 endprogram
 
 /**** Expected Output Begins: *****

@@ -65,6 +65,9 @@ private:
   std::atomic<EscriptGrammar::EscriptParser::EvaluateUnitContext*> evaluate_unit;
 
   std::atomic<unsigned> access_count;
+
+  template <typename T, typename Fn>
+  T* two_stage_parse( Fn callback );
 };
 
 }  // namespace Pol::Bscript::Compiler

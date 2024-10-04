@@ -2,4 +2,4 @@ var a;
 
 a.text["test"];
 
-print( "dummy");
+print( "dummy" );

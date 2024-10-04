@@ -1,22 +1,18 @@
 use cfgfile;
 use file;
 
-OpenBinaryFile(":cfgtests:appendtest.cfg", OPENMODE_OUT|OPENMODE_TRUNC); // clear content
-var props:={
-  {"key1","val1"},
-  struct{name:="key2", value:=1}
-};
+OpenBinaryFile( ":cfgtests:appendtest.cfg", OPENMODE_OUT | OPENMODE_TRUNC ); // clear content
+var props := { { "key1", "val1" }, struct{ name := "key2", value := 1 } };
 
-print(AppendConfigFileElem(":cfgtests:appendtest", "elem", 1, props));
+print( AppendConfigFileElem( ":cfgtests:appendtest", "elem", 1, props ) );
 
-var c:=ReadConfigFile(":cfgtests:appendtest");
-print(c);
-var e:=c["1"];
-print(e.key1);
-print(e.key2);
+var c := ReadConfigFile( ":cfgtests:appendtest" );
+print( c );
+var e := c["1"];
+print( e.key1 );
+print( e.key2 );
 
-//invalid file
-print(AppendConfigFileElem(":cfgtests:appendtest/", "elem", 1, props));
+// invalid file
+print( AppendConfigFileElem( ":cfgtests:appendtest/", "elem", 1, props ) );
 
-
-OpenBinaryFile(":cfgtests:appendtest.cfg", OPENMODE_OUT|OPENMODE_TRUNC);// clear content
+OpenBinaryFile( ":cfgtests:appendtest.cfg", OPENMODE_OUT | OPENMODE_TRUNC ); // clear content

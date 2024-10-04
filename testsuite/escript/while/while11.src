@@ -1,13 +1,13 @@
 
 var cont := 3;
 
-while (cont)
-    var a := cont + 17;
-    print( "cont: " + cont );
-    print( "a:    " + a );
-    cont := cont - 1;
-    continue;
-    var b := 5;
-    print( "cont: " + cont );
-    print( "b:    " + b );
+while ( cont )
+  var a := cont + 17;
+  print( "cont: " + cont );
+  print( "a:    " + a );
+  cont := cont - 1;
+  continue;
+  var b := 5;
+  print( "cont: " + cont );
+  print( "b:    " + b );
 endwhile

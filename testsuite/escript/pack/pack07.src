@@ -1,5 +1,5 @@
 include "packtst";
 
-var ob := { 5, 7, "hey there", { 1,2,3,4 }, 42 };
+var ob := { 5, 7, "hey there", { 1, 2, 3, 4 }, 42 };
 var rep := "a5:i5i7S9:hey therea4:i1i2i3i4i42";
 test_pack( ob, rep );

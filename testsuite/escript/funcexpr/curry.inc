@@ -1,13 +1,11 @@
 function curry( f ) // curry(f) does the currying transform
   return @( a ) {
-    return @( b ) {
-      return f( a, b );
-    };
+    return @( b ) { return f( a, b ); };
   };
 endfunction
 
 // usage
-function sum( a , b )
+function sum( a, b )
   return a + b;
 endfunction
 

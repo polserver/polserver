@@ -11,90 +11,89 @@ var char2;
 var clientcon := getClientConnection();
 
 program chartests()
-  var a:=FindAccount("testclient0");
-  char:=a.getcharacter(1);
-  if (!char)
-    return ret_error("Could not find char at slot 1");
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
   endif
-  a:=FindAccount("testclient1");
-  char2:=a.getcharacter(1);
-  if (!char2)
-    return ret_error("Could not find char2 at slot 1");
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
   endif
 endprogram
-
 
 /* move one char out of range of other char and back into it
    Note: moving char does not receive deleteobj pkt
 */
 exported function chr_update_range()
- MoveObjectToLocation(char2, 100,100,0,flags:=MOVEOBJECT_FORCELOCATION);
- MoveObjectToLocation(char, 115,100,0, flags:=MOVEOBJECT_FORCELOCATION);
-  while (!waitForClient(0, {EVT_OWNCREATE}))
+  MoveObjectToLocation( char2, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  MoveObjectToLocation( char, 115, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
-  char.facing:=1;
+  char.facing := 1;
   Clear_Event_Queue();
-  clientcon.sendevent(struct{todo:="move",arg:=2,id:=0});
-  var i:=10;
-  while (--i>0)
-    var ev:=waitForClients({EVT_MOVED, EVT_REMOVED_OBJ});
-    if (!ev)
-      MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
+  var i := 10;
+  while ( --i > 0 )
+    var ev := waitForClients( { EVT_MOVED, EVT_REMOVED_OBJ } );
+    if ( !ev )
+      MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
       return ev;
     endif
-    if (ev.type == EVT_MOVED)
-      if (!ev.ack)
-        MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-        return ret_error("failed to move");
+    if ( ev.type == EVT_MOVED )
+      if ( !ev.ack )
+        MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+        return ret_error( "failed to move" );
       endif
-      clientcon.sendevent(struct{todo:="move",arg:=2,id:=0});
+      clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
       continue;
     endif
-    if (ev["id"]==1 && ev["serial"] == char.serial)
-      var x:=ev["oldpos"][1]-char2.x;
-      if (x!=18) // (18 visual range)
-        MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-        return ret_error($"remove update distance failed: {x}");
+    if ( ev["id"] == 1 && ev["serial"] == char.serial )
+      var x := ev["oldpos"][1] - char2.x;
+      if ( x != 18 ) // (18 visual range)
+        MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+        return ret_error( $"remove update distance failed: {x}" );
       endif
       break;
     endif
   endwhile
-  if (i==0)
-    MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-    return ret_error("char was never removed");
+  if ( i == 0 )
+    MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+    return ret_error( "char was never removed" );
   endif
 
   // move char again into range
-  clientcon.sendevent(struct{todo:="move",arg:=6,id:=0});
-  i:=10;
-  while (--i>0)
-    var ev:=waitForClients({EVT_MOVED, EVT_NEW_MOBILE});
-    if (!ev)
-      MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  clientcon.sendevent( struct{ todo := "move", arg := 6, id := 0 } );
+  i := 10;
+  while ( --i > 0 )
+    var ev := waitForClients( { EVT_MOVED, EVT_NEW_MOBILE } );
+    if ( !ev )
+      MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
       return ev;
     endif
-    if (ev.type == EVT_MOVED)
-      if (!ev.ack)
-        MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-        return ret_error("failed to move");
+    if ( ev.type == EVT_MOVED )
+      if ( !ev.ack )
+        MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+        return ret_error( "failed to move" );
       endif
-      clientcon.sendevent(struct{todo:="move",arg:=6,id:=0});
+      clientcon.sendevent( struct{ todo := "move", arg := 6, id := 0 } );
       continue;
     endif
-    if (ev["id"] == 1 && ev["serial"] == char.serial)
-      var x:=ev["pos"][1]-char2.x;
-      if (x!=18) // (18 visual range)
-        MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-        return ret_error($"update distance failed: {x}");
+    if ( ev["id"] == 1 && ev["serial"] == char.serial )
+      var x := ev["pos"][1] - char2.x;
+      if ( x != 18 ) // (18 visual range)
+        MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+        return ret_error( $"update distance failed: {x}" );
       endif
       break;
     endif
   endwhile
-  while (waitForClient(0, {},1))
+  while ( waitForClient( 0, {}, 1 ) )
   endwhile
- MoveObjectToLocation(char2, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  if (i==0)
-    return ret_error("char was never readded");
+  MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+  if ( i == 0 )
+    return ret_error( "char was never readded" );
   endif
   return 1;
 endfunction
@@ -102,42 +101,42 @@ endfunction
 /* move char into range of item
 */
 exported function item_update_range()
-  MoveObjectToLocation(char, 100,100,0, flags:=MOVEOBJECT_FORCELOCATION);
-  var item:=CreateItemAtLocation(char.x+20, char.y,char.z, 0xf3f);
-  while (!waitForClient(0, {EVT_OWNCREATE}))
+  MoveObjectToLocation( char, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var item := CreateItemAtLocation( char.x + 20, char.y, char.z, 0xf3f );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
-  char.facing:=1;
+  char.facing := 1;
   Clear_Event_Queue();
-  clientcon.sendevent(struct{todo:="move",arg:=2,id:=0});
-  var i:=10;
-  while (--i>0)
-    var ev:=waitForClient(0,{EVT_MOVED, EVT_NEW_ITEM});
-    if (!ev)
-      DestroyItem(item);
+  clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
+  var i := 10;
+  while ( --i > 0 )
+    var ev := waitForClient( 0, { EVT_MOVED, EVT_NEW_ITEM } );
+    if ( !ev )
+      DestroyItem( item );
       return ev;
     endif
-    if (ev.type == EVT_MOVED)
-      if (!ev.ack)
-        DestroyItem(item);
-        return ret_error("failed to move");
+    if ( ev.type == EVT_MOVED )
+      if ( !ev.ack )
+        DestroyItem( item );
+        return ret_error( "failed to move" );
       endif
-      clientcon.sendevent(struct{todo:="move",arg:=2,id:=0});
+      clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
       continue;
     endif
-    if (ev["serial"] == item.serial)
-      var x:=ev["pos"][1]-char.x;
-      if (x!=18) // (18 visual range)
-        DestroyItem(item);
-        return ret_error($"update distance failed: {x}");
+    if ( ev["serial"] == item.serial )
+      var x := ev["pos"][1] - char.x;
+      if ( x != 18 ) // (18 visual range)
+        DestroyItem( item );
+        return ret_error( $"update distance failed: {x}" );
       endif
       break;
     endif
   endwhile
-  DestroyItem(item);
-  while (waitForClient(0, {},1))
+  DestroyItem( item );
+  while ( waitForClient( 0, {}, 1 ) )
   endwhile
-  if (i==0)
-    return ret_error("item was never visible");
+  if ( i == 0 )
+    return ret_error( "item was never visible" );
   endif
   return 1;
 endfunction
@@ -145,45 +144,45 @@ endfunction
 /* move char into range of multi
 */
 exported function multi_update_range()
-  MoveObjectToLocation(char, 100,100,0, flags:=MOVEOBJECT_FORCELOCATION);
-  var multi:=CreateMultiAtLocation(char.x+24,char.y,char.z,0x12000);
-  if (!multi)
-    return ret_error("Failed to create multi "+multi);
+  MoveObjectToLocation( char, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var multi := CreateMultiAtLocation( char.x + 24, char.y, char.z, 0x12000 );
+  if ( !multi )
+    return ret_error( "Failed to create multi " + multi );
   endif
-  while (!waitForClient(0, {EVT_OWNCREATE}))
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
-  char.facing:=1;
+  char.facing := 1;
   Clear_Event_Queue();
-  clientcon.sendevent(struct{todo:="move",arg:=2,id:=0});
-  var i:=10;
-  while (--i>0)
-    var ev:=waitForClient(0,{EVT_MOVED, EVT_NEW_ITEM});
-    if (!ev)
-      DestroyMulti(multi);
+  clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
+  var i := 10;
+  while ( --i > 0 )
+    var ev := waitForClient( 0, { EVT_MOVED, EVT_NEW_ITEM } );
+    if ( !ev )
+      DestroyMulti( multi );
       return ev;
     endif
-    if (ev.type == EVT_MOVED)
-      if (!ev.ack)
-        DestroyMulti(multi);
-        return ret_error("failed to move");
+    if ( ev.type == EVT_MOVED )
+      if ( !ev.ack )
+        DestroyMulti( multi );
+        return ret_error( "failed to move" );
       endif
-      clientcon.sendevent(struct{todo:="move",arg:=2,id:=0});
+      clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
       continue;
     endif
-    if (ev["serial"] == multi.serial)
-      var x:=ev["pos"][1]-char.x;
-      if ( x!=22 ) // (18 visual range + 4)
-        DestroyMulti(multi);
-        return ret_error($"update distance failed: {x}");
+    if ( ev["serial"] == multi.serial )
+      var x := ev["pos"][1] - char.x;
+      if ( x != 22 ) // (18 visual range + 4)
+        DestroyMulti( multi );
+        return ret_error( $"update distance failed: {x}" );
       endif
       break;
     endif
   endwhile
-  while (waitForClient(0, {},1))
+  while ( waitForClient( 0, {}, 1 ) )
   endwhile
-  DestroyMulti(multi);
-  if (i==0)
-    return ret_error("multi was never visible");
+  DestroyMulti( multi );
+  if ( i == 0 )
+    return ret_error( "multi was never visible" );
   endif
   return 1;
 endfunction

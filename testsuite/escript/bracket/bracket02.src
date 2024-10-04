@@ -1,9 +1,8 @@
 
-if (7 < 5)
-    print("4c: failure 1");
-elseif (9 < 6)
-    print("4c: failure 2");
+if ( 7 < 5 )
+  print( "4c: failure 1" );
+elseif ( 9 < 6 )
+  print( "4c: failure 2" );
 else
-    print("4c: ok");
+  print( "4c: ok" );
 endif
-

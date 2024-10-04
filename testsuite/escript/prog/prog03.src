@@ -1,9 +1,9 @@
-program foo( )
-	print( "hello world" );
-	
-    print( "bar: " + bar() );
+program foo()
+  print( "hello world" );
+
+  print( "bar: " + bar() );
 endprogram
 
 function bar()
-    return "rab";
+  return "rab";
 endfunction

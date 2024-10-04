@@ -1,14 +1,14 @@
 use uo;
 use os;
 
-program boat(boat)
-  boat.setprop("started",1);
+program boat( boat )
+  boat.setprop( "started", 1 );
   var ev;
 
-  while (boat)
-    if (ev := wait_for_event(10))
-      var test_process := GetProcess(boat.getprop("#TestClientBoatPid"));
-      test_process.sendevent(struct{ source := "control_script", event := ev });
+  while ( boat )
+    if ( ev := wait_for_event( 10 ) )
+      var test_process := GetProcess( boat.getprop( "#TestClientBoatPid" ) );
+      test_process.sendevent( struct{ source := "control_script", event := ev } );
     endif
   endwhile
 endprogram

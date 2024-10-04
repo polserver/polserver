@@ -27,13 +27,13 @@ a.name := "x";
 a.value := 42;
 
 b := a;
-print(b);
+print( b );
 
 b.value := "b's value";
 
-print(a.name);
-print( a.value);
-print( a.test);
-print( b.name);
-print( b.value);
-print( b.test);
+print( a.name );
+print( a.value );
+print( a.test );
+print( b.name );
+print( b.value );
+print( b.test );

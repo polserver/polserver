@@ -4,5 +4,4 @@ var a := "testvalue";
 
 a["val"] := "hello";
 
-
-print(a);
+print( a );

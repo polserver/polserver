@@ -1,10 +1,10 @@
 
 var cont := 6;
-while (cont)
-    print( "cont: " + cont );
-    cont := cont - 1;
-    if (cont == 3)
-        cont := 2;
-        continue;
-    endif
+while ( cont )
+  print( "cont: " + cont );
+  cont := cont - 1;
+  if ( cont == 3 )
+    cont := 2;
+    continue;
+  endif
 endwhile

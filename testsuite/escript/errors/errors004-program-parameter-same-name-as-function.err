@@ -1,1 +1,1 @@
-errors004-program-parameter-same-name-as-function.src:2:13: error: Cannot define a program parameter with the same name as function 'print'.
+:2:14: error: Cannot define a program parameter with the same name as function 'print'.

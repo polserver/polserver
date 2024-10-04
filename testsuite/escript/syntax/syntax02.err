@@ -1,1 +1,1 @@
-Expected expression following comma before right-brace in struct initializer list
+:1:26: error: Expected expression following comma before right-brace in struct initializer list

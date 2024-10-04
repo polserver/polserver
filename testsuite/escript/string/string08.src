@@ -1,9 +1,7 @@
 var cmd := "marion walk N";
 
-var walkcmd := cmd["walk",7];
- 
-print("'" +  walkcmd + "'");
+var walkcmd := cmd["walk", 7];
 
+print( "'" + walkcmd + "'" );
 
-print( "'" + walkcmd[6,2] + "'");
-
+print( "'" + walkcmd[6, 2] + "'" );

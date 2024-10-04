@@ -1,13 +1,11 @@
 var x;
 x := 2;
-if (x > 3)
-    var a;
-    a := 6;
+if ( x > 3 )
+  var a;
+  a := 6;
 else
-    var b;
-    b := 7;
-    var a;
-    a := 8;
+  var b;
+  b := 7;
+  var a;
+  a := 8;
 endif
-
-    

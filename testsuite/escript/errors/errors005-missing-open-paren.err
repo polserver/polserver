@@ -1,1 +1,1 @@
-errors005-missing-open-paren.src:6:40: error: extraneous input ')' expecting ';'
+:6:40: error: extraneous input ')' expecting ';'

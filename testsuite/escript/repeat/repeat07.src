@@ -1,10 +1,9 @@
 
 var i := 0;
 repeat
-    var a := i + 4;
-    i := i + 1;
-    print("I="+i);
-    print("A="+a);
-    break;
+  var a := i + 4;
+  i := i + 1;
+  print( "I=" + i );
+  print( "A=" + a );
+  break;
 until i >= 10;
-

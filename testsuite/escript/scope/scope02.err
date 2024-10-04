@@ -1,1 +1,1 @@
-scope02.src:10:15: error: Unknown identifier 'a'.
+:10:15: error: Unknown identifier 'a'.

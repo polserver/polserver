@@ -1,19 +1,18 @@
 
-print( "Testing Multilevel IF:");
-if (3 < 5)
-    print("1.1: ok");
-    if (3 < 4)
-        print("1.1.1: ok");
-    endif
-    print("1.2: ok");
+print( "Testing Multilevel IF:" );
+if ( 3 < 5 )
+  print( "1.1: ok" );
+  if ( 3 < 4 )
+    print( "1.1.1: ok" );
+  endif
+  print( "1.2: ok" );
 endif
 
-if (3 < 5)
-    print("2.1: ok");
-    if (4 < 2)
-        print("2.1.1: failure");
-    else
-        print("2.1.1: ok");
-    endif
+if ( 3 < 5 )
+  print( "2.1: ok" );
+  if ( 4 < 2 )
+    print( "2.1.1: failure" );
+  else
+    print( "2.1.1: ok" );
+  endif
 endif
- 

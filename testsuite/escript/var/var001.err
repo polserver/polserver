@@ -1,1 +1,1 @@
-var001.src:8:1: error: Unknown identifier 'b'.
+:7:1: error: Unknown identifier 'b'.

@@ -2,9 +2,40 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-11-2024</datemodified>
+		<datemodified>09-27-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>09-27-2024</date>
+			<author>Turley:</author>
+			<change type="Fixed">EScript formatter missing spaces while packing function refs, better packing of function calls in eg structs</change>
+		</entry>
+		<entry>
+			<date>09-12-2024</date>
+			<author>Turley:</author>
+			<change type="Fixed">multiple problems with the EScript formatter</change>
+			<change type="Added">more ecompile.cfg options for the formatter, see ecompile.cfg.example for details<br/>
+FormatterBracketAttachToType, FormatterFormatInsideComments, FormatterAlignTrailingComments,<br/>
+FormatterAllowShortCaseLabelsOnASingleLine, FormatterAllowShortFuncRefsOnASingleLine, FormatterAlignConsecutiveShortCaseStatements</change>
+			<change type="Note">should be now &quot;production&quot; ready, default settings are just our personal preferences</change>
+		</entry>
+		<entry>
+			<date>08-30-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Performance improvements to the compiler</change>
+		</entry>
+		<entry>
+			<date>08-27-2024</date>
+			<author>Reloecc:</author>
+			<change type="Changed">ssopt.MobilesBlockNpcMovement now accepts values 0/1/2. Earlier 0 = false, 1 = true.<br/>
+2 = new behavior, where npcs of the same master are allowed to walk on top of each other. Backward compatible.</change>
+		</entry>
+		<entry>
+			<date>08-24-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Resolved an issue where the Z coordinate of objects on a boat was incorrectly<br/>
+calculated during turns (introduced in the 07-08-2024 nightly build).</change>
+		</entry>
 		<entry>
 			<date>08-11-2024</date>
 			<author>Turley:</author>

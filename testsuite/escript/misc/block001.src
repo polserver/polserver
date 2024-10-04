@@ -1,17 +1,17 @@
 program test()
-	var a;
-	repeat
-	    var b;
-	    if (1)
-	        var c;
-	        var d;
-	        break; // should leave block(3) and jump past 'until'
-	        var e,f,g;
-		// here will leave block(5)
-	    endif
-	    var h; // should leave block(2)
-	until (0);
-	var g;
+  var a;
+  repeat
+    var b;
+    if ( 1 )
+      var c;
+      var d;
+      break; // should leave block(3) and jump past 'until'
+      var e, f, g;
+    // here will leave block(5)
+    endif
+    var h; // should leave block(2)
+  until ( 0 );
+  var g;
 
-	print("ok");
+  print( "ok" );
 endprogram

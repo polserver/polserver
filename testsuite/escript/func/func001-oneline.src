@@ -1,5 +1,5 @@
 print( foo() );
 
 function foo()
-    return 5;
+  return 5;
 endfunction

@@ -5,26 +5,21 @@ print( "----" );
 print( test( false ) );
 
 function test( has_success )
-  return with_resources(
-    @{ return CreateItemAtLocation(1, 2, 3, 0xeed); },
+  return with_resources( @{
+    return CreateItemAtLocation( 1, 2, 3, 0xeed );
+  }, @{
+    return CreateMultiAtLocation( 1, 2, 3, "SmallHouse" );
+  }, with_dispose( @{
+    return CreateMultiAtLocation( 1, 2, 3, has_success ? "SmallHouse" : error{} );
+  }, @( what, item, unused multi /* from the first SmallHouse */ ) {
+    print( $"DisposeCustom on '{what}' but do something with item '{item}' first" );
+  } ), @{
+    return CreateNPCFromTemplate( "brigand", 1, 2, 3 );
+  }, @( item, multi, multi2, npc ) {
+    print( $"In test: item={item} multi={multi} multi2={multi2} npc={npc}" );
 
-    @{ return CreateMultiAtLocation(1, 2, 3, "SmallHouse"); },
-
-    with_dispose(
-      @{ return CreateMultiAtLocation(1, 2, 3, has_success ? "SmallHouse" : error{}); },
-      @( what, item, unused multi /*from the first SmallHouse*/ ) {
-        print( $"DisposeCustom on '{what}' but do something with item '{item}' first" );
-      }
-    ),
-
-    @{ return CreateNPCFromTemplate("brigand", 1, 2, 3); },
-
-    @(item, multi, multi2, npc) {
-      print( $"In test: item={item} multi={multi} multi2={multi2} npc={npc}" );
-
-      return 1;
-    }
-  );
+    return 1;
+  } );
 endfunction
 
 function DisposeCustom( what )
@@ -37,7 +32,7 @@ function with_dispose( resource, finalizer )
   return array{ resource, finalizer };
 endfunction
 
-function with_resources( args... )
+function with_resources( args ... )
   var resources := array{};
 
   var cleanup := @{
@@ -50,30 +45,30 @@ function with_resources( args... )
 
       var call_args := resources.map( @( resource ) {
         return resource[1];
-      });
+      } );
 
-      cleanup_fn( resource, call_args... );
+      cleanup_fn( resource, call_args ... );
     endwhile
   };
 
   foreach arg in args
-    if (_arg_iter == args.size())
+    if ( _arg_iter == args.size() )
 
       var call_args := resources.map( @( resource ) {
         return resource[1];
-      });
+      } );
 
-      var result := arg( call_args... );
+      var result := arg( call_args ... );
 
       cleanup();
 
       return result;
     endif
 
-    if (TypeOfInt(arg) == OT_ARRAY)
-      var resource := (arg[1])();
+    if ( TypeOfInt( arg ) == OT_ARRAY )
+      var resource := ( arg[1] )();
 
-      if (!resource)
+      if ( !resource )
         cleanup();
         return resource;
       endif
@@ -82,10 +77,10 @@ function with_resources( args... )
 
       resources.append( with_dispose( resource, finalizer ) );
 
-    elseif (TypeOfInt(arg) == OT_FUNCOBJECT)
+    elseif ( TypeOfInt( arg ) == OT_FUNCOBJECT )
       var resource := arg();
 
-      if (!resource)
+      if ( !resource )
         cleanup();
         return resource;
       endif
@@ -95,13 +90,14 @@ function with_resources( args... )
       var type := TypeOfInt_( resource );
 
       case ( type )
-        OT_ITEMREF: finalizer := @DisposeItem;
-        OT_MULTIREF: finalizer := @DisposeMulti;
+        OT_ITEMREF:   finalizer := @DisposeItem;
+        OT_MULTIREF:  finalizer := @DisposeMulti;
         OT_MOBILEREF: finalizer := @DisposeNpc;
-        default: finalizer := @(what) { print( $"Cannot dispose @{what}" ); };
+        default:
+          finalizer := @( what ) { print( $"Cannot dispose @{what}" ); };
       endcase
 
-      resources.append( with_dispose(resource, finalizer) );
+      resources.append( with_dispose( resource, finalizer ) );
     endif
 
   endforeach

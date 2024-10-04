@@ -1,38 +1,38 @@
-function init_animal(byref self)
-  self.+yell:=@animal_yell;
+function init_animal( byref self )
+  self.+yell := @animal_yell;
 endfunction
-function animal_yell(byref self)
-  print(self.text.call(self));
+function animal_yell( byref self )
+  print( self.text.call( self ) );
 endfunction
 
 function init_cat()
-  var cat:=struct;
-  init_animal(cat);
-  cat.+text:=@cat_text;
+  var cat := struct;
+  init_animal( cat );
+  cat.+text := @cat_text;
   return cat;
 endfunction
-function cat_text(byref self)
+function cat_text( byref self )
   return "miau";
 endfunction
 
 function init_dog()
-  var dog:=struct;
-  init_animal(dog);
-  dog.+text:=@dog_text;
-  dog.+angry:=0;
+  var dog := struct;
+  init_animal( dog );
+  dog.+text := @dog_text;
+  dog.+angry := 0;
   return dog;
 endfunction
-function dog_text(byref self)
-  if (self.angry)
+function dog_text( byref self )
+  if ( self.angry )
     return "ggggrrr";
   endif
   return "wuff";
 endfunction
 
-var dog:=init_dog();
-dog.yell.call(dog);
-dog.angry:=1;
-dog.yell.call(dog);
+var dog := init_dog();
+dog.yell.call( dog );
+dog.angry := 1;
+dog.yell.call( dog );
 
-var cat:=init_cat();
-cat.yell.call(cat);
+var cat := init_cat();
+cat.yell.call( cat );

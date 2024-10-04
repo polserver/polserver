@@ -1,4 +1,4 @@
-function Sum( numbers... )
+function Sum( numbers ... )
   var total := 0;
   foreach number in numbers
     total += number;
@@ -10,6 +10,6 @@ endfunction
 program main( who )
   var numbers1 := array{ 1, 2, 3 };
   var numbers2 := array{ 4, 5, 6 };
-  var total := Sum( numbers1..., numbers2... );
+  var total := Sum( numbers1 ..., numbers2 ... );
   Print( total ); // Output: 21
 endprogram

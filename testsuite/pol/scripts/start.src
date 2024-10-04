@@ -1,6 +1,6 @@
 use os;
 program start()
-  print("POL initialization complete.");
-  start_script("tests");
-  start_script("busyloop");
+  print( "POL initialization complete." );
+  start_script( "tests" );
+  start_script( "busyloop" );
 endprogram

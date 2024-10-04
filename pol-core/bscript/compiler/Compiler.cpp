@@ -131,6 +131,9 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 
 bool Compiler::format_file( const std::string& filename, bool is_module, bool inplace )
 {
+  if ( !Clib::filesize( filename.c_str() ) )
+    return true;
+
   Report report( false, true );
   PrettifyBuilder prettify_builder( profile, report );
   auto formatted = prettify_builder.build( filename, is_module );
@@ -139,7 +142,7 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   if ( inplace )
   {
     std::ofstream filestream;
-    filestream.open( filename, std::ios_base::out | std::ios_base::trunc );
+    filestream.open( filename, std::ios_base::out | std::ios_base::trunc | std::ios::binary );
     filestream << formatted;
     filestream.flush();
   }

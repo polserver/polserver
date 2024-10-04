@@ -1,1 +1,1 @@
-Expected expression following comma before right-brace in array initializer list
+:1:18: error: Expected expression following comma before right-brace in array initializer list

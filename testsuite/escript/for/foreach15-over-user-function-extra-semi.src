@@ -1,7 +1,7 @@
-function foo(x)
-    return { 7, x, 8, 4 };
+function foo( x )
+  return { 7, x, 8, 4 };
 endfunction
 
-foreach a in foo(5);
-    print(a);
+foreach a in foo( 5 )
+  print( a );
 endforeach

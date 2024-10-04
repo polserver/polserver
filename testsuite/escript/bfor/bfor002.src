@@ -1,4 +1,4 @@
 for i := 1 to 3
-    var b := 2*i;
-    print(b);
+  var b := 2 * i;
+  print( b );
 endfor

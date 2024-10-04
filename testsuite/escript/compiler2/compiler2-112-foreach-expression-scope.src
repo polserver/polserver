@@ -5,6 +5,5 @@
 
 var thing := { "a", "b", "c", "d" };
 foreach thing in { thing[1], thing[2], thing[3], thing[4] }
-    print(thing);
+  print( thing );
 endforeach
-

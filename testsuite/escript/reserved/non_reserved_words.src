@@ -1,6 +1,5 @@
 var NULL := "NULL is not reserved";
 var DECLARE := "DECLARE is not reserved";
 
-print(NULL);
-print(DECLARE);
-
+print( NULL );
+print( DECLARE );

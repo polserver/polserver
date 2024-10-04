@@ -1,12 +1,13 @@
 use os;
 program start_boat( param )
-  var ev, listener := start_script( ":testboat:boat", param );
+  var ev,
+      listener := start_script( ":testboat:boat", param );
 
   // The default control script starts forwards events from the boat control
   // script to the created listener.
 
   while ( param )
-    if ( ev := wait_for_event(10) )
+    if ( ev := wait_for_event( 10 ) )
       listener.sendevent( ev );
     endif
   endwhile

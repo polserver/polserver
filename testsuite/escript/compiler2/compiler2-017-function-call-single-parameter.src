@@ -1,5 +1,5 @@
-function display(s)
-    print(s);
+function display( s )
+  print( s );
 endfunction
 
-display("hi there");
+display( "hi there" );

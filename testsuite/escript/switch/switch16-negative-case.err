@@ -1,1 +1,1 @@
-switch16-negative-case.src:8:9: error: mismatched input ':' expecting ';'
+:8:9: error: mismatched input ':' expecting ';'
