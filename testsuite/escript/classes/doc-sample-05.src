@@ -1,0 +1,19 @@
+class Person()
+  function Person( this, name, age )
+    this.name := name;
+    this.age := age;
+  endfunction
+
+  function greeting( this )
+    return $"Hello, my name is {this.name} and I am {this.age} years old.";
+  endfunction
+
+  function rename( this, new_name )
+    this.name := new_name;
+    Print( $"Name changed to {this.name}" );
+  endfunction
+endclass
+
+var john := Person( "John", 30 );
+john.rename( "Johnny" ); // Method call
+Person::rename( john, "Johnny" ); // Function call

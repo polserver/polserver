@@ -1,0 +1,20 @@
+class A()
+  function A( this )
+    Print( "A constructor" );
+  endfunction
+endclass
+
+class B()
+  function B( this )
+    Print( "B constructor" );
+  endfunction
+endclass
+
+class C( A, B )
+  function C( this )
+    super();
+    Print( "C constructor" );
+  endfunction
+endclass
+
+var c := C(); // Output: A constructor, B constructor, C constructor

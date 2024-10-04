@@ -90,7 +90,12 @@ apologies if I explain some things in annoyingly simple terms.</p>
   <li><a href="#chap11h">Function Expressions</a></li></li>
   <li><a href="#chap11i">Spread Operator</a></li>
 </ul>
-<p></p>
+
+<p><b><a href="#chap12">Chapter 12: Classes</a></b></p>
+<ul>
+  <li><a href="#chap12a">Advanced Techniques</a>
+</ul>
+
 
 <p><b><a href="#app2">Appendix A: Gump Tag Descriptions</a></b></p>
 
@@ -706,7 +711,7 @@ if (var1 != var2) //TRUE
 <p>The logical operators in eScript are (evaluated left-to-right)</p>
 
 <p>== equal-to<br>!= not-equal-to<br>&gt; greater-than<br>&lt; less-than
-<br>&lt;= less-or-equal-to <br>&gt;= greater-or-equal-to</p>
+<br>&lt;= less-or-equal-to <br>&gt;= greater-or-equal-to<br>is</p>
 
 <p>Also, you can use the Boolean operators:</p>
 
@@ -778,6 +783,7 @@ if ( !valid ) //same as "if valid is non-zero, then false"
 endif</pre></div>
 <br/>
 <p><b><a name="chap3b">Binary Operators</a></b></p>
+<br/>
 <p><b>Elvis operator:</b></p>
 <p>Short-circuit binary operator EXPR_LHS ?: EXPR_RHS<br/>
 This operator evaluates the left-hand-side operand and keeps its value if it is a true value.<br/>
@@ -806,6 +812,11 @@ to this:
                                              targetsquare.objtype ?: locinfo.landtile,<br/>
                                              who.realm);</pre></div></p>
 
+<p><b><code>is</code> operator:</b></p>
+
+The <code>is</code> operator can be used to check if the left operand (typically
+a class instance) is an instance of the right operand (typically a function
+reference). See <a href="#chap12">Chapter 12</a> for more information.<br/>
 
 <p><b><a name="chap3b2">Conditional (Ternary) Operator</a></b></p>
 <br />
@@ -3229,6 +3240,392 @@ var players_with_ranking := "".join(
 
   SendMessageToPlayers( "Hello!", player1, player2, player3 );
 </pre></div>
+
+<br/>
+<br/>
+
+<!-- ====================================================================== -->
+
+<h3><a name="chap12">Chapter 12</a></h3>
+<br/>
+<p>Added in: POL 100.1.0</p>
+<br/>
+<p>Classes in EScript are a powerful feature that allows you to create custom
+data structures with encapsulated behaviors, following an object-oriented
+programming (OOP) paradigm. Similar to Python and other object-oriented
+languages, classes in EScript provide a way to bundle data (attributes) and
+functions (methods) that operate on that data into cohesive units called
+objects. This makes it easier to model real-world entities and complex systems
+by representing them as objects with properties and behaviors.</p>
+<br/>
+
+<p><b>Key Concepts</b></p>
+<br/>
+
+<ul>
+<li><strong>Class Definition</strong>: A class in EScript is defined using the
+<code>class</code> keyword followed by the class name. A class can include methods, which
+define the behaviors, and attributes, which store the state of an object.</li>
+<li><strong>Constructor Method</strong>: The constructor method in EScript is a
+special function that is called when a new object of the class is created. In
+EScript, the constructor has the same name as the class itself. This method is
+typically used to initialize the object's attributes.</li>
+<li><strong>Object Creation and Usage</strong>: To create an object in EScript,
+simply call the class like a function, passing any required arguments to the
+constructor. Once created, you can interact with the object's methods and
+attributes using dot notation, like other built-in objects.</li>
+<li><strong>Instance Methods</strong>: These are functions defined within a
+class that operate on the instance of the class. They are defined with the
+<code>function</code> keyword and take <code>this</code> as the first parameter,
+which refers to the current instance of the class.</li>
+<li><strong>Inheritance</strong>: EScript supports inheritance, allowing you to
+create new classes based on existing ones. This feature promotes code reuse and
+the creation of hierarchical relationships between classes. EScript also
+supports multiple inheritance, where a class can inherit from more than one base
+class. The <code>super</code> keyword is used to call the constructors of parent
+classes.</li>
+<li><strong>Scoped Global Variables</strong>: A class can have a global
+variables and user functions that do not interfere with others of the same name.
+This allows implementations, for example to use global variables without
+worrying about clashing names from other included files, or define a user
+function that has the same name as a module function.</li>
+<li><strong>Reference Type</strong>: A class in EScript is a reference type,
+meaning that when you assign an object to a variable, you are assigning a
+reference to the object, not the object itself. This means that changes made to
+the object's attributes will affect all references to that object. This is
+similar to other built-in reference types, like <code>ItemRef</code>: every
+script that has variables for the same <code>Item</code> object will access the
+same item.</li>
+</ul>
+<br/>
+
+<p><b>Example: Creating a Simple Class</b></p>
+
+<div class="doc-guide-pre"><pre>
+class Person()
+  function Person( this, name, age )
+    this.name := name;
+    this.age := age;
+  endfunction
+
+  function greeting( this )
+    return $"Hello, my name is {this.name} and I am {this.age} years old.";
+  endfunction
+
+  function rename( this, new_name )
+    this.name := new_name;
+    Print( $"Name changed to {this.name}" );
+  endfunction
+endclass
+
+var john := Person( "John", 30 );
+var greeting := john.greeting();
+
+Print( greeting ); // Output: Hello, my name is John and I am 30 years old.
+
+john.rename( "Johnny" ); // Output: Name changed to Johnny
+</pre></div>
+<br/>
+
+<p>The example above defines a class <code>Person</code> with a constructor that
+initializes the <code>name</code> and <code>age</code> attributes. It also
+includes two instance methods: <code>greeting</code> and <code>rename</code>. An
+object <code>john</code> is created from the <code>Person</code> class, and its
+methods are called to interact with the object's state.</p>
+<br/>
+
+<p>A class that does not define a constructor <strong>cannot</strong> be
+instantiated.</p>
+<br/>
+
+
+<p><b>Example: Scoped Variables and Functions</b></p>
+<br/>
+
+<p>Similar to scoping a module function call (eg. <code>basicio::Print</code>),
+a class' global variables and user functions are accessed with <code>::</code>.
+
+<div class="doc-guide-pre"><pre>
+  class Animal()
+  var animal_count := 0;
+
+  function Animal( this, type )
+    this.type := type;
+    this.id := ++animal_count;
+  endfunction
+
+  function Print( this )
+    basicio::Print( $"Animal {this.id} is a {this.type}" );
+  endfunction
+endclass
+
+var dog := Animal( "dog" );
+print( dog.id );  // Output: 1
+
+dog.Print(); // Output: Animal 1 is a dog
+Animal::Print( dog ); // Output: Animal 1 is a dog
+
+print( Animal::animal_count ); // Output: 1
+
+var cat := Animal( "cat" );
+cat.Print(); // Output: Animal 2 is a cat
+
+// print( animal_count ); // Compiler error!
+</pre></div>
+<br/>
+
+<p><b>Example: Inheritance in EScript</b></p>
+<br/>
+
+<p>EScript supports inheritance, allowing you to create new classes based on
+existing ones. Inheritance is a way to create new things by building on what's
+already there.</p>
+
+<div class="doc-guide-pre"><pre>
+class Person()
+  function Person( this, name )
+    this.name := name;
+  endfunction
+
+  function Say( what )
+    Print( what );
+  endfunction
+endclass
+
+class Wizard( Person )
+  function Wizard( this, name )
+    super( name );
+  endfunction
+
+  function Attack( this )
+    Say( $"{this.name} casts a spell!" );
+  endfunction
+endclass
+
+class Fighter( Person )
+  function Fighter( this, name )
+    super( name );
+  endfunction
+
+  function Attack( this )
+    Say( $"{this.name} swings a sword!" );
+  endfunction
+endclass
+
+var gandalf := Wizard( "Gandalf" );
+var aragorn := Fighter( "Aragorn" );
+
+gandalf.Attack(); // Output: Gandalf casts a spell!
+aragorn.Attack(); // Output: Aragorn swings a sword!
+</pre></div>
+
+<p><b>NOTE:</b> It is important to call <code>super()</code> within your constructor to
+ensure the base class constructor(s) are called to set the attributes for the
+instance!</p>
+<br/>
+
+
+
+<p><b>Example: Multiple Inheritance</b></p>
+
+<p>A class can have multiple base classes in which it inherits from. When using <code>super()</code>,
+the constructors of the base classes are called in the order they are listed in the class definition. Likewise, the arguments passed to <code>super()</code>
+are passed to the base class constructors in the same order.</p>
+</p>
+<br/>
+
+<div class="doc-guide-pre"><pre>
+class Colorable()
+  function Colorable( this, color )
+    this.color := color;
+  endfunction
+endclass
+
+class Drawable()
+  function Drawable( this, x, y )
+    this.x := x;
+    this.y := y;
+  endfunction
+endclass
+
+class Shape( Colorable, Drawable )
+  function Shape( this, color, x, y )
+    super( color, x, y );
+  endfunction
+endclass
+
+var shape := Shape( "red", 1, 2 );
+print( $"{shape.color} {shape.x} {shape.y}" ); // Output: red 1 2
+</pre></div>
+
+<p><b><a name="chap12a">Advanced Techniques</a></b></p>
+<br/>
+
+<p><b>Method versus Function Call</b></p>
+<br/>
+
+<p>There are multiple ways to call class instance methods in EScript. The most
+common way is to use the dot notation as a <i>method call</i>, as shown in the examples above. However,
+you can also use a <i>function call</i> on the instance, which is useful when you want to use named arguments.</p>
+
+<div class="doc-guide-pre"><pre>
+var john := Person( "John", 30 );
+john.rename( "Johnny" ); // Method call
+Person::rename( john, "Johnny" ); // Function call
+</pre></div>
+
+<p>This may be useful when you want to use named arguments, as named arguments
+cannot be used in a method call.</p>
+<br/>
+
+<p><b><code>super()</code> and Constructor Order</b></p>
+<br/>
+
+<p>When a class inherits from another class, using <code>super()</code> is a
+convenient way to call the constructor of the base class(es). Each base class
+constructor will be called in the order they are listed in the class definition.</p>
+
+<div class="doc-guide-pre"><pre>
+class A()
+  function A( this )
+    Print( "A constructor" );
+  endfunction
+endclass
+
+class B()
+  function B( this )
+    Print( "B constructor" );
+  endfunction
+endclass
+
+class C( A, B )
+  function C( this )
+    super();
+    Print( "C constructor" );
+  endfunction
+endclass
+
+var c := C(); // Output: A constructor, B constructor, C constructor
+</pre></div>
+
+<p>If you want to change the order of constructor calls done by
+<code>super()</code>, then you must change the order of the base classes in the
+declaration. It is possible to explicitly use a <i>function reference call</i> to a
+specific constructor for even greater control of constructor call order:</p>
+
+<div class="doc-guide-pre"><pre>
+class C( A, B )
+  function C( this )
+    @B::B( this );
+    @A::A( this );
+    Print( "C constructor" );
+  endfunction
+endclass
+
+var c := C(); // Output: B constructor, A constructor, C constructor
+</pre></div>
+
+<p><b><code>super()</code> and Argument Order</b></p>
+<br/>
+
+<p>Arguments used to a <code>super()</code> call are passed in order of the base
+classes listed in the class definition. Additionally, you can use named
+arguments to specify each base class constructor's arguments, allowing you to
+not worry about the argument order:</p>
+
+<div class="doc-guide-pre"><pre>
+class GreenShape( Colorable, Drawable )
+  function GreenShape( this )
+    super( color := "green", x := 10, y := 20 );
+  endfunction
+endclass
+
+var shape := GreenShape();
+print( $"{shape.color} {shape.x} {shape.y}" ); // Output: green 10 20
+</pre></div>
+
+<p>If multiple base classes define the same parameter, you must specify the scope for each argument:</p>
+
+<div class="doc-guide-pre"><pre>
+class Item()
+  function Item( this, name )
+    this.description := name;
+  endfunction
+endclass
+
+class Color()
+  function Color( this, name )
+    this.color := name;
+  endfunction
+endclass
+
+class RedDagger( Item, Color )
+  function RedDagger( this )
+    super( Item::name := "dagger", Color::name := "red" ); // Using only `name` would give an ambiguous error!
+  endfunction
+endclass
+
+var item := RedDagger();
+
+print( $"{item.color} {item.description}" ); // Output: red dagger
+</pre></div>
+
+<p><b><code>is</code> Operator</b></p>
+<br/>
+
+<p>You can use the <code>is</code> binary operator to check if a class instance
+is of the class type provided (via function reference). The test includes any
+ancestor class. Continuing the above example with <code>A</code>,
+<code>B</code>, and <code>C</code>:</p>
+
+<div class="doc-guide-pre"><pre>
+class A()
+  function A( this )
+  endfunction
+endclass
+
+class B()
+  function B( this )
+  endfunction
+endclass
+
+class C( A, B )
+  function C( this )
+    super();
+  endfunction
+endclass
+
+var c := C();
+Print( c is @C ); // Output: 1
+Print( c is @A ); // Output: 1 (since C is a subclass of A)
+
+var b := B();
+Print( b is @C ); // Output: 0
+</pre></div>
+
+<p><b>Class Instance <code>function</code> Member</b></p>
+<br/>
+
+<p>A class instance has a <code>function</code> member that is a function
+reference to its constructor. To construct a new instance, use the
+<code>new()</code> method on the function reference. This allows creating new
+objects of the same class type as the instance without knowing what the instance
+is at compile-time:</p>
+
+<div class="doc-guide-pre"><pre>
+class Person()
+  function Person( this, name, age )
+    this.name := name;
+    this.age := age;
+  endfunction
+endclass
+
+var person := Person( "Alice", 25 );
+var other_person := person.function.new( "Bob", 30 );
+
+print( $"{other_person.name} is {other_person.age} years old." ); // Output: Bob is 30 years old.
+</pre></div>
+
 
 <br/>
 <br/>
