@@ -1,0 +1,21 @@
+class Item()
+  function Item( this, name )
+    this.description := name;
+  endfunction
+endclass
+
+class Color()
+  function Color( this, name )
+    this.color := name;
+  endfunction
+endclass
+
+class RedDagger( Item, Color )
+  function RedDagger( this )
+    super( Item::name := "dagger", Color::name := "red" ); // Using only `name` would give an ambiguous error!
+  endfunction
+endclass
+
+var item := RedDagger();
+
+print( $"{item.color} {item.description}" ); // Output: red dagger

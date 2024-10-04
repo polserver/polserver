@@ -1,0 +1,35 @@
+class Person()
+  function Person( this, name )
+    this.name := name;
+  endfunction
+
+  function Say( what )
+    Print( what );
+  endfunction
+endclass
+
+class Wizard( Person )
+  function Wizard( this, name )
+    super( name );
+  endfunction
+
+  function Attack( this )
+    Say( $"{this.name} casts a spell!" );
+  endfunction
+endclass
+
+class Fighter( Person )
+  function Fighter( this, name )
+    super( name );
+  endfunction
+
+  function Attack( this )
+    Say( $"{this.name} swings a sword!" );
+  endfunction
+endclass
+
+var gandalf := Wizard( "Gandalf" );
+var aragorn := Fighter( "Aragorn" );
+
+gandalf.Attack(); // Output: Gandalf casts a spell!
+aragorn.Attack(); // Output: Aragorn swings a sword!
