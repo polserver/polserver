@@ -1,8 +1,7 @@
 program Install()
-    return 1;
+  return 1;
 endprogram
 
 exported function foo()
-    print("hello");
+  print( "hello" );
 endfunction
-

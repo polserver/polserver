@@ -1,4 +1,3 @@
 include testutil;
 
 print( foo( "bar" ) );
-

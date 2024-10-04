@@ -1,9 +1,8 @@
 const a := 0;
 const b := 7;
 
-if (a)
-    print("incorrect - first path");
-elseif (b)
-    print("correct - second path");
+if ( a )
+  print( "incorrect - first path" );
+elseif ( b )
+  print( "correct - second path" );
 endif
-

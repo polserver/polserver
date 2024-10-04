@@ -11,98 +11,99 @@ program test_boat()
 endprogram
 
 exported function create()
-  var res:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!res)
-    return ret_error("Failed to create boat "+res);
+  var res := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
   endif
-  if (res.x !=10 || res.y != 50 || res.z != -4 || res.graphic !=0x0)
-    var er:="Wrong pos or graphic: {},{},{} {}".format(res.x, res.y, res.z, res.graphic);
-    DestroyMulti(res);
-    return ret_error(er);
+  if ( res.x != 10 || res.y != 50 || res.z != -4 || res.graphic != 0x0 )
+    var er := "Wrong pos or graphic: {},{},{} {}".format( res.x, res.y, res.z, res.graphic );
+    DestroyMulti( res );
+    return ret_error( er );
   endif
-  if (res.portplank.x != 10 || res.portplank.y != 48 || res.portplank.z != -4)
-    var er:="Wrong portplank pos: {},{},{}".format(res.portplank.x, res.portplank.y, res.portplank.z);
-    DestroyMulti(res);
-    return ret_error(er);
+  if ( res.portplank.x != 10 || res.portplank.y != 48 || res.portplank.z != -4 )
+    var er := "Wrong portplank pos: {},{},{}".format( res.portplank.x, res.portplank.y,
+                                                      res.portplank.z );
+    DestroyMulti( res );
+    return ret_error( er );
   endif
 
-  for i:=1 to 5
-    sleepms(10);
-    if (res.getprop("started"))
-      DestroyMulti(res);
+  for i := 1 to 5
+    sleepms( 10 );
+    if ( res.getprop( "started" ) )
+      DestroyMulti( res );
       return 1;
     endif
   endfor
-  DestroyMulti(res);
-  return ret_error("Failed to start boat script");
+  DestroyMulti( res );
+  return ret_error( "Failed to start boat script" );
 endfunction
 
 exported function create_fail()
-  var res:=CreateMultiAtLocation(50,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (res)
-    DestroyMulti(res);
-    return ret_error("Created boat on ground");
+  var res := CreateMultiAtLocation( 50, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( res )
+    DestroyMulti( res );
+    return ret_error( "Created boat on ground" );
   endif
   return 1;
 endfunction
 
 exported function move()
-  var res:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!res)
-    return ret_error("Failed to create boat "+res);
+  var res := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
   endif
-  moveboat(res, 0);
-  if (res.x !=10 || res.y != 49 || res.z != -4)
-    var er:="Wrong pos: {},{},{}".format(res.x, res.y, res.z);
-    DestroyMulti(res);
-    return ret_error(er);
+  moveboat( res, 0 );
+  if ( res.x != 10 || res.y != 49 || res.z != -4 )
+    var er := "Wrong pos: {},{},{}".format( res.x, res.y, res.z );
+    DestroyMulti( res );
+    return ret_error( er );
   endif
-  DestroyMulti(res);
+  DestroyMulti( res );
   return 1;
 endfunction
 
 exported function test_script_method_syshook()
-  var res:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!res)
-    return ret_error("Failed to create boat "+res);
+  var res := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
   endif
   var value := res.IsSysHookBoat();
-  if (value != 1)
-    var er:="Wrong IsSysHookBoat() return value: {}".format(value);
-    DestroyMulti(res);
-    return ret_error(er);
+  if ( value != 1 )
+    var er := "Wrong IsSysHookBoat() return value: {}".format( value );
+    DestroyMulti( res );
+    return ret_error( er );
   endif
-  DestroyMulti(res);
+  DestroyMulti( res );
   return 1;
 endfunction
 
 exported function test_script_method_itemdesc()
-  var res:=CreateMultiAtLocation(10,50,-4,0x11001, CRMULTI_FACING_EAST);
-  if (!res)
-    return ret_error("Failed to create boat "+res);
+  var res := CreateMultiAtLocation( 10, 50, -4, 0x11001, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
   endif
   var value := res.IsItemDescBoat();
-  if (value != 1)
-    var er:="Wrong IsItemDescBoat() return value: {}".format(value);
-    DestroyMulti(res);
-    return ret_error(er);
+  if ( value != 1 )
+    var er := "Wrong IsItemDescBoat() return value: {}".format( value );
+    DestroyMulti( res );
+    return ret_error( er );
   endif
-  DestroyMulti(res);
+  DestroyMulti( res );
   return 1;
 endfunction
 
 exported function test_script_method_both()
-  var res:=CreateMultiAtLocation(10,50,-4,0x11001, CRMULTI_FACING_EAST);
-  if (!res)
-    return ret_error("Failed to create boat "+res);
+  var res := CreateMultiAtLocation( 10, 50, -4, 0x11001, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
   endif
   var value := res.WhereDefined();
-  if (value != "itemdesc")
-    var er:="Wrong WhereDefined() return value: {}".format(value);
-    DestroyMulti(res);
-    return ret_error(er);
+  if ( value != "itemdesc" )
+    var er := "Wrong WhereDefined() return value: {}".format( value );
+    DestroyMulti( res );
+    return ret_error( er );
   endif
-  DestroyMulti(res);
+  DestroyMulti( res );
   return 1;
 endfunction
 
@@ -129,7 +130,8 @@ exported function test_boat_walkon_script()
     if ( !res )
       res := ret_error( "Event not received from walkon script" );
     else
-      if ( res.lastx != lastpos.lastx || res.lasty != lastpos.lasty || res.lastz != lastpos.lastz || res.lastrealm != lastpos.lastrealm )
+      if ( res.lastx != lastpos.lastx || res.lasty != lastpos.lasty || res.lastz != lastpos.lastz ||
+           res.lastrealm != lastpos.lastrealm )
         res := ret_error( $"Last position of npc {lastpos} != last position from walkon script {res}" );
       else
         res := 1;
@@ -164,7 +166,8 @@ exported function test_boat_walkon_script_oncreate()
   if ( !res )
     res := ret_error( "Event not received from walkon script" );
   else
-    if ( res.lastx != lastpos.lastx || res.lasty != lastpos.lasty || res.lastz != lastpos.lastz || res.lastrealm != lastpos.lastrealm )
+    if ( res.lastx != lastpos.lastx || res.lasty != lastpos.lasty || res.lastz != lastpos.lastz ||
+         res.lastrealm != lastpos.lastrealm )
       res := ret_error( $"Last position of npc {lastpos} != last position from walkon script {res}" );
     else
       res := 1;
@@ -252,191 +255,200 @@ function RestoreConfiguration( newConf )
 endfunction
 
 exported function test_boat_realm_move()
-  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!boat)
-    return ret_error("Failed to create boat "+boat);
+  var boat := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( "Failed to create boat " + boat );
   endif
-  var item:=CreateItemAtLocation(10,51,0,0xf3f);
-  if (!item)
-    DestroyMulti(boat);
-    return ret_error($"Failed to create item {item}");
+  var item := CreateItemAtLocation( 10, 51, 0, 0xf3f );
+  if ( !item )
+    DestroyMulti( boat );
+    return ret_error( $"Failed to create item {item}" );
   endif
   var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
   if ( !npc )
-    DestroyItem(item);
-    DestroyMulti(boat);
+    DestroyItem( item );
+    DestroyMulti( boat );
     return ret_error( $"Failed to create npc: {npc}" );
   endif
-  var result:=1;
+  var result := 1;
   do
-    var res:=MoveObjectToLocation(boat,1580,150,0,"britannia2",MOVEOBJECT_FORCELOCATION);
-    if (!res || boat.x != 1580 || boat.y != 150 || boat.z != 0 || boat.realm != "britannia2")
-      result := ret_error($"Failed initial move: {res}:{boat.x},{boat.y},{boat.z},{boat.realm}");
+    var res := MoveObjectToLocation( boat, 1580, 150, 0, "britannia2", MOVEOBJECT_FORCELOCATION );
+    if ( !res || boat.x != 1580 || boat.y != 150 || boat.z != 0 || boat.realm != "britannia2" )
+      result := ret_error( $"Failed initial move: {res}:{boat.x},{boat.y},{boat.z},{boat.realm}" );
       break;
-    elseif ( item.x != 1580 || item.y != 151 || item.z != 4 || item.realm != "britannia2")
-      result := ret_error($"Initial move failed: item {item.x},{item.y},{item.z},{item.realm}");
+    elseif ( item.x != 1580 || item.y != 151 || item.z != 4 || item.realm != "britannia2" )
+      result := ret_error( $"Initial move failed: item {item.x},{item.y},{item.z},{item.realm}" );
       break;
-    elseif (npc.x != 1579 || npc.y != 150 || npc.z != 3 || npc.realm != "britannia2")
-      result := ret_error($"Initial move failed: npc {npc.x},{npc.y},{npc.z},{npc.realm}");
+    elseif ( npc.x != 1579 || npc.y != 150 || npc.z != 3 || npc.realm != "britannia2" )
+      result := ret_error( $"Initial move failed: npc {npc.x},{npc.y},{npc.z},{npc.realm}" );
       break;
-    elseif (boat.portplank.x != 1580 || boat.portplank.y != 148 || boat.portplank.z != 0 || boat.portplank.realm != "britannia2")
-      result:=ret_error("Initial move failed: portplank {},{},{},{}".format(boat.portplank.x, boat.portplank.y, boat.portplank.z, boat.portplank.realm));
+    elseif ( boat.portplank.x != 1580 || boat.portplank.y != 148 || boat.portplank.z != 0 ||
+             boat.portplank.realm != "britannia2" )
+      result := ret_error( "Initial move failed: portplank {},{},{},{}".format( boat.portplank.x,
+                                                                                boat.portplank.y,
+                                                                                boat.portplank.z,
+                                                                                boat.portplank.realm ) );
       break;
     endif
 
-    res:=MoveObjectToLocation(boat,10,10,-4,"britannia",MOVEOBJECT_FORCELOCATION);
-    if (!res || boat.x != 10 || boat.y != 10 || boat.z != -4|| boat.realm != "britannia")
-      result:=ret_error($"Failed to move: {res}:{boat.x},{boat.y},{boat.z},{boat.realm}");
+    res := MoveObjectToLocation( boat, 10, 10, -4, "britannia", MOVEOBJECT_FORCELOCATION );
+    if ( !res || boat.x != 10 || boat.y != 10 || boat.z != -4 || boat.realm != "britannia" )
+      result := ret_error( $"Failed to move: {res}:{boat.x},{boat.y},{boat.z},{boat.realm}" );
       break;
-    elseif ( item.x != 10 || item.y != 11 || item.z != 0 || item.realm != "britannia")
-      result := ret_error($"Move failed: item {item.x},{item.y},{item.z},{item.realm}");
+    elseif ( item.x != 10 || item.y != 11 || item.z != 0 || item.realm != "britannia" )
+      result := ret_error( $"Move failed: item {item.x},{item.y},{item.z},{item.realm}" );
       break;
-    elseif (npc.x != 9 || npc.y != 10 || npc.z != -1 || npc.realm != "britannia")
-      result := ret_error($"Move failed: npc {npc.x},{npc.y},{npc.z},{npc.realm}");
+    elseif ( npc.x != 9 || npc.y != 10 || npc.z != -1 || npc.realm != "britannia" )
+      result := ret_error( $"Move failed: npc {npc.x},{npc.y},{npc.z},{npc.realm}" );
       break;
-    elseif (boat.portplank.x != 10 || boat.portplank.y != 8 || boat.portplank.z != -4 || boat.portplank.realm != "britannia")
-      result:=ret_error("Move failed: portplank {},{},{},{}".format(boat.portplank.x, boat.portplank.y, boat.portplank.z, boat.portplank.realm));
+    elseif ( boat.portplank.x != 10 || boat.portplank.y != 8 || boat.portplank.z != -4 ||
+             boat.portplank.realm != "britannia" )
+      result := ret_error( "Move failed: portplank {},{},{},{}".format( boat.portplank.x,
+                                                                        boat.portplank.y,
+                                                                        boat.portplank.z,
+                                                                        boat.portplank.realm ) );
       break;
     endif
-  dowhile(0);
+  dowhile ( 0 );
   MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
   npc.kill();
-  DestroyItem(item);
-  DestroyMulti(boat);
+  DestroyItem( item );
+  DestroyMulti( boat );
   return result;
 endfunction
 
 exported function test_boat_turn_travellers()
-  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!boat)
-    return ret_error("Failed to create boat "+boat);
+  var boat := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( "Failed to create boat " + boat );
   endif
-  var item:=CreateItemAtLocation(10,51,0,0xf3f);
-  if (!item)
-    DestroyMulti(boat);
-    return ret_error($"Failed to create item {item}");
+  var item := CreateItemAtLocation( 10, 51, 0, 0xf3f );
+  if ( !item )
+    DestroyMulti( boat );
+    return ret_error( $"Failed to create item {item}" );
   endif
   var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
   if ( !npc )
-    DestroyItem(item);
-    DestroyMulti(boat);
+    DestroyItem( item );
+    DestroyMulti( boat );
     return ret_error( $"Failed to create npc: {npc}" );
   endif
 
   // The `z` coords of objects should not change.
-  var checks:={
-    {1,4,  9,50,item.z, 10,49,npc.z}, // right
-    {3,2, 10,51,item.z,  9,50,npc.z}, // left
-    {2,6, 10,49,item.z, 11,50,npc.z}, // around
-    {0,6, 10,49,item.z, 11,50,npc.z}  // nothing
-  };
-  var result:=1;
+  var checks := { { 1, 4, 9, 50, item.z, 10, 49, npc.z },  // right
+                  { 3, 2, 10, 51, item.z, 9, 50, npc.z },  // left
+                  { 2, 6, 10, 49, item.z, 11, 50, npc.z }, // around
+                  { 0, 6, 10, 49, item.z, 11, 50, npc.z }  // nothing
+                  };
+  var result := 1;
   foreach check in checks
-    var res:=TurnBoat(boat,check[1]);
-    if (!res)
-      result:=ret_error($"Failed to turn {check} {res}");
+    var res := TurnBoat( boat, check[1] );
+    if ( !res )
+      result := ret_error( $"Failed to turn {check} {res}" );
       break;
     endif
-    if (boat.facing != check[2] || item.x != check[3] || item.y != check[4] || item.z != check[5] || npc.x != check[6] || npc.y != check[7] || npc.z != check[8])
-      result := ret_error($"Check failed {check}: facing {boat.facing} item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
+    if ( boat.facing != check[2] || item.x != check[3] || item.y != check[4] || item.z != check[5] ||
+         npc.x != check[6] || npc.y != check[7] || npc.z != check[8] )
+      result := ret_error( $"Check failed {check}: facing {boat.facing} item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}" );
       break;
     endif
   endforeach
   MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
   npc.kill();
-  DestroyItem(item);
-  DestroyMulti(boat);
+  DestroyItem( item );
+  DestroyMulti( boat );
   return result;
 endfunction
 
 exported function test_boat_move_travellers()
-  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!boat)
-    return ret_error("Failed to create boat "+boat);
+  var boat := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( "Failed to create boat " + boat );
   endif
-  var item:=CreateItemAtLocation(10,51,0,0xf3f);
-  if (!item)
-    DestroyMulti(boat);
-    return ret_error($"Failed to create item {item}");
+  var item := CreateItemAtLocation( 10, 51, 0, 0xf3f );
+  if ( !item )
+    DestroyMulti( boat );
+    return ret_error( $"Failed to create item {item}" );
   endif
   var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
   if ( !npc )
-    DestroyItem(item);
-    DestroyMulti(boat);
+    DestroyItem( item );
+    DestroyMulti( boat );
     return ret_error( $"Failed to create npc: {npc}" );
   endif
-  var result:=1;
-  var res:=MoveBoat(boat,0);
-  if (!res)
-    result:=ret_error($"Failed to move {res}");
+  var result := 1;
+  var res := MoveBoat( boat, 0 );
+  if ( !res )
+    result := ret_error( $"Failed to move {res}" );
   else
-    if ( item.x != 10 || item.y != 50 || item.z != 0 ||
-         npc.x != 9 || npc.y != 49 || npc.z != -1 )
-      result := ret_error($"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
-    elseif (boat.portplank.x != 10 || boat.portplank.y != 47 || boat.portplank.z != -4)
-      result:=ret_error("Wrong portplank pos: {},{},{}".format(res.portplank.x, res.portplank.y, res.portplank.z));
+    if ( item.x != 10 || item.y != 50 || item.z != 0 || npc.x != 9 || npc.y != 49 || npc.z != -1 )
+      result := ret_error( $"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}" );
+    elseif ( boat.portplank.x != 10 || boat.portplank.y != 47 || boat.portplank.z != -4 )
+      result := ret_error( "Wrong portplank pos: {},{},{}".format( res.portplank.x, res.portplank.y,
+                                                                   res.portplank.z ) );
     endif
   endif
   MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
   npc.kill();
-  DestroyItem(item);
-  DestroyMulti(boat);
+  DestroyItem( item );
+  DestroyMulti( boat );
   return result;
 endfunction
 
 exported function test_boat_moveloc_travellers()
-  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!boat)
-    return ret_error("Failed to create boat "+boat);
+  var boat := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( "Failed to create boat " + boat );
   endif
-  var item:=CreateItemAtLocation(10,51,0,0xf3f);
-  if (!item)
-    DestroyMulti(boat);
-    return ret_error($"Failed to create item {item}");
+  var item := CreateItemAtLocation( 10, 51, 0, 0xf3f );
+  if ( !item )
+    DestroyMulti( boat );
+    return ret_error( $"Failed to create item {item}" );
   endif
   var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", 9, 50, 0 );
   if ( !npc )
-    DestroyItem(item);
-    DestroyMulti(boat);
+    DestroyItem( item );
+    DestroyMulti( boat );
     return ret_error( $"Failed to create npc: {npc}" );
   endif
-  var result:=1;
-  var res:=MoveObjectToLocation(boat,180,150,10,flags:=MOVEOBJECT_FORCELOCATION);
-  if (!res)
-    result:=ret_error($"Failed to move {res}");
+  var result := 1;
+  var res := MoveObjectToLocation( boat, 180, 150, 10, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    result := ret_error( $"Failed to move {res}" );
   else
-    if ( item.x != 180 || item.y != 151 || item.z != 14 ||
-         npc.x != 179 || npc.y != 150 || npc.z != 13 )
-      result := ret_error($"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}");
-    elseif (boat.portplank.x != 180 || boat.portplank.y != 148 || boat.portplank.z != 10)
-      result:=ret_error("Wrong portplank pos: {},{},{}".format(boat.portplank.x, boat.portplank.y, boat.portplank.z));
+    if ( item.x != 180 || item.y != 151 || item.z != 14 || npc.x != 179 || npc.y != 150 ||
+         npc.z != 13 )
+      result := ret_error( $"Move failed: item {item.x},{item.y},{item.z} npc {npc.x},{npc.y},{npc.z}" );
+    elseif ( boat.portplank.x != 180 || boat.portplank.y != 148 || boat.portplank.z != 10 )
+      result := ret_error( "Wrong portplank pos: {},{},{}".format( boat.portplank.x, boat.portplank.y,
+                                                                   boat.portplank.z ) );
     endif
   endif
   MoveObjectToLocation( npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
   npc.kill();
-  DestroyItem(item);
-  DestroyMulti(boat);
+  DestroyItem( item );
+  DestroyMulti( boat );
   return result;
 endfunction
 
 exported function test_boat_move_outside_realm()
-  var boat:=CreateMultiAtLocation(180,50,-4,0x11000, CRMULTI_FACING_EAST);
-  if (!boat)
-    return ret_error("Failed to create boat "+boat);
+  var boat := CreateMultiAtLocation( 180, 50, -4, 0x11000, CRMULTI_FACING_EAST );
+  if ( !boat )
+    return ret_error( "Failed to create boat " + boat );
   endif
-  var result:=ret_error("didnt stop moving");
-  while (boat.x < 190)
-    var res:=MoveBoatRelative(boat,0);
-    if (!res)
-      if (boat.x == 186)
+  var result := ret_error( "didnt stop moving" );
+  while ( boat.x < 190 )
+    var res := MoveBoatRelative( boat, 0 );
+    if ( !res )
+      if ( boat.x == 186 )
         result := 1;
         break;
       else
-        result := ret_error($"moved to far: {boat.x}");
+        result := ret_error( $"moved to far: {boat.x}" );
         break;
       endif
     endif
   endwhile
-  DestroyMulti(boat);
+  DestroyMulti( boat );
   return result;
 endfunction

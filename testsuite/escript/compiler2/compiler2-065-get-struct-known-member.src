@@ -1,2 +1,2 @@
-var a:=struct{ quality := 99 };
-print(a.quality);
+var a := struct{ quality := 99 };
+print( a.quality );

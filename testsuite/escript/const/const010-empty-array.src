@@ -1,2 +1,2 @@
 const X := {};
-print(X);
+print( X );

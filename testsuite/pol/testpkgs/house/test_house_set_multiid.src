@@ -10,30 +10,32 @@ endprogram
 
 // Helper function used in multiple tests. Creates an NPC at `x` , `y`. If `multi` is passed, also
 // checks that `npc.multi == multi` and a walkon event was triggered.
-function create_npc(x, y, multi)
-  var npc := new_npc_resource( ":testnpc:probe_npc", x, y, 0, override_properties := struct{ CProps := dictionary{ "#TestPid" -> GetPid() } } );
+function create_npc( x, y, multi )
+  var npc := new_npc_resource( ":testnpc:probe_npc", x, y, 0, override_properties := struct{ CProps := dictionary{ "#TestPid" -> GetPid()
+                                                                                                                   }
+  } );
   if ( !npc )
     return npc;
-  elseif (multi)
-    if (npc.multi != multi)
-      return ret_error($"Incorrect npc.multi, expected {multi.serial}, got {npc.multi.serial ?: npc.multi}");
+  elseif ( multi )
+    if ( npc.multi != multi )
+      return ret_error( $"Incorrect npc.multi, expected {multi.serial}, got {npc.multi.serial ?: npc.multi}" );
     endif
 
-    Sleepms(1);
-    var ev := wait_for_event(0);
-    if (!ev)
-      return ret_error( $"No walkon event received for {npc.serial}");
+    Sleepms( 1 );
+    var ev := wait_for_event( 0 );
+    if ( !ev )
+      return ret_error( $"No walkon event received for {npc.serial}" );
 
-    elseif (ev.who != npc)
-      return ret_error($"Incorrect walkon ev.who, expected {npc.serial}, got {ev.who.serial ?: ev.who}");
+    elseif ( ev.who != npc )
+      return ret_error( $"Incorrect walkon ev.who, expected {npc.serial}, got {ev.who.serial ?: ev.who}" );
 
-    elseif (ev.tile.serial != multi.serial) // Must check serial since tile = ItemRef and is multi = MultiRef
-      return ret_error($"Incorrect walkon ev.tile, expected {multi.serial}, got {ev.tile.serial ?: ev.tile}");
+    elseif ( ev.tile.serial != multi.serial ) // Must check serial since tile = ItemRef and is multi = MultiRef
+      return ret_error( $"Incorrect walkon ev.tile, expected {multi.serial}, got {ev.tile.serial ?: ev.tile}" );
     endif
   else
-    if (npc.multi)
+    if ( npc.multi )
       clear_event_queue();
-      return ret_error("Incorrect npc.multi, expected no multi, got {npc.multi.serial}");
+      return ret_error( "Incorrect npc.multi, expected no multi, got {npc.multi.serial}" );
     endif
   endif
 
@@ -42,52 +44,52 @@ endfunction
 
 exported function keep_components()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "SmallHouse"), @(multi) {
-      if (multi.multiid != 0x6b)
-        return ret_error($"Incorrect initial multiid, expected 0x6b, actual 0x{multi.multiid:x}");
+    return add_resource( new_multi_resource( 100, 75, 0, "SmallHouse" ), @( multi ) {
+      if ( multi.multiid != 0x6b )
+        return ret_error( $"Incorrect initial multiid, expected 0x6b, actual 0x{multi.multiid:x}" );
       endif
 
       var initial_components := multi.components;
 
-      var res := multi.set_multiid(0x6c, CRMULTI_KEEP_COMPONENTS);
-      if (!res)
-        return ret_error($"multi.set_multiid failed: {res}");
+      var res := multi.set_multiid( 0x6c, CRMULTI_KEEP_COMPONENTS );
+      if ( !res )
+        return ret_error( $"multi.set_multiid failed: {res}" );
       endif
 
-      if (multi.multiid != 0x6c)
-        return ret_error($"Incorrect new multiid, expected 0x6c, actual 0x{multi.multiid:x} ");
+      if ( multi.multiid != 0x6c )
+        return ret_error( $"Incorrect new multiid, expected 0x6c, actual 0x{multi.multiid:x} " );
       endif
 
-      if (multi.components != initial_components)
-        return ret_error($"Components changed");
+      if ( multi.components != initial_components )
+        return ret_error( $"Components changed" );
       endif
 
       return 1;
-    });
-  });
+    } );
+  } );
 endfunction
 
 exported function recreate_components()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "SmallHouse"), @(multi) {
-      if (multi.multiid != 0x6b)
-        return ret_error($"Incorrect initial multiid, expected 0x6b, actual 0x{multi.multiid:x}");
+    return add_resource( new_multi_resource( 100, 75, 0, "SmallHouse" ), @( multi ) {
+      if ( multi.multiid != 0x6b )
+        return ret_error( $"Incorrect initial multiid, expected 0x6b, actual 0x{multi.multiid:x}" );
       endif
 
       var initial_components := multi.components;
 
-      var res := multi.set_multiid(0x6c, CRMULTI_KEEP_COMPONENTS);
-      if (!res)
-        return ret_error($"multi.set_multiid failed: {res}");
+      var res := multi.set_multiid( 0x6c, CRMULTI_KEEP_COMPONENTS );
+      if ( !res )
+        return ret_error( $"multi.set_multiid failed: {res}" );
       endif
 
-      if (multi.components != initial_components)
-        return ret_error("Components changed");
+      if ( multi.components != initial_components )
+        return ret_error( "Components changed" );
       endif
 
       return 1;
-    });
-  });
+    } );
+  } );
 endfunction
 
 /*
@@ -117,119 +119,106 @@ and spawns NPCs and items in the in locations highlighted:
 // Success, there are no NPCs so everything can change.
 exported function change_no_npcs()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return multi.set_multiid(0x13eb, CRMULTI_KEEP_COMPONENTS); // dirt-hole-se
-    });
-  });
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return multi.set_multiid( 0x13eb, CRMULTI_KEEP_COMPONENTS ); // dirt-hole-se
+    } );
+  } );
 endfunction
-
 
 // Failure, no itemdesc for "does-not-exist"
 exported function change_bad_multiid_string()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return ret_error_not_equal(
-        multi.set_multiid( "does-not-exist", CRMULTI_KEEP_COMPONENTS),
-        error,
-        "Expected error when setting bad string multiid"
-      );
-    });
-  });
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return ret_error_not_equal( multi.set_multiid( "does-not-exist", CRMULTI_KEEP_COMPONENTS ),
+                                  error, "Expected error when setting bad string multiid" );
+    } );
+  } );
 endfunction
 
 // Failure, no descriptor for 15243
 exported function change_bad_multiid_long()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return ret_error_not_equal(
-        multi.set_multiid( 15243, CRMULTI_KEEP_COMPONENTS),
-        error,
-        "Expected error when setting bad long multiid"
-      );
-    });
-  });
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return ret_error_not_equal( multi.set_multiid( 15243, CRMULTI_KEEP_COMPONENTS ), error,
+                                  "Expected error when setting bad long multiid" );
+    } );
+  } );
 endfunction
 
 // Success, npcSE is in the 'hole' of the target multidef. Should not get a walkon event.
 exported function change_npc_in_target_hole()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return add_resource( create_npc(101, 76, multi), @(npcSE) {
-        return invoke_if( multi.set_multiid( "dirt-hole-se", CRMULTI_KEEP_COMPONENTS), @{
-          Sleepms(1);
-          var ev := wait_for_event(0);
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return add_resource( create_npc( 101, 76, multi ), @( npcSE ) {
+        return invoke_if( multi.set_multiid( "dirt-hole-se", CRMULTI_KEEP_COMPONENTS ), @{
+          Sleepms( 1 );
+          var ev := wait_for_event( 0 );
           if ( ev )
-            return ret_error($"Erroneously received event (walkon?): {ev} ");
+            return ret_error( $"Erroneously received event (walkon?): {ev} " );
           endif
           return 1;
-        });
-      });
-    });
-  });
+        } );
+      } );
+    } );
+  } );
 endfunction
 
 // Success, npcNE is on a valid location in both old and target multidef.
 exported function change_npc_in_both_valid()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return add_resource( create_npc(99, 76, multi), @(npcNE) {
-        return invoke_if( multi.set_multiid(0x13eb, CRMULTI_KEEP_COMPONENTS), @{ // dirt-hole-se
-          Sleepms(1);
-          var ev := wait_for_event(0);
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return add_resource( create_npc( 99, 76, multi ), @( npcNE ) {
+        return invoke_if( multi.set_multiid( 0x13eb, CRMULTI_KEEP_COMPONENTS ), @{ // dirt-hole-se
+          Sleepms( 1 );
+          var ev := wait_for_event( 0 );
           if ( ev )
-            return ret_error($"Erroneously received event (walkon?): {ev} ");
+            return ret_error( $"Erroneously received event (walkon?): {ev} " );
           endif
           return 1;
-        });
-      });
-    });
-  });
+        } );
+      } );
+    } );
+  } );
 endfunction
 
 // Failure, npcNW is on a location not in old multidef but in target multidef.
 exported function change_npc_notin_target_hole()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return add_resource( create_npc(99, 74, uninit), @(npcNW) {
-        return ret_error_not_equal(
-          multi.set_multiid(0x13eb, CRMULTI_KEEP_COMPONENTS),
-          error,
-          "Expected set_multiid error"
-        );
-      });
-    });
-  });
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return add_resource( create_npc( 99, 74, uninit ), @( npcNW ) {
+        return ret_error_not_equal( multi.set_multiid( 0x13eb, CRMULTI_KEEP_COMPONENTS ),
+                                    error, "Expected set_multiid error" );
+      } );
+    } );
+  } );
 endfunction
 
 // Failure, item is on a location not in old multidef but in target multidef.
 exported function change_item_notin_target_hole()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return add_resource( new_item_resource(99, 74, 0, "goldcoin" ), @(itemNW) {
-        return ret_error_not_equal(
-          multi.set_multiid(0x13eb, CRMULTI_KEEP_COMPONENTS),
-          error,
-          "Expected set_multiid error"
-        );
-      });
-    });
-  });
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return add_resource( new_item_resource( 99, 74, 0, "goldcoin" ), @( itemNW ) {
+        return ret_error_not_equal( multi.set_multiid( 0x13eb, CRMULTI_KEEP_COMPONENTS ),
+                                    error, "Expected set_multiid error" );
+      } );
+    } );
+  } );
 endfunction
 
 // Success, npcNW is on a location not in old multidef but in target multidef but using CRMULTI_IGNORE_ALL.
 exported function npc_notin_target_hole_ignore()
   return with_resources( @{
-    return add_resource( new_multi_resource(100,75,0, "dirt-hole-nw"), @(multi) {
-      return add_resource( create_npc(99, 74, uninit), @(npcNW) {
-        return invoke_if( multi.set_multiid(0x13eb, CRMULTI_IGNORE_ALL | CRMULTI_KEEP_COMPONENTS), @{
-          Sleepms(1);
-          var ev := wait_for_event(0);
+    return add_resource( new_multi_resource( 100, 75, 0, "dirt-hole-nw" ), @( multi ) {
+      return add_resource( create_npc( 99, 74, uninit ), @( npcNW ) {
+        return invoke_if( multi.set_multiid( 0x13eb, CRMULTI_IGNORE_ALL | CRMULTI_KEEP_COMPONENTS ), @{
+          Sleepms( 1 );
+          var ev := wait_for_event( 0 );
           if ( !ev )
-            return ret_error($"Did not receive walkon event: {ev} ");
+            return ret_error( $"Did not receive walkon event: {ev} " );
           endif
           return 1;
-        });
-      });
-    });
-  });
+        } );
+      } );
+    } );
+  } );
 endfunction

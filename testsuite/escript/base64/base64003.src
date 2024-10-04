@@ -1,5 +1,5 @@
-var a:=decodeBase64("0JfQtNGA0LDQstC+");
-var b:=encodeBase64("Здраво");
-print(a);
-print(b);
-print(decodeBase64(b)==a);
+var a := decodeBase64( "0JfQtNGA0LDQstC+" );
+var b := encodeBase64( "Здраво" );
+print( a );
+print( b );
+print( decodeBase64( b ) == a );

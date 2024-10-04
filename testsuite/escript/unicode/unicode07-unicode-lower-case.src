@@ -1,4 +1,4 @@
 // If the ConformingCharStream tries to convert everything to
 // lowercase, this will trip it up
 
-print("™");
+print( "™" );

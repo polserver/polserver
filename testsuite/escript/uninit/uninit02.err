@@ -1,1 +1,1 @@
-uninit02.src:1:5: error: mismatched input 'uninit' expecting IDENTIFIER
+:1:5: error: mismatched input 'uninit' expecting IDENTIFIER

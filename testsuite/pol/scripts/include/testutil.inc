@@ -1,38 +1,39 @@
 use uo;
 
-const IGNORE_TEST:=255; // only valid for setup or programs
+const IGNORE_TEST := 255; // only valid for setup or programs
 
-function ret_error(str)
-  return error{errortext:=str};
+function ret_error( str )
+  return error{ errortext := str };
 endfunction
 
 function ret_error_not_equal( actual, expected, message )
   if ( actual != expected )
-	  return ret_error( $"{message}" );
+    return ret_error( $"{message}" );
   endif
 
   return 1;
 endfunction
 
-function createAccountWithChar(accname, psw)
-  var a:=FindAccount(accname);
-  if (!a)
-    a:=CreateAccount(accname,psw,1);
-    if (!a)
-      return ret_error("Failed to create account");
+function createAccountWithChar( accname, psw )
+  var a := FindAccount( accname );
+  if ( !a )
+    a := CreateAccount( accname, psw, 1 );
+    if ( !a )
+      return ret_error( "Failed to create account" );
     endif
-    a.addcharacter(0);
+    a.addcharacter( 0 );
   endif
-  var char:=a.getcharacter(1);
-  if (!char)
-    return ret_error("Could not find char at slot 1");
+  var char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
   endif
   return char;
 endfunction
 
 var __resources := array{};
 
-function dprint(unused what) endfunction
+function dprint( unused what )
+endfunction
 
 function destroy_multi_resource( multi )
   dprint( $"cleanup multi 0x{multi.serial:x}" );
@@ -59,8 +60,7 @@ function destroy_npc_resource( npc )
     endif
   endforeach
 
-  return ret_error( $"Could not find corpse for NPC 0x{serial:x} at ({x}, {y}, {z}) (corpses: {corpses.size()})"
-                    );
+  return ret_error( $"Could not find corpse for NPC 0x{serial:x} at ({x}, {y}, {z}) (corpses: {corpses.size()})" );
 endfunction
 
 function new_item_resource( x, y, z, objtype, amount := 1, realm := _DEFAULT_REALM )
@@ -81,10 +81,10 @@ function new_multi_resource( x, y, z, objtype, flags := 0, realm := _DEFAULT_REA
   return resource;
 endfunction
 
-function new_npc_resource( template, x, y, z, override_properties := 0,
-                           realm := _DEFAULT_REALM, forcelocation := 0 )
-  var resource := CreateNPCFromTemplate( template, x, y, z, override_properties,
-                                         realm, forcelocation );
+function new_npc_resource( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM,
+                           forcelocation := 0 )
+  var resource := CreateNPCFromTemplate( template, x, y, z, override_properties, realm,
+                                         forcelocation );
   if ( !resource )
     return resource;
   endif

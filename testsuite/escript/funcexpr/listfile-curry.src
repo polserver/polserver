@@ -1,8 +1,8 @@
 include "listfile";
 include "curry";
 
-var curriedSum := curry(@sum);
+var curriedSum := curry( @sum );
 
-curriedSum(1)(2);
+curriedSum( 1 )( 2 );
 
-print_listfile("listfile-curry");
+print_listfile( "listfile-curry" );

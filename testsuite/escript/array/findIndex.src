@@ -1,6 +1,8 @@
 print( array{ "a", "b", "c", "D", "e" }.findIndex( @Always ) );
 print( array{ "a", "b", "c", "D", "e" }.findIndex( @{ return 0; } ) ); // Never
-print( array{ "a", "b", "c", "D", "e" }.findIndex( @( element ) { return element == "D"; })); // IfEquals
+print( array{ "a", "b", "c", "D", "e" }.findIndex( @( element ) {
+  return element == "D";
+} ) ); // IfEquals
 print( array{ "a", "b", "c", "D", "e" }.findIndex( @IfHighestIndex ) );
 
 print( array{}.findIndex( @DoNotCall ) ); // Returns 0

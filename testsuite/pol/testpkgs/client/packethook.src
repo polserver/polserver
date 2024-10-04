@@ -3,4 +3,3 @@ use uo;
 program packethook()
   return 1;
 endprogram
-

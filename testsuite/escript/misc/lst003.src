@@ -1,15 +1,14 @@
 print( "hello" );
-var a,b;
-b := len(a);
-
+var a, b;
+b := len( a );
 
 program prog( parama )
-    var x := foo();
-    x := "hello";
-    print(x);
+  var x := foo();
+  x := "hello";
+  print( x );
 endprogram
 
 function foo()
-    var a := 5;
-    a := 7;
+  var a := 5;
+  a := 7;
 endfunction

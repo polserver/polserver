@@ -1,10 +1,10 @@
 // Scope02 - make sure locals go out of scope
 // this should fail to compile.
 
-if (1)
-    var a;
-    a := 5;
-    print( "A=" + a );
+if ( 1 )
+  var a;
+  a := 5;
+  print( "A=" + a );
 endif
 
 print( "A=" + a );

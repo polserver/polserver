@@ -1,1 +1,1 @@
-syntax-err-1.src:5:24: error: In call to 'bar': Spread operator can only be used for arguments on or after the formal rest parameter.
+:6:30: error: In call to 'bar': Spread operator can only be used for arguments on or after the formal rest parameter.

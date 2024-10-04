@@ -1,15 +1,14 @@
 // Scope04 - make sure locals in sub-blocks can override other locals
-// 
+//
 
-
-if (1)
+if ( 1 )
+  var a;
+  a := 5;
+  print( "1. A=" + a );
+  if ( 2 )
     var a;
-    a := 5;
-    print( "1. A=" + a );
-    if (2)
-        var a;
-        a := 7;
-        print( "2. A=" + a );
-    endif
-    print( "3. A=" + a );
+    a := 7;
+    print( "2. A=" + a );
+  endif
+  print( "3. A=" + a );
 endif

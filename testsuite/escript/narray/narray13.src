@@ -1,10 +1,10 @@
 program test()
-    
-    var b := {};
-    print( b );
 
-    b.insert( 1, "hello" );
-    print( b );
+  var b := {};
+  print( b );
+
+  b.insert( 1, "hello" );
+  print( b );
 
 endprogram
 

@@ -1,41 +1,40 @@
 // Tests via function expression call `(@(<args>){})(...)` with continuation (MTH_FILTER).
 
-
 // Depending on the signature of the filter function, the rest parameter `args`
 // will contain elements `{element, index, arr}`. For each additional non-rest
 // parameter, the rest parameter's `args` goes down: see the .out
 
-var filter1 := @( args... ) {
+var filter1 := @( args ... ) {
   print( $"args={args}" );
   return 1;
 };
 
-var filter2 := @( element, args... ) {
+var filter2 := @( element, args ... ) {
   print( $"element={element} args={args}" );
   return 1;
 };
 
-var filter3 := @( element, index, args... ) {
+var filter3 := @( element, index, args ... ) {
   print( $"element={element} index={index} args={args}" );
   return 1;
 };
 
-var filter4 := @( element, index, arr, args... ) {
+var filter4 := @( element, index, arr, args ... ) {
   print( $"element={element} index={index} arr={arr} args={args}" );
   return 1;
 };
 
 // Single element array.
 // Continuation callback does not return a continuation
-array{"a"}.filter( filter1 );
-array{"a"}.filter( filter2 );
-array{"a"}.filter( filter3 );
-array{"a"}.filter( filter4 );
+array{ "a" }.filter( filter1 );
+array{ "a" }.filter( filter2 );
+array{ "a" }.filter( filter3 );
+array{ "a" }.filter( filter4 );
 print( "-" );
 
 // Multiple element array.
 // Continuation callback returns a continuation, then a non-continuation
-array{"a", "b", "c"}.filter( filter1 );
-array{"a", "b", "c"}.filter( filter2 );
-array{"a", "b", "c"}.filter( filter3 );
-array{"a", "b", "c"}.filter( filter4 );
+array{ "a", "b", "c" }.filter( filter1 );
+array{ "a", "b", "c" }.filter( filter2 );
+array{ "a", "b", "c" }.filter( filter3 );
+array{ "a", "b", "c" }.filter( filter4 );

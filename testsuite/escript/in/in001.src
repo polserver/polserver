@@ -1,7 +1,7 @@
 var a;
 
-if (5 in a)
-    print( "Failure!" );
+if ( 5 in a )
+  print( "Failure!" );
 else
-    print( "Success!" );
+  print( "Success!" );
 endif

@@ -7,127 +7,127 @@ var char;
 var backpack;
 
 program chartests()
-  var a:=FindAccount("test");
-  char:=a.getcharacter(1);
-  if (!char)
-    return ret_error("Could not find char at slot 1");
+  var a := FindAccount( "test" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
   endif
-  if (char.backpack)
-    DestroyItem(char.backpack);
+  if ( char.backpack )
+    DestroyItem( char.backpack );
   endif
-  backpack:=CreateItemAtLocation(0,0,0,0xE75);
-  var res:=EquipItem(char,backpack);
-  if (!res)
-    return ret_error("Failed to equip backpack "+backpack+" "+res);
+  backpack := CreateItemAtLocation( 0, 0, 0, 0xE75 );
+  var res := EquipItem( char, backpack );
+  if ( !res )
+    return ret_error( "Failed to equip backpack " + backpack + " " + res );
   endif
   return 1;
 endprogram
 
 function clean_backpack()
-  var items:=EnumerateItemsInContainer(char.backpack, ENUMERATE_ROOT_ONLY);
+  var items := EnumerateItemsInContainer( char.backpack, ENUMERATE_ROOT_ONLY );
   foreach item in items
-    DestroyItem(item);
+    DestroyItem( item );
   endforeach
 endfunction
 
 exported function set_name()
-  setname(char, "test");
-  if(char.name != "test")
-    return ret_error("failed to rename char: "+char.name);
+  setname( char, "test" );
+  if ( char.name != "test" )
+    return ret_error( "failed to rename char: " + char.name );
   endif
   return 1;
 endfunction
 
 exported function place_item_backpack()
   clean_backpack();
-  var item:=CreateItemAtLocation(char.x,char.y,char.z, 0x3e3f, 1, char.realm);
-  item.movable:=1;
-  var res:=MoveItemToContainer(item, char.backpack);
-  if (!res)
-    return ret_error("failed to move item: "+res);
+  var item := CreateItemAtLocation( char.x, char.y, char.z, 0x3e3f, 1, char.realm );
+  item.movable := 1;
+  var res := MoveItemToContainer( item, char.backpack );
+  if ( !res )
+    return ret_error( "failed to move item: " + res );
   endif
-  if (item.realm != char.realm)
-    return ret_error("item realm is not the same as char realm: "+item.realm);
+  if ( item.realm != char.realm )
+    return ret_error( "item realm is not the same as char realm: " + item.realm );
   endif
   return 1;
 endfunction
 
 exported function create_in_backpack()
   clean_backpack();
-  var old_weight:=char.weight;
-  var item:=CreateItemInContainer(char.backpack, 0xf3f, 1);
-  var item_weight:=item.weight;
-  if (!item)
-    return ret_error("failed to create item: "+item);
+  var old_weight := char.weight;
+  var item := CreateItemInContainer( char.backpack, 0xf3f, 1 );
+  var item_weight := item.weight;
+  if ( !item )
+    return ret_error( "failed to create item: " + item );
   endif
-  var item2:=CreateItemInContainer(char.backpack, 0xf3f, 1);
-  if (!item2)
-    return ret_error("failed to create item2: "+item2);
+  var item2 := CreateItemInContainer( char.backpack, 0xf3f, 1 );
+  if ( !item2 )
+    return ret_error( "failed to create item2: " + item2 );
   endif
-  if (item.serial != item2.serial)
-    return ret_error("items did not stack");
+  if ( item.serial != item2.serial )
+    return ret_error( "items did not stack" );
   endif
-  if (item.amount != 2)
-    return ret_error("item amount not 2: "+item.amount);
-  endif 
-  var exp_weight:=item_weight*2+ old_weight;
-  if (char.weight != exp_weight)
-    return ret_error("char weight {} != {}".format(char.weight, exp_weight));
+  if ( item.amount != 2 )
+    return ret_error( "item amount not 2: " + item.amount );
+  endif
+  var exp_weight := item_weight * 2 + old_weight;
+  if ( char.weight != exp_weight )
+    return ret_error( "char weight {} != {}".format( char.weight, exp_weight ) );
   endif
   return 1;
 endfunction
 
 exported function create_in_backpack_loc()
   clean_backpack();
-  var item := CreateItemInBackpack(char, 0xf3f, 1, 80, 90);
-  if (!item)
-    return ret_error($"Could not create item: {item}");
-  elseif (item.x != 80 || item.y != 90)
+  var item := CreateItemInBackpack( char, 0xf3f, 1, 80, 90 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  elseif ( item.x != 80 || item.y != 90 )
     var msg := $"Item not in expected location: item.x ({item.x}) != 80 or item.y ({item.y}) != 90";
-    DestroyItem(item);
-    return ret_error(msg);
+    DestroyItem( item );
+    return ret_error( msg );
   endif
   return 1;
 endfunction
 
 exported function test_buffs()
   var err;
-  err := char.addBuff(1029, 30, 1075814, 1075815, "1234 5678");
-  if (err == error)
-    return ret_error($"Could not add buff: {err}");
+  err := char.addBuff( 1029, 30, 1075814, 1075815, "1234 5678" );
+  if ( err == error )
+    return ret_error( $"Could not add buff: {err}" );
   endif
-  if (char.buffs.size() != 1 || !char.buffs.exists(1029))
-    return ret_error($"Active buff not listed: {char.buffs}");
+  if ( char.buffs.size() != 1 || !char.buffs.exists( 1029 ) )
+    return ret_error( $"Active buff not listed: {char.buffs}" );
   endif
-    
-  err := char.delBuff(1029);
-  if (err == error)
-    return ret_error($"Could not delete buff: {err}");
+
+  err := char.delBuff( 1029 );
+  if ( err == error )
+    return ret_error( $"Could not delete buff: {err}" );
   endif
-  if (char.buffs.size() != 0)
-    return ret_error($"Active buffs not empty: {char.buffs}");
+  if ( char.buffs.size() != 0 )
+    return ret_error( $"Active buffs not empty: {char.buffs}" );
   endif
-  
-  //Try clearing buffs
-  err := char.addBuff(1029, 30, 1075814, 1075815, "1234 5678");
-  if (err == error)
-    return ret_error($"Could not add buff: {err}");
+
+  // Try clearing buffs
+  err := char.addBuff( 1029, 30, 1075814, 1075815, "1234 5678" );
+  if ( err == error )
+    return ret_error( $"Could not add buff: {err}" );
   endif
   err := char.clearBuffs();
-  if (err == error)
-    return ret_error($"Could not clear buffs: {err}");
+  if ( err == error )
+    return ret_error( $"Could not clear buffs: {err}" );
   endif
-  
-  //Try deleting an inexistent buff, should fail
-  err := char.delBuff(1029);
-  if (err != error)
-    return ret_error($"Deleting an inexistent buff didn't cause an error: {err}");
+
+  // Try deleting an inexistent buff, should fail
+  err := char.delBuff( 1029 );
+  if ( err != error )
+    return ret_error( $"Deleting an inexistent buff didn't cause an error: {err}" );
   endif
-  
-  //Try clearing buffs when there are none
+
+  // Try clearing buffs when there are none
   err := char.clearBuffs();
-  if (err == error)
-    return ret_error($"Could not clear buffs: {err}");
+  if ( err == error )
+    return ret_error( $"Could not clear buffs: {err}" );
   endif
   return 1;
 endfunction

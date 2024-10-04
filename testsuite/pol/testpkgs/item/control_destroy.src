@@ -1,9 +1,9 @@
 use uo;
 use os;
 
-program control_destroy(item)
-  sleepms(10);
-  DestroyItem(item);
-  item:=0; // clear reference
-  Polcore().internal(7); //destroy all orphan objects
+program control_destroy( item )
+  sleepms( 10 );
+  DestroyItem( item );
+  item := 0; // clear reference
+  Polcore().internal( 7 ); // destroy all orphan objects
 endprogram

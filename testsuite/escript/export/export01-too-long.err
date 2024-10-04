@@ -1,1 +1,1 @@
-export01-too-long.src:1:1: error: Exported function name 'foo456789012345678901234567890123' is too long at 33 characters.  Max length: 32
+:1:1: error: Exported function name 'foo456789012345678901234567890123' is too long at 33 characters.  Max length: 32

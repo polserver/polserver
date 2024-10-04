@@ -1,3 +1,4 @@
-function foo(a, b) endfunction
+function foo( a, b )
+endfunction
 
-foo(""...);
+foo( "" ... );

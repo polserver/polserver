@@ -1,1 +1,1 @@
-syntax-err-2.src:1:7: error: In call to 'print': Spread operator cannot be used in module function call.
+:1:8: error: In call to 'print': Spread operator cannot be used in module function call.

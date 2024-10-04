@@ -1,4 +1,4 @@
 var a;
 
 var res := a.foo( 57 );
-print (res.errortext);
+print( res.errortext );

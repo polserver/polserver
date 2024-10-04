@@ -1,6 +1,5 @@
-if (0)
-    print("incorrect - first path taken");
+if ( 0 )
+  print( "incorrect - first path taken" );
 else
-    print("correct - else path taken");
+  print( "correct - else path taken" );
 endif
-

@@ -5,23 +5,23 @@ var T := true;
 var F := false;
 var U := uninit;
 
-print(true && false);
-print(T && F);
+print( true && false );
+print( T && F );
 
-print(true || false);
-print(T || F);
+print( true || false );
+print( T || F );
 
-print(false && true);
-print(F && T);
+print( false && true );
+print( F && T );
 
-print(false || true);
-print(F || T);
+print( false || true );
+print( F || T );
 
-print(!false);
-print(!F);
+print( !false );
+print( !F );
 
-print(!true);
-print(!T);
+print( !true );
+print( !T );
 
-print(!uninit);
-print(!U);
+print( !uninit );
+print( !U );

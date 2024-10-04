@@ -1,16 +1,16 @@
 program foo()
-	var i:=1;
-	var s1 := struct{i:=i};
-	var s2 := struct{};
-	var s3 := struct{};
-	var s4 := struct{};
-	s2.+i := i;
-	s3.insert("i",i);
-	s4["i"]:=i;
-	i+=1;
-	print(i);
-	print(s1); // structs should not change
-	print(s2);
-	print(s3);
-	print(s4);
+  var i := 1;
+  var s1 := struct{ i := i };
+  var s2 := struct{};
+  var s3 := struct{};
+  var s4 := struct{};
+  s2.+i := i;
+  s3.insert( "i", i );
+  s4["i"] := i;
+  i += 1;
+  print( i );
+  print( s1 ); // structs should not change
+  print( s2 );
+  print( s3 );
+  print( s4 );
 endprogram

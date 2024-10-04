@@ -1,10 +1,9 @@
 function foo()
-	var keyid := "0";
-        var keyarray := { "blahblahblah", "blahexxblah" };
-	var keystr := CStr(keyid)+": ";
-	var datstr := keyarray[CInt(keyid)];
-	return datstr[len(keystr)+1,len(datstr)];
+  var keyid := "0";
+  var keyarray := { "blahblahblah", "blahexxblah" };
+  var keystr := CStr( keyid ) + ": ";
+  var datstr := keyarray[CInt( keyid )];
+  return datstr[len( keystr ) + 1, len( datstr )];
 endfunction
 
 print( foo() );
-

@@ -10,44 +10,44 @@ var char2;
 var clientcon := getClientConnection();
 
 program chartests()
-  var a:=FindAccount("testclient0");
-  char:=a.getcharacter(1);
-  if (!char)
-    return ret_error("Could not find char at slot 1");
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
   endif
-  a:=FindAccount("testclient1");
-  char2:=a.getcharacter(1);
-  if (!char2)
-    return ret_error("Could not find char2 at slot 1");
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
   endif
 endprogram
 
 exported function test_client_properties()
-  if (char.client.acctname != "testclient0")
-    return ret_error("Incorrect account name on char 1, expected 'testclient0");
-  elseif (char.client.acct.name != "testclient0")
-    return ret_error("Incorrect account reference returned on char.client.acct, expected account with name 'testclient0'");
-  elseif (char2.client.acct.name != "testclient1")
-    return ret_error("Incorrect account reference returned on char2.client.acct, expected account with name 'testclient1'");
-  elseif (char2.client.acctname != "testclient1")
-    return ret_error("Incorrect account name on char 2, expected 'testclient1");
-  elseif (char.client.multi != uninit) // testing knownObjMember: acct is a known member but not implemented on client
-    return ret_error("Expected char.client.multi to be uninit object, got " + char.client.multi);
-  elseif (char.client.unknownprop != uninit) // testing of objmember that is not known
-    return ret_error("Expected char.client.unknownprop to be uninit object, got " + char.client.unknownprop);
+  if ( char.client.acctname != "testclient0" )
+    return ret_error( "Incorrect account name on char 1, expected 'testclient0" );
+  elseif ( char.client.acct.name != "testclient0" )
+    return ret_error( "Incorrect account reference returned on char.client.acct, expected account with name 'testclient0'" );
+  elseif ( char2.client.acct.name != "testclient1" )
+    return ret_error( "Incorrect account reference returned on char2.client.acct, expected account with name 'testclient1'" );
+  elseif ( char2.client.acctname != "testclient1" )
+    return ret_error( "Incorrect account name on char 2, expected 'testclient1" );
+  elseif ( char.client.multi != uninit ) // testing knownObjMember: acct is a known member but not implemented on client
+    return ret_error( "Expected char.client.multi to be uninit object, got " + char.client.multi );
+  elseif ( char.client.unknownprop != uninit ) // testing of objmember that is not known
+    return ret_error( "Expected char.client.unknownprop to be uninit object, got " + char.client.unknownprop );
   endif
   return 1;
 endfunction
 
 exported function say_something()
   Clear_Event_Queue();
-  clientcon.sendevent(struct{todo:="speech", arg:="Hello Test", id:=0});
-  while (1)
-    var ev:=waitForClient(0, {EVT_SPEECH});
-    if (!ev)
+  clientcon.sendevent( struct{ todo := "speech", arg := "Hello Test", id := 0 } );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_SPEECH } );
+    if ( !ev )
       return ev;
     endif
-    if (ev.msg=="Hello Test")
+    if ( ev.msg == "Hello Test" )
       break;
     endif
   endwhile
@@ -55,122 +55,111 @@ exported function say_something()
 endfunction
 
 exported function say_something_with_tokens()
-  var arg := struct{
-    text := "Hello Test",
-    tokens:= {60, 255}
-  };
+  var arg := struct{ text := "Hello Test", tokens := { 60, 255 } };
 
   // This needs to match what gets echo'ed from test_speech's NPC script ai_speech.src
   var expected_message := $"source=[npc] text=[{arg.text}] tokens=[{arg.tokens}]";
 
-  var npc :=  CreateNpcFromTemplate(":testnpc:test_speech", char.x + 1, char.y + 1, char.z, realm := char.realm, forcelocation := 1);
-  if (!npc)
-    return ret_error($"Could not create npc: {npc.errortext}");
+  var npc := CreateNpcFromTemplate( ":testnpc:test_speech", char.x + 1, char.y + 1, char.z,
+                                    realm := char.realm, forcelocation := 1 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc.errortext}" );
   endif
 
   Clear_Event_Queue();
-  clientcon.sendevent(struct{
-    todo := "speech",
-    arg := arg,
-    id := 0
-  });
+  clientcon.sendevent( struct{ todo := "speech", arg := arg, id := 0 } );
 
-  while (1)
-    var ev:=waitForClient(0, {EVT_SPEECH});
-    if (!ev)
-      MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_SPEECH } );
+    if ( !ev )
+      MoveObjectToLocation( npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION );
       npc.kill();
       return ev;
     endif
 
-    if (ev.msg == expected_message)
+    if ( ev.msg == expected_message )
       break;
     endif
   endwhile
 
-  MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+  MoveObjectToLocation( npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION );
   npc.kill();
   return 1;
 endfunction
 
 exported function test_speechtoken_crash()
-  var arg := struct{
-    text := "Hello Test",
-    tokens:= {60, 255}
-  };
+  var arg := struct{ text := "Hello Test", tokens := { 60, 255 } };
 
   // This needs to match what gets echo'ed from EchoItem's control script control_echo.src
   var expected_message := $"source=[item] text=[{arg.text}] tokens=[{arg.tokens}]";
 
-  var npc := CreateNpcFromTemplate(":testnpc:test_speech", char.x + 1, char.y + 1, char.z, override_properties := struct{ CProps := dictionary{ "EventSize" -> 0 } }, realm := char.realm, forcelocation := 1);
-  if (!npc)
-    return ret_error($"Could not create npc: {npc.errortext}");
+  var npc := CreateNpcFromTemplate( ":testnpc:test_speech", char.x + 1, char.y + 1, char.z, override_properties := struct{
+                                    CProps := dictionary{ "EventSize" -> 0 }
+                                    }, realm := char.realm, forcelocation := 1 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc.errortext}" );
   endif
 
-  var item :=  CreateItemAtLocation( char.x+2, char.y+2, char.z, "EchoItem", realm := char.realm );
-  if (!item)
-    MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+  var item := CreateItemAtLocation( char.x + 2, char.y + 2, char.z, "EchoItem", realm := char.realm );
+  if ( !item )
+    MoveObjectToLocation( npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION );
     npc.kill();
-    return ret_error($"Could not create item: {item.errortext}");
+    return ret_error( $"Could not create item: {item.errortext}" );
   endif
 
   Clear_Event_Queue();
-  clientcon.sendevent(struct{
-    todo := "speech",
-    arg := arg,
-    id := 0
-  });
+  clientcon.sendevent( struct{ todo := "speech", arg := arg, id := 0 } );
 
-  while (1)
-    var ev:=waitForClient(0, {EVT_SPEECH});
-    if (!ev)
-      MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_SPEECH } );
+    if ( !ev )
+      MoveObjectToLocation( npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION );
       npc.kill();
-      DestroyItem(item);
+      DestroyItem( item );
       return ev;
     endif
 
     // NPC handles events first, then items.
-    if (ev.msg == expected_message)
+    if ( ev.msg == expected_message )
       break;
     endif
   endwhile
 
-  MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+  MoveObjectToLocation( npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION );
   npc.kill();
-  DestroyItem(item);
+  DestroyItem( item );
   return 1;
 endfunction
 
 exported function move_turn_water()
-  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  char.facing:=1;
+  MoveObjectToLocation( char, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+  char.facing := 1;
   Clear_Event_Queue();
-  clientcon.sendevent(struct{todo:="move",arg:=6,id:=0});
-  while (1)
-    var ev:=waitForClient(0, {EVT_MOVED});
-    if (!ev)
+  clientcon.sendevent( struct{ todo := "move", arg := 6, id := 0 } );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_MOVED } );
+    if ( !ev )
       return ev;
     endif
-    if (!ev.ack)
-      return ret_error("failed to turn");
+    if ( !ev.ack )
+      return ret_error( "failed to turn" );
     endif
-    if (ev.pos != {1,1,1,6})
-      return ret_error("wrong pos");
+    if ( ev.pos != { 1, 1, 1, 6 } )
+      return ret_error( "wrong pos" );
     endif
     break;
   endwhile
-  clientcon.sendevent(struct{todo:="move",arg:=6,id:=0});
-  while (1)
-    var ev:=waitForClient(0, {EVT_MOVED});
-    if (!ev)
+  clientcon.sendevent( struct{ todo := "move", arg := 6, id := 0 } );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_MOVED } );
+    if ( !ev )
       return ev;
     endif
-    if (ev.ack)
-      return ret_error("move in water succeeded");
+    if ( ev.ack )
+      return ret_error( "move in water succeeded" );
     endif
-    if (ev.pos != {1,1,1,6})
-      return ret_error("wrong pos");
+    if ( ev.pos != { 1, 1, 1, 6 } )
+      return ret_error( "wrong pos" );
     endif
     break;
   endwhile
@@ -178,20 +167,20 @@ exported function move_turn_water()
 endfunction
 
 exported function move_ground()
-  MoveObjectToLocation(char, 100,100,1,flags:=MOVEOBJECT_FORCELOCATION);
-  char.facing:=1;
+  MoveObjectToLocation( char, 100, 100, 1, flags := MOVEOBJECT_FORCELOCATION );
+  char.facing := 1;
   Clear_Event_Queue();
-  clientcon.sendevent(struct{todo:="move",arg:=1,id:=0});
-  while (1)
-    var ev:=waitForClient(0, {EVT_MOVED});
-    if (!ev)
+  clientcon.sendevent( struct{ todo := "move", arg := 1, id := 0 } );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_MOVED } );
+    if ( !ev )
       return ev;
     endif
-    if (!ev.ack)
-      return ret_error("failed to move");
+    if ( !ev.ack )
+      return ret_error( "failed to move" );
     endif
-    if (ev.pos != {101,99,1,1})
-      return ret_error("wrong pos");
+    if ( ev.pos != { 101, 99, 1, 1 } )
+      return ret_error( "wrong pos" );
     endif
     break;
   endwhile
@@ -199,24 +188,24 @@ exported function move_ground()
 endfunction
 
 exported function move_realm()
-  MoveObjectToLocation(char, 100,100,1,flags:=MOVEOBJECT_FORCELOCATION);
-  while (1)
-    var ev:=waitForClient(0, {EVT_OWNCREATE});
-    if (!ev)
+  MoveObjectToLocation( char, 100, 100, 1, flags := MOVEOBJECT_FORCELOCATION );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_OWNCREATE } );
+    if ( !ev )
       return ev;
     endif
     break;
   endwhile
   Clear_Event_Queue();
-  MoveObjectToLocation(char, 100,100,1,"britannia2",MOVEOBJECT_FORCELOCATION);
-  while (1)
-    var ev:=waitForClient(0, {EVT_NEW_SUBSERVER});
-    if (!ev)
+  MoveObjectToLocation( char, 100, 100, 1, "britannia2", MOVEOBJECT_FORCELOCATION );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_NEW_SUBSERVER } );
+    if ( !ev )
       return ev;
     endif
     break;
   endwhile
-  MoveObjectToLocation(char, 100,100,1,flags:=MOVEOBJECT_FORCELOCATION);
+  MoveObjectToLocation( char, 100, 100, 1, flags := MOVEOBJECT_FORCELOCATION );
   Clear_Event_Queue();
   return 1;
 endfunction
@@ -225,19 +214,19 @@ endfunction
  Test that with WarmodeInhibitsRegen=3 (NPCs Only), a _PC_ in war mode _will_ regenerate health.
 */
 exported function client_warmodeinhibitsregen()
-  char.setwarmode(1);
-  SetVital( char, "Life", GetVital( char, "Life" ) / 2);
+  char.setwarmode( 1 );
+  SetVital( char, "Life", GetVital( char, "Life" ) / 2 );
   var damaged_health := GetVital( char, "Life" );
   var waited_health;
   for i := 1 to 10
     waited_health := GetVital( char, "Life" );
-    if (damaged_health != waited_health)
-      char.setwarmode(0);
+    if ( damaged_health != waited_health )
+      char.setwarmode( 0 );
       return 1;
     endif
-    Sleep(1);
+    Sleep( 1 );
   endfor
 
-  char.setwarmode(0);
-  return ret_error($"PC health did not change between sleeping: {damaged_health} -> {waited_health}");
+  char.setwarmode( 0 );
+  return ret_error( $"PC health did not change between sleeping: {damaged_health} -> {waited_health}" );
 endfunction

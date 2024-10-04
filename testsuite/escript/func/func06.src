@@ -1,9 +1,9 @@
 function bar()
-    print( "bar" );
+  print( "bar" );
 endfunction
 
 function foo( a := bar(), b := "blah" )
-    print( a + " " + b );
+  print( a + " " + b );
 endfunction
 
 foo();

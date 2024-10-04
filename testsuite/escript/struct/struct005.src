@@ -1,8 +1,8 @@
 
 program foo()
-    var d := 57+8, e := "abc";
-    var t := struct{ a, b, c };
-    t.a := 5;
-    print(t);
+  var d := 57 + 8, e := "abc";
+  var t := struct{ a, b, c };
+  t.a := 5;
+  print( t );
 
 endprogram

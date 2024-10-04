@@ -1,6 +1,6 @@
 print( foo() );
 
 function foo()
-    var a := 6;
-    return a;
+  var a := 6;
+  return a;
 endfunction

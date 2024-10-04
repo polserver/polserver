@@ -1,1 +1,1 @@
-error: Cannot define a variable with the same name as constant 'FOO'.
+:4:5: error: Cannot define a variable with the same name as constant 'FOO'.

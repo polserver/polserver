@@ -1,1 +1,1 @@
-var-args-err-default-value.src:1:15: error: Rest parameter 'args' cannot have a default value.
+:1:15: error: Rest parameter 'args' cannot have a default value.

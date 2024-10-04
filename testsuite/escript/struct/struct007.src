@@ -1,7 +1,7 @@
 
 program foo()
-    var t := struct{ a, b := 7, c := "abc" };
-    t.a := 5;
-    print(t);
+  var t := struct{ a, b := 7, c := "abc" };
+  t.a := 5;
+  print( t );
 
 endprogram

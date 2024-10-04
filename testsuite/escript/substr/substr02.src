@@ -1,4 +1,4 @@
 var a := "abcdef";
-print(a);
+print( a );
 a[2] := "zyx";
-print(a);
+print( a );

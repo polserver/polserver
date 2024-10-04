@@ -1,6 +1,6 @@
 // reported in https://forums.polserver.com/viewtopic.php?f=54&t=6140
 // variable with the same name as a system function:
-if (1)
-    var print := 3;
-    print( print );
+if ( 1 )
+  var print := 3;
+  print( print );
 endif

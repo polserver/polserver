@@ -1,1 +1,1 @@
-Expected expression following comma before right-brace in dictionary initializer list
+:1:34: error: Expected expression following comma before right-brace in dictionary initializer list

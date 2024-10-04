@@ -1,12 +1,12 @@
 program test()
-    
-    var b := {};
-    print( b );
 
-    b.append( "hello" );
-    print( b );
-    b.append( "goodbye" );
-    print( b );
+  var b := {};
+  print( b );
+
+  b.append( "hello" );
+  print( b );
+  b.append( "goodbye" );
+  print( b );
 
 endprogram
 

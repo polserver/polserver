@@ -1,9 +1,8 @@
 
 var i := 0;
 repeat
-    var a := i + 4;
-    i := i + 1;
-    print("I="+i);
-    print("A="+a);
+  var a := i + 4;
+  i := i + 1;
+  print( "I=" + i );
+  print( "A=" + a );
 until i >= 10;
-

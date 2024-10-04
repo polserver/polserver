@@ -3,8 +3,8 @@
 var b := "value2";
 var c := "value";
 
-if (c == b[1,5])
-    print( "1: Success!");
+if ( c == b[1, 5] )
+  print( "1: Success!" );
 else
-    print( "1: Failure!");
+  print( "1: Failure!" );
 endif

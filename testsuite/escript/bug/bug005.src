@@ -1,17 +1,17 @@
 const EXPR_ZERO := 0;
 
-function A(key)
-var wtype;
-var sev;
+function A( key )
+  var wtype;
+  var sev;
 
-      if (!EXPR_ZERO)
-        B();
-      else
-        foreach v in { 4,5,6 }
-            C();
-        endforeach
-      endif
-      sev := 7;
+  if ( !EXPR_ZERO )
+    B();
+  else
+    foreach v in { 4, 5, 6 }
+      C();
+    endforeach
+  endif
+  sev := 7;
 
 endfunction
 
@@ -22,6 +22,6 @@ function C()
 endfunction
 
 program foo()
-    A(4);
-    print("ok");
+  A( 4 );
+  print( "ok" );
 endprogram

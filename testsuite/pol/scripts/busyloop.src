@@ -9,7 +9,7 @@ So trick the scheduler by having this script run endless with a minimum of delay
 */
 use os;
 
-print("starting busyloop");
-while (1)
-  sleepms(1);
+print( "starting busyloop" );
+while ( 1 )
+  sleepms( 1 );
 endwhile

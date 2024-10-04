@@ -1,62 +1,56 @@
 
 print( "Testing Simple IF:" );
-if (5 < 3)
-    print("1a: failure 1");
+if ( 5 < 3 )
+  print( "1a: failure 1" );
 endif
 
-if (3 < 5)
-    print("1b: ok");
+if ( 3 < 5 )
+  print( "1b: ok" );
 endif
 
-print("Testing IF..ELSEIF..ENDIF");
+print( "Testing IF..ELSEIF..ENDIF" );
 
-if (3 < 5)
-    print("2: ok");
-elseif (3 < 5)
-    print("2: failure 1");
+if ( 3 < 5 )
+  print( "2: ok" );
+elseif ( 3 < 5 )
+  print( "2: failure 1" );
 endif
 
 print( "Testing IF..ELSE..ENDIF" );
 
-
-if (3 < 5)
-    print( "3a: ok" );
+if ( 3 < 5 )
+  print( "3a: ok" );
 else
-    print( "3a: failure 1" );
+  print( "3a: failure 1" );
 endif
 
-
-
-if (5 < 3)
-    print( "3b: failed" );
+if ( 5 < 3 )
+  print( "3b: failed" );
 else
-    print( "3b: ok" );
+  print( "3b: ok" );
 endif
-
-
 
 print( "Testing IF..ELSEIF..ELSE..ENDIF" );
-if (3 < 5)
-    print("4a: ok");
-elseif (4 < 6)
-    print("4a: failure 1");
+if ( 3 < 5 )
+  print( "4a: ok" );
+elseif ( 4 < 6 )
+  print( "4a: failure 1" );
 else
-    print("4a: failure 2");
+  print( "4a: failure 2" );
 endif
 
-if (7 < 5)
-    print("4b: faiure 1");
-elseif (4 < 6)
-    print("4b: ok");
+if ( 7 < 5 )
+  print( "4b: faiure 1" );
+elseif ( 4 < 6 )
+  print( "4b: ok" );
 else
-    print("4b: failure 2");
+  print( "4b: failure 2" );
 endif
 
-if (7 < 5)
-    print("4c: faiure 1");
-elseif (9 < 6)
-    print("4c: failure 2");
+if ( 7 < 5 )
+  print( "4c: faiure 1" );
+elseif ( 9 < 6 )
+  print( "4c: failure 2" );
 else
-    print("4c: ok");
+  print( "4c: ok" );
 endif
-

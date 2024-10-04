@@ -2,9 +2,9 @@
 var x := 4;
 
 function foo()
-    var x := 1;
+  var x := 1;
 
-    print( x );
+  print( x );
 endfunction
 
 print( x );

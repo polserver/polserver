@@ -1,6 +1,6 @@
 
 var cont := 2;
-while (cont)
-    print( "cont: " + cont );
-    cont := 0;
+while ( cont )
+  print( "cont: " + cont );
+  cont := 0;
 endwhile

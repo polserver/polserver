@@ -1,8 +1,8 @@
 enum FOO
-	FOO_A,
-	FOO_B,
-	FOO_C := 8,
-	FOO_D
+  FOO_A,
+  FOO_B,
+  FOO_C := 8,
+  FOO_D
 endenum
 
 print( FOO_A );

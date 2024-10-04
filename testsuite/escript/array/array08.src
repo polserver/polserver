@@ -1,10 +1,10 @@
 program test()
 
-	var a := array(1,5,8,12);
+  var a := array( 1, 5, 8, 12 );
 
-	print( a[1] );
-	print( a[2] );
-	print( a[3] );
-	print( a[4] );
+  print( a[1] );
+  print( a[2] );
+  print( a[3] );
+  print( a[4] );
 
 endprogram

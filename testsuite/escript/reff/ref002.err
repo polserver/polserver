@@ -1,1 +1,1 @@
-ref002.src:5:16: error: extraneous input 'ar' expecting ';'
+:5:16: error: extraneous input 'ar' expecting ';'

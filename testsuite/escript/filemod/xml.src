@@ -1,68 +1,67 @@
 use file;
 
 program XMLTest()
-	print("itertest...");
-	itertest();
-	print("membertest...");
-	membertest();
-	print("scopetest...");
-	scopetest();
-	print("not existing file...");
-	notexistingtest();
-	print("invalid file...");
-	invalidtest();
+  print( "itertest..." );
+  itertest();
+  print( "membertest..." );
+  membertest();
+  print( "scopetest..." );
+  scopetest();
+  print( "not existing file..." );
+  notexistingtest();
+  print( "invalid file..." );
+  invalidtest();
 endprogram
 
 function itertest()
-	var xml:=OpenXMLFile("filemod/xmltest.xml");
-	print(xml);
-	parsenode(xml,"");
+  var xml := OpenXMLFile( "filemod/xmltest.xml" );
+  print( xml );
+  parsenode( xml, "" );
 endfunction
 
-function parsenode(node,i)
-	foreach blubb in node
-		print(i+cstr(blubb)+" ["+blubb.type+"] ("+cstr(_blubb_iter)+")");
-		parseattrib(blubb,i+"-");
-		parsenode(blubb,i+" ");
-	endforeach
+function parsenode( node, i )
+  foreach blubb in node
+    print( i + cstr( blubb ) + " [" + blubb.type + "] (" + cstr( _blubb_iter ) + ")" );
+    parseattrib( blubb, i + "-" );
+    parsenode( blubb, i + " " );
+  endforeach
 endfunction
 
-function parseattrib(node,i)
-	foreach ele in (node.attributes)
-		print(i+cstr(ele)+" ("+_ele_iter+")");
-	endforeach
+function parseattrib( node, i )
+  foreach ele in ( node.attributes )
+    print( i + cstr( ele ) + " (" + _ele_iter + ")" );
+  endforeach
 endfunction
 
 function membertest()
-	var xml:=OpenXMLFile("filemod/xmltest.xml");
-	var root:=xml[2];
-	print("root= "+root);
-	print("firstchild= "+root.firstxmlchild());
-	print("firstchildstring= "+root.firstxmlchild("nodetwo"));
-	print("firstsibling= "+root.firstxmlchild().nextxmlsibling());
-	var node:=root.firstxmlchild("nodetwo");
-	print("attributes= "+node.attributes.propnames());
-	print("attributes= "+node.attributes["j"]);
+  var xml := OpenXMLFile( "filemod/xmltest.xml" );
+  var root := xml[2];
+  print( "root= " + root );
+  print( "firstchild= " + root.firstxmlchild() );
+  print( "firstchildstring= " + root.firstxmlchild( "nodetwo" ) );
+  print( "firstsibling= " + root.firstxmlchild().nextxmlsibling() );
+  var node := root.firstxmlchild( "nodetwo" );
+  print( "attributes= " + node.attributes.propnames() );
+  print( "attributes= " + node.attributes["j"] );
 endfunction
 
 function scopetest()
-	var elem:=scopeloose();
-	print("root= "+elem);
-	print("firstchild= "+elem.firstxmlchild());
+  var elem := scopeloose();
+  print( "root= " + elem );
+  print( "firstchild= " + elem.firstxmlchild() );
 endfunction
 
 function scopeloose()
-	var xml:=OpenXMLFile("filemod/xmltest.xml");
-	return xml[2].clonenode();
+  var xml := OpenXMLFile( "filemod/xmltest.xml" );
+  return xml[2].clonenode();
 endfunction
 
-
 function notexistingtest()
-    var xml:=OpenXMLFile("filemod/xmltestnotexisting.xml");
-    print(typeof(xml));
+  var xml := OpenXMLFile( "filemod/xmltestnotexisting.xml" );
+  print( typeof( xml ) );
 endfunction
 
 function invalidtest()
-    var xml:=OpenXMLFile("filemod/xmlinvalid.xml");
-    print(typeof(xml));
+  var xml := OpenXMLFile( "filemod/xmlinvalid.xml" );
+  print( typeof( xml ) );
 endfunction

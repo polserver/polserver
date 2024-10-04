@@ -1,2 +1,2 @@
 var d := struct{};
-print(d);
+print( d );

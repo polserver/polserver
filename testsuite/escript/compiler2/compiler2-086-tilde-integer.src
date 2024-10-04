@@ -1,3 +1,2 @@
 var t := 0x88;
-print( ~ t );
-
+print( ~t );

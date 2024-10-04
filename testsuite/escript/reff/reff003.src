@@ -1,10 +1,10 @@
 function foo( byref a )
-    a := 5;
+  a := 5;
 endfunction
 
 var b := dictionary;
 b[17] := 46;
 b[31] := 50;
-print(b);
-foo(b[17]);
-print(b);
+print( b );
+foo( b[17] );
+print( b );

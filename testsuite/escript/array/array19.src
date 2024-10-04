@@ -1,48 +1,48 @@
-var a:={{1,2},{0,1,2}};
-a[1][4]:=2;
-print("sort with null entry");
-print(a.sort(3));
-//print(a); // disabled due to non deterministic (ptr compare)
-a:={{1,2},{0,1,2}};
+var a := { { 1, 2 }, { 0, 1, 2 } };
+a[1][4] := 2;
+print( "sort with null entry" );
+print( a.sort( 3 ) );
+// print(a); // disabled due to non deterministic (ptr compare)
+a := { { 1, 2 }, { 0, 1, 2 } };
 
-print("sort with index too large");
-print(a.sort(4));
-//print(a); // see above 
+print( "sort with index too large" );
+print( a.sort( 4 ) );
+// print(a); // see above
 
-print("sort strings");
-a[1][4]:="bb";
-a[2][4]:="aa";
-print(a.sort(4));
-print(a);
+print( "sort strings" );
+a[1][4] := "bb";
+a[2][4] := "aa";
+print( a.sort( 4 ) );
+print( a );
 
-print("sort mixed");
-a[1][5]:=5.6;
-a[2][5]:=5;
-print(a.sort(5));
-print(a);
+print( "sort mixed" );
+a[1][5] := 5.6;
+a[2][5] := 5;
+print( a.sort( 5 ) );
+print( a );
 
-print("sort mixed");
-a[1][6]:=5;
-a[2][6]:="5a";
-print(a.sort(6));
-print(a);
+print( "sort mixed" );
+a[1][6] := 5;
+a[2][6] := "5a";
+print( a.sort( 6 ) );
+print( a );
 
-print("sort invalid");
-a.append(5);
-print(a.sort(6));
-print(a);
+print( "sort invalid" );
+a.append( 5 );
+print( a.sort( 6 ) );
+print( a );
 
-print("sort invalid");
-print(a.sort(0));
-print(a);
+print( "sort invalid" );
+print( a.sort( 0 ) );
+print( a );
 
-print("sort invalid");
-a[3]:={};
-print(a.sort(6));
-print(a);
+print( "sort invalid" );
+a[3] := {};
+print( a.sort( 6 ) );
+print( a );
 
-print("sort invalid");
-a[3]:={1};
-a[5]:={1};
-print(a.sort(1));
-print(a);
+print( "sort invalid" );
+a[3] := { 1 };
+a[5] := { 1 };
+print( a.sort( 1 ) );
+print( a );

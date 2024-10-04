@@ -2,12 +2,12 @@
 
 var a_key := 3;
 var a_val := 72;
-var d := dictionary { a_key -> a_val };
-print("dict start: " + d);
+var d := dictionary{ a_key -> a_val };
+print( "dict start: " + d );
 a_key := 5;
 a_val := 71;
-print("dict after reassign a_key, a_val:" + d);
-d[ 3 ] := 74;
-print("dict after modification: " + d);
-print("a_key is " + a_key);
-print("a_val is " + a_val);
+print( "dict after reassign a_key, a_val:" + d );
+d[3] := 74;
+print( "dict after modification: " + d );
+print( "a_key is " + a_key );
+print( "a_val is " + a_val );

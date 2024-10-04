@@ -1,7 +1,7 @@
 enum FOO
-	FOO_A,   // should start counter at 0
-	FOO_B,
-	FOO_C
+  FOO_A, // should start counter at 0
+  FOO_B,
+  FOO_C
 endenum
 
 print( FOO_A );

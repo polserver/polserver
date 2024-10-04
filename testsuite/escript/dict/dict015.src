@@ -1,14 +1,14 @@
 program foo()
-	var i:=1;
-	var d1 := dictionary{i->i};
-	var d2 := dictionary{};
-	var d3 := dictionary{};
-	d2.insert("i",i);
-	d2.insert(i,i);
-	d3["i"]:=i;
-	i+=1;
-	print(i);
-	print(d1); // dicts should not change
-	print(d2);
-	print(d3);
+  var i := 1;
+  var d1 := dictionary{ i -> i };
+  var d2 := dictionary{};
+  var d3 := dictionary{};
+  d2.insert( "i", i );
+  d2.insert( i, i );
+  d3["i"] := i;
+  i += 1;
+  print( i );
+  print( d1 ); // dicts should not change
+  print( d2 );
+  print( d3 );
 endprogram

@@ -8,9 +8,9 @@
 
 var b := "correct: first path";
 
-if (1)
-    b := b + "!";
-    print(b);
-elseif (b)
-    print("incorrect: second path");
+if ( 1 )
+  b := b + "!";
+  print( b );
+elseif ( b )
+  print( "incorrect: second path" );
 endif

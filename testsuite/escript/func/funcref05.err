@@ -1,1 +1,1 @@
-funcref05.src:1:8: error: In function call: Cannot use named arguments here.
+:1:8: error: In function call: Cannot use named arguments here.

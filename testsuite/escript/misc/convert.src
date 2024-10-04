@@ -1,10 +1,9 @@
-print( 5 + 7);
-print( CStr(5)+7);
-print( 5+CStr(7));
-print( CStr(5)+CStr(7));
+print( 5 + 7 );
+print( CStr( 5 ) + 7 );
+print( 5 + CStr( 7 ) );
+print( CStr( 5 ) + CStr( 7 ) );
 
-print( "5" + "7");
-print( CInt("5") + "7");
-print( "5" + CInt(7));
-print( CInt("5") + CInt("7"));
-
+print( "5" + "7" );
+print( CInt( "5" ) + "7" );
+print( "5" + CInt( 7 ) );
+print( CInt( "5" ) + CInt( "7" ) );

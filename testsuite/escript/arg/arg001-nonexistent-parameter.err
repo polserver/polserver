@@ -1,1 +1,1 @@
-arg001-nonexistent-parameter.src:5:13: error: In call to 'foo': Parameter 'baz' passed by name, but the function has no such parameter.
+:5:13: error: In call to 'foo': Parameter 'baz' passed by name, but the function has no such parameter.

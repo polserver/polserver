@@ -1,9 +1,7 @@
 var cmd := "marion walk NW";
 
-var walkcmd := cmd["walk",7];
- 
+var walkcmd := cmd["walk", 7];
+
 print( walkcmd );
 
-
-print( walkcmd[6,2] );
-
+print( walkcmd[6, 2] );

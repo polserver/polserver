@@ -1,1 +1,1 @@
-errors007-foreach-iterator-same-name-as-function.src:1:1: error: Cannot define a foreach iterator with the same name as function 'len'.
+:1:1: error: Cannot define a foreach iterator with the same name as function 'len'.

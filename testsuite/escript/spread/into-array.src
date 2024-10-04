@@ -3,10 +3,10 @@ var strct := struct{ a := "A", b := "B", c := "C" };
 var dict := dictionary{ "a" -> "A", "b" -> "B", "c" -> "C" };
 var arr := array{ 1, 2, 3 };
 
-print({ arr..., arr... });   // { 1, 2, 3, 1, 2, 3 }
-print({ arr..., strct... }); // { 1, 2, 3, A, B, C }
-print({ arr..., dict... });  // { 1, 2, 3, A, B, C }
+print( { arr ..., arr ... } ); // { 1, 2, 3, 1, 2, 3 }
+print( { arr ..., strct ... } ); // { 1, 2, 3, A, B, C }
+print( { arr ..., dict ... } ); // { 1, 2, 3, A, B, C }
 
 // A generic ContIterator imp does nothing
-print({ arr..., uninit... });  // { 1, 2, 3 };
-print({ arr..., ("foo")... }); // { 1, 2, 3 };
+print( { arr ..., uninit ... } ); // { 1, 2, 3 };
+print( { arr ..., ( "foo" ) ... } ); // { 1, 2, 3 };

@@ -5,6 +5,6 @@ foo();
 var b;
 
 function foo()
-    print(b);
-    b := 5;
+  print( b );
+  b := 5;
 endfunction

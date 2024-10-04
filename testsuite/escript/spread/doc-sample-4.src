@@ -1,4 +1,4 @@
-function Sum( numbers... )
+function Sum( numbers ... )
   var total := 0;
   foreach number in numbers
     total += number;
@@ -10,13 +10,13 @@ endfunction
 program main( who )
   // Spread a dictionary's values into a function
   var dict := dictionary{ "a" -> 1, "b" -> 2, "c" -> 3 };
-  var total := Sum( dict... );
+  var total := Sum( dict ... );
   Print( total ); // Output: 6
 
   // `lastcoords` is a struct{ x := 123, y := 456, z := 789 }
-  who := struct { lastcoords := struct{ x := 123, y := 456, z := 789 } };
+  who := struct{ lastcoords := struct{ x := 123, y := 456, z := 789 } };
 
   // Spread a struct's values into an array.
-  var coords := array{ who.lastcoords... };
+  var coords := array{ who.lastcoords ... };
   Print( ", ".join( coords ) ); // Output: 123, 456, 789
 endprogram

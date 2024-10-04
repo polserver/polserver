@@ -1,5 +1,5 @@
 include "crash001";
 
 program test()
-    ecompile_crash_func();
+  ecompile_crash_func();
 endprogram

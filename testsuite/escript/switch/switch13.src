@@ -1,15 +1,15 @@
 // switch06
-// 
+//
 const CVAL := 4;
 
 function foo( p )
-    case (p)
-        CVAL: return "[CVAL]";
-        5           : return "five";
-        "fourteen"  : return 14;
-        "thirteen"  : return 13;
-        default:      return "NOTA: " + p;
-    endcase
+  case ( p )
+    CVAL:       return "[CVAL]";
+    5:          return "five";
+    "fourteen": return 14;
+    "thirteen": return 13;
+    default:    return "NOTA: " + p;
+  endcase
 endfunction
 
 print( foo( CVAL ) );

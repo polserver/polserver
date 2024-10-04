@@ -44,7 +44,8 @@ exported function attack_on_unhide_attacker()
   npc1.hidden := 1;
 
   // Send an event to npc1 to attack npc2 + unhide.
-  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2, sleep := 2, unhide := true } );
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2,
+                                  sleep := 2, unhide := true } );
 
   var initial_evs := collect_events( 1, "No event for NPC BEFORE_UNHIDE" );
   if ( !initial_evs )
@@ -54,14 +55,14 @@ exported function attack_on_unhide_attacker()
   endif
 
   // Collect two attack events
-  if (!(evs := collect_events( 2 )))
+  if ( !( evs := collect_events( 2 ) ) )
     return evs;
   endif
 
   // The attack should happen when npc1 unhid.
   t := initial_evs[1].gameclock;
 
-  if (!validate_events(err, evs, t))
+  if ( !validate_events( err, evs, t ) )
     return err;
   endif
 
@@ -80,24 +81,25 @@ exported function attack_on_unhide_defender()
   reset_npcs();
 
   // npc1 attacks npc2
-  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2, sleep := 0, unhide := false } );
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2,
+                                  sleep := 0, unhide := false } );
 
   // Collect two attack events
-  if (!(evs := collect_events( 2 )))
+  if ( !( evs := collect_events( 2 ) ) )
     return evs;
   endif
 
   // Both attacks should happen at the same time
   t := evs[1].gameclock;
 
-  if (!validate_events(err, evs, t))
+  if ( !validate_events( err, evs, t ) )
     return err;
   endif
 
   // Hide npc2, clear its opponent, and sleep to reset npc1's swing timer.
   npc2.hidden := 1;
   npc2.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
-  Sleep(2);
+  Sleep( 2 );
 
   // Unhide npc2. Since npc1 is still attacking, both should get a hit.
   npc2.hidden := 0;
@@ -106,11 +108,11 @@ exported function attack_on_unhide_defender()
   t := ReadGameClock();
 
   // Collect two attack events
-  if (!(evs := collect_events( 2 )))
+  if ( !( evs := collect_events( 2 ) ) )
     return evs;
   endif
 
-  if (!validate_events(err, evs, t))
+  if ( !validate_events( err, evs, t ) )
     return err;
   endif
 
@@ -118,7 +120,6 @@ exported function attack_on_unhide_defender()
 
   return 1;
 endfunction
-
 
 /**
  * Helper functions
@@ -132,15 +133,15 @@ function reset_npcs()
 endfunction
 
 // Ensure gameclock and attacker-defender sequence of two events.
-function validate_events(byref err, byref evs, t)
-  var failure :=
-    ( evs[1].gameclock != t ) || // First hit did not happen on unhide.
-    ( evs[2].gameclock != t ) || // Second hit did not happen on unhide.
-    ( evs[1].attacker != evs[2].defender ) || // First hit attacker is not second hit defender
-    ( evs[1].defender != evs[2].attacker ); // First hit defender is not second hit attacker
+function validate_events( byref err, byref evs, t )
+  var failure := ( evs[1].gameclock != t ) ||                // First hit did not happen on unhide.
+                   ( evs[2].gameclock != t ) ||              // Second hit did not happen on unhide.
+                   ( evs[1].attacker != evs[2].defender ) || // First hit attacker is not second hit defender
+                   ( evs[1].defender != evs[2].attacker );   // First hit defender is not second hit attacker
 
   if ( failure )
-    return err := ret_error( $"Unexpected attacker-defender sequence. Expected both hits at gameclock {t}, attacker[1] == defender[2], defender[1] == attacker[2].\n\nEvents: {PackJSON(evs, true)}" );
+    return err := ret_error( $"Unexpected attacker-defender sequence. Expected both hits at gameclock {t}, attacker[1] == defender[2], defender[1] == attacker[2].\n\nEvents: {PackJSON(
+                             evs, true )}" );
   endif
 
   return 1;

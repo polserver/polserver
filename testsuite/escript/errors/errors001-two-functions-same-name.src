@@ -1,10 +1,10 @@
 // reported in https://forums.polserver.com/viewtopic.php?f=54&t=6140
-function foo(x)
-    print(x);
+function foo( x )
+  print( x );
 endfunction
 
-function foo(y)
-    print(y);
+function foo( y )
+  print( y );
 endfunction
 
-foo("a");
+foo( "a" );

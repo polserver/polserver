@@ -3,8 +3,8 @@ use uo;
 
 include "testutil";
 
-var char:=createAccountWithChar("test", "pass");
-if (!char)
+var char := createAccountWithChar( "test", "pass" );
+if ( !char )
   return char;
 endif
 

@@ -1,6 +1,5 @@
 var a := 5;
 
-if (a)
-    print("correct - path taken");
+if ( a )
+  print( "correct - path taken" );
 endif
-

@@ -1,7 +1,7 @@
 var str := "test";
-var encoded := encodeBase64(str);
-print(str);
-print(encoded);
+var encoded := encodeBase64( str );
+print( str );
+print( encoded );
 if ( encoded == "dGVzdA==" )
-print("success");
+  print( "success" );
 endif

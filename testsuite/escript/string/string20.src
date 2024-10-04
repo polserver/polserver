@@ -8,207 +8,214 @@ var t := "hello";
 var sep := "---------------------------------------------";
 
 // Basic types
-print( TypeOf(t) );
-print( t.isA(POLCLASS_UOBJECT) );
-print( t.isA(POLCLASS_MOBILE) );
-print(sep);
+print( TypeOf( t ) );
+print( t.isA( POLCLASS_UOBJECT ) );
+print( t.isA( POLCLASS_MOBILE ) );
+print( sep );
 
 // pack/unpack
-var p := Pack(t);
+var p := Pack( t );
 print( p );
-var u := Unpack(p);
+var u := Unpack( p );
 print( u );
 print( u == t );
 print( p != u );
-print(sep);
+print( sep );
 
-var optests := array{
-	"1234", "hello", "b", "ab", "a", "caterpillar",
-	1234, 0, -6,
-	12.11, 0.0, -8.8,
-	array{ "a", "b", "c", 19 },
-	dictionary{ "1234" -> "456", "eeee" -> 0 },
-	struct{ a := t, b := 21, c := "0" },
-	error{ errortext := "ERROR" },
-	uninit
-};
+var optests := array{ "1234",
+                      "hello",
+                      "b",
+                      "ab",
+                      "a",
+                      "caterpillar",
+                      1234,
+                      0,
+                      -6,
+                      12.11,
+                      0.0,
+                      -8.8, array{ "a", "b", "c", 19 },
+                            dictionary{ "1234" -> "456", "eeee" -> 0 },
+                            struct{ a := t, b := 21, c := "0" },
+                      error{ errortext := "ERROR" }, uninit };
 
 // Binary operators
 foreach ot in optests
-	var tmp;
+  var tmp;
 
-	// comparison
-	print( "t == " + ot );
-	print( t == ot );
-	print( CStr(ot) + " == t " );
-	print( ot == t );
-	print( "t != " + ot );
-	print( t != ot );
-	print( "t < " + ot );
-	print( t < ot );
-	print( "t <= " + ot );
-	print( t <= ot );
-	print( "t > " + ot );
-	print( t > ot );
-	print( "t >= " + ot );
-	print( t >= ot );
+  // comparison
+  print( "t == " + ot );
+  print( t == ot );
+  print( CStr( ot ) + " == t " );
+  print( ot == t );
+  print( "t != " + ot );
+  print( t != ot );
+  print( "t < " + ot );
+  print( t < ot );
+  print( "t <= " + ot );
+  print( t <= ot );
+  print( "t > " + ot );
+  print( t > ot );
+  print( "t >= " + ot );
+  print( t >= ot );
 
-	// arithmetic
-	print( "t + " + ot );
-	print( t + ot );
-	print( CStr(ot) + " + t" );
-	print( ot + t );
-	print( "t - " + ot );
-	print( t - ot );
-	print( CStr(ot) + " - t" );
-	print( ot - t );
-	print( "t * " + ot );
-	print( t * ot );
-	print( CStr(ot) + " * t" );
-	print( ot * t );
-	print( "t / " + ot );
-	print( t / ot );
-	print( CStr(ot) + " / t" );
-	print( ot / t );
-	print( "t % " + ot );
-	print( t % ot );
-	print( CStr(ot) + " % t" );
-	print( ot % t );
+  // arithmetic
+  print( "t + " + ot );
+  print( t + ot );
+  print( CStr( ot ) + " + t" );
+  print( ot + t );
+  print( "t - " + ot );
+  print( t - ot );
+  print( CStr( ot ) + " - t" );
+  print( ot - t );
+  print( "t * " + ot );
+  print( t * ot );
+  print( CStr( ot ) + " * t" );
+  print( ot * t );
+  print( "t / " + ot );
+  print( t / ot );
+  print( CStr( ot ) + " / t" );
+  print( ot / t );
+  print( "t % " + ot );
+  print( t % ot );
+  print( CStr( ot ) + " % t" );
+  print( ot % t );
 
-	// arithmetic with assignment
-	tmp := t;
-	print( "tmp += " + ot );
-	tmp += ot;
-	print( tmp );
-	tmp := t;
-	print( "tmp -= " + ot );
-	tmp -= ot;
-	print( tmp );
-	tmp := t;
-	print( "tmp *= " + ot );
-	tmp *= ot;
-	print( tmp );
-	tmp := t;
-	print( "tmp /= " + ot );
-	tmp /= ot;
-	print( tmp );
-	tmp := t;
-	print( "tmp %= " + ot );
-	tmp %= ot;
-	print( tmp );
+  // arithmetic with assignment
+  tmp := t;
+  print( "tmp += " + ot );
+  tmp += ot;
+  print( tmp );
+  tmp := t;
+  print( "tmp -= " + ot );
+  tmp -= ot;
+  print( tmp );
+  tmp := t;
+  print( "tmp *= " + ot );
+  tmp *= ot;
+  print( tmp );
+  tmp := t;
+  print( "tmp /= " + ot );
+  tmp /= ot;
+  print( tmp );
+  tmp := t;
+  print( "tmp %= " + ot );
+  tmp %= ot;
+  print( tmp );
 
-	// bitwise
-	print( "t & " + ot );
-	print( t & ot );
-	print( CStr(ot) + " & t" );
-	print( ot & t );
-	print( "t | " + ot );
-	print( t | ot );
-	print( CStr(ot) + " | t" );
-	print( ot | t );
-	print( "t ^ " + ot );
-	print( t ^ ot );
-	print( CStr(ot) + " ^ t" );
-	print( ot ^ t );
-	print( "t << " + ot );
-	print( t << ot );
-	print( CStr(ot) + " << t" );
-	print( ot << t );
-	print( "t >> " + ot );
-	print( t >> ot );
-	print( CStr(ot) + " >> t" );
-	print( ot >> t );
+  // bitwise
+  print( "t & " + ot );
+  print( t & ot );
+  print( CStr( ot ) + " & t" );
+  print( ot & t );
+  print( "t | " + ot );
+  print( t | ot );
+  print( CStr( ot ) + " | t" );
+  print( ot | t );
+  print( "t ^ " + ot );
+  print( t ^ ot );
+  print( CStr( ot ) + " ^ t" );
+  print( ot ^ t );
+  print( "t << " + ot );
+  print( t << ot );
+  print( CStr( ot ) + " << t" );
+  print( ot << t );
+  print( "t >> " + ot );
+  print( t >> ot );
+  print( CStr( ot ) + " >> t" );
+  print( ot >> t );
 
-	// member
-	tmp := t;
-	print( "tmp .+ " + ot );
-	tmp .+ ot;
-	print( tmp );
-	tmp := t;
-	print( "tmp .- " + ot );
-	tmp .- ot;
-	print( tmp );
-	tmp := t;
+  // member
+  tmp := t;
+  print( "tmp .+ " + ot );
+  tmp.+ot;
+  print( tmp );
+  tmp := t;
+  print( "tmp .- " + ot );
+  tmp.-ot;
+  print( tmp );
+  tmp := t;
 
-	// subscript
-	print( "t[" + ot + "]" );
-	print( t[ot] );
+  // subscript
+  print( "t[" + ot + "]" );
+  print( t[ot] );
 
-	print(sep);
+  print( sep );
 endforeach
 
 // Unary operators
 print( "~ t" );
-print( ~ t );
-print(sep);
+print( ~t );
+print( sep );
 
 // Cast
-print(CAsc(t));
-print(CAscZ(t));
-print(CChr(t));
-print(CChrZ(t));
-print(CDbl(t));
-print(CInt(t));
-print(CStr(t));
-print(sep);
+print( CAsc( t ) );
+print( CAscZ( t ) );
+print( CChr( t ) );
+print( CChrZ( t ) );
+print( CDbl( t ) );
+print( CInt( t ) );
+print( CStr( t ) );
+print( sep );
 
 // substring
-print(t[0,1]);
-print(t[1,99]);
-print(t[1,0]);
-print(t[1,10]);
-print(t[2,2]);
-print(t["ll"]);
+print( t[0, 1] );
+print( t[1, 99] );
+print( t[1, 0] );
+print( t[1, 10] );
+print( t[2, 2] );
+print( t["ll"] );
 var tmp := t;
 tmp["ll"] := "__";
-print(tmp);
-print(sep);
+print( tmp );
+print( sep );
 
 // is true
-if( t )
-	print("t is true");
+if ( t )
+  print( "t is true" );
 else
-	print("t is false");
+  print( "t is false" );
 endif
-if( "" )
-	print("\"\" is true");
+if ( "" )
+  print( "\"\" is true" );
 else
-	print("\"\" is false");
+  print( "\"\" is false" );
 endif
-if( "0" )
-	print("0 is true");
+if ( "0" )
+  print( "0 is true" );
 else
-	print("0 is false");
+  print( "0 is false" );
 endif
-print(sep);
+print( sep );
 
 // manipulation functions
-print( Compare(t, "bello", 2, 3, 2, 3) );
-print( Find(t, "ll", 1) );
-print( Len(t) );
-print( Lower("HeLlo") );
-print( SplitWords("123	456	789", "	", 1) );
-print( StrReplace(t, "ll", "__") );
-print( SubStr(t, 2, 2) );
-print( SubStrReplace(t, "XXXXXX", 2, 3) );
-print( Trim("	hello ") );
-print( Upper(t) );
-print(sep);
+print( Compare( t, "bello", 2, 3, 2, 3 ) );
+print( Find( t, "ll", 1 ) );
+print( Len( t ) );
+print( Lower( "HeLlo" ) );
+print( SplitWords( "123	456	789", "	", 1 ) );
+print( StrReplace( t, "ll", "__" ) );
+print( SubStr( t, 2, 2 ) );
+print( SubStrReplace( t, "XXXXXX", 2, 3 ) );
+print( Trim( "	hello " ) );
+print( Upper( t ) );
+print( sep );
 
 // methods
 print( t.length() );
-print(t);
-print(t.find("e"));
-print(t.upper());
-print(t.lower());
-print("{:x}".format(10));
-print("{:#x}".format(10));
-print("You have {} gold coins".format(120));
-print("{} hits {} for {} of damage".format("John", "Bob", 120));
-print("You hit {2} for {1} damage".format(120, "John Doe"));
-print("Spell {1.spell_name} requires reagents: {1.reagents}".format(struct{spell_name:="Fire Wrath", reagents:="Ba, Bm, Ga"}));
-print("{name} you hit level {level}".format(struct{name:="Jane Doe", level:=4}));
-print(sep);
+print( t );
+print( t.find( "e" ) );
+print( t.upper() );
+print( t.lower() );
+print( "{:x}".format( 10 ) );
+print( "{:#x}".format( 10 ) );
+print( "You have {} gold coins".format( 120 ) );
+print( "{} hits {} for {} of damage".format( "John", "Bob", 120 ) );
+print( "You hit {2} for {1} damage".format( 120, "John Doe" ) );
+print( "Spell {1.spell_name} requires reagents: {1.reagents}".format( struct{ spell_name := "Fire Wrath",
+                                                                              reagents := "Ba, Bm, Ga" }
+       ) );
+print( "{name} you hit level {level}".format( struct{ name := "Jane Doe", level := 4 } ) );
+print( sep );
 
 // check that t is unaltered
-print(t);
+print( t );

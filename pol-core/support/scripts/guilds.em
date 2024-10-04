@@ -4,7 +4,7 @@
 
 ListGuilds();
 
-FindGuild( guildid ); 
+FindGuild( guildid );
 
 CreateGuild();
 DestroyGuild( guild );

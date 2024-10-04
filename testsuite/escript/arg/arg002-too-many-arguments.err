@@ -1,1 +1,1 @@
-arg002-too-many-arguments.src:4:39: error: In call to 'SendSysMessage': Too many arguments passed.  Expected 4, got 5.
+:4:38: error: In call to 'SendSysMessage': Too many arguments passed.  Expected 4, got 5.

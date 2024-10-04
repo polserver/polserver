@@ -5,29 +5,29 @@ var b := "value2";
 var c := "value";
 
 /**************************/
-if (b[1,5] == c)
-    print( "1: Success!");
+if ( b[1, 5] == c )
+  print( "1: Success!" );
 else
-    print( "1: Failure!");
+  print( "1: Failure!" );
 endif
 
-if (c == b[1,5])
-    print( "1: Success!");
+if ( c == b[1, 5] )
+  print( "1: Success!" );
 else
-    print( "1: Failure!");
+  print( "1: Failure!" );
 endif
 /**************************/
 
 /**************************/
-if (b[1,5] != c)
-    print( "1: Failure!");
+if ( b[1, 5] != c )
+  print( "1: Failure!" );
 else
-    print( "1: Success!");
+  print( "1: Success!" );
 endif
 
-if (c != b[1,5])
-    print( "1: Failure!");
+if ( c != b[1, 5] )
+  print( "1: Failure!" );
 else
-    print( "1: Success!");
+  print( "1: Success!" );
 endif
 /**************************/

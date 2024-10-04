@@ -7,106 +7,110 @@ include "testutil";
 
 program tests()
   ReloadConfiguration(); // A crude attempt to catch issues with thread-safety and pol config & ssopts.
-  var test_count:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+  var test_count := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
+  // format-off
   syslog(
     $"\n{CONSOLE_COLOR_CYAN}##########################\n"
     + $"{CONSOLE_COLOR_CYAN}#  starting testscripts  #\n"
     + $"{CONSOLE_COLOR_CYAN}#         Run: "+test_count+"         #\n"
     + $"{CONSOLE_COLOR_CYAN}##########################\n",0,CONSOLE_COLOR_CYAN);
-  var exitcode:=0;
-  var testpkgs:={};
+  // format-on
+  var exitcode := 0;
+  var testpkgs := {};
   var restartpkg;
   foreach pkg in Packages()
-    if (pkg.dir.find("testpkgs")==1)
-      if (pkg.name == "testrestart")
-        restartpkg:={pkg.name,pkg.desc};
+    if ( pkg.dir.find( "testpkgs" ) == 1 )
+      if ( pkg.name == "testrestart" )
+        restartpkg := { pkg.name, pkg.desc };
       else
-        testpkgs.append({pkg.name,pkg.desc});
+        testpkgs.append( { pkg.name, pkg.desc } );
       endif
     endif
   endforeach
-  testpkgs.sort(1);
+  testpkgs.sort( 1 );
   // to prevent cleanup of other tests, TestRestart always at the end
-  if (restartpkg)
-    testpkgs.append(restartpkg);
+  if ( restartpkg )
+    testpkgs.append( restartpkg );
   endif
 
-  var filter:=GetEnvironmentVariable("POLCORE_TEST_FILTER");
-  if (filter)
-    syslog("## using testfilter \""+filter+"\"\n",0,CONSOLE_COLOR_CYAN);
+  var filter := GetEnvironmentVariable( "POLCORE_TEST_FILTER" );
+  if ( filter )
+    syslog( "## using testfilter \"" + filter + "\"\n", 0, CONSOLE_COLOR_CYAN );
   endif
 
   foreach pkg in testpkgs
-    if (filter and !pkg[1].find(filter))
+    if ( filter and !pkg[1].find( filter ) )
       continue;
     endif
 
-    if (test_count==2 and pkg[1]!="testrestart")
+    if ( test_count == 2 and pkg[1] != "testrestart" )
       continue;
     endif
 
-    var pkgstartms:=ReadMillisecondClock();
-    syslog(pkg[2],0,CONSOLE_COLOR_MAGENTA);
-    var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
+    var pkgstartms := ReadMillisecondClock();
+    syslog( pkg[2], 0, CONSOLE_COLOR_MAGENTA );
+    var scripts := listdirectory( ":{}:".format( pkg[1] ), "ecl" );
     scripts.sort();
-    if ("setup.ecl" in scripts)
-      syslog("  Calling setup.ecl..",0,CONSOLE_COLOR_GREEN);
-      var startms:=ReadMillisecondClock();
-      var res:=run_script(":{}:setup.ecl".format(pkg[1]));
-      if (res == IGNORE_TEST)
+    if ( "setup.ecl" in scripts )
+      syslog( "  Calling setup.ecl..", 0, CONSOLE_COLOR_GREEN );
+      var startms := ReadMillisecondClock();
+      var res := run_script( ":{}:setup.ecl".format( pkg[1] ) );
+      if ( res == IGNORE_TEST )
         continue;
-      elseif (res != 1)
-        syslog("    failed: "+res.errortext,0,CONSOLE_COLOR_RED);
-        exitcode:=1;
+      elseif ( res != 1 )
+        syslog( "    failed: " + res.errortext, 0, CONSOLE_COLOR_RED );
+        exitcode := 1;
         continue;
       endif
-      syslog("  ..{}ms".format(ReadMillisecondClock()-startms),0,CONSOLE_COLOR_GREEN);
+      syslog( "  ..{}ms".format( ReadMillisecondClock() - startms ), 0, CONSOLE_COLOR_GREEN );
     endif
     foreach file in scripts
-      if (file.find("test") != 1)
+      if ( file.find( "test" ) != 1 )
         continue;
       endif
-      var scriptstartms:=ReadMillisecondClock();
-      syslog("  Calling {}..".format(file),0,CONSOLE_COLOR_GREEN);
-      var script:=LoadExportedScript(":{}:{}".format(pkg[1], file));
-      if (!script[2])
-        syslog("    failed: "+script[2],0,CONSOLE_COLOR_RED);
-        exitcode:=1;
+      var scriptstartms := ReadMillisecondClock();
+      syslog( "  Calling {}..".format( file ), 0, CONSOLE_COLOR_GREEN );
+      var script := LoadExportedScript( ":{}:{}".format( pkg[1], file ) );
+      if ( !script[2] )
+        syslog( "    failed: " + script[2], 0, CONSOLE_COLOR_RED );
+        exitcode := 1;
         continue;
       endif
-      if (script[2] == IGNORE_TEST)
+      if ( script[2] == IGNORE_TEST )
         continue;
       endif
 
-      foreach func in (script[1].exported_functions)
-        var startms:=ReadMillisecondClock();
-        syslog("    Calling {}..".format(func),0,CONSOLE_COLOR_GREEN);
-        var res:=script[1].call(func);
-        if (res != 1)
-          syslog("      failed: "+res.errortext,0,CONSOLE_COLOR_RED);
-          exitcode:=1;
+      foreach func in ( script[1].exported_functions )
+        var startms := ReadMillisecondClock();
+        syslog( "    Calling {}..".format( func ), 0, CONSOLE_COLOR_GREEN );
+        var res := script[1].call( func );
+        if ( res != 1 )
+          syslog( "      failed: " + res.errortext, 0, CONSOLE_COLOR_RED );
+          exitcode := 1;
           continue;
         endif
-        syslog("    ..{}ms".format(ReadMillisecondClock()-startms),0,CONSOLE_COLOR_GREEN);
+        syslog( "    ..{}ms".format( ReadMillisecondClock() - startms ), 0, CONSOLE_COLOR_GREEN );
       endforeach
-      syslog("  ..{}ms".format(ReadMillisecondClock()-scriptstartms),0,CONSOLE_COLOR_GREEN);
+      syslog( "  ..{}ms".format( ReadMillisecondClock() - scriptstartms ), 0, CONSOLE_COLOR_GREEN );
     endforeach
-    if ("cleanup.ecl" in scripts)
-      syslog("  Calling cleanup.ecl..",0,CONSOLE_COLOR_GREEN);
-      var startms:=ReadMillisecondClock();
-      run_script(":{}:cleanup.ecl".format(pkg[1]));
-      syslog("  ..{}ms".format(ReadMillisecondClock()-startms),0,CONSOLE_COLOR_GREEN);
+    if ( "cleanup.ecl" in scripts )
+      syslog( "  Calling cleanup.ecl..", 0, CONSOLE_COLOR_GREEN );
+      var startms := ReadMillisecondClock();
+      run_script( ":{}:cleanup.ecl".format( pkg[1] ) );
+      syslog( "  ..{}ms".format( ReadMillisecondClock() - startms ), 0, CONSOLE_COLOR_GREEN );
     endif
-    syslog("..{}ms".format(ReadMillisecondClock()-pkgstartms),0,CONSOLE_COLOR_MAGENTA);
+    syslog( "..{}ms".format( ReadMillisecondClock() - pkgstartms ), 0, CONSOLE_COLOR_MAGENTA );
   endforeach
 
-  var result:=$"{CONSOLE_COLOR_GREEN}success";
-  if (exitcode)
-    result:=$"{CONSOLE_COLOR_RED}failed ";
+  var result := $"{CONSOLE_COLOR_GREEN}success";
+  if ( exitcode )
+    result := $"{CONSOLE_COLOR_RED}failed ";
   endif
+  // format-off
   syslog(
     $"\n{CONSOLE_COLOR_CYAN}###########################\n"
     + $"{CONSOLE_COLOR_CYAN}# finished tests: {result} {CONSOLE_COLOR_CYAN}#\n"
     + $"{CONSOLE_COLOR_CYAN}###########################\n",0,CONSOLE_COLOR_CYAN);
-  shutdown(exitcode);
+  // format-on
+  shutdown( exitcode );
 endprogram

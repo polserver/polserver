@@ -1,24 +1,24 @@
 // Scope04 - make sure locals in sub-blocks can override other locals
-// 
+//
 var a array;
 a[1] := 4;
 a[2] := 5;
 a[3] := 9;
 
 function foo( a )
-    var i := 45;
+  var i := 45;
 
-    foreach i in (a)
-        print("I="+i);
-        i := i + 1;
-    endforeach
+  foreach i in ( a )
+    print( "I=" + i );
+    i := i + 1;
+  endforeach
 
-    print( "i=" + i );
+  print( "i=" + i );
 
-    print( "second pass" );
-    foreach i in (a)
-        print("I="+i);
-    endforeach
+  print( "second pass" );
+  foreach i in ( a )
+    print( "I=" + i );
+  endforeach
 endfunction
 
-foo(a);
+foo( a );

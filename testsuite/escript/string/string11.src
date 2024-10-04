@@ -4,21 +4,20 @@ var a := "testvalue";
 var b := "value2";
 var c := "value";
 
-print( "a="+a );
-print( "b="+b );
-print( "c="+c );
+print( "a=" + a );
+print( "b=" + b );
+print( "c=" + c );
 
 var d := a["val"];
 
-    // This is key: this assignment must not modify 'a'.
+// This is key: this assignment must not modify 'a'.
 d := "hello";
 
-print( "a="+a );
-print( "d="+d );
+print( "a=" + a );
+print( "d=" + d );
 
-    // Now, this one _should_.
+// Now, this one _should_.
 a["val"] := "hello";
 
-print( "a="+a );
-print( "d="+d );
-
+print( "a=" + a );
+print( "d=" + d );

@@ -1,7 +1,7 @@
 for i := 1 to 5
-    var b := 2*i;
-    print(b);
-    if (i > 3)
-        break;
-    endif
+  var b := 2 * i;
+  print( b );
+  if ( i > 3 )
+    break;
+  endif
 endfor

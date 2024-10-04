@@ -1,10 +1,9 @@
-var a := struct { x := 2, y := 3 };
+var a := struct{ x := 2, y := 3 };
 
 function foo()
-    // There was a bug where the := was generated already consuming itself,
-    // but return consumes it here.
-    return a.x := a.y;
+  // There was a bug where the := was generated already consuming itself,
+  // but return consumes it here.
+  return a.x := a.y;
 endfunction
 
-print(foo());
-
+print( foo() );

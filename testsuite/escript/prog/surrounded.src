@@ -1,7 +1,7 @@
 print( "before" );
 
 program foo()
-	print( "body" );
+  print( "body" );
 endprogram
 
 print( "after" );

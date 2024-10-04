@@ -1,16 +1,15 @@
 function foo()
-    var accum := 0;
-    var i;
+  var accum := 0;
+  var i;
 
-    for( i := 0; i < 10; i := i + 1 )
-        accum := accum + i;
-        print( "Accum=" + accum );
-    endfor
-    
-    print( "Final Accum=" + accum );
-    return accum;
+  for ( i := 0; i < 10; i := i + 1 )
+    accum := accum + i;
+    print( "Accum=" + accum );
+  endfor
+
+  print( "Final Accum=" + accum );
+  return accum;
 endfunction
-
 
 print( 5 + foo() + 7 );
 

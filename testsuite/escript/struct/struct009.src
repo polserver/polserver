@@ -1,11 +1,11 @@
 
 program foo()
-    var d := 57+8, e := "abc";
-    var t := struct{ a:=4, b:=9, c:=12 };
-    
-    print( t["b"] );
-    print( t["B"] );
-    t[ "c" ] := 42;
-    print(t);
+  var d := 57 + 8, e := "abc";
+  var t := struct{ a := 4, b := 9, c := 12 };
+
+  print( t["b"] );
+  print( t["B"] );
+  t["c"] := 42;
+  print( t );
 
 endprogram

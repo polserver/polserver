@@ -2,6 +2,7 @@
 // Attribute related functions
 //
 
+// format-off
 const ATTRIBUTE_LOCK_UP     := 0;
 const ATTRIBUTE_LOCK_DOWN   := 1;
 const ATTRIBUTE_LOCK_LOCKED := 2;
@@ -10,6 +11,7 @@ const ATTRIBUTE_PRECISION_NORMAL := 0;
 const ATTRIBUTE_PRECISION_TENTHS := 1;
 
 const ATTRIBUTE_MAX_BASE := 60000;
+// format-on
 
 CheckSkill( character, skillid_or_attrname, difficulty, points );
 
@@ -25,13 +27,12 @@ GetAttributeTemporaryMod( character, attrname );
 GetAttributeLock( character, attrname );
 SetAttributeLock( character, attrname, lockstate );
 
-GetAttributeDefaultCap ( attrname );
+GetAttributeDefaultCap( attrname );
 GetAttributeCap( character, attrname );
 SetAttributeCap( character, attrname, capvalue );
 
 SetAttributeBaseValue( character, attrname, basevalue_tenths ); // obsoletes SetRawSkill
 SetAttributeTemporaryMod( character, attrname, tempmod_tenths ); // obsoletes mob.strength_mod etc
-
 
 BaseSkillToRawSkill( baseskill );
 RawSkillToBaseSkill( rawskill );

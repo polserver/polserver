@@ -1,9 +1,9 @@
 function foo( byref a )
-    a := 5;
+  a := 5;
 endfunction
 
 var b;
 b := 2;
-print(b);
-foo(b);
-print(b);
+print( b );
+foo( b );
+print( b );

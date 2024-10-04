@@ -1,6 +1,7 @@
 include "support";
 
 var nothing;
+// format-off
 print(
   foo( 0 )
     ?: bar( nothing )

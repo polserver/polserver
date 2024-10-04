@@ -1,3 +1,3 @@
 // invalid Utf8 (wrong file encoding) but sanitizable "geändert"
-var t:="geändert";
-print(t);
+var t := "geändert";
+print( t );

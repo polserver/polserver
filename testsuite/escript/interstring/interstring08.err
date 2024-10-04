@@ -1,1 +1,1 @@
-interstring08.src:1:10: error: token recognition error at: '}"'
+:1:10: error: token recognition error at: '}"'

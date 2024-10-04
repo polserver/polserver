@@ -3,17 +3,17 @@ use basic;
 var a;
 
 A := 5;
-print( "A="+A);
+print( "A=" + A );
 
-			// A should not change here.
-			// NOTE, a compiler warning should be generated.
+// A should not change here.
+// NOTE, a compiler warning should be generated.
 A == "HELLO";
-print( "A="+A);
+print( "A=" + A );
 
 A := A + 654;
-print( "A="+A);
+print( "A=" + A );
 
-var b:=A;
-A+=1; // b should not change
-print(a);
-print(b);
+var b := A;
+A += 1; // b should not change
+print( a );
+print( b );

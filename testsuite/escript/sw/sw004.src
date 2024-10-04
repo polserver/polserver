@@ -1,19 +1,19 @@
 
 program test()
-    var x := "hello world again,blah  three    four,blah";
-    foreach a in SplitWords(x)
-        print("A: '" + a + "'");
-    endforeach
-	
-	foreach a in SplitWords(x,",")
-		print("B: '" + a + "'");
-	endforeach
-	
-	foreach a in SplitWords(x,max_split:=2)
-		print("C: '" + a + "'");
-	endforeach
-	
-	foreach a in SplitWords(x,",",1)
-		print("D: '" + a + "'");
-	endforeach
+  var x := "hello world again,blah  three    four,blah";
+  foreach a in SplitWords( x )
+    print( "A: '" + a + "'" );
+  endforeach
+
+  foreach a in SplitWords( x, "," )
+    print( "B: '" + a + "'" );
+  endforeach
+
+  foreach a in SplitWords( x, max_split := 2 )
+    print( "C: '" + a + "'" );
+  endforeach
+
+  foreach a in SplitWords( x, ",", 1 )
+    print( "D: '" + a + "'" );
+  endforeach
 endprogram
