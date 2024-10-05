@@ -1,5 +1,5 @@
 include "class-def";
 
 program checkclass( foo )
-    foo.set_from_script := 1;
+  foo.set_from_script := 1;
 endprogram

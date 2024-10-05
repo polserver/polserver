@@ -30,8 +30,8 @@ function createAccountWithChar( accname, psw )
   return char;
 endfunction
 
-function dprint(unused what)
-  // print(what);
+function dprint( unused what )
+// print(what);
 endfunction
 
 class ResourceManager()
@@ -56,13 +56,13 @@ class ResourceManager()
 
   function CreateMultiAtLocation( this, x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM )
     // Module functions are registered in global scope as well
-    var resource := ::CreateMultiAtLocation( x, y, z, objtype, flags, realm );
+    var resource :=::CreateMultiAtLocation( x, y, z, objtype, flags, realm );
     if ( !resource )
       return resource;
     endif
 
     this.resources.append( array{ resource, @DestroyMultiResource } );
-    dprint($"created resource resource={resource} this.resources={this.resources}");
+    dprint( $"created resource resource={resource} this.resources={this.resources}" );
     return resource;
   endfunction
 
@@ -86,9 +86,10 @@ class ResourceManager()
   endfunction
 
   function CreateNPCFromTemplate( this, template, x, y, z, override_properties := 0,
-                            realm := _DEFAULT_REALM, forcelocation := 0 )
+                                  realm := _DEFAULT_REALM, forcelocation := 0 )
 
-    var resource := uo::CreateNPCFromTemplate( template, x, y, z, override_properties, realm, forcelocation );
+    var resource := uo::CreateNPCFromTemplate( template, x, y, z, override_properties, realm,
+                                               forcelocation );
     if ( !resource )
       return resource;
     endif

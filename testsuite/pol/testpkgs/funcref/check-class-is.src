@@ -1,13 +1,7 @@
 include "class-def";
 
 program checkclass( foo )
-    var res := {
-        foo is @A,
-        foo is @B,
-        foo is @C,
-        foo is @D,
-        foo is @E
-    };
+  var res := { foo is @A, foo is @B, foo is @C, foo is @D, foo is @E };
 
-    return res;
+  return res;
 endprogram
