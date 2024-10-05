@@ -13,10 +13,9 @@ class Foo( BaseClass )
   endfunction
 endclass
 
-
 print( Foo() );
 
 print( "----" );
 
 // Will call Foo() but not BaseClass(), as super() is skipped
-print( @Foo.call(struct{}) );
+print( @Foo.call( struct{} ) );

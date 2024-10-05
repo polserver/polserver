@@ -2,9 +2,7 @@
 // referenced as a (compile-time) user function.
 
 class Animal()
-  var Animal := @( arg0 ){
-    print( $"arg0={arg0}" );
-  };
+  var Animal := @( arg0 ) { print( $"arg0={arg0}" ); };
 endclass
 
 @Animal::Animal( "functionReference" );

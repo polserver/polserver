@@ -1,34 +1,37 @@
 // Test varargs with base class?
 
 class BaseClass1()
-  function BaseClass1( this, arg0, args... )
+  function BaseClass1( this, arg0, args ... )
     print( $"BaseClass1::BaseClass1 this={this} arg0={arg0} args={args}" );
-    //print( $"BaseClass1::BaseClass1 this={this} arg0={arg0}" );
+  // print( $"BaseClass1::BaseClass1 this={this} arg0={arg0}" );
   endfunction
 endclass
 
 class BaseClass2()
-  function BaseClass2( this, arg0, args... )
+  function BaseClass2( this, arg0, args ... )
     print( $"BaseClass2::BaseClass2 this={this} arg0={arg0} args={args}" );
   endfunction
 endclass
 
 class BaseClass3()
-  function BaseClass3( this, args... )
+  function BaseClass3( this, args ... )
     print( $"BaseClass3::BaseClass3 this={this} args={args}" );
   endfunction
 endclass
 
-
 function GetSomeValues()
-  return array{ 4,5,6 };
+  return array{ 4, 5, 6 };
 endfunction
 
 ///////////
 
-class Foo1( BaseClass1, BaseClass2, BaseClass3  )
+class Foo1( BaseClass1, BaseClass2, BaseClass3 )
   function Foo1( this )
-    super( "arg0", BaseClass1::args := {1,2,3}, BaseClass2::arg0 := "arg2", BaseClass2::args := {4,5,6}, BaseClass3::args := struct{"struct values get spreaded":="struct value"} );
+    super( "arg0", BaseClass1::args:= { 1, 2, 3 },
+           BaseClass2::arg0:= "arg2", BaseClass2::args:= { 4,
+                                        5,
+                                        6 },
+           BaseClass3::args:= struct{ "struct values get spreaded" := "struct value" } );
   endfunction
 endclass
 
@@ -36,9 +39,9 @@ Foo1();
 
 print( "----" );
 
-class Foo2( BaseClass1, BaseClass2, BaseClass3  )
+class Foo2( BaseClass1, BaseClass2, BaseClass3 )
   function Foo2( this )
-    super( "c1", array{ 1,2,3 }, "c2", GetSomeValues(), "not spreadable"  );
+    super( "c1", array{ 1, 2, 3 }, "c2", GetSomeValues(), "not spreadable" );
   endfunction
 endclass
 
@@ -46,9 +49,10 @@ Foo2();
 
 print( "----" );
 
-class Foo3( BaseClass1, BaseClass2, BaseClass3  )
+class Foo3( BaseClass1, BaseClass2, BaseClass3 )
   function Foo3( this )
-    super( "c1", "foobar" /*baseclass1::args, not spreadable, goes as empty array*/, "c2!", {"c2 args"}, "c3 args" );
+    super( "c1", "foobar" /* baseclass1::args, not spreadable, goes as empty array */, "c2!", {
+           "c2 args" }, "c3 args" );
   endfunction
 endclass
 
@@ -65,7 +69,7 @@ endclass
 // A class where _only_ the last base class has varadic ctor can have a variadic super()
 class Foo4( BaseClassNotVariadic, BaseClass1 )
   function Foo4( this )
-    super( "nv0", "nv1", "bc.0" , "bc1.0", "bc1.1" );
+    super( "nv0", "nv1", "bc.0", "bc1.0", "bc1.1" );
   endfunction
 endclass
 

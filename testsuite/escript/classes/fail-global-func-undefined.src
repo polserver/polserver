@@ -1,18 +1,20 @@
 // This used to be a bug
 
-var super := @(i){ print( $"funcexpr called i={i}"); };
+var super := @( i ) {
+  print( $"funcexpr called i={i}" );
+};
 
 class Foo()
-    function Foo( this, i )
-        // Execute super as a global variable: var exists: ok
-        ::super( i );
+  function Foo( this, i )
+    // Execute super as a global variable: var exists: ok
+    ::super( i );
 
-        // Execute function found in local scope: ok
-        super( this, i - 1 );
+    // Execute function found in local scope: ok
+    super( this, i - 1 );
 
-        // No global function found
-        @::super(this, i - 1);
-    endfunction
+    // No global function found
+    @super( this, i - 1 );
+  endfunction
 endclass
 
 Foo( 0 );

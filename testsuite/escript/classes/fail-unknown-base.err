@@ -1,1 +1,1 @@
-ail-unknown-base.src:5:27: error: Class 'Animal' references unknown base class 'BaseClass2'
+:8:27: error: Class 'Animal' references unknown base class 'BaseClass2'

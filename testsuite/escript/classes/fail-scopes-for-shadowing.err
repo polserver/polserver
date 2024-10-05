@@ -1,1 +1,1 @@
-fail-scopes-for-shadowing.src:5:13: error: FOR iterator 'variable' hides a local variable.
+:5:9: error: FOR iterator 'variable' hides a local variable.

@@ -2,9 +2,9 @@
 // a return statement with no expression.
 
 class Animal()
-    function Animal( this )
-        return "";
-    endfunction
+  function Animal( this )
+    return "";
+  endfunction
 endclass
 
 Animal();

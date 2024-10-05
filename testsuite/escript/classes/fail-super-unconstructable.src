@@ -2,7 +2,7 @@
 // parameter, _even if_ a value is given at the call site.
 
 class BaseClass()
-  function BaseClass( this, arg0 := array{1,2,3} )
+  function BaseClass( this, arg0 := array{ 1, 2, 3 } )
   endfunction
 endclass
 
