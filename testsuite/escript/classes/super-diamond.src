@@ -18,26 +18,26 @@ class A()
   endfunction
 endclass
 
-class B(A)
+class B( A )
   function B( this, b0 )
     super( b0 );
     print( "B" );
   endfunction
 endclass
 
-class C(A)
+class C( A )
   function C( this, c0 )
     super( c0 );
     print( "C" );
   endfunction
 endclass
 
-class D(B, C)
+class D( B, C )
   function D( this, d0 )
-    super( B::b0 := d0, C::c0 := d0 );
+    super( B::b0:= d0, C::c0:= d0 );
     print( "D" );
   endfunction
 endclass
 
 var obj := D( "foo" );
-print(obj);
+print( obj );

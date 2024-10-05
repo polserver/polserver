@@ -4,4 +4,5 @@ class Animal()
   endfunction
 endclass
 
-class Animal() endclass
+class Animal()
+endclass

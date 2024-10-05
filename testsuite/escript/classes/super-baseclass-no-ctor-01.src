@@ -12,7 +12,7 @@ class BaseClass2()
   endfunction
 endclass
 
-class Animal(BaseClass1, BaseClass2)
+class Animal( BaseClass1, BaseClass2 )
   function Animal( this )
     super();
     print( $"Animal::Animal this={this}" );

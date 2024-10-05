@@ -1,1 +1,1 @@
-fail-scopes-var-as-funcref.src:10:1: error: User function 'Animal' not found
+:8:1: error: User function 'Animal' not found

@@ -7,21 +7,21 @@ class A()
 endclass
 
 class B()
-  function B( this, args... )
+  function B( this, args ... )
     print( $"B::B this={this} args={args}" );
   endfunction
 endclass
 
 var a := A();
-var b := B("args");
+var b := B( "args" );
 
 print( a.function );
 print( b.function );
 
-print("----");
+print( "----" );
 
 var aa := ( a.function ).new();
-var bb := b.function.new("foo","bar");
+var bb := b.function.new( "foo", "bar" );
 
 print( aa );
 print( bb );

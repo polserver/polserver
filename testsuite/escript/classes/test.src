@@ -1,10 +1,11 @@
 class BaseClass()
-  function BaseClass( this ) endfunction
+  function BaseClass( this )
+  endfunction
 endclass
 
 class Animal( BaseClass )
 
-  var staticVar := Print(1 + 2) ?: "value for static after printing";
+  var staticVar := Print( 1 + 2 ) ?: "value for static after printing";
 
   function Animal( this, name )
     this.name := name;
@@ -17,7 +18,6 @@ endclass
 // Compile-time constructor call. Creates a class instance, and attachs vtable
 var compile_obj := Animal( "compile-time ctor call" );
 print( $"compile_obj={compile_obj}" );
-
 
 // Run-time constructor call. Does not attach vtable in this scenario, but calls the user function
 var runtime_obj := dictionary{};

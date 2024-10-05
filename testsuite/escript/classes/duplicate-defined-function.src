@@ -1,4 +1,5 @@
-function Animal() endfunction
+function Animal()
+endfunction
 
 class Animal()
   function Animal( this, name )

@@ -1,16 +1,16 @@
 // Class defines method `Print`, shadowing `basicio::Print`. Class calls both methods
 
 class BasicioExt()
-    function Print( what, i )
-        ::Print( $"BasicioExt::Print what={what} i={i}" );
-        if ( i == 3 )
-            Print( "no-scope", i - 1 );
-        elseif ( i == 2 )
-            BasicioExt::Print( "with-scope", i - 1 );
-        elseif ( i == 1 )
-            @BasicioExt::Print( "funcref", i - 1 );
-        endif
-    endfunction
+  function Print( what, i )
+    ::Print( $"BasicioExt::Print what={what} i={i}" );
+    if ( i == 3 )
+      Print( "no-scope", i - 1 );
+    elseif ( i == 2 )
+      BasicioExt::Print( "with-scope", i - 1 );
+    elseif ( i == 1 )
+      @BasicioExt::Print( "funcref", i - 1 );
+    endif
+  endfunction
 
 endclass
 

@@ -1,5 +1,7 @@
 // Can define a variable named super.
 
-var super := @{ print("funcexpr called"); };
+var super := @{
+  print( "funcexpr called" );
+};
 
 super();

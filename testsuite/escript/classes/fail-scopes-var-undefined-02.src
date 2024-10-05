@@ -1,7 +1,7 @@
 // Accessing a non-existant scoped variable inside outside its scope fails.
 
 class Animal()
-    var variable_exists;
+  var variable_exists;
 endclass
 
 Animal::variable_exists;

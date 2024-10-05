@@ -5,7 +5,7 @@ class BaseClass()
   endfunction
 endclass
 
-class Foo( BaseClass  )
+class Foo( BaseClass )
   function Foo( this )
     super::Method( this );
   endfunction

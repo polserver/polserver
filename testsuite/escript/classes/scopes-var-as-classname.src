@@ -2,10 +2,8 @@
 // a call, but we should error when used as a base-class
 
 class Animal()
-  var Animal := @( arg0 ){
-    print( $"arg0={arg0}" );
-  };
+  var Animal := @( arg0 ) { print( $"arg0={arg0}" ); };
 endclass
 
-(Animal::Animal)( "parExpression" );
+( Animal::Animal)( "parExpression" );
 Animal::Animal( "functionCallSuffix" );

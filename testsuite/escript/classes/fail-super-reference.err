@@ -1,1 +1,1 @@
-fail-super-reference.src:10:12: error: Cannot reference super() function.
+:10:12: error: Cannot reference super() function.

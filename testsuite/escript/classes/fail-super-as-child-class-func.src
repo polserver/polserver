@@ -1,17 +1,17 @@
 // A child class cannot define a super function
 
 class BaseClass()
-    function BaseClass( this )
-    endfunction
+  function BaseClass( this )
+  endfunction
 endclass
 
 class Foo( BaseClass )
-    function Foo( this )
-        super();
-    endfunction
+  function Foo( this )
+    super();
+  endfunction
 
-    function super()
-    endfunction
+  function super()
+  endfunction
 endclass
 
 var obj := Foo();

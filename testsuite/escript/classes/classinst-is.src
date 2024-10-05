@@ -45,8 +45,8 @@ print( e is @E ); // true
 print( "----" );
 
 foreach ctor in ( struct{ A := @A, B := @B, C := @C, D := @D, E := @E } )
-  print( $"d is {_ctor_iter} = {( d is ctor ? "1" : "0" )} ; e is {_ctor_iter} = {(
-         e is ctor ? "1" : "0" )}" );
+  print( $"d is {_ctor_iter} = {( d is ctor ? "1" : "0" )} ; e is {_ctor_iter} = {( e is ctor ? "1" :
+                                                                                    "0" )}" );
 endforeach
 
 print( "----" );

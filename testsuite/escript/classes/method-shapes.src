@@ -6,7 +6,7 @@ class Rectangle()
     this.height := height;
   endfunction
 
-  function area(this)
+  function area( this )
     return this.width * this.height;
   endfunction
 
@@ -42,24 +42,23 @@ endclass
 class ColoredRectangle( Rectangle, Colored )
   function ColoredRectangle( this, width, height, color )
     super( width, height, color := color );
-    // Or, depending on how ambiguous the parameters are:
-    // super( width := width, height := height, color := color );
-    // super( Rectangle::width := width, Rectangle::height := height, Colored::color := color );
+  // Or, depending on how ambiguous the parameters are:
+  // super( width := width, height := height, color := color );
+  // super( Rectangle::width := width, Rectangle::height := height, Colored::color := color );
   endfunction
 endclass
 
 class ColoredCircle( Circle, Colored )
   function ColoredCircle( this, radius, color )
-    super( Circle::radius := radius, Colored::color := color );
+    super( Circle::radius:= radius, Colored::color:= color );
   endfunction
 endclass
 
-
 // Example Usage
-var colored_rect := ColoredRectangle(4, 6, "blue");
+var colored_rect := ColoredRectangle( 4, 6, "blue" );
 print( $"Colored Rectangle - Area: {colored_rect.area()}, Perimeter: {colored_rect.perimeter()}, Color: {colored_rect.get_color()}" );
 
-var colored_circle := ColoredCircle(5, "red");
+var colored_circle := ColoredCircle( 5, "red" );
 print( $"Colored Circle - Area: {colored_circle.area()}, Circumference: {colored_circle.circumference()}, Color: {colored_circle.get_color()}" );
 
 /*

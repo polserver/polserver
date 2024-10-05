@@ -12,7 +12,7 @@ endclass
 
 class RedDagger( Item, Color )
   function RedDagger( this )
-    super( Item::name := "dagger", Color::name := "red" ); // Using only `name` would give an ambiguous error!
+    super( Item::name:= "dagger", Color::name:= "red" ); // Using only `name` would give an ambiguous error!
   endfunction
 endclass
 

@@ -1,1 +1,1 @@
-fail-global-func-undefined.src:14:9: error: User function 'super' not found
+:16:5: error: User function 'super' not found

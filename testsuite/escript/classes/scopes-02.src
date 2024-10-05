@@ -3,18 +3,18 @@
 // does not link the (already-referenced) global function.
 
 function StaticFunc( foo )
-    print( $"::StaticFunc foo={foo}" );
+  print( $"::StaticFunc foo={foo}" );
 endfunction
 
 StaticFunc( "bar" );
 
 class Animal()
-    function StaticFunc( foo )
-        if ( foo )
-            print ( $"Animal::StaticFunc foo={foo}" );
-            StaticFunc( foo - 1 );
-        endif
-    endfunction
+  function StaticFunc( foo )
+    if ( foo )
+      print( $"Animal::StaticFunc foo={foo}" );
+      StaticFunc( foo - 1 );
+    endif
+  endfunction
 endclass
 
 Animal::StaticFunc( 3 );

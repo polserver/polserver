@@ -1,1 +1,1 @@
-fail-self-base.src:3:14: error: Class 'Animal' references itself as a base class.
+:3:15: error: Class 'Animal' references itself as a base class.

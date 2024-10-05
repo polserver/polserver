@@ -1,1 +1,1 @@
-fail-super-varargs.src:18:48: error: In call to 'super': Too many arguments passed.  Expected 5, got 6.
+:18:45: error: In call to 'super': Too many arguments passed.  Expected 5, got 6.
