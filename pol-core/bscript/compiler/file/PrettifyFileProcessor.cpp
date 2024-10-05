@@ -865,9 +865,9 @@ antlrcpp::Any PrettifyFileProcessor::visitCaseStatement( EscriptParser::CaseStat
 antlrcpp::Any PrettifyFileProcessor::visitClassBody(
     EscriptGrammar::EscriptParser::ClassBodyContext* ctx )
 {
-  ++_currident;
+  ++_currindent;
   visitChildren( ctx );
-  --_currident;
+  --_currindent;
   return {};
 }
 
@@ -881,21 +881,26 @@ antlrcpp::Any PrettifyFileProcessor::visitClassDeclaration(
   visitClassBody( ctx->classBody() );
 
   addToken( "endclass", ctx->ENDCLASS(), FmtToken::SPACE );
-  linebuilder.buildLine( _currident );
+  linebuilder.buildLine( _currindent );
   return {};
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitClassParameters(
     EscriptGrammar::EscriptParser::ClassParametersContext* ctx )
 {
-  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle() );
+  addToken( "(", ctx->LPAREN(), linebuilder.openingParenthesisStyle(),
+            FmtContext::PREFERRED_BREAK_START );
 
-  size_t curcount = linebuilder.currentTokens().size();
+  bool argcount = false;
   if ( auto args = ctx->classParameterList() )
-    visitClassParameterList( args );
+    argcount = std::any_cast<bool>( visitClassParameterList( args ) );
 
-  addToken( ")", ctx->RPAREN(), linebuilder.closingParenthesisStyle( curcount ) );
-  linebuilder.buildLine( _currident );
+  auto closingstyle = linebuilder.closingParenthesisStyle( argcount );
+  if ( _suppressnewline )  // add space if newline is suppressed
+    closingstyle |= FmtToken::SPACE;
+  addToken( ")", ctx->RPAREN(), closingstyle, FmtContext::PREFERRED_BREAK_END );
+  if ( !_suppressnewline )
+    linebuilder.buildLine( _currindent );
   return {};
 }
 
@@ -910,7 +915,7 @@ antlrcpp::Any PrettifyFileProcessor::visitClassParameterList(
       addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
   }
 
-  return {};
+  return !params.empty();
 }
 
 antlrcpp::Any PrettifyFileProcessor::visitContinueStatement(
@@ -986,7 +991,8 @@ antlrcpp::Any PrettifyFileProcessor::visitReturnStatement(
 antlrcpp::Any PrettifyFileProcessor::visitScopedFunctionCall(
     EscriptParser::ScopedFunctionCallContext* ctx )
 {
-  make_identifier( ctx->IDENTIFIER() );  // scope
+  if ( ctx->IDENTIFIER() )
+    make_identifier( ctx->IDENTIFIER() );  // scope
   addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
   visitFunctionCall( ctx->functionCall() );
   return {};
@@ -998,7 +1004,7 @@ antlrcpp::Any PrettifyFileProcessor::visitScopedIdentifier(
   if ( ctx->scope )
     addToken( ctx->scope->getText(), ctx->scope, FmtToken::NONE );
   addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
-  addToken( ctx->identifier->getText(), ctx->scope, FmtToken::NONE );
+  addToken( ctx->identifier->getText(), ctx->identifier, FmtToken::NONE );
   return {};
 }
 
