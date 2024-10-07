@@ -3253,7 +3253,7 @@ var players_with_ranking := "".join(
 <p>Classes in EScript are a powerful feature that allows you to create custom
 data structures with encapsulated behaviors, following an object-oriented
 programming (OOP) paradigm. Similar to Python and other object-oriented
-languages, classes in EScript provide a way to bundle data (attributes) and
+languages, classes in EScript provide a way to bundle data (members) and
 functions (methods) that operate on that data into cohesive units called
 objects. This makes it easier to model real-world entities and complex systems
 by representing them as objects with properties and behaviors.</p>
@@ -3265,15 +3265,15 @@ by representing them as objects with properties and behaviors.</p>
 <ul>
 <li><strong>Class Definition</strong>: A class in EScript is defined using the
 <code>class</code> keyword followed by the class name. A class can include methods, which
-define the behaviors, and attributes, which store the state of an object.</li>
+define the behaviors, and members, which store the state of an object.</li>
 <li><strong>Constructor Method</strong>: The constructor method in EScript is a
 special function that is called when a new object of the class is created. In
 EScript, the constructor has the same name as the class itself. This method is
-typically used to initialize the object's attributes.</li>
+typically used to initialize the object's members.</li>
 <li><strong>Object Creation and Usage</strong>: To create an object in EScript,
 simply call the class like a function, passing any required arguments to the
 constructor. Once created, you can interact with the object's methods and
-attributes using dot notation, like other built-in objects.</li>
+members using dot notation, like other built-in objects.</li>
 <li><strong>Instance Methods</strong>: These are functions defined within a
 class that operate on the instance of the class. They are defined with the
 <code>function</code> keyword and take <code>this</code> as the first parameter,
@@ -3292,7 +3292,7 @@ function that has the same name as a module function.</li>
 <li><strong>Reference Type</strong>: A class in EScript is a reference type,
 meaning that when you assign an object to a variable, you are assigning a
 reference to the object, not the object itself. This means that changes made to
-the object's attributes will affect all references to that object. This is
+the object's members will affect all references to that object. This is
 similar to other built-in reference types, like <code>ItemRef</code>: every
 script that has variables for the same <code>Item</code> object will access the
 same item.</li>
