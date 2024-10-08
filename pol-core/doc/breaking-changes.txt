@@ -1,6 +1,9 @@
 # This is a short summary of breaking changes.
 # Please consult core-changes.txt for more information.
 -- POL100.2.0 [work-in-progress] --
+10-09-2024:
+    The words `class` and `endclass` are now special keywords in the Escript language, and any identifiers (variable or function names)
+    will need to be refactored and renamed.
 03-18-2024:
     The file format for uoconvert's realm output has changed. Realms must be re-generated.
 -- POL100.1.0 --
