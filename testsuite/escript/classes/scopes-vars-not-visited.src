@@ -2,8 +2,8 @@
 
 const constant := 1;
 class Animal()
-    var constant := 1;
-    var foo;
+  var constant := 1;
+  var foo;
 endclass
 
 // Uncomment for an error:

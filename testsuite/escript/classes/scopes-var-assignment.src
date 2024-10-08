@@ -7,16 +7,16 @@ class Animal()
   // static function named as same as class
   function Animal( foo )
     print( foo );
-    print( ::foo );
-    print( Animal::foo );
+    print(::foo);
+    print( Animal::foo);
 
-    Animal::foo := "class after";
+    Animal::foo:= "class after";
     foo := "param after";
-    ::foo := "global after";
+    ::foo:= "global after";
 
     print( foo );
-    print( ::foo );
-    print( Animal::foo );
+    print(::foo);
+    print( Animal::foo);
   endfunction
 endclass
 

@@ -1,9 +1,9 @@
 // A non-child class can define a super static function
 
 class Foo()
-    function super()
-        print("Foo::super called");
-    endfunction
+  function super()
+    print( "Foo::super called" );
+  endfunction
 endclass
 
 Foo::super();

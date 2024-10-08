@@ -12,12 +12,12 @@ class Animal()
 endclass
 
 var dog := Animal( "dog" );
-print( dog.id );  // Output: 1
+print( dog.id ); // Output: 1
 
 dog.Print(); // Output: Animal 1 is a dog
 Animal::Print( dog ); // Output: Animal 1 is a dog
 
-print( Animal::animal_count ); // Output: 1
+print( Animal::animal_count); // Output: 1
 
 var cat := Animal( "cat" );
 cat.Print(); // Output: Animal 2 is a cat

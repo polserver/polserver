@@ -1,9 +1,13 @@
 
-class BaseClass1() endclass
-class BaseClass3() endclass
+class BaseClass1()
+endclass
+
+class BaseClass3()
+endclass
 
 class Animal( BaseClass1, BaseClass2 )
-  function Animal() endfunction
+  function Animal()
+  endfunction
 endclass
 
 Animal();

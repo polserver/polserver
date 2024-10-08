@@ -1,14 +1,15 @@
 // A class cannot reference itself as a base class.
 
-class BaseClass1(Animal)
+class BaseClass1( Animal )
 
 endclass
 
-class BaseClass2(BaseClass1)
+class BaseClass2( BaseClass1 )
 endclass
 
-class Animal(BaseClass2)
-  function Animal( this ) endfunction
+class Animal( BaseClass2 )
+  function Animal( this )
+  endfunction
 endclass
 
 Animal();

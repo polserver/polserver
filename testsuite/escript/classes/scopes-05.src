@@ -7,19 +7,18 @@ class A()
   endfunction
 endclass
 
-class B(A)
+class B( A )
 endclass
 
-class C(A)
+class C( A )
 endclass
 
-class D(C, B)
+class D( C, B )
   function D( this )
     super( "argD" );
     print( $"D::D this={this} this.arg0={this.arg0}" );
   endfunction
 endclass
-
 
 var a := A( "argA" );
 print( "----" );
@@ -28,4 +27,3 @@ print( "----" );
 var c := C( "argC" );
 print( "----" );
 var d := D();
-

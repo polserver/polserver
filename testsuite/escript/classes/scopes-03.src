@@ -4,40 +4,39 @@
 var variable := "global var";
 
 function StaticFunc( variable )
-    print( $"::StaticFunc variable={variable}" );
+  print( $"::StaticFunc variable={variable}" );
 endfunction
 
 function TestFuncCall()
-    print( $"::TestFuncCall called" );
+  print( $"::TestFuncCall called" );
 endfunction
 
 class Animal()
-    var variable := "class var";
+  var variable := "class var";
 
-    function StaticFunc( variable )
-        print( $"StaticFunc variable={variable}" );
-        print( $"StaticFunc ::variable={::variable}" );
-        print( $"StaticFunc Animal::variable={Animal::variable}" );
+  function StaticFunc( variable )
+    print( $"StaticFunc variable={variable}" );
+    print( $"StaticFunc ::variable={::variable}" );
+    print( $"StaticFunc Animal::variable={Animal::variable}" );
 
-        if ("1")
-            var variable := "local var";
-            print( $"StaticFunc.local variable={variable}" );
-            print( $"StaticFunc.local Animal::variable={Animal::variable}" );
-        endif
-    endfunction
+    if ( "1" )
+      var variable := "local var";
+      print( $"StaticFunc.local variable={variable}" );
+      print( $"StaticFunc.local Animal::variable={Animal::variable}" );
+    endif
+  endfunction
 
-    function TestFor()
-        for variable := 1 to 2
-            print( $"TestFor variable={variable} to 2" );
-        endfor
-    endfunction
+  function TestFor()
+    for variable := 1 to 2
+      print( $"TestFor variable={variable} to 2" );
+    endfor
+  endfunction
 
-    function TestFuncCall()
-        print( $"Animal::TestFuncCall called" );
-        ::TestFuncCall( );
-    endfunction
+  function TestFuncCall()
+    print( $"Animal::TestFuncCall called" );
+    ::TestFuncCall();
+  endfunction
 endclass
-
 
 print( $"global variable={variable}" );
 print( $"global ::variable={::variable}" );

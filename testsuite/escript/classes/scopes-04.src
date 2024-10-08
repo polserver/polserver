@@ -14,7 +14,7 @@ class A()
   endfunction
 endclass
 
-class B(A)
+class B( A )
   function B( this )
     super();
   endfunction
@@ -30,7 +30,7 @@ class B(A)
   endfunction
 endclass
 
-class C(A)
+class C( A )
   function C( this )
     super();
   endfunction
@@ -46,10 +46,10 @@ class C(A)
   endfunction
 endclass
 
-class D(B, C)
+class D( B, C )
   function D( this )
     super();
-    //MethodA( this );
+  // MethodA( this );
   endfunction
   function MethodD( this )
     print( $"D::MethodD this={this}" );

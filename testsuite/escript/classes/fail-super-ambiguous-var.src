@@ -10,7 +10,6 @@ class BaseClass2()
   endfunction
 endclass
 
-
 class Foo( BaseClass1, BaseClass2 )
   function Foo( this )
     super( arg0 := "foo" );
