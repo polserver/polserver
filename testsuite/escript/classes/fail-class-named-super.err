@@ -1,1 +1,1 @@
-fail-class-named-super.src:1:7: error: The class name 'super' is reserved.
+:1:7: error: The class name 'super' is reserved.

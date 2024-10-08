@@ -8,7 +8,7 @@ class BaseClass0()
   endfunction
 endclass
 
-class BaseClass1(BaseClass0)
+class BaseClass1( BaseClass0 )
   function BaseClass1( this )
   endfunction
 
@@ -38,14 +38,14 @@ class BaseClass2()
   endfunction
 endclass
 
-class Foo( BaseClass1, BaseClass2  )
+class Foo( BaseClass1, BaseClass2 )
   function Foo( this )
     Common( this ); // In base1 and base2
     Method0( this ); // In base0
     Method1( this ); // In base1
     Method2( this ); // In base2
     Method3( this ); // In Foo and base1
-    print("-");
+    print( "-" );
     super::Common( this ); // In base1 and base2
     super::Method0( this ); // In base0
     super::Method1( this ); // In base1

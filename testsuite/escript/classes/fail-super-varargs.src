@@ -1,9 +1,9 @@
 // Test varargs with base class?
 
 class BaseClass1()
-  function BaseClass1( this, arg0, args... )
+  function BaseClass1( this, arg0, args ... )
     print( $"BaseClass1::BaseClass1 this={this} arg0={arg0} args={args}" );
-    //print( $"BaseClass1::BaseClass1 this={this} arg0={arg0}" );
+  // print( $"BaseClass1::BaseClass1 this={this} arg0={arg0}" );
   endfunction
 endclass
 
@@ -15,7 +15,7 @@ endclass
 
 class Foo5( BaseClass1, BaseClassNotVariadic )
   function Foo5( this )
-    super(  "bc.0" , "bc1.0", "bc1.1" , "nv0", "nv1" );
+    super( "bc.0", "bc1.0", "bc1.1", "nv0", "nv1" );
   endfunction
 endclass
 

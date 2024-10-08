@@ -1,6 +1,6 @@
 class BaseClass()
   function BaseClass( this )
-    print("super!");
+    print( "super!" );
   endfunction
 endclass
 

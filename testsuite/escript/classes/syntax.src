@@ -14,7 +14,7 @@ class Walker()
   endfunction
 endclass
 
-class Dog(Animal, Walker)
+class Dog( Animal, Walker )
   var static_var;
 
   function Dog( this, name, breed, speed )
@@ -28,4 +28,3 @@ endclass
 // dog.Speak( );
 
 // Dog.Speak( dog );
-

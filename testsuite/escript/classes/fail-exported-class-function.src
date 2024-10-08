@@ -1,7 +1,8 @@
 // A class cannot reference itself as a base class.
 
 class Animal()
-  exported function foo() endfunction
+  exported function foo()
+  endfunction
 endclass
 
 Animal::foo();

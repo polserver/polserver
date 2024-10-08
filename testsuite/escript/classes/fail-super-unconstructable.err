@@ -1,1 +1,1 @@
-fail-super-unconstructable.src:11:1: error: In construction of 'Foo::super': Unable to create argument from default for parameter 'arg0'.
+:11:1: error: In construction of 'Foo::super': Unable to create argument from default for parameter 'arg0'.

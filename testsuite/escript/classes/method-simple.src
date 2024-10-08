@@ -9,4 +9,4 @@ class Foo()
 endclass
 
 var obj := Foo( "NAME" );
-obj.print("PREFIX");
+obj.print( "PREFIX" );

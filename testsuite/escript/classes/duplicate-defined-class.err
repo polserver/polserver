@@ -1,1 +1,1 @@
-duplicate-defined-class.src:7:1: error: Class 'Animal' defined more than once.
+:7:1: error: Class 'Animal' defined more than once.
