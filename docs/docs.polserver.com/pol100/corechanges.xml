@@ -2,9 +2,25 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-27-2024</datemodified>
+		<datemodified>10-09-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-09-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Escript now supports classes! Classes are a way to bundle attributes (members) and functionality (methods) together:<br/>
+  class Fighter()<br/>
+    function Fighter( this, name )<br/>
+      this.name := name;<br/>
+    endfunction<br/>
+    function Attack( this, what )<br/>
+      print( $&quot;{this.name} attacks {what}!&quot; );<br/>
+    endfunction<br/>
+  endclass<br/>
+  var person = Fighter( &quot;Alice&quot; );<br/>
+  person.Attack( &quot;Bob&quot; );<br/>
+See the Racalac Escript Guide for additional details.</change>
+		</entry>
 		<entry>
 			<date>09-27-2024</date>
 			<author>Turley:</author>
