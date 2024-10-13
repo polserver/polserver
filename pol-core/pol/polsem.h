@@ -58,13 +58,14 @@ inline void noop(){};
   noop();                                           \
   INFO_PRINTLN( "lock {} {}", __FILE__, __LINE__ ); \
   Core::PolLockD
-#endif
+#else
 class PolLock
 {
 public:
   PolLock() { polsem_lock(); }
   ~PolLock() { polsem_unlock(); }
 };
+#endif
 
 class PolLock2
 {
