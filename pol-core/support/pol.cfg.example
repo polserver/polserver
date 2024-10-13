@@ -500,11 +500,11 @@ MaxAnimID=0x800
 
 
 #############################################################################
-## Treading Settings - Do not modify unless necessary.
+## Threading Settings - Do not modify unless necessary.
 #############################################################################
 
 #
-# SelectTimeout: I/O sleep time
+# SelectTimeout: I/O sleep time in usec, minimum timeout is 1ms (1000usec)
 #   Set to 0 for a dedicated server.
 #   Set to 10 for a non-dedicated server.
 # Default 10
