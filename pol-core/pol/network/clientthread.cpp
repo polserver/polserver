@@ -388,40 +388,43 @@ bool process_data( Network::ThreadedClient* session )
         INFO_PRINTLN( "Message Received: Type {:#x}, Length {} bytes", (int)msgtype,
                       session->message_length );
 
-      PolLock lck;  // multithread
-      // it can happen that a client gets disconnected while waiting for the lock.
-      if ( session->isConnected() )
+      if ( session->msgtype_filter->msgtype_allowed[msgtype] )
       {
-        if ( session->msgtype_filter->msgtype_allowed[msgtype] )
-        {
-          // region Speedhack
-          if ( ( settingsManager.ssopt.speedhack_prevention ) && ( msgtype == PKTIN_02_ID ) )
-          {
-            if ( !session->myClient.SpeedHackPrevention() )
-            {
-              // client->SpeedHackPrevention() added packet to queue
-              session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
-              SESSION_CHECKPOINT( 28 );
-              return true;
-            }
-          }
-          // endregion Speedhack
+        PolLock lck;  // multithread
+        // it can happen that a client gets disconnected while waiting for the lock.
+        if ( !session->isConnected() )
+          return false;
 
-          session->myClient.handle_msg( session->buffer, session->bytes_received );
-        }
-        else
+        // region Speedhack
+        if ( ( settingsManager.ssopt.speedhack_prevention ) && ( msgtype == PKTIN_02_ID ) )
         {
-          // Such combinations of instance and acct happen quite often. Maybe this should become
-          // Client->full_id() or something.
-          POLLOG_ERRORLN( "Client#{} ({}, Acct {}) sent non-allowed message type {:#x}.",
-                          session->myClient.instance_, session->ipaddrAsString(),
-                          ( session->myClient.acct ? session->myClient.acct->name() : "unknown" ),
-                          (int)msgtype );
+          if ( !session->myClient.SpeedHackPrevention() )
+          {
+            // client->SpeedHackPrevention() added packet to queue
+            session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
+            SESSION_CHECKPOINT( 28 );
+            return true;
+          }
         }
+        // endregion Speedhack
+
+        session->myClient.handle_msg( session->buffer, session->bytes_received );
+        session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
+        SESSION_CHECKPOINT( 28 );
+        return true;
+      }
+      else
+      {
+        // Such combinations of instance and acct happen quite often. Maybe this should become
+        // Client->full_id() or something.
+        POLLOG_ERRORLN( "Client#{} ({}, Acct {}) sent non-allowed message type {:#x}.",
+                        session->myClient.instance_, session->ipaddrAsString(),
+                        ( session->myClient.acct ? session->myClient.acct->name() : "unknown" ),
+                        (int)msgtype );
       }
       session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
       SESSION_CHECKPOINT( 28 );
-      return true;
+      return false;
     }
     // else keep waiting
   } /* endif RECV_STATE_MSGDATA_WAIT */
