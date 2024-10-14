@@ -102,6 +102,13 @@ InactivityDisconnectTimeout=20
 #
 #AllowMultiClientsPerAccount=0
 
+#
+# LoginServerDisconnectUnknownPkts:
+#   during login process disconnect connection if unknown/non-allowed pkt is received
+# default 0
+#
+#LoginServerDisconnectUnknownPkts=0
+
 #############################################################################
 ## System Profiling and Performance
 #############################################################################

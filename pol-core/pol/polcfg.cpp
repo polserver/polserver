@@ -248,6 +248,8 @@ void PolConfig::read_pol_config( bool initial_load )
       elem.remove_bool( "TimestampEveryLine", false );  // clib/logfacility.h bool
   Plib::systemstate.config.use_single_thread_login =
       elem.remove_bool( "UseSingleThreadLogin", false );
+  Plib::systemstate.config.loginserver_disconnect_unknown_pkts =
+      elem.remove_bool( "LoginServerDisconnectUnknownPkts", false );
   Plib::systemstate.config.disable_nagle = elem.remove_bool( "DisableNagle", false );
   Plib::systemstate.config.show_realm_info = elem.remove_bool( "ShowRealmInfo", false );
 
