@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+10-14-2024 Turley:
+    Added: pol.cfg LoginServerDisconnectUnknownPkts
+           during login process disconnect connection if unknown/non-allowed pkt is received
+    Fixed: improved performance when non allowed pkts arrive
 10-09-2024 Kevin:
     Added: Escript now supports classes! Classes are a way to bundle attributes (members) and functionality (methods) together:
 
