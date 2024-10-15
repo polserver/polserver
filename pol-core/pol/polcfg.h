@@ -31,7 +31,7 @@ struct PolConfig
   std::string pidfile_path;
   std::atomic<bool> verbose;
   std::atomic<unsigned short> loglevel;  // 0=nothing 10=lots
-  unsigned short select_timeout_usecs;
+  unsigned short loginserver_select_timeout_msecs;
   unsigned short loginserver_timeout_mins;
   bool watch_rpm;
   bool watch_sysload;

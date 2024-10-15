@@ -111,7 +111,8 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.verbose = elem.remove_bool( "Verbose", false );
   Plib::systemstate.config.watch_mapcache = elem.remove_bool( "WatchMapCache", false );
   Plib::systemstate.config.loglevel = elem.remove_ushort( "LogLevel", 0 );
-  Plib::systemstate.config.select_timeout_usecs = elem.remove_ushort( "SelectTimeout", 10 );
+  Plib::systemstate.config.loginserver_select_timeout_msecs =
+      elem.remove_ushort( "LoginServerSelectTimeout", 1 );
   Plib::systemstate.config.loginserver_timeout_mins =
       elem.remove_ushort( "LoginServerTimeout", 10 );
   Plib::systemstate.config.watch_rpm = elem.remove_bool( "WatchRpm", false );

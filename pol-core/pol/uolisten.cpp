@@ -70,8 +70,7 @@ bool UoClientThread::create()
 
   PolLock lck;
   client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption,
-                                client_addr,
-                                _def->allowed_proxies );
+                                client_addr, _def->allowed_proxies );
 
   // TODO: move this into an initialization of ThreadedClient.
   client->csocket = _sck.release_handle();  // client cleans up its socket.
@@ -115,15 +114,11 @@ void UoClientListener::run()
       port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
   while ( !Clib::exit_signalled )
   {
-    unsigned int timeout = 2;
-    unsigned int mstimeout = 0;
+    unsigned int mstimeout = 2000;
     if ( !login_clients.empty() )
-    {
-      timeout = 0;
       mstimeout = 200;
-    }
     Clib::Socket newsck;
-    if ( SL.GetConnection( &newsck, timeout, mstimeout ) && newsck.connected() )
+    if ( SL.GetConnection( &newsck, mstimeout ) && newsck.connected() )
     {
       // create an appropriate Client object
       if ( Plib::systemstate.config.use_single_thread_login )

@@ -226,6 +226,11 @@ void AuxClientThread::run()
         event->addMember( "value", value.release() );
         _uoexec->signal_event( event.release() );
       }
+      else if ( !reader->connected() )
+      {
+        _uoexec->signal_event( new Bscript::BError( "connection closed" ) );
+        break;
+      }
     }
     else
     {  // the controlling script dropped its last reference to the connection,
@@ -306,7 +311,7 @@ void AuxService::run()
   while ( !Clib::exit_signalled )
   {
     Clib::Socket sock;
-    if ( listener.GetConnection( &sock, 5 ) && sock.connected() )
+    if ( listener.GetConnection( &sock, 5000 ) && sock.connected() )
     {
       Core::PolLock lock;
       AuxClientThread* client( new AuxClientThread( this, std::move( sock ) ) );

@@ -26,7 +26,7 @@ namespace Clib
 class PollingWithPoll
 {
 public:
-  explicit PollingWithPoll( SOCKET socket ) : default_timeout{0, 0}, processed( false )
+  explicit PollingWithPoll( SOCKET socket ) : timeoutms( 0 ), processed( false )
   {
     fdList.fd = socket;
     reset();
@@ -51,24 +51,13 @@ public:
   }
   bool writable() { return ( processed ) ? ( ( fdList.revents & POLLOUT ) != 0 ) : false; }
 
-  void set_timeout( int timeout_sec, int timeout_usec )
-  {
-    default_timeout.tv_sec = timeout_sec;
-    default_timeout.tv_usec = timeout_usec;
-  }
+  void set_timeout( int timeout_msec ) { timeoutms = timeout_msec; }
 
   int wait_for_events()
   {
     passert( valid_socket() );
 
-    // ugly conversion, maybe change everything to use ms
-    int timeout_ms = 1000 * default_timeout.tv_sec + default_timeout.tv_usec / 1000;
-
-    // if timeout is non-zero but below 1ms, cap at 1ms
-    if ( default_timeout.tv_usec != 0 && timeout_ms == 0 )
-      timeout_ms = 1;
-
-    int res = poll( &fdList, 1, timeout_ms );
+    int res = poll( &fdList, 1, timeoutms );
 
     // only mark as processed if we don't have errors
     if ( res >= 0 )
@@ -82,7 +71,7 @@ public:
 private:
   pollfd fdList;  // a list of 1, this is a single poller
 
-  timeval default_timeout;
+  int timeoutms;
   bool processed;
 };
 }  // namespace Clib
