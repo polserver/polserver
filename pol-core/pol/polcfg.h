@@ -91,6 +91,7 @@ struct PolConfig
 
   int account_save;
   bool use_single_thread_login;
+  bool loginserver_disconnect_unknown_pkts;
 
   bool disable_nagle;
   bool show_realm_info;

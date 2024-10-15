@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>08/31/2024</datemodified>
+    <datemodified>10/14/2024</datemodified>
 </fileheader>
 
 
@@ -951,6 +951,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [InactivityDisconnectTimeout=(int minutes {default 5})]
 [MinCmdlevelToLogin=(int level {default 0})]
 [MinCmdLvlToIgnoreInactivity=(int level {default 1})]
+[LoginServerDisconnectUnknownPkts=(1/0 {default 0})]
 [MaxCallDepth=(int depth {default 100})]
 [ThreadStacktracesWhenStuck=(1/0 {default 0})]
 [DumpStackOnAssertionFailure=(1/0 {default 0})]

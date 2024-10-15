@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-09-2024</datemodified>
+		<datemodified>10-14-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-14-2024</date>
+			<author>Turley:</author>
+			<change type="Added">pol.cfg LoginServerDisconnectUnknownPkts<br/>
+during login process disconnect connection if unknown/non-allowed pkt is received</change>
+			<change type="Fixed">improved performance when non allowed pkts arrive</change>
+		</entry>
 		<entry>
 			<date>10-09-2024</date>
 			<author>Kevin:</author>
