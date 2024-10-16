@@ -100,6 +100,10 @@ if(APPLE)
   endif()
 endif()
 
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  target_compile_options(antlr4_static PRIVATE "-fPIC")
+endif()
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(disabled_compile_warnings "/wd4251")
 else()
@@ -158,7 +162,7 @@ if (ANTLR_BUILD_CPP_TESTS)
       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:antlr4_shared> ${CMAKE_HOME_DIRECTORY}/dist
       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_LINKER_FILE:antlr4_shared> ${CMAKE_HOME_DIRECTORY}/dist)
   endif()
-  
+
   if (TARGET antlr4_static)
     add_custom_command(
       TARGET antlr4_static

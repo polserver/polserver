@@ -5,6 +5,7 @@
 #include "bscript/compiler/file/PrettifyFileProcessor.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
@@ -14,13 +15,14 @@ PrettifyBuilder::PrettifyBuilder( Profile& profile, Report& report )
 {
 }
 
-std::string PrettifyBuilder::build( const std::string& pathname, bool is_module )
+std::string PrettifyBuilder::build( SourceFileLoader& source_loader, const std::string& pathname,
+                                    bool is_module )
 {
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
 
   SourceLocation source_location( ident.get(), 0, 0 );
 
-  auto sf = SourceFile::load( *ident, profile, report );
+  auto sf = SourceFile::load( *ident, source_loader, profile, report );
 
   if ( !sf || report.error_count() )
   {
