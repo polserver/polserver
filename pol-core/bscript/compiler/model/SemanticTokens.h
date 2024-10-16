@@ -12,6 +12,7 @@ class Token;
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
+class ScopeTree;
 
 // FIXME: truncate list after identifying proper usages
 enum class SemanticTokenType
@@ -76,12 +77,12 @@ struct SemanticToken
   size_t character_column;
   size_t length;
   SemanticTokenType type;
-  std::vector<SemanticTokenModifier> modifiers;
+  std::list<SemanticTokenModifier> modifiers;
 
-  static std::unique_ptr<SemanticToken> from_lexer_token( const antlr4::Token& );
+  static std::unique_ptr<std::list<SemanticToken>> from_lexer_token( const antlr4::Token& );
 };
 
-using SemanticTokens = std::list<std::unique_ptr<SemanticToken>>;
+using SemanticTokens = std::list<SemanticToken>;
 }  // namespace Pol::Bscript::Compiler
 
 #endif
