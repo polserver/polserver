@@ -9,6 +9,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceFileLoader.h"
+#include "bscript/compiler/model/ScopeTree.h"
 #include "bscript/compiler/model/SemanticTokens.h"
 #include "compilercfg.h"
 #include <EscriptGrammar/EscriptParserVisitor.h>
@@ -232,7 +233,9 @@ SemanticTokens SourceFile::get_tokens()
     auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
     if ( semantic_token )
     {
-      tokens.push_back( std::move( semantic_token ) );
+      auto& t = *semantic_token;
+      tokens.insert( tokens.end(), std::make_move_iterator( t.begin() ),
+                     std::make_move_iterator( t.end() ) );
     }
   }
   return tokens;

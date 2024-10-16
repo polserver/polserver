@@ -168,12 +168,16 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
 {
   // Let's see how this explodes...
   std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, is_module );
-  register_constants( *workspace, report );
-  optimize( *workspace, report );
-  disambiguate( *workspace, report );
-  analyze( *workspace, report );
-  tokenize( *workspace );
-  return workspace;
+  if ( workspace )
+  {
+    register_constants( *workspace, report );
+    optimize( *workspace, report );
+    disambiguate( *workspace, report );
+    analyze( *workspace, report );
+    tokenize( *workspace );
+    return workspace;
+  }
+  return {};
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
