@@ -799,7 +799,17 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   auto uf = fc.function_link->user_function();
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
-  auto parameters = fc.parameters();
+  auto params = fc.parameters();
+  if ( !params )
+  {
+    // The error is reported via FunctionResolver when called by
+    // CompierWorkspaceBuilder::build_referenced_user_functions. We just need to
+    // skip all of this.
+    return;
+  }
+
+  auto parameters = *params;
+
   bool has_class_inst_parameter = false;
 
   bool in_super_func = false;
