@@ -26,10 +26,13 @@ std::unique_ptr<Program> ProgramBuilder::program( EscriptParser::ProgramDeclarat
     {
       for ( auto param : param_list->programParameter() )
       {
-        auto name = text( param->IDENTIFIER() );
-        bool unused = param->UNUSED() != nullptr;
-        parameter_declarations.push_back( std::make_unique<ProgramParameterDeclaration>(
-            location_for( *param ), std::move( name ), unused ) );
+        if ( auto identifier = param->IDENTIFIER() )
+        {
+          auto name = text( identifier );
+          bool unused = param->UNUSED() != nullptr;
+          parameter_declarations.push_back( std::make_unique<ProgramParameterDeclaration>(
+              location_for( *param ), std::move( name ), unused ) );
+        }
       }
     }
   }

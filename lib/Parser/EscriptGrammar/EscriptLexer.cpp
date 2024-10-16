@@ -619,7 +619,7 @@ void EscriptLexer::INTERPOLATED_STRING_STARTAction(antlr4::RuleContext *context,
 void EscriptLexer::LBRACEAction(antlr4::RuleContext *context, size_t actionIndex) {
   switch (actionIndex) {
     case 1: 
-        if ( interpolatedStringLevel > 0 )
+        if ( interpolatedStringLevel > 0 && !curlyLevels.empty() )
           {
             auto currentLevel = curlyLevels.top();
             curlyLevels.pop();
@@ -635,7 +635,7 @@ void EscriptLexer::LBRACEAction(antlr4::RuleContext *context, size_t actionIndex
 void EscriptLexer::RBRACEAction(antlr4::RuleContext *context, size_t actionIndex) {
   switch (actionIndex) {
     case 2: 
-        if ( interpolatedStringLevel > 0 )
+        if ( interpolatedStringLevel > 0 && !curlyLevels.empty() )
           {
             auto currentLevel = curlyLevels.top();
             curlyLevels.pop();
