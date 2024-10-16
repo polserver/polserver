@@ -142,6 +142,7 @@ private:
   size_t _packablelinestart = 0;
   bool _packableline_allowed = false;
   bool _packablelineend = 0;
+  bool _rangeSkippedNewlineAtEOF = false;
   std::vector<std::string> _packable_switch_labels = {};
 
   void mergeRawContent( size_t nextlineno );

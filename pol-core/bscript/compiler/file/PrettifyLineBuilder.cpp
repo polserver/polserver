@@ -62,9 +62,18 @@ void PrettifyLineBuilder::mergeRawContent( size_t nextlineno )
     {
       mergeCommentsBefore( itr->start.line_number );
       addEmptyLines( itr->start.line_number );
-      for ( size_t i = itr->start.line_number - 1; i < itr->end.line_number && i < _rawlines.size();
-            ++i )
+      for ( size_t i = itr->start.line_number - 1;; ++i )
       {
+        if ( i >= _rawlines.size() )
+        {
+          _rangeSkippedNewlineAtEOF = true;
+          break;
+        }
+        else if ( i >= itr->end.line_number )
+        {
+          break;
+        }
+
         _packableline_allowed = false;
         _lines.emplace_back( _rawlines[i] );
         _last_line = i + 1;
@@ -1372,6 +1381,12 @@ void PrettifyLineBuilder::mergeEOFNonTokens()
   // if the original file ends with a newline, make sure to also end
   if ( !_lines.empty() && !_lines.back().empty() && !_rawlines.empty() && _rawlines.back().empty() )
     _lines.push_back( "" );
+
+  // or add a new line if cfg says to do so when one does not exist _and_ a
+  // format range did not skiplines the EOF.
+  else if ( !_rangeSkippedNewlineAtEOF && compilercfg.FormatterInsertNewlineAtEOF &&
+            !_lines.empty() && !_lines.back().empty() )
+    _lines.emplace_back( "" );
 }
 
 void PrettifyLineBuilder::markPackableLineStart()
