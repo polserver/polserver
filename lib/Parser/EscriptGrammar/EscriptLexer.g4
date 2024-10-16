@@ -186,7 +186,7 @@ COLON:              ':'
             int ind = 1;
             bool switchToFormatString = true;
 
-            while (_input->LA(ind) != '}')
+            while ( _input->LA( ind ) != '}' && _input->LA( ind ) != CharStream::EOF )
             {
                 if (_input->LA(ind) == ':' || _input->LA(ind) == ')')
                 {
