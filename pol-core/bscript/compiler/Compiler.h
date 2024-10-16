@@ -11,13 +11,15 @@ namespace Pol::Bscript::Compiler
 class CompiledScript;
 class CompilerWorkspace;
 class SourceFileCache;
+class SourceFileLoader;
 class Profile;
 class Report;
 
 class Compiler
 {
 public:
-  Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile& );
+  Compiler( SourceFileLoader& source_loader, SourceFileCache& em_cache, SourceFileCache& inc_cache,
+            Profile& );
   ~Compiler();
   Compiler( const Compiler& ) = delete;
   Compiler& operator=( const Compiler& ) = delete;
@@ -31,17 +33,21 @@ public:
 
   void compile_file_steps( const std::string& pathname, Report& );
   bool format_file( const std::string& filename, bool is_module, bool inplace );
+  std::unique_ptr<CompilerWorkspace> analyze( const std::string& pathname, Report&,
+                                              bool is_module );
 
 private:
-  std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report& );
+  std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool );
   void register_constants( CompilerWorkspace&, Report& );
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );
   void analyze( CompilerWorkspace&, Report& );
   std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace>, Report& );
+  void tokenize( CompilerWorkspace& );
 
   void display_outcome( const std::string& filename, Report& );
 
+  SourceFileLoader& source_loader;
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;
   Profile& profile;
