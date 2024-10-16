@@ -77,8 +77,9 @@ void Variables::restore_shadowed( std::shared_ptr<Variable> variable )
   current().variables_by_name[variable->name] = std::move( variable );
 }
 
-void Variables::remove_all_but( unsigned count )
+std::vector<std::shared_ptr<Variable>> Variables::remove_all_but( unsigned count )
 {
+  std::vector<std::shared_ptr<Variable>> removed;
   while ( current().names_by_index.size() > count )
   {
     std::string last_name = current().names_by_index.back();
@@ -96,10 +97,13 @@ void Variables::remove_all_but( unsigned count )
       {
         report.warning( removing->source_location, "local variable '{}' was not used.", last_name );
       }
+      removed.push_back( removing );
       current().variables_by_name.erase( itr );
     }
     current().names_by_index.pop_back();
   }
+
+  return removed;
 }
 
 const std::vector<std::string>& Variables::get_names() const
