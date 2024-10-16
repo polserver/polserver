@@ -15,6 +15,7 @@
 #include "bscript/compiler/Compiler.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/file/SourceFileCache.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compilercfg.h"
 #include "bscript/escriptv.h"
 #include "bscript/executor.h"
@@ -133,8 +134,9 @@ struct Summary
   Compiler::Profile profile;
 } summary;
 
-Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
-Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
+Compiler::SourceFileLoader source_loader;
+Compiler::SourceFileCache em_parse_tree_cache( source_loader, summary.profile );
+Compiler::SourceFileCache inc_parse_tree_cache( source_loader, summary.profile );
 
 using DependencyInfo = std::map<fs::path, std::set<fs::path>>;
 // Map owner (sources) -> dependencies
@@ -146,8 +148,8 @@ std::set<fs::path> compiled_dirs;
 
 std::unique_ptr<Compiler::Compiler> create_compiler()
 {
-  auto compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
-                                                        summary.profile );
+  auto compiler = std::make_unique<Compiler::Compiler>( source_loader, em_parse_tree_cache,
+                                                        inc_parse_tree_cache, summary.profile );
   return compiler;
 }
 

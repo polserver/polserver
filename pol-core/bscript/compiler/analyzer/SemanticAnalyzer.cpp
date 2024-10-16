@@ -58,6 +58,7 @@
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
 #include "bscript/compiler/model/ClassLink.h"
+#include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopeName.h"
@@ -76,8 +77,8 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       captures( VariableScope::Capture, report ),
       break_scopes( locals, report ),
       continue_scopes( locals, report ),
-      local_scopes( locals, report ),
-      capture_scopes( captures, report )
+      local_scopes( workspace.scope_tree, locals, report ),
+      capture_scopes( workspace.scope_tree, captures, report )
 {
   current_scope_names.push( ScopeName::Global );
 }
@@ -96,6 +97,8 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
 
 void SemanticAnalyzer::analyze()
 {
+  workspace.scope_tree.push_scope(
+      SourceLocation( workspace.referenced_source_file_identifiers[0].get(), 0, 0 ) );
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
@@ -119,6 +122,9 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
+
+  auto global_variables = globals.remove_all_but( 0 );
+  workspace.scope_tree.set_globals( std::move( global_variables ) );
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
@@ -136,7 +142,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
   node.first().accept( *this );
   node.last().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   scope.create( node.identifier, WarnOn::Never, node.source_location );
   scope.create( "_" + node.identifier + "_end", WarnOn::Never, node.source_location );
 
@@ -150,7 +156,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
 
 void SemanticAnalyzer::visit_block( Block& block )
 {
-  LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
+  LocalVariableScope scope( block.source_location, local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
 }
@@ -653,7 +659,7 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 
   node.expression().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   scope.create( node.iterator_name, WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_expr", WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_iter", WarnOn::Never, node.source_location );
@@ -1178,7 +1184,7 @@ void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
     // visitor.
     {
       FunctionVariableScope new_capture_scope( captures );
-      LocalVariableScope capture_scope( capture_scopes,
+      LocalVariableScope capture_scope( node.source_location, capture_scopes,
                                         user_function->capture_variable_scope_info );
       FunctionVariableScope new_function_scope( locals );
       visit_user_function( *user_function );
@@ -1360,7 +1366,8 @@ void SemanticAnalyzer::visit_loop_statement( LoopStatement& loop )
 
 void SemanticAnalyzer::visit_program( Program& program )
 {
-  LocalVariableScope scope( local_scopes, program.local_variable_scope_info );
+  LocalVariableScope scope( program.source_location, local_scopes,
+                            program.local_variable_scope_info );
 
   visit_children( program );
 }
@@ -1398,6 +1405,7 @@ void SemanticAnalyzer::visit_return_statement( ReturnStatement& node )
       report.error( node, "Cannot return a value from a constructor function." );
     }
   }
+  // LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
 
   visit_children( node );
 }
@@ -1460,7 +1468,7 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
     }
   }
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   visit_children( node );
   user_functions.pop();
   current_scope_names.pop();
