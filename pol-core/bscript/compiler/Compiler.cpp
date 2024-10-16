@@ -21,10 +21,10 @@
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/optimizer/Optimizer.h"
 #include "bscript/compiler/representation/CompiledScript.h"
+#include "bscript/compilercfg.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/timer.h"
-#include "bscript/compilercfg.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -169,7 +169,7 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   ConsoleReporter reporter( false, true );
   Report report( reporter );
   PrettifyBuilder prettify_builder( profile, report );
-  auto formatted = prettify_builder.build( source_loader, filename, is_module );
+  auto formatted = prettify_builder.build( source_loader, filename, is_module, {} );
   errors = report.error_count();
   warnings = report.warning_count();
   if ( report.error_count() )
@@ -202,6 +202,19 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
     return workspace;
   }
   return {};
+}
+
+std::string Compiler::to_formatted_string( const std::string& filename, bool is_module,
+                                           std::optional<Range> format_range )
+{
+  DiagnosticReporter reporter;
+  Report report( reporter );
+  PrettifyBuilder prettify_builder( profile, report );
+  auto formatted = prettify_builder.build( source_loader, filename, is_module, format_range );
+  if ( report.error_count() )
+    throw std::runtime_error( reporter.diagnostics.front().message );
+
+  return formatted;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
