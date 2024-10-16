@@ -163,7 +163,7 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   ConsoleReporter reporter( false, true );
   Report report( reporter );
   PrettifyBuilder prettify_builder( profile, report );
-  auto formatted = prettify_builder.build( source_loader, filename, is_module );
+  auto formatted = prettify_builder.build( source_loader, filename, is_module, {} );
   if ( report.error_count() )
     return false;
   if ( inplace )
@@ -194,6 +194,19 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
     return workspace;
   }
   return {};
+}
+
+std::string Compiler::to_formatted_string( const std::string& filename, bool is_module,
+                                           std::optional<Range> format_range )
+{
+  DiagnosticReporter reporter;
+  Report report( reporter );
+  PrettifyBuilder prettify_builder( profile, report );
+  auto formatted = prettify_builder.build( source_loader, filename, is_module, format_range );
+  if ( report.error_count() )
+    throw std::runtime_error( reporter.diagnostics.front().message );
+
+  return formatted;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
