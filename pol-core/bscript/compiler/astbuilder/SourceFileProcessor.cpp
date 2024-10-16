@@ -137,6 +137,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     include_name = tree_builder.unquote( string_literal );
   else if ( auto identifier = ctx->stringIdentifier()->IDENTIFIER() )
     include_name = identifier->getSymbol()->getText();
+  else if ( workspace.continue_on_error )
+    return;
   else
     source_location.internal_error(
         "Unable to include module: expected a string literal or identifier.\n" );
@@ -366,7 +368,7 @@ antlrcpp::Any SourceFileProcessor::visitProgramDeclaration(
                   "  Other declaration: {}",
                   workspace.compiler_workspace.program->source_location );
   }
-  else
+  else if ( ctx->IDENTIFIER() )
   {
     workspace.compiler_workspace.program = tree_builder.program( ctx );
   }
