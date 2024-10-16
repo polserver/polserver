@@ -6,6 +6,7 @@
 #include "bscript/compiler/file/PrettifyLineBuilder.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compilercfg.h"
 #include "clib/filecont.h"
 #include "clib/logfacility.h"
@@ -80,30 +81,35 @@ namespace Pol::Bscript::Compiler
 using namespace EscriptGrammar;
 
 PrettifyFileProcessor::PrettifyFileProcessor( const SourceFileIdentifier& source_file_identifier,
-                                              Profile& /*profile*/, Report& report )
-    : source_file_identifier( source_file_identifier ) /*, profile( profile )*/, report( report )
+                                              SourceFileLoader& source_loader, Profile& /*profile*/,
+                                              Report& report )
+    : source_file_identifier( source_file_identifier ) /*, profile( profile )*/,
+      source_loader( source_loader ),
+      report( report )
 {
 }
 
-antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf )
+antlrcpp::Any PrettifyFileProcessor::process_compilation_unit( SourceFile& sf,
+                                                               std::optional<Range> format_range )
 {
   if ( auto compilation_unit = sf.get_compilation_unit( report, source_file_identifier ) )
   {
     if ( report.error_count() )
       return {};
-    preprocess( sf );
+    preprocess( sf, format_range );
     return compilation_unit->accept( this );
   }
   throw std::runtime_error( "No compilation unit in source file" );
 }
 
-antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf )
+antlrcpp::Any PrettifyFileProcessor::process_module_unit( SourceFile& sf,
+                                                          std::optional<Range> format_range )
 {
   if ( auto module_unit = sf.get_module_unit( report, source_file_identifier ) )
   {
     if ( report.error_count() )
       return {};
-    preprocess( sf );
+    preprocess( sf, format_range );
     return module_unit->accept( this );
   }
   throw std::runtime_error( "No compilation unit in source file" );
@@ -1645,11 +1651,47 @@ void PrettifyFileProcessor::addToken( std::string&& text, antlr4::Token* token, 
               context );
 }
 
-void PrettifyFileProcessor::preprocess( SourceFile& sf )
+void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> format_range )
 {
   auto rawlines = load_raw_file();
   auto comments = collectComments( sf );
+  auto column_for_line = [&]( size_t line /* 1-based */ )
+  {
+    if ( line <= rawlines.size() )
+    {
+      return rawlines[line - 1].length() + 1;
+    }
+    return std::numeric_limits<size_t>::max();
+  };
+
   std::vector<Range> skiplines;
+
+  // The skipline range corresponding to _before_ the format range.
+  std::optional<Range> format_range_skip_head;
+
+  // The skipline range correspond to _after_ the format range.
+  std::optional<Range> format_range_skip_foot;
+
+  if ( format_range.has_value() )
+  {
+    // Only create skipline head if format range starts after first line.
+    if ( format_range->start.line_number > 1 )
+    {
+      format_range_skip_head =
+          Range( Position{ 1, 1, 0 },
+                 Position{ format_range->start.line_number - 1,
+                           column_for_line( format_range->start.line_number - 1 ), 0 } );
+    }
+
+    // Only create skipline foot if format range ends before last line.
+    if ( format_range->end.line_number < rawlines.size() )
+    {
+      format_range_skip_foot =
+          Range( Position{ format_range->end.line_number + 1, 1, 0 },
+                 Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 } );
+    }
+  }
+
   for ( const auto& c : comments )
   {
     if ( c.text.find( "format-off" ) != std::string::npos )
@@ -1663,6 +1705,108 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf )
     // set unmatched end to file eof
     if ( skiplines.back().start.line_number == skiplines.back().end.line_number )
       skiplines.back().end.line_number = rawlines.size() + 1;
+
+    bool skipAll = false;
+
+    // Case 1: `format_range` is completely inside a skipline.
+    // If so, do not format anything, ie. have only one skipline covering the entire file.
+    if ( format_range.has_value() )
+    {
+      for ( auto itr = skiplines.begin(); itr < skiplines.end(); ++itr )
+      {
+        auto& skipline = *itr;
+        if ( skipline.contains( format_range.value() ) )
+        {
+          skipAll = true;
+          break;
+        }
+      }
+    }
+
+    if ( skipAll )
+    {
+      // Replace all skiplines with one skipline covering the entire file.
+      format_range_skip_head = {};
+      format_range_skip_foot = {};
+      skiplines.clear();
+      // skiplines.emplace_back( Position{ 1, 1, 0 },
+      //                         Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 }
+      //                         );
+      skiplines.emplace_back( Position{ 1, 0, 0 },
+                              Position{ rawlines.size(), column_for_line( rawlines.size() ), 0 } );
+    }
+    else
+    {
+      if ( format_range_skip_head.has_value() )
+      {
+        for ( auto itr = skiplines.begin(); itr < skiplines.end(); )
+        {
+          auto& skipline = *itr;
+
+          // Case 2: Skipline is partially contained inside head.
+          // If so, extend head to end of skipline and remove skipline
+          if ( format_range_skip_head->contains( skipline.start ) &&
+               !format_range_skip_head->contains( skipline.end ) )
+          {
+            format_range_skip_head->end.line_number = skipline.end.line_number;
+            itr = skiplines.erase( itr );
+          }
+          // Case 3: Skipline is completely contained inside head.
+          // If so, remove skipline, as it will not be formatted anyway because of head's range.
+          else if ( format_range_skip_head->contains( skipline ) )
+          {
+            itr = skiplines.erase( itr );
+          }
+          // Case 4: Skipline exists inside formatting range.
+          // If so, keep skipline as-is, and formatter will skip this range.
+          else
+          {
+            ++itr;
+          }
+        }
+      }
+
+      if ( format_range_skip_foot.has_value() )
+      {
+        for ( auto itr = skiplines.begin(); itr < skiplines.end(); )
+        {
+          auto& skipline = *itr;
+
+          // Case 5: Skipline is partially contained inside foot.
+          // If so, extend foot to start of skipline and remove skipline
+          if ( format_range_skip_foot->contains( skipline.end ) &&
+               !format_range_skip_foot->contains( skipline.start ) )
+          {
+            format_range_skip_foot->start.line_number = skipline.start.line_number;
+            itr = skiplines.erase( itr );
+          }
+          // Case 6: Skipline is completely contained inside foot.
+          // If so, remove skipline, as it will not be formatted anyway because of foot's range.
+          else if ( format_range_skip_foot->contains( skipline ) )
+          {
+            itr = skiplines.erase( itr );
+          }
+          // Case 4: Skipline exists inside formatting range.
+          // If so, keep skipline as-is, and formatter will skip this range.
+          else
+          {
+            ++itr;
+          }
+        }
+      }
+    }
+  }
+
+  // If head exists, add to start of vector.
+  if ( format_range_skip_head.has_value() )
+  {
+    skiplines.insert( skiplines.begin(), format_range_skip_head.value() );
+  }
+
+  // If foot exists, add to end of vector.
+  if ( format_range_skip_foot.has_value() )
+  {
+    skiplines.push_back( format_range_skip_foot.value() );
   }
 
   // remove all comments between noformat ranges
@@ -1685,8 +1829,9 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf )
 
 std::vector<std::string> PrettifyFileProcessor::load_raw_file()
 {
-  Clib::FileContents fc( source_file_identifier.pathname.c_str(), true );
-  const auto& contents = fc.str_contents();
+  // Clib::FileContents fc( source_file_identifier.pathname.c_str(), true );
+  // const auto& contents = fc.str_contents();
+  const auto contents = source_loader.get_contents( source_file_identifier.pathname );
   std::vector<std::string> rawlines;
   std::string currline;
   for ( size_t i = 0; i < contents.size(); ++i )
