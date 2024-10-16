@@ -154,9 +154,12 @@ std::vector<std::unique_ptr<Statement>> CompoundStatementBuilder::block_statemen
 {
   std::vector<std::unique_ptr<Statement>> statements;
 
-  for ( auto statement_context : ctx->statement() )
+  if ( ctx )
   {
-    add_statements( statement_context, statements );
+    for ( auto statement_context : ctx->statement() )
+    {
+      add_statements( statement_context, statements );
+    }
   }
 
   return statements;

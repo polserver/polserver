@@ -299,7 +299,10 @@ antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
 {
   auto loc = location_for( *ctx );
   bool force_reference = user_function_inclusion == UserFunctionInclusion::All;
-  workspace.function_resolver.register_available_user_function( loc, ctx, force_reference );
+  if ( ctx->IDENTIFIER() )
+  {
+    workspace.function_resolver.register_available_user_function( loc, ctx, force_reference );
+  }
   const std::string& function_name = tree_builder.text( ctx->IDENTIFIER() );
   workspace.compiler_workspace.all_function_locations.emplace( function_name, loc );
   return antlrcpp::Any();
