@@ -7,26 +7,68 @@
 namespace Pol::Bscript::Compiler
 {
 class SourceLocation;
+class ErrorReporter
+{
+public:
+  virtual ~ErrorReporter(){};
+  virtual void report_error( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void report_warning( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void report_debug( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void clear() = 0;
+};
+class ConsoleReporter : public ErrorReporter
+{
+public:
+  explicit ConsoleReporter( bool display_warnings, bool display_errors = true,
+                            bool display_debugs = false );
+  ConsoleReporter( const ConsoleReporter& ) = delete;
+  ConsoleReporter& operator=( const ConsoleReporter& ) = delete;
+  void report_error( const SourceLocation&, const std::string& msg ) override;
+  void report_warning( const SourceLocation&, const std::string& msg ) override;
+  void report_debug( const SourceLocation&, const std::string& msg ) override;
+  void clear() override;
+
+private:
+  const bool display_warnings;
+  const bool display_errors;
+  const bool display_debugs;
+};
+struct Diagnostic
+{
+  enum class Severity
+  {
+    Warning,
+    Error
+  } severity;
+  SourceLocation location;
+  std::string message;
+};
+class DiagnosticReporter : public ErrorReporter
+{
+public:
+  explicit DiagnosticReporter() = default;
+  DiagnosticReporter( const DiagnosticReporter& ) = delete;
+  DiagnosticReporter& operator=( const DiagnosticReporter& ) = delete;
+  void report_error( const SourceLocation&, const std::string& ) override;
+  void report_warning( const SourceLocation&, const std::string& ) override;
+  void report_debug( const SourceLocation&, const std::string& ) override;
+  void clear() override;
+
+  std::vector<Diagnostic> diagnostics;
+};
 
 class Report
 {
 public:
-  explicit Report( bool display_warnings, bool display_errors = true, bool display_debug = false );
+  explicit Report( ErrorReporter& report );
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
   template <typename Str, typename... Args>
   inline void error( const SourceLocation& source_location, Str const& format, Args&&... args )
   {
-    if ( display_errors )
-    {
-      auto msg = fmt::format( format, args... );
-      report_error( source_location, msg.c_str() );
-    }
-    else
-    {
-      ++errors;
-    }
+    auto msg = fmt::format( format, args... );
+    report_error( source_location, msg.c_str() );
   }
 
   template <typename Str, typename... Args>
@@ -56,15 +98,8 @@ public:
   template <typename Str, typename... Args>
   inline void warning( const SourceLocation& source_location, Str const& format, Args&&... args )
   {
-    if ( display_warnings )
-    {
-      auto msg = fmt::format( format, args... );
-      report_warning( source_location, msg.c_str() );
-    }
-    else
-    {
-      ++warnings;
-    }
+    auto msg = fmt::format( format, args... );
+    report_warning( source_location, msg.c_str() );
   }
 
   template <typename Str, typename... Args>
@@ -76,11 +111,8 @@ public:
   template <typename Str, typename... Args>
   inline void debug( const SourceLocation& source_location, Str const& format, Args&&... args )
   {
-    if ( display_debugs )
-    {
-      auto msg = fmt::format( format, args... );
-      report_debug( source_location, msg.c_str() );
-    }
+    auto msg = fmt::format( format, args... );
+    report_debug( source_location, msg.c_str() );
   }
 
   template <typename Str, typename... Args>
@@ -89,19 +121,19 @@ public:
     debug( node.source_location, format, args... );
   }
 
+  void clear();
+
   [[nodiscard]] unsigned error_count() const;
   [[nodiscard]] unsigned warning_count() const;
 
   void reset();
 
 private:
-  void report_error( const SourceLocation&, const char* msg );
-  void report_warning( const SourceLocation&, const char* msg );
-  void report_debug( const SourceLocation&, const char* msg );
+  void report_error( const SourceLocation&, const std::string& msg );
+  void report_warning( const SourceLocation&, const std::string& msg );
+  void report_debug( const SourceLocation&, const std::string& msg );
+  ErrorReporter& reporter;
 
-  const bool display_warnings;
-  const bool display_errors;
-  const bool display_debugs;
   unsigned errors;
   unsigned warnings;
 };
