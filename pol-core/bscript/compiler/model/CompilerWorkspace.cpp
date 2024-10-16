@@ -12,7 +12,7 @@
 
 namespace Pol::Bscript::Compiler
 {
-CompilerWorkspace::CompilerWorkspace( Report& report ) : constants( report ) {}
+CompilerWorkspace::CompilerWorkspace( Report& report ) : constants( report ), scope_tree( *this ) {}
 
 CompilerWorkspace::~CompilerWorkspace() = default;
 
