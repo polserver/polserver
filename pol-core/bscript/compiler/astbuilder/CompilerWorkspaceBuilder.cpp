@@ -51,6 +51,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   if ( SourceFile::enforced_case_sensitivity_mismatch( source_location, pathname, report ) )
   {
     report.error( *ident, "Refusing to load '{}'.", pathname );
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
     return {};
   }
 
@@ -59,6 +60,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   if ( !sf || report.error_count() )
   {
     report.error( *ident, "Unable to load '{}'.", pathname );
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
     return {};
   }
 
@@ -94,6 +96,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build_module(
   if ( SourceFile::enforced_case_sensitivity_mismatch( source_location, pathname, report ) )
   {
     report.error( *ident, "Refusing to load '", pathname, "'." );
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
     return {};
   }
 
@@ -101,6 +104,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build_module(
   if ( !sf || report.error_count() )
   {
     report.error( *ident, "Unable to load '", pathname, "'." );
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
     return {};
   }
 
