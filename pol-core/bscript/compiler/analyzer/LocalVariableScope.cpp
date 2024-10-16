@@ -5,11 +5,12 @@
 #include "bscript/compiler/analyzer/Variables.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/model/ScopeTree.h"
 #include "bscript/compiler/model/Variable.h"
 
 namespace Pol::Bscript::Compiler
 {
-LocalVariableScope::LocalVariableScope( LocalVariableScopes& scopes,
+LocalVariableScope::LocalVariableScope( const SourceLocation& location, LocalVariableScopes& scopes,
                                         LocalVariableScopeInfo& local_variable_scope_info )
     : scopes( scopes ),
       report( scopes.report ),
@@ -18,18 +19,19 @@ LocalVariableScope::LocalVariableScope( LocalVariableScopes& scopes,
       local_variable_scope_info( local_variable_scope_info )
 {
   local_variable_scope_info.base_index = prev_locals;
+  scopes.tree.push_scope( location );
   scopes.local_variable_scopes.push_back( this );
 }
 
 LocalVariableScope::~LocalVariableScope()
 {
-  scopes.local_variables.remove_all_but( prev_locals );
+  auto removed = scopes.local_variables.remove_all_but( prev_locals );
 
   for ( auto& variable : shadowing )
   {
     scopes.local_variables.restore_shadowed( variable );
   }
-
+  scopes.tree.pop_scope( removed );
   scopes.local_variable_scopes.pop_back();
 }
 
