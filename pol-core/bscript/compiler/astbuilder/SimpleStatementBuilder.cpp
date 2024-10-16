@@ -201,8 +201,18 @@ std::unique_ptr<ConstDeclaration> SimpleStatementBuilder::const_declaration(
     EscriptParser::ConstStatementContext* ctx )
 {
   auto variable_declaration = ctx->constantDeclaration();
+  if ( !variable_declaration )
+  {
+    return std::make_unique<ConstDeclaration>(
+        location_for( *ctx ), ScopableName( ScopeName::Global, "" ), expression( nullptr ) );
+  }
+
   auto identifier = text( variable_declaration->IDENTIFIER() );
-  auto expression_context = variable_declaration->variableDeclarationInitializer()->expression();
+  auto variableDeclarationInitializer = variable_declaration->variableDeclarationInitializer();
+
+  auto expression_context =
+      variableDeclarationInitializer ? variableDeclarationInitializer->expression() : nullptr;
+
   auto value = expression( expression_context );
 
   return std::make_unique<ConstDeclaration>(

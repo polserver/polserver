@@ -191,6 +191,8 @@ BTokenId ExpressionBuilder::binary_operator_token(
     return TOK_DELMEMBER;
   else if ( ctx->IS() )
     return TOK_IS;
+  else if ( workspace.continue_on_error )
+    return RSV_FUTURE;
   else
     location_for( *ctx ).internal_error( "unrecognized binary operator" );
 }
@@ -262,9 +264,10 @@ std::unique_ptr<ConditionalOperator> ExpressionBuilder::conditional_operator(
 {
   auto source_location = location_for( *ctx );
   auto expressions = ctx->expression();
-  auto conditional = expression( expressions[0] );
-  auto consequent = expression( expressions[1] );
-  auto alternate = expression( expressions[2] );
+  auto size = expressions.size();
+  auto conditional = expression( size > 0 ? expressions[0] : nullptr );
+  auto consequent = expression( size > 1 ? expressions[1] : nullptr );
+  auto alternate = expression( size > 2 ? expressions[2] : nullptr );
 
   return std::make_unique<ConditionalOperator>( source_location, std::move( conditional ),
                                                 std::move( consequent ), std::move( alternate ) );
@@ -357,7 +360,7 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
     {
       expressions.push_back( string_value( escaped, false ) );
     }
-    else
+    else if ( !workspace.continue_on_error )
     {
       location_for( *interstringPart_ctx )
           .internal_error( "unhandled context in interpolated string part" );
@@ -383,7 +386,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
                                                            bool consume, bool spread )
 {
   std::unique_ptr<Expression> result;
-  if ( auto prim = ctx->primary() )
+  if ( ctx == nullptr )
+    result =
+        std::make_unique<UninitializedValue>( SourceLocation( &source_file_identifier, 0, 0 ) );
+  else if ( auto prim = ctx->primary() )
     result = primary( prim );
   else if ( ctx->prefix )
     result = prefix_unary_operator( ctx );
@@ -505,6 +511,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   else if ( auto function_call_suffix = ctx->functionCallSuffix() )
   {
     return function_call( std::move( lhs ), function_call_suffix );
+  }
+  else if ( workspace.continue_on_error )
+  {
+    return expression( nullptr );
   }
   else
   {
