@@ -63,11 +63,14 @@ std::vector<std::unique_ptr<Argument>> FunctionCall::take_arguments()
   return args;
 }
 
-std::vector<std::reference_wrapper<FunctionParameterDeclaration>> FunctionCall::parameters() const
+std::unique_ptr<std::vector<std::reference_wrapper<FunctionParameterDeclaration>>>
+FunctionCall::parameters() const
 {
   if ( auto fn = function_link->function() )
-    return fn->parameters();
-  internal_error( "function has not been resolved" );
+    return std::make_unique<std::vector<std::reference_wrapper<FunctionParameterDeclaration>>>(
+        fn->parameters() );
+  else
+    return {};
 }
 
 std::string FunctionCall::string() const
