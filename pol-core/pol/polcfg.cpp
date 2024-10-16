@@ -248,7 +248,7 @@ void PolConfig::read_pol_config( bool initial_load )
   Clib::LogfileTimestampEveryLine =
       elem.remove_bool( "TimestampEveryLine", false );  // clib/logfacility.h bool
   Plib::systemstate.config.use_single_thread_login =
-      elem.remove_bool( "UseSingleThreadLogin", false );
+      elem.remove_bool( "UseSingleThreadLogin", true );
   Plib::systemstate.config.loginserver_disconnect_unknown_pkts =
       elem.remove_bool( "LoginServerDisconnectUnknownPkts", false );
   Plib::systemstate.config.disable_nagle = elem.remove_bool( "DisableNagle", false );
