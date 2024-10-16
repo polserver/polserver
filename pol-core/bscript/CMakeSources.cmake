@@ -24,6 +24,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/LocalVariableScopes.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/analyzer/SemanticTokensBuilder.cpp
+  compiler/analyzer/SemanticTokensBuilder.h
   compiler/analyzer/ShortCircuitWarning.cpp
   compiler/analyzer/ShortCircuitWarning.h
   compiler/analyzer/Variables.cpp
@@ -274,6 +276,8 @@ set (bscript_sources    # sorted !
   compiler/file/SourceFileCache.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
+  compiler/file/SourceFileLoader.cpp
+  compiler/file/SourceFileLoader.h
   compiler/file/SourceLocation.cpp
   compiler/file/SourceLocation.h
   compiler/format/CompiledScriptSerializer.cpp
@@ -297,6 +301,10 @@ set (bscript_sources    # sorted !
   compiler/model/ScopableName.h
   compiler/model/ScopeName.cpp
   compiler/model/ScopeName.h
+  compiler/model/SemanticTokens.cpp
+  compiler/model/SemanticTokens.h
+  compiler/model/ScopeTree.cpp
+  compiler/model/ScopeTree.h
   compiler/model/SimpleTypes.h
   compiler/model/UserFunctionInclusion.h
   compiler/model/UserFunctionType.h

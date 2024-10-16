@@ -8,11 +8,60 @@
 namespace Pol::Bscript::Compiler
 {
 class SourceLocation;
+class ErrorReporter
+{
+public:
+  virtual ~ErrorReporter(){};
+  virtual void report_error( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void report_warning( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void report_debug( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void clear() = 0;
+};
+class ConsoleReporter : public ErrorReporter
+{
+public:
+  explicit ConsoleReporter( bool display_warnings, bool display_errors = true,
+                            bool display_debugs = false );
+  ConsoleReporter( const ConsoleReporter& ) = delete;
+  ConsoleReporter& operator=( const ConsoleReporter& ) = delete;
+  void report_error( const SourceLocation&, const std::string& msg ) override;
+  void report_warning( const SourceLocation&, const std::string& msg ) override;
+  void report_debug( const SourceLocation&, const std::string& msg ) override;
+  void clear() override;
+
+private:
+  const bool display_warnings;
+  const bool display_errors;
+  const bool display_debugs;
+};
+struct Diagnostic
+{
+  enum class Severity
+  {
+    Warning,
+    Error
+  } severity;
+  SourceLocation location;
+  std::string message;
+};
+class DiagnosticReporter : public ErrorReporter
+{
+public:
+  explicit DiagnosticReporter() = default;
+  DiagnosticReporter( const DiagnosticReporter& ) = delete;
+  DiagnosticReporter& operator=( const DiagnosticReporter& ) = delete;
+  void report_error( const SourceLocation&, const std::string& ) override;
+  void report_warning( const SourceLocation&, const std::string& ) override;
+  void report_debug( const SourceLocation&, const std::string& ) override;
+  void clear() override;
+
+  std::vector<Diagnostic> diagnostics;
+};
 
 class Report
 {
 public:
-  explicit Report( bool display_warnings, bool display_errors = true, bool display_debug = false );
+  explicit Report( ErrorReporter& report );
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
@@ -21,15 +70,13 @@ public:
                      Args&&... args )
   {
     ++errors;
-    if ( display_errors )
-      report_error( source_location, fmt::format( format, std::forward<Args>( args )... ) );
+    report_error( source_location, fmt::format( format, std::forward<Args>( args )... ) );
   }
 
   inline void error( const SourceLocation& source_location, const std::string& msg )
   {
     ++errors;
-    if ( display_errors )
-      report_error( source_location, msg );
+    report_error( source_location, msg );
   }
 
   template <typename... Args>
@@ -69,8 +116,7 @@ public:
                        Args&&... args )
   {
     ++warnings;
-    if ( display_warnings )
-      report_warning( source_location, fmt::format( format, std::forward<Args>( args )... ) );
+    report_warning( source_location, fmt::format( format, std::forward<Args>( args )... ) );
   }
 
   template <typename... Args>
@@ -84,8 +130,7 @@ public:
   inline void debug( const SourceLocation& source_location, fmt::format_string<Args...>&& format,
                      Args&&... args )
   {
-    if ( display_debugs )
-      report_debug( source_location, fmt::format( format, std::forward<Args>( args )... ) );
+    report_debug( source_location, fmt::format( format, std::forward<Args>( args )... ) );
   }
 
   template <typename... Args>
@@ -94,6 +139,8 @@ public:
     debug( node.source_location, std::forward<fmt::format_string<Args...>>( format ),
            std::forward<Args>( args )... );
   }
+
+  void clear();
 
   [[nodiscard]] unsigned error_count() const;
   [[nodiscard]] unsigned warning_count() const;
@@ -104,9 +151,8 @@ private:
   void report_error( const SourceLocation& source_location, const std::string& msg ) const;
   void report_warning( const SourceLocation& source_location, const std::string& msg ) const;
   void report_debug( const SourceLocation& source_location, const std::string& msg ) const;
-  const bool display_warnings;
-  const bool display_errors;
-  const bool display_debugs;
+  ErrorReporter& reporter;
+
   unsigned errors;
   unsigned warnings;
 };
