@@ -8,6 +8,7 @@
 #include "bscript/compiler/file/ConformingCharStream.h"
 #include "bscript/compiler/file/ErrorListener.h"
 #include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/SemanticTokens.h"
 #include <EscriptGrammar/EscriptLexer.h>
 #include <EscriptGrammar/EscriptParser.h>
 namespace antlr4
@@ -23,6 +24,7 @@ namespace Pol::Bscript::Compiler
 {
 class Profile;
 class Report;
+class SourceFileLoader;
 class SourceLocation;
 
 class SourceFile
@@ -33,9 +35,12 @@ public:
 
   static bool enforced_case_sensitivity_mismatch( const SourceLocation& referencing_location,
                                                   const std::string& pathname, Report& report );
-  static std::shared_ptr<SourceFile> load( const SourceFileIdentifier&, Profile&, Report& );
+  static std::shared_ptr<SourceFile> load( const SourceFileIdentifier&, const SourceFileLoader&,
+                                           Profile&, Report& );
 
   void propagate_errors_to( Report&, const SourceFileIdentifier& );
+
+  void accept( EscriptGrammar::EscriptParserVisitor& visitor );
 
   EscriptGrammar::EscriptParser::CompilationUnitContext* get_compilation_unit(
       Report&, const SourceFileIdentifier& );
@@ -47,6 +52,7 @@ public:
   std::vector<antlr4::Token*> get_all_tokens();
   std::vector<antlr4::Token*> get_hidden_tokens_before( const Position& position );
   std::vector<antlr4::Token*> get_hidden_tokens_before( size_t tokenIndex );
+  SemanticTokens get_tokens();
 
   const std::string pathname;
 
