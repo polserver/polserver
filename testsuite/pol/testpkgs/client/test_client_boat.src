@@ -109,10 +109,12 @@ exported function move_boat_overflow()
   clientcon.sendevent( struct{ todo := EVT_DISABLE_ITEM_LOGGING, arg := 1, id := 0 } );
   while ( !waitForClient( 0, { EVT_DISABLE_ITEM_LOGGING } ) )
   endwhile
-  for i := 1 to 8000
+  // 0xe000 is the current size limit
+  // which equals 5732 items
+  for i := 1 to 6000
     CreateItemAtLocation( 11, 50, h.z, 0x3e3f, 1, boat.realm );
   endfor
-  var itemres := boat.items.size() > 7000;
+  var itemres := boat.items.size() >= 5900;
   var moveres := MoveBoat( boat, 0 );
   foreach item in ( boat.items )
     DestroyItem( item );
