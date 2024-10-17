@@ -1,0 +1,25 @@
+// Test that scope and methods are insensitive
+
+class FOO()
+  var callCount := 0;
+  function foo( unused this )
+    Print( callCount++ );
+  endfunction
+endclass
+
+class bar( foo )
+  function BAR( this, barParam )
+    SUPER();
+    print( BARPARAM );
+  endfunction
+endclass
+
+class BAZ( foO, bAR )
+  function BAz( THIS )
+    SupER( "bar param from super" );
+  endfunction
+endclass
+
+foo::FOO();
+BAR::bar( "bar param from ctor call" );
+BaZ::bAZ();
