@@ -214,7 +214,8 @@ void GeneratedFunctionBuilder::add_base_constructor( std::unique_ptr<GeneratedFu
         if ( auto final_argument = cloner.clone( *default_value ) )
         {
           function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-              loc, param_name, param.byref, param.unused, false, std::move( final_argument ) ) );
+              loc, param_name, param.byref, false /* unused */, false /* rest */,
+              std::move( final_argument ) ) );
         }
         else
         {
@@ -233,7 +234,7 @@ void GeneratedFunctionBuilder::add_base_constructor( std::unique_ptr<GeneratedFu
         auto is_rest_param = param.rest && can_use_rest;
 
         function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-            loc, param_name, param.byref, param.unused, is_rest_param ) );
+            loc, param_name, param.byref, false /* unused */, is_rest_param ) );
       }
     }
 

@@ -8,6 +8,7 @@
 		<entry>
 			<date>10-18-2024</date>
 			<author>Kevin:</author>
+			<change type="Fixed">Correctly declare parameters in generated super() function as used.</change>
 			<change type="Fixed">Correctly handle case insensitivity with classes.</change>
 		</entry>
 		<entry>
