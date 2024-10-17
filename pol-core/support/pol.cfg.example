@@ -218,9 +218,16 @@ TimestampEveryLine=1
 # UseSingleThreadLogin
 # if set all prelogin clients are handled inside the listener thread and not inside an extra thread
 # this will reduce the amount of thread creates and destroys
-# Default is 0
+# Default is 1
 #
-UseSingleThreadLogin=1
+#UseSingleThreadLogin=1
+
+# LoginServerSelectTimeout
+# socket timeout in ms
+# only used when UseSingleThreadLogin is active
+# Default 1
+#
+#LoginServerSelectTimeout=1
 
 #
 # ThreadDecayStatistics
@@ -509,12 +516,4 @@ MaxAnimID=0x800
 #############################################################################
 ## Threading Settings - Do not modify unless necessary.
 #############################################################################
-
-#
-# SelectTimeout: I/O sleep time in usec, minimum timeout is 1ms (1000usec)
-#   Set to 0 for a dedicated server.
-#   Set to 10 for a non-dedicated server.
-# Default 10
-#
-#SelectTimeout=10
 

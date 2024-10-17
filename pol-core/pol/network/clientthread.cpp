@@ -56,14 +56,8 @@ void report_weird_packet( Network::ThreadedClient* session,
 
 void set_polling_timeouts( Clib::SinglePoller& poller, bool single_threaded_login )
 {
-  if ( !single_threaded_login )
-  {
-    poller.set_timeout( 2, 0 );
-  }
-  else
-  {
-    poller.set_timeout( 0, Plib::systemstate.config.select_timeout_usecs );
-  }
+  poller.set_timeout(
+      single_threaded_login ? Plib::systemstate.config.loginserver_select_timeout_msecs : 2000 );
 }
 
 // Taking a reference to SinglePoller is ugly here. But io_step, io_loop and clientpoller will

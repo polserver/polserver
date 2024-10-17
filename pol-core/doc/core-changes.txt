@@ -1,4 +1,11 @@
 -- POL100.2.0 --
+10-16-2024 Turley:
+    Fixed: os::OpenConnection with keep_connection did not stop correctly if the socket was closed from the other side
+  Changed: pol.cfg UseSingleThreadLogin is by default now active
+           in the general case it improves the performance and stability
+           pol.cfg renamed SelectTimeout to LoginServerSelectTimeout,
+           since its only used in this case.
+           The unit is now millisec and the new default is the former effective minimum value.
 10-14-2024 Turley:
     Added: pol.cfg LoginServerDisconnectUnknownPkts
            during login process disconnect connection if unknown/non-allowed pkt is received

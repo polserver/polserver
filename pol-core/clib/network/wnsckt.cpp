@@ -266,8 +266,14 @@ bool Socket::listen( unsigned short port )
 
 bool Socket::has_incoming_data( unsigned int waitms, int* result )
 {
+  if ( !connected() )
+  {
+    if ( result )
+      *result = -1;
+    return false;
+  }
   SinglePoller poller( _sck );
-  poller.set_timeout( 0, waitms * 1000 );
+  poller.set_timeout( waitms );
 
   if ( !poller.prepare( false ) )
   {
@@ -284,6 +290,11 @@ bool Socket::has_incoming_data( unsigned int waitms, int* result )
 
   if ( result )
     *result = res;
+  if ( poller.error() )
+  {
+    HandleError();
+    close();
+  }
 
   return poller.incoming();
 }

@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-14-2024</datemodified>
+		<datemodified>10-16-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-16-2024</date>
+			<author>Turley:</author>
+			<change type="Fixed">os::OpenConnection with keep_connection did not stop correctly if the socket was closed from the other side</change>
+			<change type="Changed">pol.cfg UseSingleThreadLogin is by default now active<br/>
+in the general case it improves the performance and stability<br/>
+pol.cfg renamed SelectTimeout to LoginServerSelectTimeout,<br/>
+since its only used in this case.<br/>
+The unit is now millisec and the new default is the former effective minimum value.</change>
+		</entry>
 		<entry>
 			<date>10-14-2024</date>
 			<author>Turley:</author>

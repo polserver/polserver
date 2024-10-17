@@ -99,6 +99,8 @@ public:
 
   void set_disconnect_on_timeout( bool disconnect ) { _disconnect_on_timeout = disconnect; }
 
+  bool connected() const { return _socket.connected(); }
+
 protected:
   Socket& _socket;
 

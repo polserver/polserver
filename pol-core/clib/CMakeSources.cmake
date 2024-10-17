@@ -53,7 +53,6 @@ set (clib_sources
   network/sckutil.h
   network/singlepoller.h
   network/singlepollers/pollingwithpoll.h
-  network/singlepollers/pollingwithselect.h
   network/sockets.h
   network/socketsvc.cpp 
   network/socketsvc.h
