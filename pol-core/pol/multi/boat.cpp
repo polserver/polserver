@@ -270,8 +270,9 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   msg->WriteFlipped<u16>( y() );
   msg->WriteFlipped<s16>( z() );
 
-  // 0xf000 encoding room, huffman can take more space then the maximum of 0xffff
-  const u16 max_count = ( 0xf000 - 18 ) / 10;
+  // 0xe000 encoding room, huffman can take more space then the maximum of 0xffff (10% + extra
+  // margin)
+  const u16 max_count = ( 0xe000 - 18 ) / 10;
   u16 object_count = 0;
   u16 len_offset = msg->offset;
   msg->offset += 2;  // Length
@@ -337,8 +338,9 @@ void UBoat::send_display_boat( Network::Client* client )
   msg->offset += 2;  // Length
 
   // Send_display_boat is only called for CLIENTTYPE_7090, so each 0xF3 is 26 bytes here
-  // 0xf000 encoding room, huffman can take more space then the maximum of 0xffff
-  const u16 max_count = ( 0xf000 - 5 ) / 26;
+  // 0xe000 encoding room, huffman can take more space then the maximum of 0xffff (10% + extra
+  // margin)
+  const u16 max_count = ( 0xe000 - 5 ) / 26;
   u16 object_count = 1;  // Add 1 for the boat aswell
   u16 len_offset = msg->offset;
   msg->offset += 2;  // Length
