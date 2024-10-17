@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+10-18-2024 Kevin:
+    Fixed: Correctly handle case insensitivity with classes.
 10-17-2024 Turley:
     Fixed: Fixed crash when too many items exists an a boat.
 10-16-2024 Turley:
