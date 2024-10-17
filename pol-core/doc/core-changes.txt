@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+10-17-2024 Turley:
+    Fixed: Fixed crash when too many items exists an a boat.
 10-16-2024 Turley:
     Fixed: os::OpenConnection with keep_connection did not stop correctly if the socket was closed from the other side
   Changed: pol.cfg UseSingleThreadLogin is by default now active
