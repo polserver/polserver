@@ -116,6 +116,16 @@ struct PolConfig
 
   std::vector<std::string> allowed_environmentvariables_access;
 
+  /* how to validate these values (and how range checking works on the client):
+     tell the client about a character.  Take your character to the spot that
+     character is standing on.  Walk straight, 18 steps in any direction.  Run back
+     to the spot.  The character will still be there.  If you walk 19 steps, the
+     client automatically removes the object - the server doesn't need to tell it to.
+     Simple rectangular distance is used - if the x's differ by <= 18, and the y's differ
+     by <= 18, you're in range.  If either is out of range, you're out.
+     */
+  std::uint8_t visual_range;
+
   bool enable_colored_output;
 
   static void read_pol_config( bool initial_load );

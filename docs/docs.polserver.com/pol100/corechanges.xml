@@ -55,6 +55,12 @@ See the Racalac Escript Guide for additional details.</change>
 			<change type="Fixed">EScript formatter missing spaces while packing function refs, better packing of function calls in eg structs</change>
 		</entry>
 		<entry>
+			<date>09-16-2024</date>
+			<author>Kukkino:</author>
+			<change type="Added">VisualRange setting to pol.cfg. This setting declares how far clients can see. Note that the same<br/>
+value needs to be set on both server and in client (usually 18 or 21).</change>
+		</entry>
+		<entry>
 			<date>09-12-2024</date>
 			<author>Turley:</author>
 			<change type="Fixed">multiple problems with the EScript formatter</change>
