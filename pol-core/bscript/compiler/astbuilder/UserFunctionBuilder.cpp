@@ -136,7 +136,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
               if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
               {
                 // 3. The function name is the same as the class name: constructor
-                if ( func_name == class_name )
+                if ( Clib::caseInsensitiveEqual( func_name, class_name ) )
                 {
                   constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
                                                                      true /* requires_ctor */ );
