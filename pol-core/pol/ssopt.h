@@ -93,6 +93,7 @@ struct ServSpecOpt
    by <= 18, you're in range.  If either is out of range, you're out.
    */
   std::uint8_t default_visual_range;
+  bool allow_visual_range_modification;
   unsigned short speech_range;
   unsigned short whisper_range;
   unsigned short yell_range;
