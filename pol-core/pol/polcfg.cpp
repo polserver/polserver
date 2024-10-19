@@ -108,7 +108,8 @@ void PolConfig::read_pol_config( bool initial_load )
       gamestate.write_account_task->start();
     }
 
-    Plib::systemstate.config.default_visual_range = static_cast<u8>( elem.remove_int( "DefaultVisualRange", 18 ) );
+    Plib::systemstate.config.default_visual_range =
+        static_cast<u8>( elem.remove_int( "DefaultVisualRange", 18 ) );
     // default value needs to be reset as the object is created before config is loaded
     Core::gamestate.initialize_range_from_config( Plib::systemstate.config.default_visual_range );
   }
