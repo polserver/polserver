@@ -32,7 +32,8 @@
 #include "../plib/systemstate.h"
 #include "../plib/uoinstallfinder.h"
 // TODO: get rid of the dependencies and move to plib
-#include "core.h"           // todo save_full does not belong here
+#include "core.h"  // todo save_full does not belong here
+#include "globals/settings.h"
 #include "globals/state.h"  // todo polsig dependency
 #include "globals/uvars.h"  // todo split write task
 #include "objtype.h"
@@ -107,11 +108,6 @@ void PolConfig::read_pol_config( bool initial_load )
       gamestate.write_account_task->set_secs( Plib::systemstate.config.account_save );
       gamestate.write_account_task->start();
     }
-
-    Plib::systemstate.config.default_visual_range =
-        static_cast<u8>( elem.remove_int( "DefaultVisualRange", 18 ) );
-    // default value needs to be reset as the object is created before config is loaded
-    Core::gamestate.initialize_range_from_config( Plib::systemstate.config.default_visual_range );
   }
   Plib::systemstate.config.verbose = elem.remove_bool( "Verbose", false );
   Plib::systemstate.config.watch_mapcache = elem.remove_bool( "WatchMapCache", false );

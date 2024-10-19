@@ -1,7 +1,7 @@
 -- POL100.2.0 --
 10-19-2024 Kukkino:
-    Added: DefaultVisualRange setting to pol.cfg. This setting declares how far clients can see by default. Note that the same
-           value needs to be set on both server and in client (usually 18 or 21).
+    Added: DefaultVisualRange setting to servspecopt.cfg. This setting declares how far clients can see by default.
+           Note that the same value needs to be set on both server and in client (usually 18 or 21).
 10-18-2024 Kevin:
     Fixed: Correctly declare parameters in generated super() function as used.
     Fixed: Correctly handle case insensitivity with classes.

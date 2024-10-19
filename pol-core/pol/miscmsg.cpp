@@ -472,7 +472,7 @@ void handle_update_range_change( Client* client, PKTBI_C8* msg )
 
   Network::PktHelper::PacketOut<Network::PktOut_C8> outMsg;
   // TODO Pos: send updated client->update_range()
-  outMsg->Write<u8>( Plib::systemstate.config.default_visual_range );
+  outMsg->Write<u8>( settingsManager.ssopt.default_visual_range );
   outMsg.Send( client );
 }
 

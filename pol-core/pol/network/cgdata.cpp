@@ -50,7 +50,7 @@ ClientGameData::ClientGameData()
       lightlevel( 0 ),
       custom_house_serial( 0 ),
       custom_house_chrserial( 0 ),
-      update_range( Plib::systemstate.config.default_visual_range )
+      update_range( Core::settingsManager.ssopt.default_visual_range )
 {
 }
 

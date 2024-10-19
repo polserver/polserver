@@ -187,8 +187,11 @@ GameState::~GameState()
 
 void GameState::initialize_range_from_config( u16 range )
 {
-  max_update_range_client = range;
-  max_update_range = max_update_range_multi + max_update_range_client;
+  if ( range > max_update_range_client )
+  {
+    max_update_range_client = range;
+    max_update_range = max_update_range_multi + max_update_range_client;
+  }
 }
 void GameState::update_range_from_multis()
 {
