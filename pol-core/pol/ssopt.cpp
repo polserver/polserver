@@ -102,6 +102,8 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.core_ignores_defence_caps =
       elem.remove_bool( "CoreIgnoresDefenceCaps", false );
   settingsManager.ssopt.send_stat_locks = elem.remove_bool( "SendStatLocks", false );
+  settingsManager.ssopt.allow_visual_range_modification =
+      elem.remove_bool( "AllowVisualRangeModification", false );
   settingsManager.ssopt.default_visual_range =
       static_cast<u8>( elem.remove_int( "DefaultVisualRange", 18 ) );
   settingsManager.ssopt.speech_range = elem.remove_ushort( "SpeechRange", 12 );
