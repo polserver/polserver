@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-17-2024</datemodified>
+		<datemodified>10-19-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-19-2024</date>
+			<author>Kukkino:</author>
+			<change type="Added">DefaultVisualRange setting to servspecopt.cfg. This setting declares how far clients can see by default.<br/>
+Note that the same value needs to be set on both server and in client (usually 18 or 21).</change>
+		</entry>
 		<entry>
 			<date>10-18-2024</date>
 			<author>Kevin:</author>

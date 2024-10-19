@@ -4316,8 +4316,8 @@ void Character::send_buffs()
 u8 Character::los_size() const
 {
   // TODO Pos activate
-  return Plib::RANGE_VISUAL;
-  //  return client ? client->update_range() : Plib::RANGE_VISUAL;
+  return Core::settingsManager.ssopt.default_visual_range;
+  //  return client ? client->update_range() : Core::settingsManager.ssopt.default_visual_range;
 }
 
 size_t Character::estimatedSize() const

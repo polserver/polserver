@@ -372,6 +372,7 @@ Spell (int spellid)
 [EditServer                     (0/1 {default 0})]
 [CarryingCapacityMod            (double {default 1.0})]
 [SpeechRange                    (int range {default 12})]
+[DefaultVisualRange             (byte {default 18})]
 [WhisperRange                   (int range {default 2})]
 [YellRange                      (int range {default 25})]
 [CoreSendsSeason                (0/1 {default 1})]
@@ -419,6 +420,7 @@ Spell (int spellid)
   <explain><i>UseContainerSlots:</i> check to can add bulk code to ensure not going over max slot capacity of 255 and a container's max slot capacity.</explain>
   <explain><i>EditServer:</i> for bypassing cryptseed packet</explain>
   <explain><i>CarryingCapacityMod:</i> * modifier for mobile max_weight</explain>
+  <explain><i>DefaultVisualRange:</i> default distance at which player can see information around his surroundings. Keep in mind this value needs to be same as client as there are assumptions made based on it whether client can still see an object or not as client will automatically remove objects out of its configured range.</explain>
   <explain><i>SpeechRange:</i> definies the range of normal speech</explain>
   <explain><i>WhisperRange:</i> definies the range of whispered speech</explain>
   <explain><i>YellRange:</i> definies the range of yelled speech</explain>

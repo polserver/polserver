@@ -32,7 +32,8 @@
 #include "../plib/systemstate.h"
 #include "../plib/uoinstallfinder.h"
 // TODO: get rid of the dependencies and move to plib
-#include "core.h"           // todo save_full does not belong here
+#include "core.h"  // todo save_full does not belong here
+#include "globals/settings.h"
 #include "globals/state.h"  // todo polsig dependency
 #include "globals/uvars.h"  // todo split write task
 #include "objtype.h"
