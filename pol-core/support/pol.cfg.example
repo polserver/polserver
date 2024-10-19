@@ -508,13 +508,13 @@ MaxAnimID=0x800
 #AllowedEnvironmentVariablesAccess=
 
 #
-# VisualRange: distance at which player can see information around his surroundings. Keep in mind
+# DefaultVisualRange: distance at which player can see information around his surroundings. Keep in mind
 # this value needs to be same as client as there are assumptions made based on it whether client
 # can still see an object or not as client will automatically remove objects out of its configured
 # range.
 # Default is 18 (1-255 allowed)
 #
-#VisualRange=18
+#DefaultVisualRange=18
 
 #############################################################################
 ## Experimental Options - Modify at your own risk

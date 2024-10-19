@@ -992,7 +992,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ShowWarningItem=(1/0 {default 1})]
 [ShowWarningCursorSequence=(1/0 {default 1})]
 [AllowedEnvironmentVariablesAccess=(string {default ""})]
-[VisualRange=(byte {default 18})]
+[DefaultVisualRange=(byte {default 18})]
 [EnableColoredOutput=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
@@ -1015,7 +1015,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>MaxTileID: maximum tile id. If 0, it will be chosen according to the graphics in tiles.cfg.</explain>
     <explain>DebugPort: TCP/IP port to listen for debugger connections.</explain>
     <explain>DAPDebugPort: TCP/IP port to listen for debugger connections using the DAP implementation.</explain>
-    <explain>VisualRange: distance at which player can see information around his surroundings. Keep in mind this value needs to be same as client as there are assumptions made based on it whether client can still see an object or not as client will automatically remove objects out of its configured range.</explain>
+    <explain>DefaultVisualRange: distance at which player can see information around his surroundings. Keep in mind this value needs to be same as client as there are assumptions made based on it whether client can still see an object or not as client will automatically remove objects out of its configured range.</explain>
 </cfgfile>
 
 

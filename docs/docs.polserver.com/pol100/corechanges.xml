@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-17-2024</datemodified>
+		<datemodified>10-19-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-19-2024</date>
+			<author>Kukkino:</author>
+			<change type="Added">DefaultVisualRange setting to pol.cfg. This setting declares how far clients can see by default. Note that the same<br/>
+value needs to be set on both server and in client (usually 18 or 21).</change>
+		</entry>
 		<entry>
 			<date>10-18-2024</date>
 			<author>Kevin:</author>
@@ -53,12 +59,6 @@ See the Racalac Escript Guide for additional details.</change>
 			<date>09-27-2024</date>
 			<author>Turley:</author>
 			<change type="Fixed">EScript formatter missing spaces while packing function refs, better packing of function calls in eg structs</change>
-		</entry>
-		<entry>
-			<date>09-16-2024</date>
-			<author>Kukkino:</author>
-			<change type="Added">VisualRange setting to pol.cfg. This setting declares how far clients can see. Note that the same<br/>
-value needs to be set on both server and in client (usually 18 or 21).</change>
 		</entry>
 		<entry>
 			<date>09-12-2024</date>
