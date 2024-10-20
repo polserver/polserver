@@ -208,7 +208,7 @@ message("adding test targets")
 message("  test_escript")
 add_custom_target(test_escript
   COMMAND ${CMAKE_CTEST_COMMAND}
-    -j2 --output-on-failure -R escript_ -C ${CMAKE_BUILD_TYPE}
+    -j8 --output-on-failure -R escript_ -C ${CMAKE_BUILD_TYPE}
   COMMENT "Run escript tests"
   VERBATIM
   USES_TERMINAL
