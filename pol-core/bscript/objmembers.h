@@ -302,6 +302,8 @@ enum MemberID
   MBR_WEIGHT_MULTIPLIER_MOD,
   MBR_HELD_WEIGHT_MULTIPLIER, // 260
   MBR_FUNCTION,
+  MBR_POSITION_CHANGED_AT,
+  MBR_MOVED_AT,
 };
 
 inline auto format_as( MemberID id )
