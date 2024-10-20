@@ -92,8 +92,11 @@ struct ServSpecOpt
    Simple rectangular distance is used - if the x's differ by <= 18, and the y's differ
    by <= 18, you're in range.  If either is out of range, you're out.
    */
-  std::uint8_t default_visual_range;
+  u8 default_visual_range;
+  u8 min_visual_range;
+  u8 max_visual_range;
   bool allow_visual_range_modification;
+
   unsigned short speech_range;
   unsigned short whisper_range;
   unsigned short yell_range;
