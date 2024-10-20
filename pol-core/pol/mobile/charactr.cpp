@@ -328,7 +328,9 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // Note, Item uses the named constructor idiom, but here, it is not used.
       // this is probably okay, but something to keep in mind.
       gender( Plib::GENDER_MALE ),
-      race( Plib::RACE_HUMAN )
+      race( Plib::RACE_HUMAN ),
+      position_changed_at_( 0 ),
+      moved_at_( 0 )
 {
   logged_in( true );  // so initialization scripts etc can see
 
@@ -3654,6 +3656,7 @@ void Character::check_region_changes()
 void Character::position_changed()
 {
   wornitems->setposition( pos() );
+  position_changed_at_ = Core::polclock();
 }
 
 void Character::unhide()
@@ -3906,6 +3909,7 @@ bool Character::move( unsigned char i_dir )
 
     Core::Pos4d oldpos = pos();
     setposition( new_pos );
+    moved_at_ = Core::polclock();
 
     if ( on_mount() && !script_isa( Core::POLCLASS_NPC ) )
     {

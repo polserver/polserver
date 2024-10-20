@@ -863,6 +863,11 @@ public:
   Plib::UGENDER gender;
   Plib::URACE race;
 
+protected:
+  Core::polclock_t position_changed_at_;
+  Core::polclock_t moved_at_;
+
+public:
   DYN_PROPERTY( dblclick_wait, u32, Core::PROP_DOUBLECLICK_WAIT, 0 );
 
   DYN_PROPERTY( title_prefix, std::string, Core::PROP_TITLE_PREFIX, "" );

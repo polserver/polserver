@@ -1953,6 +1953,12 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_TRUECOLOR:
     return new BLong( truecolor );
     break;
+  case MBR_POSITION_CHANGED_AT:
+    return new Double( static_cast<double>( Core::polclock_t_to_ms( position_changed_at_ ) ) );
+    break;
+  case MBR_MOVED_AT:
+    return new Double( static_cast<double>( Core::polclock_t_to_ms( moved_at_ ) ) );
+    break;
   case MBR_AR_MOD:
     return new BLong( ar_mod() );
     break;

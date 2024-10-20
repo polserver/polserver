@@ -7,6 +7,12 @@
 	<version name="POL100.2.0">
 		<entry>
 			<date>10-20-2024</date>
+			<author>Kukkino:</author>
+			<change type="Added">Added moved_at and position_changed_at members to characters. Values signify when was the last time character<br/>
+walked or changed position (for example with walking or MoveObjectToLocation)</change>
+		</entry>
+		<entry>
+			<date>10-20-2024</date>
 			<author>Kevin:</author>
 			<change type="Fixed">Correct behavior with classes when using a class-scoped variable as a function callee.</change>
 		</entry>
