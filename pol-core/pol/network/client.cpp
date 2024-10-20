@@ -34,6 +34,7 @@
 #include "../crypt/cryptbase.h"
 #include "../crypt/cryptengine.h"
 #include "../globals/network.h"
+#include "../globals/settings.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
@@ -45,6 +46,8 @@
 #include "../uworld.h"
 #include "cgdata.h"
 #include "cliface.h"
+#include "packethelper.h"
+#include "packets.h"
 #include "pktdef.h"
 #include "pktin.h"
 #include "xbuffer.h"
@@ -711,10 +714,18 @@ weak_ptr<Client> Client::getWeakPtr() const
 
 void Client::set_update_range( u8 range )
 {
-  // store "personal" updaterange
-  gd->update_range = range;
+  auto old_range = update_range();
+  // limit range to defined min/max
+  gd->update_range = std::clamp( range, Core::settingsManager.ssopt.min_visual_range,
+                                 Core::settingsManager.ssopt.max_visual_range );
+
+  PktHelper::PacketOut<PktOut_C8> outMsg;
+  outMsg->Write<u8>( update_range() );
+  outMsg.Send( this );
+
   // update global updaterange (maximum multi radius/client view range)
-  Core::gamestate.update_range_from_client( range );
+  if ( old_range != update_range() )
+    Core::gamestate.update_range_from_client( range );
 }
 
 u8 Client::update_range() const
