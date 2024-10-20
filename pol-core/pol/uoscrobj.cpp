@@ -93,6 +93,7 @@
 #include "multi/boatcomp.h"
 #include "multi/house.h"
 #include "multi/multi.h"
+#include "network/cgdata.h"
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
