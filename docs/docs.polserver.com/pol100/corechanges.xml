@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-19-2024</datemodified>
+		<datemodified>10-20-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-20-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Correct behavior with classes when using a class-scoped variable as a function callee.</change>
+		</entry>
 		<entry>
 			<date>10-19-2024</date>
 			<author>Kukkino:</author>

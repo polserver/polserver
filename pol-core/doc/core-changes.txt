@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+10-20-2024 Kevin:
+    Fixed: Correct behavior with classes when using a class-scoped variable as a function callee.
 10-19-2024 Kukkino:
     Added: DefaultVisualRange setting to servspecopt.cfg. This setting declares how far clients can see by default.
            Note that the same value needs to be set on both server and in client (usually 18 or 21).

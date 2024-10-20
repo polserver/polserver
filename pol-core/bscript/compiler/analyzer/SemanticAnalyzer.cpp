@@ -425,7 +425,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         //
         // If that is the case, there will be a global named
         // `class_name::class_name`. We will not error in this case.
-        if ( !globals.find( ScopableName( class_name, class_name ).string() ) )
+        if ( Clib::caseInsensitiveEqual( fc.scoped_name->name, class_name ) &&
+             !globals.find( ScopableName( class_name, class_name ).string() ) )
         {
           auto msg = fmt::format( "In function call: Class '{}' does not define a constructor.",
                                   class_name );
