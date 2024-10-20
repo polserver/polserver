@@ -102,8 +102,14 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.core_ignores_defence_caps =
       elem.remove_bool( "CoreIgnoresDefenceCaps", false );
   settingsManager.ssopt.send_stat_locks = elem.remove_bool( "SendStatLocks", false );
+  settingsManager.ssopt.allow_visual_range_modification =
+      elem.remove_bool( "AllowVisualRangeModification", false );
   settingsManager.ssopt.default_visual_range =
       static_cast<u8>( elem.remove_int( "DefaultVisualRange", 18 ) );
+  settingsManager.ssopt.min_visual_range =
+      static_cast<u8>( elem.remove_int( "MinimumVisualRange", 5 ) );  // 5 is official minimum
+  settingsManager.ssopt.max_visual_range =
+      static_cast<u8>( elem.remove_int( "MaximumVisualRange", 24 ) );  // 24 is offical maximum
   settingsManager.ssopt.speech_range = elem.remove_ushort( "SpeechRange", 12 );
   settingsManager.ssopt.whisper_range = elem.remove_ushort( "WhisperRange", 2 );
   settingsManager.ssopt.yell_range = elem.remove_ushort( "YellRange", 25 );
