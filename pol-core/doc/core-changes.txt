@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+10-20-2024 Kukkino:
+    Added: Added moved_at and position_changed_at members to characters. Values signify when was the last time character
+           walked or changed position (for example with walking or MoveObjectToLocation)
 10-20-2024 Kevin:
     Fixed: Correct behavior with classes when using a class-scoped variable as a function callee.
 10-19-2024 Kukkino:
