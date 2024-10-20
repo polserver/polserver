@@ -2,9 +2,11 @@
 #define POLSERVER_SCOPETREE_H
 
 #include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/ScopeName.h"
 #include "clib/maputil.h"
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -15,6 +17,7 @@ class ModuleFunctionDeclaration;
 class UserFunction;
 class Variable;
 class ConstDeclaration;
+class ClassDeclaration;
 class ScopeInfo
 {
 public:
@@ -32,6 +35,18 @@ private:
   static void describe_tree_to_indented( std::string&, const ScopeInfo&, unsigned indent );
 };
 
+struct ScopeTreeQuery
+{
+  // Calling scope, either empty-string (for Global) or a class name.
+  std::string calling_scope;
+
+  // The scope of the prefix for the query. The scope can be empty (eg. `print`)
+  // or explicitly global (eg. `::print`).
+  ScopeName prefix_scope;
+
+  // The prefix to search for.
+  std::string prefix;
+};
 
 class ScopeTree
 {
@@ -48,13 +63,19 @@ public:
   // Data is owned by CompilerWorkspace
   ConstDeclaration* find_constant( std::string name ) const;
 
-  std::vector<std::shared_ptr<Variable>> list_variables( std::string name, const Position& ) const;
+  std::vector<std::shared_ptr<Variable>> list_variables( const ScopeTreeQuery& query,
+                                                         const Position& ) const;
   // Data is owned by CompilerWorkspace
-  std::vector<UserFunction*> list_user_functions( std::string name ) const;
+  std::vector<UserFunction*> list_user_functions( const ScopeTreeQuery& query, const Position& ) const;
   // Data is owned by CompilerWorkspace
-  std::vector<ModuleFunctionDeclaration*> list_module_functions( std::string name ) const;
+  std::vector<ModuleFunctionDeclaration*> list_module_functions(
+      const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
-  std::vector<ConstDeclaration*> list_constants( std::string name ) const;
+  std::vector<ConstDeclaration*> list_constants( const ScopeTreeQuery& query ) const;
+  // Data is owned by CompilerWorkspace
+  std::vector<ClassDeclaration*> list_classes( const ScopeTreeQuery& query ) const;
+
+  std::vector<std::string> list_modules( const ScopeTreeQuery& query ) const;
 
 private:
   CompilerWorkspace& workspace;

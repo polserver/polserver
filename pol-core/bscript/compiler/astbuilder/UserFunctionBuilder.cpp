@@ -265,7 +265,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
 
   bool constructor_method = class_method && Clib::caseInsensitiveEqual( name, class_name );
 
-  UserFunctionType type = !class_method        ? UserFunctionType::Static
+  UserFunctionType type = expression           ? UserFunctionType::Expression
+                          : !class_method      ? UserFunctionType::Static
                           : constructor_method ? UserFunctionType::Constructor
                                                : UserFunctionType::Method;
 
