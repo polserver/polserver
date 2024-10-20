@@ -309,8 +309,8 @@
 <member mname="luck_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
 <member mname="swing_speed_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
 <member mname="buffs" type="dictionary" access="r/o">Returns the current active buffs added via addBuff as dictionary. Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}.</member>
-<member mname="position_changed_at" type="Integer" access="r/o">PolClock when character last changed position for any reason</member>
-<member mname="moved_at" type="Integer" access="r/o">PolClock when character last moved due to walking/running</member>
+<member mname="position_changed_at" type="Double" access="r/o">MilliSecondClock when character last changed position for any reason</member>
+<member mname="moved_at" type="Double" access="r/o">MilliSecondClock when character last moved due to walking/running</member>
 
 <method proto="setpoisoned(bool)" returns="true/error">sets the character poisoned, controller of calling script is flagged as in repsystem</method>
 <method proto="setparalyzed(bool)" returns="true/error">sets the character paralyzed, controller of calling script is flagged as in repsystem</method>
