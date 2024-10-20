@@ -470,7 +470,7 @@ void handle_update_range_change( Client* client, PKTBI_C8* msg )
   if ( settingsManager.ssopt.allow_visual_range_modification &&
        !client->gd->script_defined_update_range )
   {
-    client->set_update_range( range );
+    client->set_update_range( msg->range );
   }
   else
   {
