@@ -19,8 +19,7 @@ void SemanticTokensBuilder::build()
   }
 }
 
-void define( CompilerWorkspace& workspace, antlr4::Token* symbol,
-             SemanticTokenType type )
+void define( CompilerWorkspace& workspace, antlr4::Token* symbol, SemanticTokenType type )
 {
   // Since we no longer fast-fail after parser errors, it is possible that nodes
   // do not exist.
@@ -211,6 +210,33 @@ antlrcpp::Any SemanticTokensBuilder::visitStructInitializerExpression(
     EscriptParser::StructInitializerExpressionContext* ctx )
 {
   define( workspace, ctx->IDENTIFIER(), SemanticTokenType::PROPERTY );
+  visitChildren( ctx );
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SemanticTokensBuilder::visitClassDeclaration(
+    EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx )
+{
+  define( workspace, ctx->IDENTIFIER(), SemanticTokenType::TYPE );
+  visitChildren( ctx );
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SemanticTokensBuilder::visitClassParameterList(
+    EscriptGrammar::EscriptParser::ClassParameterListContext* ctx )
+{
+  for ( const auto& identifier : ctx->IDENTIFIER() )
+  {
+    define( workspace, identifier, SemanticTokenType::TYPE );
+  }
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SemanticTokensBuilder::visitScopedIdentifier(
+    EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
+{
+  define( workspace, ctx->scope, SemanticTokenType::VARIABLE );
+  define( workspace, ctx->identifier, SemanticTokenType::VARIABLE );
   visitChildren( ctx );
   return antlrcpp::Any();
 }

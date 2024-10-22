@@ -265,7 +265,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
 
   bool constructor_method = class_method && Clib::caseInsensitiveEqual( name, class_name );
 
-  UserFunctionType type = !class_method        ? UserFunctionType::Static
+  UserFunctionType type = expression           ? UserFunctionType::Expression
+                          : !class_method      ? UserFunctionType::Static
                           : constructor_method ? UserFunctionType::Constructor
                                                : UserFunctionType::Method;
 
@@ -289,9 +290,9 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
       class_link->source_location.internal_error( "ClassLink has no ClassDeclaration" );
   }
 
-  return std::make_unique<UserFunction>( location_for( *ctx ), exported, expression, type,
-                                         class_name, std::move( name ), std::move( parameter_list ),
-                                         std::move( body ), location_for( *end_token ),
-                                         std::move( class_link ) );
+  return std::make_unique<UserFunction>(
+      location_for( *ctx ), exported, expression, type, class_name, std::move( name ),
+      std::move( parameter_list ), std::move( body ),
+      end_token ? location_for( *end_token ) : location_for( *ctx ), std::move( class_link ) );
 }
 }  // namespace Pol::Bscript::Compiler
