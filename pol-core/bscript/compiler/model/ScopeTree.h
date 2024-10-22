@@ -57,16 +57,17 @@ public:
   void set_globals( std::vector<std::shared_ptr<Variable>> variables );
   std::shared_ptr<Variable> find_variable( std::string name, const Position& ) const;
   // Data is owned by CompilerWorkspace
-  UserFunction* find_user_function( std::string name ) const;
+  UserFunction* find_user_function( const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
-  ModuleFunctionDeclaration* find_module_function( std::string name ) const;
+  ModuleFunctionDeclaration* find_module_function( const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
   ConstDeclaration* find_constant( std::string name ) const;
 
   std::vector<std::shared_ptr<Variable>> list_variables( const ScopeTreeQuery& query,
                                                          const Position& ) const;
   // Data is owned by CompilerWorkspace
-  std::vector<UserFunction*> list_user_functions( const ScopeTreeQuery& query, const Position& ) const;
+  std::vector<UserFunction*> list_user_functions( const ScopeTreeQuery& query,
+                                                  const Position& ) const;
   // Data is owned by CompilerWorkspace
   std::vector<ModuleFunctionDeclaration*> list_module_functions(
       const ScopeTreeQuery& query ) const;

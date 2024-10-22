@@ -74,15 +74,30 @@ void ScopeTree::set_globals( std::vector<std::shared_ptr<Variable>> variables )
   }
 }
 
-UserFunction* ScopeTree::find_user_function( std::string name ) const
+UserFunction* ScopeTree::find_user_function( const ScopeTreeQuery& query ) const
 {
-  Clib::mklowerASCII( name );
   for ( const auto& user_function : workspace.user_functions )
   {
-    auto lowered = Clib::strlowerASCII( user_function->name );
-    if ( lowered == name )
+    if ( !Clib::caseInsensitiveEqual( user_function->name, query.prefix ) )
+      continue;
+
+    if ( query.prefix_scope.empty() )
     {
-      return user_function.get();
+      if ( Clib::caseInsensitiveEqual( user_function->scope, query.calling_scope ) ||
+           ( ( query.calling_scope.empty() ||
+               user_function->type == UserFunctionType::Expression ) &&
+             user_function->scope.empty() ) )
+      {
+        return user_function.get();
+      }
+    }
+    else
+    {
+      if ( ( query.prefix_scope.global() && user_function->scope.empty() ) ||
+           Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) )
+      {
+        return user_function.get();
+      }
     }
   }
 
@@ -142,8 +157,10 @@ std::vector<UserFunction*> ScopeTree::list_user_functions( const ScopeTreeQuery&
     if ( user_function->type != UserFunctionType::Expression &&
          ( user_function->type != UserFunctionType::Super || can_use_super ) &&
          starts_with( user_function->name, query.prefix ) &&
-         ( Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) ||
-           Clib::caseInsensitiveEqual( query.calling_scope, user_function->scope ) ) )
+         ( ( !query.prefix_scope.empty() &&
+             Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) ) ||
+           ( query.prefix_scope.empty() &&
+             Clib::caseInsensitiveEqual( query.calling_scope, user_function->scope ) ) ) )
     {
       results.push_back( user_function.get() );
     }
@@ -152,17 +169,27 @@ std::vector<UserFunction*> ScopeTree::list_user_functions( const ScopeTreeQuery&
   return results;
 }
 
-ModuleFunctionDeclaration* ScopeTree::find_module_function( std::string name ) const
+ModuleFunctionDeclaration* ScopeTree::find_module_function( const ScopeTreeQuery& query ) const
 {
-  Clib::mklowerASCII( name );
-
+  // return nullptr;
+  // // return find_function<ModuleFunctionDeclaration>( query );
   for ( const auto& module_function : workspace.module_function_declarations )
   {
-    auto lowered = Clib::strlowerASCII( module_function->name );
-
-    if ( lowered == name )
+    if ( query.prefix_scope.empty() )
     {
-      return module_function.get();
+      if ( Clib::caseInsensitiveEqual( module_function->name, query.prefix ) )
+      {
+        return module_function.get();
+      }
+    }
+    else
+    {
+      if ( Clib::caseInsensitiveEqual( module_function->name, query.prefix ) &&
+           ( query.prefix_scope.global() ||
+             Clib::caseInsensitiveEqual( query.prefix_scope.string(), module_function->scope ) ) )
+      {
+        return module_function.get();
+      }
     }
   }
 
