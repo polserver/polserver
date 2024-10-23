@@ -4,6 +4,20 @@ use os;
 program ai()
   var me := Self();
 
+  var original_moved_at := me.moved_at;
+  var original_position_changed_at := me.position_changed_at;
+
+  if ( original_moved_at != 0 )
+    me.setprop( "testerror", $"wrong moved_at, expected 0, got {original_moved_at}" );
+    return;
+  endif
+  if ( original_position_changed_at <= 0 )
+    me.setprop( "testerror", $"wrong position_changed_at, expected > 0, got {original_position_changed_at}" );
+    return;
+  endif
+
+  SleepMs(10);
+
   var x := 100;
   var y := 100;
   if ( me.x != x || me.y != y )
@@ -13,6 +27,15 @@ program ai()
   var res := Move( "N" );
   if ( !res || me.x != 100 || me.y != 99 )
     me.setprop( "testerror", "Failed to move N: {}: {},{}".format( res, me.x, me.y ) );
+    return;
+  endif
+
+  if ( me.moved_at <= original_moved_at )
+    me.setprop( "testerror", $"wrong moved_at after move, expected > {original_moved_at}, got {me.moved_at}" );
+    return;
+  endif
+  if ( me.position_changed_at <= original_position_changed_at )
+    me.setprop( "testerror", $"wrong position_changed_at after move, expected > {original_position_changed_at}, got {me.position_changed_at}" );
     return;
   endif
 
