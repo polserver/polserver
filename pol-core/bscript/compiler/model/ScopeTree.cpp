@@ -74,29 +74,94 @@ void ScopeTree::set_globals( std::vector<std::shared_ptr<Variable>> variables )
   }
 }
 
+// Callable returns true if the search should stop.
+template <typename Callable>
+void with_base_classes( ClassDeclaration* class_decl, Callable callable )
+{
+  if ( !class_decl )
+    return;
+
+  std::list<std::shared_ptr<ClassLink>> to_visit( class_decl->base_class_links.begin(),
+                                                  class_decl->base_class_links.end() );
+  std::set<ClassDeclaration*> visited;
+  while ( !to_visit.empty() )
+  {
+    auto base_class_link = to_visit.front();
+    to_visit.pop_front();
+
+    if ( auto base_class = base_class_link->class_declaration() )
+    {
+      if ( visited.find( base_class ) != visited.end() )
+      {
+        continue;
+      }
+
+      visited.insert( base_class );
+
+      if ( callable( base_class ) )
+      {
+        return;
+      }
+
+      to_visit.insert( to_visit.end(), base_class->base_class_links.begin(),
+                       base_class->base_class_links.end() );
+    }
+  }
+}
+
 UserFunction* ScopeTree::find_user_function( const ScopeTreeQuery& query ) const
 {
-  for ( const auto& user_function : workspace.user_functions )
+  if ( query.prefix_scope.super() && !query.calling_scope.empty() )
   {
-    if ( !Clib::caseInsensitiveEqual( user_function->name, query.prefix ) )
-      continue;
+    auto class_decl = find_class( query.calling_scope );
+    UserFunction* user_function = nullptr;
 
-    if ( query.prefix_scope.empty() )
+    with_base_classes(
+        class_decl,
+        [&]( ClassDeclaration* base_class ) -> bool
+        {
+          auto user_function_itr = std::find_if(
+              workspace.user_functions.begin(), workspace.user_functions.end(),
+              [&]( const auto& user_function )
+              {
+                return Clib::caseInsensitiveEqual( user_function->name, query.prefix ) &&
+                       Clib::caseInsensitiveEqual( user_function->scope, base_class->name );
+              } );
+
+          if ( user_function_itr != workspace.user_functions.end() )
+          {
+            user_function = user_function_itr->get();
+            return true;
+          }
+          return false;
+        } );
+
+    return user_function;
+  }
+  else
+  {
+    for ( const auto& user_function : workspace.user_functions )
     {
-      if ( Clib::caseInsensitiveEqual( user_function->scope, query.calling_scope ) ||
-           ( ( query.calling_scope.empty() ||
-               user_function->type == UserFunctionType::Expression ) &&
-             user_function->scope.empty() ) )
+      if ( !Clib::caseInsensitiveEqual( user_function->name, query.prefix ) )
+        continue;
+
+      if ( query.prefix_scope.empty() )
       {
-        return user_function.get();
+        if ( Clib::caseInsensitiveEqual( user_function->scope, query.calling_scope ) ||
+             ( ( query.calling_scope.empty() ||
+                 user_function->type == UserFunctionType::Expression ) &&
+               user_function->scope.empty() ) )
+        {
+          return user_function.get();
+        }
       }
-    }
-    else
-    {
-      if ( ( query.prefix_scope.global() && user_function->scope.empty() ) ||
-           Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) )
+      else
       {
-        return user_function.get();
+        if ( ( query.prefix_scope.global() && user_function->scope.empty() ) ||
+             Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) )
+        {
+          return user_function.get();
+        }
       }
     }
   }
@@ -108,61 +173,68 @@ std::vector<UserFunction*> ScopeTree::list_user_functions( const ScopeTreeQuery&
                                                            const Position& position ) const
 {
   std::vector<UserFunction*> results;
-  bool can_use_super = false;
 
-  // Check if there is a UserFunction with UserFunctionType::Constructor at the given position that
-  // has a base-class links.
-  for ( const auto& user_function : workspace.user_functions )
+  if ( query.prefix_scope.super() )
   {
-    if ( user_function->type == UserFunctionType::Constructor &&
-         user_function->source_location.range.contains( position ) && user_function->class_link )
+    if ( !query.calling_scope.empty() && !query.current_user_function.empty() )
     {
-      if ( auto class_decl = user_function->class_link->class_declaration() )
-      {
-        std::list<std::shared_ptr<ClassLink>> to_visit( class_decl->base_class_links.begin(),
-                                                        class_decl->base_class_links.end() );
-        std::set<ClassDeclaration*> visited;
-        while ( !to_visit.empty() )
-        {
-          auto base_class_link = to_visit.front();
-          to_visit.pop_front();
+      auto class_decl = find_class( query.calling_scope );
 
-          if ( auto base_class = base_class_link->class_declaration() )
+      with_base_classes(
+          class_decl,
+          [&]( ClassDeclaration* base_class ) -> bool
           {
-            if ( visited.find( base_class ) != visited.end() )
+            for ( const auto& user_function : workspace.user_functions )
             {
-              continue;
+              if ( starts_with( user_function->name, query.prefix ) &&
+                   Clib::caseInsensitiveEqual( user_function->scope, base_class->name ) )
+              {
+                results.push_back( user_function.get() );
+              }
             }
-
-            visited.insert( base_class );
-
-            if ( base_class->constructor_link && base_class->constructor_link->user_function() )
-            {
-              can_use_super = true;
-              break;
-            }
-
-            to_visit.insert( to_visit.end(), base_class->base_class_links.begin(),
-                             base_class->base_class_links.end() );
-          }
-        }
-      }
-      break;
+            return false;
+          } );
     }
   }
-
-
-  for ( const auto& user_function : workspace.user_functions )
+  else
   {
-    if ( user_function->type != UserFunctionType::Expression &&
-         ( user_function->type != UserFunctionType::Super || can_use_super ) &&
-         starts_with( user_function->name, query.prefix ) &&
-         ( ( !query.prefix_scope.empty() &&
-             Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) ) ||
-           ( query.prefix_scope.empty() &&
-             Clib::caseInsensitiveEqual( query.calling_scope, user_function->scope ) ) ) )
+    bool can_use_super = false;
+
+    // Check if there is a UserFunction with UserFunctionType::Constructor at the given position
+    // that has a base-class links.
+    for ( const auto& user_function : workspace.user_functions )
     {
-      results.push_back( user_function.get() );
+      if ( user_function->type == UserFunctionType::Constructor &&
+           user_function->source_location.range.contains( position ) && user_function->class_link )
+      {
+        with_base_classes(
+            user_function->class_link->class_declaration(),
+            [&]( ClassDeclaration* base_class )
+            {
+              if ( base_class->constructor_link && base_class->constructor_link->user_function() )
+              {
+                can_use_super = true;
+                return true;
+              }
+              return false;
+            } );
+        break;
+      }
+    }
+
+
+    for ( const auto& user_function : workspace.user_functions )
+    {
+      if ( user_function->type != UserFunctionType::Expression &&
+           ( user_function->type != UserFunctionType::Super || can_use_super ) &&
+           starts_with( user_function->name, query.prefix ) &&
+           ( ( !query.prefix_scope.empty() &&
+               Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) ) ||
+             ( query.prefix_scope.empty() &&
+               Clib::caseInsensitiveEqual( query.calling_scope, user_function->scope ) ) ) )
+      {
+        results.push_back( user_function.get() );
+      }
     }
   }
 
@@ -171,8 +243,6 @@ std::vector<UserFunction*> ScopeTree::list_user_functions( const ScopeTreeQuery&
 
 ModuleFunctionDeclaration* ScopeTree::find_module_function( const ScopeTreeQuery& query ) const
 {
-  // return nullptr;
-  // // return find_function<ModuleFunctionDeclaration>( query );
   for ( const auto& module_function : workspace.module_function_declarations )
   {
     if ( query.prefix_scope.empty() )
@@ -261,6 +331,20 @@ ConstDeclaration* ScopeTree::find_constant( std::string name ) const
   return workspace.constants.find( name );
 }
 
+ClassDeclaration* ScopeTree::find_class( const std::string& name ) const
+{
+  auto class_itr =
+      std::find_if( workspace.class_declarations.begin(), workspace.class_declarations.end(),
+                    [&]( const auto& class_decl )
+                    { return Clib::caseInsensitiveEqual( class_decl->name, name ); } );
+
+  if ( class_itr != workspace.class_declarations.end() )
+  {
+    return class_itr->get();
+  }
+  return nullptr;
+}
+
 std::vector<ConstDeclaration*> ScopeTree::list_constants( const ScopeTreeQuery& query ) const
 {
   // Constants are not scoped, so if a non-empty scope is given, return empty list.
@@ -270,19 +354,51 @@ std::vector<ConstDeclaration*> ScopeTree::list_constants( const ScopeTreeQuery& 
   return workspace.constants.list( query.prefix );
 }
 
-std::vector<ClassDeclaration*> ScopeTree::list_classes( const ScopeTreeQuery& query ) const
+std::vector<std::string> ScopeTree::list_scopes( const ScopeTreeQuery& query ) const
 {
   // Classes are not scoped, so if a non-empty scope is given, return empty list.
   if ( !query.prefix_scope.global() )
     return {};
 
-  std::vector<ClassDeclaration*> results;
+  std::vector<std::string> results;
 
   for ( const auto& class_decl : workspace.class_declarations )
   {
     if ( starts_with( class_decl->name, query.prefix ) )
     {
-      results.push_back( class_decl.get() );
+      results.push_back( class_decl->name );
+    }
+  }
+
+  // Add `super` if inside a scoped user function that has at least one base class that defines a
+  // method.
+  if ( query.prefix_scope.empty() && !query.current_user_function.empty() &&
+       !query.calling_scope.empty() )
+  {
+    auto class_decl = find_class( query.calling_scope );
+    bool add_super = false;
+
+    with_base_classes( class_decl,
+                       [&]( ClassDeclaration* base_class ) -> bool
+                       {
+                         auto user_function_itr = std::find_if(
+                             workspace.user_functions.begin(), workspace.user_functions.end(),
+                             [&]( const auto& user_function ) {
+                               return Pol::Clib::caseInsensitiveEqual( user_function->scope,
+                                                                       base_class->name );
+                             } );
+
+                         if ( user_function_itr != workspace.user_functions.end() )
+                         {
+                           add_super = true;
+                           return true;
+                         }
+                         return false;
+                       } );
+
+    if ( add_super )
+    {
+      results.push_back( "super" );
     }
   }
 
@@ -300,10 +416,6 @@ std::vector<std::string> ScopeTree::list_modules( const ScopeTreeQuery& query ) 
 
   for ( const auto& ident : workspace.referenced_source_file_identifiers )
   {
-    // bool starts_with =
-    //     std::equal( module_path.begin(), module_path.end(), ident->pathname.begin() );
-
-
     if ( starts_with( ident->pathname, module_path ) )
     {
       // Check if ident->pathname ends with ".em":

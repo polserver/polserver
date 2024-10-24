@@ -40,6 +40,9 @@ struct ScopeTreeQuery
   // Calling scope, either empty-string (for Global) or a class name.
   std::string calling_scope;
 
+  // Current user function, either empty-string (for Global) or a function name.
+  std::string current_user_function;
+
   // The scope of the prefix for the query. The scope can be empty (eg. `print`)
   // or explicitly global (eg. `::print`).
   ScopeName prefix_scope;
@@ -62,6 +65,7 @@ public:
   ModuleFunctionDeclaration* find_module_function( const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
   ConstDeclaration* find_constant( std::string name ) const;
+  ClassDeclaration* find_class( const std::string& name ) const;
 
   std::vector<std::shared_ptr<Variable>> list_variables( const ScopeTreeQuery& query,
                                                          const Position& ) const;
@@ -73,8 +77,8 @@ public:
       const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
   std::vector<ConstDeclaration*> list_constants( const ScopeTreeQuery& query ) const;
-  // Data is owned by CompilerWorkspace
-  std::vector<ClassDeclaration*> list_classes( const ScopeTreeQuery& query ) const;
+
+  std::vector<std::string> list_scopes( const ScopeTreeQuery& query ) const;
 
   std::vector<std::string> list_modules( const ScopeTreeQuery& query ) const;
 
