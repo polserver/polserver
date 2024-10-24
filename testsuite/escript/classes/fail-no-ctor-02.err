@@ -1,1 +1,1 @@
-:4:20: error: In function call: Class 'Animal' does not define a constructor.
+:4:12: error: In function call: Class 'Animal' does not define a constructor.

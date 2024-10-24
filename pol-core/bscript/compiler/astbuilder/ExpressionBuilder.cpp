@@ -413,7 +413,7 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
 }
 
 std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
-    EscriptParser::FunctionCallContext* ctx, const ScopeName& scope )
+    SourceLocation loc, EscriptParser::FunctionCallContext* ctx, const ScopeName& scope )
 {
   auto method_name = text( ctx->IDENTIFIER() );
 
@@ -422,7 +422,7 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   ScopableName name( scope, method_name );
 
   auto function_call = std::make_unique<FunctionCall>(
-      location_for( *ctx ), current_scope_name.string(), name, std::move( arguments ) );
+      std::move( loc ), current_scope_name.string(), name, std::move( arguments ) );
 
   workspace.function_resolver.register_function_link( std::move( name ),
                                                       function_call->function_link );
@@ -437,7 +437,7 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   auto arguments = value_arguments( ctx->expressionList() );
 
   auto function_call =
-      std::make_unique<FunctionCall>( location_for( *ctx ), current_scope_name.string(),
+      std::make_unique<FunctionCall>( callee->source_location, current_scope_name.string(),
                                       std::move( callee ), std::move( arguments ) );
 
   return function_call;
@@ -566,7 +566,7 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   }
   else if ( auto f_call = ctx->functionCall() )
   {
-    return function_call( f_call, ScopeName::None );
+    return function_call( location_for( *f_call ), f_call, ScopeName::None );
   }
   else if ( auto scoped_f_call = ctx->scopedFunctionCall() )
   {
@@ -613,7 +613,7 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
 {
   auto id = ctx->IDENTIFIER();
   auto scope = id ? ScopeName( text( id ) ) : ScopeName::Global;
-  return function_call( ctx->functionCall(), scope );
+  return function_call( location_for( *ctx ), ctx->functionCall(), scope );
 }
 
 std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
