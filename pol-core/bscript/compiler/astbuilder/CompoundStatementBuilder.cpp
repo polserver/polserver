@@ -282,7 +282,7 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   }
   else if ( auto m_call = ctx->functionCall() )
   {
-    return function_call( m_call, ScopeName::None );
+    return function_call( location_for( *m_call ), m_call, ScopeName::None );
   }
   else if ( auto scoped_call = ctx->scopedFunctionCall() )
   {

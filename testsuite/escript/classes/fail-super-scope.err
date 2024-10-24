@@ -1,1 +1,1 @@
-:10:12: error: Unknown identifier 'super::Method'.
+:10:5: error: Unknown identifier 'super::Method'.

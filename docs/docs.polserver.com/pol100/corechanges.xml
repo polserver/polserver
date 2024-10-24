@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-20-2024</datemodified>
+		<datemodified>10-24-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-24-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Correctly link method calls to base classes when using `super::`-scoped function calls.</change>
+		</entry>
 		<entry>
 			<date>10-20-2024</date>
 			<author>Kukkino:</author>
