@@ -125,34 +125,36 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
         // Check if the function is a constructor:
         // 1. The function has parameters.
-        if ( auto param_list = func_decl->functionParameters()->functionParameterList() )
+        if ( auto func_params = func_decl->functionParameters() )
         {
+          if ( auto param_list = func_params->functionParameterList() )
           {
-            for ( auto param : param_list->functionParameter() )
             {
-              std::string parameter_name = text( param->IDENTIFIER() );
-
-              // 2. The first parameter is named `this`.
-              if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+              for ( auto param : param_list->functionParameter() )
               {
-                // 3. The function name is the same as the class name: constructor
-                if ( Clib::caseInsensitiveEqual( func_name, class_name ) )
-                {
-                  constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
-                                                                     true /* requires_ctor */ );
-                }
-                // 3b. Otherwise: method
-                else
-                {
-                  method_names.push_back( func_name );
-                }
-              }
+                std::string parameter_name = text( param->IDENTIFIER() );
 
-              break;
+                // 2. The first parameter is named `this`.
+                if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+                {
+                  // 3. The function name is the same as the class name: constructor
+                  if ( Clib::caseInsensitiveEqual( func_name, class_name ) )
+                  {
+                    constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
+                                                                       true /* requires_ctor */ );
+                  }
+                  // 3b. Otherwise: method
+                  else
+                  {
+                    method_names.push_back( func_name );
+                  }
+                }
+
+                break;
+              }
             }
           }
         }
-
         workspace.compiler_workspace.all_function_locations.emplace(
             ScopableName( class_name, func_name ).string(), func_loc );
       }
