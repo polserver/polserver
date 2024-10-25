@@ -1,0 +1,63 @@
+// Testing super::method_call where multiple base classes define the method
+//
+// Previous bug: Since calling `Bar` explicitly here, this would register
+// `Bar::method_func` in the function resolver. Then a call to
+// `super::method_func()` inside `Baz` was linking to `Bar::method_func` since
+// it was already loaded, instead of deferring to `Foo::method_func` (since
+// `Foo` is first).
+
+class Foo()
+  function Foo( unused this )
+  endfunction
+
+  function method_func( this )
+    print( $"Foo::method_func this.name={this.name}" );
+  endfunction
+endclass
+
+class Bar( Foo )
+  function Bar( this, BarParam )
+    super();
+    this.name := BarParam;
+  endfunction
+
+  function method_func( this )
+    print( $"Bar::method_func this.name={this.name}" );
+  endfunction
+endclass
+
+class Baz( Foo, Bar )
+  function Baz( this )
+    super( "Baz param to super" );
+  endfunction
+
+  function method_func( this )
+    super::method_func( this );
+  endfunction
+endclass
+
+class Blub( Bar, Foo )
+  function Blub( this, name := "Blub param to super" )
+    super( name );
+  endfunction
+
+  function method_func( this )
+    super::method_func( this );
+  endfunction
+endclass
+
+class Blab( Baz, Blub )
+  function Blab( this )
+    super( "Blab param to super" );
+  endfunction
+
+  function method_func( this )
+    super::method_func( this );
+  endfunction
+endclass
+
+Bar::Bar( "bar_param" ); // Previous bug setup: load Bar -> Bar::method_func into function resolver
+
+Baz::Baz().method_func(); // Foo, Bar -> Foo::method_func [Previous bug: would call Bar::method_func]
+Blub::Blub().method_func(); // Blub, Baz -> [Bar, Foo], [Foo, Bar] -> Bar::method_func
+Blab::Blab().method_func(); // Baz, Blub -> [Foo, Bar], [Bar, Foo] -> Foo::method_func

@@ -202,6 +202,7 @@ bool FunctionResolver::resolve(
       const auto& name = ( *unresolved_itr ).first;
       const auto& unscoped_name = name.name;
       const auto& call_scope = name.scope;
+      bool is_super_scoped = call_scope.super();
 
       // Link the function if possible, otherwise try to build it.
       auto link_handled = [&]( const ScopableName& key )
@@ -258,6 +259,13 @@ bool FunctionResolver::resolve(
             if ( auto base_cd = base_cd_link->class_declaration() )
             {
               to_check.push_back( base_cd->name );
+            }
+            // If using a call to super:: and this base class has not been
+            // loaded, we can't resolve the link just yet: we wait until the
+            // base class list (at least, for this current `cd`) is loaded.
+            else if ( is_super_scoped )
+            {
+              return false;
             }
           }
         }

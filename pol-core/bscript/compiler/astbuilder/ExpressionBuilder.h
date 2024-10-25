@@ -69,7 +69,8 @@ public:
   std::vector<std::unique_ptr<Expression>> expressions(
       std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> );
 
-  std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
+  std::unique_ptr<FunctionCall> function_call( SourceLocation loc,
+                                               EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const ScopeName& scope );
 
   std::unique_ptr<FunctionCall> function_call(
