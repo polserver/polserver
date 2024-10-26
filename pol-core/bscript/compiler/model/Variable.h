@@ -7,6 +7,7 @@
 #include "bscript/compiler/model/SimpleTypes.h"
 #include "bscript/compiler/model/VariableScope.h"
 #include "bscript/compiler/model/WarnOn.h"
+#include "bscript/compiler/model/ScopableName.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -31,6 +32,8 @@ public:
   const SourceLocation& source_location;
   std::shared_ptr<Variable> capturing;
   const SourceLocation& var_decl_location;
+
+  ScopableName scoped_name() const;
 
 private:
   bool used;
