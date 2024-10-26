@@ -56,6 +56,12 @@ public:
       EscriptGrammar::EscriptParser::FunctionCallContext* ctx ) override;
   antlrcpp::Any visitStructInitializerExpression(
       EscriptGrammar::EscriptParser::StructInitializerExpressionContext* ctx ) override;
+  antlrcpp::Any visitClassDeclaration(
+      EscriptGrammar::EscriptParser::ClassDeclarationContext* ctx ) override;
+  antlrcpp::Any visitClassParameterList(
+      EscriptGrammar::EscriptParser::ClassParameterListContext* ctx ) override;
+  antlrcpp::Any visitScopedIdentifier(
+      EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx ) override;
 
 private:
   CompilerWorkspace& workspace;
