@@ -26,6 +26,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/SemanticAnalyzer.h
   compiler/analyzer/SemanticTokensBuilder.cpp
   compiler/analyzer/SemanticTokensBuilder.h
+  compiler/analyzer/ThisMemberAssignmentGatherer.cpp
+  compiler/analyzer/ThisMemberAssignmentGatherer.h
   compiler/analyzer/Variables.cpp
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
