@@ -352,26 +352,73 @@ ClassDeclaration* ScopeTree::find_class( const std::string& name ) const
 
 MemberAssignment* ScopeTree::find_class_member( const ScopeTreeQuery& query ) const
 {
-  auto members = list_class_members( query );
+  MemberAssignment* result = nullptr;
 
-  if ( !members.empty() )
+  if ( query.calling_scope.empty() )
+    return result;
+
+  auto class_decl = find_class( query.calling_scope );
+  if ( !class_decl )
+    return result;
+
+  auto check_class = [&]( ClassDeclaration* cd ) -> bool
   {
-    return members[0];
-  }
+    if ( auto constructor_link = cd->constructor_link )
+    {
+      if ( auto user_function = constructor_link->user_function() )
+      {
+        ThisMemberAssignmentGatherer gatherer;
+        user_function->accept( gatherer );
+        for ( auto* assignment : gatherer.assignments )
+        {
+          if ( Clib::caseInsensitiveEqual( assignment->name, query.prefix ) )
+          {
+            result = assignment;
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
 
-  return nullptr;
+  if ( !check_class( class_decl ) )
+    with_base_classes( class_decl, check_class );
+
+  return result;
 }
 
 UserFunction* ScopeTree::find_class_method( const ScopeTreeQuery& query ) const
 {
-  auto methods = list_class_methods( query );
+  UserFunction* result = nullptr;
 
-  if ( !methods.empty() )
+  if ( query.calling_scope.empty() )
+    return result;
+
+  auto class_decl = find_class( query.calling_scope );
+  if ( !class_decl )
+    return result;
+
+  auto check_class = [&]( ClassDeclaration* cd ) -> bool
   {
-    return methods[0];
-  }
+    for ( auto& [_, function_link] : cd->methods )
+    {
+      if ( auto user_function = function_link->user_function() )
+      {
+        if ( Clib::caseInsensitiveEqual( user_function->name, query.prefix ) )
+        {
+          result = user_function;
+          return true;
+        }
+      }
+    }
+    return false;
+  };
 
-  return nullptr;
+  if ( !check_class( class_decl ) )
+    with_base_classes( class_decl, check_class );
+
+  return result;
 }
 
 std::vector<ConstDeclaration*> ScopeTree::list_constants( const ScopeTreeQuery& query ) const
