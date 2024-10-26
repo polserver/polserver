@@ -2,19 +2,23 @@
 #define POLSERVER_SCOPETREE_H
 
 #include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/ScopeName.h"
 #include "clib/maputil.h"
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
+class MemberAssignment;
 class ModuleFunctionDeclaration;
 class UserFunction;
 class Variable;
 class ConstDeclaration;
+class ClassDeclaration;
 class ScopeInfo
 {
 public:
@@ -32,6 +36,21 @@ private:
   static void describe_tree_to_indented( std::string&, const ScopeInfo&, unsigned indent );
 };
 
+struct ScopeTreeQuery
+{
+  // Calling scope, either empty-string (for Global) or a class name.
+  std::string calling_scope;
+
+  // Current user function, either empty-string (for Global) or a function name.
+  std::string current_user_function;
+
+  // The scope of the prefix for the query. The scope can be empty (eg. `print`)
+  // or explicitly global (eg. `::print`).
+  ScopeName prefix_scope;
+
+  // The prefix to search for.
+  std::string prefix;
+};
 
 class ScopeTree
 {
@@ -42,19 +61,32 @@ public:
   void set_globals( std::vector<std::shared_ptr<Variable>> variables );
   std::shared_ptr<Variable> find_variable( std::string name, const Position& ) const;
   // Data is owned by CompilerWorkspace
-  UserFunction* find_user_function( std::string name ) const;
+  UserFunction* find_user_function( const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
-  ModuleFunctionDeclaration* find_module_function( std::string name ) const;
+  ModuleFunctionDeclaration* find_module_function( const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
   ConstDeclaration* find_constant( std::string name ) const;
+  ClassDeclaration* find_class( const std::string& name ) const;
+  MemberAssignment* find_class_member( const ScopeTreeQuery& query ) const;
+  UserFunction* find_class_method( const ScopeTreeQuery& query ) const;
 
-  std::vector<std::shared_ptr<Variable>> list_variables( std::string name, const Position& ) const;
+  std::vector<std::shared_ptr<Variable>> list_variables( const ScopeTreeQuery& query,
+                                                         const Position& ) const;
   // Data is owned by CompilerWorkspace
-  std::vector<UserFunction*> list_user_functions( std::string name ) const;
+  std::vector<UserFunction*> list_user_functions( const ScopeTreeQuery& query,
+                                                  const Position& ) const;
   // Data is owned by CompilerWorkspace
-  std::vector<ModuleFunctionDeclaration*> list_module_functions( std::string name ) const;
+  std::vector<ModuleFunctionDeclaration*> list_module_functions(
+      const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
-  std::vector<ConstDeclaration*> list_constants( std::string name ) const;
+  std::vector<ConstDeclaration*> list_constants( const ScopeTreeQuery& query ) const;
+
+  std::vector<std::string> list_scopes( const ScopeTreeQuery& query ) const;
+
+  std::vector<std::string> list_modules( const ScopeTreeQuery& query ) const;
+
+  std::vector<MemberAssignment*> list_class_members( const ScopeTreeQuery& query ) const;
+  std::vector<UserFunction*> list_class_methods( const ScopeTreeQuery& query ) const;
 
 private:
   CompilerWorkspace& workspace;

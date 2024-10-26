@@ -29,6 +29,7 @@ enum class UserFunctionType
   Constructor,
   Method,
   Super,
+  Expression,
 };
 
 }  // namespace Pol::Bscript::Compiler
