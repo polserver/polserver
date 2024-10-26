@@ -29,4 +29,18 @@ bool Variable::was_used() const
   return used;
 }
 
+ScopableName Variable::scoped_name() const
+{
+  size_t pos = name.find( "::" );
+
+  if ( pos != std::string::npos )
+  {
+    return ScopableName( name.substr( 0, pos ), name.substr( pos + 2 ) );
+  }
+  else
+  {
+    return ScopableName( ScopeName::Global, name );
+  }
+}
+
 }  // namespace Pol::Bscript::Compiler
