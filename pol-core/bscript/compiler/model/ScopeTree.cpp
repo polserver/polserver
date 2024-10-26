@@ -1,6 +1,9 @@
 #include "bscript/compiler/model/ScopeTree.h"
+#include "ScopeTree.h"
+#include "bscript/compiler/analyzer/ThisMemberAssignmentGatherer.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
@@ -12,9 +15,11 @@
 #include "bscript/compilercfg.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
+#include "clib/maputil.h"
 #include "clib/strutil.h"
 #include <algorithm>
 #include <memory>
+#include <set>
 #include <utility>
 
 namespace Pol::Bscript::Compiler
@@ -345,6 +350,30 @@ ClassDeclaration* ScopeTree::find_class( const std::string& name ) const
   return nullptr;
 }
 
+MemberAssignment* ScopeTree::find_class_member( const ScopeTreeQuery& query ) const
+{
+  auto members = list_class_members( query );
+
+  if ( !members.empty() )
+  {
+    return members[0];
+  }
+
+  return nullptr;
+}
+
+UserFunction* ScopeTree::find_class_method( const ScopeTreeQuery& query ) const
+{
+  auto methods = list_class_methods( query );
+
+  if ( !methods.empty() )
+  {
+    return methods[0];
+  }
+
+  return nullptr;
+}
+
 std::vector<ConstDeclaration*> ScopeTree::list_constants( const ScopeTreeQuery& query ) const
 {
   // Constants are not scoped, so if a non-empty scope is given, return empty list.
@@ -436,6 +465,81 @@ std::vector<std::string> ScopeTree::list_modules( const ScopeTreeQuery& query ) 
       }
     }
   }
+
+  return results;
+}
+
+// Only works for `this.foo` and not `this["foo"]`
+std::vector<MemberAssignment*> ScopeTree::list_class_members( const ScopeTreeQuery& query ) const
+{
+  std::vector<MemberAssignment*> results;
+  std::set<std::string, Clib::ci_cmp_pred> added_names;
+
+  if ( query.calling_scope.empty() )
+    return results;
+
+  auto class_decl = find_class( query.calling_scope );
+  if ( !class_decl )
+    return results;
+
+  auto check_class = [&]( ClassDeclaration* cd ) -> bool
+  {
+    if ( auto constructor_link = cd->constructor_link )
+    {
+      if ( auto user_function = constructor_link->user_function() )
+      {
+        ThisMemberAssignmentGatherer gatherer;
+        user_function->accept( gatherer );
+        for ( auto* assignment : gatherer.assignments )
+        {
+          if ( starts_with( assignment->name, query.prefix ) &&
+               added_names.find( assignment->name ) == added_names.end() )
+          {
+            results.push_back( assignment );
+            added_names.emplace( assignment->name );
+          }
+        }
+      }
+    }
+    return false;
+  };
+
+  check_class( class_decl );
+  with_base_classes( class_decl, check_class );
+  return results;
+}
+
+std::vector<UserFunction*> ScopeTree::list_class_methods( const ScopeTreeQuery& query ) const
+{
+  std::vector<UserFunction*> results;
+  std::set<std::string, Clib::ci_cmp_pred> added_names;
+
+  if ( query.calling_scope.empty() )
+    return results;
+
+  auto class_decl = find_class( query.calling_scope );
+  if ( !class_decl )
+    return results;
+
+  auto check_class = [&]( ClassDeclaration* cd ) -> bool
+  {
+    for ( auto& [_, function_link] : cd->methods )
+    {
+      if ( auto user_function = function_link->user_function() )
+      {
+        if ( starts_with( user_function->name, query.prefix ) &&
+             added_names.find( user_function->name ) == added_names.end() )
+        {
+          results.push_back( user_function );
+          added_names.emplace( user_function->name );
+        }
+      }
+    }
+    return false;
+  };
+
+  check_class( class_decl );
+  with_base_classes( class_decl, check_class );
 
   return results;
 }

@@ -13,6 +13,7 @@
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
+class MemberAssignment;
 class ModuleFunctionDeclaration;
 class UserFunction;
 class Variable;
@@ -66,6 +67,8 @@ public:
   // Data is owned by CompilerWorkspace
   ConstDeclaration* find_constant( std::string name ) const;
   ClassDeclaration* find_class( const std::string& name ) const;
+  MemberAssignment* find_class_member( const ScopeTreeQuery& query ) const;
+  UserFunction* find_class_method( const ScopeTreeQuery& query ) const;
 
   std::vector<std::shared_ptr<Variable>> list_variables( const ScopeTreeQuery& query,
                                                          const Position& ) const;
@@ -81,6 +84,9 @@ public:
   std::vector<std::string> list_scopes( const ScopeTreeQuery& query ) const;
 
   std::vector<std::string> list_modules( const ScopeTreeQuery& query ) const;
+
+  std::vector<MemberAssignment*> list_class_members( const ScopeTreeQuery& query ) const;
+  std::vector<UserFunction*> list_class_methods( const ScopeTreeQuery& query ) const;
 
 private:
   CompilerWorkspace& workspace;
