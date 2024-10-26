@@ -47,13 +47,16 @@ void FunctionResolver::register_available_user_function(
     const SourceLocation& source_location,
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx, bool force_reference )
 {
-  ScopableName name( ScopeName::Global, ctx->IDENTIFIER()->getText() );
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    ScopableName name( ScopeName::Global, identifier->getText() );
 
-  // Exported functions are always forced to be referenced so the code generator
-  // will emit the function's instructions, even though there is no FunctionCall
-  // to it.
-  register_available_user_function_parse_tree( source_location, ctx, std::move( name ),
-                                               force_reference || ctx->EXPORTED() );
+    // Exported functions are always forced to be referenced so the code generator
+    // will emit the function's instructions, even though there is no FunctionCall
+    // to it.
+    register_available_user_function_parse_tree( source_location, ctx, std::move( name ),
+                                                 force_reference || ctx->EXPORTED() );
+  }
 }
 
 
@@ -61,9 +64,12 @@ void FunctionResolver::register_available_scoped_function(
     const SourceLocation& source_location, const ScopeName& class_name,
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx )
 {
-  ScopableName name( class_name, ctx->IDENTIFIER()->getText() );
-  register_available_user_function_parse_tree( source_location, ctx, std::move( name ),
-                                               ctx->EXPORTED() );
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    ScopableName name( class_name, identifier->getText() );
+    register_available_user_function_parse_tree( source_location, ctx, std::move( name ),
+                                                 ctx->EXPORTED() );
+  }
 }
 
 void FunctionResolver::register_available_class_declaration(

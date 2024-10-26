@@ -125,32 +125,34 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
         // Check if the function is a constructor:
         // 1. The function has parameters.
-        if ( auto param_list = func_decl->functionParameters()->functionParameterList() )
+        if ( auto func_parameters = func_decl->functionParameters() )
         {
-          if ( auto func_params = param_list->functionParameter(); !func_params.empty() )
+          if ( auto param_list = func_parameters->functionParameterList() )
           {
-            std::string parameter_name = text( func_params.front()->IDENTIFIER() );
-
-            // 2. The first parameter is named `this`.
-            if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+            if ( auto func_params = param_list->functionParameter(); !func_params.empty() )
             {
-              // 3. The function name is the same as the class name: constructor
-              if ( Clib::caseInsensitiveEqual( func_name, class_name ) )
+              std::string parameter_name = text( func_params.front()->IDENTIFIER() );
+
+              // 2. The first parameter is named `this`.
+              if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
               {
-                constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
-                                                                   true /* requires_ctor */ );
-              }
-              // 3b. Otherwise: method
-              else if ( !methods.contains( func_name ) )
-              {
-                methods[func_name] = std::make_shared<FunctionLink>( func_loc, func_name );
+                // 3. The function name is the same as the class name: constructor
+                if ( Clib::caseInsensitiveEqual( func_name, class_name ) )
+                {
+                  constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
+                                                                     true /* requires_ctor */ );
+                }
+                // 3b. Otherwise: method
+                else
+                {
+                  methods[func_name] = std::make_shared<FunctionLink>( func_loc, func_name );
+                }
               }
             }
           }
+          workspace.compiler_workspace.all_function_locations.emplace(
+              ScopableName( class_name, func_name ).string(), func_loc );
         }
-
-        workspace.compiler_workspace.all_function_locations.emplace(
-            ScopableName( class_name, func_name ).string(), func_loc );
       }
       else if ( auto var_statement = classStatement->varStatement() )
       {
@@ -255,7 +257,8 @@ std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_function_like(
 
   bool constructor_method = class_method && Clib::caseInsensitiveEqual( name, class_name );
 
-  UserFunctionType type = !class_method        ? UserFunctionType::Static
+  UserFunctionType type = expression           ? UserFunctionType::Expression
+                          : !class_method      ? UserFunctionType::Static
                           : constructor_method ? UserFunctionType::Constructor
                                                : UserFunctionType::Method;
 
@@ -283,8 +286,8 @@ std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_function_like(
 
     return std::make_unique<FunctionTypeNode>(
         location_for( *ctx ), exported, expression, type, class_name, std::move( name ),
-        std::move( parameter_list ), std::move( body ), location_for( *end_token ),
-        std::move( class_link ) );
+        std::move( parameter_list ), std::move( body ),
+        end_token ? location_for( *end_token ) : location_for( *ctx ), std::move( class_link ) );
   }
   else if constexpr ( std::is_same_v<FunctionTypeNode, UninitializedFunctionDeclaration> )
   {
