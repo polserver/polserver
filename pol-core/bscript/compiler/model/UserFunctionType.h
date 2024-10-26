@@ -31,6 +31,7 @@ enum class UserFunctionType
   Constructor,
   Method,
   Super,
+  Expression,
 };
 
 }  // namespace Pol::Bscript::Compiler
@@ -47,6 +48,9 @@ struct fmt::formatter<Pol::Bscript::Compiler::UserFunctionType> : fmt::formatter
     {
       using enum UserFunctionType;
 
+    case Expression:
+      name = "function expression";
+      break;
     case Static:
       name = "static function";
       break;

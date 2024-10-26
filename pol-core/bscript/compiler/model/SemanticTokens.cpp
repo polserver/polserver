@@ -62,6 +62,8 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
   case EscriptGrammar::EscriptLexer::DOUBLE:
   case EscriptGrammar::EscriptLexer::AS:
   case EscriptGrammar::EscriptLexer::IS:
+  case EscriptGrammar::EscriptLexer::CLASS:
+  case EscriptGrammar::EscriptLexer::ENDCLASS:
   {
     std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
                                                   token.getCharPositionInLine() + 1,
