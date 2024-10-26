@@ -28,6 +28,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/SemanticTokensBuilder.h
   compiler/analyzer/ShortCircuitWarning.cpp
   compiler/analyzer/ShortCircuitWarning.h
+  compiler/analyzer/ThisMemberAssignmentGatherer.cpp
+  compiler/analyzer/ThisMemberAssignmentGatherer.h
   compiler/analyzer/Variables.cpp
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
