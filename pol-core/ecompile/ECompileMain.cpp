@@ -160,6 +160,21 @@ std::unique_ptr<Compiler::Compiler> create_compiler()
   return compiler;
 }
 
+void load_packages()
+{
+  // No need to load packages if only formatting sources
+  if ( !format_source )
+  {
+    // Load and analyze the package structure
+    for ( const auto& elem : compilercfg.PackageRoot )
+    {
+      Plib::load_packages( elem, true /* quiet */ );
+    }
+    Plib::replace_packages();
+    Plib::check_package_deps();
+  }
+}
+
 void compile_inc( const std::string& path )
 {
   if ( !quiet )
@@ -1079,14 +1094,6 @@ void EnterWatchMode()
  */
 void AutoCompile()
 {
-  // Load and analyze the package structure
-  for ( const auto& elem : compilercfg.PackageRoot )
-  {
-    Plib::load_packages( elem, true /* quiet */ );
-  }
-  Plib::replace_packages();
-  Plib::check_package_deps();
-
   bool save = compilercfg.OnlyCompileUpdatedScripts;
   compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
   std::vector<fs::path> dirs;
@@ -1108,6 +1115,8 @@ void AutoCompile()
 bool run( int argc, char** argv, int* res )
 {
   Clib::enable_exit_signaller();
+
+  load_packages();
 
   // Determine the run mode and do the compile itself
   Tools::Timer<> timer;
