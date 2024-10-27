@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-24-2024</datemodified>
+		<datemodified>10-27-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-27-2024</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Correctly load packages when running ecompile in non-autocompile mode.</change>
+		</entry>
 		<entry>
 			<date>10-24-2024</date>
 			<author>Kevin:</author>

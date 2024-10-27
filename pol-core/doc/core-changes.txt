@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+10-27-2024 Kevin:
+    Fixed: Correctly load packages when running ecompile in non-autocompile mode.
 10-24-2024 Kevin:
     Fixed: Correctly link method calls to base classes when using `super::`-scoped function calls.
 10-20-2024 Kukkino:
