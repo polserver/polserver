@@ -354,7 +354,8 @@ public:
   Bscript::BObjectImp* make_ref();
   weak_ptr<Client> getWeakPtr() const;
 
-  void set_update_range( u8 range );
+  void set_update_range_by_script( u8 range );
+  void set_update_range_by_client( u8 range );
   u8 update_range() const;
 
 public:
@@ -370,6 +371,8 @@ public:
   u8 movementsequence;
 
 private:
+  void set_update_range( u8 range );
+
   std::string version_;
   Core::PKTIN_D9 clientinfo_;
   bool paused_;

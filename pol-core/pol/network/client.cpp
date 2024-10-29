@@ -711,21 +711,69 @@ weak_ptr<Client> Client::getWeakPtr() const
 {
   return weakptr;
 }
+void Client::set_update_range_by_client( u8 range )
+{
+  // only allow a change if allowed and not modified by script
+  if ( Core::settingsManager.ssopt.allow_visual_range_modification )
+  {
+    if ( !gd->script_defined_update_range )
+      set_update_range( range );
+    gd->original_client_update_range = range;
+  }
+  else
+  {
+    PktHelper::PacketOut<Network::PktOut_C8> outMsg;
+    outMsg->Write<u8>( update_range() );
+    outMsg.Send( this );
+    gd->original_client_update_range = Core::settingsManager.ssopt.default_visual_range;
+  }
+}
+
+void Client::set_update_range_by_script( u8 range )
+{
+  if ( range == 0 )
+  {
+    range = gd->original_client_update_range ? gd->original_client_update_range
+                                             : Core::settingsManager.ssopt.default_visual_range;
+    gd->script_defined_update_range = false;
+  }
+  else
+  {
+    gd->script_defined_update_range = true;
+  }
+  set_update_range( range );
+}
 
 void Client::set_update_range( u8 range )
 {
   auto old_range = update_range();
   // limit range to defined min/max
-  gd->update_range = std::clamp( range, Core::settingsManager.ssopt.min_visual_range,
-                                 Core::settingsManager.ssopt.max_visual_range );
+  range = std::clamp( range, Core::settingsManager.ssopt.min_visual_range,
+                      Core::settingsManager.ssopt.max_visual_range );
+
+  // remove all objects, but not if its the first pkt
+  if ( old_range != range && gd->original_client_update_range != 0 )
+    Core::remove_objects_inrange( this );
+
+  gd->update_range = range;
 
   PktHelper::PacketOut<PktOut_C8> outMsg;
-  outMsg->Write<u8>( update_range() );
+  outMsg->Write<u8>( range );
   outMsg.Send( this );
 
-  // update global updaterange (maximum multi radius/client view range)
-  if ( old_range != update_range() )
+  if ( old_range != range )
+  {
+    // update global updaterange (maximum multi radius/client view range)
     Core::gamestate.update_range_from_client( range );
+    if ( gd->original_client_update_range != 0 )
+    {
+      // reset lastpos so that everything counts as newly inrange
+      Core::Pos4d pos = chr->lastpos;
+      chr->lastpos = Core::Pos4d{};
+      Core::send_objects_newly_inrange( this );
+      chr->lastpos = pos;
+    }
+  }
 }
 
 u8 Client::update_range() const

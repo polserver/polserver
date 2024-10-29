@@ -882,6 +882,7 @@ class Client(threading.Thread):
       # 34 ed ed ed ed 04 00 45 dd f5 - Get Player status something
       self.sendLanguage()
       self.singleClick(self.player)
+      self.sendVisualRange()
 
       # Start the brain
       self.brain.started.set()
@@ -938,7 +939,8 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.MultipleNewObjectInfoPacket):
       for obj in pkt.packets:
         self.handleObjectInfoPacket(obj)
-
+    elif isinstance(pkt, packets.VisualRangePacket):
+      pass
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1172,6 +1174,13 @@ class Client(threading.Thread):
     po.fill(self.VERSION)
     self.queue(po)
 
+  @logincomplete
+  def sendVisualRange(self):
+    ''' Sends visual range '''
+    po = packets.VisualRangePacket()
+    po.fill(18)
+    self.queue(po)
+ 
   @logincomplete
   def sendLanguage(self):
     ''' Sends client lamguage to server, should not send it twice '''

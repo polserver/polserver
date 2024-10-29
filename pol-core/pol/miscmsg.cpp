@@ -466,18 +466,7 @@ void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
 
 void handle_update_range_change( Client* client, PKTBI_C8* msg )
 {
-  // only allow a change if allowed and not modified by script
-  if ( settingsManager.ssopt.allow_visual_range_modification &&
-       !client->gd->script_defined_update_range )
-  {
-    client->set_update_range( msg->range );
-  }
-  else
-  {
-    Network::PktHelper::PacketOut<Network::PktOut_C8> outMsg;
-    outMsg->Write<u8>( client->update_range() );
-    outMsg.Send( client );
-  }
+  client->set_update_range_by_client( msg->range );
 }
 
 void handle_krrios_packet( Client* client, PKTBI_F0* msg )

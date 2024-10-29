@@ -88,6 +88,7 @@ public:
   u32 custom_house_chrserial;
   bool script_defined_update_range;
   u8 update_range;
+  u8 original_client_update_range;
 };
 }  // namespace Network
 }  // namespace Pol
