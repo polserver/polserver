@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>10/16/2024</datemodified>
+    <datemodified>11/01/2024</datemodified>
 </fileheader>
 
 
@@ -372,7 +372,10 @@ Spell (int spellid)
 [EditServer                     (0/1 {default 0})]
 [CarryingCapacityMod            (double {default 1.0})]
 [SpeechRange                    (int range {default 12})]
+[AllowVisualRangeModification   (0/1 {default 0})]
 [DefaultVisualRange             (byte {default 18})]
+[MinimumVisualRange             (byte {default 5})]
+[MaximumVisualRange             (byte {default 24})]
 [WhisperRange                   (int range {default 2})]
 [YellRange                      (int range {default 25})]
 [CoreSendsSeason                (0/1 {default 1})]
@@ -420,7 +423,10 @@ Spell (int spellid)
   <explain><i>UseContainerSlots:</i> check to can add bulk code to ensure not going over max slot capacity of 255 and a container's max slot capacity.</explain>
   <explain><i>EditServer:</i> for bypassing cryptseed packet</explain>
   <explain><i>CarryingCapacityMod:</i> * modifier for mobile max_weight</explain>
+  <explain><i>AllowVisualRangeModification:</i> if enabled allows the client to modify its visual range, the limit is Minimum/MaximumVisualRange.</explain>
   <explain><i>DefaultVisualRange:</i> default distance at which player can see information around his surroundings. Keep in mind this value needs to be same as client as there are assumptions made based on it whether client can still see an object or not as client will automatically remove objects out of its configured range.</explain>
+  <explain><i>MinimumVisualRange:</i> definies the minimum range a client sees objects</explain>
+  <explain><i>MaximumVisualRange:</i> definies the maximum range a client sees objects</explain>
   <explain><i>SpeechRange:</i> definies the range of normal speech</explain>
   <explain><i>WhisperRange:</i> definies the range of whispered speech</explain>
   <explain><i>YellRange:</i> definies the range of yelled speech</explain>

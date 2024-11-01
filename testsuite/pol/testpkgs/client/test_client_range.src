@@ -100,9 +100,9 @@ endfunction
 
 /* move char into range of item
 */
-exported function item_update_range()
+exported function item_update_range( resmngr )
   MoveObjectToLocation( char, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
-  var item := CreateItemAtLocation( char.x + 20, char.y, char.z, 0xf3f );
+  var item := resmngr.CreateItemAtLocation( char.x + 20, char.y, char.z, 0xf3f );
   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
   char.facing := 1;
@@ -112,12 +112,10 @@ exported function item_update_range()
   while ( --i > 0 )
     var ev := waitForClient( 0, { EVT_MOVED, EVT_NEW_ITEM } );
     if ( !ev )
-      DestroyItem( item );
       return ev;
     endif
     if ( ev.type == EVT_MOVED )
       if ( !ev.ack )
-        DestroyItem( item );
         return ret_error( "failed to move" );
       endif
       clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
@@ -126,13 +124,11 @@ exported function item_update_range()
     if ( ev["serial"] == item.serial )
       var x := ev["pos"][1] - char.x;
       if ( x != 18 ) // (18 visual range)
-        DestroyItem( item );
         return ret_error( $"update distance failed: {x}" );
       endif
       break;
     endif
   endwhile
-  DestroyItem( item );
   while ( waitForClient( 0, {}, 1 ) )
   endwhile
   if ( i == 0 )
@@ -143,9 +139,9 @@ endfunction
 
 /* move char into range of multi
 */
-exported function multi_update_range()
+exported function multi_update_range( resmngr )
   MoveObjectToLocation( char, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
-  var multi := CreateMultiAtLocation( char.x + 24, char.y, char.z, 0x12000 );
+  var multi := resmngr.CreateMultiAtLocation( char.x + 24, char.y, char.z, 0x12000 );
   if ( !multi )
     return ret_error( "Failed to create multi " + multi );
   endif
@@ -158,12 +154,10 @@ exported function multi_update_range()
   while ( --i > 0 )
     var ev := waitForClient( 0, { EVT_MOVED, EVT_NEW_ITEM } );
     if ( !ev )
-      DestroyMulti( multi );
       return ev;
     endif
     if ( ev.type == EVT_MOVED )
       if ( !ev.ack )
-        DestroyMulti( multi );
         return ret_error( "failed to move" );
       endif
       clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
@@ -172,7 +166,6 @@ exported function multi_update_range()
     if ( ev["serial"] == multi.serial )
       var x := ev["pos"][1] - char.x;
       if ( x != 22 ) // (18 visual range + 4)
-        DestroyMulti( multi );
         return ret_error( $"update distance failed: {x}" );
       endif
       break;
@@ -180,9 +173,45 @@ exported function multi_update_range()
   endwhile
   while ( waitForClient( 0, {}, 1 ) )
   endwhile
-  DestroyMulti( multi );
   if ( i == 0 )
     return ret_error( "multi was never visible" );
+  endif
+  return 1;
+endfunction
+
+exported function update_range_change( resmngr )
+  MoveObjectToLocation( char, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var item := resmngr.CreateItemAtLocation( char.x + 20, char.y, char.z, 0xf3f );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+  Clear_Event_Queue();
+  char.client.visual_range := 20;
+  var i := 10;
+  while ( --i > 0 )
+    var ev := waitForClient( 0, { EVT_NEW_ITEM } );
+    if ( !ev )
+      return ev;
+    endif
+    if ( ev["serial"] == item.serial )
+      break;
+    endif
+  endwhile
+  if ( i == 0 )
+    return ret_error( "item was never visible" );
+  endif
+  char.client.visual_range := 0; // back to default
+  i := 10;
+  while ( --i > 0 )
+    var ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
+    if ( !ev )
+      return ev;
+    endif
+    if ( ev["serial"] == item.serial )
+      break;
+    endif
+  endwhile
+  if ( i == 0 )
+    return ret_error( "item got never deleted" );
   endif
   return 1;
 endfunction

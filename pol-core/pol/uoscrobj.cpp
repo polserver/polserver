@@ -61,6 +61,7 @@
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
+#include "../clib/clib.h"
 #include "../clib/stlutil.h"
 #include "../plib/poltype.h"
 #include "../plib/uconst.h"
@@ -92,6 +93,7 @@
 #include "multi/boatcomp.h"
 #include "multi/house.h"
 #include "multi/multi.h"
+#include "network/cgdata.h"
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
@@ -4936,6 +4938,9 @@ BObjectImp* Client::set_script_member_id( const int id, int value )
   case MBR_DISABLE_INACTIVITY_TIMEOUT:
     disable_inactivity_timeout( value );
     return new BLong( disable_inactivity_timeout() );
+  case MBR_VISUAL_RANGE:
+    set_update_range_by_script( Clib::clamp_convert<u8>( value ) );
+    return new BLong( update_range() );
   default:
     return nullptr;
   }
@@ -4992,6 +4997,9 @@ BObjectImp* Client::get_script_member_id( const int id )
     break;
   case MBR_DISABLE_INACTIVITY_TIMEOUT:
     return new BLong( disable_inactivity_timeout() );
+    break;
+  case MBR_VISUAL_RANGE:
+    return new BLong( update_range() );
     break;
   }
 

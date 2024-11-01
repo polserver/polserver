@@ -34,6 +34,7 @@
 #include "../crypt/cryptbase.h"
 #include "../crypt/cryptengine.h"
 #include "../globals/network.h"
+#include "../globals/settings.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
@@ -45,6 +46,8 @@
 #include "../uworld.h"
 #include "cgdata.h"
 #include "cliface.h"
+#include "packethelper.h"
+#include "packets.h"
 #include "pktdef.h"
 #include "pktin.h"
 #include "xbuffer.h"
@@ -708,13 +711,61 @@ weak_ptr<Client> Client::getWeakPtr() const
 {
   return weakptr;
 }
+void Client::set_update_range_by_client( u8 range )
+{
+  // only allow a change if allowed and not modified by script
+  if ( Core::settingsManager.ssopt.allow_visual_range_modification )
+  {
+    // limit range to defined min/max
+    range = std::clamp( range, Core::settingsManager.ssopt.min_visual_range,
+                        Core::settingsManager.ssopt.max_visual_range );
+    if ( !gd->script_defined_update_range )
+      set_update_range( range );
+    gd->original_client_update_range = range;
+  }
+  else
+  {
+    PktHelper::PacketOut<Network::PktOut_C8> outMsg;
+    outMsg->Write<u8>( update_range() );
+    outMsg.Send( this );
+    gd->original_client_update_range = Core::settingsManager.ssopt.default_visual_range;
+  }
+}
+
+void Client::set_update_range_by_script( u8 range )
+{
+  if ( range == 0 )
+  {
+    range = gd->original_client_update_range ? gd->original_client_update_range
+                                             : Core::settingsManager.ssopt.default_visual_range;
+    gd->script_defined_update_range = false;
+  }
+  else
+  {
+    gd->script_defined_update_range = true;
+  }
+  // no limit check here, script is allowed to use different values
+  set_update_range( range );
+}
 
 void Client::set_update_range( u8 range )
 {
-  // store "personal" updaterange
+  auto old_range = update_range();
+  // delete/send all objects, but not if its the first pkt
+  if ( old_range != range && gd->original_client_update_range != 0 )
+    chr->update_objects_on_range_change( range );
+
   gd->update_range = range;
-  // update global updaterange (maximum multi radius/client view range)
-  Core::gamestate.update_range_from_client( range );
+
+  PktHelper::PacketOut<PktOut_C8> outMsg;
+  outMsg->Write<u8>( range );
+  outMsg.Send( this );
+
+  if ( old_range != range )
+  {
+    // update global updaterange (maximum multi radius/client view range)
+    Core::gamestate.update_range_from_client( range );
+  }
 }
 
 u8 Client::update_range() const

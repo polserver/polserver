@@ -466,14 +466,7 @@ void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
 
 void handle_update_range_change( Client* client, PKTBI_C8* msg )
 {
-  // limit range to official range 5-24
-  u8 range = std::clamp( msg->range, (u8)5, (u8)24 );
-  client->set_update_range( range );
-
-  Network::PktHelper::PacketOut<Network::PktOut_C8> outMsg;
-  // TODO Pos: send updated client->update_range()
-  outMsg->Write<u8>( settingsManager.ssopt.default_visual_range );
-  outMsg.Send( client );
+  client->set_update_range_by_client( msg->range );
 }
 
 void handle_krrios_packet( Client* client, PKTBI_F0* msg )

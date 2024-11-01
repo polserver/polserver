@@ -1410,12 +1410,12 @@ class GeneralInfoPacket(Packet):
   SUB_CLOSESTATUS = 0x0c
   ## 3D Action
   SUB_3DACT = 0x0e
+  ## Login
+  SUB_LOGIN = 0x0f
   ## MegaCliLoc
   SUB_MEGACLILOC = 0x10
   ## Send House Revision State
   SUB_HOUSE_REV = 0x1d
-  ## Login
-  SUB_LOGIN = 0x1f
   ## Enable map-diff files
   SUB_MAPDIFF = 0x18
   ## Boat movement
@@ -1440,7 +1440,7 @@ class GeneralInfoPacket(Packet):
 
     if self.sub == self.SUB_LOGIN:
       checkArgLen(0)
-      self.length = 5 + 2
+      self.length = 5 + 5
 
     elif self.sub == self.SUB_LANG:
       checkArgLen(1)
@@ -1462,7 +1462,8 @@ class GeneralInfoPacket(Packet):
     self.eushort(self.sub)
 
     if self.sub == self.SUB_LOGIN:
-      self.eushort(0x0000)
+      self.euchar(0x0a)
+      self.euint(0x0) # uoexpansion flag
 
     elif self.sub == self.SUB_LANG:
       self.estring(self.lang, len(self.lang)+1)
@@ -1559,6 +1560,20 @@ class ClilocMsgPacket(Packet):
     self.speaker_name = self.dstring(30)
     self.unicode_string = self.rpb(self.length-48)
 
+class VisualRangePacket(Packet):
+  ''' visual range both directions '''
+
+  cmd = 0xc8
+  length = 2
+
+  def decodeChild(self):
+    self.visualrange = self.duchar()
+ 
+  def fill(self,visualrange):
+    self.visualrange=visualrange
+
+  def encodeChild(self):
+    self.euchar(self.visualrange)
 
 class MegaClilocRevPacket(Packet):
   ''' SE Introduced Revision '''

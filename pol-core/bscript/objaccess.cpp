@@ -279,6 +279,7 @@ ObjMember object_members[] = {
     { MBR_FUNCTION, "function" },
     { MBR_POSITION_CHANGED_AT, "position_changed_at" },
     { MBR_MOVED_AT, "moved_at" },
+    { MBR_VISUAL_RANGE, "visual_range" },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

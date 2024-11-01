@@ -255,7 +255,7 @@ public:
   void update_range_from_client( u16 range );
   u16 max_update_range;  // maximum update range (client view range/multi footprint) used as
                          // "pre-filtering" of objects
-
+  u16 max_update_range_multi_only() const;
   void unload_npc_templates();
 
 private:

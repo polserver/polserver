@@ -37,6 +37,7 @@
 #include "../mobile/attribute.h"
 #include "../multi/boat.h"
 #include "../multi/multidef.h"
+#include "../network/client.h"
 #include "../npctmpl.h"
 #include "../objecthash.h"
 #include "../party.h"
@@ -60,6 +61,7 @@
 #include "regions/musicrgn.h"
 #include "regions/resource.h"
 #include "script_internals.h"
+#include "settings.h"
 #include "ucfg.h"
 
 #ifdef _MSC_VER
@@ -215,6 +217,23 @@ void GameState::update_range_from_client( u16 range )
     max_update_range_client = range;
     max_update_range = max_update_range_multi + max_update_range_client;
   }
+  else if ( range < max_update_range_client )
+  {
+    // shrink range to new maximum
+    u16 newrange = settingsManager.ssopt.default_visual_range;
+    for ( auto* client : networkManager.clients )
+    {
+      if ( client->update_range() > newrange )
+        newrange = client->update_range();
+    }
+    max_update_range_client = newrange;
+    max_update_range = max_update_range_multi + max_update_range_client;
+  }
+}
+
+u16 GameState::max_update_range_multi_only() const
+{
+  return max_update_range_multi;
 }
 
 void display_leftover_objects();

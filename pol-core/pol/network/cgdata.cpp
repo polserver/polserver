@@ -50,7 +50,9 @@ ClientGameData::ClientGameData()
       lightlevel( 0 ),
       custom_house_serial( 0 ),
       custom_house_chrserial( 0 ),
-      update_range( Core::settingsManager.ssopt.default_visual_range )
+      script_defined_update_range( false ),
+      update_range( Core::settingsManager.ssopt.default_visual_range ),
+      original_client_update_range( 0 )
 {
 }
 
