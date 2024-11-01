@@ -231,6 +231,11 @@ void GameState::update_range_from_client( u16 range )
   }
 }
 
+u16 GameState::max_update_range_multi_only() const
+{
+  return max_update_range_multi;
+}
+
 void display_leftover_objects();
 
 void GameState::deinitialize()

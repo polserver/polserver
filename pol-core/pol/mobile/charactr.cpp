@@ -4385,6 +4385,59 @@ bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,
   return base::get_method_hook( methodname, ex, hook, PC );
 }
 
+void Character::update_objects_on_range_change( u8 newrange )
+{
+  Network::RemoveObjectPkt msgremove( serial_ext );
+
+  Core::WorldIterator<Core::MobileFilter>::InRange(
+      this, std::max( newrange, los_size() ),
+      [&]( Mobile::Character* zonechr )
+      {
+        if ( this == zonechr || !is_visible_to_me( zonechr, false /*rangecheck*/ ) )
+          return;
+        bool was_inrange = in_range( zonechr, los_size() + zonechr->visible_size() );
+        bool is_inrange = in_range( zonechr, newrange + zonechr->visible_size() );
+        if ( was_inrange && is_inrange )
+          return;
+        if ( !was_inrange && is_inrange )
+          Core::send_owncreate( client, zonechr );
+        else if ( was_inrange && !is_inrange )
+          Core::send_remove_character( client, zonechr, msgremove );
+      } );
+
+  Core::WorldIterator<Core::ItemFilter>::InRange(
+      this, Core::gamestate.max_update_range_multi_only() + std::max( newrange, los_size() ),
+      [&]( Items::Item* zoneitem )
+      {
+        bool was_inrange = in_range( zoneitem, los_size() + zoneitem->visible_size() );
+        bool is_inrange = in_range( zoneitem, newrange + zoneitem->visible_size() );
+        if ( was_inrange && is_inrange )
+          return;
+        if ( !was_inrange && is_inrange )
+          Core::send_item( client, zoneitem );
+        else if ( was_inrange && !is_inrange )
+          Core::send_remove_object( client, zoneitem, msgremove );
+      } );
+
+  Core::WorldIterator<Core::MultiFilter>::InRange(
+      this, Core::gamestate.max_update_range_multi_only() + std::max( newrange, los_size() ),
+      [&]( Multi::UMulti* zonemulti )
+      {
+        bool was_inrange = in_range( zonemulti, los_size() + zonemulti->visible_size() );
+        bool is_inrange = in_range( zonemulti, newrange + zonemulti->visible_size() );
+        if ( was_inrange && is_inrange )
+          return;
+        if ( !was_inrange && is_inrange )
+        {
+          Core::send_multi( client, zonemulti );
+          Multi::UHouse* house = zonemulti->as_house();
+          if ( ( client->UOExpansionFlag & Network::AOS ) && house != nullptr && house->IsCustom() )
+            Multi::CustomHousesSendShort( house, client );
+        }
+        else if ( was_inrange && !is_inrange )
+          Core::send_remove_object( client, zonemulti, msgremove );
+      } );
+}
 
 AttributeValue::AttributeValue()
     : _base( 0 ), _temp( 0 ), _intrinsic( 0 ), _lockstate( 0 ), _cap( 0 )

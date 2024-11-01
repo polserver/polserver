@@ -416,6 +416,8 @@ public:
   // KLUDGE - a more foolproof way is needed to keep this in sync.
   void position_changed( void );
 
+  void update_objects_on_range_change( u8 newrange );
+
   // COMBAT
 public:
   void select_opponent( u32 opp_serial );

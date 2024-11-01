@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>10/03/2024</datemodified>
+<datemodified>11/01/2024</datemodified>
 </fileheader>
 
 
@@ -932,6 +932,7 @@ methods and properties in the Character and they will be removed in a future rel
 <member mname="last_activity_at" type="Integer" access="r/o">POL clock when last activity has been made</member>
 <member mname="last_packet_at" type="Integer" access="r/o">POL clock when last packet has been received</member>
 <member mname="disable_inactivity_timeout" type="Boolean" access="r/w">If true, client will not be disconnected due to inactivity.</member>
+<member mname="visual_range" type="Integer" access="r/w">returns the client setting of visual range, or overwrites the current range. If set to 0 the client given range will be used.<br/>As long as the visual range is set via script the client can no longer modify the range. VisualRangeMin/Max limit is not taken into account.</member>
 <method proto="compareversion(string Version)" returns="true/false">true if Client Version >= given Versionstring</method>
 </class>
 
