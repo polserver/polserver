@@ -2,9 +2,22 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-27-2024</datemodified>
+		<datemodified>11-01-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>11-01-2024</date>
+			<author>Turley:</author>
+			<change type="Added">servspecopt.cfg AllowVisualRangeModification 0/1 default 0<br/>
+MinimumVisualRange default 5<br/>
+MaximumVisualRange default 24<br/>
+if AllowVisualRangeModification is active client can define its update range</change>
+			<change type="Added">client.visual_range member r/w<br/>
+returns the client setting of visual range, or overwrites the current range.<br/>
+If set to 0 the client given range will be used.<br/>
+As long as the visual range is set via script the client can no longer modify the range.<br/>
+VisualRangeMin/Max limit is not taken into account.</change>
+		</entry>
 		<entry>
 			<date>10-27-2024</date>
 			<author>Kevin:</author>
