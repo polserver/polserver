@@ -121,12 +121,54 @@ exported function attack_on_unhide_defender()
   return 1;
 endfunction
 
+exported function test_attack_range_mod()
+  var err, evs, t;
+
+  reset_npcs();
+
+  npc1.swing_speed_increase_mod := 1000;
+  npc2.swing_speed_increase_mod := 1000;
+
+  // Move npcs to five tiles apart
+  MoveObjectToLocation( npc1, 100, 100, 0 );
+  MoveObjectToLocation( npc2, 105, 100, 0 );
+
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2,
+                                  sleep := 0, unhide := false } );
+
+  // Should _not_ have attack events until mod is set
+  Sleepms(500);
+  if ( evs := collect_events( 2, timeout := 0 ) )
+    return ret_error( $"Unexpectedly collected attack events when too far away: {evs}" );
+  endif
+
+  npc1.max_attack_range_increase_mod := 10;
+  // Need to re-attack...
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2,
+                                  sleep := 0, unhide := false } );
+
+  // Collect two attack events
+  if ( !( evs := collect_events( 2 ) ) )
+    return evs;
+  endif
+
+  return 1;
+endfunction
+
 /**
  * Helper functions
  */
 
 // Send event to both npcs to clear opponent.
 function reset_npcs()
+  MoveObjectToLocation( npc1, 100, 100, 0 );
+  MoveObjectToLocation( npc2, 101, 101, 0 );
+  npc1.hidden := 0;
+  npc2.hidden := 0;
+  npc1.max_attack_range_increase := 0;
+  npc2.max_attack_range_increase := 0;
+  npc1.swing_speed_increase_mod := 0;
+  npc2.swing_speed_increase_mod := 0;
   npc1.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
   npc2.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
   clear_event_queue();
@@ -148,11 +190,11 @@ function validate_events( byref err, byref evs, t )
 endfunction
 
 // Collect a number of events
-function collect_events( count, errorMessage := "No event from NPC script received." )
+function collect_events( count, errorMessage := "No event from NPC script received.", timeout := 5 )
   var evs := array{};
 
   while ( true )
-    var ev := wait_for_event( 5 );
+    var ev := wait_for_event( timeout );
     if ( ev )
       evs.append( ev );
       if ( evs.size() >= count )
