@@ -459,16 +459,28 @@ bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const
 {
   unsigned short dist = wielder->distance_to( target->toplevel_pos() );
+  signed short min_dist_mod = wielder->min_attack_range_increase().sum();
+  signed short max_dist_mod = wielder->max_attack_range_increase().sum();
+  signed short min_dist = WEAPON_TMPL->minrange + min_dist_mod;
+  signed short max_dist = WEAPON_TMPL->maxrange + max_dist_mod;
+  min_dist = std::max( min_dist, (short)0 );
+  max_dist = std::max( max_dist, (short)0 );
+  min_dist = std::min( max_dist, min_dist );
+  max_dist = std::max( max_dist, min_dist );
   INFO_PRINTLN_TRACE( 22 )
   ( "in_range({:#x},{:#x}):\n"
     "dist:   {}\n"
-    "minrange: {}\n"
-    "maxrange: {}\n"
-    "has_los:  {}",
-    wielder->serial, target->serial, dist, WEAPON_TMPL->minrange, WEAPON_TMPL->maxrange,
+    "weap_minrange: {}\n"
+    "mod_minrange: {}\n"
+    "weap_maxrange: {}\n"
+    "mod_maxrange: {}\n"
+    "calc_min: {}\n"
+    "calc_max: {}\n"
+    "has_los:  {}\n",
+    wielder->serial, target->serial, dist, WEAPON_TMPL->minrange, min_dist_mod,
+    WEAPON_TMPL->maxrange, max_dist_mod, min_dist, max_dist,
     wielder->realm()->has_los( *wielder, *target ) );
-  return ( dist >= WEAPON_TMPL->minrange && dist <= WEAPON_TMPL->maxrange &&
-           wielder->realm()->has_los( *wielder, *target ) );
+  return ( dist >= min_dist && dist <= max_dist && wielder->realm()->has_los( *wielder, *target ) );
 }
 
 // FIXME weak, weak..

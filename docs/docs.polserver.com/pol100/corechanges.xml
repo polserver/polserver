@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-01-2024</datemodified>
+		<datemodified>11-02-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>11-02-2024</date>
+			<author>DevGIB:</author>
+			<change type="Added">MinAttackRangeIncrease(min_attack_range_increase) and MinAttackRangeIncreaseMod(min_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles minimum attack range.&lt;br/&gt;<br/>
+Min Attack Range Increase is used as a numeric modifier to the minimum range of a weapon, e.g. Base min Weapon range of 1 + attack range increase of 1 would make the minimum attack range 2.</change>
+			<change type="Added">MaxAttackRangeIncrease(max_attack_range_increase) and MaxAttackRangeIncreaseMod(max_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles maximum attack range.&lt;br/&gt;<br/>
+Max Attack Range Increase is used as a numeric modifier to the maximum range of a weapon, e.g. Base max Weapon range of 3 + attack range increase of 2 would make the maximum attack range 5.</change>
+		</entry>
 		<entry>
 			<date>11-01-2024</date>
 			<author>Turley:</author>

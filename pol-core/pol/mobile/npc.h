@@ -226,6 +226,8 @@ private:
   DYN_PROPERTY( orig_physical_resist_cap, s16, Core::PROP_ORIG_RESIST_PHYSICAL_CAP, 0 );
   DYN_PROPERTY( orig_luck, s16, Core::PROP_ORIG_LUCK, 0 );
   DYN_PROPERTY( orig_swing_speed_increase, s16, Core::PROP_ORIG_SWING_SPEED_INCREASE, 0 );
+  DYN_PROPERTY( orig_min_attack_range_increase, s16, Core::PROP_ORIG_MIN_ATTACK_RANGE_INCREASE, 0 );
+  DYN_PROPERTY( orig_max_attack_range_increase, s16, Core::PROP_ORIG_MAX_ATTACK_RANGE_INCREASE, 0 );
 
   void resetEquipablePropertiesNPC();
 

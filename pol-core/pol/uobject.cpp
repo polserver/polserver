@@ -369,6 +369,12 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   value = swing_speed_increase().mod;
   if ( value )
     sw.add( "SwingSpeedIncreaseMod", static_cast<int>( value ) );
+  value = min_attack_range_increase().mod;
+  if ( value )
+    sw.add( "MinAttackRangeIncreaseMod", static_cast<int>( value ) );
+  value = max_attack_range_increase().mod;
+  if ( value )
+    sw.add( "MaxAttackRangeIncreaseMod", static_cast<int>( value ) );
   // end new mod stuff
 
 
@@ -492,6 +498,12 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "SWINGSPEEDINCREASEMOD", 0 ) );
   if ( mod_value != 0 )
     swing_speed_increase( swing_speed_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "MINATTACKRANGEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    min_attack_range_increase( min_attack_range_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "MAXATTACKRANGEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    max_attack_range_increase( max_attack_range_increase().setAsMod( mod_value ) );
 
 
   proplist_.readProperties( elem );

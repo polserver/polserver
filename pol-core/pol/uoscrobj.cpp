@@ -924,6 +924,12 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_SWING_SPEED_INCREASE:
     return new BLong( swing_speed_increase().sum() );
     break;
+  case MBR_MIN_ATTACK_RANGE_INCREASE:
+    return new BLong( min_attack_range_increase().sum() );
+    break;
+  case MBR_MAX_ATTACK_RANGE_INCREASE:
+    return new BLong( max_attack_range_increase().sum() );
+    break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
     break;
@@ -1013,6 +1019,12 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_SWING_SPEED_INCREASE_MOD:
     return new BLong( swing_speed_increase().mod );
+    break;
+  case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
+    return new BLong( min_attack_range_increase().mod );
+    break;
+  case MBR_MAX_ATTACK_RANGE_INCREASE_MOD:
+    return new BLong( max_attack_range_increase().mod );
     break;
 
   case MBR_GETGOTTENBY:
@@ -1501,6 +1513,34 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       }
     }
     return new BLong( swing_speed_increase().mod );
+    break;
+  case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
+    min_attack_range_increase( 
+        min_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != nullptr )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = container->get_chr_owner();
+        if ( chr != nullptr )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( min_attack_range_increase().mod );
+    break;
+  case MBR_MAX_ATTACK_RANGE_INCREASE_MOD:
+    max_attack_range_increase(
+        max_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != nullptr )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = container->get_chr_owner();
+        if ( chr != nullptr )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( max_attack_range_increase().mod );
     break;
 
   case MBR_QUALITY:
@@ -2309,6 +2349,18 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_SWING_SPEED_INCREASE_MOD:
     return new BLong( swing_speed_increase().mod );
     break;
+  case MBR_MIN_ATTACK_RANGE_INCREASE:
+    return new BLong( min_attack_range_increase().sum() );
+    break;
+  case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
+    return new BLong( min_attack_range_increase().mod );
+    break;
+  case MBR_MAX_ATTACK_RANGE_INCREASE:
+    return new BLong( max_attack_range_increase().sum() );
+    break;
+  case MBR_MAX_ATTACK_RANGE_INCREASE_MOD:
+    return new BLong( max_attack_range_increase().mod );
+    break;
   case MBR_FOLLOWERSMAX:
     return new BLong( followers().followers_max );
     break;
@@ -2671,6 +2723,18 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     swing_speed_increase( swing_speed_increase().setAsMod( static_cast<short>( value ) ) );
     refresh_ar();
     return new BLong( swing_speed_increase().mod );
+    break;
+  case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
+    min_attack_range_increase(
+        min_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( min_attack_range_increase().mod );
+    break;
+  case MBR_MAX_ATTACK_RANGE_INCREASE_MOD:
+    max_attack_range_increase(
+        max_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( max_attack_range_increase().mod );
     break;
   case MBR_STATCAP:
   {

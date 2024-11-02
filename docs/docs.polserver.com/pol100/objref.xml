@@ -131,6 +131,8 @@
 <member mname="resist_poison_cap" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
 <member mname="luck" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt.</member>
 <member mname="swing_speed_increase" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60.</member>
+<member mname="min_attack_range_increase" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt. Adjusts the minimum attack range of a player by the total number of all modifiers e.g. weapons base minimum attack range of 1 + min attack range increase of 1 means a final minimum attack range of 2.</member>
+<member mname="max_attack_range_increase" type="Integer" access="r/o">Total of base property plus mod, applied to characters when equipt. Adjusts the maximum attack range of a player by the total number of all modifiers e.g. weapons base maximum attack range of 3 + max attack range increase of 2 means a final attack range of 5.</member>
 <member mname="defence_increase_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
@@ -146,6 +148,8 @@
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
 <member mname="luck_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
 <member mname="swing_speed_increase_mod" type="Integer" access="r/w">Modifier for property, added to base of the object.</member>
+<member mname="min_attack_range_increase_mod" type="Integer" access="r/w">Modifier of property, added to the base of the object.</member>
+<member mname="max_attack_range_increase_mod" type="Integer" access="r/w">Modifier of property, added to the base of the object.</member>
 <member mname="weight_multiplier_mod" type="Double" access="r/w">Multiplicative modifier when calculating an item's weight. For example, on an item that weighs 100 stone, setting this property to 0.5 would have the item weigh 50 stone.</member>
 <member mname="character_owner" type="OfflineCharacterRef" access="r/o">Returns Character that owns the item, ie. the character whose backpack or equipped items contains the item.</member>
 <member mname="snoopscript" type="String" access="r/w">double-click action script when owned by another character. set to empty string for itemdesc.cfg default script.</member>
@@ -293,6 +297,8 @@
 <member mname="resist_poison_cap" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
 <member mname="luck" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base.</member>
 <member mname="swing_speed_increase" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60.</member>
+<member mname="min_attack_range_increase" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base. Min attack Range Increase is used as a numeric modifier to the minimum range of a weapon, e.g. Weapon minimum range of 1 + min attack range increase of 1 would make the minimum attack range 2.</member>
+<member mname="max_attack_range_increase" type="Integer" access="r/o">Total calculation of all modifiers from items equipt plus personal modifier and personal base. Max attack Range Increase is used as a numeric modifier to the maximum range of a weapon, e.g. Weapon maximum range of 3 + max attack range increase of 2 would make the maximum attack range 5.</member>
 <member mname="defence_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
@@ -308,6 +314,8 @@
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
 <member mname="luck_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
 <member mname="swing_speed_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="min_attack_range_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
+<member mname="max_attack_range_increase_mod" type="Integer" access="r/w">Modifier for property, added to base property.</member>
 <member mname="buffs" type="dictionary" access="r/o">Returns the current active buffs added via addBuff as dictionary. Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}.</member>
 <member mname="position_changed_at" type="Double" access="r/o">MilliSecondClock when character last changed position for any reason</member>
 <member mname="moved_at" type="Double" access="r/o">MilliSecondClock when character last moved due to walking/running</member>

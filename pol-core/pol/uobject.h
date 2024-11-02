@@ -304,6 +304,10 @@ public:
   DYN_PROPERTY( luck, ValueModPack, PROP_EXT_STATBAR_LUCK, ValueModPack::DEFAULT );
   DYN_PROPERTY( swing_speed_increase, ValueModPack, PROP_SWING_SPEED_INCREASE,
                 ValueModPack::DEFAULT );
+  DYN_PROPERTY( min_attack_range_increase, ValueModPack, PROP_MIN_ATTACK_RANGE_INCREASE,
+                ValueModPack::DEFAULT );
+  DYN_PROPERTY( max_attack_range_increase, ValueModPack, PROP_MAX_ATTACK_RANGE_INCREASE,
+                ValueModPack::DEFAULT );
 
 
 private:

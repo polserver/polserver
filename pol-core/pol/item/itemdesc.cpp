@@ -233,6 +233,10 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       luck_mod( 0 ),
       swing_speed_increase( 0 ),
       swing_speed_increase_mod( 0 ),
+      min_attack_range_increase( 0 ),
+      min_attack_range_increase_mod( 0 ),
+      max_attack_range_increase( 0 ),
+      max_attack_range_increase_mod( 0 ),
       props( Core::CPropProfiler::Type::ITEM ),
       method_script( nullptr ),
       save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
@@ -479,6 +483,12 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   if ( elem.remove_prop( "SWINGSPEEDINCREASE", &temp ) )
     swing_speed_increase = diceValue( temp, "Swing Speed Increase" );
 
+  if ( elem.remove_prop( "MINATTACKRANGEINCREASE", &temp ) )
+    min_attack_range_increase = diceValue( temp, "Min Attack Range Increase" );
+
+  if ( elem.remove_prop( "MAXATTACKRANGEINCREASE", &temp ) )
+    max_attack_range_increase = diceValue( temp, "Max Attack Range Increase" );
+
   // change mods to dice rolls if needed
   if ( elem.remove_prop( "DefenceIncreaseMod", &temp ) )
     defence_increase_mod = diceValue( temp, "Defence Increase Mod" );
@@ -527,6 +537,12 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   if ( elem.remove_prop( "SWINGSPEEDINCREASEMOD", &temp ) )
     swing_speed_increase_mod = diceValue( temp, "Swing Speed Increase Mod" );
+
+  if ( elem.remove_prop( "MINATTACKRANGEINCREASEMOD", &temp ) )
+    min_attack_range_increase_mod = diceValue( temp, "Min Attack Range Increase Mod" );
+
+  if ( elem.remove_prop( "MAXATTACKRANGEINCREASEMOD", &temp ) )
+    max_attack_range_increase_mod = diceValue( temp, "Max Attack Range Increase Mod" );
 
   memset( &element_resist, 0, sizeof( element_resist ) );
   memset( &element_damage, 0, sizeof( element_damage ) );
@@ -832,6 +848,8 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "PoisonResistCap", new BLong( resist_poison_cap ) );
   descriptor->addMember( "Luck", new BLong( luck ) );
   descriptor->addMember( "SwingSpeedIncrease", new BLong( swing_speed_increase ) );
+  descriptor->addMember( "MinAttackRangeIncrease", new BLong( min_attack_range_increase ) );
+  descriptor->addMember( "MaxAttackRangeIncrease", new BLong( max_attack_range_increase ) );
 
   // new mods
   descriptor->addMember( "DefenceIncreaseMod", new BLong( defence_increase_mod ) );
@@ -849,6 +867,8 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "FasterCastRecoveryMod", new BLong( faster_cast_recovery_mod ) );
   descriptor->addMember( "LuckMod", new BLong( luck_mod ) );
   descriptor->addMember( "SwingSpeedIncreaseMod", new BLong( swing_speed_increase_mod ) );
+  descriptor->addMember( "MinAttackRangeIncreaseMod", new BLong( min_attack_range_increase_mod ) );
+  descriptor->addMember( "MaxAttackRangeIncreaseMod", new BLong( max_attack_range_increase_mod ) );
 
 
   std::set<std::string>::const_iterator set_itr;
