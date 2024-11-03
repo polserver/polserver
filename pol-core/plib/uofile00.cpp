@@ -13,11 +13,11 @@
 #include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "clib/strutil.h"
+#include "objtype.h"
 #include "plib/mul/map.h"
 #include "plib/mul/tiledata.h"
 #include "plib/uopreader/uop.h"
 #include "plib/uopreader/uophash.h"
-#include "pol/objtype.h"
 #include "systemstate.h"
 
 

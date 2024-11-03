@@ -33,7 +33,6 @@
 #include "../pol/module/filemod.h"
 #include "../pol/module/mathmod.h"
 #include "../pol/module/utilmod.h"
-#include "../pol/polcfg.h"
 
 namespace Pol
 {

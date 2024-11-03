@@ -10,10 +10,17 @@
 
 #include <stddef.h>
 
+#include "../bscript/config.h"
+#include "../clib/Debugging/ExceptionParser.h"
 #include "../clib/clib.h"
 #include "../clib/compilerspecifics.h"
+#include "../clib/mdump.h"
+#include "../clib/passert.h"
 #include "../clib/rawtypes.h"
+#include "../plib/systemstate.h"
 #include "fnsearch.h"
+#include "globals/settings.h"
+#include "globals/state.h"
 #include "globals/uvars.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
@@ -22,6 +29,7 @@
 #include "multi/multi.h"
 #include "network/cgdata.h"
 #include "network/client.h"
+#include "proplist.h"
 #include "realms/realm.h"
 #include "ufunc.h"
 #include "uworld.h"
@@ -30,6 +38,75 @@ namespace Pol
 {
 namespace Core
 {
+
+void apply_polcfg( bool initial )
+{
+  auto& config = Plib::systemstate.config;
+  if ( initial )
+  {
+    if ( config.account_save > 0 )
+    {
+      gamestate.write_account_task->set_secs( config.account_save );
+      gamestate.write_account_task->start();
+    }
+  }
+  Bscript::escript_config.max_call_depth = config.max_call_depth;
+  Clib::passert_dump_stack = config.passert_dump_stack;
+
+  if ( config.passert_failure_action == "abort" )
+  {
+    Clib::passert_shutdown = false;
+    Clib::passert_nosave = false;
+    Clib::passert_abort = true;
+  }
+  else if ( config.passert_failure_action == "continue" )
+  {
+    Clib::passert_shutdown = false;
+    Clib::passert_nosave = false;
+    Clib::passert_abort = false;
+  }
+  else if ( config.passert_failure_action == "shutdown" )
+  {
+    Clib::passert_shutdown = true;
+    Clib::passert_nosave = false;
+    Clib::passert_abort = false;
+  }
+  else if ( config.passert_failure_action == "shutdown-nosave" )
+  {
+    Clib::passert_shutdown = true;
+    Clib::passert_nosave = true;
+    Clib::passert_abort = false;
+  }
+  else
+  {
+    Clib::passert_shutdown = false;
+    Clib::passert_abort = true;
+    POLLOG_ERRORLN(
+        "Unknown pol.cfg AssertionFailureAction value: {} (expected abort, continue, shutdown, or "
+        "shutdown-nosave)",
+        config.passert_failure_action );
+  }
+
+  Clib::LogfileTimestampEveryLine = config.logfile_timestamp_everyline;
+  if ( !config.enable_debug_log )
+    DISABLE_DEBUGLOG();
+
+#ifdef _WIN32
+  Clib::MiniDumper::SetMiniDumpType( config.minidump_type );
+#endif
+
+  Clib::ExceptionParser::configureProgramAbortReportingSystem(
+      config.report_active, config.report_server, config.report_url, config.report_admin_email );
+
+
+  /// The profiler needs to gather some data before the pol.cfg file gets loaded, so when it
+  /// turns out to be disabled, or when it was enabled before, but is being disabled now,
+  /// run "garbage collection" to free the allocated resources
+  if ( !config.profile_cprops )
+    Core::CPropProfiler::instance().clear();
+}
+
+
 void SetSysTrayPopupText( const char* text );
 #ifdef _WIN32
 static Priority tipPriority = ToolTipPriorityNone;

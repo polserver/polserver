@@ -21,6 +21,7 @@
 #include "plib/maptile.h"
 #include "plib/mapwriter.h"
 #include "plib/mul/map.h"
+#include "plib/objtype.h"
 #include "plib/polfile.h"
 #include "plib/realmdescriptor.h"
 #include "plib/systemstate.h"
@@ -32,7 +33,6 @@
 #include "plib/uopreader/uophash.h"
 #include "plib/ustruct.h"
 #include "pol/landtile.h"
-#include "pol/objtype.h"
 
 
 namespace Pol

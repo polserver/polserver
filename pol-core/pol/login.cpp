@@ -40,7 +40,6 @@
 #include "network/packets.h"
 #include "network/pktdef.h"
 #include "network/pktin.h"
-#include "polcfg.h"
 #include "servdesc.h"
 #include "startloc.h"
 #include "ufunc.h"

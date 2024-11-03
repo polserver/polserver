@@ -3,13 +3,13 @@
 
 #include "../../bscript/bobject.h"
 #include "../../clib/passert.h"
+#include "../../plib/objtype.h"
 #include "../containr.h"
 #include "../extobj.h"
 #include "../globals/settings.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../layers.h"
-#include "../objtype.h"
 #include "charactr.h"
 
 

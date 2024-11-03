@@ -21,7 +21,6 @@
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 #include "baseobject.h"
-#include "polcfg.h"
 
 #define pf_endl '\n'
 namespace Pol

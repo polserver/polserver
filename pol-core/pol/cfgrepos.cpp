@@ -35,7 +35,6 @@
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 #include "globals/ucfg.h"
-#include "polcfg.h"
 
 namespace Pol
 {

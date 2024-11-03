@@ -32,7 +32,7 @@ namespace Clib
 class ConfigFile;
 class ConfigElem;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Core
 {
 class StorageArea
@@ -59,7 +59,6 @@ private:
 
   friend class StorageAreaImp;
   friend class StorageAreaIterator;
-  friend void write_dirty_storage( Clib::StreamWriter& );
 };
 
 
@@ -104,8 +103,7 @@ private:
 
   friend class StorageAreasImp;
   friend class StorageAreasIterator;
-  friend void write_dirty_storage( Clib::StreamWriter& );
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -31,7 +31,6 @@
 #include "item/item.h"
 #include "loaddata.h"
 #include "mkscrobj.h"
-#include "polcfg.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -95,13 +94,6 @@ extern Items::Item* read_item( Clib::ConfigElem& elem );  // from UIMPORT.CPP
 
 void StorageArea::load_item( Clib::ConfigElem& elem )
 {
-  // if this object is modified in a subsequent incremental save,
-  // don't load it yet.
-  pol_serial_t serial = 0;
-  elem.get_prop( "SERIAL", &serial );
-  if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
-    return;
-
   u32 container_serial = 0;                                  // defaults to item at storage root,
   (void)elem.remove_prop( "CONTAINER", &container_serial );  // so the return value can be ignored
 

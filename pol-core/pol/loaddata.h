@@ -21,13 +21,7 @@ class Item;
 }
 namespace Core
 {
-void load_incremental_indexes();
-unsigned get_save_index( pol_serial_t serial );
-
-void read_incremental_saves();
 void slurp( const char* filename, const char* tags, int sysfind_flags = 0 );
-void register_deleted_serials();
-void clear_save_index();
 
 void defer_item_insertion( Items::Item* item, pol_serial_t container_serial );
 void insert_deferred_items();

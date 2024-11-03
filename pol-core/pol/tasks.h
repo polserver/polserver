@@ -13,6 +13,7 @@ void update_rpm();
 void regen_stats();
 void regen_resources();
 void update_sysload();
-}
-}
+void reload_pol_cfg();
+}  // namespace Core
+}  // namespace Pol
 #endif

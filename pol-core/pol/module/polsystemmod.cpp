@@ -43,7 +43,6 @@
 #include "decay.h"
 #include "listenpt.h"
 #include "packetscrobj.h"
-#include "polcfg.h"
 #include "proplist.h"
 #include "tooltips.h"
 #include "uobject.h"

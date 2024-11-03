@@ -22,7 +22,6 @@
 #include "globals/state.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
-#include "polcfg.h"
 #include "polclock.h"
 #include "polsig.h"
 #include "realms/realm.h"

@@ -19,7 +19,6 @@
 #include "module/polsystemmod.h"
 #include "module/uomod.h"
 #include "party.h"
-#include "polcfg.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 
@@ -142,7 +141,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id )  // id test
 
 BObjectImp* EPartyRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return call_polmethod_id( objmethod->id, ex, forcebuiltin );

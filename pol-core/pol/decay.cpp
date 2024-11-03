@@ -20,7 +20,6 @@
 #include "globals/uvars.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
-#include "polcfg.h"
 #include "polsem.h"
 #include "realms/realm.h"
 #include "scrdef.h"

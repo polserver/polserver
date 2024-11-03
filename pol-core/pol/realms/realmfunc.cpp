@@ -42,7 +42,7 @@
 #include "multi/multidef.h"
 #include "network/cgdata.h"
 #include "network/client.h"
-#include "objtype.h"
+#include "plib/objtype.h"
 #include "realms/realm.h"
 #include "uworld.h"
 
