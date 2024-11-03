@@ -40,6 +40,7 @@
 #include "../ufunc.h"
 #include "../uoscrobj.h"
 #include "itemdesc.h"
+#include "realms/realm.h"
 #include "regions/resource.h"
 
 
@@ -398,7 +399,13 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( !snoop_script_.get().empty() )
     sw.add( "SnoopScript", snoop_script_.get() );
 
-  if ( decayat_gameclock_ != 0 )
+  if ( Plib::systemstate.config.decaytask )
+  {
+    auto dtime = Core::gamestate.world_decay.getDecayTime( this );
+    if ( dtime != 0 )
+      sw.add( "DecayAt", dtime );
+  }
+  else if ( decayat_gameclock_ != 0 )
     sw.add( "DecayAt", decayat_gameclock_ );
 
   if ( has_sellprice_() )
@@ -462,9 +469,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( has_swing_speed_increase() )
     sw.add( "SwingSpeedIncrease", swing_speed_increase().value );
   if ( has_min_attack_range_increase() )
-    sw.add("MinAttackRangeIncrease" , min_attack_range_increase().value );
+    sw.add( "MinAttackRangeIncrease", min_attack_range_increase().value );
   if ( has_max_attack_range_increase() )
-    sw.add("MaxAttackRangeIncrease", max_attack_range_increase().value);
+    sw.add( "MaxAttackRangeIncrease", max_attack_range_increase().value );
   // end new prop stuf
   if ( maxhp_mod_ )
     sw.add( "MaxHp_mod", maxhp_mod_ );
@@ -505,7 +512,27 @@ void Item::readProperties( Clib::ConfigElem& elem )
   unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
   snoop_script_ = elem.remove_string( "SNOOPSCRIPT", snoop_script_.get().c_str() );
 
-  decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
+  auto dtime = elem.remove_ulong( "DECAYAT", 0 );
+  if ( Plib::systemstate.config.decaytask )
+  {
+    if ( dtime > 0 )
+    {
+      // store relative time
+      // worldloading: WorldDecay::initialize handles add to decay (parent is unknown here)
+      // item creation: container also unknown and since its relative time, once its dropped on
+      // ground the time here defined is used
+      auto gmclock = Core::read_gameclock();
+      if ( dtime > gmclock )
+        reldecay_time_loaded( dtime - gmclock );
+      // else leftover or bug? use default time
+      else
+        disable_decay_task( true );
+    }
+  }
+  else
+    decayat_gameclock_ = dtime;
+
+
   sellprice_( elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ) );
   buyprice_( elem.remove_ulong( "BUYPRICE", BUYPRICE_DEFAULT ) );
 
@@ -1037,6 +1064,17 @@ void Item::on_color_changed()
 void Item::on_movable_changed()
 {
   update_item_to_inrange( this );
+  if ( !Core::stateManager.gflag_in_system_load && Plib::systemstate.config.decaytask &&
+       objtype_ != UOBJ_CORPSE )
+  {
+    if ( movable() && !has_decay_task() )
+    {
+      if ( can_add_to_decay_task() )
+        Core::gamestate.world_decay.addObject( this, itemdesc().decay_time * 60 );
+    }
+    else if ( !movable() && has_decay_task() )
+      Core::gamestate.world_decay.removeObject( this );
+  }
 }
 
 void Item::on_invisible_changed()
@@ -1147,6 +1185,43 @@ void Item::disable_decay()
 {
   set_dirty();
   decayat_gameclock_ = 0;
+}
+
+bool Item::has_decay_task() const
+{
+  return flags_.get( Core::OBJ_FLAGS::DECAY_TASK );
+}
+
+void Item::set_decay_task( bool val )
+{
+  flags_.change( Core::OBJ_FLAGS::DECAY_TASK, val );
+  set_dirty();
+}
+
+bool Item::has_disabled_decay_task() const
+{
+  return flags_.get( Core::OBJ_FLAGS::DISABLE_DECAY_TASK );
+}
+
+void Item::disable_decay_task( bool val )
+{
+  flags_.change( Core::OBJ_FLAGS::DISABLE_DECAY_TASK, val );
+  if ( val && has_decay_task() )
+    Core::gamestate.world_decay.removeObject( this );
+  set_dirty();
+}
+
+bool Item::can_add_to_decay_task( bool multi_check ) const
+{
+  if ( orphan() || owner() != nullptr || has_disabled_decay_task() ||
+       ( !movable() && objtype_ != UOBJ_CORPSE ) )
+    return false;
+  if ( multi_check && !itemdesc().decays_on_multis )
+  {
+    if ( realm()->find_supporting_multi( pos3d() ) != nullptr )
+      return false;
+  }
+  return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////

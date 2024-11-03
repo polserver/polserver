@@ -186,6 +186,8 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
   }
   item->setposition( Core::Pos4d( newx, newy, newz, realm() ) );
   item->disable_decay();
+  if ( Plib::systemstate.config.decaytask )
+    item->disable_decay_task( true );
   item->movable( false );
   update_item_to_inrange( item );
   add_item_to_world( item );

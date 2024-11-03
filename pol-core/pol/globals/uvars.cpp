@@ -99,6 +99,7 @@ GameState::GameState()
       nextguildid( 1 ),
       main_realm( nullptr ),
       Realms(),
+      world_decay(),
 
       update_rpm_task( new PeriodicTask( update_rpm, 60, "RPM" ) ),
       regen_stats_task( new PeriodicTask( regen_stats, 5, "Regen" ) ),
@@ -107,6 +108,8 @@ GameState::GameState()
       write_account_task( new PeriodicTask( Accounts::write_account_data_task, 60, "WRITEACCT" ) ),
       update_sysload_task( new PeriodicTask( update_sysload, 1, "SYSLOAD" ) ),
       reload_pol_cfg_task( new PeriodicTask( reload_pol_cfg, 30, "LOADPOLCFG" ) ),
+      decay_task(
+          new PeriodicTask( []() { gamestate.world_decay.decayTask(); }, 60, "DecayTask" ) ),
 
       attributes(),
       numAttributes( 0 ),
@@ -240,6 +243,8 @@ void display_leftover_objects();
 void GameState::deinitialize()
 {
   INFO_PRINTLN( "Initiating POL Cleanup...." );
+
+  world_decay = WorldDecay();  // destruct existing (holds itemrefs)
 
   networkManager.deinialize();
   deinit_ipc_vars();

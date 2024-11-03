@@ -86,7 +86,7 @@ bool StorageArea::delete_root_item( const std::string& name )
 void StorageArea::insert_root_item( Items::Item* item )
 {
   item->inuse( true );
-
+  item->disable_decay_task( true );  // technically its a toplevelitem
   _items.insert( make_pair( item->name(), item ) );
 }
 

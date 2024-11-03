@@ -174,6 +174,7 @@ void PolConfig::read( bool initial_load )
   }
 
   enable_colored_output = elem.remove_bool( "EnableColoredOutput", true );
+  decaytask = elem.remove_bool( "DecayTask", false );
 }
 
 }  // namespace Pol::Plib

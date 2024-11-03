@@ -34,8 +34,8 @@ void add_item_to_world( Items::Item* item )
 
   passert( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
 
-  item->realm()->add_toplevel_item( *item );
   zone.items.push_back( item );
+  item->realm()->add_toplevel_item( item );
 }
 
 void remove_item_from_world( Items::Item* item )
@@ -62,15 +62,15 @@ void remove_item_from_world( Items::Item* item )
     passert( itr != zone.items.end() );
   }
 
-  item->realm()->remove_toplevel_item( *item );
   zone.items.erase( itr );
+  item->realm()->remove_toplevel_item( item );
 }
 
 void add_multi_to_world( Multi::UMulti* multi )
 {
   Zone& zone = multi->realm()->getzone( multi->pos2d() );
   zone.multis.push_back( multi );
-  multi->realm()->add_multi( *multi );
+  multi->realm()->add_multi( *multi );  // needs to be the last
 }
 
 void remove_multi_from_world( Multi::UMulti* multi )
@@ -80,8 +80,8 @@ void remove_multi_from_world( Multi::UMulti* multi )
 
   passert( itr != zone.multis.end() );
 
-  multi->realm()->remove_multi( *multi );
   zone.multis.erase( itr );
+  multi->realm()->remove_multi( *multi );  // needs to be the last
 }
 
 void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& oldpos )
@@ -233,8 +233,8 @@ void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item )
 
   if ( oldpos.realm() != item->realm() )
   {
-    oldpos.realm()->remove_toplevel_item( *item );
-    item->realm()->add_toplevel_item( *item );
+    oldpos.realm()->remove_toplevel_item( item );
+    item->realm()->add_toplevel_item( item );
   }
 }
 

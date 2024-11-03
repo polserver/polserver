@@ -113,6 +113,8 @@ struct PolConfig
 
   bool enable_colored_output;
 
+  bool decaytask;
+
   void read( bool initial_load );
   static struct stat pol_cfg_stat;
 };
