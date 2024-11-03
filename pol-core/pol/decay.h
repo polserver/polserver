@@ -64,6 +64,8 @@ public:
   gameclock_t getDecayTime( const Items::Item* item ) const;
   void decayTask();
 
+  size_t activeObjects() const;
+
 private:
   struct DecayItem
   {

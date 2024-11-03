@@ -10,19 +10,23 @@
 
 #include "../../clib/logfacility.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/systemstate.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../polclock.h"
 #include "../realms/realm.h"
 #include "../realms/realms.h"
+#include "../reftypes.h"
+#include "../ufunc.h"
 #include "../uworld.h"
 #include "testenv.h"
 
 namespace Pol::Testing
 {
+using namespace std::chrono_literals;
 void decay_test()
 {
-  using namespace std::chrono_literals;
+  Plib::systemstate.config.decaytask = false;
   auto createitem = []( Core::Pos4d p, u32 decay )
   {
     auto item = Items::Item::create( 0x0eed );
@@ -153,6 +157,83 @@ void decay_test()
     UnitTest::inc_failures();
     return;
   }
+  UnitTest::inc_successes();
+}
+
+void decaytask_test()
+{
+  {
+    // wipe realms
+    for ( auto& realm : Core::gamestate.Realms )
+    {
+      Core::WorldIterator<Core::ItemFilter>::InBox(
+          realm->area(), realm, [&]( Items::Item* item ) { destroy_item( item ); } );
+    }
+  }
+  auto& decay = Core::gamestate.world_decay;
+  Plib::systemstate.config.decaytask = true;
+  auto now = Core::read_gameclock();
+  auto createitem = [&]( Core::Pos4d p, u32 decaytime ) -> Items::Item*
+  {
+    auto item = Items::Item::create( 0x0eed );
+    item->setposition( p );
+    Core::add_item_to_world( item );
+    if ( !item->has_decay_task() )
+    {
+      INFO_PRINTLN( "decay task not active for item" );
+      UnitTest::inc_failures();
+      return nullptr;
+    }
+    if ( decay.getDecayTime( item ) <= now )
+    {
+      INFO_PRINTLN( "decay time {}<{}", decay.getDecayTime( item ), now );
+      UnitTest::inc_failures();
+      return nullptr;
+    }
+    decay.addObject( item, decaytime );
+    return item;
+  };
+  INFO_PRINTLN( "    create items" );
+  auto* firstrealm = Core::gamestate.Realms[0];
+
+  auto i1 = Core::ItemRef( createitem( { 0, 0, 0, firstrealm }, 10 ) );
+  auto i2 = Core::ItemRef( createitem( { 0, 0, 0, firstrealm }, 60 ) );
+  if ( !i1 || !i2 )
+    return;
+  if ( firstrealm->toplevel_item_count() != 2 )
+  {
+    INFO_PRINTLN( "first realm toplevelcount 2!={}", firstrealm->toplevel_item_count() );
+    UnitTest::inc_failures();
+    return;
+  }
+  INFO_PRINTLN( "Gameclock {}", Core::read_gameclock() );
+  INFO_PRINTLN( "i1 {} {}", i1->has_decay_task(), decay.getDecayTime( i1.get() ) );
+  INFO_PRINTLN( "i2 {} {}", i2->has_decay_task(), decay.getDecayTime( i2.get() ) );
+  decay.decayTask();  // should not destroy items
+  if ( firstrealm->toplevel_item_count() != 2 )
+  {
+    INFO_PRINTLN( "first realm toplevelcount 2!={}", firstrealm->toplevel_item_count() );
+    UnitTest::inc_failures();
+    return;
+  }
+  // time machine to first item
+  Core::shift_clock_for_unittest( 10s );
+
+  decay.decayTask();
+  if ( !i1->orphan() || i2->orphan() )
+  {
+    INFO_PRINTLN( "first destroyed: {}, second not: {}", i1->orphan(), !i2->orphan() );
+    UnitTest::inc_failures();
+    return;
+  }
+  if ( decay.activeObjects() != 1 )
+  {
+    INFO_PRINTLN( "decay activeObjects 1!={}", decay.activeObjects() );
+    UnitTest::inc_failures();
+    return;
+  }
+
+
   UnitTest::inc_successes();
 }
 }  // namespace Pol::Testing

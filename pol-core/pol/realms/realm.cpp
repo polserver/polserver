@@ -293,8 +293,7 @@ void Realm::add_toplevel_item( Items::Item* item )
     // TODO see WorldDecay::initialize duplicate code
     if ( item->has_reldecay_time_loaded() )  // use stored reltime
     {
-      Core::gamestate.world_decay.addObject(
-          item, item->reldecay_time_loaded() + Core::read_gameclock() );
+      Core::gamestate.world_decay.addObject( item, item->reldecay_time_loaded() );
       item->reldecay_time_loaded( 0 );
     }
     else

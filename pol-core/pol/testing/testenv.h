@@ -105,6 +105,7 @@ void range3d_test();
 void test_curlfeatures();
 
 void decay_test();
+void decaytask_test();
 }  // namespace Testing
 }  // namespace Pol
 #endif
