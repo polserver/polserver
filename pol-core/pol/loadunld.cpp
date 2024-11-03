@@ -19,6 +19,7 @@
 #include "checkpnt.h"
 #include "cmbtcfg.h"
 #include "console.h"
+#include "core.h"
 #include "extobj.h"
 #include "globals/multidefs.h"
 #include "globals/settings.h"
@@ -28,8 +29,7 @@
 #include "landtile.h"
 #include "mobile/attribute.h"
 #include "multi/multidef.h"
-#include "objtype.h"
-#include "polcfg.h"
+#include "plib/objtype.h"
 
 namespace Pol
 {
@@ -275,7 +275,8 @@ void load_data()
 
 void reload_configuration()
 {
-  PolConfig::read_pol_config( false );
+  Plib::systemstate.config.read( false );
+  apply_polcfg( false );
   ServSpecOpt::read_servspecopt();
   Network::read_bannedips_config( false );
   gamestate.unload_npc_templates();

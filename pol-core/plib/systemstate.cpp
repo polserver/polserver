@@ -2,8 +2,8 @@
 #include "systemstate.h"
 
 #include "../clib/stlutil.h"
+#include "objtype.h"
 #include "pkg.h"
-#include "pol/objtype.h"
 #include "tiles.h"
 
 namespace Pol

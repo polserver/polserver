@@ -36,7 +36,6 @@
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
-#include "../polcfg.h"
 #include "../ufunc.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
@@ -79,7 +78,7 @@ Bscript::BObjectImp* AccountObjImp::copy() const
 ///   All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
 Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
-                                                    bool forcebuiltin )
+                                                       bool forcebuiltin )
 {
   using namespace Bscript;
   BObjectImp* result = nullptr;
@@ -555,7 +554,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
 ///
 Bscript::BObjectImp* AccountObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{Bscript::Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Bscript::Executor::builtinMethodForced( methodname ) };
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );

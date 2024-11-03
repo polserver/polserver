@@ -34,7 +34,7 @@
 #include "network/packets.h"
 #include "network/pktdef.h"
 #include "network/pktin.h"
-#include "objtype.h"
+#include "plib/objtype.h"
 #include "realms/realm.h"
 #include "scrdef.h"
 #include "scrsched.h"

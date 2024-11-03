@@ -30,7 +30,6 @@
 #include "../network/packethelper.h"
 #include "../network/packets.h"
 #include "../network/pktdef.h"
-#include "../polcfg.h"
 #include "../poldbg.h"
 #include "../polsem.h"
 #include "../profile.h"

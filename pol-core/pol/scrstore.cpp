@@ -14,7 +14,6 @@
 #include "../plib/systemstate.h"
 #include "globals/script_internals.h"
 #include "globals/state.h"
-#include "polcfg.h"
 #include "profile.h"
 #include "scrdef.h"
 

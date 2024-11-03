@@ -10,7 +10,7 @@
 #endif
 
 #include "../clib/maputil.h"
-#include "../pol/polcfg.h"
+#include "polcfg.h"
 
 
 namespace Pol
@@ -39,7 +39,7 @@ public:
   bool accounts_txt_dirty;
   struct stat accounts_txt_stat;
 
-  Core::PolConfig config;
+  PolConfig config;
   std::vector<Tile> tile;
   u16 max_graphic;
 

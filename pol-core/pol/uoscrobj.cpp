@@ -1515,7 +1515,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( swing_speed_increase().mod );
     break;
   case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
-    min_attack_range_increase( 
+    min_attack_range_increase(
         min_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
     if ( container != nullptr )
     {

@@ -25,7 +25,6 @@
 #include "network/client.h"
 #include "party.h"
 #include "partyscrobj.h"
-#include "polcfg.h"
 #include "polclock.h"
 #include "realms/realm.h"
 #include "realms/realms.h"

@@ -17,8 +17,8 @@
 #include "clib/strutil.h"
 
 #include "mapfunc.h"
+#include "objtype.h"
 #include "pkg.h"
-#include "pol/objtype.h"
 #include "systemstate.h"
 
 namespace Pol

@@ -28,7 +28,6 @@
 #include "module/polsystemmod.h"
 #include "module/uomod.h"
 #include "plib/systemstate.h"
-#include "polcfg.h"
 #include "scrsched.h"
 #include "uoexec.h"
 #include "uoscrobj.h"

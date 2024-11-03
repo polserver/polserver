@@ -22,7 +22,6 @@
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
-#include "../polcfg.h"
 #include "../uobject.h"
 
 namespace Pol

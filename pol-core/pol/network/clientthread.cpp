@@ -20,7 +20,6 @@
 #include "../core.h"
 #include "../crypt/cryptbase.h"
 #include "../mobile/charactr.h"
-#include "../polcfg.h"
 #include "../polclock.h"
 #include "../polsem.h"
 #include "../schedule.h"

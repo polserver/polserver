@@ -116,7 +116,6 @@
 #include "network/pktin.h"
 #include "network/sockio.h"
 #include "party.h"
-#include "polcfg.h"
 #include "polclock.h"
 #include "poldbg.h"
 #include "polsem.h"
@@ -1031,7 +1030,8 @@ int xmain_inner( bool testing )
   Core::stateManager.gflag_in_system_startup = true;
 
   Core::checkpoint( "reading pol.cfg" );
-  Core::PolConfig::read_pol_config( true );
+  Plib::systemstate.config.read( true );
+  Core::apply_polcfg( true );
 
   Core::checkpoint( "reading config/bannedips.cfg" );
   Network::read_bannedips_config( true );
@@ -1202,20 +1202,9 @@ int xmain_inner( bool testing )
     Core::PolLock lck;
     unsigned int dirty, clean;
     long long elapsed_ms;
-    int savetype;
 
-    if ( Clib::passert_shutdown_due_to_assertion )
-      savetype = Plib::systemstate.config.assertion_shutdown_save_type;
-    else
-      savetype = Plib::systemstate.config.shutdown_save_type;
-
-    // TODO: full save if incremental_saves_disabled ?
-    // otherwise could have really, really bad timewarps
     Tools::Timer<> timer;
-    if ( savetype == Core::SAVE_FULL )
-      Core::write_data( dirty, clean, elapsed_ms );
-    else
-      Core::save_incremental( dirty, clean, elapsed_ms );
+    Core::write_data( dirty, clean, elapsed_ms );
     Core::SaveContext::ready();
     POLLOG_INFOLN( "Data save completed in {} ms. {} total.", elapsed_ms, timer.ellapsed() );
   }

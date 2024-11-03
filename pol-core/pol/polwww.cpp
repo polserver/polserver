@@ -42,7 +42,6 @@
 #include "module/httpmod.h"
 #include "module/uomod.h"
 #include "network/sockio.h"
-#include "polcfg.h"
 #include "polsem.h"
 #include "scrdef.h"
 #include "scrsched.h"

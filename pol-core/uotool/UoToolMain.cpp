@@ -18,6 +18,7 @@
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../plib/clidata.h"
+#include "../plib/objtype.h"
 #include "../plib/polfile.h"
 #include "../plib/poltype.h"
 #include "../plib/realmdescriptor.h"
@@ -31,7 +32,6 @@
 #include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
 #include "../pol/multi/multidef.h"
-#include "../pol/objtype.h"
 #include <fmt/format.h>
 
 namespace Pol
