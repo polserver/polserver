@@ -75,6 +75,8 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_CreatePacket();
   [[nodiscard]] Bscript::BObjectImp* mf_AddRealm( /*name,base*/ );
   [[nodiscard]] Bscript::BObjectImp* mf_DeleteRealm( /*name*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetRealmDecay( /*name*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SetRealmDecay( /*name,has_deacy*/ );
   [[nodiscard]] Bscript::BObjectImp* mf_MD5Encrypt( /*string*/ );
   [[nodiscard]] Bscript::BObjectImp* mf_FormatItemDescription( /*string,amount,suffix*/ );
   [[nodiscard]] Bscript::BObjectImp* mf_LogCPropProfile();

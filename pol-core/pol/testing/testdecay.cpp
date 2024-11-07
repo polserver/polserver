@@ -32,11 +32,10 @@ void decay_test()
   };
   auto decay_full_realm_loop = []( Core::Decay& d )
   {
-    for ( const auto& p : d.area )
+    do
     {
-      (void)p;
       d.step();
-    }
+    } while(d.area_itr != d.area.begin());
   };
   INFO_PRINTLN( "    create items" );
   auto* firstrealm = Core::gamestate.Realms[0];
@@ -69,6 +68,8 @@ void decay_test()
   // to be able to test realm add/delete the gamestate instance needs to be used
   auto& d = Core::gamestate.decay;
   d.calculate_sleeptime();
+  // first step will move onto first realm from uninitalized state
+  d.step();
 
   // first step should directly destroy on item
   INFO_PRINTLN( "    first zone sweep" );
@@ -95,6 +96,8 @@ void decay_test()
     UnitTest::inc_failures();
     return;
   }
+  // since switching realms is standalone step now, we need step again to clear 0,0
+  d.step();
   if ( secondrealm->toplevel_item_count() != 0 )
   {
     INFO_PRINTLN( "second realm toplevelcount 0!={}", secondrealm->toplevel_item_count() );
@@ -116,13 +119,24 @@ void decay_test()
 
   Core::add_realm( "firstshadow", firstrealm );
   Core::add_realm( "secondshadow", firstrealm );
+  Core::add_realm( "thirdshadow", firstrealm );
   auto* firstshadow = Core::gamestate.Realms[2];
   auto* secondshadow = Core::gamestate.Realms[3];
-  // last shadow realm one item should decay
+  auto* thirdshadow = Core::gamestate.Realms[4];
+  thirdshadow->has_decay = false;
+  // second shadow realm one item should decay
   createitem( { 0, 0, 0, secondshadow }, 1 );
   if ( secondshadow->toplevel_item_count() != 1 )
   {
     INFO_PRINTLN( "second shadow toplevelcount 1!={}", secondshadow->toplevel_item_count() );
+    UnitTest::inc_failures();
+    return;
+  }
+  // third shadow realm - create one item for decay, but it shouldn't as decay is disabled
+  createitem( { 0, 0, 0, thirdshadow }, 1 );
+  if ( thirdshadow->toplevel_item_count() != 1 )
+  {
+    INFO_PRINTLN( "third shadow toplevelcount 1!={}", thirdshadow->toplevel_item_count() );
     UnitTest::inc_failures();
     return;
   }
@@ -140,6 +154,8 @@ void decay_test()
 
   INFO_PRINTLN( "    remove active realm" );
   Core::remove_realm( firstshadow->name() );
+  // removing active realm will put us at the end of previous realm making the next step a
+  // realm switch
   d.step();
   if ( d.realm_index != 2 )
   {
@@ -147,12 +163,29 @@ void decay_test()
     UnitTest::inc_failures();
     return;
   }
+  decay_full_realm_loop( d );
   if ( secondshadow->toplevel_item_count() != 0 )
   {
     INFO_PRINTLN( "second shadow toplevelcount 0!={}", secondshadow->toplevel_item_count() );
     UnitTest::inc_failures();
     return;
   }
+
+  if ( d.realm_index != 3 )
+  {
+    INFO_PRINTLN( "active realm isnt third shadow 3!={}", d.realm_index );
+    UnitTest::inc_failures();
+    return;
+  }
+  decay_full_realm_loop( d );
+  // item has decay, but realm decay is disabled so it shouldn't disappear
+  if ( thirdshadow->toplevel_item_count() != 1 )
+  {
+    INFO_PRINTLN( "third shadow toplevelcount 1!={}", thirdshadow->toplevel_item_count() );
+    UnitTest::inc_failures();
+    return;
+  }
+
   UnitTest::inc_successes();
 }
 }  // namespace Pol::Testing

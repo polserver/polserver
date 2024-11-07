@@ -23,7 +23,7 @@ class Realm;
 namespace Core
 {
 Realms::Realm* find_realm( const std::string& name );
-void add_realm( const std::string& name, Realms::Realm* base );
+void add_realm( const std::string& name, Realms::Realm* base, bool has_decay = true );
 bool defined_realm( const std::string& name );
 void remove_realm( const std::string& name );
 

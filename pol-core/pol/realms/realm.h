@@ -67,6 +67,7 @@ public:
   bool is_shadowrealm;
   Realm* baserealm;
   const std::string shadowname;
+  bool has_decay;
 
   unsigned short width() const;
   unsigned short height() const;

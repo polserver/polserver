@@ -209,13 +209,18 @@ void write_shadow_realms( Clib::StreamWriter& sw )
 {
   for ( const auto& realm : gamestate.Realms )
   {
-    if ( realm->is_shadowrealm )
+    sw.begin( "Realm" );
+    if (!realm->is_shadowrealm)
     {
-      sw.begin( "Realm" );
+      sw.add( "Name", realm->name() );
+    }
+    else
+    {
       sw.add( "Name", realm->shadowname );
       sw.add( "BaseRealm", realm->baserealm->name() );
-      sw.end();
     }
+    sw.add( "HasDecay", realm->has_decay );
+    sw.end();
   }
 }
 

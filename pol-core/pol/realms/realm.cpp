@@ -28,6 +28,7 @@ namespace Realms
 Realm::Realm( const std::string& realm_name, const std::string& realm_path )
     : is_shadowrealm( false ),
       baserealm( nullptr ),
+      has_decay( true ),
       _descriptor( Plib::RealmDescriptor::Load( realm_name, realm_path ) ),
       _mobile_count( 0 ),
       _offline_count( 0 ),
@@ -55,6 +56,7 @@ Realm::Realm( const std::string& realm_name, Realm* realm )
     : is_shadowrealm( true ),
       baserealm( realm ),
       shadowname( realm_name ),
+      has_decay( true ),
       _descriptor( realm->_descriptor ),
       _mobile_count( 0 ),
       _offline_count( 0 ),
