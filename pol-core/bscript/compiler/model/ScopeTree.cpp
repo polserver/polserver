@@ -153,6 +153,7 @@ UserFunction* ScopeTree::find_user_function( const ScopeTreeQuery& query ) const
       if ( query.prefix_scope.empty() )
       {
         if ( Clib::caseInsensitiveEqual( user_function->scope, query.calling_scope ) ||
+             user_function->scope.empty() ||
              ( ( query.calling_scope.empty() ||
                  user_function->type == UserFunctionType::Expression ) &&
                user_function->scope.empty() ) )
@@ -236,7 +237,8 @@ std::vector<UserFunction*> ScopeTree::list_user_functions( const ScopeTreeQuery&
            ( ( !query.prefix_scope.empty() &&
                Clib::caseInsensitiveEqual( query.prefix_scope.string(), user_function->scope ) ) ||
              ( query.prefix_scope.empty() &&
-               Clib::caseInsensitiveEqual( query.calling_scope, user_function->scope ) ) ) )
+               ( Clib::caseInsensitiveEqual( query.calling_scope, user_function->scope ) ||
+                 user_function->scope.empty() ) ) ) )
       {
         results.push_back( user_function.get() );
       }
