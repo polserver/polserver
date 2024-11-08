@@ -205,7 +205,7 @@ void write_global_properties( Clib::StreamWriter& sw )
   sw.end();
 }
 
-void write_shadow_realms( Clib::StreamWriter& sw )
+void write_realms( Clib::StreamWriter& sw )
 {
   for ( const auto& realm : gamestate.Realms )
   {
@@ -436,7 +436,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 
                   write_system_data( sc.pol );
                   write_global_properties( sc.pol );
-                  write_shadow_realms( sc.pol );
+                  write_realms( sc.pol );
                 }
                 catch ( ... )
                 {

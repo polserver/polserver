@@ -434,6 +434,7 @@ BObjectImp* PolSystemExecutorModule::mf_SetRealmDecay( /*name,has_decay*/ )
     return new BError( "Realm not found." );
 
   realm->has_decay = has_deacy;
+  Core::gamestate.decay.after_realms_size_changed();
 
   return new BLong( 1 );
 }

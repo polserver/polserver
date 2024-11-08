@@ -301,7 +301,11 @@ void read_realms( Clib::ConfigElem& elem )
   {
     // these are dynamic settings for base realm
     Realms::Realm* realm = find_realm( name );
-    realm->has_decay = has_decay;
+
+    if ( !realm )
+      elem.warn_with_line( "Realm not found." );
+    else
+      realm->has_decay = has_decay;
   }
 }
 
