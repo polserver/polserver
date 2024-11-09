@@ -118,7 +118,10 @@ bool Decay::should_switch_realm() const
 {
   if ( realm_index >= gamestate.Realms.size() )
     return true;
-  if ( gamestate.Realms[realm_index] == nullptr )
+  const Realms::Realm* realm = gamestate.Realms[realm_index];
+  if ( realm == nullptr )
+    return true;
+  if ( !realm->has_decay )
     return true;
   if ( area_itr == area.end() )
     return true;
@@ -152,10 +155,15 @@ void Decay::switch_realm()
 
 void Decay::step()
 {
-  ++area_itr;
   if ( should_switch_realm() )
+  {
     switch_realm();
-  decay_worldzone();
+  }
+  else
+  {
+    decay_worldzone();
+    ++area_itr;
+  }
 }
 
 
@@ -171,7 +179,7 @@ void Decay::on_delete_realm( Realms::Realm* realm )
   // due to the ++itr in step the realm will be switched
   --realm_index;
   area = gamestate.Realms[realm_index]->gridarea();
-  area_itr = --area.end();
+  area_itr = area.end();
 }
 
 void Decay::after_realms_size_changed()
@@ -185,6 +193,11 @@ void Decay::calculate_sleeptime()
   unsigned total_grid_count = 0;
   for ( const auto& realm : gamestate.Realms )
   {
+    if ( !realm->has_decay )
+    {
+      continue;
+    }
+
     total_grid_count += ( realm->grid_width() * realm->grid_height() );
   }
   if ( !total_grid_count )

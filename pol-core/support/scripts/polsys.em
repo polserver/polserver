@@ -20,3 +20,5 @@ Realms( realm := "" );
 ReloadConfiguration(); // reloads pol.cfg and npcdesc.cfg
 SetSysTrayPopupText( text );
 LogCPropProfile();
+GetRealmDecay( realm );
+SetRealmDecay( realm, has_decay );

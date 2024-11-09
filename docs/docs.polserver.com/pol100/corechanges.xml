@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-02-2024</datemodified>
+		<datemodified>11-09-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>10-20-2024</date>
+			<author>Kukkino:</author>
+			<change type="Added">Added GetRealmDecay(realm) and SetRealmDecay(realm, has_decay) allowing to manipulate whether items decay on the ground in given realms.</change>
+		</entry>
 		<entry>
 			<date>11-02-2024</date>
 			<author>DevGIB:</author>

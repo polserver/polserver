@@ -197,6 +197,23 @@ const MSGLEN_VARIABLE := -1;</code></explain>
     <error>"Items in Realm."</error>
   </function>
   
+  <function name="GetRealmDecay">
+    <prototype>GetRealmDecay(realm_name)</prototype>
+    <parameter name="realm_name" value="String - case-sensitive name of the realm" />
+    <explain>Returns whether realm has decay or enabled or not.</explain>
+    <return>Boolean</return> 
+    <error>"Realm not found."</error>
+  </function>
+
+  <function name="SetRealmDecay">
+    <prototype>SetRealmDecay(realm_name, has_decay)</prototype>
+    <parameter name="realm_name" value="String - case-sensitive name of the realm" />
+    <parameter name="has_decay" value="Boolean - whether decay should be enabled or not" />
+    <explain>Enables or disables decay for realm.</explain>
+    <return>1</return> 
+    <error>"Realm not found."</error>
+  </function>
+
   <function name="MD5Encrypt">
     <prototype>MD5Encrypt(str)</prototype>
     <parameter name="str" value="String" />

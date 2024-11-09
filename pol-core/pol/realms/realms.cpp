@@ -78,11 +78,15 @@ bool defined_realm( const std::string& name )
   return false;
 }
 
-void add_realm( const std::string& name, Realms::Realm* base )
+void add_realm( const std::string& name, Realms::Realm* base, bool has_decay )
 {
   Realms::Realm* r = new Realms::Realm( name, base );
+  r->has_decay = has_decay;
   gamestate.Realms.push_back( r );
-  gamestate.decay.after_realms_size_changed();
+  if ( r->has_decay )
+  {
+    gamestate.decay.after_realms_size_changed();
+  }
 }
 
 void remove_realm( const std::string& name )

@@ -205,17 +205,22 @@ void write_global_properties( Clib::StreamWriter& sw )
   sw.end();
 }
 
-void write_shadow_realms( Clib::StreamWriter& sw )
+void write_realms( Clib::StreamWriter& sw )
 {
   for ( const auto& realm : gamestate.Realms )
   {
-    if ( realm->is_shadowrealm )
+    sw.begin( "Realm" );
+    if (!realm->is_shadowrealm)
     {
-      sw.begin( "Realm" );
+      sw.add( "Name", realm->name() );
+    }
+    else
+    {
       sw.add( "Name", realm->shadowname );
       sw.add( "BaseRealm", realm->baserealm->name() );
-      sw.end();
     }
+    sw.add( "HasDecay", realm->has_decay );
+    sw.end();
   }
 }
 
@@ -431,7 +436,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
 
                   write_system_data( sc.pol );
                   write_global_properties( sc.pol );
-                  write_shadow_realms( sc.pol );
+                  write_realms( sc.pol );
                 }
                 catch ( ... )
                 {

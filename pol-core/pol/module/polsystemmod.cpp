@@ -407,6 +407,38 @@ BObjectImp* PolSystemExecutorModule::mf_DeleteRealm( /*name*/ )
   return new BLong( 1 );
 }
 
+BObjectImp* PolSystemExecutorModule::mf_GetRealmDecay( /*name*/ )
+{
+  const String* realm_name;
+  if ( !getStringParam( 0, realm_name ) )
+  {
+    return new BError( "Invalid parameter" );
+  }
+  Realms::Realm* realm = Core::find_realm( realm_name->value() );
+  if ( !realm )
+    return new BError( "Realm not found." );
+
+  return new BBoolean( realm->has_decay );
+}
+
+BObjectImp* PolSystemExecutorModule::mf_SetRealmDecay( /*name,has_decay*/ )
+{
+  const String* realm_name;
+  bool has_deacy;
+  if ( !( getStringParam( 0, realm_name ) && getParam( 1, has_deacy ) ) )
+  {
+    return new BError( "Invalid parameter" );
+  }
+  Realms::Realm* realm = Core::find_realm( realm_name->value() );
+  if ( !realm )
+    return new BError( "Realm not found." );
+
+  realm->has_decay = has_deacy;
+  Core::gamestate.decay.after_realms_size_changed();
+
+  return new BLong( 1 );
+}
+
 BObjectImp* PolSystemExecutorModule::mf_MD5Encrypt( /*string*/ )
 {
   const String* string;
