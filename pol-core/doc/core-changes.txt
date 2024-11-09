@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+10-20-2024 Kukkino:
+    Added: Added GetRealmDecay(realm) and SetRealmDecay(realm, has_decay) allowing to manipulate whether items decay on the ground in given realms.
 11-02-2024 DevGIB:
     Added: MinAttackRangeIncrease(min_attack_range_increase) and MinAttackRangeIncreaseMod(min_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles minimum attack range.<br/>
            Min Attack Range Increase is used as a numeric modifier to the minimum range of a weapon, e.g. Base min Weapon range of 1 + attack range increase of 1 would make the minimum attack range 2.
