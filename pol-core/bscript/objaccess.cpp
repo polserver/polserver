@@ -10,7 +10,7 @@ namespace Pol
 namespace Bscript
 {
 ObjMember object_members[] = {
-    // MBR_*, "name", read_only, hidden
+    // MBR_*, "name"
     { MBR_X, "x" },  // 0
     { MBR_Y, "y" },  // 1
     { MBR_Z, "z" },
@@ -281,9 +281,10 @@ ObjMember object_members[] = {
     { MBR_MOVED_AT, "moved_at" },
     { MBR_VISUAL_RANGE, "visual_range" },
     { MBR_MIN_ATTACK_RANGE_INCREASE, "min_attack_range_increase" },
-    { MBR_MIN_ATTACK_RANGE_INCREASE_MOD, "min_attack_range_increase_mod" }, // 265
+    { MBR_MIN_ATTACK_RANGE_INCREASE_MOD, "min_attack_range_increase_mod" },  // 265
     { MBR_MAX_ATTACK_RANGE_INCREASE, "max_attack_range_increase" },
     { MBR_MAX_ATTACK_RANGE_INCREASE_MOD, "max_attack_range_increase_mod" },
+    { MBR_ITEMS_DECAY, "items_decay" },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

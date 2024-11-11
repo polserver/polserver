@@ -12,6 +12,8 @@
 #include "../../clib/rawtypes.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"
+#include "../item/itemdesc.h"
+#include "../multi/multi.h"
 #include "../polclock.h"
 #include "../realms/realm.h"
 #include "../realms/realms.h"
@@ -30,12 +32,20 @@ void decay_test()
     Core::add_item_to_world( item );
     item->set_decay_after( decay );
   };
+  auto createmulti = []( Core::Pos4d p, u32 objtype )
+  {
+    const auto& id = Items::find_itemdesc( objtype );
+    auto* multi = Multi::UMulti::create( id );
+    multi->setposition( p );
+    Core::add_multi_to_world( multi );
+    return multi;
+  };
   auto decay_full_realm_loop = []( Core::Decay& d )
   {
     do
     {
       d.step();
-    } while(d.area_itr != d.area.begin());
+    } while ( d.area_itr != d.area.begin() );
   };
   INFO_PRINTLN( "    create items" );
   auto* firstrealm = Core::gamestate.Realms[0];
@@ -124,11 +134,26 @@ void decay_test()
   auto* secondshadow = Core::gamestate.Realms[3];
   auto* thirdshadow = Core::gamestate.Realms[4];
   thirdshadow->has_decay = false;
-  // second shadow realm one item should decay
+  // second shadow realm one item should decay normally
+  // one item inside a multi with decay enabled
+  // one item inside a multi with decay disabled
   createitem( { 0, 0, 0, secondshadow }, 1 );
-  if ( secondshadow->toplevel_item_count() != 1 )
+  auto* multi = createmulti( { 100, 0, 0, secondshadow }, 0x12000 );
+  createmulti( { 200, 0, 0, secondshadow }, 0x12000 );
+  if ( !multi )
   {
-    INFO_PRINTLN( "second shadow toplevelcount 1!={}", secondshadow->toplevel_item_count() );
+    INFO_PRINTLN( "failed to create multi" );
+    UnitTest::inc_failures();
+    return;
+  }
+  multi->items_decay( true );
+  // item inside multi which has decay enabled
+  createitem( { 100, 0, 0, secondshadow }, 1 );
+  // item inside multi which has decay disabled
+  createitem( { 200, 0, 0, secondshadow }, 1 );
+  if ( secondshadow->toplevel_item_count() != 3 )
+  {
+    INFO_PRINTLN( "second shadow toplevelcount 3!={}", secondshadow->toplevel_item_count() );
     UnitTest::inc_failures();
     return;
   }
@@ -164,9 +189,9 @@ void decay_test()
     return;
   }
   decay_full_realm_loop( d );
-  if ( secondshadow->toplevel_item_count() != 0 )
+  if ( secondshadow->toplevel_item_count() != 1 )
   {
-    INFO_PRINTLN( "second shadow toplevelcount 0!={}", secondshadow->toplevel_item_count() );
+    INFO_PRINTLN( "second shadow toplevelcount 1!={}", secondshadow->toplevel_item_count() );
     UnitTest::inc_failures();
     return;
   }

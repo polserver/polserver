@@ -179,6 +179,9 @@ public:
   Items::Item* starboardplank;
   Items::Item* hold;
 
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+
 protected:
   Core::ItemRef mountpiece;
   void move_travellers( const BoatContext& oldlocation );
@@ -198,8 +201,6 @@ protected:
 
   explicit UBoat( const Items::ItemDesc& descriptor );
   virtual void fixInvalidGraphic() override;
-  virtual void readProperties( Clib::ConfigElem& elem ) override;
-  virtual void printProperties( Clib::StreamWriter& sw ) const override;
   friend class UMulti;
 
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;

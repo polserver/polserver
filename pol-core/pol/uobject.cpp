@@ -382,7 +382,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
 
 void UObject::printDebugProperties( Clib::StreamWriter& sw ) const
 {
-  sw.comment( "uobj_class: {}", (int)uobj_class_ );
+  sw.comment( "uobj_class: {}", (int)uobj_class() );
 }
 
 /// Fixes invalid graphic, moving here to allow it to be overridden in subclass (see Multi)

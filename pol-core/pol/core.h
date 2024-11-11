@@ -89,7 +89,7 @@ const int FINDSUBSTANCE_FIND_ALL = 0x04;
 const int JOURNAL_PRINT_NAME = 0x00;
 const int JOURNAL_PRINT_YOU_SEE = 0x01;
 
-Items::Item* find_walkon_item( ItemsVector& ivec, short z );
+Items::Item* find_walkon_item( const ItemsVector& ivec, short z );
 void restart_all_clients();
 }  // namespace Core
 }  // namespace Pol

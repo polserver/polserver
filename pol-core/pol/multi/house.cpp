@@ -550,8 +550,6 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
   u32 tmp_serial;
-  multiid_ = elem.remove_ushort( "MultiID", this->multidef().multiid );
-
   while ( elem.remove_prop( "Component", &tmp_serial ) )
   {
     Items::Item* item = Core::find_toplevel_item( tmp_serial );
@@ -603,8 +601,6 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
 void UHouse::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
-
-  sw.add( "MultiID", multiid_ );
 
   for ( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end;
         ++itr )

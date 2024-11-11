@@ -1055,7 +1055,7 @@ size_t SpellScrollDesc::estimatedSize() const
 }
 
 MultiDesc::MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg )
-    : ItemDesc( objtype, elem, type, pkg )
+    : ItemDesc( objtype, elem, type, pkg ), items_decay( elem.remove_ushort( "ItemsDecay", false ) )
 {
   if ( !Multi::MultiDefByMultiIDExists( multiid ) )
   {
@@ -1066,10 +1066,11 @@ MultiDesc::MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib
 void MultiDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
+  descriptor->addMember( "ItemsDecay", new Bscript::BLong( items_decay ) );
 }
 size_t MultiDesc::estimatedSize() const
 {
-  return base::estimatedSize();
+  return base::estimatedSize() + sizeof( bool ) /*items_decay*/;
 }
 
 BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )

@@ -848,13 +848,14 @@ BObjectImp* NPCExecutorModule::mf_CreateBackpack()
   if ( !npc.layer_is_equipped( Core::LAYER_BACKPACK ) )
   {
     Items::Item* i = Items::Item::create( UOBJ_BACKPACK );
-    i->setposition( npc.pos() );
     std::unique_ptr<Items::Item> item( i );
     item->layer = Core::LAYER_BACKPACK;
     if ( npc.equippable( item.get() ) )
     {
       npc.equip( item.release() );
     }
+    else
+      item->destroy();
   }
   return new BLong( 1 );
 }

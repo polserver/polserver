@@ -10,7 +10,7 @@ endprogram
 
 // save/load test for things in House class
 exported function load_save_house()
-  var props := { { "MultiID", { "multiid", 0x6b } } };
+  var props := { { "MultiID", { "multiid", 0x6b } }, { "ItemsDecay", { "items_decay", 0 } } };
 
   if ( testrun == 1 )
     var house := CreateMultiAtLocation( 50, 50, 0, 0x12000 );

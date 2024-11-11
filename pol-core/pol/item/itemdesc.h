@@ -260,6 +260,8 @@ public:
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const override;
   virtual ~MultiDesc(){};
   virtual size_t estimatedSize() const override;
+
+  bool items_decay;
 };
 
 class BoatDesc final : public MultiDesc
