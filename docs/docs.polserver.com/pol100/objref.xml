@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>11/01/2024</datemodified>
+<datemodified>11/11/2024</datemodified>
 </fileheader>
 
 
@@ -532,6 +532,7 @@
 <child>Boat</child>
 <explain>Special items that display as many pieces of a large structure, as defined in multi.cfg</explain>
 <member mname="footprint" type="Struct" access="r/o">returns a struct with 'xmin', 'xmax', 'ymin', 'ymax' of the world coordinates the multi occupies.</member>
+<member mname="items_decay" type="Boolean" access="r/w">activates decay for items inside of the multi</member>
 </class>
 
 
