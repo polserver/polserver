@@ -1389,7 +1389,7 @@ void Character::equip( Items::Item* item )
   passert_r( equippable( item ),
              "It is impossible to equip Item with ObjType " + Clib::hexint( item->objtype_ ) );
 
-  item->setposition( pos() );
+  item->setposition( pos() );  // TODO POS realm should be nullptr
   wornitems->PutItemOnLayer( item );
 
   // PutItemOnLayer sets the layer, so we can go on now
