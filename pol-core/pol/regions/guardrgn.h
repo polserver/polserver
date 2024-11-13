@@ -40,7 +40,7 @@ public:
   const std::string& entertext() const;
   const std::string& leavetext() const;
 
-  bool nodecay() const;
+  bool itemsdecay() const;
 
   bool RunEnterScript( Mobile::Character* chr );
   bool RunLeaveScript( Mobile::Character* chr );
@@ -51,7 +51,7 @@ public:
 private:
   bool guarded_;
   bool nocombat_;
-  bool nodecay_;
+  bool itemsdecay_;
   std::string region_name_;
   std::string entertext_;
   std::string leavetext_;
@@ -73,8 +73,8 @@ inline const std::string& JusticeRegion::leavetext() const
 {
   return leavetext_;
 }
-inline bool JusticeRegion::nodecay() const
+inline bool JusticeRegion::itemsdecay() const
 {
-  return nodecay_;
+  return itemsdecay_;
 }
 }  // namespace Pol::Core
