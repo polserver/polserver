@@ -2612,7 +2612,6 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.HairId ) );
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.HairHue );
-    tmpitem->setposition( client->chr->pos() );
     client->chr->equip( tmpitem );
     send_wornitem_to_inrange( client->chr, tmpitem );
   }
@@ -2626,7 +2625,6 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.BeardId ) );
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.BeardHue );
-    tmpitem->setposition( client->chr->pos() );
     client->chr->equip( tmpitem );
     send_wornitem_to_inrange( client->chr, tmpitem );
   }

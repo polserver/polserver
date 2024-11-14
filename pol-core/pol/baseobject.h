@@ -1,5 +1,4 @@
-#ifndef BASEOBJECT_H
-#define BASEOBJECT_H
+#pragma once
 
 #include "clib/rawtypes.h"
 
@@ -7,13 +6,11 @@
 
 #include <utility>
 
-namespace Pol
-{
-namespace Realms
+namespace Pol::Realms
 {
 class Realm;
 }
-namespace Core
+namespace Pol::Core
 {
 /**
  * This is meant to be coarse-grained. It's meant as an alternative to dynamic_cast.
@@ -44,6 +41,8 @@ protected:
   ULWObject( UOBJ_CLASS uobj_class );
   ULWObject( const ULWObject& ) = delete;
   ULWObject& operator=( const ULWObject& ) = delete;
+  ULWObject( ULWObject&& ) = default;
+  ULWObject& operator=( ULWObject&& ) = default;
   ~ULWObject() = default;
 
   void pos( Pos4d newpos );
@@ -55,6 +54,7 @@ public:
   bool ismobile() const;
   bool isitem() const;
   bool ismulti() const;
+  UOBJ_CLASS uobj_class() const;
 
   u8 look_height() const;  // where you're looking from, or to
 
@@ -74,8 +74,8 @@ public:
   u16 graphic;
   u8 height;
 
-protected:
-  const UOBJ_CLASS uobj_class_;
+private:
+  UOBJ_CLASS uobj_class_;
 };
 
 inline ULWObject::ULWObject( UOBJ_CLASS uobj_class )
@@ -122,6 +122,11 @@ inline bool ULWObject::ismulti() const
   return ( uobj_class_ == UOBJ_CLASS::CLASS_MULTI );
 }
 
+inline UOBJ_CLASS ULWObject::uobj_class() const
+{
+  return uobj_class_;
+}
+
 inline bool ULWObject::orphan() const
 {
   return ( serial == 0 );
@@ -162,7 +167,4 @@ inline Realms::Realm* ULWObject::realm() const
   return position.realm();
 }
 
-}  // namespace Core
-}  // namespace Pol
-
-#endif
+}  // namespace Pol::Core

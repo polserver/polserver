@@ -1321,12 +1321,6 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
 
-  // POL098 and earlier was not saving a MultiID in its data files,
-  // but it was using 0x4000 + id as graphic instead. Not respecting
-  // this would rotate most of the boats during POL098 -> POL99 migration
-  if ( Core::settingsManager.polvar.DataWrittenBy99OrLater )
-    multiid_ = elem.remove_ushort( "MultiID", this->multidef().multiid );
-
   BoatContext bc( *this );
   u32 tmp_serial;
   while ( elem.remove_prop( "Traveller", &tmp_serial ) )

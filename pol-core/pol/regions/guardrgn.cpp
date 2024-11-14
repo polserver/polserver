@@ -18,14 +18,13 @@
 #include "scrsched.h"
 #include "uoscrobj.h"
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 JusticeRegion::JusticeRegion( Clib::ConfigElem& elem, RegionId id )
     : Region( elem, id ),
       guarded_( elem.remove_bool( "Guarded", false ) ),
       nocombat_( elem.remove_bool( "NoCombat", false ) ),
+      itemsdecay_( elem.remove_bool( "ItemsDecay", true ) ),
       region_name_( elem.rest() ),
       entertext_( elem.remove_string( "EnterText", "" ) ),
       leavetext_( elem.remove_string( "LeaveText", "" ) ),
@@ -46,7 +45,7 @@ void read_justice_zones()
 size_t JusticeRegion::estimateSize() const
 {
   size_t size = Region::estimateSize();
-  size += 2 * sizeof( bool ); /*guarded_ nocombat_*/
+  size += 3 * sizeof( bool ); /*guarded_ nocombat_ itemsdecay_*/
   size += region_name_.capacity() + entertext_.capacity() + leavetext_.capacity() +
           enter_script_.capacity() + leave_script_.capacity();
   return size;
@@ -98,5 +97,4 @@ bool JusticeRegion::RunNoCombatCheck( Network::Client* client )
 
   return no_combat;
 }
-}
-}
+}  // namespace Pol::Core

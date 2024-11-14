@@ -10,7 +10,7 @@ endprogram
 
 // save/load test for things in Boat class
 exported function load_save_boat()
-  var props := { { "MultiID", { "multiid", 0x0 } } };
+  var props := { { "MultiID", { "multiid", 0x0 } }, { "ItemsDecay", { "items_decay", 1 } } };
 
   if ( testrun == 1 )
     var boat := CreateMultiAtLocation( 10, 50, -4, 0x11000 );
@@ -21,6 +21,7 @@ exported function load_save_boat()
     var npc := CreateNPCFromTemplate( ":testrestart:restart_npc", 9, 50, 0 );
     boat.setprop( "npc", npc.serial );
     SetGlobalProperty( "test_storage_boat", boat.serial );
+    boat.items_decay := 1;
   else
 
     var serial := GetGlobalProperty( "test_storage_boat" );

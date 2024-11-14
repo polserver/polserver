@@ -234,12 +234,11 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
    2) have a "walk on" script
    */
 
-Items::Item* find_walkon_item( ItemsVector& ivec, short z )
+Items::Item* find_walkon_item( const ItemsVector& ivec, short z )
 {
-  for ( ItemsVector::const_iterator itr = ivec.begin(), end = ivec.end(); itr != end; ++itr )
+  for ( const auto& item : ivec )
   {
-    Items::Item* item = ( *itr );
-    if ( z == item->z() || z == item->z() + 1 )
+    if ( z == item->pos3d().z() || z == item->pos3d().z() + 1 )
     {
       if ( !item->itemdesc().walk_on_script.empty() )
       {

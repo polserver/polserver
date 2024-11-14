@@ -1389,6 +1389,7 @@ void Character::equip( Items::Item* item )
   passert_r( equippable( item ),
              "It is impossible to equip Item with ObjType " + Clib::hexint( item->objtype_ ) );
 
+  item->setposition( pos() );  // TODO POS realm should be nullptr
   wornitems->PutItemOnLayer( item );
 
   // PutItemOnLayer sets the layer, so we can go on now
@@ -2028,7 +2029,6 @@ void Character::resurrect()
   if ( equip_death_robe )
   {
     Items::Item* death_robe = create_death_robe();
-    death_robe->setposition( pos() );
     equip( death_robe );
   }
 
@@ -2059,7 +2059,6 @@ void Character::resurrect()
 void Character::on_death( Items::Item* corpse )
 {
   Items::Item* death_shroud = create_death_shroud();
-  death_shroud->setposition( pos() );
   if ( equippable( death_shroud ) )  // check it or passert will trigger
   {
     equip( death_shroud );

@@ -151,7 +151,6 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const std::str
         color &= Plib::VALID_ITEM_COLOR_MASK;
         it->color = color;
         it->layer = Plib::tilelayer( it->graphic );
-        it->setposition( chr->pos() );
         // FIXME equip scripts, equiptest scripts
         if ( chr->equippable( it ) )
         {

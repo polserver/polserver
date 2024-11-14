@@ -116,12 +116,13 @@ public:
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
 
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+
 protected:
   explicit UHouse( const Items::ItemDesc& itemdesc );
   void create_components();
 
-  virtual void readProperties( Clib::ConfigElem& elem ) override;
-  virtual void printProperties( Clib::StreamWriter& sw ) const override;
   virtual Bscript::BObjectImp* script_method( const char* membername,
                                               Core::UOExecutor& ex ) override;
   virtual Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;

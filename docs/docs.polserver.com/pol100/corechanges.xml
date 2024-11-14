@@ -2,11 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-09-2024</datemodified>
+		<datemodified>11-13-2024</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
-			<date>10-20-2024</date>
+			<date>11-13-2024</date>
+			<author>Turley:</author>
+			<change type="Added">regions.cfg ItemsDecay setting, if deactivated items will not decay in this area.</change>
+			<change type="Added">multi.items_decay r/w member, defaults to also added itemdesc.cfg entry ItemsDecay (1/0 default 0). If set to 1 items in this multi will decay.</change>
+			<change type="Note">These settings are strongly recommended instead of using CanDecay systemhook</change>
+		</entry>
+		<entry>
+			<date>11-09-2024</date>
 			<author>Kukkino:</author>
 			<change type="Added">Added GetRealmDecay(realm) and SetRealmDecay(realm, has_decay) allowing to manipulate whether items decay on the ground in given realms.</change>
 		</entry>

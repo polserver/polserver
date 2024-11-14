@@ -22,6 +22,7 @@
 #include "item/itemdesc.h"
 #include "polsem.h"
 #include "realms/realm.h"
+#include "regions/guardrgn.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "syshook.h"
@@ -89,11 +90,14 @@ void Decay::decay_worldzone()
       }
 
       const Items::ItemDesc& descriptor = item->itemdesc();
-      Multi::UMulti* multi = realm->find_supporting_multi( item->pos3d() );
+      auto* multi = realm->find_supporting_multi( item->pos3d() );
       if ( !skipchecks )
       {
-        // some things don't decay on multis:
-        if ( multi != nullptr && !descriptor.decays_on_multis )
+        if ( multi )
+          if ( !multi->items_decay() && !descriptor.decays_on_multis )
+            continue;
+        auto* region = Core::gamestate.justicedef->getregion( item->pos() );
+        if ( region && !region->itemsdecay() )
           continue;
       }
       if ( statistics )
