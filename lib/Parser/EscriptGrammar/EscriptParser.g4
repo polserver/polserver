@@ -28,7 +28,7 @@ moduleDeclarationStatement
     ;
 
 moduleFunctionDeclaration
-    : IDENTIFIER '(' moduleFunctionParameterList? ')' ';'
+    : IDENTIFIER '(' moduleFunctionParameterList? ')' (ARROW typeArgument)? ';'
     ;
 
 moduleFunctionParameterList
@@ -36,7 +36,7 @@ moduleFunctionParameterList
     ;
 
 moduleFunctionParameter
-    : IDENTIFIER (':=' expression)?
+    : IDENTIFIER typeAnnotation? (':=' expression)?
     ;
 
 topLevelDeclaration
@@ -70,7 +70,7 @@ classStatement
     ;
 
 functionDeclaration
-    : EXPORTED? FUNCTION IDENTIFIER functionParameters block ENDFUNCTION
+    : EXPORTED? FUNCTION IDENTIFIER functionParameters (ARROW typeArgument)? block ENDFUNCTION
     ;
 
 stringIdentifier
@@ -87,7 +87,7 @@ includeDeclaration
     ;
 
 programDeclaration
-    : PROGRAM IDENTIFIER programParameters block ENDPROGRAM
+    : PROGRAM IDENTIFIER programParameters (ARROW typeArgument)? block ENDPROGRAM
     ;
 
 // Some ignored / to-be-handled things:
@@ -240,7 +240,7 @@ constantDeclaration
     ;
 
 variableDeclaration
-    : IDENTIFIER variableDeclarationInitializer?
+    : IDENTIFIER typeAnnotation? variableDeclarationInitializer?
     ;
 
 // PARAMETERS
@@ -253,8 +253,8 @@ programParameterList
     ;
 
 programParameter
-    : UNUSED IDENTIFIER
-    | IDENTIFIER (':=' expression)?
+    : UNUSED IDENTIFIER typeAnnotation?
+    | IDENTIFIER typeAnnotation? (':=' expression)?
     ;
 
 functionParameters
@@ -266,7 +266,7 @@ functionParameterList
     ;
 
 functionParameter
-    : BYREF? UNUSED? IDENTIFIER ELLIPSIS? (':=' expression)?
+    : BYREF? UNUSED? IDENTIFIER typeAnnotation? ELLIPSIS? (':=' expression)?
     ;
 
 // EXPRESSIONS
@@ -302,6 +302,7 @@ expression
     | <assoc=right> expression
       bop=( ':=' | '+=' | '-=' | '*=' | '/=' | '%=')
       expression
+    | expression AS typeArgument
     ;
 
 primary
@@ -465,3 +466,343 @@ boolLiteral
     : BOOL_TRUE
     | BOOL_FALSE
     ;
+
+// Experimental type support
+typeParameters
+    : '<' typeParameterList? '>'
+    ;
+
+typeParameterList
+    : typeParameter (',' typeParameter)*
+    ;
+
+typeParameter
+    : IDENTIFIER
+    | IDENTIFIER ':=' typeArgument
+    | typeParameters
+    ;
+
+// constraint
+//     : 'extends' type_
+//     ;
+
+typeArguments
+    : '<' typeArgumentList? '>'
+    ;
+
+typeArgumentList
+    : typeArgument (',' typeArgument)*
+    ;
+
+typeArgument
+    : type_
+    ;
+
+// Union and intersection types can have a leading '|' or '&'
+// See https://github.com/microsoft/TypeScript/pull/12386
+type_
+    : ('|' | '&')? unionOrIntersectionOrPrimaryType
+    | functionType
+    // | constructorType
+    // | typeGeneric
+    ;
+
+unionOrIntersectionOrPrimaryType
+    : unionOrIntersectionOrPrimaryType '|' unionOrIntersectionOrPrimaryType
+    | unionOrIntersectionOrPrimaryType '&' unionOrIntersectionOrPrimaryType
+    | primaryType
+    ;
+
+primaryType
+    : '(' type_ ')'                              # ParenthesizedPrimType
+    | predefinedType                             # PredefinedPrimType
+    | typeReference                              # ReferencePrimType
+    | objectType                                 # ObjectPrimType
+    | primaryType {/*todo this.notLineTerminator()*/ true}? '[' primaryType? ']' # ArrayPrimType
+    | '[' tupleElementTypes ']'                  # TuplePrimType
+    // | typeQuery                                  # QueryPrimType
+    // | typeReference IS primaryType               # RedefinitionOfType
+    // | KeyOf primaryType                          # KeyOfType
+    ;
+
+predefinedType
+    : INTEGER
+    | DOUBLE
+    | STRING
+    | UNINIT
+    | ARRAY
+    | TOK_LONG  // Alias of INTEGER
+    ;
+
+typeReference
+    : typeName typeGeneric?
+    ;
+
+typeGeneric
+    : '<' typeArgumentList typeGeneric?'>'
+    ;
+
+typeName
+    : identifierName
+    ;
+
+objectType
+    : (STRUCT | DICTIONARY) ('{' typeBody? '}')?
+    ;
+
+typeBody
+    : typeMemberList (';' | ',')?
+    ;
+
+typeMemberList
+    : typeMember ((';' | ',') typeMember)*
+    ;
+
+typeMember
+    : propertySignatur
+    | callSignature
+    // | constructSignature
+    | indexSignature
+    | methodSignature (ARROW type_)?
+    ;
+
+arrayType
+    : primaryType {/*todo this.notLineTerminator()*/ true}? '[' ']'
+    ;
+
+tupleType
+    : '[' tupleElementTypes ']'
+    ;
+
+// Tuples can have a trailing comma. See https://github.com/Microsoft/TypeScript/issues/28893
+tupleElementTypes
+    : type_ (',' type_)* ','?
+    ;
+
+functionType
+    : typeParameters? '(' parameterList? ')' ARROW type_
+    ;
+
+// constructorType
+//     : NEW typeParameters? '(' parameterList? ')' ARROW type_
+//     ;
+
+// typeQuery
+//     : 'typeof' typeQueryExpression
+//     ;
+
+typeQueryExpression
+    : IDENTIFIER
+    | (identifierName '.')+ identifierName
+    ;
+
+identifierName
+    : IDENTIFIER
+    | reservedWord
+    ;
+
+reservedWord
+    : IF
+    | THEN
+    | ELSEIF
+    | ENDIF
+    | ELSE
+    | GOTO
+    | RETURN
+    | TOK_CONST
+    | VAR
+    | DO
+    | DOWHILE
+    | WHILE
+    | ENDWHILE
+    | EXIT
+    | FUNCTION
+    | ENDFUNCTION
+    | EXPORTED
+    | USE
+    | INCLUDE
+    | BREAK
+    | CONTINUE
+    | FOR
+    | ENDFOR
+    | TO
+    | FOREACH
+    | ENDFOREACH
+    | REPEAT
+    | UNTIL
+    | PROGRAM
+    | ENDPROGRAM
+    | CASE
+    | DEFAULT
+    | ENDCASE
+    | ENUM
+    | ENDENUM
+    | CLASS
+    | ENDCLASS
+    | DOWNTO
+    | STEP
+    | REFERENCE
+    | TOK_OUT
+    | INOUT
+    | BYVAL
+    | STRING
+    | TOK_LONG
+    | INTEGER
+    | UNSIGNED
+    | SIGNED
+    | REAL
+    | FLOAT
+    | DOUBLE
+    | AS
+    | AND_B
+    | OR_B
+    | BANG_B
+    | BYREF
+    | UNUSED
+    | TOK_ERROR
+    | HASH
+    | DICTIONARY
+    | STRUCT
+    | ARRAY
+    | STACK
+    | TOK_IN
+    | UNINIT
+    | BOOL_TRUE
+    | BOOL_FALSE
+    | IS
+    ;
+
+propertySignatur
+    : propertyName '?'? typeAnnotation? (ARROW type_)?
+    ;
+
+propertyName
+    : IDENTIFIER
+    ;
+
+typeAnnotation
+    : ':' type_
+    ;
+
+callSignature
+    : typeParameters? '(' parameterList? ')' typeAnnotation?
+    ;
+
+// Function parameter list can have a trailing comma.
+// See https://github.com/Microsoft/TypeScript/issues/16152
+parameterList
+    : restParameter
+    | parameter (',' parameter)* (',' restParameter)? ','?
+    ;
+
+requiredParameterList
+    : requiredParameter (',' requiredParameter)*
+    ;
+
+parameter
+    : requiredParameter
+    | optionalParameter
+    ;
+
+optionalParameter
+    : (
+        IDENTIFIER (
+            '?' typeAnnotation?
+            | typeAnnotation? expression
+        )
+    )
+    ;
+
+restParameter
+    // : '...' singleExpression typeAnnotation?
+    : '...' typeAnnotation?
+    ;
+
+requiredParameter
+    : identifierName typeAnnotation?
+    ;
+
+// constructSignature
+//     : 'new' typeParameters? '(' parameterList? ')' typeAnnotation?
+//     ;
+
+indexSignature
+    : '[' IDENTIFIER typeAnnotation ']' typeAnnotation
+    ;
+
+methodSignature
+    : propertyName '?'? callSignature
+    ;
+
+// constructorDeclaration
+//     : accessibilityModifier? Constructor '(' formalParameterList? ')' (
+//         ('{' functionBody '}')
+//         | SemiColon
+//     )?
+//     ;
+
+// A.5 Interface
+
+// interfaceDeclaration
+//     : Export? Declare? Interface identifier typeParameters? interfaceExtendsClause? objectType SemiColon?
+//     ;
+
+// interfaceExtendsClause
+//     : Extends classOrInterfaceTypeList
+//     ;
+
+// classOrInterfaceTypeList
+//     : typeReference (',' typeReference)*
+//     ;
+
+// A.7 Interface
+
+// enumDeclaration
+//     : Const? Enum identifier '{' enumBody? '}'
+//     ;
+
+// enumBody
+//     : enumMemberList ','?
+//     ;
+
+// enumMemberList
+//     : enumMember (',' enumMember)*
+//     ;
+
+// enumMember
+//     : propertyName ('=' singleExpression)?
+//     ;
+
+// // A.8 Namespaces
+
+// namespaceDeclaration
+//     : Declare? Namespace namespaceName '{' statementList? '}'
+//     ;
+
+// namespaceName
+//     : identifier ('.'+ identifier)*
+//     ;
+
+// importAliasDeclaration
+//     : identifier '=' namespaceName SemiColon
+//     ;
+
+// // Ext.2 Additions to 1.8: Decorators
+
+// decoratorList
+//     : decorator+
+//     ;
+
+// decorator
+//     : '@' (decoratorMemberExpression | decoratorCallExpression)
+//     ;
+
+// decoratorMemberExpression
+//     : identifier
+//     | decoratorMemberExpression '.' identifierName
+//     | '(' singleExpression ')'
+//     ;
+
+// decoratorCallExpression
+//     : decoratorMemberExpression arguments
+//     ;

@@ -375,6 +375,170 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitTypeParameters(EscriptParser::TypeParametersContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeParameterList(EscriptParser::TypeParameterListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeParameter(EscriptParser::TypeParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArguments(EscriptParser::TypeArgumentsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArgumentList(EscriptParser::TypeArgumentListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArgument(EscriptParser::TypeArgumentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitType_(EscriptParser::Type_Context *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitUnionOrIntersectionOrPrimaryType(EscriptParser::UnionOrIntersectionOrPrimaryTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPredefinedPrimType(EscriptParser::PredefinedPrimTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitArrayPrimType(EscriptParser::ArrayPrimTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitParenthesizedPrimType(EscriptParser::ParenthesizedPrimTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTuplePrimType(EscriptParser::TuplePrimTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitObjectPrimType(EscriptParser::ObjectPrimTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitReferencePrimType(EscriptParser::ReferencePrimTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPredefinedType(EscriptParser::PredefinedTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeReference(EscriptParser::TypeReferenceContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeGeneric(EscriptParser::TypeGenericContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeName(EscriptParser::TypeNameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitObjectType(EscriptParser::ObjectTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeBody(EscriptParser::TypeBodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeMemberList(EscriptParser::TypeMemberListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeMember(EscriptParser::TypeMemberContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitArrayType(EscriptParser::ArrayTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTupleType(EscriptParser::TupleTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTupleElementTypes(EscriptParser::TupleElementTypesContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFunctionType(EscriptParser::FunctionTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeQueryExpression(EscriptParser::TypeQueryExpressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIdentifierName(EscriptParser::IdentifierNameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitReservedWord(EscriptParser::ReservedWordContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPropertySignatur(EscriptParser::PropertySignaturContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPropertyName(EscriptParser::PropertyNameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeAnnotation(EscriptParser::TypeAnnotationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitCallSignature(EscriptParser::CallSignatureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitParameterList(EscriptParser::ParameterListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitRequiredParameterList(EscriptParser::RequiredParameterListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitParameter(EscriptParser::ParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitOptionalParameter(EscriptParser::OptionalParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitRestParameter(EscriptParser::RestParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitRequiredParameter(EscriptParser::RequiredParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIndexSignature(EscriptParser::IndexSignatureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMethodSignature(EscriptParser::MethodSignatureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
 
 };
 
