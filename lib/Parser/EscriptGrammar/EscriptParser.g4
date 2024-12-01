@@ -28,7 +28,7 @@ moduleDeclarationStatement
     ;
 
 moduleFunctionDeclaration
-    : IDENTIFIER '(' moduleFunctionParameterList? ')' (ARROW typeArgument)? ';'
+    : IDENTIFIER '(' moduleFunctionParameterList? ')' (ARROW type)? ';'
     ;
 
 moduleFunctionParameterList
@@ -70,7 +70,7 @@ classStatement
     ;
 
 functionDeclaration
-    : EXPORTED? FUNCTION IDENTIFIER functionParameters (ARROW typeArgument)? block ENDFUNCTION
+    : EXPORTED? FUNCTION IDENTIFIER functionParameters (ARROW type)? block ENDFUNCTION
     ;
 
 stringIdentifier
@@ -87,7 +87,7 @@ includeDeclaration
     ;
 
 programDeclaration
-    : PROGRAM IDENTIFIER programParameters (ARROW typeArgument)? block ENDPROGRAM
+    : PROGRAM IDENTIFIER programParameters (ARROW type)? block ENDPROGRAM
     ;
 
 // Some ignored / to-be-handled things:
@@ -302,7 +302,7 @@ expression
     | <assoc=right> expression
       bop=( ':=' | '+=' | '-=' | '*=' | '/=' | '%=')
       expression
-    | expression AS typeArgument
+    | expression AS type
     ;
 
 primary
@@ -468,61 +468,23 @@ boolLiteral
     ;
 
 // Experimental type support
-typeParameters
-    : '<' typeParameterList? '>'
-    ;
-
-typeParameterList
-    : typeParameter (',' typeParameter)*
-    ;
-
-typeParameter
-    : IDENTIFIER
-    | IDENTIFIER ':=' typeArgument
-    | typeParameters
-    ;
-
-// constraint
-//     : 'extends' type_
-//     ;
-
-typeArguments
-    : '<' typeArgumentList? '>'
-    ;
-
-typeArgumentList
-    : typeArgument (',' typeArgument)*
-    ;
-
-typeArgument
-    : type_
-    ;
-
-// Union and intersection types can have a leading '|' or '&'
-// See https://github.com/microsoft/TypeScript/pull/12386
-type_
-    : ('|' | '&')? unionOrIntersectionOrPrimaryType
+type
+    : binaryOrPrimaryType
     | functionType
-    // | constructorType
-    // | typeGeneric
     ;
 
-unionOrIntersectionOrPrimaryType
-    : unionOrIntersectionOrPrimaryType '|' unionOrIntersectionOrPrimaryType
-    | unionOrIntersectionOrPrimaryType '&' unionOrIntersectionOrPrimaryType
+binaryOrPrimaryType
+    : binaryOrPrimaryType ('|' | '&') binaryOrPrimaryType
     | primaryType
     ;
 
 primaryType
-    : '(' type_ ')'                              # ParenthesizedPrimType
-    | predefinedType                             # PredefinedPrimType
-    | typeReference                              # ReferencePrimType
-    | objectType                                 # ObjectPrimType
-    | primaryType {/*todo this.notLineTerminator()*/ true}? '[' primaryType? ']' # ArrayPrimType
-    | '[' tupleElementTypes ']'                  # TuplePrimType
-    // | typeQuery                                  # QueryPrimType
-    // | typeReference IS primaryType               # RedefinitionOfType
-    // | KeyOf primaryType                          # KeyOfType
+    : '(' type ')'
+    | predefinedType
+    | objectType
+    | typeReference
+    | primaryType {/*todo this.notLineTerminator()*/ true}? '[' ']'
+    | '[' tupleElementTypes ']'
     ;
 
 predefinedType
@@ -535,14 +497,6 @@ predefinedType
     ;
 
 typeReference
-    : typeName typeGeneric?
-    ;
-
-typeGeneric
-    : '<' typeArgumentList typeGeneric?'>'
-    ;
-
-typeName
     : identifierName
     ;
 
@@ -559,41 +513,19 @@ typeMemberList
     ;
 
 typeMember
-    : propertySignatur
+    : propertySignature
     | callSignature
-    // | constructSignature
     | indexSignature
-    | methodSignature (ARROW type_)?
+    | methodSignature (ARROW type)?
     ;
 
-arrayType
-    : primaryType {/*todo this.notLineTerminator()*/ true}? '[' ']'
-    ;
-
-tupleType
-    : '[' tupleElementTypes ']'
-    ;
-
-// Tuples can have a trailing comma. See https://github.com/Microsoft/TypeScript/issues/28893
+// Tuples can have a trailing comma.
 tupleElementTypes
-    : type_ (',' type_)* ','?
+    : type (',' type)* ','?
     ;
 
 functionType
-    : typeParameters? '(' parameterList? ')' ARROW type_
-    ;
-
-// constructorType
-//     : NEW typeParameters? '(' parameterList? ')' ARROW type_
-//     ;
-
-// typeQuery
-//     : 'typeof' typeQueryExpression
-//     ;
-
-typeQueryExpression
-    : IDENTIFIER
-    | (identifierName '.')+ identifierName
+    : '(' parameterList? ')' ARROW type
     ;
 
 identifierName
@@ -672,137 +604,41 @@ reservedWord
     | IS
     ;
 
-propertySignatur
-    : propertyName '?'? typeAnnotation? (ARROW type_)?
+propertySignature
+    : propertyName '?'? typeAnnotation?
     ;
 
 propertyName
     : IDENTIFIER
+    | reservedWord
     ;
 
 typeAnnotation
-    : ':' type_
+    : ':' type
     ;
 
 callSignature
-    : typeParameters? '(' parameterList? ')' typeAnnotation?
+    : '(' parameterList? ')' typeAnnotation?
     ;
 
 // Function parameter list can have a trailing comma.
-// See https://github.com/Microsoft/TypeScript/issues/16152
 parameterList
     : restParameter
     | parameter (',' parameter)* (',' restParameter)? ','?
     ;
 
-requiredParameterList
-    : requiredParameter (',' requiredParameter)*
-    ;
-
 parameter
-    : requiredParameter
-    | optionalParameter
-    ;
-
-optionalParameter
-    : (
-        IDENTIFIER (
-            '?' typeAnnotation?
-            | typeAnnotation? expression
-        )
-    )
+    : IDENTIFIER '?'? typeAnnotation?
     ;
 
 restParameter
-    // : '...' singleExpression typeAnnotation?
-    : '...' typeAnnotation?
+    : IDENTIFIER '...' typeAnnotation?
     ;
-
-requiredParameter
-    : identifierName typeAnnotation?
-    ;
-
-// constructSignature
-//     : 'new' typeParameters? '(' parameterList? ')' typeAnnotation?
-//     ;
 
 indexSignature
-    : '[' IDENTIFIER typeAnnotation ']' typeAnnotation
+    : '[' parameterList ']' typeAnnotation
     ;
 
 methodSignature
     : propertyName '?'? callSignature
     ;
-
-// constructorDeclaration
-//     : accessibilityModifier? Constructor '(' formalParameterList? ')' (
-//         ('{' functionBody '}')
-//         | SemiColon
-//     )?
-//     ;
-
-// A.5 Interface
-
-// interfaceDeclaration
-//     : Export? Declare? Interface identifier typeParameters? interfaceExtendsClause? objectType SemiColon?
-//     ;
-
-// interfaceExtendsClause
-//     : Extends classOrInterfaceTypeList
-//     ;
-
-// classOrInterfaceTypeList
-//     : typeReference (',' typeReference)*
-//     ;
-
-// A.7 Interface
-
-// enumDeclaration
-//     : Const? Enum identifier '{' enumBody? '}'
-//     ;
-
-// enumBody
-//     : enumMemberList ','?
-//     ;
-
-// enumMemberList
-//     : enumMember (',' enumMember)*
-//     ;
-
-// enumMember
-//     : propertyName ('=' singleExpression)?
-//     ;
-
-// // A.8 Namespaces
-
-// namespaceDeclaration
-//     : Declare? Namespace namespaceName '{' statementList? '}'
-//     ;
-
-// namespaceName
-//     : identifier ('.'+ identifier)*
-//     ;
-
-// importAliasDeclaration
-//     : identifier '=' namespaceName SemiColon
-//     ;
-
-// // Ext.2 Additions to 1.8: Decorators
-
-// decoratorList
-//     : decorator+
-//     ;
-
-// decorator
-//     : '@' (decoratorMemberExpression | decoratorCallExpression)
-//     ;
-
-// decoratorMemberExpression
-//     : identifier
-//     | decoratorMemberExpression '.' identifierName
-//     | '(' singleExpression ')'
-//     ;
-
-// decoratorCallExpression
-//     : decoratorMemberExpression arguments
-//     ;

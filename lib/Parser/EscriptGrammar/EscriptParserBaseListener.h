@@ -287,59 +287,20 @@ public:
   virtual void enterBoolLiteral(EscriptParser::BoolLiteralContext * /*ctx*/) override { }
   virtual void exitBoolLiteral(EscriptParser::BoolLiteralContext * /*ctx*/) override { }
 
-  virtual void enterTypeParameters(EscriptParser::TypeParametersContext * /*ctx*/) override { }
-  virtual void exitTypeParameters(EscriptParser::TypeParametersContext * /*ctx*/) override { }
+  virtual void enterType(EscriptParser::TypeContext * /*ctx*/) override { }
+  virtual void exitType(EscriptParser::TypeContext * /*ctx*/) override { }
 
-  virtual void enterTypeParameterList(EscriptParser::TypeParameterListContext * /*ctx*/) override { }
-  virtual void exitTypeParameterList(EscriptParser::TypeParameterListContext * /*ctx*/) override { }
+  virtual void enterBinaryOrPrimaryType(EscriptParser::BinaryOrPrimaryTypeContext * /*ctx*/) override { }
+  virtual void exitBinaryOrPrimaryType(EscriptParser::BinaryOrPrimaryTypeContext * /*ctx*/) override { }
 
-  virtual void enterTypeParameter(EscriptParser::TypeParameterContext * /*ctx*/) override { }
-  virtual void exitTypeParameter(EscriptParser::TypeParameterContext * /*ctx*/) override { }
-
-  virtual void enterTypeArguments(EscriptParser::TypeArgumentsContext * /*ctx*/) override { }
-  virtual void exitTypeArguments(EscriptParser::TypeArgumentsContext * /*ctx*/) override { }
-
-  virtual void enterTypeArgumentList(EscriptParser::TypeArgumentListContext * /*ctx*/) override { }
-  virtual void exitTypeArgumentList(EscriptParser::TypeArgumentListContext * /*ctx*/) override { }
-
-  virtual void enterTypeArgument(EscriptParser::TypeArgumentContext * /*ctx*/) override { }
-  virtual void exitTypeArgument(EscriptParser::TypeArgumentContext * /*ctx*/) override { }
-
-  virtual void enterType_(EscriptParser::Type_Context * /*ctx*/) override { }
-  virtual void exitType_(EscriptParser::Type_Context * /*ctx*/) override { }
-
-  virtual void enterUnionOrIntersectionOrPrimaryType(EscriptParser::UnionOrIntersectionOrPrimaryTypeContext * /*ctx*/) override { }
-  virtual void exitUnionOrIntersectionOrPrimaryType(EscriptParser::UnionOrIntersectionOrPrimaryTypeContext * /*ctx*/) override { }
-
-  virtual void enterPredefinedPrimType(EscriptParser::PredefinedPrimTypeContext * /*ctx*/) override { }
-  virtual void exitPredefinedPrimType(EscriptParser::PredefinedPrimTypeContext * /*ctx*/) override { }
-
-  virtual void enterArrayPrimType(EscriptParser::ArrayPrimTypeContext * /*ctx*/) override { }
-  virtual void exitArrayPrimType(EscriptParser::ArrayPrimTypeContext * /*ctx*/) override { }
-
-  virtual void enterParenthesizedPrimType(EscriptParser::ParenthesizedPrimTypeContext * /*ctx*/) override { }
-  virtual void exitParenthesizedPrimType(EscriptParser::ParenthesizedPrimTypeContext * /*ctx*/) override { }
-
-  virtual void enterTuplePrimType(EscriptParser::TuplePrimTypeContext * /*ctx*/) override { }
-  virtual void exitTuplePrimType(EscriptParser::TuplePrimTypeContext * /*ctx*/) override { }
-
-  virtual void enterObjectPrimType(EscriptParser::ObjectPrimTypeContext * /*ctx*/) override { }
-  virtual void exitObjectPrimType(EscriptParser::ObjectPrimTypeContext * /*ctx*/) override { }
-
-  virtual void enterReferencePrimType(EscriptParser::ReferencePrimTypeContext * /*ctx*/) override { }
-  virtual void exitReferencePrimType(EscriptParser::ReferencePrimTypeContext * /*ctx*/) override { }
+  virtual void enterPrimaryType(EscriptParser::PrimaryTypeContext * /*ctx*/) override { }
+  virtual void exitPrimaryType(EscriptParser::PrimaryTypeContext * /*ctx*/) override { }
 
   virtual void enterPredefinedType(EscriptParser::PredefinedTypeContext * /*ctx*/) override { }
   virtual void exitPredefinedType(EscriptParser::PredefinedTypeContext * /*ctx*/) override { }
 
   virtual void enterTypeReference(EscriptParser::TypeReferenceContext * /*ctx*/) override { }
   virtual void exitTypeReference(EscriptParser::TypeReferenceContext * /*ctx*/) override { }
-
-  virtual void enterTypeGeneric(EscriptParser::TypeGenericContext * /*ctx*/) override { }
-  virtual void exitTypeGeneric(EscriptParser::TypeGenericContext * /*ctx*/) override { }
-
-  virtual void enterTypeName(EscriptParser::TypeNameContext * /*ctx*/) override { }
-  virtual void exitTypeName(EscriptParser::TypeNameContext * /*ctx*/) override { }
 
   virtual void enterObjectType(EscriptParser::ObjectTypeContext * /*ctx*/) override { }
   virtual void exitObjectType(EscriptParser::ObjectTypeContext * /*ctx*/) override { }
@@ -353,20 +314,11 @@ public:
   virtual void enterTypeMember(EscriptParser::TypeMemberContext * /*ctx*/) override { }
   virtual void exitTypeMember(EscriptParser::TypeMemberContext * /*ctx*/) override { }
 
-  virtual void enterArrayType(EscriptParser::ArrayTypeContext * /*ctx*/) override { }
-  virtual void exitArrayType(EscriptParser::ArrayTypeContext * /*ctx*/) override { }
-
-  virtual void enterTupleType(EscriptParser::TupleTypeContext * /*ctx*/) override { }
-  virtual void exitTupleType(EscriptParser::TupleTypeContext * /*ctx*/) override { }
-
   virtual void enterTupleElementTypes(EscriptParser::TupleElementTypesContext * /*ctx*/) override { }
   virtual void exitTupleElementTypes(EscriptParser::TupleElementTypesContext * /*ctx*/) override { }
 
   virtual void enterFunctionType(EscriptParser::FunctionTypeContext * /*ctx*/) override { }
   virtual void exitFunctionType(EscriptParser::FunctionTypeContext * /*ctx*/) override { }
-
-  virtual void enterTypeQueryExpression(EscriptParser::TypeQueryExpressionContext * /*ctx*/) override { }
-  virtual void exitTypeQueryExpression(EscriptParser::TypeQueryExpressionContext * /*ctx*/) override { }
 
   virtual void enterIdentifierName(EscriptParser::IdentifierNameContext * /*ctx*/) override { }
   virtual void exitIdentifierName(EscriptParser::IdentifierNameContext * /*ctx*/) override { }
@@ -374,8 +326,8 @@ public:
   virtual void enterReservedWord(EscriptParser::ReservedWordContext * /*ctx*/) override { }
   virtual void exitReservedWord(EscriptParser::ReservedWordContext * /*ctx*/) override { }
 
-  virtual void enterPropertySignatur(EscriptParser::PropertySignaturContext * /*ctx*/) override { }
-  virtual void exitPropertySignatur(EscriptParser::PropertySignaturContext * /*ctx*/) override { }
+  virtual void enterPropertySignature(EscriptParser::PropertySignatureContext * /*ctx*/) override { }
+  virtual void exitPropertySignature(EscriptParser::PropertySignatureContext * /*ctx*/) override { }
 
   virtual void enterPropertyName(EscriptParser::PropertyNameContext * /*ctx*/) override { }
   virtual void exitPropertyName(EscriptParser::PropertyNameContext * /*ctx*/) override { }
@@ -389,20 +341,11 @@ public:
   virtual void enterParameterList(EscriptParser::ParameterListContext * /*ctx*/) override { }
   virtual void exitParameterList(EscriptParser::ParameterListContext * /*ctx*/) override { }
 
-  virtual void enterRequiredParameterList(EscriptParser::RequiredParameterListContext * /*ctx*/) override { }
-  virtual void exitRequiredParameterList(EscriptParser::RequiredParameterListContext * /*ctx*/) override { }
-
   virtual void enterParameter(EscriptParser::ParameterContext * /*ctx*/) override { }
   virtual void exitParameter(EscriptParser::ParameterContext * /*ctx*/) override { }
 
-  virtual void enterOptionalParameter(EscriptParser::OptionalParameterContext * /*ctx*/) override { }
-  virtual void exitOptionalParameter(EscriptParser::OptionalParameterContext * /*ctx*/) override { }
-
   virtual void enterRestParameter(EscriptParser::RestParameterContext * /*ctx*/) override { }
   virtual void exitRestParameter(EscriptParser::RestParameterContext * /*ctx*/) override { }
-
-  virtual void enterRequiredParameter(EscriptParser::RequiredParameterContext * /*ctx*/) override { }
-  virtual void exitRequiredParameter(EscriptParser::RequiredParameterContext * /*ctx*/) override { }
 
   virtual void enterIndexSignature(EscriptParser::IndexSignatureContext * /*ctx*/) override { }
   virtual void exitIndexSignature(EscriptParser::IndexSignatureContext * /*ctx*/) override { }
