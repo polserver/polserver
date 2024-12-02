@@ -505,66 +505,73 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     addToken( ctx->postfix->getText(), ctx->postfix, FmtToken::SPACE | FmtToken::ATTACHED );
     return true;
   }
-  else if ( ctx->bop && ctx->expression().size() == 2 )
+  else if ( ( ctx->bop || ctx->GT().size() == 2 ) && ctx->expression().size() == 2 )
   {
     visitExpression( ctx->expression( 0 ) );  // left
     int style = FmtToken::NONE;
-    switch ( ctx->bop->getType() )
+    if ( ctx->bop )
     {
-    case EscriptLexer::OR_A:
-    case EscriptLexer::OR_B:
-    case EscriptLexer::AND_A:
-    case EscriptLexer::AND_B:
-      style = FmtToken::SPACE | FmtToken::BREAKPOINT | FmtToken::PREFERRED_BREAK_LOGICAL;
-      break;
-    case EscriptLexer::ADDMEMBER:
-    case EscriptLexer::DELMEMBER:
-    case EscriptLexer::CHKMEMBER:
-      style = FmtToken::ATTACHED;
-      break;
-    case EscriptLexer::ASSIGN:
-    case EscriptLexer::ADD_ASSIGN:
-    case EscriptLexer::SUB_ASSIGN:
-    case EscriptLexer::MUL_ASSIGN:
-    case EscriptLexer::DIV_ASSIGN:
-    case EscriptLexer::MOD_ASSIGN:
-      _currentscope |= FmtToken::Scope::VAR;  // matches with visitStatement
-      style = linebuilder.assignmentStyle();
-      break;
-    case EscriptLexer::TOK_IN:
-      style = FmtToken::SPACE;
-      break;
-    case EscriptLexer::LE:
-    case EscriptLexer::GE:
-    case EscriptLexer::GT:
-    case EscriptLexer::LT:
-    case EscriptLexer::EQUAL:
-    case EscriptLexer::NOTEQUAL_A:
-    case EscriptLexer::NOTEQUAL_B:
-      style = linebuilder.comparisonStyle();
-      break;
-    case EscriptLexer::ADD:
-    case EscriptLexer::SUB:
-    case EscriptLexer::MUL:
-    case EscriptLexer::DIV:
-    case EscriptLexer::MOD:
-    case EscriptLexer::LSHIFT:
-    case EscriptLexer::RSHIFT:
-    case EscriptLexer::BITAND:
-    case EscriptLexer::BITOR:
+      switch ( ctx->bop->getType() )
+      {
+      case EscriptLexer::OR_A:
+      case EscriptLexer::OR_B:
+      case EscriptLexer::AND_A:
+      case EscriptLexer::AND_B:
+        style = FmtToken::SPACE | FmtToken::BREAKPOINT | FmtToken::PREFERRED_BREAK_LOGICAL;
+        break;
+      case EscriptLexer::ADDMEMBER:
+      case EscriptLexer::DELMEMBER:
+      case EscriptLexer::CHKMEMBER:
+        style = FmtToken::ATTACHED;
+        break;
+      case EscriptLexer::ASSIGN:
+      case EscriptLexer::ADD_ASSIGN:
+      case EscriptLexer::SUB_ASSIGN:
+      case EscriptLexer::MUL_ASSIGN:
+      case EscriptLexer::DIV_ASSIGN:
+      case EscriptLexer::MOD_ASSIGN:
+        _currentscope |= FmtToken::Scope::VAR;  // matches with visitStatement
+        style = linebuilder.assignmentStyle();
+        break;
+      case EscriptLexer::TOK_IN:
+        style = FmtToken::SPACE;
+        break;
+      case EscriptLexer::LE:
+      case EscriptLexer::GE:
+      case EscriptLexer::GT:
+      case EscriptLexer::LT:
+      case EscriptLexer::EQUAL:
+      case EscriptLexer::NOTEQUAL_A:
+      case EscriptLexer::NOTEQUAL_B:
+        style = linebuilder.comparisonStyle();
+        break;
+      case EscriptLexer::ADD:
+      case EscriptLexer::SUB:
+      case EscriptLexer::MUL:
+      case EscriptLexer::DIV:
+      case EscriptLexer::MOD:
+      case EscriptLexer::LSHIFT:
+      case EscriptLexer::BITAND:
+      case EscriptLexer::BITOR:
+        style = linebuilder.operatorStyle();
+        break;
+      case EscriptLexer::ELVIS:
+      {
+        // TODO before it sets breakpoint before
+        // if really needed should be a flag like attached
+        style = FmtToken::SPACE | FmtToken::BREAKPOINT;
+        break;
+      }
+      default:
+        style = FmtToken::SPACE;
+      }
+      addToken( ctx->bop->getText(), ctx->bop, style );
+    }
+    else if ( ctx->GT().size() == 2 )
+    {
       style = linebuilder.operatorStyle();
-      break;
-    case EscriptLexer::ELVIS:
-    {
-      // TODO before it sets breakpoint before
-      // if really needed should be a flag like attached
-      style = FmtToken::SPACE | FmtToken::BREAKPOINT;
-      break;
+      addToken( ">>", ctx->GT( 0 ), style );
     }
-    default:
-      style = FmtToken::SPACE;
-    }
-    addToken( ctx->bop->getText(), ctx->bop, style );
 
     visitExpression( ctx->expression( 1 ) );  // right
     return true;

@@ -464,8 +464,12 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
     }
   }
 
+  // The BSRIGHT operator is not stored in ctx->bop, as it will be stored as two
+  // separate GT (ie, >) tokens. The parser has a rule action to ensure that
+  // there are no tokens between the two GTs.
   auto op = std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
-                                              ctx->bop->getText(), token_id, std::move( rhs ) );
+                                              token_id == TOK_BSRIGHT ? ">>" : ctx->bop->getText(),
+                                              token_id, std::move( rhs ) );
   if ( consume )
     return consume_expression_result( std::move( op ) );
   else
@@ -493,7 +497,7 @@ BTokenId ExpressionBuilder::binary_operator_token(
     return TOK_LESSTHAN;
   else if ( ctx->LE() )
     return TOK_LESSEQ;
-  else if ( ctx->GT() )
+  else if ( ctx->GT().size() == 1 )
     return TOK_GRTHAN;
   else if ( ctx->GE() )
     return TOK_GREQ;
@@ -529,7 +533,7 @@ BTokenId ExpressionBuilder::binary_operator_token(
     return TOK_IN;
   else if ( ctx->LSHIFT() )
     return TOK_BSLEFT;
-  else if ( ctx->RSHIFT() )
+  else if ( ctx->GT().size() == 2 )
     return TOK_BSRIGHT;
   else if ( ctx->ADDMEMBER() )
     return TOK_ADDMEMBER;
@@ -733,7 +737,7 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
     result = prefix_unary_operator( ctx );
   else if ( ctx->postfix )
     result = postfix_unary_operator( ctx );
-  else if ( ctx->bop && ctx->expression().size() == 2 )
+  else if ( ( ctx->bop || ctx->GT().size() == 2 ) && ctx->expression().size() == 2 )
   {
     if ( ctx->ELVIS() )
       result = elvis_operator( ctx );
