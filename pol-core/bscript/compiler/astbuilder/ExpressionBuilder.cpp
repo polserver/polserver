@@ -32,6 +32,26 @@
 #include "bscript/compiler/ast/StructMemberInitializer.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
+#include "bscript/compiler/ast/types/AnyKeyword.h"
+#include "bscript/compiler/ast/types/ArrayType.h"
+#include "bscript/compiler/ast/types/CallSignature.h"
+#include "bscript/compiler/ast/types/DictionaryType.h"
+#include "bscript/compiler/ast/types/DoubleKeyword.h"
+#include "bscript/compiler/ast/types/FunctionType.h"
+#include "bscript/compiler/ast/types/IndexSignature.h"
+#include "bscript/compiler/ast/types/IntegerKeyword.h"
+#include "bscript/compiler/ast/types/IntersectionType.h"
+#include "bscript/compiler/ast/types/MemberSignature.h"
+#include "bscript/compiler/ast/types/MethodSignature.h"
+#include "bscript/compiler/ast/types/Parameter.h"
+#include "bscript/compiler/ast/types/ParameterList.h"
+#include "bscript/compiler/ast/types/PropertySignature.h"
+#include "bscript/compiler/ast/types/StringKeyword.h"
+#include "bscript/compiler/ast/types/StructType.h"
+#include "bscript/compiler/ast/types/TupleType.h"
+#include "bscript/compiler/ast/types/TypeReference.h"
+#include "bscript/compiler/ast/types/UninitKeyword.h"
+#include "bscript/compiler/ast/types/UnionType.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/ScopeName.h"
@@ -72,6 +92,334 @@ std::unique_ptr<Expression> ExpressionBuilder::format_expression(
 {
   return std::make_unique<FormatExpression>( location_for( *format ), std::move( expr ),
                                              string_value( format, false ) );
+}
+
+std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
+    EscriptGrammar::EscriptParser::TypeAnnotationContext* ctx )
+{
+  if ( auto type = ctx->type() )
+  {
+    return type_node( type );
+  }
+  return std::make_unique<AnyKeyword>( location_for( *ctx ) );
+}
+
+std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
+    EscriptGrammar::EscriptParser::BinaryOrPrimaryTypeContext* ctx )
+{
+  if ( auto primary_type_ctx = ctx->primaryType() )
+  {
+    return type_node( primary_type_ctx );
+  }
+  else if ( ctx->binaryOrPrimaryType().size() == 2 )
+  {
+    if ( ctx->BITAND() )
+    {
+      return std::make_unique<IntersectionType>( location_for( *ctx ),
+                                                 type_node( ctx->binaryOrPrimaryType( 0 ) ),
+                                                 type_node( ctx->binaryOrPrimaryType( 1 ) ) );
+    }
+    else if ( ctx->BITOR() )
+    {
+      return std::make_unique<UnionType>( location_for( *ctx ),
+                                          type_node( ctx->binaryOrPrimaryType( 0 ) ),
+                                          type_node( ctx->binaryOrPrimaryType( 1 ) ) );
+    }
+  }
+
+  return std::make_unique<AnyKeyword>( location_for( *ctx ) );
+}
+
+std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
+    EscriptGrammar::EscriptParser::TypeContext* ctx )
+{
+  if ( auto inner_type = ctx->binaryOrPrimaryType() )
+  {
+    return type_node( inner_type );
+  }
+  else if ( auto function_type = ctx->functionType() )
+  {
+    std::unique_ptr<ParameterList> params;
+
+    if ( auto param_list_ctx = function_type->parameterList() )
+    {
+      params = parameter_list( param_list_ctx );
+    }
+    else
+    {
+      params = std::make_unique<ParameterList>( location_for( *function_type ) );
+    }
+
+    if ( auto type = function_type->type() )
+    {
+      return std::make_unique<FunctionType>( location_for( *ctx ), std::move( params ),
+                                             type_node( type ) );
+    }
+  }
+  return std::make_unique<AnyKeyword>( location_for( *ctx ) );
+}
+
+std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
+    EscriptGrammar::EscriptParser::PrimaryTypeContext* ctx )
+{
+  if ( auto type = ctx->type() )
+  {
+    return type_node( type );
+  }
+  else if ( auto predefined_type = ctx->predefinedType() )
+  {
+    if ( auto integer_ctx = predefined_type->INTEGER() )
+    {
+      return std::make_unique<IntegerKeyword>( location_for( *integer_ctx ) );
+    }
+    else if ( auto double_ctx = predefined_type->DOUBLE() )
+    {
+      return std::make_unique<DoubleKeyword>( location_for( *double_ctx ) );
+    }
+    else if ( auto string_ctx = predefined_type->STRING() )
+    {
+      return std::make_unique<StringKeyword>( location_for( *string_ctx ) );
+    }
+    else if ( auto long_ctx = predefined_type->TOK_LONG() )
+    {
+      return std::make_unique<IntegerKeyword>( location_for( *long_ctx ) );
+    }
+    else if ( auto uninit_ctx = predefined_type->UNINIT() )
+    {
+      return std::make_unique<UninitKeyword>( location_for( *uninit_ctx ) );
+    }
+    else if ( auto array_ctx = predefined_type->ARRAY() )
+    {
+      return std::make_unique<ArrayType>( location_for( *array_ctx ) );
+    }
+  }
+  else if ( auto object_type_ctx = ctx->objectType() )
+  {
+    NodeVector members;
+    if ( auto type_body_ctx = object_type_ctx->typeBody() )
+    {
+      if ( auto type_member_list_ctx = type_body_ctx->typeMemberList() )
+      {
+        for ( auto type_member : type_member_list_ctx->typeMember() )
+        {
+          if ( auto property = type_member->propertySignature() )
+          {
+            if ( auto property_name = property->propertyName() )
+            {
+              std::string name;
+              if ( auto identifier_ctx = property_name->IDENTIFIER() )
+              {
+                name = text( identifier_ctx );
+              }
+              else if ( auto reservedWord = property_name->reservedWord() )
+              {
+                name = reservedWord->getText();
+              }
+
+              if ( !name.empty() )
+              {
+                bool question = property->QUESTION() != nullptr;
+                if ( auto type_annotation = property->typeAnnotation() )
+                {
+                  auto type = type_node( type_annotation );
+                  members.push_back( std::make_unique<PropertySignature>(
+                      location_for( *property ), std::move( name ), question, std::move( type ) ) );
+                }
+                else
+                {
+                  members.push_back( std::make_unique<PropertySignature>(
+                      location_for( *property ), std::move( name ), question ) );
+                }
+              }
+              // auto name = text( identifier );
+              // auto type = type_node( property->typeAnnotation() );
+              // members.push_back( std::make_unique<PropertySignature>( location_for( *property ),
+              //                                                         std::move( name ),
+              //                                                         std::move( type ) ) );
+            }
+          }
+
+          else if ( auto call_signature_ctx = type_member->callSignature() )
+          {
+            std::unique_ptr<ParameterList> params;
+
+            if ( auto param_list_ctx = call_signature_ctx->parameterList() )
+            {
+              params = parameter_list( param_list_ctx );
+            }
+            else
+            {
+              params = std::make_unique<ParameterList>( location_for( *call_signature_ctx ) );
+            }
+
+            if ( auto type_annotation = call_signature_ctx->typeAnnotation() )
+            {
+              members.push_back( std::make_unique<CallSignature>(
+                  location_for( *call_signature_ctx ), std::move( params ),
+                  type_node( type_annotation ) ) );
+            }
+            else
+            {
+              members.push_back( std::make_unique<CallSignature>(
+                  location_for( *call_signature_ctx ), std::move( params ) ) );
+            }
+          }
+
+          else if ( auto index_signature = type_member->indexSignature() )
+          {
+            std::unique_ptr<ParameterList> params;
+
+            if ( auto param_list_ctx = index_signature->parameterList() )
+            {
+              auto params = parameter_list( param_list_ctx );
+              if ( auto type_annotation = index_signature->typeAnnotation() )
+              {
+                members.push_back( std::make_unique<IndexSignature>(
+                    location_for( *index_signature ), std::move( params ),
+                    type_node( type_annotation ) ) );
+              }
+            }
+          }
+
+          else if ( auto method_signature = type_member->methodSignature() )
+          {
+            if ( auto property_name = method_signature->propertyName() )
+            {
+              std::string name;
+              if ( auto identifier_ctx = property_name->IDENTIFIER() )
+              {
+                name = text( identifier_ctx );
+              }
+              else if ( auto reservedWord = property_name->reservedWord() )
+              {
+                name = reservedWord->getText();
+              }
+
+              if ( auto call_signature_ctx = method_signature->callSignature() )
+              {
+                std::unique_ptr<ParameterList> params;
+
+                if ( auto param_list_ctx = call_signature_ctx->parameterList() )
+                {
+                  params = parameter_list( param_list_ctx );
+                }
+                else
+                {
+                  params = std::make_unique<ParameterList>( location_for( *call_signature_ctx ) );
+                }
+
+                auto question = method_signature->QUESTION() != nullptr;
+                if ( auto type_annotation = call_signature_ctx->typeAnnotation() )
+                {
+                  members.push_back( std::make_unique<MethodSignature>(
+                      location_for( *method_signature ), std::move( name ), question,
+                      std::move( params ), type_node( type_annotation ) ) );
+                }
+                else
+                {
+                  members.push_back( std::make_unique<MethodSignature>(
+                      location_for( *method_signature ), std::move( name ), question,
+                      std::move( params ) ) );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if ( auto dictionary_terminal = object_type_ctx->DICTIONARY() )
+    {
+      return std::make_unique<DictionaryType>( location_for( *dictionary_terminal ),
+                                               std::move( members ) );
+    }
+    else if ( auto struct_terminal = object_type_ctx->STRUCT() )
+    {
+      return std::make_unique<StructType>( location_for( *struct_terminal ), std::move( members ) );
+    }
+  }
+  else if ( auto type_reference_ctx = ctx->typeReference() )
+  {
+    if ( auto identifier_name_ctx = type_reference_ctx->identifierName() )
+    {
+      if ( auto identifier_ctx = identifier_name_ctx->IDENTIFIER() )
+      {
+        auto type_name = text( identifier_ctx );
+
+        if ( Clib::caseInsensitiveEqual( type_name, "any" ) )
+        {
+          return std::make_unique<AnyKeyword>( location_for( *identifier_ctx ) );
+        }
+
+        return std::make_unique<TypeReference>( location_for( *identifier_ctx ), type_name );
+      }
+      else if ( auto reservedWord = identifier_name_ctx->reservedWord() )
+      {
+        return std::make_unique<TypeReference>( location_for( *reservedWord ),
+                                                reservedWord->getText() );
+      }
+    }
+  }
+  else if ( auto primary_type_ctx = ctx->primaryType() )
+  {
+    if ( ctx->LBRACK() && ctx->RBRACK() )
+    {
+      return std::make_unique<ArrayType>( location_for( *primary_type_ctx ),
+                                          type_node( primary_type_ctx ) );
+    }
+  }
+  else if ( auto tuple_ctx = ctx->tupleElementTypes() )
+  {
+    if ( ctx->LBRACK() && ctx->RBRACK() )
+    {
+      NodeVector elements;
+      for ( auto& type : tuple_ctx->type() )
+      {
+        elements.push_back( type_node( type ) );
+      }
+
+      return std::make_unique<TupleType>( location_for( *tuple_ctx ), std::move( elements ) );
+    }
+  }
+  return std::make_unique<AnyKeyword>( location_for( *ctx ) );
+}
+
+std::unique_ptr<ParameterList> ExpressionBuilder::parameter_list(
+    EscriptGrammar::EscriptParser::ParameterListContext* ctx )
+{
+  std::vector<std::unique_ptr<Parameter>> parameters;
+
+  for ( auto& parameter : ctx->parameter() )
+  {
+    auto name = text( parameter->IDENTIFIER() );
+    bool question = parameter->QUESTION() != nullptr;
+    if ( auto type_ctx = parameter->typeAnnotation() )
+    {
+      parameters.push_back( std::make_unique<Parameter>(
+          location_for( *parameter ), std::move( name ), question, false, type_node( type_ctx ) ) );
+    }
+    else
+    {
+      parameters.push_back( std::make_unique<Parameter>( location_for( *parameter ),
+                                                         std::move( name ), question, false ) );
+    }
+  }
+  if ( auto rest = ctx->restParameter() )
+  {
+    auto name = text( rest->IDENTIFIER() );
+    if ( auto type_ctx = rest->typeAnnotation() )
+    {
+      parameters.push_back( std::make_unique<Parameter>( location_for( *rest ), std::move( name ),
+                                                         false, true, type_node( type_ctx ) ) );
+    }
+    else
+    {
+      parameters.push_back(
+          std::make_unique<Parameter>( location_for( *rest ), std::move( name ), false, true ) );
+    }
+  }
+
+  return std::make_unique<ParameterList>( location_for( *ctx ), std::move( parameters ) );
 }
 
 std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(

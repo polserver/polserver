@@ -8,10 +8,15 @@ namespace Pol::Bscript::Compiler
 {
 class NodeVisitor;
 class Expression;
+class TypeNode;
 
 class FunctionParameterDeclaration : public Node
 {
 public:
+  FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
+                                bool byref, bool unused, bool rest,
+                                std::unique_ptr<Expression> default_value,
+                                std::unique_ptr<TypeNode> type );
   FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
                                 bool byref, bool unused, bool rest,
                                 std::unique_ptr<Expression> default_value );

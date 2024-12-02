@@ -170,6 +170,48 @@ set (bscript_sources    # sorted !
   compiler/ast/GeneratedFunction.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
+  compiler/ast/types/AnyKeyword.cpp
+  compiler/ast/types/AnyKeyword.h
+  compiler/ast/types/ArrayType.cpp
+  compiler/ast/types/ArrayType.h
+  compiler/ast/types/CallSignature.cpp
+  compiler/ast/types/CallSignature.h
+  compiler/ast/types/DictionaryType.cpp
+  compiler/ast/types/DictionaryType.h
+  compiler/ast/types/DoubleKeyword.cpp
+  compiler/ast/types/DoubleKeyword.h
+  compiler/ast/types/FunctionType.cpp
+  compiler/ast/types/FunctionType.h
+  compiler/ast/types/IndexSignature.cpp
+  compiler/ast/types/IndexSignature.h
+  compiler/ast/types/IntegerKeyword.cpp
+  compiler/ast/types/IntegerKeyword.h
+  compiler/ast/types/IntersectionType.cpp
+  compiler/ast/types/IntersectionType.h
+  compiler/ast/types/MemberSignature.cpp
+  compiler/ast/types/MemberSignature.h
+  compiler/ast/types/MethodSignature.cpp
+  compiler/ast/types/MethodSignature.h
+  compiler/ast/types/Parameter.cpp
+  compiler/ast/types/Parameter.h
+  compiler/ast/types/ParameterList.cpp
+  compiler/ast/types/ParameterList.h
+  compiler/ast/types/PropertySignature.cpp
+  compiler/ast/types/PropertySignature.h
+  compiler/ast/types/StringKeyword.cpp
+  compiler/ast/types/StringKeyword.h
+  compiler/ast/types/StructType.cpp
+  compiler/ast/types/StructType.h
+  compiler/ast/types/TupleType.cpp
+  compiler/ast/types/TupleType.h
+  compiler/ast/types/TypeNode.cpp
+  compiler/ast/types/TypeNode.h
+  compiler/ast/types/TypeReference.cpp
+  compiler/ast/types/TypeReference.h
+  compiler/ast/types/UninitKeyword.cpp
+  compiler/ast/types/UninitKeyword.h
+  compiler/ast/types/UnionType.cpp
+  compiler/ast/types/UnionType.h
   compiler/ast/UnaryOperator.cpp
   compiler/ast/UnaryOperator.h
   compiler/ast/UninitializedValue.cpp

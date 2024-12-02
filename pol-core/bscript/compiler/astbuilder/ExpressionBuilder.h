@@ -25,6 +25,9 @@ class Identifier;
 class InterpolateString;
 class MemberAccess;
 class MethodCall;
+class Parameter;
+class ParameterList;
+class TypeNode;
 class UnaryOperator;
 
 class ExpressionBuilder : public ValueBuilder
@@ -110,6 +113,13 @@ public:
 
   std::unique_ptr<Expression> format_expression(
       std::unique_ptr<Expression>, antlr4::tree::TerminalNode* );
+
+  std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::TypeAnnotationContext* );
+  std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::BinaryOrPrimaryTypeContext* );
+  std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::TypeContext* );
+  std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::PrimaryTypeContext* );
+  std::unique_ptr<ParameterList> parameter_list(
+      EscriptGrammar::EscriptParser::ParameterListContext* );
 };
 
 }  // namespace Pol::Bscript::Compiler
