@@ -1,4 +1,6 @@
 
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 
 
 // Generated from EscriptParser.g4 by ANTLR 4.13.1
@@ -75,15 +77,14 @@ public:
     RuleInterpolatedString = 84, RuleInterpolatedStringPart = 85, RuleIntegerLiteral = 86, 
     RuleFloatLiteral = 87, RuleBoolLiteral = 88, RuleTypeParameters = 89, 
     RuleTypeParameterList = 90, RuleTypeParameter = 91, RuleConstraint = 92, 
-    RuleTypeArguments = 93, RuleTypeArgumentList = 94, RuleTypeArgument = 95, 
-    RuleType = 96, RuleBinaryOrPrimaryType = 97, RulePrimaryType = 98, RulePredefinedType = 99, 
-    RuleTypeReference = 100, RuleTypeGeneric = 101, RuleObjectType = 102, 
-    RuleTypeBody = 103, RuleTypeMemberList = 104, RuleTypeMember = 105, 
-    RuleTupleElementTypes = 106, RuleFunctionType = 107, RuleIdentifierName = 108, 
-    RuleReservedWord = 109, RulePropertySignature = 110, RulePropertyName = 111, 
-    RuleTypeAnnotation = 112, RuleCallSignature = 113, RuleParameterList = 114, 
-    RuleParameter = 115, RuleRestParameter = 116, RuleIndexSignature = 117, 
-    RuleMethodSignature = 118
+    RuleTypeArgumentList = 93, RuleTypeArgument = 94, RuleType = 95, RuleBinaryOrPrimaryType = 96, 
+    RulePrimaryType = 97, RulePredefinedType = 98, RuleTypeReference = 99, 
+    RuleTypeGeneric = 100, RuleObjectType = 101, RuleTypeBody = 102, RuleTypeMemberList = 103, 
+    RuleTypeMember = 104, RuleTupleElementTypes = 105, RuleFunctionType = 106, 
+    RuleIdentifierName = 107, RuleReservedWord = 108, RulePropertySignature = 109, 
+    RulePropertyName = 110, RuleTypeAnnotation = 111, RuleCallSignature = 112, 
+    RuleParameterList = 113, RuleParameter = 114, RuleRestParameter = 115, 
+    RuleIndexSignature = 116, RuleMethodSignature = 117
   };
 
   explicit EscriptParser(antlr4::TokenStream *input);
@@ -103,6 +104,13 @@ public:
   antlr4::atn::SerializedATNView getSerializedATN() const override;
 
 
+  static bool iequals(const std::string& a, const std::string& b)
+  {
+      return std::equal(a.begin(), a.end(), b.begin(), b.end(),
+                [](char a, char b) {
+                  return std::tolower(a) == std::tolower(b);
+                });
+  }
 
 
   class CompilationUnitContext;
@@ -198,7 +206,6 @@ public:
   class TypeParameterListContext;
   class TypeParameterContext;
   class ConstraintContext;
-  class TypeArgumentsContext;
   class TypeArgumentListContext;
   class TypeArgumentContext;
   class TypeContext;
@@ -1971,23 +1978,6 @@ public:
   };
 
   ConstraintContext* constraint();
-
-  class  TypeArgumentsContext : public antlr4::ParserRuleContext {
-  public:
-    TypeArgumentsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *LT();
-    antlr4::tree::TerminalNode *GT();
-    TypeArgumentListContext *typeArgumentList();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  TypeArgumentsContext* typeArguments();
 
   class  TypeArgumentListContext : public antlr4::ParserRuleContext {
   public:

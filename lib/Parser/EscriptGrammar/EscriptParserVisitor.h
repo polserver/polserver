@@ -1,4 +1,6 @@
 
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 
 
 // Generated from EscriptParser.g4 by ANTLR 4.13.1
@@ -207,8 +209,6 @@ public:
     virtual std::any visitTypeParameter(EscriptParser::TypeParameterContext *context) = 0;
 
     virtual std::any visitConstraint(EscriptParser::ConstraintContext *context) = 0;
-
-    virtual std::any visitTypeArguments(EscriptParser::TypeArgumentsContext *context) = 0;
 
     virtual std::any visitTypeArgumentList(EscriptParser::TypeArgumentListContext *context) = 0;
 

@@ -4,10 +4,19 @@ options { tokenVocab=EscriptLexer; }
 
 @header
 {
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 }
 
 @parser::members
 {
+static bool iequals(const std::string& a, const std::string& b)
+{
+    return std::equal(a.begin(), a.end(), b.begin(), b.end(),
+              [](char a, char b) {
+                return std::tolower(a) == std::tolower(b);
+              });
+}
 }
 
 compilationUnit
@@ -485,11 +494,7 @@ typeParameter
     ;
 
 constraint
-    : IDENTIFIER type
-    ;
-
-typeArguments
-    : '<' typeArgumentList? '>'
+    : { if ( !iequals( this->getCurrentToken()->getText(), "extends" ) ) notifyErrorListeners( "Unsupported constraint keyword '" + this->getCurrentToken()->getText() + "'" ); } IDENTIFIER type
     ;
 
 typeArgumentList

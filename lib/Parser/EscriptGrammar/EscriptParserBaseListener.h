@@ -1,4 +1,6 @@
 
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 
 
 // Generated from EscriptParser.g4 by ANTLR 4.13.1
@@ -298,9 +300,6 @@ public:
 
   virtual void enterConstraint(EscriptParser::ConstraintContext * /*ctx*/) override { }
   virtual void exitConstraint(EscriptParser::ConstraintContext * /*ctx*/) override { }
-
-  virtual void enterTypeArguments(EscriptParser::TypeArgumentsContext * /*ctx*/) override { }
-  virtual void exitTypeArguments(EscriptParser::TypeArgumentsContext * /*ctx*/) override { }
 
   virtual void enterTypeArgumentList(EscriptParser::TypeArgumentListContext * /*ctx*/) override { }
   virtual void exitTypeArgumentList(EscriptParser::TypeArgumentListContext * /*ctx*/) override { }

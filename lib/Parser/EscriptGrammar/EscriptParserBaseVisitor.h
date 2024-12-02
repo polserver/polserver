@@ -1,4 +1,6 @@
 
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 
 
 // Generated from EscriptParser.g4 by ANTLR 4.13.1
@@ -388,10 +390,6 @@ public:
   }
 
   virtual std::any visitConstraint(EscriptParser::ConstraintContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitTypeArguments(EscriptParser::TypeArgumentsContext *ctx) override {
     return visitChildren(ctx);
   }
 
