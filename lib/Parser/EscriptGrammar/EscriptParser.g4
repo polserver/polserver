@@ -664,7 +664,8 @@ parameterList
     ;
 
 parameter
-    : IDENTIFIER '?'? typeAnnotation?
+    : IDENTIFIER '?:' type
+    | IDENTIFIER '?'? ':' type
     ;
 
 restParameter

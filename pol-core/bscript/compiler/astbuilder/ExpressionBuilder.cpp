@@ -392,8 +392,8 @@ std::unique_ptr<ParameterList> ExpressionBuilder::parameter_list(
   for ( auto& parameter : ctx->parameter() )
   {
     auto name = text( parameter->IDENTIFIER() );
-    bool question = parameter->QUESTION() != nullptr;
-    if ( auto type_ctx = parameter->typeAnnotation() )
+    bool question = parameter->QUESTION() != nullptr || parameter->ELVIS() != nullptr;
+    if ( auto type_ctx = parameter->type() )
     {
       parameters.push_back( std::make_unique<Parameter>(
           location_for( *parameter ), std::move( name ), question, false, type_node( type_ctx ) ) );
