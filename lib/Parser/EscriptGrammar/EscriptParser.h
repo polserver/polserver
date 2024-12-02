@@ -2124,7 +2124,6 @@ public:
     antlr4::tree::TerminalNode *LT();
     TypeArgumentListContext *typeArgumentList();
     antlr4::tree::TerminalNode *GT();
-    TypeGenericContext *typeGeneric();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

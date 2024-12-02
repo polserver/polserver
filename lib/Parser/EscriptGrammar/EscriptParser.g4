@@ -533,7 +533,7 @@ typeReference
     ;
 
 typeGeneric
-    : '<' typeArgumentList typeGeneric?'>'
+    : '<' typeArgumentList '>'
     ;
 
 objectType
