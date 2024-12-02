@@ -200,6 +200,20 @@ public:
 
     virtual std::any visitBoolLiteral(EscriptParser::BoolLiteralContext *context) = 0;
 
+    virtual std::any visitTypeParameters(EscriptParser::TypeParametersContext *context) = 0;
+
+    virtual std::any visitTypeParameterList(EscriptParser::TypeParameterListContext *context) = 0;
+
+    virtual std::any visitTypeParameter(EscriptParser::TypeParameterContext *context) = 0;
+
+    virtual std::any visitConstraint(EscriptParser::ConstraintContext *context) = 0;
+
+    virtual std::any visitTypeArguments(EscriptParser::TypeArgumentsContext *context) = 0;
+
+    virtual std::any visitTypeArgumentList(EscriptParser::TypeArgumentListContext *context) = 0;
+
+    virtual std::any visitTypeArgument(EscriptParser::TypeArgumentContext *context) = 0;
+
     virtual std::any visitType(EscriptParser::TypeContext *context) = 0;
 
     virtual std::any visitBinaryOrPrimaryType(EscriptParser::BinaryOrPrimaryTypeContext *context) = 0;
@@ -209,6 +223,8 @@ public:
     virtual std::any visitPredefinedType(EscriptParser::PredefinedTypeContext *context) = 0;
 
     virtual std::any visitTypeReference(EscriptParser::TypeReferenceContext *context) = 0;
+
+    virtual std::any visitTypeGeneric(EscriptParser::TypeGenericContext *context) = 0;
 
     virtual std::any visitObjectType(EscriptParser::ObjectTypeContext *context) = 0;
 

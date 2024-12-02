@@ -375,6 +375,34 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitTypeParameters(EscriptParser::TypeParametersContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeParameterList(EscriptParser::TypeParameterListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeParameter(EscriptParser::TypeParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitConstraint(EscriptParser::ConstraintContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArguments(EscriptParser::TypeArgumentsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArgumentList(EscriptParser::TypeArgumentListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArgument(EscriptParser::TypeArgumentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitType(EscriptParser::TypeContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -392,6 +420,10 @@ public:
   }
 
   virtual std::any visitTypeReference(EscriptParser::TypeReferenceContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeGeneric(EscriptParser::TypeGenericContext *ctx) override {
     return visitChildren(ctx);
   }
 

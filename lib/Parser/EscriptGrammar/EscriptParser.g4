@@ -28,7 +28,7 @@ moduleDeclarationStatement
     ;
 
 moduleFunctionDeclaration
-    : IDENTIFIER '(' moduleFunctionParameterList? ')' (ARROW type)? ';'
+    : IDENTIFIER '(' moduleFunctionParameterList? ')' (ARROW typeArgument)? ';'
     ;
 
 moduleFunctionParameterList
@@ -70,7 +70,7 @@ classStatement
     ;
 
 functionDeclaration
-    : EXPORTED? FUNCTION IDENTIFIER functionParameters (ARROW type)? block ENDFUNCTION
+    : EXPORTED? FUNCTION IDENTIFIER typeParameters? functionParameters (ARROW typeArgument)? block ENDFUNCTION
     ;
 
 stringIdentifier
@@ -87,7 +87,7 @@ includeDeclaration
     ;
 
 programDeclaration
-    : PROGRAM IDENTIFIER programParameters (ARROW type)? block ENDPROGRAM
+    : PROGRAM IDENTIFIER typeParameters? programParameters (ARROW typeArgument)? block ENDPROGRAM
     ;
 
 // Some ignored / to-be-handled things:
@@ -236,7 +236,7 @@ variableDeclarationList
     ;
 
 constantDeclaration
-    : IDENTIFIER variableDeclarationInitializer
+    : IDENTIFIER typeAnnotation? variableDeclarationInitializer
     ;
 
 variableDeclaration
@@ -287,7 +287,9 @@ expression
     | expression postfix=('++' | '--')
     | prefix=('+'|'-'|'++'|'--') expression
     | prefix=('~'|'!'|'not') expression
-    | expression bop=('*' | '/' | '%' | '<<' | '>>' | '&') expression
+    | expression bop=('*' | '/' | '%' | '<<') expression
+    | expression '>' { if ( _input->get( _input->index() -1 )->getType() != GT ) notifyErrorListeners( "Expression expected" ); } '>'  expression
+    | expression bop='&' expression
     | expression bop=('+' | '-' | '|' | '^') expression
     | expression bop='?:' expression
     | expression bop='in' expression
@@ -302,7 +304,7 @@ expression
     | <assoc=right> expression
       bop=( ':=' | '+=' | '-=' | '*=' | '/=' | '%=')
       expression
-    | expression AS type
+    | expression AS typeArgument
     ;
 
 primary
@@ -468,6 +470,36 @@ boolLiteral
     ;
 
 // Experimental type support
+typeParameters
+    : '<' typeParameterList '>'
+    ;
+
+typeParameterList
+    : typeParameter (',' typeParameter)*
+    ;
+
+typeParameter
+    : IDENTIFIER constraint?
+    | IDENTIFIER ':=' typeArgument
+    | typeParameters
+    ;
+
+constraint
+    : IDENTIFIER type
+    ;
+
+typeArguments
+    : '<' typeArgumentList? '>'
+    ;
+
+typeArgumentList
+    : typeArgument (',' typeArgument)*
+    ;
+
+typeArgument
+    : type
+    ;
+
 type
     : binaryOrPrimaryType
     | functionType
@@ -497,7 +529,11 @@ predefinedType
     ;
 
 typeReference
-    : identifierName
+    : identifierName typeGeneric?
+    ;
+
+typeGeneric
+    : '<' typeArgumentList typeGeneric?'>'
     ;
 
 objectType
@@ -525,7 +561,7 @@ tupleElementTypes
     ;
 
 functionType
-    : '(' parameterList? ')' ARROW type
+    : typeParameters? '(' parameterList? ')' ARROW type
     ;
 
 identifierName
@@ -618,7 +654,7 @@ typeAnnotation
     ;
 
 callSignature
-    : '(' parameterList? ')' typeAnnotation?
+    : typeParameters? '(' parameterList? ')' typeAnnotation?
     ;
 
 // Function parameter list can have a trailing comma.

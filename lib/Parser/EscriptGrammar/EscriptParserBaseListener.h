@@ -287,6 +287,27 @@ public:
   virtual void enterBoolLiteral(EscriptParser::BoolLiteralContext * /*ctx*/) override { }
   virtual void exitBoolLiteral(EscriptParser::BoolLiteralContext * /*ctx*/) override { }
 
+  virtual void enterTypeParameters(EscriptParser::TypeParametersContext * /*ctx*/) override { }
+  virtual void exitTypeParameters(EscriptParser::TypeParametersContext * /*ctx*/) override { }
+
+  virtual void enterTypeParameterList(EscriptParser::TypeParameterListContext * /*ctx*/) override { }
+  virtual void exitTypeParameterList(EscriptParser::TypeParameterListContext * /*ctx*/) override { }
+
+  virtual void enterTypeParameter(EscriptParser::TypeParameterContext * /*ctx*/) override { }
+  virtual void exitTypeParameter(EscriptParser::TypeParameterContext * /*ctx*/) override { }
+
+  virtual void enterConstraint(EscriptParser::ConstraintContext * /*ctx*/) override { }
+  virtual void exitConstraint(EscriptParser::ConstraintContext * /*ctx*/) override { }
+
+  virtual void enterTypeArguments(EscriptParser::TypeArgumentsContext * /*ctx*/) override { }
+  virtual void exitTypeArguments(EscriptParser::TypeArgumentsContext * /*ctx*/) override { }
+
+  virtual void enterTypeArgumentList(EscriptParser::TypeArgumentListContext * /*ctx*/) override { }
+  virtual void exitTypeArgumentList(EscriptParser::TypeArgumentListContext * /*ctx*/) override { }
+
+  virtual void enterTypeArgument(EscriptParser::TypeArgumentContext * /*ctx*/) override { }
+  virtual void exitTypeArgument(EscriptParser::TypeArgumentContext * /*ctx*/) override { }
+
   virtual void enterType(EscriptParser::TypeContext * /*ctx*/) override { }
   virtual void exitType(EscriptParser::TypeContext * /*ctx*/) override { }
 
@@ -301,6 +322,9 @@ public:
 
   virtual void enterTypeReference(EscriptParser::TypeReferenceContext * /*ctx*/) override { }
   virtual void exitTypeReference(EscriptParser::TypeReferenceContext * /*ctx*/) override { }
+
+  virtual void enterTypeGeneric(EscriptParser::TypeGenericContext * /*ctx*/) override { }
+  virtual void exitTypeGeneric(EscriptParser::TypeGenericContext * /*ctx*/) override { }
 
   virtual void enterObjectType(EscriptParser::ObjectTypeContext * /*ctx*/) override { }
   virtual void exitObjectType(EscriptParser::ObjectTypeContext * /*ctx*/) override { }

@@ -285,6 +285,27 @@ public:
   virtual void enterBoolLiteral(EscriptParser::BoolLiteralContext *ctx) = 0;
   virtual void exitBoolLiteral(EscriptParser::BoolLiteralContext *ctx) = 0;
 
+  virtual void enterTypeParameters(EscriptParser::TypeParametersContext *ctx) = 0;
+  virtual void exitTypeParameters(EscriptParser::TypeParametersContext *ctx) = 0;
+
+  virtual void enterTypeParameterList(EscriptParser::TypeParameterListContext *ctx) = 0;
+  virtual void exitTypeParameterList(EscriptParser::TypeParameterListContext *ctx) = 0;
+
+  virtual void enterTypeParameter(EscriptParser::TypeParameterContext *ctx) = 0;
+  virtual void exitTypeParameter(EscriptParser::TypeParameterContext *ctx) = 0;
+
+  virtual void enterConstraint(EscriptParser::ConstraintContext *ctx) = 0;
+  virtual void exitConstraint(EscriptParser::ConstraintContext *ctx) = 0;
+
+  virtual void enterTypeArguments(EscriptParser::TypeArgumentsContext *ctx) = 0;
+  virtual void exitTypeArguments(EscriptParser::TypeArgumentsContext *ctx) = 0;
+
+  virtual void enterTypeArgumentList(EscriptParser::TypeArgumentListContext *ctx) = 0;
+  virtual void exitTypeArgumentList(EscriptParser::TypeArgumentListContext *ctx) = 0;
+
+  virtual void enterTypeArgument(EscriptParser::TypeArgumentContext *ctx) = 0;
+  virtual void exitTypeArgument(EscriptParser::TypeArgumentContext *ctx) = 0;
+
   virtual void enterType(EscriptParser::TypeContext *ctx) = 0;
   virtual void exitType(EscriptParser::TypeContext *ctx) = 0;
 
@@ -299,6 +320,9 @@ public:
 
   virtual void enterTypeReference(EscriptParser::TypeReferenceContext *ctx) = 0;
   virtual void exitTypeReference(EscriptParser::TypeReferenceContext *ctx) = 0;
+
+  virtual void enterTypeGeneric(EscriptParser::TypeGenericContext *ctx) = 0;
+  virtual void exitTypeGeneric(EscriptParser::TypeGenericContext *ctx) = 0;
 
   virtual void enterObjectType(EscriptParser::ObjectTypeContext *ctx) = 0;
   virtual void exitObjectType(EscriptParser::ObjectTypeContext *ctx) = 0;
