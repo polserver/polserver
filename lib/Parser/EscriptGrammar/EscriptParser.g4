@@ -37,7 +37,7 @@ moduleDeclarationStatement
     ;
 
 moduleFunctionDeclaration
-    : IDENTIFIER '(' moduleFunctionParameterList? ')' (ARROW typeArgument)? ';'
+    : IDENTIFIER typeParameters? '(' moduleFunctionParameterList? ')' (ARROW typeArgument)? ';'
     ;
 
 moduleFunctionParameterList
@@ -337,7 +337,7 @@ scopedIdentifier
     : scope=IDENTIFIER? '::' identifier=IDENTIFIER;
 
 functionExpression
-    : AT functionParameters? LBRACE block RBRACE
+    : AT typeParameters? functionParameters? (ARROW typeArgument)? LBRACE block RBRACE
     ;
 
 explicitArrayInitializer
@@ -488,9 +488,7 @@ typeParameterList
     ;
 
 typeParameter
-    : IDENTIFIER constraint?
-    | IDENTIFIER ':=' typeArgument
-    | typeParameters
+    : IDENTIFIER constraint? (':=' typeArgument)?
     ;
 
 constraint

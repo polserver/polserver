@@ -306,6 +306,7 @@ public:
     antlr4::tree::TerminalNode *LPAREN();
     antlr4::tree::TerminalNode *RPAREN();
     antlr4::tree::TerminalNode *SEMI();
+    TypeParametersContext *typeParameters();
     ModuleFunctionParameterListContext *moduleFunctionParameterList();
     antlr4::tree::TerminalNode *ARROW();
     TypeArgumentContext *typeArgument();
@@ -1404,7 +1405,10 @@ public:
     antlr4::tree::TerminalNode *LBRACE();
     BlockContext *block();
     antlr4::tree::TerminalNode *RBRACE();
+    TypeParametersContext *typeParameters();
     FunctionParametersContext *functionParameters();
+    antlr4::tree::TerminalNode *ARROW();
+    TypeArgumentContext *typeArgument();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1952,7 +1956,6 @@ public:
     ConstraintContext *constraint();
     antlr4::tree::TerminalNode *ASSIGN();
     TypeArgumentContext *typeArgument();
-    TypeParametersContext *typeParameters();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
