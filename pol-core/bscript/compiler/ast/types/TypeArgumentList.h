@@ -4,13 +4,13 @@
 
 namespace Pol::Bscript::Compiler
 {
-class Parameter;
+class TypeNode;
 
-class ParameterList : public Node
+class TypeArgumentList : public Node
 {
 public:
-  ParameterList( const SourceLocation&, std::vector<std::unique_ptr<Parameter>> parameters );
-  ParameterList( const SourceLocation& );
+  TypeArgumentList( const SourceLocation&, std::vector<std::unique_ptr<TypeNode>> type_arguments );
+  TypeArgumentList( const SourceLocation& );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;

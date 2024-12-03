@@ -7,6 +7,10 @@
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/ast/types/AnyKeyword.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
+#include "bscript/compiler/ast/types/TypeParameter.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 #include "bscript/compiler/model/ClassLink.h"
 
 namespace Pol::Bscript::Compiler
@@ -15,10 +19,11 @@ GeneratedFunction::GeneratedFunction( const SourceLocation& loc, ClassDeclaratio
                                       UserFunctionType type, const std::string& name )
     : UserFunction(
           loc, false /* exported */, false /* expression */, type, cd->name /* scope */, name,
+          std::make_unique<TypeParameterList>( loc, std::vector<std::unique_ptr<TypeParameter>>() ),
           std::make_unique<FunctionParameterList>(
               loc, std::vector<std::unique_ptr<FunctionParameterDeclaration>>() ),
-          std::make_unique<FunctionBody>( loc, std::vector<std::unique_ptr<Statement>>() ), loc,
-          std::make_shared<ClassLink>( loc, cd->name ) )
+          std::make_unique<FunctionBody>( loc, std::vector<std::unique_ptr<Statement>>() ),
+          std::make_unique<AnyKeyword>( loc ), loc, std::make_shared<ClassLink>( loc, cd->name ) )
 {
   class_link->link_to( cd );
 }

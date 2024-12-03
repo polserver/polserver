@@ -49,6 +49,10 @@
 #include "bscript/compiler/ast/types/StringKeyword.h"
 #include "bscript/compiler/ast/types/StructType.h"
 #include "bscript/compiler/ast/types/TupleType.h"
+#include "bscript/compiler/ast/types/TypeArgumentList.h"
+#include "bscript/compiler/ast/types/TypeConstraint.h"
+#include "bscript/compiler/ast/types/TypeParameter.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 #include "bscript/compiler/ast/types/TypeReference.h"
 #include "bscript/compiler/ast/types/UninitKeyword.h"
 #include "bscript/compiler/ast/types/UnionType.h"
@@ -139,22 +143,18 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
   }
   else if ( auto function_type = ctx->functionType() )
   {
-    std::unique_ptr<ParameterList> params;
+    std::unique_ptr<TypeNode> type_annotation;
+    auto params = parameter_list( location_for( *function_type ), function_type->parameterList() );
+    auto type_params =
+        type_parameter_list( location_for( *function_type ), function_type->typeParameters() );
 
-    if ( auto param_list_ctx = function_type->parameterList() )
+    if ( auto type_ctx = function_type->type() )
     {
-      params = parameter_list( param_list_ctx );
-    }
-    else
-    {
-      params = std::make_unique<ParameterList>( location_for( *function_type ) );
+      type_annotation = type_node( type_ctx );
     }
 
-    if ( auto type = function_type->type() )
-    {
-      return std::make_unique<FunctionType>( location_for( *ctx ), std::move( params ),
-                                             type_node( type ) );
-    }
+    return std::make_unique<FunctionType>( location_for( *ctx ), std::move( type_params ),
+                                           std::move( params ), std::move( type_annotation ) );
   }
   return std::make_unique<AnyKeyword>( location_for( *ctx ) );
 }
@@ -231,53 +231,38 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
                       location_for( *property ), std::move( name ), question ) );
                 }
               }
-              // auto name = text( identifier );
-              // auto type = type_node( property->typeAnnotation() );
-              // members.push_back( std::make_unique<PropertySignature>( location_for( *property ),
-              //                                                         std::move( name ),
-              //                                                         std::move( type ) ) );
             }
           }
 
           else if ( auto call_signature_ctx = type_member->callSignature() )
           {
-            std::unique_ptr<ParameterList> params;
+            std::unique_ptr<TypeNode> type_annotation;
+            auto params = parameter_list( location_for( *call_signature_ctx ),
+                                          call_signature_ctx->parameterList() );
+            auto type_params = type_parameter_list( location_for( *call_signature_ctx ),
+                                                    call_signature_ctx->typeParameters() );
 
-            if ( auto param_list_ctx = call_signature_ctx->parameterList() )
+
+            if ( auto type_annotation_ctx = call_signature_ctx->typeAnnotation() )
             {
-              params = parameter_list( param_list_ctx );
-            }
-            else
-            {
-              params = std::make_unique<ParameterList>( location_for( *call_signature_ctx ) );
+              type_annotation = type_node( type_annotation_ctx );
             }
 
-            if ( auto type_annotation = call_signature_ctx->typeAnnotation() )
-            {
-              members.push_back( std::make_unique<CallSignature>(
-                  location_for( *call_signature_ctx ), std::move( params ),
-                  type_node( type_annotation ) ) );
-            }
-            else
-            {
-              members.push_back( std::make_unique<CallSignature>(
-                  location_for( *call_signature_ctx ), std::move( params ) ) );
-            }
+            members.push_back( std::make_unique<CallSignature>(
+                location_for( *call_signature_ctx ), std::move( type_params ), std::move( params ),
+                std::move( type_annotation ) ) );
           }
 
           else if ( auto index_signature = type_member->indexSignature() )
           {
-            std::unique_ptr<ParameterList> params;
-
-            if ( auto param_list_ctx = index_signature->parameterList() )
+            if ( auto type_annotation = index_signature->typeAnnotation() )
             {
-              auto params = parameter_list( param_list_ctx );
-              if ( auto type_annotation = index_signature->typeAnnotation() )
-              {
-                members.push_back( std::make_unique<IndexSignature>(
-                    location_for( *index_signature ), std::move( params ),
-                    type_node( type_annotation ) ) );
-              }
+              auto params = parameter_list( location_for( *index_signature ),
+                                            index_signature->parameterList() );
+
+              members.push_back( std::make_unique<IndexSignature>( location_for( *index_signature ),
+                                                                   std::move( params ),
+                                                                   type_node( type_annotation ) ) );
             }
           }
 
@@ -297,16 +282,9 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
 
               if ( auto call_signature_ctx = method_signature->callSignature() )
               {
-                std::unique_ptr<ParameterList> params;
+                auto params = parameter_list( location_for( *method_signature ),
+                                              call_signature_ctx->parameterList() );
 
-                if ( auto param_list_ctx = call_signature_ctx->parameterList() )
-                {
-                  params = parameter_list( param_list_ctx );
-                }
-                else
-                {
-                  params = std::make_unique<ParameterList>( location_for( *call_signature_ctx ) );
-                }
 
                 auto question = method_signature->QUESTION() != nullptr;
                 if ( auto type_annotation = call_signature_ctx->typeAnnotation() )
@@ -340,6 +318,16 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
   }
   else if ( auto type_reference_ctx = ctx->typeReference() )
   {
+    std::unique_ptr<TypeArgumentList> type_arguments;
+
+    if ( auto generic_ctx = type_reference_ctx->typeGeneric() )
+    {
+      if ( auto type_argument_list_ctx = generic_ctx->typeArgumentList() )
+      {
+        type_arguments = type_argument_list( location_for( *generic_ctx ), type_argument_list_ctx );
+      }
+    }
+
     if ( auto identifier_name_ctx = type_reference_ctx->identifierName() )
     {
       if ( auto identifier_ctx = identifier_name_ctx->IDENTIFIER() )
@@ -351,10 +339,18 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
           return std::make_unique<AnyKeyword>( location_for( *identifier_ctx ) );
         }
 
+        if ( type_arguments )
+          return std::make_unique<TypeReference>( location_for( *identifier_ctx ), type_name,
+                                                  std::move( type_arguments ) );
+
         return std::make_unique<TypeReference>( location_for( *identifier_ctx ), type_name );
       }
       else if ( auto reservedWord = identifier_name_ctx->reservedWord() )
       {
+        if ( type_arguments )
+          return std::make_unique<TypeReference>(
+              location_for( *reservedWord ), reservedWord->getText(), std::move( type_arguments ) );
+
         return std::make_unique<TypeReference>( location_for( *reservedWord ),
                                                 reservedWord->getText() );
       }
@@ -385,9 +381,15 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
 }
 
 std::unique_ptr<ParameterList> ExpressionBuilder::parameter_list(
+    const SourceLocation& source_location_if_empty,
     EscriptGrammar::EscriptParser::ParameterListContext* ctx )
 {
   std::vector<std::unique_ptr<Parameter>> parameters;
+
+  if ( !ctx )
+  {
+    return std::make_unique<ParameterList>( source_location_if_empty, std::move( parameters ) );
+  }
 
   for ( auto& parameter : ctx->parameter() )
   {
@@ -420,6 +422,78 @@ std::unique_ptr<ParameterList> ExpressionBuilder::parameter_list(
   }
 
   return std::make_unique<ParameterList>( location_for( *ctx ), std::move( parameters ) );
+}
+
+std::unique_ptr<TypeArgumentList> ExpressionBuilder::type_argument_list(
+    const SourceLocation& source_location_if_empty,
+    EscriptGrammar::EscriptParser::TypeArgumentListContext* ctx )
+{
+  std::vector<std::unique_ptr<TypeNode>> type_arguments;
+
+  if ( !ctx )
+  {
+    return std::make_unique<TypeArgumentList>( source_location_if_empty,
+                                               std::move( type_arguments ) );
+  }
+
+  for ( auto& type_argument_ctx : ctx->typeArgument() )
+  {
+    type_arguments.push_back( type_node( type_argument_ctx->type() ) );
+  }
+  return std::make_unique<TypeArgumentList>( location_for( *ctx ), std::move( type_arguments ) );
+}
+
+std::unique_ptr<TypeParameterList> ExpressionBuilder::type_parameter_list(
+    const SourceLocation& source_location_if_empty,
+    EscriptGrammar::EscriptParser::TypeParametersContext* ctx )
+{
+  std::vector<std::unique_ptr<TypeParameter>> type_parameters;
+
+  if ( !ctx )
+  {
+    return std::make_unique<TypeParameterList>( source_location_if_empty,
+                                                std::move( type_parameters ) );
+  }
+
+  if ( auto type_parameter_list_ctx = ctx->typeParameterList() )
+  {
+    for ( auto& type_parameter_ctx : type_parameter_list_ctx->typeParameter() )
+    {
+      auto name = text( type_parameter_ctx->IDENTIFIER() );
+      auto constraint_ctx = type_parameter_ctx->constraint();
+      auto default_value_ctx = type_parameter_ctx->typeArgument();
+      auto has_constraint = constraint_ctx && constraint_ctx->type();
+      auto has_default_value = default_value_ctx && default_value_ctx->type();
+      if ( has_constraint && has_default_value )
+      {
+        type_parameters.push_back( std::make_unique<TypeParameter>(
+            location_for( *type_parameter_ctx ), std::move( name ),
+            type_node( default_value_ctx->type() ),
+            std::make_unique<TypeConstraint>( location_for( *type_parameter_ctx ),
+                                              type_node( constraint_ctx->type() ) ) ) );
+      }
+      else if ( has_constraint )
+      {
+        type_parameters.push_back( std::make_unique<TypeParameter>(
+            location_for( *type_parameter_ctx ), std::move( name ),
+            std::make_unique<TypeConstraint>( location_for( *type_parameter_ctx ),
+                                              type_node( constraint_ctx->type() ) ) ) );
+      }
+      else if ( has_default_value )
+      {
+        type_parameters.push_back(
+            std::make_unique<TypeParameter>( location_for( *type_parameter_ctx ), std::move( name ),
+                                             type_node( default_value_ctx->type() ) ) );
+      }
+      else
+      {
+        type_parameters.push_back( std::make_unique<TypeParameter>(
+            location_for( *type_parameter_ctx ), std::move( name ) ) );
+      }
+    }
+  }
+
+  return std::make_unique<TypeParameterList>( location_for( *ctx ), std::move( type_parameters ) );
 }
 
 std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(

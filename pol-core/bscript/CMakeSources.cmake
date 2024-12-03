@@ -174,6 +174,8 @@ set (bscript_sources    # sorted !
   compiler/ast/types/AnyKeyword.h
   compiler/ast/types/ArrayType.cpp
   compiler/ast/types/ArrayType.h
+  compiler/ast/types/CallableTypeBinding.cpp
+  compiler/ast/types/CallableTypeBinding.h
   compiler/ast/types/CallSignature.cpp
   compiler/ast/types/CallSignature.h
   compiler/ast/types/DictionaryType.cpp
@@ -204,8 +206,16 @@ set (bscript_sources    # sorted !
   compiler/ast/types/StructType.h
   compiler/ast/types/TupleType.cpp
   compiler/ast/types/TupleType.h
+  compiler/ast/types/TypeArgumentList.cpp
+  compiler/ast/types/TypeArgumentList.h
+  compiler/ast/types/TypeConstraint.cpp
+  compiler/ast/types/TypeConstraint.h
   compiler/ast/types/TypeNode.cpp
   compiler/ast/types/TypeNode.h
+  compiler/ast/types/TypeParameter.cpp
+  compiler/ast/types/TypeParameter.h
+  compiler/ast/types/TypeParameterList.cpp
+  compiler/ast/types/TypeParameterList.h
   compiler/ast/types/TypeReference.cpp
   compiler/ast/types/TypeReference.h
   compiler/ast/types/UninitKeyword.cpp

@@ -6,18 +6,23 @@
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 #include "bscript/compiler/model/ClassLink.h"
 
 namespace Pol::Bscript::Compiler
 {
 UserFunction::UserFunction( const SourceLocation& source_location, bool exported, bool expression,
                             UserFunctionType type, std::string scope, std::string name,
+                            std::unique_ptr<TypeParameterList> type_parameters,
                             std::unique_ptr<FunctionParameterList> parameter_list,
                             std::unique_ptr<FunctionBody> body,
+                            std::unique_ptr<TypeNode> type_annotation,
                             const SourceLocation& endfunction_location,
                             std::shared_ptr<ClassLink> class_link )
-    : Function( source_location, std::move( scope ), std::move( name ), std::move( parameter_list ),
-                std::move( body ) ),
+    : Function( source_location, std::move( scope ), std::move( name ),
+                std::move( type_parameters ), std::move( parameter_list ), std::move( body ),
+                std::move( type_annotation ) ),
       exported( exported ),
       expression( expression ),
       type( type ),

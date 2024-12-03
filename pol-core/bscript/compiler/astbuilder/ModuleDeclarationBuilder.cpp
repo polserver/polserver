@@ -4,6 +4,8 @@
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 #include "bscript/compiler/model/ScopableName.h"
 
 using EscriptGrammar::EscriptParser;
@@ -21,6 +23,16 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
 {
   std::string name = text( ctx->IDENTIFIER() );
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
+  std::unique_ptr<TypeNode> type_annotation;
+  auto type_params = type_parameter_list( location_for( *ctx ), ctx->typeParameters() );
+
+  if ( auto type_argument_ctx = ctx->typeArgument() )
+  {
+    if ( auto type_ctx = type_argument_ctx->type() )
+    {
+      type_annotation = type_node( type_ctx );
+    }
+  }
 
   if ( auto param_list = ctx->moduleFunctionParameterList() )
   {
@@ -52,7 +64,8 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
   auto parameter_list =
       std::make_unique<FunctionParameterList>( source_location, std::move( parameters ) );
   return std::make_unique<ModuleFunctionDeclaration>(
-      source_location, std::move( module_name ), std::move( name ), std::move( parameter_list ) );
+      source_location, std::move( module_name ), std::move( name ), std::move( type_params ),
+      std::move( parameter_list ), std::move( type_annotation ) );
 }
 
 }  // namespace Pol::Bscript::Compiler

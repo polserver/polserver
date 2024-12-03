@@ -13,8 +13,9 @@ class ModuleFunctionDeclaration : public Function
 {
 public:
   ModuleFunctionDeclaration( const SourceLocation& source_location, std::string module_name,
-                             std::string name,
-                             std::unique_ptr<FunctionParameterList> parameter_list );
+                             std::string name, std::unique_ptr<TypeParameterList>,
+                             std::unique_ptr<FunctionParameterList> parameter_list,
+                             std::unique_ptr<TypeNode> );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;

@@ -2,22 +2,17 @@
 
 #include "bscript/compiler/ast/types/ParameterList.h"
 #include "bscript/compiler/ast/types/TypeNode.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 
 namespace Pol::Bscript::Compiler
 {
 CallSignature::CallSignature( const SourceLocation& source_location,
+                              std::unique_ptr<TypeParameterList> type_parameters,
                               std::unique_ptr<ParameterList> parameters,
-                              std::unique_ptr<TypeNode> type )
-    : MemberSignature( source_location )
-{
-  children.reserve( 2 );
-  children.push_back( std::move( parameters ) );
-  children.push_back( std::move( type ) );
-}
-
-CallSignature::CallSignature( const SourceLocation& source_location,
-                              std::unique_ptr<ParameterList> parameters )
-    : MemberSignature( source_location, std::move( parameters ) )
+                              std::unique_ptr<TypeNode> type_annotation )
+    : MemberSignature( source_location ),
+      CallableTypeBinding( *this, std::move( type_parameters ), std::move( parameters ),
+                           std::move( type_annotation ) )
 {
 }
 

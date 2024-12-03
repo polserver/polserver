@@ -27,6 +27,8 @@ class MemberAccess;
 class MethodCall;
 class Parameter;
 class ParameterList;
+class TypeArgumentList;
+class TypeParameterList;
 class TypeNode;
 class UnaryOperator;
 
@@ -42,16 +44,16 @@ public:
   std::unique_ptr<ArrayInitializer> array_initializer(
       EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* );
 
-  std::unique_ptr<Expression> binary_operator(
-      EscriptGrammar::EscriptParser::ExpressionContext*, bool consume );
+  std::unique_ptr<Expression> binary_operator( EscriptGrammar::EscriptParser::ExpressionContext*,
+                                               bool consume );
 
   BTokenId binary_operator_token( EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::unique_ptr<DictionaryInitializer> dictionary_initializer(
       EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* );
 
-  std::unique_ptr<ElementAccess> element_access(
-      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::IndexListContext* );
+  std::unique_ptr<ElementAccess> element_access( std::unique_ptr<Expression> lhs,
+                                                 EscriptGrammar::EscriptParser::IndexListContext* );
 
   std::unique_ptr<ElvisOperator> elvis_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
@@ -86,8 +88,7 @@ public:
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* );
 
   std::unique_ptr<Expression> expression_suffix(
-      std::unique_ptr<Expression> lhs,
-      EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
+      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
 
   std::unique_ptr<Expression> prefix_unary_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
@@ -111,15 +112,24 @@ public:
   std::unique_ptr<InterpolateString> interpolate_string(
       EscriptGrammar::EscriptParser::InterpolatedStringContext* );
 
-  std::unique_ptr<Expression> format_expression(
-      std::unique_ptr<Expression>, antlr4::tree::TerminalNode* );
+  std::unique_ptr<Expression> format_expression( std::unique_ptr<Expression>,
+                                                 antlr4::tree::TerminalNode* );
 
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::TypeAnnotationContext* );
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::BinaryOrPrimaryTypeContext* );
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::TypeContext* );
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::PrimaryTypeContext* );
   std::unique_ptr<ParameterList> parameter_list(
+      const SourceLocation& source_location_if_empty,
       EscriptGrammar::EscriptParser::ParameterListContext* );
+  std::unique_ptr<TypeArgumentList> type_argument_list(
+      const SourceLocation& source_location_if_empty,
+      EscriptGrammar::EscriptParser::TypeArgumentListContext* );
+  std::unique_ptr<TypeParameterList> type_parameter_list(
+      const SourceLocation& source_location_if_empty,
+      EscriptGrammar::EscriptParser::TypeParametersContext* );
+  //   std::vector<std::unique_ptr<TypeNode>> type_arguments(
+  //       EscriptGrammar::EscriptParser::ParameterListContext* );
 };
 
 }  // namespace Pol::Bscript::Compiler

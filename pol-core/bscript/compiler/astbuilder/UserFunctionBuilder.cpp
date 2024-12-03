@@ -18,6 +18,7 @@
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/ast/types/TypeNode.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
 #include "bscript/compiler/model/ClassLink.h"
@@ -214,6 +215,17 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
     const std::string& name, ParserContext* ctx, bool exported, const std::string& class_name,
     antlr4::tree::TerminalNode* end_token )
 {
+  std::unique_ptr<TypeNode> type_annotation;
+  auto type_params = type_parameter_list( location_for( *ctx ), ctx->typeParameters() );
+
+  if ( auto type_argument_ctx = ctx->typeArgument() )
+  {
+    if ( auto type_ctx = type_argument_ctx->type() )
+    {
+      type_annotation = type_node( type_ctx );
+    }
+  }
+
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
   bool class_method = false;
   if ( auto function_parameters = ctx->functionParameters() )
@@ -317,7 +329,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
 
   return std::make_unique<UserFunction>(
       location_for( *ctx ), exported, expression, type, class_name, std::move( name ),
-      std::move( parameter_list ), std::move( body ),
-      end_token ? location_for( *end_token ) : location_for( *ctx ), std::move( class_link ) );
+      std::move( type_params ), std::move( parameter_list ), std::move( body ),
+      std::move( type_annotation ), end_token ? location_for( *end_token ) : location_for( *ctx ),
+      std::move( class_link ) );
 }
 }  // namespace Pol::Bscript::Compiler

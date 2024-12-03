@@ -8,14 +8,18 @@ namespace Pol::Bscript::Compiler
 class FunctionParameterDeclaration;
 class FunctionParameterList;
 class FunctionBody;
+class TypeNode;
+class TypeParameterList;
 
 class Function : public Node
 {
 public:
   Function( const SourceLocation&, std::string scope, std::string name,
-            std::unique_ptr<FunctionParameterList>, std::unique_ptr<FunctionBody> );
+            std::unique_ptr<TypeParameterList>, std::unique_ptr<FunctionParameterList>,
+            std::unique_ptr<FunctionBody>, std::unique_ptr<TypeNode> );
   Function( const SourceLocation&, std::string scope, std::string name,
-            std::unique_ptr<FunctionParameterList> );
+            std::unique_ptr<TypeParameterList>, std::unique_ptr<FunctionParameterList>,
+            std::unique_ptr<TypeNode> );
 
   unsigned parameter_count() const;
   bool is_variadic() const;
