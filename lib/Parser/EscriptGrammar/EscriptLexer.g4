@@ -156,7 +156,8 @@ LE:                 '<=';
 LT:                 '<';
 GE:                 '>=';
 GT:                 '>';
-RSHIFT:             '>>';
+// Handled as separate tokens to avoid ambiguity with closing braces in typeParameters
+// RSHIFT:             '>>';
 LSHIFT:             '<<';
 BITAND:             '&';
 CARET:              '^';

@@ -4,10 +4,19 @@ options { tokenVocab=EscriptLexer; }
 
 @header
 {
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 }
 
 @parser::members
 {
+static bool iequals(const std::string& a, const std::string& b)
+{
+    return std::equal(a.begin(), a.end(), b.begin(), b.end(),
+              [](char a, char b) {
+                return std::tolower(a) == std::tolower(b);
+              });
+}
 }
 
 compilationUnit
@@ -28,7 +37,7 @@ moduleDeclarationStatement
     ;
 
 moduleFunctionDeclaration
-    : IDENTIFIER '(' moduleFunctionParameterList? ')' ';'
+    : IDENTIFIER '(' moduleFunctionParameterList? ')' (ARROW typeArgument)? ';'
     ;
 
 moduleFunctionParameterList
@@ -36,7 +45,7 @@ moduleFunctionParameterList
     ;
 
 moduleFunctionParameter
-    : IDENTIFIER (':=' expression)?
+    : IDENTIFIER typeAnnotation? (':=' expression)?
     ;
 
 topLevelDeclaration
@@ -70,7 +79,7 @@ classStatement
     ;
 
 functionDeclaration
-    : EXPORTED? FUNCTION IDENTIFIER functionParameters block ENDFUNCTION
+    : EXPORTED? FUNCTION IDENTIFIER typeParameters? functionParameters (ARROW typeArgument)? block ENDFUNCTION
     ;
 
 stringIdentifier
@@ -87,7 +96,7 @@ includeDeclaration
     ;
 
 programDeclaration
-    : PROGRAM IDENTIFIER programParameters block ENDPROGRAM
+    : PROGRAM IDENTIFIER typeParameters? programParameters (ARROW typeArgument)? block ENDPROGRAM
     ;
 
 // Some ignored / to-be-handled things:
@@ -236,11 +245,11 @@ variableDeclarationList
     ;
 
 constantDeclaration
-    : IDENTIFIER variableDeclarationInitializer
+    : IDENTIFIER typeAnnotation? variableDeclarationInitializer
     ;
 
 variableDeclaration
-    : IDENTIFIER variableDeclarationInitializer?
+    : IDENTIFIER typeAnnotation? variableDeclarationInitializer?
     ;
 
 // PARAMETERS
@@ -253,8 +262,8 @@ programParameterList
     ;
 
 programParameter
-    : UNUSED IDENTIFIER
-    | IDENTIFIER (':=' expression)?
+    : UNUSED IDENTIFIER typeAnnotation?
+    | IDENTIFIER typeAnnotation? (':=' expression)?
     ;
 
 functionParameters
@@ -266,7 +275,7 @@ functionParameterList
     ;
 
 functionParameter
-    : BYREF? UNUSED? IDENTIFIER ELLIPSIS? (':=' expression)?
+    : BYREF? UNUSED? IDENTIFIER typeAnnotation? ELLIPSIS? (':=' expression)?
     ;
 
 // EXPRESSIONS
@@ -287,7 +296,9 @@ expression
     | expression postfix=('++' | '--')
     | prefix=('+'|'-'|'++'|'--') expression
     | prefix=('~'|'!'|'not') expression
-    | expression bop=('*' | '/' | '%' | '<<' | '>>' | '&') expression
+    | expression bop=('*' | '/' | '%' | '<<') expression
+    | expression '>' { if ( _input->get( _input->index() -1 )->getType() != GT ) notifyErrorListeners( "Expression expected" ); } '>'  expression
+    | expression bop='&' expression
     | expression bop=('+' | '-' | '|' | '^') expression
     | expression bop='?:' expression
     | expression bop='in' expression
@@ -302,6 +313,7 @@ expression
     | <assoc=right> expression
       bop=( ':=' | '+=' | '-=' | '*=' | '/=' | '%=')
       expression
+    | expression AS typeArgument
     ;
 
 primary
@@ -464,4 +476,211 @@ floatLiteral
 boolLiteral
     : BOOL_TRUE
     | BOOL_FALSE
+    ;
+
+// Experimental type support
+typeParameters
+    : '<' typeParameterList '>'
+    ;
+
+typeParameterList
+    : typeParameter (',' typeParameter)*
+    ;
+
+typeParameter
+    : IDENTIFIER constraint?
+    | IDENTIFIER ':=' typeArgument
+    | typeParameters
+    ;
+
+constraint
+    : { if ( !iequals( this->getCurrentToken()->getText(), "extends" ) ) notifyErrorListeners( "Unsupported constraint keyword '" + this->getCurrentToken()->getText() + "'" ); } IDENTIFIER type
+    ;
+
+typeArgumentList
+    : typeArgument (',' typeArgument)*
+    ;
+
+typeArgument
+    : type
+    ;
+
+type
+    : binaryOrPrimaryType
+    | functionType
+    ;
+
+binaryOrPrimaryType
+    : binaryOrPrimaryType ('|' | '&') binaryOrPrimaryType
+    | primaryType
+    ;
+
+primaryType
+    : '(' type ')'
+    | predefinedType
+    | objectType
+    | typeReference
+    | primaryType {/*todo this.notLineTerminator()*/ true}? '[' ']'
+    | '[' tupleElementTypes ']'
+    ;
+
+predefinedType
+    : INTEGER
+    | DOUBLE
+    | STRING
+    | UNINIT
+    | ARRAY
+    | TOK_LONG  // Alias of INTEGER
+    ;
+
+typeReference
+    : identifierName typeGeneric?
+    ;
+
+typeGeneric
+    : '<' typeArgumentList '>'
+    ;
+
+objectType
+    : (STRUCT | DICTIONARY) ('{' typeBody? '}')?
+    ;
+
+typeBody
+    : typeMemberList (';' | ',')?
+    ;
+
+typeMemberList
+    : typeMember ((';' | ',') typeMember)*
+    ;
+
+typeMember
+    : propertySignature
+    | callSignature
+    | indexSignature
+    | methodSignature (ARROW type)?
+    ;
+
+// Tuples can have a trailing comma.
+tupleElementTypes
+    : type (',' type)* ','?
+    ;
+
+functionType
+    : typeParameters? '(' parameterList? ')' ARROW type
+    ;
+
+identifierName
+    : IDENTIFIER
+    | reservedWord
+    ;
+
+reservedWord
+    : IF
+    | THEN
+    | ELSEIF
+    | ENDIF
+    | ELSE
+    | GOTO
+    | RETURN
+    | TOK_CONST
+    | VAR
+    | DO
+    | DOWHILE
+    | WHILE
+    | ENDWHILE
+    | EXIT
+    | FUNCTION
+    | ENDFUNCTION
+    | EXPORTED
+    | USE
+    | INCLUDE
+    | BREAK
+    | CONTINUE
+    | FOR
+    | ENDFOR
+    | TO
+    | FOREACH
+    | ENDFOREACH
+    | REPEAT
+    | UNTIL
+    | PROGRAM
+    | ENDPROGRAM
+    | CASE
+    | DEFAULT
+    | ENDCASE
+    | ENUM
+    | ENDENUM
+    | CLASS
+    | ENDCLASS
+    | DOWNTO
+    | STEP
+    | REFERENCE
+    | TOK_OUT
+    | INOUT
+    | BYVAL
+    | STRING
+    | TOK_LONG
+    | INTEGER
+    | UNSIGNED
+    | SIGNED
+    | REAL
+    | FLOAT
+    | DOUBLE
+    | AS
+    | AND_B
+    | OR_B
+    | BANG_B
+    | BYREF
+    | UNUSED
+    | TOK_ERROR
+    | HASH
+    | DICTIONARY
+    | STRUCT
+    | ARRAY
+    | STACK
+    | TOK_IN
+    | UNINIT
+    | BOOL_TRUE
+    | BOOL_FALSE
+    | IS
+    ;
+
+propertySignature
+    : propertyName '?'? typeAnnotation?
+    ;
+
+propertyName
+    : IDENTIFIER
+    | reservedWord
+    ;
+
+typeAnnotation
+    : ':' type
+    ;
+
+callSignature
+    : typeParameters? '(' parameterList? ')' typeAnnotation?
+    ;
+
+// Function parameter list can have a trailing comma.
+parameterList
+    : restParameter
+    | parameter (',' parameter)* (',' restParameter)? ','?
+    ;
+
+parameter
+    : IDENTIFIER '?:' type
+    | IDENTIFIER '?'? ':' type
+    ;
+
+restParameter
+    : IDENTIFIER '...' typeAnnotation?
+    ;
+
+indexSignature
+    : '[' parameterList ']' typeAnnotation
+    ;
+
+methodSignature
+    : propertyName '?'? callSignature
     ;

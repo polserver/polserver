@@ -4,10 +4,25 @@
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
 #include "clib/logfacility.h"
 
 namespace Pol::Bscript::Compiler
 {
+FunctionParameterDeclaration::FunctionParameterDeclaration(
+    const SourceLocation& source_location, ScopableName name, bool byref, bool unused, bool rest,
+    std::unique_ptr<Expression> default_value, std::unique_ptr<TypeNode> type )
+    : Node( source_location ),
+      name( std::move( name ) ),
+      byref( byref ),
+      unused( unused ),
+      rest( rest )
+{
+  children.reserve( 2 );
+  children.push_back( std::move( default_value ) );
+  children.push_back( std::move( type ) );
+}
+
 FunctionParameterDeclaration::FunctionParameterDeclaration(
     const SourceLocation& source_location, ScopableName name, bool byref, bool unused, bool rest,
     std::unique_ptr<Expression> default_value )

@@ -1,4 +1,6 @@
 
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 
 
 // Generated from EscriptParser.g4 by ANTLR 4.13.1
@@ -372,6 +374,122 @@ public:
   }
 
   virtual std::any visitBoolLiteral(EscriptParser::BoolLiteralContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeParameters(EscriptParser::TypeParametersContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeParameterList(EscriptParser::TypeParameterListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeParameter(EscriptParser::TypeParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitConstraint(EscriptParser::ConstraintContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArgumentList(EscriptParser::TypeArgumentListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeArgument(EscriptParser::TypeArgumentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitType(EscriptParser::TypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBinaryOrPrimaryType(EscriptParser::BinaryOrPrimaryTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPrimaryType(EscriptParser::PrimaryTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPredefinedType(EscriptParser::PredefinedTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeReference(EscriptParser::TypeReferenceContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeGeneric(EscriptParser::TypeGenericContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitObjectType(EscriptParser::ObjectTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeBody(EscriptParser::TypeBodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeMemberList(EscriptParser::TypeMemberListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeMember(EscriptParser::TypeMemberContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTupleElementTypes(EscriptParser::TupleElementTypesContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFunctionType(EscriptParser::FunctionTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIdentifierName(EscriptParser::IdentifierNameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitReservedWord(EscriptParser::ReservedWordContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPropertySignature(EscriptParser::PropertySignatureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPropertyName(EscriptParser::PropertyNameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeAnnotation(EscriptParser::TypeAnnotationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitCallSignature(EscriptParser::CallSignatureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitParameterList(EscriptParser::ParameterListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitParameter(EscriptParser::ParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitRestParameter(EscriptParser::RestParameterContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIndexSignature(EscriptParser::IndexSignatureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMethodSignature(EscriptParser::MethodSignatureContext *ctx) override {
     return visitChildren(ctx);
   }
 

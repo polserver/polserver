@@ -1,4 +1,6 @@
 
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 
 
 // Generated from EscriptParser.g4 by ANTLR 4.13.1
@@ -199,6 +201,64 @@ public:
     virtual std::any visitFloatLiteral(EscriptParser::FloatLiteralContext *context) = 0;
 
     virtual std::any visitBoolLiteral(EscriptParser::BoolLiteralContext *context) = 0;
+
+    virtual std::any visitTypeParameters(EscriptParser::TypeParametersContext *context) = 0;
+
+    virtual std::any visitTypeParameterList(EscriptParser::TypeParameterListContext *context) = 0;
+
+    virtual std::any visitTypeParameter(EscriptParser::TypeParameterContext *context) = 0;
+
+    virtual std::any visitConstraint(EscriptParser::ConstraintContext *context) = 0;
+
+    virtual std::any visitTypeArgumentList(EscriptParser::TypeArgumentListContext *context) = 0;
+
+    virtual std::any visitTypeArgument(EscriptParser::TypeArgumentContext *context) = 0;
+
+    virtual std::any visitType(EscriptParser::TypeContext *context) = 0;
+
+    virtual std::any visitBinaryOrPrimaryType(EscriptParser::BinaryOrPrimaryTypeContext *context) = 0;
+
+    virtual std::any visitPrimaryType(EscriptParser::PrimaryTypeContext *context) = 0;
+
+    virtual std::any visitPredefinedType(EscriptParser::PredefinedTypeContext *context) = 0;
+
+    virtual std::any visitTypeReference(EscriptParser::TypeReferenceContext *context) = 0;
+
+    virtual std::any visitTypeGeneric(EscriptParser::TypeGenericContext *context) = 0;
+
+    virtual std::any visitObjectType(EscriptParser::ObjectTypeContext *context) = 0;
+
+    virtual std::any visitTypeBody(EscriptParser::TypeBodyContext *context) = 0;
+
+    virtual std::any visitTypeMemberList(EscriptParser::TypeMemberListContext *context) = 0;
+
+    virtual std::any visitTypeMember(EscriptParser::TypeMemberContext *context) = 0;
+
+    virtual std::any visitTupleElementTypes(EscriptParser::TupleElementTypesContext *context) = 0;
+
+    virtual std::any visitFunctionType(EscriptParser::FunctionTypeContext *context) = 0;
+
+    virtual std::any visitIdentifierName(EscriptParser::IdentifierNameContext *context) = 0;
+
+    virtual std::any visitReservedWord(EscriptParser::ReservedWordContext *context) = 0;
+
+    virtual std::any visitPropertySignature(EscriptParser::PropertySignatureContext *context) = 0;
+
+    virtual std::any visitPropertyName(EscriptParser::PropertyNameContext *context) = 0;
+
+    virtual std::any visitTypeAnnotation(EscriptParser::TypeAnnotationContext *context) = 0;
+
+    virtual std::any visitCallSignature(EscriptParser::CallSignatureContext *context) = 0;
+
+    virtual std::any visitParameterList(EscriptParser::ParameterListContext *context) = 0;
+
+    virtual std::any visitParameter(EscriptParser::ParameterContext *context) = 0;
+
+    virtual std::any visitRestParameter(EscriptParser::RestParameterContext *context) = 0;
+
+    virtual std::any visitIndexSignature(EscriptParser::IndexSignatureContext *context) = 0;
+
+    virtual std::any visitMethodSignature(EscriptParser::MethodSignatureContext *context) = 0;
 
 
 };

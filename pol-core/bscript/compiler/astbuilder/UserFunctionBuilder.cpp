@@ -14,8 +14,10 @@
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
 #include "bscript/compiler/model/ClassLink.h"
@@ -238,16 +240,37 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
         }
 
         std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
+        std::unique_ptr<TypeNode> type;
         bool byref = param->BYREF() != nullptr || is_this_arg;
         bool unused = param->UNUSED() != nullptr;
         bool rest = param->ELLIPSIS() != nullptr;
 
+        if ( auto typeAnnotation = param->typeAnnotation() )
+        {
+          type = type_node( typeAnnotation );
+        }
+
         if ( auto expr_ctx = param->expression() )
         {
           auto default_value = expression( expr_ctx );
+          if ( type )
+          {
+            parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+                location_for( *param ), std::move( parameter_name ), byref, unused, rest,
+                std::move( default_value ), std::move( type ) );
+          }
+          else
+          {
+            parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+                location_for( *param ), std::move( parameter_name ), byref, unused, rest,
+                std::move( default_value ) );
+          }
+        }
+        else if ( type )
+        {
           parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
               location_for( *param ), std::move( parameter_name ), byref, unused, rest,
-              std::move( default_value ) );
+              std::make_unique<UninitializedValue>( location_for( *param ) ), std::move( type ) );
         }
         else
         {

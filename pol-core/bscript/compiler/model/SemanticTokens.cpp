@@ -103,7 +103,6 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
   case EscriptGrammar::EscriptLexer::LT:
   case EscriptGrammar::EscriptLexer::GE:
   case EscriptGrammar::EscriptLexer::GT:
-  case EscriptGrammar::EscriptLexer::RSHIFT:
   case EscriptGrammar::EscriptLexer::LSHIFT:
   case EscriptGrammar::EscriptLexer::BITAND:
   case EscriptGrammar::EscriptLexer::CARET:
