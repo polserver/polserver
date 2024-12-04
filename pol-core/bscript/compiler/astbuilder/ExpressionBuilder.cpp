@@ -101,16 +101,18 @@ std::unique_ptr<Expression> ExpressionBuilder::format_expression(
 std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
     EscriptGrammar::EscriptParser::TypeAnnotationContext* ctx )
 {
-  if ( auto type = ctx->type() )
-  {
-    return type_node( type );
-  }
-  return std::make_unique<AnyKeyword>( location_for( *ctx ) );
+  if ( !ctx )
+    return nullptr;
+
+  return type_node( ctx->type() );
 }
 
 std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
     EscriptGrammar::EscriptParser::BinaryOrPrimaryTypeContext* ctx )
 {
+  if ( !ctx )
+    return nullptr;
+
   if ( auto primary_type_ctx = ctx->primaryType() )
   {
     return type_node( primary_type_ctx );
@@ -137,6 +139,9 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
 std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
     EscriptGrammar::EscriptParser::TypeContext* ctx )
 {
+  if ( !ctx )
+    return nullptr;
+
   if ( auto inner_type = ctx->binaryOrPrimaryType() )
   {
     return type_node( inner_type );
@@ -162,6 +167,8 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
 std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
     EscriptGrammar::EscriptParser::PrimaryTypeContext* ctx )
 {
+  if ( !ctx )
+    return nullptr;
   if ( auto type = ctx->type() )
   {
     return type_node( type );

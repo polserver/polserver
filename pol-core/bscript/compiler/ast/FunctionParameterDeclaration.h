@@ -22,6 +22,9 @@ public:
                                 std::unique_ptr<Expression> default_value );
   FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
                                 bool byref, bool unused, bool rest );
+  FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
+                                bool byref, bool unused, bool rest,
+                                std::unique_ptr<TypeNode> type );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;

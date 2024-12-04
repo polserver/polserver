@@ -23,16 +23,8 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
 {
   std::string name = text( ctx->IDENTIFIER() );
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
-  std::unique_ptr<TypeNode> type_annotation;
   auto type_params = type_parameter_list( location_for( *ctx ), ctx->typeParameters() );
-
-  if ( auto type_argument_ctx = ctx->typeArgument() )
-  {
-    if ( auto type_ctx = type_argument_ctx->type() )
-    {
-      type_annotation = type_node( type_ctx );
-    }
-  }
+  auto type_annotation = type_node( ctx->type() );
 
   if ( auto param_list = ctx->moduleFunctionParameterList() )
   {
@@ -40,6 +32,7 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
     {
       ScopableName parameter_name( ScopeName::None, text( param->IDENTIFIER() ) );
       std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
+      auto param_type_annotation = type_node( param->typeAnnotation() );
       bool byref = false;
       bool unused = false;
       bool rest = false;
@@ -47,14 +40,32 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
       if ( auto expr_ctx = param->expression() )
       {
         auto default_value = expression( expr_ctx );
-        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-            location_for( *param ), std::move( parameter_name ), byref, unused, rest,
-            std::move( default_value ) );
+        if ( param_type_annotation )
+        {
+          parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+              location_for( *param ), std::move( parameter_name ), byref, unused, rest,
+              std::move( default_value ), std::move( param_type_annotation ) );
+        }
+        else
+        {
+          parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+              location_for( *param ), std::move( parameter_name ), byref, unused, rest,
+              std::move( default_value ) );
+        }
       }
       else
       {
-        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-            location_for( *param ), std::move( parameter_name ), byref, unused, rest );
+        if ( param_type_annotation )
+        {
+          parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+              location_for( *param ), std::move( parameter_name ), byref, unused, rest,
+              std::move( param_type_annotation ) );
+        }
+        else
+        {
+          parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+              location_for( *param ), std::move( parameter_name ), byref, unused, rest );
+        }
       }
       parameters.push_back( std::move( parameter_declaration ) );
     }

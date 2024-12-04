@@ -128,8 +128,6 @@ public:
   std::unique_ptr<TypeParameterList> type_parameter_list(
       const SourceLocation& source_location_if_empty,
       EscriptGrammar::EscriptParser::TypeParametersContext* );
-  //   std::vector<std::unique_ptr<TypeNode>> type_arguments(
-  //       EscriptGrammar::EscriptParser::ParameterListContext* );
 };
 
 }  // namespace Pol::Bscript::Compiler

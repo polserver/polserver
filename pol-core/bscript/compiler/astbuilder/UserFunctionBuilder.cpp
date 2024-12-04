@@ -215,16 +215,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
     const std::string& name, ParserContext* ctx, bool exported, const std::string& class_name,
     antlr4::tree::TerminalNode* end_token )
 {
-  std::unique_ptr<TypeNode> type_annotation;
   auto type_params = type_parameter_list( location_for( *ctx ), ctx->typeParameters() );
-
-  if ( auto type_argument_ctx = ctx->typeArgument() )
-  {
-    if ( auto type_ctx = type_argument_ctx->type() )
-    {
-      type_annotation = type_node( type_ctx );
-    }
-  }
+  auto type_annotation = type_node( ctx->type() );
 
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
   bool class_method = false;

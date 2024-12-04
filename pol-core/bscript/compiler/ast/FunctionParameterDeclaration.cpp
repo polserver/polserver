@@ -45,6 +45,18 @@ FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation
 {
 }
 
+FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation& source_location,
+                                                            ScopableName name, bool byref,
+                                                            bool unused, bool rest,
+                                                            std::unique_ptr<TypeNode> type )
+    : Node( source_location, std::move( type ) ),
+      name( std::move( name ) ),
+      byref( byref ),
+      unused( unused ),
+      rest( rest )
+{
+}
+
 void FunctionParameterDeclaration::accept( NodeVisitor& visitor )
 {
   visitor.visit_function_parameter_declaration( *this );
@@ -64,7 +76,16 @@ void FunctionParameterDeclaration::describe_to( std::string& w ) const
 
 Expression* FunctionParameterDeclaration::default_value()
 {
-  return children.empty() ? nullptr : &child<Expression>( 0 );
+  if ( children.size() == 2 )
+  {
+    return &child<Expression>( 0 );
+  }
+  else if ( children.size() == 1 )
+  {
+    return dynamic_cast<Expression*>( children[0].get() );
+  }
+
+  return nullptr;
 }
 
 }  // namespace Pol::Bscript::Compiler
