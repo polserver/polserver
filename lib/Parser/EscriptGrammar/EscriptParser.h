@@ -309,7 +309,7 @@ public:
     TypeParametersContext *typeParameters();
     ModuleFunctionParameterListContext *moduleFunctionParameterList();
     antlr4::tree::TerminalNode *ARROW();
-    TypeArgumentContext *typeArgument();
+    TypeContext *type();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -474,7 +474,7 @@ public:
     antlr4::tree::TerminalNode *EXPORTED();
     TypeParametersContext *typeParameters();
     antlr4::tree::TerminalNode *ARROW();
-    TypeArgumentContext *typeArgument();
+    TypeContext *type();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -546,7 +546,7 @@ public:
     antlr4::tree::TerminalNode *ENDPROGRAM();
     TypeParametersContext *typeParameters();
     antlr4::tree::TerminalNode *ARROW();
-    TypeArgumentContext *typeArgument();
+    TypeContext *type();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1408,7 +1408,7 @@ public:
     TypeParametersContext *typeParameters();
     FunctionParametersContext *functionParameters();
     antlr4::tree::TerminalNode *ARROW();
-    TypeArgumentContext *typeArgument();
+    TypeContext *type();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

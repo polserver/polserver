@@ -281,7 +281,7 @@ void escriptparserParserInitialize() {
   	259,261,5,128,0,0,260,262,3,178,89,0,261,260,1,0,0,0,261,262,1,0,0,0,
   	262,263,1,0,0,0,263,265,5,81,0,0,264,266,3,10,5,0,265,264,1,0,0,0,265,
   	266,1,0,0,0,266,267,1,0,0,0,267,270,5,82,0,0,268,269,5,88,0,0,269,271,
-  	3,188,94,0,270,268,1,0,0,0,270,271,1,0,0,0,271,272,1,0,0,0,272,273,5,
+  	3,190,95,0,270,268,1,0,0,0,270,271,1,0,0,0,271,272,1,0,0,0,272,273,5,
   	115,0,0,273,9,1,0,0,0,274,279,3,12,6,0,275,276,5,116,0,0,276,278,3,12,
   	6,0,277,275,1,0,0,0,278,281,1,0,0,0,279,277,1,0,0,0,279,280,1,0,0,0,280,
   	11,1,0,0,0,281,279,1,0,0,0,282,284,5,128,0,0,283,285,3,222,111,0,284,
@@ -301,13 +301,13 @@ void escriptparserParserInitialize() {
   	330,5,17,0,0,329,328,1,0,0,0,329,330,1,0,0,0,330,331,1,0,0,0,331,332,
   	5,15,0,0,332,334,5,128,0,0,333,335,3,178,89,0,334,333,1,0,0,0,334,335,
   	1,0,0,0,335,336,1,0,0,0,336,339,3,104,52,0,337,338,5,88,0,0,338,340,3,
-  	188,94,0,339,337,1,0,0,0,339,340,1,0,0,0,340,341,1,0,0,0,341,342,3,72,
+  	190,95,0,339,337,1,0,0,0,339,340,1,0,0,0,340,341,1,0,0,0,341,342,3,72,
   	36,0,342,343,5,16,0,0,343,27,1,0,0,0,344,345,7,0,0,0,345,29,1,0,0,0,346,
   	347,5,18,0,0,347,348,3,28,14,0,348,349,5,115,0,0,349,31,1,0,0,0,350,351,
   	5,19,0,0,351,352,3,28,14,0,352,353,5,115,0,0,353,33,1,0,0,0,354,355,5,
   	29,0,0,355,357,5,128,0,0,356,358,3,178,89,0,357,356,1,0,0,0,357,358,1,
-  	0,0,0,358,359,1,0,0,0,359,362,3,98,49,0,360,361,5,88,0,0,361,363,3,188,
-  	94,0,362,360,1,0,0,0,362,363,1,0,0,0,363,364,1,0,0,0,364,365,3,72,36,
+  	0,0,0,358,359,1,0,0,0,359,362,3,98,49,0,360,361,5,88,0,0,361,363,3,190,
+  	95,0,362,360,1,0,0,0,362,363,1,0,0,0,363,364,1,0,0,0,364,365,3,72,36,
   	0,365,366,5,30,0,0,366,35,1,0,0,0,367,387,3,40,20,0,368,387,3,42,21,0,
   	369,387,3,44,22,0,370,387,3,46,23,0,371,387,3,48,24,0,372,387,3,50,25,
   	0,373,387,3,52,26,0,374,387,3,54,27,0,375,387,3,56,28,0,376,387,3,58,
@@ -436,7 +436,7 @@ void escriptparserParserInitialize() {
   	0,779,780,5,119,0,0,780,781,5,128,0,0,781,119,1,0,0,0,782,784,5,118,0,
   	0,783,785,3,178,89,0,784,783,1,0,0,0,784,785,1,0,0,0,785,787,1,0,0,0,
   	786,788,3,104,52,0,787,786,1,0,0,0,787,788,1,0,0,0,788,791,1,0,0,0,789,
-  	790,5,88,0,0,790,792,3,188,94,0,791,789,1,0,0,0,791,792,1,0,0,0,792,793,
+  	790,5,88,0,0,790,792,3,190,95,0,791,789,1,0,0,0,791,792,1,0,0,0,792,793,
   	1,0,0,0,793,794,5,85,0,0,794,795,3,72,36,0,795,796,5,86,0,0,796,121,1,
   	0,0,0,797,799,5,66,0,0,798,800,3,164,82,0,799,798,1,0,0,0,799,800,1,0,
   	0,0,800,123,1,0,0,0,801,803,5,65,0,0,802,804,3,156,78,0,803,802,1,0,0,
@@ -971,8 +971,8 @@ tree::TerminalNode* EscriptParser::ModuleFunctionDeclarationContext::ARROW() {
   return getToken(EscriptParser::ARROW, 0);
 }
 
-EscriptParser::TypeArgumentContext* EscriptParser::ModuleFunctionDeclarationContext::typeArgument() {
-  return getRuleContext<EscriptParser::TypeArgumentContext>(0);
+EscriptParser::TypeContext* EscriptParser::ModuleFunctionDeclarationContext::type() {
+  return getRuleContext<EscriptParser::TypeContext>(0);
 }
 
 
@@ -1044,7 +1044,7 @@ EscriptParser::ModuleFunctionDeclarationContext* EscriptParser::moduleFunctionDe
       setState(268);
       match(EscriptParser::ARROW);
       setState(269);
-      typeArgument();
+      type();
     }
     setState(272);
     match(EscriptParser::SEMI);
@@ -1853,8 +1853,8 @@ tree::TerminalNode* EscriptParser::FunctionDeclarationContext::ARROW() {
   return getToken(EscriptParser::ARROW, 0);
 }
 
-EscriptParser::TypeArgumentContext* EscriptParser::FunctionDeclarationContext::typeArgument() {
-  return getRuleContext<EscriptParser::TypeArgumentContext>(0);
+EscriptParser::TypeContext* EscriptParser::FunctionDeclarationContext::type() {
+  return getRuleContext<EscriptParser::TypeContext>(0);
 }
 
 
@@ -1926,7 +1926,7 @@ EscriptParser::FunctionDeclarationContext* EscriptParser::functionDeclaration() 
       setState(337);
       match(EscriptParser::ARROW);
       setState(338);
-      typeArgument();
+      type();
     }
     setState(341);
     block();
@@ -2198,8 +2198,8 @@ tree::TerminalNode* EscriptParser::ProgramDeclarationContext::ARROW() {
   return getToken(EscriptParser::ARROW, 0);
 }
 
-EscriptParser::TypeArgumentContext* EscriptParser::ProgramDeclarationContext::typeArgument() {
-  return getRuleContext<EscriptParser::TypeArgumentContext>(0);
+EscriptParser::TypeContext* EscriptParser::ProgramDeclarationContext::type() {
+  return getRuleContext<EscriptParser::TypeContext>(0);
 }
 
 
@@ -2263,7 +2263,7 @@ EscriptParser::ProgramDeclarationContext* EscriptParser::programDeclaration() {
       setState(360);
       match(EscriptParser::ARROW);
       setState(361);
-      typeArgument();
+      type();
     }
     setState(364);
     block();
@@ -7040,8 +7040,8 @@ tree::TerminalNode* EscriptParser::FunctionExpressionContext::ARROW() {
   return getToken(EscriptParser::ARROW, 0);
 }
 
-EscriptParser::TypeArgumentContext* EscriptParser::FunctionExpressionContext::typeArgument() {
-  return getRuleContext<EscriptParser::TypeArgumentContext>(0);
+EscriptParser::TypeContext* EscriptParser::FunctionExpressionContext::type() {
+  return getRuleContext<EscriptParser::TypeContext>(0);
 }
 
 
@@ -7109,7 +7109,7 @@ EscriptParser::FunctionExpressionContext* EscriptParser::functionExpression() {
       setState(789);
       match(EscriptParser::ARROW);
       setState(790);
-      typeArgument();
+      type();
     }
     setState(793);
     match(EscriptParser::LBRACE);

@@ -37,7 +37,7 @@ moduleDeclarationStatement
     ;
 
 moduleFunctionDeclaration
-    : IDENTIFIER typeParameters? '(' moduleFunctionParameterList? ')' (ARROW typeArgument)? ';'
+    : IDENTIFIER typeParameters? '(' moduleFunctionParameterList? ')' (ARROW type)? ';'
     ;
 
 moduleFunctionParameterList
@@ -79,7 +79,7 @@ classStatement
     ;
 
 functionDeclaration
-    : EXPORTED? FUNCTION IDENTIFIER typeParameters? functionParameters (ARROW typeArgument)? block ENDFUNCTION
+    : EXPORTED? FUNCTION IDENTIFIER typeParameters? functionParameters (ARROW type)? block ENDFUNCTION
     ;
 
 stringIdentifier
@@ -96,7 +96,7 @@ includeDeclaration
     ;
 
 programDeclaration
-    : PROGRAM IDENTIFIER typeParameters? programParameters (ARROW typeArgument)? block ENDPROGRAM
+    : PROGRAM IDENTIFIER typeParameters? programParameters (ARROW type)? block ENDPROGRAM
     ;
 
 // Some ignored / to-be-handled things:
@@ -337,7 +337,7 @@ scopedIdentifier
     : scope=IDENTIFIER? '::' identifier=IDENTIFIER;
 
 functionExpression
-    : AT typeParameters? functionParameters? (ARROW typeArgument)? LBRACE block RBRACE
+    : AT typeParameters? functionParameters? (ARROW type)? LBRACE block RBRACE
     ;
 
 explicitArrayInitializer
