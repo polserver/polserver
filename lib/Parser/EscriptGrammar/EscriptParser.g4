@@ -393,15 +393,15 @@ navigationSuffix
     ;
 
 methodCallSuffix
-    : '.' IDENTIFIER LPAREN expressionList? RPAREN
+    : '.' IDENTIFIER typeGeneric? LPAREN expressionList? RPAREN
     ;
 
 functionCallSuffix
-    : '(' expressionList? ')'
+    : typeGeneric? '(' expressionList? ')'
     ;
 
 functionCall
-    : IDENTIFIER '(' expressionList? ')'
+    : IDENTIFIER typeGeneric? '(' expressionList? ')'
     ;
 
 structInitializerExpression

@@ -450,6 +450,18 @@ std::unique_ptr<TypeArgumentList> ExpressionBuilder::type_argument_list(
   return std::make_unique<TypeArgumentList>( location_for( *ctx ), std::move( type_arguments ) );
 }
 
+std::unique_ptr<TypeArgumentList> ExpressionBuilder::type_argument_list(
+    const SourceLocation& source_location_if_empty,
+    EscriptGrammar::EscriptParser::TypeGenericContext* ctx )
+{
+  if ( !ctx )
+  {
+    return std::make_unique<TypeArgumentList>( source_location_if_empty );
+  }
+
+  return type_argument_list( location_for( *ctx ), ctx->typeArgumentList() );
+}
+
 std::unique_ptr<TypeParameterList> ExpressionBuilder::type_parameter_list(
     const SourceLocation& source_location_if_empty,
     EscriptGrammar::EscriptParser::TypeParametersContext* ctx )

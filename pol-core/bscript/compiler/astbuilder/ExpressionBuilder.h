@@ -125,6 +125,9 @@ public:
   std::unique_ptr<TypeArgumentList> type_argument_list(
       const SourceLocation& source_location_if_empty,
       EscriptGrammar::EscriptParser::TypeArgumentListContext* );
+  std::unique_ptr<TypeArgumentList> type_argument_list(
+      const SourceLocation& source_location_if_empty,
+      EscriptGrammar::EscriptParser::TypeGenericContext* );
   std::unique_ptr<TypeParameterList> type_parameter_list(
       const SourceLocation& source_location_if_empty,
       EscriptGrammar::EscriptParser::TypeParametersContext* );
