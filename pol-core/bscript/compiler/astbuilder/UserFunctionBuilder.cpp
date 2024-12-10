@@ -14,8 +14,11 @@
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/astbuilder/FunctionResolver.h"
 #include "bscript/compiler/model/ClassLink.h"
@@ -212,6 +215,9 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
     const std::string& name, ParserContext* ctx, bool exported, const std::string& class_name,
     antlr4::tree::TerminalNode* end_token )
 {
+  auto type_params = type_parameter_list( location_for( *ctx ), ctx->typeParameters() );
+  auto type_annotation = type_node( ctx->returnType() );
+
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
   bool class_method = false;
   if ( auto function_parameters = ctx->functionParameters() )
@@ -238,16 +244,37 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
         }
 
         std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
+        std::unique_ptr<TypeNode> type;
         bool byref = param->BYREF() != nullptr || is_this_arg;
         bool unused = param->UNUSED() != nullptr;
         bool rest = param->ELLIPSIS() != nullptr;
 
+        if ( auto typeAnnotation = param->typeAnnotation() )
+        {
+          type = type_node( typeAnnotation );
+        }
+
         if ( auto expr_ctx = param->expression() )
         {
           auto default_value = expression( expr_ctx );
+          if ( type )
+          {
+            parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+                location_for( *param ), std::move( parameter_name ), byref, unused, rest,
+                std::move( default_value ), std::move( type ) );
+          }
+          else
+          {
+            parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+                location_for( *param ), std::move( parameter_name ), byref, unused, rest,
+                std::move( default_value ) );
+          }
+        }
+        else if ( type )
+        {
           parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
               location_for( *param ), std::move( parameter_name ), byref, unused, rest,
-              std::move( default_value ) );
+              std::make_unique<UninitializedValue>( location_for( *param ) ), std::move( type ) );
         }
         else
         {
@@ -294,7 +321,8 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
 
   return std::make_unique<UserFunction>(
       location_for( *ctx ), exported, expression, type, class_name, std::move( name ),
-      std::move( parameter_list ), std::move( body ),
-      end_token ? location_for( *end_token ) : location_for( *ctx ), std::move( class_link ) );
+      std::move( type_params ), std::move( parameter_list ), std::move( body ),
+      std::move( type_annotation ), end_token ? location_for( *end_token ) : location_for( *ctx ),
+      std::move( class_link ) );
 }
 }  // namespace Pol::Bscript::Compiler

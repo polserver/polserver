@@ -1,4 +1,6 @@
 
+#include <cctype>    // std::tolower
+#include <algorithm> // std::equal
 
 
 // Generated from EscriptParser.g4 by ANTLR 4.13.1
@@ -284,6 +286,96 @@ public:
 
   virtual void enterBoolLiteral(EscriptParser::BoolLiteralContext *ctx) = 0;
   virtual void exitBoolLiteral(EscriptParser::BoolLiteralContext *ctx) = 0;
+
+  virtual void enterTypeParameters(EscriptParser::TypeParametersContext *ctx) = 0;
+  virtual void exitTypeParameters(EscriptParser::TypeParametersContext *ctx) = 0;
+
+  virtual void enterTypeParameterList(EscriptParser::TypeParameterListContext *ctx) = 0;
+  virtual void exitTypeParameterList(EscriptParser::TypeParameterListContext *ctx) = 0;
+
+  virtual void enterTypeParameter(EscriptParser::TypeParameterContext *ctx) = 0;
+  virtual void exitTypeParameter(EscriptParser::TypeParameterContext *ctx) = 0;
+
+  virtual void enterConstraint(EscriptParser::ConstraintContext *ctx) = 0;
+  virtual void exitConstraint(EscriptParser::ConstraintContext *ctx) = 0;
+
+  virtual void enterTypeArgumentList(EscriptParser::TypeArgumentListContext *ctx) = 0;
+  virtual void exitTypeArgumentList(EscriptParser::TypeArgumentListContext *ctx) = 0;
+
+  virtual void enterTypeArgument(EscriptParser::TypeArgumentContext *ctx) = 0;
+  virtual void exitTypeArgument(EscriptParser::TypeArgumentContext *ctx) = 0;
+
+  virtual void enterType(EscriptParser::TypeContext *ctx) = 0;
+  virtual void exitType(EscriptParser::TypeContext *ctx) = 0;
+
+  virtual void enterBinaryOrPrimaryType(EscriptParser::BinaryOrPrimaryTypeContext *ctx) = 0;
+  virtual void exitBinaryOrPrimaryType(EscriptParser::BinaryOrPrimaryTypeContext *ctx) = 0;
+
+  virtual void enterPrimaryType(EscriptParser::PrimaryTypeContext *ctx) = 0;
+  virtual void exitPrimaryType(EscriptParser::PrimaryTypeContext *ctx) = 0;
+
+  virtual void enterPredefinedType(EscriptParser::PredefinedTypeContext *ctx) = 0;
+  virtual void exitPredefinedType(EscriptParser::PredefinedTypeContext *ctx) = 0;
+
+  virtual void enterTypeReference(EscriptParser::TypeReferenceContext *ctx) = 0;
+  virtual void exitTypeReference(EscriptParser::TypeReferenceContext *ctx) = 0;
+
+  virtual void enterTypeGeneric(EscriptParser::TypeGenericContext *ctx) = 0;
+  virtual void exitTypeGeneric(EscriptParser::TypeGenericContext *ctx) = 0;
+
+  virtual void enterObjectType(EscriptParser::ObjectTypeContext *ctx) = 0;
+  virtual void exitObjectType(EscriptParser::ObjectTypeContext *ctx) = 0;
+
+  virtual void enterTypeBody(EscriptParser::TypeBodyContext *ctx) = 0;
+  virtual void exitTypeBody(EscriptParser::TypeBodyContext *ctx) = 0;
+
+  virtual void enterTypeMemberList(EscriptParser::TypeMemberListContext *ctx) = 0;
+  virtual void exitTypeMemberList(EscriptParser::TypeMemberListContext *ctx) = 0;
+
+  virtual void enterTypeMember(EscriptParser::TypeMemberContext *ctx) = 0;
+  virtual void exitTypeMember(EscriptParser::TypeMemberContext *ctx) = 0;
+
+  virtual void enterTupleElementTypes(EscriptParser::TupleElementTypesContext *ctx) = 0;
+  virtual void exitTupleElementTypes(EscriptParser::TupleElementTypesContext *ctx) = 0;
+
+  virtual void enterFunctionType(EscriptParser::FunctionTypeContext *ctx) = 0;
+  virtual void exitFunctionType(EscriptParser::FunctionTypeContext *ctx) = 0;
+
+  virtual void enterIdentifierName(EscriptParser::IdentifierNameContext *ctx) = 0;
+  virtual void exitIdentifierName(EscriptParser::IdentifierNameContext *ctx) = 0;
+
+  virtual void enterReservedWord(EscriptParser::ReservedWordContext *ctx) = 0;
+  virtual void exitReservedWord(EscriptParser::ReservedWordContext *ctx) = 0;
+
+  virtual void enterPropertySignature(EscriptParser::PropertySignatureContext *ctx) = 0;
+  virtual void exitPropertySignature(EscriptParser::PropertySignatureContext *ctx) = 0;
+
+  virtual void enterPropertyName(EscriptParser::PropertyNameContext *ctx) = 0;
+  virtual void exitPropertyName(EscriptParser::PropertyNameContext *ctx) = 0;
+
+  virtual void enterReturnType(EscriptParser::ReturnTypeContext *ctx) = 0;
+  virtual void exitReturnType(EscriptParser::ReturnTypeContext *ctx) = 0;
+
+  virtual void enterTypeAnnotation(EscriptParser::TypeAnnotationContext *ctx) = 0;
+  virtual void exitTypeAnnotation(EscriptParser::TypeAnnotationContext *ctx) = 0;
+
+  virtual void enterCallSignature(EscriptParser::CallSignatureContext *ctx) = 0;
+  virtual void exitCallSignature(EscriptParser::CallSignatureContext *ctx) = 0;
+
+  virtual void enterParameterList(EscriptParser::ParameterListContext *ctx) = 0;
+  virtual void exitParameterList(EscriptParser::ParameterListContext *ctx) = 0;
+
+  virtual void enterParameter(EscriptParser::ParameterContext *ctx) = 0;
+  virtual void exitParameter(EscriptParser::ParameterContext *ctx) = 0;
+
+  virtual void enterRestParameter(EscriptParser::RestParameterContext *ctx) = 0;
+  virtual void exitRestParameter(EscriptParser::RestParameterContext *ctx) = 0;
+
+  virtual void enterIndexSignature(EscriptParser::IndexSignatureContext *ctx) = 0;
+  virtual void exitIndexSignature(EscriptParser::IndexSignatureContext *ctx) = 0;
+
+  virtual void enterMethodSignature(EscriptParser::MethodSignatureContext *ctx) = 0;
+  virtual void exitMethodSignature(EscriptParser::MethodSignatureContext *ctx) = 0;
 
 
 };

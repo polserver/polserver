@@ -1,1 +1,1 @@
-:1:10: error: mismatched input ';' expecting {'array', '=', ':='}
+:1:10: error: no viable alternative at input ';'

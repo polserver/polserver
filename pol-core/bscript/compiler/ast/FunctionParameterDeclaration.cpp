@@ -4,10 +4,25 @@
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
 #include "clib/logfacility.h"
 
 namespace Pol::Bscript::Compiler
 {
+FunctionParameterDeclaration::FunctionParameterDeclaration(
+    const SourceLocation& source_location, ScopableName name, bool byref, bool unused, bool rest,
+    std::unique_ptr<Expression> default_value, std::unique_ptr<TypeNode> type )
+    : Node( source_location ),
+      name( std::move( name ) ),
+      byref( byref ),
+      unused( unused ),
+      rest( rest )
+{
+  children.reserve( 2 );
+  children.push_back( std::move( default_value ) );
+  children.push_back( std::move( type ) );
+}
+
 FunctionParameterDeclaration::FunctionParameterDeclaration(
     const SourceLocation& source_location, ScopableName name, bool byref, bool unused, bool rest,
     std::unique_ptr<Expression> default_value )
@@ -23,6 +38,18 @@ FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation
                                                             ScopableName name, bool byref,
                                                             bool unused, bool rest )
     : Node( source_location ),
+      name( std::move( name ) ),
+      byref( byref ),
+      unused( unused ),
+      rest( rest )
+{
+}
+
+FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation& source_location,
+                                                            ScopableName name, bool byref,
+                                                            bool unused, bool rest,
+                                                            std::unique_ptr<TypeNode> type )
+    : Node( source_location, std::move( type ) ),
       name( std::move( name ) ),
       byref( byref ),
       unused( unused ),
@@ -49,7 +76,16 @@ void FunctionParameterDeclaration::describe_to( std::string& w ) const
 
 Expression* FunctionParameterDeclaration::default_value()
 {
-  return children.empty() ? nullptr : &child<Expression>( 0 );
+  if ( children.size() == 2 )
+  {
+    return &child<Expression>( 0 );
+  }
+  else if ( children.size() == 1 )
+  {
+    return dynamic_cast<Expression*>( children[0].get() );
+  }
+
+  return nullptr;
 }
 
 }  // namespace Pol::Bscript::Compiler

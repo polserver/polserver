@@ -3,25 +3,53 @@
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/types/TypeNode.h"
+#include "bscript/compiler/ast/types/TypeParameterList.h"
 
 namespace Pol::Bscript::Compiler
 {
 Function::Function( const SourceLocation& source_location, std::string scope, std::string name,
+                    std::unique_ptr<TypeParameterList> type_parameters,
                     std::unique_ptr<FunctionParameterList> parameter_list,
-                    std::unique_ptr<FunctionBody> body )
+                    std::unique_ptr<FunctionBody> body, std::unique_ptr<TypeNode> type_annotation )
     : Node( source_location ), scope( std::move( scope ) ), name( std::move( name ) )
 {
-  children.reserve( 2 );
-  children.push_back( std::move( parameter_list ) );
-  children.push_back( std::move( body ) );
+  if ( type_annotation )
+  {
+    children.reserve( 4 );
+    children.push_back( std::move( parameter_list ) );
+    children.push_back( std::move( body ) );
+    children.push_back( std::move( type_parameters ) );
+    children.push_back( std::move( type_annotation ) );
+  }
+  else
+  {
+    children.reserve( 3 );
+    children.push_back( std::move( parameter_list ) );
+    children.push_back( std::move( body ) );
+    children.push_back( std::move( type_parameters ) );
+  }
 }
 
 Function::Function( const SourceLocation& source_location, std::string scope, std::string name,
-                    std::unique_ptr<FunctionParameterList> parameter_list )
-    : Node( source_location, std::move( parameter_list ) ),
-      scope( std::move( scope ) ),
-      name( std::move( name ) )
+                    std::unique_ptr<TypeParameterList> type_parameters,
+                    std::unique_ptr<FunctionParameterList> parameter_list,
+                    std::unique_ptr<TypeNode> type_annotation )
+    : Node( source_location ), scope( std::move( scope ) ), name( std::move( name ) )
 {
+  if ( type_annotation )
+  {
+    children.reserve( 3 );
+    children.push_back( std::move( parameter_list ) );
+    children.push_back( std::move( type_parameters ) );
+    children.push_back( std::move( type_annotation ) );
+  }
+  else
+  {
+    children.reserve( 2 );
+    children.push_back( std::move( parameter_list ) );
+    children.push_back( std::move( type_parameters ) );
+  }
 }
 
 unsigned Function::parameter_count() const
