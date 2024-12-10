@@ -24,7 +24,7 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
   std::string name = text( ctx->IDENTIFIER() );
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
   auto type_params = type_parameter_list( location_for( *ctx ), ctx->typeParameters() );
-  auto type_annotation = type_node( ctx->type() );
+  auto type_annotation = type_node( ctx->returnType() );
 
   if ( auto param_list = ctx->moduleFunctionParameterList() )
   {

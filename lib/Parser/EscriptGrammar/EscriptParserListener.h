@@ -353,6 +353,9 @@ public:
   virtual void enterPropertyName(EscriptParser::PropertyNameContext *ctx) = 0;
   virtual void exitPropertyName(EscriptParser::PropertyNameContext *ctx) = 0;
 
+  virtual void enterReturnType(EscriptParser::ReturnTypeContext *ctx) = 0;
+  virtual void exitReturnType(EscriptParser::ReturnTypeContext *ctx) = 0;
+
   virtual void enterTypeAnnotation(EscriptParser::TypeAnnotationContext *ctx) = 0;
   virtual void exitTypeAnnotation(EscriptParser::TypeAnnotationContext *ctx) = 0;
 

@@ -465,6 +465,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitReturnType(EscriptParser::ReturnTypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitTypeAnnotation(EscriptParser::TypeAnnotationContext *ctx) override {
     return visitChildren(ctx);
   }

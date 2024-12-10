@@ -82,9 +82,9 @@ public:
     RuleTypeGeneric = 100, RuleObjectType = 101, RuleTypeBody = 102, RuleTypeMemberList = 103, 
     RuleTypeMember = 104, RuleTupleElementTypes = 105, RuleFunctionType = 106, 
     RuleIdentifierName = 107, RuleReservedWord = 108, RulePropertySignature = 109, 
-    RulePropertyName = 110, RuleTypeAnnotation = 111, RuleCallSignature = 112, 
-    RuleParameterList = 113, RuleParameter = 114, RuleRestParameter = 115, 
-    RuleIndexSignature = 116, RuleMethodSignature = 117
+    RulePropertyName = 110, RuleReturnType = 111, RuleTypeAnnotation = 112, 
+    RuleCallSignature = 113, RuleParameterList = 114, RuleParameter = 115, 
+    RuleRestParameter = 116, RuleIndexSignature = 117, RuleMethodSignature = 118
   };
 
   explicit EscriptParser(antlr4::TokenStream *input);
@@ -224,6 +224,7 @@ public:
   class ReservedWordContext;
   class PropertySignatureContext;
   class PropertyNameContext;
+  class ReturnTypeContext;
   class TypeAnnotationContext;
   class CallSignatureContext;
   class ParameterListContext;
@@ -308,8 +309,7 @@ public:
     antlr4::tree::TerminalNode *SEMI();
     TypeParametersContext *typeParameters();
     ModuleFunctionParameterListContext *moduleFunctionParameterList();
-    antlr4::tree::TerminalNode *ARROW();
-    TypeContext *type();
+    ReturnTypeContext *returnType();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -473,8 +473,7 @@ public:
     antlr4::tree::TerminalNode *ENDFUNCTION();
     antlr4::tree::TerminalNode *EXPORTED();
     TypeParametersContext *typeParameters();
-    antlr4::tree::TerminalNode *ARROW();
-    TypeContext *type();
+    ReturnTypeContext *returnType();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -545,8 +544,7 @@ public:
     BlockContext *block();
     antlr4::tree::TerminalNode *ENDPROGRAM();
     TypeParametersContext *typeParameters();
-    antlr4::tree::TerminalNode *ARROW();
-    TypeContext *type();
+    ReturnTypeContext *returnType();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1407,8 +1405,7 @@ public:
     antlr4::tree::TerminalNode *RBRACE();
     TypeParametersContext *typeParameters();
     FunctionParametersContext *functionParameters();
-    antlr4::tree::TerminalNode *ARROW();
-    TypeContext *type();
+    ReturnTypeContext *returnType();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -2194,8 +2191,7 @@ public:
     CallSignatureContext *callSignature();
     IndexSignatureContext *indexSignature();
     MethodSignatureContext *methodSignature();
-    antlr4::tree::TerminalNode *ARROW();
-    TypeContext *type();
+    ReturnTypeContext *returnType();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -2230,8 +2226,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *LPAREN();
     antlr4::tree::TerminalNode *RPAREN();
-    antlr4::tree::TerminalNode *ARROW();
-    TypeContext *type();
+    ReturnTypeContext *returnType();
     TypeParametersContext *typeParameters();
     ParameterListContext *parameterList();
 
@@ -2374,6 +2369,23 @@ public:
   };
 
   PropertyNameContext* propertyName();
+
+  class  ReturnTypeContext : public antlr4::ParserRuleContext {
+  public:
+    ReturnTypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LBRACK();
+    TypeContext *type();
+    antlr4::tree::TerminalNode *RBRACK();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ReturnTypeContext* returnType();
 
   class  TypeAnnotationContext : public antlr4::ParserRuleContext {
   public:

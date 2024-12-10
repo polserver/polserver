@@ -355,6 +355,9 @@ public:
   virtual void enterPropertyName(EscriptParser::PropertyNameContext * /*ctx*/) override { }
   virtual void exitPropertyName(EscriptParser::PropertyNameContext * /*ctx*/) override { }
 
+  virtual void enterReturnType(EscriptParser::ReturnTypeContext * /*ctx*/) override { }
+  virtual void exitReturnType(EscriptParser::ReturnTypeContext * /*ctx*/) override { }
+
   virtual void enterTypeAnnotation(EscriptParser::TypeAnnotationContext * /*ctx*/) override { }
   virtual void exitTypeAnnotation(EscriptParser::TypeAnnotationContext * /*ctx*/) override { }
 

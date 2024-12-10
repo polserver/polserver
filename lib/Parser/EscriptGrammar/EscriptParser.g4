@@ -37,7 +37,7 @@ moduleDeclarationStatement
     ;
 
 moduleFunctionDeclaration
-    : IDENTIFIER typeParameters? '(' moduleFunctionParameterList? ')' (ARROW type)? ';'
+    : IDENTIFIER typeParameters? '(' moduleFunctionParameterList? ')' returnType? ';'
     ;
 
 moduleFunctionParameterList
@@ -79,7 +79,7 @@ classStatement
     ;
 
 functionDeclaration
-    : EXPORTED? FUNCTION IDENTIFIER typeParameters? functionParameters (ARROW type)? block ENDFUNCTION
+    : EXPORTED? FUNCTION IDENTIFIER typeParameters? functionParameters returnType? block ENDFUNCTION
     ;
 
 stringIdentifier
@@ -96,7 +96,7 @@ includeDeclaration
     ;
 
 programDeclaration
-    : PROGRAM IDENTIFIER typeParameters? programParameters (ARROW type)? block ENDPROGRAM
+    : PROGRAM IDENTIFIER typeParameters? programParameters returnType? block ENDPROGRAM
     ;
 
 // Some ignored / to-be-handled things:
@@ -337,7 +337,7 @@ scopedIdentifier
     : scope=IDENTIFIER? '::' identifier=IDENTIFIER;
 
 functionExpression
-    : AT typeParameters? functionParameters? (ARROW type)? LBRACE block RBRACE
+    : AT typeParameters? functionParameters? returnType? LBRACE block RBRACE
     ;
 
 explicitArrayInitializer
@@ -555,7 +555,7 @@ typeMember
     : propertySignature
     | callSignature
     | indexSignature
-    | methodSignature (ARROW type)?
+    | methodSignature returnType?
     ;
 
 // Tuples can have a trailing comma.
@@ -564,7 +564,7 @@ tupleElementTypes
     ;
 
 functionType
-    : typeParameters? '(' parameterList? ')' ARROW type
+    : typeParameters? '(' parameterList? ')' returnType
     ;
 
 identifierName
@@ -650,6 +650,10 @@ propertySignature
 propertyName
     : IDENTIFIER
     | reservedWord
+    ;
+
+returnType
+    : '[' type ']'
     ;
 
 typeAnnotation

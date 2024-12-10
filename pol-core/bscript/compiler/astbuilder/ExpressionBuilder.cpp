@@ -99,6 +99,15 @@ std::unique_ptr<Expression> ExpressionBuilder::format_expression(
 }
 
 std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
+    EscriptGrammar::EscriptParser::ReturnTypeContext* ctx )
+{
+  if ( !ctx )
+    return nullptr;
+
+  return type_node( ctx->type() );
+}
+
+std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
     EscriptGrammar::EscriptParser::TypeAnnotationContext* ctx )
 {
   if ( !ctx )
@@ -148,15 +157,10 @@ std::unique_ptr<TypeNode> ExpressionBuilder::type_node(
   }
   else if ( auto function_type = ctx->functionType() )
   {
-    std::unique_ptr<TypeNode> type_annotation;
     auto params = parameter_list( location_for( *function_type ), function_type->parameterList() );
     auto type_params =
         type_parameter_list( location_for( *function_type ), function_type->typeParameters() );
-
-    if ( auto type_ctx = function_type->type() )
-    {
-      type_annotation = type_node( type_ctx );
-    }
+    auto type_annotation = type_node( function_type->returnType() );
 
     return std::make_unique<FunctionType>( location_for( *ctx ), std::move( type_params ),
                                            std::move( params ), std::move( type_annotation ) );

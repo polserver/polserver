@@ -115,10 +115,15 @@ public:
   std::unique_ptr<Expression> format_expression( std::unique_ptr<Expression>,
                                                  antlr4::tree::TerminalNode* );
 
+  // The `type_node` methods _may_ return a nullptr, so all users must properly check for this case.
+  // See: CallableTypeBinding and Function ctors.
+  std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::ReturnTypeContext* );
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::TypeAnnotationContext* );
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::BinaryOrPrimaryTypeContext* );
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::TypeContext* );
   std::unique_ptr<TypeNode> type_node( EscriptGrammar::EscriptParser::PrimaryTypeContext* );
+
+  // The `*_list` methods all take a `source_location_if_empty`, because they _must_ return a node.
   std::unique_ptr<ParameterList> parameter_list(
       const SourceLocation& source_location_if_empty,
       EscriptGrammar::EscriptParser::ParameterListContext* );

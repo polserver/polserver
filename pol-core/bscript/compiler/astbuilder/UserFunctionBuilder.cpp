@@ -216,7 +216,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
     antlr4::tree::TerminalNode* end_token )
 {
   auto type_params = type_parameter_list( location_for( *ctx ), ctx->typeParameters() );
-  auto type_annotation = type_node( ctx->type() );
+  auto type_annotation = type_node( ctx->returnType() );
 
   std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters;
   bool class_method = false;

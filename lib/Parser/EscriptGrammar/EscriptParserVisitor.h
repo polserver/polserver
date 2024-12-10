@@ -246,6 +246,8 @@ public:
 
     virtual std::any visitPropertyName(EscriptParser::PropertyNameContext *context) = 0;
 
+    virtual std::any visitReturnType(EscriptParser::ReturnTypeContext *context) = 0;
+
     virtual std::any visitTypeAnnotation(EscriptParser::TypeAnnotationContext *context) = 0;
 
     virtual std::any visitCallSignature(EscriptParser::CallSignatureContext *context) = 0;
