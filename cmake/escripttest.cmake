@@ -17,7 +17,7 @@ endif()
 # set(keepfailedformats TRUE)
 
 function (cleanup scriptname)
-  foreach (ext .ecl .tst .lst .unformatted.src .formatted.src)
+  foreach (ext .ecl .tst .lst .ast .unformatted.src .formatted.src)
     if(EXISTS "${scriptname}${ext}")
       if ("${ext}" STREQUAL ".formatted.src" AND DEFINED keepfailedformats)
         continue()
@@ -95,6 +95,18 @@ endfunction()
 
 # start of test
 function (testwithcompiler formatoption)
+  # Only add -Z for ast tests
+  if(${subtest} MATCHES "ast")
+    # Currently don't have formatting for typing nodes, so ignore that subtest
+    # when testing formatting.
+    if (NOT ${formatoption} STREQUAL "")
+      return()
+    endif()
+    set(astoption "-Z")
+  else()
+    set(astoption "")
+  endif()
+
   file(GLOB scripts RELATIVE ${testdir} ${testdir}/${subtest}/*)
   foreach(script ${scripts})
     string(FIND "${script}" ".src" out)
@@ -107,7 +119,7 @@ function (testwithcompiler formatoption)
       message("${script} [formatted]")
       string(REPLACE ".src" ".unformatted.src" unformattedscript "${script}")
       configure_file(${testdir}/${script} ${testdir}/${unformattedscript} COPYONLY)
-      execute_process( COMMAND ${ecompile} ${formatoption} -q -C ecompile.cfg ${script}
+      execute_process( COMMAND ${ecompile} ${formatoption} ${astoption} -q -C ecompile.cfg ${script}
         RESULT_VARIABLE ecompile_format_res
         OUTPUT_VARIABLE ecompile_format_out
         ERROR_VARIABLE ecompile_format_out)
@@ -116,7 +128,7 @@ function (testwithcompiler formatoption)
     endif()
 
     if (EXISTS "${testdir}/${scriptname}.out" OR EXISTS "${testdir}/${scriptname}.err")
-      execute_process( COMMAND ${ecompile} -l -q -C ecompile.cfg ${script}
+      execute_process( COMMAND ${ecompile} ${astoption} -l -q -C ecompile.cfg ${script}
         RESULT_VARIABLE ecompile_res
         OUTPUT_VARIABLE ecompile_out
         ERROR_VARIABLE ecompile_out)
