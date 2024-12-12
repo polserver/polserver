@@ -47,7 +47,6 @@ private:
   SourceFileCache& inc_cache;
   Profile& profile;
   std::unique_ptr<CompiledScript> output;
-  std::string tree;
   UserFunctionInclusion user_function_inclusion = UserFunctionInclusion::ReferencedOnly;
 };
 
