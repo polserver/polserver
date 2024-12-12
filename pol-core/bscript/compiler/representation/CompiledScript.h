@@ -41,7 +41,7 @@ public:
                   ExportedFunctions exported_functions,
                   std::vector<std::string> global_variable_names, ModuleDescriptors modules,
                   FunctionReferences function_references, ClassDescriptors class_descriptors,
-                  std::unique_ptr<ProgramInfo>, SourceFileIdentifiers );
+                  std::unique_ptr<ProgramInfo>, SourceFileIdentifiers, std::string tree );
   ~CompiledScript();
   CompiledScript( const CompiledScript& ) = delete;
   CompiledScript& operator=( const CompiledScript& ) = delete;
@@ -56,6 +56,7 @@ public:
   const ClassDescriptors class_descriptors;
   const std::unique_ptr<ProgramInfo> program_info;
   const SourceFileIdentifiers source_file_identifiers;
+  const std::string tree;
 };
 
 }  // namespace Pol::Bscript::Compiler

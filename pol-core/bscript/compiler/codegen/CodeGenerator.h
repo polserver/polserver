@@ -16,7 +16,7 @@ class CodeGenerator
 {
 public:
   static std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace>,
-                                                   Report& report );
+                                                   Report& report, bool with_string_tree );
 
 private:
   CodeGenerator( InstructionEmitter&, ModuleDeclarationRegistrar& );

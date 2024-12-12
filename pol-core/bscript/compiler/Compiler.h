@@ -25,6 +25,7 @@ public:
   bool compile_file( const std::string& filename );
   bool write_ecl( const std::string& pathname );
   void write_listing( const std::string& pathname );
+  void write_string_tree( const std::string& pathname );
   void write_dbg( const std::string& pathname, bool include_debug_text );
   void write_included_filenames( const std::string& pathname );
   void set_include_compile_mode();

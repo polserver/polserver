@@ -1040,6 +1040,7 @@ PackageRoot (path to package root)
 [GenerateListing (0/1 {default 0})]
 [GenerateDebugInfo  (0/1 {default 0})]
 [GenerateDebugTextInfo (0/1 {default 0})]
+[GenerateStringTree (0/1 {default 0})]
 [DisplayWarnings (0/1 {default 0})]           //same as -w flag
 [CompileAspPages (0/1 {default 0})]           //same as -a flag
 [OnlyCompileUpdatedScripts (0/1 {default 0})] //same as -u flag

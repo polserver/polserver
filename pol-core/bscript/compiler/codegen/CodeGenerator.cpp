@@ -14,6 +14,7 @@
 #include "bscript/compiler/codegen/InstructionEmitter.h"
 #include "bscript/compiler/codegen/InstructionGenerator.h"
 #include "bscript/compiler/codegen/ModuleDeclarationRegistrar.h"
+#include "bscript/compiler/codegen/StringTreeGenerator.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
@@ -27,7 +28,7 @@
 namespace Pol::Bscript::Compiler
 {
 std::unique_ptr<CompiledScript> CodeGenerator::generate(
-    std::unique_ptr<CompilerWorkspace> workspace, Report& report )
+    std::unique_ptr<CompilerWorkspace> workspace, Report& report, bool with_string_tree )
 {
   auto program_info =
       workspace->program
@@ -73,11 +74,20 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 
   std::vector<ClassDescriptor> class_descriptors = class_declaration_registrar.take_descriptors();
 
+  std::string tree;
+
+  if ( with_string_tree )
+  {
+    StringTreeGenerator generator;
+    workspace->accept( generator );
+    tree = generator.tree();
+  }
+
   return std::make_unique<CompiledScript>(
       std::move( code ), std::move( data ), std::move( debug ), std::move( exported_functions ),
       std::move( workspace->global_variable_names ), std::move( module_descriptors ),
       std::move( function_references ), std::move( class_descriptors ), std::move( program_info ),
-      std::move( workspace->referenced_source_file_identifiers ) );
+      std::move( workspace->referenced_source_file_identifiers ), std::move( tree ) );
 }
 
 CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
