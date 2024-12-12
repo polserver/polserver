@@ -248,6 +248,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/InstructionGenerator.h
   compiler/codegen/ModuleDeclarationRegistrar.cpp
   compiler/codegen/ModuleDeclarationRegistrar.h
+  compiler/codegen/StringTreeGenerator.cpp
+  compiler/codegen/StringTreeGenerator.h
   compiler/file/ConformingCharStream.cpp
   compiler/file/ConformingCharStream.h
   compiler/file/ErrorListener.cpp

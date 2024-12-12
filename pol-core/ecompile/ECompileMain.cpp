@@ -66,6 +66,7 @@ void ECompileMain::showHelp()
       "   Options: \n"
       "       -F           format filespec (print result)\n"
       "       -Fi          format filespec (inplace)\n"
+      "       -Z           print abstract syntax tree (AST) as string tree\n"
       "       -a           compile *.asp pages also\n"
       "       -A           automatically compile scripts in main and enabled packages\n"
       "       -Au          (as '-A' but only compile updated files)\n"
@@ -361,6 +362,7 @@ bool compile_file( const std::string& path )
   std::string fname = path;
   std::string filename_ecl = fname.replace( pos, 4, ".ecl" );
   std::string filename_lst = fname.replace( pos, 4, ".lst" );
+  std::string filename_ast = fname.replace( pos, 4, ".ast" );
   std::string filename_dep = fname.replace( pos, 4, ".dep" );
   std::string filename_dbg = fname.replace( pos, 4, ".dbg" );
 
@@ -457,6 +459,19 @@ bool compile_file( const std::string& path )
       if ( !quiet )
         INFO_PRINTLN( "Deleting:  {}", filename_lst );
       Clib::RemoveFile( filename_lst );
+    }
+
+    if ( compilercfg.GenerateStringTree )
+    {
+      if ( !quiet )
+        INFO_PRINTLN( "Writing:   {}", filename_ast );
+      compiler->write_string_tree( filename_ast );
+    }
+    else if ( Clib::FileExists( filename_ast.c_str() ) )
+    {
+      if ( !quiet )
+        INFO_PRINTLN( "Deleting:  {}", filename_ast );
+      Clib::RemoveFile( filename_ast );
     }
 
     if ( compilercfg.GenerateDebugInfo )
@@ -701,6 +716,10 @@ int readargs( int argc, char** argv )
       case 'x':
         compilercfg.GenerateDebugInfo = setting_value( arg );
         compilercfg.GenerateDebugTextInfo = ( argv[i][2] == 't' );
+        break;
+
+      case 'Z':
+        compilercfg.GenerateStringTree = setting_value( arg );
         break;
 
 #ifdef WIN32
