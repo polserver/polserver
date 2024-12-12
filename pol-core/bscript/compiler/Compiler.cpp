@@ -6,7 +6,6 @@
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
-#include "bscript/compiler/codegen/StringTreeGenerator.h"
 #include "bscript/compiler/file/PrettifyBuilder.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
@@ -54,8 +53,11 @@ void Compiler::write_listing( const std::string& pathname )
 
 void Compiler::write_string_tree( const std::string& pathname )
 {
-  std::ofstream ofs( pathname );
-  ofs << tree;
+  if ( output )
+  {
+    std::ofstream ofs( pathname );
+    ofs << output->tree;
+  }
 }
 
 void Compiler::write_dbg( const std::string& pathname, bool include_debug_text )
@@ -133,13 +135,6 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
   if ( report.error_count() )
     return;
 
-  if ( compilercfg.GenerateStringTree )
-  {
-    StringTreeGenerator generator;
-    workspace->accept( generator );
-    tree = generator.tree();
-  }
-
   output = generate( std::move( workspace ), report );
 }
 
@@ -210,7 +205,8 @@ std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWork
                                                     Report& report )
 {
   Pol::Tools::HighPerfTimer codegen_timer;
-  auto compiled_script = CodeGenerator::generate( std::move( workspace ), report );
+  auto compiled_script =
+      CodeGenerator::generate( std::move( workspace ), report, compilercfg.GenerateStringTree );
   profile.codegen_micros += codegen_timer.ellapsed().count();
   return compiled_script;
 }
