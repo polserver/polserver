@@ -40,7 +40,6 @@ exported function test_stacktrace_child( resources )
   // Go critical, so we do not get interrupted by the script scheduler between
   // starting a new script and collecting its stacktrace.
 
-
   Set_Critical( 1 );
 
   if ( !( child := resources.Start_Script( CHILD_SCRIPTNAME, GetProcess() ) ) )
@@ -59,13 +58,19 @@ exported function test_stacktrace_child( resources )
     return res;
   endif
 
-  // ... at PC=0. It is a `pc` since we do not have the dbg information
-  if ( !( res := ret_error_not_equal( stacktrace[1].pc, 0,
-                                      "Incorrect initial PC value, expected 0 got {stacktrace[1].pc}" ) ) )
+  var st := stacktrace[1];
+
+  // ... at PC=0.
+  if ( !( res := ret_error_not_equal( st.pc, 0, "Incorrect initial PC value, expected 0 got {st.pc}" ) ) )
     return res;
   endif
 
-  // Sent from child to tell parent that it has entered the user function 
+  // Since we do not have debug information, there should be no `line`.
+  if ( !( res := ret_error_not_equal( st.?line, 0, "Stacktrace should not have 'line' member, stacktrace object {st}" ) ) )
+    return res;
+  endif
+
+  // Sent from child to tell parent that it has entered the user function
   // where it will wait for an event.
   if ( !( res := wait_for_event( TIMEOUT_SEC ) ) )
     return ret_error( $"No event in {TIMEOUT_SEC} seconds" );
@@ -87,7 +92,7 @@ exported function test_stacktrace_child( resources )
   return 1;
 endfunction
 
-exported function test_error_stacktrace_as_string()
+exported function test_stacktrace_as_string()
   var stacktrace := outer_frame( "string" );
   var inner_frame_pos := stacktrace.find( "inner_frame" );
   var outer_frame_pos := stacktrace.find( "outer_frame" );
@@ -99,12 +104,12 @@ exported function test_error_stacktrace_as_string()
   return 1;
 endfunction
 
-exported function test_error_stacktrace_as_array()
+exported function test_stacktrace_as_array()
   var stacktrace := outer_frame( "array" );
 
   // The (ordered) name of functions called when calling `outer_frame()` above.
-  var expected_names := array{ "inner_frame", "outer_frame", "test_error_stacktrace_as_array",
-                               "test_error_stacktrace_as_array" };
+  var expected_names := array{ "inner_frame", "outer_frame", "test_stacktrace_as_array",
+                               "test_stacktrace_as_array" };
 
   // Get the function names from the stacktrace
   var stacktrace_names := stacktrace.map( @( st ) {

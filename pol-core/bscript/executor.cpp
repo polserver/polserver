@@ -3075,6 +3075,7 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
             entry->addMember( "file", new String( filename ) );
             entry->addMember( "line", new BLong( line ) );
             entry->addMember( "name", new String( functionName ) );
+            entry->addMember( "pc", new BLong( PC ) );
             result->addElement( entry.release() );
           } );
     }
