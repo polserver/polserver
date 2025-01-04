@@ -130,6 +130,47 @@ BObjectImp* ScriptExObjImp::call_polmethod_id( const int id, UOExecutor& ex, boo
   case MTH_CLEAR_EVENT_QUEUE:  // DAVE added this 11/20
     return ( uoexec->clear_event_queue() );
 
+    /**
+     * .stacktrace(options?: struct{ format?: "array" | "string" } | uninit )
+     */
+  case MTH_STACKTRACE:
+  {
+    bool as_array = false;
+
+    if ( ex.numParams() > 0 && !ex.getParamImp( 0 )->isa( OTUninit ) )
+    {
+      BStruct* options =
+          static_cast<BStruct*>( ex.getParamImp( 0, Bscript::BObjectImp::OTStruct ) );
+
+      if ( options == nullptr )
+      {
+        return new BError( "Invalid parameter type" );
+      }
+
+      if ( auto format_member = options->FindMember( "format" ) )
+      {
+        if ( !format_member->isa( OTString ) )
+        {
+          return new BError( "Invalid parameter type" );
+        }
+
+        auto format_string = format_member->getStringRep();
+
+        // Explicitly case sensitive!
+        if ( format_string == "array" )
+        {
+          as_array = true;
+        }
+        else if ( format_string != "string" )
+        {
+          return new BError( "Invalid parameter value" );
+        }
+      }
+    }
+
+    return uoexec->get_stacktrace( as_array );
+  }
+
   default:
     return new BError( "undefined" );
   }

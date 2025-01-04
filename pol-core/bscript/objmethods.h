@@ -193,6 +193,7 @@ enum MethodID
   MTH_SET_MULTIID,
   MTH_NEW,
   MTH_CALL_METHOD,
+  MTH_STACKTRACE,
 };
 
 inline auto format_as( MethodID id )

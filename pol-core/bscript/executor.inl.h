@@ -1,6 +1,8 @@
 // Really for IDE integration
 #include "bobject.h"
 
+#include <boost/range/adaptor/reversed.hpp>
+
 namespace Pol::Bscript
 {
 template <typename Callback>
@@ -56,3 +58,15 @@ BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, B
       details );
 }
 }  // namespace Pol::Bscript
+
+template <typename Callback>
+inline void Pol::Bscript::Executor::walkCallStack( Callback callback )
+{
+  callback( PC );
+  
+  for ( auto& call : boost::adaptors::reverse( ControlStack ) )
+  {
+    callback( call.PC );
+  }
+
+}

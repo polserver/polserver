@@ -1,0 +1,98 @@
+use os;
+include "testutil";
+
+program test_stacktrace()
+  return 1;
+endprogram
+
+function outer_frame( format )
+  return inner_frame( format );
+endfunction
+
+function inner_frame( format )
+  return GetProcess().stacktrace( struct{ "format" := format } );
+endfunction
+
+exported function test_error_stacktrace_as_string()
+  var stacktrace := outer_frame( "string" );
+  var inner_frame_pos := stacktrace.find( "inner_frame" );
+  var outer_frame_pos := stacktrace.find( "outer_frame" );
+
+  if ( inner_frame_pos >= outer_frame_pos )
+    return ret_error( $"Incorrect frame order in stacktrace: expected inner_frame position {inner_frame_pos} < outer_frame position {outer_frame_pos}.\n\nStacktrace string: {stacktrace}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function test_error_stacktrace_as_array()
+  var stacktrace := outer_frame( "array" );
+
+  // The (ordered) name of functions called when calling `outer_frame()` above.
+  var expected_names := array{ "inner_frame", "outer_frame", "test_error_stacktrace_as_array",
+                               "test_error_stacktrace_as_array" };
+
+  // Get the function names from the stacktrace
+  var stacktrace_names := stacktrace.map( @( st ) {
+    return st.name;
+  } );
+
+  return ret_error_not_equal( expected_names, stacktrace_names,
+                              $"Incorrect stacktrace object. Expected frame names of {expected_names}, got {stacktrace_names}\n\nStacktrace object: {stacktrace}"
+                              );
+endfunction
+
+exported function test_stacktrace_options_parsing()
+  var res;
+
+  var check_type := @( how, expected_type ) {
+    var return_type := TypeOfInt( how() );
+    return ret_error_not_equal( return_type, expected_type, $"Unexpected type: Expected {expected_type}, got {return_type} {GetProcess().stacktrace()}"
+                                );
+  };
+
+  // Can pass no arguments
+  if ( !( res := check_type( @() {
+    return GetProcess().stacktrace();
+  }, OT_STRING ) ) )
+    return res;
+
+  // Can pass uninit
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( uninit );
+  }, OT_STRING ) ) )
+    return res;
+
+  // Otherwise must be a struct
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( 123 );
+  }, OT_ERROR ) ) )
+    return res;
+
+  // And that struct can have no options
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{} );
+  }, OT_STRING ) ) )
+    return res;
+
+  // But if a format is passed, it must be an accepted type of format
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{ format := "invalid-format" } );
+  }, OT_ERROR ) ) )
+    return res;
+
+  // And those formats are "string", returning a string
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{ format := "string" } );
+  }, OT_STRING ) ) )
+    return res;
+
+  // And "array", returning an array
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{ format := "array" } );
+  }, OT_ARRAY ) ) )
+    return res;
+  endif
+
+  return 1;
+endfunction
