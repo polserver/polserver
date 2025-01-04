@@ -631,6 +631,7 @@ Checks are made in the order above.</member>
 <method proto="kill()" returns="true">Kills this script</method>
 <method proto="loadsymbols()" returns="Boolean">Loads the .dbg file</method>
 <method proto="clear_event_queue()" returns="true">clears the event queue of the script</method>
+<method proto="stacktrace( options?: struct{ format?: 'string' | 'array' } | uninit )" returns="Array/String">Get information regarding the current execution stack of this script. The value is either a string containing a line for each stack frame, or an array of objects representing each stack frame. <code>options</code> is a struct specifying the format to return via setting a member <code>format</code> to the value <code>"string"</code> (default) or <code>"array"</code>. If <code>"array"</code>, then the result will be an array containing structs with members <code>pc</code> (program counter), <code>file</code> (script name), <code>name</code> (function name), and <code>line</code> (script line).<br/><br/>The script must been compiled with debugging information (using ecompile.cfg setting <code>GenerateDebugInfo</code> or ecompile <code>-x</code> flag) in order to get function name and line information. If debug information is not available, then only the script's program counter will be reported.</method>
 <method proto="get_member(string membername)" returns="object, value of member or error">Gets the value of the built-in member 'membername'. var objname := obj.get_member("name") is the same as var objname := obj.name</method>
 </class>
 
