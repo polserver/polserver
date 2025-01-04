@@ -51,11 +51,12 @@ set(boost_needs_extract FALSE)
 if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   message("  - will extract")
   ExternalProject_Add(libboost_ext
-    URL "https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2"
+    URL "https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.bz2"
     SOURCE_DIR "${BOOST_SOURCE_DIR}"
     CONFIGURE_COMMAND "" #${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
+    URL_HASH SHA256=6478edfe2f3305127cffe8caf73ea0176c53769f4bf1585be237eb30798c3b8e
     BUILD_BYPRODUCTS "${BOOST_SOURCE_DIR}"
     LOG_DOWNLOAD 1
     LOG_CONFIGURE 1
