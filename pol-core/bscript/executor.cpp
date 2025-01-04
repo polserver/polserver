@@ -3040,7 +3040,7 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
 
 BObjectImp* Executor::get_stacktrace( bool as_array )
 {
-  bool has_symbols = prog_->read_dbg_file() == 0;
+  bool has_symbols = prog_->read_dbg_file( true ) == 0;
 
   auto with_dbginfo =
       [&]( const std::function<void( const std::string& /*file*/, unsigned int /*line*/,

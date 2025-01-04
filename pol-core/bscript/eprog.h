@@ -160,7 +160,7 @@ public:
   void dump_casejmp( std::ostream& os, const Token& token );
   int write( const char* fname );
   int read( const char* fname );
-  int read_dbg_file();
+  int read_dbg_file( bool quiet = false );
   int read_progdef_hdr( FILE* fp );
   int read_module( FILE* fp );
   int read_globalvarnames( FILE* fp );
