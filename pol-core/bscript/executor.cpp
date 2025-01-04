@@ -3043,8 +3043,9 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
   bool has_symbols = prog_->read_dbg_file( true ) == 0;
 
   auto with_dbginfo =
-      [&]( const std::function<void( const std::string& /*file*/, unsigned int /*line*/,
-                                     const std::string& /*functionName*/ )>& handler )
+      [&]( const std::function<void( unsigned int /*pc*/, const std::string& /*file*/,
+                                     unsigned int /*line*/, const std::string& /*functionName*/ )>&
+               handler )
   {
     walkCallStack(
         [&]( unsigned int pc )
@@ -3058,7 +3059,7 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
           std::string functionName =
               dbgFunction != prog()->dbg_functions.end() ? dbgFunction->name : "<program>";
 
-          handler( filename, line, functionName );
+          handler( pc, filename, line, functionName );
         } );
   };
 
@@ -3069,24 +3070,25 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
     if ( has_symbols )
     {
       with_dbginfo(
-          [&]( const std::string& filename, unsigned int line, const std::string& functionName )
+          [&]( unsigned int pc, const std::string& filename, unsigned int line,
+               const std::string& functionName )
           {
             std::unique_ptr<BStruct> entry( new BStruct );
             entry->addMember( "file", new String( filename ) );
             entry->addMember( "line", new BLong( line ) );
             entry->addMember( "name", new String( functionName ) );
-            entry->addMember( "pc", new BLong( PC ) );
+            entry->addMember( "pc", new BLong( pc ) );
             result->addElement( entry.release() );
           } );
     }
     else
     {
       walkCallStack(
-          [&]( unsigned int PC )
+          [&]( unsigned int pc )
           {
             std::unique_ptr<BStruct> entry( new BStruct );
             entry->addMember( "file", new String( scriptname() ) );
-            entry->addMember( "pc", new BLong( PC ) );
+            entry->addMember( "pc", new BLong( pc ) );
             result->addElement( entry.release() );
           } );
     }
@@ -3100,7 +3102,8 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
     if ( has_symbols )
     {
       with_dbginfo(
-          [&]( const std::string& filename, unsigned int line, const std::string& functionName )
+          [&]( unsigned int /*pc*/, const std::string& filename, unsigned int line,
+               const std::string& functionName )
           {
             result.append( fmt::format( "{}at {} ({}:{})", result.empty() ? "" : "\n", functionName,
                                         filename, line ) );
@@ -3109,9 +3112,9 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
     else
     {
       walkCallStack(
-          [&]( unsigned int PC ) {
+          [&]( unsigned int pc ) {
             result.append(
-                fmt::format( "{}at {}+{}", result.empty() ? "" : "\n", scriptname(), PC ) );
+                fmt::format( "{}at {}+{}", result.empty() ? "" : "\n", scriptname(), pc ) );
           } );
     }
 
