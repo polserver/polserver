@@ -1,16 +1,90 @@
-use os;
 include "testutil";
 
-program test_stacktrace()
-  return 1;
+// Don't start this with 'test_' ... ;D
+const CHILD_SCRIPTNAME := ":testmisc:stacktrace_child.ecl";
+const TIMEOUT_SEC := 1;
+var ARRAY_FORMAT := struct{ format := "array" };
+
+program test_stacktrace( parent_script )
+  // A setup run, via test orchestrator
+  if ( !parent_script )
+    var res := copy_file( "test_stacktrace.ecl", CHILD_SCRIPTNAME );
+
+    if ( !res )
+      return ret_error( $"Could not copy file: {res}" );
+    endif
+    return 1;
+  endif
+
+  // Child process, started by a test function
+  return waiting_for_event( parent_script );
 endprogram
 
-function outer_frame( format )
-  return inner_frame( format );
+function waiting_for_event( parent_script )
+  parent_script.SendEvent( 1 );
+
+  // Sent from parent script to tell child to exit.
+  if ( wait_for_event( TIMEOUT_SEC ) )
+    return 1;
+  endif
+
+  return ret_error( "No event received in child process" );
 endfunction
 
-function inner_frame( format )
-  return GetProcess().stacktrace( struct{ "format" := format } );
+// The child has no debug info
+exported function test_stacktrace_child( resources )
+  var res;
+  var stacktrace;
+  var child;
+
+  // Go critical, so we do not get interrupted by the script scheduler between
+  // starting a new script and collecting its stacktrace.
+
+
+  Set_Critical( 1 );
+
+  if ( !( child := resources.Start_Script( CHILD_SCRIPTNAME, GetProcess() ) ) )
+    return child;
+  endif
+
+  // Collect initial stacktrace
+  stacktrace := child.stacktrace( ARRAY_FORMAT );
+
+  Set_Critical( 0 );
+
+  // Since we were critical when we started the script and collected its
+  // stacktrace, (1) it should only have one element: the program entry.
+  if ( !( res := ret_error_not_equal( len( stacktrace ), 1,
+                                      "Incorrect child stack length, expected 1 got {len(stacktrace)}" ) ) )
+    return res;
+  endif
+
+  // ... at PC=0. It is a `pc` since we do not have the dbg information
+  if ( !( res := ret_error_not_equal( stacktrace[1].pc, 0,
+                                      "Incorrect initial PC value, expected 0 got {stacktrace[1].pc}" ) ) )
+    return res;
+  endif
+
+  // Sent from child to tell parent that it has entered the user function 
+  // where it will wait for an event.
+  if ( !( res := wait_for_event( TIMEOUT_SEC ) ) )
+    return ret_error( $"No event in {TIMEOUT_SEC} seconds" );
+  endif
+
+  // Get a new stacktrace.
+  stacktrace := child.stacktrace( ARRAY_FORMAT );
+
+  // Since we've stepped the script to the os::wait_for_event inside the
+  // waiting_for_event, we should have a new frame.
+  if ( !( res := ret_error_not_equal( len( stacktrace ), 2,
+                                      "Incorrect child stack length, expected 2 got {len(stacktrace)}" ) ) )
+    return res;
+  endif
+
+  // Tell the script to continue / exit
+  child.sendevent( 1 );
+
+  return 1;
 endfunction
 
 exported function test_error_stacktrace_as_string()
@@ -95,4 +169,12 @@ exported function test_stacktrace_options_parsing()
   endif
 
   return 1;
+endfunction
+
+function outer_frame( format )
+  return inner_frame( format );
+endfunction
+
+function inner_frame( format )
+  return GetProcess().stacktrace( struct{ "format" := format } );
 endfunction
