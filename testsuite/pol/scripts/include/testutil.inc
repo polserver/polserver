@@ -1,4 +1,6 @@
+use file;
 use uo;
+use os;
 
 const IGNORE_TEST := 255; // only valid for setup or programs
 
@@ -80,6 +82,21 @@ class ResourceManager()
     return resource;
   endfunction
 
+  function Start_Script( this, script_name, byref param := 0 )
+    var resource := os::Start_Script( script_name, param );
+    if ( !resource )
+      return resource;
+    endif
+    this.resources.append( array{ resource, @DestroyScriptResource } );
+    return resource;
+  endfunction
+
+  function DestroyScriptResource( script )
+    dprint( $"cleanup script {script} {script.state} {script.pid}" );
+    // Swallow the "Script has been destroyed" error
+    return script.kill() ?: 1;
+  endfunction
+
   function DestroyItemResource( item )
     dprint( $"cleanup item 0x{item.serial:x}" );
     return DestroyItem( item );
@@ -115,3 +132,30 @@ class ResourceManager()
     return ret_error( $"Could not find corpse for NPC 0x{serial:x} at ({x}, {y}, {z}) (corpses: {corpses.size()})" );
   endfunction
 endclass
+
+function copy_file( source, destination )
+  var file_in := OpenBinaryFile( source, OPENMODE_IN );
+  if ( !file_in )
+    return file_in;
+  endif
+
+  var file_out := OpenBinaryFile( destination, OPENMODE_OUT | OPENMODE_TRUNC );
+  if ( !file_out )
+    return file_out;
+  endif
+
+  var byte, i := 0;
+
+  do
+    byte := file_in.getInt8();
+    if ( byte == error )
+      break;
+    endif
+    file_out.setInt8( byte );
+  dowhile ( 1 );
+
+  file_in.close();
+  file_out.close();
+
+  return 1;
+endfunction

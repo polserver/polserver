@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-13-2024</datemodified>
+		<datemodified>01-04-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-04-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Script object script method `stacktrace( options? )`</change>
+		</entry>
 		<entry>
 			<date>11-13-2024</date>
 			<author>Turley:</author>

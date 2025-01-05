@@ -495,7 +495,7 @@ int EScriptProgram::read_class_table( FILE* fp )
   return 0;
 }
 
-int EScriptProgram::read_dbg_file()
+int EScriptProgram::read_dbg_file( bool quiet )
 {
   if ( debug_loaded )
     return 0;
@@ -505,7 +505,8 @@ int EScriptProgram::read_dbg_file()
   FILE* fp = fopen( mname.c_str(), "rb" );
   if ( !fp )
   {
-    ERROR_PRINTLN( "Unable to open {}", mname );
+    if ( !quiet ) 
+      ERROR_PRINTLN( "Unable to open {}", mname );
     return -1;
   }
 

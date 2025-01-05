@@ -241,6 +241,10 @@ public:
   // on `fparams` (as they are moved to `ValueStack` in `ins_call_method_id`).
   BContinuation* withContinuation( BContinuation* continuation, BObjectRefVec args = {} );
 
+  // Runs `callback( unsigned int PC )` for every frame in the call stack.
+  template <typename Callback>
+  void walkCallStack( Callback callback );
+
   int makeString( unsigned param );
   bool hasParams( unsigned howmany ) const { return ( fparams.size() >= howmany ); }
   size_t numParams() const { return fparams.size(); }
@@ -475,6 +479,14 @@ public:
   // sets up members (Globals2, nLines, prog_, execmodules) accordingly.
   void jump( int target_PC, BContinuation* continuation, BFunctionRef* funcref );
 
+  // Returns the current execution stack of this executor. The returned object
+  // is either a string containing a line for each stack frame, or an array of
+  // objects representing each stack frame.
+  //
+  // Will load the debug symbols for the current program. If debug symbols are
+  // not available, only program counter information will be available, and
+  // filename+line+function name will be empty.
+  BObjectImp* get_stacktrace( bool as_array );
 
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
                         bool set_attaching = true );

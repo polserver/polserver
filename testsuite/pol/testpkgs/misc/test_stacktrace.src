@@ -1,0 +1,185 @@
+include "testutil";
+
+// Don't start this with 'test_' ... ;D
+const CHILD_SCRIPTNAME := ":testmisc:stacktrace_child.ecl";
+const TIMEOUT_SEC := 1;
+var ARRAY_FORMAT := struct{ format := "array" };
+
+program test_stacktrace( parent_script )
+  // A setup run, via test orchestrator
+  if ( !parent_script )
+    var res := copy_file( "test_stacktrace.ecl", CHILD_SCRIPTNAME );
+
+    if ( !res )
+      return ret_error( $"Could not copy file: {res}" );
+    endif
+    return 1;
+  endif
+
+  // Child process, started by a test function
+  return waiting_for_event( parent_script );
+endprogram
+
+function waiting_for_event( parent_script )
+  parent_script.SendEvent( 1 );
+
+  // Sent from parent script to tell child to exit.
+  if ( wait_for_event( TIMEOUT_SEC ) )
+    return 1;
+  endif
+
+  return ret_error( "No event received in child process" );
+endfunction
+
+// The child has no debug info
+exported function test_stacktrace_child( resources )
+  var res;
+  var stacktrace;
+  var child;
+
+  // Go critical, so we do not get interrupted by the script scheduler between
+  // starting a new script and collecting its stacktrace.
+
+  Set_Critical( 1 );
+
+  if ( !( child := resources.Start_Script( CHILD_SCRIPTNAME, GetProcess() ) ) )
+    return child;
+  endif
+
+  // Collect initial stacktrace
+  stacktrace := child.stacktrace( ARRAY_FORMAT );
+
+  Set_Critical( 0 );
+
+  // Since we were critical when we started the script and collected its
+  // stacktrace, (1) it should only have one element: the program entry.
+  if ( !( res := ret_error_not_equal( len( stacktrace ), 1,
+                                      "Incorrect child stack length, expected 1 got {len(stacktrace)}" ) ) )
+    return res;
+  endif
+
+  var st := stacktrace[1];
+
+  // ... at PC=0.
+  if ( !( res := ret_error_not_equal( st.pc, 0, "Incorrect initial PC value, expected 0 got {st.pc}" ) ) )
+    return res;
+  endif
+
+  // Since we do not have debug information, there should be no `line`.
+  if ( !( res := ret_error_not_equal( st.?line, 0, "Stacktrace should not have 'line' member, stacktrace object {st}" ) ) )
+    return res;
+  endif
+
+  // Sent from child to tell parent that it has entered the user function
+  // where it will wait for an event.
+  if ( !( res := wait_for_event( TIMEOUT_SEC ) ) )
+    return ret_error( $"No event in {TIMEOUT_SEC} seconds" );
+  endif
+
+  // Get a new stacktrace.
+  stacktrace := child.stacktrace( ARRAY_FORMAT );
+
+  // Since we've stepped the script to the os::wait_for_event inside the
+  // waiting_for_event, we should have a new frame.
+  if ( !( res := ret_error_not_equal( len( stacktrace ), 2,
+                                      "Incorrect child stack length, expected 2 got {len(stacktrace)}" ) ) )
+    return res;
+  endif
+
+  // Tell the script to continue / exit
+  child.sendevent( 1 );
+
+  return 1;
+endfunction
+
+exported function test_stacktrace_as_string()
+  var stacktrace := outer_frame( "string" );
+  var inner_frame_pos := stacktrace.find( "inner_frame" );
+  var outer_frame_pos := stacktrace.find( "outer_frame" );
+
+  if ( inner_frame_pos >= outer_frame_pos )
+    return ret_error( $"Incorrect frame order in stacktrace: expected inner_frame position {inner_frame_pos} < outer_frame position {outer_frame_pos}.\n\nStacktrace string: {stacktrace}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function test_stacktrace_as_array()
+  var stacktrace := outer_frame( "array" );
+
+  // The (ordered) name of functions called when calling `outer_frame()` above.
+  var expected_names := array{ "inner_frame", "outer_frame", "test_stacktrace_as_array",
+                               "test_stacktrace_as_array" };
+
+  // Get the function names from the stacktrace
+  var stacktrace_names := stacktrace.map( @( st ) {
+    return st.name;
+  } );
+
+  return ret_error_not_equal( expected_names, stacktrace_names,
+                              $"Incorrect stacktrace object. Expected frame names of {expected_names}, got {stacktrace_names}\n\nStacktrace object: {stacktrace}"
+                              );
+endfunction
+
+exported function test_stacktrace_options_parsing()
+  var res;
+
+  var check_type := @( how, expected_type ) {
+    var return_type := TypeOfInt( how() );
+    return ret_error_not_equal( return_type, expected_type, $"Unexpected type: Expected {expected_type}, got {return_type} {GetProcess().stacktrace()}"
+                                );
+  };
+
+  // Can pass no arguments
+  if ( !( res := check_type( @() {
+    return GetProcess().stacktrace();
+  }, OT_STRING ) ) )
+    return res;
+
+  // Can pass uninit
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( uninit );
+  }, OT_STRING ) ) )
+    return res;
+
+  // Otherwise must be a struct
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( 123 );
+  }, OT_ERROR ) ) )
+    return res;
+
+  // And that struct can have no options
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{} );
+  }, OT_STRING ) ) )
+    return res;
+
+  // But if a format is passed, it must be an accepted type of format
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{ format := "invalid-format" } );
+  }, OT_ERROR ) ) )
+    return res;
+
+  // And those formats are "string", returning a string
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{ format := "string" } );
+  }, OT_STRING ) ) )
+    return res;
+
+  // And "array", returning an array
+  elseif ( !( res := check_type( @() {
+    return GetProcess().stacktrace( struct{ format := "array" } );
+  }, OT_ARRAY ) ) )
+    return res;
+  endif
+
+  return 1;
+endfunction
+
+function outer_frame( format )
+  return inner_frame( format );
+endfunction
+
+function inner_frame( format )
+  return GetProcess().stacktrace( struct{ "format" := format } );
+endfunction
