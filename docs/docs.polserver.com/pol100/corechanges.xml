@@ -8,7 +8,7 @@
 		<entry>
 			<date>01-04-2024</date>
 			<author>Kevin:</author>
-			<change type="Added">Script script method `stacktrace( options? )`</change>
+			<change type="Added">Script object script method `stacktrace( options? )`</change>
 		</entry>
 		<entry>
 			<date>11-13-2024</date>
