@@ -13,7 +13,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 11
+            compiler-version: 12
             build-type: Release
     runs-on: ${{ matrix.config.os }}
     steps:
@@ -28,13 +28,12 @@ jobs:
 
           if ($version -ne 'default') {
             sudo apt-get install "$compiler-$version" -y
-            echo "$compiler-$version --version"
           }
           sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install uuid-dev -y
 
-          $cmake_version = "3.16.2"
-          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
+          $cmake_version = "3.31.3"
+          $cmake_archive = "cmake-$cmake_version-linux-x86_64"
           wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
           tar -xf "$cmake_archive.tar.gz"
 

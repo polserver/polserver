@@ -16,19 +16,19 @@ jobs:
           - san: TSAN
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 14
+            compiler-version: 15
             build-type: RelWithDebInfo
             name: ThreadSanitizer
           - san: ASAN
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 14
+            compiler-version: 15
             build-type: RelWithDebInfo
             name: AddressSanitizer
           - san: USAN
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 14
+            compiler-version: 15
             build-type: RelWithDebInfo
             name: UndefinedSanitizer
 
@@ -74,9 +74,9 @@ jobs:
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
 
-          $ninja_version = "1.9.0"
-          $cmake_version = "3.16.2"
-          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
+          $ninja_version = "1.12.1"
+          $cmake_version = "3.31.3"
+          $cmake_archive = "cmake-$cmake_version-linux-x86_64"
           wget -q "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
           unzip -q ninja-linux.zip -d bin-build
           wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
