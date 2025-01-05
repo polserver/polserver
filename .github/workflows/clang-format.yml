@@ -22,8 +22,8 @@ jobs:
         shell: pwsh
         run: |
           sudo apt-get update
-          sudo apt-get install clang-format-14 -y
-          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 800
+          sudo apt-get install clang-format-15 -y
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 800
       - name: Stylecheck
         run: |
           cd testsuite/style

@@ -24,7 +24,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 11
+            compiler-version: 12
             build-type: RelWithDebInfo
             nopch: 0
             name: Linux GCC
@@ -32,7 +32,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 14
+            compiler-version: 15
             build-type: RelWithDebInfo
             nopch: 0
             name: Linux Clang
@@ -40,7 +40,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 14
+            compiler-version: 15
             build-type: Release
             nopch: 1
             name: Linux Clang noPCH
@@ -84,15 +84,14 @@ jobs:
 
           if ($version -ne 'default') {
             sudo apt-get install "$compiler-$version" -y
-            echo "$compiler-$version --version"
           }
           sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
 
-          $ninja_version = "1.9.0"
-          $cmake_version = "3.16.2"
-          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
+          $ninja_version = "1.12.1"
+          $cmake_version = "3.31.3"
+          $cmake_archive = "cmake-$cmake_version-linux-x86_64"
           wget -q "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
           unzip -q ninja-linux.zip -d bin-build
           wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
