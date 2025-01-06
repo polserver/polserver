@@ -1,7 +1,7 @@
 message("* libcppdap")
 
-set (CPPDAP_REPOSITORY "https://github.com/KevinEady/cppdap.git")
-set (CPPDAP_VERSION_REF "2a4c7cf")
+set (CPPDAP_REPOSITORY "https://github.com/google/cppdap")
+set (CPPDAP_VERSION_REF "82beeea")
 
 set (CPPDAP_SOURCE_DIR "${POL_EXT_LIB_DIR}/cppdap-${CPPDAP_VERSION_REF}")
 set (CPPDAP_INSTALL_DIR "${CPPDAP_SOURCE_DIR}/build")
@@ -13,7 +13,7 @@ else()
 endif()
 
 if (${windows})
-  set(CPPDAP_FLAGS -DCMAKE_CXX_FLAGS_RELEASE="/MT" -DCMAKE_C_FLAGS_RELEASE="/MT")
+  set(CPPDAP_FLAGS -DCMAKE_CXX_FLAGS_RELEASE="/MT" -DCMAKE_C_FLAGS_RELEASE="/MT" -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded)
 endif()
 
 set(CPPDAP_ARGS ${CPPDAP_FLAGS}
