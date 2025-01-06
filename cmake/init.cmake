@@ -197,18 +197,6 @@ macro(prepare_build)
   endif()
 endmacro()
 
-macro(hide_cotire)
-  mark_as_advanced(FORCE
-    COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS
-    COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_PATH
-    COTIRE_DEBUG
-    COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES
-    COTIRE_MINIMUM_NUMBER_OF_TARGET_SOURCES
-    COTIRE_UNITY_SOURCE_EXCLUDE_EXTENSIONS
-    COTIRE_VERBOSE
-  )
-endmacro()
-
 macro(cmake_fake_target)
   #used to have cmake files in VisualStudio as folder
   add_custom_target("cmakefiles"

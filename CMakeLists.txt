@@ -22,6 +22,9 @@ project(polserver
 	DESCRIPTION "Penultima Online"
 	HOMEPAGE_URL "polserver.com")
 
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
 set(POL_COPYRIGHT "Copyright (C) 1993-2025 Eric N. Swanson")
@@ -104,11 +107,6 @@ message("")
 
 include(cmake/compile_defs.cmake)
 include(cmake/release.cmake)
-if (${CMAKE_VERSION} VERSION_LESS "3.16")
-  include(cmake/cotire.cmake)
-  #hide the cotire settings
-  hide_cotire()
-endif()
 
 fix_compiler_flags()
 detect_compiler()

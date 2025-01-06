@@ -53,8 +53,6 @@ function(set_compile_flags target is_executable)
     endif()
   endif()
   
-  target_compile_features(${target} PUBLIC cxx_std_17)
-
   target_compile_options(${target} PRIVATE
     $<${linux}:
       -fPIC
@@ -192,36 +190,17 @@ function(source_group_by_folder target)
 endfunction()
 
 function (enable_pch target)
-  # optional argument REUSE or REUSE_COTIRE
-  # cmake starting with 3.16:
-  # REUSE and REUSE_COTIRE will use clib pch
-  # older cmake with cotire:
-  # REUSE_COTIRE will create new pch with clib stdafx
+  # optional argument REUSE will use clib pch
   set(argn "${ARGN}")
   if (NOT NO_PCH)
     set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
-    if (${CMAKE_VERSION} VERSION_LESS "3.16")
-      if (NOT EXISTS ${_pch_name})
-        if ("REUSE_COTIRE" STREQUAL "${argn}")
-          set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/../clib/StdAfx.h")
-        else()
-          return()
-        endif()
-      endif()
-
-      set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
-      set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD OFF)
-      cotire(${target})
-      set_target_properties (clean_cotire PROPERTIES FOLDER 3rdParty)
+    if ("${argn}" MATCHES "REUSE" AND REUSE_PCH)
+      target_precompile_headers(${target} REUSE_FROM clib)
     else()
-      if ("${argn}" MATCHES "REUSE.*" AND REUSE_PCH)
-        target_precompile_headers(${target} REUSE_FROM clib)
-      else()
-        if (NOT REUSE_PCH AND NOT EXISTS ${_pch_name})
-          set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/../clib/StdAfx.h")
-        endif()
-        target_precompile_headers(${target} PRIVATE ${_pch_name})
+      if (NOT REUSE_PCH AND NOT EXISTS ${_pch_name})
+        set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/../clib/StdAfx.h")
       endif()
+      target_precompile_headers(${target} PRIVATE ${_pch_name})
     endif()
   endif()
 endfunction()
