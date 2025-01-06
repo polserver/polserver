@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.22)
 
 #protect the user from himself
 if(" ${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -24,7 +24,7 @@ project(polserver
 
 set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
-set(POL_COPYRIGHT "Copyright (C) 1993-2024 Eric N. Swanson")
+set(POL_COPYRIGHT "Copyright (C) 1993-2025 Eric N. Swanson")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)
