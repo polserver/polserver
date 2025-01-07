@@ -40,7 +40,7 @@ jobs:
           chmod +x "$cmake_archive/bin/cmake"
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin"  | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           # I'm to dumb to get coverity to work with non default compiler
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 800 --slave /usr/bin/g++ g++ /usr/bin/g++-11
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 800 --slave /usr/bin/g++ g++ /usr/bin/g++-12
 
       - name: Download Coverity Build Tool
         run: |

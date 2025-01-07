@@ -35,12 +35,12 @@ The best way to get used to the code is to search for eScript functions in the c
 Compiling in Windows
 ---------
 
-You need at least cmake version 3.9.
+You need at least cmake version 3.22.
 
 **Recommended:**
 Open the *CMake GUI* select the the root folder as source code folder, select
 the `bin-build` subfolder as "where to build the binaries" folder, and select
-your installed Visual Studio version e.g. `Visual Studio 14 2015 Win64`.
+your installed Visual Studio version e.g. `Visual Studio 2017`.
 Now simply press configure+generate+open project and it will directly open
 the solution file in your IDE.
 After building the binaries are located in the `bin` folder.
@@ -60,7 +60,7 @@ Compiling in Linux
 
 Make sure you have the required libraries installed: zlib, openssl and the mysql client (if SQL supported is desired).
 
-Then run the following commands (you need at least CMake 3.9):
+Then run the following commands (you need at least CMake 3.22):
 * `cd bin-build`
 * `./build_linux.sh`
 

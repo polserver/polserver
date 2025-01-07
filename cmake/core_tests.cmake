@@ -1,17 +1,10 @@
 set(testsuite ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/pol)
 
 # cleanup as initial fixture, to have at the end of the run still all testdata
-if (${CMAKE_VERSION} VERSION_LESS "3.17")
-  add_test(NAME cleantestdir
-    COMMAND ${CMAKE_COMMAND} -E remove_directory coretest
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  )
-else()
-  add_test(NAME cleantestdir
-    COMMAND ${CMAKE_COMMAND} -E rm -rf coretest
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  )
-endif()
+add_test(NAME cleantestdir
+  COMMAND ${CMAKE_COMMAND} -E rm -rf coretest
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 set_tests_properties(cleantestdir PROPERTIES FIXTURES_SETUP "client;initial_cleanup")
 
 # uoconvert tests

@@ -70,8 +70,8 @@ jobs:
       - name: Cache cppdap
         uses: actions/cache@v4
         with:
-          path: lib/cppdap-2a4c7cf
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-2a4c7cf
+          path: lib/cppdap-82beeea
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea
       - name: Install llvm
         if: matrix.config.cxx-compiler == 'clang-cl'
         shell: powershell

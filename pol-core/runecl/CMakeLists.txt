@@ -11,7 +11,7 @@ add_modtbl_dependency(${ex_name})
 
 set_compile_flags(${ex_name} 1)
 warning_suppression(${ex_name})
-enable_pch(${ex_name} REUSE_COTIRE)
+enable_pch(${ex_name} REUSE)
 
 target_link_libraries(${ex_name} PUBLIC
   bscript
