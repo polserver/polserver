@@ -18,9 +18,7 @@ target_link_libraries(${lib_name} PUBLIC
   libfmt
   libutf8
   libboost_headers
-  #  libboost_regex
-  #  libboost_system
-  #  libboost_thread
+  libboost_stacktrace
 )
 
 #since clib is our baselib make here the include dirs public
