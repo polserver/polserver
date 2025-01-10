@@ -1,6 +1,6 @@
 message("* libboost")
-set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_83_0")
-# set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
+set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_87_0")
+set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
 if (clang)
   set (BOOST_TOOLSET "clang")
@@ -21,42 +21,45 @@ endif()
 #if (NOT DEFINED BOOST_TOOLSET)
 #  message(FATAL_ERROR "Unknown boost toolset to build")
 #endif()
+set (BOOST_ARC "")
+if (${windows})
+  set (BOOST_CONFIGURE_COMMAND "bootstrap.bat")
+  set (BOOST_BUILD_COMMAND "b2.exe")
+  set (BOOST_STACKTRACE_LIB2 "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_windbg.lib")
+  set (BOOST_STACKTRACE_LIB "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_from_exception.lib")
+  if (msvc)
+    set (BOOST_CXX_FLAGS "/MT -DBOOST_STACKTRACE_LINK")
+  else()
+    set (BOOST_CXX_FLAGS "-fms-runtime-lib=static -DBOOST_STACKTRACE_LINK")
+  endif()
+else()
+  set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
+  set (BOOST_BUILD_COMMAND "./b2")
+  set (BOOST_STACKTRACE_LIB2 "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_basic.a")
+  set (BOOST_STACKTRACE_LIB "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_from_exception.a" )
 
-#if (${windows})
-  #  set (BOOST_CONFIGURE_COMMAND "bootstrap.bat")
-  #  set (BOOST_BUILD_COMMAND "b2.exe")
-  #  set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.lib" )
-  #  set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.lib" )
-  #  set (BOOST_THREAD_LIB "${BOOST_STAGE_LIB_DIR}/libboost_thread.lib" )
-  #  if (msvc)
-  #    set (BOOST_CXX_FLAGS "/MT")
-  #  else()
-  #    set (BOOST_CXX_FLAGS "-fms-runtime-lib=static")
-  #  endif()
-#else()
-  #  set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
-  #  set (BOOST_BUILD_COMMAND "./b2")
-  #  set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.a" )
-  #  set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.a" )
-  #  set (BOOST_THREAD_LIB "${BOOST_STAGE_LIB_DIR}/libboost_thread.a" )
-  #
-  #  set (BOOST_CXX_FLAGS "")
-  #  foreach(OSX_ARCHITECTURE ${CMAKE_OSX_ARCHITECTURES})
-  #    set (BOOST_CXX_FLAGS "${BOOST_CXX_FLAGS} -arch ${OSX_ARCHITECTURE}")
-  #  endforeach()
-#endif()
+  set (BOOST_CXX_FLAGS "-DBOOST_STACKTRACE_LINK")
+  if (APPLE)
+    foreach(OSX_ARCHITECTURE ${CMAKE_OSX_ARCHITECTURES})
+      set (BOOST_CXX_FLAGS "${BOOST_CXX_FLAGS} -arch ${OSX_ARCHITECTURE}")
+    endforeach()
+    set (BOOST_ARC "architecture=arm+x86")
+    set (BOOST_STACKTRACE_LIB ${BOOST_STACKTRACE_LIB2})
+    set (BOOST_STACKTRACE_LIB2 "")
+  endif()
+endif()
 
 set(boost_needs_extract FALSE)
-#set(boost_needs_build FALSE)
+set(boost_needs_build FALSE)
 if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   message("  - will extract")
   ExternalProject_Add(libboost_ext
-    URL "https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.bz2"
+    URL "https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2"
     SOURCE_DIR "${BOOST_SOURCE_DIR}"
-    CONFIGURE_COMMAND "" #${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
+    CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
-    URL_HASH SHA256=6478edfe2f3305127cffe8caf73ea0176c53769f4bf1585be237eb30798c3b8e
+    URL_HASH SHA256=af57be25cb4c4f4b413ed692fe378affb4352ea50fbe294a11ef548f4d527d89
     BUILD_BYPRODUCTS "${BOOST_SOURCE_DIR}"
     LOG_DOWNLOAD 1
     LOG_CONFIGURE 1
@@ -71,27 +74,27 @@ else()
   message("  - will not extract")
 endif()
 
-#if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS ${BOOST_THREAD_LIB})
-#  message("  - will build in ${BOOST_SOURCE_DIR} toolset=${BOOST_TOOLSET} cxxflags=${BOOST_CXX_FLAGS}")
-#  ExternalProject_Add(boost_build
-#          SOURCE_DIR ${BOOST_SOURCE_DIR}
-#          INSTALL_COMMAND ""
-#          CONFIGURE_COMMAND ""
-#          DOWNLOAD_COMMAND ""
-#          BUILD_COMMAND ${BOOST_BUILD_COMMAND} cxxflags=${BOOST_CXX_FLAGS} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} variant=release link=static runtime-link=static --layout=system --with-regex --with-system --with-thread stage
-#          BUILD_BYPRODUCTS ${BOOST_REGEX_LIB} ${BOOST_SYSTEM_LIB} ${BOOST_THREAD_LIB}
-#          LOG_BUILD 1
-#          BUILD_IN_SOURCE 1
-#          LOG_OUTPUT_ON_FAILURE 1
-#          )
-#  if (boost_needs_extract)
-#    add_dependencies(boost_build boost_extract)
-#  endif()
-#  set_target_properties (boost_build PROPERTIES FOLDER 3rdParty)
-#  set(boost_needs_build TRUE)
-#else()
-#  message("  - will not build")
-#endif()
+if(NOT EXISTS ${BOOST_STACKTRACE_LIB})
+  message("  - will build in ${BOOST_SOURCE_DIR} toolset=${BOOST_TOOLSET} cxxflags=${BOOST_CXX_FLAGS}")
+  ExternalProject_Add(boost_build
+          SOURCE_DIR ${BOOST_SOURCE_DIR}
+          INSTALL_COMMAND ""
+          CONFIGURE_COMMAND ""
+          DOWNLOAD_COMMAND ""
+          BUILD_COMMAND ${BOOST_BUILD_COMMAND} cxxflags=${BOOST_CXX_FLAGS} cflags=${BOOST_CXX_FLAGS} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} ${BOOST_ARC} variant=release link=static runtime-link=static --layout=system --with-stacktrace stage
+          BUILD_BYPRODUCTS ${BOOST_STACKTRACE_LIB} ${BOOST_STACKTRACE_LIB2}
+          LOG_BUILD 1
+          BUILD_IN_SOURCE 1
+          LOG_OUTPUT_ON_FAILURE 1
+          )
+  if (boost_needs_extract)
+    add_dependencies(boost_build libboost_ext)
+  endif()
+  set_target_properties (boost_build PROPERTIES FOLDER 3rdParty)
+  set(boost_needs_build TRUE)
+else()
+  message("  - will not build")
+endif()
 
 # imported target to add include/lib dir and additional dependencies
 add_library(libboost_headers INTERFACE IMPORTED)
@@ -102,35 +105,28 @@ if (boost_needs_extract)
   add_dependencies(libboost_headers libboost_ext)
 endif()
 
-#add_library(libboost_regex STATIC IMPORTED)
-#set_target_properties(libboost_regex PROPERTIES
-#  IMPORTED_LOCATION ${BOOST_REGEX_LIB}
-#  IMPORTED_IMPLIB ${BOOST_REGEX_LIB}
-#  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
-#  FOLDER 3rdParty
-#)
-#if (boost_needs_build)
-#  add_dependencies(libboost_regex boost_build)
-#endif()
-#
-#add_library(libboost_system STATIC IMPORTED)
-#set_target_properties(libboost_system PROPERTIES
-#  IMPORTED_LOCATION ${BOOST_SYSTEM_LIB}
-#  IMPORTED_IMPLIB ${BOOST_SYSTEM_LIB}
-#  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
-#  FOLDER 3rdParty
-#)
-#if (boost_needs_build)
-#  add_dependencies(libboost_system boost_build)
-#endif()
-#
-#add_library(libboost_thread STATIC IMPORTED)
-#set_target_properties(libboost_thread PROPERTIES
-#  IMPORTED_LOCATION ${BOOST_THREAD_LIB}
-#  IMPORTED_IMPLIB ${BOOST_THREAD_LIB}
-#  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
-#  FOLDER 3rdParty
-#)
-#if (boost_needs_build)
-#  add_dependencies(libboost_thread boost_build)
-#endif()
+add_library(libboost_stacktrace STATIC IMPORTED)
+set_target_properties(libboost_stacktrace PROPERTIES
+  IMPORTED_LOCATION ${BOOST_STACKTRACE_LIB}
+  IMPORTED_IMPLIB ${BOOST_STACKTRACE_LIB}
+  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
+  INTERFACE_COMPILE_DEFINITIONS BOOST_STACKTRACE_LINK
+  FOLDER 3rdParty
+)
+if (${windows})
+  set_property(TARGET libboost_stacktrace APPEND
+      PROPERTY INTERFACE_LINK_LIBRARIES
+        dbgeng
+        ole32
+        ${BOOST_STACKTRACE_LIB2}
+    )
+else()
+  set_property(TARGET libboost_stacktrace APPEND
+      PROPERTY INTERFACE_LINK_LIBRARIES
+        dl
+        ${BOOST_STACKTRACE_LIB2}
+    )
+endif()
+if (boost_needs_build)
+  add_dependencies(libboost_stacktrace boost_build)
+endif()
