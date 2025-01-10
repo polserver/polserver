@@ -177,7 +177,6 @@ SaveContext::~SaveContext() noexcept( false )
   guilds.flush_file();
   datastore.flush_file();
   party.flush_file();
-  throw 1;
 }
 
 /// blocks till possible last commit finishes
