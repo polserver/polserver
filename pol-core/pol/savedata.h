@@ -3,9 +3,7 @@
  * @par History
  */
 
-
-#ifndef SAVEDATA_H
-#define SAVEDATA_H
+#pragma once
 
 #include <fstream>
 #include <future>
@@ -13,9 +11,7 @@
 
 #include "../clib/streamsaver.h"
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 class SaveContext
 {
@@ -38,7 +34,8 @@ private:
 
 public:
   SaveContext();
-  ~SaveContext();
+  // allow exception without direct terminate, performs fileoperations which can fail eg diskfull
+  ~SaveContext() noexcept( false );
   SaveContext( const SaveContext& ) = delete;
   SaveContext& operator=( const SaveContext& ) = delete;
   SaveStrategy pol;
@@ -65,6 +62,4 @@ void write_shadow_realms( Clib::StreamWriter& sw );
 bool commit( const std::string& basename );
 bool should_write_data();
 int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms );
-}  // namespace Core
-}  // namespace Pol
-#endif
+}  // namespace Pol::Core

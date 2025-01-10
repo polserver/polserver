@@ -160,7 +160,7 @@ SaveContext::SaveContext()
   party.comment( "\n" );
 }
 
-SaveContext::~SaveContext()
+SaveContext::~SaveContext() noexcept( false )
 {
   pol.flush_file();
   objects.flush_file();
@@ -210,7 +210,7 @@ void write_realms( Clib::StreamWriter& sw )
   for ( const auto& realm : gamestate.Realms )
   {
     sw.begin( "Realm" );
-    if (!realm->is_shadowrealm)
+    if ( !realm->is_shadowrealm )
     {
       sw.add( "Name", realm->name() );
     }
