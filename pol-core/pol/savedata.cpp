@@ -595,14 +595,17 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
         }  // deconstructor of the SaveContext flushes and joins the queues
         catch ( std::ios_base::failure& e )
         {
-          POLLOG_ERRORLN( "failed to save datafiles! {}:{}", e.what(), std::strerror( errno ) );
-          Clib::force_backtrace();
+          POLLOG_ERRORLN( "failed to save datafiles! {}:{}\n{}", e.what(), std::strerror( errno ),
+                          boost::stacktrace::to_string(
+                              boost::stacktrace::stacktrace::from_current_exception() ) );
+
           result = false;
         }
         catch ( ... )
         {
-          POLLOG_ERRORLN( "failed to save datafiles!" );
-          Clib::force_backtrace();
+          POLLOG_ERRORLN( "failed to save datafiles!\n{}",
+                          boost::stacktrace::to_string(
+                              boost::stacktrace::stacktrace::from_current_exception() ) );
           result = false;
         }
         if ( result )
