@@ -7,6 +7,8 @@
 
 #include "savedata.h"
 
+#include <boost/stacktrace.hpp>
+
 #include <cerrno>
 #include <exception>
 #include <fstream>
@@ -440,8 +442,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store pol datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store pol datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -454,8 +457,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store items datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store items datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -468,8 +472,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store character datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store character datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -482,8 +487,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store npcs datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store npcs datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -496,8 +502,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store multis datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store multis datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -510,8 +517,10 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store storage datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store storage datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
+
                   result = false;
                 }
               } ) );
@@ -524,8 +533,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store resource datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store resource datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -538,8 +548,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store guilds datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store guilds datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -554,8 +565,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store datastore datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store datastore datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
@@ -568,8 +580,9 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERRORLN( "failed to store party datafile!" );
-                  Clib::force_backtrace();
+                  POLLOG_ERRORLN( "failed to store party datafile!\n{}",
+                                  boost::stacktrace::to_string(
+                                      boost::stacktrace::stacktrace::from_current_exception() ) );
                   result = false;
                 }
               } ) );
