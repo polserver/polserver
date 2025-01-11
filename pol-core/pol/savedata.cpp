@@ -54,6 +54,7 @@ void write_party( Clib::StreamWriter& sw );
 void write_guilds( Clib::StreamWriter& sw );
 
 std::shared_future<bool> SaveContext::finished;
+std::atomic<gameclock_t> SaveContext::last_worldsave_success = 0;
 
 SaveContext::SaveContext()
     : _pol(),
@@ -396,14 +397,15 @@ bool commit( const std::string& basename )
   return any;
 }
 
-int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms )
+std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_writes,
+                                long long& elapsed_ms )
 {
   SaveContext::ready();  // allow only one active
   if ( !should_write_data() )
   {
     dirty_writes = clean_writes = 0;
     elapsed_ms = 0;
-    return -1;
+    return {};
   }
 
   UObject::dirty_writes = 0;
@@ -623,10 +625,11 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           commit( "guilds" );
           commit( "datastore" );
           commit( "parties" );
+          SaveContext::last_worldsave_success = read_gameclock();
         }
         return true;
       } );
-  critical_future.wait();  // wait for end of critical part
+  auto res = critical_future.get();  // wait for end of critical part
 
   if ( Plib::systemstate.accounts_txt_dirty )  // write accounts extra, since it uses extra thread
                                                // for io operations would be to many threads working
@@ -644,7 +647,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
   dirty_writes = UObject::dirty_writes;
   elapsed_ms = timer.ellapsed();
 
-  return 0;
+  return res;
 }
 
 }  // namespace Core

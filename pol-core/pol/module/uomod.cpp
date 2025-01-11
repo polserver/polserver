@@ -3022,8 +3022,10 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
 
     unsigned int dirty, clean;
     long long elapsed_ms;
-    int res = write_data( dirty, clean, elapsed_ms );
-    if ( res == 0 )
+    auto res = write_data( dirty, clean, elapsed_ms );
+    if ( !res )
+      return new BError( "pol.cfg has InhibitSaves=1" );
+    if ( *res )
     {
       BStruct* ret = new BStruct();
       ret->addMember( "DirtyObjects", new BLong( dirty ) );
@@ -3031,10 +3033,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
       ret->addMember( "ElapsedMilliseconds", new BLong( static_cast<int>( elapsed_ms ) ) );
       return ret;
     }
-    else
-    {
-      return new BError( "pol.cfg has InhibitSaves=1" );
-    }
+    return new BError( "Failed to save world" );
   }
   catch ( std::exception& ex )
   {

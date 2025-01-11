@@ -629,6 +629,7 @@ int read_data()
 
   // POL clock should be paused at this point.
   start_gameclock();
+  SaveContext::last_worldsave_success = read_gameclock();  // set last success to load time
 
   read_objects_dat();
   read_pcs_dat();

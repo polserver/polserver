@@ -5,11 +5,14 @@
 
 #pragma once
 
+#include <atomic>
 #include <fstream>
 #include <future>
+#include <optional>
 #include <string>
 
 #include "../clib/streamsaver.h"
+#include "gameclck.h"
 
 namespace Pol::Core
 {
@@ -53,6 +56,7 @@ public:
   SaveStrategy party;
   static std::shared_future<bool> finished;
   static void ready();
+  static std::atomic<gameclock_t> last_worldsave_success;
 };
 
 void write_system_data( Clib::StreamWriter& sw );
@@ -61,5 +65,6 @@ void write_shadow_realms( Clib::StreamWriter& sw );
 
 bool commit( const std::string& basename );
 bool should_write_data();
-int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms );
+std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_writes,
+                                long long& elapsed_ms );
 }  // namespace Pol::Core
