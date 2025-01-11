@@ -28,7 +28,8 @@ if(NOT EXISTS ${CPPDAP_LIB})
   ExternalProject_Add(libcppdap_ext
     GIT_REPOSITORY   ${CPPDAP_REPOSITORY}
     GIT_TAG          ${CPPDAP_VERSION_REF}
-    GIT_SHALLOW      TRUE
+    # only valid option if its a tag or branch not a commit
+    #GIT_SHALLOW      TRUE
     PREFIX           cppdap
     LIST_SEPARATOR |
     CMAKE_ARGS       ${CPPDAP_ARGS}
