@@ -54,7 +54,7 @@ public:
   SaveStrategy guilds;
   SaveStrategy datastore;
   SaveStrategy party;
-  static std::shared_future<bool> finished;
+  static std::shared_future<void> finished;
   static void ready();
   static std::atomic<gameclock_t> last_worldsave_success;
 };
