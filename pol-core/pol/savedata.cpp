@@ -165,19 +165,29 @@ SaveContext::SaveContext()
 
 SaveContext::~SaveContext() noexcept( false )
 {
-  pol.flush_file();
-  objects.flush_file();
-  pcs.flush_file();
-  pcequip.flush_file();
-  npcs.flush_file();
-  npcequip.flush_file();
-  items.flush_file();
-  multis.flush_file();
-  storage.flush_file();
-  resource.flush_file();
-  guilds.flush_file();
-  datastore.flush_file();
-  party.flush_file();
+  auto stack_unwinding = std::uncaught_exceptions();
+  try
+  {
+    pol.flush_file();
+    objects.flush_file();
+    pcs.flush_file();
+    pcequip.flush_file();
+    npcs.flush_file();
+    npcequip.flush_file();
+    items.flush_file();
+    multis.flush_file();
+    storage.flush_file();
+    resource.flush_file();
+    guilds.flush_file();
+    datastore.flush_file();
+    party.flush_file();
+  }
+  catch ( ... )
+  {
+    // during stack unwinding an exception would terminate
+    if ( !stack_unwinding )
+      throw;
+  }
 }
 
 /// blocks till possible last commit finishes
@@ -592,8 +602,8 @@ std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_
             task.wait();
 
           critical_promise->set_value( result );  // critical part end
-          // TODO: since promise can only be set one time move it into a method with a dedicated try
-          // block, now when in theory an upper part fails the promise gets never set
+          // TODO: since promise can only be set one time move it into a method with a dedicated
+          // try block, now when in theory an upper part fails the promise gets never set
         }  // deconstructor of the SaveContext flushes and joins the queues
         catch ( std::ios_base::failure& e )
         {

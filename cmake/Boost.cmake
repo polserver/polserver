@@ -35,7 +35,7 @@ if (${windows})
 else()
   set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
   set (BOOST_BUILD_COMMAND "./b2")
-  set (BOOST_STACKTRACE_LIB2 "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_basic.a")
+  set (BOOST_STACKTRACE_LIB2 "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_backtrace.a")
   set (BOOST_STACKTRACE_LIB "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_from_exception.a" )
 
   set (BOOST_CXX_FLAGS "-DBOOST_STACKTRACE_LINK")
@@ -46,6 +46,9 @@ else()
     set (BOOST_ARC "architecture=arm+x86")
     set (BOOST_STACKTRACE_LIB ${BOOST_STACKTRACE_LIB2})
     set (BOOST_STACKTRACE_LIB2 "")
+  endif()
+  if (clang)
+    set (BOOST_STACKTRACE_LIB2 "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_addr2line.a")
   endif()
 endif()
 
@@ -123,8 +126,9 @@ if (${windows})
 else()
   set_property(TARGET libboost_stacktrace APPEND
       PROPERTY INTERFACE_LINK_LIBRARIES
-        dl
         ${BOOST_STACKTRACE_LIB2}
+        dl
+        backtrace
     )
 endif()
 if (boost_needs_build)
