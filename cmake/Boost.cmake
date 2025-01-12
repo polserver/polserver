@@ -128,7 +128,7 @@ else()
       PROPERTY INTERFACE_LINK_LIBRARIES
         ${BOOST_STACKTRACE_LIB2}
         dl
-        backtrace
+        $<$<NOT:$<PLATFORM_ID:Darwin>>:backtrace>
     )
 endif()
 if (boost_needs_build)
