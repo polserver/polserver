@@ -551,6 +551,8 @@ string ExceptionParser::getTrace()
 {
   auto stack = boost::stacktrace::stacktrace::from_current_exception();
   // current_exception does not always work, eg no active exception
+  // and needs linking with libboost_stacktrace_backtrace, which as of now is not possible with
+  // Apple. Current stacktrace as fallback, which should give enough infos
   if ( stack.empty() )
     stack = boost::stacktrace::stacktrace();
   return boost::stacktrace::to_string( stack );
