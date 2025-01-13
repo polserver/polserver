@@ -30,7 +30,6 @@ if(NOT EXISTS ${EFSW_LIB})
   ExternalProject_Add(libefsw_ext
     GIT_REPOSITORY   ${EFSW_REPOSITORY}
     GIT_TAG          ${EFSW_VERSION_REF}
-    GIT_SHALLOW      TRUE
     PREFIX           efsw
     LIST_SEPARATOR |
     CMAKE_ARGS       ${EFSW_ARGS}
