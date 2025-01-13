@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#include "../../clib/Debugging/ExceptionParser.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
@@ -93,9 +94,8 @@ void write_account_data()
   }
   catch ( ... )
   {
-    POLLOG_ERRORLN( "failed to store accounts!" );
+    POLLOG_ERRORLN( "failed to store accounts!\n{}", Clib::ExceptionParser::getTrace() );
     result = false;
-    Clib::force_backtrace();
   }
   if ( !result )
     return;

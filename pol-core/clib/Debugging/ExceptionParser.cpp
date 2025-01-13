@@ -27,6 +27,8 @@
 #include "../Header_Windows.h"
 #endif
 
+#include <boost/stacktrace.hpp>
+
 #define MAX_STACK_TRACE_DEPTH 200
 #define MAX_STACK_TRACE_STEP_LENGTH 512
 
@@ -443,120 +445,6 @@ ExceptionParser::~ExceptionParser() {}
 ///////////////////////////////////////////////////////////////////////////////
 
 #if !defined( _WIN32 ) && !defined( __APPLE__ )
-string ExceptionParser::getTrace()
-{
-  string result;
-
-  void* stackTrace[MAX_STACK_TRACE_DEPTH];
-  int stackTraceSize;
-  char** stackTraceList;
-  int stackTraceStep = 0;
-  char* stringBuf = (char*)malloc( MAX_STACK_TRACE_STEP_LENGTH );
-
-  stackTraceSize = backtrace( stackTrace, MAX_STACK_TRACE_DEPTH );
-  stackTraceList = backtrace_symbols( stackTrace, stackTraceSize );
-
-  size_t funcNameSize = 256;
-  char* funcnName = (char*)malloc( funcNameSize );
-
-  // iterate over all entries and do the demangling
-  for ( int i = 0; i < stackTraceSize; i++ )
-  {
-    // get the pointers to the name, offset and end of offset
-    char* beginFuncName = nullptr;
-    char* beginFuncOffset = nullptr;
-    char* endFuncOffset = nullptr;
-    char* beginBinaryName = stackTraceList[i];
-    char* beginBinaryOffset = nullptr;
-    char* endBinaryOffset = nullptr;
-    for ( char* entryPointer = stackTraceList[i]; *entryPointer; ++entryPointer )
-    {
-      if ( *entryPointer == '(' )
-      {
-        beginFuncName = entryPointer;
-      }
-      else if ( *entryPointer == '+' )
-      {
-        beginFuncOffset = entryPointer;
-      }
-      else if ( *entryPointer == ')' && beginFuncOffset )
-      {
-        endFuncOffset = entryPointer;
-      }
-      else if ( *entryPointer == '[' )
-      {
-        beginBinaryOffset = entryPointer;
-      }
-      else if ( *entryPointer == ']' && beginBinaryOffset )
-      {
-        endBinaryOffset = entryPointer;
-        break;
-      }
-    }
-
-    // set the default value for the output line
-    sprintf( stringBuf, "\n" );
-
-    bool parse_succeeded = beginFuncName && beginFuncOffset && endFuncOffset && beginBinaryOffset &&
-                           endBinaryOffset && beginFuncName < beginFuncOffset;
-
-    // get the detailed values for the output line if available
-    if ( parse_succeeded )
-    {
-      // terminate the C strings
-      *beginFuncName++ = '\0';
-      *beginFuncOffset++ = '\0';
-      *endFuncOffset = '\0';
-      *beginBinaryOffset++ = '\0';
-      *endBinaryOffset = '\0';
-
-      int res;
-      funcnName = abi::__cxa_demangle( beginFuncName, funcnName, &funcNameSize, &res );
-      unsigned int binaryOffset = strtoul( beginBinaryOffset, nullptr, 16 );
-      if ( res == 0 )
-      {
-        string funcnNameStr = ( funcnName ? funcnName : "" );
-        if ( funcnName && strncmp( funcnName, "Pol::", 5 ) == 0 )
-          funcnNameStr = ">> " + funcnNameStr;
-
-        if ( beginBinaryName && strlen( beginBinaryName ) )
-          sprintf( stringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", stackTraceStep, binaryOffset,
-                   funcnNameStr.c_str(), beginFuncOffset, beginBinaryName );
-        else
-          sprintf( stringBuf, "#%02d 0x%016x in %s from %s\n", stackTraceStep, binaryOffset,
-                   funcnNameStr.c_str(), beginFuncOffset );
-        stackTraceStep++;
-      }
-      else
-      {
-        if ( beginBinaryName && strlen( beginBinaryName ) )
-          sprintf( stringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", stackTraceStep, binaryOffset,
-                   beginFuncName, beginFuncOffset, beginBinaryName );
-        else
-          sprintf( stringBuf, "#%02d 0x%016x in %s:[%s]\n", stackTraceStep, binaryOffset,
-                   beginFuncName, beginFuncOffset );
-        stackTraceStep++;
-      }
-    }
-    else
-    {
-      // print the raw trace, as it is better than nothing
-      sprintf( stringBuf, "#%02d %s\n", stackTraceStep, stackTraceList[i] );
-      stackTraceStep++;
-    }
-
-    // append the line to the result
-    result += string( stringBuf );
-  }
-
-  // memory cleanup
-  free( funcnName );
-  free( stackTraceList );
-  free( stringBuf );
-
-  return result;
-}
-
 static void handleSignalLinux( int signal, siginfo_t* signalInfo, void* arg )
 {
   (void)arg;
@@ -652,18 +540,21 @@ void ExceptionParser::initGlobalExceptionCatching()
     std::exit( 1 );
   }
 }
-#else   // _WIN32
-string ExceptionParser::getTrace()
-{
-  string result;
-
-  return result;
-}
+#else   // _WIN32 || Apple
 
 void ExceptionParser::logAllStackTraces() {}
 
 void ExceptionParser::initGlobalExceptionCatching() {}
-#endif  // _WIN32
+#endif  // _WIN32 || Apple
+
+string ExceptionParser::getTrace()
+{
+  auto stack = boost::stacktrace::stacktrace::from_current_exception();
+  // current_exception does not always work, eg no active exception
+  if ( stack.empty() )
+    stack = boost::stacktrace::stacktrace();
+  return boost::stacktrace::to_string( stack );
+}
 
 void ExceptionParser::configureProgramAbortReportingSystem( bool active, std::string server,
                                                             std::string url, std::string reporter )

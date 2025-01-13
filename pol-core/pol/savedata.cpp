@@ -7,12 +7,11 @@
 
 #include "savedata.h"
 
-#include <boost/stacktrace.hpp>
-
 #include <cerrno>
 #include <exception>
 #include <fstream>
 
+#include "../clib/Debugging/ExceptionParser.h"
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
@@ -459,8 +458,7 @@ std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_
                   catch ( ... )
                   {
                     POLLOG_ERRORLN( "failed to store {} datafile!\n{}", name,
-                                    boost::stacktrace::to_string(
-                                        boost::stacktrace::stacktrace::from_current_exception() ) );
+                                    Clib::ExceptionParser::getTrace() );
                     result = false;
                   }
                 } ) );
@@ -512,17 +510,14 @@ std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_
         catch ( std::ios_base::failure& e )
         {
           POLLOG_ERRORLN( "failed to save datafiles! {}:{}\n{}", e.what(), std::strerror( errno ),
-                          boost::stacktrace::to_string(
-                              boost::stacktrace::stacktrace::from_current_exception() ) );
+                          Clib::ExceptionParser::getTrace() );
 
           result = false;
           set_promise( critical_promise, result );
         }
         catch ( ... )
         {
-          POLLOG_ERRORLN( "failed to save datafiles!\n{}",
-                          boost::stacktrace::to_string(
-                              boost::stacktrace::stacktrace::from_current_exception() ) );
+          POLLOG_ERRORLN( "failed to save datafiles!\n{}", Clib::ExceptionParser::getTrace() );
           result = false;
           set_promise( critical_promise, result );
         }
