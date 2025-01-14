@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>11/11/2024</datemodified>
+<datemodified>01/14/2025</datemodified>
 </fileheader>
 
 
@@ -581,6 +581,7 @@
 <member mname="last_character_serial" type="Integer" access="r/o">Last character serial number assigned by core</member>
 <member mname="last_item_serial" type="Integer" access="r/o">Last item serial number assigned by core</member>
 <member mname="poldir" type="String" access="r/o">Directory of the POL executable</member>
+<member mname="worldsaved_at" type="Integer" access="r/o">Gameclock time of last successful worldsave</member>
 
 <method proto="log_profile(bool clear)" returns="true/false">Writes the script profile to the log, optionally clearing it after.</method>
 <method proto="set_priority_divide(int divide)" returns="true/false">Sets the priority divide to 'divide'</method>

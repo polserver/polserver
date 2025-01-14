@@ -1,5 +1,8 @@
 -- POL100.2.0 --
-01-04-2024 Kevin:
+01-14-2025 Turley:
+    Fixed: crash when disk is full during worldsave
+    Added: PolCore().worldsaved_at returns game clock time of last successful world save
+01-04-2025 Kevin:
     Added: Script object script method `stacktrace( options? )`
 11-13-2024 Turley:
     Added: regions.cfg ItemsDecay setting, if deactivated items will not decay in this area.
