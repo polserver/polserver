@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#include <boost/stacktrace.hpp>
+
 #include "../Debugging/ExceptionParser.h"
 #include "../logfacility.h"
 #include "ProgramConfig.h"
@@ -22,6 +24,7 @@
 #else
 #endif
 #include <clocale>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
@@ -32,6 +35,20 @@ namespace Pol
 namespace Clib
 {
 using namespace std;
+
+
+// last resort: print backtrace on terminate
+void terminate_handler()
+{
+  try
+  {
+    std::cerr << "Terminate failure:\n" << boost::stacktrace::stacktrace() << std::endl;
+  }
+  catch ( ... )
+  {
+  }
+  std::abort();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +62,7 @@ void ProgramMain::start( int argc, char* argv[] )
   Clib::Logging::LogFacility logger;
   Clib::Logging::initLogging( &logger );
   Clib::ExceptionParser::initGlobalExceptionCatching();
+  std::set_terminate( &terminate_handler );
 
   std::setlocale( LC_TIME, "" );
   std::setlocale( LC_CTYPE, "en_US.UTF-8" );  // unicode aware strings, unsure if english is enough,

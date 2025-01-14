@@ -1,3 +1,4 @@
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -25,7 +26,7 @@ StreamWriter::StreamWriter( std::ofstream* stream )
 {
 }
 
-StreamWriter::~StreamWriter()
+StreamWriter::~StreamWriter() noexcept( false )
 {
 #if 0
   if ( !_buf.empty() )
@@ -36,8 +37,18 @@ StreamWriter::~StreamWriter()
   }
   ERROR_PRINTLN( "streamwriter {} io time {}", _stream_name, _fs_time.count() );
 #else
-  if ( !_buf.empty() && _stream )
-    *_stream << _buf;
+  auto stack_unwinding = std::uncaught_exceptions();
+  try
+  {
+    if ( !_buf.empty() && _stream )
+      *_stream << _buf;
+  }
+  catch ( ... )
+  {
+    // during stack unwinding an exception would terminate
+    if ( !stack_unwinding )
+      throw;
+  }
 #endif
 }
 

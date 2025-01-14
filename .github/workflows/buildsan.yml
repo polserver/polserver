@@ -52,8 +52,8 @@ jobs:
       - name: Cache boost
         uses: actions/cache@v4
         with:
-          path: lib/boost_1_83_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0-2
+          path: lib/boost_1_87_0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.87.0
       - name: Cache cppdap
         uses: actions/cache@v4
         with:
