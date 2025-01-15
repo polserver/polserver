@@ -9,6 +9,7 @@
 
 #include <cerrno>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 
 #include "../clib/Debugging/ExceptionParser.h"
@@ -39,6 +40,8 @@
 #include "ufunc.h"
 #include "uobject.h"
 #include "uworld.h"
+
+namespace fs = std::filesystem;
 
 namespace Pol
 {
@@ -362,48 +365,25 @@ bool should_write_data()
 
 bool commit( const std::string& basename )
 {
-  std::string bakfile = Plib::systemstate.config.world_data_path + basename + ".bak";
-  std::string datfile = Plib::systemstate.config.world_data_path + basename + ".txt";
-  std::string ndtfile = Plib::systemstate.config.world_data_path + basename + ".ndt";
-  const char* bakfile_c = bakfile.c_str();
-  const char* datfile_c = datfile.c_str();
-  const char* ndtfile_c = ndtfile.c_str();
+  auto bakfile = fs::path( Plib::systemstate.config.world_data_path ) / ( basename + ".bak" );
+  auto datfile = fs::path( Plib::systemstate.config.world_data_path ) / ( basename + ".txt" );
+  auto ndtfile = fs::path( Plib::systemstate.config.world_data_path ) / ( basename + ".ndt" );
 
-  bool any = false;
-
-  if ( Clib::FileExists( bakfile_c ) )
+  try
   {
-    any = true;
-    if ( unlink( bakfile_c ) )
-    {
-      int err = errno;
-      POLLOG_ERRORLN( "Unable to remove {}: {} ({})", bakfile_c, strerror( err ), err );
-    }
+    fs::remove( bakfile );  // does not throw if not existing
+    if ( fs::exists( datfile ) )
+      fs::rename( datfile, bakfile );
+    if ( fs::exists( ndtfile ) )
+      fs::rename( ndtfile, datfile );
   }
-
-  if ( Clib::FileExists( datfile_c ) )
+  catch ( const fs::filesystem_error& error )
   {
-    any = true;
-    if ( rename( datfile_c, bakfile_c ) )
-    {
-      int err = errno;
-      POLLOG_ERRORLN( "Unable to rename {} to {}: {} ({})", datfile_c, bakfile_c, strerror( err ),
-                      err );
-    }
+    POLLOG_ERRORLN( "Unable to commit worldsave: {}\n{}", error.what(),
+                    Clib::ExceptionParser::getTrace() );
+    return false;
   }
-
-  if ( Clib::FileExists( ndtfile_c ) )
-  {
-    any = true;
-    if ( rename( ndtfile_c, datfile_c ) )
-    {
-      int err = errno;
-      POLLOG_ERRORLN( "Unable to rename {} to {}: {} ({})", ndtfile_c, datfile_c, strerror( err ),
-                      err );
-    }
-  }
-
-  return any;
+  return true;
 }
 
 std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_writes,
@@ -523,20 +503,13 @@ std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_
         }
         if ( result )
         {
-          commit( "pol" );
-          commit( "objects" );
-          commit( "pcs" );
-          commit( "pcequip" );
-          commit( "npcs" );
-          commit( "npcequip" );
-          commit( "items" );
-          commit( "multis" );
-          commit( "storage" );
-          commit( "resource" );
-          commit( "guilds" );
-          commit( "datastore" );
-          commit( "parties" );
-          SaveContext::last_worldsave_success = read_gameclock();
+          auto files = { "pol",      "objects",   "pcs",    "pcequip", "npcs",
+                         "npcequip", "items",     "multis", "storage", "resource",
+                         "guilds",   "datastore", "parties" };
+          result =
+              std::all_of( files.begin(), files.end(), []( auto file ) { return commit( file ); } );
+          if ( result )
+            SaveContext::last_worldsave_success = read_gameclock();
         }
       } );
   auto res = critical_future.get();  // wait for end of critical part
