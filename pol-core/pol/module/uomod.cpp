@@ -89,6 +89,7 @@
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
 #include "../../clib/stlutil.h"
+#include "../../clib/timer.h"
 #include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
@@ -3014,32 +3015,65 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
 BObjectImp* UOExecutorModule::mf_SaveWorldState()
 {
   update_gameclock();
-  try
+  cancel_all_trades();
+
+  PolClockPauser pauser;
+
+  if ( uoexec().suspend() )
   {
-    cancel_all_trades();
-
-    PolClockPauser pauser;
-
-    unsigned int dirty, clean;
-    long long elapsed_ms;
-    auto res = write_data( dirty, clean, elapsed_ms );
+    Tools::Timer<> total_timer;
+    auto res = write_data(
+        [uoexec = uoexec().weakptr.non_owning(), total_timer = std::move( total_timer )](
+            bool result, u32 clean_writes, u32 dirty_writes, s64 ellapsed ) mutable
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            return;
+          if ( result )
+          {
+            auto* ret = new Bscript::BStruct();
+            ret->addMember( "DirtyObjects", new Bscript::BLong( dirty_writes ) );
+            ret->addMember( "CleanObjects", new Bscript::BLong( clean_writes ) );
+            ret->addMember( "ElapsedMilliseconds",
+                            new Bscript::BLong( Clib::clamp_convert<int>( ellapsed ) ) );
+            ret->addMember(
+                "ElapsedMillisecondsTotal",
+                new Bscript::BLong( Clib::clamp_convert<int>( total_timer.ellapsed() ) ) );
+            uoexec.get_weakptr()->ValueStack.back().set( new Bscript::BObject( ret ) );
+          }
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set(
+                new Bscript::BObject( new Bscript::BError( "Failed to save world" ) ) );
+          }
+          uoexec.get_weakptr()->revive();
+        } );
     if ( !res )
-      return new BError( "pol.cfg has InhibitSaves=1" );
-    if ( *res )
     {
-      BStruct* ret = new BStruct();
-      ret->addMember( "DirtyObjects", new BLong( dirty ) );
-      ret->addMember( "CleanObjects", new BLong( clean ) );
-      ret->addMember( "ElapsedMilliseconds", new BLong( static_cast<int>( elapsed_ms ) ) );
-      return ret;
+      uoexec().revive();
+      return new BError( "pol.cfg has InhibitSaves=1" );
     }
+    if ( *res )
+      return new BLong( 0 );  // callback will be called
+    uoexec().revive();
     return new BError( "Failed to save world" );
   }
-  catch ( std::exception& ex )
+
+  // non waiting version
+  u32 dirty, clean;
+  s64 elapsed_ms;
+  auto res = write_data( {}, &dirty, &clean, &elapsed_ms );
+  if ( !res )
+    return new BError( "pol.cfg has InhibitSaves=1" );
+  if ( *res )
   {
-    POLLOGLN( "Exception during world save! ({})", ex.what() );
-    return new BError( "Exception during world save" );
+    BStruct* ret = new BStruct();
+    ret->addMember( "DirtyObjects", new BLong( dirty ) );
+    ret->addMember( "CleanObjects", new BLong( clean ) );
+    ret->addMember( "ElapsedMilliseconds", new BLong( Clib::clamp_convert<int>( elapsed_ms ) ) );
+    return ret;
   }
+  return new BError( "Failed to save world" );
 }
 
 

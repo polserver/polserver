@@ -13,6 +13,7 @@
 
 #include "../clib/streamsaver.h"
 #include "gameclck.h"
+#include "uoexec.h"
 
 namespace Pol::Core
 {
@@ -65,6 +66,7 @@ void write_shadow_realms( Clib::StreamWriter& sw );
 
 bool commit( const std::string& basename );
 bool should_write_data();
-std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_writes,
-                                long long& elapsed_ms );
+std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callback,
+                                u32* dirty_writes = nullptr, u32* clean_writes = nullptr,
+                                s64* elapsed_ms = nullptr );
 }  // namespace Pol::Core

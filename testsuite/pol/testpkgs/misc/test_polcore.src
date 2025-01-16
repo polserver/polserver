@@ -13,3 +13,15 @@ exported function polcore_memory()
   PolCore().internal( 6, "scripts/tests.ecl" ); // memory estimation log (script)
   return 1;
 endfunction
+
+exported function polcore_save()
+  var time := PolCore().worldsaved_at;
+  var res := SaveWorldState();
+  if ( !res.?ElapsedMillisecondsTotal )
+    return ret_error( $"non async save: {res}" );
+  endif
+  if ( PolCore().worldsaved_at == time )
+    return ret_error( "last save time didnt change" );
+  endif
+  return 1;
+endfunction

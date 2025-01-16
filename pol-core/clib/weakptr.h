@@ -69,6 +69,7 @@ public:
   weak_ptr_owner( const weak_ptr_owner& ) = delete;
   weak_ptr_owner& operator=( const weak_ptr_owner& ) = delete;
   void set( T* obptr );
+  weak_ptr<T> non_owning() const;
 };
 
 template <class T>
@@ -146,6 +147,11 @@ template <class T>
 void weak_ptr_owner<T>::set( T* obptr )
 {
   this->ref_ptr<weak_ptr_link<T>>::get()->set_weakptr( obptr );
+}
+template <class T>
+weak_ptr<T> weak_ptr_owner<T>::non_owning() const
+{
+  return *this;
 }
 
 #endif  // __WEAKPTR_H
