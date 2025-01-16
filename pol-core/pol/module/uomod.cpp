@@ -133,6 +133,7 @@
 #include "../polclass.h"
 #include "../polclock.h"
 #include "../polobject.h"
+#include "../polsem.h"
 #include "../polsig.h"
 #include "../profile.h"
 #include "../savedata.h"
