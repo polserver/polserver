@@ -23,5 +23,12 @@ exported function polcore_save()
   if ( PolCore().worldsaved_at == time )
     return ret_error( "last save time didnt change" );
   endif
+  // unable to suspend, perform only the blocking part
+  SetCritical( 1 );
+  res := SaveWorldState();
+  SetCritical( 0 );
+  if ( res.?ElapsedMillisecondsTotal )
+    return ret_error( $"async save: {res}" );
+  endif
   return 1;
 endfunction
