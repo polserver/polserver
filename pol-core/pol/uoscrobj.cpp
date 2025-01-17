@@ -1548,7 +1548,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new Double( double( value ) );
     break;
   case MBR_HP:
-    hp_ = static_cast<unsigned short>( value );
+    hp_ = Clib::clamp_convert<u16>( value );
 
     if ( this->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
