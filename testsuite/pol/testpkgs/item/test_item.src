@@ -676,3 +676,18 @@ exported function test_held_weight_multi_dynamic()
 
   return ret;
 endfunction
+
+exported function test_hp_overflow( resmngr )
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, 0xf3f );
+  item.hp := 0;
+  --item.hp;
+  if ( item.hp != 0 )
+    return ret_error( $"hp underflow: {item.hp}" );
+  endif
+  item.hp := 0xFFFF;
+  ++item.hp;
+  if ( item.hp != 0xFFFF )
+    return ret_error( $"hp overflow: {item.hp}" );
+  endif
+  return 1;
+endfunction
