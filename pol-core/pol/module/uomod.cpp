@@ -3019,8 +3019,8 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
   cancel_all_trades();
 
   PolClockPauser pauser;
-
-  if ( uoexec().suspend() )
+  // do not suspend when critical, to keep defined state of a critical block
+  if ( !uoexec().critical() && uoexec().suspend() )
   {
     Tools::Timer<> total_timer;
     auto res = write_data(

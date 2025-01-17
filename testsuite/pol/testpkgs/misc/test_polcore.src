@@ -16,6 +16,10 @@ endfunction
 
 exported function polcore_save()
   var time := PolCore().worldsaved_at;
+  // make sure that time is different then current time
+  while ( ReadGameClock() == time )
+    SleepMs( 100 );
+  endwhile
   var res := SaveWorldState();
   if ( !res.?ElapsedMillisecondsTotal )
     return ret_error( $"non async save: {res}" );
