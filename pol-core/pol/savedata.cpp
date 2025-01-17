@@ -34,6 +34,7 @@
 #include "multi/house.h"
 #include "multi/multi.h"
 #include "objecthash.h"
+#include "polsem.h"
 #include "realms/realm.h"
 #include "regions/resource.h"
 #include "storage.h"
@@ -386,16 +387,12 @@ bool commit( const std::string& basename )
   return true;
 }
 
-std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_writes,
-                                long long& elapsed_ms )
+std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callback,
+                                u32* dirty_writes, u32* clean_writes, s64* elapsed_ms )
 {
   SaveContext::ready();  // allow only one active
   if ( !should_write_data() )
-  {
-    dirty_writes = clean_writes = 0;
-    elapsed_ms = 0;
     return {};
-  }
 
   UObject::dirty_writes = 0;
   UObject::clean_writes = 0;
@@ -419,8 +416,10 @@ std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_
   };
   SaveContext::finished = std::async(
       std::launch::async,
-      [&, critical_promise = std::move( critical_promise )]() mutable
+      [&, critical_promise = std::move( critical_promise ),
+       callback = std::move( callback )]() mutable
       {
+        Tools::Timer<> blocking_timer;
         std::atomic<bool> result( true );
         try
         {
@@ -511,15 +510,20 @@ std::optional<bool> write_data( unsigned int& dirty_writes, unsigned int& clean_
           if ( result )
             SaveContext::last_worldsave_success = read_gameclock();
         }
+        if ( callback )
+          callback( result.load(), UObject::clean_writes, UObject::dirty_writes,
+                    blocking_timer.ellapsed() );
       } );
   auto res = critical_future.get();  // wait for end of critical part
 
-  timer.stop();
   objStorageManager.objecthash.ClearDeleted();
-  clean_writes = UObject::clean_writes;
-  dirty_writes = UObject::dirty_writes;
-  elapsed_ms = timer.ellapsed();
 
+  if ( clean_writes )
+    *clean_writes = UObject::clean_writes;
+  if ( dirty_writes )
+    *dirty_writes = UObject::dirty_writes;
+  if ( elapsed_ms )
+    *elapsed_ms = timer.ellapsed();
   return res;
 }
 

@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-14-2025</datemodified>
+		<datemodified>01-17-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-17-2025</date>
+			<author>Turley:</author>
+			<change type="Changed">uo::SaveWorldState if possible (eg no critical script) script gets suspended until both the critical and non-critical part of the save is over.<br/>
+Returning in this case also a struct-member &quot;ElapsedMillisecondsTotal&quot; as the total time worldsave took.<br/>
+Or error if any part of the worldsave failed.</change>
+		</entry>
 		<entry>
 			<date>01-14-2025</date>
 			<author>Turley:</author>

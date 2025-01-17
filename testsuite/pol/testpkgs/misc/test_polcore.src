@@ -13,3 +13,26 @@ exported function polcore_memory()
   PolCore().internal( 6, "scripts/tests.ecl" ); // memory estimation log (script)
   return 1;
 endfunction
+
+exported function polcore_save()
+  var time := PolCore().worldsaved_at;
+  // make sure that time is different then current time
+  while ( ReadGameClock() == time )
+    SleepMs( 100 );
+  endwhile
+  var res := SaveWorldState();
+  if ( !res.?ElapsedMillisecondsTotal )
+    return ret_error( $"non async save: {res}" );
+  endif
+  if ( PolCore().worldsaved_at == time )
+    return ret_error( "last save time didnt change" );
+  endif
+  // unable to suspend, perform only the blocking part
+  Set_Critical( 1 );
+  res := SaveWorldState();
+  Set_Critical( 0 );
+  if ( res.?ElapsedMillisecondsTotal )
+    return ret_error( $"async save: {res}" );
+  endif
+  return 1;
+endfunction

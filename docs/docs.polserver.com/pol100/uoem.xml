@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>10/22/2023</datemodified>
+    <datemodified>01/17/2025</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -1719,9 +1719,9 @@ const RESURRECT_FORCELOCATION := 0x01;</code>
 
 <function name="SaveWorldState">
   <prototype>SaveWorldState()</prototype>
-  <explain>Saves the current world state. </explain>
-  <return>struct { CleanObjects, DirtyObjects, ElapsedMilliseconds }</return>
-  <error>"Exception during world save"</error>
+  <explain>Saves the current world state. If the script is currently not critical or eg run via run_script_to_completition its suspended until the complete worldsave is over. Returning also in the struct ElapsedMillisecondsTotal.</explain>
+  <return>struct { CleanObjects, DirtyObjects, ElapsedMilliseconds, [ElapsedMillisecondsTotal] }</return>
+  <error>"Failed to save world"</error>
   <error>"pol.cfg has InhibitSaves=1"</error>
 </function>
 
