@@ -3,6 +3,7 @@
   Changed: uo::SaveWorldState if possible (eg no critical script) script gets suspended until both the critical and non-critical part of the save is over.
            Returning in this case also a struct-member "ElapsedMillisecondsTotal" as the total time worldsave took.
            Or error if any part of the worldsave failed.
+    Fixed: overflow/underflow error when modifying item.hp (min 0, max 0xFFFF)
 01-14-2025 Turley:
     Fixed: crash when disk is full during worldsave
     Added: PolCore().worldsaved_at returns game clock time of last successful world save

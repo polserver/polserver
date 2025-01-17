@@ -11,6 +11,7 @@
 			<change type="Changed">uo::SaveWorldState if possible (eg no critical script) script gets suspended until both the critical and non-critical part of the save is over.<br/>
 Returning in this case also a struct-member &quot;ElapsedMillisecondsTotal&quot; as the total time worldsave took.<br/>
 Or error if any part of the worldsave failed.</change>
+			<change type="Fixed">overflow/underflow error when modifying item.hp (min 0, max 0xFFFF)</change>
 		</entry>
 		<entry>
 			<date>01-14-2025</date>
