@@ -4,12 +4,12 @@
  */
 
 
-#ifndef CLIB_CLIB_H
-#define CLIB_CLIB_H
+#pragma once
 
 #include "pol_global_config.h"
 #include <algorithm>
 #include <limits>
+#include <type_traits>
 
 #ifdef __GNUC__
 #include <strings.h>
@@ -26,13 +26,11 @@
 #include <ctime>
 
 #define ms_to_clocks( ms ) ( ms * CLOCKS_PER_SEC / 1000 )
-namespace Pol
-{
 /**
  * CLib namespace is for functions that a general app may need,
  * not necessarily related to POL at all (string manipulation, for example)
  */
-namespace Clib
+namespace Pol::Clib
 {
 /** make an always null terminated string in maxlen characters */
 char* stracpy( char* dest, const char* src, size_t maxlen );
@@ -113,10 +111,26 @@ inline std::tm localtime( const std::time_t& t )
 template <typename T, typename U>
 inline T clamp_convert( U v )
 {
-  return static_cast<T>( std::clamp( v, static_cast<U>( std::numeric_limits<T>::min() ),
-                                     static_cast<U>( std::numeric_limits<T>::max() ) ) );
-}
-}  // namespace Clib
-}  // namespace Pol
+  // find in compile time the common type from both types to call clamp without overflowing
 
-#endif  // CLIB_CLIB_H
+  constexpr auto t_min = std::numeric_limits<T>::min();
+  constexpr auto t_max = std::numeric_limits<T>::max();
+  // easy case T min max is contained in U eg from int to short
+  if constexpr ( t_min >= std::numeric_limits<U>::min() && t_max <= std::numeric_limits<U>::max() )
+    return static_cast<T>( std::clamp( v, static_cast<U>( t_min ), static_cast<U>( t_max ) ) );
+
+  // for 64bit this would not work
+  static_assert( !( ( std::is_same<U, u64>::value || std::is_same<U, s64>::value ) &&
+                    ( std::is_same<T, u64>::value || std::is_same<T, s64>::value ) ) );
+  // common_type will not use 64bit integer
+  if constexpr ( ( std::is_same<U, u32>::value || std::is_same<T, u32>::value ) &&
+                 ( std::is_same<U, s32>::value || std::is_same<T, s32>::value ) )
+    return static_cast<T>(
+        std::clamp( static_cast<s64>( v ), static_cast<s64>( t_min ), static_cast<s64>( t_max ) ) );
+
+
+  typedef std::common_type_t<U, T> common;
+  return static_cast<T>( std::clamp( static_cast<common>( v ), static_cast<common>( t_min ),
+                                     static_cast<common>( t_max ) ) );
+}
+}  // namespace Pol::Clib
