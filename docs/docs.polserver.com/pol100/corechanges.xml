@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-17-2025</datemodified>
+		<datemodified>01-19-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-19-2025</date>
+			<author>Turley:</author>
+			<change type="Fixed">overflow/underflow errors when modifying several object members</change>
+		</entry>
 		<entry>
 			<date>01-17-2025</date>
 			<author>Turley:</author>
