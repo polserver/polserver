@@ -11,6 +11,6 @@ RandomFloat( below_this_float ); // returns float R such that 0.0 <= R < B
 //      2d8+12
 //      2d8-4
 // Returns an integer >= 0
-RandomDiceRoll( dice_string );
+RandomDiceRoll( dice_string, allow_negatives := 0 );
 
 StrFormatTime( format_string, time_stamp := 0 );
