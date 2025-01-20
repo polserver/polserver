@@ -113,41 +113,32 @@ inline To clamp_convert( From v )
 {
   constexpr auto t_min = std::numeric_limits<To>::min();
   constexpr auto t_max = std::numeric_limits<To>::max();
-  // easy case To min max is contained in From eg from int to short
-  // but only valid if both have equal sign
+  // If To's range is fully contained within From's range
   if constexpr ( std::is_signed<To>::value == std::is_signed<From>::value &&
                  t_min >= std::numeric_limits<From>::min() &&
                  t_max <= std::numeric_limits<From>::max() )
     return static_cast<To>(
         std::clamp( v, static_cast<From>( t_min ), static_cast<From>( t_max ) ) );
 
-  // just cap the negative values for u64
+  // Handle unsigned 64-bit special case
   if constexpr ( std::is_same<To, u64>::value )
     return v < 0 ? 0u : static_cast<u64>( v );
-  // cap to max s64 or directly cast
+  // Handle unsigned-to-signed 64-bit conversion
   if constexpr ( std::is_same<To, s64>::value && std::is_same<From, u64>::value )
     return v > static_cast<u64>( t_max ) ? static_cast<u64>( t_max ) : static_cast<s64>( v );
 
-  // common_type will not use 64bit integer
-  // for 32bit always use s64
-  if constexpr ( ( std::is_same<From, u32>::value || std::is_same<To, u32>::value ) &&
-                 ( std::is_same<From, s32>::value || std::is_same<To, s32>::value ) )
-    return static_cast<To>(
-        std::clamp( static_cast<s64>( v ), static_cast<s64>( t_min ), static_cast<s64>( t_max ) ) );
-
   typedef std::common_type_t<From, To> common;
-  // common can use the biggest unsigned eg if given a u32
-  // use zero as minimum
+  // Handle unsigned common type to signed
   if constexpr ( std::is_unsigned<common>::value && std::is_signed<To>::value )
     return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
                                         static_cast<common>( t_max ) ) );
-  // eg s8 to u32 cap at zero
+  // Handle signed to unsigned
   if constexpr ( std::is_signed<From>::value && std::is_unsigned<To>::value )
     return v <= 0 ? 0u
                   : static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
                                                  static_cast<common>( t_max ) ) );
 
-  // finally use it...
+  // Default case for clamping
   return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( t_min ),
                                       static_cast<common>( t_max ) ) );
 }
