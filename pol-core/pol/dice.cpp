@@ -26,12 +26,7 @@ Dice::Dice() : die_count( 0 ), die_type( 0 ), plus_damage( 0 ) {}
 
 unsigned short Dice::roll() const
 {
-  int total = roll_with_negatives();
-
-  if ( total < 0 )
-    return 0;
-  else
-    return Clib::clamp_convert<unsigned short>( total );
+  return Clib::clamp_convert<unsigned short>( roll_with_negatives() );
 }
 
 int Dice::roll_with_negatives() const
