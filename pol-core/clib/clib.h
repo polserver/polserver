@@ -4,12 +4,12 @@
  */
 
 
-#ifndef CLIB_CLIB_H
-#define CLIB_CLIB_H
+#pragma once
 
 #include "pol_global_config.h"
 #include <algorithm>
 #include <limits>
+#include <type_traits>
 
 #ifdef __GNUC__
 #include <strings.h>
@@ -26,13 +26,11 @@
 #include <ctime>
 
 #define ms_to_clocks( ms ) ( ms * CLOCKS_PER_SEC / 1000 )
-namespace Pol
-{
 /**
  * CLib namespace is for functions that a general app may need,
  * not necessarily related to POL at all (string manipulation, for example)
  */
-namespace Clib
+namespace Pol::Clib
 {
 /** make an always null terminated string in maxlen characters */
 char* stracpy( char* dest, const char* src, size_t maxlen );
@@ -109,14 +107,39 @@ inline std::tm localtime( const std::time_t& t )
   return result;
 }
 
-// convert number of type U to type T considering the limits of T
-template <typename T, typename U>
-inline T clamp_convert( U v )
+// convert number of type From to type To considering the limits of To
+template <typename To, typename From>
+inline To clamp_convert( From v )
 {
-  return static_cast<T>( std::clamp( v, static_cast<U>( std::numeric_limits<T>::min() ),
-                                     static_cast<U>( std::numeric_limits<T>::max() ) ) );
-}
-}  // namespace Clib
-}  // namespace Pol
+  constexpr auto t_min = std::numeric_limits<To>::min();
+  constexpr auto t_max = std::numeric_limits<To>::max();
+  // If To's range is fully contained within From's range
+  if constexpr ( std::is_signed<To>::value == std::is_signed<From>::value &&
+                 t_min >= std::numeric_limits<From>::min() &&
+                 t_max <= std::numeric_limits<From>::max() )
+    return static_cast<To>(
+        std::clamp( v, static_cast<From>( t_min ), static_cast<From>( t_max ) ) );
 
-#endif  // CLIB_CLIB_H
+  // Handle unsigned 64-bit special case
+  if constexpr ( std::is_same<To, u64>::value )
+    return v < 0 ? 0u : static_cast<u64>( v );
+  // Handle unsigned-to-signed 64-bit conversion
+  if constexpr ( std::is_same<To, s64>::value && std::is_same<From, u64>::value )
+    return v > static_cast<u64>( t_max ) ? static_cast<u64>( t_max ) : static_cast<s64>( v );
+
+  typedef std::common_type_t<From, To> common;
+  // Handle unsigned common type to signed
+  if constexpr ( std::is_unsigned<common>::value && std::is_signed<To>::value )
+    return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
+                                        static_cast<common>( t_max ) ) );
+  // Handle signed to unsigned
+  if constexpr ( std::is_signed<From>::value && std::is_unsigned<To>::value )
+    return v <= 0 ? 0u
+                  : static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
+                                                 static_cast<common>( t_max ) ) );
+
+  // Default case for clamping
+  return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( t_min ),
+                                      static_cast<common>( t_max ) ) );
+}
+}  // namespace Pol::Clib

@@ -753,11 +753,11 @@ BObjectImp* UObject::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_GRAPHIC:
-    setgraphic( static_cast<unsigned short>( value ) );
+    setgraphic( Clib::clamp_convert<u16>( value ) );
     return new BLong( graphic );
   case MBR_COLOR:
   {
-    bool res = setcolor( static_cast<unsigned short>( value ) );
+    bool res = setcolor( Clib::clamp_convert<u16>( value ) );
     if ( !res )  // TODO log?
       return new BError( "Invalid color value " + Clib::hexint( value ) );
     return new BLong( color );
@@ -1059,7 +1059,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( maxhp_mod() );
     break;
   case MBR_MAXHP:
-    return new BLong( static_cast<int>( maxhp() * quality() ) );
+    return new BLong( Clib::clamp_convert<s32>( maxhp() * quality() ) );
     break;
   case MBR_NAME_SUFFIX:
     return new String( name_suffix() );
@@ -1186,7 +1186,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     saveonexit( value ? true : false );
     return new BLong( saveonexit() );
   case MBR_FIRE_RESIST_MOD:
-    fire_resist( fire_resist().setAsMod( static_cast<short>( value ) ) );
+    fire_resist( fire_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1199,7 +1199,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( fire_resist().mod );
     break;
   case MBR_COLD_RESIST_MOD:
-    cold_resist( cold_resist().setAsMod( static_cast<short>( value ) ) );
+    cold_resist( cold_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1212,7 +1212,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( cold_resist().mod );
     break;
   case MBR_ENERGY_RESIST_MOD:
-    energy_resist( energy_resist().setAsMod( static_cast<short>( value ) ) );
+    energy_resist( energy_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1225,7 +1225,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( energy_resist().mod );
     break;
   case MBR_POISON_RESIST_MOD:
-    poison_resist( poison_resist().setAsMod( static_cast<short>( value ) ) );
+    poison_resist( poison_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1238,7 +1238,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( poison_resist().mod );
     break;
   case MBR_PHYSICAL_RESIST_MOD:
-    physical_resist( physical_resist().setAsMod( static_cast<short>( value ) ) );
+    physical_resist( physical_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1251,7 +1251,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( physical_resist().mod );
     break;
   case MBR_FIRE_RESIST_CAP_MOD:
-    fire_resist_cap( fire_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    fire_resist_cap( fire_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1264,7 +1264,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( fire_resist_cap().mod );
     break;
   case MBR_COLD_RESIST_CAP_MOD:
-    cold_resist_cap( cold_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    cold_resist_cap( cold_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1277,7 +1277,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( cold_resist_cap().mod );
     break;
   case MBR_ENERGY_RESIST_CAP_MOD:
-    energy_resist_cap( energy_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    energy_resist_cap( energy_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1290,7 +1290,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( energy_resist_cap().mod );
     break;
   case MBR_POISON_RESIST_CAP_MOD:
-    poison_resist_cap( poison_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    poison_resist_cap( poison_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1303,7 +1303,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( poison_resist_cap().mod );
     break;
   case MBR_PHYSICAL_RESIST_CAP_MOD:
-    physical_resist_cap( physical_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    physical_resist_cap( physical_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1317,7 +1317,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
 
   case MBR_FIRE_DAMAGE_MOD:
-    fire_damage( fire_damage().setAsMod( static_cast<short>( value ) ) );
+    fire_damage( fire_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1330,7 +1330,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( fire_damage().mod );
     break;
   case MBR_COLD_DAMAGE_MOD:
-    cold_damage( cold_damage().setAsMod( static_cast<short>( value ) ) );
+    cold_damage( cold_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1343,7 +1343,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( cold_damage().mod );
     break;
   case MBR_ENERGY_DAMAGE_MOD:
-    energy_damage( energy_damage().setAsMod( static_cast<short>( value ) ) );
+    energy_damage( energy_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1356,7 +1356,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( energy_damage().mod );
     break;
   case MBR_POISON_DAMAGE_MOD:
-    poison_damage( poison_damage().setAsMod( static_cast<short>( value ) ) );
+    poison_damage( poison_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1370,7 +1370,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
 
   case MBR_PHYSICAL_DAMAGE_MOD:
-    physical_damage( physical_damage().setAsMod( static_cast<short>( value ) ) );
+    physical_damage( physical_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1384,7 +1384,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
 
   case MBR_LOWER_REAG_COST_MOD:
-    lower_reagent_cost( lower_reagent_cost().setAsMod( static_cast<short>( value ) ) );
+    lower_reagent_cost( lower_reagent_cost().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1397,7 +1397,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( lower_reagent_cost().mod );
     break;
   case MBR_SPELL_DAMAGE_INCREASE_MOD:
-    spell_damage_increase( spell_damage_increase().setAsMod( static_cast<short>( value ) ) );
+    spell_damage_increase( spell_damage_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1410,7 +1410,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( spell_damage_increase().mod );
     break;
   case MBR_FASTER_CASTING_MOD:
-    faster_casting( faster_casting().setAsMod( static_cast<short>( value ) ) );
+    faster_casting( faster_casting().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1423,7 +1423,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( faster_casting().mod );
     break;
   case MBR_FASTER_CAST_RECOVERY_MOD:
-    faster_cast_recovery( faster_cast_recovery().setAsMod( static_cast<short>( value ) ) );
+    faster_cast_recovery( faster_cast_recovery().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1436,7 +1436,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( faster_cast_recovery().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_MOD:
-    defence_increase( defence_increase().setAsMod( static_cast<short>( value ) ) );
+    defence_increase( defence_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1449,7 +1449,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( defence_increase().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
-    defence_increase_cap( defence_increase_cap().setAsMod( static_cast<short>( value ) ) );
+    defence_increase_cap( defence_increase_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1462,7 +1462,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( defence_increase_cap().mod );
     break;
   case MBR_LOWER_MANA_COST_MOD:
-    lower_mana_cost( lower_mana_cost().setAsMod( static_cast<short>( value ) ) );
+    lower_mana_cost( lower_mana_cost().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1476,7 +1476,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
   case MBR_HITCHANCE_MOD:  // to be made redundant in the future
   case MBR_HIT_CHANCE_MOD:
-    hit_chance( hit_chance().setAsMod( static_cast<short>( value ) ) );
+    hit_chance( hit_chance().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1489,7 +1489,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( hit_chance().mod );
     break;
   case MBR_LUCK_MOD:
-    luck( luck().setAsMod( static_cast<short>( value ) ) );
+    luck( luck().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1502,7 +1502,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( luck().mod );
     break;
   case MBR_SWING_SPEED_INCREASE_MOD:
-    swing_speed_increase( swing_speed_increase().setAsMod( static_cast<short>( value ) ) );
+    swing_speed_increase( swing_speed_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1516,7 +1516,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
   case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
     min_attack_range_increase(
-        min_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+        min_attack_range_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1530,7 +1530,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
   case MBR_MAX_ATTACK_RANGE_INCREASE_MOD:
     max_attack_range_increase(
-        max_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+        max_attack_range_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1564,7 +1564,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     }
     return new BLong( hp_ );
   case MBR_MAXHP_MOD:
-    this->maxhp_mod( static_cast<s16>( value ) );
+    this->maxhp_mod( Clib::clamp_convert<s16>( value ) );
     if ( this->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       if ( container != nullptr )
@@ -2561,15 +2561,15 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
       movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
-    return new BLong( trueobjtype = static_cast<unsigned int>( value ) );
+    return new BLong( trueobjtype = Clib::clamp_convert<u32>( value ) );
   case MBR_TRUECOLOR:
-    return new BLong( truecolor = static_cast<unsigned short>( value ) );
+    return new BLong( truecolor = Clib::clamp_convert<u16>( value ) );
   case MBR_AR_MOD:
-    ar_mod( static_cast<short>( value ) );
+    ar_mod( Clib::clamp_convert<s16>( value ) );
     refresh_ar();
     return new BLong( ar_mod() );
   case MBR_DELAY_MOD:
-    delay_mod( static_cast<short>( value ) );
+    delay_mod( Clib::clamp_convert<s16>( value ) );
     return new BLong( delay_mod() );
   case MBR_HIDDEN:
   {
@@ -2578,7 +2578,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     return new BLong( hidden() );
   }
   case MBR_CONCEALED:
-    concealed( static_cast<unsigned char>( value ) );
+    concealed( Clib::clamp_convert<u8>( value ) );
     return new BLong( concealed() );
   case MBR_FROZEN:
     mob_flags_.change( MOB_FLAGS::FROZEN, value ? true : false );
@@ -2590,9 +2590,9 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     poisoned( value ? true : false );
     return new BLong( poisoned() );
   case MBR_STEALTHSTEPS:
-    return new BLong( stealthsteps_ = static_cast<unsigned short>( value ) );
+    return new BLong( stealthsteps_ = Clib::clamp_convert<u16>( value ) );
   case MBR_MOUNTEDSTEPS:
-    return new BLong( mountedsteps_ = static_cast<unsigned int>( value ) );
+    return new BLong( mountedsteps_ = Clib::clamp_convert<u32>( value ) );
   case MBR_CMDLEVEL:
     if ( value >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
       cmdlevel( static_cast<unsigned char>( Core::gamestate.cmdlevels.size() ) - 1, true );
@@ -2604,16 +2604,16 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     make_murderer( value ? true : false );
     return new BLong( is_murderer() );
   case MBR_HITCHANCE_MOD:
-    hitchance_mod( static_cast<short>( value ) );
+    hitchance_mod( Clib::clamp_convert<s16>( value ) );
     return new BLong( hitchance_mod() );
   case MBR_EVASIONCHANCE_MOD:
-    evasionchance_mod( static_cast<short>( value ) );
+    evasionchance_mod( Clib::clamp_convert<s16>( value ) );
     return new BLong( evasionchance_mod() );
   case MBR_PARRYCHANCE_MOD:
-    parrychance_mod( static_cast<short>( value ) );
+    parrychance_mod( Clib::clamp_convert<s16>( value ) );
     return new BLong( parrychance_mod() );
   case MBR_CARRYINGCAPACITY_MOD:
-    carrying_capacity_mod( static_cast<short>( value ) );
+    carrying_capacity_mod( Clib::clamp_convert<s16>( value ) );
     if ( client != nullptr )
     {  // CHECKME consider sending less frequently
       send_full_statmsg( client, this );
@@ -2625,121 +2625,121 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     on_facing_changed();
     return new BLong( 1 );
   case MBR_FIRE_RESIST_MOD:
-    fire_resist( fire_resist().setAsMod( static_cast<short>( value ) ) );
+    fire_resist( fire_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( fire_resist().mod );
     break;
   case MBR_COLD_RESIST_MOD:
-    cold_resist( cold_resist().setAsMod( static_cast<short>( value ) ) );
+    cold_resist( cold_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( cold_resist().mod );
     break;
   case MBR_ENERGY_RESIST_MOD:
-    energy_resist( energy_resist().setAsMod( static_cast<short>( value ) ) );
+    energy_resist( energy_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( energy_resist().mod );
     break;
   case MBR_POISON_RESIST_MOD:
-    poison_resist( poison_resist().setAsMod( static_cast<short>( value ) ) );
+    poison_resist( poison_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( poison_resist().mod );
     break;
   case MBR_PHYSICAL_RESIST_MOD:
-    physical_resist( physical_resist().setAsMod( static_cast<short>( value ) ) );
+    physical_resist( physical_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( physical_resist().mod );
     break;
   case MBR_LOWER_REAG_COST_MOD:
-    lower_reagent_cost( lower_reagent_cost().setAsMod( static_cast<short>( value ) ) );
+    lower_reagent_cost( lower_reagent_cost().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( lower_reagent_cost().mod );
     break;
   case MBR_SPELL_DAMAGE_INCREASE_MOD:
-    spell_damage_increase( spell_damage_increase().setAsMod( static_cast<short>( value ) ) );
+    spell_damage_increase( spell_damage_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( spell_damage_increase().mod );
     break;
   case MBR_FASTER_CASTING_MOD:
-    faster_casting( faster_casting().setAsMod( static_cast<short>( value ) ) );
+    faster_casting( faster_casting().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( faster_casting().mod );
     break;
   case MBR_FASTER_CAST_RECOVERY_MOD:
-    faster_cast_recovery( faster_cast_recovery().setAsMod( static_cast<short>( value ) ) );
+    faster_cast_recovery( faster_cast_recovery().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( faster_cast_recovery().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_MOD:
-    defence_increase( defence_increase().setAsMod( static_cast<short>( value ) ) );
+    defence_increase( defence_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( defence_increase().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
-    defence_increase_cap( defence_increase_cap().setAsMod( static_cast<short>( value ) ) );
+    defence_increase_cap( defence_increase_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( defence_increase_cap().mod );
     break;
   case MBR_LOWER_MANA_COST_MOD:
-    lower_mana_cost( lower_mana_cost().setAsMod( static_cast<short>( value ) ) );
+    lower_mana_cost( lower_mana_cost().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( lower_mana_cost().mod );
     break;
   case MBR_HIT_CHANCE_MOD:
-    hit_chance( hit_chance().setAsMod( static_cast<short>( value ) ) );
+    hit_chance( hit_chance().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( hit_chance().mod );
     break;
   case MBR_FIRE_RESIST_CAP_MOD:
-    fire_resist_cap( fire_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    fire_resist_cap( fire_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( fire_resist_cap().mod );
     break;
   case MBR_COLD_RESIST_CAP_MOD:
-    cold_resist_cap( cold_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    cold_resist_cap( cold_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( cold_resist_cap().mod );
     break;
   case MBR_ENERGY_RESIST_CAP_MOD:
-    energy_resist_cap( energy_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    energy_resist_cap( energy_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( energy_resist_cap().mod );
     break;
   case MBR_PHYSICAL_RESIST_CAP_MOD:
-    physical_resist_cap( physical_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    physical_resist_cap( physical_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( physical_resist_cap().mod );
     break;
   case MBR_POISON_RESIST_CAP_MOD:
-    poison_resist_cap( poison_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    poison_resist_cap( poison_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( poison_resist_cap().mod );
     break;
   case MBR_LUCK_MOD:
-    luck( luck().setAsMod( static_cast<short>( value ) ) );
+    luck( luck().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( luck().mod );
     break;
   case MBR_SWING_SPEED_INCREASE_MOD:
-    swing_speed_increase( swing_speed_increase().setAsMod( static_cast<short>( value ) ) );
+    swing_speed_increase( swing_speed_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( swing_speed_increase().mod );
     break;
   case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
     min_attack_range_increase(
-        min_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+        min_attack_range_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( min_attack_range_increase().mod );
     break;
   case MBR_MAX_ATTACK_RANGE_INCREASE_MOD:
     max_attack_range_increase(
-        max_attack_range_increase().setAsMod( static_cast<short>( value ) ) );
+        max_attack_range_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( max_attack_range_increase().mod );
     break;
   case MBR_STATCAP:
   {
     auto val = skillstatcap();
-    val.statcap = static_cast<short>( value );
+    val.statcap = Clib::clamp_convert<s16>( value );
     skillstatcap( val );
     if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
@@ -2748,21 +2748,21 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   case MBR_SKILLCAP:
   {
     auto val = skillstatcap();
-    val.skillcap = static_cast<u16>( value );
+    val.skillcap = Clib::clamp_convert<u16>( value );
     skillstatcap( val );
     return new BLong( skillstatcap().skillcap );
   }
   case MBR_FOLLOWERSMAX:
   {
     auto val = followers();
-    val.followers_max = static_cast<u8>( value );
+    val.followers_max = Clib::clamp_convert<u8>( value );
     followers( val );
     if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( followers().followers_max );
   }
   case MBR_TITHING:
-    tithing( static_cast<s32>( value ) );
+    tithing( value );
     if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( tithing() );
@@ -2770,34 +2770,34 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   case MBR_FOLLOWERS:
   {
     auto val = followers();
-    val.followers = static_cast<u8>( value );
+    val.followers = Clib::clamp_convert<u8>( value );
     followers( val );
     if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( followers().followers );
   }
   case MBR_FIRE_DAMAGE_MOD:
-    fire_damage( fire_damage().setAsMod( static_cast<short>( value ) ) );
+    fire_damage( fire_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( fire_damage().mod );
     break;
   case MBR_COLD_DAMAGE_MOD:
-    cold_damage( cold_damage().setAsMod( static_cast<short>( value ) ) );
+    cold_damage( cold_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( cold_damage().mod );
     break;
   case MBR_ENERGY_DAMAGE_MOD:
-    energy_damage( energy_damage().setAsMod( static_cast<short>( value ) ) );
+    energy_damage( energy_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( energy_damage().mod );
     break;
   case MBR_POISON_DAMAGE_MOD:
-    poison_damage( poison_damage().setAsMod( static_cast<short>( value ) ) );
+    poison_damage( poison_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( poison_damage().mod );
     break;
   case MBR_PHYSICAL_DAMAGE_MOD:
-    physical_damage( physical_damage().setAsMod( static_cast<short>( value ) ) );
+    physical_damage( physical_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( physical_damage().mod );
     break;
@@ -3029,8 +3029,8 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
       if ( client && client->getversiondetail().major >= 1 )
       {
         Network::PktHelper::PacketOut<Network::PktOut_BC> msg;
-        msg->Write<u8>( static_cast<u16>( season_id ) );
-        msg->Write<u8>( static_cast<u16>( playsound ) );
+        msg->Write<u8>( Clib::clamp_convert<u8>( season_id ) );
+        msg->Write<u8>( Clib::clamp_convert<u8>( playsound ) );
         msg.Send( client );
         return new BLong( 1 );
       }
@@ -3133,11 +3133,11 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_SPENDGOLD:
   {
-    int amt;
+    u32 amt;
     if ( ex.numParams() != 1 || !ex.getParam( 0, amt ) )
       return new BError( "Invalid parameter type" );
 
-    if ( gold_carried() < static_cast<unsigned int>( amt ) )
+    if ( gold_carried() < amt )
       return new BError( "Insufficient funds" );
 
     spend_gold( amt );
@@ -3664,16 +3664,16 @@ BObjectImp* NPC::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_SPEECH_COLOR:
-    speech_color( static_cast<unsigned short>( value ) );
+    speech_color( Clib::clamp_convert<u16>( value ) );
     return new BLong( speech_color() );
   case MBR_SPEECH_FONT:
-    speech_font( static_cast<unsigned short>( value ) );
+    speech_font( Clib::clamp_convert<u16>( value ) );
     return new BLong( speech_font() );
   case MBR_USE_ADJUSTMENTS:
     use_adjustments( value ? true : false );
     return new BLong( use_adjustments() );
   case MBR_RUN_SPEED:
-    return new BLong( run_speed = static_cast<unsigned short>( value ) );
+    return new BLong( run_speed = Clib::clamp_convert<u16>( value ) );
   case MBR_SAVEONEXIT:
     saveonexit( value ? true : false );
     return new BLong( saveonexit() );
@@ -3836,13 +3836,13 @@ BObjectImp* UContainer::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_MAX_ITEMS_MOD:
-    max_items_mod( static_cast<s16>( value ) );
+    max_items_mod( Clib::clamp_convert<s16>( value ) );
     break;
   case MBR_MAX_WEIGHT_MOD:
-    max_weight_mod( static_cast<s16>( value ) );
+    max_weight_mod( Clib::clamp_convert<s16>( value ) );
     break;
   case MBR_MAX_SLOTS_MOD:
-    max_slots_mod( static_cast<s8>( value ) );
+    max_slots_mod( Clib::clamp_convert<s8>( value ) );
     break;
   case MBR_NO_DROP_EXCEPTION:
     no_drop_exception( value ? true : false );
@@ -3935,14 +3935,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
   {
   case MTH_HASSPELL:
   {
-    int sid;
+    u32 sid;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     if ( ex.getParam( 0, sid ) )
     {
-      if ( sid <= 0 )
+      if ( sid == 0 )
         return new BError( "SpellID must be >= 1" );
-      if ( this->has_spellid( static_cast<unsigned int>( sid ) ) )
+      if ( this->has_spellid( sid ) )
         return new BLong( 1 );
       else
         return new BLong( 0 );
@@ -3970,14 +3970,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_REMOVESPELL:
   {
-    int sid;
+    u32 sid;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     if ( ex.getParam( 0, sid ) )
     {
-      if ( sid <= 0 )
+      if ( sid == 0 )
         return new BError( "SpellID must be >= 1" );
-      if ( this->remove_spellid( static_cast<unsigned int>( sid ) ) )
+      if ( this->remove_spellid( sid ) )
         return new BLong( 1 );
       else
         return new BLong( 0 );
@@ -3986,14 +3986,14 @@ BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_ADDSPELL:
   {
-    int sid;
+    u32 sid;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     if ( ex.getParam( 0, sid ) )
     {
-      if ( sid <= 0 )
+      if ( sid == 0 )
         return new BError( "SpellID must be >= 1" );
-      if ( this->add_spellid( static_cast<unsigned int>( sid ) ) )
+      if ( this->add_spellid( sid ) )
         return new BLong( 1 );
       else
         return new BLong( 0 );
@@ -4189,11 +4189,11 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
   {
     if ( ex.numParams() != 1 )
       return new BError( "Not enough parameters" );
-    int index;
+    u32 index;
     if ( !ex.getParam( 0, index ) )
       return new BError( "Invalid parameter type" );
     const auto& desc = static_cast<const Items::BoatDesc&>( itemdesc() );
-    if ( index < 0 || static_cast<size_t>( index ) >= desc.alternates.size() )
+    if ( index >= desc.alternates.size() )
       return new BError( "Index out of range" );
 
     {
@@ -4291,21 +4291,21 @@ BObjectImp* Map::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_XEAST:
-    return new BLong( xeast = static_cast<unsigned short>( value ) );
+    return new BLong( xeast = Clib::clamp_convert<u16>( value ) );
   case MBR_XWEST:
-    return new BLong( xwest = static_cast<unsigned short>( value ) );
+    return new BLong( xwest = Clib::clamp_convert<u16>( value ) );
   case MBR_YNORTH:
-    return new BLong( ynorth = static_cast<unsigned short>( value ) );
+    return new BLong( ynorth = Clib::clamp_convert<u16>( value ) );
   case MBR_YSOUTH:
-    return new BLong( ysouth = static_cast<unsigned short>( value ) );
+    return new BLong( ysouth = Clib::clamp_convert<u16>( value ) );
   case MBR_GUMPWIDTH:
-    gumpsize.x( static_cast<unsigned short>( value ) );
+    gumpsize.x( Clib::clamp_convert<u16>( value ) );
     return new BLong( gumpsize.x() );
   case MBR_GUMPHEIGHT:
-    gumpsize.y( static_cast<unsigned short>( value ) );
+    gumpsize.y( Clib::clamp_convert<u16>( value ) );
     return new BLong( gumpsize.y() );
   case MBR_FACETID:
-    return new BLong( facetid = static_cast<unsigned short>( value ) );
+    return new BLong( facetid = Clib::clamp_convert<u16>( value ) );
   case MBR_EDITABLE:
     return new BLong( editable = value ? true : false );
   default:
@@ -4328,9 +4328,9 @@ BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
   {
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    int isatype;
+    u32 isatype;
     if ( ex.getParam( 0, isatype ) )
-      return new BLong( script_isa( static_cast<unsigned>( isatype ) ) );
+      return new BLong( script_isa( isatype ) );
     break;
   }
   case MTH_SET_MEMBER:
@@ -4616,10 +4616,10 @@ BObjectImp* UWeapon::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_DMG_MOD:
-    damage_mod( static_cast<s16>( value ) );
+    damage_mod( Clib::clamp_convert<s16>( value ) );
     break;
   case MBR_SPEED_MOD:
-    speed_mod( static_cast<s16>( value ) );
+    speed_mod( Clib::clamp_convert<s16>( value ) );
     break;
   default:
     return nullptr;
@@ -4719,7 +4719,7 @@ BObjectImp* UArmor::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_AR_MOD:
-    this->ar_mod( static_cast<s16>( value ) );
+    this->ar_mod( Clib::clamp_convert<s16>( value ) );
     if ( container != nullptr )
     {
       if ( Core::IsCharacter( container->serial ) )
