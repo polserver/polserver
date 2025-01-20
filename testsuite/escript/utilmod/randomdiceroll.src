@@ -1,0 +1,6 @@
+use util;
+
+print( RandomDiceRoll( "1d1" ) == 1 );
+print( RandomDiceRoll( "1d1 - 10" ) == 0 );
+print( RandomDiceRoll( "1d1 - 10", 1 ) == -9 );  // allow_negatives
+print( RandomDiceRoll( "1d1 + 0xffff" ) == 0xffff );  // clamp
