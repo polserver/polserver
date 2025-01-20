@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-19-2025</datemodified>
+		<datemodified>01-20-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-20-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">util::RandomDiceRoll() new parameter `allow_negatives` (default: `0`). If `1`, a negative dice roll will be returned _as-is_, and<br/>
+will not be capped at `0`.</change>
+			<change type="Note">Since this change introduces a new parameter to a module function, you **MUST** recompile all your scripts!</change>
+		</entry>
 		<entry>
 			<date>01-19-2025</date>
 			<author>Turley:</author>
