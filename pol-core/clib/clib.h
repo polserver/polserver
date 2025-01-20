@@ -107,30 +107,48 @@ inline std::tm localtime( const std::time_t& t )
   return result;
 }
 
-// convert number of type U to type T considering the limits of T
-template <typename T, typename U>
-inline T clamp_convert( U v )
+// convert number of type From to type To considering the limits of To
+template <typename To, typename From>
+inline To clamp_convert( From v )
 {
-  // find in compile time the common type from both types to call clamp without overflowing
+  constexpr auto t_min = std::numeric_limits<To>::min();
+  constexpr auto t_max = std::numeric_limits<To>::max();
+  // easy case To min max is contained in From eg from int to short
+  // but only valid if both have equal sign
+  if constexpr ( std::is_signed<To>::value == std::is_signed<From>::value &&
+                 t_min >= std::numeric_limits<From>::min() &&
+                 t_max <= std::numeric_limits<From>::max() )
+    return static_cast<To>(
+        std::clamp( v, static_cast<From>( t_min ), static_cast<From>( t_max ) ) );
 
-  constexpr auto t_min = std::numeric_limits<T>::min();
-  constexpr auto t_max = std::numeric_limits<T>::max();
-  // easy case T min max is contained in U eg from int to short
-  if constexpr ( t_min >= std::numeric_limits<U>::min() && t_max <= std::numeric_limits<U>::max() )
-    return static_cast<T>( std::clamp( v, static_cast<U>( t_min ), static_cast<U>( t_max ) ) );
+  // just cap the negative values for u64
+  if constexpr ( std::is_same<To, u64>::value )
+    return v < 0 ? 0u : static_cast<u64>( v );
+  // cap to max s64 or directly cast
+  if constexpr ( std::is_same<To, s64>::value && std::is_same<From, u64>::value )
+    return v > static_cast<u64>( t_max ) ? static_cast<u64>( t_max ) : static_cast<s64>( v );
 
-  // for 64bit this would not work
-  static_assert( !( ( std::is_same<U, u64>::value || std::is_same<U, s64>::value ) &&
-                    ( std::is_same<T, u64>::value || std::is_same<T, s64>::value ) ) );
   // common_type will not use 64bit integer
-  if constexpr ( ( std::is_same<U, u32>::value || std::is_same<T, u32>::value ) &&
-                 ( std::is_same<U, s32>::value || std::is_same<T, s32>::value ) )
-    return static_cast<T>(
+  // for 32bit always use s64
+  if constexpr ( ( std::is_same<From, u32>::value || std::is_same<To, u32>::value ) &&
+                 ( std::is_same<From, s32>::value || std::is_same<To, s32>::value ) )
+    return static_cast<To>(
         std::clamp( static_cast<s64>( v ), static_cast<s64>( t_min ), static_cast<s64>( t_max ) ) );
 
+  typedef std::common_type_t<From, To> common;
+  // common can use the biggest unsigned eg if given a u32
+  // use zero as minimum
+  if constexpr ( std::is_unsigned<common>::value && std::is_signed<To>::value )
+    return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
+                                        static_cast<common>( t_max ) ) );
+  // eg s8 to u32 cap at zero
+  if constexpr ( std::is_signed<From>::value && std::is_unsigned<To>::value )
+    return v <= 0 ? 0u
+                  : static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
+                                                 static_cast<common>( t_max ) ) );
 
-  typedef std::common_type_t<U, T> common;
-  return static_cast<T>( std::clamp( static_cast<common>( v ), static_cast<common>( t_min ),
-                                     static_cast<common>( t_max ) ) );
+  // finally use it...
+  return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( t_min ),
+                                      static_cast<common>( t_max ) ) );
 }
 }  // namespace Pol::Clib
