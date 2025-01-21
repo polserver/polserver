@@ -12,6 +12,7 @@
 #include <exception>
 #include <stdlib.h>
 
+#include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/random.h"
 #include "../clib/rawtypes.h"
@@ -25,6 +26,11 @@ Dice::Dice() : die_count( 0 ), die_type( 0 ), plus_damage( 0 ) {}
 
 unsigned short Dice::roll() const
 {
+  return Clib::clamp_convert<unsigned short>( roll_with_negatives() );
+}
+
+int Dice::roll_with_negatives() const
+{
   int total = 0;
   for ( unsigned i = 0; i < die_count; i++ )
   {
@@ -33,10 +39,7 @@ unsigned short Dice::roll() const
   }
   total += plus_damage;
 
-  if ( total < 0 )
-    return 0;
-  else
-    return static_cast<unsigned short>( total );
+  return total;
 }
 
 bool Dice::load( const char* dicestr, std::string* errormsg )

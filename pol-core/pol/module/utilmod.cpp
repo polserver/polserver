@@ -82,13 +82,18 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomFloat()
 Bscript::BObjectImp* UtilExecutorModule::mf_RandomDiceRoll()
 {
   const String* dicestr;
-  if ( exec.getStringParam( 0, dicestr ) )
+  bool allow_negatives;
+
+  if ( exec.getStringParam( 0, dicestr ) && exec.getParam( 1, allow_negatives ) )
   {
     std::string errormsg;
     Core::Dice dice;
     if ( dice.load( dicestr->data(), &errormsg ) )
     {
-      return new BLong( dice.roll() );
+      if ( allow_negatives )
+        return new BLong( dice.roll_with_negatives() );
+      else
+        return new BLong( dice.roll() );
     }
     else
     {

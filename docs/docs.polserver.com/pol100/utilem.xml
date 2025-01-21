@@ -32,10 +32,12 @@
 	<error>"RandomFloat() expects a Real parameter"</error>
   </function>
 
-  <function name="RandomDiceRoll"> 
-    <prototype>RandomDiceRoll(dice_string)</prototype>
+  <function name="RandomDiceRoll">
+    <prototype>RandomDiceRoll(dice_string, allow_negatives := 0)</prototype>
     <parameter name="dice_string" value="String" />
+    <parameter name="allow_negatives" value="Integer"/>
     <explain>Returns a random number according to the passed die roll string. This is standard NdS+X format. N=number of dies to roll, S=number of sides per die, X=integer to add(or subtract) after roll.</explain>
+    <explain>If <code>allow_negatives</code> is <code>1</code>, a negative dice roll will be returned as-is, and will not be capped at <code>0</code>.</explain>
     <explain>Here's some acceptable examples:
 <code>
 4
