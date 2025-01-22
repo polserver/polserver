@@ -55,6 +55,7 @@
 #include "../plib/mapcell.h"
 #include "../plib/objtype.h"
 #include "../plib/systemstate.h"
+#include "../plib/uoexpansion.h"
 #include "accounts/account.h"
 #include "containr.h"
 #include "fnsearch.h"
@@ -1944,49 +1945,50 @@ void login_complete( Client* c )
 
 void send_feature_enable( Client* client )
 {
-  u32 clientflag = 0;
+  using namespace Plib;
+  B9Feature clientflag = B9Feature::None;
   switch ( client->acct->uo_expansion_flag() )
   {
   case TOL:
-    clientflag = 0x7387DF;
+    clientflag = B9Feature::DefaultTOL;
     client->UOExpansionFlag =
         TOL | HSA | SA | KR | ML | SE |
         AOS;  // TOL needs HSA- SA- KR- ML- SE- and AOS- features (and used checks) too
     break;
   case HSA:
-    clientflag = 0x387DF;
+    clientflag = B9Feature::DefaultHSA;
     client->UOExpansionFlag =
         HSA | SA | KR | ML | SE |
         AOS;  // HSA needs SA- KR- ML- SE- and AOS- features (and used checks) too
     break;
   case SA:
-    clientflag = 0x187DF;
+    clientflag = B9Feature::DefaultSA;
     client->UOExpansionFlag =
         SA | KR | ML | SE | AOS;  // SA needs KR- ML- SE- and AOS- features (and used checks) too
     break;
   case KR:
-    clientflag = 0x86DB;
+    clientflag = B9Feature::DefaultKR;
     client->UOExpansionFlag =
         KR | ML | SE | AOS;  // KR needs ML- SE- and AOS-features (and used checks) too
     break;
   case ML:
-    clientflag = 0x80DB;
+    clientflag = B9Feature::DefaultML;
     client->UOExpansionFlag = ML | SE | AOS;  // ML needs SE- and AOS-features (and used checks) too
     break;
   case SE:
-    clientflag = 0x805B;
+    clientflag = B9Feature::DefaultSE;
     client->UOExpansionFlag = SE | AOS;  // SE needs AOS-features (and used checks) too
     break;
   case AOS:
-    clientflag = 0x801B;
+    clientflag = B9Feature::DefaultAOS;
     client->UOExpansionFlag = AOS;
     break;
   case LBR:
-    clientflag = 0x0002;
+    clientflag = B9Feature::DefaultLBR;
     client->UOExpansionFlag = LBR;
     break;
   case T2A:
-    clientflag = 0x0001;
+    clientflag = B9Feature::DefaultT2A;
     client->UOExpansionFlag = T2A;
     break;
   default:
@@ -1998,13 +2000,13 @@ void send_feature_enable( Client* client )
   {
     if ( Plib::systemstate.config.character_slots == 7 )
     {
-      clientflag |= 0x1000;   // 7th & 6th character flag (B9 Packet)
-      clientflag &= ~0x0004;  // Disable Third Dawn?
+      clientflag |= B9Feature::Has7thSlot;  // 7th & 6th character flag (B9 Packet)
+      clientflag &= ~B9Feature::ThirdDawn;  // Disable Third Dawn? TODO sounds wrong
     }
     else if ( Plib::systemstate.config.character_slots == 6 )
     {
-      clientflag |= 0x0020;  // 6th character flag (B9 Packet)
-      clientflag &= ~0x0004;
+      clientflag |= B9Feature::Has6thSlot;  // 6th character flag (B9 Packet)
+      clientflag &= ~B9Feature::ThirdDawn;  // TODO sounds wrong
     }
   }
 
@@ -2012,14 +2014,14 @@ void send_feature_enable( Client* client )
   if ( client->UOExpansionFlag & KR )
   {
     if ( settingsManager.ssopt.support_faces == 2 )
-      clientflag |= 0x2000;
+      clientflag |= B9Feature::KRFaces;
   }
 
   PktHelper::PacketOut<PktOut_B9> msg;
   if ( client->ClientType & CLIENTTYPE_60142 )
-    msg->WriteFlipped<u32>( clientflag & 0xFFFFFFFFu );
+    msg->WriteFlipped<u32>( static_cast<u32>( clientflag ) & 0xFFFFFFFFu );
   else
-    msg->WriteFlipped<u16>( clientflag & 0xFFFFu );
+    msg->WriteFlipped<u16>( static_cast<u32>( clientflag ) & 0xFFFFu );
   msg.Send( client );
 }
 

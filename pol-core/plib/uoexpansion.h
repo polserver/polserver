@@ -1,14 +1,12 @@
-#ifndef PLIB_UOEXPANSION_H
-#define PLIB_UOEXPANSION_H
+#pragma once
 
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Plib
+namespace Pol::Plib
 {
 enum class B9Feature : u32
 {
+  None = 0x0,
   T2A = 0x01,          // Chats, regions (1.25.35)
   Renaissance = 0x02,  // Trammel/felucca (2.0.0)
   ThirdDawn = 0x04,    // Ilshenar, 3D client (3.0.0)
@@ -37,7 +35,46 @@ enum class B9Feature : u32
   HSA = 0x20000,          // HSA features (7.0.9.0)
   GothicTiles = 0x40000,  // Gothic housing tiles (7.0.9.0)
   RusticTiles = 0x80000,  // Rustic housing tiles (7.0.9.0)
+  JungleTiles = 0x100000,
+  ShadowGuardTiles = 0x200000,
+  TOL = 0x400000,
+
+
+  DefaultT2A = T2A,                                            // 0x1
+  DefaultLBR = Renaissance,                                    // 0x2
+  DefaultAOS = DefaultT2A | DefaultLBR | AOS | LiveAcct,       // 0x801B
+  DefaultSE = DefaultAOS | SE,                                 // 0x805B
+  DefaultML = DefaultSE | ML,                                  // 0x80DB
+  DefaultKR = DefaultML | CrystalShadowTiles | Splash10thAge,  // 0x86DB
+  DefaultSA = DefaultKR | ThirdDawn | Splash8thAge | SA,       // 0x187DF
+  DefaultHSA = DefaultSA | HSA,                                // 0x387DF // TODO Gothic + Rustic?
+  DefaultTOL = DefaultHSA | JungleTiles | ShadowGuardTiles | TOL,  // 0x7387DF
 };
+
+
+// minimal bitflag operators
+inline constexpr B9Feature operator|( B9Feature a, B9Feature b )
+{
+  return static_cast<B9Feature>( static_cast<u32>( a ) | static_cast<u32>( b ) );
+}
+inline constexpr B9Feature operator&( B9Feature a, B9Feature b )
+{
+  return static_cast<B9Feature>( static_cast<u32>( a ) & static_cast<u32>( b ) );
+}
+inline constexpr B9Feature operator~( B9Feature a )
+{
+  return static_cast<B9Feature>( ~static_cast<u32>( a ) );
+}
+inline constexpr B9Feature& operator|=( B9Feature& a, B9Feature b )
+{
+  a = a | b;
+  return a;
+}
+inline constexpr B9Feature& operator&=( B9Feature& a, B9Feature b )
+{
+  a = a & b;
+  return a;
+}
 
 enum class A9Feature : u32
 {
@@ -65,7 +102,20 @@ enum class A9Feature : u32
   UnlockNewFeluccaAreas = 0x8000,  // Unlock new felucca areas (factions map0x.mul and such)
                                    // (7.0.0.0 - SA or HSA, not sure)
 };
-
+// minimal bitflag operators
+inline constexpr A9Feature operator&( A9Feature a, A9Feature b )
+{
+  return static_cast<A9Feature>( static_cast<u32>( a ) & static_cast<u32>( b ) );
+}
+inline constexpr A9Feature operator|( A9Feature a, A9Feature b )
+{
+  return static_cast<A9Feature>( static_cast<u32>( a ) | static_cast<u32>( b ) );
+}
+inline constexpr A9Feature& operator|=( A9Feature& a, A9Feature b )
+{
+  a = a | b;
+  return a;
+}
 
 enum class ExpansionVersion : u8
 {
@@ -77,8 +127,8 @@ enum class ExpansionVersion : u8
   KR,
   SA,
   HSA,
-
-  LastVersion = HSA
+  TOL,
+  LastVersion = TOL
 };
 const int numExpansions = static_cast<int>( ExpansionVersion::LastVersion ) + 1;
 const char* getExpansionName( ExpansionVersion x );
@@ -148,6 +198,4 @@ public:
   virtual ExpansionVersion version() const override { return m_version; }
   virtual int characterSlots() const override { return m_slots; }
 };
-}  // namespace Plib
-}  // namespace Pol
-#endif
+}  // namespace Pol::Plib
