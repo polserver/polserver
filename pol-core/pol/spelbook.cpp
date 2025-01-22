@@ -18,6 +18,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
 #include "../plib/systemstate.h"
+#include "../plib/uoexpansion.h"
 #include "baseobject.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
@@ -119,7 +120,8 @@ void Spellbook::double_click( Network::Client* client )
     // must have AOS Features Enabled on an acct with AOS Expansion to view Magery book.
     // All newer spellbooks will bug out if you use this method though.
     if ( ( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 ) &&
-         !( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
+         ( settingsManager.ssopt.uo_feature_enable & Plib::A9Feature::AOS ) !=
+             Plib::A9Feature::AOS )
     {
       if ( Plib::systemstate.config.loglevel > 1 )
         INFO_PRINTLN(

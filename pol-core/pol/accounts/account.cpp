@@ -29,18 +29,13 @@ namespace Pol
 namespace Accounts
 {
 Account::Account( Clib::ConfigElem& elem )
-    : characters_(),
+    : characters_( Plib::systemstate.config.character_slots, Core::CharacterRef( nullptr ) ),
       name_( elem.remove_string( "NAME" ) ),
       enabled_( true ),
       banned_( false ),
       props_( Core::CPropProfiler::Type::ACCOUNT ),
       default_cmdlevel_( 0 )
 {
-  // If too low, will cause the client to freeze and the console to report
-  // Exception in message handler 0x91: vector
-  for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
-    characters_.push_back( Core::CharacterRef( nullptr ) );
-
   readfrom( elem );
 }
 
@@ -167,6 +162,8 @@ size_t Account::estimatedSize() const
 
 Mobile::Character* Account::get_character( int index )
 {
+  if ( index < 0 || static_cast<size_t>( index ) > characters_.size() - 1 )
+    return nullptr;
   return characters_.at( index ).get();
 }
 
