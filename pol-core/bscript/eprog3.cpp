@@ -39,14 +39,6 @@ void EScriptProgram::dump( std::ostream& os )
     }
     else
     {
-      if ( fileline.size() > PC && !fileline[PC].empty() )
-        os << fileline[PC] << std::endl;
-      if ( program_PC == PC && !program_decl.empty() )
-        os << program_decl << std::endl;
-      if ( function_decls.size() > PC && !function_decls[PC].empty() )
-        os << function_decls[PC] << std::endl;
-      if ( sourcelines.size() > PC && !sourcelines[PC].empty() )
-        os << sourcelines[PC] << std::endl;
       os << PC << ": " << token << std::endl;
       if ( token.id == INS_CASEJMP )
       {
@@ -85,5 +77,5 @@ void EScriptProgram::dump_casejmp( std::ostream& os, const Token& token )
     }
   }
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

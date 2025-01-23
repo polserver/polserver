@@ -147,7 +147,6 @@ public:
   void append( const StoredToken& stoken, const CompilerContext& ctx );
   void append( const StoredToken& stoken, const CompilerContext& ctx, unsigned* posn );
   void erase();
-  void clear_modules();
   unsigned nglobals;
   unsigned expectedArgs;
   bool haveProgram;
@@ -158,7 +157,6 @@ public:
 
   void dump( std::ostream& os );
   void dump_casejmp( std::ostream& os, const Token& token );
-  int write( const char* fname );
   int read( const char* fname );
   int read_dbg_file( bool quiet = false );
   int read_progdef_hdr( FILE* fp );
@@ -171,13 +169,6 @@ public:
   int create_instructions();
 
   int write_dbg( const char* fname, bool gen_txt );
-
-  // compiler only:
-  unsigned program_PC;
-  std::string program_decl;
-  std::vector<std::string> sourcelines;
-  std::vector<std::string> fileline;
-  std::vector<std::string> function_decls;
 
   std::vector<EPExportedFunction> exported_functions;
   std::vector<EPFunctionReference> function_references;
@@ -227,24 +218,10 @@ public:
   size_t sizeEstimate() const;
 
 private:
-  friend class EScriptProgramCheckpoint;
   ~EScriptProgram();
   friend class ref_ptr<EScriptProgram>;
 };
 
-class EScriptProgramCheckpoint
-{
-public:
-  explicit EScriptProgramCheckpoint( const EScriptProgram& );
-  void commit( const EScriptProgram& prog );
-  void rollback( EScriptProgram& prog ) const;
-
-  unsigned module_count;
-  unsigned tokens_count;
-  unsigned symbols_length;
-  unsigned sourcelines_count;
-  unsigned fileline_count;
-};
 }  // namespace Bscript
 }  // namespace Pol
 #endif

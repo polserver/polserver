@@ -254,101 +254,6 @@ void EScriptProgram::addToken( const Token& token )
   add_ins_dbg_info();
 }
 
-int EScriptProgram::write( const char* fname )
-{
-  EScriptProgram& program = *this;
-  FILE* fp = fopen( fname, "wb" );
-  if ( !fp )
-    return -1;
-
-  BSCRIPT_FILE_HDR hdr;
-  hdr.magic2[0] = BSCRIPT_FILE_MAGIC0;
-  hdr.magic2[1] = BSCRIPT_FILE_MAGIC1;
-  hdr.version = ESCRIPT_FILE_VER_CURRENT;  // auto-set to latest version (see filefmt.h)
-  hdr.globals = static_cast<unsigned short>( globalvarnames.size() );
-  fwrite( &hdr, sizeof hdr, 1, fp );
-
-  BSCRIPT_SECTION_HDR sechdr;
-
-  if ( haveProgram )
-  {
-    BSCRIPT_PROGDEF_HDR progdef_hdr;
-    memset( &progdef_hdr, 0, sizeof progdef_hdr );
-    sechdr.type = BSCRIPT_SECTION_PROGDEF;
-    sechdr.length = sizeof progdef_hdr;
-    fwrite( &sechdr, sizeof sechdr, 1, fp );
-    progdef_hdr.expectedArgs = expectedArgs;
-    fwrite( &progdef_hdr, sizeof progdef_hdr, 1, fp );
-  }
-
-  for ( auto& module : program.modules )
-  {
-    sechdr.type = BSCRIPT_SECTION_MODULE;
-    sechdr.length = 0;
-    fwrite( &sechdr, sizeof sechdr, 1, fp );
-
-    BSCRIPT_MODULE_HDR modhdr;
-    memset( &modhdr, 0, sizeof modhdr );
-    Clib::stracpy( modhdr.modulename, module->modulename.get().c_str(), sizeof modhdr.modulename );
-    modhdr.nfuncs = static_cast<unsigned int>( module->used_functions.size() );
-    fwrite( &modhdr, sizeof modhdr, 1, fp );
-    for ( auto& module_func : module->used_functions )
-    {
-      BSCRIPT_MODULE_FUNCTION func;
-      memset( &func, 0, sizeof func );
-      passert( module_func->used );
-
-      Clib::stracpy( func.funcname, module_func->name.get().c_str(), sizeof func.funcname );
-      func.nargs = static_cast<unsigned char>( module_func->nargs );
-
-      fwrite( &func, sizeof func, 1, fp );
-    }
-  }
-
-  sechdr.type = BSCRIPT_SECTION_CODE;
-  sechdr.length = program.tokens.get_write_length();
-  fwrite( &sechdr, sizeof sechdr, 1, fp );
-  program.tokens.write( fp );
-
-  sechdr.type = BSCRIPT_SECTION_SYMBOLS;
-  sechdr.length = program.symbols.get_write_length();
-  fwrite( &sechdr, sizeof sechdr, 1, fp );
-  program.symbols.write( fp );
-
-  if ( !exported_functions.empty() )
-  {
-    BSCRIPT_EXPORTED_FUNCTION bef;
-    sechdr.type = BSCRIPT_SECTION_EXPORTED_FUNCTIONS;
-    sechdr.length = static_cast<unsigned int>( exported_functions.size() * sizeof bef );
-    fwrite( &sechdr, sizeof sechdr, 1, fp );
-    for ( auto& elem : exported_functions )
-    {
-      Clib::stracpy( bef.funcname, elem.name.c_str(), sizeof bef.funcname );
-      bef.nargs = elem.nargs;
-      bef.PC = elem.PC;
-      fwrite( &bef, sizeof bef, 1, fp );
-    }
-  }
-
-  fclose( fp );
-  return 0;
-}
-
-
-EScriptProgramCheckpoint::EScriptProgramCheckpoint( const EScriptProgram& prog )
-{
-  commit( prog );
-}
-
-void EScriptProgramCheckpoint::commit( const EScriptProgram& prog )
-{
-  module_count = static_cast<unsigned int>( prog.modules.size() );
-  tokens_count = prog.tokens.count();
-  symbols_length = prog.symbols.length();
-  sourcelines_count = static_cast<unsigned int>( prog.sourcelines.size() );
-  fileline_count = static_cast<unsigned int>( prog.fileline.size() );
-}
-
 unsigned EScriptProgram::varcount( unsigned block )
 {
   unsigned cnt = static_cast<unsigned int>( blocks[block].localvarnames.size() );
@@ -571,16 +476,7 @@ void EScriptProgram::addfunction( std::string funcname, unsigned firstPC, unsign
 size_t EScriptProgram::sizeEstimate() const
 {
   using namespace Clib;
-  size_t size = sizeof( EScriptProgram ) + program_decl.capacity();
-  size += memsize( sourcelines );
-  for ( const auto& l : sourcelines )
-    size += l.capacity();
-  size += memsize( fileline );
-  for ( const auto& l : fileline )
-    size += l.capacity();
-  size += memsize( function_decls );
-  for ( const auto& l : function_decls )
-    size += l.capacity();
+  size_t size = sizeof( EScriptProgram );
   size += memsize( globalvarnames );
   for ( const auto& l : globalvarnames )
     size += l.capacity();
