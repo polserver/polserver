@@ -25,11 +25,6 @@ EScriptProgram::EScriptProgram()
       modules(),
       tokens(),
       symbols(),
-      program_PC( UINT_MAX ),
-      program_decl( "" ),
-      sourcelines(),
-      fileline(),
-      function_decls(),
       exported_functions(),
       version( 0 ),
       invocations( 0 ),
@@ -60,20 +55,11 @@ EScriptProgram::EScriptProgram()
   blocks.push_back( block );
 }
 
-//#define _DBG_TRYING_TO_FIND_WIN32_SHUTDOWN_ASSERTION
 EScriptProgram::~EScriptProgram()
 {
-#if defined( _DEBUG ) && defined( _DBG_TRYING_TO_FIND_WIN32_SHUTDOWN_ASSERTION )
-  cout << "ESP~D: " << name << endl;
-#endif
-
   Clib::delete_all( modules );
   --escript_program_count;
 }
 
-void EScriptProgram::clear_modules()
-{
-  Clib::delete_all( modules );
-}
 }  // namespace Bscript
 }  // namespace Pol

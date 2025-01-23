@@ -16,3 +16,4 @@ print( FormatRealToString( 5.0, 40 ) );
 print( FormatRealToString( 0.5, 40 ) );
 print( FormatRealToString( 0.00005, 40 ) );
 print( FormatRealToString( 1, 40 ) );
+print( FormatRealToString( "", 40 ).?errortext );
