@@ -335,11 +335,8 @@ set (bscript_sources    # sorted !
   bobject.h
   bstruct.cpp
   bstruct.h
-  compctx.cpp
-  compctx.h
   compilercfg.cpp
   compilercfg.h
-  compmodl.h
   config.h
   continueimp.cpp
   continueimp.h
@@ -352,7 +349,6 @@ set (bscript_sources    # sorted !
   eprog2.cpp
   eprog3.cpp
   eprog_read.cpp
-  escript.h
   escript_config.cpp
   escriptv.cpp
   escriptv.h
@@ -365,8 +361,6 @@ set (bscript_sources    # sorted !
   executor.h
   executor.inl.h
   executortype.h
-  expression.cpp
-  expression.h
   filefmt.h
   fmodule.cpp
   fmodule.h
@@ -378,8 +372,6 @@ set (bscript_sources    # sorted !
   objmembers.h
   objmethods.h
   objstrm.cpp
-  operator.h
-  options.h
   str.cpp
   str.h
   symcont.cpp
@@ -389,8 +381,5 @@ set (bscript_sources    # sorted !
   token.h
   tokens.cpp
   tokens.h
-  userfunc.cpp
-  userfunc.h
-  verbtbl.h
 )
 

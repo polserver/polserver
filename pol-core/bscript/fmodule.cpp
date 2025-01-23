@@ -7,8 +7,6 @@
 
 #include <cstddef>
 
-#include "userfunc.h"
-
 namespace Pol
 {
 namespace Bscript
