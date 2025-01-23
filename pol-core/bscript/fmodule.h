@@ -19,8 +19,6 @@ namespace Pol
 {
 namespace Bscript
 {
-class UserFunction;
-
 class ModuleFunction
 {
 public:
@@ -37,7 +35,6 @@ class FunctionalityModule
 public:
   bool have_indexes;
   std::vector<ModuleFunction*> functions;
-
 
   boost_utils::function_name_flystring modulename;
 

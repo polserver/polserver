@@ -30,7 +30,6 @@ class Package;
 }
 namespace Bscript
 {
-class CompilerContext;
 class FunctionalityModule;
 
 class Instruction
@@ -141,12 +140,6 @@ class EScriptProgram : public ref_counted
 {
 public:
   EScriptProgram();
-  void addToken( const Token& token );
-  void append( const StoredToken& stoken );
-  void append( const StoredToken& stoken, unsigned* posn );
-  void append( const StoredToken& stoken, const CompilerContext& ctx );
-  void append( const StoredToken& stoken, const CompilerContext& ctx, unsigned* posn );
-  void erase();
   unsigned nglobals;
   unsigned expectedArgs;
   bool haveProgram;
@@ -168,13 +161,10 @@ public:
   int _readToken( Token& token, unsigned position ) const;
   int create_instructions();
 
-  int write_dbg( const char* fname, bool gen_txt );
-
   std::vector<EPExportedFunction> exported_functions;
   std::vector<EPFunctionReference> function_references;
   std::vector<EPClassDescriptor> class_descriptors;
 
-  // executor only:
   unsigned short version;
   unsigned int invocations;
   u64 instr_cycles;  // FIXME need an enable-profiling flag
@@ -183,11 +173,6 @@ public:
 
   // debug data:
   bool debug_loaded;
-  unsigned savecurblock;
-  unsigned curblock;
-  unsigned curfile;
-  unsigned curline;
-  bool statementbegin;
   std::vector<std::string> globalvarnames;
   std::vector<EPDbgBlock> blocks;
   std::vector<EPDbgFunction> dbg_functions;
@@ -198,23 +183,9 @@ public:
   std::vector<unsigned> dbg_linenum;
   std::vector<unsigned> dbg_ins_blocks;
   std::vector<bool> dbg_ins_statementbegin;
-  void setcontext( const CompilerContext& ctx );
-  void setstatementbegin();
 
-  void enterfunction();
-  void leavefunction();
-  void enterblock();
-  void leaveblock();
-  void addlocalvar( const std::string& localvarname );
-  void addfunction( std::string name, unsigned firstPC, unsigned lastPC );
-  void update_dbg_pos( const Token& tkn );
-  void add_ins_dbg_info();
-
-  int add_dbg_filename( const std::string& filename );
   std::string dbg_get_instruction( size_t atPC ) const;
 
-  unsigned varcount( unsigned block );
-  unsigned parentvariables( unsigned parent );
   size_t sizeEstimate() const;
 
 private:

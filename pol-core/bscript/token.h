@@ -17,7 +17,6 @@
 #include <iosfwd>
 #include <set>
 
-#include "options.h"
 #include <fmt/ostream.h>
 
 namespace Pol
@@ -30,8 +29,6 @@ typedef struct
   unsigned offset;
   unsigned strOffset;
 } DebugToken;
-
-class UserFunction;
 
 class Token
 {
@@ -51,7 +48,6 @@ public:
     int lval;
     const unsigned char* dataptr;
   };
-  UserFunction* userfunc;
   bool deprecated;
   bool ownsStr;
   unsigned char module;
@@ -61,13 +57,6 @@ public:
 
 protected:
   const char* token;
-#if STORE_INSTANCELIST
-  typedef set<Token*> Instances;
-  static Instances _instancelist;
-#endif
-  static unsigned int _instances;
-  void register_instance();
-  void unregister_instance();
 
 public:
   const char* tokval() const { return token; }
@@ -77,7 +66,6 @@ public:
 
   Token( ModuleID module, BTokenId id, BTokenType type );
   Token( BTokenId id, BTokenType type );
-  Token( ModuleID module, BTokenId id, BTokenType type, UserFunction* userfunc );
   void nulStr();
   void setStr( const char* s );
   void copyStr( const char* s );
