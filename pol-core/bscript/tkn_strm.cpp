@@ -41,12 +41,12 @@ void Token::printOn( std::ostream& os ) const
     break;
   case TOK_LOCALVAR:
     os << "local #" << lval;
-    if ( token != nullptr )
+    if ( !token.empty() )
       os << " (" << token << ")";
     break;
   case TOK_GLOBALVAR:
     os << "global #" << lval;
-    if ( token != nullptr )
+    if ( !token.empty() )
       os << " (" << token << ")";
     break;
 
@@ -94,13 +94,13 @@ void Token::printOn( std::ostream& os ) const
     break;
   case INS_ASSIGN_LOCALVAR:
     os << "local" << lval;
-    if ( token )
+    if ( !token.empty() )
       os << " (" << token << ")";
     os << " := ";
     break;
   case INS_ASSIGN_GLOBALVAR:
     os << "global" << lval;
-    if ( token )
+    if ( !token.empty() )
       os << " (" << token << ")";
     os << " := ";
     break;
@@ -394,7 +394,7 @@ void Token::printOn( std::ostream& os ) const
     break;
 
   case CTRL_STATEMENTBEGIN:
-    os << "[" << ( token ? token : "--source not available--" ) << "]";
+    os << "[" << ( !token.empty() ? token : "--source not available--" ) << "]";
     break;
   case CTRL_PROGEND:
     os << "progend";
@@ -425,10 +425,11 @@ void Token::printOn( std::ostream& os ) const
     os << "Call Method " << token << " (" << lval << " params)";
     break;
   case TOK_USERFUNC:
-    os << "User Function " << ( token ? token : "--function name not available--" );
+    os << "User Function " << ( !token.empty() ? token : "--function name not available--" );
     break;
   case TOK_FUNCREF:
-    os << "Function Ref " << ( token ? token : "--function name not available--" ) << "@" << lval;
+    os << "Function Ref " << ( !token.empty() ? token : "--function name not available--" ) << "@"
+       << lval;
     break;
   case TOK_UNPLUSPLUS:
     os << "unary ++";
@@ -487,7 +488,7 @@ void Token::printOn( std::ostream& os ) const
   case TOK_FUNC:
   {
     os << "Func(" << (int)module << "," << lval << "): ";
-    if ( token )
+    if ( !token.empty() )
       os << token;
     else
       os << "<unknown>";
@@ -496,7 +497,7 @@ void Token::printOn( std::ostream& os ) const
 
   default:
     os << "Unknown Token: (" << int( id ) << "," << int( type );
-    if ( token )
+    if ( !token.empty() )
       os << ",'" << token << "'";
     os << ")";
     break;

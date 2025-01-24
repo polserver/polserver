@@ -346,8 +346,6 @@ set (bscript_sources    # sorted !
   dict.h
   eprog.cpp
   eprog.h
-  eprog2.cpp
-  eprog3.cpp
   eprog_read.cpp
   escript_config.cpp
   escriptv.cpp
