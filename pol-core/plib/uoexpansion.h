@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../clib/rawtypes.h"
+#include <string>
 
 namespace Pol::Plib
 {
@@ -40,14 +41,14 @@ enum class B9Feature : u32
   TOL = 0x400000,
 
 
-  DefaultT2A = T2A,                                            // 0x1
-  DefaultLBR = Renaissance,                                    // 0x2
-  DefaultAOS = DefaultT2A | DefaultLBR | AOS | LiveAcct,       // 0x801B
-  DefaultSE = DefaultAOS | SE,                                 // 0x805B
-  DefaultML = DefaultSE | ML,                                  // 0x80DB
-  DefaultKR = DefaultML | CrystalShadowTiles | Splash10thAge,  // 0x86DB
-  DefaultSA = DefaultKR | ThirdDawn | Splash8thAge | SA,       // 0x187DF
-  DefaultHSA = DefaultSA | HSA,                                // 0x387DF // TODO Gothic + Rustic?
+  DefaultT2A = T2A,                                             // 0x1
+  DefaultLBR = Renaissance,                                     // 0x2
+  DefaultAOS = DefaultT2A | DefaultLBR | LBR | AOS | LiveAcct,  // 0x801B
+  DefaultSE = DefaultAOS | SE,                                  // 0x805B
+  DefaultML = DefaultSE | ML,                                   // 0x80DB
+  DefaultKR = DefaultML | CrystalShadowTiles | Splash10thAge,   // 0x86DB
+  DefaultSA = DefaultKR | ThirdDawn | Splash8thAge | SA,        // 0x187DF
+  DefaultHSA = DefaultSA | HSA,                                 // 0x387DF // TODO Gothic + Rustic?
   DefaultTOL = DefaultHSA | JungleTiles | ShadowGuardTiles | TOL,  // 0x7387DF
 };
 
@@ -78,6 +79,7 @@ inline constexpr B9Feature& operator&=( B9Feature& a, B9Feature b )
 
 enum class A9Feature : u32
 {
+  None = 0x0,
   Unk1 = 0x01,             // Unknown, never sent by OSI
   ConfigReqLogout = 0x02,  // Send config/req logout (IGR? overwrite configuration button?)
   SingleCharacter = 0x04,  // Siege style 1 char/acct
@@ -130,10 +132,51 @@ enum class ExpansionVersion : u8
   TOL,
   LastVersion = TOL
 };
-const int numExpansions = static_cast<int>( ExpansionVersion::LastVersion ) + 1;
-const char* getExpansionName( ExpansionVersion x );
+std::string getExpansionName( ExpansionVersion x );
+ExpansionVersion getExpansionVersion( const std::string& str );
+B9Feature getDefaultExpansionFlag( ExpansionVersion x );
 
+// hold per account
+class AccountExpansion
+{
+public:
+  AccountExpansion() = default;
+  AccountExpansion( const std::string& exp, B9Feature flag )
+      : expansion( getExpansionVersion( exp ) ), ext_flags( flag ){};
+  ExpansionVersion Expansion() const { return expansion; };
+  B9Feature extensionFlags() const { return ext_flags; };
 
+private:
+  ExpansionVersion expansion =
+      ExpansionVersion::T2A;  // TODO needed? could save the flags or string depending if its
+                              // default or not if flags can be changed
+  B9Feature ext_flags = B9Feature::DefaultT2A;
+};
+
+// hold in server
+class ServerExpansion
+{
+public:
+  ExpansionVersion Expansion() const { return expansion; };
+  B9Feature extensionFlags() const { return ext_flags; };
+  A9Feature featureFlags() const { return feature_flags; };
+  //  u8 maxCharacterSlots() const { return char_slots; };
+
+  ServerExpansion() = default;
+  ServerExpansion( A9Feature feature, const std::string& version /*, u8 slots */ )
+      : expansion( getExpansionVersion( version ) ),
+        ext_flags( getDefaultExpansionFlag( expansion ) ),
+        feature_flags( feature )
+        //      char_slots( slots )
+        {};
+
+private:
+  ExpansionVersion expansion = ExpansionVersion::T2A;
+  B9Feature ext_flags = B9Feature::DefaultT2A;  // needed?
+  A9Feature feature_flags = A9Feature::None;
+  //  u8 char_slots = 5; // mmmh its a pol.cfg setting...
+};
+/*
 class UOExpansion
 {
 public:
@@ -146,7 +189,6 @@ public:
   virtual ExpansionVersion version() const { return ExpansionVersion::T2A; }
   virtual int characterSlots() const { return 5; }
 };
-
 class ClientFeatures
 {
   const UOExpansion& m_expansion;
@@ -198,4 +240,5 @@ public:
   virtual ExpansionVersion version() const override { return m_version; }
   virtual int characterSlots() const override { return m_slots; }
 };
+*/
 }  // namespace Pol::Plib

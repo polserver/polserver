@@ -67,7 +67,8 @@ struct ServSpecOpt
   unsigned short default_container_max_weight;
   bool hidden_turns_count;
   unsigned short invul_tag;
-  Plib::A9Feature uo_feature_enable;
+  Plib::A9Feature uo_feature_enable;  // TODO contained
+  Plib::ServerExpansion expansion;
   unsigned short starting_gold;
   unsigned short item_color_mask;
   unsigned char default_max_slots;
