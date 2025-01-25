@@ -82,8 +82,11 @@ void ServSpecOpt::read_servspecopt()
       elem.remove_ushort( "DefaultContainerMaxWeight", 250 );
   settingsManager.ssopt.hidden_turns_count = elem.remove_bool( "HiddenTurnsCount", true );
   settingsManager.ssopt.invul_tag = elem.remove_ushort( "InvulTag", 1 );
-  settingsManager.ssopt.uo_feature_enable =
-      static_cast<Plib::A9Feature>( elem.remove_ushort( "UOFeatureEnable", 0 ) );
+  auto a9flag = static_cast<Plib::A9Feature>( elem.remove_ushort( "UOFeatureEnable", 0 ) );
+  auto default_expansion = elem.remove_string(
+      "DefaultExpansion", Plib::getExpansionName( Plib::ExpansionVersion::T2A ).c_str() );  // new
+  settingsManager.ssopt.uo_feature_enable = a9flag;
+  settingsManager.ssopt.expansion = Plib::ServerExpansion( a9flag, default_expansion );
   settingsManager.ssopt.starting_gold = elem.remove_ushort( "StartingGold", 100 );
   settingsManager.ssopt.item_color_mask = elem.remove_ushort( "ItemColorMask", 0xFFF );
   settingsManager.ssopt.use_win_lfh = elem.remove_bool( "UseWinLFH", false );

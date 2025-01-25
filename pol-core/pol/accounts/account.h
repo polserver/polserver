@@ -15,6 +15,7 @@
 
 #include "../../clib/refptr.h"
 #include "../../clib/strset.h"
+#include "../../plib/uoexpansion.h"
 #include "../proplist.h"
 #include "../reftypes.h"
 
@@ -76,7 +77,8 @@ private:
   unsigned char default_cmdlevel_;
 
   Clib::StringSet options_;
+  Plib::AccountExpansion expansion_;
 };
-}
-}
+}  // namespace Accounts
+}  // namespace Pol
 #endif

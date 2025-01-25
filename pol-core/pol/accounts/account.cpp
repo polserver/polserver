@@ -19,6 +19,7 @@
 #include "../../clib/streamsaver.h"
 #include "../../plib/systemstate.h"
 #include "../cmdlevel.h"
+#include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
@@ -34,7 +35,8 @@ Account::Account( Clib::ConfigElem& elem )
       enabled_( true ),
       banned_( false ),
       props_( Core::CPropProfiler::Type::ACCOUNT ),
-      default_cmdlevel_( 0 )
+      default_cmdlevel_( 0 ),
+      expansion_()
 {
   readfrom( elem );
 }
@@ -61,7 +63,12 @@ void Account::readfrom( Clib::ConfigElem& elem )
 
   enabled_ = elem.remove_bool( "ENABLED", true );
   banned_ = elem.remove_bool( "BANNED", false );
-  uo_expansion_ = convert_uo_expansion( elem.remove_string( "UOExpansion", "T2A" ) );
+  auto exp = elem.remove_string(
+      "UOExpansion",
+      Plib::getExpansionName( Core::settingsManager.ssopt.expansion.Expansion() ).c_str() );
+  uo_expansion_ = convert_uo_expansion( exp );
+  expansion_ = Plib::AccountExpansion(
+      exp, Core::settingsManager.ssopt.expansion.extensionFlags() );  // store flags?
 
   default_privs_.readfrom( elem.remove_string( "DefaultPrivs", "" ) );
 
