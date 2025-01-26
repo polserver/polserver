@@ -46,12 +46,13 @@ std::ofstream orphans_txt( "orphans.txt", std::ios::out | std::ios::trunc );
 
 int display_orphan( UObject* o )
 {
-  // Clib::StreamWriter sw( nullptr );
-  Clib::StreamWriter sw_orphan( &orphans_txt );
-  //  sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
-  // o->printOn( sw );
+  std::ostringstream stream;
+  Clib::StreamWriter sw( stream );
+  Clib::StreamWriter sw_orphan( orphans_txt );
+  sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
+  o->printOn( sw );
   o->printOnDebug( sw_orphan );
-  //  INFO_PRINT( sw.buffer() );
+  INFO_PRINT( stream.str() );
   return 0;
 }
 void display_unreaped_orphan_instances()

@@ -85,7 +85,7 @@ void write_account_data()
   try
   {
     std::ofstream ofs( accountsndtfile_c, std::ios::trunc | std::ios::out );
-    Clib::StreamWriter sw( &ofs );
+    Clib::StreamWriter sw( ofs );
     for ( const auto& account : Core::gamestate.accounts )
     {
       Account* acct = account.get();
