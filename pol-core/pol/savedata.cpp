@@ -73,33 +73,33 @@ SaveContext::SaveContext()
       _guilds(),
       _datastore(),
       _party(),
-      pol( &_pol ),
-      objects( &_objects ),
-      pcs( &_pcs ),
-      pcequip( &_pcequip ),
-      npcs( &_npcs ),
-      npcequip( &_npcequip ),
-      items( &_items ),
-      multis( &_multis ),
-      storage( &_storage ),
-      resource( &_resource ),
-      guilds( &_guilds ),
-      datastore( &_datastore ),
-      party( &_party )
+      pol( _pol ),
+      objects( _objects ),
+      pcs( _pcs ),
+      pcequip( _pcequip ),
+      npcs( _npcs ),
+      npcequip( _npcequip ),
+      items( _items ),
+      multis( _multis ),
+      storage( _storage ),
+      resource( _resource ),
+      guilds( _guilds ),
+      datastore( _datastore ),
+      party( _party )
 {
-  pol.init( Plib::systemstate.config.world_data_path + "pol.ndt" );
-  objects.init( Plib::systemstate.config.world_data_path + "objects.ndt" );
-  pcs.init( Plib::systemstate.config.world_data_path + "pcs.ndt" );
-  pcequip.init( Plib::systemstate.config.world_data_path + "pcequip.ndt" );
-  npcs.init( Plib::systemstate.config.world_data_path + "npcs.ndt" );
-  npcequip.init( Plib::systemstate.config.world_data_path + "npcequip.ndt" );
-  items.init( Plib::systemstate.config.world_data_path + "items.ndt" );
-  multis.init( Plib::systemstate.config.world_data_path + "multis.ndt" );
-  storage.init( Plib::systemstate.config.world_data_path + "storage.ndt" );
-  resource.init( Plib::systemstate.config.world_data_path + "resource.ndt" );
-  guilds.init( Plib::systemstate.config.world_data_path + "guilds.ndt" );
-  datastore.init( Plib::systemstate.config.world_data_path + "datastore.ndt" );
-  party.init( Plib::systemstate.config.world_data_path + "parties.ndt" );
+  pol.open_fstream( Plib::systemstate.config.world_data_path + "pol.ndt", _pol );
+  objects.open_fstream( Plib::systemstate.config.world_data_path + "objects.ndt", _objects );
+  pcs.open_fstream( Plib::systemstate.config.world_data_path + "pcs.ndt", _pcs );
+  pcequip.open_fstream( Plib::systemstate.config.world_data_path + "pcequip.ndt", _pcequip );
+  npcs.open_fstream( Plib::systemstate.config.world_data_path + "npcs.ndt", _npcs );
+  npcequip.open_fstream( Plib::systemstate.config.world_data_path + "npcequip.ndt", _npcequip );
+  items.open_fstream( Plib::systemstate.config.world_data_path + "items.ndt", _items );
+  multis.open_fstream( Plib::systemstate.config.world_data_path + "multis.ndt", _multis );
+  storage.open_fstream( Plib::systemstate.config.world_data_path + "storage.ndt", _storage );
+  resource.open_fstream( Plib::systemstate.config.world_data_path + "resource.ndt", _resource );
+  guilds.open_fstream( Plib::systemstate.config.world_data_path + "guilds.ndt", _guilds );
+  datastore.open_fstream( Plib::systemstate.config.world_data_path + "datastore.ndt", _datastore );
+  party.open_fstream( Plib::systemstate.config.world_data_path + "parties.ndt", _party );
 
   pcs.comment( "" );
   pcs.comment( " PCS.TXT: Player-Character Data" );
