@@ -48,7 +48,7 @@ int display_orphan( UObject* o )
 {
   // Clib::StreamWriter sw( nullptr );
   Clib::StreamWriter sw_orphan( &orphans_txt );
-  sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
+  //  sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
   // o->printOn( sw );
   o->printOnDebug( sw_orphan );
   //  INFO_PRINT( sw.buffer() );
