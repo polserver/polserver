@@ -449,6 +449,18 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
             INFO_PRINTLN( "PUSHED {}", name );
           };
 
+          // ordered roughly by "usual" size, so that the biggest files will be written first
+          save( [&]() { write_items( sc.items ); }, "items" );
+          save( [&]() { gamestate.storage.print( sc.storage ); }, "storage" );
+          save( [&]() { write_characters( sc ); }, "character" );
+          save( [&]() { write_npcs( sc ); }, "npcs" );
+          save(
+              [&]()
+              {
+                if ( Plib::systemstate.accounts_txt_dirty )
+                  Accounts::write_account_data();
+              },
+              "accounts" );
           save(
               [&]()
               {
@@ -463,11 +475,7 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
                 write_realms( sc.pol );
               },
               "pol" );
-          save( [&]() { write_items( sc.items ); }, "items" );
-          save( [&]() { write_characters( sc ); }, "character" );
-          save( [&]() { write_npcs( sc ); }, "npcs" );
           save( [&]() { write_multis( sc.multis ); }, "multis" );
-          save( [&]() { gamestate.storage.print( sc.storage ); }, "storage" );
           save( [&]() { write_resources_dat( sc.resource ); }, "resource" );
           save( [&]() { write_guilds( sc.guilds ); }, "guilds" );
           save(
@@ -479,13 +487,7 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
               },
               "datastore" );
           save( [&]() { write_party( sc.party ); }, "party" );
-          save(
-              [&]()
-              {
-                if ( Plib::systemstate.accounts_txt_dirty )
-                  Accounts::write_account_data();
-              },
-              "accounts" );
+
           for ( auto& task : critical_parts )
             task.wait();
 

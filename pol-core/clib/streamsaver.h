@@ -57,7 +57,7 @@ public:
   {
     static const std::string_view endv{ "}\n\n" };
     _mbuff.append( endv.data(), endv.data() + endv.size() );
-    if ( _mbuff.size() > 5000 )
+    if ( _mbuff.size() > 10'000 )
     {
       _stream << std::string_view{ _mbuff.data(), _mbuff.size() };
       _mbuff.clear();
@@ -71,7 +71,7 @@ protected:
   // formatting creates a temp buffer
   // to prevent this format into this buffer and when full write to disk, clear of the buffer keeps
   // the capacity
-  fmt::basic_memory_buffer<char, 5000> _mbuff;
+  fmt::basic_memory_buffer<char, 10'000> _mbuff;
   // extra buffer for ofstream to be not bound to io speed during write, I think not feasible since
   // buffer has to be quite huge to gain performance
   //  std::unique_ptr<char[]> _buf;
