@@ -74,14 +74,11 @@ void message_queue<Message>::push( Message const& msg )
 {
   std::list<Message> tmp;
   tmp.push_back( msg );  // costly pushback outside the lock
-  bool signal = false;
   {
     std::lock_guard<std::mutex> lock( _mutex );
-    signal = _queue.empty();
     _queue.splice( _queue.end(), tmp );  // fast splice inside
   }
-  if ( signal )
-    _notifier.notify_one();
+  _notifier.notify_all();
 }
 
 template <typename Message>
@@ -89,27 +86,21 @@ void message_queue<Message>::push_move( Message&& msg )
 {
   std::list<Message> tmp;
   tmp.emplace_back( std::move( msg ) );  // costly pushback outside the lock
-  bool signal = false;
   {
     std::lock_guard<std::mutex> lock( _mutex );
-    signal = _queue.empty();
     _queue.splice( _queue.end(), tmp );  // fast splice inside
   }
-  if ( signal )
-    _notifier.notify_one();
+  _notifier.notify_all();
 }
 
 template <typename Message>
 void message_queue<Message>::push( std::list<Message>& msg_list )
 {
-  bool signal = false;
   {
     std::lock_guard<std::mutex> lock( _mutex );
-    signal = _queue.empty();
     _queue.splice( _queue.end(), msg_list );  // fast splice inside
   }
-  if ( signal )
-    _notifier.notify_one();
+  _notifier.notify_all();
 }
 
 template <typename Message>

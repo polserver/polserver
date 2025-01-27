@@ -432,6 +432,7 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
                 [&, name, func = std::move( func )]() mutable
                 {
                   Tools::Timer<> swtimer;
+                  INFO_PRINTLN( "STARTING {}", name );
                   try
                   {
                     func();
@@ -445,6 +446,7 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
                   INFO_PRINTLN( "{} -> {}ms thread_id{}", name, swtimer.ellapsed(),
                                 std::this_thread::get_id() );
                 } ) );
+            INFO_PRINTLN( "PUSHED {}", name );
           };
 
           save(
@@ -484,7 +486,6 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
                   Accounts::write_account_data();
               },
               "accounts" );
-
           for ( auto& task : critical_parts )
             task.wait();
 
