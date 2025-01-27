@@ -78,7 +78,7 @@ void message_queue<Message>::push( Message const& msg )
     std::lock_guard<std::mutex> lock( _mutex );
     _queue.splice( _queue.end(), tmp );  // fast splice inside
   }
-  _notifier.notify_all();
+  _notifier.notify_one();
 }
 
 template <typename Message>
@@ -90,7 +90,7 @@ void message_queue<Message>::push_move( Message&& msg )
     std::lock_guard<std::mutex> lock( _mutex );
     _queue.splice( _queue.end(), tmp );  // fast splice inside
   }
-  _notifier.notify_all();
+  _notifier.notify_one();
 }
 
 template <typename Message>
@@ -100,7 +100,7 @@ void message_queue<Message>::push( std::list<Message>& msg_list )
     std::lock_guard<std::mutex> lock( _mutex );
     _queue.splice( _queue.end(), msg_list );  // fast splice inside
   }
-  _notifier.notify_all();
+  _notifier.notify_one();
 }
 
 template <typename Message>
