@@ -11,6 +11,7 @@
 #include <exception>
 #include <filesystem>
 #include <fstream>
+#include <thread>
 
 #include "../clib/Debugging/ExceptionParser.h"
 #include "../clib/Program/ProgramConfig.h"
@@ -441,7 +442,8 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
                                     Clib::ExceptionParser::getTrace() );
                     result = false;
                   }
-                  INFO_PRINTLN( "{} -> {}ms", name, swtimer.ellapsed() );
+                  INFO_PRINTLN( "{} -> {}ms thread_id{}", name, swtimer.ellapsed(),
+                                std::this_thread::get_id() );
                 } ) );
           };
 
@@ -487,6 +489,7 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
             task.wait();
 
           set_promise( critical_promise, result );  // critical part end
+          blocking_timer.stop();
         }  // deconstructor of the SaveContext flushes and joins the queues
         catch ( std::ios_base::failure& e )
         {
