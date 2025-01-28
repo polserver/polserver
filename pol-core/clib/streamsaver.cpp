@@ -12,7 +12,17 @@ StreamWriter::StreamWriter( std::ostream& stream ) : _stream( stream ) {}
 
 StreamWriter::~StreamWriter() noexcept( false )
 {
-  flush();
+  auto stack_unwinding = std::uncaught_exceptions();
+  try
+  {
+    flush();
+  }
+  catch ( ... )
+  {
+    // during stack unwinding an exception would terminate
+    if ( !stack_unwinding )
+      throw;
+  }
 }
 
 void StreamWriter::open_fstream( const std::string& filepath, std::ofstream& s )
