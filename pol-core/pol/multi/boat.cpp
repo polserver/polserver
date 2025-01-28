@@ -1407,14 +1407,14 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
     UObject* obj = travellerRef.get();
     if ( !obj->orphan() && on_ship( bc, obj ) )
     {
-      sw.add( "Traveller", Clib::hexint( obj->serial ) );
+      sw.add( "Traveller", Clib::hexintv( obj->serial ) );
     }
   }
   for ( auto& component : Components )
   {
     if ( component != nullptr && !component->orphan() )
     {
-      sw.add( "Component", Clib::hexint( component->serial ) );
+      sw.add( "Component", Clib::hexintv( component->serial ) );
     }
   }
 }

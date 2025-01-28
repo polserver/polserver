@@ -384,7 +384,7 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "Cursed", cursed() );
 
   if ( container != nullptr )
-    sw.add( "Container", Clib::hexint( container->serial ) );
+    sw.add( "Container", Clib::hexintv( container->serial ) );
 
   if ( !on_use_script_.get().empty() )
     sw.add( "OnUseScript", on_use_script_.get() );
@@ -462,9 +462,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( has_swing_speed_increase() )
     sw.add( "SwingSpeedIncrease", swing_speed_increase().value );
   if ( has_min_attack_range_increase() )
-    sw.add("MinAttackRangeIncrease" , min_attack_range_increase().value );
+    sw.add( "MinAttackRangeIncrease", min_attack_range_increase().value );
   if ( has_max_attack_range_increase() )
-    sw.add("MaxAttackRangeIncrease", max_attack_range_increase().value);
+    sw.add( "MaxAttackRangeIncrease", max_attack_range_increase().value );
   // end new prop stuf
   if ( maxhp_mod_ )
     sw.add( "MaxHp_mod", maxhp_mod_ );

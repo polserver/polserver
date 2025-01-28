@@ -272,12 +272,12 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if ( !name_.get().empty() )
     sw.add( "Name", name_.get() );
 
-  sw.add( "Serial", Clib::hexint( serial ) );
-  sw.add( "ObjType", Clib::hexint( objtype_ ) );
-  sw.add( "Graphic", Clib::hexint( graphic ) );
+  sw.add( "Serial", Clib::hexintv( serial ) );
+  sw.add( "ObjType", Clib::hexintv( objtype_ ) );
+  sw.add( "Graphic", Clib::hexintv( graphic ) );
 
   if ( color != 0 )
-    sw.add( "Color", Clib::hexint( color ) );
+    sw.add( "Color", Clib::hexintv( color ) );
 
   sw.add( "X", x() );
   sw.add( "Y", y() );
