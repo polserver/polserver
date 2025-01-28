@@ -172,19 +172,19 @@ SaveContext::~SaveContext() noexcept( false )
   auto stack_unwinding = std::uncaught_exceptions();
   try
   {
-    pol.flush_file();
-    objects.flush_file();
-    pcs.flush_file();
-    pcequip.flush_file();
-    npcs.flush_file();
-    npcequip.flush_file();
-    items.flush_file();
-    multis.flush_file();
-    storage.flush_file();
-    resource.flush_file();
-    guilds.flush_file();
-    datastore.flush_file();
-    party.flush_file();
+    pol.flush();
+    objects.flush();
+    pcs.flush();
+    pcequip.flush();
+    npcs.flush();
+    npcequip.flush();
+    items.flush();
+    multis.flush();
+    storage.flush();
+    resource.flush();
+    guilds.flush();
+    datastore.flush();
+    party.flush();
   }
   catch ( ... )
   {
@@ -199,7 +199,6 @@ void SaveContext::ready()
 {
   if ( SaveContext::finished.valid() )
   {
-    // Tools::Timer<Tools::DebugT> t("future");
     SaveContext::finished.wait();
   }
 }
@@ -431,8 +430,6 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
             critical_parts.push_back( gamestate.task_thread_pool.checked_push(
                 [&, name, func = std::move( func )]() mutable
                 {
-                  Tools::Timer<> swtimer;
-                  INFO_PRINTLN( "STARTING {}", name );
                   try
                   {
                     func();
@@ -443,10 +440,7 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
                                     Clib::ExceptionParser::getTrace() );
                     result = false;
                   }
-                  INFO_PRINTLN( "{} -> {}ms thread_id{}", name, swtimer.ellapsed(),
-                                std::this_thread::get_id() );
                 } ) );
-            INFO_PRINTLN( "PUSHED {}", name );
           };
 
           // ordered roughly by "usual" size, so that the biggest files will be written first

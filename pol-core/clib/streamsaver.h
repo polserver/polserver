@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iosfwd>
 #include <iterator>
-#include <memory>
 #include <string>
 #include <type_traits>
 
@@ -24,16 +23,16 @@ public:
   void add( const std::string_view& key, T&& value )
   {
     fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "\t{}\t" ), key );
-    if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )  // force bool to write as 0/1
+    if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )
     {
+      // shortcut for strings
       if constexpr ( std::is_same<std::decay_t<T>, std::string>::value ||
-                     std::is_same<std::decay_t<T>,
-                                  std::string_view>::value )  // shortcut for strings
+                     std::is_same<std::decay_t<T>, std::string_view>::value )
         _mbuff.append( value );
       else
         fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{}" ), value );
     }
-    else
+    else  // force bool to write as 0/1
       fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{:d}" ), value );
     _mbuff.push_back( '\n' );
   }
@@ -43,9 +42,7 @@ public:
     using namespace std::literals;
     _mbuff.append( "# "sv );
     if constexpr ( sizeof...( args ) == 0 )
-    {
       _mbuff.append( formatstr );
-    }
     else
       fmt::format_to( std::back_inserter( _mbuff ), formatstr, args... );
     _mbuff.push_back( '\n' );
@@ -71,7 +68,7 @@ public:
     }
   }
   void open_fstream( const std::string& filepath, std::ofstream& s );
-  void flush_file();
+  void flush();
 
 protected:
   std::ostream& _stream;
@@ -79,9 +76,6 @@ protected:
   // to prevent this format into this buffer and when full write to disk, clear of the buffer keeps
   // the capacity
   fmt::basic_memory_buffer<char, 10'000> _mbuff;
-  // extra buffer for ofstream to be not bound to io speed during write, I think not feasible since
-  // buffer has to be quite huge to gain performance
-  //  std::unique_ptr<char[]> _buf;
 };
 
 }  // namespace Pol::Clib
