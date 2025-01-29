@@ -34,7 +34,7 @@ void SerialSet::writeOn( Clib::StreamWriter& sw, const char* tag ) const
 {
   for ( const_iterator citr = begin(), citrend = end(); citr != citrend; ++citr )
   {
-    sw.add( tag, Clib::hexint( *citr ) );
+    sw.add( tag, Clib::hexintv( *citr ) );
   }
 }
 

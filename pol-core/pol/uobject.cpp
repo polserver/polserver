@@ -46,12 +46,15 @@ std::ofstream orphans_txt( "orphans.txt", std::ios::out | std::ios::trunc );
 
 int display_orphan( UObject* o )
 {
-  Clib::StreamWriter sw( nullptr );
-  Clib::StreamWriter sw_orphan( &orphans_txt );
-  sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
-  o->printOn( sw );
-  o->printOnDebug( sw_orphan );
-  INFO_PRINT( sw.buffer() );
+  std::ostringstream stream;
+  {
+    Clib::StreamWriter sw( stream );
+    Clib::StreamWriter sw_orphan( orphans_txt );
+    sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
+    o->printOn( sw );
+    o->printOnDebug( sw_orphan );
+  }
+  INFO_PRINT( stream.str() );
   return 0;
 }
 void display_unreaped_orphan_instances()
@@ -271,12 +274,12 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if ( !name_.get().empty() )
     sw.add( "Name", name_.get() );
 
-  sw.add( "Serial", Clib::hexint( serial ) );
-  sw.add( "ObjType", Clib::hexint( objtype_ ) );
-  sw.add( "Graphic", Clib::hexint( graphic ) );
+  sw.add( "Serial", Clib::hexintv( serial ) );
+  sw.add( "ObjType", Clib::hexintv( objtype_ ) );
+  sw.add( "Graphic", Clib::hexintv( graphic ) );
 
   if ( color != 0 )
-    sw.add( "Color", Clib::hexint( color ) );
+    sw.add( "Color", Clib::hexintv( color ) );
 
   sw.add( "X", x() );
   sw.add( "Y", y() );

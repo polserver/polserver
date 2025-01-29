@@ -673,10 +673,9 @@ void Party::send_member_msg_public( Mobile::Character* chr, const std::string& t
     if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
       if ( obj->isa( Bscript::BObjectImp::OTArray ) )
-        utf16text =
-            std::unique_ptr<Bscript::String>(
-                Bscript::String::fromUCArray( obj.impptr<Bscript::ObjArray>() ) )
-                ->toUTF16();
+        utf16text = std::unique_ptr<Bscript::String>(
+                        Bscript::String::fromUCArray( obj.impptr<Bscript::ObjArray>() ) )
+                        ->toUTF16();
       else
         utf16text = obj.impptr<Bscript::String>()->toUTF16();
     }
@@ -722,10 +721,9 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
     if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
       if ( obj->isa( Bscript::BObjectImp::OTArray ) )
-        utf16text =
-            std::unique_ptr<Bscript::String>(
-                Bscript::String::fromUCArray( obj.impptr<Bscript::ObjArray>() ) )
-                ->toUTF16();
+        utf16text = std::unique_ptr<Bscript::String>(
+                        Bscript::String::fromUCArray( obj.impptr<Bscript::ObjArray>() ) )
+                        ->toUTF16();
       else
         utf16text = obj.impptr<Bscript::String>()->toUTF16();
     }
@@ -760,13 +758,13 @@ void Party::printOn( Clib::StreamWriter& sw ) const
     return;
 
   sw.begin( "Party" );
-  sw.add( "Leader", Clib::hexint( _leaderserial ) );
+  sw.add( "Leader", Clib::hexintv( _leaderserial ) );
 
   for ( const auto& mserial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( mserial );
     if ( mem != nullptr )
-      sw.add( "Member", Clib::hexint( mserial ) );
+      sw.add( "Member", Clib::hexintv( mserial ) );
   }
   _proplist.printProperties( sw );
   sw.end();

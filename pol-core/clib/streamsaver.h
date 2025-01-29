@@ -1,76 +1,81 @@
-#ifndef CLIB_STREAMSAVER_H
-#define CLIB_STREAMSAVER_H
+#pragma once
 
+#include <fmt/compile.h>
 #include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <fstream>
 #include <iosfwd>
 #include <iterator>
 #include <string>
 #include <type_traits>
 
-#if 0
-#include "timer.h"
-#endif
-
-namespace Pol
-{
-namespace Clib
+namespace Pol::Clib
 {
 class StreamWriter
 {
 public:
-  StreamWriter( std::ofstream* stream );
+  StreamWriter( std::ostream& stream );
   ~StreamWriter() noexcept( false );
   StreamWriter( const StreamWriter& ) = delete;
   StreamWriter& operator=( const StreamWriter& ) = delete;
 
-  template <typename Str, typename T>
-  void add( Str&& key, T&& value )
+  template <typename T>
+  void add( const std::string_view& key, T&& value )
   {
-    if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )  // force bool to write as 0/1
-      fmt::format_to( std::back_inserter( _buf ), "\t{}\t{}\n", key, value );
-    else
-      fmt::format_to( std::back_inserter( _buf ), "\t{}\t{:d}\n", key, value );
+    fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "\t{}\t" ), key );
+    if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )
+    {
+      // shortcut for strings
+      if constexpr ( std::is_same<std::decay_t<T>, std::string>::value ||
+                     std::is_same<std::decay_t<T>, std::string_view>::value )
+        _mbuff.append( value );
+      else
+        fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{}" ), value );
+    }
+    else  // force bool to write as 0/1
+      fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{:d}" ), value );
+    _mbuff.push_back( '\n' );
   }
-  template <typename Str, typename... Args>
-  void comment( Str&& format, Args&&... args )
+  template <typename... Args>
+  void comment( const std::string_view& formatstr, Args&&... args )
   {
-    _buf += "# ";
+    using namespace std::literals;
+    _mbuff.append( "# "sv );
     if constexpr ( sizeof...( args ) == 0 )
-      _buf += format;
+      _mbuff.append( formatstr );
     else
-      fmt::format_to( std::back_inserter( _buf ), format, args... );
-    _buf += '\n';
+      fmt::format_to( std::back_inserter( _mbuff ), formatstr, args... );
+    _mbuff.push_back( '\n' );
   }
   template <typename Str>
   void begin( Str&& key )
   {
-    fmt::format_to( std::back_inserter( _buf ), "{}\n{{\n", key );
+    fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{}\n{{\n" ), key );
   }
   template <typename Str, typename StrValue>
   void begin( Str&& key, StrValue&& value )
   {
-    fmt::format_to( std::back_inserter( _buf ), "{} {}\n{{\n", key, value );
+    fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{} {}\n{{\n" ), key, value );
   }
   void end()
   {
-    _buf += "}\n\n";
-    flush_test();
+    using namespace std::literals;
+    _mbuff.append( "}\n\n"sv );
+    if ( _mbuff.size() > 10'000 )
+    {
+      _stream << std::string_view{ _mbuff.data(), _mbuff.size() };
+      _mbuff.clear();
+    }
   }
-  void init( const std::string& filepath );
+  void open_fstream( const std::string& filepath, std::ofstream& s );
   void flush();
-  void flush_file();
-  const std::string& buffer() const { return _buf; };
 
 protected:
-  void flush_test();
-  std::string _buf = {};
-  std::ofstream* _stream;
-#if 0
-      Tools::HighPerfTimer::time_mu _fs_time;
-#endif
-  std::string _stream_name;
+  std::ostream& _stream;
+  // formatting creates a temp buffer
+  // to prevent this format into this buffer and when full write to disk, clear of the buffer keeps
+  // the capacity
+  fmt::basic_memory_buffer<char, 10'000> _mbuff;
 };
 
-}  // namespace Clib
-}  // namespace Pol
-#endif  // CLIB_STREAMSAVER_H
+}  // namespace Pol::Clib

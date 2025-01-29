@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+01-28-2025 Turley:
+    Fixed: Performance regression of world save
 01-20-2025 Kevin:
     Added: util::RandomDiceRoll() new parameter `allow_negatives` (default: `0`). If `1`, a negative dice roll will be returned _as-is_, and
            will not be capped at `0`.

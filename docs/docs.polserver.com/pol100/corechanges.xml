@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-20-2025</datemodified>
+		<datemodified>01-28-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-28-2025</date>
+			<author>Turley:</author>
+			<change type="Fixed">Performance regression of world save</change>
+		</entry>
 		<entry>
 			<date>01-20-2025</date>
 			<author>Kevin:</author>

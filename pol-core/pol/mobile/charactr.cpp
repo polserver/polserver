@@ -583,11 +583,11 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   {
     sw.add( "Concealed", int( concealed_ ) );
   }
-  sw.add( "TrueColor", Clib::hexint( truecolor ) );
-  sw.add( "TrueObjtype", Clib::hexint( trueobjtype ) );
+  sw.add( "TrueColor", Clib::hexintv( truecolor ) );
+  sw.add( "TrueObjtype", Clib::hexintv( trueobjtype ) );
 
   if ( registered_multi )
-    sw.add( "RegisteredMulti", Clib::hexint( registered_multi ) );
+    sw.add( "RegisteredMulti", Clib::hexintv( registered_multi ) );
 
   sw.add( "Gender", static_cast<int>( gender ) );
   sw.add( "Race", static_cast<int>( race ) );
