@@ -726,6 +726,10 @@ ItemDesc::ItemDesc( Type type )
       luck_mod( 0 ),
       swing_speed_increase( 0 ),
       swing_speed_increase_mod( 0 ),
+      min_attack_range_increase( 0 ),
+      min_attack_range_increase_mod( 0 ),
+      max_attack_range_increase( 0 ),
+      max_attack_range_increase_mod( 0 ),
       props( Core::CPropProfiler::Type::ITEM ),
       method_script( nullptr ),
       save_on_exit( true )

@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+01-30-2025 AsYlum:
+    Fixed: Missing attack range properties defaults in itemdesc
 01-28-2025 Turley:
     Fixed: Performance regression of world save
 01-20-2025 Kevin:
