@@ -240,6 +240,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       props( Core::CPropProfiler::Type::ITEM ),
       method_script( nullptr ),
       save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
+      // NOTE: do not forget the other constructor!
 
 {
   if ( type == BOATDESC || type == HOUSEDESC )
@@ -657,6 +658,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   }
 }
 
+// Creator for empty itemdesc, used when no entry exists
+// thus all members need to be meaningfully initialized!
 ItemDesc::ItemDesc( Type type )
     : type( type ),
       pkg( nullptr ),
