@@ -1,4 +1,14 @@
 -- POL100.2.0 --
+01-30-2025 AsYlum:
+    Fixed: Missing attack range properties defaults in itemdesc.
+           
+           The implementation of new properties for min/max attack range increase added on 11-02-2024 contained a bug. You should check if your save files contain MinAttackRangeIncreaseMod, MinAttackRangeIncrease and MaxAttackRangeIncrease properties with suspiciously looking values like for example:
+
+           MinAttackRangeIncreaseMod    -24931
+           MinAttackRangeIncrease    -1120
+           MaxAttackRangeIncrease    32602
+
+           To fix your save files you need to remove offending lines. If you need help or guidance how to do this feel free to contact POL dev team for assistance.
 01-28-2025 Turley:
     Fixed: Performance regression of world save
 01-20-2025 Kevin:
