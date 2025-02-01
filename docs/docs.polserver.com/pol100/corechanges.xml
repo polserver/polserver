@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-30-2025</datemodified>
+		<datemodified>02-01-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>02-01-2025</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Invisible items will now send the "hidden" flag if the character can see invisible items.</change>
+		</entry>
 		<entry>
 			<date>01-30-2025</date>
 			<author>AsYlum:</author>
