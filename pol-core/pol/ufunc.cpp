@@ -619,6 +619,8 @@ void send_item( Client* client, const Item* item )
   u8 flags = 0;
   if ( client->chr->can_move( item ) )
     flags |= ITEM_FLAG_FORCE_MOVABLE;
+  if ( item->invisible() )
+    flags |= ITEM_FLAG_HIDDEN;
 
   auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
                             item->facing, item->color, flags );
@@ -660,6 +662,8 @@ void send_item_to_inrange( const Item* item )
         u8 flags = 0;
         if ( zonechr->can_move( item ) )
           flags |= ITEM_FLAG_FORCE_MOVABLE;
+        if ( item->invisible() )
+          flags |= ITEM_FLAG_HIDDEN;
         pkt.updateFlags( flags );
         pkt.Send( zonechr->client );
 
