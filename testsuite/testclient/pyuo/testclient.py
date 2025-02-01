@@ -275,6 +275,7 @@ class PolServer:
       res["serial"]=obj.serial
       res["pos"]=ev.pos
       res["graphic"]=obj.graphic
+      res["status"]=obj.status
     elif ev.type==Event.EVT_REMOVED_OBJ:
       res["serial"]=ev.serial
       res["oldpos"]=ev.oldpos
