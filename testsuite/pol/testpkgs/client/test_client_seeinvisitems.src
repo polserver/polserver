@@ -1,0 +1,87 @@
+include "communication";
+include "testutil";
+
+use uo;
+
+const ITEM_FLAG_HIDDEN := 0x80;
+
+var char;
+var charX := 100;
+var charY := 50;
+var clientcon := getClientConnection();
+
+program test_item_move()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+
+  // Move character somewhere nice.
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return ret_error( $"Could not move character: ${res}" );
+  endif
+
+  grantprivilege( char, "seeinvisitems" );
+  char.disable( "seeinvisitems" );
+
+  return 1;
+endprogram
+
+exported function see_invis_items( resources )
+  var ret := @() {
+    var ev;
+
+    var item := resources.CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+    if ( !item )
+      return ret_error( $"Could not create item: {item}" );
+    endif
+
+    // Receive NEW_ITEM with flags = 0
+    while ( 1 )
+      ev := waitForClient( 0, { EVT_NEW_ITEM } );
+      if ( !ev )
+        return ev;
+      elseif ( ev.serial == item.serial )
+        break;
+      endif
+    endwhile
+    if ( ev.status != 0 )
+      return ret_error( $"Expected status 0, got {ev.status}" );
+    endif
+
+    // Set item invisible, receive EVT_REMOVED_OBJ
+    item.invisible := 1;
+    while ( 1 )
+      ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
+      if ( !ev )
+        return ev;
+      elseif ( ev.serial == item.serial )
+        break;
+      endif
+    endwhile
+
+    // Enable privilege, and receive NEW_ITEM with flags = HIDDEN
+    char.enable( "seeinvisitems" );
+
+    while ( 1 )
+      ev := waitForClient( 0, { EVT_NEW_ITEM } );
+      if ( !ev )
+        return ev;
+      elseif ( ev.serial == item.serial )
+        break;
+      endif
+    endwhile
+
+    if ( !( ev.status & ITEM_FLAG_HIDDEN ) )
+      return ret_error( $"Expected status {ITEM_FLAG_HIDDEN}, got {ev.status}" );
+    endif
+
+    return 1;
+  }();
+
+  char.disable( "seeinvisitems" );
+
+  return ret;
+endfunction
