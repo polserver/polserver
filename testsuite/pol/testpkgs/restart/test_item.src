@@ -125,6 +125,10 @@ exported function load_save_item()
                  {
                    "NoDrop",
                    { "no_drop", 1 }
+                 },
+                 {
+                   "WeightMultiplierMod",
+                   { "weight_multiplier_mod", 10 }
                  } };
 
   if ( testrun == 1 )
