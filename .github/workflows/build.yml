@@ -130,7 +130,7 @@ jobs:
       - name: Build
         run: |
           cd bin-build
-          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
+          cmake --build . --config ${{ matrix.config.build-type }} -- -j 4
 
       - name: Start MySQL
         if: matrix.config.os == 'ubuntu-latest'

@@ -1,4 +1,3 @@
-
 macro(detect_compiler)
   if( NOT CMAKE_BUILD_TYPE )
     set( CMAKE_BUILD_TYPE Release CACHE STRING
@@ -153,6 +152,7 @@ macro(fix_compiler_flags)
       string(REGEX REPLACE "/W3" "" ${variable} "${${variable}}")
     endif()
   endforeach()
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 endmacro()
 
 macro(prepare_build)

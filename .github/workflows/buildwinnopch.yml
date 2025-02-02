@@ -116,7 +116,7 @@ jobs:
         if: matrix.config.ninja == 1
         run: |
           cd bin-build
-          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
+          cmake --build . --config ${{ matrix.config.build-type }} -- -j 4
       - name: Build (msbuild)
         if: matrix.config.ninja == 0
         run: |
