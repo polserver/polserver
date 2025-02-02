@@ -387,10 +387,12 @@ set (pol_sources  # sorted !
   tasks.h
   testing/poltest.cpp
   testing/poltest.h
+  testing/testclamp.cpp
   testing/testdecay.cpp
   testing/testdrop.cpp
   testing/testenv.cpp
   testing/testenv.h
+  testing/testexpansion.cpp
   testing/testlos.cpp
   testing/testmisc.cpp
   testing/testpos.cpp

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../clib/rawtypes.h"
+#include <fmt/format.h>
 #include <string>
 
 namespace Pol::Plib
@@ -136,21 +137,11 @@ std::string getExpansionName( ExpansionVersion x );
 ExpansionVersion getExpansionVersion( const std::string& str );
 B9Feature getDefaultExpansionFlag( ExpansionVersion x );
 
-// hold per account
-class AccountExpansion
+enum class FaceSupport : u8
 {
-public:
-  AccountExpansion() = default;
-  AccountExpansion( const std::string& exp, B9Feature flag )
-      : expansion( getExpansionVersion( exp ) ), ext_flags( flag ){};
-  ExpansionVersion Expansion() const { return expansion; };
-  B9Feature extensionFlags() const { return ext_flags; };
-
-private:
-  ExpansionVersion expansion =
-      ExpansionVersion::T2A;  // TODO needed? could save the flags or string depending if its
-                              // default or not if flags can be changed
-  B9Feature ext_flags = B9Feature::DefaultT2A;
+  None,
+  Basic,
+  RolePlay
 };
 
 // hold in server
@@ -160,85 +151,63 @@ public:
   ExpansionVersion Expansion() const { return expansion; };
   B9Feature extensionFlags() const { return ext_flags; };
   A9Feature featureFlags() const { return feature_flags; };
-  //  u8 maxCharacterSlots() const { return char_slots; };
+  u8 maxCharacterSlots() const { return char_slots; };
+
+  bool supportsAOS() const { return supportsFeature( A9Feature::AOS ); };
+  bool supportsFeature( A9Feature flag ) const
+  {
+    return ( feature_flags & flag ) != A9Feature::None;
+  };
+  FaceSupport faceSupport() const { return face_support; };
+
 
   ServerExpansion() = default;
-  ServerExpansion( A9Feature feature, const std::string& version /*, u8 slots */ )
-      : expansion( getExpansionVersion( version ) ),
-        ext_flags( getDefaultExpansionFlag( expansion ) ),
-        feature_flags( feature )
-        //      char_slots( slots )
-        {};
+  void updateFromPolCfg( u8 max_char_slots );
+  void updateFromSSOpt( A9Feature feature, const std::string& version, u16 face_support );
 
 private:
   ExpansionVersion expansion = ExpansionVersion::T2A;
-  B9Feature ext_flags = B9Feature::DefaultT2A;  // needed?
+  B9Feature ext_flags = B9Feature::DefaultT2A;
   A9Feature feature_flags = A9Feature::None;
-  //  u8 char_slots = 5; // mmmh its a pol.cfg setting...
+  u8 char_slots = 5;
+  FaceSupport face_support = FaceSupport::None;
 };
-/*
-class UOExpansion
+
+// hold per account
+class AccountExpansion
 {
 public:
-  virtual ~UOExpansion() = default;
-  virtual bool hasFeature( A9Feature feature ) const = 0;
-  virtual bool hasFeature( B9Feature feature ) const = 0;
-  virtual u32 A9Flags() const = 0;
-  virtual u32 B9Flags() const = 0;
+  AccountExpansion() = default;
+  AccountExpansion( const std::string& exp, B9Feature flag )
+      : expansion( getExpansionVersion( exp ) ), ext_flags( flag ){};
+  ExpansionVersion Expansion() const { return expansion; };
+  B9Feature extensionFlags() const { return ext_flags; };
+  A9Feature calculateFeatureFlags( const ServerExpansion& server ) const;
+  B9Feature calculatedExtensionFlags( const ServerExpansion& server ) const;
+  u8 getCharSlots( const ServerExpansion& server ) const;
 
-  virtual ExpansionVersion version() const { return ExpansionVersion::T2A; }
-  virtual int characterSlots() const { return 5; }
+private:
+  ExpansionVersion expansion =
+      ExpansionVersion::T2A;  // TODO needed? could save the flags or string depending if its
+                              // default or not if flags can be changed
+  B9Feature ext_flags = B9Feature::DefaultT2A;
 };
-class ClientFeatures
+
+
+inline auto format_as( B9Feature t )
 {
-  const UOExpansion& m_expansion;
-
-public:
-  ClientFeatures( UOExpansion& expansion ) : m_expansion( expansion ) {}
-  bool hasCustomHousing() const { return supports( ExpansionVersion::AOS ); }
-  bool hasSamuraiNinja() const { return m_expansion.hasFeature( A9Feature::SamuraiNinja ); }
-  bool hasElvenRace() const { return m_expansion.hasFeature( A9Feature::ElvenRace ); }
-  bool hasContextMenus() const { return m_expansion.hasFeature( A9Feature::ContextMenus ); }
-  bool hasNewMovementPacket() const { return m_expansion.hasFeature( A9Feature::NewMovement ); }
-  // Commonly used expansion
-  bool supportsAOS() const { return supports( ExpansionVersion::AOS ); }
-  bool supports( ExpansionVersion version ) const
-  {
-    ExpansionVersion myVersion = m_expansion.version();
-    return myVersion >= version;
-  }
-
-  ClientFeatures( const ClientFeatures& ) = delete;
-  ClientFeatures& operator=( const ClientFeatures& ) = delete;
-};
-
-class FlagExpansion : UOExpansion
+  return fmt::underlying( t );
+}
+inline auto format_as( A9Feature t )
 {
-protected:
-  u32 m_A9Flag;
-  u32 m_B9Flag;
-  int m_slots;
-  ExpansionVersion m_version;
-
-public:
-  FlagExpansion( u32 A9Flag, u32 B9Flag, int slots, ExpansionVersion version )
-      : m_A9Flag( A9Flag ), m_B9Flag( B9Flag ), m_slots( slots ), m_version( version )
-  {
-  }
-
-  virtual u32 A9Flags() const override { return m_A9Flag; }
-  virtual u32 B9Flags() const override { return m_B9Flag; }
-  virtual bool hasFeature( A9Feature x ) const override
-  {
-    return ( m_A9Flag & static_cast<u32>( x ) ) != 0;
-  }
-  virtual bool hasFeature( B9Feature x ) const override
-  {
-    return ( m_B9Flag & static_cast<u32>( x ) ) != 0;
-  }
-
-  virtual ExpansionVersion version() const override { return m_version; }
-  virtual int characterSlots() const override { return m_slots; }
-};
-*/
+  return fmt::underlying( t );
+}
+inline auto format_as( ExpansionVersion t )
+{
+  return getExpansionName( t );
+}
+inline auto format_as( FaceSupport t )
+{
+  return fmt::underlying( t );
+}
 }  // namespace Pol::Plib

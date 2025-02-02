@@ -187,6 +187,9 @@ exported function load_save_item_descriptor()
   desc.PoisonResistCap := 22;
   desc.Luck := 23;
   desc.SwingSpeedIncrease := 24;
+  desc.MinAttackRangeIncrease := 25;
+  desc.MaxAttackRangeIncrease := 26;
+  desc.Name := "my_suffix";
   var props := { { "FireResist",
                    { "resist_fire", desc.FireResist }
                  },
@@ -281,6 +284,14 @@ exported function load_save_item_descriptor()
                  {
                    "SwingSpeedIncrease",
                    { "swing_speed_increase", desc.SwingSpeedIncrease }
+                 },
+                 {
+                   "MinAttackRangeIncrease",
+                   { "min_attack_range_increase", desc.MinAttackRangeIncrease }
+                 },
+                 {
+                   "MaxAttackRangeIncrease",
+                   { "max_attack_range_increase", desc.MaxAttackRangeIncrease }
                  } };
   if ( testrun == 1 )
     var item := CreateItemAtLocation( 10, 11, -5, desc, 1, "britannia2" );

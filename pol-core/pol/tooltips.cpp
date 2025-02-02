@@ -66,28 +66,26 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
 // 0xD6
 void send_object_cache( Network::Client* client, const UObject* obj )
 {
-  if ( ( settingsManager.ssopt.uo_feature_enable & Plib::A9Feature::AOS ) == Plib::A9Feature::AOS )
-  {
-    auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
-    pkt_rev.Send( client );
-  }
+  if ( !settingsManager.ssopt.expansion.supportsAOS() )
+    return;
+  auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
+  pkt_rev.Send( client );
 }
 
 void send_object_cache_to_inrange( const UObject* obj )
 {
-  if ( ( settingsManager.ssopt.uo_feature_enable & Plib::A9Feature::AOS ) == Plib::A9Feature::AOS )
-  {
-    auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
+  if ( !settingsManager.ssopt.expansion.supportsAOS() )
+    return;
+  auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
 
-    WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
-                                                         [&]( Mobile::Character* chr )
-                                                         {
-                                                           if ( chr->in_visual_range( obj ) )
-                                                             pkt_rev.Send( chr->client );
-                                                           // FIXME need to check character's
-                                                           // additional_legal_items.
-                                                         } );
-  }
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
+                                                       [&]( Mobile::Character* chr )
+                                                       {
+                                                         if ( chr->in_visual_range( obj ) )
+                                                           pkt_rev.Send( chr->client );
+                                                         // FIXME need to check character's
+                                                         // additional_legal_items.
+                                                       } );
 }
 
 

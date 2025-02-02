@@ -432,22 +432,20 @@ void ObjRevisionPkt::Send( Client* client )
 {
   if ( client->UOExpansionFlag & AOS )
   {
-    if ( ( Core::settingsManager.ssopt.uo_feature_enable & Plib::A9Feature::AOS ) ==
-         Plib::A9Feature::AOS )
+    if ( !Core::settingsManager.ssopt.expansion.supportsAOS() )
+      return;
+    if ( ( Core::settingsManager.ssopt.force_new_objcache_packets ) ||
+         ( client->ClientType & Network::CLIENTTYPE_5000 ) )
     {
-      if ( ( Core::settingsManager.ssopt.force_new_objcache_packets ) ||
-           ( client->ClientType & Network::CLIENTTYPE_5000 ) )
-      {
-        if ( _p->offset == 1 )
-          build();
-        _p.Send( client, _p->getSize() );
-      }
-      else
-      {
-        if ( _p_old->offset == 1 )
-          buildold();
-        _p_old.Send( client );
-      }
+      if ( _p->offset == 1 )
+        build();
+      _p.Send( client, _p->getSize() );
+    }
+    else
+    {
+      if ( _p_old->offset == 1 )
+        buildold();
+      _p_old.Send( client );
     }
   }
 }

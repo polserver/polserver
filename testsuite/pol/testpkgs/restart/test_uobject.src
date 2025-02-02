@@ -126,6 +126,14 @@ exported function load_save_uobject()
                  {
                    "SwingSpeedIncreaseMod",
                    { "swing_speed_increase_mod", 25 }
+                 },
+                 {
+                   "MinAttackRangeIncreaseMod",
+                   { "min_attack_range_increase_mod", 26 }
+                 },
+                 {
+                   "MaxAttackRangeIncreaseMod",
+                   { "max_attack_range_increase_mod", 27 }
                  } };
 
   if ( testrun == 1 )

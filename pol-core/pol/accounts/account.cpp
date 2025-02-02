@@ -66,7 +66,6 @@ void Account::readfrom( Clib::ConfigElem& elem )
   auto exp = elem.remove_string(
       "UOExpansion",
       Plib::getExpansionName( Core::settingsManager.ssopt.expansion.Expansion() ).c_str() );
-  uo_expansion_ = convert_uo_expansion( exp );
   expansion_ = Plib::AccountExpansion(
       exp, Core::settingsManager.ssopt.expansion.extensionFlags() );  // store flags?
 
@@ -104,9 +103,9 @@ void Account::writeto( Clib::StreamWriter& sw ) const
   {
     sw.add( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
   }
-  if ( uo_expansion_ )
+  if ( expansion_.Expansion() != Core::settingsManager.ssopt.expansion.Expansion() )
   {
-    sw.add( "UOExpansion", uo_expansion() );
+    sw.add( "UOExpansion", Plib::getExpansionName( expansion_.Expansion() ) );
   }
   props_.printProperties( sw );
 
@@ -134,9 +133,9 @@ void Account::writeto( Clib::ConfigElem& elem ) const
   {
     elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name );
   }
-  if ( uo_expansion_ )
+  if ( expansion_.Expansion() != Core::settingsManager.ssopt.expansion.Expansion() )
   {
-    elem.add_prop( "UOExpansion", uo_expansion() );
+    elem.add_prop( "UOExpansion", Plib::getExpansionName( expansion_.Expansion() ) );
   }
   props_.printProperties( elem );
 }
@@ -207,65 +206,6 @@ const std::string Account::passwordhash() const
 {
   return passwordhash_;
 }
-
-const std::string Account::uo_expansion() const
-{
-  switch ( uo_expansion_ )
-  {
-  case Network::TOL:
-    return "TOL";
-  case Network::HSA:
-    return "HSA";
-  case Network::SA:
-    return "SA";
-  case Network::KR:
-    return "KR";
-  case Network::ML:
-    return "ML";
-  case Network::SE:
-    return "SE";
-  case Network::AOS:
-    return "AOS";
-  case Network::LBR:
-    return "LBR";
-  case Network::T2A:
-    return "T2A";
-  default:
-    return "";
-  }
-}
-
-unsigned short Account::uo_expansion_flag() const
-{
-  return uo_expansion_;
-}
-
-u16 Account::convert_uo_expansion( const std::string& expansion )
-{
-  const auto not_found = std::string::npos;
-
-  if ( expansion.find( "TOL" ) != not_found )
-    return Network::TOL;
-  else if ( expansion.find( "HSA" ) != not_found )
-    return Network::HSA;
-  else if ( expansion.find( "SA" ) != not_found )
-    return Network::SA;
-  else if ( expansion.find( "KR" ) != not_found )
-    return Network::KR;
-  else if ( expansion.find( "ML" ) != not_found )
-    return Network::ML;
-  else if ( expansion.find( "SE" ) != not_found )
-    return Network::SE;
-  else if ( expansion.find( "AOS" ) != not_found )
-    return Network::AOS;
-  else if ( expansion.find( "LBR" ) != not_found )
-    return Network::LBR;
-  else if ( expansion.find( "T2A" ) != not_found )
-    return Network::T2A;
-
-  return 0;
-}
-
 
 bool Account::enabled() const
 {

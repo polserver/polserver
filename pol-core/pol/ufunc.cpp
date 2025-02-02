@@ -226,8 +226,9 @@ void send_owncreate( Client* client, const Character* chr )
       continue;
 
     // Dont send faces if older client or ssopt
-    if ( ( layer == LAYER_FACE ) && ( ( settingsManager.ssopt.support_faces == 0 ) ||
-                                      ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
+    if ( ( layer == LAYER_FACE ) &&
+         ( ( settingsManager.ssopt.expansion.faceSupport() == Plib::FaceSupport::None ) ||
+           ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
       continue;
 
     if ( client->ClientType & CLIENTTYPE_70331 )
@@ -305,8 +306,9 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
       continue;
 
     // Dont send faces if older client or ssopt
-    if ( ( layer == LAYER_FACE ) && ( ( settingsManager.ssopt.support_faces == 0 ) ||
-                                      ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
+    if ( ( layer == LAYER_FACE ) &&
+         ( ( settingsManager.ssopt.expansion.faceSupport() == Plib::FaceSupport::None ) ||
+           ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
       continue;
 
     if ( client->ClientType & CLIENTTYPE_70331 )
@@ -1946,76 +1948,48 @@ void login_complete( Client* c )
 void send_feature_enable( Client* client )
 {
   using namespace Plib;
-  B9Feature clientflag = B9Feature::None;
-  switch ( client->acct->uo_expansion_flag() )
+
+  switch ( client->acct->expansion().Expansion() )
   {
-  case TOL:
-    clientflag = B9Feature::DefaultTOL;
+  case ExpansionVersion::TOL:
     client->UOExpansionFlag =
         TOL | HSA | SA | KR | ML | SE |
         AOS;  // TOL needs HSA- SA- KR- ML- SE- and AOS- features (and used checks) too
     break;
-  case HSA:
-    clientflag = B9Feature::DefaultHSA;
+  case ExpansionVersion::HSA:
     client->UOExpansionFlag =
         HSA | SA | KR | ML | SE |
         AOS;  // HSA needs SA- KR- ML- SE- and AOS- features (and used checks) too
     break;
-  case SA:
-    clientflag = B9Feature::DefaultSA;
+  case ExpansionVersion::SA:
     client->UOExpansionFlag =
         SA | KR | ML | SE | AOS;  // SA needs KR- ML- SE- and AOS- features (and used checks) too
     break;
-  case KR:
-    clientflag = B9Feature::DefaultKR;
+  case ExpansionVersion::KR:
     client->UOExpansionFlag =
         KR | ML | SE | AOS;  // KR needs ML- SE- and AOS-features (and used checks) too
     break;
-  case ML:
-    clientflag = B9Feature::DefaultML;
+  case ExpansionVersion::ML:
     client->UOExpansionFlag = ML | SE | AOS;  // ML needs SE- and AOS-features (and used checks) too
     break;
-  case SE:
-    clientflag = B9Feature::DefaultSE;
+  case ExpansionVersion::SE:
     client->UOExpansionFlag = SE | AOS;  // SE needs AOS-features (and used checks) too
     break;
-  case AOS:
-    clientflag = B9Feature::DefaultAOS;
+  case ExpansionVersion::AOS:
     client->UOExpansionFlag = AOS;
     break;
-  case LBR:
-    clientflag = B9Feature::DefaultLBR;
+  case ExpansionVersion::LBR:
     client->UOExpansionFlag = LBR;
     break;
-  case T2A:
-    clientflag = B9Feature::DefaultT2A;
+  case ExpansionVersion::T2A:
     client->UOExpansionFlag = T2A;
     break;
   default:
     break;
   }
 
-  // Change flag according to the number of CharacterSlots
-  if ( client->UOExpansionFlag & AOS )
-  {
-    if ( Plib::systemstate.config.character_slots == 7 )
-    {
-      clientflag |= B9Feature::Has7thSlot;  // 7th & 6th character flag (B9 Packet)
-      clientflag &= ~B9Feature::ThirdDawn;  // Disable Third Dawn? TODO sounds wrong
-    }
-    else if ( Plib::systemstate.config.character_slots == 6 )
-    {
-      clientflag |= B9Feature::Has6thSlot;  // 6th character flag (B9 Packet)
-      clientflag &= ~B9Feature::ThirdDawn;  // TODO sounds wrong
-    }
-  }
-
-  // Roleplay faces?
-  if ( client->UOExpansionFlag & KR )
-  {
-    if ( settingsManager.ssopt.support_faces == 2 )
-      clientflag |= B9Feature::KRFaces;
-  }
+  auto clientflag =
+      client->acct->expansion().calculatedExtensionFlags( settingsManager.ssopt.expansion );
 
   PktHelper::PacketOut<PktOut_B9> msg;
   if ( client->ClientType & CLIENTTYPE_60142 )

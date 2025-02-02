@@ -1,10 +1,12 @@
 #include "uoexpansion.h"
+#include "../clib/clib.h"
 #include <array>
+
 namespace Pol::Plib
 {
 constexpr u8 numExpansions = static_cast<u8>( ExpansionVersion::LastVersion ) + 1;
-const std::array<std::string, numExpansions> ExpansionNames = { "T2A", "LBR", "AOS", "SE",
-                                                                "ML",  "KR",  "SA",  "HSA" };
+const std::array<std::string, numExpansions> ExpansionNames = { "T2A", "LBR", "AOS", "SE", "ML",
+                                                                "KR",  "SA",  "HSA", "TOL" };
 
 // make sure the flags have a defined value
 // to prevent accidential changes
@@ -29,7 +31,7 @@ ExpansionVersion getExpansionVersion( const std::string& str )
 {
   for ( auto e = (u8)ExpansionVersion::T2A; e <= (u8)ExpansionVersion::LastVersion; ++e )
   {
-    if ( str.find( ExpansionNames[e] ) != std::string::npos )
+    if ( str == ExpansionNames[e] )
       return static_cast<ExpansionVersion>( e );
   }
   return ExpansionVersion::T2A;
@@ -59,5 +61,72 @@ B9Feature getDefaultExpansionFlag( ExpansionVersion x )
     return B9Feature::DefaultTOL;
   }
   return B9Feature::DefaultT2A;
+}
+
+void ServerExpansion::updateFromSSOpt( A9Feature feature, const std::string& version,
+                                       u16 facesupport )
+{
+  expansion = getExpansionVersion( version );
+  ext_flags = getDefaultExpansionFlag( expansion );
+  feature_flags = feature;
+  Clib::sanitize_upperlimit<u16>( &facesupport, (u16)FaceSupport::RolePlay );
+  face_support = (FaceSupport)facesupport;
+}
+void ServerExpansion::updateFromPolCfg( u8 max_char_slots )
+{
+  char_slots = max_char_slots;
+}
+
+A9Feature AccountExpansion::calculateFeatureFlags( const ServerExpansion& server ) const
+{
+  auto clientflag = server.featureFlags();
+  clientflag |= A9Feature::UO3DClientType;  // Let UO3D (KR,SA) send 0xE1 packet
+
+  auto char_slots = getCharSlots( server );
+
+  if ( char_slots == 7 )
+    clientflag |= A9Feature::Has7thSlot;  // 7th Character flag
+  else if ( char_slots == 6 )
+    clientflag |= A9Feature::Has6thSlot;  // 6th Character Flag
+  else if ( char_slots == 1 )
+    clientflag |= A9Feature::SingleCharacter |
+                  A9Feature::LimitSlots;  // Only one character (SIEGE (0x04) + LIMIT_CHAR (0x10))
+  return clientflag;
+}
+
+u8 AccountExpansion::getCharSlots( const ServerExpansion& server ) const
+{
+  u8 char_slots = server.maxCharacterSlots();
+  // If more than 6 chars and no AOS, only send 5. Client is so boring sometimes...
+  if ( char_slots >= 6 && ( Expansion() < ExpansionVersion::AOS ) )
+    char_slots = 5;
+  return char_slots;
+}
+
+B9Feature AccountExpansion::calculatedExtensionFlags( const ServerExpansion& server ) const
+{
+  auto clientflag = extensionFlags();
+  // Change flag according to the number of CharacterSlots
+  if ( Expansion() >= ExpansionVersion::AOS )
+  {
+    if ( server.maxCharacterSlots() == 7 )
+    {
+      clientflag |= B9Feature::Has7thSlot;  // 7th & 6th character flag (B9 Packet)
+      clientflag &= ~B9Feature::ThirdDawn;  // Disable Third Dawn? TODO sounds wrong
+    }
+    else if ( server.maxCharacterSlots() == 6 )
+    {
+      clientflag |= B9Feature::Has6thSlot;  // 6th character flag (B9 Packet)
+      clientflag &= ~B9Feature::ThirdDawn;  // TODO sounds wrong
+    }
+  }
+
+  // Roleplay faces?
+  if ( Expansion() >= ExpansionVersion::KR )
+  {
+    if ( server.faceSupport() == Plib::FaceSupport::RolePlay )
+      clientflag |= B9Feature::KRFaces;
+  }
+  return clientflag;
 }
 }  // namespace Pol::Plib

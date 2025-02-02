@@ -120,8 +120,7 @@ void Spellbook::double_click( Network::Client* client )
     // must have AOS Features Enabled on an acct with AOS Expansion to view Magery book.
     // All newer spellbooks will bug out if you use this method though.
     if ( ( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 ) &&
-         ( settingsManager.ssopt.uo_feature_enable & Plib::A9Feature::AOS ) !=
-             Plib::A9Feature::AOS )
+         !settingsManager.ssopt.expansion.supportsAOS() )
     {
       if ( Plib::systemstate.config.loglevel > 1 )
         INFO_PRINTLN(

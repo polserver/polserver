@@ -54,6 +54,7 @@ bool run_pol_tests()
 
   RUNTEST( decay_test )
   RUNTEST( clamp_test )
+  RUNTEST( uoextension_test )
   //  RUNTEST( dummy )
 
   UnitTest::display_test_results();
