@@ -17,8 +17,8 @@ static_assert( B9Feature::DefaultSE == (B9Feature)0x805B );
 static_assert( B9Feature::DefaultML == (B9Feature)0x80DB );
 static_assert( B9Feature::DefaultKR == (B9Feature)0x86DB );
 static_assert( B9Feature::DefaultSA == (B9Feature)0x187DF );
-static_assert( B9Feature::DefaultHSA == (B9Feature)0x387DF );
-static_assert( B9Feature::DefaultTOL == (B9Feature)0x7387DF );
+static_assert( B9Feature::DefaultHSA == (B9Feature)0xF87DF );
+static_assert( B9Feature::DefaultTOL == (B9Feature)0x7F87DF );
 
 std::string getExpansionName( ExpansionVersion x )
 {

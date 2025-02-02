@@ -42,15 +42,15 @@ enum class B9Feature : u32
   TOL = 0x400000,
 
 
-  DefaultT2A = T2A,                                             // 0x1
-  DefaultLBR = Renaissance,                                     // 0x2
-  DefaultAOS = DefaultT2A | DefaultLBR | LBR | AOS | LiveAcct,  // 0x801B
-  DefaultSE = DefaultAOS | SE,                                  // 0x805B
-  DefaultML = DefaultSE | ML,                                   // 0x80DB
-  DefaultKR = DefaultML | CrystalShadowTiles | Splash10thAge,   // 0x86DB
-  DefaultSA = DefaultKR | ThirdDawn | Splash8thAge | SA,        // 0x187DF
-  DefaultHSA = DefaultSA | HSA,                                 // 0x387DF // TODO Gothic + Rustic?
-  DefaultTOL = DefaultHSA | JungleTiles | ShadowGuardTiles | TOL,  // 0x7387DF
+  DefaultT2A = T2A,                                                // 0x1
+  DefaultLBR = Renaissance,                                        // 0x2
+  DefaultAOS = DefaultT2A | DefaultLBR | LBR | AOS | LiveAcct,     // 0x801B
+  DefaultSE = DefaultAOS | SE,                                     // 0x805B
+  DefaultML = DefaultSE | ML,                                      // 0x80DB
+  DefaultKR = DefaultML | CrystalShadowTiles | Splash10thAge,      // 0x86DB
+  DefaultSA = DefaultKR | ThirdDawn | Splash8thAge | SA,           // 0x187DF
+  DefaultHSA = DefaultSA | HSA | GothicTiles | RusticTiles,        // 0xF87DF
+  DefaultTOL = DefaultHSA | JungleTiles | ShadowGuardTiles | TOL,  // 0x7F87DF
 };
 
 
