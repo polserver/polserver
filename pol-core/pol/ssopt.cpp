@@ -84,9 +84,9 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.invul_tag = elem.remove_ushort( "InvulTag", 1 );
   auto a9flag = static_cast<Plib::A9Feature>( elem.remove_ushort( "UOFeatureEnable", 0 ) );
   auto default_expansion = elem.remove_string(
-      "DefaultExpansion", Plib::getExpansionName( Plib::ExpansionVersion::T2A ).c_str() );  // new
-  settingsManager.ssopt.expansion.updateFromSSOpt( a9flag, default_expansion,
-                                                   elem.remove_ushort( "SupportFaces", 0 ) );
+      "DefaultExpansion", Plib::getExpansionName( Plib::ExpansionVersion::T2A ).c_str() );
+  settingsManager.ssopt.features.updateFromSSOpt( a9flag, default_expansion,
+                                                  elem.remove_ushort( "SupportFaces", 0 ) );
   settingsManager.ssopt.starting_gold = elem.remove_ushort( "StartingGold", 100 );
   settingsManager.ssopt.item_color_mask = elem.remove_ushort( "ItemColorMask", 0xFFF );
   settingsManager.ssopt.use_win_lfh = elem.remove_bool( "UseWinLFH", false );

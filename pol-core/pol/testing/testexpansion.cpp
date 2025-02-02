@@ -43,7 +43,7 @@ void uoextension_test()
   UnitTest( []() { return getExpansionName( getExpansionVersion( "unknown" ) ); }, "T2A",
             "unknown expansion" );
   {
-    ServerExpansion server;
+    ServerFeatures server;
     server.updateFromPolCfg( 7 );
     server.updateFromSSOpt( A9Feature::AOS, "AOS", 0 );
     UnitTest(
@@ -90,7 +90,7 @@ void uoextension_test()
         FaceSupport::RolePlay, "server: face support roleplay clamp" );
   }
   {
-    ServerExpansion server;
+    ServerFeatures server;
     server.updateFromPolCfg( 7 );
     UnitTest( [&]() { return AccountExpansion( "AOS", B9Feature::AOS ).getCharSlots( server ); }, 7,
               "account AOS chr slots 7" );
@@ -98,7 +98,7 @@ void uoextension_test()
               "account T2A chr slots 5" );
   }
   {
-    ServerExpansion server;
+    ServerFeatures server;
     server.updateFromPolCfg( 7 );
     UnitTest(
         [&]()
@@ -128,7 +128,7 @@ void uoextension_test()
         B9Feature::T2A, "account T2A chr slots 5 feature" );
   }
   {
-    ServerExpansion server;
+    ServerFeatures server;
     server.updateFromSSOpt( A9Feature::AOS, "KR", 2 );
     UnitTest(
         [&]()
@@ -136,7 +136,7 @@ void uoextension_test()
         B9Feature::T2A | B9Feature::KRFaces, "account KR faces feature" );
   }
   {
-    ServerExpansion server;
+    ServerFeatures server;
     server.updateFromSSOpt( A9Feature::AOS, "AOS", 0 );
     UnitTest( [&]()
               { return AccountExpansion( "AOS", B9Feature::T2A ).calculateFeatureFlags( server ); },

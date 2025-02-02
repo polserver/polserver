@@ -105,7 +105,7 @@ void apply_polcfg( bool initial )
   if ( !config.profile_cprops )
     Core::CPropProfiler::instance().clear();
 
-  settingsManager.ssopt.expansion.updateFromPolCfg( config.character_slots );
+  settingsManager.ssopt.features.updateFromPolCfg( config.character_slots );
 }
 
 

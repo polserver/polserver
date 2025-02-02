@@ -375,9 +375,9 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
     {
       auto new_exp = Plib::AccountExpansion(
           expansion_str->value(),
-          Core::settingsManager.ssopt.expansion.extensionFlags() );  // store flags?
+          Core::settingsManager.ssopt.features.extensionFlags() );  // store flags?
 
-      if ( Plib::getExpansionName( new_exp.Expansion() ) != expansion_str->value() )
+      if ( new_exp.expansionName() != expansion_str->value() )
         return new BError(
             "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, "
             "TOL" );
@@ -585,7 +585,7 @@ Bscript::BObjectRef AccountObjImp::get_member_id( const int id )  // id test
     return BObjectRef( new String( obj_->passwordhash() ) );
     break;
   case MBR_UO_EXPANSION:
-    return BObjectRef( new String( Plib::getExpansionName( obj_->expansion().Expansion() ) ) );
+    return BObjectRef( new String( obj_->expansion().expansionName() ) );
     break;
   case MBR_DEFAULTCMDLEVEL:
     return BObjectRef( new BLong( obj_->default_cmdlevel_ ) );

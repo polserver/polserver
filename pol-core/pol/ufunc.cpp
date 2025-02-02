@@ -227,7 +227,7 @@ void send_owncreate( Client* client, const Character* chr )
 
     // Dont send faces if older client or ssopt
     if ( ( layer == LAYER_FACE ) &&
-         ( ( settingsManager.ssopt.expansion.faceSupport() == Plib::FaceSupport::None ) ||
+         ( ( settingsManager.ssopt.features.faceSupport() == Plib::FaceSupport::None ) ||
            ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
       continue;
 
@@ -307,7 +307,7 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
 
     // Dont send faces if older client or ssopt
     if ( ( layer == LAYER_FACE ) &&
-         ( ( settingsManager.ssopt.expansion.faceSupport() == Plib::FaceSupport::None ) ||
+         ( ( settingsManager.ssopt.features.faceSupport() == Plib::FaceSupport::None ) ||
            ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
       continue;
 
@@ -1989,7 +1989,7 @@ void send_feature_enable( Client* client )
   }
 
   auto clientflag =
-      client->acct->expansion().calculatedExtensionFlags( settingsManager.ssopt.expansion );
+      client->acct->expansion().calculatedExtensionFlags( settingsManager.ssopt.features );
 
   PktHelper::PacketOut<PktOut_B9> msg;
   if ( client->ClientType & CLIENTTYPE_60142 )

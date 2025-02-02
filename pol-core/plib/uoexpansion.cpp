@@ -63,8 +63,8 @@ B9Feature getDefaultExpansionFlag( ExpansionVersion x )
   return B9Feature::DefaultT2A;
 }
 
-void ServerExpansion::updateFromSSOpt( A9Feature feature, const std::string& version,
-                                       u16 facesupport )
+void ServerFeatures::updateFromSSOpt( A9Feature feature, const std::string& version,
+                                      u16 facesupport )
 {
   expansion = getExpansionVersion( version );
   ext_flags = getDefaultExpansionFlag( expansion );
@@ -72,12 +72,17 @@ void ServerExpansion::updateFromSSOpt( A9Feature feature, const std::string& ver
   Clib::sanitize_upperlimit<u16>( &facesupport, (u16)FaceSupport::RolePlay );
   face_support = (FaceSupport)facesupport;
 }
-void ServerExpansion::updateFromPolCfg( u8 max_char_slots )
+void ServerFeatures::updateFromPolCfg( u8 max_char_slots )
 {
   char_slots = max_char_slots;
 }
 
-A9Feature AccountExpansion::calculateFeatureFlags( const ServerExpansion& server ) const
+std::string ServerFeatures::expansionName() const
+{
+  return getExpansionName( Expansion() );
+}
+
+A9Feature AccountExpansion::calculateFeatureFlags( const ServerFeatures& server ) const
 {
   auto clientflag = server.featureFlags();
   clientflag |= A9Feature::UO3DClientType;  // Let UO3D (KR,SA) send 0xE1 packet
@@ -94,7 +99,7 @@ A9Feature AccountExpansion::calculateFeatureFlags( const ServerExpansion& server
   return clientflag;
 }
 
-u8 AccountExpansion::getCharSlots( const ServerExpansion& server ) const
+u8 AccountExpansion::getCharSlots( const ServerFeatures& server ) const
 {
   u8 char_slots = server.maxCharacterSlots();
   // If more than 6 chars and no AOS, only send 5. Client is so boring sometimes...
@@ -103,7 +108,7 @@ u8 AccountExpansion::getCharSlots( const ServerExpansion& server ) const
   return char_slots;
 }
 
-B9Feature AccountExpansion::calculatedExtensionFlags( const ServerExpansion& server ) const
+B9Feature AccountExpansion::calculatedExtensionFlags( const ServerFeatures& server ) const
 {
   auto clientflag = extensionFlags();
   // Change flag according to the number of CharacterSlots
@@ -128,5 +133,10 @@ B9Feature AccountExpansion::calculatedExtensionFlags( const ServerExpansion& ser
       clientflag |= B9Feature::KRFaces;
   }
   return clientflag;
+}
+
+std::string AccountExpansion::expansionName() const
+{
+  return getExpansionName( Expansion() );
 }
 }  // namespace Pol::Plib

@@ -145,10 +145,11 @@ enum class FaceSupport : u8
 };
 
 // hold in server
-class ServerExpansion
+class ServerFeatures
 {
 public:
   ExpansionVersion Expansion() const { return expansion; };
+  std::string expansionName() const;
   B9Feature extensionFlags() const { return ext_flags; };
   A9Feature featureFlags() const { return feature_flags; };
   u8 maxCharacterSlots() const { return char_slots; };
@@ -161,7 +162,7 @@ public:
   FaceSupport faceSupport() const { return face_support; };
 
 
-  ServerExpansion() = default;
+  ServerFeatures() = default;
   void updateFromPolCfg( u8 max_char_slots );
   void updateFromSSOpt( A9Feature feature, const std::string& version, u16 face_support );
 
@@ -181,10 +182,11 @@ public:
   AccountExpansion( const std::string& exp, B9Feature flag )
       : expansion( getExpansionVersion( exp ) ), ext_flags( flag ){};
   ExpansionVersion Expansion() const { return expansion; };
+  std::string expansionName() const;
   B9Feature extensionFlags() const { return ext_flags; };
-  A9Feature calculateFeatureFlags( const ServerExpansion& server ) const;
-  B9Feature calculatedExtensionFlags( const ServerExpansion& server ) const;
-  u8 getCharSlots( const ServerExpansion& server ) const;
+  A9Feature calculateFeatureFlags( const ServerFeatures& server ) const;
+  B9Feature calculatedExtensionFlags( const ServerFeatures& server ) const;
+  u8 getCharSlots( const ServerFeatures& server ) const;
 
 private:
   ExpansionVersion expansion =

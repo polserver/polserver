@@ -63,11 +63,10 @@ void Account::readfrom( Clib::ConfigElem& elem )
 
   enabled_ = elem.remove_bool( "ENABLED", true );
   banned_ = elem.remove_bool( "BANNED", false );
-  auto exp = elem.remove_string(
-      "UOExpansion",
-      Plib::getExpansionName( Core::settingsManager.ssopt.expansion.Expansion() ).c_str() );
+  auto exp = elem.remove_string( "UOExpansion",
+                                 Core::settingsManager.ssopt.features.expansionName().c_str() );
   expansion_ = Plib::AccountExpansion(
-      exp, Core::settingsManager.ssopt.expansion.extensionFlags() );  // store flags?
+      exp, Core::settingsManager.ssopt.features.extensionFlags() );  // store flags?
 
   default_privs_.readfrom( elem.remove_string( "DefaultPrivs", "" ) );
 
@@ -103,9 +102,9 @@ void Account::writeto( Clib::StreamWriter& sw ) const
   {
     sw.add( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
   }
-  if ( expansion_.Expansion() != Core::settingsManager.ssopt.expansion.Expansion() )
+  if ( expansion_.Expansion() != Core::settingsManager.ssopt.features.Expansion() )
   {
-    sw.add( "UOExpansion", Plib::getExpansionName( expansion_.Expansion() ) );
+    sw.add( "UOExpansion", expansion_.expansionName() );
   }
   props_.printProperties( sw );
 
@@ -133,9 +132,9 @@ void Account::writeto( Clib::ConfigElem& elem ) const
   {
     elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name );
   }
-  if ( expansion_.Expansion() != Core::settingsManager.ssopt.expansion.Expansion() )
+  if ( expansion_.Expansion() != Core::settingsManager.ssopt.features.Expansion() )
   {
-    elem.add_prop( "UOExpansion", Plib::getExpansionName( expansion_.Expansion() ) );
+    elem.add_prop( "UOExpansion", expansion_.expansionName() );
   }
   props_.printProperties( elem );
 }
@@ -168,7 +167,7 @@ size_t Account::estimatedSize() const
 
 Mobile::Character* Account::get_character( int index )
 {
-  if ( index < 0 || static_cast<size_t>( index ) > characters_.size() - 1 )
+  if ( ( index < 0 ) || ( static_cast<size_t>( index ) > ( characters_.size() - 1 ) ) )
     return nullptr;
   return characters_.at( index ).get();
 }

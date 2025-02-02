@@ -67,7 +67,7 @@ struct ServSpecOpt
   unsigned short default_container_max_weight;
   bool hidden_turns_count;
   unsigned short invul_tag;
-  Plib::ServerExpansion expansion;
+  Plib::ServerFeatures features;
   unsigned short starting_gold;
   unsigned short item_color_mask;
   unsigned char default_max_slots;

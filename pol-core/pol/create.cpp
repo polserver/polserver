@@ -182,7 +182,7 @@ bool validbeard( u16 BeardStyle )
     */
 bool validface( u16 FaceStyle )
 {
-  switch ( settingsManager.ssopt.expansion.faceSupport() )
+  switch ( settingsManager.ssopt.features.faceSupport() )
   {
   case Plib::FaceSupport::None:
     return false;

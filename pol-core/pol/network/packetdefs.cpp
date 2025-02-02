@@ -432,7 +432,7 @@ void ObjRevisionPkt::Send( Client* client )
 {
   if ( client->UOExpansionFlag & AOS )
   {
-    if ( !Core::settingsManager.ssopt.expansion.supportsAOS() )
+    if ( !Core::settingsManager.ssopt.features.supportsAOS() )
       return;
     if ( ( Core::settingsManager.ssopt.force_new_objcache_packets ) ||
          ( client->ClientType & Network::CLIENTTYPE_5000 ) )
