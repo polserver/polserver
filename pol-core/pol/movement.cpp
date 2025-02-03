@@ -57,7 +57,8 @@ void send_multi_if_newly_inrange( Multi::UMulti* multi, Network::Client* client 
   {
     send_multi( client, multi );
     Multi::UHouse* house = multi->as_house();
-    if ( ( client->UOExpansionFlag & Network::AOS ) && house != nullptr && house->IsCustom() )
+    if ( client->acctSupports( Plib::ExpansionVersion::AOS ) && house != nullptr &&
+         house->IsCustom() )
       Multi::CustomHousesSendShort( house, client );
   }
 }

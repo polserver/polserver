@@ -183,6 +183,7 @@ public:
       : expansion( getExpansionVersion( exp ) ), ext_flags( flag ){};
   ExpansionVersion Expansion() const { return expansion; };
   std::string expansionName() const;
+  bool hasExpansion( ExpansionVersion v ) const { return expansion >= v; };
   B9Feature extensionFlags() const { return ext_flags; };
   A9Feature calculateFeatureFlags( const ServerFeatures& server ) const;
   B9Feature calculatedExtensionFlags( const ServerFeatures& server ) const;

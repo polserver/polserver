@@ -259,7 +259,7 @@ void send_owncreate( Client* client, const Character* chr )
 
   owncreate.Send( client, len );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, chr );
     // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send
@@ -339,7 +339,7 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
 
   Core::networkManager.clientTransmit->AddToQueue( client, &owncreate->buffer, len );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, chr );
     // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send
@@ -468,7 +468,7 @@ void send_put_in_container( Client* client, const Item* item )
       item->slot_index(), item->container->serial_ext, item->color );
   msg.Send( client );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
     send_object_cache( client, item );
 }
 
@@ -635,7 +635,7 @@ void send_item( Client* client, const Item* item )
     send_corpse( client, item );
   }
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, item );
     return;
@@ -773,7 +773,7 @@ void send_wornitem( Client* client, const Character* chr, const Item* item )
   msg->WriteFlipped<u16>( item->color );
   msg.Send( client );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, item );
   }
@@ -1947,47 +1947,6 @@ void login_complete( Client* c )
 
 void send_feature_enable( Client* client )
 {
-  using namespace Plib;
-
-  switch ( client->acct->expansion().Expansion() )
-  {
-  case ExpansionVersion::TOL:
-    client->UOExpansionFlag =
-        TOL | HSA | SA | KR | ML | SE |
-        AOS;  // TOL needs HSA- SA- KR- ML- SE- and AOS- features (and used checks) too
-    break;
-  case ExpansionVersion::HSA:
-    client->UOExpansionFlag =
-        HSA | SA | KR | ML | SE |
-        AOS;  // HSA needs SA- KR- ML- SE- and AOS- features (and used checks) too
-    break;
-  case ExpansionVersion::SA:
-    client->UOExpansionFlag =
-        SA | KR | ML | SE | AOS;  // SA needs KR- ML- SE- and AOS- features (and used checks) too
-    break;
-  case ExpansionVersion::KR:
-    client->UOExpansionFlag =
-        KR | ML | SE | AOS;  // KR needs ML- SE- and AOS-features (and used checks) too
-    break;
-  case ExpansionVersion::ML:
-    client->UOExpansionFlag = ML | SE | AOS;  // ML needs SE- and AOS-features (and used checks) too
-    break;
-  case ExpansionVersion::SE:
-    client->UOExpansionFlag = SE | AOS;  // SE needs AOS-features (and used checks) too
-    break;
-  case ExpansionVersion::AOS:
-    client->UOExpansionFlag = AOS;
-    break;
-  case ExpansionVersion::LBR:
-    client->UOExpansionFlag = LBR;
-    break;
-  case ExpansionVersion::T2A:
-    client->UOExpansionFlag = T2A;
-    break;
-  default:
-    break;
-  }
-
   auto clientflag =
       client->acct->expansion().calculatedExtensionFlags( settingsManager.ssopt.features );
 

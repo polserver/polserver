@@ -2497,7 +2497,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     return new BError( "Invalid parameter type" );
   }
-  if ( ( chr->client->UOExpansionFlag & AOS ) == 0 )
+  if ( !chr->client->acctSupports( Plib::ExpansionVersion::AOS ) )
     return new BError( "Charater does not have AOS enabled." );
 
   if ( multi == nullptr )

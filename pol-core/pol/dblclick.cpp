@@ -68,7 +68,8 @@ void send_paperdoll( Network::Client* client, Mobile::Character* chr )
   // Paperdoll Appears different type Status byte than other walk/update
   // packets. Using poison/hidden here will break peace/war button.
   u8 flag1 = chr->warmode() ? 1 : 0;
-  if ( client->UOExpansionFlag & Network::AOS && client->chr->serial_ext == chr->serial_ext )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) &&
+       client->chr->serial_ext == chr->serial_ext )
     flag1 |= CHAR_FLAG1_CANALTER;
   msg->Write<u8>( flag1 );
 
