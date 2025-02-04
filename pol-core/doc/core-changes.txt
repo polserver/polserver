@@ -2,7 +2,7 @@
 02-04-2025 Turley:
     Added: ssopt.cfg DefaultExpansion defines the default expansion for accounts. Supported values are T2A (default),LBR,AOS,SE,ML,KR,SA,HSA,TOL
     Fixed: HSA (and TOL) expansion did not activate gothic and rustic tiles for customhouses
-    Fixed: save/load of npc hitchance
+    Fixed: save/load of npc/item hitchance
 02-04-2025 AsYlum:
     Fixed: ecompile -A could on Windows compile same files multiple times
 02-01-2025 Kevin:

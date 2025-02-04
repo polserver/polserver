@@ -11,7 +11,8 @@ endprogram
 
 // save/load test for things in NPC class
 exported function load_save_npc()
-  var override := struct{ AR := 101,
+  var override := struct{ MoveMode := "A", // from character
+                          AR := 101,
                           script := "restartnpcscript",
                           SpeechColor := 102,
                           SpeechFont := 103,
@@ -46,7 +47,11 @@ exported function load_save_npc()
                           MaxAttackRangeIncrease := 27,
                           NoDropException := 1 };
   var props := {    //       {"RegisteredHouse", {"",1}},
-                 { "AR",
+                 { "MoveMode",
+                   { "movemode", override.MoveMode }
+                 },
+                 {
+                   "AR",
                    { "ar", override.AR }
                  },
                  {

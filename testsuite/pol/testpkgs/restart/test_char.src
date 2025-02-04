@@ -89,7 +89,7 @@ exported function load_save_character()
                  {
                    "Tithing",
                    { "tithing", 11 }
-                 }, //              {"MoveMode", {"",1}},
+                 }, //              {"MoveMode", {"",1}}, // npc test
 //                 {"Privs", {"",1}}, //method
 //              {"Settings", {"",1}}, //method
 //             {"CreatedAt", {"",1}},
