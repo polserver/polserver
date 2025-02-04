@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+02-04-2025 Turley:
+    Fixed: Ecompile on Windows which was compiling certain files twice due to mixed path separators.
 02-01-2025 Kevin:
     Fixed: Invisible items will now send the "hidden" flag if the character can see invisible items.
 01-30-2025 AsYlum:

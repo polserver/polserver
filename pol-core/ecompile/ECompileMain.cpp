@@ -765,17 +765,18 @@ void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
       else if ( !dir_itr->is_regular_file() )
         continue;
       const auto ext = dir_itr->path().extension();
+      const auto file = dir_itr->path().generic_u8string();
       if ( inc_files )
       {
         if ( !ext.compare( ".inc" ) )
-          if ( files.insert( dir_itr->path().u8string() ).second )
-            callback( dir_itr->path().u8string() );
+          if ( files.insert( file ).second )
+            callback( file );
       }
       else if ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
                 ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) )
       {
-        if ( files.insert( dir_itr->path().u8string() ).second )
-          callback( dir_itr->path().u8string() );
+        if ( files.insert( file ).second )
+          callback( file );
       }
     }
   }

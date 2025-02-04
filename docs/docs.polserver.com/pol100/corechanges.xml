@@ -2,13 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-01-2025</datemodified>
+		<datemodified>02-04-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
+			<date>02-04-2025</date>
+			<author>Turley:</author>
+			<change type="Fixed">Ecompile on Windows which was compiling certain files twice due to mixed path separators.</change>
+		</entry>
+		<entry>
 			<date>02-01-2025</date>
 			<author>Kevin:</author>
-			<change type="Fixed">Invisible items will now send the "hidden" flag if the character can see invisible items.</change>
+			<change type="Fixed">Invisible items will now send the &quot;hidden&quot; flag if the character can see invisible items.</change>
 		</entry>
 		<entry>
 			<date>01-30-2025</date>
