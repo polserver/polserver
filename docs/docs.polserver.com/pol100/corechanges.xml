@@ -7,8 +7,8 @@
 	<version name="POL100.2.0">
 		<entry>
 			<date>02-04-2025</date>
-			<author>Turley:</author>
-			<change type="Fixed">Ecompile on Windows which was compiling certain files twice due to mixed path separators.</change>
+			<author>AsYlum:</author>
+			<change type="Fixed">ecompile -A could on Windows compile same files multiple times</change>
 		</entry>
 		<entry>
 			<date>02-01-2025</date>
