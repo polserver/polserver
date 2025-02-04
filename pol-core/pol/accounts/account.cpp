@@ -65,9 +65,8 @@ void Account::readfrom( Clib::ConfigElem& elem )
   banned_ = elem.remove_bool( "BANNED", false );
   auto exp = elem.remove_string( "UOExpansion",
                                  Core::settingsManager.ssopt.features.expansionName().c_str() );
-  expansion_ = Plib::AccountExpansion(
-      exp, Core::settingsManager.ssopt.features.extensionFlags() );  // store flags?
-
+  // currently its not possible to define B9 flags by script
+  expansion_ = Plib::AccountExpansion( exp, Core::settingsManager.ssopt.features.extensionFlags() );
   default_privs_.readfrom( elem.remove_string( "DefaultPrivs", "" ) );
 
   std::string cmdaccstr = elem.remove_string( "DefaultCmdLevel", "player" );
@@ -102,7 +101,7 @@ void Account::writeto( Clib::StreamWriter& sw ) const
   {
     sw.add( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
   }
-  if ( expansion_.Expansion() != Core::settingsManager.ssopt.features.Expansion() )
+  if ( expansion_.expansionVersion() != Core::settingsManager.ssopt.features.expansionVersion() )
   {
     sw.add( "UOExpansion", expansion_.expansionName() );
   }
@@ -132,7 +131,7 @@ void Account::writeto( Clib::ConfigElem& elem ) const
   {
     elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name );
   }
-  if ( expansion_.Expansion() != Core::settingsManager.ssopt.features.Expansion() )
+  if ( expansion_.expansionVersion() != Core::settingsManager.ssopt.features.expansionVersion() )
   {
     elem.add_prop( "UOExpansion", expansion_.expansionName() );
   }

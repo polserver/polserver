@@ -95,12 +95,14 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     Mobile::Character* chr = (Mobile::Character*)obj;
-    desc = ( !chr->has_title_prefix() ? " \t" : chr->title_prefix() + " \t" ) + chr->name() +
-           ( !chr->has_title_suffix() ? "\t " : "\t " + chr->title_suffix() );
+
+    desc = fmt::format( "{} \t{}\t {}", chr->title_prefix(), chr->name(), chr->title_suffix() );
     if ( chr->has_title_race() )
-      desc += " (" + chr->title_race() + ")";
+      desc += fmt::format( "{}({})", chr->has_title_suffix() ? " " : "", chr->title_race() );
     if ( chr->has_title_guild() )
-      desc += " [" + chr->title_guild() + "]";
+      desc +=
+          fmt::format( "{}[{}]", ( chr->has_title_suffix() || chr->has_title_race() ) ? " " : "",
+                       chr->title_guild() );
   }
   else if ( vendor_content )
   {
@@ -117,9 +119,9 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   msg->offset += 2;  // u8 unk2,unk3
   msg->WriteFlipped<u32>( obj->rev() );
   if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
-    msg->WriteFlipped<u32>( 1050045u );  // 1 text argument only
+    msg->WriteFlipped<u32>( 1050045u );  // ~1_PREFIX~~2_NAME~~3_SUFFIX~
   else
-    msg->WriteFlipped<u32>( 1042971u );  // 1 text argument only
+    msg->WriteFlipped<u32>( 1042971u );  // ~1_NOTHING~
 
   std::vector<u16> utf16 = Bscript::String::toUTF16( desc );
   u16 textlen = static_cast<u16>( utf16.size() );

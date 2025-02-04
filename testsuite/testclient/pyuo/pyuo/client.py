@@ -941,6 +941,12 @@ class Client(threading.Thread):
         self.handleObjectInfoPacket(obj)
     elif isinstance(pkt, packets.VisualRangePacket):
       pass
+    elif isinstance(pkt, packets.MegaClilocRevPacket):
+      pass
+    elif isinstance(pkt, packets.AOSTooltipPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_AOS_TOOLTIP, serial = pkt.serial, text=pkt.text))
+    elif isinstance(pkt, packets.EnableFeaturesPacket):
+      self.features = pkt.features
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1287,6 +1293,17 @@ class Client(threading.Thread):
     '''
     self.waitFor(lambda: self.target is not None, timeout)
     return self.target
+
+  @logincomplete
+  def getAOSTooltip(self, serial, newpkt):
+    ''' Sends a tooltip request packet to server'''
+    if not newpkt:
+      po = packets.GeneralInfoPacket()
+      po.fill(po.SUB_MEGACLILOC, serial, 1)
+    else:
+        po = packets.AOSTooltipPacket()
+        po.fill([serial])
+    self.queue(po)
 
   def waitFor(self, cond, timeout=None):
     '''! Utility function, waits until a condition is satisfied or until timeout expires

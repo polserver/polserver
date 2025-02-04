@@ -148,7 +148,7 @@ enum class FaceSupport : u8
 class ServerFeatures
 {
 public:
-  ExpansionVersion Expansion() const { return expansion; };
+  ExpansionVersion expansionVersion() const { return expansion; };
   std::string expansionName() const;
   B9Feature extensionFlags() const { return ext_flags; };
   A9Feature featureFlags() const { return feature_flags; };
@@ -181,7 +181,7 @@ public:
   AccountExpansion() = default;
   AccountExpansion( const std::string& exp, B9Feature flag )
       : expansion( getExpansionVersion( exp ) ), ext_flags( flag ){};
-  ExpansionVersion Expansion() const { return expansion; };
+  ExpansionVersion expansionVersion() const { return expansion; };
   std::string expansionName() const;
   bool hasExpansion( ExpansionVersion v ) const { return expansion >= v; };
   B9Feature extensionFlags() const { return ext_flags; };
@@ -190,9 +190,7 @@ public:
   u8 getCharSlots( const ServerFeatures& server ) const;
 
 private:
-  ExpansionVersion expansion =
-      ExpansionVersion::T2A;  // TODO needed? could save the flags or string depending if its
-                              // default or not if flags can be changed
+  ExpansionVersion expansion = ExpansionVersion::T2A;
   B9Feature ext_flags = B9Feature::DefaultT2A;
 };
 

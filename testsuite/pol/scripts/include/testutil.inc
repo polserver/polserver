@@ -23,6 +23,7 @@ function createAccountWithChar( accname, psw )
     if ( !a )
       return ret_error( "Failed to create account" );
     endif
+    a.set_uo_expansion("AOS");
     a.addcharacter( 0 );
   endif
   var char := a.getcharacter( 1 );

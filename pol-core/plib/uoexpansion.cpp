@@ -1,5 +1,6 @@
 #include "uoexpansion.h"
 #include "../clib/clib.h"
+#include "../clib/logfacility.h"
 #include <array>
 
 namespace Pol::Plib
@@ -67,6 +68,8 @@ void ServerFeatures::updateFromSSOpt( A9Feature feature, const std::string& vers
                                       u16 facesupport )
 {
   expansion = getExpansionVersion( version );
+  if ( expansionName() != version )
+    POLLOG_ERRORLN( "invalid DefaultExpansion '{}', using '{}'", version, expansionName() );
   ext_flags = getDefaultExpansionFlag( expansion );
   feature_flags = feature;
   Clib::sanitize_upperlimit<u16>( &facesupport, (u16)FaceSupport::RolePlay );
@@ -79,7 +82,7 @@ void ServerFeatures::updateFromPolCfg( u8 max_char_slots )
 
 std::string ServerFeatures::expansionName() const
 {
-  return getExpansionName( Expansion() );
+  return getExpansionName( expansionVersion() );
 }
 
 A9Feature AccountExpansion::calculateFeatureFlags( const ServerFeatures& server ) const
@@ -103,7 +106,7 @@ u8 AccountExpansion::getCharSlots( const ServerFeatures& server ) const
 {
   u8 char_slots = server.maxCharacterSlots();
   // If more than 6 chars and no AOS, only send 5. Client is so boring sometimes...
-  if ( char_slots >= 6 && ( Expansion() < ExpansionVersion::AOS ) )
+  if ( char_slots >= 6 && ( expansionVersion() < ExpansionVersion::AOS ) )
     char_slots = 5;
   return char_slots;
 }
@@ -112,7 +115,7 @@ B9Feature AccountExpansion::calculatedExtensionFlags( const ServerFeatures& serv
 {
   auto clientflag = extensionFlags();
   // Change flag according to the number of CharacterSlots
-  if ( Expansion() >= ExpansionVersion::AOS )
+  if ( expansionVersion() >= ExpansionVersion::AOS )
   {
     if ( server.maxCharacterSlots() == 7 )
     {
@@ -127,7 +130,7 @@ B9Feature AccountExpansion::calculatedExtensionFlags( const ServerFeatures& serv
   }
 
   // Roleplay faces?
-  if ( Expansion() >= ExpansionVersion::KR )
+  if ( expansionVersion() >= ExpansionVersion::KR )
   {
     if ( server.faceSupport() == Plib::FaceSupport::RolePlay )
       clientflag |= B9Feature::KRFaces;
@@ -137,6 +140,6 @@ B9Feature AccountExpansion::calculatedExtensionFlags( const ServerFeatures& serv
 
 std::string AccountExpansion::expansionName() const
 {
-  return getExpansionName( Expansion() );
+  return getExpansionName( expansionVersion() );
 }
 }  // namespace Pol::Plib
