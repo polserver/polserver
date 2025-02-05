@@ -82,7 +82,11 @@ void ServSpecOpt::read_servspecopt()
       elem.remove_ushort( "DefaultContainerMaxWeight", 250 );
   settingsManager.ssopt.hidden_turns_count = elem.remove_bool( "HiddenTurnsCount", true );
   settingsManager.ssopt.invul_tag = elem.remove_ushort( "InvulTag", 1 );
-  settingsManager.ssopt.uo_feature_enable = elem.remove_ushort( "UOFeatureEnable", 0 );
+  auto a9flag = static_cast<Plib::A9Feature>( elem.remove_ushort( "UOFeatureEnable", 0 ) );
+  auto default_expansion = elem.remove_string(
+      "DefaultExpansion", Plib::getExpansionName( Plib::ExpansionVersion::T2A ).c_str() );
+  settingsManager.ssopt.features.updateFromSSOpt( a9flag, default_expansion,
+                                                  elem.remove_ushort( "SupportFaces", 0 ) );
   settingsManager.ssopt.starting_gold = elem.remove_ushort( "StartingGold", 100 );
   settingsManager.ssopt.item_color_mask = elem.remove_ushort( "ItemColorMask", 0xFFF );
   settingsManager.ssopt.use_win_lfh = elem.remove_bool( "UseWinLFH", false );
@@ -115,8 +119,6 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.yell_range = elem.remove_ushort( "YellRange", 25 );
   settingsManager.ssopt.core_sends_season = elem.remove_bool( "CoreSendsSeason", true );
   settingsManager.ssopt.core_handled_tags = elem.remove_ushort( "CoreHandledTags", 0xFFFF );
-  settingsManager.ssopt.support_faces =
-      static_cast<unsigned char>( elem.remove_ushort( "SupportFaces", 0 ) );
   settingsManager.ssopt.newbie_starting_equipment =
       elem.remove_bool( "NewbieStartingEquipment", true );
   settingsManager.ssopt.speedhack_prevention = elem.remove_bool( "SpeedhackPrevention", false );

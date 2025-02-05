@@ -296,87 +296,87 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
 
   s16 value = fire_resist().mod;
   if ( value != 0 )
-    sw.add( "FireResistMod", static_cast<int>( value ) );
+    sw.add( "FireResistMod", value );
   value = cold_resist().mod;
   if ( value != 0 )
-    sw.add( "ColdResistMod", static_cast<int>( value ) );
+    sw.add( "ColdResistMod", value );
   value = energy_resist().mod;
   if ( value != 0 )
-    sw.add( "EnergyResistMod", static_cast<int>( value ) );
+    sw.add( "EnergyResistMod", value );
   value = poison_resist().mod;
   if ( value != 0 )
-    sw.add( "PoisonResistMod", static_cast<int>( value ) );
+    sw.add( "PoisonResistMod", value );
   value = physical_resist().mod;
   if ( value != 0 )
-    sw.add( "PhysicalResistMod", static_cast<int>( value ) );
+    sw.add( "PhysicalResistMod", value );
 
   value = fire_damage().mod;
   if ( value != 0 )
-    sw.add( "FireDamageMod", static_cast<int>( value ) );
+    sw.add( "FireDamageMod", value );
   value = cold_damage().mod;
   if ( value != 0 )
-    sw.add( "ColdDamageMod", static_cast<int>( value ) );
+    sw.add( "ColdDamageMod", value );
   value = energy_damage().mod;
   if ( value != 0 )
-    sw.add( "EnergyDamageMod", static_cast<int>( value ) );
+    sw.add( "EnergyDamageMod", value );
   value = poison_damage().mod;
   if ( value != 0 )
-    sw.add( "PoisonDamageMod", static_cast<int>( value ) );
+    sw.add( "PoisonDamageMod", value );
   value = physical_damage().mod;
   if ( value != 0 )
-    sw.add( "PhysicalDamageMod", static_cast<int>( value ) );
+    sw.add( "PhysicalDamageMod", value );
   // new mod stuff
   value = lower_reagent_cost().mod;
   if ( value )
-    sw.add( "LowerReagentCostMod", static_cast<int>( value ) );
+    sw.add( "LowerReagentCostMod", value );
   value = defence_increase().mod;
   if ( value )
-    sw.add( "DefenceIncreaseMod", static_cast<int>( value ) );
+    sw.add( "DefenceIncreaseMod", value );
   value = defence_increase_cap().mod;
   if ( value )
-    sw.add( "DefenceIncreaseCapMod", static_cast<int>( value ) );
+    sw.add( "DefenceIncreaseCapMod", value );
   value = lower_mana_cost().mod;
   if ( value )
-    sw.add( "LowerManaCostMod", static_cast<int>( value ) );
+    sw.add( "LowerManaCostMod", value );
   value = hit_chance().mod;
   if ( value )
-    sw.add( "HitChanceMod", static_cast<int>( value ) );
+    sw.add( "HitChanceMod", value );
   value = fire_resist_cap().mod;
   if ( value )
-    sw.add( "FireResistCapMod", static_cast<int>( value ) );
+    sw.add( "FireResistCapMod", value );
   value = cold_resist_cap().mod;
   if ( value )
-    sw.add( "ColdResistCapMod", static_cast<int>( value ) );
+    sw.add( "ColdResistCapMod", value );
   value = energy_resist_cap().mod;
   if ( value )
-    sw.add( "EnergyResistCapMod", static_cast<int>( value ) );
+    sw.add( "EnergyResistCapMod", value );
   value = physical_resist_cap().mod;
   if ( value )
-    sw.add( "PhysicalResistCapMod", static_cast<int>( value ) );
+    sw.add( "PhysicalResistCapMod", value );
   value = poison_resist_cap().mod;
   if ( value )
-    sw.add( "PoisonResistCapMod", static_cast<int>( value ) );
+    sw.add( "PoisonResistCapMod", value );
   value = spell_damage_increase().mod;
   if ( value )
-    sw.add( "SpellDamageIncreaseMod", static_cast<int>( value ) );
+    sw.add( "SpellDamageIncreaseMod", value );
   value = faster_casting().mod;
   if ( value )
-    sw.add( "FasterCastingMod", static_cast<int>( value ) );
+    sw.add( "FasterCastingMod", value );
   value = faster_cast_recovery().mod;
   if ( value )
-    sw.add( "FasterCastRecoveryMod", static_cast<int>( value ) );
+    sw.add( "FasterCastRecoveryMod", value );
   value = luck().mod;
   if ( value )
-    sw.add( "LuckMod", static_cast<int>( value ) );
+    sw.add( "LuckMod", value );
   value = swing_speed_increase().mod;
   if ( value )
-    sw.add( "SwingSpeedIncreaseMod", static_cast<int>( value ) );
+    sw.add( "SwingSpeedIncreaseMod", value );
   value = min_attack_range_increase().mod;
   if ( value )
-    sw.add( "MinAttackRangeIncreaseMod", static_cast<int>( value ) );
+    sw.add( "MinAttackRangeIncreaseMod", value );
   value = max_attack_range_increase().mod;
   if ( value )
-    sw.add( "MaxAttackRangeIncreaseMod", static_cast<int>( value ) );
+    sw.add( "MaxAttackRangeIncreaseMod", value );
   // end new mod stuff
 
 

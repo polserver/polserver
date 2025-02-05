@@ -430,24 +430,22 @@ ObjRevisionPkt::ObjRevisionPkt( u32 serial_ext, u32 rev )
 
 void ObjRevisionPkt::Send( Client* client )
 {
-  if ( client->UOExpansionFlag & AOS )
+  if ( !client->acctSupports( Plib::ExpansionVersion::AOS ) )
+    return;
+  if ( !Core::settingsManager.ssopt.features.supportsAOS() )
+    return;
+  if ( ( Core::settingsManager.ssopt.force_new_objcache_packets ) ||
+       ( client->ClientType & Network::CLIENTTYPE_5000 ) )
   {
-    if ( Core::settingsManager.ssopt.uo_feature_enable & Core::PKTOUT_A9::FLAG_AOS_FEATURES )
-    {
-      if ( ( Core::settingsManager.ssopt.force_new_objcache_packets ) ||
-           ( client->ClientType & Network::CLIENTTYPE_5000 ) )
-      {
-        if ( _p->offset == 1 )
-          build();
-        _p.Send( client, _p->getSize() );
-      }
-      else
-      {
-        if ( _p_old->offset == 1 )
-          buildold();
-        _p_old.Send( client );
-      }
-    }
+    if ( _p->offset == 1 )
+      build();
+    _p.Send( client, _p->getSize() );
+  }
+  else
+  {
+    if ( _p_old->offset == 1 )
+      buildold();
+    _p_old.Send( client );
   }
 }
 

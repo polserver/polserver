@@ -138,6 +138,11 @@ class Packet():
     if length % 2:
       raise ValueError('Length must be a multiple of 2')
     return self.varUStr(self.rpb(length))
+  def ducstringflipped(self, length):
+    ''' Returns next unicode string of the given length from the receive buffer '''
+    if length % 2:
+      raise ValueError('Length must be a multiple of 2')
+    return self.varUStrFlipped(self.rpb(length))
 
   def dip(self):
     ''' Returns next string ip address from the receive buffer '''
@@ -226,6 +231,11 @@ class Packet():
   def varUStr(byt):
     ''' Convert unicode bytes into a variable-length string '''
     dec = byt.decode('utf_16_be')
+    return Packet.nullTrunc(dec)
+  @staticmethod
+  def varUStrFlipped(byt):
+    ''' Convert unicode bytes into a variable-length string '''
+    dec = byt.decode('utf_16_le')
     return Packet.nullTrunc(dec)
 
   @staticmethod
@@ -1453,6 +1463,11 @@ class GeneralInfoPacket(Packet):
       self.direction = args[1]
       self.speed = args[2]
       self.length = 12
+    elif self.sub == self.SUB_MEGACLILOC:
+      checkArgLen(2)
+      self.serial = args[0]
+      self.listid = args[1]
+      self.length = 5 + 8
 
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
@@ -1473,6 +1488,9 @@ class GeneralInfoPacket(Packet):
       self.euchar(self.direction)
       self.euchar(self.direction)
       self.euchar(self.speed)
+    elif self.sub == self.SUB_MEGACLILOC:
+      self.euint(self.serial)
+      self.euint(self.listid)
 
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented yet'.format(self.sub))
@@ -1635,6 +1653,36 @@ class CloseGumpResponsePacket(Packet):
     self.euint(0) #button id
     self.euint(0) #switch count
     self.euint(0) #string count
+
+
+class AOSTooltipPacket(Packet):
+  ''' tooltip after sending 0xbf 0x10 '''
+
+  cmd = 0xd6
+
+  def fill(self,serials):
+    self.serials = serials
+    self.length = 3 + 4*len(self.serials)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.unk1 = self.dushort()
+    self.serial = self.duint()
+    self.unk2 = self.dushort()
+    self.revision = self.duint()
+    self.text=[]
+    while True:
+      cliloc = self.duint()
+      if cliloc == 0:
+          break
+      txtlen = self.dushort()
+      text = self.ducstringflipped(txtlen)
+      self.text.append((cliloc,text))
+
+  def encodeChild(self):
+    self.eulen()
+    for serial in self.serials:
+      self.euint(serial)
 
 
 class NewObjectInfoPacket(Packet):

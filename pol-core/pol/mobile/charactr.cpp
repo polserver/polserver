@@ -593,31 +593,31 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   sw.add( "Race", static_cast<int>( race ) );
 
   if ( dead() )
-    sw.add( "Dead", static_cast<int>( dead() ) );
+    sw.add( "Dead", dead() );
 
   if ( mountedsteps_ )
-    sw.add( "MountedSteps", static_cast<unsigned int>( mountedsteps_ ) );
+    sw.add( "MountedSteps", mountedsteps_ );
 
   if ( hidden() )
-    sw.add( "Hidden", static_cast<int>( hidden() ) );
+    sw.add( "Hidden", hidden() );
 
   if ( frozen() )
-    sw.add( "Frozen", static_cast<int>( frozen() ) );
+    sw.add( "Frozen", frozen() );
 
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
     if ( movecost_value.walk != Core::MovementCostMod::DEFAULT.walk )
-      sw.add( "MovementWalkMod", static_cast<double>( movecost_value.walk ) );
+      sw.add( "MovementWalkMod", movecost_value.walk );
     if ( movecost_value.run != Core::MovementCostMod::DEFAULT.run )
-      sw.add( "MovementRunMod", static_cast<double>( movecost_value.run ) );
+      sw.add( "MovementRunMod", movecost_value.run );
     if ( movecost_value.walk_mounted != Core::MovementCostMod::DEFAULT.walk_mounted )
-      sw.add( "MovementWalkMountedMod", static_cast<double>( movecost_value.walk_mounted ) );
+      sw.add( "MovementWalkMountedMod", movecost_value.walk_mounted );
     if ( movecost_value.run_mounted != Core::MovementCostMod::DEFAULT.run_mounted )
-      sw.add( "MovementRunMountedMod", static_cast<double>( movecost_value.run_mounted ) );
+      sw.add( "MovementRunMountedMod", movecost_value.run_mounted );
   }
   if ( has_carrying_capacity_mod() )
-    sw.add( "CarryingCapacityMod", static_cast<int>( carrying_capacity_mod() ) );
+    sw.add( "CarryingCapacityMod", carrying_capacity_mod() );
 
 
   // output Attributes
@@ -633,19 +633,19 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
       unsigned ones = av.base() / 10;
       unsigned tenths = av.base() % 10;
 
-      auto val = fmt::format( "{}", ones );
+      auto val = fmt::format( FMT_COMPILE( "{}" ), ones );
       if ( tenths )
-        fmt::format_to( std::back_inserter( val ), ".{}", tenths );
+        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ".{}" ), tenths );
       if ( cap != pAttr->default_cap )
       {
         unsigned cap_ones = cap / 10;
         unsigned cap_tenths = cap % 10;
-        fmt::format_to( std::back_inserter( val ), ":{}", cap_ones );
+        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ":{}" ), cap_ones );
         if ( cap_tenths )
-          fmt::format_to( std::back_inserter( val ), ".{}", cap_tenths );
+          fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ".{}" ), cap_tenths );
       }
       if ( lock )
-        fmt::format_to( std::back_inserter( val ), ";{}", lock );
+        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ";{}" ), lock );
 
       sw.add( pAttr->name, val );
     }
@@ -665,9 +665,9 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   {
     auto cap_value = skillstatcap();
     if ( cap_value.statcap != Core::SkillStatCap::DEFAULT.statcap )
-      sw.add( "Statcap", static_cast<int>( cap_value.statcap ) );
+      sw.add( "Statcap", cap_value.statcap );
     if ( cap_value.skillcap != Core::SkillStatCap::DEFAULT.skillcap )
-      sw.add( "Skillcap", static_cast<int>( cap_value.skillcap ) );
+      sw.add( "Skillcap", cap_value.skillcap );
   }
 
   if ( has_followers() )
@@ -679,7 +679,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
       sw.add( "Followers", static_cast<int>( followers_value.followers ) );
   }
   if ( has_tithing() )
-    sw.add( "Tithing", static_cast<int>( tithing() ) );
+    sw.add( "Tithing", tithing() );
 
 
   if ( movemode != Plib::MOVEMODE_LAND )
@@ -716,7 +716,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "PartyCanLoot", party_can_loot() );
   for ( const auto& rt : reportable_ )
   {
-    sw.add( "Reportable", fmt::format( "{:#x} {}", rt.serial, rt.polclock ) );
+    sw.add( "Reportable", fmt::format( FMT_COMPILE( "{:#x} {}" ), rt.serial, rt.polclock ) );
   }
 
   Core::UCorpse* corpse_obj = static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
@@ -1694,7 +1694,7 @@ void Character::on_aos_ext_stat_changed()
 {
   if ( client )
   {
-    if ( client->UOExpansionFlag & Network::AOS && has_active_client() )
+    if ( client->acctSupports( Plib::ExpansionVersion::AOS ) && has_active_client() )
     {
       send_full_statmsg( client, client->chr );
     }
@@ -4440,7 +4440,8 @@ void Character::update_objects_on_range_change( u8 newrange )
         {
           Core::send_multi( client, zonemulti );
           Multi::UHouse* house = zonemulti->as_house();
-          if ( ( client->UOExpansionFlag & Network::AOS ) && house != nullptr && house->IsCustom() )
+          if ( client->acctSupports( Plib::ExpansionVersion::AOS ) && house != nullptr &&
+               house->IsCustom() )
             Multi::CustomHousesSendShort( house, client );
         }
         else if ( was_inrange && !is_inrange )

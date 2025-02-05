@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>11/11/2024</datemodified>
+    <datemodified>02/03/2025</datemodified>
 </fileheader>
 
 
@@ -347,6 +347,7 @@ Spell (int spellid)
 [TotalStatsAtCreation           (string see below)]
 [DefaultContainerMaxItems       (int 0-150)]
 [DefaultContainerMaxWeight      (int 0-65535)]
+[DefaultExpansion               (string {default T2A})]
 [UOFeatureEnable                (int flags {default 0})]
 [MaxPathFindRange               (int distance {default 50})]
 [HiddenTurnsCount               (0/1 {default 1})]
@@ -403,7 +404,8 @@ Spell (int spellid)
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
   <explain><i>MovementUsesStamina:</i> if enabled stamina costs are defined in movecost.cfg</explain>
   <explain><i>DefaultContainerMaxItems:</i> default is 125, DefaultContainerMaxWeight default is 250. itemdesc.cfg "MaxItems" and "MaxWeight" override these defaults.</explain>
-  <explain><i>UOFeatureEnable:</i> will be sent as the last DWORD flag in the 0xA9 login message. See 095+ package for values and warnings. Core will block Bit 6 (support up to 6 Chars). To enable AoS stuff set Bit 5 (use 0x20), to enable SE stuff set Bit 7 and 5 (use 0xa0) and to enable ML stuff set Bit 8, 7 and 5 (use 0x1a0).</explain>
+  <explain><i>DefaultExpansion:</i>defines the expansion string used as default for accounts. Valid values are T2A,LBR,AOS,SE,ML,KR,SA,HSA,TOL</explain>
+  <explain><i>UOFeatureEnable:</i> will be sent as the last DWORD flag in the 0xA9 login message. Based on maximum char slots core will add 0x1000 (7 chars), 0x40 (6 chars), 0x14 (1 char) and 0x2000 if SupportFaces is set to 2. See pkt docu for explanation of the flags.</explain>
   <explain><i>HiddenTurnsCount:</i> will define whether or not turns made while hidden will count as a "move".</explain>
   <explain><i>ItemColorMask:</i> is a bitmask of what colors should be considered valid. It was left a mask instead of given as a range in order to allow specifying certain bits to be on. So, for instance, with the newer clients, a mask of 0x4fff will allow the third bit (value 4) of the most significant nibble to be turned on, but no others in that nibble. Bear in mind, older clients may well crash if you set colors to be outside of the non-default mask of 0xfff.</explain>
   <explain><i>UseTileFlagPrefix:</i> will control Core to prepend "a"/"an" according to tiles.cfg flags to formatted item names.</explain>

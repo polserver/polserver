@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>01/14/2025</datemodified>
+<datemodified>02/03/2025</datemodified>
 </fileheader>
 
 
@@ -471,7 +471,7 @@
 <method proto="setprop(string propname, propval)" returns="true">SetObjProperty for account objects.</method>
 <method proto="eraseprop(string propname)" returns="true">EraseObjProperty for account objects.</method>
 <method proto="propnames()" returns="Array">returns an array of cprop names on this account</method>
-<method proto="set_uo_expansion(string expansion)" returns="true/error">This determines what flag is sent with packet 0xB9 during login (Nothing -&gt; 0x0000 / T2A -&gt; 0x0001 / LBR -&gt; 0x0002 / AOS -&gt; 0x801b / SE -&gt; 0x805b / ML -&gt; 0x80db / KR -&gt; 0x86DB / SA -&gt; 0x187DF / HSA -&gt; 0x387DF / TOL -&gt; 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default).</method>
+<method proto="set_uo_expansion(string expansion)" returns="true/error">This determines what flag is sent with packet 0xB9 during login (T2A -&gt; 0x0001 / LBR -&gt; 0x0002 / AOS -&gt; 0x801b / SE -&gt; 0x805b / ML -&gt; 0x80db / KR -&gt; 0x86DB / SA -&gt; 0x187DF / HSA -&gt; 0xF87DF / TOL -&gt; 0x7F87DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg DefaultExpansion is used to initialize this member, UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default).</method>
 <method proto="setdefaultcmdlevel(integer number)" returns="true/error">Set the account's default command level.</method>
 <method proto="get_member(string membername)" returns="object, value of member or error">Gets the value of the built-in member 'membername'. var objname := obj.get_member("name") is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error</method>
 </class>

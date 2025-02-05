@@ -135,6 +135,8 @@ class TestBrain(brain.Brain):
             res = res is not None))
       elif todo=="disable_item_logging":
         self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
+      elif todo=="aos_tooltip":
+        self.client.getAOSTooltip(arg[0],arg[1])
 
     return True
 
@@ -333,6 +335,8 @@ class PolServer:
     elif ev.type==Event.EVT_GUMP:
       res['commands']=ev.commands
       res['texts']=ev.texts
+    elif ev.type==Event.EVT_AOS_TOOLTIP:
+      res['text']=ev.text
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

@@ -237,7 +237,8 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.report_missing_configs =
       elem.remove_bool( "ReportMissingConfigs", true );
   Plib::systemstate.config.max_clients = elem.remove_ushort( "MaximumClients", 300 );
-  Plib::systemstate.config.character_slots = elem.remove_ushort( "CharacterSlots", 5 );
+  Plib::systemstate.config.character_slots =
+      Clib::clamp_convert<u8>( elem.remove_ushort( "CharacterSlots", 5 ) );
   Plib::systemstate.config.max_clients_bypass_cmdlevel =
       elem.remove_ushort( "MaximumClientsBypassCmdLevel", 1 );
   Plib::systemstate.config.allow_multi_clients_per_account =

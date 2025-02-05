@@ -1,11 +1,15 @@
 -- POL100.2.0 --
+02-04-2025 Turley:
+    Added: ssopt.cfg DefaultExpansion defines the default expansion for accounts. Supported values are T2A (default),LBR,AOS,SE,ML,KR,SA,HSA,TOL
+    Fixed: HSA (and TOL) expansion did not activate gothic and rustic tiles for customhouses
+    Fixed: save/load of npc/item hitchance
 02-04-2025 AsYlum:
     Fixed: ecompile -A could on Windows compile same files multiple times
 02-01-2025 Kevin:
     Fixed: Invisible items will now send the "hidden" flag if the character can see invisible items.
 01-30-2025 AsYlum:
     Fixed: Missing attack range properties defaults in itemdesc.
-           
+ 
            The implementation of new properties for min/max attack range increase added on 11-02-2024 contained a bug. You should check if your save files contain MinAttackRangeIncreaseMod, MinAttackRangeIncrease and MaxAttackRangeIncrease properties with suspiciously looking values like for example:
 
            MinAttackRangeIncreaseMod    -24931
@@ -38,9 +42,9 @@
 11-09-2024 Kukkino:
     Added: Added GetRealmDecay(realm) and SetRealmDecay(realm, has_decay) allowing to manipulate whether items decay on the ground in given realms.
 11-02-2024 DevGIB:
-    Added: MinAttackRangeIncrease(min_attack_range_increase) and MinAttackRangeIncreaseMod(min_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles minimum attack range.<br/>
+    Added: MinAttackRangeIncrease(min_attack_range_increase) and MinAttackRangeIncreaseMod(min_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles minimum attack range.
            Min Attack Range Increase is used as a numeric modifier to the minimum range of a weapon, e.g. Base min Weapon range of 1 + attack range increase of 1 would make the minimum attack range 2.
-    Added: MaxAttackRangeIncrease(max_attack_range_increase) and MaxAttackRangeIncreaseMod(max_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles maximum attack range.<br/>
+    Added: MaxAttackRangeIncrease(max_attack_range_increase) and MaxAttackRangeIncreaseMod(max_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles maximum attack range.
            Max Attack Range Increase is used as a numeric modifier to the maximum range of a weapon, e.g. Base max Weapon range of 3 + attack range increase of 2 would make the maximum attack range 5.
 11-01-2024 Turley:
     Added: servspecopt.cfg AllowVisualRangeModification 0/1 default 0

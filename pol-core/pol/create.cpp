@@ -182,15 +182,17 @@ bool validbeard( u16 BeardStyle )
     */
 bool validface( u16 FaceStyle )
 {
-  if ( settingsManager.ssopt.support_faces > 0 )
+  switch ( settingsManager.ssopt.features.faceSupport() )
   {
+  case Plib::FaceSupport::None:
+    return false;
+  case Plib::FaceSupport::RolePlay:
+    if ( ( 0x3B4E <= FaceStyle ) && ( FaceStyle <= 0x3B57 ) )
+      return true;
+    [[fallthrough]];
+  case Plib::FaceSupport::Basic:
     if ( ( 0x3B44 <= FaceStyle ) && ( FaceStyle <= 0x3B4D ) )
       return true;
-    if ( settingsManager.ssopt.support_faces == 2 )
-    {
-      if ( ( 0x3B4E <= FaceStyle ) && ( FaceStyle <= 0x3B57 ) )
-        return true;
-    }
   }
   return false;
 }

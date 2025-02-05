@@ -28,6 +28,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../plib/systemstate.h"
+#include "../plib/uoexpansion.h"
 #include "accounts/account.h"
 #include "accounts/accounts.h"
 #include "core.h"
@@ -335,29 +336,15 @@ void send_start( Network::Client* client )
   send_feature_enable(
       client );  // Shinigami: moved from start_client_char() to send before char selection
 
-  unsigned i;
-  u32 clientflag;            // sets client flags
-  unsigned char char_slots;  // number of slots according to expansion, avoids crashing people
-  unsigned char char_count;  // number of chars to send: Max(char_slots, 5)
-
-  char_slots = static_cast<u8>(
-      Plib::systemstate.config
-          .character_slots );  // sets it first to be the number defined in the config
-  // TODO: Per account character slots? (With the actual character_slots defining maximum)
-
-  // If more than 6 chars and no AOS, only send 5. Client is so boring sometimes...
-  if ( char_slots >= 6 && !( client->UOExpansionFlag & Network::AOS ) )
-    char_slots = 5;
-
-  char_count = 5;                 // UO always expects a minimum of 5? What a kludge...
-  if ( char_slots > char_count )  // Max(char_slots, 5)
-    char_count = char_slots;
+  u8 char_slots = client->acct->expansion().getCharSlots( settingsManager.ssopt.features );
+  // client always expects at least 5 chars
+  u8 char_count = std::max( char_slots, (u8)5u );
 
   Network::PktHelper::PacketOut<Network::PktOut_A9> msg;
   msg->offset += 2;
   msg->Write<u8>( char_count );
 
-  for ( i = 0; i < char_count; i++ )
+  for ( u8 i = 0; i < char_count; i++ )
   {
     if ( i < char_slots )  // Small kludge to have a minimum of 5 chars in the packet
     {
@@ -377,7 +364,7 @@ void send_start( Network::Client* client )
 
   msg->Write<u8>( gamestate.startlocations.size() );
 
-  for ( i = 0; i < gamestate.startlocations.size(); i++ )
+  for ( size_t i = 0; i < gamestate.startlocations.size(); i++ )
   {
     msg->Write<u8>( i );
     if ( client->ClientType & Network::CLIENTTYPE_70130 )
@@ -401,20 +388,10 @@ void send_start( Network::Client* client )
     }
   }
 
-  clientflag = settingsManager.ssopt.uo_feature_enable;  // 'default' flags. Maybe auto-enable them
-                                                         // according to the expansion?
+  auto clientflag =
+      client->acct->expansion().calculateFeatureFlags( settingsManager.ssopt.features );
 
-  clientflag |= PKTOUT_A9::FLAG_SEND_UO3D_TYPE;  // Let UO3D (KR,SA) send 0xE1 packet
-
-  // Change this to a function for clarity? -- Nando
-  if ( char_slots == 7 )
-    clientflag |= PKTOUT_A9::FLAG_UPTO_SEVEN_CHARACTERS;  // 7th Character flag
-  else if ( char_slots == 6 )
-    clientflag |= PKTOUT_A9::FLAG_UPTO_SIX_CHARACTERS;  // 6th Character Flag
-  else if ( char_slots == 1 )
-    clientflag |= 0x14;  // Only one character (SIEGE (0x04) + LIMIT_CHAR (0x10))
-
-  msg->WriteFlipped<u32>( clientflag );
+  msg->WriteFlipped<u32>( static_cast<u32>( clientflag ) );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );

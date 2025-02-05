@@ -160,7 +160,7 @@ endfunction
 
 exported function apply_aos_misc_mod()
   var aos := { "faster_cast_recovery", "faster_casting", "hit_chance", "lower_mana_cost", "lower_reagent_cost",
-               "luck", "spell_damage_increase", "swing_speed_increase" };
+               "luck", "spell_damage_increase", "swing_speed_increase", "min_attack_range_increase", "max_attack_range_increase" };
   reset( aos, 0 );
   var res := apply_to_equipped( aos );
   if ( !res )
@@ -177,6 +177,22 @@ exported function apply_aos_misc_mod()
   res := equip_aos_item( aos, 0 );
   if ( !res )
     return res;
+  endif
+  return 1;
+endfunction
+
+exported function test_account_expansion()
+  var a := FindAccount( "test" );
+  if ( typeOfInt( a.Set_UO_Expansion( "unknown" ) ) != OT_ERROR )
+    return ret_error( $"success while setting unknown expansion {a.uo_expansion}" );
+  endif
+  a.Set_UO_Expansion( "TOL" );
+  if ( a.uo_expansion != "TOL" )
+    return ret_error( $"failed to set TOL expansion {a.uo_expansion}" );
+  endif
+  a.Set_UO_Expansion( "AOS" );
+  if ( a.uo_expansion != "AOS" )
+    return ret_error( $"failed to set AOS expansion {a.uo_expansion}" );
   endif
   return 1;
 endfunction

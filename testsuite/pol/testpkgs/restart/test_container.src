@@ -25,6 +25,10 @@ exported function load_save_container()
                  {
                    "NoDropException",
                    { "no_drop_exception", 1 }
+                 },
+                 {
+                   "HeldWeightMultiplier",
+                   { "held_weight_multiplier", 13.2 }
                  } };
 
   if ( testrun == 1 )

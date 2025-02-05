@@ -447,6 +447,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "DefenceIncreaseCap", defence_increase_cap().value );
   if ( has_lower_mana_cost() )
     sw.add( "LowerManaCost", lower_mana_cost().value );
+  if ( has_hit_chance() )
+    sw.add( "HitChance", hit_chance().value );
   if ( has_fire_resist_cap() )
     sw.add( "FireResistCap", fire_resist_cap().value );
   if ( has_cold_resist_cap() )

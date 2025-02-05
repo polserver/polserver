@@ -19,6 +19,7 @@
 #include "../../clib/streamsaver.h"
 #include "../../plib/systemstate.h"
 #include "../cmdlevel.h"
+#include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
@@ -29,18 +30,14 @@ namespace Pol
 namespace Accounts
 {
 Account::Account( Clib::ConfigElem& elem )
-    : characters_(),
+    : characters_( Plib::systemstate.config.character_slots, Core::CharacterRef( nullptr ) ),
       name_( elem.remove_string( "NAME" ) ),
       enabled_( true ),
       banned_( false ),
       props_( Core::CPropProfiler::Type::ACCOUNT ),
-      default_cmdlevel_( 0 )
+      default_cmdlevel_( 0 ),
+      expansion_()
 {
-  // If too low, will cause the client to freeze and the console to report
-  // Exception in message handler 0x91: vector
-  for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
-    characters_.push_back( Core::CharacterRef( nullptr ) );
-
   readfrom( elem );
 }
 
@@ -66,8 +63,10 @@ void Account::readfrom( Clib::ConfigElem& elem )
 
   enabled_ = elem.remove_bool( "ENABLED", true );
   banned_ = elem.remove_bool( "BANNED", false );
-  uo_expansion_ = convert_uo_expansion( elem.remove_string( "UOExpansion", "T2A" ) );
-
+  auto exp = elem.remove_string( "UOExpansion",
+                                 Core::settingsManager.ssopt.features.expansionName().c_str() );
+  // currently its not possible to define B9 flags by script
+  expansion_ = Plib::AccountExpansion( exp, Core::settingsManager.ssopt.features.extensionFlags() );
   default_privs_.readfrom( elem.remove_string( "DefaultPrivs", "" ) );
 
   std::string cmdaccstr = elem.remove_string( "DefaultCmdLevel", "player" );
@@ -102,9 +101,9 @@ void Account::writeto( Clib::StreamWriter& sw ) const
   {
     sw.add( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
   }
-  if ( uo_expansion_ )
+  if ( expansion_.expansionVersion() != Core::settingsManager.ssopt.features.expansionVersion() )
   {
-    sw.add( "UOExpansion", uo_expansion() );
+    sw.add( "UOExpansion", expansion_.expansionName() );
   }
   props_.printProperties( sw );
 
@@ -132,9 +131,9 @@ void Account::writeto( Clib::ConfigElem& elem ) const
   {
     elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name );
   }
-  if ( uo_expansion_ )
+  if ( expansion_.expansionVersion() != Core::settingsManager.ssopt.features.expansionVersion() )
   {
-    elem.add_prop( "UOExpansion", uo_expansion() );
+    elem.add_prop( "UOExpansion", expansion_.expansionName() );
   }
   props_.printProperties( elem );
 }
@@ -167,6 +166,8 @@ size_t Account::estimatedSize() const
 
 Mobile::Character* Account::get_character( int index )
 {
+  if ( ( index < 0 ) || ( static_cast<size_t>( index ) > ( characters_.size() - 1 ) ) )
+    return nullptr;
   return characters_.at( index ).get();
 }
 
@@ -203,65 +204,6 @@ const std::string Account::passwordhash() const
 {
   return passwordhash_;
 }
-
-const std::string Account::uo_expansion() const
-{
-  switch ( uo_expansion_ )
-  {
-  case Network::TOL:
-    return "TOL";
-  case Network::HSA:
-    return "HSA";
-  case Network::SA:
-    return "SA";
-  case Network::KR:
-    return "KR";
-  case Network::ML:
-    return "ML";
-  case Network::SE:
-    return "SE";
-  case Network::AOS:
-    return "AOS";
-  case Network::LBR:
-    return "LBR";
-  case Network::T2A:
-    return "T2A";
-  default:
-    return "";
-  }
-}
-
-unsigned short Account::uo_expansion_flag() const
-{
-  return uo_expansion_;
-}
-
-u16 Account::convert_uo_expansion( const std::string& expansion )
-{
-  const auto not_found = std::string::npos;
-
-  if ( expansion.find( "TOL" ) != not_found )
-    return Network::TOL;
-  else if ( expansion.find( "HSA" ) != not_found )
-    return Network::HSA;
-  else if ( expansion.find( "SA" ) != not_found )
-    return Network::SA;
-  else if ( expansion.find( "KR" ) != not_found )
-    return Network::KR;
-  else if ( expansion.find( "ML" ) != not_found )
-    return Network::ML;
-  else if ( expansion.find( "SE" ) != not_found )
-    return Network::SE;
-  else if ( expansion.find( "AOS" ) != not_found )
-    return Network::AOS;
-  else if ( expansion.find( "LBR" ) != not_found )
-    return Network::LBR;
-  else if ( expansion.find( "T2A" ) != not_found )
-    return Network::T2A;
-
-  return 0;
-}
-
 
 bool Account::enabled() const
 {

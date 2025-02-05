@@ -15,6 +15,7 @@
 
 #include "../../clib/refptr.h"
 #include "../../clib/strset.h"
+#include "../../plib/uoexpansion.h"
 #include "../proplist.h"
 #include "../reftypes.h"
 
@@ -37,9 +38,7 @@ public:
   const char* name() const;
   const std::string password() const;
   const std::string passwordhash() const;
-  const std::string uo_expansion() const;
-  unsigned short uo_expansion_flag() const;
-  static unsigned short convert_uo_expansion( const std::string& expansion );
+  const Plib::AccountExpansion& expansion() { return expansion_; };
   bool enabled() const;
   bool banned() const;
 
@@ -68,7 +67,6 @@ private:
   std::string name_;
   std::string password_;
   std::string passwordhash_;
-  unsigned short uo_expansion_;
   bool enabled_;
   bool banned_;
   Core::PropertyList props_;
@@ -76,7 +74,8 @@ private:
   unsigned char default_cmdlevel_;
 
   Clib::StringSet options_;
+  Plib::AccountExpansion expansion_;
 };
-}
-}
+}  // namespace Accounts
+}  // namespace Pol
 #endif

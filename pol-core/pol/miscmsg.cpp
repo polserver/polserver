@@ -260,7 +260,7 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
                      // version not set until shortly after login complete.
     // send_feature_enable(client); //dave commented out 8/21/03, unexpected problems with people
     // sending B9 via script with this too.
-    if ( ( client->UOExpansionFlag & AOS ) )
+    if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
     {
       send_object_cache( client, client->chr );
     }
@@ -313,7 +313,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     client->chr->uclang = Clib::strlowerASCII( msg->client_lang );
     break;
   case PKTBI_BF::TYPE_REQ_FULL_CUSTOM_HOUSE:
-    if ( ( client->UOExpansionFlag & AOS ) == 0 )
+    if ( !client->acctSupports( Plib::ExpansionVersion::AOS ) )
       return;
     multi = system_find_multi( cfBEu32( msg->reqfullcustomhouse.house_serial ) );
     if ( multi != nullptr )
@@ -321,7 +321,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
       house = multi->as_house();
       if ( house != nullptr )
       {
-        if ( client->UOExpansionFlag & AOS )
+        if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
         {
           send_object_cache( client, (UObject*)( house ) );
         }
@@ -331,7 +331,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     }
     break;
   case PKTBI_BF::TYPE_OBJECT_CACHE:
-    if ( ( client->UOExpansionFlag & AOS ) == 0 )
+    if ( !client->acctSupports( Plib::ExpansionVersion::AOS ) )
       return;
     obj = system_find_object( cfBEu32( msg->objectcache.serial ) );
     if ( obj != nullptr )

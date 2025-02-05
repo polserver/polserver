@@ -230,3 +230,65 @@ exported function client_warmodeinhibitsregen()
   char.setwarmode( 0 );
   return ret_error( $"PC health did not change between sleeping: {damaged_health} -> {waited_health}" );
 endfunction
+
+exported function aos_tooltip()
+  Clear_Event_Queue();
+  var waitAndTest := @(test, id, text) {
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_AOS_TOOLTIP } );
+    if ( !ev )
+      return ev;
+    endif
+    if ( len( ev.text ) != 1 )
+      return ret_error( $"wrong {test} tooltip len {ev.text}" );
+    endif
+    if ( ev.text[1][1] != id || ev.text[1][2] != text )
+      return ret_error( $"wrong {test} tooltip {ev.text}" );
+    endif
+    return True;
+  endwhile
+  };
+  char.title_prefix := "";
+  char.title_suffix := "";
+  char.title_race := "";
+  char.title_guild := "";
+  // get tooltip via 0xd6
+  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  var res:=waitAndTest("char",1050045," \tClient0\t ");
+  if (!res)
+    return res;
+  endif
+  // get tooltip via 0xbf 0x10
+  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP,
+                               arg := { char.backpack.serial, False },
+                               id := 0 } );
+  res:=waitAndTest("backpack",1042971,"back pack");
+  if (!res)
+    return res;
+  endif
+  char.title_prefix := "title_prefix";
+  char.title_suffix := "title_suffix";
+  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  res:=waitAndTest("char prefix,suffix",1050045,"title_prefix \tClient0\t title_suffix");
+  if (!res)
+    return res;
+  endif
+  char.title_race := "title_race";
+  char.title_guild := "title_guild";
+  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  res:=waitAndTest("char prefix,suffix,race,guild",1050045,"title_prefix \tClient0\t title_suffix (title_race) [title_guild]");
+  if (!res)
+    return res;
+  endif
+  char.title_prefix := "";
+  char.title_suffix := "";
+  char.title_race := "";
+  char.title_guild := "title_guild";
+  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  res:=waitAndTest("char guild",1050045," \tClient0\t [title_guild]");
+  if (!res)
+    return res;
+  endif
+  char.title_guild := "";
+  return 1;
+endfunction

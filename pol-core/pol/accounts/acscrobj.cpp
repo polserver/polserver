@@ -373,24 +373,21 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
     const String* expansion_str;
     if ( ex.getStringParam( 0, expansion_str ) )
     {
-      if ( expansion_str->value().empty() || ( expansion_str->value() == "TOL" ) ||
-           ( expansion_str->value() == "HSA" ) || ( expansion_str->value() == "SA" ) ||
-           ( expansion_str->value() == "KR" ) || ( expansion_str->value() == "ML" ) ||
-           ( expansion_str->value() == "SE" ) || ( expansion_str->value() == "AOS" ) ||
-           ( expansion_str->value() == "LBR" ) || ( expansion_str->value() == "T2A" ) )
-      {
-        obj_->uo_expansion_ = obj_->convert_uo_expansion( expansion_str->value() );
-        for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
-        {
-          Mobile::Character* chr = obj_->get_character( i );
-          if ( chr && chr->has_active_client() )
-            Core::send_feature_enable( chr->client );
-        }
-      }
-      else
+      // currently its not possible to define B9 flags by script
+      auto new_exp = Plib::AccountExpansion(
+          expansion_str->value(), Core::settingsManager.ssopt.features.extensionFlags() );
+      if ( new_exp.expansionName() != expansion_str->value() )
         return new BError(
             "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, "
             "TOL" );
+
+      obj_->expansion_ = new_exp;
+      for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
+      {
+        Mobile::Character* chr = obj_->get_character( i );
+        if ( chr && chr->has_active_client() )
+          Core::send_feature_enable( chr->client );
+      }
     }
     else
       return new BError( "Invalid Parameter Type" );
@@ -587,7 +584,7 @@ Bscript::BObjectRef AccountObjImp::get_member_id( const int id )  // id test
     return BObjectRef( new String( obj_->passwordhash() ) );
     break;
   case MBR_UO_EXPANSION:
-    return BObjectRef( new String( obj_->uo_expansion() ) );
+    return BObjectRef( new String( obj_->expansion().expansionName() ) );
     break;
   case MBR_DEFAULTCMDLEVEL:
     return BObjectRef( new BLong( obj_->default_cmdlevel_ ) );

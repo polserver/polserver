@@ -11,7 +11,8 @@ endprogram
 
 // save/load test for things in NPC class
 exported function load_save_npc()
-  var override := struct{ AR := 101,
+  var override := struct{ MoveMode := "A", // from character
+                          AR := 101,
                           script := "restartnpcscript",
                           SpeechColor := 102,
                           SpeechFont := 103,
@@ -34,16 +35,23 @@ exported function load_save_npc()
                           DefenceIncrease := 15,
                           DefenceIncreaseCap := 16,
                           LowerManaCost := 17,
-                          FireResistCap := 18,
-                          ColdResistCap := 19,
-                          EnergyResistCap := 20,
-                          PhysicalResistCap := 21,
-                          PoisonResistCap := 22,
-                          Luck := 23,
-                          SwingSpeedIncrease := 24,
+                          HitChance := 18,
+                          FireResistCap := 19,
+                          ColdResistCap := 20,
+                          EnergyResistCap := 21,
+                          PhysicalResistCap := 22,
+                          PoisonResistCap := 23,
+                          Luck := 24,
+                          SwingSpeedIncrease := 25,
+                          MinAttackRangeIncrease := 26,
+                          MaxAttackRangeIncrease := 27,
                           NoDropException := 1 };
   var props := {    //       {"RegisteredHouse", {"",1}},
-                 { "AR",
+                 { "MoveMode",
+                   { "movemode", override.MoveMode }
+                 },
+                 {
+                   "AR",
                    { "ar", override.AR }
                  },
                  {
@@ -135,6 +143,10 @@ exported function load_save_npc()
                    { "lower_mana_cost", override.LowerManaCost }
                  },
                  {
+                   "HitChance",
+                   { "hit_chance", override.HitChance }
+                 },
+                 {
                    "FireResistCap",
                    { "resist_fire_cap", override.FireResistCap }
                  },
@@ -161,6 +173,14 @@ exported function load_save_npc()
                  {
                    "SwingSpeedIncrease",
                    { "swing_speed_increase", override.SwingSpeedIncrease }
+                 },
+                 {
+                   "MinAttackRangeIncrease",
+                   { "min_attack_range_increase", override.MinAttackRangeIncrease }
+                 },
+                 {
+                   "MaxAttackRangeIncrease",
+                   { "max_attack_range_increase", override.MaxAttackRangeIncrease }
                  },
                  {
                    "NoDropException",

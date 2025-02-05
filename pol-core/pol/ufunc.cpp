@@ -55,6 +55,7 @@
 #include "../plib/mapcell.h"
 #include "../plib/objtype.h"
 #include "../plib/systemstate.h"
+#include "../plib/uoexpansion.h"
 #include "accounts/account.h"
 #include "containr.h"
 #include "fnsearch.h"
@@ -225,8 +226,9 @@ void send_owncreate( Client* client, const Character* chr )
       continue;
 
     // Dont send faces if older client or ssopt
-    if ( ( layer == LAYER_FACE ) && ( ( settingsManager.ssopt.support_faces == 0 ) ||
-                                      ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
+    if ( ( layer == LAYER_FACE ) &&
+         ( ( settingsManager.ssopt.features.faceSupport() == Plib::FaceSupport::None ) ||
+           ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
       continue;
 
     if ( client->ClientType & CLIENTTYPE_70331 )
@@ -257,7 +259,7 @@ void send_owncreate( Client* client, const Character* chr )
 
   owncreate.Send( client, len );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, chr );
     // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send
@@ -304,8 +306,9 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
       continue;
 
     // Dont send faces if older client or ssopt
-    if ( ( layer == LAYER_FACE ) && ( ( settingsManager.ssopt.support_faces == 0 ) ||
-                                      ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
+    if ( ( layer == LAYER_FACE ) &&
+         ( ( settingsManager.ssopt.features.faceSupport() == Plib::FaceSupport::None ) ||
+           ( ~client->ClientType & CLIENTTYPE_UOKR ) ) )
       continue;
 
     if ( client->ClientType & CLIENTTYPE_70331 )
@@ -336,7 +339,7 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
 
   Core::networkManager.clientTransmit->AddToQueue( client, &owncreate->buffer, len );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, chr );
     // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send
@@ -465,7 +468,7 @@ void send_put_in_container( Client* client, const Item* item )
       item->slot_index(), item->container->serial_ext, item->color );
   msg.Send( client );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
     send_object_cache( client, item );
 }
 
@@ -632,7 +635,7 @@ void send_item( Client* client, const Item* item )
     send_corpse( client, item );
   }
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, item );
     return;
@@ -770,7 +773,7 @@ void send_wornitem( Client* client, const Character* chr, const Item* item )
   msg->WriteFlipped<u16>( item->color );
   msg.Send( client );
 
-  if ( client->UOExpansionFlag & AOS )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, item );
   }
@@ -1944,82 +1947,14 @@ void login_complete( Client* c )
 
 void send_feature_enable( Client* client )
 {
-  u32 clientflag = 0;
-  switch ( client->acct->uo_expansion_flag() )
-  {
-  case TOL:
-    clientflag = 0x7387DF;
-    client->UOExpansionFlag =
-        TOL | HSA | SA | KR | ML | SE |
-        AOS;  // TOL needs HSA- SA- KR- ML- SE- and AOS- features (and used checks) too
-    break;
-  case HSA:
-    clientflag = 0x387DF;
-    client->UOExpansionFlag =
-        HSA | SA | KR | ML | SE |
-        AOS;  // HSA needs SA- KR- ML- SE- and AOS- features (and used checks) too
-    break;
-  case SA:
-    clientflag = 0x187DF;
-    client->UOExpansionFlag =
-        SA | KR | ML | SE | AOS;  // SA needs KR- ML- SE- and AOS- features (and used checks) too
-    break;
-  case KR:
-    clientflag = 0x86DB;
-    client->UOExpansionFlag =
-        KR | ML | SE | AOS;  // KR needs ML- SE- and AOS-features (and used checks) too
-    break;
-  case ML:
-    clientflag = 0x80DB;
-    client->UOExpansionFlag = ML | SE | AOS;  // ML needs SE- and AOS-features (and used checks) too
-    break;
-  case SE:
-    clientflag = 0x805B;
-    client->UOExpansionFlag = SE | AOS;  // SE needs AOS-features (and used checks) too
-    break;
-  case AOS:
-    clientflag = 0x801B;
-    client->UOExpansionFlag = AOS;
-    break;
-  case LBR:
-    clientflag = 0x0002;
-    client->UOExpansionFlag = LBR;
-    break;
-  case T2A:
-    clientflag = 0x0001;
-    client->UOExpansionFlag = T2A;
-    break;
-  default:
-    break;
-  }
-
-  // Change flag according to the number of CharacterSlots
-  if ( client->UOExpansionFlag & AOS )
-  {
-    if ( Plib::systemstate.config.character_slots == 7 )
-    {
-      clientflag |= 0x1000;   // 7th & 6th character flag (B9 Packet)
-      clientflag &= ~0x0004;  // Disable Third Dawn?
-    }
-    else if ( Plib::systemstate.config.character_slots == 6 )
-    {
-      clientflag |= 0x0020;  // 6th character flag (B9 Packet)
-      clientflag &= ~0x0004;
-    }
-  }
-
-  // Roleplay faces?
-  if ( client->UOExpansionFlag & KR )
-  {
-    if ( settingsManager.ssopt.support_faces == 2 )
-      clientflag |= 0x2000;
-  }
+  auto clientflag =
+      client->acct->expansion().calculatedExtensionFlags( settingsManager.ssopt.features );
 
   PktHelper::PacketOut<PktOut_B9> msg;
   if ( client->ClientType & CLIENTTYPE_60142 )
-    msg->WriteFlipped<u32>( clientflag & 0xFFFFFFFFu );
+    msg->WriteFlipped<u32>( static_cast<u32>( clientflag ) & 0xFFFFFFFFu );
   else
-    msg->WriteFlipped<u16>( clientflag & 0xFFFFu );
+    msg->WriteFlipped<u16>( static_cast<u32>( clientflag ) & 0xFFFFu );
   msg.Send( client );
 }
 

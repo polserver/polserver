@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "../clib/rawtypes.h"
+#include "../plib/uoexpansion.h"
 
 namespace Pol
 {
@@ -66,7 +67,7 @@ struct ServSpecOpt
   unsigned short default_container_max_weight;
   bool hidden_turns_count;
   unsigned short invul_tag;
-  unsigned short uo_feature_enable;
+  Plib::ServerFeatures features;
   unsigned short starting_gold;
   unsigned short item_color_mask;
   unsigned char default_max_slots;
@@ -103,7 +104,6 @@ struct ServSpecOpt
 
   bool core_sends_season;
   unsigned short core_handled_tags;
-  unsigned char support_faces;
   bool newbie_starting_equipment;
   bool speedhack_prevention;
 

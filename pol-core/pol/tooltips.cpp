@@ -18,6 +18,7 @@
 #include "../bscript/impstr.h"
 #include "../clib/clib_endian.h"
 #include "../clib/rawtypes.h"
+#include "../plib/uoexpansion.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
@@ -65,28 +66,26 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
 // 0xD6
 void send_object_cache( Network::Client* client, const UObject* obj )
 {
-  if ( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
-  {
-    auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
-    pkt_rev.Send( client );
-  }
+  if ( !settingsManager.ssopt.features.supportsAOS() )
+    return;
+  auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
+  pkt_rev.Send( client );
 }
 
 void send_object_cache_to_inrange( const UObject* obj )
 {
-  if ( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
-  {
-    auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
+  if ( !settingsManager.ssopt.features.supportsAOS() )
+    return;
+  auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
 
-    WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
-                                                         [&]( Mobile::Character* chr )
-                                                         {
-                                                           if ( chr->in_visual_range( obj ) )
-                                                             pkt_rev.Send( chr->client );
-                                                           // FIXME need to check character's
-                                                           // additional_legal_items.
-                                                         } );
-  }
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
+                                                       [&]( Mobile::Character* chr )
+                                                       {
+                                                         if ( chr->in_visual_range( obj ) )
+                                                           pkt_rev.Send( chr->client );
+                                                         // FIXME need to check character's
+                                                         // additional_legal_items.
+                                                       } );
 }
 
 
@@ -96,12 +95,14 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     Mobile::Character* chr = (Mobile::Character*)obj;
-    desc = ( !chr->has_title_prefix() ? " \t" : chr->title_prefix() + " \t" ) + chr->name() +
-           ( !chr->has_title_suffix() ? "\t " : "\t " + chr->title_suffix() );
+
+    desc = fmt::format( "{} \t{}\t {}", chr->title_prefix(), chr->name(), chr->title_suffix() );
     if ( chr->has_title_race() )
-      desc += " (" + chr->title_race() + ")";
+      desc += fmt::format( "{}({})", chr->has_title_suffix() ? " " : "", chr->title_race() );
     if ( chr->has_title_guild() )
-      desc += " [" + chr->title_guild() + "]";
+      desc +=
+          fmt::format( "{}[{}]", ( chr->has_title_suffix() || chr->has_title_race() ) ? " " : "",
+                       chr->title_guild() );
   }
   else if ( vendor_content )
   {
@@ -118,9 +119,9 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   msg->offset += 2;  // u8 unk2,unk3
   msg->WriteFlipped<u32>( obj->rev() );
   if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
-    msg->WriteFlipped<u32>( 1050045u );  // 1 text argument only
+    msg->WriteFlipped<u32>( 1050045u );  // ~1_PREFIX~~2_NAME~~3_SUFFIX~
   else
-    msg->WriteFlipped<u32>( 1042971u );  // 1 text argument only
+    msg->WriteFlipped<u32>( 1042971u );  // ~1_NOTHING~
 
   std::vector<u16> utf16 = Bscript::String::toUTF16( desc );
   u16 textlen = static_cast<u16>( utf16.size() );

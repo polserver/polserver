@@ -29,7 +29,6 @@ set (clib_sources
   clibopt.h
   clibopt.h
   compilerspecifics.h
-  dirfunc.h
   esignal.cpp
   esignal.h
   fdump.cpp 

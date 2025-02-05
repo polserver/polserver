@@ -205,6 +205,7 @@ class Event:
   EVT_DROP_APPROVED = 109
   EVT_LIST_EQUIPPED_ITEMS = 110
   EVT_BOAT_MOVE = 111
+  EVT_AOS_TOOLTIP = 112
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -269,3 +270,5 @@ class Event:
       return "drop_approved"
     elif self.type==Event.EVT_GUMP:
       return "gump"
+    elif self.type==Event.EVT_AOS_TOOLTIP:
+      return "aos_tooltip"

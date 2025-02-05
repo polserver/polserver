@@ -29,6 +29,7 @@ const EVT_NEW_SUBSERVER := "new_subserver";
 const EVT_BOAT_MOVED := "boat_moved";
 const EVT_OWNCREATE := "owncreate";
 const EVT_GUMP := "gump";
+const EVT_AOS_TOOLTIP := "aos_tooltip";
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";

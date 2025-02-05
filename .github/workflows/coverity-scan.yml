@@ -73,7 +73,7 @@ jobs:
           cd bin-build
           cov-configure --template --comptype gcc --compiler gcc
           cmake ..
-          cov-build --dir cov-int make -j 2
+          cov-build --dir cov-int make -j 4
 
       - name: Submit the result to Coverity Scan
         run: |

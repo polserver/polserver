@@ -125,6 +125,10 @@ exported function load_save_item()
                  {
                    "NoDrop",
                    { "no_drop", 1 }
+                 },
+                 {
+                   "WeightMultiplierMod",
+                   { "weight_multiplier_mod", 10 }
                  } };
 
   if ( testrun == 1 )
@@ -180,13 +184,17 @@ exported function load_save_item_descriptor()
   desc.DefenceIncrease := 15;
   desc.DefenceIncreaseCap := 16;
   desc.LowerManaCost := 17;
-  desc.FireResistCap := 18;
-  desc.ColdResistCap := 19;
-  desc.EnergyResistCap := 20;
-  desc.PhysicalResistCap := 21;
-  desc.PoisonResistCap := 22;
-  desc.Luck := 23;
-  desc.SwingSpeedIncrease := 24;
+  desc.HitChance := 18;
+  desc.FireResistCap := 19;
+  desc.ColdResistCap := 20;
+  desc.EnergyResistCap := 21;
+  desc.PhysicalResistCap := 22;
+  desc.PoisonResistCap := 23;
+  desc.Luck := 24;
+  desc.SwingSpeedIncrease := 25;
+  desc.MinAttackRangeIncrease := 26;
+  desc.MaxAttackRangeIncrease := 27;
+  desc.Name := "my_suffix";
   var props := { { "FireResist",
                    { "resist_fire", desc.FireResist }
                  },
@@ -255,6 +263,10 @@ exported function load_save_item_descriptor()
                    { "lower_mana_cost", desc.LowerManaCost }
                  },
                  {
+                   "HitChance",
+                   { "hit_chance", desc.HitChance }
+                 },
+                 {
                    "FireResistCap",
                    { "resist_fire_cap", desc.FireResistCap }
                  },
@@ -281,6 +293,14 @@ exported function load_save_item_descriptor()
                  {
                    "SwingSpeedIncrease",
                    { "swing_speed_increase", desc.SwingSpeedIncrease }
+                 },
+                 {
+                   "MinAttackRangeIncrease",
+                   { "min_attack_range_increase", desc.MinAttackRangeIncrease }
+                 },
+                 {
+                   "MaxAttackRangeIncrease",
+                   { "max_attack_range_increase", desc.MaxAttackRangeIncrease }
                  } };
   if ( testrun == 1 )
     var item := CreateItemAtLocation( 10, 11, -5, desc, 1, "britannia2" );

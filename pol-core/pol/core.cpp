@@ -104,6 +104,8 @@ void apply_polcfg( bool initial )
   /// run "garbage collection" to free the allocated resources
   if ( !config.profile_cprops )
     Core::CPropProfiler::instance().clear();
+
+  settingsManager.ssopt.features.updateFromPolCfg( config.character_slots );
 }
 
 

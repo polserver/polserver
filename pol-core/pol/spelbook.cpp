@@ -18,6 +18,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
 #include "../plib/systemstate.h"
+#include "../plib/uoexpansion.h"
 #include "baseobject.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
@@ -86,28 +87,28 @@ void Spellbook::double_click( Network::Client* client )
   if ( bitwise_contents[0] == 0 )  // assume never been clicked using the new bitwise spell scheme
     calc_current_bitwise_contents();
 
-  if ( !( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 ) )
+  if ( !client->acctSupports( Plib::ExpansionVersion::AOS ) && ( spell_school == 0 ) )
   {
     send_book_old( client );
   }
-  else if ( !( client->UOExpansionFlag & Network::AOS ) &&
+  else if ( !client->acctSupports( Plib::ExpansionVersion::AOS ) &&
             ( spell_school == 1 || spell_school == 2 ) )
   {
     send_sysmessage( client, "This item requires at least the Age of Shadows Expansion." );
     return;
   }
-  else if ( !( client->UOExpansionFlag & Network::SE ) &&
+  else if ( !client->acctSupports( Plib::ExpansionVersion::SE ) &&
             ( spell_school == 4 || spell_school == 5 ) )
   {
     send_sysmessage( client, "This item requires at least the Samurai Empire Expansion." );
     return;
   }
-  else if ( !( client->UOExpansionFlag & Network::ML ) && spell_school == 6 )
+  else if ( !client->acctSupports( Plib::ExpansionVersion::ML ) && spell_school == 6 )
   {
     send_sysmessage( client, "This item requires at least the Mondain's Legacy Expansion." );
     return;
   }
-  else if ( !( client->UOExpansionFlag & Network::SA ) &&
+  else if ( !client->acctSupports( Plib::ExpansionVersion::SA ) &&
             ( spell_school == 3 || spell_school == 7 ) )
   {
     send_sysmessage( client, "This item requires at least the Stygian Abyss Expansion." );
@@ -118,8 +119,8 @@ void Spellbook::double_click( Network::Client* client )
     // Ok, now we do a strange check. This is for those people who have no idea that you
     // must have AOS Features Enabled on an acct with AOS Expansion to view Magery book.
     // All newer spellbooks will bug out if you use this method though.
-    if ( ( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 ) &&
-         !( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
+    if ( client->acctSupports( Plib::ExpansionVersion::AOS ) && ( spell_school == 0 ) &&
+         !settingsManager.ssopt.features.supportsAOS() )
     {
       if ( Plib::systemstate.config.loglevel > 1 )
         INFO_PRINTLN(
@@ -281,7 +282,7 @@ void Spellbook::printProperties( Clib::StreamWriter& sw ) const
   base::printProperties( sw );
 
   for ( int i = 0; i < 8; ++i )
-    sw.add( fmt::format( "Spellbits{}", i ), (int)bitwise_contents[i] );
+    sw.add( fmt::format( FMT_COMPILE( "Spellbits{}" ), i ), (int)bitwise_contents[i] );
 }
 
 

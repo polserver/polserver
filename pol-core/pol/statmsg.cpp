@@ -55,10 +55,10 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   msg->Write<u8>( 0u );  // (client->chr->can_rename( chr ) ? 0xFF : 0);
   if ( client->ClientType & Network::CLIENTTYPE_70300 )
     msg->Write<u8>( 6u );  // New entries for classic client
-  else if ( ( client->UOExpansionFlag & Network::ML ) &&
+  else if ( client->acctSupports( Plib::ExpansionVersion::ML ) &&
             ( client->ClientType & Network::CLIENTTYPE_5000 ) )
     msg->Write<u8>( 5u );  // Set to ML level
-  else if ( ( client->UOExpansionFlag & Network::AOS ) )
+  else if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
     msg->Write<u8>( 4u );  // Set to AOS level statbar for full info
   else
     msg->Write<u8>( 1u );  // Set to oldschool statbar info.
@@ -136,7 +136,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
 
   msg->WriteFlipped<u32>( chr->gold_carried() );
   // Adjusted to work with Physical Resist if AOS client, and AOS Resistances enabled.
-  if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) && client->aosresist )
   {
     s16 value = chr->physical_resist().sum();
     if ( chr->has_physical_resist_cap() && !ignore_caps )
@@ -154,7 +154,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   msg->WriteFlipped<u16>( weight );
 
   // moreinfo 5
-  if ( ( client->UOExpansionFlag & Network::ML ) &&
+  if ( client->acctSupports( Plib::ExpansionVersion::ML ) &&
        ( client->ClientType & Network::CLIENTTYPE_5000 ) )
   {
     msg->WriteFlipped<u16>( chr->carrying_capacity() );
@@ -162,7 +162,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   }
 
   // moreinfo 3 start
-  if ( ( client->UOExpansionFlag & Network::AOS ) )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     msg->WriteFlipped<s16>( chr->skillstatcap().statcap );
     auto follow_value = chr->followers();

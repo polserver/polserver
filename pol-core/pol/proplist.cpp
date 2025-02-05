@@ -417,7 +417,7 @@ void PropertyList::printProperties( Clib::StreamWriter& sw ) const
     const std::string& first = prop.first;
     if ( first[0] != '#' )
     {
-      sw.add( "CProp", fmt::format( "{} {}", first, prop.second.get() ) );
+      sw.add( "CProp", fmt::format( FMT_COMPILE( "{} {}" ), first, prop.second.get() ) );
     }
   }
 }
