@@ -42,30 +42,18 @@ namespace Pol
 namespace Core
 {
 std::set<UObject*> unreaped_orphan_instances;
-std::ofstream orphans_txt( "orphans.txt", std::ios::out | std::ios::trunc );
 
-int display_orphan( UObject* o )
-{
-  std::ostringstream stream;
-  {
-    Clib::StreamWriter sw( stream );
-    Clib::StreamWriter sw_orphan( orphans_txt );
-    sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
-    o->printOn( sw );
-    o->printOnDebug( sw_orphan );
-  }
-  INFO_PRINT( stream.str() );
-  return 0;
-}
 void display_unreaped_orphan_instances()
 {
-  //    orphans_txt.open( "orphans.txt", ios::out|ios::trunc );
+  Clib::StreamWriter sw{ "orphans.txt" };
 
   for ( auto& obj : unreaped_orphan_instances )
   {
-    display_orphan( obj );
+    sw.comment( "{}, {}", obj->name(), obj->ref_counted_count() );
+    obj->printOnDebug( sw );
   }
-  // for( std::set<UObject*>::iterator itr = unreaped_orphan_instances.begin();
+  if ( !unreaped_orphan_instances.empty() )
+    INFO_PRINT( "orphans detected, check orphans.txt" );
 }
 
 

@@ -2,10 +2,12 @@
 
 #include <fmt/compile.h>
 #include <fmt/format.h>
+#include <fmt/os.h>
 #include <fmt/ostream.h>
 #include <fstream>
 #include <iosfwd>
 #include <iterator>
+#include <stdio.h>
 #include <string>
 #include <type_traits>
 
@@ -14,7 +16,7 @@ namespace Pol::Clib
 class StreamWriter
 {
 public:
-  StreamWriter( std::ostream& stream );
+  StreamWriter( const std::string& path );
   ~StreamWriter() noexcept( false );
   StreamWriter( const StreamWriter& ) = delete;
   StreamWriter& operator=( const StreamWriter& ) = delete;
@@ -22,19 +24,10 @@ public:
   template <typename T>
   void add( const std::string_view& key, T&& value )
   {
-    fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "\t{}\t" ), key );
     if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )
-    {
-      // shortcut for strings
-      if constexpr ( std::is_same<std::decay_t<T>, std::string>::value ||
-                     std::is_same<std::decay_t<T>, std::string_view>::value )
-        _mbuff.append( value );
-      else
-        fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{}" ), value );
-    }
+      fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "\t{}\t{}\n" ), key, value );
     else  // force bool to write as 0/1
-      fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{:d}" ), value );
-    _mbuff.push_back( '\n' );
+      fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "\t{}\t{:d}\n" ), key, value );
   }
   template <typename... Args>
   void comment( const std::string_view& formatstr, Args&&... args )
@@ -61,21 +54,21 @@ public:
   {
     using namespace std::literals;
     _mbuff.append( "}\n\n"sv );
-    if ( _mbuff.size() > 10'000 )
+    if ( _mbuff.size() > 0x8000 )
     {
-      _stream << std::string_view{ _mbuff.data(), _mbuff.size() };
+      auto size = fwrite( _mbuff.data(), sizeof( char ), _mbuff.size(), _file );
+      if ( size < _mbuff.size() )
+        throw std::runtime_error{ "failed to write" };
       _mbuff.clear();
     }
   }
-  void open_fstream( const std::string& filepath, std::ofstream& s );
-  void flush();
+  void flush_close();
 
 protected:
-  std::ostream& _stream;
+  FILE* _file;
   // formatting creates a temp buffer
   // to prevent this format into this buffer and when full write to disk, clear of the buffer keeps
   // the capacity
-  fmt::basic_memory_buffer<char, 10'000> _mbuff;
+  fmt::basic_memory_buffer<char, 0x8000> _mbuff;
 };
-
 }  // namespace Pol::Clib
