@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+02-06-2025 Turley:
+ Improved: world save performance
 02-04-2025 Turley:
     Added: ssopt.cfg DefaultExpansion defines the default expansion for accounts. Supported values are T2A (default),LBR,AOS,SE,ML,KR,SA,HSA,TOL
     Fixed: HSA (and TOL) expansion did not activate gothic and rustic tiles for customhouses
