@@ -120,7 +120,7 @@ exported function load_save_item()
                  },
                  {
                    "NameSuffix",
-                   { "name_suffix", "my_suffix" }
+                   { "name_suffix", "☠my_suffix☠" /* unicode test */ }
                  },
                  {
                    "NoDrop",
