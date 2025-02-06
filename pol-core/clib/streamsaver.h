@@ -56,7 +56,9 @@ public:
     _mbuff.append( "}\n\n"sv );
     if ( _mbuff.size() > 0x8000 )
     {
-      fwrite( _mbuff.data(), sizeof( char ), _mbuff.size(), _file );
+      auto size = fwrite( _mbuff.data(), sizeof( char ), _mbuff.size(), _file );
+      if ( size < _mbuff.size() )
+        throw std::runtime_error{ "failed to write" };
       _mbuff.clear();
     }
   }
