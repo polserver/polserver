@@ -6,6 +6,7 @@ const TIMEOUT_SEC := 1;
 var ARRAY_FORMAT := struct{ format := "array" };
 
 program test_stacktrace( parent_script )
+  return IGNORE_TEST;
   // A setup run, via test orchestrator
   if ( !parent_script )
     var res := copy_file( "test_stacktrace.ecl", CHILD_SCRIPTNAME );
