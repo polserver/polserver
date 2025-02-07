@@ -744,6 +744,7 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
 
 void http_func( SOCKET client_socket )
 {
+  INFO_PRINTLN( "HTTP thread started" );
   Clib::Socket sck( client_socket );
   Clib::SocketLineReader lineReader( sck, 5, 3000,
                                      false );  // we take care of disconnecting at timeout
@@ -782,7 +783,10 @@ void http_func( SOCKET client_socket )
   }
 
   if ( !sck.connected() )
+  {
+    INFO_PRINTLN( "http not connected" );
     return;
+  }
 
   if ( Plib::systemstate.config.web_server_debug )
   {
