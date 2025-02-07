@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-06-2025</datemodified>
+		<datemodified>02-07-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>02-07-2025</date>
+			<author>Turley:</author>
+			<change type="Fixed">B9 feature flag was used from ssopt DefaultExpansion instead of the account expansion. Bug added with 02-04 changes</change>
+		</entry>
 		<entry>
 			<date>02-06-2025</date>
 			<author>Turley:</author>

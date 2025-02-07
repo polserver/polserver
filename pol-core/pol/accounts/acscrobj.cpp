@@ -374,8 +374,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
     if ( ex.getStringParam( 0, expansion_str ) )
     {
       // currently its not possible to define B9 flags by script
-      auto new_exp = Plib::AccountExpansion(
-          expansion_str->value(), Core::settingsManager.ssopt.features.extensionFlags() );
+      auto new_exp = Plib::AccountExpansion( expansion_str->value() );
       if ( new_exp.expansionName() != expansion_str->value() )
         return new BError(
             "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, "
