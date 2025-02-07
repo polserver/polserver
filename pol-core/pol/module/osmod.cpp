@@ -749,6 +749,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
       CURL* curl = curl_sp.get();
       if ( curl )
       {
+        INFO_PRINTLN( "URL {}", url->value() );
         curl_easy_setopt( curl, CURLOPT_URL, url->data() );
         curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
         curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
@@ -796,7 +797,10 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
               }
 
               curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
-
+              char* url = nullptr;
+              curl_easy_getinfo( curl, CURLINFO_EFFECTIVE_URL, &url );
+              if ( url )
+                INFO_PRINTLN( "effective url {}", url );
               /* Perform the request, res will get the return code */
               res = curl_easy_perform( curl );
               if ( chunk != nullptr )
