@@ -735,7 +735,7 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
     return false;
 
   auto end_newline = pos_newline + 1;
-
+  INFO_PRINTLN( "socket {}", _currentLine );
   out = _currentLine.substr( 0, pos_newline );
   _currentLine.erase( 0, end_newline );
 
