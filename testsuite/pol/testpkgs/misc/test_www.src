@@ -23,6 +23,16 @@ function checkEvent( expected )
   return 1;
 endfunction
 
+exported function test_www_status_headers_body2()
+  var i:=0;
+  while (i<20)
+  ++i;
+  var res := HTTPRequest( createUrl( "status,headers,body" ) );
+  if (!checkEvent( struct{ status := 1, headers := 1, body := 1 } ))
+    return 0;
+  endwhile
+  return 1;
+endfunction
 exported function test_www_status_headers_body()
   var res := HTTPRequest( createUrl( "status,headers,body" ) );
   return checkEvent( struct{ status := 1, headers := 1, body := 1 } );
