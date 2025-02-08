@@ -2,7 +2,7 @@ use os;
 include "testutil";
 
 program test_env()
-  return 1;
+  return IGNORE_TEST;
 endprogram
 
 exported function get_env()

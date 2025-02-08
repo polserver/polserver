@@ -1,0 +1,6 @@
+
+include "testutil";
+
+program setup()
+  return IGNORE_TEST;
+endprogram
