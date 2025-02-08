@@ -725,6 +725,7 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
   // small.
   if ( _maxLinelength > 0 && pos_newline > _maxLinelength && _currentLine.size() > _maxLinelength )
   {
+    INFO_PRINTLN( "MAXLEN ({}) {}", pos_newline, _currentLine );
     out = _currentLine;
     _currentLine.clear();
     return false;
