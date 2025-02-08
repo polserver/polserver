@@ -828,7 +828,7 @@ bool SocketReader::read( std::string& out, bool* timed_out )
       timeout_left = max_timeouts;
     }
   }
-  INFO_PRINTLN( "::read disconnect" );
+  INFO_PRINTLN( "::read disconnect '{}'", out );
   return false;
 }
 
