@@ -10,6 +10,7 @@
 #include <array>
 #include <cstdio>
 #include <cstring>
+#include <string_view>
 
 #include "esignal.h"
 #include "logfacility.h"
@@ -703,6 +704,9 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
       INFO_PRINTLN( "::try_read recv failed" );
       return false;
     }
+
+    INFO_PRINTLN( "::try_read raw{} '{}'", bytes_read,
+                  std::string_view{ buffer.data(), bytes_read } );
 
     // store current line size so we don't need to search from the beginning again
     size_t oldSize = _currentLine.size();
