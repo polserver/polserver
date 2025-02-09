@@ -25,7 +25,7 @@ endfunction
 
 exported function test_www_status_headers_body2()
   var i := 0;
-  while ( i < 20 )
+  while ( i < 40 )
     ++i;
     var res := HTTPRequest( createUrl( "status,headers,body" ) );
     var ev := checkEvent( struct{ status := 1, headers := 1, body := 1 } );
