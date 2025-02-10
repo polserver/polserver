@@ -750,6 +750,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
       if ( curl )
       {
         INFO_PRINTLN( "URL {}", url->value() );
+        curl_easy_setopt( curl, CURLOPT_VERBOSE, 1 );
         curl_easy_setopt( curl, CURLOPT_URL, url->data() );
         curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
         curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
