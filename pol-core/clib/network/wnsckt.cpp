@@ -463,7 +463,7 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
     close();
     return false;
   }
-
+  INFO_PRINTLN( "::recvdata_nowait raw{} '{}'", res, std::string_view{ pdest, (size_t)res } );
   return true;
 }
 
@@ -507,6 +507,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 #endif
       len -= res;
       pdest += res;
+      INFO_PRINTLN( "::recvdata raw{} '{}'", res, std::string_view{ pdest, (size_t)res } );
 
 #if SCK_WATCH
       while ( res-- )
