@@ -215,6 +215,34 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitBindingDeclaration(EscriptParser::BindingDeclarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMemberBindingList(EscriptParser::MemberBindingListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIndexBindingList(EscriptParser::IndexBindingListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitIndexBinding(EscriptParser::IndexBindingContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMemberBinding(EscriptParser::MemberBindingContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBinding(EscriptParser::BindingContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitProgramParameters(EscriptParser::ProgramParametersContext *ctx) override {
     return visitChildren(ctx);
   }
