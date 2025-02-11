@@ -2,19 +2,19 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
-#include "bscript/compiler/ast/BindingList.h"
-#include "bscript/compiler/ast/BindingStatement.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
 #include "bscript/compiler/ast/EnumDeclaration.h"
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/Identifier.h"
-#include "bscript/compiler/ast/IndexBinding.h"
+#include "bscript/compiler/ast/IndexUnpacking.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/JumpStatement.h"
-#include "bscript/compiler/ast/MemberBinding.h"
+#include "bscript/compiler/ast/MemberUnpacking.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/UnpackingList.h"
+#include "bscript/compiler/ast/UnpackingStatement.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
@@ -70,121 +70,121 @@ void SimpleStatementBuilder::add_var_statements(
         }
         statements.push_back( std::move( var_ast ) );
       }
-      else if ( auto binding_decl = decl->bindingDeclaration() )
+      else if ( auto unpacking_decl = decl->unpackingDeclaration() )
       {
-        auto bindings = binding_list( binding_decl );
-        auto initializer = binding_initializer( decl->bindingDeclarationInitializer() );
-        auto binding_ast = std::make_unique<BindingStatement>(
-            location_for( *decl ), std::move( bindings ), std::move( initializer ) );
+        auto unpackings = unpacking_list( unpacking_decl );
+        auto initializer = unpacking_initializer( decl->unpackingDeclarationInitializer() );
+        auto unpacking_ast = std::make_unique<UnpackingStatement>(
+            location_for( *decl ), std::move( unpackings ), std::move( initializer ) );
 
-        statements.push_back( std::move( binding_ast ) );
+        statements.push_back( std::move( unpacking_ast ) );
       }
     }
   }
 }
 
-std::unique_ptr<Expression> SimpleStatementBuilder::binding_initializer(
-    EscriptGrammar::EscriptParser::BindingDeclarationInitializerContext* ctx )
+std::unique_ptr<Expression> SimpleStatementBuilder::unpacking_initializer(
+    EscriptGrammar::EscriptParser::UnpackingDeclarationInitializerContext* ctx )
 {
   return expression( ctx->expression() );
 }
 
-std::unique_ptr<Node> SimpleStatementBuilder::binding_list(
-    EscriptGrammar::EscriptParser::BindingDeclarationContext* ctx )
+std::unique_ptr<Node> SimpleStatementBuilder::unpacking_list(
+    EscriptGrammar::EscriptParser::UnpackingDeclarationContext* ctx )
 {
-  std::vector<std::unique_ptr<Node>> bindings;
-  bool index_binding = false;
+  std::vector<std::unique_ptr<Node>> unpackings;
+  bool index_unpacking = false;
 
-  if ( auto indexed_binding_list = ctx->indexBindingList() )
+  if ( auto indexed_unpacking_list = ctx->indexUnpackingList() )
   {
-    index_binding = true;
-    for ( auto* indexed_binding : indexed_binding_list->indexBinding() )
+    index_unpacking = true;
+    for ( auto* indexed_unpacking : indexed_unpacking_list->indexUnpacking() )
     {
-      if ( auto identifier = indexed_binding->IDENTIFIER() )
+      if ( auto identifier = indexed_unpacking->IDENTIFIER() )
       {
-        bool rest = indexed_binding->ELLIPSIS();
-        bindings.push_back( std::make_unique<IndexBinding>( location_for( *indexed_binding ),
-                                                            text( identifier ), rest ) );
+        bool rest = indexed_unpacking->ELLIPSIS();
+        unpackings.push_back( std::make_unique<IndexUnpacking>( location_for( *indexed_unpacking ),
+                                                                text( identifier ), rest ) );
       }
-      else if ( auto binding_decl = indexed_binding->bindingDeclaration() )
+      else if ( auto unpacking_decl = indexed_unpacking->unpackingDeclaration() )
       {
-        bindings.push_back( binding_list( binding_decl ) );
+        unpackings.push_back( unpacking_list( unpacking_decl ) );
       }
       else
       {
-        report.error( location_for( *indexed_binding ), "Unsupported indexed binding" );
+        report.error( location_for( *indexed_unpacking ), "Unsupported indexed unpacking" );
         break;
       }
     }
   }
-  else if ( auto named_binding_list = ctx->memberBindingList() )
+  else if ( auto named_unpacking_list = ctx->memberUnpackingList() )
   {
-    for ( auto* named_binding : named_binding_list->memberBinding() )
+    for ( auto* named_unpacking : named_unpacking_list->memberUnpacking() )
     {
       std::unique_ptr<Expression> member;
-      std::unique_ptr<Node> child_binding;
+      std::unique_ptr<Node> child_unpacking;
       std::string member_text;
 
-      if ( auto expr = named_binding->expression() )
+      if ( auto expr = named_unpacking->expression() )
       {
         member = this->expression( expr );
       }
-      else if ( auto identifier = named_binding->IDENTIFIER() )
+      else if ( auto identifier = named_unpacking->IDENTIFIER() )
       {
         member_text = text( identifier );
-        member = std::make_unique<StringValue>( location_for( *named_binding ), member_text );
+        member = std::make_unique<StringValue>( location_for( *named_unpacking ), member_text );
       }
       else
       {
-        report.error( location_for( *named_binding ), "Unsupported binding" );
+        report.error( location_for( *named_unpacking ), "Unsupported unpacking" );
         break;
       }
 
-      if ( auto binding = named_binding->binding() )
+      if ( auto unpacking = named_unpacking->unpacking() )
       {
-        if ( auto identifier = binding->IDENTIFIER() )
+        if ( auto identifier = unpacking->IDENTIFIER() )
         {
-          bindings.push_back( std::make_unique<MemberBinding>(
-              location_for( *binding ), text( identifier ), std::move( member ) ) );
+          unpackings.push_back( std::make_unique<MemberUnpacking>(
+              location_for( *unpacking ), text( identifier ), std::move( member ) ) );
         }
-        else if ( auto binding_decl = binding->bindingDeclaration() )
+        else if ( auto unpacking_decl = unpacking->unpackingDeclaration() )
         {
-          bindings.push_back( std::make_unique<MemberBinding>(
-              location_for( *binding ), std::move( member ), binding_list( binding_decl ) ) );
+          unpackings.push_back( std::make_unique<MemberUnpacking>(
+              location_for( *unpacking ), std::move( member ), unpacking_list( unpacking_decl ) ) );
         }
         else
         {
-          report.error( location_for( *named_binding ), "Unsupported binding" );
+          report.error( location_for( *named_unpacking ), "Unsupported unpacking" );
           break;
         }
       }
       else if ( !member_text.empty() )
       {
-        if ( named_binding->ELLIPSIS() )
+        if ( named_unpacking->ELLIPSIS() )
         {
-          bindings.push_back(
-              std::make_unique<MemberBinding>( location_for( *named_binding ), member_text ) );
+          unpackings.push_back(
+              std::make_unique<MemberUnpacking>( location_for( *named_unpacking ), member_text ) );
         }
         else
         {
-          bindings.push_back( std::make_unique<MemberBinding>( location_for( *named_binding ),
-                                                               member_text, std::move( member ) ) );
+          unpackings.push_back( std::make_unique<MemberUnpacking>(
+              location_for( *named_unpacking ), member_text, std::move( member ) ) );
         }
       }
       else
       {
-        report.error( location_for( *named_binding ), "Unsupported binding" );
+        report.error( location_for( *named_unpacking ), "Unsupported unpacking" );
         break;
       }
     }
   }
   else
   {
-    report.error( location_for( *ctx ), "Unsupported binding list" );
+    report.error( location_for( *ctx ), "Unsupported unpacking list" );
   }
 
-  return std::make_unique<BindingList>( location_for( *ctx ), std::move( bindings ),
-                                        index_binding );
+  return std::make_unique<UnpackingList>( location_for( *ctx ), std::move( unpackings ),
+                                          index_unpacking );
 }
 
 std::unique_ptr<JumpStatement> SimpleStatementBuilder::break_statement(

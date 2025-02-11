@@ -120,19 +120,19 @@ public:
 
     virtual std::any visitVariableDeclaration(EscriptParser::VariableDeclarationContext *context) = 0;
 
-    virtual std::any visitBindingDeclaration(EscriptParser::BindingDeclarationContext *context) = 0;
+    virtual std::any visitUnpackingDeclaration(EscriptParser::UnpackingDeclarationContext *context) = 0;
 
-    virtual std::any visitMemberBindingList(EscriptParser::MemberBindingListContext *context) = 0;
+    virtual std::any visitMemberUnpackingList(EscriptParser::MemberUnpackingListContext *context) = 0;
 
-    virtual std::any visitIndexBindingList(EscriptParser::IndexBindingListContext *context) = 0;
+    virtual std::any visitIndexUnpackingList(EscriptParser::IndexUnpackingListContext *context) = 0;
 
-    virtual std::any visitIndexBinding(EscriptParser::IndexBindingContext *context) = 0;
+    virtual std::any visitIndexUnpacking(EscriptParser::IndexUnpackingContext *context) = 0;
 
-    virtual std::any visitMemberBinding(EscriptParser::MemberBindingContext *context) = 0;
+    virtual std::any visitMemberUnpacking(EscriptParser::MemberUnpackingContext *context) = 0;
 
-    virtual std::any visitBinding(EscriptParser::BindingContext *context) = 0;
+    virtual std::any visitUnpacking(EscriptParser::UnpackingContext *context) = 0;
 
-    virtual std::any visitBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext *context) = 0;
+    virtual std::any visitUnpackingDeclarationInitializer(EscriptParser::UnpackingDeclarationInitializerContext *context) = 0;
 
     virtual std::any visitProgramParameters(EscriptParser::ProgramParametersContext *context) = 0;
 

@@ -4,20 +4,19 @@
 
 namespace Pol::Bscript::Compiler
 {
-class NodeVisitor;
 class Expression;
-class Variable;
+class NodeVisitor;
 
-class BindingList : public Node
+class IndexUnpacking : public Node
 {
 public:
-  BindingList( const SourceLocation&, std::vector<std::unique_ptr<Node>> bindings,
-               bool index_binding );
+  IndexUnpacking( const SourceLocation&, std::string name, bool rest );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
 
-  const bool index_binding;
+  const std::string name;
+  const bool rest;
 };
 
 }  // namespace Pol::Bscript::Compiler

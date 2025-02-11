@@ -215,31 +215,31 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBindingDeclaration(EscriptParser::BindingDeclarationContext *ctx) override {
+  virtual std::any visitUnpackingDeclaration(EscriptParser::UnpackingDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitMemberBindingList(EscriptParser::MemberBindingListContext *ctx) override {
+  virtual std::any visitMemberUnpackingList(EscriptParser::MemberUnpackingListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitIndexBindingList(EscriptParser::IndexBindingListContext *ctx) override {
+  virtual std::any visitIndexUnpackingList(EscriptParser::IndexUnpackingListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitIndexBinding(EscriptParser::IndexBindingContext *ctx) override {
+  virtual std::any visitIndexUnpacking(EscriptParser::IndexUnpackingContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitMemberBinding(EscriptParser::MemberBindingContext *ctx) override {
+  virtual std::any visitMemberUnpacking(EscriptParser::MemberUnpackingContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBinding(EscriptParser::BindingContext *ctx) override {
+  virtual std::any visitUnpacking(EscriptParser::UnpackingContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext *ctx) override {
+  virtual std::any visitUnpackingDeclarationInitializer(EscriptParser::UnpackingDeclarationInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
