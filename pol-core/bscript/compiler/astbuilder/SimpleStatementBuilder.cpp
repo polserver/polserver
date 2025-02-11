@@ -2,13 +2,17 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BindingList.h"
+#include "bscript/compiler/ast/BindingStatement.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
 #include "bscript/compiler/ast/EnumDeclaration.h"
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/Identifier.h"
+#include "bscript/compiler/ast/IndexBinding.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/JumpStatement.h"
+#include "bscript/compiler/ast/MemberBinding.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/VarStatement.h"
@@ -41,30 +45,146 @@ void SimpleStatementBuilder::add_var_statements(
   {
     for ( auto decl : variable_declaration_list->variableDeclaration() )
     {
-      auto loc = location_for( *decl );
-      std::string name = text( decl->IDENTIFIER() );
-      std::unique_ptr<VarStatement> var_ast;
-
-      if ( auto initializer_context = decl->variableDeclarationInitializer() )
+      if ( auto identifier = decl->IDENTIFIER() )
       {
-        if ( initializer_context->ARRAY() )
+        auto loc = location_for( *decl );
+        std::string name = text( identifier );
+        std::unique_ptr<VarStatement> var_ast;
+
+        if ( auto initializer_context = decl->variableDeclarationInitializer() )
         {
-          var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ), true );
+          if ( initializer_context->ARRAY() )
+          {
+            var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ), true );
+          }
+          else
+          {
+            auto initializer = variable_initializer( initializer_context );
+            var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ),
+                                                      std::move( initializer ) );
+          }
         }
         else
         {
-          auto initializer = variable_initializer( initializer_context );
-          var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ),
-                                                    std::move( initializer ) );
+          var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ) );
+        }
+        statements.push_back( std::move( var_ast ) );
+      }
+      else if ( auto binding_decl = decl->bindingDeclaration() )
+      {
+        auto bindings = binding_list( binding_decl );
+        auto initializer = binding_initializer( decl->bindingDeclarationInitializer() );
+        auto binding_ast = std::make_unique<BindingStatement>(
+            location_for( *decl ), std::move( bindings ), std::move( initializer ) );
+
+        statements.push_back( std::move( binding_ast ) );
+      }
+    }
+  }
+}
+
+std::unique_ptr<Expression> SimpleStatementBuilder::binding_initializer(
+    EscriptGrammar::EscriptParser::BindingDeclarationInitializerContext* ctx )
+{
+  return expression( ctx->expression() );
+}
+
+std::unique_ptr<Node> SimpleStatementBuilder::binding_list(
+    EscriptGrammar::EscriptParser::BindingDeclarationContext* ctx )
+{
+  std::vector<std::unique_ptr<Node>> bindings;
+  bool index_binding = false;
+
+  if ( auto indexed_binding_list = ctx->indexBindingList() )
+  {
+    index_binding = true;
+    for ( auto* indexed_binding : indexed_binding_list->indexBinding() )
+    {
+      if ( auto identifier = indexed_binding->IDENTIFIER() )
+      {
+        bool rest = indexed_binding->ELLIPSIS();
+        bindings.push_back( std::make_unique<IndexBinding>( location_for( *indexed_binding ),
+                                                            text( identifier ), rest ) );
+      }
+      else if ( auto binding_decl = indexed_binding->bindingDeclaration() )
+      {
+        bindings.push_back( binding_list( binding_decl ) );
+      }
+      else
+      {
+        report.error( location_for( *indexed_binding ), "Unsupported indexed binding" );
+        break;
+      }
+    }
+  }
+  else if ( auto named_binding_list = ctx->memberBindingList() )
+  {
+    for ( auto* named_binding : named_binding_list->memberBinding() )
+    {
+      std::unique_ptr<Expression> member;
+      std::unique_ptr<Node> child_binding;
+      std::string member_text;
+
+      if ( auto expr = named_binding->expression() )
+      {
+        member = this->expression( expr );
+      }
+      else if ( auto identifier = named_binding->IDENTIFIER() )
+      {
+        member_text = text( identifier );
+        member = std::make_unique<StringValue>( location_for( *named_binding ), member_text );
+      }
+      else
+      {
+        report.error( location_for( *named_binding ), "Unsupported binding" );
+        break;
+      }
+
+      if ( auto binding = named_binding->binding() )
+      {
+        if ( auto identifier = binding->IDENTIFIER() )
+        {
+          bindings.push_back( std::make_unique<MemberBinding>(
+              location_for( *binding ), text( identifier ), std::move( member ) ) );
+        }
+        else if ( auto binding_decl = binding->bindingDeclaration() )
+        {
+          bindings.push_back( std::make_unique<MemberBinding>(
+              location_for( *binding ), std::move( member ), binding_list( binding_decl ) ) );
+        }
+        else
+        {
+          report.error( location_for( *named_binding ), "Unsupported binding" );
+          break;
+        }
+      }
+      else if ( !member_text.empty() )
+      {
+        if ( named_binding->ELLIPSIS() )
+        {
+          bindings.push_back(
+              std::make_unique<MemberBinding>( location_for( *named_binding ), member_text ) );
+        }
+        else
+        {
+          bindings.push_back( std::make_unique<MemberBinding>( location_for( *named_binding ),
+                                                               member_text, std::move( member ) ) );
         }
       }
       else
       {
-        var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ) );
+        report.error( location_for( *named_binding ), "Unsupported binding" );
+        break;
       }
-      statements.push_back( std::move( var_ast ) );
     }
   }
+  else
+  {
+    report.error( location_for( *ctx ), "Unsupported binding list" );
+  }
+
+  return std::make_unique<BindingList>( location_for( *ctx ), std::move( bindings ),
+                                        index_binding );
 }
 
 std::unique_ptr<JumpStatement> SimpleStatementBuilder::break_statement(
