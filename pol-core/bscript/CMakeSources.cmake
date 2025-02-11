@@ -34,6 +34,10 @@ set (bscript_sources    # sorted !
   compiler/ast/BasicForLoop.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
+  compiler/ast/BindingList.cpp
+  compiler/ast/BindingList.h
+  compiler/ast/BindingStatement.cpp
+  compiler/ast/BindingStatement.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
   compiler/ast/BooleanValue.cpp
@@ -116,6 +120,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Identifier.h
   compiler/ast/IfThenElseStatement.cpp
   compiler/ast/IfThenElseStatement.h
+  compiler/ast/IndexBinding.cpp
+  compiler/ast/IndexBinding.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
   compiler/ast/InterpolateString.cpp
@@ -130,6 +136,8 @@ set (bscript_sources    # sorted !
   compiler/ast/MemberAccess.h
   compiler/ast/MemberAssignment.cpp
   compiler/ast/MemberAssignment.h
+  compiler/ast/MemberBinding.cpp
+  compiler/ast/MemberBinding.h
   compiler/ast/MemberAssignmentByOperator.cpp
   compiler/ast/MemberAssignmentByOperator.h
   compiler/ast/MethodCall.cpp

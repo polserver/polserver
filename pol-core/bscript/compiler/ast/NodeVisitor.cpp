@@ -4,6 +4,8 @@
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BindingList.h"
+#include "bscript/compiler/ast/BindingStatement.h"
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
@@ -42,11 +44,13 @@
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
+#include "bscript/compiler/ast/IndexBinding.h"
 #include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
+#include "bscript/compiler/ast/MemberBinding.h"
 #include "bscript/compiler/ast/MethodCall.h"
 #include "bscript/compiler/ast/MethodCallArgumentList.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
@@ -86,6 +90,16 @@ void NodeVisitor::visit_basic_for_loop( BasicForLoop& node )
 }
 
 void NodeVisitor::visit_binary_operator( BinaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_binding_list( BindingList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_binding_statement( BindingStatement& node )
 {
   visit_children( node );
 }
@@ -262,6 +276,11 @@ void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_index_binding( IndexBinding& node )
+{
+  visit_children( node );
+}
+
 void NodeVisitor::visit_integer_value( IntegerValue& ) {}
 
 void NodeVisitor::visit_jump_statement( JumpStatement& node )
@@ -270,6 +289,11 @@ void NodeVisitor::visit_jump_statement( JumpStatement& node )
 }
 
 void NodeVisitor::visit_member_access( MemberAccess& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_member_binding( MemberBinding& node )
 {
   visit_children( node );
 }
