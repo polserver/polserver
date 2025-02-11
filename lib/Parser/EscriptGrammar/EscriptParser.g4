@@ -241,39 +241,39 @@ constantDeclaration
 
 variableDeclaration
     : IDENTIFIER variableDeclarationInitializer?
-    | bindingDeclaration bindingDeclarationInitializer
+    | unpackingDeclaration unpackingDeclarationInitializer
     ;
 
-bindingDeclaration
-    :  LBRACK indexBindingList RBRACK
-    |  LBRACE memberBindingList RBRACE
+unpackingDeclaration
+    :  LBRACK indexUnpackingList RBRACK
+    |  LBRACE memberUnpackingList RBRACE
     ;
 
-memberBindingList
-    : memberBinding (',' memberBinding)*
+memberUnpackingList
+    : memberUnpacking (',' memberUnpacking)*
     ;
 
-indexBindingList
-    : indexBinding (',' indexBinding)*
+indexUnpackingList
+    : indexUnpacking (',' indexUnpacking)*
     ;
 
-indexBinding
+indexUnpacking
     : IDENTIFIER ELLIPSIS?
-    | bindingDeclaration
+    | unpackingDeclaration
     ;
 
-memberBinding
+memberUnpacking
     : IDENTIFIER ELLIPSIS?
-    | IDENTIFIER binding?
-    | LBRACK expression RBRACK binding
+    | IDENTIFIER unpacking?
+    | LBRACK expression RBRACK unpacking
     ;
 
-binding
+unpacking
     : ':' IDENTIFIER
-    | ':' bindingDeclaration
+    | ':' unpackingDeclaration
     ;
 
-bindingDeclarationInitializer
+unpackingDeclarationInitializer
     : ':=' expression
     | '=' expression { notifyErrorListeners("Unexpected token: '='. Did you mean := for assign?\n"); }
     ;

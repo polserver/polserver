@@ -167,26 +167,26 @@ public:
   virtual void enterVariableDeclaration(EscriptParser::VariableDeclarationContext * /*ctx*/) override { }
   virtual void exitVariableDeclaration(EscriptParser::VariableDeclarationContext * /*ctx*/) override { }
 
-  virtual void enterBindingDeclaration(EscriptParser::BindingDeclarationContext * /*ctx*/) override { }
-  virtual void exitBindingDeclaration(EscriptParser::BindingDeclarationContext * /*ctx*/) override { }
+  virtual void enterUnpackingDeclaration(EscriptParser::UnpackingDeclarationContext * /*ctx*/) override { }
+  virtual void exitUnpackingDeclaration(EscriptParser::UnpackingDeclarationContext * /*ctx*/) override { }
 
-  virtual void enterMemberBindingList(EscriptParser::MemberBindingListContext * /*ctx*/) override { }
-  virtual void exitMemberBindingList(EscriptParser::MemberBindingListContext * /*ctx*/) override { }
+  virtual void enterMemberUnpackingList(EscriptParser::MemberUnpackingListContext * /*ctx*/) override { }
+  virtual void exitMemberUnpackingList(EscriptParser::MemberUnpackingListContext * /*ctx*/) override { }
 
-  virtual void enterIndexBindingList(EscriptParser::IndexBindingListContext * /*ctx*/) override { }
-  virtual void exitIndexBindingList(EscriptParser::IndexBindingListContext * /*ctx*/) override { }
+  virtual void enterIndexUnpackingList(EscriptParser::IndexUnpackingListContext * /*ctx*/) override { }
+  virtual void exitIndexUnpackingList(EscriptParser::IndexUnpackingListContext * /*ctx*/) override { }
 
-  virtual void enterIndexBinding(EscriptParser::IndexBindingContext * /*ctx*/) override { }
-  virtual void exitIndexBinding(EscriptParser::IndexBindingContext * /*ctx*/) override { }
+  virtual void enterIndexUnpacking(EscriptParser::IndexUnpackingContext * /*ctx*/) override { }
+  virtual void exitIndexUnpacking(EscriptParser::IndexUnpackingContext * /*ctx*/) override { }
 
-  virtual void enterMemberBinding(EscriptParser::MemberBindingContext * /*ctx*/) override { }
-  virtual void exitMemberBinding(EscriptParser::MemberBindingContext * /*ctx*/) override { }
+  virtual void enterMemberUnpacking(EscriptParser::MemberUnpackingContext * /*ctx*/) override { }
+  virtual void exitMemberUnpacking(EscriptParser::MemberUnpackingContext * /*ctx*/) override { }
 
-  virtual void enterBinding(EscriptParser::BindingContext * /*ctx*/) override { }
-  virtual void exitBinding(EscriptParser::BindingContext * /*ctx*/) override { }
+  virtual void enterUnpacking(EscriptParser::UnpackingContext * /*ctx*/) override { }
+  virtual void exitUnpacking(EscriptParser::UnpackingContext * /*ctx*/) override { }
 
-  virtual void enterBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext * /*ctx*/) override { }
-  virtual void exitBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext * /*ctx*/) override { }
+  virtual void enterUnpackingDeclarationInitializer(EscriptParser::UnpackingDeclarationInitializerContext * /*ctx*/) override { }
+  virtual void exitUnpackingDeclarationInitializer(EscriptParser::UnpackingDeclarationInitializerContext * /*ctx*/) override { }
 
   virtual void enterProgramParameters(EscriptParser::ProgramParametersContext * /*ctx*/) override { }
   virtual void exitProgramParameters(EscriptParser::ProgramParametersContext * /*ctx*/) override { }

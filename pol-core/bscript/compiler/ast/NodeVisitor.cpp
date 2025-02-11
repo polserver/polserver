@@ -4,8 +4,6 @@
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
-#include "bscript/compiler/ast/BindingList.h"
-#include "bscript/compiler/ast/BindingStatement.h"
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
@@ -44,13 +42,13 @@
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
-#include "bscript/compiler/ast/IndexBinding.h"
+#include "bscript/compiler/ast/IndexUnpacking.h"
 #include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
-#include "bscript/compiler/ast/MemberBinding.h"
+#include "bscript/compiler/ast/MemberUnpacking.h"
 #include "bscript/compiler/ast/MethodCall.h"
 #include "bscript/compiler/ast/MethodCallArgumentList.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
@@ -66,6 +64,8 @@
 #include "bscript/compiler/ast/StructMemberInitializer.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
+#include "bscript/compiler/ast/UnpackingList.h"
+#include "bscript/compiler/ast/UnpackingStatement.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/ast/VarStatement.h"
@@ -94,12 +94,12 @@ void NodeVisitor::visit_binary_operator( BinaryOperator& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_binding_list( BindingList& node )
+void NodeVisitor::visit_unpacking_list( UnpackingList& node )
 {
   visit_children( node );
 }
 
-void NodeVisitor::visit_binding_statement( BindingStatement& node )
+void NodeVisitor::visit_unpacking_statement( UnpackingStatement& node )
 {
   visit_children( node );
 }
@@ -276,7 +276,7 @@ void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_index_binding( IndexBinding& node )
+void NodeVisitor::visit_index_unpacking( IndexUnpacking& node )
 {
   visit_children( node );
 }
@@ -293,7 +293,7 @@ void NodeVisitor::visit_member_access( MemberAccess& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_member_binding( MemberBinding& node )
+void NodeVisitor::visit_member_unpacking( MemberUnpacking& node )
 {
   visit_children( node );
 }

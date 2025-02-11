@@ -25,10 +25,11 @@ public:
                            std::vector<std::unique_ptr<Statement>>& );
 
 
-  std::unique_ptr<Expression> binding_initializer(
-      EscriptGrammar::EscriptParser::BindingDeclarationInitializerContext* );
+  std::unique_ptr<Expression> unpacking_initializer(
+      EscriptGrammar::EscriptParser::UnpackingDeclarationInitializerContext* );
 
-  std::unique_ptr<Node> binding_list( EscriptGrammar::EscriptParser::BindingDeclarationContext* );
+  std::unique_ptr<Node> unpacking_list(
+      EscriptGrammar::EscriptParser::UnpackingDeclarationContext* );
 
   std::unique_ptr<JumpStatement> break_statement(
       EscriptGrammar::EscriptParser::BreakStatementContext* );

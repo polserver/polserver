@@ -59,9 +59,9 @@ public:
     RuleEnumList = 38, RuleEnumListEntry = 39, RuleSwitchBlockStatementGroup = 40, 
     RuleSwitchLabel = 41, RuleForGroup = 42, RuleBasicForStatement = 43, 
     RuleCstyleForStatement = 44, RuleIdentifierList = 45, RuleVariableDeclarationList = 46, 
-    RuleConstantDeclaration = 47, RuleVariableDeclaration = 48, RuleBindingDeclaration = 49, 
-    RuleMemberBindingList = 50, RuleIndexBindingList = 51, RuleIndexBinding = 52, 
-    RuleMemberBinding = 53, RuleBinding = 54, RuleBindingDeclarationInitializer = 55, 
+    RuleConstantDeclaration = 47, RuleVariableDeclaration = 48, RuleUnpackingDeclaration = 49, 
+    RuleMemberUnpackingList = 50, RuleIndexUnpackingList = 51, RuleIndexUnpacking = 52, 
+    RuleMemberUnpacking = 53, RuleUnpacking = 54, RuleUnpackingDeclarationInitializer = 55, 
     RuleProgramParameters = 56, RuleProgramParameterList = 57, RuleProgramParameter = 58, 
     RuleFunctionParameters = 59, RuleFunctionParameterList = 60, RuleFunctionParameter = 61, 
     RuleScopedFunctionCall = 62, RuleFunctionReference = 63, RuleExpression = 64, 
@@ -147,13 +147,13 @@ public:
   class VariableDeclarationListContext;
   class ConstantDeclarationContext;
   class VariableDeclarationContext;
-  class BindingDeclarationContext;
-  class MemberBindingListContext;
-  class IndexBindingListContext;
-  class IndexBindingContext;
-  class MemberBindingContext;
-  class BindingContext;
-  class BindingDeclarationInitializerContext;
+  class UnpackingDeclarationContext;
+  class MemberUnpackingListContext;
+  class IndexUnpackingListContext;
+  class IndexUnpackingContext;
+  class MemberUnpackingContext;
+  class UnpackingContext;
+  class UnpackingDeclarationInitializerContext;
   class ProgramParametersContext;
   class ProgramParameterListContext;
   class ProgramParameterContext;
@@ -1080,8 +1080,8 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *IDENTIFIER();
     VariableDeclarationInitializerContext *variableDeclarationInitializer();
-    BindingDeclarationContext *bindingDeclaration();
-    BindingDeclarationInitializerContext *bindingDeclarationInitializer();
+    UnpackingDeclarationContext *unpackingDeclaration();
+    UnpackingDeclarationInitializerContext *unpackingDeclarationInitializer();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1092,15 +1092,15 @@ public:
 
   VariableDeclarationContext* variableDeclaration();
 
-  class  BindingDeclarationContext : public antlr4::ParserRuleContext {
+  class  UnpackingDeclarationContext : public antlr4::ParserRuleContext {
   public:
-    BindingDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    UnpackingDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *LBRACK();
-    IndexBindingListContext *indexBindingList();
+    IndexUnpackingListContext *indexUnpackingList();
     antlr4::tree::TerminalNode *RBRACK();
     antlr4::tree::TerminalNode *LBRACE();
-    MemberBindingListContext *memberBindingList();
+    MemberUnpackingListContext *memberUnpackingList();
     antlr4::tree::TerminalNode *RBRACE();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1110,14 +1110,14 @@ public:
    
   };
 
-  BindingDeclarationContext* bindingDeclaration();
+  UnpackingDeclarationContext* unpackingDeclaration();
 
-  class  MemberBindingListContext : public antlr4::ParserRuleContext {
+  class  MemberUnpackingListContext : public antlr4::ParserRuleContext {
   public:
-    MemberBindingListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    MemberUnpackingListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<MemberBindingContext *> memberBinding();
-    MemberBindingContext* memberBinding(size_t i);
+    std::vector<MemberUnpackingContext *> memberUnpacking();
+    MemberUnpackingContext* memberUnpacking(size_t i);
     std::vector<antlr4::tree::TerminalNode *> COMMA();
     antlr4::tree::TerminalNode* COMMA(size_t i);
 
@@ -1128,14 +1128,14 @@ public:
    
   };
 
-  MemberBindingListContext* memberBindingList();
+  MemberUnpackingListContext* memberUnpackingList();
 
-  class  IndexBindingListContext : public antlr4::ParserRuleContext {
+  class  IndexUnpackingListContext : public antlr4::ParserRuleContext {
   public:
-    IndexBindingListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    IndexUnpackingListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<IndexBindingContext *> indexBinding();
-    IndexBindingContext* indexBinding(size_t i);
+    std::vector<IndexUnpackingContext *> indexUnpacking();
+    IndexUnpackingContext* indexUnpacking(size_t i);
     std::vector<antlr4::tree::TerminalNode *> COMMA();
     antlr4::tree::TerminalNode* COMMA(size_t i);
 
@@ -1146,15 +1146,15 @@ public:
    
   };
 
-  IndexBindingListContext* indexBindingList();
+  IndexUnpackingListContext* indexUnpackingList();
 
-  class  IndexBindingContext : public antlr4::ParserRuleContext {
+  class  IndexUnpackingContext : public antlr4::ParserRuleContext {
   public:
-    IndexBindingContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    IndexUnpackingContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *IDENTIFIER();
     antlr4::tree::TerminalNode *ELLIPSIS();
-    BindingDeclarationContext *bindingDeclaration();
+    UnpackingDeclarationContext *unpackingDeclaration();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1163,15 +1163,15 @@ public:
    
   };
 
-  IndexBindingContext* indexBinding();
+  IndexUnpackingContext* indexUnpacking();
 
-  class  MemberBindingContext : public antlr4::ParserRuleContext {
+  class  MemberUnpackingContext : public antlr4::ParserRuleContext {
   public:
-    MemberBindingContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    MemberUnpackingContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *IDENTIFIER();
     antlr4::tree::TerminalNode *ELLIPSIS();
-    BindingContext *binding();
+    UnpackingContext *unpacking();
     antlr4::tree::TerminalNode *LBRACK();
     ExpressionContext *expression();
     antlr4::tree::TerminalNode *RBRACK();
@@ -1183,15 +1183,15 @@ public:
    
   };
 
-  MemberBindingContext* memberBinding();
+  MemberUnpackingContext* memberUnpacking();
 
-  class  BindingContext : public antlr4::ParserRuleContext {
+  class  UnpackingContext : public antlr4::ParserRuleContext {
   public:
-    BindingContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    UnpackingContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *COLON();
     antlr4::tree::TerminalNode *IDENTIFIER();
-    BindingDeclarationContext *bindingDeclaration();
+    UnpackingDeclarationContext *unpackingDeclaration();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1200,11 +1200,11 @@ public:
    
   };
 
-  BindingContext* binding();
+  UnpackingContext* unpacking();
 
-  class  BindingDeclarationInitializerContext : public antlr4::ParserRuleContext {
+  class  UnpackingDeclarationInitializerContext : public antlr4::ParserRuleContext {
   public:
-    BindingDeclarationInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    UnpackingDeclarationInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *ASSIGN();
     ExpressionContext *expression();
@@ -1217,7 +1217,7 @@ public:
    
   };
 
-  BindingDeclarationInitializerContext* bindingDeclarationInitializer();
+  UnpackingDeclarationInitializerContext* unpackingDeclarationInitializer();
 
   class  ProgramParametersContext : public antlr4::ParserRuleContext {
   public:
