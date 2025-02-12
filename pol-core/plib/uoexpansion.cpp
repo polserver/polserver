@@ -70,7 +70,6 @@ void ServerFeatures::updateFromSSOpt( A9Feature feature, const std::string& vers
   expansion = getExpansionVersion( version );
   if ( expansionName() != version )
     POLLOG_ERRORLN( "invalid DefaultExpansion '{}', using '{}'", version, expansionName() );
-  ext_flags = getDefaultExpansionFlag( expansion );
   feature_flags = feature;
   Clib::sanitize_upperlimit<u16>( &facesupport, (u16)FaceSupport::RolePlay );
   face_support = (FaceSupport)facesupport;
@@ -83,6 +82,11 @@ void ServerFeatures::updateFromPolCfg( u8 max_char_slots )
 std::string ServerFeatures::expansionName() const
 {
   return getExpansionName( expansionVersion() );
+}
+
+AccountExpansion::AccountExpansion( const std::string& exp )
+    : expansion( getExpansionVersion( exp ) ), ext_flags( getDefaultExpansionFlag( expansion ) )
+{
 }
 
 A9Feature AccountExpansion::calculateFeatureFlags( const ServerFeatures& server ) const
