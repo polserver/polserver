@@ -88,8 +88,6 @@ public:
   virtual void visit_array_initializer( ArrayInitializer& );
   virtual void visit_basic_for_loop( BasicForLoop& );
   virtual void visit_binary_operator( BinaryOperator& );
-  virtual void visit_unpacking_list( UnpackingList& );
-  virtual void visit_unpacking_statement( UnpackingStatement& );
   virtual void visit_block( Block& );
   virtual void visit_boolean_value( BooleanValue& );
   virtual void visit_branch_selector( BranchSelector& );
@@ -152,6 +150,8 @@ public:
   virtual void visit_top_level_statements( TopLevelStatements& );
   virtual void visit_unary_operator( UnaryOperator& );
   virtual void visit_uninitialized_value( UninitializedValue& );
+  virtual void visit_unpacking_list( UnpackingList& );
+  virtual void visit_unpacking_statement( UnpackingStatement& );
   virtual void visit_user_function( UserFunction& );
   virtual void visit_value_consumer( ValueConsumer& );
   virtual void visit_var_statement( VarStatement& );

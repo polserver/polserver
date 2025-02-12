@@ -152,6 +152,13 @@ void SemanticAnalyzer::visit_block( Block& block )
 
 void SemanticAnalyzer::visit_unpacking_list( UnpackingList& node )
 {
+  if ( node.children.size() > 127 )
+  {
+    report.error( node, "Too many unpacking elements. Maximum is 127." );
+  }
+
+  u8 index = 0;
+
   if ( node.index_unpacking )
   {
     IndexUnpacking* previous_rest_unpacking = nullptr;
@@ -171,8 +178,11 @@ void SemanticAnalyzer::visit_unpacking_list( UnpackingList& node )
           }
 
           previous_rest_unpacking = index_unpacking;
+          node.rest_index = index;
         }
       }
+
+      ++index;
     }
   }
   else
@@ -181,11 +191,17 @@ void SemanticAnalyzer::visit_unpacking_list( UnpackingList& node )
     {
       if ( auto member_unpacking = dynamic_cast<MemberUnpacking*>( child.get() ) )
       {
-        if ( member_unpacking->rest && node.children.back().get() != member_unpacking )
+        if ( member_unpacking->rest )
         {
-          report.error( *member_unpacking, "Member rest unpacking must be the last in the list." );
+          if ( node.children.back().get() != member_unpacking )
+            report.error( *member_unpacking,
+                          "Member rest unpacking must be the last in the list." );
+
+          node.rest_index = index;
         }
       }
+
+      ++index;
     }
   }
 

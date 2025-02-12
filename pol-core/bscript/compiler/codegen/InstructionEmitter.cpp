@@ -395,7 +395,8 @@ void InstructionEmitter::ctrl_statementbegin( unsigned file_index, unsigned file
 
 // - When declaring an identifier:
 // - If type == Local: if offset >= function param count, add current function's capture count
-void InstructionEmitter::declare_variable( const Variable& v, VariableIndex function_capture_count )
+void InstructionEmitter::declare_variable( const Variable& v, VariableIndex function_capture_count,
+                                           bool take )
 {
   int offset;
 
@@ -408,7 +409,8 @@ void InstructionEmitter::declare_variable( const Variable& v, VariableIndex func
     offset = v.index;
   }
 
-  BTokenId token_id = v.scope == VariableScope::Global ? RSV_GLOBAL : RSV_LOCAL;
+  BTokenId token_id = v.scope == VariableScope::Global ? ( take ? INS_TAKE_GLOBAL : RSV_GLOBAL )
+                                                       : ( take ? INS_TAKE_LOCAL : RSV_LOCAL );
   emit_token( token_id, TYP_RESERVED, offset );
 }
 
@@ -618,6 +620,15 @@ void InstructionEmitter::unary_operator( BTokenId token_id )
 void InstructionEmitter::uninit()
 {
   emit_token( INS_UNINIT, TYP_OPERAND );
+}
+
+void InstructionEmitter::unpack_indices( unsigned count, unsigned rest_at )
+{
+  unsigned short offset = rest_at == 0xFF
+                              ? ( count & 0x7F )
+                              : ( 1 << 14 ) | ( ( rest_at & 0x7F ) << 7 ) | ( count & 0x7F );
+
+  emit_token( INS_UNPACK_INDICES, TYP_RESERVED, offset );
 }
 
 void InstructionEmitter::value( double v )

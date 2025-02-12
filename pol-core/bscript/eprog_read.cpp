@@ -318,6 +318,10 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case TOK_FUNCREF:
   case TOK_FUNCTOR:
   case TOK_SPREAD:
+  case INS_TAKE_GLOBAL:
+  case INS_TAKE_LOCAL:
+  case INS_UNPACK_INDICES:
+  case INS_UNPACK_MEMBERS:
     token.lval = st.offset;
     return 0;
 

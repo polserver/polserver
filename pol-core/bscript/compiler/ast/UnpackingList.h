@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bscript/compiler/ast/Node.h"
+#include "clib/rawtypes.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -18,6 +19,9 @@ public:
   void describe_to( std::string& ) const override;
 
   const bool index_unpacking;
+
+  // Filled by SemanticAnalyzer. If <128, then a valid value.
+  u8 rest_index = 0xFF;
 };
 
 }  // namespace Pol::Bscript::Compiler
