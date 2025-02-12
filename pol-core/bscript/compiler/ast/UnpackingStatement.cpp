@@ -11,8 +11,8 @@ UnpackingStatement::UnpackingStatement( const SourceLocation& source_location,
     : Statement( source_location )
 {
   children.reserve( 2 );
-  children.push_back( std::move( unpackings ) );
   children.push_back( std::move( initializer ) );
+  children.push_back( std::move( unpackings ) );
 }
 void UnpackingStatement::accept( NodeVisitor& visitor )
 {

@@ -192,6 +192,14 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     fmt::format_to( std::back_inserter( w ), "declare global #{}", tkn.offset );
     break;
 
+  case INS_TAKE_LOCAL:
+    fmt::format_to( std::back_inserter( w ), "take local #{}", tkn.offset );
+    break;
+
+  case INS_TAKE_GLOBAL:
+    fmt::format_to( std::back_inserter( w ), "take global #{}", tkn.offset );
+    break;
+
   case INS_DECLARE_ARRAY:
     w += "declare array";
     break;
@@ -436,6 +444,22 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
   case TOK_FORMAT_EXPRESSION:
     w += "format expression";
     break;
+
+  case INS_UNPACK_INDICES:
+  {
+    int rest_index = tkn.offset > 0x7F ? ( ( tkn.offset >> 7 ) & 0x7F ) : -1;
+    fmt::format_to( std::back_inserter( w ), "unpack indices ({} indices, rest index {})",
+                    tkn.offset & 0x7F, rest_index );
+    break;
+  }
+
+  case INS_UNPACK_MEMBERS:
+  {
+    int rest_index = tkn.offset > 0x7F ? ( ( tkn.offset >> 7 ) & 0x7F ) : -1;
+    fmt::format_to( std::back_inserter( w ), "unpack members ({} members, rest index {})",
+                    tkn.offset & 0x7F, rest_index );
+    break;
+  }
 
   default:
     fmt::format_to( std::back_inserter( w ), "id={:#x} type={} offset={} module={}", tkn.id,

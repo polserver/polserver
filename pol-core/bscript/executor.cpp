@@ -2361,6 +2361,84 @@ void Executor::ins_multisubscript( const Instruction& ins )
   BObjectRef& leftref = ValueStack.back();
   leftref = ( *leftref )->OperMultiSubscript( indices );
 }
+
+void Executor::ins_unpack_indices( const Instruction& ins )
+{
+  bool rest = ins.token.lval >> 14;
+  auto count = Clib::clamp_convert<u8>( ins.token.lval & 0x7F );
+
+  BObjectRef refIter( new BObject( UninitObject::create() ) );
+
+  BObjectRef rightref = ValueStack.back();
+  ValueStack.pop_back();
+
+  // Reserve to keep the insert_at iterator valid
+  ValueStack.reserve( ValueStack.size() + count );
+  auto insert_at = ValueStack.begin() + ValueStack.size();
+  auto pIter = std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
+
+  if ( rest )
+  {
+    auto rest_index = Clib::clamp_convert<u8>( ( ins.token.lval & 0x3FFF ) >> 7 );
+
+    for ( u8 i = 0; i < rest_index; ++i )
+    {
+      if ( auto res = pIter->step() )
+        ValueStack.emplace( insert_at, res );
+      else
+        ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
+    }
+
+    auto rest_array = ValueStack.emplace( insert_at, new ObjArray )->get()->impptr<ObjArray>();
+
+    while ( auto res = pIter->step() )
+      rest_array->addElement( res->impptr() );
+
+    auto left = count - rest_index - 1;
+
+    for ( u8 i = 0; i < left; ++i )
+    {
+      if ( rest_array->ref_arr.empty() )
+        ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
+      else
+      {
+        ValueStack.insert( insert_at, rest_array->ref_arr.back() );
+
+        rest_array->ref_arr.pop_back();
+      }
+    }
+  }
+  else
+  {
+    for ( u8 i = 0; i < count; ++i )
+    {
+      if ( auto res = pIter->step() )
+        ValueStack.emplace( insert_at, res );
+      else
+        ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
+    }
+  }
+}
+
+void Executor::ins_unpack_members( const Instruction& ) {}
+
+void Executor::ins_take_local( const Instruction& )
+{
+  passert( Locals2 != nullptr );
+  passert( !ValueStack.empty() );
+
+  Locals2->push_back( ValueStack.back() );
+  ValueStack.pop_back();
+}
+
+void Executor::ins_take_global( const Instruction& ins )
+{
+  passert( !ValueStack.empty() );
+
+  ( *Globals2 )[ins.token.lval] = ValueStack.back();
+  ValueStack.pop_back();
+}
+
 void Executor::ins_multisubscript_assign( const Instruction& ins )
 {
   BObjectRef target_ref = ValueStack.back();
@@ -3545,6 +3623,15 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_set_member;
   case INS_SET_MEMBER_CONSUME:
     return &Executor::ins_set_member_consume;
+
+  case INS_UNPACK_INDICES:
+    return &Executor::ins_unpack_indices;
+  case INS_UNPACK_MEMBERS:
+    return &Executor::ins_unpack_members;
+  case INS_TAKE_GLOBAL:
+    return &Executor::ins_take_global;
+  case INS_TAKE_LOCAL:
+    return &Executor::ins_take_local;
 
   case INS_GET_MEMBER_ID:
     return &Executor::ins_get_member_id;  // test id

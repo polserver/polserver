@@ -71,10 +71,12 @@ public:
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_uninitialized_value( UninitializedValue& ) override;
   void visit_user_function( UserFunction& ) override;
+  void visit_unpacking_list( UnpackingList& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
   void visit_var_statement( VarStatement& ) override;
   void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_while_loop( WhileLoop& ) override;
+  void visit_index_unpacking( IndexUnpacking& ) override;
   void visit_interpolate_string( InterpolateString& ) override;
   void visit_format_expression( FormatExpression& ) override;
   void visit_conditional_operator( ConditionalOperator& ) override;

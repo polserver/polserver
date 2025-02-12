@@ -40,12 +40,14 @@
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
+#include "bscript/compiler/ast/IndexUnpacking.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
+#include "bscript/compiler/ast/MemberUnpacking.h"
 #include "bscript/compiler/ast/MethodCall.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
@@ -58,6 +60,7 @@
 #include "bscript/compiler/ast/StructMemberInitializer.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
+#include "bscript/compiler/ast/UnpackingList.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/ast/VarStatement.h"
@@ -919,6 +922,15 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   user_functions.pop();
 }
 
+void InstructionGenerator::visit_unpacking_list( UnpackingList& node )
+{
+  update_debug_location( node );
+
+  emit.unpack_indices( node.children.size(), node.rest_index );
+
+  visit_children( node );
+}
+
 void InstructionGenerator::visit_value_consumer( ValueConsumer& node )
 {
   emitter.debug_statementbegin();
@@ -942,7 +954,7 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
     function_capture_count = user_functions.top()->capture_count();
   }
 
-  emit.declare_variable( *node.variable, function_capture_count );
+  emit.declare_variable( *node.variable, function_capture_count, false );
 
   if ( node.initialize_as_empty_array )
   {
@@ -988,6 +1000,19 @@ void InstructionGenerator::visit_while_loop( WhileLoop& loop )
   generate( loop.block() );
   emit.jmp_always( *loop.continue_label );
   emit.label( *loop.break_label );
+}
+
+void InstructionGenerator::visit_index_unpacking( IndexUnpacking& node )
+{
+  update_debug_location( node );
+
+  int function_capture_count = 0;
+
+  if ( !user_functions.empty() )
+  {
+    function_capture_count = user_functions.top()->capture_count();
+  }
+  emit.declare_variable( *node.variable, function_capture_count, true );
 }
 
 void InstructionGenerator::visit_interpolate_string( InterpolateString& node )
