@@ -1,0 +1,7 @@
+- top-level-statements
+  - unpacking-statement
+    - unpacking-list(index)
+      - index-unpacking(foo)
+      - index-unpacking(bar...)
+      - index-unpacking(baz...)
+    - array-initializer

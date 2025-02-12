@@ -72,7 +72,7 @@ void SimpleStatementBuilder::add_var_statements(
       }
       else if ( auto unpacking_decl = decl->unpackingDeclaration() )
       {
-        auto unpackings = unpacking_list( unpacking_decl );
+        auto unpackings = unpacking_list( class_name, unpacking_decl );
         auto initializer = unpacking_initializer( decl->unpackingDeclarationInitializer() );
         auto unpacking_ast = std::make_unique<UnpackingStatement>(
             location_for( *decl ), std::move( unpackings ), std::move( initializer ) );
@@ -90,7 +90,7 @@ std::unique_ptr<Expression> SimpleStatementBuilder::unpacking_initializer(
 }
 
 std::unique_ptr<Node> SimpleStatementBuilder::unpacking_list(
-    EscriptGrammar::EscriptParser::UnpackingDeclarationContext* ctx )
+    const std::string& class_name, EscriptGrammar::EscriptParser::UnpackingDeclarationContext* ctx )
 {
   std::vector<std::unique_ptr<Node>> unpackings;
   bool index_unpacking = false;
@@ -103,12 +103,12 @@ std::unique_ptr<Node> SimpleStatementBuilder::unpacking_list(
       if ( auto identifier = indexed_unpacking->IDENTIFIER() )
       {
         bool rest = indexed_unpacking->ELLIPSIS();
-        unpackings.push_back( std::make_unique<IndexUnpacking>( location_for( *indexed_unpacking ),
-                                                                text( identifier ), rest ) );
+        unpackings.push_back( std::make_unique<IndexUnpacking>(
+            location_for( *indexed_unpacking ), class_name, text( identifier ), rest ) );
       }
       else if ( auto unpacking_decl = indexed_unpacking->unpackingDeclaration() )
       {
-        unpackings.push_back( unpacking_list( unpacking_decl ) );
+        unpackings.push_back( unpacking_list( class_name, unpacking_decl ) );
       }
       else
       {
@@ -145,12 +145,13 @@ std::unique_ptr<Node> SimpleStatementBuilder::unpacking_list(
         if ( auto identifier = unpacking->IDENTIFIER() )
         {
           unpackings.push_back( std::make_unique<MemberUnpacking>(
-              location_for( *unpacking ), text( identifier ), std::move( member ) ) );
+              location_for( *unpacking ), class_name, text( identifier ), std::move( member ) ) );
         }
         else if ( auto unpacking_decl = unpacking->unpackingDeclaration() )
         {
-          unpackings.push_back( std::make_unique<MemberUnpacking>(
-              location_for( *unpacking ), std::move( member ), unpacking_list( unpacking_decl ) ) );
+          unpackings.push_back(
+              std::make_unique<MemberUnpacking>( location_for( *unpacking ), std::move( member ),
+                                                 unpacking_list( class_name, unpacking_decl ) ) );
         }
         else
         {
@@ -162,13 +163,13 @@ std::unique_ptr<Node> SimpleStatementBuilder::unpacking_list(
       {
         if ( named_unpacking->ELLIPSIS() )
         {
-          unpackings.push_back(
-              std::make_unique<MemberUnpacking>( location_for( *named_unpacking ), member_text ) );
+          unpackings.push_back( std::make_unique<MemberUnpacking>( location_for( *named_unpacking ),
+                                                                   class_name, member_text ) );
         }
         else
         {
           unpackings.push_back( std::make_unique<MemberUnpacking>(
-              location_for( *named_unpacking ), member_text, std::move( member ) ) );
+              location_for( *named_unpacking ), class_name, member_text, std::move( member ) ) );
         }
       }
       else

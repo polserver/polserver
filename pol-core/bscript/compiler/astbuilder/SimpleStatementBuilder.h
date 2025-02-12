@@ -29,7 +29,7 @@ public:
       EscriptGrammar::EscriptParser::UnpackingDeclarationInitializerContext* );
 
   std::unique_ptr<Node> unpacking_list(
-      EscriptGrammar::EscriptParser::UnpackingDeclarationContext* );
+      const std::string& class_name, EscriptGrammar::EscriptParser::UnpackingDeclarationContext* );
 
   std::unique_ptr<JumpStatement> break_statement(
       EscriptGrammar::EscriptParser::BreakStatementContext* );

@@ -35,9 +35,11 @@
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
+#include "bscript/compiler/ast/IndexUnpacking.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
+#include "bscript/compiler/ast/MemberUnpacking.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
@@ -45,6 +47,7 @@
 #include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
+#include "bscript/compiler/ast/UnpackingList.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
@@ -145,6 +148,48 @@ void SemanticAnalyzer::visit_block( Block& block )
   LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
+}
+
+void SemanticAnalyzer::visit_unpacking_list( UnpackingList& node )
+{
+  if ( node.index_unpacking )
+  {
+    IndexUnpacking* previous_rest_unpacking = nullptr;
+    for ( const auto& child : node.children )
+    {
+      if ( auto index_unpacking = dynamic_cast<IndexUnpacking*>( child.get() ) )
+      {
+        if ( index_unpacking->rest )
+        {
+          if ( previous_rest_unpacking != nullptr )
+          {
+            report.error( *index_unpacking,
+                          "Only one rest unpacking is allowed.\n"
+                          "  See also: {}",
+                          previous_rest_unpacking->source_location );
+
+          }
+
+          previous_rest_unpacking = index_unpacking;
+        }
+      }
+    }
+  }
+  else
+  {
+    for ( const auto& child : node.children )
+    {
+      if ( auto member_unpacking = dynamic_cast<MemberUnpacking*>( child.get() ) )
+      {
+        if ( member_unpacking->rest && node.children.back().get() != member_unpacking )
+        {
+          report.error( *member_unpacking, "Member rest unpacking must be the last in the list." );
+        }
+      }
+    }
+  }
+
+  visit_children( node );
 }
 
 void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
@@ -1008,6 +1053,34 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   }
 }
 
+void SemanticAnalyzer::visit_index_unpacking( IndexUnpacking& node )
+{
+  if ( auto variable = create_variable( node.source_location, node.scoped_name.scope.string(),
+                                        node.scoped_name.name ) )
+  {
+    node.variable = std::move( variable );
+    visit_children( node );
+  }
+}
+
+void SemanticAnalyzer::visit_member_unpacking( MemberUnpacking& node )
+{
+  if ( node.scoped_name.has_value() )
+  {
+    const auto& scoped_name = node.scoped_name.value();
+    if ( auto variable =
+             create_variable( node.source_location, scoped_name.scope.string(), scoped_name.name ) )
+    {
+      node.variable = std::move( variable );
+    }
+    visit_children( node );
+  }
+  else
+  {
+    visit_children( node );
+  }
+}
+
 void SemanticAnalyzer::visit_jump_statement( JumpStatement& node )
 {
   auto& scopes = node.jump_type == JumpStatement::Break ? break_scopes : continue_scopes;
@@ -1114,42 +1187,11 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 {
-  // A scoped variable's `name` will be `scope::name` if a scope exists,
-  // otherwise just `name`.
-  auto maybe_scoped_name = ScopableName( node.scope, node.name ).string();
-
-  // node.scope.empty() ? node.name : fmt::format( "{}::{}", node.scope, node.name );
-
-  // Since this is not scoped check, we cannot have `Animal::FOO` and a constant `FOO`.
-  if ( auto constant = workspace.constants.find( node.name ) )
+  if ( auto variable = create_variable( node.source_location, node.scope, node.name ) )
   {
-    report.error( node,
-                  "Cannot define a variable with the same name as constant '{}'.\n"
-                  "  See also: {}",
-                  node.name, constant->source_location );
-    return;
+    node.variable = std::move( variable );
+    visit_children( node );
   }
-
-  report_function_name_conflict( node.source_location, maybe_scoped_name, "variable" );
-
-  if ( auto local_scope = local_scopes.current_local_scope() )
-  {
-    node.variable = local_scope->create( maybe_scoped_name, WarnOn::Never, node.source_location );
-  }
-  else
-  {
-    if ( auto existing = globals.find( maybe_scoped_name ) )
-    {
-      report.error( node,
-                    "Global variable '{}' already defined.\n"
-                    "  See also: {}",
-                    maybe_scoped_name, existing->source_location );
-      return;
-    }
-
-    node.variable = globals.create( maybe_scoped_name, 0, WarnOn::Never, node.source_location );
-  }
-  visit_children( node );
 }
 
 void SemanticAnalyzer::visit_variable_assignment_statement( VariableAssignmentStatement& node )
@@ -1177,6 +1219,43 @@ void SemanticAnalyzer::visit_variable_assignment_statement( VariableAssignmentSt
 void SemanticAnalyzer::visit_while_loop( WhileLoop& node )
 {
   visit_loop_statement( node );
+}
+
+std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocation& source_location,
+                                                             const std::string& scope,
+                                                             const std::string& name )
+{
+  auto maybe_scoped_name = ScopableName( scope, name ).string();
+
+  // Since this is not scoped check, we cannot have `Animal::FOO` and a constant `FOO`.
+  if ( auto constant = workspace.constants.find( name ) )
+  {
+    report.error( source_location,
+                  "Cannot define a variable with the same name as constant '{}'.\n"
+                  "  See also: {}",
+                  name, constant->source_location );
+    return {};
+  }
+
+  report_function_name_conflict( source_location, maybe_scoped_name, "variable" );
+
+  if ( auto local_scope = local_scopes.current_local_scope() )
+  {
+    return local_scope->create( maybe_scoped_name, WarnOn::Never, source_location );
+  }
+  else
+  {
+    if ( auto existing = globals.find( maybe_scoped_name ) )
+    {
+      report.error( source_location,
+                    "Global variable '{}' already defined.\n"
+                    "  See also: {}",
+                    maybe_scoped_name, existing->source_location );
+      return {};
+    }
+
+    return globals.create( maybe_scoped_name, 0, WarnOn::Never, source_location );
+  }
 }
 
 bool SemanticAnalyzer::report_function_name_conflict( const SourceLocation& referencing_loc,

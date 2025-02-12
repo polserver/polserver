@@ -1,0 +1,5 @@
+var [ first, middle..., last] := array{ 1, 2, 3, 4, 5 };
+
+print( first );
+print( middle );
+print( last );
