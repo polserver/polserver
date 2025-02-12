@@ -12,11 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "macos-13"
-            cxx-compiler: clang++
-            c-compiler: clang
-            compiler-version: default
-            build-type: Release
           - os: "macos-14"
             cxx-compiler: clang++
             c-compiler: clang
