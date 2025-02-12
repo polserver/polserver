@@ -10,7 +10,10 @@ UnpackingList::UnpackingList( const SourceLocation& loc,
     : Node( loc, std::move( unpackings ) ), index_unpacking( index_unpacking )
 {
 }
-void UnpackingList::accept( NodeVisitor& ) {}
+void UnpackingList::accept( NodeVisitor& visitor )
+{
+  visitor.visit_unpacking_list( *this );
+}
 
 void UnpackingList::describe_to( std::string& w ) const
 {

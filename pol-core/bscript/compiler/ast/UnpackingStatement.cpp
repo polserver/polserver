@@ -14,7 +14,10 @@ UnpackingStatement::UnpackingStatement( const SourceLocation& source_location,
   children.push_back( std::move( unpackings ) );
   children.push_back( std::move( initializer ) );
 }
-void UnpackingStatement::accept( NodeVisitor& ) {}
+void UnpackingStatement::accept( NodeVisitor& visitor )
+{
+  visitor.visit_unpacking_statement( *this );
+}
 
 void UnpackingStatement::describe_to( std::string& w ) const
 {
