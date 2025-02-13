@@ -34,10 +34,8 @@ set (bscript_sources    # sorted !
   compiler/ast/BasicForLoop.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
-  compiler/ast/UnpackingList.cpp
-  compiler/ast/UnpackingList.h
-  compiler/ast/UnpackingStatement.cpp
-  compiler/ast/UnpackingStatement.h
+  compiler/ast/BindingStatement.cpp
+  compiler/ast/BindingStatement.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
   compiler/ast/BooleanValue.cpp
@@ -120,8 +118,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Identifier.h
   compiler/ast/IfThenElseStatement.cpp
   compiler/ast/IfThenElseStatement.h
-  compiler/ast/IndexUnpacking.cpp
-  compiler/ast/IndexUnpacking.h
+  compiler/ast/IndexBinding.cpp
+  compiler/ast/IndexBinding.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
   compiler/ast/InterpolateString.cpp
@@ -136,8 +134,6 @@ set (bscript_sources    # sorted !
   compiler/ast/MemberAccess.h
   compiler/ast/MemberAssignment.cpp
   compiler/ast/MemberAssignment.h
-  compiler/ast/MemberUnpacking.cpp
-  compiler/ast/MemberUnpacking.h
   compiler/ast/MemberAssignmentByOperator.cpp
   compiler/ast/MemberAssignmentByOperator.h
   compiler/ast/MethodCall.cpp
@@ -160,6 +156,8 @@ set (bscript_sources    # sorted !
   compiler/ast/RepeatUntilLoop.h
   compiler/ast/ReturnStatement.cpp
   compiler/ast/ReturnStatement.h
+  compiler/ast/SequenceBinding.cpp
+  compiler/ast/SequenceBinding.h
   compiler/ast/SpreadElement.cpp
   compiler/ast/SpreadElement.h
   compiler/ast/Statement.cpp
@@ -186,6 +184,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ValueConsumer.h
   compiler/ast/VariableAssignmentStatement.cpp
   compiler/ast/VariableAssignmentStatement.h
+  compiler/ast/VariableBinding.cpp
+  compiler/ast/VariableBinding.h
   compiler/ast/VarStatement.cpp
   compiler/ast/VarStatement.h
   compiler/ast/WhileLoop.cpp

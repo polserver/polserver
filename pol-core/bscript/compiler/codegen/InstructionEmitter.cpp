@@ -622,6 +622,15 @@ void InstructionEmitter::uninit()
   emit_token( INS_UNINIT, TYP_OPERAND );
 }
 
+void InstructionEmitter::unpack_sequence( unsigned count, unsigned rest_at )
+{
+  unsigned short offset = rest_at == 0xFF
+                              ? ( count & 0x7F )
+                              : ( 1 << 14 ) | ( ( rest_at & 0x7F ) << 7 ) | ( count & 0x7F );
+
+  emit_token( INS_UNPACK_SEQUENCE, TYP_RESERVED, offset );
+}
+
 void InstructionEmitter::unpack_indices( unsigned count, unsigned rest_at )
 {
   unsigned short offset = rest_at == 0xFF

@@ -390,8 +390,8 @@ public:
   void ins_multisubscript_assign_consume( const Instruction& ins );
   void ins_multisubscript( const Instruction& ins );
 
+  void ins_unpack_sequence( const Instruction& ins );
   void ins_unpack_indices( const Instruction& ins );
-  void ins_unpack_members( const Instruction& ins );
   void ins_take_local( const Instruction& ins );
   void ins_take_global( const Instruction& ins );
 

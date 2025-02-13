@@ -40,31 +40,31 @@
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
-#include "bscript/compiler/ast/IndexUnpacking.h"
+#include "bscript/compiler/ast/IndexBinding.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
-#include "bscript/compiler/ast/MemberUnpacking.h"
 #include "bscript/compiler/ast/MethodCall.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
+#include "bscript/compiler/ast/SequenceBinding.h"
 #include "bscript/compiler/ast/SpreadElement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
-#include "bscript/compiler/ast/UnpackingList.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
+#include "bscript/compiler/ast/VariableBinding.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/codegen/CaseDispatchGroupVisitor.h"
 #include "bscript/compiler/codegen/CaseJumpDataBlock.h"
@@ -734,6 +734,21 @@ void InstructionGenerator::visit_member_assignment_by_operator( MemberAssignment
   emit.set_member_by_operator( node.token_id, node.known_member.id );
 }
 
+void InstructionGenerator::visit_index_binding( IndexBinding& node )
+{
+  // Emit indexes
+  node.indexes().accept( *this );
+
+  update_debug_location( node );
+  emit.unpack_indices( node.binding_count(), node.rest_index );
+
+  // Emit bindings
+  for ( const auto& binding : node.bindings() )
+  {
+    binding.get().accept( *this );
+  }
+}
+
 void InstructionGenerator::visit_method_call( MethodCall& method_call )
 {
   visit_children( method_call );
@@ -922,12 +937,11 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   user_functions.pop();
 }
 
-void InstructionGenerator::visit_unpacking_list( UnpackingList& node )
+void InstructionGenerator::visit_sequence_binding( SequenceBinding& node )
 {
   update_debug_location( node );
 
-  emit.unpack_indices( node.children.size(), node.rest_index );
-
+  emit.unpack_sequence( node.binding_count(), node.rest_index );
   visit_children( node );
 }
 
@@ -1002,7 +1016,7 @@ void InstructionGenerator::visit_while_loop( WhileLoop& loop )
   emit.label( *loop.break_label );
 }
 
-void InstructionGenerator::visit_index_unpacking( IndexUnpacking& node )
+void InstructionGenerator::visit_variable_binding( VariableBinding& node )
 {
   update_debug_location( node );
 
