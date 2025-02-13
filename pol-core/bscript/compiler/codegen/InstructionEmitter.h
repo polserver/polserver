@@ -125,6 +125,7 @@ public:
   void subscript_multiple( unsigned indexes );
   void unary_operator( BTokenId );
   void uninit();
+  void unpack_sequence( unsigned count, unsigned rest_at );
   void unpack_indices( unsigned count, unsigned rest_at );
   void value( double );
   void value( int );

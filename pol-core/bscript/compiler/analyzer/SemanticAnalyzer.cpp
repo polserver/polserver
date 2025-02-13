@@ -1,6 +1,7 @@
 #include "SemanticAnalyzer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/adaptor/sliced.hpp>
 #include <list>
 #include <set>
 
@@ -35,22 +36,22 @@
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
-#include "bscript/compiler/ast/IndexUnpacking.h"
+#include "bscript/compiler/ast/IndexBinding.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
-#include "bscript/compiler/ast/MemberUnpacking.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
+#include "bscript/compiler/ast/SequenceBinding.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
-#include "bscript/compiler/ast/UnpackingList.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
+#include "bscript/compiler/ast/VariableBinding.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
 #include "bscript/compiler/model/ClassLink.h"
@@ -150,59 +151,30 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 }
 
-void SemanticAnalyzer::visit_unpacking_list( UnpackingList& node )
+void SemanticAnalyzer::visit_index_binding( IndexBinding& node )
 {
-  if ( node.children.size() > 127 )
-  {
-    report.error( node, "Too many unpacking elements. Maximum is 127." );
-  }
-
   u8 index = 0;
 
-  if ( node.index_unpacking )
+  if ( node.binding_count() > 127 )
   {
-    IndexUnpacking* previous_rest_unpacking = nullptr;
-    for ( const auto& child : node.children )
-    {
-      if ( auto index_unpacking = dynamic_cast<IndexUnpacking*>( child.get() ) )
-      {
-        if ( index_unpacking->rest )
-        {
-          if ( previous_rest_unpacking != nullptr )
-          {
-            report.error( *index_unpacking,
-                          "Only one rest unpacking is allowed.\n"
-                          "  See also: {}",
-                          previous_rest_unpacking->source_location );
-
-          }
-
-          previous_rest_unpacking = index_unpacking;
-          node.rest_index = index;
-        }
-      }
-
-      ++index;
-    }
+    report.error( node, "Too many binding elements. Maximum is 127." );
   }
-  else
+
+  // Skip first child, which is ElementIndexes
+  for ( const auto& child : node.children | boost::adaptors::sliced( 1, node.children.size() ) )
   {
-    for ( const auto& child : node.children )
+    if ( auto member_binding = dynamic_cast<VariableBinding*>( child.get() ) )
     {
-      if ( auto member_unpacking = dynamic_cast<MemberUnpacking*>( child.get() ) )
+      if ( member_binding->rest )
       {
-        if ( member_unpacking->rest )
-        {
-          if ( node.children.back().get() != member_unpacking )
-            report.error( *member_unpacking,
-                          "Member rest unpacking must be the last in the list." );
+        if ( node.children.back().get() != member_binding )
+          report.error( *member_binding, "Index rest binding must be the last in the list." );
 
-          node.rest_index = index;
-        }
+        node.rest_index = index;
       }
-
-      ++index;
     }
+
+    ++index;
   }
 
   visit_children( node );
@@ -1069,30 +1041,12 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   }
 }
 
-void SemanticAnalyzer::visit_index_unpacking( IndexUnpacking& node )
+void SemanticAnalyzer::visit_variable_binding( VariableBinding& node )
 {
   if ( auto variable = create_variable( node.source_location, node.scoped_name.scope.string(),
                                         node.scoped_name.name ) )
   {
     node.variable = std::move( variable );
-    visit_children( node );
-  }
-}
-
-void SemanticAnalyzer::visit_member_unpacking( MemberUnpacking& node )
-{
-  if ( node.scoped_name.has_value() )
-  {
-    const auto& scoped_name = node.scoped_name.value();
-    if ( auto variable =
-             create_variable( node.source_location, scoped_name.scope.string(), scoped_name.name ) )
-    {
-      node.variable = std::move( variable );
-    }
-    visit_children( node );
-  }
-  else
-  {
     visit_children( node );
   }
 }
@@ -1167,6 +1121,41 @@ void SemanticAnalyzer::visit_return_statement( ReturnStatement& node )
     {
       report.error( node, "Cannot return a value from a constructor function." );
     }
+  }
+
+  visit_children( node );
+}
+
+void SemanticAnalyzer::visit_sequence_binding( SequenceBinding& node )
+{
+  u8 index = 0;
+  VariableBinding* previous_rest_binding = nullptr;
+
+  if ( node.binding_count() > 127 )
+  {
+    report.error( node, "Too many binding elements. Maximum is 127." );
+  }
+
+  for ( const auto& child : node.children )
+  {
+    if ( auto index_binding = dynamic_cast<VariableBinding*>( child.get() ) )
+    {
+      if ( index_binding->rest )
+      {
+        if ( previous_rest_binding != nullptr )
+        {
+          report.error( *index_binding,
+                        "Only one rest binding is allowed.\n"
+                        "  See also: {}",
+                        previous_rest_binding->source_location );
+        }
+
+        previous_rest_binding = index_binding;
+        node.rest_index = index;
+      }
+    }
+
+    ++index;
   }
 
   visit_children( node );

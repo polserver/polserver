@@ -9,10 +9,10 @@ class Expression;
 class NodeVisitor;
 class Variable;
 
-class IndexUnpacking : public Node
+class VariableBinding : public Node
 {
 public:
-  IndexUnpacking( const SourceLocation&, std::string scope, std::string name, bool rest );
+  VariableBinding( const SourceLocation&, std::string scope, std::string name, bool rest );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;

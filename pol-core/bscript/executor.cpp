@@ -527,7 +527,7 @@ void Executor::setFunctionResult( BObjectImp* imp )
   func_result_ = imp;
 }
 
-void Executor::printStack( const std::string& message )
+void Executor::printStack( const std::string& message = "" )
 {
   if ( debug_level < INSTRUCTIONS )
     return;
@@ -2362,7 +2362,7 @@ void Executor::ins_multisubscript( const Instruction& ins )
   leftref = ( *leftref )->OperMultiSubscript( indices );
 }
 
-void Executor::ins_unpack_indices( const Instruction& ins )
+void Executor::ins_unpack_sequence( const Instruction& ins )
 {
   bool rest = ins.token.lval >> 14;
   auto count = Clib::clamp_convert<u8>( ins.token.lval & 0x7F );
@@ -2399,10 +2399,10 @@ void Executor::ins_unpack_indices( const Instruction& ins )
     for ( u8 i = 0; i < left; ++i )
     {
       if ( rest_array->ref_arr.empty() )
-        ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
+        ValueStack.emplace( insert_at + i, new BError( "Index out of bounds" ) );
       else
       {
-        ValueStack.insert( insert_at, rest_array->ref_arr.back() );
+        ValueStack.insert( insert_at + i, rest_array->ref_arr.back() );
 
         rest_array->ref_arr.pop_back();
       }
@@ -2420,7 +2420,62 @@ void Executor::ins_unpack_indices( const Instruction& ins )
   }
 }
 
-void Executor::ins_unpack_members( const Instruction& ) {}
+void Executor::ins_unpack_indices( const Instruction& ins )
+{
+  bool rest = ins.token.lval >> 14;
+  auto count = Clib::clamp_convert<u8>( ins.token.lval & 0x7F );
+  auto index_count = rest ? Clib::clamp_convert<u8>( count - 1 ) : count;
+
+  std::vector<BObjectRef> indexes;
+  std::set<BObject> indexes_set;
+
+  indexes.reserve( index_count );
+  for ( u8 i = 0; i < index_count; ++i )
+  {
+    indexes.insert( indexes.begin(), ValueStack.back() );
+    indexes_set.insert( *indexes.front() );
+    ValueStack.pop_back();
+  }
+
+  BObjectRef rightref = ValueStack.back();
+  ValueStack.pop_back();
+
+  // Reserve to keep the insert_at iterator valid
+  ValueStack.reserve( ValueStack.size() + count );
+  auto insert_at = ValueStack.begin() + ValueStack.size();
+
+  for ( u8 i = 0; i < index_count; ++i )
+  {
+    ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( *indexes.at( i ) ) );
+  }
+
+  if ( rest )
+  {
+    std::unique_ptr<BObjectImp> rest_obj;
+
+    if ( rightref->isa( BObjectImp::OTStruct ) )
+      rest_obj = std::make_unique<BStruct>();
+    else if ( rightref->isa( BObjectImp::OTDictionary ) )
+      rest_obj = std::make_unique<BDictionary>();
+    else
+    {
+      ValueStack.emplace( insert_at, new BError( "Invalid type for rest binding" ) );
+      return;
+    }
+
+    BObjectRef refIter( new BObject( UninitObject::create() ) );
+    auto pIter =
+        std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
+
+    while ( auto res = pIter->step() )
+    {
+      auto itr = indexes_set.find( *refIter );
+      if ( itr == indexes_set.end() )
+        rest_obj->array_assign( refIter->impptr(), res->impptr(), true );
+    }
+    ValueStack.emplace( insert_at, rest_obj.release() );
+  }
+}
 
 void Executor::ins_take_local( const Instruction& )
 {
@@ -3624,10 +3679,10 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
   case INS_SET_MEMBER_CONSUME:
     return &Executor::ins_set_member_consume;
 
+  case INS_UNPACK_SEQUENCE:
+    return &Executor::ins_unpack_sequence;
   case INS_UNPACK_INDICES:
     return &Executor::ins_unpack_indices;
-  case INS_UNPACK_MEMBERS:
-    return &Executor::ins_unpack_members;
   case INS_TAKE_GLOBAL:
     return &Executor::ins_take_global;
   case INS_TAKE_LOCAL:

@@ -320,8 +320,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case TOK_SPREAD:
   case INS_TAKE_GLOBAL:
   case INS_TAKE_LOCAL:
+  case INS_UNPACK_SEQUENCE:
   case INS_UNPACK_INDICES:
-  case INS_UNPACK_MEMBERS:
     token.lval = st.offset;
     return 0;
 
@@ -509,7 +509,7 @@ int EScriptProgram::read_dbg_file( bool quiet )
   FILE* fp = fopen( mname.c_str(), "rb" );
   if ( !fp )
   {
-    if ( !quiet ) 
+    if ( !quiet )
       ERROR_PRINTLN( "Unable to open {}", mname );
     return -1;
   }

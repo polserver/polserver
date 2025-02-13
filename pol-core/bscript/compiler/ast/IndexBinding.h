@@ -6,19 +6,22 @@
 namespace Pol::Bscript::Compiler
 {
 class NodeVisitor;
-class Expression;
-class Variable;
+class ElementIndexes;
 
-class UnpackingList : public Node
+class IndexBinding : public Node
 {
 public:
-  UnpackingList( const SourceLocation&, std::vector<std::unique_ptr<Node>> unpackings,
-                 bool index_unpacking );
+  IndexBinding( const SourceLocation&, std::unique_ptr<ElementIndexes> indices,
+                std::vector<std::unique_ptr<Node>> bindings );
+
+  u8 binding_count() const;
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
 
-  const bool index_unpacking;
+  ElementIndexes& indexes();
+  std::vector<std::reference_wrapper<Node>> bindings();
+
 
   // Filled by SemanticAnalyzer. If <128, then a valid value.
   u8 rest_index = 0xFF;

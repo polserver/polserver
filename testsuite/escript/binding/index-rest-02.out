@@ -1,0 +1,4 @@
+NAME
+INSTR
+INVOC
+struct{ instr_per_invoc = "INSTR_PER_INVOC", instr_percent = "INSTR_PERCENT" }

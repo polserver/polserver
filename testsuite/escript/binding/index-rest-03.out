@@ -1,0 +1,4 @@
+ONETWOTHREE
+A
+struct{ inner_b = "B", inner_c = "C" }
+dict{ "789" -> 789, 456 -> "FOURFIVESIX" }

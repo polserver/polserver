@@ -8,11 +8,11 @@ class NodeVisitor;
 class Expression;
 class Variable;
 
-class UnpackingStatement : public Statement
+class BindingStatement : public Statement
 {
 public:
-  UnpackingStatement( const SourceLocation&, std::unique_ptr<Node> unpackings,
-                      std::unique_ptr<Expression> initializer );
+  BindingStatement( const SourceLocation&, std::unique_ptr<Node> bindings,
+                    std::unique_ptr<Expression> initializer );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;

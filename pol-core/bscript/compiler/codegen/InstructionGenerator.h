@@ -54,6 +54,7 @@ public:
   void visit_function_reference( FunctionReference& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
+  void visit_index_binding( IndexBinding& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_jump_statement( JumpStatement& ) override;
   void visit_member_access( MemberAccess& member_access ) override;
@@ -64,6 +65,7 @@ public:
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
   void visit_repeat_until_loop( RepeatUntilLoop& repeat_until ) override;
   void visit_return_statement( ReturnStatement& ) override;
+  void visit_sequence_binding( SequenceBinding& ) override;
   void visit_spread_element( SpreadElement& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_struct_initializer( StructInitializer& ) override;
@@ -71,12 +73,11 @@ public:
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_uninitialized_value( UninitializedValue& ) override;
   void visit_user_function( UserFunction& ) override;
-  void visit_unpacking_list( UnpackingList& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
   void visit_var_statement( VarStatement& ) override;
   void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_while_loop( WhileLoop& ) override;
-  void visit_index_unpacking( IndexUnpacking& ) override;
+  void visit_variable_binding( VariableBinding& ) override;
   void visit_interpolate_string( InterpolateString& ) override;
   void visit_format_expression( FormatExpression& ) override;
   void visit_conditional_operator( ConditionalOperator& ) override;

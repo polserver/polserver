@@ -445,7 +445,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     w += "format expression";
     break;
 
-  case INS_UNPACK_INDICES:
+  case INS_UNPACK_SEQUENCE:
   {
     int rest_index = tkn.offset > 0x7F ? ( ( tkn.offset >> 7 ) & 0x7F ) : -1;
     fmt::format_to( std::back_inserter( w ), "unpack indices ({} indices, rest index {})",
@@ -453,7 +453,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
   }
 
-  case INS_UNPACK_MEMBERS:
+  case INS_UNPACK_INDICES:
   {
     int rest_index = tkn.offset > 0x7F ? ( ( tkn.offset >> 7 ) & 0x7F ) : -1;
     fmt::format_to( std::back_inserter( w ), "unpack members ({} members, rest index {})",

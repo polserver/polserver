@@ -69,9 +69,9 @@ void escriptparserParserInitialize() {
       "enumList", "enumListEntry", "switchBlockStatementGroup", "switchLabel", 
       "forGroup", "basicForStatement", "cstyleForStatement", "identifierList", 
       "variableDeclarationList", "constantDeclaration", "variableDeclaration", 
-      "unpackingDeclaration", "memberUnpackingList", "indexUnpackingList", 
-      "indexUnpacking", "memberUnpacking", "unpacking", "unpackingDeclarationInitializer", 
-      "programParameters", "programParameterList", "programParameter", "functionParameters", 
+      "bindingDeclaration", "indexBindingList", "sequenceBindingList", "sequenceBinding", 
+      "indexBinding", "binding", "bindingDeclarationInitializer", "programParameters", 
+      "programParameterList", "programParameter", "functionParameters", 
       "functionParameterList", "functionParameter", "scopedFunctionCall", 
       "functionReference", "expression", "primary", "scopedIdentifier", 
       "functionExpression", "explicitArrayInitializer", "explicitStructInitializer", 
@@ -4980,12 +4980,12 @@ EscriptParser::VariableDeclarationInitializerContext* EscriptParser::VariableDec
   return getRuleContext<EscriptParser::VariableDeclarationInitializerContext>(0);
 }
 
-EscriptParser::UnpackingDeclarationContext* EscriptParser::VariableDeclarationContext::unpackingDeclaration() {
-  return getRuleContext<EscriptParser::UnpackingDeclarationContext>(0);
+EscriptParser::BindingDeclarationContext* EscriptParser::VariableDeclarationContext::bindingDeclaration() {
+  return getRuleContext<EscriptParser::BindingDeclarationContext>(0);
 }
 
-EscriptParser::UnpackingDeclarationInitializerContext* EscriptParser::VariableDeclarationContext::unpackingDeclarationInitializer() {
-  return getRuleContext<EscriptParser::UnpackingDeclarationInitializerContext>(0);
+EscriptParser::BindingDeclarationInitializerContext* EscriptParser::VariableDeclarationContext::bindingDeclarationInitializer() {
+  return getRuleContext<EscriptParser::BindingDeclarationInitializerContext>(0);
 }
 
 
@@ -5049,9 +5049,9 @@ EscriptParser::VariableDeclarationContext* EscriptParser::variableDeclaration() 
       case EscriptParser::LBRACE: {
         enterOuterAlt(_localctx, 2);
         setState(538);
-        unpackingDeclaration();
+        bindingDeclaration();
         setState(539);
-        unpackingDeclarationInitializer();
+        bindingDeclarationInitializer();
         break;
       }
 
@@ -5069,64 +5069,64 @@ EscriptParser::VariableDeclarationContext* EscriptParser::variableDeclaration() 
   return _localctx;
 }
 
-//----------------- UnpackingDeclarationContext ------------------------------------------------------------------
+//----------------- BindingDeclarationContext ------------------------------------------------------------------
 
-EscriptParser::UnpackingDeclarationContext::UnpackingDeclarationContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::BindingDeclarationContext::BindingDeclarationContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::UnpackingDeclarationContext::LBRACK() {
+tree::TerminalNode* EscriptParser::BindingDeclarationContext::LBRACK() {
   return getToken(EscriptParser::LBRACK, 0);
 }
 
-EscriptParser::IndexUnpackingListContext* EscriptParser::UnpackingDeclarationContext::indexUnpackingList() {
-  return getRuleContext<EscriptParser::IndexUnpackingListContext>(0);
+EscriptParser::SequenceBindingListContext* EscriptParser::BindingDeclarationContext::sequenceBindingList() {
+  return getRuleContext<EscriptParser::SequenceBindingListContext>(0);
 }
 
-tree::TerminalNode* EscriptParser::UnpackingDeclarationContext::RBRACK() {
+tree::TerminalNode* EscriptParser::BindingDeclarationContext::RBRACK() {
   return getToken(EscriptParser::RBRACK, 0);
 }
 
-tree::TerminalNode* EscriptParser::UnpackingDeclarationContext::LBRACE() {
+tree::TerminalNode* EscriptParser::BindingDeclarationContext::LBRACE() {
   return getToken(EscriptParser::LBRACE, 0);
 }
 
-EscriptParser::MemberUnpackingListContext* EscriptParser::UnpackingDeclarationContext::memberUnpackingList() {
-  return getRuleContext<EscriptParser::MemberUnpackingListContext>(0);
+EscriptParser::IndexBindingListContext* EscriptParser::BindingDeclarationContext::indexBindingList() {
+  return getRuleContext<EscriptParser::IndexBindingListContext>(0);
 }
 
-tree::TerminalNode* EscriptParser::UnpackingDeclarationContext::RBRACE() {
+tree::TerminalNode* EscriptParser::BindingDeclarationContext::RBRACE() {
   return getToken(EscriptParser::RBRACE, 0);
 }
 
 
-size_t EscriptParser::UnpackingDeclarationContext::getRuleIndex() const {
-  return EscriptParser::RuleUnpackingDeclaration;
+size_t EscriptParser::BindingDeclarationContext::getRuleIndex() const {
+  return EscriptParser::RuleBindingDeclaration;
 }
 
-void EscriptParser::UnpackingDeclarationContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::BindingDeclarationContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterUnpackingDeclaration(this);
+    parserListener->enterBindingDeclaration(this);
 }
 
-void EscriptParser::UnpackingDeclarationContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::BindingDeclarationContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitUnpackingDeclaration(this);
+    parserListener->exitBindingDeclaration(this);
 }
 
 
-std::any EscriptParser::UnpackingDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::BindingDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitUnpackingDeclaration(this);
+    return parserVisitor->visitBindingDeclaration(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::UnpackingDeclarationContext* EscriptParser::unpackingDeclaration() {
-  UnpackingDeclarationContext *_localctx = _tracker.createInstance<UnpackingDeclarationContext>(_ctx, getState());
-  enterRule(_localctx, 98, EscriptParser::RuleUnpackingDeclaration);
+EscriptParser::BindingDeclarationContext* EscriptParser::bindingDeclaration() {
+  BindingDeclarationContext *_localctx = _tracker.createInstance<BindingDeclarationContext>(_ctx, getState());
+  enterRule(_localctx, 98, EscriptParser::RuleBindingDeclaration);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -5144,7 +5144,7 @@ EscriptParser::UnpackingDeclarationContext* EscriptParser::unpackingDeclaration(
         setState(543);
         match(EscriptParser::LBRACK);
         setState(544);
-        indexUnpackingList();
+        sequenceBindingList();
         setState(545);
         match(EscriptParser::RBRACK);
         break;
@@ -5155,7 +5155,7 @@ EscriptParser::UnpackingDeclarationContext* EscriptParser::unpackingDeclaration(
         setState(547);
         match(EscriptParser::LBRACE);
         setState(548);
-        memberUnpackingList();
+        indexBindingList();
         setState(549);
         match(EscriptParser::RBRACE);
         break;
@@ -5175,56 +5175,56 @@ EscriptParser::UnpackingDeclarationContext* EscriptParser::unpackingDeclaration(
   return _localctx;
 }
 
-//----------------- MemberUnpackingListContext ------------------------------------------------------------------
+//----------------- IndexBindingListContext ------------------------------------------------------------------
 
-EscriptParser::MemberUnpackingListContext::MemberUnpackingListContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::IndexBindingListContext::IndexBindingListContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-std::vector<EscriptParser::MemberUnpackingContext *> EscriptParser::MemberUnpackingListContext::memberUnpacking() {
-  return getRuleContexts<EscriptParser::MemberUnpackingContext>();
+std::vector<EscriptParser::IndexBindingContext *> EscriptParser::IndexBindingListContext::indexBinding() {
+  return getRuleContexts<EscriptParser::IndexBindingContext>();
 }
 
-EscriptParser::MemberUnpackingContext* EscriptParser::MemberUnpackingListContext::memberUnpacking(size_t i) {
-  return getRuleContext<EscriptParser::MemberUnpackingContext>(i);
+EscriptParser::IndexBindingContext* EscriptParser::IndexBindingListContext::indexBinding(size_t i) {
+  return getRuleContext<EscriptParser::IndexBindingContext>(i);
 }
 
-std::vector<tree::TerminalNode *> EscriptParser::MemberUnpackingListContext::COMMA() {
+std::vector<tree::TerminalNode *> EscriptParser::IndexBindingListContext::COMMA() {
   return getTokens(EscriptParser::COMMA);
 }
 
-tree::TerminalNode* EscriptParser::MemberUnpackingListContext::COMMA(size_t i) {
+tree::TerminalNode* EscriptParser::IndexBindingListContext::COMMA(size_t i) {
   return getToken(EscriptParser::COMMA, i);
 }
 
 
-size_t EscriptParser::MemberUnpackingListContext::getRuleIndex() const {
-  return EscriptParser::RuleMemberUnpackingList;
+size_t EscriptParser::IndexBindingListContext::getRuleIndex() const {
+  return EscriptParser::RuleIndexBindingList;
 }
 
-void EscriptParser::MemberUnpackingListContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::IndexBindingListContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterMemberUnpackingList(this);
+    parserListener->enterIndexBindingList(this);
 }
 
-void EscriptParser::MemberUnpackingListContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::IndexBindingListContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitMemberUnpackingList(this);
+    parserListener->exitIndexBindingList(this);
 }
 
 
-std::any EscriptParser::MemberUnpackingListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::IndexBindingListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitMemberUnpackingList(this);
+    return parserVisitor->visitIndexBindingList(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::MemberUnpackingListContext* EscriptParser::memberUnpackingList() {
-  MemberUnpackingListContext *_localctx = _tracker.createInstance<MemberUnpackingListContext>(_ctx, getState());
-  enterRule(_localctx, 100, EscriptParser::RuleMemberUnpackingList);
+EscriptParser::IndexBindingListContext* EscriptParser::indexBindingList() {
+  IndexBindingListContext *_localctx = _tracker.createInstance<IndexBindingListContext>(_ctx, getState());
+  enterRule(_localctx, 100, EscriptParser::RuleIndexBindingList);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -5237,7 +5237,7 @@ EscriptParser::MemberUnpackingListContext* EscriptParser::memberUnpackingList() 
   try {
     enterOuterAlt(_localctx, 1);
     setState(553);
-    memberUnpacking();
+    indexBinding();
     setState(558);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -5245,7 +5245,7 @@ EscriptParser::MemberUnpackingListContext* EscriptParser::memberUnpackingList() 
       setState(554);
       match(EscriptParser::COMMA);
       setState(555);
-      memberUnpacking();
+      indexBinding();
       setState(560);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -5261,56 +5261,56 @@ EscriptParser::MemberUnpackingListContext* EscriptParser::memberUnpackingList() 
   return _localctx;
 }
 
-//----------------- IndexUnpackingListContext ------------------------------------------------------------------
+//----------------- SequenceBindingListContext ------------------------------------------------------------------
 
-EscriptParser::IndexUnpackingListContext::IndexUnpackingListContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::SequenceBindingListContext::SequenceBindingListContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-std::vector<EscriptParser::IndexUnpackingContext *> EscriptParser::IndexUnpackingListContext::indexUnpacking() {
-  return getRuleContexts<EscriptParser::IndexUnpackingContext>();
+std::vector<EscriptParser::SequenceBindingContext *> EscriptParser::SequenceBindingListContext::sequenceBinding() {
+  return getRuleContexts<EscriptParser::SequenceBindingContext>();
 }
 
-EscriptParser::IndexUnpackingContext* EscriptParser::IndexUnpackingListContext::indexUnpacking(size_t i) {
-  return getRuleContext<EscriptParser::IndexUnpackingContext>(i);
+EscriptParser::SequenceBindingContext* EscriptParser::SequenceBindingListContext::sequenceBinding(size_t i) {
+  return getRuleContext<EscriptParser::SequenceBindingContext>(i);
 }
 
-std::vector<tree::TerminalNode *> EscriptParser::IndexUnpackingListContext::COMMA() {
+std::vector<tree::TerminalNode *> EscriptParser::SequenceBindingListContext::COMMA() {
   return getTokens(EscriptParser::COMMA);
 }
 
-tree::TerminalNode* EscriptParser::IndexUnpackingListContext::COMMA(size_t i) {
+tree::TerminalNode* EscriptParser::SequenceBindingListContext::COMMA(size_t i) {
   return getToken(EscriptParser::COMMA, i);
 }
 
 
-size_t EscriptParser::IndexUnpackingListContext::getRuleIndex() const {
-  return EscriptParser::RuleIndexUnpackingList;
+size_t EscriptParser::SequenceBindingListContext::getRuleIndex() const {
+  return EscriptParser::RuleSequenceBindingList;
 }
 
-void EscriptParser::IndexUnpackingListContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::SequenceBindingListContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterIndexUnpackingList(this);
+    parserListener->enterSequenceBindingList(this);
 }
 
-void EscriptParser::IndexUnpackingListContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::SequenceBindingListContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitIndexUnpackingList(this);
+    parserListener->exitSequenceBindingList(this);
 }
 
 
-std::any EscriptParser::IndexUnpackingListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::SequenceBindingListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitIndexUnpackingList(this);
+    return parserVisitor->visitSequenceBindingList(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::IndexUnpackingListContext* EscriptParser::indexUnpackingList() {
-  IndexUnpackingListContext *_localctx = _tracker.createInstance<IndexUnpackingListContext>(_ctx, getState());
-  enterRule(_localctx, 102, EscriptParser::RuleIndexUnpackingList);
+EscriptParser::SequenceBindingListContext* EscriptParser::sequenceBindingList() {
+  SequenceBindingListContext *_localctx = _tracker.createInstance<SequenceBindingListContext>(_ctx, getState());
+  enterRule(_localctx, 102, EscriptParser::RuleSequenceBindingList);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -5323,7 +5323,7 @@ EscriptParser::IndexUnpackingListContext* EscriptParser::indexUnpackingList() {
   try {
     enterOuterAlt(_localctx, 1);
     setState(561);
-    indexUnpacking();
+    sequenceBinding();
     setState(566);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -5331,7 +5331,7 @@ EscriptParser::IndexUnpackingListContext* EscriptParser::indexUnpackingList() {
       setState(562);
       match(EscriptParser::COMMA);
       setState(563);
-      indexUnpacking();
+      sequenceBinding();
       setState(568);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -5347,52 +5347,52 @@ EscriptParser::IndexUnpackingListContext* EscriptParser::indexUnpackingList() {
   return _localctx;
 }
 
-//----------------- IndexUnpackingContext ------------------------------------------------------------------
+//----------------- SequenceBindingContext ------------------------------------------------------------------
 
-EscriptParser::IndexUnpackingContext::IndexUnpackingContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::SequenceBindingContext::SequenceBindingContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::IndexUnpackingContext::IDENTIFIER() {
+tree::TerminalNode* EscriptParser::SequenceBindingContext::IDENTIFIER() {
   return getToken(EscriptParser::IDENTIFIER, 0);
 }
 
-tree::TerminalNode* EscriptParser::IndexUnpackingContext::ELLIPSIS() {
+tree::TerminalNode* EscriptParser::SequenceBindingContext::ELLIPSIS() {
   return getToken(EscriptParser::ELLIPSIS, 0);
 }
 
-EscriptParser::UnpackingDeclarationContext* EscriptParser::IndexUnpackingContext::unpackingDeclaration() {
-  return getRuleContext<EscriptParser::UnpackingDeclarationContext>(0);
+EscriptParser::BindingDeclarationContext* EscriptParser::SequenceBindingContext::bindingDeclaration() {
+  return getRuleContext<EscriptParser::BindingDeclarationContext>(0);
 }
 
 
-size_t EscriptParser::IndexUnpackingContext::getRuleIndex() const {
-  return EscriptParser::RuleIndexUnpacking;
+size_t EscriptParser::SequenceBindingContext::getRuleIndex() const {
+  return EscriptParser::RuleSequenceBinding;
 }
 
-void EscriptParser::IndexUnpackingContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::SequenceBindingContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterIndexUnpacking(this);
+    parserListener->enterSequenceBinding(this);
 }
 
-void EscriptParser::IndexUnpackingContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::SequenceBindingContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitIndexUnpacking(this);
+    parserListener->exitSequenceBinding(this);
 }
 
 
-std::any EscriptParser::IndexUnpackingContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::SequenceBindingContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitIndexUnpacking(this);
+    return parserVisitor->visitSequenceBinding(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::IndexUnpackingContext* EscriptParser::indexUnpacking() {
-  IndexUnpackingContext *_localctx = _tracker.createInstance<IndexUnpackingContext>(_ctx, getState());
-  enterRule(_localctx, 104, EscriptParser::RuleIndexUnpacking);
+EscriptParser::SequenceBindingContext* EscriptParser::sequenceBinding() {
+  SequenceBindingContext *_localctx = _tracker.createInstance<SequenceBindingContext>(_ctx, getState());
+  enterRule(_localctx, 104, EscriptParser::RuleSequenceBinding);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -5425,7 +5425,7 @@ EscriptParser::IndexUnpackingContext* EscriptParser::indexUnpacking() {
       case EscriptParser::LBRACE: {
         enterOuterAlt(_localctx, 2);
         setState(573);
-        unpackingDeclaration();
+        bindingDeclaration();
         break;
       }
 
@@ -5443,64 +5443,64 @@ EscriptParser::IndexUnpackingContext* EscriptParser::indexUnpacking() {
   return _localctx;
 }
 
-//----------------- MemberUnpackingContext ------------------------------------------------------------------
+//----------------- IndexBindingContext ------------------------------------------------------------------
 
-EscriptParser::MemberUnpackingContext::MemberUnpackingContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::IndexBindingContext::IndexBindingContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::MemberUnpackingContext::IDENTIFIER() {
+tree::TerminalNode* EscriptParser::IndexBindingContext::IDENTIFIER() {
   return getToken(EscriptParser::IDENTIFIER, 0);
 }
 
-tree::TerminalNode* EscriptParser::MemberUnpackingContext::ELLIPSIS() {
+tree::TerminalNode* EscriptParser::IndexBindingContext::ELLIPSIS() {
   return getToken(EscriptParser::ELLIPSIS, 0);
 }
 
-EscriptParser::UnpackingContext* EscriptParser::MemberUnpackingContext::unpacking() {
-  return getRuleContext<EscriptParser::UnpackingContext>(0);
+EscriptParser::BindingContext* EscriptParser::IndexBindingContext::binding() {
+  return getRuleContext<EscriptParser::BindingContext>(0);
 }
 
-tree::TerminalNode* EscriptParser::MemberUnpackingContext::LBRACK() {
+tree::TerminalNode* EscriptParser::IndexBindingContext::LBRACK() {
   return getToken(EscriptParser::LBRACK, 0);
 }
 
-EscriptParser::ExpressionContext* EscriptParser::MemberUnpackingContext::expression() {
+EscriptParser::ExpressionContext* EscriptParser::IndexBindingContext::expression() {
   return getRuleContext<EscriptParser::ExpressionContext>(0);
 }
 
-tree::TerminalNode* EscriptParser::MemberUnpackingContext::RBRACK() {
+tree::TerminalNode* EscriptParser::IndexBindingContext::RBRACK() {
   return getToken(EscriptParser::RBRACK, 0);
 }
 
 
-size_t EscriptParser::MemberUnpackingContext::getRuleIndex() const {
-  return EscriptParser::RuleMemberUnpacking;
+size_t EscriptParser::IndexBindingContext::getRuleIndex() const {
+  return EscriptParser::RuleIndexBinding;
 }
 
-void EscriptParser::MemberUnpackingContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::IndexBindingContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterMemberUnpacking(this);
+    parserListener->enterIndexBinding(this);
 }
 
-void EscriptParser::MemberUnpackingContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::IndexBindingContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitMemberUnpacking(this);
+    parserListener->exitIndexBinding(this);
 }
 
 
-std::any EscriptParser::MemberUnpackingContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::IndexBindingContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitMemberUnpacking(this);
+    return parserVisitor->visitIndexBinding(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::MemberUnpackingContext* EscriptParser::memberUnpacking() {
-  MemberUnpackingContext *_localctx = _tracker.createInstance<MemberUnpackingContext>(_ctx, getState());
-  enterRule(_localctx, 106, EscriptParser::RuleMemberUnpacking);
+EscriptParser::IndexBindingContext* EscriptParser::indexBinding() {
+  IndexBindingContext *_localctx = _tracker.createInstance<IndexBindingContext>(_ctx, getState());
+  enterRule(_localctx, 106, EscriptParser::RuleIndexBinding);
   size_t _la = 0;
 
 #if __cplusplus > 201703L
@@ -5539,7 +5539,7 @@ EscriptParser::MemberUnpackingContext* EscriptParser::memberUnpacking() {
       _la = _input->LA(1);
       if (_la == EscriptParser::COLON) {
         setState(581);
-        unpacking();
+        binding();
       }
       break;
     }
@@ -5553,7 +5553,7 @@ EscriptParser::MemberUnpackingContext* EscriptParser::memberUnpacking() {
       setState(586);
       match(EscriptParser::RBRACK);
       setState(587);
-      unpacking();
+      binding();
       break;
     }
 
@@ -5571,52 +5571,52 @@ EscriptParser::MemberUnpackingContext* EscriptParser::memberUnpacking() {
   return _localctx;
 }
 
-//----------------- UnpackingContext ------------------------------------------------------------------
+//----------------- BindingContext ------------------------------------------------------------------
 
-EscriptParser::UnpackingContext::UnpackingContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::BindingContext::BindingContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::UnpackingContext::COLON() {
+tree::TerminalNode* EscriptParser::BindingContext::COLON() {
   return getToken(EscriptParser::COLON, 0);
 }
 
-tree::TerminalNode* EscriptParser::UnpackingContext::IDENTIFIER() {
+tree::TerminalNode* EscriptParser::BindingContext::IDENTIFIER() {
   return getToken(EscriptParser::IDENTIFIER, 0);
 }
 
-EscriptParser::UnpackingDeclarationContext* EscriptParser::UnpackingContext::unpackingDeclaration() {
-  return getRuleContext<EscriptParser::UnpackingDeclarationContext>(0);
+EscriptParser::BindingDeclarationContext* EscriptParser::BindingContext::bindingDeclaration() {
+  return getRuleContext<EscriptParser::BindingDeclarationContext>(0);
 }
 
 
-size_t EscriptParser::UnpackingContext::getRuleIndex() const {
-  return EscriptParser::RuleUnpacking;
+size_t EscriptParser::BindingContext::getRuleIndex() const {
+  return EscriptParser::RuleBinding;
 }
 
-void EscriptParser::UnpackingContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::BindingContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterUnpacking(this);
+    parserListener->enterBinding(this);
 }
 
-void EscriptParser::UnpackingContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::BindingContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitUnpacking(this);
+    parserListener->exitBinding(this);
 }
 
 
-std::any EscriptParser::UnpackingContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::BindingContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitUnpacking(this);
+    return parserVisitor->visitBinding(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::UnpackingContext* EscriptParser::unpacking() {
-  UnpackingContext *_localctx = _tracker.createInstance<UnpackingContext>(_ctx, getState());
-  enterRule(_localctx, 108, EscriptParser::RuleUnpacking);
+EscriptParser::BindingContext* EscriptParser::binding() {
+  BindingContext *_localctx = _tracker.createInstance<BindingContext>(_ctx, getState());
+  enterRule(_localctx, 108, EscriptParser::RuleBinding);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -5643,7 +5643,7 @@ EscriptParser::UnpackingContext* EscriptParser::unpacking() {
       setState(593);
       match(EscriptParser::COLON);
       setState(594);
-      unpackingDeclaration();
+      bindingDeclaration();
       break;
     }
 
@@ -5661,52 +5661,52 @@ EscriptParser::UnpackingContext* EscriptParser::unpacking() {
   return _localctx;
 }
 
-//----------------- UnpackingDeclarationInitializerContext ------------------------------------------------------------------
+//----------------- BindingDeclarationInitializerContext ------------------------------------------------------------------
 
-EscriptParser::UnpackingDeclarationInitializerContext::UnpackingDeclarationInitializerContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::BindingDeclarationInitializerContext::BindingDeclarationInitializerContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::UnpackingDeclarationInitializerContext::ASSIGN() {
+tree::TerminalNode* EscriptParser::BindingDeclarationInitializerContext::ASSIGN() {
   return getToken(EscriptParser::ASSIGN, 0);
 }
 
-EscriptParser::ExpressionContext* EscriptParser::UnpackingDeclarationInitializerContext::expression() {
+EscriptParser::ExpressionContext* EscriptParser::BindingDeclarationInitializerContext::expression() {
   return getRuleContext<EscriptParser::ExpressionContext>(0);
 }
 
-tree::TerminalNode* EscriptParser::UnpackingDeclarationInitializerContext::EQUAL_DEPRECATED() {
+tree::TerminalNode* EscriptParser::BindingDeclarationInitializerContext::EQUAL_DEPRECATED() {
   return getToken(EscriptParser::EQUAL_DEPRECATED, 0);
 }
 
 
-size_t EscriptParser::UnpackingDeclarationInitializerContext::getRuleIndex() const {
-  return EscriptParser::RuleUnpackingDeclarationInitializer;
+size_t EscriptParser::BindingDeclarationInitializerContext::getRuleIndex() const {
+  return EscriptParser::RuleBindingDeclarationInitializer;
 }
 
-void EscriptParser::UnpackingDeclarationInitializerContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::BindingDeclarationInitializerContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterUnpackingDeclarationInitializer(this);
+    parserListener->enterBindingDeclarationInitializer(this);
 }
 
-void EscriptParser::UnpackingDeclarationInitializerContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::BindingDeclarationInitializerContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitUnpackingDeclarationInitializer(this);
+    parserListener->exitBindingDeclarationInitializer(this);
 }
 
 
-std::any EscriptParser::UnpackingDeclarationInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::BindingDeclarationInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitUnpackingDeclarationInitializer(this);
+    return parserVisitor->visitBindingDeclarationInitializer(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::UnpackingDeclarationInitializerContext* EscriptParser::unpackingDeclarationInitializer() {
-  UnpackingDeclarationInitializerContext *_localctx = _tracker.createInstance<UnpackingDeclarationInitializerContext>(_ctx, getState());
-  enterRule(_localctx, 110, EscriptParser::RuleUnpackingDeclarationInitializer);
+EscriptParser::BindingDeclarationInitializerContext* EscriptParser::bindingDeclarationInitializer() {
+  BindingDeclarationInitializerContext *_localctx = _tracker.createInstance<BindingDeclarationInitializerContext>(_ctx, getState());
+  enterRule(_localctx, 110, EscriptParser::RuleBindingDeclarationInitializer);
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {

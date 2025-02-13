@@ -1,0 +1,5 @@
+var { [1]: first, [2]: second, remaining... } := array{ "A", "B", "C", "D" };
+
+print( first );
+print( second );
+print( remaining );
