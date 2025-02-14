@@ -1,7 +1,6 @@
 #include "SemanticAnalyzer.h"
 
 #include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/adaptor/sliced.hpp>
 #include <list>
 #include <set>
 
@@ -160,10 +159,9 @@ void SemanticAnalyzer::visit_index_binding( IndexBinding& node )
     report.error( node, "Too many binding elements. Maximum is 127." );
   }
 
-  // Skip first child, which is ElementIndexes
-  for ( const auto& child : node.children | boost::adaptors::sliced( 1, node.children.size() ) )
+  for ( const auto& child : node.bindings() )
   {
-    if ( auto member_binding = dynamic_cast<VariableBinding*>( child.get() ) )
+    if ( auto member_binding = dynamic_cast<VariableBinding*>( &child.get() ) )
     {
       if ( member_binding->rest )
       {
