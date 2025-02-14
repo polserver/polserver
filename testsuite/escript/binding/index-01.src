@@ -1,7 +1,9 @@
-var { a, b, c: { c, d: { d }, e } } := struct{ a := "foo", b := "bar", c := struct{ c := "blub", e := 3 } };
+var { a, b, c: { c, d: { d }, e, f: my_f }, g } := struct{ a := "foo", b := "bar", c := struct{ f := "F", c := "blub", e := 3 }, g := "G" };
 
 print( a );
 print( b );
 print( c );
 print( d );
 print( e );
+print( my_f );
+print( g );

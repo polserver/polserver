@@ -41,6 +41,10 @@
 #include "../clib/mlog.h"
 #endif
 
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index_container.hpp>
+
 #include <cstdlib>
 #include <cstring>
 #include <exception>
@@ -2423,17 +2427,23 @@ void Executor::ins_unpack_sequence( const Instruction& ins )
 void Executor::ins_unpack_indices( const Instruction& ins )
 {
   bool rest = ins.token.lval >> 14;
-  auto count = Clib::clamp_convert<u8>( ins.token.lval & 0x7F );
-  auto index_count = rest ? Clib::clamp_convert<u8>( count - 1 ) : count;
+  auto binding_count = Clib::clamp_convert<u8>( ins.token.lval & 0x7F );
+  // If there is a rest binding, there will be one less index than the binding
+  // count, as the rest binding has no corresponding element index access.
+  auto index_count = rest ? Clib::clamp_convert<u8>( binding_count - 1 ) : binding_count;
 
-  std::vector<BObjectRef> indexes;
-  std::set<BObject> indexes_set;
+  using namespace boost::multi_index;
+  using OrderedSet =
+      multi_index_container<BObject,
+                            indexed_by<sequenced<>,  // Maintains insertion order
+                                       ordered_unique<identity<BObject>>  // Ensures uniqueness
+                                       >>;
 
-  indexes.reserve( index_count );
+  OrderedSet indexes;
+
   for ( u8 i = 0; i < index_count; ++i )
   {
-    indexes.insert( indexes.begin(), ValueStack.back() );
-    indexes_set.insert( *indexes.front() );
+    indexes.insert( indexes.begin(), BObject( *ValueStack.back().get() ) );
     ValueStack.pop_back();
   }
 
@@ -2441,14 +2451,16 @@ void Executor::ins_unpack_indices( const Instruction& ins )
   ValueStack.pop_back();
 
   // Reserve to keep the insert_at iterator valid
-  ValueStack.reserve( ValueStack.size() + count );
+  ValueStack.reserve( ValueStack.size() + binding_count );
   auto insert_at = ValueStack.begin() + ValueStack.size();
 
-  for ( u8 i = 0; i < index_count; ++i )
+  for ( const auto& index : indexes )
   {
-    ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( *indexes.at( i ) ) );
+    ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( index ) );
   }
 
+  // Rest object is always last element (validated by semantic analyzer), so no
+  // need to calculate `rest_index`.
   if ( rest )
   {
     std::unique_ptr<BObjectImp> rest_obj;
@@ -2467,10 +2479,13 @@ void Executor::ins_unpack_indices( const Instruction& ins )
     auto pIter =
         std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
 
+    auto& unique_index = indexes.get<1>();
+
     while ( auto res = pIter->step() )
     {
-      auto itr = indexes_set.find( *refIter );
-      if ( itr == indexes_set.end() )
+      auto itr = unique_index.find( *refIter.get() );
+
+      if ( itr == unique_index.end() )
         rest_obj->array_assign( refIter->impptr(), res->impptr(), true );
     }
     ValueStack.emplace( insert_at, rest_obj.release() );
