@@ -2432,37 +2432,40 @@ void Executor::ins_unpack_indices( const Instruction& ins )
   // count, as the rest binding has no corresponding element index access.
   auto index_count = rest ? Clib::clamp_convert<u8>( binding_count - 1 ) : binding_count;
 
-  using namespace boost::multi_index;
-  using OrderedSet =
-      multi_index_container<BObject,
-                            indexed_by<sequenced<>,  // Maintains insertion order
-                                       ordered_unique<identity<BObject>>  // Ensures uniqueness
-                                       >>;
-
-  OrderedSet indexes;
-
-  for ( u8 i = 0; i < index_count; ++i )
-  {
-    indexes.insert( indexes.begin(), BObject( *ValueStack.back().get() ) );
-    ValueStack.pop_back();
-  }
-
-  BObjectRef rightref = ValueStack.back();
-  ValueStack.pop_back();
-
-  // Reserve to keep the insert_at iterator valid
-  ValueStack.reserve( ValueStack.size() + binding_count );
-  auto insert_at = ValueStack.begin() + ValueStack.size();
-
-  for ( const auto& index : indexes )
-  {
-    ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( index ) );
-  }
-
-  // Rest object is always last element (validated by semantic analyzer), so no
-  // need to calculate `rest_index`.
   if ( rest )
   {
+    // Use a multi_index because we need to (1) iterate over the indexes in
+    // order of the bindings in the script, and (2) keep track of which indexes
+    // have been used.
+    using namespace boost::multi_index;
+    using OrderedSet =
+        multi_index_container<BObject,
+                              indexed_by<sequenced<>,  // Maintains insertion order
+                                         ordered_unique<identity<BObject>>  // Ensures uniqueness
+                                         >>;
+
+    OrderedSet indexes;
+
+    for ( u8 i = 0; i < index_count; ++i )
+    {
+      indexes.insert( indexes.begin(), BObject( *ValueStack.back().get() ) );
+      ValueStack.pop_back();
+    }
+
+    BObjectRef rightref = ValueStack.back();
+    ValueStack.pop_back();
+
+    // Reserve to keep the insert_at iterator valid
+    ValueStack.reserve( ValueStack.size() + binding_count );
+    auto insert_at = ValueStack.end();
+
+    for ( const auto& index : indexes )
+    {
+      ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( index ) );
+    }
+
+    // Rest object is always last element (validated by semantic analyzer), so
+    // no need to calculate `rest_index`.
     std::unique_ptr<BObjectImp> rest_obj;
 
     if ( rightref->isa( BObjectImp::OTStruct ) )
@@ -2489,6 +2492,29 @@ void Executor::ins_unpack_indices( const Instruction& ins )
         rest_obj->array_assign( refIter->impptr(), res->impptr(), true );
     }
     ValueStack.emplace( insert_at, rest_obj.release() );
+  }
+  else
+  {
+    // If not using a rest binding, only keep track of binding order.
+    std::list<BObject> indexes;
+
+    for ( u8 i = 0; i < index_count; ++i )
+    {
+      indexes.insert( indexes.begin(), BObject( *ValueStack.back().get() ) );
+      ValueStack.pop_back();
+    }
+
+    BObjectRef rightref = ValueStack.back();
+    ValueStack.pop_back();
+
+    // Reserve to keep the insert_at iterator valid
+    ValueStack.reserve( ValueStack.size() + binding_count );
+    auto insert_at = ValueStack.end();
+
+    for ( const auto& index : indexes )
+    {
+      ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( index ) );
+    }
   }
 }
 
