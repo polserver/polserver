@@ -2385,6 +2385,7 @@ void Executor::ins_unpack_sequence( const Instruction& ins )
   {
     auto rest_index = Clib::clamp_convert<u8>( ( ins.token.lval & 0x3FFF ) >> 7 );
 
+    // Add all elements up to the rest index
     for ( u8 i = 0; i < rest_index; ++i )
     {
       if ( auto res = pIter->step() )
@@ -2393,11 +2394,13 @@ void Executor::ins_unpack_sequence( const Instruction& ins )
         ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
     }
 
+    // Add the rest array, and fill it with the remaining iterator elements
     auto rest_array = ValueStack.emplace( insert_at, new ObjArray )->get()->impptr<ObjArray>();
 
     while ( auto res = pIter->step() )
       rest_array->addElement( res->impptr() );
 
+    // Take the remaining elements from the rest array to fill the rest of the bindings.
     auto left = count - rest_index - 1;
 
     for ( u8 i = 0; i < left; ++i )
@@ -2431,6 +2434,9 @@ void Executor::ins_unpack_indices( const Instruction& ins )
   // If there is a rest binding, there will be one less index than the binding
   // count, as the rest binding has no corresponding element index access.
   auto index_count = rest ? Clib::clamp_convert<u8>( binding_count - 1 ) : binding_count;
+
+  // Ensure there is a ValueStack entry for each index, + 1 for the unpacking object ('rightref').
+  passert_r( ValueStack.size() >= index_count + 1, "Not enough values to unpack" );
 
   if ( rest )
   {

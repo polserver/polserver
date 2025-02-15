@@ -624,6 +624,8 @@ void InstructionEmitter::uninit()
 
 void InstructionEmitter::unpack_sequence( unsigned count, unsigned rest_at )
 {
+  // Two-byte offset encodes (1) if rest unpacking, (2) index of rest binding, (3) the number of
+  // bindings: aa'bbbbbbb'ccccccc => a: is rest, b: rest index, c: number of bindings
   unsigned short offset = rest_at == 0xFF
                               ? ( count & 0x7F )
                               : ( 1 << 14 ) | ( ( rest_at & 0x7F ) << 7 ) | ( count & 0x7F );
@@ -633,6 +635,8 @@ void InstructionEmitter::unpack_sequence( unsigned count, unsigned rest_at )
 
 void InstructionEmitter::unpack_indices( unsigned count, unsigned rest_at )
 {
+  // Two-byte offset encodes (1) if rest unpacking, (2) index of rest binding, (3) the number of
+  // bindings: aa'bbbbbbb'ccccccc => a: is rest, b: rest index, c: number of bindings
   unsigned short offset = rest_at == 0xFF
                               ? ( count & 0x7F )
                               : ( 1 << 14 ) | ( ( rest_at & 0x7F ) << 7 ) | ( count & 0x7F );

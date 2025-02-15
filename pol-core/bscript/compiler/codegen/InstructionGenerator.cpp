@@ -1020,6 +1020,9 @@ void InstructionGenerator::visit_variable_binding( VariableBinding& node )
 {
   update_debug_location( node );
 
+  if ( !node.variable )
+    node.internal_error( "variable is not defined" );
+
   int function_capture_count = 0;
 
   if ( !user_functions.empty() )
