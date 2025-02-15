@@ -12,3 +12,5 @@ BaseClass3::BaseClass3 this=<class Foo3> args={  }
 ----
 BaseClassNotVariadic::BaseClassNotVariadic this=<class Foo4> arg0=nv0 arg1=nv1
 BaseClass1::BaseClass1 this=<class Foo4> arg0=bc.0 args={ bc1.0, bc1.1 }
+----
+BaseClass1::BaseClass1 this=<class Foo5> arg0=arg0 args={ s, t, r, i, n, g }

@@ -9,4 +9,4 @@ print( { arr ..., dict ... } ); // { 1, 2, 3, A, B, C }
 
 // A generic ContIterator imp does nothing
 print( { arr ..., uninit ... } ); // { 1, 2, 3 };
-print( { arr ..., ( "foo" ) ... } ); // { 1, 2, 3 };
+print( { arr ..., ( "foo" ) ... } ); // { 1, 2, 3, "f", "o", "o" };
