@@ -1,0 +1,84 @@
+// Globals
+var [ first, middle..., last] := "abcdef";
+
+print( first );
+print( middle );
+print( last );
+print( "--" );
+
+// Testing locals
+
+if ( "1" == "1" )
+    var [ first..., last ] := "abcdef";
+
+    print( first );
+    print( last );
+    print( "--" );
+endif
+
+if ( "1" == "1" )
+    var [ first, last... ] := "abcdef";
+
+    print( first );
+    print( last );
+    print( "--" );
+endif
+
+
+if ( "1" == "1" )
+    var [ first, middle..., last ] := "abcdef";
+
+    print( first );
+    print( middle );
+    print( last );
+    print( "--" );
+endif
+
+
+if ( "1" == "1" )
+    var [ first, second, middle..., last ] := "abcdef";
+
+    print( first );
+    print( second );
+    print( middle );
+    print( last );
+    print( "--" );
+endif
+
+if ( "1" == "1" )
+    var [ first, second, middle..., secondLast, last ] := "abcdef";
+    print( first );
+    print( second );
+    print( middle );
+    print( secondLast );
+    print( last );
+    print( "--" );
+endif
+
+
+if ( "1" == "1" )
+    var [ first, second, middle..., thirdLast, secondLast, last ] := "abcdef";
+    print( first );
+    print( second );
+    print( middle );
+    print( thirdLast );
+    print( secondLast );
+    print( last );
+    print( "--" );
+endif
+
+if ( "1" == "1" )
+    var [ all... ] := "abcdef";
+    print( all );
+    print( "--" );
+endif
+
+if ( "1" == "1" )
+    var [ first, second, middle..., secondLast, last ] := "a";
+    print( first );
+    print( second );
+    print( middle );
+    print( secondLast );
+    print( last );
+    print( "--" );
+endif

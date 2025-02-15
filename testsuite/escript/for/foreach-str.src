@@ -1,0 +1,24 @@
+foreach st in ("a🚀b👍c👌")
+  print( st );
+endforeach
+print( "---" );
+
+foreach st in ("🚀a👍b👌c")
+  print( st );
+endforeach
+print( "---" );
+
+var foo := struct{ str := "foo" };
+foreach bar in (foo.str)
+  print( bar );
+  // Strings are immutable, so this does nothing
+  foo.str := foo.str + "a";
+endforeach
+print( "---" );
+
+// Check for proper reference handling
+foo := struct{ str := "foo" };
+foreach bar in (foo.str)
+  print( $"bar={bar} _bar_iter={_bar_iter} foo={foo}" );
+  foo := uninit;
+endforeach
