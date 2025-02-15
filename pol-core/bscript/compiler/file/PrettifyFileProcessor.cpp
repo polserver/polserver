@@ -228,15 +228,25 @@ antlrcpp::Any PrettifyFileProcessor::visitBindingDeclaration(
 {
   if ( auto lbrack = ctx->LBRACK() )
   {
-    addToken( "[", lbrack, FmtToken::SPACE );
+    addToken(
+        "[", lbrack,
+        ( linebuilder.openingBracketStyle( false ) & ~FmtToken::ATTACHED ) | FmtToken::SPACE );
+    ++_currentgroup;
+    size_t curcount = linebuilder.currentTokens().size();
     visitSequenceBindingList( ctx->sequenceBindingList() );
-    addToken( "]", ctx->RBRACK(), FmtToken::SPACE );
+    --_currentgroup;
+    addToken( "]", ctx->RBRACK(), linebuilder.closingBracketStyle( curcount ) );
   }
   else if ( auto lbrace = ctx->LBRACE() )
   {
-    addToken( "{", lbrace, FmtToken::SPACE );
+    addToken(
+        "{", lbrace,
+        ( linebuilder.openingBracketStyle( false ) & ~FmtToken::ATTACHED ) | FmtToken::SPACE );
+    ++_currentgroup;
+    size_t curcount = linebuilder.currentTokens().size();
     visitIndexBindingList( ctx->indexBindingList() );
-    addToken( "}", ctx->RBRACE(), FmtToken::SPACE );
+    --_currentgroup;
+    addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
   }
 
   return {};
@@ -295,9 +305,12 @@ antlrcpp::Any PrettifyFileProcessor::visitIndexBinding(
   }
   else if ( auto expression = ctx->expression() )
   {
-    addToken( "[", ctx->LBRACK(), FmtToken::ATTACHED );
+    // Use `closingParenthesisStyle` to add FmtToken::SPACE to previous token
+    addToken( "[", ctx->LBRACK(),
+              ( linebuilder.closingParenthesisStyle( false ) & ~FmtToken::SPACE &
+                ~FmtToken::ATTACHED & ~FmtToken::BREAKPOINT ) );
     visitExpression( expression );
-    addToken( "]", ctx->RBRACK(), FmtToken::SPACE | FmtToken::ATTACHED );
+    addToken( "]", ctx->RBRACK(), FmtToken::ATTACHED );
   }
 
   if ( auto binding = ctx->binding() )
