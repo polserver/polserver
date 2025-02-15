@@ -3,6 +3,7 @@
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Statement.h"
+#include "bscript/compiler/file/PrettifyLineBuilder.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compilercfg.h"
@@ -196,21 +197,150 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclarationList(
 antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
     EscriptParser::VariableDeclarationContext* ctx )
 {
-  make_identifier( ctx->IDENTIFIER() );
-
-  if ( auto variable_declaration_initializer = ctx->variableDeclarationInitializer() )
+  if ( auto identifier = ctx->IDENTIFIER() )
   {
-    _currentscope |= FmtToken::Scope::VAR;
+    make_identifier( identifier );
 
-    if ( auto assign = variable_declaration_initializer->ASSIGN() )
-      addToken( ":=", assign, linebuilder.assignmentStyle() );
+    if ( auto variable_declaration_initializer = ctx->variableDeclarationInitializer() )
+    {
+      _currentscope |= FmtToken::Scope::VAR;
 
-    if ( auto expression = variable_declaration_initializer->expression() )
-      visitExpression( expression );
-    else if ( auto arr = variable_declaration_initializer->ARRAY() )
-      addToken( "array", arr, FmtToken::SPACE );
-    _currentscope &= ~FmtToken::Scope::VAR;
+      if ( auto assign = variable_declaration_initializer->ASSIGN() )
+        addToken( ":=", assign, linebuilder.assignmentStyle() );
+
+      if ( auto expression = variable_declaration_initializer->expression() )
+        visitExpression( expression );
+      else if ( auto arr = variable_declaration_initializer->ARRAY() )
+        addToken( "array", arr, FmtToken::SPACE );
+      _currentscope &= ~FmtToken::Scope::VAR;
+    }
   }
+  else if ( auto binding_decl = ctx->bindingDeclaration() )
+  {
+    visitChildren( ctx );
+  }
+
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitBindingDeclaration(
+    EscriptGrammar::EscriptParser::BindingDeclarationContext* ctx )
+{
+  if ( auto lbrack = ctx->LBRACK() )
+  {
+    addToken( "[", lbrack, FmtToken::SPACE );
+    visitSequenceBindingList( ctx->sequenceBindingList() );
+    addToken( "]", ctx->RBRACK(), FmtToken::SPACE );
+  }
+  else if ( auto lbrace = ctx->LBRACE() )
+  {
+    addToken( "{", lbrace, FmtToken::SPACE );
+    visitIndexBindingList( ctx->indexBindingList() );
+    addToken( "}", ctx->RBRACE(), FmtToken::SPACE );
+  }
+
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitBindingDeclarationInitializer(
+    EscriptGrammar::EscriptParser::BindingDeclarationInitializerContext* ctx )
+{
+  addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
+  visitExpression( ctx->expression() );
+
+  return {};
+}
+antlrcpp::Any PrettifyFileProcessor::visitIndexBindingList(
+    EscriptGrammar::EscriptParser::IndexBindingListContext* ctx )
+{
+  auto args = ctx->indexBinding();
+  for ( size_t i = 0; i < args.size(); ++i )
+  {
+    visitIndexBinding( args[i] );
+
+    if ( i < args.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK | FmtToken::SPACE );
+  }
+
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitSequenceBindingList(
+    EscriptGrammar::EscriptParser::SequenceBindingListContext* ctx )
+{
+  auto args = ctx->sequenceBinding();
+  for ( size_t i = 0; i < args.size(); ++i )
+  {
+    visitSequenceBinding( args[i] );
+    if ( i < args.size() - 1 )
+      addToken( ",", ctx->COMMA( i ),
+                linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK | FmtToken::SPACE );
+  }
+
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitIndexBinding(
+    EscriptGrammar::EscriptParser::IndexBindingContext* ctx )
+{
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    make_identifier( identifier );
+  }
+
+  if ( auto ellipsis = ctx->ELLIPSIS() )
+  {
+    addToken( "...", ellipsis, FmtToken::SPACE | FmtToken::ATTACHED );
+  }
+  else if ( auto expression = ctx->expression() )
+  {
+    addToken( "[", ctx->LBRACK(), FmtToken::ATTACHED );
+    visitExpression( expression );
+    addToken( "]", ctx->RBRACK(), FmtToken::SPACE | FmtToken::ATTACHED );
+  }
+
+  if ( auto binding = ctx->binding() )
+  {
+    visitBinding( binding );
+  }
+
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitBinding(
+    EscriptGrammar::EscriptParser::BindingContext* ctx )
+{
+  addToken( ":", ctx->COLON(), FmtToken::SPACE | FmtToken::ATTACHED );
+
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    make_identifier( identifier );
+  }
+  else if ( auto binding_decl = ctx->bindingDeclaration() )
+  {
+    visitBindingDeclaration( binding_decl );
+  }
+
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::visitSequenceBinding(
+    EscriptGrammar::EscriptParser::SequenceBindingContext* ctx )
+{
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    make_identifier( identifier );
+    if ( auto ellipsis = ctx->ELLIPSIS() )
+    {
+      addToken( "...", ellipsis, FmtToken::SPACE | FmtToken::ATTACHED );
+    }
+  }
+  else if ( auto binding_decl = ctx->bindingDeclaration() )
+  {
+    visitBindingDeclaration( binding_decl );
+  }
+
   return {};
 }
 
