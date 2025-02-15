@@ -1,0 +1,27 @@
+var [
+  { name: firstName, color: firstColor, lastcoord: { lastx: firstX, lasty: firstY, lastz: firstZ }, firstRest... },
+  { name: secondName, reportables: [ secondRep1, secondRestReps... ], secondRest... },
+  remaining...
+] := array{
+  struct{ name := "FIRSTNAME", color := "FIRSTCOLOR", lastcoord := struct{ lastx := 1, lasty := 2, lastz := 3 }, reportables := { } },
+  struct{ name := "SECONDNAME", color := "SECONDCOLOR", lastcoord := struct{ lastx := 4, lasty := 5, lastz := 6 }, reportables := { "REP1", "REP2", "REP3" } },
+  struct{ name := "THIRDNAME", color := "THIRDCOLOR", lastcoord := struct{ lastx := 7, lasty := 8, lastz := 9 }, reportables := {  } }
+};
+
+var { lastcoord: { lastx: secondX, lasty: secondY, lastz: secondZ } } := secondRest;
+
+print( firstName );
+print( firstColor );
+print( firstRest );
+print( firstX );
+print( firstY );
+print( firstZ );
+print( secondName );
+print( secondRep1 );
+print( secondRestReps );
+print( secondRest );
+print( secondX );
+print( secondY );
+print( secondZ );
+print( remaining );
+

@@ -1,0 +1,5 @@
+var { name, color, remaining... } := struct{ name := "NAME", color := "COLOR", foo := "FOO", bar := "BAR" };
+
+print( name );
+print( color );
+print( remaining );

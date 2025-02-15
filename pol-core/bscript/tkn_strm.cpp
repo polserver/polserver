@@ -484,6 +484,24 @@ void Token::printOn( std::ostream& os ) const
     os << "format expression";
     break;
 
+  case INS_UNPACK_SEQUENCE:
+  {
+    int rest_index = lval > 0x7F ? ( ( lval >> 7 ) & 0x7F ) : -1;
+    os << fmt::format( "unpack sequence ({} elements, rest index {})", lval & 0x7F, rest_index );
+    break;
+  }
+  case INS_UNPACK_INDICES:
+  {
+    int rest_index = lval > 0x7F ? ( ( lval >> 7 ) & 0x7F ) : -1;
+    os << fmt::format( "unpack indices ({} elements, rest index {})", lval & 0x7F, rest_index );
+    break;
+  }
+  case INS_TAKE_GLOBAL:
+    os << "take global #" << lval;
+    break;
+  case INS_TAKE_LOCAL:
+    os << "take local #" << lval;
+    break;
 
   case TOK_FUNC:
   {

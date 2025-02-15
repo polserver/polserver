@@ -8,6 +8,7 @@ namespace Pol::Bscript::Compiler
 class ConstDeclaration;
 class EnumDeclaration;
 class JumpStatement;
+class Node;
 class ReturnStatement;
 class Statement;
 
@@ -22,6 +23,14 @@ public:
   void add_var_statements( EscriptGrammar::EscriptParser::VarStatementContext*,
                            const std::string& class_name,
                            std::vector<std::unique_ptr<Statement>>& );
+
+
+  std::unique_ptr<Expression> binding_initializer(
+      EscriptGrammar::EscriptParser::BindingDeclarationInitializerContext* );
+
+  // Either a IndexBinding, SequenceBinding, or VariableBinding
+  std::unique_ptr<Node> binding( const std::string& class_name,
+                                 EscriptGrammar::EscriptParser::BindingDeclarationContext* );
 
   std::unique_ptr<JumpStatement> break_statement(
       EscriptGrammar::EscriptParser::BreakStatementContext* );

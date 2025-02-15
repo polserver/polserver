@@ -1,0 +1,40 @@
+1
+{ 2, 3, 4 }
+5
+--
+{ 1, 2, 3, 4 }
+5
+--
+1
+{ 2, 3, 4, 5 }
+--
+1
+{ 2, 3, 4 }
+5
+--
+1
+2
+{ 3, 4 }
+5
+--
+1
+2
+{ 3 }
+4
+5
+--
+1
+2
+{  }
+3
+4
+5
+--
+{ 1, 2, 3, 4, 5 }
+--
+1
+error{ errortext = "Index out of bounds" }
+{  }
+error{ errortext = "Index out of bounds" }
+error{ errortext = "Index out of bounds" }
+--

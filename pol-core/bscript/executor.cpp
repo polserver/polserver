@@ -41,6 +41,10 @@
 #include "../clib/mlog.h"
 #endif
 
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/sequenced_index.hpp>
+#include <boost/multi_index_container.hpp>
+
 #include <cstdlib>
 #include <cstring>
 #include <exception>
@@ -527,7 +531,7 @@ void Executor::setFunctionResult( BObjectImp* imp )
   func_result_ = imp;
 }
 
-void Executor::printStack( const std::string& message )
+void Executor::printStack( const std::string& message = "" )
 {
   if ( debug_level < INSTRUCTIONS )
     return;
@@ -2361,6 +2365,176 @@ void Executor::ins_multisubscript( const Instruction& ins )
   BObjectRef& leftref = ValueStack.back();
   leftref = ( *leftref )->OperMultiSubscript( indices );
 }
+
+void Executor::ins_unpack_sequence( const Instruction& ins )
+{
+  bool rest = ins.token.lval >> 14;
+  auto count = Clib::clamp_convert<u8>( ins.token.lval & 0x7F );
+
+  BObjectRef refIter( new BObject( UninitObject::create() ) );
+
+  BObjectRef rightref = ValueStack.back();
+  ValueStack.pop_back();
+
+  // Reserve to keep the insert_at iterator valid
+  ValueStack.reserve( ValueStack.size() + count );
+  auto insert_at = ValueStack.begin() + ValueStack.size();
+  auto pIter = std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
+
+  if ( rest )
+  {
+    auto rest_index = Clib::clamp_convert<u8>( ( ins.token.lval & 0x3FFF ) >> 7 );
+
+    for ( u8 i = 0; i < rest_index; ++i )
+    {
+      if ( auto res = pIter->step() )
+        ValueStack.emplace( insert_at, res );
+      else
+        ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
+    }
+
+    auto rest_array = ValueStack.emplace( insert_at, new ObjArray )->get()->impptr<ObjArray>();
+
+    while ( auto res = pIter->step() )
+      rest_array->addElement( res->impptr() );
+
+    auto left = count - rest_index - 1;
+
+    for ( u8 i = 0; i < left; ++i )
+    {
+      if ( rest_array->ref_arr.empty() )
+        ValueStack.emplace( insert_at + i, new BError( "Index out of bounds" ) );
+      else
+      {
+        ValueStack.insert( insert_at + i, rest_array->ref_arr.back() );
+
+        rest_array->ref_arr.pop_back();
+      }
+    }
+  }
+  else
+  {
+    for ( u8 i = 0; i < count; ++i )
+    {
+      if ( auto res = pIter->step() )
+        ValueStack.emplace( insert_at, res );
+      else
+        ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
+    }
+  }
+}
+
+void Executor::ins_unpack_indices( const Instruction& ins )
+{
+  bool rest = ins.token.lval >> 14;
+  auto binding_count = Clib::clamp_convert<u8>( ins.token.lval & 0x7F );
+  // If there is a rest binding, there will be one less index than the binding
+  // count, as the rest binding has no corresponding element index access.
+  auto index_count = rest ? Clib::clamp_convert<u8>( binding_count - 1 ) : binding_count;
+
+  if ( rest )
+  {
+    // Use a multi_index because we need to (1) iterate over the indexes in
+    // order of the bindings in the script, and (2) keep track of which indexes
+    // have been used.
+    using namespace boost::multi_index;
+    using OrderedSet =
+        multi_index_container<BObject,
+                              indexed_by<sequenced<>,  // Maintains insertion order
+                                         ordered_unique<identity<BObject>>  // Ensures uniqueness
+                                         >>;
+
+    OrderedSet indexes;
+
+    for ( u8 i = 0; i < index_count; ++i )
+    {
+      indexes.insert( indexes.begin(), BObject( *ValueStack.back().get() ) );
+      ValueStack.pop_back();
+    }
+
+    BObjectRef rightref = ValueStack.back();
+    ValueStack.pop_back();
+
+    // Reserve to keep the insert_at iterator valid
+    ValueStack.reserve( ValueStack.size() + binding_count );
+    auto insert_at = ValueStack.end();
+
+    for ( const auto& index : indexes )
+    {
+      ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( index ) );
+    }
+
+    // Rest object is always last element (validated by semantic analyzer), so
+    // no need to calculate `rest_index`.
+    std::unique_ptr<BObjectImp> rest_obj;
+
+    if ( rightref->isa( BObjectImp::OTStruct ) )
+      rest_obj = std::make_unique<BStruct>();
+    else if ( rightref->isa( BObjectImp::OTDictionary ) )
+      rest_obj = std::make_unique<BDictionary>();
+    else
+    {
+      ValueStack.emplace( insert_at, new BError( "Invalid type for rest binding" ) );
+      return;
+    }
+
+    BObjectRef refIter( new BObject( UninitObject::create() ) );
+    auto pIter =
+        std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
+
+    auto& unique_index = indexes.get<1>();
+
+    while ( auto res = pIter->step() )
+    {
+      auto itr = unique_index.find( *refIter.get() );
+
+      if ( itr == unique_index.end() )
+        rest_obj->array_assign( refIter->impptr(), res->impptr(), true );
+    }
+    ValueStack.emplace( insert_at, rest_obj.release() );
+  }
+  else
+  {
+    // If not using a rest binding, only keep track of binding order.
+    std::list<BObject> indexes;
+
+    for ( u8 i = 0; i < index_count; ++i )
+    {
+      indexes.insert( indexes.begin(), BObject( *ValueStack.back().get() ) );
+      ValueStack.pop_back();
+    }
+
+    BObjectRef rightref = ValueStack.back();
+    ValueStack.pop_back();
+
+    // Reserve to keep the insert_at iterator valid
+    ValueStack.reserve( ValueStack.size() + binding_count );
+    auto insert_at = ValueStack.end();
+
+    for ( const auto& index : indexes )
+    {
+      ValueStack.insert( insert_at, rightref->impptr()->OperSubscript( index ) );
+    }
+  }
+}
+
+void Executor::ins_take_local( const Instruction& )
+{
+  passert( Locals2 != nullptr );
+  passert( !ValueStack.empty() );
+
+  Locals2->push_back( ValueStack.back() );
+  ValueStack.pop_back();
+}
+
+void Executor::ins_take_global( const Instruction& ins )
+{
+  passert( !ValueStack.empty() );
+
+  ( *Globals2 )[ins.token.lval] = ValueStack.back();
+  ValueStack.pop_back();
+}
+
 void Executor::ins_multisubscript_assign( const Instruction& ins )
 {
   BObjectRef target_ref = ValueStack.back();
@@ -3545,6 +3719,15 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_set_member;
   case INS_SET_MEMBER_CONSUME:
     return &Executor::ins_set_member_consume;
+
+  case INS_UNPACK_SEQUENCE:
+    return &Executor::ins_unpack_sequence;
+  case INS_UNPACK_INDICES:
+    return &Executor::ins_unpack_indices;
+  case INS_TAKE_GLOBAL:
+    return &Executor::ins_take_global;
+  case INS_TAKE_LOCAL:
+    return &Executor::ins_take_local;
 
   case INS_GET_MEMBER_ID:
     return &Executor::ins_get_member_id;  // test id
