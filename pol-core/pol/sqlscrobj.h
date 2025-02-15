@@ -75,6 +75,8 @@ public:
   virtual u8 typeOfInt() const override { return OTSQLRow; }
   virtual bool isTrue() const override { return _row != 0; };
   virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
+  virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) override;
+  friend class SQLRowIterator;
 
 private:
   MYSQL_ROW _row;
@@ -100,9 +102,10 @@ public:
   virtual const char* typeOf() const override { return "SQLResultSet"; }
   virtual u8 typeOfInt() const override { return OTSQLResultSet; }
   virtual bool isTrue() const override;
-  // virtual BObjectRef OperSubscript( const BObject& obj );
+  virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) override;
 
   friend class BSQLRow;
+  friend class SQLResultSetIterator;
 
 private:
   RES_WRAPPER _result;

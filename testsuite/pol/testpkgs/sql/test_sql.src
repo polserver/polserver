@@ -6,7 +6,8 @@ include "testutil";
 
 var conn;
 program testsql()
-  conn := mysql_connect( "localhost", "root", "root" );
+  // Using "localhost" might try to use a unix socket vs tcp socket
+  conn := mysql_connect( "127.0.0.1", "root", "root" );
   if ( !conn )
     return ret_error( $"failed to connect: {conn}" );
   endif
@@ -16,9 +17,17 @@ program testsql()
     return ret_error( $"failed to select db: {db}" );
   endif
 
-  var query := mysql_query( conn,
-                            "CREATE TABLE IF NOT EXISTS db_test (`key` int(11) NOT NULL, `val` varchar(128) NOT NULL, PRIMARY KEY (`key`))"
-                            );
+  var query;
+
+  query := mysql_query( conn, "DROP TABLE IF EXISTS db_test" );
+  if ( !query )
+    mysql_close( conn );
+    return ret_error( $"failed to cleanup table {query}" );
+  endif
+
+  query := mysql_query( conn,
+                        "CREATE TABLE IF NOT EXISTS db_test (`key` int(11) NOT NULL, `val` varchar(128) NOT NULL, PRIMARY KEY (`key`))"
+                        );
   if ( !query )
     mysql_close( conn );
     return ret_error( $"failed to create table {query}" );
@@ -48,6 +57,42 @@ exported function sqlquery()
   return 1;
 endfunction
 
+exported function sqlquery_binding_1()
+  var res := mysql_query( conn, "SELECT `key`, `val` FROM db_test" );
+  var values := array{};
+  var num := mysql_num_rows( res );
+  if ( num != 2 )
+    return ret_error( $"failed to get values {num}!=2 - {res}" );
+  endif
+  foreach row in res
+    var [ key, val ] := row;
+    values.append( $"_row_iter={_row_iter} key={key} val={val}" );
+  endforeach
+
+  var expected := array{ "_row_iter=1 key=1 val=one", "_row_iter=2 key=2 val=two" };
+  return ret_error_not_equal( values, expected, $"Actual {values} != {expected}" );
+endfunction
+
+exported function sqlquery_iter()
+  var res := mysql_query( conn, "SELECT `key`, `val` FROM db_test" );
+  var values := array{};
+  var num := mysql_num_rows( res );
+  if ( num != 2 )
+    return ret_error( $"failed to get values {num}!=2 - {res}" );
+  endif
+  foreach row in res
+    foreach col in row
+      values.append( $"_row_iter={_row_iter} _col_iter={_col_iter} col={col}" );
+    endforeach
+  endforeach
+
+  var expected := array{ "_row_iter=1 _col_iter=key col=1", "_row_iter=1 _col_iter=val col=one", "_row_iter=2 _col_iter=key col=2",
+                         "_row_iter=2 _col_iter=val col=two" };
+  return ret_error_not_equal( values, expected, $"Actual {values} != {expected}" );
+endfunction
+
+// This function inserts into the table, so gotta make sure queries that check
+// for result size come before (alphabetically)
 exported function sqlquery_param()
   var query := mysql_query( conn, "INSERT INTO db_test VALUES (3,?), (4,?);", { "three", "four" } );
   if ( !query )
