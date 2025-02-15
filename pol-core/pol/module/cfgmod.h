@@ -57,7 +57,7 @@ public:
 
   [[nodiscard]] Bscript::BObjectImp* mf_AppendConfigFileElem();
   [[nodiscard]] Bscript::BObjectImp* mf_UnloadConfigFile();
-  
+
   [[nodiscard]] Bscript::BObjectImp* mf_LoadTusScpFile();
 
 
@@ -77,6 +77,8 @@ public:
   virtual const char* typeOf() const override;
   virtual u8 typeOfInt() const override;
   virtual Bscript::BObjectImp* copy() const override;
+  virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) override;
+  friend class ConfigFileIterator;
 };
 
 
@@ -91,6 +93,7 @@ public:
   virtual const char* typeOf() const override;
   virtual u8 typeOfInt() const override;
   virtual Bscript::BObjectImp* copy() const override;
+  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
 };
 
 

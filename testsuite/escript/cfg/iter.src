@@ -1,0 +1,23 @@
+use cfgfile;
+
+foreach cfgelem in ( ReadConfigFile( ":cfgtests:iter" ) )
+  var values := ListConfigElemProps( cfgelem ).map( @( prop ) {
+    return GetConfigString( cfgelem, prop );
+  } );
+
+  var props := ListConfigElemProps( cfgelem );
+
+  // The _iter_ is always a string
+  print( $"_cfgelem_iter={_cfgelem_iter} typeof(iter)={TypeOf( _cfgelem_iter )} cfgelem={cfgelem} props={props} values={values}" );
+endforeach
+print( "----" );
+
+foreach cfgelem in ( ReadConfigFile( ":cfgtests:iter" ) )
+  var { c, d, rest... } := cfgelem;
+  print( $"c={c} d={d} rest={rest}" );
+endforeach
+print( "----" );
+
+// Test OperSubscript with BLong access
+var { [456]: { c: elem_456_c } } := ReadConfigFile( ":cfgtests:iter" );
+print( elem_456_c );
