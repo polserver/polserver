@@ -1,5 +1,15 @@
 -- POL100.2.0 --
 02-17-2025 Kevin:
+    Added: Support for spread operator in dictionary and struct initializers. For example:
+
+             var first := dictionary{ 1 -> "one" };
+             var second := dictionary{ 2 -> "two" };
+             var joined := dictionary{ first..., second.... };
+
+             print( joined );   // dict{ 1 -> "one", 2 -> "two" }
+
+           See the Racalac Escript Guide for additional details.
+02-16-2025 Kevin:
     Added: Escript support for sequence and index binding statements, for example:
 
              var [ first, second, third ] := array{ "one", 2, "three" };

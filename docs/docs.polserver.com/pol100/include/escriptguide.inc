@@ -2755,6 +2755,21 @@ endprogram
 </pre></div>
 
 <p>
+  Additionally, it can be used in dictionary and struct initializers to take the
+  elements from one object and spread them into the target, new object. If the
+  key already exists in the target object, it will be overwritten with the new
+  value.
+</p>
+
+<div class="doc-guide-pre"><pre>
+var dict1 := dictionary{ "a" -> 1, "b" -> 2 };
+var dict2 := dictionary{ "b" -> 3, "c" -> 4 };
+
+var dict := dictionary{ dict1..., dict2... };
+Print( dict ); // Output: dict{ "a" -> 1, "b" -> 3, "c" -> 4 }
+</pre></div>
+
+<p>
 For function calls, the spread operator can only be used on variadic functions,
 ie. those that accept a variable number of arguments. Using the spread operator
 with non-variadic functions will result in a compile-time error. To bypass this,
