@@ -20,6 +20,10 @@ exported function load_save_account()
                  {
                    "Enabled",
                    { "enabled", 0 }
+                 },
+                 {
+                   "Banned",
+                   { "banned", 1 }
                  }, //          {"DefaultPrivs", {"",1}},
                  {
                    "DefaultCmdLevel",
