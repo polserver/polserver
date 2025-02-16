@@ -219,6 +219,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
   {
     _currentscope |= FmtToken::Scope::VAR;
     visitChildren( ctx );
+    _currentscope &= ~FmtToken::Scope::VAR;
   }
 
   return {};
