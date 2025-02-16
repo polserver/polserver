@@ -2381,6 +2381,25 @@ void Executor::ins_unpack_sequence( const Instruction& ins )
   auto insert_at = ValueStack.begin() + ValueStack.size();
   auto pIter = std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
 
+  // The default iterator is used for non-iterable objects, so we can't unpack
+  // them. Simply add errors for each value to unpack.
+  if ( pIter->is_default() )
+  {
+    if ( rest )
+    {
+      auto rest_index = Clib::clamp_convert<u8>( ( ins.token.lval & 0x3FFF ) >> 7 );
+      for ( u8 i = 0; i < count; ++i )
+        ValueStack.emplace( insert_at, new BError( i == rest_index ? "Invalid type for rest binding"
+                                                                   : "Index out of bounds" ) );
+    }
+    else
+    {
+      for ( u8 i = 0; i < count; ++i )
+        ValueStack.emplace( insert_at, new BError( "Index out of bounds" ) );
+    }
+    return;
+  }
+
   if ( rest )
   {
     auto rest_index = Clib::clamp_convert<u8>( ( ins.token.lval & 0x3FFF ) >> 7 );
@@ -2474,19 +2493,18 @@ void Executor::ins_unpack_indices( const Instruction& ins )
     // no need to calculate `rest_index`.
     std::unique_ptr<BObjectImp> rest_obj;
 
-    if ( rightref->isa( BObjectImp::OTStruct ) )
-      rest_obj = std::make_unique<BStruct>();
-    else if ( rightref->isa( BObjectImp::OTDictionary ) )
-      rest_obj = std::make_unique<BDictionary>();
-    else
+    BObjectRef refIter( new BObject( UninitObject::create() ) );
+    auto pIter =
+        std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
+
+    // The default iterator is used for non-iterable objects, so we can't unpack them.
+    if ( pIter->is_default() )
     {
       ValueStack.emplace( insert_at, new BError( "Invalid type for rest binding" ) );
       return;
     }
-
-    BObjectRef refIter( new BObject( UninitObject::create() ) );
-    auto pIter =
-        std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
+    else
+      rest_obj = std::make_unique<BDictionary>();
 
     auto& unique_index = indexes.get<1>();
 

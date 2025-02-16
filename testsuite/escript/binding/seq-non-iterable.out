@@ -1,0 +1,6 @@
+error{ errortext = "Index out of bounds" }
+error{ errortext = "Invalid type for rest binding" }
+error{ errortext = "Index out of bounds" }
+----
+error{ errortext = "Index out of bounds" }
+error{ errortext = "Index out of bounds" }

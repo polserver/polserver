@@ -1,0 +1,15 @@
+// Globals
+var [ first, middle..., last ] := 1234;
+
+print( first );
+print( middle );
+print( last );
+print( "----" );
+
+// Locals
+if (1)
+    var [ first, last ] := 1234;
+
+    print( first );
+    print( last );
+endif

@@ -1,3 +1,3 @@
 A
 B
-error{ errortext = "Invalid type for rest binding" }
+dict{ 3 -> "C", 4 -> "D" }

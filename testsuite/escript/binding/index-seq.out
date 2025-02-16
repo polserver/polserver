@@ -1,13 +1,13 @@
 FIRSTNAME
 FIRSTCOLOR
-struct{ reportables = {  } }
+dict{ "reportables" -> {  } }
 1
 2
 3
 SECONDNAME
 REP1
 { REP2, REP3 }
-struct{ color = "SECONDCOLOR", lastcoord = struct{ lastx = 4, lasty = 5, lastz = 6 } }
+dict{ "color" -> "SECONDCOLOR", "lastcoord" -> struct{ lastx = 4, lasty = 5, lastz = 6 } }
 4
 5
 6
