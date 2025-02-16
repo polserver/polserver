@@ -335,9 +335,6 @@ antlrcpp::Any PrettifyFileProcessor::visitIndexBinding(
 antlrcpp::Any PrettifyFileProcessor::visitBinding(
     EscriptGrammar::EscriptParser::BindingContext* ctx )
 {
-  ;
-
-
   // We always want it attached, eg. `foo:` (and not `foo :`) but we may not want a space after the
   // colon, eg.:
   //   `foo: bar` (FormatterAssignmentSpacing=1), vs

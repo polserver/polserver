@@ -195,21 +195,25 @@ private:
   Bscript::BObject m_ResultsObj;
   BSQLResultSet* results;
   Bscript::BObjectRef m_IterVal;
-  size_t index;
+  BLong* m_pIterVal;
 };
 
-SQLResultSetIterator::SQLResultSetIterator( BSQLResultSet* results, Bscript::BObject* pIter )
-    : ContIterator(), m_ResultsObj( results ), results( results ), m_IterVal( pIter ), index( 0 )
+SQLResultSetIterator::SQLResultSetIterator( BSQLResultSet* results, Bscript::BObject* pIterVal )
+    : ContIterator(),
+      m_ResultsObj( results ),
+      results( results ),
+      m_IterVal( pIterVal ),
+      m_pIterVal( new BLong( 0 ) )
 {
+  m_IterVal.get()->setimp( m_pIterVal );
 }
 
 Bscript::BObject* SQLResultSetIterator::step()
 {
-  if ( index >= mysql_num_rows( results->_result->ptr() ) )
+  if ( m_pIterVal->value() >= mysql_num_rows( results->_result->ptr() ) )
     return nullptr;
 
-  ++index;
-  m_IterVal->setimp( new BLong( index ) );
+  m_pIterVal->increment();
   return new BObject( new BSQLRow( results ) );
 }
 
