@@ -217,6 +217,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
   }
   else if ( auto binding_decl = ctx->bindingDeclaration() )
   {
+    _currentscope |= FmtToken::Scope::VAR;
     visitChildren( ctx );
   }
 
@@ -226,22 +227,29 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
 antlrcpp::Any PrettifyFileProcessor::visitBindingDeclaration(
     EscriptGrammar::EscriptParser::BindingDeclarationContext* ctx )
 {
+  // If the preceeding token is VAR or COMMA, we need to force unattached, ie:
+  //   `var [foo]` (FormatterBracketSpacing=0), and
+  //   `var [ foo ]` (FormatterBracketSpacing=1),
+  // the LBRACK must not be attached.
+  auto const& last_token = linebuilder.currentTokens().back();
+  bool force_unattached =
+      last_token.token_type == EscriptLexer::VAR || last_token.token_type == EscriptLexer::COMMA ||
+      ( last_token.token_type == EscriptLexer::COLON && compilercfg.FormatterAssignmentSpacing );
+
   if ( auto lbrack = ctx->LBRACK() )
   {
-    addToken(
-        "[", lbrack,
-        ( linebuilder.openingBracketStyle( false ) & ~FmtToken::ATTACHED ) | FmtToken::SPACE );
+    addToken( "[", lbrack, linebuilder.openingBracketStyle( false, force_unattached ) );
     ++_currentgroup;
+    _currentscope |= FmtToken::Scope::ARRAY;
     size_t curcount = linebuilder.currentTokens().size();
     visitSequenceBindingList( ctx->sequenceBindingList() );
+    _currentscope &= ~FmtToken::Scope::ARRAY;
     --_currentgroup;
     addToken( "]", ctx->RBRACK(), linebuilder.closingBracketStyle( curcount ) );
   }
   else if ( auto lbrace = ctx->LBRACE() )
   {
-    addToken(
-        "{", lbrace,
-        ( linebuilder.openingBracketStyle( false ) & ~FmtToken::ATTACHED ) | FmtToken::SPACE );
+    addToken( "{", lbrace, linebuilder.openingBracketStyle( false, force_unattached ) );
     ++_currentgroup;
     size_t curcount = linebuilder.currentTokens().size();
     visitIndexBindingList( ctx->indexBindingList() );
@@ -269,8 +277,7 @@ antlrcpp::Any PrettifyFileProcessor::visitIndexBindingList(
     visitIndexBinding( args[i] );
 
     if ( i < args.size() - 1 )
-      addToken( ",", ctx->COMMA( i ),
-                linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK | FmtToken::SPACE );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
 
   return {};
@@ -284,8 +291,7 @@ antlrcpp::Any PrettifyFileProcessor::visitSequenceBindingList(
   {
     visitSequenceBinding( args[i] );
     if ( i < args.size() - 1 )
-      addToken( ",", ctx->COMMA( i ),
-                linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK | FmtToken::SPACE );
+      addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() );
   }
 
   return {};
@@ -305,12 +311,17 @@ antlrcpp::Any PrettifyFileProcessor::visitIndexBinding(
   }
   else if ( auto expression = ctx->expression() )
   {
-    // Use `closingParenthesisStyle` to add FmtToken::SPACE to previous token
+    bool force_unattached = compilercfg.FormatterBracketSpacing;
+
+    // This corresponds to an expression index, eg the [foo] in `var { [foo]: bar } := baz;`, so
+    // force it to be unattached if we have bracket spacing.
     addToken( "[", ctx->LBRACK(),
-              ( linebuilder.closingParenthesisStyle( false ) & ~FmtToken::SPACE &
-                ~FmtToken::ATTACHED & ~FmtToken::BREAKPOINT ) );
+              linebuilder.openingBracketStyle( true, force_unattached ) & ~FmtToken::BREAKPOINT );
+
+    size_t curcount = linebuilder.currentTokens().size();
     visitExpression( expression );
-    addToken( "]", ctx->RBRACK(), FmtToken::ATTACHED );
+    addToken( "]", ctx->RBRACK(),
+              linebuilder.closingBracketStyle( curcount ) & ~FmtToken::BREAKPOINT );
   }
 
   if ( auto binding = ctx->binding() )
@@ -324,7 +335,16 @@ antlrcpp::Any PrettifyFileProcessor::visitIndexBinding(
 antlrcpp::Any PrettifyFileProcessor::visitBinding(
     EscriptGrammar::EscriptParser::BindingContext* ctx )
 {
-  addToken( ":", ctx->COLON(), FmtToken::SPACE | FmtToken::ATTACHED );
+  ;
+
+
+  // We always want it attached, eg. `foo:` (and not `foo :`) but we may not want a space after the
+  // colon, eg.:
+  //   `foo: bar` (FormatterAssignmentSpacing=1), vs
+  //   `foo:bar` (FormatterAssignmentSpacing=0)
+  addToken( ":", ctx->COLON(),
+            FmtToken::ATTACHED |
+                ( compilercfg.FormatterAssignmentSpacing ? FmtToken::SPACE : FmtToken::NONE ) );
 
   if ( auto identifier = ctx->IDENTIFIER() )
   {
