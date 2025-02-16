@@ -1,0 +1,6 @@
+var original := struct{ foo := "FOO", bar := array{ 1, 2, 3 }  };
+
+program foo()
+  var { bar: [ a, b, c ], bar } := original;
+  print( $"bar={bar} a={a} b={b} c={c}" );
+endprogram

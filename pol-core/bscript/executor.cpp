@@ -2529,7 +2529,24 @@ void Executor::ins_take_local( const Instruction& )
   passert( Locals2 != nullptr );
   passert( !ValueStack.empty() );
 
-  Locals2->push_back( ValueStack.back() );
+  // There is no entry in the locals vector, so create a new one.
+  Locals2->push_back( BObjectRef( UninitObject::create() ) );
+  BObjectRef& lvar = ( *Locals2 ).back();
+
+  BObjectRef& rightref = ValueStack.back();
+
+  BObject& right = *rightref;
+
+  BObjectImp& rightimpref = right.impref();
+
+  if ( right.count() == 1 && rightimpref.count() == 1 )
+  {
+    lvar->setimp( &rightimpref );
+  }
+  else
+  {
+    lvar->setimp( rightimpref.copy() );
+  }
   ValueStack.pop_back();
 }
 
@@ -2537,7 +2554,23 @@ void Executor::ins_take_global( const Instruction& ins )
 {
   passert( !ValueStack.empty() );
 
-  ( *Globals2 )[ins.token.lval] = ValueStack.back();
+  // Globals already have an entry in the globals vector, so just index into it.
+  BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
+
+  BObjectRef& rightref = ValueStack.back();
+
+  BObject& right = *rightref;
+
+  BObjectImp& rightimpref = right.impref();
+
+  if ( right.count() == 1 && rightimpref.count() == 1 )
+  {
+    gvar->setimp( &rightimpref );
+  }
+  else
+  {
+    gvar->setimp( rightimpref.copy() );
+  }
   ValueStack.pop_back();
 }
 
