@@ -43,6 +43,7 @@ exported function load_save_account()
     acc.set_uo_expansion( "SE" );
     acc.addcharacter( 1 );
     acc.setprop( "test", 1 );
+    acc.ban();
   else
 
     var acc := FindAccount( "restart_account" );
