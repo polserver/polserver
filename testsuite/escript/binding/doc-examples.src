@@ -1,0 +1,50 @@
+if ( 1 )
+  var [ a, b, c ] := array{ 1, 2, 3 };
+
+  print( a ); // 1
+  print( b ); // 2
+  print( c ); // 3
+endif
+
+if ( 1 )
+  var { a, b, c } := dictionary{ "a" -> 1, "b" -> 2, "c" -> 3 };
+
+  print( a ); // 1
+  print( b ); // 2
+  print( c ); // 3
+endif
+
+if ( 1 )
+  var { a, b: b_value } := dictionary{ "a" -> 1, "b" -> 2, "c" -> 3 };
+
+  print( a ); // 1
+  print( b_value ); // 2
+endif
+
+if ( 1 )
+  var { [5]: five_value } := dictionary{ 5 -> "five" };
+  print( five_value ); // "five"
+endif
+
+if ( 1 )
+  var [ firstElement, { b, c } ] := array{ 1, struct{ b := 2, c := 3 } };
+  print( firstElement ); // 1
+  print( b ); // 2
+  print( c ); // 3
+endif
+
+if ( 1 )
+  var [ first, middle..., last ] := array{ 1, 2, 3, 4, 5 };
+  print( first ); // 1
+  print( middle ); // {2, 3, 4}
+  print( last ); // 5
+endif
+
+if ( 1 )
+  var { name,
+       age,
+       other_details... }
+       := struct{ name := "John", age := 30, birthdate := "1990-01-01",
+                  address := "123 Main St" };
+  print( other_details ); // dict{ "address" -> "123 Main St", "birthdate" -> "1990-01-01" }
+endif

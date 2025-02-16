@@ -1,6 +1,6 @@
 <h1>
   Racalac's eScript Reference and Guide (POL 100.2.0)
-  <div style="font-size: 0.82em">(Last Updated: August 5, 2024)</div>
+  <div style="font-size: 0.82em">(Last Updated: February 16, 2025)</div>
 </h1>
 <br/>
 
@@ -29,8 +29,8 @@ apologies if I explain some things in annoyingly simple terms.</p>
 
 <p><b><a href="#chap1">Chapter 1:</a></b>
 </p><ul>
-  <li><a href="#chap1a">Variable
-  Declaration and Assignment</a>
+  <li><a href="#chap1a">Variable Declaration and Assignment</a>
+  </li><li><a href="#chap1aa">Sequence and Index Binding Statements</a>
   </li><li><a href="#chap1b">Arithmetic</a>
   </li><li><a href="#chap1c">Comments</a></li></ul>
 <p></p>
@@ -105,6 +105,8 @@ apologies if I explain some things in annoyingly simple terms.</p>
 
 <p><b><a href="#appD">Appendix D: Variadic User Functions</a></b></p>
 
+<p><b><a href="#appE">Appendix E: Iterable Objects</a></b></p>
+
 <p><b><a href="#appX">Appendix X: Revision History</a></b></p>
 
 <br/>
@@ -177,6 +179,110 @@ variables):</p>
 <div class="doc-guide-pre">
 <pre>CONST SIZE_OF_TRAY := 15;<br>var pies_in_tray := SIZE_OF_TRAY;</pre></div></p>
 
+<br/>
+
+<p><b><a name="chap1aa">Sequence and Index Binding Statements</a></b></p>
+
+<br />
+<p>Added in: POL 100.2.0</p>
+<br />
+
+<p>The binding statement syntax makes it possible to unpack values from into
+distinct variables either sequentially or by index accessor.</p>
+<br/>
+
+<p>A binding statement loops over the object's <i>iterator</i>, so any object
+<code>obj</code> that can be used in a <code>foreach value in obj</code>
+statement is supported. See <a href="#appE">Appendix E: Iterable Objects</a> for
+a list of supported iterable objects.
+</p>
+<br/>
+
+<p>For arrays and other sequential objects, the <strong>sequence
+binding</strong> syntax is:</p>
+
+<div class="doc-guide-pre">
+<pre>var [ a, b, c ] := array{1, 2, 3};
+
+print( a ); // 1
+print( b ); // 2
+print( c ); // 3
+</pre>
+</div>
+
+<p>This statement will iterate over the value on the right-hand side, and assign
+each value to the corresponding variable on the left-hand side sequentially.</p>
+<br/>
+
+<p>For accessing objects via an index, the <strong>index binding</strong> syntax
+is:</p>
+
+<div class="doc-guide-pre">
+<pre>var { a, b, c } := dictionary{ "a" -> 1, "b" -> 2, "c" -> 3 };
+
+print( a ); // 1
+print( b ); // 2
+print( c ); // 3</pre></div>
+
+<p>This statement will access the right-hand side, assigning each value to the
+corresponding variable on the left-hand side using the the subscript operator
+<code>[]</code> of the variable name.</p>
+<br/>
+
+<p>An index binding can be named differently than the accessing index. For
+example, we can access <code>b</code> from the dictionary, but name it as
+<code>b_value</code>:</p>
+
+<div class="doc-guide-pre">
+<pre>var { a, b: b_value } := dictionary{ "a" -> 1, "b" -> 2, "c" -> 3 };
+
+print( a ); // 1
+print( b_value ); // 2</pre></div>
+
+<p>This allows us to use <i>any expression</i> as the index accessor, as long as
+we name it. For example, we want to access the the numeric <code>5</code> key in
+a dictionary:</p>
+
+<div class="doc-guide-pre">
+<pre>var { [5]: five_value  } := dictionary{ 5 -> "five" };
+print( five_value ); // "five"</pre>
+</div>
+
+<p>Binding statements can be nested:</p>
+
+<div class="doc-guide-pre">
+<pre>var [ firstElement, { b, c } ] := array{ 1, struct{ b := 2, c := 3 } };
+print( firstElement ); // 1
+print( b ); // 2
+print( c ); // 3</pre>
+</div>
+
+<p>A binding statement can have a <i>rest binding</i>, using <code>...</code> in
+the variable binding. This will put all remaining elements in the rest variable.
+For <strong>sequence bindings</strong>, the rest variable will be an array, and
+can be placed anywhere within the variable binding list:</p>
+
+<div class="doc-guide-pre">
+<pre>var [ first, middle..., last ] := array{ 1, 2, 3, 4, 5 };
+print( first ); // 1
+print( middle ); // {2, 3, 4}
+print( last ); // 5
+</pre></div>
+<br/>
+
+<p>For <strong>index bindings</strong>, the rest variable will be a dictionary,
+and <strong>must</strong> be placed at the end of the variable binding list:</p>
+
+<div class="doc-guide-pre">
+<pre>var { name, age, other_details... } := struct{
+  name := "John",
+  age := 30,
+  birthdate := "1990-01-01",
+  address := "123 Main St"
+};
+
+print( other_details ); // dict{ "address" -> "123 Main St", "birthdate" -> "1990-01-01" }
+</pre></div>
 <br/>
 
 <p><b><a name="chap1b">Arithmetic</a></b></p>
@@ -3626,6 +3732,91 @@ var other_person := person.function.new( "Bob", 30 );
 print( $"{other_person.name} is {other_person.age} years old." ); // Output: Bob is 30 years old.
 </pre></div>
 
+<br/>
+<br/>
+
+<!-- ====================================================================== -->
+
+<h3><a name="appE">Iterable Objects</a></h3>
+<br/>
+
+<p>The following objects are <i>iterable</i>, meaning they can be used in the following contexts:</p>
+<ul>
+  <li><a href="#chap3d"><code>foreach</code> loops</a></li>
+  <li><a href="#chap1aa">binding statements</a></li>
+  <li><a href="#chap11i">spread operator</a></li>
+</ul>
+<br/>
+
+<table border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+  <thead>
+    <tr>
+      <th>Object</th>
+      <th>Key</th>
+      <th>Iterator Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Array</td>
+      <td>Index (number)</td>
+      <td>Element at index</td>
+    </tr>
+    <tr>
+      <td>ClassInstanceRef</td>
+      <td>Member (string)</td>
+      <td>Value of member</td>
+    </tr>
+    <tr>
+      <td>ConfigFileRef<sup>*</sup></td>
+      <td>Config element key (string)</td>
+      <td>ConfigElemRef for that key</td>
+    </tr>
+    <tr>
+      <td>Dictionary</td>
+      <td>Key (any script object)</td>
+      <td>Value at key</td>
+    </tr>
+    <tr>
+      <td>SQLResultSet<sup>*</sup></td>
+      <td>Current index of row being processed (number)</td>
+      <td>Current SQLRow</td>
+    </tr>
+    <tr>
+      <td>SQLRow<sup>*</sup></td>
+      <td>Column name (string)</td>
+      <td>Column value</td>
+    </tr>
+    <tr>
+      <td>String<sup>*</sup></td>
+      <td>Index (number)</td>
+      <td>Character at index</td>
+    </tr>
+    <tr>
+      <td>Struct</td>
+      <td>Member (string)</td>
+      <td>Value of member</td>
+    </tr>
+    <tr>
+      <td>XMLAttribute</td>
+      <td>Current index of XML attribute being processed (number)</td>
+      <td>A <code>struct</code>, having a member with the attribute's name storing the attribute's value</td>
+    </tr>
+    <tr>
+      <td>XMLFile</td>
+      <td>Current index of XML node being processed (number)</td>
+      <td>XMLNode</td>
+    </tr>
+    <tr>
+      <td>XMLNode</td>
+      <td>Current index of XML node being processed (number)</td>
+      <td>XMLNode</td>
+    </tr>
+  </tbody>
+</table>
+<br/>
+
+<p>*: Iterator support added in POL 100.2.0</p>
 
 <br/>
 <br/>
@@ -3685,4 +3876,7 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.15: 05/08/2024<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Spread Operator by Kevin<br>
+</p>
+<p>v0.16: 16/02/2025<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Sequence and Index Binding Statements; Iterable Objects by Kevin<br>
 </p>
