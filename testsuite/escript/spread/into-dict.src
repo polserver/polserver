@@ -1,0 +1,14 @@
+// Since dictionaries can have integer keys, a spread over an int-key iterator works.
+// Spreads overwrite already set values, ie. key 1 is "one" -> "a" -> "z".
+var dict := dictionary{ 1 -> "one", "abcde" ..., "zyx" ... };
+print( dict ); // dict{ 1 -> "z", 2 -> "y", 3 -> "x", 4 -> "d", 5 -> "e" }
+
+print( "----" );
+
+// A copy, editing targ.a does not modify source.a
+var source := dictionary{ "a" -> array{ 1, 2, 3 } };
+var targ := dictionary{ source ... };
+print( $"source.a={source.a} targ.a={targ.a}" );
+targ.a[1] *= 10;
+targ.a[2] := "two";
+print( $"source.a={source.a} targ.a={targ.a}" );

@@ -3520,11 +3520,37 @@ void Executor::ins_struct( const Instruction& /*ins*/ )
 {
   ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
 }
-void Executor::ins_spread( const Instruction& /*ins*/ )
+void Executor::ins_spread( const Instruction& ins )
 {
-  auto spread = new BSpread( ValueStack.back() );
-  ValueStack.pop_back();
-  ValueStack.push_back( BObjectRef( new BObject( spread ) ) );
+  bool spread_into = ins.token.lval;
+
+  // Pops TOP, and spreads it into (new) TOP.
+  if ( spread_into )
+  {
+    BObjectRef rightref = ValueStack.back();
+    ValueStack.pop_back();
+    BObjectRef& leftref = ValueStack.back();
+
+    BObject& right = *rightref;
+    BObject& left = *leftref;
+
+    BObjectRef refIter( new BObject( UninitObject::create() ) );
+
+    auto pIter = std::unique_ptr<ContIterator>( right.impptr()->createIterator( refIter.get() ) );
+
+    while ( auto next = pIter->step() )
+    {
+      auto result = left->array_assign( refIter->impptr(), next->impptr(), true );
+      BObject res_obj( result );
+    }
+  }
+  // Pops TOP, pushing a new BSpread(TOP) onto the stack.
+  else
+  {
+    auto spread = new BSpread( ValueStack.back() );
+    ValueStack.pop_back();
+    ValueStack.push_back( BObjectRef( new BObject( spread ) ) );
+  }
 }
 void Executor::ins_array( const Instruction& /*ins*/ )
 {
