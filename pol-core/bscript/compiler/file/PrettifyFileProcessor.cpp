@@ -401,11 +401,18 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpression(
 {
   visitExpression( ctx->expression( 0 ) );  // key
 
-  if ( ctx->expression().size() > 1 )
+  if ( ctx->ELLIPSIS() )
   {
-    addToken( "->", ctx->ARROW(),
-              linebuilder.delimiterStyle() & ~FmtToken::BREAKPOINT & ~FmtToken::ATTACHED );
-    visitExpression( ctx->expression( 1 ) );
+    addToken( "...", ctx->ELLIPSIS(), FmtToken::SPACE );
+  }
+  else
+  {
+    if ( ctx->expression().size() > 1 )
+    {
+      addToken( "->", ctx->ARROW(),
+                linebuilder.delimiterStyle() & ~FmtToken::BREAKPOINT & ~FmtToken::ATTACHED );
+      visitExpression( ctx->expression( 1 ) );
+    }
   }
   return {};
 }
@@ -1543,9 +1550,17 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpression(
 
   if ( auto expression = ctx->expression() )
   {
-    addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
+    if ( auto assign = ctx->ASSIGN() )
+      addToken( ":=", assign, linebuilder.assignmentStyle() );
+
     visitExpression( expression );
+
+    if ( ctx->ELLIPSIS() )
+    {
+      addToken( "...", ctx->ELLIPSIS(), FmtToken::SPACE );
+    }
   }
+
   return {};
 }
 
