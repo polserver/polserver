@@ -10,8 +10,7 @@ class DictionaryEntry;
 class DictionaryInitializer : public Expression
 {
 public:
-  explicit DictionaryInitializer( const SourceLocation&,
-                                  std::vector<std::unique_ptr<DictionaryEntry>> );
+  explicit DictionaryInitializer( const SourceLocation&, std::vector<std::unique_ptr<Node>> );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
