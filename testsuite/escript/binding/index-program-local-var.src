@@ -1,4 +1,4 @@
-var original := struct{ foo := "FOO", bar := array{ 1, 2, 3 }  };
+var original := struct{ foo := "FOO", bar := array{ 1, 2, 3 } };
 
 program foo()
   var { bar: [ a, b, c ], bar } := original;

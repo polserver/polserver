@@ -1,6 +1,6 @@
 // Structs implement an iterator, so they can also be sequence-bound.
 
-var [ first, middle..., last] := struct{ a := "A", b := "B", c := "C", d := "D" };
+var [ first, middle..., last ] := struct{ a := "A", b := "B", c := "C", d := "D" };
 
 print( first );
 print( middle );

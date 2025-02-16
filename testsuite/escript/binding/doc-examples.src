@@ -42,9 +42,8 @@ endif
 
 if ( 1 )
   var { name,
-       age,
-       other_details... }
-       := struct{ name := "John", age := 30, birthdate := "1990-01-01",
-                  address := "123 Main St" };
+        age,
+        other_details... } := struct{ name := "John", age := 30, birthdate := "1990-01-01",
+                                      address := "123 Main St" };
   print( other_details ); // dict{ "address" -> "123 Main St", "birthdate" -> "1990-01-01" }
 endif

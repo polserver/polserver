@@ -1,17 +1,10 @@
-var {
-    [123]: onetwothree,
-    inner: { inner_a, inner_remaining... },
-    remaining...
-} := dictionary{
-    123 -> "ONETWOTHREE",
-    456 -> "FOURFIVESIX",
-    "789" -> 789,
-    "inner" -> struct{
-        inner_a := "A",
-        inner_b := "B",
-        inner_c := "C"
-    }
-};
+var { [123]: onetwothree,
+      inner: { inner_a,
+               inner_remaining... },
+      remaining... } := dictionary{ 123 -> "ONETWOTHREE",
+               456 -> "FOURFIVESIX",
+               "789" -> 789,
+               "inner" -> struct{ inner_a := "A", inner_b := "B", inner_c := "C" } };
 
 print( onetwothree );
 print( inner_a );

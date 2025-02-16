@@ -7,9 +7,9 @@ print( last );
 print( "----" );
 
 // Locals
-if (1)
-    var [ first, last ] := 1234;
+if ( 1 )
+  var [ first, last ] := 1234;
 
-    print( first );
-    print( last );
+  print( first );
+  print( last );
 endif

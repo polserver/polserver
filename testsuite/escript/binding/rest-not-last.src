@@ -1,1 +1,1 @@
-var {foo, bar..., baz} := struct{};
+var { foo, bar..., baz } := struct{};

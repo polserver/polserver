@@ -245,16 +245,20 @@ antlrcpp::Any PrettifyFileProcessor::visitBindingDeclaration(
     visitSequenceBindingList( ctx->sequenceBindingList() );
     _currentscope &= ~FmtToken::Scope::ARRAY;
     --_currentgroup;
-    addToken( "]", ctx->RBRACK(), linebuilder.closingBracketStyle( curcount ) );
+    addToken( "]", ctx->RBRACK(),
+              linebuilder.closingBracketStyle( curcount ) & ~FmtToken::BREAKPOINT );
   }
   else if ( auto lbrace = ctx->LBRACE() )
   {
-    addToken( "{", lbrace, linebuilder.openingBracketStyle( false, force_unattached ) );
+    addToken( "{", lbrace, linebuilder.openingBracketStyle( false, true ) );
     ++_currentgroup;
+    _currentscope |= FmtToken::Scope::DICT;
     size_t curcount = linebuilder.currentTokens().size();
     visitIndexBindingList( ctx->indexBindingList() );
+    _currentscope &= ~FmtToken::Scope::DICT;
     --_currentgroup;
-    addToken( "}", ctx->RBRACE(), linebuilder.closingBracketStyle( curcount ) );
+    addToken( "}", ctx->RBRACE(),
+              linebuilder.closingBracketStyle( curcount ) & ~FmtToken::BREAKPOINT );
   }
 
   return {};
@@ -311,17 +315,11 @@ antlrcpp::Any PrettifyFileProcessor::visitIndexBinding(
   }
   else if ( auto expression = ctx->expression() )
   {
-    bool force_unattached = compilercfg.FormatterBracketSpacing;
-
     // This corresponds to an expression index, eg the [foo] in `var { [foo]: bar } := baz;`, so
     // force it to be unattached if we have bracket spacing.
-    addToken( "[", ctx->LBRACK(),
-              linebuilder.openingBracketStyle( true, force_unattached ) & ~FmtToken::BREAKPOINT );
-
-    size_t curcount = linebuilder.currentTokens().size();
+    addToken( "[", ctx->LBRACK(), FmtToken::NONE );
     visitExpression( expression );
-    addToken( "]", ctx->RBRACK(),
-              linebuilder.closingBracketStyle( curcount ) & ~FmtToken::BREAKPOINT );
+    addToken( "]", ctx->RBRACK(), FmtToken::ATTACHED );
   }
 
   if ( auto binding = ctx->binding() )
@@ -1164,7 +1162,7 @@ antlrcpp::Any PrettifyFileProcessor::visitScopedIdentifier(
   if ( ctx->scope )
     addToken( ctx->scope->getText(), ctx->scope, FmtToken::NONE );
   addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
-  addToken( ctx->identifier->getText(), ctx->identifier, FmtToken::NONE );
+  addToken( ctx->identifier->getText(), ctx->identifier, FmtToken::SPACE );
   return {};
 }
 

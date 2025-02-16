@@ -1,5 +1,5 @@
 // Globals
-var [ first, middle..., last] := array{ 1, 2, 3, 4, 5 };
+var [ first, middle..., last ] := array{ 1, 2, 3, 4, 5 };
 
 print( first );
 print( middle );
@@ -9,76 +9,73 @@ print( "--" );
 // Testing locals
 
 if ( "1" == "1" )
-    var [ first..., last ] := array{ 1, 2, 3, 4, 5 };
+  var [ first..., last ] := array{ 1, 2, 3, 4, 5 };
 
-    print( first );
-    print( last );
-    print( "--" );
+  print( first );
+  print( last );
+  print( "--" );
 endif
 
 if ( "1" == "1" )
-    var [ first, last... ] := array{ 1, 2, 3, 4, 5 };
+  var [ first, last... ] := array{ 1, 2, 3, 4, 5 };
 
-    print( first );
-    print( last );
-    print( "--" );
-endif
-
-
-if ( "1" == "1" )
-    var [ first, middle..., last ] := array{ 1, 2, 3, 4, 5 };
-
-    print( first );
-    print( middle );
-    print( last );
-    print( "--" );
-endif
-
-
-if ( "1" == "1" )
-    var [ first, second, middle..., last ] := array{ 1, 2, 3, 4, 5 };
-
-    print( first );
-    print( second );
-    print( middle );
-    print( last );
-    print( "--" );
+  print( first );
+  print( last );
+  print( "--" );
 endif
 
 if ( "1" == "1" )
-    var [ first, second, middle..., secondLast, last ] := array{ 1, 2, 3, 4, 5 };
-    print( first );
-    print( second );
-    print( middle );
-    print( secondLast );
-    print( last );
-    print( "--" );
-endif
+  var [ first, middle..., last ] := array{ 1, 2, 3, 4, 5 };
 
-
-if ( "1" == "1" )
-    var [ first, second, middle..., thirdLast, secondLast, last ] := array{ 1, 2, 3, 4, 5 };
-    print( first );
-    print( second );
-    print( middle );
-    print( thirdLast );
-    print( secondLast );
-    print( last );
-    print( "--" );
+  print( first );
+  print( middle );
+  print( last );
+  print( "--" );
 endif
 
 if ( "1" == "1" )
-    var [ all... ] := array{ 1, 2, 3, 4, 5 };
-    print( all );
-    print( "--" );
+  var [ first, second, middle..., last ] := array{ 1, 2, 3, 4, 5 };
+
+  print( first );
+  print( second );
+  print( middle );
+  print( last );
+  print( "--" );
 endif
 
 if ( "1" == "1" )
-    var [ first, second, middle..., secondLast, last ] := array{ 1 };
-    print( first );
-    print( second );
-    print( middle );
-    print( secondLast );
-    print( last );
-    print( "--" );
+  var [ first, second, middle..., secondLast, last ] := array{ 1, 2, 3, 4, 5 };
+  print( first );
+  print( second );
+  print( middle );
+  print( secondLast );
+  print( last );
+  print( "--" );
+endif
+
+if ( "1" == "1" )
+  var [ first, second, middle..., thirdLast, secondLast, last ] := array{ 1, 2, 3, 4, 5 };
+  print( first );
+  print( second );
+  print( middle );
+  print( thirdLast );
+  print( secondLast );
+  print( last );
+  print( "--" );
+endif
+
+if ( "1" == "1" )
+  var [ all... ] := array{ 1, 2, 3, 4, 5 };
+  print( all );
+  print( "--" );
+endif
+
+if ( "1" == "1" )
+  var [ first, second, middle..., secondLast, last ] := array{ 1 };
+  print( first );
+  print( second );
+  print( middle );
+  print( secondLast );
+  print( last );
+  print( "--" );
 endif
