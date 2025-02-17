@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+02-17-2025 AsYlum:
+    Fixed: Saving banned state of an account
 02-07-2025 Turley:
     Fixed: B9 feature flag was used from ssopt DefaultExpansion instead of the account expansion. Bug added with 02-04 changes
 02-06-2025 Turley:
