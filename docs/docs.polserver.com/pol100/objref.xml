@@ -597,6 +597,16 @@
 <method proto="Keys()" returns="array">array of ints or strings, depending on datafile flags</method>
 </class>
 
+<class name="ConfigElem">
+<explain>Object representing an element in a configuration file</explain>
+<method proto=".member" returns="Double/Integer/String">gets config value of member (first occurrence; use <code>cfgfile::GetConfigStringArray</code> / <code>cfgfile::GetConfigIntArray</code> to get a list of values for keys with multiple occurrences)</method>
+<method proto="[member]" returns="Double/Integer/String">gets config value of member (first occurrence; use <code>cfgfile::GetConfigStringArray</code> / <code>cfgfile::GetConfigIntArray</code> to get a list of values for keys with multiple occurrences)</method>
+</class>
+
+<class name="ConfigFile">
+<explain>Object representing a configuration file</explain>
+<method proto="[member]" returns="ConfigElem">gets element of configuration file</method>
+</class>
 
 <class name="DataFileElement">
 <explain>A data element inside a datastore file</explain>

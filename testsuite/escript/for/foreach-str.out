@@ -1,0 +1,21 @@
+a
+🚀
+b
+👍
+c
+👌
+---
+🚀
+a
+👍
+b
+👌
+c
+---
+f
+o
+o
+---
+bar=f _bar_iter=1 foo=struct{ str = "foo" }
+bar=o _bar_iter=2 foo=<uninitialized object>
+bar=o _bar_iter=3 foo=<uninitialized object>

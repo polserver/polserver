@@ -1,0 +1,37 @@
+var original := struct{ foo := "FOO", bar := array{ 1, 2, 3 } };
+// Serialize the original, and check at end nothing has changed.
+var original_serialized := Pack( original );
+
+// Calls copy. Globals
+var { foo } := original;
+foo := "BLUB";
+print( $"original.foo={original.foo} foo={foo}" );
+// Locals
+if ( 1 )
+  var { foo } := original;
+  foo := "BLUB";
+  print( $"original.foo={original.foo} foo={foo}" );
+endif
+print( "----" );
+
+// Also calls copy
+var { bar: [ a, b, c ], bar } := original;
+print( $"bar={bar} a={a} b={b} c={c}" );
+bar[1] := "one";
+print( $"bar={bar} original={original}" );
+bar := "BAR";
+print( $"bar={bar} original={original}" );
+
+print( "----" );
+print( $"original unchanged: {original_serialized == Pack( original )}" );
+
+print( "----" );
+// Does not call copy. Globals
+// Can't really test this via script, since there will be no other reference to the binding initializer,
+var [ d, e, f ] := array{ 1, 2, 3 };
+print( $"d={d} e={e} f={f}" );
+// Locals
+if ( 1 )
+  var [ d, e, f ] := array{ 1, 2, 3 };
+  print( $"d={d} e={e} f={f}" );
+endif

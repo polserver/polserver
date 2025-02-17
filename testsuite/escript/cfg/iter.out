@@ -1,0 +1,13 @@
+_cfgelem_iter=123 typeof(iter)=String cfgelem=<appobj:ConfigElemRef> props={ c, d } values={ 3, l }
+_cfgelem_iter=456 typeof(iter)=String cfgelem=<appobj:ConfigElemRef> props={ c, d } values={ 4, m }
+_cfgelem_iter=789 typeof(iter)=String cfgelem=<appobj:ConfigElemRef> props={ c } values={ 5 }
+_cfgelem_iter=blah typeof(iter)=String cfgelem=<appobj:ConfigElemRef> props={ a, b, c } values={ 1, ø, 1092039985441558558 }
+_cfgelem_iter=blah2 typeof(iter)=String cfgelem=<appobj:ConfigElemRef> props={ c, d } values={ 2, k }
+----
+c=3 d=l rest=error{ errortext = "Invalid type for rest binding" }
+c=4 d=m rest=error{ errortext = "Invalid type for rest binding" }
+c=5 d=<uninitialized object> rest=error{ errortext = "Invalid type for rest binding" }
+c=1092039985441558558 d=<uninitialized object> rest=error{ errortext = "Invalid type for rest binding" }
+c=2 d=k rest=error{ errortext = "Invalid type for rest binding" }
+----
+4

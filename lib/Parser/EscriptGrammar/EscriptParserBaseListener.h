@@ -167,6 +167,27 @@ public:
   virtual void enterVariableDeclaration(EscriptParser::VariableDeclarationContext * /*ctx*/) override { }
   virtual void exitVariableDeclaration(EscriptParser::VariableDeclarationContext * /*ctx*/) override { }
 
+  virtual void enterBindingDeclaration(EscriptParser::BindingDeclarationContext * /*ctx*/) override { }
+  virtual void exitBindingDeclaration(EscriptParser::BindingDeclarationContext * /*ctx*/) override { }
+
+  virtual void enterIndexBindingList(EscriptParser::IndexBindingListContext * /*ctx*/) override { }
+  virtual void exitIndexBindingList(EscriptParser::IndexBindingListContext * /*ctx*/) override { }
+
+  virtual void enterSequenceBindingList(EscriptParser::SequenceBindingListContext * /*ctx*/) override { }
+  virtual void exitSequenceBindingList(EscriptParser::SequenceBindingListContext * /*ctx*/) override { }
+
+  virtual void enterSequenceBinding(EscriptParser::SequenceBindingContext * /*ctx*/) override { }
+  virtual void exitSequenceBinding(EscriptParser::SequenceBindingContext * /*ctx*/) override { }
+
+  virtual void enterIndexBinding(EscriptParser::IndexBindingContext * /*ctx*/) override { }
+  virtual void exitIndexBinding(EscriptParser::IndexBindingContext * /*ctx*/) override { }
+
+  virtual void enterBinding(EscriptParser::BindingContext * /*ctx*/) override { }
+  virtual void exitBinding(EscriptParser::BindingContext * /*ctx*/) override { }
+
+  virtual void enterBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext * /*ctx*/) override { }
+  virtual void exitBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext * /*ctx*/) override { }
+
   virtual void enterProgramParameters(EscriptParser::ProgramParametersContext * /*ctx*/) override { }
   virtual void exitProgramParameters(EscriptParser::ProgramParametersContext * /*ctx*/) override { }
 

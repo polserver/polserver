@@ -40,6 +40,7 @@
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
+#include "bscript/compiler/ast/IndexBinding.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
@@ -52,6 +53,7 @@
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
+#include "bscript/compiler/ast/SequenceBinding.h"
 #include "bscript/compiler/ast/SpreadElement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
@@ -62,6 +64,7 @@
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
+#include "bscript/compiler/ast/VariableBinding.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/codegen/CaseDispatchGroupVisitor.h"
 #include "bscript/compiler/codegen/CaseJumpDataBlock.h"
@@ -731,6 +734,21 @@ void InstructionGenerator::visit_member_assignment_by_operator( MemberAssignment
   emit.set_member_by_operator( node.token_id, node.known_member.id );
 }
 
+void InstructionGenerator::visit_index_binding( IndexBinding& node )
+{
+  // Emit indexes
+  node.indexes().accept( *this );
+
+  update_debug_location( node );
+  emit.unpack_indices( node.binding_count(), node.rest_index );
+
+  // Emit bindings
+  for ( const auto& binding : node.bindings() )
+  {
+    binding.get().accept( *this );
+  }
+}
+
 void InstructionGenerator::visit_method_call( MethodCall& method_call )
 {
   visit_children( method_call );
@@ -919,6 +937,14 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
   user_functions.pop();
 }
 
+void InstructionGenerator::visit_sequence_binding( SequenceBinding& node )
+{
+  update_debug_location( node );
+
+  emit.unpack_sequence( node.binding_count(), node.rest_index );
+  visit_children( node );
+}
+
 void InstructionGenerator::visit_value_consumer( ValueConsumer& node )
 {
   emitter.debug_statementbegin();
@@ -942,7 +968,7 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
     function_capture_count = user_functions.top()->capture_count();
   }
 
-  emit.declare_variable( *node.variable, function_capture_count );
+  emit.declare_variable( *node.variable, function_capture_count, false );
 
   if ( node.initialize_as_empty_array )
   {
@@ -988,6 +1014,22 @@ void InstructionGenerator::visit_while_loop( WhileLoop& loop )
   generate( loop.block() );
   emit.jmp_always( *loop.continue_label );
   emit.label( *loop.break_label );
+}
+
+void InstructionGenerator::visit_variable_binding( VariableBinding& node )
+{
+  update_debug_location( node );
+
+  if ( !node.variable )
+    node.internal_error( "variable is not defined" );
+
+  int function_capture_count = 0;
+
+  if ( !user_functions.empty() )
+  {
+    function_capture_count = user_functions.top()->capture_count();
+  }
+  emit.declare_variable( *node.variable, function_capture_count, true );
 }
 
 void InstructionGenerator::visit_interpolate_string( InterpolateString& node )

@@ -3,6 +3,7 @@
 #include "bscript/compiler/file/SourceLocation.h"
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -117,7 +118,7 @@ public:
   int closingParenthesisStyle( bool args );
   int closingBracketStyle( size_t begin_size );
   int openingParenthesisStyle() const;
-  int openingBracketStyle( bool typeinit = false ) const;
+  int openingBracketStyle( bool typeinit = false, bool force_unattached = false );
   int delimiterStyle() const;
   int terminatorStyle() const;
   int assignmentStyle() const;

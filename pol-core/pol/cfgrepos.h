@@ -32,6 +32,10 @@ namespace Clib
 {
 class ConfigElem;
 class ConfigFile;
+}  // namespace Clib
+namespace Module
+{
+class ConfigFileIterator;
 }
 namespace Core
 {
@@ -86,6 +90,8 @@ public:
   ElementsByNum::const_iterator bynum_begin() { return elements_bynum_.begin(); }
   ElementsByNum::const_iterator bynum_end() { return elements_bynum_.end(); }
   bool reload;  // try to reload cfg file?
+  friend class Module::ConfigFileIterator;
+
 private:
   ElementsByName elements_byname_;
 
@@ -108,7 +114,7 @@ ConfigFileRef LoadTusScpFile( const std::string& filename );
 #ifdef MEMORYLEAK
 void ConfigFiles_log_stuff();
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

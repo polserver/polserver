@@ -1,0 +1,7 @@
+var [ a, b, [ c, [ d ], e ] ] := array{ 1, 2, array{ 3, array{ 4 }, 5 } };
+
+print( a );
+print( b );
+print( c );
+print( d );
+print( e );

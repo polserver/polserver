@@ -1,0 +1,13 @@
+var { name,
+      instr,
+      invocations,
+      remaining... } := struct{ name := "NAME",
+                                instr := "INSTR",
+                                invocations := "INVOC",
+                                instr_per_invoc := "INSTR_PER_INVOC",
+                                instr_percent := "INSTR_PERCENT" };
+
+print( name );
+print( instr );
+print( invocations );
+print( remaining );

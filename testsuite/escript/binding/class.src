@@ -1,0 +1,17 @@
+class Foo()
+  var [ a, b, { c } ] := array{ 1, 2, struct{ c := 3 } };
+
+  function Foo( this )
+    this.array_member := array{ 4, 5, 6 };
+  endfunction
+endclass
+
+var { array_member: [ a, b, c ] } := Foo();
+
+print( Foo::a );
+print( Foo::b );
+print( Foo::c );
+
+print( a );
+print( b );
+print( c );

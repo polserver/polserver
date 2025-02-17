@@ -7,6 +7,22 @@
 	<version name="POL100.2.0">
 		<entry>
 			<date>02-17-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">Escript support for sequence and index binding statements, for example:<br/>
+  var [ first, second, third ] := array{ &quot;one&quot;, 2, &quot;three&quot; };<br/>
+  print( first );   // &quot;one&quot;<br/>
+  print( second );  // 2<br/>
+  print( third );   // &quot;three&quot;<br/>
+  var { name, color } := who;<br/>
+  print( name );   // who.name<br/>
+  print( color );  // who.color<br/>
+See the Racalac Escript Guide for additional details.</change>
+			<change type="Added">Iterator support for more objects: ConfigFileRef, SQLResultSet, SQLRow, String. These objects<br/>
+can now be used in `foreach` loops, `...` spread operator, and the new binding statement.</change>
+			<change type="Added">ConfigElemRef members can now be accessed via element index access, eg. `cfgelem[&quot;key&quot;]`.</change>
+		</entry>
+		<entry>
+			<date>02-17-2025</date>
 			<author>AsYlum:</author>
 			<change type="Fixed">Saving banned state of an account</change>
 		</entry>

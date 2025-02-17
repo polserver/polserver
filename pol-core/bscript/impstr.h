@@ -50,6 +50,7 @@ public:
   static void packonto( std::ostream& os, const std::string& value );
   virtual BObjectImp* copy() const override { return new String( *this ); }
   virtual size_t sizeEstimate() const override;
+  ContIterator* createIterator( BObject* pIterVal ) override;
 
   // FIXME: Possibly eliminate this later and have [ ] operator support?
   // Or stick to functions, overload them with other substring getting methods.

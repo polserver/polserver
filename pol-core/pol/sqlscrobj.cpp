@@ -16,6 +16,7 @@
 #ifdef HAVE_MYSQL
 
 #include "../bscript/berror.h"
+#include "../bscript/contiter.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
@@ -46,6 +47,56 @@ BSQLRow::BSQLRow( RES_WRAPPER result, MYSQL_ROW row, MYSQL_FIELD* fields )
     : PolObjectImp( OTSQLRow ), _row( row ), _result( result ), _fields( fields )
 {
 }
+
+class SQLRowIterator final : public Bscript::ContIterator
+{
+public:
+  SQLRowIterator( BSQLRow* node, Bscript::BObject* pIter );
+  virtual Bscript::BObject* step() override;
+
+private:
+  Bscript::BObject m_RowObj;
+  BSQLRow* rowimp;
+  Bscript::BObjectRef m_IterVal;
+  unsigned int index;
+};
+
+SQLRowIterator::SQLRowIterator( BSQLRow* row, Bscript::BObject* pIter )
+    : ContIterator(), m_RowObj( row ), rowimp( row ), m_IterVal( pIter ), index( 0 )
+{
+}
+
+Bscript::BObject* SQLRowIterator::step()
+{
+  unsigned int num_fields = mysql_num_fields( rowimp->_result->ptr() );
+  const auto& fields = rowimp->_fields;
+  const auto& row = rowimp->_row;
+
+  if ( index >= num_fields )
+    return nullptr;
+
+  m_IterVal->setimp( new String( fields[index].name ) );
+
+  if ( IS_NUM( fields[index].type ) && fields[index].type != MYSQL_TYPE_TIMESTAMP )
+  {
+    if ( fields[index].type == MYSQL_TYPE_DECIMAL || fields[index].type == MYSQL_TYPE_NEWDECIMAL ||
+         fields[index].type == MYSQL_TYPE_FLOAT || fields[index].type == MYSQL_TYPE_DOUBLE )
+      return new BObject( new Double( strtod( row[index++], nullptr ) ) );
+    return new BObject( new BLong( strtoul( row[index++], nullptr, 0 ) ) );
+  }
+
+  return new BObject( new String( row[index++], String::Tainted::YES ) );
+}
+
+ContIterator* BSQLRow::createIterator( Bscript::BObject* pIterVal )
+{
+  if ( !_result )
+  {
+    return BObjectImp::createIterator( pIterVal );
+  }
+  return new SQLRowIterator( this, pIterVal );
+}
+
 BObjectRef BSQLRow::OperSubscript( const BObject& obj )
 {
   const Bscript::BObjectImp& right = obj.impref();
@@ -133,6 +184,48 @@ BSQLResultSet::BSQLResultSet( int affected_rows )
       _affected_rows( affected_rows )
 {
 }
+
+class SQLResultSetIterator final : public Bscript::ContIterator
+{
+public:
+  SQLResultSetIterator( BSQLResultSet* node, Bscript::BObject* pIter );
+  virtual Bscript::BObject* step() override;
+
+private:
+  Bscript::BObject m_ResultsObj;
+  BSQLResultSet* results;
+  Bscript::BObjectRef m_IterVal;
+  BLong* m_pIterVal;
+};
+
+SQLResultSetIterator::SQLResultSetIterator( BSQLResultSet* results, Bscript::BObject* pIterVal )
+    : ContIterator(),
+      m_ResultsObj( results ),
+      results( results ),
+      m_IterVal( pIterVal ),
+      m_pIterVal( new BLong( 0 ) )
+{
+  m_IterVal.get()->setimp( m_pIterVal );
+}
+
+Bscript::BObject* SQLResultSetIterator::step()
+{
+  if ( m_pIterVal->value() >= mysql_num_rows( results->_result->ptr() ) )
+    return nullptr;
+
+  m_pIterVal->increment();
+  return new BObject( new BSQLRow( results ) );
+}
+
+ContIterator* BSQLResultSet::createIterator( Bscript::BObject* pIterVal )
+{
+  if ( !_result )
+  {
+    return BObjectImp::createIterator( pIterVal );
+  }
+  return new SQLResultSetIterator( this, pIterVal );
+}
+
 const char* BSQLResultSet::field_name( unsigned int index ) const
 {
   if ( !_result || _result->ptr() == nullptr )

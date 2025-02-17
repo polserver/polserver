@@ -19,6 +19,7 @@
 #include "../clib/strutil.h"
 #include "berror.h"
 #include "bobject.h"
+#include "contiter.h"
 #include "executor.h"
 #include "impstr.h"
 #include "objmethods.h"
@@ -1259,6 +1260,51 @@ String* String::fromUCArray( ObjArray* array, bool break_first_null )
 
   Clib::sanitizeUnicode( &res );
   return new String( res );
+}
+
+class StringIterator final : public ContIterator
+{
+public:
+  StringIterator( String* str, BObject* pIter );
+  virtual BObject* step() override;
+
+private:
+  // Keep String alive, to ensure iterators stay valid
+  BObject m_StringObj;
+  BObjectRef m_IterVal;
+  BLong* m_pIterVal;
+  std::string::const_iterator itr;
+  std::string::const_iterator end;
+};
+
+StringIterator::StringIterator( String* pString, BObject* pIterVal )
+    : ContIterator(),
+      m_StringObj( pString ),
+      m_IterVal( pIterVal ),
+      m_pIterVal( new BLong( 0 ) ),
+      itr( pString->value().cbegin() ),
+      end( pString->value().cend() )
+{
+}
+
+BObject* StringIterator::step()
+{
+  if ( itr == end )
+    return nullptr;
+
+  // Iterate one utf8 character
+  auto previous = itr;
+  utf8::unchecked::next( itr );
+  m_pIterVal->increment();
+  m_IterVal->setimp( m_pIterVal );
+
+  // Set current value to new substring
+  return new BObject( new String( std::string( previous, itr ) ) );
+}
+
+ContIterator* String::createIterator( BObject* pIterVal )
+{
+  return new StringIterator( this, pIterVal );
 }
 }  // namespace Bscript
 }  // namespace Pol

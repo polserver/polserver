@@ -165,6 +165,27 @@ public:
   virtual void enterVariableDeclaration(EscriptParser::VariableDeclarationContext *ctx) = 0;
   virtual void exitVariableDeclaration(EscriptParser::VariableDeclarationContext *ctx) = 0;
 
+  virtual void enterBindingDeclaration(EscriptParser::BindingDeclarationContext *ctx) = 0;
+  virtual void exitBindingDeclaration(EscriptParser::BindingDeclarationContext *ctx) = 0;
+
+  virtual void enterIndexBindingList(EscriptParser::IndexBindingListContext *ctx) = 0;
+  virtual void exitIndexBindingList(EscriptParser::IndexBindingListContext *ctx) = 0;
+
+  virtual void enterSequenceBindingList(EscriptParser::SequenceBindingListContext *ctx) = 0;
+  virtual void exitSequenceBindingList(EscriptParser::SequenceBindingListContext *ctx) = 0;
+
+  virtual void enterSequenceBinding(EscriptParser::SequenceBindingContext *ctx) = 0;
+  virtual void exitSequenceBinding(EscriptParser::SequenceBindingContext *ctx) = 0;
+
+  virtual void enterIndexBinding(EscriptParser::IndexBindingContext *ctx) = 0;
+  virtual void exitIndexBinding(EscriptParser::IndexBindingContext *ctx) = 0;
+
+  virtual void enterBinding(EscriptParser::BindingContext *ctx) = 0;
+  virtual void exitBinding(EscriptParser::BindingContext *ctx) = 0;
+
+  virtual void enterBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext *ctx) = 0;
+  virtual void exitBindingDeclarationInitializer(EscriptParser::BindingDeclarationInitializerContext *ctx) = 0;
+
   virtual void enterProgramParameters(EscriptParser::ProgramParametersContext *ctx) = 0;
   virtual void exitProgramParameters(EscriptParser::ProgramParametersContext *ctx) = 0;
 

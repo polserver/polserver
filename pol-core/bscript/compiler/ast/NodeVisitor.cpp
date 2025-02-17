@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BindingStatement.h"
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
@@ -42,6 +43,7 @@
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/GeneratedFunction.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
+#include "bscript/compiler/ast/IndexBinding.h"
 #include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
@@ -56,6 +58,7 @@
 #include "bscript/compiler/ast/ProgramParameterList.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
+#include "bscript/compiler/ast/SequenceBinding.h"
 #include "bscript/compiler/ast/SpreadElement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
@@ -66,6 +69,7 @@
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
+#include "bscript/compiler/ast/VariableBinding.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 
 namespace Pol::Bscript::Compiler
@@ -86,6 +90,11 @@ void NodeVisitor::visit_basic_for_loop( BasicForLoop& node )
 }
 
 void NodeVisitor::visit_binary_operator( BinaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_binding_statement( BindingStatement& node )
 {
   visit_children( node );
 }
@@ -262,6 +271,11 @@ void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_index_binding( IndexBinding& node )
+{
+  visit_children( node );
+}
+
 void NodeVisitor::visit_integer_value( IntegerValue& ) {}
 
 void NodeVisitor::visit_jump_statement( JumpStatement& node )
@@ -270,6 +284,11 @@ void NodeVisitor::visit_jump_statement( JumpStatement& node )
 }
 
 void NodeVisitor::visit_member_access( MemberAccess& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_sequence_binding( SequenceBinding& node )
 {
   visit_children( node );
 }
@@ -384,6 +403,11 @@ void NodeVisitor::visit_var_statement( VarStatement& node )
 }
 
 void NodeVisitor::visit_variable_assignment_statement( VariableAssignmentStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_variable_binding( VariableBinding& node )
 {
   visit_children( node );
 }

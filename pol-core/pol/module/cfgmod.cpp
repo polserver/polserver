@@ -15,6 +15,7 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
+#include "../../bscript/contiter.h"
 #include "../../bscript/dict.h"
 #include "../../bscript/execmodl.h"
 #include "../../bscript/executor.h"
@@ -42,6 +43,44 @@ Bscript::BApplicObjType cfgelem_type;
 EConfigFileRefObjImp::EConfigFileRefObjImp( ref_ptr<Core::StoredConfigFile> rcfile )
     : EConfigFileRefObjImpBase( &cfgfile_type, rcfile )
 {
+}
+
+class ConfigFileIterator final : public Bscript::ContIterator
+{
+public:
+  ConfigFileIterator( EConfigFileRefObjImp* node, Bscript::BObject* pIter );
+  virtual Bscript::BObject* step() override;
+
+private:
+  Bscript::BObject m_ConfigObj;
+  EConfigFileRefObjImp* node;
+  Bscript::BObjectRef m_IterVal;
+  Core::StoredConfigFile::ElementsByName::const_iterator name_itr;
+};
+
+ConfigFileIterator::ConfigFileIterator( EConfigFileRefObjImp* node, Bscript::BObject* pIter )
+    : ContIterator(),
+      m_ConfigObj( node ),
+      node( node ),
+      m_IterVal( pIter ),
+      name_itr( node->obj_->elements_byname_.begin() )
+{
+}
+
+Bscript::BObject* ConfigFileIterator::step()
+{
+  if ( name_itr == node->obj_->byname_end() )
+    return nullptr;
+
+  m_IterVal->setimp( new Bscript::String( name_itr->first ) );
+  auto res = std::make_unique<Bscript::BObject>( new EConfigElemRefObjImp( name_itr->second ) );
+  ++name_itr;
+  return res.release();
+}
+
+Bscript::ContIterator* EConfigFileRefObjImp::createIterator( Bscript::BObject* pIterVal )
+{
+  return new ConfigFileIterator( this, pIterVal );
 }
 
 Bscript::BObjectRef EConfigFileRefObjImp::OperSubscript( const Bscript::BObject& obj )
@@ -114,6 +153,24 @@ Bscript::BObjectRef EConfigElemRefObjImp::get_member( const char* membername )
     return Bscript::BObjectRef( imp );
 
   return Bscript::BObjectRef( new Bscript::UninitObject );
+}
+
+Bscript::BObjectRef EConfigElemRefObjImp::OperSubscript( const Bscript::BObject& obj )
+{
+  const Bscript::BObjectImp& imp = obj.impref();
+  ref_ptr<Core::StoredConfigElem> celem;
+
+  if ( imp.isa( OTString ) )
+  {
+    const char* strval = static_cast<const Bscript::String*>( &imp )->data();
+    return get_member( strval );
+  }
+  else if ( imp.isa( OTLong ) )
+  {
+    int key = static_cast<const Bscript::BLong*>( &imp )->value();
+    return get_member( std::to_string( key ).c_str() );
+  }
+  return Bscript::BObjectRef( new Bscript::BError( "Element not found" ) );
 }
 
 ConfigFileExecutorModule::ConfigFileExecutorModule( Bscript::Executor& exec )

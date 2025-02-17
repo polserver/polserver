@@ -8,6 +8,7 @@ class ArrayInitializer;
 class VariableAssignmentStatement;
 class BasicForLoop;
 class BinaryOperator;
+class BindingStatement;
 class Block;
 class BooleanValue;
 class BranchSelector;
@@ -49,6 +50,7 @@ class Identifier;
 class IfThenElseStatement;
 class IntegerValue;
 class InterpolateString;
+class IndexBinding;
 class JumpStatement;
 class MemberAccess;
 class MethodCall;
@@ -60,6 +62,7 @@ class ProgramParameterDeclaration;
 class ProgramParameterList;
 class RepeatUntilLoop;
 class ReturnStatement;
+class SequenceBinding;
 class SpreadElement;
 class MemberAssignment;
 class MemberAssignmentByOperator;
@@ -73,6 +76,7 @@ class UninitializedValue;
 class UserFunction;
 class ValueConsumer;
 class VarStatement;
+class VariableBinding;
 class WhileLoop;
 
 class NodeVisitor
@@ -84,6 +88,7 @@ public:
   virtual void visit_array_initializer( ArrayInitializer& );
   virtual void visit_basic_for_loop( BasicForLoop& );
   virtual void visit_binary_operator( BinaryOperator& );
+  virtual void visit_binding_statement( BindingStatement& );
   virtual void visit_block( Block& );
   virtual void visit_boolean_value( BooleanValue& );
   virtual void visit_branch_selector( BranchSelector& );
@@ -123,6 +128,7 @@ public:
   virtual void visit_identifier( Identifier& );
   virtual void visit_if_then_else_statement( IfThenElseStatement& );
   virtual void visit_integer_value( IntegerValue& );
+  virtual void visit_index_binding( IndexBinding& );
   virtual void visit_jump_statement( JumpStatement& );
   virtual void visit_member_access( MemberAccess& );
   virtual void visit_member_assignment( MemberAssignment& );
@@ -135,6 +141,7 @@ public:
   virtual void visit_program_parameter_list( ProgramParameterList& );
   virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
+  virtual void visit_sequence_binding( SequenceBinding& );
   virtual void visit_spread_element( SpreadElement& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_interpolate_string( InterpolateString& );
@@ -148,6 +155,7 @@ public:
   virtual void visit_value_consumer( ValueConsumer& );
   virtual void visit_var_statement( VarStatement& );
   virtual void visit_variable_assignment_statement( VariableAssignmentStatement& );
+  virtual void visit_variable_binding( VariableBinding& );
   virtual void visit_while_loop( WhileLoop& );
   virtual void visit_conditional_operator( ConditionalOperator& );
 

@@ -1,5 +1,8 @@
 // Test varargs with base class?
 
+// Something that does not have an iterator
+var unspreadable := error{};
+
 class BaseClass1()
   function BaseClass1( this, arg0, args ... )
     print( $"BaseClass1::BaseClass1 this={this} arg0={arg0} args={args}" );
@@ -41,7 +44,7 @@ print( "----" );
 
 class Foo2( BaseClass1, BaseClass2, BaseClass3 )
   function Foo2( this )
-    super( "c1", array{ 1, 2, 3 }, "c2", GetSomeValues(), "not spreadable" );
+    super( "c1", array{ 1, 2, 3 }, "c2", GetSomeValues(), unspreadable );
   endfunction
 endclass
 
@@ -51,8 +54,8 @@ print( "----" );
 
 class Foo3( BaseClass1, BaseClass2, BaseClass3 )
   function Foo3( this )
-    super( "c1", "foobar" /* baseclass1::args, not spreadable, goes as empty array */, "c2!", {
-           "c2 args" }, "c3 args" );
+    super( "c1", unspreadable /* baseclass1::args, not spreadable, goes as empty array */, "c2!", {
+           "c2 args" }, BaseClass3::args:= unspreadable );
   endfunction
 endclass
 
@@ -74,3 +77,14 @@ class Foo4( BaseClassNotVariadic, BaseClass1 )
 endclass
 
 Foo4();
+
+print( "----" );
+
+// A string is spreadable...
+class Foo5( BaseClass1 )
+  function Foo5( this )
+    super( "arg0", "string" ... );
+  endfunction
+endclass
+
+Foo5();
