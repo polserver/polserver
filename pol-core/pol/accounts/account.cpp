@@ -93,6 +93,8 @@ void Account::writeto( Clib::StreamWriter& sw ) const
 
   sw.add( "Enabled", enabled_ );
 
+  sw.add( "Banned", banned_ );
+
   if ( !default_privs_.empty() )
   {
     sw.add( "DefaultPrivs", default_privs_.extract() );

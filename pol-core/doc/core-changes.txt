@@ -1,5 +1,5 @@
 -- POL100.2.0 --
-02-16-2025 Kevin:
+02-17-2025 Kevin:
     Added: Escript support for sequence and index binding statements, for example:
 
              var [ first, second, third ] := array{ "one", 2, "three" };
@@ -14,6 +14,9 @@
            See the Racalac Escript Guide for additional details.
     Added: Iterator support for more objects: ConfigFileRef, SQLResultSet, SQLRow, String. These objects
            can now be used in `foreach` loops, `...` spread operator, and the new binding statement.
+    Added: ConfigElemRef members can now be accessed via element index access, eg. `cfgelem["key"]`.
+02-17-2025 AsYlum:
+    Fixed: Saving banned state of an account
 02-07-2025 Turley:
     Fixed: B9 feature flag was used from ssopt DefaultExpansion instead of the account expansion. Bug added with 02-04 changes
 02-06-2025 Turley:
