@@ -12,17 +12,12 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "macos-13"
+          - os: "macos-14"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: default
             build-type: Release
 
-              #- os: "macos-latest"
-              #cxx-compiler: g++
-              #c-compiler: gcc
-              #compiler-version: 11
-              #build-type: RelWithDebInfo
 
     runs-on: ${{ matrix.config.os }}
 
