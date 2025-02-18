@@ -210,7 +210,7 @@ SQLResultSetIterator::SQLResultSetIterator( BSQLResultSet* results, Bscript::BOb
 
 Bscript::BObject* SQLResultSetIterator::step()
 {
-  if ( m_pIterVal->value() >= mysql_num_rows( results->_result->ptr() ) )
+  if ( static_cast<uint64_t>( m_pIterVal->value() ) >= mysql_num_rows( results->_result->ptr() ) )
     return nullptr;
 
   m_pIterVal->increment();
