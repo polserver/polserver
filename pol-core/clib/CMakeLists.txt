@@ -46,6 +46,7 @@ elseif(${windows})
     ws2_32
     Psapi
     DbgHelp
+    Shlwapi
   )
 endif()
 

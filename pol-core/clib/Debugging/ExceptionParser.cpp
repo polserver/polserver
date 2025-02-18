@@ -25,6 +25,7 @@
 #define SOCKET int
 #else
 #include "../Header_Windows.h"
+#include "shlwapi.h"
 #endif
 
 #include <boost/stacktrace.hpp>
@@ -540,11 +541,21 @@ void ExceptionParser::initGlobalExceptionCatching()
     std::exit( 1 );
   }
 }
-#else   // _WIN32 || Apple
+#else  // _WIN32 || Apple
 
 void ExceptionParser::logAllStackTraces() {}
 
-void ExceptionParser::initGlobalExceptionCatching() {}
+void ExceptionParser::initGlobalExceptionCatching()
+{
+#if defined( _WIN32 )
+  // see compile_defs.cmake
+  // in addition add the executable path as searchpath
+  wchar_t path[MAX_PATH];
+  GetModuleFileNameW( nullptr, path, MAX_PATH );
+  PathRemoveFileSpecW( path );
+  SetEnvironmentVariableW( L"_NT_ALT_SYMBOL_PATH", path );
+#endif
+}
 #endif  // _WIN32 || Apple
 
 string ExceptionParser::getTrace()
