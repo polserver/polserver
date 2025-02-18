@@ -10,6 +10,7 @@
 
 #include "datastore.h"
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <stddef.h>
 
@@ -650,6 +651,11 @@ std::string DataStoreFile::filename() const
 
 void DataStoreFile::save() const
 {
+  auto path = std::filesystem::path( filename() );
+  path.remove_filename();
+  if ( !std::filesystem::exists( path ) )
+    std::filesystem::create_directories( path );
+
   Clib::StreamWriter sw( filename() );
   dfcontents->save( sw );
 }
