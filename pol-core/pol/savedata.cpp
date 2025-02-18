@@ -407,6 +407,12 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
                   {
                     func();
                   }
+                  catch ( const std::exception& error )
+                  {
+                    POLLOG_ERRORLN( "failed to store {} datafile! {}\n{}", name, error.what(),
+                                    Clib::ExceptionParser::getTrace() );
+                    result = false;
+                  }
                   catch ( ... )
                   {
                     POLLOG_ERRORLN( "failed to store {} datafile!\n{}", name,
