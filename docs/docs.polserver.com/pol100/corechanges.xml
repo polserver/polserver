@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-18-2025</datemodified>
+		<datemodified>02-19-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
-			<date>02-17-2025</date>
+			<date>02-19-2025</date>
 			<author>Kevin:</author>
 			<change type="Added">Support for spread operator in dictionary and struct initializers. For example:<br/>
   var first := dictionary{ 1 -&gt; &quot;one&quot; };<br/>
@@ -14,6 +14,7 @@
   var joined := dictionary{ first..., second.... };<br/>
   print( joined );   // dict{ 1 -&gt; &quot;one&quot;, 2 -&gt; &quot;two&quot; }<br/>
 See the Racalac Escript Guide for additional details.</change>
+			<change type="Added">ecompile.cfg option FormatterEllipsisSpacing (default 0) to add space before ellipsis (...), eg `a ...` vs `a...`.</change>
 		</entry>
 		<entry>
 			<date>02-16-2025</date>
