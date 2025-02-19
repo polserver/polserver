@@ -143,6 +143,13 @@ function(set_compile_flags target is_executable)
         -OPT:REF # remove unused blocks
       )
     endif()
+    if (${is_executable})
+      # by default the absolute path during linking is stored in the executable
+      # use just the targetname so that the pdbs get found when copied next to the executable
+      # for eg CI purpose check clib ExceptionParser
+      # this adds current binary dir also as search path (which is different for CI)
+      set_target_properties(${target} PROPERTIES LINK_FLAGS "/PDBALTPATH:${target}.pdb")
+    endif()
   endif()
 
   if(${linux})
