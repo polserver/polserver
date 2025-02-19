@@ -1328,6 +1328,13 @@ int PrettifyLineBuilder::comparisonStyle() const
   return FmtToken::SPACE;
 }
 
+int PrettifyLineBuilder::ellipsisStyle() const
+{
+  if ( !compilercfg.FormatterEllipsisSpacing )
+    return FmtToken::ATTACHED | FmtToken::SPACE;
+  return FmtToken::SPACE;
+}
+
 int PrettifyLineBuilder::operatorStyle() const
 {
   if ( !compilercfg.FormatterOperatorSpacing )

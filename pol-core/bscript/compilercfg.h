@@ -56,6 +56,7 @@ struct CompilerConfig
   bool FormatterDelimiterSpacing = true;
   bool FormatterAssignmentSpacing = true;
   bool FormatterComparisonSpacing = true;
+  bool FormatterEllipsisSpacing = false;
   bool FormatterOperatorSpacing = true;
   bool FormatterWindowsLineEndings = false;
   bool FormatterUseTabs = false;
