@@ -841,7 +841,7 @@ void InstructionGenerator::visit_spread_element( SpreadElement& node )
 {
   visit_children( node );
   update_debug_location( node );
-  emit.spread();
+  emit.spread( node.spread_into );
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )

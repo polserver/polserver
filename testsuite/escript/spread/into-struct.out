@@ -1,0 +1,5 @@
+struct{ a = "not overridden", b = "override", c = "not overridden" }
+struct{ a = "not overridden", b = "override 2", c = "not overridden" }
+----
+struct{ b = "override, appended" }
+struct{ a = "not overridden", b = "override", c = "not overridden" }

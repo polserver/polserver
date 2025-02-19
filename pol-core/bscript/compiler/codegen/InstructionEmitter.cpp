@@ -575,9 +575,9 @@ void InstructionEmitter::set_member_by_operator( BTokenId token_id, MemberID mem
   emit_token( token_id, TYP_UNARY_OPERATOR, member_id );
 }
 
-void InstructionEmitter::spread()
+void InstructionEmitter::spread( bool spread_into )
 {
-  emit_token( TOK_SPREAD, TYP_OPERAND );
+  emit_token( TOK_SPREAD, TYP_OPERAND, spread_into );
 }
 
 unsigned InstructionEmitter::skip_if_true_else_consume()

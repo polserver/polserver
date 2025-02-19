@@ -123,6 +123,7 @@ public:
   int terminatorStyle() const;
   int assignmentStyle() const;
   int comparisonStyle() const;
+  int ellipsisStyle() const;
   int operatorStyle() const;
 
   void markPackableLineStart();

@@ -5,18 +5,14 @@
 
 namespace Pol::Bscript::Compiler
 {
-class StructMemberInitializer;
 
 class StructInitializer : public Expression
 {
 public:
-  StructInitializer( const SourceLocation& source_location,
-                     std::vector<std::unique_ptr<StructMemberInitializer>> );
+  StructInitializer( const SourceLocation& source_location, std::vector<std::unique_ptr<Node>> );
 
   void accept( NodeVisitor& ) override;
   void describe_to( std::string& ) const override;
-
-  const std::vector<std::string> identifiers;
 };
 
 }  // namespace Pol::Bscript::Compiler

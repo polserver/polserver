@@ -430,6 +430,7 @@ functionCall
 structInitializerExpression
     : IDENTIFIER (':=' expression)?
     | STRING_LITERAL (':=' expression)?
+    | expression ELLIPSIS
     ;
 
 structInitializerExpressionList
@@ -443,6 +444,7 @@ structInitializer
 
 dictInitializerExpression
     : expression ('->' expression)?
+    | expression ELLIPSIS
     ;
 
 dictInitializerExpressionList

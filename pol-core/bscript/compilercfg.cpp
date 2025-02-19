@@ -82,6 +82,7 @@ void CompilerConfig::Read( const std::string& path )
   FormatterDelimiterSpacing = elem.remove_bool( "FormatterDelimiterSpacing", true );
   FormatterAssignmentSpacing = elem.remove_bool( "FormatterAssignmentSpacing", true );
   FormatterComparisonSpacing = elem.remove_bool( "FormatterComparisonSpacing", true );
+  FormatterEllipsisSpacing = elem.remove_bool( "FormatterEllipsisSpacing", false );
   FormatterOperatorSpacing = elem.remove_bool( "FormatterOperatorSpacing", true );
   FormatterWindowsLineEndings = elem.remove_bool( "FormatterWindowsLineEndings", win_platform );
   FormatterUseTabs = elem.remove_bool( "FormatterUseTabs", false );

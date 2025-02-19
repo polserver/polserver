@@ -238,6 +238,11 @@ ErrorOnFileCaseMissmatch=0
 # Default 1
 #FormatterComparisonSpacing=1
 
+# add space before ellipsis (...)
+# eg a := 1; vs a:=1;
+# Default 1
+#FormatterEllipsisSpacing=1
+
 # add space around operations
 # eg a + 1 vs a+1
 # Default 1

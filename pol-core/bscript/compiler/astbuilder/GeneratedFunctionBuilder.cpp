@@ -250,8 +250,8 @@ void GeneratedFunctionBuilder::add_base_constructor( std::unique_ptr<GeneratedFu
     {
       // Passing an element that is not spreadable (eg. a string) will result
       // in an empty array passed to the base constructor.
-      call_argument =
-          std::make_unique<SpreadElement>( param.source_location, std::move( call_argument ) );
+      call_argument = std::make_unique<SpreadElement>( param.source_location,
+                                                       std::move( call_argument ), false );
     }
 
     call_arguments.insert( call_arguments.end(),

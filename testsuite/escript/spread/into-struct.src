@@ -1,0 +1,31 @@
+// var strct := struct{ a := "A", b := "B", c := "C" };
+// var other := struct{ a := "overwritten by strct", d := "D", strct ... , c := "override C" };
+
+var strct := struct{ b := "override" };
+var strct2 := struct{ b := "override 2" };
+
+// Struct initializers use add-member, which does not add a key if it already exists, ie. "try override" is not a value set.
+// A spread operator _will_ overwrite previously set keys, ie. strct.b's "override" is shown and not this "overridden" value.
+var other := struct{ a := "not overridden", a := "try override",
+                     b := "overridden", strct..., c := "not overridden" };
+
+// Another spread would overwrite things already set.
+var other2 := struct{ a := "not overridden",
+                      a := "try override",
+                      b := "overridden",
+                      strct...,
+                      c := "not overridden",
+                      strct2... };
+
+// This would error, as the String iterator key is BLong, and you can't array_assign with BLong key.
+// var other3 := struct{ a := "not overridden", b := "overridden", "abc"... };
+
+print( other );
+print( other2 );
+print( "----" );
+
+// Ensure original does not get modified when changing binding var.
+strct.b += ", appended";
+
+print( strct );
+print( other );

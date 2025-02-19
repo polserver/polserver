@@ -385,7 +385,8 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case TOK_SPREAD:
   {
-    fmt::format_to( std::back_inserter( w ), "create-spread (TOK_SPREAD)" );
+    fmt::format_to( std::back_inserter( w ), "{} (TOK_SPREAD)",
+                    tkn.offset ? "spread-into" : "create-spread" );
 
     break;
   }

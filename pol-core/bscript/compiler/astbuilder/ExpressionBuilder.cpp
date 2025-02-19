@@ -198,7 +198,7 @@ BTokenId ExpressionBuilder::binary_operator_token(
 std::unique_ptr<DictionaryInitializer> ExpressionBuilder::dictionary_initializer(
     EscriptParser::ExplicitDictInitializerContext* ctx )
 {
-  std::vector<std::unique_ptr<DictionaryEntry>> entries;
+  std::vector<std::unique_ptr<Node>> entries;
   if ( auto initializer_ctx = ctx->dictInitializer() )
   {
     if ( auto list_ctx = initializer_ctx->dictInitializerExpressionList() )
@@ -207,12 +207,22 @@ std::unique_ptr<DictionaryInitializer> ExpressionBuilder::dictionary_initializer
       {
         auto loc = location_for( *entry_ctx );
         auto expressions = entry_ctx->expression();
+        bool spread = entry_ctx->ELLIPSIS();
 
         auto key = expression( expressions.at( 0 ) );
-        auto value = ( expressions.size() >= 2 ) ? expression( expressions.at( 1 ) )
-                                                 : std::make_unique<UninitializedValue>( loc );
-        auto entry = std::make_unique<DictionaryEntry>( loc, std::move( key ), std::move( value ) );
-        entries.push_back( std::move( entry ) );
+        if ( spread )
+        {
+          auto entry = std::make_unique<SpreadElement>( loc, std::move( key ), true );
+          entries.push_back( std::move( entry ) );
+        }
+        else
+        {
+          auto value = ( expressions.size() >= 2 ) ? expression( expressions.at( 1 ) )
+                                                   : std::make_unique<UninitializedValue>( loc );
+          auto entry =
+              std::make_unique<DictionaryEntry>( loc, std::move( key ), std::move( value ) );
+          entries.push_back( std::move( entry ) );
+        }
       }
     }
   }
@@ -401,7 +411,7 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
 
   if ( spread )
   {
-    result = std::make_unique<SpreadElement>( location_for( *ctx ), std::move( result ) );
+    result = std::make_unique<SpreadElement>( location_for( *ctx ), std::move( result ), false );
   }
 
   if ( consume )
@@ -645,7 +655,7 @@ std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
 std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
     EscriptParser::ExplicitStructInitializerContext* ctx )
 {
-  std::vector<std::unique_ptr<StructMemberInitializer>> initializers;
+  std::vector<std::unique_ptr<Node>> initializers;
 
   if ( auto struct_init = ctx->structInitializer() )
   {
@@ -655,18 +665,23 @@ std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
       {
         auto loc = location_for( *initializer_expression_ctx );
         std::string identifier;
+        bool spread = initializer_expression_ctx->ELLIPSIS();
         if ( auto x = initializer_expression_ctx->IDENTIFIER() )
           identifier = text( x );
         else if ( auto string_literal = initializer_expression_ctx->STRING_LITERAL() )
           identifier = unquote( string_literal );
-        else
+        else if ( !spread )
           loc.internal_error( "Unable to determine identifier for struct initializer" );
 
         if ( auto expression_ctx = initializer_expression_ctx->expression() )
         {
           auto initializer = expression( expression_ctx );
-          initializers.push_back( std::make_unique<StructMemberInitializer>(
-              loc, std::move( identifier ), std::move( initializer ) ) );
+          if ( spread )
+            initializers.push_back(
+                std::make_unique<SpreadElement>( loc, std::move( initializer ), true ) );
+          else
+            initializers.push_back( std::make_unique<StructMemberInitializer>(
+                loc, std::move( identifier ), std::move( initializer ) ) );
         }
         else
         {

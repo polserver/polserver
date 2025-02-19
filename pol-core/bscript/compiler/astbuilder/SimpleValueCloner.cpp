@@ -57,7 +57,7 @@ void SimpleValueCloner::visit_dictionary_initializer( DictionaryInitializer& ini
 {
   if ( initializer.children.empty() )
   {
-    std::vector<std::unique_ptr<DictionaryEntry>> empty;
+    std::vector<std::unique_ptr<Node>> empty;
     cloned_value =
         std::make_unique<DictionaryInitializer>( use_source_location, std::move( empty ) );
   }
@@ -133,7 +133,7 @@ void SimpleValueCloner::visit_struct_initializer( StructInitializer& node )
 {
   if ( node.children.empty() )
   {
-    std::vector<std::unique_ptr<StructMemberInitializer>> empty;
+    std::vector<std::unique_ptr<Node>> empty;
     cloned_value = std::make_unique<StructInitializer>( use_source_location, std::move( empty ) );
   }
   else

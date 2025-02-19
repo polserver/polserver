@@ -6,8 +6,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-DictionaryInitializer::DictionaryInitializer(
-    const SourceLocation& source_location, std::vector<std::unique_ptr<DictionaryEntry>> entries )
+DictionaryInitializer::DictionaryInitializer( const SourceLocation& source_location,
+                                              std::vector<std::unique_ptr<Node>> entries )
     : Expression( source_location, std::move( entries ) )
 {
 }

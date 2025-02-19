@@ -513,6 +513,10 @@ void Token::printOn( std::ostream& os ) const
     return;
   }
 
+  case TOK_SPREAD:
+    os << ( lval ? "spread-into" : "create-spread" );
+    break;
+
   default:
     os << "Unknown Token: (" << int( id ) << "," << int( type );
     if ( !token.empty() )

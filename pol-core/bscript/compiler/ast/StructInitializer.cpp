@@ -8,9 +8,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-StructInitializer::StructInitializer(
-    const SourceLocation& source_location,
-    std::vector<std::unique_ptr<StructMemberInitializer>> initializers )
+StructInitializer::StructInitializer( const SourceLocation& source_location,
+                                      std::vector<std::unique_ptr<Node>> initializers )
     : Expression( source_location, std::move( initializers ) )
 {
 }

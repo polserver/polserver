@@ -53,6 +53,9 @@
   FormatterComparisonSpacing 1
   // add space around operations
   // eg a + 1 vs a+1
+  FormatterEllipsisSpacing 0
+  // add space before ellipsis (...)
+  // eg a... vs a ...
   FormatterOperatorSpacing 1
   // use \r\n as newline instead of \n
   FormatterWindowsLineEndings 0
@@ -312,7 +315,7 @@ antlrcpp::Any PrettifyFileProcessor::visitIndexBinding(
 
   if ( auto ellipsis = ctx->ELLIPSIS() )
   {
-    addToken( "...", ellipsis, FmtToken::SPACE | FmtToken::ATTACHED );
+    addToken( "...", ellipsis, linebuilder.ellipsisStyle() );
   }
   else if ( auto expression = ctx->expression() )
   {
@@ -362,7 +365,7 @@ antlrcpp::Any PrettifyFileProcessor::visitSequenceBinding(
     make_identifier( identifier );
     if ( auto ellipsis = ctx->ELLIPSIS() )
     {
-      addToken( "...", ellipsis, FmtToken::SPACE | FmtToken::ATTACHED );
+      addToken( "...", ellipsis, linebuilder.ellipsisStyle() );
     }
   }
   else if ( auto binding_decl = ctx->bindingDeclaration() )
@@ -401,11 +404,18 @@ antlrcpp::Any PrettifyFileProcessor::visitDictInitializerExpression(
 {
   visitExpression( ctx->expression( 0 ) );  // key
 
-  if ( ctx->expression().size() > 1 )
+  if ( ctx->ELLIPSIS() )
   {
-    addToken( "->", ctx->ARROW(),
-              linebuilder.delimiterStyle() & ~FmtToken::BREAKPOINT & ~FmtToken::ATTACHED );
-    visitExpression( ctx->expression( 1 ) );
+    addToken( "...", ctx->ELLIPSIS(), linebuilder.ellipsisStyle() );
+  }
+  else
+  {
+    if ( ctx->expression().size() > 1 )
+    {
+      addToken( "->", ctx->ARROW(),
+                linebuilder.delimiterStyle() & ~FmtToken::BREAKPOINT & ~FmtToken::ATTACHED );
+      visitExpression( ctx->expression( 1 ) );
+    }
   }
   return {};
 }
@@ -620,7 +630,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpressionList(
     visitExpression( args[i]->expression() );
 
     if ( args[i]->ELLIPSIS() )
-      addToken( "...", args[i]->ELLIPSIS(), FmtToken::SPACE );
+      addToken( "...", args[i]->ELLIPSIS(), linebuilder.ellipsisStyle() );
 
     if ( i < args.size() - 1 )
       addToken( ",", ctx->COMMA( i ), linebuilder.delimiterStyle() | FmtToken::PREFERRED_BREAK );
@@ -940,7 +950,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameter(
   make_identifier( ctx->IDENTIFIER() );
 
   if ( ctx->ELLIPSIS() )
-    addToken( "...", ctx->ELLIPSIS(), FmtToken::SPACE );
+    addToken( "...", ctx->ELLIPSIS(), linebuilder.ellipsisStyle() );
 
   if ( auto expression = ctx->expression() )
   {
@@ -1543,9 +1553,17 @@ antlrcpp::Any PrettifyFileProcessor::visitStructInitializerExpression(
 
   if ( auto expression = ctx->expression() )
   {
-    addToken( ":=", ctx->ASSIGN(), linebuilder.assignmentStyle() );
+    if ( auto assign = ctx->ASSIGN() )
+      addToken( ":=", assign, linebuilder.assignmentStyle() );
+
     visitExpression( expression );
+
+    if ( ctx->ELLIPSIS() )
+    {
+      addToken( "...", ctx->ELLIPSIS(), linebuilder.ellipsisStyle() );
+    }
   }
+
   return {};
 }
 
