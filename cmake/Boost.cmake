@@ -49,6 +49,8 @@ else()
     set (BOOST_ARC "architecture=arm+x86")
     set (BOOST_STACKTRACE_LIB "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_basic.a")
     set (BOOST_STACKTRACE_LIB2 "")
+  else()
+    set (BOOST_CXX_FLAGS "${BOOST_CXX_FLAGS} -fPIC")
   endif()
 endif()
 
