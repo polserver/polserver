@@ -62,6 +62,11 @@ public:
       EscriptGrammar::EscriptParser::ClassParameterListContext* ctx ) override;
   antlrcpp::Any visitScopedIdentifier(
       EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx ) override;
+  antlrcpp::Any visitBinding( EscriptGrammar::EscriptParser::BindingContext* ctx ) override;
+  antlrcpp::Any visitIndexBinding(
+      EscriptGrammar::EscriptParser::IndexBindingContext* ctx ) override;
+  antlrcpp::Any visitSequenceBinding(
+      EscriptGrammar::EscriptParser::SequenceBindingContext* ctx ) override;
 
 private:
   CompilerWorkspace& workspace;
