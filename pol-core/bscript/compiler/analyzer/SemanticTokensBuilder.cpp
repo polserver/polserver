@@ -97,6 +97,28 @@ antlrcpp::Any SemanticTokensBuilder::visitForeachStatement(
   return antlrcpp::Any();
 }
 
+antlrcpp::Any SemanticTokensBuilder::visitBinding( EscriptParser::BindingContext* ctx )
+{
+  define( workspace, ctx->IDENTIFIER(), SemanticTokenType::VARIABLE );
+  visitChildren( ctx );
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SemanticTokensBuilder::visitSequenceBinding(
+    EscriptParser::SequenceBindingContext* ctx )
+{
+  define( workspace, ctx->IDENTIFIER(), SemanticTokenType::VARIABLE );
+  visitChildren( ctx );
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SemanticTokensBuilder::visitIndexBinding( EscriptParser::IndexBindingContext* ctx )
+{
+  define( workspace, ctx->IDENTIFIER(), SemanticTokenType::VARIABLE );
+  visitChildren( ctx );
+  return antlrcpp::Any();
+}
+
 antlrcpp::Any SemanticTokensBuilder::visitEnumStatement( EscriptParser::EnumStatementContext* ctx )
 {
   define( workspace, ctx->IDENTIFIER(), SemanticTokenType::VARIABLE );
