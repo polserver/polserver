@@ -700,6 +700,11 @@ void read_datastore_dat()
   while ( cf.read( elem ) )
   {
     DataStoreFile* dsf = new DataStoreFile( elem );
+    auto path = std::filesystem::path( dsf->filename() );
+    if ( !std::filesystem::exists( path ) )
+      throw std::runtime_error(
+          fmt::format( "datafile '{}' does not exist, but should due to 'datastore.txt' entry '{}'",
+                       dsf->filename(), dsf->descriptor ) );
     Core::configurationbuffer.datastore[dsf->descriptor] = dsf;
   }
 }

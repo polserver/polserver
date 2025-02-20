@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+02-20-2025 Turley:
+    Fixed: saving datafiles if the folderstructure is no longer existing
+  Changed: start of the core now fails if the datastore.txt contains a datafile which no longer exists.
+           This can happen if datafiles where manually removed without updating the datastore.txt
 02-19-2025 Kevin:
     Added: Support for spread operator in dictionary and struct initializers. For example:
 
