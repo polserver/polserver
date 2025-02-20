@@ -10,6 +10,7 @@
 
 #include "datastore.h"
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <stddef.h>
 
@@ -650,6 +651,11 @@ std::string DataStoreFile::filename() const
 
 void DataStoreFile::save() const
 {
+  auto path = std::filesystem::path( filename() );
+  path.remove_filename();
+  if ( !std::filesystem::exists( path ) )
+    std::filesystem::create_directories( path );
+
   Clib::StreamWriter sw( filename() );
   dfcontents->save( sw );
 }
@@ -694,6 +700,11 @@ void read_datastore_dat()
   while ( cf.read( elem ) )
   {
     DataStoreFile* dsf = new DataStoreFile( elem );
+    auto path = std::filesystem::path( dsf->filename() );
+    if ( !std::filesystem::exists( path ) )
+      throw std::runtime_error(
+          fmt::format( "datafile '{}' does not exist, but should due to 'datastore.txt' entry '{}'",
+                       dsf->filename(), dsf->descriptor ) );
     Core::configurationbuffer.datastore[dsf->descriptor] = dsf;
   }
 }

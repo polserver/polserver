@@ -1,6 +1,9 @@
 # This is a short summary of breaking changes.
 # Please consult core-changes.txt for more information.
 -- POL100.2.0 [work-in-progress] --
+02-20-2025:
+    Start of the core now fails if the datastore.txt contains a datafile which no longer exists.
+    This can happen if datafiles where manually removed without updating the datastore.txt
 10-09-2024:
     The words `class` and `endclass` are now special keywords in the Escript language, and any identifiers (variable or function names)
     will need to be refactored and renamed.

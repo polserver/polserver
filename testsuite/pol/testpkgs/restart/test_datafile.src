@@ -82,3 +82,18 @@ exported function load_save_datafile_intkey()
   endif
   return 1;
 endfunction
+
+exported function load_save_datafile_empty()
+  if ( testrun == 1 )
+    var df := CreateDataFile( ":TestRestart:empty", DF_KEYTYPE_STRING );
+    if ( !df )
+      return ret_error( $"failed to create {df}" );
+    endif
+  else
+    var df := OpenDataFile( ":TestRestart:dfstring" );
+    if ( !df )
+      return ret_error( $"failed to open {df}" );
+    endif
+  endif
+  return 1;
+endfunction
