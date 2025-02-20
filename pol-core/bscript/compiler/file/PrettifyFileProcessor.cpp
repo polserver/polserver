@@ -218,7 +218,7 @@ antlrcpp::Any PrettifyFileProcessor::visitVariableDeclaration(
       _currentscope &= ~FmtToken::Scope::VAR;
     }
   }
-  else if ( auto binding_decl = ctx->bindingDeclaration() )
+  else if ( ctx->bindingDeclaration() )
   {
     _currentscope |= FmtToken::Scope::VAR;
     visitChildren( ctx );

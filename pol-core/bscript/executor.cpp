@@ -2455,7 +2455,8 @@ void Executor::ins_unpack_indices( const Instruction& ins )
   auto index_count = rest ? Clib::clamp_convert<u8>( binding_count - 1 ) : binding_count;
 
   // Ensure there is a ValueStack entry for each index, + 1 for the unpacking object ('rightref').
-  passert_r( ValueStack.size() >= index_count + 1, "Not enough values to unpack" );
+  passert_r( static_cast<int>( ValueStack.size() ) >= index_count + 1,
+             "Not enough values to unpack" );
 
   if ( rest )
   {
