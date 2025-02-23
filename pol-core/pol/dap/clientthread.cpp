@@ -945,10 +945,8 @@ void DebugClientThread::run()
     }
   }
 
+  _rw.reset();
   _session.reset();
-
-  // Close the socket endpoint if necessary.
-  _rw->close();
 
   POLLOG_INFOLN( "Debugger#{} client thread closing.", _instance );
 }
