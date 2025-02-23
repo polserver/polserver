@@ -912,11 +912,19 @@ void DebugClientThread::run()
   // Error handler
   _session->onError( [this]( const char* msg ) { on_error( msg ); } );
 
+  std::atomic_bool socket_closed{ false };
   // Attach the SocketReaderWriter to the Session and begin processing events.
+  // expects that the close handler is called everytime the socket gets closed
   _session->bind( _rw,
-                  [&]() { POLLOG_INFOLN( "Debugger#{} session endpoint closed.", _instance ); } );
+                  [&]()
+                  {
+                    socket_closed = true;
+                    POLLOG_INFOLN( "Debugger#{} session endpoint closed.", _instance );
+                  } );
 
-  while ( !Clib::exit_signalled && !_exit_sent && _rw->isOpen() )
+  // MacOS implementation has a race between isOpen and close.
+  // never call isOpen from non-dap threads
+  while ( !Clib::exit_signalled && !_exit_sent && !socket_closed )
   {
     pol_sleep_ms( 1000 );
   }
@@ -937,13 +945,8 @@ void DebugClientThread::run()
     }
   }
 
+  _rw.reset();
   _session.reset();
-
-  // Close the socket endpoint if necessary.
-  if ( _rw->isOpen() )
-  {
-    _rw->close();
-  }
 
   POLLOG_INFOLN( "Debugger#{} client thread closing.", _instance );
 }
