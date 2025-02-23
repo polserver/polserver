@@ -22,6 +22,10 @@ s.resist_fire_mod %= 4;
 d.resist_fire_mod %= 4;
 print( d );
 print( s );
+s.resist_fire_mod /= 2;
+d.resist_fire_mod /= 2;
+print( d );
+print( s );
 
 // same test with diff member name
 d := dictionary{};
@@ -45,6 +49,10 @@ print( d );
 print( s );
 s.blubb %= 4;
 d.blubb %= 4;
+print( d );
+print( s );
+s.blubb /= 2;
+d.blubb /= 2;
 print( d );
 print( s );
 
