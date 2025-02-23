@@ -285,5 +285,40 @@ void Double::selfDividedByObj( Double& objimp, BObject& obj )
   else
     dval_ /= objimp.value();
 }
+
+BObjectImp* Double::selfModulusObjImp( const BObjectImp& objimp ) const
+{
+  return objimp.selfModulusObj( *this );
+}
+void Double::selfModulusObjImp( BObjectImp& objimp, BObject& obj )
+{
+  objimp.selfModulusObj( *this, obj );
+}
+BObjectImp* Double::selfModulusObj( const BLong& objimp ) const
+{
+  if ( !objimp.value() )
+    return new BError( "Divide by Zero" );
+  return new Double( fmod( dval_, objimp.value() ) );
+}
+BObjectImp* Double::selfModulusObj( const Double& objimp ) const
+{
+  if ( !objimp.value() )
+    return new BError( "Divide by Zero" );
+  return new Double( fmod( dval_, objimp.value() ) );
+}
+void Double::selfModulusObj( BLong& objimp, BObject& obj )
+{
+  if ( !objimp.value() )
+    obj.setimp( new BError( "Divide by Zero" ) );
+  else
+    dval_ = fmod( dval_, objimp.value() );
+}
+void Double::selfModulusObj( Double& objimp, BObject& obj )
+{
+  if ( !objimp.value() )
+    obj.setimp( new BError( "Divide by Zero" ) );
+  else
+    dval_ = fmod( dval_, objimp.value() );
+}
 }  // namespace Bscript
 }  // namespace Pol

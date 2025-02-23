@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-20-2025</datemodified>
+		<datemodified>02-23-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>02-23-2025</date>
+			<author>Turley:</author>
+			<change type="Added">Modulus (% and %=) for doubles. Meaning that eg 4%1.5==1.0 or 3.3%1.1==0</change>
+		</entry>
 		<entry>
 			<date>02-20-2025</date>
 			<author>Turley:</author>

@@ -846,6 +846,13 @@ public:  // Class Machinery
   virtual void selfPlusPlus() override { ++dval_; }
   virtual void selfMinusMinus() override { --dval_; }
 
+  virtual BObjectImp* selfModulusObjImp( const BObjectImp& objimp ) const override;
+  virtual BObjectImp* selfModulusObj( const BLong& objimp ) const override;
+  virtual BObjectImp* selfModulusObj( const Double& objimp ) const override;
+  virtual void selfModulusObjImp( BObjectImp& objimp, BObject& obj ) override;
+  virtual void selfModulusObj( BLong& objimp, BObject& obj ) override;
+  virtual void selfModulusObj( Double& objimp, BObject& obj ) override;
+
   virtual BObjectImp* inverse() const override { return new Double( -dval_ ); }
   virtual std::string getStringRep() const override;
   virtual void printOn( std::ostream& ) const override;
