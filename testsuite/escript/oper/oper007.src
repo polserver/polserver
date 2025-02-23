@@ -2,44 +2,30 @@
 // nothing should crash
 program foo()
   var a;
-  var test := { a, struct, dictionary, array, "", 1, 1.0 };
+  var test := { a, struct, dictionary, array, "", 4, 1.5 };
 
   foreach t1 in test
     foreach t2 in test
-      print( !t1 );
-      print( ~t1 );
-      print( -t1 );
-      print( +t1 );
-      print( t1 * t2 );
-      print( t2 * t1 );
-      print( t1 / t2 );
-      print( t2 / t1 );
-      print( t1 + t2 );
-      print( t2 + t1 );
-      print( t1 - t2 );
-      print( t2 - t1 );
-      print( t1 % t2 );
-      print( t2 % t1 );
-      print( t1 & t2 );
-      print( t2 & t1 );
-      print( t1 ^ t2 );
-      print( t2 ^ t1 );
-      print( t1 | t2 );
-      print( t2 | t1 );
-      print( t1 >> t2 );
-      print( t2 >> t1 );
-      print( t1 << t2 );
-      print( t2 << t1 );
+      print( $"'{t1}' vs '{t2}'" );
+      print( $"!t1 {!t1}" );
+      print( $"~t1 {~t1}" );
+      print( $"-t1 {-t1}" );
+      print( $"+t1 {+t1}" );
+      print( $"t1*t2 {t1 * t2}" );
+      print( $"t1/t2 {t1 / t2}" );
+      print( $"t1+t2 {t1 + t2}" );
+      print( $"t1-t2 {t1 - t2}" );
+      print( $"t1%t2 {t1 % t2}" );
+      print( $"t1&t2 {t1 & t2}" );
+      print( $"t1^t2 {t1 ^ t2}" );
+      print( $"t1|t2 {t1 | t2}" );
+      print( $"t1>>t2 {t1 >> t2}" );
+      print( $"t1<<t2 {t1 << t2}" );
       PlusEqual( t1, t2 );
-      PlusEqual( t2, t1 );
       MinusEqual( t1, t2 );
-      MinusEqual( t2, t1 );
       TimesEqual( t1, t2 );
-      TimesEqual( t2, t1 );
       DivEqual( t1, t2 );
-      DivEqual( t2, t1 );
       ModulusEqual( t1, t2 );
-      ModulusEqual( t2, t1 );
     endforeach
   endforeach
 endprogram
@@ -47,25 +33,25 @@ endprogram
 function PlusEqual( t1, t2 )
   var t := t1;
   t += t2;
-  print( t );
+  print( $"t1+=t2 {t}" );
 endfunction
 function MinusEqual( t1, t2 )
   var t := t1;
   t -= t2;
-  print( t );
+  print( $"t1-=t2 {t}" );
 endfunction
 function TimesEqual( t1, t2 )
   var t := t1;
   t *= t2;
-  print( t );
+  print( $"t1*=t2 {t}" );
 endfunction
 function DivEqual( t1, t2 )
   var t := t1;
   t /= t2;
-  print( t );
+  print( $"t1/=t2 {t}" );
 endfunction
 function ModulusEqual( t1, t2 )
   var t := t1;
   t %= t2;
-  print( t );
+  print( $"t1%=t2 {t}" );
 endfunction

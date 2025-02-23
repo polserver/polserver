@@ -252,16 +252,13 @@ BObjectImp* BLong::selfModulusObj( const BLong& objimp ) const
   int divisor = objimp.lval_;
   if ( !divisor )
     return new BError( "Divide by Zero" );
-  else
-    return new BLong( lval_ % divisor );
+  return new BLong( lval_ % divisor );
 }
 BObjectImp* BLong::selfModulusObj( const Double& objimp ) const
 {
-  int divisor = static_cast<int>( objimp.value() );
-  if ( divisor == 0 )
+  if ( !objimp.value() )
     return new BError( "Divide by Zero" );
-  else
-    return new Double( lval_ % divisor );
+  return new Double( fmod( lval_, objimp.value() ) );
 }
 void BLong::selfModulusObjImp( BObjectImp& objimp, BObject& obj )
 {
@@ -369,5 +366,5 @@ BObjectImp* BLong::bitnot() const
 {
   return new BLong( ~lval_ );
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
