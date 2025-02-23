@@ -1,0 +1,16 @@
+program modulus()
+  var test := { 0, 1, 0.0, 1.0, 0.1, -1, -1.0 };
+  foreach t1 in test
+    foreach t2 in test
+      print( $"'{t1}' vs '{t2}'" );
+      print( $"t1%t2 {t1 % t2}" );
+      ModulusEqual( t1, t2 );
+    endforeach
+  endforeach
+endprogram
+
+function ModulusEqual( t1, t2 )
+  var t := t1;
+  t %= t2;
+  print( $"t1%=t2 {t}" );
+endfunction

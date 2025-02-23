@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+02-23-2025 Turley:
+    Added: Modulus (% and %=) for doubles. Meaning that eg 4%1.5==1.0 or 3.3%1.1==0
 02-20-2025 Turley:
     Fixed: saving datafiles if the folderstructure is no longer existing
   Changed: start of the core now fails if the datastore.txt contains a datafile which no longer exists.

@@ -1,0 +1,147 @@
+'0' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'0' vs '1'
+t1%t2 0
+t1%=t2 0
+'0' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'0' vs '1'
+t1%t2 0
+t1%=t2 0
+'0' vs '0.1'
+t1%t2 0
+t1%=t2 0
+'0' vs '-1'
+t1%t2 0
+t1%=t2 0
+'0' vs '-1'
+t1%t2 0
+t1%=t2 0
+'1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'1' vs '1'
+t1%t2 0
+t1%=t2 0
+'1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'1' vs '1'
+t1%t2 0
+t1%=t2 0
+'1' vs '0.1'
+t1%t2 0.09999999999999995
+t1%=t2 0.09999999999999995
+'1' vs '-1'
+t1%t2 0
+t1%=t2 0
+'1' vs '-1'
+t1%t2 0
+t1%=t2 0
+'0' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'0' vs '1'
+t1%t2 0
+t1%=t2 0
+'0' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'0' vs '1'
+t1%t2 0
+t1%=t2 0
+'0' vs '0.1'
+t1%t2 0
+t1%=t2 0
+'0' vs '-1'
+t1%t2 0
+t1%=t2 0
+'0' vs '-1'
+t1%t2 0
+t1%=t2 0
+'1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'1' vs '1'
+t1%t2 0
+t1%=t2 0
+'1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'1' vs '1'
+t1%t2 0
+t1%=t2 0
+'1' vs '0.1'
+t1%t2 0.09999999999999995
+t1%=t2 0.09999999999999995
+'1' vs '-1'
+t1%t2 0
+t1%=t2 0
+'1' vs '-1'
+t1%t2 0
+t1%=t2 0
+'0.1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'0.1' vs '1'
+t1%t2 0.1
+t1%=t2 0.1
+'0.1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'0.1' vs '1'
+t1%t2 0.1
+t1%=t2 0.1
+'0.1' vs '0.1'
+t1%t2 0
+t1%=t2 0
+'0.1' vs '-1'
+t1%t2 0.1
+t1%=t2 0.1
+'0.1' vs '-1'
+t1%t2 0.1
+t1%=t2 0.1
+'-1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'-1' vs '1'
+t1%t2 0
+t1%=t2 0
+'-1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'-1' vs '1'
+t1%t2 -0
+t1%=t2 -0
+'-1' vs '0.1'
+t1%t2 -0.09999999999999995
+t1%=t2 -0.09999999999999995
+'-1' vs '-1'
+t1%t2 0
+t1%=t2 0
+'-1' vs '-1'
+t1%t2 -0
+t1%=t2 -0
+'-1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'-1' vs '1'
+t1%t2 -0
+t1%=t2 -0
+'-1' vs '0'
+t1%t2 error{ errortext = "Divide by Zero" }
+t1%=t2 error{ errortext = "Divide by Zero" }
+'-1' vs '1'
+t1%t2 -0
+t1%=t2 -0
+'-1' vs '0.1'
+t1%t2 -0.09999999999999995
+t1%=t2 -0.09999999999999995
+'-1' vs '-1'
+t1%t2 -0
+t1%=t2 -0
+'-1' vs '-1'
+t1%t2 -0
+t1%=t2 -0
