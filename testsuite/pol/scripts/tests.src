@@ -33,13 +33,16 @@ program tests()
     testpkgs.append( restartpkg );
   endif
 
-  var filter := GetEnvironmentVariable( "POLCORE_TEST_FILTER" );
-  if ( filter )
-    syslog( "## using testfilter \"" + filter + "\"\n", 0, CONSOLE_COLOR_CYAN );
+  // Add some colons to ensure array size is always >=3
+  var filter := ( GetEnvironmentVariable( "POLCORE_TEST_FILTER" ) ?: "" ) + ":::";
+  var [ filter_pkg, filter_file, filter_func ] := SplitWords( filter, ":" );
+  if ( filter_pkg || filter_file || filter_func )
+    syslog( $"## using testfilter filter_pkg=\"{filter_pkg}\", filter_file=\"{filter_file}\", filter_func=\"{filter_func}\", \n",
+            0, CONSOLE_COLOR_CYAN );
   endif
 
   foreach pkg in testpkgs
-    if ( filter and !pkg[1].find( filter ) )
+    if ( filter_pkg and !pkg[1].find( filter_pkg ) )
       continue;
     endif
 
@@ -67,6 +70,8 @@ program tests()
     foreach file in scripts
       if ( file.find( "test" ) != 1 )
         continue;
+      elseif ( filter_file and !file.find( filter_file ) )
+        continue;
       endif
       var scriptstartms := ReadMillisecondClock();
       syslog( "  Calling {}..".format( file ), 0, CONSOLE_COLOR_GREEN );
@@ -82,6 +87,9 @@ program tests()
 
       var resources := ResourceManager();
       foreach func in ( script[1].exported_functions )
+        if ( filter_func && !func.find( filter_func ) )
+          continue;
+        endif
         var startms := ReadMillisecondClock();
         syslog( "    Calling {}..".format( func ), 0, CONSOLE_COLOR_GREEN );
         var res := script[1].call( func, { resources } );
