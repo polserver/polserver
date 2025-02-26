@@ -585,8 +585,11 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
 void send_corpse( Client* client, const Item* item )
 {
   const UCorpse* corpse = static_cast<const UCorpse*>( item );
-  send_corpse_equip( client, corpse );
+  // Send the contents _first_, so the client is aware of the copied items (eg.
+  // hair). Then send the corpse equipment, as client knows about the copied
+  // items.
   send_corpse_contents( client, corpse );
+  send_corpse_equip( client, corpse );
 }
 
 // This function sends every item in the corpse, not only the equipped items. It's mainly

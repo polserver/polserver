@@ -84,6 +84,7 @@
 #include "charactr.h"
 
 #include <iterator>
+#include <list>
 #include <stdlib.h>
 #include <string>
 
@@ -2204,10 +2205,16 @@ void Character::die()
   color = 0;
   UPDATE_CHECKPOINT();
 
+  // Keep a list of copied items to set movable = false _after_ the corpse has
+  // been sent, since changing the movable property does an
+  // `send_put_in_container_to_inrange`. The client would ignore this item, as
+  // the container does not exist yet.
+  std::list<Items::Item*> copied_items;
+
   // small lambdas to reduce the mess inside the loops
   auto _copy_item = [&]( Items::Item* _item ) {  // copy a item into the corpse
     Items::Item* copy = _item->clone();
-    copy->movable( false );
+    copied_items.push_back( copy );
     corpse->equip_and_add( copy, copy->layer );
   };
   auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
@@ -2412,6 +2419,12 @@ void Character::die()
   add_item_to_world( corpse );
   UPDATE_CHECKPOINT();
   send_item_to_inrange( corpse );
+  UPDATE_CHECKPOINT();
+  // Set the items to unmovable, now that the client knows about the corpse container.
+  for ( auto* copied_item : copied_items )
+  {
+    copied_item->movable( false );
+  }
 
   UPDATE_CHECKPOINT();
 
