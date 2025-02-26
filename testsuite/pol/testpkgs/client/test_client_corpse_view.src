@@ -1,0 +1,60 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+use boat;
+use file;
+use polsys;
+
+var char;
+var charX := 100;
+var charY := 50;
+var clientcon := getClientConnection();
+
+program test_corpse_view()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+
+  // Move character somewhere nice.
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return ret_error( $"Could not move character: ${res}" );
+  endif
+
+  clientcon.sendevent( struct{ todo := EVT_DISABLE_ITEM_LOGGING, arg := 0, id := 0 } );
+  if ( !( res := waitForClient( 0, { EVT_DISABLE_ITEM_LOGGING } ) ) )
+    return res;
+  endif
+
+  return 1;
+endprogram
+
+exported function test_corpse_body_items( resources )
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var beard := resources.CreateItemAtLocation( 0, 0, 0, 0x203b );
+  if ( !beard )
+    return beard;
+  endif
+
+  var res;
+  if ( !( res := EquipItem( npc, beard ) ) )
+    return ret_error( $"Could not equip beard: {res}" );
+  endif
+
+  ResourceManager::DestroyNpcResource( npc );
+
+  if ( !( res := waitForClient( 0, { EVT_NEW_ITEM, EVT_REMOVED_OBJ } ) ) )
+    return res;
+  endif
+
+  return ret_error_not_equal( res.type, EVT_REMOVED_OBJ,
+                              $"Incorrect event after corpse death, expected {EVT_REMOVED_OBJ} got {res.type}" );
+endfunction
