@@ -6,6 +6,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 #pragma once
 
+#include <chrono>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <fstream>
