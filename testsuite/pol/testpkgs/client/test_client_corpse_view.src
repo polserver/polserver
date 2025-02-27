@@ -33,6 +33,9 @@ program test_corpse_view()
   return 1;
 endprogram
 
+// After killing an NPC, client should not received a NEW_ITEM corresponding to
+// the items copied to corpse (items in the beard, face, or hair layer). A
+// previous bug would show these items on the ground.
 exported function test_corpse_body_items( resources )
   var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
   if ( !npc )
