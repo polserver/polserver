@@ -23,7 +23,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
       - name: Cache curl
         uses: actions/cache@v4
         with:
@@ -48,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          brew install ninja pkg-config mysql-client mysql-connector-c++ openssl@3 libssh2
+          brew bundle --file=bin-build/Brewfile
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `brew-universalize`.
           ./bin-build/brew-universalize mysql-client mysql-connector-c++ openssl@3 libssh2
           OPENSSL_VERSION_INSTALLED=$(brew info --json openssl@3 | jq -r '.[0].installed[0].version')
