@@ -45,14 +45,15 @@ jobs:
           path: lib/cppdap-82beeea
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea
       - name: Install Dependencies
-        shell: pwsh
+        shell: bash
         run: |
-          brew install pkg-config
-          brew reinstall openssl@1.1
-          brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
-          # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `bew-universalize`.
-          ./bin-build/brew-universalize openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
-          echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$Env:PKG_CONFIG_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          set -e
+          brew install ninja pkg-config mysql-client mysql-connector-c++ openssl@3 libssh2
+          # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `brew-universalize`.
+          ./bin-build/brew-universalize mysql-client mysql-connector-c++ openssl@3 libssh2
+          OPENSSL_VERSION_INSTALLED=$(brew info --json openssl@3 | jq -r '.[0].installed[0].version')
+          MYSQL_CLIENT_VERSION_INSTALLED=$(brew info --json mysql-client | jq -r '.[0].installed[0].version')
+          echo "PKG_CONFIG_PATH=/opt/homebrew/Cellar/openssl@3/$OPENSSL_VERSION_INSTALLED/lib/pkgconfig:/opt/homebrew/Cellar/mysql-client/$MYSQL_CLIENT_VERSION_INSTALLED/lib/pkgconfig:$Env:PKG_CONFIG_PATH" >> $GITHUB_ENV
           #env:
           #HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
 

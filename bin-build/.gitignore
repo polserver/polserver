@@ -30,3 +30,6 @@ module_defs
 coretest
 fmt
 efsw
+
+# clangd
+.cache
