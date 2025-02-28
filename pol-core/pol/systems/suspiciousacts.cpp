@@ -15,7 +15,6 @@ void SuspiciousActs::GumpResponseWasUnexpected( Network::Client* client, u32 gum
   if ( Plib::systemstate.config.show_warning_gump )
   {
     POLLOG_INFOLN(
-        "\n"
         "Warning: Character {:#x} sent an unexpected gump menu selection. Gump ID {:#x}, "
         "button ID {:#x}",
         client->chr->serial, gumpid, buttonid );
