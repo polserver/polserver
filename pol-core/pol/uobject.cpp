@@ -282,90 +282,144 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   else
     sw.add( "Realm", realm()->name() );
 
-  s16 value = fire_resist().mod;
-  if ( value != 0 )
-    sw.add( "FireResistMod", value );
-  value = cold_resist().mod;
-  if ( value != 0 )
-    sw.add( "ColdResistMod", value );
-  value = energy_resist().mod;
-  if ( value != 0 )
-    sw.add( "EnergyResistMod", value );
-  value = poison_resist().mod;
-  if ( value != 0 )
-    sw.add( "PoisonResistMod", value );
-  value = physical_resist().mod;
-  if ( value != 0 )
-    sw.add( "PhysicalResistMod", value );
 
-  value = fire_damage().mod;
-  if ( value != 0 )
-    sw.add( "FireDamageMod", value );
-  value = cold_damage().mod;
-  if ( value != 0 )
-    sw.add( "ColdDamageMod", value );
-  value = energy_damage().mod;
-  if ( value != 0 )
-    sw.add( "EnergyDamageMod", value );
-  value = poison_damage().mod;
-  if ( value != 0 )
-    sw.add( "PoisonDamageMod", value );
-  value = physical_damage().mod;
-  if ( value != 0 )
-    sw.add( "PhysicalDamageMod", value );
-  // new mod stuff
-  value = lower_reagent_cost().mod;
-  if ( value )
-    sw.add( "LowerReagentCostMod", value );
-  value = defence_increase().mod;
-  if ( value )
-    sw.add( "DefenceIncreaseMod", value );
-  value = defence_increase_cap().mod;
-  if ( value )
-    sw.add( "DefenceIncreaseCapMod", value );
-  value = lower_mana_cost().mod;
-  if ( value )
-    sw.add( "LowerManaCostMod", value );
-  value = hit_chance().mod;
-  if ( value )
-    sw.add( "HitChanceMod", value );
-  value = fire_resist_cap().mod;
-  if ( value )
-    sw.add( "FireResistCapMod", value );
-  value = cold_resist_cap().mod;
-  if ( value )
-    sw.add( "ColdResistCapMod", value );
-  value = energy_resist_cap().mod;
-  if ( value )
-    sw.add( "EnergyResistCapMod", value );
-  value = physical_resist_cap().mod;
-  if ( value )
-    sw.add( "PhysicalResistCapMod", value );
-  value = poison_resist_cap().mod;
-  if ( value )
-    sw.add( "PoisonResistCapMod", value );
-  value = spell_damage_increase().mod;
-  if ( value )
-    sw.add( "SpellDamageIncreaseMod", value );
-  value = faster_casting().mod;
-  if ( value )
-    sw.add( "FasterCastingMod", value );
-  value = faster_cast_recovery().mod;
-  if ( value )
-    sw.add( "FasterCastRecoveryMod", value );
-  value = luck().mod;
-  if ( value )
-    sw.add( "LuckMod", value );
-  value = swing_speed_increase().mod;
-  if ( value )
-    sw.add( "SwingSpeedIncreaseMod", value );
-  value = min_attack_range_increase().mod;
-  if ( value )
-    sw.add( "MinAttackRangeIncreaseMod", value );
-  value = max_attack_range_increase().mod;
-  if ( value )
-    sw.add( "MaxAttackRangeIncreaseMod", value );
-  // end new mod stuff
+  if ( has_fire_resist() )
+  {
+    if ( s16 value = fire_resist().mod; value )
+      sw.add( "FireResistMod", value );
+  }
+  if ( has_cold_resist() )
+  {
+    if ( s16 value = cold_resist().mod; value )
+      sw.add( "ColdResistMod", value );
+  }
+  if ( has_energy_resist() )
+  {
+    if ( s16 value = energy_resist().mod; value )
+      sw.add( "EnergyResistMod", value );
+  }
+  if ( has_poison_resist() )
+  {
+    if ( s16 value = poison_resist().mod; value )
+      sw.add( "PoisonResistMod", value );
+  }
+  if ( has_physical_resist() )
+  {
+    if ( s16 value = physical_resist().mod; value )
+      sw.add( "PhysicalResistMod", value );
+  }
+
+  if ( has_fire_damage() )
+  {
+    if ( s16 value = fire_damage().mod; value )
+      sw.add( "FireDamageMod", value );
+  }
+  if ( has_cold_damage() )
+  {
+    if ( s16 value = cold_damage().mod; value )
+      sw.add( "ColdDamageMod", value );
+  }
+  if ( has_energy_damage() )
+  {
+    if ( s16 value = energy_damage().mod; value )
+      sw.add( "EnergyDamageMod", value );
+  }
+  if ( has_poison_damage() )
+  {
+    if ( s16 value = poison_damage().mod; value )
+      sw.add( "PoisonDamageMod", value );
+  }
+  if ( has_physical_damage() )
+  {
+    if ( s16 value = physical_damage().mod; value )
+      sw.add( "PhysicalDamageMod", value );
+  }
+
+  if ( has_lower_reagent_cost() )
+  {
+    if ( s16 value = lower_reagent_cost().mod; value )
+      sw.add( "LowerReagentCostMod", value );
+  }
+  if ( has_defence_increase() )
+  {
+    if ( s16 value = defence_increase().mod; value )
+      sw.add( "DefenceIncreaseMod", value );
+  }
+  if ( has_defence_increase_cap() )
+  {
+    if ( s16 value = defence_increase_cap().mod; value )
+      sw.add( "DefenceIncreaseCapMod", value );
+  }
+  if ( has_lower_mana_cost() )
+  {
+    if ( s16 value = lower_mana_cost().mod; value )
+      sw.add( "LowerManaCostMod", value );
+  }
+  if ( has_hit_chance() )
+  {
+    if ( s16 value = hit_chance().mod; value )
+      sw.add( "HitChanceMod", value );
+  }
+  if ( has_fire_resist_cap() )
+  {
+    if ( s16 value = fire_resist_cap().mod; value )
+      sw.add( "FireResistCapMod", value );
+  }
+  if ( has_cold_resist_cap() )
+  {
+    if ( s16 value = cold_resist_cap().mod; value )
+      sw.add( "ColdResistCapMod", value );
+  }
+  if ( has_energy_resist_cap() )
+  {
+    if ( s16 value = energy_resist_cap().mod; value )
+      sw.add( "EnergyResistCapMod", value );
+  }
+  if ( has_physical_resist_cap() )
+  {
+    if ( s16 value = physical_resist_cap().mod; value )
+      sw.add( "PhysicalResistCapMod", value );
+  }
+  if ( has_poison_resist_cap() )
+  {
+    if ( s16 value = poison_resist_cap().mod; value )
+      sw.add( "PoisonResistCapMod", value );
+  }
+  if ( has_spell_damage_increase() )
+  {
+    if ( s16 value = spell_damage_increase().mod; value )
+      sw.add( "SpellDamageIncreaseMod", value );
+  }
+  if ( has_faster_casting() )
+  {
+    if ( s16 value = faster_casting().mod; value )
+      sw.add( "FasterCastingMod", value );
+  }
+  if ( has_faster_cast_recovery() )
+  {
+    if ( s16 value = faster_cast_recovery().mod; value )
+      sw.add( "FasterCastRecoveryMod", value );
+  }
+  if ( has_luck() )
+  {
+    if ( s16 value = luck().mod; value )
+      sw.add( "LuckMod", value );
+  }
+  if ( has_swing_speed_increase() )
+  {
+    if ( s16 value = swing_speed_increase().mod; value )
+      sw.add( "SwingSpeedIncreaseMod", value );
+  }
+  if ( has_min_attack_range_increase() )
+  {
+    if ( s16 value = min_attack_range_increase().mod; value )
+      sw.add( "MinAttackRangeIncreaseMod", value );
+  }
+  if ( has_max_attack_range_increase() )
+  {
+    if ( s16 value = max_attack_range_increase().mod; value )
+      sw.add( "MaxAttackRangeIncreaseMod", value );
+  }
 
 
   proplist_.printProperties( sw );
