@@ -1,0 +1,6 @@
+brew "ninja"
+brew "pkg-config"
+brew "mysql-client"
+brew "mysql-connector-c++"
+brew "openssl@3"
+brew "libssh2"
