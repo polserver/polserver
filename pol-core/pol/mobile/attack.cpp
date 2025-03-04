@@ -15,15 +15,35 @@
 #include "clib/rawtypes.h"
 #include "pol/cmbtcfg.h"
 #include "pol/globals/settings.h"
+#include "pol/item/item.h"
+#include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
 #include "pol/network/pktin.h"
-#include "pol/ufunc.h"
-#include "pol/mobile/charactr.h"
 #include "pol/regions/guardrgn.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Mobile
 {
+Attackable::Attackable( Character* chr ) : _opp( chr ) {}
+Attackable::Attackable( Items::Item* item ) : _opp( item )
+{
+  if ( !item->is_attackable() )
+    _opp = nullptr;
+}
+Character* Attackable::mobile() const
+{
+  if ( _opp && _opp->ismobile() )
+    return static_cast<Character*>( _opp );
+  return nullptr;
+}
+Items::Item* Attackable::item() const
+{
+  if ( _opp && _opp->isitem() )
+    return static_cast<Items::Item*>( _opp );
+  return nullptr;
+}
+
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
 {
   if ( client->chr->dead() )

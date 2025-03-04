@@ -141,6 +141,7 @@ enum class OBJ_FLAGS : u16
   NO_DROP = 1 << 9,             // Item flag
   NO_DROP_EXCEPTION = 1 << 10,  // Container/Character flag
   CURSED = 1 << 11,             // Cursed
+  ATTACKABLE = 1 << 12,         // Item flag
 };
 
 /**
