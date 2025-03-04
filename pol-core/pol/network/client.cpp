@@ -196,7 +196,7 @@ void Client::PreDelete()
 
       chr->set_opponent( nullptr );
       chr->removal_cleanup();
-      if ( chr->get_opponent() != nullptr )
+      if ( chr->get_opponent() )
       {
         chr->set_opponent( nullptr, true );
       }
