@@ -2673,15 +2673,18 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
 
     for ( auto& hostile : chr->hostiles() )
     {
-      if ( hostile->concealed() )
-        continue;
-      if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *hostile ) )
-        continue;
-      if ( ( ~flags & LH_FLAG_INCLUDE_HIDDEN ) && hostile->hidden() )
-        continue;
-      if ( !chr->in_range( hostile, range ) )
-        continue;
-      arr->addElement( hostile->make_ref() );
+      if ( auto* mob = hostile.mobile() )  // TODO Attackable
+      {
+        if ( mob->concealed() )
+          continue;
+        if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *mob ) )
+          continue;
+        if ( ( ~flags & LH_FLAG_INCLUDE_HIDDEN ) && mob->hidden() )
+          continue;
+        if ( !chr->in_range( mob, range ) )
+          continue;
+        arr->addElement( mob->make_ref() );
+      }
     }
 
     return arr.release();

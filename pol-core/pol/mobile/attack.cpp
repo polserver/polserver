@@ -15,6 +15,7 @@
 #include "../../clib/rawtypes.h"
 #include "../cmbtcfg.h"
 #include "../globals/settings.h"
+#include "../item/item.h"
 #include "../network/client.h"
 #include "../network/pktin.h"
 #include "../ufunc.h"
@@ -25,6 +26,25 @@ namespace Pol
 {
 namespace Mobile
 {
+Attackable::Attackable( Character* chr ) : _opp( chr ) {}
+Attackable::Attackable( Items::Item* item ) : _opp( item )
+{
+  if ( !item->is_attackable() )
+    _opp = nullptr;
+}
+Character* Attackable::mobile() const
+{
+  if ( _opp && _opp->ismobile() )
+    return static_cast<Character*>( _opp );
+  return nullptr;
+}
+Items::Item* Attackable::item() const
+{
+  if ( _opp && _opp->isitem() )
+    return static_cast<Items::Item*>( _opp );
+  return nullptr;
+}
+
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
 {
   if ( client->chr->dead() )

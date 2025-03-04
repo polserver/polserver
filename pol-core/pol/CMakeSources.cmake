@@ -151,6 +151,7 @@ set (pol_sources  # sorted !
   mkscrobj.cpp
   mkscrobj.h
   mobile/attack.cpp
+  mobile/attack.h
   mobile/attribute.cpp
   mobile/attribute.h
   mobile/boundbox.cpp

@@ -861,7 +861,7 @@ void NPC::inform_moved( Character* moved )
   }
 
   // only send moved event if left/enteredarea wasnt send
-  if ( ( moved == opponent_ ) && ( ex->eventmask & ( Core::EVID_OPPONENT_MOVED ) ) )
+  if ( ( moved == opponent_.object() ) && ( ex->eventmask & ( Core::EVID_OPPONENT_MOVED ) ) )
   {
     if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
          is_visible_to_me( moved ) )

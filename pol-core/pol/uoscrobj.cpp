@@ -2169,8 +2169,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     break;
 
   case MBR_OPPONENT:
-    if ( opponent_ != nullptr )
-      return opponent_->make_ref();
+    if ( opponent_ )
+      return opponent_.object()->make_ref();
     return new BError( "Mobile does not have any opponent selected." );
     break;
   case MBR_CONNECTED:
@@ -3224,33 +3224,24 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_ATTACK_ONCE:
   {
-    Character* chr;
+    if ( dead() )
+      return new BError( "Character is dead" );
     if ( ex.hasParams( 1 ) )
     {
-      if ( ex.getCharacterParam( 0, chr ) )
-      {
-        if ( dead() )
-          return new BError( "Character is dead" );
-        if ( is_attackable( chr ) )
-          attack( chr );
-        else
-          return new BError( "Opponent is not attackable" );
-      }
-      else
+      // TODO Attackable
+      Character* chr;
+      if ( !ex.getCharacterParam( 0, chr ) )
         return new BError( "Invalid parameter type" );
+      if ( !is_attackable( chr ) )
+        return new BError( "Opponent is not attackable" );
+      attack( chr );
     }
     else
     {
-      chr = get_attackable_opponent();
-      if ( chr != nullptr )
-      {
-        if ( !dead() )
-          attack( chr );
-        else
-          return new BError( "Character is dead" );
-      }
-      else
+      auto opp = get_attackable_opponent();
+      if ( !opp )
         return new BError( "No opponent" );
+      attack( opp );
     }
     return new BLong( 1 );
     break;

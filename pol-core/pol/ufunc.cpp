@@ -2048,7 +2048,7 @@ void send_new_subserver( Client* client )
   msg.Send( client );
 }
 
-void send_fight_occuring( Client* client, Character* opponent )
+void send_fight_occuring( Client* client, UObject* opponent )
 {
   PktHelper::PacketOut<PktOut_2F> msg;
   msg->offset++;  // zero1

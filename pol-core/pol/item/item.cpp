@@ -1418,6 +1418,12 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
   return base::get_method_hook( methodname, ex, hook, PC );
 }
 
+bool Item::is_attackable() const
+{
+  // TODO Attackable
+  // explizit type or just a flag?
+  return flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
+}
 // Event notifications
 
 bool Item::is_visible_to_me( const Mobile::Character* chr ) const

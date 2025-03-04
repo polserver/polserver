@@ -260,6 +260,9 @@ public:
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
 
+
+  bool is_attackable() const;
+
 protected:  // only derived classes need the constructor
   virtual void printProperties( Clib::StreamWriter& sw ) const override;
   virtual void printDebugProperties( Clib::StreamWriter& sw ) const override;
