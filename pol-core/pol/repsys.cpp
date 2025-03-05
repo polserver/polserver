@@ -535,12 +535,12 @@ void RepSystem::de_escalate( Mobile::Character* amy, Mobile::Character* bob )
 {
   if ( amy->opponent_.object() == bob )
   {
-    amy->set_opponent( nullptr, true );
+    amy->set_opponent( {}, true );
   }
 
   if ( bob->opponent_.object() == amy )
   {
-    bob->set_opponent( nullptr, true );
+    bob->set_opponent( {}, true );
   }
 }
 
