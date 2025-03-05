@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+03-05-2025 AsYlum:
+  Changed: Multi elements will check raw graphic instead of using itemdesc graphic definition
 02-26-2025 Kevin:
     Fixed: Hair and beard layers no longer appear on ground of human corpses at death
 02-23-2025 Turley:

@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-26-2025</datemodified>
+		<datemodified>03-05-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>03-05-2025</date>
+			<author>AsYlum:</author>
+			<change type="Changed">Multi elements will check raw graphic instead of using itemdesc graphic definition</change>
+		</entry>
 		<entry>
 			<date>02-26-2025</date>
 			<author>Kevin:</author>
