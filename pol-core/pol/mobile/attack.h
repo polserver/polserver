@@ -18,8 +18,9 @@ class Attackable
 {
 public:
   Attackable() = default;
-  Attackable( Character* chr );
-  Attackable( Items::Item* item );
+  //  Attackable( Character* chr );
+  //  Attackable( Items::Item* item );
+  Attackable( Core::UObject* obj );
 
   explicit operator bool() const { return _opp != nullptr; };
   void clear() { _opp = nullptr; };
@@ -27,6 +28,11 @@ public:
   Core::UObject* object() const { return _opp; };
   Character* mobile() const;
   Items::Item* item() const;
+
+  void remove_opponent_of( const Attackable& other );
+  void add_opponent_of( Attackable other );
+  void inform_disengaged( const Attackable& disengaged );
+  void inform_engaged( const Attackable& engaged );
 
   // std::less support for std::set
   bool operator<( const Attackable& o ) const { return _opp < o._opp; };
