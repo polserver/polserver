@@ -65,7 +65,7 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, shor
   for ( ; itr != end; ++itr )
   {
     const MULTI_ELEM* elem = ( *itr ).second;
-    unsigned short graphic = Items::getgraphic( elem->objtype );
+    unsigned short graphic = elem->objtype;
     if ( Plib::tile_flags( graphic ) & anyflags )
     {
       if ( elem->is_static )
