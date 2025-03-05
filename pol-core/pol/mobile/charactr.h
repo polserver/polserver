@@ -337,8 +337,8 @@ public:
 public:
   virtual Items::UWeapon* intrinsic_weapon();
 
-  virtual void inform_disengaged( Character* disengaged );
-  virtual void inform_engaged( Character* engaged );
+  virtual void inform_disengaged( const Attackable& disengaged );
+  virtual void inform_engaged( const Attackable& engaged );
   virtual void inform_criminal( Character* thecriminal );
   virtual void inform_leftarea( Character* wholeft );
   virtual void inform_enteredarea( Character* whoentered );
@@ -421,8 +421,12 @@ public:
 
   // COMBAT
 public:
+  // Attackable api
+  void remove_opponent_of( const Attackable& other );
+  void add_opponent_of( Attackable other );
+
   void select_opponent( u32 opp_serial );
-  void set_opponent( Character* opponent, bool inform_old_opponent = true );
+  void set_opponent( Attackable opponent, bool inform_old_opponent = true );
 
   void clear_opponent_of();
 

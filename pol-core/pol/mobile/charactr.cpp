@@ -399,11 +399,7 @@ void Character::removal_cleanup()
      */
   if ( opponent_ )
   {
-    if ( auto* mob = opponent_.mobile() )  // TODO Attackable both
-      mob->opponent_of.erase( Attackable{ this } );
-    //    This is cleanup, wtf we doing trying to send highlights?!
-    //    opponent_->send_highlight();
-    //    opponent_->schedule_attack();
+    opponent_.remove_opponent_of( Attackable{ this } );
     opponent_.clear();
   }
 
@@ -2075,8 +2071,7 @@ void Character::on_death( Items::Item* corpse )
   if ( client != nullptr )
   {
     if ( opponent_ )
-      if ( auto* mob = opponent_.mobile() )  // TODO Attackable
-        mob->inform_disengaged( this );
+      opponent_.inform_disengaged( Attackable{ this } );
 
     client->pause();
     send_warmode();
@@ -2116,8 +2111,17 @@ void Character::clear_opponent_of()
     // its entry from our opponent_of collection,
     // so eventually this loop will exit.
     if ( auto* mob = att.mobile() )  // TODO Attackable
-      mob->set_opponent( nullptr, false );
+      mob->set_opponent( {}, false );
   }
+}
+
+void Character::remove_opponent_of( const Attackable& other )
+{
+  opponent_of.erase( other );
+}
+void Character::add_opponent_of( Attackable other )
+{
+  opponent_of.insert( std::move( other ) );
 }
 
 void Character::die()
@@ -2433,7 +2437,7 @@ void Character::die()
 
   clear_opponent_of();
 
-  set_opponent( nullptr );
+  set_opponent( {} );
 
   UPDATE_CHECKPOINT();
 
@@ -3024,7 +3028,7 @@ void Character::on_swing_failure( Character* /*attacker*/ )
   // do nothing
 }
 
-void Character::inform_disengaged( Character* /*disengaged*/ )
+void Character::inform_disengaged( const Attackable& /*disengaged*/ )
 {
   // someone has just disengaged. If we don't have an explicit opponent,
   // pick one of those that has us targetted as the highlight character.
@@ -3032,7 +3036,7 @@ void Character::inform_disengaged( Character* /*disengaged*/ )
     send_highlight();
 }
 
-void Character::inform_engaged( Character* /*engaged*/ )
+void Character::inform_engaged( const Attackable& /*engaged*/ )
 {
   // someone has targetted us.  If we don't have an explicit opponent,
   // pick one of those that has us targetted as the highlight character.
@@ -3061,13 +3065,13 @@ void Character::inform_moved( Character* /*moved*/ )
 }
 void Character::inform_imoved( Character* /*chr*/ ) {}
 
-void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
+void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent )
 {
   INFO_PRINTLN_TRACE( 12 )
-  ( "set_opponent({:#x},{:#x})", this->serial, new_opponent != nullptr ? new_opponent->serial : 0 );
-  if ( new_opponent != nullptr )
+  ( "set_opponent({:#x},{:#x})", this->serial, new_opponent ? new_opponent.object()->serial : 0 );
+  if ( new_opponent )
   {
-    if ( new_opponent->dead() )
+    if ( auto* mob = new_opponent.mobile(); mob && mob->dead() )
       return;
 
     if ( !warmode() && ( script_isa( Core::POLCLASS_NPC ) || has_active_client() ) )
@@ -3076,18 +3080,16 @@ void Character::set_opponent( Character* new_opponent, bool inform_old_opponent 
 
   if ( opponent_ )  // TODO Attackable
   {
-    if ( auto* mob = opponent_.mobile() )
-      mob->opponent_of.erase( Attackable{ this } );
+    opponent_.remove_opponent_of( Attackable{ this } );
     // Turley 05/26/09 no need to send disengaged event on shutdown
     if ( !Clib::exit_signalled )
     {
       if ( inform_old_opponent )
-        if ( auto* mob = opponent_.mobile() )
-          mob->inform_disengaged( this );
+        opponent_.inform_disengaged( Attackable{ this } );
     }
   }
 
-  opponent_ = Attackable{ new_opponent };
+  opponent_ = std::move( new_opponent );
 
 
   // Turley 05/26/09 possible shutdown crashfix during cleanup
@@ -3106,13 +3108,8 @@ void Character::set_opponent( Character* new_opponent, bool inform_old_opponent 
           mob->reset_swing_timer();
       }
 
-      if ( mob )
-      {
-        // TODO Attackable for both
-        mob->opponent_of.insert( Attackable{ this } );
-
-        mob->inform_engaged( this );
-      }
+      opponent_.add_opponent_of( Attackable{ this } );
+      opponent_.inform_engaged( Attackable{ this } );
       if ( mob )
         mob->schedule_attack();
     }
@@ -3127,14 +3124,12 @@ void Character::select_opponent( u32 opp_serial )
   // if you double-click the same guy over and over
   if ( !opponent_ || opponent_.object()->serial != opp_serial )
   {
-    // TODO Attackable
-    Character* new_opponent = Core::find_character( opp_serial );
-    if ( new_opponent != nullptr )
-    {
-      if ( realm() != new_opponent->realm() )
-        return;
-      set_opponent( new_opponent );
-    }
+    auto* obj = Core::find_toplevel_object( opp_serial );
+    if ( !obj )
+      return;
+    if ( realm() != obj->realm() )
+      return;
+    set_opponent( Attackable{ obj } );
   }
 }
 
@@ -3164,7 +3159,7 @@ void Character::set_warmode( bool i_warmode )
   mob_flags_.change( MOB_FLAGS::WARMODE, i_warmode );
   if ( i_warmode == false )
   {
-    set_opponent( nullptr );
+    set_opponent( {} );
   }
   reset_swing_timer();
 
@@ -3594,14 +3589,15 @@ void Character::check_justice_region_change()
 
     if ( new_justice_region && new_justice_region->RunNoCombatCheck( client ) == true )
     {
+      get_opponent().remove_opponent_of( Attackable{ client->chr } );
       if ( auto* opp2 = get_opponent().mobile(); opp2 && opp2->client )
       {
-        opp2->opponent_of.erase( Attackable{ client->chr } );
-        opp2->set_opponent( nullptr, true );
+        // TODO Attackable
+        opp2->set_opponent( {}, true );
         opp2->schedule_attack();
         opp2->opponent_.clear();
         opp2->clear_opponent_of();
-        set_opponent( nullptr, true );
+        set_opponent( {}, true );
         if ( swing_task != nullptr )
           swing_task->cancel();
       }
@@ -3648,9 +3644,8 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
   Core::WeatherRegion* cur_weather_region = client->gd->weather_region;
   Core::WeatherRegion* new_weather_region = Core::gamestate.weatherdef->getregion( pos() );
 
-  // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has no
-  // weather region,
-  // and to walk to somewhere that doesn't have a weather region.
+  // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has
+  // no weather region, and to walk to somewhere that doesn't have a weather region.
   //
   if ( force || ( cur_weather_region != new_weather_region ) )
   {
@@ -3662,9 +3657,8 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
     }
 
     // eric removed this 5/31/03, it's calling itself recursively:
-    // move_character_to -> tellmove -> check_region_changes -> check_weather_region_change (here,
-    // doh)
-    // if you need to send the client something special, just do it.
+    // move_character_to -> tellmove -> check_region_changes -> check_weather_region_change
+    // (here, doh) if you need to send the client something special, just do it.
     // move_character_to(this,x,y,z,0); //dave added 5/26/03: client doesn't refresh properly
     // without a teleport :| and send_goxyz causes weather effects to stop if character is
     // walking/running too

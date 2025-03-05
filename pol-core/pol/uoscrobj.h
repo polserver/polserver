@@ -28,6 +28,7 @@
 #include "network/client.h"
 #include "polobject.h"
 #include "uobjcnt.h"
+#include "uobject.h"
 
 #ifndef ITEM_H
 #include "item/item.h"
@@ -270,20 +271,19 @@ public:
 class SourcedEvent : public Bscript::BStruct
 {
 public:
-  SourcedEvent( Core::EVENTID type, Mobile::Character* source );
+  SourcedEvent( Core::EVENTID type, Core::UObject* source );
 };
 
 class EngageEvent final : public SourcedEvent
 {
 public:
-  explicit EngageEvent( Mobile::Character* engaged )
-      : SourcedEvent( Core::EVID_ENGAGED, engaged ){};
+  explicit EngageEvent( Core::UObject* engaged ) : SourcedEvent( Core::EVID_ENGAGED, engaged ){};
 };
 
 class DisengageEvent final : public SourcedEvent
 {
 public:
-  explicit DisengageEvent( Mobile::Character* disengaged )
+  explicit DisengageEvent( Core::UObject* disengaged )
       : SourcedEvent( Core::EVID_DISENGAGED, disengaged ){};
 };
 

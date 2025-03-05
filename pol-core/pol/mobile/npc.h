@@ -132,8 +132,8 @@ protected:
 public:
   virtual Items::UWeapon* intrinsic_weapon() override;
 
-  virtual void inform_disengaged( Character* disengaged ) override;
-  virtual void inform_engaged( Character* engaged ) override;
+  virtual void inform_disengaged( const Attackable& disengaged ) override;
+  virtual void inform_engaged( const Attackable& engaged ) override;
   virtual void inform_criminal( Character* thecriminal ) override;
   virtual void inform_leftarea( Character* wholeft ) override;
   virtual void inform_enteredarea( Character* whoentered ) override;

@@ -193,11 +193,11 @@ void Client::PreDelete()
       send_remove_character_to_nearby( chr );
       chr->logged_in( false );
 
-      chr->set_opponent( nullptr );
+      chr->set_opponent( {} );
       chr->removal_cleanup();
       if ( chr->get_opponent() )
       {
-        chr->set_opponent( nullptr, true );
+        chr->set_opponent( {}, true );
       }
     }
     else

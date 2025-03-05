@@ -800,16 +800,21 @@ void handle_script_cursor( Character* chr, UObject* obj )
     auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( obj != nullptr )
     {
-      if ( obj->ismobile() )
+      if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HARMFUL )
       {
-        Character* targetted_chr = static_cast<Character*>( obj );
-        if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HARMFUL )
+        auto attackable = Attackable{ obj };
+        if ( attackable )
         {
-          targetted_chr->inform_engaged( chr );
-          chr->repsys_on_attack( targetted_chr );
+          attackable.inform_engaged( Attackable{ chr } );
+          if ( auto* mob = attackable.mobile() )
+            chr->repsys_on_attack( mob );
         }
-        else if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HELPFUL )
+      }
+      else if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HELPFUL )
+      {
+        if ( obj->ismobile() )
         {
+          Character* targetted_chr = static_cast<Character*>( obj );
           chr->repsys_on_help( targetted_chr );
         }
       }

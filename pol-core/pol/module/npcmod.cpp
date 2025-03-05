@@ -918,6 +918,7 @@ BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 
 BObjectImp* NPCExecutorModule::mf_SetOpponent()
 {
+  // TODO Attackable
   Mobile::Character* chr;
   if ( getCharacterParam( 0, chr ) && chr != &npc )
   {
@@ -926,7 +927,7 @@ BObjectImp* NPCExecutorModule::mf_SetOpponent()
   }
   else
   {
-    npc.set_opponent( nullptr );
+    npc.set_opponent( {} );
     return new BLong( 0 );
   }
 }

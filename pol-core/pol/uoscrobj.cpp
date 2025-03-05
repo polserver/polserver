@@ -4881,10 +4881,13 @@ BoatMovementEvent::BoatMovementEvent( Mobile::Character* source, const u8 speed,
   addMember( "relative_direction", new BLong( static_cast<int>( relative_direction ) ) );
 }
 
-SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
+SourcedEvent::SourcedEvent( Core::EVENTID type, Core::UObject* source )
 {
   addMember( "type", new BLong( type ) );
-  addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
+  if ( source->ismobile() )
+    addMember( "source", static_cast<Mobile::Character*>( source )->make_offline_ref() );
+  else
+    addMember( "source", source->make_ref() );
 }
 
 SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
