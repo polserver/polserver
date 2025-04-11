@@ -935,12 +935,12 @@ void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* m
 
 void UoConvertMain::create_multis_cfg()
 {
-  std::map<uint, std::vector<USTRUCT_MULTI_ELEMENT>> multi_map;
+  std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>> multi_map;
 
   std::string outdir = programArgsFindEquals( "outdir=", "." );
   FILE* multis_cfg = fopen( ( outdir + "/multis.cfg" ).c_str(), "wt" );
 
-  if ( uo_readuop && open_uopmulti_file( multi_map ) )
+  if ( open_uopmulti_file( multi_map ) )
   {
     for ( auto& [id, elems] : multi_map )
     {

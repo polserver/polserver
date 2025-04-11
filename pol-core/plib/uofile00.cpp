@@ -170,7 +170,7 @@ bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
   return true;
 }
 
-bool open_uopmulti_file( std::map<uint, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map )
+bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map )
 {
   std::string filepart = "MultiCollection.uop";
   std::string filename = systemstate.config.uo_datafile_root + filepart;
@@ -238,7 +238,7 @@ bool open_uopmulti_file( std::map<uint, std::vector<USTRUCT_MULTI_ELEMENT>>& mul
       }
 
       ByteReader reader( uncompressed2.get(), datalen );
-      uint id = reader.read<uint>();
+      auto id = reader.read<unsigned int>();
 
       auto hash = file->filehash();
       auto calculated_hash = multihash( id );
@@ -253,13 +253,13 @@ bool open_uopmulti_file( std::map<uint, std::vector<USTRUCT_MULTI_ELEMENT>>& mul
 
         for ( int j = 0; j < count; j++ )
         {
-          auto graphic = reader.read<ushort>();
+          auto graphic = reader.read<unsigned short>();
           auto x = reader.read<short>();
           auto y = reader.read<short>();
           auto z = reader.read<short>();
-          auto flags = reader.read<ushort>();
-          auto clilocsCount = reader.read<uint>();
-          reader.skip<uint>( clilocsCount );
+          auto flags = reader.read<unsigned short>();
+          auto clilocsCount = reader.read<unsigned int>();
+          reader.skip<unsigned int>( clilocsCount );
 
           elems.push_back( { graphic, x, y, z, flags } );
         }

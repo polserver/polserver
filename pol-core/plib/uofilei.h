@@ -35,7 +35,7 @@ struct USTRUCT_VERSION;
 struct USTRUCT_MULTI_ELEMENT;
 
 FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr );
-bool open_uopmulti_file( std::map<uint, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map );
+bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map );
 
 bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
 
