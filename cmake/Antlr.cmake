@@ -1,13 +1,14 @@
-# To update the ANTLR library:
-# 1. Download an archive from the GitHub Releases page: https://github.com/antlr/antlr4/releases
-#    - Example URL: https://github.com/antlr/antlr4/archive/4.8.tar.gz
-# 2. Copy the contents of runtime/Cpp into lib/antlr
-# 3. regenerate EScriptGrammar
-
 message("* libantlr")
-set(ANTLR_SOURCE_DIR "${POL_EXT_LIB_DIR}/antlr")
+set(ANTLR_REPOSITORY "https://github.com/antlr/antlr4")
+# This ref points to a commit on the `dev` branch, as it contains `#include`
+# directives missing for the NOPCH build.
+set(ANTLR_VERSION_REF "cb85012")
+
+set(ANTLR_SOURCE_DIR "${POL_EXT_LIB_DIR}/antlr-${ANTLR_VERSION_REF}")
 set(ANTLR_INSTALL_DIR "${ANTLR_SOURCE_DIR}/install")
 set(ANTLR_INCLUDE_DIR "${ANTLR_INSTALL_DIR}/include/antlr4-runtime")
+set(ANTLR_BUILD_DIR "${ANTLR_SOURCE_DIR}/build")
+
 if (${linux})
   set(ANTLR_LIB "${ANTLR_INSTALL_DIR}/lib/libantlr4-runtime.a")
 else()
@@ -16,9 +17,12 @@ endif()
 
 if (NOT EXISTS ${ANTLR_LIB})
   ExternalProject_Add(libantlr_ext
+    GIT_REPOSITORY   ${ANTLR_REPOSITORY}
+    GIT_TAG          ${ANTLR_VERSION_REF}
     SOURCE_DIR  ${ANTLR_SOURCE_DIR}
     PREFIX antlr
     LIST_SEPARATOR |
+    SOURCE_SUBDIR runtime/Cpp
     CMAKE_ARGS
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX=${ANTLR_INSTALL_DIR}
@@ -29,7 +33,7 @@ if (NOT EXISTS ${ANTLR_LIB})
       -DANTLR_BUILD_CPP_TESTS=Off
       -DCMAKE_OSX_ARCHITECTURES=${PIPED_OSX_ARCHITECTURES}
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    BINARY_DIR ${ANTLR_SOURCE_DIR}/build
+    BUILD_IN_SOURCE 1
     BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
     INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
 
