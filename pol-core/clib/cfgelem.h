@@ -102,6 +102,7 @@ public:
   void add_prop( std::string propname, short sval );
 
   [[noreturn]] void throw_error( const std::string& errmsg ) const;
+  [[noreturn]] void throw_prop_not_found( const std::string& propname ) const;
   void warn( const std::string& errmsg ) const;
   void warn_with_line( const std::string& errmsg ) const;
 

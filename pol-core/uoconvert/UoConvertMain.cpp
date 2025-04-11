@@ -1343,27 +1343,37 @@ void UoConvertMain::load_uoconvert_cfg()
   {
     std::string temp;
     Clib::ConfigElem elem;
+    std::string graphicnum;
+
+    auto parse_graphics_properties =
+        [&]( const std::string& prop_name, std::set<unsigned int>& dest )
+    {
+      std::string temp;
+
+      if ( !elem.has_prop( prop_name.c_str() ) )
+      {
+        elem.throw_prop_not_found( prop_name );
+      }
+
+      while ( elem.remove_prop( prop_name.c_str(), &temp ) )
+      {
+        ISTRINGSTREAM is( temp );
+        while ( is >> graphicnum )
+        {
+          dest.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+        }
+      }
+    };
+
     INFO_PRINTLN( "Reading uoconvert.cfg." );
     Clib::ConfigFile cf_main( main_cfg );
     while ( cf_main.read( elem ) )
     {
       if ( elem.type_is( "MultiTypes" ) )
       {
-        temp = elem.remove_string( "Boats" );
-        ISTRINGSTREAM is_boats( temp );
-        std::string graphicnum;
-        while ( is_boats >> graphicnum )
-          BoatTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-
-        temp = elem.remove_string( "Houses" );
-        ISTRINGSTREAM is_houses( temp );
-        while ( is_houses >> graphicnum )
-          HouseTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-
-        temp = elem.remove_string( "Stairs" );
-        ISTRINGSTREAM is_stairs( temp );
-        while ( is_stairs >> graphicnum )
-          StairTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+        parse_graphics_properties( "Boats", BoatTypes );
+        parse_graphics_properties( "Houses", HouseTypes );
+        parse_graphics_properties( "Stairs", StairTypes );
       }
       else if ( elem.type_is( "LOSOptions" ) )
       {
