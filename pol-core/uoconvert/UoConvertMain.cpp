@@ -765,90 +765,79 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
   mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
 }
 
-void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id,
-                                 std::vector<Plib::USTRUCT_MULTI_ELEMENT>& multi_elems )
+std::string UoConvertMain::resolve_type_from_id( unsigned id ) const
 {
-  std::string type, mytype;
   if ( BoatTypes.count( id ) )
-    type = "Boat";
+    return "Boat";
   else if ( HouseTypes.count( id ) )
-    type = "House";
+    return "House";
   else if ( StairTypes.count( id ) )
-    type = "Stairs";
+    return "Stairs";
   else
   {
     ERROR_PRINTLN( "Type {:#x} not found in uoconvert.cfg, assuming \"House\" type.", id );
-    type = "House";
+    return "House";
   }
-  mytype = type;
+}
 
-  fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
+void UoConvertMain::write_multi_element( FILE* multis_cfg, const USTRUCT_MULTI_ELEMENT& elem,
+                                         const std::string& mytype, bool& first )
+{
+  if ( elem.graphic == GRAPHIC_NODRAW )
+    return;
+
+  std::string type = elem.flags ? "static" : "dynamic";
+
+  if ( mytype == "Boat" && first && elem.graphic != 1 )
+    type = "static";
+
+  std::string comment;
+  if ( cfg_use_new_hsa_format )
+  {
+    USTRUCT_TILE_HSA tile;
+    readtile( elem.graphic, &tile );
+    comment.assign( tile.name, sizeof( tile.name ) );
+  }
+  else
+  {
+    USTRUCT_TILE tile;
+    readtile( elem.graphic, &tile );
+    comment.assign( tile.name, sizeof( tile.name ) );
+  }
+
+  fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic, elem.x,
+           elem.y, elem.z, comment.c_str() );
+
+  first = false;
+}
+
+void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id,
+                                 std::vector<Plib::USTRUCT_MULTI_ELEMENT>& multi_elems )
+{
+  std::string mytype = resolve_type_from_id( id );
+
+  fprintf( multis_cfg, "%s 0x%x\n", mytype.c_str(), id );
   fprintf( multis_cfg, "{\n" );
 
   bool first = true;
-
   for ( const auto& elem : multi_elems )
   {
-    if ( elem.graphic == GRAPHIC_NODRAW )
-      continue;
-
-    if ( elem.flags )
-      type = "static";
-    else
-      type = "dynamic";
-
-    // boats typically have as their first element the "mast", but flagged as dynamic.
-    if ( mytype == "Boat" )
-    {
-      if ( first && elem.graphic != 1 )
-        type = "static";
-    }
-    std::string comment;
-    if ( cfg_use_new_hsa_format )
-    {
-      USTRUCT_TILE_HSA tile;
-      readtile( elem.graphic, &tile );
-      comment.assign( tile.name, sizeof( tile.name ) );
-    }
-    else
-    {
-      USTRUCT_TILE tile;
-      readtile( elem.graphic, &tile );
-      comment.assign( tile.name, sizeof( tile.name ) );
-    }
-    fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic,
-             elem.x, elem.y, elem.z, comment.c_str() );
-    first = false;
+    write_multi_element( multis_cfg, elem, mytype, first );
   }
-  fprintf( multis_cfg, "}\n" );
-  fprintf( multis_cfg, "\n" );
+
+  fprintf( multis_cfg, "}\n\n" );
 }
 
 void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
                                  unsigned int offset, unsigned int length )
 {
   USTRUCT_MULTI_ELEMENT elem;
-  unsigned int count;
-  if ( cfg_use_new_hsa_format )
-    count = length / sizeof( USTRUCT_MULTI_ELEMENT_HSA );
-  else
-    count = length / sizeof elem;
+  unsigned int count =
+      cfg_use_new_hsa_format ? length / sizeof( USTRUCT_MULTI_ELEMENT_HSA ) : length / sizeof elem;
 
-  std::string type, mytype;
-  if ( BoatTypes.count( id ) )
-    type = "Boat";
-  else if ( HouseTypes.count( id ) )
-    type = "House";
-  else if ( StairTypes.count( id ) )
-    type = "Stairs";
-  else
-  {
-    ERROR_PRINTLN( "Type {:#x} not found in uoconvert.cfg, assuming \"House\" type.", id );
-    type = "House";
-  }
-  mytype = type;
+  std::string mytype = resolve_type_from_id( id );
 
-  fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
+  fprintf( multis_cfg, "%s 0x%x\n", mytype.c_str(), id );
   fprintf( multis_cfg, "{\n" );
 
   if ( fseek( multi_mul, offset, SEEK_SET ) != 0 )
@@ -871,39 +860,10 @@ void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
         throw std::runtime_error( "write_multi(): fseek() failed" );
     }
 
-    if ( elem.graphic == GRAPHIC_NODRAW )
-      continue;
-
-    if ( elem.flags )
-      type = "static";
-    else
-      type = "dynamic";
-
-    // boats typically have as their first element the "mast", but flagged as dynamic.
-    if ( mytype == "Boat" )
-    {
-      if ( first && elem.graphic != 1 )
-        type = "static";
-    }
-    std::string comment;
-    if ( cfg_use_new_hsa_format )
-    {
-      USTRUCT_TILE_HSA tile;
-      readtile( elem.graphic, &tile );
-      comment.assign( tile.name, sizeof( tile.name ) );
-    }
-    else
-    {
-      USTRUCT_TILE tile;
-      readtile( elem.graphic, &tile );
-      comment.assign( tile.name, sizeof( tile.name ) );
-    }
-    fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic,
-             elem.x, elem.y, elem.z, comment.c_str() );
-    first = false;
+    write_multi_element( multis_cfg, elem, mytype, first );
   }
-  fprintf( multis_cfg, "}\n" );
-  fprintf( multis_cfg, "\n" );
+
+  fprintf( multis_cfg, "}\n\n" );
 }
 
 void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
@@ -946,6 +906,8 @@ void UoConvertMain::create_multis_cfg()
     {
       write_multi( multis_cfg, id, elems );
     }
+
+    INFO_PRINTLN( "{} multi definitions written to multis.cfg", multi_map.size() );
 
     return;
   }

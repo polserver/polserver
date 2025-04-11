@@ -54,6 +54,10 @@ public:
   void ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
                           Plib::MapWriter& mapwriter );
 
+  std::string resolve_type_from_id( unsigned id ) const;
+  void write_multi_element( FILE* multis_cfg, const Plib::USTRUCT_MULTI_ELEMENT& elem,
+                            const std::string& mytype, bool& first );
+
   unsigned empty = 0, nonempty = 0;
   unsigned total_statics = 0;
   unsigned with_more_solids = 0;
