@@ -765,6 +765,65 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
   mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
 }
 
+void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id,
+                                 std::vector<Plib::USTRUCT_MULTI_ELEMENT>& multi_elems )
+{
+  std::string type, mytype;
+  if ( BoatTypes.count( id ) )
+    type = "Boat";
+  else if ( HouseTypes.count( id ) )
+    type = "House";
+  else if ( StairTypes.count( id ) )
+    type = "Stairs";
+  else
+  {
+    ERROR_PRINTLN( "Type {:#x} not found in uoconvert.cfg, assuming \"House\" type.", id );
+    type = "House";
+  }
+  mytype = type;
+
+  fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
+  fprintf( multis_cfg, "{\n" );
+
+  bool first = true;
+
+  for ( const auto& elem : multi_elems )
+  {
+    if ( elem.graphic == GRAPHIC_NODRAW )
+      continue;
+
+    if ( elem.flags )
+      type = "static";
+    else
+      type = "dynamic";
+
+    // boats typically have as their first element the "mast", but flagged as dynamic.
+    if ( mytype == "Boat" )
+    {
+      if ( first && elem.graphic != 1 )
+        type = "static";
+    }
+    std::string comment;
+    if ( cfg_use_new_hsa_format )
+    {
+      USTRUCT_TILE_HSA tile;
+      readtile( elem.graphic, &tile );
+      comment.assign( tile.name, sizeof( tile.name ) );
+    }
+    else
+    {
+      USTRUCT_TILE tile;
+      readtile( elem.graphic, &tile );
+      comment.assign( tile.name, sizeof( tile.name ) );
+    }
+    fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic,
+             elem.x, elem.y, elem.z, comment.c_str() );
+    first = false;
+  }
+  fprintf( multis_cfg, "}\n" );
+  fprintf( multis_cfg, "\n" );
+}
+
 void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
                                  unsigned int offset, unsigned int length )
 {
@@ -876,11 +935,23 @@ void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* m
 
 void UoConvertMain::create_multis_cfg()
 {
-  FILE* multi_idx = open_uo_file( "multi.idx" );
-  FILE* multi_mul = open_uo_file( "multi.mul" );
+  std::map<uint, std::vector<USTRUCT_MULTI_ELEMENT>> multi_map;
 
   std::string outdir = programArgsFindEquals( "outdir=", "." );
   FILE* multis_cfg = fopen( ( outdir + "/multis.cfg" ).c_str(), "wt" );
+
+  if ( uo_readuop && open_uopmulti_file( multi_map ) )
+  {
+    for ( auto& [id, elems] : multi_map )
+    {
+      write_multi( multis_cfg, id, elems );
+    }
+
+    return;
+  }
+
+  FILE* multi_idx = open_uo_file( "multi.idx" );
+  FILE* multi_mul = open_uo_file( "multi.mul" );
 
   create_multis_cfg( multi_idx, multi_mul, multis_cfg );
 

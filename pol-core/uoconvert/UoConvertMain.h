@@ -3,12 +3,17 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 #include "../clib/Program/ProgramMain.h"
 #include "../plib/mapwriter.h"
 
 namespace Pol
 {
+namespace Plib
+{
+struct USTRUCT_MULTI_ELEMENT;
+}
 namespace UoConvert
 {
 class UoConvertMain final : public Pol::Clib::ProgramMain
@@ -36,6 +41,8 @@ public:
   void create_multis_cfg();
   void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg );
 
+  void write_multi( FILE* multis_cfg, unsigned id,
+                    std::vector<Plib::USTRUCT_MULTI_ELEMENT>& multi_elems );
   void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int offset,
                     unsigned int length );
 
