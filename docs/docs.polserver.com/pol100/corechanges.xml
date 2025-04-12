@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-05-2025</datemodified>
+		<datemodified>04-13-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>04-13-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">uoconvert now supports reading MultiCollection.uop</change>
+		</entry>
 		<entry>
 			<date>03-05-2025</date>
 			<author>AsYlum:</author>
