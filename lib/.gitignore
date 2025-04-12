@@ -1,5 +1,6 @@
-curl-*
+antlr-*
 boost_*
-zlib-*
 cppdap-*
+curl-*
 efsw-*
+zlib-*

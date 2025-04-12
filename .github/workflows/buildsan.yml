@@ -47,8 +47,8 @@ jobs:
       - name: Cache antlr
         uses: actions/cache@v4
         with:
-          path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.13.1
+          path: lib/antlr-cb85012
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-cb85012
       - name: Cache boost
         uses: actions/cache@v4
         with:
