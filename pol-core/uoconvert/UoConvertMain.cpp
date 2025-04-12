@@ -1347,7 +1347,6 @@ void UoConvertMain::load_uoconvert_cfg()
       }
       else if ( elem.type_is( "Mounts" ) )
       {
-        std::string graphicnum;
         temp = elem.remove_string( "Tiles" );
         ISTRINGSTREAM is_mounts( temp );
         while ( is_mounts >> graphicnum )
