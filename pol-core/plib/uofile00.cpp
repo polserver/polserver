@@ -43,12 +43,19 @@ std::ifstream uopmapfile;
 
 class ByteReader
 {
-  const unsigned char* data_;
-  std::size_t size_;
+  const unsigned char* data_ = nullptr;
+  std::size_t size_ = 0;
   std::size_t pos_ = 0;
 
 public:
-  ByteReader( const unsigned char* data, std::size_t size ) : data_( data ), size_( size ) {}
+  ByteReader() = default;
+
+  void load( const unsigned char* data, std::size_t size )
+  {
+    data_ = data;
+    size_ = size;
+    pos_ = 0;
+  }
 
   template <typename T>
   T read()
@@ -189,6 +196,8 @@ bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMEN
 
   kaitai::kstream ks( &ifs );
   uop_t uopfile( &ks );
+  ByteReader reader;
+  std::unique_ptr<unsigned char[]> uncompressed;
 
   unsigned int nreadfiles = 0;
 
@@ -218,26 +227,31 @@ bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMEN
 
       unsigned long datalen = file->decompressed_size();
       const auto& filebytes = file->data()->filebytes();
-      std::unique_ptr<unsigned char[]> uncompressed2( new unsigned char[datalen] );
 
       if ( file->compression_type() == uop_t::COMPRESSION_TYPE_ZLIB )
       {
-        auto res = uncompress( uncompressed2.get(), &datalen,
-                               (const unsigned char*)( filebytes.c_str() ), filebytes.size() );
+        if ( filebytes.size() > std::numeric_limits<unsigned long>::max() )
+        {
+          throw std::runtime_error( "File size exceeds maximum limit." );
+        }
+
+        uncompressed.reset( new unsigned char[datalen] );
+        auto res = uncompress( uncompressed.get(), &datalen,
+                               reinterpret_cast<const unsigned char*>( filebytes.c_str() ),
+                               static_cast<unsigned long>( filebytes.size() ) );
 
         if ( res != Z_OK )
         {
           throw std::runtime_error( fmt::format( "Error decompressing UOP file at block address {}",
                                                  currentblock->blockaddr() ) );
         }
+        reader.load( uncompressed.get(), datalen );
       }
       else
       {
-        // Unnecessary copy...?
-        std::memcpy( uncompressed2.get(), filebytes.c_str(), datalen );
+        reader.load( reinterpret_cast<const unsigned char*>( filebytes.c_str() ), datalen );
       }
 
-      ByteReader reader( uncompressed2.get(), datalen );
       auto id = reader.read<unsigned int>();
 
       auto hash = file->filehash();
