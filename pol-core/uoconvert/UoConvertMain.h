@@ -22,11 +22,8 @@ public:
   UoConvertMain();
   virtual ~UoConvertMain();
 
-  std::set<unsigned int> HouseTypes;
   std::set<unsigned int> BoatTypes;
-  std::set<unsigned int> StairTypes;
   std::set<unsigned int> MountTypes;
-
 
   bool cfg_use_no_shoot;
   bool cfg_LOS_through_windows;

@@ -27,7 +27,7 @@ bool BoatShapeExists( u16 graphic );
 
 MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     : multiid( multiid ),
-      type( UNKNOWN ),
+      is_boat( false ),
       elems(),
 
       minrxyz(),
@@ -39,15 +39,7 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     if ( !BoatShapeExists( multiid ) )
       elem.throw_error( "Entry for Boat (multiid " + Clib::hexint( multiid ) +
                         ") not found in boats.cfg" );
-    type = BOAT;
-  }
-  else if ( elem.type_is( "HOUSE" ) )
-  {
-    type = HOUSE;
-  }
-  else if ( elem.type_is( "STAIRS" ) )
-  {
-    type = STAIRS;
+    is_boat = true;
   }
 
   std::string tmp;
@@ -126,7 +118,7 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
   }
 
 
-  if ( type == BOAT )
+  if ( is_boat )
   {
     Core::Vec2d rxy = elem->relpos.xy();
     if ( ( multiid & 1 ) == 0 )  // N/S hull, so squeeze X
@@ -271,7 +263,9 @@ const MultiDef* MultiDefByMultiID( u16 multiid )
 
 void read_multidefs()
 {
-  Clib::ConfigFile cf( "config/multis.cfg", "BOAT HOUSE STAIRS" );
+  // Include HOUSE and STAIRS for backwards-compatibility, but uoconvert no
+  // longer generates these elements.
+  Clib::ConfigFile cf( "config/multis.cfg", "BOAT HOUSE STAIRS MULTI" );
   Clib::ConfigElem elem;
   while ( cf.read( elem ) )
   {

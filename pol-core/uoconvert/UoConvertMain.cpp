@@ -769,15 +769,8 @@ std::string UoConvertMain::resolve_type_from_id( unsigned id ) const
 {
   if ( BoatTypes.count( id ) )
     return "Boat";
-  else if ( HouseTypes.count( id ) )
-    return "House";
-  else if ( StairTypes.count( id ) )
-    return "Stairs";
   else
-  {
-    ERROR_PRINTLN( "Type {:#x} not found in uoconvert.cfg, assuming \"House\" type.", id );
-    return "House";
-  }
+    return "Multi";
 }
 
 void UoConvertMain::write_multi_element( FILE* multis_cfg, const USTRUCT_MULTI_ELEMENT& elem,
@@ -1318,7 +1311,15 @@ void parse_graphics_properties( Clib::ConfigElem& elem, const std::string& prop_
       dest.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
     }
   }
-};
+}
+
+void notice_deprecated( Clib::ConfigElem& elem, const std::string& prop_name )
+{
+  if ( elem.has_prop( prop_name.c_str() ) )
+  {
+    INFO_PRINTLN( "Note: specifying {} in MultiTypes is no longer needed.", prop_name );
+  }
+}
 
 void UoConvertMain::load_uoconvert_cfg()
 {
@@ -1333,8 +1334,8 @@ void UoConvertMain::load_uoconvert_cfg()
       if ( elem.type_is( "MultiTypes" ) )
       {
         parse_graphics_properties( elem, "Boats", BoatTypes );
-        parse_graphics_properties( elem, "Houses", HouseTypes );
-        parse_graphics_properties( elem, "Stairs", StairTypes );
+        notice_deprecated( elem, "Houses" );
+        notice_deprecated( elem, "Stairs" );
       }
       else if ( elem.type_is( "LOSOptions" ) )
       {

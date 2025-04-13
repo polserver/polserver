@@ -55,13 +55,7 @@ public:
   ~MultiDef() = default;
 
   u16 multiid;
-  enum HOUSETYPE : u8
-  {
-    UNKNOWN,
-    BOAT,
-    HOUSE,
-    STAIRS
-  } type;
+  bool is_boat;
 
   std::vector<MULTI_ELEM> elems;
 
