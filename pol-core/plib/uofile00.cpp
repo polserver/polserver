@@ -15,6 +15,7 @@
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
+#include "clib/rawtypes.h"
 #include "clib/strutil.h"
 #include "objtype.h"
 #include "plib/mul/map.h"
@@ -252,7 +253,7 @@ bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMEN
         reader.load( reinterpret_cast<const unsigned char*>( filebytes.c_str() ), datalen );
       }
 
-      auto id = reader.read<unsigned int>();
+      auto id = reader.read<u32>();
 
       auto hash = file->filehash();
       auto calculated_hash = multihash( id );
@@ -261,22 +262,22 @@ bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMEN
       // file, but we'll still count it as a read file (ie. `nreadfiles++`)
       if ( hash == calculated_hash )
       {
-        auto count = reader.read<int>();
+        auto count = reader.read<s32>();
 
         std::vector<USTRUCT_MULTI_ELEMENT> elems;
 
         for ( int j = 0; j < count; j++ )
         {
-          auto graphic = reader.read<unsigned short>();
-          auto x = reader.read<short>();
-          auto y = reader.read<short>();
-          auto z = reader.read<short>();
-          auto flags = reader.read<unsigned short>();
-          auto clilocsCount = reader.read<unsigned int>();
-          reader.skip<unsigned int>( clilocsCount );
-          bool is_static = flags == 0x0 || flags == 0x100;
+          auto graphic = reader.read<u16>();
+          auto x = reader.read<s16>();
+          auto y = reader.read<s16>();
+          auto z = reader.read<s16>();
+          bool is_static = ( reader.read<u16>() & 0xFF ) == 0;
+          u32 flags = is_static ? 1 : 0;
+          auto clilocsCount = reader.read<u32>();
+          reader.skip<u32>( clilocsCount );
 
-          elems.push_back( { graphic, x, y, z, is_static } );
+          elems.push_back( { graphic, x, y, z, flags } );
         }
 
         multi_map[id] = std::move( elems );
