@@ -179,8 +179,8 @@ bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
 
 bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map )
 {
-  std::string filepart = "MultiCollection.uop";
-  std::string filename = systemstate.config.uo_datafile_root + filepart;
+  const std::string filepart = "MultiCollection.uop";
+  const std::string filename = systemstate.config.uo_datafile_root + filepart;
   if ( !Clib::FileExists( filename ) )
   {
     INFO_PRINTLN( "{} not found in {}. Searching for old multi.mul/multi.idx files.", filepart,
