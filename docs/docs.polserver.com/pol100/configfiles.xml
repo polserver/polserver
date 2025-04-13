@@ -201,10 +201,12 @@ MultiTypes
 Mounts
 {
   Tiles (int ItemID) [(int ItemID) ...]
+  [Tiles (int ItemID) [(int ItemID) ...]]
 }
 </structure>
     <explain>MultiIDs are defined in multi.mul/idx. A multi can either be a "house", "boat" or "stairs" (decorations such as stairs, curtains, carpets, etc).</explain>
     <explain>The Boats, Houses, and Stairs property can be used multiple times inside the MultiTypes element to break up long lines.</explain>
+    <explain>The Tiles property can be used multiple times inside the Mounts element to break up long lines.</explain>
     <explain>ItemIDs are defined in anim.mul and tiledata.mul.</explain>
 </cfgfile>
 

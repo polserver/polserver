@@ -1298,44 +1298,43 @@ void UoConvertMain::setup_uoconvert()
   // Load parameters from uoconvert.cfg (multi types, mounts, etc)
   load_uoconvert_cfg();
 }
+
+void parse_graphics_properties( Clib::ConfigElem& elem, const std::string& prop_name,
+                                std::set<unsigned int>& dest )
+{
+  std::string prop_value;
+  std::string graphicnum;
+
+  if ( !elem.has_prop( prop_name.c_str() ) )
+  {
+    elem.throw_prop_not_found( prop_name );
+  }
+
+  while ( elem.remove_prop( prop_name.c_str(), &prop_value ) )
+  {
+    ISTRINGSTREAM is( prop_value );
+    while ( is >> graphicnum )
+    {
+      dest.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+    }
+  }
+};
+
 void UoConvertMain::load_uoconvert_cfg()
 {
   std::string main_cfg = "uoconvert.cfg";
   if ( Clib::FileExists( main_cfg ) )
   {
-    std::string temp;
     Clib::ConfigElem elem;
-    std::string graphicnum;
-
-    auto parse_graphics_properties =
-        [&]( const std::string& prop_name, std::set<unsigned int>& dest )
-    {
-      std::string temp;
-
-      if ( !elem.has_prop( prop_name.c_str() ) )
-      {
-        elem.throw_prop_not_found( prop_name );
-      }
-
-      while ( elem.remove_prop( prop_name.c_str(), &temp ) )
-      {
-        ISTRINGSTREAM is( temp );
-        while ( is >> graphicnum )
-        {
-          dest.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-        }
-      }
-    };
-
     INFO_PRINTLN( "Reading uoconvert.cfg." );
     Clib::ConfigFile cf_main( main_cfg );
     while ( cf_main.read( elem ) )
     {
       if ( elem.type_is( "MultiTypes" ) )
       {
-        parse_graphics_properties( "Boats", BoatTypes );
-        parse_graphics_properties( "Houses", HouseTypes );
-        parse_graphics_properties( "Stairs", StairTypes );
+        parse_graphics_properties( elem, "Boats", BoatTypes );
+        parse_graphics_properties( elem, "Houses", HouseTypes );
+        parse_graphics_properties( elem, "Stairs", StairTypes );
       }
       else if ( elem.type_is( "LOSOptions" ) )
       {
@@ -1347,12 +1346,7 @@ void UoConvertMain::load_uoconvert_cfg()
       }
       else if ( elem.type_is( "Mounts" ) )
       {
-        temp = elem.remove_string( "Tiles" );
-        ISTRINGSTREAM is_mounts( temp );
-        while ( is_mounts >> graphicnum )
-        {
-          MountTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-        }
+        parse_graphics_properties( elem, "Tiles", MountTypes );
       }
       else if ( elem.type_is( "StaticOptions" ) )
       {
