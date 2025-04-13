@@ -274,8 +274,9 @@ bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMEN
           auto flags = reader.read<unsigned short>();
           auto clilocsCount = reader.read<unsigned int>();
           reader.skip<unsigned int>( clilocsCount );
+          bool is_static = flags == 0x0 || flags == 0x100;
 
-          elems.push_back( { graphic, x, y, z, flags } );
+          elems.push_back( { graphic, x, y, z, is_static } );
         }
 
         multi_map[id] = std::move( elems );
