@@ -765,31 +765,72 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
   mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
 }
 
+std::string UoConvertMain::resolve_type_from_id( unsigned id ) const
+{
+  if ( BoatTypes.count( id ) )
+    return "Boat";
+  else
+    return "Multi";
+}
+
+void UoConvertMain::write_multi_element( FILE* multis_cfg, const USTRUCT_MULTI_ELEMENT& elem,
+                                         const std::string& mytype, bool& first )
+{
+  if ( elem.graphic == GRAPHIC_NODRAW )
+    return;
+
+  std::string type = elem.flags ? "static" : "dynamic";
+
+  if ( mytype == "Boat" && first && elem.graphic != 1 )
+    type = "static";
+
+  std::string comment;
+  if ( cfg_use_new_hsa_format )
+  {
+    USTRUCT_TILE_HSA tile;
+    readtile( elem.graphic, &tile );
+    comment.assign( tile.name, sizeof( tile.name ) );
+  }
+  else
+  {
+    USTRUCT_TILE tile;
+    readtile( elem.graphic, &tile );
+    comment.assign( tile.name, sizeof( tile.name ) );
+  }
+
+  fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic, elem.x,
+           elem.y, elem.z, comment.c_str() );
+
+  first = false;
+}
+
+void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id,
+                                 std::vector<Plib::USTRUCT_MULTI_ELEMENT>& multi_elems )
+{
+  std::string mytype = resolve_type_from_id( id );
+
+  fprintf( multis_cfg, "%s 0x%x\n", mytype.c_str(), id );
+  fprintf( multis_cfg, "{\n" );
+
+  bool first = true;
+  for ( const auto& elem : multi_elems )
+  {
+    write_multi_element( multis_cfg, elem, mytype, first );
+  }
+
+  fprintf( multis_cfg, "}\n\n" );
+}
+
 void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
                                  unsigned int offset, unsigned int length )
 {
   USTRUCT_MULTI_ELEMENT elem;
-  unsigned int count;
-  if ( cfg_use_new_hsa_format )
-    count = length / sizeof( USTRUCT_MULTI_ELEMENT_HSA );
-  else
-    count = length / sizeof elem;
+  unsigned int count =
+      cfg_use_new_hsa_format ? length / sizeof( USTRUCT_MULTI_ELEMENT_HSA ) : length / sizeof elem;
 
-  std::string type, mytype;
-  if ( BoatTypes.count( id ) )
-    type = "Boat";
-  else if ( HouseTypes.count( id ) )
-    type = "House";
-  else if ( StairTypes.count( id ) )
-    type = "Stairs";
-  else
-  {
-    ERROR_PRINTLN( "Type {:#x} not found in uoconvert.cfg, assuming \"House\" type.", id );
-    type = "House";
-  }
-  mytype = type;
+  std::string mytype = resolve_type_from_id( id );
 
-  fprintf( multis_cfg, "%s 0x%x\n", type.c_str(), id );
+  fprintf( multis_cfg, "%s 0x%x\n", mytype.c_str(), id );
   fprintf( multis_cfg, "{\n" );
 
   if ( fseek( multi_mul, offset, SEEK_SET ) != 0 )
@@ -812,39 +853,10 @@ void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
         throw std::runtime_error( "write_multi(): fseek() failed" );
     }
 
-    if ( elem.graphic == GRAPHIC_NODRAW )
-      continue;
-
-    if ( elem.flags )
-      type = "static";
-    else
-      type = "dynamic";
-
-    // boats typically have as their first element the "mast", but flagged as dynamic.
-    if ( mytype == "Boat" )
-    {
-      if ( first && elem.graphic != 1 )
-        type = "static";
-    }
-    std::string comment;
-    if ( cfg_use_new_hsa_format )
-    {
-      USTRUCT_TILE_HSA tile;
-      readtile( elem.graphic, &tile );
-      comment.assign( tile.name, sizeof( tile.name ) );
-    }
-    else
-    {
-      USTRUCT_TILE tile;
-      readtile( elem.graphic, &tile );
-      comment.assign( tile.name, sizeof( tile.name ) );
-    }
-    fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic,
-             elem.x, elem.y, elem.z, comment.c_str() );
-    first = false;
+    write_multi_element( multis_cfg, elem, mytype, first );
   }
-  fprintf( multis_cfg, "}\n" );
-  fprintf( multis_cfg, "\n" );
+
+  fprintf( multis_cfg, "}\n\n" );
 }
 
 void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
@@ -876,11 +888,25 @@ void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* m
 
 void UoConvertMain::create_multis_cfg()
 {
-  FILE* multi_idx = open_uo_file( "multi.idx" );
-  FILE* multi_mul = open_uo_file( "multi.mul" );
+  std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>> multi_map;
 
   std::string outdir = programArgsFindEquals( "outdir=", "." );
   FILE* multis_cfg = fopen( ( outdir + "/multis.cfg" ).c_str(), "wt" );
+
+  if ( open_uopmulti_file( multi_map ) )
+  {
+    for ( auto& [id, elems] : multi_map )
+    {
+      write_multi( multis_cfg, id, elems );
+    }
+
+    INFO_PRINTLN( "{} multi definitions written to multis.cfg", multi_map.size() );
+
+    return;
+  }
+
+  FILE* multi_idx = open_uo_file( "multi.idx" );
+  FILE* multi_mul = open_uo_file( "multi.mul" );
 
   create_multis_cfg( multi_idx, multi_mul, multis_cfg );
 
@@ -1265,12 +1291,41 @@ void UoConvertMain::setup_uoconvert()
   // Load parameters from uoconvert.cfg (multi types, mounts, etc)
   load_uoconvert_cfg();
 }
+
+void parse_graphics_properties( Clib::ConfigElem& elem, const std::string& prop_name,
+                                std::set<unsigned int>& dest )
+{
+  std::string prop_value;
+  std::string graphicnum;
+
+  if ( !elem.has_prop( prop_name.c_str() ) )
+  {
+    elem.throw_prop_not_found( prop_name );
+  }
+
+  while ( elem.remove_prop( prop_name.c_str(), &prop_value ) )
+  {
+    ISTRINGSTREAM is( prop_value );
+    while ( is >> graphicnum )
+    {
+      dest.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+    }
+  }
+}
+
+void notice_deprecated( Clib::ConfigElem& elem, const std::string& prop_name )
+{
+  if ( elem.has_prop( prop_name.c_str() ) )
+  {
+    INFO_PRINTLN( "Note: specifying {} in MultiTypes is no longer needed.", prop_name );
+  }
+}
+
 void UoConvertMain::load_uoconvert_cfg()
 {
   std::string main_cfg = "uoconvert.cfg";
   if ( Clib::FileExists( main_cfg ) )
   {
-    std::string temp;
     Clib::ConfigElem elem;
     INFO_PRINTLN( "Reading uoconvert.cfg." );
     Clib::ConfigFile cf_main( main_cfg );
@@ -1278,21 +1333,9 @@ void UoConvertMain::load_uoconvert_cfg()
     {
       if ( elem.type_is( "MultiTypes" ) )
       {
-        temp = elem.remove_string( "Boats" );
-        ISTRINGSTREAM is_boats( temp );
-        std::string graphicnum;
-        while ( is_boats >> graphicnum )
-          BoatTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-
-        temp = elem.remove_string( "Houses" );
-        ISTRINGSTREAM is_houses( temp );
-        while ( is_houses >> graphicnum )
-          HouseTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-
-        temp = elem.remove_string( "Stairs" );
-        ISTRINGSTREAM is_stairs( temp );
-        while ( is_stairs >> graphicnum )
-          StairTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+        parse_graphics_properties( elem, "Boats", BoatTypes );
+        notice_deprecated( elem, "Houses" );
+        notice_deprecated( elem, "Stairs" );
       }
       else if ( elem.type_is( "LOSOptions" ) )
       {
@@ -1304,13 +1347,7 @@ void UoConvertMain::load_uoconvert_cfg()
       }
       else if ( elem.type_is( "Mounts" ) )
       {
-        std::string graphicnum;
-        temp = elem.remove_string( "Tiles" );
-        ISTRINGSTREAM is_mounts( temp );
-        while ( is_mounts >> graphicnum )
-        {
-          MountTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-        }
+        parse_graphics_properties( elem, "Tiles", MountTypes );
       }
       else if ( elem.type_is( "StaticOptions" ) )
       {

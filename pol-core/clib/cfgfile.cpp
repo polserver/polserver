@@ -284,6 +284,12 @@ void ConfigElem::throw_error( const std::string& errmsg ) const
     _source->display_error( errmsg, false, this );
   throw std::runtime_error( "Configuration file error" );
 }
+
+void ConfigElem::throw_prop_not_found( const std::string& propname ) const
+{
+  prop_not_found( propname.c_str() );
+}
+
 void VectorConfigElem::throw_error( const std::string& errmsg ) const
 {
   if ( _source != nullptr )

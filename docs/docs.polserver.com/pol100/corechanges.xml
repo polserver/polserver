@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-05-2025</datemodified>
+		<datemodified>04-13-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>04-13-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">uoconvert now supports reading MultiCollection.uop</change>
+			<change type="Added">uoconvert.cfg now allows multiple entries for the Boats properties in the MultiTypes element</change>
+			<change type="Added">uoconvert.cfg now allows multiple entries for the Tiles property in the Mounts element</change>
+			<change type="Removed">uoconvert.cfg no longer requires House or Stairs properties inside the MultiTypes element, and will be ignored if present.</change>
+		</entry>
 		<entry>
 			<date>03-05-2025</date>
 			<author>AsYlum:</author>

@@ -1,4 +1,9 @@
 -- POL100.2.0 --
+04-13-2025 Kevin:
+    Added: uoconvert now supports reading MultiCollection.uop
+    Added: uoconvert.cfg now allows multiple entries for the Boats properties in the MultiTypes element
+    Added: uoconvert.cfg now allows multiple entries for the Tiles property in the Mounts element
+  Removed: uoconvert.cfg no longer requires House or Stairs properties inside the MultiTypes element, and will be ignored if present.
 03-05-2025 AsYlum:
   Changed: Multi elements will check raw graphic instead of using itemdesc graphic definition
 02-26-2025 Kevin:

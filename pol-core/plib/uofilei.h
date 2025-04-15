@@ -12,6 +12,8 @@
 
 #include <cstdio>
 #include <fstream>
+#include <map>
+#include <vector>
 
 namespace Pol
 {
@@ -30,8 +32,10 @@ extern FILE* mapdif_file;
 extern std::ifstream uopmapfile;
 
 struct USTRUCT_VERSION;
+struct USTRUCT_MULTI_ELEMENT;
 
 FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr );
+bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map );
 
 bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
 

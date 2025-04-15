@@ -86,7 +86,7 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, shor
       // Shinigami: removed. doesn't make sense. non-static
       //            items are normal items an can be removed etc.
       // Turley: BOAT added so hold count as boat item (who.multi) (and walkable)
-      else if ( type == BOAT )  // put a dummy floor there
+      else if ( is_boat )  // put a dummy floor there
       {
         Plib::MapShape shape;
         shape.z = elem->relpos.z() + zbase - 1;
