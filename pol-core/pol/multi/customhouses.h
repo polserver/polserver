@@ -11,6 +11,7 @@
 #include <cstddef>  // for size_t
 #include <iosfwd>   // for testprint()
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
