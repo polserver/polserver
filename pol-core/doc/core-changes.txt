@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+05-16-2025 Kevin:
+    Fixed: Incorrect handling of realms causing crash in (a) character gotten item and (b) undo failed item move.
 04-13-2025 Kevin:
     Added: uoconvert now supports reading MultiCollection.uop
     Added: uoconvert.cfg now allows multiple entries for the Boats properties in the MultiTypes element
