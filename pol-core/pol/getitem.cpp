@@ -26,6 +26,7 @@
 #include "network/client.h"
 #include "network/pktdef.h"
 #include "network/pktin.h"
+#include "realms/realms.h"
 #include "reftypes.h"
 #include "statmsg.h"
 #include "ufunc.h"
@@ -255,8 +256,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 }
 
 
-GottenItem::GottenItem( Items::Item* item, Core::Pos4d pos )
-    : _item( item ), _pos( std::move( pos ) ), _cnt_serial( 0 )
+GottenItem::GottenItem( Items::Item* item, const Core::Pos4d& pos )
+    : _item( item ), _pos( pos.xyz() ), _realm( pos.realm()->name() ), _cnt_serial( 0 )
 {
 }
 /*
@@ -280,6 +281,7 @@ void GottenItem::undo( Mobile::Character* chr )
   ItemRef itemref( _item );  // dave 1/28/3 prevent item from being destroyed before function ends
   _item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
   _item->gotten_by( nullptr );
+  Realms::Realm* realm = nullptr;
   if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF )
   {
     if ( chr->equippable( _item ) && _item->check_equiptest_scripts( chr ) &&
@@ -295,7 +297,8 @@ void GottenItem::undo( Mobile::Character* chr )
     if ( _item->orphan() )
       return;
     _source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
-    _pos = chr->pos();
+    _pos = chr->pos().xyz();
+    realm = chr->realm();
   }
 
   if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER )
@@ -350,7 +353,7 @@ void GottenItem::undo( Mobile::Character* chr )
       {
         if ( container->is_legal_posn( _pos.xy() ) )
         {
-          _item->setposition( _pos );
+          _item->setposition( Pos4d( _pos, container->realm() ) );
           container->add( _item );
         }
         else
@@ -362,24 +365,53 @@ void GottenItem::undo( Mobile::Character* chr )
         return;
       }
     }
-    _pos = chr->pos();
+    _pos = chr->pos3d();
+    realm = chr->realm();
   }
 
   if ( Core::settingsManager.ssopt.undo_get_item_drop_here )
   {
-    _pos = chr->pos();
+    _pos = chr->pos3d();
+    realm = chr->realm();
   }
   else if ( !chr->can_moveanydist() )
   {
-    if ( Core::settingsManager.ssopt.undo_get_item_enable_range_check &&
-         !chr->in_range( _pos, Core::settingsManager.ssopt.default_accessible_range ) )
+    if ( Core::settingsManager.ssopt.undo_get_item_enable_range_check )
     {
-      _pos = chr->pos();
+      realm = Core::find_realm( _realm );
+      if ( realm == nullptr ||
+           !chr->in_range( Pos4d( _pos, realm ),
+                           Core::settingsManager.ssopt.default_accessible_range ) )
+      {
+        _pos = chr->pos3d();
+        realm = chr->realm();
+      }
+    }
+  }
+
+  // The (local variable) `realm` will be set in case of error from above.
+  if ( realm == nullptr )
+  {
+    // Try finding realm from (instance member) `_realm` string.
+    realm = Core::find_realm( _realm );
+
+    // If the realm is not found, set it to the position of the character.
+    if ( realm == nullptr )
+    {
+      realm = chr->realm();
+      _pos = chr->pos3d();
     }
   }
 
   // Last resort - put it on the ground, to players feet in case of error from above.
-  _item->setposition( _pos );
+  // Recursively update realm if it changed.
+  if ( _item->pos().realm() != realm && _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+  {
+    Core::UContainer* cont = static_cast<Core::UContainer*>( _item );
+    cont->for_each_item( Core::setrealm, realm );
+  }
+
+  _item->setposition( Pos4d( _pos, realm ) );
   _item->container = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.
   _item->layer = 0;
@@ -388,6 +420,22 @@ void GottenItem::undo( Mobile::Character* chr )
 
   register_with_supporting_multi( _item );
   send_item_to_inrange( _item );
+
+  // Need to explicitly send remove_object to chr if realms mismatch. Scenario:
+  //
+  // 1. pick up item on ground in `britannia`
+  // 2. switch to `shadow-britannia`
+  // 3. drop item in invalid location
+  //
+  // Because of the failure in step 3, core will send packet 0x27 Item Move
+  // Failure via `Core::send_item_move_failure`, and the client will
+  // automatically place it back at old `x,y` location. The item is in
+  // `britannia`, but character is still in `shadow-britannia`, so the item will
+  // appear on the ground in the client.
+  if ( chr->realm() != realm )
+  {
+    send_remove_object( chr->client, _item );
+  }
 }
 }  // namespace Core
 }  // namespace Pol

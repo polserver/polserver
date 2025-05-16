@@ -1,6 +1,7 @@
 use file;
 use uo;
 use os;
+use polsys;
 
 const IGNORE_TEST := 255; // only valid for setup or programs
 
@@ -131,6 +132,21 @@ class ResourceManager()
     endforeach
 
     return ret_error( $"Could not find corpse for NPC 0x{serial:x} at ({x}, {y}, {z}) (corpses: {corpses.size()})" );
+  endfunction
+
+  function AddRealm( this, realm_name, base_realm )
+    var res := polsys::AddRealm( realm_name, base_realm );
+    if ( !res )
+      return res;
+    endif
+
+    this.resources.append( array{ realm_name, @DestroyRealmResource } );
+
+    return res;
+  endfunction
+
+  function DestroyRealmResource( realm_name )
+    return DeleteRealm( realm_name );
   endfunction
 endclass
 

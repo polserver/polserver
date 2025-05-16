@@ -651,9 +651,228 @@ exported function undo_range_check_1_ret_nested()
   return 1;
 endfunction
 
+// Switching realms while holding an item should update the item's (and contents') realm.
+exported function realm_switch_drop_item_success( resources )
+  return realm_switch_delete_realm_drop_test_helper( resources, false );
+endfunction
+
+// Dropping an item too far away that was picked up in another realm should return the item to its original realm.
+exported function realm_switch_drop_item_fail_1( resources )
+  var res;
+  var realm := char.realm;
+  var shadow_realm := $"shadow-{realm}";
+
+  res := resources.AddRealm( shadow_realm, realm );
+  if ( !res )
+    return ret_error( $"Error creating realm: {res}" );
+  endif
+
+  var test_func := @() {
+    // Create container in base realm
+    var container := resources.CreateItemAtLocation( char.x, char.y, char.z, "backpack",
+                                                     1, char.realm );
+    if ( !container )
+      return ret_error( $"Error creating container in shadow realm: {container}" );
+    endif
+
+    // Create content item inside container
+    var content := CreateItemInContainer( container, 0xeed );
+    if ( !content )
+      return ret_error( $"Error creating content in container: {content}" );
+    endif
+
+    // Pick up container
+    if ( !lift_item_succeeded( res, container.serial ) )
+      return res;
+    endif
+
+    // Check gotten item
+    if ( char.getgottenitem() != container )
+      return ret_error( $"char.gottenitem is not the container: expected {container.serial} got {char.getgottenitem().serial
+                        ?: char.getgottenitem()}" );
+    endif
+
+    // Check container realm
+    if ( container.realm != realm )
+      return ret_error( $"Incorrect container.realm: expected {realm} got {container.realm}" );
+    endif
+
+    // Check container contents realm
+    if ( content.realm != realm )
+      return ret_error( $"Incorrect content.realm: expected {realm} got {container.realm}" );
+    endif
+
+    // Move character to shadow realm
+    res := MoveObjectToLocation( char, charX, charY, 0, shadow_realm );
+    if ( !res )
+      return ret_error( $"Error moving character to shadow realm: {res}" );
+    endif
+
+    // Verify character realm is shadow realm
+    if ( char.realm != shadow_realm )
+      return ret_error( $"Incorrect char.realm: expected {shadow_realm} got {char.realm}" );
+    endif
+
+    // Drop item on ground too far away
+    if ( !drop_item_failed( res, container.serial, char.x + 5, char.y + 5, char.z ) )
+      return res;
+    endif
+
+    // Check container realm (undo sends back to base realm)
+    if ( container.realm != realm )
+      return ret_error( $"Incorrect container.realm: expected {realm} got {container.realm}" );
+    endif
+
+    // Check container contents realm (undo sends back to base realm)
+    if ( content.realm != realm )
+      return ret_error( $"Incorrect content.realm: expected {realm} got {container.realm}" );
+    endif
+
+    // Character should not see item
+    clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
+    res := waitForClient( 0, { EVT_LIST_OBJS } );
+    if ( !res )
+      return res;
+    endif
+    foreach it in ( res["objs"] )
+      if ( it["serial"] == container.serial )
+        return ret_error( "Container still in range" );
+      endif
+    endforeach
+
+    // Move back to britannia
+    res := MoveObjectToLocation( char, charX, charY, 0, realm );
+    if ( !res )
+      return ret_error( $"Error moving character to back to base realm: {res}" );
+    endif
+
+    return 1;
+  };
+
+  res := test_func();
+
+  // Move character back to britannia if test fails so realm can be destroyed by
+  // resource manager.
+  if ( !res )
+    MoveObjectToLocation( char, charX, charY, 0, realm );
+  endif
+
+  return res;
+endfunction
+
+// Dropping an item in an incorrect place, after moving to different realm and
+// destroying source realm: undo should drop item to character's feet and not
+// attempt to place it in the (now-deleted) shadow realm.
+exported function realm_switch_drop_item_fail_2( resources )
+  return realm_switch_delete_realm_drop_test_helper( resources, true );
+endfunction
+
 /**
  * Helper functions
  */
+
+function realm_switch_delete_realm_drop_test_helper( resources, should_drop_too_far_away )
+  var res;
+  var realm := char.realm;
+  var shadow_realm := $"shadow-{realm}";
+
+  res := resources.AddRealm( shadow_realm, realm );
+  if ( !res )
+    return ret_error( $"Error creating realm: {res}" );
+  endif
+
+  var test_func := @() {
+    // Move character to shadow realm
+    res := MoveObjectToLocation( char, charX, charY, 0, shadow_realm );
+    if ( !res )
+      return ret_error( $"Error moving character to shadow realm: {res}" );
+    endif
+
+    // Verify character realm is shadow realm
+    if ( char.realm != shadow_realm )
+      return ret_error( $"Incorrect char.realm: expected {shadow_realm} got {char.realm}" );
+    endif
+
+    // Create container in shadow realm
+    var container := resources.CreateItemAtLocation( char.x, char.y, char.z, "backpack",
+                                                     1, shadow_realm );
+    if ( !container )
+      return ret_error( $"Error creating container in shadow realm: {container}" );
+    endif
+
+    // Create content item inside container
+    var content := CreateItemInContainer( container, 0xeed );
+    if ( !content )
+      return ret_error( $"Error creating content in container: {content}" );
+    endif
+
+    // Pick up container
+    if ( !lift_item_succeeded( res, container.serial ) )
+      return res;
+    endif
+
+    // Check gotten item
+    if ( char.getgottenitem() != container )
+      return ret_error( $"char.gottenitem is not the container: expected {container.serial} got {char.getgottenitem().serial
+                        ?: char.getgottenitem()}" );
+    endif
+
+    // Check container realm
+    if ( container.realm != shadow_realm )
+      return ret_error( $"Incorrect container.realm: expected {shadow_realm} got {container.realm}" );
+    endif
+
+    // Check container contents realm
+    if ( content.realm != shadow_realm )
+      return ret_error( $"Incorrect content.realm: expected {shadow_realm} got {container.realm}" );
+    endif
+
+    // Move back to britannia
+    res := MoveObjectToLocation( char, charX, charY, 0, realm );
+    if ( !res )
+      return ret_error( $"Error moving character to back to base realm: {res}" );
+    endif
+
+    // Delete shadow realm
+    res := DeleteRealm( shadow_realm );
+    if ( !res )
+      return ret_error( $"Error deleting shadow realm: {res}" );
+    endif
+
+    // Drop item on ground at feet
+    if ( should_drop_too_far_away )
+      if ( !drop_item_failed( res, container.serial, char.x + 5, char.y + 5, char.z ) )
+        return res;
+      endif
+    else
+      if ( !drop_item_succeeded( res, container.serial, char.x, char.y, char.z ) )
+        return res;
+      endif
+    endif
+
+    // Check container realm
+    if ( container.realm != realm )
+      return ret_error( $"Incorrect container.realm: expected {realm} got {container.realm}" );
+    endif
+
+    // Check container contents realm
+    if ( content.realm != realm )
+      return ret_error( $"Incorrect content.realm: expected {realm} got {container.realm}" );
+    endif
+
+    return 1;
+  };
+
+  res := test_func();
+
+  // Move character back to britannia if test fails so realm can be destroyed by
+  // resource manager.
+  if ( !res )
+    MoveObjectToLocation( char, charX, charY, 0, realm );
+  endif
+
+  return res;
+endfunction
 
 function drop_item_failed( byref err, serial, x, y, z, dropped_on_serial := 0xFFFFFFFF )
   Clear_Event_Queue();

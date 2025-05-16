@@ -4016,11 +4016,19 @@ void Character::realm_changed()
   // TODO Pos: realm should be all the time nullptr for these items
   if ( has_gotten_item() )
   {
-    auto gotten = gotten_item();
-    gotten.item()->setposition( Core::Pos4d( gotten.item()->pos().xyz(), realm() ) );
+    auto* item = gotten_item().item();
+    item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );
+    if ( item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
+    {
+      Core::UContainer* cont = static_cast<Core::UContainer*>( item );
+      cont->for_each_item( Core::setrealm, (void*)realm() );
+    }
   }
   if ( trading_cont.get() )
+  {
     trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
+    trading_cont->for_each_item( Core::setrealm, (void*)realm() );
+  }
 
   if ( has_active_client() )
   {

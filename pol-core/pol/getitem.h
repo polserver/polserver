@@ -43,9 +43,12 @@ public:
   bool operator==( const GottenItem& o ) const { return _item == o._item; }
 
 private:
-  GottenItem( Items::Item* item, Core::Pos4d pos );
+  GottenItem( Items::Item* item, const Core::Pos4d& pos );
   Items::Item* _item = nullptr;
-  Core::Pos4d _pos = Core::Pos4d( 0, 0, 0, nullptr );
+  Core::Pos3d _pos = Core::Pos3d( 0, 0, 0 );
+  // Use string realm instead of Pos4d, as realm could be deleted when handling
+  // the undo
+  std::string _realm;
   u32 _cnt_serial = 0;
   u8 _slot_index = 0;
   GOTTEN_ITEM_TYPE _source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
