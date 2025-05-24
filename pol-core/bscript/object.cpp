@@ -1994,10 +1994,9 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       args.push_back( BObjectRef( new BLong( 1 ) ) );
       args.push_back( BObjectRef( this ) );
 
-      auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
-                       initialSize = static_cast<int>( ref_arr.size() )](
-                          Executor& ex, BContinuation* continuation,
-                          BObjectRef result ) mutable -> BObjectImp*
+      auto callback =
+          [processed = 1, thisArray = args[2], initialSize = static_cast<int>( ref_arr.size() )](
+              Executor& ex, BContinuation* continuation, BObjectRef result ) mutable -> BObjectImp*
       {
         if ( result->isTrue() )
         {
@@ -2021,8 +2020,6 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
           args.push_back( ref_arr[processed - 1] );
           args.push_back( BObjectRef( new BObject( new BLong( processed ) ) ) );
           args.push_back( thisArray );
-
-          elementRef->setimp( args[0]->impptr() );
 
           return ex.withContinuation( continuation, std::move( args ) );
         }
