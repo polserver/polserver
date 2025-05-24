@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+05-24-2025 Kevin:
+    Fixed: Array method `findIndex` no longer modifies the first element in the array.
 05-16-2025 Kevin:
     Fixed: Incorrect handling of realms causing crash in (a) character gotten item and (b) undo failed item move.
 04-13-2025 Kevin:

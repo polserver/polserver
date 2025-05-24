@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-16-2025</datemodified>
+		<datemodified>05-24-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>05-24-2025</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Array method `findIndex` no longer modifies the first element in the array.</change>
+		</entry>
 		<entry>
 			<date>05-16-2025</date>
 			<author>Kevin:</author>
