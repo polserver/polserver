@@ -1,0 +1,23 @@
+var input := array{ "AA", "BB", "CC", "DD", "EE" };
+
+Print( $"BEFORE: input: {input}" );
+
+var toDelete := "CC";
+
+var indexToErase := input.findIndex( @( element ) {
+  var res := element == toDelete;
+  Print( $"Checking: {element} == {toDelete} res: {res}" );
+  return res;
+} );
+Print( $"AFTER findIndex: input: {input}");
+
+Print( $"Found toDelete {toDelete} at index {indexToErase}" );
+
+if ( indexToErase > 0 )
+  Print( $"Erasing toDelete {toDelete} at index {indexToErase}" );
+  Print( $"gonna delete item: {input[indexToErase]}" );
+  var erased := input.erase( indexToErase );
+  Print( $"erased: {erased}" );
+endif
+
+Print( $"AFTER: input: {input}" );

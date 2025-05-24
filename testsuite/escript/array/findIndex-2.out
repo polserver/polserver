@@ -1,0 +1,10 @@
+BEFORE: input: { AA, BB, CC, DD, EE }
+Checking: AA == CC res: 0
+Checking: BB == CC res: 0
+Checking: CC == CC res: 1
+AFTER findIndex: input: { AA, BB, CC, DD, EE }
+Found toDelete CC at index 3
+Erasing toDelete CC at index 3
+gonna delete item: CC
+erased: 1
+AFTER: input: { AA, BB, DD, EE }
