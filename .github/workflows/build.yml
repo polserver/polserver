@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "windows-2019"
+          - os: "windows-2025"
             cxx-compiler: cl
             c-compiler: cl
             compiler-version: default
