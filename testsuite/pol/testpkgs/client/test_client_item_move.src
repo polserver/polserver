@@ -838,38 +838,18 @@ endfunction
 // When an NPC's master equips an item on the NPC, on_chr will be the NPC and
 // by_chr will be the player.
 exported function test_equip_npc_dragdrop( resources )
-  var originalConf := ReadFile( "::config/servspecopt.cfg" );
-  if ( originalConf == error )
-    return ret_error( $"Could not read config/servspecopt.cfg file: ${originalConf}" );
-  endif
-
-  var newConf := array;
-  foreach line in originalConf
-    if ( Find( line, "MasterCanClotheNPCs", 1 ) )
-      continue;
-    endif
-    newConf.append( line );
-  endforeach
-  newConf.append( "MasterCanClotheNPCs=1" );
-
-  var writeResult := WriteFile( "::config/servspecopt.cfg", newConf );
-  if ( writeResult == error )
-    return ret_error( $"Could not write config/servspecopt.cfg file: ${writeResult}" );
-  endif
-
-  ReloadConfiguration();
-
-  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  var res := resources.UpdateConfiguration( struct{ MasterCanClotheNPCs := 1 } );
   if ( !res )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
+    return res;
+  endif
+
+  res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
     return res;
   endif
 
   var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
   if ( !npc )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return npc;
   endif
 
@@ -877,30 +857,22 @@ exported function test_equip_npc_dragdrop( resources )
 
   var backpack := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, 0xE75 );
   if ( !backpack )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return backpack;
   endif
 
   res := EquipItem( npc, backpack );
   if ( !res )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return res;
   endif
 
   var shirt := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_events" );
   if ( !shirt )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return shirt;
   endif
 
   SetObjProperty( shirt, "#TestPid", GetPid() );
 
   if ( !lift_item_succeeded( res, shirt.serial ) )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return res;
   endif
 
@@ -918,25 +890,17 @@ exported function test_equip_npc_dragdrop( resources )
   };
 
   if ( !wear_item_succeeded( res, shirt.serial, LAYER_SHIRT, npc.serial, equipscript_testfunc ) )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return res;
   endif
 
   if ( !lift_item_succeeded( res, shirt.serial ) )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return res;
   endif
 
   if ( !drop_item_succeeded( res, shirt.serial, char.x, char.y, char.z ) )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
     return res;
   endif
 
-  WriteFile( "::config/servspecopt.cfg", originalConf );
-  ReloadConfiguration();
   return 1;
 endfunction
 
@@ -993,7 +957,6 @@ enum EquipNpcDragdropFailReason
 endenum
 
 function equip_npc_dragdrop_fail_helper( resources, fail_reason )
-  var originalConf;
   var res := MoveObjectToLocation( char, charX, charY, 0 );
   if ( !res )
     return res;
@@ -1027,42 +990,17 @@ function equip_npc_dragdrop_fail_helper( resources, fail_reason )
 
   if ( fail_reason == FAIL_REASON_NOT_MASTER )
     // Set MasterCanClotheNPCs but do not set NPC's master
-    originalConf := ReadFile( "::config/servspecopt.cfg" );
-    if ( originalConf == error )
-      return ret_error( $"Could not read config/servspecopt.cfg file: ${originalConf}" );
+    res := resources.UpdateConfiguration( struct{ MasterCanClotheNPCs := 1 } );
+    if ( !res )
+      return res;
     endif
-
-    var newConf := array;
-    foreach line in originalConf
-      if ( Find( line, "MasterCanClotheNPCs", 1 ) )
-        continue;
-      endif
-      newConf.append( line );
-    endforeach
-    newConf.append( "MasterCanClotheNPCs=1" );
-
-    var writeResult := WriteFile( "::config/servspecopt.cfg", newConf );
-    if ( writeResult == error )
-      return ret_error( $"Could not write config/servspecopt.cfg file: ${writeResult}" );
-    endif
-
-    ReloadConfiguration();
   elseif ( fail_reason == FAIL_REASON_CONFIG_NOT_ALLOWED )
     // The default configuration has MasterCanClotheNPCs=0, so only set NPC's master
     npc.setmaster( char );
   endif
 
   if ( !wear_item_failed( res, shirt.serial, LAYER_SHIRT, npc.serial ) )
-    if ( originalConf )
-      WriteFile( "::config/servspecopt.cfg", originalConf );
-      ReloadConfiguration();
-    endif
     return res;
-  endif
-
-  if ( originalConf )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
-    ReloadConfiguration();
   endif
 
   return 1;
