@@ -1251,6 +1251,13 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
+  def wear(self, item_serial, layer, player_serial):
+    ''' Sends a wear item packet to server'''
+    po = packets.WearItemPacket()
+    po.fill(item_serial, layer, player_serial)
+    self.queue(po)
+
+  @logincomplete
   def say(self, text, font=3, color=0, tokens=None):
     ''' Say something, in unicode
     @param text string: Any unicode string

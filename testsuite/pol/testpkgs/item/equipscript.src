@@ -1,0 +1,13 @@
+use uo;
+use os;
+
+program equipscript( equipped_on, item, startup, equipped_by )
+  var pid := GetObjProperty( item, "#TestPid" );
+  if ( pid )
+    var ev := struct{ type := "equip", on_chr := equipped_on,
+                      item := item, startup := startup, by_chr := equipped_by };
+
+    GetProcess( pid ).SendEvent( ev );
+  endif
+  return 1;
+endprogram

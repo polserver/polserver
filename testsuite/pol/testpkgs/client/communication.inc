@@ -22,6 +22,7 @@ const EVT_DOUBLE_CLICK := "double_click";
 const EVT_LIFT_ITEM := "lift_item";
 const EVT_MOVE_ITEM_REJECTED := "move_item_rejected";
 const EVT_DROP_ITEM := "drop_item";
+const EVT_WEAR_ITEM := "wear_item";
 const EVT_BOAT_MOVE := "boat_move";
 const EVT_DROP_APPROVED := "drop_approved";
 const EVT_DISABLE_ITEM_LOGGING := "disable_item_logging";

@@ -12,6 +12,10 @@ var charX := 100;
 var charY := 50;
 var clientcon := getClientConnection();
 
+enum Layers
+  LAYER_SHIRT := 0x5 // Shirt
+endenum
+
 program test_item_move()
   var a := FindAccount( "testclient0" );
   char := a.getcharacter( 1 );
@@ -767,9 +771,302 @@ exported function realm_switch_drop_item_fail_2( resources )
   return realm_switch_delete_realm_drop_test_helper( resources, true );
 endfunction
 
+// Equipping an item with EquipItem on an NPC and destroying it with DestroyItem will
+// trigger the equiptest/equip and unequiptest/unequip scripts with both on_chr
+// and by_chr as the NPC.
+exported function test_equip_npc_equipitem( resources )
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var backpack := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, 0xE75 );
+  if ( !backpack )
+    return backpack;
+  endif
+
+  res := EquipItem( npc, backpack );
+  if ( !res )
+    return res;
+  endif
+
+  var shirt := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_events" );
+  if ( !shirt )
+    return shirt;
+  endif
+
+  SetObjProperty( shirt, "#TestPid", GetPid() );
+
+  Clear_Event_Queue();
+  res := EquipItem( npc, shirt );
+  if ( !res )
+    return res;
+  endif
+
+  var evs := get_events();
+  if ( !evs )
+    return evs;
+  endif
+  res := validate_events( evs, npc, npc, shirt, false );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := DestroyItem( shirt );
+  if ( !res )
+    return res;
+  endif
+
+  evs := get_events();
+  if ( !evs )
+    return evs;
+  endif
+  res := validate_events( evs, npc, npc, shirt, true );
+  if ( !res )
+    return res;
+  endif
+
+  return 1;
+endfunction
+
+// When an NPC's master equips an item on the NPC, on_chr will be the NPC and
+// by_chr will be the player.
+exported function test_equip_npc_dragdrop( resources )
+  var originalConf := ReadFile( "::config/servspecopt.cfg" );
+  if ( originalConf == error )
+    return ret_error( $"Could not read config/servspecopt.cfg file: ${originalConf}" );
+  endif
+
+  var newConf := array;
+  foreach line in originalConf
+    if ( Find( line, "MasterCanClotheNPCs", 1 ) )
+      continue;
+    endif
+    newConf.append( line );
+  endforeach
+  newConf.append( "MasterCanClotheNPCs=1" );
+
+  var writeResult := WriteFile( "::config/servspecopt.cfg", newConf );
+  if ( writeResult == error )
+    return ret_error( $"Could not write config/servspecopt.cfg file: ${writeResult}" );
+  endif
+
+  ReloadConfiguration();
+
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return res;
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return npc;
+  endif
+
+  npc.setmaster( char );
+
+  var backpack := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, 0xE75 );
+  if ( !backpack )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return backpack;
+  endif
+
+  res := EquipItem( npc, backpack );
+  if ( !res )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return res;
+  endif
+
+  var shirt := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_events" );
+  if ( !shirt )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return shirt;
+  endif
+
+  SetObjProperty( shirt, "#TestPid", GetPid() );
+
+  if ( !lift_item_succeeded( res, shirt.serial ) )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return res;
+  endif
+
+  var equipscript_testfunc := @() {
+    var evs := get_events( 1 );
+    if ( !evs )
+      return evs;
+    endif
+    res := validate_events( evs, npc, char, shirt, false );
+    if ( !res )
+      return res;
+    endif
+
+    return 1;
+  };
+
+  if ( !wear_item_succeeded( res, shirt.serial, LAYER_SHIRT, npc.serial, equipscript_testfunc ) )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return res;
+  endif
+
+  if ( !lift_item_succeeded( res, shirt.serial ) )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return res;
+  endif
+
+  if ( !drop_item_succeeded( res, shirt.serial, char.x, char.y, char.z ) )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return res;
+  endif
+
+  WriteFile( "::config/servspecopt.cfg", originalConf );
+  ReloadConfiguration();
+  return 1;
+endfunction
+
+// When an NPC's non-master equips an item on the NPC, the equip should fail.
+exported function test_equip_npc_dragdrop_fail_1( resources )
+  return equip_npc_dragdrop_fail_helper( resources, FAIL_REASON_NOT_MASTER );
+endfunction
+
+// When an NPC's master equips an item on the NPC but servspecopt does not allow
+// masters to equip NPCs, the equip should fail.
+exported function test_equip_npc_dragdrop_fail_2( resources )
+  return equip_npc_dragdrop_fail_helper( resources, FAIL_REASON_CONFIG_NOT_ALLOWED );
+endfunction
+
 /**
  * Helper functions
  */
+// Checks equiptest & equip or unequiptest & unequip events have expected values
+function validate_events( evs, on_chr, by_chr, item, is_unequip )
+  if ( evs.size() != 2 )
+    return ret_error( $"Incorrect events array size, expected 2 got {evs.size()}" );
+  endif
+  foreach ev in evs
+    var type := _ev_iter == 1 ? ( is_unequip ? "unequiptest" : "equiptest" ) : ( is_unequip ? "unequip" :
+                                                                                 "equip" );
+
+    if ( ev.on_chr != on_chr || ev.by_chr != by_chr || ev.item != item || ev.type != type )
+      return ret_error( $"Unexpected event #{_ev_iter}: ev.on_chr ({ev.on_chr.name}) != on_chr ({on_chr.name}) || ev.by_chr ({ev.by_chr.name}) != by_chr ({by_chr.name}) || ev.item ({ev.item.name} != item ({item.name}) || ev.type ({ev.type} != type ({type})" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// Returns two events as an array, eg. equiptest & equip or unequiptest & unequip events
+function get_events( timeout := 0 )
+  var count := 2, evs := {};
+
+  while ( count-- > 0 )
+    var res := wait_for_event( timeout );
+    if ( !res )
+      return ret_error( "No event received" );
+    endif
+    evs.append( res );
+  endwhile
+  return evs;
+endfunction
+
+enum EquipNpcDragdropFailReason
+  // When MasterCanClotheNPCs=1 but char is not NPC's master
+  FAIL_REASON_NOT_MASTER,
+
+  // When MasterCanClotheNPCs=0 but char is NPC's master
+  FAIL_REASON_CONFIG_NOT_ALLOWED
+endenum
+
+function equip_npc_dragdrop_fail_helper( resources, fail_reason )
+  var originalConf;
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var backpack := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, 0xE75 );
+  if ( !backpack )
+    return backpack;
+  endif
+
+  res := EquipItem( npc, backpack );
+  if ( !res )
+    return res;
+  endif
+
+  var shirt := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_events" );
+  if ( !shirt )
+    return shirt;
+  endif
+
+  SetObjProperty( shirt, "#TestPid", GetPid() );
+
+  if ( !lift_item_succeeded( res, shirt.serial ) )
+    return res;
+  endif
+
+  if ( fail_reason == FAIL_REASON_NOT_MASTER )
+    // Set MasterCanClotheNPCs but do not set NPC's master
+    originalConf := ReadFile( "::config/servspecopt.cfg" );
+    if ( originalConf == error )
+      return ret_error( $"Could not read config/servspecopt.cfg file: ${originalConf}" );
+    endif
+
+    var newConf := array;
+    foreach line in originalConf
+      if ( Find( line, "MasterCanClotheNPCs", 1 ) )
+        continue;
+      endif
+      newConf.append( line );
+    endforeach
+    newConf.append( "MasterCanClotheNPCs=1" );
+
+    var writeResult := WriteFile( "::config/servspecopt.cfg", newConf );
+    if ( writeResult == error )
+      return ret_error( $"Could not write config/servspecopt.cfg file: ${writeResult}" );
+    endif
+
+    ReloadConfiguration();
+  elseif ( fail_reason == FAIL_REASON_CONFIG_NOT_ALLOWED )
+    // The default configuration has MasterCanClotheNPCs=0, so only set NPC's master
+    npc.setmaster( char );
+  endif
+
+  if ( !wear_item_failed( res, shirt.serial, LAYER_SHIRT, npc.serial ) )
+    if ( originalConf )
+      WriteFile( "::config/servspecopt.cfg", originalConf );
+      ReloadConfiguration();
+    endif
+    return res;
+  endif
+
+  if ( originalConf )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+  endif
+
+  return 1;
+endfunction
 
 function realm_switch_delete_realm_drop_test_helper( resources, should_drop_too_far_away )
   var res;
@@ -916,6 +1213,67 @@ function drop_item_succeeded( byref err, serial, x, y, z, dropped_on_serial := 0
 
   while ( 1 )
     ev := waitForClient( 0, { EVT_DROP_APPROVED } );
+    if ( !ev )
+      return err := ev;
+    endif
+    break;
+  endwhile
+  return 1;
+endfunction
+
+function wear_item_succeeded( byref err, item_serial, layer, player_serial, equipscript_testfunc )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "wear_item",
+                               arg := struct{ item_serial := item_serial,
+                                              layer := layer, player_serial := player_serial },
+                               id := 0 } );
+
+  if ( !( err := equipscript_testfunc() ) )
+    return err;
+  endif
+
+  var ev;
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_WEAR_ITEM } );
+    if ( !ev )
+      return err := ev;
+    endif
+    break;
+  endwhile
+
+  clientcon.sendevent( struct{ todo := "list_equipped_items", arg := player_serial, id := 0 } );
+  ev := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( !ev.objs.find( @( equipped_item ) {
+    return equipped_item.serial == item_serial;
+  } ) )
+    return ret_error( $"Item 0x{item_serial:x} not listed in equipment for player serial 0x{player_serial:x}" );
+  endif
+
+  return 1;
+endfunction
+
+function wear_item_failed( byref err, item_serial, layer, player_serial )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "wear_item",
+                               arg := struct{ item_serial := item_serial,
+                                              layer := layer, player_serial := player_serial },
+                               id := 0 } );
+
+  var ev;
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_WEAR_ITEM } );
+    if ( !ev )
+      return err := ev;
+    endif
+    break;
+  endwhile
+
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED } );
     if ( !ev )
       return err := ev;
     endif

@@ -119,6 +119,15 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             serial = arg['serial']
             ))
+      elif todo=="wear_item":
+        self.client.wear(arg['item_serial'], arg['layer'], arg['player_serial'])
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_WEAR_ITEM,
+            clientid = self.id,
+            item_serial = arg['item_serial'],
+            layer = arg['layer'],
+            player_serial = arg['player_serial']
+            ))
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -330,6 +339,10 @@ class PolServer:
       res['speed']=ev.speed
     elif ev.type==Event.EVT_DROP_ITEM:
       res['serial']=ev.serial
+    elif ev.type==Event.EVT_WEAR_ITEM:
+      res['item_serial']=ev.item_serial
+      res['layer']=ev.layer
+      res['player_serial']=ev.player_serial
     elif ev.type==Event.EVT_DROP_APPROVED:
       pass
     elif ev.type==Event.EVT_GUMP:

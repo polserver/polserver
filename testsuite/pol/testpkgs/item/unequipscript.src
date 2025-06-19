@@ -1,0 +1,13 @@
+use uo;
+use os;
+
+program unequip( unequipped_on, item, unequipped_by )
+  var pid := GetObjProperty( item, "#TestPid" );
+  if ( pid )
+    var ev := struct{ type := "unequip", on_chr := unequipped_on,
+                      item := item, by_chr := unequipped_by };
+
+    GetProcess( pid ).SendEvent( ev );
+  endif
+  return 1;
+endprogram

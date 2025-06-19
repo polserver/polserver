@@ -206,6 +206,7 @@ class Event:
   EVT_LIST_EQUIPPED_ITEMS = 110
   EVT_BOAT_MOVE = 111
   EVT_AOS_TOOLTIP = 112
+  EVT_WEAR_ITEM = 113
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -264,6 +265,8 @@ class Event:
       return "move_item_rejected"
     elif self.type==Event.EVT_DROP_ITEM:
       return "drop_item"
+    elif self.type==Event.EVT_WEAR_ITEM:
+      return "wear_item"
     elif self.type==Event.EVT_BOAT_MOVE:
       return "boat_move"
     elif self.type==Event.EVT_DROP_APPROVED:
