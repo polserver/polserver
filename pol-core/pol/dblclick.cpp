@@ -68,8 +68,7 @@ void send_paperdoll( Network::Client* client, Mobile::Character* chr )
   // Paperdoll Appears different type Status byte than other walk/update
   // packets. Using poison/hidden here will break peace/war button.
   u8 flag1 = chr->warmode() ? 1 : 0;
-  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) &&
-       client->chr->serial_ext == chr->serial_ext )
+  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) && client->chr->can_clothe( chr ) )
     flag1 |= CHAR_FLAG1_CANALTER;
   msg->Write<u8>( flag1 );
 
@@ -145,27 +144,9 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     }
     if ( !script_ran && client->chr->in_visual_range( chr ) )
     {
-      // MuadDib Changed from a large if || || || to switch case. 1/4/2007
-      switch ( chr->graphic )
+      if ( chr->has_paperdoll() )
       {
-      case UOBJ_HUMAN_MALE:
-      case UOBJ_HUMAN_FEMALE:
-      case UOBJ_HUMAN_MALE_GHOST:
-      case UOBJ_HUMAN_FEMALE_GHOST:
-      case UOBJ_ELF_MALE:
-      case UOBJ_ELF_FEMALE:
-      case UOBJ_ELF_MALE_GHOST:
-      case UOBJ_ELF_FEMALE_GHOST:
-      case UOBJ_GARGOYLE_MALE:
-      case UOBJ_GARGOYLE_FEMALE:
-      case UOBJ_GARGOYLE_MALE_GHOST:
-      case UOBJ_GARGOYLE_FEMALE_GHOST:
-      case UOBJ_GAMEMASTER:
-      case 0x3de:
-      case 0x3df:
-      case 0x3e2:
         send_paperdoll( client, chr );
-        break;
       }
     }
     return;

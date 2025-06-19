@@ -159,6 +159,8 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.npc_minimum_movement_delay =
       elem.remove_ushort( "NpcMinimumMovementDelay", 250 );
 
+  settingsManager.ssopt.master_can_clothe_npcs = elem.remove_bool( "MasterCanClotheNPCs", false );
+
   ssopt_parse_totalstats( elem );
 
   // default value needs to be reset as the object is created before config is loaded

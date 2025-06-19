@@ -1180,6 +1180,11 @@ bool Character::can_be_renamed_by( const Character* /*chr*/ ) const
   return false;
 }
 
+bool Character::can_be_clothed_by( const Character* chr ) const
+{
+  return chr == this;
+}
+
 bool Character::can_rename( const Character* chr ) const
 {
   return cached_settings.get( PRIV_FLAGS::RENAME_ANY ) || chr->can_be_renamed_by( this );
@@ -1187,7 +1192,7 @@ bool Character::can_rename( const Character* chr ) const
 
 bool Character::can_clothe( const Character* chr ) const
 {
-  return ( ( chr == this ) || cached_settings.get( PRIV_FLAGS::CLOTHE_ANY ) );
+  return cached_settings.get( PRIV_FLAGS::CLOTHE_ANY ) || chr->can_be_clothed_by( this );
 }
 
 bool Character::can_hearghosts() const
@@ -4404,6 +4409,32 @@ void Character::on_delete_from_account()
 {
   if ( realm() )
     realm()->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
+}
+
+bool Character::has_paperdoll() const
+{
+  switch ( graphic )
+  {
+  case UOBJ_HUMAN_MALE:
+  case UOBJ_HUMAN_FEMALE:
+  case UOBJ_HUMAN_MALE_GHOST:
+  case UOBJ_HUMAN_FEMALE_GHOST:
+  case UOBJ_ELF_MALE:
+  case UOBJ_ELF_FEMALE:
+  case UOBJ_ELF_MALE_GHOST:
+  case UOBJ_ELF_FEMALE_GHOST:
+  case UOBJ_GARGOYLE_MALE:
+  case UOBJ_GARGOYLE_FEMALE:
+  case UOBJ_GARGOYLE_MALE_GHOST:
+  case UOBJ_GARGOYLE_FEMALE_GHOST:
+  case UOBJ_GAMEMASTER:
+  case 0x3de:
+  case 0x3df:
+  case 0x3e2:
+    return true;
+  default:
+    return false;
+  }
 }
 
 bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,

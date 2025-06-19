@@ -356,6 +356,7 @@ public:
   virtual void on_death( Items::Item* corpse );
 
   virtual bool can_be_renamed_by( const Character* chr ) const;
+  virtual bool can_be_clothed_by( const Character* chr ) const;
 
   virtual void repsys_on_attack( Character* defender );
   virtual void repsys_on_damage( Character* defender );
@@ -718,6 +719,7 @@ public:
   void disconnect_cleanup();
   int charindex() const;  // find account character index, or -1 if not found.
   void on_delete_from_account();
+  bool has_paperdoll() const;
 
   // BUFF/DEBUFF BAR
 public:

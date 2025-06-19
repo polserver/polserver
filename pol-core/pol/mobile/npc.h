@@ -151,6 +151,7 @@ public:
   virtual void on_death( Items::Item* corpse ) override;
 
   virtual bool can_be_renamed_by( const Character* chr ) const override;
+  virtual bool can_be_clothed_by( const Character* chr ) const override;
 
   virtual void repsys_on_attack( Character* defender ) override;
   virtual void repsys_on_damage( Character* defender ) override;

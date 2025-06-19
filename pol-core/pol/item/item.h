@@ -203,14 +203,21 @@ public:
 
   bool has_equip_script() const;
   Bscript::BObjectImp* run_equip_script( Mobile::Character* chr, bool startup );
+  Bscript::BObjectImp* run_equip_script( Mobile::Character* equip_on, Mobile::Character* equip_by,
+                                         bool startup );
+  bool check_equip_script( Mobile::Character* equip_on, Mobile::Character* equip_by, bool startup );
   bool check_equip_script( Mobile::Character* chr, bool startup );
-  Bscript::BObjectImp* run_unequip_script( Mobile::Character* who );
-  bool check_unequip_script();
+  Bscript::BObjectImp* run_unequip_script( Mobile::Character* unequip_on,
+                                           Mobile::Character* unequip_by );
+  bool check_unequip_script( Mobile::Character* unequip_by = nullptr );
 
-  bool check_test_scripts( Mobile::Character* chr, const std::string& script_ecl, bool startup );
+  bool check_test_scripts( Mobile::Character* on_chr, Mobile::Character* by_chr,
+                           const std::string& script_ecl, bool startup );
+  bool check_equiptest_scripts( Mobile::Character* equip_on, Mobile::Character* equip_by,
+                                bool startup = false );
   bool check_equiptest_scripts( Mobile::Character* chr, bool startup = false );
-  bool check_unequiptest_scripts( Mobile::Character* chr );
-  bool check_unequiptest_scripts();
+  bool check_unequiptest_scripts( Mobile::Character* unequip_on, Mobile::Character* unequip_by );
+  bool check_unequiptest_scripts( Mobile::Character* unequip_by = nullptr );
   bool start_control_script( const ItemDesc& itemdesc );
   bool start_control_script();
   bool stop_control_script();
