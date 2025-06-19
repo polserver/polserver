@@ -915,6 +915,47 @@ exported function test_equip_npc_dragdrop_fail_2( resources )
   return equip_npc_dragdrop_fail_helper( resources, FAIL_REASON_CONFIG_NOT_ALLOWED );
 endfunction
 
+// An NPC's master cannot take things from NPC backpack
+exported function test_master_remove_from_npc_pack( resources )
+  var res := resources.UpdateConfiguration( struct{ MasterCanClotheNPCs := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  npc.setmaster( char );
+
+  var backpack := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, 0xE75 );
+  if ( !backpack )
+    return backpack;
+  endif
+
+  res := EquipItem( npc, backpack );
+  if ( !res )
+    return res;
+  endif
+
+  var item := CreateItemInContainer( backpack, 0xeed, 1 );
+  if ( !item )
+    return item;
+  endif
+
+  if ( lift_item_succeeded( res, item.serial ) )
+    return ret_error( "Unexpected success for lift_item" );
+  endif
+
+  return 1;
+endfunction
+
 /**
  * Helper functions
  */
