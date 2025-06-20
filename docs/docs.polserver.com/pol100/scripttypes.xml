@@ -438,10 +438,11 @@ const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToLocation().)
 </scripttype>
 
 <scripttype name="EquipScript">
-    <prototype>program equipscript(character, item, startup)</prototype>
-    <parameter name="character" value="Character Ref, or uninitialized, see below" />
+    <prototype>program equipscript(equipped_on, item, startup, equipped_by)</prototype>
+    <parameter name="equipped_on" value="Character Ref of character having the item being equipped on" />
     <parameter name="item" value="Item Ref" />
     <parameter name="startup" value="Integer 0/1 if item is being equipped due to server start" />
+    <parameter name="equipped_by" value="Character Ref of character performing the equip action, see below" />
     <return>1 if the item should be equipped, 0 to disallow equipping.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -451,18 +452,24 @@ const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToLocation().)
     <explain>This script allows side effects to be triggered as a result of the item being equipped on a character.</explain>
     <explain>Also can be used to disallow equipping, by the return value.</explain>
     <explain>Doesn't make sense for items that cannot be equipped, like walls or doors and such.</explain>
+    <explain>equipped_by will be different than equipped_on if a player is equipping an item on another character. Otherwise (eg. player equipping on themselves or by script via module function), they will be the same.</explain>
     <example>
 use uo;
-const FOR_CLASS := &quot;warrior&quot;;
-program my_example_equipscript(character, item, startup)
-    var class := GetObjProperty(character, &quot;class&quot;);
-    if(class != FOR_CLASS)
+const FOR_CLASS := "warrior";
+program my_example_equipscript(equipped_on, item, startup, equipped_by)
+    var className := GetObjProperty(equipped_on, "class");
+    if(className != FOR_CLASS)
         if(!startup)
-            SendSysmessage(character,&quot;Your class may not equip that item.&quot;);
+            if(equipped_on == equipped_by)
+                SendSysMessage(equipped_by, "Your class may not equip that item.");
+            else
+                SendSysMessage(equipped_by, equipped_on.name + "'s class may not equip that item.");
+            endif
         endif
         return 0;
     else
         return 1;
+    endif
 endprogram</example>
     <relatedobj>Character</relatedobj>
     <relatedobj>Item</relatedobj>
@@ -474,9 +481,10 @@ endprogram</example>
 
 
 <scripttype name="UnEquipScript">
-    <prototype>program unequipscript(character, item)</prototype>
-    <parameter name="character" value="Character Ref, or uninitialized, see below" />
+    <prototype>program unequipscript(unequip_from, item, unequip_by)</prototype>
+    <parameter name="unequip_from" value="Character Ref of character having the item being unequipped from" />
     <parameter name="item" value="Item Ref" />
+    <parameter name="unequip_by" value="Character Ref of character performing the unequip action, see below" />
     <return>1 if the item should be unequipped, 0 to disallow unequipping.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -486,15 +494,17 @@ endprogram</example>
     <explain>This script allows side effects to be triggered as a result of the item being unequipped by a character.</explain>
     <explain>Also can be used to disallow unequipping, by the return value.</explain>
     <explain>Doesn't make sense for items that cannot be equipped, like walls or doors and such.</explain>
+    <explain>unequip_from will be different than unequipped_by if a player is unequipping an item on another character. Otherwise (eg. player unequipping on themselves or by script via module function), they will be the same.</explain>
     <example>
 use uo;
-program my_example_equipscript(character, item, startup)
+program my_example_unequipscript(unequip_from, item, unequip_by)
     var cursed := GetObjProperty(item, "cursed");
     if(cursed == 1)
-        SendSysmessage(character,"That item is cursed! Gwuahahahaha!!");
+        SendSysMessage(unequip_by, "That item is cursed! Gwuahahahaha!!");
         return 0;
     else
         return 1;
+    endif
 endprogram</example>
     <relatedobj>Character</relatedobj>
     <relatedobj>Item</relatedobj>
@@ -506,10 +516,11 @@ endprogram</example>
 
 
 <scripttype name="UnEquipTestScript">
-    <prototype>program unequiptest(character, item, startup)</prototype>
-    <parameter name="character" value="Character Ref, or uninitialized, see below" />
+    <prototype>program unequiptest(unequip_from, item, startup, unequip_by)</prototype>
+    <parameter name="unequip_from" value="Character Ref of character having the item being unequipped from" />
     <parameter name="item" value="Item Ref" />
     <parameter name="startup" value="always false" />
+    <parameter name="unequip_by" value="Character Ref of character performing the unequip action, see below" />
     <return>1 if the item can be unequipped, 0 to disallow unequipping.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -518,15 +529,17 @@ endprogram</example>
     <todefine></todefine>
     <explain>This script allows side effects to be triggered as a result of the item being unequipped by a character.</explain>
     <explain>This script is common for all items, and is called for each. useful for unequip checks that are the same for all items, so the code does not need to be replicated in all UnEquipScripts.</explain>
+    <explain>unequip_from will be different than unequipped_by if a player is unequipping an item on another character. Otherwise (eg. player unequipping on themselves or by script via module function), they will be the same.</explain>
     <example>
 use uo;
-program my_example_unequiptest(character, item, startup)
+program my_example_unequiptest(unequip_from, item, startup, unequip_by)
     var cursed := GetObjProperty(item, "cursed");
     if(cursed == 1)
-        SendSysmessage(character,"That item is cursed! Gwuahahahaha!!");
+        SendSysMessage(unequip_by, "That item is cursed! Gwuahahahaha!!");
         return 0;
     else
         return 1;
+    endif
 endprogram</example>
     <relatedobj>Character</relatedobj>
     <relatedobj>Item</relatedobj>
@@ -538,10 +551,11 @@ endprogram</example>
 
 
 <scripttype name="EquipTestScript">
-    <prototype>program equiptest(character, item, startup)</prototype>
-    <parameter name="character" value="Character Ref, or uninitialized, see below" />
+    <prototype>program equiptest(equipped_on, item, startup, equipped_by)</prototype>
+    <parameter name="equipped_on" value="Character Ref of character having the item being equipped on" />
     <parameter name="item" value="Item Ref" />
     <parameter name="startup" value="Integer 0/1 if item is being equiped on startup" />
+    <parameter name="equipped_by" value="Character Ref of character performing the equip action, see below" />
     <return>1 if the item can be equipped, 0 to disallow equipping.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -550,16 +564,18 @@ endprogram</example>
     <todefine></todefine>
     <explain>This script allows side effects to be triggered as a result of the item being equipped by a character.</explain>
     <explain>This script is common for all items, and is called for each. useful for equip checks that are the same for all items, so the code does not need to be replicated in all EquipScripts.</explain>
+    <explain>equipped_by will be different than equipped_on if a player is equipping an item on another character. Otherwise (eg. player equipping on themselves or by script via module function), they will be the same.</explain>
     <example>
 use uo;
-program my_example_equiptest(character, item, startup)
-    var firstletter := lower(character.name[1]);
+program my_example_equiptest(equipped_on, item, startup, equipped_by)
+    var firstletter := lower(equipped_on.name[1]);
     if(firstletter == "t")
-        SendSysmessage(character,"Sorry, character name starting with
+    SendSysMessage(equipped_by, "Sorry, character name starting with
                        't' can't equip any items, for some reason.");
         return 0;
     else
         return 1;
+    endif
 endprogram</example>
     <relatedobj>Character</relatedobj>
     <relatedobj>Item</relatedobj>
