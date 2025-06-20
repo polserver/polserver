@@ -4428,9 +4428,9 @@ bool Character::has_paperdoll() const
   case UOBJ_GARGOYLE_MALE_GHOST:
   case UOBJ_GARGOYLE_FEMALE_GHOST:
   case UOBJ_GAMEMASTER:
-  case 0x3de:
-  case 0x3df:
-  case 0x3e2:
+  case UOBJ_LORD_BRITISH:
+  case UOBJ_BLACKTHORN:
+  case UOBJ_DUPRE:
     return true;
   default:
     return false;
