@@ -307,15 +307,13 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset, value;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
     {
-      if ( is_variable_length )
-        if ( offset >= buffer.size() )
+      if ( offset >= buffer.size() )
+      {
+        if ( !SetSize( ( offset + sizeof( u8 ) ) ) )
         {
-          if ( !SetSize( ( offset + sizeof( u8 ) ) ) )
-          {
-            return new BError( "Offset value out of range on a fixed length packet" );
-            ;
-          }
+          return new BError( "Offset value out of range on a fixed length packet" );
         }
+      }
       buffer[offset] = static_cast<u8>( value );
       return new BLong( 1 );
     }

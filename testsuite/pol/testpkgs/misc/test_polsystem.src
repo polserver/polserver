@@ -35,10 +35,10 @@ exported function test_packet_assign_fixed()
   endif
 
   // Set something outside the size, but it should not change.
-  otherPacket.SetInt8( 3, 3 );
-  actual_otherPacket := CStr( otherPacket );
-  if ( expected != actual_otherPacket )
-    return ret_error( $"Incorrect value for otherPacket, expected '{expected}' actual '{actual_otherPacket}" );
+  var res := otherPacket.SetInt8( 3, 3 );
+
+  if ( res )
+    return ret_error( $"Unexpected success calling otherPacket.SetInt8" );
   endif
 
   return 1;

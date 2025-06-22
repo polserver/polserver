@@ -2,13 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-22-2025</datemodified>
+		<datemodified>06-23-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
-			<date>06-22-2025</date>
+			<date>06-23-2025</date>
 			<author>Kevin:</author>
 			<change type="Added">Packet script method `assign( Packet other )`</change>
+			<change type="Fixed">`packet.SetInt8()` will now correctly return an error if setting a value at an index outside the length of a fixed-length packet</change>
 		</entry>
 		<entry>
 			<date>06-22-2025</date>
