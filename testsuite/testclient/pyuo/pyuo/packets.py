@@ -435,6 +435,27 @@ class StatusBarInfoPacket(Packet):
       self.maxstaminc = self.dushort()
       self.maxmanainc = self.dushort()
 
+class WearItemPacket(Packet):
+  ''' Notify server of a drop on an item onto a paperdoll, ie. wear an item '''
+
+  cmd = 0x13
+  length = 10
+
+  def fill(self, item_serial, layer, player_serial):
+    self.item_serial = item_serial
+    self.layer = layer
+    self.player_serial = player_serial
+
+
+  def encodeChild(self):
+    self.euint(self.item_serial)
+    self.euchar(self.layer) #  Backpack grid index
+    self.euint(self.player_serial)
+
+  def decodeChild(self):
+    self.item_serial = self.duint()
+    self.layer = self.duchar() # Backpack grid index
+    self.player_serial = self.duint()
 
 class ObjectInfoPacket(Packet):
   ''' Draws an item '''
@@ -1024,6 +1045,22 @@ class DrawObjectPacket(Packet):
       })
 #    if not len(self.equip):
 #      self.duchar() # unused/closing
+
+class OpenPaperdollPacket(Packet):
+  ''' Open Paperdoll '''
+
+  cmd = 0x88
+  length = 66
+
+  def fill(self, serial, text, flags):
+    self.serial = serial
+    self.text = text
+    self.flags = flags
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.text = self.dstring(60)
+    self.flags = self.duchar()
 
 class CorpseEquipmentPacket(Packet):
   ''' Corpse clothing / equipment '''

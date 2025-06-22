@@ -1161,6 +1161,12 @@ bool Item::has_equip_script() const
 
 Bscript::BObjectImp* Item::run_equip_script( Mobile::Character* who, bool startup )
 {
+  return run_equip_script( who, who, startup );
+}
+
+Bscript::BObjectImp* Item::run_equip_script( Mobile::Character* equip_on,
+                                             Mobile::Character* equip_by, bool startup )
+{
   Core::ScriptDef sd;
 
   try
@@ -1174,9 +1180,11 @@ Bscript::BObjectImp* Item::run_equip_script( Mobile::Character* who, bool startu
 
   try
   {
-    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( who ),
+    auto* by_chr_imp = equip_by == nullptr ? new Module::ECharacterRefObjImp( equip_on )
+                                           : new Module::ECharacterRefObjImp( equip_by );
+    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( equip_on ),
                                            new Module::EItemRefObjImp( this ),
-                                           new Bscript::BLong( startup ? 1 : 0 ) );
+                                           new Bscript::BLong( startup ? 1 : 0 ), by_chr_imp );
   }
   catch ( std::exception& ex )
   {
@@ -1184,7 +1192,8 @@ Bscript::BObjectImp* Item::run_equip_script( Mobile::Character* who, bool startu
   }
 }
 
-Bscript::BObjectImp* Item::run_unequip_script( Mobile::Character* who )
+Bscript::BObjectImp* Item::run_unequip_script( Mobile::Character* unequip_on,
+                                               Mobile::Character* unequip_by )
 {
   Core::ScriptDef sd;
 
@@ -1199,8 +1208,11 @@ Bscript::BObjectImp* Item::run_unequip_script( Mobile::Character* who )
 
   try
   {
-    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( who ),
-                                           new Module::EItemRefObjImp( this ) );
+    auto* by_chr_imp = unequip_by == nullptr ? new Module::ECharacterRefObjImp( unequip_on )
+                                             : new Module::ECharacterRefObjImp( unequip_by );
+
+    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( unequip_on ),
+                                           new Module::EItemRefObjImp( this ), by_chr_imp );
   }
   catch ( std::exception& ex )
   {
@@ -1211,9 +1223,15 @@ Bscript::BObjectImp* Item::run_unequip_script( Mobile::Character* who )
 
 bool Item::check_equip_script( Mobile::Character* chr, bool startup )
 {
+  return check_equip_script( chr, chr, startup );
+}
+
+bool Item::check_equip_script( Mobile::Character* equip_on, Mobile::Character* equip_by,
+                               bool startup )
+{
   if ( has_equip_script() )
   {
-    Bscript::BObject obj( run_equip_script( chr, startup ) );
+    Bscript::BObject obj( run_equip_script( equip_on, equip_by, startup ) );
     return obj.isTrue();
   }
   else
@@ -1222,7 +1240,7 @@ bool Item::check_equip_script( Mobile::Character* chr, bool startup )
   }
 }
 
-bool Item::check_unequip_script()
+bool Item::check_unequip_script( Mobile::Character* unequip_by )
 {
   if ( !unequip_script_.get().empty() && container != nullptr &&
        Core::IsCharacter( container->serial ) )
@@ -1231,7 +1249,7 @@ bool Item::check_unequip_script()
     passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
-    Bscript::BObject obj( run_unequip_script( chr ) );
+    Bscript::BObject obj( run_unequip_script( chr, unequip_by ) );
     return obj.isTrue();
   }
   else
@@ -1263,16 +1281,19 @@ void preload_test_scripts()
   preload_test_scripts( "unequiptest.ecl" );
 }
 
-bool Item::check_test_scripts( Mobile::Character* chr, const std::string& script_ecl, bool startup )
+bool Item::check_test_scripts( Mobile::Character* on_chr, Mobile::Character* by_chr,
+                               const std::string& script_ecl, bool startup )
 {
   Core::ScriptDef sd;
   sd.quickconfig( "scripts/misc/" + script_ecl );
   this->inuse( true );
+  auto* by_chr_imp = by_chr == nullptr ? new Module::ECharacterRefObjImp( on_chr )
+                                       : new Module::ECharacterRefObjImp( by_chr );
   if ( script_loaded( sd ) )
   {
-    bool res =
-        Core::call_script( sd, new Module::ECharacterRefObjImp( chr ),
-                           new Module::EItemRefObjImp( this ), new Bscript::BLong( startup ) );
+    bool res = Core::call_script( sd, new Module::ECharacterRefObjImp( on_chr ),
+                                  new Module::EItemRefObjImp( this ), new Bscript::BLong( startup ),
+                                  by_chr_imp );
     this->inuse( false );
     if ( !res )
       return false;
@@ -1282,9 +1303,9 @@ bool Item::check_test_scripts( Mobile::Character* chr, const std::string& script
     sd.quickconfig( pkg, script_ecl );
     if ( script_loaded( sd ) )
     {
-      bool res =
-          Core::call_script( sd, new Module::ECharacterRefObjImp( chr ),
-                             new Module::EItemRefObjImp( this ), new Bscript::BLong( startup ) );
+      bool res = Core::call_script( sd, new Module::ECharacterRefObjImp( on_chr ),
+                                    new Module::EItemRefObjImp( this ),
+                                    new Bscript::BLong( startup ), by_chr_imp );
       this->inuse( false );
       if ( !res )
         return false;
@@ -1297,23 +1318,29 @@ bool Item::check_test_scripts( Mobile::Character* chr, const std::string& script
 
 bool Item::check_equiptest_scripts( Mobile::Character* chr, bool startup )
 {
-  return check_test_scripts( chr, "equiptest.ecl", startup );
+  return check_equiptest_scripts( chr, chr, startup );
 }
 
-bool Item::check_unequiptest_scripts( Mobile::Character* chr )
+bool Item::check_equiptest_scripts( Mobile::Character* equip_on, Mobile::Character* equip_by,
+                                    bool startup )
 {
-  return check_test_scripts( chr, "unequiptest.ecl", false );
+  return check_test_scripts( equip_on, equip_by, "equiptest.ecl", startup );
 }
 
-bool Item::check_unequiptest_scripts()
+bool Item::check_unequiptest_scripts( Mobile::Character* unequip_on, Mobile::Character* unequip_by )
+{
+  return check_test_scripts( unequip_on, unequip_by, "unequiptest.ecl", false );
+}
+
+bool Item::check_unequiptest_scripts( Mobile::Character* unequip_by )
 {
   if ( container != nullptr && Core::IsCharacter( container->serial ) )
   {
-    Mobile::Character* chr = container->get_chr_owner();
-    passert_always( chr != nullptr );
-    passert_always( chr->is_equipped( this ) );
+    Mobile::Character* unequip_on = container->get_chr_owner();
+    passert_always( unequip_on != nullptr );
+    passert_always( unequip_on->is_equipped( this ) );
 
-    return check_unequiptest_scripts( chr );
+    return check_unequiptest_scripts( unequip_on, unequip_by );
   }
   else
   {

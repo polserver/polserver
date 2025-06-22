@@ -1,4 +1,14 @@
 -- POL100.2.0 --
+06-20-2025 Kevin:
+    Added: servspecopt.cfg MasterCanClotheNPCs 0/1 default 0
+           If enabled, an NPC can be clothed by its master (via paperdoll)
+    Added: Characters that can clothe other characters -- either by being the NPC's master with servspecopt.cfg MasterCanClotheNPCs enabled
+           _or_ with clotheany privilege enabled -- can now modify equipment via paperdoll.
+    Added: Program parameter equipped_by to EquipScript/EquipTestScript and unequipped_by to UnEquipScript/UnEquipTestScript to reference
+           the player performing the (un)equip action. If there is no player performing the action (eg. equipping via uo module function
+           EquipItem, unequipping via DestroyItem, ...), then this program parameter will be the same.
+  Changed: Updated Script Types documentation for EquipScript/EquipTestScript and UnEquipScript/UnEquipTestScript to clarify that the first
+           character program parameter is the character having their equipment changed, ie. equipped_on or unequipped_from.
 05-24-2025 Kevin:
     Fixed: Array method `findIndex` no longer modifies the first element in the array.
 05-16-2025 Kevin:

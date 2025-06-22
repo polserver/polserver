@@ -80,14 +80,19 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   item = find_legal_item( client->chr, serial, &inRemoteContainer, &isRemoteContainer );
   if ( item == nullptr || isRemoteContainer )
   {
-    if ( find_snoopable_item( serial ) != nullptr )
+    Mobile::Character* owner = nullptr;
+    item = find_snoopable_item( serial, &owner );
+
+    if ( !item || !owner || !owner->is_equipped( item ) )
+    {
+      send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
+      return;
+    }
+    else if ( !client->chr->can_clothe( owner ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_BELONGS_TO_OTHER );
       return;
     }
-
-    send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
-    return;
   }
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
 
@@ -117,7 +122,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     return;
   }
 
-  if ( !item->check_unequiptest_scripts() || !item->check_unequip_script() )
+  if ( !item->check_unequiptest_scripts( client->chr ) ||
+       !item->check_unequip_script( client->chr ) )
   {
     send_sysmessage( client, "You cannot unequip that." );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );

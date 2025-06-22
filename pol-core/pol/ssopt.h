@@ -129,6 +129,7 @@ struct ServSpecOpt
   bool boat_sails_collide;
 
   unsigned short npc_minimum_movement_delay;
+  bool master_can_clothe_npcs;
 
   static void read_servspecopt();
   static void ssopt_parse_totalstats( Clib::ConfigElem& elem );

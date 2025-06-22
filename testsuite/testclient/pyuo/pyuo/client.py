@@ -947,6 +947,8 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_AOS_TOOLTIP, serial = pkt.serial, text=pkt.text))
     elif isinstance(pkt, packets.EnableFeaturesPacket):
       self.features = pkt.features
+    elif isinstance(pkt, packets.OpenPaperdollPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_OPEN_PAPERDOLL, serial = pkt.serial, text=pkt.text, flags=pkt.flags))
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1248,6 +1250,13 @@ class Client(threading.Thread):
     ''' Sends a drop packet to server'''
     po = packets.DropItemPacket()
     po.fill(serial, x, y, z, dropped_on_serial)
+    self.queue(po)
+
+  @logincomplete
+  def wear(self, item_serial, layer, player_serial):
+    ''' Sends a wear item packet to server'''
+    po = packets.WearItemPacket()
+    po.fill(item_serial, layer, player_serial)
     self.queue(po)
 
   @logincomplete

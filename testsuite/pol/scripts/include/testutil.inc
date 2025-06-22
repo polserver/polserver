@@ -58,6 +58,68 @@ class ResourceManager()
     return 1;
   endfunction
 
+  function UpdateConfiguration( this, configs )
+    var originalConf := ReadFile( "::config/servspecopt.cfg" );
+    if ( originalConf == error )
+      return ret_error( $"Could not read config/servspecopt.cfg file: ${originalConf}" );
+    endif
+
+    var newConf := array;
+    foreach line in originalConf
+      if ( line.length() > 1 && line[1, 1] != "#" )
+        var keyIndex := line.find( "=" );
+        if ( keyIndex )
+          var key := line[1, keyIndex - 1];
+          if ( configs.exists( key ) )
+            continue;
+          endif
+        endif
+      endif
+
+      newConf.append( line );
+    endforeach
+
+    foreach key in configs
+      newConf.append( $"{_key_iter}={key}" );
+    endforeach
+
+    var writeResult := WriteFile( "::config/servspecopt.cfg", newConf );
+    if ( writeResult == error )
+      return ret_error( $"Could not write config/servspecopt.cfg file: ${writeResult}" );
+    endif
+
+    ReloadConfiguration();
+
+    this.resources.append( array{ originalConf, @RestoreConfiguration } );
+
+    return 1;
+  endfunction
+
+  function GrantPrivilege( this, character, privilege )
+    var res := uo::GrantPrivilege( character, privilege );
+    if ( !res )
+      return res;
+    endif
+
+    character.enable( privilege );
+
+    this.resources.append( array{ { character, privilege } }, @RevokePrivilege );
+
+    return 1;
+  endfunction
+
+  function RevokePrivilege( privilege_resource )
+    var [ character, privilege ] := privilege_resource;
+
+    return uo::RevokePrivilege( character, privilege );
+  endfunction
+
+  function RestoreConfiguration( originalConf )
+    WriteFile( "::config/servspecopt.cfg", originalConf );
+    ReloadConfiguration();
+    return 1;
+  endfunction
+
   function CreateMultiAtLocation( this, x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM )
     // Module functions are registered in global scope as well
     var resource :=::CreateMultiAtLocation( x, y, z, objtype, flags, realm );

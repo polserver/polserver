@@ -710,6 +710,12 @@ bool NPC::can_be_renamed_by( const Character* chr ) const
   return ( master_.get() == chr );
 }
 
+bool NPC::can_be_clothed_by( const Character* chr ) const
+{
+  return has_paperdoll() && Core::settingsManager.ssopt.master_can_clothe_npcs &&
+         master_.get() == chr;
+}
+
 void NPC::on_pc_spoke( Character* src_chr, const std::string& speech, u8 texttype,
                        const std::string& lang, Bscript::ObjArray* speechtokens )
 {

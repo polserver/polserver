@@ -192,6 +192,7 @@ class Event:
   EVT_BOAT_MOVED = 11
   EVT_OWNCREATE = 12
   EVT_GUMP = 13
+  EVT_OPEN_PAPERDOLL = 14
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -206,6 +207,7 @@ class Event:
   EVT_LIST_EQUIPPED_ITEMS = 110
   EVT_BOAT_MOVE = 111
   EVT_AOS_TOOLTIP = 112
+  EVT_WEAR_ITEM = 113
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -264,6 +266,8 @@ class Event:
       return "move_item_rejected"
     elif self.type==Event.EVT_DROP_ITEM:
       return "drop_item"
+    elif self.type==Event.EVT_WEAR_ITEM:
+      return "wear_item"
     elif self.type==Event.EVT_BOAT_MOVE:
       return "boat_move"
     elif self.type==Event.EVT_DROP_APPROVED:
@@ -272,3 +276,5 @@ class Event:
       return "gump"
     elif self.type==Event.EVT_AOS_TOOLTIP:
       return "aos_tooltip"
+    elif self.type==Event.EVT_OPEN_PAPERDOLL:
+      return "open_paperdoll"

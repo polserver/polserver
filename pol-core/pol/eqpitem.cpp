@@ -108,8 +108,8 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
     return;
   }
 
-  if ( !equip_on->equippable( item ) || !item->check_equiptest_scripts( equip_on ) ||
-       !item->check_equip_script( equip_on, false ) )
+  if ( !equip_on->equippable( item ) || !item->check_equiptest_scripts( equip_on, client->chr ) ||
+       !item->check_equip_script( equip_on, client->chr, false ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );
     if ( item->orphan() )

@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>02/03/2025</datemodified>
+    <datemodified>06/20/2025</datemodified>
 </fileheader>
 
 
@@ -399,6 +399,7 @@ Spell (int spellid)
 [UndoGetItemDropHere            (0/1 {default 0})]
 [BoatSailsCollide               (0/1 {default 0})]
 [NpcMinimumMovementDelay        (int milliseconds {default 250})]
+[MasterCanClotheNPCs            (0/1 {default 0})]
 </structure>
   <explain><i>RefreshDecayAfterBoatMoves</i> if enabled item's decayat will be refreshed after each move or turn of a boat. Note that item decay on boats is not yet handled by the core.</explain>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
@@ -489,6 +490,7 @@ Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   <explain><i>BoatSailsCollide:</i> If enabled - boat sails will collide with objects in the world and cannot be passed through.</explain>
   <explain><i>NpcMinimumMovementDelay:</i> Related to NPC's run_speed attribute. It is used to define minimum delay in between NPC's movement steps used by functions like WalkToward, RunAwayFrom and similar.<br/>
    Lower the value to increase maximum speed of all NPCs. It is halved for running.</explain>
+   <explain><i>MasterCanClotheNPCs:</i>If enabled, an NPC can be clothed by its master (via paperdoll).</explain>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>
