@@ -1287,10 +1287,10 @@ bool Item::check_test_scripts( Mobile::Character* on_chr, Mobile::Character* by_
   Core::ScriptDef sd;
   sd.quickconfig( "scripts/misc/" + script_ecl );
   this->inuse( true );
-  auto* by_chr_imp = by_chr == nullptr ? new Module::ECharacterRefObjImp( on_chr )
-                                       : new Module::ECharacterRefObjImp( by_chr );
   if ( script_loaded( sd ) )
   {
+    auto* by_chr_imp = by_chr == nullptr ? new Module::ECharacterRefObjImp( on_chr )
+                                         : new Module::ECharacterRefObjImp( by_chr );
     bool res = Core::call_script( sd, new Module::ECharacterRefObjImp( on_chr ),
                                   new Module::EItemRefObjImp( this ), new Bscript::BLong( startup ),
                                   by_chr_imp );
@@ -1303,6 +1303,8 @@ bool Item::check_test_scripts( Mobile::Character* on_chr, Mobile::Character* by_
     sd.quickconfig( pkg, script_ecl );
     if ( script_loaded( sd ) )
     {
+      auto* by_chr_imp = by_chr == nullptr ? new Module::ECharacterRefObjImp( on_chr )
+                                           : new Module::ECharacterRefObjImp( by_chr );
       bool res = Core::call_script( sd, new Module::ECharacterRefObjImp( on_chr ),
                                     new Module::EItemRefObjImp( this ),
                                     new Bscript::BLong( startup ), by_chr_imp );
