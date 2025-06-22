@@ -1,5 +1,7 @@
 -- POL100.2.0 --
 06-22-2025 Kevin:
+    Added: Packet script method `assign( Packet other )`
+06-22-2025 Kevin:
     Fixed: Memory leak caused by equipped_by/unequipped_by parameter addition
 06-20-2025 Kevin:
     Added: servspecopt.cfg MasterCanClotheNPCs 0/1 default 0

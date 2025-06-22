@@ -8,6 +8,11 @@
 		<entry>
 			<date>06-22-2025</date>
 			<author>Kevin:</author>
+			<change type="Added">Packet script method `assign( Packet other )`</change>
+		</entry>
+		<entry>
+			<date>06-22-2025</date>
+			<author>Kevin:</author>
 			<change type="Fixed">Memory leak caused by equipped_by/unequipped_by parameter addition</change>
 		</entry>
 		<entry>
