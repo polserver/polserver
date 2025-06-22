@@ -544,6 +544,22 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     }
     break;
   }
+  case MTH_ASSIGN:
+  {
+    if ( ex.numParams() < 1 )
+      return new BError( "Invalid parameter type" );
+
+    BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTPacket );
+
+    if ( !param0 )
+      return new BError( "Invalid parameter type" );
+
+    BPacket* other = static_cast<BPacket*>( param0 );
+    is_variable_length = other->is_variable_length;
+    buffer.resize( other->buffer.size() );
+    std::copy( other->buffer.begin(), other->buffer.end(), buffer.begin() );
+    return new BLong( 1 );
+  }
   default:
     return nullptr;
   }
