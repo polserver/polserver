@@ -1,0 +1,103 @@
+include "communication";
+include "testutil";
+
+use uo;
+use os;
+
+var char;
+var charX := 100;
+var charY := 50;
+var clientcon := getClientConnection();
+
+program test_paperdoll()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+
+  // Move character somewhere nice.
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return ret_error( $"Could not move character: ${res}" );
+  endif
+
+  return 1;
+endprogram
+
+// The "can alter paperdoll" flag should be set only if:
+//
+//   - both MasterCanClotheNPCs=1 and char is npc's master, or
+//   - char has privilege `clotheany`
+//
+exported function test_paperdoll_flags( resources )
+  // @format-off
+  var conditions := {
+    struct{ set_configuration := 0, set_master := 0, set_privilege := 0, expected_flags := 0 },
+    struct{ set_configuration := 0, set_master := 1, set_privilege := 0, expected_flags := 0 },
+    struct{ set_configuration := 1, set_master := 0, set_privilege := 0, expected_flags := 0 },
+    struct{ set_configuration := 1, set_master := 1, set_privilege := 0, expected_flags := 2 },
+    struct{ set_configuration := 0, set_master := 0, set_privilege := 1, expected_flags := 2 }
+  };
+  // @format-on
+
+  foreach condition in conditions
+    var { set_configuration, set_master, expected_flags, set_privilege } := condition;
+    var actual_flags := get_paperdoll_flags( resources, set_configuration, set_master, set_privilege );
+
+    if ( expected_flags != actual_flags )
+      return ret_error( $"Invalid flags for {condition}: actual {actual_flags}" );
+    endif
+
+    resources.Cleanup();
+  endforeach
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+function get_paperdoll_flags( resources, set_configuation, set_master, set_privilege )
+  var res;
+
+  res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  if ( set_configuation )
+    res := resources.UpdateConfiguration( struct{ MasterCanClotheNPCs := 1 } );
+    if ( !res )
+      return res;
+    endif
+  endif
+
+  if ( set_master )
+    npc.setmaster( char );
+  endif
+
+  if ( set_privilege )
+    res := resources.GrantPrivilege( char, "clotheany" );
+    if ( !res )
+      return res;
+    endif
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "double_click", arg := npc.serial, id := 0 } );
+  if ( !( res := waitForClient( 0, { EVT_DOUBLE_CLICK } ) ) )
+    return ret_error( $"Could not double-click npc: {res}" );
+  endif
+
+  if ( !( res := waitForClient( 0, { EVT_OPEN_PAPERDOLL } ) ) )
+    return ret_error( $"Did not receive open_paperdoll event: {res}" );
+  endif
+
+  return res.flags;
+endfunction

@@ -947,6 +947,8 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_AOS_TOOLTIP, serial = pkt.serial, text=pkt.text))
     elif isinstance(pkt, packets.EnableFeaturesPacket):
       self.features = pkt.features
+    elif isinstance(pkt, packets.OpenPaperdollPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_OPEN_PAPERDOLL, serial = pkt.serial, text=pkt.text, flags=pkt.flags))
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 

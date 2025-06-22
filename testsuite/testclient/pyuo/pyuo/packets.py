@@ -1046,6 +1046,22 @@ class DrawObjectPacket(Packet):
 #    if not len(self.equip):
 #      self.duchar() # unused/closing
 
+class OpenPaperdollPacket(Packet):
+  ''' Open Paperdoll '''
+
+  cmd = 0x88
+  length = 66
+
+  def fill(self, serial, text, flags):
+    self.serial = serial
+    self.text = text
+    self.flags = flags
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.text = self.dstring(60)
+    self.flags = self.duchar()
+
 class CorpseEquipmentPacket(Packet):
   ''' Corpse clothing / equipment '''
 

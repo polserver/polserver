@@ -350,6 +350,10 @@ class PolServer:
       res['texts']=ev.texts
     elif ev.type==Event.EVT_AOS_TOOLTIP:
       res['text']=ev.text
+    elif ev.type==Event.EVT_OPEN_PAPERDOLL:
+      res['serial']=ev.serial
+      res['text']=ev.text
+      res['flags']=ev.flags
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

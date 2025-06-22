@@ -31,6 +31,7 @@ const EVT_BOAT_MOVED := "boat_moved";
 const EVT_OWNCREATE := "owncreate";
 const EVT_GUMP := "gump";
 const EVT_AOS_TOOLTIP := "aos_tooltip";
+const EVT_OPEN_PAPERDOLL := "open_paperdoll";
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";

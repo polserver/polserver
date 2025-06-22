@@ -95,6 +95,25 @@ class ResourceManager()
     return 1;
   endfunction
 
+  function GrantPrivilege( this, character, privilege )
+    var res := uo::GrantPrivilege( character, privilege );
+    if ( !res )
+      return res;
+    endif
+
+    character.enable( privilege );
+
+    this.resources.append( array{ { character, privilege } }, @RevokePrivilege );
+
+    return 1;
+  endfunction
+
+  function RevokePrivilege( privilege_resource )
+    var [ character, privilege ] := privilege_resource;
+
+    return uo::RevokePrivilege( character, privilege );
+  endfunction
+
   function RestoreConfiguration( originalConf )
     WriteFile( "::config/servspecopt.cfg", originalConf );
     ReloadConfiguration();
