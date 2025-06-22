@@ -877,10 +877,27 @@ exported function test_equip_npc_dragdrop( resources )
   endif
 
   var equipscript_testfunc := @() {
-    var evs := get_events( 1 );
+    // Get three events, and check for wear_item and equiptest & equip
+    var evs := get_events( 1, 3 );
     if ( !evs )
       return evs;
     endif
+
+    var found_wear_item := false;
+
+    evs := evs.filter( @( ev ) {
+      if ( ev.type == EVT_WEAR_ITEM )
+        found_wear_item := true;
+        return false;
+      endif
+
+      return true;
+    } );
+
+    if ( !found_wear_item )
+      return ret_error( "No wear_item event received" );
+    endif
+
     res := validate_events( evs, npc, char, shirt, false );
     if ( !res )
       return res;
@@ -976,8 +993,8 @@ function validate_events( evs, on_chr, by_chr, item, is_unequip )
 endfunction
 
 // Returns two events as an array, eg. equiptest & equip or unequiptest & unequip events
-function get_events( timeout := 0 )
-  var count := 2, evs := {};
+function get_events( timeout := 0, count := 2 )
+  var evs := {};
 
   while ( count-- > 0 )
     var res := wait_for_event( timeout );
@@ -1211,17 +1228,8 @@ function wear_item_succeeded( byref err, item_serial, layer, player_serial, equi
     return err;
   endif
 
-  var ev;
-  while ( 1 )
-    ev := waitForClient( 0, { EVT_WEAR_ITEM } );
-    if ( !ev )
-      return err := ev;
-    endif
-    break;
-  endwhile
-
   clientcon.sendevent( struct{ todo := "list_equipped_items", arg := player_serial, id := 0 } );
-  ev := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } );
+  var ev := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } );
   if ( !ev )
     return ev;
   endif
