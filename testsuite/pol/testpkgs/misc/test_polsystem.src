@@ -46,9 +46,9 @@ endfunction
 
 exported function test_packet_assign_varlen()
   var thisPacket := CreatePacket( 0x01, MSGLEN_VARIABLE );
-  thisPacket.SetInt8( 1, 2 );
+  thisPacket.SetInt8( 3, 8 );
 
-  var expected := "0102";
+  var expected := "01000408";
   var actual_thisPacket := CStr( thisPacket );
   if ( expected != actual_thisPacket )
     return ret_error( $"Incorrect value for thisPacket, expected '{expected}' actual '{actual_thisPacket}" );
@@ -63,8 +63,8 @@ exported function test_packet_assign_varlen()
   endif
 
   // Set something outside the original size, resizing the packet
-  otherPacket.SetInt8( 3, 3 );
-  expected := "01000403";
+  otherPacket.SetInt8( 4, 9 );
+  expected := "0100050809";
   actual_otherPacket := CStr( otherPacket );
   if ( expected != actual_otherPacket )
     return ret_error( $"Incorrect value for otherPacket after SetInt8, expected '{expected}' actual '{actual_otherPacket}" );
