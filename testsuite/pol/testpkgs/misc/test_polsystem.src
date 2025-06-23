@@ -15,3 +15,60 @@ exported function test_md5()
   endif
   return 1;
 endfunction
+
+exported function test_packet_assign_fixed()
+  var thisPacket := CreatePacket( 0x01, 2 );
+  thisPacket.SetInt8( 1, 2 );
+
+  var expected := "0102";
+  var actual_thisPacket := CStr( thisPacket );
+  if ( expected != actual_thisPacket )
+    return ret_error( $"Incorrect value for thisPacket, expected '{expected}' actual '{actual_thisPacket}" );
+  endif
+
+  var otherPacket := CreatePacket( 0x00, 0 );
+  otherPacket.assign( thisPacket );
+
+  var actual_otherPacket := CStr( otherPacket );
+  if ( expected != actual_otherPacket )
+    return ret_error( $"Incorrect value for otherPacket, expected '{expected}' actual '{actual_otherPacket}" );
+  endif
+
+  // Set something outside the size, but it should not change.
+  var res := otherPacket.SetInt8( 3, 3 );
+
+  if ( res )
+    return ret_error( $"Unexpected success calling otherPacket.SetInt8" );
+  endif
+
+  return 1;
+endfunction
+
+exported function test_packet_assign_varlen()
+  var thisPacket := CreatePacket( 0x01, MSGLEN_VARIABLE );
+  thisPacket.SetInt8( 3, 8 );
+
+  var expected := "01000408";
+  var actual_thisPacket := CStr( thisPacket );
+  if ( expected != actual_thisPacket )
+    return ret_error( $"Incorrect value for thisPacket, expected '{expected}' actual '{actual_thisPacket}" );
+  endif
+
+  var otherPacket := CreatePacket( 0x00, 0 );
+  otherPacket.assign( thisPacket );
+
+  var actual_otherPacket := CStr( otherPacket );
+  if ( expected != actual_otherPacket )
+    return ret_error( $"Incorrect value for otherPacket, expected '{expected}' actual '{actual_otherPacket}" );
+  endif
+
+  // Set something outside the original size, resizing the packet
+  otherPacket.SetInt8( 4, 9 );
+  expected := "0100050809";
+  actual_otherPacket := CStr( otherPacket );
+  if ( expected != actual_otherPacket )
+    return ret_error( $"Incorrect value for otherPacket after SetInt8, expected '{expected}' actual '{actual_otherPacket}" );
+  endif
+
+  return 1;
+endfunction

@@ -1,4 +1,7 @@
 -- POL100.2.0 --
+06-23-2025 Kevin:
+    Added: Packet script method `assign( Packet other )`
+    Fixed: `packet.SetInt8()` will now correctly return an error if setting a value at an index outside the length of a fixed-length packet
 06-22-2025 Kevin:
     Fixed: Memory leak caused by equipped_by/unequipped_by parameter addition
 06-20-2025 Kevin:

@@ -307,15 +307,13 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset, value;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
     {
-      if ( is_variable_length )
-        if ( offset >= buffer.size() )
+      if ( offset >= buffer.size() )
+      {
+        if ( !SetSize( ( offset + sizeof( u8 ) ) ) )
         {
-          if ( !SetSize( ( offset + sizeof( u8 ) ) ) )
-          {
-            return new BError( "Offset value out of range on a fixed length packet" );
-            ;
-          }
+          return new BError( "Offset value out of range on a fixed length packet" );
         }
+      }
       buffer[offset] = static_cast<u8>( value );
       return new BLong( 1 );
     }
@@ -544,6 +542,21 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     }
     break;
   }
+  case MTH_ASSIGN:
+  {
+    if ( ex.numParams() < 1 )
+      return new BError( "Invalid parameter type" );
+
+    BObjectImp* param0 = ex.getParamImp( 0, BObjectType::OTPacket );
+
+    if ( !param0 )
+      return new BError( "Invalid parameter type" );
+
+    BPacket* other = static_cast<BPacket*>( param0 );
+    is_variable_length = other->is_variable_length;
+    buffer = other->buffer;
+    return new BLong( 1 );
+  }
   default:
     return nullptr;
   }
@@ -576,7 +589,7 @@ bool BPacket::SetSize( u16 newsize )
 {
   if ( !is_variable_length )
     return false;
-  // unsigned short oldsize = buffer.size();
+  newsize = std::max(newsize, 3_u16);
   buffer.resize( newsize );
   u16* sizeptr = reinterpret_cast<u16*>( &buffer[1] );
   *sizeptr = ctBEu16( newsize );
