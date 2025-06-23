@@ -463,8 +463,8 @@ bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Characte
   signed short max_dist_mod = wielder->max_attack_range_increase().sum();
   signed short min_dist = WEAPON_TMPL->minrange + min_dist_mod;
   signed short max_dist = WEAPON_TMPL->maxrange + max_dist_mod;
-  min_dist = std::max( min_dist, (short)0 );
-  max_dist = std::max( max_dist, (short)0 );
+  min_dist = std::max( min_dist, 0_s16 );
+  max_dist = std::max( max_dist, 0_s16 );
   min_dist = std::min( max_dist, min_dist );
   max_dist = std::max( max_dist, min_dist );
   INFO_PRINTLN_TRACE( 22 )

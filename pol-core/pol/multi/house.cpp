@@ -485,13 +485,13 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
     else if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
 
-    int multiid;
+    u16 multiid;
     BObjectImp* multiid_imp = ex.getParamImp( 0 );
 
     // If passing an integer, it's a multiid and NOT an objtype id
     if ( multiid_imp->isa( BObjectImp::OTLong ) )
     {
-      multiid = static_cast<BLong*>( multiid_imp )->value();
+      multiid = Clib::clamp_convert<u16>( static_cast<BLong*>( multiid_imp )->value() );
     }
     // If a string, get the multiid of the itemdesc of the name passed.
     else if ( multiid_imp->isa( BObjectImp::OTString ) )

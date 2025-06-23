@@ -42,8 +42,6 @@ static_assert( sizeof( s32 ) == 4, "size missmatch" );
 static_assert( sizeof( s64 ) == 8, "size missmatch" );
 
 // here's where Win32 land and Linux land differ:
-#ifdef __cplusplus
-
 #if defined( _WIN32 )
 static_assert( sizeof( wchar_t ) == 2, "size missmatch" );
 #elif defined( __GNUC__ )
@@ -52,4 +50,35 @@ static_assert( sizeof( wchar_t ) == 4, "size missmatch" );
 #error unknown size for wchar_t
 #endif
 
-#endif
+constexpr auto operator""_u8( unsigned long long v )
+{
+  return static_cast<u8>( v );
+}
+constexpr auto operator""_s8( unsigned long long v )
+{
+  return static_cast<s8>( v );
+}
+constexpr auto operator""_u16( unsigned long long v )
+{
+  return static_cast<u16>( v );
+}
+constexpr auto operator""_s16( unsigned long long v )
+{
+  return static_cast<s16>( v );
+}
+constexpr auto operator""_u32( unsigned long long v )
+{
+  return static_cast<u32>( v );
+}
+constexpr auto operator""_s32( unsigned long long v )
+{
+  return static_cast<s32>( v );
+}
+constexpr auto operator""_u64( unsigned long long v )
+{
+  return static_cast<u64>( v );
+}
+constexpr auto operator""_s64( unsigned long long v )
+{
+  return static_cast<s64>( v );
+}

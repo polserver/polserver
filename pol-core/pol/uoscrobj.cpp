@@ -3887,7 +3887,7 @@ Bscript::BObjectImp* UContainer::set_script_member_id_double( const int id, doub
   default:
     return nullptr;
   }
-  return new BLong( value );
+  return nullptr;
 }
 
 BObjectImp* UContainer::set_script_member( const char* membername, int value )

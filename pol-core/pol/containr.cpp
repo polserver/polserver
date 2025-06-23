@@ -156,8 +156,9 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
 
     if ( container != nullptr )
     {
-      int modded_diff = ( ( held_weight_ + weight_diff ) * held_weight_multiplier() ) -
-                        ( held_weight_ * held_weight_multiplier() );
+      int modded_diff =
+          Clib::clamp_convert<int>( ( ( held_weight_ + weight_diff ) * held_weight_multiplier() ) -
+                                    ( held_weight_ * held_weight_multiplier() ) );
       return container->can_add_bulk( 0, 0, modded_diff );
     }
     else
@@ -248,7 +249,8 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
 
 unsigned int UContainer::weight() const
 {
-  return Items::Item::weight() + held_weight_ * held_weight_multiplier();
+  return Clib::clamp_convert<u32>( Items::Item::weight() +
+                                   held_weight_ * held_weight_multiplier() );
 }
 
 unsigned int UContainer::item_count() const
