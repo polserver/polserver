@@ -338,7 +338,7 @@ void send_start( Network::Client* client )
 
   u8 char_slots = client->acct->expansion().getCharSlots( settingsManager.ssopt.features );
   // client always expects at least 5 chars
-  u8 char_count = std::max( char_slots, (u8)5u );
+  u8 char_count = std::max( char_slots, 5_u8 );
 
   Network::PktHelper::PacketOut<Network::PktOut_A9> msg;
   msg->offset += 2;

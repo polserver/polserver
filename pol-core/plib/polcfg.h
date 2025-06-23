@@ -63,7 +63,7 @@ struct PolConfig
   bool logfile_timestamp_everyline;
 
   unsigned short max_clients;
-  unsigned short character_slots;
+  unsigned char character_slots;
   unsigned short max_clients_bypass_cmdlevel;
   bool allow_multi_clients_per_account;
   bool display_unknown_packets;

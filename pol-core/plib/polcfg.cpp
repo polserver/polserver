@@ -131,7 +131,7 @@ void PolConfig::read( bool initial_load )
   report_critical_scripts = elem.remove_bool( "ReportCriticalScripts", true );
   report_missing_configs = elem.remove_bool( "ReportMissingConfigs", true );
   max_clients = elem.remove_ushort( "MaximumClients", 300 );
-  character_slots = elem.remove_ushort( "CharacterSlots", 5 );
+  character_slots = Clib::clamp_convert<u8>( elem.remove_ushort( "CharacterSlots", 5 ) );
   max_clients_bypass_cmdlevel = elem.remove_ushort( "MaximumClientsBypassCmdLevel", 1 );
   allow_multi_clients_per_account = elem.remove_bool( "AllowMultiClientsPerAccount", false );
   minidump_type = elem.remove_string( "MiniDumpType", "variable" );

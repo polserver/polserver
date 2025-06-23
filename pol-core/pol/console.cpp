@@ -188,8 +188,7 @@ void ConsoleCommand::exec_console_cmd( char ch )
   }
   if ( cmd->script == "[crash]" )
   {
-    int* p = (int*)17;
-    *p = 32;
+    std::abort();
     return;
   }
 
