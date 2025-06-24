@@ -3885,7 +3885,7 @@ Bscript::BObjectImp* UContainer::set_script_member_id_double( const int id, doub
     return new Double( held_weight_multiplier() );
   }
   default:
-    return nullptr;
+    break;
   }
   return nullptr;
 }

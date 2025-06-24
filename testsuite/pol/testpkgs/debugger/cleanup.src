@@ -1,0 +1,3 @@
+use os;
+// delay next teetscript until client is disconnected
+sleep( 2 );

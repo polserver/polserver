@@ -113,33 +113,43 @@ inline To clamp_convert( From v )
 {
   constexpr auto t_min = std::numeric_limits<To>::min();
   constexpr auto t_max = std::numeric_limits<To>::max();
+  typedef std::common_type_t<From, To> common;
   // If To's range is fully contained within From's range
   if constexpr ( std::is_signed<To>::value == std::is_signed<From>::value &&
                  t_min >= std::numeric_limits<From>::min() &&
                  t_max <= std::numeric_limits<From>::max() )
+  {
     return static_cast<To>(
         std::clamp( v, static_cast<From>( t_min ), static_cast<From>( t_max ) ) );
-
-  // Handle unsigned 64-bit special case
-  if constexpr ( std::is_same<To, u64>::value )
+  }
+  else if constexpr ( std::is_same<To, u64>::value )
+  {
+    // Handle unsigned 64-bit special case
     return v < 0 ? 0u : static_cast<u64>( v );
-  // Handle unsigned-to-signed 64-bit conversion
-  if constexpr ( std::is_same<To, s64>::value && std::is_same<From, u64>::value )
+  }
+  else if constexpr ( std::is_same<To, s64>::value && std::is_same<From, u64>::value )
+  {
+    // Handle unsigned-to-signed 64-bit conversion
     return v > static_cast<u64>( t_max ) ? static_cast<u64>( t_max ) : static_cast<s64>( v );
-
-  typedef std::common_type_t<From, To> common;
-  // Handle unsigned common type to signed
-  if constexpr ( std::is_unsigned<common>::value && std::is_signed<To>::value )
+  }
+  else if constexpr ( std::is_unsigned<common>::value && std::is_signed<To>::value )
+  {
+    // Handle unsigned common type to signed
     return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
                                         static_cast<common>( t_max ) ) );
-  // Handle signed to unsigned
-  if constexpr ( std::is_signed<From>::value && std::is_unsigned<To>::value )
+  }
+  else if constexpr ( std::is_signed<From>::value && std::is_unsigned<To>::value )
+  {
+    // Handle signed to unsigned
     return v <= 0 ? 0u
                   : static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( 0 ),
                                                  static_cast<common>( t_max ) ) );
-
-  // Default case for clamping
-  return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( t_min ),
-                                      static_cast<common>( t_max ) ) );
+  }
+  else
+  {
+    // Default case for clamping
+    return static_cast<To>( std::clamp( static_cast<common>( v ), static_cast<common>( t_min ),
+                                        static_cast<common>( t_max ) ) );
+  }
 }
 }  // namespace Pol::Clib

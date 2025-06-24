@@ -2,6 +2,7 @@
 #define POLSERVER_NODE_H
 
 #include <fmt/format.h>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <type_traits>
