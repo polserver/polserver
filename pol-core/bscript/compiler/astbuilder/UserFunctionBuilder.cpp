@@ -127,28 +127,24 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         // 1. The function has parameters.
         if ( auto param_list = func_decl->functionParameters()->functionParameterList() )
         {
+          if ( auto func_params = param_list->functionParameter(); !func_params.empty() )
           {
-            for ( auto param : param_list->functionParameter() )
+            std::string parameter_name = text( func_params.front()->IDENTIFIER() );
+
+            // 2. The first parameter is named `this`.
+            if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
             {
-              std::string parameter_name = text( param->IDENTIFIER() );
-
-              // 2. The first parameter is named `this`.
-              if ( Clib::caseInsensitiveEqual( parameter_name, "this" ) )
+              // 3. The function name is the same as the class name: constructor
+              if ( Clib::caseInsensitiveEqual( func_name, class_name ) )
               {
-                // 3. The function name is the same as the class name: constructor
-                if ( Clib::caseInsensitiveEqual( func_name, class_name ) )
-                {
-                  constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
-                                                                     true /* requires_ctor */ );
-                }
-                // 3b. Otherwise: method
-                else
-                {
-                  method_names.push_back( func_name );
-                }
+                constructor_link = std::make_unique<FunctionLink>( func_loc, class_name,
+                                                                   true /* requires_ctor */ );
               }
-
-              break;
+              // 3b. Otherwise: method
+              else
+              {
+                method_names.push_back( func_name );
+              }
             }
           }
         }
