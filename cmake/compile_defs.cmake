@@ -78,6 +78,7 @@ function(set_compile_flags target is_executable)
       /EHa # exception handling
       /W4
       /w45038
+      /utf-8
     >
     $<$<AND:$<BOOL:${GCOV}>,${linux}>:
       -g

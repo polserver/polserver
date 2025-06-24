@@ -2,7 +2,7 @@
 
 message("* libfmt")
 
-set(FMT_SOURCE_DIR "${POL_EXT_LIB_DIR}/fmt-10.2.0")
+set(FMT_SOURCE_DIR "${POL_EXT_LIB_DIR}/fmt-11.2.0")
 set(FMT_INSTALL_DIR "${FMT_SOURCE_DIR}/install")
 set(FMT_ARGS -DCMAKE_BUILD_TYPE=Release
    -DCMAKE_INSTALL_PREFIX=${FMT_INSTALL_DIR}
