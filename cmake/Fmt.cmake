@@ -1,8 +1,11 @@
-# https://github.com/fmtlib/fmt
+
 
 message("* libfmt")
 
-set(FMT_SOURCE_DIR "${POL_EXT_LIB_DIR}/fmt-11.2.0")
+set(FMT_REPO "https://github.com/fmtlib/fmt")
+set(FMT_TAG "11.2.0")
+
+set(FMT_SOURCE_DIR "${POL_EXT_LIB_DIR}/fmt-${FMT_TAG}")
 set(FMT_INSTALL_DIR "${FMT_SOURCE_DIR}/install")
 set(FMT_ARGS -DCMAKE_BUILD_TYPE=Release
    -DCMAKE_INSTALL_PREFIX=${FMT_INSTALL_DIR}
@@ -22,23 +25,30 @@ else()
   set(FMT_LIB "${FMT_INSTALL_DIR}/lib/fmt.lib")
 endif()
 
-ExternalProject_Add(libfmt_ext
-  SOURCE_DIR  ${FMT_SOURCE_DIR}
-  PREFIX fmt
-  LIST_SEPARATOR |
-  CMAKE_ARGS ${FMT_ARGS}
-  BINARY_DIR ${FMT_SOURCE_DIR}/build
-  BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
-  INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
+if (NOT EXISTS ${FMT_LIB})
+  ExternalProject_Add(libfmt_ext
+    GIT_REPOSITORY   ${FMT_REPO}
+    GIT_TAG          ${FMT_TAG}
+    GIT_SHALLOW      TRUE
+    SOURCE_DIR  ${FMT_SOURCE_DIR}
+    PREFIX fmt
+    LIST_SEPARATOR |
+    CMAKE_ARGS ${FMT_ARGS}
+    BUILD_IN_SOURCE 1
+    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
+    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
 
-  BUILD_BYPRODUCTS ${FMT_LIB}
-  LOG_DOWNLOAD 1
-  LOG_CONFIGURE 1
-  LOG_BUILD 1
-  LOG_INSTALL 1
-  LOG_OUTPUT_ON_FAILURE 1
-  EXCLUDE_FROM_ALL 1
-)
+    BUILD_BYPRODUCTS ${FMT_LIB}
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
+    LOG_OUTPUT_ON_FAILURE 1
+    EXCLUDE_FROM_ALL 1
+  )
+else()
+  message("  - already built")
+endif()
 
 # imported target to add include/lib dir and additional dependencies
 add_library(libfmt STATIC IMPORTED)

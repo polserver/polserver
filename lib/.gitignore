@@ -3,4 +3,5 @@ boost_*
 cppdap-*
 curl-*
 efsw-*
+fmt-*
 zlib-*
