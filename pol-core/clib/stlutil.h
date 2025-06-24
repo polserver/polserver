@@ -99,14 +99,15 @@ size_t _mapimp( const M& container )
       size += p.first.capacity() + p.second.capacity();
     return size;
   }
-  if constexpr ( std::is_same_v<K, std::string> )
+  else if constexpr ( std::is_same_v<K, std::string> )
   {
     size_t size = ( sizeof( V ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
     for ( const auto& p : container )
       size += p.first.capacity();
     return size;
   }
-  return ( sizeof( K ) + sizeof( V ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+  else
+    return ( sizeof( K ) + sizeof( V ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
 }
 template <typename M, class Func>
 size_t _mapimp( const M& container, Func f )
@@ -119,10 +120,13 @@ size_t _mapimp( const M& container, Func f )
       size += p.first.capacity() + f( p.second );
     return size;
   }
-  size_t size = ( sizeof( K ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
-  for ( const auto& p : container )
-    size += f( p.second );
-  return size;
+  else
+  {
+    size_t size = ( sizeof( K ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * container.size();
+    for ( const auto& p : container )
+      size += f( p.second );
+    return size;
+  }
 }
 }  // namespace
 
@@ -137,7 +141,8 @@ size_t memsize( const std::vector<T>& container )
     size += ( container.capacity() - container.size() ) * sizeof( T );
     return size;
   }
-  return 3 * sizeof( void* ) + container.capacity() * sizeof( T );
+  else
+    return 3 * sizeof( void* ) + container.capacity() * sizeof( T );
 }
 template <typename T, class Func>
 size_t memsize( const std::vector<T>& container, Func f )
@@ -159,7 +164,8 @@ size_t memsize( const std::set<T>& container )
       size += t.capacity() + 3 * sizeof( void* );
     return size;
   }
-  return 3 * sizeof( void* ) + container.size() * ( sizeof( T ) + 3 * sizeof( void* ) );
+  else
+    return 3 * sizeof( void* ) + container.size() * ( sizeof( T ) + 3 * sizeof( void* ) );
 }
 
 template <typename K, typename V, typename C>
