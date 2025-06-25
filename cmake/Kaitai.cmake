@@ -25,7 +25,7 @@ else()
     )
 endif()
 
-if(NOT EXITS "${KAITAI_LIB}")
+if(NOT EXISTS "${KAITAI_LIB}")
   ExternalProject_Add(libkaitai_ext
     GIT_REPOSITORY   ${KAITAI_REPO}
     GIT_TAG          ${KAITAI_TAG}
