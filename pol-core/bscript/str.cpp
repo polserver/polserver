@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <cwctype>
 #include <string>
-#include <utf8/utf8.h>
+#include <utf8cpp/utf8.h>
 
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
@@ -1186,6 +1186,7 @@ std::string String::fromUTF16( const unsigned short* code, size_t len, bool big_
     };
     u16 operator*() { return cfBEu16( *ptr ); };
     bool operator!=( const BigEndianIterator& o ) { return ptr != o.ptr; };
+    bool operator==( const BigEndianIterator& o ) { return ptr == o.ptr; };
   };
   if ( big_endian )
     utf8::unchecked::utf16to8( BigEndianIterator( code ), BigEndianIterator( code + short_len ),

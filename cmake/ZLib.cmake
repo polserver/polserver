@@ -2,7 +2,9 @@
 # linux: interface to z
 if (${windows})
   message("* libz")
-  set(ZLIB_SOURCE_DIR "${POL_EXT_LIB_DIR}/zlib-1.3")
+  set(ZLIB_REPO "https://github.com/madler/zlib")
+  set(ZLIB_TAG "v1.3.1")
+  set(ZLIB_SOURCE_DIR "${POL_EXT_LIB_DIR}/zlib-${ZLIB_TAG}")
 
   set(ZLIB_INSTALL_DIR "${ZLIB_SOURCE_DIR}/builds")
   set(ZLIB_LIB "${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib")
@@ -10,7 +12,9 @@ if (${windows})
 
   if(NOT EXISTS "${ZLIB_LIB}")
     ExternalProject_Add(libz_ext
-      URL "${ZLIB_SOURCE_DIR}/../zlib13.zip"
+      GIT_REPOSITORY   ${ZLIB_REPO}
+      GIT_TAG          ${ZLIB_TAG}
+      GIT_SHALLOW      TRUE
       SOURCE_DIR  "${ZLIB_SOURCE_DIR}"
       PREFIX z
       LIST_SEPARATOR |
