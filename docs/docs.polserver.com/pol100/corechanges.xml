@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-23-2025</datemodified>
+		<datemodified>06-25-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>06-25-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">servspecopt.cfg MasterCanAccessNPCsBackpack 0/1 default 0<br/>
+If enabled, the core will allow a master to access (ie. use, move, target) his followers' backpack and the items within it.</change>
+		</entry>
 		<entry>
 			<date>06-23-2025</date>
 			<author>Kevin:</author>
