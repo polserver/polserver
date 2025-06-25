@@ -160,6 +160,8 @@ void ServSpecOpt::read_servspecopt()
       elem.remove_ushort( "NpcMinimumMovementDelay", 250 );
 
   settingsManager.ssopt.master_can_clothe_npcs = elem.remove_bool( "MasterCanClotheNPCs", false );
+  settingsManager.ssopt.master_can_access_npcs_backpack =
+      elem.remove_bool( "MasterCanAccessNPCsBackpack", false );
 
   ssopt_parse_totalstats( elem );
 
