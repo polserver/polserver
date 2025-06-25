@@ -123,6 +123,7 @@ endif()
 prepare_build()
 cmake_fake_target()
 
+include(cmake/ZLib.cmake) # Curl depends on it
 include(cmake/Antlr.cmake)
 include(cmake/Boost.cmake)
 include(cmake/Benchmark.cmake)
@@ -138,7 +139,6 @@ include(cmake/StackWalker.cmake)
 include(cmake/SQL.cmake)
 include(cmake/TinyXML.cmake)
 include(cmake/UTF8.cmake)
-include(cmake/ZLib.cmake)
 
 add_subdirectory(docs)
 add_subdirectory(pol-core)
