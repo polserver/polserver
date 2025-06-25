@@ -56,8 +56,8 @@ jobs:
       - name: Cache curl
         uses: actions/cache@v4
         with:
-          path: lib/curl-8.2.1
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1-2
+          path: lib/curl-8_14_1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.14.1-1
       - name: Cache antlr
         uses: actions/cache@v4
         with:
