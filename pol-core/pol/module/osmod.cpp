@@ -190,15 +190,33 @@ BObjectImp* OSExecutorModule::mf_Wait_For_Event()
   }
   else
   {
-    int nsecs = exec.paramAsLong( 0 );
-    if ( nsecs )
+    auto param = exec.getParamImp( 0 );
+    double nsecs = 0;
+
+    if ( param->isa( BObjectImp::OTLong ) )
     {
+      nsecs = static_cast<BLong*>( param )->value();
+      if ( !nsecs )
+        return new BLong( 0 );
       if ( nsecs < 1 )
         nsecs = 1;
-      wait_type = Core::WAIT_TYPE::WAIT_EVENT;
-      blocked_ = true;
-      sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
     }
+    else if ( param->isa( BObjectImp::OTDouble ) )
+    {
+      nsecs = static_cast<Double*>( param )->value();
+      if ( !nsecs )
+        return new BLong( 0 );
+      if ( nsecs < 0.001 )
+        nsecs = 0.001;
+    }
+    else
+    {
+      return new BLong( 0 );
+    }
+
+    wait_type = Core::WAIT_TYPE::WAIT_EVENT;
+    blocked_ = true;
+    sleep_until_clock_ = Core::polclock() + static_cast<u32>( nsecs * Core::POLCLOCKS_PER_SEC );
     return new BLong( 0 );
   }
 }
