@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-25-2025</datemodified>
+		<datemodified>06-28-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>06-28-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">os::Wait_For_Event now supports doubles for fractional seconds, eg. wait_for_event( 0.25 ) to wait 0.25 seconds.</change>
+		</entry>
 		<entry>
 			<date>06-25-2025</date>
 			<author>Kevin:</author>
