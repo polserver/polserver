@@ -68,6 +68,7 @@
 #include "lightlvl.h"
 #include "mobile/charactr.h"
 #include "mobile/corpse.h"
+#include "mobile/npc.h"
 #include "multi/multi.h"
 #include "multi/multidef.h"
 #include "network/cgdata.h"
@@ -956,6 +957,27 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
         item = ( (const UContainer*)_item )->find( serial );
         if ( item != nullptr )
           return item;
+      }
+    }
+  }
+
+  if ( settingsManager.ssopt.master_can_access_npcs_backpack )
+  {
+    item = system_find_item( serial );
+    if ( item )
+    {
+      // If the item is owned by by an NPC ...
+      if ( auto owner = item->GetCharacterOwner(); owner && owner->isa( UOBJ_CLASS::CLASS_NPC ) )
+      {
+        auto npc = static_cast<Mobile::NPC*>( owner );
+
+        // ... and chr is npc's master, and the item is either the backpack or something inside the
+        // backpack (ie. not equipped) ...
+        if ( npc->master() == chr && ( npc->backpack() == item || !npc->is_equipped( item ) ) )
+        {
+          // ... the item is legal.
+          return item;
+        }
       }
     }
   }

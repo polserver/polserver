@@ -130,6 +130,7 @@ struct ServSpecOpt
 
   unsigned short npc_minimum_movement_delay;
   bool master_can_clothe_npcs;
+  bool master_can_access_npcs_backpack;
 
   static void read_servspecopt();
   static void ssopt_parse_totalstats( Clib::ConfigElem& elem );
