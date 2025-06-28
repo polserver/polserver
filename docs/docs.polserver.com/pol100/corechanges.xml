@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-25-2025</datemodified>
+		<datemodified>06-28-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>06-28-2025</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Players can now drop an item directly onto an NPC's backpack from the NPC's paperdoll or directly onto a container within the backpack<br/>
+when servspecopt.cfg MasterCanAccessNPCsBackpack is enabled.</change>
+		</entry>
 		<entry>
 			<date>06-25-2025</date>
 			<author>Kevin:</author>
