@@ -886,6 +886,39 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
     }
   }
 
+  if ( settingsManager.ssopt.master_can_access_npcs_backpack )
+  {
+    auto item = system_find_item( serial );
+    if ( item )
+    {
+      // If the item is owned by by an NPC ...
+      if ( auto owner = item->GetCharacterOwner(); owner && owner->isa( UOBJ_CLASS::CLASS_NPC ) )
+      {
+        auto npc = static_cast<Mobile::NPC*>( owner );
+
+        // ... and chr is npc's master ...
+        if ( npc->master() == chr )
+        {
+          // ... and the npc has a backpack ...
+          cont = npc->backpack();
+          if ( cont )
+          {
+            // ... it is legal if the serial is the NPC's backpack.
+            if ( serial == cont->serial )
+              return cont;
+
+            // ... it is legal if the serial is a container inside the NPC's backpack.
+            cont = cont->find_container( serial );
+            if ( cont )
+              return cont;
+
+            cont = nullptr;
+          }
+        }
+      }
+    }
+  }
+
   Item* item =
       chr->search_remote_containers( serial, nullptr /* don't care if it's a remote container */ );
   if ( item != nullptr && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
