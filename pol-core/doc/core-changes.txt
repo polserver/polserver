@@ -1,6 +1,9 @@
 -- POL100.2.0 --
 06-28-2025 Kevin:
     Added: os::Wait_For_Event now supports doubles for fractional seconds, eg. wait_for_event( 0.25 ) to wait 0.25 seconds.
+06-28-2025 Kevin:
+    Fixed: Players can now drop an item directly onto an NPC's backpack from the NPC's paperdoll or directly onto a container within the backpack
+           when servspecopt.cfg MasterCanAccessNPCsBackpack is enabled.
 06-25-2025 Kevin:
     Added: servspecopt.cfg MasterCanAccessNPCsBackpack 0/1 default 0
            If enabled, the core will allow a master to access (ie. use, move, target) his followers' backpack and the items within it.
