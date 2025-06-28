@@ -5,7 +5,7 @@ set(UTF_TAG "v4.0.6")
 set(UTF_SOURCE_DIR "${POL_EXT_LIB_DIR}/utf8-${UTF_TAG}")
 set(UTF_INSTALL_DIR "${UTF_SOURCE_DIR}/install")
 
-if (NOT EXISTS "${UTF_INSTALL_DIR}")
+if (NOT EXISTS "${UTF_INSTALL_DIR}/include/utf8cpp")
   ExternalProject_Add(libutf8_ext
     GIT_REPOSITORY   ${UTF_REPO}
     GIT_TAG          ${UTF_TAG}
