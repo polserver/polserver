@@ -10,6 +10,7 @@
 #include "bscript/bstruct.h"
 #include "bscript/dict.h"
 #include "bscript/impstr.h"
+#include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/network/sckutil.h"
 #include "clib/rawtypes.h"
@@ -193,21 +194,21 @@ BObjectImp* OSExecutorModule::mf_Wait_For_Event()
     auto param = exec.getParamImp( 0 );
     double nsecs = 0;
 
-    if ( param->isa( BObjectImp::OTLong ) )
+    if ( auto* long_param = impptrIf<BLong>( param ) )
     {
-      nsecs = static_cast<BLong*>( param )->value();
+      nsecs = long_param->value();
       if ( !nsecs )
         return new BLong( 0 );
       if ( nsecs < 1 )
         nsecs = 1;
     }
-    else if ( param->isa( BObjectImp::OTDouble ) )
+    else if ( auto* double_param = impptrIf<Double>( param ) )
     {
-      nsecs = static_cast<Double*>( param )->value();
+      nsecs = double_param->value();
       if ( !nsecs )
         return new BLong( 0 );
-      if ( nsecs < 0.001 )
-        nsecs = 0.001;
+      if ( nsecs < 0.01 )
+        nsecs = 0.01;
     }
     else
     {
@@ -216,7 +217,8 @@ BObjectImp* OSExecutorModule::mf_Wait_For_Event()
 
     wait_type = Core::WAIT_TYPE::WAIT_EVENT;
     blocked_ = true;
-    sleep_until_clock_ = Core::polclock() + static_cast<u32>( nsecs * Core::POLCLOCKS_PER_SEC );
+    sleep_until_clock_ =
+        Core::polclock() + Clib::clamp_convert<u32>( nsecs * Core::POLCLOCKS_PER_SEC );
     return new BLong( 0 );
   }
 }

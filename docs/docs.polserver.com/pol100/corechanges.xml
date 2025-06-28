@@ -8,7 +8,8 @@
 		<entry>
 			<date>06-28-2025</date>
 			<author>Kevin:</author>
-			<change type="Added">os::Wait_For_Event now supports doubles for fractional seconds, eg. wait_for_event( 0.25 ) to wait 0.25 seconds.</change>
+			<change type="Added">os::Wait_For_Event now supports doubles for fractional seconds, eg. wait_for_event( 0.25 ) to wait 0.25 seconds, with a resolution<br/>
+of 10ms (ie. 0.01).</change>
 		</entry>
 		<entry>
 			<date>06-28-2025</date>
