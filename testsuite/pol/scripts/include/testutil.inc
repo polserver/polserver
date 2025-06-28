@@ -146,6 +146,15 @@ class ResourceManager()
     return resource;
   endfunction
 
+  function CreateItemInContainer( this, container, objtype, amount := 1, x := -1, y := -1 )
+    var resource := uo::CreateItemInContainer( container, objtype, amount, x, y );
+    if ( !resource )
+      return resource;
+    endif
+    this.resources.append( array{ resource, @DestroyItemResource } );
+    return resource;
+  endfunction
+
   function Start_Script( this, script_name, byref param := 0 )
     var resource := os::Start_Script( script_name, param );
     if ( !resource )

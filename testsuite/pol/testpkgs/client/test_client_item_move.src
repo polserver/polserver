@@ -1028,7 +1028,8 @@ exported function master_add_to_npc_pack_ok( resources )
   return 1;
 endfunction
 
-// Dropping directly onto NPC's backpack succeeds with MasterCanAccessNPCsBackpack=1
+// Dropping directly onto a container that is inside NPC's backpack succeeds
+// with MasterCanAccessNPCsBackpack=1
 exported function master_add_to_npc_pack_cont_ok( resources )
   var res := resources.UpdateConfiguration( struct{ MasterCanAccessNPCsBackpack := 1 } );
   if ( !res )
@@ -1040,7 +1041,7 @@ exported function master_add_to_npc_pack_cont_ok( resources )
     return item;
   endif
 
-  var backpack := item.character_owner.backpack;
+  var subcont_backpack := resources.CreateItemInContainer( item.character_owner.backpack, 0xE75 );
 
   var item_to_add := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xeed, 1, char.realm );
 
@@ -1048,7 +1049,7 @@ exported function master_add_to_npc_pack_cont_ok( resources )
     return res;
   endif
 
-  if ( !drop_item_succeeded( res, item_to_add.serial, -1, -1, -1, backpack.serial ) )
+  if ( !drop_item_succeeded( res, item_to_add.serial, -1, -1, -1, subcont_backpack.serial ) )
     return res;
   endif
 
