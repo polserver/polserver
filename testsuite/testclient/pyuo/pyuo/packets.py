@@ -179,6 +179,14 @@ class Packet():
       raise ValueError("UShort {} out of range".format(val))
     self.buf += struct.pack('>H', val)
 
+  def esshort(self, val):
+    ''' Adds a signed short to the packet '''
+    if not isinstance(val, int):
+      raise TypeError("Expected int, got {}".format(type(val)))
+    if val < -32767 or val > 32767:
+      raise ValueError("Short {} out of range".format(val))
+    self.buf += struct.pack('>h', val)
+
   def euint(self, val):
     ''' Adds and unsigned int to the packet '''
     if not isinstance(val, int):
@@ -346,17 +354,17 @@ class DropItemPacket(Packet):
 
   def encodeChild(self):
     self.euint(self.serial)
-    self.eushort(self.x)
-    self.eushort(self.y)
-    self.euchar(self.z)
+    self.esshort(self.x)
+    self.esshort(self.y)
+    self.eschar(self.z)
     self.euchar(0) #  Backpack grid index
     self.euint(self.dropped_on_serial)
 
   def decodeChild(self):
     self.serial = self.duint()
-    self.x = self.dushort()
-    self.y = self.dushort()
-    self.z = self.duchar()
+    self.x = self.dsshort()
+    self.y = self.dsshort()
+    self.z = self.dschar()
     self.duchar() # Backpack grid index
     self.dropped_on_serial = self.duint()
 
