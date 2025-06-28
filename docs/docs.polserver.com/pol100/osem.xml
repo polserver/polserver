@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>10/17/2023</datemodified>
+    <datemodified>06/28/2025</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -81,9 +81,9 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 
 <function name="Wait_For_Event">
     <prototype>Wait_For_Event( num_seconds_timeout )</prototype>
-    <parameter name="num_seconds_timeout" value="Integer" />
+    <parameter name="num_seconds_timeout" value="Integer/Double" />
     <explain>The primary access to a script's event queue. If there is an event waiting, the function immediately returns with the event (could be a string, int, struct, etc).</explain>
-    <explain>If no event is waiting, the script sleeps for num_seconds_timeout or until a new event arrives. If the timeout is reached, the function returns 0.</explain>
+    <explain>If no event is waiting, the script sleeps for num_seconds_timeout or until a new event arrives, with a resolution of 10ms (ie. a <code>num_seconds_timeout</code> of <code>0.01</code>). If the timeout is reached, the function returns 0.</explain>
     <explain>if timeout is 0, returns immediately</explain>
     <return>object on event recv, 0 on timeout</return>
 </function>

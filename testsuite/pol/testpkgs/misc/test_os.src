@@ -1,0 +1,58 @@
+use os;
+include "testutil";
+
+program test_env()
+  return 1;
+endprogram
+
+exported function wait_double_zero()
+  Clear_Event_Queue();
+  var expected := 0;
+  var actual := wait_for_event( 0.0 );
+  return ret_error_not_equal( actual, expected, $"wait_for_event( 0.0 ) returned {actual}, expecting {expected}" );
+endfunction
+
+exported function wait_long_zero()
+  Clear_Event_Queue();
+  var expected := 0;
+  var actual := wait_for_event( 0 );
+  return ret_error_not_equal( actual, expected, $"wait_for_event( 0 ) returned {actual}, expecting {expected}" );
+endfunction
+
+exported function wait_string()
+  Clear_Event_Queue();
+  var expected := 0;
+  var actual := wait_for_event( "foo" );
+  return ret_error_not_equal( actual, expected, $"wait_for_event( \"foo\" ) returned {actual}, expecting {expected}" );
+endfunction
+
+exported function wait_event_already_exists()
+  Clear_Event_Queue();
+  var expected := 4321;
+  GetProcess().sendevent( expected );
+  var actual := wait_for_event( 0 );
+  return ret_error_not_equal( actual, expected, $"wait_for_event( 0 ) returned {actual}, expecting {expected}" );
+endfunction
+
+exported function wait_double_nonzero()
+  Clear_Event_Queue();
+  var expected := 1234;
+  var script := start_script( ":testmisc:sendevent", struct{ script := GetProcess(),
+                                                             delay := 10, value := expected } );
+  var actual := wait_for_event( 0.4 );
+  script.kill(); // Just in case...
+  return ret_error_not_equal( actual, expected, $"wait_for_event( 0.4 ) returned {actual}, expecting {expected}" );
+endfunction
+
+exported function wait_double_timeout()
+  Clear_Event_Queue();
+  var time_one := ReadGameClock();
+  wait_for_event( 0.0001 );
+  var time_two := ReadGameClock();
+  wait_for_event( 0.0001 );
+  var time_three := ReadGameClock();
+
+  // There might be a +1 in game clock, but at least two of the ReadGameClock()s
+  // will be equal since the total wait is less than 1s.
+  return time_one == time_two || time_two == time_three;
+endfunction

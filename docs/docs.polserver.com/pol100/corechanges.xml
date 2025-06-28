@@ -8,6 +8,12 @@
 		<entry>
 			<date>06-28-2025</date>
 			<author>Kevin:</author>
+			<change type="Added">os::Wait_For_Event now supports doubles for fractional seconds, eg. wait_for_event( 0.25 ) to wait 0.25 seconds, with a resolution<br/>
+of 10ms (ie. 0.01).</change>
+		</entry>
+		<entry>
+			<date>06-28-2025</date>
+			<author>Kevin:</author>
 			<change type="Fixed">Players can now drop an item directly onto an NPC's backpack from the NPC's paperdoll or directly onto a container within the backpack<br/>
 when servspecopt.cfg MasterCanAccessNPCsBackpack is enabled.</change>
 		</entry>

@@ -1,0 +1,8 @@
+use os;
+include "testutil";
+
+program sendevent( args )
+  var { script, delay, value } := args;
+  Sleepms( delay );
+  script.sendevent( value );
+endprogram
