@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-28-2025</datemodified>
+		<datemodified>06-30-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>06-30-2025</date>
+			<author>Kevin:</author>
+			<change type="Fixed">When a player unequips an item from another mobile and the movement of the item fails (eg. dropping item too far away), the item will be<br/>
+now be re-equipped on the same mobile and not the player.</change>
+		</entry>
 		<entry>
 			<date>06-28-2025</date>
 			<author>Kevin:</author>
