@@ -28,7 +28,7 @@ struct PKTIN_07;
 enum class GOTTEN_ITEM_TYPE : u8
 {
   GOTTEN_ITEM_ON_GROUND,
-  GOTTEN_ITEM_EQUIPPED_ON_SELF,
+  GOTTEN_ITEM_EQUIPPED,
   GOTTEN_ITEM_IN_CONTAINER
 };
 class GottenItem
@@ -49,7 +49,7 @@ private:
   // Use string realm instead of Pos4d, as realm could be deleted when handling
   // the undo
   std::string _realm;
-  u32 _cnt_serial = 0;
+  u32 _owner_serial = 0;
   u8 _slot_index = 0;
   GOTTEN_ITEM_TYPE _source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
 };

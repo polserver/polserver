@@ -156,11 +156,14 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   if ( orig_container != nullptr )
   {
     if ( IsCharacter( orig_container->serial ) )
-      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF;
+    {
+      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED;
+      gotten_info._owner_serial = orig_container->serial;
+    }
     else
     {
       gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
-      gotten_info._cnt_serial = orig_container->serial;
+      gotten_info._owner_serial = orig_container->serial;
     }
     gotten_info._slot_index = item->slot_index();
     item->extricate();
@@ -244,10 +247,11 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     // to the client.
     send_full_statmsg( client, client->chr );
   }
-  else if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF )
+  else if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED )
   {
     // Item was equipped, let's send the full update for ar and statmsg.
-    client->chr->refresh_ar();
+    if ( auto chr = system_find_mobile( gotten_info._owner_serial ) )
+      chr->refresh_ar();
   }
   else if ( my_owner->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
@@ -263,7 +267,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
 
 GottenItem::GottenItem( Items::Item* item, const Core::Pos4d& pos )
-    : _item( item ), _pos( pos.xyz() ), _realm( pos.realm()->name() ), _cnt_serial( 0 )
+    : _item( item ), _pos( pos.xyz() ), _realm( pos.realm()->name() ), _owner_serial( 0 )
 {
 }
 /*
@@ -288,21 +292,26 @@ void GottenItem::undo( Mobile::Character* chr )
   _item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
   _item->gotten_by( nullptr );
   Realms::Realm* realm = nullptr;
-  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF )
+  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED )
   {
-    if ( chr->equippable( _item ) && _item->check_equiptest_scripts( chr ) &&
-         _item->check_equip_script( chr, false ) )
+    if ( auto equipped_chr = system_find_mobile( _owner_serial ) )
     {
-      if ( _item->orphan() )
+      if ( equipped_chr->equippable( _item ) && _item->check_equiptest_scripts( equipped_chr ) &&
+           _item->check_equip_script( equipped_chr, false ) )
+      {
+        if ( _item->orphan() )
+          return;
+        // is it possible the character doesn't exist? no, it's my character doing the undoing.
+        equipped_chr->equip( _item );
+        send_wornitem_to_inrange( equipped_chr, _item );
         return;
-      // is it possible the character doesn't exist? no, it's my character doing the undoing.
-      chr->equip( _item );
-      send_wornitem_to_inrange( chr, _item );
-      return;
+      }
     }
+
     if ( _item->orphan() )
       return;
     _source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
+    _owner_serial = 0;
     _pos = chr->pos().xyz();
     realm = chr->realm();
   }
@@ -324,7 +333,7 @@ void GottenItem::undo( Mobile::Character* chr )
     if ( !container &&
          ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
     {
-      auto* orig_obj = system_find_object( _cnt_serial );
+      auto* orig_obj = system_find_object( _owner_serial );
       if ( orig_obj && orig_obj->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         if ( _item->no_drop() || chr->can_moveanydist() ||
