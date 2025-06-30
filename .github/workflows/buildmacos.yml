@@ -47,6 +47,7 @@ jobs:
         shell: bash
         run: |
           set -e
+          pip install aiosmtpd
           brew bundle --file=bin-build/Brewfile
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `brew-universalize`.
           ./bin-build/brew-universalize mysql-client mysql-connector-c++ openssl@3 libssh2
