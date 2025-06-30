@@ -1,0 +1,5 @@
+program auxservice( connection, script )
+  connection.transmit( "SHUTDOWN\n" );
+  script.SendEvent( 1 );
+  connection := uninit;
+endprogram

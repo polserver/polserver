@@ -1,0 +1,12 @@
+use os;
+include "testutil";
+
+program test_env()
+  return 1;
+endprogram
+
+exported function test_email()
+  var res := SendEmail( from := "from@polserver.com", recipient := "to@polserver.com",
+                        subject := "Test Subject", body := "This is the body!" );
+  return res;
+endfunction

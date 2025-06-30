@@ -208,6 +208,14 @@ if (${Python3_FOUND})
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
     )
     set_tests_properties(ecompile_watch_test PROPERTIES FIXTURES_REQUIRED shard)
+
+    add_test(NAME generate_certificate
+    COMMAND openssl
+      req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=localhost"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+    )
+    set_tests_properties(generate_certificate PROPERTIES FIXTURES_REQUIRED shard)
+    set_tests_properties(generate_certificate PROPERTIES FIXTURES_SETUP certificate)
 else()
   message(" - core test without testclient python3 not found")
   add_test(NAME shard_test_1
@@ -215,9 +223,9 @@ else()
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
 endif()
-set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
+set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile;certificate")
 # needed for test_env
-set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND}")
+set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND};POLCORE_TESTEMAIL=${Python3_FOUND}")
 set_tests_properties(shard_test_1 PROPERTIES FIXTURES_SETUP shard_test)
 
 # second test run

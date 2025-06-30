@@ -1,0 +1,9 @@
+use os;
+
+var conn := OpenConnection( "127.0.0.1", 1025, "shutdown_smtpd",
+                            params := GetProcess(),
+                            assume_string := 1, keep_connection := 0, ignore_line_breaks := 1 );
+
+var ev := os::wait_for_event( 5 );
+
+print( $"shutdown sent: {ev}" );
