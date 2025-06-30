@@ -109,3 +109,5 @@ const HTTPREQUEST_EXTENDED_RESPONSE := 0x0001; // return Dictionary with various
 LoadExportedScript( name, args := {} );
 
 GetEnvironmentVariable( name := "" );
+
+SendEmail( from, recipient, subject, body, bcc := 0, options := 0 );

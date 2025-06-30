@@ -7,6 +7,7 @@
 #include "../party_cfg.h"
 #include "../polvar.h"
 #include "../repsys_cfg.h"
+#include "../email_cfg.h"
 #include "../ssopt.h"
 #include "../watch.h"
 
@@ -38,6 +39,7 @@ public:
   MovementCost movecost_running_mounted;
 
   RepSys_Cfg repsys_cfg;
+  Email_Cfg email_cfg;
 };
 
 extern SettingsManager settingsManager;

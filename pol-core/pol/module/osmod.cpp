@@ -18,6 +18,7 @@
 #include "clib/stlutil.h"
 #include "clib/threadhelp.h"
 #include "clib/weakptr.h"
+#include "globals/settings.h"
 #include "plib/systemstate.h"
 
 #include "../exscrobj.h"
@@ -1398,6 +1399,190 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
       return new BError( "Environment variable not found" );
     return new String( env_val, String::Tainted::YES );
   }
+}
+
+BObjectImp* OSExecutorModule::mf_SendEmail()
+{
+  if ( Core::settingsManager.email_cfg.url.empty() )
+    return new BError( "Email settings are not configured" );
+
+  Core::UOExecutor& this_uoexec = uoexec();
+
+  if ( this_uoexec.pChild == nullptr )
+  {
+    const String *from, *subject, *body;
+    BObjectImp *recipient, *bcc, *options;
+
+    if ( getStringParam( 0, from ) && getParamImp( 1, recipient ) && getStringParam( 2, subject ) &&
+         getStringParam( 3, body ) && getParamImp( 4, bcc ) && getParamImp( 5, options ) )
+    {
+      if ( !this_uoexec.suspend() )
+      {
+        DEBUGLOGLN(
+            "Script Error in '{}' PC={}: \n"
+            "\tThe execution of this script can't be blocked!",
+            this_uoexec.scriptname(), this_uoexec.PC );
+        return new Bscript::BError( "Script can't be blocked" );
+      }
+
+      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
+
+      std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
+      CURL* curl = curl_sp.get();
+      if ( curl )
+      {
+        curl_slist* headers_slist = nullptr;
+        curl_slist* recipients_slist = nullptr;
+        curl_mime* mime = nullptr;
+        std::string to_header_value;
+
+        curl_easy_setopt( curl, CURLOPT_URL, Core::settingsManager.email_cfg.url.data() );
+        if ( !Core::settingsManager.email_cfg.username.empty() )
+          curl_easy_setopt( curl, CURLOPT_USERNAME,
+                            Core::settingsManager.email_cfg.username.c_str() );
+
+        if ( !Core::settingsManager.email_cfg.password.empty() )
+          curl_easy_setopt( curl, CURLOPT_PASSWORD,
+                            Core::settingsManager.email_cfg.password.c_str() );
+
+        if ( Core::settingsManager.email_cfg.use_tls )
+          curl_easy_setopt( curl, CURLOPT_USE_SSL, CURLUSESSL_ALL );
+
+        if ( !Core::settingsManager.email_cfg.ca_file.empty() )
+          curl_easy_setopt( curl, CURLOPT_CAINFO, Core::settingsManager.email_cfg.ca_file.c_str() );
+
+        curl_easy_setopt( curl, CURLOPT_MAIL_FROM, from->data() );
+
+        auto handle_recipients = [&]( BObjectImp* string_or_array, bool is_bcc ) -> BObjectImp*
+        {
+          // The `to` or `bcc` can be falsey to specify no recipient for this field.
+          if ( !string_or_array->isTrue() )
+            return nullptr;
+
+          if ( auto* recipient_string = impptrIf<String>( string_or_array ) )
+          {
+            recipients_slist = curl_slist_append( recipients_slist, recipient_string->data() );
+            if ( !to_header_value.empty() )
+              to_header_value += ", ";
+
+            to_header_value += recipient_string->data();
+          }
+          else if ( auto* recipient_array = impptrIf<ObjArray>( string_or_array ) )
+          {
+            for ( const auto& elem : recipient_array->ref_arr )
+            {
+              if ( auto* this_recipient = elem->impptr_if<String>() )
+              {
+                // Bcc is not added to the header, and only included in CURLOPT_MAIL_RCPT
+                if ( !is_bcc )
+                {
+                  if ( !to_header_value.empty() )
+                    to_header_value += ", ";
+
+                  to_header_value += this_recipient->data();
+                }
+
+                recipients_slist = curl_slist_append( recipients_slist, recipient_string->data() );
+              }
+              else
+              {
+                return new BError( "Invalid recipient type in array" );
+              }
+            }
+          }
+          else
+          {
+            return new BError( "Invalid recipient type" );
+          }
+
+          return nullptr;
+        };
+
+        if ( auto* recipient_to_error =
+                 handle_recipients( recipient, false ) )  // Handle To recipients
+        {
+          curl_slist_free_all( recipients_slist );
+          return recipient_to_error;
+        }
+        if ( auto* recipient_bcc_error = handle_recipients( bcc, true ) )  // Handle Bcc recipients
+        {
+          curl_slist_free_all( recipients_slist );
+          return recipient_bcc_error;
+        }
+
+        curl_easy_setopt( curl, CURLOPT_MAIL_RCPT, recipients_slist );
+
+        auto get_date_header = []
+        {
+          char buffer[100];
+          std::time_t t = std::time( nullptr );
+          std::tm* tm_utc = std::gmtime( &t );
+          std::strftime( buffer, sizeof( buffer ), "Date: %a, %d %b %Y %H:%M:%S +0000", tm_utc );
+          return std::string( buffer );
+        };
+
+        std::vector<std::string> email_headers{ get_date_header(), "To: " + to_header_value,
+                                                "From: " + from->value(),
+                                                "Subject: " + subject->value() };
+
+        for ( const auto& header : email_headers )
+          headers_slist = curl_slist_append( headers_slist, header.c_str() );
+
+        curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers_slist );
+
+        mime = curl_mime_init( curl );
+
+        curl_mimepart* part = curl_mime_addpart( mime );
+        curl_mime_data( part, body->data(), CURL_ZERO_TERMINATED );
+        curl_mime_type( part, "text/plain" );
+
+        curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime );
+        curl_easy_setopt( curl, CURLOPT_VERBOSE, 1L );
+
+        Core::networkManager.auxthreadpool->push(
+            [uoexec_w, curl_sp, recipients_slist, headers_slist, mime]()
+            {
+              CURL* curl = curl_sp.get();
+
+              auto res = curl_easy_perform( curl );
+              curl_slist_free_all( recipients_slist );
+              curl_slist_free_all( headers_slist );
+              curl_mime_free( mime );
+
+              {
+                Core::PolLock lck;
+
+                if ( !uoexec_w.exists() )
+                {
+                  DEBUGLOGLN( "SendEmail Script has been destroyed" );
+                  return;
+                }
+                if ( res != CURLE_OK )
+                  uoexec_w.get_weakptr()->ValueStack.back().set(
+                      new BObject( new BError( curl_easy_strerror( res ) ) ) );
+                else
+                  uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
+
+                uoexec_w.get_weakptr()->revive();
+              }
+            }
+
+            /* always cleanup */
+            // curl_easy_cleanup() is performed when the shared pointer deallocates
+        );
+      }
+      else
+      {
+        return new BError( "curl_easy_init() failed" );
+      }
+    }
+    else
+    {
+      return new BError( "Invalid parameter type" );
+    }
+  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 size_t OSExecutorModule::sizeEstimate() const
