@@ -104,7 +104,7 @@ jobs:
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install Dependencies (Windows)
-        if: matrix.config.os == 'windows-latest'
+        if: startsWith( matrix.config.os, 'windows-' )
         shell: pwsh
         run: |
           pip install aiosmtpd
