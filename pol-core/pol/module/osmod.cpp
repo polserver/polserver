@@ -1624,7 +1624,6 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
         curl_mime_type( part, contentType->data() );
 
         curl_easy_setopt_return_error( curl, CURLOPT_MIMEPOST, mime->get() );
-        curl_easy_setopt_return_error( curl, CURLOPT_VERBOSE, 1L );
 
         Core::networkManager.auxthreadpool->push(
             [uoexec_w, curl_sp, recipients_slist, headers_slist, mime]()

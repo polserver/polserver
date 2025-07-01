@@ -48,8 +48,6 @@ jobs:
         run: |
           set -e
           /opt/homebrew/bin/pip3.13 install --break-system-packages aiosmtpd
-          # TODO remove this, for testing / fast failing only
-          /opt/homebrew/bin/python3.13 -c 'import aiosmtpd'
           brew bundle --file=bin-build/Brewfile
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `brew-universalize`.
           ./bin-build/brew-universalize mysql-client mysql-connector-c++ openssl@3 libssh2
