@@ -47,7 +47,9 @@ jobs:
         shell: bash
         run: |
           set -e
-          pip install aiosmtpd
+          /opt/homebrew/bin/pip3.13 install aiosmtpd
+          # TODO remove this, for testing / fast failing only
+          /opt/homebrew/bin/python3.13 -c 'import aiosmtpd'
           brew bundle --file=bin-build/Brewfile
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `brew-universalize`.
           ./bin-build/brew-universalize mysql-client mysql-connector-c++ openssl@3 libssh2
@@ -76,10 +78,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-
-          # When using homebrew's installation of Python, CMake will still find the system-level Frameworks interpreter.
-          # `pip` does not install to the Frameworks Python, so we need to tell CMake to look for the Homebrew Python.
-          cmake .. -G Ninja -DREUSE_PCH=1 -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64' -DCMAKE_FIND_FRAMEWORK=LAST
+          cmake .. -G Ninja -DREUSE_PCH=1 -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64'
       - name: Build
         run: |
           cd bin-build

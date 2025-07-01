@@ -96,12 +96,6 @@ jobs:
           echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Windows Path Workaround
-        shell: cmd
-        run: |
-          rmdir /s /q C:\Strawberry
-          exit /b 0
-
       - name: Config (Ninja)
         if: matrix.config.ninja == 1
         run: |

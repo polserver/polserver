@@ -197,7 +197,6 @@ if (${Python3_FOUND})
     COMMAND ${CMAKE_COMMAND}
       -Dpol=$<TARGET_FILE:pol>
       -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
-      -DCMAKE_FIND_FRAMEWORK=${CMAKE_FIND_FRAMEWORK}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_start.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
