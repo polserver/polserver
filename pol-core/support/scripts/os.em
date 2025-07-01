@@ -110,4 +110,4 @@ LoadExportedScript( name, args := {} );
 
 GetEnvironmentVariable( name := "" );
 
-SendEmail( from, recipient, subject, body, bcc := 0, options := 0 );
+SendEmail( from, recipient, subject, body, bcc := 0, content_type := "text/plain" );

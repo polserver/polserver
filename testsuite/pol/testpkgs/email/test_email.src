@@ -5,8 +5,36 @@ program test_env()
   return 1;
 endprogram
 
-exported function test_email()
+exported function test_email_simple()
   var res := SendEmail( from := "from@polserver.com", recipient := "to@polserver.com",
-                        subject := "Test Subject", body := "This is the body!" );
+                        subject := "Test test_email_simple", body := "This is the body!" );
+  return res;
+endfunction
+
+exported function test_email_to_array()
+  var res := SendEmail( from := "from@polserver.com", recipient := { "to1@polserver.com",
+                                                                     "to2@polserver.com" },
+                        subject := "Test test_email_to_array",
+                        body := "This is the body!" );
+  return res;
+endfunction
+
+exported function test_email_bcc_only()
+  var res := SendEmail( from := "from@polserver.com", recipient := 0, bcc := "bcc@polserver.com",
+                        subject := "Test test_email_bcc_only", body := "This is the body!" );
+  return res;
+endfunction
+
+exported function test_email_bcc_only_array()
+  var res := SendEmail( from := "from@polserver.com", recipient := 0, bcc := { "bcc1@polserver.com",
+                                                                               "bcc2@polserver.com" },
+                        subject := "Test test_email_bcc_only", body := "This is the body!" );
+  return res;
+endfunction
+
+exported function test_email_content_type()
+  var res := SendEmail( from := "from@polserver.com", recipient := "to@polserver.com",
+                        subject := "Test test_email_simple", body := "This is the <strong>body</strong>!",
+                        content_type := "text/html" );
   return res;
 endfunction

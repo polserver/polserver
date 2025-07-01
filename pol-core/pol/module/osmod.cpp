@@ -1461,11 +1461,11 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
 
   if ( this_uoexec.pChild == nullptr )
   {
-    const String *from, *subject, *body;
-    BObjectImp *recipient, *bcc, *options;
+    const String *from, *subject, *body, *contentType;
+    BObjectImp *recipient, *bcc;
 
     if ( getStringParam( 0, from ) && getParamImp( 1, recipient ) && getStringParam( 2, subject ) &&
-         getStringParam( 3, body ) && getParamImp( 4, bcc ) && getParamImp( 5, options ) )
+         getStringParam( 3, body ) && getParamImp( 4, bcc ) && getStringParam( 5, contentType ) )
     {
       if ( !this_uoexec.suspend() )
       {
@@ -1534,7 +1534,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                 }
 
                 *recipients_slist =
-                    curl_slist_append( *recipients_slist, recipient_string->data() );
+                    curl_slist_append( *recipients_slist, this_recipient->data() );
               }
               else
               {
@@ -1583,8 +1583,14 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
         *mime = curl_mime_init( curl );
 
         curl_mimepart* part = curl_mime_addpart( *mime );
+
+        // `curl_mime_data` copies the string into its internal structure, so using this local is
+        // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1380-L1390
         curl_mime_data( part, body->data(), CURL_ZERO_TERMINATED );
-        curl_mime_type( part, "text/plain" );
+
+        // `curl_mime_type` copies the string into its internal structure, so using this local is
+        // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1461
+        curl_mime_type( part, contentType->data() );
 
         curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime->get() );
         curl_easy_setopt( curl, CURLOPT_VERBOSE, 1L );
