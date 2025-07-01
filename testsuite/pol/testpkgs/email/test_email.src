@@ -38,3 +38,9 @@ exported function test_email_content_type()
                         content_type := "text/html" );
   return res;
 endfunction
+
+exported function test_email_display()
+  var res := SendEmail( from := "Sender <from@polserver.com>", recipient := "Recipient <to@polserver.com>",
+                        subject := "Test test_email_simple", body := "This is the body!" );
+  return res;
+endfunction

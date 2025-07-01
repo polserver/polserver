@@ -68,6 +68,14 @@ extern char** environ;
 char** environ_vars = environ;
 #endif
 
+#define curl_easy_setopt_return_error( handle, opt, param )                                        \
+  {                                                                                                \
+    if ( auto res = curl_easy_setopt( handle, opt, param ); res != CURLE_OK )                      \
+    {                                                                                              \
+      return new BError( "curl_easy_setopt failed: " + std::string( curl_easy_strerror( res ) ) ); \
+    }                                                                                              \
+  }
+
 namespace
 {
 // Primary template left undefined
@@ -1487,22 +1495,20 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
         auto mime = std::make_shared<CurlResource<curl_mime>>();
         std::string to_header_value;
 
-        curl_easy_setopt( curl, CURLOPT_URL, Core::settingsManager.email_cfg.url.data() );
-        if ( !Core::settingsManager.email_cfg.username.empty() )
-          curl_easy_setopt( curl, CURLOPT_USERNAME,
-                            Core::settingsManager.email_cfg.username.c_str() );
+        auto extract_email_address = []( const String* email_string )
+        {
+          const auto& input = email_string->value();
+          auto start = input.find( '<' );
+          auto end = input.find( '>' );
 
-        if ( !Core::settingsManager.email_cfg.password.empty() )
-          curl_easy_setopt( curl, CURLOPT_PASSWORD,
-                            Core::settingsManager.email_cfg.password.c_str() );
+          if ( start != std::string::npos && end != std::string::npos && end > start + 1 )
+          {
+            return input.substr( start + 1, end - start - 1 );
+          }
 
-        if ( Core::settingsManager.email_cfg.use_tls )
-          curl_easy_setopt( curl, CURLOPT_USE_SSL, CURLUSESSL_ALL );
-
-        if ( !Core::settingsManager.email_cfg.ca_file.empty() )
-          curl_easy_setopt( curl, CURLOPT_CAINFO, Core::settingsManager.email_cfg.ca_file.c_str() );
-
-        curl_easy_setopt( curl, CURLOPT_MAIL_FROM, from->data() );
+          // No angle brackets: assume the whole input is the email address
+          return input;
+        };
 
         auto handle_recipients = [&]( BObjectImp* string_or_array, bool is_bcc ) -> BObjectImp*
         {
@@ -1512,11 +1518,16 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
 
           if ( auto* recipient_string = impptrIf<String>( string_or_array ) )
           {
-            *recipients_slist = curl_slist_append( *recipients_slist, recipient_string->data() );
-            if ( !to_header_value.empty() )
-              to_header_value += ", ";
+            if ( !is_bcc )
+            {
+              if ( !to_header_value.empty() )
+                to_header_value += ", ";
 
-            to_header_value += recipient_string->data();
+              to_header_value += recipient_string->data();
+            }
+
+            *recipients_slist = curl_slist_append(
+                *recipients_slist, extract_email_address( recipient_string ).c_str() );
           }
           else if ( auto* recipient_array = impptrIf<ObjArray>( string_or_array ) )
           {
@@ -1533,8 +1544,8 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                   to_header_value += this_recipient->data();
                 }
 
-                *recipients_slist =
-                    curl_slist_append( *recipients_slist, this_recipient->data() );
+                *recipients_slist = curl_slist_append(
+                    *recipients_slist, extract_email_address( this_recipient ).c_str() );
               }
               else
               {
@@ -1550,6 +1561,26 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
           return nullptr;
         };
 
+        curl_easy_setopt_return_error( curl, CURLOPT_URL,
+                                       Core::settingsManager.email_cfg.url.data() );
+        if ( !Core::settingsManager.email_cfg.username.empty() )
+          curl_easy_setopt_return_error( curl, CURLOPT_USERNAME,
+                                         Core::settingsManager.email_cfg.username.c_str() );
+
+        if ( !Core::settingsManager.email_cfg.password.empty() )
+          curl_easy_setopt_return_error( curl, CURLOPT_PASSWORD,
+                                         Core::settingsManager.email_cfg.password.c_str() );
+
+        if ( Core::settingsManager.email_cfg.use_tls )
+          curl_easy_setopt_return_error( curl, CURLOPT_USE_SSL, CURLUSESSL_ALL );
+
+        if ( !Core::settingsManager.email_cfg.ca_file.empty() )
+          curl_easy_setopt_return_error( curl, CURLOPT_CAINFO,
+                                         Core::settingsManager.email_cfg.ca_file.c_str() );
+
+        curl_easy_setopt_return_error( curl, CURLOPT_MAIL_FROM,
+                                       extract_email_address( from ).c_str() );
+
         if ( auto* recipient_to_error =
                  handle_recipients( recipient, false ) )  // Handle To recipients
         {
@@ -1560,7 +1591,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
           return recipient_bcc_error;
         }
 
-        curl_easy_setopt( curl, CURLOPT_MAIL_RCPT, recipients_slist->get() );
+        curl_easy_setopt_return_error( curl, CURLOPT_MAIL_RCPT, recipients_slist->get() );
 
         auto get_date_header = []
         {
@@ -1578,7 +1609,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
         for ( const auto& header : email_headers )
           *headers_slist = curl_slist_append( *headers_slist, header.c_str() );
 
-        curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers_slist->get() );
+        curl_easy_setopt_return_error( curl, CURLOPT_HTTPHEADER, headers_slist->get() );
 
         *mime = curl_mime_init( curl );
 
@@ -1592,8 +1623,8 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
         // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1461
         curl_mime_type( part, contentType->data() );
 
-        curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime->get() );
-        curl_easy_setopt( curl, CURLOPT_VERBOSE, 1L );
+        curl_easy_setopt_return_error( curl, CURLOPT_MIMEPOST, mime->get() );
+        curl_easy_setopt_return_error( curl, CURLOPT_VERBOSE, 1L );
 
         Core::networkManager.auxthreadpool->push(
             [uoexec_w, curl_sp, recipients_slist, headers_slist, mime]()

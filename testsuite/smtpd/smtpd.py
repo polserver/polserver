@@ -32,14 +32,15 @@ class ControllerStarttls(Controller):
     def factory(self):
         return MyServer(self.handler, require_starttls=False, tls_context=context, authenticator=authenticator_func, auth_required=True)
 
-controller = ControllerStarttls(Debugging(), hostname='localhost', port=1025)
-controller.start()
+with open("smtpd.log", "w", encoding="utf-8", buffering=1) as output_file:
+    controller = ControllerStarttls(Debugging(stream = output_file), hostname='localhost', port=1025)
+    controller.start()
 
-print("SMTP server running on smtp://localhost:1025 (CTRL+C to stop, or send 'SHUTDOWN' command)")
+    print("SMTP server running on smtp://localhost:1025 (CTRL+C to stop, or send 'SHUTDOWN' command)")
 
-try:
-    asyncio.get_event_loop().run_forever()
-except KeyboardInterrupt:
-    pass
-finally:
-    controller.stop()
+    try:
+        asyncio.get_event_loop().run_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        controller.stop()
