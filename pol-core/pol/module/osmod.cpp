@@ -68,6 +68,57 @@ extern char** environ;
 char** environ_vars = environ;
 #endif
 
+namespace
+{
+// Primary template left undefined
+template <typename T>
+struct CurlDeleter;
+
+// Specializations for each curl type:
+template <>
+struct CurlDeleter<curl_slist>
+{
+  void operator()( curl_slist* ptr ) const { curl_slist_free_all( ptr ); }
+};
+
+template <>
+struct CurlDeleter<curl_mime>
+{
+  void operator()( curl_mime* ptr ) const { curl_mime_free( ptr ); }
+};
+
+template <typename T, typename Deleter = CurlDeleter<T>>
+class CurlResource
+{
+public:
+  CurlResource() : resource( nullptr ), deleter() {}
+
+  explicit CurlResource( Deleter deleter ) : resource( nullptr ), deleter( std::move( deleter ) ) {}
+
+  operator T*() const { return resource; }
+  CurlResource& operator=( T* res )
+  {
+    resource = res;
+    return *this;
+  }
+
+  ~CurlResource()
+  {
+    if ( resource )
+    {
+      deleter( resource );
+    }
+  }
+
+  T*& get() { return resource; }
+
+private:
+  T* resource;
+  Deleter deleter;
+};
+
+};  // namespace
+
 namespace Pol
 {
 namespace Module
@@ -1431,9 +1482,9 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
       CURL* curl = curl_sp.get();
       if ( curl )
       {
-        curl_slist* headers_slist = nullptr;
-        curl_slist* recipients_slist = nullptr;
-        curl_mime* mime = nullptr;
+        auto headers_slist = std::make_shared<CurlResource<curl_slist>>();
+        auto recipients_slist = std::make_shared<CurlResource<curl_slist>>();
+        auto mime = std::make_shared<CurlResource<curl_mime>>();
         std::string to_header_value;
 
         curl_easy_setopt( curl, CURLOPT_URL, Core::settingsManager.email_cfg.url.data() );
@@ -1461,7 +1512,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
 
           if ( auto* recipient_string = impptrIf<String>( string_or_array ) )
           {
-            recipients_slist = curl_slist_append( recipients_slist, recipient_string->data() );
+            *recipients_slist = curl_slist_append( *recipients_slist, recipient_string->data() );
             if ( !to_header_value.empty() )
               to_header_value += ", ";
 
@@ -1482,7 +1533,8 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                   to_header_value += this_recipient->data();
                 }
 
-                recipients_slist = curl_slist_append( recipients_slist, recipient_string->data() );
+                *recipients_slist =
+                    curl_slist_append( *recipients_slist, recipient_string->data() );
               }
               else
               {
@@ -1501,16 +1553,14 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
         if ( auto* recipient_to_error =
                  handle_recipients( recipient, false ) )  // Handle To recipients
         {
-          curl_slist_free_all( recipients_slist );
           return recipient_to_error;
         }
         if ( auto* recipient_bcc_error = handle_recipients( bcc, true ) )  // Handle Bcc recipients
         {
-          curl_slist_free_all( recipients_slist );
           return recipient_bcc_error;
         }
 
-        curl_easy_setopt( curl, CURLOPT_MAIL_RCPT, recipients_slist );
+        curl_easy_setopt( curl, CURLOPT_MAIL_RCPT, recipients_slist->get() );
 
         auto get_date_header = []
         {
@@ -1526,17 +1576,17 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                                                 "Subject: " + subject->value() };
 
         for ( const auto& header : email_headers )
-          headers_slist = curl_slist_append( headers_slist, header.c_str() );
+          *headers_slist = curl_slist_append( *headers_slist, header.c_str() );
 
-        curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers_slist );
+        curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers_slist->get() );
 
-        mime = curl_mime_init( curl );
+        *mime = curl_mime_init( curl );
 
-        curl_mimepart* part = curl_mime_addpart( mime );
+        curl_mimepart* part = curl_mime_addpart( *mime );
         curl_mime_data( part, body->data(), CURL_ZERO_TERMINATED );
         curl_mime_type( part, "text/plain" );
 
-        curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime );
+        curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime->get() );
         curl_easy_setopt( curl, CURLOPT_VERBOSE, 1L );
 
         Core::networkManager.auxthreadpool->push(
@@ -1545,9 +1595,6 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
               CURL* curl = curl_sp.get();
 
               auto res = curl_easy_perform( curl );
-              curl_slist_free_all( recipients_slist );
-              curl_slist_free_all( headers_slist );
-              curl_mime_free( mime );
 
               {
                 Core::PolLock lck;
@@ -1568,7 +1615,8 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
             }
 
             /* always cleanup */
-            // curl_easy_cleanup() is performed when the shared pointer deallocates
+            // curl_easy_cleanup(), curl_slist_free_all(), curl_mime_free() are
+            // performed when the shared pointer deallocates
         );
       }
       else
