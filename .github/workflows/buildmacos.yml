@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          /opt/homebrew/bin/pip3.13 install aiosmtpd
+          /opt/homebrew/bin/pip3.13 install --break-system-packages aiosmtpd
           # TODO remove this, for testing / fast failing only
           /opt/homebrew/bin/python3.13 -c 'import aiosmtpd'
           brew bundle --file=bin-build/Brewfile
