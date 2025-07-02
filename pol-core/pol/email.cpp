@@ -9,14 +9,20 @@ namespace Pol
 {
 namespace Core
 {
+
+void clear_email_cfg()
+{
+  settingsManager.email_cfg.url = "";
+  settingsManager.email_cfg.username = "";
+  settingsManager.email_cfg.password = "";
+  settingsManager.email_cfg.use_tls = false;
+}
+
 void load_email_cfg()
 {
   if ( !Clib::FileExists( "config/email.cfg" ) )
   {
-    settingsManager.email_cfg.url = "";
-    settingsManager.email_cfg.username = "";
-    settingsManager.email_cfg.password = "";
-    settingsManager.email_cfg.use_tls = false;
+    clear_email_cfg();
     return;
   }
 
@@ -30,6 +36,7 @@ void load_email_cfg()
   if ( !boost::algorithm::istarts_with( settingsManager.email_cfg.url, "smtp://" ) &&
        !boost::algorithm::istarts_with( settingsManager.email_cfg.url, "smtps://" ) )
   {
+    clear_email_cfg();
     elem.throw_error( "URL must start with 'smtp://' or 'smtps://'." );
   }
   settingsManager.email_cfg.username = elem.remove_string( "Username", "" );
@@ -39,6 +46,7 @@ void load_email_cfg()
   if ( !settingsManager.email_cfg.ca_file.empty() &&
        !Clib::FileExists( settingsManager.email_cfg.ca_file ) )
   {
+    clear_email_cfg();
     elem.throw_error(
         fmt::format( "CAFile '{}' does not exist.", settingsManager.email_cfg.ca_file ) );
   }

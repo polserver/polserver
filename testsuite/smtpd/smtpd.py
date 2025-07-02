@@ -8,11 +8,7 @@ from aiosmtpd.handlers import AsyncMessage
 from aiosmtpd.smtp import AuthResult, LoginPassword, SMTP, syntax
 from aiosmtpd.handlers import Debugging
 
-
 def authenticator_func(server, session, envelope, mechanism, auth_data):
-    print("=== Authentication Attempt ===")
-    print(f"Mechanism: {mechanism}")
-    print(f"Auth Data: {auth_data}")
     return AuthResult(success=True)
 
 # Load SSL context
@@ -20,9 +16,6 @@ context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 context.load_cert_chain('cert.pem', 'key.pem')
 
 class MyServer(SMTP):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     @syntax('SHUTDOWN')
     async def smtp_SHUTDOWN(self, arg):
         print("Server shutdown requested")

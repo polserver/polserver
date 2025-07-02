@@ -24,7 +24,7 @@ function createAccountWithChar( accname, psw )
     if ( !a )
       return ret_error( "Failed to create account" );
     endif
-    a.set_uo_expansion("AOS");
+    a.set_uo_expansion( "AOS" );
     a.addcharacter( 0 );
   endif
   var char := a.getcharacter( 1 );
@@ -58,10 +58,10 @@ class ResourceManager()
     return 1;
   endfunction
 
-  function UpdateConfiguration( this, configs )
-    var originalConf := ReadFile( "::config/servspecopt.cfg" );
+  function UpdateConfiguration( this, configs, filename := "::config/servspecopt.cfg" )
+    var originalConf := ReadFile( filename );
     if ( originalConf == error )
-      return ret_error( $"Could not read config/servspecopt.cfg file: ${originalConf}" );
+      return ret_error( $"Could not read {filename} file: ${originalConf}" );
     endif
 
     var newConf := array;
@@ -83,14 +83,20 @@ class ResourceManager()
       newConf.append( $"{_key_iter}={key}" );
     endforeach
 
-    var writeResult := WriteFile( "::config/servspecopt.cfg", newConf );
+    var writeResult := WriteFile( filename, newConf );
     if ( writeResult == error )
-      return ret_error( $"Could not write config/servspecopt.cfg file: ${writeResult}" );
+      return ret_error( $"Could not write ${filename} file: ${writeResult}" );
     endif
 
-    ReloadConfiguration();
+    var res := ReloadConfiguration();
 
-    this.resources.append( array{ originalConf, @RestoreConfiguration } );
+    // Apend the config before returning error, so we can still restore it.
+    this.resources.append( array{ struct{ filename := filename, configuration := originalConf },
+                           @RestoreConfiguration } );
+    if ( !res )
+      return res;
+    endif
+
 
     return 1;
   endfunction
@@ -114,8 +120,9 @@ class ResourceManager()
     return uo::RevokePrivilege( character, privilege );
   endfunction
 
-  function RestoreConfiguration( originalConf )
-    WriteFile( "::config/servspecopt.cfg", originalConf );
+  function RestoreConfiguration( configuration_resource )
+    var { filename, configuration } := configuration_resource;
+    WriteFile( filename, configuration );
     ReloadConfiguration();
     return 1;
   endfunction

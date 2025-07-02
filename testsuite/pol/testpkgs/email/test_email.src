@@ -44,3 +44,34 @@ exported function test_email_display()
                         subject := "Test test_email_simple", body := "This is the body!" );
   return res;
 endfunction
+
+exported function test_email_bad_ssl_verification( resources )
+  // SSL error, as 127.0.0.1 does not match `localhost` in the cert
+  var res := resources.UpdateConfiguration( struct{
+                                            URL := "smtp://127.0.0.1:1025" },
+                                            "::config/email.cfg" );
+  if ( !res )
+    return res;
+  endif
+
+  res := SendEmail( from := "from@polserver.com", recipient := "to@polserver.com",
+                    subject := "Test test_email_simple", body := "This is the body!" );
+
+  return ret_error_not_equal( res, error, $"SendEmail did not error: {res}" );
+endfunction
+
+exported function test_email_bad_config_url( resources )
+  var res := resources.UpdateConfiguration( struct{
+                                            URL := "does not start with smtp://" },
+                                            "::config/email.cfg" );
+
+  return ret_error_not_equal( res, error, $"ReloadConfiguration did not error: {res}" );
+endfunction
+
+exported function test_email_bad_config_cafile( resources )
+  var res := resources.UpdateConfiguration( struct{
+                                            CAFile := "file-does-not-exist.pem" },
+                                            "::config/email.cfg" );
+
+  return ret_error_not_equal( res, error, $"ReloadConfiguration did not error: {res}" );
+endfunction
