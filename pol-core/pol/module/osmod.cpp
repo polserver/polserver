@@ -1457,7 +1457,6 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
   if ( Core::settingsManager.email_cfg.url.empty() )
     return new BError( "Email settings are not configured" );
 
-  Core::UOExecutor& this_uoexec = uoexec();
 
   const String *from, *subject, *body, *contentType;
   BObjectImp *recipient, *bcc;
@@ -1468,17 +1467,6 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
   {
     return new BError( "Invalid parameter type" );
   }
-
-  if ( !this_uoexec.suspend() )
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        this_uoexec.scriptname(), this_uoexec.PC );
-    return new Bscript::BError( "Script can't be blocked" );
-  }
-
-  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
 
   std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
   CURL* curl = curl_sp.get();
@@ -1667,6 +1655,19 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
     return new BError( "curl_easy_setopt(CURLOPT_MIMEPOST) failed: " +
                        std::string( curl_easy_strerror( res ) ) );
   }
+
+  Core::UOExecutor& this_uoexec = uoexec();
+
+  if ( !this_uoexec.suspend() )
+  {
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        this_uoexec.scriptname(), this_uoexec.PC );
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
 
   Core::networkManager.auxthreadpool->push(
       [uoexec_w, curl_sp, recipients_slist, headers_slist, mime]()
