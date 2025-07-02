@@ -269,17 +269,19 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <parameter name="method" value="HTTP Method to use for request (eg. GET, POST)"/>
     <parameter name="options" value="A struct containing options for the request. Available options are: 'data', a string representing the POST data; 'headers', a struct containing headers to send, where the key is the header's name and value is the header's value" />
     <parameter name="flags" value="Flags to modify behavior." />
-	<explain>Creates an HTTP request, and returns the returned body as a string, or if HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with response data.</explain>
-	<code>
+    <explain>Creates an HTTP request, and returns the returned body as a string, or if HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with response data.
+      <code>
+
 Example: create a POST request to a REST endpoint with custom header:
 
- HTTPRequest("http://localhost:3000/","POST", struct{
+  HTTPRequest("http://localhost:3000/","POST", struct{
   data := "{\"stuff1\":[1,2,35]}",
   headers := struct{
     "Content-Type" := "application/json"
   }
 });
-</code>
+        </code>
+    </explain>
   <return>If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body. Otherwise, returns response body as a string.</return>
 </function>
 
@@ -287,17 +289,17 @@ Example: create a POST request to a REST endpoint with custom header:
   <prototype>LoadExportedScript( script_name, params := {} )</prototype>
     <parameter name="script_name" value="String name and path of script to run" />
     <parameter name="params" value="array of objects to pass to the script. Array will be unpacked and as single arguments passed (optional)"/>
-    <return>Array{ExportedScript,return value} The value returned is the return value of the started script, or 1 if no value was returned</return>
     <explain>Starts a new script, to be able to later call exported functions. Non-critical or critical depending on the current state of the calling script. Blocks until the program part of the script is finished. See ExportedScript documentation how to call exported functions.</explain>
+    <return>Array{ExportedScript,return value} The value returned is the return value of the started script, or 1 if no value was returned</return>
     <related>ExportedScript</related>
 </function>
 
 <function name="GetEnvironmentVariable">
   <prototype>GetEnvironmentVariable(name:="")</prototype>
     <parameter name="name" value="String name of environment variable, or empty string" />
-    <return>String value of given enviroment variable, or if no name is given Dictionary{String, String}</return>
     <explain>Returns the value of given environment variable, or if no name is given it returns a dictionary with all allowed environment variables.</explain>
     <explain>pol.cfg AllowedEnvironmentVariablesAccess setting can be used to restrict access to the environmental variables. Provide a comma-separated list to limit scripts' access to only the variables provided. Use * to allow all variables. Default value: empty (no access)</explain>
+    <return>String value of given enviroment variable, or if no name is given Dictionary{String, String}</return>
     <relatedcfg>pol.cfg</relatedcfg>
 </function>
 </ESCRIPT>
