@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+07-03-2025 Kevin:
+    Added: New module function os::SendEmail and config file email.cfg
+    Fixed: Module function polsys::ReloadConfiguration will now return an error if there is an issue in a configuration file instead of
+           terminating the script
 06-30-2025 Kevin:
     Fixed: When a player unequips an item from another mobile and the movement of the item fails (eg. dropping item too far away), the item will
            now be re-equipped on the same mobile and not the player.

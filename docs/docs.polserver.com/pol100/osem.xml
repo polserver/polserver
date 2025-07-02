@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>06/28/2025</datemodified>
+    <datemodified>07/03/2025</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -301,5 +301,41 @@ Example: create a POST request to a REST endpoint with custom header:
     <explain>pol.cfg AllowedEnvironmentVariablesAccess setting can be used to restrict access to the environmental variables. Provide a comma-separated list to limit scripts' access to only the variables provided. Use * to allow all variables. Default value: empty (no access)</explain>
     <return>String value of given enviroment variable, or if no name is given Dictionary{String, String}</return>
     <relatedcfg>pol.cfg</relatedcfg>
+</function>
+
+<function name="SendEmail">
+  <prototype>SendEmail( from, recipient, subject, body, bcc := 0, content_type := "text/plain" );</prototype>
+    <parameter name="from" value="String specifying the sender's email address" />
+    <parameter name="recipient" value="String (or Array of Strings) specifying the recipients' email address. Can be 0 to specify no recipients (eg. use BCC only)" />
+    <parameter name="subject" value="String specifying the subject of the email" />
+    <parameter name="body" value="String specifying the body of the email" />
+    <parameter name="bcc" value="String (or Array of Strings) specifying the BCC recipients' email address. Can be 0 to specify no BCC recipients" />
+    <parameter name="content_type" value="String specifying the content type of the email" />
+    <explain>Sends an email using the given parameters.</explain>
+    <explain>Email addresses in the `from`, `to`, and `bcc` parameters can be in the form "local-part@domain" or "Display Name &lt;local-part@domain&gt;".</explain>
+    <explain>Email server settings are specified in email.cfg.</explain>
+    <explain>Examples:</explain>
+    <explain><code>
+
+SendEmail( "no-reply@polserver.com", "player@polserver.com", "Welcome to the shard", "Thanks for joining!" );
+
+// Sends an HTML email to the player with BCC to two admins.
+
+SendEmail(
+  "POLServer Shard &lt;no-reply@polserver.com&gt;",
+  "player@polserver.com",
+  "Welcome to the shard",
+  "Thanks for joining! You can find our server rules &lt;a href='https://example.com/rules'&gt;here&lt;/a&gt;",
+  { "admin-one@polserver.com", "admin-two@polserver.com" },
+  "text/html"
+);</code></explain>
+    <return>1 on success</return>
+    <error>"Email settings are not configured"</error>
+    <error>"Invalid parameter type"</error>
+    <error>"Invalid recipient type in array"</error>
+    <error>"Invalid recipient type"</error>
+    <error>"Script can't be blocked"</error>
+    <error>&lt;any error message from email library&gt;</error>
+    <relatedcfg>email.cfg</relatedcfg>
 </function>
 </ESCRIPT>
