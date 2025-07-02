@@ -45,6 +45,7 @@
 #include "npcmod.h"
 #include "uomod.h"
 
+#include <chrono>
 #include <module_defs/os.h>
 
 #ifdef _WIN32
@@ -1601,8 +1602,9 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                        std::string( curl_easy_strerror( res ) ) );
   }
 
-  auto time_tm = Clib::localtime( time( nullptr ) );
-  std::string date_header_value = fmt::format( "{:%a, %d %b %Y %H:%M:%S %z}", time_tm );
+  std::string date_header_value = fmt::format(
+      "{:%a, %d %b %Y %H:%M:%S %z}",
+      std::chrono::time_point_cast<std::chrono::seconds>( std::chrono::system_clock::now() ) );
 
   std::vector<std::string> email_headers{ "Date: " + date_header_value,  //
                                           "To: " + to_header_value,      //
