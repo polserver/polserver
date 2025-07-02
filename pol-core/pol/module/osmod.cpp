@@ -1626,17 +1626,12 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                            std::string( curl_easy_strerror( res ) ) );
       }
 
-      auto get_date_header = []
-      {
-        char buffer[100];
-        std::time_t t = std::time( nullptr );
-        std::tm* tm_utc = std::gmtime( &t );
-        std::strftime( buffer, sizeof( buffer ), "Date: %a, %d %b %Y %H:%M:%S +0000", tm_utc );
-        return std::string( buffer );
-      };
+      auto time_tm = Clib::localtime( time( nullptr ) );
+      std::string date_header_value = fmt::format( "{:%a, %d %b %Y %H:%M:%S %z}", time_tm );
 
-      std::vector<std::string> email_headers{ get_date_header(), "To: " + to_header_value,
-                                              "From: " + from->value(),
+      std::vector<std::string> email_headers{ "Date: " + date_header_value,  //
+                                              "To: " + to_header_value,      //
+                                              "From: " + from->value(),      //
                                               "Subject: " + subject->value() };
 
       for ( const auto& header : email_headers )
