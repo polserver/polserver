@@ -193,10 +193,23 @@ set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 # first test run
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if (${Python3_FOUND})
+  execute_process(
+      COMMAND ${Python3_EXECUTABLE} -c "import aiosmtpd"
+      RESULT_VARIABLE _aiosmtpd_status
+      OUTPUT_QUIET
+      ERROR_QUIET
+  )
+  if(_aiosmtpd_status EQUAL 0)
+    set(HAS_AIOSMTPD TRUE)
+  else()
+    set(HAS_AIOSMTPD FALSE)
+  endif()
+
   add_test(NAME shard_test_1
     COMMAND ${CMAKE_COMMAND}
       -Dpol=$<TARGET_FILE:pol>
       -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
+      -Dtestemail=${HAS_AIOSMTPD}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_start.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
@@ -208,14 +221,6 @@ if (${Python3_FOUND})
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
     )
     set_tests_properties(ecompile_watch_test PROPERTIES FIXTURES_REQUIRED shard)
-
-    add_test(NAME generate_certificate
-    COMMAND openssl
-      req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=localhost"
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
-    )
-    set_tests_properties(generate_certificate PROPERTIES FIXTURES_REQUIRED shard)
-    set_tests_properties(generate_certificate PROPERTIES FIXTURES_SETUP certificate)
 else()
   message(" - core test without testclient python3 not found")
   add_test(NAME shard_test_1
@@ -223,9 +228,9 @@ else()
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
 endif()
-set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile;certificate")
+set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
 # needed for test_env
-set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND};POLCORE_TESTEMAIL=${Python3_FOUND}")
+set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND};POLCORE_TESTEMAIL=${HAS_AIOSMTPD}")
 set_tests_properties(shard_test_1 PROPERTIES FIXTURES_SETUP shard_test)
 
 # second test run
