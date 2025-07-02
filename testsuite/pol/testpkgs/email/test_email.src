@@ -2,11 +2,6 @@ use os;
 include "testutil";
 
 program test_env()
-  var testemail := GetEnvironmentVariable( "POLCORE_TESTEMAIL" ) == "TRUE";
-  if ( !testemail )
-    syslog( "NO EMAIL TESTS", 0 );
-    return IGNORE_TEST;
-  endif
   return 1;
 endprogram
 
