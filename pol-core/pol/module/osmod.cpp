@@ -70,51 +70,35 @@ char** environ_vars = environ;
 
 namespace
 {
-// Primary template left undefined
-template <typename T>
-struct CurlDeleter;
-
-// Specializations for each curl type:
-template <>
-struct CurlDeleter<curl_slist>
-{
-  void operator()( curl_slist* ptr ) const { curl_slist_free_all( ptr ); }
-};
-
-template <>
-struct CurlDeleter<curl_mime>
-{
-  void operator()( curl_mime* ptr ) const { curl_mime_free( ptr ); }
-};
-
-template <typename T, typename Deleter = CurlDeleter<T>>
-class CurlResource
+class CurlStringList
 {
 public:
-  CurlResource() : resource( nullptr ), deleter() {}
+  CurlStringList() : resource_( nullptr ) {}
 
-  explicit CurlResource( Deleter deleter ) : resource( nullptr ), deleter( std::move( deleter ) ) {}
-
-  operator T*() const { return resource; }
-  CurlResource& operator=( T* res )
+  ~CurlStringList()
   {
-    resource = res;
-    return *this;
-  }
-
-  ~CurlResource()
-  {
-    if ( resource )
+    if ( resource_ )
     {
-      deleter( resource );
+      curl_slist_free_all( resource_ );
     }
   }
 
-  T*& get() { return resource; }
+  void add( const std::string& str )
+  {
+    auto* new_resource = curl_slist_append( resource_, str.c_str() );
+
+    if ( new_resource != resource_ && resource_ != nullptr )
+    {
+      curl_slist_free_all( resource_ );
+    }
+
+    resource_ = new_resource;
+  }
+
+  curl_slist* get() const { return resource_; }
 
 private:
-  T* resource;
-  Deleter deleter;
+  curl_slist* resource_;
 };
 
 };  // namespace
@@ -1475,9 +1459,8 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
     return new BError( "curl_easy_init() failed" );
   }
 
-  auto headers_slist = std::make_shared<CurlResource<curl_slist>>();
-  auto recipients_slist = std::make_shared<CurlResource<curl_slist>>();
-  auto mime = std::make_shared<CurlResource<curl_mime>>();
+  auto headers_slist = std::make_shared<CurlStringList>();
+  auto recipients_slist = std::make_shared<CurlStringList>();
   std::string to_header_value;
 
   auto extract_email_address = []( const String* email_string )
@@ -1511,8 +1494,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
         to_header_value += recipient_string->data();
       }
 
-      *recipients_slist =
-          curl_slist_append( *recipients_slist, extract_email_address( recipient_string ).c_str() );
+      recipients_slist->add( extract_email_address( recipient_string ) );
     }
     else if ( auto* recipient_array = impptrIf<ObjArray>( string_or_array ) )
     {
@@ -1529,8 +1511,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
             to_header_value += this_recipient->data();
           }
 
-          *recipients_slist = curl_slist_append( *recipients_slist,
-                                                 extract_email_address( this_recipient ).c_str() );
+          recipients_slist->add( extract_email_address( this_recipient ) );
         }
         else
         {
@@ -1629,7 +1610,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                                           "Subject: " + subject->value() };
 
   for ( const auto& header : email_headers )
-    *headers_slist = curl_slist_append( *headers_slist, header.c_str() );
+    headers_slist->add( header );
 
   if ( auto res = curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers_slist->get() );
        res != CURLE_OK )
@@ -1638,9 +1619,14 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                        std::string( curl_easy_strerror( res ) ) );
   }
 
-  *mime = curl_mime_init( curl );
+  std::shared_ptr<curl_mime> mime( curl_mime_init( curl ), curl_mime_free );
 
-  curl_mimepart* part = curl_mime_addpart( *mime );
+  curl_mimepart* part = curl_mime_addpart( mime.get() );
+
+  if ( !part )
+  {
+    return new BError( "curl_mime_addpart() failed" );
+  }
 
   // `curl_mime_data` copies the string into its internal structure, so using this local is
   // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1380-L1390
@@ -1650,7 +1636,7 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
   // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1461
   curl_mime_type( part, contentType->data() );
 
-  if ( auto res = curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime->get() ); res != CURLE_OK )
+  if ( auto res = curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime.get() ); res != CURLE_OK )
   {
     return new BError( "curl_easy_setopt(CURLOPT_MIMEPOST) failed: " +
                        std::string( curl_easy_strerror( res ) ) );
