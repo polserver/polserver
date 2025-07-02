@@ -1462,248 +1462,245 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
   const String *from, *subject, *body, *contentType;
   BObjectImp *recipient, *bcc;
 
-  if ( getStringParam( 0, from ) && getParamImp( 1, recipient ) && getStringParam( 2, subject ) &&
-       getStringParam( 3, body ) && getParamImp( 4, bcc ) && getStringParam( 5, contentType ) )
+  if ( !( getStringParam( 0, from ) && getParamImp( 1, recipient ) &&
+          getStringParam( 2, subject ) && getStringParam( 3, body ) && getParamImp( 4, bcc ) &&
+          getStringParam( 5, contentType ) ) )
   {
-    if ( !this_uoexec.suspend() )
+    return new BError( "Invalid parameter type" );
+  }
+
+  if ( !this_uoexec.suspend() )
+  {
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        this_uoexec.scriptname(), this_uoexec.PC );
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
+
+  std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
+  CURL* curl = curl_sp.get();
+  if ( !curl )
+  {
+    return new BError( "curl_easy_init() failed" );
+  }
+
+  auto headers_slist = std::make_shared<CurlResource<curl_slist>>();
+  auto recipients_slist = std::make_shared<CurlResource<curl_slist>>();
+  auto mime = std::make_shared<CurlResource<curl_mime>>();
+  std::string to_header_value;
+
+  auto extract_email_address = []( const String* email_string )
+  {
+    const auto& input = email_string->value();
+    auto start = input.find( '<' );
+    auto end = input.find( '>' );
+
+    if ( start != std::string::npos && end != std::string::npos && end > start + 1 )
     {
-      DEBUGLOGLN(
-          "Script Error in '{}' PC={}: \n"
-          "\tThe execution of this script can't be blocked!",
-          this_uoexec.scriptname(), this_uoexec.PC );
-      return new Bscript::BError( "Script can't be blocked" );
+      return input.substr( start + 1, end - start - 1 );
     }
 
-    weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
+    // No angle brackets: assume the whole input is the email address
+    return input;
+  };
 
-    std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
-    CURL* curl = curl_sp.get();
-    if ( curl )
+  auto handle_recipients = [&]( BObjectImp* string_or_array, bool is_bcc ) -> BObjectImp*
+  {
+    // The `to` or `bcc` can be falsey to specify no recipient for this field.
+    if ( !string_or_array->isTrue() )
+      return nullptr;
+
+    if ( auto* recipient_string = impptrIf<String>( string_or_array ) )
     {
-      auto headers_slist = std::make_shared<CurlResource<curl_slist>>();
-      auto recipients_slist = std::make_shared<CurlResource<curl_slist>>();
-      auto mime = std::make_shared<CurlResource<curl_mime>>();
-      std::string to_header_value;
-
-      auto extract_email_address = []( const String* email_string )
+      if ( !is_bcc )
       {
-        const auto& input = email_string->value();
-        auto start = input.find( '<' );
-        auto end = input.find( '>' );
+        if ( !to_header_value.empty() )
+          to_header_value += ", ";
 
-        if ( start != std::string::npos && end != std::string::npos && end > start + 1 )
-        {
-          return input.substr( start + 1, end - start - 1 );
-        }
+        to_header_value += recipient_string->data();
+      }
 
-        // No angle brackets: assume the whole input is the email address
-        return input;
-      };
-
-      auto handle_recipients = [&]( BObjectImp* string_or_array, bool is_bcc ) -> BObjectImp*
+      *recipients_slist =
+          curl_slist_append( *recipients_slist, extract_email_address( recipient_string ).c_str() );
+    }
+    else if ( auto* recipient_array = impptrIf<ObjArray>( string_or_array ) )
+    {
+      for ( const auto& elem : recipient_array->ref_arr )
       {
-        // The `to` or `bcc` can be falsey to specify no recipient for this field.
-        if ( !string_or_array->isTrue() )
-          return nullptr;
-
-        if ( auto* recipient_string = impptrIf<String>( string_or_array ) )
+        if ( auto* this_recipient = elem->impptr_if<String>() )
         {
+          // Bcc is not added to the header, and only included in CURLOPT_MAIL_RCPT
           if ( !is_bcc )
           {
             if ( !to_header_value.empty() )
               to_header_value += ", ";
 
-            to_header_value += recipient_string->data();
+            to_header_value += this_recipient->data();
           }
 
-          *recipients_slist = curl_slist_append(
-              *recipients_slist, extract_email_address( recipient_string ).c_str() );
-        }
-        else if ( auto* recipient_array = impptrIf<ObjArray>( string_or_array ) )
-        {
-          for ( const auto& elem : recipient_array->ref_arr )
-          {
-            if ( auto* this_recipient = elem->impptr_if<String>() )
-            {
-              // Bcc is not added to the header, and only included in CURLOPT_MAIL_RCPT
-              if ( !is_bcc )
-              {
-                if ( !to_header_value.empty() )
-                  to_header_value += ", ";
-
-                to_header_value += this_recipient->data();
-              }
-
-              *recipients_slist = curl_slist_append(
-                  *recipients_slist, extract_email_address( this_recipient ).c_str() );
-            }
-            else
-            {
-              return new BError( "Invalid recipient type in array" );
-            }
-          }
+          *recipients_slist = curl_slist_append( *recipients_slist,
+                                                 extract_email_address( this_recipient ).c_str() );
         }
         else
         {
-          return new BError( "Invalid recipient type" );
-        }
-
-        return nullptr;
-      };
-
-      if ( auto res =
-               curl_easy_setopt( curl, CURLOPT_URL, Core::settingsManager.email_cfg.url.data() );
-           res != CURLE_OK )
-      {
-        return new BError( "curl_easy_setopt(CURLOPT_URL) failed: " +
-                           std::string( curl_easy_strerror( res ) ) );
-      }
-
-      if ( !Core::settingsManager.email_cfg.username.empty() )
-      {
-        if ( auto res = curl_easy_setopt( curl, CURLOPT_USERNAME,
-                                          Core::settingsManager.email_cfg.username.c_str() );
-             res != CURLE_OK )
-        {
-          return new BError( "curl_easy_setopt(CURLOPT_USERNAME) failed: " +
-                             std::string( curl_easy_strerror( res ) ) );
+          return new BError( "Invalid recipient type in array" );
         }
       }
-
-      if ( !Core::settingsManager.email_cfg.password.empty() )
-      {
-        if ( auto res = curl_easy_setopt( curl, CURLOPT_PASSWORD,
-                                          Core::settingsManager.email_cfg.password.c_str() );
-             res != CURLE_OK )
-        {
-          return new BError( "curl_easy_setopt(CURLOPT_PASSWORD) failed: " +
-                             std::string( curl_easy_strerror( res ) ) );
-        }
-      }
-
-      if ( Core::settingsManager.email_cfg.use_tls )
-      {
-        if ( auto res = curl_easy_setopt( curl, CURLOPT_USE_SSL, CURLUSESSL_ALL ); res != CURLE_OK )
-        {
-          return new BError( "curl_easy_setopt(CURLOPT_USE_SSL) failed: " +
-                             std::string( curl_easy_strerror( res ) ) );
-        }
-      }
-
-      if ( !Core::settingsManager.email_cfg.ca_file.empty() )
-      {
-        if ( auto res = curl_easy_setopt( curl, CURLOPT_CAINFO,
-                                          Core::settingsManager.email_cfg.ca_file.c_str() );
-             res != CURLE_OK )
-        {
-          return new BError( "curl_easy_setopt(CURLOPT_CAINFO) failed: " +
-                             std::string( curl_easy_strerror( res ) ) );
-        }
-      }
-
-      if ( auto res =
-               curl_easy_setopt( curl, CURLOPT_MAIL_FROM, extract_email_address( from ).c_str() );
-           res != CURLE_OK )
-      {
-        return new BError( "curl_easy_setopt(CURLOPT_MAIL_FROM) failed: " +
-                           std::string( curl_easy_strerror( res ) ) );
-      }
-
-      if ( auto* recipient_to_error =
-               handle_recipients( recipient, false ) )  // Handle To recipients
-      {
-        return recipient_to_error;
-      }
-      if ( auto* recipient_bcc_error = handle_recipients( bcc, true ) )  // Handle Bcc recipients
-      {
-        return recipient_bcc_error;
-      }
-
-      if ( auto res = curl_easy_setopt( curl, CURLOPT_MAIL_RCPT, recipients_slist->get() );
-           res != CURLE_OK )
-      {
-        return new BError( "curl_easy_setopt(CURLOPT_MAIL_RCPT) failed: " +
-                           std::string( curl_easy_strerror( res ) ) );
-      }
-
-      auto time_tm = Clib::localtime( time( nullptr ) );
-      std::string date_header_value = fmt::format( "{:%a, %d %b %Y %H:%M:%S %z}", time_tm );
-
-      std::vector<std::string> email_headers{ "Date: " + date_header_value,  //
-                                              "To: " + to_header_value,      //
-                                              "From: " + from->value(),      //
-                                              "Subject: " + subject->value() };
-
-      for ( const auto& header : email_headers )
-        *headers_slist = curl_slist_append( *headers_slist, header.c_str() );
-
-      if ( auto res = curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers_slist->get() );
-           res != CURLE_OK )
-      {
-        return new BError( "curl_easy_setopt(CURLOPT_HTTPHEADER) failed: " +
-                           std::string( curl_easy_strerror( res ) ) );
-      }
-
-      *mime = curl_mime_init( curl );
-
-      curl_mimepart* part = curl_mime_addpart( *mime );
-
-      // `curl_mime_data` copies the string into its internal structure, so using this local is
-      // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1380-L1390
-      curl_mime_data( part, body->data(), CURL_ZERO_TERMINATED );
-
-      // `curl_mime_type` copies the string into its internal structure, so using this local is
-      // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1461
-      curl_mime_type( part, contentType->data() );
-
-      if ( auto res = curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime->get() ); res != CURLE_OK )
-      {
-        return new BError( "curl_easy_setopt(CURLOPT_MIMEPOST) failed: " +
-                           std::string( curl_easy_strerror( res ) ) );
-      }
-
-      Core::networkManager.auxthreadpool->push(
-          [uoexec_w, curl_sp, recipients_slist, headers_slist, mime]()
-          {
-            CURL* curl = curl_sp.get();
-
-            auto res = curl_easy_perform( curl );
-
-            {
-              Core::PolLock lck;
-
-              if ( !uoexec_w.exists() )
-              {
-                DEBUGLOGLN( "SendEmail Script has been destroyed" );
-                return;
-              }
-              if ( res != CURLE_OK )
-                uoexec_w.get_weakptr()->ValueStack.back().set(
-                    new BObject( new BError( curl_easy_strerror( res ) ) ) );
-              else
-                uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
-
-              uoexec_w.get_weakptr()->revive();
-            }
-          }
-
-          /* always cleanup */
-          // curl_easy_cleanup(), curl_slist_free_all(), curl_mime_free() are
-          // performed when the shared pointer deallocates
-      );
-
-      return new BLong( 0 );
     }
     else
     {
-      return new BError( "curl_easy_init() failed" );
+      return new BError( "Invalid recipient type" );
+    }
+
+    return nullptr;
+  };
+
+  if ( auto res = curl_easy_setopt( curl, CURLOPT_URL, Core::settingsManager.email_cfg.url.data() );
+       res != CURLE_OK )
+  {
+    return new BError( "curl_easy_setopt(CURLOPT_URL) failed: " +
+                       std::string( curl_easy_strerror( res ) ) );
+  }
+
+  if ( !Core::settingsManager.email_cfg.username.empty() )
+  {
+    if ( auto res = curl_easy_setopt( curl, CURLOPT_USERNAME,
+                                      Core::settingsManager.email_cfg.username.c_str() );
+         res != CURLE_OK )
+    {
+      return new BError( "curl_easy_setopt(CURLOPT_USERNAME) failed: " +
+                         std::string( curl_easy_strerror( res ) ) );
     }
   }
-  else
+
+  if ( !Core::settingsManager.email_cfg.password.empty() )
   {
-    return new BError( "Invalid parameter type" );
+    if ( auto res = curl_easy_setopt( curl, CURLOPT_PASSWORD,
+                                      Core::settingsManager.email_cfg.password.c_str() );
+         res != CURLE_OK )
+    {
+      return new BError( "curl_easy_setopt(CURLOPT_PASSWORD) failed: " +
+                         std::string( curl_easy_strerror( res ) ) );
+    }
   }
+
+  if ( Core::settingsManager.email_cfg.use_tls )
+  {
+    if ( auto res = curl_easy_setopt( curl, CURLOPT_USE_SSL, CURLUSESSL_ALL ); res != CURLE_OK )
+    {
+      return new BError( "curl_easy_setopt(CURLOPT_USE_SSL) failed: " +
+                         std::string( curl_easy_strerror( res ) ) );
+    }
+  }
+
+  if ( !Core::settingsManager.email_cfg.ca_file.empty() )
+  {
+    if ( auto res = curl_easy_setopt( curl, CURLOPT_CAINFO,
+                                      Core::settingsManager.email_cfg.ca_file.c_str() );
+         res != CURLE_OK )
+    {
+      return new BError( "curl_easy_setopt(CURLOPT_CAINFO) failed: " +
+                         std::string( curl_easy_strerror( res ) ) );
+    }
+  }
+
+  if ( auto res =
+           curl_easy_setopt( curl, CURLOPT_MAIL_FROM, extract_email_address( from ).c_str() );
+       res != CURLE_OK )
+  {
+    return new BError( "curl_easy_setopt(CURLOPT_MAIL_FROM) failed: " +
+                       std::string( curl_easy_strerror( res ) ) );
+  }
+
+  if ( auto* recipient_to_error = handle_recipients( recipient, false ) )  // Handle To recipients
+  {
+    return recipient_to_error;
+  }
+
+  if ( auto* recipient_bcc_error = handle_recipients( bcc, true ) )  // Handle Bcc recipients
+  {
+    return recipient_bcc_error;
+  }
+
+  if ( auto res = curl_easy_setopt( curl, CURLOPT_MAIL_RCPT, recipients_slist->get() );
+       res != CURLE_OK )
+  {
+    return new BError( "curl_easy_setopt(CURLOPT_MAIL_RCPT) failed: " +
+                       std::string( curl_easy_strerror( res ) ) );
+  }
+
+  auto time_tm = Clib::localtime( time( nullptr ) );
+  std::string date_header_value = fmt::format( "{:%a, %d %b %Y %H:%M:%S %z}", time_tm );
+
+  std::vector<std::string> email_headers{ "Date: " + date_header_value,  //
+                                          "To: " + to_header_value,      //
+                                          "From: " + from->value(),      //
+                                          "Subject: " + subject->value() };
+
+  for ( const auto& header : email_headers )
+    *headers_slist = curl_slist_append( *headers_slist, header.c_str() );
+
+  if ( auto res = curl_easy_setopt( curl, CURLOPT_HTTPHEADER, headers_slist->get() );
+       res != CURLE_OK )
+  {
+    return new BError( "curl_easy_setopt(CURLOPT_HTTPHEADER) failed: " +
+                       std::string( curl_easy_strerror( res ) ) );
+  }
+
+  *mime = curl_mime_init( curl );
+
+  curl_mimepart* part = curl_mime_addpart( *mime );
+
+  // `curl_mime_data` copies the string into its internal structure, so using this local is
+  // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1380-L1390
+  curl_mime_data( part, body->data(), CURL_ZERO_TERMINATED );
+
+  // `curl_mime_type` copies the string into its internal structure, so using this local is
+  // okay. Ref: https://github.com/curl/curl/blob/curl-8_2_1/lib/mime.c#L1461
+  curl_mime_type( part, contentType->data() );
+
+  if ( auto res = curl_easy_setopt( curl, CURLOPT_MIMEPOST, mime->get() ); res != CURLE_OK )
+  {
+    return new BError( "curl_easy_setopt(CURLOPT_MIMEPOST) failed: " +
+                       std::string( curl_easy_strerror( res ) ) );
+  }
+
+  Core::networkManager.auxthreadpool->push(
+      [uoexec_w, curl_sp, recipients_slist, headers_slist, mime]()
+      {
+        CURL* curl = curl_sp.get();
+
+        auto res = curl_easy_perform( curl );
+
+        {
+          Core::PolLock lck;
+
+          if ( !uoexec_w.exists() )
+          {
+            DEBUGLOGLN( "SendEmail Script has been destroyed" );
+            return;
+          }
+          if ( res != CURLE_OK )
+            uoexec_w.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( curl_easy_strerror( res ) ) ) );
+          else
+            uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
+
+          uoexec_w.get_weakptr()->revive();
+        }
+      }
+
+      /* always cleanup */
+      // curl_easy_cleanup(), curl_slist_free_all(), curl_mime_free() are
+      // performed when the shared pointer deallocates
+  );
+
+  return new BLong( 0 );
 }
+
 
 size_t OSExecutorModule::sizeEstimate() const
 {
