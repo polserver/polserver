@@ -54,7 +54,7 @@ function waitForClient( id, types, timeout := 10 )
   while ( 1 )
     var ev := Wait_For_Event( timeout );
     if ( !ev )
-      return ret_error( $"no signal received\n{GetProcess().stacktrace}" );
+      return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
     endif
     if ( ev.id != id || !( ev.type in types ) )
       continue;
@@ -68,7 +68,7 @@ function waitForClients( types )
   while ( 1 )
     var ev := Wait_For_Event( 10 );
     if ( !ev )
-      return ret_error( $"no signal received\n{GetProcess().stacktrace}" );
+      return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
     endif
     if ( !( ev.type in types ) )
       continue;

@@ -25,7 +25,7 @@ class ControllerStarttls(Controller):
     def factory(self):
         return MyServer(self.handler, require_starttls=False, tls_context=context, authenticator=authenticator_func, auth_required=True)
 
-testfilter = os.environ.get('POLCORE_TEST_FILTER') or ''
+testfilter = os.environ.get('POLCORE_TEST_FILTER', '')
 
 if not testfilter or testfilter.lower().startswith('testemail'):
     with open("smtpd.log", "w", encoding="utf-8", buffering=1) as output_file:
