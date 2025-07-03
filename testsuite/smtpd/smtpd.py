@@ -25,15 +25,18 @@ class ControllerStarttls(Controller):
     def factory(self):
         return MyServer(self.handler, require_starttls=False, tls_context=context, authenticator=authenticator_func, auth_required=True)
 
-with open("smtpd.log", "w", encoding="utf-8", buffering=1) as output_file:
-    controller = ControllerStarttls(Debugging(stream = output_file), hostname='localhost', port=1025)
-    controller.start()
+testfilter = os.environ.get('POLCORE_TEST_FILTER') or ''
 
-    print("SMTP server running on smtp://localhost:1025 (CTRL+C to stop, or send 'SHUTDOWN' command)")
+if not testfilter or testfilter.lower().startswith('testemail'):
+    with open("smtpd.log", "w", encoding="utf-8", buffering=1) as output_file:
+        controller = ControllerStarttls(Debugging(stream = output_file), hostname='localhost', port=1025)
+        controller.start()
 
-    try:
-        asyncio.get_event_loop().run_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        controller.stop()
+        print("SMTP server running on smtp://localhost:1025 (CTRL+C to stop, or send 'SHUTDOWN' command)")
+
+        try:
+            asyncio.new_event_loop().run_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            controller.stop()
