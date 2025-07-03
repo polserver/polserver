@@ -232,7 +232,18 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 
 BObjectImp* PolSystemExecutorModule::mf_ReloadConfiguration()
 {
-  Core::reload_configuration();
+  try
+  {
+    Core::reload_configuration();
+  }
+  catch ( const std::exception& ex )
+  {
+    return new BError( ex.what() );
+  }
+  catch ( ... )
+  {
+    return new BError( "Configuration file error" );
+  }
 
   return new BLong( 1 );
 }

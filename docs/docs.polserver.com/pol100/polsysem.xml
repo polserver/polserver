@@ -8,25 +8,26 @@
 <constant>const MSGLEN_VARIABLE := -1;</constant>
   </fileheader>
 
-  <function name="ReloadConfiguration"> 
+  <function name="ReloadConfiguration">
     <prototype>ReloadConfiguration()</prototype>
     <explain>reloads pol.cfg (most entries), npcdesc.cfg and bannedips.cfg</explain>
     <explain>Linux: HUP signal will cause ReloadConfiguration to be called.</explain>
     <return>1</return>
+    <error>"Configuration file error"</error>
   </function>
 
-  <function name="Packages"> 
+  <function name="Packages">
     <prototype>Packages()</prototype>
     <explain>Get an array of "package objects", with "name", "supports_http" and "npcdesc" members. (more info TBD)</explain>
     <return>An array of package objects.</return>
   </function>
 
-  <function name="ReadMillisecondClock"> 
+  <function name="ReadMillisecondClock">
     <prototype>ReadMillisecondClock()</prototype>
     <explain>Returns a double of the current millisecond clock. The precision is 10ms.</explain>
     <return>Current time in milliseconds.</return>
   </function>
-  
+
   <function name="SetSysTrayPopupText">
     <prototype>SetSysTrayPopupText(text)</prototype>
     <parameter name="text" value="String tooltip text for systray icon" />
@@ -50,7 +51,7 @@ program testdesc(who,objtype)
     var ret := GetItemDescriptor(CInt(objtype));
     ret.Color := 0x10;
     ret.CProps.insert("blah","1"); //assuming the existing stack have this color and cprop
-    ret.StackingIgnoresCProps.append("blingbling");    
+    ret.StackingIgnoresCProps.append("blingbling");
     var item := CreateItemInBackpack(who,ret,10);
     if(item)
         print("OK!");
@@ -62,7 +63,7 @@ var ret := GetItemDescriptor(objtype);
 foreach thing in ret
     print(_thing_iter + ": " + thing);
 endforeach</code></explain>
-    <return>A struct of all itemdesc.cfg properties and values.</return> 
+    <return>A struct of all itemdesc.cfg properties and values.</return>
     <error>"Invalid parameter type"</error>
     <error>"Itemdesc.cfg entry for objtype X not found."</error>
     <relatedcfg>itemdesc.cfg</relatedcfg>
@@ -74,7 +75,7 @@ endforeach</code></explain>
   <parameter name="amount" value="Item amount" />
   <parameter name="suffix" value="Suffix to append" />
   <explain>This formats the desc using Pols built in Singular/Plular formatter.</explain>
-  <return>A string.</return> 
+  <return>A string.</return>
 </function>
 
 <function name="Realms">
@@ -89,7 +90,7 @@ endforeach</code></explain>
                     "toplevel_item_count"
                     "mobile_count"
                     "season"</code></explain>
-    <return>A dictionary of structs of Realms or struct of single Realm</return> 
+    <return>A dictionary of structs of Realms or struct of single Realm</return>
 </function>
 
   <function name="GetCmdLevelName">
@@ -174,34 +175,34 @@ const MSGLEN_VARIABLE := -1;</code></explain>
 	<error>"Packet type too high"</error>
 	<related>Packet</related>
   </function>
-  
+
   <function name="AddRealm">
     <prototype>AddRealm(realm_name, base_realm)</prototype>
     <parameter name="realm_name" value="String - case-sensitive name of the realm" />
     <parameter name="base_realm" value="String - case-sensitive name of the realm" />
     <explain>Creates a new Realm based on an other realm, uses same map and regions.</explain>
-    <return>1</return> 
+    <return>1</return>
     <error>"BaseRealm not found."</error>
     <error>"BaseRealm is a ShadowRealm."</error>
     <error>"Realmname already defined."</error>
   </function>
-  
+
   <function name="DeleteRealm">
     <prototype>DeleteRealm(realm)</prototype>
     <parameter name="realm" value="String - case-sensitive name of the realm" />
     <explain>Deletes a ShadowRealm, only if the realm is "clean"</explain>
-    <return>1</return> 
+    <return>1</return>
     <error>"Realm not found."</error>
     <error>"Realm is not a ShadowRealm."</error>
     <error>"Mobiles in Realm."</error>
     <error>"Items in Realm."</error>
   </function>
-  
+
   <function name="GetRealmDecay">
     <prototype>GetRealmDecay(realm_name)</prototype>
     <parameter name="realm_name" value="String - case-sensitive name of the realm" />
     <explain>Returns whether realm has decay or enabled or not.</explain>
-    <return>Boolean</return> 
+    <return>Boolean</return>
     <error>"Realm not found."</error>
   </function>
 
@@ -210,7 +211,7 @@ const MSGLEN_VARIABLE := -1;</code></explain>
     <parameter name="realm_name" value="String - case-sensitive name of the realm" />
     <parameter name="has_decay" value="Boolean - whether decay should be enabled or not" />
     <explain>Enables or disables decay for realm.</explain>
-    <return>1</return> 
+    <return>1</return>
     <error>"Realm not found."</error>
   </function>
 
@@ -218,7 +219,7 @@ const MSGLEN_VARIABLE := -1;</code></explain>
     <prototype>MD5Encrypt(str)</prototype>
     <parameter name="str" value="String" />
     <explain>Encrypts given string.</explain>
-    <return>MD5 hash string on success</return> 
+    <return>MD5 hash string on success</return>
     <error>"Invalid parameter"</error>
     <error>"String is empty"</error>
     <error>"Failed to encrypt"</error>
@@ -227,7 +228,7 @@ const MSGLEN_VARIABLE := -1;</code></explain>
   <function name="LogCPropProfile">
     <prototype>LogCPropProfile()</prototype>
     <explain>Writes the CProp profiling info into cpprofile.log file (see ProfileCProps option in pol.cfg).</explain>
-    <return>1 or Error</return> 
+    <return>1 or Error</return>
   </function>
-        
+
 </ESCRIPT>

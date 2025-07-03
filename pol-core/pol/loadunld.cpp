@@ -64,6 +64,8 @@ void load_stacking_cfg();
 void load_repsys_cfg( bool reload );
 void unload_repsys_cfg();
 
+void load_email_cfg();
+
 void load_npc_templates();
 void load_resource_cfg();
 
@@ -158,6 +160,9 @@ void load_config( bool reload )
 
   checkpoint( "load party config" );
   load_party_cfg( reload );
+
+  checkpoint( "load email config" );
+  load_email_cfg();
 }
 
 void load_data()
@@ -278,6 +283,7 @@ void reload_configuration()
   Plib::systemstate.config.read( false );
   apply_polcfg( false );
   ServSpecOpt::read_servspecopt();
+  load_email_cfg();
   Network::read_bannedips_config( false );
   gamestate.unload_npc_templates();
   load_npc_templates();

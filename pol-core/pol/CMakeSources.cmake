@@ -77,6 +77,8 @@ set (pol_sources  # sorted !
   dropitem.cpp
   dynproperties.cpp
   dynproperties.h
+  email_cfg.h
+  email.cpp
   eqpitem.cpp
   equipdsc.cpp
   equipdsc.h

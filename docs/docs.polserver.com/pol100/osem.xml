@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>06/28/2025</datemodified>
+    <datemodified>07/03/2025</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -269,17 +269,19 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <parameter name="method" value="HTTP Method to use for request (eg. GET, POST)"/>
     <parameter name="options" value="A struct containing options for the request. Available options are: 'data', a string representing the POST data; 'headers', a struct containing headers to send, where the key is the header's name and value is the header's value" />
     <parameter name="flags" value="Flags to modify behavior." />
-	<explain>Creates an HTTP request, and returns the returned body as a string, or if HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with response data.</explain>
-	<code>
+    <explain>Creates an HTTP request, and returns the returned body as a string, or if HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with response data.
+      <code>
+
 Example: create a POST request to a REST endpoint with custom header:
 
- HTTPRequest("http://localhost:3000/","POST", struct{
+  HTTPRequest("http://localhost:3000/","POST", struct{
   data := "{\"stuff1\":[1,2,35]}",
   headers := struct{
     "Content-Type" := "application/json"
   }
 });
-</code>
+        </code>
+    </explain>
   <return>If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body. Otherwise, returns response body as a string.</return>
 </function>
 
@@ -287,17 +289,53 @@ Example: create a POST request to a REST endpoint with custom header:
   <prototype>LoadExportedScript( script_name, params := {} )</prototype>
     <parameter name="script_name" value="String name and path of script to run" />
     <parameter name="params" value="array of objects to pass to the script. Array will be unpacked and as single arguments passed (optional)"/>
-    <return>Array{ExportedScript,return value} The value returned is the return value of the started script, or 1 if no value was returned</return>
     <explain>Starts a new script, to be able to later call exported functions. Non-critical or critical depending on the current state of the calling script. Blocks until the program part of the script is finished. See ExportedScript documentation how to call exported functions.</explain>
+    <return>Array{ExportedScript,return value} The value returned is the return value of the started script, or 1 if no value was returned</return>
     <related>ExportedScript</related>
 </function>
 
 <function name="GetEnvironmentVariable">
   <prototype>GetEnvironmentVariable(name:="")</prototype>
     <parameter name="name" value="String name of environment variable, or empty string" />
-    <return>String value of given enviroment variable, or if no name is given Dictionary{String, String}</return>
     <explain>Returns the value of given environment variable, or if no name is given it returns a dictionary with all allowed environment variables.</explain>
     <explain>pol.cfg AllowedEnvironmentVariablesAccess setting can be used to restrict access to the environmental variables. Provide a comma-separated list to limit scripts' access to only the variables provided. Use * to allow all variables. Default value: empty (no access)</explain>
+    <return>String value of given enviroment variable, or if no name is given Dictionary{String, String}</return>
     <relatedcfg>pol.cfg</relatedcfg>
+</function>
+
+<function name="SendEmail">
+  <prototype>SendEmail( from, recipient, subject, body, bcc := 0, content_type := "text/plain" );</prototype>
+    <parameter name="from" value="String specifying the sender's email address" />
+    <parameter name="recipient" value="String (or Array of Strings) specifying the recipients' email address. Can be 0 to specify no recipients (eg. use BCC only)" />
+    <parameter name="subject" value="String specifying the subject of the email" />
+    <parameter name="body" value="String specifying the body of the email" />
+    <parameter name="bcc" value="String (or Array of Strings) specifying the BCC recipients' email address. Can be 0 to specify no BCC recipients" />
+    <parameter name="content_type" value="String specifying the content type of the email" />
+    <explain>Sends an email using the given parameters.</explain>
+    <explain>Email addresses in the `from`, `to`, and `bcc` parameters can be in the form "local-part@domain" or "Display Name &lt;local-part@domain&gt;".</explain>
+    <explain>Email server settings are specified in email.cfg.</explain>
+    <explain>Examples:</explain>
+    <explain><code>
+
+SendEmail( "no-reply@polserver.com", "player@polserver.com", "Welcome to the shard", "Thanks for joining!" );
+
+// Sends an HTML email to the player with BCC to two admins.
+
+SendEmail(
+  "POLServer Shard &lt;no-reply@polserver.com&gt;",
+  "player@polserver.com",
+  "Welcome to the shard",
+  "Thanks for joining! You can find our server rules &lt;a href='https://example.com/rules'&gt;here&lt;/a&gt;",
+  { "admin-one@polserver.com", "admin-two@polserver.com" },
+  "text/html"
+);</code></explain>
+    <return>1 on success</return>
+    <error>"Email settings are not configured"</error>
+    <error>"Invalid parameter type"</error>
+    <error>"Invalid recipient type in array"</error>
+    <error>"Invalid recipient type"</error>
+    <error>"Script can't be blocked"</error>
+    <error>&lt;any error message from email library&gt;</error>
+    <relatedcfg>email.cfg</relatedcfg>
 </function>
 </ESCRIPT>
