@@ -30,7 +30,6 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4244 )
 #include "../clib/Header_Windows.h"
 #include <codecvt>
 #endif

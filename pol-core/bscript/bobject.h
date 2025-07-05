@@ -790,6 +790,8 @@ public:
   explicit Double( double dval = 0.0 ) : BObjectImp( OTDouble ), dval_( dval ) {}
   Double( const Double& dbl ) : BObjectImp( OTDouble ), dval_( dbl.dval_ ) {}
 
+  static std::string double_to_string( double val );
+
 protected:
   ~Double() {}
 

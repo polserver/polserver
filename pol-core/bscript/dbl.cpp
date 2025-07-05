@@ -14,9 +14,12 @@
 #include "berror.h"
 #include "bobject.h"
 #include "impstr.h"
-namespace
+
+namespace Pol
 {
-std::string double_to_string( double val )
+namespace Bscript
+{
+std::string Double::double_to_string( double val )
 {
   std::string buff( 100, '\0' );
   auto [buffptr, ec] = std::to_chars( buff.data(), buff.data() + buff.size(), val );
@@ -27,11 +30,7 @@ std::string double_to_string( double val )
   }
   throw std::system_error( std::make_error_code( ec ) );
 }
-}  // namespace
-namespace Pol
-{
-namespace Bscript
-{
+
 std::string Double::pack() const
 {
   return std::string( "r" ) + double_to_string( dval_ );

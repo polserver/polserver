@@ -1,0 +1,17 @@
+0: "addition int" (string) len=12 offset=0x1
+1: # (consume)
+2: "2add" (string) len=4 offset=0xe
+3: # (consume)
+4: "addition dbl" (string) len=12 offset=0x13
+5: # (consume)
+6: "2.001add" (string) len=8 offset=0x20
+7: # (consume)
+8: "addition int" (string) len=12 offset=0x1
+9: # (consume)
+10: "add2" (string) len=4 offset=0x29
+11: # (consume)
+12: "addition dbl" (string) len=12 offset=0x13
+13: # (consume)
+14: "add2.001" (string) len=8 offset=0x2e
+15: # (consume)
+

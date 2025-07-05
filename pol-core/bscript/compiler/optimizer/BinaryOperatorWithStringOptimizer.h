@@ -21,6 +21,8 @@ public:
 
   void visit_children( Node& parent ) override;
   void visit_string_value( StringValue& rhs ) override;
+  void visit_float_value( FloatValue& rhs ) override;
+  void visit_integer_value( IntegerValue& rhs ) override;
 };
 
 }  // namespace Pol::Bscript::Compiler
