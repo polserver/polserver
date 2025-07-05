@@ -13,13 +13,13 @@ include "listfile";
 ~5;
 
 "not dbl";
-!2.0;
+!2.1;
 "minus dbl";
--2.0;
+-2.1;
 "plusplus dbl";
-++2.0;
+++2.1;
 "minusminus dbl";
---3.0;
+--3.1;
 
 "not bool";
 !false;

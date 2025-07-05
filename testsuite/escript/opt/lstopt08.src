@@ -1,0 +1,41 @@
+// int with int optimization
+include "listfile";
+
+"add";
+1+2;
+"minus";
+1-2;
+"multi";
+2*2;
+"div";
+4/2;
+"mod";
+5%2;
+"equal";
+1==2;
+"unequal";
+1!=2;
+"less";
+1<2;
+"great";
+1>2;
+"lessequal";
+1<=2;
+"greatequal";
+1>=2;
+"and";
+1&&0;
+"or";
+1||0;
+"shift right";
+4>>2;
+"shift left";
+1<<2;
+"bit and";
+2&1;
+"bit or";
+3|4;
+"bit xor";
+4^2;
+
+print_listfile( "lstopt08" );

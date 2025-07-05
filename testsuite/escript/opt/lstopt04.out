@@ -1,25 +1,13 @@
-0: "addition int" (string) len=12 offset=0x1
-1: # (consume)
-2: "2add" (string) len=4 offset=0xe
-3: # (consume)
-4: "addition dbl" (string) len=12 offset=0x13
-5: # (consume)
-6: "2.001add" (string) len=8 offset=0x20
-7: # (consume)
-8: "addition bool" (string) len=13 offset=0x29
-9: # (consume)
-10: "trueadd" (string) len=7 offset=0x37
-11: # (consume)
-12: "addition int" (string) len=12 offset=0x1
-13: # (consume)
-14: "add2" (string) len=4 offset=0x3f
-15: # (consume)
-16: "addition dbl" (string) len=12 offset=0x13
-17: # (consume)
-18: "add2.001" (string) len=8 offset=0x44
-19: # (consume)
-20: "addition bool" (string) len=13 offset=0x29
-21: # (consume)
-22: "addfalse" (string) len=8 offset=0x4d
-23: # (consume)
+0: "addition int" (string)
+2: "2add" (string)
+4: "addition dbl" (string)
+6: "2.001add" (string)
+8: "addition bool" (string)
+10: "trueadd" (string)
+12: "addition int" (string)
+14: "add2" (string)
+16: "addition dbl" (string)
+18: "add2.001" (string)
+20: "addition bool" (string)
+22: "addfalse" (string)
 

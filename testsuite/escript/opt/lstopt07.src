@@ -37,4 +37,31 @@ true || "";
 "and str";
 true && "";
 
+"equal int";
+1 == true;
+"unequal int";
+1 != false;
+"or int";
+0 || true;
+"and int";
+0 && true;
+
+"equal dbl";
+1.0 == true;
+"unequal dbl";
+1.0 != false;
+"or dbl";
+0.0 || true;
+"and dbl";
+0.0 && true;
+
+"equal str";
+"s" == true;
+"unequal str";
+"s" != false;
+"or str";
+"" || true;
+"and str";
+"" && true;
+
 print_listfile( "lstopt07" );

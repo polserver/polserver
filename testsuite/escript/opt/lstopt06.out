@@ -1,23 +1,12 @@
-0: "ok" (string) len=2 offset=0x1
-1: # (consume)
-2: "ok" (string) len=2 offset=0x1
-3: # (consume)
-4: "ok" (string) len=2 offset=0x1
-5: # (consume)
-6: "ok" (string) len=2 offset=0x1
-7: # (consume)
-8: "ok" (string) len=2 offset=0x1
-9: # (consume)
-10: "ok" (string) len=2 offset=0x1
-11: # (consume)
-12: "ok" (string) len=2 offset=0x1
-13: # (consume)
-14: "ok" (string) len=2 offset=0x1
-15: # (consume)
-16: "ok" (string) len=2 offset=0x1
-17: # (consume)
-18: "ok" (string) len=2 offset=0x1
-19: # (consume)
-20: "ok" (string) len=2 offset=0x1
-21: # (consume)
+0: "ok" (string)
+2: "ok" (string)
+4: "ok" (string)
+6: "ok" (string)
+8: "ok" (string)
+10: "ok" (string)
+12: "ok" (string)
+14: "ok" (string)
+16: "ok" (string)
+18: "ok" (string)
+20: "ok" (string)
 
