@@ -25,6 +25,7 @@ public:
   void visit_float_value( FloatValue& rhs ) override;
   void visit_integer_value( IntegerValue& rhs ) override;
   void visit_string_value( StringValue& rhs ) override;
+  void visit_boolean_value( BooleanValue& rhs ) override;
 };
 
 }  // namespace Pol::Bscript::Compiler

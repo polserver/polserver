@@ -2,6 +2,7 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/StringValue.h"
@@ -172,5 +173,30 @@ void BinaryOperatorWithIntegerOptimizer::visit_string_value( StringValue& rhs )
   default:
     break;
   }
+}
+
+void BinaryOperatorWithIntegerOptimizer::visit_boolean_value( BooleanValue& rhs )
+{
+  bool bval = false;
+  switch ( op.token_id )
+  {
+  case TOK_EQUAL:
+    bval = lhs.value == rhs.value;
+    break;
+  case TOK_NEQ:
+    bval = lhs.value != rhs.value;
+    break;
+  case TOK_OR:
+    bval = lhs.value || rhs.value;
+    break;
+  case TOK_AND:
+    bval = lhs.value && rhs.value;
+    break;
+  default:
+    return;
+  }
+
+  // Boolean logic operators return 1/0 as BLong, ie. `true || false` == `1`
+  optimized_result = std::make_unique<IntegerValue>( op.source_location, bval );
 }
 }  // namespace Pol::Bscript::Compiler

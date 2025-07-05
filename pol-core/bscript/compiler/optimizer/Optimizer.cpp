@@ -10,6 +10,7 @@
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
 #include "bscript/compiler/ast/IntegerValue.h"
@@ -146,6 +147,23 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
       break;
     case BranchSelector::IfFalse:
       branch_type = !iv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    default:
+      selector.internal_error( "Expected conditional branch with predicate" );
+    }
+    optimized_replacement =
+        std::make_unique<BranchSelector>( selector.source_location, branch_type );
+  }
+  else if ( auto fv = dynamic_cast<FloatValue*>( predicate ) )
+  {
+    BranchSelector::BranchType branch_type;
+    switch ( selector.branch_type )
+    {
+    case BranchSelector::IfTrue:
+      branch_type = fv->value != 0.0 ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    case BranchSelector::IfFalse:
+      branch_type = fv->value == 0.0 ? BranchSelector::Always : BranchSelector::Never;
       break;
     default:
       selector.internal_error( "Expected conditional branch with predicate" );

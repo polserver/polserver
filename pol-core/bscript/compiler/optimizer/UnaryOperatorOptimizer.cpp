@@ -47,8 +47,17 @@ void UnaryOperatorOptimizer::visit_float_value( FloatValue& fv )
 
   switch ( unary_operator.token_id )
   {
+  case TOK_LOG_NOT:
+    value = fv.value == 0.0;
+    break;
   case TOK_UNMINUS:
     value = -fv.value;
+    break;
+  case TOK_UNPLUSPLUS:
+    value = fv.value + 1;
+    break;
+  case TOK_UNMINUSMINUS:
+    value = fv.value - 1;
     break;
 
   default:
@@ -72,6 +81,12 @@ void UnaryOperatorOptimizer::visit_integer_value( IntegerValue& iv )
     break;
   case TOK_BITWISE_NOT:
     value = static_cast<int>( ~static_cast<unsigned>( iv.value ) );
+    break;
+  case TOK_UNPLUSPLUS:
+    value = iv.value + 1;
+    break;
+  case TOK_UNMINUSMINUS:
+    value = iv.value - 1;
     break;
 
   default:
