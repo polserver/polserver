@@ -44,6 +44,4 @@ include "listfile";
 "or false";
 0.0 || 0.0;
 
-
-
 print_listfile( "lstopt02" );

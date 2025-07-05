@@ -167,16 +167,16 @@ void BinaryOperatorWithFloatOptimizer::visit_boolean_value( BooleanValue& rhs )
   switch ( op.token_id )
   {
   case TOK_EQUAL:
-    bval = ( lhs.value == 0.0 ) == rhs.value;
+    bval = ( lhs.value != 0.0 ) == rhs.value;
     break;
   case TOK_NEQ:
-    bval = ( lhs.value == 0.0 ) != rhs.value;
+    bval = ( lhs.value != 0.0 ) != rhs.value;
     break;
   case TOK_OR:
-    bval = ( lhs.value == 0.0 ) || rhs.value;
+    bval = ( lhs.value != 0.0 ) || rhs.value;
     break;
   case TOK_AND:
-    bval = ( lhs.value == 0.0 ) && rhs.value;
+    bval = ( lhs.value != 0.0 ) && rhs.value;
     break;
   default:
     return;

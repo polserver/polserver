@@ -1,0 +1,40 @@
+// types with bool optimization
+include "listfile";
+
+"equal bool";
+true == true;
+"unequal bool";
+false != true;
+"or bool";
+true || false;
+"and bool";
+true && false;
+
+"equal int";
+true == 1;
+"unequal int";
+false != 1;
+"or int";
+true || 0;
+"and int";
+true && 0;
+
+"equal dbl";
+true == 1.0;
+"unequal dbl";
+false != 1.0;
+"or dbl";
+true || 0.0;
+"and dbl";
+true && 0.0;
+
+"equal str";
+true == "s";
+"unequal str";
+false != "s";
+"or str";
+true || "";
+"and str";
+true && "";
+
+print_listfile( "lstopt07" );

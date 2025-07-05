@@ -1,0 +1,65 @@
+0: "equal bool" (string) len=10 offset=0x1
+1: # (consume)
+2: 1 (integer) offset=0xc
+3: # (consume)
+4: "unequal bool" (string) len=12 offset=0x10
+5: # (consume)
+6: 1 (integer) offset=0x1d
+7: # (consume)
+8: "or bool" (string) len=7 offset=0x21
+9: # (consume)
+10: 1 (integer) offset=0x29
+11: # (consume)
+12: "and bool" (string) len=8 offset=0x2d
+13: # (consume)
+14: 0 (integer) offset=0x36
+15: # (consume)
+16: "equal int" (string) len=9 offset=0x3a
+17: # (consume)
+18: 1 (integer) offset=0x44
+19: # (consume)
+20: "unequal int" (string) len=11 offset=0x48
+21: # (consume)
+22: 1 (integer) offset=0x54
+23: # (consume)
+24: "or int" (string) len=6 offset=0x58
+25: # (consume)
+26: 1 (integer) offset=0x5f
+27: # (consume)
+28: "and int" (string) len=7 offset=0x63
+29: # (consume)
+30: 0 (integer) offset=0x6b
+31: # (consume)
+32: "equal dbl" (string) len=9 offset=0x6f
+33: # (consume)
+34: 1 (integer) offset=0x79
+35: # (consume)
+36: "unequal dbl" (string) len=11 offset=0x7d
+37: # (consume)
+38: 1 (integer) offset=0x89
+39: # (consume)
+40: "or dbl" (string) len=6 offset=0x8d
+41: # (consume)
+42: 1 (integer) offset=0x94
+43: # (consume)
+44: "and dbl" (string) len=7 offset=0x98
+45: # (consume)
+46: 0 (integer) offset=0xa0
+47: # (consume)
+48: "equal str" (string) len=9 offset=0xa4
+49: # (consume)
+50: 1 (integer) offset=0xae
+51: # (consume)
+52: "unequal str" (string) len=11 offset=0xb2
+53: # (consume)
+54: 1 (integer) offset=0xbe
+55: # (consume)
+56: "or str" (string) len=6 offset=0xc2
+57: # (consume)
+58: 1 (integer) offset=0xc9
+59: # (consume)
+60: "and str" (string) len=7 offset=0xcd
+61: # (consume)
+62: 0 (integer) offset=0xd5
+63: # (consume)
+
