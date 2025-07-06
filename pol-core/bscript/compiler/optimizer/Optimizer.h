@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <memory>
+#include <optional>
 
 #include "bscript/compiler/model/UserFunctionInclusion.h"
 
