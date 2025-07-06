@@ -1,6 +1,6 @@
 include "listfile";
 
-if ( "" )
+if ( {} )
 
   // Add some extra locals to make sure the local variable numbering is correct.
   var foo, a, bar;

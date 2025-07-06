@@ -1,4 +1,4 @@
-0: "" (string) len=0 offset=0x1
+0: create-array (TOK_ARRAY)
 1: if false goto 74
 2: declare local #0
 3: # (consume)
@@ -20,12 +20,12 @@
                 19: # (consume)
                 20: local variable #0
                 21: # (consume)
-                22: 0 (integer) offset=0x6
+                22: 0 (integer) offset=0x5
                 23: return
             24: # (consume)
             25: local variable #0
             26: # (consume)
-            27: 0 (integer) offset=0xa
+            27: 0 (integer) offset=0x9
             28: return
         29: # (consume)
         30: local variable #1
@@ -53,35 +53,35 @@
                 52: # (consume)
                 53: local variable #2
                 54: # (consume)
-                55: 0 (integer) offset=0x14
+                55: 0 (integer) offset=0x13
                 56: return
             57: # (consume)
             58: local variable #3
             59: # (consume)
-            60: 0 (integer) offset=0x18
+            60: 0 (integer) offset=0x17
             61: return
         62: # (consume)
         63: declare local #2
         64: # (consume)
         65: local variable #2
         66: # (consume)
-        67: 0 (integer) offset=0x1c
+        67: 0 (integer) offset=0x1b
         68: return
     69: # (consume)
-    70: 0 (integer) offset=0x20
+    70: 0 (integer) offset=0x1f
     71: return
 72: # (consume)
 73: leave block (remove 1 locals)
-74: "listfile-complex-1" (string) len=18 offset=0x24
+74: "listfile-complex-1" (string) len=18 offset=0x23
 75: makelocal
 76: jsr userfunc @79
 77: # (consume)
 78: progend
 79: pop param 'test'
 80: declare local #1
-81: "./funcexpr/" (string) len=11 offset=0x3c
+81: "./funcexpr/" (string) len=11 offset=0x3b
 82: local variable #0
-83: ".lst" (string) len=4 offset=0x48
+83: ".lst" (string) len=4 offset=0x47
 84: interpolate string (3 parts)
 85: call module function (1, 0): ReadFile
 86: :=
@@ -89,11 +89,11 @@
 88: local variable #1
 89: if true goto 94
 90: local variable #1
-91: "" (string) len=0 offset=0x1
+91: "" (string) len=0 offset=0x2
 92: call module function (0, 0): Print
 93: return
 94: declare local #2
-95: "" (string) len=0 offset=0x1
+95: "" (string) len=0 offset=0x2
 96: :=
 97: # (consume)
 98: local variable #1
@@ -101,37 +101,37 @@
 100: local variable #2
 101: local variable #3
 102: interpolate string (2 parts)
-103: "" (string) len=0 offset=0x1
+103: "" (string) len=0 offset=0x2
 104: call module function (0, 0): Print
 105: # (consume)
 106: local variable #3
-107: " " (string) len=1 offset=0x4d
-108: "create-functor" (string) len=14 offset=0x4f
+107: " " (string) len=1 offset=0x4c
+108: "create-functor" (string) len=14 offset=0x4e
 109: interpolate string (2 parts)
 110: TOK_ARRAY_SUBSCRIPT
 111: if false goto 117
 112: local variable #2
-113: "    " (string) len=4 offset=0x5e
+113: "    " (string) len=4 offset=0x5d
 114: interpolate string (2 parts)
 115: local #2 :=
 116: goto 133
 117: local variable #3
-118: " " (string) len=1 offset=0x4d
-119: "return" (string) len=6 offset=0x63
+118: " " (string) len=1 offset=0x4c
+119: "return" (string) len=6 offset=0x62
 120: interpolate string (2 parts)
 121: TOK_ARRAY_SUBSCRIPT
 122: if false goto 133
 123: local variable #2
-124: 1 (integer) offset=0x6a
+124: 1 (integer) offset=0x69
 125: local variable #2
 126: call-method-id 'length' (#141, 0 arguments)
-127: 4 (integer) offset=0x6e
+127: 4 (integer) offset=0x6d
 128: -
 129: multi subscript get (2 indexes)
 130: peek at top of stack; skip 1 instructions if true, otherwise consume it
-131: "" (string) len=0 offset=0x1
+131: "" (string) len=0 offset=0x2
 132: local #2 :=
 133: stepforeach @100
 134: leave block (remove 3 locals)
-135: 0 (integer) offset=0x72
+135: 0 (integer) offset=0x71
 136: return

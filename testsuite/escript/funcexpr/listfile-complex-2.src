@@ -1,6 +1,6 @@
 include "listfile";
 
-if ( "" )
+if ( {} )
 
   var a, b, c;
 
