@@ -1,0 +1,11 @@
+0: 1 (integer)
+2: "ok0" (string)
+4: "ok1" (string)
+6: 1 (float)
+8: "ok0" (string)
+10: true (boolean)
+12: "okfalse" (string)
+14: "test" (string)
+16: "okempty" (string)
+18: "okuninit" (string)
+

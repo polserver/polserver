@@ -12,6 +12,7 @@ namespace Pol::Bscript::Compiler
 class CompilerWorkspace;
 class Constants;
 class Report;
+class Expression;
 
 class Optimizer : public NodeVisitor
 {
@@ -29,10 +30,12 @@ public:
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
   void visit_conditional_operator( ConditionalOperator& ) override;
+  void visit_elvis_operator( ElvisOperator& ) override;
 
   std::unique_ptr<Node> optimized_replacement;
 
 private:
+  std::optional<bool> branch_decision( Expression* exp ) const;
   Constants& constants;
   Report& report;
 };

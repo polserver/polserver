@@ -16,6 +16,9 @@ public:
 
   Expression& lhs();
   Expression& rhs();
+
+  std::unique_ptr<Expression> take_lhs();
+  std::unique_ptr<Expression> take_rhs();
 };
 
 }  // namespace Pol::Bscript::Compiler

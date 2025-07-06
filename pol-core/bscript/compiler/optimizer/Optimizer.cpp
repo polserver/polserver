@@ -1,5 +1,6 @@
 #include "Optimizer.h"
 
+#include <optional>
 #include <utility>
 
 #include "bscript/compiler/Report.h"
@@ -11,6 +12,7 @@
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ElvisOperator.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
@@ -139,84 +141,16 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
           selector.source_location, branch_type, unary_operator->take_operand() );
     }
   }
-  else if ( auto iv = dynamic_cast<IntegerValue*>( predicate ) )
+  else if ( auto decision = branch_decision( predicate ); decision.has_value() )
   {
     BranchSelector::BranchType branch_type;
     switch ( selector.branch_type )
     {
     case BranchSelector::IfTrue:
-      branch_type = iv->value ? BranchSelector::Always : BranchSelector::Never;
+      branch_type = decision.value() ? BranchSelector::Always : BranchSelector::Never;
       break;
     case BranchSelector::IfFalse:
-      branch_type = !iv->value ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    default:
-      selector.internal_error( "Expected conditional branch with predicate" );
-    }
-    optimized_replacement =
-        std::make_unique<BranchSelector>( selector.source_location, branch_type );
-  }
-  else if ( auto fv = dynamic_cast<FloatValue*>( predicate ) )
-  {
-    BranchSelector::BranchType branch_type;
-    switch ( selector.branch_type )
-    {
-    case BranchSelector::IfTrue:
-      branch_type = fv->value != 0.0 ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    case BranchSelector::IfFalse:
-      branch_type = fv->value == 0.0 ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    default:
-      selector.internal_error( "Expected conditional branch with predicate" );
-    }
-    optimized_replacement =
-        std::make_unique<BranchSelector>( selector.source_location, branch_type );
-  }
-  else if ( auto bv = dynamic_cast<BooleanValue*>( predicate ) )
-  {
-    BranchSelector::BranchType branch_type;
-    switch ( selector.branch_type )
-    {
-    case BranchSelector::IfTrue:
-      branch_type = bv->value ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    case BranchSelector::IfFalse:
-      branch_type = !bv->value ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    default:
-      selector.internal_error( "Expected conditional branch with predicate" );
-    }
-    optimized_replacement =
-        std::make_unique<BranchSelector>( selector.source_location, branch_type );
-  }
-  else if ( auto sv = dynamic_cast<StringValue*>( predicate ) )
-  {
-    BranchSelector::BranchType branch_type;
-    switch ( selector.branch_type )
-    {
-    case BranchSelector::IfTrue:
-      branch_type = !sv->value.empty() ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    case BranchSelector::IfFalse:
-      branch_type = sv->value.empty() ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    default:
-      selector.internal_error( "Expected conditional branch with predicate" );
-    }
-    optimized_replacement =
-        std::make_unique<BranchSelector>( selector.source_location, branch_type );
-  }
-  else if ( dynamic_cast<UninitializedValue*>( predicate ) )
-  {
-    BranchSelector::BranchType branch_type;
-    switch ( selector.branch_type )
-    {
-    case BranchSelector::IfTrue:
-      branch_type = BranchSelector::Never;
-      break;
-    case BranchSelector::IfFalse:
-      branch_type = BranchSelector::Always;
+      branch_type = !decision.value() ? BranchSelector::Always : BranchSelector::Never;
       break;
     default:
       selector.internal_error( "Expected conditional branch with predicate" );
@@ -299,28 +233,8 @@ void Optimizer::visit_value_consumer( ValueConsumer& consume_value )
 void Optimizer::visit_conditional_operator( ConditionalOperator& conditional )
 {
   visit_children( conditional );
-  std::optional<bool> optimize_branch;
-  if ( auto iv = dynamic_cast<IntegerValue*>( &conditional.conditional() ) )
-  {
-    optimize_branch = iv->value;
-  }
-  else if ( auto fv = dynamic_cast<FloatValue*>( &conditional.conditional() ) )
-  {
-    optimize_branch = fv->value != 0.0;
-  }
-  else if ( auto bv = dynamic_cast<BooleanValue*>( &conditional.conditional() ) )
-  {
-    optimize_branch = bv->value;
-  }
-  else if ( auto sv = dynamic_cast<StringValue*>( &conditional.conditional() ) )
-  {
-    optimize_branch = !sv->value.empty();
-  }
-  else if ( auto uv = dynamic_cast<UninitializedValue*>( &conditional.conditional() ) )
-  {
-    optimize_branch = false;
-  }
 
+  auto optimize_branch = branch_decision( &conditional.conditional() );
   if ( optimize_branch.has_value() )
   {
     if ( optimize_branch.value() )
@@ -330,4 +244,33 @@ void Optimizer::visit_conditional_operator( ConditionalOperator& conditional )
   }
 }
 
+void Optimizer::visit_elvis_operator( ElvisOperator& elvisop )
+{
+  visit_children( elvisop );
+
+  auto optimize_branch = branch_decision( &elvisop.lhs() );
+  if ( optimize_branch.has_value() )
+  {
+    if ( optimize_branch.value() )
+      optimized_replacement = elvisop.take_lhs();
+    else
+      optimized_replacement = elvisop.take_rhs();
+  }
+}
+
+std::optional<bool> Optimizer::branch_decision( Expression* exp ) const
+{
+  std::optional<bool> optimize_branch;
+  if ( auto iv = dynamic_cast<IntegerValue*>( exp ) )
+    optimize_branch = iv->value;
+  else if ( auto fv = dynamic_cast<FloatValue*>( exp ) )
+    optimize_branch = fv->value != 0.0;
+  else if ( auto bv = dynamic_cast<BooleanValue*>( exp ) )
+    optimize_branch = bv->value;
+  else if ( auto sv = dynamic_cast<StringValue*>( exp ) )
+    optimize_branch = !sv->value.empty();
+  else if ( dynamic_cast<UninitializedValue*>( exp ) )
+    optimize_branch = false;
+  return optimize_branch;
+}
 }  // namespace Pol::Bscript::Compiler

@@ -46,4 +46,14 @@ Expression& ConditionalOperator::alternate()
   return child<Expression>( 2 );
 }
 
+std::unique_ptr<Expression> ConditionalOperator::take_consequent()
+{
+  return take_child<Expression>( 1 );
+}
+std::unique_ptr<Expression> ConditionalOperator::take_alternate()
+{
+  return take_child<Expression>( 2 );
+}
+
+
 }  // namespace Pol::Bscript::Compiler
