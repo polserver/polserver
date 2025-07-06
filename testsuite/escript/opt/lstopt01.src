@@ -1,15 +1,15 @@
 // int with double optimization
 include "listfile";
 
-"addition";
+"addition 3.1";
 1 + 2.1;
-"substraction";
+"substraction -1.1";
 1 - 2.1;
-"multiply";
+"multiply 2.1";
 1 * 2.1;
-"division";
-1 / 2.1;
-"modulus";
+"division 5.0";
+1 / 0.2;
+"modulus 0.2";
 1 % 0.4;
 "equal false";
 1 == 2.1;
