@@ -1,0 +1,20 @@
+// conditional optimization
+include "listfile";
+
+1 ? "ok"+1:"failed";
+0 ? "failed":"ok"+0;
+1-1 ? "failed":"ok"+1;
+
+1.0 ? "ok"+1.0:"failed";
+0.0 ? "failed":"ok"+0.0;
+
+true ? "ok"+true:"failed";
+false ? "failed":"ok"+false;
+
+"test" ? "ok"+"test":"failed";
+"" ? "failed":"ok"+"empty";
+
+uninit ? "failed":"ok"+"uninit";
+
+
+print_listfile( "lstopt09" );

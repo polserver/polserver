@@ -9,6 +9,7 @@
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/Identifier.h"
@@ -16,6 +17,7 @@
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/Statement.h"
+#include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
@@ -188,6 +190,23 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
     optimized_replacement =
         std::make_unique<BranchSelector>( selector.source_location, branch_type );
   }
+  else if ( auto sv = dynamic_cast<StringValue*>( predicate ) )
+  {
+    BranchSelector::BranchType branch_type;
+    switch ( selector.branch_type )
+    {
+    case BranchSelector::IfTrue:
+      branch_type = !sv->value.empty() ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    case BranchSelector::IfFalse:
+      branch_type = sv->value.empty() ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    default:
+      selector.internal_error( "Expected conditional branch with predicate" );
+    }
+    optimized_replacement =
+        std::make_unique<BranchSelector>( selector.source_location, branch_type );
+  }
   else if ( dynamic_cast<UninitializedValue*>( predicate ) )
   {
     BranchSelector::BranchType branch_type;
@@ -275,6 +294,40 @@ void Optimizer::visit_value_consumer( ValueConsumer& consume_value )
   visit_children( consume_value );
 
   optimized_replacement = ValueConsumerOptimizer().optimize( consume_value );
+}
+
+void Optimizer::visit_conditional_operator( ConditionalOperator& conditional )
+{
+  visit_children( conditional );
+  std::optional<bool> optimize_branch;
+  if ( auto iv = dynamic_cast<IntegerValue*>( &conditional.conditional() ) )
+  {
+    optimize_branch = iv->value;
+  }
+  else if ( auto fv = dynamic_cast<FloatValue*>( &conditional.conditional() ) )
+  {
+    optimize_branch = fv->value != 0.0;
+  }
+  else if ( auto bv = dynamic_cast<BooleanValue*>( &conditional.conditional() ) )
+  {
+    optimize_branch = bv->value;
+  }
+  else if ( auto sv = dynamic_cast<StringValue*>( &conditional.conditional() ) )
+  {
+    optimize_branch = !sv->value.empty();
+  }
+  else if ( auto uv = dynamic_cast<UninitializedValue*>( &conditional.conditional() ) )
+  {
+    optimize_branch = false;
+  }
+
+  if ( optimize_branch.has_value() )
+  {
+    if ( optimize_branch.value() )
+      optimized_replacement = conditional.take_consequent();
+    else
+      optimized_replacement = conditional.take_alternate();
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler

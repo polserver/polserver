@@ -49,10 +49,10 @@ void BinaryOperatorWithBooleanOptimizer::visit_integer_value( IntegerValue& rhs 
   switch ( op.token_id )
   {
   case TOK_EQUAL:
-    bval = lhs.value == rhs.value;
+    bval = lhs.value == ( rhs.value != 0 );
     break;
   case TOK_NEQ:
-    bval = lhs.value != rhs.value;
+    bval = lhs.value != ( rhs.value != 0 );
     break;
   case TOK_OR:
     bval = lhs.value || rhs.value;

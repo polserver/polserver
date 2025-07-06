@@ -60,4 +60,15 @@ else
   "failed";
 endif
 
+if ( "" )
+  "failed";
+else
+  "ok";
+endif
+if ( "blubb" )
+  "ok";
+else
+  "failed";
+endif
+
 print_listfile( "lstopt06" );

@@ -28,6 +28,7 @@ public:
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
+  void visit_conditional_operator( ConditionalOperator& ) override;
 
   std::unique_ptr<Node> optimized_replacement;
 
