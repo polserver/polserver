@@ -1,0 +1,32 @@
+loop1
+loop2
+loop3
+0: declare global #0
+1: 0 (integer)
+2: :=
+4: "endless dowhile" (string)
+6: "loop1" (string)
+7: "" (string)
+8: call module function (0, 0): Print
+10: global variable #0
+11: if true goto 13
+12: goto 14
+13: goto 6
+14: "end endless dowhile" (string)
+16: "removed dowhile" (string)
+18: "loop2" (string)
+19: "" (string)
+20: call module function (0, 0): Print
+22: global variable #0
+23: if true goto 25
+24: goto 25
+25: "end removed dowhile" (string)
+27: "normal dowhile" (string)
+29: "loop3" (string)
+30: "" (string)
+31: call module function (0, 0): Print
+33: create-array (TOK_ARRAY)
+34: ! (logical inversion)
+35: if true goto 29
+36: "end normal dowhile" (string)
+

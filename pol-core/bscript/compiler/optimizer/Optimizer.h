@@ -33,6 +33,9 @@ public:
   void visit_conditional_operator( ConditionalOperator& ) override;
   void visit_elvis_operator( ElvisOperator& ) override;
 
+  void visit_while_loop( WhileLoop& ) override;
+  void visit_do_while_loop( DoWhileLoop& ) override;
+
   std::unique_ptr<Node> optimized_replacement;
 
 private:

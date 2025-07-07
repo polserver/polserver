@@ -1,0 +1,19 @@
+// enum/const optimization
+// no extra code needed, they are primitive types internally
+// just to be sure that they work
+include "listfile";
+
+enum E
+  FOO := 1,
+  BLUBB := 2,
+  STR := "blah"
+endenum
+
+FOO | BLUBB;
+STR + "add";
+
+const constvar := 2;
+
+constvar + 2;
+
+print_listfile( "lstopt11" );

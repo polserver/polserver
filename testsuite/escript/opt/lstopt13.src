@@ -1,0 +1,29 @@
+// dowhile optimization
+include "listfile";
+
+var i := 0;
+"endless dowhile";
+do
+  print("loop1");
+  if ( !i )
+    break;
+  endif
+dowhile ( 1 );
+"end endless dowhile";
+
+"removed dowhile";
+do
+  print("loop2");
+  if ( !i )
+    break;
+  endif
+dowhile ( 0 );
+"end removed dowhile";
+
+"normal dowhile";
+do
+  print("loop3");
+dowhile ( !{} );
+"end normal dowhile";
+
+print_listfile( "lstopt13" );

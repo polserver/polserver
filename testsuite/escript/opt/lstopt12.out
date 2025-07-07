@@ -1,0 +1,26 @@
+loop1
+loop3
+0: declare global #0
+1: 0 (integer)
+2: :=
+4: "endless whileloop" (string)
+6: "loop1" (string)
+7: "" (string)
+8: call module function (0, 0): Print
+10: global variable #0
+11: if true goto 13
+12: goto 14
+13: goto 6
+14: "end endless whileloop" (string)
+16: "removed whileloop" (string)
+18: "end removed whileloop" (string)
+20: "normal whileloop" (string)
+22: create-array (TOK_ARRAY)
+23: if false goto 30
+24: "loop3" (string)
+25: "" (string)
+26: call module function (0, 0): Print
+28: goto 30
+29: goto 22
+30: "end normal whileloop" (string)
+

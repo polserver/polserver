@@ -31,9 +31,26 @@ Block& DoWhileLoop::block()
   return child<Block>( 0 );
 }
 
-Expression& DoWhileLoop::predicate()
+Expression* DoWhileLoop::predicate()
 {
-  return child<Expression>( 1 );
+  return children.size() == 1 ? nullptr : static_cast<Expression*>( children[1].get() );
+}
+
+void DoWhileLoop::remove_predicate()
+{
+  if ( children.size() < 2 )
+    internal_error( "Predicate of DoWhileLoop already removed" );
+  children.erase( children.begin() + 1 );
+}
+
+void DoWhileLoop::set_noloop()
+{
+  _noloop = true;
+}
+
+bool DoWhileLoop::is_noloop()
+{
+  return _noloop;
 }
 
 }  // namespace Pol::Bscript::Compiler

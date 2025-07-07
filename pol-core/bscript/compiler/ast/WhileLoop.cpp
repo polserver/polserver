@@ -28,14 +28,21 @@ void WhileLoop::describe_to( std::string& w ) const
     fmt::format_to( std::back_inserter( w ), "(label:{})", get_label() );
 }
 
-Expression& WhileLoop::predicate()
+Expression* WhileLoop::predicate()
 {
-  return child<Expression>( 0 );
+  return children.size() == 1 ? nullptr : static_cast<Expression*>( children[0].get() );
 }
 
 Block& WhileLoop::block()
 {
-  return child<Block>( 1 );
+  return children.size() == 1 ? child<Block>( 0 ) : child<Block>( 1 );
+}
+
+void WhileLoop::remove_predicate()
+{
+  if ( children.size() < 2 )
+    internal_error( "Predicate of WhileLoop already removed" );
+  children.erase( children.begin() );
 }
 
 }  // namespace Pol::Bscript::Compiler

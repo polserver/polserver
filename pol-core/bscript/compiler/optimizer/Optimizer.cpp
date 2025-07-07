@@ -12,6 +12,7 @@
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ElvisOperator.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/Identifier.h"
@@ -25,6 +26,7 @@
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
+#include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/optimizer/BinaryOperatorOptimizer.h"
@@ -272,5 +274,40 @@ std::optional<bool> Optimizer::branch_decision( Expression* exp ) const
   else if ( dynamic_cast<UninitializedValue*>( exp ) )
     optimize_branch = false;
   return optimize_branch;
+}
+
+void Optimizer::visit_while_loop( WhileLoop& loop )
+{
+  visit_children( loop );
+  if ( auto* pred = loop.predicate() )
+  {
+    auto optimize_branch = branch_decision( pred );
+    if ( optimize_branch.has_value() )
+    {
+      if ( optimize_branch.value() )
+        loop.remove_predicate();
+      else
+        optimized_replacement = std::make_unique<Block>(
+            loop.source_location, std::vector<std::unique_ptr<Statement>>{} );
+    }
+  }
+}
+
+void Optimizer::visit_do_while_loop( DoWhileLoop& loop )
+{
+  visit_children( loop );
+  if ( auto* pred = loop.predicate() )
+  {
+    auto optimize_branch = branch_decision( pred );
+    if ( optimize_branch.has_value() )
+    {
+      loop.remove_predicate();
+      if ( !optimize_branch.value() )
+      {
+        loop.set_noloop();
+      }
+      // else will always jump
+    }
+  }
 }
 }  // namespace Pol::Bscript::Compiler

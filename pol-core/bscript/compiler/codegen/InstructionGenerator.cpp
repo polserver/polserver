@@ -352,8 +352,17 @@ void InstructionGenerator::visit_do_while_loop( DoWhileLoop& node )
   emit.label( next );
   generate( node.block() );
   emit.label( *node.continue_label );
-  generate( node.predicate() );
-  emit.jmp_if_true( next );
+  if ( auto* pred = node.predicate() )  // runtime predicate
+  {
+    generate( *pred );
+    emit.jmp_if_true( next );
+  }
+  else if ( !node.is_noloop() )  // compile time true
+  {
+    // always jump, else never jump
+    emit.jmp_always( next );
+  }
+
   emit.label( *node.break_label );
 }
 
@@ -1009,8 +1018,12 @@ void InstructionGenerator::visit_while_loop( WhileLoop& loop )
   emit.debug_statementbegin();
   update_debug_location( loop );
   emit.label( *loop.continue_label );
-  generate( loop.predicate() );
-  emit.jmp_if_false( *loop.break_label );
+  if ( auto* pred = loop.predicate() )  // runtime predicate
+  {
+    generate( *pred );
+    emit.jmp_if_false( *loop.break_label );
+  }
+  // compile time true will jmp here, false value removes the complete loop
   generate( loop.block() );
   emit.jmp_always( *loop.continue_label );
   emit.label( *loop.break_label );
