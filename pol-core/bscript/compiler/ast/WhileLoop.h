@@ -17,10 +17,8 @@ public:
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
 
-  Expression* predicate();
+  Expression& predicate();
   Block& block();
-
-  void remove_predicate();
 };
 
 }  // namespace Pol::Bscript::Compiler

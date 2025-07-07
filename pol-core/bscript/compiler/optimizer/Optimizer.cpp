@@ -279,35 +279,25 @@ std::optional<bool> Optimizer::branch_decision( Expression* exp ) const
 void Optimizer::visit_while_loop( WhileLoop& loop )
 {
   visit_children( loop );
-  if ( auto* pred = loop.predicate() )
+  if ( auto optimize_branch = branch_decision( &loop.predicate() ) )
   {
-    auto optimize_branch = branch_decision( pred );
-    if ( optimize_branch.has_value() )
-    {
-      if ( optimize_branch.value() )
-        loop.remove_predicate();
-      else
-        optimized_replacement = std::make_unique<Block>(
-            loop.source_location, std::vector<std::unique_ptr<Statement>>{} );
-    }
+    if ( optimize_branch.value() )
+      loop.set_loop_type( LoopType::ALWAYS );
+    else
+      optimized_replacement = std::make_unique<Block>( loop.source_location,
+                                                       std::vector<std::unique_ptr<Statement>>{} );
   }
 }
 
 void Optimizer::visit_do_while_loop( DoWhileLoop& loop )
 {
   visit_children( loop );
-  if ( auto* pred = loop.predicate() )
+  if ( auto optimize_branch = branch_decision( &loop.predicate() ) )
   {
-    auto optimize_branch = branch_decision( pred );
-    if ( optimize_branch.has_value() )
-    {
-      loop.remove_predicate();
-      if ( !optimize_branch.value() )
-      {
-        loop.set_noloop();
-      }
-      // else will always jump
-    }
+    if ( optimize_branch.value() )
+      loop.set_loop_type( LoopType::ALWAYS );
+    else
+      loop.set_loop_type( LoopType::NEVER );
   }
 }
 }  // namespace Pol::Bscript::Compiler

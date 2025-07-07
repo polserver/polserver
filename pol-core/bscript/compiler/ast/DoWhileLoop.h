@@ -18,14 +18,7 @@ public:
   void describe_to( std::string& ) const override;
 
   Block& block();
-  Expression* predicate();
-
-  void remove_predicate();
-  void set_noloop();
-  bool is_noloop();
-
-private:
-  bool _noloop = false;
+  Expression& predicate();
 };
 
 }  // namespace Pol::Bscript::Compiler

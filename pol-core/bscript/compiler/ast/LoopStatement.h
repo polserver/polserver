@@ -7,6 +7,12 @@ namespace Pol::Bscript::Compiler
 {
 class FlowControlLabel;
 
+enum class LoopType
+{
+  RUNTIME,
+  NEVER,
+  ALWAYS
+};
 class LoopStatement : public LabelableStatement
 {
 public:
@@ -14,6 +20,11 @@ public:
 
   const std::shared_ptr<FlowControlLabel> break_label;
   const std::shared_ptr<FlowControlLabel> continue_label;
+  void set_loop_type( LoopType type ) { _loop_type = type; };
+  LoopType loop_type() const { return _loop_type; };
+
+private:
+  LoopType _loop_type = LoopType::RUNTIME;
 };
 
 }  // namespace Pol::Bscript::Compiler
