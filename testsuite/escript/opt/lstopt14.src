@@ -1,0 +1,31 @@
+// repeat optimization
+include "listfile";
+
+var i := 0;
+"endless repeat";
+repeat
+  print( "loop1" );
+  if ( i++ )
+    break;
+  endif
+until ( 0 );
+"end endless repeat";
+
+i := 0;
+"removed repeat";
+repeat
+  print( "loop2" );
+  if ( i++ )
+    break;
+  endif
+until ( 1 );
+"end removed repeat";
+
+i := 0;
+"normal repeat";
+repeat
+  print( "loop3" );
+until ( i++ );
+"end normal repeat";
+
+print_listfile( "lstopt14" );

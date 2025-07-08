@@ -37,4 +37,9 @@ Block& WhileLoop::block()
 {
   return child<Block>( 1 );
 }
+
+std::unique_ptr<Block> WhileLoop::take_block()
+{
+  return take_child<Block>( 1 );
+}
 }  // namespace Pol::Bscript::Compiler

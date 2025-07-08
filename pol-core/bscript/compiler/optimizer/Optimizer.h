@@ -35,6 +35,7 @@ public:
 
   void visit_while_loop( WhileLoop& ) override;
   void visit_do_while_loop( DoWhileLoop& ) override;
+  void visit_repeat_until_loop( RepeatUntilLoop& ) override;
 
   std::unique_ptr<Node> optimized_replacement;
 

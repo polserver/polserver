@@ -12,6 +12,7 @@
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ConstantPredicateLoop.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ElvisOperator.h"
 #include "bscript/compiler/ast/FloatValue.h"
@@ -19,6 +20,7 @@
 #include "bscript/compiler/ast/IfThenElseStatement.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/Program.h"
+#include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
@@ -282,7 +284,8 @@ void Optimizer::visit_while_loop( WhileLoop& loop )
   if ( auto optimize_branch = branch_decision( &loop.predicate() ) )
   {
     if ( optimize_branch.value() )
-      loop.set_loop_type( LoopType::ALWAYS );
+      optimized_replacement = std::make_unique<ConstantPredicateLoop>(
+          loop.source_location, loop.get_label(), loop.take_block(), true );
     else
       optimized_replacement = std::make_unique<Block>( loop.source_location,
                                                        std::vector<std::unique_ptr<Statement>>{} );
@@ -294,10 +297,19 @@ void Optimizer::visit_do_while_loop( DoWhileLoop& loop )
   visit_children( loop );
   if ( auto optimize_branch = branch_decision( &loop.predicate() ) )
   {
-    if ( optimize_branch.value() )
-      loop.set_loop_type( LoopType::ALWAYS );
-    else
-      loop.set_loop_type( LoopType::NEVER );
+    optimized_replacement = std::make_unique<ConstantPredicateLoop>(
+        loop.source_location, loop.get_label(), loop.take_block(), optimize_branch.value() );
+  }
+}
+
+void Optimizer::visit_repeat_until_loop( RepeatUntilLoop& loop )
+{
+  visit_children( loop );
+  if ( auto optimize_branch = branch_decision( &loop.expression() ) )
+  {
+    // inverted logic if the predicate is true its not an endleas loop
+    optimized_replacement = std::make_unique<ConstantPredicateLoop>(
+        loop.source_location, loop.get_label(), loop.take_block(), !optimize_branch.value() );
   }
 }
 }  // namespace Pol::Bscript::Compiler

@@ -19,6 +19,7 @@ public:
 
   Block& block();
   Expression& predicate();
+  std::unique_ptr<Block> take_block();
 };
 
 }  // namespace Pol::Bscript::Compiler

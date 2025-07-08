@@ -81,6 +81,7 @@ public:
   void visit_interpolate_string( InterpolateString& ) override;
   void visit_format_expression( FormatExpression& ) override;
   void visit_conditional_operator( ConditionalOperator& ) override;
+  void visit_constant_loop( ConstantPredicateLoop& ) override;
 
 private:
   void emit_access_variable( Variable& );

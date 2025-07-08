@@ -39,4 +39,9 @@ Expression& RepeatUntilLoop::expression()
   return child<Expression>( 1 );
 }
 
+std::unique_ptr<Block> RepeatUntilLoop::take_block()
+{
+  return take_child<Block>( 0 );
+}
+
 }  // namespace Pol::Bscript::Compiler
