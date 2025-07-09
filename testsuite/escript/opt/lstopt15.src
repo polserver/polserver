@@ -1,0 +1,40 @@
+// test label break/continue with constant-loop
+include "listfile";
+
+var i := false;
+print( "test continue" );
+outer: while ( 1 )
+  print( "outer while" );
+  while ( 1 )
+    print( "inner while" );
+    if ( !i )
+      print( "continue outer" );
+      i := true;
+      continue outer;
+    endif
+    print( "end inner" );
+    break;
+  endwhile
+  break;
+endwhile
+print( "end" );
+
+i := false;
+print( "test break" );
+outer2: while ( 1 )
+  print( "outer while" );
+  while ( 1 )
+    print( "inner while" );
+    if ( !i )
+      print( "break outer" );
+      i := true;
+      break outer2;
+    endif
+    print( "end inner" );
+    break;
+  endwhile
+  break;
+endwhile
+print( "end" );
+
+print_listfile( "lstopt15" );

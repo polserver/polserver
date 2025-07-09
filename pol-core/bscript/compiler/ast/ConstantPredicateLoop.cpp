@@ -22,7 +22,8 @@ void ConstantPredicateLoop::accept( NodeVisitor& visitor )
 
 void ConstantPredicateLoop::describe_to( std::string& w ) const
 {
-  w += "constant-loop";
+  fmt::format_to( std::back_inserter( w ), "constant-loop ({})",
+                  is_endless() ? "endless" : "fallthrough" );
   if ( !get_label().empty() )
     fmt::format_to( std::back_inserter( w ), "(label:{})", get_label() );
 }
