@@ -20,6 +20,7 @@
 #include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ConstantPredicateLoop.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
@@ -418,6 +419,11 @@ void NodeVisitor::visit_while_loop( WhileLoop& node )
 }
 
 void NodeVisitor::visit_conditional_operator( ConditionalOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_constant_loop( ConstantPredicateLoop& node )
 {
   visit_children( node );
 }

@@ -34,4 +34,13 @@ Expression& ElvisOperator::rhs()
   return child<Expression>( 1 );
 }
 
+std::unique_ptr<Expression> ElvisOperator::take_lhs()
+{
+  return take_child<Expression>( 0 );
+}
+std::unique_ptr<Expression> ElvisOperator::take_rhs()
+{
+  return take_child<Expression>( 1 );
+}
+
 }  // namespace Pol::Bscript::Compiler

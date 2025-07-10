@@ -1,0 +1,40 @@
+loop1
+loop1
+loop2
+loop3
+loop3
+0: declare global #0
+1: 0 (integer)
+2: :=
+4: "endless repeat" (string)
+6: "loop1" (string)
+7: "" (string)
+8: call module function (0, 0): Print
+10: global variable #0
+11: postfix unary ++
+12: if false goto 14
+13: goto 15
+14: goto 6
+15: "end endless repeat" (string)
+17: 0 (integer)
+18: global #0 :=
+19: "removed repeat" (string)
+21: "loop2" (string)
+22: "" (string)
+23: call module function (0, 0): Print
+25: global variable #0
+26: postfix unary ++
+27: if false goto 29
+28: goto 29
+29: "end removed repeat" (string)
+31: 0 (integer)
+32: global #0 :=
+33: "normal repeat" (string)
+35: "loop3" (string)
+36: "" (string)
+37: call module function (0, 0): Print
+39: global variable #0
+40: postfix unary ++
+41: if false goto 35
+42: "end normal repeat" (string)
+

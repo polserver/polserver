@@ -1,0 +1,74 @@
+// branch optimization
+include "listfile";
+
+if ( 1 )
+  "ok";
+else
+  "failed";
+endif
+if ( 0 )
+  "failed";
+else
+  "ok";
+endif
+if ( !1 )
+  "failed";
+else
+  "ok";
+endif
+
+if ( 1.0 )
+  "ok";
+else
+  "failed";
+endif
+if ( 0.0 )
+  "failed";
+else
+  "ok";
+endif
+if ( !1.0 )
+  "failed";
+else
+  "ok";
+endif
+
+if ( true )
+  "ok";
+else
+  "failed";
+endif
+if ( false )
+  "failed";
+else
+  "ok";
+endif
+if ( !true )
+  "failed";
+else
+  "ok";
+endif
+
+if ( uninit )
+  "failed";
+else
+  "ok";
+endif
+if ( !uninit )
+  "ok";
+else
+  "failed";
+endif
+
+if ( "" )
+  "failed";
+else
+  "ok";
+endif
+if ( "blubb" )
+  "ok";
+else
+  "failed";
+endif
+
+print_listfile( "lstopt06" );

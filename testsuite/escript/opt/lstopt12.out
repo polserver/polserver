@@ -1,0 +1,33 @@
+loop1
+loop1
+loop3
+loop3
+0: declare global #0
+1: 0 (integer)
+2: :=
+4: "endless whileloop" (string)
+6: "loop1" (string)
+7: "" (string)
+8: call module function (0, 0): Print
+10: global variable #0
+11: postfix unary ++
+12: if false goto 14
+13: goto 15
+14: goto 6
+15: "end endless whileloop" (string)
+17: 0 (integer)
+18: global #0 :=
+19: "removed whileloop" (string)
+21: "end removed whileloop" (string)
+23: 2 (integer)
+24: global #0 :=
+25: "normal whileloop" (string)
+27: global variable #0
+28: postfix unary --
+29: if false goto 35
+30: "loop3" (string)
+31: "" (string)
+32: call module function (0, 0): Print
+34: goto 27
+35: "end normal whileloop" (string)
+

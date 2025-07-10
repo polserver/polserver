@@ -23,6 +23,7 @@ class ClassInstance;
 class ClassParameterDeclaration;
 class ClassParameterList;
 class ConditionalOperator;
+class ConstantPredicateLoop;
 class ConstDeclaration;
 class CstyleForLoop;
 class DebugStatementMarker;
@@ -158,6 +159,7 @@ public:
   virtual void visit_variable_binding( VariableBinding& );
   virtual void visit_while_loop( WhileLoop& );
   virtual void visit_conditional_operator( ConditionalOperator& );
+  virtual void visit_constant_loop( ConstantPredicateLoop& );
 
   virtual void visit_children( Node& parent );
 };

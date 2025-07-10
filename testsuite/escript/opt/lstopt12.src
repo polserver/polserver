@@ -1,0 +1,29 @@
+// while optimization
+include "listfile";
+
+var i := 0;
+"endless whileloop";
+while ( 1 )
+  print( "loop1" );
+  if ( i++ )
+    break;
+  endif
+endwhile
+"end endless whileloop";
+
+i := 0;
+"removed whileloop";
+while ( 0 )
+  print( "should not print" );
+  break;
+endwhile
+"end removed whileloop";
+
+i := 2;
+"normal whileloop";
+while ( i-- )
+  print( "loop3" );
+endwhile
+"end normal whileloop";
+
+print_listfile( "lstopt12" );

@@ -1,0 +1,13 @@
+0: "addition int" (string)
+2: "2add" (string)
+4: "addition dbl" (string)
+6: "2.001add" (string)
+8: "addition bool" (string)
+10: "trueadd" (string)
+12: "addition int" (string)
+14: "add2" (string)
+16: "addition dbl" (string)
+18: "add2.001" (string)
+20: "addition bool" (string)
+22: "addfalse" (string)
+

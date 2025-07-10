@@ -1,5 +1,6 @@
 #include "Optimizer.h"
 
+#include <optional>
 #include <utility>
 
 #include "bscript/compiler/Report.h"
@@ -9,17 +10,25 @@
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
+#include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ConstantPredicateLoop.h"
+#include "bscript/compiler/ast/DoWhileLoop.h"
+#include "bscript/compiler/ast/ElvisOperator.h"
+#include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/Program.h"
+#include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/Statement.h"
+#include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
+#include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/optimizer/BinaryOperatorOptimizer.h"
@@ -136,50 +145,16 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
           selector.source_location, branch_type, unary_operator->take_operand() );
     }
   }
-  else if ( auto iv = dynamic_cast<IntegerValue*>( predicate ) )
+  else if ( auto decision = branch_decision( predicate ); decision.has_value() )
   {
     BranchSelector::BranchType branch_type;
     switch ( selector.branch_type )
     {
     case BranchSelector::IfTrue:
-      branch_type = iv->value ? BranchSelector::Always : BranchSelector::Never;
+      branch_type = decision.value() ? BranchSelector::Always : BranchSelector::Never;
       break;
     case BranchSelector::IfFalse:
-      branch_type = !iv->value ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    default:
-      selector.internal_error( "Expected conditional branch with predicate" );
-    }
-    optimized_replacement =
-        std::make_unique<BranchSelector>( selector.source_location, branch_type );
-  }
-  else if ( auto bv = dynamic_cast<BooleanValue*>( predicate ) )
-  {
-    BranchSelector::BranchType branch_type;
-    switch ( selector.branch_type )
-    {
-    case BranchSelector::IfTrue:
-      branch_type = bv->value ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    case BranchSelector::IfFalse:
-      branch_type = !bv->value ? BranchSelector::Always : BranchSelector::Never;
-      break;
-    default:
-      selector.internal_error( "Expected conditional branch with predicate" );
-    }
-    optimized_replacement =
-        std::make_unique<BranchSelector>( selector.source_location, branch_type );
-  }
-  else if ( dynamic_cast<UninitializedValue*>( predicate ) )
-  {
-    BranchSelector::BranchType branch_type;
-    switch ( selector.branch_type )
-    {
-    case BranchSelector::IfTrue:
-      branch_type = BranchSelector::Never;
-      break;
-    case BranchSelector::IfFalse:
-      branch_type = BranchSelector::Always;
+      branch_type = !decision.value() ? BranchSelector::Always : BranchSelector::Never;
       break;
     default:
       selector.internal_error( "Expected conditional branch with predicate" );
@@ -259,4 +234,82 @@ void Optimizer::visit_value_consumer( ValueConsumer& consume_value )
   optimized_replacement = ValueConsumerOptimizer().optimize( consume_value );
 }
 
+void Optimizer::visit_conditional_operator( ConditionalOperator& conditional )
+{
+  visit_children( conditional );
+
+  auto optimize_branch = branch_decision( &conditional.conditional() );
+  if ( optimize_branch.has_value() )
+  {
+    if ( optimize_branch.value() )
+      optimized_replacement = conditional.take_consequent();
+    else
+      optimized_replacement = conditional.take_alternate();
+  }
+}
+
+void Optimizer::visit_elvis_operator( ElvisOperator& elvisop )
+{
+  visit_children( elvisop );
+
+  auto optimize_branch = branch_decision( &elvisop.lhs() );
+  if ( optimize_branch.has_value() )
+  {
+    if ( optimize_branch.value() )
+      optimized_replacement = elvisop.take_lhs();
+    else
+      optimized_replacement = elvisop.take_rhs();
+  }
+}
+
+std::optional<bool> Optimizer::branch_decision( Expression* exp ) const
+{
+  std::optional<bool> optimize_branch;
+  if ( auto iv = dynamic_cast<IntegerValue*>( exp ) )
+    optimize_branch = iv->value;
+  else if ( auto fv = dynamic_cast<FloatValue*>( exp ) )
+    optimize_branch = fv->value != 0.0;
+  else if ( auto bv = dynamic_cast<BooleanValue*>( exp ) )
+    optimize_branch = bv->value;
+  else if ( auto sv = dynamic_cast<StringValue*>( exp ) )
+    optimize_branch = !sv->value.empty();
+  else if ( dynamic_cast<UninitializedValue*>( exp ) )
+    optimize_branch = false;
+  return optimize_branch;
+}
+
+void Optimizer::visit_while_loop( WhileLoop& loop )
+{
+  visit_children( loop );
+  if ( auto optimize_branch = branch_decision( &loop.predicate() ) )
+  {
+    if ( optimize_branch.value() )
+      optimized_replacement = std::make_unique<ConstantPredicateLoop>(
+          loop.source_location, loop.get_label(), loop.take_block(), true );
+    else
+      optimized_replacement = std::make_unique<Block>( loop.source_location,
+                                                       std::vector<std::unique_ptr<Statement>>{} );
+  }
+}
+
+void Optimizer::visit_do_while_loop( DoWhileLoop& loop )
+{
+  visit_children( loop );
+  if ( auto optimize_branch = branch_decision( &loop.predicate() ) )
+  {
+    optimized_replacement = std::make_unique<ConstantPredicateLoop>(
+        loop.source_location, loop.get_label(), loop.take_block(), optimize_branch.value() );
+  }
+}
+
+void Optimizer::visit_repeat_until_loop( RepeatUntilLoop& loop )
+{
+  visit_children( loop );
+  if ( auto optimize_branch = branch_decision( &loop.expression() ) )
+  {
+    // inverted logic if the predicate is true its not an endleas loop
+    optimized_replacement = std::make_unique<ConstantPredicateLoop>(
+        loop.source_location, loop.get_label(), loop.take_block(), !optimize_branch.value() );
+  }
+}
 }  // namespace Pol::Bscript::Compiler

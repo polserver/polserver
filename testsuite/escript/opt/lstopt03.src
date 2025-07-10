@@ -1,0 +1,47 @@
+// double with int optimization
+include "listfile";
+
+"addition 3.1";
+2.1 + 1;
+"substraction 1.1";
+2.1 - 1;
+"multiply 2.1";
+2.1 * 1;
+"division 2.1";
+2.1 / 1;
+"modulus 0.1";
+2.1 % 1;
+"equal false";
+2.1 == 1;
+"equal true";
+1.0 == 1;
+"unequal true";
+2.1 != 1;
+"unequal false";
+1.0 != 1;
+"less true";
+0.1 < 1;
+"less false";
+2.1 < 1;
+"lessequal true";
+1.0 <= 1;
+"lessequal false";
+2.1 <= 1;
+"greater true";
+2.1 > 1;
+"greater false";
+0.1 > 1;
+"greaterequal true";
+2.1 >= 1;
+"greaterequal false";
+0.1 >= 1;
+"and true";
+1.0 && 1;
+"and false";
+1.0 && 0;
+"or true";
+0.0 || 1;
+"or false";
+0.0 || 0;
+
+print_listfile( "lstopt03" );

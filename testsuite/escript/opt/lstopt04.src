@@ -1,0 +1,17 @@
+// types with string optimization
+include "listfile";
+
+"addition int";
+2 + "add";
+"addition dbl";
+2.001 + "add";
+"addition bool";
+true + "add";
+"addition int";
+"add" + 2;
+"addition dbl";
+"add" + 2.001;
+"addition bool";
+"add" + false;
+
+print_listfile( "lstopt04" );

@@ -57,6 +57,7 @@ public:
   void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_variable_binding( VariableBinding& ) override;
   void visit_while_loop( WhileLoop& ) override;
+  void visit_constant_loop( ConstantPredicateLoop& ) override;
 
 private:
   std::shared_ptr<Variable> create_variable( const SourceLocation&, const std::string& scope,

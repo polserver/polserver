@@ -17,6 +17,7 @@
 #include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ConstantPredicateLoop.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
@@ -352,8 +353,10 @@ void InstructionGenerator::visit_do_while_loop( DoWhileLoop& node )
   emit.label( next );
   generate( node.block() );
   emit.label( *node.continue_label );
+
   generate( node.predicate() );
   emit.jmp_if_true( next );
+
   emit.label( *node.break_label );
 }
 
@@ -798,8 +801,10 @@ void InstructionGenerator::visit_repeat_until_loop( RepeatUntilLoop& loop )
   emit.label( top );
   generate( loop.block() );
   emit.label( *loop.continue_label );
+
   generate( loop.expression() );
   emit.jmp_if_false( top );
+
   emit.label( *loop.break_label );
 }
 
@@ -1009,8 +1014,10 @@ void InstructionGenerator::visit_while_loop( WhileLoop& loop )
   emit.debug_statementbegin();
   update_debug_location( loop );
   emit.label( *loop.continue_label );
+
   generate( loop.predicate() );
   emit.jmp_if_false( *loop.break_label );
+
   generate( loop.block() );
   emit.jmp_always( *loop.continue_label );
   emit.label( *loop.break_label );
@@ -1081,4 +1088,18 @@ void InstructionGenerator::emit_access_variable( Variable& variable )
 
   emit.access_variable( variable, function_params_count, function_capture_count );
 }
+
+void InstructionGenerator::visit_constant_loop( ConstantPredicateLoop& loop )
+{
+  emit.debug_statementbegin();
+  update_debug_location( loop );
+
+  emit.label( *loop.continue_label );
+  generate( loop.block() );
+  if ( loop.is_endless() )
+    emit.jmp_always( *loop.continue_label );
+  // else will fall through and does not loop
+  emit.label( *loop.break_label );
+}
+
 }  // namespace Pol::Bscript::Compiler

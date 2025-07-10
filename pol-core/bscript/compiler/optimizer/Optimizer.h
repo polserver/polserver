@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <memory>
+#include <optional>
 
 #include "bscript/compiler/model/UserFunctionInclusion.h"
 
@@ -12,6 +13,7 @@ namespace Pol::Bscript::Compiler
 class CompilerWorkspace;
 class Constants;
 class Report;
+class Expression;
 
 class Optimizer : public NodeVisitor
 {
@@ -28,10 +30,17 @@ public:
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
+  void visit_conditional_operator( ConditionalOperator& ) override;
+  void visit_elvis_operator( ElvisOperator& ) override;
+
+  void visit_while_loop( WhileLoop& ) override;
+  void visit_do_while_loop( DoWhileLoop& ) override;
+  void visit_repeat_until_loop( RepeatUntilLoop& ) override;
 
   std::unique_ptr<Node> optimized_replacement;
 
 private:
+  std::optional<bool> branch_decision( Expression* exp ) const;
   Constants& constants;
   Report& report;
 };

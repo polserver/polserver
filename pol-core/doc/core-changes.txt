@@ -1,4 +1,10 @@
 -- POL100.2.0 --
+07-10-2025 Turley:
+    Added: Compiler is now able to optimize:
+           - more (all?) constant operations. Eg 2*2.1 is now calculated at compiletime instead of runtime.
+             Before only a small subset of integer operations where calculated at compile time.
+           - ternary and elvis operator if its a constant expression. If statement where already optimized.
+           - while/dowhile/repeat loops if constant, eg by removing them completly "while(false)" or eg endless loop without runtime checks "while(true)"
 07-03-2025 Kevin:
     Added: New module function os::SendEmail and config file email.cfg
     Fixed: Module function polsys::ReloadConfiguration will now return an error if there is an issue in a configuration file instead of

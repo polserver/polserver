@@ -1,0 +1,27 @@
+// unary optimization
+include "listfile";
+
+"not int 0";
+!2;
+"minus int -2";
+-2;
+"plusplus int 3";
+++2;
+"minusminus int 2";
+--3;
+"bitnot int -6";
+~5;
+
+"not dbl 0";
+!2.1;
+"minus dbl -2.1";
+-2.1;
+"plusplus dbl 3.1";
+++2.1;
+"minusminus dbl 2.1";
+--3.1;
+
+"not bool true";
+!false;
+
+print_listfile( "lstopt05" );

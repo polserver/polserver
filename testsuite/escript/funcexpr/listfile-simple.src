@@ -1,6 +1,6 @@
 include "listfile";
 
-if ( "" ) // create a local scope
+if ( {} ) // create a local scope
 
   var a; // declare local 0
 

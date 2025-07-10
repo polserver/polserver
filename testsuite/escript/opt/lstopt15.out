@@ -1,0 +1,73 @@
+test continue
+outer while
+inner while
+continue outer
+outer while
+inner while
+end inner
+end
+test break
+outer while
+inner while
+break outer
+end
+0: declare global #0
+1: false (boolean)
+2: :=
+4: "test continue" (string)
+5: "" (string)
+6: call module function (0, 0): Print
+8: "outer while" (string)
+9: "" (string)
+10: call module function (0, 0): Print
+12: "inner while" (string)
+13: "" (string)
+14: call module function (0, 0): Print
+16: global variable #0
+17: if true goto 25
+18: "continue outer" (string)
+19: "" (string)
+20: call module function (0, 0): Print
+22: true (boolean)
+23: global #0 :=
+24: goto 8
+25: "end inner" (string)
+26: "" (string)
+27: call module function (0, 0): Print
+29: goto 31
+30: goto 12
+31: goto 33
+32: goto 8
+33: "end" (string)
+34: "" (string)
+35: call module function (0, 0): Print
+37: false (boolean)
+38: global #0 :=
+39: "test break" (string)
+40: "" (string)
+41: call module function (0, 0): Print
+43: "outer while" (string)
+44: "" (string)
+45: call module function (0, 0): Print
+47: "inner while" (string)
+48: "" (string)
+49: call module function (0, 0): Print
+51: global variable #0
+52: if true goto 60
+53: "break outer" (string)
+54: "" (string)
+55: call module function (0, 0): Print
+57: true (boolean)
+58: global #0 :=
+59: goto 68
+60: "end inner" (string)
+61: "" (string)
+62: call module function (0, 0): Print
+64: goto 66
+65: goto 47
+66: goto 68
+67: goto 43
+68: "end" (string)
+69: "" (string)
+70: call module function (0, 0): Print
+

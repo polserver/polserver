@@ -24,6 +24,7 @@
 #include "bscript/compiler/ast/ClassInstance.h"
 #include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ConstantPredicateLoop.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
@@ -1220,6 +1221,11 @@ void SemanticAnalyzer::visit_variable_assignment_statement( VariableAssignmentSt
 }
 
 void SemanticAnalyzer::visit_while_loop( WhileLoop& node )
+{
+  visit_loop_statement( node );
+}
+
+void SemanticAnalyzer::visit_constant_loop( ConstantPredicateLoop& node )
 {
   visit_loop_statement( node );
 }

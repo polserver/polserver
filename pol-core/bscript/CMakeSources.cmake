@@ -64,6 +64,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ClassParameterList.h
   compiler/ast/ConditionalOperator.cpp
   compiler/ast/ConditionalOperator.h
+  compiler/ast/ConstantPredicateLoop.cpp
+  compiler/ast/ConstantPredicateLoop.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
   compiler/ast/CstyleForLoop.cpp

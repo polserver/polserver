@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-03-2025</datemodified>
+		<datemodified>07-10-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-10-2025</date>
+			<author>Turley:</author>
+			<change type="Added">Compiler is now able to optimize:<br/>
+- more (all?) constant operations. Eg 2*2.1 is now calculated at compiletime instead of runtime.<br/>
+  Before only a small subset of integer operations where calculated at compile time.<br/>
+- ternary and elvis operator if its a constant expression. If statement where already optimized.<br/>
+- while/dowhile/repeat loops if constant, eg by removing them completly &quot;while(false)&quot; or eg endless loop without runtime checks &quot;while(true)&quot;</change>
+		</entry>
 		<entry>
 			<date>07-03-2025</date>
 			<author>Kevin:</author>

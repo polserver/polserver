@@ -21,6 +21,9 @@ public:
   Expression& alternate();
   const std::shared_ptr<FlowControlLabel> consequent_label;
   const std::shared_ptr<FlowControlLabel> alternate_label;
+
+  std::unique_ptr<Expression> take_consequent();
+  std::unique_ptr<Expression> take_alternate();
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -20,6 +20,7 @@ public:
 
   Block& block();
   Expression& expression();
+  std::unique_ptr<Block> take_block();
 };
 
 }  // namespace Pol::Bscript::Compiler

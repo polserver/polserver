@@ -36,4 +36,8 @@ Expression& DoWhileLoop::predicate()
   return child<Expression>( 1 );
 }
 
+std::unique_ptr<Block> DoWhileLoop::take_block()
+{
+  return take_child<Block>( 0 );
+}
 }  // namespace Pol::Bscript::Compiler
