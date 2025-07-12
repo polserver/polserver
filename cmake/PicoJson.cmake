@@ -6,7 +6,7 @@ set(PICO_SOURCE_DIR "${POL_EXT_LIB_DIR}/picojson-${PICO_TAG}")
 message("* libpicojson")
 add_library(libpicojson INTERFACE IMPORTED)
 
-if (NOT EXISTS "${PICO_SOURCE_DIR}")
+if (NOT EXISTS "${PICO_SOURCE_DIR}/picojson/picojson.h")
   ExternalProject_Add(libpicojson_ext
     GIT_REPOSITORY   ${PICO_REPO}
     GIT_TAG          ${PICO_TAG}

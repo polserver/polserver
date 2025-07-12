@@ -96,9 +96,8 @@ class TestBrain(brain.Brain):
         else:
           serial = arg['serial']
           amount = arg['amount']
-        self.log.info("call client lift ->{}{}".format(serial, amount))
+
         self.client.lift(serial, amount)
-        self.log.info("add event")
         self.server.addevent(
           brain.Event(brain.Event.EVT_LIFT_ITEM,
             clientid = self.id,
@@ -332,7 +331,6 @@ class PolServer:
     elif ev.type==Event.EVT_LIFT_ITEM:
       res['serial']=ev.serial
       res['amount']=1
-      self.log.info("send lift: {}".format(res))
     elif ev.type==Event.EVT_MOVE_ITEM_REJECTED:
       res['reason']=ev.reason
     elif ev.type==Event.EVT_BOAT_MOVE:
