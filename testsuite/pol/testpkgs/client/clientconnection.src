@@ -2,6 +2,8 @@ use os;
 use uo;
 
 program clientconn( con, testscript )
+  // increase queue size to be sure we receive all events
+  Set_Event_Queue_Size( 1000 );
   SetGlobalProperty( "#clientcon", getpid() );
   while ( 1 )
     var ev := Wait_For_Event( 10 );

@@ -43,6 +43,7 @@ endfunction
 
 // get client connection auxiliary scriptref and transfers ownership, meaning client events get send to the calling script
 function getClientConnection()
+  Set_Event_Queue_Size( 1000 ); // increase queue size to be sure we dont miss events
   var res := GetGlobalProperty( "#clientcon" );
   var proc := GetProcess( res );
   proc.sendevent( struct{ ownership := GetProcess() } );
