@@ -25,6 +25,7 @@ program setup()
   endif
 
   // start auxiliary script for client communication
+  Set_Event_Queue_Size( 1000 );
   var i := 1;
   while ( 1 )
     var res := OpenConnection( "127.0.0.1", 50000, "clientconnection", GetProcess(), 1, 1 );
