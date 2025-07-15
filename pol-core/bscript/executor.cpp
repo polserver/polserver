@@ -1533,22 +1533,28 @@ void Executor::ins_casejmp( const Instruction& ins )
 void Executor::ins_jmpiftrue( const Instruction& ins )
 {
   BObjectRef& objref = ValueStack.back();
+  const bool jmp = objref->impptr()->isTrue();
 
-  if ( objref->impptr()->isTrue() )
+  if ( jmp )
     PC = (unsigned)ins.token.lval;
 
-  if ( ins.token.type != TYP_NO_CONSUME_JMP )
+  // keep the obj on the stack if it should jump (ShortCircuit)
+  // (e.g. `1 || 0` would skip `|| 0` but keep the `1` as result on the stack
+  if ( !jmp || ins.token.type != TYP_NO_CONSUME_JMP )
     ValueStack.pop_back();
 }
 
 void Executor::ins_jmpiffalse( const Instruction& ins )
 {
   BObjectRef& objref = ValueStack.back();
+  const bool jmp = !objref->impptr()->isTrue();
 
-  if ( !objref->impptr()->isTrue() )
+  if ( jmp )
     PC = (unsigned)ins.token.lval;
 
-  if ( ins.token.type != TYP_NO_CONSUME_JMP )
+  // keep the obj on the stack if it should jump (ShortCircuit)
+  // (e.g. `0 && 1` would skip `&& 1` but keep the `0` as result on the stack
+  if ( !jmp || ins.token.type != TYP_NO_CONSUME_JMP )
     ValueStack.pop_back();
 }
 
