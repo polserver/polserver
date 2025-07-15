@@ -62,6 +62,7 @@ enum BTokenType : u8
   TYP_NUMTYPES = 0x21,
   TYP_FUNCREF = 0x22,
   TYP_UNARY_PLACEHOLDER = 0x23,
+  TYP_NO_CONSUME_JMP = 0x24,
 };
 
 

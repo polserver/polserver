@@ -1537,7 +1537,8 @@ void Executor::ins_jmpiftrue( const Instruction& ins )
   if ( objref->impptr()->isTrue() )
     PC = (unsigned)ins.token.lval;
 
-  ValueStack.pop_back();
+  if ( ins.token.type != TYP_NO_CONSUME_JMP )
+    ValueStack.pop_back();
 }
 
 void Executor::ins_jmpiffalse( const Instruction& ins )
@@ -1547,7 +1548,8 @@ void Executor::ins_jmpiffalse( const Instruction& ins )
   if ( !objref->impptr()->isTrue() )
     PC = (unsigned)ins.token.lval;
 
-  ValueStack.pop_back();
+  if ( ins.token.type != TYP_NO_CONSUME_JMP )
+    ValueStack.pop_back();
 }
 
 void Executor::ins_interpolate_string( const Instruction& ins )

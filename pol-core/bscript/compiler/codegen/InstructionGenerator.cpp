@@ -6,6 +6,7 @@
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
@@ -1100,6 +1101,20 @@ void InstructionGenerator::visit_constant_loop( ConstantPredicateLoop& loop )
     emit.jmp_always( *loop.continue_label );
   // else will fall through and does not loop
   emit.label( *loop.break_label );
+}
+
+void InstructionGenerator::visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& op )
+{
+  emit.debug_statementbegin();
+  update_debug_location( op );
+  generate( op.lhs() );
+  FlowControlLabel end;
+  if ( op.token_id == TOK_AND )
+    emit.jmp_if_false( end, false );
+  else if ( op.token_id == TOK_OR )
+    emit.jmp_if_true( end, false );
+  generate( op.rhs() );
+  emit.label( end );
 }
 
 }  // namespace Pol::Bscript::Compiler

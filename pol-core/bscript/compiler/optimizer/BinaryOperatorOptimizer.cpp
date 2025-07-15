@@ -1,11 +1,14 @@
 #include "BinaryOperatorOptimizer.h"
 
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 
+#include "BinaryOperatorShortCircuitOptimizer.h"
 #include "BinaryOperatorWithBooleanOptimizer.h"
 #include "BinaryOperatorWithFloatOptimizer.h"
 #include "BinaryOperatorWithIntegerOptimizer.h"
 #include "BinaryOperatorWithStringOptimizer.h"
+#include <memory>
 
 namespace Pol::Bscript::Compiler
 {
@@ -17,12 +20,18 @@ BinaryOperatorOptimizer::BinaryOperatorOptimizer( BinaryOperator& op, Report& re
 std::unique_ptr<Expression> BinaryOperatorOptimizer::optimize()
 {
   op.lhs().accept( *this );
+  if ( !optimized_result )
+  {
+    // second parse step
+    // TODO for optimized result
+    BinaryOperatorShortCircuitOptimizer shortcircuit{ report };
+    op.accept( shortcircuit );
+    optimized_result = shortcircuit.optimize();
+  }
   return std::move( optimized_result );
 }
 
-void BinaryOperatorOptimizer::visit_children( Node& )
-{
-}
+void BinaryOperatorOptimizer::visit_children( Node& ) {}
 
 void BinaryOperatorOptimizer::visit_boolean_value( BooleanValue& lhs )
 {

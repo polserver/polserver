@@ -82,6 +82,7 @@ public:
   void visit_format_expression( FormatExpression& ) override;
   void visit_conditional_operator( ConditionalOperator& ) override;
   void visit_constant_loop( ConstantPredicateLoop& ) override;
+  void visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& ) override;
 
 private:
   void emit_access_variable( Variable& );
