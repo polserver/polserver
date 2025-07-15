@@ -27,6 +27,8 @@ void Token::printOn( std::ostream& os ) const
   case TOK_DOUBLE:
     os << dval << "LF";
     break;
+  case TOK_BOOL:
+    os << fmt::format( "{} (boolean)", static_cast<bool>( lval ) );
   case TOK_IDENT:
     os << token;
     break;
@@ -292,10 +294,11 @@ void Token::printOn( std::ostream& os ) const
     break;
 
   case RSV_JMPIFTRUE:
-    os << "if true goto " << lval;
+    os << "if true goto " << lval << ( type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
     break;
   case RSV_JMPIFFALSE:
-    os << "if false goto " << lval;
+    os << "if false goto " << lval << ( type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
+
     break;
   case RSV_ST_IF:
     os << "if";

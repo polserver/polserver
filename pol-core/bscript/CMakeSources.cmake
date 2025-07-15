@@ -34,6 +34,8 @@ set (bscript_sources    # sorted !
   compiler/ast/BasicForLoop.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
+  compiler/ast/BinaryOperatorShortCircuit.cpp
+  compiler/ast/BinaryOperatorShortCircuit.h
   compiler/ast/BindingStatement.cpp
   compiler/ast/BindingStatement.h
   compiler/ast/Block.cpp
@@ -298,6 +300,8 @@ set (bscript_sources    # sorted !
   compiler/model/WarnOn.h
   compiler/optimizer/BinaryOperatorOptimizer.cpp
   compiler/optimizer/BinaryOperatorOptimizer.h
+  compiler/optimizer/BinaryOperatorShortCircuitOptimizer.cpp
+  compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h
   compiler/optimizer/BinaryOperatorWithBooleanOptimizer.cpp
   compiler/optimizer/BinaryOperatorWithBooleanOptimizer.h
   compiler/optimizer/BinaryOperatorWithFloatOptimizer.cpp

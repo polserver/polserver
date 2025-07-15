@@ -100,8 +100,8 @@ public:
   void get_member( const std::string& name );
   void get_member_id( MemberID );
   void jmp_always( FlowControlLabel& );
-  void jmp_if_false( FlowControlLabel& );
-  void jmp_if_true( FlowControlLabel& );
+  void jmp_if_false( FlowControlLabel&, bool consume = true );
+  void jmp_if_true( FlowControlLabel&, bool consume = true );
   void label( FlowControlLabel& );
   void leaveblock( unsigned local_vars_to_remove );
   void makelocal();

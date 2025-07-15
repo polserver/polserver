@@ -8,6 +8,7 @@ class ArrayInitializer;
 class VariableAssignmentStatement;
 class BasicForLoop;
 class BinaryOperator;
+class BinaryOperatorShortCircuit;
 class BindingStatement;
 class Block;
 class BooleanValue;
@@ -161,6 +162,7 @@ public:
   virtual void visit_conditional_operator( ConditionalOperator& );
   virtual void visit_constant_loop( ConstantPredicateLoop& );
 
+  virtual void visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& );
   virtual void visit_children( Node& parent );
 };
 

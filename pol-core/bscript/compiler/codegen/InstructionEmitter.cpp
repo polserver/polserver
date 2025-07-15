@@ -487,14 +487,16 @@ void InstructionEmitter::jmp_always( FlowControlLabel& label )
   register_with_label( label, emit_token( RSV_GOTO, TYP_RESERVED ) );
 }
 
-void InstructionEmitter::jmp_if_false( FlowControlLabel& label )
+void InstructionEmitter::jmp_if_false( FlowControlLabel& label, bool consume )
 {
-  register_with_label( label, emit_token( RSV_JMPIFFALSE, TYP_RESERVED ) );
+  register_with_label( label,
+                       emit_token( RSV_JMPIFFALSE, consume ? TYP_RESERVED : TYP_NO_CONSUME_JMP ) );
 }
 
-void InstructionEmitter::jmp_if_true( FlowControlLabel& label )
+void InstructionEmitter::jmp_if_true( FlowControlLabel& label, bool consume )
 {
-  register_with_label( label, emit_token( RSV_JMPIFTRUE, TYP_RESERVED ) );
+  register_with_label( label,
+                       emit_token( RSV_JMPIFTRUE, consume ? TYP_RESERVED : TYP_NO_CONSUME_JMP ) );
 }
 
 void InstructionEmitter::label( FlowControlLabel& label )

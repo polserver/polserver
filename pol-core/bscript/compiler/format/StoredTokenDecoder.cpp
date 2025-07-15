@@ -170,10 +170,12 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
 
   case RSV_JMPIFFALSE:
-    fmt::format_to( std::back_inserter( w ), "if false goto {}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "if false goto {}{}", tkn.offset,
+                    tkn.type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
     break;
   case RSV_JMPIFTRUE:
-    fmt::format_to( std::back_inserter( w ), "if true goto {}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "if true goto {}{}", tkn.offset,
+                    tkn.type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
     break;
   case RSV_GOTO:
     fmt::format_to( std::back_inserter( w ), "goto {}", tkn.offset );
