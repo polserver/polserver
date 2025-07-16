@@ -3729,19 +3729,19 @@ void Executor::ins_functor( const Instruction& ins )
 void Executor::ins_logical_jump( const Instruction& ins )
 {
   BObjectRef& objref = ValueStack.back();
-  bool jmp = objref->impptr()->isTrue();           // eg ||
-  if ( ins.token.type == TYP_LOGICAL_JUMP_FALSE )  // eg &&
-    jmp = !jmp;
+  // jmp if true for ||, jmp if false for &&
+  const bool obj_true = objref->impptr()->isTrue();
+  const bool jmp = ins.token.type == TYP_LOGICAL_JUMP_FALSE ? !obj_true : obj_true;
 
   if ( jmp )
     PC = (unsigned)ins.token.lval;
   // keep the obj on the stack if it should jump (ShortCircuit)
   // (e.g. `true || 0` would skip `|| 0` but keep the `true` as result on the stack converted to
-  // BLong (original &&/|| convert to BLong bool
+  // BLong (original &&/|| convert to BLong bool)
   if ( !jmp )
     ValueStack.pop_back();
   else
-    objref.set( new BLong( (int)jmp ) );
+    objref.set( new BLong( (int)obj_true ) );
 }
 
 void Executor::ins_logical_convert( const Instruction& /*ins*/ )
