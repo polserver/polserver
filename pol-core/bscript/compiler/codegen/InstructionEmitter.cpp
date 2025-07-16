@@ -487,16 +487,14 @@ void InstructionEmitter::jmp_always( FlowControlLabel& label )
   register_with_label( label, emit_token( RSV_GOTO, TYP_RESERVED ) );
 }
 
-void InstructionEmitter::jmp_if_false( FlowControlLabel& label, bool consume )
+void InstructionEmitter::jmp_if_false( FlowControlLabel& label )
 {
-  register_with_label( label,
-                       emit_token( RSV_JMPIFFALSE, consume ? TYP_RESERVED : TYP_NO_CONSUME_JMP ) );
+  register_with_label( label, emit_token( RSV_JMPIFFALSE, TYP_RESERVED ) );
 }
 
-void InstructionEmitter::jmp_if_true( FlowControlLabel& label, bool consume )
+void InstructionEmitter::jmp_if_true( FlowControlLabel& label )
 {
-  register_with_label( label,
-                       emit_token( RSV_JMPIFTRUE, consume ? TYP_RESERVED : TYP_NO_CONSUME_JMP ) );
+  register_with_label( label, emit_token( RSV_JMPIFTRUE, TYP_RESERVED ) );
 }
 
 void InstructionEmitter::label( FlowControlLabel& label )
@@ -742,6 +740,17 @@ void InstructionEmitter::register_with_label( FlowControlLabel& label, unsigned 
   {
     label.add_referencing_instruction_address( offset );
   }
+}
+
+void InstructionEmitter::logical_jmp( FlowControlLabel& label, bool if_true )
+{
+  register_with_label(
+      label, emit_token( INS_LOGICAL_JUMP, if_true ? TYP_RESERVED : TYP_LOGICAL_JUMP_FALSE ) );
+}
+
+void InstructionEmitter::logical_convert()
+{
+  emit_token( INS_LOGICAL_CONVERT, TYP_OPERAND );
 }
 
 }  // namespace Pol::Bscript::Compiler

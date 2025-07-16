@@ -100,8 +100,8 @@ public:
   void get_member( const std::string& name );
   void get_member_id( MemberID );
   void jmp_always( FlowControlLabel& );
-  void jmp_if_false( FlowControlLabel&, bool consume = true );
-  void jmp_if_true( FlowControlLabel&, bool consume = true );
+  void jmp_if_false( FlowControlLabel& );
+  void jmp_if_true( FlowControlLabel& );
   void label( FlowControlLabel& );
   void leaveblock( unsigned local_vars_to_remove );
   void makelocal();
@@ -143,6 +143,9 @@ public:
   void patch_offset( unsigned index, unsigned offset );
 
   bool has_function_reference( const UserFunction& );
+
+  void logical_jmp( FlowControlLabel& label, bool if_true );
+  void logical_convert();
 
 private:
   unsigned emit_data( const std::string& );
