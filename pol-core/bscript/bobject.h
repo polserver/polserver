@@ -546,6 +546,7 @@ public:
   explicit BObjectRef( BObject* pobj = nullptr ) : ref_ptr<BObject>( pobj ) {}
   explicit BObjectRef( BObjectImp* pimp ) : ref_ptr<BObject>( new BObject( pimp ) ) {}
   void set( BObject* obj ) { ref_ptr<BObject>::set( obj ); }
+  void set( BObjectImp* imp ) { ref_ptr<BObject>::set( new BObject( imp ) ); }
   size_t sizeEstimate() const;
 };
 

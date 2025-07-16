@@ -170,12 +170,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
 
   case RSV_JMPIFFALSE:
-    fmt::format_to( std::back_inserter( w ), "if false goto {}{}", tkn.offset,
-                    tkn.type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
+    fmt::format_to( std::back_inserter( w ), "if false goto {}", tkn.offset );
     break;
   case RSV_JMPIFTRUE:
-    fmt::format_to( std::back_inserter( w ), "if true goto {}{}", tkn.offset,
-                    tkn.type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
+    fmt::format_to( std::back_inserter( w ), "if true goto {}", tkn.offset );
     break;
   case RSV_GOTO:
     fmt::format_to( std::back_inserter( w ), "goto {}", tkn.offset );
@@ -463,6 +461,14 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
                     tkn.offset & 0x7F, rest_index );
     break;
   }
+
+  case INS_LOGICAL_JUMP:
+    fmt::format_to( std::back_inserter( w ), "logical jump if {} to {}",
+                    tkn.type != TYP_LOGICAL_JUMP_FALSE, tkn.offset );
+    break;
+  case INS_LOGICAL_CONVERT:
+    w += "logical convert";
+    break;
 
   default:
     fmt::format_to( std::back_inserter( w ), "id={:#x} type={} offset={} module={}", tkn.id,

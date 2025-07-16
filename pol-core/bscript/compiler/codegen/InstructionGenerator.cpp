@@ -1110,10 +1110,11 @@ void InstructionGenerator::visit_binary_operator_short_circuit( BinaryOperatorSh
   generate( op.lhs() );
   FlowControlLabel end;
   if ( op.token_id == TOK_AND )
-    emit.jmp_if_false( end, false );
+    emit.logical_jmp( end, false );
   else if ( op.token_id == TOK_OR )
-    emit.jmp_if_true( end, false );
+    emit.logical_jmp( end, true );
   generate( op.rhs() );
+  emit.logical_convert();
   emit.label( end );
 }
 

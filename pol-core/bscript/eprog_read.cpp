@@ -322,6 +322,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_TAKE_LOCAL:
   case INS_UNPACK_SEQUENCE:
   case INS_UNPACK_INDICES:
+  case INS_LOGICAL_JUMP:
+  case INS_LOGICAL_CONVERT:
     token.lval = st.offset;
     return 0;
 

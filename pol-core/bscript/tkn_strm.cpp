@@ -294,10 +294,10 @@ void Token::printOn( std::ostream& os ) const
     break;
 
   case RSV_JMPIFTRUE:
-    os << "if true goto " << lval << ( type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
+    os << "if true goto " << lval;
     break;
   case RSV_JMPIFFALSE:
-    os << "if false goto " << lval << ( type == TYP_NO_CONSUME_JMP ? " (no consume)" : "" );
+    os << "if false goto " << lval;
 
     break;
   case RSV_ST_IF:
@@ -518,6 +518,13 @@ void Token::printOn( std::ostream& os ) const
 
   case TOK_SPREAD:
     os << ( lval ? "spread-into" : "create-spread" );
+    break;
+
+  case INS_LOGICAL_JUMP:
+    os << fmt::format( "logical jump if {} to {}", type != TYP_LOGICAL_JUMP_FALSE, lval );
+    break;
+  case INS_LOGICAL_CONVERT:
+    os << "logical convert";
     break;
 
   default:
