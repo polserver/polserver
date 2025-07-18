@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 
+#include "BinaryOperatorShortCircuitWarning.h"
 #include "BinaryOperatorWithBooleanOptimizer.h"
 #include "BinaryOperatorWithFloatOptimizer.h"
 #include "BinaryOperatorWithIntegerOptimizer.h"
@@ -24,6 +25,8 @@ std::unique_ptr<Expression> BinaryOperatorShortCircuitOptimizer::optimize()
     optimized_result = std::make_unique<BinaryOperatorShortCircuit>(
         op->source_location, op->take_lhs(), op->op, op->token_id, op->take_rhs() );
     report.debug( op->source_location, "found shortcurcuit" );
+    BinaryOperatorShortCircuitWarning warn{ report };
+    optimized_result->accept( warn );
   }
   return std::move( optimized_result );
 }
