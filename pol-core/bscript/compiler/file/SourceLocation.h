@@ -53,6 +53,7 @@ public:
   ~SourceLocation() = default;
 
   void debug( const std::string& msg ) const;
+  std::string getSourceLine() const;
 
   [[noreturn]] void internal_error( const std::string& msg ) const;
   [[noreturn]] void internal_error( const std::string& msg, const SourceLocation& related ) const;

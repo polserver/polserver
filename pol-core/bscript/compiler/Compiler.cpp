@@ -4,6 +4,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Disambiguator.h"
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
+#include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
 #include "bscript/compiler/file/PrettifyBuilder.h"
@@ -135,6 +136,7 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
   if ( report.error_count() )
     return;
 
+  // INFO_PRINTLN( "{}", *workspace->top_level_statements );
   output = generate( std::move( workspace ), report );
 }
 

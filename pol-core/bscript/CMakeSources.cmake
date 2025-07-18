@@ -302,6 +302,8 @@ set (bscript_sources    # sorted !
   compiler/optimizer/BinaryOperatorOptimizer.h
   compiler/optimizer/BinaryOperatorShortCircuitOptimizer.cpp
   compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h
+  compiler/optimizer/BinaryOperatorShortCircuitWarning.cpp
+  compiler/optimizer/BinaryOperatorShortCircuitWarning.h
   compiler/optimizer/BinaryOperatorWithBooleanOptimizer.cpp
   compiler/optimizer/BinaryOperatorWithBooleanOptimizer.h
   compiler/optimizer/BinaryOperatorWithFloatOptimizer.cpp
