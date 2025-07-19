@@ -2,6 +2,7 @@
 
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
+#include "bscript/compilercfg.h"
 
 #include "BinaryOperatorShortCircuitOptimizer.h"
 #include "BinaryOperatorWithBooleanOptimizer.h"
@@ -20,13 +21,17 @@ BinaryOperatorOptimizer::BinaryOperatorOptimizer( BinaryOperator& op, Report& re
 std::unique_ptr<Expression> BinaryOperatorOptimizer::optimize()
 {
   op.lhs().accept( *this );
-  if ( !optimized_result )
+
+  // second parse step
+  if ( compilercfg.ShortCircuitEvaluation )
   {
-    // second parse step
-    // TODO for optimized result
     BinaryOperatorShortCircuitOptimizer shortcircuit{ report };
-    op.accept( shortcircuit );
-    optimized_result = shortcircuit.optimize();
+    if ( !optimized_result )
+      op.accept( shortcircuit );
+    else
+      optimized_result->accept( shortcircuit );
+    if ( auto result = shortcircuit.optimize() )
+      optimized_result = std::move( result );
   }
   return std::move( optimized_result );
 }

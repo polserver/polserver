@@ -17,6 +17,7 @@
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "bscript/compilercfg.h"
 #include "bscript/tokens.h"
 #include "clib/strutil.h"
 
@@ -26,6 +27,8 @@ ShortCircuitWarning::ShortCircuitWarning( Report& report ) : visitor( report ) {
 
 void ShortCircuitWarning::warn( CompilerWorkspace& workspace )
 {
+  if ( !compilercfg.ShortCircuitEvaluation || !compilercfg.ShortCircuitEvaluationWarning )
+    return;
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
@@ -36,10 +39,13 @@ void ShortCircuitWarning::warn( CompilerWorkspace& workspace )
     user_function->accept( *this );
   }
 }
+
 void ShortCircuitWarning::visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& op )
 {
   // check only right side, left is only needed if more compile
   // optimizations are done
+  // left still could be a ShortCircuit so visit it with this instance
+  op.lhs().accept( *this );
   op.rhs().accept( visitor );
 }
 
@@ -53,6 +59,7 @@ void ShortCircuitReporter::trigger( Node& op )
                   "Short circuit change: \"{}\" will potentially not been executed.\n{}",
                   op.describe(), op.source_location.getSourceLine() );
 }
+
 void ShortCircuitReporter::visit_binary_operator( BinaryOperator& op )
 {
   switch ( op.token_id )
@@ -74,14 +81,16 @@ void ShortCircuitReporter::visit_binary_operator( BinaryOperator& op )
     return;
   }
 }
+
 void ShortCircuitReporter::visit_element_assignment( ElementAssignment& op )
 {
   trigger( op );
 }
+
 void ShortCircuitReporter::visit_function_call( FunctionCall& op )
 {
   // Whitelist of module functions without sideeffects
-  // not all, just some i found
+  // not all, just some I found
   static std::map<std::string, std::vector<std::string>> modulefuncs = {
       { "attributes", { "getattribute" } },
       { "basicio", {} },
@@ -118,6 +127,7 @@ void ShortCircuitReporter::visit_function_call( FunctionCall& op )
   }
   trigger( op );
 }
+
 void ShortCircuitReporter::visit_member_assignment( MemberAssignment& op )
 {
   trigger( op );
@@ -128,17 +138,18 @@ void ShortCircuitReporter::visit_member_assignment_by_operator( MemberAssignment
   // todo what
   trigger( op );
 }
+
 void ShortCircuitReporter::visit_variable_assignment_statement( VariableAssignmentStatement& op )
 {
   // todo what
   trigger( op );
 }
 
-
 void ShortCircuitReporter::visit_method_call( MethodCall& op )
 {
   trigger( op );
 }
+
 void ShortCircuitReporter::visit_unary_operator( UnaryOperator& op )
 {
   switch ( op.token_id )

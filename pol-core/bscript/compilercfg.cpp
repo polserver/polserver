@@ -69,6 +69,8 @@ void CompilerConfig::Read( const std::string& path )
   EmParseTreeCacheSize = elem.remove_int( "EmParseTreeCacheSize", 25 );
   IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
 
+  ShortCircuitEvaluation = elem.remove_bool( "ShortCircuitEvaluation", false );
+  ShortCircuitEvaluationWarning = elem.remove_bool( "ShortCircuitEvaluationWarning", true );
 
   FormatterLineWidth = elem.remove_unsigned( "FormatterLineWidth", 100 );
   FormatterKeepKeywords = elem.remove_bool( "FormatterKeepKeywords", false );

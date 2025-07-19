@@ -1,0 +1,32 @@
+var t := true;
+var f := false;
+function blubb()
+endfunction
+print( t || f ); // identifier ok
+print( t || false ); // bool value ok
+print( t || 1 ); // int value ok
+print( t || 1.1 ); // float value ok
+print( t || uninit ); // uninit value ok
+print( f || {} ); // array ok
+print( f || struct{} ); // struct ok
+print( f || dictionary{} ); // dict ok
+print( f || t[1] ); // element access ok
+print( f || !t[1] ); // unary ok
+print( f || ( t.?t ) ); // binary op ok
+print( t && print( "" ) ); // function call ignored module ok
+
+print( f && t.blah() ); // method call
+print( f || t[1].b() ); // method call
+print( f || t[1]++ ); // unary op
+print( f || t[1]-- ); // unary op
+print( f || ++t[1] ); // unary op
+print( f || --t[1] ); // unary op
+print( f || blubb() || blubb() ); // two warnings
+print( f || ( t[1] := 1 ) ); // element assign
+print( f || ( t := 1 ) ); // binary op
+print( f || ( t.t := 1 ) ); // member assign
+print( f || ( t.+t ) ); // binary op
+print( f || ( t.-t ) ); // binary op
+print( f || @blubb() ); // function call
+print( f || @() { }() ); // function call
+print( f && !t.blah() ); // method call as child
