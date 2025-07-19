@@ -23,7 +23,6 @@ private:
   std::unique_ptr<Expression> optimized_result;
 
   BinaryOperator* op;
-  Report& report;
 };
 
 }  // namespace Pol::Bscript::Compiler

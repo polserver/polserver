@@ -12,8 +12,7 @@
 
 namespace Pol::Bscript::Compiler
 {
-BinaryOperatorShortCircuitOptimizer::BinaryOperatorShortCircuitOptimizer( Report& report )
-    : op( nullptr ), report( report )
+BinaryOperatorShortCircuitOptimizer::BinaryOperatorShortCircuitOptimizer( Report& ) : op( nullptr )
 {
 }
 
