@@ -1,6 +1,6 @@
 #include "SourceFileIdentifier.h"
 #include "clib/filecont.h"
-#include "clib/stlutil.h"
+#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {
