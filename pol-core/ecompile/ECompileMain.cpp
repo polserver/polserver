@@ -100,6 +100,7 @@ void ECompileMain::showHelp()
       "       -y           treat warnings as errors\n"
       "       -x           write external .dbg file\n"
       "       -xt          write external .dbg.txt info file\n"
+      "       -S           force enable short-circuit evaluation\n"
       "\n"
       " NOTE:\n"
       "   If <filespec> are required after an empty -r[i] option, you MUST specify\n"
@@ -740,6 +741,9 @@ int readargs( int argc, char** argv )
         compilercfg.NumberOfThreads = count;
         break;
       }
+      case 'S':
+        compilercfg.ShortCircuitEvaluation = true;
+        break;
       default:
         unknown_opt = true;
         break;
