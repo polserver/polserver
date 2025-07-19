@@ -2,6 +2,7 @@
 #define POLSERVER_SOURCEFILEIDENTIFIER_H
 
 #include <string>
+#include <vector>
 
 namespace Pol::Bscript::Compiler
 {
@@ -15,6 +16,10 @@ public:
 
   SourceFileIdentifier( const SourceFileIdentifier& ) = delete;
   SourceFileIdentifier& operator=( const SourceFileIdentifier& ) = delete;
+  const std::vector<std::string>& getLines() const;
+
+private:
+  mutable std::vector<std::string> _lines;
 };
 
 }  // namespace Pol::Bscript::Compiler

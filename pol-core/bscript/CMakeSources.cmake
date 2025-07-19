@@ -24,6 +24,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/LocalVariableScopes.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/analyzer/ShortCircuitWarning.cpp
+  compiler/analyzer/ShortCircuitWarning.h
   compiler/analyzer/Variables.cpp
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
@@ -302,8 +304,6 @@ set (bscript_sources    # sorted !
   compiler/optimizer/BinaryOperatorOptimizer.h
   compiler/optimizer/BinaryOperatorShortCircuitOptimizer.cpp
   compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h
-  compiler/optimizer/BinaryOperatorShortCircuitWarning.cpp
-  compiler/optimizer/BinaryOperatorShortCircuitWarning.h
   compiler/optimizer/BinaryOperatorWithBooleanOptimizer.cpp
   compiler/optimizer/BinaryOperatorWithBooleanOptimizer.h
   compiler/optimizer/BinaryOperatorWithFloatOptimizer.cpp

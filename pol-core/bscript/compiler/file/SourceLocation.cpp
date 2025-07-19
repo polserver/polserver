@@ -163,33 +163,18 @@ void SourceLocation::internal_error( const std::string& msg, const SourceLocatio
   throw std::runtime_error( msg );
 }
 
-// TODO: keep it? maybe in the identifier which lives longer
 std::string SourceLocation::getSourceLine() const
 {
   std::string lines;
   if ( !range.start.line_number )
     return {};
-  Clib::FileContents cont{ source_file_identifier->pathname.c_str(), true };
-  auto content = cont.str_contents();
-  std::string::size_type pos = 0;
-  std::string::size_type prev = 0;
-
-  size_t line = 0;
-  while ( ( pos = content.find_first_of( "\n\r", prev ) ) != std::string::npos )
+  auto& content = source_file_identifier->getLines();
+  for ( size_t i = range.start.line_number - 1; i < range.end.line_number && i < content.size();
+        ++i )
   {
-    ++line;
-    if ( line >= range.start.line_number && line <= range.end.line_number )
-      lines += content.substr( prev, pos - prev ) + "\n";
-    else if ( line > range.end.line_number )
-      break;
-    prev = pos + 1;
-  }
-
-  if ( prev < content.length() )
-  {
-    ++line;
-    if ( line >= range.start.line_number && line <= range.end.line_number )
-      lines += content.substr( prev );
+    if ( lines.size() )
+      lines += '\n';
+    lines += content[i];
   }
 
   return lines;
