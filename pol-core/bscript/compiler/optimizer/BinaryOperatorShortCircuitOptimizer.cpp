@@ -8,19 +8,17 @@
 
 namespace Pol::Bscript::Compiler
 {
-BinaryOperatorShortCircuitOptimizer::BinaryOperatorShortCircuitOptimizer( Report& ) : op( nullptr )
-{
-}
+BinaryOperatorShortCircuitOptimizer::BinaryOperatorShortCircuitOptimizer( Report& ) {}
 
 void BinaryOperatorShortCircuitOptimizer::visit_children( Node& ) {}
-void BinaryOperatorShortCircuitOptimizer::visit_binary_operator( BinaryOperator& binary_operator )
+void BinaryOperatorShortCircuitOptimizer::visit_binary_operator( BinaryOperator& op )
 {
-  switch ( binary_operator.token_id )
+  switch ( op.token_id )
   {
   case TOK_OR:
   case TOK_AND:
     optimized_result = std::make_unique<BinaryOperatorShortCircuit>(
-        op->source_location, op->take_lhs(), op->op, op->token_id, op->take_rhs() );
+        op.source_location, op.take_lhs(), op.op, op.token_id, op.take_rhs() );
     break;
   default:
     break;

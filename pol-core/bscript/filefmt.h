@@ -39,7 +39,7 @@ namespace Bscript
 #define ESCRIPT_FILE_VER_0011 0x0011 /*uninit keyword*/
 #define ESCRIPT_FILE_VER_0012 0x0012 /*funcref table*/
 #define ESCRIPT_FILE_VER_0013 0x0013 /*classes*/
-#define ESCRIPT_FILE_VER_0013 0x0014 /*short circuit*/
+#define ESCRIPT_FILE_VER_0014 0x0014 /*short circuit*/
 
 /*
     NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
