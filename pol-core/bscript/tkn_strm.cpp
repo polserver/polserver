@@ -29,6 +29,7 @@ void Token::printOn( std::ostream& os ) const
     break;
   case TOK_BOOL:
     os << fmt::format( "{} (boolean)", static_cast<bool>( lval ) );
+    break;
   case TOK_IDENT:
     os << token;
     break;

@@ -30,8 +30,8 @@ std::unique_ptr<Expression> BinaryOperatorOptimizer::optimize()
       op.accept( shortcircuit );
     else
       optimized_result->accept( shortcircuit );
-    if ( auto result = shortcircuit.optimize() )
-      optimized_result = std::move( result );
+    if ( shortcircuit.optimized_result )
+      optimized_result = std::move( shortcircuit.optimized_result );
   }
   return std::move( optimized_result );
 }
