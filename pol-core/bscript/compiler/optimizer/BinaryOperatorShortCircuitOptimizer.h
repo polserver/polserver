@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include <memory>
 
 namespace Pol::Bscript::Compiler
 {
