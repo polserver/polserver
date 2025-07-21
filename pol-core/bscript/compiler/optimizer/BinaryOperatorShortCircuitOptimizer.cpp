@@ -4,8 +4,6 @@
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 
-#include <memory>
-
 namespace Pol::Bscript::Compiler
 {
 BinaryOperatorShortCircuitOptimizer::BinaryOperatorShortCircuitOptimizer( Report& ) {}
