@@ -23,7 +23,7 @@ struct CompilerConfig
   bool GenerateListing;
   bool GenerateDebugInfo;
   bool GenerateDebugTextInfo;
-  bool GenerateStringTree;
+  bool GenerateAbstractSyntaxTree;
   int VerbosityLevel;
   bool DisplayWarnings;
   bool DisplayDebugs;

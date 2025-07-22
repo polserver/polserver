@@ -205,8 +205,8 @@ std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWork
                                                     Report& report )
 {
   Pol::Tools::HighPerfTimer codegen_timer;
-  auto compiled_script =
-      CodeGenerator::generate( std::move( workspace ), report, compilercfg.GenerateStringTree );
+  auto compiled_script = CodeGenerator::generate( std::move( workspace ), report,
+                                                  compilercfg.GenerateAbstractSyntaxTree );
   profile.codegen_micros += codegen_timer.ellapsed().count();
   return compiled_script;
 }

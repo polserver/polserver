@@ -6,10 +6,10 @@
 
 namespace Pol::Bscript::Compiler
 {
-class StringTreeGenerator : public NodeVisitor
+class AbstractSyntaxTreeStringGenerator : public NodeVisitor
 {
 public:
-  StringTreeGenerator();
+  AbstractSyntaxTreeStringGenerator();
 
   void visit_children( Node& parent ) override;
 

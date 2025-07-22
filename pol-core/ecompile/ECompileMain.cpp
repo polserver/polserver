@@ -66,7 +66,7 @@ void ECompileMain::showHelp()
       "   Options: \n"
       "       -F           format filespec (print result)\n"
       "       -Fi          format filespec (inplace)\n"
-      "       -Z           print abstract syntax tree (AST) as string tree\n"
+      "       -Z           generate abstract syntax tree (AST)\n"
       "       -a           compile *.asp pages also\n"
       "       -A           automatically compile scripts in main and enabled packages\n"
       "       -Au          (as '-A' but only compile updated files)\n"
@@ -461,7 +461,7 @@ bool compile_file( const std::string& path )
       Clib::RemoveFile( filename_lst );
     }
 
-    if ( compilercfg.GenerateStringTree )
+    if ( compilercfg.GenerateAbstractSyntaxTree )
     {
       if ( !quiet )
         INFO_PRINTLN( "Writing:   {}", filename_ast );
@@ -719,7 +719,7 @@ int readargs( int argc, char** argv )
         break;
 
       case 'Z':
-        compilercfg.GenerateStringTree = setting_value( arg );
+        compilercfg.GenerateAbstractSyntaxTree = setting_value( arg );
         break;
 
 #ifdef WIN32

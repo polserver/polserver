@@ -9,12 +9,12 @@
 #include "bscript/compiler/ast/ProgramParameterList.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/codegen/AbstractSyntaxTreeStringGenerator.h"
 #include "bscript/compiler/codegen/ClassDeclarationRegistrar.h"
 #include "bscript/compiler/codegen/FunctionReferenceRegistrar.h"
 #include "bscript/compiler/codegen/InstructionEmitter.h"
 #include "bscript/compiler/codegen/InstructionGenerator.h"
 #include "bscript/compiler/codegen/ModuleDeclarationRegistrar.h"
-#include "bscript/compiler/codegen/StringTreeGenerator.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
@@ -28,7 +28,7 @@
 namespace Pol::Bscript::Compiler
 {
 std::unique_ptr<CompiledScript> CodeGenerator::generate(
-    std::unique_ptr<CompilerWorkspace> workspace, Report& report, bool with_string_tree )
+    std::unique_ptr<CompilerWorkspace> workspace, Report& report, bool generate_ast_string )
 {
   auto program_info =
       workspace->program
@@ -76,9 +76,9 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 
   std::string tree;
 
-  if ( with_string_tree )
+  if ( generate_ast_string )
   {
-    StringTreeGenerator generator;
+    AbstractSyntaxTreeStringGenerator generator;
     workspace->accept( generator );
     tree = generator.tree();
   }

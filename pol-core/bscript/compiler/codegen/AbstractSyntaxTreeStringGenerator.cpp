@@ -1,13 +1,13 @@
-#include "StringTreeGenerator.h"
+#include "AbstractSyntaxTreeStringGenerator.h"
 
 #include "bscript/compiler/ast/Node.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler
 {
-StringTreeGenerator::StringTreeGenerator() {}
+AbstractSyntaxTreeStringGenerator::AbstractSyntaxTreeStringGenerator() {}
 
-void StringTreeGenerator::visit_children( Node& parent )
+void AbstractSyntaxTreeStringGenerator::visit_children( Node& parent )
 {
   if ( parent.source_location.source_file_identifier->index == 0 )
     _tree += parent.to_string_tree();

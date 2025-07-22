@@ -46,7 +46,7 @@ void CompilerConfig::Read( const std::string& path )
   GenerateListing = elem.remove_bool( "GenerateListing", false );
   GenerateDebugInfo = elem.remove_bool( "GenerateDebugInfo", false );
   GenerateDebugTextInfo = elem.remove_bool( "GenerateDebugTextInfo", false );
-  GenerateStringTree = elem.remove_bool( "GenerateStringTree", false );
+  GenerateAbstractSyntaxTree = elem.remove_bool( "GenerateAbstractSyntaxTree", false );
 
   VerbosityLevel = elem.remove_int( "VerbosityLevel", 0 );
   DisplayWarnings = elem.remove_bool( "DisplayWarnings", false );
