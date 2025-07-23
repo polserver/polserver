@@ -78,9 +78,9 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 
   if ( generate_ast_string )
   {
-    AbstractSyntaxTreeStringGenerator generator;
-    workspace->accept( generator );
-    tree = generator.tree();
+    AbstractSyntaxTreeStringGenerator ast_generator;
+    workspace->accept( ast_generator );
+    tree = ast_generator.tree();
   }
 
   return std::make_unique<CompiledScript>(
