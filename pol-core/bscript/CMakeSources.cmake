@@ -226,6 +226,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/UserFunctionVisitor.h
   compiler/astbuilder/ValueBuilder.cpp
   compiler/astbuilder/ValueBuilder.h
+  compiler/codegen/AbstractSyntaxTreeStringGenerator.cpp
+  compiler/codegen/AbstractSyntaxTreeStringGenerator.h
   compiler/codegen/CaseDispatchGroupVisitor.cpp
   compiler/codegen/CaseDispatchGroupVisitor.h
   compiler/codegen/ClassDeclarationRegistrar.cpp

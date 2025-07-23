@@ -1,0 +1,8 @@
+include "astfile";
+
+function foo()
+  print_astfile( "ast001" );
+  return 0;
+endfunction
+
+foo();

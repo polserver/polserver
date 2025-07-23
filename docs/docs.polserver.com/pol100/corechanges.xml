@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-10-2025</datemodified>
+		<datemodified>07-22-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-22-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">ecompile switch -Z, ecompile.cfg setting GenerateAbstractSyntaxTree to write abstract syntax tree (AST) to file</change>
+		</entry>
 		<entry>
 			<date>07-10-2025</date>
 			<author>Turley:</author>

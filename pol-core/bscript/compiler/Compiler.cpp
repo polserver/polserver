@@ -51,6 +51,15 @@ void Compiler::write_listing( const std::string& pathname )
   }
 }
 
+void Compiler::write_string_tree( const std::string& pathname )
+{
+  if ( output )
+  {
+    std::ofstream ofs( pathname );
+    ofs << output->tree;
+  }
+}
+
 void Compiler::write_dbg( const std::string& pathname, bool include_debug_text )
 {
   if ( output )
@@ -196,7 +205,8 @@ std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWork
                                                     Report& report )
 {
   Pol::Tools::HighPerfTimer codegen_timer;
-  auto compiled_script = CodeGenerator::generate( std::move( workspace ), report );
+  auto compiled_script = CodeGenerator::generate( std::move( workspace ), report,
+                                                  compilercfg.GenerateAbstractSyntaxTree );
   profile.codegen_micros += codegen_timer.ellapsed().count();
   return compiled_script;
 }

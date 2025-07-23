@@ -9,6 +9,7 @@
 #include "bscript/compiler/ast/ProgramParameterList.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/codegen/AbstractSyntaxTreeStringGenerator.h"
 #include "bscript/compiler/codegen/ClassDeclarationRegistrar.h"
 #include "bscript/compiler/codegen/FunctionReferenceRegistrar.h"
 #include "bscript/compiler/codegen/InstructionEmitter.h"
@@ -27,7 +28,7 @@
 namespace Pol::Bscript::Compiler
 {
 std::unique_ptr<CompiledScript> CodeGenerator::generate(
-    std::unique_ptr<CompilerWorkspace> workspace, Report& report )
+    std::unique_ptr<CompilerWorkspace> workspace, Report& report, bool generate_ast_string )
 {
   auto program_info =
       workspace->program
@@ -73,11 +74,20 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 
   std::vector<ClassDescriptor> class_descriptors = class_declaration_registrar.take_descriptors();
 
+  std::string tree;
+
+  if ( generate_ast_string )
+  {
+    AbstractSyntaxTreeStringGenerator ast_generator;
+    workspace->accept( ast_generator );
+    tree = ast_generator.tree();
+  }
+
   return std::make_unique<CompiledScript>(
       std::move( code ), std::move( data ), std::move( debug ), std::move( exported_functions ),
       std::move( workspace->global_variable_names ), std::move( module_descriptors ),
       std::move( function_references ), std::move( class_descriptors ), std::move( program_info ),
-      std::move( workspace->referenced_source_file_identifiers ) );
+      std::move( workspace->referenced_source_file_identifiers ), std::move( tree ) );
 }
 
 CodeGenerator::CodeGenerator( InstructionEmitter& emitter,

@@ -1,0 +1,11 @@
+- top-level-statements
+  - value-consumer
+    - function-call(foo)
+- user-function(foo)
+  - function-parameter-list
+  - user-function-body
+    - value-consumer
+      - function-call(print_astfile)
+        - string-value("ast001")
+    - return-statement
+      - integer-value(0)
