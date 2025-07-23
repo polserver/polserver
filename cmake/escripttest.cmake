@@ -110,7 +110,7 @@ function (testwithcompiler)
   # Only add -Z for ast tests
   # Currently don't have formatting for typing nodes, so ignore that subtest
   # when testing formatting.
-  if(${subtest} MATCHES "ast" and NOT test_FORMAT)
+  if(${subtest} MATCHES "ast" AND NOT test_FORMAT)
     set (ecompilearg "${ecompilearg} -S")
   endif()
   
