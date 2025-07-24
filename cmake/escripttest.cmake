@@ -111,7 +111,7 @@ function (testwithcompiler)
   # Currently don't have formatting for typing nodes, so ignore that subtest
   # when testing formatting.
   if(${subtest} MATCHES "ast" AND NOT test_FORMAT)
-    set (ecompilearg "${ecompilearg} -S")
+    set (ecompilearg "${ecompilearg} -Z")
   endif()
   
   file(GLOB scripts RELATIVE ${testdir} ${testdir}/${subtest}/*)
