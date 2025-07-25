@@ -33,7 +33,7 @@ PackageRoot=D:\DistroDev\devpkg
 #
 # GenerateListing
 # Generates *.lst files that contain program counter and
-# instyructions being executed at the program counter
+# instructions being executed at the program counter
 # location. Useful for debugging misbehaving scripts.
 # Default is 0
 #
@@ -160,6 +160,27 @@ ParanoiaWarnings=0
 # On linux due to filename case sensitivity this is always the case
 # Default is 0
 ErrorOnFileCaseMissmatch=0
+
+#
+# GenerateAbstractSyntaxTree
+# generate .ast files
+# Default is 0
+#
+GenerateAbstractSyntaxTree=0
+
+#
+# ShortCircuitEvaluation
+# activates short circuit evaluation for || and && operations
+# Default is 0
+#
+ShortCircuitEvaluation=0
+
+#
+# ShortCircuitEvaluationWarning
+# prints warnings if ShortCircuitEvaluation is active and second operand could have sideeffects
+# Default is 1
+#
+ShortCircuitEvaluation=1
 
 #
 # EmParseTreeCacheSize
