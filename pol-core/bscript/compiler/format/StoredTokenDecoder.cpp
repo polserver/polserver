@@ -462,6 +462,14 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
   }
 
+  case INS_LOGICAL_JUMP:
+    fmt::format_to( std::back_inserter( w ), "logical jump if {} to {}",
+                    tkn.type != TYP_LOGICAL_JUMP_FALSE, tkn.offset );
+    break;
+  case INS_LOGICAL_CONVERT:
+    w += "logical convert";
+    break;
+
   default:
     fmt::format_to( std::back_inserter( w ), "id={:#x} type={} offset={} module={}", tkn.id,
                     tkn.type, tkn.offset, tkn.module );

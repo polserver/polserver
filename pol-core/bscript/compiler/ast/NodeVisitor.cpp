@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 #include "bscript/compiler/ast/BindingStatement.h"
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BooleanValue.h"
@@ -424,6 +425,11 @@ void NodeVisitor::visit_conditional_operator( ConditionalOperator& node )
 }
 
 void NodeVisitor::visit_constant_loop( ConstantPredicateLoop& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& node )
 {
   visit_children( node );
 }

@@ -3,6 +3,7 @@
 #include "bscript/compiler/Antlr4Inc.h"
 
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "clib/filecont.h"
 #include "clib/logfacility.h"
 
 #include <iterator>
@@ -160,6 +161,23 @@ void SourceLocation::internal_error( const std::string& msg, const SourceLocatio
 {
   ERROR_PRINTLN( "{}: {}\n  See also: {}", ( *this ), msg, related );
   throw std::runtime_error( msg );
+}
+
+std::string SourceLocation::getSourceLine() const
+{
+  std::string lines;
+  if ( !range.start.line_number )
+    return {};
+  auto& content = source_file_identifier->getLines();
+  for ( size_t i = range.start.line_number - 1; i < range.end.line_number && i < content.size();
+        ++i )
+  {
+    if ( lines.size() )
+      lines += '\n';
+    lines += content[i];
+  }
+
+  return lines;
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -44,6 +44,9 @@ struct CompilerConfig
   int EmParseTreeCacheSize;
   int IncParseTreeCacheSize;
 
+  bool ShortCircuitEvaluation = false;
+  bool ShortCircuitEvaluationWarning = true;
+
   // Formatter
   size_t FormatterLineWidth = 100;
   bool FormatterKeepKeywords = false;

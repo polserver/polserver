@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>07/03/2025</datemodified>
+    <datemodified>07/25/2025</datemodified>
 </fileheader>
 
 
@@ -1063,6 +1063,8 @@ PackageRoot (path to package root)
 [ThreadedCompilation (0/1 {default 0})]       //uses multiple thread to speed up compilation
 [NumberOfThreads (0/N {default 0})]           //defines the used number of threads (0=autodetect)
 [ParanoiaWarnings (0/1 {default 0})]          //will complain about {} syntax
+[ShortCircuitEvaluation (0/1 {default 0}]     //activates short-circuit evaluation
+[ShortCircuitEvaluationWarning (0/1 {default 1}] //prints warnings for short-circuit evaluation with potentional sideeffect
 [EmParseTreeCacheSize (0-N {default 25})]     //Cache parse trees for this number of *.em files
 [IncParseTreeCacheSize (0-N {default 50})]    //Cache parse trees for this number of *.inc files
 

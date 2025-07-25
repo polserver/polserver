@@ -1,0 +1,4 @@
+include "astfile";
+var t := true;
+t || t;
+print_astfile( "ast003" );

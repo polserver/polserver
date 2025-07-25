@@ -1,0 +1,7 @@
+include "astfile";
+
+while ( 1 )
+  break;
+endwhile
+
+print_astfile( "ast002" );

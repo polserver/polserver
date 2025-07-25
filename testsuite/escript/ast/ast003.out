@@ -1,0 +1,10 @@
+- top-level-statements
+  - var-statement(t)
+    - boolean-value(true)
+  - value-consumer
+    - binary-operator(||)
+      - identifier(t)
+      - identifier(t)
+  - value-consumer
+    - function-call(print_astfile)
+      - string-value("ast003")

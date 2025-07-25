@@ -144,6 +144,9 @@ public:
 
   bool has_function_reference( const UserFunction& );
 
+  void logical_jmp( FlowControlLabel& label, bool if_true );
+  void logical_convert();
+
 private:
   unsigned emit_data( const std::string& );
   unsigned emit_token( BTokenId id, BTokenType type, unsigned offset = 0 );

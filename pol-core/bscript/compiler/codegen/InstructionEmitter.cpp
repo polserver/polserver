@@ -742,4 +742,15 @@ void InstructionEmitter::register_with_label( FlowControlLabel& label, unsigned 
   }
 }
 
+void InstructionEmitter::logical_jmp( FlowControlLabel& label, bool if_true )
+{
+  register_with_label(
+      label, emit_token( INS_LOGICAL_JUMP, if_true ? TYP_RESERVED : TYP_LOGICAL_JUMP_FALSE ) );
+}
+
+void InstructionEmitter::logical_convert()
+{
+  emit_token( INS_LOGICAL_CONVERT, TYP_OPERAND );
+}
+
 }  // namespace Pol::Bscript::Compiler
