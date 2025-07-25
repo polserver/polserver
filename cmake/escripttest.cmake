@@ -46,9 +46,14 @@ function (readfile file content content_len)
   set(${content_len} ${len} PARENT_SCOPE)
 endfunction()
 
-function (compareresult scriptname result)
+function (compareresult scriptname result optimized)
+  set (outname "${scriptname}.out")
+  if (optimized AND EXISTS "${scriptname}.optimized.out")
+    set (outname "${scriptname}.optimized.out")
+  endif()
+
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E compare_files "${scriptname}.out" "${scriptname}.tst"
+    COMMAND ${CMAKE_COMMAND} -E compare_files ${outname} "${scriptname}.tst"
     RESULT_VARIABLE test_not_successful
     OUTPUT_QUIET
     ERROR_QUIET
@@ -58,7 +63,7 @@ function (compareresult scriptname result)
     return()
   endif()
   set(${result} 0 PARENT_SCOPE)
-  readfile("${scriptname}.out" outcontent outlen)
+  readfile(${outname} outcontent outlen)
   readfile("${scriptname}.tst" tstcontent tstlen)
   if (${outlen} EQUAL ${tstlen})
     math(EXPR looprange ${outlen}-1)
@@ -99,19 +104,22 @@ function (testwithcompiler)
   set (value )
   set (multivalue )
   cmake_parse_arguments(test "${options}" "${value}" "${multivalue}" ${ARGN})
-  set (ecompilearg "")
+  set (ecompilearg )
   set (testname "")
   if(test_SHORTCIRCUIT)
-    set (ecompilearg "-S")
+    set (ecompilearg -S)
     set (testname " [shortcircuit]")
   elseif(test_FORMAT)
     set (testname " [formatted]")
   endif()
   # Only add -Z for ast tests
-  # Currently don't have formatting for typing nodes, so ignore that subtest
-  # when testing formatting.
-  if(${subtest} MATCHES "ast" AND NOT test_FORMAT)
-    set (ecompilearg "${ecompilearg} -Z")
+  if(${subtest} MATCHES "ast")
+    # Currently don't have formatting for typing nodes, so ignore that subtest
+    # when testing formatting.
+    if (test_FORMAT)
+      return()
+    endif()
+    list (APPEND ecompilearg -Z)
   endif()
   
   file(GLOB scripts RELATIVE ${testdir} ${testdir}/${subtest}/*)
@@ -137,7 +145,7 @@ function (testwithcompiler)
     endif()
 
     if (EXISTS "${testdir}/${scriptname}.out" OR EXISTS "${testdir}/${scriptname}.err")
-      execute_process( COMMAND ${ecompile} ${ecompilearg} -l -q -C ecompile.cfg ${script}
+      execute_process( COMMAND ${ecompile} ${ecompilearg} -l -C ecompile.cfg ${script}
         RESULT_VARIABLE ecompile_res
         OUTPUT_VARIABLE ecompile_out
         ERROR_VARIABLE ecompile_out)
@@ -154,7 +162,7 @@ function (testwithcompiler)
         endif()
       else()
         if(NOT "${ecompile_res}" STREQUAL "0")
-          if(NOT ${formatoption} STREQUAL "" AND DEFINED keepfailedformats)
+          if(test_FORMAT AND DEFINED keepfailedformats)
             configure_file(${testdir}/${script} ${testdir}/${scriptname}.formatted.src)
           endif()
           cleanup(${scriptname})
@@ -183,7 +191,7 @@ function (testwithcompiler)
             cleanup(${scriptname})
             message(SEND_ERROR "${scriptname}.ecl did not run")
           else()
-            compareresult(${scriptname} success)
+            compareresult(${scriptname} success ${test_SHORTCIRCUIT})
             # no message needed compare prints
           endif()
         endif()
