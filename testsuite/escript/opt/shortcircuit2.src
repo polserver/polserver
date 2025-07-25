@@ -1,0 +1,5 @@
+true || print( "unoptimized" );
+false && print( "unoptimized" );
+
+false || print( "always" );
+true && print( "always" );
