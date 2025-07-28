@@ -9,7 +9,6 @@
 #include "BinaryOperatorWithFloatOptimizer.h"
 #include "BinaryOperatorWithIntegerOptimizer.h"
 #include "BinaryOperatorWithStringOptimizer.h"
-#include <memory>
 
 namespace Pol::Bscript::Compiler
 {

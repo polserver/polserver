@@ -3741,13 +3741,13 @@ void Executor::ins_logical_jump( const Instruction& ins )
   if ( !jmp )
     ValueStack.pop_back();
   else
-    objref.set( new BLong( (int)obj_true ) );
+    objref.set( new BLong( static_cast<int>( obj_true ) ) );
 }
 
 void Executor::ins_logical_convert( const Instruction& /*ins*/ )
 {
   BObjectRef& objref = ValueStack.back();
-  objref.set( new BLong( (int)objref->impptr()->isTrue() ) );
+  objref.set( new BLong( static_cast<int>( objref->impptr()->isTrue() ) ) );
 }
 
 void Executor::ins_nop( const Instruction& /*ins*/ ) {}

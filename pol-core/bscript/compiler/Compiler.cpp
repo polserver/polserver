@@ -141,7 +141,6 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
   if ( report.error_count() )
     return;
 
-  // INFO_PRINTLN( "{}", *workspace->top_level_statements );
   output = generate( std::move( workspace ), report );
 }
 

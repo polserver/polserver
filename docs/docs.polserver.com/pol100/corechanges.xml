@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-25-2025</datemodified>
+		<datemodified>07-28-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
-			<date>07-22-2025</date>
+			<date>07-28-2025</date>
 			<author>Turley:</author>
 			<change type="Added">ecompile.cfg setting ShortCircuitEvaluation (0/1) default 0 and ShortCircuitEvaluationWarning (0/1) default 1<br/>
 if activated: in || and &amp;&amp; expressions the second argument get only evaluated if the first operand is false for || and true for &amp;&amp;<br/>

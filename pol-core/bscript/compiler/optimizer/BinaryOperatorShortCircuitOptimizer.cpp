@@ -22,6 +22,4 @@ void BinaryOperatorShortCircuitOptimizer::visit_binary_operator( BinaryOperator&
     break;
   }
 }
-
-
 }  // namespace Pol::Bscript::Compiler

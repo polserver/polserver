@@ -1,5 +1,5 @@
 -- POL100.2.0 --
-07-22-2025 Turley:
+07-28-2025 Turley:
     Added: ecompile.cfg setting ShortCircuitEvaluation (0/1) default 0 and ShortCircuitEvaluationWarning (0/1) default 1
            if activated: in || and && expressions the second argument get only evaluated if the first operand is false for || and true for &&
            Since it could be a breaking change the Warning setting was introduced to find all expressions which could break.
