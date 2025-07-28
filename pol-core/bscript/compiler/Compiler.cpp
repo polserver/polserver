@@ -190,6 +190,7 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
     optimize( *workspace, report );
     disambiguate( *workspace, report );
     analyze( *workspace, report );
+    check_short_circuit( *workspace, report );
     tokenize( *workspace );
     return workspace;
   }
