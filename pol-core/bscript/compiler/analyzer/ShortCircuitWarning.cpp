@@ -56,8 +56,8 @@ ShortCircuitReporter::ShortCircuitReporter( Report& report ) : report( report ) 
 void ShortCircuitReporter::trigger( Node& op )
 {
   report.warning( op.source_location,
-                  "Short circuit change: \"{}\" will potentially not been executed.\n{}",
-                  op.describe(), op.source_location.getSourceLine() );
+                  "Short circuit change: \"{}\" will potentially not been executed.",
+                  op.describe() );
 }
 
 void ShortCircuitReporter::visit_binary_operator( BinaryOperator& op )
