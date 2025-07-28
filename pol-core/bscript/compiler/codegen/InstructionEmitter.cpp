@@ -160,19 +160,17 @@ void InstructionEmitter::register_class_declaration(
       }
     }
   }
-  report.debug( node, fmt::format( "Class: {}", node.name ) );
+  report.debug( node, "Class: {}", node.name );
 
   for ( const auto& constructor : constructor_descriptors )
   {
-    report.debug(
-        node, fmt::format( " - Constructor @ type_tag_offset={}", constructor.type_tag_offset ) );
+    report.debug( node, " - Constructor @ type_tag_offset={}", constructor.type_tag_offset );
   }
 
   for ( const auto& method_info : method_descriptors )
   {
-    report.debug( node, fmt::format( " - Method @ PC={} name_offset={} funcref_index={} ",
-                                     method_info.address, method_info.name_offset,
-                                     method_info.function_reference_index ) );
+    report.debug( node, " - Method @ PC={} name_offset={} funcref_index={} ", method_info.address,
+                  method_info.name_offset, method_info.function_reference_index );
   }
 
   class_declaration_registrar.register_class( class_name_offset,

@@ -1,8 +1,7 @@
 #include "GeneratedFunctionBuilder.h"
 
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/adaptor/sliced.hpp>
 #include <list>
+#include <ranges>
 #include <set>
 
 #include "bscript/compiler/Report.h"
@@ -146,7 +145,7 @@ void GeneratedFunctionBuilder::build( std::unique_ptr<GeneratedFunction>& functi
     bool can_use_rest = true;
 
     for ( const auto* base_class_ctor :
-          base_class_ctors | boost::adaptors::sliced( 0, base_class_ctors.size() - 1 ) )
+          base_class_ctors | std::views::take( base_class_ctors.size() - 1 ) )
     {
       if ( base_class_ctor->is_variadic() )
       {

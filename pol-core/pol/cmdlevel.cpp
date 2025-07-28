@@ -147,7 +147,7 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
     {
       if ( !dir_entry.is_regular_file() )
         continue;
-      if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+      if ( auto fn = dir_entry.path().filename().string(); !fn.empty() && *fn.begin() == '.' )
         continue;
 
       const auto ext = dir_entry.path().extension();
@@ -155,8 +155,7 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
       {
         std::unique_ptr<Bscript::BStruct> cmdinfo( new Bscript::BStruct );
         cmdinfo->addMember( "dir", new Bscript::String( search_dir->dir ) );
-        cmdinfo->addMember( "script",
-                            new Bscript::String( dir_entry.path().filename().u8string() ) );
+        cmdinfo->addMember( "script", new Bscript::String( dir_entry.path().filename().string() ) );
         script_names->addElement( cmdinfo.release() );
       }
     }

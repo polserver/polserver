@@ -635,7 +635,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
   std::error_code ec;
   for ( const auto& dir_entry : fs::directory_iterator( path, ec ) )
   {
-    if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+    if ( auto fn = dir_entry.path().filename().string(); !fn.empty() && *fn.begin() == '.' )
       continue;
     if ( dir_entry.is_directory() )
     {
@@ -650,7 +650,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
         continue;
     }
 
-    arr->addElement( new String( dir_entry.path().filename().u8string() ) );
+    arr->addElement( new String( dir_entry.path().filename().string() ) );
   }
 
   return arr;

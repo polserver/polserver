@@ -8,20 +8,12 @@
  * types of packets.
  */
 
-
-#ifndef __PKTDEFH
-#define __PKTDEFH
+#pragma once
 
 #include "../clib/rawtypes.h"
 
-namespace Pol
+namespace Pol::Core
 {
-namespace Core
-{
-#define LAYER_VENDOR_FOR_SALE 0x1A
-#define LAYER_VENDOR_PLAYER_ITEMS 0x1B
-#define LAYER_VENDOR_BUYABLE_ITEMS 0x1C
-
 #define ITEM_FLAG_FORCE_MOVABLE 0x20
 #define ITEM_FLAG_HIDDEN 0x80
 #define SPEECH_MAX_LEN 200
@@ -207,7 +199,4 @@ struct PKTOUT_C0
     EFFECT_FIXEDFROM = 0x03
   };
 };
-}  // namespace Core
-}  // namespace Pol
-
-#endif
+}  // namespace Pol::Core

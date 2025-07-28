@@ -37,16 +37,16 @@ bool load_realms()
   {
     if ( !dir_entry.is_directory() )
       continue;
-    if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+    if ( auto fn = dir_entry.path().filename().string(); !fn.empty() && *fn.begin() == '.' )
       continue;
-    const auto realm_name = dir_entry.path().stem().u8string();
+    const auto realm_name = dir_entry.path().stem().string();
 
     passert_r( gamestate.Realms.size() < MAX_NUMER_REALMS,
                "You can't use more than " + Clib::tostring( MAX_NUMER_REALMS ) + " realms" );
 
     POLLOG_INFOLN( "Loading Realm {}.", realm_name );
     Tools::Timer<> timer;
-    temprealm = new Realms::Realm( realm_name, dir_entry.path().u8string() );
+    temprealm = new Realms::Realm( realm_name, dir_entry.path().string() );
     POLLOG_INFOLN( "Completed in {} ms.", timer.ellapsed() );
     gamestate.Realms.push_back( temprealm );
 

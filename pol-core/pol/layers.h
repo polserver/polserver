@@ -4,18 +4,13 @@
  * - 2009/07/26 MuadDib:   updates for new Enum::Packet IDs
  * - 2009/12/02 Turley:    layer 15 is face layer
  */
-
-
-#ifndef __LAYERS_H
-#define __LAYERS_H
+#pragma once
 
 #include <fmt/format.h>
 #include <string>
 #include <vector>
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 struct ArmorZone
 {
@@ -31,6 +26,9 @@ enum LAYER_INFO
   HIGHEST_LAYER = 25,
   NUM_LAYERS = 25,
   LAYER_EQUIP__HIGHEST = 25,
+  LAYER_VENDOR_FOR_SALE = 26,
+  LAYER_VENDOR_PLAYER_ITEMS = 27,
+  LAYER_VENDOR_BUYABLE_ITEMS = 28,
   LAYER_BANKBOX = 29
 };
 
@@ -67,6 +65,10 @@ enum LAYER_DETAILED
   LAYER_LEG_ARMOR = 24,
   LAYER_MOUNT = 25
 };
+inline auto format_as( LAYER_DETAILED l )
+{
+  return fmt::underlying( l );
+}
 
 /*
 layering.  'worn items' for a character seem to occupy different
@@ -112,6 +114,4 @@ makes sure to drop items only in the correct layer (again, server
 needs to check this).  The only spcial case is the backpack -
 Character::backpack() uses LAYER_BACKPACK to return the backpack item.
 */
-}  // namespace Core
-}  // namespace Pol
-#endif
+}  // namespace Pol::Core

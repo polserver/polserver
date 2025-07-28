@@ -8,13 +8,13 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #define CLIB_COMPILERSPECIFICS_H_
 
 // Fix for VS CodeAnalysis
-#ifdef _MSC_VER
-#pragma warning( disable : 4467 )  // ATL attributes
-#include <CodeAnalysis/sourceannotations.h>
-#define passert_assume( x ) __analysis_assume( x )
-#else
+// #ifdef _MSC_VER
+// #pragma warning( disable : 4467 )  // ATL attributes
+// #include <CodeAnalysis/sourceannotations.h>
+// #define passert_assume( x ) __analysis_assume( x )
+// #else
 #define passert_assume( x )
-#endif
+// #endif
 
 // Note: POL_ANALYZER_NORETURN is just a hint for code analyzers (mostly clang-analyzer) and is not
 //   used for code generation. I don't know of anything similar in the other analyzers and

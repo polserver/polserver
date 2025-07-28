@@ -32,7 +32,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 15
+            compiler-version: 16
             build-type: RelWithDebInfo
             nopch: 0
             name: Linux Clang
@@ -40,7 +40,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 15
+            compiler-version: 16
             build-type: Release
             nopch: 1
             name: Linux Clang noPCH

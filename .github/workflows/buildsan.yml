@@ -16,19 +16,19 @@ jobs:
           - san: TSAN
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 15
+            compiler-version: 16
             build-type: RelWithDebInfo
             name: ThreadSanitizer
           - san: ASAN
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 15
+            compiler-version: 16
             build-type: RelWithDebInfo
             name: AddressSanitizer
           - san: USAN
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 15
+            compiler-version: 16
             build-type: RelWithDebInfo
             name: UndefinedSanitizer
 

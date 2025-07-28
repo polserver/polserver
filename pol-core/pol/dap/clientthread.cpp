@@ -139,7 +139,7 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
 
   fs::path p( request.script );
 
-  if ( p.extension().u8string() == ".src" )
+  if ( p.extension().string() == ".src" )
     p.replace_extension( fs::path( ".ecl" ) );
 
   bool config_result;
@@ -147,11 +147,11 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
   // A package-path
   if ( request.script.find( ':' ) == 0 )
   {
-    config_result = sd.config_nodie( p.u8string(), nullptr, "scripts/" );
+    config_result = sd.config_nodie( p.string(), nullptr, "scripts/" );
   }
   else
   {
-    std::string relative = ( p.is_absolute() ? fs::relative( p ) : p ).u8string();
+    std::string relative = ( p.is_absolute() ? fs::relative( p ) : p ).string();
 
     if ( relative.find( "scripts/" ) == 0 )
     {
@@ -579,7 +579,7 @@ dap::ResponseOrError<dap::StackTraceResponse> DebugClientThread::handle_stackTra
 
     auto filepath = _script->dbg_filenames[_script->dbg_filenum[PC]];
     fs::path p( filepath );
-    std::string abs_path = ( p.is_relative() ? ( fs::current_path() / p ) : p ).u8string();
+    std::string abs_path = ( p.is_relative() ? ( fs::current_path() / p ) : p ).string();
 
     source.name = abs_path;
     source.path = abs_path;

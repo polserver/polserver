@@ -24,10 +24,11 @@ public:
   template <typename T>
   void add( const std::string_view& key, T&& value )
   {
+    using namespace fmt::literals;
     if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )
-      fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "\t{}\t{}\n" ), key, value );
+      fmt::format_to( std::back_inserter( _mbuff ), "\t{}\t{}\n"_cf, key, value );
     else  // force bool to write as 0/1
-      fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "\t{}\t{:d}\n" ), key, value );
+      fmt::format_to( std::back_inserter( _mbuff ), "\t{}\t{:d}\n"_cf, key, value );
   }
   template <typename... Args>
   void comment( const std::string_view& formatstr, Args&&... args )
@@ -37,18 +38,20 @@ public:
     if constexpr ( sizeof...( args ) == 0 )
       _mbuff.append( formatstr );
     else
-      fmt::format_to( std::back_inserter( _mbuff ), formatstr, args... );
+      fmt::format_to( std::back_inserter( _mbuff ), fmt::runtime( formatstr ), args... );
     _mbuff.push_back( '\n' );
   }
   template <typename Str>
   void begin( Str&& key )
   {
-    fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{}\n{{\n" ), key );
+    using namespace fmt::literals;
+    fmt::format_to( std::back_inserter( _mbuff ), "{}\n{{\n"_cf, key );
   }
   template <typename Str, typename StrValue>
   void begin( Str&& key, StrValue&& value )
   {
-    fmt::format_to( std::back_inserter( _mbuff ), FMT_COMPILE( "{} {}\n{{\n" ), key, value );
+    using namespace fmt::literals;
+    fmt::format_to( std::back_inserter( _mbuff ), "{} {}\n{{\n"_cf, key, value );
   }
   void end()
   {

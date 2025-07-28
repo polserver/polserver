@@ -83,7 +83,7 @@ int keyid[] = {
  */
 static int print_ctable()
 {
-  INFO_PRINTLN( "#include \"ctable.h\"\n\nSVR_KEYDESC keydesc[ 257 ] = {" );
+  INFO_PRINTLN( std::string{ "#include \"ctable.h\"\n\nSVR_KEYDESC keydesc[ 257 ] = {" } );
   std::string tmp;
   for ( int i = 0; i <= 256; i++ )
   {
@@ -1165,33 +1165,33 @@ UoToolMain::~UoToolMain() {}
 void UoToolMain::showHelp()
 {
   ERROR_PRINTLN(
-      "Usage:\n"
-      "    \n"
-      "  UOTOOL command [options ...]\n"
-      "    \n"
-      "  Commands:\n"
-      "    tiledump filename        Dump object information\n"
-      "    vertile                  Dump updated object info\n"
-      "    rawdump filename hdrlen reclen\n"
-      "    ctable                   Print Server encryption table\n"
-      "    findgraphic graphic      finds coords of statics with graphic\n"
-      "    findlandtileflags flags  finds landtiles with flags\n"
-      "    contour                  write binary file 6144x4096 z heights\n"
-      "    mapdump x1 y1 [x2 y2]    dumps map+statics info to html tables\n"
-      "    landtileflagsearch flags [notflags]  prints landtiles matching args\n"
-      "    flagsearch flags [notflags]          prints tiles matching flags\n"
-      "    landtilehist             prints landtile histogram\n"
-      "    staticshist              histogram of number of statics at a location\n"
-      "    zhist                    histogram of map z\n"
-      "    multis                   prints multi definitions \n"
-      "    verdata                  prints verdata info\n"
-      "    statics                  prints statics info\n"
-      "    sndlist                  prints sound list info\n"
-      "    verlandtile              prints verdata landtile info\n"
-      "    loschange                prints differences in LOS handling \n"
-      "    staticdefrag [realm]     recreates static files {default britannia} \n"
-      "    formatdesc name          prints plural and singular form of name \n"
-      "    checkmultis              prints infos about multi center items " );
+      std::string{ "Usage:\n"
+                   "    \n"
+                   "  UOTOOL command [options ...]\n"
+                   "    \n"
+                   "  Commands:\n"
+                   "    tiledump filename        Dump object information\n"
+                   "    vertile                  Dump updated object info\n"
+                   "    rawdump filename hdrlen reclen\n"
+                   "    ctable                   Print Server encryption table\n"
+                   "    findgraphic graphic      finds coords of statics with graphic\n"
+                   "    findlandtileflags flags  finds landtiles with flags\n"
+                   "    contour                  write binary file 6144x4096 z heights\n"
+                   "    mapdump x1 y1 [x2 y2]    dumps map+statics info to html tables\n"
+                   "    landtileflagsearch flags [notflags]  prints landtiles matching args\n"
+                   "    flagsearch flags [notflags]          prints tiles matching flags\n"
+                   "    landtilehist             prints landtile histogram\n"
+                   "    staticshist              histogram of number of statics at a location\n"
+                   "    zhist                    histogram of map z\n"
+                   "    multis                   prints multi definitions \n"
+                   "    verdata                  prints verdata info\n"
+                   "    statics                  prints statics info\n"
+                   "    sndlist                  prints sound list info\n"
+                   "    verlandtile              prints verdata landtile info\n"
+                   "    loschange                prints differences in LOS handling \n"
+                   "    staticdefrag [realm]     recreates static files {default britannia} \n"
+                   "    formatdesc name          prints plural and singular form of name \n"
+                   "    checkmultis              prints infos about multi center items " } );
 }
 
 static int s_argc;

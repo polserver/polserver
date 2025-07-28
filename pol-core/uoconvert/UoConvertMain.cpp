@@ -57,7 +57,7 @@ UoConvertMain::~UoConvertMain() {}
 
 void UoConvertMain::showHelp()
 {
-  ERROR_PRINTLN(
+  ERROR_PRINTLN( std::string{
       "Usage:\n"
       "    \n"
       "  UOCONVERT command [options ...]\n"
@@ -69,7 +69,7 @@ void UoConvertMain::showHelp()
       "    maptile {uodata=Dir} {realm=realmname}\n"
       "    multis {uodata=Dir} {outdir=dir}\n"
       "    tiles {uodata=Dir} {outdir=dir}\n"
-      "    landtiles {uodata=Dir} {outdir=dir}" );
+      "    landtiles {uodata=Dir} {outdir=dir}" } );
 }
 
 using namespace Core;

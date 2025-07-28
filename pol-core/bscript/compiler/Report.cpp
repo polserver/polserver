@@ -14,9 +14,8 @@ Report::Report( bool display_warnings, bool display_errors, bool display_debugs 
 {
 }
 
-void Report::report_error( const SourceLocation& source_location, const char* msg )
+void Report::report_error( const SourceLocation& source_location, const std::string& msg ) const
 {
-  ++errors;
   try
   {
     ERROR_PRINTLN( "{}: error: {}", source_location, msg );
@@ -26,9 +25,8 @@ void Report::report_error( const SourceLocation& source_location, const char* ms
   }
 }
 
-void Report::report_warning( const SourceLocation& source_location, const char* msg )
+void Report::report_warning( const SourceLocation& source_location, const std::string& msg ) const
 {
-  ++warnings;
   try
   {
     ERROR_PRINTLN( "{}: warning: {}", source_location, msg );
@@ -38,7 +36,7 @@ void Report::report_warning( const SourceLocation& source_location, const char* 
   }
 }
 
-void Report::report_debug( const SourceLocation& source_location, const char* msg )
+void Report::report_debug( const SourceLocation& source_location, const std::string& msg ) const
 {
   try
   {

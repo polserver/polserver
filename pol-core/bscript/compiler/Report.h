@@ -3,6 +3,7 @@
 
 
 #include "bscript/compiler/ast/Node.h"
+#include "clib/logfacility.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -15,78 +16,83 @@ public:
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
-  template <typename Str, typename... Args>
-  inline void error( const SourceLocation& source_location, Str const& format, Args&&... args )
+  template <typename... Args>
+  inline void error( const SourceLocation& source_location, fmt::format_string<Args...>&& format,
+                     Args&&... args )
   {
+    ++errors;
     if ( display_errors )
-    {
-      auto msg = fmt::format( format, args... );
-      report_error( source_location, msg.c_str() );
-    }
-    else
-    {
-      ++errors;
-    }
+      report_error( source_location, fmt::format( format, std::forward<Args>( args )... ) );
   }
 
-  template <typename Str, typename... Args>
-  inline void error( const SourceFileIdentifier& ident, Str const& format, Args&&... args )
+  inline void error( const SourceLocation& source_location, const std::string& msg )
+  {
+    ++errors;
+    if ( display_errors )
+      report_error( source_location, msg );
+  }
+
+  template <typename... Args>
+  inline void error( const SourceFileIdentifier& ident, fmt::format_string<Args...>&& format,
+                     Args&&... args )
   {
     SourceLocation loc( &ident, 0, 0 );
-    error( loc, format, args... );
+    error( loc, std::forward<fmt::format_string<Args...>>( format ),
+           std::forward<Args>( args )... );
   }
 
-  template <typename Str, typename... Args>
-  inline void error( const Node& node, Str const& format, Args&&... args )
+  template <typename... Args>
+  inline void error( const Node& node, fmt::format_string<Args...>&& format, Args&&... args )
   {
-    error( node.source_location, format, args... );
+    error( node.source_location, std::forward<fmt::format_string<Args...>>( format ),
+           std::forward<Args>( args )... );
+  }
+
+  inline void error( const Node& node, const std::string& msg )
+  {
+    error( node.source_location, msg );
   }
 
   // Report.fatal: use this when it's not possible to continue after a user-facing error.
   //
-  template <typename Str, typename... Args>
-  [[noreturn]] inline void fatal( const SourceLocation& source_location, Str const& format,
-                                  Args&&... args )
+  template <typename... Args>
+  [[noreturn]] inline void fatal( const SourceLocation& source_location,
+                                  fmt::format_string<Args...>&& format, Args&&... args )
   {
-    auto msg = fmt::format( format, args... );
-    report_error( source_location, msg.c_str() );
-    throw std::runtime_error( msg.c_str() );
+    auto msg = fmt::format( format, std::forward<Args>( args )... );
+    report_error( source_location, msg );
+    throw std::runtime_error( msg );
   }
 
-  template <typename Str, typename... Args>
-  inline void warning( const SourceLocation& source_location, Str const& format, Args&&... args )
+  template <typename... Args>
+  inline void warning( const SourceLocation& source_location, fmt::format_string<Args...>&& format,
+                       Args&&... args )
   {
+    ++warnings;
     if ( display_warnings )
-    {
-      auto msg = fmt::format( format, args... );
-      report_warning( source_location, msg.c_str() );
-    }
-    else
-    {
-      ++warnings;
-    }
+      report_warning( source_location, fmt::format( format, std::forward<Args>( args )... ) );
   }
 
-  template <typename Str, typename... Args>
-  inline void warning( const Node& node, Str const& format, Args&&... args )
+  template <typename... Args>
+  inline void warning( const Node& node, fmt::format_string<Args...>&& format, Args&&... args )
   {
-    warning( node.source_location, format, args... );
+    warning( node.source_location, std::forward<fmt::format_string<Args...>>( format ),
+             std::forward<Args>( args )... );
   }
 
-  template <typename Str, typename... Args>
-  inline void debug( const SourceLocation& source_location, Str const& format, Args&&... args )
+  template <typename... Args>
+  inline void debug( const SourceLocation& source_location, fmt::format_string<Args...>&& format,
+                     Args&&... args )
   {
     if ( display_debugs )
-    {
-      auto msg = fmt::format( format, args... );
-      report_debug( source_location, msg.c_str() );
-    }
+      report_debug( source_location, fmt::format( format, std::forward<Args>( args )... ) );
   }
 
-  template <typename Str, typename... Args>
-  inline void debug( const Node& node, Str const& format, Args&&... args )
+  template <typename... Args>
+  inline void debug( const Node& node, fmt::format_string<Args...>&& format, Args&&... args )
   {
-    debug( node.source_location, format, args... );
+    debug( node.source_location, std::forward<fmt::format_string<Args...>>( format ),
+           std::forward<Args>( args )... );
   }
 
   [[nodiscard]] unsigned error_count() const;
@@ -95,10 +101,9 @@ public:
   void reset();
 
 private:
-  void report_error( const SourceLocation&, const char* msg );
-  void report_warning( const SourceLocation&, const char* msg );
-  void report_debug( const SourceLocation&, const char* msg );
-
+  void report_error( const SourceLocation& source_location, const std::string& msg ) const;
+  void report_warning( const SourceLocation& source_location, const std::string& msg ) const;
+  void report_debug( const SourceLocation& source_location, const std::string& msg ) const;
   const bool display_warnings;
   const bool display_errors;
   const bool display_debugs;

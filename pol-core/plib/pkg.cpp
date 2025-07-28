@@ -325,7 +325,7 @@ void load_packages( const std::string& basedir, bool quiet )
   {
     if ( !dir_itr->is_directory() )
       continue;
-    if ( auto fn = dir_itr->path().filename().u8string();
+    if ( auto fn = dir_itr->path().filename().string();
          !fn.empty() && ( *fn.begin() == '.' || fn == "template" ) )
     {
       dir_itr.disable_recursion_pending();
@@ -335,7 +335,7 @@ void load_packages( const std::string& basedir, bool quiet )
     const auto pkg_cfg = pkg_dir / "pkg.cfg";
     if ( !fs::exists( pkg_cfg ) )
       continue;
-    Clib::ConfigFile cf( pkg_cfg.u8string().c_str() );
+    Clib::ConfigFile cf( pkg_cfg.string().c_str() );
     Clib::ConfigElem elem;
 
     cf.readraw( elem );
@@ -344,8 +344,8 @@ void load_packages( const std::string& basedir, bool quiet )
          !fs::exists( pkg_dir / "disabled.pkg" ) )
     {
       if ( !quiet )
-        INFO_PRINTLN( "Loading package in {}", pkg_dir.u8string() );
-      load_package( pkg_dir.u8string() + "/", elem, quiet );
+        INFO_PRINTLN( "Loading package in {}", pkg_dir.string() );
+      load_package( pkg_dir.string() + "/", elem, quiet );
     }
   }
 }

@@ -1,7 +1,7 @@
 #include "FunctionReferenceRegistrar.h"
 
-#include <boost/range/adaptor/reversed.hpp>
 #include <limits.h>
+#include <ranges>
 
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
@@ -75,7 +75,7 @@ std::vector<FunctionReferenceDescriptor> FunctionReferenceRegistrar::take_descri
     // the ValueStack, jumping to the instruction of the default parameter will
     // push its value to the ValueStack, and then chaining through to the
     // remaining default arguments.
-    for ( const auto& param_ref : params | boost::adaptors::reversed )
+    for ( const auto& param_ref : params | std::views::reverse )
     {
       const auto& param = param_ref.get();
       auto label_name =

@@ -133,16 +133,6 @@ struct Summary
   Compiler::Profile profile;
 } summary;
 
-struct Comparison
-{
-  std::atomic<long long> CompileTimeV1Micros{};
-  std::atomic<long long> CompileTimeV2Micros{};
-  std::atomic<long> MatchingResult{};
-  std::atomic<long> NonMatchingResult{};
-  std::atomic<long> MatchingOutput{};
-  std::atomic<long> NonMatchingOutput{};
-} comparison;
-
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
 Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
 
@@ -188,32 +178,6 @@ void compile_inc( const std::string& path )
 
   if ( !res )
     throw std::runtime_error( "Error compiling file" );
-}
-
-std::vector<unsigned char> file_contents( const std::string& pathname, std::ios::openmode openmode )
-{
-  std::ifstream ifs( pathname, openmode );
-  return std::vector<unsigned char>( std::istreambuf_iterator<char>( ifs ), {} );
-}
-
-std::vector<unsigned char> binary_contents( const std::string& pathname )
-{
-  std::ifstream input1( pathname, std::ios::binary );
-  std::vector<unsigned char> buffer( std::istreambuf_iterator<char>( input1 ), {} );
-  return buffer;
-}
-
-std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins_filenums,
-                                                const std::vector<std::string>& filenames )
-{
-  std::vector<std::string> result;
-  result.reserve( ins_filenums.size() );
-
-  for ( auto& ins_filenum : ins_filenums )
-  {
-    result.push_back( filenames.at( ins_filenum ) );
-  }
-  return result;
 }
 
 bool format_file( const std::string& path )
@@ -779,7 +743,7 @@ void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
     {
       if ( Clib::exit_signalled )
         return;
-      if ( auto fn = dir_itr->path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+      if ( auto fn = dir_itr->path().filename().string(); !fn.empty() && *fn.begin() == '.' )
       {
         if ( dir_itr->is_directory() )
           dir_itr.disable_recursion_pending();
@@ -788,7 +752,7 @@ void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
       else if ( !dir_itr->is_regular_file() )
         continue;
       const auto ext = dir_itr->path().extension();
-      const auto file = dir_itr->path().generic_u8string();
+      const auto file = dir_itr->path().generic_string();
       if ( inc_files )
       {
         if ( !ext.compare( ".inc" ) )

@@ -97,7 +97,7 @@ void HiddenMiniDumper::Initialize()
       (e.g. Windows 2000)
       */
   char szDbgHelpPath[_MAX_PATH];
-  char* szResult = nullptr;
+  std::string szResult;
 
   if ( GetModuleFileName( nullptr, szDbgHelpPath, _MAX_PATH ) )
   {
@@ -126,7 +126,7 @@ void HiddenMiniDumper::Initialize()
   else
     szResult = "Warning: DBGHELP.DLL not found, version 5.1+ required in POL directory.";
 
-  if ( szResult )
+  if ( !szResult.empty() )
   {
     POLLOG_INFOLN( szResult );
     InstallOldStructuredExceptionHandler();
