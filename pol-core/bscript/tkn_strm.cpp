@@ -27,6 +27,9 @@ void Token::printOn( std::ostream& os ) const
   case TOK_DOUBLE:
     os << dval << "LF";
     break;
+  case TOK_BOOL:
+    os << fmt::format( "{} (boolean)", static_cast<bool>( lval ) );
+    break;
   case TOK_IDENT:
     os << token;
     break;
@@ -296,6 +299,7 @@ void Token::printOn( std::ostream& os ) const
     break;
   case RSV_JMPIFFALSE:
     os << "if false goto " << lval;
+
     break;
   case RSV_ST_IF:
     os << "if";
@@ -515,6 +519,13 @@ void Token::printOn( std::ostream& os ) const
 
   case TOK_SPREAD:
     os << ( lval ? "spread-into" : "create-spread" );
+    break;
+
+  case INS_LOGICAL_JUMP:
+    os << fmt::format( "logical jump if {} to {}", type != TYP_LOGICAL_JUMP_FALSE, lval );
+    break;
+  case INS_LOGICAL_CONVERT:
+    os << "logical convert";
     break;
 
   default:

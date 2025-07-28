@@ -1,4 +1,12 @@
 -- POL100.2.0 --
+07-28-2025 Turley:
+    Added: ecompile.cfg setting ShortCircuitEvaluation (0/1) default 0 and ShortCircuitEvaluationWarning (0/1) default 1
+           if activated: in || and && expressions the second argument get only evaluated if the first operand is false for || and true for &&
+           Since it could be a breaking change the Warning setting was introduced to find all expressions which could break.
+           The warning will not be triggered for functions which are known to have no sideeffect eg Len.
+           Its no complete list just the most common ones.
+           Due to the fact that variable types are not known at compile time and methods can be overwritten it will warn if any method calls are performed.
+    Added: ecompile switch -S to activate ShortCircuitEvaluation independend of the cfg setting
 07-22-2025 Kevin:
     Added: ecompile switch -Z, ecompile.cfg setting GenerateAbstractSyntaxTree to write abstract syntax tree (AST) to file
 07-10-2025 Turley:

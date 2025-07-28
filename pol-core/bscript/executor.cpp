@@ -361,7 +361,7 @@ int Executor::makeString( unsigned param )
   if ( obj->isa( BObjectImp::OTString ) )
     return 0;
 
-  fparams[param].set( new BObject( new String( obj->impref() ) ) );
+  fparams[param].set( new String( obj->impref() ) );
 
   return 0;
 }
@@ -383,9 +383,9 @@ int Executor::makeDouble( unsigned param )
   if ( obj->isa( BObjectImp::OTDouble ) )
     return 0;
   if ( auto* v = obj->impptr_if<BLong>() )
-    fparams[param].set( new BObject( new Double( v->value() ) ) );
+    fparams[param].set( new Double( v->value() ) );
   else
-    fparams[param].set( new BObject( new Double( 0.0 ) ) );
+    fparams[param].set( new Double( 0.0 ) );
 
   return 0;
 }
@@ -951,7 +951,7 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
   else if ( auto* a = obj->impptr_if<ObjArray>() )
   {
     String* str = String::fromUCArray( a );
-    fparams[param].set( new BObject( str ) );  // store raw pointer
+    fparams[param].set( str );  // store raw pointer
     pstr = str;
     return true;
   }
@@ -1003,7 +1003,7 @@ bool Executor::setProgram( EScriptProgram* i_prog )
   for ( unsigned i = 0; i < prog_->nglobals; ++i )
   {
     Globals2->push_back( BObjectRef() );
-    Globals2->back().set( new BObject( UninitObject::create() ) );
+    Globals2->back().set( UninitObject::create() );
   }
 
   prog_ok_ = true;
@@ -1086,7 +1086,7 @@ void Executor::ins_makeLocal( const Instruction& /*ins*/ )
   passert( Locals2 != nullptr );
 
   Locals2->push_back( BObjectRef() );
-  Locals2->back().set( new BObject( UninitObject::create() ) );
+  Locals2->back().set( UninitObject::create() );
 
   ValueStack.push_back( BObjectRef( Locals2->back().get() ) );
 }
@@ -1115,7 +1115,7 @@ void Executor::popParam( const Token& /*token*/ )
   BObjectRef objref = getObjRef();
 
   Locals2->push_back( BObjectRef() );
-  Locals2->back().set( new BObject( objref->impptr()->copy() ) );
+  Locals2->back().set( objref->impptr()->copy() );
 }
 
 void Executor::popParamByRef( const Token& /*token*/ )
@@ -1130,13 +1130,13 @@ void Executor::getArg( const Token& /*token*/ )
   if ( ValueStack.empty() )
   {
     Locals2->push_back( BObjectRef() );
-    Locals2->back().set( new BObject( UninitObject::create() ) );
+    Locals2->back().set( UninitObject::create() );
   }
   else
   {
     BObjectRef objref = getObjRef();
     Locals2->push_back( BObjectRef() );
-    Locals2->back().set( new BObject( objref->impptr()->copy() ) );
+    Locals2->back().set( objref->impptr()->copy() );
   }
 }
 
@@ -1263,7 +1263,7 @@ void Executor::ins_initforeach( const Instruction& ins )
   BObjectRef objref = getObjRef();
   Locals2->push_back( BObjectRef() );
   ContIterator* pIter = objref->impptr()->createIterator( pIterVal );
-  Locals2->back().set( new BObject( pIter ) );
+  Locals2->back().set( pIter );
 
   Locals2->push_back( BObjectRef() );
   Locals2->back().set( pIterVal );
@@ -1596,7 +1596,7 @@ void Executor::ins_format_expression( const Instruction& )
   auto format = formatref->impptr()->getFormattedStringRep();
   auto formatted = Bscript::get_formatted( expr.impptr(), format );
 
-  exprref.set( new BObject( new String( formatted ) ) );
+  exprref.set( new String( formatted ) );
 }
 
 void Executor::ins_skipiftrue_else_consume( const Instruction& ins )
@@ -1979,7 +1979,7 @@ void Executor::ins_array_assign( const Instruction& /*ins*/ )
   BObjectImp* result;
   result = x->array_assign( i.impptr(), y.impptr(), ( y.count() != 1 ) );
 
-  x_ref.set( new BObject( result ) );
+  x_ref.set( result );
 }
 void Executor::ins_array_assign_consume( const Instruction& /*ins*/ )
 {
@@ -2025,7 +2025,7 @@ void Executor::ins_add( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfPlusObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfPlusObjImp( left.impref() ) );
 }
 
 // TOK_SUBTRACT
@@ -2043,7 +2043,7 @@ void Executor::ins_subtract( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfMinusObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfMinusObjImp( left.impref() ) );
 }
 
 // TOK_MULT:
@@ -2061,7 +2061,7 @@ void Executor::ins_mult( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfTimesObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfTimesObjImp( left.impref() ) );
 }
 // TOK_DIV:
 void Executor::ins_div( const Instruction& /*ins*/ )
@@ -2078,7 +2078,7 @@ void Executor::ins_div( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfDividedByObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfDividedByObjImp( left.impref() ) );
 }
 // TOK_MODULUS:
 void Executor::ins_modulus( const Instruction& /*ins*/ )
@@ -2095,7 +2095,7 @@ void Executor::ins_modulus( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfModulusObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfModulusObjImp( left.impref() ) );
 }
 
 // TOK_IS:
@@ -2108,7 +2108,7 @@ void Executor::ins_is( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfIsObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfIsObjImp( left.impref() ) );
 }
 
 // TOK_BSRIGHT:
@@ -2126,7 +2126,7 @@ void Executor::ins_bitshift_right( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfBitShiftRightObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfBitShiftRightObjImp( left.impref() ) );
 }
 // TOK_BSLEFT:
 void Executor::ins_bitshift_left( const Instruction& /*ins*/ )
@@ -2143,7 +2143,7 @@ void Executor::ins_bitshift_left( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfBitShiftLeftObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfBitShiftLeftObjImp( left.impref() ) );
 }
 // TOK_BITAND:
 void Executor::ins_bitwise_and( const Instruction& /*ins*/ )
@@ -2160,7 +2160,7 @@ void Executor::ins_bitwise_and( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfBitAndObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfBitAndObjImp( left.impref() ) );
 }
 // TOK_BITXOR:
 void Executor::ins_bitwise_xor( const Instruction& /*ins*/ )
@@ -2177,7 +2177,7 @@ void Executor::ins_bitwise_xor( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfBitXorObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfBitXorObjImp( left.impref() ) );
 }
 // TOK_BITOR:
 void Executor::ins_bitwise_or( const Instruction& /*ins*/ )
@@ -2194,7 +2194,7 @@ void Executor::ins_bitwise_or( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( right.impref().selfBitOrObjImp( left.impref() ) ) );
+  leftref.set( right.impref().selfBitOrObjImp( left.impref() ) );
 }
 
 void Executor::ins_logical_and( const Instruction& /*ins*/ )
@@ -2212,7 +2212,7 @@ void Executor::ins_logical_and( const Instruction& /*ins*/ )
   BObject& left = *leftref;
 
   int _true = ( left.isTrue() && right.isTrue() );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 void Executor::ins_logical_or( const Instruction& /*ins*/ )
 {
@@ -2229,7 +2229,7 @@ void Executor::ins_logical_or( const Instruction& /*ins*/ )
   BObject& left = *leftref;
 
   int _true = ( left.isTrue() || right.isTrue() );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 
 void Executor::ins_notequal( const Instruction& /*ins*/ )
@@ -2247,7 +2247,7 @@ void Executor::ins_notequal( const Instruction& /*ins*/ )
   BObject& left = *leftref;
 
   int _true = ( left != right );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 
 void Executor::ins_equal( const Instruction& /*ins*/ )
@@ -2265,7 +2265,7 @@ void Executor::ins_equal( const Instruction& /*ins*/ )
   BObject& left = *leftref;
 
   int _true = ( left == right );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 
 void Executor::ins_lessthan( const Instruction& /*ins*/ )
@@ -2283,7 +2283,7 @@ void Executor::ins_lessthan( const Instruction& /*ins*/ )
   BObject& left = *leftref;
 
   int _true = ( left < right );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 
 void Executor::ins_lessequal( const Instruction& /*ins*/ )
@@ -2300,7 +2300,7 @@ void Executor::ins_lessequal( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
   int _true = ( left <= right );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 void Executor::ins_greaterthan( const Instruction& /*ins*/ )
 {
@@ -2317,7 +2317,7 @@ void Executor::ins_greaterthan( const Instruction& /*ins*/ )
   BObject& left = *leftref;
 
   int _true = ( left > right );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 void Executor::ins_greaterequal( const Instruction& /*ins*/ )
 {
@@ -2334,7 +2334,7 @@ void Executor::ins_greaterequal( const Instruction& /*ins*/ )
   BObject& left = *leftref;
 
   int _true = ( left >= right );
-  leftref.set( new BObject( new BLong( _true ) ) );
+  leftref.set( new BLong( _true ) );
 }
 
 // case TOK_ARRAY_SUBSCRIPT:
@@ -2748,7 +2748,7 @@ void Executor::ins_in( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( new BObject( new BLong( right.impref().contains( left.impref() ) ) ) );
+  leftref.set( new BLong( right.impref().contains( left.impref() ) ) );
 }
 
 void Executor::ins_insert_into( const Instruction& /*ins*/ )
@@ -2971,16 +2971,16 @@ void Executor::ins_call_method_id( const Instruction& ins )
         BObject obj( imp );
       }
 
-      objref.set( new BObject( func_result_ ) );
+      objref.set( func_result_ );
       func_result_ = nullptr;
     }
     else if ( imp )
     {
-      objref.set( new BObject( imp ) );
+      objref.set( imp );
     }
     else
     {
-      objref.set( new BObject( UninitObject::create() ) );
+      objref.set( UninitObject::create() );
     }
 
     cleanParams();
@@ -3116,16 +3116,16 @@ void Executor::ins_call_method( const Instruction& ins )
       BObject obj( imp );
     }
 
-    objref.set( new BObject( func_result_ ) );
+    objref.set( func_result_ );
     func_result_ = nullptr;
   }
   else if ( imp )
   {
-    objref.set( new BObject( imp ) );
+    objref.set( imp );
   }
   else
   {
-    objref.set( new BObject( UninitObject::create() ) );
+    objref.set( UninitObject::create() );
   }
 
   cleanParams();
@@ -3218,7 +3218,7 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
   rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
   if ( continuation )
   {
-    rc.Continuation.set( new BObject( continuation ) );
+    rc.Continuation.set( continuation );
   }
 
   // Only store our global context if the function is external to the current program.
@@ -3726,6 +3726,30 @@ void Executor::ins_functor( const Instruction& ins )
   PC += ins.token.lval;
 }
 
+void Executor::ins_logical_jump( const Instruction& ins )
+{
+  BObjectRef& objref = ValueStack.back();
+  // jmp if true for ||, jmp if false for &&
+  const bool obj_true = objref->impptr()->isTrue();
+  const bool jmp = ins.token.type == TYP_LOGICAL_JUMP_FALSE ? !obj_true : obj_true;
+
+  if ( jmp )
+    PC = (unsigned)ins.token.lval;
+  // keep the obj on the stack if it should jump (ShortCircuit)
+  // (e.g. `true || 0` would skip `|| 0` but keep the `true` as result on the stack converted to
+  // BLong (original &&/|| convert to BLong bool)
+  if ( !jmp )
+    ValueStack.pop_back();
+  else
+    objref.set( new BLong( static_cast<int>( obj_true ) ) );
+}
+
+void Executor::ins_logical_convert( const Instruction& /*ins*/ )
+{
+  BObjectRef& objref = ValueStack.back();
+  objref.set( new BLong( static_cast<int>( objref->impptr()->isTrue() ) ) );
+}
+
 void Executor::ins_nop( const Instruction& /*ins*/ ) {}
 
 ExecInstrFunc Executor::GetInstrFunc( const Token& token )
@@ -3968,6 +3992,10 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_format_expression;
   case TOK_BOOL:
     return &Executor::ins_bool;
+  case INS_LOGICAL_JUMP:
+    return &Executor::ins_logical_jump;
+  case INS_LOGICAL_CONVERT:
+    return &Executor::ins_logical_convert;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }

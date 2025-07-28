@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-22-2025</datemodified>
+		<datemodified>07-28-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>07-28-2025</date>
+			<author>Turley:</author>
+			<change type="Added">ecompile.cfg setting ShortCircuitEvaluation (0/1) default 0 and ShortCircuitEvaluationWarning (0/1) default 1<br/>
+if activated: in || and &amp;&amp; expressions the second argument get only evaluated if the first operand is false for || and true for &amp;&amp;<br/>
+Since it could be a breaking change the Warning setting was introduced to find all expressions which could break.<br/>
+The warning will not be triggered for functions which are known to have no sideeffect eg Len.<br/>
+Its no complete list just the most common ones.<br/>
+Due to the fact that variable types are not known at compile time and methods can be overwritten it will warn if any method calls are performed.</change>
+			<change type="Added">ecompile switch -S to activate ShortCircuitEvaluation independend of the cfg setting</change>
+		</entry>
 		<entry>
 			<date>07-22-2025</date>
 			<author>Kevin:</author>
