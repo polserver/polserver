@@ -1,17 +1,20 @@
 #include "BinaryOperatorShortCircuit.h"
-
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/model/FlowControlLabel.h"
 
 #include <utility>
-
-#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {
 BinaryOperatorShortCircuit::BinaryOperatorShortCircuit( const SourceLocation& source_location,
                                                         std::unique_ptr<Expression> lhs,
-                                                        std::string op, BTokenId token_id,
+                                                        ShortCircuitOp op,
                                                         std::unique_ptr<Expression> rhs )
-    : Expression( source_location ), op( std::move( op ) ), token_id( token_id )
+    : Expression( source_location ),
+      oper( op ),
+      end_label( std::make_shared<FlowControlLabel>() ),
+      linked_jmp_label(),
+      generate_logical_convert( true )
 {
   children.reserve( 2 );
   children.push_back( std::move( lhs ) );
@@ -25,7 +28,8 @@ void BinaryOperatorShortCircuit::accept( NodeVisitor& visitor )
 
 void BinaryOperatorShortCircuit::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "binary-operator-short-circuit({})", op );
+  fmt::format_to( std::back_inserter( w ), "binary-operator-short-circuit({})",
+                  oper == ShortCircuitOp::OR ? "||" : "&&" );
 }
 
 Expression& BinaryOperatorShortCircuit::lhs()

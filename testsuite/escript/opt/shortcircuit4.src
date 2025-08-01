@@ -1,0 +1,8 @@
+include "listfile";
+var t := true;
+var f := false;
+if ( f || print( t || f ) || t )
+  print( "success" );
+endif
+
+print_listfile( "shortcircuit4" );

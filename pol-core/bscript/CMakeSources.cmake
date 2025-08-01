@@ -318,6 +318,8 @@ set (bscript_sources    # sorted !
   compiler/optimizer/Optimizer.h
   compiler/optimizer/ReferencedFunctionGatherer.cpp
   compiler/optimizer/ReferencedFunctionGatherer.h
+  compiler/optimizer/ShortCircuitCombiner.cpp
+  compiler/optimizer/ShortCircuitCombiner.h
   compiler/optimizer/UnaryOperatorOptimizer.cpp
   compiler/optimizer/UnaryOperatorOptimizer.h
   compiler/optimizer/ValueConsumerOptimizer.cpp

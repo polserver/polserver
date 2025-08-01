@@ -1,0 +1,24 @@
+1
+success
+0: declare global #0
+1: true (boolean)
+2: :=
+4: declare global #1
+5: false (boolean)
+6: :=
+8: global variable #1
+9: logical jump if true to 19
+10: global variable #0
+11: logical jump if true to 14
+12: global variable #1
+13: logical convert
+14: "" (string)
+15: call module function (0, 0): Print
+16: logical jump if true to 19
+17: global variable #0
+18: logical convert
+19: if false goto 24
+20: "success" (string)
+21: "" (string)
+22: call module function (0, 0): Print
+
