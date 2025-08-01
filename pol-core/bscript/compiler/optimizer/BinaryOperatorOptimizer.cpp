@@ -9,6 +9,7 @@
 #include "BinaryOperatorWithFloatOptimizer.h"
 #include "BinaryOperatorWithIntegerOptimizer.h"
 #include "BinaryOperatorWithStringOptimizer.h"
+#include "ShortCircuitCombiner.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -30,7 +31,12 @@ std::unique_ptr<Expression> BinaryOperatorOptimizer::optimize()
     else
       optimized_result->accept( shortcircuit );
     if ( shortcircuit.optimized_result )
+    {
       optimized_result = std::move( shortcircuit.optimized_result );
+      // third parse step
+      ShortCircuitCombiner combiner{ report };
+      optimized_result->accept( combiner );
+    }
   }
   return std::move( optimized_result );
 }

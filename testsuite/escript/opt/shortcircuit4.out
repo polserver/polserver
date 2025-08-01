@@ -1,0 +1,22 @@
+1
+success
+0: declare global #0
+1: true (boolean)
+2: :=
+4: declare global #1
+5: false (boolean)
+6: :=
+8: global variable #1
+9: global variable #0
+10: global variable #1
+11: || (logical or)
+12: "" (string)
+13: call module function (0, 0): Print
+14: || (logical or)
+15: global variable #0
+16: || (logical or)
+17: if false goto 22
+18: "success" (string)
+19: "" (string)
+20: call module function (0, 0): Print
+
