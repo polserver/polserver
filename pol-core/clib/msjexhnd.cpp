@@ -15,12 +15,12 @@
 // FILE: MSJEXHND.CPP
 //==========================================
 
-#include <tchar.h>
 #include "msjexhnd.h"
-#include <imagehlp.h>
-#include <algorithm>
-#include <stdio.h>
 #include "logfacility.h"
+#include <algorithm>
+#include <imagehlp.h>
+#include <stdio.h>
+#include <tchar.h>
 
 namespace Pol
 {
@@ -122,13 +122,13 @@ LONG WINAPI MSJExceptionHandler::MSJUnhandledExceptionFilter( PEXCEPTION_POINTER
 void MSJExceptionHandler::GenerateExceptionReport( PEXCEPTION_POINTERS pExceptionInfo )
 {
   // Start out with a banner
-  _tprintf( _T( "//=====================================================\n" ) );
+  tprintf( _T( "//=====================================================\n" ) );
 
   PEXCEPTION_RECORD pExceptionRecord = pExceptionInfo->ExceptionRecord;
 
   // First print information about the type of fault
-  _tprintf( _T( "Exception code: %08X %s\n" ), pExceptionRecord->ExceptionCode,
-            GetExceptionString( pExceptionRecord->ExceptionCode ) );
+  tprintf( _T( "Exception code: %08X %s\n" ), pExceptionRecord->ExceptionCode,
+           GetExceptionString( pExceptionRecord->ExceptionCode ) );
 
   // Now print information about where the fault occured
   TCHAR szFaultingModule[MAX_PATH];
@@ -136,23 +136,23 @@ void MSJExceptionHandler::GenerateExceptionReport( PEXCEPTION_POINTERS pExceptio
   GetLogicalAddress( pExceptionRecord->ExceptionAddress, szFaultingModule,
                      sizeof( szFaultingModule ), section, offset );
 
-  _tprintf( _T( "Fault address:  %08X %02X:%08X %s\n" ), pExceptionRecord->ExceptionAddress,
-            section, offset, szFaultingModule );
+  tprintf( _T( "Fault address:  %08X %02X:%08X %s\n" ), (size_t)pExceptionRecord->ExceptionAddress,
+           section, offset, szFaultingModule );
 
   PCONTEXT pCtx = pExceptionInfo->ContextRecord;
 
 // Show the registers
 #ifdef _M_IX86  // Intel Only!
-  _tprintf( _T("\nRegisters:\n") );
+  tprintf( _T("\nRegisters:\n") );
 
-  _tprintf( _T("EAX:%08X\nEBX:%08X\nECX:%08X\nEDX:%08X\nESI:%08X\nEDI:%08X\n"), pCtx->Eax,
-            pCtx->Ebx, pCtx->Ecx, pCtx->Edx, pCtx->Esi, pCtx->Edi );
+  tprintf( _T("EAX:%08X\nEBX:%08X\nECX:%08X\nEDX:%08X\nESI:%08X\nEDI:%08X\n"), pCtx->Eax, pCtx->Ebx,
+           pCtx->Ecx, pCtx->Edx, pCtx->Esi, pCtx->Edi );
 
-  _tprintf( _T("CS:EIP:%04X:%08X\n"), pCtx->SegCs, pCtx->Eip );
-  _tprintf( _T("SS:ESP:%04X:%08X  EBP:%08X\n"), pCtx->SegSs, pCtx->Esp, pCtx->Ebp );
-  _tprintf( _T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\n"), pCtx->SegDs, pCtx->SegEs, pCtx->SegFs,
-            pCtx->SegGs );
-  _tprintf( _T("Flags:%08X\n"), pCtx->EFlags );
+  tprintf( _T("CS:EIP:%04X:%08X\n"), pCtx->SegCs, pCtx->Eip );
+  tprintf( _T("SS:ESP:%04X:%08X  EBP:%08X\n"), pCtx->SegSs, pCtx->Esp, pCtx->Ebp );
+  tprintf( _T("DS:%04X  ES:%04X  FS:%04X  GS:%04X\n"), pCtx->SegDs, pCtx->SegEs, pCtx->SegFs,
+           pCtx->SegGs );
+  tprintf( _T("Flags:%08X\n"), pCtx->EFlags );
 
 #endif
 
@@ -175,14 +175,14 @@ void MSJExceptionHandler::GenerateExceptionReport( PEXCEPTION_POINTERS pExceptio
 
   _SymCleanup( GetCurrentProcess() );
 
-  _tprintf( _T( "\n" ) );
+  tprintf( _T( "\n" ) );
 }
 
 //======================================================================
 // Given an exception code, returns a pointer to a static string with a
 // description of the exception
 //======================================================================
-LPTSTR MSJExceptionHandler::GetExceptionString( DWORD dwCode )
+LPCTSTR MSJExceptionHandler::GetExceptionString( DWORD dwCode )
 {
 #define EXCEPTION( x ) \
   case EXCEPTION_##x:  \
@@ -284,9 +284,9 @@ BOOL MSJExceptionHandler::GetLogicalAddress( PVOID addr, PTSTR szModule, DWORD l
 #ifndef _M_X64
 void MSJExceptionHandler::IntelStackWalk( PCONTEXT pContext )
 {
-  _tprintf( _T("\nCall stack:\n") );
+  tprintf( _T("\nCall stack:\n") );
 
-  _tprintf( _T("Address   Frame     Logical addr  Module\n") );
+  tprintf( _T("Address   Frame     Logical addr  Module\n") );
 
   DWORD pc = pContext->Eip;
   PDWORD pFrame, pPrevFrame;
@@ -300,7 +300,7 @@ void MSJExceptionHandler::IntelStackWalk( PCONTEXT pContext )
 
     GetLogicalAddress( (PVOID)pc, szModule, sizeof( szModule ), section, offset );
 
-    _tprintf( _T("%08X  %08X  %04X:%08X %s\n"), pc, pFrame, section, offset, szModule );
+    tprintf( _T("%08X  %08X  %04X:%08X %s\n"), pc, pFrame, section, offset, szModule );
 
     pc = pFrame[1];
 
@@ -328,9 +328,9 @@ void MSJExceptionHandler::IntelStackWalk( PCONTEXT pContext )
 #ifndef _M_X64
 void MSJExceptionHandler::ImagehlpStackWalk( PCONTEXT pContext )
 {
-  _tprintf( _T("\nCall stack:\n") );
+  tprintf( _T("\nCall stack:\n") );
 
-  _tprintf( _T("Address   Frame\n") );
+  tprintf( _T("Address   Frame\n") );
 
   // Could use SymSetOptions here to add the SYMOPT_DEFERRED_LOADS flag
 
@@ -355,7 +355,7 @@ void MSJExceptionHandler::ImagehlpStackWalk( PCONTEXT pContext )
     if ( 0 == sf.AddrFrame.Offset )  // Basic sanity check to make sure
       break;                         // the frame is OK.  Bail if not.
 
-    _tprintf( _T("%08X  %08X  "), sf.AddrPC.Offset, sf.AddrFrame.Offset );
+    tprintf( _T("%08X  %08X  "), sf.AddrPC.Offset, sf.AddrFrame.Offset );
 
     // IMAGEHLP is wacky, and requires you to pass in a pointer to an
     // IMAGEHLP_SYMBOL structure.  The problem is that this structure is
@@ -375,7 +375,7 @@ void MSJExceptionHandler::ImagehlpStackWalk( PCONTEXT pContext )
 
     if ( _SymGetSymFromAddr( GetCurrentProcess(), sf.AddrPC.Offset, &symDisplacement, pSymbol ) )
     {
-      _tprintf( _T("%hs+%X\n"), pSymbol->Name, symDisplacement );
+      tprintf( _T("%hs+%X\n"), pSymbol->Name, symDisplacement );
     }
     else  // No symbol found.  Print out the logical address instead.
     {
@@ -384,7 +384,7 @@ void MSJExceptionHandler::ImagehlpStackWalk( PCONTEXT pContext )
 
       GetLogicalAddress( (PVOID)sf.AddrPC.Offset, szModule, sizeof( szModule ), section, offset );
 
-      _tprintf( _T("%04X:%08X %s\n"), section, offset, szModule );
+      tprintf( _T("%04X:%08X %s\n"), section, offset, szModule );
     }
   }
 }
@@ -394,7 +394,7 @@ void MSJExceptionHandler::ImagehlpStackWalk( PCONTEXT pContext )
 // Helper function that writes to the report file, and allows the user to use
 // printf style formating
 //============================================================================
-int __cdecl MSJExceptionHandler::_tprintf( const TCHAR* format, ... )
+int __cdecl MSJExceptionHandler::tprintf( const TCHAR* format, ... )
 {
   TCHAR szBuff[1024];
   int retValue;
@@ -406,7 +406,7 @@ int __cdecl MSJExceptionHandler::_tprintf( const TCHAR* format, ... )
   va_end( argptr );
 
   //    WriteFile( m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0 );
-  POLLOG_INFO( szBuff );
+  POLLOG_INFO( &szBuff[0] );
 
   return retValue;
 }

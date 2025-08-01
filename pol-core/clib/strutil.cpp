@@ -57,6 +57,8 @@ void splitnamevalue( const std::string& istr, std::string& propname, std::string
 
 void decodequotedstring( std::string& str )
 {
+  if ( str.empty() )
+    return;
   std::string tmp;
   tmp.swap( str );
   const char* s = tmp.c_str();

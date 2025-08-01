@@ -1,7 +1,6 @@
 #include "InstructionGenerator.h"
 
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/adaptor/sliced.hpp>
+#include <ranges>
 
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
@@ -568,7 +567,7 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
 
 void InstructionGenerator::visit_function_parameter_list( FunctionParameterList& node )
 {
-  for ( auto& child : boost::adaptors::reverse( node.children ) )
+  for ( auto& child : node.children | std::views::reverse )
   {
     child->accept( *this );
   }

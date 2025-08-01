@@ -38,7 +38,7 @@ else()
   set (BOOST_STACKTRACE_LIB2 "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_backtrace.a")
   set (BOOST_STACKTRACE_LIB "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_from_exception.a" )
 
-  set (BOOST_CXX_FLAGS "-DBOOST_STACKTRACE_LINK")
+  set (BOOST_CXX_FLAGS "-std=c++${CMAKE_CXX_STANDARD} -DBOOST_STACKTRACE_LINK")
   if (clang)
     set (BOOST_STACKTRACE_LIB2 "${BOOST_STAGE_LIB_DIR}/libboost_stacktrace_addr2line.a")
   endif()

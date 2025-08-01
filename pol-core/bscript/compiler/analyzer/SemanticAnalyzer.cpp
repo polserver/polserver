@@ -1,7 +1,7 @@
 #include "SemanticAnalyzer.h"
 
-#include <boost/range/adaptor/reversed.hpp>
 #include <list>
+#include <ranges>
 #include <set>
 
 #include "bscript/compiler/Report.h"
@@ -849,7 +849,7 @@ void SemanticAnalyzer::visit_function_parameter_list( FunctionParameterList& nod
   // iteration.
   bool can_have_rest_parameter = true;
 
-  for ( auto& child : boost::adaptors::reverse( node.children ) )
+  for ( auto& child : std::views::reverse( node.children ) )
   {
     child->accept( *this );
 

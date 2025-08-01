@@ -28,7 +28,7 @@ public:
 
 private:
   // Helper functions
-  static LPTSTR GetExceptionString( DWORD dwCode );
+  static LPCTSTR GetExceptionString( DWORD dwCode );
   static BOOL GetLogicalAddress( PVOID addr, PTSTR szModule, DWORD len, DWORD& section,
                                  DWORD& offset );
 #ifndef _M_X64
@@ -37,7 +37,7 @@ private:
 #ifndef _M_X64
   static void ImagehlpStackWalk( PCONTEXT pContext );
 #endif
-  static int __cdecl _tprintf( const TCHAR* format, ... );
+  static int __cdecl tprintf( const TCHAR* format, ... );
 
 #if 1
   static BOOL InitImagehlpFunctions( void );
@@ -76,6 +76,6 @@ private:
 };
 
 extern MSJExceptionHandler g_MSJExceptionHandler;  // global instance of class
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif  // CLIB_MSJEXHND_H

@@ -1,6 +1,6 @@
 #include "IndexBinding.h"
 
-#include <boost/range/adaptor/sliced.hpp>
+#include <ranges>
 
 #include "bscript/compiler/ast/ElementIndexes.h"
 #include "bscript/compiler/ast/Node.h"
@@ -36,7 +36,7 @@ ElementIndexes& IndexBinding::indexes()
 std::vector<std::reference_wrapper<Node>> IndexBinding::bindings()
 {
   std::vector<std::reference_wrapper<Node>> params;
-  for ( auto& param : children | boost::adaptors::sliced( 1, children.size() ) )
+  for ( auto& param : children | std::views::drop( 1 ) )
   {
     params.emplace_back( *param.get() );
   }

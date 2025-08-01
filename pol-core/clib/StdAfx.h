@@ -19,6 +19,7 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <ranges>
 #include <set>
 #include <stack>
 #include <stddef.h>

@@ -1,12 +1,9 @@
-#ifndef CLIB_SPINLOCK_H
-#define CLIB_SPINLOCK_H
+#pragma once
 
 #include <atomic>
 #include <mutex>
 
-namespace Pol
-{
-namespace Clib
+namespace Pol::Clib
 {
 /**
  * This is a much faster replacement for mutex when locking very small
@@ -20,11 +17,11 @@ class SpinLock
 
 public:
   SpinLock();
-  ~SpinLock();
+  ~SpinLock() = default;
 
 private:
-  void lock();
-  void unlock();
+  void lock() noexcept;
+  void unlock() noexcept;
 
   std::atomic_flag _lck;
 };
@@ -36,26 +33,23 @@ inline SpinLock::SpinLock()
 {
   _lck.clear();
 }
-inline SpinLock::~SpinLock() {}
 
 /**
  * Puts the caller in an endless busy loop until it acquires the lock
  */
-inline void SpinLock::lock()
+inline void SpinLock::lock() noexcept
 {
   while ( _lck.test_and_set( std::memory_order_acquire ) )
-  {
-  }
+    _lck.wait( true, std::memory_order_relaxed );
 }
 
 /**
  * Releases the lock
  */
-inline void SpinLock::unlock()
+inline void SpinLock::unlock() noexcept
 {
   _lck.clear( std::memory_order_release );
+  _lck.notify_one();
 }
 
-}  // namespace Clib
-}  // namespace Pol
-#endif
+}  // namespace Pol::Clib

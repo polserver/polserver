@@ -631,88 +631,78 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 
 BObjectImp* OSExecutorModule::mf_OpenConnection()
 {
-  Core::UOExecutor& this_uoexec = uoexec();
+  const String* host;
+  const String* scriptname_str;
+  BObjectImp* scriptparam;
+  unsigned short port;
+  int assume_string_int;
+  int keep_connection_int;
+  int ignore_line_breaks_int;
+  if ( !getStringParam( 0, host ) || !getParam( 1, port ) || !getStringParam( 2, scriptname_str ) ||
+       !getParamImp( 3, scriptparam ) || !getParam( 4, assume_string_int ) ||
+       !getParam( 5, keep_connection_int ) || !getParam( 6, ignore_line_breaks_int ) )
+    return new BError( "Invalid parameter type" );
 
-  if ( this_uoexec.pChild == nullptr )
+  // FIXME needs to inherit available modules?
+  Core::ScriptDef sd;
+  if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
   {
-    const String* host;
-    const String* scriptname_str;
-    BObjectImp* scriptparam;
-    unsigned short port;
-    int assume_string_int;
-    int keep_connection_int;
-    int ignore_line_breaks_int;
-    if ( getStringParam( 0, host ) && getParam( 1, port ) && getStringParam( 2, scriptname_str ) &&
-         getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) &&
-         getParam( 5, keep_connection_int ) && getParam( 6, ignore_line_breaks_int ) )
-    {
-      // FIXME needs to inherit available modules?
-      Core::ScriptDef sd;
-      if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
-      {
-        return new BError( "Error in script name" );
-      }
-      if ( !sd.exists() )
-      {
-        return new BError( "Script " + sd.name() + " does not exist." );
-      }
-      if ( !this_uoexec.suspend() )
-      {
-        DEBUGLOGLN(
-            "Script Error in '{}' PC={}: \n"
-            "\tThe execution of this script can't be blocked!",
-            this_uoexec.scriptname(), this_uoexec.PC );
-        return new Bscript::BError( "Script can't be blocked" );
-      }
-
-      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
-      std::string hostname( host->value() );
-      bool assume_string = assume_string_int != 0;
-      bool keep_connection = keep_connection_int != 0;
-      bool ignore_line_breaks = ignore_line_breaks_int != 0;
-      auto* paramobjimp_raw = scriptparam->copy();  // prevent delete
-      Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, paramobjimp_raw, assume_string, keep_connection,
-           ignore_line_breaks]()
-          {
-            Clib::Socket s;
-            std::unique_ptr<Network::AuxClientThread> client;
-            bool success_open = s.open( hostname.c_str(), port );
-            {
-              Core::PolLock lck;
-              std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );
-              if ( !uoexec_w.exists() )
-              {
-                DEBUGLOGLN( "OpenConnection Script has been destroyed" );
-                s.close();
-                return;
-              }
-              if ( !success_open )
-              {
-                uoexec_w.get_weakptr()->ValueStack.back().set(
-                    new BObject( new BError( "Error connecting to client" ) ) );
-                uoexec_w.get_weakptr()->revive();
-                return;
-              }
-              uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
-              uoexec_w.get_weakptr()->revive();
-              client.reset( new Network::AuxClientThread( sd, std::move( s ), paramobjimp.release(),
-                                                          assume_string, keep_connection,
-                                                          ignore_line_breaks ) );
-            }
-            if ( client )
-              client->run();
-          } );
-
-      return new BLong( 0 );
-    }
-    else
-    {
-      return new BError( "Invalid parameter type" );
-    }
+    return new BError( "Error in script name" );
+  }
+  if ( !sd.exists() )
+  {
+    return new BError( "Script " + sd.name() + " does not exist." );
+  }
+  Core::UOExecutor& this_uoexec = uoexec();
+  if ( !this_uoexec.suspend() )
+  {
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        this_uoexec.scriptname(), this_uoexec.PC );
+    return new Bscript::BError( "Script can't be blocked" );
   }
 
-  return new BError( "Invalid parameter type" );
+  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
+  std::string hostname( host->value() );
+  bool assume_string = assume_string_int != 0;
+  bool keep_connection = keep_connection_int != 0;
+  bool ignore_line_breaks = ignore_line_breaks_int != 0;
+  auto* paramobjimp_raw = scriptparam->copy();  // prevent delete
+  Core::networkManager.auxthreadpool->push(
+      [uoexec_w, sd, hostname, port, paramobjimp_raw, assume_string, keep_connection,
+       ignore_line_breaks]()
+      {
+        Clib::Socket s;
+        std::unique_ptr<Network::AuxClientThread> client;
+        bool success_open = s.open( hostname.c_str(), port );
+        {
+          Core::PolLock lck;
+          std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );
+          if ( !uoexec_w.exists() )
+          {
+            DEBUGLOGLN( "OpenConnection Script has been destroyed" );
+            s.close();
+            return;
+          }
+          if ( !success_open )
+          {
+            uoexec_w.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( "Error connecting to client" ) ) );
+            uoexec_w.get_weakptr()->revive();
+            return;
+          }
+          uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
+          uoexec_w.get_weakptr()->revive();
+          client.reset( new Network::AuxClientThread( sd, std::move( s ), paramobjimp.release(),
+                                                      assume_string, keep_connection,
+                                                      ignore_line_breaks ) );
+        }
+        if ( client )
+          client->run();
+      } );
+
+  return new BLong( 0 );
 }
 
 size_t curlWriteCallback( void* contents, size_t size, size_t nmemb, void* userp )
@@ -781,159 +771,144 @@ size_t curlReadHeaderCallback( char* buffer, size_t size, size_t nitems, void* u
 
 BObjectImp* OSExecutorModule::mf_HTTPRequest()
 {
+  const String *url, *method;
+  BObjectImp* options;
+  int flags;
+  if ( !getStringParam( 0, url ) || !getStringParam( 1, method ) || !getParamImp( 2, options ) ||
+       !getParam( 3, flags ) )
+    return new BError( "Invalid parameter type" );
   Core::UOExecutor& this_uoexec = uoexec();
+  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
 
-  if ( this_uoexec.pChild == nullptr )
+  std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
+  CURL* curl = curl_sp.get();
+  if ( !curl )
+    return new BError( "curl_easy_init() failed" );
+  curl_easy_setopt( curl, CURLOPT_URL, url->data() );
+  curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
+  curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
+  curl_easy_setopt( curl, CURLOPT_ACCEPT_ENCODING,
+                    "" );  // allow plaintext and compressed (with automatic deflate)
+
+  struct curl_slist* chunk = nullptr;
+  if ( options->isa( Bscript::BObjectImp::OTStruct ) )
   {
-    const String *url, *method;
-    BObjectImp* options;
-    int flags;
-    if ( getStringParam( 0, url ) && getStringParam( 1, method ) && getParamImp( 2, options ) &&
-         getParam( 3, flags ) )
+    Bscript::BStruct* opts = static_cast<Bscript::BStruct*>( options );
+    const BObjectImp* data = opts->FindMember( "data" );
+    if ( data != nullptr )
     {
-      if ( !this_uoexec.suspend() )
-      {
-        DEBUGLOGLN(
-            "Script Error in '{}' PC={}: \n"
-            "\tThe execution of this script can't be blocked!",
-            this_uoexec.scriptname(), this_uoexec.PC );
-        return new Bscript::BError( "Script can't be blocked" );
-      }
-
-      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
-
-      std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
-      CURL* curl = curl_sp.get();
-      if ( curl )
-      {
-        curl_easy_setopt( curl, CURLOPT_URL, url->data() );
-        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
-        curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
-        curl_easy_setopt( curl, CURLOPT_ACCEPT_ENCODING,
-                          "" );  // allow plaintext and compressed (with automatic deflate)
-
-        struct curl_slist* chunk = nullptr;
-        if ( options->isa( Bscript::BObjectImp::OTStruct ) )
-        {
-          Bscript::BStruct* opts = static_cast<Bscript::BStruct*>( options );
-          const BObjectImp* data = opts->FindMember( "data" );
-          if ( data != nullptr )
-          {
-            curl_easy_setopt( curl, CURLOPT_COPYPOSTFIELDS, data->getStringRep().c_str() );
-          }
-
-          const BObjectImp* headers_ = opts->FindMember( "headers" );
-
-          if ( headers_ != nullptr && headers_->isa( BObjectImp::OTStruct ) )
-          {
-            const BStruct* headers = static_cast<const BStruct*>( headers_ );
-
-            for ( const auto& content : headers->contents() )
-            {
-              BObjectImp* ref = content.second->impptr();
-              std::string header = content.first + ": " + ref->getStringRep();
-              chunk = curl_slist_append( chunk, header.c_str() );
-            }
-            curl_easy_setopt( curl, CURLOPT_HTTPHEADER, chunk );
-          }
-        }
-
-        Core::networkManager.auxthreadpool->push(
-            [uoexec_w, curl_sp, chunk, flags]()
-            {
-              CURL* curl = curl_sp.get();
-              CURLcode res;
-              std::string readBuffer;
-              CurlHeaderData headerData;
-
-              if ( flags == HTTPREQUEST_EXTENDED_RESPONSE )
-              {
-                curl_easy_setopt( curl, CURLOPT_HEADERFUNCTION, curlReadHeaderCallback );
-                curl_easy_setopt( curl, CURLOPT_HEADERDATA, &headerData );
-              }
-
-              curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
-
-              /* Perform the request, res will get the return code */
-              res = curl_easy_perform( curl );
-              if ( chunk != nullptr )
-                curl_slist_free_all( chunk );
-              {
-                Core::PolLock lck;
-
-                if ( !uoexec_w.exists() )
-                {
-                  DEBUGLOGLN( "HTTPRequest Script has been destroyed" );
-                  return;
-                }
-                /* Check for errors */
-                if ( res != CURLE_OK )
-                {
-                  uoexec_w.get_weakptr()->ValueStack.back().set(
-                      new BObject( new BError( curl_easy_strerror( res ) ) ) );
-                }
-                else
-                {
-                  if ( flags == HTTPREQUEST_EXTENDED_RESPONSE )
-                  {
-                    auto response = std::make_unique<Bscript::BDictionary>();
-                    auto headers = std::make_unique<Bscript::BDictionary>();
-                    long http_code = 0;
-
-                    res = curl_easy_getinfo( curl, CURLINFO_RESPONSE_CODE, &http_code );
-                    if ( res == CURLE_OK )
-                    {
-                      response->addMember( new String( "status" ), new BLong( http_code ) );
-                    }
-                    else
-                    {
-                      response->addMember( new String( "status" ),
-                                           new BError( curl_easy_strerror( res ) ) );
-                    }
-
-                    response->addMember( new String( "statusText" ),
-                                         new String( headerData.statusText.value_or( "" ) ) );
-
-                    response->addMember( new String( "body" ), new String( readBuffer ) );
-
-                    for ( auto const& [key, value] : headerData.headers )
-                    {
-                      headers->addMember( new String( key ), new String( value ) );
-                    }
-
-                    response->addMember( new String( "headers" ), headers.release() );
-
-                    uoexec_w.get_weakptr()->ValueStack.back().set(
-                        new BObject( response.release() ) );
-                  }
-                  else
-                  {
-                    // TODO: no sanitize happens, optional function param iso/utf8 encoding, or
-                    // parse the header of the http answer?
-                    uoexec_w.get_weakptr()->ValueStack.back().set(
-                        new BObject( new String( readBuffer ) ) );
-                  }
-                }
-
-                uoexec_w.get_weakptr()->revive();
-              }
-
-              /* always cleanup */
-              // curl_easy_cleanup() is performed when the shared pointer deallocates
-            } );
-      }
-      else
-      {
-        return new BError( "curl_easy_init() failed" );
-      }
+      curl_easy_setopt( curl, CURLOPT_COPYPOSTFIELDS, data->getStringRep().c_str() );
     }
-    else
+
+    const BObjectImp* headers_ = opts->FindMember( "headers" );
+
+    if ( headers_ != nullptr && headers_->isa( BObjectImp::OTStruct ) )
     {
-      return new BError( "Invalid parameter type" );
+      const BStruct* headers = static_cast<const BStruct*>( headers_ );
+
+      for ( const auto& content : headers->contents() )
+      {
+        BObjectImp* ref = content.second->impptr();
+        std::string header = content.first + ": " + ref->getStringRep();
+        chunk = curl_slist_append( chunk, header.c_str() );
+      }
+      curl_easy_setopt( curl, CURLOPT_HTTPHEADER, chunk );
     }
   }
 
-  return new BError( "Invalid parameter type" );
+  if ( !this_uoexec.suspend() )
+  {
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        this_uoexec.scriptname(), this_uoexec.PC );
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  Core::networkManager.auxthreadpool->push(
+      [uoexec_w, curl_sp, chunk, flags]()
+      {
+        CURL* curl = curl_sp.get();
+        CURLcode res;
+        std::string readBuffer;
+        CurlHeaderData headerData;
+
+        if ( flags == HTTPREQUEST_EXTENDED_RESPONSE )
+        {
+          curl_easy_setopt( curl, CURLOPT_HEADERFUNCTION, curlReadHeaderCallback );
+          curl_easy_setopt( curl, CURLOPT_HEADERDATA, &headerData );
+        }
+
+        curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
+
+        /* Perform the request, res will get the return code */
+        res = curl_easy_perform( curl );
+        if ( chunk != nullptr )
+          curl_slist_free_all( chunk );
+        {
+          Core::PolLock lck;
+
+          if ( !uoexec_w.exists() )
+          {
+            DEBUGLOGLN( "HTTPRequest Script has been destroyed" );
+            return;
+          }
+          /* Check for errors */
+          if ( res != CURLE_OK )
+          {
+            uoexec_w.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( curl_easy_strerror( res ) ) ) );
+          }
+          else
+          {
+            if ( flags == HTTPREQUEST_EXTENDED_RESPONSE )
+            {
+              auto response = std::make_unique<Bscript::BDictionary>();
+              auto headers = std::make_unique<Bscript::BDictionary>();
+              long http_code = 0;
+
+              res = curl_easy_getinfo( curl, CURLINFO_RESPONSE_CODE, &http_code );
+              if ( res == CURLE_OK )
+              {
+                response->addMember( new String( "status" ), new BLong( http_code ) );
+              }
+              else
+              {
+                response->addMember( new String( "status" ),
+                                     new BError( curl_easy_strerror( res ) ) );
+              }
+
+              response->addMember( new String( "statusText" ),
+                                   new String( headerData.statusText.value_or( "" ) ) );
+
+              response->addMember( new String( "body" ), new String( readBuffer ) );
+
+              for ( auto const& [key, value] : headerData.headers )
+              {
+                headers->addMember( new String( key ), new String( value ) );
+              }
+
+              response->addMember( new String( "headers" ), headers.release() );
+
+              uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( response.release() ) );
+            }
+            else
+            {
+              // TODO: no sanitize happens, optional function param iso/utf8 encoding, or
+              // parse the header of the http answer?
+              uoexec_w.get_weakptr()->ValueStack.back().set(
+                  new BObject( new String( readBuffer ) ) );
+            }
+          }
+
+          uoexec_w.get_weakptr()->revive();
+        }
+
+        /* always cleanup */
+        // curl_easy_cleanup() is performed when the shared pointer deallocates
+      } );
+
+  return new BLong( 0 );
 }
 
 // signal_event() takes ownership of the pointer which is passed to it.

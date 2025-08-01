@@ -26,28 +26,31 @@ namespace Clib
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value, std::string>::type hexint( T integer )
 {
-  return fmt::format( FMT_COMPILE( "{:#x}" ), integer );
+  using namespace fmt::literals;
+  return fmt::format( "{:#x}"_cf, integer );
 }
 template <typename T>
 typename std::enable_if<std::is_enum<T>::value, std::string>::type hexint( T integer )
 {
-  return fmt::format( FMT_COMPILE( "{:#x}" ), fmt::underlying( integer ) );
+  using namespace fmt::literals;
+  return fmt::format( "{:#x}"_cf, fmt::underlying( integer ) );
 }
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value, std::string_view>::type hexintv( T integer )
 {
+  using namespace fmt::literals;
   static thread_local fmt::memory_buffer buffer;
   buffer.clear();
-  fmt::format_to( std::back_inserter( buffer ), FMT_COMPILE( "{:#x}" ), integer );
+  fmt::format_to( std::back_inserter( buffer ), "{:#x}"_cf, integer );
   return std::string_view{ buffer.data(), buffer.size() };
 }
 template <typename T>
 typename std::enable_if<std::is_enum<T>::value, std::string_view>::type hexintv( T integer )
 {
+  using namespace fmt::literals;
   static thread_local fmt::memory_buffer buffer;
   buffer.clear();
-  fmt::format_to( std::back_inserter( buffer ), FMT_COMPILE( "{:#x}" ),
-                  fmt::underlying( integer ) );
+  fmt::format_to( std::back_inserter( buffer ), "{:#x}"_cf, fmt::underlying( integer ) );
   return std::string_view{ buffer.data(), buffer.size() };
 }
 

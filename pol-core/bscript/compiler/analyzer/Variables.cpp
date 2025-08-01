@@ -1,7 +1,6 @@
 #include "Variables.h"
 
-#include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/adaptor/sliced.hpp>
+#include <ranges>
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceLocation.h"
@@ -60,9 +59,7 @@ std::shared_ptr<Variable> Variables::find( const std::string& name ) const
 
 std::shared_ptr<Variable> Variables::find_in_ancestors( const std::string& name ) const
 {
-  for ( const auto& info : variable_info_stack |
-                               boost::adaptors::sliced( 0, variable_info_stack.size() - 1 ) |
-                               boost::adaptors::reversed )
+  for ( const auto& info : variable_info_stack | std::views::reverse | std::views::drop( 1 ) )
   {
     auto itr = info.variables_by_name.find( name );
 

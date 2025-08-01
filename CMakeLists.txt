@@ -22,7 +22,7 @@ project(polserver
 	DESCRIPTION "Penultima Online"
 	HOMEPAGE_URL "polserver.com")
 
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(POL_VERSION_STR "${polserver_VERSION}")

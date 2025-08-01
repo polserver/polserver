@@ -260,8 +260,8 @@ bool client_io_thread( Network::Client* client, bool login )
   }
   catch ( std::exception& ex )
   {
-    POLLOGLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={}, what={})", client->instance_,
-              client->session()->checkpoint, ex.what() );
+    POLLOGLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
+              ex.what(), client->session()->checkpoint );
   }
 
   // queue delete of client ptr see method doc for reason
