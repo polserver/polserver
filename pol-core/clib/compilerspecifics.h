@@ -8,6 +8,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #define CLIB_COMPILERSPECIFICS_H_
 
 // Fix for VS CodeAnalysis
+// FIXME: disabled due to weird error with c++20
 // #ifdef _MSC_VER
 // #pragma warning( disable : 4467 )  // ATL attributes
 // #include <CodeAnalysis/sourceannotations.h>
