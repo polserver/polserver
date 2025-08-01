@@ -188,14 +188,7 @@ int RunEclMain::runeclScript( std::string fileName )
     display_bobjectimp_instances();
 #endif
 #ifdef ESCRIPT_PROFILE
-    fmt::format_to( std::back_inserter( buffer ), "FuncName,Count,Min,Max,Sum,Avarage\n" );
-    ;
-    for ( const auto& [name, profile] : EscriptProfileMap )
-    {
-      fmt::format_to( std::back_inserter( buffer ), "{},{},{},{},{},{}\n", name, profile.count,
-                      profile.min, profile.max, profile.sum,
-                      profile.sum / ( 1.0 * profile.count ) );
-    }
+    buffer.append( EscriptProfiler::result() );
 #endif
     INFO_PRINTLN( fmt::to_string( buffer ) );
   }

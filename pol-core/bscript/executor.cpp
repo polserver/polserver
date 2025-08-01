@@ -37,6 +37,7 @@
 #include "token.h"
 #include "tokens.h"
 #include <iterator>
+#include <limits>
 #ifdef MEMORYLEAK
 #include "../clib/mlog.h"
 #endif
@@ -50,24 +51,12 @@
 #include <exception>
 #include <numeric>
 
-#ifdef ESCRIPT_PROFILE
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#else
-#include <sys/time.h>
-#endif
-#endif
 
 namespace Pol
 {
 namespace Bscript
 {
 std::set<Executor*> executor_instances;
-
-#ifdef ESCRIPT_PROFILE
-escript_profile_map EscriptProfileMap;
-#endif
 
 void display_executor_instances()
 {
@@ -329,7 +318,7 @@ void Executor::expandParams()
       // Remove the spread
       fparams.erase( fparams.begin() + i );
 
-      BObjectRef refIter( new BObject( UninitObject::create() ) );
+      BObjectRef refIter( UninitObject::create() );
 
       auto pIter = std::unique_ptr<ContIterator>(
           spread->object->impptr()->createIterator( refIter.get() ) );
@@ -430,13 +419,8 @@ BObjectImp* Executor::getParamImp( unsigned param )
 BObject* Executor::getParamObj( unsigned param )
 {
   if ( fparams.size() > param )
-  {
     return fparams[param].get();
-  }
-  else
-  {
-    return nullptr;
-  }
+  return nullptr;
 }
 
 BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type )
@@ -451,26 +435,21 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
   passert( imp != nullptr );
 
   if ( imp->isa( type ) )
-  {
     return imp;
-  }
-  else
+  if ( !IS_DEBUGLOG_DISABLED )
   {
-    if ( !IS_DEBUGLOG_DISABLED )
-    {
-      std::string tmp = fmt::format( "Script Error in '{}' PC={}:\n", scriptname(), PC );
-      if ( current_module_function )
-        fmt::format_to( std::back_inserter( tmp ), "\tCall to function {}:\n",
-                        current_module_function->name.get() );
-      else
-        tmp += "\tCall to an object method.\n";
-      fmt::format_to( std::back_inserter( tmp ),
-                      "\tParameter {}: Expected datatype {}, got datatype {}", param,
-                      BObjectImp::typestr( type ), BObjectImp::typestr( imp->type() ) );
-      DEBUGLOGLN( tmp );
-    }
-    return nullptr;
+    std::string tmp = fmt::format( "Script Error in '{}' PC={}:\n", scriptname(), PC );
+    if ( current_module_function )
+      fmt::format_to( std::back_inserter( tmp ), "\tCall to function {}:\n",
+                      current_module_function->name.get() );
+    else
+      tmp += "\tCall to an object method.\n";
+    fmt::format_to( std::back_inserter( tmp ),
+                    "\tParameter {}: Expected datatype {}, got datatype {}", param,
+                    BObjectImp::typestr( type ), BObjectImp::typestr( imp->type() ) );
+    DEBUGLOGLN( tmp );
   }
+  return nullptr;
 }
 
 BObjectImp* Executor::getParamImp2( unsigned param, BObjectImp::BObjectType type )
@@ -485,17 +464,12 @@ BObjectImp* Executor::getParamImp2( unsigned param, BObjectImp::BObjectType type
   passert( imp != nullptr );
 
   if ( imp->isa( type ) )
-  {
     return imp;
-  }
-  else
-  {
-    std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
-                         " as " + BObjectImp::typestr( type ) + ", got " +
-                         BObjectImp::typestr( imp->type() );
-    func_result_ = new BError( report );
-    return nullptr;
-  }
+  std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
+                       " as " + BObjectImp::typestr( type ) + ", got " +
+                       BObjectImp::typestr( imp->type() );
+  func_result_ = new BError( report );
+  return nullptr;
 }
 
 
@@ -563,55 +537,31 @@ void Executor::printStack( const std::string& message = "" )
 bool Executor::getParam( unsigned param, int& value, int maxval )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    value = plong->value();
-    if ( value >= 0 && value <= maxval )
-    {
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( value ) + " out of expected range of [0.." +
-                           Clib::tostring( maxval ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
-  }
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  value = plong->value();
+  if ( value >= 0 && value <= maxval )
+    return true;
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [0..{}]",
+                                          param, value, maxval ) );
+  return false;
 }
 
 bool Executor::getParam( unsigned param, int& value, int minval, int maxval )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    value = plong->value();
-    if ( value >= minval && value <= maxval )
-    {
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( value ) + " out of expected range of [" +
-                           Clib::tostring( minval ) + ".." + Clib::tostring( maxval ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
-  }
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  value = plong->value();
+  if ( value >= minval && value <= maxval )
+    return true;
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [{}..{}]",
+                                          param, value, minval, maxval ) );
+  return false;
 }
 
 bool Executor::getRealParam( unsigned param, double& value )
@@ -627,17 +577,14 @@ bool Executor::getRealParam( unsigned param, double& value )
     value = l->value();
     return true;
   }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function {}:\n"
-        "\tParameter {}: Expected Integer or Real, got datatype {}",
-        scriptname(), PC, current_module_function->name.get(), param,
-        BObjectImp::typestr( imp->type() ) );
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function {}:\n"
+      "\tParameter {}: Expected Integer or Real, got datatype {}",
+      scriptname(), PC, current_module_function->name.get(), param,
+      BObjectImp::typestr( imp->type() ) );
 
-    return false;
-  }
+  return false;
 }
 
 bool Executor::getObjArrayParam( unsigned param, ObjArray*& pobjarr )
@@ -654,20 +601,15 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
     return nullptr;
 
   if ( ap->pointer_type() == pointer_type )
-  {
     return ap->ptr();
-  }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function {}:\n"
-        "\tParameter {}: Expected datatype, got datatype {}",
-        scriptname(), PC, current_module_function->name.get(), param,
-        BObjectImp::typestr( ap->type() ) );
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function {}:\n"
+      "\tParameter {}: Expected datatype, got datatype {}",
+      scriptname(), PC, current_module_function->name.get(), param,
+      BObjectImp::typestr( ap->type() ) );
 
-    return nullptr;
-  }
+  return nullptr;
 }
 
 BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjType* object_type )
@@ -677,214 +619,139 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
     return nullptr;
 
   if ( aob->object_type() == object_type )
-  {
     return aob;
-  }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function {}:\n"
-        "\tParameter {}: Expected datatype, got datatype {}",
-        scriptname(), PC, current_module_function->name.get(), param, aob->getStringRep() );
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function {}:\n"
+      "\tParameter {}: Expected datatype, got datatype {}",
+      scriptname(), PC, current_module_function->name.get(), param, aob->getStringRep() );
 
-    return nullptr;
-  }
+  return nullptr;
 }
 
 bool Executor::getParam( unsigned param, unsigned short& value, unsigned short maxval )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    int longvalue = plong->value();
-    if ( longvalue >= 0 && longvalue <= maxval )
-    {
-      value = static_cast<unsigned short>( longvalue );
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( longvalue ) + " out of expected range of [0.." +
-                           Clib::tostring( maxval ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= 0 && longvalue <= maxval )
+  {
+    value = static_cast<unsigned short>( longvalue );
+    return true;
   }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [0..{}]",
+                                          param, longvalue, maxval ) );
+  return false;
 }
 
 bool Executor::getParam( unsigned param, unsigned short& value, unsigned short minval,
                          unsigned short maxval )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    int longvalue = plong->value();
-    if ( longvalue >= minval && longvalue <= maxval )
-    {
-      value = static_cast<unsigned short>( longvalue );
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( longvalue ) + " out of expected range of [" +
-                           Clib::tostring( minval ) + ".." + Clib::tostring( maxval ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= minval && longvalue <= maxval )
+  {
+    value = static_cast<unsigned short>( longvalue );
+    return true;
   }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [{}..{}]",
+                                          param, longvalue, minval, maxval ) );
+  return false;
 }
 bool Executor::getParam( unsigned param, unsigned short& value )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    int longvalue = plong->value();
-    if ( longvalue >= 0 && longvalue <= USHRT_MAX )
-    {
-      value = static_cast<unsigned short>( longvalue );
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( longvalue ) + " out of expected range of [0.." +
-                           Clib::tostring( USHRT_MAX ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= 0 && longvalue <= USHRT_MAX )
+  {
+    value = static_cast<unsigned short>( longvalue );
+    return true;
   }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [0..{}]",
+                                          param, longvalue, USHRT_MAX ) );
+  return false;
 }
 bool Executor::getParam( unsigned param, unsigned& value )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    int longvalue = plong->value();
-    if ( longvalue >= 0 )  // && longvalue <= (int)INT_MAX )
-    {
-      value = static_cast<unsigned>( longvalue );
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( longvalue ) + " out of expected range of [0.." +
-                           Clib::tostring( INT_MAX ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= 0 )  // && longvalue <= (int)INT_MAX )
+  {
+    value = static_cast<unsigned>( longvalue );
+    return true;
   }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [0..{}]",
+                                          param, longvalue, INT_MAX ) );
+  return false;
 }
 
 bool Executor::getParam( unsigned param, short& value )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    int longvalue = plong->value();
-    if ( longvalue >= (int)SHRT_MIN && longvalue <= (int)SHRT_MAX )
-    {
-      value = static_cast<short>( longvalue );
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( longvalue ) + " out of expected range of [" +
-                           Clib::tostring( SHRT_MIN ) + ".." + Clib::tostring( SHRT_MAX ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= (int)SHRT_MIN && longvalue <= (int)SHRT_MAX )
+  {
+    value = static_cast<short>( longvalue );
+    return true;
   }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [{}..{}]",
+                                          param, longvalue, SHRT_MIN, SHRT_MAX ) );
+  return false;
 }
 
 bool Executor::getParam( unsigned param, short& value, short maxval )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    int longvalue = plong->value();
-    if ( longvalue >= (int)SHRT_MIN && longvalue <= maxval )
-    {
-      value = static_cast<short>( longvalue );
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( longvalue ) + " out of expected range of [" +
-                           Clib::tostring( SHRT_MIN ) + ".." + Clib::tostring( maxval ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= (int)SHRT_MIN && longvalue <= maxval )
+  {
+    value = static_cast<short>( longvalue );
+    return true;
   }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [{}..{}]",
+                                          param, longvalue, SHRT_MIN, maxval ) );
+  return false;
 }
 
 bool Executor::getParam( unsigned param, short& value, short minval, short maxval )
 {
   BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
-  if ( imp )
-  {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    int longvalue = plong->value();
-    if ( longvalue >= minval && longvalue <= maxval )
-    {
-      value = static_cast<short>( longvalue );
-      return true;
-    }
-    else
-    {
-      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                           Clib::tostring( longvalue ) + " out of expected range of [" +
-                           Clib::tostring( minval ) + ".." + Clib::tostring( maxval ) + "]";
-      func_result_ = new BError( report );
-      return false;
-    }
-  }
-  else
-  {
+  if ( !imp )
     return false;
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= minval && longvalue <= maxval )
+  {
+    value = static_cast<short>( longvalue );
+    return true;
   }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [{}..{}]",
+                                          param, longvalue, minval, maxval ) );
+  return false;
 }
 
 bool Executor::getParam( unsigned param, signed char& value )
@@ -901,15 +768,10 @@ bool Executor::getParam( unsigned param, signed char& value )
     value = static_cast<signed char>( longvalue );
     return true;
   }
-  else
-  {
-    std::string report = "Parameter " + Clib::tostring( param ) + " value " +
-                         Clib::tostring( longvalue ) + " out of expected range of [" +
-                         Clib::tostring( std::numeric_limits<s8>::max() ) + ".." +
-                         Clib::tostring( std::numeric_limits<s8>::max() ) + "]";
-    func_result_ = new BError( report );
-    return false;
-  }
+  func_result_ = new BError( fmt::format( "Parameter {} value {} out of expected range of [{}..{}]",
+                                          param, longvalue, std::numeric_limits<s8>::min(),
+                                          std::numeric_limits<s8>::max() ) );
+  return false;
 }
 
 bool Executor::getParam( unsigned param, bool& value )
@@ -925,17 +787,14 @@ bool Executor::getParam( unsigned param, bool& value )
     value = l->isTrue();
     return true;
   }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function {}:\n"
-        "\tParameter {}: Expected Boolean or Integer, got datatype {}",
-        scriptname(), PC, current_module_function->name.get(), param,
-        BObjectImp::typestr( imp->type() ) );
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function {}:\n"
+      "\tParameter {}: Expected Boolean or Integer, got datatype {}",
+      scriptname(), PC, current_module_function->name.get(), param,
+      BObjectImp::typestr( imp->type() ) );
 
-    return false;
-  }
+  return false;
 }
 
 bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
@@ -955,11 +814,10 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
     pstr = str;
     return true;
   }
-  std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
-                       " as " + BObjectImp::typestr( BObjectImp::OTString ) + " or " +
-                       BObjectImp::typestr( BObjectImp::OTArray ) + ", got " +
-                       BObjectImp::typestr( obj->impptr()->type() );
-  func_result_ = new BError( report );
+  func_result_ = new BError( fmt::format(
+      "Invalid parameter type.  Expected param {} as {} or {}, got {}", param,
+      BObjectImp::typestr( BObjectImp::OTString ), BObjectImp::typestr( BObjectImp::OTArray ),
+      BObjectImp::typestr( obj->impptr()->type() ) ) );
   return false;
 }
 
@@ -1002,8 +860,7 @@ bool Executor::setProgram( EScriptProgram* i_prog )
   Globals2->clear();
   for ( unsigned i = 0; i < prog_->nglobals; ++i )
   {
-    Globals2->push_back( BObjectRef() );
-    Globals2->back().set( UninitObject::create() );
+    Globals2->emplace_back( UninitObject::create() );
   }
 
   prog_ok_ = true;
@@ -1012,7 +869,7 @@ bool Executor::setProgram( EScriptProgram* i_prog )
   return true;
 }
 
-BObjectRef Executor::getObjRef( void )
+BObjectRef Executor::getObjRef()
 {
   if ( ValueStack.empty() )
   {
@@ -1045,39 +902,30 @@ void Executor::execFunc( const Token& token )
   ExecutorModule* em = execmodules[token.module];
 
   func_result_ = nullptr;
-#ifdef ESCRIPT_PROFILE
-  std::stringstream strm;
-  strm << em->functionName( modfunc->funcidx );
-  if ( !fparams.empty() )
-    strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-  std::string name( strm.str() );
-  unsigned long profile_start = GetTimeUs();
-#endif
-  BObjectImp* resimp = em->execFunc( modfunc->funcidx );
-#ifdef ESCRIPT_PROFILE
-  profile_escript( name, profile_start );
-#endif
-
+  BObjectImp* resimp;
+  {
+    EscriptProfiler escript_profile{ em, modfunc, fparams };
+    resimp = em->execFunc( modfunc->funcidx );
+  }
   if ( func_result_ )
   {
     if ( resimp )
     {
       BObject obj( resimp );
     }
-    ValueStack.push_back( BObjectRef( new BObject( func_result_ ) ) );
+    ValueStack.emplace_back( func_result_ );
     func_result_ = nullptr;
   }
   else if ( resimp )
   {
-    ValueStack.push_back( BObjectRef( new BObject( resimp ) ) );
+    ValueStack.emplace_back( resimp );
   }
   else
   {
-    ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+    ValueStack.emplace_back( UninitObject::create() );
   }
 
   current_module_function = nullptr;
-  return;
 }
 
 // RSV_LOCAL
@@ -1085,10 +933,9 @@ void Executor::ins_makeLocal( const Instruction& /*ins*/ )
 {
   passert( Locals2 != nullptr );
 
-  Locals2->push_back( BObjectRef() );
-  Locals2->back().set( UninitObject::create() );
+  Locals2->emplace_back( UninitObject::create() );
 
-  ValueStack.push_back( BObjectRef( Locals2->back().get() ) );
+  ValueStack.emplace_back( Locals2->back().get() );
 }
 
 // RSV_DECLARE_ARRAY
@@ -1103,40 +950,35 @@ void Executor::ins_declareArray( const Instruction& /*ins*/ )
     seterror( true );
     return;
   }
-  auto arr = new ObjArray;
+  objref->setimp( new ObjArray );
 
-  objref->setimp( arr );
-
-  ValueStack.push_back( BObjectRef( objref ) );
+  ValueStack.emplace_back( objref );
 }
 
 void Executor::popParam( const Token& /*token*/ )
 {
   BObjectRef objref = getObjRef();
 
-  Locals2->push_back( BObjectRef() );
-  Locals2->back().set( objref->impptr()->copy() );
+  Locals2->emplace_back( objref->impptr()->copy() );
 }
 
 void Executor::popParamByRef( const Token& /*token*/ )
 {
   BObjectRef objref = getObjRef();
 
-  Locals2->push_back( BObjectRef( objref ) );
+  Locals2->emplace_back( objref );
 }
 
 void Executor::getArg( const Token& /*token*/ )
 {
   if ( ValueStack.empty() )
   {
-    Locals2->push_back( BObjectRef() );
-    Locals2->back().set( UninitObject::create() );
+    Locals2->emplace_back( UninitObject::create() );
   }
   else
   {
     BObjectRef objref = getObjRef();
-    Locals2->push_back( BObjectRef() );
-    Locals2->back().set( objref->impptr()->copy() );
+    Locals2->emplace_back( objref->impptr()->copy() );
   }
 }
 
@@ -1183,7 +1025,7 @@ BObject* ContIterator::step()
 {
   return nullptr;
 }
-BObjectImp* ContIterator::copy( void ) const
+BObjectImp* ContIterator::copy() const
 {
   return nullptr;
 }
@@ -1255,18 +1097,16 @@ ContIterator* ObjArray::createIterator( BObject* pIterVal )
    */
 void Executor::ins_initforeach( const Instruction& ins )
 {
-  Locals2->push_back( BObjectRef( UninitObject::create() ) );  // the iterator
+  Locals2->emplace_back( UninitObject::create() );  // the iterator
 
   auto pIterVal = new BObject( UninitObject::create() );
 
   // this is almost like popParam, only we don't want a copy.
   BObjectRef objref = getObjRef();
-  Locals2->push_back( BObjectRef() );
   ContIterator* pIter = objref->impptr()->createIterator( pIterVal );
-  Locals2->back().set( pIter );
+  Locals2->emplace_back( pIter );
 
-  Locals2->push_back( BObjectRef() );
-  Locals2->back().set( pIterVal );
+  Locals2->emplace_back( pIterVal );
 
   // Jump to to the corresponding `stepforeach` instruction, advancing the iterator.
   PC = ins.token.lval;
@@ -1295,7 +1135,6 @@ void Executor::ins_stepforeach( const Instruction& ins )
     If START VALUE > END VALUE, we skip the whole for loop.
     (the INITFOR's lval has the instr to jump to)
     */
-
 void Executor::ins_initfor( const Instruction& ins )
 {
   BObjectRef endref = getObjRef();
@@ -1306,8 +1145,8 @@ void Executor::ins_initfor( const Instruction& ins )
     return;
   }
 
-  Locals2->push_back( BObjectRef( startref->clone() ) );  // the iterator
-  Locals2->push_back( BObjectRef( endref->clone() ) );
+  Locals2->emplace_back( startref->clone() );  // the iterator
+  Locals2->emplace_back( endref->clone() );
 }
 
 void Executor::ins_nextfor( const Instruction& ins )
@@ -1326,7 +1165,6 @@ void Executor::ins_nextfor( const Instruction& ins )
     PC = ins.token.lval;
   }
 }
-
 
 int Executor::ins_casejmp_findlong( const Token& token, BLong* blong )
 {
@@ -1555,7 +1393,7 @@ void Executor::ins_interpolate_string( const Instruction& ins )
   auto count = ins.token.lval;
   if ( count == 0 )
   {
-    ValueStack.push_back( BObjectRef( new BObject( new String( "" ) ) ) );
+    ValueStack.emplace_back( new String( "" ) );
   }
   else
   {
@@ -1582,7 +1420,7 @@ void Executor::ins_interpolate_string( const Instruction& ins )
       contents.pop_back();
     }
 
-    ValueStack.push_back( BObjectRef( new BObject( new String( joined ) ) ) );
+    ValueStack.emplace_back( new String( joined ) );
   }
 }
 
@@ -1640,13 +1478,13 @@ void Executor::ins_globalvar( const Instruction& ins )
 // case TOK_LONG:
 void Executor::ins_long( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BLong( ins.token.lval ) ) ) );
+  ValueStack.emplace_back( new BLong( ins.token.lval ) );
 }
 
 // case TOK_BOOL:
 void Executor::ins_bool( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BBoolean( ins.token.lval ) ) ) );
+  ValueStack.emplace_back( new BBoolean( ins.token.lval ) );
 }
 
 // case TOK_CONSUMER:
@@ -1827,41 +1665,21 @@ void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
 void Executor::ins_get_member( const Instruction& ins )
 {
   BObjectRef& leftref = ValueStack.back();
-
   BObject& left = *leftref;
-
-#ifdef ESCRIPT_PROFILE
-  std::stringstream strm;
-  strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.tokval();
-  if ( !fparams.empty() )
-    strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-  std::string name( strm.str() );
-  unsigned long profile_start = GetTimeUs();
-#endif
-  leftref = left->get_member( ins.token.tokval() );
-#ifdef ESCRIPT_PROFILE
-  profile_escript( name, profile_start );
-#endif
+  {
+    EscriptProfiler escript_profile{ ins, leftref, fparams };
+    leftref = left->get_member( ins.token.tokval() );
+  }
 }
 
 void Executor::ins_get_member_id( const Instruction& ins )
 {
   BObjectRef& leftref = ValueStack.back();
-
   BObject& left = *leftref;
-
-#ifdef ESCRIPT_PROFILE
-  std::stringstream strm;
-  strm << "MBR_" << leftref->impptr()->typeOf() << " ." << ins.token.lval;
-  if ( !fparams.empty() )
-    strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-  std::string name( strm.str() );
-  unsigned long profile_start = GetTimeUs();
-#endif
-  leftref = left->get_member_id( ins.token.lval );
-#ifdef ESCRIPT_PROFILE
-  profile_escript( name, profile_start );
-#endif
+  {
+    EscriptProfiler escript_profile{ ins, leftref, fparams };
+    leftref = left->get_member_id( ins.token.lval );
+  }
 }
 
 void Executor::ins_assign_localvar( const Instruction& ins )
@@ -2494,7 +2312,7 @@ void Executor::ins_unpack_indices( const Instruction& ins )
     // no need to calculate `rest_index`.
     std::unique_ptr<BObjectImp> rest_obj;
 
-    BObjectRef refIter( new BObject( UninitObject::create() ) );
+    BObjectRef refIter( UninitObject::create() );
     auto pIter =
         std::unique_ptr<ContIterator>( rightref->impptr()->createIterator( refIter.get() ) );
 
@@ -2549,7 +2367,7 @@ void Executor::ins_take_local( const Instruction& )
   passert( !ValueStack.empty() );
 
   // There is no entry in the locals vector, so create a new one.
-  Locals2->push_back( BObjectRef( UninitObject::create() ) );
+  Locals2->emplace_back( UninitObject::create() );
   BObjectRef& lvar = ( *Locals2 ).back();
 
   BObjectRef& rightref = ValueStack.back();
@@ -2662,7 +2480,7 @@ void Executor::ins_checkmember( const Instruction& /*ins*/ )
 
 void Executor::ins_addmember2( const Instruction& ins )
 {
-  BObjectRef obref = ValueStack.back();
+  BObjectRef& obref = ValueStack.back();
 
   BObject& ob = *obref;
 
@@ -2677,7 +2495,7 @@ void Executor::ins_addmember_assign( const Instruction& ins )
 
   ValueStack.pop_back();
 
-  BObjectRef obref = ValueStack.back();
+  BObjectRef& obref = ValueStack.back();
   BObject& ob = *obref;
 
   BObjectRef memref = ob.impref().operDotPlus( ins.token.tokval() );
@@ -2717,7 +2535,7 @@ void Executor::ins_dictionary_addmember( const Instruction& /*ins*/ )
   BObject& keyob = *keyref;
   BObjectImp* keyimp = keyob.impptr();
 
-  BObjectRef dictref = ValueStack.back();
+  BObjectRef& dictref = ValueStack.back();
   BObject& dictob = *dictref;
   BDictionary* dict = dictob.impptr<BDictionary>();
 
@@ -2762,7 +2580,7 @@ void Executor::ins_insert_into( const Instruction& /*ins*/ )
 
   if ( auto* spread = right.impptr_if<BSpread>() )
   {
-    BObjectRef refIter( new BObject( UninitObject::create() ) );
+    BObjectRef refIter( UninitObject::create() );
 
     auto pIter =
         std::unique_ptr<ContIterator>( spread->object->impptr()->createIterator( refIter.get() ) );
@@ -2917,52 +2735,44 @@ void Executor::ins_call_method_id( const Instruction& ins )
     passert_always( continuation == nullptr );
 
     size_t stacksize = ValueStack.size();  // ValueStack can grow
-#ifdef ESCRIPT_PROFILE
-    std::stringstream strm;
-    strm << "MTHID_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.lval;
-    if ( !fparams.empty() )
-      strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-    std::string name( strm.str() );
-    unsigned long profile_start = GetTimeUs();
-#endif
-    BObjectImp* imp = ValueStack.back()->impptr()->call_method_id( ins.token.lval, *this );
-
-    if ( auto* cont = impptrIf<BContinuation>( imp ) )
+    BObjectImp* imp;
     {
-      continuation = cont;
-      // Set nparams, so the next loop iteration's `getParams` will know how many arguments to
-      // move.
-      nparams = static_cast<unsigned int>( continuation->args.size() );
+      EscriptProfiler escript_profile{ ins, ValueStack.back(), fparams };
+      imp = ValueStack.back()->impptr()->call_method_id( ins.token.lval, *this );
 
-      // Add function reference to stack
-      ValueStack.push_back( BObjectRef( continuation->func() ) );
+      if ( auto* cont = impptrIf<BContinuation>( imp ) )
+      {
+        continuation = cont;
+        // Set nparams, so the next loop iteration's `getParams` will know how many arguments to
+        // move.
+        nparams = static_cast<unsigned int>( continuation->args.size() );
 
-      // Move all arguments to the value stack
-      ValueStack.insert( ValueStack.end(), std::make_move_iterator( continuation->args.begin() ),
-                         std::make_move_iterator( continuation->args.end() ) );
+        // Add function reference to stack
+        ValueStack.emplace_back( continuation->func() );
 
-      continuation->args.clear();
+        // Move all arguments to the value stack
+        ValueStack.insert( ValueStack.end(), std::make_move_iterator( continuation->args.begin() ),
+                           std::make_move_iterator( continuation->args.end() ) );
 
-      cleanParams();
+        continuation->args.clear();
 
-      printStack( fmt::format(
-          "call_method_id continuation arguments added to ValueStack, prior to getParams({}) and "
-          "funcref.call()",
-          nparams ) );
+        cleanParams();
 
-      // Next on the stack is a `FuncRef` that we need to call. We will continue the loop and handle
-      // it.
+        printStack( fmt::format(
+            "call_method_id continuation arguments added to ValueStack, prior to getParams({}) and "
+            "funcref.call()",
+            nparams ) );
 
-      // Prior to handling the `FuncRef` in the next loop, it will move from ValueStack to fparam.
-      // Then, having a `continuation` set while processing the `FuncRef`, will create the proper
-      // jumps.
+        // Next on the stack is a `FuncRef` that we need to call. We will continue the loop and
+        // handle it.
 
-      continue;
+        // Prior to handling the `FuncRef` in the next loop, it will move from ValueStack to fparam.
+        // Then, having a `continuation` set while processing the `FuncRef`, will create the proper
+        // jumps.
+
+        continue;
+      }
     }
-
-#ifdef ESCRIPT_PROFILE
-    profile_escript( name, profile_start );
-#endif
     BObjectRef& objref = ValueStack[stacksize - 1];
     if ( func_result_ )
     {
@@ -3086,28 +2896,18 @@ void Executor::ins_call_method( const Instruction& ins )
   }
 
   size_t stacksize = ValueStack.size();  // ValueStack can grow
-#ifdef ESCRIPT_PROFILE
-  std::stringstream strm;
-  strm << "MTH_" << callee->typeOf() << " ." << method_name;
-  if ( !fparams.empty() )
-    strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
-  std::string name( strm.str() );
-  unsigned long profile_start = GetTimeUs();
-#endif
-#ifdef BOBJECTIMP_DEBUG
   BObjectImp* imp;
-
-  if ( strcmp( method_name, "impptr" ) == 0 )
-    imp = new String( fmt::format( "{}", static_cast<void*>( callee ) ) );
-  else
-    imp = callee->call_method( method_name, *this );
+  {
+    EscriptProfiler escript_profile{ ins, callee, method_name, fparams };
+#ifdef BOBJECTIMP_DEBUG
+    if ( strcmp( method_name, "impptr" ) == 0 )
+      imp = new String( fmt::format( "{}", static_cast<void*>( callee ) ) );
+    else
+      imp = callee->call_method( method_name, *this );
 #else
-  BObjectImp* imp = callee->call_method( method_name, *this );
+    imp = callee->call_method( method_name, *this );
 #endif
-#ifdef ESCRIPT_PROFILE
-  profile_escript( name, profile_start );
-#endif
-
+  }
   BObjectRef& objref = ValueStack[stacksize - 1];
   if ( func_result_ )
   {
@@ -3455,7 +3255,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       // takes ownership.
 
       // Add function reference to stack
-      ValueStack.push_back( BObjectRef( new BObject( cont->func() ) ) );
+      ValueStack.emplace_back( cont->func() );
 
       // Move all arguments to the fparams stack
       fparams.insert( fparams.end(), std::make_move_iterator( cont->args.begin() ),
@@ -3486,7 +3286,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
       ValueStack.pop_back();
 
       // Add the result to the stack.
-      ValueStack.push_back( BObjectRef( new BObject( imp ) ) );
+      ValueStack.emplace_back( imp );
     }
     printStack( fmt::format( "Continuation end of ins_return, jumping to PC={}", PC ) );
   }
@@ -3500,26 +3300,26 @@ void Executor::ins_exit( const Instruction& /*ins*/ )
 
 void Executor::ins_double( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new Double( ins.token.dval ) ) ) );
+  ValueStack.emplace_back( new Double( ins.token.dval ) );
 }
 
 void Executor::ins_classinst( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BConstObject(
-      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) ) );
+  ValueStack.emplace_back( new BConstObject(
+      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new String( ins.token.tokval() ) ) ) );
+  ValueStack.emplace_back( new String( ins.token.tokval() ) );
 }
 void Executor::ins_error( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BError() ) ) );
+  ValueStack.emplace_back( new BError() );
 }
 void Executor::ins_struct( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
+  ValueStack.emplace_back( new BStruct );
 }
 void Executor::ins_spread( const Instruction& ins )
 {
@@ -3535,7 +3335,7 @@ void Executor::ins_spread( const Instruction& ins )
     BObject& right = *rightref;
     BObject& left = *leftref;
 
-    BObjectRef refIter( new BObject( UninitObject::create() ) );
+    BObjectRef refIter( UninitObject::create() );
 
     auto pIter = std::unique_ptr<ContIterator>( right.impptr()->createIterator( refIter.get() ) );
 
@@ -3550,24 +3350,24 @@ void Executor::ins_spread( const Instruction& ins )
   {
     auto spread = new BSpread( ValueStack.back() );
     ValueStack.pop_back();
-    ValueStack.push_back( BObjectRef( new BObject( spread ) ) );
+    ValueStack.emplace_back( spread );
   }
 }
 void Executor::ins_array( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new ObjArray ) ) );
+  ValueStack.emplace_back( new ObjArray );
 }
 void Executor::ins_dictionary( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
+  ValueStack.emplace_back( new BDictionary );
 }
 void Executor::ins_uninit( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+  ValueStack.emplace_back( UninitObject::create() );
 }
 void Executor::ins_ident( const Instruction& /*ins*/ )
 {
-  ValueStack.push_back( BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
+  ValueStack.emplace_back( new BError( "Please recompile this script" ) );
 }
 
 // case TOK_UNMINUS:
@@ -3577,47 +3377,47 @@ void Executor::ins_unminus( const Instruction& /*ins*/ )
   BObjectImp* newobj;
   newobj = ref->impref().inverse();
 
-  ValueStack.push_back( BObjectRef( new BObject( newobj ) ) );
+  ValueStack.emplace_back( newobj );
 }
 
 // case TOK_UNPLUSPLUS:
 void Executor::ins_unplusplus( const Instruction& /*ins*/ )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   ref->impref().selfPlusPlus();
 }
 
 // case TOK_UNMINUSMINUS:
 void Executor::ins_unminusminus( const Instruction& /*ins*/ )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   ref->impref().selfMinusMinus();
 }
 
 // case TOK_UNPLUSPLUS_POST:
 void Executor::ins_unplusplus_post( const Instruction& /*ins*/ )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   BObjectImp* imp = ref->impptr();
   BObject* n = ref->clone();
   imp->selfPlusPlus();
-  ValueStack.back().set( n );
+  ref.set( n );
 }
 
 // case TOK_UNMINUSMINUS_POST:
 void Executor::ins_unminusminus_post( const Instruction& /*ins*/ )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   BObjectImp* imp = ref->impptr();
   BObject* n = ref->clone();
   imp->selfMinusMinus();
-  ValueStack.back().set( n );
+  ref.set( n );
 }
 
 // case INS_SET_MEMBER_ID_UNPLUSPLUS:
 void Executor::ins_set_member_id_unplusplus( const Instruction& ins )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
   if ( !tmp->isa( BObjectImp::OTUninit ) &&
        !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
@@ -3625,13 +3425,13 @@ void Executor::ins_set_member_id_unplusplus( const Instruction& ins )
     tmp->impref().selfPlusPlus();
     ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
-  ValueStack.back().set( tmp.get() );
+  ref.set( tmp.get() );
 }
 
 // case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
 void Executor::ins_set_member_id_unplusplus_post( const Instruction& ins )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
   BObject* res = tmp->clone();
   if ( !tmp->isa( BObjectImp::OTUninit ) &&
@@ -3640,13 +3440,13 @@ void Executor::ins_set_member_id_unplusplus_post( const Instruction& ins )
     tmp->impref().selfPlusPlus();
     ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
-  ValueStack.back().set( res );
+  ref.set( res );
 }
 
 // case INS_SET_MEMBER_ID_UNMINUSMINUS:
 void Executor::ins_set_member_id_unminusminus( const Instruction& ins )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
   if ( !tmp->isa( BObjectImp::OTUninit ) &&
        !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
@@ -3654,13 +3454,13 @@ void Executor::ins_set_member_id_unminusminus( const Instruction& ins )
     tmp->impref().selfMinusMinus();
     ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
-  ValueStack.back().set( tmp.get() );
+  ref.set( tmp.get() );
 }
 
 // case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
 void Executor::ins_set_member_id_unminusminus_post( const Instruction& ins )
 {
-  BObjectRef ref = ValueStack.back();
+  BObjectRef& ref = ValueStack.back();
   BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
   BObject* res = tmp->clone();
   if ( !tmp->isa( BObjectImp::OTUninit ) &&
@@ -3669,21 +3469,21 @@ void Executor::ins_set_member_id_unminusminus_post( const Instruction& ins )
     tmp->impref().selfMinusMinus();
     ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
-  ValueStack.back().set( res );
+  ref.set( res );
 }
 
 // case TOK_LOG_NOT:
 void Executor::ins_logical_not( const Instruction& /*ins*/ )
 {
   BObjectRef ref = getObjRef();
-  ValueStack.push_back( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
+  ValueStack.emplace_back( new BLong( (int)!ref->impptr()->isTrue() ) );
 }
 
 // case TOK_BITWISE_NOT:
 void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 {
   BObjectRef ref = getObjRef();
-  ValueStack.push_back( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
+  ValueStack.emplace_back( ref->impptr()->bitnot() );
 }
 
 // case TOK_FUNCREF:
@@ -3699,8 +3499,7 @@ void Executor::ins_funcref( const Instruction& ins )
 
   auto funcref_index = static_cast<unsigned>( ins.token.lval );
 
-  ValueStack.push_back(
-      BObjectRef( new BFunctionRef( prog_, funcref_index, Globals2, {} /* captures */ ) ) );
+  ValueStack.emplace_back( new BFunctionRef( prog_, funcref_index, Globals2, {} /* captures */ ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3721,7 +3520,7 @@ void Executor::ins_functor( const Instruction& ins )
 
   auto func = new BFunctionRef( prog_, funcref_index, Globals2, std::move( captures ) );
 
-  ValueStack.push_back( BObjectRef( func ) );
+  ValueStack.emplace_back( func );
 
   PC += ins.token.lval;
 }
@@ -4165,7 +3964,7 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
         rest_arg->ref_arr.push_back( p );
       }
     }
-    ValueStack.push_back( BObjectRef( rest_arg.release() ) );
+    ValueStack.emplace_back( rest_arg.release() );
   }
   // The array{} will be created via the regular default-parameter handling by
   // jumping to the address/PC which pushes an empty array{} on the ValueStack
@@ -4254,7 +4053,7 @@ void Executor::initForFnCall( unsigned in_PC )
 void Executor::pushArg( BObjectImp* arg )
 {
   passert_always( arg );
-  ValueStack.push_back( BObjectRef( arg ) );
+  ValueStack.emplace_back( arg );
 }
 
 void Executor::pushArg( const BObjectRef& arg )
@@ -4466,75 +4265,6 @@ bool Executor::builtinMethodForced( const char*& methodname )
   return false;
 }
 
-#ifdef ESCRIPT_PROFILE
-void Executor::profile_escript( std::string name, unsigned long profile_start )
-{
-  unsigned long profile_end = GetTimeUs() - profile_start;
-  escript_profile_map::iterator itr = EscriptProfileMap.find( name );
-  if ( itr != EscriptProfileMap.end() )
-  {
-    itr->second.count++;
-    itr->second.sum += profile_end;
-    if ( itr->second.max < profile_end )
-      itr->second.max = profile_end;
-    else if ( itr->second.min > profile_end )
-      itr->second.min = profile_end;
-  }
-  else
-  {
-    profile_instr profInstr;
-    profInstr.count = 1;
-    profInstr.max = profile_end;
-    profInstr.min = profile_end;
-    profInstr.sum = profile_end;
-    EscriptProfileMap[name] = profInstr;
-  }
-}
-#ifdef _WIN32
-
-unsigned long Executor::GetTimeUs()
-{
-  static bool bInitialized = false;
-  static LARGE_INTEGER lFreq, lStart;
-  static LARGE_INTEGER lDivisor;
-  if ( !bInitialized )
-  {
-    bInitialized = true;
-    QueryPerformanceFrequency( &lFreq );
-    QueryPerformanceCounter( &lStart );
-    lDivisor.QuadPart = lFreq.QuadPart / 1000000;
-  }
-
-  LARGE_INTEGER lEnd;
-  QueryPerformanceCounter( &lEnd );
-  double duration = double( lEnd.QuadPart - lStart.QuadPart ) / lFreq.QuadPart;
-  duration *= 1000000;
-  LONGLONG llDuration = static_cast<LONGLONG>( duration );
-  return llDuration & 0xffffffff;
-}
-#else
-unsigned long Executor::GetTimeUs()
-{
-  static bool bInitialized = false;
-  static timeval t1;
-  if ( !bInitialized )
-  {
-    bInitialized = true;
-    gettimeofday( &t1, nullptr );
-  }
-
-  timeval t2;
-  gettimeofday( &t2, nullptr );
-
-  double elapsedTime;
-  elapsedTime = ( t2.tv_sec - t1.tv_sec ) * 1000000.0;
-  elapsedTime += ( t2.tv_usec - t1.tv_usec );
-
-  long long llDuration = static_cast<long long>( elapsedTime );
-  return llDuration & 0xffffffff;
-}
-#endif
-#endif
 BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectRefVec args )
 {
   auto* func = continuation->func();
@@ -4543,7 +4273,7 @@ BContinuation* Executor::withContinuation( BContinuation* continuation, BObjectR
   // there are too many
   while ( func->numParams() > static_cast<int>( args.size() ) )
   {
-    args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+    args.emplace_back( UninitObject::create() );
   }
 
   // Resize args only for non-varadic functions
@@ -4572,5 +4302,79 @@ bool Executor::ClassMethodKey::operator<( const ClassMethodKey& other ) const
   // Perform a case-insensitive comparison for method_name using stricmp
   return stricmp( method_name.c_str(), other.method_name.c_str() ) < 0;
 }
+
+#ifdef ESCRIPT_PROFILE
+std::map<std::string, EscriptProfiler::profile_instr> EscriptProfiler::escript_profile_map_{};
+EscriptProfiler::EscriptProfiler( ExecutorModule* em, const ModuleFunction* modfunc,
+                                  const std::vector<BObjectRef>& fparams )
+{
+  name_ = em->functionName( modfunc->funcidx );
+  if ( !fparams.empty() )
+    name_ += fmt::format( " [{}]", fparams[0].get()->impptr()->typeOf() );
+}
+EscriptProfiler::EscriptProfiler( const Instruction& ins, const BObjectRef& leftref,
+                                  const std::vector<BObjectRef>& fparams )
+{
+  switch ( ins.token.id )
+  {
+  case INS_GET_MEMBER:
+    name_ = fmt::format( "MBR_{} .{}", leftref->impptr()->typeOf(), ins.token.tokval() );
+    break;
+  case INS_GET_MEMBER_ID:
+    name_ = fmt::format( "MBR_{} .{}", leftref->impptr()->typeOf(), ins.token.lval );
+    break;
+  case INS_CALL_METHOD_ID:
+    name_ = fmt::format( "MTHID_{} .{}", leftref->impptr()->typeOf(), ins.token.lval );
+  default:
+    break;
+  }
+  if ( !fparams.empty() )
+    name_ += fmt::format( " [{}]", fparams[0].get()->impptr()->typeOf() );
+}
+EscriptProfiler::EscriptProfiler( const Instruction& ins, const BObjectImp* callee,
+                                  const char* method_name, const std::vector<BObjectRef>& fparams )
+{
+  switch ( ins.token.id )
+  {
+  case INS_CALL_METHOD:
+    name_ = fmt::format( "MTH_{} .{}", callee->typeOf(), method_name );
+    break;
+  default:
+    break;
+  }
+  if ( !fparams.empty() )
+    name_ += fmt::format( " [{}]", fparams[0].get()->impptr()->typeOf() );
+}
+
+EscriptProfiler::~EscriptProfiler()
+{
+  auto profile_end = timer_.ellapsed().count();
+  auto itr = escript_profile_map_.find( name_ );
+  if ( itr != escript_profile_map_.end() )
+  {
+    itr->second.count++;
+    itr->second.sum += profile_end;
+    if ( itr->second.max < profile_end )
+      itr->second.max = profile_end;
+    else if ( itr->second.min > profile_end )
+      itr->second.min = profile_end;
+  }
+  else
+  {
+    escript_profile_map_[name_] = {
+        .sum = profile_end, .max = profile_end, .min = profile_end, .count = 1 };
+  }
+}
+std::string EscriptProfiler::result()
+{
+  std::string buffer = "FuncName,Count,Min,Max,Sum,Avarage\n";
+  for ( const auto& [name, profile] : escript_profile_map_ )
+  {
+    fmt::format_to( std::back_inserter( buffer ), "{},{},{},{},{},{:.2f}\n", name, profile.count,
+                    profile.min, profile.max, profile.sum, profile.sum / ( 1.0 * profile.count ) );
+  }
+  return buffer;
+}
+#endif
 }  // namespace Bscript
 }  // namespace Pol

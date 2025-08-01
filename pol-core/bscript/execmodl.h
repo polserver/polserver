@@ -25,6 +25,7 @@ namespace Pol
 namespace Bscript
 {
 class Executor;
+class EscriptProfiler;
 }  // namespace Bscript
 }  // namespace Pol
 
@@ -82,6 +83,7 @@ protected:
   boost_utils::function_name_flystring moduleName;
 
   friend class Executor;
+  friend class EscriptProfiler;
 
   virtual int functionIndex( const std::string& funcname ) = 0;  // returns -1 on not found
   virtual BObjectImp* execFunc( unsigned idx ) = 0;
