@@ -27,22 +27,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: lib/curl-8_14_1
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.14.1-1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.14.1-2
       - name: Cache antlr
         uses: actions/cache@v4
         with:
           path: lib/antlr-cb85012
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-cb85012
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-cb85012-2
       - name: Cache boost
         uses: actions/cache@v4
         with:
           path: lib/boost_1_87_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.87.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.87.0-2
       - name: Cache cppdap
         uses: actions/cache@v4
         with:
           path: lib/cppdap-82beeea
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea-2
       - name: Install Dependencies
         shell: bash
         run: |
