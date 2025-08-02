@@ -43,7 +43,7 @@ BObjectImp* Executor::makeContinuation( BObjectRef funcref, Callback callback, B
   // there are too many
   while ( func->numParams() > static_cast<int>( args.size() ) )
   {
-    args.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+    args.emplace_back( UninitObject::create() );
   }
 
   // Resize args only for non-varadic functions
