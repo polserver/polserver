@@ -904,7 +904,7 @@ void Executor::execFunc( const Token& token )
   func_result_ = nullptr;
   BObjectImp* resimp;
   {
-    EscriptProfiler escript_profile{ em, modfunc, fparams };
+    ESCRIPT_PROFILER( em, modfunc, fparams );
     resimp = em->execFunc( modfunc->funcidx );
   }
   if ( func_result_ )
@@ -1667,7 +1667,7 @@ void Executor::ins_get_member( const Instruction& ins )
   BObjectRef& leftref = ValueStack.back();
   BObject& left = *leftref;
   {
-    EscriptProfiler escript_profile{ ins, leftref, fparams };
+    ESCRIPT_PROFILER( ins, leftref, fparams );
     leftref = left->get_member( ins.token.tokval() );
   }
 }
@@ -1677,7 +1677,7 @@ void Executor::ins_get_member_id( const Instruction& ins )
   BObjectRef& leftref = ValueStack.back();
   BObject& left = *leftref;
   {
-    EscriptProfiler escript_profile{ ins, leftref, fparams };
+    ESCRIPT_PROFILER( ins, leftref, fparams );
     leftref = left->get_member_id( ins.token.lval );
   }
 }
@@ -2737,7 +2737,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
     size_t stacksize = ValueStack.size();  // ValueStack can grow
     BObjectImp* imp;
     {
-      EscriptProfiler escript_profile{ ins, ValueStack.back(), fparams };
+      ESCRIPT_PROFILER( ins, ValueStack.back(), fparams );
       imp = ValueStack.back()->impptr()->call_method_id( ins.token.lval, *this );
 
       if ( auto* cont = impptrIf<BContinuation>( imp ) )
@@ -2898,7 +2898,7 @@ void Executor::ins_call_method( const Instruction& ins )
   size_t stacksize = ValueStack.size();  // ValueStack can grow
   BObjectImp* imp;
   {
-    EscriptProfiler escript_profile{ ins, callee, method_name, fparams };
+    ESCRIPT_PROFILER( ins, callee, method_name, fparams );
 #ifdef BOBJECTIMP_DEBUG
     if ( strcmp( method_name, "impptr" ) == 0 )
       imp = new String( fmt::format( "{}", static_cast<void*>( callee ) ) );

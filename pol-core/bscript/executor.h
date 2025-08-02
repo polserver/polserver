@@ -619,17 +619,9 @@ private:
   };
   static std::map<std::string, profile_instr> escript_profile_map_;
 };
+#define ESCRIPT_PROFILER EscriptProfiler escript_profiler
 #else
-class EscriptProfiler
-{
-public:
-  EscriptProfiler( ExecutorModule*, const ModuleFunction*, const std::vector<BObjectRef>& ){};
-
-  EscriptProfiler( const Instruction&, const BObjectRef&, const std::vector<BObjectRef>& ){};
-  EscriptProfiler( const Instruction&, const BObjectImp*, const char*,
-                   const std::vector<BObjectRef>& ){};
-  ~EscriptProfiler() = default;
-};
+#define ESCRIPT_PROFILER( ... )
 #endif
 }  // namespace Bscript
 }  // namespace Pol
