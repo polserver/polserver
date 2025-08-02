@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-02-2025 Turley:
+    Fixed:  when the client view range is changed the client gets first informed about the new range before potentially sending new objects
 07-28-2025 Turley:
     Added: ecompile.cfg setting ShortCircuitEvaluation (0/1) default 0 and ShortCircuitEvaluationWarning (0/1) default 1
            if activated: in || and && expressions the second argument get only evaluated if the first operand is false for || and true for &&

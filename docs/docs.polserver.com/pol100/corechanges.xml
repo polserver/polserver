@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-28-2025</datemodified>
+		<datemodified>08-02-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-02-2025</date>
+			<author>Turley:</author>
+			<change type="Fixed">when the client view range is changed the client gets first informed about the new range before potentially sending new objects</change>
+		</entry>
 		<entry>
 			<date>07-28-2025</date>
 			<author>Turley:</author>

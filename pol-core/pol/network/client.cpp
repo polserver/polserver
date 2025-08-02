@@ -750,15 +750,17 @@ void Client::set_update_range_by_script( u8 range )
 void Client::set_update_range( u8 range )
 {
   auto old_range = update_range();
+  // first signal the client about the change before we potentially send new objects otherwise the
+  // client could directly drop them
+  PktHelper::PacketOut<PktOut_C8> outMsg;
+  outMsg->Write<u8>( range );
+  outMsg.Send( this );
+
   // delete/send all objects, but not if its the first pkt
   if ( old_range != range && gd->original_client_update_range != 0 )
     chr->update_objects_on_range_change( range );
 
   gd->update_range = range;
-
-  PktHelper::PacketOut<PktOut_C8> outMsg;
-  outMsg->Write<u8>( range );
-  outMsg.Send( this );
 
   if ( old_range != range )
   {
