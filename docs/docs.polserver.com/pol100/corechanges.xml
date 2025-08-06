@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-02-2025</datemodified>
+		<datemodified>08-06-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-06-2025</date>
+			<author>Turley:</author>
+			<change type="Changed">optimized generated instructions when using ShortCircuits</change>
+		</entry>
 		<entry>
 			<date>08-02-2025</date>
 			<author>Turley:</author>
