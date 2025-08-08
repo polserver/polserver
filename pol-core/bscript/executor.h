@@ -37,6 +37,7 @@
 #include "executortype.h"
 
 #ifdef ESCRIPT_PROFILE
+#include "clib/timer.h"
 #include <map>
 #endif
 
@@ -58,18 +59,6 @@ class ExecutorModule;
 class ModuleFunction;
 class String;
 class Token;
-#ifdef ESCRIPT_PROFILE
-
-struct profile_instr
-{
-  unsigned long sum;
-  unsigned long max;
-  unsigned long min;
-  unsigned long count;
-};
-typedef std::map<std::string, profile_instr> escript_profile_map;
-extern escript_profile_map EscriptProfileMap;
-#endif
 
 class ExecutorDebugListener
 {
@@ -542,11 +531,6 @@ private:
 
   void printStack( const std::string& message );
 
-private:
-#ifdef ESCRIPT_PROFILE
-  unsigned long GetTimeUs();
-  void profile_escript( std::string name, unsigned long profile_start );
-#endif
 protected:
   void cleanup();
 
@@ -608,6 +592,37 @@ inline void Executor::set_running_to_completion( bool to_completion )
 {
   runs_to_completion_ = to_completion;
 }
+
+#ifdef ESCRIPT_PROFILE
+class EscriptProfiler
+{
+public:
+  EscriptProfiler( ExecutorModule* em, const ModuleFunction* modfunc,
+                   const std::vector<BObjectRef>& fparams );
+
+  EscriptProfiler( const Instruction& ins, const BObjectRef& leftref,
+                   const std::vector<BObjectRef>& fparams );
+  EscriptProfiler( const Instruction& ins, const BObjectImp* callee, const char* method_name,
+                   const std::vector<BObjectRef>& fparams );
+  ~EscriptProfiler();
+  static std::string result();
+
+private:
+  Tools::HighPerfTimer timer_{};
+  std::string name_{};
+  struct profile_instr
+  {
+    int64_t sum;
+    int64_t max;
+    int64_t min;
+    int64_t count;
+  };
+  static std::map<std::string, profile_instr> escript_profile_map_;
+};
+#define ESCRIPT_PROFILER EscriptProfiler escript_profiler
+#else
+#define ESCRIPT_PROFILER( ... )
+#endif
 }  // namespace Bscript
 }  // namespace Pol
 #endif

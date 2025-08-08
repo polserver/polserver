@@ -1983,14 +1983,7 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       }
 #endif
 #ifdef ESCRIPT_PROFILE
-      DEBUGLOGLN( "FuncName,Count,Min,Max,Sum,Avarage" );
-      for ( escript_profile_map::iterator itr = EscriptProfileMap.begin();
-            itr != EscriptProfileMap.end(); ++itr )
-      {
-        DEBUGLOGLN( "{},{},{},{},{},{}", itr->first, itr->second.count, itr->second.min,
-                    itr->second.max, itr->second.sum,
-                    ( itr->second.sum / ( 1.0 * itr->second.count ) ) );
-      }
+      DEBUGLOGLN( EscriptProfiler::result() );
 #endif
       if ( type == 2 )
       {
