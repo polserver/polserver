@@ -1,0 +1,33 @@
+include "listfile";
+var t := true;
+var f := false;
+
+"multiple ||";
+if ( f || f || t )
+  print( "success" );
+endif
+"multible &&";
+if ( t && t && t )
+  print( "success" );
+endif
+
+"combined t && (t || t)";
+if ( t && ( t || t ) )
+  print( "success" );
+endif
+"combined 2 t && (f || f)";
+if ( t && ( f || f ) )
+  print( "failed" );
+endif
+
+"combined 3 ( f || t ) && ( f || t)";
+if ( ( f || t ) && ( f || t ) )
+  print( "success" );
+endif
+
+"combined 4 ( f || t || t ) && ( f || t || t )";
+if ( ( f || t || t ) && ( f || t || t ) )
+  print( "success" );
+endif
+
+print_listfile( "shortcircuit3" );

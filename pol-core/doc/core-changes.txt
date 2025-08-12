@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-06-2025 Turley:
+  Changed: optimized generated instructions when using ShortCircuits
 08-02-2025 Turley:
     Fixed:  when the client view range is changed the client gets first informed about the new range before potentially sending new objects
 07-28-2025 Turley:

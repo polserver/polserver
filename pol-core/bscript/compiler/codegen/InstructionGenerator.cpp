@@ -1107,14 +1107,15 @@ void InstructionGenerator::visit_binary_operator_short_circuit( BinaryOperatorSh
   emit.debug_statementbegin();
   update_debug_location( op );
   generate( op.lhs() );
-  FlowControlLabel end;
-  if ( op.token_id == TOK_AND )
-    emit.logical_jmp( end, false );
-  else if ( op.token_id == TOK_OR )
-    emit.logical_jmp( end, true );
+
+  emit.logical_jmp( op.linked_jmp_label ? *op.linked_jmp_label->jmp_label : *op.end_label,
+                    op.oper == ShortCircuitOp::OR );
   generate( op.rhs() );
-  emit.logical_convert();
-  emit.label( end );
+  // dont emit convert if the rhs oper is also a ShortCircuit which generated already a convert, or
+  // the parent
+  if ( op.generate_logical_convert )
+    emit.logical_convert();
+  emit.label( *op.end_label );
 }
 
 }  // namespace Pol::Bscript::Compiler
