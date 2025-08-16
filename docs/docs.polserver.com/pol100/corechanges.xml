@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-06-2025</datemodified>
+		<datemodified>08-16-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-16-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">New module function util::RandomUUID()</change>
+		</entry>
 		<entry>
 			<date>08-06-2025</date>
 			<author>Turley:</author>
