@@ -163,9 +163,9 @@ void log_all_script_cycle_counts( bool clear_counters )
   }
 
   POLLOGLN(
-      "Scheduler passes: {}\n"
+      "Task passes: {}\n"
       "Script passes:    {}",
-      ( GET_PROFILEVAR( scheduler_passes ) ), stateManager.profilevars.script_passes );
+      ( GET_PROFILEVAR( task_passes ) ), GET_PROFILEVAR( script_passes ) );
 
   std::string tmp = fmt::format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n", "Script", "cycles", "incov",
                                  "cyc/invoc", "%" );
