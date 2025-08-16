@@ -8,6 +8,7 @@
 
 #include "pol_global_config.h"
 #include <algorithm>
+#include <fmt/format.h>
 #include <limits>
 #include <type_traits>
 
@@ -153,3 +154,9 @@ inline To clamp_convert( From v )
   }
 }
 }  // namespace Pol::Clib
+template <>
+struct fmt::formatter<Pol::Clib::OnlineStatistics> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Clib::OnlineStatistics& s,
+                                        fmt::format_context& ctx ) const;
+};

@@ -534,7 +534,7 @@ void tasks_thread( void )
         PolLock lck;
         polclock_checkin();
         THREAD_CHECKPOINT( tasks, 2 );
-        INC_PROFILEVAR( scheduler_passes );
+        INC_PROFILEVAR( task_passes );
         check_scheduled_tasks( &sleeptime, &activity );
         THREAD_CHECKPOINT( tasks, 3 );
         restart_all_clients();
@@ -545,7 +545,7 @@ void tasks_thread( void )
       if ( activity )
         send_pulse();
       else
-        INC_PROFILEVAR( noactivity_scheduler_passes );
+        INC_PROFILEVAR( noactivity_task_passes );
       THREAD_CHECKPOINT( tasks, 7 );
 
       passert( sleeptime > 0 );
@@ -579,17 +579,21 @@ void scripts_thread( void )
 {
   polclock_t sleeptime;
   bool activity;
+  Clib::HighPerfTimer delay_timer{};
   while ( !Clib::exit_signalled )
   {
     THREAD_CHECKPOINT( scripts, 0 );
     {
       PolLock lck;
+      stateManager.profilevars.script_passes_delay.update( delay_timer.elapsed() );
       polclock_checkin();
       TRACEBUF_ADDELEM( "scripts thread now", static_cast<u32>( polclock() ) );
-      ++stateManager.profilevars.script_passes;
+      INC_PROFILEVAR( script_passes );
       THREAD_CHECKPOINT( scripts, 1 );
 
+      Clib::HighPerfTimer duration_timer{};
       step_scripts( &sleeptime, &activity );
+      stateManager.profilevars.script_passes_duration.update( duration_timer.elapsed() );
 
       THREAD_CHECKPOINT( scripts, 50 );
 
@@ -604,6 +608,7 @@ void scripts_thread( void )
         wake_tasks_thread();
       }
     }
+    delay_timer = Clib::HighPerfTimer{};
 
     if ( activity )
     {

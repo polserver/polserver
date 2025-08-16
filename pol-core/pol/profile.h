@@ -8,6 +8,7 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
+#include "../clib/clib.h"
 #include "../clib/rawtypes.h"
 #include <atomic>
 #include <cstddef>
@@ -18,7 +19,7 @@ namespace Pol
 namespace Core
 {
 #define DEF_PROFILEVAR( counter ) \
-  unsigned int prf_##counter, prf_last_##counter, prf_last_##counter##_per_min
+  size_t prf_##counter, prf_last_##counter, prf_last_##counter##_per_min
 
 #define CLOCK_PROFILEVAR( timer ) \
   clock_t tmr_##timer##_clocks_this_min, tmr_##timer##_clocks_last_min, tmr_##timer##_clock_start
@@ -28,10 +29,6 @@ struct ProfileVars
   DEF_PROFILEVAR( events );
   DEF_PROFILEVAR( skill_checks );
   DEF_PROFILEVAR( combat_operations );
-  DEF_PROFILEVAR( los_checks );
-  DEF_PROFILEVAR( polmap_walkheight_calculations );
-  DEF_PROFILEVAR( uomap_walkheight_calculations );
-  DEF_PROFILEVAR( mobile_movements );
   DEF_PROFILEVAR( error_creations );
   DEF_PROFILEVAR( tasks_ontime );
   DEF_PROFILEVAR( tasks_late );
@@ -39,21 +36,15 @@ struct ProfileVars
   DEF_PROFILEVAR( scripts_ontime );
   DEF_PROFILEVAR( scripts_late );
   DEF_PROFILEVAR( scripts_late_ticks );
-  DEF_PROFILEVAR( scheduler_passes );
-  DEF_PROFILEVAR( noactivity_scheduler_passes );
-  DEF_PROFILEVAR( npc_searches );
+  DEF_PROFILEVAR( task_passes );
+  DEF_PROFILEVAR( noactivity_task_passes );
   DEF_PROFILEVAR( container_adds );
   DEF_PROFILEVAR( container_removes );
 
-  CLOCK_PROFILEVAR( npc_search );
-
-  // unsigned int instructions;
   u64 last_instructions;
-  size_t last_sipm;
+  size_t last_instructions_pm;
 
-  u64 sleep_cycles;
-  u64 last_sleep_cycles;
-  size_t last_scpm;
+  DEF_PROFILEVAR( sleep_cycles );
 
   size_t busy_sysload_cycles, last_busy_sysload_cycles;
   size_t nonbusy_sysload_cycles, last_nonbusy_sysload_cycles;
@@ -63,22 +54,17 @@ struct ProfileVars
   u64 last_cpu_total;
   size_t last_cputime;
 
-  u64 script_passes;
-  u64 last_script_passes;
-  size_t last_sppm;
-
-  // unsigned int scheduler_passes, last_scheduler_passes;
-  // unsigned int last_schm;
+  DEF_PROFILEVAR( script_passes );
 
   std::atomic<size_t> script_passes_activity;
   std::atomic<size_t> script_passes_noactivity;
   size_t last_script_passes_activity;
   size_t last_script_passes_noactivity;
-
-  size_t mapcache_hits, last_mapcache_hits;
-  size_t mapcache_misses, last_mapcache_misses;
+  Clib::OnlineStatistics script_passes_duration{};
+  Clib::OnlineStatistics script_passes_delay{};
+  Clib::OnlineStatistics script_runlist_statistic{};
 };
-}
+}  // namespace Core
 #define INC_PROFILEVAR( counter ) ++Core::stateManager.profilevars.prf_##counter
 #define SET_PROFILEVAR( counter, newvalue ) Core::stateManager.profilevars.prf_##counter = newvalue
 #define INC_PROFILEVAR_BY( counter, amount ) Core::stateManager.profilevars.prf_##counter += amount
@@ -113,5 +99,5 @@ struct ProfileVars
 #define GET_PROFILECLOCK_MS( timer )                                                          \
   ( static_cast<unsigned int>( Core::stateManager.profilevars.tmr_##timer##_clocks_last_min * \
                                1000.0 / Core::CLOCKS_PER_SEC ) )
-}
+}  // namespace Pol
 #endif

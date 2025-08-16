@@ -167,30 +167,21 @@ void setup_update_rpm( void )
 void update_rpm( void )
 {
   THREAD_CHECKPOINT( tasks, 300 );
-  stateManager.profilevars.last_sipm = static_cast<unsigned int>(
-      Bscript::escript_instr_cycles - stateManager.profilevars.last_instructions );
-  stateManager.profilevars.last_instructions = Bscript::escript_instr_cycles;
+  auto& pvars = stateManager.profilevars;
+  pvars.last_instructions_pm =
+      Clib::clamp_convert<size_t>( Bscript::escript_instr_cycles - pvars.last_instructions );
+  pvars.last_instructions = Bscript::escript_instr_cycles;
 
-  stateManager.profilevars.last_scpm = static_cast<unsigned int>(
-      stateManager.profilevars.sleep_cycles - stateManager.profilevars.last_sleep_cycles );
-  stateManager.profilevars.last_sleep_cycles = stateManager.profilevars.sleep_cycles;
+  TICK_PROFILEVAR( sleep_cycles );
 
-  stateManager.profilevars.last_script_passes_activity =
-      stateManager.profilevars.script_passes_activity;
-  stateManager.profilevars.script_passes_activity = 0;
-  stateManager.profilevars.last_script_passes_noactivity =
-      stateManager.profilevars.script_passes_noactivity;
-  stateManager.profilevars.script_passes_noactivity = 0;
+  pvars.last_script_passes_activity = pvars.script_passes_activity;
+  pvars.script_passes_activity = 0;
+  pvars.last_script_passes_noactivity = pvars.script_passes_noactivity;
+  pvars.script_passes_noactivity = 0;
 
   TICK_PROFILEVAR( events );
   TICK_PROFILEVAR( skill_checks );
   TICK_PROFILEVAR( combat_operations );
-
-  TICK_PROFILEVAR( los_checks );
-  TICK_PROFILEVAR( polmap_walkheight_calculations );
-  TICK_PROFILEVAR( uomap_walkheight_calculations );
-  TICK_PROFILEVAR( mobile_movements );
-
 
   SET_PROFILEVAR( error_creations, Bscript::BError::creations() );
   TICK_PROFILEVAR( error_creations );
@@ -202,9 +193,6 @@ void update_rpm( void )
   TICK_PROFILEVAR( scripts_ontime );
   TICK_PROFILEVAR( scripts_late );
 
-  TICK_PROFILEVAR( npc_searches );
-  ROLL_PROFILECLOCK( npc_search );
-
   TICK_PROFILEVAR( container_adds );
   TICK_PROFILEVAR( container_removes );
 
@@ -214,72 +202,52 @@ void update_rpm( void )
   __int64 kt = *(__int64*)&k;
   __int64 ut = *(__int64*)&u;
   __int64 tot = ( kt + ut ) / 10;  // convert to microseconds
-  stateManager.profilevars.last_cputime =
-      static_cast<unsigned int>( tot - stateManager.profilevars.last_cpu_total );
-  stateManager.profilevars.last_cpu_total = tot;
+  pvars.last_cputime = static_cast<unsigned int>( tot - pvars.last_cpu_total );
+  pvars.last_cpu_total = tot;
 #endif
 
-  stateManager.profilevars.last_busy_sysload_cycles = stateManager.profilevars.busy_sysload_cycles;
-  stateManager.profilevars.last_nonbusy_sysload_cycles =
-      stateManager.profilevars.nonbusy_sysload_cycles;
-  size_t total_cycles = stateManager.profilevars.busy_sysload_cycles +
-                        stateManager.profilevars.nonbusy_sysload_cycles;
+  pvars.last_busy_sysload_cycles = pvars.busy_sysload_cycles;
+  pvars.last_nonbusy_sysload_cycles = pvars.nonbusy_sysload_cycles;
+  size_t total_cycles = pvars.busy_sysload_cycles + pvars.nonbusy_sysload_cycles;
   if ( total_cycles )
   {
-    stateManager.profilevars.last_sysload =
-        stateManager.profilevars.busy_sysload_cycles * 100 / total_cycles;
-    stateManager.profilevars.last_sysload_nprocs =
-        stateManager.profilevars.sysload_nprocs * 10 / total_cycles;
+    pvars.last_sysload = pvars.busy_sysload_cycles * 100 / total_cycles;
+    pvars.last_sysload_nprocs = pvars.sysload_nprocs * 10 / total_cycles;
   }
   // else don't adjust
-  stateManager.profilevars.busy_sysload_cycles = 0;
-  stateManager.profilevars.nonbusy_sysload_cycles = 0;
-  stateManager.profilevars.sysload_nprocs = 0;
+  pvars.busy_sysload_cycles = 0;
+  pvars.nonbusy_sysload_cycles = 0;
+  pvars.sysload_nprocs = 0;
   if ( Plib::systemstate.config.watch_sysload )
-    INFO_PRINTLN( "sysload={} ({}) cputime={}", stateManager.profilevars.last_sysload,
-                  stateManager.profilevars.last_sysload_nprocs,
-                  stateManager.profilevars.last_cputime );
+    INFO_PRINTLN( "sysload={} ({}) cputime={}", pvars.last_sysload, pvars.last_sysload_nprocs,
+                  pvars.last_cputime );
   if ( Plib::systemstate.config.log_sysload )
-    POLLOGLN( "sysload={} ({}) cputime={}", stateManager.profilevars.last_sysload,
-              stateManager.profilevars.last_sysload_nprocs, stateManager.profilevars.last_cputime );
-    // cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " <<
-    // GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
-    // cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;
-    // cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
+    POLLOGLN( "sysload={} ({}) cputime={}", pvars.last_sysload, pvars.last_sysload_nprocs,
+              pvars.last_cputime );
 
 #ifndef NDEBUG
-  INFO_PRINTLN( "activity: {}  noactivity: {}",
-                stateManager.profilevars.last_script_passes_activity,
-                stateManager.profilevars.last_script_passes_noactivity );
+  INFO_PRINTLN( "activity: {}  noactivity: {}", pvars.last_script_passes_activity,
+                pvars.last_script_passes_noactivity );
 #endif
-  stateManager.profilevars.last_mapcache_hits = stateManager.profilevars.mapcache_hits;
-  stateManager.profilevars.last_mapcache_misses = stateManager.profilevars.mapcache_misses;
-  if ( Plib::systemstate.config.watch_mapcache )
-    INFO_PRINTLN(
-        "mapcache: hits={}, misses={}, rate={}%", stateManager.profilevars.mapcache_hits,
-        stateManager.profilevars.mapcache_misses,
-        ( stateManager.profilevars.mapcache_hits ? ( stateManager.profilevars.mapcache_hits * 100 /
-                                                     ( stateManager.profilevars.mapcache_hits +
-                                                       stateManager.profilevars.mapcache_misses ) )
-                                                 : 0 ) );
-  stateManager.profilevars.mapcache_hits = 0;
-  stateManager.profilevars.mapcache_misses = 0;
 
-  stateManager.profilevars.last_sppm = static_cast<unsigned int>(
-      stateManager.profilevars.script_passes - stateManager.profilevars.last_script_passes );
-  stateManager.profilevars.last_script_passes = stateManager.profilevars.script_passes;
-
-  TICK_PROFILEVAR( scheduler_passes );
-  TICK_PROFILEVAR( noactivity_scheduler_passes );
+  TICK_PROFILEVAR( script_passes );
+  TICK_PROFILEVAR( task_passes );
+  TICK_PROFILEVAR( noactivity_task_passes );
 
   if ( Plib::systemstate.config.watch_rpm )
-    INFO_PRINTLN( "scpt: {}  task: {}({})  scin: {}  scsl: {}  MOB: {}  TLI: {}",
-                  stateManager.profilevars.last_sppm,
-                  ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) ),
-                  ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ),
-                  stateManager.profilevars.last_sipm, stateManager.profilevars.last_scpm,
-                  get_mobile_count(), get_toplevel_item_count() );
-
+  {
+    INFO_PRINTLN(
+        "script_passes: {}  task_passes: {}({})  instructions: {}  sleep_cycles: {}  MOB: {}  "
+        "TLI: {}",
+        GET_PROFILEVAR_PER_MIN( script_passes ), GET_PROFILEVAR_PER_MIN( task_passes ),
+        GET_PROFILEVAR_PER_MIN( noactivity_task_passes ), pvars.last_instructions_pm,
+        GET_PROFILEVAR_PER_MIN( sleep_cycles ), get_mobile_count(), get_toplevel_item_count() );
+    INFO_PRINTLN( "script_passes activity: {} noactivity: {} scriptcount statstic {}",
+                  pvars.last_script_passes_activity, pvars.last_script_passes_noactivity,
+                  pvars.script_runlist_statistic );
+    INFO_PRINTLN( "script_passes duration statistic (us) {}", pvars.script_passes_duration );
+    INFO_PRINTLN( "script_passes delay statistic (us) {}", pvars.script_passes_duration );
+  }
   if ( Plib::systemstate.config.show_realm_info )
   {
     INFO_PRINTLN( "\nRealm info: " );
