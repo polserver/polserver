@@ -579,7 +579,7 @@ void scripts_thread( void )
 {
   polclock_t sleeptime;
   bool activity;
-  Clib::HighPerfTimer delay_timer{};
+  Tools::HighPerfTimer delay_timer{};
   while ( !Clib::exit_signalled )
   {
     THREAD_CHECKPOINT( scripts, 0 );
@@ -591,7 +591,7 @@ void scripts_thread( void )
       INC_PROFILEVAR( script_passes );
       THREAD_CHECKPOINT( scripts, 1 );
 
-      Clib::HighPerfTimer duration_timer{};
+      Tools::HighPerfTimer duration_timer{};
       step_scripts( &sleeptime, &activity );
       stateManager.profilevars.script_passes_duration.update( duration_timer.elapsed() );
 
@@ -608,7 +608,7 @@ void scripts_thread( void )
         wake_tasks_thread();
       }
     }
-    delay_timer = Clib::HighPerfTimer{};
+    delay_timer = Tools::HighPerfTimer{};
 
     if ( activity )
     {
