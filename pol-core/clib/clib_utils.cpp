@@ -7,9 +7,7 @@
 #include "clib.h"
 #include "rawtypes.h"
 
-namespace Pol
-{
-namespace Clib
+namespace Pol::Clib
 {
 OnlineStatistics::OnlineStatistics() : _count( 0 ), _max( 0 ), _mean( 0 ), _m2( 0 ) {}
 
@@ -41,5 +39,13 @@ double OnlineStatistics::max() const
 {
   return _max;
 }
-}
+}  // namespace Pol::Clib
+
+fmt::format_context::iterator fmt::formatter<Pol::Clib::OnlineStatistics>::format(
+    const Pol::Clib::OnlineStatistics& s, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format(
+      fmt::format( "mean: {:.2f} max: {:.2f} variance: {:.2f} count: {}", s.mean(), s.max(),
+                   s.variance(), s.count() ),
+      ctx );
 }
