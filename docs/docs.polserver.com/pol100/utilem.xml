@@ -54,9 +54,11 @@ d6-2
   </function>
 
   <function name="RandomUUID">
-    <prototype>RandomUUID()</prototype>
-    <explain>Returns a random (version 4) UUID according to RFC 9562.</explain>
+    <prototype>RandomUUID( version := 4 )</prototype>
+    <explain>Returns a UUID according to RFC 9562. Supported versions are 4 (random) and 7 (timestamp + random)</explain>
     <return>String</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Invalid version"</error>
   </function>
 
   <function name="StrFormatTime">

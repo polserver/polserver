@@ -1,1 +1,4 @@
 String
+String
+error{ errortext = "Invalid version" }
+error{ errortext = "Invalid parameter type" }
