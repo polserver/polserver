@@ -112,6 +112,7 @@ void step_scripts( polclock_t* clocksleft, bool* pactivity )
   THREAD_CHECKPOINT( scripts, 102 );
   *pactivity = ( !scriptScheduler.getRunlist().empty() );
   THREAD_CHECKPOINT( scripts, 103 );
+  stateManager.profilevars.script_runlist_statistic.update( scriptScheduler.getRunlist().size() );
 
   run_ready();
 
