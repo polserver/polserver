@@ -70,8 +70,8 @@ void run_ready()
 void check_blocked( polclock_t* pclocksleft )
 {
   polclock_t now_clock = polclock();
-  INC_PROFILEVAR( sleep_cycles, scriptScheduler.getHoldlist().size() +
-                                    scriptScheduler.getNoTimeoutHoldlist().size() );
+  INC_PROFILEVAR_BY( sleep_cycles, scriptScheduler.getHoldlist().size() +
+                                       scriptScheduler.getNoTimeoutHoldlist().size() );
   polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
   for ( ;; )
   {
