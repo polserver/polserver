@@ -1,6 +1,7 @@
 -- POL100.2.0 --
 08-16-2025 Kevin:
     Added: New module function util::RandomUUID()
+    Added: util.em constants UUID_NIL and UUID_MAX
 08-06-2025 Turley:
   Changed: optimized generated instructions when using ShortCircuits
 08-02-2025 Turley:

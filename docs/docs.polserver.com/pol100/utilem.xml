@@ -5,6 +5,8 @@
   <fileheader fname="Util.em">
     <filedesc>Utility functions</filedesc>
     <datemodified>08/16/2020</datemodified>
+    <constant>const UUID_NIL := "00000000-0000-0000-0000-000000000000";</constant>
+    <constant>const UUID_MAX := "ffffffff-ffff-ffff-ffff-ffffffffffff";</constant>
   </fileheader>
 
   <function name="RandomInt">

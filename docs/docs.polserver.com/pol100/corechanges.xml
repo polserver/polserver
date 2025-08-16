@@ -9,6 +9,7 @@
 			<date>08-16-2025</date>
 			<author>Kevin:</author>
 			<change type="Added">New module function util::RandomUUID()</change>
+			<change type="Added">util.em constants UUID_NIL and UUID_MAX</change>
 		</entry>
 		<entry>
 			<date>08-06-2025</date>
