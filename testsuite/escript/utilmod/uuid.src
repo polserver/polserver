@@ -1,0 +1,15 @@
+use util;
+
+var uuid := RandomUUID(); // eg. 6d79a467-e483-431c-a9f2-6def3357e893
+print( TypeOf( uuid ) );
+
+foreach ascii in ( CAscZ( uuid ) )
+  var char := CChr( ascii );
+  if ( _ascii_iter == 9 || _ascii_iter == 14 || _ascii_iter == 19 || _ascii_iter == 24 )
+    if ( char != "-" )
+      print( $"Unexpected character at index {_ascii_iter}, expecting '-' got '{char}'" );
+    endif
+  elseif ( ( ascii < 48 /* 0 */ || ascii > 57 /* 9 */ ) && ( ascii < 97 /* a */ && ascii > 102 /* f */ ) )
+    print( $"Unexpected character at index {_ascii_iter}, expecting [0-9a-f] got '{char}'" );
+  endif
+endforeach
