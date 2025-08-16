@@ -4,10 +4,12 @@
 <ESCRIPT>
   <fileheader fname="Util.em">
     <filedesc>Utility functions</filedesc>
-    <datemodified>10/25/2020</datemodified>
+    <datemodified>08/16/2020</datemodified>
+    <constant>const UUID_NIL := "00000000-0000-0000-0000-000000000000";</constant>
+    <constant>const UUID_MAX := "ffffffff-ffff-ffff-ffff-ffffffffffff";</constant>
   </fileheader>
 
-  <function name="RandomInt"> 
+  <function name="RandomInt">
     <prototype>RandomInt(below_this_number)</prototype>
     <parameter name="below_this_number" value="Integer" />
     <explain>Returns a random integer below the passed parameter and greater or equal to zero.</explain>
@@ -15,7 +17,7 @@
 	<error>"RandomInt() expects a positive integer"</error>
   </function>
 
-  <function name="RandomIntMinMax"> 
+  <function name="RandomIntMinMax">
     <prototype>RandomIntMinMax(minValue, maxValue)</prototype>
     <parameter name="minValue" value="Integer" />
     <parameter name="maxValue" value="Integer" />
@@ -24,7 +26,7 @@
 	<error>"RandomIntMinMax() expects an integer"</error>
   </function>
 
-  <function name="RandomFloat"> 
+  <function name="RandomFloat">
     <prototype>RandomFloat(below_this_float)</prototype>
     <parameter name="below_this_float" value="Real" />
     <explain>Returns a random real below the passed parameter and greater or equal to zero.</explain>
@@ -51,7 +53,15 @@ d6-2
     <return>Valkyrie's pedantic wording: "returns an integer greater or equal to N+X and not more than N*S+X"</return>
   </function>
 
-  <function name="StrFormatTime"> 
+  <function name="RandomUUID">
+    <prototype>RandomUUID( version := 4 )</prototype>
+    <explain>Returns a UUID according to RFC 9562. Supported versions are 4 (random) and 7 (timestamp + random)</explain>
+    <return>String</return>
+    <error>"Invalid parameter type"</error>
+    <error>"Invalid version"</error>
+  </function>
+
+  <function name="StrFormatTime">
     <prototype>StrFormatTime( format_string, time_stamp:=0 )</prototype>
     <parameter name="format_string" value="String" />
     <parameter name="time_stamp" value="Integer" />
