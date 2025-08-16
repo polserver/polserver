@@ -246,7 +246,7 @@ void update_rpm( void )
                   pvars.last_script_passes_activity, pvars.last_script_passes_noactivity,
                   pvars.script_runlist_statistic );
     INFO_PRINTLN( "script_passes duration statistic (us) {}", pvars.script_passes_duration );
-    INFO_PRINTLN( "script_passes delay statistic (us) {}", pvars.script_passes_duration );
+    INFO_PRINTLN( "script_passes delay statistic (us) {}", pvars.script_passes_delay );
   }
   if ( Plib::systemstate.config.show_realm_info )
   {
