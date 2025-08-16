@@ -9,6 +9,9 @@
 
 #include "utilmod.h"
 #include <algorithm>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <ctime>
 #include <string>
 #include <vector>
@@ -237,6 +240,14 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
     buffer.resize( buffer.capacity() * 2 );
   }
   return new String( buffer.data() );
+}
+
+Bscript::BObjectImp* UtilExecutorModule::mf_RandomUUID()
+{
+  static auto uuid_generator = boost::uuids::random_generator();
+
+  boost::uuids::uuid uuid = ( uuid_generator )();
+  return new String( boost::uuids::to_string( uuid ) );
 }
 }  // namespace Module
 }  // namespace Pol

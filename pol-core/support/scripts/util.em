@@ -1,6 +1,7 @@
 RandomInt( below_this_number ); // returns integer R such that 0 <= R < B
 RandomIntMinMax( minValue, maxValue ); // returns integer R such that minValue<=R<maxValue
 RandomFloat( below_this_float ); // returns float R such that 0.0 <= R < B
+RandomUUID();
 
 // formats for RandomDiceRoll dice_string parameter:
 //      4

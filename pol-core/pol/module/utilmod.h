@@ -5,8 +5,7 @@
  */
 
 
-#ifndef __UTILMOD_H
-#define __UTILMOD_H
+#pragma once
 
 #include "../../bscript/execmodl.h"
 
@@ -34,7 +33,7 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_RandomDiceRoll();
   [[nodiscard]] Bscript::BObjectImp* mf_StrFormatTime();
   [[nodiscard]] Bscript::BObjectImp* mf_RandomIntMinMax();
+  [[nodiscard]] Bscript::BObjectImp* mf_RandomUUID();
 };
 }  // namespace Module
 }  // namespace Pol
-#endif  // UTILMOD_H
