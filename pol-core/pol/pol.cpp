@@ -585,7 +585,7 @@ void scripts_thread( void )
     THREAD_CHECKPOINT( scripts, 0 );
     {
       PolLock lck;
-      stateManager.profilevars.script_passes_delay.update( delay_timer.ellapsed() );
+      stateManager.profilevars.script_passes_delay.update( delay_timer.ellapsed().count() );
       polclock_checkin();
       TRACEBUF_ADDELEM( "scripts thread now", static_cast<u32>( polclock() ) );
       INC_PROFILEVAR( script_passes );
@@ -593,7 +593,7 @@ void scripts_thread( void )
 
       Tools::HighPerfTimer duration_timer{};
       step_scripts( &sleeptime, &activity );
-      stateManager.profilevars.script_passes_duration.update( duration_timer.ellapsed() );
+      stateManager.profilevars.script_passes_duration.update( duration_timer.ellapsed().count() );
 
       THREAD_CHECKPOINT( scripts, 50 );
 
