@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-16-2025</datemodified>
+		<datemodified>08-17-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-17-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">Escript now supports declaring an enumeration as an &quot;enum class&quot;, which scopes the enum's entries to the enum's name:<br/>
+  enum class Races<br/>
+    HUMAN := &quot;Human&quot;,<br/>
+    ORC := &quot;Orc&quot;,<br/>
+    ELF := &quot;Elf&quot;<br/>
+  endenum<br/>
+  print( Races::HUMAN ); // Prints: &quot;Human&quot;</change>
+		</entry>
 		<entry>
 			<date>08-16-2025</date>
 			<author>Kevin:</author>
