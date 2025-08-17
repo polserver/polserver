@@ -464,6 +464,10 @@ antlrcpp::Any PrettifyFileProcessor::visitEnumList( EscriptParser::EnumListConte
 antlrcpp::Any PrettifyFileProcessor::visitEnumStatement( EscriptParser::EnumStatementContext* ctx )
 {
   addToken( "enum", ctx->ENUM(), FmtToken::SPACE );
+  if ( auto class_token = ctx->CLASS() )
+  {
+    addToken( "class", class_token, FmtToken::SPACE );
+  }
   make_identifier( ctx->IDENTIFIER() );
   linebuilder.buildLine( _currindent );
   ++_currindent;

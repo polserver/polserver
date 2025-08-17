@@ -219,6 +219,8 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
 {
   std::vector<std::string> names;
   std::vector<std::unique_ptr<Expression>> expressions;
+  std::string enum_identifier = text( ctx->IDENTIFIER() );
+  std::string prefix = ctx->CLASS() ? ( enum_identifier + "::" ) : "";
   if ( auto enum_list = ctx->enumList() )
   {
     std::string last_identifier;
@@ -245,8 +247,8 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
         value = std::make_unique<IntegerValue>( source_location, 0 );
       }
       bool allow_overwrite = true;
-      auto constant = std::make_unique<ConstDeclaration>( location_for( *entry ), identifier,
-                                                          std::move( value ), allow_overwrite );
+      auto constant = std::make_unique<ConstDeclaration>(
+          location_for( *entry ), prefix + identifier, std::move( value ), allow_overwrite );
       workspace.compiler_workspace.const_declarations.push_back( std::move( constant ) );
 
       last_identifier = identifier;
@@ -254,8 +256,7 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
   }
 
   auto source_location = location_for( *ctx );
-  std::string identifier = text( ctx->IDENTIFIER() );
-  return std::make_unique<EnumDeclaration>( source_location, std::move( identifier ),
+  return std::make_unique<EnumDeclaration>( source_location, std::move( enum_identifier ),
                                             std::move( names ), std::move( expressions ) );
 }
 

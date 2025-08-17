@@ -178,15 +178,11 @@ void Optimizer::visit_const_declaration( ConstDeclaration& constant )
 
 void Optimizer::visit_identifier( Identifier& identifier )
 {
-  // We don't have scoped constants, so only global identifiers can be optimized.
-  if ( identifier.scoped_name.scope.global() )
+  auto name = identifier.string();
+  if ( auto constant = constants.find( name ) )
   {
-    auto name = identifier.string();
-    if ( auto constant = constants.find( name ) )
-    {
-      SimpleValueCloner cloner( report, identifier.source_location );
-      optimized_replacement = cloner.clone( constant->expression() );
-    }
+    SimpleValueCloner cloner( report, identifier.source_location );
+    optimized_replacement = cloner.clone( constant->expression() );
   }
 }
 
