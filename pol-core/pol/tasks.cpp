@@ -247,6 +247,8 @@ void update_rpm( void )
                   pvars.script_runlist_statistic );
     INFO_PRINTLN( "script_passes duration statistic (us) {}", pvars.script_passes_duration );
     INFO_PRINTLN( "script_passes delay statistic (us) {}", pvars.script_passes_delay );
+    INFO_PRINTLN( "Mean instruction time {:.2f}us",
+                  pvars.last_instructions_pm / pvars.script_passes_duration.total() );
     pvars.script_passes_delay = Clib::OnlineStatistics{};
     pvars.script_passes_duration = Clib::OnlineStatistics{};
     pvars.script_runlist_statistic = Clib::OnlineStatistics{};
