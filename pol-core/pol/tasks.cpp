@@ -242,7 +242,7 @@ void update_rpm( void )
         GET_PROFILEVAR_PER_MIN( script_passes ), GET_PROFILEVAR_PER_MIN( task_passes ),
         GET_PROFILEVAR_PER_MIN( noactivity_task_passes ), pvars.last_instructions_pm,
         GET_PROFILEVAR_PER_MIN( sleep_cycles ), get_mobile_count(), get_toplevel_item_count() );
-    INFO_PRINTLN( "script_passes activity: {} noactivity: {} scriptcount statstic {}",
+    INFO_PRINTLN( "script_passes activity: {} noactivity: {} scriptcount_runlist statistic {}",
                   pvars.last_script_passes_activity, pvars.last_script_passes_noactivity,
                   pvars.script_runlist_statistic );
     INFO_PRINTLN( "script_passes duration statistic (us) {}", pvars.script_passes_duration );
