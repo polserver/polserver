@@ -108,6 +108,9 @@ void PolConfig::read_pol_config( bool initial_load )
       gamestate.write_account_task->set_secs( Plib::systemstate.config.account_save );
       gamestate.write_account_task->start();
     }
+
+    Plib::systemstate.config.default_priority =
+        Clib::clamp_convert<unsigned char>( elem.remove_ushort( "DefaultPriority", 1 ) );
   }
   Plib::systemstate.config.verbose = elem.remove_bool( "Verbose", false );
   Plib::systemstate.config.watch_mapcache = elem.remove_bool( "WatchMapCache", false );
