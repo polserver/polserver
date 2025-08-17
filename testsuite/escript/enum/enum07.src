@@ -1,8 +1,5 @@
 enum class MyEnum
-    FOO := 1
-endenum
-
-enum class MyEnum // Enums are additive if the identifier already exists.
+    FOO := 1,
     FOO := 2, // Ignored, redefinition
     BAR := 3,
 endenum

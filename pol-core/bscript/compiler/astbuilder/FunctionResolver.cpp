@@ -12,12 +12,16 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/ClassLink.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {
-FunctionResolver::FunctionResolver( Report& report ) : report( report ) {}
+FunctionResolver::FunctionResolver( CompilerWorkspace& workspace, Report& report )
+    : workspace( workspace ), report( report )
+{
+}
 FunctionResolver::~FunctionResolver() = default;
 
 void FunctionResolver::force_reference( const ScopableName& name, const SourceLocation& loc )
@@ -447,14 +451,14 @@ void FunctionResolver::register_available_class_decl_parse_tree(
                   name, previous->source_location );
   }
 
-  auto itr2 = available_class_decl_parse_trees.find( name );
-  if ( itr2 != available_class_decl_parse_trees.end() )
+  if ( auto itr2 = workspace.all_class_locations.find( name );
+       itr2 != workspace.all_class_locations.end() )
   {
     auto& previous = ( *itr2 ).second;
     report.error( source_location,
                   "Class '{}' defined more than once.\n"
                   "  Previous declaration: {}",
-                  name, previous->source_location );
+                  name, previous );
   }
 
   auto itr3 = resolved_functions.find( { ScopeName::Global, name } );

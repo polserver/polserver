@@ -1,0 +1,7 @@
+enum class MyEnum
+    FOO := 1
+endenum
+
+enum class MyEnum
+    BAR := 2
+endenum

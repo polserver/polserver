@@ -19,6 +19,7 @@ namespace Pol::Bscript::Compiler
 class AvailableSecondPassTarget;
 class ClassDeclaration;
 class ClassLink;
+class CompilerWorkspace;
 class Function;
 class FunctionLink;
 class ModuleFunctionDeclaration;
@@ -29,7 +30,7 @@ class GeneratedFunction;
 class FunctionResolver
 {
 public:
-  explicit FunctionResolver( Report& );
+  explicit FunctionResolver( CompilerWorkspace&, Report& );
   ~FunctionResolver();
 
   // Force reference to a function
@@ -78,6 +79,7 @@ private:
                                                  const ScopeName& scope,
                                                  Node* top_level_statements_child_node );
 
+  CompilerWorkspace& workspace;
   Report& report;
 
   using FunctionMap = std::map<ScopableName, Function*>;

@@ -220,7 +220,26 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
   std::vector<std::string> names;
   std::vector<std::unique_ptr<Expression>> expressions;
   std::string enum_identifier = text( ctx->IDENTIFIER() );
-  std::string prefix = ctx->CLASS() ? ( enum_identifier + "::" ) : "";
+  auto source_location = location_for( *ctx );
+  std::string prefix = "";
+  if ( ctx->CLASS() )
+  {
+    prefix = enum_identifier + "::";
+
+    if ( auto itr = workspace.compiler_workspace.all_class_locations.find( enum_identifier );
+         itr != workspace.compiler_workspace.all_class_locations.end() )
+    {
+      auto& previous = ( *itr ).second;
+      report.error( source_location,
+                    "Class '{}' defined more than once.\n"
+                    "  Previous declaration: {}",
+                    enum_identifier, previous );
+    }
+    else
+    {
+      workspace.compiler_workspace.all_class_locations.emplace( enum_identifier, source_location );
+    }
+  }
   if ( auto enum_list = ctx->enumList() )
   {
     std::string last_identifier;
@@ -255,7 +274,6 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
     }
   }
 
-  auto source_location = location_for( *ctx );
   return std::make_unique<EnumDeclaration>( source_location, std::move( enum_identifier ),
                                             std::move( names ), std::move( expressions ) );
 }
