@@ -84,6 +84,7 @@ struct PolConfig
   bool report_missing_configs;
   bool retain_cleartext_passwords;
   bool discard_old_events;
+  unsigned char default_priority;
 
   int shutdown_save_type;  // either SAVE_FULL or SAVE_INCREMENTAL
   int assertion_shutdown_save_type;
