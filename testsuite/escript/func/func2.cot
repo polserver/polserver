@@ -1,5 +1,0 @@
-Globals can only be declared at global scope.
-Error occurred reading function body for 'foo1'
-Function location: File: D:\ensprj\bscript\testsuite\func2.src, Line 3
-Error location: 
-Exception Detected:error in function

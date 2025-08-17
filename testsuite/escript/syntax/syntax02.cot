@@ -1,6 +1,0 @@
-Expected expression following comma before right-brace in struct element list
-Error reading members for struct
-Error compiling statement at C:\stlpol\testsuite\escript\syntax02.src, Line 1
-Compilation Error:
-Near: var x := struct { x, y, };
-File: C:\stlpol\testsuite\escript\syntax02.src, Line 1

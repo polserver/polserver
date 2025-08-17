@@ -1,5 +1,0 @@
-Const expression must be optimizable
-File: D:\ensprj\bscript\testsuite\func06.src, Line 5
-Exception detected during compilation.
-File: D:\ensprj\bscript\testsuite\func06.src, Line 9
-Exception Detected:Trying to write an illegal token

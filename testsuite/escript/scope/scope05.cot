@@ -1,4 +1,0 @@
-Exception detected during compilation.
-File: D:\ensprj\bscript\testsuite\scope05.src, Line 8
-Exception Detected:
-Variable a is already in scope.
