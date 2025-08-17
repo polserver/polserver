@@ -849,6 +849,7 @@ public:
     antlr4::tree::TerminalNode *IDENTIFIER();
     EnumListContext *enumList();
     antlr4::tree::TerminalNode *ENDENUM();
+    antlr4::tree::TerminalNode *CLASS();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
