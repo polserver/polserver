@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-18-2025 Kevin:
+    Fixed: Enum classes without an initializer now compile correctly.
 08-17-2025 Kevin:
     Added: Escript now supports declaring an enumeration as an "enum class", which scopes the enum's entries to the enum's name:
 
