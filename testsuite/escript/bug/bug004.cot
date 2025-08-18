@@ -1,7 +1,0 @@
-Token '(' unexpected (expected comma or right-paren)
-Error getting arguments for function CInt
-File: D:\ensprj\bscript\testsuite\bug004.src, Line 2
-
-Error compiling statement at D:\ensprj\bscript\testsuite\bug004.src, Line 1
-Error detected in program body.
-Error occurred at D:\ensprj\bscript\testsuite\bug004.src, Line 2

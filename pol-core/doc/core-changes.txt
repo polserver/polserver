@@ -1,4 +1,14 @@
 -- POL100.2.0 --
+08-17-2025 Kevin:
+    Added: Escript now supports declaring an enumeration as an "enum class", which scopes the enum's entries to the enum's name:
+
+             enum class Races
+               HUMAN := "Human",
+               ORC := "Orc",
+               ELF := "Elf"
+             endenum
+
+             print( Races::HUMAN ); // Prints: "Human"
 08-16-2025 Kevin:
     Added: New module function util::RandomUUID()
     Added: util.em constants UUID_NIL and UUID_MAX

@@ -1,5 +1,0 @@
-Function mid: Parameter Start was not passed, and there is no default.
-Error getting arguments for function mid
-Error getting arguments for function print
-Near: print( mid( "hello" ));
-File: D:\ensprj\bscript\testsuite\fcall001.src, Line 2

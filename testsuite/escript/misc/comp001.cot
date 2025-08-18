@@ -1,4 +1,0 @@
-Unmatched ')' in expression. (Trying to match against a '[')
-Exception detected during compilation.
-File: D:\ensprj\bscript\testsuite\comp001.src, Line 5
-Exception Detected:Error in parseToken() (1)

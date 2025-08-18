@@ -219,6 +219,28 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
 {
   std::vector<std::string> names;
   std::vector<std::unique_ptr<Expression>> expressions;
+  std::string enum_identifier = text( ctx->IDENTIFIER() );
+  auto enum_source_location = location_for( *ctx );
+  std::string prefix = "";
+  if ( ctx->CLASS() )
+  {
+    prefix = enum_identifier + "::";
+
+    if ( auto itr = workspace.compiler_workspace.all_class_locations.find( enum_identifier );
+         itr != workspace.compiler_workspace.all_class_locations.end() )
+    {
+      auto& previous = ( *itr ).second;
+      report.error( enum_source_location,
+                    "Class '{}' defined more than once.\n"
+                    "  Previous declaration: {}",
+                    enum_identifier, previous );
+    }
+    else
+    {
+      workspace.compiler_workspace.all_class_locations.emplace( enum_identifier,
+                                                                enum_source_location );
+    }
+  }
   if ( auto enum_list = ctx->enumList() )
   {
     std::string last_identifier;
@@ -245,17 +267,15 @@ std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
         value = std::make_unique<IntegerValue>( source_location, 0 );
       }
       bool allow_overwrite = true;
-      auto constant = std::make_unique<ConstDeclaration>( location_for( *entry ), identifier,
-                                                          std::move( value ), allow_overwrite );
+      auto constant = std::make_unique<ConstDeclaration>(
+          location_for( *entry ), prefix + identifier, std::move( value ), allow_overwrite );
       workspace.compiler_workspace.const_declarations.push_back( std::move( constant ) );
 
       last_identifier = identifier;
     }
   }
 
-  auto source_location = location_for( *ctx );
-  std::string identifier = text( ctx->IDENTIFIER() );
-  return std::make_unique<EnumDeclaration>( source_location, std::move( identifier ),
+  return std::make_unique<EnumDeclaration>( enum_source_location, std::move( enum_identifier ),
                                             std::move( names ), std::move( expressions ) );
 }
 

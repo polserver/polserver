@@ -1,5 +1,0 @@
-Token 'array' cannot follow token '4L'
-Error compiling statement at C:\stlpol\testsuite\escript\syntax01.src, Line 1
-Parse Error: Illegal Construction
-Near: var x := 4 array { 4, 3 };
-File: C:\stlpol\testsuite\escript\syntax01.src, Line 1

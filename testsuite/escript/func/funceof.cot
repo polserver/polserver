@@ -1,6 +1,0 @@
-End-of-File detected, expected 'endfunction'
-Error occurred reading function body for 'bar'
-Function location: File: D:\ensprj\bscript\testsuite\funceof.src, Line 4
-Error location: 
-Near: print( "hello world" );
-File: D:\ensprj\bscript\testsuite\funceof.src, Line 9

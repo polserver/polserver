@@ -1,0 +1,8 @@
+enum class MyEnum
+    FOO := 1,
+    FOO := 2, // Ignored, redefinition
+    BAR := 3,
+endenum
+
+print(MyEnum::FOO); // 1
+print(MyEnum::BAR); // 3

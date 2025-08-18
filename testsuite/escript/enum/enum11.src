@@ -1,0 +1,6 @@
+class MyEnum()
+endclass
+
+enum class MyEnum
+    FOO := 1
+endenum

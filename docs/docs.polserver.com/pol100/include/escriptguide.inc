@@ -1,6 +1,6 @@
 <h1>
   Racalac's eScript Reference and Guide (POL 100.2.0)
-  <div style="font-size: 0.82em">(Last Updated: February 16, 2025)</div>
+  <div style="font-size: 0.82em">(Last Updated: August 17, 2025)</div>
 </h1>
 <br/>
 
@@ -181,6 +181,54 @@ variables):</p>
 
 <br/>
 
+<p>Constants can be logically grouped using an <code>enum</code> declaration:</p>
+
+<div class="doc-guide-pre">
+<pre>enum Colors
+  RED := "#ff0000",
+  GREEN := "#00ff00",
+  BLUE := "#0000ff"
+endenum
+
+print( RED ); // prints "#ff0000"
+</pre>
+</div>
+
+If not providing a value for an enum entry, the compiler will assign the next
+available integer value, starting from 0. For example, the following enum
+declaration will assign the values 0, 1, and 2 to the entries:
+
+<div class="doc-guide-pre">
+<pre>enum Numbers
+  ZERO,
+  ONE,
+  TWO
+endenum
+
+print( ZERO ); // prints 0
+print( ONE );  // prints 1
+print( TWO );  // prints 2
+</pre>
+
+</div>
+<br/>
+
+<p>Added in POL 100.2.0: An enum declaration can use the <code>class</code>
+keyword to create a class-like enum, which allows the constants to be scoped to the
+enum name:</p>
+
+<div class="doc-guide-pre">
+<pre>enum class Races
+  HUMAN := "Human",
+  ORC := "Orc",
+  ELF := "Elf"
+endenum
+
+print( Races::HUMAN ); // Prints: "Human"
+</pre>
+</div>
+
+<br/>
 <p><b><a name="chap1aa">Sequence and Index Binding Statements</a></b></p>
 
 <br />
@@ -3894,4 +3942,7 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.16: 16/02/2025<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Sequence and Index Binding Statements; Iterable Objects by Kevin<br>
+</p>
+<p>v0.17: 17/08/2025<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation enum declarations by Kevin<br>
 </p>

@@ -186,7 +186,7 @@ caseStatement
     ;
 
 enumStatement
-    : ENUM IDENTIFIER enumList ENDENUM
+    : ENUM CLASS? IDENTIFIER enumList ENDENUM
     ;
 
 block

@@ -1,0 +1,5 @@
+enum class MyEnum
+    FOO := 1,
+endenum
+
+print( FOO ); // Error: identifier _must_ be scoped
