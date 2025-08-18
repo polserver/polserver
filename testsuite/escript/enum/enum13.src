@@ -1,0 +1,9 @@
+enum class MyEnum
+    FOO,
+    BAR,
+    BAZ
+endenum
+
+print( MyEnum::FOO );
+print( MyEnum::BAR );
+print( MyEnum::BAZ );
