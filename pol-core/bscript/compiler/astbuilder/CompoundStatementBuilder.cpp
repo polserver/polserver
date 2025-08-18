@@ -203,7 +203,11 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
       {
         selectors.push_back( bool_value( bool_literal ) );
       }
-      if ( auto uninit = group_label->UNINIT() )
+      else if ( auto scoped_ident = group_label->scopedIdentifier() )
+      {
+        selectors.push_back( scoped_identifier( scoped_ident ) );
+      }
+      else if ( auto uninit = group_label->UNINIT() )
       {
         selectors.push_back( std::make_unique<UninitializedValue>( location_for( *uninit ) ) );
       }
