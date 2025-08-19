@@ -1008,6 +1008,8 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchLabel( EscriptParser::SwitchLabe
     make_string_literal( string_literal );
   else if ( auto defaultctx = ctx->DEFAULT() )
     addToken( "default", defaultctx, FmtToken::SPACE );
+  else if ( auto scoped_ident = ctx->scopedIdentifier() )
+    visitScopedIdentifier( scoped_ident );
 
   addToken( ":", ctx->COLON(), FmtToken::SPACE | FmtToken::ATTACHED | FmtToken::BREAKPOINT );
   linebuilder.markLastTokensAsSwitchLabel();
@@ -1175,8 +1177,14 @@ antlrcpp::Any PrettifyFileProcessor::visitScopedIdentifier(
     EscriptGrammar::EscriptParser::ScopedIdentifierContext* ctx )
 {
   if ( ctx->scope )
+  {
     addToken( ctx->scope->getText(), ctx->scope, FmtToken::NONE );
-  addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
+    addToken( "::", ctx->COLONCOLON(), FmtToken::ATTACHED );
+  }
+  else
+  {
+    addToken( "::", ctx->COLONCOLON(), FmtToken::NONE );
+  }
   addToken( ctx->identifier->getText(), ctx->identifier, FmtToken::SPACE );
   return {};
 }

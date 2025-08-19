@@ -2,6 +2,7 @@
 #define POLSERVER_OPTIMIZER_H
 
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 #include <memory>
 #include <optional>
@@ -43,6 +44,10 @@ private:
   std::optional<bool> branch_decision( Expression* exp ) const;
   Constants& constants;
   Report& report;
+  // Initially Global scope. Set only when visiting a ConstDeclaration in
+  // visit_const_declaration to the constant's scope. Reset to Global after
+  // visiting the constant's children.
+  ScopeName current_constant_scope_name;
 };
 
 }  // namespace Pol::Bscript::Compiler

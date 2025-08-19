@@ -2,6 +2,7 @@
 #define POLSERVER_CONSTDECLARATION_H
 
 #include "bscript/compiler/ast/Node.h"
+#include "bscript/compiler/model/ScopableName.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -12,9 +13,9 @@ class SourceLocation;
 class ConstDeclaration : public Node
 {
 public:
-  const std::string identifier;
+  ScopableName name;
 
-  ConstDeclaration( const SourceLocation&, std::string identifier, std::unique_ptr<Expression>,
+  ConstDeclaration( const SourceLocation&, ScopableName name, std::unique_ptr<Expression>,
                     bool ignore_overwrite_attempt = false );
 
 

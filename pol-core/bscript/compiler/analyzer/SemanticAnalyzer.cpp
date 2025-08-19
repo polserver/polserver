@@ -85,7 +85,7 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
   for ( auto& constant : workspace.const_declarations )
   {
     report_function_name_conflict( workspace, report, constant->source_location,
-                                   constant->identifier, "constant" );
+                                   constant->name.string(), "constant" );
     workspace.constants.create( *constant );
   }
 }

@@ -212,7 +212,7 @@ switchBlockStatementGroup
     ;
 
 switchLabel
-    : (integerLiteral | boolLiteral | UNINIT | IDENTIFIER | STRING_LITERAL) ':'
+    : (integerLiteral | boolLiteral | scopedIdentifier | UNINIT | IDENTIFIER | STRING_LITERAL) ':'
     | DEFAULT ':'
     ;
 

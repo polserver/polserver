@@ -15,7 +15,8 @@ ConstDeclaration* Constants::find( const std::string& name )
 
 void Constants::create( ConstDeclaration& constant )
 {
-  auto itr = constants.find( constant.identifier );
+  auto name = constant.name.string();
+  auto itr = constants.find( name );
   if ( itr != constants.end() )
   {
     if ( constant.ignore_overwrite_attempt )
@@ -26,16 +27,16 @@ void Constants::create( ConstDeclaration& constant )
       report.warning( constant,
                       "Constant '{}' definition ignored due to an earlier definition.\n"
                       "  Previous definition at: {}",
-                      constant.identifier, ( *itr ).second->source_location );
+                      name, ( *itr ).second->source_location );
       return;
     }
     report.error( constant,
                   "Constant '{}' defined more than once.\n"
                   "  Previous definition at: {}",
-                  constant.identifier, ( *itr ).second->source_location );
+                  name, ( *itr ).second->source_location );
   }
 
-  constants[constant.identifier] = &constant;
+  constants[name] = &constant;
 }
 
 }  // namespace Pol::Bscript::Compiler
