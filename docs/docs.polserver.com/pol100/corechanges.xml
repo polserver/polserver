@@ -2,12 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-18-2025</datemodified>
+		<datemodified>08-19-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
-			<date>08-18-2025</date>
+			<date>08-19-2025</date>
 			<author>Kevin:</author>
+			<change type="Fixed">Enum class constants can be used unscoped within their own enum class.</change>
+			<change type="Fixed">Enum class constants can be used in case statement labels.</change>
 			<change type="Fixed">Enum classes without an initializer now compile correctly.</change>
 		</entry>
 		<entry>
