@@ -1,9 +1,17 @@
 enum class MyEnum
-    FOO,
-    BAR,
-    BAZ
+  FOO,
+  BAR,
+  BAZ
 endenum
 
 print( MyEnum::FOO );
 print( MyEnum::BAR );
 print( MyEnum::BAZ );
+
+for i := 0 to 2
+  case (i)
+    MyEnum::FOO: print("zero");
+    MyEnum::BAR: print("one");
+    MyEnum::BAZ: print("two");
+  endcase
+endfor

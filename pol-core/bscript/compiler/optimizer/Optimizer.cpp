@@ -36,11 +36,12 @@
 #include "bscript/compiler/optimizer/ReferencedFunctionGatherer.h"
 #include "bscript/compiler/optimizer/UnaryOperatorOptimizer.h"
 #include "bscript/compiler/optimizer/ValueConsumerOptimizer.h"
+#include "compiler/model/ScopableName.h"
 
 namespace Pol::Bscript::Compiler
 {
 Optimizer::Optimizer( Constants& constants, Report& report )
-    : constants( constants ), report( report )
+    : constants( constants ), report( report ), current_constant_scope_name( ScopeName::Global )
 {
 }
 
@@ -166,7 +167,9 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
 
 void Optimizer::visit_const_declaration( ConstDeclaration& constant )
 {
+  current_constant_scope_name = constant.name.scope;
   visit_children( constant );
+  current_constant_scope_name = ScopeName::Global;
   if ( !ConstantValidator().validate( constant.expression() ) )
   {
     report.error( constant,
@@ -178,6 +181,19 @@ void Optimizer::visit_const_declaration( ConstDeclaration& constant )
 
 void Optimizer::visit_identifier( Identifier& identifier )
 {
+  if ( identifier.scoped_name.scope.empty() && !current_constant_scope_name.empty() )
+  {
+    auto scoped_name =
+        ScopableName( current_constant_scope_name, identifier.scoped_name.name ).string();
+
+    if ( auto constant = constants.find( scoped_name ) )
+    {
+      SimpleValueCloner cloner( report, identifier.source_location );
+      optimized_replacement = cloner.clone( constant->expression() );
+      return;
+    }
+  }
+
   auto name = identifier.string();
   if ( auto constant = constants.find( name ) )
   {

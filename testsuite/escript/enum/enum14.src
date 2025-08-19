@@ -1,0 +1,16 @@
+const BAR := 1234;
+
+enum class MyEnum
+  FOO := 1,
+  BAR := MyEnum::FOO * 2, // 1*2 = 2
+  BAZ := BAR * 2, // 2*2 = 4
+  BLUB := ::BAR, // global BAR, 1234
+  BLOB := BAR * ::BAR // global BAR * local bar = 1234 * 2 = 2468
+endenum
+
+print( BAR );
+print( MyEnum::FOO );
+print( MyEnum::BAR );
+print( MyEnum::BAZ );
+print( MyEnum::BLUB );
+print( MyEnum::BLOB );

@@ -8,11 +8,11 @@
 
 namespace Pol::Bscript::Compiler
 {
-ConstDeclaration::ConstDeclaration( const SourceLocation& source_location, std::string identifier,
+ConstDeclaration::ConstDeclaration( const SourceLocation& source_location, ScopableName name,
                                     std::unique_ptr<Expression> expression,
                                     bool ignore_overwrite_attempt )
     : Node( source_location, std::move( expression ) ),
-      identifier( std::move( identifier ) ),
+      name( std::move( name ) ),
       ignore_overwrite_attempt( ignore_overwrite_attempt )
 {
 }
@@ -29,7 +29,7 @@ void ConstDeclaration::accept( NodeVisitor& visitor )
 
 void ConstDeclaration::describe_to( std::string& w ) const
 {
-  fmt::format_to( std::back_inserter( w ), "const-declaration({})", identifier );
+  fmt::format_to( std::back_inserter( w ), "const-declaration({})", name.string() );
 }
 
 }  // namespace Pol::Bscript::Compiler
