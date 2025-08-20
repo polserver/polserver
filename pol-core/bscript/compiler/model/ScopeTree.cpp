@@ -425,11 +425,32 @@ UserFunction* ScopeTree::find_class_method( const ScopeTreeQuery& query ) const
 
 std::vector<ConstDeclaration*> ScopeTree::list_constants( const ScopeTreeQuery& query ) const
 {
-  // Constants are not scoped, so if a non-empty scope is given, return empty list.
   if ( !query.prefix_scope.global() )
-    return {};
+    return workspace.constants.list(
+        fmt::format( "{}::{}", query.prefix_scope.string(), query.prefix ) );
 
-  return workspace.constants.list( query.prefix );
+  // If in a calling scope, we need to return constants for both the calling
+  // scope and global scope
+  if ( !query.calling_scope.empty() )
+  {
+    std::vector<ConstDeclaration*> results;
+    auto calling_scope_constants =
+        workspace.constants.list( fmt::format( "{}::{}", query.calling_scope, query.prefix ) );
+
+    std::move( calling_scope_constants.begin(), calling_scope_constants.end(),
+               std::back_inserter( results ) );
+
+    auto prefix_only_constants = workspace.constants.list( query.prefix );
+
+    std::move( prefix_only_constants.begin(), prefix_only_constants.end(),
+               std::back_inserter( results ) );
+
+    return results;
+  }
+  else
+  {
+    return workspace.constants.list( query.prefix );
+  }
 }
 
 std::vector<std::string> ScopeTree::list_scopes( const ScopeTreeQuery& query ) const
