@@ -1049,7 +1049,10 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     }
   }
 
-  if ( !node.variable )
+  // Only report errors on unknown identifier if the `name` is not empty, ie.
+  // `super::` will not report an unknown identifier error, as it will report a
+  // parser error instead.
+  if ( !node.variable && !node.scoped_name.name.empty() )
   {
     report.error( node, "Unknown identifier '{}'.", name );
     return;
