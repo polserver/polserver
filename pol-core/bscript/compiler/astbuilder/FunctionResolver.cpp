@@ -314,6 +314,11 @@ bool FunctionResolver::resolve(
     }
   }
 
+  // If any class link was resolved, we need to trigger
+  // `CompilerWorkspaceBuilder::build_referenced_user_functions` to run the
+  // resolution loop again.
+  bool any_classes_linked = false;
+
   for ( auto unresolved_itr = unresolved_classes.begin();
         unresolved_itr != unresolved_classes.end(); )
   {
@@ -331,6 +336,7 @@ bool FunctionResolver::resolve(
       {
         // Remove this function link from the list of links.
         class_link_itr = ( *unresolved_itr ).second.erase( class_link_itr );
+        any_classes_linked = true;
       }
       else if ( build_if_available( to_build_ast, scope ) )
       {
@@ -354,7 +360,7 @@ bool FunctionResolver::resolve(
     }
   }
 
-  return !to_build_ast.empty();
+  return any_classes_linked || !to_build_ast.empty();
 }
 
 std::string FunctionResolver::function_expression_name( const SourceLocation& source_location )
