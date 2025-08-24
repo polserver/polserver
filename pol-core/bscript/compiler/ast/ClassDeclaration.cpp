@@ -3,6 +3,7 @@
 #include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/UninitializedFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/ClassLink.h"
@@ -10,17 +11,22 @@
 
 namespace Pol::Bscript::Compiler
 {
-ClassDeclaration::ClassDeclaration( const SourceLocation& source_location, std::string name,
-                                    std::unique_ptr<ClassParameterList> parameters,
-                                    std::shared_ptr<FunctionLink> constructor_link,
-                                    const std::vector<std::string>& method_names, Node* class_body,
-                                    std::vector<std::shared_ptr<ClassLink>> base_class_links )
-    : Node( source_location, std::move( parameters ) ),
+ClassDeclaration::ClassDeclaration(
+    const SourceLocation& source_location, std::string name,
+    std::unique_ptr<ClassParameterList> parameters, std::shared_ptr<FunctionLink> constructor_link,
+    const std::vector<std::string>& method_names, Node* class_body,
+    std::vector<std::shared_ptr<ClassLink>> base_class_links,
+    std::vector<std::unique_ptr<UninitializedFunctionDeclaration>> uninit_functions )
+    : Node( source_location ),
       name( std::move( name ) ),
       class_body( class_body ),
       constructor_link( std::move( constructor_link ) ),
       base_class_links( std::move( base_class_links ) )
 {
+  children.reserve( 1 + uninit_functions.size() );
+  children.push_back( std::move( parameters ) );
+  children.insert( children.end(), std::make_move_iterator( uninit_functions.begin() ),
+                   std::make_move_iterator( uninit_functions.end() ) );
   for ( const auto& method_name : method_names )
   {
     methods[method_name] = std::make_unique<FunctionLink>( source_location, method_name );

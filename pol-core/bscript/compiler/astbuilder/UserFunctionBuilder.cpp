@@ -14,6 +14,7 @@
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
+#include "bscript/compiler/ast/UninitializedFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/VarStatement.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
@@ -37,14 +38,15 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_declaration(
     EscriptParser::FunctionDeclarationContext* ctx, const std::string& class_name )
 {
   std::string name = text( ctx->IDENTIFIER() );
-  return make_user_function( name, ctx, ctx->EXPORTED(), class_name, ctx->ENDFUNCTION() );
+  return make_user_function<UserFunction>( name, ctx, ctx->EXPORTED(), class_name,
+                                           ctx->ENDFUNCTION() );
 }
 
 std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   std::string name = FunctionResolver::function_expression_name( location_for( *ctx->AT() ) );
-  return make_user_function( name, ctx, false, "", ctx->RBRACE() );
+  return make_user_function<UserFunction>( name, ctx, false, "", ctx->RBRACE() );
 }
 
 std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
@@ -60,6 +62,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   }
 
   std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
+  std::vector<std::unique_ptr<UninitializedFunctionDeclaration>> uninit_functions;
   std::vector<std::shared_ptr<ClassLink>> base_classes;
   std::vector<std::string> method_names;
   std::unique_ptr<FunctionLink> constructor_link;
@@ -158,6 +161,25 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
           class_body->children.push_back( std::move( statement ) );
         }
       }
+      else if ( auto uninit_func_decl = classStatement->uninitFunctionDeclaration() )
+      {
+        auto func_name = text( uninit_func_decl->IDENTIFIER() );
+        auto func_loc = location_for( *uninit_func_decl );
+
+        // Register the user function as an available parse tree only if it is not `super` for child
+        // classes.
+        auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
+
+        if ( is_super && is_child )
+        {
+          workspace.report.error( func_loc, "The 'super' function is reserved for child classes." );
+        }
+        else
+        {
+          uninit_functions.push_back( make_user_function<UninitializedFunctionDeclaration>(
+              func_name, uninit_func_decl, false, class_name, uninit_func_decl->SEMI() ) );
+        }
+      }
     }
   }
 
@@ -167,7 +189,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   auto class_decl = std::make_unique<ClassDeclaration>(
       location_for( *ctx ), class_name, std::move( parameter_list ), std::move( constructor_link ),
-      std::move( method_names ), class_body, std::move( base_classes ) );
+      std::move( method_names ), class_body, std::move( base_classes ),
+      std::move( uninit_functions ) );
 
   // Only register the ClassDeclaration's ctor FunctionLink if there _is_ a ctor.
   if ( class_decl->constructor_link )
@@ -179,8 +202,8 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   return class_decl;
 }
 
-template <typename ParserContext>
-std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
+template <typename FunctionTypeNode, typename ParserContext>
+std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_user_function(
     const std::string& name, ParserContext* ctx, bool exported, const std::string& class_name,
     antlr4::tree::TerminalNode* end_token )
 {
@@ -243,29 +266,37 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::make_user_function(
                           : constructor_method ? UserFunctionType::Constructor
                                                : UserFunctionType::Method;
 
-  in_constructor_function.push( type == UserFunctionType::Constructor );
 
-  auto body =
-      std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
-
-  in_constructor_function.pop();
-
-  std::shared_ptr<ClassLink> class_link;
-  if ( !class_name.empty() )
+  if constexpr ( std::is_same<FunctionTypeNode, UserFunction>::value )
   {
-    class_link = std::make_shared<ClassLink>( location_for( *ctx ), class_name );
-    workspace.function_resolver.register_class_link( ScopeName( class_name ), class_link );
-    auto cd = class_link->class_declaration();
+    std::shared_ptr<ClassLink> class_link;
+    if ( !class_name.empty() )
+    {
+      class_link = std::make_shared<ClassLink>( location_for( *ctx ), class_name );
+      workspace.function_resolver.register_class_link( ScopeName( class_name ), class_link );
+      auto cd = class_link->class_declaration();
 
-    // Should never happen, since the only reason this user function can be
-    // visited is because the class has been registered.
-    if ( !cd )
-      class_link->source_location.internal_error( "ClassLink has no ClassDeclaration" );
+      // Should never happen, since the only reason this user function can be
+      // visited is because the class has been registered.
+      if ( !cd )
+        class_link->source_location.internal_error( "ClassLink has no ClassDeclaration" );
+    }
+
+    in_constructor_function.push( type == UserFunctionType::Constructor );
+    auto body =
+        std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
+
+    in_constructor_function.pop();
+
+    return std::make_unique<FunctionTypeNode>(
+        location_for( *ctx ), exported, expression, type, class_name, std::move( name ),
+        std::move( parameter_list ), std::move( body ), location_for( *end_token ),
+        std::move( class_link ) );
   }
-
-  return std::make_unique<UserFunction>( location_for( *ctx ), exported, expression, type,
-                                         class_name, std::move( name ), std::move( parameter_list ),
-                                         std::move( body ), location_for( *end_token ),
-                                         std::move( class_link ) );
+  else if constexpr ( std::is_same<FunctionTypeNode, UninitializedFunctionDeclaration>::value )
+  {
+    return std::make_unique<UninitializedFunctionDeclaration>(
+        location_for( *ctx ), class_name, std::move( name ), std::move( parameter_list ) );
+  }
 }
 }  // namespace Pol::Bscript::Compiler
