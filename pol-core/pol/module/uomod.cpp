@@ -1309,10 +1309,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   }
 
   Clib::ConfigElem elem;
-  START_PROFILECLOCK( npc_search );
   bool found = FindNpcTemplate( tmplname->data(), elem );
-  STOP_PROFILECLOCK( npc_search );
-  INC_PROFILEVAR( npc_searches );
 
   if ( !found )
   {

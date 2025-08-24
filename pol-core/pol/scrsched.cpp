@@ -70,8 +70,8 @@ void run_ready()
 void check_blocked( polclock_t* pclocksleft )
 {
   polclock_t now_clock = polclock();
-  stateManager.profilevars.sleep_cycles +=
-      scriptScheduler.getHoldlist().size() + scriptScheduler.getNoTimeoutHoldlist().size();
+  INC_PROFILEVAR_BY( sleep_cycles, scriptScheduler.getHoldlist().size() +
+                                       scriptScheduler.getNoTimeoutHoldlist().size() );
   polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
   for ( ;; )
   {
@@ -112,6 +112,7 @@ void step_scripts( polclock_t* clocksleft, bool* pactivity )
   THREAD_CHECKPOINT( scripts, 102 );
   *pactivity = ( !scriptScheduler.getRunlist().empty() );
   THREAD_CHECKPOINT( scripts, 103 );
+  stateManager.profilevars.script_runlist_statistic.update( scriptScheduler.getRunlist().size() );
 
   run_ready();
 

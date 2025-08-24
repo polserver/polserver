@@ -302,7 +302,7 @@ void ScriptScheduler::run_ready()
       }
 
       --ex->sleep_cycles;  // it'd get counted twice otherwise
-      --stateManager.profilevars.sleep_cycles;
+      INC_PROFILEVAR_BY( sleep_cycles, -1 );
 
       THREAD_CHECKPOINT( scripts, 117 );
     }

@@ -1890,7 +1890,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( scripts_late_per_min, GET_PROFILEVAR_PER_MIN( scripts_late ) );
   LONG_COREVAR( scripts_ontime_per_min, GET_PROFILEVAR_PER_MIN( scripts_ontime ) );
 
-  LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
+  LONG_COREVAR( instr_per_min, stateManager.profilevars.last_instructions_pm );
   LONG_COREVAR( priority_divide, scriptScheduler.priority_divide );
   LONG_COREVAR( update_range, gamestate.max_update_range );
   LONG_COREVAR( worldsaved_at, SaveContext::last_worldsave_success );

@@ -122,7 +122,7 @@ void freepid( unsigned int pid )
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
     : TmplExecutorModule<OSExecutorModule, Core::PolModule>( exec ),
       critical_( false ),
-      priority_( 1 ),
+      priority_( Plib::systemstate.config.default_priority ),
       warn_on_runaway_( true ),
       blocked_( false ),
       sleep_until_clock_( 0 ),
