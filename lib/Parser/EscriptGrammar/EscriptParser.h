@@ -48,35 +48,36 @@ public:
     RuleModuleFunctionDeclaration = 4, RuleModuleFunctionParameterList = 5, 
     RuleModuleFunctionParameter = 6, RuleTopLevelDeclaration = 7, RuleClassDeclaration = 8, 
     RuleClassParameters = 9, RuleClassParameterList = 10, RuleClassBody = 11, 
-    RuleClassStatement = 12, RuleFunctionDeclaration = 13, RuleStringIdentifier = 14, 
-    RuleUseDeclaration = 15, RuleIncludeDeclaration = 16, RuleProgramDeclaration = 17, 
-    RuleStatement = 18, RuleStatementLabel = 19, RuleIfStatement = 20, RuleGotoStatement = 21, 
-    RuleReturnStatement = 22, RuleConstStatement = 23, RuleVarStatement = 24, 
-    RuleDoStatement = 25, RuleWhileStatement = 26, RuleExitStatement = 27, 
-    RuleBreakStatement = 28, RuleContinueStatement = 29, RuleForStatement = 30, 
-    RuleForeachIterableExpression = 31, RuleForeachStatement = 32, RuleRepeatStatement = 33, 
-    RuleCaseStatement = 34, RuleEnumStatement = 35, RuleBlock = 36, RuleVariableDeclarationInitializer = 37, 
-    RuleEnumList = 38, RuleEnumListEntry = 39, RuleSwitchBlockStatementGroup = 40, 
-    RuleSwitchLabel = 41, RuleForGroup = 42, RuleBasicForStatement = 43, 
-    RuleCstyleForStatement = 44, RuleIdentifierList = 45, RuleVariableDeclarationList = 46, 
-    RuleConstantDeclaration = 47, RuleVariableDeclaration = 48, RuleBindingDeclaration = 49, 
-    RuleIndexBindingList = 50, RuleSequenceBindingList = 51, RuleSequenceBinding = 52, 
-    RuleIndexBinding = 53, RuleBinding = 54, RuleBindingDeclarationInitializer = 55, 
-    RuleProgramParameters = 56, RuleProgramParameterList = 57, RuleProgramParameter = 58, 
-    RuleFunctionParameters = 59, RuleFunctionParameterList = 60, RuleFunctionParameter = 61, 
-    RuleScopedFunctionCall = 62, RuleFunctionReference = 63, RuleExpression = 64, 
-    RulePrimary = 65, RuleScopedIdentifier = 66, RuleFunctionExpression = 67, 
-    RuleExplicitArrayInitializer = 68, RuleExplicitStructInitializer = 69, 
-    RuleExplicitDictInitializer = 70, RuleExplicitErrorInitializer = 71, 
-    RuleBareArrayInitializer = 72, RuleParExpression = 73, RuleExpressionList = 74, 
-    RuleExpressionListEntry = 75, RuleExpressionSuffix = 76, RuleIndexingSuffix = 77, 
-    RuleIndexList = 78, RuleNavigationSuffix = 79, RuleMethodCallSuffix = 80, 
-    RuleFunctionCallSuffix = 81, RuleFunctionCall = 82, RuleStructInitializerExpression = 83, 
-    RuleStructInitializerExpressionList = 84, RuleStructInitializer = 85, 
-    RuleDictInitializerExpression = 86, RuleDictInitializerExpressionList = 87, 
-    RuleDictInitializer = 88, RuleArrayInitializer = 89, RuleLiteral = 90, 
-    RuleInterpolatedString = 91, RuleInterpolatedStringPart = 92, RuleIntegerLiteral = 93, 
-    RuleFloatLiteral = 94, RuleBoolLiteral = 95
+    RuleClassStatement = 12, RuleUninitFunctionDeclaration = 13, RuleFunctionDeclaration = 14, 
+    RuleStringIdentifier = 15, RuleUseDeclaration = 16, RuleIncludeDeclaration = 17, 
+    RuleProgramDeclaration = 18, RuleStatement = 19, RuleStatementLabel = 20, 
+    RuleIfStatement = 21, RuleGotoStatement = 22, RuleReturnStatement = 23, 
+    RuleConstStatement = 24, RuleVarStatement = 25, RuleDoStatement = 26, 
+    RuleWhileStatement = 27, RuleExitStatement = 28, RuleBreakStatement = 29, 
+    RuleContinueStatement = 30, RuleForStatement = 31, RuleForeachIterableExpression = 32, 
+    RuleForeachStatement = 33, RuleRepeatStatement = 34, RuleCaseStatement = 35, 
+    RuleEnumStatement = 36, RuleBlock = 37, RuleVariableDeclarationInitializer = 38, 
+    RuleEnumList = 39, RuleEnumListEntry = 40, RuleSwitchBlockStatementGroup = 41, 
+    RuleSwitchLabel = 42, RuleForGroup = 43, RuleBasicForStatement = 44, 
+    RuleCstyleForStatement = 45, RuleIdentifierList = 46, RuleVariableDeclarationList = 47, 
+    RuleConstantDeclaration = 48, RuleVariableDeclaration = 49, RuleBindingDeclaration = 50, 
+    RuleIndexBindingList = 51, RuleSequenceBindingList = 52, RuleSequenceBinding = 53, 
+    RuleIndexBinding = 54, RuleBinding = 55, RuleBindingDeclarationInitializer = 56, 
+    RuleProgramParameters = 57, RuleProgramParameterList = 58, RuleProgramParameter = 59, 
+    RuleFunctionParameters = 60, RuleFunctionParameterList = 61, RuleFunctionParameter = 62, 
+    RuleScopedFunctionCall = 63, RuleFunctionReference = 64, RuleExpression = 65, 
+    RulePrimary = 66, RuleScopedIdentifier = 67, RuleFunctionExpression = 68, 
+    RuleExplicitArrayInitializer = 69, RuleExplicitStructInitializer = 70, 
+    RuleExplicitDictInitializer = 71, RuleExplicitErrorInitializer = 72, 
+    RuleBareArrayInitializer = 73, RuleParExpression = 74, RuleExpressionList = 75, 
+    RuleExpressionListEntry = 76, RuleExpressionSuffix = 77, RuleIndexingSuffix = 78, 
+    RuleIndexList = 79, RuleNavigationSuffix = 80, RuleMethodCallSuffix = 81, 
+    RuleFunctionCallSuffix = 82, RuleFunctionCall = 83, RuleStructInitializerExpression = 84, 
+    RuleStructInitializerExpressionList = 85, RuleStructInitializer = 86, 
+    RuleDictInitializerExpression = 87, RuleDictInitializerExpressionList = 88, 
+    RuleDictInitializer = 89, RuleArrayInitializer = 90, RuleLiteral = 91, 
+    RuleInterpolatedString = 92, RuleInterpolatedStringPart = 93, RuleIntegerLiteral = 94, 
+    RuleFloatLiteral = 95, RuleBoolLiteral = 96
   };
 
   explicit EscriptParser(antlr4::TokenStream *input);
@@ -111,6 +112,7 @@ public:
   class ClassParameterListContext;
   class ClassBodyContext;
   class ClassStatementContext;
+  class UninitFunctionDeclarationContext;
   class FunctionDeclarationContext;
   class StringIdentifierContext;
   class UseDeclarationContext;
@@ -411,6 +413,7 @@ public:
     virtual size_t getRuleIndex() const override;
     FunctionDeclarationContext *functionDeclaration();
     VarStatementContext *varStatement();
+    UninitFunctionDeclarationContext *uninitFunctionDeclaration();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -420,6 +423,25 @@ public:
   };
 
   ClassStatementContext* classStatement();
+
+  class  UninitFunctionDeclarationContext : public antlr4::ParserRuleContext {
+  public:
+    UninitFunctionDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *UNINIT();
+    antlr4::tree::TerminalNode *FUNCTION();
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    FunctionParametersContext *functionParameters();
+    antlr4::tree::TerminalNode *SEMI();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  UninitFunctionDeclarationContext* uninitFunctionDeclaration();
 
   class  FunctionDeclarationContext : public antlr4::ParserRuleContext {
   public:

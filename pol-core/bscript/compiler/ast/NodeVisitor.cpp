@@ -67,6 +67,7 @@
 #include "bscript/compiler/ast/StructMemberInitializer.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
+#include "bscript/compiler/ast/UninitializedFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/ast/VarStatement.h"
@@ -383,6 +384,11 @@ void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 }
 
 void NodeVisitor::visit_unary_operator( UnaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_uninitialized_function_declaration( UninitializedFunctionDeclaration& node )
 {
   visit_children( node );
 }
