@@ -1,0 +1,14 @@
+class Base()
+  function base_func()
+    print( "Base" );
+  endfunction
+endclass
+
+class Child( Base )
+  function child_func()
+    base_func(); // Previously would error that `base_func` is undefined.
+    print( "Child" );
+  endfunction
+endclass
+
+Child::child_func();

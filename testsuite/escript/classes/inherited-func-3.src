@@ -1,0 +1,15 @@
+// Same as inherited-func-1 but uses super
+class Base()
+  function base_func()
+    print( "Base" );
+  endfunction
+endclass
+
+class Child( Base )
+  function child_func()
+    super::base_func();
+    print( "Child" );
+  endfunction
+endclass
+
+Child::child_func();
