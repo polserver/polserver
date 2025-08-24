@@ -71,6 +71,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitUninitFunctionDeclaration(EscriptParser::UninitFunctionDeclarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
