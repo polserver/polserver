@@ -53,7 +53,7 @@ fmt::format_context::iterator fmt::formatter<Pol::Clib::OnlineStatistics>::forma
     const Pol::Clib::OnlineStatistics& s, fmt::format_context& ctx ) const
 {
   return fmt::formatter<std::string>::format(
-      fmt::format( "mean: {:.2f} max: {:.2f} standard_deviation: {:.2f} count: {} total: {:.2f}",
-                   s.mean(), s.max(), s.standard_deviation(), s.count(), s.total() ),
+      fmt::format( "mean: {:.2f} max: {:.2f} std: {:.2f} count: {} total: {:.2f}", s.mean(),
+                   s.max(), s.standard_deviation(), s.count(), s.total() ),
       ctx );
 }

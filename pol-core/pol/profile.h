@@ -12,7 +12,6 @@
 #include "../clib/rawtypes.h"
 #include <atomic>
 #include <cstddef>
-#include <ctime>
 
 namespace Pol
 {
@@ -20,9 +19,6 @@ namespace Core
 {
 #define DEF_PROFILEVAR( counter ) \
   size_t prf_##counter, prf_last_##counter, prf_last_##counter##_per_min
-
-#define CLOCK_PROFILEVAR( timer ) \
-  clock_t tmr_##timer##_clocks_this_min, tmr_##timer##_clocks_last_min, tmr_##timer##_clock_start
 
 struct ProfileVars
 {
@@ -38,8 +34,6 @@ struct ProfileVars
   DEF_PROFILEVAR( scripts_late_ticks );
   DEF_PROFILEVAR( task_passes );
   DEF_PROFILEVAR( noactivity_task_passes );
-  DEF_PROFILEVAR( container_adds );
-  DEF_PROFILEVAR( container_removes );
 
   u64 last_instructions;
   size_t last_instructions_pm;
@@ -61,7 +55,6 @@ struct ProfileVars
   size_t last_script_passes_activity;
   size_t last_script_passes_noactivity;
   Clib::OnlineStatistics script_passes_duration{};
-  Clib::OnlineStatistics script_passes_delay{};
   Clib::OnlineStatistics script_runlist_statistic{};
 };
 }  // namespace Core
@@ -83,21 +76,5 @@ struct ProfileVars
 #define GET_PROFILEVAR_PER_MIN( counter ) \
   Core::stateManager.profilevars.prf_last_##counter##_per_min
 
-#define START_PROFILECLOCK( timer ) \
-  Core::stateManager.profilevars.tmr_##timer##_clock_start = clock()
-#define STOP_PROFILECLOCK( timer )                                \
-  Core::stateManager.profilevars.tmr_##timer##_clocks_this_min += \
-      clock() - Core::stateManager.profilevars.tmr_##timer##_clock_start
-#define ROLL_PROFILECLOCK( timer )                                    \
-  do                                                                  \
-  {                                                                   \
-    Core::stateManager.profilevars.tmr_##timer##_clocks_last_min =    \
-        Core::stateManager.profilevars.tmr_##timer##_clocks_this_min; \
-    Core::stateManager.profilevars.tmr_##timer##_clocks_this_min = 0; \
-  } while ( 0 )
-#define GET_PROFILECLOCK( timer ) Core::stateManager.profilevars.tmr_##timer##_clocks_last_min
-#define GET_PROFILECLOCK_MS( timer )                                                          \
-  ( static_cast<unsigned int>( Core::stateManager.profilevars.tmr_##timer##_clocks_last_min * \
-                               1000.0 / Core::CLOCKS_PER_SEC ) )
 }  // namespace Pol
 #endif

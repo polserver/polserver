@@ -33,6 +33,9 @@
 #include "uworld.h"
 #include "vital.h"
 
+#ifndef _WIN32
+#include <sys/times.h>
+#endif
 #ifdef _MSC_VER
 #pragma warning( \
     disable : 4127 )  // conditional expression is constant (needed because of TICK_PROFILEVAR)
@@ -150,18 +153,22 @@ void regen_stats()
 static HANDLE m_CurrentProcessHandle;
 #endif
 
-void setup_update_rpm( void )
+void setup_update_rpm()
 {
 #ifdef _WIN32
   m_CurrentProcessHandle = GetCurrentProcess();
   FILETIME d1, d2, k, u;
   GetProcessTimes( m_CurrentProcessHandle, &d1, &d2, &k, &u );
-  __int64 kt = *(__int64*)&k;
-  __int64 ut = *(__int64*)&u;
-  __int64 tot = ( kt + ut ) / 10;  // convert to microseconds
+  u64 kt = ULARGE_INTEGER{ .LowPart = k.dwLowDateTime, .HighPart = k.dwHighDateTime }.QuadPart;
+  u64 ut = ULARGE_INTEGER{ .LowPart = u.dwLowDateTime, .HighPart = u.dwHighDateTime }.QuadPart;
+  u64 tot = ( kt + ut ) / 10;  // convert to microseconds
+#else
+  tms proctimes;
+  times( &proctimes );
+  u64 tot = proctimes.tms_stime + proctimes.tms_utime;
+#endif
   stateManager.profilevars.last_cputime = 0;
   stateManager.profilevars.last_cpu_total = tot;
-#endif
 }
 
 void update_rpm( void )
@@ -193,18 +200,21 @@ void update_rpm( void )
   TICK_PROFILEVAR( scripts_ontime );
   TICK_PROFILEVAR( scripts_late );
 
-  TICK_PROFILEVAR( container_adds );
-  TICK_PROFILEVAR( container_removes );
-
+  {
 #ifdef _WIN32
-  FILETIME d1, d2, k, u;
-  GetProcessTimes( m_CurrentProcessHandle, &d1, &d2, &k, &u );
-  __int64 kt = *(__int64*)&k;
-  __int64 ut = *(__int64*)&u;
-  __int64 tot = ( kt + ut ) / 10;  // convert to microseconds
-  pvars.last_cputime = static_cast<unsigned int>( tot - pvars.last_cpu_total );
-  pvars.last_cpu_total = tot;
+    FILETIME d1, d2, k, u;
+    GetProcessTimes( m_CurrentProcessHandle, &d1, &d2, &k, &u );
+    u64 kt = ULARGE_INTEGER{ .LowPart = k.dwLowDateTime, .HighPart = k.dwHighDateTime }.QuadPart;
+    u64 ut = ULARGE_INTEGER{ .LowPart = u.dwLowDateTime, .HighPart = u.dwHighDateTime }.QuadPart;
+    u64 tot = ( kt + ut ) / 10;  // convert to microseconds
+#else
+    tms proctimes;
+    times( &proctimes );
+    u64 tot = proctimes.tms_stime + proctimes.tms_utime;
 #endif
+    pvars.last_cputime = static_cast<size_t>( tot - pvars.last_cpu_total );
+    pvars.last_cpu_total = tot;
+  }
 
   pvars.last_busy_sysload_cycles = pvars.busy_sysload_cycles;
   pvars.last_nonbusy_sysload_cycles = pvars.nonbusy_sysload_cycles;
@@ -219,10 +229,10 @@ void update_rpm( void )
   pvars.nonbusy_sysload_cycles = 0;
   pvars.sysload_nprocs = 0;
   if ( Plib::systemstate.config.watch_sysload )
-    INFO_PRINTLN( "sysload={} ({}) cputime={}", pvars.last_sysload, pvars.last_sysload_nprocs,
+    INFO_PRINTLN( "sysload={}% ({}) cputime={}us", pvars.last_sysload, pvars.last_sysload_nprocs,
                   pvars.last_cputime );
   if ( Plib::systemstate.config.log_sysload )
-    POLLOGLN( "sysload={} ({}) cputime={}", pvars.last_sysload, pvars.last_sysload_nprocs,
+    POLLOGLN( "sysload={}% ({}) cputime={}us", pvars.last_sysload, pvars.last_sysload_nprocs,
               pvars.last_cputime );
 
 #ifndef NDEBUG
@@ -237,25 +247,20 @@ void update_rpm( void )
   if ( Plib::systemstate.config.watch_rpm )
   {
     INFO_PRINTLN(
-        "script_passes: {}  task_passes: {}({})  instructions: {}  sleep_cycles: {}  MOB: {}  "
+        "script_passes: {}({})  task_passes: {}({})  instructions: {}  sleep_cycles: {}  MOB: {}  "
         "TLI: {}",
-        GET_PROFILEVAR_PER_MIN( script_passes ), GET_PROFILEVAR_PER_MIN( task_passes ),
-        GET_PROFILEVAR_PER_MIN( noactivity_task_passes ), pvars.last_instructions_pm,
-        GET_PROFILEVAR_PER_MIN( sleep_cycles ), get_mobile_count(), get_toplevel_item_count() );
-    INFO_PRINTLN( "script_passes activity: {} noactivity: {} scriptcount_runlist statistic {}",
-                  pvars.last_script_passes_activity, pvars.last_script_passes_noactivity,
-                  pvars.script_runlist_statistic );
+        GET_PROFILEVAR_PER_MIN( script_passes ), pvars.last_script_passes_noactivity,
+        GET_PROFILEVAR_PER_MIN( task_passes ), GET_PROFILEVAR_PER_MIN( noactivity_task_passes ),
+        pvars.last_instructions_pm, GET_PROFILEVAR_PER_MIN( sleep_cycles ), get_mobile_count(),
+        get_toplevel_item_count() );
+    INFO_PRINTLN( "scriptcount_runlist statistic {}", pvars.script_runlist_statistic );
     INFO_PRINTLN( "script_passes duration statistic (us) {}", pvars.script_passes_duration );
-    INFO_PRINTLN( "script_passes delay statistic (us) {}", pvars.script_passes_delay );
-    INFO_PRINTLN( "Mean instruction time {:.2f}us",
-                  pvars.last_instructions_pm / pvars.script_passes_duration.total() );
-    pvars.script_passes_delay = Clib::OnlineStatistics{};
     pvars.script_passes_duration = Clib::OnlineStatistics{};
     pvars.script_runlist_statistic = Clib::OnlineStatistics{};
   }
   if ( Plib::systemstate.config.show_realm_info )
   {
-    INFO_PRINTLN( "\nRealm info: " );
+    INFO_PRINTLN( "\nRealm info:" );
     for ( auto realm : gamestate.Realms )
     {
       INFO_PRINTLN( "    - {} (mob: {}, off: {}, tli: {}, mlt: {})", realm->name(),
@@ -269,14 +274,15 @@ void update_rpm( void )
 void update_sysload()
 {
   THREAD_CHECKPOINT( tasks, 201 );
-  if ( scriptScheduler.getRunlist().empty() )
+  const auto& runlist = scriptScheduler.getRunlist();
+  if ( runlist.empty() )
   {
     ++stateManager.profilevars.nonbusy_sysload_cycles;
   }
   else
   {
     ++stateManager.profilevars.busy_sysload_cycles;
-    stateManager.profilevars.sysload_nprocs += scriptScheduler.getRunlist().size();
+    stateManager.profilevars.sysload_nprocs += runlist.size();
   }
   THREAD_CHECKPOINT( tasks, 299 );
 }
