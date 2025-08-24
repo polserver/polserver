@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-24-2025 Kevin:
+    Fixed: Under certain situations, the compiler would not find a parent class' static (ie. non-member) when used inside a child class.
 08-19-2025 Kevin:
     Fixed: Enum class constants can be used unscoped within their own enum class.
     Fixed: Enum class constants can be used in case statement labels.

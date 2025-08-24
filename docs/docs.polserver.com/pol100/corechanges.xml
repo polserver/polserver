@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-19-2025</datemodified>
+		<datemodified>08-24-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>08-24-2025</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Under certain situations, the compiler would not find a parent class' static (ie. non-member) when used inside a child class.</change>
+		</entry>
 		<entry>
 			<date>08-19-2025</date>
 			<author>Kevin:</author>
