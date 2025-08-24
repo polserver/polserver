@@ -994,6 +994,20 @@ antlrcpp::Any PrettifyFileProcessor::visitSwitchBlockStatementGroup(
   return {};
 }
 
+antlrcpp::Any PrettifyFileProcessor::visitUninitFunctionDeclaration(
+    EscriptParser::UninitFunctionDeclarationContext* ctx )
+{
+  addToken( "uninit", ctx->UNINIT(), FmtToken::SPACE );
+  addToken( "function", ctx->FUNCTION(), FmtToken::SPACE );
+  make_identifier( ctx->IDENTIFIER() );
+  _suppressnewline = true;
+  visitFunctionParameters( ctx->functionParameters() );
+  _suppressnewline = false;
+  addToken( ";", ctx->SEMI(), linebuilder.terminatorStyle() );
+  linebuilder.buildLine( _currindent );
+  return {};
+}
+
 antlrcpp::Any PrettifyFileProcessor::visitSwitchLabel( EscriptParser::SwitchLabelContext* ctx )
 {
   if ( auto integerLiteral = ctx->integerLiteral() )

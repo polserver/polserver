@@ -163,6 +163,8 @@ public:
   antlrcpp::Any visitSwitchBlockStatementGroup(
       EscriptGrammar::EscriptParser::SwitchBlockStatementGroupContext* ctx ) override;
   antlrcpp::Any visitSwitchLabel( EscriptGrammar::EscriptParser::SwitchLabelContext* ctx ) override;
+  antlrcpp::Any visitUninitFunctionDeclaration(
+      EscriptGrammar::EscriptParser::UninitFunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitUseDeclaration(
       EscriptGrammar::EscriptParser::UseDeclarationContext* ctx ) override;
   antlrcpp::Any visitVariableDeclaration(

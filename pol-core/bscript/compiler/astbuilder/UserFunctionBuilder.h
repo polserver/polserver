@@ -25,10 +25,11 @@ public:
       EscriptGrammar::EscriptParser::ClassDeclarationContext*, Node* class_body );
 
 private:
-  template <typename ParserContext>
-  std::unique_ptr<UserFunction> make_user_function( const std::string& name, ParserContext* context,
-                                                    bool exported, const std::string& class_name,
-                                                    antlr4::tree::TerminalNode* end_token );
+  template <typename FunctionTypeNode, typename ParserContext>
+  std::unique_ptr<FunctionTypeNode> make_user_function( const std::string& name,
+                                                        ParserContext* context, bool exported,
+                                                        const std::string& class_name,
+                                                        antlr4::tree::TerminalNode* end_token );
 };
 
 }  // namespace Pol::Bscript::Compiler
