@@ -67,6 +67,11 @@ classBody
 classStatement
     : functionDeclaration
     | varStatement
+    | uninitFunctionDeclaration
+    ;
+
+uninitFunctionDeclaration
+    : UNINIT FUNCTION IDENTIFIER functionParameters ';'
     ;
 
 functionDeclaration
