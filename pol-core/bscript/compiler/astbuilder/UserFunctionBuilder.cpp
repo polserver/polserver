@@ -38,7 +38,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_declaration(
     EscriptParser::FunctionDeclarationContext* ctx, const std::string& class_name )
 {
   std::string name = text( ctx->IDENTIFIER() );
-  return make_user_function<UserFunction>( name, ctx, ctx->EXPORTED(), class_name,
+  return make_function_like<UserFunction>( name, ctx, ctx->EXPORTED(), class_name,
                                            ctx->ENDFUNCTION() );
 }
 
@@ -46,7 +46,7 @@ std::unique_ptr<UserFunction> UserFunctionBuilder::function_expression(
     EscriptGrammar::EscriptParser::FunctionExpressionContext* ctx )
 {
   std::string name = FunctionResolver::function_expression_name( location_for( *ctx->AT() ) );
-  return make_user_function<UserFunction>( name, ctx, false, "", ctx->RBRACE() );
+  return make_function_like<UserFunction>( name, ctx, false, "", ctx->RBRACE() );
 }
 
 std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
@@ -166,17 +166,15 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         auto func_name = text( uninit_func_decl->IDENTIFIER() );
         auto func_loc = location_for( *uninit_func_decl );
 
-        // Register the user function as an available parse tree only if it is not `super` for child
-        // classes.
-        auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
-
-        if ( is_super && is_child )
+        // An uninit function cannot be named `super`, as the child class would
+        // not be able to define a function named `super`.
+        if ( Clib::caseInsensitiveEqual( func_name, "super" ) )
         {
           workspace.report.error( func_loc, "The 'super' function is reserved for child classes." );
         }
         else
         {
-          uninit_functions.push_back( make_user_function<UninitializedFunctionDeclaration>(
+          uninit_functions.push_back( make_function_like<UninitializedFunctionDeclaration>(
               func_name, uninit_func_decl, false, class_name, uninit_func_decl->SEMI() ) );
         }
       }
@@ -203,7 +201,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 }
 
 template <typename FunctionTypeNode, typename ParserContext>
-std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_user_function(
+std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_function_like(
     const std::string& name, ParserContext* ctx, bool exported, const std::string& class_name,
     antlr4::tree::TerminalNode* end_token )
 {

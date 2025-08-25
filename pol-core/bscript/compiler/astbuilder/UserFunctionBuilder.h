@@ -26,7 +26,7 @@ public:
 
 private:
   template <typename FunctionTypeNode, typename ParserContext>
-  std::unique_ptr<FunctionTypeNode> make_user_function( const std::string& name,
+  std::unique_ptr<FunctionTypeNode> make_function_like( const std::string& name,
                                                         ParserContext* context, bool exported,
                                                         const std::string& class_name,
                                                         antlr4::tree::TerminalNode* end_token );
