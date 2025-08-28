@@ -11,7 +11,7 @@ endclass
 
 class Child( Base1 )
   function child_func()
-    print("OK!");
+    print( "OK!" );
   endfunction
 endclass
 
