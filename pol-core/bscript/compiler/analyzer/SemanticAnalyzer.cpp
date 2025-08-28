@@ -427,6 +427,12 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   // No function linked through FunctionResolver
   if ( !fc.function_link->function() )
   {
+    if ( is_super_call && !globals.find( "super" ) && !locals.find( "super" ) )
+    {
+      report.error( fc, "In call to 'super': No base class defines a constructor." );
+      return;  // skip "Unknown identifier" error
+    }
+
     // Method name may be set to variable name, eg: `var foo; foo();` If so,
     // clear it out and insert it at the children start to set as callee.
     if ( fc.scoped_name )

@@ -41,6 +41,10 @@ public:
   // `nullptr` if class has no constructor defined.
   std::shared_ptr<FunctionLink> constructor_link;
 
+  // `true` if any ancestors have a constructor defined. Not a function link to
+  // register, as a source may not actually call `super`.
+  bool has_super_ctor;
+
   // Passed as ctor parameter by UserFunctionBuilder when generating this AST
   // node. The class links are immediately registered (inside
   // UserFunctionBuilder) with the FunctionResolver so their parse trees will be

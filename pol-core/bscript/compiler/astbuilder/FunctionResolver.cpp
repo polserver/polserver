@@ -197,7 +197,7 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
   }
 
   // If this class declaration has no constructor, check base classes that may already be resolved.
-  if ( !cd->constructor_link )
+  if ( !cd->constructor_link || !cd->has_super_ctor )
   {
     std::set<ClassDeclaration*> visited;
     std::list<std::shared_ptr<ClassLink>> to_visit;
@@ -215,14 +215,27 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 
         if ( base_cd->constructor_link )
         {
-          ScopableName ctor_name( cd->name, cd->name );
-          cd->constructor_link = std::make_unique<FunctionLink>( cd->source_location, cd->name,
-                                                                 true /* requires_ctor */ );
+          if ( !cd->constructor_link )
+          {
+            ScopableName ctor_name( cd->name, cd->name );
+            cd->constructor_link = std::make_unique<FunctionLink>( cd->source_location, cd->name,
+                                                                   true /* requires_ctor */ );
 
-          register_function_link( ctor_name, cd->constructor_link );
+            register_function_link( ctor_name, cd->constructor_link );
 
-          register_available_generated_function( cd->source_location, ctor_name, cd,
-                                                 UserFunctionType::Constructor );
+            register_available_generated_function( cd->source_location, ctor_name, cd,
+                                                   UserFunctionType::Constructor );
+          }
+
+          if ( !cd->has_super_ctor )
+          {
+            ScopableName child_super( cd->name, "super" );
+            cd->has_super_ctor = true;
+
+            register_available_generated_function( cd->source_location, child_super, cd,
+                                                   UserFunctionType::Super );
+          }
+
           break;
         }
 
@@ -248,6 +261,15 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
         continue;
 
       visited.insert( child_cd );
+
+      if ( !child_cd->has_super_ctor )
+      {
+        ScopableName child_super( child_cd->name, "super" );
+        child_cd->has_super_ctor = true;
+
+        register_available_generated_function( child_cd->source_location, child_super, child_cd,
+                                               UserFunctionType::Super );
+      }
 
       if ( !child_cd->constructor_link )
       {

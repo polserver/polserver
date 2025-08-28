@@ -173,14 +173,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   {
     workspace.function_resolver.register_function_link( ScopableName( class_name, class_name ),
                                                         class_decl->constructor_link );
-
-    // Only register the super() function if the class is a child.
-    if ( is_child )
-    {
-      workspace.function_resolver.register_available_generated_function(
-          location_for( *ctx ), ScopableName( class_name, "super" ), class_decl.get(),
-          UserFunctionType::Super );
-    }
   }
 
   return class_decl;
