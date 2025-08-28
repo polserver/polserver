@@ -482,6 +482,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
           }
 
           report.error( fc, msg );
+          return;  // skip "Unknown identifier" error
         }
       }
 
