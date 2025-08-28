@@ -39,9 +39,6 @@ public:
   // Force reference to a class
   void force_reference( const ScopeName& name, const SourceLocation& );
 
-  void register_available_generated_function( const SourceLocation&, const ScopableName& name,
-                                              Node* context, UserFunctionType type );
-
   void register_available_user_function( const SourceLocation&,
                                          EscriptGrammar::EscriptParser::FunctionDeclarationContext*,
                                          bool force_reference );
@@ -69,6 +66,9 @@ public:
   static std::string function_expression_name( const SourceLocation& );
 
 private:
+  void register_available_generated_function( const SourceLocation&, const ScopableName& name,
+                                              Node* context, UserFunctionType type );
+
   void register_available_function_parse_tree( const SourceLocation&, const ScopableName& name,
                                                std::unique_ptr<AvailableSecondPassTarget> apt );
   void register_available_user_function_parse_tree( const SourceLocation&,
