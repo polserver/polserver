@@ -87,6 +87,8 @@ private:
 
   using FunctionReferenceMap = std::map<ScopableName, std::vector<std::shared_ptr<FunctionLink>>>;
   using ClassReferenceMap = std::map<ScopeName, std::vector<std::shared_ptr<ClassLink>>>;
+  // Maps parent -> children (direct children, not all descendants)
+  using ClassChildrenMap = std::map<std::string, std::vector<ClassDeclaration*>, Clib::ci_cmp_pred>;
 
   using AvailableParseTreeMap =
       std::map<std::string, std::unique_ptr<AvailableSecondPassTarget>, Clib::ci_cmp_pred>;
@@ -97,6 +99,7 @@ private:
   ClassDeclarationMap resolved_classes;
   FunctionReferenceMap unresolved_function_links;
   ClassReferenceMap unresolved_classes;
+  ClassChildrenMap class_children;
 
   // Returns Function if the key's `{call_scope, name}` exists in
   // `resolved_functions_by_name`, otherwise nullptr.

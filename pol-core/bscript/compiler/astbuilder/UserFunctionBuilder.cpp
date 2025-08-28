@@ -64,10 +64,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   std::unique_ptr<FunctionLink> constructor_link;
   bool is_child = false;
 
-  // True if the function and class name are equal. "Maybe" because it may not have `this`
-  // as a first parameter.
-  bool maybe_has_ctor = false;
-
   if ( auto function_parameters = ctx->classParameters() )
   {
     if ( auto param_list = function_parameters->classParameterList() )
@@ -109,8 +105,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         // Register the user function as an available parse tree only if it is not `super` for child
         // classes.
         auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
-
-        maybe_has_ctor |= Clib::caseInsensitiveEqual( func_name, class_name );
 
         if ( is_super && is_child )
         {
@@ -187,15 +181,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
           location_for( *ctx ), ScopableName( class_name, "super" ), class_decl.get(),
           UserFunctionType::Super );
     }
-  }
-  // Can only create a constructor if (1) there is no function already defined
-  // with the class name (regardless if it is an actual constructor or not) and
-  // (2) there are parameters.
-  else if ( !maybe_has_ctor && class_decl->parameters().size() > 0 )
-  {
-    workspace.function_resolver.register_available_generated_function(
-        location_for( *ctx ), ScopableName( class_name, class_name ), class_decl.get(),
-        UserFunctionType::Constructor );
   }
 
   return class_decl;

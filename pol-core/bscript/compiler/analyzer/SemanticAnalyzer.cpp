@@ -460,8 +460,18 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         if ( Clib::caseInsensitiveEqual( fc.scoped_name->name, class_name ) &&
              !globals.find( ScopableName( class_name, class_name ).string() ) )
         {
-          auto msg = fmt::format( "In function call: Class '{}' does not define a constructor.",
-                                  class_name );
+          bool has_base_classes = false;
+
+          if ( auto class_decl_itr = workspace.class_declaration_indexes.find( class_name );
+               class_decl_itr != workspace.class_declaration_indexes.end() &&
+               workspace.class_declarations[class_decl_itr->second]->parameters().size() > 0 )
+          {
+            has_base_classes = true;
+          }
+
+          auto msg =
+              fmt::format( "In function call: Class '{}' {} define a constructor.", class_name,
+                           has_base_classes ? "and its base class(es) do not" : "does not" );
 
           auto func_itr = workspace.all_function_locations.find(
               ScopableName( class_name, class_name ).string() );
@@ -567,15 +577,6 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       }
       else
       {
-        if ( dynamic_cast<GeneratedFunction*>( uf ) != nullptr )
-        {
-          if ( uf->body().children.empty() )
-          {
-            report.error( fc, "In call to '{}': No base class defines a constructor.", uf->name );
-            return;
-          }
-        }
-
         // Should never happen
         if ( uf->class_link == nullptr || uf->class_link->class_declaration() == nullptr )
         {

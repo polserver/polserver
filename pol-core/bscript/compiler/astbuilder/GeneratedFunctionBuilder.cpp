@@ -75,20 +75,6 @@ void GeneratedFunctionBuilder::constructor_function(
   auto class_declaration = constructor->class_declaration();
   UserFunction* base_class_ctor = nullptr;
 
-  // If the class declaration _has_ a constructor link, then it registered a
-  // constructor but it was never resolved. This should never happen.
-  if ( class_declaration->constructor_link != nullptr )
-  {
-    // If the class has a _linked_ constructor, then we should not have
-    // generated a constructor function.
-    if ( class_declaration->constructor_link->function() != nullptr )
-      class_declaration->internal_error(
-          fmt::format( "class {} has linked ctor", class_declaration->name ) );
-
-    class_declaration->internal_error(
-        fmt::format( "class {} unlinked ctor", class_declaration->name ) );
-  }
-
   to_visit.insert( to_visit.end(), class_declaration->base_class_links.begin(),
                    class_declaration->base_class_links.end() );
 
