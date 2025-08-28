@@ -1,0 +1,18 @@
+// Bug fix in https://github.com/polserver/polserver/pull/809
+//
+// Previously, Base1::Base1 was generated because it has a baselink to Base0,
+// even though Base0 does not define a ctor.
+
+class Base0()
+endclass
+
+class Base1( Base0 )
+endclass
+
+class Child( Base1 )
+  function child_func()
+    print("OK!");
+  endfunction
+endclass
+
+Child::child_func();
