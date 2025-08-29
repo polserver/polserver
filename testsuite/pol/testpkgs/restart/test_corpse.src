@@ -16,33 +16,66 @@ exported function load_save_corpse()
     if ( !npc )
       return ret_error( $"failed to create npc {npc}" );
     endif
+
+    const LAYER_SHIRT := 0x5;
+    var shirt := CreateItemAtLocation(npc.x, npc.y, npc.z, 0x1517, 1, npc.realm);
+    if (!shirt)
+      return ret_error( $"failed to create a shirt {shirt}" );
+    endif
+
+    var equipt := EquipItem(npc, shirt);
+    if (!equipt)
+      return ret_error( $"failed to equip a shirt {equipt}" );
+    endif
+    SetGlobalProperty( "test_item_storage_npc_shirt", shirt.serial );
+
     SetGlobalProperty( "test_item_storage_npc_corpse", npc.serial );
     var npcserial := npc.serial;
     npc.kill();
-    var item;
+    var corpse;
     var items := ListObjectsInBoxOfClass( POLCLASS_CORPSE, 100, 100, 0, 100, 100, 0, "britannia2" );
     foreach i in items
       if ( i.ownerserial == npcserial )
-        item := i;
+        corpse := i;
         break;
       endif
     endforeach
 
-    if ( !item )
-      return ret_error( $"failed to get item {items}" );
+    if ( !corpse )
+      return ret_error( $"failed to find the corpse; found items: {items}" );
     endif
-    SetGlobalProperty( "test_item_storage_corpse", item.serial );
+    SetGlobalProperty( "test_item_storage_corpse", corpse.serial );
+
+    var found_shirt := false;
+    foreach item in EnumerateItemsInContainer( corpse );
+      if ( item.serial == shirt.serial )
+        found_shirt := true;
+        break;
+      endif
+    endforeach
+
+    if (shirt.layer != LAYER_SHIRT)
+      return ret_error( $"invalid shirt layer: {shirt.layer} should be: {LAYER_SHIRT}" );
+    endif
+
+    if ( !found_shirt )
+      return ret_error( "failed to find the shirt in corpse container" );
+    endif
   else
 
-    var serial := GetGlobalProperty( "test_item_storage_corpse" );
     var npcserial := GetGlobalProperty( "test_item_storage_npc_corpse" );
-    if ( !serial )
-      return ret_error( "Global property not found" );
+    if ( !npcserial )
+      return ret_error( "global property test_item_storage_npc_corpse not found" );
     endif
 
-    var item := SystemFindObjectBySerial( serial );
-    if ( !item )
-      return ret_error( $"Item with serial {serial:#x} does not exists: {item})" );
+    var corpseserial := GetGlobalProperty( "test_item_storage_corpse" );
+    if ( !corpseserial )
+      return ret_error( "global property test_item_storage_corpse not found" );
+    endif
+
+    var corpse := SystemFindObjectBySerial( corpseserial );
+    if ( !corpse )
+      return ret_error( $"corpse with serial {corpseserial:#x} does not exists: {corpse}" );
     endif
     var props := { { "CorpseType",
                      { "corpsetype", 0x190 }
@@ -53,11 +86,25 @@ exported function load_save_corpse()
                    } //    {"TakeContentsToGrave", {"",1}
                    };
     foreach prop in props
-      var val := item.get_member( prop[2][1] );
+      var val := corpse.get_member( prop[2][1] );
       if ( val != prop[2][2] )
-        return ret_error( $"Member {prop[2][1]} {prop[2][2]} != {val}" );
+        return ret_error( $"member {prop[2][1]} {prop[2][2]} != {val}" );
       endif
     endforeach
+
+    var shirtserial := GetGlobalProperty( "test_item_storage_npc_shirt" );
+    if ( !shirtserial )
+      return ret_error( "global property test_item_storage_npc_shirt not found" );
+    endif
+
+    var shirt := SystemFindObjectBySerial( shirtserial );
+    if ( !shirt )
+      return ret_error( $"shirt with serial {shirtserial:#x} does not exists: {shirt}" );
+    endif
+
+    if ( shirt.layer != LAYER_SHIRT )
+      return ret_error( $"invalid shirt layer: {shirt.layer} should be: {LAYER_SHIRT}" );
+    endif
   endif
   return 1;
 endfunction
