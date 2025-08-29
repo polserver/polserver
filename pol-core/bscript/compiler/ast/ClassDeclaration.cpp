@@ -19,7 +19,6 @@ ClassDeclaration::ClassDeclaration( const SourceLocation& source_location, std::
       name( std::move( name ) ),
       class_body( class_body ),
       constructor_link( std::move( constructor_link ) ),
-      has_super_ctor( false ),
       base_class_links( std::move( base_class_links ) )
 {
   for ( const auto& method_name : method_names )

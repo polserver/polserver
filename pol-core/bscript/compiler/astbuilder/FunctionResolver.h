@@ -119,6 +119,8 @@ private:
   // the function and returns `true`; otherwise, returns `false`.
   bool resolve_if_existing( const ScopableName&, std::shared_ptr<FunctionLink>& );
   bool resolve_if_existing( const ScopeName&, std::shared_ptr<ClassLink>& );
+
+  bool super_function_created( ClassDeclaration* cd ) const;
 };
 
 }  // namespace Pol::Bscript::Compiler

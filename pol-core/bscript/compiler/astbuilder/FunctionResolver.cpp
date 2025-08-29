@@ -173,6 +173,12 @@ void FunctionResolver::register_user_function( const std::string& scope, UserFun
   }
 }
 
+bool FunctionResolver::super_function_created( ClassDeclaration* cd ) const
+{
+  return available_user_function_parse_trees.contains( cd->name + "::super" ) ||
+         resolved_functions.contains( { cd->name, "super" } );
+}
+
 void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 {
   resolved_classes[cd->name] = cd;
@@ -197,7 +203,7 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
   }
 
   // If this class declaration has no constructor, check base classes that may already be resolved.
-  if ( !cd->constructor_link || !cd->has_super_ctor )
+  if ( !cd->constructor_link || !super_function_created( cd ) )
   {
     std::set<ClassDeclaration*> visited;
     std::list<std::shared_ptr<ClassLink>> to_visit;
@@ -227,10 +233,9 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
                                                    UserFunctionType::Constructor );
           }
 
-          if ( !cd->has_super_ctor )
+          if ( !super_function_created( cd ) )
           {
             ScopableName child_super( cd->name, "super" );
-            cd->has_super_ctor = true;
 
             register_available_generated_function( cd->source_location, child_super, cd,
                                                    UserFunctionType::Super );
@@ -262,10 +267,9 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 
       visited.insert( child_cd );
 
-      if ( !child_cd->has_super_ctor )
+      if ( !super_function_created( child_cd ) )
       {
         ScopableName child_super( child_cd->name, "super" );
-        child_cd->has_super_ctor = true;
 
         register_available_generated_function( child_cd->source_location, child_super, child_cd,
                                                UserFunctionType::Super );
