@@ -16,4 +16,5 @@
   - class-parameter-list
   - uninitialized-function-declaration(Base::base_func)
     - function-parameter-list
+      - function-parameter-declaration(this, byref)
       - function-parameter-declaration(param1)
