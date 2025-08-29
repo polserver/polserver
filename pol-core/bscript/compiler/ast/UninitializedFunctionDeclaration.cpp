@@ -9,10 +9,11 @@
 namespace Pol::Bscript::Compiler
 {
 UninitializedFunctionDeclaration::UninitializedFunctionDeclaration(
-    const SourceLocation& source_location, std::string scope, std::string name,
-    std::unique_ptr<FunctionParameterList> parameter_list )
+    const SourceLocation& source_location, UserFunctionType type, std::string scope,
+    std::string name, std::unique_ptr<FunctionParameterList> parameter_list )
     : Function( source_location, std::move( scope ), std::move( name ),
-                std::move( parameter_list ) )
+                std::move( parameter_list ) ),
+      type( type )
 {
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fmt/format.h>
+
 namespace Pol::Bscript::Compiler
 {
 /*
@@ -32,3 +34,19 @@ enum class UserFunctionType
 };
 
 }  // namespace Pol::Bscript::Compiler
+
+template <>
+struct fmt::formatter<Pol::Bscript::Compiler::UserFunctionType> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Bscript::Compiler::UserFunctionType& type,
+                                        fmt::format_context& ctx ) const
+  {
+    using namespace Pol::Bscript::Compiler;
+    return fmt::formatter<std::string>::format( type == UserFunctionType::Static ? "static function"
+                                                : type == UserFunctionType::Constructor
+                                                    ? "class constructor"
+                                                : type == UserFunctionType::Super ? "super function"
+                                                                                  : "class method",
+                                                ctx );
+  }
+};

@@ -174,10 +174,33 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
         }
         else
         {
-          uninit_functions.push_back( make_function_like<UninitializedFunctionDeclaration>(
-              func_name, uninit_func_decl, false, class_name, uninit_func_decl->SEMI() ) );
+          auto uf = make_function_like<UninitializedFunctionDeclaration>(
+              func_name, uninit_func_decl, false, class_name, uninit_func_decl->SEMI() );
+
+          if ( uf->type == UserFunctionType::Static )
+          {
+            report.error( uf->source_location,
+                          "In uninitialized function declaration: Static functions cannot be "
+                          "marked as uninitialized." );
+          }
+          else
+          {
+            uninit_functions.push_back( std::move( uf ) );
+          }
         }
       }
+    }
+  }
+
+  for ( const auto& uninit_function : uninit_functions )
+  {
+    if ( std::find( method_names.begin(), method_names.end(), uninit_function->name ) !=
+         method_names.end() )
+    {
+      report.error( uninit_function->source_location,
+                    "In uninitialized function declaration: A method named '{}' is already "
+                    "defined in class '{}'.",
+                    uninit_function->name, class_name );
     }
   }
 
@@ -294,7 +317,7 @@ std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_function_like(
   else if constexpr ( std::is_same<FunctionTypeNode, UninitializedFunctionDeclaration>::value )
   {
     return std::make_unique<UninitializedFunctionDeclaration>(
-        location_for( *ctx ), class_name, std::move( name ), std::move( parameter_list ) );
+        location_for( *ctx ), type, class_name, std::move( name ), std::move( parameter_list ) );
   }
 }
 }  // namespace Pol::Bscript::Compiler
