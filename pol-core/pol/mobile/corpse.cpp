@@ -22,7 +22,7 @@
 #include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobject.h"
-
+#include "globals/state.h"
 
 namespace Pol
 {
@@ -53,10 +53,20 @@ void UCorpse::take_contents_to_grave( bool newvalue )
 
 void UCorpse::add( Item* item )
 {
-  // When an item is added, check if it's equippable and add to the appropriate layer
-  if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == item )
+  if ( stateManager.gflag_in_system_load )
   {
-    PutItemOnLayer( item );
+    if ( item->layer && Items::valid_equip_layer( item->layer ) )
+    {
+      can_equip_list_[item->layer].set( item );
+    }
+  }
+  else
+  {
+    // When an item is added, check if it's equippable and add to the appropriate layer
+    if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == item )
+    {
+      PutItemOnLayer( item );
+    }
   }
 
   // plus the defaults from UContainer

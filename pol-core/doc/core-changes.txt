@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+08-29-2025 AsYlum: 
+    Fixed: Equipment on human corpses now displays correctly after server restart.
 08-24-2025 Kevin:
     Fixed: Under certain situations, the compiler would not find a parent class' static (ie. non-member) when used inside a child class.
 08-19-2025 Kevin:
