@@ -48,6 +48,8 @@ public:
 
     virtual std::any visitClassStatement(EscriptParser::ClassStatementContext *context) = 0;
 
+    virtual std::any visitUninitFunctionDeclaration(EscriptParser::UninitFunctionDeclarationContext *context) = 0;
+
     virtual std::any visitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *context) = 0;
 
     virtual std::any visitStringIdentifier(EscriptParser::StringIdentifierContext *context) = 0;

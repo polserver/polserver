@@ -5,12 +5,14 @@
 
 #include <map>
 #include <memory>
+#include <set>
 #include <stack>
 
 #include "bscript/compiler/analyzer/FlowControlScopes.h"
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"
 #include "bscript/compiler/analyzer/Variables.h"
 #include "bscript/compiler/model/ScopeName.h"
+#include "compiler/ast/ClassDeclaration.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -69,6 +71,8 @@ private:
                                              const std::string& scoped_function_name,
                                              const std::string& element_description );
 
+  void analyze_class( ClassDeclaration* );
+
   CompilerWorkspace& workspace;
   Report& report;
 
@@ -89,6 +93,10 @@ private:
 
   // Needed to handle super() calls
   std::stack<UserFunction*> user_functions;
+
+  // To prevent checking the same class multiple times (which would lead to
+  // duplicate error messages or wasted processing time).
+  std::set<ClassDeclaration*> analyzed_classes;
 };
 
 }  // namespace Pol::Bscript::Compiler

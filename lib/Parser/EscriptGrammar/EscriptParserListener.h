@@ -57,6 +57,9 @@ public:
   virtual void enterClassStatement(EscriptParser::ClassStatementContext *ctx) = 0;
   virtual void exitClassStatement(EscriptParser::ClassStatementContext *ctx) = 0;
 
+  virtual void enterUninitFunctionDeclaration(EscriptParser::UninitFunctionDeclarationContext *ctx) = 0;
+  virtual void exitUninitFunctionDeclaration(EscriptParser::UninitFunctionDeclarationContext *ctx) = 0;
+
   virtual void enterFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) = 0;
   virtual void exitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) = 0;
 
