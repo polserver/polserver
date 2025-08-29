@@ -1,0 +1,21 @@
+// Specifically create function links for resolver via calling ctors for
+// `Base0`, `Base1`, and `Child`.
+
+class Base0()
+  function Base0( this )
+    print( $"Base0::Base0 this={this}" );
+  endfunction
+endclass
+
+class Base1( Base0 )
+  function Base1( this )
+    print( $"Base1::Base1 this={this}" );
+  endfunction
+endclass
+
+class Child( Base1 )
+endclass
+
+Base0::Base0();
+Base1::Base1();
+Child::Child();

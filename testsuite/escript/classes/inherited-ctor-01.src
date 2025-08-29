@@ -1,0 +1,15 @@
+// Only grandparent class defines ctor
+
+class Base0()
+  function Base0( this )
+    print( $"Base0::Base0 this={this}" );
+  endfunction
+endclass
+
+class Base1( Base0 )
+endclass
+
+class Child( Base1 )
+endclass
+
+Child::Child();

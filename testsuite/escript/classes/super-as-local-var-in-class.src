@@ -1,0 +1,30 @@
+// A non-child class can define a member function that accesses a local variable named super.
+
+class Foo()
+  function Foo( this )
+  endfunction
+
+  function duper( this, i )
+    print( $"foo::duper called i={i}" );
+
+    var super := @( i ) {
+      print( $"funcexpr called i={i}" );
+    };
+
+    // Execute super as a local variable
+    super( i );
+
+    print( "--" );
+    if ( i == 0 )
+      return;
+    endif
+
+    duper( this, i - 1 );
+  endfunction
+endclass
+
+var obj := Foo();
+
+Foo::duper( obj, 2 );
+print( "----" );
+obj.duper( 2 );

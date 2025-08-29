@@ -1,0 +1,18 @@
+// Both parent and grandparent define constructor, should inherit from parent
+
+class Base0()
+  function Base0( this )
+    print( $"Base0::Base0 this={this}" );
+  endfunction
+endclass
+
+class Base1( Base0 )
+  function Base1( this )
+    print( $"Base1::Base1 this={this}" );
+  endfunction
+endclass
+
+class Child( Base1 )
+endclass
+
+Child::Child();
