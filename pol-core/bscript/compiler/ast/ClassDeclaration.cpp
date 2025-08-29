@@ -9,6 +9,8 @@
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/FunctionLink.h"
 
+#include <ranges>
+
 namespace Pol::Bscript::Compiler
 {
 ClassDeclaration::ClassDeclaration(
@@ -48,6 +50,20 @@ std::vector<std::reference_wrapper<ClassParameterDeclaration>> ClassDeclaration:
   std::vector<std::reference_wrapper<ClassParameterDeclaration>> params;
 
   child<ClassParameterList>( 0 ).get_children<ClassParameterDeclaration>( params );
+
+  return params;
+}
+
+std::vector<std::reference_wrapper<UninitializedFunctionDeclaration>>
+ClassDeclaration::uninit_functions()
+{
+  std::vector<std::reference_wrapper<UninitializedFunctionDeclaration>> params;
+
+  // The first child is a `ClassParameterList`, so skip it.
+  for ( auto& param : children | std::views::drop( 1 ) )
+  {
+    params.emplace_back( *static_cast<UninitializedFunctionDeclaration*>( param.get() ) );
+  }
 
   return params;
 }

@@ -29,6 +29,7 @@ public:
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
   std::vector<std::reference_wrapper<ClassParameterDeclaration>> parameters();
+  std::vector<std::reference_wrapper<UninitializedFunctionDeclaration>> uninit_functions();
   std::string type_tag() const;
 
   const std::string name;
