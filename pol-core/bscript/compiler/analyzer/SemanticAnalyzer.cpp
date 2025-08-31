@@ -1,5 +1,6 @@
 #include "SemanticAnalyzer.h"
 
+#include <algorithm>
 #include <iterator>
 #include <list>
 #include <ranges>
@@ -366,13 +367,13 @@ void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
     {
       report_error_if_not_same( method_itr->second, &uninit_func );
     }
-    else if ( auto nonmethod_func =
-                  std::find_if( workspace.user_functions.begin(), workspace.user_functions.end(),
-                                [&]( const auto& uf )
-                                {
-                                  return Clib::caseInsensitiveEqual( uf->name, uninit_func.name ) &&
-                                         uf->scope == class_decl->name;
-                                } );
+    else if ( auto nonmethod_func = std::ranges::find_if(
+                  workspace.user_functions,
+                  [&]( const auto& uf )
+                  {
+                    return Clib::caseInsensitiveEqual( uf->name, uninit_func.name ) &&
+                           uf->scope == class_decl->name;
+                  } );
               nonmethod_func != workspace.user_functions.end() )
     {
       // This will _always_ error, reporting the defined function as static, and the uninit function

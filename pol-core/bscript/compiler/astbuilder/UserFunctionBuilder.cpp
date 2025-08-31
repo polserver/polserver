@@ -24,6 +24,8 @@
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopeName.h"
 
+#include <algorithm>
+
 using EscriptGrammar::EscriptParser;
 
 namespace Pol::Bscript::Compiler
@@ -194,7 +196,9 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   for ( const auto& uninit_function : uninit_functions )
   {
-    if ( std::find( method_names.begin(), method_names.end(), uninit_function->name ) !=
+    if ( std::ranges::find_if(
+             method_names, [&]( const std::string& method_name )
+             { return Clib::caseInsensitiveEqual( method_name, uninit_function->name ); } ) !=
          method_names.end() )
     {
       report.error( uninit_function->source_location,
