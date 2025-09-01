@@ -1,0 +1,2 @@
+Functionality::method1 this=<class Child> param0=p0
+Child::method2 this=<class Child> param0=p0 param1=p1

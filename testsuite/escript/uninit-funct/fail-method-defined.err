@@ -1,0 +1,1 @@
+:7:3: error: In uninitialized function declaration: A method named 'bar' is already defined in class 'Foo'.

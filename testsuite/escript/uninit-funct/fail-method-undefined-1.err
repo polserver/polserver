@@ -1,0 +1,1 @@
+:17:1: error: Class 'Child' does not implement uninitialized function 'Requirement2::method2'

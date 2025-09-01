@@ -1,0 +1,12 @@
+// Constructor does not match definition
+
+class Base()
+  uninit function Base( this );
+endclass
+
+class Child( Base )
+  function Child( this, param0 )
+  endfunction
+endclass
+
+Child::Child();

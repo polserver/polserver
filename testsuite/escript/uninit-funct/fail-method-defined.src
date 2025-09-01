@@ -1,0 +1,13 @@
+// Cannot have uninit function and defined function in same class
+
+class Foo()
+  function Foo( this )
+  endfunction
+
+  uninit function bar( this );
+
+  function bar( this )
+  endfunction
+endclass
+
+Foo::Foo();

@@ -1,0 +1,22 @@
+// Child has Requirement2 but nothing implements it
+
+class Requirement1()
+  uninit function method1( this, param0 );
+endclass
+
+class Requirement2()
+  uninit function method2( this, param0, param1 );
+endclass
+
+class Functionality1()
+  function method1( this, param0 )
+    print( $"Functionality::method1 this={this} param0={param0}" );
+  endfunction
+endclass
+
+class Child( Requirement1, Requirement2, Functionality1 )
+  function Child( this )
+  endfunction
+endclass
+
+Child().method( "p0" );

@@ -1,0 +1,16 @@
+// A static function cannot match an uninit method function
+
+class Base()
+  function Base( this )
+  endfunction
+  uninit function method( this );
+endclass
+
+class Child( Base )
+  function method()
+  endfunction
+endclass
+
+Child::method();
+
+Child::Child();

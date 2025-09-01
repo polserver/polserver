@@ -1,0 +1,28 @@
+// Child has Requirement1 implemented by Functionality1 and Requirement2
+// implemented inside its own class definition
+
+class Requirement1()
+  uninit function method1( this, param0 );
+endclass
+
+class Requirement2()
+  uninit function method2( this, param0, param1 );
+endclass
+
+class Functionality1()
+  function method1( this, param0 )
+    print( $"Functionality::method1 this={this} param0={param0}" );
+  endfunction
+endclass
+
+class Child( Requirement1, Requirement2, Functionality1 )
+  function Child( this )
+  endfunction
+
+  function method2( this, param0, param1 )
+    print( $"Child::method2 this={this} param0={param0} param1={param1}" );
+  endfunction
+endclass
+
+Child().method1( "p0" );
+Child().method2( "p0", "p1" );

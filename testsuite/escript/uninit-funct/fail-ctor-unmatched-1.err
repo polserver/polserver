@@ -1,0 +1,2 @@
+8:3: error: Class method 'Child::Child' does not correctly implement uninitialized function 'Base::Base':
+  Expecting class constructor with 1 parameters, got class constructor with 2 parameters.

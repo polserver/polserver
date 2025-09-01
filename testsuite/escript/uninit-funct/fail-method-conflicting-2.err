@@ -1,0 +1,2 @@
+:16:3: error: Class method 'Child::method' does not correctly implement uninitialized function 'Requirement2::method':
+  Expecting class method with 3 parameters, got class method with 2 parameters.

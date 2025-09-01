@@ -1,0 +1,20 @@
+// Child two requirements that are for same method but different parameters: it
+// can never be fulfilled: attempt to fulfill Requirement2 fails Requirement1.
+
+class Requirement1()
+  uninit function method( this, param0 );
+endclass
+
+class Requirement2()
+  uninit function method( this, param0, param1 );
+endclass
+
+class Child( Requirement1, Requirement2 )
+  function Child( this )
+  endfunction
+
+  function method( this, param0 )
+  endfunction
+endclass
+
+Child();
