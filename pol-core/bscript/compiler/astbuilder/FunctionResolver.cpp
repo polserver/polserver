@@ -14,6 +14,7 @@
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "bscript/compiler/model/ScopeName.h"
 #include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
@@ -175,8 +176,9 @@ void FunctionResolver::register_user_function( const std::string& scope, UserFun
 
 bool FunctionResolver::super_function_created( ClassDeclaration* cd ) const
 {
-  return available_user_function_parse_trees.contains( cd->name + "::super" ) ||
-         resolved_functions.contains( { cd->name, "super" } );
+  return available_user_function_parse_trees.contains(
+             fmt::format( "{}::{}", cd->name, Compiler::SUPER ) ) ||
+         resolved_functions.contains( { cd->name, Compiler::SUPER } );
 }
 
 void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
@@ -235,7 +237,7 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 
           if ( !super_function_created( cd ) )
           {
-            ScopableName child_super( cd->name, "super" );
+            ScopableName child_super( cd->name, Compiler::SUPER );
 
             register_available_generated_function( cd->source_location, child_super, cd,
                                                    UserFunctionType::Super );
@@ -269,7 +271,7 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 
       if ( !super_function_created( child_cd ) )
       {
-        ScopableName child_super( child_cd->name, "super" );
+        ScopableName child_super( child_cd->name, Compiler::SUPER );
 
         register_available_generated_function( child_cd->source_location, child_super, child_cd,
                                                UserFunctionType::Super );

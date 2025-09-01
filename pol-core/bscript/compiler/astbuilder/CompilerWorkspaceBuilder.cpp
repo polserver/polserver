@@ -18,6 +18,7 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/ScopeName.h"
 #include "clib/timer.h"
 
 namespace Pol::Bscript::Compiler
@@ -102,7 +103,7 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
       {
         auto agf = static_cast<AvailableGeneratedFunction*>( target.get() );
         auto cd = static_cast<ClassDeclaration*>( agf->context );
-        auto name = agf->type == UserFunctionType::Super ? "super" : cd->name;
+        auto name = agf->type == UserFunctionType::Super ? Compiler::SUPER : cd->name;
 
         auto generated_func =
             std::make_unique<GeneratedFunction>( cd->source_location, cd, agf->type, name );

@@ -7,7 +7,7 @@ namespace Pol::Bscript::Compiler
 {
 ScopeName ScopeName::Global = ScopeName( "" );
 ScopeName ScopeName::None = ScopeName();
-ScopeName ScopeName::Super = ScopeName( "super" );
+ScopeName ScopeName::Super = ScopeName( Compiler::SUPER );
 
 ScopeName::ScopeName( const std::string& name ) : std::optional<std::string>( name ) {}
 

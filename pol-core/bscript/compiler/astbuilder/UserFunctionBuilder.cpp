@@ -21,6 +21,7 @@
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -51,7 +52,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 {
   std::string class_name = text( ctx->IDENTIFIER() );
 
-  if ( Clib::caseInsensitiveEqual( class_name, "super" ) )
+  if ( Clib::caseInsensitiveEqual( class_name, Compiler::SUPER ) )
   {
     workspace.report.error( location_for( *ctx->IDENTIFIER() ),
                             "The class name 'super' is reserved." );
@@ -104,7 +105,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
         // Register the user function as an available parse tree only if it is not `super` for child
         // classes.
-        auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
+        auto is_super = Clib::caseInsensitiveEqual( func_name, Compiler::SUPER );
 
         if ( is_super && is_child )
         {

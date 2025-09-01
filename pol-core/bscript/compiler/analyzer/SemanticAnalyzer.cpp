@@ -57,6 +57,7 @@
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "bscript/compiler/model/ScopeName.h"
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/optimizer/ConstantValidator.h"
 #include "clib/strutil.h"
@@ -422,12 +423,13 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
       ( !fc.function_link->function() &&  // no linked function
         fc.scoped_name &&                 // there is a name in the call (ie. not an expression)
-        Clib::caseInsensitiveEqual( fc.scoped_name->string(), "super" ) );  // the name is "super"
+        Clib::caseInsensitiveEqual( fc.scoped_name->string(),
+                                    Compiler::SUPER ) );  // the name is "super"
 
   // No function linked through FunctionResolver
   if ( !fc.function_link->function() )
   {
-    if ( is_super_call && !globals.find( "super" ) && !locals.find( "super" ) )
+    if ( is_super_call && !globals.find( Compiler::SUPER ) && !locals.find( Compiler::SUPER ) )
     {
       report.error( fc, "In call to 'super': No base class defines a constructor." );
       return;  // skip "Unknown identifier" error
