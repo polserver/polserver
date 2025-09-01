@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+09-01-2025 Kevin:
+    Fixed: Compiler bug when generating an inherited constructor for a child class when the base class' constructor doesn't exist.
 08-24-2025 Kevin:
     Fixed: Under certain situations, the compiler would not find a parent class' static (ie. non-member) when used inside a child class.
 08-19-2025 Kevin:
