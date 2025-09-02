@@ -1,5 +1,5 @@
 message("* libboost")
-set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_87_0")
+set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_89_0")
 set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
 if (clang)
@@ -59,12 +59,12 @@ set(boost_needs_build FALSE)
 if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   message("  - will extract")
   ExternalProject_Add(libboost_ext
-    URL "https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2"
+    URL "https://github.com/boostorg/boost/releases/download/boost-1.89.0/boost-1.89.0-b2-nodocs.tar.gz"
     SOURCE_DIR "${BOOST_SOURCE_DIR}"
     CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
-    URL_HASH SHA256=af57be25cb4c4f4b413ed692fe378affb4352ea50fbe294a11ef548f4d527d89
+    URL_HASH SHA256=aa25e7b9c227c21abb8a681efd4fe6e54823815ffc12394c9339de998eb503fb
     BUILD_BYPRODUCTS "${BOOST_SOURCE_DIR}"
     LOG_DOWNLOAD 1
     LOG_CONFIGURE 1
