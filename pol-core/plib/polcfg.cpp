@@ -87,7 +87,7 @@ void PolConfig::read( bool initial_load )
 
     account_save = elem.remove_int( "AccountDataSave", -1 );
     default_priority =
-        Clib::clamp_convert<unsigned char>( elem.remove_ushort( "DefaultPriority", 1 ) );
+        Clib::clamp_convert<unsigned char>( elem.remove_ushort( "DefaultPriority", 10 ) );
   }
   verbose = elem.remove_bool( "Verbose", false );
   watch_mapcache = elem.remove_bool( "WatchMapCache", false );

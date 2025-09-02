@@ -1,4 +1,10 @@
 -- POL100.2.0 --
+09-02-2025 Turley:
+    Added: pol.cfg DefaultPriority to change the default priority of scripts without having to call os::Set_Priority()
+     Note: Be very carefull when changing this value since as long as scripts runs eg no client pkt can be handled.
+  Changed: the new default value of the script priority is now 10 (before it was 1)
+  Changed: pol.cfg WatchSysLoad output added units and show cpu time also on linux
+  Changed: pol.cfg WatchRPM output replaced cryptic entries and added more lines. These new lines show the statistics of the last minute about the runtime of the scriptscheduler and active scripts.
 08-24-2025 Kevin:
     Fixed: Under certain situations, the compiler would not find a parent class' static (ie. non-member) when used inside a child class.
 08-19-2025 Kevin:

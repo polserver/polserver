@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>07/03/2025</datemodified>
+    <datemodified>09/02/2025</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -98,7 +98,7 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <prototype>Set_Priority( priority )</prototype>
     <parameter name="priority" value="Integer 1..255"/>
     <explain>the priority of a script is how many instructions it executes before switching to another script.</explain>
-    <explain>default script priority is 1.</explain>
+    <explain>default script priority is 10 if not changed in pol.cfg.</explain>
     <return>Integer previous priority</return>
     <error>"Invalid parameter type"</error>
 </function>
