@@ -21,6 +21,7 @@
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
+#include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/refptr.h"
@@ -112,7 +113,8 @@ void step_scripts( polclock_t* clocksleft, bool* pactivity )
   THREAD_CHECKPOINT( scripts, 102 );
   *pactivity = ( !scriptScheduler.getRunlist().empty() );
   THREAD_CHECKPOINT( scripts, 103 );
-  stateManager.profilevars.script_runlist_statistic.update( scriptScheduler.getRunlist().size() );
+  stateManager.profilevars.script_runlist_statistic.update(
+      Clib::clamp_convert<double>( scriptScheduler.getRunlist().size() ) );
 
   run_ready();
 
