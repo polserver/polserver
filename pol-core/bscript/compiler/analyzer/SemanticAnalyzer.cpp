@@ -748,11 +748,6 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     }
     else if ( uf->type == UserFunctionType::Super )
     {
-      if ( uf->body().children.empty() )
-      {
-        report.error( fc, "In call to '{}': No base class defines a constructor.", uf->name );
-        return;
-      }
       // Super will use "this" argument
       arguments.insert( arguments.begin(),
                         std::make_unique<Argument>(
