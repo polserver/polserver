@@ -109,6 +109,7 @@ exported function item_update_range( resmngr )
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
   var i := 10;
+  var charpos := char.x;
   while ( --i > 0 )
     var ev := waitForClient( 0, { EVT_MOVED, EVT_NEW_ITEM } );
     if ( !ev )
@@ -118,11 +119,13 @@ exported function item_update_range( resmngr )
       if ( !ev.ack )
         return ret_error( "failed to move" );
       endif
+      // we need to use the pos from the client signal and not from the game pkt since they are not synced
+      charpos := ev["pos"][1];
       clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
       continue;
     endif
     if ( ev["serial"] == item.serial )
-      var x := ev["pos"][1] - char.x;
+      var x := ev["pos"][1] - charpos;
       if ( x != 18 ) // (18 visual range)
         return ret_error( $"update distance failed: {x}" );
       endif
