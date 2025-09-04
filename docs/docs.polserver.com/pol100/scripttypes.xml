@@ -4,7 +4,7 @@
 <ESCRIPT>
 <fileheader name="POL Script Types">
   <desc>This is a list of all the different script types used in the POL system. Some only pertain to specific objects, and/or specifc events, as described.</desc>
-  <datemodified>06/20/2025</datemodified>
+  <datemodified>09/02/2025</datemodified>
 </fileheader>
 
 
@@ -95,7 +95,7 @@ endprogram</example>
     <parameter name="item" value="Item Ref" />
     <return>Return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>Immediately after the item is created (includes boot-up).</whencalled>
     <wherelives>The 'program' in a .src file, in a package or /scripts/control</wherelives>
     <todefine>In the item's itemdesc.cfg entry, the 'ControlScript' property defines the location of the control script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/control.</todefine>
@@ -175,7 +175,7 @@ endprogram</example>
     <parameter name="item" value="Item Ref" />
     <return>core ignores return value, except for Install() see below</return>
     <schedtype>Install() Run To Completion, methods normal</schedtype>
-    <def_prio>Install() critical, methods 1</def_prio>
+    <def_prio>Install() critical, methods 10</def_prio>
     <whencalled>When a script calls the method for the item, i.e. item.methodname()</whencalled>
     <wherelives>In a .src file, and MUST BE in a package.</wherelives>
     <todefine>In the item's itemdesc.cfg entry, the 'MethodScript' property defines the location of the create script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package.</todefine>
@@ -622,7 +622,7 @@ endprogram</example>
     <prototype>program AIscript()</prototype>
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>When an NPC is created (either new or from world save on startup)</whencalled>
     <wherelives>The 'program' in a .src file, in a package or /scripts/ai</wherelives>
     <todefine>In the NPC's npcdesc.cfg entry, the 'Script' property defines the location of the AI script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/ai. Also, setting npc.script allows you to change the script.</todefine>
@@ -701,7 +701,7 @@ endprogram
     <parameter name="corpse" value="NPC corpse ref" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>When an NPC is killed.</whencalled>
     <wherelives>The 'program' in the death.src file, only in /scripts/misc (only one should exist in the system)</wherelives>
     <todefine>This script is called for all NPCs.</todefine>
@@ -726,7 +726,7 @@ endprogram</example>
     <parameter name="ghost" value="Character Ref" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>When an Player Character is killed.</whencalled>
     <wherelives>The 'program' in the chrdeath.src file, only in /scripts/misc (only one should exist in the system)</wherelives>
     <todefine>This script is called for all Players.</todefine>
@@ -748,7 +748,7 @@ endprogram</example>
     <parameter name="cmd" value="command string, i.e. 'B'" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>When a character is entered into the POL Console, i.e. 'B'.</whencalled>
     <wherelives>The 'program' in a .src file, only in /scripts/console</wherelives>
     <todefine>Map a command character to a console script in /config/console.cfg</todefine>
@@ -1110,7 +1110,7 @@ endprogram</example>
     <parameter name="boat" value="Boat Ref" />
     <return>Return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>Immediately after the item is created (includes boot-up).</whencalled>
     <wherelives>The 'program' in the boat.src file, only in /scripts/misc</wherelives>
     <todefine>Always called when a boat is created/started.</todefine>
@@ -1265,7 +1265,7 @@ endfunction</example>
     <parameter name="connection" value="Aux Connection Object" />
     <return>return value ignored, exiting aux service script closes connection.</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>When a network connection is created on the defined port in auxsvc.cfg.</whencalled>
     <wherelives>The 'program' in a .src file, in a package.</wherelives>
     <todefine>Define the 'Script' property in auxsvc.cfg.</todefine>
@@ -1474,7 +1474,7 @@ endprogram</example>
     <parameter name="what" value="Object, reference to the item or mobile clicked" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>When a player single clicks an item, another player or an npc and UOFeatureEnable 0x08 is set.</whencalled>
     <wherelives>The 'program' in popupmenu.ecl file, only in /scripts/misc</wherelives>
     <todefine>Automatically called if file exists.</todefine>
@@ -1501,7 +1501,7 @@ endprogram</example>
     <parameter name="house" value="House ref, the house being committed" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
-    <def_prio>1</def_prio>
+    <def_prio>10</def_prio>
     <whencalled>After client presses the commit button.</whencalled>
     <wherelives>The 'program' in customhousecommit.ecl file, only in /scripts/misc</wherelives>
     <todefine>Automatically called if file exists.</todefine>

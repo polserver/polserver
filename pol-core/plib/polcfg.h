@@ -84,6 +84,7 @@ struct PolConfig
   bool report_missing_configs;
   bool retain_cleartext_passwords;
   bool discard_old_events;
+  unsigned char default_priority;
 
   std::string minidump_type;
 

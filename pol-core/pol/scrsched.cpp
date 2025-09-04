@@ -21,6 +21,7 @@
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
+#include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/refptr.h"
@@ -70,8 +71,8 @@ void run_ready()
 void check_blocked( polclock_t* pclocksleft )
 {
   polclock_t now_clock = polclock();
-  stateManager.profilevars.sleep_cycles +=
-      scriptScheduler.getHoldlist().size() + scriptScheduler.getNoTimeoutHoldlist().size();
+  INC_PROFILEVAR_BY( sleep_cycles, scriptScheduler.getHoldlist().size() +
+                                       scriptScheduler.getNoTimeoutHoldlist().size() );
   polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
   for ( ;; )
   {
@@ -112,6 +113,8 @@ void step_scripts( polclock_t* clocksleft, bool* pactivity )
   THREAD_CHECKPOINT( scripts, 102 );
   *pactivity = ( !scriptScheduler.getRunlist().empty() );
   THREAD_CHECKPOINT( scripts, 103 );
+  stateManager.profilevars.script_runlist_statistic.update(
+      Clib::clamp_convert<double>( scriptScheduler.getRunlist().size() ) );
 
   run_ready();
 

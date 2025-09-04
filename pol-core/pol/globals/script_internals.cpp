@@ -169,6 +169,18 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
 }
 
 
+// This uses 2 deque, runlist are the current active scripts
+// which get directly removed and depending if they are finished or not added to ranlist
+// at the very end ranlist gets swapped with runlist for the next run
+// Hours wasted: 4
+// * single std::list is faster when removing, but readding sleeping scripts is slower since new
+// nodes are created on the heap instead of using the capacity like other containers
+// * single std::deque and only remove inactive scripts, slower since it needs to reorder due to
+// removing entries inbetween
+//
+// Thus as of now even if it sounds wrong having 2 std::deque is the fastest option.
+// Removing at the front and adding at the end is fast especially since it does not have to allocate
+// new memory since it uses the internal capacity.
 void ScriptScheduler::run_ready()
 {
   THREAD_CHECKPOINT( scripts, 110 );
@@ -302,7 +314,7 @@ void ScriptScheduler::run_ready()
       }
 
       --ex->sleep_cycles;  // it'd get counted twice otherwise
-      --stateManager.profilevars.sleep_cycles;
+      INC_PROFILEVAR_BY( sleep_cycles, -1 );
 
       THREAD_CHECKPOINT( scripts, 117 );
     }
