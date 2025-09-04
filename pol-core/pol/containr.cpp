@@ -211,7 +211,6 @@ void UContainer::add( Items::Item* item )
     POLLOG_ERRORLN( "Trying to add item to orphan container!" );
     passert_always( 0 );  // TODO remove once found
   }
-  INC_PROFILEVAR( container_adds );
   item->setposition( Pos4d( item->pos().xyz(), realm() ) );  // TODO POS realm should be a nullptr
   item->container = this;
   item->set_dirty();
@@ -588,7 +587,6 @@ void UContainer::remove( Items::Item* item )
 // I wish you luck. (Nando, 2014/10/30)
 void UContainer::remove( iterator itr )
 {
-  INC_PROFILEVAR( container_removes );
   Items::Item* item = *itr;
   contents_.erase( itr );
   item->container = nullptr;

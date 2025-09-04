@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-24-2025</datemodified>
+		<datemodified>09-02-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>09-02-2025</date>
+			<author>Turley:</author>
+			<change type="Added">pol.cfg DefaultPriority to change the default priority of scripts without having to call os::Set_Priority()</change>
+			<change type="Note">Be very carefull when changing this value since as long as scripts runs eg no client pkt can be handled.</change>
+			<change type="Changed">the new default value of the script priority is now 10 (before it was 1)</change>
+			<change type="Changed">pol.cfg WatchSysLoad output added units and show cpu time also on linux</change>
+			<change type="Changed">pol.cfg WatchRPM output replaced cryptic entries and added more lines. These new lines show the statistics of the last minute about the runtime of the scriptscheduler and active scripts.</change>
+		</entry>
 		<entry>
 			<date>08-24-2025</date>
 			<author>Kevin:</author>

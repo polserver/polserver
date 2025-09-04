@@ -6,15 +6,13 @@
 
 #include "clib.h"
 #include "rawtypes.h"
+#include <cmath>
 
-namespace Pol
+namespace Pol::Clib
 {
-namespace Clib
-{
-OnlineStatistics::OnlineStatistics() : _count( 0 ), _max( 0 ), _mean( 0 ), _m2( 0 ) {}
-
 void OnlineStatistics::update( double value )
 {
+  _total += value;
   ++_count;
   double delta = value - _mean;
   _mean += delta / _count;
@@ -29,6 +27,10 @@ double OnlineStatistics::variance() const
   return _m2 / ( _count - 1 );
 }
 
+double OnlineStatistics::standard_deviation() const
+{
+  return std::sqrt( variance() );
+}
 double OnlineStatistics::mean() const
 {
   return _mean;
@@ -41,5 +43,17 @@ double OnlineStatistics::max() const
 {
   return _max;
 }
+double OnlineStatistics::total() const
+{
+  return _total;
 }
+}  // namespace Pol::Clib
+
+fmt::format_context::iterator fmt::formatter<Pol::Clib::OnlineStatistics>::format(
+    const Pol::Clib::OnlineStatistics& s, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format(
+      fmt::format( "mean: {:.2f} max: {:.2f} std: {:.2f} count: {} total: {:.2f}", s.mean(),
+                   s.max(), s.standard_deviation(), s.count(), s.total() ),
+      ctx );
 }

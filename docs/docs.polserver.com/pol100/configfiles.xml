@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>07/25/2025</datemodified>
+    <datemodified>09/02/2025</datemodified>
 </fileheader>
 
 
@@ -966,6 +966,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [MinCmdLvlToIgnoreInactivity=(int level {default 1})]
 [LoginServerDisconnectUnknownPkts=(1/0 {default 0})]
 [MaxCallDepth=(int depth {default 100})]
+[DefaultPriority=(int prio {default 10})]
 [ThreadStacktracesWhenStuck=(1/0 {default 0})]
 [DumpStackOnAssertionFailure=(1/0 {default 0})]
 [DisplayUnknownPackets=(1/0 {default 0})]
@@ -985,8 +986,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [CharacterSlots=(int {default 5})]
 [MiniDumpType=(string small/large/variable {default variable})]
 [RetainCleartextPasswords=(1/0 {default 0})]
-[AssertionFailureAction=(abort/continue/shutdown/shutdown-nosave/shutdown-save-full/shutdown-save-incremental {default abort})]
-[ShutdownSaveType=(full/incremental {default full})]
+[AssertionFailureAction=(abort/continue/shutdown/shutdown-nosave {default abort})]
 [TimestampEveryLine=(1/0 {default 0})]
 [MaxTileID=(0/0x3FFF/0x7FFF/0xFFFF {default is 0})]
 [MaxObjtype=(0x20000/0xFFFFFFFF {default 0x20000})]
@@ -1028,6 +1028,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>MaxTileID: maximum tile id. If 0, it will be chosen according to the graphics in tiles.cfg.</explain>
     <explain>DebugPort: TCP/IP port to listen for debugger connections.</explain>
     <explain>DAPDebugPort: TCP/IP port to listen for debugger connections using the DAP implementation.</explain>
+    <explain>DefaultPriority: defines how many instructions per script can be executed before switching to the next. Be carefull when changing it since while scripts are running no client pkt can be handled.</explain>
 </cfgfile>
 
 

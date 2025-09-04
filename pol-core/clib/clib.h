@@ -8,6 +8,7 @@
 
 #include "pol_global_config.h"
 #include <algorithm>
+#include <fmt/format.h>
 #include <limits>
 #include <type_traits>
 
@@ -80,18 +81,21 @@ void sanitize_bounds( T* value, const T min, const T max )
 class OnlineStatistics
 {
 public:
-  OnlineStatistics();
+  OnlineStatistics() = default;
   void update( double value );
   double variance() const;
+  double standard_deviation() const;
   double mean() const;
   u64 count() const;
   double max() const;
+  double total() const;
 
 private:
-  u64 _count;
-  double _max;
-  double _mean;
-  double _m2;
+  u64 _count = 0;
+  double _max = 0;
+  double _mean = 0;
+  double _m2 = 0;
+  double _total = 0;
 };
 
 
@@ -153,3 +157,9 @@ inline To clamp_convert( From v )
   }
 }
 }  // namespace Pol::Clib
+template <>
+struct fmt::formatter<Pol::Clib::OnlineStatistics> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Clib::OnlineStatistics& s,
+                                        fmt::format_context& ctx ) const;
+};
