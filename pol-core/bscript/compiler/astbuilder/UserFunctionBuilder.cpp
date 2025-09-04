@@ -170,9 +170,9 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
         // An uninit function cannot be named `super`, as the child class would
         // not be able to define a function named `super`.
-        if ( Clib::caseInsensitiveEqual( func_name, "super" ) )
+        if ( Clib::caseInsensitiveEqual( func_name, Compiler::SUPER ) )
         {
-          workspace.report.error( func_loc, "The 'super' function is reserved for child classes." );
+          report.error( func_loc, "An uninitialized function cannot be named 'super'." );
         }
         else
         {
