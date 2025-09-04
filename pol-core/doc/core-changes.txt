@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+09-04-2025 Kevin:
+    Fixed: Compiler bug when generating an inherited constructor for a child class when the base class' constructor doesn't exist.
 09-02-2025 Turley:
     Added: pol.cfg DefaultPriority to change the default priority of scripts without having to call os::Set_Priority()
      Note: Be very carefull when changing this value since as long as scripts runs eg no client pkt can be handled.

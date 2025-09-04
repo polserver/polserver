@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-02-2025</datemodified>
+		<datemodified>09-04-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>09-04-2025</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Compiler bug when generating an inherited constructor for a child class when the base class' constructor doesn't exist.</change>
+		</entry>
 		<entry>
 			<date>09-02-2025</date>
 			<author>Turley:</author>

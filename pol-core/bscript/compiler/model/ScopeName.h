@@ -5,6 +5,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+const std::string SUPER = "super";
 
 class ScopeName : private std::optional<std::string>
 {

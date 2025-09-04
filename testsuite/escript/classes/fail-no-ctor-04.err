@@ -1,1 +1,1 @@
-:12:12: error: In call to 'Animal': No base class defines a constructor.
+:12:12: error: In function call: Class 'Animal' and its base class(es) do not define a constructor.

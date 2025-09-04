@@ -21,6 +21,7 @@
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -51,7 +52,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 {
   std::string class_name = text( ctx->IDENTIFIER() );
 
-  if ( Clib::caseInsensitiveEqual( class_name, "super" ) )
+  if ( Clib::caseInsensitiveEqual( class_name, Compiler::SUPER ) )
   {
     workspace.report.error( location_for( *ctx->IDENTIFIER() ),
                             "The class name 'super' is reserved." );
@@ -63,10 +64,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   std::vector<std::string> method_names;
   std::unique_ptr<FunctionLink> constructor_link;
   bool is_child = false;
-
-  // True if the function and class name are equal. "Maybe" because it may not have `this`
-  // as a first parameter.
-  bool maybe_has_ctor = false;
 
   if ( auto function_parameters = ctx->classParameters() )
   {
@@ -108,9 +105,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
         // Register the user function as an available parse tree only if it is not `super` for child
         // classes.
-        auto is_super = Clib::caseInsensitiveEqual( func_name, "super" );
-
-        maybe_has_ctor |= Clib::caseInsensitiveEqual( func_name, class_name );
+        auto is_super = Clib::caseInsensitiveEqual( func_name, Compiler::SUPER );
 
         if ( is_super && is_child )
         {
@@ -179,23 +174,6 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   {
     workspace.function_resolver.register_function_link( ScopableName( class_name, class_name ),
                                                         class_decl->constructor_link );
-
-    // Only register the super() function if the class is a child.
-    if ( is_child )
-    {
-      workspace.function_resolver.register_available_generated_function(
-          location_for( *ctx ), ScopableName( class_name, "super" ), class_decl.get(),
-          UserFunctionType::Super );
-    }
-  }
-  // Can only create a constructor if (1) there is no function already defined
-  // with the class name (regardless if it is an actual constructor or not) and
-  // (2) there are parameters.
-  else if ( !maybe_has_ctor && class_decl->parameters().size() > 0 )
-  {
-    workspace.function_resolver.register_available_generated_function(
-        location_for( *ctx ), ScopableName( class_name, class_name ), class_decl.get(),
-        UserFunctionType::Constructor );
   }
 
   return class_decl;

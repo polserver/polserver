@@ -14,6 +14,7 @@
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "bscript/compiler/model/ScopeName.h"
 #include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
@@ -173,6 +174,13 @@ void FunctionResolver::register_user_function( const std::string& scope, UserFun
   }
 }
 
+bool FunctionResolver::super_function_created( ClassDeclaration* cd ) const
+{
+  return available_user_function_parse_trees.contains(
+             fmt::format( "{}::{}", cd->name, Compiler::SUPER ) ) ||
+         resolved_functions.contains( { cd->name, Compiler::SUPER } );
+}
+
 void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
 {
   resolved_classes[cd->name] = cd;
@@ -188,6 +196,102 @@ void FunctionResolver::register_class_declaration( ClassDeclaration* cd )
   for ( const auto& [method_name, function_link] : cd->methods )
   {
     register_function_link( { cd->name, method_name }, function_link );
+  }
+
+  // Keep track of class children for constructor generation.
+  for ( const auto& link : cd->base_class_links )
+  {
+    class_children[link->name].push_back( cd );
+  }
+
+  // If this class declaration has no constructor, check base classes that may already be resolved.
+  if ( !cd->constructor_link || !super_function_created( cd ) )
+  {
+    std::set<ClassDeclaration*> visited;
+    std::list<std::shared_ptr<ClassLink>> to_visit;
+
+    to_visit.insert( to_visit.end(), cd->base_class_links.begin(), cd->base_class_links.end() );
+    for ( const auto& link : to_visit )
+    {
+      if ( auto base_cd = link->class_declaration() )
+      {
+        if ( visited.find( base_cd ) != visited.end() )
+        {
+          continue;
+        }
+        visited.insert( base_cd );
+
+        if ( base_cd->constructor_link )
+        {
+          if ( !cd->constructor_link )
+          {
+            ScopableName ctor_name( cd->name, cd->name );
+            cd->constructor_link = std::make_unique<FunctionLink>( cd->source_location, cd->name,
+                                                                   true /* requires_ctor */ );
+
+            register_function_link( ctor_name, cd->constructor_link );
+
+            register_available_generated_function( cd->source_location, ctor_name, cd,
+                                                   UserFunctionType::Constructor );
+          }
+
+          if ( !super_function_created( cd ) )
+          {
+            ScopableName child_super( cd->name, Compiler::SUPER );
+
+            register_available_generated_function( cd->source_location, child_super, cd,
+                                                   UserFunctionType::Super );
+          }
+
+          break;
+        }
+
+        to_visit.insert( to_visit.end(), base_cd->base_class_links.begin(),
+                         base_cd->base_class_links.end() );
+      }
+    }
+  }
+
+  // If this class declaration has a constructor, and there are classes that inherit
+  // from it, generate a constructor for my descendants that do not have one.
+  if ( cd->constructor_link && class_children.contains( cd->name ) )
+  {
+    std::set<ClassDeclaration*> visited;
+    std::list<ClassDeclaration*> to_visit;
+
+    to_visit.insert( to_visit.end(), class_children[cd->name].begin(),
+                     class_children[cd->name].end() );
+
+    for ( const auto& child_cd : to_visit )
+    {
+      if ( visited.contains( child_cd ) )
+        continue;
+
+      visited.insert( child_cd );
+
+      if ( !super_function_created( child_cd ) )
+      {
+        ScopableName child_super( child_cd->name, Compiler::SUPER );
+
+        register_available_generated_function( child_cd->source_location, child_super, child_cd,
+                                               UserFunctionType::Super );
+      }
+
+      if ( !child_cd->constructor_link )
+      {
+        ScopableName child_ctor( child_cd->name, child_cd->name );
+        child_cd->constructor_link = std::make_unique<FunctionLink>(
+            child_cd->source_location, child_cd->name, true /* requires_ctor */ );
+
+        register_function_link( child_ctor, child_cd->constructor_link );
+
+        register_available_generated_function( cd->source_location, child_ctor, child_cd,
+                                               UserFunctionType::Constructor );
+      }
+
+      to_visit.insert( to_visit.end(), class_children[child_cd->name].begin(),
+                       class_children[child_cd->name].end() );
+    }
   }
 }
 

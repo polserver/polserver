@@ -18,6 +18,7 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/ScopeName.h"
 #include "clib/timer.h"
 
 namespace Pol::Bscript::Compiler
@@ -102,26 +103,13 @@ void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace
       {
         auto agf = static_cast<AvailableGeneratedFunction*>( target.get() );
         auto cd = static_cast<ClassDeclaration*>( agf->context );
-        auto name = agf->type == UserFunctionType::Super ? "super" : cd->name;
+        auto name = agf->type == UserFunctionType::Super ? Compiler::SUPER : cd->name;
 
-        auto super =
+        auto generated_func =
             std::make_unique<GeneratedFunction>( cd->source_location, cd, agf->type, name );
-        workspace.function_resolver.register_user_function( cd->name, super.get() );
+        workspace.function_resolver.register_user_function( cd->name, generated_func.get() );
 
-        // We have to generate the constructor functions first, so that super()
-        // can properly call them. This ordering mechanism is an artifact of the
-        // way the generated functions are scheduled to build by
-        // FunctionResolver.
-        //
-        // The UserFunctionBuilder registers super() and ctor generated
-        // functions as _available_ without any logic. If there was better logic
-        // at registration (eg. when a base ClassDeclaration is registered,
-        // register children classes' super() as available), this ordering here
-        // would not be needed.
-        if ( agf->type == UserFunctionType::Super )
-          generated_functions.push_back( std::move( super ) );
-        else
-          generated_functions.insert( generated_functions.begin(), std::move( super ) );
+        generated_functions.push_back( std::move( generated_func ) );
       }
     }
     report.debug( *workspace.compiler_workspace.top_level_statements,
