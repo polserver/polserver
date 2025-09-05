@@ -1,0 +1,46 @@
+// All classes that inherit `Shape` must implement class methods `area` and
+// `scale` with the given signature (ie. number of parameters).
+class Shape()
+  uninit function area( this );
+  uninit function scale( this, factor );
+endclass
+
+class Circle( Shape )
+  function Circle( this, radius )
+    this.radius := radius;
+  endfunction
+
+  function area( this )
+    return 3.14159 * this.radius * this.radius;
+  endfunction
+
+  function scale( this, factor )
+    this.radius *= factor;
+  endfunction
+endclass
+
+class Rectangle( Shape )
+  function Rectangle( this, width, height )
+    this.width := width;
+    this.height := height;
+  endfunction
+
+  function area( this )
+    return this.width * this.height;
+  endfunction
+
+  function scale( this, factor )
+    this.width *= factor;
+    this.height *= factor;
+  endfunction
+endclass
+
+var circle := Circle( 5 );
+print( circle.area() ); // Output: 78.53975
+circle.scale( 2 );
+print( circle.area() ); // Output: 314.159
+
+var rectangle := Rectangle( 4, 6 );
+print( rectangle.area() ); // Output: 24
+rectangle.scale( 3 );
+print( rectangle.area() ); // Output: 216

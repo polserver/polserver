@@ -1,6 +1,6 @@
 <h1>
   Racalac's eScript Reference and Guide (POL 100.2.0)
-  <div style="font-size: 0.82em">(Last Updated: August 17, 2025)</div>
+  <div style="font-size: 0.82em">(Last Updated: September 5, 2025)</div>
 </h1>
 <br/>
 
@@ -3465,6 +3465,12 @@ the object's members will affect all references to that object. This is
 similar to other built-in reference types, like <code>ItemRef</code>: every
 script that has variables for the same <code>Item</code> object will access the
 same item.</li>
+<li><strong>Uninitialized Functions</strong>: [Added in POL 100.2.0] A class can
+declare <i>uninitialized</i> functions, requiring any constructed descendant
+class to define the functions' implementation. This is a similar concept to
+"abstract methods" in other programming languages like Java or C#. Uninitialized
+functions can only be used with class methods, ie. functions that have a first
+parameter named <code>this</code>.</li>
 </ul>
 <br/>
 
@@ -3594,6 +3600,191 @@ instance!</p>
 <br/>
 
 
+<p><b>Example: Uninitialized Functions</b></p>
+<br/>
+
+<p>To declare an uninitialized function within a class body, use the
+<code>uninit</code> keyword, providing no body for the function, and instead
+ending it with a semi-colon:</p>
+
+<div class="doc-guide-pre"><pre>
+// All classes that inherit `Shape` must implement class methods `area` and
+// `scale` with the given signature (ie. number of parameters).
+class Shape()
+  uninit function area( this );
+  uninit function scale( this, factor );
+endclass
+
+class Circle( Shape )
+  function Circle( this, radius )
+    this.radius := radius;
+  endfunction
+
+  function area( this )
+    return 3.14159 * this.radius * this.radius;
+  endfunction
+
+  function scale( this, factor )
+    this.radius *= factor;
+  endfunction
+endclass
+
+class Rectangle( Shape )
+  function Rectangle( this, width, height )
+    this.width := width;
+    this.height := height;
+  endfunction
+
+  function area( this )
+    return this.width * this.height;
+  endfunction
+
+  function scale( this, factor )
+    this.width *= factor;
+    this.height *= factor;
+  endfunction
+endclass
+
+var circle := Circle( 5 );
+print( circle.area() ); // Output: 78.53975
+circle.scale( 2 );
+print( circle.area() ); // Output: 314.159
+
+var rectangle := Rectangle( 4, 6 );
+print( rectangle.area() ); // Output: 24
+rectangle.scale( 3 );
+print( rectangle.area() ); // Output: 216
+</pre></div>
+
+<p>A compilation error will occur if any class does not define, or implements a
+method with a different signature than, all uninitialized functions declared in
+its base classes. For example, if <code>Circle</code> did not implement
+<code>area( this )</code> and forgot to include the <code>factor</code>
+parameter in <code>scale( this, factor )</code>:</p>
+
+<div class="doc-guide-pre"><pre>
+test.src:6:1: error: Class 'Circle' does not implement uninitialized function 'Shape::area'
+  See also: test.src:2:3
+test.src:11:3: error: Class method 'Circle::scale' does not correctly implement uninitialized function 'Shape::scale':
+  Expecting class method with 2 parameters, got class method with 1 parameters.
+  See also: test.src:3:3
+test.src: 2 errors, 0 warnings.
+</pre></div>
+
+<p>Classes with uninitialized functions can themselves inherit from classes with
+their own uninitialized functions, which would "bubble up" the requirement of
+implementation to the child class.</p>
+
+<div class="doc-guide-pre"><pre>
+class Colorable()
+  uninit function color( this, color );
+endclass
+
+class ColorableShape( Colorable )
+  uninit function area( this );
+endclass
+
+// A Circle is a ColorableShape, so it must implement both `area` (directly from
+// ColorableShape) and `color` (indirectly from Colorable through ColorableShape).
+class Circle( ColorableShape )
+  function Circle( this, radius, color )
+    this.radius := radius;
+    this.color := color;
+  endfunction
+
+  function area( this )
+    return 3.14159 * this.radius * this.radius;
+  endfunction
+
+  function color( this, new_color )
+    this.color := new_color;
+  endfunction
+endclass
+
+var circle := Circle( 5 );
+circle.color( "red" );
+print( circle.color ); // Output: red
+print( circle.area() ); // Output: 78.53975
+</pre></div>
+
+<p>Additionally, the child class can inherit the implementation of an
+uninitialized function from another class.</p>
+
+<div class="doc-guide-pre"><pre>
+class Loggable()
+  uninit function log( this, message );
+endclass
+
+class ConsoleLogger()
+  function log( this, message )
+    basicio::Print( $"[LOG] {message}" );
+  endfunction
+endclass
+
+// Application inherits the uninitialized `log` function from Loggable,
+// and uses the implementation from ConsoleLogger.
+class Application( Loggable, ConsoleLogger )
+  function Application( this, name )
+    this.name := name;
+  endfunction
+
+  function run( this )
+    this.log( $"{this.name} is running." );
+  endfunction
+endclass
+
+var app := Application( "MyApp" );
+app.run(); // Output: [LOG] MyApp is running.
+</pre></div>
+
+<p>To specify that a child class must implement the constructor in a certain
+way, declare an uninitialized function with the same name as the class
+containing the uninitialized function:</p>
+
+<div class="doc-guide-pre"><pre>
+class FormattedValueHolder()
+  // All classes that inherit from FormattedValueHolder
+  // must implement a constructor that takes two parameters.
+  uninit function FormattedValueHolder( this, value );
+
+  uninit function getValue( this );
+endclass
+
+class UppercaseValueHolder( FormattedValueHolder )
+  function UppercaseValueHolder( this, value )
+    this.value := Upper( value );
+  endfunction
+
+  function getValue( this )
+    return this.value;
+  endfunction
+endclass
+
+class LowercaseValueHolder( FormattedValueHolder )
+  function LowercaseValueHolder( this, value )
+    this.value := Lower( value );
+  endfunction
+
+  function getValue( this )
+    return this.value;
+  endfunction
+endclass
+
+var holders := array{ @UppercaseValueHolder, @LowercaseValueHolder };
+
+foreach holder_constructor in holders
+  // Since all classes that inherit from FormattedValueHolder must
+  // implement a constructor that takes one parameter (excluding
+  // `this`), we can safely call the constructor with just one argument.
+  var holder := holder_constructor.new( "Hello World!" );
+
+  print( holder.getValue() );
+endforeach
+
+// Output:
+// HELLO WORLD!
+// hello world!
+</pre></div>
 
 <p><b>Example: Multiple Inheritance</b></p>
 
@@ -3945,4 +4136,7 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.17: 17/08/2025<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation enum declarations by Kevin<br>
+</p>
+<p>v0.18: 05/09/2025<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for class uninitialized functions by Kevin<br>
 </p>

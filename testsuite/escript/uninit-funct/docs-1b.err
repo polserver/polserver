@@ -1,0 +1,2 @@
+:13:3: error: Class method 'Circle::scale' does not correctly implement uninitialized function 'Shape::scale':
+  Expecting class method with 2 parameters, got class method with 1 parameters.

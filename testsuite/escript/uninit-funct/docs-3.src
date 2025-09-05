@@ -1,0 +1,24 @@
+class Loggable()
+  uninit function log( this, message );
+endclass
+
+class ConsoleLogger()
+  function log( this, message )
+    basicio::Print( $"[LOG] {message}" );
+  endfunction
+endclass
+
+// Application inherits the uninitialized `log` function from Loggable,
+// and uses the implementation from ConsoleLogger.
+class Application( Loggable, ConsoleLogger )
+  function Application( this, name )
+    this.name := name;
+  endfunction
+
+  function run( this )
+    this.log( $"{this.name} is running." );
+  endfunction
+endclass
+
+var app := Application( "MyApp" );
+app.run(); // Output: [LOG] MyApp is running.

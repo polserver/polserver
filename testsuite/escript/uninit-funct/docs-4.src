@@ -1,0 +1,42 @@
+class FormattedValueHolder()
+  // All classes that inherit from FormattedValueHolder
+  // must implement a constructor that takes two parameters.
+  uninit function FormattedValueHolder( this, value );
+
+  uninit function getValue( this );
+endclass
+
+class UppercaseValueHolder( FormattedValueHolder )
+  function UppercaseValueHolder( this, value )
+    this.value := Upper( value );
+  endfunction
+
+  function getValue( this )
+    return this.value;
+  endfunction
+endclass
+
+class LowercaseValueHolder( FormattedValueHolder )
+  function LowercaseValueHolder( this, value )
+    this.value := Lower( value );
+  endfunction
+
+  function getValue( this )
+    return this.value;
+  endfunction
+endclass
+
+var holders := array{ @UppercaseValueHolder, @LowercaseValueHolder };
+
+foreach holder_constructor in holders
+  // Since all classes that inherit from FormattedValueHolder must
+  // implement a constructor that takes one parameter (excluding
+  // `this`), we can safely call the constructor with just one argument.
+  var holder := holder_constructor.new( "Hello World!" );
+
+  print( holder.getValue() );
+endforeach
+
+// Output:
+// HELLO WORLD!
+// hello world!
