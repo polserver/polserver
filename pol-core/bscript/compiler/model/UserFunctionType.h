@@ -42,11 +42,24 @@ struct fmt::formatter<Pol::Bscript::Compiler::UserFunctionType> : fmt::formatter
                                         fmt::format_context& ctx ) const
   {
     using namespace Pol::Bscript::Compiler;
-    return fmt::formatter<std::string>::format( type == UserFunctionType::Static ? "static function"
-                                                : type == UserFunctionType::Constructor
-                                                    ? "class constructor"
-                                                : type == UserFunctionType::Super ? "super function"
-                                                                                  : "class method",
-                                                ctx );
+    std::string_view name;
+    switch ( type )
+    {
+      using enum UserFunctionType;
+
+    case Static:
+      name = "static function";
+      break;
+    case Constructor:
+      name = "class constructor";
+      break;
+    case Method:
+      name = "class method";
+      break;
+    case Super:
+      name = "super function";
+      break;
+    }
+    return fmt::formatter<std::string>::format( name, ctx );
   }
 };

@@ -27,8 +27,7 @@ ClassDeclaration::ClassDeclaration(
 {
   children.reserve( 1 + uninit_functions.size() );
   children.push_back( std::move( parameters ) );
-  children.insert( children.end(), std::make_move_iterator( uninit_functions.begin() ),
-                   std::make_move_iterator( uninit_functions.end() ) );
+  std::ranges::move( uninit_functions, std::back_inserter( children ) );
   for ( const auto& method_name : method_names )
   {
     methods[method_name] = std::make_unique<FunctionLink>( source_location, method_name );

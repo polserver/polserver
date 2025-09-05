@@ -292,7 +292,7 @@ std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_function_like(
                                                : UserFunctionType::Method;
 
 
-  if constexpr ( std::is_same<FunctionTypeNode, UserFunction>::value )
+  if constexpr ( std::is_same_v<FunctionTypeNode, UserFunction> )
   {
     std::shared_ptr<ClassLink> class_link;
     if ( !class_name.empty() )
@@ -318,7 +318,7 @@ std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_function_like(
         std::move( parameter_list ), std::move( body ), location_for( *end_token ),
         std::move( class_link ) );
   }
-  else if constexpr ( std::is_same<FunctionTypeNode, UninitializedFunctionDeclaration>::value )
+  else if constexpr ( std::is_same_v<FunctionTypeNode, UninitializedFunctionDeclaration> )
   {
     return std::make_unique<UninitializedFunctionDeclaration>(
         location_for( *ctx ), type, class_name, std::move( name ), std::move( parameter_list ) );

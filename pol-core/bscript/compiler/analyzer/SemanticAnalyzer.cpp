@@ -295,9 +295,7 @@ void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
     visited.insert( cd );
 
     auto cd_uninit_functions = cd->uninit_functions();
-    all_uninit_functions.insert( all_uninit_functions.end(),
-                                 std::make_move_iterator( cd_uninit_functions.begin() ),
-                                 std::make_move_iterator( cd_uninit_functions.end() ) );
+    std::ranges::move( cd_uninit_functions, std::back_inserter( all_uninit_functions ) );
 
     for ( const auto& [method_name, method_link] : cd->methods )
     {
