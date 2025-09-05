@@ -1,0 +1,1 @@
+:3:3: error: In uninitialized function declaration: A constructor is already defined in class 'Shape'.

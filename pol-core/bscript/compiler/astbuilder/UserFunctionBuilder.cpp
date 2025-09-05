@@ -206,6 +206,14 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
                     "defined in class '{}'.",
                     uninit_function->name, class_name );
     }
+    else if ( uninit_function->type == UserFunctionType::Constructor && constructor_link )
+    {
+      report.error(
+          uninit_function->source_location,
+          "In uninitialized function declaration: A constructor is already defined in class '{}'.\n"
+          "  See also: {}",
+          class_name, constructor_link->source_location );
+    }
   }
 
   auto parameter_list =
