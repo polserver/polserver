@@ -1,4 +1,29 @@
 -- POL100.2.0 --
+09-05-2025 Kevin:
+    Added: Escript now supports declaring class methodes as uninitialized using the `uninit` keyword, requiring any constructed
+           descendant class to define the functions' implementation. This is a similar concept to "abstract methods" in other
+           programming languages like Java or C#:
+
+             class Shape()
+               uninit function area( this );
+               uninit function scale( this, factor );
+             endclass
+
+             class Circle( Shape )
+               function Circle( this, radius )
+                 this.radius := radius;
+               endfunction
+
+               function area( this )
+                 return 3.14159 * this.radius * this.radius;
+               endfunction
+
+               function scale( this, factor )
+                 this.radius *= factor;
+               endfunction
+             endclass
+
+           See the Racalac Escript Guide for additional details.
 09-04-2025 Kevin:
     Fixed: Compiler bug when generating an inherited constructor for a child class when the base class' constructor doesn't exist.
 09-02-2025 Turley:
