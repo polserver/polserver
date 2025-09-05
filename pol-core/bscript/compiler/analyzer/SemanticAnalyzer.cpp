@@ -262,6 +262,28 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
       }
     }
   }
+
+  for ( const auto& uninit_function_ref : node.uninit_functions() )
+  {
+    const auto& uninit_function = uninit_function_ref.get();
+    if ( auto exiting_method_itr = node.methods.find( uninit_function.name );
+         exiting_method_itr != node.methods.end() )
+    {
+      report.error( uninit_function.source_location,
+                    "In uninitialized function declaration: A method named '{}' is already "
+                    "defined in class '{}'.\n"
+                    "  See also: {}",
+                    uninit_function.name, class_name, exiting_method_itr->second->source_location );
+    }
+    else if ( uninit_function.type == UserFunctionType::Constructor && node.constructor_link )
+    {
+      report.error(
+          uninit_function.source_location,
+          "In uninitialized function declaration: A constructor is already defined in class '{}'.\n"
+          "  See also: {}",
+          class_name, node.constructor_link->source_location );
+    }
+  }
 }
 
 void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
