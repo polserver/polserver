@@ -66,7 +66,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
   std::vector<std::unique_ptr<ClassParameterDeclaration>> parameters;
   std::vector<std::unique_ptr<UninitializedFunctionDeclaration>> uninit_functions;
   std::vector<std::shared_ptr<ClassLink>> base_classes;
-  std::vector<std::string> method_names;
+  ClassMethodMap methods;
   std::unique_ptr<FunctionLink> constructor_link;
   bool is_child = false;
 
@@ -141,9 +141,9 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
                                                                    true /* requires_ctor */ );
               }
               // 3b. Otherwise: method
-              else
+              else if ( !methods.contains( func_name ) )
               {
-                method_names.push_back( func_name );
+                methods[func_name] = std::make_shared<FunctionLink>( func_loc, func_name );
               }
             }
           }
@@ -196,15 +196,15 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   for ( const auto& uninit_function : uninit_functions )
   {
-    if ( std::ranges::find_if(
-             method_names, [&]( const std::string& method_name )
-             { return Clib::caseInsensitiveEqual( method_name, uninit_function->name ); } ) !=
-         method_names.end() )
+    if ( auto exiting_method_itr = methods.find( uninit_function->name );
+         exiting_method_itr != methods.end() )
     {
       report.error( uninit_function->source_location,
                     "In uninitialized function declaration: A method named '{}' is already "
-                    "defined in class '{}'.",
-                    uninit_function->name, class_name );
+                    "defined in class '{}'.\n"
+                    "  See also: {}",
+                    uninit_function->name, class_name,
+                    exiting_method_itr->second->source_location );
     }
     else if ( uninit_function->type == UserFunctionType::Constructor && constructor_link )
     {
@@ -222,8 +222,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
 
   auto class_decl = std::make_unique<ClassDeclaration>(
       location_for( *ctx ), class_name, std::move( parameter_list ), std::move( constructor_link ),
-      std::move( method_names ), class_body, std::move( base_classes ),
-      std::move( uninit_functions ) );
+      std::move( methods ), class_body, std::move( base_classes ), std::move( uninit_functions ) );
 
   // Only register the ClassDeclaration's ctor FunctionLink if there _is_ a ctor.
   if ( class_decl->constructor_link )

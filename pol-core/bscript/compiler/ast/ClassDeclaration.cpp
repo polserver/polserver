@@ -16,11 +16,12 @@ namespace Pol::Bscript::Compiler
 ClassDeclaration::ClassDeclaration(
     const SourceLocation& source_location, std::string name,
     std::unique_ptr<ClassParameterList> parameters, std::shared_ptr<FunctionLink> constructor_link,
-    const std::vector<std::string>& method_names, Node* class_body,
+    ClassMethodMap methods, Node* class_body,
     std::vector<std::shared_ptr<ClassLink>> base_class_links,
     std::vector<std::unique_ptr<UninitializedFunctionDeclaration>> uninit_functions )
     : Node( source_location ),
       name( std::move( name ) ),
+      methods( std::move( methods ) ),
       class_body( class_body ),
       constructor_link( std::move( constructor_link ) ),
       base_class_links( std::move( base_class_links ) )
@@ -28,10 +29,6 @@ ClassDeclaration::ClassDeclaration(
   children.reserve( 1 + uninit_functions.size() );
   children.push_back( std::move( parameters ) );
   std::ranges::move( uninit_functions, std::back_inserter( children ) );
-  for ( const auto& method_name : method_names )
-  {
-    methods[method_name] = std::make_unique<FunctionLink>( source_location, method_name );
-  }
 }
 
 void ClassDeclaration::accept( NodeVisitor& visitor )
