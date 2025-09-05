@@ -8,7 +8,7 @@
 		<entry>
 			<date>09-05-2025</date>
 			<author>Kevin:</author>
-			<change type="Added">Escript now supports declaring class methodes as uninitialized using the `uninit` keyword, requiring any constructed<br/>
+			<change type="Added">Escript now supports declaring class methods as uninitialized using the `uninit` keyword, requiring any constructed<br/>
 descendant class to define the functions' implementation. This is a similar concept to &quot;abstract methods&quot; in other<br/>
 programming languages like Java or C#:<br/>
   class Shape()<br/>

@@ -1,6 +1,6 @@
 -- POL100.2.0 --
 09-05-2025 Kevin:
-    Added: Escript now supports declaring class methodes as uninitialized using the `uninit` keyword, requiring any constructed
+    Added: Escript now supports declaring class methods as uninitialized using the `uninit` keyword, requiring any constructed
            descendant class to define the functions' implementation. This is a similar concept to "abstract methods" in other
            programming languages like Java or C#:
 
