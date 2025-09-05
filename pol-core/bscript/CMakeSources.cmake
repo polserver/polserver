@@ -180,6 +180,8 @@ set (bscript_sources    # sorted !
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp
   compiler/ast/UnaryOperator.h
+  compiler/ast/UninitializedFunctionDeclaration.cpp
+  compiler/ast/UninitializedFunctionDeclaration.h
   compiler/ast/UninitializedValue.cpp
   compiler/ast/UninitializedValue.h
   compiler/ast/UserFunction.cpp

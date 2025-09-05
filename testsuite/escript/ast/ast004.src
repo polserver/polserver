@@ -1,0 +1,13 @@
+include "astfile";
+
+class Base()
+  uninit function base_func( this, param1 );
+endclass
+
+class Child( Base )
+  function child_func()
+    print_astfile( "ast004" );
+  endfunction
+endclass
+
+Child::child_func();

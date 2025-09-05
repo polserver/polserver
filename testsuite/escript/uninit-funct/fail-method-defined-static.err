@@ -1,0 +1,2 @@
+10:3: error: Class method 'Child::method' does not correctly implement uninitialized function 'Base::method':
+  Expecting class method with 1 parameters, got static function with 0 parameters.

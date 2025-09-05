@@ -1,0 +1,1 @@
+:7:3: error: In uninitialized function declaration: Static functions cannot be marked as uninitialized.

@@ -1,0 +1,7 @@
+// A class cannot have both uninit and defined constructor
+class Shape()
+  uninit function Shape( this );
+  function Shape( this ) endfunction
+endclass
+
+Shape::Shape();

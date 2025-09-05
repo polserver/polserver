@@ -1,0 +1,18 @@
+// Uninit func and defined func from different base classes
+
+class Requirement()
+  uninit function method( this, param0 );
+endclass
+
+class Functionality()
+  function method( this, param0 )
+    print( $"Functionality::method this={this} param0={param0}" );
+  endfunction
+endclass
+
+class Child( Requirement, Functionality )
+  function Child( this )
+  endfunction
+endclass
+
+Child().method( "p0" );

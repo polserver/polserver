@@ -1,0 +1,10 @@
+// Methods must be a ctor or a method, cannot be static
+
+class Foo()
+  function Foo( this )
+  endfunction
+
+  uninit function bar();
+endclass
+
+Foo::Foo();

@@ -74,6 +74,7 @@ class StructMemberInitializer;
 class GeneratedFunction;
 class TopLevelStatements;
 class UnaryOperator;
+class UninitializedFunctionDeclaration;
 class UninitializedValue;
 class UserFunction;
 class ValueConsumer;
@@ -152,6 +153,7 @@ public:
   virtual void visit_struct_member_initializer( StructMemberInitializer& );
   virtual void visit_top_level_statements( TopLevelStatements& );
   virtual void visit_unary_operator( UnaryOperator& );
+  virtual void visit_uninitialized_function_declaration( UninitializedFunctionDeclaration& );
   virtual void visit_uninitialized_value( UninitializedValue& );
   virtual void visit_user_function( UserFunction& );
   virtual void visit_value_consumer( ValueConsumer& );

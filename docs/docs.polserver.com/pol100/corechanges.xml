@@ -2,9 +2,32 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-04-2025</datemodified>
+		<datemodified>09-05-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>09-05-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">Escript now supports declaring class methods as uninitialized using the `uninit` keyword, requiring any constructed<br/>
+descendant class to define the functions' implementation. This is a similar concept to &quot;abstract methods&quot; in other<br/>
+programming languages like Java or C#:<br/>
+  class Shape()<br/>
+    uninit function area( this );<br/>
+    uninit function scale( this, factor );<br/>
+  endclass<br/>
+  class Circle( Shape )<br/>
+    function Circle( this, radius )<br/>
+      this.radius := radius;<br/>
+    endfunction<br/>
+    function area( this )<br/>
+      return 3.14159 * this.radius * this.radius;<br/>
+    endfunction<br/>
+    function scale( this, factor )<br/>
+      this.radius *= factor;<br/>
+    endfunction<br/>
+  endclass<br/>
+See the Racalac Escript Guide for additional details.</change>
+		</entry>
 		<entry>
 			<date>09-04-2025</date>
 			<author>Kevin:</author>

@@ -1,0 +1,19 @@
+// A modification of docs-1 where Circle does not implement `area()`, and
+// implements `scale()` incorrectly.
+class Shape()
+  uninit function area( this );
+  uninit function scale( this, factor );
+endclass
+
+class Circle( Shape )
+  function Circle( this, radius )
+    this.radius := radius;
+  endfunction
+
+  function scale( this )
+    this.radius *= 2;
+  endfunction
+endclass
+
+
+var circle := Circle( 5 );

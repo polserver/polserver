@@ -59,6 +59,9 @@ public:
   virtual void enterClassStatement(EscriptParser::ClassStatementContext * /*ctx*/) override { }
   virtual void exitClassStatement(EscriptParser::ClassStatementContext * /*ctx*/) override { }
 
+  virtual void enterUninitFunctionDeclaration(EscriptParser::UninitFunctionDeclarationContext * /*ctx*/) override { }
+  virtual void exitUninitFunctionDeclaration(EscriptParser::UninitFunctionDeclarationContext * /*ctx*/) override { }
+
   virtual void enterFunctionDeclaration(EscriptParser::FunctionDeclarationContext * /*ctx*/) override { }
   virtual void exitFunctionDeclaration(EscriptParser::FunctionDeclarationContext * /*ctx*/) override { }
 

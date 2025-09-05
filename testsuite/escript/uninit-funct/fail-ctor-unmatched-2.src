@@ -1,0 +1,16 @@
+// Constructor does not match definition
+
+class Base1()
+  uninit function Base1( this, param0 );
+endclass
+
+class Base2( Base1 )
+  uninit function Base2( this );
+endclass
+
+class Child( Base2 ) // Correctly implements Base1::Base1 but not Base2::Base2
+  function Child( this, param0 )
+  endfunction
+endclass
+
+Child::Child();

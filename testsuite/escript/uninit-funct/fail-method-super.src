@@ -1,0 +1,13 @@
+// An uninitialized method cannot be called "super", since its descendants would
+// not be able to define the method.
+
+class Requirement()
+  uninit function super( this );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+endclass
+
+Child();

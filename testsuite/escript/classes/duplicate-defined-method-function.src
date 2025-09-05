@@ -1,0 +1,7 @@
+class Foo()
+  function Foo( this ) endfunction
+  function bar( this ) endfunction
+  function bar( this ) endfunction
+endclass
+
+Foo();

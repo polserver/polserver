@@ -1,0 +1,26 @@
+class Colorable()
+  uninit function color( this, color );
+endclass
+
+class ColorableShape( Colorable )
+  uninit function area( this );
+endclass
+
+class Circle( ColorableShape )
+  function Circle( this, radius )
+    this.radius := radius;
+  endfunction
+
+  function area( this )
+    return 3.14159 * this.radius * this.radius;
+  endfunction
+
+  function color( this, new_color )
+    this.color := new_color;
+  endfunction
+endclass
+
+var circle := Circle( 5 );
+circle.color( "red" );
+print( circle.color ); // Output: red
+print( circle.area() ); // Output: 78.53975

@@ -1,0 +1,20 @@
+- top-level-statements
+  - class-block
+  - class-block
+  - value-consumer
+    - function-call(Child::child_func)
+- user-function(child_func)
+  - function-parameter-list
+  - user-function-body
+    - value-consumer
+      - function-call(print_astfile)
+        - string-value("ast004")
+- class-declaration(Child)
+  - class-parameter-list
+    - class-parameter-declaration(Base)
+- class-declaration(Base)
+  - class-parameter-list
+  - uninitialized-function-declaration(Base::base_func)
+    - function-parameter-list
+      - function-parameter-declaration(this, byref)
+      - function-parameter-declaration(param1)
