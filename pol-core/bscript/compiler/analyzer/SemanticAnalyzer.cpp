@@ -256,10 +256,8 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
       {
         to_visit.push_back( base_cd );
       }
-      else
-      {
-        cd->internal_error( "no class linked for base class" );
-      }
+      // Do not error, as the the (middle) parent class which referenced the
+      // (top) parent class would have already errored in the previous for-loop.
     }
   }
 
@@ -399,6 +397,10 @@ void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
       }
       else
       {
+        // Should never happen, as a method function link is only created if
+        // there was a FunctionDeclarationContext to visit inside
+        // UserFunctionBuilder, and the function link is immediately registered
+        // with the FunctionResolver, guaranteeing it will be visited/built.
         cd->internal_error( fmt::format( "no user function linked for method {}::{}",
                                          class_decl->name, method_name ) );
       }
@@ -410,11 +412,8 @@ void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
       {
         to_visit.push_back( base_cd );
       }
-      else
-      {
-        cd->internal_error( fmt::format( "no class linked for {} baseclass {}", class_decl->name,
-                                         base_class_link->name ) );
-      }
+      // Do not error if no ClassDeclaration found, as it will be reported in
+      // visit_class_declaration.
     }
   }
 

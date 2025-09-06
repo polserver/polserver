@@ -1,0 +1,18 @@
+// Previously, an internal error occurred when analyzing the inheritance tree in
+// visit_class_declaration for Child -> Base -> UnknownBase, because Base's
+// base_class_links had an unlinked class link. This error is still reported (as
+// a regular error, not internal error) in visit_class_declaration for Base.
+
+class Base( UnknownBase )
+  uninit function method( this );
+endclass
+
+class Child( Base )
+  function Child( this )
+  endfunction
+
+  function method( this )
+  endfunction
+endclass
+
+Child();
