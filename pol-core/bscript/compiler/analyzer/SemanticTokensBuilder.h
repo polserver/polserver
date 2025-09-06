@@ -20,6 +20,8 @@ public:
       EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitModuleFunctionParameter(
       EscriptGrammar::EscriptParser::ModuleFunctionParameterContext* ctx ) override;
+  antlrcpp::Any visitUninitFunctionDeclaration(
+      EscriptGrammar::EscriptParser::UninitFunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitFunctionDeclaration(
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitStringIdentifier(
