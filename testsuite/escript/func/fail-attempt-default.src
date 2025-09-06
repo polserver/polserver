@@ -1,0 +1,4 @@
+function foo( default k )
+endfunction
+
+foo();

@@ -1,0 +1,1 @@
+:4:33: error: In uninitialized function declaration: Rest parameter must be the last parameter in the list.

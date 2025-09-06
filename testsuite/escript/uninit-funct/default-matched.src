@@ -1,0 +1,14 @@
+class Requirement()
+  uninit function method( this, default param );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+
+  function method( this, param := "defaulted" )
+    print( $"Child::method this={this} param={param}" );
+  endfunction
+endclass
+
+Child().method();

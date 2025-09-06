@@ -1,0 +1,12 @@
+// Default parameter must be last in list
+
+class Requirement()
+  uninit function method( this, default param2, no_default_param3 );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+endclass
+
+Child();

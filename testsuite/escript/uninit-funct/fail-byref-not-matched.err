@@ -1,0 +1,2 @@
+:11:26: error: Class method 'Child::method' does not correctly implement uninitialized function 'Requirement::method':
+  Parameter 2 ('param') is passed by reference in uninitialized function but by value in defined function.

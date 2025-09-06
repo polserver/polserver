@@ -1,0 +1,2 @@
+Child::method this=<class Child> param=param value rest={ rest index 1 }
+Child::method this=<class Child> param=param value rest={ rest index 1, rest index 2 }

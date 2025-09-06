@@ -1,0 +1,16 @@
+// It is allowed for the uninit function to _not_ declare default, but have the
+// defined function defaulted.
+class Requirement()
+  uninit function method( this, param );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+
+  function method( this, param := "defaulted" )
+    print( $"Child::method this={this} param={param}" );
+  endfunction
+endclass
+
+Child().method();

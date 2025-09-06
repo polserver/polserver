@@ -1,0 +1,5 @@
+// An uninit function may not be given a default value.
+
+class Requirement()
+  uninit function method( this, param2 := "foo" );
+endclass

@@ -1,0 +1,12 @@
+// Rest parameter cannot be marked default
+
+class Requirement()
+  uninit function method( this, default rest... );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+endclass
+
+Child();

@@ -1,0 +1,5 @@
+// An uninit function may not mark a parameter as unused
+
+class Requirement()
+  uninit function method( this, unused param );
+endclass

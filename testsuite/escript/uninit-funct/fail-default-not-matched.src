@@ -1,0 +1,15 @@
+// Uninit params that are defaulted must have a default value in defined function
+
+class Requirement()
+  uninit function method( this, default param );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+
+  function method( this, param )
+  endfunction
+endclass
+
+Child();
