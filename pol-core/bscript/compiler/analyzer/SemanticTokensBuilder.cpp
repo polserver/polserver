@@ -220,6 +220,13 @@ antlrcpp::Any SemanticTokensBuilder::visitFunctionDeclaration(
   return antlrcpp::Any();
 }
 
+antlrcpp::Any SemanticTokensBuilder::visitUninitFunctionDeclaration(
+    EscriptParser::UninitFunctionDeclarationContext* ctx )
+{
+  define( workspace, ctx->IDENTIFIER(), SemanticTokenType::FUNCTION );
+  visitChildren( ctx );
+  return antlrcpp::Any();
+}
 
 antlrcpp::Any SemanticTokensBuilder::visitFunctionCall( EscriptParser::FunctionCallContext* ctx )
 {
