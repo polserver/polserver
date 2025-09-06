@@ -951,6 +951,8 @@ antlrcpp::Any PrettifyFileProcessor::visitFunctionParameter(
     addToken( "byref", byref, FmtToken::SPACE );
   if ( auto unused = ctx->UNUSED() )
     addToken( "unused", unused, FmtToken::SPACE );
+  if ( auto default_keyword = ctx->DEFAULT() )
+    addToken( "default", default_keyword, FmtToken::SPACE );
   make_identifier( ctx->IDENTIFIER() );
 
   if ( ctx->ELLIPSIS() )
