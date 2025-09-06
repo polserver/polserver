@@ -12,7 +12,6 @@
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"
 #include "bscript/compiler/analyzer/Variables.h"
 #include "bscript/compiler/model/ScopeName.h"
-#include "compiler/ast/ClassDeclaration.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -55,6 +54,7 @@ public:
   void visit_return_statement( ReturnStatement& ) override;
   void visit_sequence_binding( SequenceBinding& ) override;
   void visit_user_function( UserFunction& ) override;
+  void visit_uninitialized_function_declaration( UninitializedFunctionDeclaration& ) override;
   void visit_var_statement( VarStatement& ) override;
   void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_variable_binding( VariableBinding& ) override;

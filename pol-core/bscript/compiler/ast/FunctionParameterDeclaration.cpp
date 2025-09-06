@@ -9,23 +9,26 @@
 namespace Pol::Bscript::Compiler
 {
 FunctionParameterDeclaration::FunctionParameterDeclaration(
-    const SourceLocation& source_location, ScopableName name, bool byref, bool unused, bool rest,
-    std::unique_ptr<Expression> default_value )
+    const SourceLocation& source_location, ScopableName name, bool byref, bool unused,
+    bool uninit_default, bool rest, std::unique_ptr<Expression> default_value )
     : Node( source_location, std::move( default_value ) ),
       name( std::move( name ) ),
       byref( byref ),
       unused( unused ),
+      uninit_default( uninit_default ),
       rest( rest )
 {
 }
 
 FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation& source_location,
                                                             ScopableName name, bool byref,
-                                                            bool unused, bool rest )
+                                                            bool unused, bool uninit_default,
+                                                            bool rest )
     : Node( source_location ),
       name( std::move( name ) ),
       byref( byref ),
       unused( unused ),
+      uninit_default( uninit_default ),
       rest( rest )
 {
 }

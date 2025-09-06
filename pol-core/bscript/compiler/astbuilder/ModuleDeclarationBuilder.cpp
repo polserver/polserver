@@ -36,13 +36,14 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
       {
         auto default_value = expression( expr_ctx );
         parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-            location_for( *param ), std::move( parameter_name ), byref, unused, rest,
-            std::move( default_value ) );
+            location_for( *param ), std::move( parameter_name ), byref, unused,
+            false /* uninit_default */, rest, std::move( default_value ) );
       }
       else
       {
         parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-            location_for( *param ), std::move( parameter_name ), byref, unused, rest );
+            location_for( *param ), std::move( parameter_name ), byref, unused,
+            false /* uninit_default */, rest );
       }
       parameters.push_back( std::move( parameter_declaration ) );
     }
