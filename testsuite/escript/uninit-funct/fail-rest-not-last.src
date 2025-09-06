@@ -1,0 +1,15 @@
+// Rest parameter is not last in uninit function
+
+class Requirement()
+  uninit function method( this, rest..., other );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+
+  function method( this, other, rest )
+  endfunction
+endclass
+
+Child();

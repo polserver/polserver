@@ -1,0 +1,17 @@
+class Greeter()
+  uninit function greet( this, name, default greeting );
+endclass
+
+class FriendlyGreeter( Greeter )
+  function FriendlyGreeter( this )
+  endfunction
+
+  function greet( this, name, greeting := "Hello" )
+    Print( $"{greeting}, {name}!" );
+  endfunction
+endclass
+
+var greeter := FriendlyGreeter();
+
+greeter.greet( "Kevin" ); // Output: Hello, Kevin!
+greeter.greet( "Kevin", "Salutations" ); // Output: Salutations, Kevin!

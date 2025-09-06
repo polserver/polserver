@@ -124,7 +124,7 @@ void GeneratedFunctionBuilder::build( std::unique_ptr<GeneratedFunction>& functi
 
     function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
         loc, ScopableName( ScopeName::None, "this" ), true /* byref */, false /* unused */,
-        false /* rest */ ) );
+        false /* uninit_default */, false /* rest */ ) );
 
     // Our super() alias'ed parameter can be a rest parameter only if the not-last
     // constructors are not variadic.
@@ -185,7 +185,8 @@ void GeneratedFunctionBuilder::add_base_constructor( std::unique_ptr<GeneratedFu
       if ( param.rest && !can_use_rest )
       {
         function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-            loc, param_name, param.byref, param.unused, false,
+            loc, param_name, param.byref, param.unused, false /* uninit_default */,
+            false /* rest */,
             std::make_unique<ArrayInitializer>( param.source_location,
                                                 std::vector<std::unique_ptr<Expression>>() ) ) );
       }
@@ -199,8 +200,8 @@ void GeneratedFunctionBuilder::add_base_constructor( std::unique_ptr<GeneratedFu
         if ( auto final_argument = cloner.clone( *default_value ) )
         {
           function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-              loc, param_name, param.byref, false /* unused */, false /* rest */,
-              std::move( final_argument ) ) );
+              loc, param_name, param.byref, false /* unused */, false /* uninit_default */,
+              false /* rest */, std::move( final_argument ) ) );
         }
         else
         {
@@ -219,7 +220,8 @@ void GeneratedFunctionBuilder::add_base_constructor( std::unique_ptr<GeneratedFu
         auto is_rest_param = param.rest && can_use_rest;
 
         function_parameters.push_back( std::make_unique<FunctionParameterDeclaration>(
-            loc, param_name, param.byref, false /* unused */, is_rest_param ) );
+            loc, param_name, param.byref, false /* unused */, false /* uninit_default */,
+            is_rest_param ) );
       }
     }
 

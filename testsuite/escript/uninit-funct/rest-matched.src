@@ -1,0 +1,15 @@
+class Requirement()
+  uninit function method( this, param, rest... );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+
+  function method( this, param, rest... )
+	  print( $"Child::method this={this} param={param} rest={rest}" );
+  endfunction
+endclass
+
+Child().method( "param value", "rest index 1" );
+Child().method( "param value", "rest index 1", "rest index 2" );

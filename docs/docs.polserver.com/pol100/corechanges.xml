@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-05-2025</datemodified>
+		<datemodified>09-06-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>09-06-2025</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Uninitialized functions now properly check for parameters for byref and rest parameters.</change>
+			<change type="Added">Uninitialized function parameters can be marked as `default`, requiring constructed descendant classes to provide<br/>
+a default value.</change>
+		</entry>
 		<entry>
 			<date>09-05-2025</date>
 			<author>Kevin:</author>

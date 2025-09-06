@@ -284,6 +284,73 @@ void SemanticAnalyzer::visit_class_declaration( ClassDeclaration& node )
           class_name, node.constructor_link->source_location );
     }
   }
+
+  // To visit UninitializedFunctionDeclarations
+  visit_children( node );
+}
+
+void SemanticAnalyzer::visit_uninitialized_function_declaration(
+    UninitializedFunctionDeclaration& node )
+{
+  if ( Clib::caseInsensitiveEqual( node.name, Compiler::SUPER ) )
+  {
+    report.error( node, "An uninitialized function cannot be named 'super'." );
+  }
+  else if ( node.type == UserFunctionType::Static )
+  {
+    report.error( node.source_location,
+                  "In uninitialized function declaration: Static functions cannot be "
+                  "marked as uninitialized." );
+  }
+  else
+  {
+    // Cannot use visit_children to visit the parameters, since the the
+    // SemanticAnalyzer would attempt to make variables for the function inside
+    // visit_function_parameter_list.
+
+    bool can_have_rest_parameter = true;
+    bool can_have_defaults = true;
+
+    auto params = node.parameters();
+
+    // Rest params must be last, and defaulted params must come after
+    // non-defaulted params (excluding rest param).
+    for ( auto& param_ref : std::views::reverse( params ) )
+    {
+      auto& param = param_ref.get();
+
+      if ( param.rest )
+      {
+        if ( !can_have_rest_parameter )
+        {
+          report.error( param,
+                        "In uninitialized function declaration: Rest parameter must be the last "
+                        "parameter in the list." );
+        }
+        else if ( param.uninit_default )
+        {
+          report.error( param.source_location,
+                        "In uninitialized function declaration: Rest parameter cannot have a "
+                        "default value." );
+        }
+      }
+      else if ( param.uninit_default )
+      {
+        if ( !can_have_defaults )
+        {
+          report.error( param,
+                        "In uninitialized function declaration: Parameters with default values "
+                        "must come after all parameters without default values." );
+        }
+      }
+      else
+      {
+        can_have_defaults = false;
+      }
+
+      can_have_rest_parameter = false;
+    }
+  }
 }
 
 void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
@@ -354,16 +421,53 @@ void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
   auto report_error_if_not_same =
       [&]( UserFunction* defined_func, UninitializedFunctionDeclaration* uninit_func )
   {
-    if ( defined_func->is_variadic() != uninit_func->is_variadic() ||
-         defined_func->parameter_count() != uninit_func->parameter_count() ||
-         defined_func->type != uninit_func->type )
-    {
-      std::string details = fmt::format(
-          "Expecting {} with {}{} parameters, got {} with {}{} parameters.", uninit_func->type,
-          uninit_func->parameter_count(), uninit_func->is_variadic() ? "+" : "", defined_func->type,
-          defined_func->parameter_count(), defined_func->is_variadic() ? "+" : "" );
+    auto defined_params = defined_func->parameters();
+    auto uninit_params = uninit_func->parameters();
+    auto is_defined_variadic = !defined_params.empty() && defined_params.back().get().rest;
+    auto is_uninit_variadic = !uninit_params.empty() && uninit_params.back().get().rest;
+    FunctionParameterDeclaration* bad_param = nullptr;
+    std::string details;
 
-      report.error( defined_func->source_location,
+    if ( is_defined_variadic != is_uninit_variadic ||
+         defined_params.size() != uninit_params.size() || defined_func->type != uninit_func->type )
+    {
+      details =
+          fmt::format( "Expecting {} with {}{} parameters, got {} with {}{} parameters.",
+                       uninit_func->type, uninit_params.size(), is_uninit_variadic ? "+" : "",
+                       defined_func->type, defined_params.size(), is_defined_variadic ? "+" : "" );
+    }
+    else
+    {
+      // Size has already been checked for equivalence but keeping both checks for clarity.
+      for ( size_t i = 0; i < defined_params.size() && i < uninit_params.size(); ++i )
+      {
+        auto& defined_param = defined_params[i].get();
+        auto& uninit_param = uninit_params[i].get();
+
+        if ( defined_param.byref != uninit_param.byref )
+        {
+          details = fmt::format(
+              "Parameter {} ('{}') is passed {} in uninitialized function but {} in defined "
+              "function.",
+              i + 1, defined_param.name.string(), uninit_param.byref ? "by reference" : "by value",
+              defined_param.byref ? "by reference" : "by value" );
+          bad_param = &defined_param;
+
+          break;  // Stop on first error
+        }
+        else if ( uninit_param.uninit_default && defined_param.default_value() == nullptr )
+        {
+          details = fmt::format( "Parameter {} ('{}') must have a default value.", i + 1,
+                                 defined_param.name.string() );
+          bad_param = &defined_param;
+
+          break;  // Stop on first error
+        }
+      }
+    }
+    if ( !details.empty() )
+    {
+      report.error( bad_param ? bad_param->source_location : defined_func->source_location,
                     "Class method '{}' does not correctly implement uninitialized function '{}':\n"
                     "  {}\n"
                     "  See also: {}",
@@ -406,10 +510,9 @@ void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
       // not exist in workspace.user_functions but exists in
       // function_resolver.available_user_function_parse_trees).
       report.error( class_decl->source_location,
-                    "Class '{}' does not implement uninitialized function '{}::{}'\n"
+                    "Class '{}' does not implement uninitialized function '{}'\n"
                     "  See also: {}",
-                    class_decl->name, uninit_func.scope, uninit_func.name,
-                    uninit_func.source_location );
+                    class_decl->name, uninit_func.scoped_name(), uninit_func.source_location );
     }
   }
 

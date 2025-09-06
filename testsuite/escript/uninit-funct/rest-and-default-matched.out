@@ -1,0 +1,3 @@
+Child::method this=<class Child> param=defaulted rest={  }
+Child::method this=<class Child> param=override default rest={ rest index 1 }
+Child::method this=<class Child> param=override default rest={ rest index 1, rest index 2 }

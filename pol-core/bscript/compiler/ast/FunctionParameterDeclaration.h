@@ -13,10 +13,10 @@ class FunctionParameterDeclaration : public Node
 {
 public:
   FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
-                                bool byref, bool unused, bool rest,
+                                bool byref, bool unused, bool uninit_default, bool rest,
                                 std::unique_ptr<Expression> default_value );
   FunctionParameterDeclaration( const SourceLocation& source_location, ScopableName name,
-                                bool byref, bool unused, bool rest );
+                                bool byref, bool unused, bool uninit_default, bool rest );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( std::string& ) const override;
@@ -26,6 +26,7 @@ public:
   const ScopableName name;
   const bool byref;
   const bool unused;
+  const bool uninit_default;
   const bool rest;
 };
 

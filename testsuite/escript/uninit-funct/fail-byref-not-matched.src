@@ -1,0 +1,15 @@
+// Uninit params that are byref must be byref in defined function
+
+class Requirement()
+  uninit function method( this, byref param );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+
+  function method( this, param )
+  endfunction
+endclass
+
+Child();

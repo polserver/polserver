@@ -1,0 +1,1 @@
+:4:33: error: In uninitialized function declaration: Parameters with default values must come after all parameters without default values.

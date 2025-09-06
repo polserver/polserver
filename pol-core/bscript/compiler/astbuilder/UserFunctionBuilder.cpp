@@ -166,30 +166,11 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
       else if ( auto uninit_func_decl = classStatement->uninitFunctionDeclaration() )
       {
         auto func_name = text( uninit_func_decl->IDENTIFIER() );
-        auto func_loc = location_for( *uninit_func_decl );
 
-        // An uninit function cannot be named `super`, as the child class would
-        // not be able to define a function named `super`.
-        if ( Clib::caseInsensitiveEqual( func_name, Compiler::SUPER ) )
-        {
-          report.error( func_loc, "An uninitialized function cannot be named 'super'." );
-        }
-        else
-        {
-          auto uf = make_function_like<UninitializedFunctionDeclaration>(
-              func_name, uninit_func_decl, false, class_name, uninit_func_decl->SEMI() );
+        auto uf = make_function_like<UninitializedFunctionDeclaration>(
+            func_name, uninit_func_decl, false, class_name, uninit_func_decl->SEMI() );
 
-          if ( uf->type == UserFunctionType::Static )
-          {
-            report.error( uf->source_location,
-                          "In uninitialized function declaration: Static functions cannot be "
-                          "marked as uninitialized." );
-          }
-          else
-          {
-            uninit_functions.push_back( std::move( uf ) );
-          }
-        }
+        uninit_functions.push_back( std::move( uf ) );
       }
     }
   }
@@ -245,19 +226,21 @@ std::unique_ptr<FunctionTypeNode> UserFunctionBuilder::make_function_like(
         std::unique_ptr<FunctionParameterDeclaration> parameter_declaration;
         bool byref = param->BYREF() != nullptr || is_this_arg;
         bool unused = param->UNUSED() != nullptr;
+        bool uninit_default = param->DEFAULT();
         bool rest = param->ELLIPSIS() != nullptr;
 
         if ( auto expr_ctx = param->expression() )
         {
           auto default_value = expression( expr_ctx );
           parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-              location_for( *param ), std::move( parameter_name ), byref, unused, rest,
-              std::move( default_value ) );
+              location_for( *param ), std::move( parameter_name ), byref, unused, uninit_default,
+              rest, std::move( default_value ) );
         }
         else
         {
           parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-              location_for( *param ), std::move( parameter_name ), byref, unused, rest );
+              location_for( *param ), std::move( parameter_name ), byref, unused, uninit_default,
+              rest );
         }
 
         parameters.push_back( std::move( parameter_declaration ) );

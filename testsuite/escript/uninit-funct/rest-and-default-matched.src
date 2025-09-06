@@ -1,0 +1,17 @@
+// Default params must be last but before rest
+class Requirement()
+  uninit function method( this, default param, rest... );
+endclass
+
+class Child( Requirement )
+  function Child( this )
+  endfunction
+
+  function method( this, param := "defaulted", rest... )
+	  print( $"Child::method this={this} param={param} rest={rest}" );
+  endfunction
+endclass
+
+Child().method();
+Child().method( "override default", "rest index 1" );
+Child().method( "override default", "rest index 1", "rest index 2" );

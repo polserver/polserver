@@ -97,6 +97,7 @@ public:
   antlr4::atn::SerializedATNView getSerializedATN() const override;
 
 
+      bool inUninitFunction = false;
 
 
   class CompilationUnitContext;
@@ -1338,6 +1339,7 @@ public:
     antlr4::tree::TerminalNode *IDENTIFIER();
     antlr4::tree::TerminalNode *BYREF();
     antlr4::tree::TerminalNode *UNUSED();
+    antlr4::tree::TerminalNode *DEFAULT();
     antlr4::tree::TerminalNode *ELLIPSIS();
     antlr4::tree::TerminalNode *ASSIGN();
     ExpressionContext *expression();

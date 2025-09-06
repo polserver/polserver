@@ -1,1 +1,1 @@
-:1:14: error: extraneous input 'uninit' expecting {'byref', 'unused', ')', IDENTIFIER}
+:1:14: error: extraneous input 'uninit' expecting {'default', 'byref', 'unused', ')', IDENTIFIER}

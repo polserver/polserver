@@ -8,7 +8,9 @@ options { tokenVocab=EscriptLexer; }
 
 @parser::members
 {
+    bool inUninitFunction = false;
 }
+
 
 compilationUnit
     : topLevelDeclaration* EOF
@@ -71,11 +73,11 @@ classStatement
     ;
 
 uninitFunctionDeclaration
-    : UNINIT FUNCTION IDENTIFIER functionParameters ';'
+    : UNINIT FUNCTION IDENTIFIER { inUninitFunction = true; } functionParameters ';'
     ;
 
 functionDeclaration
-    : EXPORTED? FUNCTION IDENTIFIER functionParameters block ENDFUNCTION
+    : EXPORTED? FUNCTION IDENTIFIER { inUninitFunction = false; } functionParameters block ENDFUNCTION
     ;
 
 stringIdentifier
@@ -306,7 +308,12 @@ functionParameterList
     ;
 
 functionParameter
-    : BYREF? UNUSED? IDENTIFIER ELLIPSIS? (':=' expression)?
+    : BYREF?
+      ( { if ( inUninitFunction ) notifyErrorListeners( "The 'unused' keyword may not be used here." ); } UNUSED)?
+      ( { if ( !inUninitFunction ) notifyErrorListeners( "The 'default' keyword may not be used here." ); } DEFAULT)?
+      IDENTIFIER
+      ELLIPSIS?
+      ( ':=' { if ( inUninitFunction ) notifyErrorListeners( "A parameter may not be given a default value here." ); } expression )?
     ;
 
 // EXPRESSIONS
@@ -365,7 +372,7 @@ scopedIdentifier
     : scope=IDENTIFIER? '::' identifier=IDENTIFIER;
 
 functionExpression
-    : AT functionParameters? LBRACE block RBRACE
+    : AT { inUninitFunction = false; } functionParameters? LBRACE block RBRACE
     ;
 
 explicitArrayInitializer

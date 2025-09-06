@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+09-06-2025 Kevin:
+    Fixed: Uninitialized functions now properly check for parameters for byref and rest parameters.
+    Added: Uninitialized function parameters can be marked as `default`, requiring constructed descendant classes to provide
+           a default value.
 09-05-2025 Kevin:
     Added: Escript now supports declaring class methods as uninitialized using the `uninit` keyword, requiring any constructed
            descendant class to define the functions' implementation. This is a similar concept to "abstract methods" in other
