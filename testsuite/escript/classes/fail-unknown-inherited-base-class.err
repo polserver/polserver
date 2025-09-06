@@ -1,0 +1,1 @@
+:6:13: error: Class 'Base' references unknown base class 'UnknownBase'
