@@ -1,6 +1,6 @@
 <h1>
   Racalac's eScript Reference and Guide (POL 100.2.0)
-  <div style="font-size: 0.82em">(Last Updated: September 5, 2025)</div>
+  <div style="font-size: 0.82em">(Last Updated: September 6, 2025)</div>
 </h1>
 <br/>
 
@@ -3786,6 +3786,29 @@ endforeach
 // hello world!
 </pre></div>
 
+<p>To declare that a function <i>must</i> have a default value, use the
+<code>default</code> keyword in front of the parameter:</p>
+
+<div class="doc-guide-pre"><pre>
+class Greeter()
+  uninit function greet( this, name, default greeting );
+endclass
+
+class FriendlyGreeter( Greeter )
+  function FriendlyGreeter( this )
+  endfunction
+
+  function greet( this, name, greeting := "Hello" )
+    Print( $"{greeting}, {name}!" );
+  endfunction
+endclass
+
+var greeter := FriendlyGreeter();
+
+greeter.greet( "Kevin" ); // Output: Hello, Kevin!
+greeter.greet( "Kevin", "Salutations" ); // Output: Salutations, Kevin!
+</pre></div>
+
 <p><b>Example: Multiple Inheritance</b></p>
 
 <p>A class can have multiple base classes in which it inherits from. When using <code>super()</code>,
@@ -4139,4 +4162,7 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.18: 05/09/2025<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for class uninitialized functions by Kevin<br>
+</p>
+<p>v0.19: 06/09/2025<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for defaulted parameters in class uninitialized functions by Kevin<br>
 </p>
