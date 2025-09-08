@@ -159,7 +159,9 @@ jobs:
         if: matrix.config.nopch == 0
         run: |
           cd bin-build
-          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only 2>&1 | tee coretest/testlog.txt
+          result_code=${PIPESTATUS[0]}
+          exit $result_code
           #env:
           #POLCORE_TEST_FILTER: testitems
       - name: Test (Ecompile Watch)
@@ -169,6 +171,15 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} --target test_ecompile_watch
           #env:
           #POLCORE_TEST_FILTER: testitems
+      - name: Testsummary
+        if: matrix.config.nopch == 0 && always()
+        shell: bash
+        run: |
+          cd bin-build
+          cd coretest
+          {
+            python ci_summary.py testlog.txt
+          } > "$GITHUB_STEP_SUMMARY"
       - name: Upload coretest folder
         if: matrix.config.nopch == 0 && always()
         uses: actions/upload-artifact@v4
