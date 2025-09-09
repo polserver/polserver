@@ -165,11 +165,11 @@ jobs:
       - name: Testsummary
         if: matrix.config.nopch == 0 && always()
         shell: bash
-         run: |
-           cd bin-build
-           {
-+            python coretest/summary.py Testing/Temporary/LastTest.log
-           } > "$GITHUB_STEP_SUMMARY"
+        run: |
+          cd bin-build
+          {
+            python coretest/summary.py Testing/Temporary/LastTest.log
+          } > "$GITHUB_STEP_SUMMARY"
       - name: Test (Ecompile Watch)
         if: matrix.config.nopch == 0
         run: |
