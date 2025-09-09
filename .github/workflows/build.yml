@@ -168,7 +168,7 @@ jobs:
         run: |
           cd bin-build
           {
-            python coretest/summary.py Testing/Temporary/LastTest.log
+            python coretest/ci_summary.py Testing/Temporary/LastTest.log
           } > "$GITHUB_STEP_SUMMARY"
       - name: Test (Ecompile Watch)
         if: matrix.config.nopch == 0
