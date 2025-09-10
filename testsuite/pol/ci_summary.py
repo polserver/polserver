@@ -77,9 +77,9 @@ for r in res:
         for f in s.sub:
             if f.name=="cleanup":
                 continue
-            output+=f"| | |{f.name}|{f.result}|{f.dur}|{f.output}|\n"
+            output+=f"| | |{f.name}|{f.result}|{f.dur}|```{f.output}```|\n"
             if f.output:
-                failed_output+=f"**{r.name}/{s.name} {f.name}**\n{f.output}\n\n"
+                failed_output+=f"**{r.name}/{s.name} {f.name}**\n```{f.output}```\n\n"
 print(f"<details><summary>{fails} tests failed out of {tests}</summary>")
 print("")
 print(output)
