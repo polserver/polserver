@@ -69,6 +69,7 @@ for line in content:
     else:
         lines+=line+"<br/>"
 
+fails =""
 for r in res:
     output+=f"|{r.name}| | |{r.result}|{r.dur}|{r.output}|\n"
     for s in r.sub:
@@ -77,7 +78,12 @@ for r in res:
             if f.name=="cleanup":
                 continue
             output+=f"| | |{f.name}|{f.result}|{f.dur}|{f.output}|\n"
+            if f.output:
+                fails+=f"**{r.name}/{s.name} {f.name}**\n{f.output}\n\n"
 print(f"<details><summary>{fails} tests failed out of {tests}</summary>")
 print("")
 print(output)
 print("</details>")
+print("")
+if fails:
+    print(fails)

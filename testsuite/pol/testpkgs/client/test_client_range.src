@@ -126,9 +126,9 @@ exported function item_update_range( resmngr )
     endif
     if ( ev["serial"] == item.serial )
       var x := ev["pos"][1] - charpos;
-      if ( x != 18 ) // (18 visual range)
+  //    if ( x != 18 ) // (18 visual range)
         return ret_error( $"update distance failed: {x}" );
-      endif
+//      endif
       break;
     endif
   endwhile
