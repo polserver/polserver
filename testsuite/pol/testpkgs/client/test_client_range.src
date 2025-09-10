@@ -82,10 +82,10 @@ exported function chr_update_range()
     endif
     if ( ev["id"] == 1 && ev["serial"] == char.serial )
       var x := ev["pos"][1] - char2.x;
-      //if ( x != 18 ) // (18 visual range)
+      if ( x != 18 ) // (18 visual range)
         MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
         return ret_error( $"update distance failed: {x}" );
-      //endif
+      endif
       break;
     endif
   endwhile
