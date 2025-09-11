@@ -49,7 +49,7 @@ for line in content:
     if m is not None:
         curfunc.result = ":x:"
         msg = m.group(1).removesuffix('\x1b[0m')
-        curfunc.output = f"```{lines}failed: {msg}```"
+        curfunc.output = f"{lines}failed: {msg}"
         curfunc.dur = "-"
         curscript.result = ":x:"
         curpkg.result = ":x:"
@@ -68,7 +68,7 @@ for line in content:
         tests+=1
         lines=""
     else:
-        lines+=line+"\n"
+        lines+=line.strip()+"<br/>"
 
 failed_output =""
 for r in res:
@@ -80,7 +80,8 @@ for r in res:
                 continue
             output+=f"| | |{f.name}|{f.result}|{f.dur}|{f.output}|\n"
             if f.output:
-                failed_output+=f"**{r.name}/{s.name} {f.name}**\n```{f.output}```\n\n"
+                msg=f.output.replace("<br/>","\n")
+                failed_output+=f"**{r.name}/{s.name} {f.name}**\n```\n{msg}\n```\n\n"
 print(f"<details><summary>{fails} tests failed out of {tests}</summary>")
 print("")
 print(output)
