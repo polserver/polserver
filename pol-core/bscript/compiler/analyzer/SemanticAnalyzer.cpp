@@ -799,6 +799,13 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   auto uf = fc.function_link->user_function();
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
+
+  // Since the function call's argument are taken via fc.take_arguments(),
+  // the children are nullptrs. This causes an issue with the subsequent
+  // ShortCircuitWarning node visitor, which would visit_children the
+  // FunctionCall.
+  fc.children.clear();
+
   auto params = fc.parameters();
   if ( !params )
   {
