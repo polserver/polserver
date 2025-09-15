@@ -38,6 +38,8 @@ for line in content:
     if m is not None:
         curpkg.sub.append(Test(m.group(1)))
         curscript = curpkg.sub[-1]
+        if curscript.name in ("setup","cleanup"):
+            curfunc = curscript
         continue
     m=re.search(r"\s+Calling (\w+)\.\.", line)
     if m is not None:
