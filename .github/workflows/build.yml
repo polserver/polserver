@@ -162,6 +162,14 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
           #env:
           #POLCORE_TEST_FILTER: testitems
+      - name: Testsummary
+        if: matrix.config.nopch == 0 && always()
+        shell: bash
+        run: |
+          cd bin-build
+          {
+            python coretest/ci_summary.py Testing/Temporary/LastTest.log
+          } > "$GITHUB_STEP_SUMMARY"
       - name: Test (Ecompile Watch)
         if: matrix.config.nopch == 0
         run: |

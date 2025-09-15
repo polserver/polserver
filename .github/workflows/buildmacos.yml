@@ -98,6 +98,14 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
+      - name: Testsummary
+        if: always()
+        shell: bash
+        run: |
+          cd bin-build
+          {
+            python coretest/ci_summary.py Testing/Temporary/LastTest.log
+          } > "$GITHUB_STEP_SUMMARY"
       - name: Test (Ecompile Watch)
         run: |
           cd bin-build
