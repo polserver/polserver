@@ -1011,10 +1011,10 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     if ( auto s = impptrIf<String>( ex.getParamImp( 1 ) ) )
     {
       String* result = new String( *this );
-      result->value_ =
-          std::regex_replace( result->value_, regex->regex(), s->value_,
-                              regex->global() ? std::regex_constants::format_default
-                                              : std::regex_constants::format_first_only );
+      result->value_ = std::regex_replace(
+          result->value_, regex->regex(), s->value_,
+          regex->global() ? std::regex_constants::match_flag_type::format_default
+                          : std::regex_constants::match_flag_type::format_first_only );
       return result;
     }
     else if ( auto funcref = impptrIf<BFunctionRef>( ex.getParamImp( 1 ) ) )
