@@ -392,6 +392,8 @@ set (bscript_sources    # sorted !
   objmembers.h
   objmethods.h
   objstrm.cpp
+  regexp.cpp
+  regexp.h
   str.cpp
   str.h
   symcont.cpp

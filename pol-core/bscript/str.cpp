@@ -21,8 +21,10 @@
 #include "bobject.h"
 #include "contiter.h"
 #include "executor.h"
+#include "executor.inl.h"
 #include "impstr.h"
 #include "objmethods.h"
+#include "regexp.h"
 #include "str.h"
 
 #ifdef __GNUG__
@@ -922,13 +924,183 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       return new BError( "string.find(Search, [Start]) takes only two parameters" );
     if ( ex.numParams() < 1 )
       return new BError( "string.find(Search, [Start]) takes at least one parameter" );
-    const char* s = ex.paramAsString( 0 );
+
     int d = 0;
     if ( ex.numParams() == 2 )
-      d = ex.paramAsLong( 1 );
-    int posn = find( d ? ( d - 1 ) : 0, s ) + 1;
-    return new BLong( posn );
+      d = ex.paramAsLong( 1 ) - 1;
+
+    if ( auto s = impptrIf<String>( ex.getParamImp( 0 ) ) )
+    {
+      int posn = find( d, s->data() ) + 1;
+      return new BLong( posn );
+    }
+    else if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
+    {
+      std::smatch match;
+      if ( d >= 0 && static_cast<size_t>( d ) < value_.length() &&
+           std::regex_search( value_.cbegin() + d, value_.cend(), match, regex->regex() ) )
+      {
+        return new BLong( match.position() + d + 1 );
+      }
+      return new BLong( 0 );
+    }
+    else
+      return new BError( "string.find(Search, [Start]): Search must be a string or regex." );
   }
+  case MTH_MATCH:
+  {
+    if ( ex.numParams() != 1 )
+      return new BError( "string.match(Pattern) takes exactly one parameter" );
+
+    auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) );
+
+    if ( !regex )
+      return new BError( "string.match(Pattern): Pattern must be a RegExp." );
+
+    auto add_match = []( const std::smatch& pieces_match )
+    {
+      std::unique_ptr<BStruct> result( new BStruct );
+      std::unique_ptr<ObjArray> groups( new ObjArray );
+      result->addMember( "matched", new String( pieces_match.str( 0 ) ) );
+      for ( size_t i = 1; i < pieces_match.size(); ++i )
+      {
+        groups->addElement( new String( pieces_match.str( i ) ) );
+      }
+      result->addMember( "groups", groups.release() );
+
+      return result.release();
+    };
+
+    // Global regex: Return array of all struct{ matched, groups }
+    if ( regex->global() )
+    {
+      std::sregex_iterator current_match( value_.cbegin(), value_.cend(), regex->regex() );
+      std::sregex_iterator last_match;
+
+      std::unique_ptr<ObjArray> all_matches( new ObjArray );
+
+      while ( current_match != last_match )
+      {
+        all_matches->addElement( add_match( *current_match ) );
+        ++current_match;
+      }
+
+      return all_matches.release();
+    }
+
+    // Non-global regex: Return first struct{ matched, groups } or uninit
+    std::smatch pieces_match;
+    if ( std::regex_search( value_.cbegin(), value_.cend(), pieces_match, regex->regex() ) )
+    {
+      return add_match( pieces_match );
+    }
+    else
+    {
+      return UninitObject::create();
+    }
+  }
+  case MTH_REPLACE:
+  {
+    if ( ex.numParams() != 2 )
+      return new BError( "string.replace(Search, Replace) takes exactly two parameters" );
+
+    auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) );
+    if ( !regex )
+      return new BError( "string.replace(Search, Replace): Search must be a RegExp." );
+
+    if ( auto s = impptrIf<String>( ex.getParamImp( 1 ) ) )
+    {
+      String* result = new String( *this );
+      result->value_ =
+          std::regex_replace( result->value_, regex->regex(), s->value_,
+                              regex->global() ? std::regex_constants::format_default
+                                              : std::regex_constants::format_first_only );
+      return result;
+    }
+    else if ( auto funcref = impptrIf<BFunctionRef>( ex.getParamImp( 1 ) ) )
+    {
+      // Copy of `value_` that is not modified during replacements. Must be
+      // shared_ptr because unique_ptr is not supported in makeContinuation.
+      auto input = std::make_shared<std::string>( value_ );
+
+      std::sregex_iterator it( input->cbegin(), input->cend(), regex->regex() );
+      std::sregex_iterator end;
+
+      if ( it == end )
+      {
+        // No matches found, return the original string
+        return new String( *input );
+      }
+
+      auto make_args = []( std::smatch match, const std::string& input )
+      {
+        BObjectRefVec args;
+
+        // Matched string
+        args.push_back( BObjectRef( new String( match.str() ) ) );
+
+        // Add group captures as arguments
+        for ( size_t i = 1; i < match.size(); ++i )
+        {
+          args.push_back( BObjectRef( new String( match.str( i ) ) ) );
+        }
+
+        // Add offset and original string as arguments
+        args.push_back( BObjectRef( new BLong( match.position() + 1 ) ) );
+        args.push_back( BObjectRef( new String( input ) ) );
+
+        return args;
+      };
+
+      std::string replaced_result;
+      std::size_t lastPos = 0;
+      std::smatch match = *it;
+
+      BObjectRefVec args = make_args( match, *input );
+
+      // Append the text before the first match
+      replaced_result.append( value_, lastPos, match.position() - lastPos );
+      lastPos = match.position() + match.length();
+
+      auto callback =
+          [make_args = std::move( make_args ), regex = BObjectRef( regex ),  // keep regex alive
+           input = std::move( input ), it = std::move( it ), end = std::move( end ),
+           lastPos = std::move( lastPos ), match = std::move( match ),
+           replaced_result = std::move( replaced_result )](
+              Executor& ex, BContinuation* continuation, BObjectRef result ) mutable -> BObjectImp*
+      {
+        // Append the replacement from the callback
+        replaced_result.append( result->impptr()->getStringRep() );
+
+        ++it;
+
+        // If no more matches, or not global, return the result
+        if ( it == end || !regex->impptr<BRegExp>()->global() )
+        {
+          // Append the tail after the last match
+          replaced_result.append( *input, lastPos, std::string::npos );
+          return new String( replaced_result );
+        }
+
+        // Process the next match
+        match = *it;
+        replaced_result.append( *input, lastPos, match.position() - lastPos );
+        lastPos = match.position() + match.length();
+
+        BObjectRefVec args = make_args( match, *input );
+
+        return ex.withContinuation( continuation, std::move( args ) );
+      };
+
+      return ex.makeContinuation( BObjectRef( new BObject( funcref ) ), callback,
+                                  std::move( args ) );
+    }
+    else
+    {
+      return new BError( "string.replace(Search, Replace): Replace must be a string or function." );
+    }
+  }
+
   case MTH_UPPER:
   {
     if ( ex.numParams() == 0 )

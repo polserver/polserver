@@ -108,3 +108,4 @@ UnpackJSON( jsonStr );
 Boolean( number ); // returns boolean instance
 EncodeBase64( str );
 DecodeBase64( str );
+RegExp( regex, flags := "" );
