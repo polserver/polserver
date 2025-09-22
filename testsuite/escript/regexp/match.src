@@ -1,0 +1,7 @@
+print( "abc 123 def 456".match( RegExp( "\\d+" ) ) );
+print( "abc 123 def 456".match( RegExp( "\\d+", "g" ) ) );
+
+print( "---" );
+
+print( "abc 123 def 456".match( RegExp( "(\\d)(\\d)" ) ) ); // 12
+print( "abc 123 def 456".match( RegExp( "(\\d)(\\d)", "g" ) ) ); // 12 and 45

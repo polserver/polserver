@@ -1,0 +1,5 @@
+struct{ groups = {  }, matched = "123" }
+{ struct{ groups = {  }, matched = "123" }, struct{ groups = {  }, matched = "456" } }
+---
+struct{ groups = { 1, 2 }, matched = "12" }
+{ struct{ groups = { 1, 2 }, matched = "12" }, struct{ groups = { 4, 5 }, matched = "45" } }

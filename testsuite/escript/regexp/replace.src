@@ -1,0 +1,17 @@
+print( "abc 123 def 456".replace( RegExp( "\\d+" ) ) ); // error not enough params
+print( "abc 123 def 456".replace( RegExp( "\\d+" ), 1234 ) ); // error invalid type
+
+print( "---" );
+
+print( "abc 123 def 456".replace( RegExp( "\\d+" ), "<replaced>" ) );
+print( "abc 123 def 456".replace( RegExp( "\\d+", "g" ), "<replaced>" ) );
+
+print( "---" );
+
+print( "abc 123 def 456".replace( RegExp( "(\\d)(\\d+)" ), @ToHex ) ); // 12
+print( "abc 123 def 456".replace( RegExp( "(\\d)(\\d+)", "g" ), @ToHex ) ); // 12 and 45
+
+function ToHex( matched, group1, group2, offset, input )
+  print( $"matched='{matched}' group1='{group1}' group2='{group2}' offset='{offset}' input='{input}'" );
+  return Hex( matched );
+endfunction

@@ -1,0 +1,11 @@
+error{ errortext = "string.replace(Search, Replace) takes exactly two parameters" }
+error{ errortext = "string.replace(Search, Replace): Replace must be a string or function." }
+---
+abc <replaced> def 456
+abc <replaced> def <replaced>
+---
+matched='123' group1='1' group2='23' offset='5' input='abc 123 def 456'
+abc 0x7B def 456
+matched='123' group1='1' group2='23' offset='5' input='abc 123 def 456'
+matched='456' group1='4' group2='56' offset='13' input='abc 123 def 456'
+abc 0x7B def 0x1C8
