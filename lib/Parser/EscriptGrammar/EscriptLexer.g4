@@ -5,6 +5,62 @@ channels { COMMENTS }
 {
     int interpolatedStringLevel = 0;
     std::stack<int> curlyLevels;
+    bool lastToken = false;
+    size_t lastTokenType = 0;
+
+    virtual std::unique_ptr<antlr4::Token> nextToken() override
+    {
+        auto next = Lexer::nextToken();
+
+        if ( next->getChannel() == antlr4::Token::DEFAULT_CHANNEL )
+        {
+            // Keep track of the last token on the default channel.
+            lastToken = true;
+            lastTokenType = next->getType();
+        }
+
+        return next;
+    }
+
+    virtual void reset() override
+    {
+        lastToken = false;
+        lastTokenType = 0;
+        interpolatedStringLevel = 0;
+        curlyLevels = std::stack<int>();
+        Lexer::reset();
+    }
+
+    bool isRegexPossible()
+    {
+        if ( !lastToken )
+        {
+            // No token has been produced yet: at the start of the input,
+            // no division is possible, so a regex literal _is_ possible.
+            return true;
+        }
+
+        switch ( lastTokenType )
+        {
+            case EscriptLexer::IDENTIFIER:
+            case EscriptLexer::UNINIT:
+            case EscriptLexer::BOOL_TRUE:
+            case EscriptLexer::BOOL_FALSE:
+            case EscriptLexer::RBRACK:
+            case EscriptLexer::RPAREN:
+            case EscriptLexer::OCT_LITERAL:
+            case EscriptLexer::DECIMAL_LITERAL:
+            case EscriptLexer::HEX_LITERAL:
+            case EscriptLexer::STRING_LITERAL:
+            case EscriptLexer::INC:
+            case EscriptLexer::DEC:
+                // After any of the tokens above, no regex literal can follow.
+                return false;
+            default:
+                // In all other cases, a regex literal _is_ possible.
+                return true;
+        }
+    }
 }
 
 // Keywords
@@ -107,7 +163,7 @@ HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+
 
 STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
 
-REGEXP_LITERAL:     '/' RegularExpressionFirstChar RegularExpressionChar* '/' Letter*;
+REGEXP_LITERAL:     '/' RegularExpressionFirstChar RegularExpressionChar* {isRegexPossible()}? '/' Letter*;
 
 INTERPOLATED_STRING_START:   '$"'
     { interpolatedStringLevel++; } -> pushMode(INTERPOLATION_STRING);

@@ -56,6 +56,62 @@ public:
 
       int interpolatedStringLevel = 0;
       std::stack<int> curlyLevels;
+      bool lastToken = false;
+      size_t lastTokenType = 0;
+
+      virtual std::unique_ptr<antlr4::Token> nextToken() override
+      {
+          auto next = Lexer::nextToken();
+
+          if ( next->getChannel() == antlr4::Token::DEFAULT_CHANNEL )
+          {
+              // Keep track of the last token on the default channel.
+              lastToken = true;
+              lastTokenType = next->getType();
+          }
+
+          return next;
+      }
+
+      virtual void reset() override
+      {
+          lastToken = false;
+          lastTokenType = 0;
+          interpolatedStringLevel = 0;
+          curlyLevels = std::stack<int>();
+          Lexer::reset();
+      }
+
+      bool isRegexPossible()
+      {
+          if ( !lastToken )
+          {
+              // No token has been produced yet: at the start of the input,
+              // no division is possible, so a regex literal _is_ possible.
+              return true;
+          }
+
+          switch ( lastTokenType )
+          {
+              case EscriptLexer::IDENTIFIER:
+              case EscriptLexer::UNINIT:
+              case EscriptLexer::BOOL_TRUE:
+              case EscriptLexer::BOOL_FALSE:
+              case EscriptLexer::RBRACK:
+              case EscriptLexer::RPAREN:
+              case EscriptLexer::OCT_LITERAL:
+              case EscriptLexer::DECIMAL_LITERAL:
+              case EscriptLexer::HEX_LITERAL:
+              case EscriptLexer::STRING_LITERAL:
+              case EscriptLexer::INC:
+              case EscriptLexer::DEC:
+                  // After any of the tokens above, no regex literal can follow.
+                  return false;
+              default:
+                  // In all other cases, a regex literal _is_ possible.
+                  return true;
+          }
+      }
 
 
   std::string getGrammarFileName() const override;
@@ -74,6 +130,8 @@ public:
 
   void action(antlr4::RuleContext *context, size_t ruleIndex, size_t actionIndex) override;
 
+  bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
+
   // By default the static state used to implement the lexer is lazily initialized during the first
   // call to the constructor. You can call this function if you wish to initialize the static state
   // ahead of time.
@@ -91,6 +149,7 @@ private:
   void CLOSE_RBRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
 
   // Individual semantic predicate functions triggered by sempred() above.
+  bool REGEXP_LITERALSempred(antlr4::RuleContext *_localctx, size_t predicateIndex);
 
 };
 
