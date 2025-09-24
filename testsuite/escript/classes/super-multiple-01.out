@@ -4,17 +4,6 @@ BaseClass2 arg0=unscoped-arg2
 ---
 ---
 ---
-base1=[
-  [
-    "unscoped-arg0",
-    "unscoped-arg1"
-  ]
-]
-
-base2=[
-  [
-    "unscoped-arg2"
-  ]
-]
-
-child="foo"
+base1={ { unscoped-arg0, unscoped-arg1 } }
+base2={ { unscoped-arg2 } }
+child=foo
