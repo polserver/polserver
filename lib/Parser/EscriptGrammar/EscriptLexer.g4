@@ -107,6 +107,8 @@ HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+
 
 STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
 
+REGEXP_LITERAL:     '/' RegularExpressionFirstChar RegularExpressionChar* '/' Letter*;
+
 INTERPOLATED_STRING_START:   '$"'
     { interpolatedStringLevel++; } -> pushMode(INTERPOLATION_STRING);
 
@@ -250,6 +252,24 @@ fragment Letter
     | ~[\u0000-\u007F\uD800-\uDBFF] // covers all characters above 0x7F which are not a surrogate
     | [\uD800-\uDBFF] [\uDC00-\uDFFF] // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     ;
+
+// Yoinked from https://github.com/antlr/grammars-v4/blob/6b517735620223475eefaa85c92f8d6bce15f360/javascript/javascript/JavaScriptLexer.g4
+
+fragment RegularExpressionFirstChar:
+    ~[*\r\n\u2028\u2029\\/[]
+    | RegularExpressionBackslashSequence
+    | '[' RegularExpressionClassChar* ']'
+;
+
+fragment RegularExpressionChar:
+    ~[\r\n\u2028\u2029\\/[]
+    | RegularExpressionBackslashSequence
+    | '[' RegularExpressionClassChar* ']'
+;
+
+fragment RegularExpressionClassChar: ~[\r\n\u2028\u2029\]\\] | RegularExpressionBackslashSequence;
+
+fragment RegularExpressionBackslashSequence: '\\' ~[\r\n\u2028\u2029];
 
 mode INTERPOLATION_STRING;
 DOUBLE_LBRACE_INSIDE:           '{{';
