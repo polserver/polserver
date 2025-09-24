@@ -936,9 +936,11 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     }
     else if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
     {
-      std::smatch match;
+      boost::smatch match;
       if ( d >= 0 && static_cast<size_t>( d ) < value_.length() &&
-           std::regex_search( value_.cbegin() + d, value_.cend(), match, regex->regex() ) )
+           boost::regex_search( value_.cbegin() + d, value_.cend(), match, regex->regex(),
+                                regex->multiline() ? boost::regex_constants::match_default
+                                                   : boost::regex_constants::match_single_line ) )
       {
         return new BLong( match.position() + d + 1 );
       }
@@ -957,7 +959,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     if ( !regex )
       return new BError( "string.match(Pattern): Pattern must be a RegExp." );
 
-    auto add_match = []( const std::smatch& pieces_match )
+    auto add_match = []( const boost::smatch& pieces_match )
     {
       std::unique_ptr<BStruct> result( new BStruct );
       std::unique_ptr<ObjArray> groups( new ObjArray );
@@ -974,8 +976,8 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     // Global regex: Return array of all struct{ matched, groups }
     if ( regex->global() )
     {
-      std::sregex_iterator current_match( value_.cbegin(), value_.cend(), regex->regex() );
-      std::sregex_iterator last_match;
+      boost::sregex_iterator current_match( value_.cbegin(), value_.cend(), regex->regex() );
+      boost::sregex_iterator last_match;
 
       std::unique_ptr<ObjArray> all_matches( new ObjArray );
 
@@ -989,8 +991,10 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     }
 
     // Non-global regex: Return first struct{ matched, groups } or uninit
-    std::smatch pieces_match;
-    if ( std::regex_search( value_.cbegin(), value_.cend(), pieces_match, regex->regex() ) )
+    boost::smatch pieces_match;
+    if ( boost::regex_search( value_.cbegin(), value_.cend(), pieces_match, regex->regex(),
+                              regex->multiline() ? boost::regex_constants::match_default
+                                                 : boost::regex_constants::match_single_line ) )
     {
       return add_match( pieces_match );
     }
@@ -1011,10 +1015,16 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     if ( auto s = impptrIf<String>( ex.getParamImp( 1 ) ) )
     {
       String* result = new String( *this );
-      result->value_ =
-          std::regex_replace( result->value_, regex->regex(), s->value_,
-                              regex->global() ? std::regex_constants::format_default
-                                              : std::regex_constants::format_first_only );
+      boost::match_flag_type flags = boost::regex_constants::match_default;
+      if ( !regex->multiline() )
+        flags |= boost::regex_constants::match_single_line;
+
+      if ( regex->global() )
+        flags |= boost::regex_constants::format_default;
+      else
+        flags |= boost::regex_constants::format_first_only;
+
+      result->value_ = boost::regex_replace( result->value_, regex->regex(), s->value_, flags );
       return result;
     }
     else if ( auto funcref = impptrIf<BFunctionRef>( ex.getParamImp( 1 ) ) )
@@ -1023,8 +1033,10 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       // shared_ptr because unique_ptr is not supported in makeContinuation.
       auto input = std::make_shared<std::string>( value_ );
 
-      std::sregex_iterator it( input->cbegin(), input->cend(), regex->regex() );
-      std::sregex_iterator end;
+      boost::sregex_iterator it( input->cbegin(), input->cend(), regex->regex(),
+                                 regex->multiline() ? boost::regex_constants::match_default
+                                                    : boost::regex_constants::match_single_line );
+      boost::sregex_iterator end;
 
       if ( it == end )
       {
@@ -1032,7 +1044,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
         return new String( *input );
       }
 
-      auto make_args = []( std::smatch match, const std::string& input )
+      auto make_args = []( boost::smatch match, const std::string& input )
       {
         BObjectRefVec args;
 
@@ -1054,7 +1066,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 
       std::string replaced_result;
       std::size_t lastPos = 0;
-      std::smatch match = *it;
+      boost::smatch match = *it;
 
       BObjectRefVec args = make_args( match, *input );
 

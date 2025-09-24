@@ -1,6 +1,6 @@
 #pragma once
 
-#include <regex>
+#include <boost/regex.hpp>
 
 #include "bobject.h"
 
@@ -9,11 +9,12 @@ namespace Pol::Bscript
 class BRegExp final : public BObjectImp
 {
 public:
-  explicit BRegExp( const std::string& expr, std::regex_constants::syntax_option_type flags,
-                    bool global );
+  explicit BRegExp( const std::string& expr, boost::regex_constants::syntax_option_type flags,
+                    bool global, bool multiline );
 
-  const std::regex& regex() const { return regex_; }
+  const boost::regex& regex() const { return regex_; }
   bool global() const { return global_; }
+  bool multiline() const { return multiline_; }
 
 protected:
   BRegExp( const BRegExp& i );
@@ -29,7 +30,8 @@ protected:
   virtual bool isTrue() const override;
 
 private:
-  std::regex regex_;
+  boost::regex regex_;
   bool global_;
+  bool multiline_;
 };
 }  // namespace Pol::Bscript

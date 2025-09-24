@@ -3,9 +3,9 @@
 namespace Pol::Bscript
 {
 
-BRegExp::BRegExp( const std::string& expr, std::regex_constants::syntax_option_type flags,
-                  bool global )
-    : BObjectImp( OTRegExp ), regex_( expr, flags ), global_( global )
+BRegExp::BRegExp( const std::string& expr, boost::regex_constants::syntax_option_type flags,
+                  bool global, bool multiline )
+    : BObjectImp( OTRegExp ), regex_( expr, flags ), global_( global ), multiline_( multiline )
 {
 }
 

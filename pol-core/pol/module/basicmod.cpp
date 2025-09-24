@@ -768,19 +768,20 @@ Bscript::BObjectImp* BasicExecutorModule::mf_RegExp()
   if ( !getStringParam( 0, expr ) || !getStringParam( 1, flags ) )
     return new BError( "Invalid parameter type" );
 
-  std::regex_constants::syntax_option_type flag =
-      std::regex_constants::syntax_option_type::ECMAScript;
+  boost::regex_constants::syntax_option_type flag = boost::regex_constants::ECMAScript;
   bool global = false;
+  bool multiline = false;
 
   for ( const auto& ch : flags->value() )
   {
     switch ( ch )
     {
     case 'i':
-      flag |= std::regex_constants::syntax_option_type::icase;
+      flag |= boost::regex_constants::icase;
       break;
     case 'm':
-      flag |= std::regex_constants::syntax_option_type::multiline;
+      // flag |= std::regex_constants::multiline;
+      multiline = true;
       break;
     case 'g':
       global = true;
@@ -792,7 +793,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_RegExp()
 
   try
   {
-    return new BRegExp( expr->getStringRep(), flag, global );
+    return new BRegExp( expr->getStringRep(), flag, global, multiline );
   }
   catch ( ... )
   {
