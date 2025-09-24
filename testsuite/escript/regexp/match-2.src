@@ -1,0 +1,9 @@
+// Copy of match.src but using regular expression literals
+
+print( "abc 123 def 456".match( /\d+/ ) );
+print( "abc 123 def 456".match( /\d+/g ) );
+
+print( "---" );
+
+print( "abc 123 def 456".match( /(\d)(\d)/ ) ); // 12
+print( "abc 123 def 456".match( /(\d)(\d)/g ) ); // 12 and 45
