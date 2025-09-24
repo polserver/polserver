@@ -9,8 +9,7 @@ namespace Pol::Bscript
 class BRegExp final : public BObjectImp
 {
 public:
-  explicit BRegExp( const std::string& expr, boost::regex_constants::syntax_option_type flags,
-                    bool global, bool multiline );
+  explicit BRegExp( const std::string& pattern, const std::string& flags );
 
   const boost::regex& regex() const { return regex_; }
   boost::match_flag_type flags() const { return match_flags_; }

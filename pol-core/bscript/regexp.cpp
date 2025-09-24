@@ -1,19 +1,34 @@
 #include "regexp.h"
+#include <stdexcept>
 
 namespace Pol::Bscript
 {
-
-BRegExp::BRegExp( const std::string& expr, boost::regex_constants::syntax_option_type flags,
-                  bool global, bool multiline )
+BRegExp::BRegExp( const std::string& pattern, const std::string& flags )
     : BObjectImp( OTRegExp ),
-      regex_( expr, flags ),
-      match_flags_( boost::regex_constants::match_default )
+      match_flags_( boost::regex_constants::match_single_line |
+                    boost::regex_constants::format_first_only )
 {
-  if ( !multiline )
-    match_flags_ |= boost::regex_constants::match_single_line;
+  boost::regex_constants::syntax_option_type flag = boost::regex_constants::ECMAScript;
 
-  if ( !global )
-    match_flags_ |= boost::regex_constants::format_first_only;
+  for ( const auto& ch : flags )
+  {
+    switch ( ch )
+    {
+    case 'i':
+      flag |= boost::regex_constants::icase;
+      break;
+    case 'm':
+      match_flags_ &= ~boost::regex_constants::match_single_line;
+      break;
+    case 'g':
+      match_flags_ &= ~boost::regex_constants::format_first_only;
+      break;
+    default:
+      throw std::runtime_error( "Invalid flag character" );
+    }
+  }
+
+  regex_ = boost::regex( pattern, flag );
 }
 
 BRegExp::BRegExp( const BRegExp& i )
