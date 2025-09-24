@@ -333,6 +333,7 @@ public:
   void ins_double( const Instruction& ins );
   void ins_classinst( const Instruction& ins );
   void ins_string( const Instruction& ins );
+  void ins_regexp( const Instruction& ins );
   void ins_error( const Instruction& ins );
   void ins_struct( const Instruction& ins );
   void ins_spread( const Instruction& ins );

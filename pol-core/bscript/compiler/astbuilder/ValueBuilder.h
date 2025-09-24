@@ -16,6 +16,7 @@ class FloatValue;
 class FunctionExpression;
 class FunctionReference;
 class StringValue;
+class RegularExpressionValue;
 class Value;
 
 class ValueBuilder : public TreeBuilder
@@ -38,6 +39,9 @@ public:
 
   std::unique_ptr<StringValue> string_value( antlr4::tree::TerminalNode* string_literal,
                                              bool expect_quotes = true );
+
+  std::unique_ptr<RegularExpressionValue> regular_expression_value(
+      antlr4::tree::TerminalNode* regular_expression_literal );
 
   std::string unquote( antlr4::tree::TerminalNode* string_literal, bool expect_quotes = true );
 

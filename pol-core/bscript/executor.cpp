@@ -33,6 +33,7 @@
 #include "fmodule.h"
 #include "impstr.h"
 #include "objmethods.h"
+#include "regexp.h"
 #include "str.h"
 #include "token.h"
 #include "tokens.h"
@@ -3313,6 +3314,16 @@ void Executor::ins_string( const Instruction& ins )
 {
   ValueStack.emplace_back( new String( ins.token.tokval() ) );
 }
+
+void Executor::ins_regexp( const Instruction& )
+{
+  BObjectRef flags = ValueStack.back();
+  ValueStack.pop_back();
+  BObjectRef& pattern = ValueStack.back();
+
+  pattern.set( new BRegExp( pattern->impptr()->getStringRep(), flags->impptr()->getStringRep() ) );
+}
+
 void Executor::ins_error( const Instruction& /*ins*/ )
 {
   ValueStack.emplace_back( new BError() );
@@ -3582,6 +3593,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_double;
   case TOK_STRING:
     return &Executor::ins_string;
+  case TOK_REGEXP:
+    return &Executor::ins_regexp;
   case TOK_ERROR:
     return &Executor::ins_error;
   case TOK_STRUCT:

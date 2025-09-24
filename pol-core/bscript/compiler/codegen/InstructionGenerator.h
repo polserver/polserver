@@ -63,6 +63,7 @@ public:
   void visit_method_call( MethodCall& member_call ) override;
   void visit_program( Program& ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
+  void visit_regular_expression_value( RegularExpressionValue& ) override;
   void visit_repeat_until_loop( RepeatUntilLoop& repeat_until ) override;
   void visit_return_statement( ReturnStatement& ) override;
   void visit_sequence_binding( SequenceBinding& ) override;
