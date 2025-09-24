@@ -5,12 +5,19 @@ namespace Pol::Bscript
 
 BRegExp::BRegExp( const std::string& expr, boost::regex_constants::syntax_option_type flags,
                   bool global, bool multiline )
-    : BObjectImp( OTRegExp ), regex_( expr, flags ), global_( global ), multiline_( multiline )
+    : BObjectImp( OTRegExp ),
+      regex_( expr, flags ),
+      match_flags_( boost::regex_constants::match_default )
 {
+  if ( !multiline )
+    match_flags_ |= boost::regex_constants::match_single_line;
+
+  if ( !global )
+    match_flags_ |= boost::regex_constants::format_first_only;
 }
 
 BRegExp::BRegExp( const BRegExp& i )
-    : BObjectImp( OTRegExp ), regex_( i.regex_ ), global_( i.global_ )
+    : BObjectImp( OTRegExp ), regex_( i.regex_ ), match_flags_( i.match_flags_ )
 {
 }
 

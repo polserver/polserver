@@ -13,8 +13,7 @@ public:
                     bool global, bool multiline );
 
   const boost::regex& regex() const { return regex_; }
-  bool global() const { return global_; }
-  bool multiline() const { return multiline_; }
+  boost::match_flag_type flags() const { return match_flags_; }
 
 protected:
   BRegExp( const BRegExp& i );
@@ -31,7 +30,6 @@ protected:
 
 private:
   boost::regex regex_;
-  bool global_;
-  bool multiline_;
+  boost::match_flag_type match_flags_;
 };
 }  // namespace Pol::Bscript
