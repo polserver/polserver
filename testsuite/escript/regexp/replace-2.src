@@ -13,7 +13,7 @@ print( "---" );
 print( "abc 123 def 456".replace( /(\d)(\d+)/, @ToHex ) ); // 12
 print( "abc 123 def 456".replace( /(\d)(\d+)/g, @ToHex ) ); // 12 and 45
 
-function ToHex( matched, group1, group2, offset, input )
-  print( $"matched='{matched}' group1='{group1}' group2='{group2}' offset='{offset}' input='{input}'" );
+function ToHex( matched, groups, offset, input )
+  print( $"matched='{matched}' groups='{groups}' offset='{offset}' input='{input}'" );
   return Hex( matched );
 endfunction

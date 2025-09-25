@@ -965,9 +965,13 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       result->addMember( "matched", new String( pieces_match.str( 0 ) ) );
       for ( size_t i = 1; i < pieces_match.size(); ++i )
       {
-        groups->addElement( new String( pieces_match.str( i ) ) );
+        std::unique_ptr<BStruct> group( new BStruct );
+        group->addMember( "matched", new String( pieces_match.str( i ) ) );
+        group->addMember( "offset", new BLong( pieces_match.position( i ) + 1 ) );
+        groups->addElement( group.release() );
       }
       result->addMember( "groups", groups.release() );
+      result->addMember( "offset", new BLong( pieces_match.position() + 1 ) );
 
       return result.release();
     };
@@ -1040,11 +1044,16 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
         // Matched string
         args.push_back( BObjectRef( new String( match.str() ) ) );
 
-        // Add group captures as arguments
+        // Add group captures as an array
+        std::unique_ptr<ObjArray> groups( new ObjArray );
         for ( size_t i = 1; i < match.size(); ++i )
         {
-          args.push_back( BObjectRef( new String( match.str( i ) ) ) );
+          std::unique_ptr<BStruct> group( new BStruct );
+          group->addMember( "matched", new String( match.str( i ) ) );
+          group->addMember( "offset", new BLong( match.position( i ) + 1 ) );
+          groups->addElement( group.release() );
         }
+        args.push_back( BObjectRef( groups.release() ) );
 
         // Add offset and original string as arguments
         args.push_back( BObjectRef( new BLong( match.position() + 1 ) ) );

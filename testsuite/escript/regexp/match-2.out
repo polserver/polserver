@@ -1,5 +1,5 @@
-struct{ groups = {  }, matched = "123" }
-{ struct{ groups = {  }, matched = "123" }, struct{ groups = {  }, matched = "456" } }
+struct{ groups = {  }, matched = "123", offset = 5 }
+{ struct{ groups = {  }, matched = "123", offset = 5 }, struct{ groups = {  }, matched = "456", offset = 13 } }
 ---
-struct{ groups = { 1, 2 }, matched = "12" }
-{ struct{ groups = { 1, 2 }, matched = "12" }, struct{ groups = { 4, 5 }, matched = "45" } }
+struct{ groups = { struct{ matched = "1", offset = 5 }, struct{ matched = "2", offset = 6 } }, matched = "12", offset = 5 }
+{ struct{ groups = { struct{ matched = "1", offset = 5 }, struct{ matched = "2", offset = 6 } }, matched = "12", offset = 5 }, struct{ groups = { struct{ matched = "4", offset = 13 }, struct{ matched = "5", offset = 14 } }, matched = "45", offset = 13 } }
