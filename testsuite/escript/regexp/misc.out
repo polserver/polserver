@@ -3,3 +3,13 @@ error{ errortext = "Invalid flag character" }
 ---
 error{ errortext = "Invalid regular expression" }
 error{ errortext = "Invalid flag character" }
+---
+error{ errortext = "Invalid parameter type" }
+---
+RegExp
+43
+---
+0
+1
+---
+4

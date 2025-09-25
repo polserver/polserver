@@ -1,7 +1,0 @@
-print( /(abc/ ); // bad pattern
-print( /\d/badflags ); // bad flags
-
-print( "---" );
-
-print( RegExp( "(abc" ) ); // bad pattern
-print( RegExp( "\\d", "badflags" ) ); // bad flags
