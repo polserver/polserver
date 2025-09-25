@@ -1,7 +1,15 @@
 // Copy of replace.src but using regular expression literals
 
+print( "abc 123 def 456".replace( "not a regex", 1234 ) ); // error not a regex type
+
+print( "---" );
+
 print( "abc 123 def 456".replace( /\d+/ ) ); // error not enough params
 print( "abc 123 def 456".replace( /\d+/, 1234 ) ); // error invalid type
+
+print( "---" );
+
+print( "no match found".replace( /\d+/, "<replaced>" ) ); // returns original string
 
 print( "---" );
 

@@ -946,7 +946,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       return new BLong( 0 );
     }
     else
-      return new BError( "string.find(Search, [Start]): Search must be a string or regex." );
+      return new BError( "string.find(Search, [Start]): Search must be a string or regex" );
   }
   case MTH_MATCH:
   {
@@ -956,7 +956,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) );
 
     if ( !regex )
-      return new BError( "string.match(Pattern): Pattern must be a RegExp." );
+      return new BError( "string.match(Pattern): Pattern must be a RegExp" );
 
     auto add_match = []( const boost::smatch& pieces_match )
     {
@@ -1012,7 +1012,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 
     auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) );
     if ( !regex )
-      return new BError( "string.replace(Search, Replace): Search must be a RegExp." );
+      return new BError( "string.replace(Search, Replace): Search must be a RegExp" );
 
     if ( auto s = impptrIf<String>( ex.getParamImp( 1 ) ) )
     {
@@ -1108,7 +1108,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     }
     else
     {
-      return new BError( "string.replace(Search, Replace): Replace must be a string or function." );
+      return new BError( "string.replace(Search, Replace): Replace must be a string or function" );
     }
   }
 

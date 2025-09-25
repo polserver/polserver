@@ -768,14 +768,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_RegExp()
   if ( !getStringParam( 0, expr ) || !getStringParam( 1, flags ) )
     return new BError( "Invalid parameter type" );
 
-  try
-  {
-    return new BRegExp( expr->getStringRep(), flags->getStringRep() );
-  }
-  catch ( ... )
-  {
-    return new BError( "Invalid regular expression" );
-  }
+  return BRegExp::create( expr->getStringRep(), flags->getStringRep() );
 }
 
 }  // namespace Module

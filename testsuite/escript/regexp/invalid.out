@@ -1,0 +1,5 @@
+error{ errortext = "Invalid regular expression" }
+error{ errortext = "Invalid flag character" }
+---
+error{ errortext = "Invalid regular expression" }
+error{ errortext = "Invalid flag character" }

@@ -1,5 +1,13 @@
+print( "abc 123 def 456".replace( "not a regex", 1234 ) ); // error not a regex type
+
+print( "---" );
+
 print( "abc 123 def 456".replace( RegExp( "\\d+" ) ) ); // error not enough params
 print( "abc 123 def 456".replace( RegExp( "\\d+" ), 1234 ) ); // error invalid type
+
+print( "---" );
+
+print( "no match found".replace( RegExp( "\\d+" ), "<replaced>" ) ); // returns original string
 
 print( "---" );
 

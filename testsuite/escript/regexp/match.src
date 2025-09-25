@@ -1,3 +1,12 @@
+print( "abc 123 def 456".match() );
+print( "abc 123 def 456".match( "not a regex" ) );
+
+print( "---" );
+
+print( "no match".match( RegExp( "\\d+" ) ) );
+
+print( "---" );
+
 print( "abc 123 def 456".match( RegExp( "\\d+" ) ) );
 print( "abc 123 def 456".match( RegExp( "\\d+", "g" ) ) );
 

@@ -3321,7 +3321,8 @@ void Executor::ins_regexp( const Instruction& )
   ValueStack.pop_back();
   BObjectRef& pattern = ValueStack.back();
 
-  pattern.set( new BRegExp( pattern->impptr()->getStringRep(), flags->impptr()->getStringRep() ) );
+  pattern.set(
+      BRegExp::create( pattern->impptr()->getStringRep(), flags->impptr()->getStringRep() ) );
 }
 
 void Executor::ins_error( const Instruction& /*ins*/ )

@@ -1,5 +1,9 @@
+error{ errortext = "string.replace(Search, Replace): Search must be a RegExp" }
+---
 error{ errortext = "string.replace(Search, Replace) takes exactly two parameters" }
-error{ errortext = "string.replace(Search, Replace): Replace must be a string or function." }
+error{ errortext = "string.replace(Search, Replace): Replace must be a string or function" }
+---
+no match found
 ---
 abc <replaced> def 456
 abc <replaced> def <replaced>

@@ -1,5 +1,14 @@
 // Copy of match.src but using regular expression literals
 
+print( "abc 123 def 456".match() );
+print( "abc 123 def 456".match( "not a regex" ) );
+
+print( "---" );
+
+print( "no match".match( /\d+/ ) );
+
+print( "---" );
+
 print( "abc 123 def 456".match( /\d+/ ) );
 print( "abc 123 def 456".match( /\d+/g ) );
 

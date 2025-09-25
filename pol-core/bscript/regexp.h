@@ -9,14 +9,13 @@ namespace Pol::Bscript
 class BRegExp final : public BObjectImp
 {
 public:
-  explicit BRegExp( const std::string& pattern, const std::string& flags );
+  // Can return BError if pattern or flags are invalid
+  static BObjectImp* create( const std::string& pattern, const std::string& flags );
 
   const boost::regex& regex() const { return regex_; }
   boost::match_flag_type flags() const { return match_flags_; }
 
 protected:
-  BRegExp( const BRegExp& i );
-
   virtual BObjectImp* copy() const override;
 
   virtual const char* typeOf() const override;
@@ -28,6 +27,9 @@ protected:
   virtual bool isTrue() const override;
 
 private:
+  explicit BRegExp( boost::regex regex, boost::match_flag_type match_flags );
+  BRegExp( const BRegExp& i );
+
   boost::regex regex_;
   boost::match_flag_type match_flags_;
 };
