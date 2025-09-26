@@ -424,5 +424,9 @@ std::wstring to_wstring( const std::string& value )
   std::vector<wchar_t> codes = convertutf8<wchar_t>( value );
   return std::wstring( codes.begin(), codes.end() );
 }
+
+// Explicit instantiations (to avoid linker errors)
+template std::vector<wchar_t> convertutf8<unsigned int>( const std::string& value );
+template std::vector<wchar_t> convertutf8<unsigned short>( const std::string& value );
 }  // namespace Clib
 }  // namespace Pol
