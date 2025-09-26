@@ -117,11 +117,13 @@ BObjectImp* BRegExp::match( const String* value_ ) const
     {
       std::unique_ptr<BStruct> group( new BStruct );
       group->addMember( "matched", new String( pieces_match.str( i ) ) );
-      group->addMember( "offset", new BLong( pieces_match.position( i ) + 1 ) );
+      group->addMember( "offset",
+                        new BLong( Clib::clamp_convert<int>( pieces_match.position( i ) + 1 ) ) );
       groups->addElement( group.release() );
     }
     result->addMember( "groups", groups.release() );
-    result->addMember( "offset", new BLong( pieces_match.position() + 1 ) );
+    result->addMember( "offset",
+                       new BLong( Clib::clamp_convert<int>( pieces_match.position() + 1 ) ) );
 
     return result.release();
   };
@@ -260,13 +262,14 @@ BObjectImp* BRegExp::replace( Executor& ex, const String* str, BFunctionRef* rep
       {
         std::unique_ptr<BStruct> group( new BStruct );
         group->addMember( "matched", new String( match.str( i ) ) );
-        group->addMember( "offset", new BLong( match.position( i ) + 1 ) );
+        group->addMember( "offset",
+                          new BLong( Clib::clamp_convert<int>( match.position( i ) + 1 ) ) );
         groups->addElement( group.release() );
       }
       args.push_back( BObjectRef( groups.release() ) );
 
       // Add offset and original string as arguments
-      args.push_back( BObjectRef( new BLong( match.position() + 1 ) ) );
+      args.push_back( BObjectRef( new BLong( Clib::clamp_convert<int>( match.position() + 1 ) ) ) );
       args.push_back( BObjectRef( new String( input ) ) );
 
       return args;
