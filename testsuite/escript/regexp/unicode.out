@@ -14,3 +14,6 @@ match=└ groups={  } offset=3 input=Нè└└☺
 match=└ groups={  } offset=3 input=Нè└└☺
 match=└ groups={  } offset=4 input=Нè└└☺
 Нè┕┕☺
+---
+Is all hiragana = 1
+Is all hiragana = 1

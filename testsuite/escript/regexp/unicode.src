@@ -26,8 +26,9 @@ function ReplacementCallback( match, groups, offset, input )
   return CChr( CAsc( match ) + 1 );
 endfunction
 
-// Need to implement \uXXXX replacement in string creation
-// Hiragana, U+3040 - U+309F
+print( "---" );
 
-// var hiragana := "あいうえお";
-// print( $"Is all hiragana = {hiragana.match(/^[぀-ゟ]+$/u)}");
+// Hiragana, U+3040 - U+309F
+var hiragana := "あいうえお";
+print( $"Is all hiragana = {!!hiragana.match( /^[぀-ゟ]+$/u )}" ); // actual unicode characters
+print( $"Is all hiragana = {!!hiragana.match( /^[\x{3040}-\x{309f}]+$/u )}" ); // uses \x{codepoint}
