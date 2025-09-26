@@ -10,6 +10,212 @@
 
 namespace Pol::Bscript
 {
+// Traits to unify narrow vs wide regex handling
+template <typename RegexT>
+struct regex_traits;
+
+template <>
+struct regex_traits<boost::regex>
+{
+  using string_type = std::string;
+  using match_type = boost::smatch;
+  using iterator_type = boost::sregex_iterator;
+
+  static string_type convert( const std::string& s ) { return s; }
+};
+
+template <>
+struct regex_traits<boost::wregex>
+{
+  using string_type = std::wstring;
+  using match_type = boost::wsmatch;
+  using iterator_type = boost::wsregex_iterator;
+
+  static string_type convert( const std::string& s ) { return Clib::to_wstring( s ); }
+};
+
+// Generic helpers
+template <typename RegexT>
+BObjectImp* do_find( const RegexT& re, const String* value, int d, boost::match_flag_type flags )
+{
+  using traits = regex_traits<RegexT>;
+  using match_type = typename traits::match_type;
+  using string_type = typename traits::string_type;
+
+  string_type input = traits::convert( value->value() );
+  match_type match;
+
+  if ( d >= 0 && static_cast<size_t>( d ) < input.size() &&
+       boost::regex_search( input.cbegin() + d, input.cend(), match, re, flags ) )
+  {
+    return new BLong( Clib::clamp_convert<int>( match.position() + d + 1 ) );
+  }
+
+  return new BLong( 0 );
+}
+
+template <typename RegexT>
+BObjectImp* do_match( const RegexT& re, const String* value, boost::match_flag_type flags )
+{
+  using traits = regex_traits<RegexT>;
+  using match_type = typename traits::match_type;
+  using string_type = typename traits::string_type;
+  using iterator_type = typename traits::iterator_type;
+
+  auto add_match = []<typename MatchT>( const MatchT& pieces_match )
+  {
+    std::unique_ptr<BStruct> result( new BStruct );
+    std::unique_ptr<ObjArray> groups( new ObjArray );
+    result->addMember( "matched", new String( pieces_match.str( 0 ) ) );
+    for ( size_t i = 1; i < pieces_match.size(); ++i )
+    {
+      std::unique_ptr<BStruct> group( new BStruct );
+      group->addMember( "matched", new String( pieces_match.str( i ) ) );
+      group->addMember( "offset",
+                        new BLong( Clib::clamp_convert<int>( pieces_match.position( i ) + 1 ) ) );
+      groups->addElement( group.release() );
+    }
+    result->addMember( "groups", groups.release() );
+    result->addMember( "offset",
+                       new BLong( Clib::clamp_convert<int>( pieces_match.position() + 1 ) ) );
+
+    return result.release();
+  };
+
+  string_type input = traits::convert( value->value() );
+
+  // Non-global regex: Return first struct{ matched, groups, offset } or uninit
+  if ( flags & boost::regex_constants::format_first_only )
+  {
+    match_type match;
+    if ( boost::regex_search( input.cbegin(), input.cend(), match, re ) )
+    {
+      return add_match( match );
+    }
+
+    return UninitObject::create();
+  }
+  // Global regex: Return array of all struct{ matched, groups, offset }
+  else
+  {
+    iterator_type current_match( input.cbegin(), input.cend(), re, flags );
+    iterator_type last_match;
+    std::unique_ptr<ObjArray> all_matches( new ObjArray );
+
+    while ( current_match != last_match )
+    {
+      all_matches->addElement( add_match( *current_match ) );
+      ++current_match;
+    }
+
+    return all_matches.release();
+  }
+}
+
+template <typename RegexT>
+BObjectImp* do_replace( const RegexT& re, const String* value, const String* replacement,
+                        boost::match_flag_type flags )
+{
+  using traits = regex_traits<RegexT>;
+  auto input = traits::convert( value->value() );
+  auto repl = traits::convert( replacement->value() );
+
+  auto result = boost::regex_replace( input, re, repl, flags );
+  return new String( result );
+}
+
+template <typename RegexT>
+BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const String* value,
+                        BFunctionRef* replacement_callback, boost::match_flag_type flags )
+{
+  using traits = regex_traits<RegexT>;
+  using match_type = typename traits::match_type;
+  using string_type = typename traits::string_type;
+  using iterator_type = typename traits::iterator_type;
+
+  auto input = std::make_shared<string_type>( traits::convert( value->value() ) );
+
+  auto make_args =
+      []<typename MatchT, typename StringT>( const MatchT& match, const StringT& input )
+  {
+    BObjectRefVec args;
+
+    // Matched string
+    args.push_back( BObjectRef( new String( match.str() ) ) );
+
+    // Add group captures as an array
+    std::unique_ptr<ObjArray> groups( new ObjArray );
+    for ( size_t i = 1; i < match.size(); ++i )
+    {
+      std::unique_ptr<BStruct> group( new BStruct );
+      group->addMember( "matched", new String( match.str( i ) ) );
+      group->addMember( "offset",
+                        new BLong( Clib::clamp_convert<int>( match.position( i ) + 1 ) ) );
+      groups->addElement( group.release() );
+    }
+    args.push_back( BObjectRef( groups.release() ) );
+
+    // Add offset and original string as arguments
+    args.push_back( BObjectRef( new BLong( Clib::clamp_convert<int>( match.position() + 1 ) ) ) );
+    args.push_back( BObjectRef( new String( input ) ) );
+
+    return args;
+  };
+
+  iterator_type it( input->cbegin(), input->cend(), re, flags );
+  iterator_type end;
+
+  if ( it == end )
+  {
+    // No matches found, return the original string
+    return value->copy();
+  }
+
+  string_type replaced_result;
+  std::size_t lastPos = 0;
+  match_type match = *it;
+
+  BObjectRefVec args = make_args( match, *input );
+
+  // Append the text before the first match
+  replaced_result.append( *input, lastPos, match.position() - lastPos );
+  lastPos = match.position() + match.length();
+
+  auto callback = [make_args = std::move( make_args ),
+                   regex = BObjectRef( bregexp ),  // keep regex alive
+                   flags, input = std::move( input ), it = std::move( it ), end = std::move( end ),
+                   lastPos = std::move( lastPos ), match = std::move( match ),
+                   replaced_result = std::move( replaced_result )](
+                      Executor& ex, BContinuation* continuation,
+                      BObjectRef result ) mutable -> BObjectImp*
+  {
+    // Append the replacement from the callback
+    replaced_result.append( traits::convert( result->impptr()->getStringRep() ) );
+
+    ++it;
+
+    // If no more matches, or not global, return the result
+    if ( it == end || ( flags & boost::regex_constants::format_first_only ) )
+    {
+      // Append the tail after the last match
+      replaced_result.append( *input, lastPos, std::string::npos );
+      return new String( replaced_result );
+    }
+
+    // Process the next match
+    match = *it;
+    replaced_result.append( *input, lastPos, match.position() - lastPos );
+    lastPos = match.position() + match.length();
+
+    BObjectRefVec args = make_args( match, *input );
+
+    return ex.withContinuation( continuation, std::move( args ) );
+  };
+
+  return ex.makeContinuation( BObjectRef( new BObject( replacement_callback ) ), callback,
+                              std::move( args ) );
+}
+
 BRegExp::BRegExp( RegexT regex, boost::match_flag_type match_flags )
     : BObjectImp( OTRegExp ), regex_( std::move( regex ) ), match_flags_( match_flags )
 {
@@ -67,38 +273,10 @@ BRegExp::BRegExp( const BRegExp& i )
 
 BObjectImp* BRegExp::find( const String* value_, int d ) const
 {
-  if ( d < 0 || static_cast<size_t>( d ) >= value_->length() )
-    return new BLong( 0 );
-
   try
   {
-    return std::visit(
-        [&]( auto&& re )
-        {
-          using ReT = std::decay_t<decltype( re )>;
-
-          if constexpr ( std::is_same_v<ReT, boost::regex> )
-          {
-            boost::smatch match;
-            if ( boost::regex_search( value_->value().cbegin() + d, value_->value().cend(), match,
-                                      re, match_flags_ ) )
-            {
-              return new BLong( Clib::clamp_convert<int>( match.position() + d + 1 ) );
-            }
-          }
-          else
-          {
-            auto input = Clib::to_wstring( value_->value() );
-            boost::wsmatch match;
-            if ( boost::regex_search( input.cbegin() + d, input.cend(), match, re, match_flags_ ) )
-            {
-              return new BLong( Clib::clamp_convert<int>( match.position() + d + 1 ) );
-            }
-          }
-
-          return new BLong( 0 );
-        },
-        regex_ );
+    return std::visit( [&]( auto&& re ) { return do_find( re, value_, d, match_flags_ ); },
+                       regex_ );
   }
   catch ( ... )
   {
@@ -108,106 +286,9 @@ BObjectImp* BRegExp::find( const String* value_, int d ) const
 
 BObjectImp* BRegExp::match( const String* value_ ) const
 {
-  auto add_match = []<typename MatchT>( const MatchT& pieces_match )
-  {
-    std::unique_ptr<BStruct> result( new BStruct );
-    std::unique_ptr<ObjArray> groups( new ObjArray );
-    result->addMember( "matched", new String( pieces_match.str( 0 ) ) );
-    for ( size_t i = 1; i < pieces_match.size(); ++i )
-    {
-      std::unique_ptr<BStruct> group( new BStruct );
-      group->addMember( "matched", new String( pieces_match.str( i ) ) );
-      group->addMember( "offset",
-                        new BLong( Clib::clamp_convert<int>( pieces_match.position( i ) + 1 ) ) );
-      groups->addElement( group.release() );
-    }
-    result->addMember( "groups", groups.release() );
-    result->addMember( "offset",
-                       new BLong( Clib::clamp_convert<int>( pieces_match.position() + 1 ) ) );
-
-    return result.release();
-  };
-
   try
   {
-    // Non-global regex: Return first struct{ matched, groups } or uninit
-    if ( match_flags_ & boost::regex_constants::format_first_only )
-    {
-      return std::visit(
-          [&]( auto&& re ) -> BObjectImp*
-          {
-            using ReT = std::decay_t<decltype( re )>;
-
-            if constexpr ( std::is_same_v<ReT, boost::regex> )
-            {
-              boost::smatch pieces_match;
-              if ( boost::regex_search( value_->value().cbegin(), value_->value().cend(),
-                                        pieces_match, re ) )
-              {
-                return add_match( pieces_match );
-              }
-              else
-              {
-                return UninitObject::create();
-              }
-            }
-            else
-            {
-              boost::wsmatch pieces_match;
-              auto input = Clib::to_wstring( value_->value() );
-              if ( boost::regex_search( input.cbegin(), input.cend(), pieces_match, re ) )
-              {
-                return add_match( pieces_match );
-              }
-              else
-              {
-                return UninitObject::create();
-              }
-            }
-          },
-          regex_ );
-    }
-
-    // Global regex: Return array of all struct{ matched, groups }
-    return std::visit(
-        [&]( auto&& re ) -> BObjectImp*
-        {
-          using ReT = std::decay_t<decltype( re )>;
-
-          if constexpr ( std::is_same_v<ReT, boost::regex> )
-          {
-            boost::sregex_iterator current_match( value_->value().cbegin(), value_->value().cend(),
-                                                  re, match_flags_ );
-            boost::sregex_iterator last_match;
-
-            std::unique_ptr<ObjArray> all_matches( new ObjArray );
-
-            while ( current_match != last_match )
-            {
-              all_matches->addElement( add_match( *current_match ) );
-              ++current_match;
-            }
-
-            return all_matches.release();
-          }
-          else
-          {
-            auto input = Clib::to_wstring( value_->value() );
-            boost::wsregex_iterator current_match( input.cbegin(), input.cend(), re, match_flags_ );
-            boost::wsregex_iterator last_match;
-
-            std::unique_ptr<ObjArray> all_matches( new ObjArray );
-
-            while ( current_match != last_match )
-            {
-              all_matches->addElement( add_match( *current_match ) );
-              ++current_match;
-            }
-
-            return all_matches.release();
-          }
-        },
-        regex_ );
+    return std::visit( [&]( auto&& re ) { return do_match( re, value_, match_flags_ ); }, regex_ );
   }
   catch ( ... )
   {
@@ -220,23 +301,7 @@ BObjectImp* BRegExp::replace( const String* value_, const String* replacement ) 
   try
   {
     return std::visit(
-        [&]( auto&& re ) -> BObjectImp*
-        {
-          using ReT = std::decay_t<decltype( re )>;
-
-          if constexpr ( std::is_same_v<ReT, boost::regex> )
-          {
-            return new String(
-                boost::regex_replace( value_->value(), re, replacement->value(), match_flags_ ) );
-          }
-          else
-          {
-            auto input = Clib::to_wstring( value_->value() );
-            return new String( boost::regex_replace(
-                input, re, Clib::to_wstring( replacement->value() ), match_flags_ ) );
-          }
-        },
-        regex_ );
+        [&]( auto&& re ) { return do_replace( re, value_, replacement, match_flags_ ); }, regex_ );
   }
   catch ( ... )
   {
@@ -248,159 +313,9 @@ BObjectImp* BRegExp::replace( Executor& ex, const String* str, BFunctionRef* rep
 {
   try
   {
-    auto make_args =
-        []<typename MatchT, typename StringT>( const MatchT& match, const StringT& input )
-    {
-      BObjectRefVec args;
-
-      // Matched string
-      args.push_back( BObjectRef( new String( match.str() ) ) );
-
-      // Add group captures as an array
-      std::unique_ptr<ObjArray> groups( new ObjArray );
-      for ( size_t i = 1; i < match.size(); ++i )
-      {
-        std::unique_ptr<BStruct> group( new BStruct );
-        group->addMember( "matched", new String( match.str( i ) ) );
-        group->addMember( "offset",
-                          new BLong( Clib::clamp_convert<int>( match.position( i ) + 1 ) ) );
-        groups->addElement( group.release() );
-      }
-      args.push_back( BObjectRef( groups.release() ) );
-
-      // Add offset and original string as arguments
-      args.push_back( BObjectRef( new BLong( Clib::clamp_convert<int>( match.position() + 1 ) ) ) );
-      args.push_back( BObjectRef( new String( input ) ) );
-
-      return args;
-    };
-
     return std::visit(
-        [&]( auto&& re ) -> BObjectImp*
-        {
-          using ReT = std::decay_t<decltype( re )>;
-
-          if constexpr ( std::is_same_v<ReT, boost::regex> )
-          {
-            auto input = std::make_shared<std::string>( str->value() );
-
-            boost::sregex_iterator it( input->cbegin(), input->cend(), re, match_flags_ );
-            boost::sregex_iterator end;
-
-            if ( it == end )
-            {
-              // No matches found, return the original string
-              return str->copy();
-            }
-
-            std::string replaced_result;
-            std::size_t lastPos = 0;
-            boost::smatch match = *it;
-
-            BObjectRefVec args = make_args( match, *input );
-
-            // Append the text before the first match
-            replaced_result.append( *input, lastPos, match.position() - lastPos );
-            lastPos = match.position() + match.length();
-
-            auto callback = [make_args = std::move( make_args ),
-                             regex = BObjectRef( this ),  // keep regex alive
-                             input = std::move( input ), it = std::move( it ),
-                             end = std::move( end ), lastPos = std::move( lastPos ),
-                             match = std::move( match ),
-                             replaced_result = std::move( replaced_result )](
-                                Executor& ex, BContinuation* continuation,
-                                BObjectRef result ) mutable -> BObjectImp*
-            {
-              // Append the replacement from the callback
-              replaced_result.append( result->impptr()->getStringRep() );
-
-              ++it;
-
-              // If no more matches, or not global, return the result
-              if ( it == end || ( regex->impptr<BRegExp>()->match_flags_ &
-                                  boost::regex_constants::format_first_only ) )
-              {
-                // Append the tail after the last match
-                replaced_result.append( *input, lastPos, std::string::npos );
-                return new String( replaced_result );
-              }
-
-              // Process the next match
-              match = *it;
-              replaced_result.append( *input, lastPos, match.position() - lastPos );
-              lastPos = match.position() + match.length();
-
-              BObjectRefVec args = make_args( match, *input );
-
-              return ex.withContinuation( continuation, std::move( args ) );
-            };
-
-            return ex.makeContinuation( BObjectRef( new BObject( replacement_callback ) ), callback,
-                                        std::move( args ) );
-          }
-          else
-          {
-            auto input = std::make_shared<std::wstring>( Clib::to_wstring( str->value() ) );
-
-            boost::wsregex_iterator it( input->cbegin(), input->cend(), re, match_flags_ );
-            boost::wsregex_iterator end;
-
-            if ( it == end )
-            {
-              // No matches found, return the original string
-              return str->copy();
-            }
-
-            std::wstring replaced_result;
-            std::size_t lastPos = 0;
-            boost::wsmatch match = *it;
-
-            BObjectRefVec args = make_args( match, *input );
-
-            // Append the text before the first match
-            replaced_result.append( *input, lastPos, match.position() - lastPos );
-            lastPos = match.position() + match.length();
-
-            auto callback = [make_args = std::move( make_args ),
-                             regex = BObjectRef( this ),  // keep regex alive
-                             input = std::move( input ), it = std::move( it ),
-                             end = std::move( end ), lastPos = std::move( lastPos ),
-                             match = std::move( match ),
-                             replaced_result = std::move( replaced_result )](
-                                Executor& ex, BContinuation* continuation,
-                                BObjectRef result ) mutable -> BObjectImp*
-            {
-              // Append the replacement from the callback
-              replaced_result.append( Clib::to_wstring( result->impptr()->getStringRep() ) );
-
-              ++it;
-
-              // If no more matches, or not global, return the result
-              if ( it == end || ( regex->impptr<BRegExp>()->match_flags_ &
-                                  boost::regex_constants::format_first_only ) )
-              {
-                // Append the tail after the last match
-                replaced_result.append( *input, lastPos, std::string::npos );
-
-                // Use Tainted::YES because the callback might have returned some funky strings
-                return new String( replaced_result, String::Tainted::YES );
-              }
-
-              // Process the next match
-              match = *it;
-              replaced_result.append( *input, lastPos, match.position() - lastPos );
-              lastPos = match.position() + match.length();
-
-              BObjectRefVec args = make_args( match, *input );
-
-              return ex.withContinuation( continuation, std::move( args ) );
-            };
-
-            return ex.makeContinuation( BObjectRef( new BObject( replacement_callback ) ), callback,
-                                        std::move( args ) );
-          }
-        },
+        [&]( auto&& re )
+        { return do_replace( re, ex, this, str, replacement_callback, match_flags_ ); },
         regex_ );
   }
   catch ( ... )
@@ -408,6 +323,7 @@ BObjectImp* BRegExp::replace( Executor& ex, const String* str, BFunctionRef* rep
     return new BError( "Error during regular expression operation" );
   }
 }
+
 BObjectImp* BRegExp::copy() const
 {
   return new BRegExp( *this );
