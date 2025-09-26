@@ -21,7 +21,6 @@
 #include "bobject.h"
 #include "contiter.h"
 #include "executor.h"
-#include "executor.inl.h"
 #include "impstr.h"
 #include "objmethods.h"
 #include "regexp.h"
@@ -67,6 +66,17 @@ String::String( const std::string& str, Tainted san ) : BObjectImp( OTString ), 
 
 String::String( const std::string_view& str, Tainted san ) : BObjectImp( OTString ), value_( str )
 {
+  if ( san == Tainted::YES )
+    Clib::sanitizeUnicodeWithIso( &value_ );
+}
+
+String::String( const std::wstring& str, Tainted san ) : BObjectImp( OTString )
+{
+  for ( const auto& c : str )
+  {
+    utf8::unchecked::append( c, std::back_inserter( value_ ) );
+  }
+
   if ( san == Tainted::YES )
     Clib::sanitizeUnicodeWithIso( &value_ );
 }
@@ -388,25 +398,6 @@ bool String::operator<( const BObjectImp& objimp ) const
   return base::operator<( objimp );
 }
 
-namespace
-{
-template <typename T, typename std::enable_if<sizeof( T ) == sizeof( unsigned int ), int>::type = 0>
-std::vector<wchar_t> convertutf8( const std::string& value )
-{
-  std::vector<wchar_t> codes;
-  utf8::unchecked::utf8to32( value.begin(), value.end(), std::back_inserter( codes ) );
-  return codes;
-}
-template <typename T,
-          typename std::enable_if<sizeof( T ) == sizeof( unsigned short ), int>::type = 0>
-std::vector<wchar_t> convertutf8( const std::string& value )
-{
-  std::vector<wchar_t> codes;
-  utf8::unchecked::utf8to16( value.begin(), value.end(), std::back_inserter( codes ) );
-  return codes;
-}
-}  // namespace
-
 void String::toUpper()
 {
   if ( !hasUTF8Characters() )
@@ -415,7 +406,7 @@ void String::toUpper()
     return;
   }
 #ifndef WINDOWS
-  std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
+  std::vector<wchar_t> codes = Clib::convertutf8<wchar_t>( value_ );
   value_.clear();
   for ( const auto& c : codes )
   {
@@ -454,7 +445,7 @@ void String::toLower()
     return;
   }
 #ifndef WINDOWS
-  std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
+  std::vector<wchar_t> codes = Clib::convertutf8<wchar_t>( value_ );
   value_.clear();
   for ( const auto& c : codes )
   {
@@ -936,14 +927,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     }
     else if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
     {
-      boost::smatch match;
-      if ( d >= 0 && static_cast<size_t>( d ) < value_.length() &&
-           boost::regex_search( value_.cbegin() + d, value_.cend(), match, regex->regex(),
-                                regex->flags() ) )
-      {
-        return new BLong( match.position() + d + 1 );
-      }
-      return new BLong( 0 );
+      return regex->find( this, d );
     }
     else
       return new BError( "string.find(Search, [Start]): Search must be a string or regex" );
@@ -958,52 +942,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     if ( !regex )
       return new BError( "string.match(Pattern): Pattern must be a RegExp" );
 
-    auto add_match = []( const boost::smatch& pieces_match )
-    {
-      std::unique_ptr<BStruct> result( new BStruct );
-      std::unique_ptr<ObjArray> groups( new ObjArray );
-      result->addMember( "matched", new String( pieces_match.str( 0 ) ) );
-      for ( size_t i = 1; i < pieces_match.size(); ++i )
-      {
-        std::unique_ptr<BStruct> group( new BStruct );
-        group->addMember( "matched", new String( pieces_match.str( i ) ) );
-        group->addMember( "offset", new BLong( pieces_match.position( i ) + 1 ) );
-        groups->addElement( group.release() );
-      }
-      result->addMember( "groups", groups.release() );
-      result->addMember( "offset", new BLong( pieces_match.position() + 1 ) );
-
-      return result.release();
-    };
-
-    // Non-global regex: Return first struct{ matched, groups } or uninit
-    if ( regex->flags() & boost::regex_constants::format_first_only )
-    {
-      boost::smatch pieces_match;
-      if ( boost::regex_search( value_.cbegin(), value_.cend(), pieces_match, regex->regex(),
-                                regex->flags() ) )
-      {
-        return add_match( pieces_match );
-      }
-      else
-      {
-        return UninitObject::create();
-      }
-    }
-
-    // Global regex: Return array of all struct{ matched, groups }
-    boost::sregex_iterator current_match( value_.cbegin(), value_.cend(), regex->regex() );
-    boost::sregex_iterator last_match;
-
-    std::unique_ptr<ObjArray> all_matches( new ObjArray );
-
-    while ( current_match != last_match )
-    {
-      all_matches->addElement( add_match( *current_match ) );
-      ++current_match;
-    }
-
-    return all_matches.release();
+    return regex->match( this );
   }
   case MTH_REPLACE:
   {
@@ -1016,95 +955,11 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 
     if ( auto s = impptrIf<String>( ex.getParamImp( 1 ) ) )
     {
-      String* result = new String( *this );
-
-      result->value_ =
-          boost::regex_replace( result->value_, regex->regex(), s->value_, regex->flags() );
-      return result;
+      return regex->replace( this, s );
     }
     else if ( auto funcref = impptrIf<BFunctionRef>( ex.getParamImp( 1 ) ) )
     {
-      // Copy of `value_` that is not modified during replacements. Must be
-      // shared_ptr because unique_ptr is not supported in makeContinuation.
-      auto input = std::make_shared<std::string>( value_ );
-
-      boost::sregex_iterator it( input->cbegin(), input->cend(), regex->regex(), regex->flags() );
-      boost::sregex_iterator end;
-
-      if ( it == end )
-      {
-        // No matches found, return the original string
-        return new String( *input );
-      }
-
-      auto make_args = []( boost::smatch match, const std::string& input )
-      {
-        BObjectRefVec args;
-
-        // Matched string
-        args.push_back( BObjectRef( new String( match.str() ) ) );
-
-        // Add group captures as an array
-        std::unique_ptr<ObjArray> groups( new ObjArray );
-        for ( size_t i = 1; i < match.size(); ++i )
-        {
-          std::unique_ptr<BStruct> group( new BStruct );
-          group->addMember( "matched", new String( match.str( i ) ) );
-          group->addMember( "offset", new BLong( match.position( i ) + 1 ) );
-          groups->addElement( group.release() );
-        }
-        args.push_back( BObjectRef( groups.release() ) );
-
-        // Add offset and original string as arguments
-        args.push_back( BObjectRef( new BLong( match.position() + 1 ) ) );
-        args.push_back( BObjectRef( new String( input ) ) );
-
-        return args;
-      };
-
-      std::string replaced_result;
-      std::size_t lastPos = 0;
-      boost::smatch match = *it;
-
-      BObjectRefVec args = make_args( match, *input );
-
-      // Append the text before the first match
-      replaced_result.append( value_, lastPos, match.position() - lastPos );
-      lastPos = match.position() + match.length();
-
-      auto callback =
-          [make_args = std::move( make_args ), regex = BObjectRef( regex ),  // keep regex alive
-           input = std::move( input ), it = std::move( it ), end = std::move( end ),
-           lastPos = std::move( lastPos ), match = std::move( match ),
-           replaced_result = std::move( replaced_result )](
-              Executor& ex, BContinuation* continuation, BObjectRef result ) mutable -> BObjectImp*
-      {
-        // Append the replacement from the callback
-        replaced_result.append( result->impptr()->getStringRep() );
-
-        ++it;
-
-        // If no more matches, or not global, return the result
-        if ( it == end ||
-             ( regex->impptr<BRegExp>()->flags() & boost::regex_constants::format_first_only ) )
-        {
-          // Append the tail after the last match
-          replaced_result.append( *input, lastPos, std::string::npos );
-          return new String( replaced_result );
-        }
-
-        // Process the next match
-        match = *it;
-        replaced_result.append( *input, lastPos, match.position() - lastPos );
-        lastPos = match.position() + match.length();
-
-        BObjectRefVec args = make_args( match, *input );
-
-        return ex.withContinuation( continuation, std::move( args ) );
-      };
-
-      return ex.makeContinuation( BObjectRef( new BObject( funcref ) ), callback,
-                                  std::move( args ) );
+      return regex->replace( ex, this, funcref );
     }
     else
     {

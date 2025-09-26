@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/regex.hpp>
+#include <variant>
 
 #include "bobject.h"
 
@@ -12,8 +13,16 @@ public:
   // Can return BError if pattern or flags are invalid
   static BObjectImp* create( const std::string& pattern, const std::string& flags );
 
-  const boost::regex& regex() const { return regex_; }
-  boost::match_flag_type flags() const { return match_flags_; }
+  // const boost::regex& regex() const { return regex_; }
+  // boost::match_flag_type flags() const { return match_flags_; }
+
+  // All return imps because they can _at least_ return a BError
+  BObjectImp* find( const String* str, int start ) const;
+  BObjectImp* match( const String* str ) const;
+  BObjectImp* replace( const String* str, const String* replacement ) const;
+
+  // cannot be const because we create a BObjectRef(this) to continuation lambda
+  BObjectImp* replace( Executor& ex, const String* str, BFunctionRef* replacement_callback );
 
 protected:
   virtual BObjectImp* copy() const override;
@@ -27,10 +36,12 @@ protected:
   virtual bool isTrue() const override;
 
 private:
-  explicit BRegExp( boost::regex regex, boost::match_flag_type match_flags );
+  using RegexT = std::variant<boost::regex, boost::wregex>;
+
+  explicit BRegExp( RegexT regex, boost::match_flag_type match_flags );
   BRegExp( const BRegExp& i );
 
-  boost::regex regex_;
+  RegexT regex_;
   boost::match_flag_type match_flags_;
 };
 }  // namespace Pol::Bscript

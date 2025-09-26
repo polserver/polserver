@@ -35,6 +35,7 @@ public:
   explicit String( const char* str, Tainted san = Tainted::NO );
   explicit String( const std::string& str, Tainted san = Tainted::NO );
   explicit String( const std::string_view& str, Tainted san = Tainted::NO );
+  explicit String( const std::wstring& str, Tainted san = Tainted::NO );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
   virtual ~String() = default;

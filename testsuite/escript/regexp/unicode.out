@@ -1,0 +1,16 @@
+{ { 1, ё }, { 2, Ё }, { 3, й }, { 4, Й }, { 5, ь }, { 6, Ь }, { 7, ъ }, { 8, Ъ } }
+---
+Н: iter=1 first=1 after-iter=1
+è: iter=2 first=2 after-iter=2
+└: iter=3 first=3 after-iter=3
+└: iter=4 first=3 after-iter=4
+☺: iter=5 first=5 after-iter=5
+---
+НèЪ└☺
+НèЪЪ☺
+---
+match=└ groups={  } offset=3 input=Нè└└☺
+Нè┕└☺
+match=└ groups={  } offset=3 input=Нè└└☺
+match=└ groups={  } offset=4 input=Нè└└☺
+Нè┕┕☺
