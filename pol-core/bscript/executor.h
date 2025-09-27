@@ -221,7 +221,7 @@ public:
   // Returns `BContinuation*` on success, `BError*` on failure (if provided
   // funcref is not a BFunctionRef).
   template <typename Callback>
-  BObjectImp* makeContinuation( BObjectRef funcref, Callback callback&&, BObjectRefVec args = {} );
+  BObjectImp* makeContinuation( BObjectRef funcref, Callback&& callback, BObjectRefVec args = {} );
 
   // Runs the existing continuation object with arguments `args`.
   //
