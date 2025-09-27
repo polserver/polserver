@@ -212,8 +212,8 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
     return ex.withContinuation( continuation, std::move( args ) );
   };
 
-  return ex.makeContinuation( BObjectRef( new BObject( replacement_callback ) ), callback,
-                              std::move( args ) );
+  return ex.makeContinuation( BObjectRef( new BObject( replacement_callback ) ),
+                              std::move( callback ), std::move( args ) );
 }
 
 BRegExp::BRegExp( RegexT regex, boost::match_flag_type match_flags )
@@ -315,8 +315,7 @@ BObjectImp* BRegExp::replace( Executor& ex, const String* str, BFunctionRef* rep
   {
     return std::visit(
         [&]( auto&& re )
-        { return do_replace( re, ex, this, str, replacement_callback, match_flags_ ); },
-        regex_ );
+        { return do_replace( re, ex, this, str, replacement_callback, match_flags_ ); }, regex_ );
   }
   catch ( ... )
   {

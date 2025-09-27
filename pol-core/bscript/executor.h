@@ -63,9 +63,9 @@ class Token;
 class ExecutorDebugListener
 {
 public:
-  virtual void on_halt(){};
-  virtual void on_destroy(){};
-  virtual void on_print( const std::string& /*str*/ ){};
+  virtual void on_halt() {};
+  virtual void on_destroy() {};
+  virtual void on_print( const std::string& /*str*/ ) {};
 };
 
 // FIXME: how to make this a nested struct in Executor?
@@ -221,7 +221,7 @@ public:
   // Returns `BContinuation*` on success, `BError*` on failure (if provided
   // funcref is not a BFunctionRef).
   template <typename Callback>
-  BObjectImp* makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args = {} );
+  BObjectImp* makeContinuation( BObjectRef funcref, Callback callback&&, BObjectRefVec args = {} );
 
   // Runs the existing continuation object with arguments `args`.
   //
@@ -232,7 +232,7 @@ public:
 
   // Runs `callback( unsigned int PC )` for every frame in the call stack.
   template <typename Callback>
-  void walkCallStack( Callback callback );
+  void walkCallStack( Callback&& callback );
 
   int makeString( unsigned param );
   bool hasParams( unsigned howmany ) const { return ( fparams.size() >= howmany ); }
