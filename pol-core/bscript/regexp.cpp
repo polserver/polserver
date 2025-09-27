@@ -133,7 +133,7 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
   using string_type = typename traits::string_type;
   using iterator_type = typename traits::iterator_type;
 
-  auto input = std::make_shared<string_type>( traits::convert( value->value() ) );
+  auto input = traits::convert( value->value() );
 
   auto make_args =
       []<typename MatchT, typename StringT>( const MatchT& match, const StringT& input )
@@ -162,7 +162,7 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
     return args;
   };
 
-  iterator_type it( input->cbegin(), input->cend(), re, flags );
+  iterator_type it( input.cbegin(), input.cend(), re, flags );
   iterator_type end;
 
   if ( it == end )
@@ -175,10 +175,10 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
   std::size_t lastPos = 0;
   match_type match = *it;
 
-  BObjectRefVec args = make_args( match, *input );
+  BObjectRefVec args = make_args( match, input );
 
   // Append the text before the first match
-  replaced_result.append( *input, lastPos, match.position() - lastPos );
+  replaced_result.append( input, lastPos, match.position() - lastPos );
   lastPos = match.position() + match.length();
 
   auto callback = [make_args = std::move( make_args ),
@@ -198,16 +198,16 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
     if ( it == end || ( flags & boost::regex_constants::format_first_only ) )
     {
       // Append the tail after the last match
-      replaced_result.append( *input, lastPos, std::string::npos );
+      replaced_result.append( input, lastPos, std::string::npos );
       return new String( replaced_result );
     }
 
     // Process the next match
     match = *it;
-    replaced_result.append( *input, lastPos, match.position() - lastPos );
+    replaced_result.append( input, lastPos, match.position() - lastPos );
     lastPos = match.position() + match.length();
 
-    BObjectRefVec args = make_args( match, *input );
+    BObjectRefVec args = make_args( match, input );
 
     return ex.withContinuation( continuation, std::move( args ) );
   };
