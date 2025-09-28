@@ -991,25 +991,10 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       std::unique_ptr<ObjArray> result( new ObjArray );
       const auto& sep = string_sep->value_;
 
+      // Empty separator splits into characters
       if ( sep.empty() )
       {
-        // Empty separator splits into characters
-        for ( auto rit = value_.cbegin(); rit != value_.cend(); )
-        {
-          // Limit reached, push rest and break
-          if ( result->ref_arr.size() == limit - 1 )
-          {
-            result->addElement( new String( std::string( rit, value_.cend() ) ) );
-            break;
-          }
-
-          auto previous = rit;
-          utf8::unchecked::next( rit );
-
-          result->addElement( new String( std::string( previous, rit ) ) );
-        }
-
-        return result.release();
+        return getCharacters( value_, limit );
       }
 
       // Has a non-empty separator, splits by `sep`
@@ -1241,6 +1226,28 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
   default:
     return nullptr;
   }
+}
+
+ObjArray* String::getCharacters( const std::string& source, size_t limit )
+{
+  std::unique_ptr<ObjArray> result( new ObjArray );
+
+  for ( auto rit = source.cbegin(); rit != source.cend(); )
+  {
+    // Limit reached, push rest and break
+    if ( result->ref_arr.size() == limit - 1 )
+    {
+      result->addElement( new String( std::string( rit, source.cend() ) ) );
+      break;
+    }
+
+    auto previous = rit;
+    utf8::unchecked::next( rit );
+
+    result->addElement( new String( std::string( previous, rit ) ) );
+  }
+
+  return result.release();
 }
 
 bool String::hasUTF8Characters() const

@@ -68,6 +68,9 @@ public:
   void toUpper();
   void toLower();
 
+  // Static:  mf_SplitWords allows non-String types as input (uses objimp->getStringRep() as source)
+  static ObjArray* getCharacters( const std::string& input, size_t limit );
+
   bool hasUTF8Characters() const;
   static bool hasUTF8Characters( const std::string& str );
   std::vector<unsigned short> toUTF16() const;
