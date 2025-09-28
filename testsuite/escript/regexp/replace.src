@@ -23,3 +23,8 @@ function ToHex( matched, groups, offset, input )
   print( $"matched='{matched}' groups='{groups}' offset='{offset}' input='{input}'" );
   return Hex( matched );
 endfunction
+
+print( "---" );
+
+print( "Hello There!".replace( RegExp( "(.).", "g" ), "$1" ) ); // Replace every two characters with the first character
+print( "Hello There!".replace( RegExp( "(.)(.).{2}", "g" ), "$1$2" ) ); // Replace every four characters with the first two characters

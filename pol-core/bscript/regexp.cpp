@@ -216,6 +216,55 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
                               std::move( args ) );
 }
 
+template <typename RegexT>
+BObjectImp* do_split( const RegexT& re, const String* value, size_t limit,
+                      boost::match_flag_type flags )
+{
+  using traits = regex_traits<RegexT>;
+  using string_type = typename traits::string_type;
+  using iterator_type = typename traits::iterator_type;
+
+  std::unique_ptr<ObjArray> result( new ObjArray );
+
+  if ( limit == 0 )
+    return result.release();  // Return empty array if limit is 0
+
+  auto input = traits::convert( value->value() );
+  auto start = input.cbegin();
+  auto end = input.cend();
+
+  iterator_type it( start, end, re, flags );
+  iterator_type end_it;
+
+  std::size_t last_pos = 0;
+
+  for ( ; it != end_it && result->ref_arr.size() < limit - 1; ++it )
+  {
+    auto m = *it;
+
+    // text before the match
+    result->addElement( new String( string_type( start + last_pos, m[0].first ) ) );
+
+    // captured groups (if any)
+    for ( std::size_t i = 1; i < m.size(); ++i )
+    {
+      if ( result->ref_arr.size() >= limit )
+        break;
+      result->addElement( new String( m[i].str() ) );
+    }
+
+    last_pos = m[0].second - start;
+  }
+
+  // remaining tail
+  if ( result->ref_arr.size() < limit )
+  {
+    result->addElement( new String( string_type( start + last_pos, end ) ) );
+  }
+
+  return result.release();
+}
+
 BRegExp::BRegExp( RegexT regex, boost::match_flag_type match_flags )
     : BObjectImp( OTRegExp ), regex_( std::move( regex ) ), match_flags_( match_flags )
 {
@@ -317,6 +366,19 @@ BObjectImp* BRegExp::replace( Executor& ex, const String* str, BFunctionRef* rep
         [&]( auto&& re )
         { return do_replace( re, ex, this, str, replacement_callback, match_flags_ ); },
         regex_ );
+  }
+  catch ( ... )
+  {
+    return new BError( "Error during regular expression operation" );
+  }
+}
+
+BObjectImp* BRegExp::split( const String* str, size_t limit ) const
+{
+  try
+  {
+    return std::visit( [&]( auto&& re ) { return do_split( re, str, limit, match_flags_ ); },
+                       regex_ );
   }
   catch ( ... )
   {

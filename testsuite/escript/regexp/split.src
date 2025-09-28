@@ -1,0 +1,14 @@
+// Removes spaces around `;`
+print( "Harry Kelly ;Fred Barney; Helen Rigby ; Bill Abel ;Chris Hand".split( /\s*(?:;)\s*/ ) );
+
+// Capture group -> includes separator in results
+print( "Hello 1 word. Sentence number 2.".split( /(\d)/ ) );
+
+// Splits to characters; includes empty string in beginning and end of results array
+print( "Hello".split( RegExp( "" ) ) );
+
+// Max three splits -> "", "H", "ello"
+print( "Hello".split( /(?:)/, 3 ) );
+
+// Simple split by non-word characters
+print( "a;bb;ccc.dddd,eeeee".split( /\W/g ) );

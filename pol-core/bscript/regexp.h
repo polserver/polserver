@@ -20,6 +20,7 @@ public:
   BObjectImp* find( const String* str, int start ) const;
   BObjectImp* match( const String* str ) const;
   BObjectImp* replace( const String* str, const String* replacement ) const;
+  BObjectImp* split( const String* str, size_t limit ) const;
 
   // cannot be const because we create a BObjectRef(this) to continuation lambda
   BObjectImp* replace( Executor& ex, const String* str, BFunctionRef* replacement_callback );

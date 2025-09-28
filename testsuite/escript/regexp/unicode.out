@@ -17,3 +17,7 @@ match=└ groups={  } offset=4 input=Нè└└☺
 ---
 Is all hiragana = 1
 Is all hiragana = 1
+---
+{ , , , , , , , ,  }
+{ , ё, , Ё, , й, , Й, , ь, , Ь, , ъ, , Ъ,  }
+{ か, く, こ }

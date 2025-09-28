@@ -32,3 +32,14 @@ print( "---" );
 var hiragana := "あいうえお";
 print( $"Is all hiragana = {!!hiragana.match( /^[぀-ゟ]+$/u )}" ); // actual unicode characters
 print( $"Is all hiragana = {!!hiragana.match( /^[\x{3040}-\x{309f}]+$/u )}" ); // uses \x{codepoint}
+
+print( "---" );
+
+// Since no capture, excludes separator -> only empty strings
+print( "ёЁйЙьЬъЪ".split( /./u ) );
+
+// Since capture, includes separator -> alternate empty strings and matched character
+print( "ёЁйЙьЬъЪ".split( /(.)/u ) );
+
+print( "かきくけこ".split( /[きけ]/u ) );
+

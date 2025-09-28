@@ -966,6 +966,81 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       return new BError( "string.replace(Search, Replace): Replace must be a string or function" );
     }
   }
+  case MTH_SPLIT:
+  {
+    size_t limit = std::numeric_limits<size_t>::max();
+
+    if ( ex.numParams() == 0 )
+      return new BError( "string.split(Separator[, Limit]) takes at least one parameter" );
+    else if ( ex.numParams() > 2 )
+      return new BError( "string.split(Separator[, Limit]) takes at most two parameters" );
+
+    if ( ex.numParams() == 2 )
+      limit = Clib::clamp_convert<size_t>( ex.paramAsLong( 1 ) );
+
+    if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
+    {
+      return regex->split( this, limit );
+    }
+    else if ( auto string_sep = impptrIf<String>( ex.getParamImp( 0 ) ) )
+    {
+      std::unique_ptr<ObjArray> result( new ObjArray );
+      const auto& sep = string_sep->value_;
+      if ( limit == 0 )
+        return result.release();  // Return empty array if limit == 0
+
+      if ( sep.empty() )
+      {
+        // Empty separator splits into characters
+        for ( auto rit = value_.cbegin(); rit != value_.cend(); )
+        {
+          // Limit reached, push rest and break
+          if ( result->ref_arr.size() == limit - 1 )
+          {
+            result->addElement( new String( std::string( rit, value_.cend() ) ) );
+            break;
+          }
+
+          auto previous = rit;
+          utf8::unchecked::next( rit );
+
+          result->addElement( new String( std::string( previous, rit ) ) );
+        }
+
+        return result.release();
+      }
+
+      // Has a non-empty separator, splits by `sep`
+      std::size_t start = 0;
+      while ( start < value_.size() )
+      {
+        // Limit reached, push rest and break
+        if ( result->ref_arr.size() == limit - 1 )
+        {
+          result->addElement( new String( value_.substr( start ) ) );
+          break;
+        }
+
+        std::size_t pos = value_.find( sep, start );
+        if ( pos == std::string::npos )
+        {
+          // No more separators, push rest
+          result->addElement( new String( value_.substr( start ) ) );
+          break;
+        }
+
+        // Extract part
+        result->addElement( new String( value_.substr( start, pos - start ) ) );
+        start = pos + sep.size();
+      }
+
+      return result.release();
+    }
+    else
+    {
+      return new BError( "string.split(Separator[, Limit]): Separator must be a RegExp or string" );
+    }
+  }
 
   case MTH_UPPER:
   {
