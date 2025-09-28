@@ -15,6 +15,7 @@
 #include <cstring>
 #include <picojson/picojson.h>
 #include <string>
+#include <utf8cpp/utf8.h>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -420,6 +421,29 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
   }
 
   std::unique_ptr<Bscript::ObjArray> objarr( new Bscript::ObjArray );
+
+  // If delimiter is empty, split to characters
+  if ( delimiter.empty() )
+  {
+    auto limit =
+        max_split <= -1 ? std::numeric_limits<size_t>::max() : Clib::clamp_convert<size_t>( max_split + 1 );
+    for ( auto rit = source.cbegin(); rit != source.cend(); )
+    {
+      // Limit reached, push rest and break
+      if ( objarr->ref_arr.size() == limit - 1 )
+      {
+        objarr->addElement( new String( std::string( rit, source.cend() ) ) );
+        break;
+      }
+
+      auto previous = rit;
+      utf8::unchecked::next( rit );
+
+      objarr->addElement( new String( std::string( previous, rit ) ) );
+    }
+
+    return objarr.release();
+  }
 
   // Support for how it previously worked.
   // Kept to support spaces and tabs as the same.
