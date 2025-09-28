@@ -30,5 +30,5 @@ var obj := Foo( "foo" );
 // We'll see that obj.base1 always contains a value of unscoped-arg0/1, and obj.base2
 // will have "unscoped-arg2"
 foreach key in obj
-  print( $"{_key_iter}={PackJSON( key, true )}" );
+  print( $"{_key_iter}={key}" );
 endforeach
