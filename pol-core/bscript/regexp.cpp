@@ -133,10 +133,7 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
   using string_type = typename traits::string_type;
   using iterator_type = typename traits::iterator_type;
 
-  auto input = std::make_shared<string_type>( traits::convert( value->value() ) );
-
-  auto make_args =
-      []<typename MatchT, typename StringT>( const MatchT& match, const StringT& input )
+  auto make_args = []( const auto& match, const auto& input )
   {
     BObjectRefVec args;
 
@@ -162,6 +159,7 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
     return args;
   };
 
+  auto input = std::make_unique<string_type>( traits::convert( value->value() ) );
   iterator_type it( input->cbegin(), input->cend(), re, flags );
   iterator_type end;
 
@@ -212,8 +210,8 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
     return ex.withContinuation( continuation, std::move( args ) );
   };
 
-  return ex.makeContinuation( BObjectRef( new BObject( replacement_callback ) ), callback,
-                              std::move( args ) );
+  return ex.makeContinuation( BObjectRef( new BObject( replacement_callback ) ),
+                              std::move( callback ), std::move( args ) );
 }
 
 template <typename RegexT>
