@@ -134,13 +134,15 @@ size_t BClassInstanceRef::sizeEstimate() const
 {
   return sizeof( BClassInstanceRef ) + class_instance_->sizeEstimate();
 }
+
 const char* BClassInstanceRef::typeOf() const
 {
-  return class_instance_->typeOf();
+  return "ClassInstanceRef";
 }
+
 u8 BClassInstanceRef::typeOfInt() const
 {
-  return class_instance_->typeOfInt();
+  return OTClassInstanceRef;
 }
 
 BObjectImp* BClassInstanceRef::copy() const
