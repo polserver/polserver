@@ -158,6 +158,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ProgramParameterDeclaration.h
   compiler/ast/ProgramParameterList.cpp
   compiler/ast/ProgramParameterList.h
+  compiler/ast/RegularExpressionValue.cpp
+  compiler/ast/RegularExpressionValue.h
   compiler/ast/RepeatUntilLoop.cpp
   compiler/ast/RepeatUntilLoop.h
   compiler/ast/ReturnStatement.cpp
@@ -392,6 +394,8 @@ set (bscript_sources    # sorted !
   objmembers.h
   objmethods.h
   objstrm.cpp
+  regexp.cpp
+  regexp.h
   str.cpp
   str.h
   symcont.cpp

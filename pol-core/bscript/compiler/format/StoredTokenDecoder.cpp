@@ -36,6 +36,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
                     Clib::getencodedquotedstring( s ), s.length(), tkn.offset );
     break;
   }
+  case TOK_REGEXP:
+    w += "create-regular-expression (TOK_REGEXP)";
+    break;
   case TOK_BOOL:
     fmt::format_to( std::back_inserter( w ), "{} (boolean)", static_cast<bool>( tkn.offset ) );
     break;

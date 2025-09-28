@@ -1,0 +1,24 @@
+// Copy of find.src but using regular expression literals
+
+var regex := /\d+/;
+
+print( "abc123def456".find( regex ) );
+print( "abc123def456".find( regex, 8 ) );
+
+print( "---" );
+
+// Out-of-bounds
+print( "abc123def456".find( regex, -2000 ) );
+print( "abc123def456".find( regex, 2000 ) );
+
+print( "---" );
+
+// Case sensitivity
+print( "A".find( /[a-z]/ ) );
+print( "A".find( /[a-z]/i ) );
+
+print( "---" );
+
+// Multiline
+print( "A\n1".find( /^\d/ ) ); // not found
+print( "A\n1".find( /^\d/m ) ); // found

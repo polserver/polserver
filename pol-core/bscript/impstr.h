@@ -35,6 +35,7 @@ public:
   explicit String( const char* str, Tainted san = Tainted::NO );
   explicit String( const std::string& str, Tainted san = Tainted::NO );
   explicit String( const std::string_view& str, Tainted san = Tainted::NO );
+  explicit String( const std::wstring& str, Tainted san = Tainted::NO );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
   virtual ~String() = default;
@@ -66,6 +67,9 @@ public:
   size_t length() const;
   void toUpper();
   void toLower();
+
+  // Static:  mf_SplitWords allows non-String types as input (uses objimp->getStringRep() as source)
+  static ObjArray* getCharacters( const std::string& input, size_t limit );
 
   bool hasUTF8Characters() const;
   static bool hasUTF8Characters( const std::string& str );

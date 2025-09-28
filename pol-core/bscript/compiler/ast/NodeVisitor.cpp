@@ -58,6 +58,7 @@
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 #include "bscript/compiler/ast/ProgramParameterList.h"
+#include "bscript/compiler/ast/RegularExpressionValue.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/SequenceBinding.h"
@@ -332,6 +333,11 @@ void NodeVisitor::visit_program_parameter_declaration( ProgramParameterDeclarati
 }
 
 void NodeVisitor::visit_program_parameter_list( ProgramParameterList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_regular_expression_value( RegularExpressionValue& node )
 {
   visit_children( node );
 }

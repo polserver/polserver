@@ -1,0 +1,45 @@
+print( "ёЁйЙьЬъЪ".match( /./gu ).map( @( match ) {
+  return { match.offset, match.matched };
+} ) );
+
+print( "---" );
+
+var hello := "Нè└└☺";
+foreach ch in hello
+  print( $"{ch}: iter={_ch_iter} first={hello.find( RegExp( ch, "u" ) )} after-iter={hello.find( RegExp( ch,
+                                                                                                         "u" ),
+                                                                                                 _ch_iter )}" );
+endforeach
+
+print( "---" );
+
+print( hello.replace( /└/u, "Ъ" ) );
+print( hello.replace( /└/ug, "Ъ" ) );
+
+print( "---" );
+
+print( hello.replace( /└/u, @ReplacementCallback ) );
+print( hello.replace( /└/ug, @ReplacementCallback ) );
+
+function ReplacementCallback( match, groups, offset, input )
+  print( $"match={match} groups={groups} offset={offset} input={input}" );
+  return CChr( CAsc( match ) + 1 );
+endfunction
+
+print( "---" );
+
+// Hiragana, U+3040 - U+309F
+var hiragana := "あいうえお";
+print( $"Is all hiragana = {!!hiragana.match( /^[぀-ゟ]+$/u )}" ); // actual unicode characters
+print( $"Is all hiragana = {!!hiragana.match( /^[\x{3040}-\x{309f}]+$/u )}" ); // uses \x{codepoint}
+
+print( "---" );
+
+// Since no capture, excludes separator -> only empty strings
+print( "ёЁйЙьЬъЪ".split( /./u ) );
+
+// Since capture, includes separator -> alternate empty strings and matched character
+print( "ёЁйЙьЬъЪ".split( /(.)/u ) );
+
+print( "かきくけこ".split( /[きけ]/u ) );
+

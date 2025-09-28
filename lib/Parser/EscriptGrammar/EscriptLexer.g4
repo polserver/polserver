@@ -5,6 +5,62 @@ channels { COMMENTS }
 {
     int interpolatedStringLevel = 0;
     std::stack<int> curlyLevels;
+    bool lastToken = false;
+    size_t lastTokenType = 0;
+
+    virtual std::unique_ptr<antlr4::Token> nextToken() override
+    {
+        auto next = Lexer::nextToken();
+
+        if ( next->getChannel() == antlr4::Token::DEFAULT_CHANNEL )
+        {
+            // Keep track of the last token on the default channel.
+            lastToken = true;
+            lastTokenType = next->getType();
+        }
+
+        return next;
+    }
+
+    virtual void reset() override
+    {
+        lastToken = false;
+        lastTokenType = 0;
+        interpolatedStringLevel = 0;
+        curlyLevels = std::stack<int>();
+        Lexer::reset();
+    }
+
+    bool isRegexPossible()
+    {
+        if ( !lastToken )
+        {
+            // No token has been produced yet: at the start of the input,
+            // no division is possible, so a regex literal _is_ possible.
+            return true;
+        }
+
+        switch ( lastTokenType )
+        {
+            case EscriptLexer::IDENTIFIER:
+            case EscriptLexer::UNINIT:
+            case EscriptLexer::BOOL_TRUE:
+            case EscriptLexer::BOOL_FALSE:
+            case EscriptLexer::RBRACK:
+            case EscriptLexer::RPAREN:
+            case EscriptLexer::OCT_LITERAL:
+            case EscriptLexer::DECIMAL_LITERAL:
+            case EscriptLexer::HEX_LITERAL:
+            case EscriptLexer::STRING_LITERAL:
+            case EscriptLexer::INC:
+            case EscriptLexer::DEC:
+                // After any of the tokens above, no regex literal can follow.
+                return false;
+            default:
+                // In all other cases, a regex literal _is_ possible.
+                return true;
+        }
+    }
 }
 
 // Keywords
@@ -106,6 +162,8 @@ FLOAT_LITERAL:      (Digits '.' Digits? | '.' Digits) ExponentPart?
 HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+-]? Digits;
 
 STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
+
+REGEXP_LITERAL:     '/' RegularExpressionFirstChar RegularExpressionChar* {isRegexPossible()}? '/' Letter*;
 
 INTERPOLATED_STRING_START:   '$"'
     { interpolatedStringLevel++; } -> pushMode(INTERPOLATION_STRING);
@@ -250,6 +308,24 @@ fragment Letter
     | ~[\u0000-\u007F\uD800-\uDBFF] // covers all characters above 0x7F which are not a surrogate
     | [\uD800-\uDBFF] [\uDC00-\uDFFF] // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     ;
+
+// Yoinked from https://github.com/antlr/grammars-v4/blob/6b517735620223475eefaa85c92f8d6bce15f360/javascript/javascript/JavaScriptLexer.g4
+
+fragment RegularExpressionFirstChar:
+    ~[*\r\n\u2028\u2029\\/[]
+    | RegularExpressionBackslashSequence
+    | '[' RegularExpressionClassChar* ']'
+;
+
+fragment RegularExpressionChar:
+    ~[\r\n\u2028\u2029\\/[]
+    | RegularExpressionBackslashSequence
+    | '[' RegularExpressionClassChar* ']'
+;
+
+fragment RegularExpressionClassChar: ~[\r\n\u2028\u2029\]\\] | RegularExpressionBackslashSequence;
+
+fragment RegularExpressionBackslashSequence: '\\' ~[\r\n\u2028\u2029];
 
 mode INTERPOLATION_STRING;
 DOUBLE_LBRACE_INSIDE:           '{{';

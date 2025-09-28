@@ -8,6 +8,7 @@
 #include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/RegularExpressionValue.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
@@ -120,6 +121,29 @@ std::unique_ptr<StringValue> ValueBuilder::string_value( antlr4::tree::TerminalN
   return std::make_unique<StringValue>( loc, unquote( string_literal, expect_quotes ) );
 }
 
+std::unique_ptr<RegularExpressionValue> ValueBuilder::regular_expression_value(
+    antlr4::tree::TerminalNode* regular_expression_literal )
+{
+  std::string input = regular_expression_literal->getSymbol()->getText();
+
+  std::string pattern;
+  std::string flags;
+
+  std::size_t pos = input.rfind( '/' );
+
+  if ( input.size() < 2 || input[0] != '/' || pos == std::string::npos )
+  {
+    location_for( *regular_expression_literal )
+        .internal_error( "regular expression does not begin with a slash?" );
+  }
+
+  pattern = input.substr( 1, pos - 1 );
+  flags = input.substr( pos + 1 );
+
+  auto loc = location_for( *regular_expression_literal );
+  return std::make_unique<RegularExpressionValue>( loc, std::move( pattern ), std::move( flags ) );
+}
+
 std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, bool expect_quotes )
 {
   std::string input = string_literal->getSymbol()->getText();
@@ -221,6 +245,10 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   else if ( ctx->UNINIT() )
   {
     return std::make_unique<UninitializedValue>( location_for( *ctx ) );
+  }
+  else if ( auto regex = ctx->REGEXP_LITERAL() )
+  {
+    return regular_expression_value( regex );
   }
   else
   {

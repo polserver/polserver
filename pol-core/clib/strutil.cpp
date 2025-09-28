@@ -403,6 +403,19 @@ bool caseInsensitiveEqual( const std::string& input, const std::string& test )
   return boost::iequals( input, test );
 }
 
+std::wstring to_wstring( const std::string& value )
+{
+  std::wstring result;
+  if constexpr ( sizeof( wchar_t ) == sizeof( unsigned short ) )
+  {
+    utf8::unchecked::utf8to16( value.begin(), value.end(), std::back_inserter( result ) );
+  }
+  else
+  {
+    utf8::unchecked::utf8to32( value.begin(), value.end(), std::back_inserter( result ) );
+  }
 
+  return result;
+}
 }  // namespace Clib
 }  // namespace Pol
