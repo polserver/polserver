@@ -406,9 +406,9 @@ void String::toUpper()
     return;
   }
 #ifndef WINDOWS
-  std::vector<wchar_t> codes = Clib::convertutf8( value_ );
+  auto wstr = Clib::to_wstring( value_ );
   value_.clear();
-  for ( const auto& c : codes )
+  for ( const auto& c : wstr )
   {
     utf8::unchecked::append( std::towupper( c ), std::back_inserter( value_ ) );
   }
@@ -445,9 +445,9 @@ void String::toLower()
     return;
   }
 #ifndef WINDOWS
-  std::vector<wchar_t> codes = Clib::convertutf8( value_ );
+  auto wstr = Clib::to_wstring( value_ );
   value_.clear();
-  for ( const auto& c : codes )
+  for ( const auto& c : wstr )
   {
     utf8::unchecked::append( std::towlower( c ), std::back_inserter( value_ ) );
   }
