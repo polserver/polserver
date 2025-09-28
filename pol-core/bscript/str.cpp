@@ -971,12 +971,16 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     size_t limit = std::numeric_limits<size_t>::max();
 
     if ( ex.numParams() == 0 )
-      return new BError( "string.split(Separator[, Limit]) takes at least one parameter" );
+      return new BError( "string.split(Separator[, Max_Split]) takes at least one parameter" );
     else if ( ex.numParams() > 2 )
-      return new BError( "string.split(Separator[, Limit]) takes at most two parameters" );
+      return new BError( "string.split(Separator[, Max_Split]) takes at most two parameters" );
 
     if ( ex.numParams() == 2 )
-      limit = Clib::clamp_convert<size_t>( ex.paramAsLong( 1 ) );
+    {
+      int max_splits = ex.paramAsLong( 1 );
+      if ( max_splits > -1 )
+        limit = Clib::clamp_convert<size_t>( max_splits + 1 );
+    }
 
     if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
     {
@@ -986,8 +990,6 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     {
       std::unique_ptr<ObjArray> result( new ObjArray );
       const auto& sep = string_sep->value_;
-      if ( limit == 0 )
-        return result.release();  // Return empty array if limit == 0
 
       if ( sep.empty() )
       {
@@ -1038,7 +1040,8 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     }
     else
     {
-      return new BError( "string.split(Separator[, Limit]): Separator must be a RegExp or string" );
+      return new BError(
+          "string.split(Separator[, Max_Split]): Separator must be a RegExp or string" );
     }
   }
 

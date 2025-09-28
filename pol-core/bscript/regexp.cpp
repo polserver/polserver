@@ -226,9 +226,6 @@ BObjectImp* do_split( const RegexT& re, const String* value, size_t limit,
 
   std::unique_ptr<ObjArray> result( new ObjArray );
 
-  if ( limit == 0 )
-    return result.release();  // Return empty array if limit is 0
-
   auto input = traits::convert( value->value() );
   auto start = input.cbegin();
   auto end = input.cend();

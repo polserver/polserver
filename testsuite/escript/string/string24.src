@@ -16,3 +16,9 @@ print( "---" );
 
 print( "ёЁйЙьЬъЪ".split( "" ) );
 print( "ёЁйЙьЬъЪ".split( "", 3 ) );
+
+
+print( "---" );
+
+// Max splits 0 means return array of 1 element (ie the input string itself)
+print( "a;bb;ccc.dddd,eeeee".split( ";", 0 ) );
