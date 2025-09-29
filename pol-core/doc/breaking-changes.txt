@@ -1,6 +1,11 @@
 # This is a short summary of breaking changes.
 # Please consult core-changes.txt for more information.
 -- POL100.2.0 [work-in-progress] --
+09-28-2025:
+    The `TypeOf()` and `TypeOfInt()` for a class instance has been changed from "Class" and 102 to "ClassInstanceRef" and 42.
+    The basic.em constant for class instance references was missing, and has been added as:
+
+      const OT_CLASSINSTANCEREF := 42;
 02-20-2025:
     Start of the core now fails if the datastore.txt contains a datafile which no longer exists.
     This can happen if datafiles where manually removed without updating the datastore.txt

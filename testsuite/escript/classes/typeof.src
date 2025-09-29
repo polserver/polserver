@@ -1,0 +1,8 @@
+class MyClass()
+  function MyClass( unused this )
+  endfunction
+endclass
+
+var o := MyClass();
+print( $"{TypeOfInt( o )} == {OT_CLASSINSTANCEREF} => {TypeOfInt( o ) == OT_CLASSINSTANCEREF}" );
+print( TypeOf( o ) );
