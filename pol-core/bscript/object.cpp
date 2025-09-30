@@ -366,7 +366,7 @@ BObjectImp* BObjectImp::selfIsObjImp( const BObjectImp& objimp ) const
 
 BObjectImp* BObjectImp::selfIsObj( const BObjectImp& ) const
 {
-  return new BBoolean( false );
+  return new BLong( 0 );
 }
 
 BObjectImp* BObjectImp::selfPlusObjImp( const BObjectImp& objimp ) const
