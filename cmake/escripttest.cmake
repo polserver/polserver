@@ -12,6 +12,9 @@ endif()
 if(NOT DEFINED ecompile)
   message(FATAL_ERROR "ecompile not defined")
 endif()
+if(NOT DEFINED git)
+  message(FATAL_ERROR "git not defined")
+endif()
 
 # Uncomment to not delete failed formatted files (will be saved as {scriptname}.formatted.src)
 # set(keepfailedformats TRUE)
@@ -30,22 +33,6 @@ function (cleanup scriptname)
   endforeach()
 endfunction()
 
-function (readfile file content content_len)
-  # read given file into string list
-  FILE(READ ${file} contents)
-  #keep original ;
-  STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
-  #remove last newline
-  STRING(REGEX REPLACE "\n$" "" contents "${contents}")
-  #cmake does not really support entries add _
-  STRING(REGEX REPLACE "\n\n" "\n_\n" contents "${contents}")
-  #each newline a new list element
-  STRING(REGEX REPLACE "\n" ";" contents "${contents}")
-  list(LENGTH contents len)
-  set(${content} ${contents} PARENT_SCOPE)
-  set(${content_len} ${len} PARENT_SCOPE)
-endfunction()
-
 function (compareresult scriptname result optimized)
   set (outname "${scriptname}.out")
   if (optimized AND EXISTS "${scriptname}.optimized.out")
@@ -53,37 +40,18 @@ function (compareresult scriptname result optimized)
   endif()
 
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -E compare_files ${outname} "${scriptname}.tst"
-    RESULT_VARIABLE test_not_successful
-    OUTPUT_QUIET
+    COMMAND ${git} diff --no-index --ignore-space-at-eol ${outname} "${scriptname}.tst"
     ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE test_not_successful
   )
   if (NOT ${test_not_successful})
     set(${result} 1 PARENT_SCOPE)
     return()
   endif()
   set(${result} 0 PARENT_SCOPE)
-  readfile(${outname} outcontent outlen)
-  readfile("${scriptname}.tst" tstcontent tstlen)
-  if (${outlen} EQUAL ${tstlen})
-    math(EXPR looprange ${outlen}-1)
-    foreach(i RANGE ${looprange})
-      list(GET outcontent ${i} out)
-      list(GET tstcontent ${i} tst)
-      if (NOT ${out} STREQUAL ${tst})
-        math(EXPR line ${i}+1)
-        message("${scriptname}.src failed:")
-        message("Line ${line} Expected:\n${out}\nGot:\n${tst}")
-        cleanup(${scriptname})
-        set(${result} 0 PARENT_SCOPE)
-        message(SEND_ERROR "Line differs")
-      endif()
-    endforeach()
-  else()
-    message("\"${tstcontent}\"")
-    message(SEND_ERROR "Testdata length differs")
-    cleanup(${scriptname})
-  endif()
+  message(SEND_ERROR "${scriptname}.src failed")
+  cleanup(${scriptname})
 endfunction()
 
 function (checkprocfailure output errorfile result)
