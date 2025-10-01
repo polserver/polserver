@@ -11,6 +11,7 @@
 #include <cstddef>  // for size_t
 #include <iosfwd>   // for testprint()
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -72,6 +73,13 @@ struct CUSTOM_HOUSE_ELEMENT
   s32 yoffset;
 };
 
+struct CUSTOM_HOUSE_TILE_PACKET
+{
+  u32 uncompr_length;
+  u32 compr_length;
+  std::unique_ptr<unsigned char[]> data;
+};
+
 typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;  // vector of N-S rows
 typedef std::vector<std::list<CUSTOM_HOUSE_ELEMENT>> HouseFloorRow;  // vector of Z columns
 typedef std::list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
@@ -122,7 +130,7 @@ public:
   void Clear();
   bool IsEmpty() const;
 
-  unsigned char* Compress( int floor, u32* uncompr_length, u32* compr_length );
+  std::vector<CUSTOM_HOUSE_TILE_PACKET> Compress( int floor, bool* success );
 
   unsigned int TotalSize() const;
   unsigned char NumUsedPlanes() const;
