@@ -170,6 +170,7 @@ foreach(child ${children})
         -Dsubtest=${child}
         -Decompile=${output_bin_dir}/ecompile
         -Drunecl=${output_bin_dir}/runecl
+        -Dgit=${GIT_EXECUTABLE}
         -Derrfilesuffix=1
         -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
       WORKING_DIRECTORY ${testdir}

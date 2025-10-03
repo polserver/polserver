@@ -4,7 +4,7 @@
 <ESCRIPT>  
   <fileheader fname="Basic.em">
     <filedesc>Functions for converting and manipulating number, character, and string values.</filedesc>
-    <datemodified>08/20/2020</datemodified>
+    <datemodified>09/28/2025</datemodified>
 <constant>const TRIM_LEFT  := 0x1; // Trim whitespace from Left of string.</constant>
 <constant>const TRIM_RIGHT := 0x2; // Trim whitespace from Right of string.</constant>
 <constant>const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</constant>
@@ -52,6 +52,8 @@
 <constant>const OT_BOOLEAN          := 38;</constant>
 <constant>const OT_FUNCOBJECT       := 39;</constant>
 <constant>const OT_EXPORTEDSCRIPT   := 40;</constant>
+<constant>const OT_STORAGEAREA      := 41;</constant>
+<constant>const OT_CLASSINSTANCEREF := 42;</constant>
   </fileheader>
 
   <function name="CAsc"> 

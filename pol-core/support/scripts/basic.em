@@ -46,6 +46,7 @@ const OT_BOOLEAN          := 38;
 const OT_FUNCOBJECT       := 39;
 const OT_EXPORTEDSCRIPT   := 40;
 const OT_STORAGEAREA      := 41;
+const OT_CLASSINSTANCEREF := 42;
 const OT_REGEXP           := 43;
 // format-on
 

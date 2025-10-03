@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-06-2025</datemodified>
+		<datemodified>09-28-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>09-28-2025</date>
+			<author>Kevin:</author>
+			<change type="Changed">The `TypeOf()` and `TypeOfInt()` for a class instance has been changed from &quot;Class&quot; and 102 to &quot;ClassInstanceRef&quot; and 42.<br/>
+The basic.em constant for class instance references was missing, and has been added as:<br/>
+  const OT_CLASSINSTANCEREF := 42;</change>
+		</entry>
 		<entry>
 			<date>09-06-2025</date>
 			<author>Kevin:</author>
