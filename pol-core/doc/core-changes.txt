@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+11-02-2025 Nando:
+  Changed: Config files now returns an error if a property name contains '{' or '}'
 09-28-2025 Kevin:
   Changed: The `TypeOf()` and `TypeOfInt()` for a class instance has been changed from "Class" and 102 to "ClassInstanceRef" and 42.
            The basic.em constant for class instance references was missing, and has been added as:

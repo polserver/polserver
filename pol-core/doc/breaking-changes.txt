@@ -1,6 +1,9 @@
 # This is a short summary of breaking changes.
 # Please consult core-changes.txt for more information.
+
 -- POL100.2.0 [work-in-progress] --
+11-02-2025 Nando:
+    Config files won't accept property names containing '{' or '}' anymore
 09-28-2025:
     The `TypeOf()` and `TypeOfInt()` for a class instance has been changed from "Class" and 102 to "ClassInstanceRef" and 42.
     The basic.em constant for class instance references was missing, and has been added as:
