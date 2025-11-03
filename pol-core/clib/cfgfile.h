@@ -30,7 +30,6 @@ namespace Clib
 {
 class ConfigElem;
 class ConfigElemBase;
-class VectorConfigElem;
 
 class ConfigSource
 {
@@ -63,9 +62,7 @@ protected:
   friend class ConfigSection;
   bool readline( std::string& strbuf );
   bool read_properties( ConfigElem& elem );
-  bool read_properties( VectorConfigElem& elem );
   bool _read( ConfigElem& elem );
-  bool _read( VectorConfigElem& elem );
   virtual void display_error( const std::string& msg, bool show_curline = true,
                               const ConfigElemBase* elem = nullptr,
                               bool error = true ) const override;

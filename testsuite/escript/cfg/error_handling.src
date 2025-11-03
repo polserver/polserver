@@ -1,0 +1,4 @@
+use cfgfile;
+print( ReadConfigFile( ":cfgtests:error_no_opening_braces" ) );
+print( ReadConfigFile( ":cfgtests:error_too_many_closing_braces_1" ) );
+print( ReadConfigFile( ":cfgtests:error_too_many_closing_braces_2" ) );
