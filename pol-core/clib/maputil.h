@@ -3,27 +3,36 @@
  * @par History
  */
 
+#pragma once
 
-#ifndef CLIB_MAPUTIL_H
-#define CLIB_MAPUTIL_H
-
-#include "clib.h"
+#include <algorithm>
 #include <cstring>
 #include <string>
+#include <string_view>
+#include <type_traits>
 
-namespace Pol
+namespace Pol::Clib
 {
-namespace Clib
+template <typename T>
+concept StdString = std::same_as<T, std::string> || std::same_as<T, std::string_view>;
+
+struct ci_cmp_pred
 {
-class ci_cmp_pred
-{
-public:
-  bool operator()( const std::string& x1, const std::string& x2 ) const
+  using is_transparent = void;
+  inline static const auto icomp = []( char x, char y )
+  { return std::tolower( x ) < std::tolower( y ); };
+
+  bool operator()( StdString auto const& x1, StdString auto const& x2 ) const
   {
-    return stricmp( x1.c_str(), x2.c_str() ) < 0;
+    return std::ranges::lexicographical_compare( x1, x2, icomp );
+  }
+  bool operator()( const std::string& x1, const char* x2 ) const
+  {
+    return std::ranges::lexicographical_compare( x1, std::string_view{ x2 }, icomp );
+  }
+  bool operator()( const char* x1, const std::string& x2 ) const
+  {
+    return std::ranges::lexicographical_compare( std::string_view{ x1 }, x2, icomp );
   }
 };
-}
-}
-
-#endif
+}  // namespace Pol::Clib
