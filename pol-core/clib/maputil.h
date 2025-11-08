@@ -19,20 +19,18 @@ concept StdString = std::same_as<T, std::string> || std::same_as<T, std::string_
 struct ci_cmp_pred
 {
   using is_transparent = void;
-  inline static const auto icomp = []( char x, char y )
-  { return std::tolower( x ) < std::tolower( y ); };
 
   bool operator()( StdString auto const& x1, StdString auto const& x2 ) const
   {
-    return std::ranges::lexicographical_compare( x1, x2, icomp );
+    return std::ranges::lexicographical_compare( x1, x2 );
   }
   bool operator()( const std::string& x1, const char* x2 ) const
   {
-    return std::ranges::lexicographical_compare( x1, std::string_view{ x2 }, icomp );
+    return std::ranges::lexicographical_compare( x1, std::string_view{ x2 } );
   }
   bool operator()( const char* x1, const std::string& x2 ) const
   {
-    return std::ranges::lexicographical_compare( std::string_view{ x1 }, x2, icomp );
+    return std::ranges::lexicographical_compare( std::string_view{ x1 }, x2 );
   }
 };
 }  // namespace Pol::Clib
