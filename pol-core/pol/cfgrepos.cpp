@@ -70,7 +70,7 @@ void StoredConfigElem::addprop( const std::string& propname, Bscript::BObjectImp
 
 Bscript::BObjectImp* StoredConfigElem::getimp( const std::string& propname ) const
 {
-  PropImpList::const_iterator itr = propimps_.find( boost_utils::cfg_key_flystring( propname ) );
+  PropImpList::const_iterator itr = propimps_.find( propname );
   if ( itr == propimps_.end() )
     return nullptr;
   else
@@ -93,7 +93,7 @@ Bscript::BObjectImp* StoredConfigElem::listprops() const
 std::pair<StoredConfigElem::const_iterator, StoredConfigElem::const_iterator>
 StoredConfigElem::equal_range( const std::string& propname ) const
 {
-  return propimps_.equal_range( boost_utils::cfg_key_flystring( propname ) );
+  return propimps_.equal_range( propname );
 }
 
 size_t StoredConfigElem::estimateSize() const

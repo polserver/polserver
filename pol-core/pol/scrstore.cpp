@@ -31,14 +31,14 @@ namespace Core
 {
 bool script_loaded( ScriptDef& sd )
 {
-  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( sd.name().c_str() );
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( sd.name() );
   return ( itr != scriptScheduler.scrstore.end() );
 }
 
 ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool complain_if_not_found,
                                               bool cache_script )
 {
-  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( name.c_str() );
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( name );
   if ( itr != scriptScheduler.scrstore.end() )
   {
     if ( cache_script )
@@ -72,7 +72,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
   {
     std::string tmpname = name;
     Clib::mklowerASCII( tmpname );
-    scriptScheduler.scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
+    scriptScheduler.scrstore.insert( ScriptStorage::value_type( tmpname, program ) );
   }
 
   return program;
@@ -83,7 +83,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
 ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool complain_if_not_found,
                                                bool cache_script )
 {
-  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( script.c_str() );
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( script );
   if ( itr != scriptScheduler.scrstore.end() )
     return ( *itr ).second;
 

@@ -18,10 +18,12 @@ template <typename T>
 concept FlyWeightString = requires( T x ) {
   { x.get() } -> std::same_as<const std::string&>;
 };
+template <typename T>
+concept CharArray = std::is_array_v<T> && std::is_same_v<std::remove_extent_t<T>, char>;
 
 template <typename T>
 concept CmpString = std::same_as<T, std::string> || std::same_as<T, std::string_view> ||
-                    FlyWeightString<T> || std::same_as<T, const char*>;
+                    FlyWeightString<T> || std::same_as<T, const char*> || CharArray<T>;
 
 struct ci_cmp_pred
 {
