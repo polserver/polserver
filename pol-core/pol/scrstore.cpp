@@ -83,7 +83,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
 ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool complain_if_not_found,
                                                bool cache_script )
 {
-  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( script );
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( script.name() );
   if ( itr != scriptScheduler.scrstore.end() )
     return ( *itr ).second;
 
