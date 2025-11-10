@@ -12,6 +12,8 @@
 #include <string_view>
 #include <type_traits>
 
+#include "clib.h"
+
 namespace Pol::Clib
 {
 template <typename T>
