@@ -27,22 +27,25 @@ concept CmpString = std::same_as<T, std::string> || std::same_as<T, std::string_
 
 struct ci_cmp_pred
 {
+  // allow different types tag
   using is_transparent = void;
 
-  struct mapper
+  struct converter
   {
-    static auto get( const std::string& x ) -> const std::string& { return x; };
+    static auto get( const std::string& x ) -> std::string_view { return { x }; };
     static auto get( std::string_view x ) -> std::string_view { return x; };
-    static auto get( FlyWeightString auto const& x ) -> const std::string& { return x.get(); };
+    static auto get( FlyWeightString auto const& x ) -> std::string_view { return { x.get() }; };
     static auto get( const char* x ) -> std::string_view { return { x }; }
   };
 
-  inline static const auto icomp = []( char x, char y )
-  { return std::tolower( x ) < std::tolower( y ); };
-
   bool operator()( CmpString auto const& x1, CmpString auto const& x2 ) const
   {
-    return std::ranges::lexicographical_compare( mapper::get( x1 ), mapper::get( x2 ), icomp );
+    auto sv1 = converter::get( x1 );
+    auto sv2 = converter::get( x2 );
+    // benchmark showed that strnicmp is faster then lexicographical_compare, even if we have to
+    // create string_views. my guess is that it gets completly optimized away and what is left is
+    // one comparison vs two comparisons per iteration
+    return strnicmp( sv1.data(), sv2.data(), std::min( sv1.size(), sv2.size() ) );
   }
 };
 }  // namespace Pol::Clib
