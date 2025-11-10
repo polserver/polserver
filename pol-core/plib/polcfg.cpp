@@ -23,6 +23,7 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/clib.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"

@@ -22,6 +22,7 @@
 #include "bscript/filefmt.h"
 #include "clib/Program/ProgramConfig.h"
 #include "clib/Program/ProgramMain.h"
+#include "clib/clib.h"
 #include "clib/esignal.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"

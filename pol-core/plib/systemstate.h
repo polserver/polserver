@@ -10,6 +10,7 @@
 #endif
 
 #include "../clib/maputil.h"
+#include "../clib/rawtypes.h"
 #include "polcfg.h"
 
 

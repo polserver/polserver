@@ -2,6 +2,7 @@
 
 #include "berror.h"
 #include "bobject.h"
+#include "clib/clib.h"
 #include "clib/stlutil.h"
 #include "objmembers.h"
 #include "objmethods.h"
