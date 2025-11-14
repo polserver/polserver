@@ -97,7 +97,7 @@ BObjectImp* do_match( const RegexT& re, const String* value, boost::match_flag_t
   if ( flags & boost::regex_constants::format_first_only )
   {
     match_type match;
-    if ( boost::regex_search( input.cbegin(), input.cend(), match, re ) )
+    if ( boost::regex_search( input.cbegin(), input.cend(), match, re, flags ) )
     {
       return add_match( match );
     }

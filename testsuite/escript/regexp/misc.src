@@ -28,6 +28,12 @@ print( "Hello 12345".match(/(0x)?(\d+)(!)?/) );
 
 print( "---" );
 
+// Test multiline mode: only regex with 'm' flag will match
+print( "A multiline string with numbers only on the second line:\n12345".match(/^\d+$/) );
+print( "A multiline string with numbers only on the second line:\n12345".match(/^\d+$/m) );
+
+print( "---" );
+
 print( MakeACopy( "ABC1", /\d/ ) );
 
 function MakeACopy( str, regex )
