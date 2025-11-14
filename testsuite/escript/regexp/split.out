@@ -4,3 +4,4 @@
 { , H, e, llo }
 { a, bb, ccc, dddd, eeeee }
 { a;bb;ccc.dddd,eeeee }
+{ , <uninitialized object>, a, <uninitialized object>,  , <uninitialized object>, b, 1, , <uninitialized object>, c, <uninitialized object>,  }

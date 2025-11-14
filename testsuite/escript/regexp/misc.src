@@ -22,6 +22,12 @@ print( !!/a/ ); // isTrue is always true
 
 print( "---" );
 
+// Only second group is matched: first and third are unmatched and will be
+// uninit.
+print( "Hello 12345".match(/(0x)?(\d+)(!)?/) );
+
+print( "---" );
+
 print( MakeACopy( "ABC1", /\d/ ) );
 
 function MakeACopy( str, regex )

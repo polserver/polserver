@@ -16,3 +16,5 @@ print( "a;bb;ccc.dddd,eeeee".split( /\W/g ) );
 // Max splits 0 means return array of 1 element (ie the input string itself)
 print( "a;bb;ccc.dddd,eeeee".split( /\W/g, 0 ) );
 
+// This regex has the same output as Python-equivalent: re.split(r'(\d)?', "a b1c")
+print( "a b1c".split( /(\d)?/ ) );

@@ -12,4 +12,6 @@ RegExp
 0
 1
 ---
+struct{ groups = { <uninitialized object>, struct{ matched = "12345", offset = 7 }, <uninitialized object> }, matched = "12345", offset = 7 }
+---
 4

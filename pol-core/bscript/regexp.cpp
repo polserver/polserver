@@ -69,11 +69,20 @@ BObjectImp* do_match( const RegexT& re, const String* value, boost::match_flag_t
     result->addMember( "matched", new String( pieces_match.str( 0 ) ) );
     for ( size_t i = 1; i < pieces_match.size(); ++i )
     {
-      std::unique_ptr<BStruct> group( new BStruct );
-      group->addMember( "matched", new String( pieces_match.str( i ) ) );
-      group->addMember( "offset",
-                        new BLong( Clib::clamp_convert<int>( pieces_match.position( i ) + 1 ) ) );
-      groups->addElement( group.release() );
+      if ( pieces_match[i].matched )
+      {
+        std::unique_ptr<BStruct> group( new BStruct );
+
+        group->addMember( "matched", new String( pieces_match.str( i ) ) );
+        group->addMember( "offset",
+                          new BLong( Clib::clamp_convert<int>( pieces_match.position( i ) + 1 ) ) );
+
+        groups->addElement( group.release() );
+      }
+      else
+      {
+        groups->addElement( UninitObject::create() );
+      }
     }
     result->addMember( "groups", groups.release() );
     result->addMember( "offset",
@@ -144,11 +153,20 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
     std::unique_ptr<ObjArray> groups( new ObjArray );
     for ( size_t i = 1; i < match.size(); ++i )
     {
-      std::unique_ptr<BStruct> group( new BStruct );
-      group->addMember( "matched", new String( match.str( i ) ) );
-      group->addMember( "offset",
-                        new BLong( Clib::clamp_convert<int>( match.position( i ) + 1 ) ) );
-      groups->addElement( group.release() );
+      if ( match[i].matched )
+      {
+        std::unique_ptr<BStruct> group( new BStruct );
+
+        group->addMember( "matched", new String( match.str( i ) ) );
+        group->addMember( "offset",
+                          new BLong( Clib::clamp_convert<int>( match.position( i ) + 1 ) ) );
+
+        groups->addElement( group.release() );
+      }
+      else
+      {
+        groups->addElement( UninitObject::create() );
+      }
     }
     args.push_back( BObjectRef( groups.release() ) );
 
@@ -245,7 +263,15 @@ BObjectImp* do_split( const RegexT& re, const String* value, size_t limit,
     {
       if ( result->ref_arr.size() >= limit )
         break;
-      result->addElement( new String( m[i].str() ) );
+
+      if ( m[i].matched )
+      {
+        result->addElement( new String( m[i].str() ) );
+      }
+      else
+      {
+        result->addElement( UninitObject::create() );
+      }
     }
 
     last_pos = m[0].second - start;
