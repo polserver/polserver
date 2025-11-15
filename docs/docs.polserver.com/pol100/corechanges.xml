@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-28-2025</datemodified>
+		<datemodified>11-03-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>11-02-2025</date>
+			<author>Nando:</author>
+			<change type="Changed">Config files now returns an error if a property name contains '{' or '}'. This<br/>
+prevents mistakes when closing a config element, which could lead to the closing bracket<br/>
+to be ignored.</change>
+		</entry>
 		<entry>
 			<date>09-28-2025</date>
 			<author>Kevin:</author>
