@@ -13,10 +13,7 @@ public:
   // Can return BError if pattern or flags are invalid
   static BObjectImp* create( const std::string& pattern, const std::string& flags );
 
-  // const boost::regex& regex() const { return regex_; }
-  // boost::match_flag_type flags() const { return match_flags_; }
-
-  // All return imps because they can _at least_ return a BError
+  // All return imps because they can return a BError
   BObjectImp* find( const String* str, int start ) const;
   BObjectImp* match( const String* str ) const;
   BObjectImp* replace( const String* str, const String* replacement ) const;
