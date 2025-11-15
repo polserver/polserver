@@ -483,6 +483,7 @@ literal
     | boolLiteral
     | STRING_LITERAL
     | UNINIT
+    | REGEXP_LITERAL
     ;
 
 interpolatedString

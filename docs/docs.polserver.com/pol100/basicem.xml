@@ -4,7 +4,7 @@
 <ESCRIPT>  
   <fileheader fname="Basic.em">
     <filedesc>Functions for converting and manipulating number, character, and string values.</filedesc>
-    <datemodified>09/28/2025</datemodified>
+    <datemodified>11/15/2025</datemodified>
 <constant>const TRIM_LEFT  := 0x1; // Trim whitespace from Left of string.</constant>
 <constant>const TRIM_RIGHT := 0x2; // Trim whitespace from Right of string.</constant>
 <constant>const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</constant>
@@ -54,6 +54,7 @@
 <constant>const OT_EXPORTEDSCRIPT   := 40;</constant>
 <constant>const OT_STORAGEAREA      := 41;</constant>
 <constant>const OT_CLASSINSTANCEREF := 42;</constant>
+<constant>const OT_REGEXP           := 43;</constant>
   </fileheader>
 
   <function name="CAsc"> 
@@ -284,6 +285,16 @@ const TRIM_LEFT  := 0x1; // Trim whitespace from Left of string.
 const TRIM_RIGHT := 0x2; // Trim whitespace from Right of string.
 const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code></explain>
     <return>A String</return>
+  </function>
+
+  <function name="RegExp">
+    <prototype>RegExp(pattern, flags := "")</prototype>
+    <parameter name="pattern" value="The text of the regular expression" />
+    <parameter name="flags" value="A string that contains the flags to add. Supported flags: 'u' for Unicode support; 'i' for case-insensitive matching; 'm' for treating multiline input strings as multiple lines (ie. ^ and $ will change from matching at only the start or end of the entire string to the start or end of any line within the string; 'g' for a global pattern, affecting how String methods (eg. 'match' and 'replace') behave." />
+    <explain>Creates a new regular expression.</explain>
+    <return>A RegExp object</return>
+    <error>"Invalid flag character"</error>
+    <error>"Invalid regular expression"</error>
   </function>
 
   <function name="StrReplace">

@@ -1,0 +1,12 @@
+function NumberToHex( matched  )
+  var number := CInt( matched ); // Convert matched string to integer
+  return Hex( number ); // Return the hexadecimal representation, prefixed with 0x
+endfunction
+
+var input := "The values are 10, 255, and 1024.";
+var regex := /\d+/g; // Regex to match all numbers. Note the 'g' flag to replace all matches.
+
+// Replace numbers with their hexadecimal representation
+var output := input.replace( regex, @NumberToHex );
+
+Print( output ); // Output: The values are 0xA, 0xFF, and 0x400.

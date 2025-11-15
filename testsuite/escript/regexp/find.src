@@ -1,0 +1,22 @@
+var regex := RegExp( "\\d+" );
+
+print( "abc123def456".find( regex ) );
+print( "abc123def456".find( regex, 8 ) );
+
+print( "---" );
+
+// Out-of-bounds
+print( "abc123def456".find( regex, -2000 ) );
+print( "abc123def456".find( regex, 2000 ) );
+
+print( "---" );
+
+// Case sensitivity
+print( "A".find( RegExp( "[a-z]" ) ) );
+print( "A".find( RegExp( "[a-z]", "i" ) ) );
+
+print( "---" );
+
+// Multiline
+print( "A\n1".find( RegExp( "^\\d" ) ) ); // not found
+print( "A\n1".find( RegExp( "^\\d", "m" ) ) ); // found

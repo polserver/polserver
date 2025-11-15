@@ -1759,7 +1759,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       };
 
       // Create a new continuation for a user function call.
-      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), std::move( callback ),
                                   std::move( args ) );
     }
     break;
@@ -1822,7 +1822,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         }
       };
 
-      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), std::move( callback ),
                                   std::move( args ) );
     }
     break;
@@ -1904,7 +1904,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         }
       };
 
-      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), std::move( callback ),
                                   std::move( args ) );
     }
     break;
@@ -1966,7 +1966,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         }
       };
 
-      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), std::move( callback ),
                                   std::move( args ) );
     }
     break;
@@ -2025,7 +2025,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         }
       };
 
-      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), callback,
+      return ex.makeContinuation( BObjectRef( new BObject( param0 ) ), std::move( callback ),
                                   std::move( args ) );
     }
     break;

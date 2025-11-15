@@ -1,0 +1,6 @@
+var x := "abcdefg";
+print( SplitWords( x, "", -2 ) ); // same as -1 (no max limit)
+print( SplitWords( x, "", -1 ) ); // default (no max limit)
+print( SplitWords( x, "", 0 ) ); // return 1-element array of x
+print( SplitWords( x, "", 1 ) );
+print( SplitWords( x, "", 2 ) );

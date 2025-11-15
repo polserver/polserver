@@ -58,14 +58,15 @@ package         [label="Package"          href="#Package"          pos="6.35,6.7
 packet          [label="Packet"        href="#Packet"        pos="7.85,10.0!"]
 party           [label="Party"         href="#Party"         pos="7.85,9.7!"]
 polcore         [label="PolCore"       href="#Polcore"       pos="7.85,9.4!"]
-script          [label="Script"        href="#Script"        pos="7.85,9.1!"]
-struct          [label="Struct"        href="#Struct"        pos="7.85,8.8!"]
-string          [label="String"        href="#String"        pos="7.85,8.5!"]
-storageareas    [label="StorageAreas"  href="#StorageAreas"  pos="7.85,8.2!"]
-storagearea     [label="StorageArea"   href="#StorageArea"   pos="7.85,7.9!"]
-xmlfile         [label="XMLFile"       href="#XMLFile"       pos="7.85,7.6!"]
-xmlnode         [label="XMLNode"       href="#XMLNode"       pos="7.85,7.3!"]
-xmlattributes   [label="XMLAttributes" href="#XMLAttributes" pos="7.85,7.0!"]
+regexp          [label="RegExp"        href="#RegExp"        pos="7.85,9.1!"]
+script          [label="Script"        href="#Script"        pos="7.85,8.8!"]
+struct          [label="Struct"        href="#Struct"        pos="7.85,8.5!"]
+string          [label="String"        href="#String"        pos="7.85,8.2!"]
+storageareas    [label="StorageAreas"  href="#StorageAreas"  pos="7.85,7.9!"]
+storagearea     [label="StorageArea"   href="#StorageArea"   pos="7.85,7.6!"]
+xmlfile         [label="XMLFile"       href="#XMLFile"       pos="7.85,7.3!"]
+xmlnode         [label="XMLNode"       href="#XMLNode"       pos="7.85,7.0!"]
+xmlattributes   [label="XMLAttributes" href="#XMLAttributes" pos="7.85,6.7!"]
 
 
 {

@@ -1,0 +1,11 @@
+var input := "Alice and Bob are members of the Council of Mages in Moonglow.";
+var regex := /\b[A-Z]\w*\b/g; // Regular expression to match capitalized words. Note the 'g' to return all matches as an array.
+
+foreach match_result in (input.match( regex ))
+  var { matched, offset } := match_result;
+  Print( $"Found {matched} at index {offset}" ); // Output: Found Alice at index 1
+                                                 //         Found Bob at index 11
+                                                 //         Found Council at index 28
+                                                 //         Found Mages at index 40
+                                                 //         Found Moonglow at index 48
+endforeach

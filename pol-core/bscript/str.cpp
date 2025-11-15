@@ -23,6 +23,7 @@
 #include "executor.h"
 #include "impstr.h"
 #include "objmethods.h"
+#include "regexp.h"
 #include "str.h"
 
 #ifdef __GNUG__
@@ -65,6 +66,17 @@ String::String( const std::string& str, Tainted san ) : BObjectImp( OTString ), 
 
 String::String( const std::string_view& str, Tainted san ) : BObjectImp( OTString ), value_( str )
 {
+  if ( san == Tainted::YES )
+    Clib::sanitizeUnicodeWithIso( &value_ );
+}
+
+String::String( const std::wstring& str, Tainted san ) : BObjectImp( OTString )
+{
+  for ( const auto& c : str )
+  {
+    utf8::unchecked::append( c, std::back_inserter( value_ ) );
+  }
+
   if ( san == Tainted::YES )
     Clib::sanitizeUnicodeWithIso( &value_ );
 }
@@ -386,25 +398,6 @@ bool String::operator<( const BObjectImp& objimp ) const
   return base::operator<( objimp );
 }
 
-namespace
-{
-template <typename T, typename std::enable_if<sizeof( T ) == sizeof( unsigned int ), int>::type = 0>
-std::vector<wchar_t> convertutf8( const std::string& value )
-{
-  std::vector<wchar_t> codes;
-  utf8::unchecked::utf8to32( value.begin(), value.end(), std::back_inserter( codes ) );
-  return codes;
-}
-template <typename T,
-          typename std::enable_if<sizeof( T ) == sizeof( unsigned short ), int>::type = 0>
-std::vector<wchar_t> convertutf8( const std::string& value )
-{
-  std::vector<wchar_t> codes;
-  utf8::unchecked::utf8to16( value.begin(), value.end(), std::back_inserter( codes ) );
-  return codes;
-}
-}  // namespace
-
 void String::toUpper()
 {
   if ( !hasUTF8Characters() )
@@ -413,9 +406,9 @@ void String::toUpper()
     return;
   }
 #ifndef WINDOWS
-  std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
+  auto wstr = Clib::to_wstring( value_ );
   value_.clear();
-  for ( const auto& c : codes )
+  for ( const auto& c : wstr )
   {
     utf8::unchecked::append( std::towupper( c ), std::back_inserter( value_ ) );
   }
@@ -452,9 +445,9 @@ void String::toLower()
     return;
   }
 #ifndef WINDOWS
-  std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
+  auto wstr = Clib::to_wstring( value_ );
   value_.clear();
-  for ( const auto& c : codes )
+  for ( const auto& c : wstr )
   {
     utf8::unchecked::append( std::towlower( c ), std::back_inserter( value_ ) );
   }
@@ -922,13 +915,121 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       return new BError( "string.find(Search, [Start]) takes only two parameters" );
     if ( ex.numParams() < 1 )
       return new BError( "string.find(Search, [Start]) takes at least one parameter" );
-    const char* s = ex.paramAsString( 0 );
+
     int d = 0;
     if ( ex.numParams() == 2 )
-      d = ex.paramAsLong( 1 );
-    int posn = find( d ? ( d - 1 ) : 0, s ) + 1;
-    return new BLong( posn );
+      d = ex.paramAsLong( 1 ) - 1;
+
+    if ( auto s = impptrIf<String>( ex.getParamImp( 0 ) ) )
+    {
+      int posn = find( d, s->data() ) + 1;
+      return new BLong( posn );
+    }
+    else if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
+    {
+      return regex->find( this, d );
+    }
+    else
+      return new BError( "string.find(Search, [Start]): Search must be a string or regex" );
   }
+  case MTH_MATCH:
+  {
+    if ( ex.numParams() != 1 )
+      return new BError( "string.match(Pattern) takes exactly one parameter" );
+
+    auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) );
+
+    if ( !regex )
+      return new BError( "string.match(Pattern): Pattern must be a RegExp" );
+
+    return regex->match( this );
+  }
+  case MTH_REPLACE:
+  {
+    if ( ex.numParams() != 2 )
+      return new BError( "string.replace(Search, Replace) takes exactly two parameters" );
+
+    auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) );
+    if ( !regex )
+      return new BError( "string.replace(Search, Replace): Search must be a RegExp" );
+
+    if ( auto s = impptrIf<String>( ex.getParamImp( 1 ) ) )
+    {
+      return regex->replace( this, s );
+    }
+    else if ( auto funcref = impptrIf<BFunctionRef>( ex.getParamImp( 1 ) ) )
+    {
+      return regex->replace( ex, this, funcref );
+    }
+    else
+    {
+      return new BError( "string.replace(Search, Replace): Replace must be a string or function" );
+    }
+  }
+  case MTH_SPLIT:
+  {
+    size_t limit = std::numeric_limits<size_t>::max();
+
+    if ( ex.numParams() == 0 )
+      return new BError( "string.split(Separator[, Max_Split]) takes at least one parameter" );
+    else if ( ex.numParams() > 2 )
+      return new BError( "string.split(Separator[, Max_Split]) takes at most two parameters" );
+
+    if ( ex.numParams() == 2 )
+    {
+      int max_splits = ex.paramAsLong( 1 );
+      if ( max_splits > -1 )
+        limit = Clib::clamp_convert<size_t>( max_splits + 1 );
+    }
+
+    if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
+    {
+      return regex->split( this, limit );
+    }
+    else if ( auto string_sep = impptrIf<String>( ex.getParamImp( 0 ) ) )
+    {
+      std::unique_ptr<ObjArray> result( new ObjArray );
+      const auto& sep = string_sep->value_;
+
+      // Empty separator splits into characters
+      if ( sep.empty() )
+      {
+        return getCharacters( value_, limit );
+      }
+
+      // Has a non-empty separator, splits by `sep`
+      std::size_t start = 0;
+      while ( start < value_.size() )
+      {
+        // Limit reached, push rest and break
+        if ( result->ref_arr.size() == limit - 1 )
+        {
+          result->addElement( new String( value_.substr( start ) ) );
+          break;
+        }
+
+        std::size_t pos = value_.find( sep, start );
+        if ( pos == std::string::npos )
+        {
+          // No more separators, push rest
+          result->addElement( new String( value_.substr( start ) ) );
+          break;
+        }
+
+        // Extract part
+        result->addElement( new String( value_.substr( start, pos - start ) ) );
+        start = pos + sep.size();
+      }
+
+      return result.release();
+    }
+    else
+    {
+      return new BError(
+          "string.split(Separator[, Max_Split]): Separator must be a RegExp or string" );
+    }
+  }
+
   case MTH_UPPER:
   {
     if ( ex.numParams() == 0 )
@@ -1125,6 +1226,28 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
   default:
     return nullptr;
   }
+}
+
+ObjArray* String::getCharacters( const std::string& source, size_t limit )
+{
+  std::unique_ptr<ObjArray> result( new ObjArray );
+
+  for ( auto rit = source.cbegin(); rit != source.cend(); )
+  {
+    // Limit reached, push rest and break
+    if ( result->ref_arr.size() == limit - 1 )
+    {
+      result->addElement( new String( std::string( rit, source.cend() ) ) );
+      break;
+    }
+
+    auto previous = rit;
+    utf8::unchecked::next( rit );
+
+    result->addElement( new String( std::string( previous, rit ) ) );
+  }
+
+  return result.release();
 }
 
 bool String::hasUTF8Characters() const

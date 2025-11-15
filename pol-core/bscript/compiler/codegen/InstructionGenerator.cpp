@@ -52,6 +52,7 @@
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
+#include "bscript/compiler/ast/RegularExpressionValue.h"
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/SequenceBinding.h"
@@ -789,6 +790,12 @@ void InstructionGenerator::visit_program_parameter_declaration( ProgramParameter
 {
   update_debug_location( param );
   emit.get_arg( param.name );
+}
+
+void InstructionGenerator::visit_regular_expression_value( RegularExpressionValue& lit )
+{
+  update_debug_location( lit );
+  emit.regular_expression_value( lit.pattern, lit.flags );
 }
 
 void InstructionGenerator::visit_repeat_until_loop( RepeatUntilLoop& loop )

@@ -104,6 +104,7 @@ std::string strCp1252ToUtf8( const std::string& cp1252string );
 
 bool caseInsensitiveEqual( const std::string& input, const std::string& test );
 
+std::wstring to_wstring( const std::string& value );
 }  // namespace Clib
 }  // namespace Pol
 #endif  // CLIB_STRUTIL_H

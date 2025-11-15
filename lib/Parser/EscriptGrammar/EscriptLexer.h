@@ -27,18 +27,18 @@ public:
     STRUCT = 65, ARRAY = 66, STACK = 67, TOK_IN = 68, UNINIT = 69, BOOL_TRUE = 70, 
     BOOL_FALSE = 71, IS = 72, DECIMAL_LITERAL = 73, HEX_LITERAL = 74, OCT_LITERAL = 75, 
     BINARY_LITERAL = 76, FLOAT_LITERAL = 77, HEX_FLOAT_LITERAL = 78, STRING_LITERAL = 79, 
-    INTERPOLATED_STRING_START = 80, LPAREN = 81, RPAREN = 82, LBRACK = 83, 
-    RBRACK = 84, LBRACE = 85, RBRACE = 86, DOT = 87, ARROW = 88, MUL = 89, 
-    DIV = 90, MOD = 91, ADD = 92, SUB = 93, ADD_ASSIGN = 94, SUB_ASSIGN = 95, 
-    MUL_ASSIGN = 96, DIV_ASSIGN = 97, MOD_ASSIGN = 98, LE = 99, LT = 100, 
-    GE = 101, GT = 102, RSHIFT = 103, LSHIFT = 104, BITAND = 105, CARET = 106, 
-    BITOR = 107, NOTEQUAL_A = 108, NOTEQUAL_B = 109, EQUAL_DEPRECATED = 110, 
-    EQUAL = 111, ASSIGN = 112, ADDMEMBER = 113, DELMEMBER = 114, CHKMEMBER = 115, 
-    SEMI = 116, COMMA = 117, TILDE = 118, AT = 119, COLONCOLON = 120, COLON = 121, 
-    INC = 122, DEC = 123, ELVIS = 124, QUESTION = 125, WS = 126, COMMENT = 127, 
-    LINE_COMMENT = 128, IDENTIFIER = 129, DOUBLE_LBRACE_INSIDE = 130, LBRACE_INSIDE = 131, 
-    REGULAR_CHAR_INSIDE = 132, DOUBLE_QUOTE_INSIDE = 133, DOUBLE_RBRACE = 134, 
-    STRING_LITERAL_INSIDE = 135, CLOSE_RBRACE_INSIDE = 136, FORMAT_STRING = 137
+    REGEXP_LITERAL = 80, INTERPOLATED_STRING_START = 81, LPAREN = 82, RPAREN = 83, 
+    LBRACK = 84, RBRACK = 85, LBRACE = 86, RBRACE = 87, DOT = 88, ARROW = 89, 
+    MUL = 90, DIV = 91, MOD = 92, ADD = 93, SUB = 94, ADD_ASSIGN = 95, SUB_ASSIGN = 96, 
+    MUL_ASSIGN = 97, DIV_ASSIGN = 98, MOD_ASSIGN = 99, LE = 100, LT = 101, 
+    GE = 102, GT = 103, RSHIFT = 104, LSHIFT = 105, BITAND = 106, CARET = 107, 
+    BITOR = 108, NOTEQUAL_A = 109, NOTEQUAL_B = 110, EQUAL_DEPRECATED = 111, 
+    EQUAL = 112, ASSIGN = 113, ADDMEMBER = 114, DELMEMBER = 115, CHKMEMBER = 116, 
+    SEMI = 117, COMMA = 118, TILDE = 119, AT = 120, COLONCOLON = 121, COLON = 122, 
+    INC = 123, DEC = 124, ELVIS = 125, QUESTION = 126, WS = 127, COMMENT = 128, 
+    LINE_COMMENT = 129, IDENTIFIER = 130, DOUBLE_LBRACE_INSIDE = 131, LBRACE_INSIDE = 132, 
+    REGULAR_CHAR_INSIDE = 133, DOUBLE_QUOTE_INSIDE = 134, DOUBLE_RBRACE = 135, 
+    STRING_LITERAL_INSIDE = 136, CLOSE_RBRACE_INSIDE = 137, FORMAT_STRING = 138
   };
 
   enum {
@@ -56,6 +56,62 @@ public:
 
       int interpolatedStringLevel = 0;
       std::stack<int> curlyLevels;
+      bool lastToken = false;
+      size_t lastTokenType = 0;
+
+      virtual std::unique_ptr<antlr4::Token> nextToken() override
+      {
+          auto next = Lexer::nextToken();
+
+          if ( next->getChannel() == antlr4::Token::DEFAULT_CHANNEL )
+          {
+              // Keep track of the last token on the default channel.
+              lastToken = true;
+              lastTokenType = next->getType();
+          }
+
+          return next;
+      }
+
+      virtual void reset() override
+      {
+          lastToken = false;
+          lastTokenType = 0;
+          interpolatedStringLevel = 0;
+          curlyLevels = std::stack<int>();
+          Lexer::reset();
+      }
+
+      bool isRegexPossible()
+      {
+          if ( !lastToken )
+          {
+              // No token has been produced yet: at the start of the input,
+              // no division is possible, so a regex literal _is_ possible.
+              return true;
+          }
+
+          switch ( lastTokenType )
+          {
+              case EscriptLexer::IDENTIFIER:
+              case EscriptLexer::UNINIT:
+              case EscriptLexer::BOOL_TRUE:
+              case EscriptLexer::BOOL_FALSE:
+              case EscriptLexer::RBRACK:
+              case EscriptLexer::RPAREN:
+              case EscriptLexer::OCT_LITERAL:
+              case EscriptLexer::DECIMAL_LITERAL:
+              case EscriptLexer::HEX_LITERAL:
+              case EscriptLexer::STRING_LITERAL:
+              case EscriptLexer::INC:
+              case EscriptLexer::DEC:
+                  // After any of the tokens above, no regex literal can follow.
+                  return false;
+              default:
+                  // In all other cases, a regex literal _is_ possible.
+                  return true;
+          }
+      }
 
 
   std::string getGrammarFileName() const override;
@@ -74,6 +130,8 @@ public:
 
   void action(antlr4::RuleContext *context, size_t ruleIndex, size_t actionIndex) override;
 
+  bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
+
   // By default the static state used to implement the lexer is lazily initialized during the first
   // call to the constructor. You can call this function if you wish to initialize the static state
   // ahead of time.
@@ -91,6 +149,7 @@ private:
   void CLOSE_RBRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
 
   // Individual semantic predicate functions triggered by sempred() above.
+  bool REGEXP_LITERALSempred(antlr4::RuleContext *_localctx, size_t predicateIndex);
 
 };
 

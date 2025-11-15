@@ -221,7 +221,7 @@ public:
   // Returns `BContinuation*` on success, `BError*` on failure (if provided
   // funcref is not a BFunctionRef).
   template <typename Callback>
-  BObjectImp* makeContinuation( BObjectRef funcref, Callback callback, BObjectRefVec args = {} );
+  BObjectImp* makeContinuation( BObjectRef funcref, Callback&& callback, BObjectRefVec args = {} );
 
   // Runs the existing continuation object with arguments `args`.
   //
@@ -232,7 +232,7 @@ public:
 
   // Runs `callback( unsigned int PC )` for every frame in the call stack.
   template <typename Callback>
-  void walkCallStack( Callback callback );
+  void walkCallStack( Callback&& callback );
 
   int makeString( unsigned param );
   bool hasParams( unsigned howmany ) const { return ( fparams.size() >= howmany ); }
@@ -333,6 +333,7 @@ public:
   void ins_double( const Instruction& ins );
   void ins_classinst( const Instruction& ins );
   void ins_string( const Instruction& ins );
+  void ins_regexp( const Instruction& ins );
   void ins_error( const Instruction& ins );
   void ins_struct( const Instruction& ins );
   void ins_spread( const Instruction& ins );

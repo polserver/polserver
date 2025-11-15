@@ -69,6 +69,7 @@ class BClassInstance;
 class BClassInstanceRef;
 class BContinuation;
 class BSpread;
+class BRegExp;
 
 typedef std::vector<BObjectRef> ValueStackCont;
 
@@ -132,6 +133,7 @@ public:
     OTExportScript = 40,
     OTStorageArea = 41,
     OTClassInstanceRef = 42,
+    OTRegExp = 43,
 
     // Used internally only during executor runtime. Can be modified without
     // breaking compatibility.
@@ -424,6 +426,7 @@ T* impptrIf( BObjectImp* objimp )
   impif_e( BObjectImp::OTClassInstanceRef, BClassInstanceRef );
   impif_e( BObjectImp::OTContinuation, BContinuation );
   impif_e( BObjectImp::OTSpread, BSpread );
+  impif_e( BObjectImp::OTRegExp, BRegExp );
   else static_assert( always_false<T>::value, "unsupported type" );
 #undef impif_i
 #undef impif_e

@@ -480,7 +480,9 @@ ObjMethod object_methods[] = {
     { MTH_NEW, "new", false },
     { MTH_CALL_METHOD, "call_method", false },  // internal, does not need objref.xml documentation
     { MTH_STACKTRACE, "stacktrace", false },
-    { MTH_ASSIGN, "assign", false },
+    { MTH_ASSIGN, "assign", false },  // 165
+    { MTH_MATCH, "match", false },
+    { MTH_REPLACE, "replace", false },
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )

@@ -17,7 +17,7 @@
 <!-- uobject&#45;&#45;0 -->
 <g id="edge1" class="edge">
 <title>uobject:s&#45;&#45;0</title>
-<path fill="none" stroke="black" d="M144.75,-237.72C144.75,-237.72 144.75,-224.89 144.75,-223.29"/>
+<path fill="none" stroke="black" d="M144.75,-237.73C144.75,-237.73 144.75,-224.89 144.75,-223.29"/>
 </g>
 <!-- char -->
 <g id="node2" class="node">
@@ -334,67 +334,75 @@
 </a>
 </g>
 </g>
-<!-- script -->
+<!-- regexp -->
 <g id="node37" class="node">
+<title>regexp</title>
+<g id="a_node37"><a xlink:href="#RegExp" xlink:title="RegExp" target="_top">
+<text text-anchor="middle" x="562.35" y="-175.65" font-family="monospace" font-size="12.00" fill="blue">RegExp</text>
+</a>
+</g>
+</g>
+<!-- script -->
+<g id="node38" class="node">
 <title>script</title>
-<g id="a_node37"><a xlink:href="#Script" xlink:title="Script" target="_top">
-<text text-anchor="middle" x="562.35" y="-175.65" font-family="monospace" font-size="12.00" fill="blue">Script</text>
+<g id="a_node38"><a xlink:href="#Script" xlink:title="Script" target="_top">
+<text text-anchor="middle" x="562.35" y="-154.05" font-family="monospace" font-size="12.00" fill="blue">Script</text>
 </a>
 </g>
 </g>
 <!-- struct -->
-<g id="node38" class="node">
+<g id="node39" class="node">
 <title>struct</title>
-<g id="a_node38"><a xlink:href="#Struct" xlink:title="Struct" target="_top">
-<text text-anchor="middle" x="562.35" y="-154.05" font-family="monospace" font-size="12.00" fill="blue">Struct</text>
+<g id="a_node39"><a xlink:href="#Struct" xlink:title="Struct" target="_top">
+<text text-anchor="middle" x="562.35" y="-132.45" font-family="monospace" font-size="12.00" fill="blue">Struct</text>
 </a>
 </g>
 </g>
 <!-- string -->
-<g id="node39" class="node">
+<g id="node40" class="node">
 <title>string</title>
-<g id="a_node39"><a xlink:href="#String" xlink:title="String" target="_top">
-<text text-anchor="middle" x="562.35" y="-132.45" font-family="monospace" font-size="12.00" fill="blue">String</text>
+<g id="a_node40"><a xlink:href="#String" xlink:title="String" target="_top">
+<text text-anchor="middle" x="562.35" y="-110.85" font-family="monospace" font-size="12.00" fill="blue">String</text>
 </a>
 </g>
 </g>
 <!-- storageareas -->
-<g id="node40" class="node">
+<g id="node41" class="node">
 <title>storageareas</title>
-<g id="a_node40"><a xlink:href="#StorageAreas" xlink:title="StorageAreas" target="_top">
-<text text-anchor="middle" x="562.35" y="-110.85" font-family="monospace" font-size="12.00" fill="blue">StorageAreas</text>
+<g id="a_node41"><a xlink:href="#StorageAreas" xlink:title="StorageAreas" target="_top">
+<text text-anchor="middle" x="562.35" y="-89.25" font-family="monospace" font-size="12.00" fill="blue">StorageAreas</text>
 </a>
 </g>
 </g>
 <!-- storagearea -->
-<g id="node41" class="node">
+<g id="node42" class="node">
 <title>storagearea</title>
-<g id="a_node41"><a xlink:href="#StorageArea" xlink:title="StorageArea" target="_top">
-<text text-anchor="middle" x="562.35" y="-89.25" font-family="monospace" font-size="12.00" fill="blue">StorageArea</text>
+<g id="a_node42"><a xlink:href="#StorageArea" xlink:title="StorageArea" target="_top">
+<text text-anchor="middle" x="562.35" y="-67.65" font-family="monospace" font-size="12.00" fill="blue">StorageArea</text>
 </a>
 </g>
 </g>
 <!-- xmlfile -->
-<g id="node42" class="node">
+<g id="node43" class="node">
 <title>xmlfile</title>
-<g id="a_node42"><a xlink:href="#XMLFile" xlink:title="XMLFile" target="_top">
-<text text-anchor="middle" x="562.35" y="-67.65" font-family="monospace" font-size="12.00" fill="blue">XMLFile</text>
+<g id="a_node43"><a xlink:href="#XMLFile" xlink:title="XMLFile" target="_top">
+<text text-anchor="middle" x="562.35" y="-46.05" font-family="monospace" font-size="12.00" fill="blue">XMLFile</text>
 </a>
 </g>
 </g>
 <!-- xmlnode -->
-<g id="node43" class="node">
+<g id="node44" class="node">
 <title>xmlnode</title>
-<g id="a_node43"><a xlink:href="#XMLNode" xlink:title="XMLNode" target="_top">
-<text text-anchor="middle" x="562.35" y="-46.05" font-family="monospace" font-size="12.00" fill="blue">XMLNode</text>
+<g id="a_node44"><a xlink:href="#XMLNode" xlink:title="XMLNode" target="_top">
+<text text-anchor="middle" x="562.35" y="-24.45" font-family="monospace" font-size="12.00" fill="blue">XMLNode</text>
 </a>
 </g>
 </g>
 <!-- xmlattributes -->
-<g id="node44" class="node">
+<g id="node45" class="node">
 <title>xmlattributes</title>
-<g id="a_node44"><a xlink:href="#XMLAttributes" xlink:title="XMLAttributes" target="_top">
-<text text-anchor="middle" x="562.35" y="-24.45" font-family="monospace" font-size="12.00" fill="blue">XMLAttributes</text>
+<g id="a_node45"><a xlink:href="#XMLAttributes" xlink:title="XMLAttributes" target="_top">
+<text text-anchor="middle" x="562.35" y="-2.85" font-family="monospace" font-size="12.00" fill="blue">XMLAttributes</text>
 </a>
 </g>
 </g>
@@ -424,13 +432,13 @@
 <!-- 3&#45;&#45;5 -->
 <g id="edge8" class="edge">
 <title>3&#45;&#45;5</title>
-<path fill="none" stroke="black" d="M195.01,-136.72C192.14,-136.72 147.66,-136.72 144.89,-136.72"/>
+<path fill="none" stroke="black" d="M195.01,-136.73C192.14,-136.73 147.66,-136.73 144.89,-136.73"/>
 </g>
 <!-- 6 -->
 <!-- 3&#45;&#45;6 -->
 <g id="edge9" class="edge">
 <title>3&#45;&#45;6</title>
-<path fill="none" stroke="black" d="M195.29,-136.72C198.16,-136.72 242.64,-136.72 245.41,-136.72"/>
+<path fill="none" stroke="black" d="M195.29,-136.73C198.16,-136.73 242.64,-136.73 245.41,-136.73"/>
 </g>
 <!-- 4 -->
 <!-- 4&#45;&#45;equipment -->
@@ -446,7 +454,7 @@
 <!-- 5&#45;&#45;4 -->
 <g id="edge10" class="edge">
 <title>5&#45;&#45;4</title>
-<path fill="none" stroke="black" d="M144.46,-136.72C138.73,-136.72 49.78,-136.72 44.22,-136.72"/>
+<path fill="none" stroke="black" d="M144.46,-136.73C138.73,-136.73 49.78,-136.73 44.22,-136.73"/>
 </g>
 <!-- 6&#45;&#45;map -->
 <g id="edge14" class="edge">
@@ -457,7 +465,7 @@
 <!-- 6&#45;&#45;7 -->
 <g id="edge11" class="edge">
 <title>6&#45;&#45;7</title>
-<path fill="none" stroke="black" d="M245.84,-136.72C251.57,-136.72 340.52,-136.72 346.08,-136.72"/>
+<path fill="none" stroke="black" d="M245.84,-136.73C251.57,-136.73 340.52,-136.73 346.08,-136.73"/>
 </g>
 <!-- 7&#45;&#45;multi -->
 <g id="edge15" class="edge">
@@ -468,13 +476,13 @@
 <!-- 8&#45;&#45;9 -->
 <g id="edge17" class="edge">
 <title>8&#45;&#45;9</title>
-<path fill="none" stroke="black" d="M43.67,-93.52C41.07,-93.52 21.44,-93.52 19,-93.52"/>
+<path fill="none" stroke="black" d="M43.67,-93.53C41.07,-93.53 21.44,-93.53 19,-93.53"/>
 </g>
 <!-- 10 -->
 <!-- 8&#45;&#45;10 -->
 <g id="edge18" class="edge">
 <title>8&#45;&#45;10</title>
-<path fill="none" stroke="black" d="M44.23,-93.52C46.83,-93.52 66.46,-93.52 68.9,-93.52"/>
+<path fill="none" stroke="black" d="M44.23,-93.53C46.83,-93.53 66.46,-93.53 68.9,-93.53"/>
 </g>
 <!-- 9&#45;&#45;armor -->
 <g id="edge19" class="edge">
@@ -490,13 +498,13 @@
 <!-- 11&#45;&#45;12 -->
 <g id="edge22" class="edge">
 <title>11&#45;&#45;12</title>
-<path fill="none" stroke="black" d="M144.47,-93.52C141.87,-93.52 122.24,-93.52 119.8,-93.52"/>
+<path fill="none" stroke="black" d="M144.47,-93.53C141.87,-93.53 122.24,-93.53 119.8,-93.53"/>
 </g>
 <!-- 13 -->
 <!-- 11&#45;&#45;13 -->
 <g id="edge23" class="edge">
 <title>11&#45;&#45;13</title>
-<path fill="none" stroke="black" d="M145.03,-93.52C147.63,-93.52 167.26,-93.52 169.7,-93.52"/>
+<path fill="none" stroke="black" d="M145.03,-93.53C147.63,-93.53 167.26,-93.53 169.7,-93.53"/>
 </g>
 <!-- 12&#45;&#45;door -->
 <g id="edge24" class="edge">
@@ -512,13 +520,13 @@
 <!-- 14&#45;&#45;15 -->
 <g id="edge27" class="edge">
 <title>14&#45;&#45;15</title>
-<path fill="none" stroke="black" d="M346.07,-93.52C343.47,-93.52 323.84,-93.52 321.4,-93.52"/>
+<path fill="none" stroke="black" d="M346.07,-93.53C343.47,-93.53 323.84,-93.53 321.4,-93.53"/>
 </g>
 <!-- 16 -->
 <!-- 14&#45;&#45;16 -->
 <g id="edge28" class="edge">
 <title>14&#45;&#45;16</title>
-<path fill="none" stroke="black" d="M346.63,-93.52C349.23,-93.52 368.86,-93.52 371.3,-93.52"/>
+<path fill="none" stroke="black" d="M346.63,-93.53C349.23,-93.53 368.86,-93.53 371.3,-93.53"/>
 </g>
 <!-- 15&#45;&#45;boat -->
 <g id="edge29" class="edge">

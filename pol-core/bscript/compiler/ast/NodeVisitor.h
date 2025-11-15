@@ -62,6 +62,7 @@ class Node;
 class Program;
 class ProgramParameterDeclaration;
 class ProgramParameterList;
+class RegularExpressionValue;
 class RepeatUntilLoop;
 class ReturnStatement;
 class SequenceBinding;
@@ -142,6 +143,7 @@ public:
   virtual void visit_program( Program& );
   virtual void visit_program_parameter_declaration( ProgramParameterDeclaration& );
   virtual void visit_program_parameter_list( ProgramParameterList& );
+  virtual void visit_regular_expression_value( RegularExpressionValue& );
   virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
   virtual void visit_sequence_binding( SequenceBinding& );

@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>02/03/2025</datemodified>
+<datemodified>11/15/2025</datemodified>
 </fileheader>
 
 
@@ -616,6 +616,10 @@
 <method proto="PropNames()" returns="array">Returns an array of property name strings</method>
 </class>
 
+<class name="RegExp">
+<explain>A regular expression used to specify a matching pattern when used against a string. A regular expression is created via <code>basic::RegExp( pattern, flags )</code> module function or <code>/pattern/flags</code> language syntax.</explain>
+<explain>For additional examples and discussions, see Racalac's Escript Guide or the <code>basic::RegExp()</code> module function documentation.</explain>
+</class>
 
 <class name="Script">
 <explain>Object representing a script in the system</explain>
@@ -782,7 +786,10 @@ Declare and pre-initialize with var s := "my string"</explain>
 <method proto="[substr] := replace_str" returns="string">finds the first occurance of 'substr' and replaces substr with 'replace_str'. returns the new string.</method>
 <method proto="+ string" returns="string">concatenates the strings, returns the new string.</method>
 <method proto="length()" returns="int">returns number of characters in the string</method>
-<method proto="find(search,[start])" returns="int">returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str, but unlike the basic.em function the Start parameter is optional if not given it searches the whole string</method>
+<method proto="find(String|RegExp search, [int start])" returns="int">returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str, but unlike the basic.em function the Start parameter is optional if not given it searches the whole string. The <code>search</code> parameter can be either a String or a RegExp.</method>
+<method proto="match(RegExp expr)" returns="struct|uninit|array">Executes a regular expression against a string. A match result is a struct of the form <code>struct{ matched: string, offset: int, groups: array{ struct{ matched: string, offset: int } | uninit } }</code>. If the regular expression is global (ie. created with the <code>g</code> flag), returns an array of match results; otherwise, returns a single match result if the regular expression match is successful, or else <code>uninit</code>. An element in the <code>groups</code> array will have be <code>uninit</code> if the group was unmatched.</method>
+<method proto="replace(RegExp search, String|FunctionObject replacement)" returns="string">Returns a new string with matches of <code>search</code> replaced using <code>replacement</code>. If the regular expression is global (ie. created with the <code>g</code> flag), then all matches are replaced; otherwise, just the first match. The <code>replacement</code> parameter can be a string or a function object. If a function object, the function will be called with four arguments: <code>String matched</code>, <code>Array{ Struct{ String matched, Int offset } | uninit } groups</code>, <code>Int offset</code>, and <code>String input_string</code>: the return value of the function call will be used for the replacement.</method>
+<method proto="split(RegExp|String separator, [Int max_splits])" returns="array">Takes the <code>separator</code> pattern and divides this string (up to <code>max_splits</code> divisions, if provided) into an ordered list of substrings by searching for the pattern, returning the array of substrings. Capture groups are included in the returned array.</method>
 <method proto="upper()" returns="string">returns like upper(str) the uppercase version and also modifies the str</method>
 <method proto="lower()" returns="string">returns like lower(str) the lowercase version and also modifies the str</method>
 <method proto="format(args)" returns="string">formats a string using the data from args.<br/>
