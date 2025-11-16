@@ -1,4 +1,11 @@
 -- POL100.2.0 --
+11-16-2025 Kevin:
+    Added: Support for creating regular expressions via `basic::RegExp( pattern, flags )` module
+           function and `/pattern/flags` language syntax.
+    Added: String methods `replace`, `find`, and `match` that accept a regular expression object.
+    Added: String method `find` now also accepts a regular expression object.
+    Fixed: `basic::SplitWords` module function with an empty-string delimiter will no longer hang
+           the process, and instead split the string into individual characters.
 11-02-2025 Nando:
   Changed: Config files now returns an error if a property name contains '{' or '}'. This
            prevents mistakes when closing a config element, which could lead to the closing bracket
