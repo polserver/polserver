@@ -13,7 +13,7 @@ struct CallbackData
   CallbackData( const CallbackData& data ) = delete;
   CallbackData& operator=( const CallbackData& data ) = delete;
   CallbackData( CallbackData&& data ) = default;
-  CallbackData&& operator=( CallbackData&& data ) = delete;
+  CallbackData& operator=( CallbackData&& data ) = default;
   ~CallbackData() = default;
 
 
