@@ -1,0 +1,20 @@
+error{ errortext = "Invalid regular expression" }
+error{ errortext = "Invalid flag character" }
+---
+error{ errortext = "Invalid regular expression" }
+error{ errortext = "Invalid flag character" }
+---
+error{ errortext = "Invalid parameter type" }
+---
+RegExp
+43
+---
+0
+1
+---
+struct{ groups = { <uninitialized object>, struct{ matched = "12345", offset = 7 }, <uninitialized object> }, matched = "12345", offset = 7 }
+---
+<uninitialized object>
+struct{ groups = {  }, matched = "12345", offset = 58 }
+---
+4

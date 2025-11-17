@@ -1,0 +1,41 @@
+print( /(abc/ ); // bad pattern
+print( /\d/badflags ); // bad flags
+
+print( "---" );
+
+print( RegExp( "(abc" ) ); // bad pattern
+print( RegExp( "\\d", "badflags" ) ); // bad flags
+
+print( "---" );
+
+print( RegExp( 12334 ) ); // invalid parameter type
+
+print( "---" );
+
+print( TypeOf( /a/ ) );
+print( TypeOfInt( /a/ ) );
+
+print( "---" );
+
+print( /a/ < /a/ ); // operator< always false
+print( !!/a/ ); // isTrue is always true
+
+print( "---" );
+
+// Only second group is matched: first and third are unmatched and will be
+// uninit.
+print( "Hello 12345".match(/(0x)?(\d+)(!)?/) );
+
+print( "---" );
+
+// Test multiline mode: only regex with 'm' flag will match
+print( "A multiline string with numbers only on the second line:\n12345".match(/^\d+$/) );
+print( "A multiline string with numbers only on the second line:\n12345".match(/^\d+$/m) );
+
+print( "---" );
+
+print( MakeACopy( "ABC1", /\d/ ) );
+
+function MakeACopy( str, regex )
+  return str.find( regex );
+endfunction

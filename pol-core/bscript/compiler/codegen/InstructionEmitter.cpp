@@ -665,6 +665,14 @@ void InstructionEmitter::value( const std::string& v )
   emit_token( TOK_STRING, TYP_OPERAND, data_offset );
 }
 
+void InstructionEmitter::regular_expression_value( const std::string& pattern,
+                                                   const std::string& flags )
+{
+  value( pattern );
+  value( flags );
+  emit_token( TOK_REGEXP, TYP_OPERAND );
+}
+
 void InstructionEmitter::interpolate_string( unsigned count )
 {
   emit_token( TOK_INTERPOLATE_STRING, TYP_OPERAND, count );

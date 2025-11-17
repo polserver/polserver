@@ -1384,6 +1384,8 @@ antlrcpp::Any PrettifyFileProcessor::visitLiteral( EscriptParser::LiteralContext
     addToken( "uninit", uninit, FmtToken::SPACE );
   else if ( auto bool_literal = ctx->boolLiteral() )
     return visitBoolLiteral( bool_literal );
+  else if ( auto regular_expression_literal = ctx->REGEXP_LITERAL() )
+    return make_regular_expression_literal( regular_expression_literal );
   return visitChildren( ctx );
 }
 
@@ -1642,6 +1644,13 @@ antlrcpp::Any PrettifyFileProcessor::make_float_literal( antlr4::tree::TerminalN
 }
 
 antlrcpp::Any PrettifyFileProcessor::make_bool_literal( antlr4::tree::TerminalNode* terminal )
+{
+  addToken( terminal->getText(), terminal, FmtToken::SPACE );
+  return {};
+}
+
+antlrcpp::Any PrettifyFileProcessor::make_regular_expression_literal(
+    antlr4::tree::TerminalNode* terminal )
 {
   addToken( terminal->getText(), terminal, FmtToken::SPACE );
   return {};

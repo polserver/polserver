@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-03-2025</datemodified>
+		<datemodified>11-16-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>11-16-2025</date>
+			<author>Kevin:</author>
+			<change type="Added">Support for creating regular expressions via `basic::RegExp( pattern, flags )` module<br/>
+function and `/pattern/flags` language syntax.</change>
+			<change type="Added">String methods `replace`, `find`, and `match` that accept a regular expression object.</change>
+			<change type="Added">String method `find` now also accepts a regular expression object.</change>
+			<change type="Fixed">`basic::SplitWords` module function with an empty-string delimiter will no longer hang<br/>
+the process, and instead split the string into individual characters.</change>
+		</entry>
 		<entry>
 			<date>11-02-2025</date>
 			<author>Nando:</author>

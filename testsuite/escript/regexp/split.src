@@ -1,0 +1,20 @@
+// Removes spaces around `;`
+print( "Harry Kelly ;Fred Barney; Helen Rigby ; Bill Abel ;Chris Hand".split( /\s*(?:;)\s*/ ) );
+
+// Capture group -> includes separator in results
+print( "Hello 1 word. Sentence number 2.".split( /(\d)/ ) );
+
+// Splits to characters; includes empty string in beginning and end of results array
+print( "Hello".split( RegExp( "" ) ) );
+
+// Max three splits -> "", "H", "e", "llo"
+print( "Hello".split( /(?:)/, 3 ) );
+
+// Simple split by non-word characters
+print( "a;bb;ccc.dddd,eeeee".split( /\W/g ) );
+
+// Max splits 0 means return array of 1 element (ie the input string itself)
+print( "a;bb;ccc.dddd,eeeee".split( /\W/g, 0 ) );
+
+// This regex has the same output as Python-equivalent: re.split(r'(\d)?', "a b1c")
+print( "a b1c".split( /(\d)?/ ) );

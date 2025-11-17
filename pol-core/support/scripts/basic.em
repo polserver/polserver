@@ -47,6 +47,7 @@ const OT_FUNCOBJECT       := 39;
 const OT_EXPORTEDSCRIPT   := 40;
 const OT_STORAGEAREA      := 41;
 const OT_CLASSINSTANCEREF := 42;
+const OT_REGEXP           := 43;
 // format-on
 
 // returns the one-based index of Search within Str after position Start
@@ -109,3 +110,4 @@ UnpackJSON( jsonStr );
 Boolean( number ); // returns boolean instance
 EncodeBase64( str );
 DecodeBase64( str );
+RegExp( pattern, flags := "" );

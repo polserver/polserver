@@ -131,6 +131,7 @@ public:
   void value( int );
   void value( bool );
   void value( const std::string& );
+  void regular_expression_value( const std::string& pattern, const std::string& flags );
   void interpolate_string( unsigned count );
   void format_expression();
 

@@ -1,0 +1,24 @@
+print( "a:b:c:d:e:".split( "" ) );
+
+print( "a:b:c:d:e:".split( ":" ) );
+
+print( "a:b::c:d::e::f:g::h:i".split( "::" ) );
+
+print( "---" );
+
+print( "a:b:c:d:e:".split( "", 3 ) );
+
+print( "a:b:c:d:e:".split( ":", 3 ) );
+
+print( "a:b::c:d::e::f:g::h:i".split( "::", 3 ) );
+
+print( "---" );
+
+print( "ёЁйЙьЬъЪ".split( "" ) );
+print( "ёЁйЙьЬъЪ".split( "", 3 ) );
+
+
+print( "---" );
+
+// Max splits 0 means return array of 1 element (ie the input string itself)
+print( "a;bb;ccc.dddd,eeeee".split( ";", 0 ) );

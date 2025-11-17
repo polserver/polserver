@@ -195,6 +195,8 @@ enum MethodID
   MTH_CALL_METHOD,
   MTH_STACKTRACE,
   MTH_ASSIGN,  // 165
+  MTH_MATCH,
+  MTH_REPLACE,
 };
 
 inline auto format_as( MethodID id )

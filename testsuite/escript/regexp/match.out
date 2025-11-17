@@ -1,0 +1,10 @@
+error{ errortext = "string.match(Pattern) takes exactly one parameter" }
+error{ errortext = "string.match(Pattern): Pattern must be a RegExp" }
+---
+<uninitialized object>
+---
+struct{ groups = {  }, matched = "123", offset = 5 }
+{ struct{ groups = {  }, matched = "123", offset = 5 }, struct{ groups = {  }, matched = "456", offset = 13 } }
+---
+struct{ groups = { struct{ matched = "1", offset = 5 }, struct{ matched = "2", offset = 6 } }, matched = "12", offset = 5 }
+{ struct{ groups = { struct{ matched = "1", offset = 5 }, struct{ matched = "2", offset = 6 } }, matched = "12", offset = 5 }, struct{ groups = { struct{ matched = "4", offset = 13 }, struct{ matched = "5", offset = 14 } }, matched = "45", offset = 13 } }

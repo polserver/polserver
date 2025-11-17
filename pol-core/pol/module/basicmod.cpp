@@ -15,12 +15,14 @@
 #include <cstring>
 #include <picojson/picojson.h>
 #include <string>
+#include <utf8cpp/utf8.h>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/dict.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
+#include "../../bscript/regexp.h"
 #include "../../clib/stlutil.h"
 
 #include <module_defs/basic.h>
@@ -420,6 +422,14 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 
   std::unique_ptr<Bscript::ObjArray> objarr( new Bscript::ObjArray );
 
+  // If delimiter is empty, split to characters
+  if ( delimiter.empty() )
+  {
+    auto limit = max_split <= -1 ? std::numeric_limits<size_t>::max()
+                                 : Clib::clamp_convert<size_t>( max_split + 1 );
+    return String::getCharacters( source, limit );
+  }
+
   // Support for how it previously worked.
   // Kept to support spaces and tabs as the same.
   if ( delimiter == " " )
@@ -759,5 +769,16 @@ Bscript::BObjectImp* BasicExecutorModule::mf_DecodeBase64()
 
   return new String( ret );
 }
+
+Bscript::BObjectImp* BasicExecutorModule::mf_RegExp()
+{
+  const String* expr;
+  const String* flags;
+  if ( !getStringParam( 0, expr ) || !getStringParam( 1, flags ) )
+    return new BError( "Invalid parameter type" );
+
+  return BRegExp::create( expr->getStringRep(), flags->getStringRep() );
+}
+
 }  // namespace Module
 }  // namespace Pol

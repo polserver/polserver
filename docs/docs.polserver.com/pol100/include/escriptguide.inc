@@ -1,6 +1,6 @@
 <h1>
   Racalac's eScript Reference and Guide (POL 100.2.0)
-  <div style="font-size: 0.82em">(Last Updated: September 6, 2025)</div>
+  <div style="font-size: 0.82em">(Last Updated: November 15, 2025)</div>
 </h1>
 <br/>
 
@@ -89,6 +89,7 @@ apologies if I explain some things in annoyingly simple terms.</p>
   <li><a href="#chap11g">Function Objects</a></li></li>
   <li><a href="#chap11h">Function Expressions</a></li></li>
   <li><a href="#chap11i">Spread Operator</a></li>
+  <li><a href="#chap11j">Regular Expressions</a></li>
 </ul>
 
 <p><b><a href="#chap12">Chapter 12: Classes</a></b></p>
@@ -2886,7 +2887,116 @@ endprogram
 <br/>
 <br/>
 <!-- ====================================================================== -->
+<p><b><a name="chap11j">Regular Expressions</a></b></p>
 
+<br/>
+<p>Added in: POL 100.2.0</p>
+<br/>
+
+<p>
+  Regular expressions provide a powerful way to search, match, and manipulate
+  strings based on specific patterns. EScript supports regular expressions via
+  the <code>RegExp</code> object type used in string methods like
+  <code>find</code>, <code>match</code>, and <code>replace</code>.
+</p>
+<br/>
+
+<p>
+  <strong>NOTE:</strong> This guide will cover only the basics of regular
+  expressions and Escript-specific implementation details. For a comprehensive
+  reference on regular expression syntax and features, please refer to external
+  resources such as
+  <a href="https://www.regular-expressions.info/" target="_blank">regular-expressions.info</a>
+  or the
+  <a href="https://www.boost.org/doc/libs/1_86_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html" target="_blank">Boost Regular Expression Syntax documentation</a>.
+</p>
+<br/>
+
+<p>
+  To create a regular expression, use the either the <code>basic::RegExp(
+  pattern, flags )</code> module function or the EScript language syntax
+  <code>/pattern/flags</code>:
+</p>
+
+<div class="doc-guide-pre"><pre>
+// Create a RegExp object using the module function
+var regex1 := RegExp( "^hello", "i" ); // case-insensitive match for "hello" at start
+
+// Create a RegExp object using the EScript syntax
+var regex2 := /world$/i; // case-insensitive match for "world" at end
+
+var test_string := "Hello, World";
+
+// Test if the string matches the regex patterns
+if ( test_string.match( regex1 ) )
+  Print( "The string starts with 'hello'." );
+endif
+
+if ( test_string.match( regex2 ) )
+  Print( "The string ends with 'world'." );
+endif
+</pre></div>
+
+<p>
+  The following flags are supported:
+</p>
+<ul>
+  <li><code>i</code> - Case-insensitive matching</li>
+  <li><code>m</code> - Multi-line mode, where ^ and $ match the start and end of
+  lines in an input string that contains multiple lines</li>
+  <li><code>g</code> - Global matching for String methods <code>match</code> and <code>replace</code></li>
+  <li><code>u</code> - Unicode support</li>
+</ul>
+<br/>
+
+<p><b>Example: Finding Matches with <code>String.match</code></b></p>
+<p>
+  The <code>String.match</code> method can be used to find all occurrences of a
+  pattern in a string. Here's an example that finds all words starting with a
+  capital letter:
+</p>
+
+<div class="doc-guide-pre"><pre>
+var input := "Alice and Bob are members of the Council of Mages in Moonglow.";
+var regex := /\b[A-Z]\w*\b/g; // Regular expression to match capitalized words. Note the 'g' to return all matches as an array.
+
+foreach match_result in (input.match( regex ))
+  var { matched, offset } := match_result;
+  Print( $"Found {matched} at index {offset}" ); // Output: Found Alice at index 1
+                                                 //         Found Bob at index 11
+                                                 //         Found Council at index 28
+                                                 //         Found Mages at index 40
+                                                 //         Found Moonglow at index 48
+endforeach
+</pre></div>
+<br/>
+
+<p><b>Example: Using a User Function for Replacement in <code>String.replace</code></b></p>
+
+<p>
+  The <code>String.replace</code> method can take a user-defined function as the
+  replacement argument. This function will be called for each match found, allowing
+  for dynamic replacement logic. Here's an example that will turn every number to a hex value:
+</p>
+
+<div class="doc-guide-pre"><pre>
+function NumberToHex( matched  )
+  var number := CInt( matched ); // Convert matched string to integer
+  return Hex( number ); // Return the hexadecimal representation, prefixed with 0x
+endfunction
+
+var input := "The values are 10, 255, and 1024.";
+var regex := /\d+/g; // Regex to match all numbers. Note the 'g' flag to replace all matches.
+
+// Replace numbers with their hexadecimal representation
+var output := input.replace( regex, @NumberToHex );
+
+Print( output ); // Output: The values are 0xA, 0xFF, and 0x400.
+</pre></div>
+
+
+
+<!-- ====================================================================== -->
 </p><h3><a name="app2">Appendix A: GUMP Tag Descriptions</a></h3>
 <br/>
 
@@ -4165,4 +4275,6 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.19: 06/09/2025<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for defaulted parameters in class uninitialized functions by Kevin<br>
+<p>v0.20: 15/11/2025<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for regular expressions by Kevin<br>
 </p>

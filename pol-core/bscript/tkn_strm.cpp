@@ -528,6 +528,10 @@ void Token::printOn( std::ostream& os ) const
     os << "logical convert";
     break;
 
+  case TOK_REGEXP:
+    os << "create-regular-expression";
+    break;
+
   default:
     os << "Unknown Token: (" << int( id ) << "," << int( type );
     if ( !token.empty() )

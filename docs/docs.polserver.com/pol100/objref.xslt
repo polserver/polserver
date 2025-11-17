@@ -110,7 +110,15 @@
 							<tbody>
 								<tr>
 									<td colspan="4">
-										<xsl:value-of select="explain"/>
+										<xsl:for-each select="explain">
+											<xsl:copy-of select="node()"/>
+											<xsl:choose>
+												<xsl:when test="position() != last()">
+													<br/>
+													<br/>
+												</xsl:when>
+											</xsl:choose>
+										</xsl:for-each>
 									</td>
 								</tr>
 							</tbody>
