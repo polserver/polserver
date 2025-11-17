@@ -4,7 +4,7 @@
 <ESCRIPT>
 <fileheader name="POL Script Types">
   <desc>This is a list of all the different script types used in the POL system. Some only pertain to specific objects, and/or specifc events, as described.</desc>
-  <datemodified>2025-11-02</datemodified>
+  <datemodified>2025-11-17</datemodified>
 </fileheader>
 
 
@@ -439,10 +439,10 @@ const MOVETYPE_COREMOVE   := 1; // moved by the core (eg, MoveItemToLocation().)
 
 <scripttype name="EquipScript">
     <prototype>program equipscript(equipped_on, item, startup, equipped_by)</prototype>
-    <parameter name="equipped_on" value="Character Ref of character having the item being equipped on" />
+    <parameter name="equipped_on" value="OfflineCharacterRef of character having the item being equipped on" />
     <parameter name="item" value="Item Ref" />
     <parameter name="startup" value="Integer 0/1 if item is being equipped due to server start" />
-    <parameter name="equipped_by" value="Character Ref of character performing the equip action, see below" />
+    <parameter name="equipped_by" value="OfflineCharacterRef of character performing the equip action, see below" />
     <return>1 if the item should be equipped, 0 to disallow equipping.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
@@ -482,9 +482,9 @@ endprogram</example>
 
 <scripttype name="UnEquipScript">
     <prototype>program unequipscript(unequip_from, item, unequip_by)</prototype>
-    <parameter name="unequip_from" value="Character Ref of character having the item being unequipped from" />
+    <parameter name="unequip_from" value="OfflineCharacterRef of character having the item being unequipped from" />
     <parameter name="item" value="Item Ref" />
-    <parameter name="unequip_by" value="Character Ref of character performing the unequip action, see below" />
+    <parameter name="unequip_by" value="OfflineCharacterRef of character performing the unequip action, see below" />
     <return>1 if the item should be unequipped, 0 to disallow unequipping.</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
