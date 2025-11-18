@@ -2,12 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-17-2025</datemodified>
+		<datemodified>11-18-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
 		<entry>
-			<date>11-17-2025</date>
+			<date>11-18-2025</date>
 			<author>Kevin:</author>
+			<change type="Added">Character script member logged_in, returning 1 if the character is present in the game world.<br/>
+Will return 1 on NPC, and 1 for player characters that are either connected or disconnected<br/>
+but waiting for the logoff timeout.</change>
 			<change type="Changed">EquipScript/UnequipScript will now be given an OfflineCharacterRef<br/>
 for the equip_on/equip_by and unequip_on/unequip_by parameters, allowing<br/>
 scripts to access the mobile if the mobile is offline.</change>

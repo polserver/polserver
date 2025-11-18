@@ -1,5 +1,8 @@
 -- POL100.2.0 --
-11-17-2025 Kevin:
+11-18-2025 Kevin:
+    Added: Character script member logged_in, returning 1 if the character is present in the game world.
+           Will return 1 on NPC, and 1 for player characters that are either connected or disconnected
+           but waiting for the logoff timeout.
   Changed: EquipScript/UnequipScript will now be given an OfflineCharacterRef
            for the equip_on/equip_by and unequip_on/unequip_by parameters, allowing
            scripts to access the mobile if the mobile is offline.
