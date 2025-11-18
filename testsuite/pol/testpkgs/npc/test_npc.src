@@ -262,3 +262,8 @@ exported function npc_warmodeinhibitsregen()
   endif
   return 1;
 endfunction
+
+exported function test_logged_in( resources )
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0 );
+  return ret_error_not_equal( npc.logged_in, 1, $"NPC should be logged_in, got {npc.logged_in} expected 1" );
+endfunction

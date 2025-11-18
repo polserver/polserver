@@ -131,3 +131,8 @@ exported function test_buffs()
   endif
   return 1;
 endfunction
+
+exported function test_logged_in()
+  return ret_error_not_equal( char.logged_in, 0,
+                              $"Character should not be logged_in, got {char.logged_in} expected 0" );
+endfunction

@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>11/15/2025</datemodified>
+<datemodified>11/18/2025</datemodified>
 </fileheader>
 
 
@@ -242,6 +242,7 @@
 <member mname="createdat" type="Integer" access="r/o">PolClock when character was created</member>
 <member mname="opponent" type="MobileRef" access="r/o">Mobile reference if a combat opponent is selected.</member>
 <member mname="connected" type="Boolean" access="r/o">To determine if the character is actively connected to the game. Is set to 1 before logon/reconnect scripts are run and 0 right before logofftest is run. Will return 1 on NPC.</member>
+<member mname="logged_in" type="Boolean" access="r/o">To determine if the character is logged in, ie. the character is present in the game world. Will return 1 on NPC, and 1 for player characters that are either connected or disconnected but waiting for the logoff timeout.</member>
 <member mname="uclang" type="String" access="r/o">Reports the Unicode Language string client sends during logon.</member>
 <member mname="race" type="Integer" access="r/w">Set/get the ML/SA race (new constants in UO.EM: RACE_HUMAN, RACE_ELF,RACE_GARGOYLE). You have to set visual graphic by yourself if you change value (Human male/female = 0x190/0x191 / Elf male/female = 0x25d/0x25e / Gargoyle male/female = 0x029a/0x029b). You can choose Race at Char creation if your UOExpansion and UOFeature settings fit.</member>
 <member mname="hitchance_mod" type="Integer" access="r/w">Additive modificator of the hitchance from the attacker (+- int in thousandth)</member>
