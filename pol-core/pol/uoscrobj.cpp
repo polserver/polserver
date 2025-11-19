@@ -2479,6 +2479,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     }
     return buffs.release();
   }
+  case MBR_LOGGED_IN:
+    return new BLong( logged_in() ? 1 : 0 );
+    break;
   }
   // if all else fails, returns nullptr
   return nullptr;

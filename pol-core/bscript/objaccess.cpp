@@ -285,6 +285,7 @@ ObjMember object_members[] = {
     { MBR_MAX_ATTACK_RANGE_INCREASE, "max_attack_range_increase" },
     { MBR_MAX_ATTACK_RANGE_INCREASE_MOD, "max_attack_range_increase_mod" },
     { MBR_ITEMS_DECAY, "items_decay" },
+    { MBR_LOGGED_IN, "logged_in" },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

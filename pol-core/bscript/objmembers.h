@@ -310,6 +310,7 @@ enum MemberID
   MBR_MAX_ATTACK_RANGE_INCREASE,
   MBR_MAX_ATTACK_RANGE_INCREASE_MOD,
   MBR_ITEMS_DECAY,
+  MBR_LOGGED_IN,  // 270
 };
 
 inline auto format_as( MemberID id )

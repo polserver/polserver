@@ -2,6 +2,19 @@
 # Please consult core-changes.txt for more information.
 
 -- POL100.2.0 [work-in-progress] --
+11-17-2025 Kevin:
+    EquipScript/UnequipScript will now be given an OfflineCharacterRef for the equip_on/equip_by and unequip_on/unequip_by parameters,
+    allowing scripts to access the mobile if the mobile is offline.
+
+    This is considered a breaking change because your scripts _may_ be affected:
+
+      - Using `TypeOf()` and `TypeOfInt()` on the character parameters will no longer return "MobileRef" and OT_MOBILEREF,
+        and instead return "OfflineMobileRef" and OT_OFFLINEMOBILEREF.
+      - Expressions that check for truthiness of the character parameter, eg. `if ( equipped_on )`, will now evaluate to true, regardless
+        if the character is logged in.
+
+    If your EquipScript/UnequipScript should only perform actions if the character is indeed logged in, check the `logged_in` member of
+    the character, eg. `equipped_on.logged_in`.
 11-02-2025 Nando:
     Config files won't accept property names containing '{' or '}' anymore
 09-28-2025:
@@ -36,17 +49,17 @@
 
 2020-08-13:
     item.hitscript and item.onhitscript now *always* return the full path of their scripts (":pkgname:script")
-    
+
 2020-01-03:
     AddAmount() now returns item reference on success instead of 1. Remove any explicit comparisons (AddAmount() == 1).
-    
+
 2019-09-21:
     The core is now Unicode aware!
     - Note: Item/Mobile names still need to be in ASCII format.
     - If invalid unicode is detected while compiling or reading a file, ISO8859 will be assumed.
-    - Unicode functions now accept a string directly. Arrays are still kept for backwards 
+    - Unicode functions now accept a string directly. Arrays are still kept for backwards
       compatibility, but that may change in the future.
-    - Non-unicode functions that receive a unicode string will use the unicode version 
+    - Non-unicode functions that receive a unicode string will use the unicode version
       automatically with langcode "ENU".
     - party.cfg:
         OnPublicChat second parameter is now a string object
@@ -63,13 +76,13 @@
 2019-04-26:
     - POL now requires at least Windows Vista / Server 2008. Let us know if Windows XP was important to you.
     - Removed: pol.cfg option "ListenPort". You should use a Listener in uoclient.cfg.
-    - Removed: pol.cfg option "Multithread". POL is now always multithreaded. 
+    - Removed: pol.cfg option "Multithread". POL is now always multithreaded.
     - Removed: method os::System_RPM(). It was only useful for singlethreaded POL.
 
 # >> Older breaking changes in POL100 might be missing here. Let us know if you find any. <<
-    
+
 2018-02-11:
-    - UO::Accessible(chr, item, range := ACCESSIBLE_DEFAULT) now checks for the item distance to chr. 
+    - UO::Accessible(chr, item, range := ACCESSIBLE_DEFAULT) now checks for the item distance to chr.
       The default was always documented as 2 tiles. But due to a bug, it could be up to 18 tiles.
 
 -- POL099 --

@@ -1180,9 +1180,9 @@ Bscript::BObjectImp* Item::run_equip_script( Mobile::Character* equip_on,
 
   try
   {
-    auto* by_chr_imp = equip_by == nullptr ? new Module::ECharacterRefObjImp( equip_on )
-                                           : new Module::ECharacterRefObjImp( equip_by );
-    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( equip_on ),
+    auto* by_chr_imp = equip_by == nullptr ? new Module::EOfflineCharacterRefObjImp( equip_on )
+                                           : new Module::EOfflineCharacterRefObjImp( equip_by );
+    return Core::run_script_to_completion( sd, new Module::EOfflineCharacterRefObjImp( equip_on ),
                                            new Module::EItemRefObjImp( this ),
                                            new Bscript::BLong( startup ? 1 : 0 ), by_chr_imp );
   }
@@ -1208,10 +1208,10 @@ Bscript::BObjectImp* Item::run_unequip_script( Mobile::Character* unequip_on,
 
   try
   {
-    auto* by_chr_imp = unequip_by == nullptr ? new Module::ECharacterRefObjImp( unequip_on )
-                                             : new Module::ECharacterRefObjImp( unequip_by );
+    auto* by_chr_imp = unequip_by == nullptr ? new Module::EOfflineCharacterRefObjImp( unequip_on )
+                                             : new Module::EOfflineCharacterRefObjImp( unequip_by );
 
-    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( unequip_on ),
+    return Core::run_script_to_completion( sd, new Module::EOfflineCharacterRefObjImp( unequip_on ),
                                            new Module::EItemRefObjImp( this ), by_chr_imp );
   }
   catch ( std::exception& ex )

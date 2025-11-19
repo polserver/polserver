@@ -292,3 +292,7 @@ exported function aos_tooltip()
   char.title_guild := "";
   return 1;
 endfunction
+
+exported function test_logged_in()
+  return ret_error_not_equal( char.logged_in, 1, $"Character should be logged_in, got {char.logged_in} expected 1" );
+endfunction
