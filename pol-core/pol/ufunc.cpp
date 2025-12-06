@@ -687,30 +687,15 @@ void send_item_to_inrange( const Item* item )
 
 void update_item_to_inrange( const Item* item )
 {
-  if ( item->container != nullptr )
-  {
-    if ( IsCharacter( item->container->serial ) )
-    {
-      // this may not be the right thing in all cases.
-      // specifically, handle_dye used to not ever do send_wornitem.
-      // FIXME way, way inefficient, but nontrivial.
-      Character* chr = find_character( item->container->serial );
-      if ( chr )
-      {
-        update_wornitem_to_inrange( chr, item );
-      }
-      else
-        POLLOG_ERRORLN( "Ack! update_item_to_inrange: character {:#x} doesn't exist!",
-                        item->container->serial );
-    }
-    else
-    {
-      send_put_in_container_to_inrange( item );
-    }
-  }
-  else
-  {
+  if ( !item->container )
     send_item_to_inrange( item );
+  else if ( auto* chr = item->container->get_chr_owner(); !chr )
+    send_put_in_container_to_inrange( item );
+  else if ( chr->logged_in() )
+  {
+    // this may not be the right thing in all cases.
+    // specifically, handle_dye used to not ever do send_wornitem.
+    update_wornitem_to_inrange( chr, item );
   }
 }
 
