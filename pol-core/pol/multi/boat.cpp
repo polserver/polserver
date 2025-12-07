@@ -1079,6 +1079,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 
   set_dirty();
 
+  POLLOG_INFOLN( "DEBUG: moving boat {:#x} from {} to {}", serial, pos(), bc.oldpos );
   setposition( newpos );
   move_multi_in_world( this, bc.oldpos );
   move_travellers( bc );
@@ -1088,18 +1089,31 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
       this,
       [&]( Mobile::Character* zonechr )
       {
+        POLLOG_INFOLN( "DEBUG: testing chr {:#x} dist {} range {}", zonechr->serial,
+                       zonechr->pos().pol_distance( pos() ), zonechr->los_size() + visible_size() );
         Network::Client* client = zonechr->client;
         if ( !zonechr->in_visual_range( this ) )
+        {
+          POLLOG_INFOLN( "DEBUG: not in range" );
+
           return;
+        }
         if ( client->ClientType & Network::CLIENTTYPE_7090 )
         {
           if ( zonechr->in_visual_range( this, bc.oldpos ) )
+          {
+            POLLOG_INFOLN( "DEBUG: already in range" );
             send_smooth_move( client, move_dir, speed, relative );
+          }
           else
+          {
+            POLLOG_INFOLN( "DEBUG: newly in range" );
             send_boat_newly_inrange( client );  // send HSA packet only for newly inrange
+          }
         }
         else
         {
+          POLLOG_INFOLN( "DEBUG: send oldschool" );
           if ( client->ClientType & Network::CLIENTTYPE_7000 )
             send_boat( client );  // Send
           else
