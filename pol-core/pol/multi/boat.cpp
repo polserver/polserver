@@ -15,7 +15,7 @@
  * - 2011/12/13 Tomi:      added support for new boats
  */
 
-#define RESEND_BOAT_ITEMS false
+#define RESEND_BOAT_ITEMS true
 
 #include "boat.h"
 
