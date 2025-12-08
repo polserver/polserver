@@ -504,7 +504,12 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
   for ( auto& component : Components )
   {
     if ( component != nullptr && !component->orphan() )
+    {
+      POLLOG_INFOLN( "DEBUG: send new component {:#x} for {:#x} dist {} range {}",
+                     component->serial, client->chr->serial,
+                     client->chr->pos().pol_distance( component->pos() ), client->chr->los_size() );
       send_item( client, component.get() );
+    }
   }
 }
 
