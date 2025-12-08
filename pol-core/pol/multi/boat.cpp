@@ -15,6 +15,7 @@
  * - 2011/12/13 Tomi:      added support for new boats
  */
 
+#define RESEND_BOAT_ITEMS false
 
 #include "boat.h"
 
@@ -251,7 +252,7 @@ bool BoatShapeExists( u16 multiid )
 }
 
 void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed,
-                              bool relative ) const
+                              bool relative, const BoatContext& bc ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
 
@@ -286,6 +287,21 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     }
     if ( component == nullptr || component->orphan() )
       continue;
+
+    if ( RESEND_BOAT_ITEMS )
+    {
+      const auto delta = component->pos3d() - pos3d();
+      const auto c_oldpos = bc.oldpos.xyz() + delta;
+      if ( !client->chr->in_visual_range( component.get(), c_oldpos ) &&
+           client->chr->in_visual_range( component.get(), component->pos() ) )
+      {
+        send_item( client, component.get() );
+        POLLOG_INFOLN( "DEBUG: resend component {:#x} for {:#x} dist {} range {}",
+                       component->serial, client->chr->serial,
+                       client->chr->pos().pol_distance( component->pos() ),
+                       client->chr->los_size() );
+      }
+    }
     msg->Write<u32>( component->serial_ext );
     msg->WriteFlipped<u16>( component->x() );
     msg->WriteFlipped<u16>( component->y() );
@@ -304,17 +320,32 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
 
     if ( obj->orphan() )
       continue;
+    bool needs_resend{ false };
+    if ( RESEND_BOAT_ITEMS )
+    {
+      const auto delta = obj->pos3d() - pos3d();
+      const auto c_oldpos = bc.oldpos.xyz() + delta;
+      if ( !client->chr->in_visual_range( obj, c_oldpos ) &&
+           client->chr->in_visual_range( obj, obj->pos() ) )
+      {
+        needs_resend = true;
+      }
+    }
     if ( obj->ismobile() )
     {
       auto* chr = static_cast<Mobile::Character*>( obj );
       if ( !client->chr->is_visible_to_me( chr, /*check_range*/ false ) )
         continue;
+      if ( needs_resend )
+        send_owncreate( client, chr );
     }
     else
     {
       auto* item = static_cast<Items::Item*>( obj );
       if ( item->invisible() && !client->chr->can_seeinvisitems() )
         continue;
+      if ( needs_resend )
+        send_item( client, item );
     }
     msg->Write<u32>( obj->serial_ext );
     msg->WriteFlipped<u16>( obj->x() );
@@ -1108,7 +1139,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
           if ( zonechr->in_visual_range( this, bc.oldpos ) )
           {
             POLLOG_INFOLN( "DEBUG: already in range" );
-            send_smooth_move( client, move_dir, speed, relative );
+            send_smooth_move( client, move_dir, speed, relative, bc );
           }
           else
           {

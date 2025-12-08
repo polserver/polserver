@@ -100,7 +100,7 @@ class UBoat final : public UMulti
     const MultiDef& mdef;
     Core::Pos4d oldpos;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), oldpos( ub.pos() ){};
+    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), oldpos( ub.pos() ) {};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };
@@ -122,7 +122,7 @@ public:
   };
 
   virtual UBoat* as_boat() override;
-  virtual ~UBoat(){};
+  virtual ~UBoat() {};
   virtual size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
@@ -217,8 +217,8 @@ protected:
   friend struct BoatMoveGuard;
 
 private:
-  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed,
-                         bool relative ) const;
+  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, bool relative,
+                         const BoatContext& bc ) const;
 
   Core::Pos4d turn_coords( const Core::Pos4d& oldpos, RELATIVE_DIR dir ) const;
   u8 turn_facing( u8 oldfacing, RELATIVE_DIR dir ) const;
