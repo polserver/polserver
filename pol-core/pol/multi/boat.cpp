@@ -291,7 +291,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     if ( RESEND_BOAT_ITEMS )
     {
       const auto delta = component->pos3d() - pos3d();
-      const auto c_oldpos = bc.oldpos.xyz() + delta;
+      const auto c_oldpos = bc.oldpos + delta;
       if ( !client->chr->in_visual_range( component.get(), c_oldpos ) &&
            client->chr->in_visual_range( component.get(), component->pos() ) )
       {
@@ -324,7 +324,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     if ( RESEND_BOAT_ITEMS )
     {
       const auto delta = obj->pos3d() - pos3d();
-      const auto c_oldpos = bc.oldpos.xyz() + delta;
+      const auto c_oldpos = bc.oldpos + delta;
       if ( !client->chr->in_visual_range( obj, c_oldpos ) &&
            client->chr->in_visual_range( obj, obj->pos() ) )
       {
