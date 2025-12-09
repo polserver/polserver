@@ -35,6 +35,9 @@ void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client
   if ( !client->chr->lastpos.in_range( chr->pos(), client->chr->los_size() ) &&
        client->chr->is_visible_to_me( chr ) && client->chr != chr )
   {
+    POLLOG_INFOLN( "DEBUG: send new mob {:#x} for {:#x} dist {} range {}", chr->serial,
+                   client->chr->serial, client->chr->pos().pol_distance( chr->pos() ),
+                   client->chr->los_size() );
     send_owncreate( client, chr );
   }
 }
@@ -67,8 +70,7 @@ void send_objects_newly_inrange( Network::Client* client )
 {
   Mobile::Character* chr = client->chr;
 
-  WorldIterator<MobileFilter>::InRange( chr, chr->los_size(),
-                                        [&]( Mobile::Character* zonechr )
+  WorldIterator<MobileFilter>::InRange( chr, chr->los_size(), [&]( Mobile::Character* zonechr )
                                         { send_char_if_newly_inrange( zonechr, client ); } );
   WorldIterator<ItemFilter>::InMaxVisualRange(
       chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
@@ -79,7 +81,7 @@ void send_objects_newly_inrange( Network::Client* client )
 void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 {
   Mobile::Character* chr = client->chr;
-
+  POLLOG_INFOLN( "DEBUG: send newly inrange for {:#x}", chr->serial );
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
   {
     WorldIterator<MobileFilter>::InRange(
@@ -116,8 +118,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
   }
   else
   {
-    WorldIterator<MobileFilter>::InRange( chr, chr->los_size(),
-                                          [&]( Mobile::Character* zonechr )
+    WorldIterator<MobileFilter>::InRange( chr, chr->los_size(), [&]( Mobile::Character* zonechr )
                                           { send_char_if_newly_inrange( zonechr, client ); } );
     WorldIterator<ItemFilter>::InMaxVisualRange(
         chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
@@ -132,8 +133,7 @@ void remove_objects_inrange( Network::Client* client )
   Mobile::Character* chr = client->chr;
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
 
-  WorldIterator<MobileFilter>::InRange( chr, chr->los_size(),
-                                        [&]( Mobile::Character* zonechar )
+  WorldIterator<MobileFilter>::InRange( chr, chr->los_size(), [&]( Mobile::Character* zonechar )
                                         { send_remove_character( client, zonechar, msgremove ); } );
   WorldIterator<ItemFilter>::InMaxVisualRange( chr,
                                                [&]( Items::Item* item )

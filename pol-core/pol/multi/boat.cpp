@@ -15,8 +15,6 @@
  * - 2011/12/13 Tomi:      added support for new boats
  */
 
-#define RESEND_BOAT_ITEMS true
-
 #include "boat.h"
 
 #include <exception>
@@ -288,19 +286,16 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     if ( component == nullptr || component->orphan() )
       continue;
 
-    if ( RESEND_BOAT_ITEMS )
+    const auto delta = component->pos3d() - pos3d();
+    const auto c_oldpos = bc.oldpos + delta;
+    if ( !client->chr->in_visual_range( component.get(), c_oldpos ) &&
+         client->chr->in_visual_range( component.get(), component->pos() ) )
     {
-      const auto delta = component->pos3d() - pos3d();
-      const auto c_oldpos = bc.oldpos + delta;
-      if ( !client->chr->in_visual_range( component.get(), c_oldpos ) &&
-           client->chr->in_visual_range( component.get(), component->pos() ) )
-      {
-        send_item( client, component.get() );
-        POLLOG_INFOLN( "DEBUG: resend component {:#x} for {:#x} dist {} range {}",
-                       component->serial, client->chr->serial,
-                       client->chr->pos().pol_distance( component->pos() ),
-                       client->chr->los_size() );
-      }
+      // multis are visible before a client accepts items, we need to resend them
+      send_item( client, component.get() );
+      POLLOG_INFOLN( "DEBUG: resend component {:#x} for {:#x} dist {} range {}", component->serial,
+                     client->chr->serial, client->chr->pos().pol_distance( component->pos() ),
+                     client->chr->los_size() );
     }
     msg->Write<u32>( component->serial_ext );
     msg->WriteFlipped<u16>( component->x() );
@@ -321,15 +316,13 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     if ( obj->orphan() )
       continue;
     bool needs_resend{ false };
-    if ( RESEND_BOAT_ITEMS )
+    const auto delta = obj->pos3d() - pos3d();
+    const auto c_oldpos = bc.oldpos + delta;
+    if ( !client->chr->in_visual_range( obj, c_oldpos ) &&
+         client->chr->in_visual_range( obj, obj->pos() ) )
     {
-      const auto delta = obj->pos3d() - pos3d();
-      const auto c_oldpos = bc.oldpos + delta;
-      if ( !client->chr->in_visual_range( obj, c_oldpos ) &&
-           client->chr->in_visual_range( obj, obj->pos() ) )
-      {
-        needs_resend = true;
-      }
+      // multis are visible before a client accepts objects, we need to resend them
+      needs_resend = true;
     }
     if ( obj->ismobile() )
     {
