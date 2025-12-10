@@ -1037,7 +1037,7 @@ class Client(threading.Thread):
         self.brain.event(brain.Event(brain.Event.EVT_OWNCREATE))
     else:
       mob = Mobile(self, pkt)
-      if not self.player.inRange(mobile):
+      if not self.player.inRange(mob):
         self.log.info("Ignore out of range mobile %s", mob)
         return
       self.objects[mob.serial] = mob
