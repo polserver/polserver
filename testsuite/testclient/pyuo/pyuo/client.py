@@ -969,7 +969,8 @@ class Client(threading.Thread):
       for obj in pkt.packets:
         self.handleObjectInfoPacket(obj)
     elif isinstance(pkt, packets.VisualRangePacket):
-      pass
+      self.view_range = pkt.visualrange
+      self.log.info(f"update view range to {self.view_range}")
     elif isinstance(pkt, packets.MegaClilocRevPacket):
       pass
     elif isinstance(pkt, packets.AOSTooltipPacket):
