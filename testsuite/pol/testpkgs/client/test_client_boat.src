@@ -565,3 +565,71 @@ exported function boat_alternate_multiid_itemdesc()
 
   return 1;
 endfunction
+
+/* move boat in direction of char and check at which distance the boat is visible and then back out of sight
+*/
+exported function boat_update_range_from_boat( resmgn )
+  MoveBoatXY( boat, 10, 50 );
+  Clear_Event_Queue();
+  // move char out of range
+  MoveObjectToLocation( char, boat.x + 30, boat.y, 1, realm := "britannia2",
+                        flags := MOVEOBJECT_FORCELOCATION );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+  MoveObjectToLocation( char, boat.x + 1, boat.y, 5, realm := "britannia",
+                        flags := MOVEOBJECT_FORCELOCATION );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+
+  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", boat.x + 30, boat.y, 1,
+                                           realm := "britannia", forcelocation := 1 );
+
+  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
+  var ev := waitForClient( 0, { EVT_LIST_OBJS } );
+  if ( !ev )
+    return ev;
+  endif
+
+  // now move boat to npc
+  var i := 10;
+  while ( --i > 0 )
+    MoveBoat( boat, 2 );
+    sleepms( 10 );
+  endwhile
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_NEW_MOBILE } );
+    if ( !ev )
+      return ev;
+    endif
+    if ( ev["serial"] == npc.serial )
+      var x := char.x - ev["pos"][1];
+      var y := char.y - ev["pos"][2];
+      if ( x != 18 || y != 0 )
+        return ret_error( $"update distance failed: {x}, {y}" );
+      endif
+      break;
+    endif
+  endwhile
+
+  // move boat again out of range
+  i := 10;
+  while ( --i > 0 )
+    MoveBoat( boat, 6 );
+    sleepms( 10 );
+  endwhile
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
+    if ( !ev )
+      return ev;
+    endif
+    if ( ev["serial"] == npc.serial )
+      var x := char.x - ev["oldpos"][1];
+      var y := char.y - ev["oldpos"][2];
+      if ( x != 18 || y != 0 )
+        return ret_error( $"remove update distance failed: {x}, {y}" );
+      endif
+      break;
+    endif
+  endwhile
+  return 1;
+endfunction
