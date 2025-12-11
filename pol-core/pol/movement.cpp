@@ -88,6 +88,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
         chr, chr->los_size(),
         [&]( Mobile::Character* zonechr )
         {
+          POLLOG_INFOLN( "testing {:#x}", zonechr.serial );
           Multi::UMulti* multi = zonechr->realm()->find_supporting_multi( zonechr->pos3d() );
 
           if ( multi != nullptr && multi->serial == serial )

@@ -583,7 +583,7 @@ exported function boat_update_range_from_boat( resmgn )
 
   var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", boat.x + 30, boat.y, 1, 0,
                                            "britannia", 1 );
-
+  print( $"npc {npc.serial}" );
   clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
   var ev := waitForClient( 0, { EVT_LIST_OBJS } );
   if ( !ev )
