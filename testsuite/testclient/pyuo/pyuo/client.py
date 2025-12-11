@@ -374,6 +374,8 @@ class Player(Mobile):
     return bp
 
   def inRange(self, obj):
+    if obj.x is None or obj.y is None:
+      return True
     delta = max(abs(obj.x - self.x), abs(obj.y - self.y))
     if not isinstance(obj,Item):
       return self.client.view_range >= delta
