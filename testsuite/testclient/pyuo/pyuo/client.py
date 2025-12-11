@@ -755,7 +755,7 @@ class Client(threading.Thread):
 
       # remove out of range objects
       if self.player:
-        for key in self.objects.keys():
+        for key in list(self.objects.keys()):
           obj = self.objects[key]
           if isinstance(obj,Item) and obj.parent:
             continue
