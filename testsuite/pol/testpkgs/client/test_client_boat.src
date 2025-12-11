@@ -581,8 +581,8 @@ exported function boat_update_range_from_boat( resmgn )
   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
 
-  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", boat.x + 30, boat.y, 1,
-                                           realm := "britannia", forcelocation := 1 );
+  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", boat.x + 30, boat.y, 1, 0,
+                                           "britannia", 1 );
 
   clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
   var ev := waitForClient( 0, { EVT_LIST_OBJS } );
@@ -633,3 +633,4 @@ exported function boat_update_range_from_boat( resmgn )
   endwhile
   return 1;
 endfunction
+
