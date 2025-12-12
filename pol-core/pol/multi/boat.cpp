@@ -1052,16 +1052,22 @@ void UBoat::do_tellmoves()
   {
     UObject* obj = travellerRef.get();
 
-    if ( obj != nullptr )  // sometimes we've destroyed objects because of control scripts
+    if ( !obj || !obj->ismobile() )
+      continue;
+    auto* chr = static_cast<Mobile::Character*>( obj );
+    if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
-      if ( obj->ismobile() )
-      {
-        Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) ||
-             chr->has_active_client() )  // dave 3/27/3, dont tell moves of offline PCs
-          chr->tellmove();
-      }
+      chr->tellmove();
+      continue;
     }
+    if ( !chr->has_active_client() )
+      continue;
+    chr->tellmove();
+    auto* client = chr->client;
+    // with smooth movement the position of travellers is known when the displayboat pkt is send,
+    // new objects have to be send afterwards
+    if ( client->ClientType & Network::CLIENTTYPE_7090 )
+      Core::send_objects_newly_inrange_on_boat( client, serial );
   }
 }
 
@@ -1133,7 +1139,6 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
           {
             POLLOG_INFOLN( "DEBUG: already in range" );
             send_smooth_move( client, move_dir, speed, relative, bc );
-            Core::send_objects_newly_inrange_on_boat( client, this->serial );
           }
           else
           {
