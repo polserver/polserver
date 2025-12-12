@@ -1108,8 +1108,8 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 
   set_dirty();
 
-  POLLOG_INFOLN( "DEBUG: moving boat {:#x} from {} to {}", serial, pos(), bc.oldpos );
   setposition( newpos );
+  POLLOG_INFOLN( "DEBUG: moving boat {:#x} from {} to {}", serial, pos(), bc.oldpos );
   move_multi_in_world( this, bc.oldpos );
   move_travellers( bc );
   move_components();
@@ -1142,7 +1142,6 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
         }
         else
         {
-          POLLOG_INFOLN( "DEBUG: send oldschool" );
           if ( client->ClientType & Network::CLIENTTYPE_7000 )
             send_boat( client );  // Send
           else
