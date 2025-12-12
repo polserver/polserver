@@ -855,7 +855,7 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
 
     if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
     {
-      Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
+      //      Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
 
       if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
         send_poisonhealthbar( chr->client, chr );
@@ -1133,6 +1133,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
           {
             POLLOG_INFOLN( "DEBUG: already in range" );
             send_smooth_move( client, move_dir, speed, relative, bc );
+            Core::send_objects_newly_inrange_on_boat( client, this->serial );
           }
           else
           {
