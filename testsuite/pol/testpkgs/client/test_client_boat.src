@@ -358,7 +358,7 @@ endfunction
 /* move boat in direction of char and check at which distance the boat is visible and then back out of sight
 */
 exported function boat_update_range()
-  MoveBoatXY( boat, 10, 50 );
+  MoveBoatXY( boat, 2, 50 );
   Clear_Event_Queue();
   // move char out of range
   MoveObjectToLocation( char, boat.x + 30, boat.y, 1, realm := "britannia2",
