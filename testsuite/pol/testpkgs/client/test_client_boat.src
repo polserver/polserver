@@ -380,7 +380,7 @@ exported function boat_update_range()
     endif
   endforeach
   // now move boat to char
-  var i := 15;
+  var i := 20;
   while ( --i > 0 )
     MoveBoat( boat, 2 );
     sleepms( 10 );
@@ -415,7 +415,7 @@ exported function boat_update_range()
 
   print( "out of range movement start" );
   // move boat again out of range
-  i := 15;
+  i := 20;
   while ( --i > 0 )
     MoveBoat( boat, 6 );
     sleepms( 10 );
