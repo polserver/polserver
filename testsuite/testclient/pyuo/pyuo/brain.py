@@ -193,6 +193,7 @@ class Event:
   EVT_OWNCREATE = 12
   EVT_GUMP = 13
   EVT_OPEN_PAPERDOLL = 14
+  EVT_AUTO_DELETE_OBJS = 15
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -278,3 +279,5 @@ class Event:
       return "aos_tooltip"
     elif self.type==Event.EVT_OPEN_PAPERDOLL:
       return "open_paperdoll"
+    elif self.type==Event.EVT_AUTO_DELETE_OBJS:
+      return "auto_delete_objs"

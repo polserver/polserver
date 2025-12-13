@@ -32,6 +32,7 @@ const EVT_OWNCREATE := "owncreate";
 const EVT_GUMP := "gump";
 const EVT_AOS_TOOLTIP := "aos_tooltip";
 const EVT_OPEN_PAPERDOLL := "open_paperdoll";
+const EVT_AUTO_DELETE_OBJS := "auto_delete_objs";
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
@@ -77,3 +78,4 @@ function waitForClients( types )
     return ev;
   endwhile
 endfunction
+

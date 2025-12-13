@@ -595,6 +595,7 @@ class Client(threading.Thread):
 
     self.disable_item_logging = False # do not signal or log new items
     self.view_range = 18 # default client view range
+    self.auto_delete_objs = True
 
   @status('disconnected')
   def connect(self, host, port, user, pwd):
@@ -756,7 +757,7 @@ class Client(threading.Thread):
         self.handlePacket(pkt)
 
       # remove out of range objects
-      if self.player:
+      if self.player and self.auto_delete_objs:
         for key in list(self.objects.keys()):
           obj = self.objects[key]
           if isinstance(obj,Item) and obj.parent:

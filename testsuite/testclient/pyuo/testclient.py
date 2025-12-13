@@ -146,6 +146,12 @@ class TestBrain(brain.Brain):
         self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
       elif todo=="aos_tooltip":
         self.client.getAOSTooltip(arg[0],arg[1])
+      elif todo=="auto_delete_objs":
+        self.client.auto_delete_objs = arg
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_AUTO_DELETE_OBJS,
+            clientid = self.id,
+            state = self.client.auto_delete_objs))
 
     return True
 
@@ -355,6 +361,8 @@ class PolServer:
       res['serial']=ev.serial
       res['text']=ev.text
       res['flags']=ev.flags
+    elif ev.type==Event.EVT_AUTO_DELETE_OBJS:
+      res['state']=ev.state
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

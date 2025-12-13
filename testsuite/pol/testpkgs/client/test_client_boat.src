@@ -412,6 +412,8 @@ exported function boat_update_range()
       break;
     endif
   endwhile
+  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := false, id := 0 } );
+  waitForClient( 0, { EVT_AUTO_DELETE_OBJS } );
 
   print( "out of range movement start" );
   // move boat again out of range
@@ -423,17 +425,20 @@ exported function boat_update_range()
   while ( 1 )
     ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
     if ( !ev )
+      clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := 0 } );
       return ev;
     endif
     if ( ev["serial"] == boat.serial )
       var x := char.x - ev["oldpos"][1];
       var y := char.y - ev["oldpos"][2];
       if ( x != 23 || y != 0 ) // (18 visual range +5 footprint/2)
+        clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := 0 } );
         return ret_error( $"remove update distance failed: {x}, {y}" );
       endif
       break;
     endif
   endwhile
+  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := 0 } );
   return 1;
 endfunction
 
