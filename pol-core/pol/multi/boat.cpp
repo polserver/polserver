@@ -293,9 +293,6 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     {
       // multis are visible before a client accepts items, we need to resend them
       send_item( client, component.get() );
-      POLLOG_INFOLN( "DEBUG: resend component {:#x} for {:#x} dist {} range {}", component->serial,
-                     client->chr->serial, client->chr->pos().pol_distance( component->pos() ),
-                     client->chr->los_size() );
     }
     msg->Write<u32>( component->serial_ext );
     msg->WriteFlipped<u16>( component->x() );
@@ -529,9 +526,6 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
   {
     if ( component != nullptr && !component->orphan() )
     {
-      POLLOG_INFOLN( "DEBUG: send new component {:#x} for {:#x} dist {} range {}",
-                     component->serial, client->chr->serial,
-                     client->chr->pos().pol_distance( component->pos() ), client->chr->los_size() );
       send_item( client, component.get() );
     }
   }
@@ -1115,7 +1109,6 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
   set_dirty();
 
   setposition( newpos );
-  POLLOG_INFOLN( "DEBUG: moving boat {:#x} from {} to {}", serial, pos(), bc.oldpos );
   move_multi_in_world( this, bc.oldpos );
   move_travellers( bc );
   move_components();
@@ -1124,27 +1117,15 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
       this,
       [&]( Mobile::Character* zonechr )
       {
-        POLLOG_INFOLN( "DEBUG: testing chr {:#x} dist {} range {}", zonechr->serial,
-                       zonechr->pos().pol_distance( pos() ), zonechr->los_size() + visible_size() );
         Network::Client* client = zonechr->client;
         if ( !zonechr->in_visual_range( this ) )
-        {
-          POLLOG_INFOLN( "DEBUG: not in range" );
-
           return;
-        }
         if ( client->ClientType & Network::CLIENTTYPE_7090 )
         {
           if ( zonechr->in_visual_range( this, bc.oldpos ) )
-          {
-            POLLOG_INFOLN( "DEBUG: already in range" );
             send_smooth_move( client, move_dir, speed, relative, bc );
-          }
           else
-          {
-            POLLOG_INFOLN( "DEBUG: newly in range" );
             send_boat_newly_inrange( client );  // send HSA packet only for newly inrange
-          }
         }
         else
         {

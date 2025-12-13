@@ -35,9 +35,6 @@ void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client
   if ( !client->chr->lastpos.in_range( chr->pos(), client->chr->los_size() ) &&
        client->chr->is_visible_to_me( chr ) && client->chr != chr )
   {
-    POLLOG_INFOLN( "DEBUG: send new mob {:#x} for {:#x} dist {} range {}", chr->serial,
-                   client->chr->serial, client->chr->pos().pol_distance( chr->pos() ),
-                   client->chr->los_size() );
     send_owncreate( client, chr );
   }
 }
@@ -81,14 +78,12 @@ void send_objects_newly_inrange( Network::Client* client )
 void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 {
   Mobile::Character* chr = client->chr;
-  POLLOG_INFOLN( "DEBUG: send newly inrange for {:#x}", chr->serial );
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
   {
     WorldIterator<MobileFilter>::InRange(
         chr, chr->los_size(),
         [&]( Mobile::Character* zonechr )
         {
-          POLLOG_INFOLN( "testing {:#x}", zonechr->serial );
           Multi::UMulti* multi = zonechr->realm()->find_supporting_multi( zonechr->pos3d() );
 
           if ( multi != nullptr && multi->serial == serial )

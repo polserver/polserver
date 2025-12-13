@@ -287,6 +287,7 @@ class PolServer:
       res["pos"]=ev.pos
       res["graphic"]=obj.graphic
       res["status"]=obj.status
+      res["playerpos"]=ev.playerpos
     elif ev.type==Event.EVT_REMOVED_OBJ:
       res["serial"]=ev.serial
       res["oldpos"]=ev.oldpos

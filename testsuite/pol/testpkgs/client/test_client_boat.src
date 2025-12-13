@@ -602,8 +602,8 @@ exported function boat_update_range_from_boat( resmgn )
       return ev;
     endif
     if ( ev["serial"] == npc.serial )
-      var x := char.x - ev["pos"][1];
-      var y := char.y - ev["pos"][2];
+      var x := ev["pos"][1] - ev["playerpos"][1];
+      var y := ev["pos"][2] - ev["playerpos"][2];
       if ( x != 18 || y != 0 )
         return ret_error( $"update distance failed: {x}, {y}" );
       endif
