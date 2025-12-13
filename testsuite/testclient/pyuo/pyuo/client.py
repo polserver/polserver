@@ -1061,7 +1061,7 @@ class Client(threading.Thread):
     else:
       item = Item(self, pkt)
       if not self.player.inRange(item):
-        self.log.info("Ignore out of range item %s", item)
+        self.log.info("Ignore out of range item %s (self: %s)", item, self.player)
         return
       if not self.disable_item_logging:
         self.log.info("New item: %s", item)

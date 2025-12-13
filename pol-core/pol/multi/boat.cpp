@@ -292,6 +292,8 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
          client->chr->in_visual_range( component.get(), component->pos() ) )
     {
       // multis are visible before a client accepts items, we need to resend them
+      POLLOG_INFOLN( "resend {:#x} {} for {}", component->serial, component->pos3d(),
+                     client->chr->pos3d() );
       send_item( client, component.get() );
     }
     msg->Write<u32>( component->serial_ext );
