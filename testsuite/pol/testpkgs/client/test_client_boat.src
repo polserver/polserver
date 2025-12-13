@@ -385,6 +385,8 @@ exported function boat_update_range()
     MoveBoat( boat, 2 );
     sleepms( 10 );
   endwhile
+  var boatseen := false;
+  var tillermanseen := false;
   while ( 1 )
     ev := waitForClient( 0, { EVT_NEW_ITEM } );
     if ( !ev )
@@ -396,6 +398,17 @@ exported function boat_update_range()
       if ( x != 23 || y != 0 ) // (18 visual range +5 footprint/2)
         return ret_error( $"update distance failed: {x}, {y}" );
       endif
+      boatseen := true;
+    endif
+    if ( ev["serial"] == boat.tillerman.serial )
+      var x := char.x - ev["pos"][1];
+      var y := char.y - ev["pos"][2];
+      if ( x != 18 || y != 0 )
+        return ret_error( $"update distance tillerman failed: {x}, {y}" );
+      endif
+      tillermanseen := true;
+    endif
+    if ( boatseen && tillermanseen )
       break;
     endif
   endwhile
@@ -610,6 +623,9 @@ exported function boat_update_range_from_boat( resmgn )
       break;
     endif
   endwhile
+
+  print( "out of range movement start" );
+  // todo set client into a mode to not delete objs?
 
   // move boat again out of range
   i := 15;
