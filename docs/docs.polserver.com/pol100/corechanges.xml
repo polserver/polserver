@@ -5,6 +5,18 @@
 		<datemodified>12-14-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+      <entry>
+         <date>12-14-2025</date>
+         <author>Reloecc:</author>
+         <change type="Added">uoconvert.cfg element StaticOptions extended by DiscardedWaterTiles.<br/>
+Lists the tiles that will be discarded during the processing of solid statics,<br/>
+where the map is at or below the same Z level as the static, allowing boats to bump into shores.<br/>
+Defaults to tiles in the range from 0x1796 to 0x17B2 if not present in the config file.<br/>
+StaticOptions<br/>
+{<br/>
+    DiscardedWaterTiles 0x1796 0x1797 0x1798 ...<br/>
+}</change>
+      </entry>
 		<entry>
 			<date>12-14-2025</date>
 			<author>Turley:</author>

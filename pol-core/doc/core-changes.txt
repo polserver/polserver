@@ -1,4 +1,13 @@
 -- POL100.2.0 --
+12-14-2025 Reloecc:
+    Added: uoconvert.cfg element StaticOptions extended by DiscardedWaterTiles.
+           Lists the tiles that will be discarded during the processing of solid statics,
+           where the map is at or below the same Z level as the static, allowing boats to bump into shores.
+           Defaults to tiles in the range from 0x1796 to 0x17B2 if not present in the config file.
+                StaticOptions
+                {
+                    DiscardedWaterTiles 0x1796 0x1797 0x1798 ...
+                }
 12-14-2025 Turley:
     Fixed: With newer clients boat travellers and observers didnt get all objects send
 11-18-2025 Kevin:
