@@ -250,7 +250,7 @@ bool BoatShapeExists( u16 multiid )
 }
 
 void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed,
-                              bool relative, const BoatContext& bc ) const
+                              bool relative ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
 
@@ -504,9 +504,7 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
   for ( auto& component : Components )
   {
     if ( component != nullptr && !component->orphan() )
-    {
       send_item( client, component.get() );
-    }
   }
 }
 
@@ -1116,7 +1114,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
         if ( client->ClientType & Network::CLIENTTYPE_7090 )
         {
           if ( zonechr->in_visual_range( this, bc.oldpos ) )
-            send_smooth_move( client, move_dir, speed, relative, bc );
+            send_smooth_move( client, move_dir, speed, relative );
           else
             send_boat_newly_inrange( client );  // send HSA packet only for newly inrange
         }

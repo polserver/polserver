@@ -202,21 +202,20 @@ exported function update_range_change( resmngr )
   if ( i == 0 )
     return ret_error( "item was never visible" );
   endif
-  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := false, id := 0 } );
-  waitForClient( 0, { EVT_AUTO_DELETE_OBJS } );
+  disable_auto_delete( clientcon, 0 );
   char.client.visual_range := 0; // back to default
   i := 10;
   while ( --i > 0 )
     var ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
     if ( !ev )
-      clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := 0 } );
+      enable_auto_delete( clientcon, 0 );
       return ev;
     endif
     if ( ev["serial"] == item.serial )
       break;
     endif
   endwhile
-  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := 0 } );
+  enable_auto_delete( clientcon, 0 );
   if ( i == 0 )
     return ret_error( "item got never deleted" );
   endif

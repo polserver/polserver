@@ -418,9 +418,8 @@ exported function boat_update_range( resmgn )
       break;
     endif
   endwhile
-  disable_auto_delete();
+  disable_auto_delete( clientcon, 0 );
 
-  print( "out of range movement start" );
   // move boat again out of range
   i := 20;
   while ( --i > 0 )
@@ -430,20 +429,20 @@ exported function boat_update_range( resmgn )
   while ( 1 )
     ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
     if ( !ev )
-      enable_auto_delete();
+      enable_auto_delete( clientcon, 0 );
       return ev;
     endif
     if ( ev["serial"] == boat.serial )
       var x := char.x - ev["oldpos"][1];
       var y := char.y - ev["oldpos"][2];
       if ( x != 23 || y != 0 ) // (18 visual range +5 footprint/2)
-        enable_auto_delete();
+        enable_auto_delete( clientcon, 0 );
         return ret_error( $"remove update distance failed: {x}, {y}" );
       endif
       break;
     endif
   endwhile
-  enable_auto_delete();
+  enable_auto_delete( clientcon, 0 );
   return 1;
 endfunction
 
@@ -588,21 +587,6 @@ exported function boat_alternate_multiid_itemdesc()
   endif
 
   return 1;
-endfunction
-
-function disable_auto_delete()
-  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := false, id := 0 } );
-  while ( !waitForClient( 0, { EVT_AUTO_DELETE_OBJS } ) )
-  endwhile
-endfunction
-function enable_auto_delete()
-  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := 0 } );
-  var e := waitForClient( 0, { EVT_AUTO_DELETE_OBJS } );
-  print( e );
-  while ( !e )
-    e := waitForClient( 0, { EVT_AUTO_DELETE_OBJS } );
-    print( e );
-  endwhile
 endfunction
 
 /* move boat in direction of npc and check at which distance the npc is visible

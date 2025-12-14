@@ -79,3 +79,15 @@ function waitForClients( types )
   endwhile
 endfunction
 
+function disable_auto_delete( clientcon, id )
+  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := false, id := id } );
+  while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )
+  endwhile
+endfunction
+
+function enable_auto_delete( clientcon, id )
+  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := id } );
+  while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )
+  endwhile
+endfunction
+
