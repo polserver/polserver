@@ -105,6 +105,8 @@ class Item(UOBject):
     self.status = None
     ## optional parent (mobile/container)
     self.parent = None
+    ## flag if its a multi
+    self.ismulti = False
 
     if pkt is not None:
       self.update(pkt)
@@ -127,6 +129,10 @@ class Item(UOBject):
     self.facing = pkt.facing
     self.color = pkt.color if pkt.color else 0
     self.status = pkt.flag
+    if (self.graphic & 0x4000):
+      self.ismulti = True
+    elif isinstance(pkt, packets.NewObjectInfoPacket):
+      self.ismulti = pkt.type == 0x2
 
   def upgradeToContainer(self):
     ''' Upgrade this item to a container '''
@@ -141,8 +147,8 @@ class Item(UOBject):
     serial = hex(self.serial)
     graphic = hex(self.graphic)
     color = hex(self.color)
-    return "{} Item {} graphic {} color {} at {},{},{} facing {}".format(
-        self.amount, serial, graphic, color, self.x, self.y, self.z, self.facing )
+    return "{} {} {} graphic {} color {} at {},{},{} facing {}".format(
+        self.amount, "Multi" if self.ismulti else "Item", serial, graphic, color, self.x, self.y, self.z, self.facing )
 
 
 class Container(Item):
@@ -367,6 +373,16 @@ class Player(Mobile):
       return None
     return bp
 
+  def inRange(self, obj):
+    if obj.x is None or obj.y is None:
+      return True
+    delta = max(abs(obj.x - self.x), abs(obj.y - self.y))
+    if not isinstance(obj,Item):
+      return self.client.view_range >= delta
+    elif not obj.ismulti and not obj.parent:
+      return self.client.view_range >= delta
+    return True # we dont know the dimensions or container item
+
 
 class Target:
   ''' Represents an active target '''
@@ -578,6 +594,8 @@ class Client(threading.Thread):
     self.cursor = None
 
     self.disable_item_logging = False # do not signal or log new items
+    self.view_range = 18 # default client view range
+    self.auto_delete_objs = True
 
   @status('disconnected')
   def connect(self, host, port, user, pwd):
@@ -737,6 +755,20 @@ class Client(threading.Thread):
         time.sleep(0.01)
       else:
         self.handlePacket(pkt)
+
+      # remove out of range objects
+      if self.player and self.auto_delete_objs:
+        for key in list(self.objects.keys()):
+          obj = self.objects[key]
+          if isinstance(obj,Item) and obj.parent:
+            continue
+          if self.player.serial == obj.serial:
+            continue
+          if not self.player.inRange(obj):
+            if isinstance(obj,Container) and obj.content:
+              for c in obj.content:
+                del self.objects[c.serial]
+            del self.objects[key]
 
   @status('game')
   @clientthread
@@ -940,7 +972,8 @@ class Client(threading.Thread):
       for obj in pkt.packets:
         self.handleObjectInfoPacket(obj)
     elif isinstance(pkt, packets.VisualRangePacket):
-      pass
+      self.view_range = pkt.visualrange
+      self.log.info(f"update view range to {self.view_range}")
     elif isinstance(pkt, packets.MegaClilocRevPacket):
       pass
     elif isinstance(pkt, packets.AOSTooltipPacket):
@@ -1010,9 +1043,13 @@ class Client(threading.Thread):
         self.brain.event(brain.Event(brain.Event.EVT_OWNCREATE))
     else:
       mob = Mobile(self, pkt)
+      if not self.player.inRange(mob):
+        self.log.info("Ignore out of range mobile %s", mob)
+        return
       self.objects[mob.serial] = mob
       self.log.info("New mobile: %s", mob)
-      self.brain.event(brain.Event(brain.Event.EVT_NEW_MOBILE, mobile=mob, pos=[mob.x,mob.y,mob.z,mob.facing]))
+      self.brain.event(brain.Event(brain.Event.EVT_NEW_MOBILE, mobile=mob, pos=[mob.x,mob.y,mob.z,mob.facing],
+                                   playerpos=[self.player.x,self.player.y,self.player.z]))
       # Auto single click for new mobiles
       self.singleClick(mob)
 
@@ -1026,11 +1063,15 @@ class Client(threading.Thread):
         self.log.info("Refresh item: %s", self.objects[pkt.serial])
     else:
       item = Item(self, pkt)
+      if not self.player.inRange(item):
+        self.log.info("Ignore out of range item %s (self: %s)", item, self.player)
+        return
       if not self.disable_item_logging:
         self.log.info("New item: %s", item)
       self.objects[item.serial] = item
       if not self.disable_item_logging:
-        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item, pos=[item.x,item.y,item.z,item.facing]))
+        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item, pos=[item.x,item.y,item.z,item.facing],
+                                     playerpos=[self.player.x,self.player.y,self.player.z]))
 
   @status('game')
   @clientthread
@@ -1186,7 +1227,7 @@ class Client(threading.Thread):
   def sendVisualRange(self):
     ''' Sends visual range '''
     po = packets.VisualRangePacket()
-    po.fill(18)
+    po.fill(self.view_range)
     self.queue(po)
  
   @logincomplete

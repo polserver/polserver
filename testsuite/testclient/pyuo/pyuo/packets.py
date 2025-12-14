@@ -1738,7 +1738,7 @@ class NewObjectInfoPacket(Packet):
 
   def decodeChild(self):
     self.dushort()
-    self.duchar()
+    self.type = self.duchar()
     self.serial = self.duint()
     self.graphic = self.dushort()
     self.duchar()

@@ -202,19 +202,23 @@ exported function update_range_change( resmngr )
   if ( i == 0 )
     return ret_error( "item was never visible" );
   endif
+  disable_auto_delete( clientcon, 0 );
   char.client.visual_range := 0; // back to default
   i := 10;
   while ( --i > 0 )
     var ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
     if ( !ev )
+      enable_auto_delete( clientcon, 0 );
       return ev;
     endif
     if ( ev["serial"] == item.serial )
       break;
     endif
   endwhile
+  enable_auto_delete( clientcon, 0 );
   if ( i == 0 )
     return ret_error( "item got never deleted" );
   endif
   return 1;
 endfunction
+

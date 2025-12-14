@@ -100,8 +100,14 @@ endfunction
 // move a boat with to many items on it (smooth boat pkt overflows)
 exported function move_boat_overflow()
   MoveBoatXY( boat, 10, 50 );
-  var h := getstandingheight( 11, 50, boat.z, boat.realm );
-  MoveObjectToLocation( char, 11, 50, h.z );
+  var h := getstandingheight( boat.x + 1, boat.y, boat.z, boat.realm );
+  // move char out of range
+  MoveObjectToLocation( char, boat.x + 1, boat.y, 1, realm := "britannia2",
+                        flags := MOVEOBJECT_FORCELOCATION );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+  MoveObjectToLocation( char, boat.x + 1, boat.y, h.z, realm := "britannia",
+                        flags := MOVEOBJECT_FORCELOCATION );
   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
   var res := boat.mobiles.size() == 1;
@@ -119,7 +125,7 @@ exported function move_boat_overflow()
   foreach item in ( boat.items )
     DestroyItem( item );
   endforeach
-  MoveObjectToLocation( char, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+  MoveObjectToLocation( char, 100, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
   clientcon.sendevent( struct{ todo := EVT_DISABLE_ITEM_LOGGING, arg := 0, id := 0 } );
@@ -357,7 +363,7 @@ endfunction
 
 /* move boat in direction of char and check at which distance the boat is visible and then back out of sight
 */
-exported function boat_update_range()
+exported function boat_update_range( resmgn )
   MoveBoatXY( boat, 10, 50 );
   Clear_Event_Queue();
   // move char out of range
@@ -380,11 +386,13 @@ exported function boat_update_range()
     endif
   endforeach
   // now move boat to char
-  var i := 10;
+  var i := 15;
   while ( --i > 0 )
     MoveBoat( boat, 2 );
     sleepms( 10 );
   endwhile
+  var boatseen := false;
+  var portplankseen := false;
   while ( 1 )
     ev := waitForClient( 0, { EVT_NEW_ITEM } );
     if ( !ev )
@@ -396,12 +404,24 @@ exported function boat_update_range()
       if ( x != 23 || y != 0 ) // (18 visual range +5 footprint/2)
         return ret_error( $"update distance failed: {x}, {y}" );
       endif
+      boatseen := true;
+    endif
+    if ( ev["serial"] == boat.portplank.serial )
+      var x := char.x - ev["pos"][1];
+      var y := char.y - ev["pos"][2];
+      if ( x != 18 || y != 2 )
+        return ret_error( $"update distance portplank failed: {x}, {y}" );
+      endif
+      portplankseen := true;
+    endif
+    if ( boatseen && portplankseen )
       break;
     endif
   endwhile
+  disable_auto_delete( clientcon, 0 );
 
   // move boat again out of range
-  i := 10;
+  i := 20;
   while ( --i > 0 )
     MoveBoat( boat, 6 );
     sleepms( 10 );
@@ -409,17 +429,20 @@ exported function boat_update_range()
   while ( 1 )
     ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
     if ( !ev )
+      enable_auto_delete( clientcon, 0 );
       return ev;
     endif
     if ( ev["serial"] == boat.serial )
       var x := char.x - ev["oldpos"][1];
       var y := char.y - ev["oldpos"][2];
       if ( x != 23 || y != 0 ) // (18 visual range +5 footprint/2)
+        enable_auto_delete( clientcon, 0 );
         return ret_error( $"remove update distance failed: {x}, {y}" );
       endif
       break;
     endif
   endwhile
+  enable_auto_delete( clientcon, 0 );
   return 1;
 endfunction
 
@@ -565,3 +588,51 @@ exported function boat_alternate_multiid_itemdesc()
 
   return 1;
 endfunction
+
+/* move boat in direction of npc and check at which distance the npc is visible
+*/
+exported function boat_update_range_from_boat( resmgn )
+  MoveBoatXY( boat, 10, 50 );
+  Clear_Event_Queue();
+  // move char out of range
+  MoveObjectToLocation( char, boat.x + 30, boat.y, 1, realm := "britannia2",
+                        flags := MOVEOBJECT_FORCELOCATION );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+  MoveObjectToLocation( char, boat.x + 1, boat.y, 5, realm := "britannia",
+                        flags := MOVEOBJECT_FORCELOCATION );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+
+  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", boat.x + 30, boat.y, 1, 0,
+                                           "britannia", 1 );
+  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
+  var ev := waitForClient( 0, { EVT_LIST_OBJS } );
+  if ( !ev )
+    return ev;
+  endif
+
+  // now move boat to npc
+  var i := 15;
+  while ( --i > 0 )
+    MoveBoat( boat, 2 );
+    sleepms( 10 );
+  endwhile
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_NEW_MOBILE } );
+    if ( !ev )
+      return ev;
+    endif
+    if ( ev["serial"] == npc.serial )
+      var x := ev["pos"][1] - ev["playerpos"][1];
+      var y := ev["pos"][2] - ev["playerpos"][2];
+      if ( x != 18 || y != 0 )
+        return ret_error( $"update distance failed: {x}, {y}" );
+      endif
+      break;
+    endif
+  endwhile
+
+  return 1;
+endfunction
+

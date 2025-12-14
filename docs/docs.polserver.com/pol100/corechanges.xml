@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-18-2025</datemodified>
+		<datemodified>12-14-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>12-14-2025</date>
+			<author>Turley:</author>
+			<change type="Fixed">With newer clients boat travellers and observers didnt get all objects send</change>
+		</entry>
 		<entry>
 			<date>11-18-2025</date>
 			<author>Kevin:</author>

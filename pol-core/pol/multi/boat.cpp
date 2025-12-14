@@ -15,7 +15,6 @@
  * - 2011/12/13 Tomi:      added support for new boats
  */
 
-
 #include "boat.h"
 
 #include <exception>
@@ -286,6 +285,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     }
     if ( component == nullptr || component->orphan() )
       continue;
+
     msg->Write<u32>( component->serial_ext );
     msg->WriteFlipped<u16>( component->x() );
     msg->WriteFlipped<u16>( component->y() );
@@ -783,6 +783,10 @@ void UBoat::move_boat_item( Items::Item* item, const Core::Pos4d& newpos )
 
         if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
           send_item( client, item );
+        else if ( !client->chr->in_visual_range(
+                      item, oldpos ) )  // multis are visible before a client accepts items, we need
+                                        // to resend them
+          send_item( client, item );
       } );
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
@@ -826,8 +830,6 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
 
     if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
     {
-      Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
-
       if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
         send_poisonhealthbar( chr->client, chr );
 
@@ -844,6 +846,18 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
     }
   }
   chr->move_reason = Mobile::Character::MULTIMOVE;
+  // multis are visible before a client accepts objects, we need to resend them
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+      chr,
+      [&]( Mobile::Character* zonechr )
+      {
+        if ( !( zonechr->client->ClientType & Network::CLIENTTYPE_7090 ) )
+          return;
+        if ( !zonechr->is_visible_to_me( chr, /*check_range*/ true ) )
+          return;
+        if ( !zonechr->in_visual_range( chr, oldpos ) )
+          send_owncreate( zonechr->client, chr );
+      } );
 }
 
 Core::Pos4d UBoat::turn_coords( const Core::Pos4d& oldpos, RELATIVE_DIR dir ) const
@@ -1023,16 +1037,22 @@ void UBoat::do_tellmoves()
   {
     UObject* obj = travellerRef.get();
 
-    if ( obj != nullptr )  // sometimes we've destroyed objects because of control scripts
+    if ( !obj || !obj->ismobile() )
+      continue;
+    auto* chr = static_cast<Mobile::Character*>( obj );
+    if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
-      if ( obj->ismobile() )
-      {
-        Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) ||
-             chr->has_active_client() )  // dave 3/27/3, dont tell moves of offline PCs
-          chr->tellmove();
-      }
+      chr->tellmove();
+      continue;
     }
+    if ( !chr->has_active_client() )
+      continue;
+    chr->tellmove();
+    auto* client = chr->client;
+    // with smooth movement the position of travellers is known when the displayboat pkt is send,
+    // new objects have to be send afterwards
+    if ( client->ClientType & Network::CLIENTTYPE_7090 )
+      Core::send_objects_newly_inrange_on_boat( client, serial );
   }
 }
 

@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+12-14-2025 Turley:
+    Fixed: With newer clients boat travellers and observers didnt get all objects send
 11-18-2025 Kevin:
     Added: Character script member logged_in, returning 1 if the character is present in the game world.
            Will return 1 on NPC, and 1 for player characters that are either connected or disconnected

@@ -32,6 +32,7 @@ const EVT_OWNCREATE := "owncreate";
 const EVT_GUMP := "gump";
 const EVT_AOS_TOOLTIP := "aos_tooltip";
 const EVT_OPEN_PAPERDOLL := "open_paperdoll";
+const EVT_AUTO_DELETE_OBJS := "auto_delete_objs";
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
@@ -77,3 +78,16 @@ function waitForClients( types )
     return ev;
   endwhile
 endfunction
+
+function disable_auto_delete( clientcon, id )
+  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := false, id := id } );
+  while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )
+  endwhile
+endfunction
+
+function enable_auto_delete( clientcon, id )
+  clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := id } );
+  while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )
+  endwhile
+endfunction
+
