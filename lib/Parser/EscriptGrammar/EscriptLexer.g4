@@ -50,6 +50,7 @@ channels { COMMENTS }
             case EscriptLexer::RPAREN:
             case EscriptLexer::OCT_LITERAL:
             case EscriptLexer::DECIMAL_LITERAL:
+            case EscriptLexer::FLOAT_LITERAL:
             case EscriptLexer::HEX_LITERAL:
             case EscriptLexer::STRING_LITERAL:
             case EscriptLexer::INC:
