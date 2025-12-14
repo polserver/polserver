@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+12-15-2025 Kevin:
+    Fixed: Parsing issue introduced with regular expressions when using floating-point dividends
 12-14-2025 Reloecc:
     Added: uoconvert.cfg element StaticOptions extended by DiscardedWaterTiles.
            Lists the tiles that will be discarded during the processing of solid statics,

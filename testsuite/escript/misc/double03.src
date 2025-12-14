@@ -1,0 +1,4 @@
+const STD_DAY_LENGTH := 1000;
+var time := 100;
+var raw_time := 24.0 / ( CDbl( STD_DAY_LENGTH ) / time );
+print( raw_time );
