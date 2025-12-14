@@ -24,6 +24,7 @@ public:
 
   std::set<unsigned int> BoatTypes;
   std::set<unsigned int> MountTypes;
+  std::set<unsigned int> DiscardedWaterTypes;
 
   bool cfg_use_no_shoot;
   bool cfg_LOS_through_windows;
