@@ -762,6 +762,8 @@ class Client(threading.Thread):
           obj = self.objects[key]
           if isinstance(obj,Item) and obj.parent:
             continue
+          if self.player.serial == obj.serial:
+            continue
           if not self.player.inRange(obj):
             if isinstance(obj,Container) and obj.content:
               for c in obj.content:

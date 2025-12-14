@@ -35,7 +35,7 @@ function createAccountWithChar( accname, psw )
 endfunction
 
 function dprint( unused what )
-// print(what);
+// print( what );
 endfunction
 
 class ResourceManager()
@@ -97,7 +97,6 @@ class ResourceManager()
       return res;
     endif
 
-
     return 1;
   endfunction
 
@@ -109,7 +108,7 @@ class ResourceManager()
 
     character.enable( privilege );
 
-    this.resources.append( array{ { character, privilege } }, @RevokePrivilege );
+    this.resources.append( array{ { character, privilege }, @RevokePrivilege } );
 
     return 1;
   endfunction
@@ -254,3 +253,4 @@ function copy_file( source, destination )
 
   return 1;
 endfunction
+

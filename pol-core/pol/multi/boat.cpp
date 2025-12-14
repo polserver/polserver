@@ -286,16 +286,6 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     if ( component == nullptr || component->orphan() )
       continue;
 
-    const auto delta = component->pos3d() - pos3d();
-    const auto c_oldpos = bc.oldpos + delta;
-    if ( !client->chr->in_visual_range( component.get(), c_oldpos ) &&
-         client->chr->in_visual_range( component.get(), component->pos() ) )
-    {
-      // multis are visible before a client accepts items, we need to resend them
-      POLLOG_INFOLN( "resend {:#x} {} for {}", component->serial, component->pos3d(),
-                     client->chr->pos3d() );
-      send_item( client, component.get() );
-    }
     msg->Write<u32>( component->serial_ext );
     msg->WriteFlipped<u16>( component->x() );
     msg->WriteFlipped<u16>( component->y() );
@@ -314,30 +304,17 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
 
     if ( obj->orphan() )
       continue;
-    bool needs_resend{ false };
-    const auto delta = obj->pos3d() - pos3d();
-    const auto c_oldpos = bc.oldpos + delta;
-    if ( !client->chr->in_visual_range( obj, c_oldpos ) &&
-         client->chr->in_visual_range( obj, obj->pos() ) )
-    {
-      // multis are visible before a client accepts objects, we need to resend them
-      needs_resend = true;
-    }
     if ( obj->ismobile() )
     {
       auto* chr = static_cast<Mobile::Character*>( obj );
       if ( !client->chr->is_visible_to_me( chr, /*check_range*/ false ) )
         continue;
-      if ( needs_resend )
-        send_owncreate( client, chr );
     }
     else
     {
       auto* item = static_cast<Items::Item*>( obj );
       if ( item->invisible() && !client->chr->can_seeinvisitems() )
         continue;
-      if ( needs_resend )
-        send_item( client, item );
     }
     msg->Write<u32>( obj->serial_ext );
     msg->WriteFlipped<u16>( obj->x() );
@@ -808,6 +785,10 @@ void UBoat::move_boat_item( Items::Item* item, const Core::Pos4d& newpos )
 
         if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
           send_item( client, item );
+        else if ( !client->chr->in_visual_range(
+                      item, oldpos ) )  // multis are visible before a client accepts items, we need
+                                        // to resend them
+          send_item( client, item );
       } );
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
@@ -851,8 +832,6 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
 
     if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
     {
-      //      Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
-
       if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
         send_poisonhealthbar( chr->client, chr );
 
@@ -869,6 +848,18 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
     }
   }
   chr->move_reason = Mobile::Character::MULTIMOVE;
+  // multis are visible before a client accepts objects, we need to resend them
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+      chr,
+      [&]( Mobile::Character* zonechr )
+      {
+        if ( !( zonechr->client->ClientType & Network::CLIENTTYPE_7090 ) )
+          return;
+        if ( !zonechr->is_visible_to_me( chr, /*check_range*/ true ) )
+          return;
+        if ( !zonechr->in_visual_range( chr, oldpos ) )
+          send_owncreate( zonechr->client, chr );
+      } );
 }
 
 Core::Pos4d UBoat::turn_coords( const Core::Pos4d& oldpos, RELATIVE_DIR dir ) const
