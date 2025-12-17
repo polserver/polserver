@@ -195,6 +195,15 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
         SemanticToken{ line, character, token_length, SemanticTokenType::STRING, {} } );
     return tokens;
   }
+  case EscriptGrammar::EscriptLexer::REGEXP_LITERAL:
+  {
+    std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
+                                                  token.getCharPositionInLine() + 1,
+                                                  token.getText().length(),
+                                                  SemanticTokenType::REGEXP,
+                                                  {} } };
+    return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
+  }
   }
 
   return {};
