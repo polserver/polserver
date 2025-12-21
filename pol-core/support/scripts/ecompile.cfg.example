@@ -180,7 +180,7 @@ ShortCircuitEvaluation=0
 # prints warnings if ShortCircuitEvaluation is active and second operand could have sideeffects
 # Default is 1
 #
-ShortCircuitEvaluation=1
+ShortCircuitEvaluationWarning=1
 
 #
 # EmParseTreeCacheSize
