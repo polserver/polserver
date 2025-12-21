@@ -252,6 +252,8 @@ bool BoatShapeExists( u16 multiid )
 void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed,
                               bool relative ) const
 {
+  POLLOG_INFOLN( "DEBUG: send smooth move {:#} pos {} for {:x} pos {}", serial, pos(),
+                 client->chr->serial, client->chr->pos() );
   Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
 
   Core::UFACING b_facing = boat_facing();
@@ -291,6 +293,8 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     msg->WriteFlipped<u16>( component->y() );
     msg->WriteFlipped<s16>( component->z() );
     ++object_count;
+    POLLOG_INFOLN( "DEBUG: smooth item {:#x} for {:#x} dist {}", component->serial,
+                   client->chr->serial, client->chr->pos().pol_distance( compinent->pos() ) );
   }
   for ( auto& travellerRef : travellers_ )
   {
@@ -783,10 +787,15 @@ void UBoat::move_boat_item( Items::Item* item, const Core::Pos4d& newpos )
 
         if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
           send_item( client, item );
-        else if ( !client->chr->in_visual_range(
-                      item, oldpos ) )  // multis are visible before a client accepts items, we need
-                                        // to resend them
+        else if ( !zonechr->in_visual_range( item,
+                                             oldpos ) )  // multis are visible before a client
+                                                         // accepts items, we need to resend them
+        {
+          POLLOG_INFOLN( "DEBUG: resend item {:#x} for {:#x} dist {} olddist {}", item->serial,
+                         zonechr->serial, zonechr->pos().pol_distance( item->pos() ),
+                         zonechr->pos().pol_distance( oldpos ) );
           send_item( client, item );
+        }
       } );
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
