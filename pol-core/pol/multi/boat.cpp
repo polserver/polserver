@@ -294,7 +294,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     msg->WriteFlipped<s16>( component->z() );
     ++object_count;
     POLLOG_INFOLN( "DEBUG: smooth item {:#x} for {:#x} dist {}", component->serial,
-                   client->chr->serial, client->chr->pos().pol_distance( compinent->pos() ) );
+                   client->chr->serial, client->chr->pos().pol_distance( component->pos() ) );
   }
   for ( auto& travellerRef : travellers_ )
   {
