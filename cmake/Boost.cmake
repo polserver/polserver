@@ -1,5 +1,5 @@
 message("* libboost")
-set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_89_0")
+set (BOOST_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/boost_1_89_0")
 set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
 if (clang)
@@ -110,14 +110,23 @@ if (boost_needs_extract)
   add_dependencies(libboost_headers libboost_ext)
 endif()
 
-add_library(libboost_stacktrace STATIC IMPORTED)
-set_target_properties(libboost_stacktrace PROPERTIES
-  IMPORTED_LOCATION ${BOOST_STACKTRACE_LIB}
-  IMPORTED_IMPLIB ${BOOST_STACKTRACE_LIB}
-  INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
-  INTERFACE_COMPILE_DEFINITIONS BOOST_STACKTRACE_LINK
-  FOLDER 3rdParty
-)
+if (USE_BOOST_HEADER_STACKTRACE)
+  add_library(libboost_stacktrace INTERFACE IMPORTED)
+  set_target_properties(libboost_stacktrace PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
+    INTERFACE_COMPILE_DEFINITIONS BOOST_STACKTRACE_USE_ADDR2LINE
+    FOLDER 3rdParty
+  )
+  set(BOOST_STACKTRACE_LIB2)
+else()
+  set_target_properties(libboost_stacktrace PROPERTIES
+    IMPORTED_LOCATION ${BOOST_STACKTRACE_LIB}
+    IMPORTED_IMPLIB ${BOOST_STACKTRACE_LIB}
+    INTERFACE_INCLUDE_DIRECTORIES ${BOOST_SOURCE_DIR}
+    INTERFACE_COMPILE_DEFINITIONS BOOST_STACKTRACE_LINK
+    FOLDER 3rdParty
+  )
+endif()
 if (${windows})
   set_property(TARGET libboost_stacktrace APPEND
       PROPERTY INTERFACE_LINK_LIBRARIES

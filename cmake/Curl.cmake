@@ -2,7 +2,7 @@ message("* libcurl")
 set(CURL_REPO "https://github.com/curl/curl")
 set(CURL_TAG "curl-8_14_1")
 
-set(CURL_SOURCE_DIR "${POL_EXT_LIB_DIR}/${CURL_TAG}")
+set(CURL_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/${CURL_TAG}")
 
 set(CURL_FLAGS -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF -DCURL_DISABLE_LDAP=ON -DUSE_LIBIDN2=OFF -DUSE_NGHTTP2=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ZSTD=OFF -DCURL_BROTLI=OFF)
 if (${linux})
@@ -59,7 +59,11 @@ set_target_properties(libcurl PROPERTIES
 )
 if (${linux})
   set_property(TARGET libcurl 
-    PROPERTY INTERFACE_LINK_LIBRARIES ssl)
+    PROPERTY INTERFACE_LINK_LIBRARIES ssl ssh2)
+  if (ANDROID)
+    set_property(TARGET libcurl APPEND
+      PROPERTY INTERFACE_LINK_LIBRARIES ssh2)
+  endif()
   if (APPLE)
     pkg_search_module(LIBSSH2 REQUIRED libssh2 IMPORTED_TARGET)
     if(TARGET PkgConfig::LIBSSH2)
