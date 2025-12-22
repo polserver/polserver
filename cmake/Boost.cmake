@@ -119,6 +119,7 @@ if (USE_BOOST_HEADER_STACKTRACE)
   )
   set(BOOST_STACKTRACE_LIB2)
 else()
+  add_library(libboost_stacktrace STATIC IMPORTED)
   set_target_properties(libboost_stacktrace PROPERTIES
     IMPORTED_LOCATION ${BOOST_STACKTRACE_LIB}
     IMPORTED_IMPLIB ${BOOST_STACKTRACE_LIB}
