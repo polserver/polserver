@@ -59,7 +59,7 @@ set_target_properties(libcurl PROPERTIES
 )
 if (${linux})
   set_property(TARGET libcurl 
-    PROPERTY INTERFACE_LINK_LIBRARIES ssl ssh2)
+    PROPERTY INTERFACE_LINK_LIBRARIES ssl)
   if (ANDROID)
     set_property(TARGET libcurl APPEND
       PROPERTY INTERFACE_LINK_LIBRARIES ssh2)
