@@ -11,3 +11,4 @@ __pycache__
 gen/
 build/
 .vscode
+compile_commands.json

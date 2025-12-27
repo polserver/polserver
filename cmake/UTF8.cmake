@@ -2,7 +2,7 @@ message("* libutf8cpp")
 
 set(UTF_REPO "https://github.com/nemtrif/utfcpp")
 set(UTF_TAG "v4.0.6")
-set(UTF_SOURCE_DIR "${POL_EXT_LIB_DIR}/utf8-${UTF_TAG}")
+set(UTF_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/utf8-${UTF_TAG}")
 set(UTF_INSTALL_DIR "${UTF_SOURCE_DIR}/install")
 
 if (NOT EXISTS "${UTF_INSTALL_DIR}/include/utf8cpp")

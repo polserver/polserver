@@ -24,12 +24,12 @@ namespace Bscript
 class String;
 class BStruct;
 class Executor;
-}
+}  // namespace Bscript
 namespace Clib
 {
 class StreamWriter;
 class ConfigElem;
-}
+}  // namespace Clib
 namespace Plib
 {
 class Package;
@@ -38,7 +38,7 @@ namespace Core
 {
 class ExportScript;
 }
-}
+}  // namespace Pol
 #define ARMOR_TMPL ( static_cast<const ArmorDesc*>( tmpl ) )
 
 namespace Pol
@@ -54,9 +54,9 @@ class UArmor final : public Equipment
 
 public:
   virtual ~UArmor() = default;
-  virtual unsigned short ar() const;
-  virtual unsigned short ar_base() const;
-  virtual bool covers( unsigned short zlayer ) const;
+  unsigned short ar() const;
+  unsigned short ar_base() const;
+  bool covers( unsigned short zlayer ) const;
   virtual Item* clone() const override;
   virtual size_t estimatedSize() const override;
 
@@ -102,6 +102,6 @@ void unload_armor_templates();
 void validate_intrinsic_shield_template();
 UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem,
                                                   const Plib::Package* pkg );
-}
-}
+}  // namespace Items
+}  // namespace Pol
 #endif

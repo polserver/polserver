@@ -4,7 +4,7 @@ set(ANTLR_REPOSITORY "https://github.com/antlr/antlr4")
 # directives missing for the NOPCH build.
 set(ANTLR_VERSION_REF "cb85012")
 
-set(ANTLR_SOURCE_DIR "${POL_EXT_LIB_DIR}/antlr-${ANTLR_VERSION_REF}")
+set(ANTLR_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/antlr-${ANTLR_VERSION_REF}")
 set(ANTLR_INSTALL_DIR "${ANTLR_SOURCE_DIR}/install")
 set(ANTLR_INCLUDE_DIR "${ANTLR_INSTALL_DIR}/include/antlr4-runtime")
 set(ANTLR_BUILD_DIR "${ANTLR_SOURCE_DIR}/build")

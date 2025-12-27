@@ -151,10 +151,6 @@
 #include "../clib/mdump.h"
 #endif
 
-#ifdef __linux__
-#include <gnu/libc-version.h>
-#endif
-
 
 #include <cstdio>
 #include <cstring>
@@ -925,36 +921,6 @@ const char* Use_low_fragmentation_Heap()
 }
 #endif
 
-#ifdef __linux__
-void Check_libc_version()
-{
-  const char* libc_version = gnu_get_libc_version();
-
-  int main_version = 0;
-  int sub_version = 0;
-  int build = 0;
-  ISTRINGSTREAM is( libc_version );
-
-  if ( is >> main_version )
-  {
-    char delimiter;
-    if ( is >> delimiter >> sub_version )
-    {
-      is >> delimiter >> build;
-    }
-  }
-  else
-    POLLOG_ERRORLN( "Error in analyzing libc version string [{}]. Please contact Core-Team.",
-                    libc_version );
-
-  if ( main_version * 100000000 + sub_version * 10000 + build >= 2 * 100000000 + 3 * 10000 + 2 )
-    POLLOG_INFOLN( "Found libc {} - ok", libc_version );
-  else
-    POLLOG_ERRORLN( "Found libc {} - Please update to 2.3.2 or above.", libc_version );
-}
-#endif
-
-
 }  // namespace Core
 
 int xmain_inner( bool testing )
@@ -1047,11 +1013,6 @@ int xmain_inner( bool testing )
 
 #ifdef _WIN32
   Core::checkpoint( Core::Use_low_fragmentation_Heap() );
-#endif
-
-#ifdef __linux__
-  Core::checkpoint( "checking libc version" );
-  Core::Check_libc_version();
 #endif
 
   Core::checkpoint( "init default itemdesc defaults" );
