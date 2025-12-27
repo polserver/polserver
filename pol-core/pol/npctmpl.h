@@ -15,6 +15,7 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {
