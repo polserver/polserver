@@ -3697,6 +3697,8 @@ void Character::setposition( Core::Pos4d newpos )
         oldpos, los_size(),
         [&]( auto* zonechr )
         {
+          if ( zonechr == this )  // char is not yet moved
+            return;
           if ( newpos.in_range( zonechr->pos(), los_size() ) )
             return;
           send_remove_object( client, zonechr );
