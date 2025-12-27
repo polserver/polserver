@@ -1,7 +1,7 @@
 message("* libefsw")
 
 set (EFSW_REPOSITORY "https://github.com/SpartanJ/efsw.git")
-set (EFSW_VERSION_REF "1.5.0")
+set (EFSW_VERSION_REF "bbc804b")
 
 set (EFSW_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/efsw-${EFSW_VERSION_REF}")
 set (EFSW_INSTALL_DIR "${EFSW_SOURCE_DIR}/build")
