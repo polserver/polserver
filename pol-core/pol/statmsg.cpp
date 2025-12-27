@@ -23,9 +23,7 @@
 #include "uoclient.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 using namespace Network::PktHelper;
 
@@ -38,14 +36,12 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
   if ( networkManager.uoclient_general.hits.any )
   {
-    int v = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );  // hits
-    v = chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );  // max_hits
+    auto v = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.hits.id ).current_ones() );
+    msg->WriteFlipped<u16>( v );  // hits
+    v = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones() );
+    msg->WriteFlipped<u16>( v );  // max_hits
   }
   else
   {
@@ -53,15 +49,16 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>( 0u );  // max_hits
   }
   msg->Write<u8>( 0u );  // (client->chr->can_rename( chr ) ? 0xFF : 0);
+
+  u8 type = 1u;  // Set to oldschool statbar info.
   if ( client->ClientType & Network::CLIENTTYPE_70300 )
-    msg->Write<u8>( 6u );  // New entries for classic client
+    type = 6u;  // New entries for classic client
   else if ( client->acctSupports( Plib::ExpansionVersion::ML ) &&
             ( client->ClientType & Network::CLIENTTYPE_5000 ) )
-    msg->Write<u8>( 5u );  // Set to ML level
+    type = 5u;  // Set to ML level
   else if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
-    msg->Write<u8>( 4u );  // Set to AOS level statbar for full info
-  else
-    msg->Write<u8>( 1u );  // Set to oldschool statbar info.
+    type = 4u;  // Set to AOS level statbar for full info
+  msg->Write<u8>( type );
 
   // if (chr->race == Plib::RACE_ELF)
   //  msg->Write(static_cast<u8>(chr->gender | FLAG_RACE));
@@ -70,45 +67,40 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
 
   if ( networkManager.uoclient_general.strength.any )
   {
-    int v = chr->attribute( networkManager.uoclient_general.strength.id ).effective();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+    auto v = Clib::clamp_convert<u16>(
+        chr->attribute( networkManager.uoclient_general.strength.id ).effective() );
+    msg->WriteFlipped<u16>( v );
   }
   else
     msg->WriteFlipped<u16>( 0u );
 
   if ( networkManager.uoclient_general.dexterity.any )
   {
-    int v = chr->attribute( networkManager.uoclient_general.dexterity.id ).effective();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+    auto v = Clib::clamp_convert<u16>(
+        chr->attribute( networkManager.uoclient_general.dexterity.id ).effective() );
+    msg->WriteFlipped<u16>( v );
   }
   else
     msg->WriteFlipped<u16>( 0u );
 
   if ( networkManager.uoclient_general.intelligence.any )
   {
-    int v = chr->attribute( networkManager.uoclient_general.intelligence.id ).effective();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+    auto v = Clib::clamp_convert<u16>(
+        chr->attribute( networkManager.uoclient_general.intelligence.id ).effective() );
+    msg->WriteFlipped<u16>( v );
   }
   else
     msg->WriteFlipped<u16>( 0u );
 
   if ( networkManager.uoclient_general.stamina.any )
   {
-    int v = chr->vital( networkManager.uoclient_general.stamina.id ).current_ones();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+    auto v = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.stamina.id ).current_ones() );
+    msg->WriteFlipped<u16>( v );
 
-    v = chr->vital( networkManager.uoclient_general.stamina.id ).maximum_ones();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+    v = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.stamina.id ).maximum_ones() );
+    msg->WriteFlipped<u16>( v );
   }
   else
   {
@@ -118,15 +110,13 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
 
   if ( networkManager.uoclient_general.mana.any )
   {
-    int v = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+    auto v = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.mana.id ).current_ones() );
+    msg->WriteFlipped<u16>( v );
 
-    v = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
-    if ( v > 0xFFFF )
-      v = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( v ) );
+    v = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones() );
+    msg->WriteFlipped<u16>( v );
   }
   else
   {
@@ -149,20 +139,18 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   else
     msg->WriteFlipped<u16>( chr->ar() );
 
-  unsigned int weight = chr->weight();
-  Clib::sanitize_upperlimit( &weight, 0xFFFFu );
+  auto weight = Clib::clamp_convert<u16>( chr->weight() );
   msg->WriteFlipped<u16>( weight );
 
   // moreinfo 5
-  if ( client->acctSupports( Plib::ExpansionVersion::ML ) &&
-       ( client->ClientType & Network::CLIENTTYPE_5000 ) )
+  if ( type >= 5 )
   {
     msg->WriteFlipped<u16>( chr->carrying_capacity() );
     msg->Write<u8>( chr->race + 1u );
   }
 
   // moreinfo 3 start
-  if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
+  if ( type >= 3 )
   {
     msg->WriteFlipped<s16>( chr->skillstatcap().statcap );
     auto follow_value = chr->followers();
@@ -204,11 +192,8 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<s32>( chr->tithing() );
   }
 
-  // Add the new entries as 0's for now
-  if ( client->ClientType & Network::CLIENTTYPE_70300 )
+  if ( type >= 6 )
   {
-    // msg->offset += 30;
-
     msg->WriteFlipped<u16>(
         static_cast<u16>( chr->physical_resist_cap().sum() ) );  // Physical resist cap
     msg->WriteFlipped<u16>( static_cast<u16>( chr->fire_resist_cap().sum() ) );  // Fire resist cap
@@ -281,7 +266,7 @@ void send_short_statmsg( Network::Client* client, Mobile::Character* chr )
 
   if ( networkManager.uoclient_general.hits.any )
   {
-    msg->WriteFlipped<u16>( static_cast<u16>(
+    msg->WriteFlipped<u16>( Clib::clamp_convert<u16>(
         chr->vital( networkManager.uoclient_general.hits.id ).current_thousands() ) );
     msg->WriteFlipped<u16>( 1000u );  // max_hits
   }
@@ -307,14 +292,12 @@ void send_update_hits_to_inrange( Mobile::Character* chr )
 
   if ( networkManager.uoclient_general.hits.any )
   {
-    int h = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
-    if ( h > 0xFFFF )
-      h = 0xFFFF;
-    int mh = chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
-    if ( mh > 0xFFFF )
-      mh = 0xFFFF;
-    msg->WriteFlipped<u16>( static_cast<u16>( mh ) );
-    msg->WriteFlipped<u16>( static_cast<u16>( h ) );
+    auto h = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.hits.id ).current_ones() );
+    auto mh = Clib::clamp_convert<u16>(
+        chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones() );
+    msg->WriteFlipped<u16>( mh );
+    msg->WriteFlipped<u16>( h );
 
     // Send proper data to self (if we exist?)
     if ( chr->client && chr->client->ready )
@@ -323,7 +306,7 @@ void send_update_hits_to_inrange( Mobile::Character* chr )
     // To stop "HP snooping"...
     msg->offset = 5;
     msg->WriteFlipped<u16>( 1000u );
-    msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+    msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( h * 1000 / mh ) );
   }
   else
   {
@@ -335,5 +318,4 @@ void send_update_hits_to_inrange( Mobile::Character* chr )
   // Exclude self... otherwise their status-window shows 1000 hp!! >_<
   transmit_to_others_inrange( chr, &msg->buffer, msg->offset );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
