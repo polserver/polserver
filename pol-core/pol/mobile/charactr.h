@@ -418,6 +418,7 @@ public:
   void position_changed( void );
 
   void update_objects_on_range_change( u8 newrange );
+  void setposition( Core::Pos4d newpos ) override;
 
   // COMBAT
 public:

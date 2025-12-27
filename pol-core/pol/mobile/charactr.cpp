@@ -3686,6 +3686,45 @@ void Character::position_changed()
   position_changed_at_ = Core::polclock();
 }
 
+void Character::setposition( Core::Pos4d newpos )
+{
+  if ( has_active_client() )
+  {
+    // remove objects now out of range
+    const auto& oldpos = pos();
+    using namespace Core;
+    WorldIterator<MobileFilter>::InRange(  //
+        oldpos, los_size(),
+        [&]( auto* zonechr )
+        {
+          if ( newpos.in_range( zonechr->pos(), los_size() ) )
+            return;
+          send_remove_object( client, zonechr );
+        } );
+    WorldIterator<ItemFilter>::InMaxVisualRange(  //
+        oldpos,
+        [&]( auto* zoneitem )
+        {
+          if ( !oldpos.in_range( zoneitem->pos(), los_size() + zoneitem->visible_size() ) )
+            return;
+          if ( newpos.in_range( zoneitem->pos(), los_size() + zoneitem->visible_size() ) )
+            return;
+          send_remove_object( client, zoneitem );
+        } );
+    WorldIterator<MultiFilter>::InMaxVisualRange(  //
+        oldpos,
+        [&]( auto* zonemulti )
+        {
+          if ( !oldpos.in_range( zonemulti->pos(), los_size() + zonemulti->visible_size() ) )
+            return;
+          if ( newpos.in_range( zonemulti->pos(), los_size() + zonemulti->visible_size() ) )
+            return;
+          send_remove_object( client, zonemulti );
+        } );
+  }
+  base::setposition( std::move( newpos ) );
+}
+
 void Character::unhide()
 {
   if ( Core::gamestate.system_hooks.un_hide )

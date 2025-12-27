@@ -182,7 +182,7 @@ public:
   u16 distance_to( const Pos2d& other ) const;
   u16 distance_to( const Pos4d& other ) const;
 
-  void setposition( Pos4d newpos );
+  virtual void setposition( Pos4d newpos );
 
   UFACING direction_toward( UObject* other ) const;
   UFACING direction_toward( const Pos2d& other ) const;
