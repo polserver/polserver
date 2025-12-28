@@ -243,16 +243,12 @@ class Ui(brain.Brain):
 
   def updPosition(self, x, y, z, facing, notoriety):
     self.mwin.updPosition(x, y, z, facing, notoriety)
-    self.updObjects()
+    self.getObjects()
 
-  def updObjects(self):
-    objs = []
-    for obj in self.client.objects.values():
-      if isinstance(obj,client.Mobile) and obj.serial == self.player.serial:
-        continue
-      if obj.x is None or obj.y is None:
-        continue
-      objs.append(obj)
+  def getObjects(self):
+    self.client.addTodo(brain.Event(brain.Event.EVT_LIST_OBJS))
+
+  def updObjects(self, objs):
     self.mwin.updObjects(objs, self.client.view_range)
     self.mwin.refresh()
 
@@ -314,11 +310,11 @@ class Ui(brain.Brain):
 
   def onEvent(self, ev):
     if ev.type == brain.Event.EVT_HP_CHANGED:
-      self.onHpChange(ev.old, ev.new)
+      self.updVitals()
     elif ev.type == brain.Event.EVT_MANA_CHANGED:
-      self.onManaChange(ev.old, ev.new)
+      self.updVitals()
     elif ev.type == brain.Event.EVT_STAM_CHANGED:
-      self.onStamChange(ev.old, ev.new)
+      self.updVitals()
     elif ev.type == brain.Event.EVT_SPEECH:
       self.onSpeech(ev.speech)
     elif ev.type == brain.Event.EVT_NOTORIETY:
@@ -327,15 +323,17 @@ class Ui(brain.Brain):
       self.onMovement(ev.oldx, ev.oldy, ev.oldz, ev.oldfacing,
             ev.x, ev.y, ev.z, ev.facing, ev.ack)
     elif ev.type == brain.Event.EVT_NEW_MOBILE:
-      self.onNewMobile(ev.mobile)
+      self.getObjects()
     elif ev.type == brain.Event.EVT_NEW_ITEM:
-      self.onNewItem(ev.item)
+      self.getObjects()
     elif ev.type == brain.Event.EVT_REMOVED_OBJ:
-      self.onRemovedObj(ev.serial)
+      self.getObjects()
     elif ev.type == brain.Event.EVT_OWNCREATE:
       self.onOwnCreate()
     elif ev.type == brain.Event.EVT_BOAT_MOVED:
       self.onBoatMoved(ev)
+    elif ev.type == brain.Event.EVT_LIST_OBJS:
+      self.updObjects(ev.objs.values())
     elif ev.type == brain.Event.EVT_CLIENT_CRASH:
       self.log.critical('Oops! Client crashed: {}'.format(ev.exception))
       raise RuntimeError('Oops! Client crashed')
@@ -345,15 +343,6 @@ class Ui(brain.Brain):
   def onOwnCreate(self):
     self.updVitals()
     self.onNotorietyChange(None,None)
-
-  def onHpChange(self, old, new):
-    self.updVitals()
-
-  def onManaChange(self, old, new):
-    self.updVitals()
-
-  def onStamChange(self, old, new):
-    self.updVitals()
 
   def onNotorietyChange(self, old, new):
     p = self.client.player
@@ -367,20 +356,10 @@ class Ui(brain.Brain):
     self.updPosition(x, y, z, facing, self.client.player.notoriety)
     self.updVitals()
 
-  def onNewMobile(self, mobile):
-    self.updObjects()
-  
-  def onNewItem(self, item):
-    self.updObjects()
-  
   def onBoatMoved(self, ev):
     p = self.client.player
     self.updPosition(p.x, p.y, p.z, p.facing, p.notoriety)
-    self.updObjects()
-
-  def onRemovedObj(self, serial):
-    self.mwin.removeObject(serial)
-    self.mwin.refresh()
+    self.getObjects()
 
 class CursesWinProxy:
   ''' Proxy class over curses window '''
@@ -517,12 +496,6 @@ class MapWindow(BaseWindow):
     color = self.notorietyColor(notoriety)
     self.win.addch(self.cy, self.cx, self.facingAsArrow(facing), color)
 
-  def removeObject(self, serial):
-    if serial in self.opos.keys():
-      oldpos = self.opos[serial]
-      del self.opos[serial]
-      self.win.addch(oldpos['mapy'], oldpos['mapx'], ' ')
-
   def drawVisualRange(self, visrange):
     minx,maxx = max(0,self.cx-visrange),min(self.width-1,self.cx+visrange)
     miny,maxy = max(0,self.cy-visrange),min(self.height-1,self.cy+visrange)
@@ -560,10 +533,14 @@ class MapWindow(BaseWindow):
     self.drawMap()
     self.drawVisualRange(visrange)
     for obj in objs:
+      if obj.x is None or obj.y is None:
+        continue
       relx = obj.x - self.pos['x']
       rely = obj.y - self.pos['y']
       mapx = self.cx + relx
       mapy = self.cy + rely
+      if relx == 0 and rely == 0:
+        continue # dont draw over player
 
       if mapx >= 1 and mapx <= self.width-1 and mapy >= 1 and mapy <= self.height-1:
         # This is not out of screen, draw it
