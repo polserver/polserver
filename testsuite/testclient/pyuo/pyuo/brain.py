@@ -85,26 +85,7 @@ class Brain:
           time.sleep(0.01)
 
   def onEvent(self, ev):
-    if ev.type == Event.EVT_HP_CHANGED:
-      self.onHpChange(ev.old, ev.new)
-    elif ev.type == Event.EVT_MANA_CHANGED:
-      self.onManaChange(ev.old, ev.new)
-    elif ev.type == Event.EVT_STAM_CHANGED:
-      self.onStamChange(ev.old, ev.new)
-    elif ev.type == Event.EVT_SPEECH:
-      self.onSpeech(ev.speech)
-    elif ev.type == Event.EVT_NOTORIETY:
-      self.onNotorietyChange(ev.old, ev.new)
-    elif ev.type == Event.EVT_MOVED:
-      self.onMovement(ev.oldx, ev.oldy, ev.oldz, ev.oldfacing,
-            ev.x, ev.y, ev.z, ev.facing, ev.ack)
-    elif ev.type == Event.EVT_NEW_MOBILE:
-      self.onNewMobile(ev.mobile)
-    elif ev.type == Event.EVT_CLIENT_CRASH:
-      self.log.critical('Oops! Client crashed: {}'.format(ev.exception))
-      raise RuntimeError('Oops! Client crashed')
-    else:
-      raise NotImplementedError("Unknown event {}",format(ev.type))
+    raise RuntimeError('needs to be overridden')
 
   def processEvents(self):
     ''' Process event queue, internal '''
@@ -144,37 +125,6 @@ class Brain:
     @return Return true to terminate the program
     '''
     self.log.debug('Brain running, nothing to do...')
-
-  def onHpChange(self, old, new):
-    ''' Called when HP amount changes '''
-    self.log.debug('HP changed from {} to {}'.format(old, new))
-
-  def onManaChange(self, old, new):
-    ''' Called when HP amount changes '''
-    self.log.debug('MANA changed from {} to {}'.format(old, new))
-
-  def onStamChange(self, old, new):
-    ''' Called when HP amount changes '''
-    self.log.debug('STAM changed from {} to {}'.format(old, new))
-
-  def onNotorietyChange(self, old, new):
-    ''' Called when notoriety changes '''
-    self.log.debug('NOTORIETY changed from {} to {}'.format(old, new))
-
-  def onMovement(self, oldx, oldy, oldz, oldfacing, x, y, z, facing, ack):
-    ''' Called when movement has been confirmed '''
-    self.log.debug('MOVEMENT {} {},{},{}.{} -> {},{},{}.{}'.format(
-        'ack' if ack else 'rejected', oldx, oldy, oldz,
-        oldfacing, x, y, z, facing))
-
-  def onNewMobile(self, mobile):
-    ''' Called when a new mobile is in sight '''
-    self.log.debug('NEW MOBILE: {}'.format(mobile))
-
-  def onSpeech(self, speech):
-    ''' Called when somebody said something or on a sys or global chat message '''
-    self.log.debug('SPEECH received: {}'.format(speech))
-
 
 class Event:
   ''' An event sent from the client '''

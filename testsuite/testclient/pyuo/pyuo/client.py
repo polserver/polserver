@@ -904,7 +904,8 @@ class Client(threading.Thread):
       assert not self.lc
       assert self.player is not None
       self.lc = True
-      # Send some initial info packets      ..
+      # Send some initial info packets
+      self.requestStatus()
       self.requestSkills()
       self.sendVersion()
       # Original client also sends this now
@@ -959,7 +960,7 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.HealthBarStatusUpdate):
       pass
     elif isinstance(pkt, packets.StatusBarInfoPacket):
-      pass
+      self.handleStatusBar(pkt)
     elif isinstance(pkt, packets.CompressedGumpPacket):
       po = packets.CloseGumpResponsePacket()
       po.fill(pkt.serial, pkt.gumpid)
@@ -1090,6 +1091,22 @@ class Client(threading.Thread):
     else:
       self.log.info("0x%X's %s: %d/%d", pkt.serial, attrName.upper(), pkt.cur, pkt.max)
     self.brain.event(brain.Event(eventId, old=old, new=cur, serial=pkt.serial))
+
+  @status('game')
+  @clientthread
+  @logincomplete
+  def handleStatusBar(self, pkt):
+    if self.player.serial == pkt.serial:
+      mob = self.player
+    else:
+      mob = self.objects[pkt.serial]
+    mob.hp = pkt.hp
+    mob.maxhp = pkt.maxhp
+    mob.stam = pkt.stam
+    mob.maxstam = pkt.maxstam
+    mob.mana = pkt.mana
+    mob.maxmana = pkt.maxmana
+    # TODO rest..
 
   @status('game')
   @clientthread
