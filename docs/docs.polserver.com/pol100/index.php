@@ -32,14 +32,14 @@
 <?php if( ! $offline && $official ) { ?>
 				<hr>
 				Downloadable Version (100):
-				<a href="http://docs.polserver.com/pol100/archives/<?=$archivefile?>">
+				<a href="https://docs.polserver.com/pol100/archives/<?=$archivefile?>">
 					100 Offline Documentation <?=$archivetime?>
 				</a>
 				<hr>
 <?php } else { ?>
 				<hr>
 				The Official POL Documentaion site is found at
-				<a href="http://docs.polserver.com">http://docs.polserver.com</a>
+				<a href="https://docs.polserver.com">https://docs.polserver.com</a>
 				<hr>
 <?php } ?>
 		</div>
