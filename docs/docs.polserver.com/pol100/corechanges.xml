@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-15-2025</datemodified>
+		<datemodified>12-31-2025</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>12-31-2025</date>
+			<author>Kukkino:</author>
+			<change type="Fixed">Changing warmode no longer sends 0x77 packet (Update Player) packet to clients in range who cannot see the mobile (ex. when the character changing warmode is hidden).</change>
+		</entry>
 		<entry>
 			<date>12-15-2025</date>
 			<author>Kevin:</author>
