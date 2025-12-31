@@ -3175,8 +3175,9 @@ void Character::set_warmode( bool i_warmode )
         {
           if ( chr == this )
             return;
-          if ( !chr->in_visual_range( this ) )
+          if ( !chr->is_visible_to_me( this ) )
             return;
+
           msgmove.Send( chr->client );
         } );
   }
