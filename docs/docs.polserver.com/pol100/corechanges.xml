@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-31-2025</datemodified>
+		<datemodified>01-01-2026</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-01-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">class method calls which have a known name, name of an existing obj method, now work</change>
+		</entry>
 		<entry>
 			<date>12-31-2025</date>
 			<author>Kukkino:</author>
