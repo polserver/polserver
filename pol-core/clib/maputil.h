@@ -47,7 +47,14 @@ struct ci_cmp_pred
     // benchmark showed that strnicmp is faster then lexicographical_compare, even if we have to
     // create string_views. my guess is that it gets completly optimized away and what is left is
     // one comparison vs two comparisons per iteration
-    return strnicmp( sv1.data(), sv2.data(), std::min( sv1.size(), sv2.size() ) );
+    auto res = strnicmp( sv1.data(), sv2.data(), std::min( sv1.size(), sv2.size() ) );
+    if ( res != 0 )
+      return res < 0;
+    else if ( sv1.size() == sv2.size() )
+      return res < 0;
+    else if ( sv1.size() > sv2.size() )
+      return false;
+    return true;
   }
 };
 }  // namespace Pol::Clib
