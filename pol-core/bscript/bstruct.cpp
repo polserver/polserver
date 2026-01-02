@@ -207,9 +207,7 @@ BObjectRef BStruct::set_member( const char* membername, BObjectImp* value, bool 
 // used programmatically
 const BObjectImp* BStruct::FindMember( const char* name )
 {
-  std::string key( name );
-
-  auto itr = contents_.find( key );
+  auto itr = contents_.find( name );
   if ( itr != contents_.end() )
   {
     return ( *itr ).second->impptr();
@@ -222,9 +220,7 @@ const BObjectImp* BStruct::FindMember( const char* name )
 
 BObjectRef BStruct::get_member( const char* membername )
 {
-  std::string key( membername );
-
-  auto itr = contents_.find( key );
+  auto itr = contents_.find( membername );
   if ( itr != contents_.end() )
   {
     return ( *itr ).second;

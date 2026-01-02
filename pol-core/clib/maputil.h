@@ -3,27 +3,58 @@
  * @par History
  */
 
+#pragma once
 
-#ifndef CLIB_MAPUTIL_H
-#define CLIB_MAPUTIL_H
-
-#include "clib.h"
+#include <algorithm>
+#include <concepts>
 #include <cstring>
 #include <string>
+#include <string_view>
+#include <type_traits>
 
-namespace Pol
+#include "clib.h"
+
+namespace Pol::Clib
 {
-namespace Clib
+template <typename T>
+concept FlyWeightString = requires( T x ) {
+  { x.get() } -> std::same_as<const std::string&>;
+};
+template <typename T>
+concept CharArray = std::is_array_v<T> && std::is_same_v<std::remove_extent_t<T>, char>;
+
+template <typename T>
+concept CmpString = std::same_as<T, std::string> || std::same_as<T, std::string_view> ||
+                    FlyWeightString<T> || std::same_as<T, const char*> || CharArray<T>;
+
+struct ci_cmp_pred
 {
-class ci_cmp_pred
-{
-public:
-  bool operator()( const std::string& x1, const std::string& x2 ) const
+  // allow different types tag
+  using is_transparent = void;
+
+  struct converter
   {
-    return stricmp( x1.c_str(), x2.c_str() ) < 0;
+    static auto get( const std::string& x ) -> std::string_view { return { x }; };
+    static auto get( std::string_view x ) -> std::string_view { return x; };
+    static auto get( FlyWeightString auto const& x ) -> std::string_view { return { x.get() }; };
+    static auto get( const char* x ) -> std::string_view { return { x }; }
+  };
+
+  bool operator()( CmpString auto const& x1, CmpString auto const& x2 ) const
+  {
+    auto sv1 = converter::get( x1 );
+    auto sv2 = converter::get( x2 );
+    // benchmark showed that strnicmp is faster then lexicographical_compare, even if we have to
+    // create string_views. my guess is that it gets completly optimized away and what is left is
+    // one comparison vs two comparisons per iteration
+    auto res = strnicmp( sv1.data(), sv2.data(), std::min( sv1.size(), sv2.size() ) );
+    if ( res != 0 )
+      return res < 0;
+    else if ( sv1.size() == sv2.size() )
+      return res < 0;
+    else if ( sv1.size() > sv2.size() )
+      return false;
+    return true;
   }
 };
-}
-}
-
-#endif
+}  // namespace Pol::Clib

@@ -8,8 +8,11 @@
 #include <cstring>
 #include <limits>
 #include <string>
+#include <string_view>
 
+#include "../../clib/boostutils.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/maputil.h"
 #include "../../clib/rawtypes.h"
 #include "../../plib/maptile.h"
 #include "../dynproperties.h"
@@ -373,6 +376,48 @@ void test_curlfeatures()
   }
   else
     UnitTest::inc_successes();
+}
+
+void caseinsensitive_compare_test()
+{
+  using namespace std::literals;
+  auto less_cmp = std::less<std::string_view>{};
+  auto icase_cmp = Clib::ci_cmp_pred{};
+
+  UnitTest( [&]() { return icase_cmp( "test"sv, "test"sv ); }, less_cmp( "test"sv, "test"sv ),
+            "test_sv < test_sv" );
+
+  UnitTest( [&]() { return icase_cmp( "test1"sv, "test"sv ); }, less_cmp( "test1"sv, "test"sv ),
+            "test1_sv < test_sv" );
+  UnitTest( [&]() { return icase_cmp( "test"sv, "test1"sv ); }, less_cmp( "test"sv, "test1"sv ),
+            "test_sv < test1_sv" );
+
+  UnitTest( [&]() { return icase_cmp( "Test"sv, "test"sv ); }, less_cmp( "test"sv, "test"sv ),
+            "Test_sv < test_sv" );
+  UnitTest( [&]() { return icase_cmp( "test"sv, "Test"sv ); }, less_cmp( "test"sv, "test"sv ),
+            "test_sv < Test_sv" );
+
+  UnitTest( [&]() { return icase_cmp( "a test"sv, "test"sv ); }, less_cmp( "a test"sv, "test"sv ),
+            "a test_sv < test_sv" );
+  UnitTest( [&]() { return icase_cmp( "test"sv, "a test"sv ); }, less_cmp( "test"sv, "a test"sv ),
+            "test_sv < a test_sv" );
+
+  UnitTest( [&]() { return icase_cmp( "tes1"sv, "test"sv ); }, less_cmp( "tes1"sv, "test"sv ),
+            "tes1_sv < test_sv" );
+  UnitTest( [&]() { return icase_cmp( "test"sv, "tes1"sv ); }, less_cmp( "test"sv, "tes1"sv ),
+            "test_sv < tes1_sv" );
+
+  UnitTest( [&]() { return icase_cmp( "test"s, "test"s ); }, less_cmp( "test"sv, "test"sv ),
+            "test_s < test_s" );
+  UnitTest( [&]() { return icase_cmp( "test", "test" ); }, less_cmp( "test"sv, "test"sv ),
+            "test < test" );
+  UnitTest(
+      [&]()
+      {
+        return icase_cmp( boost_utils::script_name_flystring{ "test" },
+                          boost_utils::script_name_flystring{ "test" } );
+      },
+      less_cmp( "test"sv, "test"sv ), "test_boost < test_boost" );
 }
 }  // namespace Testing
 }  // namespace Pol
