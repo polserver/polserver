@@ -265,7 +265,7 @@ void Spellbook::add_bulk( int /* item_count_delta */, int /* weight_delta */ )
   // or when removing an item.
 }
 
-void Spellbook::add( Item* item )
+void Spellbook::add( Item* item, const Pos2d& )
 {
   // UContainer::add(item);
   u16 spellnum = USpellScroll::convert_objtype_to_spellnum( item->objtype_, spell_school );

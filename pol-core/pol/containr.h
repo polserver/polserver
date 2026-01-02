@@ -93,29 +93,30 @@ class UContainer : public ULockable
 {
 public:
   typedef ULockable base;
-  virtual ~UContainer();
-  virtual size_t estimatedSize() const override;
+  ~UContainer() override;
+  size_t estimatedSize() const override;
 
-  virtual void destroy() override;
+  void destroy() override;
   void destroy_contents();
   typedef std::vector<Items::Item*> Contents;
   typedef Contents::iterator iterator;
   typedef Contents::const_iterator const_iterator;
 
-  virtual void builtin_on_use( Network::Client* client ) override;
+  void builtin_on_use( Network::Client* client ) override;
 
   // can_add(): doesn't look for matching stacks to add to.
   virtual bool can_add( const Items::Item& item ) const;
   virtual bool can_add( unsigned short more_weight ) const;
 
-  virtual void spill_contents( Multi::UMulti* supporting_multi ) override;
+  void spill_contents( Multi::UMulti* supporting_multi ) override;
 
-  virtual void add( Items::Item* item );  // NOTE: points item->container to self on insertion
+  virtual void add( Items::Item* item,
+                    const Pos2d& pos );  // NOTE: points item->container to self on insertion
   void add_at_random_location( Items::Item* item );
   unsigned count() const;
 
-  virtual unsigned int item_count() const override;
-  virtual unsigned int weight() const override;
+  unsigned int item_count() const override;
+  unsigned int weight() const override;
 
   bool can_add_bulk( int tli_diff, int item_count_diff, int weight_diff ) const;
   virtual void add_bulk( int item_count_delta, int weight_delta );
@@ -140,8 +141,8 @@ public:
 
   virtual void for_each_item( void ( *f )( Item* item, void* a ), void* arg );
 
-  virtual bool script_isa( unsigned isatype ) const override;
-  virtual Items::Item* clone() const override;
+  bool script_isa( unsigned isatype ) const override;
+  Items::Item* clone() const override;
 
   unsigned int find_sumof_objtype_noninuse( u32 objtype ) const;
   unsigned int find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo,
@@ -168,18 +169,18 @@ public:
                                 MoveType move = MT_PLAYER, u16 amount = 0 );
   void on_remove( Mobile::Character* chr, Items::Item* item, MoveType move = MT_PLAYER,
                   Items::Item* split_from = nullptr );
-  virtual void printProperties( Clib::StreamWriter& sw ) const override;
-  virtual void readProperties( Clib::ConfigElem& elem ) override;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
+  void printProperties( Clib::StreamWriter& sw ) const override;
+  void readProperties( Clib::ConfigElem& elem ) override;
+  Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
 
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) override;  // id test
-  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) override;
+  Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
+  Bscript::BObjectImp* set_script_member_id( const int id,
+                                             int value ) override;  // id test
+  Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) override;
 
-  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
-                                unsigned int* PC ) const override;
+  bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                        unsigned int* PC ) const override;
 
   bool can_insert_increase_stack( Mobile::Character* mob, MoveType move, Items::Item* existing_item,
                                   unsigned short amt_to_add, Items::Item* adding_item );
@@ -253,8 +254,8 @@ protected:
   // DAVE added this 11/17 so WornItemsContainer could pass up its class to UObject constructor
   UContainer( u32 objtype, UOBJ_CLASS pol_class );
   // uses Items::classname()
-  virtual void printOn( Clib::StreamWriter& sw ) const override;
-  virtual void printSelfOn( Clib::StreamWriter& sw ) const override;
+  void printOn( Clib::StreamWriter& sw ) const override;
+  void printSelfOn( Clib::StreamWriter& sw ) const override;
   void printContents( Clib::StreamWriter& sw ) const;
 };
 
