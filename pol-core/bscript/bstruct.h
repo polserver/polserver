@@ -39,6 +39,7 @@ class BStruct : public BObjectImp
 public:
   BStruct();
   BStruct( std::istream& is, unsigned size, BObjectType type );
+  BStruct& operator=( const BStruct& ) = delete;
   static BObjectImp* unpack( std::istream& is );
 
   void addMember( const char* name, BObjectRef val );
@@ -55,40 +56,37 @@ protected:
   explicit BStruct( const BStruct& other, BObjectType type );
   explicit BStruct( BObjectType type );
 
-  virtual BObjectImp* copy() const override;
+  BObjectImp* copy() const override;
 
   virtual char packtype() const;
   virtual const char* typetag() const;
   virtual void FormatForStringRep( std::ostream& os, const std::string& key,
                                    const BObjectRef& bvalref ) const;
 
-  virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override;
-  virtual void packonto( std::ostream& os ) const override;
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
+  std::string getStringRep() const override;
+  size_t sizeEstimate() const override;
+  void packonto( std::ostream& os ) const override;
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
 
-  virtual ContIterator* createIterator( BObject* pIterVal ) override;
+  ContIterator* createIterator( BObject* pIterVal ) override;
 
-  virtual BObjectRef OperSubscript( const BObject& obj ) override;
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) override;
-  virtual BObjectRef set_member( const char* membername, BObjectImp* value,
-                                 bool copy ) override;
-  virtual BObjectRef get_member( const char* membername ) override;
-  virtual BObjectRef operDotPlus( const char* name ) override;
-  virtual BObjectRef operDotMinus( const char* name ) override;
-  virtual BObjectRef operDotQMark( const char* name ) override;
-  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
+  BObjectRef OperSubscript( const BObject& obj ) override;
+  BObjectImp* call_method( const char* methodname, Executor& ex ) override;
+  BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) override;
+  BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) override;
+  BObjectRef get_member( const char* membername ) override;
+  BObjectRef operDotPlus( const char* name ) override;
+  BObjectRef operDotMinus( const char* name ) override;
+  BObjectRef operDotQMark( const char* name ) override;
+  BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
 
   friend class BStructIterator;
   friend class BClassInstanceRef;
 
 private:
   Contents contents_;
-  BStruct& operator=( const BStruct& );  // not implemented
 };
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

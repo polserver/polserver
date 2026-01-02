@@ -118,7 +118,7 @@ class BStructIterator final : public ContIterator
 {
 public:
   BStructIterator( BStruct* pDict, BObject* pIterVal );
-  virtual BObject* step() override;
+  BObject* step() override;
 
 private:
   BObject m_StructObj;
@@ -187,21 +187,17 @@ size_t BStruct::mapcount() const
 
 BObjectRef BStruct::set_member( const char* membername, BObjectImp* value, bool copy )
 {
-  std::string key( membername );
   BObjectImp* target = copy ? value->copy() : value;
-  auto itr = contents_.find( key );
+  auto itr = contents_.find( membername );
   if ( itr != contents_.end() )
   {
     BObjectRef& oref = ( *itr ).second;
     oref->setimp( target );
     return oref;
   }
-  else
-  {
-    BObjectRef ref( new BObject( target ) );
-    contents_[key] = ref;
-    return ref;
-  }
+  BObjectRef ref( new BObject( target ) );
+  contents_.emplace( membername, ref );
+  return ref;
 }
 
 // used programmatically
@@ -209,26 +205,16 @@ const BObjectImp* BStruct::FindMember( const char* name )
 {
   auto itr = contents_.find( name );
   if ( itr != contents_.end() )
-  {
     return ( *itr ).second->impptr();
-  }
-  else
-  {
-    return nullptr;
-  }
+  return nullptr;
 }
 
 BObjectRef BStruct::get_member( const char* membername )
 {
   auto itr = contents_.find( membername );
   if ( itr != contents_.end() )
-  {
     return ( *itr ).second;
-  }
-  else
-  {
-    return BObjectRef( UninitObject::create() );
-  }
+  return BObjectRef( UninitObject::create() );
 }
 
 BObjectRef BStruct::OperSubscript( const BObject& obj )
@@ -243,19 +229,13 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
       BObjectRef& oref = ( *itr ).second;
       return oref;
     }
-    else
-    {
-      return BObjectRef( UninitObject::create() );
-    }
+    return BObjectRef( UninitObject::create() );
   }
   else if ( obj->isa( OTLong ) )
   {
     throw std::runtime_error( "Struct members cannot be accessed by an integer index" );
   }
-  else
-  {
-    return BObjectRef( new BError( "Struct members can only be accessed by name" ) );
-  }
+  return BObjectRef( new BError( "Struct members can only be accessed by name" ) );
 }
 
 BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
@@ -271,33 +251,25 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
       oref->setimp( new_target );
       return new_target;
     }
-    else
-    {
-      contents_[key->value()].set( new BObject( new_target ) );
-      return new_target;
-    }
+    contents_[key->value()].set( new BObject( new_target ) );
+    return new_target;
   }
   else if ( idx->isa( OTLong ) )
   {
     throw std::runtime_error(
         "some fool tried to use operator[] := on a struct, with an Integer index" );
   }
-  else
-  {
-    return new BError( "Struct members can only be accessed by name" );
-  }
+  return new BError( "Struct members can only be accessed by name" );
 }
 
 void BStruct::addMember( const char* name, BObjectRef val )
 {
-  std::string key( name );
-  contents_[key] = val;
+  contents_[name] = val;
 }
 
 void BStruct::addMember( const char* name, BObjectImp* imp )
 {
-  std::string key( name );
-  contents_[key] = BObjectRef( imp );
+  contents_[name] = BObjectRef( imp );
 }
 
 BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
@@ -309,8 +281,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
   case MTH_SIZE:
     if ( ex.numParams() == 0 )
       return new BLong( static_cast<int>( contents_.size() ) );
-    else
-      return new BError( "struct.size() doesn't take parameters." );
+    return new BError( "struct.size() doesn't take parameters." );
 
   case MTH_ERASE:
     if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
@@ -321,10 +292,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       int nremove = static_cast<int>( contents_.erase( strkey->value() ) );
       return new BLong( nremove );
     }
-    else
-    {
-      return new BError( "struct.erase(key) requires a parameter." );
-    }
+    return new BError( "struct.erase(key) requires a parameter." );
     break;
   case MTH_INSERT:
     if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr &&
@@ -336,10 +304,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       contents_[strkey->value()] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
       return new BLong( static_cast<int>( contents_.size() ) );
     }
-    else
-    {
-      return new BError( "struct.insert(key,value) requires two parameters." );
-    }
+    return new BError( "struct.insert(key,value) requires two parameters." );
     break;
   case MTH_EXISTS:
     if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
@@ -350,10 +315,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       int count = static_cast<int>( contents_.count( strkey->value() ) );
       return new BLong( count );
     }
-    else
-    {
-      return new BError( "struct.exists(key) requires a parameter." );
-    }
+    return new BError( "struct.exists(key) requires a parameter." );
 
   case MTH_KEYS:
     if ( ex.numParams() == 0 )
@@ -365,8 +327,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       }
       return arr.release();
     }
-    else
-      return new BError( "struct.keys() doesn't take parameters." );
+    return new BError( "struct.keys() doesn't take parameters." );
     break;
   default:
     return nullptr;
@@ -378,8 +339,7 @@ BObjectImp* BStruct::call_method( const char* methodname, Executor& ex )
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 void BStruct::packonto( std::ostream& os ) const
@@ -422,30 +382,24 @@ std::string BStruct::getStringRep() const
 
 BObjectRef BStruct::operDotPlus( const char* name )
 {
-  std::string key( name );
-  if ( contents_.count( key ) == 0 )
+  if ( contents_.count( name ) == 0 )
   {
     auto pnewobj = new BObject( new UninitObject );
-    contents_[key] = BObjectRef( pnewobj );
+    contents_[name] = BObjectRef( pnewobj );
     return BObjectRef( pnewobj );
   }
-  else
-  {
-    return BObjectRef( new BError( "Member already exists" ) );
-  }
+  return BObjectRef( new BError( "Member already exists" ) );
 }
 
 BObjectRef BStruct::operDotMinus( const char* name )
 {
-  std::string key( name );
-  contents_.erase( key );
+  contents_.erase( name );
   return BObjectRef( new BLong( 1 ) );
 }
 
 BObjectRef BStruct::operDotQMark( const char* name )
 {
-  std::string key( name );
-  int count = static_cast<int>( contents_.count( key ) );
+  int count = static_cast<int>( contents_.count( name ) );
   return BObjectRef( new BLong( count ) );
 }
 
