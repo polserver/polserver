@@ -107,6 +107,7 @@ void test_curlfeatures();
 void decay_test();
 void clamp_test();
 void uoextension_test();
+void caseinsensitive_compare_test();
 }  // namespace Testing
 }  // namespace Pol
 #endif
