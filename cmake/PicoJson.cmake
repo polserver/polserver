@@ -1,7 +1,7 @@
 set(PICO_REPO "https://github.com/kazuho/picojson")
 set(PICO_TAG "111c9be")
 
-set(PICO_SOURCE_DIR "${POL_EXT_LIB_DIR}/picojson-${PICO_TAG}")
+set(PICO_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/picojson-${PICO_TAG}")
 
 message("* libpicojson")
 add_library(libpicojson INTERFACE IMPORTED)

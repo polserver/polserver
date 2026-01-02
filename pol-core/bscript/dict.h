@@ -59,17 +59,16 @@ protected:
 
   virtual ContIterator* createIterator( BObject* pIterVal ) override;
 
-  virtual char packtype() const;
-  virtual const char* typetag() const;
-  virtual void FormatForStringRep( std::ostream& os, const BObject& bkeyobj,
-                                   const BObjectRef& bvalref ) const;
+  char packtype() const;
+  const char* typetag() const;
+  void FormatForStringRep( std::ostream& os, const BObject& bkeyobj,
+                           const BObjectRef& bvalref ) const;
 
   virtual BObjectRef OperSubscript( const BObject& obj ) override;
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
   virtual BObjectImp* call_method_id( const int id, Executor& ex,
                                       bool forcebuiltin = false ) override;
-  virtual BObjectRef set_member( const char* membername, BObjectImp* value,
-                                 bool copy ) override;
+  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) override;
   virtual BObjectRef get_member( const char* membername ) override;
   virtual BObjectRef operDotPlus( const char* name ) override;
   virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
@@ -85,6 +84,6 @@ private:
   // not implemented:
   BDictionary& operator=( const BDictionary& );
 };
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif
