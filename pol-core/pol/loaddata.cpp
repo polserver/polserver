@@ -217,7 +217,7 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
       throw std::runtime_error( "Data file error" );
     }
 
-    cont->add( item );
+    cont->add( item, item->pos2d() );
     item->clear_dirty();  // adding sets dirty
 
     stateManager.gflag_enforce_container_limits = true;

@@ -5,7 +5,9 @@ program foo()
 
   print( t["b"] );
   print( t[2] ); // this should die
-  t["c"] := 42;
+  print( t["c"] := 42 );
+  print( t[2] := 42 );
   print( t );
 
 endprogram
+

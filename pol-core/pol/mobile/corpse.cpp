@@ -51,7 +51,7 @@ void UCorpse::take_contents_to_grave( bool newvalue )
   flags_.change( OBJ_FLAGS::CONTENT_TO_GRAVE, newvalue );
 }
 
-void UCorpse::add( Item* item )
+void UCorpse::add( Item* item, const Pos2d& pos )
 {
   // When an item is added, check if it's equippable and add to the appropriate layer
   if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == item )
@@ -60,7 +60,7 @@ void UCorpse::add( Item* item )
   }
 
   // plus the defaults from UContainer
-  base::add( item );
+  base::add( item, pos );
 }
 
 void UCorpse::equip_and_add( Item* item, unsigned idx )

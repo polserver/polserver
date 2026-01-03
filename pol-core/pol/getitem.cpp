@@ -195,7 +195,6 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     if ( new_item != nullptr )
     {
       new_item->restart_decay_timer();
-      new_item->setposition( orig_pos );
       if ( orig_container != nullptr )
       {
         orig_container->on_remove( client->chr, item, UContainer::MoveType::MT_PLAYER, new_item );
@@ -212,12 +211,13 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
         }
         else
         {
-          orig_container->add( new_item );
+          orig_container->add( new_item, orig_pos.xy() );
           send_put_in_container_to_inrange( new_item );
         }
       }
       else
       {
+        new_item->setposition( orig_pos );
         add_item_to_world( new_item );
         register_with_supporting_multi( new_item );
         send_item_to_inrange( new_item );
@@ -368,8 +368,7 @@ void GottenItem::undo( Mobile::Character* chr )
       {
         if ( container->is_legal_posn( _pos.xy() ) )
         {
-          _item->setposition( Pos4d( _pos, container->realm() ) );
-          container->add( _item );
+          container->add( _item, _pos.xy() );
         }
         else
         {

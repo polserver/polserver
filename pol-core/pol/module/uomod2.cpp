@@ -482,9 +482,9 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
             // FIXME : Add Grid Index Default Location Checks here.
             // Remember, if index fails, move to the ground.
             if ( from_bought )
-              vendor_bought->add( tobuy );
+              vendor_bought->add( tobuy, tobuy->pos2d() );
             else
-              for_sale->add( tobuy );
+              for_sale->add( tobuy, tobuy->pos2d() );
           continue;
         }
         numleft -= num;
@@ -517,9 +517,9 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
             // FIXME : Add Grid Index Default Location Checks here.
             // Remember, if index fails, move to the ground.
             if ( from_bought )
-              vendor_bought->add( tobuy );
+              vendor_bought->add( tobuy, tobuy->pos2d() );
             else
-              for_sale->add( tobuy );
+              for_sale->add( tobuy, tobuy->pos2d() );
           continue;
         }
 
@@ -541,9 +541,9 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           // FIXME : Add Grid Index Default Location Checks here.
           // Remember, if index fails, move to the ground.
           if ( from_bought )
-            vendor_bought->add( tobuy );
+            vendor_bought->add( tobuy, tobuy->pos2d() );
           else
-            for_sale->add( tobuy );
+            for_sale->add( tobuy, tobuy->pos2d() );
         }
       }
     }
@@ -839,20 +839,18 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
     if ( vendor_bought->can_add( *item ) )
     {
-      auto contpos = vendor_bought->get_random_location();
       backpack->remove( item );
       if ( remainder_not_sold != nullptr )
       {
         // FIXME : Add Grid Index Default Location Checks here.
         // Remember, if index fails, move to the ground.
-        backpack->add( remainder_not_sold );
+        backpack->add( remainder_not_sold, item->pos2d() );
         update_item_to_inrange( remainder_not_sold );
         remainder_not_sold = nullptr;
       }
-      item->setposition( Core::Pos4d( contpos, 0, vendor_bought->realm() ) );
       // FIXME : Add Grid Index Default Location Checks here.
       // Remember, if index fails, move to the ground.
-      vendor_bought->add( item );
+      vendor_bought->add_at_random_location( item );
       update_item_to_inrange( item );
       cost += buyprice * amount;
     }

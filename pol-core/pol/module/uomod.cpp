@@ -469,10 +469,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
 
       if ( !pos || !cont->is_legal_posn( pos.value() ) )
         pos = cont->get_random_location();
-
-      item->setposition( Core::Pos4d( pos.value(), 0, cont->realm() ) );  // TODO POS realm
-
-      cont->add( item );
+      cont->add( item, pos.value() );
 
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert
@@ -3426,9 +3423,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 
     true_extricate( item );
 
-    item->setposition( Core::Pos4d( cntpos, 0, cont->realm() ) );  // TODO POS realm
-
-    cont->add( item );
+    cont->add( item, cntpos );
     update_item_to_inrange( item );
     // DAVE added this 11/17: if in a Character's pack, update weight.
     UpdateCharacterWeight( item );

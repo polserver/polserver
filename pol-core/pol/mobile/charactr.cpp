@@ -2342,7 +2342,7 @@ void Character::die()
         }
         else
         {
-          bp->add( bp_item );
+          bp->add( bp_item, bp_item->pos2d() );
         }
         UPDATE_CHECKPOINT();
       }

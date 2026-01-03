@@ -1,1 +1,5 @@
 9
+error{ errortext = "Struct members can only be accessed by name" }
+42
+error{ errortext = "Struct members can only be accessed by name" }
+struct{ a = 4, b = 9, c = 42 }

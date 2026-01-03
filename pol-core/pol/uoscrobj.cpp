@@ -2560,8 +2560,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
-      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
+      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = Clib::clamp_convert<u32>( value ) );
@@ -4981,7 +4981,7 @@ ItemGivenEvent::~ItemGivenEvent()
           move_item( item, item->pos() );
           return;
         }
-        backpack->add( item );
+        backpack->add( item, item->pos2d() );
         update_item_to_inrange( item );
         return;
       }

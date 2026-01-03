@@ -440,7 +440,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    tmpitem->setposition( Pos4d( 46, 91, 0, chr->realm() ) );
     u8 newSlot = 1;
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
@@ -450,7 +449,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       move_item( tmpitem, tmpitem->pos() );
     }
     else
-      backpack->add( tmpitem );
+      backpack->add( tmpitem, Pos2d( 46, 91 ) );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -599,7 +598,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   unsigned short graphic;
-  Plib::URACE race = ( Plib::URACE )( msg->race - 1 );
+  Plib::URACE race = (Plib::URACE)( msg->race - 1 );
   Plib::UGENDER gender =
       ( msg->gender & Plib::GENDER_FEMALE ) ? Plib::GENDER_FEMALE : Plib::GENDER_MALE;
   if ( race == Plib::RACE_HUMAN )
@@ -798,7 +797,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    tmpitem->setposition( Pos4d( 46, 91, 0, chr->realm() ) );
     u8 newSlot = 1;
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
@@ -808,7 +806,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       move_item( tmpitem, tmpitem->pos() );
     }
     else
-      backpack->add( tmpitem );
+      backpack->add( tmpitem, Pos2d( 46, 91 ) );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -1190,7 +1188,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    tmpitem->setposition( Pos4d( 46, 91, 0, chr->realm() ) );
     u8 newSlot = 1;
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
@@ -1200,7 +1197,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       move_item( tmpitem, tmpitem->pos() );
     }
     else
-      backpack->add( tmpitem );
+      backpack->add( tmpitem, Pos2d( 46, 91 ) );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||

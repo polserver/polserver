@@ -871,9 +871,8 @@ BObjectImp* NPCExecutorModule::mf_CreateItem()
   if ( backpack == nullptr )
     return new BLong( 0 );
 
-  Items::Item* i = Items::Item::create( static_cast<unsigned int>( objtype->value() ) );
-  i->setposition( npc.pos() );
-  std::unique_ptr<Items::Item> item( i );
+  std::unique_ptr<Items::Item> item(
+      Items::Item::create( static_cast<unsigned int>( objtype->value() ) ) );
   if ( item.get() == nullptr )
     return new BLong( 0 );
 
@@ -889,7 +888,7 @@ BObjectImp* NPCExecutorModule::mf_CreateItem()
 
   u32 serial = item->serial;
 
-  backpack->add( item.release() );
+  backpack->add_at_random_location( item.release() );
 
   return new BLong( serial );
 }
