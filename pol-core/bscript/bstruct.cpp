@@ -231,10 +231,6 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
     }
     return BObjectRef( UninitObject::create() );
   }
-  else if ( obj->isa( OTLong ) )
-  {
-    throw std::runtime_error( "Struct members cannot be accessed by an integer index" );
-  }
   return BObjectRef( new BError( "Struct members can only be accessed by name" ) );
 }
 
@@ -253,11 +249,6 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
     }
     contents_[key->value()].set( new BObject( new_target ) );
     return new_target;
-  }
-  else if ( idx->isa( OTLong ) )
-  {
-    throw std::runtime_error(
-        "some fool tried to use operator[] := on a struct, with an Integer index" );
   }
   return new BError( "Struct members can only be accessed by name" );
 }
