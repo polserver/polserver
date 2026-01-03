@@ -46,7 +46,7 @@ class UCorpse final : public UContainer
   typedef UContainer base;
 
 public:
-  virtual ~UCorpse() override = default;
+  ~UCorpse() override = default;
   size_t estimatedSize() const override;
   u16 get_senditem_amount() const override;
 
