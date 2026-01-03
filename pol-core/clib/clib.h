@@ -119,14 +119,17 @@ inline To clamp_convert( From v )
   constexpr auto t_max = std::numeric_limits<To>::max();
   typedef std::common_type_t<From, To> common;
   // If To's range is fully contained within From's range
-  if constexpr ( std::is_signed<To>::value == std::is_signed<From>::value &&
-                 t_min >= std::numeric_limits<From>::min() &&
-                 t_max <= std::numeric_limits<From>::max() )
+  if constexpr ( std::is_signed<To>::value == std::is_signed<From>::value )
   {
-    return static_cast<To>(
-        std::clamp( v, static_cast<From>( t_min ), static_cast<From>( t_max ) ) );
+    if constexpr ( t_min >= std::numeric_limits<From>::min() &&
+                   t_max <= std::numeric_limits<From>::max() )
+    {
+      return static_cast<To>(
+          std::clamp( v, static_cast<From>( t_min ), static_cast<From>( t_max ) ) );
+    }
   }
-  else if constexpr ( std::is_same<To, u64>::value )
+
+  if constexpr ( std::is_same<To, u64>::value )
   {
     // Handle unsigned 64-bit special case
     return v < 0 ? 0u : static_cast<u64>( v );
