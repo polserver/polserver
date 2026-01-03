@@ -1,0 +1,6 @@
+<appobj:ConfigElemRef>
+GetConfigInt error{ errortext = "Integer overflow error" } Error
+Member 1092039985441558558 String
+GetConfigReal 1092039985441558528 Double
+GetConfigString 1092039985441558558 String
+GetConfigIntArray { 2 } Array

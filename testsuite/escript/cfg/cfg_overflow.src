@@ -1,0 +1,15 @@
+use cfgfile;
+
+var cfg := ReadConfigFile( ":cfgtests:cfg_overflow" );
+print( cfg["int"] );
+var val := GetConfigInt( cfg["int"], "LargeValue" );
+print( $"GetConfigInt {val} {typeof( val )}" );
+val := cfg["int"].LargeValue;
+print( $"Member {val} {typeof( val )}" );
+val := GetConfigReal( cfg["int"], "LargeValue" );
+print( $"GetConfigReal {val} {typeof( val )}" );
+val := GetConfigString( cfg["int"], "LargeValue" );
+print( $"GetConfigString {val} {typeof( val )}" );
+val := GetConfigIntArray( cfg["int"], "Vals" );
+print( $"GetConfigIntArray {val} {typeof( val )}" );
+
