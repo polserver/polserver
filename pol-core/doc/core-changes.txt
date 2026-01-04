@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+01-04-2026 Turley:
+    Fixed: cfgmod::GetConfigInt overflow issue, now returns Error("Integer overflow error")
 12-31-2025 Kukkino:
     Fixed: Changing warmode no longer sends 0x77 packet (Update Player) packet to clients in range who cannot see the mobile (ex. when the character changing warmode is hidden).
 12-15-2025 Kevin:

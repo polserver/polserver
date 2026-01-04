@@ -27,7 +27,7 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
-set(POL_COPYRIGHT "Copyright (C) 1993-2025 Eric N. Swanson")
+set(POL_COPYRIGHT "Copyright (C) 1993-2026 Eric N. Swanson")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)

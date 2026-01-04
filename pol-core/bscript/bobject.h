@@ -399,8 +399,10 @@ struct always_false : std::false_type
 {
 };
 }  // namespace
-template <typename T>
-T* impptrIf( BObjectImp* objimp )
+// accepts const/non-const BObjectImp pointers
+template <typename T, typename I>
+  requires std::is_base_of_v<BObjectImp, std::remove_cv_t<std::remove_pointer_t<I>>>
+T* impptrIf( I* objimp )
 {
   if ( !objimp )
     return nullptr;
@@ -469,6 +471,8 @@ public:
   const T* impptr() const;
   template <typename T>
   T* impptr_if();  // also als freestanding function available
+  template <typename T>
+  T* impptr_if() const;  // also als freestanding function available
 
   template <typename T = BObjectImp>
   T& impref();
@@ -486,7 +490,7 @@ class BConstObject : public BObject
 public:
   explicit BConstObject( BObjectImp* objimp ) : BObject( objimp ) {}
   ~BConstObject() override = default;
-  void setimp( BObjectImp* ) override{ /* do nothing */ };
+  void setimp( BObjectImp* ) override { /* do nothing */ };
   // This class does not use a specific fixed allocator, sharing the BObject
   // one. Do not add new members to this class.
 };
@@ -524,6 +528,12 @@ inline const T* BObject::impptr() const
 
 template <typename T>
 T* BObject::impptr_if()
+{
+  return impptrIf<T>( objimp.get() );
+}
+
+template <typename T>
+T* BObject::impptr_if() const
 {
   return impptrIf<T>( objimp.get() );
 }
