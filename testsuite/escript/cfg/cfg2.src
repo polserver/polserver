@@ -1,0 +1,33 @@
+use cfgfile;
+
+var cfg := ReadConfigFile( ":cfgtests:cfg_overflow1" );
+print( $"read wrong name: {cfg}" );
+cfg := ReadConfigFile( 1 );
+print( $"read wrong type: {cfg}" );
+
+cfg := ReadConfigFile( ":cfgtests:cfg2" );
+print( $"typeofint cfg: {TypeOfInt( cfg )}" );
+print( $"typeofint cfgelem: {TypeOfInt( cfg["name"] )}" );
+print( "" );
+
+print( $"memid access: {cfg["name"].armor}" );
+print( $"int access: {cfg[1]} {cfg[1].test}" );
+print( $"int access error: {cfg[true]}" );
+print( "" );
+
+print( $"max key: {GetConfigMaxIntKey( cfg )}" );
+print( $"int keys: {GetConfigIntKeys( cfg )}" );
+print( $"find cfgelem: {FindConfigElem( cfg, 2 ).test}" );
+print( $"string array: {GetConfigStringArray( cfg["strings"], "string" )}" );
+print( $"dict: {GetConfigStringDictionary( cfg["dict"], "test" )}" );
+print( "" );
+
+print( $"getint from double: {GetConfigInt( cfg[0x2], "test" )}" );
+print( $"getint from int: {GetConfigInt( cfg[1], "test" )}" );
+print( $"getintarray from int: {GetConfigIntArray( cfg[1], "test" )}" );
+print( $"getintarray from double: {GetConfigIntArray( cfg[0x2], "test" )}" );
+print( "" );
+
+print( $"getreal from double: {GetConfigReal( cfg[0x2], "test" )}" );
+print( $"getreal from int: {GetConfigReal( cfg[1], "test" )}" );
+

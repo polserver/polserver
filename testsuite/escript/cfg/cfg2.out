@@ -1,0 +1,22 @@
+read wrong name: error{ errortext = "Config file not found" }
+read wrong type: error{ errortext = "Invalid parameter type" }
+typeofint cfg: 18
+typeofint cfgelem: 19
+
+memid access: 1
+int access: <appobj:ConfigElemRef> 1
+int access error: error{ errortext = "Element not found" }
+
+max key: 2
+int keys: { 1, 2 }
+find cfgelem: 3.2
+string array: { 10, 20 }
+dict: dict{ "key" -> "0", "key1" -> "1" }
+
+getint from double: 3
+getint from int: 1
+getintarray from int: { 1 }
+getintarray from double: { 3 }
+
+getreal from double: 3.2
+getreal from int: 1
