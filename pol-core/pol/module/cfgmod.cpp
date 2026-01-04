@@ -154,7 +154,7 @@ Bscript::BObjectRef EConfigElemRefObjImp::OperSubscript( const Bscript::BObject&
   {
     return get_member( str->data() );
   }
-  else if ( const auto* l = obj.impptr_if<const Bscript::BLong>() )
+  if ( const auto* l = obj.impptr_if<const Bscript::BLong>() )
   {
     return get_member( std::to_string( l->value() ).c_str() );
   }
@@ -473,11 +473,11 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
       {
         return imp;
       }
-      else if ( auto* dbl = impptrIf<Bscript::Double>( imp ) )
+      if ( auto* dbl = impptrIf<Bscript::Double>( imp ) )
       {
         return new Bscript::BLong( static_cast<int>( dbl->value() ) );
       }
-      else if ( auto* str = impptrIf<Bscript::String>( imp ) )
+      if ( auto* str = impptrIf<Bscript::String>( imp ) )
       {
         try
         {
@@ -555,11 +555,11 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigReal()
       {
         return imp;
       }
-      else if ( auto* l = impptrIf<Bscript::BLong>( imp ) )
+      if ( auto* l = impptrIf<Bscript::BLong>( imp ) )
       {
         return new Bscript::Double( l->value() );
       }
-      else if ( auto* str = impptrIf<Bscript::String>( imp ) )
+      if ( auto* str = impptrIf<Bscript::String>( imp ) )
       {
         return new Bscript::Double( strtod( str->data(), nullptr ) );
       }
