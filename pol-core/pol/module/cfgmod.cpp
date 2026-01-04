@@ -86,7 +86,6 @@ Bscript::ContIterator* EConfigFileRefObjImp::createIterator( Bscript::BObject* p
 Bscript::BObjectRef EConfigFileRefObjImp::OperSubscript( const Bscript::BObject& obj )
 {
   ref_ptr<Core::StoredConfigElem> celem;
-
   if ( const auto* str = obj.impptr_if<const Bscript::String>() )
   {
     celem = obj_->findelem( str->value() );
@@ -532,6 +531,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
           }
           catch ( const std::logic_error& )
           {
+            // overflow error: skip element
           }
         }
       }

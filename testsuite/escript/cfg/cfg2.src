@@ -10,7 +10,7 @@ print( $"typeofint cfg: {TypeOfInt( cfg )}" );
 print( $"typeofint cfgelem: {TypeOfInt( cfg["name"] )}" );
 print( "" );
 
-print( $"memid access: {cfg["name"].armor}" );
+print( $"memid access: {cfg["name"].ar}" );
 print( $"int access: {cfg[1]} {cfg[1].test}" );
 print( $"int access error: {cfg[true]}" );
 print( "" );
