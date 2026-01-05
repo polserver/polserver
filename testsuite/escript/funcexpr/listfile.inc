@@ -1,6 +1,7 @@
 use file;
 
 function print_listfile( test )
+  var SKIP := "SKIP FROM HERE";
   var lines := ReadFile( $"./funcexpr/{test}.lst" );
   if ( !lines )
     return print( lines );
@@ -8,6 +9,28 @@ function print_listfile( test )
   // skip non-PC lines
   lines := lines.filter( @( e ) { return e[1] >= "0" && e[1] <= "9"; } );
 
+  var self := lines.findIndex( @( e ) {
+    return e.find( "SKIP FROM HERE" );
+  } ) - 3;
+
+  var first_find := false;
+  var self_end := lines.findIndex( @( e ) {
+    var f := e.find( "SKIP END" );
+    if ( f )
+      if ( !first_find )
+        first_find := true;
+        return 0;
+      else
+        return f;
+      endif
+    endif
+    return 0;
+  } ) + 4;
+  if ( self_end < lines.size() )
+    lines := lines[1, self] + lines[self_end, lines.size()];
+  else
+    lines.shrink( self );
+  endif
   var prefix := "";
   foreach line in lines
     print( $"{prefix}{line}" );
@@ -18,5 +41,6 @@ function print_listfile( test )
       prefix := prefix[1, prefix.length() - 4] ?: "";
     endif
   endforeach
+  SKIP := "SKIP END";
 endfunction
 
