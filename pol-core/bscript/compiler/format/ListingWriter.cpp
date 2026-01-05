@@ -44,7 +44,7 @@ struct SourceLinePrintInfo
     auto line = loc.getSourceLine();
     std::string_view lineview = line;
     lineview.remove_prefix( lineview.find_first_not_of( " \t"sv ) );
-    fmt::print( ofs, "{}\n{}\n", loc, lineview );
+    fmt::print( ofs, "# {}\n# {}\n", loc, lineview );
   }
 };
 }  // namespace

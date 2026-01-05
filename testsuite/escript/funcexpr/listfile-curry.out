@@ -33,9 +33,9 @@
         32: return
     33: return
 34: return
-184: pop param 'b'
-185: pop param 'a'
-186: local variable #1
-187: local variable #0
-188: +
-189: return
+178: pop param 'b'
+179: pop param 'a'
+180: local variable #1
+181: local variable #0
+182: +
+183: return

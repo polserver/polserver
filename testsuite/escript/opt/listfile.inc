@@ -9,7 +9,7 @@ function print_listfile( test )
     return print( lines );
   endif
   // skip non-PC lines
-  lines := lines.filter( @( e ) { return e[1] >= "0" && e[1] <= "9"; } );
+  lines := lines.filter( @( e ) { return e[1] != "#"; } );
   var self := lines.findIndex( @( e ) { return e.find( "jsr userfunc" ); } );
   if ( self )
     lines.shrink( self - 3 ); // remove also makelocal for param pass
