@@ -5,6 +5,8 @@ function print_listfile( test )
   if ( !lines )
     return print( lines );
   endif
+  // skip non-PC lines
+  lines := lines.filter( @( e ) { return e[1] >= "0" && e[1] <= "9"; } );
 
   var prefix := "";
   foreach line in lines
@@ -17,3 +19,4 @@ function print_listfile( test )
     endif
   endforeach
 endfunction
+

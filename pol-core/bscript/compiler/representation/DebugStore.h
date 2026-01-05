@@ -18,7 +18,8 @@ public:
 
   unsigned add_block( unsigned parent_block_index, const LocalVariableScopeInfo& );
 
-  struct InstructionInfo {
+  struct InstructionInfo
+  {
     unsigned file_index;
     unsigned line_number;
     unsigned block_index;
@@ -38,6 +39,7 @@ public:
 
 private:
   friend class DebugStoreSerializer;
+  friend class ListingWriter;
   std::vector<DebugBlock> blocks;
   std::vector<std::string> filenames;
   std::vector<InstructionInfo> instructions;
