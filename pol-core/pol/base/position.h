@@ -358,3 +358,15 @@ struct fmt::formatter<Pol::Core::Pos4d> : fmt::formatter<std::string>
 {
   fmt::format_context::iterator format( const Pol::Core::Pos4d& p, fmt::format_context& ctx ) const;
 };
+
+// specialisation of std::hash for Pos2d
+// combines x and y to an size_t, since both are unsigned this is valid
+//  needed eg for multimap keys
+template <>
+struct std::hash<Pol::Core::Pos2d>
+{
+  size_t operator()( const Pol::Core::Pos2d& pos ) const noexcept
+  {
+    return static_cast<size_t>( pos.x() ) << 16 | pos.y();
+  }
+};
