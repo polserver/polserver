@@ -33,67 +33,9 @@
         32: return
     33: return
 34: return
-35: pop param 'test'
-36: declare local #1
-37: "./funcexpr/" (string) len=11 offset=0x23
-38: local variable #0
-39: ".lst" (string) len=4 offset=0x2f
-40: interpolate string (3 parts)
-41: call module function (1, 0): ReadFile
-42: :=
-43: # (consume)
-44: local variable #1
-45: if true goto 50
-46: local variable #1
-47: "" (string) len=0 offset=0x2
-48: call module function (0, 0): Print
-49: return
-50: declare local #2
-51: "" (string) len=0 offset=0x2
-52: :=
-53: # (consume)
-54: local variable #1
-55: initforeach @89
-56: local variable #2
-57: local variable #3
-58: interpolate string (2 parts)
-59: "" (string) len=0 offset=0x2
-60: call module function (0, 0): Print
-61: # (consume)
-62: local variable #3
-63: " " (string) len=1 offset=0x34
-64: "create-functor" (string) len=14 offset=0x36
-65: interpolate string (2 parts)
-66: TOK_ARRAY_SUBSCRIPT
-67: if false goto 73
-68: local variable #2
-69: "    " (string) len=4 offset=0x45
-70: interpolate string (2 parts)
-71: local #2 :=
-72: goto 89
-73: local variable #3
-74: " " (string) len=1 offset=0x34
-75: "return" (string) len=6 offset=0x4a
-76: interpolate string (2 parts)
-77: TOK_ARRAY_SUBSCRIPT
-78: if false goto 89
-79: local variable #2
-80: 1 (integer) offset=0x51
-81: local variable #2
-82: call-method-id 'length' (#141, 0 arguments)
-83: 4 (integer) offset=0x55
-84: -
-85: multi subscript get (2 indexes)
-86: peek at top of stack; skip 1 instructions if true, otherwise consume it
-87: "" (string) len=0 offset=0x2
-88: local #2 :=
-89: stepforeach @56
-90: leave block (remove 3 locals)
-91: 0 (integer) offset=0x59
-92: return
-93: pop param 'b'
-94: pop param 'a'
-95: local variable #1
-96: local variable #0
-97: +
-98: return
+178: pop param 'b'
+179: pop param 'a'
+180: local variable #1
+181: local variable #0
+182: +
+183: return

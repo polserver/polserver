@@ -8,6 +8,8 @@ function print_listfile( test )
   if ( !lines )
     return print( lines );
   endif
+  // skip non-PC lines
+  lines := lines.filter( @( e ) { return e[1] != "#"; } );
   var self := lines.findIndex( @( e ) { return e.find( "jsr userfunc" ); } );
   if ( self )
     lines.shrink( self - 3 ); // remove also makelocal for param pass
@@ -20,3 +22,4 @@ function print_listfile( test )
   } );
   print( lines.reduce( @( acc, curr ) { return acc + curr + "\n"; }, "" ) );
 endfunction
+
