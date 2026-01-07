@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-04-2026</datemodified>
+		<datemodified>01-07-2026</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-07-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">Since the switch to the new compiler .lst files had no sourcefile/sourceline infos, these are now again produced</change>
+		</entry>
 		<entry>
 			<date>01-04-2026</date>
 			<author>Turley:</author>
