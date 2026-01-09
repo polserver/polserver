@@ -14,7 +14,6 @@
 #include <set>
 #include <stddef.h>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "plib/mapcell.h"
@@ -165,7 +164,7 @@ protected:
     LosCache() : last_pos(), shapes(), dyn_items() {};
     Core::Pos2d last_pos;
     Plib::MapShapeList shapes;
-    std::unordered_multimap<Core::Pos2d, Items::Item*> dyn_items;
+    std::vector<Items::Item*> dyn_items;
   };
 
   static void standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,

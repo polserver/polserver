@@ -57,10 +57,13 @@ const int los_range = 20;
  */
 bool Realm::dynamic_item_blocks_los( const Core::Pos3d& pos, LosCache& cache )
 {
-  auto subrange = cache.dyn_items.equal_range( pos.xy() );
-  for ( auto itr = subrange.first; itr != subrange.second; ++itr )
+  // benchmark showed that its by magnitute more effective to use here a flat vector instead of a
+  // multimap. The construction time for this temp storage is so small with a vector that it does
+  // not matter that we need to iterate here over all items
+  for ( const auto& item : cache.dyn_items )
   {
-    auto* item = itr->second;
+    if ( ( item->pos() != pos.xy() ) )
+      continue;
     short ob_ht = item->height;
     short ob_z = item->z();
     if ( ob_ht == 0 )  // treat a 0-height object as a 1-height object at position z-1
@@ -186,7 +189,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
         if ( flags & Plib::FLAG::BLOCKSIGHT )
         {
           if ( item->serial != tgt.serial && item->serial != att.serial )
-            cache.dyn_items.emplace( item->pos2d(), item );
+            cache.dyn_items.push_back( item );
         }
       } );
 
