@@ -1,5 +1,7 @@
 -- POL100.2.0 --
 01-10-2026 Turley:
+    Fixed: class method calls which have a known name, name of an existing obj method, now work
+01-10-2026 Turley:
     Fixed: dynamic floor-like objects (height of 0) now block LOS like they do if they where static
 01-07-2026 Turley:
     Fixed: Since the switch to the new compiler .lst files had no sourcefile/sourceline infos, these are now again produced

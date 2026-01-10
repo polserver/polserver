@@ -2735,6 +2735,18 @@ void Executor::ins_call_method_id( const Instruction& ins )
     // `continuation` may leak.
     passert_always( continuation == nullptr );
 
+    // class method need to switch to non-id method call
+    // create a tmp instruction and call instruction
+    if ( ValueStack.back()->impptr_if<BClassInstanceRef>() )
+    {
+      auto method = getObjMethod( ins.token.lval );
+      auto nonid_ins = ins;
+      nonid_ins.token.setStr( method->code );
+      nonid_ins.token.lval = static_cast<int>( numParams() );
+      ins_call_method( nonid_ins );
+      return;
+    }
+
     size_t stacksize = ValueStack.size();  // ValueStack can grow
     BObjectImp* imp;
     {
@@ -3145,7 +3157,8 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
     else
     {
       walkCallStack(
-          [&]( unsigned int pc ) {
+          [&]( unsigned int pc )
+          {
             result.append(
                 fmt::format( "{}at {}+{}", result.empty() ? "" : "\n", scriptname(), pc ) );
           } );
