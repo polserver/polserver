@@ -9,6 +9,7 @@
 			<date>01-10-2026</date>
 			<author>Turley:</author>
 			<change type="Fixed">class method calls which have a known name, name of an existing obj method, now work</change>
+			<change type="Fixed">now also if the method has parameters</change>
 		</entry>
 		<entry>
 			<date>01-10-2026</date>
