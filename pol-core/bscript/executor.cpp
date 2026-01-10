@@ -2743,7 +2743,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       auto nonid_ins = ins;
       nonid_ins.token.setStr( method->code );
       nonid_ins.token.lval = static_cast<int>( numParams() );
-      ins_call_method( nonid_ins );
+      ins_call_method( nonid_ins, true /*params_expanded*/ );
       return;
     }
 
@@ -2816,10 +2816,19 @@ void Executor::ins_call_method_id( const Instruction& ins )
 
 void Executor::ins_call_method( const Instruction& ins )
 {
+  // TODO getParams changes the ValueStack, call_method_id calls call_method under certain
+  // circumstances
+  //  so we need a flag to decide if getParams can be called
+  ins_call_method( ins, false );
+}
+
+void Executor::ins_call_method( const Instruction& ins, bool params_expanded )
+{
   unsigned nparams = ins.token.lval;
   auto method_name = ins.token.tokval();
 
-  getParams( nparams );
+  if ( !params_expanded )
+    getParams( nparams );
   BObjectImp* callee = ValueStack.back()->impptr();
 
   if ( auto* classinstref = ValueStack.back()->impptr_if<BClassInstanceRef>() )

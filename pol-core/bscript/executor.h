@@ -63,9 +63,9 @@ class Token;
 class ExecutorDebugListener
 {
 public:
-  virtual void on_halt(){};
-  virtual void on_destroy(){};
-  virtual void on_print( const std::string& /*str*/ ){};
+  virtual void on_halt() {};
+  virtual void on_destroy() {};
+  virtual void on_print( const std::string& /*str*/ ) {};
 };
 
 // FIXME: how to make this a nested struct in Executor?
@@ -420,6 +420,7 @@ public:
   void ins_goto( const Instruction& ins );
   void ins_arraysubscript( const Instruction& ins );
   void ins_func( const Instruction& ins );
+  void ins_call_method( const Instruction& ins, bool params_expanded );
   void ins_call_method( const Instruction& ins );
   void ins_call_method_id( const Instruction& ins );
   void ins_statementbegin( const Instruction& ins );
