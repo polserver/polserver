@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "clib/clib.h"
+#include "clib/logfacility.h"
 #include "clib/rawtypes.h"
 #include "plib/mapcell.h"
 
@@ -56,17 +57,26 @@ const int los_range = 20;
  */
 bool Realm::dynamic_item_blocks_los( const Core::Pos3d& pos, LosCache& cache )
 {
+  // benchmark showed that its by magnitute more effective to use here a flat vector instead of a
+  // multimap. The construction time for this temp storage is so small with a vector that it does
+  // not matter that we need to iterate here over all items
   for ( const auto& item : cache.dyn_items )
   {
-    if ( ( item->pos() == pos.xy() ) )
+    if ( ( item->pos() != pos.xy() ) )
+      continue;
+    short ob_ht = item->height;
+    short ob_z = item->z();
+    if ( ob_ht == 0 )  // treat a 0-height object as a 1-height object at position z-1
     {
-      if ( item->z() <= pos.z() && pos.z() < item->z() + item->height )
-      {
+      --ob_z;
+      ++ob_ht;
+    }
+    if ( ob_z <= pos.z() && pos.z() < ob_z + ob_ht )
+    {
 #if ENABLE_POLTEST_OUTPUT
-        INFO_PRINTLN( "LOS blocked by {}", item->description() );
+      INFO_PRINTLN( "LOS blocked by {}", item->description() );
 #endif
-        return true;
-      }
+      return true;
     }
   }
   return false;
@@ -90,7 +100,7 @@ bool Realm::static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) co
     short ob_z = shape.z;
 #if ENABLE_POLTEST_OUTPUT
     INFO_PRINTLN( "static type {:#x} (flags {:#x}, ht={}) at z-coord {}", itr->graphic,
-                 tile_flags( itr->graphic ), ob_ht, (int)itr->z );
+                  tile_flags( itr->graphic ), ob_ht, (int)itr->z );
 #endif
 
     if ( ob_ht == 0 )  // treat a 0-height object as a 1-height object at position z-1

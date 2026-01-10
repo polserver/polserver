@@ -1,0 +1,74 @@
+use uo;
+
+include "testutil";
+
+program test_los()
+  return 1;
+endprogram
+
+const x1 := 50;
+const x2 := 60;
+const y := 50;
+const z := 20;
+const player_height := 15;
+
+exported function test_los_between( resmngr )
+  // a) without any items between two "floors"
+  var los := CheckLosBetween( x1, y, player_height, x2, y, z + player_height );
+  if ( !los )
+    return ret_error( $"no LOS without floor: {los}" );
+  endif
+  // b) with height0 items between "two" floors
+  var i;
+  for ( i := x1; i <= x2; ++i )
+    var item := resmngr.CreateItemAtLocation( i, y, z, 0x4ae );
+    if ( !item )
+      return ret_error( $"failed to create floor at {i}: {item}" );
+    endif
+    if ( item.height )
+      return ret_error( $"floor item has height {item.height} != 0" );
+    endif
+  endfor
+  los := CheckLosBetween( x1, y, 0, x2, y, z + player_height );
+  if ( los )
+    return ret_error( $"LOS with floor: {los}" );
+  endif
+  return 1;
+endfunction
+
+exported function test_los_between_mobiles( resmngr )
+  var mob1 := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x1, y, 0 );
+  if ( !mob1 )
+    return ret_error( $"failed to create mob1: {mob1}" );
+  endif
+  // a) without any items between two "floors"
+  var los := CheckLosAt( mob1, x2, y, z + player_height );
+  if ( !los )
+    return ret_error( $"no LOS without floor: {los}" );
+  endif
+  // b) with height0 items between "two" floors
+  var i;
+  for ( i := x1; i <= x2; ++i )
+    var item := resmngr.CreateItemAtLocation( i, y, z, 0x4ae );
+    if ( !item )
+      return ret_error( $"failed to create floor at {i}: {item}" );
+    endif
+    if ( item.height )
+      return ret_error( $"floor item has height {item.height} != 0" );
+    endif
+  endfor
+  // create mob on the floor and check against
+  var mob2 := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x2, y, z );
+  if ( !mob2 )
+    return ret_error( $"failed to create mob2: {mob2}" );
+  endif
+  if ( mob2.z != z )
+    return ret_error( $"Mob2 is fallen: {mob2.z}" );
+  endif
+  los := CheckLineOfSight( mob1, mob2 );
+  if ( los )
+    return ret_error( $"LOS with floor: {los}" );
+  endif
+  return 1;
+endfunction
+

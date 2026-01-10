@@ -161,7 +161,7 @@ public:
 protected:
   struct LosCache
   {
-    LosCache() : last_pos(), shapes(), dyn_items(){};
+    LosCache() : last_pos(), shapes(), dyn_items() {};
     Core::Pos2d last_pos;
     Plib::MapShapeList shapes;
     std::vector<Items::Item*> dyn_items;
