@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-07-2026</datemodified>
+		<datemodified>01-10-2026</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-10-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">dynamic floor-like objects (height of 0) now block LOS like they do if they where static</change>
+		</entry>
 		<entry>
 			<date>01-07-2026</date>
 			<author>Turley:</author>
