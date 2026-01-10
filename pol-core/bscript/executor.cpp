@@ -2742,7 +2742,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       auto method = getObjMethod( ins.token.lval );
       auto nonid_ins = ins;
       nonid_ins.token.setStr( method->code );
-      nonid_ins.token.lval = numParams();
+      nonid_ins.token.lval = static_cast<int>( numParams() );
       ins_call_method( nonid_ins );
       return;
     }
