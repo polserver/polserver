@@ -287,18 +287,42 @@ void CustomHouseDesign::Clear()
   }
 }
 
-// caller must delete, assume type 0
-unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32* compr_length )
+// assume type 0
+std::vector<CUSTOM_HOUSE_TILE_PACKET> CustomHouseDesign::Compress( int floor, bool* success )
 {
+  std::vector<CUSTOM_HOUSE_TILE_PACKET> datas;
+  const int max_index = 0xFFF;
+  const int max_tiles = max_index / 5;
+
   int numtiles = floor_sizes[floor];
   int nextindex = 0;
-  unsigned int ubuflen = numtiles * BYTES_PER_TILE;
-  unsigned long cbuflen =
-      ( ( (unsigned long)( ( (float)( ubuflen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
-  unsigned char* uncompressed = new unsigned char[ubuflen];
-  memset( uncompressed, 0, ubuflen );
-  unsigned char* compressed = new unsigned char[cbuflen];
-  memset( compressed, 0, cbuflen );
+  unsigned int ubuflen = std::min( numtiles, max_tiles ) * BYTES_PER_TILE;
+  std::unique_ptr<unsigned char[]> uncompressed( new unsigned char[ubuflen] );
+  memset( uncompressed.get(), 0, ubuflen );
+
+  auto do_compression = [&]() -> bool
+  {
+    unsigned long cbuflen =
+        ( ( (unsigned long)( ( (float)( ubuflen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
+    std::unique_ptr<unsigned char[]> compressed( new unsigned char[cbuflen] );
+    memset( compressed.get(), 0, cbuflen );
+    const auto uncompr_length = nextindex;
+
+    int ret = compress2( compressed.get(), &cbuflen, uncompressed.get(), nextindex,
+                         Z_DEFAULT_COMPRESSION );
+    if ( ret == Z_OK )
+    {
+      const auto compr_length = cbuflen;
+      datas.push_back( CUSTOM_HOUSE_TILE_PACKET{ static_cast<u32>( uncompr_length ),
+                                                 static_cast<u32>( compr_length ),
+                                                 std::move( compressed ) } );
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  };
 
   int i = 0;
   for ( HouseFloor::const_iterator xitr = Elements[floor].data.begin(),
@@ -323,27 +347,34 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
           uncompressed[nextindex++] = (u8)zitr->xoffset;
           uncompressed[nextindex++] = (u8)zitr->yoffset;
           uncompressed[nextindex++] = (u8)zitr->z;
+
+          if ( nextindex >= max_index )
+          {
+            if ( !do_compression() )
+            {
+              *success = false;
+              return {};
+            }
+            nextindex = 0;
+
+            // Probably not needed, since we'll only use `nextindex` amount of
+            // bytes from `uncompressed` inside `do_compression()`, which will
+            // always be correctly filled.
+            memset( uncompressed.get(), 0, ubuflen );
+          }
         }
       }
     }
   }
-  *uncompr_length = nextindex;
 
-  int ret = compress2( compressed, &cbuflen, uncompressed, nextindex, Z_DEFAULT_COMPRESSION );
-  if ( ret == Z_OK )
+  if ( nextindex > 0 && !do_compression() )
   {
-    delete[] uncompressed;
-    *compr_length = cbuflen;
-    return compressed;
+    *success = false;
+    return {};
   }
-  else
-  {
-    *uncompr_length = 0;
-    *compr_length = 0;
-    delete[] compressed;
-    delete[] uncompressed;
-    return nullptr;
-  }
+
+  *success = true;
+  return datas;
 }
 
 bool CustomHouseDesign::IsEmpty() const
@@ -366,11 +397,12 @@ unsigned int CustomHouseDesign::TotalSize() const
 
 unsigned char CustomHouseDesign::NumUsedPlanes() const
 {
+  const int max_tiles = 0xFFF / 5;
   unsigned char size = 0;
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
     if ( floor_sizes[i] > 0 )
-      size++;
+      size += static_cast<unsigned char>( std::ceil( (float)floor_sizes[i] / max_tiles ) );
   }
   return size;
 }
@@ -1017,9 +1049,7 @@ void CustomHousesRoofRemove( Core::PKTBI_D7* msg )
 
 void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
 {
-  u32 clen;
-  u32 ulen;
-  unsigned char* data;
+  bool success;
   // unsigned char** stored_packet;
   std::vector<u8>* stored_packet;
 
@@ -1085,27 +1115,39 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
 
   msg->buffer->planecount = planes;
   buffer_len = 1;
-  for ( int i = 0; i < planes; i++ )
+  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    planeheader = 0;
-    data = pdesign->Compress( i, &ulen, &clen );
-    if ( data == nullptr )  // compression error
+    // Skip empty floors
+    if ( pdesign->floor_sizes[i] == 0 )
+    {
+      continue;
+    }
+
+    auto datas = pdesign->Compress( i, &success );
+    if ( !success )  // compression error
     {
       return;
     }
-    if ( ulen == 0 )
-      clen = 0;
-    planeheader |= ( ( mode << 4 ) << 24 );
-    planeheader |= ( ( i & 0xF ) << 24 );
-    planeheader |= ( ( ulen & 0xFF ) << 16 );
-    planeheader |= ( ( clen & 0xFF ) << 8 );
-    planeheader |= ( ( ( ulen >> 4 ) & 0xF0 ) | ( ( clen >> 8 ) & 0xF ) );
-    u32* p_planeheader = reinterpret_cast<u32*>( &( packet[buffer_len + data_offset] ) );
-    *p_planeheader = ctBEu32( planeheader );
-    buffer_len += 4;
-    memcpy( &( packet[buffer_len + data_offset] ), data, clen );
-    buffer_len += clen;
-    delete[] data;
+    for ( const auto& data : datas )
+    {
+      const auto ulen = data.uncompr_length;
+      const auto clen = ulen == 0 ? 0 : data.compr_length;
+      planeheader = 0;
+      planeheader |= ( ( mode << 4 ) << 24 );
+      planeheader |= ( ( i & 0xF ) << 24 );
+      planeheader |= ( ( ulen & 0xFF ) << 16 );
+      planeheader |= ( ( clen & 0xFF ) << 8 );
+      planeheader |= ( ( ( ulen >> 4 ) & 0xF0 ) | ( ( clen >> 8 ) & 0xF ) );
+      u32* p_planeheader = reinterpret_cast<u32*>( &( packet[buffer_len + data_offset] ) );
+      *p_planeheader = ctBEu32( planeheader );
+      buffer_len += 4;
+      // Since we're working with memcpy, add passert to ensure we don't
+      // overflow the buffer... just in case :)
+      passert_always_r( buffer_len + data_offset + clen < sbuflen,
+                        "CustomHousesSendFull: buffer_len + data_offset + clen >= sbuflen" );
+      memcpy( &( packet[buffer_len + data_offset] ), data.data.get(), clen );
+      buffer_len += clen;
+    }
   }
   msg->msglen = ctBEu16( static_cast<u16>( buffer_len ) + data_offset );
   msg->planebuffer_len = ctBEu16( static_cast<u16>( buffer_len ) );
