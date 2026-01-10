@@ -7,12 +7,13 @@ class Foo()
     ::print( $"{prefix}: {this.name}!" );
   endfunction
 
-  function set_member( this )
-    this.print( "succeeded with method_id call" );
+  function set_member( this, param )
+    this.print( $"succeeded with method_id call {param}" );
+    return "done";
   endfunction
 endclass
 
 var obj := Foo( "NAME" );
 obj.print( "PREFIX" );
-obj.set_member();
+print( obj.set_member( "param" ) );
 

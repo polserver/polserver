@@ -1,2 +1,3 @@
 PREFIX: NAME!
-succeeded with method_id call: NAME!
+succeeded with method_id call param: NAME!
+done
