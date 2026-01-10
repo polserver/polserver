@@ -9,10 +9,11 @@ class Foo()
 
   function set_member( this, param )
     this.print( $"succeeded with method_id call {param}" );
+    return "done";
   endfunction
 endclass
 
 var obj := Foo( "NAME" );
 obj.print( "PREFIX" );
-obj.set_member( "param" );
+print( obj.set_member( "param" ) );
 
