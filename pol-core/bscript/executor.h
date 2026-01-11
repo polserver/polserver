@@ -199,6 +199,9 @@ public:
   friend class ExecutorModule;
   void setFunctionResult( BObjectImp* imp );
 
+  // we have special case with FuncRefs which on call does not return a result and instead only jmp
+  void noResultForMethodCall();
+
 protected:
   int getParams( unsigned howMany );
   void expandParams();
@@ -420,7 +423,6 @@ public:
   void ins_goto( const Instruction& ins );
   void ins_arraysubscript( const Instruction& ins );
   void ins_func( const Instruction& ins );
-  void ins_call_method( const Instruction& ins, bool params_expanded );
   void ins_call_method( const Instruction& ins );
   void ins_call_method_id( const Instruction& ins );
   void ins_statementbegin( const Instruction& ins );
@@ -530,10 +532,12 @@ private:
   std::unique_ptr<ExecutorDebugEnvironment> dbg_env_;
 
   BObjectImp* func_result_;
+  bool no_func_result_;
 
   void printStack( const std::string& message );
 
 protected:
+  friend class BClassInstance;
   void cleanup();
 
   struct ClassMethodKey

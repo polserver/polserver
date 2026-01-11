@@ -197,7 +197,8 @@ Executor::Executor()
       viewmode_( false ),
       runs_to_completion_( false ),
       dbg_env_( nullptr ),
-      func_result_( nullptr )
+      func_result_( nullptr ),
+      no_func_result_( false )
 {
   Clib::SpinLockGuard lock( _executor_lock );
   ++executor_count;
@@ -2735,18 +2736,6 @@ void Executor::ins_call_method_id( const Instruction& ins )
     // `continuation` may leak.
     passert_always( continuation == nullptr );
 
-    // class method need to switch to non-id method call
-    // create a tmp instruction and call instruction
-    if ( ValueStack.back()->impptr_if<BClassInstanceRef>() )
-    {
-      auto method = getObjMethod( ins.token.lval );
-      auto nonid_ins = ins;
-      nonid_ins.token.setStr( method->code );
-      nonid_ins.token.lval = static_cast<int>( numParams() );
-      ins_call_method( nonid_ins, true /*params_expanded*/ );
-      return;
-    }
-
     size_t stacksize = ValueStack.size();  // ValueStack can grow
     BObjectImp* imp;
     {
@@ -2786,6 +2775,13 @@ void Executor::ins_call_method_id( const Instruction& ins )
         continue;
       }
     }
+    cleanParams();
+
+    if ( no_func_result_ )
+    {
+      no_func_result_ = false;
+      return;
+    }
     BObjectRef& objref = ValueStack[stacksize - 1];
     if ( func_result_ )
     {
@@ -2806,7 +2802,6 @@ void Executor::ins_call_method_id( const Instruction& ins )
       objref.set( UninitObject::create() );
     }
 
-    cleanParams();
     return;
   }
   // This condition should only ever evaluate to `true` once. In the second loop
@@ -2816,97 +2811,13 @@ void Executor::ins_call_method_id( const Instruction& ins )
 
 void Executor::ins_call_method( const Instruction& ins )
 {
-  // TODO getParams changes the ValueStack, call_method_id calls call_method under certain
-  // circumstances
-  //  so we need a flag to decide if getParams can be called
-  ins_call_method( ins, false );
-}
-
-void Executor::ins_call_method( const Instruction& ins, bool params_expanded )
-{
   unsigned nparams = ins.token.lval;
   auto method_name = ins.token.tokval();
 
-  if ( !params_expanded )
-    getParams( nparams );
+  getParams( nparams );
   BObjectImp* callee = ValueStack.back()->impptr();
 
-  if ( auto* classinstref = ValueStack.back()->impptr_if<BClassInstanceRef>() )
-  {
-    BFunctionRef* funcr = nullptr;
-    auto classinst = classinstref->instance();
-
-    // Prefer members over class methods by checking contents first.
-    auto member_itr = classinst->contents().find( method_name );
-
-    if ( member_itr != classinst->contents().end() )
-    {
-      // If the member exists and is NOT a function reference, we will still try
-      // to "call" it. This is _intentional_, and will result in a runtime
-      // BError. This is similar to `var foo := 3; print(foo.bar());`, resulting
-      // in a "Method 'bar' not found" error.
-      callee = member_itr->second.get()->impptr();
-
-      funcr = member_itr->second.get()->impptr_if<BFunctionRef>();
-    }
-    else
-    {
-      // Have we already looked up this method?
-      ClassMethodKey key{ prog_, classinst->index(), method_name };
-      auto cache_itr = class_methods.find( key );
-      if ( cache_itr != class_methods.end() )
-      {
-        // Switch the callee to the function reference: if the
-        // funcr->validCall fails, we will go into the funcref
-        // ins_call_method, giving the error about invalid parameter counts.
-        funcr = cache_itr->second->impptr_if<BFunctionRef>();
-        callee = funcr;
-        method_name = getObjMethod( MTH_CALL_METHOD )->code;
-      }
-      else
-      {
-        // Does the class define this method?
-        funcr = classinst->makeMethod( method_name );
-
-        if ( funcr != nullptr )
-        {
-          // Cache the method for future lookups
-          class_methods[key] = BObjectRef( funcr );
-
-          // Switch the callee to the function reference.
-          callee = funcr;
-          method_name = getObjMethod( MTH_CALL_METHOD )->code;
-        }
-      }
-    }
-
-    if ( funcr != nullptr )
-    {
-      Instruction jmp;
-      int id;
-
-      // Add `this` to the front of the argument list only for class methods,
-      // skipping eg. an instance member function reference set via
-      // `this.foo := @(){};`.
-      if ( funcr->class_method() )
-      {
-        id = MTH_CALL_METHOD;
-        fparams.insert( fparams.begin(), ValueStack.back() );
-      }
-      else
-      {
-        id = MTH_CALL;
-      }
-
-      if ( funcr->validCall( id, *this, &jmp ) )
-      {
-        BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
-        call_function_reference( funcr, nullptr, jmp );
-        return;
-      }
-    }
-  }
-  else if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
+  if ( auto* funcr = ValueStack.back()->impptr_if<BFunctionRef>() )
   {
     Instruction jmp;
     if ( funcr->validCall( method_name, *this, &jmp ) )
@@ -2930,6 +2841,14 @@ void Executor::ins_call_method( const Instruction& ins, bool params_expanded )
     imp = callee->call_method( method_name, *this );
 #endif
   }
+  cleanParams();
+
+  if ( no_func_result_ )
+  {
+    no_func_result_ = false;
+    return;
+  }
+
   BObjectRef& objref = ValueStack[stacksize - 1];
   if ( func_result_ )
   {
@@ -2949,9 +2868,6 @@ void Executor::ins_call_method( const Instruction& ins, bool params_expanded )
   {
     objref.set( UninitObject::create() );
   }
-
-  cleanParams();
-  return;
 }
 
 // CTRL_STATEMENTBEGIN:
@@ -4337,6 +4253,11 @@ bool Executor::ClassMethodKey::operator<( const ClassMethodKey& other ) const
 
   // Perform a case-insensitive comparison for method_name using stricmp
   return stricmp( method_name.c_str(), other.method_name.c_str() ) < 0;
+}
+
+void Executor::noResultForMethodCall()
+{
+  no_func_result_ = true;
 }
 
 #ifdef ESCRIPT_PROFILE
