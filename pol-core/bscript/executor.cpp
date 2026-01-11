@@ -2775,11 +2775,11 @@ void Executor::ins_call_method_id( const Instruction& ins )
         continue;
       }
     }
-    cleanParams();
 
     if ( no_func_result_ )
     {
       no_func_result_ = false;
+      cleanParams();
       return;
     }
     BObjectRef& objref = ValueStack[stacksize - 1];
@@ -2802,6 +2802,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       objref.set( UninitObject::create() );
     }
 
+    cleanParams();
     return;
   }
   // This condition should only ever evaluate to `true` once. In the second loop
@@ -2841,11 +2842,11 @@ void Executor::ins_call_method( const Instruction& ins )
     imp = callee->call_method( method_name, *this );
 #endif
   }
-  cleanParams();
 
   if ( no_func_result_ )
   {
     no_func_result_ = false;
+    cleanParams();
     return;
   }
 
@@ -2868,6 +2869,7 @@ void Executor::ins_call_method( const Instruction& ins )
   {
     objref.set( UninitObject::create() );
   }
+  cleanParams();
 }
 
 // CTRL_STATEMENTBEGIN:
