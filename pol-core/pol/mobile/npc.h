@@ -89,7 +89,7 @@ class NPC final : public Character
 
 public:
   explicit NPC( u32 objtype, const Clib::ConfigElem& elem );
-  virtual ~NPC();
+  ~NPC() override;
 
 private:  // not implemented
   NPC( const NPC& npc );
@@ -97,70 +97,67 @@ private:  // not implemented
 
   // UOBJECT INTERFACE
 public:
-  virtual size_t estimatedSize() const override;
+  size_t estimatedSize() const override;
 
-  virtual void destroy() override;
+  void destroy() override;
 
-  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  void readProperties( Clib::ConfigElem& elem ) override;
 
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
-  virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& ) override;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) override;  // id test
-  virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     const std::string& ) override;  // id test
-  virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Core::UOExecutor& ex ) override;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
-  virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Core::UOExecutor& ex ) override;
-  virtual bool script_isa( unsigned isatype ) const override;
-  virtual bool get_method_hook( const char* methodname, Bscript::Executor* executor,
-                                Core::ExportScript** hook, unsigned int* PC ) const override;
+  Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
+  Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
+  Bscript::BObjectImp* set_script_member( const char* membername, const std::string& ) override;
+  Bscript::BObjectImp* set_script_member_id( const int id,
+                                             int value ) override;  // id test
+  Bscript::BObjectImp* set_script_member_id( const int id,
+                                             const std::string& ) override;  // id test
+  Bscript::BObjectImp* script_method( const char* methodname, Core::UOExecutor& ex ) override;
+  Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
+  Bscript::BObjectImp* custom_script_method( const char* methodname,
+                                             Core::UOExecutor& ex ) override;
+  bool script_isa( unsigned isatype ) const override;
+  bool get_method_hook( const char* methodname, Bscript::Executor* executor,
+                        Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:
-  virtual const char* classname() const override;
-  virtual void printOn( Clib::StreamWriter& sw ) const override;
-  virtual void printSelfOn( Clib::StreamWriter& sw ) const override;
-  virtual void printProperties( Clib::StreamWriter& sw ) const override;
-  virtual void printDebugProperties( Clib::StreamWriter& sw ) const override;
+  const char* classname() const override;
+  void printOn( Clib::StreamWriter& sw ) const override;
+  void printSelfOn( Clib::StreamWriter& sw ) const override;
+  void printProperties( Clib::StreamWriter& sw ) const override;
+  void printDebugProperties( Clib::StreamWriter& sw ) const override;
 
   // NPC INTERFACE
 public:
-  virtual Items::UWeapon* intrinsic_weapon() override;
+  Items::UWeapon* intrinsic_weapon() override;
 
-  virtual void inform_disengaged( Character* disengaged ) override;
-  virtual void inform_engaged( Character* engaged ) override;
-  virtual void inform_criminal( Character* thecriminal ) override;
-  virtual void inform_leftarea( Character* wholeft ) override;
-  virtual void inform_enteredarea( Character* whoentered ) override;
-  virtual void inform_moved( Character* moved ) override;
-  virtual void inform_imoved( Character* chr ) override;
-  virtual double armor_absorb_damage( double damage ) override;
-  virtual void get_hitscript_params( double damage, Items::UArmor** parmor,
-                                     unsigned short* rawdamage ) override;
-  virtual unsigned short ar() const override;
-  virtual void refresh_ar() override;
+  void inform_disengaged( Character* disengaged ) override;
+  void inform_engaged( Character* engaged ) override;
+  void inform_criminal( Character* thecriminal ) override;
+  void inform_leftarea( Character* wholeft ) override;
+  void inform_enteredarea( Character* whoentered ) override;
+  void inform_moved( Character* moved ) override;
+  void inform_imoved( Character* chr ) override;
+  double armor_absorb_damage( double damage ) override;
+  void get_hitscript_params( double damage, Items::UArmor** parmor,
+                             unsigned short* rawdamage ) override;
+  unsigned short ar() const override;
+  void refresh_ar() override;
 
-  virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source,
-                                            bool userepsys = true,
-                                            bool send_damage_packet = false ) override;
-  virtual void on_death( Items::Item* corpse ) override;
+  void apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys = true,
+                                    bool send_damage_packet = false ) override;
+  void on_death( Items::Item* corpse ) override;
 
-  virtual bool can_be_renamed_by( const Character* chr ) const override;
-  virtual bool can_be_clothed_by( const Character* chr ) const override;
+  bool can_be_renamed_by( const Character* chr ) const override;
+  bool can_be_clothed_by( const Character* chr ) const override;
 
-  virtual void repsys_on_attack( Character* defender ) override;
-  virtual void repsys_on_damage( Character* defender ) override;
-  virtual void repsys_on_help( Character* recipient ) override;
-  virtual unsigned char hilite_color_idx( const Character* seen_by ) const override;
-  virtual unsigned short name_color( const Character* seen_by ) const override;
+  void repsys_on_attack( Character* defender ) override;
+  void repsys_on_damage( Character* defender ) override;
+  void repsys_on_help( Character* recipient ) override;
+  unsigned char hilite_color_idx( const Character* seen_by ) const override;
+  unsigned short name_color( const Character* seen_by ) const override;
 
 protected:
-  virtual u16 get_damaged_sound() const override;
+  u16 get_damaged_sound() const override;
   // MOVEMENT
 public:
   bool use_adjustments() const;

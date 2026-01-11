@@ -63,14 +63,13 @@ public:
   {
   }
 
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual bool isTrue() const override;
-  virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override;
+  Bscript::BObjectImp* copy() const override;
+  bool isTrue() const override;
+  std::string getStringRep() const override;
+  size_t sizeEstimate() const override;
 
-  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
-                                               Core::UOExecutor& ex ) override;
-  virtual Bscript::BObjectRef get_member( const char* membername ) override;
+  Bscript::BObjectImp* call_polmethod( const char* methodname, Core::UOExecutor& ex ) override;
+  Bscript::BObjectRef get_member( const char* membername ) override;
 
   void disconnect();
 
@@ -102,7 +101,7 @@ public:
   AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock );
   AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock, Bscript::BObjectImp* params,
                    bool assume_string, bool keep_alive, bool ignore_line_breaks );
-  virtual void run() override;
+  void run() override;
   void transmit( const Bscript::BObjectImp* imp );
   Bscript::BObjectImp* get_ip();
 

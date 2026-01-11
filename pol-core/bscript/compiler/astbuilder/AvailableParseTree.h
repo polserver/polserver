@@ -43,7 +43,7 @@ class AvailableGeneratedFunction : public AvailableSecondPassTarget
 public:
   AvailableGeneratedFunction( const SourceLocation& loc, Node* context, const ScopableName& name,
                               UserFunctionType type );
-  virtual ~AvailableGeneratedFunction() = default;
+  ~AvailableGeneratedFunction() override = default;
 
   ScopableName name;
   UserFunctionType type;
@@ -55,7 +55,7 @@ public:
   AvailableParseTree( const SourceLocation& loc, antlr4::ParserRuleContext* parse_rule_context,
                       const ScopeName& scope, Node* context );
   antlr4::ParserRuleContext* const parse_rule_context;
-  virtual ~AvailableParseTree() = default;
+  ~AvailableParseTree() override = default;
 
   ScopeName scope;
 };

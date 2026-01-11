@@ -34,8 +34,8 @@ class SendWorldItem final : public PktSender
 public:
   SendWorldItem( u32 serial, u16 graphic, u16 amount, Core::Pos3d pos, u8 facing, u16 color,
                  u8 flags );
-  virtual ~SendWorldItem() = default;
-  virtual void Send( Client* client ) override;
+  ~SendWorldItem() override = default;
+  void Send( Client* client ) override;
   void updateFlags( u8 flags );
 
 private:
@@ -57,8 +57,8 @@ class SendWorldMulti final : public PktSender
 {
 public:
   SendWorldMulti( u32 serial_ext, u16 graphic, Core::Pos3d pos, u16 color );
-  virtual ~SendWorldMulti() = default;
-  virtual void Send( Client* client ) override;
+  ~SendWorldMulti() override = default;
+  void Send( Client* client ) override;
 
 private:
   void buildF3();
@@ -77,8 +77,8 @@ class AddItemContainerMsg final : public PktSender
 public:
   AddItemContainerMsg( u32 serial_ext, u16 graphic, u16 amount, Core::Pos2d pos, u8 slotindex,
                        u32 containerserial_ext, u16 color );
-  virtual ~AddItemContainerMsg() = default;
-  virtual void Send( Client* client ) override;
+  ~AddItemContainerMsg() override = default;
+  void Send( Client* client ) override;
 
 private:
   void buildLegacy();
@@ -102,8 +102,8 @@ public:
                       Core::REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old, bool oldanim_valid,
                       bool newanim_valid );
   MobileAnimationMsg( u32 serial_ext );
-  virtual ~MobileAnimationMsg() = default;
-  virtual void Send( Client* client ) override;
+  ~MobileAnimationMsg() override = default;
+  void Send( Client* client ) override;
   void update( u16 anim, u16 action, u8 subaction, u16 action_old, u16 framecount_old,
                u16 repeat_old, Core::DIRECTION_FLAG_OLD backward_old,
                Core::REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old, bool oldanim_valid,
@@ -133,8 +133,8 @@ class PlaySoundPkt final : public PktSender
 {
 public:
   PlaySoundPkt( u8 type, u16 effect, Core::Pos3d center );
-  virtual ~PlaySoundPkt() = default;
-  virtual void Send( Client* client ) override;
+  ~PlaySoundPkt() override = default;
+  void Send( Client* client ) override;
 
 private:
   void build();
@@ -148,8 +148,8 @@ class RemoveObjectPkt final : public PktSender
 {
 public:
   RemoveObjectPkt( u32 serial );
-  virtual ~RemoveObjectPkt() = default;
-  virtual void Send( Client* client ) override;
+  ~RemoveObjectPkt() override = default;
+  void Send( Client* client ) override;
   void update( u32 serial );
 
 private:
@@ -162,8 +162,8 @@ class SendDamagePkt final : public PktSender
 {
 public:
   SendDamagePkt( u32 serial, u16 damage );
-  virtual ~SendDamagePkt() = default;
-  virtual void Send( Client* client ) override;
+  ~SendDamagePkt() override = default;
+  void Send( Client* client ) override;
 
 private:
   void build();
@@ -179,8 +179,8 @@ class ObjRevisionPkt final : public PktSender
 {
 public:
   ObjRevisionPkt( u32 serial_ext, u32 rev );
-  virtual ~ObjRevisionPkt() = default;
-  virtual void Send( Client* client ) override;
+  ~ObjRevisionPkt() override = default;
+  void Send( Client* client ) override;
 
 private:
   void build();
@@ -196,7 +196,7 @@ class GraphicEffectPkt final : public PktSender
 {
 public:
   GraphicEffectPkt();
-  virtual ~GraphicEffectPkt() = default;
+  ~GraphicEffectPkt() override = default;
 
   void movingEffect( const Core::UObject* src, const Core::UObject* dst, u16 effect, u8 speed,
                      u8 loop, u8 explode );
@@ -205,7 +205,7 @@ public:
   void followEffect( const Core::UObject* center, u16 effect, u8 speed, u8 loop );
   void stationaryEffect( Core::Pos3d src, u16 effect, u8 speed, u8 loop, u8 explode );
 
-  virtual void Send( Client* client ) override;
+  void Send( Client* client ) override;
 
 private:
   void build();
@@ -228,7 +228,7 @@ class GraphicEffectExPkt final : public PktSender
 {
 public:
   GraphicEffectExPkt();
-  virtual ~GraphicEffectExPkt() = default;
+  ~GraphicEffectExPkt() override = default;
 
   void movingEffect( const Core::UObject* src, const Core::UObject* dst, u16 effect, u8 speed,
                      u8 duration, u32 hue, u32 render, u8 direction, u8 explode, u16 effect3d,
@@ -241,7 +241,7 @@ public:
   void stationaryEffect( Core::Pos3d pos, u16 effect, u8 speed, u8 duration, u32 hue, u32 render,
                          u16 effect3d );
 
-  virtual void Send( Client* client ) override;
+  void Send( Client* client ) override;
 
 private:
   void build();
@@ -277,8 +277,8 @@ public:
     RED = 3,
   };
   HealthBarStatusUpdate( u32 serial_ext, Color color, bool enable );
-  virtual ~HealthBarStatusUpdate() = default;
-  virtual void Send( Client* client ) override;
+  ~HealthBarStatusUpdate() override = default;
+  void Send( Client* client ) override;
 
 private:
   void build();
@@ -293,8 +293,8 @@ class MoveChrPkt final : public PktSender
 {
 public:
   MoveChrPkt( const Mobile::Character* chr );
-  virtual ~MoveChrPkt() = default;
-  virtual void Send( Client* client ) override;
+  ~MoveChrPkt() override = default;
+  void Send( Client* client ) override;
 
 private:
   void build();

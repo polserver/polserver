@@ -21,7 +21,7 @@ namespace Clib
 class ConfigElem;
 class ConfigFile;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Plib
 {
 class Package;
@@ -46,7 +46,7 @@ class DataFileContents final : public ref_counted
 {
 public:
   DataFileContents( DataStoreFile* dsf );
-  virtual ~DataFileContents();
+  ~DataFileContents() override;
   size_t estimateSize() const;
 
   void load( Clib::ConfigFile& cf );
@@ -83,14 +83,13 @@ class DataFileRefObjImp final : public DataFileRefObjImpBase
 public:
   explicit DataFileRefObjImp( DataFileContentsRef dfref );
 
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  Bscript::BObjectImp* copy() const override;
 
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) override;
+  Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) override;
+  Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
+                                       bool forcebuiltin = false ) override;
 };
 
 
@@ -112,14 +111,13 @@ class DataElemRefObjImp final : public DataElemRefObjImpBase
 {
 public:
   DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dflem );
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  Bscript::BObjectImp* copy() const override;
 
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) override;
+  Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) override;
+  Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
+                                       bool forcebuiltin = false ) override;
 };
 
 class DataStoreFile
@@ -151,7 +149,7 @@ public:
 
   DataFileContentsRef dfcontents;
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 
 #endif

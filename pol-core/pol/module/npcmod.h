@@ -47,7 +47,7 @@ class NPCExecutorModule : public Bscript::TmplExecutorModule<NPCExecutorModule, 
 {
 public:
   NPCExecutorModule( Bscript::Executor& ex, Mobile::NPC& npc );
-  virtual ~NPCExecutorModule();
+  ~NPCExecutorModule() override;
 
   const Mobile::NPC& controlled_npc() const;
 
@@ -93,7 +93,7 @@ protected:
 
   Bscript::BObjectImp* move_self( Core::UFACING facing, bool run, bool adjust_ok = false );
 
-  virtual size_t sizeEstimate() const override;
+  size_t sizeEstimate() const override;
 
 private:
   bool _internal_move( Core::UFACING facing, int run );

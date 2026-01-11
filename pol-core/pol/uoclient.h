@@ -11,11 +11,11 @@
 #define UOCLIENT_H
 
 #include <atomic>
+#include <boost/asio/ip/network_v4.hpp>
 #include <list>
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/asio/ip/network_v4.hpp>
 
 #include "../clib/network/socketsvc.h"
 #include "crypt/cryptkey.h"
@@ -80,9 +80,9 @@ class UoClientThread final : public Clib::SocketClientThread
 {
 public:
   UoClientThread( UoClientListener* def, Clib::Socket&& newsck );
-  virtual void run() override;
+  void run() override;
   bool create();
-  virtual ~UoClientThread() = default;
+  ~UoClientThread() override = default;
 
 private:
   UoClientListener* _def;

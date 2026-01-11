@@ -154,12 +154,12 @@ class SpellTask : public OneShotTask
 public:
   SpellTask( OneShotTask** handle, polclock_t run_when, Mobile::Character* caster, USpell* spell,
              bool dummy );
-  virtual void on_run() override;
+  void on_run() override;
 
 private:
   CharacterRef caster_;
   USpell* spell_;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

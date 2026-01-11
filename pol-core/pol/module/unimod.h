@@ -50,7 +50,7 @@ class UnicodeExecutorModule
 {
 public:
   explicit UnicodeExecutorModule( Core::UOExecutor& exec );
-  ~UnicodeExecutorModule();
+  ~UnicodeExecutorModule() override;
 
   [[nodiscard]] Bscript::BObjectImp* mf_PrintTextAboveUC();  // OverObject, Text, Font, Color
   [[nodiscard]] Bscript::BObjectImp*
@@ -65,7 +65,7 @@ public:
 
   Mobile::Character* prompt_chr;
 
-  virtual size_t sizeEstimate() const override;
+  size_t sizeEstimate() const override;
 };
 }  // namespace Module
 }  // namespace Pol

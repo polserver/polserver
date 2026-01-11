@@ -246,7 +246,7 @@ protected:
   virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
 
   UObject( u32 objtype, UOBJ_CLASS uobj_class );
-  virtual ~UObject();
+  ~UObject() override;
 
   friend class ref_ptr<UObject>;
   friend class ref_ptr<Mobile::Character>;

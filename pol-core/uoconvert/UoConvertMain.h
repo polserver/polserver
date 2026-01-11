@@ -20,7 +20,7 @@ class UoConvertMain final : public Pol::Clib::ProgramMain
 {
 public:
   UoConvertMain();
-  virtual ~UoConvertMain();
+  ~UoConvertMain() override;
 
   std::set<unsigned int> BoatTypes;
   std::set<unsigned int> MountTypes;
@@ -61,7 +61,7 @@ public:
   unsigned with_more_solids = 0;
 
 protected:
-  virtual int main();
+  int main() override;
 
   void check_for_errors_in_map_parameters();
 
@@ -71,7 +71,7 @@ protected:
   void load_uoconvert_cfg();
 
 private:
-  virtual void showHelp();
+  void showHelp() override;
 };
 }  // namespace UoConvert
 }  // namespace Pol

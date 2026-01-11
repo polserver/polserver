@@ -329,9 +329,9 @@ public:
   bool registered_for_speech_events;
 
   explicit UOExecutorModule( Core::UOExecutor& exec );
-  ~UOExecutorModule();
+  ~UOExecutorModule() override;
 
-  virtual size_t sizeEstimate() const override;
+  size_t sizeEstimate() const override;
 
 protected:
   // bool getStaticMenuParam( unsigned param, Menu*& menu );

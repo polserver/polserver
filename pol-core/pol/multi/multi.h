@@ -81,41 +81,41 @@ public:
   bool items_decay() const { return items_decay_; }
   void items_decay( bool decay );
 
-  virtual void double_click( Network::Client* client ) override;
+  void double_click( Network::Client* client ) override;
   virtual void register_object( UObject* obj );
   virtual void unregister_object( UObject* obj );
-  virtual bool script_isa( unsigned isatype ) const override;
+  bool script_isa( unsigned isatype ) const override;
 
-  virtual bool setgraphic( u16 newobjtype ) override;
+  bool setgraphic( u16 newobjtype ) override;
 
   const MultiDef& multidef() const;
   virtual class UBoat* as_boat();
   virtual class UHouse* as_house();
-  virtual Bscript::BObjectImp* make_ref() override;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;
+  Bscript::BObjectImp* make_ref() override;
+  Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  Bscript::BObjectImp* get_script_member_id( const int id ) const override;
   using Items::Item::set_script_member_id;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) override;
-  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
-                                Core::ExportScript** hook, unsigned int* PC ) const override;
+  Bscript::BObjectImp* set_script_member_id( const int id, int value ) override;
+  bool get_method_hook( const char* methodname, Bscript::Executor* ex, Core::ExportScript** hook,
+                        unsigned int* PC ) const override;
 
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
   virtual bool readobjects( Plib::StaticList& vec, s16 rx, s16 ry, s16 zbase );
   virtual Core::Range3d current_box() const;
 
-  virtual ~UMulti();
-  virtual size_t estimatedSize() const override;
+  ~UMulti() override;
+  size_t estimatedSize() const override;
 
-  virtual u8 visible_size() const override;
+  u8 visible_size() const override;
 
-  virtual void readProperties( Clib::ConfigElem& elem ) override;
-  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  void readProperties( Clib::ConfigElem& elem ) override;
+  void printProperties( Clib::StreamWriter& sw ) const override;
 
 protected:
   explicit UMulti( const Items::ItemDesc& itemdesc );
 
-  virtual const char* classname() const override;
+  const char* classname() const override;
 
   friend class ref_ptr<UMulti>;
 

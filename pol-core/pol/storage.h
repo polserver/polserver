@@ -69,13 +69,13 @@ public:
       : Bscript::BObjectImp( BObjectImp::OTStorageArea ), _area( area )
   {
   }
-  virtual BObjectImp* copy() const override { return new StorageAreaImp( _area ); }
-  virtual std::string getStringRep() const override { return _area->_name; }
-  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
+  BObjectImp* copy() const override { return new StorageAreaImp( _area ); }
+  std::string getStringRep() const override { return _area->_name; }
+  size_t sizeEstimate() const override { return sizeof( *this ); }
   Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) override;
   Bscript::BObjectRef get_member( const char* membername ) override;
-  virtual const char* typeOf() const override { return "StorageArea"; }
-  virtual u8 typeOfInt() const override { return OTStorageArea; }
+  const char* typeOf() const override { return "StorageArea"; }
+  u8 typeOfInt() const override { return OTStorageArea; }
   StorageArea* area() const { return _area; }
 
 private:

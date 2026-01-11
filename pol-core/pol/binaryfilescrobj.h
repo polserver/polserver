@@ -34,7 +34,7 @@ class BinFile final
 public:
   BinFile() = default;
   BinFile( const std::string& filename, std::ios::openmode mode );
-  BinFile(const BinFile& ) = delete;
+  BinFile( const BinFile& ) = delete;
   BinFile operator=( const BinFile& ) = delete;
   ~BinFile();
 
@@ -80,20 +80,19 @@ class BBinaryfile final : public Bscript::BObjectImp
 public:
   BBinaryfile();
   BBinaryfile( std::string filename, unsigned short mode, bool _bigendian );
-  ~BBinaryfile();
-  virtual Bscript::BObjectRef get_member( const char* membername ) override;
-  virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) override;
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override;
-  virtual const char* typeOf() const override { return "BinaryFile"; }
-  virtual u8 typeOfInt() const override { return OTBinaryFile; }
-  virtual bool isTrue() const override;
-  virtual bool operator==( const Bscript::BObjectImp& objimp ) const override;
+  ~BBinaryfile() override;
+  Bscript::BObjectRef get_member( const char* membername ) override;
+  Bscript::BObjectRef get_member_id( const int id ) override;  // id test
+  Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) override;
+  Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
+                                       bool forcebuiltin = false ) override;
+  Bscript::BObjectImp* copy() const override;
+  std::string getStringRep() const override;
+  size_t sizeEstimate() const override;
+  const char* typeOf() const override { return "BinaryFile"; }
+  u8 typeOfInt() const override { return OTBinaryFile; }
+  bool isTrue() const override;
+  bool operator==( const Bscript::BObjectImp& objimp ) const override;
 
 private:
   mutable BinFile file;
@@ -101,7 +100,7 @@ private:
   std::ios::openmode openmode;
   bool bigendian;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

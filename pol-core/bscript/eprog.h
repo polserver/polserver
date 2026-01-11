@@ -189,7 +189,7 @@ public:
   size_t sizeEstimate() const;
 
 private:
-  ~EScriptProgram();
+  ~EScriptProgram() override;
   friend class ref_ptr<EScriptProgram>;
 };
 

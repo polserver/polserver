@@ -31,7 +31,7 @@ class Account : public ref_counted
 {
 public:
   explicit Account( Clib::ConfigElem& elem );
-  ~Account();
+  ~Account() override;
 
   size_t estimatedSize() const;
 

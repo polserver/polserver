@@ -68,7 +68,7 @@
   LL ^= P;                                                          \
   LL ^= ( ( S[( R >> 24 )] + S[0x0100 + ( ( R >> 16 ) & 0xff )] ) ^ \
           S[0x0200 + ( ( R >> 8 ) & 0xff )] ) +                     \
-        S[0x0300 + ( (R)&0xff )]
+        S[0x0300 + ( ( R ) & 0xff )]
 
 
 #include "../../clib/network/sockets.h"
@@ -113,7 +113,7 @@ class CCryptBaseCrypt : public CCryptBase
   // Constructor / Destructor
 public:
   CCryptBaseCrypt();
-  virtual ~CCryptBaseCrypt() = default;
+  ~CCryptBaseCrypt() override = default;
 
   LoginCrypt lcrypt;
 

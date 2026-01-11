@@ -1389,7 +1389,7 @@ class StringIterator final : public ContIterator
 {
 public:
   StringIterator( String* str, BObject* pIter );
-  virtual BObject* step() override;
+  BObject* step() override;
 
 private:
   // Keep String alive, to ensure iterators stay valid

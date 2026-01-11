@@ -36,13 +36,13 @@ public:
   typedef Items::ItemDesc base;
   EquipDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
   EquipDesc();  // for dummy template
-  virtual ~EquipDesc() = default;
-  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  virtual size_t estimatedSize() const override;
+  ~EquipDesc() override = default;
+  void PopulateStruct( Bscript::BStruct* descriptor ) const override;
+  size_t estimatedSize() const override;
 
   bool is_intrinsic;
   bool is_pc_intrinsic;  // used to differentiate npc and pc intrinsics
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

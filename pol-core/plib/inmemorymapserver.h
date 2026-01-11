@@ -30,10 +30,10 @@ class InMemoryMapServer : public MapServer
 {
 public:
   explicit InMemoryMapServer( const RealmDescriptor& descriptor );
-  virtual ~InMemoryMapServer() = default;
+  ~InMemoryMapServer() override = default;
 
-  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
-  virtual size_t sizeEstimate() const override;
+  MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
+  size_t sizeEstimate() const override;
 
 private:
   std::vector<MAPBLOCK> _mapblocks;
@@ -42,6 +42,6 @@ private:
   InMemoryMapServer& operator=( const InMemoryMapServer& );
   InMemoryMapServer( const InMemoryMapServer& );
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

@@ -56,7 +56,7 @@ public:
   void revive();
 
   explicit OSExecutorModule( Bscript::Executor& exec );
-  ~OSExecutorModule();
+  ~OSExecutorModule() override;
 
 
   void SleepFor( u32 secs );
@@ -69,7 +69,7 @@ public:
   void revive_debugged();
   Bscript::BObjectImp* clear_event_queue();  // DAVE
 
-  virtual size_t sizeEstimate() const override;
+  size_t sizeEstimate() const override;
 
   bool critical() const;
   void critical( bool critical );

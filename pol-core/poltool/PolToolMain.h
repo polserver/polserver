@@ -11,17 +11,17 @@ class PolToolMain final : public ProgramMain
 {
 public:
   PolToolMain();
-  virtual ~PolToolMain() = default;
+  ~PolToolMain() override = default;
 
 protected:
-  virtual int main();
+  int main() override;
 
 private:
-  virtual void showHelp();
+  void showHelp() override;
   int mapdump();
   int unpackCompressedGump();
 };
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 #endif  // POL_TOOL_MAIN_H

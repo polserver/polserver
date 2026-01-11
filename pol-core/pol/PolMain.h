@@ -11,15 +11,15 @@ class PolMain final : public ProgramMain
 {
 public:
   PolMain();
-  virtual ~PolMain();
+  ~PolMain() override;
 
 protected:
-  virtual int main();
+  int main() override;
 
 private:
-  virtual void showHelp();
+  void showHelp() override;
 };
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 #endif  // POL_MAIN_H

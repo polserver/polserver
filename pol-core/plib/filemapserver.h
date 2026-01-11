@@ -28,9 +28,9 @@ class FileMapServer : public MapServer
 {
 public:
   explicit FileMapServer( const RealmDescriptor& descriptor );
-  virtual ~FileMapServer() {}
-  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
-  virtual size_t sizeEstimate() const override;
+  ~FileMapServer() override {}
+  MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
+  size_t sizeEstimate() const override;
 
 protected:
   mutable Clib::BinaryFile _mapfile;
@@ -41,7 +41,7 @@ protected:
   FileMapServer& operator=( const FileMapServer& );
   FileMapServer( const FileMapServer& );
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 
 #endif

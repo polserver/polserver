@@ -33,7 +33,7 @@ class MusicRegion : public Region
 
 public:
   MusicRegion( Clib::ConfigElem& elem, RegionId id );
-  virtual size_t estimateSize() const override;
+  size_t estimateSize() const override;
 
 
   unsigned short getmidi() const;
@@ -41,6 +41,6 @@ public:
 private:
   std::vector<unsigned short> midilist_;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

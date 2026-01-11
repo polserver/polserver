@@ -44,7 +44,7 @@ class ConfigFile : public ConfigSource
 public:
   explicit ConfigFile( const char* filename = nullptr, const char* allowed_types = nullptr );
   explicit ConfigFile( const std::string& filename, const char* allowed_types = nullptr );
-  virtual ~ConfigFile();
+  ~ConfigFile() override;
 
   void open( const char* i_filename );
 
@@ -63,9 +63,8 @@ protected:
   bool readline( std::string& strbuf );
   bool read_properties( ConfigElem& elem );
   bool _read( ConfigElem& elem );
-  virtual void display_error( const std::string& msg, bool show_curline = true,
-                              const ConfigElemBase* elem = nullptr,
-                              bool error = true ) const override;
+  void display_error( const std::string& msg, bool show_curline = true,
+                      const ConfigElemBase* elem = nullptr, bool error = true ) const override;
   [[noreturn]] void display_and_rethrow_exception();
   void register_allowed_type( const char* allowed_type );
 
@@ -88,8 +87,8 @@ private:
 class StubConfigSource : public ConfigSource
 {
 public:
-  virtual void display_error( const std::string& msg, bool show_curline, const ConfigElemBase* elem,
-                              bool error ) const override;
+  void display_error( const std::string& msg, bool show_curline, const ConfigElemBase* elem,
+                      bool error ) const override;
 };
 }  // namespace Clib
 }  // namespace Pol

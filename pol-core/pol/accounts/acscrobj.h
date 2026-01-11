@@ -50,15 +50,14 @@ public:
       : PolApplicObj<AccountPtrHolder>( &accountobjimp_type, other )
   {
   }
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
-                                            Core::UOExecutor& ex ) override;
-  virtual Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
-                                               bool forcebuiltin = false ) override;
-  virtual Bscript::BObjectRef get_member( const char* membername ) override;
-  virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  Bscript::BObjectImp* copy() const override;
+  Bscript::BObjectImp* call_polmethod( const char* methodname, Core::UOExecutor& ex ) override;
+  Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                          bool forcebuiltin = false ) override;
+  Bscript::BObjectRef get_member( const char* membername ) override;
+  Bscript::BObjectRef get_member_id( const int id ) override;  // id test
 };
 }  // namespace Accounts
 }  // namespace Pol

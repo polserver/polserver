@@ -23,7 +23,7 @@ class BContinuation : public BObjectImp
 public:
   BContinuation( BObjectRef funcref, BObjectRefVec args, ContinuationCallbackWrapper wrapper,
                  void* wrapperData );
-  ~BContinuation();
+  ~BContinuation() override;
 
   BObjectImp* continueWith( Executor& exec, BObjectRef result );
   BFunctionRef* func();

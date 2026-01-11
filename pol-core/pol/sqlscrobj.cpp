@@ -52,7 +52,7 @@ class SQLRowIterator final : public Bscript::ContIterator
 {
 public:
   SQLRowIterator( BSQLRow* node, Bscript::BObject* pIter );
-  virtual Bscript::BObject* step() override;
+  Bscript::BObject* step() override;
 
 private:
   Bscript::BObject m_RowObj;
@@ -189,7 +189,7 @@ class SQLResultSetIterator final : public Bscript::ContIterator
 {
 public:
   SQLResultSetIterator( BSQLResultSet* node, Bscript::BObject* pIter );
-  virtual Bscript::BObject* step() override;
+  Bscript::BObject* step() override;
 
 private:
   Bscript::BObject m_ResultsObj;

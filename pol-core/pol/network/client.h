@@ -238,7 +238,7 @@ public:
           std::vector<boost::asio::ip::network_v4>& allowed_proxies );
   Client( const Client& ) = delete;
   Client& operator=( const Client& ) = delete;
-  ~Client();
+  ~Client() override;
   size_t estimatedSize() const;
 
   // later these will return a member "session" instead of casting

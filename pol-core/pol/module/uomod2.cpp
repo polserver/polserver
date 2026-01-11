@@ -1254,11 +1254,11 @@ public:
   BIntHash();
   BIntHash( const BIntHash& );
   void add( int key, BObjectImp* value );
-  virtual BObjectRef get_member( const char* membername ) override;
-  virtual BObjectRef OperSubscript( const BObject& obj ) override;
-  virtual BObjectImp* copy() const override;
-  virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override;
+  BObjectRef get_member( const char* membername ) override;
+  BObjectRef OperSubscript( const BObject& obj ) override;
+  BObjectImp* copy() const override;
+  std::string getStringRep() const override;
+  size_t sizeEstimate() const override;
 
 private:
   typedef std::map<int, BObjectRef> Contents;
@@ -1656,13 +1656,13 @@ class PolCore final : public PolObjectImp
 {
 public:
   PolCore();
-  virtual BObjectRef get_member( const char* membername ) override;
-  virtual BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
-  virtual BObjectImp* copy() const override;
-  virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override { return sizeof( PolCore ); }
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
+  BObjectRef get_member( const char* membername ) override;
+  BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
+  BObjectImp* copy() const override;
+  std::string getStringRep() const override;
+  size_t sizeEstimate() const override { return sizeof( PolCore ); }
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
 
 private:
   // not implemented:
