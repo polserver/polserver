@@ -14,6 +14,7 @@
 
 
 #include "executor.h"
+#include "bobject.h"
 #include "executor.inl.h"
 
 #include "../clib/clib.h"
@@ -197,8 +198,7 @@ Executor::Executor()
       viewmode_( false ),
       runs_to_completion_( false ),
       dbg_env_( nullptr ),
-      func_result_( nullptr ),
-      no_func_result_( false )
+      func_result_( nullptr )
 {
   Clib::SpinLockGuard lock( _executor_lock );
   ++executor_count;
@@ -2776,9 +2776,8 @@ void Executor::ins_call_method_id( const Instruction& ins )
       }
     }
 
-    if ( no_func_result_ )
+    if ( impptrIf<BSpecialUserFuncJump>( imp ) )
     {
-      no_func_result_ = false;
       cleanParams();
       return;
     }
@@ -2843,9 +2842,8 @@ void Executor::ins_call_method( const Instruction& ins )
 #endif
   }
 
-  if ( no_func_result_ )
+  if ( impptrIf<BSpecialUserFuncJump>( imp ) )
   {
-    no_func_result_ = false;
     cleanParams();
     return;
   }
@@ -4255,11 +4253,6 @@ bool Executor::ClassMethodKey::operator<( const ClassMethodKey& other ) const
 
   // Perform a case-insensitive comparison for method_name using stricmp
   return stricmp( method_name.c_str(), other.method_name.c_str() ) < 0;
-}
-
-void Executor::noResultForMethodCall()
-{
-  no_func_result_ = true;
 }
 
 #ifdef ESCRIPT_PROFILE

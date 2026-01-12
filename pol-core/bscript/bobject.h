@@ -70,6 +70,7 @@ class BClassInstanceRef;
 class BContinuation;
 class BSpread;
 class BRegExp;
+class BSpecialUserFuncJump;
 
 typedef std::vector<BObjectRef> ValueStackCont;
 
@@ -140,6 +141,7 @@ public:
     OTContinuation = 100,
     OTSpread = 101,
     OTClassInstance = 102,
+    OTSpecialUserFuncJump = 103,
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -429,6 +431,7 @@ T* impptrIf( I* objimp )
   impif_e( BObjectImp::OTContinuation, BContinuation );
   impif_e( BObjectImp::OTSpread, BSpread );
   impif_e( BObjectImp::OTRegExp, BRegExp );
+  impif_e( BObjectImp::OTSpecialUserFuncJump, BSpecialUserFuncJump );
   else static_assert( always_false<T>::value, "unsupported type" );
 #undef impif_i
 #undef impif_e
@@ -996,6 +999,19 @@ public:  // Class Machinery
   BObjectRef object;
 };
 
+class BSpecialUserFuncJump final : public BObjectImp
+{
+public:
+  BSpecialUserFuncJump();
+  ~BSpecialUserFuncJump() override = default;
+  static BSpecialUserFuncJump* get();
+
+public:  // Class Machinery
+  size_t sizeEstimate() const override;
+  BObjectImp* copy() const override;
+  std::string getStringRep() const override;
+};
+extern BSpecialUserFuncJump special_userjmp;
 
 class BApplicObjType
 {

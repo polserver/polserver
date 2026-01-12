@@ -164,8 +164,7 @@ BObjectImp* BClassInstance::call_method( const char* method_name, Executor& ex )
     {
       BObjectRef funcobj( funcr );  // valuestack gets modified, protect BFunctionRef
       ex.call_function_reference( funcr, nullptr, jmp );
-      ex.noResultForMethodCall();
-      return nullptr;
+      return BSpecialUserFuncJump::get();
     }
   }
   if ( callee )

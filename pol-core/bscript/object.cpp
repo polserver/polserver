@@ -48,6 +48,27 @@ Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
 Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
 Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
 
+
+BSpecialUserFuncJump special_userjmp{};
+BSpecialUserFuncJump::BSpecialUserFuncJump() : BObjectImp( OTSpecialUserFuncJump ) {}
+size_t BSpecialUserFuncJump::sizeEstimate() const
+{
+  return sizeof( BSpecialUserFuncJump );
+};
+std::string BSpecialUserFuncJump::getStringRep() const
+{
+  return "Special";
+};
+BObjectImp* BSpecialUserFuncJump::copy() const
+{
+  return &special_userjmp;
+};
+BSpecialUserFuncJump* BSpecialUserFuncJump::get()
+{
+  return &special_userjmp;
+}
+
+
 size_t BObjectRef::sizeEstimate() const
 {
   if ( get() )
