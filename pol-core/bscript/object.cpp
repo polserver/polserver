@@ -48,27 +48,6 @@ Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
 Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
 Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
 
-
-BSpecialUserFuncJump special_userjmp{};
-BSpecialUserFuncJump::BSpecialUserFuncJump() : BObjectImp( OTSpecialUserFuncJump ) {}
-size_t BSpecialUserFuncJump::sizeEstimate() const
-{
-  return sizeof( BSpecialUserFuncJump );
-};
-std::string BSpecialUserFuncJump::getStringRep() const
-{
-  return "Special";
-};
-BObjectImp* BSpecialUserFuncJump::copy() const
-{
-  return &special_userjmp;
-};
-BSpecialUserFuncJump* BSpecialUserFuncJump::get()
-{
-  return &special_userjmp;
-}
-
-
 size_t BObjectRef::sizeEstimate() const
 {
   if ( get() )
@@ -2582,6 +2561,25 @@ bool BSpread::isTrue() const
 std::string BSpread::getStringRep() const
 {
   return "Spread";
+}
+
+BSpecialUserFuncJump BSpecialUserFuncJump::imp_special_userjmp{};
+BSpecialUserFuncJump::BSpecialUserFuncJump() : BObjectImp( OTSpecialUserFuncJump ) {}
+size_t BSpecialUserFuncJump::sizeEstimate() const
+{
+  return sizeof( BSpecialUserFuncJump );
+};
+std::string BSpecialUserFuncJump::getStringRep() const
+{
+  return "BSpecialUserFuncJump";
+};
+BObjectImp* BSpecialUserFuncJump::copy() const
+{
+  return get();
+};
+BSpecialUserFuncJump* BSpecialUserFuncJump::get()
+{
+  return &imp_special_userjmp;
 }
 
 }  // namespace Bscript

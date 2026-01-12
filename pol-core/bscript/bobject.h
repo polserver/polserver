@@ -999,19 +999,27 @@ public:  // Class Machinery
   BObjectRef object;
 };
 
+// very very special Imp, should never be actually used
+// we need to tell the executor that in certain cases
+// call_method and call_method_id do not return a BObjectImp
+// and the ValueStack should not be modified
+// should not be handled like a "imp" and never be passed to
+// a BObject since its a singleton
 class BSpecialUserFuncJump final : public BObjectImp
 {
 public:
-  BSpecialUserFuncJump();
-  ~BSpecialUserFuncJump() override = default;
   static BSpecialUserFuncJump* get();
 
-public:  // Class Machinery
+public:  // needed minimal imp
   size_t sizeEstimate() const override;
   BObjectImp* copy() const override;
   std::string getStringRep() const override;
+
+private:
+  BSpecialUserFuncJump();
+  ~BSpecialUserFuncJump() override = default;
+  static BSpecialUserFuncJump imp_special_userjmp;
 };
-extern BSpecialUserFuncJump special_userjmp;
 
 class BApplicObjType
 {
