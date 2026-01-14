@@ -33,18 +33,17 @@ class EPartyRefObjImp final : public Core::PolApplicObj<Core::PartyRef>
 {
 public:
   EPartyRefObjImp( Core::PartyRef pref );
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual bool isTrue() const override;
-  virtual bool operator==( const BObjectImp& objimp ) const override;
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  Bscript::BObjectImp* copy() const override;
+  bool isTrue() const override;
+  bool operator==( const BObjectImp& objimp ) const override;
 
-  virtual Bscript::BObjectRef get_member( const char* membername ) override;
-  virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
-  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
-                                               Core::UOExecutor& ex ) override;
-  virtual Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
-                                         bool forcebuiltin = false ) override;
+  Bscript::BObjectRef get_member( const char* membername ) override;
+  Bscript::BObjectRef get_member_id( const int id ) override;  // id test
+  Bscript::BObjectImp* call_polmethod( const char* methodname, Core::UOExecutor& ex ) override;
+  Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                          bool forcebuiltin = false ) override;
 };
 
 }  // namespace Module

@@ -12,8 +12,8 @@
 #error "Incompatible Kaitai Struct C++/STL API: version 0.7 or later is required"
 #endif
 
-class uop_t : public kaitai::kstruct {
-
+class uop_t : public kaitai::kstruct
+{
 public:
   class block_addr_t;
   class block_body_t;
@@ -21,30 +21,30 @@ public:
   class header_t;
   class file_t;
 
-  enum compression_type_t {
+  enum compression_type_t
+  {
     COMPRESSION_TYPE_NO_COMPRESSION = 0,
     COMPRESSION_TYPE_ZLIB = 1
   };
 
-  uop_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent = 0, uop_t* p__root = 0);
+  uop_t( kaitai::kstream* p__io, kaitai::kstruct* p__parent = 0, uop_t* p__root = 0 );
 
 private:
   void _read();
 
 public:
-  ~uop_t();
+  ~uop_t() override;
 
-  class block_addr_t : public kaitai::kstruct {
-
+  class block_addr_t : public kaitai::kstruct
+  {
   public:
-
-    block_addr_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent = 0, uop_t* p__root = 0);
+    block_addr_t( kaitai::kstream* p__io, kaitai::kstruct* p__parent = 0, uop_t* p__root = 0 );
 
   private:
     void _read();
 
   public:
-    ~block_addr_t();
+    ~block_addr_t() override;
 
   private:
     bool f_block_body;
@@ -52,10 +52,13 @@ public:
     bool n_block_body;
 
   public:
-    bool _is_null_block_body() { block_body(); return n_block_body; };
+    bool _is_null_block_body()
+    {
+      block_body();
+      return n_block_body;
+    };
 
   private:
-
   public:
     block_body_t* block_body();
 
@@ -70,18 +73,16 @@ public:
     kaitai::kstruct* _parent() const { return m__parent; }
   };
 
-  class block_body_t : public kaitai::kstruct {
-
+  class block_body_t : public kaitai::kstruct
+  {
   public:
-
-    block_body_t(kaitai::kstream* p__io, uop_t::block_addr_t* p__parent = 0,
-           uop_t* p__root = 0);
+    block_body_t( kaitai::kstream* p__io, uop_t::block_addr_t* p__parent = 0, uop_t* p__root = 0 );
 
   private:
     void _read();
 
   public:
-    ~block_body_t();
+    ~block_body_t() override;
 
   private:
     uint32_t m_nfiles;
@@ -98,17 +99,16 @@ public:
     uop_t::block_addr_t* _parent() const { return m__parent; }
   };
 
-  class data_header_v5_t : public kaitai::kstruct {
-
+  class data_header_v5_t : public kaitai::kstruct
+  {
   public:
-
-    data_header_v5_t(kaitai::kstream* p__io, uop_t::file_t* p__parent = 0, uop_t* p__root = 0);
+    data_header_v5_t( kaitai::kstream* p__io, uop_t::file_t* p__parent = 0, uop_t* p__root = 0 );
 
   private:
     void _read();
 
   public:
-    ~data_header_v5_t();
+    ~data_header_v5_t() override;
 
   private:
     std::string m_bytes;
@@ -123,17 +123,16 @@ public:
     uop_t::file_t* _parent() const { return m__parent; }
   };
 
-  class header_t : public kaitai::kstruct {
-
+  class header_t : public kaitai::kstruct
+  {
   public:
-
-    header_t(kaitai::kstream* p__io, uop_t* p__parent = 0, uop_t* p__root = 0);
+    header_t( kaitai::kstream* p__io, uop_t* p__parent = 0, uop_t* p__root = 0 );
 
   private:
     void _read();
 
   public:
-    ~header_t();
+    ~header_t() override;
 
   private:
     std::string m_magic;
@@ -156,17 +155,16 @@ public:
     uop_t* _parent() const { return m__parent; }
   };
 
-  class file_t : public kaitai::kstruct {
-
+  class file_t : public kaitai::kstruct
+  {
   public:
-
-    file_t(kaitai::kstream* p__io, uop_t::block_body_t* p__parent = 0, uop_t* p__root = 0);
+    file_t( kaitai::kstream* p__io, uop_t::block_body_t* p__parent = 0, uop_t* p__root = 0 );
 
   private:
     void _read();
 
   public:
-    ~file_t();
+    ~file_t() override;
 
   private:
     bool f_data;
@@ -174,10 +172,13 @@ public:
     bool n_data;
 
   public:
-    bool _is_null_data() { data(); return n_data; };
+    bool _is_null_data()
+    {
+      data();
+      return n_data;
+    };
 
   private:
-
   public:
     data_header_v5_t* data();
 

@@ -38,7 +38,7 @@ public:
   explicit String( const std::wstring& str, Tainted san = Tainted::NO );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
-  virtual ~String() = default;
+  ~String() override = default;
 
 private:
   explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n );
@@ -46,11 +46,11 @@ private:
 public:
   static BObjectImp* unpack( std::istream& is );
   static BObjectImp* unpackWithLen( std::istream& is );
-  virtual std::string pack() const override;
-  virtual void packonto( std::ostream& os ) const override;
+  std::string pack() const override;
+  void packonto( std::ostream& os ) const override;
   static void packonto( std::ostream& os, const std::string& value );
-  virtual BObjectImp* copy() const override { return new String( *this ); }
-  virtual size_t sizeEstimate() const override;
+  BObjectImp* copy() const override { return new String( *this ); }
+  size_t sizeEstimate() const override;
   ContIterator* createIterator( BObject* pIterVal ) override;
 
   // FIXME: Possibly eliminate this later and have [ ] operator support?
@@ -94,60 +94,59 @@ public:
 
 private:
   void remove( const std::string& s );
-  virtual bool isTrue() const override { return !value_.empty(); }
+  bool isTrue() const override { return !value_.empty(); }
 
 public:
-  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const override;
-  virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const override;
-  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const override;
-  virtual BObjectImp* selfPlusObj( const Double& objimp ) const override;
-  virtual BObjectImp* selfPlusObj( const String& objimp ) const override;
-  virtual BObjectImp* selfPlusObj( const ObjArray& objimp ) const override;
-  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj ) override;
-  virtual void selfPlusObj( BObjectImp& objimp, BObject& obj ) override;
-  virtual void selfPlusObj( BLong& objimp, BObject& obj ) override;
-  virtual void selfPlusObj( Double& objimp, BObject& obj ) override;
-  virtual void selfPlusObj( String& objimp, BObject& obj ) override;
-  virtual void selfPlusObj( ObjArray& objimp, BObject& obj ) override;
+  BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const override;
+  BObjectImp* selfPlusObj( const BObjectImp& objimp ) const override;
+  BObjectImp* selfPlusObj( const BLong& objimp ) const override;
+  BObjectImp* selfPlusObj( const Double& objimp ) const override;
+  BObjectImp* selfPlusObj( const String& objimp ) const override;
+  BObjectImp* selfPlusObj( const ObjArray& objimp ) const override;
+  void selfPlusObjImp( BObjectImp& objimp, BObject& obj ) override;
+  void selfPlusObj( BObjectImp& objimp, BObject& obj ) override;
+  void selfPlusObj( BLong& objimp, BObject& obj ) override;
+  void selfPlusObj( Double& objimp, BObject& obj ) override;
+  void selfPlusObj( String& objimp, BObject& obj ) override;
+  void selfPlusObj( ObjArray& objimp, BObject& obj ) override;
 
-  virtual BObjectImp* selfMinusObjImp( const BObjectImp& objimp ) const override;
-  virtual BObjectImp* selfMinusObj( const BObjectImp& objimp ) const override;
-  virtual BObjectImp* selfMinusObj( const BLong& objimp ) const override;
-  virtual BObjectImp* selfMinusObj( const Double& objimp ) const override;
-  virtual BObjectImp* selfMinusObj( const String& objimp ) const override;
-  virtual BObjectImp* selfMinusObj( const ObjArray& objimp ) const override;
-  virtual void selfMinusObjImp( BObjectImp& objimp, BObject& obj ) override;
-  virtual void selfMinusObj( BObjectImp& objimp, BObject& obj ) override;
-  virtual void selfMinusObj( BLong& objimp, BObject& obj ) override;
-  virtual void selfMinusObj( Double& objimp, BObject& obj ) override;
-  virtual void selfMinusObj( String& objimp, BObject& obj ) override;
-  virtual void selfMinusObj( ObjArray& objimp, BObject& obj ) override;
+  BObjectImp* selfMinusObjImp( const BObjectImp& objimp ) const override;
+  BObjectImp* selfMinusObj( const BObjectImp& objimp ) const override;
+  BObjectImp* selfMinusObj( const BLong& objimp ) const override;
+  BObjectImp* selfMinusObj( const Double& objimp ) const override;
+  BObjectImp* selfMinusObj( const String& objimp ) const override;
+  BObjectImp* selfMinusObj( const ObjArray& objimp ) const override;
+  void selfMinusObjImp( BObjectImp& objimp, BObject& obj ) override;
+  void selfMinusObj( BObjectImp& objimp, BObject& obj ) override;
+  void selfMinusObj( BLong& objimp, BObject& obj ) override;
+  void selfMinusObj( Double& objimp, BObject& obj ) override;
+  void selfMinusObj( String& objimp, BObject& obj ) override;
+  void selfMinusObj( ObjArray& objimp, BObject& obj ) override;
 
-  virtual BObjectRef OperSubscript( const BObject& obj ) override;
-  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices ) override;
-  virtual BObjectRef OperMultiSubscriptAssign( std::stack<BObjectRef>& indices,
-                                               BObjectImp* target ) override;
+  BObjectRef OperSubscript( const BObject& obj ) override;
+  BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices ) override;
+  BObjectRef OperMultiSubscriptAssign( std::stack<BObjectRef>& indices,
+                                       BObjectImp* target ) override;
 
   int find( int begin, const char* target ) const;
   unsigned int SafeCharAmt() const;
 
-  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
+  BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
 
-  virtual std::string getStringRep() const override { return value_; }
-  virtual std::string getFormattedStringRep() const override { return "\"" + value_ + "\""; }
-  virtual void printOn( std::ostream& ) const override;
+  std::string getStringRep() const override { return value_; }
+  std::string getFormattedStringRep() const override { return "\"" + value_ + "\""; }
+  void printOn( std::ostream& ) const override;
 
   bool compare( const String& str ) const;
   bool compare( size_t pos1, size_t len1, const String& str ) const;
   bool compare( size_t pos1, size_t len1, const String& str, size_t pos2, size_t len2 ) const;
 
 protected:
-  virtual bool operator==( const BObjectImp& objimp ) const override;
-  virtual bool operator<( const BObjectImp& objimp ) const override;
+  bool operator==( const BObjectImp& objimp ) const override;
+  bool operator<( const BObjectImp& objimp ) const override;
 
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) override;
+  BObjectImp* call_method( const char* methodname, Executor& ex ) override;
+  BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) override;
 
 private:
   size_t getBytePosition( std::string::const_iterator* itr, size_t codeindex ) const;

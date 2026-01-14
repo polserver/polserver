@@ -100,7 +100,7 @@ class UBoat final : public UMulti
     const MultiDef& mdef;
     Core::Pos4d oldpos;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), oldpos( ub.pos() ) {};
+    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), oldpos( ub.pos() ){};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };
@@ -121,9 +121,9 @@ public:
     };
   };
 
-  virtual UBoat* as_boat() override;
-  virtual ~UBoat() {};
-  virtual size_t estimatedSize() const override;
+  UBoat* as_boat() override;
+  ~UBoat() override{};
+  size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
   bool move_to( const Core::Pos4d& newpos, int flags );
@@ -137,8 +137,8 @@ public:
   };
   bool turn( RELATIVE_DIR dir );
 
-  virtual void register_object( Core::UObject* obj ) override;
-  virtual void unregister_object( Core::UObject* obj ) override;
+  void register_object( Core::UObject* obj ) override;
+  void unregister_object( Core::UObject* obj ) override;
   Core::UFACING boat_facing() const;
 
   void send_display_boat( Network::Client* client );
@@ -160,14 +160,14 @@ public:
   static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
                                                const Core::Pos4d& pos, int flags );
 
-  virtual Bscript::BObjectImp* make_ref() override;
-  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
-                                Core::ExportScript** hook, unsigned int* PC ) const override;
+  Bscript::BObjectImp* make_ref() override;
+  bool get_method_hook( const char* methodname, Bscript::Executor* ex, Core::ExportScript** hook,
+                        unsigned int* PC ) const override;
   static bool navigable( const MultiDef& md, const Core::Pos4d& desired_pos );
   static bool can_fit_at_location( const MultiDef& md, const Core::Pos4d& desired_pos );
   static bool objtype_passable( unsigned short graphic );
 
-  virtual void on_color_changed() override;
+  void on_color_changed() override;
 
   Mobile::Character* pilot() const;
   Bscript::BObjectImp* set_pilot( Mobile::Character* chr );
@@ -179,8 +179,8 @@ public:
   Items::Item* starboardplank;
   Items::Item* hold;
 
-  virtual void readProperties( Clib::ConfigElem& elem ) override;
-  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  void readProperties( Clib::ConfigElem& elem ) override;
+  void printProperties( Clib::StreamWriter& sw ) const override;
 
 protected:
   Core::ItemRef mountpiece;
@@ -200,15 +200,14 @@ protected:
   void move_components();
 
   explicit UBoat( const Items::ItemDesc& descriptor );
-  virtual void fixInvalidGraphic() override;
+  void fixInvalidGraphic() override;
   friend class UMulti;
 
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
-  virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Core::UOExecutor& ex ) override;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
-  virtual bool script_isa( unsigned isatype ) const override;
+  Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
+  Bscript::BObjectImp* script_method( const char* methodname, Core::UOExecutor& ex ) override;
+  Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
+  bool script_isa( unsigned isatype ) const override;
   Bscript::BObjectImp* items_list() const;
   Bscript::BObjectImp* mobiles_list() const;
   Bscript::BObjectImp* component_list( unsigned char type ) const;

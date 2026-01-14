@@ -72,11 +72,11 @@ public:
   PeriodicTask( void ( *f )( void ), int n_secs, const char* name );
   PeriodicTask( void ( *f )( void ), int initial_wait_seconds, int periodic_seconds,
                 const char* name );
-  virtual ~PeriodicTask() = default;
+  ~PeriodicTask() override = default;
 
   void set_secs( int n_secs );
 
-  virtual void execute( polclock_t now ) override;
+  void execute( polclock_t now ) override;
   void start();
 
   std::string name() const { return name_; }
@@ -92,12 +92,12 @@ class OneShotTask : public ScheduledTask
 {
 public:
   OneShotTask( OneShotTask** handle, polclock_t run_when );
-  virtual void cancel( void ) override;
+  void cancel( void ) override;
 
 protected:
   // oneshots can't be deleted, only cancelled.
-  virtual ~OneShotTask();
-  virtual void execute( polclock_t now ) override;
+  ~OneShotTask() override;
+  void execute( polclock_t now ) override;
 
   virtual void on_run() = 0;
 
@@ -114,9 +114,9 @@ public:
       : OneShotTask( handle, run_when ), data_( data ), f_( f )
   {
   }
-  virtual ~OneShotTaskInst() = default;
+  ~OneShotTaskInst() override = default;
 
-  virtual void on_run() override;
+  void on_run() override;
 
 private:
   T data_;

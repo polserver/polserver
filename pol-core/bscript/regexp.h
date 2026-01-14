@@ -23,15 +23,15 @@ public:
   BObjectImp* replace( Executor& ex, const String* str, BFunctionRef* replacement_callback );
 
 protected:
-  virtual BObjectImp* copy() const override;
+  BObjectImp* copy() const override;
 
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override;
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  std::string getStringRep() const override;
+  size_t sizeEstimate() const override;
 
-  virtual bool operator<( const BObjectImp& objimp ) const override;
-  virtual bool isTrue() const override;
+  bool operator<( const BObjectImp& objimp ) const override;
+  bool isTrue() const override;
 
 private:
   using RegexT = std::variant<boost::regex, boost::wregex>;

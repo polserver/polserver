@@ -13,15 +13,15 @@ class ECompileMain final : public Pol::Clib::ProgramMain
 {
 public:
   ECompileMain();
-  virtual ~ECompileMain();
+  ~ECompileMain() override;
 
 protected:
-  virtual int main();
+  int main() override;
 
 private:
-  virtual void showHelp();
+  void showHelp() override;
 };
-}
-}  // namespaces
+}  // namespace ECompile
+}  // namespace Pol
 
 #endif  // E_COMPILE_MAIN_H

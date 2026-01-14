@@ -73,11 +73,11 @@ class EConfigFileRefObjImp final : public EConfigFileRefObjImpBase
 {
 public:
   EConfigFileRefObjImp( ref_ptr<Core::StoredConfigFile> rcfile );
-  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) override;
+  Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  Bscript::BObjectImp* copy() const override;
+  Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) override;
   friend class ConfigFileIterator;
 };
 
@@ -88,12 +88,12 @@ class EConfigElemRefObjImp final : public EConfigElemRefObjImpBase
 {
 public:
   EConfigElemRefObjImp( ref_ptr<Core::StoredConfigElem> rcelem );
-  virtual Bscript::BObjectRef get_member( const char* membername ) override;
-  virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
+  Bscript::BObjectRef get_member( const char* membername ) override;
+  Bscript::BObjectRef get_member_id( const int id ) override;  // id test
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  Bscript::BObjectImp* copy() const override;
+  Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
 };
 
 

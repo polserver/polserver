@@ -211,7 +211,7 @@ class DebugContext : public ref_counted
 {
 public:
   DebugContext();
-  ~DebugContext();
+  ~DebugContext() override;
 
   std::string prompt() const;
   typedef std::vector<std::string> Results;
@@ -277,11 +277,11 @@ class DebugContextObjImp : public DebugContextObjImpBase
 {
 public:
   explicit DebugContextObjImp( ref_ptr<DebugContext> rcdctx );
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual BObjectImp* copy() const override;
-  virtual BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
-  virtual BObjectRef get_member( const char* membername ) override;
+  const char* typeOf() const override;
+  u8 typeOfInt() const override;
+  BObjectImp* copy() const override;
+  BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
+  BObjectRef get_member( const char* membername ) override;
 };
 DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx )
     : DebugContextObjImpBase( &debugcontextobjimp_type, rcdctx )
@@ -1354,7 +1354,7 @@ class DebugClientThread : public Clib::SocketClientThread
 {
 public:
   DebugClientThread( Clib::Socket&& sock ) : Clib::SocketClientThread( std::move( sock ) ) {}
-  virtual void run() override;
+  void run() override;
 };
 
 void DebugClientThread::run()
