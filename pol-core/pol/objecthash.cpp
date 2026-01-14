@@ -27,7 +27,7 @@ namespace Core
 {
 ObjectHash::ObjectHash() : hash(), reap_iterator( hash.end() ){};
 
-ObjectHash::~ObjectHash(){};
+ObjectHash::~ObjectHash() = default;
 
 bool ObjectHash::Insert( UObject* obj )
 {

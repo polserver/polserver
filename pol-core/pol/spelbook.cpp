@@ -60,7 +60,7 @@ Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
     bitwise_contents[i] = 0;
 }
 
-Spellbook::~Spellbook() {}
+Spellbook::~Spellbook() = default;
 
 size_t Spellbook::estimatedSize() const
 {

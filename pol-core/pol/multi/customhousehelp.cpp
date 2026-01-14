@@ -195,7 +195,7 @@ CustomHouseElements::CustomHouseElements( u32 _height, u32 _width, s32 xoffset, 
   SetWidth( _width );
   SetHeight( _height );
 }
-CustomHouseElements::~CustomHouseElements() {}
+CustomHouseElements::~CustomHouseElements() = default;
 
 void CustomHouseElements::SetHeight( u32 _height )
 {

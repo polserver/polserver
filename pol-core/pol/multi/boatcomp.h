@@ -42,7 +42,7 @@ class UPlank final : public Core::ULockable
 
 public:
   void setboat( UBoat* boat );
-  ~UPlank() override{};
+  ~UPlank() override = default;
   size_t estimatedSize() const override;
 
 protected:

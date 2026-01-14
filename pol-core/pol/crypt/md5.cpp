@@ -79,7 +79,7 @@ MD5Crypt::MD5Crypt() : TableIdx( 0 )
 {
   memset( &Digest, 0, sizeof( Digest ) );
 }
-MD5Crypt::~MD5Crypt() {}
+MD5Crypt::~MD5Crypt() = default;
 
 // Public Member Functions
 
@@ -280,10 +280,10 @@ void MD5Crypt::append( md5_state* pms, const unsigned char* data, int nbytes )
 
 void MD5Crypt::finish( md5_state* pms, unsigned char digest[16] )
 {
-  static const unsigned char pad[64] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                        0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                        0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                        0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  static const unsigned char pad[64] = { 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                         0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                         0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                         0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
   unsigned char data[8];
 
@@ -299,5 +299,5 @@ void MD5Crypt::finish( md5_state* pms, unsigned char digest[16] )
   for ( int i = 0; i < 16; ++i )
     digest[i] = (unsigned char)( pms->abcd[i >> 2] >> ( ( i & 3 ) << 3 ) );
 }
-}
-}
+}  // namespace Crypt
+}  // namespace Pol

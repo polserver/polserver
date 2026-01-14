@@ -12,7 +12,7 @@ namespace Network
 {
 ClientTransmit::ClientTransmit() : _transmitqueue() {}
 
-ClientTransmit::~ClientTransmit() {}
+ClientTransmit::~ClientTransmit() = default;
 
 void ClientTransmit::Cancel()
 {

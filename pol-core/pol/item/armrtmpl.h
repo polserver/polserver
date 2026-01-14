@@ -26,7 +26,7 @@ public:
   typedef EquipDesc base;
   ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg,
              bool forceShield = false );
-  ~ArmorDesc() override{};
+  ~ArmorDesc() override = default;
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
   size_t estimatedSize() const override;
 

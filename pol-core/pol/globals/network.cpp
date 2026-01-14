@@ -70,7 +70,7 @@ NetworkManager::NetworkManager()
   curl_global_init( CURL_GLOBAL_DEFAULT );
 }
 
-NetworkManager::~NetworkManager() {}
+NetworkManager::~NetworkManager() = default;
 void NetworkManager::kill_disconnected_clients()
 {
   Clients::iterator itr = clients.begin();

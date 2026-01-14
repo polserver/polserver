@@ -28,7 +28,7 @@ SettingsManager::SettingsManager()
 {
 }
 
-SettingsManager::~SettingsManager() {}
+SettingsManager::~SettingsManager() = default;
 
 
 void SettingsManager::deinitialize() {}

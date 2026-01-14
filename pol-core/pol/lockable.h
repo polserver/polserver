@@ -57,7 +57,7 @@ protected:
   bool script_isa( unsigned isatype ) const override;
 
   Items::Item* clone() const override;  // dave 12-20
-  ~ULockable() override{};
+  ~ULockable() override = default;
   size_t estimatedSize() const override;
 
 protected:

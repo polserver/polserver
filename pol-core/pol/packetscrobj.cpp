@@ -73,7 +73,7 @@ BPacket::BPacket( const unsigned char* data, unsigned short length, bool variabl
 {
   is_variable_length = variable_len;
 }
-BPacket::~BPacket() {}
+BPacket::~BPacket() = default;
 
 BObjectRef BPacket::get_member_id( const int /*id*/ )  // id test
 {
@@ -589,7 +589,7 @@ bool BPacket::SetSize( u16 newsize )
 {
   if ( !is_variable_length )
     return false;
-  newsize = std::max(newsize, 3_u16);
+  newsize = std::max( newsize, 3_u16 );
   buffer.resize( newsize );
   u16* sizeptr = reinterpret_cast<u16*>( &buffer[1] );
   *sizeptr = ctBEu16( newsize );

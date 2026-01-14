@@ -54,7 +54,7 @@ using namespace Pol::Module;
 ///////////////////////////////////////////////////////////////////////////////
 
 RunEclMain::RunEclMain() : ProgramMain(), m_quiet( false ), m_debug( false ), m_profile( false ) {}
-RunEclMain::~RunEclMain() {}
+RunEclMain::~RunEclMain() = default;
 ///////////////////////////////////////////////////////////////////////////////
 
 void RunEclMain::showHelp()
@@ -129,9 +129,8 @@ int RunEclMain::runeclScript( std::string fileName )
   Plib::load_packages( true /*quiet*/ );
 
   const auto& pkgs = Plib::systemstate.packages;
-  auto pkg =
-      std::find_if( pkgs.begin(), pkgs.end(),
-                    [&dir]( Plib::Package* p ) { return Clib::stringicmp( p->dir(), dir ) == 0; } );
+  auto pkg = std::find_if( pkgs.begin(), pkgs.end(), [&dir]( Plib::Package* p )
+                           { return Clib::stringicmp( p->dir(), dir ) == 0; } );
   if ( pkg != pkgs.end() )
   {
     program->pkg = *pkg;
