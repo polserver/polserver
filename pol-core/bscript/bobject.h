@@ -70,6 +70,7 @@ class BClassInstanceRef;
 class BContinuation;
 class BSpread;
 class BRegExp;
+class BSpecialUserFuncJump;
 
 typedef std::vector<BObjectRef> ValueStackCont;
 
@@ -140,6 +141,7 @@ public:
     OTContinuation = 100,
     OTSpread = 101,
     OTClassInstance = 102,
+    OTSpecialUserFuncJump = 103,
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -429,6 +431,7 @@ T* impptrIf( I* objimp )
   impif_e( BObjectImp::OTContinuation, BContinuation );
   impif_e( BObjectImp::OTSpread, BSpread );
   impif_e( BObjectImp::OTRegExp, BRegExp );
+  impif_e( BObjectImp::OTSpecialUserFuncJump, BSpecialUserFuncJump );
   else static_assert( always_false<T>::value, "unsupported type" );
 #undef impif_i
 #undef impif_e
@@ -996,6 +999,27 @@ public:  // Class Machinery
   BObjectRef object;
 };
 
+// very very special Imp, should never be actually used
+// we need to tell the executor that in certain cases
+// call_method and call_method_id do not return a BObjectImp
+// and the ValueStack should not be modified
+// should not be handled like a "imp" and never be passed to
+// a BObject since its a singleton
+class BSpecialUserFuncJump final : public BObjectImp
+{
+public:
+  static BSpecialUserFuncJump* get();
+
+public:  // needed minimal imp
+  size_t sizeEstimate() const override;
+  BObjectImp* copy() const override;
+  std::string getStringRep() const override;
+
+private:
+  BSpecialUserFuncJump();
+  ~BSpecialUserFuncJump() override = default;
+  static BSpecialUserFuncJump imp_special_userjmp;
+};
 
 class BApplicObjType
 {

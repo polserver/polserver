@@ -2563,5 +2563,24 @@ std::string BSpread::getStringRep() const
   return "Spread";
 }
 
+BSpecialUserFuncJump BSpecialUserFuncJump::imp_special_userjmp{};
+BSpecialUserFuncJump::BSpecialUserFuncJump() : BObjectImp( OTSpecialUserFuncJump ) {}
+size_t BSpecialUserFuncJump::sizeEstimate() const
+{
+  return sizeof( BSpecialUserFuncJump );
+};
+std::string BSpecialUserFuncJump::getStringRep() const
+{
+  return "BSpecialUserFuncJump";
+};
+BObjectImp* BSpecialUserFuncJump::copy() const
+{
+  return get();
+};
+BSpecialUserFuncJump* BSpecialUserFuncJump::get()
+{
+  return &imp_special_userjmp;
+}
+
 }  // namespace Bscript
 }  // namespace Pol

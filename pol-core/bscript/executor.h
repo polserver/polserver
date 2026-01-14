@@ -420,7 +420,6 @@ public:
   void ins_goto( const Instruction& ins );
   void ins_arraysubscript( const Instruction& ins );
   void ins_func( const Instruction& ins );
-  void ins_call_method( const Instruction& ins, bool params_expanded );
   void ins_call_method( const Instruction& ins );
   void ins_call_method_id( const Instruction& ins );
   void ins_statementbegin( const Instruction& ins );
@@ -534,6 +533,7 @@ private:
   void printStack( const std::string& message );
 
 protected:
+  friend class BClassInstance;
   void cleanup();
 
   struct ClassMethodKey
