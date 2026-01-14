@@ -64,7 +64,7 @@ class BDictionaryIterator final : public ContIterator
 {
 public:
   BDictionaryIterator( BDictionary* pDict, BObject* pIterVal );
-  virtual BObject* step() override;
+  BObject* step() override;
 
 private:
   BObject m_DictObj;

@@ -22,9 +22,9 @@ public:
 
   virtual BObject* step();
 
-  BObjectImp* copy( void ) const;
-  size_t sizeEstimate() const;
-  std::string getStringRep() const;
+  BObjectImp* copy( void ) const override;
+  size_t sizeEstimate() const override;
+  std::string getStringRep() const override;
 
   bool is_default() const { return typeid( *this ) == typeid( ContIterator ); }
 };

@@ -189,9 +189,9 @@ class EMenuObjImp final : public PolApplicObj<Menu>
 {
 public:
   EMenuObjImp( const Menu& m ) : PolApplicObj<Menu>( &menu_type, m ) {}
-  virtual const char* typeOf() const override { return "MenuRef"; }
-  virtual u8 typeOfInt() const override { return OTMenuRef; }
-  virtual BObjectImp* copy() const override { return new EMenuObjImp( value() ); }
+  const char* typeOf() const override { return "MenuRef"; }
+  u8 typeOfInt() const override { return OTMenuRef; }
+  BObjectImp* copy() const override { return new EMenuObjImp( value() ); }
 };
 
 

@@ -43,17 +43,17 @@ class PacketQueueSingle final : public PacketQueue
 {
 public:
   PacketQueueSingle();
-  virtual ~PacketQueueSingle();
+  ~PacketQueueSingle() override;
 
 private:
   PacketInterfaceQueue _packets;
   mutable Clib::SpinLock _lock;
 
 public:
-  virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) override;
-  virtual void Add( PacketInterface* pkt ) override;
-  virtual size_t Count() const override { return _packets.size(); };
-  virtual size_t estimateSize() const override;
+  PacketInterface* GetNext( u8 id, u16 sub = 0 ) override;
+  void Add( PacketInterface* pkt ) override;
+  size_t Count() const override { return _packets.size(); };
+  size_t estimateSize() const override;
 };
 
 // packet with subs queue
@@ -61,19 +61,19 @@ class PacketQueueSubs final : public PacketQueue
 {
 public:
   PacketQueueSubs();
-  virtual ~PacketQueueSubs();
+  ~PacketQueueSubs() override;
 
 private:
   PacketInterfaceQueueMap _packets;
   mutable Clib::SpinLock _lock;
 
 public:
-  virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) override;
-  virtual void Add( PacketInterface* pkt ) override;
-  virtual size_t Count() const override;
-  virtual bool HasSubs() const override { return true; };
-  virtual PacketInterfaceQueueMap* GetSubs() override { return &_packets; };
-  virtual size_t estimateSize() const override;
+  PacketInterface* GetNext( u8 id, u16 sub = 0 ) override;
+  void Add( PacketInterface* pkt ) override;
+  size_t Count() const override;
+  bool HasSubs() const override { return true; };
+  PacketInterfaceQueueMap* GetSubs() override { return &_packets; };
+  size_t estimateSize() const override;
 };
 
 // wierdo generic template definitions for packets
@@ -171,10 +171,10 @@ public:
   static const u16 SUB = _sub;
   static const u16 SIZE = _size;
   char buffer[SIZE];
-  virtual char* getBuffer() override { return &buffer[offset]; };
-  virtual inline u8 getID() const override { return ID; };
-  virtual inline u16 getSize() const override { return SIZE; };
-  virtual size_t estimateSize() const override { return SIZE + sizeof( PacketInterface ); };
+  char* getBuffer() override { return &buffer[offset]; };
+  inline u8 getID() const override { return ID; };
+  inline u16 getSize() const override { return SIZE; };
+  size_t estimateSize() const override { return SIZE + sizeof( PacketInterface ); };
   // ---- Buffer Write Methods ----
   // N is the argument which will be static_cast to T
   // Two versions exists: T equals N only check if its integer or enum
@@ -296,7 +296,7 @@ class PacketTemplate final : public PacketWriter<_id, _size>
 {
 public:
   PacketTemplate() { ReSetBuffer(); };
-  virtual void ReSetBuffer() override
+  void ReSetBuffer() override
   {
     memset( PacketWriter<_id, _size>::buffer, 0, _size );
     PacketWriter<_id, _size>::buffer[0] = _id;
@@ -310,7 +310,7 @@ class PacketTemplateSub final : public PacketWriter<_id, _size, _sub>
 {
 public:
   PacketTemplateSub() { ReSetBuffer(); };
-  virtual void ReSetBuffer() override
+  void ReSetBuffer() override
   {
     memset( PacketWriter<_id, _size, _sub>::buffer, 0, _size );
     PacketWriter<_id, _size, _sub>::buffer[0] = _id;
@@ -318,7 +318,7 @@ public:
     std::memcpy( &PacketWriter<_id, _size, _sub>::buffer[_suboff], &sub, sizeof( sub ) );
     PacketWriter<_id, _size, _sub>::offset = 1;
   };
-  virtual inline u16 getSubID() const override { return _sub; };
+  inline u16 getSubID() const override { return _sub; };
 };
 
 // special def for encrypted buffer
@@ -331,15 +331,15 @@ public:
   static const u16 SIZE = _size;
   EmptyBufferTemplate() { ReSetBuffer(); };
   char buffer[SIZE];
-  virtual void ReSetBuffer() override
+  void ReSetBuffer() override
   {
     memset( buffer, 0, SIZE );
     offset = 0;
   };
-  virtual char* getBuffer() override { return &buffer[offset]; };
-  virtual inline u8 getID() const override { return ID; };
-  virtual inline u16 getSize() const override { return SIZE; };
-  virtual size_t estimateSize() const override { return SIZE + sizeof( PacketInterface ); };
+  char* getBuffer() override { return &buffer[offset]; };
+  inline u8 getID() const override { return ID; };
+  inline u16 getSize() const override { return SIZE; };
+  size_t estimateSize() const override { return SIZE + sizeof( PacketInterface ); };
 };
 }  // namespace PacketWriterDefs
 

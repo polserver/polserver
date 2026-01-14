@@ -14,12 +14,12 @@ namespace Mobile
 {
 class Character;
 class Attribute;
-}
+}  // namespace Mobile
 namespace Core
 {
 class Vital;
 class UOSkill;
-}
+}  // namespace Core
 
 namespace Network
 {
@@ -71,13 +71,12 @@ protected:
 class UOClientInterface final : public ClientInterface
 {
 public:
-  virtual void Initialize() override;
+  void Initialize() override;
 
 protected:
   friend class ClientInterface;
-  virtual void bcast_vital_changed( Mobile::Character* who,
-                                    const Core::Vital* vital ) const override;
+  void bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const override;
 };
-}
-}
+}  // namespace Network
+}  // namespace Pol
 #endif

@@ -62,7 +62,7 @@ public:
                                                 Core::BSQLConnection* sql, const std::string query,
                                                 const Bscript::ObjArray* params );
 
-  virtual size_t sizeEstimate() const override;
+  size_t sizeEstimate() const override;
 };
 }  // namespace Module
 }  // namespace Pol

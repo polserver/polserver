@@ -49,7 +49,7 @@ private:
 public:
   StoredConfigElem() = default;
   StoredConfigElem( Clib::ConfigElem& elem );
-  ~StoredConfigElem();
+  ~StoredConfigElem() override;
 
   StoredConfigElem( const StoredConfigElem& elem ) = delete;
   StoredConfigElem& operator=( const StoredConfigElem& ) = delete;

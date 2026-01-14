@@ -1044,7 +1044,7 @@ class ArrayIterator final : public ContIterator
 {
 public:
   ArrayIterator( ObjArray* pArr, BObject* pIterVal );
-  virtual BObject* step() override;
+  BObject* step() override;
 
 private:
   size_t m_Index;
@@ -3082,8 +3082,7 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
     else
     {
       walkCallStack(
-          [&]( unsigned int pc )
-          {
+          [&]( unsigned int pc ) {
             result.append(
                 fmt::format( "{}at {}+{}", result.empty() ? "" : "\n", scriptname(), pc ) );
           } );

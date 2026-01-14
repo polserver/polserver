@@ -28,9 +28,9 @@ public:
   typedef EquipDesc base;
   WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   WeaponDesc();  // for dummy template
-  virtual ~WeaponDesc(){};
-  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  virtual size_t estimatedSize() const override;
+  ~WeaponDesc() override{};
+  void PopulateStruct( Bscript::BStruct* descriptor ) const override;
+  size_t estimatedSize() const override;
 
   unsigned short get_random_damage() const;
 

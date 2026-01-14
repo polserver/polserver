@@ -39,19 +39,19 @@ class WornItemsContainer final : public UContainer
 
 public:
   WornItemsContainer();
-  virtual ~WornItemsContainer() = default;
-  virtual size_t estimatedSize() const override;
+  ~WornItemsContainer() override = default;
+  size_t estimatedSize() const override;
 
-  virtual Bscript::BObjectImp* make_ref() override;
-  virtual Mobile::Character* get_chr_owner() const override;
+  Bscript::BObjectImp* make_ref() override;
+  Mobile::Character* get_chr_owner() const override;
   Mobile::Character* chr_owner;
 
-  virtual UObject* owner() override;
-  virtual const UObject* owner() const override;
-  virtual UObject* self_as_owner() override;
-  virtual const UObject* self_as_owner() const override;
+  UObject* owner() override;
+  const UObject* owner() const override;
+  UObject* self_as_owner() override;
+  const UObject* self_as_owner() const override;
 
-  virtual void for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg ) override;
+  void for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg ) override;
 
   Items::Item* GetItemOnLayer( unsigned idx ) const;
   void PutItemOnLayer( Item* item );

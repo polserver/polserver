@@ -113,7 +113,7 @@ public:
   virtual T* getregion( const std::string& regionname );
 
 protected:
-  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const override;
+  Region* create_region( Clib::ConfigElem& elem, RegionId id ) const override;
 };
 
 template <class T>

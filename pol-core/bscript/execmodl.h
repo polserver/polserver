@@ -129,9 +129,9 @@ private:
   static bool _func_map_init;
 
 protected:
-  virtual int functionIndex( const std::string& funcname ) override;
-  virtual BObjectImp* execFunc( unsigned idx ) override;
-  virtual std::string functionName( unsigned idx ) override;
+  int functionIndex( const std::string& funcname ) override;
+  BObjectImp* execFunc( unsigned idx ) override;
+  std::string functionName( unsigned idx ) override;
 };
 
 template <class T, class T2>

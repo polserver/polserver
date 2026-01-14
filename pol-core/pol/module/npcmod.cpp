@@ -66,9 +66,9 @@ public:
       : PolApplicObj<Mobile::BoundingBox>( &bounding_box_type, b )
   {
   }
-  virtual const char* typeOf() const override { return "BoundingBox"; }
-  virtual u8 typeOfInt() const override { return OTBoundingBox; }
-  virtual BObjectImp* copy() const override { return new BoundingBoxObjImp( value() ); }
+  const char* typeOf() const override { return "BoundingBox"; }
+  u8 typeOfInt() const override { return OTBoundingBox; }
+  BObjectImp* copy() const override { return new BoundingBoxObjImp( value() ); }
 };
 
 /* IsLegalMove: parameters (move, bounding box)*/

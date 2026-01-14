@@ -34,7 +34,7 @@ class NoCastRegion final : public Region
 
 public:
   NoCastRegion( Clib::ConfigElem& elem, RegionId id );
-  virtual size_t estimateSize() const override;
+  size_t estimateSize() const override;
   bool nocast() const;
 
 private:
@@ -53,7 +53,7 @@ class LightRegion final : public Region
 
 public:
   LightRegion( Clib::ConfigElem& elem, RegionId id );
-  virtual size_t estimateSize() const override;
+  size_t estimateSize() const override;
   unsigned lightlevel;
 };
 
@@ -64,7 +64,7 @@ class WeatherRegion final : public Region
 
 public:
   WeatherRegion( Clib::ConfigElem& elem, RegionId id );
-  virtual size_t estimateSize() const override;
+  size_t estimateSize() const override;
   void setweather( unsigned char weathertype, unsigned char severity, unsigned char aux );
   unsigned char weathertype;
   unsigned char severity;
@@ -76,9 +76,9 @@ class WeatherDef final : public RegionGroup<WeatherRegion>
 {
 public:
   WeatherDef( const char* name );
-  virtual ~WeatherDef();
+  ~WeatherDef() override;
   void copy_default_regions();
-  virtual size_t estimateSize() const override;
+  size_t estimateSize() const override;
 
   bool assign_zones_to_region( const char* regionname, const Range2d& area, Realms::Realm* realm );
 

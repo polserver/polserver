@@ -46,7 +46,7 @@ public:
   bool RunLeaveScript( Mobile::Character* chr );
   static bool RunNoCombatCheck( Network::Client* client );
 
-  virtual size_t estimateSize() const override;
+  size_t estimateSize() const override;
 
 private:
   bool guarded_;

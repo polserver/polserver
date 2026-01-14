@@ -286,7 +286,7 @@ class StorageAreaIterator final : public ContIterator
 {
 public:
   StorageAreaIterator( StorageArea* area, BObject* pIter );
-  virtual BObject* step() override;
+  BObject* step() override;
 
 private:
   BObject* m_pIterVal;
@@ -346,7 +346,7 @@ class StorageAreasIterator final : public ContIterator
 {
 public:
   StorageAreasIterator( BObject* pIter );
-  virtual BObject* step() override;
+  BObject* step() override;
 
 private:
   BObject* m_pIterVal;
@@ -379,9 +379,9 @@ class StorageAreasImp final : public BObjectImp
 {
 public:
   StorageAreasImp() : BObjectImp( BObjectImp::OTUnknown ) {}
-  virtual BObjectImp* copy() const override { return new StorageAreasImp(); }
-  virtual std::string getStringRep() const override { return "<StorageAreas>"; }
-  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
+  BObjectImp* copy() const override { return new StorageAreasImp(); }
+  std::string getStringRep() const override { return "<StorageAreas>"; }
+  size_t sizeEstimate() const override { return sizeof( *this ); }
   ContIterator* createIterator( BObject* pIterVal ) override
   {
     return new StorageAreasIterator( pIterVal );
