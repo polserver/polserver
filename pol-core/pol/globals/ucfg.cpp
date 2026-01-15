@@ -18,7 +18,7 @@ ConfigurationBuffer::ConfigurationBuffer()
 {
 }
 
-ConfigurationBuffer::~ConfigurationBuffer() {}
+ConfigurationBuffer::~ConfigurationBuffer() = default;
 
 void ConfigurationBuffer::deinitialize()
 {

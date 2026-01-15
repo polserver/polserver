@@ -32,7 +32,7 @@ class ConfigSource;
 class ConfigElemBase
 {
 public:
-  virtual ~ConfigElemBase(){};
+  virtual ~ConfigElemBase() = default;
   bool type_is( const char* name ) const;
   const char* type() const;
   const char* rest() const;

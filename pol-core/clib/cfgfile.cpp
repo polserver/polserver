@@ -51,7 +51,7 @@ size_t ConfigElemBase::estimateSize() const
 
 ConfigElem::ConfigElem() : ConfigElemBase() {}
 
-ConfigElem::~ConfigElem() {}
+ConfigElem::~ConfigElem() = default;
 
 size_t ConfigElem::estimateSize() const
 {
@@ -673,8 +673,8 @@ bool ConfigFile::read_properties( ConfigElem& elem )
       return true;
 
     // Disallow curly braces in the propname otherwise
-    if ( propname.find_first_of("{}") != std::string::npos)
-      elem.throw_error("Expected a closing brace on a line by itself, got something else");
+    if ( propname.find_first_of( "{}" ) != std::string::npos )
+      elem.throw_error( "Expected a closing brace on a line by itself, got something else" );
 
     if ( propvalue[0] == '\"' )
     {

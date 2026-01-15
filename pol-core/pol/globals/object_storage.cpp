@@ -23,7 +23,7 @@ ObjectStorageManager::ObjectStorageManager()
 {
 }
 
-ObjectStorageManager::~ObjectStorageManager() {}
+ObjectStorageManager::~ObjectStorageManager() = default;
 
 
 void ObjectStorageManager::deinitialize()

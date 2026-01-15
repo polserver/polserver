@@ -439,7 +439,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ExceptionParser::ExceptionParser() {}
+ExceptionParser::ExceptionParser() = default;
 
 ExceptionParser::~ExceptionParser() {}
 

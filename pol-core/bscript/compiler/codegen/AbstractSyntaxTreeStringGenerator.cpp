@@ -5,7 +5,7 @@
 
 namespace Pol::Bscript::Compiler
 {
-AbstractSyntaxTreeStringGenerator::AbstractSyntaxTreeStringGenerator() {}
+AbstractSyntaxTreeStringGenerator::AbstractSyntaxTreeStringGenerator() = default;
 
 void AbstractSyntaxTreeStringGenerator::visit_children( Node& parent )
 {

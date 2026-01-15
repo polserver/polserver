@@ -99,7 +99,7 @@ CustomHouseDesign::CustomHouseDesign( u32 _height, u32 _width, s32 xoffset, s32 
   InitDesign( _height, _width, xoffset, yoffset );
 }
 
-CustomHouseDesign::~CustomHouseDesign() {}
+CustomHouseDesign::~CustomHouseDesign() = default;
 
 size_t CustomHouseDesign::estimatedSize() const
 {

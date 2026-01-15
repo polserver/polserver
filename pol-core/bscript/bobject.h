@@ -682,7 +682,7 @@ public:
   BLong( const BLong& L ) : BObjectImp( OTLong ), lval_( L.lval_ ) {}
 #endif
 private:
-  ~BLong() override {}
+  ~BLong() override = default;
 
 public:
   void* operator new( std::size_t len );
@@ -809,7 +809,7 @@ public:
   static std::string double_to_string( double val );
 
 protected:
-  ~Double() override {}
+  ~Double() override = default;
 
 public:
   void* operator new( std::size_t len );
@@ -904,7 +904,7 @@ public:
   BBoolean( const BBoolean& B ) : BBoolean( B.bval_ ) {}
 #endif
 private:
-  ~BBoolean() override {}
+  ~BBoolean() override = default;
 
 public:
   static BObjectImp* unpack( std::istream& is );
@@ -936,7 +936,7 @@ public:
   BFunctionRef( const BFunctionRef& B );
 
 private:
-  ~BFunctionRef() override {}
+  ~BFunctionRef() override = default;
 
 public:
   size_t sizeEstimate() const override;
@@ -984,7 +984,7 @@ public:
   BSpread( const BSpread& B );
 
 private:
-  ~BSpread() override {}
+  ~BSpread() override = default;
 
 public:
   size_t sizeEstimate() const override;

@@ -122,7 +122,7 @@ public:
   };
 
   UBoat* as_boat() override;
-  ~UBoat() override{};
+  ~UBoat() override = default;
   size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );

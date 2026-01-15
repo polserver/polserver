@@ -36,7 +36,7 @@ ScriptScheduler::ScriptScheduler()
 {
 }
 
-ScriptScheduler::~ScriptScheduler() {}
+ScriptScheduler::~ScriptScheduler() = default;
 
 // Note, when the program exits, each executor in these queues
 // will be deleted by cleanup_scripts()

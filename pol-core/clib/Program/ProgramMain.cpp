@@ -52,8 +52,8 @@ void terminate_handler()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ProgramMain::ProgramMain() {}
-ProgramMain::~ProgramMain() {}
+ProgramMain::ProgramMain() = default;
+ProgramMain::~ProgramMain() = default;
 ///////////////////////////////////////////////////////////////////////////////
 
 void ProgramMain::start( int argc, char* argv[] )
@@ -118,7 +118,7 @@ void ProgramMain::start( int argc, char* argv[] )
   {
     ERROR_PRINTLN( "Execution aborted due to: {}", str );
     exitcode = 1;
-  }                                 // egcs has some trouble realizing 'exception' should catch
+  }  // egcs has some trouble realizing 'exception' should catch
   catch ( std::runtime_error& re )  // runtime_errors, so...
   {
     ERROR_PRINTLN( "Execution aborted due to: {}", re.what() );

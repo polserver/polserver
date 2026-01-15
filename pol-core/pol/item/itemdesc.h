@@ -190,7 +190,7 @@ class ContainerDesc : public ItemDesc
 public:
   ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~ContainerDesc() override{};
+  ~ContainerDesc() override = default;
   size_t estimatedSize() const override;
 
   // string name;
@@ -219,7 +219,7 @@ class DoorDesc final : public ItemDesc
 public:
   DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~DoorDesc() override{};
+  ~DoorDesc() override = default;
   size_t estimatedSize() const override;
   Core::Vec2d mod;
   u16 open_graphic;
@@ -232,7 +232,7 @@ class SpellbookDesc final : public ContainerDesc
 public:
   SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~SpellbookDesc() override{};
+  ~SpellbookDesc() override = default;
   size_t estimatedSize() const override;
 
   std::string spelltype;
@@ -245,7 +245,7 @@ class SpellScrollDesc final : public ItemDesc
 public:
   SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~SpellScrollDesc() override{};
+  ~SpellScrollDesc() override = default;
   size_t estimatedSize() const override;
 
   std::string spelltype;
@@ -258,7 +258,7 @@ class MultiDesc : public ItemDesc
 public:
   MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~MultiDesc() override{};
+  ~MultiDesc() override = default;
   size_t estimatedSize() const override;
 
   bool items_decay;
@@ -271,7 +271,7 @@ class BoatDesc final : public MultiDesc
 public:
   BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~BoatDesc() override{};
+  ~BoatDesc() override = default;
   size_t estimatedSize() const override;
 
   std::vector<u16> alternates;
@@ -284,7 +284,7 @@ class HouseDesc final : public MultiDesc
 public:
   HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~HouseDesc() override{};
+  ~HouseDesc() override = default;
   size_t estimatedSize() const override;
 };
 
@@ -295,7 +295,7 @@ class MapDesc final : public ItemDesc
 public:
   MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   void PopulateStruct( Bscript::BStruct* descriptor ) const override;
-  ~MapDesc() override{};
+  ~MapDesc() override = default;
   size_t estimatedSize() const override;
   bool editable;
 };

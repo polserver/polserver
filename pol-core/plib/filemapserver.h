@@ -28,7 +28,7 @@ class FileMapServer : public MapServer
 {
 public:
   explicit FileMapServer( const RealmDescriptor& descriptor );
-  ~FileMapServer() override {}
+  ~FileMapServer() override = default;
   MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
   size_t sizeEstimate() const override;
 

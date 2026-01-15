@@ -20,7 +20,7 @@ namespace Multi
 MultiDefBuffer multidef_buffer;
 
 MultiDefBuffer::MultiDefBuffer() : multidefs_by_multiid() {}
-MultiDefBuffer::~MultiDefBuffer() {}
+MultiDefBuffer::~MultiDefBuffer() = default;
 
 void MultiDefBuffer::deinitialize()
 {

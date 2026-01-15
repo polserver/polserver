@@ -220,7 +220,7 @@ public:
       : PolApplicObj<ClientPtrHolder>( &eclientrefobjimp_type, client )
   {
   }
-  ~EClientRefObjImp() override{};
+  ~EClientRefObjImp() override = default;
 
   const char* typeOf() const override;
   u8 typeOfInt() const override;

@@ -16,7 +16,7 @@ LoginCrypt::LoginCrypt() : m_k1( 0 ), m_k2( 0 )
 {
   memset( &lkey, 0, sizeof( lkey ) );
 }
-LoginCrypt::~LoginCrypt() {}
+LoginCrypt::~LoginCrypt() = default;
 
 // Member Functions
 void LoginCrypt::Init( unsigned char* lseed, unsigned int k1, unsigned int k2 )
@@ -79,5 +79,5 @@ void LoginCrypt::Decrypt_1_25_36( unsigned char* in, unsigned char* out, int len
               ( lkey[1] * lkey[1] * 0x4c3a1353 ) + 0x16ef783f;
   }
 }
-}
-}
+}  // namespace Crypt
+}  // namespace Pol

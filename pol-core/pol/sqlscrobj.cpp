@@ -155,7 +155,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     return BObjectRef( new BError( "SQLRow keys must be integer" ) );
   }
 }
-BSQLRow::~BSQLRow() {}
+BSQLRow::~BSQLRow() = default;
 Bscript::BObjectImp* BSQLRow::copy() const
 {
   return new BSQLRow( _result, _row, _fields );
@@ -266,7 +266,7 @@ int BSQLResultSet::affected_rows() const
 {
   return _affected_rows;
 }
-BSQLResultSet::~BSQLResultSet() {}
+BSQLResultSet::~BSQLResultSet() = default;
 bool BSQLResultSet::isTrue() const
 {
   return true;
@@ -323,7 +323,7 @@ BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn )
 {
 }
 
-BSQLConnection::~BSQLConnection() {}
+BSQLConnection::~BSQLConnection() = default;
 std::string BSQLConnection::getStringRep() const
 {
   return "SQLConnection";
@@ -570,8 +570,8 @@ void sql_service_thread_stub()
   }
 }
 
-SQLService::SQLService() {}
-SQLService::~SQLService() {}
+SQLService::SQLService() = default;
+SQLService::~SQLService() = default;
 void SQLService::stop()
 {
   _msgs.cancel();

@@ -25,7 +25,7 @@ class SerialSet : public std::set<unsigned int>
 {
 public:
   SerialSet( Clib::ConfigElem& elem, const char* tag );
-  SerialSet() {}
+  SerialSet() = default;
   void writeOn( Clib::StreamWriter& sw, const char* tag ) const;
 };
 

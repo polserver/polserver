@@ -34,7 +34,7 @@ class ConfigElemBase;
 class ConfigSource
 {
 public:
-  virtual ~ConfigSource() {}
+  virtual ~ConfigSource() = default;
   virtual void display_error( const std::string& msg, bool show_curline = true,
                               const ConfigElemBase* elem = nullptr, bool error = true ) const = 0;
 };

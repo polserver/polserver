@@ -34,7 +34,7 @@ class DebugClientThread : public Bscript::ExecutorDebugListener,
 {
 public:
   DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw );
-  virtual ~DebugClientThread() {}
+  virtual ~DebugClientThread() = default;
 
   void run();
 

@@ -52,7 +52,7 @@ UoConvertMain::UoConvertMain()
     : Pol::Clib::ProgramMain(), cfg_use_no_shoot( false ), cfg_LOS_through_windows( false )
 {
 }
-UoConvertMain::~UoConvertMain() {}
+UoConvertMain::~UoConvertMain() = default;
 ///////////////////////////////////////////////////////////////////////////////
 
 void UoConvertMain::showHelp()
@@ -523,8 +523,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
         // Look for water tiles. If there are any, discard the map (which is usually at -15 anyway)
         if ( z + lt_height <= srec.z &&
              // only where the map is below or same Z as the static
-             ( ( srec.z - ( z + lt_height ) ) <= 10 ) &&
-            DiscardedWaterTypes.count( srec.graphic ) )
+             ( ( srec.z - ( z + lt_height ) ) <= 10 ) && DiscardedWaterTypes.count( srec.graphic ) )
         {
           // arr, there be water here
           addMap = false;
@@ -1382,7 +1381,9 @@ void UoConvertMain::load_uoconvert_cfg()
         {
           parse_graphics_properties( elem, "DiscardedWaterTiles", DiscardedWaterTypes );
         }
-        else for ( int i = 0x1796; i <= 0x17B2; ++i ) DiscardedWaterTypes.insert( i );
+        else
+          for ( int i = 0x1796; i <= 0x17B2; ++i )
+            DiscardedWaterTypes.insert( i );
 
         if ( elem.has_prop( "ShowIllegalGraphicWarning" ) )
           UoConvert::cfg_show_illegal_graphic_warning =
