@@ -19,7 +19,7 @@ jobs:
             compiler-version: 20
             build-type: RelWithDebInfo
             name: ClangTidy
-            tidy-checks: "modernize-use-using"
+            tidy-checks: "modernize-concat-nested-namespaces"
 
             #"modernize-use-override"
             #"modernize-use-equals-default"
@@ -31,8 +31,8 @@ jobs:
             #"modernize-redundant-void-arg"
             #"modernize-use-emplace"
             #"modernize-use-using"
-
             #"modernize-concat-nested-namespaces"
+
             #"readability-else-after-return"
 
     runs-on: ${{ matrix.config.os }}
