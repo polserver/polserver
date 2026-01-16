@@ -318,7 +318,7 @@ inline auto format_as( MemberID id )
   return fmt::underlying( id );
 }
 
-using ObjMember = struct
+struct ObjMember
 {
   MemberID id;
   char code[30];
