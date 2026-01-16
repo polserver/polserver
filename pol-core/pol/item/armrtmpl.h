@@ -23,7 +23,7 @@ class ArmorDesc : public Core::EquipDesc
 {
 public:
   // ArmorTemplate();
-  typedef EquipDesc base;
+  using base = EquipDesc;
   ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg,
              bool forceShield = false );
   ~ArmorDesc() override = default;

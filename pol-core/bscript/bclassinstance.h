@@ -11,7 +11,7 @@ class BFunctionRef;
 
 class BClassInstance final : public BStruct
 {
-  typedef BStruct base;
+  using base = BStruct;
 
 public:
   BClassInstance( ref_ptr<EScriptProgram> program, int index,

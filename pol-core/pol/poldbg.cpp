@@ -214,7 +214,7 @@ public:
   ~DebugContext() override;
 
   std::string prompt() const;
-  typedef std::vector<std::string> Results;
+  using Results = std::vector<std::string>;
   bool process( const std::string& cmd, Results& results );
   bool done() const { return _done; }
 
@@ -272,7 +272,7 @@ private:
 };
 
 BApplicObjType debugcontextobjimp_type;
-typedef PolApplicObj<ref_ptr<DebugContext>> DebugContextObjImpBase;
+using DebugContextObjImpBase = PolApplicObj<ref_ptr<DebugContext>>;
 class DebugContextObjImp : public DebugContextObjImpBase
 {
 public:

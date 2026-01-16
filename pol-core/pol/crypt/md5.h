@@ -12,12 +12,12 @@ namespace Crypt
 {
 // Struct for MD5
 
-typedef struct tagmd5_state
+struct md5_state
 {
   unsigned int count[2];
   unsigned int abcd[4];
   unsigned char buf[64];
-} md5_state;
+};
 
 class MD5Crypt
 {
@@ -41,6 +41,6 @@ protected:
   unsigned int TableIdx;
   unsigned char Digest[16];
 };
-}
-}
+}  // namespace Crypt
+}  // namespace Pol
 #endif  //__MD5_H__

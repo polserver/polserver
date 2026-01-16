@@ -193,7 +193,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
 
 #define USE_PARENT_CONTS 1
 
-typedef std::stack<UContainer*> ContStack;
+using ContStack = std::stack<UContainer*>;
 static ContStack parent_conts;
 
 void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )

@@ -269,8 +269,8 @@ template <typename Storage>
 class PropHolderContainer;
 
 // small property type no types above size 4, for bigger types boost::any will be used
-typedef std::variant<u8, u16, u32, s8, s16, s32, ValueModPack, SkillStatCap, ExtStatBarFollowers>
-    variant_storage;
+using variant_storage =
+    std::variant<u8, u16, u32, s8, s16, s32, ValueModPack, SkillStatCap, ExtStatBarFollowers>;
 template <typename T>
 struct can_be_used_in_variant
 {

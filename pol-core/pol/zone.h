@@ -31,12 +31,12 @@ const unsigned ZONE_SHIFT = 2;
 
 Pos2d XyToZone( const Pos2d& pos );
 
-typedef unsigned short RegionId;
+using RegionId = unsigned short;
 
 // world
-typedef std::vector<Mobile::Character*> ZoneCharacters;
-typedef std::vector<Multi::UMulti*> ZoneMultis;
-typedef std::vector<Items::Item*> ZoneItems;
+using ZoneCharacters = std::vector<Mobile::Character*>;
+using ZoneMultis = std::vector<Multi::UMulti*>;
+using ZoneItems = std::vector<Items::Item*>;
 
 struct Zone
 {

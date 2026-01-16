@@ -38,7 +38,7 @@ namespace Multi
 {
 class UPlank final : public Core::ULockable
 {
-  typedef Core::ULockable base;
+  using base = Core::ULockable;
 
 public:
   void setboat( UBoat* boat );

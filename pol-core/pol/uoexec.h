@@ -67,7 +67,7 @@ class Party;
 
 class UOExecutor final : public Bscript::Executor
 {
-  typedef Bscript::Executor base;
+  using base = Bscript::Executor;
 
 private:
   Module::OSExecutorModule* os_module;

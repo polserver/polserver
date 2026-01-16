@@ -53,13 +53,13 @@ class UOExecutor;
 
 class Map final : public Items::Item
 {
-  typedef Items::Item base;
+  using base = Items::Item;
 
 public:
   Pos2d gumpsize;
   bool editable;
   bool plotting;
-  typedef std::vector<Pos2d> PinPoints;
+  using PinPoints = std::vector<Pos2d>;
   PinPoints pin_points;
 
   Range2d getrange() const;

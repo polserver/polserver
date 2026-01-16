@@ -58,18 +58,18 @@ namespace Pol
 {
 namespace Multi
 {
-typedef std::list<Items::Item*> ItemList;
-typedef std::list<Mobile::Character*> MobileList;
+using ItemList = std::list<Items::Item*>;
+using MobileList = std::list<Mobile::Character*>;
 class MultiDef;
 
 class UHouse final : public UMulti
 {
-  typedef UMulti base;
+  using base = UMulti;
 
   // Components are not removed from the list when destroyed by the core,
   // so you should always check if the component is an orphan.
-  typedef Core::ItemRef Component;
-  typedef std::vector<Component> Components;
+  using Component = Core::ItemRef;
+  using Components = std::vector<Component>;
 
 public:
   static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
@@ -142,8 +142,8 @@ protected:
   bool custom;
 
 private:
-  typedef Core::UObjectRef Squatter;
-  typedef std::vector<Squatter> Squatters;
+  using Squatter = Core::UObjectRef;
+  using Squatters = std::vector<Squatter>;
   Squatters squatters_;
 
   /**

@@ -19,7 +19,7 @@ namespace Multi
 class MultiDef;
 
 
-typedef std::map<u16, MultiDef*> MultiDefs;
+using MultiDefs = std::map<u16, MultiDef*>;
 
 // used for POL and uotool
 class MultiDefBuffer

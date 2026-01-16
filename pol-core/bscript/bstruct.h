@@ -49,7 +49,7 @@ public:
 
   size_t mapcount() const;
 
-  typedef std::map<std::string, BObjectRef, Clib::ci_cmp_pred> Contents;
+  using Contents = std::map<std::string, BObjectRef, Clib::ci_cmp_pred>;
   const Contents& contents() const;
 
 protected:

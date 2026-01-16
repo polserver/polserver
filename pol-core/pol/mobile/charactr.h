@@ -273,8 +273,8 @@ enum class MOB_FLAGS : u16
 class Character : public Core::UObject
 {
   // types:
-  typedef UObject base;
-  typedef std::set<Character*> CharacterSet;
+  using base = UObject;
+  using CharacterSet = std::set<Character*>;
 
 public:
   explicit Character( u32 objtype,
@@ -788,9 +788,9 @@ public:
   std::vector<VitalValue> vitals;
   // REPUTATION
 private:
-  typedef std::map<Core::CharacterRef, Core::polclock_t> MobileCont;
-  typedef std::set<reportable_t> ReportableList;
-  typedef std::set<USERIAL> ToBeReportableList;
+  using MobileCont = std::map<Core::CharacterRef, Core::polclock_t>;
+  using ReportableList = std::set<reportable_t>;
+  using ToBeReportableList = std::set<USERIAL>;
 
   mutable MobileCont aggressor_to_;
   mutable MobileCont lawfully_damaged_;

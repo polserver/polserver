@@ -42,9 +42,8 @@ namespace Core
 class StoredConfigElem : public ref_counted
 {
 private:
-  typedef std::multimap<boost_utils::cfg_key_flystring, ref_ptr<Bscript::BObjectImp>,
-                        Clib::ci_cmp_pred>
-      PropImpList;
+  using PropImpList = std::multimap<boost_utils::cfg_key_flystring, ref_ptr<Bscript::BObjectImp>,
+                                    Clib::ci_cmp_pred>;
 
 public:
   StoredConfigElem() = default;
@@ -60,7 +59,7 @@ public:
   Bscript::BObjectImp* listprops() const;
   void addprop( const std::string& propname, Bscript::BObjectImp* imp );
 
-  typedef StoredConfigElem::PropImpList::const_iterator const_iterator;
+  using const_iterator = StoredConfigElem::PropImpList::const_iterator;
   std::pair<const_iterator, const_iterator> equal_range( const std::string& propname ) const;
 
 private:
@@ -76,17 +75,17 @@ public:
   void load_tus_scp( const std::string& filename );
   size_t estimateSize() const;
 
-  typedef ref_ptr<StoredConfigElem> ElemRef;
+  using ElemRef = ref_ptr<StoredConfigElem>;
   ElemRef findelem( int key );
   ElemRef findelem( const std::string& key );
 
   int maxintkey() const;
   time_t modified() const;
 
-  typedef std::map<std::string, ElemRef, Clib::ci_cmp_pred> ElementsByName;
+  using ElementsByName = std::map<std::string, ElemRef, Clib::ci_cmp_pred>;
   ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }
   ElementsByName::const_iterator byname_end() { return elements_byname_.end(); }
-  typedef std::map<int, ElemRef> ElementsByNum;
+  using ElementsByNum = std::map<int, ElemRef>;
   ElementsByNum::const_iterator bynum_begin() { return elements_bynum_.begin(); }
   ElementsByNum::const_iterator bynum_end() { return elements_bynum_.end(); }
   bool reload;  // try to reload cfg file?
@@ -104,7 +103,7 @@ private:
   StoredConfigFile& operator=( const StoredConfigFile& ) = delete;
 };
 
-typedef ref_ptr<StoredConfigFile> ConfigFileRef;
+using ConfigFileRef = ref_ptr<StoredConfigFile>;
 
 ConfigFileRef FindConfigFile( const std::string& filename, const std::string& allpkgbase );
 void CreateEmptyStoredConfigFile( const std::string& filename );

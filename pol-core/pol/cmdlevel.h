@@ -46,10 +46,10 @@ public:
     std::string dir;
   };
 
-  typedef std::vector<SearchDir> SearchList;
+  using SearchList = std::vector<SearchDir>;
   SearchList searchlist;
 
-  typedef std::vector<std::string> Aliases;
+  using Aliases = std::vector<std::string>;
   Aliases aliases;
 };
 

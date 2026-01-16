@@ -63,7 +63,7 @@ class WeaponDesc;
 
 class UWeapon final : public Equipment
 {
-  typedef Equipment base;
+  using base = Equipment;
 
 public:
   ~UWeapon() override = default;

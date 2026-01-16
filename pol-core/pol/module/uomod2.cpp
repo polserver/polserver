@@ -1261,7 +1261,7 @@ public:
   size_t sizeEstimate() const override;
 
 private:
-  typedef std::map<int, BObjectRef> Contents;
+  using Contents = std::map<int, BObjectRef>;
   Contents contents_;
 
   // not implemented:

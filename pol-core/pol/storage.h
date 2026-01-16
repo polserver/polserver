@@ -54,7 +54,7 @@ private:
   std::string _name;
 
   // TODO: ref_ptr<Item> ?
-  typedef std::map<std::string, Items::Item*, Clib::ci_cmp_pred> Cont;
+  using Cont = std::map<std::string, Items::Item*, Clib::ci_cmp_pred>;
   Cont _items;  // owns its items.
 
   friend class StorageAreaImp;
@@ -98,7 +98,7 @@ public:
 private:
   // TODO: investigate if this could store objects. Does find()
   // return object copies, or references?
-  typedef std::map<std::string, StorageArea*> AreaCont;
+  using AreaCont = std::map<std::string, StorageArea*>;
   AreaCont areas;
 
   friend class StorageAreasImp;

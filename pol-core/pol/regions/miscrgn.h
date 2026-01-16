@@ -30,7 +30,7 @@ namespace Core
 {
 class NoCastRegion final : public Region
 {
-  typedef Region base;
+  using base = Region;
 
 public:
   NoCastRegion( Clib::ConfigElem& elem, RegionId id );
@@ -49,7 +49,7 @@ inline bool NoCastRegion::nocast() const
 
 class LightRegion final : public Region
 {
-  typedef Region base;
+  using base = Region;
 
 public:
   LightRegion( Clib::ConfigElem& elem, RegionId id );
@@ -60,7 +60,7 @@ public:
 
 class WeatherRegion final : public Region
 {
-  typedef Region base;
+  using base = Region;
 
 public:
   WeatherRegion( Clib::ConfigElem& elem, RegionId id );

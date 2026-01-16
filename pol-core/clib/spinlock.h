@@ -27,7 +27,7 @@ private:
 };
 
 /** This is a std::lock_guard specific for SpinLock */
-typedef std::lock_guard<SpinLock> SpinLockGuard;
+using SpinLockGuard = std::lock_guard<SpinLock>;
 
 inline SpinLock::SpinLock()
 {

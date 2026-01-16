@@ -92,15 +92,15 @@ namespace Core
 class UContainer : public ULockable
 {
 public:
-  typedef ULockable base;
+  using base = ULockable;
   ~UContainer() override;
   size_t estimatedSize() const override;
 
   void destroy() override;
   void destroy_contents();
-  typedef std::vector<Items::Item*> Contents;
-  typedef Contents::iterator iterator;
-  typedef Contents::const_iterator const_iterator;
+  using Contents = std::vector<Items::Item*>;
+  using iterator = Contents::iterator;
+  using const_iterator = Contents::const_iterator;
 
   void builtin_on_use( Network::Client* client ) override;
 

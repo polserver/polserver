@@ -72,7 +72,7 @@ class BSpread;
 class BRegExp;
 class BSpecialUserFuncJump;
 
-typedef std::vector<BObjectRef> ValueStackCont;
+using ValueStackCont = std::vector<BObjectRef>;
 
 class BObjectImp : public ref_counted
 {
@@ -498,7 +498,7 @@ public:
   // one. Do not add new members to this class.
 };
 
-typedef std::vector<ref_ptr<BObjectImp>> BObjectImpRefVec;
+using BObjectImpRefVec = std::vector<ref_ptr<BObjectImp>>;
 
 extern Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
 
@@ -609,13 +609,13 @@ inline void UninitObject::operator delete( void* p )
 class ObjArray final : public BObjectImp
 {
 public:
-  typedef std::vector<std::string> NameCont;
-  typedef NameCont::iterator name_iterator;
-  typedef NameCont::const_iterator const_name_iterator;
+  using NameCont = std::vector<std::string>;
+  using name_iterator = NameCont::iterator;
+  using const_name_iterator = NameCont::const_iterator;
 
-  typedef std::vector<BObjectRef> Cont;
-  typedef Cont::iterator iterator;
-  typedef Cont::const_iterator const_iterator;
+  using Cont = std::vector<BObjectRef>;
+  using iterator = Cont::iterator;
+  using const_iterator = Cont::const_iterator;
 
   NameCont name_arr;
   Cont ref_arr;
@@ -671,7 +671,7 @@ protected:
 
 class BLong final : public BObjectImp
 {
-  typedef BObjectImp base;
+  using base = BObjectImp;
 
 public:
 #if BOBJECTIMP_DEBUG
@@ -800,7 +800,7 @@ inline void BLong::operator delete( void* p, size_t /*len*/ )
 
 class Double final : public BObjectImp
 {
-  typedef BObjectImp base;
+  using base = BObjectImp;
 
 public:
   explicit Double( double dval = 0.0 ) : BObjectImp( OTDouble ), dval_( dval ) {}
@@ -893,7 +893,7 @@ inline void Double::operator delete( void* p )
 
 class BBoolean final : public BObjectImp
 {
-  typedef BObjectImp base;
+  using base = BObjectImp;
 
 public:
 #if BOBJECTIMP_DEBUG
@@ -928,7 +928,7 @@ private:
 
 class BFunctionRef final : public BObjectImp
 {
-  typedef BObjectImp base;
+  using base = BObjectImp;
 
 public:
   BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_reference_index,

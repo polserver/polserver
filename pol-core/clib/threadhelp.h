@@ -39,7 +39,7 @@ size_t thread_pid();
 class ThreadMap
 {
 public:
-  typedef std::map<size_t, std::string> Contents;
+  using Contents = std::map<size_t, std::string>;
 #ifdef _WIN32
   typedef std::map<size_t, HANDLE> HANDLES;
   HANDLE getThreadHandle( size_t pid ) const;
@@ -72,8 +72,8 @@ public:
 
 class TaskThreadPool
 {
-  typedef std::function<void()> msg;
-  typedef Clib::message_queue<msg> msg_queue;
+  using msg = std::function<void()>;
+  using msg_queue = Clib::message_queue<msg>;
 
 public:
   TaskThreadPool();
@@ -101,8 +101,8 @@ class DynTaskThreadPool
   class PoolWorker;
 
   friend class PoolWorker;
-  typedef std::function<void()> msg;
-  typedef Clib::message_queue<msg> msg_queue;
+  using msg = std::function<void()>;
+  using msg_queue = Clib::message_queue<msg>;
 
 public:
   DynTaskThreadPool( const std::string& name );

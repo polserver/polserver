@@ -103,9 +103,9 @@ private:
     /// 0=read, 1=write, 2=erase
     std::array<u64, 3> hits;
   };
-  typedef std::map<const PropertyList*, const Type> PropLists;
-  typedef std::map<const std::string, HitsCounter> HitsEntries;
-  typedef std::map<const Type, HitsEntries> Hits;
+  using PropLists = std::map<const PropertyList*, const Type>;
+  using HitsEntries = std::map<const std::string, HitsCounter>;
+  using Hits = std::map<const Type, HitsEntries>;
 
   CPropProfiler();
 
@@ -154,8 +154,8 @@ public:
   PropertyList& operator-( const std::set<std::string>& );  // dave added 1/26/3
   void operator-=( const std::set<std::string>& );          // dave added 1/26/3
 protected:
-  typedef std::map<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring>
-      Properties;
+  using Properties =
+      std::map<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring>;
 
   Properties properties;
 

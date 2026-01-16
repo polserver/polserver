@@ -43,7 +43,7 @@ private:
 extern Bscript::BApplicObjType accountobjimp_type;
 class AccountObjImp final : public Core::PolApplicObj<AccountPtrHolder>
 {
-  typedef Core::PolApplicObj<AccountPtrHolder> base;
+  using base = Core::PolApplicObj<AccountPtrHolder>;
 
 public:
   explicit AccountObjImp( const AccountPtrHolder& other )

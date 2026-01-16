@@ -13,7 +13,7 @@ namespace Bscript
 class Executor;
 class Instruction;
 
-typedef void ( Executor::*ExecInstrFunc )( const Instruction& );
-}
-}
+using ExecInstrFunc = void ( Executor::* )( const Instruction& );
+}  // namespace Bscript
+}  // namespace Pol
 #endif

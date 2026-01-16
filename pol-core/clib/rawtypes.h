@@ -20,16 +20,16 @@
 #endif
 
 
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
+using u8 = unsigned char;
+using u16 = unsigned short;
+using u32 = unsigned int;
 
-typedef signed char s8;
-typedef signed short s16;
-typedef signed int s32;
+using s8 = signed char;
+using s16 = short;
+using s32 = int;
 
-typedef uint64_t u64;
-typedef int64_t s64;
+using u64 = uint64_t;
+using s64 = int64_t;
 
 /* these fail to compile if lengths of U8, U16, or U32 are incorrect. */
 static_assert( sizeof( u8 ) == 1, "size missmatch" );

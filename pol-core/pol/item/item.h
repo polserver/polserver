@@ -77,7 +77,7 @@ class ItemDesc;
  */
 class Item : public Core::UObject
 {
-  typedef Core::UObject base;
+  using base = Core::UObject;
 
 public:
   bool stackable() const;

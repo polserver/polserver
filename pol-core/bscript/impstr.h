@@ -22,7 +22,7 @@ class SubString;
 
 class String : public BObjectImp
 {
-  typedef BObjectImp base;
+  using base = BObjectImp;
 
 public:
   enum class Tainted

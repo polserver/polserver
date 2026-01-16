@@ -43,7 +43,7 @@ public:
   void addMember( BObjectImp* key, BObjectImp* val );
   size_t mapcount() const;
 
-  typedef std::map<BObject, BObjectRef> Contents;
+  using Contents = std::map<BObject, BObjectRef>;
   const Contents& contents() const;
 
 protected:

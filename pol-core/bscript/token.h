@@ -23,12 +23,12 @@ namespace Pol
 {
 namespace Bscript
 {
-typedef struct
+struct DebugToken
 {
   unsigned sourceFile;
   unsigned offset;
   unsigned strOffset;
-} DebugToken;
+};
 
 class Token
 {

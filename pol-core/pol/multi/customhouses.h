@@ -72,15 +72,15 @@ struct CUSTOM_HOUSE_ELEMENT
   s32 yoffset;
 };
 
-typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;  // vector of N-S rows
-typedef std::vector<std::list<CUSTOM_HOUSE_ELEMENT>> HouseFloorRow;  // vector of Z columns
-typedef std::list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
+using HouseFloor = std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>>;  // vector of N-S rows
+using HouseFloorRow = std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>;  // vector of Z columns
+using HouseFloorZColumn = std::list<CUSTOM_HOUSE_ELEMENT>;
 // [][][][][][] - Xoffset vector
 // | | | | | |  - vec of yoffsets
 // v v v v v v
 // [][][][][][] - lists of zoffsets
 // [][][][][][]
-typedef std::list<Items::Item*> ItemList;
+using ItemList = std::list<Items::Item*>;
 
 class CustomHouseElements
 {

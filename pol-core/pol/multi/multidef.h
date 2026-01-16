@@ -59,15 +59,15 @@ public:
 
   std::vector<MULTI_ELEM> elems;
 
-  typedef std::vector<const MULTI_ELEM*> HullList;
+  using HullList = std::vector<const MULTI_ELEM*>;
   HullList hull;
   HullList internal_hull;
-  typedef std::set<unsigned short> HullList2;
+  using HullList2 = std::set<unsigned short>;
   HullList2 hull2;
   HullList2 internal_hull2;
 
-  typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
-  typedef std::pair<Components::const_iterator, Components::const_iterator> ItrPair;
+  using Components = std::multimap<unsigned short, const MULTI_ELEM*>;
+  using ItrPair = std::pair<Components::const_iterator, Components::const_iterator>;
 
   Core::Vec3d minrxyz;  // minimum relative distances
   Core::Vec3d maxrxyz;

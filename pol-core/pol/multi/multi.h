@@ -68,7 +68,7 @@ const int CRMULTI_FACING_SHIFT = 8;
 
 class UMulti : public Items::Item
 {
-  typedef Items::Item base;
+  using base = Items::Item;
 
 public:
   static UMulti* create( const Items::ItemDesc& descriptor, u32 serial = 0 );

@@ -140,44 +140,40 @@ struct accessible_hashed_factory : boost::flyweights::factory_marker
 struct cprop_name_tag
 {
 };
-typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY>
-    cprop_name_flystring;
+using cprop_name_flystring = boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>,
+                                              boost::flyweights::hashed_factory<>>;
 struct cprop_value_tag
 {
 };
-typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_value_tag>,
-                         FLYWEIGHT_HASH_FACTORY>
-    cprop_value_flystring;
+using cprop_value_flystring = boost::flyweight<std::string, boost::flyweights::tag<cprop_value_tag>,
+                                               boost::flyweights::hashed_factory<>>;
 struct cfg_key_tag
 {
 };
-typedef boost::flyweight<std::string, boost::flyweights::tag<cfg_key_tag>, FLYWEIGHT_HASH_FACTORY>
-    cfg_key_flystring;
+using cfg_key_flystring = boost::flyweight<std::string, boost::flyweights::tag<cfg_key_tag>,
+                                           boost::flyweights::hashed_factory<>>;
 struct object_name_tag
 {
 };
-typedef boost::flyweight<std::string, boost::flyweights::tag<object_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY>
-    object_name_flystring;
+using object_name_flystring = boost::flyweight<std::string, boost::flyweights::tag<object_name_tag>,
+                                               boost::flyweights::hashed_factory<>>;
 struct script_name_tag
 {
 };
-typedef boost::flyweight<std::string, boost::flyweights::tag<script_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY>
-    script_name_flystring;
+using script_name_flystring = boost::flyweight<std::string, boost::flyweights::tag<script_name_tag>,
+                                               boost::flyweights::hashed_factory<>>;
 struct npctemplate_name_tag
 {
 };
-typedef boost::flyweight<std::string, boost::flyweights::tag<npctemplate_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY>
-    npctemplate_name_flystring;
+using npctemplate_name_flystring =
+    boost::flyweight<std::string, boost::flyweights::tag<npctemplate_name_tag>,
+                     boost::flyweights::hashed_factory<>>;
 struct function_name_tag
 {
 };
-typedef boost::flyweight<std::string, boost::flyweights::tag<function_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY>
-    function_name_flystring;
+using function_name_flystring =
+    boost::flyweight<std::string, boost::flyweights::tag<function_name_tag>,
+                     boost::flyweights::hashed_factory<>>;
 
 /**
  * These types must be initialized before any static objects using them

@@ -38,7 +38,7 @@ namespace Bscript
 class ExecutorModule;
 class String;
 
-typedef BObject* ( ExecutorModule::*ExecutorModuleFn )();
+using ExecutorModuleFn = BObject* (ExecutorModule::*)();
 
 class ExecutorModule
 {

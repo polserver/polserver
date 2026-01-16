@@ -50,7 +50,7 @@ namespace Items
 {
 class Equipment : public Item
 {
-  typedef Item base;
+  using base = Item;
 
 public:
   ~Equipment() override;

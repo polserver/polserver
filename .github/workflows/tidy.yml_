@@ -19,11 +19,10 @@ jobs:
             compiler-version: 20
             build-type: RelWithDebInfo
             name: ClangTidy
-            tidy-checks: "modernize-use-equals-delete,modernize-make-shared,modernize-make-unique,modernize-use-constraints,readability-container-size-empty,modernize-redundant-void-arg,modernize-use-emplace"
+            tidy-checks: "modernize-use-using"
 
             #"modernize-use-override"
             #"modernize-use-equals-default"
-            
             #"modernize-use-equals-delete"
             #"modernize-make-shared"
             #"modernize-make-unique"
@@ -31,8 +30,8 @@ jobs:
             #"readability-container-size-empty"
             #"modernize-redundant-void-arg"
             #"modernize-use-emplace"
-            
             #"modernize-use-using"
+
             #"modernize-concat-nested-namespaces"
             #"readability-else-after-return"
 

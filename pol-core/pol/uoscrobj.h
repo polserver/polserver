@@ -69,7 +69,7 @@ extern Bscript::BApplicObjType eclientrefobjimp_type;
 
 class ECharacterRefObjImp : public Core::PolApplicObj<Core::CharacterRef>
 {
-  typedef PolApplicObj<Core::CharacterRef> base;
+  using base = PolApplicObj<Core::CharacterRef>;
 
 public:
   explicit ECharacterRefObjImp( Mobile::Character* chr )
@@ -113,7 +113,7 @@ public:
 
 class ECharacterEquipObjImp : public Core::PolApplicObj<Core::CharacterRef>
 {
-  typedef Core::PolApplicObj<Core::CharacterRef> base;
+  using base = Core::PolApplicObj<Core::CharacterRef>;
 
 public:
   explicit ECharacterEquipObjImp( Mobile::Character* chr )
@@ -128,7 +128,7 @@ public:
 
 class EItemRefObjImp final : public Core::PolApplicObj<Core::ItemRef>
 {
-  typedef Core::PolApplicObj<Core::ItemRef> base;
+  using base = Core::PolApplicObj<Core::ItemRef>;
 
 public:
   explicit EItemRefObjImp( Items::Item* item )
@@ -157,7 +157,7 @@ public:
 
 class EUBoatRefObjImp final : public Core::PolApplicObj<ref_ptr<Multi::UBoat>>
 {
-  typedef Core::PolApplicObj<ref_ptr<Multi::UBoat>> base;
+  using base = Core::PolApplicObj<ref_ptr<Multi::UBoat>>;
 
 public:
   explicit EUBoatRefObjImp( Multi::UBoat* boat )
@@ -185,7 +185,7 @@ public:
 
 class EMultiRefObjImp final : public Core::PolApplicObj<ref_ptr<Multi::UMulti>>
 {
-  typedef Core::PolApplicObj<ref_ptr<Multi::UMulti>> base;
+  using base = Core::PolApplicObj<ref_ptr<Multi::UMulti>>;
 
 public:
   explicit EMultiRefObjImp( Multi::UMulti* multi )
@@ -210,10 +210,10 @@ public:
   bool operator==( const Bscript::BObjectImp& objimp ) const override;
 };
 
-typedef weak_ptr<Network::Client> ClientPtrHolder;
+using ClientPtrHolder = weak_ptr<Network::Client>;
 class EClientRefObjImp final : public Core::PolApplicObj<ClientPtrHolder>
 {
-  typedef Core::PolApplicObj<ClientPtrHolder> base;
+  using base = Core::PolApplicObj<ClientPtrHolder>;
 
 public:
   explicit EClientRefObjImp( ClientPtrHolder client )

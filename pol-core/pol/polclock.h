@@ -23,13 +23,13 @@ namespace Pol
 {
 namespace Core
 {
-typedef std::chrono::milliseconds polclock_t_unit;  // in 10ms
-typedef polclock_t_unit::rep polclock_t;            // in 10ms
+using polclock_t_unit = std::chrono::milliseconds;  // in 10ms
+using polclock_t = polclock_t_unit::rep;            // in 10ms
 
-typedef std::chrono::seconds poltime_t_unit;
-typedef poltime_t_unit::rep poltime_t;
+using poltime_t_unit = std::chrono::seconds;
+using poltime_t = poltime_t_unit::rep;
 
-typedef std::chrono::steady_clock PolClock;
+using PolClock = std::chrono::steady_clock;
 
 const polclock_t POLCLOCKS_PER_SEC = 100;
 

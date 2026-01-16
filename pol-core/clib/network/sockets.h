@@ -16,7 +16,7 @@ typedef int socklen_t;
 #else
 // WTF! socket isn't a type.
 
-typedef int SOCKET;
+using SOCKET = int;
 
 #include <arpa/inet.h>
 #include <errno.h>

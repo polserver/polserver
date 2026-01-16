@@ -50,7 +50,7 @@ public:
   ref_ptr<Core::UContainer> vendor_for_sale;
   Core::NpcRef vendor;
 
-  typedef std::map<u32, Module::UOExecutorModule*> GumpMods;
+  using GumpMods = std::map<u32, Module::UOExecutorModule*>;
   GumpMods gumpmods;
 
   void add_gumpmod( Module::UOExecutorModule*, u32 gumpid );

@@ -75,8 +75,8 @@ void initLogging( LogFacility* logger )
 // internal worker class which performs the work in a additional thread
 class LogFacility::LogWorker
 {
-  typedef std::function<void()> msg;
-  typedef message_queue<msg> msg_queue;
+  using msg = std::function<void()>;
+  using msg_queue = message_queue<msg>;
 
 public:
   // run thread on construction
@@ -233,8 +233,7 @@ Sink* getSink()
   // with later vc its automatically threadsafe (magic statics)
   static std::once_flag flag;
   static Sink* sink = new Sink();
-  std::call_once(
-      flag, []( Sink* s ) { global_logger->registerSink( s ); }, sink );
+  std::call_once( flag, []( Sink* s ) { global_logger->registerSink( s ); }, sink );
   return sink;
 }
 
