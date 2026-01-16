@@ -26,12 +26,12 @@ namespace Core
 {
 class StoredConfigFile;
 
-typedef ref_ptr<StoredConfigFile> ConfigFileRef;
+using ConfigFileRef = ref_ptr<StoredConfigFile>;
 
-typedef std::map<std::string, ConfigFileRef> CfgFiles;
-typedef std::vector<std::string> OldCfgFiles;  // we've multiple older instances
+using CfgFiles = std::map<std::string, ConfigFileRef>;
+using OldCfgFiles = std::vector<std::string>;  // we've multiple older instances
 
-typedef std::map<std::string, Module::DataStoreFile*, Clib::ci_cmp_pred> DataStore;
+using DataStore = std::map<std::string, Module::DataStoreFile*, Clib::ci_cmp_pred>;
 // used for Pol and RunEcl
 
 class ConfigurationBuffer

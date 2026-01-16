@@ -205,12 +205,12 @@ inline auto format_as( MethodID id )
 }
 
 
-typedef struct
+using ObjMethod = struct
 {
   MethodID id;
   char code[30];
   bool overridden;
-} ObjMethod;
+};
 
 extern ObjMethod object_methods[];
 extern int n_objmethods;

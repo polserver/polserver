@@ -83,45 +83,45 @@ class USpell;
 class Vital;
 class WeatherDef;
 
-typedef std::vector<Core::CmdLevel> CmdLevels;
+using CmdLevels = std::vector<Core::CmdLevel>;
 
-typedef std::vector<AccountRef> AccountsVector;
+using AccountsVector = std::vector<AccountRef>;
 class ItemsVector : public std::vector<Items::Item*>
 {
 };
 
-typedef std::vector<StartingLocation*> StartingLocations;
-typedef RegionGroup<JusticeRegion> JusticeDef;
-typedef RegionGroup<NoCastRegion> NoCastDef;
-typedef RegionGroup<LightRegion> LightDef;
-typedef RegionGroup<MusicRegion> MusicDef;
+using StartingLocations = std::vector<StartingLocation*>;
+using JusticeDef = RegionGroup<JusticeRegion>;
+using NoCastDef = RegionGroup<NoCastRegion>;
+using LightDef = RegionGroup<LightRegion>;
+using MusicDef = RegionGroup<MusicRegion>;
 
-typedef std::map<std::string, NpcTemplateElem, Clib::ci_cmp_pred> NpcTemplatesElems;
-typedef std::map<std::string, std::shared_ptr<NpcTemplate>> NpcTemplates;
+using NpcTemplatesElems = std::map<std::string, NpcTemplateElem, Clib::ci_cmp_pred>;
+using NpcTemplates = std::map<std::string, std::shared_ptr<NpcTemplate>>;
 
-typedef ref_ptr<Party> PartyRef;
-typedef std::vector<PartyRef> Parties;
-typedef ref_ptr<Guild> GuildRef;
-typedef std::map<unsigned int, GuildRef> Guilds;
+using PartyRef = ref_ptr<Party>;
+using Parties = std::vector<PartyRef>;
+using GuildRef = ref_ptr<Guild>;
+using Guilds = std::map<unsigned int, GuildRef>;
 
-typedef std::map<std::string, Mobile::Attribute*, Clib::ci_cmp_pred> AttributesByName;
+using AttributesByName = std::map<std::string, Mobile::Attribute*, Clib::ci_cmp_pred>;
 
-typedef std::vector<ArmorZone> ArmorZones;
-typedef std::map<std::string, Vital*, Clib::ci_cmp_pred> VitalsByName;
-typedef std::map<unsigned int, unsigned int> OldObjtypeConversions;
-typedef std::map<std::string, u32, Clib::ci_cmp_pred> ObjtypeByNameMap;
-typedef std::map<std::string, ResourceDef*> ResourceDefs;
-typedef std::pair<std::string /* name */, u8 /* layer */> NameAndLayer;
-typedef std::map<NameAndLayer, Items::Equipment*> IntrinsicEquipments;
-typedef std::map<u16 /* graphic */, Multi::BoatShape*> BoatShapes;
-typedef std::map<UOExecutor*, ListenPoint*> ListenPoints;
-typedef std::priority_queue<ScheduledTask*, std::vector<ScheduledTask*>, SchComparer> TaskQueue;
-typedef std::set<std::string> PropSet;
+using ArmorZones = std::vector<ArmorZone>;
+using VitalsByName = std::map<std::string, Vital*, Clib::ci_cmp_pred>;
+using OldObjtypeConversions = std::map<unsigned int, unsigned int>;
+using ObjtypeByNameMap = std::map<std::string, u32, Clib::ci_cmp_pred>;
+using ResourceDefs = std::map<std::string, ResourceDef*>;
+using NameAndLayer = std::pair<std::string, u8>;
+using IntrinsicEquipments = std::map<NameAndLayer, Items::Equipment*>;
+using BoatShapes = std::map<u16, Multi::BoatShape*>;
+using ListenPoints = std::map<UOExecutor*, ListenPoint*>;
+using TaskQueue = std::priority_queue<ScheduledTask*, std::vector<ScheduledTask*>, SchComparer>;
+using PropSet = std::set<std::string>;
 
-typedef void ( *TextCmdFunc )( Network::Client* );
-typedef std::map<std::string, TextCmdFunc, Clib::ci_cmp_pred> TextCmds;
-typedef void ( *ParamTextCmdFunc )( Network::Client*, const std::string& );
-typedef std::map<std::string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
+using TextCmdFunc = void ( * )( Network::Client* );
+using TextCmds = std::map<std::string, TextCmdFunc, Clib::ci_cmp_pred>;
+using ParamTextCmdFunc = void ( * )( Network::Client*, const std::string& );
+using ParamTextCmds = std::map<std::string, ParamTextCmdFunc, wordicmp>;
 
 
 class GameState

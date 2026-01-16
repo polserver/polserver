@@ -37,7 +37,7 @@ public:
 
   Core::PropertyList proplist;
 };
-typedef ref_ptr<DataFileElement> DataFileElementRef;
+using DataFileElementRef = ref_ptr<DataFileElement>;
 
 // const int DF_KEYTYPE_STRING = 0x00; // currently unneeded
 const int DF_KEYTYPE_INTEGER = 0x01;
@@ -67,16 +67,16 @@ public:
   bool dirty;
 
 private:
-  typedef std::map<std::string, DataFileElementRef, Clib::ci_cmp_pred> ElementsByString;
-  typedef std::map<int, DataFileElementRef> ElementsByInteger;
+  using ElementsByString = std::map<std::string, DataFileElementRef, Clib::ci_cmp_pred>;
+  using ElementsByInteger = std::map<int, DataFileElementRef>;
 
   ElementsByString elements_by_string;
   ElementsByInteger elements_by_integer;
 };
-typedef ref_ptr<DataFileContents> DataFileContentsRef;
+using DataFileContentsRef = ref_ptr<DataFileContents>;
 
 
-typedef Bscript::BApplicObj<DataFileContentsRef> DataFileRefObjImpBase;
+using DataFileRefObjImpBase = Bscript::BApplicObj<DataFileContentsRef>;
 
 class DataFileRefObjImp final : public DataFileRefObjImpBase
 {
@@ -106,7 +106,7 @@ public:
   DataFileElementRef dfelem;
 };
 
-typedef Bscript::BApplicObj<DataFileElemObj> DataElemRefObjImpBase;
+using DataElemRefObjImpBase = Bscript::BApplicObj<DataFileElemObj>;
 class DataElemRefObjImp final : public DataElemRefObjImpBase
 {
 public:

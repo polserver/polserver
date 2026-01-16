@@ -21,8 +21,8 @@ namespace Plib
 class Tile;
 class Package;
 
-typedef std::vector<Package*> Packages;
-typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
+using Packages = std::vector<Package*>;
+using PackagesByName = std::map<std::string, Package*, Clib::ci_cmp_pred>;
 
 class SystemState
 {

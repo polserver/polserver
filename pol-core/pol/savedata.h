@@ -19,7 +19,7 @@ namespace Pol::Core
 {
 class SaveContext
 {
-  typedef Clib::StreamWriter SaveStrategy;
+  using SaveStrategy = Clib::StreamWriter;
 
 public:
   SaveContext();

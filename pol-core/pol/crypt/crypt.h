@@ -22,7 +22,7 @@ class CCryptNoCrypt final : public CCryptBase
 {
   // Constructor / Destructor
 public:
-  typedef CCryptBase base;
+  using base = CCryptBase;
 
   CCryptNoCrypt();
   ~CCryptNoCrypt() override = default;
@@ -39,7 +39,7 @@ class CCryptBlowfish : public CCryptBaseCrypt
 {
   // Constructor / Destructor
 public:
-  typedef CCryptBaseCrypt base;
+  using base = CCryptBaseCrypt;
 
   CCryptBlowfish();
   CCryptBlowfish( unsigned int masterKey1, unsigned int masterKey2 );

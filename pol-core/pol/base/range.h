@@ -18,11 +18,11 @@ public:
   Range2dItr() = default;
   Range2dItr( Pos2d v, const Pos2d& v_max );
 
-  typedef Pos2d value_type;
-  typedef std::ptrdiff_t difference_type;
-  typedef const Pos2d* pointer;
-  typedef const Pos2d& reference;
-  typedef std::input_iterator_tag iterator_category;
+  using value_type = Pos2d;
+  using difference_type = std::ptrdiff_t;
+  using pointer = const Pos2d*;
+  using reference = const Pos2d&;
+  using iterator_category = std::input_iterator_tag;
 
   reference operator*() const;
   bool operator==( const Range2dItr& other ) const;

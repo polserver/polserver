@@ -39,8 +39,8 @@ class MessageTypeFilter;
 class SQLService;
 class ServerDescription;
 
-typedef std::vector<Network::Client*> Clients;
-typedef std::vector<ServerDescription*> Servers;
+using Clients = std::vector<Network::Client*>;
+using Servers = std::vector<ServerDescription*>;
 
 class NetworkManager
 {

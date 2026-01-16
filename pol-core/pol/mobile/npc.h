@@ -85,7 +85,7 @@ struct Anchor
 
 class NPC final : public Character
 {
-  typedef Character base;
+  using base = Character;
 
 public:
   explicit NPC( u32 objtype, const Clib::ConfigElem& elem );

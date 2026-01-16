@@ -18,7 +18,7 @@ namespace Mobile
 {
 class Character;
 class NPC;
-}
+}  // namespace Mobile
 namespace Items
 {
 class Item;
@@ -38,11 +38,11 @@ class UObject;
 
 
 #if !REFTYPE_DEBUG
-typedef ref_ptr<UObject> UObjectRef;
-typedef ref_ptr<Mobile::Character> CharacterRef;
-typedef ref_ptr<Items::Item> ItemRef;
-typedef ref_ptr<Mobile::NPC> NpcRef;
-typedef ref_ptr<Accounts::Account> AccountRef;
+using UObjectRef = ref_ptr<UObject>;
+using CharacterRef = ref_ptr<Mobile::Character>;
+using ItemRef = ref_ptr<Items::Item>;
+using NpcRef = ref_ptr<Mobile::NPC>;
+using AccountRef = ref_ptr<Accounts::Account>;
 #else
 class UObjectRef : public ref_ptr<UObject>
 {
@@ -85,7 +85,7 @@ public:
 typedef ref_ptr<Accounts::Account> AccountRef;
 
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

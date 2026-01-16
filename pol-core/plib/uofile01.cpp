@@ -44,7 +44,7 @@ unsigned int landtile_uoflags_read( unsigned short landtile )
 
 struct VerdataIndexes
 {
-  typedef std::map<unsigned int, USTRUCT_VERSION> VRecList;
+  using VRecList = std::map<unsigned int, USTRUCT_VERSION>;
   VRecList vrecs;  // key is the block
 
   void insert( const USTRUCT_VERSION& vrec );

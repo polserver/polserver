@@ -49,7 +49,7 @@ public:
   // TODO: clean up the socket ownership thing so these can be private again
 public:
   Clib::Socket sck_;
-  typedef std::map<std::string, std::string, Clib::ci_cmp_pred> QueryParamMap;
+  using QueryParamMap = std::map<std::string, std::string, Clib::ci_cmp_pred>;
   QueryParamMap params_;
   int continuing_offset;
   std::string query_ip_;

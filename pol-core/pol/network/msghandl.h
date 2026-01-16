@@ -26,13 +26,13 @@ enum class PacketVersion
   Default = V1
 };
 
-typedef void ( *PktHandlerFunc )( Client* client, void* msg );
+using PktHandlerFunc = void ( * )( Client*, void* );
 
-typedef struct
+using MSG_HANDLER = struct
 {
   int msglen;  // if 0, no message handler defined.
   PktHandlerFunc func;
-} MSG_HANDLER;
+};
 
 // extended cmds (0x12)
 enum UEXTMSGID

@@ -18,12 +18,12 @@
 // whatever raw types.
 // Can't decide between USERIAL, UXCOORD, and USerial, UXCoord, either.
 
-typedef u32 USERIAL;
-typedef u16 UOBJTYPE;
-typedef u16 UCOLOR;
-typedef u16 UXCOORD;
-typedef u16 UYCOORD;
-typedef s8 UZCOORD;
+using USERIAL = u32;
+using UOBJTYPE = u16;
+using UCOLOR = u16;
+using UXCOORD = u16;
+using UYCOORD = u16;
+using UZCOORD = s8;
 
 
 #endif

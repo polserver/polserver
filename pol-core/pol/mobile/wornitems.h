@@ -35,7 +35,7 @@ namespace Core
 {
 class WornItemsContainer final : public UContainer
 {
-  typedef UContainer base;
+  using base = UContainer;
 
 public:
   WornItemsContainer();

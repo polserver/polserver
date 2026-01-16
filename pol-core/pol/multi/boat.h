@@ -93,7 +93,7 @@ struct BoatShape
 
 class UBoat final : public UMulti
 {
-  typedef UMulti base;
+  using base = UMulti;
 
   class BoatContext
   {
@@ -224,13 +224,13 @@ private:
   void create_components();
   void move_boat_item( Items::Item* item, const Core::Pos4d& newpos );
   void move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos );
-  typedef Core::UObjectRef Traveller;
-  typedef std::vector<Traveller> Travellers;
+  using Traveller = Core::UObjectRef;
+  using Travellers = std::vector<Traveller>;
   Travellers travellers_;
 
   // Components are not removed from the list when destroyed by the core,
   // so you should always check if the component is an orphan.
-  typedef Core::ItemRef Component;
+  using Component = Core::ItemRef;
   std::vector<Component> Components;
 };
 

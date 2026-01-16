@@ -36,7 +36,7 @@ struct StaticRec
   }
 };
 
-typedef std::vector<StaticRec> StaticList;
+using StaticList = std::vector<StaticRec>;
 
 // TODO: the functions below are only used for uotool or uoconvert. Consider moving to a separate
 // include.

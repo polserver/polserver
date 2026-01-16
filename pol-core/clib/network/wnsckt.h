@@ -7,7 +7,7 @@
 #ifndef WINDOWS
 #include <sys/socket.h>
 
-typedef int SOCKET;
+using SOCKET = int;
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET ( SOCKET )( -1 )
 #endif

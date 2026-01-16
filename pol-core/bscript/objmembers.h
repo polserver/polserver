@@ -318,11 +318,11 @@ inline auto format_as( MemberID id )
   return fmt::underlying( id );
 }
 
-typedef struct
+using ObjMember = struct
 {
   MemberID id;
   char code[30];
-} ObjMember;
+};
 
 extern ObjMember object_members[];
 extern int n_objmembers;

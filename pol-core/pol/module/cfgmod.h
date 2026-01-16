@@ -67,7 +67,7 @@ protected:
 };
 
 
-typedef Bscript::BApplicObj<ref_ptr<Core::StoredConfigFile>> EConfigFileRefObjImpBase;
+using EConfigFileRefObjImpBase = Bscript::BApplicObj<ref_ptr<Core::StoredConfigFile>>;
 
 class EConfigFileRefObjImp final : public EConfigFileRefObjImpBase
 {
@@ -82,7 +82,7 @@ public:
 };
 
 
-typedef Bscript::BApplicObj<ref_ptr<Core::StoredConfigElem>> EConfigElemRefObjImpBase;
+using EConfigElemRefObjImpBase = Bscript::BApplicObj<ref_ptr<Core::StoredConfigElem>>;
 
 class EConfigElemRefObjImp final : public EConfigElemRefObjImpBase
 {

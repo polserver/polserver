@@ -111,10 +111,10 @@ enum ClientTypeFlag
   CLIENTTYPE_70331 = 0x1000  // 7.0.33.1 new mobile incoming
 };
 
-typedef struct
+using PacketThrottler = struct
 {
   unsigned char pktbuffer[PKTIN_02_SIZE];
-} PacketThrottler;
+};
 
 
 class Client;

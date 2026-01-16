@@ -41,11 +41,11 @@ size_t operator()(UObject* obj) const { return obj->serial; }
 class ObjectHash
 {
 public:
-  typedef std::unordered_set<u32> ds;
-  typedef std::pair<u32, UObjectRef> hashpair;
-  typedef std::map<u32, UObjectRef> hs;
-  typedef hs::iterator OH_iterator;
-  typedef hs::const_iterator OH_const_iterator;
+  using ds = std::unordered_set<u32>;
+  using hashpair = std::pair<u32, UObjectRef>;
+  using hs = std::map<u32, UObjectRef>;
+  using OH_iterator = hs::iterator;
+  using OH_const_iterator = hs::const_iterator;
 
   ObjectHash();
   ~ObjectHash();

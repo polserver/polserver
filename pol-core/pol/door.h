@@ -39,7 +39,7 @@ class ExportScript;
 class UOExecutor;
 class UDoor final : public ULockable
 {
-  typedef ULockable base;
+  using base = ULockable;
 
 public:
   ~UDoor() override = default;

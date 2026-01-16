@@ -39,10 +39,10 @@ private:
 };
 
 // typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
-typedef Core::PolApplicObj<PackagePtrHolder> PackageObjImpBase;
+using PackageObjImpBase = Core::PolApplicObj<PackagePtrHolder>;
 class PackageObjImp final : public PackageObjImpBase
 {
-  typedef PackageObjImpBase base;
+  using base = PackageObjImpBase;
 
 public:
   explicit PackageObjImp( const PackagePtrHolder& other );

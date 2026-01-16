@@ -48,7 +48,7 @@ class UOExecutor;
 
 class Spellbook final : public UContainer
 {
-  typedef UContainer base;
+  using base = UContainer;
 
 public:
   explicit Spellbook( const Items::SpellbookDesc& descriptor );
@@ -84,7 +84,7 @@ protected:
 
 class USpellScroll final : public Items::Item
 {
-  typedef Items::Item base;
+  using base = Items::Item;
 
 public:
   ~USpellScroll() override = default;

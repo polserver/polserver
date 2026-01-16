@@ -185,7 +185,7 @@ public:
 
 class ContainerDesc : public ItemDesc
 {
-  typedef ItemDesc base;
+  using base = ItemDesc;
 
 public:
   ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
@@ -214,7 +214,7 @@ public:
 
 class DoorDesc final : public ItemDesc
 {
-  typedef ItemDesc base;
+  using base = ItemDesc;
 
 public:
   DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
@@ -227,7 +227,7 @@ public:
 
 class SpellbookDesc final : public ContainerDesc
 {
-  typedef ContainerDesc base;
+  using base = ContainerDesc;
 
 public:
   SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
@@ -240,7 +240,7 @@ public:
 
 class SpellScrollDesc final : public ItemDesc
 {
-  typedef ItemDesc base;
+  using base = ItemDesc;
 
 public:
   SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
@@ -253,7 +253,7 @@ public:
 
 class MultiDesc : public ItemDesc
 {
-  typedef ItemDesc base;
+  using base = ItemDesc;
 
 public:
   MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
@@ -266,7 +266,7 @@ public:
 
 class BoatDesc final : public MultiDesc
 {
-  typedef MultiDesc base;
+  using base = MultiDesc;
 
 public:
   BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
@@ -279,7 +279,7 @@ public:
 
 class HouseDesc final : public MultiDesc
 {
-  typedef MultiDesc base;
+  using base = MultiDesc;
 
 public:
   HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
@@ -290,7 +290,7 @@ public:
 
 class MapDesc final : public ItemDesc
 {
-  typedef ItemDesc base;
+  using base = ItemDesc;
 
 public:
   MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );

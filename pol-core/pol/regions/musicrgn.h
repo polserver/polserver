@@ -29,7 +29,7 @@ void read_music_zones();
 
 class MusicRegion : public Region
 {
-  typedef Region base;
+  using base = Region;
 
 public:
   MusicRegion( Clib::ConfigElem& elem, RegionId id );

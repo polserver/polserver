@@ -19,7 +19,7 @@ private:
   std::vector<USTRUCT_MAPINFO_BLOCK> m_mapinfo_vec;
 
   // Patch indices for map files (mapdifl[N].mul)
-  typedef std::map<unsigned int, unsigned int> MapBlockIndex;
+  using MapBlockIndex = std::map<unsigned int, unsigned int>;
   MapBlockIndex mapdifl;
 
   unsigned short m_mapwidth;

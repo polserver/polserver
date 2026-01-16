@@ -33,7 +33,7 @@ namespace Core
 class EquipDesc : public Items::ItemDesc
 {
 public:
-  typedef Items::ItemDesc base;
+  using base = Items::ItemDesc;
   EquipDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
   EquipDesc();  // for dummy template
   ~EquipDesc() override = default;

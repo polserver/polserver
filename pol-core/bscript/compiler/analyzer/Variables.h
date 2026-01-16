@@ -48,7 +48,7 @@ private:
   // Encapsulates the current variable stack across function expresions
   struct VariablesInfo
   {
-    typedef std::map<std::string, std::shared_ptr<Variable>, Clib::ci_cmp_pred> VariableMap;
+    using VariableMap = std::map<std::string, std::shared_ptr<Variable>, Clib::ci_cmp_pred>;
 
     VariableMap variables_by_name;
     std::vector<std::string> names_by_index;

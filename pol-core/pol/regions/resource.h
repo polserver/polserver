@@ -85,7 +85,7 @@ private:
   //
   const unsigned int units_per_area_;
   const unsigned int seconds_per_regrow_;
-  typedef std::map<unsigned int, unsigned short> Depletions;
+  using Depletions = std::map<unsigned int, unsigned short>;
   Depletions depletions_;
   time_t last_regen_;
 

@@ -4811,7 +4811,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
 //          It is this class that encapsulates the necessary functionality to
 //          make the otherwise fairly generic stlastar class work.
 
-typedef Plib::AStarSearch<UOPathState> UOSearch;
+using UOSearch = Plib::AStarSearch<UOPathState>;
 
 BObjectImp* UOExecutorModule::mf_FindPath()
 {

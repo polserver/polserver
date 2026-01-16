@@ -18,7 +18,7 @@ namespace Pol
 {
 namespace Bscript
 {
-typedef std::vector<BObjectRef> BObjectRefVec;
+using BObjectRefVec = std::vector<BObjectRef>;
 }
-}
+}  // namespace Pol
 #endif

@@ -37,7 +37,7 @@ namespace Core
 class ExportScript;
 class ULockable : public Items::Item
 {
-  typedef Item base;
+  using base = Item;
 
 public:
   bool locked() const;

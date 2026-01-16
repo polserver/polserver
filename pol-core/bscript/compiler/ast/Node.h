@@ -14,7 +14,7 @@ namespace Pol::Bscript::Compiler
 {
 class Node;
 class NodeVisitor;
-typedef std::vector<std::unique_ptr<Node>> NodeVector;
+using NodeVector = std::vector<std::unique_ptr<Node>>;
 
 template <typename TO, typename FROM>
 std::unique_ptr<TO> static_unique_pointer_cast( std::unique_ptr<FROM> old )

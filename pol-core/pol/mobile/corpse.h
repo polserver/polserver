@@ -43,7 +43,7 @@ class ExportScript;
 // They can decay even if they are immobile.
 class UCorpse final : public UContainer
 {
-  typedef UContainer base;
+  using base = UContainer;
 
 public:
   ~UCorpse() override = default;

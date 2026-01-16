@@ -35,10 +35,10 @@ namespace Core
 class UOExecutor;
 
 extern Bscript::BApplicObjType scriptexobjimp_type;
-typedef weak_ptr<UOExecutor> ScriptExPtr;
+using ScriptExPtr = weak_ptr<UOExecutor>;
 class ScriptExObjImp final : public PolApplicObj<ScriptExPtr>
 {
-  typedef PolApplicObj<ScriptExPtr> base;
+  using base = PolApplicObj<ScriptExPtr>;
 
 public:
   explicit ScriptExObjImp( UOExecutor* uoexec );

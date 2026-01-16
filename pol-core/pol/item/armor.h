@@ -50,7 +50,7 @@ class Item;
 
 class UArmor final : public Equipment
 {
-  typedef Equipment base;
+  using base = Equipment;
 
 public:
   ~UArmor() override = default;

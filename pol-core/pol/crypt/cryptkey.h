@@ -31,12 +31,12 @@ inline auto format_as( ECryptType c )
 }
 
 // Encryption keys and type
-typedef struct _CryptInfo
+using TCryptInfo = struct _CryptInfo
 {
   unsigned int uiKey1;
   unsigned int uiKey2;
   ECryptType eType;
-} TCryptInfo;
+};
 
 void CalculateCryptKeys( const std::string& name, TCryptInfo& infoCrypt );
 }  // namespace Crypt

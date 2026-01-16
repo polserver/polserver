@@ -112,7 +112,7 @@ public:
 
 protected:
   [[noreturn]] void prop_not_found( const char* propname ) const;
-  typedef std::multimap<std::string, std::string, ci_cmp_pred> Props;
+  using Props = std::multimap<std::string, std::string, ci_cmp_pred>;
   Props properties;
 };
 

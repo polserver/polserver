@@ -102,7 +102,7 @@ protected:
   std::string power_words_;
   UACTION action_;
 
-  typedef std::vector<unsigned int> RegList;
+  using RegList = std::vector<unsigned int>;
   RegList reglist_;
   USpellParams params_;
 

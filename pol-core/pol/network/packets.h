@@ -353,150 +353,139 @@ public:
 #define ENCRYPTEDPKTBUFFER static_cast<u8>( 0 )
 
 // Packet defs start
-typedef PacketWriterDefs::EmptyBufferTemplate<ENCRYPTEDPKTBUFFER, 0xFFFF> EncryptedPktBuffer;
+using EncryptedPktBuffer = PacketWriterDefs::EmptyBufferTemplate<static_cast<u8>( 0 ), 65535>;
 
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_0B_ID, 7> PktOut_0B;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_11_ID, 121> PktOut_11;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_17_ID, 12> PktOut_17;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_1A_ID, 20> PktOut_1A;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_1B_ID, 37> PktOut_1B;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_1C_ID, 44 + SPEECH_MAX_LEN + 1> PktOut_1C;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_1D_ID, 5> PktOut_1D;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_20_ID, 19> PktOut_20;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_21_ID, 8> PktOut_21;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_22_APPROVED_ID, 3> PktOut_22;
+using PktOut_0B = PacketWriterDefs::PacketTemplate<Core::PKTOUT_0B_ID, 7>;
+using PktOut_11 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_11_ID, 121>;
+using PktOut_17 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_17_ID, 12>;
+using PktOut_1A = PacketWriterDefs::PacketTemplate<Core::PKTOUT_1A_ID, 20>;
+using PktOut_1B = PacketWriterDefs::PacketTemplate<Core::PKTOUT_1B_ID, 37>;
+using PktOut_1C = PacketWriterDefs::PacketTemplate<Core::PKTOUT_1C_ID, 44 + 200 + 1>;
+using PktOut_1D = PacketWriterDefs::PacketTemplate<Core::PKTOUT_1D_ID, 5>;
+using PktOut_20 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_20_ID, 19>;
+using PktOut_21 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_21_ID, 8>;
+using PktOut_22 = PacketWriterDefs::PacketTemplate<Core::PKTBI_22_APPROVED_ID, 3>;
 // HSA 9 old 7
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_24_ID, 9> PktOut_24;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_25_ID, 21> PktOut_25;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_27_ID, 2> PktOut_27;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_29_ID, 1> PktOut_29;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_2C_ID, 2> PktOut_2C;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_2D_ID, 17> PktOut_2D;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_2E_ID, 15> PktOut_2E;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_2F_ID, 10> PktOut_2F;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_3A_ID, 6 + 100 * 9> PktOut_3A;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_3B_ID, 8> PktOut_3B;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_3C_ID, 5 + MAX_CONTAINER_ITEMS * 20>
-    PktOut_3C;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_4F_ID, 2> PktOut_4F;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_53_ID, 2> PktOut_53;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_54_ID, 12> PktOut_54;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_55_ID, 1> PktOut_55;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_56_ID, 11> PktOut_56;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_65_ID, 4> PktOut_65;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_66_ID, 0xFFFF> PktOut_66;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_6C_ID, 19> PktOut_6C;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_6D_ID, 3> PktOut_6D;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_6E_ID, 14> PktOut_6E;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_6F_ID, 47> PktOut_6F;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_70_ID, 28> PktOut_70;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_72_ID, 5> PktOut_72;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_74_ID, 0xFFFF> PktOut_74;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_76_ID, 16> PktOut_76;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_77_ID, 17> PktOut_77;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_78_ID, 19 + ( 9 * Core::HIGHEST_LAYER ) + 4>
-    PktOut_78;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_7C_ID, 2000> PktOut_7C;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_82_ID, 2> PktOut_82;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_88_ID, 66> PktOut_88;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_89_ID,
-                                         7 + ( 5 * ( Core::NUM_LAYERS + 1 ) ) + 1>
-    PktOut_89;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_8C_ID, 11> PktOut_8C;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_90_ID, 19> PktOut_90;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_93_ID, 99> PktOut_93;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_95_ID, 9> PktOut_95;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_98_OUT_ID, 37> PktOut_98;
+using PktOut_24 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_24_ID, 9>;
+using PktOut_25 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_25_ID, 21>;
+using PktOut_27 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_27_ID, 2>;
+using PktOut_29 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_29_ID, 1>;
+using PktOut_2C = PacketWriterDefs::PacketTemplate<Core::PKTBI_2C_ID, 2>;
+using PktOut_2D = PacketWriterDefs::PacketTemplate<Core::PKTOUT_2D_ID, 17>;
+using PktOut_2E = PacketWriterDefs::PacketTemplate<Core::PKTOUT_2E_ID, 15>;
+using PktOut_2F = PacketWriterDefs::PacketTemplate<Core::PKTOUT_2F_ID, 10>;
+using PktOut_3A = PacketWriterDefs::PacketTemplate<Core::PKTBI_3A_ID, 6 + 100 * 9>;
+using PktOut_3B = PacketWriterDefs::PacketTemplate<Core::PKTBI_3B_ID, 8>;
+using PktOut_3C = PacketWriterDefs::PacketTemplate<Core::PKTOUT_3C_ID, 5 + 3200 * 20>;
+using PktOut_4F = PacketWriterDefs::PacketTemplate<Core::PKTOUT_4F_ID, 2>;
+using PktOut_53 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_53_ID, 2>;
+using PktOut_54 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_54_ID, 12>;
+using PktOut_55 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_55_ID, 1>;
+using PktOut_56 = PacketWriterDefs::PacketTemplate<Core::PKTBI_56_ID, 11>;
+using PktOut_65 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_65_ID, 4>;
+using PktOut_66 = PacketWriterDefs::PacketTemplate<Core::PKTBI_66_ID, 65535>;
+using PktOut_6C = PacketWriterDefs::PacketTemplate<Core::PKTBI_6C_ID, 19>;
+using PktOut_6D = PacketWriterDefs::PacketTemplate<Core::PKTOUT_6D_ID, 3>;
+using PktOut_6E = PacketWriterDefs::PacketTemplate<Core::PKTOUT_6E_ID, 14>;
+using PktOut_6F = PacketWriterDefs::PacketTemplate<Core::PKTBI_6F_ID, 47>;
+using PktOut_70 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_70_ID, 28>;
+using PktOut_72 = PacketWriterDefs::PacketTemplate<Core::PKTBI_72_ID, 5>;
+using PktOut_74 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_74_ID, 65535>;
+using PktOut_76 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_76_ID, 16>;
+using PktOut_77 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_77_ID, 17>;
+using PktOut_78 =
+    PacketWriterDefs::PacketTemplate<Core::PKTOUT_78_ID, 19 + ( 9 * Core::HIGHEST_LAYER ) + 4>;
+using PktOut_7C = PacketWriterDefs::PacketTemplate<Core::PKTOUT_7C_ID, 2000>;
+using PktOut_82 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_82_ID, 2>;
+using PktOut_88 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_88_ID, 66>;
+using PktOut_89 =
+    PacketWriterDefs::PacketTemplate<Core::PKTOUT_89_ID, 7 + ( 5 * ( Core::NUM_LAYERS + 1 ) ) + 1>;
+using PktOut_8C = PacketWriterDefs::PacketTemplate<Core::PKTOUT_8C_ID, 11>;
+using PktOut_90 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_90_ID, 19>;
+using PktOut_93 = PacketWriterDefs::PacketTemplate<Core::PKTBI_93_ID, 99>;
+using PktOut_95 = PacketWriterDefs::PacketTemplate<Core::PKTBI_95_ID, 9>;
+using PktOut_98 = PacketWriterDefs::PacketTemplate<Core::PKTBI_98_OUT_ID, 37>;
 // HSA 30 old 26
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_99_ID, 30> PktOut_99;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_9A_ID, 16> PktOut_9A;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_9E_ID, 0xFFFF> PktOut_9E;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_A1_ID, 9> PktOut_A1;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_A2_ID, 9> PktOut_A2;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_A3_ID, 9> PktOut_A3;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_A5_ID, URL_MAX_LEN + 4> PktOut_A5;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_A6_ID, 10010> PktOut_A6;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_A8_ID, 2000> PktOut_A8;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_A9_ID, 10000> PktOut_A9;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_AA_ID, 5> PktOut_AA;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_AB_ID, 531> PktOut_AB;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_AE_ID, ( SPEECH_MAX_LEN + 1 ) * 2 + 48>
-    PktOut_AE;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_AF_ID, 13> PktOut_AF;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_B0_ID, 0xFFFF> PktOut_B0;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_B7_ID, 521> PktOut_B7;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_B8_OUT_ID, 7 + 5 * ( SPEECH_MAX_LEN + 1 )>
-    PktOut_B8;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_B9_ID, 5> PktOut_B9;
+using PktOut_99 = PacketWriterDefs::PacketTemplate<Core::PKTBI_99_ID, 30>;
+using PktOut_9A = PacketWriterDefs::PacketTemplate<Core::PKTBI_9A_ID, 16>;
+using PktOut_9E = PacketWriterDefs::PacketTemplate<Core::PKTOUT_9E_ID, 65535>;
+using PktOut_A1 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_A1_ID, 9>;
+using PktOut_A2 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_A2_ID, 9>;
+using PktOut_A3 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_A3_ID, 9>;
+using PktOut_A5 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_A5_ID, 200 + 4>;
+using PktOut_A6 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_A6_ID, 10010>;
+using PktOut_A8 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_A8_ID, 2000>;
+using PktOut_A9 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_A9_ID, 10000>;
+using PktOut_AA = PacketWriterDefs::PacketTemplate<Core::PKTOUT_AA_ID, 5>;
+using PktOut_AB = PacketWriterDefs::PacketTemplate<Core::PKTOUT_AB_ID, 531>;
+using PktOut_AE = PacketWriterDefs::PacketTemplate<Core::PKTOUT_AE_ID, ( 200 + 1 ) * 2 + 48>;
+using PktOut_AF = PacketWriterDefs::PacketTemplate<Core::PKTOUT_AF_ID, 13>;
+using PktOut_B0 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_B0_ID, 65535>;
+using PktOut_B7 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_B7_ID, 521>;
+using PktOut_B8 = PacketWriterDefs::PacketTemplate<Core::PKTBI_B8_OUT_ID, 7 + 5 * ( 200 + 1 )>;
+using PktOut_B9 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_B9_ID, 5>;
 // HSA 10 old 6
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_BA_ID, 10> PktOut_BA;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_BC_ID, 3> PktOut_BC;
+using PktOut_BA = PacketWriterDefs::PacketTemplate<Core::PKTOUT_BA_ID, 10>;
+using PktOut_BC = PacketWriterDefs::PacketTemplate<Core::PKTOUT_BC_ID, 3>;
 
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CLOSE_GUMP,
-                                            5 + 8>
-    PktOut_BF_Sub4;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_PARTY_SYSTEM,
-                                            0xFFFF>
-    PktOut_BF_Sub6;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CURSOR_HUE,
-                                            5 + 1>
-    PktOut_BF_Sub8;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_OBJECT_CACHE,
-                                            5 + 8>
-    PktOut_BF_Sub10;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
-                                            Core::PKTBI_BF::TYPE_DISPLAY_POPUP_MENU, 0xFFFF>
-    PktOut_BF_Sub14;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CLOSE_WINDOW,
-                                            5 + 8>
-    PktOut_BF_Sub16;
-typedef PacketWriterDefs::PacketTemplateSub<
-    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_ENABLE_MAP_DIFFS, 5 + 4 + MAX_NUMER_REALMS * 8>
-    PktOut_BF_Sub18;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
-                                            Core::PKTBI_BF::TYPE_EXTENDED_STATS_OUT, 5 + 7>
-    PktOut_BF_Sub19;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
-                                            Core::PKTBI_BF::TYPE_NEW_SPELLBOOK, 5 + 18>
-    PktOut_BF_Sub1B;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
-                                            Core::PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT, 5 + 8>
-    PktOut_BF_Sub1D;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
-                                            Core::PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL, 5 + 12>
-    PktOut_BF_Sub20;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_DAMAGE,
-                                            5 + 6>
-    PktOut_BF_Sub22;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
-                                            Core::PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER, 5 + 2>
-    PktOut_BF_Sub2A;
+using PktOut_BF_Sub4 = PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                                           Core::PKTBI_BF::TYPE_CLOSE_GUMP, 5 + 8>;
+using PktOut_BF_Sub6 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_PARTY_SYSTEM,
+                                        65535>;
+using PktOut_BF_Sub8 = PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                                           Core::PKTBI_BF::TYPE_CURSOR_HUE, 5 + 1>;
+using PktOut_BF_Sub10 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_OBJECT_CACHE,
+                                        5 + 8>;
+using PktOut_BF_Sub14 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                        Core::PKTBI_BF::TYPE_DISPLAY_POPUP_MENU, 65535>;
+using PktOut_BF_Sub16 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CLOSE_WINDOW,
+                                        5 + 8>;
+using PktOut_BF_Sub18 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_ENABLE_MAP_DIFFS,
+                                        5 + 4 + 6 * 8>;
+using PktOut_BF_Sub19 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                        Core::PKTBI_BF::TYPE_EXTENDED_STATS_OUT, 5 + 7>;
+using PktOut_BF_Sub1B =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_NEW_SPELLBOOK,
+                                        5 + 18>;
+using PktOut_BF_Sub1D =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                        Core::PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT, 5 + 8>;
+using PktOut_BF_Sub20 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                        Core::PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL, 5 + 12>;
+using PktOut_BF_Sub22 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_DAMAGE, 5 + 6>;
+using PktOut_BF_Sub2A =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                        Core::PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER, 5 + 2>;
 
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_C1_ID, 48 + ( SPEECH_MAX_LEN + 1 ) + 2>
-    PktOut_C1;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_C2_ID, 21> PktOut_C2;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_C7_ID, 49> PktOut_C7;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_C8_ID, 2> PktOut_C8;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_CC_ID,
-                                         49 + ( SPEECH_MAX_LEN + 1 ) * 2 + SPEECH_MAX_LEN + 1>
-    PktOut_CC;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_D6_OUT_ID, 0xFFFF> PktOut_D6;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DC_ID, 9> PktOut_DC;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DD_ID, 0xFFFF> PktOut_DD;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DF_ID, 0xFFFF> PktOut_DF;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_E2_ID, 10> PktOut_E2;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_E3_ID, 77> PktOut_E3;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_F0_ID, 1, Core::PKTBI_F0::QUERY_PARTY,
-                                            0xFFFF>
-    PktOut_F0_Sub01;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_F0_ID, 1, Core::PKTBI_F0::QUERY_GUILD,
-                                            0xFFFF>
-    PktOut_F0_Sub02;
+using PktOut_C1 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_C1_ID, 48 + ( 200 + 1 ) + 2>;
+using PktOut_C2 = PacketWriterDefs::PacketTemplate<Core::PKTBI_C2_ID, 21>;
+using PktOut_C7 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_C7_ID, 49>;
+using PktOut_C8 = PacketWriterDefs::PacketTemplate<Core::PKTBI_C8_ID, 2>;
+using PktOut_CC =
+    PacketWriterDefs::PacketTemplate<Core::PKTOUT_CC_ID, 49 + ( 200 + 1 ) * 2 + 200 + 1>;
+using PktOut_D6 = PacketWriterDefs::PacketTemplate<Core::PKTBI_D6_OUT_ID, 65535>;
+using PktOut_DC = PacketWriterDefs::PacketTemplate<Core::PKTOUT_DC_ID, 9>;
+using PktOut_DD = PacketWriterDefs::PacketTemplate<Core::PKTOUT_DD_ID, 65535>;
+using PktOut_DF = PacketWriterDefs::PacketTemplate<Core::PKTOUT_DF_ID, 65535>;
+using PktOut_E2 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_E2_ID, 10>;
+using PktOut_E3 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_E3_ID, 77>;
+using PktOut_F0_Sub01 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_F0_ID, 1, Core::PKTBI_F0::QUERY_PARTY, 65535>;
+using PktOut_F0_Sub02 =
+    PacketWriterDefs::PacketTemplateSub<Core::PKTBI_F0_ID, 1, Core::PKTBI_F0::QUERY_GUILD, 65535>;
 // HSA 26 old 24
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F3_ID, 26> PktOut_F3;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F5_ID, 21> PktOut_F5;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F6_ID, 0xFFFF> PktOut_F6;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F7_ID, 0xFFFF> PktOut_F7;
+using PktOut_F3 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_F3_ID, 26>;
+using PktOut_F5 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_F5_ID, 21>;
+using PktOut_F6 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_F6_ID, 65535>;
+using PktOut_F7 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_F7_ID, 65535>;
 // Packet defs end
 }  // namespace Network
 }  // namespace Pol

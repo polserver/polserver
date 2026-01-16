@@ -44,7 +44,7 @@ private:
 template <class T>
 class weak_ptr : protected ref_ptr<weak_ptr_link<T>>
 {
-  typedef ref_ptr<weak_ptr_link<T>> base;
+  using base = ref_ptr<weak_ptr_link<T>>;
 
 public:
   explicit weak_ptr( weak_ptr_link<T>* wpl );

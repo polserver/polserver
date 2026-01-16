@@ -130,12 +130,12 @@ protected:
 };
 
 // shortcuts for filtering
-typedef FilterImp<FilterType::Mobile> MobileFilter;
-typedef FilterImp<FilterType::Player> PlayerFilter;
-typedef FilterImp<FilterType::OnlinePlayer> OnlinePlayerFilter;
-typedef FilterImp<FilterType::NPC> NPCFilter;
-typedef FilterImp<FilterType::Item> ItemFilter;
-typedef FilterImp<FilterType::Multi> MultiFilter;
+using MobileFilter = FilterImp<FilterType::Mobile>;
+using PlayerFilter = FilterImp<FilterType::Player>;
+using OnlinePlayerFilter = FilterImp<FilterType::OnlinePlayer>;
+using NPCFilter = FilterImp<FilterType::NPC>;
+using ItemFilter = FilterImp<FilterType::Item>;
+using MultiFilter = FilterImp<FilterType::Multi>;
 
 namespace
 {

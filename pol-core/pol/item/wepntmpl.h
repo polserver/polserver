@@ -25,7 +25,7 @@ namespace Items
 class WeaponDesc : public Core::EquipDesc
 {
 public:
-  typedef EquipDesc base;
+  using base = EquipDesc;
   WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   WeaponDesc();  // for dummy template
   ~WeaponDesc() override = default;

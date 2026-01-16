@@ -52,7 +52,7 @@ public:
 private:
   MYSQL_RES* _result;
 };
-typedef std::shared_ptr<ResultWrapper> RES_WRAPPER;
+using RES_WRAPPER = std::shared_ptr<ResultWrapper>;
 
 class BSQLRow final : public Core::PolObjectImp
 {
@@ -114,8 +114,8 @@ private:
 };
 class SQLService;
 
-typedef std::vector<std::string> QueryParam;
-typedef std::shared_ptr<QueryParam> QueryParams;
+using QueryParam = std::vector<std::string>;
+using QueryParams = std::shared_ptr<QueryParam>;
 
 class BSQLConnection final : public Core::PolObjectImp
 {
@@ -172,8 +172,8 @@ private:
 class SQLService
 {
 public:
-  typedef std::function<void()> msg;
-  typedef Clib::message_queue<msg> msg_queue;
+  using msg = std::function<void()>;
+  using msg_queue = Clib::message_queue<msg>;
   SQLService();
   ~SQLService();
   void start();

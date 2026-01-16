@@ -104,7 +104,7 @@ template <typename ENUM,
               std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value, int>::type = 0>
 struct AttributeFlags
 {
-  typedef typename std::underlying_type<ENUM>::type enum_t;
+  using enum_t = typename std::underlying_type<ENUM>::type;
   AttributeFlags() : flags_( 0 ){};
 
   bool get( ENUM flag ) const

@@ -69,8 +69,8 @@ public:
   };
 
 
-  typedef std::vector<Node*> NodeVector;
-  typedef typename NodeVector::iterator NodeVectorIterator;
+  using NodeVector = std::vector<Node*>;
+  using NodeVectorIterator = typename NodeVector::iterator;
   // For sorting the heap the STL needs compare function that lets us compare
   // the f value of two nodes
   class HeapCompare_f

@@ -31,7 +31,7 @@ void read_justice_zones();
 
 class JusticeRegion : public Region
 {
-  typedef Region base;
+  using base = Region;
 
 public:
   JusticeRegion( Clib::ConfigElem& elem, RegionId id );

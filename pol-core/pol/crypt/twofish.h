@@ -13,7 +13,7 @@ namespace Crypt
 {
 // Structs for TwoFish
 
-typedef struct tagkeyInstance
+using KeyInstance = struct tagkeyInstance
 {
   unsigned char direction;
   int keyLen;
@@ -23,15 +23,15 @@ typedef struct tagkeyInstance
   unsigned int key32[8];
   unsigned int sboxKeys[4];
   unsigned int subKeys[40];
-} KeyInstance;
+};
 
-typedef struct tagcipherInstance
+using CipherInstance = struct tagcipherInstance
 {
   unsigned char mode;
   unsigned char IV[16];
   unsigned int cipherSig;
   unsigned int iv32[4];
-} CipherInstance;
+};
 
 class TwoFish
 {
@@ -78,9 +78,9 @@ protected:
     x = ( x << 8 ) ^ ( g3 << 24 ) ^ ( g2 << 16 ) ^ ( g3 << 8 ) ^ b;                \
   }
 
-#define LFSR1( x ) ( ( ( x ) >> 1 ) ^ ( ( (x)&0x01 ) ? 0x169 / 2 : 0 ) )
+#define LFSR1( x ) ( ( ( x ) >> 1 ) ^ ( ( ( x ) & 0x01 ) ? 0x169 / 2 : 0 ) )
 #define LFSR2( x ) \
-  ( ( ( x ) >> 2 ) ^ ( ( (x)&0x02 ) ? 0x169 / 2 : 0 ) ^ ( ( (x)&0x01 ) ? 0x169 / 4 : 0 ) )
+  ( ( ( x ) >> 2 ) ^ ( ( ( x ) & 0x02 ) ? 0x169 / 2 : 0 ) ^ ( ( ( x ) & 0x01 ) ? 0x169 / 4 : 0 ) )
 #define Mx_1( x ) ( (unsigned int)( x ) )
 #define Mx_X( x ) ( (unsigned int)( ( x ) ^ LFSR2( x ) ) )
 #define Mx_Y( x ) ( (unsigned int)( ( x ) ^ LFSR1( x ) ^ LFSR2( x ) ) )
@@ -123,10 +123,10 @@ protected:
 #define P_32 1
 #define P_33 ( P_31 ^ 1 )
 #define P_34 1
-#define ROL( x, n ) ( ( ( x ) << ( (n)&0x1F ) ) | ( ( x ) >> ( 32 - ( (n)&0x1F ) ) ) )
-#define ROR( x, n ) ( ( ( x ) >> ( (n)&0x1F ) ) | ( ( x ) << ( 32 - ( (n)&0x1F ) ) ) )
+#define ROL( x, n ) ( ( ( x ) << ( ( n ) & 0x1F ) ) | ( ( x ) >> ( 32 - ( ( n ) & 0x1F ) ) ) )
+#define ROR( x, n ) ( ( ( x ) >> ( ( n ) & 0x1F ) ) | ( ( x ) << ( 32 - ( ( n ) & 0x1F ) ) ) )
 #define Bswap( x ) ( x )
-#define _b( x, N ) ( ( (unsigned char*)&x )[( (N)&3 ) ^ 0] )
-}
-}
+#define _b( x, N ) ( ( (unsigned char*)&x )[( ( N ) & 3 ) ^ 0] )
+}  // namespace Crypt
+}  // namespace Pol
 #endif  //__TWOFISH_H__
