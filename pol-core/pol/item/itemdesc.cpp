@@ -240,7 +240,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       props( Core::CPropProfiler::Type::ITEM ),
       method_script( nullptr ),
       save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
-      // NOTE: do not forget the other constructor!
+// NOTE: do not forget the other constructor!
 
 {
   if ( type == BOATDESC || type == HOUSEDESC )
@@ -341,7 +341,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     unsigned amount;
     if ( is >> rname >> amount )
     {
-      resources.push_back( ResourceComponent( rname, amount ) );
+      resources.emplace_back( rname, amount );
     }
     else
     {

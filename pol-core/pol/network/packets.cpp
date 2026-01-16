@@ -291,7 +291,7 @@ size_t PacketQueueSubs::estimateSize() const
   size_t size = sizeof( PacketQueueSubs ) + Clib::memsize( _packets );
   for ( const auto& pkts : _packets )
   {
-    if ( pkts.second.size() )
+    if ( !pkts.second.empty() )
       size += pkts.second.front()->estimateSize() * pkts.second.size();
   }
   return size;

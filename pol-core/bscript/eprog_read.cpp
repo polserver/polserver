@@ -396,7 +396,7 @@ int EScriptProgram::read_globalvarnames( FILE* fp )
       res = -1;
       break;
     }
-    globalvarnames.push_back( std::string( buffer ) );
+    globalvarnames.emplace_back( buffer );
   }
   delete[] buffer;
   buffer = nullptr;

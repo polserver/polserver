@@ -548,8 +548,8 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
         addMap = false;
 
       if ( addMap )
-        statics.push_back( StaticRec( 0, static_cast<signed char>( z ), lt_flags,
-                                      static_cast<char>( lt_height ) ) );
+        statics.emplace_back( 0, static_cast<signed char>( z ), lt_flags,
+                              static_cast<char>( lt_height ) );
 
       sort( statics.begin(), statics.end(), StaticsByZ() );
       reverse( statics.begin(), statics.end() );

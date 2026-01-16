@@ -114,7 +114,7 @@ size_t thread_pid()
 }
 #endif
 
-void run_thread( void ( *threadf )( void ) )
+void run_thread( void ( *threadf )() )
 {
   // thread creator calls inc_child_thread_count before starting thread
   try
@@ -152,7 +152,7 @@ class ThreadData
 public:
   std::string name;
   void ( *entry )( void* );
-  void ( *entry_noparam )( void );
+  void ( *entry_noparam )();
   void* arg;
 };
 
@@ -165,7 +165,7 @@ void* thread_stub2( void* v_td )
   ThreadData* td = reinterpret_cast<ThreadData*>( v_td );
 
   void ( *entry )( void* ) = td->entry;
-  void ( *entry_noparam )( void ) = td->entry_noparam;
+  void ( *entry_noparam )() = td->entry_noparam;
   void* arg = td->arg;
 
   threadmap.Register( thread_pid(), td->name );
@@ -245,7 +245,7 @@ void start_thread( void ( *entry )( void* ), const char* thread_name, void* arg 
   create_thread( td, true );
 }
 
-void start_thread( void ( *entry )( void ), const char* thread_name )
+void start_thread( void ( *entry )(), const char* thread_name )
 {
   auto td = new ThreadData;
   td->name = thread_name;

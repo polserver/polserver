@@ -311,7 +311,7 @@ std::string BBinaryfile::getStringRep() const
 
 bool BBinaryfile::isTrue() const
 {
-  if ( _filename == "" )
+  if ( _filename.empty() )
     return false;
   return file.IsOpen();
 }

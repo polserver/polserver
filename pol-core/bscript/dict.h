@@ -81,7 +81,7 @@ private:
   Contents contents_;
 
   // not implemented:
-  BDictionary& operator=( const BDictionary& );
+  BDictionary& operator=( const BDictionary& ) = delete;
 };
 }  // namespace Bscript
 }  // namespace Pol

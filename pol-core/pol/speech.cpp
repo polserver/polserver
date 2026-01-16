@@ -13,6 +13,7 @@
 #include <cctype>
 #include <cstddef>
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "../bscript/bobject.h"
@@ -423,7 +424,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
 
   if ( msgin->type & 0xc0 )
   {
-    speechtokens.reset( new Bscript::ObjArray() );
+    speechtokens = std::make_unique<Bscript::ObjArray>();
     for ( u16 j = 0; j < numtokens; j++ )
     {
       speechtokens->addElement(

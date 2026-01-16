@@ -115,7 +115,7 @@ void Menu::read_menus()
     menu_name = elem.remove_string( "NAME" );
     menu_title = elem.remove_string( "TITLE" );
 
-    gamestate.menus.push_back( Menu() );
+    gamestate.menus.emplace_back();
     Menu* menu = &gamestate.menus.back();
 
     menu->menu_id = static_cast<unsigned short>( gamestate.menus.size() );
@@ -176,7 +176,7 @@ void Menu::read_menus()
             title.erase( 0, 1 );
         }
 
-        if ( objtype_str == "" )
+        if ( objtype_str.empty() )
         {
           ERROR_PRINTLN( "Entry in menu {} must provide at least an object type", menu->name );
           throw std::runtime_error( "Data error in MENUS.CFG" );
@@ -188,32 +188,32 @@ void Menu::read_menus()
                          objtype_str );
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
-        if ( ( stricmp( propname.c_str(), "SubMenu" ) == 0 ) && ( submenu_name == "" ) )
+        if ( ( stricmp( propname.c_str(), "SubMenu" ) == 0 ) && ( submenu_name.empty() ) )
         {
           ERROR_PRINTLN( "SubMenu in menu {} needs format: Objtype, Title, SubMenuName [got '{}']",
                          menu->name, value );
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
-        if ( ( stricmp( propname.c_str(), "Entry" ) == 0 ) && ( submenu_name != "" ) )
+        if ( ( stricmp( propname.c_str(), "Entry" ) == 0 ) && ( !submenu_name.empty() ) )
         {
           ERROR_PRINTLN( "Entry in menu {} must not specify SubMenuName [got '{}']", menu->name,
                          value );
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
 
-        menu->menuitems_.push_back( MenuItem() );
+        menu->menuitems_.emplace_back();
         MenuItem* mi = &menu->menuitems_.back();
 
         mi->objtype_ = objtype;
         mi->graphic_ = Items::getgraphic( objtype );
         mi->color_ = Items::getcolor( objtype );
 
-        if ( title != "" )
+        if ( !title.empty() )
           Clib::stracpy( mi->title, title.c_str(), sizeof mi->title );
         else
           mi->title[0] = '\0';
 
-        if ( submenu_name != "" )
+        if ( !submenu_name.empty() )
           Clib::stracpy( mi->submenu_name, submenu_name.c_str(), sizeof mi->submenu_name );
         else
           mi->submenu_name[0] = '\0';

@@ -729,7 +729,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
           if ( auto class_decl_itr = workspace.class_declaration_indexes.find( class_name );
                class_decl_itr != workspace.class_declaration_indexes.end() &&
-               workspace.class_declarations[class_decl_itr->second]->parameters().size() > 0 )
+               !workspace.class_declarations[class_decl_itr->second]->parameters().empty() )
           {
             has_base_classes = true;
           }
@@ -881,7 +881,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     }
   }
 
-  auto is_callee_variadic = parameters.size() && parameters.back().get().rest;
+  auto is_callee_variadic = !parameters.empty() && parameters.back().get().rest;
 
   const auto method_name = fc.string();
 
@@ -1440,7 +1440,7 @@ void SemanticAnalyzer::visit_sequence_binding( SequenceBinding& node )
 void SemanticAnalyzer::visit_user_function( UserFunction& node )
 {
   // Track current scope for use in visit_identifier
-  current_scope_names.push( ScopeName( node.scope ) );
+  current_scope_names.emplace( node.scope );
   user_functions.emplace( &node );
   if ( node.exported )
   {

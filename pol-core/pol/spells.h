@@ -68,8 +68,8 @@ public:
 
 private:
   // not implemented:
-  SpellCircle( const SpellCircle& );
-  SpellCircle& operator=( const SpellCircle& );
+  SpellCircle( const SpellCircle& ) = delete;
+  SpellCircle& operator=( const SpellCircle& ) = delete;
 };
 
 

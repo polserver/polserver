@@ -31,7 +31,7 @@ protected:
 public:
   explicit SymbolContainer( int growBy = 512 );
   virtual ~SymbolContainer();
-  virtual void pack( void ) {}
+  virtual void pack() {}
   void erase();
 
   virtual void resize( unsigned lengthToAdd );
@@ -41,10 +41,10 @@ public:
   void append( double dvalue, unsigned& position );
   void append( void* data, unsigned datalen, unsigned& position );
 
-  unsigned length( void ) const { return usedLen; }
+  unsigned length() const { return usedLen; }
   void setlength( unsigned newLen ) { usedLen = newLen; }
-  const char* array( void ) const { return s; }
-  virtual void* detach( void )
+  const char* array() const { return s; }
+  virtual void* detach()
   {
     char* t = s;
     s = nullptr;
@@ -64,15 +64,15 @@ class StoredTokenContainer final : public SymbolContainer
 public:
   StoredToken* ST;
   explicit StoredTokenContainer( int growBy = 512 ) : SymbolContainer( growBy ), ST( nullptr ) {}
-  void pack( void ) override;
-  void* detach( void ) override;
+  void pack() override;
+  void* detach() override;
   void resize( unsigned lengthToAdd ) override;
   void setcount( unsigned newCount ) { usedLen = newCount * sizeof( StoredToken ); }
-  unsigned count( void ) const { return usedLen / sizeof( StoredToken ); }
+  unsigned count() const { return usedLen / sizeof( StoredToken ); }
   void append_tok( const StoredToken& token, unsigned* position = nullptr );
   void atPut1( const StoredToken& token, unsigned position );
   void atGet1( unsigned position, StoredToken& token ) const;
-  unsigned next( void ) { return length() / sizeof( StoredToken ); }
+  unsigned next() { return length() / sizeof( StoredToken ); }
   void read( FILE* fp ) override;
 };
 }  // namespace Bscript

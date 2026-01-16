@@ -15,8 +15,8 @@ class BObjectImp;
 }
 namespace Core
 {
-void debug_listen_thread( void );
+void debug_listen_thread();
 Bscript::BObjectImp* create_debug_context();
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

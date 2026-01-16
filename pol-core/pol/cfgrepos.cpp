@@ -220,7 +220,7 @@ void StoredConfigFile::load_tus_scp( const std::string& filename )
     std::string propname, propvalue;
     Clib::splitnamevalue( strbuf, propname, propvalue );
 
-    if ( propname == "" || propname.substr( 0, 2 ) == "//" )
+    if ( propname.empty() || propname.substr( 0, 2 ) == "//" )
       continue;
 
     Bscript::BObjectImp* newimp = Bscript::bobject_from_string( propvalue, 16 );

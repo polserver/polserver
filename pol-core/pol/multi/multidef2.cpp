@@ -37,8 +37,7 @@ bool MultiDef::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short
     {
       if ( elem->is_static )
       {
-        vec.push_back(
-            Plib::StaticRec( graphic, static_cast<signed char>( elem->relpos.z() + zbase ) ) );
+        vec.emplace_back( graphic, static_cast<signed char>( elem->relpos.z() + zbase ) );
         result = true;
       }
       // Shinigami: removed. doesn't make sense. non-static

@@ -18,11 +18,11 @@ class Dice
 public:
   Dice();
   bool load( const char* dice, std::string* errormsg );
-  unsigned short roll( void ) const;
+  unsigned short roll() const;
   int roll_with_negatives() const;
   void die_string( std::string& str ) const;
-  unsigned short min_value( void ) const;
-  unsigned short max_value( void ) const;
+  unsigned short min_value() const;
+  unsigned short max_value() const;
 
 private:
   unsigned die_count;

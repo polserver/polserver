@@ -168,7 +168,7 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
         groups->addElement( UninitObject::create() );
       }
     }
-    args.push_back( BObjectRef( groups.release() ) );
+    args.emplace_back( groups.release() );
 
     // Add offset and original string as arguments
     args.push_back( BObjectRef( new BLong( Clib::clamp_convert<int>( match.position() + 1 ) ) ) );
@@ -385,8 +385,7 @@ BObjectImp* BRegExp::replace( Executor& ex, const String* str, BFunctionRef* rep
   {
     return std::visit(
         [&]( auto&& re )
-        { return do_replace( re, ex, this, str, replacement_callback, match_flags_ ); },
-        regex_ );
+        { return do_replace( re, ex, this, str, replacement_callback, match_flags_ ); }, regex_ );
   }
   catch ( ... )
   {

@@ -32,7 +32,7 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 {
   auto program_info =
       workspace->program
-          ? std::unique_ptr<CompiledScript::ProgramInfo>( new CompiledScript::ProgramInfo{
+          ? std::make_unique<CompiledScript::ProgramInfo>( CompiledScript::ProgramInfo{
                 static_cast<unsigned>( workspace->program->parameter_list().children.size() ) } )
           : std::unique_ptr<CompiledScript::ProgramInfo>();
 

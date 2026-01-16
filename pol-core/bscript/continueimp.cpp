@@ -30,7 +30,7 @@ BFunctionRef* BContinuation::func()
   return funcref_->impptr<BFunctionRef>();
 }
 
-BObjectImp* BContinuation::copy( void ) const
+BObjectImp* BContinuation::copy() const
 {
   return nullptr;
 }

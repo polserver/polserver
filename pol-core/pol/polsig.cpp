@@ -116,7 +116,7 @@ void signal_catch_thread()
   }
 }
 
-void catch_signals_thread( void )
+void catch_signals_thread()
 {
   sigset_t expected_signals;
   sigemptyset( &expected_signals );

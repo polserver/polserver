@@ -184,7 +184,7 @@ void UoClientListener::run()
   }
 }
 
-void start_uo_client_listeners( void )
+void start_uo_client_listeners()
 {
   for ( unsigned i = 0; i < networkManager.uoclient_listeners.size(); ++i )
   {

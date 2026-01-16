@@ -2560,8 +2560,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
-      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
+      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = Clib::clamp_convert<u32>( value ) );
@@ -3501,9 +3501,9 @@ ObjArray* Character::GetReportables() const
     std::unique_ptr<BObjectImp> kmember( nullptr );
     Character* killer = Core::system_find_mobile( rt.serial );
     if ( killer )
-      kmember.reset( new Module::EOfflineCharacterRefObjImp( killer ) );
+      kmember = std::make_unique<Module::EOfflineCharacterRefObjImp>( killer );
     else
-      kmember.reset( new BError( "Mobile not found" ) );
+      kmember = std::make_unique<BError>( "Mobile not found" );
 
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( rt.serial ) );
@@ -3526,9 +3526,9 @@ ObjArray* Character::GetAggressorTo() const
     std::unique_ptr<BObjectImp> member( nullptr );
     Character* chr = Core::system_find_mobile( ( *itr ).first->serial );
     if ( chr )
-      member.reset( new Module::EOfflineCharacterRefObjImp( chr ) );
+      member = std::make_unique<Module::EOfflineCharacterRefObjImp>( chr );
     else
-      member.reset( new BError( "Mobile not found" ) );
+      member = std::make_unique<BError>( "Mobile not found" );
 
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );
@@ -3553,9 +3553,9 @@ ObjArray* Character::GetLawFullyDamaged() const
     std::unique_ptr<BObjectImp> member( nullptr );
     Character* chr = Core::system_find_mobile( ( *itr ).first->serial );
     if ( chr )
-      member.reset( new Module::EOfflineCharacterRefObjImp( chr ) );
+      member = std::make_unique<Module::EOfflineCharacterRefObjImp>( chr );
     else
-      member.reset( new BError( "Mobile not found" ) );
+      member = std::make_unique<BError>( "Mobile not found" );
 
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );

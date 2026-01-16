@@ -64,7 +64,7 @@ polclock_t ScheduledTask::clocksleft( polclock_t now_clock )
   return next_run_clock_ - now_clock;
 }
 
-PeriodicTask::PeriodicTask( void ( *i_f )( void ), int initial_wait_seconds, const char* name )
+PeriodicTask::PeriodicTask( void ( *i_f )(), int initial_wait_seconds, const char* name )
     : ScheduledTask( 0 ),
       n_initial_clocks( initial_wait_seconds * POLCLOCKS_PER_SEC ),
       n_clocks( initial_wait_seconds * POLCLOCKS_PER_SEC ),
@@ -73,7 +73,7 @@ PeriodicTask::PeriodicTask( void ( *i_f )( void ), int initial_wait_seconds, con
 {
 }
 
-PeriodicTask::PeriodicTask( void ( *i_f )( void ), int initial_wait_seconds, int periodic_seconds,
+PeriodicTask::PeriodicTask( void ( *i_f )(), int initial_wait_seconds, int periodic_seconds,
                             const char* name )
     : ScheduledTask( 0 ),
       n_initial_clocks( initial_wait_seconds * POLCLOCKS_PER_SEC ),

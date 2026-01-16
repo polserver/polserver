@@ -900,7 +900,7 @@ void BObjectImp::operModulusEqual( BObject& obj, BObjectImp& objimp )
   // obj.setimp( selfModulusObjImp( objimp ) );
 }
 
-BObject BObjectImp::operator-( void ) const
+BObject BObjectImp::operator-() const
 {
   BObjectImp* newobj = inverse();
   return BObject( newobj );
@@ -923,7 +923,7 @@ BObjectRef BObjectImp::OperSubscript( const BObject& /*obj*/ )
 /*
   "All Objects are inherently good."
   */
-bool BObjectImp::isTrue( void ) const
+bool BObjectImp::isTrue() const
 {
   return true;
 }
@@ -983,7 +983,7 @@ ref_ptr<BObjectImp> UninitObject::SharedInstanceOwner;
 
 UninitObject::UninitObject() : BObjectImp( OTUninit ) {}
 
-BObjectImp* UninitObject::copy( void ) const
+BObjectImp* UninitObject::copy() const
 {
   return create();
 }
@@ -1044,7 +1044,7 @@ void ObjArray::deepcopy()
   }
 }
 
-BObjectImp* ObjArray::copy( void ) const
+BObjectImp* ObjArray::copy() const
 {
   auto nobj = new ObjArray( *this );
   return nobj;
@@ -1206,7 +1206,7 @@ BObjectImp* ObjArray::selfPlusObj( const ObjArray& objimp ) const
     }
     else
     {
-      result->ref_arr.push_back( BObjectRef() );
+      result->ref_arr.emplace_back();
     }
   }
   return result.release();
@@ -1255,7 +1255,7 @@ void ObjArray::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
     }
     else
     {
-      ref_arr.push_back( BObjectRef() );
+      ref_arr.emplace_back();
     }
   }
 }
@@ -1318,7 +1318,7 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
     }
     else
     {
-      str->ref_arr.push_back( BObjectRef() );
+      str->ref_arr.emplace_back();
     }
   }
   /*
@@ -1405,9 +1405,9 @@ BObjectRef ObjArray::operDotPlus( const char* name )
       return BObjectRef( new BError( "Member already exists" ) );
     }
   }
-  name_arr.push_back( name );
+  name_arr.emplace_back( name );
   auto pnewobj = new BObject( UninitObject::create() );
-  ref_arr.push_back( BObjectRef( pnewobj ) );
+  ref_arr.emplace_back( pnewobj );
   return BObjectRef( pnewobj );
 }
 
@@ -1693,7 +1693,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       BObjectRefVec args;
       args.push_back( ref_arr.front() );
       args.push_back( BObjectRef( new BLong( 1 ) ) );
-      args.push_back( BObjectRef( this ) );
+      args.emplace_back( this );
 
       // The ContinuationCallback receives three arguments:
       //
@@ -1723,7 +1723,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         // If the result is true, add it to the filtered array.
         if ( result->isTrue() )
         {
-          filtered->ref_arr.push_back( BObjectRef( elementRef->impptr() ) );
+          filtered->ref_arr.emplace_back( elementRef->impptr() );
         }
 
         // If thisArray was modified for some reason to no longer be an array,
@@ -1785,7 +1785,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       BObjectRefVec args;
       args.push_back( ref_arr.front() );
       args.push_back( BObjectRef( new BLong( 1 ) ) );
-      args.push_back( BObjectRef( this ) );
+      args.emplace_back( this );
 
       auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
                        mappedRef = BObjectRef( new ObjArray ),
@@ -1795,7 +1795,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       {
         auto mapped = mappedRef->impptr<ObjArray>();
 
-        mapped->ref_arr.push_back( BObjectRef( result->impptr() ) );
+        mapped->ref_arr.emplace_back( result->impptr() );
 
         if ( !thisArray->isa( OTArray ) )
           return mapped;
@@ -1871,10 +1871,10 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       // - current index
       // - the array itself
       BObjectRefVec args;
-      args.push_back( BObjectRef( accumulator ) );
-      args.push_back( BObjectRef( ref_arr[processed - 1] ) );
+      args.emplace_back( accumulator );
+      args.emplace_back( ref_arr[processed - 1] );
       args.push_back( BObjectRef( new BLong( processed ) ) );
-      args.push_back( BObjectRef( this ) );
+      args.emplace_back( this );
 
       auto callback = [thisArray = args[3], processed = processed,
                        initialSize = static_cast<int>( ref_arr.size() )](
@@ -1930,7 +1930,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       BObjectRefVec args;
       args.push_back( ref_arr.front() );
       args.push_back( BObjectRef( new BLong( 1 ) ) );
-      args.push_back( BObjectRef( this ) );
+      args.emplace_back( this );
 
       auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
                        initialSize = static_cast<int>( ref_arr.size() )](
@@ -1992,7 +1992,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       BObjectRefVec args;
       args.push_back( ref_arr.front() );
       args.push_back( BObjectRef( new BLong( 1 ) ) );
-      args.push_back( BObjectRef( this ) );
+      args.emplace_back( this );
 
       auto callback =
           [processed = 1, thisArray = args[2], initialSize = static_cast<int>( ref_arr.size() )](

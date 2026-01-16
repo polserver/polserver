@@ -14,8 +14,8 @@ namespace Pol
 {
 namespace Network
 {
-int init_sockets_library( void );
-int deinit_sockets_library( void );
+int init_sockets_library();
+int deinit_sockets_library();
 
 SOCKET open_listen_socket( unsigned short port );
 void apply_socket_options( SOCKET client_socket );

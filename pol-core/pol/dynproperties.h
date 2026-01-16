@@ -593,17 +593,19 @@ inline size_t PropHolderContainer<Storage>::estimateSize() const
 namespace
 {
 template <typename V>
-static typename std::enable_if<can_be_used_in_variant<V>::value, bool>::type getPropertyHelper(
-    const PropHolderContainer<variant_storage>& variant_props,
-    const std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, V* value )
+static bool getPropertyHelper( const PropHolderContainer<variant_storage>& variant_props,
+                               const std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                               DynPropTypes type, V* value )
+  requires can_be_used_in_variant<V>::value
 {
   (void)any_props;
   return variant_props.getValue( type, value );
 }
 template <typename V>
-static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type getPropertyHelper(
-    const PropHolderContainer<variant_storage>& variant_props,
-    const std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, V* value )
+static bool getPropertyHelper( const PropHolderContainer<variant_storage>& variant_props,
+                               const std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                               DynPropTypes type, V* value )
+  requires( !can_be_used_in_variant<V>::value )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -611,53 +613,59 @@ static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type ge
 }
 
 template <typename V>
-static typename std::enable_if<can_be_used_in_variant<V>::value, bool>::type updatePropertyHelper(
-    PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
+static bool updatePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                                  std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                                  DynPropTypes type, const V& value )
+  requires can_be_used_in_variant<V>::value
 {
   (void)any_props;
   return variant_props.updateValue( type, value );
 }
 template <typename V>
-static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type updatePropertyHelper(
-    PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
+static bool updatePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                                  std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                                  DynPropTypes type, const V& value )
+  requires( !can_be_used_in_variant<V>::value )
 {
   (void)variant_props;
   passert_always( any_props.get() );
   return any_props->updateValue( type, value );
 }
 template <typename V>
-static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type addPropertyHelper(
-    PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
+static void addPropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                               std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                               DynPropTypes type, const V& value )
+  requires can_be_used_in_variant<V>::value
 {
   (void)any_props;
   variant_props.addValue( type, value );
 }
 template <typename V>
-static typename std::enable_if<!can_be_used_in_variant<V>::value, void>::type addPropertyHelper(
-    PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
+static void addPropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                               std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                               DynPropTypes type, const V& value )
+  requires( !can_be_used_in_variant<V>::value )
 {
   (void)variant_props;
   if ( !any_props )
-    any_props.reset( new PropHolderContainer<std::any>() );
+    any_props = std::make_unique<PropHolderContainer<std::any>>();
   any_props->addValue( type, value );
 }
 
 template <typename V>
-static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type removePropertyHelper(
-    PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type )
+static void removePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                                  std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                                  DynPropTypes type )
+  requires can_be_used_in_variant<V>::value
 {
   (void)any_props;
   variant_props.removeValue( type );
 }
 template <typename V>
-static typename std::enable_if<!can_be_used_in_variant<V>::value, void>::type removePropertyHelper(
-    PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type )
+static void removePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                                  std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                                  DynPropTypes type )
+  requires( !can_be_used_in_variant<V>::value )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -706,7 +714,7 @@ inline void DynProps::setPropertyPointer( DynPropTypes type, V value )
   }
   _prop_bits.set( type, true );
   if ( !_any_props )
-    _any_props.reset( new PropHolderContainer<std::any>() );
+    _any_props = std::make_unique<PropHolderContainer<std::any>>();
   _any_props->addValue( type, value );
 }
 
@@ -737,7 +745,7 @@ inline DynamicPropsHolder::DynamicPropsHolder() : _dynprops( nullptr ) {}
 inline void DynamicPropsHolder::initProps()
 {
   if ( !_dynprops )
-    _dynprops.reset( new DynProps() );
+    _dynprops = std::make_unique<DynProps>();
 }
 
 template <typename V>

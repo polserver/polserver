@@ -22,7 +22,7 @@ public:
 
   virtual BObject* step();
 
-  BObjectImp* copy( void ) const override;
+  BObjectImp* copy() const override;
   size_t sizeEstimate() const override;
   std::string getStringRep() const override;
 

@@ -265,7 +265,7 @@ int RunEclMain::main()
    * dump script
    **********************************************/
   std::string fileName;
-  if ( programArgsFind( "v", &fileName ) && fileName != "" )
+  if ( programArgsFind( "v", &fileName ) && !fileName.empty() )
   {
     dumpScript( fileName );
     return 0;  // return "okay"

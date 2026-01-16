@@ -187,7 +187,7 @@ void load_system_hooks();
 bool load_realms();
 void InitializeSystemTrayHandling();
 void ShutdownSystemTrayHandling();
-void start_uo_client_listeners( void );
+void start_uo_client_listeners();
 void start_tasks();
 
 
@@ -517,7 +517,7 @@ void polclock_checkin()
 
 #define clock_t_to_ms( x ) ( x )
 
-void tasks_thread( void )
+void tasks_thread()
 {
   polclock_t sleeptime;
   bool activity;
@@ -571,7 +571,7 @@ void tasks_thread( void )
   }
 }
 
-void scripts_thread( void )
+void scripts_thread()
 {
   using namespace std::chrono_literals;
   polclock_t sleeptime;
@@ -637,7 +637,7 @@ public:
   void operator()( T* p ) { delete p; }
 };
 
-void reap_thread( void )
+void reap_thread()
 {
   while ( !Clib::exit_signalled )
   {
@@ -657,7 +657,7 @@ void reap_thread( void )
 }
 
 
-void threadstatus_thread( void )
+void threadstatus_thread()
 {
   int timeouts_remaining = 1;
   bool sent_wakeups = false;
@@ -747,10 +747,10 @@ void threadstatus_thread( void )
   signal_catch_thread();
 }
 
-void catch_signals_thread( void );
+void catch_signals_thread();
 void reload_configuration();
 
-void console_thread( void )
+void console_thread()
 {
 #ifndef _WIN32
   Clib::KeyboardHook kb;  // local to have a defined deconstruction to uninstall the hook

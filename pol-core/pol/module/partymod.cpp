@@ -25,11 +25,11 @@
 #include "../network/pktdef.h"
 #include "../party.h"
 #include "../party_cfg.h"
+#include "../partyscrobj.h"
 #include "../polobject.h"
 #include "../syshook.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
-#include "../partyscrobj.h"
 #include <module_defs/party.h>
 
 namespace Pol
@@ -100,7 +100,7 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
       return new BError( "First Member is already offline member of a party" );
 
     Core::Party* party = new Core::Party( leader->serial );
-    Core::gamestate.parties.push_back( ref_ptr<Core::Party>( party ) );
+    Core::gamestate.parties.emplace_back( party );
     leader->party( party );
 
     if ( party->add_member( firstmem->serial ) )

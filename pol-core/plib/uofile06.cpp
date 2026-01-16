@@ -53,7 +53,7 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 
   mapflags |= USTRUCT_TILE::FLAG_PLATFORM | USTRUCT_TILE::FLAG_FLOOR;
 
-  statics.push_back( StaticRec( 0, static_cast<signed char>( mapz - 1 ), mapflags, 1 ) );
+  statics.emplace_back( 0, static_cast<signed char>( mapz - 1 ), mapflags, 1 );
 
   short newz = -127;
   bool result = false;
@@ -67,7 +67,7 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
     if ( static_debug_on )
     {
       INFO_PRINTLN( "static: graphic={:#x}, z={}, ht={}", srec.graphic, int( srec.z ),
-                   int( srec.height ) );
+                    int( srec.height ) );
     }
 #endif
 
@@ -115,7 +115,7 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
         if ( static_debug_on )
         {
           INFO_PRINTLN( "static: objtype={:#x}, z={}, ht={} blocks movement to z={}", srec.graphic,
-                       int( srec.z ), int( srec.height ), int( newz ) );
+                        int( srec.z ), int( srec.height ), int( newz ) );
         }
 #endif
         result = false;

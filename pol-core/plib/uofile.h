@@ -37,8 +37,8 @@ void read_objinfo( u16 graphic, struct USTRUCT_TILE_HSA& objinfo );
 void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile );
 void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile );
 
-void open_uo_data_files( void );
-void read_uo_data( void );
+void open_uo_data_files();
+void read_uo_data();
 void readwater();
 
 void staticsmax();

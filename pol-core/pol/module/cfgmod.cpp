@@ -410,7 +410,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
       // Added 9-03-2005  Austin
       // Will no longer place the string right into the array.
       // Instead a check is done to make sure something is there.
-      if ( imp->getStringRep().length() >= 1 )
+      if ( !imp->getStringRep().empty() )
         ar->addElement( new Bscript::String( imp->getStringRep() ) );
     }
     return ar.release();
@@ -436,7 +436,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
       Bscript::BObjectImp* line = ( *itr ).second.get();
 
       std::string line_str = line->getStringRep();
-      if ( line_str.length() < 1 )
+      if ( line_str.empty() )
         continue;
 
       /* Example:

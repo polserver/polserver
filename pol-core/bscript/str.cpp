@@ -1130,7 +1130,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
           }
           else
           {
-            if ( tag_body == "" )
+            if ( tag_body.empty() )
             {
               // empty body just takes next integer idx
               last_tag_was_int = true;

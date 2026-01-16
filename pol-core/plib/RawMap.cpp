@@ -69,7 +69,7 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
   if ( mapfile == nullptr )
     throw std::runtime_error( "load_full_map: mapfile is not open" );
 
-  if ( mapdifl.size() > 0 && mapdif_file == nullptr )
+  if ( !mapdifl.empty() && mapdif_file == nullptr )
     throw std::runtime_error( "load_full_map: mapdifl is loaded but mapdif is not" );
 
   unsigned int block = 0;

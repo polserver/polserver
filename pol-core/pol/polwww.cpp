@@ -65,7 +65,7 @@ namespace Core
 {
 using namespace threadhelp;
 
-void load_mime_config( void )
+void load_mime_config()
 {
   static time_t last_load = 0;
 
@@ -647,8 +647,8 @@ bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* p
 
   std::string pagetype = get_pagetype( page );
 
-  if ( pagetype == "" )  // didn't specify, so assume it's a directory.
-  {                      // have to redirect...
+  if ( pagetype.empty() )  // didn't specify, so assume it's a directory.
+  {                        // have to redirect...
     page = ipage;
     if ( page.empty() || page[page.size() - 1] != '/' )
     {
@@ -902,7 +902,7 @@ void http_func( SOCKET client_socket )
   else
   {
     std::string type = gamestate.mime_types[pagetype];
-    if ( type.length() > 0 )
+    if ( !type.empty() )
     {
       send_binary( sck, page, filename, type );
     }
@@ -970,7 +970,7 @@ void test_decode()
 }
 
 
-void http_thread( void )
+void http_thread()
 {
   test_decode();
 

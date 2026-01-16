@@ -20,6 +20,8 @@
 
 #include <module_defs/sql.h>
 
+#include <memory>
+
 namespace Pol
 {
 namespace Module
@@ -48,7 +50,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
     std::unique_ptr<Core::BSQLConnection> sql;
     {
       Core::PolLock lck;
-      sql = std::unique_ptr<Core::BSQLConnection>( new Core::BSQLConnection() );
+      sql = std::make_unique<Core::BSQLConnection>();
     }
     if ( sql->getLastErrNo() )
     {

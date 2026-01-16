@@ -42,7 +42,7 @@ namespace Core
 {
 class UOExecutor;
 
-void run_ready( void );
+void run_ready();
 void check_blocked( polclock_t* pclocksleft );
 void deschedule_executor( UOExecutor* ex );
 }  // namespace Core
@@ -141,10 +141,10 @@ protected:
 
 
   friend class NPCExecutorModule;
-  friend void step_scripts( void );
+  friend void step_scripts();
   // friend void Core::run_ready( void );
   friend void Core::check_blocked( Core::polclock_t* pclocksleft );
-  friend void new_check_blocked( void );
+  friend void new_check_blocked();
   friend void Core::deschedule_executor( Core::UOExecutor* ex );
 
   void event_occurred( Bscript::BObject event );

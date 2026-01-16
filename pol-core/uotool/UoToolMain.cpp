@@ -1026,7 +1026,7 @@ static int format_description( int argc, char** argv )
     if ( i < ( argc - 1 ) )
       name.append( " " );
   }
-  if ( name.length() == 0 )
+  if ( name.empty() )
     return 1;
   for ( unsigned short amount = 1; amount <= 2; ++amount )
   {

@@ -1085,7 +1085,7 @@ void UHouse::register_object( UObject* obj )
   if ( find( squatters_.begin(), squatters_.end(), obj ) == squatters_.end() )
   {
     set_dirty();
-    squatters_.push_back( Squatter( obj ) );
+    squatters_.emplace_back( obj );
   }
 }
 

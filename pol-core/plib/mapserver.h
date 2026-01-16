@@ -47,9 +47,9 @@ private:
   void LoadFirstLevelIndex();
 
   // not implemented:
-  MapServer& operator=( const MapServer& );
-  MapServer( const MapServer& );
+  MapServer& operator=( const MapServer& ) = delete;
+  MapServer( const MapServer& ) = delete;
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

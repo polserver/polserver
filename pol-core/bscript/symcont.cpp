@@ -200,13 +200,13 @@ void StoredTokenContainer::atGet1( unsigned position, StoredToken& sToken ) cons
   sToken = *st;
 }
 
-void StoredTokenContainer::pack( void )
+void StoredTokenContainer::pack()
 {
   SymbolContainer::pack();
   ST = (StoredToken*)s;
 }
 
-void* StoredTokenContainer::detach( void )
+void* StoredTokenContainer::detach()
 {
   void* d = SymbolContainer::detach();
   ST = nullptr;
@@ -219,5 +219,5 @@ void StoredTokenContainer::resize( unsigned lengthToAdd )
   ST = (StoredToken*)s;
 }
 
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

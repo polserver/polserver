@@ -119,7 +119,7 @@ void EvaluationVisitor::visit_boolean_value( BooleanValue& node )
 
 void EvaluationVisitor::visit_uninitialized_value( UninitializedValue& )
 {
-  stack.push( BObjectRef( UninitObject::create() ) );
+  stack.emplace( UninitObject::create() );
 }
 
 // Operators

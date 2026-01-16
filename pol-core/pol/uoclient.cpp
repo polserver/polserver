@@ -54,7 +54,7 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
     else
     {
       auto ip = boost::asio::ip::make_address_v4( iptext );
-      allowed_proxies.push_back( boost::asio::ip::network_v4( ip, 32 ) );
+      allowed_proxies.emplace_back( ip, 32 );
     }
   }
 }

@@ -181,7 +181,8 @@ public:
   // T != N same check as above plus signed compare and during runtime max check
   // Todo instead of disallowing signed differences perform more magic to safely check the limits?
   template <class T, typename N>
-  typename std::enable_if<std::is_same<T, N>::value, void>::type Write( N x )
+  void Write( N x )
+    requires std::is_same<T, N>::value
   {
     static_assert( std::is_integral<N>::value || std::is_enum<N>::value,
                    "Invalid argument type integral type is needed!" );
@@ -189,7 +190,8 @@ public:
     PktWriterTemplateSpecs::WriteHelper<T>::Write( x, buffer, offset );
   };
   template <class T, typename N>
-  typename std::enable_if<!std::is_same<T, N>::value, void>::type Write( N x )
+  void Write( N x )
+    requires( !std::is_same<T, N>::value )
   {
     static_assert( std::is_integral<N>::value || std::is_enum<N>::value,
                    "Invalid argument type integral type is needed!" );
@@ -212,7 +214,8 @@ public:
   };
 
   template <class T, typename N>
-  typename std::enable_if<std::is_same<T, N>::value, void>::type WriteFlipped( N x )
+  void WriteFlipped( N x )
+    requires std::is_same<T, N>::value
   {
     static_assert( std::is_integral<N>::value || std::is_enum<N>::value,
                    "Invalid argument type integral type is needed!" );
@@ -221,7 +224,8 @@ public:
   };
 
   template <class T, typename N>
-  typename std::enable_if<!std::is_same<T, N>::value, void>::type WriteFlipped( N x )
+  void WriteFlipped( N x )
+    requires( !std::is_same<T, N>::value )
   {
     static_assert( std::is_integral<N>::value || std::is_enum<N>::value,
                    "Invalid argument type integral type is needed!" );

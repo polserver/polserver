@@ -329,7 +329,7 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
   string host = "polserver.com";
   string url = "/pol/report_program_abort.php";
   if ( ( m_programAbortReportingServer.c_str() != nullptr ) &&
-       ( m_programAbortReportingServer != "" ) )
+       ( !m_programAbortReportingServer.empty() ) )
   {
     host = m_programAbortReportingServer;
     if ( m_programAbortReportingUrl.c_str() != nullptr )

@@ -39,8 +39,8 @@ private:
   std::vector<MAPBLOCK> _mapblocks;
 
   // not implemented:
-  InMemoryMapServer& operator=( const InMemoryMapServer& );
-  InMemoryMapServer( const InMemoryMapServer& );
+  InMemoryMapServer& operator=( const InMemoryMapServer& ) = delete;
+  InMemoryMapServer( const InMemoryMapServer& ) = delete;
 };
 }  // namespace Plib
 }  // namespace Pol

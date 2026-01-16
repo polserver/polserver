@@ -53,7 +53,7 @@ public:
   size_t memsize = 0;
 
 protected:
-  void* refill( void );
+  void* refill();
 
 private:
   Buffer* freelist_ = nullptr;
