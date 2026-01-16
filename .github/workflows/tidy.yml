@@ -19,19 +19,22 @@ jobs:
             compiler-version: 20
             build-type: RelWithDebInfo
             name: ClangTidy
-            tidy-checks: "modernize-use-equals-default"
+            tidy-checks: "modernize-use-equals-delete,modernize-make-shared,modernize-make-unique,modernize-use-constraints,readability-container-size-empty,modernize-redundant-void-arg,modernize-use-emplace"
+
             #"modernize-use-override"
             #"modernize-use-equals-default"
+            
             #"modernize-use-equals-delete"
             #"modernize-make-shared"
             #"modernize-make-unique"
             #"modernize-use-constraints"
-            #"modernize-use-emplace"
-            #"modernize-use-using"
-            #"readability-else-after-return"
             #"readability-container-size-empty"
-            #"modernize-concat-nested-namespaces"
             #"modernize-redundant-void-arg"
+            #"modernize-use-emplace"
+            
+            #"modernize-use-using"
+            #"modernize-concat-nested-namespaces"
+            #"readability-else-after-return"
 
     runs-on: ${{ matrix.config.os }}
 
