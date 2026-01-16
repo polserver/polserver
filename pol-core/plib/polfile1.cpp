@@ -21,9 +21,8 @@
 #include "uofile.h"
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 bool cfg_show_illegal_graphic_warning = true;
 
@@ -125,8 +124,8 @@ int write_pol_static_files( const std::string& realm )
 
           if ( cfg_show_illegal_graphic_warning )
             INFO_PRINTLN( " Warning: Item with illegal Graphic {:#x} in Area {} {} {} {}",
-                         pstat[i].graphic, x, y, ( x + STATICBLOCK_CHUNK - 1 ),
-                         ( y + STATICBLOCK_CHUNK - 1 ) );
+                          pstat[i].graphic, x, y, ( x + STATICBLOCK_CHUNK - 1 ),
+                          ( y + STATICBLOCK_CHUNK - 1 ) );
         }
       }
       for ( unsigned i = 0; i < vec.size(); ++i )
@@ -175,5 +174,4 @@ int write_pol_static_files( const std::string& realm )
 #endif
   return 0;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

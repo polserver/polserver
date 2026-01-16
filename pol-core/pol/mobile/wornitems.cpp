@@ -13,9 +13,7 @@
 #include "charactr.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 WornItemsContainer::WornItemsContainer()
     : UContainer( Items::find_container_desc( settingsManager.extobj.wornitems_container ) ),
@@ -135,5 +133,4 @@ const UObject* WornItemsContainer::self_as_owner() const
 {
   return chr_owner;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

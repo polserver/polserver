@@ -64,9 +64,8 @@
 #include "uoscrobj.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void send_trade_statuses( Mobile::Character* chr );
 
@@ -1059,5 +1058,4 @@ void cancel_all_trades()
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

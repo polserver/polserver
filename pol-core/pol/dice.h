@@ -9,9 +9,8 @@
 #define DICE_H
 
 #include <string>
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class Dice
 {
@@ -29,6 +28,6 @@ private:
   unsigned die_type;
   int plus_damage;
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

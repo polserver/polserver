@@ -10,9 +10,8 @@
 #include "base/range.h"
 #include <vector>
 
-namespace Pol
-{
-namespace Mobile
+
+namespace Pol::Mobile
 {
 class BoundingBox
 {
@@ -24,6 +23,6 @@ private:
   using Areas = std::vector<Core::Range2d>;
   Areas areas;
 };
-}  // namespace Mobile
-}  // namespace Pol
+}  // namespace Pol::Mobile
+
 #endif  // BOUNDBOX_H

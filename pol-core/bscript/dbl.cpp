@@ -15,9 +15,8 @@
 #include "bobject.h"
 #include "impstr.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 std::string Double::double_to_string( double val )
 {
@@ -319,5 +318,4 @@ void Double::selfModulusObj( Double& objimp, BObject& obj )
   else
     dval_ = fmod( dval_, objimp.value() );
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

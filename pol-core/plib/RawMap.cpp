@@ -10,9 +10,8 @@
 #include <cstring>
 #include <map>
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 USTRUCT_MAPINFO RawMap::get_cell( unsigned int blockidx, unsigned int x_offset,
                                   unsigned int y_offset )
@@ -189,5 +188,4 @@ RawMap::RawMap() : is_init( false ), m_mapinfo_vec(), mapdifl(), m_mapwidth( 0 )
 {
 }
 
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

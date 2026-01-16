@@ -33,9 +33,8 @@
 #include "uobject.h"
 #include "uoscrobj.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 
@@ -499,5 +498,4 @@ ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Pack
 
   return new ExportedFunction( export_script, PC );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -21,9 +21,8 @@
 #include "impstr.h"
 #include "objmethods.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 BStruct::BStruct() : BObjectImp( OTStruct ), contents_() {}
 
@@ -398,5 +397,4 @@ const BStruct::Contents& BStruct::contents() const
 {
   return contents_;
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

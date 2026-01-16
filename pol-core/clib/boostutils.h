@@ -29,9 +29,8 @@
 #endif
 #include <boost/flyweight.hpp>
 
-namespace Pol
-{
-namespace boost_utils
+
+namespace Pol::boost_utils
 {
 #ifdef ENABLE_FLYWEIGHT_REPORT
 template <typename Entry, typename Key, typename Hash = boost::mpl::na,
@@ -220,7 +219,7 @@ inline auto format_as( const function_name_flystring& s )
 {
   return s.get();
 }
-}  // namespace boost_utils
-}  // namespace Pol
+}  // namespace Pol::boost_utils
+
 
 #endif

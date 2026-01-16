@@ -13,9 +13,8 @@
 #include "../clib/rawtypes.h"
 #include "../clib/strutil.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 /**
  * The token type
@@ -320,6 +319,6 @@ inline auto format_as( BTokenId t )
 {
   return fmt::underlying( t );
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

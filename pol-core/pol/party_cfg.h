@@ -10,9 +10,8 @@
 #include "network/pktdef.h"
 #include <string>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class ExportedFunction;
 
@@ -78,6 +77,6 @@ const int CLP_No_Party = 3000211;  // You are not in a party.
 const int CLP_No_Invite = 3000222;  // No one has invited you to be in a party.
 const int CLP_Too_Late_Decline =
     3000223;  // Too late to decline, you are already in the party. Try /quit.
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

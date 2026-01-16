@@ -10,9 +10,8 @@
 
 #include <sstream>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 std::ostream& operator<<( std::ostream& os, const BObject& obj )
 {
@@ -76,5 +75,4 @@ void BBoolean::printOn( std::ostream& os ) const
 {
   os << ( bval_ ? "true" : "false" );
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

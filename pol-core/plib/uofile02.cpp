@@ -18,9 +18,7 @@
 #include "ustruct.h"
 
 
-namespace Pol
-{
-namespace Plib
+namespace Pol::Plib
 {
 unsigned int num_static_patches = 0;
 bool static_debug_on = false;
@@ -186,5 +184,4 @@ void rawstaticfullread()
   }
   rawstatic_init = true;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

@@ -11,9 +11,8 @@
 #include <set>
 #include <string>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class StringSet
 {
@@ -39,6 +38,6 @@ public:
 private:
   std::set<std::string> strings_;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 #endif  // CLIB_STRSET_H

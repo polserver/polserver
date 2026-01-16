@@ -61,9 +61,7 @@
 #include <zlib.h>
 
 
-namespace Pol
-{
-namespace Multi
+namespace Pol::Multi
 {
 // bytes per tile - currently only mode 0 works, meaning we send u16 graphic, s8 x,y,z offsets
 #define BYTES_PER_TILE 5
@@ -1198,5 +1196,4 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool s
     }
   }
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

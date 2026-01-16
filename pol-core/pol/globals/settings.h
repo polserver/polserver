@@ -2,18 +2,17 @@
 #define GLOBALS_SETTINGS_H
 
 #include "../cmbtcfg.h"
+#include "../email_cfg.h"
 #include "../extobj.h"
 #include "../movecost.h"
 #include "../party_cfg.h"
 #include "../polvar.h"
 #include "../repsys_cfg.h"
-#include "../email_cfg.h"
 #include "../ssopt.h"
 #include "../watch.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class SettingsManager
 {
@@ -43,6 +42,6 @@ public:
 };
 
 extern SettingsManager settingsManager;
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

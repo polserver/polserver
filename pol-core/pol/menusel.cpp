@@ -16,9 +16,8 @@
 #include "network/pktin.h"
 #include "ufunc.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
 {
@@ -88,5 +87,4 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
     client->gd->on_menu_selection( client, mi, msg );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

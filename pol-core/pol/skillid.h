@@ -8,9 +8,8 @@
 #ifndef SKILLID_H
 #define SKILLID_H
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 enum USKILLID
 {
@@ -82,5 +81,5 @@ enum USKILLID
   SKILLID__COUNT  // use for array sizes, etc.
 };
 }
-}
+
 #endif

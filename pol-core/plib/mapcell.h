@@ -7,9 +7,8 @@
 #ifndef PLIB_MAPCELL_H
 #define PLIB_MAPCELL_H
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 struct FLAG
 {
@@ -51,6 +50,6 @@ struct MAPCELL
   unsigned char flags;
 };
 static_assert( sizeof( MAPCELL ) == 2, "size missmatch" );
-}
-}
+}  // namespace Pol::Plib
+
 #endif

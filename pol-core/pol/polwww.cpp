@@ -59,9 +59,8 @@
 #pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
 #endif
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace threadhelp;
 
@@ -1050,5 +1049,4 @@ void start_http_server()
 {
   threadhelp::start_thread( http_thread, "HTTP" );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -5,10 +5,8 @@
 
 
 #include "config.h"
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 EScriptConfig escript_config;
-}
 }

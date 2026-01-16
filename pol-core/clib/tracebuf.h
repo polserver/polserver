@@ -7,9 +7,8 @@
 #ifndef CLIB_TRACEBUF_H
 #define CLIB_TRACEBUF_H
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 #ifndef NDEBUG
 
@@ -37,13 +36,13 @@ inline void _tracebuffer_addelem( const char* tag, unsigned int value )
 #endif
 
 void LogTraceBuffer();
-}
+}  // namespace Pol::Clib
 
 #ifdef NDEBUG
 #define TRACEBUF_ADDELEM( tag, value ) /**/
 #else
 #define TRACEBUF_ADDELEM( tag, value ) Clib::_tracebuffer_addelem( tag, value )
 #endif
-}
+
 
 #endif  // CLIB_TRACEBUF_H

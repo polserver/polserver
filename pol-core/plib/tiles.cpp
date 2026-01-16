@@ -21,9 +21,8 @@
 #include "pkg.h"
 #include "systemstate.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 
 Tile read_tile( Clib::ConfigElem& elem )
@@ -96,5 +95,4 @@ void load_tiles_cfg()
   systemstate.config.max_tile_id = new_max;
   systemstate.tile.resize( systemstate.config.max_tile_id + 1 );
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

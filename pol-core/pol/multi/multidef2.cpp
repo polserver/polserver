@@ -16,9 +16,8 @@
 #include "../item/itemdesc.h"
 #include "multidef.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 // 8/9/03 this seems to be used only by uofile03 -Syz
 bool MultiDef::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase ) const
@@ -99,5 +98,4 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, shor
   }
   return result;
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

@@ -25,9 +25,7 @@
 #include "systemstate.h"
 
 
-namespace Pol
-{
-namespace Plib
+namespace Pol::Plib
 {
 FILE* mapfile = nullptr;
 FILE* sidxfile = nullptr;
@@ -427,5 +425,4 @@ void open_uo_data_files()
     }
   }
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

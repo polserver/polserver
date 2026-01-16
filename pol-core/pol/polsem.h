@@ -23,9 +23,8 @@
 #endif
 #include <atomic>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void init_ipc_vars();
 void deinit_ipc_vars();
@@ -53,7 +52,7 @@ public:
   PolLockD() { polsem_lock(); }
   ~PolLockD() { polsem_unlock(); }
 };
-inline void noop(){};
+inline void noop() {};
 #define PolLock                                     \
   noop();                                           \
   INFO_PRINTLN( "lock {} {}", __FILE__, __LINE__ ); \
@@ -92,6 +91,6 @@ public:
 private:
   bool locked_;
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif  // POLSEM_H

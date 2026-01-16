@@ -35,9 +35,8 @@
 
 #include <module_defs/file.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 namespace fs = std::filesystem;
@@ -708,5 +707,4 @@ void load_fileaccess_cfg()
     Core::configurationbuffer.file_access_rules.push_back( fa );
   }
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

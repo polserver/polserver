@@ -19,9 +19,8 @@
 
 #include <module_defs/boat.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
     : Bscript::TmplExecutorModule<UBoatExecutorModule, Core::PolModule>( exec )
@@ -126,5 +125,4 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem()
     return new Bscript::BError( "Invalid parameter type." );
   }
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

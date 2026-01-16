@@ -14,17 +14,14 @@
 #include "bobject.h"
 #include "bstruct.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class ContIterator;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BError final : public BStruct
 {
@@ -59,6 +56,6 @@ protected:
 private:
   static unsigned int creations_;
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

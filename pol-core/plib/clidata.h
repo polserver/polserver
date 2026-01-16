@@ -9,9 +9,8 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 bool groundheight_read( unsigned short x, unsigned short y, short* z );  // uotool version
 char tileheight( unsigned short tilenum );
@@ -33,6 +32,6 @@ struct LandTile
   unsigned int uoflags;
   unsigned int flags;
 };
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

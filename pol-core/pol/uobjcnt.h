@@ -6,9 +6,8 @@
 #ifndef __UOBJCNT_H
 #define __UOBJCNT_H
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 struct UObjCount
 {
@@ -21,6 +20,6 @@ struct UObjCount
   int umulti_count;
   int uobj_count_echrref;
 };
-}
-}
+}  // namespace Pol::Core
+
 #endif

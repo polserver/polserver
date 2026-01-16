@@ -23,9 +23,8 @@
 #include "globals/uvars.h"
 #include "realms/realm.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 namespace fs = std::filesystem;
 bool load_realms()
@@ -105,5 +104,4 @@ void remove_realm( const std::string& name )
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

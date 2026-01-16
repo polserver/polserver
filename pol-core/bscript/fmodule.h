@@ -15,9 +15,8 @@
 #include "../clib/boostutils.h"
 #include "../clib/maputil.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class ModuleFunction
 {
@@ -44,6 +43,6 @@ public:
 
   void addFunction( const char* funcname, int nparams );
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

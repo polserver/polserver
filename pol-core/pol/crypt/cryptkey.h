@@ -11,9 +11,8 @@
 #include <fmt/format.h>
 #include <string>
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // Encryption Types
 enum ECryptType
@@ -39,7 +38,7 @@ struct TCryptInfo
 };
 
 void CalculateCryptKeys( const std::string& name, TCryptInfo& infoCrypt );
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt
+
 
 #endif  //__CRYPTKEY_H__

@@ -4,9 +4,8 @@
 
 #include <filesystem>
 
-namespace Pol
-{
-namespace PolTool
+
+namespace Pol::PolTool
 {
 namespace fs = std::filesystem;
 
@@ -23,6 +22,6 @@ private:
   int _width;
   int _height;
 };
-}  // namespace PolTool
-}  // namespace Pol
+}  // namespace Pol::PolTool
+
 #endif

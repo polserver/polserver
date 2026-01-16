@@ -21,9 +21,7 @@
 #include "ufunc.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 ObjectHash::ObjectHash() : hash(), reap_iterator( hash.end() ){};
 
@@ -280,5 +278,4 @@ size_t ObjectHash::estimateSize() const
   size += Clib::memsize( hash );
   return size;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

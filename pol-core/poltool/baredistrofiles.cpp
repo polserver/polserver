@@ -5,9 +5,8 @@
 
 #include <utility>
 
-namespace Pol
-{
-namespace PolTool
+
+namespace Pol::PolTool
 {
 void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& distro )
 {
@@ -1512,6 +1511,6 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 
 
 }
-}  // namespace PolTool
-}  // namespace Pol
+} // namespace Pol::PolTool
+
 // clang-format on

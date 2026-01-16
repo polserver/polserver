@@ -13,17 +13,14 @@
 #include "regions/region.h"
 #include "zone.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ConfigElem;
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void read_music_zones();
 
@@ -41,6 +38,6 @@ public:
 private:
   std::vector<unsigned short> midilist_;
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

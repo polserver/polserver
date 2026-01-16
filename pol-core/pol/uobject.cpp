@@ -37,9 +37,8 @@
 #include "tooltips.h"
 #include "uobjcnt.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 std::set<UObject*> unreaped_orphan_instances;
 
@@ -619,5 +618,4 @@ bool UObject::get_method_hook( const char* methodname, Bscript::Executor* ex, Ex
   return gamestate.system_hooks.get_method_hook( gamestate.system_hooks.uobject_method_script.get(),
                                                  methodname, ex, hook, PC );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

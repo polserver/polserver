@@ -84,9 +84,8 @@ void MD5_Cleanup()
 
 #include <openssl/evp.h>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
@@ -117,6 +116,5 @@ void MD5_Cleanup()
 bool MD5_Compare( const std::string& a, const std::string& b )
 {
   return stringicmp( a, b ) == 0;
-}
 }
 }

@@ -33,9 +33,8 @@
 #pragma warning( disable : 4302 )  // trunc cast
 #endif
 
-namespace Pol
-{
-namespace threadhelp
+
+namespace Pol::threadhelp
 {
 ThreadMap threadmap;
 std::atomic<unsigned int> child_threads( 0 );
@@ -581,5 +580,4 @@ std::future<bool> DynTaskThreadPool::checked_push( const msg& msg )
       } );
   return ret;
 }
-}  // namespace threadhelp
-}  // namespace Pol
+}  // namespace Pol::threadhelp

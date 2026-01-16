@@ -29,9 +29,8 @@ class Character;
 }  // namespace Mobile
 }  // namespace Pol
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class WornItemsContainer final : public UContainer
 {
@@ -72,7 +71,7 @@ inline Mobile::Character* WornItemsContainer::get_chr_owner() const
 {
   return chr_owner;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 #endif

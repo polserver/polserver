@@ -11,13 +11,12 @@
 #include "globals/uvars.h"
 #include "polobject.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 
 namespace Pol
 {

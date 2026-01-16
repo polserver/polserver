@@ -24,9 +24,8 @@
 #include "ufunc.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void cancel_trade( Mobile::Character* chr1 );
 
@@ -231,5 +230,4 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

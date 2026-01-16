@@ -9,18 +9,15 @@
 
 #include "../../bscript/execmodl.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class UtilExecutorModule
     : public Bscript::TmplExecutorModule<UtilExecutorModule, Bscript::ExecutorModule>
@@ -35,5 +32,4 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_RandomIntMinMax();
   [[nodiscard]] Bscript::BObjectImp* mf_RandomUUID();
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

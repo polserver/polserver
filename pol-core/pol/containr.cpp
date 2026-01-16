@@ -52,9 +52,7 @@
 #include "uworld.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 UContainer::UContainer( const Items::ContainerDesc& id )
     : ULockable( id, UOBJ_CLASS::CLASS_CONTAINER ),
@@ -1003,5 +1001,4 @@ bool UContainer::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

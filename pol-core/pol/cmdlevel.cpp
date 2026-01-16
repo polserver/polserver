@@ -25,9 +25,8 @@
 #include "../plib/systemstate.h"
 #include "bscript/dict.h"
 #include "globals/uvars.h"
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 namespace fs = std::filesystem;
 CmdLevel::CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum )
@@ -251,5 +250,4 @@ void load_package_cmdlevels()
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

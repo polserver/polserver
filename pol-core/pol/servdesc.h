@@ -9,9 +9,8 @@
 
 #include <string>
 #include <vector>
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class ServerDescription
 {
@@ -29,6 +28,6 @@ public:
   std::vector<std::string> acct_match;
   std::string hostname;
 };
-}
-}
+}  // namespace Pol::Core
+
 #endif

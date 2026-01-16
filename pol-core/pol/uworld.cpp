@@ -24,9 +24,8 @@
 #include "mobile/charactr.h"
 #include "multi/multi.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void add_item_to_world( Items::Item* item )
 {
@@ -367,5 +366,4 @@ void optimize_zones()
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

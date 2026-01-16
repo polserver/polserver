@@ -17,9 +17,8 @@
 #include "ufunc.h"
 #include "uobject.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 SerialSet::SerialSet( Clib::ConfigElem& elem, const char* tag )
 {
@@ -271,5 +270,4 @@ size_t Guild::estimateSize() const
          Clib::memsize( _enemyguild_serials ) + _proplist.estimatedSize() +
          sizeof( bool ); /*_disbanded*/
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

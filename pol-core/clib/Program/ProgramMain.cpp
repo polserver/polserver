@@ -30,9 +30,8 @@
 #include <stdexcept>
 #include <string>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 using namespace std;
 
@@ -198,5 +197,4 @@ int ProgramMain::programArgsFindEquals( const std::string& filter, int defaultVa
     return defaultVal;
   return strtoul( val.c_str(), nullptr, hexVal ? 16 : 10 );
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

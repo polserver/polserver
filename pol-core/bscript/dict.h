@@ -18,18 +18,15 @@
 
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class ContIterator;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BDictionary final : public BObjectImp
 {
@@ -83,6 +80,6 @@ private:
   // not implemented:
   BDictionary& operator=( const BDictionary& ) = delete;
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

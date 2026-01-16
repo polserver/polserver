@@ -12,18 +12,15 @@
 
 #include "../polmodl.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class AttributeExecutorModule
     : public Bscript::TmplExecutorModule<AttributeExecutorModule, Core::PolModule>
@@ -55,6 +52,6 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_RawSkillToBaseSkill();
   [[nodiscard]] Bscript::BObjectImp* mf_BaseSkillToRawSkill();
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif

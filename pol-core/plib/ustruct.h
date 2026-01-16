@@ -9,9 +9,8 @@
 
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 #pragma pack( push, 1 )
 
@@ -140,7 +139,7 @@ static_assert( sizeof( USTRUCT_TILE_HSA ) == 41, "size missmatch" );
   bit 0x02: unknown
   bit 0x01: nothing has this set!
   */
-//#define UOTILE_FLAG2_HALF_HEIGHT 0x4
+// #define UOTILE_FLAG2_HALF_HEIGHT 0x4
 /*
   flag3:
   bit 0x80: lightsource?
@@ -163,8 +162,8 @@ static_assert( sizeof( USTRUCT_TILE_HSA ) == 41, "size missmatch" );
   weight: 255 is unmoveable
   */
 
-//#define UOBJ_FLAG2_DESC_NEEDS_AN  0x80
-//#define UOBJ_FLAG2_DESC_NEEDS_A   0x40
+// #define UOBJ_FLAG2_DESC_NEEDS_AN  0x80
+// #define UOBJ_FLAG2_DESC_NEEDS_A   0x40
 
 struct USTRUCT_LAND_TILE
 {
@@ -236,6 +235,6 @@ struct USTRUCT_POL_MAPINFO_BLOCK
 static_assert( sizeof( USTRUCT_POL_MAPINFO_BLOCK ) == 8 * 8 + 16, "size missmatch" );
 
 #pragma pack( pop )
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif /* __USTRUCT_H */

@@ -10,9 +10,8 @@
 
 #include "executor.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 ExecutorModule::ExecutorModule( const char* moduleName, Executor& iExec )
     : exec( iExec ), moduleName( moduleName )
@@ -122,5 +121,4 @@ size_t ExecutorModule::sizeEstimate() const
 {
   return sizeof( *this );
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

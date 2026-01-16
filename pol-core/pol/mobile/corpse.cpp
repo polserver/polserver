@@ -24,9 +24,7 @@
 #include "../uobject.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 UCorpse::UCorpse( const Items::ContainerDesc& descriptor )
     : UContainer( descriptor ), corpsetype( 0 ), ownerserial( 0 )
@@ -192,5 +190,4 @@ bool UCorpse::get_method_hook( const char* methodname, Bscript::Executor* ex, Ex
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -18,9 +18,8 @@
 #include "impstr.h"
 #include "objmethods.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 BDictionary::BDictionary() : BObjectImp( OTDictionary ), contents_() {}
 
@@ -430,5 +429,4 @@ const BDictionary::Contents& BDictionary::contents() const
 {
   return contents_;
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

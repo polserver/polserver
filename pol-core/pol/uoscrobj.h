@@ -54,9 +54,8 @@ class UMulti;
 }  // namespace Multi
 }  // namespace Pol
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 extern Bscript::BApplicObjType eitemrefobjimp_type;
 extern Bscript::BApplicObjType echaracterrefobjimp_type;
@@ -295,6 +294,6 @@ private:
   Core::CharacterRef given_by_;
   Core::gameclock_t given_time_;
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif  // UOSCROBJ_H

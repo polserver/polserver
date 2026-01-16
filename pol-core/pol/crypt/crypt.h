@@ -14,9 +14,8 @@
 #include "twofish.h"
 
 // NOCRYPT
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 class CCryptNoCrypt final : public CCryptBase
 {
@@ -124,7 +123,7 @@ public:
 protected:
   void Decrypt( void* pvIn, void* pvOut, int len ) override;
 };
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt
+
 
 #endif  //__CRYPT_H__

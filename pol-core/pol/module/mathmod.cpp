@@ -18,9 +18,8 @@
 
 #include <module_defs/math.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -400,5 +399,4 @@ Bscript::BObjectImp* MathExecutorModule::mf_Floor()
     return new BError( "Invalid parameter type" );
   }
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

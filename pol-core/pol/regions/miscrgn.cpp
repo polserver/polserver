@@ -18,9 +18,8 @@
 #include "realms/realm.h"
 #include "ufunc.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 NoCastRegion::NoCastRegion( Clib::ConfigElem& elem, RegionId id )
     : Region( elem, id ), nocast_( elem.remove_bool( "nocast", false ) )
@@ -160,5 +159,4 @@ void read_weather_zones()
 
   gamestate.weatherdef->copy_default_regions();
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -12,9 +12,8 @@
 #include <iterator>
 #endif
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 #ifndef NDEBUG
 TraceBufferElem tracebuffer[TRACEBUF_DEPTH];
@@ -41,5 +40,4 @@ void LogTraceBuffer()
   POLLOG( tmp );
 #endif
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

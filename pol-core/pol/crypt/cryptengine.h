@@ -5,12 +5,11 @@
 #define CRYPTENGINE_H
 
 #include "cryptkey.h"
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 class CCryptBase;
 CCryptBase* create_crypt_engine( TCryptInfo& infoCrypt );
-}
-}
+}  // namespace Pol::Crypt
+
 #endif

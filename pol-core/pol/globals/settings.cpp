@@ -7,9 +7,8 @@
 #include "../../plib/systemstate.h"
 #include "../watch.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 SettingsManager settingsManager;
 
@@ -55,5 +54,4 @@ void set_watch_vars()
   settingsManager.watch.combat = elem.remove_bool( "COMBAT", false );
   settingsManager.watch.profile_scripts = elem.remove_bool( "ProfileScripts", false );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

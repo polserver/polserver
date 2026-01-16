@@ -2,11 +2,9 @@
 
 #include "../../bscript/eprog.h"
 #include "../uoexec.h"
-namespace Pol
-{
-namespace Network
-{
-namespace DAP
+
+
+namespace Pol::Network::DAP
 {
 using namespace Bscript;
 
@@ -202,6 +200,4 @@ GlobalReference::GlobalReference( Core::UOExecutor* uoexec, Bscript::EScriptProg
     }
   }
 }
-}  // namespace DAP
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network::DAP

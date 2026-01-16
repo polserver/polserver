@@ -15,9 +15,8 @@
 #include "systemstate.h"
 #include "tiles.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 unsigned char tilelayer( unsigned short tilenum )
 {
@@ -93,5 +92,4 @@ unsigned short tileweight( unsigned short tilenum )
     return 0;
   }
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

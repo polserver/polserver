@@ -14,9 +14,8 @@
 #include "../../plib/systemstate.h"
 #include "../cfgrepos.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 void load_special_storedconfig( const std::string& cfgname )
 {
@@ -43,5 +42,4 @@ void load_special_storedconfig( const std::string& cfgname )
     }
   }
 }
-}
-}
+}  // namespace Pol::Multi

@@ -33,9 +33,8 @@
 #include "itemdesc.h"
 #include "weapon.h"
 
-namespace Pol
-{
-namespace Items
+
+namespace Pol::Items
 {
 Equipment::Equipment( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class,
                       const Core::EquipDesc* permanent_descriptor )
@@ -210,5 +209,4 @@ void load_npc_intrinsic_equip()
     }
   }
 }
-}  // namespace Items
-}  // namespace Pol
+}  // namespace Pol::Items

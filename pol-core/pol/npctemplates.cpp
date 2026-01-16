@@ -23,9 +23,7 @@
 #include "npctmpl.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 NpcTemplateConfigSource::NpcTemplateConfigSource( const Clib::ConfigFile& cf )
     : _filename( cf.filename() ), _fileline( cf.element_line_start() ){};
@@ -205,5 +203,4 @@ void read_npc_templates()
     read_npc_templates( pkg );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

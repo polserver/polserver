@@ -35,9 +35,7 @@
 #include "pol/landtile.h"
 
 
-namespace Pol
-{
-namespace UoConvert
+namespace Pol::UoConvert
 {
 using namespace std;
 using namespace Pol::Core;
@@ -1402,8 +1400,8 @@ void UoConvertMain::load_uoconvert_cfg()
     }
   }
 }
-}  // namespace UoConvert
-}  // namespace Pol
+}  // namespace Pol::UoConvert
+
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

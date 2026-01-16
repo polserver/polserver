@@ -39,9 +39,8 @@
 #include <unordered_map>
 #endif
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
 Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
@@ -2582,5 +2581,4 @@ BSpecialUserFuncJump* BSpecialUserFuncJump::get()
   return &imp_special_userjmp;
 }
 
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

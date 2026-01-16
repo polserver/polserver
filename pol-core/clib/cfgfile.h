@@ -24,9 +24,8 @@
 
 #include "maputil.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ConfigElem;
 class ConfigElemBase;
@@ -90,6 +89,6 @@ public:
   void display_error( const std::string& msg, bool show_curline, const ConfigElemBase* elem,
                       bool error ) const override;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 #endif

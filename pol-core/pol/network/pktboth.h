@@ -17,9 +17,8 @@
 #include "pktbothid.h"
 #include "pktdef.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 #pragma pack( push, 1 )
 
@@ -1192,6 +1191,6 @@ static_assert( sizeof( PKTBI_F0 ) == 14, "size missmatch" );
 
 
 #pragma pack( pop )
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

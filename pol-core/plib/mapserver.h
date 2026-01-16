@@ -12,9 +12,8 @@
 #include "mapsolid.h"
 #include "realmdescriptor.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class MapShapeList;
 struct MAPCELL;
@@ -50,6 +49,6 @@ private:
   MapServer& operator=( const MapServer& ) = delete;
   MapServer( const MapServer& ) = delete;
 };
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

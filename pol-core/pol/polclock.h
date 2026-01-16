@@ -19,9 +19,8 @@
 
 #include <chrono>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using polclock_t_unit = std::chrono::milliseconds;  // in 10ms
 using polclock_t = polclock_t_unit::rep;            // in 10ms
@@ -73,6 +72,6 @@ public:
 };
 
 void polclock_checkin();
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

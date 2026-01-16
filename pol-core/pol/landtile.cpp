@@ -17,9 +17,8 @@
 #include "../plib/pkg.h"
 #include "globals/uvars.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void load_landtile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
@@ -51,5 +50,4 @@ unsigned int landtile_flags( unsigned short landtile )
   passert_always( landtile < Plib::LANDTILE_COUNT );
   return gamestate.landtiles[landtile].flags;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

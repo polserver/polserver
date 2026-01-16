@@ -14,13 +14,12 @@
 #include "../clib/refptr.h"
 #include "proplist.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ConfigElem;
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 namespace Pol
 {

@@ -31,9 +31,8 @@
 #include "ufunc.h"
 #include "uobject.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
     : UContainer( descriptor ), spell_school( 0 )
@@ -428,5 +427,4 @@ void send_spellbook_contents( Network::Client* client, Spellbook& spellbook )
   msg->WriteFlipped<u16>( count );
   msg.Send( client, len );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -34,9 +34,8 @@
 #include "../scrsched.h"
 #include "../uoexec.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 Bscript::BObjectImp* AuxConnection::copy() const
 {
@@ -357,5 +356,4 @@ void load_aux_services()
 {
   load_packaged_cfgs( "auxsvc.cfg", "AuxService", load_auxservice_entry );
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

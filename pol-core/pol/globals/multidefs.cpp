@@ -13,9 +13,8 @@
 #include "../../clib/stlutil.h"
 #include "../multi/multidef.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 MultiDefBuffer multidef_buffer;
 
@@ -45,5 +44,4 @@ size_t MultiDefBuffer::estimateSize() const
   }
   return size;
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

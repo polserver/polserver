@@ -7,9 +7,8 @@
 
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class RawMap
 {
@@ -52,5 +51,4 @@ public:
   ~RawMap() = default;
 };
 
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

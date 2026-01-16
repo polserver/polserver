@@ -22,9 +22,7 @@
 #include "strutil.h"
 
 
-namespace Pol
-{
-namespace Clib
+namespace Pol::Clib
 {
 namespace
 {
@@ -839,5 +837,4 @@ void StubConfigSource::display_error( const std::string& msg, bool /*show_curlin
 {
   ERROR_PRINTLN( "{} reading configuration element:\t{}", ( error ? "Error" : "Warning" ), msg );
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

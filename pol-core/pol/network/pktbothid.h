@@ -9,9 +9,8 @@
 
 #ifndef __PKTBOTHIDH
 #define __PKTBOTHIDH
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 enum PKTBOTHID : unsigned char
 {
@@ -62,5 +61,5 @@ enum PKTBOTHID : unsigned char
 
 };
 }
-}  // namespace Pol
+
 #endif

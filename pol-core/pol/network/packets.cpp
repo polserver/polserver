@@ -18,9 +18,8 @@
 #include "pktboth.h"
 #include "pktbothid.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 using namespace PktHelper;
 using namespace PacketWriterDefs;
@@ -524,5 +523,4 @@ PacketInterface* GetPacket( u8 id, u16 sub )
   }
 }
 }  // namespace PktHelper
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

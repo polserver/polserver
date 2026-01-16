@@ -34,9 +34,8 @@
 #include "uobject.h"
 #include "uoexec.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 Map::Map( const Items::MapDesc& mapdesc )
     : Item( mapdesc, UOBJ_CLASS::CLASS_ITEM ),
@@ -427,5 +426,4 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
     break;
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

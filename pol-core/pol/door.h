@@ -20,14 +20,13 @@ namespace Pol
 namespace Network
 {
 class Client;
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 }  // namespace Network
 namespace Items
 {

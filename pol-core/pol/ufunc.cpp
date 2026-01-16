@@ -86,9 +86,8 @@
 #include "uoclient.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Network;
 using namespace Mobile;
@@ -2184,5 +2183,4 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
 
   msg.Send( chr->client, len );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

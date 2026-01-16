@@ -22,9 +22,8 @@
 #include "uoexec.h"
 #include "uoscrobj.h"
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -331,5 +330,4 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& 
   }
 }
 
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

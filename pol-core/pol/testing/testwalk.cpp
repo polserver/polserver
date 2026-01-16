@@ -9,9 +9,8 @@
 #include "../realms/realm.h"
 #include "testenv.h"
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 namespace
 {
@@ -316,5 +315,4 @@ void multiwalk_test()
   // try walking on a long boat, next to its plank
   test_walk( 1496, 1817, -2, 1495, 1817, true, -2 );
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

@@ -1,8 +1,7 @@
 #include "dynproperties.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 const ValueModPack ValueModPack::DEFAULT = ValueModPack();
 
@@ -12,5 +11,4 @@ const ExtStatBarFollowers ExtStatBarFollowers::DEFAULT = ExtStatBarFollowers( 0,
 
 const SkillStatCap SkillStatCap::DEFAULT = SkillStatCap( 225, 700 );
 
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -42,9 +42,8 @@
 
 #include "cryptbase.h"
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // The following tables must be implimented by the relevant derived classes:
 //
@@ -66,5 +65,4 @@ void CCryptBaseCrypt::SetMasterKeys( unsigned int masterKey1, unsigned int maste
   m_masterKey[0] = masterKey1 & 0xFFFFFFFF;
   m_masterKey[1] = masterKey2 & 0xFFFFFFFF;
 }
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt

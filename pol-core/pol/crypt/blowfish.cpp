@@ -4,9 +4,8 @@
 #include "cryptbase.h"
 
 // Crypt Boxes
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 static unsigned int p_box[18] = { 0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822,
                                   0x299f31d0, 0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377,
@@ -416,5 +415,4 @@ void BlowFish::RawDecrypt( unsigned int* values, int table )
   values[1] = left;
   values[0] = right;
 }
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt

@@ -15,9 +15,8 @@
 #include "../ufunc.h"
 #include "../uworld.h"
 
-namespace Pol
-{
-namespace Mobile
+
+namespace Pol::Mobile
 {
 // This class deal with the side effects of activating/revoking privileges
 // it can be used as a watcher by instanciating or directly via the statics
@@ -305,7 +304,7 @@ void PrivUpdater::disable_invul( Character* in_range_chr, Character* chr,
     msg.Send( chr->client );
   }
 }
-}  // namespace Mobile
-}  // namespace Pol
+}  // namespace Pol::Mobile
+
 
 #endif

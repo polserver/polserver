@@ -16,9 +16,8 @@
 #include "objecthash.h"
 #include "uobject.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 UObject* system_find_object( u32 serial )
 {
@@ -94,5 +93,4 @@ UObject* find_toplevel_object( u32 serial )
     return find_character( serial );
   }
 }
-}
-}
+}  // namespace Pol::Core

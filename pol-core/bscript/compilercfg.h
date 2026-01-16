@@ -10,9 +10,8 @@
 #include <string>
 #include <vector>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 struct CompilerConfig
 {
@@ -78,6 +77,6 @@ struct CompilerConfig
 };
 
 extern CompilerConfig compilercfg;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

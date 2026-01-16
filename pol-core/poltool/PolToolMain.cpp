@@ -22,9 +22,8 @@
 
 #include <zlib.h>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 using namespace std;
 
@@ -108,8 +107,7 @@ int PolToolMain::mapdump()
 
       for ( unsigned i = 1; i < mlist.size(); ++i )
       {
-        ofs << "<br>"
-            << "solid.z=" << int( mlist[i].z ) << "<br>"
+        ofs << "<br>" << "solid.z=" << int( mlist[i].z ) << "<br>"
             << "solid.height=" << int( mlist[i].height ) << "<br>"
             << "solid.flags=" << Plib::flagstr( mlist[i].flags );
       }
@@ -318,8 +316,8 @@ int PolToolMain::main()
     return 1;  // return "error"
   }
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

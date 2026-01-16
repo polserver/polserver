@@ -14,9 +14,8 @@
 #include "globals/uvars.h"
 #include "polclock.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 static gameclock_t gameclock;
 
@@ -63,5 +62,4 @@ gameclock_t read_gameclock()
   last_read = new_last_read;
   return gameclock;
 }
-}
-}
+}  // namespace Pol::Core

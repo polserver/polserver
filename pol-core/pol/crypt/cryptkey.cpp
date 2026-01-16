@@ -21,9 +21,8 @@
 #include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major, int ver2minor,
                      int ver2build );
@@ -226,5 +225,4 @@ bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major,
 // confusion
 // AddClient("uorice",    0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie
 // confusion
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt

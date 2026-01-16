@@ -33,9 +33,8 @@
 #include "realms/realms.h"
 #include "uomod.h"
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 using namespace Mobile;
@@ -207,5 +206,4 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
   }
   return new BLong( 1 );
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

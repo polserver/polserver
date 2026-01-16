@@ -32,9 +32,8 @@
 #include "uoscrobj.h"
 #include "vital.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 UOExecutor::UOExecutor()
     : Executor(),
@@ -974,5 +973,4 @@ bool UOExecutor::getPos4dParam( unsigned xparam, unsigned yparam, unsigned zpara
   }
   return false;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -10,14 +10,13 @@
 
 #include "../polmodl.h"
 #include "../polobject.h"
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 
 namespace Pol
 {

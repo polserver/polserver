@@ -25,9 +25,8 @@
 #include "systems/suspiciousacts.h"
 #include "ufunc.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void equip_item( Network::Client* client, PKTIN_13* msg )
 {
@@ -133,5 +132,4 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   equip_on->equip( item );
   send_wornitem_to_inrange( equip_on, item );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

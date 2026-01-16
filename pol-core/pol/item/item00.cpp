@@ -18,9 +18,8 @@
 #include "itemdesc.h"
 #include "regions/resource.h"
 
-namespace Pol
-{
-namespace Items
+
+namespace Pol::Items
 {
 Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
     : UObject( id.objtype, uobj_class ),
@@ -78,5 +77,4 @@ size_t Item::estimatedSize() const
          + sizeof( boost_utils::script_name_flystring )      /*unequip_script_*/
          + sizeof( boost_utils::script_name_flystring );     /*snoop_script_*/
 }
-}  // namespace Items
-}  // namespace Pol
+}  // namespace Pol::Items

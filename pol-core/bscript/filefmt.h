@@ -12,9 +12,8 @@
 #ifndef __BSCRIPT_FILEFMT_H
 #define __BSCRIPT_FILEFMT_H
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 #pragma pack( push, 1 )
 
@@ -176,6 +175,6 @@ struct BSCRIPT_CLASS_TABLE_METHOD_ENTRY
 static_assert( sizeof( BSCRIPT_CLASS_TABLE_METHOD_ENTRY ) == 8, "size missmatch" );
 
 #pragma pack( pop )
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

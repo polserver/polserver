@@ -20,9 +20,8 @@
 #include "message_queue.h"
 #include "spinlock.h"
 
-namespace Pol
-{
-namespace threadhelp
+
+namespace Pol::threadhelp
 {
 extern std::atomic<unsigned int> child_threads;
 
@@ -125,6 +124,6 @@ private:
 };
 
 
-}  // namespace threadhelp
-}  // namespace Pol
+}  // namespace Pol::threadhelp
+
 #endif  // CLIB_THREADHELP_H

@@ -6,9 +6,8 @@
 
 #include "boundbox.h"
 
-namespace Pol
-{
-namespace Mobile
+
+namespace Pol::Mobile
 {
 bool BoundingBox::contains( const Core::Pos2d& pos ) const
 {
@@ -24,5 +23,4 @@ void BoundingBox::addarea( Core::Range2d area )
 {
   areas.emplace_back( std::move( area ) );
 }
-}  // namespace Mobile
-}  // namespace Pol
+}  // namespace Pol::Mobile

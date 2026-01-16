@@ -31,9 +31,8 @@ class StoredConfigFile;
 template <class T>
 class ref_ptr;
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class ConfigFileExecutorModule
     : public Bscript::TmplExecutorModule<ConfigFileExecutorModule, Bscript::ExecutorModule>
@@ -101,6 +100,6 @@ bool getStoredConfigFileParam( Bscript::ExecutorModule& exmod, unsigned param,
                                Core::StoredConfigFile*& cfile );
 bool getStoredConfigElemParam( Bscript::ExecutorModule& exmod, unsigned param,
                                Core::StoredConfigElem*& celem );
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif

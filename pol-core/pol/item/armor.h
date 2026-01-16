@@ -41,9 +41,8 @@ class ExportScript;
 }  // namespace Pol
 #define ARMOR_TMPL ( static_cast<const ArmorDesc*>( tmpl ) )
 
-namespace Pol
-{
-namespace Items
+
+namespace Pol::Items
 {
 class ArmorDesc;
 class Item;
@@ -102,6 +101,6 @@ void unload_armor_templates();
 void validate_intrinsic_shield_template();
 UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem,
                                                   const Plib::Package* pkg );
-}  // namespace Items
-}  // namespace Pol
+}  // namespace Pol::Items
+
 #endif

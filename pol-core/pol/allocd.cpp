@@ -14,9 +14,8 @@
 #include <malloc.h>
 #endif
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 size_t last_blocks_used = 0;
 size_t last_bytes_used = 0;
@@ -75,5 +74,4 @@ void PrintAllocationData()
   INFO_PRINTLN( tmp );
 #endif
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

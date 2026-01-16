@@ -1,9 +1,7 @@
 #include "state.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 StateManager stateManager;
 
@@ -30,5 +28,4 @@ size_t StateManager::estimateSize() const
 {
   return sizeof( StateManager );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

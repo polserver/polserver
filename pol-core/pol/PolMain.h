@@ -3,9 +3,8 @@
 
 #include "../clib/Program/ProgramMain.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class PolMain final : public ProgramMain
 {
@@ -19,7 +18,7 @@ protected:
 private:
   void showHelp() override;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 #endif  // POL_MAIN_H

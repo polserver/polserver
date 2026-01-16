@@ -8,9 +8,8 @@
 #define SCKUTIL_H
 
 #include <string>
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class Socket;
 
@@ -18,6 +17,6 @@ class Socket;
 // TODO: get rid of http_writeline, it's doing exactly the same as this function
 void writeline( Socket& sck, const std::string& s );
 
-}
-}
+}  // namespace Pol::Clib
+
 #endif

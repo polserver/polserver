@@ -9,9 +9,8 @@
 #include "uofile.h"
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 extern bool static_debug_on;
 
@@ -115,5 +114,4 @@ void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
     }
   }
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

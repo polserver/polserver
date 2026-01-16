@@ -5,9 +5,8 @@
 
 #include "../clib/Program/ProgramMain.h"
 
-namespace Pol
-{
-namespace ECompile
+
+namespace Pol::ECompile
 {
 class ECompileMain final : public Pol::Clib::ProgramMain
 {
@@ -21,7 +20,7 @@ protected:
 private:
   void showHelp() override;
 };
-}  // namespace ECompile
-}  // namespace Pol
+}  // namespace Pol::ECompile
+
 
 #endif  // E_COMPILE_MAIN_H

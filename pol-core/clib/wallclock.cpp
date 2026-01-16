@@ -12,9 +12,8 @@
 #include <ctime>
 #endif
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 #ifdef _WIN32
 wallclock_t wallclock()
@@ -41,5 +40,4 @@ wallclock_diff_t wallclock_diff_ms( wallclock_t start, wallclock_t finish )
 }
 
 #endif
-}
-}
+}  // namespace Pol::Clib

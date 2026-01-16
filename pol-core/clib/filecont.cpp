@@ -10,9 +10,8 @@
 #include "strutil.h"
 #include <cstdio>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 /**
  * Creates the instance and reads the whole file content into it
@@ -66,5 +65,4 @@ void FileContents::set_contents( const std::string& str )
 {
   contents_ = str;
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

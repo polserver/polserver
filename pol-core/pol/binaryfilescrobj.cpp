@@ -19,9 +19,8 @@
 #include "../clib/clib_endian.h"
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 BBinaryfile::BBinaryfile()
     : Bscript::BObjectImp( OTBinaryFile ),
@@ -444,5 +443,4 @@ void BinFile::Flush()
   if ( _file.is_open() )
     _file.flush();
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

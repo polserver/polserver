@@ -19,9 +19,8 @@ inline int poll( struct pollfd* fds, ULONG nfds, int timeout )
 
 #endif
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class PollingWithPoll
 {
@@ -74,6 +73,6 @@ private:
   int timeoutms;
   bool processed;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 #endif

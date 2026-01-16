@@ -74,9 +74,8 @@
 #include "../../clib/network/sockets.h"
 #include "../../plib/uconst.h"
 #include "logincrypt.h"
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // basic class only used directly by NoCrypt
 class CCryptBase
@@ -128,6 +127,6 @@ protected:
   void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 );
   virtual void Decrypt( void* pvIn, void* pvOut, int len ) = 0;
 };
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt
+
 #endif  //__CRYPTBASE_H__

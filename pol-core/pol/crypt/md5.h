@@ -6,9 +6,8 @@
 
 #ifndef __MD5_H__
 #define __MD5_H__
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // Struct for MD5
 
@@ -41,6 +40,6 @@ protected:
   unsigned int TableIdx;
   unsigned char Digest[16];
 };
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt
+
 #endif  //__MD5_H__

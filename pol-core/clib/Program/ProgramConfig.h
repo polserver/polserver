@@ -3,9 +3,8 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ProgramConfig
 {
@@ -34,8 +33,8 @@ private:
   static std::string m_programName;
   static std::string m_programDir;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 #define PROG_CONFIG Pol::Clib::ProgramConfig
 

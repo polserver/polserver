@@ -16,9 +16,8 @@
 #include "../syshook.h"
 #include "../uoskills.h"
 
-namespace Pol
-{
-namespace Mobile
+
+namespace Pol::Mobile
 {
 Attribute* Attribute::FindAttribute( const std::string& str )
 {
@@ -132,5 +131,4 @@ void combine_attributes_skillid()
     }
   }
 }
-}  // namespace Mobile
-}  // namespace Pol
+}  // namespace Pol::Mobile

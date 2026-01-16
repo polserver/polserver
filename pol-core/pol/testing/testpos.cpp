@@ -8,9 +8,8 @@
 #include "realms/realm.h"
 #include "testenv.h"
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 using namespace Core;
 
@@ -296,5 +295,4 @@ void pos4d_test()
   UnitTest( [&]() { return fmt::format( "{:->24}", Pos4d( 0, 0, 0, r ) ); },
             "--( 0, 0, 0, britannia )", "format padding" );
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

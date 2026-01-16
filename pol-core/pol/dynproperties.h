@@ -56,9 +56,8 @@
 #include "../clib/stlutil.h"
 #include "gameclck.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 // define to generate 3 methods for get/set/has
 #define DYN_PROPERTY( name, type, id, defaultvalue )         \
@@ -799,7 +798,7 @@ inline size_t DynamicPropsHolder::estimateSizeDynProps() const
 }
 
 
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 #endif

@@ -13,9 +13,7 @@
 #include "tokens.h"
 
 
-namespace Pol
-{
-namespace Bscript
+namespace Pol::Bscript
 {
 void Token::printOn( std::ostream& os ) const
 {
@@ -481,8 +479,7 @@ void Token::printOn( std::ostream& os ) const
     os << "?: (elvis)";
     break;
   case TOK_INTERPOLATE_STRING:
-    os << "interpolate string "
-       << "(" << lval << "parts)";
+    os << "interpolate string " << "(" << lval << "parts)";
     break;
   case TOK_FORMAT_EXPRESSION:
     os << "format expression";
@@ -546,5 +543,4 @@ std::ostream& operator<<( std::ostream& os, const Token& tok )
   tok.printOn( os );
   return os;
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

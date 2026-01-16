@@ -11,9 +11,8 @@
 #include "uofilei.h"
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 std::set<unsigned int> water;
 
@@ -59,5 +58,4 @@ void readwater()
     }
   }
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

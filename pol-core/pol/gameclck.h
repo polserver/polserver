@@ -7,9 +7,8 @@
 #ifndef GAMECLCK_H
 #define GAMECLCK_H
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using gameclock_t = unsigned int;
 
@@ -27,6 +26,6 @@ void update_gameclock();
 
 /// Reads the current value of the game clock.
 gameclock_t read_gameclock();
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

@@ -26,9 +26,7 @@ struct utsname my_utsname;
 #include "globals/network.h"
 
 
-namespace Pol
-{
-namespace Network
+namespace Pol::Network
 {
 void set_ip_address( const char* ip )
 {
@@ -227,5 +225,4 @@ std::string AddressToString( const sockaddr* addr )
   return address;
 }
 
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

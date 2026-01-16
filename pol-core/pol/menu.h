@@ -15,9 +15,8 @@
 
 #include "../clib/weakptr.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 // FIXME these are horribly wasteful.  Probably should be using <string> or something.
 // also, kinda bad for each MenuItem to have a submenu_name, when most won't be submenus...sigh.
@@ -66,6 +65,6 @@ public:
 private:
   weak_ptr_owner<Menu> weakptr;
 };
-}
-}
+}  // namespace Pol::Core
+
 #endif

@@ -38,9 +38,8 @@
 #include "scrsched.h"
 #include "uoexec.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 
@@ -1407,5 +1406,4 @@ void debug_listen_thread()
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

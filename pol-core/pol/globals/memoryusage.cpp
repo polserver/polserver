@@ -17,9 +17,8 @@
 
 #include "pol_global_config.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void MemoryUsage::log()
 {
@@ -110,5 +109,4 @@ void MemoryUsage::log()
 
   CLOSE_FLEXLOG( log );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

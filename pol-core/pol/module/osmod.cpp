@@ -104,9 +104,8 @@ private:
 
 };  // namespace
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -1677,5 +1676,4 @@ size_t OSExecutorModule::sizeEstimate() const
   size += Clib::memsize( events_ );
   return size;
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

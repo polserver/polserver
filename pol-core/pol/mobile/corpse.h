@@ -33,9 +33,8 @@ class UMulti;
 }  // namespace Multi
 }  // namespace Pol
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class ExportScript;
 
@@ -82,7 +81,7 @@ protected:
   bool script_isa( unsigned isatype ) const override;
   std::vector<Core::ItemRef> can_equip_list_;
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 #endif

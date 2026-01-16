@@ -19,9 +19,8 @@
 
 #include <module_defs/attributes.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 using namespace Mobile;
@@ -38,8 +37,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_CheckSkill()
   int difficulty;
   unsigned short points;
 
-  if ( getCharacterParam( 0, chr ) && getSkillIdParam( 1, skillid ) &&
-       getParam( 2, difficulty ) && getParam( 3, points ) )
+  if ( getCharacterParam( 0, chr ) && getSkillIdParam( 1, skillid ) && getParam( 2, difficulty ) &&
+       getParam( 3, points ) )
   {
     return new Bscript::BLong( chr->check_skill( skillid, difficulty, points ) );
   }
@@ -79,8 +78,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname,
   const Attribute* attr;
   short precision;
 
-  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
-       getParam( 2, precision ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) && getParam( 2, precision ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( precision == 1 ? av.effective_tenths() : av.effective() );
@@ -301,8 +299,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
   const Attribute* attr;
   int delta;
 
-  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
-       getParam( 2, delta ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) && getParam( 2, delta ) )
   {
     AttributeValue& av = chr->attribute( attr->attrid );
     int eff = av.effective_tenths();
@@ -355,5 +352,4 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRawSkill()
   else
     return new Bscript::BError( "Invalid parameter type" );
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

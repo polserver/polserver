@@ -27,9 +27,8 @@ using namespace Bscript;
 using namespace EscriptGrammar;
 using namespace Compiler;
 
-namespace Network
-{
-namespace DAP
+
+namespace Network::DAP
 {
 namespace fs = std::filesystem;
 
@@ -950,6 +949,6 @@ void DebugClientThread::run()
 
   POLLOG_INFOLN( "Debugger#{} client thread closing.", _instance );
 }
-}  // namespace DAP
-}  // namespace Network
+}  // namespace Network::DAP
+
 }  // namespace Pol

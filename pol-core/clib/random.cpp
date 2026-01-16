@@ -11,9 +11,8 @@
 
 #include "random.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 namespace
 {
@@ -49,5 +48,4 @@ int random_int_range( int minI, int maxI )
   std::uniform_int_distribution<int> distribution( minI, maxI );
   return distribution( generator );
 }
-}
-}
+}  // namespace Pol::Clib

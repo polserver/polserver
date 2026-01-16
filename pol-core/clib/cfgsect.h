@@ -9,9 +9,8 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ConfigFile;
 class ConfigElem;
@@ -25,7 +24,7 @@ class ConfigSection
 public:
   ConfigSection( ConfigFile& cf, const std::string& sectname,
                  unsigned flags = CST_MANDATORY | CST_UNIQUE );
-  ~ConfigSection() noexcept(false);
+  ~ConfigSection() noexcept( false );
   ConfigSection& operator=( const ConfigSection& ) { return *this; }
   bool matches( const ConfigElem& elem );
 
@@ -35,6 +34,6 @@ private:
   bool _found;
   unsigned _flags;
 };
-}
-}
+}  // namespace Pol::Clib
+
 #endif

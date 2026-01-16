@@ -21,9 +21,8 @@
 #include "../ufunc.h"
 #include "../uworld.h"
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 unsigned int UnitTest::failures = 0;
 unsigned int UnitTest::successes = 0;
@@ -181,5 +180,4 @@ void create_test_environment()
     add_item( 0xe42, 1373, 1625, 30 );
   }
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

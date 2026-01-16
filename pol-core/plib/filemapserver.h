@@ -12,17 +12,14 @@
 #include "mapcell.h"
 #include "mapserver.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class RealmDescriptor;
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class FileMapServer : public MapServer
 {
@@ -41,7 +38,7 @@ protected:
   FileMapServer& operator=( const FileMapServer& );
   FileMapServer( const FileMapServer& );
 };
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 
 #endif

@@ -26,9 +26,8 @@
 #include "pktdef.h"
 #include "pktoutid.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 #pragma pack( push, 1 )
 
@@ -1293,7 +1292,7 @@ struct PKTOUT_D8
 // static_assert( sizeof(PKTOUT_F3) == 24, "size missmatch" );
 
 #pragma pack( pop )
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 #endif

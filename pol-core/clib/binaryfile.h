@@ -11,9 +11,8 @@
 #include <string>
 #include <vector>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class BinaryFile
 {
@@ -57,6 +56,6 @@ private:
   std::fstream _file;
   std::string _filename;
 };
-}
-}
+}  // namespace Pol::Clib
+
 #endif

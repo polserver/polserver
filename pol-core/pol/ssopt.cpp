@@ -39,9 +39,8 @@
 #include "globals/uvars.h"
 #include "network/pktdef.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void ServSpecOpt::read_servspecopt()
 {
@@ -241,5 +240,4 @@ void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )
       cout << "* Stats-at-creation entry: " << *itr << endl;
       */
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

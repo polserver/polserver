@@ -23,9 +23,8 @@
 
 #include <fmt/format.h>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 enum MethodID
 {
@@ -217,6 +216,6 @@ extern int n_objmethods;
 
 ObjMethod* getKnownObjMethod( const char* token );
 ObjMethod* getObjMethod( int id );
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

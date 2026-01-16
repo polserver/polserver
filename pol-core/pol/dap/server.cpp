@@ -9,11 +9,8 @@
 
 #include <dap/network.h>
 
-namespace Pol
-{
-namespace Network
-{
-namespace DAP
+
+namespace Pol::Network::DAP
 {
 DebugServer::DebugServer()
 {
@@ -39,6 +36,4 @@ DebugServer::DebugServer()
 }
 
 DebugServer::~DebugServer() = default;
-}  // namespace DAP
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network::DAP

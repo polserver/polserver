@@ -12,18 +12,15 @@
 
 #include "../polmodl.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class StorageExecutorModule
     : public Bscript::TmplExecutorModule<StorageExecutorModule, Core::PolModule>
@@ -38,6 +35,6 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_FindRootItemInStorageArea();
   [[nodiscard]] Bscript::BObjectImp* mf_CreateRootItemInStorageArea();
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif

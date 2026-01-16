@@ -52,9 +52,7 @@
 #include "wepntmpl.h"
 
 
-namespace Pol
-{
-namespace Items
+namespace Pol::Items
 {
 unsigned int get_objtype_byname( const char* str )
 {
@@ -1484,5 +1482,4 @@ void return_resources( u32 objtype, u16 /*amount*/ )
     }
   }
 }
-}  // namespace Items
-}  // namespace Pol
+}  // namespace Pol::Items

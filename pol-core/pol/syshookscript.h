@@ -14,13 +14,12 @@
 #include "scrdef.h"
 #include "uoexec.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 struct BackupStruct;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 
 namespace Pol
 {

@@ -9,9 +9,8 @@
 #include <cstdio>
 #include <cstring>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 /**
  * Initializes an empty token
@@ -43,5 +42,4 @@ void Token::setStr( std::string str )
   token = std::move( str );
 }
 
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

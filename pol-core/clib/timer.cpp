@@ -2,9 +2,8 @@
 
 #include "logfacility.h"
 
-namespace Pol
-{
-namespace Tools
+
+namespace Pol::Tools
 {
 void DebugT::print( const std::string& name, long long time )
 {
@@ -75,5 +74,4 @@ HighPerfTimer::time_mu HighPerfTimer::ellapsed() const
 // forward declarce both versions
 template class Timer<DebugT>;
 template class Timer<SilentT>;
-}  // namespace Tools
-}  // namespace Pol
+}  // namespace Pol::Tools

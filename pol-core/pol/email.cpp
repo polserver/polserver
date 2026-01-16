@@ -5,9 +5,8 @@
 #include "clib/fileutil.h"
 #include "globals/settings.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 
 void clear_email_cfg()
@@ -51,5 +50,4 @@ void load_email_cfg()
         fmt::format( "CAFile '{}' does not exist.", settingsManager.email_cfg.ca_file ) );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

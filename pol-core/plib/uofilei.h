@@ -15,9 +15,8 @@
 #include <map>
 #include <vector>
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 extern FILE* mapfile;
 extern FILE* sidxfile;
@@ -64,6 +63,6 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 
 void read_static_diffs();
 void read_map_difs();
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

@@ -1,9 +1,8 @@
 #ifndef POL_WORLDCHANGEREASON_H
 #define POL_WORLDCHANGEREASON_H
 
-namespace Pol
-{
-namespace Realms
+
+namespace Pol::Realms
 {
 enum class WorldChangeReason
 {
@@ -19,5 +18,5 @@ enum class WorldChangeReason
   Moved
 };
 }
-}
+
 #endif

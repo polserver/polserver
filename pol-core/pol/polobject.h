@@ -8,9 +8,8 @@
 #include "../bscript/executor.h"
 #include "uoexec.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class UOExecutor;
 class PolObjectImp : public Bscript::BObjectImp
@@ -80,6 +79,6 @@ Bscript::BObjectImp* PolApplicObj<T>::call_polmethod_id( const int id, Core::UOE
 {
   return Bscript::BObjectImp::call_method_id( id, uoex, forcebuiltin );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

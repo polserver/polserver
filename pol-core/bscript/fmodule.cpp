@@ -7,9 +7,8 @@
 
 #include <cstddef>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 ModuleFunction::ModuleFunction( const char* fname, int i_nargs )
     : name( fname ), nargs( i_nargs ), funcidx( -1 )
@@ -36,5 +35,4 @@ void FunctionalityModule::addFunction( const char* funcname, int nparams )
   mf->funcidx = static_cast<unsigned int>( functions.size() );
   functions.push_back( mf );
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

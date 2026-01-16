@@ -2,9 +2,8 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 
 struct Email_Cfg
@@ -15,5 +14,4 @@ struct Email_Cfg
   std::string ca_file;
   bool use_tls;
 };
-}
-}
+}  // namespace Pol::Core

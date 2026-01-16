@@ -19,9 +19,7 @@
 #include "ufunc.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 using namespace Network;
 
@@ -125,5 +123,4 @@ void send_container_contents( Client* client, const UContainer& cont )
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

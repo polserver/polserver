@@ -18,9 +18,7 @@
 #include "uofile.h"
 
 
-namespace Pol
-{
-namespace Plib
+namespace Pol::Plib
 {
 extern unsigned int num_map_patches;
 extern unsigned int num_static_patches;
@@ -320,5 +318,4 @@ void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base,
   _ofs_solidx1.seekp( file_offset, std::ios_base::beg );
   _ofs_solidx1.write( reinterpret_cast<const char*>( &offset ), sizeof offset );
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

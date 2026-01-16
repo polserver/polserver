@@ -21,9 +21,8 @@
 #include "pktdef.h"
 #include "pktinid.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 #pragma pack( push, 1 )
 
@@ -581,6 +580,6 @@ struct PKTIN_FB
 static_assert( sizeof( PKTIN_FB ) == 2, "size missmatch" );
 
 #pragma pack( pop )
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

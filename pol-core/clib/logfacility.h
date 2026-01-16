@@ -19,9 +19,8 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 #include "Debugging/LogSink.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 extern bool LogfileTimestampEveryLine;
 
@@ -259,7 +258,7 @@ private:
 extern LogFacility* global_logger;        // pointer to the instance of the main class
 void initLogging( LogFacility* logger );  // initalize the logging
 }  // namespace Logging
-}  // namespace Clib
+}  // namespace Pol::Clib
 
 
 // several helper defines
@@ -333,4 +332,3 @@ void initLogging( LogFacility* logger );  // initalize the logging
 #define IS_DEBUGLOG_DISABLED Clib::Logging::LogSink_debuglog::Disabled
 
 #define GET_LOG_FILESTAMP Clib::Logging::LogSink::getTimeStamp()
-}  // namespace Pol

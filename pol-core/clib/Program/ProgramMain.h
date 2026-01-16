@@ -4,9 +4,8 @@
 #include <string>
 #include <vector>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ProgramMain
 {
@@ -28,8 +27,8 @@ protected:
 private:
   std::vector<std::string> m_programArguments;
 };
-}
-}  // namespaces
+}  // namespace Pol::Clib
+   // namespaces
 
 #define PROG_MAIN Pol::Clib::ProgramMain
 

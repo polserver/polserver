@@ -21,9 +21,8 @@
 
 #include "RawMap.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 unsigned int num_map_patches = 0;
 static RawMap rawmap;
@@ -160,5 +159,4 @@ void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPI
     *z = ( zsum - 1 ) / 2;
   }
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

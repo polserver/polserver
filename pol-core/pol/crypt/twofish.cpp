@@ -3,9 +3,8 @@
 #include "../../clib/passert.h"
 #include "twofish.h"
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // Crypt Table
 
@@ -278,5 +277,4 @@ void TwoFish::BlockEncrypt( CipherInstance* cipher, KeyInstance* key, unsigned c
     }
   }
 }
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt

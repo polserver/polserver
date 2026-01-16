@@ -10,9 +10,8 @@
 #include "../clib/network/sockets.h"
 #include <string>
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 int init_sockets_library();
 int deinit_sockets_library();
@@ -23,6 +22,6 @@ void disable_nagle( SOCKET client_socket );
 
 std::string AddressToString( const sockaddr* addr );
 
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network
+
 #endif

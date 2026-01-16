@@ -14,9 +14,8 @@
 #include "pktout.h"
 #include "pktoutid.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 void PacketRegistry::handle_msg( unsigned char msgid, Client* client, void* msg )
 {
@@ -105,33 +104,25 @@ void PacketRegistry::set_extended_handler( UEXTMSGID submsgtype,
 //               MESSAGE_HANDLER( PKTBI_2C, handle_resurrect_menu );
 //
 //  will register the fixed-length packet 2C with callback "handle_ressurect_menu"
-#define MESSAGE_HANDLER( type, func )                      \
-  PacketRegistry::set_handler(                             \
-      type##_ID, sizeof( type ),                           \
-      []( Network::Client* client, void* msg ) -> void     \
-      { func( client, reinterpret_cast<type*>( msg ) ); }, \
-      Network::PacketVersion::V1 )
+#define MESSAGE_HANDLER( type, func )                                             \
+  PacketRegistry::set_handler(                                                    \
+      type##_ID, sizeof( type ), []( Network::Client* client, void* msg ) -> void \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, Network::PacketVersion::V1 )
 
-#define MESSAGE_HANDLER_VARLEN( type, func )               \
-  PacketRegistry::set_handler(                             \
-      type##_ID, MSGLEN_2BYTELEN_DATA,                     \
-      []( Network::Client* client, void* msg ) -> void     \
-      { func( client, reinterpret_cast<type*>( msg ) ); }, \
-      Network::PacketVersion::V1 )
+#define MESSAGE_HANDLER_VARLEN( type, func )                                            \
+  PacketRegistry::set_handler(                                                          \
+      type##_ID, MSGLEN_2BYTELEN_DATA, []( Network::Client* client, void* msg ) -> void \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, Network::PacketVersion::V1 )
 
-#define MESSAGE_HANDLER_V2( type, func )                   \
-  PacketRegistry::set_handler(                             \
-      type##_ID, sizeof( type ),                           \
-      []( Network::Client* client, void* msg ) -> void     \
-      { func( client, reinterpret_cast<type*>( msg ) ); }, \
-      Network::PacketVersion::V2 )
+#define MESSAGE_HANDLER_V2( type, func )                                          \
+  PacketRegistry::set_handler(                                                    \
+      type##_ID, sizeof( type ), []( Network::Client* client, void* msg ) -> void \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, Network::PacketVersion::V2 )
 
-#define MESSAGE_HANDLER_VARLEN_V2( type, func )            \
-  PacketRegistry::set_handler(                             \
-      type##_ID, MSGLEN_2BYTELEN_DATA,                     \
-      []( Network::Client* client, void* msg ) -> void     \
-      { func( client, reinterpret_cast<type*>( msg ) ); }, \
-      Network::PacketVersion::V2 )
+#define MESSAGE_HANDLER_VARLEN_V2( type, func )                                         \
+  PacketRegistry::set_handler(                                                          \
+      type##_ID, MSGLEN_2BYTELEN_DATA, []( Network::Client* client, void* msg ) -> void \
+      { func( client, reinterpret_cast<type*>( msg ) ); }, Network::PacketVersion::V2 )
 
 void PacketRegistry::initialize_msg_handlers()
 {
@@ -210,5 +201,4 @@ void PacketRegistry::initialize_extended_handlers()
   set_extended_handler( EXTMSGID_SPELLBOOK, handle_open_spellbook );
   set_extended_handler( EXTMSGID_SKILL, handle_use_skill );
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

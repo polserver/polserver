@@ -10,9 +10,8 @@
 #include "../plib/systemstate.h"
 #include "globals/state.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void checkpoint( const char* msg, unsigned short minlvl /* = 11 */ )
 {
@@ -29,5 +28,4 @@ Checkpoint::~Checkpoint()
   if ( _line )
     POLLOG_ERRORLN( "Abnormal end after checkpoint: File {}, line {}", _file, _line );
 }
-}
-}
+}  // namespace Pol::Core

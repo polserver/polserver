@@ -19,9 +19,8 @@
 #include "../../clib/strutil.h"
 #include "../globals/multidefs.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 bool BoatShapeExists( u16 graphic );
 
@@ -276,5 +275,4 @@ void read_multidefs()
     multidef_buffer.multidefs_by_multiid[mdef->multiid] = mdef;
   }
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

@@ -13,9 +13,7 @@
 #include "charactr.h"
 
 
-namespace Pol
-{
-namespace Mobile
+namespace Pol::Mobile
 {
 bool Character::start_spell_script( Bscript::EScriptProgram* prog, Core::USpell* spell )
 {
@@ -29,5 +27,4 @@ void Character::schedule_spell( Core::USpell* spell )
                        // polclock() + spell->delay() * POLCLOCKS_PER_SEC / 1000,
                        Core::polclock(), this, spell, true );
 }
-}
-}
+}  // namespace Pol::Mobile

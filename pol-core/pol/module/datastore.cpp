@@ -34,9 +34,8 @@
 
 #include <module_defs/datafile.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 ///
 /// Datastore
@@ -758,5 +757,4 @@ void commit_datastore()
     }
   }
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

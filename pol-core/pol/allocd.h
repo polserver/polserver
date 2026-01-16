@@ -5,11 +5,10 @@
 
 #ifndef __ALLOCD_H
 #define __ALLOCD_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void PrintAllocationData();
 }
-}
+
 #endif

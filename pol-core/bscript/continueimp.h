@@ -3,9 +3,8 @@
 #include "bobject.h"
 #include "exectype.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class Executor;
 class BContinuation;
@@ -40,5 +39,4 @@ private:
 public:
   BObjectRefVec args;
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

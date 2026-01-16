@@ -22,9 +22,8 @@
 
 #include <memory>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -383,5 +382,4 @@ MF_NO_MYSQL( mf_mysql_close )
 MF_NO_MYSQL( mf_mysql_fetch_row )
 MF_NO_MYSQL( mf_mysql_escape_string )
 #endif
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

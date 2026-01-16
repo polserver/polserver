@@ -6,9 +6,8 @@
 
 #ifndef __LOGINCRYPT_H__
 #define __LOGINCRYPT_H__
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 class LoginCrypt
 {
@@ -30,6 +29,6 @@ public:
 protected:
   unsigned int m_k1, m_k2;
 };
-}
-}
+}  // namespace Pol::Crypt
+
 #endif  //__LOGINCRYPT_H__

@@ -24,9 +24,8 @@
 #include <curl/curl.h>
 #include <type_traits>
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 void dummy() {}
 
@@ -419,5 +418,4 @@ void caseinsensitive_compare_test()
       },
       less_cmp( "test"sv, "test"sv ), "test_boost < test_boost" );
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

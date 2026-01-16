@@ -3,9 +3,8 @@
 
 #include "../clib/Program/ProgramMain.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class PolToolMain final : public ProgramMain
 {
@@ -21,7 +20,7 @@ private:
   int mapdump();
   int unpackCompressedGump();
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 #endif  // POL_TOOL_MAIN_H

@@ -54,9 +54,8 @@ class Realm;
 }  // namespace Realms
 }  // namespace Pol
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 using ItemList = std::list<Items::Item*>;
 using MobileList = std::list<Mobile::Character*>;
@@ -174,6 +173,6 @@ private:
 
 
 Bscript::BObjectImp* destroy_house( UHouse* house );
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi
+
 #endif

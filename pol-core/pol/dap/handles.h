@@ -22,9 +22,8 @@ namespace Core
 {
 class UOExecutor;
 }  // namespace Core
-namespace Network
-{
-namespace DAP
+
+namespace Network::DAP
 {
 class GlobalReference
 {
@@ -165,7 +164,7 @@ void Handles::set_response_details( const Bscript::BObjectRef& objref, T& variab
   }
 }
 
-}  // namespace DAP
-}  // namespace Network
+}  // namespace Network::DAP
+
 }  // namespace Pol
 #endif

@@ -6,9 +6,8 @@
 
 #ifndef PLIB_MAPTILE_H
 #define PLIB_MAPTILE_H
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 const unsigned MAPTILE_CHUNK = 64;
 const unsigned MAPTILE_SHIFT = 6;
@@ -28,6 +27,6 @@ struct MAPTILE_BLOCK
 };
 
 #pragma pack( pop )
-}
-}
+}  // namespace Pol::Plib
+
 #endif

@@ -13,9 +13,8 @@
 
 #include <vector>
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 struct STATIC_INDEX
 {
@@ -37,6 +36,6 @@ class StaticEntryList : public std::vector<STATIC_ENTRY>
 const unsigned STATICBLOCK_CHUNK = 8;
 const unsigned STATICBLOCK_SHIFT = 3;
 const unsigned STATICCELL_MASK = 0x7;
-}
-}
+}  // namespace Pol::Plib
+
 #endif

@@ -9,12 +9,10 @@
 
 #include "pol_global_config.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 #ifdef MEMORYLEAK
 extern bool memoryleak_debug;
 #endif
-}
-}
+}  // namespace Pol::Clib

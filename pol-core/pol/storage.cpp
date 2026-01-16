@@ -33,9 +33,8 @@
 #include "mkscrobj.h"
 #include "ufunc.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 
@@ -424,5 +423,4 @@ BObjectRef StorageAreasImp::OperSubscript( const BObject& obj )
   }
   return BObjectRef( new BObject( new BError( "Invalid parameter type" ) ) );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

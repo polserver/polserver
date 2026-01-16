@@ -11,9 +11,8 @@
 #include "../baseobject.h"
 #include "../lockable.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 UPlank::UPlank( const Items::ItemDesc& descriptor )
     : Core::ULockable( descriptor, Core::UOBJ_CLASS::CLASS_ITEM )
@@ -35,5 +34,4 @@ size_t UPlank::estimatedSize() const
 {
   return base::estimatedSize() + sizeof( ref_ptr<UBoat> );
 }
-}
-}
+}  // namespace Pol::Multi

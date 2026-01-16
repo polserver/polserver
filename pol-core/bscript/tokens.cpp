@@ -6,11 +6,3 @@
 
 
 #include "tokens.h"
-
-
-namespace Pol
-{
-namespace Clib
-{
-}  // namespace Clib
-}  // namespace Pol

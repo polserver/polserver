@@ -9,18 +9,15 @@
 
 #include "../polmodl.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class ClilocExecutorModule
     : public Bscript::TmplExecutorModule<ClilocExecutorModule, Core::PolModule>
@@ -32,6 +29,6 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_PrintTextAboveCL();
   [[nodiscard]] Bscript::BObjectImp* mf_PrintTextAbovePrivateCL();
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif

@@ -12,9 +12,8 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Accounts
+
+namespace Pol::Accounts
 {
 class Account;
 
@@ -26,6 +25,6 @@ int delete_account( const char* acctname );
 void write_account_data();
 void reload_account_data();
 void write_account_data_task();
-}
-}
+}  // namespace Pol::Accounts
+
 #endif

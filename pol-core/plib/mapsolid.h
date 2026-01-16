@@ -18,9 +18,8 @@
 #define SOLIDX_Y_SHIFT 3
 #define SOLIDX_Y_CELLMASK 7
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 struct SOLIDX1_ELEM
 {
@@ -43,6 +42,6 @@ struct SOLIDS_ELEM
   unsigned char flags;
 };
 static_assert( sizeof( SOLIDS_ELEM ) == 3, "size missmatch" );
-}
-}
+}  // namespace Pol::Plib
+
 #endif

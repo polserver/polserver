@@ -2,9 +2,8 @@
 
 #include "md5.h"
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // MD5 Definitions
 
@@ -299,5 +298,4 @@ void MD5Crypt::finish( md5_state* pms, unsigned char digest[16] )
   for ( int i = 0; i < 16; ++i )
     digest[i] = (unsigned char)( pms->abcd[i >> 2] >> ( ( i & 3 ) << 3 ) );
 }
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt

@@ -25,9 +25,8 @@
 #include "../network/client.h"
 #include "../uobject.h"
 
-namespace Pol
-{
-namespace Accounts
+
+namespace Pol::Accounts
 {
 Account::Account( Clib::ConfigElem& elem )
     : characters_( Plib::systemstate.config.character_slots, Core::CharacterRef( nullptr ) ),
@@ -243,5 +242,4 @@ int Account::getnextfreeslot() const
       return ( i + 1 );
   return -1;
 }
-}  // namespace Accounts
-}  // namespace Pol
+}  // namespace Pol::Accounts

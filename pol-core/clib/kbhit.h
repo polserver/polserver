@@ -5,9 +5,8 @@
 
 #include <termios.h>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class KeyboardHook
 {
@@ -21,8 +20,8 @@ private:
   struct termios initial_settings, new_settings;
   int peek_character;
 };
-}
-}
+}  // namespace Pol::Clib
+
 
 #endif
 

@@ -37,9 +37,8 @@
 #include "itemdesc.h"
 #include "wepntmpl.h"
 
-namespace Pol
-{
-namespace Items
+
+namespace Pol::Items
 {
 /*
 WeaponDesc::WeaponDesc() :
@@ -542,5 +541,4 @@ bool UWeapon::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}  // namespace Items
-}  // namespace Pol
+}  // namespace Pol::Items

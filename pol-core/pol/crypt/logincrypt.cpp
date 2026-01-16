@@ -2,9 +2,8 @@
 
 #include "logincrypt.h"
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // Macro Definitions ( to avoid big-/little-endian problems )
 #define N2L( C, LL )                                                                             \
@@ -79,5 +78,4 @@ void LoginCrypt::Decrypt_1_25_36( unsigned char* in, unsigned char* out, int len
               ( lkey[1] * lkey[1] * 0x4c3a1353 ) + 0x16ef783f;
   }
 }
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt

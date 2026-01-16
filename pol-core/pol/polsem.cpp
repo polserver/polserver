@@ -20,9 +20,8 @@
 #include <sys/time.h>
 #endif
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 size_t locker;
 #ifdef _WIN32
@@ -230,5 +229,4 @@ void tasks_thread_sleep( unsigned int millis )
 }
 
 #endif
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

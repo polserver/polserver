@@ -37,9 +37,8 @@
   if ( compilercfg.VerbosityLevel > 0 ) \
   INFO_PRINTLN
 
-namespace Pol
-{
-namespace ECompile
+
+namespace Pol::ECompile
 {
 namespace fs = std::filesystem;
 using namespace Pol::Core;
@@ -1288,8 +1287,8 @@ int ECompileMain::main()
   }
   return prog_res;
 }
-}  // namespace ECompile
-}  // namespace Pol
+}  // namespace Pol::ECompile
+
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

@@ -9,9 +9,8 @@
 
 #include "../clib/rawtypes.h"
 #include <atomic>
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class PolStats
 {
@@ -22,6 +21,6 @@ public:
 };
 // extern PolStats auxstats; (Not yet... -- Nando)
 // extern PolStats webstats;
-}
-}
+}  // namespace Pol::Core
+
 #endif

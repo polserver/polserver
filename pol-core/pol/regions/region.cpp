@@ -25,9 +25,8 @@
 #include "realms/realms.h"
 #include "zone.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 Region::Region( Clib::ConfigElem& elem, RegionId id )
     : name_( elem.rest() ), regionid_( id ), proplist_( Core::CPropProfiler::Type::REGION )
@@ -217,5 +216,4 @@ void read_region_data( RegionGroupBase& grp, const char* preferred_filename,
     grp.read_region( elem );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -27,9 +27,8 @@
 
 #include <module_defs/basic.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -780,5 +779,4 @@ Bscript::BObjectImp* BasicExecutorModule::mf_RegExp()
   return BRegExp::create( expr->getStringRep(), flags->getStringRep() );
 }
 
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
