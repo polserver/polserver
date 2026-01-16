@@ -12,7 +12,7 @@ namespace Crypt
 {
 // Struct for MD5
 
-using md5_state = struct tagmd5_state
+struct md5_state
 {
   unsigned int count[2];
   unsigned int abcd[4];

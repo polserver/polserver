@@ -31,7 +31,7 @@ inline auto format_as( ECryptType c )
 }
 
 // Encryption keys and type
-using TCryptInfo = struct _CryptInfo
+struct TCryptInfo
 {
   unsigned int uiKey1;
   unsigned int uiKey2;

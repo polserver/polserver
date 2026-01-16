@@ -23,7 +23,7 @@ namespace Pol
 {
 namespace Bscript
 {
-using DebugToken = struct
+struct DebugToken
 {
   unsigned sourceFile;
   unsigned offset;

@@ -13,7 +13,7 @@ namespace Crypt
 {
 // Structs for TwoFish
 
-using KeyInstance = struct tagkeyInstance
+struct KeyInstance
 {
   unsigned char direction;
   int keyLen;
@@ -25,7 +25,7 @@ using KeyInstance = struct tagkeyInstance
   unsigned int subKeys[40];
 };
 
-using CipherInstance = struct tagcipherInstance
+struct CipherInstance
 {
   unsigned char mode;
   unsigned char IV[16];

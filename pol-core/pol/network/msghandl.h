@@ -28,7 +28,7 @@ enum class PacketVersion
 
 using PktHandlerFunc = void ( * )( Client*, void* );
 
-using MSG_HANDLER = struct
+struct MSG_HANDLER
 {
   int msglen;  // if 0, no message handler defined.
   PktHandlerFunc func;
