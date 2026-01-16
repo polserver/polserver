@@ -187,7 +187,7 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
 
   Module::UOExecutorModule* new_uoemod;
 
-  if ( request.arg.has_value() && request.arg->length() > 0 )
+  if ( request.arg.has_value() && !request.arg->empty() )
   {
     new_uoemod = Core::start_script( sd, BObjectImp::unpack( request.arg->c_str() ) );
   }

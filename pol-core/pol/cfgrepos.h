@@ -100,8 +100,8 @@ private:
   time_t modified_;  // used to detect modification
 
   // not implemented:
-  StoredConfigFile( const StoredConfigFile& );
-  StoredConfigFile& operator=( const StoredConfigFile& );
+  StoredConfigFile( const StoredConfigFile& ) = delete;
+  StoredConfigFile& operator=( const StoredConfigFile& ) = delete;
 };
 
 typedef ref_ptr<StoredConfigFile> ConfigFileRef;

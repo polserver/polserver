@@ -85,6 +85,7 @@
 
 #include <iterator>
 #include <list>
+#include <memory>
 #include <stdlib.h>
 #include <string>
 
@@ -4064,7 +4065,7 @@ bool Character::CheckPushthrough()
                  _chr->hidden() ) )  // add hidden mobs even if they're not visible to me
           {
             if ( !mobs )
-              mobs.reset( new Bscript::ObjArray );
+              mobs = std::make_unique<Bscript::ObjArray>();
             mobs->addElement( make_mobileref( _chr ) );
           }
         } );
@@ -4095,7 +4096,7 @@ void Character::tellmove()
 
 void Character::add_remote_container( Items::Item* item )
 {
-  remote_containers_.push_back( Core::ItemRef( item ) );
+  remote_containers_.emplace_back( item );
 }
 
 Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const

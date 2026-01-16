@@ -1265,7 +1265,7 @@ private:
   Contents contents_;
 
   // not implemented:
-  BIntHash& operator=( const BIntHash& );
+  BIntHash& operator=( const BIntHash& ) = delete;
 };
 
 BIntHash::BIntHash() : BObjectImp( OTUnknown ), contents_() {}
@@ -1666,7 +1666,7 @@ public:
 
 private:
   // not implemented:
-  PolCore& operator=( const PolCore& );
+  PolCore& operator=( const PolCore& ) = delete;
 };
 
 PolCore::PolCore() : PolObjectImp( OTPolCoreRef ) {}
@@ -2669,7 +2669,7 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   }
   if ( !chr->has_active_client() )
     return new BError( "No client attached" );
-  if ( !menu_arr->ref_arr.size() )
+  if ( menu_arr->ref_arr.empty() )
     return new BError( "Can't send empty menu" );
   if ( menu_arr->ref_arr.size() > 0xfffe )
     return new BError( "Too many entries in menu" );

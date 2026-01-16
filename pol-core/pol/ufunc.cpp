@@ -107,19 +107,19 @@ void SetCurrentCharSerialNumber( u32 serial )
 }
 
 // Dave added 3/8/3
-u32 GetCurrentItemSerialNumber( void )
+u32 GetCurrentItemSerialNumber()
 {
   return stateManager.itemserialnumber;
 }
 
 // Dave added 3/8/3
-u32 GetCurrentCharSerialNumber( void )
+u32 GetCurrentCharSerialNumber()
 {
   return stateManager.charserialnumber;
 }
 
 // Dave changed 3/8/3 to use objecthash
-u32 GetNextSerialNumber( void )
+u32 GetNextSerialNumber()
 {
   u32 nextserial = objStorageManager.objecthash.GetNextUnusedCharSerial();
   stateManager.charserialnumber = nextserial;
@@ -142,7 +142,7 @@ u32 UseItemSerialNumber( u32 serial )
 }
 
 // Dave changed 3/8/3 to use objecthash
-u32 GetNewItemSerialNumber( void )
+u32 GetNewItemSerialNumber()
 {
   u32 nextserial = objStorageManager.objecthash.GetNextUnusedItemSerial();
   stateManager.itemserialnumber = nextserial;
@@ -1929,11 +1929,11 @@ void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_b
   std::unique_ptr<HealthBarStatusUpdate> msgpoisoned;
   std::unique_ptr<HealthBarStatusUpdate> msginvul;
   if ( chr->poisoned() || send_health_bar_status_update )
-    msgpoisoned.reset( new HealthBarStatusUpdate(
-        chr->serial_ext, HealthBarStatusUpdate::Color::GREEN, chr->poisoned() ) );
+    msgpoisoned = std::make_unique<HealthBarStatusUpdate>(
+        chr->serial_ext, HealthBarStatusUpdate::Color::GREEN, chr->poisoned() );
   if ( chr->invul() || send_health_bar_status_update )
-    msginvul.reset( new HealthBarStatusUpdate(
-        chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul() ) );
+    msginvul = std::make_unique<HealthBarStatusUpdate>(
+        chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul() );
   WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       chr,
       [&]( Character* zonechr )

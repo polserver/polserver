@@ -108,7 +108,7 @@ void InstructionEmitter::register_class_declaration(
     if ( cd->constructor_link && cd->constructor_link->user_function() )
     {
       auto type_tag_offset = emit_data( cd->type_tag() );
-      constructor_descriptors.push_back( type_tag_offset );
+      constructor_descriptors.emplace_back( type_tag_offset );
     }
 
     for ( const auto& [method, uf_link] : cd->methods )

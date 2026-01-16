@@ -6,7 +6,7 @@ namespace Pol::Bscript::Compiler
 {
 FunctionVariableScope::FunctionVariableScope( Variables& variables ) : variables( variables )
 {
-  variables.variable_info_stack.push_back( Variables::VariablesInfo() );
+  variables.variable_info_stack.emplace_back();
 }
 
 FunctionVariableScope::~FunctionVariableScope()

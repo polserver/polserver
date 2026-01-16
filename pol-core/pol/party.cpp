@@ -1336,7 +1336,7 @@ void add_candidate( Mobile::Character* member, Mobile::Character* leader )
       if ( party == nullptr )
       {
         party = new Party( leader->serial );
-        gamestate.parties.push_back( ref_ptr<Party>( party ) );
+        gamestate.parties.emplace_back( party );
         leader->party( party );
         if ( settingsManager.party_cfg.Hooks.OnPartyCreate )
           settingsManager.party_cfg.Hooks.OnPartyCreate->call(

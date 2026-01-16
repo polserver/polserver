@@ -27,11 +27,11 @@ namespace threadhelp
 extern std::atomic<unsigned int> child_threads;
 
 void init_threadhelp();
-void run_thread( void ( *threadf )( void ) );
+void run_thread( void ( *threadf )() );
 void run_thread( void ( *threadf )( void* ), void* arg );
 
 void start_thread( void ( *entry )( void* ), const char* thread_name, void* arg );
-void start_thread( void ( *entry )( void ), const char* thread_name );
+void start_thread( void ( *entry )(), const char* thread_name );
 
 void thread_sleep_ms( unsigned milliseconds );
 size_t thread_pid();

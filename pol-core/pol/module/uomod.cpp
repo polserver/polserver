@@ -1747,7 +1747,7 @@ BObjectImp* UOExecutorModule::mf_AddMenuItem()
   if ( getDynamicMenuParam( 0, menu ) && getObjtypeParam( 1, objtype ) &&
        getStringParam( 2, text ) && getParam( 3, color ) )
   {
-    menu->menuitems_.push_back( MenuItem() );
+    menu->menuitems_.emplace_back();
     MenuItem* mi = &menu->menuitems_.back();
     mi->objtype_ = objtype;
     mi->graphic_ = getgraphic( objtype );
@@ -4384,7 +4384,7 @@ BObjectImp* UOExecutorModule::mf_ReserveItem()
         return new BError( "That item is already being used." );
     }
     item->inuse( true );
-    reserved_items_.push_back( ItemRef( item ) );
+    reserved_items_.emplace_back( item );
     return new BLong( 1 );
   }
   else
@@ -5026,7 +5026,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
           if ( ( makeInUse ) && ( !item->inuse() ) )
           {
             item->inuse( true );
-            reserved_items_.push_back( ItemRef( item ) );
+            reserved_items_.emplace_back( item );
           }
           theArray->addElement( new EItemRefObjImp( item ) );
         }

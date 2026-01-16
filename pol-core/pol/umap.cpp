@@ -108,8 +108,7 @@ void Map::readProperties( Clib::ConfigElem& elem )
     pinval = elem.remove_string( search_string.c_str() );
     sscanf( pinval.c_str(), "%i,%i", &px, &py );
 
-    pin_points.push_back(
-        Pos2d( static_cast<unsigned short>( px ), static_cast<unsigned short>( py ) ) );
+    pin_points.emplace_back( static_cast<unsigned short>( px ), static_cast<unsigned short>( py ) );
   }
 }
 

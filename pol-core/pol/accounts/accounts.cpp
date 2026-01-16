@@ -119,7 +119,7 @@ Account* create_new_account( const std::string& acctname, const std::string& pas
 
   elem.add_prop( "enabled", ( (unsigned int)( enabled ? 1 : 0 ) ) );
   auto acct = new Account( elem );
-  Core::gamestate.accounts.push_back( Core::AccountRef( acct ) );
+  Core::gamestate.accounts.emplace_back( acct );
   if ( Plib::systemstate.config.account_save == -1 )
     write_account_data();
   else
@@ -140,7 +140,7 @@ Account* duplicate_account( const std::string& oldacctname, const std::string& n
     elem.add_prop( "name", newacctname );
 
     auto acct = new Account( elem );
-    Core::gamestate.accounts.push_back( Core::AccountRef( acct ) );
+    Core::gamestate.accounts.emplace_back( acct );
     if ( Plib::systemstate.config.account_save == -1 )
       write_account_data();
     else
@@ -201,7 +201,7 @@ void reread_account( Clib::ConfigElem& elem )
   }
 }
 
-void reload_account_data( void )
+void reload_account_data()
 {
   THREAD_CHECKPOINT( tasks, 500 );
   try
@@ -239,7 +239,7 @@ void reload_account_data( void )
   THREAD_CHECKPOINT( tasks, 599 );
 }
 
-void write_account_data_task( void )
+void write_account_data_task()
 {
   if ( Plib::systemstate.accounts_txt_dirty )
     write_account_data();

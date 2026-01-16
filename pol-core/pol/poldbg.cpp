@@ -267,8 +267,8 @@ private:
   ref_ptr<EScriptProgram> _script;
 
   // not implemented:
-  DebugContext( const DebugContext& );
-  DebugContext& operator=( const DebugContext& );
+  DebugContext( const DebugContext& ) = delete;
+  DebugContext& operator=( const DebugContext& ) = delete;
 };
 
 BApplicObjType debugcontextobjimp_type;
@@ -734,7 +734,7 @@ std::string DebugContext::cmd_scriptlist( const std::string& /*rest*/, Results& 
     const char* nm = ( ( *citr ).first ).c_str();
     EScriptProgram* eprog = ( ( *citr ).second ).get();
     std::string scriptname = eprog->name;
-    results.push_back( nm );
+    results.emplace_back( nm );
   }
   return "";
 }
@@ -903,7 +903,7 @@ std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& resul
       continue;
 
     std::string result = get_fileline( eprog, filenum, linenum );
-    if ( result != "" )
+    if ( !result.empty() )
       results.push_back( Clib::tostring( ins ) + " " + result );
 
     last_filenum = filenum;
@@ -1155,9 +1155,9 @@ std::string DebugContext::cmd_globalvars( Results& results )
   for ( unsigned idx = 0; itr != end; ++itr, ++idx )
   {
     if ( prog->globalvarnames.size() > idx )
-      results.push_back( prog->globalvarnames[idx].c_str() );
+      results.emplace_back( prog->globalvarnames[idx].c_str() );
     else
-      results.push_back( Clib::tostring( idx ).c_str() );
+      results.emplace_back( Clib::tostring( idx ).c_str() );
   }
   return "";
 }
@@ -1391,7 +1391,7 @@ void DebugClientThread::run()
   }
 }
 
-void debug_listen_thread( void )
+void debug_listen_thread()
 {
   if ( Plib::systemstate.config.debug_port )
   {

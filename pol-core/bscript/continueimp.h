@@ -28,7 +28,7 @@ public:
   BObjectImp* continueWith( Executor& exec, BObjectRef result );
   BFunctionRef* func();
 
-  BObjectImp* copy( void ) const override;
+  BObjectImp* copy() const override;
   size_t sizeEstimate() const override;
   std::string getStringRep() const override;
 

@@ -27,6 +27,8 @@
 #include "../uoscrobj.h"
 #include <module_defs/guilds.h>
 
+#include <memory>
+
 namespace Pol
 {
 namespace Module
@@ -95,7 +97,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
   case MBR_MEMBERS:
   {
     std::unique_ptr<ObjArray> arr;
-    arr.reset( new ObjArray );
+    arr = std::make_unique<ObjArray>();
     for ( Core::SerialSet::iterator itr = obj_->_member_serials.begin();
           itr != obj_->_member_serials.end();
           /* do this earlier */ )
@@ -120,7 +122,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
   case MBR_ALLYGUILDS:
   {
     std::unique_ptr<ObjArray> arr;
-    arr.reset( new ObjArray );
+    arr = std::make_unique<ObjArray>();
     for ( Core::SerialSet::iterator itr = obj_->_allyguild_serials.begin();
           itr != obj_->_allyguild_serials.end();
           /* do this earlier */ )
@@ -146,7 +148,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
   case MBR_ENEMYGUILDS:
   {
     std::unique_ptr<ObjArray> arr;
-    arr.reset( new ObjArray );
+    arr = std::make_unique<ObjArray>();
     for ( Core::SerialSet::iterator itr = obj_->_enemyguild_serials.begin();
           itr != obj_->_enemyguild_serials.end();
           /* do this earlier */ )
@@ -387,7 +389,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod( const char* methodname, UOExecutor&
 {
   if ( obj_->_disbanded )
     return new BError( "Guild has disbanded" );
-  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return call_polmethod_id( objmethod->id, ex, forcebuiltin );

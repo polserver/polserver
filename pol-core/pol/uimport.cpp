@@ -720,7 +720,7 @@ void read_starting_locations()
         throw std::runtime_error( "Configuration file error in startloc.cfg." );
       }
     }
-    if ( loc->coords.size() == 0 )
+    if ( loc->coords.empty() )
     {
       ERROR_PRINTLN( "STARTLOC.CFG: StartingLocation ({},{}) has no Coordinate properties.",
                      loc->city, loc->desc );
@@ -773,7 +773,7 @@ void read_gameservers()
     if ( iptext == "--ip--" )
     {
       iptext = networkManager.ipaddr_str;
-      if ( iptext == "" )
+      if ( iptext.empty() )
       {
         INFO_PRINTLN( "Skipping server {} because there is no Internet IP address.", svr->name );
         continue;
@@ -782,7 +782,7 @@ void read_gameservers()
     else if ( iptext == "--lan--" )
     {
       iptext = networkManager.lanaddr_str;
-      if ( iptext == "" )
+      if ( iptext.empty() )
       {
         INFO_PRINTLN( "Skipping server {} because there is no LAN IP address.", svr->name );
         continue;

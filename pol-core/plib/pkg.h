@@ -69,8 +69,8 @@ private:
   bool provides_system_home_page_;
 
 private:  // not implemented:
-  Package( const Package& );
-  Package& operator=( const Package& );
+  Package( const Package& ) = delete;
+  Package& operator=( const Package& ) = delete;
 };
 
 
@@ -101,6 +101,6 @@ void load_packages( const std::string& basedir, bool quiet = false );
 void replace_packages();
 void check_package_deps();
 std::string GetPackageCfgPath( const Package* pkg, const std::string& filename );
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

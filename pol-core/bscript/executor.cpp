@@ -141,7 +141,7 @@ bool ExecutorDebugEnvironment::on_instruction( Executor& ex )
   }
   case ( ExecutorDebugState::STEP_OUT ):
   {
-    if ( ex.ControlStack.size() > 0 )
+    if ( !ex.ControlStack.empty() )
     {
       tmpbreakpoints.insert( ex.ControlStack.back().PC );
     }

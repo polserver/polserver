@@ -64,7 +64,7 @@ ConsoleCommand::ConsoleCommand( Clib::ConfigElem& elem, const std::string& cmd )
     elem.throw_error( "Ill-formed console command char: " + charspec );
   }
   getline( is, description );
-  while ( description.size() > 0 && isspace( description[0] ) )
+  while ( !description.empty() && isspace( description[0] ) )
   {
     description.erase( 0, 1 );
   }
@@ -216,7 +216,7 @@ void ConsoleCommand::exec_console_cmd( char ch )
   catch ( std::string& str )
   {
     ERROR_PRINTLN( "Command aborted due to: {}", str );
-  }                                 // egcs has some trouble realizing 'exception' should catch
+  }  // egcs has some trouble realizing 'exception' should catch
   catch ( std::runtime_error& re )  // runtime_errors, so...
   {
     ERROR_PRINTLN( "Command aborted due to: {}", re.what() );

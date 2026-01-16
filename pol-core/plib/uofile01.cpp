@@ -424,7 +424,7 @@ static void read_landtiledata()
     }
   }
 }
-void read_uo_data( void )
+void read_uo_data()
 {
   read_veridx();
   read_tiledata();

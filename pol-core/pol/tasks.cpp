@@ -171,7 +171,7 @@ void setup_update_rpm()
   stateManager.profilevars.last_cpu_total = tot;
 }
 
-void update_rpm( void )
+void update_rpm()
 {
   THREAD_CHECKPOINT( tasks, 300 );
   auto& pvars = stateManager.profilevars;

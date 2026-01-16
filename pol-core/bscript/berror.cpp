@@ -47,7 +47,7 @@ BError::BError( const std::string& err ) : BStruct( OTError )
 }
 
 
-BObjectImp* BError::copy( void ) const
+BObjectImp* BError::copy() const
 {
   return new BError( *this );
 }
@@ -127,5 +127,5 @@ BObjectImp* BError::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/, b
 {
   return this;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

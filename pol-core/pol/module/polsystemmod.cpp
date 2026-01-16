@@ -213,7 +213,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
   // Sets up text commands not in a package.
   {
     auto cmd_lvl_list = Core::ListAllCommandsInPackage( nullptr, max_cmdlevel );
-    if ( cmd_lvl_list->contents().size() > 0 )
+    if ( !cmd_lvl_list->contents().empty() )
       pkg_list->addMember( new String( "" ), cmd_lvl_list.release() );
   }
 
@@ -223,7 +223,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
   {
     Plib::Package* pkg = ( *itr );
     auto cmd_lvl_list = Core::ListAllCommandsInPackage( pkg, max_cmdlevel );
-    if ( cmd_lvl_list->contents().size() > 0 )
+    if ( !cmd_lvl_list->contents().empty() )
       pkg_list->addMember( new String( pkg->name().c_str() ), cmd_lvl_list.release() );
   }
 

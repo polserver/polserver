@@ -395,7 +395,7 @@ bool BSQLConnection::query( const std::string query )
  */
 bool BSQLConnection::query( const std::string query, QueryParams params )
 {
-  if ( params == nullptr || !params->size() )
+  if ( params == nullptr || params->empty() )
     return this->query( query );
 
   if ( !_conn->ptr() )

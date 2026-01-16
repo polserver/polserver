@@ -108,7 +108,7 @@ void ArmorDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
     arr_zones->addElement( new Bscript::String( Mobile::zone_to_zone_name( *itr ) ) );
 
 
-  if ( arr_zones->ref_arr.size() > 0 )
+  if ( !arr_zones->ref_arr.empty() )
     descriptor->addMember( "Coverage", arr_zones.release() );
 }
 

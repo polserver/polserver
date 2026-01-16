@@ -38,7 +38,7 @@ public:
   ~PacketOut();
   void Release();
   void Send( Client* client, int len = -1 ) const;
-  T* operator->(void)const;
+  T* operator->() const;
   T* Get();
 };
 
@@ -73,7 +73,7 @@ void PacketOut<T>::Send( Client* client, int len ) const
 }
 
 template <class T>
-T* PacketOut<T>::operator->(void)const
+T* PacketOut<T>::operator->() const
 {
   return pkt;
 }
@@ -83,7 +83,7 @@ T* PacketOut<T>::Get()
 {
   return pkt;
 }
-}
-}
-}
+}  // namespace PktHelper
+}  // namespace Network
+}  // namespace Pol
 #endif

@@ -827,7 +827,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
       auto indent = indentSpacing();
       alignmentspace = part.text.size() + indent.size();
       line += indent;
-      parts.push_back( { part.text, FmtToken::NONE, part.context } );
+      parts.emplace_back( part.text, FmtToken::NONE, part.context );
       assignpos = part.text.find( ":=" );
       if ( assignpos != std::string::npos )
         assignpos += indent.size() + 2;
@@ -836,7 +836,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
     // if it gets to long we still have to split the line
     if ( tmp.size() + part.text.size() > compilercfg.FormatterLineWidth )
     {
-      parts.push_back( { std::move( tmp ), FmtToken::NONE, tmpcontext } );
+      parts.emplace_back( std::move( tmp ), FmtToken::NONE, tmpcontext );
       tmp.clear();
       tmpcontext = part.context;
     }
@@ -852,7 +852,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
     // something closed split it
     if ( parenthesisalign.empty() )
     {
-      parts.push_back( { std::move( tmp ), FmtToken::NONE, tmpcontext } );
+      parts.emplace_back( std::move( tmp ), FmtToken::NONE, tmpcontext );
       tmp.clear();
       tmpcontext = part.context;
     }
@@ -866,7 +866,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
     if ( ( part.style & FmtToken::FORCED_BREAK ) ||
          ( part.style & FmtToken::PREFERRED_BREAK_VAR ) || ( part.style & breakflag ) )
     {
-      parts.push_back( { std::move( tmp ), part.style, tmpcontext } );
+      parts.emplace_back( std::move( tmp ), part.style, tmpcontext );
       tmp.clear();
       if ( part.context != FmtContext::PREFERRED_BREAK_END )
         tmpcontext = part.context;
@@ -875,7 +875,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnPreferredBreaks(
     }
   }
   if ( !tmp.empty() )
-    parts.push_back( { tmp, FmtToken::NONE, tmpcontext } );
+    parts.emplace_back( tmp, FmtToken::NONE, tmpcontext );
   // now build the actual line(s)
   bool alignpart = false;
   size_t parti = 0;
@@ -1378,7 +1378,7 @@ void PrettifyLineBuilder::mergeEOFNonTokens()
   mergeRawContent( std::numeric_limits<size_t>::max() );
   // if the original file ends with a newline, make sure to also end
   if ( !_lines.empty() && !_lines.back().empty() && !_rawlines.empty() && _rawlines.back().empty() )
-    _lines.push_back( "" );
+    _lines.emplace_back( "" );
 }
 
 void PrettifyLineBuilder::markPackableLineStart()
@@ -1439,7 +1439,7 @@ void PrettifyLineBuilder::alignSingleLineSwitchStatements( size_t start )
     if ( label == "default:" )
       default_start = std::make_pair( i, labelend + label.size() );
     else
-      statementstart.push_back( { i, labelend + label.size() } );
+      statementstart.emplace_back( i, labelend + label.size() );
   }
   _packable_switch_labels.clear();
   if ( statementstart.empty() )

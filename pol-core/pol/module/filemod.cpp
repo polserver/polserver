@@ -128,7 +128,7 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
         const Plib::Package* cfgpkg;
         std::string cfgpath;
         if ( pkgdef_split( tmp, nullptr, &cfgpkg, &cfgpath ) )
-          Directories.push_back( std::make_pair( cfgpkg, cfgpath ) );
+          Directories.emplace_back( cfgpkg, cfgpath );
         else
           ERROR_PRINTLN( "Invalid fileaccess Directory entry: {}", tmp );
       }
@@ -625,7 +625,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
   std::string ext_s = extension->value();
   if ( ext_s.find( '*', 0 ) != std::string::npos )
     asterisk = true;
-  else if ( ext_s.length() == 0 )
+  else if ( ext_s.empty() )
     nofiles = true;
   else if ( *ext_s.begin() != '.' )
     ext_s.insert( 0, "." );

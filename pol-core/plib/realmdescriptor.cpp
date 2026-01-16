@@ -19,7 +19,7 @@ RealmDescriptor RealmDescriptor::Load( const std::string& realm_name,
                                        const std::string& realm_path )
 {
   std::string realm_cfg_filename;
-  if ( realm_path == "" )
+  if ( realm_path.empty() )
     realm_cfg_filename = "realm/" + realm_name + "/realm.cfg";
   else
     realm_cfg_filename = realm_path + "/realm.cfg";
@@ -78,7 +78,7 @@ size_t RealmDescriptor::sizeEstimate() const
 
 std::string RealmDescriptor::path( const std::string& filename ) const
 {
-  if ( file_path == "" )
+  if ( file_path.empty() )
     return "realm/" + name + "/" + filename;
   else
     return file_path + "/" + filename;

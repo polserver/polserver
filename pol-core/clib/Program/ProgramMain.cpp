@@ -86,7 +86,7 @@ void ProgramMain::start( int argc, char* argv[] )
     m_programArguments.clear();
     for ( int i = 0; i < argc; i++ )
     {
-      m_programArguments.push_back( std::string( argv[i] ) );
+      m_programArguments.emplace_back( argv[i] );
     }
 
     /**********************************************

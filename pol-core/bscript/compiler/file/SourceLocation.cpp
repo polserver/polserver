@@ -172,7 +172,7 @@ std::string SourceLocation::getSourceLine() const
   for ( size_t i = range.start.line_number - 1; i < range.end.line_number && i < content.size();
         ++i )
   {
-    if ( lines.size() )
+    if ( !lines.empty() )
       lines += '\n';
     lines += content[i];
   }

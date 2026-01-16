@@ -694,9 +694,9 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
           }
           uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
           uoexec_w.get_weakptr()->revive();
-          client.reset( new Network::AuxClientThread( sd, std::move( s ), paramobjimp.release(),
-                                                      assume_string, keep_connection,
-                                                      ignore_line_breaks ) );
+          client = std::make_unique<Network::AuxClientThread>(
+              sd, std::move( s ), paramobjimp.release(), assume_string, keep_connection,
+              ignore_line_breaks );
         }
         if ( client )
           client->run();

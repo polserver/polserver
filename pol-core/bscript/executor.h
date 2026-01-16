@@ -281,8 +281,8 @@ protected:
 
   BObject* getParam( unsigned param );
 
-  BObject getValue( void );
-  BObjectRef getObjRef( void );
+  BObject getValue();
+  BObjectRef getObjRef();
 
 public:
   int getToken( Token& token, unsigned position );
@@ -562,7 +562,7 @@ inline const EScriptProgram* Executor::prog() const
   return prog_.get();
 }
 
-inline bool Executor::runnable( void ) const
+inline bool Executor::runnable() const
 {
   return run_ok_;
 }

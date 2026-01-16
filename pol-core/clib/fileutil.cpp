@@ -34,7 +34,7 @@ std::string normalized_dir_form( const std::string& istr )
     }
   }
 
-  if ( str.size() == 0 )
+  if ( str.empty() )
   {
     return "/";
   }

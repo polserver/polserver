@@ -404,7 +404,7 @@ public:
   bool face( Core::UFACING i_facing, int flags = 0 );
   bool move( unsigned char dir );
   bool CustomHousingMove( unsigned char i_dir );
-  void tellmove( void );
+  void tellmove();
   void check_region_changes();
   void check_weather_region_change( bool force = false );
   void check_light_region_change();
@@ -414,7 +414,7 @@ public:
 
   bool CheckPushthrough();
   // KLUDGE - a more foolproof way is needed to keep this in sync.
-  void position_changed( void );
+  void position_changed();
 
   void update_objects_on_range_change( u8 newrange );
 

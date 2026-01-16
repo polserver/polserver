@@ -85,7 +85,7 @@ void search_name( const char* hostname )
 WSADATA wsa_data;
 #endif
 
-int init_sockets_library( void )
+int init_sockets_library()
 {
 #ifdef _WIN32
   int res;
@@ -113,7 +113,7 @@ int init_sockets_library( void )
 }
 
 
-int deinit_sockets_library( void )
+int deinit_sockets_library()
 {
 #ifdef _WIN32
   int res;
