@@ -54,22 +54,6 @@ namespace Crypt
 //   Seed Table
 //   Compression Table
 
-// Macro Definitions ( to avoid big-/little-endian problems )
-#define N2L( C, LL )                                                                             \
-  LL = ( (unsigned int)( *( ( C )++ ) ) ) << 24, LL |= ( (unsigned int)( *( ( C )++ ) ) ) << 16, \
-  LL |= ( (unsigned int)( *( ( C )++ ) ) ) << 8, LL |= ( (unsigned int)( *( ( C )++ ) ) )
-#define L2N( LL, C )                                                    \
-  *( ( C )++ ) = (unsigned char)( ( ( LL ) >> 24 ) & 0xff ),            \
-             *( ( C )++ ) = (unsigned char)( ( ( LL ) >> 16 ) & 0xff ), \
-             *( ( C )++ ) = (unsigned char)( ( ( LL ) >> 8 ) & 0xff ),  \
-             *( ( C )++ ) = (unsigned char)( ( ( LL ) ) & 0xff )
-#define ROUND( LL, R, S, P )                                        \
-  LL ^= P;                                                          \
-  LL ^= ( ( S[( R >> 24 )] + S[0x0100 + ( ( R >> 16 ) & 0xff )] ) ^ \
-          S[0x0200 + ( ( R >> 8 ) & 0xff )] ) +                     \
-        S[0x0300 + ( (R)&0xff )]
-
-
 // Constructor / Destructor
 CCryptBaseCrypt::CCryptBaseCrypt() : CCryptBase(), lcrypt(), m_type( 0 )
 {
