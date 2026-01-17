@@ -19,9 +19,7 @@
 
 #include "logfacility.h"
 
-namespace Pol
-{
-namespace Clib
+namespace Pol::Clib
 {
 static HCRYPTPROV hProv = 0;
 
@@ -117,4 +115,4 @@ bool MD5_Compare( const std::string& a, const std::string& b )
 {
   return stringicmp( a, b ) == 0;
 }
-}
+}  // namespace Pol::Clib
