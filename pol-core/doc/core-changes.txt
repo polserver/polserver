@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+01-17-2026 Kukkino:
+  Changed: FunctionReference no longer includes full program in its memory estimate.
 01-10-2026 Turley:
     Fixed: class method calls which have a known name, name of an existing obj method, now work
     Fixed: now also if the method has parameters

@@ -2334,7 +2334,7 @@ BObjectImp* BFunctionRef::copy() const
 
 size_t BFunctionRef::sizeEstimate() const
 {
-  return sizeof( BFunctionRef ) + Clib::memsize( captures ) + prog_->sizeEstimate();
+  return sizeof( BFunctionRef ) + Clib::memsize( captures );
 }
 
 bool BFunctionRef::isTrue() const
