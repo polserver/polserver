@@ -1097,10 +1097,8 @@ bool ObjArray::operator==( const BObjectImp& imp ) const
     {
       continue;
     }
-    else
-    {
-      return false;
-    }
+
+    return false;
   }
   return true;
 }

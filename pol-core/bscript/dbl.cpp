@@ -124,10 +124,8 @@ bool Double::operator==( const BObjectImp& objimp ) const
   {
     return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool Double::operator<( const BObjectImp& objimp ) const

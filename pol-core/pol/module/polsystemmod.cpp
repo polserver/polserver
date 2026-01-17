@@ -97,7 +97,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
     const Plib::Package* pkg = value().Ptr();
     return BObjectRef( new BLong( Clib::FileExists( pkg->dir() + "www" ) ) );
   }
-  else if ( stricmp( membername, "npcdesc" ) == 0 )
+  if ( stricmp( membername, "npcdesc" ) == 0 )
   {
     const Plib::Package* pkg = value().Ptr();
     std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
@@ -155,8 +155,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
     Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data() );
     if ( cmdlevel == nullptr )
       return new BError( "Could not find a command level with that alias." );
-    else
-      return new String( cmdlevel->name );
+    return new String( cmdlevel->name );
   }
   else
     return new BError( "Invalid parameter type." );

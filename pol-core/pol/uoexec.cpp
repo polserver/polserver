@@ -252,7 +252,7 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
       setFunctionResult( new BError( "Mobile is offline" ) );
       return false;
     }
-    else if ( ( aob != nullptr ) && ( aob->object_type() == &eclientrefobjimp_type ) )
+    if ( ( aob != nullptr ) && ( aob->object_type() == &eclientrefobjimp_type ) )
     {
       EClientRefObjImp* clientref_imp =
           Clib::explicit_cast<EClientRefObjImp*, BApplicObjBase*>( aob );
@@ -296,11 +296,9 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
       setFunctionResult( new BError( "Mobile is offline" ) );
       return false;
     }
-    else
-    {
-      setFunctionResult( new BError( "Mobile does not exist" ) );
-      return false;
-    }
+
+    setFunctionResult( new BError( "Mobile does not exist" ) );
+    return false;
   }
   else
   {
@@ -342,11 +340,9 @@ bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
       setFunctionResult( new BError( "Mobile is offline" ) );
       return false;
     }
-    else
-    {
-      // FIXME: log error
-      return false;
-    }
+
+    // FIXME: log error
+    return false;
   }
   else if ( imp->isa( BObjectImp::OTLong ) )
   {
@@ -371,11 +367,9 @@ bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
       setFunctionResult( new BError( "Mobile is offline" ) );
       return false;
     }
-    else
-    {
-      setFunctionResult( new BError( "Mobile does not exist" ) );
-      return false;
-    }
+
+    setFunctionResult( new BError( "Mobile does not exist" ) );
+    return false;
   }
   else
   {
@@ -406,7 +400,7 @@ bool UOExecutor::getItemParam( unsigned param, Items::Item*& itemptr )
     // FIXME: log error
     return false;
   }
-  else if ( imp->isa( BObjectImp::OTLong ) )
+  if ( imp->isa( BObjectImp::OTLong ) )
   {
     BLong* pitem_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
     unsigned int serial = pitem_serial->value();
@@ -454,8 +448,7 @@ bool UOExecutor::getUBoatParam( unsigned param, Multi::UBoat*& boatptr )
         boatptr = multi->as_boat();
         if ( boatptr == nullptr )
           return false;
-        else
-          return ( !boatptr->orphan() );
+        return ( !boatptr->orphan() );
       }
       else
       {
@@ -511,11 +504,9 @@ bool UOExecutor::getMultiParam( unsigned param, Multi::UMulti*& multiptr )
       multiptr = boatref_imp->value().get();
       return ( !multiptr->orphan() );
     }
-    else
-    {
-      // FIXME: log error
-      return false;
-    }
+
+    // FIXME: log error
+    return false;
   }
   else if ( imp->isa( BObjectImp::OTLong ) )
   {
@@ -557,10 +548,8 @@ bool UOExecutor::getUObjectParam( unsigned param, UObject*& objptr )
     objptr = multi;
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
@@ -627,17 +616,15 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
     objtype = objtype_long;
     return true;
   }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function {}:\n"
-        "\tParameter {}: Value {} is out of range for an objtype",
-        scriptname(), PC, current_module_function->name.get(), param, objtype_long );
-    setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " +
-                                   Clib::hexint( Plib::systemstate.config.max_objtype ) + " )" ) );
-    return false;
-  }
+
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function {}:\n"
+      "\tParameter {}: Value {} is out of range for an objtype",
+      scriptname(), PC, current_module_function->name.get(), param, objtype_long );
+  setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " +
+                                 Clib::hexint( Plib::systemstate.config.max_objtype ) + " )" ) );
+  return false;
 }
 
 bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemdesc_out )
@@ -736,16 +723,14 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
 
     return true;
   }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function {}:\n"
-        "\tParameter {}: Value {} is out of range for an objtype",
-        scriptname(), PC, current_module_function->name.get(), param, objtype_long );
-    setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
-    return false;
-  }
+
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function {}:\n"
+      "\tParameter {}: Value {} is out of range for an objtype",
+      scriptname(), PC, current_module_function->name.get(), param, objtype_long );
+  setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
+  return false;
 }
 
 bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
@@ -773,7 +758,7 @@ bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
     setFunctionResult( new BError( report ) );
     return false;
   }
-  else if ( imp->isa( BObjectImp::OTString ) )
+  if ( imp->isa( BObjectImp::OTString ) )
   {
     const Mobile::Attribute* attr;
     if ( !getAttributeParam( param, attr ) )

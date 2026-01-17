@@ -674,7 +674,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     addToken( ctx->postfix->getText(), ctx->postfix, FmtToken::SPACE | FmtToken::ATTACHED );
     return true;
   }
-  else if ( ctx->bop && ctx->expression().size() == 2 )
+  if ( ctx->bop && ctx->expression().size() == 2 )
   {
     visitExpression( ctx->expression( 0 ) );  // left
     int style = FmtToken::NONE;
@@ -1366,7 +1366,7 @@ antlrcpp::Any PrettifyFileProcessor::visitIntegerLiteral(
   if ( auto oct_literal = ctx->OCT_LITERAL() )
     return make_integer_literal( oct_literal );
 
-  else if ( auto binary_literal = ctx->BINARY_LITERAL() )
+  if ( auto binary_literal = ctx->BINARY_LITERAL() )
     return make_integer_literal( binary_literal );
 
   return visitChildren( ctx );
@@ -1380,7 +1380,7 @@ antlrcpp::Any PrettifyFileProcessor::visitLiteral( EscriptParser::LiteralContext
     return visitIntegerLiteral( integer_literal );
   if ( auto float_literal = ctx->floatLiteral() )
     return visitFloatLiteral( float_literal );
-  else if ( auto uninit = ctx->UNINIT() )
+  if ( auto uninit = ctx->UNINIT() )
     addToken( "uninit", uninit, FmtToken::SPACE );
   else if ( auto bool_literal = ctx->boolLiteral() )
     return visitBoolLiteral( bool_literal );
@@ -1438,7 +1438,7 @@ antlrcpp::Any PrettifyFileProcessor::visitPrimary( EscriptParser::PrimaryContext
     return visitParExpression( parExpression );
   if ( auto functionCall = ctx->functionCall() )
     return visitFunctionCall( functionCall );
-  else if ( auto scopedIdentifier = ctx->scopedIdentifier() )
+  if ( auto scopedIdentifier = ctx->scopedIdentifier() )
     return visitScopedIdentifier( scopedIdentifier );
   else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
     return visitScopedFunctionCall( scopedFunctionCall );
@@ -1526,7 +1526,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStatement( EscriptParser::StatementCon
     return visitGotoStatement( gotoStatement );
   if ( auto returnStatement = ctx->returnStatement() )
     return visitReturnStatement( returnStatement );
-  else if ( auto constStatement = ctx->constStatement() )
+  if ( auto constStatement = ctx->constStatement() )
     return visitConstStatement( constStatement );
   else if ( auto varStatement = ctx->varStatement() )
     return visitVarStatement( varStatement );

@@ -288,7 +288,7 @@ int PolToolMain::main()
     g.generateMultis();
     return 0;
   }
-  else if ( binArgs[1] == "baredistro" )
+  if ( binArgs[1] == "baredistro" )
   {
     std::string outdir = programArgsFindEquals( "outdir=", "." );
     bool hsa = programArgsFindEquals( "hsa=", 0, false ) != 0 ? true : false;

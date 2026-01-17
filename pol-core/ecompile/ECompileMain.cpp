@@ -514,8 +514,7 @@ bool setting_value( const char* arg )
     return false;
   if ( arg[2] == '+' )
     return true;
-  else
-    return true;
+  return true;
 }
 
 

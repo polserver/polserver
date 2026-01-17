@@ -65,11 +65,9 @@ Item* Item::create( u32 objtype, u32 serial )
 
   if ( !Plib::systemstate.config.ignore_load_errors )
     throw std::runtime_error( message );
-  else
-  {
-    ERROR_PRINTLN( message );
-    return nullptr;
-  }
+
+  ERROR_PRINTLN( message );
+  return nullptr;
 }
 
 Item* Item::create( const ItemDesc& id, u32 serial )

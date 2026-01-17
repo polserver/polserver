@@ -2953,7 +2953,7 @@ bool Character::is_attackable( Character* who ) const
     return false;
   if ( !weapon->in_range( this, who ) )
     return false;
-  else if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
+  if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
     return false;
   else if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
     return false;

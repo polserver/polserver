@@ -113,9 +113,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem()
 
     return new Bscript::BError( "Item wasn't a multi" );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type." );
-  }
+
+  return new Bscript::BError( "Invalid parameter type." );
 }
 }  // namespace Pol::Module

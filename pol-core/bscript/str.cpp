@@ -134,8 +134,7 @@ String* String::ETrim( const char* CRSet, int type ) const
       tmp = tmp.substr( startpos, endpos - startpos + 1 );
     return new String( tmp );
   }
-  else
-    return new String( tmp );
+  return new String( tmp );
 }
 
 void String::EStrReplace( String* str1, String* str2 )
@@ -250,8 +249,7 @@ unsigned int String::SafeCharAmt() const
     {
       if ( tmp == '{' || tmp == '}' )
         return i;
-      else
-        continue;
+      continue;
     }
     else
     {
@@ -757,8 +755,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
       size_t len = std::distance( value_.cbegin(), itr ) - pos;
       return BObjectRef( new BObject( new String( value_, pos, len ) ) );
     }
-    else
-      return BObjectRef( new UninitObject );
+    return BObjectRef( new UninitObject );
   }
   else
   {

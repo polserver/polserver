@@ -84,10 +84,8 @@ u32 ObjectHash::GetNextUnusedItemSerial()
       tempserial++;
       continue;
     }
-    else
-    {
-      break;
-    }
+
+    break;
   }
   return tempserial;
 };
@@ -119,10 +117,8 @@ u32 ObjectHash::GetNextUnusedCharSerial()
       tempserial++;
       continue;
     }
-    else
-    {
-      break;
-    }
+
+    break;
   }
   return tempserial;
 };

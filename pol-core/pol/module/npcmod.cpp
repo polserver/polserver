@@ -131,8 +131,7 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
         scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
     return new BError( "Invalid parameter type" );
   }
-  else
-    return new BError( "Invalid parameter count" );
+  return new BError( "Invalid parameter count" );
 }
 
 BObjectImp* NPCExecutorModule::mf_Self()
@@ -347,10 +346,8 @@ BObjectImp* NPCExecutorModule::mf_Move()
         os_module->SleepFor( 1 );
         return new String( Mobile::FacingStr( facing ) );
       }
-      else
-      {
-        return new String( "" );
-      }
+
+      return new String( "" );
     }
     else
     {

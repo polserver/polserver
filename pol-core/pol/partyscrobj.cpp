@@ -69,8 +69,7 @@ bool EPartyRefObjImp::operator==( const BObjectImp& objimp ) const
   }
   if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
-  else
-    return false;
+  return false;
 }
 
 

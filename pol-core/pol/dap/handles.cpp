@@ -59,7 +59,7 @@ BObjectRef Handles::set_index_or_member( const BObjectRef& objref, const std::st
       objarr->ref_arr.at( index ) = value;
       return value;
     }
-    else if ( impptr->isa( BObjectImp::OTApplicObj ) )
+    if ( impptr->isa( BObjectImp::OTApplicObj ) )
     {
       impptr->set_member( key.c_str(), value->impptr(), true );
       return impptr->get_member( key.c_str() );

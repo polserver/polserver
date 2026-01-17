@@ -545,7 +545,7 @@ bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 )
     return false;
   if ( ver1.minor > ver2.minor )
     return true;
-  else if ( ver1.minor < ver2.minor )
+  if ( ver1.minor < ver2.minor )
     return false;
   else if ( ver1.rev > ver2.rev )
     return true;

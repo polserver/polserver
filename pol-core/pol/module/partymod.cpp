@@ -90,7 +90,7 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
       return new BError( "Leader is already candidate of a party" );
     if ( leader->has_offline_mem_of() )
       return new BError( "Leader is already offline member of a party" );
-    else if ( leader == firstmem )
+    if ( leader == firstmem )
       return new BError( "Leader and Firstmember are the same" );
     else if ( firstmem->has_party() )
       return new BError( "First Member is already in a party" );

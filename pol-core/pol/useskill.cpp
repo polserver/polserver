@@ -103,7 +103,7 @@ bool CanUseSkill( Network::Client* client )
     send_sysmessage( client, "You must wait to perform another action." );
     return false;
   }
-  else if ( chr->frozen() )
+  if ( chr->frozen() )
   {
     private_say_above( chr, chr, "I am frozen and cannot do that." );
     return false;

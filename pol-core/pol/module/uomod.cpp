@@ -312,8 +312,7 @@ BObjectImp* UOExecutorModule::mf_Attach( /* Character */ )
     }
     return new BError( "Another character still attached." );
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_Detach()
@@ -886,10 +885,8 @@ BObjectImp* UOExecutorModule::mf_CancelTarget()
 
     return new BError( "No client connected" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
@@ -2848,19 +2845,17 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
 
       return new BError( "Character not found" );
     }
-    else
+
+    // dave changed this 3/8/3: objecthash (via system_find_item) will find any kind of item, so
+    // don't need system_find_multi here.
+    Item* item = system_find_item( serial );
+
+    if ( item != nullptr )
     {
-      // dave changed this 3/8/3: objecthash (via system_find_item) will find any kind of item, so
-      // don't need system_find_multi here.
-      Item* item = system_find_item( serial );
-
-      if ( item != nullptr )
-      {
-        return item->make_ref();
-      }
-
-      return new BError( "Item not found." );
+      return item->make_ref();
     }
+
+    return new BError( "Item not found." );
   }
   else
   {
@@ -3654,10 +3649,8 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 
       return new BError( "Client is disconnected" );
     }
-    else
-    {
-      return new BError( "Invalid parameter type" );
-    }
+
+    return new BError( "Invalid parameter type" );
   }
   else
   {
@@ -3883,10 +3876,8 @@ BObjectImp* UOExecutorModule::mf_DisconnectClient()
     }
     return new BError( "Invalid parameter type" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetMapInfo()
@@ -3957,10 +3948,8 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
 
     return new BError( "Huh?  Not enough parameters" );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_DestroyMulti()
@@ -4679,7 +4668,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
   {
     return new BError( "Out of memory." );
   }
-  else if ( SearchState == UOSearch::SEARCH_STATE_SOLUTION_CORRUPTED )
+  if ( SearchState == UOSearch::SEARCH_STATE_SOLUTION_CORRUPTED )
   {
     return new BError( "Solution Corrupted!" );
   }
@@ -4739,10 +4728,8 @@ BObjectImp* UOExecutorModule::mf_UseItem()
       item->builtin_on_use( chr->client );
     return new BLong( 0 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_FindSubstance()

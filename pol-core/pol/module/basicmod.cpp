@@ -550,7 +550,7 @@ picojson::value recurseE2J( BObjectImp* value )
     }
     return picojson::value( jsonArr );
   }
-  else if ( auto* bstruct = impptrIf<BStruct>( value ) )
+  if ( auto* bstruct = impptrIf<BStruct>( value ) )
   {
     picojson::object jsonObj;
     for ( const auto& content : bstruct->contents() )
@@ -560,7 +560,7 @@ picojson::value recurseE2J( BObjectImp* value )
     }
     return picojson::value( jsonObj );
   }
-  else if ( auto* dict = impptrIf<BDictionary>( value ) )
+  if ( auto* dict = impptrIf<BDictionary>( value ) )
   {
     picojson::object jsonObj;
     for ( const auto& content : dict->contents() )
@@ -615,8 +615,7 @@ Bscript::BObjectImp* recurseJ2E( const picojson::value& v )
     }
     return objstruct.release();
   }
-  else
-    return UninitObject::create();
+  return UninitObject::create();
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()

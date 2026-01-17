@@ -215,8 +215,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
+       client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -583,8 +583,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
+       client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -915,8 +915,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
+       client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();

@@ -1249,7 +1249,7 @@ int UoToolMain::main()
   {
     return UoTool::verlandtile();
   }
-  else if ( argvalue == "landtilehist" )
+  if ( argvalue == "landtilehist" )
   {
     return UoTool::landtilehist();
   }

@@ -408,7 +408,7 @@ unsigned char cvt_8to6( char ch )
     return ch - 'a' + 26;
   if ( ch >= '0' && ch <= '9' )
     return ch - '0' + 52;
-  else if ( ch == '+' )
+  if ( ch == '+' )
     return 62;
   else if ( ch == '/' )
     return 63;
@@ -510,11 +510,9 @@ bool get_script_page_filename( const std::string& page, ScriptDef& sd )
 
     return false;
   }
-  else
-  {
-    sd.quickconfig( "scripts/www" + page + ".ecl" );
-    return true;
-  }
+
+  sd.quickconfig( "scripts/www" + page + ".ecl" );
+  return true;
 }
 
 // FIXME this is just ugly!  The HttpExecutorModule takes ownership of the
