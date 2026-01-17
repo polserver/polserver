@@ -79,7 +79,7 @@ u32 ObjectHash::GetNextUnusedItemSerial()
       tempserial++;
       continue;
     }
-    else if ( clean_deleted.count( tempserial ) )
+    if ( clean_deleted.count( tempserial ) )
     {
       tempserial++;
       continue;
@@ -114,7 +114,7 @@ u32 ObjectHash::GetNextUnusedCharSerial()
       tempserial++;
       continue;
     }
-    else if ( clean_deleted.find( tempserial ) != clean_deleted.end() )
+    if ( clean_deleted.find( tempserial ) != clean_deleted.end() )
     {
       tempserial++;
       continue;

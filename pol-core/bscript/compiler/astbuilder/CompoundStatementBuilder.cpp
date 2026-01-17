@@ -266,11 +266,9 @@ std::unique_ptr<Statement> CompoundStatementBuilder::for_loop( EscriptParser::Fo
   {
     return basic_for_loop( basic, std::move( label ) );
   }
-  else
-  {
-    location_for( *ctx ).internal_error(
-        "neither c-style nor basic-style for statement in for group" );
-  }
+
+  location_for( *ctx ).internal_error(
+      "neither c-style nor basic-style for statement in for group" );
 }
 
 std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expression(
@@ -284,7 +282,7 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   {
     return std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) );
   }
-  else if ( auto m_call = ctx->functionCall() )
+  if ( auto m_call = ctx->functionCall() )
   {
     return function_call( location_for( *m_call ), m_call, ScopeName::None );
   }

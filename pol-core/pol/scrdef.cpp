@@ -110,8 +110,7 @@ std::string ScriptDef::relativename( const Plib::Package* pkg ) const
     return "";
   if ( pkg == pkg_ )
     return localname_;
-  else
-    return qualifiedname();
+  return qualifiedname();
 }
 
 void ScriptDef::quickconfig( const Plib::Package* pkg, const std::string& name_ecl )

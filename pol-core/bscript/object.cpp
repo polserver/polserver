@@ -1093,7 +1093,7 @@ bool ObjArray::operator==( const BObjectImp& imp ) const
         continue;
       return false;
     }
-    else if ( thisobj == nullptr && thatobj == nullptr )
+    if ( thisobj == nullptr && thatobj == nullptr )
     {
       continue;
     }
@@ -1349,11 +1349,9 @@ BObjectRef ObjArray::OperSubscript( const BObject& rightobj )
     // TODO: search for named variables (structure members)
     return BObjectRef( copy() );
   }
-  else
-  {
-    // TODO: crap out
-    return BObjectRef( copy() );
-  }
+
+  // TODO: crap out
+  return BObjectRef( copy() );
 }
 
 BObjectRef ObjArray::get_member( const char* membername )
@@ -1494,8 +1492,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
 
         return nullptr;
       }
-      else
-        return new BError( "array.erase(index) requires a parameter." );
+      return new BError( "array.erase(index) requires a parameter." );
     }
     break;
   case MTH_EXISTS:
@@ -1512,8 +1509,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
 
         return new BError( "Invalid parameter type" );
       }
-      else
-        return new BError( "array.exists(index) requires a parameter." );
+      return new BError( "array.exists(index) requires a parameter." );
     }
     break;
   case MTH_INSERT:
@@ -1555,8 +1551,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
 
         return new BError( "Invalid parameter type" );
       }
-      else
-        return new BError( "array.shrink(nelems) requires a parameter." );
+      return new BError( "array.shrink(nelems) requires a parameter." );
     }
     break;
   case MTH_APPEND:
@@ -1574,8 +1569,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
 
         return new BError( "Invalid parameter type" );
       }
-      else
-        return new BError( "array.append(value) requires a parameter." );
+      return new BError( "array.append(value) requires a parameter." );
     }
     break;
   case MTH_REVERSE:
@@ -1627,8 +1621,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
               } );
         return new BLong( 1 );
       }
-      else
-        return new BError( "array.sort(sub_index=0) takes at most one parameter." );
+      return new BError( "array.sort(sub_index=0) takes at most one parameter." );
     }
     break;
   case MTH_RANDOMENTRY:

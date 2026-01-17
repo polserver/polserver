@@ -92,8 +92,7 @@ BObjectImp* ScriptExObjImp::call_polmethod_id( const int id, UOExecutor& ex, boo
 
       return ret;
     }
-    else
-      return new BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
     break;
   }
   case MTH_SENDEVENT:

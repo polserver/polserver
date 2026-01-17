@@ -338,13 +338,11 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), pos,
                                     slotIndex );
   }
-  else
-  {
-    // UNTESTED CLIENT_HOLE?
-    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
 
-    return false;
-  }
+  // UNTESTED CLIENT_HOLE?
+  send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+
+  return false;
 }
 
 bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos3d& pos )

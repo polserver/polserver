@@ -49,8 +49,7 @@ u32 GetSubCmd( const unsigned char* message, PacketHookData* phd )
     return cfBEu16( *( reinterpret_cast<const u16*>( &message[phd->sub_command_offset] ) ) );
   // else if(phd->sub_command_length == 4)
   //    return cfBEu32(*(reinterpret_cast<const u32*>(&message[phd->sub_command_offset])));
-  else
-    return cfBEu32( *( reinterpret_cast<const u32*>( &message[phd->sub_command_offset] ) ) );
+  return cfBEu32( *( reinterpret_cast<const u32*>( &message[phd->sub_command_offset] ) ) );
 }
 
 // Variable length is defined in MSGLEN_2BYTELEN_DATA
@@ -544,7 +543,7 @@ bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 )
     return true;
   if ( ver1.major < ver2.major )
     return false;
-  else if ( ver1.minor > ver2.minor )
+  if ( ver1.minor > ver2.minor )
     return true;
   else if ( ver1.minor < ver2.minor )
     return false;

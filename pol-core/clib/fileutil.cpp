@@ -41,10 +41,8 @@ std::string normalized_dir_form( const std::string& istr )
   {
     return str;
   }
-  else
-  {
-    return str + "/";
-  }
+
+  return str + "/";
 }
 
 bool IsDirectory( const char* dir )

@@ -123,15 +123,13 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
       Core::UFACING facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
       return new BLong( npc.could_move( facing ) ? 1 : 0 );
     }
-    else
-    {
-      DEBUGLOGLN(
-          "Script Error in '{}' PC={}: \n"
-          "\tCall to function npc::canmove():\n"
-          "\tParameter 0: Expected direction, got datatype {}",
-          scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
-      return new BError( "Invalid parameter type" );
-    }
+
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function npc::canmove():\n"
+        "\tParameter 0: Expected direction, got datatype {}",
+        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
+    return new BError( "Invalid parameter type" );
   }
   else
     return new BError( "Invalid parameter count" );
@@ -160,10 +158,8 @@ BObjectImp* NPCExecutorModule::mf_SetAnchor()
     npc.anchor.enabled = false;
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -333,7 +329,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
     Core::UFACING facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
     return move_self( facing, false );
   }
-  else if ( param0->isa( BObjectImp::OTApplicObj ) )
+  if ( param0->isa( BObjectImp::OTApplicObj ) )
   {
     BApplicObjBase* appobj = static_cast<BApplicObjBase*>( param0 );
     if ( appobj->object_type() == &bounding_box_type )
@@ -808,10 +804,8 @@ BObjectImp* NPCExecutorModule::mf_GetProperty()
 
     return new BError( "Property not found" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* NPCExecutorModule::mf_SetProperty()

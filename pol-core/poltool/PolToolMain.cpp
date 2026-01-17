@@ -273,7 +273,7 @@ int PolToolMain::main()
   {
     return unpackCompressedGump();
   }
-  else if ( binArgs[1] == "testfiles" )
+  if ( binArgs[1] == "testfiles" )
   {
     std::string outdir = programArgsFindEquals( "outdir=", "." );
     bool hsa = programArgsFindEquals( "hsa=", 0, false ) != 0 ? true : false;

@@ -149,7 +149,7 @@ bool BoatShape::objtype_is_component( unsigned int objtype )
     return true;
   if ( objtype == Core::settingsManager.extobj.port_plank )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.starboard_plank )
+  if ( objtype == Core::settingsManager.extobj.starboard_plank )
     return true;
   else if ( objtype == Core::settingsManager.extobj.hold )
     return true;

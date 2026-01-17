@@ -70,8 +70,7 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
     }
     return new BError( "Damage is out of range" );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* VitalExecutorModule::mf_HealDamage()
@@ -242,7 +241,6 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
     }
     return new BError( "Mobile must be online." );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 }  // namespace Pol::Module

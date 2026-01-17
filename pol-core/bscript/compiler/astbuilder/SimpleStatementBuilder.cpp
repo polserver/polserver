@@ -175,12 +175,10 @@ std::unique_ptr<Node> SimpleStatementBuilder::binding(
     return std::make_unique<IndexBinding>( location_for( *ctx ), std::move( element_indexes ),
                                            std::move( bindings ) );
   }
-  else
-  {
-    // Should never happen, as the context check is exhaustive.
-    report.error( location_for( *ctx ), "Unsupported binding list" );
-    return {};
-  }
+
+  // Should never happen, as the context check is exhaustive.
+  report.error( location_for( *ctx ), "Unsupported binding list" );
+  return {};
 }
 
 std::unique_ptr<JumpStatement> SimpleStatementBuilder::break_statement(

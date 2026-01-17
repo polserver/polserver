@@ -1245,7 +1245,7 @@ int UoToolMain::main()
   {
     return UoTool::vertile();
   }
-  else if ( argvalue == "verlandtile" )
+  if ( argvalue == "verlandtile" )
   {
     return UoTool::verlandtile();
   }

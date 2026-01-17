@@ -91,7 +91,7 @@ bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major,
     return true;
   if ( ver1major < ver2major )
     return false;
-  else if ( ver1minor > ver2minor )
+  if ( ver1minor > ver2minor )
     return true;
   else if ( ver1minor < ver2minor )
     return false;

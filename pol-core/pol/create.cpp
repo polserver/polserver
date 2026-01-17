@@ -125,8 +125,7 @@ bool validhair( u16 HairStyle )
        ( ( 0x4273 <= HairStyle ) && ( HairStyle <= 0x4275 ) ) ||
        ( ( 0x42aa <= HairStyle ) && ( HairStyle <= 0x42ab ) ) || ( HairStyle == 0x42B1 ) )
     return true;
-  else
-    return false;
+  return false;
 }
 
 /* beard can be:
@@ -207,9 +206,9 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     client->Disconnect();
     return;
   }
-  else if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( msg->CharNumber ) != nullptr ||
-            msg->StartIndex >= gamestate.startlocations.size() )
+  if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
+       client->acct->get_character( msg->CharNumber ) != nullptr ||
+       msg->StartIndex >= gamestate.startlocations.size() )
   {
     ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
@@ -576,8 +575,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     client->Disconnect();
     return;
   }
-  else if ( charslot >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( charslot ) != nullptr )
+  if ( charslot >= Plib::systemstate.config.character_slots ||
+       client->acct->get_character( charslot ) != nullptr )
   {
     ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
@@ -907,9 +906,9 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     client->Disconnect();
     return;
   }
-  else if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( msg->CharNumber ) != nullptr ||
-            msg->StartIndex >= gamestate.startlocations.size() )
+  if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
+       client->acct->get_character( msg->CharNumber ) != nullptr ||
+       msg->StartIndex >= gamestate.startlocations.size() )
   {
     ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );

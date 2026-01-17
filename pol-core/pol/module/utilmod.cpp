@@ -93,10 +93,8 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomDiceRoll()
 
     return new BError( errormsg.c_str() );
   }
-  else
-  {
-    return new BError( "RandomDiceRoll() expects a String as parameter" );
-  }
+
+  return new BError( "RandomDiceRoll() expects a String as parameter" );
 }
 
 Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()

@@ -349,7 +349,7 @@ bool Client::compareVersion( const VersionDetailStruct& ver2 )
     return true;
   if ( ver1.major < ver2.major )
     return false;
-  else if ( ver1.minor > ver2.minor )
+  if ( ver1.minor > ver2.minor )
     return true;
   else if ( ver1.minor < ver2.minor )
     return false;
@@ -528,21 +528,20 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
     THREAD_CHECKPOINT( active_client, 209 );
     return;
   }
-  else  // no error
+  // no error
+  THREAD_CHECKPOINT( active_client, 210 );
+  datalen -= static_cast<unsigned short>( nsent );
+  counters.bytes_transmitted += nsent;
+  Core::networkManager.polstats.bytes_sent += nsent;
+  if ( datalen )  // anything left? if so, queue for later.
   {
-    THREAD_CHECKPOINT( active_client, 210 );
-    datalen -= static_cast<unsigned short>( nsent );
-    counters.bytes_transmitted += nsent;
-    Core::networkManager.polstats.bytes_sent += nsent;
-    if ( datalen )  // anything left? if so, queue for later.
-    {
-      THREAD_CHECKPOINT( active_client, 211 );
-      POLLOG_ERRORLN( "Client#{}: Switching to queued data mode (2)", myClient.instance_ );
-      THREAD_CHECKPOINT( active_client, 212 );
-      queue_data( cdata + nsent, datalen );
-      THREAD_CHECKPOINT( active_client, 213 );
-    }
+    THREAD_CHECKPOINT( active_client, 211 );
+    POLLOG_ERRORLN( "Client#{}: Switching to queued data mode (2)", myClient.instance_ );
+    THREAD_CHECKPOINT( active_client, 212 );
+    queue_data( cdata + nsent, datalen );
+    THREAD_CHECKPOINT( active_client, 213 );
   }
+
   THREAD_CHECKPOINT( active_client, 214 );
 }
 
@@ -575,25 +574,23 @@ void ThreadedClient::send_queued_data()
       disconnect = true;
       return;
     }
-    else
+
+    xbuffer->nsent += static_cast<unsigned short>( nsent );
+    xbuffer->lenleft -= static_cast<unsigned short>( nsent );
+    counters.bytes_transmitted += nsent;
+    Core::networkManager.polstats.bytes_sent += nsent;
+    if ( xbuffer->lenleft == 0 )
     {
-      xbuffer->nsent += static_cast<unsigned short>( nsent );
-      xbuffer->lenleft -= static_cast<unsigned short>( nsent );
-      counters.bytes_transmitted += nsent;
-      Core::networkManager.polstats.bytes_sent += nsent;
-      if ( xbuffer->lenleft == 0 )
+      first_xmit_buffer = first_xmit_buffer->next;
+      if ( first_xmit_buffer == nullptr )
       {
-        first_xmit_buffer = first_xmit_buffer->next;
-        if ( first_xmit_buffer == nullptr )
-        {
-          last_xmit_buffer = nullptr;
-          POLLOGLN( "Client#{}: Leaving queued mode ({} bytes xmitted)", myClient.instance_,
-                    queued_bytes_counter );
-          queued_bytes_counter = 0;
-        }
-        free( xbuffer );
-        --n_queued;
+        last_xmit_buffer = nullptr;
+        POLLOGLN( "Client#{}: Leaving queued mode ({} bytes xmitted)", myClient.instance_,
+                  queued_bytes_counter );
+        queued_bytes_counter = 0;
       }
+      free( xbuffer );
+      --n_queued;
     }
   }
 }

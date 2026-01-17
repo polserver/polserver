@@ -31,8 +31,7 @@ bool could_be_a_number( const char* s )
         continue;
       if ( isspace( ch ) )
         return true;
-      else
-        return false;
+      return false;
     }
     return true;
   }
@@ -45,10 +44,8 @@ bool could_be_a_number( const char* s )
     {
       continue;
     }
-    else
-    {
-      return false;
-    }
+
+    return false;
   }
   return true;
 }

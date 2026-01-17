@@ -114,8 +114,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
 
       return ret;
     }
-    else
-      return new BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
     break;
   }
   ///

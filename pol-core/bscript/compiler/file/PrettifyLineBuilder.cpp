@@ -597,11 +597,9 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
               alignmentspace = initial_alignmentspace;
             continue;
           }
-          else
-          {
-            line = oldline;
-            finallines.pop_back();
-          }
+
+          line = oldline;
+          finallines.pop_back();
         }
         tried_binpack_until = skip;
       }

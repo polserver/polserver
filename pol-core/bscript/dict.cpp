@@ -181,10 +181,8 @@ BObjectRef BDictionary::OperSubscript( const BObject& obj )
 
     return BObjectRef( UninitObject::create() );
   }
-  else
-  {
-    return BObjectRef( new BError( "Dictionary keys must be integer, real, or string" ) );
-  }
+
+  return BObjectRef( new BError( "Dictionary keys must be integer, real, or string" ) );
 }
 
 BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
@@ -206,10 +204,8 @@ BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target, bool
     contents_[BObject( obj->copy() )].set( new BObject( new_target ) );
     return new_target;
   }
-  else
-  {
-    return new BError( "Dictionary keys must be integer, real, or string" );
-  }
+
+  return new BError( "Dictionary keys must be integer, real, or string" );
 }
 
 void BDictionary::addMember( const char* name, BObjectRef val )

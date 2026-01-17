@@ -265,10 +265,8 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
 
     return new BError( "Mobile has no active client" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()

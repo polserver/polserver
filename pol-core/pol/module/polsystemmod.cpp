@@ -92,7 +92,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   {
     return BObjectRef( new String( value()->version() ) );
   }
-  else if ( stricmp( membername, "supports_http" ) == 0 )
+  if ( stricmp( membername, "supports_http" ) == 0 )
   {
     const Plib::Package* pkg = value().Ptr();
     return BObjectRef( new BLong( Clib::FileExists( pkg->dir() + "www" ) ) );
@@ -150,7 +150,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
 
     return new String( Core::gamestate.cmdlevels[cmdlevel_num].name );
   }
-  else if ( getStringParam( 0, cmdlevel_alias ) )
+  if ( getStringParam( 0, cmdlevel_alias ) )
   {
     Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data() );
     if ( cmdlevel == nullptr )
@@ -292,17 +292,15 @@ BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
       return new BError( "Realm not found." );
     return SetupRealmDetails( realm );
   }
-  else
-  {
-    BDictionary* dict = new BDictionary;
-    std::vector<Realms::Realm*>::iterator itr;
-    for ( itr = Core::gamestate.Realms.begin(); itr != Core::gamestate.Realms.end(); ++itr )
-    {
-      dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
-    }
 
-    return dict;
+  BDictionary* dict = new BDictionary;
+  std::vector<Realms::Realm*>::iterator itr;
+  for ( itr = Core::gamestate.Realms.begin(); itr != Core::gamestate.Realms.end(); ++itr )
+  {
+    dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
   }
+
+  return dict;
 }
 
 BObjectImp* PolSystemExecutorModule::mf_SetSysTrayPopupText()

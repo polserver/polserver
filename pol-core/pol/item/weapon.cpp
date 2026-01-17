@@ -340,8 +340,7 @@ unsigned short UWeapon::speed() const
     return 0;
   if ( speed_ <= USHRT_MAX )
     return static_cast<u16>( speed_ );
-  else
-    return USHRT_MAX;
+  return USHRT_MAX;
 }
 
 unsigned short UWeapon::delay() const
@@ -362,8 +361,7 @@ unsigned short UWeapon::get_random_damage() const
     return 0;
   if ( dmg <= USHRT_MAX )
     return static_cast<unsigned short>( dmg );
-  else
-    return USHRT_MAX;
+  return USHRT_MAX;
 }
 
 unsigned short UWeapon::min_weapon_damage() const

@@ -135,8 +135,7 @@ std::string Item::name() const
 
   if ( id.desc.get().empty() )
     return Plib::tile_desc( graphic );
-  else
-    return id.desc;
+  return id.desc;
 }
 
 const ItemDesc& Item::itemdesc() const
@@ -176,10 +175,8 @@ std::string Item::description() const
     return Core::format_description( Plib::tile_flags( graphic ), Plib::tile_desc( graphic ),
                                      amount_, suffix );
   }
-  else
-  {
-    return Core::format_description( Plib::tile_flags( graphic ), id.desc, amount_, suffix );
-  }
+
+  return Core::format_description( Plib::tile_flags( graphic ), id.desc, amount_, suffix );
 }
 
 std::string Item::get_use_script_name() const
@@ -200,10 +197,8 @@ std::string Item::merchant_description() const
   {
     return Core::format_description( 0, Plib::tile_desc( graphic ), 1, suffix );
   }
-  else
-  {
-    return Core::format_description( 0, id.desc, 1, suffix );
-  }
+
+  return Core::format_description( 0, id.desc, 1, suffix );
 }
 
 u32 Item::sellprice() const
@@ -343,8 +338,7 @@ unsigned short Item::maxhp() const
     return 1;
   if ( maxhp <= USHRT_MAX )
     return static_cast<u16>( maxhp );
-  else
-    return USHRT_MAX;
+  return USHRT_MAX;
 }
 
 void Item::printProperties( Clib::StreamWriter& sw ) const
@@ -1346,8 +1340,7 @@ Mobile::Character* Item::GetCharacterOwner() const
     }
     return nullptr;
   }
-  else
-    return nullptr;
+  return nullptr;
 }
 
 const char* Item::target_tag() const

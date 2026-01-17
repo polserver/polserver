@@ -67,7 +67,7 @@ bool EPartyRefObjImp::operator==( const BObjectImp& objimp ) const
     }
     return false;
   }
-  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+  if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
@@ -265,7 +265,7 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& 
       return new BError( "Character is already in a party" );
     if ( chr->has_candidate_of() )
       return new BError( "Character is already candidate of a party" );
-    else if ( chr->has_offline_mem_of() )
+    if ( chr->has_offline_mem_of() )
       return new BError( "Character is already offline member of a party" );
     if ( !obj_->can_add() )
       return new BError( "Party is already full" );

@@ -130,7 +130,7 @@ BTokenId ExpressionBuilder::binary_operator_token(
     return TOK_ADD;
   if ( ctx->SUB() )
     return TOK_SUBTRACT;
-  else if ( ctx->MUL() )
+  if ( ctx->MUL() )
     return TOK_MULT;
   else if ( ctx->DIV() )
     return TOK_DIV;
@@ -492,7 +492,7 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   {
     return navigation( std::move( lhs ), member );
   }
-  else if ( auto method = ctx->methodCallSuffix() )
+  if ( auto method = ctx->methodCallSuffix() )
   {
     return method_call( std::move( lhs ), method );
   }
@@ -565,7 +565,7 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return expression( par_expression->expression() );
   }
-  else if ( auto scoped_ident = ctx->scopedIdentifier() )
+  if ( auto scoped_ident = ctx->scopedIdentifier() )
   {
     return scoped_identifier( scoped_ident );
   }

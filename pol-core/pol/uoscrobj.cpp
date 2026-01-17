@@ -237,7 +237,7 @@ bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
     }
     return false;
   }
-  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+  if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   return false;
 }
@@ -1661,7 +1661,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Not enough parameters" );
     if ( !ex.getPos4dParam( 0, 1, 2, 3, &newpos ) )
       return new BError( "Invalid parameter type" );
-    else if ( !ex.getParam( 4, amt ) )
+    if ( !ex.getParam( 4, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
     else if ( amt > this->getamount() )
       return new BError( "Amount must be less than or equal to the stack amount" );
@@ -1726,7 +1726,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Not enough parameters" );
     if ( !ex.getItemParam( 0, cont_item ) )
       return new BError( "No container specified" );
-    else if ( !ex.getParam( 1, amt ) )
+    if ( !ex.getParam( 1, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
     else if ( amt > this->getamount() )
       return new BError( "Amount must be less than or equal to stack amount" );
@@ -1855,7 +1855,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Not enough params" );
     if ( !ex.getItemParam( 0, cont ) )
       return new BError( "No container specified" );
-    else if ( this->inuse() )
+    if ( this->inuse() )
       return new BError( "Item is in use" );
     else if ( !cont->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "Non-container selected as target" );

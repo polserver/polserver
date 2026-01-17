@@ -223,10 +223,8 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
     --uoex.PC;
     return uoex.fparams[0]->impptr();
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
@@ -278,10 +276,8 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     --uoex.PC;
     return uoex.fparams[0]->impptr();
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 #if 0
@@ -312,10 +308,8 @@ BObjectImp* HttpExecutorModule::mf_QueryParam()
       return new String( ( *itr ).second );
     return new BLong( 0 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* HttpExecutorModule::mf_QueryIP()

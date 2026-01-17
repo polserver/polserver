@@ -192,8 +192,7 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
       return ( compare->copy() );
     return new BError( "No Integer/Double elements" );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* MathExecutorModule::mf_Max()
@@ -235,8 +234,7 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
       return ( compare->copy() );
     return new BError( "No Integer/Double elements" );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 /*

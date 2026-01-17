@@ -88,7 +88,7 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
       return new BError( "Leader is already in a party" );
     if ( leader->has_candidate_of() )
       return new BError( "Leader is already candidate of a party" );
-    else if ( leader->has_offline_mem_of() )
+    if ( leader->has_offline_mem_of() )
       return new BError( "Leader is already offline member of a party" );
     else if ( leader == firstmem )
       return new BError( "Leader and Firstmember are the same" );
@@ -156,8 +156,7 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
     }
     return new BError( "Invalid parameter type" );
   }
-  else
-    return err;
+  return err;
 }
 
 BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
@@ -183,8 +182,7 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
     }
     return new BError( "Invalid parameter type" );
   }
-  else
-    return err;
+  return err;
 }
 }  // namespace Module
 }  // namespace Pol

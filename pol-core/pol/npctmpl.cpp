@@ -168,9 +168,7 @@ std::shared_ptr<NpcTemplate> find_npc_template( const Clib::ConfigElem& elem )
   {
     return create_npc_template( elem, pkg );
   }
-  else
-  {
-    throw std::runtime_error( std::string( "Error reading NPC template name " ) + elem.rest() );
-  }
+
+  throw std::runtime_error( std::string( "Error reading NPC template name " ) + elem.rest() );
 }
 }  // namespace Pol::Core

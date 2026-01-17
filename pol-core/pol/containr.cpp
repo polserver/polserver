@@ -161,15 +161,13 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
     }
     return true;
   }
-  else
-  {
-    if ( settingsManager.ssopt.use_slot_index )
-    {
-      return ( ( contents_.size() < MAX_CONTAINER_ITEMS ) && ( contents_.size() < MAX_SLOTS ) );
-    }
 
-    return ( contents_.size() < MAX_CONTAINER_ITEMS );
+  if ( settingsManager.ssopt.use_slot_index )
+  {
+    return ( ( contents_.size() < MAX_CONTAINER_ITEMS ) && ( contents_.size() < MAX_SLOTS ) );
   }
+
+  return ( contents_.size() < MAX_CONTAINER_ITEMS );
 }
 
 bool UContainer::can_add( const Items::Item& item ) const
@@ -957,8 +955,7 @@ unsigned short UContainer::max_weight() const
     return USHRT_MAX;
   if ( max_weight <= USHRT_MAX )
     return static_cast<u16>( max_weight );
-  else
-    return USHRT_MAX;
+  return USHRT_MAX;
 }
 
 u8 UContainer::max_slots() const

@@ -1328,10 +1328,8 @@ BObjectRef BIntHash::OperSubscript( const BObject& obj )
 
     return BObjectRef( new BError( "Key not found in inthash" ) );
   }
-  else
-  {
-    return BObjectRef( new BError( "Incorrect type used as subscript to inthash" ) );
-  }
+
+  return BObjectRef( new BError( "Incorrect type used as subscript to inthash" ) );
 }
 
 void clear_gumphandler( Client* client, UOExecutorModule* uoemod )
@@ -2072,10 +2070,8 @@ BObjectImp* UOExecutorModule::mf_FindAccount()
 
     return new BError( "Account not found." );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_ListAccounts()

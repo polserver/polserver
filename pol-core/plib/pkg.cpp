@@ -85,15 +85,13 @@ void compare_versions( const std::string& verleft, const std::string& verright, 
     {
       return;
     }
-    else  // same, so check the next one
-    {
-      vneed = new_vneed;
-      if ( vneed && *vneed )
-        ++vneed;
-      vhave = new_vhave;
-      if ( vhave && *vhave )
-        ++vhave;
-    }
+    // same, so check the next one
+    vneed = new_vneed;
+    if ( vneed && *vneed )
+      ++vneed;
+    vhave = new_vhave;
+    if ( vhave && *vhave )
+      ++vhave;
   }
   isequal = true;
 }

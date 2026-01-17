@@ -115,7 +115,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     {
       return BObjectRef( UninitObject::create() );
     }
-    else if ( IS_NUM( _fields[index - 1].type ) && _fields[index - 1].type != MYSQL_TYPE_TIMESTAMP )
+    if ( IS_NUM( _fields[index - 1].type ) && _fields[index - 1].type != MYSQL_TYPE_TIMESTAMP )
     {
       if ( _fields[index - 1].type == MYSQL_TYPE_DECIMAL ||
            _fields[index - 1].type == MYSQL_TYPE_NEWDECIMAL ||
@@ -137,7 +137,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
         {
           return BObjectRef( UninitObject::create() );
         }
-        else if ( IS_NUM( _fields[i].type ) && _fields[i].type != MYSQL_TYPE_TIMESTAMP )
+        if ( IS_NUM( _fields[i].type ) && _fields[i].type != MYSQL_TYPE_TIMESTAMP )
         {
           if ( _fields[i].type == MYSQL_TYPE_DECIMAL || _fields[i].type == MYSQL_TYPE_NEWDECIMAL ||
                _fields[i].type == MYSQL_TYPE_FLOAT || _fields[i].type == MYSQL_TYPE_DOUBLE )
@@ -149,10 +149,8 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     }
     return BObjectRef( new BError( "Column does not exist" ) );
   }
-  else
-  {
-    return BObjectRef( new BError( "SQLRow keys must be integer" ) );
-  }
+
+  return BObjectRef( new BError( "SQLRow keys must be integer" ) );
 }
 BSQLRow::~BSQLRow() = default;
 Bscript::BObjectImp* BSQLRow::copy() const

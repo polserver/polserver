@@ -365,10 +365,8 @@ BObjectImp* OSExecutorModule::mf_Start_Skill_Script()
     }
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* OSExecutorModule::mf_Set_Critical()
@@ -599,10 +597,8 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 
     return new BError( "No client attached" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -1312,27 +1308,25 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
 
     return UninitObject::create();
   }
-  else  // reentry
+  // reentry
+  BObjectImp* ret;
+  if ( this_uoexec.pChild->error() )
+    ret = new BLong( 0 );
+  else if ( this_uoexec.pChild->ValueStack.empty() )
+    ret = new BLong( 1 );
+  else
   {
-    BObjectImp* ret;
-    if ( this_uoexec.pChild->error() )
-      ret = new BLong( 0 );
-    else if ( this_uoexec.pChild->ValueStack.empty() )
-      ret = new BLong( 1 );
-    else
-    {
-      ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
-      this_uoexec.pChild->ValueStack.pop_back();
-    }
-    auto array = std::make_unique<Bscript::ObjArray>();
-    array->addElement( new Core::ExportScriptObjImp( this_uoexec.pChild ) );
-    array->addElement( ret );
-
-    this_uoexec.pChild->pParent = nullptr;
-    this_uoexec.pChild = nullptr;
-
-    return array.release();
+    ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
+    this_uoexec.pChild->ValueStack.pop_back();
   }
+  auto array = std::make_unique<Bscript::ObjArray>();
+  array->addElement( new Core::ExportScriptObjImp( this_uoexec.pChild ) );
+  array->addElement( ret );
+
+  this_uoexec.pChild->pParent = nullptr;
+  this_uoexec.pChild = nullptr;
+
+  return array.release();
 }
 
 BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()

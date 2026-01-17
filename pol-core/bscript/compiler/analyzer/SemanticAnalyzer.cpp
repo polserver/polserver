@@ -905,7 +905,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                       method_name );
         return;
       }
-      else if ( arguments_passed.size() < parameters.size() - 1 )
+      if ( arguments_passed.size() < parameters.size() - 1 )
       {
         report.error( arg,
                       "In call to '{}': Spread operator can only be used for arguments on or after "
@@ -946,10 +946,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                       method_name, expected_args, arguments.size() );
         continue;
       }
-      else
-      {
-        arg_name = parameters.at( arguments_passed.size() ).get().name.string();
-      }
+
+      arg_name = parameters.at( arguments_passed.size() ).get().name.string();
     }
     else
     {

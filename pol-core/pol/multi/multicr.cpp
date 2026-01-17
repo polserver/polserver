@@ -74,7 +74,6 @@ Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor,
     return UBoat::scripted_create( descriptor, pos, flags );
   if ( descriptor.type == Items::ItemDesc::HOUSEDESC )
     return UHouse::scripted_create( descriptor, pos, flags );
-  else
-    return new Bscript::BError( "Don't know what kind of multi to make" );
+  return new Bscript::BError( "Don't know what kind of multi to make" );
 }
 }  // namespace Pol::Multi

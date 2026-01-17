@@ -54,7 +54,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
     return internal_MoveCharacter( static_cast<Character*>( obj ), pos, flags );
   if ( obj->script_isa( POLCLASS_BOAT ) )
     return internal_MoveBoat( static_cast<Multi::UBoat*>( obj ), pos, flags );
-  else if ( obj->script_isa( POLCLASS_MULTI ) )
+  if ( obj->script_isa( POLCLASS_MULTI ) )
     return new BError( "Can't move multis at this time." );
   else if ( obj->script_isa( POLCLASS_CONTAINER ) )
     return internal_MoveContainer( static_cast<UContainer*>( obj ), pos, flags );

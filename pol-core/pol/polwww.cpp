@@ -406,7 +406,7 @@ unsigned char cvt_8to6( char ch )
     return ch - 'A';
   if ( ch >= 'a' && ch <= 'z' )
     return ch - 'a' + 26;
-  else if ( ch >= '0' && ch <= '9' )
+  if ( ch >= '0' && ch <= '9' )
     return ch - '0' + 52;
   else if ( ch == '+' )
     return 62;
@@ -465,10 +465,8 @@ bool legal_pagename( const std::string& page )
     {
       continue;
     }
-    else
-    {
-      return false;
-    }
+
+    return false;
   }
   return true;
 }
@@ -509,10 +507,8 @@ bool get_script_page_filename( const std::string& page, ScriptDef& sd )
 
       return false;
     }
-    else
-    {
-      return false;
-    }
+
+    return false;
   }
   else
   {

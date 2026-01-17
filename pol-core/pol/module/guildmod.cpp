@@ -455,9 +455,7 @@ BObjectImp* GuildExecutorModule::mf_FindGuild()
       return new EGuildRefObjImp( ref_ptr<Core::Guild>( ( *itr ).second.get() ) );
     return new BError( "Guild not found" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 }  // namespace Pol::Module

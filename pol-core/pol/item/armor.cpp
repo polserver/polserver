@@ -138,8 +138,7 @@ unsigned short UArmor::ar() const
     return 0;
   if ( ar <= USHRT_MAX )
     return static_cast<unsigned short>( ar );
-  else
-    return USHRT_MAX;
+  return USHRT_MAX;
 }
 
 unsigned short UArmor::ar_base() const

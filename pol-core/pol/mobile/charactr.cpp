@@ -1806,8 +1806,7 @@ unsigned short calc_thru_damage( double damage, unsigned short ar )
   int dmg = static_cast<int>( damage );
   if ( dmg >= 0 )
     return static_cast<unsigned short>( dmg );
-  else
-    return 0;
+  return 0;
 }
 
 
@@ -2928,8 +2927,7 @@ Character* Character::get_opponent() const
     return opponent_;
   if ( !opponent_of.empty() )
     return *opponent_of.begin();
-  else
-    return nullptr;
+  return nullptr;
 }
 
 bool Character::is_attackable( Character* who ) const
@@ -2953,7 +2951,7 @@ bool Character::is_attackable( Character* who ) const
     is_concealed_from_me( who ) );
   if ( who->dead() )
     return false;
-  else if ( !weapon->in_range( this, who ) )
+  if ( !weapon->in_range( this, who ) )
     return false;
   else if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
     return false;

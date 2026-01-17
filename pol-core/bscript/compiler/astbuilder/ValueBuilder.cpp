@@ -234,7 +234,7 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   {
     return integer_value( integer_literal );
   }
-  else if ( auto float_literal = ctx->floatLiteral() )
+  if ( auto float_literal = ctx->floatLiteral() )
   {
     return float_value( float_literal );
   }
@@ -268,7 +268,7 @@ int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
     {
       return static_cast<int>( std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 ) );
     }
-    else if ( auto oct_literal = ctx->OCT_LITERAL() )
+    if ( auto oct_literal = ctx->OCT_LITERAL() )
     {
       return std::stoi( oct_literal->getSymbol()->getText(), nullptr, 8 );
     }

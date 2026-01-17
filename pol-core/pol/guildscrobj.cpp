@@ -50,7 +50,7 @@ bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
     }
     return false;
   }
-  else if ( objimp.isa( BObjectImp::OTBoolean ) )
+  if ( objimp.isa( BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   else
     return false;

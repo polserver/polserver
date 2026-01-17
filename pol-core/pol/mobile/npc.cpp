@@ -947,12 +947,10 @@ Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
 
     return new Bscript::BError( "Event queue is full, discarding event" );
   }
-  else
-  {
-    // Because there is no control script, we must delete it ourselves.
-    Bscript::BObject bo( event );
-    return new Bscript::BError( "That NPC doesn't have a control script" );
-  }
+
+  // Because there is no control script, we must delete it ourselves.
+  Bscript::BObject bo( event );
+  return new Bscript::BError( "That NPC doesn't have a control script" );
 }
 
 void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys,

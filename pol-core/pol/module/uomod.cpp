@@ -310,8 +310,7 @@ BObjectImp* UOExecutorModule::mf_Attach( /* Character */ )
       }
       return new BError( "Another script still attached." );
     }
-    else
-      return new BError( "Another character still attached." );
+    return new BError( "Another character still attached." );
   }
   else
     return new BError( "Invalid parameter" );
@@ -484,10 +483,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
     item->destroy();
     return new BError( "That container is full" );
   }
-  else
-  {
-    return new BError( "Failed to create that item type" );
-  }
+
+  return new BError( "Failed to create that item type" );
 }
 
 BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
@@ -513,10 +510,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
 
     return new BError( "That is not a container" );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 
 BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
@@ -542,10 +537,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
 
     return new BError( "That is not a container" );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 
 
@@ -719,10 +712,8 @@ BObjectImp* UOExecutorModule::mf_SendSysMessage()
 
     return new BError( "Mobile has no active client" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_PrintTextAbove()
@@ -740,10 +731,8 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
       return new BLong( say_above( obj, ptext->data(), font, color, journal_print ) );
     return new BLong( say_above_unicode( obj, ptext->value(), "ENU", font, color, journal_print ) );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
 {
@@ -761,10 +750,8 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
       return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
     return new BLong( private_say_above_unicode( chr, obj, ptext->value(), "ENU", font, color ) );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 
 // const int TGTOPT_NOCHECK_LOS = 0x0000; // currently unused
@@ -896,10 +883,8 @@ BObjectImp* UOExecutorModule::mf_CancelTarget()
 
       return new BError( "Client does not have an active target cursor" );
     }
-    else
-    {
-      return new BError( "No client connected" );
-    }
+
+    return new BError( "No client connected" );
   }
   else
   {
@@ -1046,10 +1031,8 @@ BObjectImp* UOExecutorModule::mf_GetObjType()
   {
     return new BLong( chr->objtype_ );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 // FIXME character needs an Accessible that takes an Item*
@@ -1110,10 +1093,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
 
     return new BError( "Character has no backpack." );
   }
-  else
-  {
-    return new BError( "A parameter was invalid." );
-  }
+
+  return new BError( "A parameter was invalid." );
 }
 
 BObjectImp* _complete_create_item_at_location( Item* item, const Core::Pos4d& pos )
@@ -1182,10 +1163,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation( /* x,y,z,item,realm *
 
     return new BError( "Unable to clone item" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation( /* x,y,z,objtype,flags,realm */ )
@@ -1727,10 +1706,8 @@ BObjectImp* UOExecutorModule::mf_GetObjProperty()
 
     return new BError( "Property not found" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_SetObjProperty()
@@ -1791,10 +1768,8 @@ BObjectImp* UOExecutorModule::mf_GetGlobalProperty()
 
     return new BError( "Property not found" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_SetGlobalProperty()
@@ -2760,10 +2735,8 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
 
     return new BError( "Already registered for speech events" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_EnableEvents()
@@ -2872,10 +2845,8 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
           return new EOfflineCharacterRefObjImp( chr );
         return new ECharacterRefObjImp( chr );
       }
-      else
-      {
-        return new BError( "Character not found" );
-      }
+
+      return new BError( "Character not found" );
     }
     else
     {
@@ -3466,10 +3437,8 @@ BObjectImp* UOExecutorModule::mf_RestartScript()
     item->stop_control_script();
     return new BLong( item->start_control_script() );
   }
-  else
-  {
-    return new BError( "RestartScript only operates on NPCs and Items" );
-  }
+
+  return new BError( "RestartScript only operates on NPCs and Items" );
 }
 
 
@@ -3533,8 +3502,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
       return new BError( "No Region defined at this Location" );
     return new String( justice_region->region_name() );
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation( /* x, y, realm */ )
@@ -3548,8 +3516,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation( /* x, y, realm */ )
       return new BError( "No Region defined at this Location" );
     return new String( justice_region->region_name() );
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetRegionString()
@@ -3677,7 +3644,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 
       return new BError( "No client attached" );
     }
-    else if ( client != nullptr )
+    if ( client != nullptr )
     {
       if ( client->isConnected() )
       {
@@ -3886,10 +3853,8 @@ BObjectImp* UOExecutorModule::mf_GetEquipmentByLayer()
 
     return new EItemRefObjImp( item );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_DisconnectClient()
@@ -3916,8 +3881,7 @@ BObjectImp* UOExecutorModule::mf_DisconnectClient()
       }
       return new BError( "Client is disconnected" );
     }
-    else
-      return new BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
   }
   else
   {
@@ -3955,10 +3919,8 @@ BObjectImp* UOExecutorModule::mf_GetWorldHeight()
       return new BLong( z );
     return new BError( "Nowhere" );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetObjtypeByName()
@@ -3971,10 +3933,8 @@ BObjectImp* UOExecutorModule::mf_GetObjtypeByName()
       return new BLong( objtype );
     return new BError( "No objtype by that name" );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_SendEvent()
@@ -3994,10 +3954,8 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
 
       return new BError( "That mobile is not an NPC" );
     }
-    else
-    {
-      return new BError( "Huh?  Not enough parameters" );
-    }
+
+    return new BError( "Huh?  Not enough parameters" );
   }
   else
   {
@@ -4105,10 +4063,8 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
 
     return new BError( "Can't stand there" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, includeitems */ )
@@ -4246,10 +4202,8 @@ BObjectImp* UOExecutorModule::mf_ReleaseItem()
 
     return new BError( "That item is not reserved." );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 
@@ -4266,10 +4220,8 @@ BObjectImp* UOExecutorModule::mf_SendSkillWindow()
 
     return new BError( "No client attached" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -4286,10 +4238,8 @@ BObjectImp* UOExecutorModule::mf_OpenPaperdoll()
 
     return new BError( "No client attached" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 // TODO: a FindSubstance call that does the 'find' portion below, but returns an
@@ -4364,10 +4314,8 @@ BObjectImp* UOExecutorModule::mf_GetCommandHelp()
 
     return new BError( "No help for that command found" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -4385,10 +4333,8 @@ BObjectImp* UOExecutorModule::mf_SendStringAsTipWindow()
 
     return new BError( "No client attached" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(
@@ -4729,7 +4675,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
   {
     return new BError( "Failed to find a path." );
   }
-  else if ( SearchState == UOSearch::SEARCH_STATE_OUT_OF_MEMORY )
+  if ( SearchState == UOSearch::SEARCH_STATE_OUT_OF_MEMORY )
   {
     return new BError( "Out of memory." );
   }
@@ -4788,12 +4734,10 @@ BObjectImp* UOExecutorModule::mf_UseItem()
       return new BError( "Failed to start script!" );
       // else log the fact?
     }
-    else
-    {
-      if ( chr->client != nullptr )
-        item->builtin_on_use( chr->client );
-      return new BLong( 0 );
-    }
+
+    if ( chr->client != nullptr )
+      item->builtin_on_use( chr->client );
+    return new BLong( 0 );
   }
   else
   {
@@ -4848,10 +4792,8 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
     }
     return theArray.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_IsStackable()
@@ -4994,8 +4936,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
     }
     return new BError( "Mobile must be online." );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*/ )

@@ -601,10 +601,8 @@ std::string DebugContext::cmd_loadsym( unsigned pid )
       return "Failed to load symbols.";
     return "Loaded debug symbols.";
   }
-  else
-  {
-    return "PID not found.";
-  }
+
+  return "PID not found.";
 }
 
 std::string DebugContext::cmd_kill( unsigned pid )

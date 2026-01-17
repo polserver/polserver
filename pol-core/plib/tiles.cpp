@@ -54,8 +54,7 @@ constexpr u16 expected_max_tile_id( u16 max_graphic )
     return UOBJ_HSA_MAX;
   if ( max_graphic > UOBJ_DEFAULT_MAX )
     return UOBJ_SA_MAX;
-  else
-    return UOBJ_DEFAULT_MAX;
+  return UOBJ_DEFAULT_MAX;
 }
 
 u16 choose_max_tile_id( u16 current, u16 expected )

@@ -110,10 +110,8 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem()
         return boat->make_ref();
       return new Bscript::BError( "Multi wasn't a boat" );
     }
-    else
-    {
-      return new Bscript::BError( "Item wasn't a multi" );
-    }
+
+    return new Bscript::BError( "Item wasn't a multi" );
   }
   else
   {

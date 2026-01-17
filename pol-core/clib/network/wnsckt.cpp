@@ -113,8 +113,7 @@ std::string Socket::getpeername() const
       return inet_ntoa( in_addr->sin_addr );
     return "(display error)";
   }
-  else
-    return "Error retrieving peer name";
+  return "Error retrieving peer name";
 }
 struct sockaddr Socket::peer_address() const
 {
@@ -415,12 +414,10 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
     close();
     return false;
   }
-  else
-  {
-    /* Can't time out here this is an ERROR! */
-    HandleError();
-    return false;
-  }
+
+  /* Can't time out here this is an ERROR! */
+  HandleError();
+  return false;
 }
 
 bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
@@ -565,12 +562,10 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
     close();
     return 0;
   }
-  else
-  {
-    /* Can't time out here this is an ERROR! */
-    HandleError();
-    return 0;
-  }
+
+  /* Can't time out here this is an ERROR! */
+  HandleError();
+  return 0;
 }
 
 void Socket::send( const void* vdata, unsigned datalen )
@@ -593,11 +588,9 @@ void Socket::send( const void* vdata, unsigned datalen )
       HandleError();
       return;
     }
-    else
-    {
-      datalen -= res;
-      cdata += res;
-    }
+
+    datalen -= res;
+    cdata += res;
   }
 }
 
@@ -623,12 +616,10 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
       HandleError();
       return true;
     }
-    else
-    {
-      datalen -= res;
-      cdata += res;
-      *nsent += res;
-    }
+
+    datalen -= res;
+    cdata += res;
+    *nsent += res;
   }
   return true;
 }

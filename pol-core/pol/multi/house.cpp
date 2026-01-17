@@ -380,7 +380,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       return new BError( "House is not custom" );
     if ( IsEditing() )
       return new BError( "House is currently been edited" );
-    else if ( !ex.hasParams( 4 ) )
+    if ( !ex.hasParams( 4 ) )
       return new BError( "Not enough parameters" );
     u16 item_graphic;
     int xoff, yoff, item_z;
@@ -412,7 +412,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       return new BError( "House is not custom" );
     if ( IsEditing() )
       return new BError( "House is currently been edited" );
-    else if ( !ex.hasParams( 4 ) )
+    if ( !ex.hasParams( 4 ) )
       return new BError( "Not enough parameters" );
     int item_graphic, xoff, yoff, item_z;
     if ( ex.getParam( 0, item_graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
@@ -443,7 +443,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
     //  return new BError( "House is currently not been edited" );
     if ( !IsWaitingForAccept() )
       return new BError( "House is currently not waiting for a commit" );
-    else if ( !ex.hasParams( 2 ) )
+    if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
     int accept;
     Mobile::Character* chr;
@@ -460,7 +460,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       return new BError( "House is not custom" );
     if ( !IsEditing() )
       return new BError( "House is currently not been edited" );
-    else if ( !ex.hasParams( 2 ) )
+    if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
     Mobile::Character* chr;
     int drop_changes;

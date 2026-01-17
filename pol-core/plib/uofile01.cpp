@@ -284,13 +284,11 @@ unsigned char tilelayer_read( unsigned short tilenum )
     readtile( tilenum, &tile );
     return tile.layer;
   }
-  else
-  {
-    USTRUCT_TILE tile;
-    tile.layer = 0;
-    readtile( tilenum, &tile );
-    return tile.layer;
-  }
+
+  USTRUCT_TILE tile;
+  tile.layer = 0;
+  readtile( tilenum, &tile );
+  return tile.layer;
 }
 
 u16 tileweight_read( unsigned short tilenum )
@@ -323,13 +321,11 @@ u32 tile_uoflags_read( unsigned short tilenum )
     readtile( tilenum, &tile );
     return tile.flags;
   }
-  else
-  {
-    USTRUCT_TILE tile;
-    tile.flags = 0;
-    readtile( tilenum, &tile );
-    return tile.flags;
-  }
+
+  USTRUCT_TILE tile;
+  tile.flags = 0;
+  readtile( tilenum, &tile );
+  return tile.flags;
 }
 
 

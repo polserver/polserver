@@ -52,7 +52,7 @@ BObjectRef Handles::set_index_or_member( const BObjectRef& objref, const std::st
       dict->addMember( key.c_str(), value );
       return value;
     }
-    else if ( impptr->isa( BObjectImp::OTArray ) )
+    if ( impptr->isa( BObjectImp::OTArray ) )
     {
       ObjArray* objarr = static_cast<ObjArray*>( impptr );
       auto index = strtoul( key.c_str(), nullptr, 0 );
