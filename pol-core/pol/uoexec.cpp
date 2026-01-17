@@ -267,13 +267,10 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
       setFunctionResult( new BError( "Client is disconnected" ) );
       return false;
     }
-    else
-    {
-      // FIXME: log error
-      return false;
-    }
+    // FIXME: log error
+    return false;
   }
-  else if ( imp->isa( BObjectImp::OTLong ) )
+  if ( imp->isa( BObjectImp::OTLong ) )
   {
     BLong* pchar_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
 
@@ -300,11 +297,8 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
     setFunctionResult( new BError( "Mobile does not exist" ) );
     return false;
   }
-  else
-  {
-    // FIXME: log error
-    return false;
-  }
+  // FIXME: log error
+  return false;
 }
 
 bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
@@ -344,7 +338,7 @@ bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
     // FIXME: log error
     return false;
   }
-  else if ( imp->isa( BObjectImp::OTLong ) )
+  if ( imp->isa( BObjectImp::OTLong ) )
   {
     BLong* pchar_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
 
@@ -371,11 +365,8 @@ bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
     setFunctionResult( new BError( "Mobile does not exist" ) );
     return false;
   }
-  else
-  {
-    // FIXME: log error
-    return false;
-  }
+  // FIXME: log error
+  return false;
 }
 
 bool UOExecutor::getItemParam( unsigned param, Items::Item*& itemptr )
@@ -412,11 +403,8 @@ bool UOExecutor::getItemParam( unsigned param, Items::Item*& itemptr )
 
     return ( itemptr != nullptr );
   }
-  else
-  {
-    // FIXME: log error
-    return false;
-  }
+  // FIXME: log error
+  return false;
 }
 
 bool UOExecutor::getUBoatParam( unsigned param, Multi::UBoat*& boatptr )
@@ -450,18 +438,12 @@ bool UOExecutor::getUBoatParam( unsigned param, Multi::UBoat*& boatptr )
           return false;
         return ( !boatptr->orphan() );
       }
-      else
-      {
-        return false;
-      }
-    }
-    else
-    {
-      // FIXME: log error
       return false;
     }
+    // FIXME: log error
+    return false;
   }
-  else if ( imp->isa( BObjectImp::OTLong ) )
+  if ( imp->isa( BObjectImp::OTLong ) )
   {
     BLong* pitem_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
 
@@ -471,11 +453,8 @@ bool UOExecutor::getUBoatParam( unsigned param, Multi::UBoat*& boatptr )
 
     return ( boatptr != nullptr );
   }
-  else
-  {
-    // FIXME: log error
-    return false;
-  }
+  // FIXME: log error
+  return false;
 }
 
 
@@ -508,7 +487,7 @@ bool UOExecutor::getMultiParam( unsigned param, Multi::UMulti*& multiptr )
     // FIXME: log error
     return false;
   }
-  else if ( imp->isa( BObjectImp::OTLong ) )
+  if ( imp->isa( BObjectImp::OTLong ) )
   {
     BLong* pitem_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
 
@@ -516,11 +495,8 @@ bool UOExecutor::getMultiParam( unsigned param, Multi::UMulti*& multiptr )
 
     return ( multiptr != nullptr );
   }
-  else
-  {
-    // FIXME: log error
-    return false;
-  }
+  // FIXME: log error
+  return false;
 }
 
 bool UOExecutor::getUObjectParam( unsigned param, UObject*& objptr )

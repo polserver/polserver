@@ -108,7 +108,7 @@ bool CanUseSkill( Network::Client* client )
     private_say_above( chr, chr, "I am frozen and cannot do that." );
     return false;
   }
-  else if ( chr->paralyzed() )
+  if ( chr->paralyzed() )
   {
     private_say_above( chr, chr, "I am paralyzed and cannot do that." );
     return false;

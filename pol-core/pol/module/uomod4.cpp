@@ -58,7 +58,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
     return new BError( "Can't move multis at this time." );
   if ( obj->script_isa( POLCLASS_CONTAINER ) )
     return internal_MoveContainer( static_cast<UContainer*>( obj ), pos, flags );
-  else if ( obj->script_isa( POLCLASS_ITEM ) )
+  if ( obj->script_isa( POLCLASS_ITEM ) )
     return internal_MoveItem( static_cast<Item*>( obj ), pos, flags );
   return new BError( "Can't handle that object type." );
 }

@@ -290,22 +290,19 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   {
     return scoped_function_call( scoped_call );
   }
-  else if ( auto array_init = ctx->explicitArrayInitializer() )
+  if ( auto array_init = ctx->explicitArrayInitializer() )
   {
     return array_initializer( array_init );
   }
-  else if ( auto bare_array = ctx->bareArrayInitializer() )
+  if ( auto bare_array = ctx->bareArrayInitializer() )
   {
     return array_initializer( bare_array );
   }
-  else if ( auto par_ex = ctx->parExpression() )
+  if ( auto par_ex = ctx->parExpression() )
   {
     return expression( par_ex->expression() );
   }
-  else
-  {
-    location_for( *ctx ).internal_error( "unhandled foreach iterable expression" );
-  }
+  location_for( *ctx ).internal_error( "unhandled foreach iterable expression" );
 }
 
 std::unique_ptr<ForeachLoop> CompoundStatementBuilder::foreach_loop(

@@ -60,8 +60,8 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( \
-    disable : 4351 )  // new behavior: elements of array '...' will be default initialized
+#pragma warning( disable \
+                 : 4351 )  // new behavior: elements of array '...' will be default initialized
 #endif
 
 namespace Pol
@@ -353,16 +353,15 @@ bool Client::compareVersion( const VersionDetailStruct& ver2 )
     return true;
   if ( ver1.minor < ver2.minor )
     return false;
-  else if ( ver1.rev > ver2.rev )
+  if ( ver1.rev > ver2.rev )
     return true;
-  else if ( ver1.rev < ver2.rev )
+  if ( ver1.rev < ver2.rev )
     return false;
-  else if ( ver1.patch > ver2.patch )
+  if ( ver1.patch > ver2.patch )
     return true;
-  else if ( ver1.patch < ver2.patch )
+  if ( ver1.patch < ver2.patch )
     return false;
-  else
-    return true;
+  return true;
 }
 
 void Client::setClientType( ClientTypeFlag type )

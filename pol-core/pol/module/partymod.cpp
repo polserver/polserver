@@ -92,11 +92,11 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
       return new BError( "Leader is already offline member of a party" );
     if ( leader == firstmem )
       return new BError( "Leader and Firstmember are the same" );
-    else if ( firstmem->has_party() )
+    if ( firstmem->has_party() )
       return new BError( "First Member is already in a party" );
-    else if ( firstmem->has_candidate_of() )
+    if ( firstmem->has_candidate_of() )
       return new BError( "First Member is already candidate of a party" );
-    else if ( firstmem->has_offline_mem_of() )
+    if ( firstmem->has_offline_mem_of() )
       return new BError( "First Member is already offline member of a party" );
 
     Core::Party* party = new Core::Party( leader->serial );

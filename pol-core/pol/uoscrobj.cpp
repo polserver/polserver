@@ -1665,9 +1665,9 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "No amount specified to pull from existing stack" );
     if ( amt > this->getamount() )
       return new BError( "Amount must be less than or equal to the stack amount" );
-    else if ( amt < 1 )
+    if ( amt < 1 )
       return new BError( "Amount was less than 1" );
-    else if ( this->inuse() )
+    if ( this->inuse() )
       return new BError( "Item is in use" );
 
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
@@ -1730,11 +1730,11 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "No amount specified to pull from existing stack" );
     if ( amt > this->getamount() )
       return new BError( "Amount must be less than or equal to stack amount" );
-    else if ( amt < 1 )
+    if ( amt < 1 )
       return new BError( "Amount was less than 1" );
-    else if ( this->inuse() )
+    if ( this->inuse() )
       return new BError( "Item is in use" );
-    else if ( !cont_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
+    if ( !cont_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "Non-container selected as target" );
 
     Core::UContainer* newcontainer = static_cast<Core::UContainer*>( cont_item );
@@ -2555,8 +2555,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
-      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
+      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = Clib::clamp_convert<u32>( value ) );

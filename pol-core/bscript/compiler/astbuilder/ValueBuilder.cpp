@@ -242,18 +242,15 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   {
     return bool_value( bool_literal );
   }
-  else if ( ctx->UNINIT() )
+  if ( ctx->UNINIT() )
   {
     return std::make_unique<UninitializedValue>( location_for( *ctx ) );
   }
-  else if ( auto regex = ctx->REGEXP_LITERAL() )
+  if ( auto regex = ctx->REGEXP_LITERAL() )
   {
     return regular_expression_value( regex );
   }
-  else
-  {
-    location_for( *ctx ).internal_error( "unhandled literal" );
-  }
+  location_for( *ctx ).internal_error( "unhandled literal" );
 }
 
 int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )

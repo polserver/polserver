@@ -410,12 +410,11 @@ unsigned char cvt_8to6( char ch )
     return ch - '0' + 52;
   if ( ch == '+' )
     return 62;
-  else if ( ch == '/' )
+  if ( ch == '/' )
     return 63;
-  else if ( ch == '=' )
+  if ( ch == '=' )
     return 0x40;  // pad
-  else
-    return 0x80;  // error
+  return 0x80;    // error
 }
 
 std::string decode_base64( const std::string& b64s )

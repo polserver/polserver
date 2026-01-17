@@ -165,7 +165,8 @@ int PolToolMain::unpackCompressedGump()
   }
 
   size_t index = 0;
-  auto toInt = [&]( size_t i ) -> unsigned int {
+  auto toInt = [&]( size_t i ) -> unsigned int
+  {
     return ( bytes[i] << 24 ) | ( bytes[i + 1] << 16 ) | ( bytes[i + 2] << 8 ) | ( bytes[i + 3] );
   };
   auto toShort = [&]( size_t i ) -> unsigned short { return ( bytes[i] << 8 ) | ( bytes[i + 1] ); };
@@ -299,7 +300,7 @@ int PolToolMain::main()
     distro.generate();
     return 0;
   }
-  else if ( binArgs[1] == "testenv" )
+  if ( binArgs[1] == "testenv" )
   {
     std::string outdir = programArgsFindEquals( "outdir=", "." );
     bool hsa = programArgsFindEquals( "hsa=", 0, false ) != 0 ? true : false;
@@ -310,11 +311,8 @@ int PolToolMain::main()
     testenv.generate();
     return 0;
   }
-  else
-  {
-    ERROR_PRINTLN( "Unknown command {}", binArgs[1] );
-    return 1;  // return "error"
-  }
+  ERROR_PRINTLN( "Unknown command {}", binArgs[1] );
+  return 1;  // return "error"
 }
 }  // namespace Pol::Clib
 

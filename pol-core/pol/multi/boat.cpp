@@ -153,24 +153,23 @@ bool BoatShape::objtype_is_component( unsigned int objtype )
     return true;
   if ( objtype == Core::settingsManager.extobj.hold )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.rope )
+  if ( objtype == Core::settingsManager.extobj.rope )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.wheel )
+  if ( objtype == Core::settingsManager.extobj.wheel )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.hull )
+  if ( objtype == Core::settingsManager.extobj.hull )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.tiller )
+  if ( objtype == Core::settingsManager.extobj.tiller )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.rudder )
+  if ( objtype == Core::settingsManager.extobj.rudder )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.sails )
+  if ( objtype == Core::settingsManager.extobj.sails )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.storage )
+  if ( objtype == Core::settingsManager.extobj.storage )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.weaponslot )
+  if ( objtype == Core::settingsManager.extobj.weaponslot )
     return true;
-  else
-    return false;
+  return false;
 }
 
 size_t BoatShape::estimateSize() const

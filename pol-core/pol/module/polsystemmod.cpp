@@ -103,19 +103,16 @@ BObjectRef PackageObjImp::get_member( const char* membername )
     std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
     return BObjectRef( new BLong( Clib::FileExists( filepath ) ) );
   }
-  else if ( stricmp( membername, "dir" ) == 0 )
+  if ( stricmp( membername, "dir" ) == 0 )
   {
     const Plib::Package* pkg = value().Ptr();
     return BObjectRef( new String( pkg->dir() ) );
   }
-  else if ( stricmp( membername, "desc" ) == 0 )
+  if ( stricmp( membername, "desc" ) == 0 )
   {
     return BObjectRef( new String( value()->desc() ) );
   }
-  else
-  {
-    return BObjectRef( new BError( "Undefined member" ) );
-  }
+  return BObjectRef( new BError( "Undefined member" ) );
 }
 
 PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
@@ -157,8 +154,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
       return new BError( "Could not find a command level with that alias." );
     return new String( cmdlevel->name );
   }
-  else
-    return new BError( "Invalid parameter type." );
+  return new BError( "Invalid parameter type." );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()

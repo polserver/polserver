@@ -619,8 +619,7 @@ unsigned short RepSystem::name_color( const Mobile::Character* amy, const Mobile
     return settingsManager.repsys_cfg.NameColoring.Attackable;
   if ( bob->is_guild_enemy( amy ) )
     return settingsManager.repsys_cfg.NameColoring.GuildEnemy;
-  else
-    return settingsManager.repsys_cfg.NameColoring.Innocent;
+  return settingsManager.repsys_cfg.NameColoring.Innocent;
 }
 }  // namespace Core
 namespace Mobile

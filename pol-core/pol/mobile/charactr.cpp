@@ -2955,14 +2955,13 @@ bool Character::is_attackable( Character* who ) const
     return false;
   if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
     return false;
-  else if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
+  if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
     return false;
-  else if ( is_concealed_from_me( who ) )
+  if ( is_concealed_from_me( who ) )
     return false;
-  else if ( !realm()->has_los( *this, *who ) )
+  if ( !realm()->has_los( *this, *who ) )
     return false;
-  else
-    return true;
+  return true;
 }
 
 Character* Character::get_attackable_opponent() const
