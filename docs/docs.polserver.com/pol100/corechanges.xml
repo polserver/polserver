@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-10-2026</datemodified>
+		<datemodified>01-17-2026</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>01-17-2026</date>
+			<author>Kukkino:</author>
+			<change type="Changed">FunctionReference no longer includes full program in its memory estimate.</change>
+		</entry>
 		<entry>
 			<date>01-10-2026</date>
 			<author>Turley:</author>
