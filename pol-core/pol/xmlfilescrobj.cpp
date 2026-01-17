@@ -340,14 +340,10 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       }
       return new BError( "Invalid parameter type" );
     }
-    else
-    {
-      TiXmlNode* child = node->FirstChild();
-      if ( child )
-        return new BXmlNode( child );
-      return new BError( "Failed to find node" );
-    }
-    break;
+    TiXmlNode* child = node->FirstChild();
+    if ( child )
+      return new BXmlNode( child );
+    return new BError( "Failed to find node" );
   }
   case MTH_NEXTSIBLING:
   {

@@ -421,10 +421,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
           item->destroy();
           return res;
         }
-        else
-        {
-          BObject ob( res );
-        }
+        BObject ob( res );
         if ( !cont->can_add( *item ) )
         {  // UNTESTED
           item->destroy();

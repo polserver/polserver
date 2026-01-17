@@ -975,21 +975,18 @@ double NPC::armor_absorb_damage( double damage )
   {
     return base::armor_absorb_damage( damage );
   }
-  else
-  {
-    int blocked = npc_ar_ + ar_mod();
-    if ( blocked < 0 )
-      blocked = 0;
-    int absorbed = blocked / 2;
+  int blocked = npc_ar_ + ar_mod();
+  if ( blocked < 0 )
+    blocked = 0;
+  int absorbed = blocked / 2;
 
-    blocked -= absorbed;
-    absorbed += Clib::random_int( blocked );
-    if ( Core::settingsManager.watch.combat )
-      INFO_PRINTLN( "{} hits absorbed by NPC armor.", absorbed );
-    damage -= absorbed;
-    if ( damage < 0 )
-      damage = 0;
-  }
+  blocked -= absorbed;
+  absorbed += Clib::random_int( blocked );
+  if ( Core::settingsManager.watch.combat )
+    INFO_PRINTLN( "{} hits absorbed by NPC armor.", absorbed );
+  damage -= absorbed;
+  if ( damage < 0 )
+    damage = 0;
   return damage;
 }
 

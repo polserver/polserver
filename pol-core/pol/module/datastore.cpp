@@ -245,16 +245,12 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::E
       }
       return obj_->methodCreateElement( key );
     }
-    else
+    const Bscript::String* key;
+    if ( !ex.getStringParam( 0, key ) )
     {
-      const Bscript::String* key;
-      if ( !ex.getStringParam( 0, key ) )
-      {
-        return new Bscript::BError( "datafile.createelement(key): key must be a String" );
-      }
-      return obj_->methodCreateElement( key->value() );
+      return new Bscript::BError( "datafile.createelement(key): key must be a String" );
     }
-    break;
+    return obj_->methodCreateElement( key->value() );
   case Bscript::MTH_FINDELEMENT:
     if ( !ex.hasParams( 1 ) )
     {
@@ -269,16 +265,12 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::E
       }
       return obj_->methodFindElement( key );
     }
-    else
+    const Bscript::String* key;
+    if ( !ex.getStringParam( 0, key ) )
     {
-      const Bscript::String* key;
-      if ( !ex.getStringParam( 0, key ) )
-      {
-        return new Bscript::BError( "datafile.findelement(key): key must be a String" );
-      }
-      return obj_->methodFindElement( key->value() );
+      return new Bscript::BError( "datafile.findelement(key): key must be a String" );
     }
-    break;
+    return obj_->methodFindElement( key->value() );
   case Bscript::MTH_DELETEELEMENT:
     if ( !ex.hasParams( 1 ) )
     {
@@ -293,16 +285,12 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::E
       }
       return obj_->methodDeleteElement( key );
     }
-    else
+    const Bscript::String* key;
+    if ( !ex.getStringParam( 0, key ) )
     {
-      const Bscript::String* key;
-      if ( !ex.getStringParam( 0, key ) )
-      {
-        return new Bscript::BError( "datafile.deleteelement(key): key must be a String" );
-      }
-      return obj_->methodDeleteElement( key->value() );
+      return new Bscript::BError( "datafile.deleteelement(key): key must be a String" );
     }
-    break;
+    return obj_->methodDeleteElement( key->value() );
   case Bscript::MTH_KEYS:
     return obj_->methodKeys();
   default:
