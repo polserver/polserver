@@ -349,24 +349,13 @@ BObjectImp* NPCExecutorModule::mf_Move()
 
       return new String( "" );
     }
-
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function npc::move():\n"
-        "\tParameter 0: Expected direction or bounding box, , got datatype {}",
-        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
-    return nullptr;
   }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function npc::move():\n"
-        "\tParameter 0: Expected direction or bounding box, , got datatype {}",
-        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
-
-    return nullptr;
-  }
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function npc::move():\n"
+      "\tParameter 0: Expected direction or bounding box, , got datatype {}",
+      scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
+  return nullptr;
 }
 
 BObjectImp* NPCExecutorModule::mf_WalkToward()
