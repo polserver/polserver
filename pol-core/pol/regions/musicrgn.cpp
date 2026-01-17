@@ -12,9 +12,8 @@
 
 #include "globals/uvars.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 MusicRegion::MusicRegion( Clib::ConfigElem& elem, RegionId id ) : Region( elem, id )
 {
@@ -46,5 +45,4 @@ void read_music_zones()
                     "regions/regions.cfg",  // other
                     "MusicRegion Region" );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

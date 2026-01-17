@@ -30,9 +30,8 @@
 // Uses std new and delete instead if you turn it off
 #define USE_FSA_MEMORY 1
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 // The AStar search class. UserState is the users state space type
 template <class UserState>
@@ -723,7 +722,7 @@ private:  // data
 
   bool m_CancelRequest;
 };
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 
 #endif  // defined STLASTAR_H

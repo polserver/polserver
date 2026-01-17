@@ -32,9 +32,8 @@
 #include "spelbook.h"
 #include "uobject.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void defer_item_insertion( Items::Item* item, pol_serial_t container_serial )
 {
@@ -234,5 +233,4 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     throw std::runtime_error( "Config file error" );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

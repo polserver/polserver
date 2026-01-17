@@ -10,9 +10,8 @@
 #include "../clib/stlutil.h"
 #include "mapblock.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 InMemoryMapServer::InMemoryMapServer( const RealmDescriptor& descriptor ) : MapServer( descriptor )
 {
@@ -44,5 +43,4 @@ size_t InMemoryMapServer::sizeEstimate() const
 {
   return sizeof( *this ) + MapServer::sizeEstimate() + Clib::memsize( _mapblocks );
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

@@ -7,9 +7,8 @@
 
 #include "stlutil.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 bool StringSet::contains( const char* str ) const
 {
@@ -78,5 +77,4 @@ size_t StringSet::estimatedSize() const
 {
   return Clib::memsize( strings_ );
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

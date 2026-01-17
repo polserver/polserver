@@ -6,9 +6,8 @@
 
 #ifndef LIGHTLVL_H
 #define LIGHTLVL_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class LightRegion;
 int lightlevel( unsigned short x, unsigned short y );
@@ -21,6 +20,6 @@ inline bool VALID_LIGHTLEVEL( int lightlevel )
 {
   return ( unsigned( lightlevel ) <= MAX_LIGHTLEVEL );
 }
-}
-}
+}  // namespace Pol::Core
+
 #endif

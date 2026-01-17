@@ -22,9 +22,8 @@
 #include <cstdlib>
 #endif
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 bool passert_dump_stack = false;
 bool passert_shutdown = false;
@@ -123,5 +122,4 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
                               std::string( file ) + ", line " + tostring( line ) );
   }
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

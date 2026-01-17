@@ -2,9 +2,8 @@
 #define CLIB_FILECONT_H
 
 #include <string>
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 /**
  * Simple class to read a whole file as a char array
@@ -21,6 +20,6 @@ public:
 private:
   std::string contents_;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 #endif

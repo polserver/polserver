@@ -7,9 +7,8 @@
 #ifndef REPSYS_CFG_H
 #define REPSYS_CFG_H
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class ExportedFunction;
 
@@ -43,6 +42,6 @@ struct RepSys_Cfg
     ExportedFunction* OnHelp;
   } Hooks;
 };
-}
-}
+}  // namespace Pol::Core
+
 #endif

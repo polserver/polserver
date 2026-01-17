@@ -10,9 +10,8 @@
 #include "crypt.h"
 #include "cryptkey.h"
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 CCryptBase* create_nocrypt_engine()
 {
@@ -65,5 +64,4 @@ CCryptBase* create_crypt_engine( TCryptInfo& infoCrypt )
     return create_nocrypt_engine();
   }
 }
-}
-}
+}  // namespace Pol::Crypt

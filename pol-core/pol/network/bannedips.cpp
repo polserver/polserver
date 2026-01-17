@@ -14,9 +14,8 @@
 #include "../globals/network.h"
 #include "client.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 bool is_banned_ip( Client* client )
 {
@@ -76,5 +75,4 @@ void read_bannedips_config( bool initial_load )
     }
   }
 }
-}
-}
+}  // namespace Pol::Network

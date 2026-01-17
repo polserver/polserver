@@ -6,9 +6,8 @@
 
 #ifndef BSCRIPT_CONFIG_H
 #define BSCRIPT_CONFIG_H
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 struct EScriptConfig
 {
@@ -16,6 +15,6 @@ struct EScriptConfig
 };
 
 extern EScriptConfig escript_config;
-}
-}
+}  // namespace Pol::Bscript
+
 #endif

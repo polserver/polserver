@@ -12,9 +12,8 @@
 #include "bobject.h"
 #include "impstr.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 #if BOBJECTIMP_DEBUG
 BLong::BLong( int lval ) : BObjectImp( OTLong ), lval_( static_cast<int>( lval ) ) {}
@@ -366,5 +365,4 @@ BObjectImp* BLong::bitnot() const
 {
   return new BLong( ~lval_ );
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

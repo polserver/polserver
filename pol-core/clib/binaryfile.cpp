@@ -14,9 +14,8 @@
 #include "passert.h"
 #include "strutil.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 BinaryFile::BinaryFile() = default;
 
@@ -103,5 +102,4 @@ size_t BinaryFile::sizeEstimate() const
   size_t size = sizeof( *this ) + _filename.capacity();
   return size;
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

@@ -3,9 +3,8 @@
 #include "../clib/Program/ProgramMain.h"
 #include "pol.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 using namespace std;
 
@@ -24,8 +23,8 @@ int PolMain::main()
   // TODO: merge the following with all the other xmain* functions
   return Pol::xmain_outer( programArgsFind( "test" ) );
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

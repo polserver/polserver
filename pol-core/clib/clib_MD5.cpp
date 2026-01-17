@@ -19,9 +19,7 @@
 
 #include "logfacility.h"
 
-namespace Pol
-{
-namespace Clib
+namespace Pol::Clib
 {
 static HCRYPTPROV hProv = 0;
 
@@ -84,9 +82,8 @@ void MD5_Cleanup()
 
 #include <openssl/evp.h>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
@@ -118,5 +115,4 @@ bool MD5_Compare( const std::string& a, const std::string& b )
 {
   return stringicmp( a, b ) == 0;
 }
-}
-}
+}  // namespace Pol::Clib

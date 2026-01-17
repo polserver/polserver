@@ -13,17 +13,14 @@
 #include "realmdescriptor.h"
 #include "staticblock.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class StaticEntryList;
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class StaticServer
 {
@@ -45,6 +42,6 @@ private:
   std::vector<STATIC_INDEX> _index;
   std::vector<STATIC_ENTRY> _statics;
 };
-}
-}
+}  // namespace Pol::Plib
+
 #endif

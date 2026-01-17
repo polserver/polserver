@@ -10,9 +10,8 @@
 #include "strutil.h"
 #include "wnsckt.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 void writeline( Socket& sck, const std::string& s )
 {
@@ -20,5 +19,4 @@ void writeline( Socket& sck, const std::string& s )
   sck.send( "\r\n", 2 );
 }
 
-}
-}
+}  // namespace Pol::Clib

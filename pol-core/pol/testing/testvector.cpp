@@ -4,9 +4,8 @@
 #include "clib/rawtypes.h"
 #include "testenv.h"
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 using namespace Core;
 
@@ -93,5 +92,4 @@ void vector3d_test()
   UnitTest( []() { return fmt::format( "{:->13}", Vec3d( 0, 0, 0 ) ); }, "--( 0, 0, 0 )",
             "format padding" );
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

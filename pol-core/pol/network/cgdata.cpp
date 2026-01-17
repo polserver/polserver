@@ -24,9 +24,8 @@
 #include "../uoexec.h"
 #include "pktin.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 ClientGameData::ClientGameData()
     : vendor( nullptr ),
@@ -176,5 +175,4 @@ size_t ClientGameData::estimatedSize() const
   size += Clib::memsize( gumpmods );
   return size;
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

@@ -11,9 +11,8 @@
 
 #include "maptile.h"
 #include "realmdescriptor.h"
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class MapTileServer
 {
@@ -31,6 +30,6 @@ private:
   int _cur_block_index;
   MAPTILE_BLOCK _cur_block;
 };
-}
-}
+}  // namespace Pol::Plib
+
 #endif

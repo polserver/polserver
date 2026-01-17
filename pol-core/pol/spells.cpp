@@ -43,9 +43,7 @@
 #include "vital.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 static bool nocast_here( Mobile::Character* chr )
 {
@@ -512,5 +510,4 @@ void clean_spells()
   }
   gamestate.spells.clear();
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

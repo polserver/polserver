@@ -5,9 +5,8 @@
 #include "tokens.h"
 #endif
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 
 #ifdef _MSC_VER
@@ -26,13 +25,13 @@ public:
   explicit StoredToken( unsigned char aModule = 0, int aID = CTRL_STATEMENTBEGIN,
                         BTokenType aType = TYP_CONTROL,
                         unsigned aOffset = 0  //,
-      // unsigned aNargs = 0
+                                              // unsigned aNargs = 0
   );
 } POSTSTRUCT_PACK;
 #ifdef _MSC_VER
 #pragma pack( pop )
 #endif
 
-}
-}
+}  // namespace Pol::Bscript
+
 #endif  // POLSERVER_STOREDTOKEN_H

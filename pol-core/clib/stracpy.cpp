@@ -10,9 +10,8 @@
 #include "Header_Windows.h"
 #include "clib.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 char* stracpy( char* dest, const char* src, size_t maxlen )
 {
@@ -24,5 +23,4 @@ char* stracpy( char* dest, const char* src, size_t maxlen )
   }
   return dest;
 }
-}
-}
+}  // namespace Pol::Clib

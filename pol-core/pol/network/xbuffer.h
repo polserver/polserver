@@ -12,9 +12,8 @@
 // while lenleft will move to 0.
 // Also note that malloc/free are used to allocate this structure, since
 // data[] will be followed by (lenleft-1) more bytes, to house the data.
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 struct XmitBuffer
 {
@@ -23,6 +22,6 @@ struct XmitBuffer
   unsigned short lenleft;  // how many bytes left to send
   unsigned char data[1];
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

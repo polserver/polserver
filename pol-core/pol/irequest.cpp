@@ -32,9 +32,8 @@
 #include "uoclient.h"
 #include "uoskills.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void statrequest( Network::Client* client, u32 serial )
 {
@@ -148,5 +147,4 @@ void srequest( Network::Client* client, PKTIN_34* msg )
   else if ( msg->stattype == STATTYPE_SKILLWINDOW )
     skillrequest( client, serial );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

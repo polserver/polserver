@@ -25,9 +25,8 @@
 #define MEMORYLOGBLOCKS 0
 #endif
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 static unsigned int bytes_allocated = 0;
 static unsigned int last_bytes_allocated = 0;
@@ -446,7 +445,7 @@ void PrintHeapData()
 
 #ifndef MEMORYLEAK
   INFO_PRINTLN( "OpNewHeap: allocated {} blocks, {} bytes\nOpNewHeap: delta {} blocks, {} bytes",
-               blocks_allocated, bytes_allocated, delta_blocks, delta_bytes );
+                blocks_allocated, bytes_allocated, delta_blocks, delta_bytes );
 #else
   DEBUGLOGLN(
       "Heap (whole):  {} blocks with {} Bytes\n"
@@ -496,8 +495,8 @@ void PrintHeapData()
       requested_huge, allocated_huge );
 #endif
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 #ifdef MEMORYLEAK
 void* operator new( size_t len )

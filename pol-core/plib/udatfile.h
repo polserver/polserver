@@ -11,9 +11,8 @@
 
 #include "clidata.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 struct StaticRec
 {
@@ -44,6 +43,6 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y );
 void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags );
 void readallstatics( StaticList& vec, unsigned short x, unsigned short y );
 bool findstatic( unsigned short x, unsigned short y, unsigned short graphic );
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

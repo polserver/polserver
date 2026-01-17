@@ -15,9 +15,8 @@
 #include "StoredToken.h"
 #endif
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 
 class SymbolContainer
@@ -75,6 +74,6 @@ public:
   unsigned next() { return length() / sizeof( StoredToken ); }
   void read( FILE* fp ) override;
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

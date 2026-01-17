@@ -11,9 +11,8 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <list>
 #include <mutex>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 template <typename Message>
 class message_queue
@@ -167,7 +166,7 @@ void message_queue<Message>::cancel()
   }
   _notifier.notify_all();
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 #endif

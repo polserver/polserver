@@ -5,9 +5,8 @@
 #include <map>
 #include <queue>
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 // interface for packets
 class PacketInterface
@@ -74,6 +73,6 @@ public:
   PacketQueueMap* getPackets() { return &packets; };
   size_t estimateSize() const;
 };
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network
+
 #endif

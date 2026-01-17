@@ -22,9 +22,8 @@
 
 #include <module_defs/vitals.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -258,5 +257,4 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
   else
     return new BError( "Invalid parameter type" );
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

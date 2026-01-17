@@ -6,9 +6,8 @@
 
 #include "skilladv.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 /* skill advancement:
     (essentially, a base-2 logarithm..)
@@ -101,5 +100,4 @@ unsigned int base_to_raw( unsigned short base )
 
   return raw;
 }
-}
-}
+}  // namespace Pol::Core

@@ -9,9 +9,8 @@
 
 #ifndef EXTOBJ_H
 #define EXTOBJ_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 struct ExternalObject
 {
@@ -38,6 +37,6 @@ struct ExternalObject
 };
 
 void read_extobj();
-}
-}
+}  // namespace Pol::Core
+
 #endif

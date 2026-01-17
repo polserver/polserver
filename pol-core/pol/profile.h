@@ -13,9 +13,8 @@
 #include <atomic>
 #include <cstddef>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 #define DEF_PROFILEVAR( counter ) \
   size_t prf_##counter, prf_last_##counter, prf_last_##counter##_per_min
@@ -57,7 +56,7 @@ struct ProfileVars
   Clib::OnlineStatistics script_passes_duration{};
   Clib::OnlineStatistics script_runlist_statistic{};
 };
-}  // namespace Core
+}  // namespace Pol::Core
 #define INC_PROFILEVAR( counter ) ++Core::stateManager.profilevars.prf_##counter
 #define SET_PROFILEVAR( counter, newvalue ) Core::stateManager.profilevars.prf_##counter = newvalue
 #define INC_PROFILEVAR_BY( counter, amount ) Core::stateManager.profilevars.prf_##counter += amount
@@ -76,5 +75,5 @@ struct ProfileVars
 #define GET_PROFILEVAR_PER_MIN( counter ) \
   Core::stateManager.profilevars.prf_last_##counter##_per_min
 
-}  // namespace Pol
+
 #endif

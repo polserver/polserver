@@ -5,9 +5,8 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class RunEclMain final : public ProgramMain
 {
@@ -28,7 +27,7 @@ private:
   bool m_debug;
   bool m_profile;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 #endif  // RUN_ECL_MAIN_H

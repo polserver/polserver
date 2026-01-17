@@ -14,17 +14,14 @@
 #include "mapcell.h"
 #include "mapserver.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class RealmDescriptor;
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class InMemoryMapServer : public MapServer
 {
@@ -42,6 +39,6 @@ private:
   InMemoryMapServer& operator=( const InMemoryMapServer& ) = delete;
   InMemoryMapServer( const InMemoryMapServer& ) = delete;
 };
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

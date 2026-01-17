@@ -11,18 +11,15 @@
 
 #include "../polmodl.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule, Core::PolModule>
 {
@@ -31,16 +28,16 @@ public:
 
   [[nodiscard]] Bscript::BObjectImp* mf_MoveBoat();
   [[nodiscard]] Bscript::BObjectImp* mf_MoveBoatRelative();
-   
+
   [[nodiscard]] Bscript::BObjectImp* mf_TurnBoat();
-  
+
   [[nodiscard]] Bscript::BObjectImp* mf_RegisterItemWithBoat();
   [[nodiscard]] Bscript::BObjectImp* mf_BoatFromItem();
-  
+
   [[nodiscard]] Bscript::BObjectImp* mf_SystemFindBoatBySerial();
-  
+
   [[nodiscard]] Bscript::BObjectImp* mf_MoveBoatXY();
 };
-}
-}
+}  // namespace Pol::Module
+
 #endif

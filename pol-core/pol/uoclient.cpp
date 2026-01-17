@@ -20,9 +20,7 @@
 #include "vital.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 UoClientProtocol::UoClientProtocol() : EnableFlowControlPackets( false ) {}
 size_t UoClientProtocol::estimateSize() const
@@ -186,5 +184,4 @@ void UoClientGeneral::deinitialize()
     method_script = nullptr;
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -33,9 +33,8 @@
 #define MAX_STACK_TRACE_DEPTH 200
 #define MAX_STACK_TRACE_STEP_LENGTH 512
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 using namespace std;
 
@@ -583,5 +582,4 @@ bool ExceptionParser::programAbortReporting()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

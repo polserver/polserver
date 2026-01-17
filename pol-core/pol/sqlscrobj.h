@@ -27,16 +27,14 @@
 #include "../clib/rawtypes.h"
 #include "polobject.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
-namespace Pol
-{
-namespace Core
+}  // namespace Pol::Bscript
+
+
+namespace Pol::Core
 {
 class BSQLResultSet;
 
@@ -184,8 +182,8 @@ private:
   msg_queue _msgs;
 };
 void start_sql_service();
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 #endif
 

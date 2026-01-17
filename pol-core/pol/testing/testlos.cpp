@@ -25,9 +25,8 @@
 #include "../realms/realm.h"
 #include "../uobject.h"
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 namespace
 {
@@ -192,5 +191,4 @@ static void BM_member_id( benchmark::State& state )
 }
 BENCHMARK( BM_member_id );
 #endif
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

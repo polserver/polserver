@@ -27,9 +27,8 @@
 #include "multi.h"
 #include "multidef.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 UMulti::UMulti( const Items::ItemDesc& itemdesc ) : Item( itemdesc, Core::UOBJ_CLASS::CLASS_MULTI )
 {
@@ -191,5 +190,4 @@ size_t UMulti::estimatedSize() const
   return base::estimatedSize() + sizeof( u16 ) /*multiid*/
          + sizeof( bool ) /*items_decay*/;
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

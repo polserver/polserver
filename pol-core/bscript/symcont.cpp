@@ -15,9 +15,8 @@
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 SymbolContainer::SymbolContainer( int PgrowBy )
 {
@@ -219,5 +218,4 @@ void StoredTokenContainer::resize( unsigned lengthToAdd )
   ST = (StoredToken*)s;
 }
 
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

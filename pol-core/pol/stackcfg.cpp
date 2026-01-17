@@ -17,9 +17,7 @@
 #include "globals/uvars.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 void read_stacking_cfg( Clib::ConfigFile& cf )
 {
@@ -59,5 +57,4 @@ void load_stacking_cfg()
     }
   }
 }
-}
-}
+}  // namespace Pol::Core

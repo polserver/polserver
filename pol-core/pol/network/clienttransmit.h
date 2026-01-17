@@ -9,9 +9,8 @@
 #include "../../clib/rawtypes.h"
 #include "../../clib/weakptr.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 class Client;
 
@@ -52,6 +51,6 @@ private:
 };
 
 void ClientTransmitThread();
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network
+
 #endif

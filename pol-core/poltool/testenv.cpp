@@ -9,9 +9,8 @@
 #include <fstream>
 #include <utility>
 
-namespace Pol
-{
-namespace PolTool
+
+namespace Pol::PolTool
 {
 TestEnv::TestEnv( fs::path basedir, bool hsa, int maxtiles, int width, int height )
     : _basedir( std::move( basedir ) ),
@@ -49,5 +48,4 @@ void TestEnv::generate()
   std::ofstream bfile( _basedir / "config" / "boats.cfg", std::ofstream::out );
   bfile.close();
 }
-}  // namespace PolTool
-}  // namespace Pol
+}  // namespace Pol::PolTool

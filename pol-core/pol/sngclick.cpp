@@ -24,9 +24,7 @@
 #include "uworld.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
 {
@@ -128,5 +126,4 @@ void handle_singleclick( Network::Client* client, PKTIN_09* msg )
   // TODO: report if someone tries to use singleclick without a connected char (should have been
   // blocked)
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

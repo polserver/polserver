@@ -34,9 +34,8 @@
 #include "ufunc.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 
 void apply_polcfg( bool initial )
@@ -250,5 +249,4 @@ Items::Item* find_walkon_item( const ItemsVector& ivec, short z )
   }
   return nullptr;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

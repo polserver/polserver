@@ -8,9 +8,8 @@
 
 #ifndef __CMBTCFG_H
 #define __CMBTCFG_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 enum class WarmodeInhibitsRegenStrategy : unsigned short
 {
@@ -40,6 +39,6 @@ struct CombatConfig
   static void read_combat_config();
   static WarmodeInhibitsRegenStrategy to_warmode_inhibits_regen_strategy( unsigned short value );
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

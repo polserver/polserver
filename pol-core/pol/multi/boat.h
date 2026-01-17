@@ -65,9 +65,8 @@ class EUBoatRefObjImp;
 }
 }  // namespace Pol
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 class MultiDef;
 
@@ -255,6 +254,6 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat );
 unsigned int get_component_objtype( unsigned char type );
 bool BoatShapeExists( u16 multiid );
 void clean_boatshapes();
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi
+
 #endif

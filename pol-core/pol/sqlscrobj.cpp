@@ -25,9 +25,8 @@
 #include "../clib/threadhelp.h"
 #include "globals/network.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 
@@ -603,6 +602,6 @@ void start_sql_service()
 {
   threadhelp::start_thread( sql_service_thread_stub, "SQLService" );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

@@ -32,9 +32,8 @@
 #include "ufunc.h"
 #include "uobject.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void handle_target_cursor( Network::Client* client, PKTBI_6C* msg )
 {
@@ -441,5 +440,4 @@ Cursors::Cursors()
       stoplog_cursor( stop_packetlog )
 {
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

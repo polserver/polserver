@@ -38,9 +38,8 @@
 #include "uoexec.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 
@@ -606,5 +605,4 @@ BObjectImp* BPacket::SetSize( u16 newsize, bool /*giveReturn*/ )
   *sizeptr = ctBEu16( newsize );
   return new BLong( oldsize );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

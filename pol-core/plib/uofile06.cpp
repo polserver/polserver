@@ -10,9 +10,8 @@
 #include "uofile.h"
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 inline bool flags_standable( unsigned int flags )
 {
@@ -127,5 +126,4 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
   *result_out = result;
   *newz_out = newz;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

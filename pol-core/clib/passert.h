@@ -25,9 +25,8 @@
 #define INC_PASSERT_PARANOID INC_PASSERT
 #endif
 #endif
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 // what to do on an assertion failure:
 extern bool passert_dump_stack;
@@ -39,11 +38,11 @@ extern bool passert_shutdown_due_to_assertion;
 extern std::string scripts_thread_script;
 extern unsigned scripts_thread_scriptPC;
 
-//#if !defined(INC_PASSERT) && defined(NDEBUG)
-//#define INC_PASSERT 0
-//#elif !defined(INC_PASSERT) && !defined(NDEBUG)
-//#define INC_PASSERT 1
-//#endif
+// #if !defined(INC_PASSERT) && defined(NDEBUG)
+// #define INC_PASSERT 0
+// #elif !defined(INC_PASSERT) && !defined(NDEBUG)
+// #define INC_PASSERT 1
+// #endif
 
 #undef passert
 
@@ -52,7 +51,7 @@ void force_backtrace( bool complete = false );
 [[noreturn]] void passert_failed( const char* expr, const char* file, unsigned line );
 [[noreturn]] void passert_failed( const char* expr, const std::string& reason, const char* file,
                                   unsigned line );
-}  // namespace Clib
+}  // namespace Pol::Clib
 #if INC_PASSERT
 
 /**
@@ -105,5 +104,5 @@ void force_backtrace( bool complete = false );
 #define passert_paranoid( exp ) ( (void)0 )
 
 #endif
-}  // namespace Pol
+
 #endif

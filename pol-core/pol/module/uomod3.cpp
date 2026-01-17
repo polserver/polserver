@@ -11,9 +11,7 @@
 #include "uomod.h"
 
 
-namespace Pol
-{
-namespace Module
+namespace Pol::Module
 {
 using namespace Bscript;
 BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
@@ -35,5 +33,4 @@ BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
   else
     return new BError( "Invalid parameter type" );
 }
-}
-}
+}  // namespace Pol::Module

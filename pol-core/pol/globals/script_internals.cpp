@@ -11,9 +11,8 @@
 #include "../uoexec.h"
 #include "state.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 ScriptScheduler scriptScheduler;
 
@@ -479,5 +478,4 @@ void ScriptScheduler::free_pid( unsigned int pid )
 {
   pidlist.erase( pid );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -6,9 +6,8 @@
 #include "pkg.h"
 #include "tiles.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 SystemState systemstate;
 
@@ -45,5 +44,4 @@ size_t SystemState::estimatedSize() const
     size += pkg_pair.first.capacity();
   return size;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

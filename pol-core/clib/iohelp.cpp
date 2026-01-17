@@ -10,9 +10,8 @@
 
 // note this is only useful if ofs.exceptions( std::ios_base::failbit | std::ios_base::badbit ) is
 // called
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 void open_file( std::fstream& ofs, std::string& filename, std::ios::openmode mode )
 {
@@ -51,5 +50,4 @@ void open_file( std::ifstream& ifs, std::string& filename, std::ios::openmode mo
     throw std::runtime_error( message );
   }
 }
-}
-}
+}  // namespace Pol::Clib

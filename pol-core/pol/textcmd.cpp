@@ -64,9 +64,8 @@
 #include "utype.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 bool wordicmp::operator()( const std::string& lhs, const std::string& rhs ) const
 {
@@ -656,5 +655,4 @@ bool process_command( Network::Client* client, const std::string& text,
 
   return false;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

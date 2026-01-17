@@ -25,9 +25,8 @@
 
 #include <module_defs/util.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -266,5 +265,4 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomUUID()
     return new String( boost::uuids::to_string( uuid ) );
   }
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

@@ -14,9 +14,8 @@
 #include "mobile/attribute.h"
 #include "skillid.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 const UOSkill& GetUOSkill( unsigned skillid )
 {
@@ -94,5 +93,4 @@ void clean_skills()
 {
   gamestate.uo_skills.clear();
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

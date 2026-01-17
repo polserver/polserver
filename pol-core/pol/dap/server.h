@@ -3,19 +3,14 @@
 
 #include <memory>
 
-namespace dap
-{
-namespace net
+
+namespace dap::net
 {
 class Server;
 }
-}  // namespace dap
 
-namespace Pol
-{
-namespace Network
-{
-namespace DAP
+
+namespace Pol::Network::DAP
 {
 class DebugServer
 {
@@ -26,7 +21,7 @@ public:
 private:
   std::unique_ptr<dap::net::Server> _server;
 };
-}  // namespace DAP
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network::DAP
+
+
 #endif

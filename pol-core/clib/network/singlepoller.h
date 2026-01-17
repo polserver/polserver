@@ -6,9 +6,8 @@
 
 #include "singlepollers/pollingwithpoll.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class SinglePoller
 {
@@ -40,7 +39,7 @@ public:
 private:
   PollingWithPoll poller;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 
 #endif

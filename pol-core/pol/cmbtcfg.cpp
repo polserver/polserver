@@ -19,9 +19,8 @@
 
 #include "globals/settings.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 WarmodeInhibitsRegenStrategy CombatConfig::to_warmode_inhibits_regen_strategy(
     unsigned short value )
@@ -60,5 +59,4 @@ void CombatConfig::read_combat_config()
   settingsManager.combat_config.attack_while_frozen = elem.remove_bool( "AttackWhileFrozen", true );
   settingsManager.combat_config.send_attack_msg = elem.remove_bool( "SendAttackMsg", true );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

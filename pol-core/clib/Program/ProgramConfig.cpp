@@ -3,9 +3,8 @@
 #include "pol_revision.h"
 #include <string>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 using namespace std;
 
@@ -64,5 +63,5 @@ std::string ProgramConfig::build_datetime()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-}
-}  // namespaces
+}  // namespace Pol::Clib
+   // namespaces

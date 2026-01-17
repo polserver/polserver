@@ -5,9 +5,8 @@
 
 #ifndef __MSGFILTR_H
 #define __MSGFILTR_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class MessageTypeFilter
 {
@@ -25,6 +24,6 @@ public:
   unsigned char msgtype_allowed[256];
   static void createMessageFilter();
 };
-}
-}
+}  // namespace Pol::Core
+
 #endif

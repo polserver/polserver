@@ -35,9 +35,8 @@
 #include <codecvt>
 #endif
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() ) {}
 
@@ -1429,5 +1428,4 @@ ContIterator* String::createIterator( BObject* pIterVal )
 {
   return new StringIterator( this, pIterVal );
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

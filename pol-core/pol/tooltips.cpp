@@ -31,9 +31,8 @@
 #include "uobject.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Network::PktHelper;
 
@@ -138,5 +137,4 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   msg->WriteFlipped<u16>( len );
   msg.Send( client, len );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

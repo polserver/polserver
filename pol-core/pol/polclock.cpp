@@ -13,9 +13,8 @@
 #include "../clib/logfacility.h"
 #include "../clib/spinlock.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace std::chrono_literals;
 static PolClock::time_point polclock_base = PolClock::time_point( PolClock::duration( 0 ) );
@@ -115,5 +114,4 @@ bool is_polclock_paused_at_zero()
   Clib::SpinLockGuard guard( polclock_lock );
   return polclock_paused_at == PolClock::time_point( PolClock::duration( 0 ) );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -8,14 +8,12 @@
 
 #include <cstring>
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 IOStats::IOStats()
 {
   memset( &sent, 0, sizeof sent );
   memset( &received, 0, sizeof received );
 }
-}
-}
+}  // namespace Pol::Network

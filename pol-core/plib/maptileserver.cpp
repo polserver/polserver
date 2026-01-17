@@ -6,9 +6,8 @@
 
 #include "maptileserver.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 MapTileServer::MapTileServer( const RealmDescriptor& descriptor )
     : _descriptor( descriptor ),
@@ -44,5 +43,4 @@ size_t MapTileServer::sizeEstimate() const
 {
   return sizeof( *this ) + _descriptor.sizeEstimate() + _file.sizeEstimate();
 }
-}
-}
+}  // namespace Pol::Plib

@@ -19,9 +19,7 @@
 #include "multi.h"
 
 
-namespace Pol
-{
-namespace Multi
+namespace Pol::Multi
 {
 bool isboat( u32 objtype )
 {
@@ -79,5 +77,4 @@ Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor,
   else
     return new Bscript::BError( "Don't know what kind of multi to make" );
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

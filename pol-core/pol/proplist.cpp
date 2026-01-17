@@ -23,9 +23,8 @@
 #include "baseobject.h"
 
 #define pf_endl '\n'
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 CPropProfiler::HitsCounter::HitsCounter() : hits( std::array<u64, 3>{ { 0, 0, 0 } } ) {}
 
@@ -581,5 +580,4 @@ Bscript::BObjectImp* CallPropertyListMethod( PropertyList& proplist, const char*
   else
     return nullptr;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

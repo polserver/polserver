@@ -10,18 +10,15 @@
 
 #include "../../bscript/execmodl.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class MathExecutorModule
     : public Bscript::TmplExecutorModule<MathExecutorModule, Bscript::ExecutorModule>
@@ -56,6 +53,6 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_Ceil();
   [[nodiscard]] Bscript::BObjectImp* mf_Floor();
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif

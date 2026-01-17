@@ -9,9 +9,8 @@
 #include <limits>
 #include <tuple>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 namespace
 {
@@ -401,8 +400,8 @@ bool Pos4d::in_range( const Pos2d& other, u16 range ) const
   return _xyz.in_range( other, range );
 }
 
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 fmt::format_context::iterator fmt::formatter<Pol::Core::Pos2d>::format(
     const Pol::Core::Pos2d& p, fmt::format_context& ctx ) const

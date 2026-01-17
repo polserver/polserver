@@ -2,9 +2,8 @@
 
 #include "../clib/logfacility.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 StoredToken::StoredToken( unsigned char aModule, int aID, BTokenType aType, unsigned aOffset )
     : type( static_cast<unsigned char>( aType ) ),
@@ -20,5 +19,4 @@ StoredToken::StoredToken( unsigned char aModule, int aID, BTokenType aType, unsi
   }
 }
 
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

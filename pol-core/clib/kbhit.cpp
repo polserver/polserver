@@ -6,9 +6,8 @@
 
 #include "kbhit.h"
 #include <unistd.h>  // read()
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 KeyboardHook::KeyboardHook()
 {
@@ -66,7 +65,7 @@ int KeyboardHook::getch()
 
   return ch;
 }
-}
-}
+}  // namespace Pol::Clib
+
 
 #endif

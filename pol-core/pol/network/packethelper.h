@@ -6,11 +6,8 @@
 #include "clienttransmit.h"
 #include "packets.h"
 
-namespace Pol
-{
-namespace Network
-{
-namespace PktHelper
+
+namespace Pol::Network::PktHelper
 {
 using namespace PacketWriterDefs;
 // creates new packets
@@ -83,7 +80,7 @@ T* PacketOut<T>::Get()
 {
   return pkt;
 }
-}  // namespace PktHelper
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network::PktHelper
+
+
 #endif

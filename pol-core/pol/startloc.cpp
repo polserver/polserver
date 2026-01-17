@@ -9,9 +9,8 @@
 #include "../clib/random.h"
 #include "../clib/stlutil.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 Pos4d StartingLocation::select_coordinate() const
 {
@@ -28,5 +27,4 @@ size_t StartingLocation::estimateSize() const
                 + Clib::memsize( coords );
   return size;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -16,9 +16,7 @@
 #include "uworld.h"
 
 
-namespace Pol
-{
-namespace Realms
+namespace Pol::Realms
 {
 const int los_range = 20;
 // const int z_los_range = 60; // unused as yet
@@ -353,8 +351,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     }
   }
 }
-}  // namespace Realms
-}  // namespace Pol
+}  // namespace Pol::Realms
 
 
 /****************************************************************************/

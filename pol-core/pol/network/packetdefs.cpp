@@ -8,9 +8,8 @@
 #include "client.h"
 #include "pktdef.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 void SendWorldItem::Send( Client* client )
 {
@@ -749,5 +748,4 @@ void MoveChrPkt::Send( Client* client )
   _p->Write<u8>( _chr->hilite_color_idx( client->chr ) );
   _p.Send( client );
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

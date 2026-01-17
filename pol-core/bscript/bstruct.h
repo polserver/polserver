@@ -20,19 +20,16 @@
 #include "../clib/maputil.h"
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class ContIterator;
 class BClassInstanceRef;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BStruct : public BObjectImp
 {
@@ -87,6 +84,6 @@ protected:
 private:
   Contents contents_;
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

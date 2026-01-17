@@ -14,9 +14,8 @@
 #include "../../plib/uoexpansion.h"
 #include "testenv.h"
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 
 void uoextension_test()
@@ -153,5 +152,4 @@ void uoextension_test()
         "account A9Feature 1 chars" );
   }
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

@@ -49,9 +49,7 @@
 #include "uworld.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 void start_client_char( Network::Client* client );
 void run_logon_script( Mobile::Character* chr );
@@ -598,7 +596,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   unsigned short graphic;
-  Plib::URACE race = (Plib::URACE)( msg->race - 1 );
+  Plib::URACE race = ( Plib::URACE )( msg->race - 1 );
   Plib::UGENDER gender =
       ( msg->gender & Plib::GENDER_FEMALE ) ? Plib::GENDER_FEMALE : Plib::GENDER_MALE;
   if ( race == Plib::RACE_HUMAN )
@@ -1287,5 +1285,4 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

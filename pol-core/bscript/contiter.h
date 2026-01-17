@@ -11,9 +11,8 @@
 
 #include <typeinfo>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class ContIterator : public BObjectImp
 {
@@ -28,6 +27,6 @@ public:
 
   bool is_default() const { return typeid( *this ) == typeid( ContIterator ); }
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

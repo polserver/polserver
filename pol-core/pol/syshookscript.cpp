@@ -18,9 +18,8 @@
 #include "../clib/logfacility.h"
 #include "scrsched.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 ExportScript::ExportScript( const Plib::Package* pkg, std::string scriptname )
@@ -512,5 +511,4 @@ BObjectImp* ExportScript::expect_imp()
   uoexec.ValueStack.pop_back();
   return ret;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

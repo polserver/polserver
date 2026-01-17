@@ -11,9 +11,8 @@
 #include <map>
 #include <vector>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ConfigProperty
 {
@@ -116,6 +115,6 @@ protected:
   Props properties;
 };
 
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 #endif

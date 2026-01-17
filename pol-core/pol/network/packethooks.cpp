@@ -38,9 +38,8 @@
 #include "../syshook.h"
 #include "client.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 u32 GetSubCmd( const unsigned char* message, PacketHookData* phd )
 {
@@ -560,5 +559,4 @@ bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 )
   else
     return true;
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

@@ -10,9 +10,8 @@
 
 #ifndef __PKTINIDH
 #define __PKTINIDH
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 enum PKTINID
 {
@@ -66,5 +65,5 @@ enum PKTINID
 
 };
 }
-}  // namespace Pol
+
 #endif

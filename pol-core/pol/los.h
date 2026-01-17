@@ -10,9 +10,8 @@
 #include "base/position.h"
 #include "baseobject.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class LosObj : public ULWObject
 {
@@ -23,6 +22,6 @@ public:
   }
   LosObj( Pos4d p ) : ULWObject( UOBJ_CLASS::INVALID ) { pos( std::move( p ) ); }
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif  // H_LOS_H

@@ -18,9 +18,8 @@
 #include "logfacility.h"
 #include "stlutil.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue )
 {
@@ -417,5 +416,4 @@ std::wstring to_wstring( const std::string& value )
 
   return result;
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

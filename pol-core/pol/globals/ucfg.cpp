@@ -7,9 +7,8 @@
 #include "../cfgrepos.h"
 #include "../module/datastoreimp.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 ConfigurationBuffer configurationbuffer;
 
@@ -61,5 +60,4 @@ ConfigurationBuffer::Memory ConfigurationBuffer::estimateSize() const
   }
   return usage;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

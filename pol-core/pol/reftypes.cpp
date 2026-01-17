@@ -6,9 +6,7 @@
 #include "reftypes.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 #if REFTYPE_DEBUG
 int hits = 0;
@@ -181,5 +179,4 @@ ItemRef::~ItemRef()
   }
 }
 #endif
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

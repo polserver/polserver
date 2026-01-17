@@ -42,9 +42,8 @@
 #include "ufuncstd.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void handle_processed_speech( Network::Client* client, const std::string& text, u8 type, u16 color,
                               u16 font )
@@ -441,5 +440,4 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
 
   SendUnicodeSpeech( client, msgin, text, std::move( speechtokens ) );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

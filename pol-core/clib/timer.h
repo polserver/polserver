@@ -4,9 +4,8 @@
 #include <chrono>
 #include <string>
 
-namespace Pol
-{
-namespace Tools  // global ns is enough polluted
+
+namespace Pol::Tools  // global ns is enough polluted
 {
 // automatically print into the console
 struct DebugT
@@ -60,7 +59,7 @@ public:
 private:
   Clock::time_point _start;
 };
-}  // namespace Tools
-}  // namespace Pol
+}  // namespace Pol::Tools
+
 
 #endif  // CLIB_TIMER_H

@@ -8,9 +8,8 @@
 #define POLTYPE_H
 
 #include "../clib/rawtypes.h"
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 const short ZCOORD_MIN = -128;
 const short ZCOORD_MAX = +127;
@@ -22,6 +21,6 @@ using zcoord = short;
 
 using pol_serial_t = u32;
 using pol_objtype_t = u16;
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

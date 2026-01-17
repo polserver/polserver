@@ -68,9 +68,8 @@
     disable : 4505 )  // '...': unreferenced local function has been removed (because of region.h)
 #endif
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 // See comment in boost_utils::flyweight_initializers
 boost_utils::flyweight_initializers fw_inits;
@@ -611,5 +610,4 @@ GameState::Memory GameState::estimateSize() const
   }
   return usage;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

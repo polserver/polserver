@@ -6,9 +6,8 @@
 
 #ifndef EVENTID_H
 #define EVENTID_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 enum EVENTID
 {
@@ -40,12 +39,12 @@ enum EVENTID
 
 enum EVMASK
 {
-  EVMASK_ALL      = 0x00,
-  EVMASK_ONLY_PC  = 0x01,
+  EVMASK_ALL = 0x00,
+  EVMASK_ONLY_PC = 0x01,
   EVMASK_ONLY_NPC = 0x02
 };
 
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 #endif

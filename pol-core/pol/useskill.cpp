@@ -24,9 +24,8 @@
 #include "ufunc.h"
 #include "uoskills.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void handle_use_skill( Network::Client* client, PKTIN_12* msg )
 {
@@ -117,5 +116,4 @@ bool CanUseSkill( Network::Client* client )
 
   return true;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

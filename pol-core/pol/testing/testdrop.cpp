@@ -9,9 +9,8 @@
 #include "testenv.h"
 #include <fmt/format.h>
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 namespace
 {
@@ -73,5 +72,4 @@ void drop_test()
   // a ramp in an orc fort
   test_drop( 5210, 3616, 0, 5210, 3615, 5, true, 2 );
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

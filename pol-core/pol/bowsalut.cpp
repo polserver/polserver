@@ -24,9 +24,8 @@
 #include "network/pktin.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 MobileTranslate::OldAnimDef::OldAnimDef()
     : valid( false ),
@@ -264,5 +263,4 @@ void handle_action( Network::Client* client, PKTIN_12* cmd )
   else if ( stricmp( (const char*)cmd->data, "salute" ) == 0 )
     send_action_to_inrange( client->chr, ACTION_SALUTE );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

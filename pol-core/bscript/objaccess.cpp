@@ -5,9 +5,8 @@
 #include <string>
 #include <unordered_map>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 ObjMember object_members[] = {
     // MBR_*, "name"
@@ -514,5 +513,4 @@ ObjMethod* getObjMethod( int id )
     return &( object_methods[id] );
 }
 
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

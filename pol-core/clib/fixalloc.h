@@ -25,9 +25,8 @@
 #ifdef MEMORYLEAK
 #include "logfacility.h"
 #endif
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 template <size_t N, size_t B>
 class fixed_allocator
@@ -178,6 +177,6 @@ void fixed_allocator<N, B>::deallocate( void* vp, size_t size )
   else
     ::operator delete( vp );
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 #endif

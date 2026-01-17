@@ -7,9 +7,8 @@
 #ifndef __TWOFISH_H__
 #define __TWOFISH_H__
 
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 // Structs for TwoFish
 
@@ -127,6 +126,6 @@ protected:
 #define ROR( x, n ) ( ( ( x ) >> ( ( n ) & 0x1F ) ) | ( ( x ) << ( 32 - ( ( n ) & 0x1F ) ) ) )
 #define Bswap( x ) ( x )
 #define _b( x, N ) ( ( (unsigned char*)&x )[( ( N ) & 3 ) ^ 0] )
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt
+
 #endif  //__TWOFISH_H__

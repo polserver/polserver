@@ -16,9 +16,8 @@
 
 #include <module_defs/cliloc.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -111,5 +110,4 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
     return new BError( "Invalid parameter type" );
   }
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

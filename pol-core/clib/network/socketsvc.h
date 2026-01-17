@@ -9,9 +9,8 @@
 
 #include "wnsckt.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class SocketListener
 {
@@ -38,6 +37,6 @@ public:
 protected:
   Socket _sck;
 };
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
+
 #endif

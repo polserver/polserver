@@ -10,9 +10,8 @@
 #include "../polclock.h"
 #include "../reftypes.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class UOExecutor;
 
@@ -137,6 +136,6 @@ const inline PidList& ScriptScheduler::getPidlist()
 }
 
 extern ScriptScheduler scriptScheduler;
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

@@ -12,9 +12,8 @@
 
 #include "../../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 class MultiDef;
 
@@ -39,6 +38,6 @@ private:
 };
 
 extern MultiDefBuffer multidef_buffer;
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi
+
 #endif

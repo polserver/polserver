@@ -1,8 +1,7 @@
 
 #include "boostutils.h"
-namespace Pol
-{
-namespace boost_utils
+
+namespace Pol::boost_utils
 {
 flyweight_initializers::~flyweight_initializers()
 {
@@ -38,5 +37,4 @@ std::vector<std::pair<size_t, size_t>> Query::getCountAndSize()
   return res;
 }
 #endif
-}  // namespace boost_utils
-}  // namespace Pol
+}  // namespace Pol::boost_utils

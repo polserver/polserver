@@ -43,9 +43,7 @@
 #include "regions/resource.h"
 
 
-namespace Pol
-{
-namespace Items
+namespace Pol::Items
 {
 const u32 Item::SELLPRICE_DEFAULT = UINT_MAX;
 const u32 Item::BUYPRICE_DEFAULT = UINT_MAX;
@@ -1532,5 +1530,4 @@ void Pol::Items::Item::inform_moved( Mobile::Character* moved )
   }
 }
 
-}  // namespace Items
-}  // namespace Pol
+}  // namespace Pol::Items

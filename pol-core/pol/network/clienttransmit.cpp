@@ -8,9 +8,8 @@
 #include "../polsem.h"
 #include "client.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 ClientTransmit::ClientTransmit() : _transmitqueue() {}
 
@@ -85,5 +84,4 @@ void ClientTransmitThread()
     }
   }
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

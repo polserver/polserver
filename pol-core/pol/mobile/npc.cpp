@@ -71,9 +71,8 @@
    So, format is: [(x1,y1)-(x2,y2)],[],[],...
    Well, right now, the format is x1 y1 x2 y2 ... (ick)
 */
-namespace Pol
-{
-namespace Mobile
+
+namespace Pol::Mobile
 {
 unsigned short calc_thru_damage( double damage, unsigned short ar );
 
@@ -1156,5 +1155,4 @@ bool NPC::get_method_hook( const char* methodname, Bscript::Executor* executor,
     return true;
   return base::get_method_hook( methodname, executor, hook, PC );
 }
-}  // namespace Mobile
-}  // namespace Pol
+}  // namespace Pol::Mobile

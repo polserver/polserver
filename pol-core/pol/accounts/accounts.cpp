@@ -30,9 +30,8 @@
 #include "../polsig.h"
 #include "account.h"
 
-namespace Pol
-{
-namespace Accounts
+
+namespace Pol::Accounts
 {
 void read_account_data()
 {
@@ -244,5 +243,4 @@ void write_account_data_task()
   if ( Plib::systemstate.accounts_txt_dirty )
     write_account_data();
 }
-}  // namespace Accounts
-}  // namespace Pol
+}  // namespace Pol::Accounts

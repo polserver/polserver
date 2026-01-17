@@ -14,9 +14,8 @@
 #include <string>
 #include <string_view>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class SubString;
 
@@ -160,6 +159,6 @@ class ConstString : public String
 public:
   explicit ConstString( const std::string& str ) : String( str ) {}
 };
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

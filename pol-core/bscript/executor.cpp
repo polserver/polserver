@@ -54,9 +54,7 @@
 #include <numeric>
 
 
-namespace Pol
-{
-namespace Bscript
+namespace Pol::Bscript
 {
 std::set<Executor*> executor_instances;
 
@@ -4327,5 +4325,4 @@ std::string EscriptProfiler::result()
   return buffer;
 }
 #endif
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

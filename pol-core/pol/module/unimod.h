@@ -41,9 +41,8 @@ class Character;
 }  // namespace Mobile
 }  // namespace Pol
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class UnicodeExecutorModule
     : public Bscript::TmplExecutorModule<UnicodeExecutorModule, Core::PolModule>
@@ -67,6 +66,6 @@ public:
 
   size_t sizeEstimate() const override;
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif

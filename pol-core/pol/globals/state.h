@@ -9,9 +9,8 @@
 #include "../profile.h"
 #include "../uobjcnt.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 const u32 CHARACTERSERIAL_START = 0x00000001Lu;
 const u32 CHARACTERSERIAL_END = 0x3FFFFFFFLu;
@@ -60,6 +59,6 @@ public:
 };
 
 extern StateManager stateManager;
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

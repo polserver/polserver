@@ -14,9 +14,8 @@
 #include <fstream>
 #include <string>
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 struct SOLIDS_ELEM;
 struct SOLIDX2_ELEM;
@@ -83,6 +82,6 @@ private:
   size_t solidx2_offset;
   size_t solids_offset;
 };
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

@@ -19,9 +19,8 @@
 #include <signal.h>
 #endif
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 PolSig::PolSig()
     : reload_configuration_signalled( false ),
@@ -165,5 +164,4 @@ void catch_signals_thread()
 }
 
 #endif
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -43,9 +43,8 @@
 #include "uobject.h"
 #include "uoscrobj.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void send_paperdoll( Network::Client* client, Mobile::Character* chr )
 {
@@ -234,5 +233,4 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

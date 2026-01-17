@@ -13,9 +13,8 @@
 
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 enum UGENDER : u8
 {
@@ -65,6 +64,6 @@ enum MOVEMODE : u8
 const unsigned short DEFAULT_TEXT_FONT = 3;
 const unsigned short DEFAULT_TEXT_COLOR = 0x3B2;
 const unsigned short DEFAULT_TEXT_REQUIREDCMD = 0;
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif /* UCONST_H */

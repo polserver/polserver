@@ -30,9 +30,8 @@ class ItemDesc;
 #include "item/item.h"
 #endif
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class ExportScript;
 class ULockable : public Items::Item
@@ -73,6 +72,6 @@ inline void ULockable::locked( bool newvalue )
 {
   flags_.change( OBJ_FLAGS::LOCKED, newvalue );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

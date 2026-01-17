@@ -55,9 +55,7 @@
 #include "multidef.h"
 
 
-namespace Pol
-{
-namespace Multi
+namespace Pol::Multi
 {
 Core::Range3d UHouse::current_box() const
 {
@@ -1143,5 +1141,4 @@ bool UHouse::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

@@ -9,9 +9,8 @@
 
 #include <vector>
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 struct MapShape
 {
@@ -23,6 +22,6 @@ struct MapShape
 class MapShapeList : public std::vector<MapShape>
 {
 };
-}
-}
+}  // namespace Pol::Plib
+
 #endif

@@ -4,9 +4,8 @@
 #include <algorithm>
 #include <tuple>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 Range2dItr::Range2dItr( Pos2d v, const Pos2d& v_max )
     : _v( std::move( v ) ), _xbound( v_max.x() ), _xstart( _v.x() ){};
@@ -130,8 +129,8 @@ bool Range3d::operator!=( const Range3d& other ) const
 {
   return !( *this == other );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 fmt::format_context::iterator fmt::formatter<Pol::Core::Range2d>::format(
     const Pol::Core::Range2d& r, fmt::format_context& ctx ) const

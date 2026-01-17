@@ -53,9 +53,8 @@
 #include "scrstore.h"
 #include "uoexec.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
 {
@@ -747,5 +746,4 @@ void list_crit_scripts()
   // list_crit_scripts( "holding", holdlist );
   list_crit_scripts( "ran", scriptScheduler.getRanlist() );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

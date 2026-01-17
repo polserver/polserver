@@ -6,9 +6,8 @@
 
 #ifndef POLVAR_H
 #define POLVAR_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class PolVar
 {
@@ -17,10 +16,8 @@ public:
   bool DataWrittenBy99OrLater;
   bool DataWrittenBy93;
 
-  [[nodiscard]] size_t estimateSize() const {
-    return sizeof( PolVar ) + DataWrittenBy.capacity();
-  }
+  [[nodiscard]] size_t estimateSize() const { return sizeof( PolVar ) + DataWrittenBy.capacity(); }
 };
-}
-}
+}  // namespace Pol::Core
+
 #endif

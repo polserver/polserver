@@ -1,17 +1,16 @@
 
+#include "crypt.h"
 #include "../../clib/passert.h"
 #include "../../plib/uconst.h"
 #include "blowfish.h"
-#include "crypt.h"
 #include "cryptbase.h"
 #include "logincrypt.h"
 #include "md5.h"
 #include "twofish.h"
 
 // NOCRYPT
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 CCryptNoCrypt::CCryptNoCrypt() : CCryptBase() {}
 
@@ -266,5 +265,4 @@ void CCryptTwofish::Decrypt( void* pvIn, void* pvOut, int len )
     tfish.Decrypt( pIn, pOut, len );
   }
 }
-}  // namespace Crypt
-}  // namespace Pol
+}  // namespace Pol::Crypt

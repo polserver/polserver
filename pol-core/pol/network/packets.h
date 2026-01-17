@@ -31,9 +31,8 @@
 #include "pktoutid.h"
 #include "realms/realms.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 #define MAX_PACKETS_INSTANCES 100
 namespace PacketWriterDefs
@@ -487,6 +486,6 @@ using PktOut_F5 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_F5_ID, 21>;
 using PktOut_F6 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_F6_ID, 65535>;
 using PktOut_F7 = PacketWriterDefs::PacketTemplate<Core::PKTOUT_F7_ID, 65535>;
 // Packet defs end
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network
+
 #endif

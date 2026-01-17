@@ -53,9 +53,8 @@
        the client just beeps, and does not release the object.
 
 */
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 {
@@ -451,5 +450,4 @@ void GottenItem::undo( Mobile::Character* chr )
     send_remove_object( chr->client, _item );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -21,9 +21,8 @@
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 MenuItem::MenuItem() : objtype_( 0 ), graphic_( 0 ), color_( 0 ), submenu_id( 0 )
 {
@@ -251,5 +250,4 @@ void Menu::read_menus()
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

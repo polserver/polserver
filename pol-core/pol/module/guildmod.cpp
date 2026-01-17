@@ -29,9 +29,8 @@
 
 #include <memory>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 using UOExecutor = Core::UOExecutor;
@@ -471,5 +470,4 @@ BObjectImp* GuildExecutorModule::mf_FindGuild()
     return new BError( "Invalid parameter type" );
   }
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

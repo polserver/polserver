@@ -26,9 +26,8 @@
 #include "polsig.h"
 #include "realms/realm.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 /// Resource Management
 ResourceRegion::ResourceRegion( Clib::ConfigElem& elem, RegionId id )
@@ -480,5 +479,4 @@ void clean_resources()
   }
   gamestate.resourcedefs.clear();
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

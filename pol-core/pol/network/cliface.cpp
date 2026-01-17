@@ -27,9 +27,8 @@
 #include "client.h"
 #include "packets.h"
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 void initialize_client_interfaces()
 {
@@ -256,5 +255,4 @@ void UOClientInterface::bcast_vital_changed( Mobile::Character* who,
     }
   }
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

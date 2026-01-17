@@ -13,9 +13,8 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 void CompilerConfig::Read( const std::string& path )
 {
@@ -174,5 +173,4 @@ void CompilerConfig::SetDefaults()
 }
 
 CompilerConfig compilercfg;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

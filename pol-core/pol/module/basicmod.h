@@ -7,22 +7,20 @@
 #ifndef BSCRIPT_BASICMOD_H
 #define BSCRIPT_BASICMOD_H
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BObjectImp;
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #ifndef BSCRIPT_EXECMODL_H
 #include "../../bscript/execmodl.h"
 #endif
 
 // FIXME: this is currently misnamed, should be StringExecutorModule
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 class BasicExecutorModule
     : public Bscript::TmplExecutorModule<BasicExecutorModule, Bscript::ExecutorModule>
@@ -68,6 +66,6 @@ public:
 
   BasicExecutorModule( Bscript::Executor& exec );
 };
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module
+
 #endif

@@ -32,9 +32,8 @@
 
 #include <fmt/format.h>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 enum MemberID
 {
@@ -329,6 +328,6 @@ extern int n_objmembers;
 
 ObjMember* getKnownObjMember( const char* token );
 ObjMember* getObjMember( int id );
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 #endif

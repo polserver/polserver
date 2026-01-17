@@ -7,9 +7,8 @@
 #include "mkscrobj.h"
 #include "uoscrobj.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 Bscript::BObjectImp* make_mobileref( Mobile::Character* chr )
 {
@@ -25,5 +24,4 @@ Bscript::BObjectImp* make_boatref( Multi::UBoat* boat )
 {
   return new Module::EUBoatRefObjImp( boat );
 }
-}
-}
+}  // namespace Pol::Core

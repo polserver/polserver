@@ -20,20 +20,17 @@
 #include "../clib/maputil.h"
 #include "executor.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class Executor;
 #ifdef ESCRIPT_PROFILE
 class EscriptProfiler;
 #endif
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class ExecutorModule;
 class String;
@@ -175,7 +172,7 @@ inline std::string TmplExecutorModule<T, T2>::functionName( unsigned idx )
 {
   return function_table[idx].funcname;
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 
 #endif

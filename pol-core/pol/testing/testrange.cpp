@@ -9,9 +9,8 @@
 #include "realms/realm.h"
 #include "testenv.h"
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 using namespace Core;
 
@@ -209,5 +208,4 @@ void range3d_test()
   UnitTest( [&]() { return fmt::format( "{:->32}", Range3d( p1, p2, r ) ); },
             "--( ( 1, 2, -5 ) - ( 3, 4, 5 ) )", "format padding" );
 }
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

@@ -21,9 +21,8 @@
 #include "ufunc.h"
 #include "uworld.h"
 
-namespace Pol
-{
-namespace Realms
+
+namespace Pol::Realms
 {
 Realm::Realm( const std::string& realm_name, const std::string& realm_path )
     : is_shadowrealm( false ),
@@ -275,5 +274,4 @@ void Realm::remove_mobile( const Mobile::Character& chr, WorldChangeReason reaso
   if ( chr.logged_in() )
     --_mobile_count;
 }
-}  // namespace Realms
-}  // namespace Pol
+}  // namespace Pol::Realms

@@ -13,9 +13,8 @@
 
 #include "polclock.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class ScheduledTask;
 class SchComparer : public std::less<ScheduledTask*>
@@ -127,6 +126,6 @@ void OneShotTaskInst<T>::on_run()
 {
   ( *f_ )( data_ );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

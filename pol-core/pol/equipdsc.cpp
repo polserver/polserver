@@ -6,9 +6,7 @@
 #include "equipdsc.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 EquipDesc::EquipDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg )
     : ItemDesc( objtype, elem, type, pkg ), is_intrinsic( false ), is_pc_intrinsic( false )
@@ -29,5 +27,4 @@ EquipDesc::EquipDesc()
 {
 }
 */
-}
-}
+}  // namespace Pol::Core

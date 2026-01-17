@@ -11,9 +11,8 @@
 #else
 #include <signal.h>
 #endif
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 std::atomic<bool> exit_signalled( false );
 std::atomic<int> exit_code( 0 );
@@ -77,5 +76,4 @@ void enable_exit_signaller()
   signal( SIGTERM, ctrlc_handler );
 }
 #endif
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

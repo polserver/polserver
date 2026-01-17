@@ -16,9 +16,8 @@
 #include "polsig.h"
 #include "profile.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 bool SchComparer::operator()( const ScheduledTask* x, const ScheduledTask* y ) const
 {
@@ -197,5 +196,4 @@ void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity )
   }
 }
 
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

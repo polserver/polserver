@@ -36,9 +36,8 @@
 #include <stdexcept>
 #include <string>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 bool ConsoleCommand::console_locked = true;
 char ConsoleCommand::unlock_char;
@@ -248,5 +247,4 @@ void ConsoleCommand::check_console_commands( Clib::KeyboardHook* kb )
   }
 }
 #endif
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -32,9 +32,8 @@
 #include "packets.h"
 #include <fmt/chrono.h>
 
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 PacketLog Client::start_log()
 {
@@ -323,5 +322,4 @@ void Client::Disconnect()
     Core::networkManager.clientTransmit->QueueDisconnection( this );
   }
 }
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Network

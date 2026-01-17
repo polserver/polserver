@@ -22,9 +22,8 @@
 #include <iterator>
 #include <memory>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 struct TRANSLATION
 {
@@ -176,5 +175,4 @@ std::shared_ptr<NpcTemplate> find_npc_template( const Clib::ConfigElem& elem )
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

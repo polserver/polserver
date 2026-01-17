@@ -9,9 +9,8 @@
 
 #include "globals/uvars.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 namespace fs = std::filesystem;
 void load_tips()
@@ -32,5 +31,4 @@ void load_tips()
     }
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

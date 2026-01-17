@@ -14,9 +14,7 @@
 #include "polcfg.h"
 
 
-namespace Pol
-{
-namespace Plib
+namespace Pol::Plib
 {
 class Tile;
 class Package;
@@ -50,6 +48,6 @@ private:
 };
 
 extern SystemState systemstate;
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

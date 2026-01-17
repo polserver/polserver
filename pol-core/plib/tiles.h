@@ -12,9 +12,8 @@
 
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 class Tile
 {
@@ -29,6 +28,6 @@ public:
 
 void load_tiles_cfg();
 
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif

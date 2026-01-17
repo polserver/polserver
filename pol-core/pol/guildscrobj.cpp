@@ -1,13 +1,12 @@
 #include "guildscrobj.h"
 
+#include "../clib/stlutil.h"
 #include "guilds.h"
 #include <stddef.h>
 #include <string>
-#include "../clib/stlutil.h"
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -59,5 +58,4 @@ bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
 }
 
 
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

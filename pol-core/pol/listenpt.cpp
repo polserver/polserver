@@ -22,9 +22,8 @@
 #include "uoexec.h"
 #include "uoscrobj.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, u16 range, int flags )
     : object( obj ), uoexec( uoexec ), range( range ), flags( flags )
@@ -126,5 +125,4 @@ Bscript::BObjectImp* ListenPoint::GetListenPoints()
   }
   return arr;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

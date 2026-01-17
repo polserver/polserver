@@ -5,9 +5,8 @@
 
 #ifndef __CTABLE_H
 #define __CTABLE_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 struct SVR_KEYDESC
 {
@@ -18,6 +17,6 @@ struct SVR_KEYDESC
 
 // last one is a terminator
 extern SVR_KEYDESC keydesc[257];
-}
-}
+}  // namespace Pol::Core
+
 #endif

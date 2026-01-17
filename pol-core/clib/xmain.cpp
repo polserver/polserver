@@ -17,9 +17,8 @@
 #include <unistd.h>
 #endif
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 // TODO: create a system.cpp/h and put the following function with some other features in a separate
 // static class "system"
@@ -44,5 +43,4 @@ size_t getCurrentMemoryUsage()
   return (size_t)rss * (size_t)sysconf( _SC_PAGESIZE );
 #endif
 }
-}
-}
+}  // namespace Pol::Clib

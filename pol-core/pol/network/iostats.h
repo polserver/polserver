@@ -7,9 +7,8 @@
 #define __IOSTATS_H
 
 #include <atomic>
-namespace Pol
-{
-namespace Network
+
+namespace Pol::Network
 {
 class IOStats
 {
@@ -25,6 +24,6 @@ public:
   Packet sent[256];
   Packet received[256];
 };
-}
-}
+}  // namespace Pol::Network
+
 #endif

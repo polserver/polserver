@@ -19,9 +19,8 @@
 #include "../plib/pkg.h"
 #include "module/fileaccess.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 BXMLfile::BXMLfile() : Bscript::BObjectImp( OTXMLFile ), file(), _filename( "" ) {}
@@ -695,5 +694,4 @@ BObject* BXMLAttributeIterator::step()
   }
   return nullptr;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

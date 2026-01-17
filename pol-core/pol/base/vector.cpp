@@ -3,9 +3,8 @@
 
 #include <cstdlib>
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 bool Vec2d::operator==( const Vec2d& other ) const
 {
@@ -107,8 +106,8 @@ Vec3d operator+( Vec3d lhs, const Vec2d& rhs )
   return lhs;
 }
 
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 fmt::format_context::iterator fmt::formatter<Pol::Core::Vec2d>::format(
     const Pol::Core::Vec2d& v, fmt::format_context& ctx ) const

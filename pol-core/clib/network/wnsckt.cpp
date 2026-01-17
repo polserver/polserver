@@ -42,9 +42,8 @@ typedef int socklen_t;
 #ifndef SCK_WATCH
 #define SCK_WATCH 0
 #endif
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 Socket::Socket() : _sck( INVALID_SOCKET ), _options( none )
 {
@@ -815,5 +814,4 @@ bool SocketReader::read( std::string& out, bool* timed_out )
 }
 
 
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

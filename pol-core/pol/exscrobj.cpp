@@ -32,9 +32,8 @@
 #include "uoexec.h"
 #include "uoscrobj.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 
@@ -454,5 +453,4 @@ Bscript::BObjectRef ExportScriptObjImp::get_member_id( const int id )
     return BObjectRef( UninitObject::create() );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -5,9 +5,8 @@
 
 #include "../clib/Program/ProgramMain.h"
 
-namespace Pol
-{
-namespace UoTool
+
+namespace Pol::UoTool
 {
 class UoToolMain final : public Pol::Clib::ProgramMain
 {
@@ -22,7 +21,7 @@ private:
   void showHelp() override;
   int uotool();
 };
-}  // namespace UoTool
-}  // namespace Pol
+}  // namespace Pol::UoTool
+
 
 #endif  // UO_TOOL_MAIN_H

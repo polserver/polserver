@@ -10,9 +10,8 @@
 
 #include "../clib/passert.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 FileMapServer::FileMapServer( const RealmDescriptor& descriptor )
     : MapServer( descriptor ), _mapfile(), _cur_mapblock_index( -1L )
@@ -52,5 +51,4 @@ size_t FileMapServer::sizeEstimate() const
 {
   return sizeof( *this ) + MapServer::sizeEstimate() + _mapfile.sizeEstimate();
 }
-}
-}
+}  // namespace Pol::Plib

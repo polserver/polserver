@@ -23,9 +23,8 @@
 #include "systemstate.h"
 
 namespace fs = std::filesystem;
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 bool Package::provides_system_home_page() const
 {
@@ -515,5 +514,4 @@ std::string GetPackageCfgPath( const Package* pkg, const std::string& filename )
 
   return filepath;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

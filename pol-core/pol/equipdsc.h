@@ -10,13 +10,12 @@
 #include "../clib/rawtypes.h"
 #include "item/itemdesc.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class BStruct;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 
 namespace Pol
 {

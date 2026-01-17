@@ -15,9 +15,8 @@
 #include "bobject.h"
 #include "impstr.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 bool could_be_a_number( const char* s )
 {
@@ -139,5 +138,4 @@ std::string normalize_ecl_filename( const std::string& filename )
   else
     return filename;
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript

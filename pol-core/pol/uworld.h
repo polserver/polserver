@@ -36,9 +36,8 @@
 #include "realms/realm.h"
 #include "zone.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void add_item_to_world( Items::Item* item );
 void remove_item_from_world( Items::Item* item );
@@ -353,6 +352,6 @@ void FilterImp<FilterType::Multi>::call( Core::Zone& zone, const CoordsArea& coo
       f( multi );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 #endif

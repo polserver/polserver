@@ -5,9 +5,8 @@
 #include <stdexcept>
 #include <string>
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 std::string UOInstallFinder::remove_elem( Clib::ConfigElem& elem )
 {
@@ -26,8 +25,7 @@ std::string UOInstallFinder::remove_elem( Clib::ConfigElem& elem )
   }
   return uodata_root;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
 
 
 #ifdef _WIN32
@@ -120,15 +118,14 @@ std::string UOInstallFinder::getInstallDir()
 
 #else
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 std::string UOInstallFinder::getInstallDir()
 {
   return "";
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 
 #endif

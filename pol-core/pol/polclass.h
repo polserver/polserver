@@ -6,9 +6,8 @@
 
 #ifndef POLCLASS_H
 #define POLCLASS_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 const unsigned POLCLASS_OBJECT = 1;
 const unsigned POLCLASS_ITEM = 2;
@@ -26,6 +25,6 @@ const unsigned POLCLASS_HOUSE = 13;
 const unsigned POLCLASS_EQUIPMENT = 14;
 const unsigned POLCLASS_ARMOR = 15;
 const unsigned POLCLASS_WEAPON = 16;
-}
-}
+}  // namespace Pol::Core
+
 #endif

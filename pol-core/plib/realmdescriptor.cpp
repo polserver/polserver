@@ -11,9 +11,7 @@
 #include "../clib/strutil.h"
 
 
-namespace Pol
-{
-namespace Plib
+namespace Pol::Plib
 {
 RealmDescriptor RealmDescriptor::Load( const std::string& realm_name,
                                        const std::string& realm_path )
@@ -83,5 +81,4 @@ std::string RealmDescriptor::path( const std::string& filename ) const
   else
     return file_path + "/" + filename;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

@@ -62,9 +62,7 @@
 #include "multidef.h"
 
 
-namespace Pol
-{
-namespace Multi
+namespace Pol::Multi
 {
 // #define DEBUG_BOATS
 
@@ -1753,5 +1751,4 @@ void UBoat::clear_pilot()
     mountpiece.clear();
   }
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

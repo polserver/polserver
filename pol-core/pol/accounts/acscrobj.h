@@ -24,9 +24,8 @@ class Executor;
 }  // namespace Bscript
 }  // namespace Pol
 
-namespace Pol
-{
-namespace Accounts
+
+namespace Pol::Accounts
 {
 class AccountPtrHolder
 {
@@ -59,6 +58,6 @@ public:
   Bscript::BObjectRef get_member( const char* membername ) override;
   Bscript::BObjectRef get_member_id( const int id ) override;  // id test
 };
-}  // namespace Accounts
-}  // namespace Pol
+}  // namespace Pol::Accounts
+
 #endif

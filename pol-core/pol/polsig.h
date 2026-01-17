@@ -6,9 +6,8 @@
 
 #ifndef __POLSIG_H
 #define __POLSIG_H
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void install_signal_handlers();
 void signal_catch_thread();
@@ -44,10 +43,10 @@ struct PolSig
 
   unsigned check_attack_after_move_function_checkpoint;
 };
-}
+}  // namespace Pol::Core
 #define THREAD_CHECKPOINT( thread, check ) \
   Core::stateManager.polsig.thread##_thread_checkpoint = check
 #define FUNCTION_CHECKPOINT( func, check ) \
   Core::stateManager.polsig.func##_function_checkpoint = check
-}
+
 #endif

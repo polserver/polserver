@@ -11,9 +11,8 @@
 #include "../clib/rawtypes.h"
 #include <atomic>
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 extern int include_debug;
 
@@ -26,6 +25,6 @@ extern int escript_program_count;
 
 extern u64 escript_instr_cycles;
 extern int escript_execinstr_calls;
-}
-}
+}  // namespace Pol::Bscript
+
 #endif

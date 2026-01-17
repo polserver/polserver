@@ -15,9 +15,8 @@
 #include "../clib/fileutil.h"
 #include "globals/settings.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void read_extobj()
 {
@@ -58,5 +57,4 @@ void read_extobj()
   settingsManager.extobj.wornitems_container =
       elem.remove_unsigned( "Wornitems_Container", 0x1FF02 );
 }
-}
-}
+}  // namespace Pol::Core

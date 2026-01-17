@@ -10,9 +10,8 @@
 #include "uofilei.h"
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 void staticsmax()
 {
@@ -38,5 +37,4 @@ void staticsmax()
     }
   }
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

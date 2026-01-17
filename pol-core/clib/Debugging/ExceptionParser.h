@@ -3,9 +3,8 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 class ExceptionParser
 {
@@ -59,7 +58,7 @@ private:
   static std::string m_programAbortReportingReporter;
   static std::string m_programStart;
 };
-}
-}  // namespaces
+}  // namespace Pol::Clib
+   // namespaces
 
 #endif

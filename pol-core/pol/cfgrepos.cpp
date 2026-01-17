@@ -36,9 +36,8 @@
 #include "../plib/systemstate.h"
 #include "globals/ucfg.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 StoredConfigElem::StoredConfigElem( Clib::ConfigElem& elem )
 {
@@ -370,5 +369,4 @@ void ConfigFiles_log_stuff()
            Core::configurationbuffer.oldcfgfiles.size() );
 }
 #endif
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

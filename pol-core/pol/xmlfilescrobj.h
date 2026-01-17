@@ -17,17 +17,14 @@
 #include "../bscript/contiter.h"
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class BXMLNodeIterator final : public Bscript::ContIterator
 {
@@ -144,7 +141,7 @@ public:
 private:
   TiXmlElement* node;
 };
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
 
 #endif

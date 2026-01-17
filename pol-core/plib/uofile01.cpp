@@ -16,9 +16,8 @@
 #include "uofilei.h"
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 #define VERFILE_TILEDATA 0x1E
 #define TILEDATA_TILES 0x68800
@@ -432,5 +431,4 @@ void read_uo_data()
   read_static_diffs();
   read_map_difs();
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

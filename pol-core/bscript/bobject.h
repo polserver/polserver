@@ -41,12 +41,11 @@
 #include <utility>
 #include <vector>
 
-namespace Pol
-{
+
 /**
  * Bscript namespace is for escript stuff, like compiler and basic modules
  */
-namespace Bscript
+namespace Pol::Bscript
 {
 class BObjectImp;
 class BObject;
@@ -1134,8 +1133,8 @@ T* BApplicObj<T>::operator->()
 {
   return &obj_;
 }
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 template <>
 struct fmt::formatter<Pol::Bscript::BObjectImp> : fmt::ostream_formatter
 {

@@ -12,9 +12,8 @@
 #include <utility>
 #include <vector>
 
-namespace Pol
-{
-namespace PolTool
+
+namespace Pol::PolTool
 {
 FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int mapid, int width,
                               int height )
@@ -552,7 +551,7 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
     return e;
   };
   multis.resize( 0x3fff, std::vector<T>() );
-  for (int alternate_offset = 0; alternate_offset < 12; alternate_offset += 4)
+  for ( int alternate_offset = 0; alternate_offset < 12; alternate_offset += 4 )
   {
     // boat
     multis[0x0 + alternate_offset] = std::vector<T>{
@@ -774,5 +773,4 @@ void FileGenerator::generateMultis()
     writeMultis( multis );
   }
 }
-}  // namespace PolTool
-}  // namespace Pol
+}  // namespace Pol::PolTool

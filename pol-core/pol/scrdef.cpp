@@ -11,9 +11,8 @@
 #include "../clib/logfacility.h"
 #include "../plib/pkg.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 std::string full_scriptname( const std::string& spec, const Plib::Package* pkg,
                              const char* mainpfx )
@@ -149,5 +148,4 @@ size_t ScriptDef::estimatedSize() const
 {
   return sizeof( ScriptDef );
 }
-}
-}
+}  // namespace Pol::Core

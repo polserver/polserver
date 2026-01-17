@@ -6,11 +6,10 @@
 
 #include "uobjcnt.h"
 
-namespace Pol
+
+namespace Pol::Core
 {
-namespace Core
-{
-  // This comment is needed for correct indentation to be detected
+// This comment is needed for correct indentation to be detected
 UObjCount::UObjCount()
     : unreaped_orphans( 0 ),
       uobject_count( 0 ),
@@ -21,5 +20,4 @@ UObjCount::UObjCount()
       uobj_count_echrref( 0 )
 {
 }
-}
-}
+}  // namespace Pol::Core

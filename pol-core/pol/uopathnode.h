@@ -14,9 +14,8 @@
 #include "base/position.h"
 #include "base/vector.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 class AStarParams
 {
@@ -163,5 +162,4 @@ const Pos3d& UOPathState::position() const
 {
   return pos;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

@@ -13,9 +13,8 @@
 #include "network/pktin.h"
 #include "scrstore.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 void handle_help( Network::Client* client, PKTIN_9B* /*msg*/ )
 {
@@ -26,5 +25,4 @@ void handle_help( Network::Client* client, PKTIN_9B* /*msg*/ )
     client->chr->start_script( prog.get(), false );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

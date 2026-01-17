@@ -21,9 +21,8 @@
 #include "charactr.h"
 #include "regions/guardrgn.h"
 
-namespace Pol
-{
-namespace Mobile
+
+namespace Pol::Mobile
 {
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
 {
@@ -63,5 +62,4 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
   }
   client->chr->select_opponent( serial );
 }
-}  // namespace Mobile
-}  // namespace Pol
+}  // namespace Pol::Mobile

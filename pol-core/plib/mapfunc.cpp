@@ -14,9 +14,8 @@
 #include "mapcell.h"
 #include "ustruct.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 bool cfg_show_roof_and_platform_warning = true;
 std::string flagstr( unsigned int flags )
@@ -253,5 +252,4 @@ unsigned int readflags( Clib::ConfigElem& elem )
 
   return flags;
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

@@ -18,15 +18,14 @@
 #include "polmodl.h"
 #include "reftypes.h"
 
-namespace Pol
-{
-namespace Bscript
+
+namespace Pol::Bscript
 {
 class Executor;
 template <class T, class T2>
 class TmplExecutorModule;
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript
+
 
 namespace Pol
 {

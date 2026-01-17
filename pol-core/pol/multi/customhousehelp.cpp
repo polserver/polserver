@@ -11,9 +11,8 @@
 #include "../../plib/systemstate.h"
 #include "customhouses.h"
 
-namespace Pol
-{
-namespace Multi
+
+namespace Pol::Multi
 {
 int BlockIDs[] = {
     0x3EE,   // Sandstone
@@ -237,5 +236,4 @@ void CustomHouseElements::AddElement( CUSTOM_HOUSE_ELEMENT& elem )
 
   data.at( x ).at( y ).push_back( elem );
 }
-}  // namespace Multi
-}  // namespace Pol
+}  // namespace Pol::Multi

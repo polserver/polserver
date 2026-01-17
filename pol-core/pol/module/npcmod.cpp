@@ -37,9 +37,8 @@
 
 #include <module_defs/npc.h>
 
-namespace Pol
-{
-namespace Module
+
+namespace Pol::Module
 {
 using namespace Bscript;
 NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
@@ -948,5 +947,4 @@ size_t NPCExecutorModule::sizeEstimate() const
 {
   return sizeof( *this );
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

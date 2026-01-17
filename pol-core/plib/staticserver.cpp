@@ -17,9 +17,8 @@
 #include "../clib/timer.h"
 #include "staticblock.h"
 
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 StaticServer::StaticServer( const RealmDescriptor& descriptor )
     : _descriptor( descriptor ), _index(), _statics()
@@ -138,5 +137,4 @@ size_t StaticServer::sizeEstimate() const
   return sizeof( *this ) + _descriptor.sizeEstimate() + Clib::memsize( _index ) +
          Clib::memsize( _statics );
 }
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib

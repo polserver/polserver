@@ -16,9 +16,8 @@
 
 #include <type_traits>
 
-namespace Pol
-{
-namespace Testing
+
+namespace Pol::Testing
 {
 void clamp_test()
 {
@@ -186,5 +185,4 @@ void clamp_test()
 #undef LMIN
 }
 
-}  // namespace Testing
-}  // namespace Pol
+}  // namespace Pol::Testing

@@ -15,9 +15,7 @@
 #include "spells.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 bool process_tildecommand( Network::Client* client, const std::string& textbuf )
 {
@@ -30,5 +28,4 @@ bool process_tildecommand( Network::Client* client, const std::string& textbuf )
   }
   return false;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

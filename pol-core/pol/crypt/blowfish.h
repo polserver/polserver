@@ -8,9 +8,8 @@
 #define __BLOWFISH_H__
 
 #include "cryptbase.h"
-namespace Pol
-{
-namespace Crypt
+
+namespace Pol::Crypt
 {
 class BlowFish
 {
@@ -35,6 +34,6 @@ protected:
   static void InitTables();
   static void RawDecrypt( unsigned int* values, int table );
 };
-}
-}
+}  // namespace Pol::Crypt
+
 #endif  //__BLOWFISH_H__

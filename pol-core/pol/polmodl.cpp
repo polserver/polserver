@@ -28,9 +28,8 @@
 #include "uoscrobj.h"
 #include "vital.h"
 
-namespace Pol
-{
-namespace Core
+
+namespace Pol::Core
 {
 using namespace Bscript;
 using namespace Module;
@@ -122,5 +121,4 @@ bool PolModule::getPos4dParam( unsigned xparam, unsigned yparam, unsigned zparam
 {
   return uoexec().getPos4dParam( xparam, yparam, zparam, realmparam, pos );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

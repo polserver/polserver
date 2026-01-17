@@ -5,9 +5,8 @@
 #include <fstream>
 #include <utility>
 
-namespace Pol
-{
-namespace PolTool
+
+namespace Pol::PolTool
 {
 BareDistro::BareDistro( fs::path basedir, bool hsa, int maxtiles, int width, int height )
     : _basedir( std::move( basedir ) ),
@@ -40,5 +39,4 @@ void BareDistro::generate()
   }
 }
 
-}  // namespace PolTool
-}  // namespace Pol
+}  // namespace Pol::PolTool

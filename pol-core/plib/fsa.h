@@ -27,9 +27,8 @@
 #include "../clib/logfacility.h"
 #include <stdio.h>
 #include <string>
-namespace Pol
-{
-namespace Plib
+
+namespace Pol::Plib
 {
 template <class USER_TYPE>
 class FixedSizeAllocator
@@ -216,6 +215,6 @@ private:  // data
   size_t m_MaxElements;
   FSA_ELEMENT* m_pMemory;
 };
-}  // namespace Plib
-}  // namespace Pol
+}  // namespace Pol::Plib
+
 #endif  // defined FSA_H

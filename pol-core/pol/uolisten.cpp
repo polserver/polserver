@@ -27,9 +27,7 @@
 #include "uoclient.h"
 
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 UoClientThread::UoClientThread( UoClientListener* def, Clib::Socket&& newsck )
     : Clib::SocketClientThread( std::move( newsck ) ),
@@ -193,5 +191,4 @@ void start_uo_client_listeners()
     threadhelp::start_thread( uo_client_listener_thread, threadname.c_str(), ls );
   }
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core

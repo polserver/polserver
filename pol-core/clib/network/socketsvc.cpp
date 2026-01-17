@@ -12,9 +12,8 @@
 #include "strutil.h"
 #include "threadhelp.h"
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 SocketListener::SocketListener( unsigned short port ) : _listen_sck()
 {
@@ -60,5 +59,4 @@ void SocketClientThread::start_thread( SocketClientThread* instance )
 {
   threadhelp::start_thread( _thread_stub2, "SocketClientThread", instance );
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib

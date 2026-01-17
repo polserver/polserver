@@ -18,9 +18,8 @@
 #include <io.h>
 #endif
 
-namespace Pol
-{
-namespace Clib
+
+namespace Pol::Clib
 {
 std::string normalized_dir_form( const std::string& istr )
 {
@@ -174,5 +173,4 @@ std::string GetFilePart( const char* filename )
 {
   return std::filesystem::path( filename ).filename().string();
 }
-}  // namespace Clib
-}  // namespace Pol
+}  // namespace Pol::Clib
