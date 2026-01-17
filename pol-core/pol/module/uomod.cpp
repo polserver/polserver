@@ -2857,10 +2857,8 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
 
     return new BError( "Item not found." );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_SaveWorldState()
@@ -3652,10 +3650,8 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 
     return new BError( "Invalid parameter type" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_SendQuestArrow()

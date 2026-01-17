@@ -251,10 +251,8 @@ unsigned int String::SafeCharAmt() const
         return i;
       continue;
     }
-    else
-    {
-      return i;
-    }
+
+    return i;
   }
   return strlen;
 }
@@ -757,10 +755,8 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     }
     return BObjectRef( new UninitObject );
   }
-  else
-  {
-    return BObjectRef( new UninitObject );
-  }
+
+  return BObjectRef( new UninitObject );
 }
 
 // -- format related stuff --
