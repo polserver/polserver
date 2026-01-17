@@ -45,7 +45,7 @@ u32 GetSubCmd( const unsigned char* message, PacketHookData* phd )
 {
   if ( phd->sub_command_length == 1 )
     return *( reinterpret_cast<const u8*>( &message[phd->sub_command_offset] ) );
-  else if ( phd->sub_command_length == 2 )
+  if ( phd->sub_command_length == 2 )
     return cfBEu16( *( reinterpret_cast<const u16*>( &message[phd->sub_command_offset] ) ) );
   // else if(phd->sub_command_length == 4)
   //    return cfBEu32(*(reinterpret_cast<const u32*>(&message[phd->sub_command_offset])));
@@ -542,7 +542,7 @@ bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 )
 {
   if ( ver1.major > ver2.major )
     return true;
-  else if ( ver1.major < ver2.major )
+  if ( ver1.major < ver2.major )
     return false;
   else if ( ver1.minor > ver2.minor )
     return true;

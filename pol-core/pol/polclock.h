@@ -50,8 +50,7 @@ inline polclock_t earliest_timer( polclock_t timer1_until, polclock_t timer2_unt
   auto diff = timer1_until - timer2_until;
   if ( diff < 0 )
     return timer1_until;
-  else
-    return timer2_until;
+  return timer2_until;
 }
 
 polclock_t polclock();  // unit 10ms

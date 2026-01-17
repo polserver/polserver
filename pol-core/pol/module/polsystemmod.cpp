@@ -88,7 +88,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   {
     return BObjectRef( new String( value()->name() ) );
   }
-  else if ( stricmp( membername, "version" ) == 0 )
+  if ( stricmp( membername, "version" ) == 0 )
   {
     return BObjectRef( new String( value()->version() ) );
   }
@@ -132,10 +132,8 @@ BObjectImp* PolSystemExecutorModule::mf_IncRevision( /* uobject */ )
     send_object_cache_to_inrange( uobj );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
@@ -145,7 +143,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
 
   if ( exec.numParams() != 1 )
     return new BError( "Expected 1 parameter." );
-  else if ( getParam( 0, cmdlevel_num ) )
+  if ( getParam( 0, cmdlevel_num ) )
   {
     if ( cmdlevel_num >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
       cmdlevel_num = static_cast<int>( Core::gamestate.cmdlevels.size() - 1 );
@@ -198,8 +196,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
   Plib::Package* pkg = Plib::find_package( pkgname->value() );
   if ( !pkg )
     return new BError( "No package found by that name." );
-  else
-    return new PackageObjImp( PackagePtrHolder( pkg ) );
+  return new PackageObjImp( PackagePtrHolder( pkg ) );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
@@ -293,8 +290,7 @@ BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
     Realms::Realm* realm = Core::find_realm( realm_name->value() );
     if ( !realm )
       return new BError( "Realm not found." );
-    else
-      return SetupRealmDetails( realm );
+    return SetupRealmDetails( realm );
   }
   else
   {
@@ -335,10 +331,8 @@ BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 
     return descriptor.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_FormatItemDescription()
@@ -351,10 +345,8 @@ BObjectImp* PolSystemExecutorModule::mf_FormatItemDescription()
   {
     return new String( Core::format_description( 0, desc->value(), amount, suffix->value() ) );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
@@ -368,10 +360,8 @@ BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
 
     return new Core::BPacket( static_cast<u8>( type ), static_cast<signed short>( size ) );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_AddRealm( /*name,base*/ )

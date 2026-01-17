@@ -907,8 +907,7 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
       chr->search_remote_containers( serial, nullptr /* don't care if it's a remote container */ );
   if ( item != nullptr && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     return static_cast<UContainer*>( item );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Item* find_snoopable_item( u32 serial, Character** pchr )
@@ -1627,11 +1626,10 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
     destroy_item( item );
     return;  // destroy_item will update character weight if item is carried.
   }
-  else
-  {
-    item->subamount( amount );
-    update_item_to_inrange( item );
-  }
+
+  item->subamount( amount );
+  update_item_to_inrange( item );
+
   // DAVE added this 11/17: if in a Character's pack, update weight.
   UpdateCharacterWeight( item );
 }

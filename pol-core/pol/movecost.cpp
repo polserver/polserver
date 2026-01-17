@@ -117,7 +117,7 @@ void load_movecost( bool reload )
 {
   if ( !settingsManager.ssopt.movement_uses_stamina )
     return;
-  else if ( !Clib::FileExists( "config/movecost.cfg" ) )
+  if ( !Clib::FileExists( "config/movecost.cfg" ) )
   {
     if ( !reload && Plib::systemstate.config.loglevel > 0 )
       INFO_PRINTLN( "File config/movecost.cfg not found, skipping." );

@@ -68,8 +68,7 @@ inline Mobile::Character* VitalExecutorModule::GetUOController()
 
   if ( uo_module != nullptr && uo_module->controller_.get() )
     return uo_module->controller_.get();
-  else
-    return nullptr;
+  return nullptr;
 }
 }  // namespace Module
 }  // namespace Pol

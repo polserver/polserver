@@ -203,8 +203,7 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
   if ( do_place_item_in_secure_trade_container( client, item, cont, dropon,
                                                 cont->get_random_location(), 1 ) )
     return new Bscript::BLong( 1 );
-  else
-    return new Bscript::BError( "Something went wrong with trade window." );
+  return new Bscript::BError( "Something went wrong with trade window." );
 }
 
 bool do_place_item_in_secure_trade_container( Network::Client* client, Items::Item* item,
@@ -329,7 +328,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     }
     return add_item_to_stack( client, item, target_item );
   }
-  else if ( target_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+  if ( target_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     if ( item->no_drop() && !( static_cast<UContainer*>( target_item )->no_drop_exception() ) )
     {
@@ -532,8 +531,7 @@ Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Charact
 
   if ( do_open_trade_window( client, nullptr, dropon ) )
     return new Bscript::BLong( 1 );
-  else
-    return new Bscript::BError( "Something goes wrong." );
+  return new Bscript::BError( "Something goes wrong." );
 }
 
 bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::Character* dropon )
@@ -572,8 +570,7 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
 
   if ( item != nullptr )
     return place_item_in_secure_trade_container( client, item, Pos2d( 20, 20 ) );
-  else
-    return true;
+  return true;
 }
 
 bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target_serial,

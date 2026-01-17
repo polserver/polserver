@@ -79,8 +79,7 @@ BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 
   if ( item != nullptr )
     return new EItemRefObjImp( item );
-  else
-    return new BError( "Root item not found." );
+  return new BError( "Root item not found." );
 }
 
 BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
@@ -115,7 +114,7 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 
   item->setname( name->value() );
 
-  if ( item->realm() == nullptr ) // TODO POS no realm needed
+  if ( item->realm() == nullptr )  // TODO POS no realm needed
     item->setposition( Core::Pos4d( 0, 0, 0, Core::find_realm( std::string( "britannia" ) ) ) );
 
   area->insert_root_item( item );

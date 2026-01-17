@@ -46,8 +46,7 @@ BObjectRef BXMLfile::get_member( const char* membername )
   ObjMember* objmember = getKnownObjMember( membername );
   if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
-  else
-    return BObjectRef( UninitObject::create() );
+  return BObjectRef( UninitObject::create() );
 }
 
 Bscript::BObjectImp* BXMLfile::call_method( const char* methodname, Executor& ex )
@@ -55,8 +54,7 @@ Bscript::BObjectImp* BXMLfile::call_method( const char* methodname, Executor& ex
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
@@ -148,10 +146,9 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
       TiXmlNode* child = file.FirstChild( pstr->value() );
       if ( child )
         return new BLong( file.RemoveChild( child ) ? 1 : 0 );
-      else
-        return new BError( "Failed to find node" );
+      return new BError( "Failed to find node" );
     }
-    else if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp->isa( Bscript::BObjectImp::OTLong ) )
     {
       const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
       if ( keyint->value() != 1 )
@@ -247,10 +244,9 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
     TiXmlNode* node = file.FirstChild( keystr->value() );
     if ( node )
       return BObjectRef( new BXmlNode( node ) );
-    else
-      return BObjectRef( new BError( "Failed to find node" ) );
+    return BObjectRef( new BError( "Failed to find node" ) );
   }
-  else if ( obj->isa( OTLong ) )
+  if ( obj->isa( OTLong ) )
   {
     BLong& keyint = (BLong&)obj.impref();
     TiXmlHandle handle( &file );
@@ -258,8 +254,7 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
                           .ToNode();  // keep escript 1based index and change it to 0based
     if ( node )
       return BObjectRef( new BXmlNode( node ) );
-    else
-      return BObjectRef( new BError( "Failed to find node" ) );
+    return BObjectRef( new BError( "Failed to find node" ) );
   }
   else
   {
@@ -318,8 +313,7 @@ BObjectRef BXmlNode::get_member( const char* membername )
   ObjMember* objmember = getKnownObjMember( membername );
   if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
-  else
-    return BObjectRef( UninitObject::create() );
+  return BObjectRef( UninitObject::create() );
 }
 
 Bscript::BObjectImp* BXmlNode::call_method( const char* methodname, Executor& ex )
@@ -327,8 +321,7 @@ Bscript::BObjectImp* BXmlNode::call_method( const char* methodname, Executor& ex
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
@@ -345,8 +338,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         TiXmlNode* child = node->FirstChild( pstr->value() );
         if ( child )
           return new BXmlNode( child );
-        else
-          return new BError( "Failed to find node" );
+        return new BError( "Failed to find node" );
       }
       return new BError( "Invalid parameter type" );
     }
@@ -355,8 +347,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       TiXmlNode* child = node->FirstChild();
       if ( child )
         return new BXmlNode( child );
-      else
-        return new BError( "Failed to find node" );
+      return new BError( "Failed to find node" );
     }
     break;
   }
@@ -370,8 +361,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         TiXmlNode* sibling = node->NextSibling( pstr->value() );
         if ( sibling )
           return new BXmlNode( sibling );
-        else
-          return new BError( "Failed to find node" );
+        return new BError( "Failed to find node" );
       }
     }
     else
@@ -379,8 +369,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       TiXmlNode* sibling = node->NextSibling();
       if ( sibling )
         return new BXmlNode( sibling );
-      else
-        return new BError( "Failed to find node" );
+      return new BError( "Failed to find node" );
     }
     break;
   }
@@ -482,10 +471,9 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       TiXmlNode* child = node->FirstChild( pstr->value() );
       if ( child )
         return new BLong( node->RemoveChild( child ) ? 1 : 0 );
-      else
-        return new BError( "Failed to find node" );
+      return new BError( "Failed to find node" );
     }
-    else if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp->isa( Bscript::BObjectImp::OTLong ) )
     {
       const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
       TiXmlHandle handle( node );
@@ -493,8 +481,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
                              .ToNode();  // keep escript 1based index and change it to 0based
       if ( child )
         return new BLong( node->RemoveChild( child ) ? 1 : 0 );
-      else
-        return new BError( "Failed to find node" );
+      return new BError( "Failed to find node" );
     }
     else if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
     {
@@ -536,10 +523,9 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
     TiXmlNode* child = node->FirstChild( keystr->value() );
     if ( child )
       return BObjectRef( new BXmlNode( child ) );
-    else
-      return BObjectRef( new BError( "Failed to find node" ) );
+    return BObjectRef( new BError( "Failed to find node" ) );
   }
-  else if ( obj->isa( OTLong ) )
+  if ( obj->isa( OTLong ) )
   {
     BLong& keyint = (BLong&)obj.impref();
     TiXmlHandle handle( node );
@@ -547,8 +533,7 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
                            .ToNode();  // keep escript 1based index and change it to 0based
     if ( child )
       return BObjectRef( new BXmlNode( child ) );
-    else
-      return BObjectRef( new BError( "Failed to find node" ) );
+    return BObjectRef( new BError( "Failed to find node" ) );
   }
   else
   {
@@ -564,7 +549,7 @@ std::string BXmlNode::getStringRep() const
     Clib::sanitizeUnicodeWithIso( &text );
     return text;
   }
-  else if ( node->Type() == TiXmlNode::TINYXML_DECLARATION )
+  if ( node->Type() == TiXmlNode::TINYXML_DECLARATION )
   {
     TiXmlDeclaration* dec = node->ToDeclaration();
     OSTRINGSTREAM os;
@@ -581,8 +566,7 @@ Bscript::BObjectImp* BXmlAttribute::call_method( const char* methodname, Executo
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex*/,
@@ -616,13 +600,10 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
     const std::string* attrib = node->Attribute( keystr->value() );
     if ( attrib )
       return BObjectRef( new String( attrib->c_str(), String::Tainted::YES ) );
-    else
-      return BObjectRef( new BError( "Failed to find attribute" ) );
+    return BObjectRef( new BError( "Failed to find attribute" ) );
   }
-  else
-  {
-    return BObjectRef( new BError( "xml attribute can only be accessed by name" ) );
-  }
+
+  return BObjectRef( new BError( "xml attribute can only be accessed by name" ) );
 }
 
 BXMLNodeIterator::BXMLNodeIterator( TiXmlDocument* file, BObject* pIter )

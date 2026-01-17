@@ -52,7 +52,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
 
   if ( obj->script_isa( POLCLASS_MOBILE ) )
     return internal_MoveCharacter( static_cast<Character*>( obj ), pos, flags );
-  else if ( obj->script_isa( POLCLASS_BOAT ) )
+  if ( obj->script_isa( POLCLASS_BOAT ) )
     return internal_MoveBoat( static_cast<Multi::UBoat*>( obj ), pos, flags );
   else if ( obj->script_isa( POLCLASS_MULTI ) )
     return new BError( "Can't move multis at this time." );
@@ -169,7 +169,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
     {
       return new BError( "Could not remove item from its container." );
     }
-    else if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
     {
       return new BError( "Item was destroyed in CanRemove script" );
     }

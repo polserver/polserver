@@ -81,11 +81,9 @@ void insert_deferred_items()
         // Removes the object if ignore_load_errors is enabled and the character can't be found.
         if ( !Plib::systemstate.config.ignore_load_errors )
           throw std::runtime_error( "Data file integrity error" );
-        else
-        {
-          ERROR_PRINTLN( "Ignore load errors enabled. Removing object." );
-          obj->destroy();
-        }
+
+        ERROR_PRINTLN( "Ignore load errors enabled. Removing object." );
+        obj->destroy();
       }
     }
     else
@@ -106,11 +104,9 @@ void insert_deferred_items()
         // Removes the object if ignore_load_errors is enabled and the character can't be found.
         if ( !Plib::systemstate.config.ignore_load_errors )
           throw std::runtime_error( "Data file integrity error" );
-        else
-        {
-          ERROR_PRINTLN( "Ignore load errors enabled. Removing object." );
-          obj->destroy();
-        }
+
+        ERROR_PRINTLN( "Ignore load errors enabled. Removing object." );
+        obj->destroy();
       }
     }
     ++nobjects;
@@ -134,40 +130,38 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
     item->clear_dirty();  // equipping sets dirty
     return;
   }
-  else
+
+  ERROR_PRINTLN(
+      "Item {:#x} is supposed to be equipped on Character {:#x}, but is not 'equippable' on that "
+      "character.",
+      item->serial, chr->serial );
+  UContainer* bp = chr->backpack();
+  if ( bp )
   {
-    ERROR_PRINTLN(
-        "Item {:#x} is supposed to be equipped on Character {:#x}, but is not 'equippable' on that "
-        "character.",
-        item->serial, chr->serial );
-    UContainer* bp = chr->backpack();
-    if ( bp )
+    stateManager.gflag_enforce_container_limits = false;
+    bool canadd = bp->can_add( *item );
+    u8 slotIndex = item->slot_index();
+    bool add_to_slot = bp->can_add_to_slot( slotIndex );
+    if ( canadd && add_to_slot && item->slot_index( slotIndex ) )
     {
-      stateManager.gflag_enforce_container_limits = false;
-      bool canadd = bp->can_add( *item );
-      u8 slotIndex = item->slot_index();
-      bool add_to_slot = bp->can_add_to_slot( slotIndex );
-      if ( canadd && add_to_slot && item->slot_index( slotIndex ) )
-      {
-        bp->add_at_random_location( item );
-        // leaving dirty
-        stateManager.gflag_enforce_container_limits = true;
-        ERROR_PRINTLN( "I'm so cool, I put it in the character's backpack!" );
-        return;
-      }
-      else
-      {
-        stateManager.gflag_enforce_container_limits = true;
-        ERROR_PRINTLN( "Tried to put it in the character's backpack, but it wouldn't fit." );
-      }
+      bp->add_at_random_location( item );
+      // leaving dirty
+      stateManager.gflag_enforce_container_limits = true;
+      ERROR_PRINTLN( "I'm so cool, I put it in the character's backpack!" );
+      return;
     }
     else
     {
-      ERROR_PRINTLN(
-          "Tried to put it in the character's backpack, but there isn't one.  That's naughty..." );
+      stateManager.gflag_enforce_container_limits = true;
+      ERROR_PRINTLN( "Tried to put it in the character's backpack, but it wouldn't fit." );
     }
-    throw std::runtime_error( "Data file integrity error" );
   }
+  else
+  {
+    ERROR_PRINTLN(
+        "Tried to put it in the character's backpack, but there isn't one.  That's naughty..." );
+  }
+  throw std::runtime_error( "Data file integrity error" );
 }
 
 void add_loaded_item( Items::Item* cont_item, Items::Item* item )

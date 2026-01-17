@@ -572,7 +572,7 @@ std::vector<std::string> PrettifyLineBuilder::createBasedOnGroups(
             alignmentspace = initial_alignmentspace;
           continue;
         }
-        else if ( invarpack && !line.empty() )
+        if ( invarpack && !line.empty() )
         {
           // try it again when starting a new line
           std::string oldline = line;

@@ -110,7 +110,7 @@ String* String::ETrim( const char* CRSet, int type ) const
       tmp = "";
     return new String( tmp );
   }
-  else if ( type == 2 )  // This is for Trailing Only.
+  if ( type == 2 )  // This is for Trailing Only.
   {
     // Find the first character position from reverse
     size_t endpos = tmp.find_last_not_of( CRSet );
@@ -231,11 +231,9 @@ int String::find( int begin, const char* target ) const
   pos = value_.find( target, pos );
   if ( pos == std::string::npos )
     return -1;
-  else
-  {
-    pos = utf8::unchecked::distance( value_.cbegin(), std::next( value_.cbegin(), pos ) );
-    return static_cast<int>( pos );
-  }
+
+  pos = utf8::unchecked::distance( value_.cbegin(), std::next( value_.cbegin(), pos ) );
+  return static_cast<int>( pos );
 }
 
 unsigned int String::SafeCharAmt() const
@@ -246,7 +244,7 @@ unsigned int String::SafeCharAmt() const
     unsigned char tmp = value_[i];
     if ( tmp >= 0x80 )  // Ascii range
       return i;
-    else if ( isalnum( tmp ) )  // a-z A-Z 0-9
+    if ( isalnum( tmp ) )  // a-z A-Z 0-9
       continue;
     else if ( ispunct( tmp ) )  // !"#$%&'()*+,-./:;<=>?@{|}~
     {
@@ -543,10 +541,8 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
     }
     return this;
   }
-  else
-  {
-    return UninitObject::create();
-  }
+
+  return UninitObject::create();
 }
 
 BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BObjectImp* target )
@@ -727,7 +723,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     }
     return BObjectRef( new BError( "Subscript out of range" ) );
   }
-  else if ( right.isa( OTDouble ) )
+  if ( right.isa( OTDouble ) )
   {
     Double& dbl = (Double&)right;
 
@@ -783,10 +779,8 @@ bool s_parse_int( int& i, std::string const& s )
   {
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void int_to_binstr( int& value, std::stringstream& s )
@@ -895,8 +889,7 @@ BObjectImp* String::call_method( const char* methodname, Executor& ex )
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
@@ -924,7 +917,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       int posn = find( d, s->data() ) + 1;
       return new BLong( posn );
     }
-    else if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
+    if ( auto regex = impptrIf<BRegExp>( ex.getParamImp( 0 ) ) )
     {
       return regex->find( this, d );
     }
@@ -956,7 +949,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     {
       return regex->replace( this, s );
     }
-    else if ( auto funcref = impptrIf<BFunctionRef>( ex.getParamImp( 1 ) ) )
+    if ( auto funcref = impptrIf<BFunctionRef>( ex.getParamImp( 1 ) ) )
     {
       return regex->replace( ex, this, funcref );
     }
@@ -971,7 +964,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 
     if ( ex.numParams() == 0 )
       return new BError( "string.split(Separator[, Max_Split]) takes at least one parameter" );
-    else if ( ex.numParams() > 2 )
+    if ( ex.numParams() > 2 )
       return new BError( "string.split(Separator[, Max_Split]) takes at most two parameters" );
 
     if ( ex.numParams() == 2 )
@@ -985,7 +978,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     {
       return regex->split( this, limit );
     }
-    else if ( auto string_sep = impptrIf<String>( ex.getParamImp( 0 ) ) )
+    if ( auto string_sep = impptrIf<String>( ex.getParamImp( 0 ) ) )
     {
       std::unique_ptr<ObjArray> result( new ObjArray );
       const auto& sep = string_sep->value_;
@@ -1036,8 +1029,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       toUpper();
       return this;
     }
-    else
-      return new BError( "string.upper() doesn't take parameters." );
+    return new BError( "string.upper() doesn't take parameters." );
   }
 
   case MTH_LOWER:
@@ -1047,8 +1039,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       toLower();
       return this;
     }
-    else
-      return new BError( "string.lower() doesn't take parameters." );
+    return new BError( "string.lower() doesn't take parameters." );
   }
   case MTH_FORMAT:
   {
@@ -1186,10 +1177,8 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 
       return new String( result.str() );
     }
-    else
-    {
-      return new BError( "string.format() requires a parameter." );
-    }
+
+    return new BError( "string.format() requires a parameter." );
   }
   case MTH_JOIN:
   {
@@ -1219,8 +1208,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       }
       return new String( OSTRINGSTREAM_STR( joined ) );
     }
-    else
-      return new BError( "string.join(array) requires a parameter." );
+    return new BError( "string.join(array) requires a parameter." );
   }
   default:
     return nullptr;

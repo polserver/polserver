@@ -315,10 +315,8 @@ ResourceDef* find_resource_def( const std::string& rname )
   {
     return nullptr;
   }
-  else
-  {
-    return ( *itr ).second;
-  }
+
+  return ( *itr ).second;
 }
 
 

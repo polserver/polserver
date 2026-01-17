@@ -489,48 +489,46 @@ void Party::send_remove_member( Mobile::Character* remchr, bool* disband )
     *disband = true;
     return;
   }
-  else
+
+  Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
+  msg->offset += 4;  // len+sub
+  msg->Write<u8>( PKTBI_BF_06::PARTYCMD_REMOVE );
+  msg->offset++;  // nummembers
+  msg->Write<u32>( remchr->serial_ext );
+
+  // TODO: refactor the loop below to use std::remove_if() + extract a method
+  auto itr = _member_serials.begin();
+  while ( itr != _member_serials.end() )
   {
-    Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
-    msg->offset += 4;  // len+sub
-    msg->Write<u8>( PKTBI_BF_06::PARTYCMD_REMOVE );
-    msg->offset++;  // nummembers
-    msg->Write<u32>( remchr->serial_ext );
+    Mobile::Character* chr = system_find_mobile( *itr );
+    if ( chr != nullptr )
+    {
+      msg->Write<u32>( chr->serial_ext );
+      ++itr;
+    }
+    else
+      itr = _member_serials.erase( itr );
+  }
+  u16 len = msg->offset;
+  msg->offset = 6;
+  msg->Write<u8>( _member_serials.size() );
+  msg->offset = 1;
+  msg->WriteFlipped<u16>( len );
 
-    // TODO: refactor the loop below to use std::remove_if() + extract a method
-    auto itr = _member_serials.begin();
-    while ( itr != _member_serials.end() )
+  for ( const auto& serial : _member_serials )
+  {
+    Mobile::Character* chr = system_find_mobile( serial );
+    if ( chr != nullptr )
     {
-      Mobile::Character* chr = system_find_mobile( *itr );
-      if ( chr != nullptr )
-      {
-        msg->Write<u32>( chr->serial_ext );
-        ++itr;
-      }
-      else
-        itr = _member_serials.erase( itr );
+      if ( chr->has_active_client() )
+        msg.Send( chr->client, len );
     }
-    u16 len = msg->offset;
-    msg->offset = 6;
-    msg->Write<u8>( _member_serials.size() );
-    msg->offset = 1;
-    msg->WriteFlipped<u16>( len );
-
-    for ( const auto& serial : _member_serials )
-    {
-      Mobile::Character* chr = system_find_mobile( serial );
-      if ( chr != nullptr )
-      {
-        if ( chr->has_active_client() )
-          msg.Send( chr->client, len );
-      }
-    }
-    send_msg_to_all( CLP_Player_Removed );  // A player has been removed from your party.
-    if ( !test_size() )
-    {
-      send_msg_to_all( CLP_Last_Person );  // The last person has left the party...
-      *disband = true;
-    }
+  }
+  send_msg_to_all( CLP_Player_Removed );  // A player has been removed from your party.
+  if ( !test_size() )
+  {
+    send_msg_to_all( CLP_Last_Person );  // The last person has left the party...
+    *disband = true;
   }
 }
 

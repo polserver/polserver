@@ -1169,10 +1169,8 @@ bool Character::can_move( const Items::Item* item ) const
   {
     return cached_settings.get( PRIV_FLAGS::MOVE_ANY ) || item->movable();
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool Character::can_be_renamed_by( const Character* /*chr*/ ) const
@@ -1264,8 +1262,7 @@ unsigned int Character::gold_carried() const
   Core::UContainer* bp = backpack();
   if ( bp != nullptr )
     return bp->find_sumof_objtype_noninuse( UOBJ_GOLD_COIN );
-  else
-    return 0;
+  return 0;
 }
 
 // TODO: This could be more efficient, by inlining 'spend' logic
@@ -1805,14 +1802,12 @@ unsigned short calc_thru_damage( double damage, unsigned short ar )
   {
     return static_cast<unsigned short>( damage * 0.5 );
   }
+
+  int dmg = static_cast<int>( damage );
+  if ( dmg >= 0 )
+    return static_cast<unsigned short>( dmg );
   else
-  {
-    int dmg = static_cast<int>( damage );
-    if ( dmg >= 0 )
-      return static_cast<unsigned short>( dmg );
-    else
-      return 0;
-  }
+    return 0;
 }
 
 
@@ -2250,8 +2245,8 @@ void Character::die()
     }
     if ( item->newbie() || item->insured() || item->no_drop() )
       continue;
-    else if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
-              !item->movable() )  // dress layer needs to be unequipped for deathrobe
+    if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
+         !item->movable() )  // dress layer needs to be unequipped for deathrobe
     {
       _copy_item( item );
       continue;
@@ -2689,10 +2684,8 @@ bool Character::check_skill( Core::USKILLID skillid, int difficulty, unsigned sh
     in_here = false;
     return res;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void Character::check_concealment_level()
@@ -2778,22 +2771,20 @@ void PropagateMove( /*Client *client,*/ Character* chr )
               msginvul.Send( client );
             return;
           }
-          else
-          {
-// NOTE: uncomment this line to make movement smoother (no stepping anims)
+
+      // NOTE: uncomment this line to make movement smoother (no stepping anims)
 // but basically makes it very difficult to talk while the ship
 // is moving.
 #ifdef PERGON
-            send_remove_character( client, chr, msgremove );
+          send_remove_character( client, chr, msgremove );
 #else
 // send_remove_character( client, chr );
 #endif
-            send_owncreate( client, chr, msgcreate.Get() );
-            if ( chr->poisoned() )
-              msgpoison.Send( client );
-            if ( chr->invul() )
-              msginvul.Send( client );
-          }
+          send_owncreate( client, chr, msgcreate.Get() );
+          if ( chr->poisoned() )
+            msgpoison.Send( client );
+          if ( chr->invul() )
+            msginvul.Send( client );
         }
         else if ( zonechr->in_visual_range( nullptr, chr->lastpos ) )
         {
@@ -2923,8 +2914,7 @@ bool Character::manual_set_swing_timer( Core::polclock_t clocks )
                                            swing_task_func, this );
     return true;
   }
-  else
-    return false;
+  return false;
 }
 
 /* The highlighted character is:
@@ -2936,7 +2926,7 @@ Character* Character::get_opponent() const
 {
   if ( opponent_ != nullptr )
     return opponent_;
-  else if ( !opponent_of.empty() )
+  if ( !opponent_of.empty() )
     return *opponent_of.begin();
   else
     return nullptr;
@@ -2951,32 +2941,30 @@ bool Character::is_attackable( Character* who ) const
     ( "is_attackable({:#x},{:#x}): will be handled by combat hook.", this->serial, who->serial );
     return true;
   }
+
+  INFO_PRINTLN_TRACE( 21 )
+  ( "is_attackable({:#x},{:#x}):\n"
+    "  who->dead:  {}\n"
+    "  wpn->inrange: {}\n"
+    "  hidden:     {}\n"
+    "  who->hidden:  {}\n"
+    "  concealed:  {}",
+    this->serial, who->serial, who->dead(), weapon->in_range( this, who ), hidden(), who->hidden(),
+    is_concealed_from_me( who ) );
+  if ( who->dead() )
+    return false;
+  else if ( !weapon->in_range( this, who ) )
+    return false;
+  else if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
+    return false;
+  else if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
+    return false;
+  else if ( is_concealed_from_me( who ) )
+    return false;
+  else if ( !realm()->has_los( *this, *who ) )
+    return false;
   else
-  {
-    INFO_PRINTLN_TRACE( 21 )
-    ( "is_attackable({:#x},{:#x}):\n"
-      "  who->dead:  {}\n"
-      "  wpn->inrange: {}\n"
-      "  hidden:     {}\n"
-      "  who->hidden:  {}\n"
-      "  concealed:  {}",
-      this->serial, who->serial, who->dead(), weapon->in_range( this, who ), hidden(),
-      who->hidden(), is_concealed_from_me( who ) );
-    if ( who->dead() )
-      return false;
-    else if ( !weapon->in_range( this, who ) )
-      return false;
-    else if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
-      return false;
-    else if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
-      return false;
-    else if ( is_concealed_from_me( who ) )
-      return false;
-    else if ( !realm()->has_los( *this, *who ) )
-      return false;
-    else
-      return true;
-  }
+    return true;
 }
 
 Character* Character::get_attackable_opponent() const
@@ -3230,8 +3218,7 @@ Core::UACTION Character::weapon_anim() const
 {
   if ( on_mount() )
     return weapon->mounted_anim();
-  else
-    return weapon->anim();
+  return weapon->anim();
 }
 
 void Character::do_attack_effects( Character* target )
@@ -3822,26 +3809,24 @@ bool Character::CustomHousingMove( unsigned char i_dir )
         dir = i_dir;
         return true;
       }
-      else
-      {
-        auto newpos = pos().move( static_cast<Core::UFACING>( facing ) );
-        newpos.z( house->z() +
-                  Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
-        const Multi::MultiDef& def = house->multidef();
-        auto relpos = newpos - house->pos().xy();
-        // minx and y are wall elements and z is 7
-        // mobile will look like flying when allowing the min coords
-        if ( def.within_multi( relpos ) && relpos.x() != def.minrxyz.x() &&
-             relpos.y() != def.minrxyz.y() )
-        {
-          Core::Pos4d oldpos = pos();
-          setposition( newpos );
-          MoveCharacterWorldPosition( oldpos, this );
 
-          position_changed();
-          set_dirty();
-          return true;
-        }
+      auto newpos = pos().move( static_cast<Core::UFACING>( facing ) );
+      newpos.z( house->z() +
+                Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
+      const Multi::MultiDef& def = house->multidef();
+      auto relpos = newpos - house->pos().xy();
+      // minx and y are wall elements and z is 7
+      // mobile will look like flying when allowing the min coords
+      if ( def.within_multi( relpos ) && relpos.x() != def.minrxyz.x() &&
+           relpos.y() != def.minrxyz.y() )
+      {
+        Core::Pos4d oldpos = pos();
+        setposition( newpos );
+        MoveCharacterWorldPosition( oldpos, this );
+
+        position_changed();
+        set_dirty();
+        return true;
       }
     }
   }
@@ -4146,18 +4131,16 @@ bool Character::squelched() const
   Core::gameclock_t squelched = squelched_until();
   if ( squelched == 0 )
     return false;
-  else if ( squelched == ~0u )
+  if ( squelched == ~0u )
     return true;
 
   if ( Core::read_gameclock() < squelched )
   {
     return true;
   }
-  else
-  {
-    const_cast<Character*>( this )->squelched_until( 0 );
-    return false;
-  }
+
+  const_cast<Character*>( this )->squelched_until( 0 );
+  return false;
 }
 
 bool Character::deafened() const
@@ -4165,18 +4148,16 @@ bool Character::deafened() const
   Core::gameclock_t deafened = deafened_until();
   if ( deafened == 0 )
     return false;
-  else if ( deafened == ~0u )
+  if ( deafened == ~0u )
     return true;
 
   if ( Core::read_gameclock() < deafened )
   {
     return true;
   }
-  else
-  {
-    const_cast<Character*>( this )->deafened_until( 0 );
-    return false;
-  }
+
+  const_cast<Character*>( this )->deafened_until( 0 );
+  return false;
 }
 
 bool Character::invul() const

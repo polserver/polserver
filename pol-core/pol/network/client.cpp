@@ -347,7 +347,7 @@ bool Client::compareVersion( const VersionDetailStruct& ver2 )
 
   if ( ver1.major > ver2.major )
     return true;
-  else if ( ver1.major < ver2.major )
+  if ( ver1.major < ver2.major )
     return false;
   else if ( ver1.minor > ver2.minor )
     return true;
@@ -519,16 +519,14 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
       THREAD_CHECKPOINT( active_client, 207 );
       return;
     }
-    else
-    {
-      THREAD_CHECKPOINT( active_client, 208 );
-      if ( !disconnect )
-        POLLOG_ERRORLN( "Client#{}: Disconnecting client due to send() error (1): {}",
-                        myClient.instance_, sckerr );
-      disconnect = true;
-      THREAD_CHECKPOINT( active_client, 209 );
-      return;
-    }
+
+    THREAD_CHECKPOINT( active_client, 208 );
+    if ( !disconnect )
+      POLLOG_ERRORLN( "Client#{}: Disconnecting client due to send() error (1): {}",
+                      myClient.instance_, sckerr );
+    disconnect = true;
+    THREAD_CHECKPOINT( active_client, 209 );
+    return;
   }
   else  // no error
   {
@@ -570,14 +568,12 @@ void ThreadedClient::send_queued_data()
         // do nothing.  it'll be re-queued later, when it won't block.
         return;
       }
-      else
-      {
-        if ( !disconnect )
-          POLLOGLN( "Client#{}: Disconnecting client due to send() error (2): {}",
-                    myClient.instance_, sckerr );
-        disconnect = true;
-        return;
-      }
+
+      if ( !disconnect )
+        POLLOGLN( "Client#{}: Disconnecting client due to send() error (2): {}", myClient.instance_,
+                  sckerr );
+      disconnect = true;
+      return;
     }
     else
     {

@@ -209,10 +209,8 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
 
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "Invalid parameter type" );
-    }
+
+    return new BError( "Invalid parameter type" );
   }
 
   case MTH_APPENDPIN:
@@ -224,10 +222,8 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
       pin_points.push_back( pin );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "Invalid parameter type" );
-    }
+
+    return new BError( "Invalid parameter type" );
   }
 
   case MTH_ERASEPIN:
@@ -242,10 +238,8 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
       pin_points.erase( itr );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "Index Out of Range" );
-    }
+
+    return new BError( "Index Out of Range" );
   }
 
   default:
@@ -263,8 +257,7 @@ Bscript::BObjectImp* Map::script_method( const char* methodname, UOExecutor& ex 
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->script_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Range2d Map::getrange() const

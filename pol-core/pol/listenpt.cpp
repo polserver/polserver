@@ -73,7 +73,7 @@ void ListenPoint::sayto( Mobile::Character* speaker, const std::string& text, u8
   {
     if ( speechtokens != nullptr && ( ( flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
       return;
-    else if ( speechtokens == nullptr && ( flags & LISTENPT_NO_SPEECH ) )
+    if ( speechtokens == nullptr && ( flags & LISTENPT_NO_SPEECH ) )
       return;
   }
   if ( !speaker->in_range( object.get(), range ) )

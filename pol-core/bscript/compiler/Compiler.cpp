@@ -38,10 +38,8 @@ bool Compiler::write_ecl( const std::string& pathname )
     CompiledScriptSerializer( *output ).write( pathname );
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void Compiler::write_listing( const std::string& pathname )

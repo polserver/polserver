@@ -29,30 +29,28 @@ bool could_be_a_number( const char* s )
       ++s;
       if ( isxdigit( ch ) )
         continue;
-      else if ( isspace( ch ) )
+      if ( isspace( ch ) )
         return true;
       else
         return false;
     }
     return true;
   }
-  else  // expect -, +, 0-9, . only
+  // expect -, +, 0-9, . only
+  while ( *s )
   {
-    while ( *s )
+    char ch = *s;
+    ++s;
+    if ( ch == '-' || ch == '+' || ( ch >= '0' && ch <= '9' ) || ch == '.' )
     {
-      char ch = *s;
-      ++s;
-      if ( ch == '-' || ch == '+' || ( ch >= '0' && ch <= '9' ) || ch == '.' )
-      {
-        continue;
-      }
-      else
-      {
-        return false;
-      }
+      continue;
     }
-    return true;
+    else
+    {
+      return false;
+    }
   }
+  return true;
 }
 
 BObjectImp* convert_numeric( const std::string& str, int radix )
@@ -90,33 +88,31 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
       }
       return new BLong( l );
     }
-    else
+
+    if ( !could_be_a_number( s ) )
+      return nullptr;
+    if ( endptr2 )
     {
-      if ( !could_be_a_number( s ) )
-        return nullptr;
-      if ( endptr2 )
+      if ( ( d != -HUGE_VAL ) && ( d != +HUGE_VAL ) )
       {
-        if ( ( d != -HUGE_VAL ) && ( d != +HUGE_VAL ) )
+        while ( *endptr2 )
         {
-          while ( *endptr2 )
+          if ( !isspace( *endptr2 ) )
           {
-            if ( !isspace( *endptr2 ) )
+            if ( *endptr2 == '/' && *( endptr2 + 1 ) == '/' )
             {
-              if ( *endptr2 == '/' && *( endptr2 + 1 ) == '/' )
-              {
-                // assume what follows is a comment
-                break;
-              }
-              return nullptr;
+              // assume what follows is a comment
+              break;
             }
-            ++endptr2;
+            return nullptr;
           }
+          ++endptr2;
         }
-        else
-          return nullptr;  // overflow, read it as string
       }
-      return new Double( d );
+      else
+        return nullptr;  // overflow, read it as string
     }
+    return new Double( d );
   }
   return nullptr;
 }
@@ -126,8 +122,7 @@ BObjectImp* bobject_from_string( const std::string& str, int radix )
   BObjectImp* imp = convert_numeric( str, radix );
   if ( imp )
     return imp;
-  else
-    return new ConstString( str );
+  return new ConstString( str );
 }
 
 
@@ -135,7 +130,6 @@ std::string normalize_ecl_filename( const std::string& filename )
 {
   if ( filename.find( ".ecl" ) == std::string::npos )
     return filename + ".ecl";
-  else
-    return filename;
+  return filename;
 }
 }  // namespace Pol::Bscript

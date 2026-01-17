@@ -190,37 +190,35 @@ bool ConfigFileExecutorModule::get_cfgfilename( const std::string& cfgdesc, std:
       *cfgfile = "config/" + cfgdesc.substr( 2, std::string::npos ) + ".cfg";
       return true;
     }
-    else  // ":pkgname:configfile" - config file in some package
+    // ":pkgname:configfile" - config file in some package
+    std::string::size_type second_colon = cfgdesc.find( ':', 2 );
+    if ( second_colon != std::string::npos )
     {
-      std::string::size_type second_colon = cfgdesc.find( ':', 2 );
-      if ( second_colon != std::string::npos )
+      std::string pkgname = cfgdesc.substr( 1, second_colon - 1 );
+      std::string cfgbase = cfgdesc.substr( second_colon + 1, std::string::npos );
+
+      if ( pkgname == "*" )
       {
-        std::string pkgname = cfgdesc.substr( 1, second_colon - 1 );
-        std::string cfgbase = cfgdesc.substr( second_colon + 1, std::string::npos );
-
-        if ( pkgname == "*" )
+        if ( allpkgbase )
         {
-          if ( allpkgbase )
-          {
-            *cfgfile = cfgdesc;
-            *allpkgbase = cfgbase;
-            return true;
-          }
-          return false;
-        }
-
-        Plib::Package* dstpkg = Plib::find_package( pkgname );
-        if ( dstpkg != nullptr )
-        {
-          *cfgfile = GetPackageCfgPath( dstpkg, cfgbase + ".cfg" );
+          *cfgfile = cfgdesc;
+          *allpkgbase = cfgbase;
           return true;
         }
-        *errmsg = "Unable to find package " + pkgname;
         return false;
       }
-      *errmsg = "Poorly formed config file descriptor: " + cfgdesc;
+
+      Plib::Package* dstpkg = Plib::find_package( pkgname );
+      if ( dstpkg != nullptr )
+      {
+        *cfgfile = GetPackageCfgPath( dstpkg, cfgbase + ".cfg" );
+        return true;
+      }
+      *errmsg = "Unable to find package " + pkgname;
       return false;
     }
+    *errmsg = "Poorly formed config file descriptor: " + cfgdesc;
+    return false;
   }
   if ( pkg != nullptr )
   {

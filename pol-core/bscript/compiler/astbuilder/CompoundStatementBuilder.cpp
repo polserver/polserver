@@ -262,7 +262,7 @@ std::unique_ptr<Statement> CompoundStatementBuilder::for_loop( EscriptParser::Fo
   {
     return cstyle_for_loop( cstyle, std::move( label ) );
   }
-  else if ( auto basic = ctx->basicForStatement() )
+  if ( auto basic = ctx->basicForStatement() )
   {
     return basic_for_loop( basic, std::move( label ) );
   }
@@ -280,7 +280,7 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   {
     return scoped_identifier( scoped_ident );
   }
-  else if ( auto identifier = ctx->IDENTIFIER() )
+  if ( auto identifier = ctx->IDENTIFIER() )
   {
     return std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) );
   }

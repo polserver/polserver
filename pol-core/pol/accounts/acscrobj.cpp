@@ -111,10 +111,8 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
                               std::string( " not found on that object" );
         return new BError( message );
       }
-      else
-      {
-        return ret;
-      }
+
+      return ret;
     }
     else
       return new BError( "Invalid parameter type" );
@@ -189,10 +187,8 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
         obj_->passwordhash_ = temp;  // MD5
         break;
       }
-      else
-      {
-        return new BError( "Invalid parameter type" );
-      }
+
+      return new BError( "Invalid parameter type" );
     }
     else
       return new BError( "account.SetPassword(newpass) requires a parameter." );
@@ -309,7 +305,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
     int cmdlevel;
     if ( !ex.getParam( 0, cmdlevel ) )
       return new BError( "Invalid parameter type." );
-    else if ( cmdlevel >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
+    if ( cmdlevel >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
       cmdlevel = static_cast<int>( Core::gamestate.cmdlevels.size() - 1 );
 
     obj_->default_cmdlevel_ = char( cmdlevel );
@@ -400,7 +396,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
       int _result = delete_account( obj_->name() );
       if ( _result == -1 )
         return new BError( "You must delete all Character first." );
-      else if ( _result == -2 )  // Should never happen ;o)
+      if ( _result == -2 )  // Should never happen ;o)
         return new BError( "Invalid Account Name." );
     }
     else
@@ -600,8 +596,7 @@ Bscript::BObjectRef AccountObjImp::get_member( const char* membername )
   ObjMember* objmember = getKnownObjMember( membername );
   if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
-  else
-    return BObjectRef( UninitObject::create() );
+  return BObjectRef( UninitObject::create() );
 }
 }  // namespace Accounts
 }  // namespace Pol

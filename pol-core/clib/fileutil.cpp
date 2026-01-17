@@ -37,7 +37,7 @@ std::string normalized_dir_form( const std::string& istr )
   {
     return "/";
   }
-  else if ( str[str.size() - 1] == '/' || str[str.size() - 1] == '\\' )
+  if ( str[str.size() - 1] == '/' || str[str.size() - 1] == '\\' )
   {
     return str;
   }
@@ -90,26 +90,24 @@ int make_dir( const char* dir )
     {
       return 0; /* made it okay */
     }
-    else
-    {
-      // if didn't make it,
-      std::string parent_dir = dir;
-      if ( strip_one( parent_dir ) )
-        return -1;
-      if ( make_dir( parent_dir.c_str() ) )
-        return -1;
-#ifdef _WIN32
-      if ( CreateDirectory( dir, nullptr ) )
-        return 0;
-#else
-      if ( mkdir( dir, 0777 ) == 0 )
-        return 0;
-#endif
-      // this test is mostly for the case where the path is in normalized form
-      if ( access( dir, 0 ) == 0 )
-        return 0;
+
+    // if didn't make it,
+    std::string parent_dir = dir;
+    if ( strip_one( parent_dir ) )
       return -1;
-    }
+    if ( make_dir( parent_dir.c_str() ) )
+      return -1;
+#ifdef _WIN32
+    if ( CreateDirectory( dir, nullptr ) )
+      return 0;
+#else
+    if ( mkdir( dir, 0777 ) == 0 )
+      return 0;
+#endif
+    // this test is mostly for the case where the path is in normalized form
+    if ( access( dir, 0 ) == 0 )
+      return 0;
+    return -1;
   }
   return 0;
 }
@@ -150,8 +148,7 @@ std::string FullPath( const char* filename )
   char tmp[PATH_MAX];
   if ( realpath( filename, tmp ) )
     return tmp;
-  else
-    return "";
+  return "";
 #else
   char p[1025];
   _fullpath( p, filename, sizeof p );
@@ -165,8 +162,7 @@ std::string GetTrueName( const char* filename )
   auto canonical = std::filesystem::canonical( filename, ec );
   if ( ec )
     return filename;
-  else
-    return canonical.filename().string();
+  return canonical.filename().string();
 }
 
 std::string GetFilePart( const char* filename )

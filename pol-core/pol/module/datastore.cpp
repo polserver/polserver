@@ -150,10 +150,8 @@ Bscript::BObjectImp* DataFileContents::methodFindElement( int key )
     DataFileElementRef dfelem = ( *itr ).second;
     return new DataElemRefObjImp( DataFileContentsRef( this ), dfelem );
   }
-  else
-  {
-    return new Bscript::BError( "Element not found" );
-  }
+
+  return new Bscript::BError( "Element not found" );
 }
 
 Bscript::BObjectImp* DataFileContents::methodFindElement( const std::string& key )
@@ -164,10 +162,8 @@ Bscript::BObjectImp* DataFileContents::methodFindElement( const std::string& key
     DataFileElementRef dfelem = ( *itr ).second;
     return new DataElemRefObjImp( DataFileContentsRef( this ), dfelem );
   }
-  else
-  {
-    return new Bscript::BError( "Element not found" );
-  }
+
+  return new Bscript::BError( "Element not found" );
 }
 
 
@@ -178,8 +174,7 @@ Bscript::BObjectImp* DataFileContents::methodDeleteElement( int key )
     dirty = true;
     return new Bscript::BLong( 1 );
   }
-  else
-    return new Bscript::BError( "Element not found" );
+  return new Bscript::BError( "Element not found" );
 }
 
 Bscript::BObjectImp* DataFileContents::methodDeleteElement( const std::string& key )
@@ -189,8 +184,7 @@ Bscript::BObjectImp* DataFileContents::methodDeleteElement( const std::string& k
     dirty = true;
     return new Bscript::BLong( 1 );
   }
-  else
-    return new Bscript::BError( "Element not found" );
+  return new Bscript::BError( "Element not found" );
 }
 
 Bscript::BObjectImp* DataFileContents::methodKeys() const
@@ -321,8 +315,7 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method( const char* methodname, Bsc
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 
@@ -395,10 +388,8 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
     DataStoreFile* dsf = ( *itr ).second;
     return dsf;
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 Bscript::BObjectImp* DataFileExecutorModule::mf_ListDataFiles()
@@ -526,10 +517,8 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_OpenDataFile()
           dsf->load();
         return new DataFileRefObjImp( dsf->dfcontents );
       }
-      else
-      {
-        return new Bscript::BError( "Datafile does not exist" );
-      }
+
+      return new Bscript::BError( "Datafile does not exist" );
     }
     catch ( std::exception& ex )
     {
@@ -554,10 +543,8 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_UnloadDataFile()
     dsf->unload = true;
     return new Bscript::BLong( 1 );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 DataStoreFile::DataStoreFile( Clib::ConfigElem& elem )

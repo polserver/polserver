@@ -230,7 +230,7 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   {
     return string_value( string_literal );
   }
-  else if ( auto integer_literal = ctx->integerLiteral() )
+  if ( auto integer_literal = ctx->integerLiteral() )
   {
     return integer_value( integer_literal );
   }
@@ -264,7 +264,7 @@ int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
     {
       return std::stoi( decimal_literal->getSymbol()->getText() );
     }
-    else if ( auto hex_literal = ctx->HEX_LITERAL() )
+    if ( auto hex_literal = ctx->HEX_LITERAL() )
     {
       return static_cast<int>( std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 ) );
     }

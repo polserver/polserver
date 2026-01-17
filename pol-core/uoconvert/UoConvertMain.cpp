@@ -417,8 +417,7 @@ short get_lowestadjacentz( unsigned short x, unsigned short y, short z )
 
   if ( cave_override )
     return z;
-  else
-    return lowest_z;
+  return lowest_z;
 }
 
 void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
@@ -765,8 +764,7 @@ std::string UoConvertMain::resolve_type_from_id( unsigned id ) const
 {
   if ( BoatTypes.count( id ) )
     return "Boat";
-  else
-    return "Multi";
+  return "Multi";
 }
 
 void UoConvertMain::write_multi_element( FILE* multis_cfg, const USTRUCT_MULTI_ELEMENT& elem,

@@ -75,11 +75,9 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
     schedule_executor( ex.release() );
     return true;
   }
-  else
-  {
-    POLLOGLN( "Unable to setProgram({})", prog->name.get() );
-    return false;
-  }
+
+  POLLOGLN( "Unable to setProgram({})", prog->name.get() );
+  return false;
 }
 
 bool Character::start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,

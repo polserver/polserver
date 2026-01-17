@@ -148,10 +148,8 @@ bool AuxClientThread::init()
     }
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool AuxClientThread::ipAllowed( sockaddr MyPeer )

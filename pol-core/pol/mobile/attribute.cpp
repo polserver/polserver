@@ -24,8 +24,7 @@ Attribute* Attribute::FindAttribute( const std::string& str )
   Core::AttributesByName::const_iterator citr = Core::gamestate.attributes_byname.find( str );
   if ( citr != Core::gamestate.attributes_byname.end() )
     return ( *citr ).second;
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem )

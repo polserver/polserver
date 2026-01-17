@@ -357,10 +357,8 @@ u16 USpellScroll::get_senditem_amount() const
     Spellbook* book = static_cast<Spellbook*>( container );
     return convert_objtype_to_spellnum( objtype_, book->spell_school );
   }
-  else  // not contained, or not in a spellbook
-  {
-    return amount_;
-  }
+  // not contained, or not in a spellbook
+  return amount_;
 }
 size_t USpellScroll::estimatedSize() const
 {

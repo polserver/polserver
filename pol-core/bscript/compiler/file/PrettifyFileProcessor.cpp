@@ -661,7 +661,7 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     visitPrimary( prim );
     return true;
   }
-  else if ( ctx->prefix )
+  if ( ctx->prefix )
   {
     addToken( ctx->prefix->getText(), ctx->prefix,
               ctx->prefix->getType() == EscriptLexer::BANG_B ? FmtToken::SPACE : FmtToken::NONE );
@@ -806,7 +806,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFloatLiteral( EscriptParser::FloatLite
 {
   if ( auto float_literal = ctx->FLOAT_LITERAL() )
     return make_float_literal( float_literal );
-  else if ( auto hex_float_literal = ctx->HEX_FLOAT_LITERAL() )
+  if ( auto hex_float_literal = ctx->HEX_FLOAT_LITERAL() )
     return make_float_literal( hex_float_literal );
 
   return visitChildren( ctx );
@@ -1360,7 +1360,7 @@ antlrcpp::Any PrettifyFileProcessor::visitIntegerLiteral(
   if ( auto decimal_literal = ctx->DECIMAL_LITERAL() )
     return make_integer_literal( decimal_literal );
 
-  else if ( auto hex_literal = ctx->HEX_LITERAL() )
+  if ( auto hex_literal = ctx->HEX_LITERAL() )
     return make_integer_literal( hex_literal );
 
   else if ( auto oct_literal = ctx->OCT_LITERAL() )
@@ -1376,7 +1376,7 @@ antlrcpp::Any PrettifyFileProcessor::visitLiteral( EscriptParser::LiteralContext
 {
   if ( auto string_literal = ctx->STRING_LITERAL() )
     return make_string_literal( string_literal );
-  else if ( auto integer_literal = ctx->integerLiteral() )
+  if ( auto integer_literal = ctx->integerLiteral() )
     return visitIntegerLiteral( integer_literal );
   else if ( auto float_literal = ctx->floatLiteral() )
     return visitFloatLiteral( float_literal );
@@ -1434,7 +1434,7 @@ antlrcpp::Any PrettifyFileProcessor::visitPrimary( EscriptParser::PrimaryContext
 {
   if ( auto literal = ctx->literal() )
     return visitLiteral( literal );
-  else if ( auto parExpression = ctx->parExpression() )
+  if ( auto parExpression = ctx->parExpression() )
     return visitParExpression( parExpression );
   else if ( auto functionCall = ctx->functionCall() )
     return visitFunctionCall( functionCall );
@@ -1522,7 +1522,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStatement( EscriptParser::StatementCon
 {
   if ( auto ifStatement = ctx->ifStatement() )
     return visitIfStatement( ifStatement );
-  else if ( auto gotoStatement = ctx->gotoStatement() )
+  if ( auto gotoStatement = ctx->gotoStatement() )
     return visitGotoStatement( gotoStatement );
   else if ( auto returnStatement = ctx->returnStatement() )
     return visitReturnStatement( returnStatement );
@@ -1568,7 +1568,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStringIdentifier(
 {
   if ( auto identifier = ctx->IDENTIFIER() )
     return make_identifier( identifier );
-  else if ( auto string_literal = ctx->STRING_LITERAL() )
+  if ( auto string_literal = ctx->STRING_LITERAL() )
     return make_string_literal( string_literal );
   return {};
 }

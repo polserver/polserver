@@ -111,14 +111,12 @@ BObjectImp* HttpExecutorModule::mf_WriteStatus()
       continuing_offset = 0;
       return new BLong( 1 );
     }
-    else
-    {
-      continuing_offset += nsent;
-      auto& uoex = uoexec();
-      uoex.SleepForMs( 500u );
-      --uoex.PC;
-      return uoex.fparams[0]->impptr();
-    }
+
+    continuing_offset += nsent;
+    auto& uoex = uoexec();
+    uoex.SleepForMs( 500u );
+    --uoex.PC;
+    return uoex.fparams[0]->impptr();
   }
   return new BError( "Invalid parameter type" );
 }
@@ -166,14 +164,12 @@ BObjectImp* HttpExecutorModule::mf_WriteHeader()
       continuing_offset = 0;
       return new BLong( 1 );
     }
-    else
-    {
-      continuing_offset += nsent;
-      auto& uoex = uoexec();
-      uoex.SleepForMs( 500u );
-      --uoex.PC;
-      return uoex.fparams[0]->impptr();
-    }
+
+    continuing_offset += nsent;
+    auto& uoex = uoexec();
+    uoex.SleepForMs( 500u );
+    --uoex.PC;
+    return uoex.fparams[0]->impptr();
   }
   return new BError( "Invalid parameter type" );
 }
@@ -220,14 +216,12 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
       sck_.send_nowait( "\n", 1, &nsent );
       return new BLong( 1 );
     }
-    else
-    {
-      continuing_offset += nsent;
-      auto& uoex = uoexec();
-      uoex.SleepForMs( 500u );
-      --uoex.PC;
-      return uoex.fparams[0]->impptr();
-    }
+
+    continuing_offset += nsent;
+    auto& uoex = uoexec();
+    uoex.SleepForMs( 500u );
+    --uoex.PC;
+    return uoex.fparams[0]->impptr();
   }
   else
   {
@@ -277,14 +271,12 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
       continuing_offset = 0;
       return new BLong( 1 );
     }
-    else
-    {
-      continuing_offset += nsent;
-      auto& uoex = uoexec();
-      uoex.SleepForMs( 500u );
-      --uoex.PC;
-      return uoex.fparams[0]->impptr();
-    }
+
+    continuing_offset += nsent;
+    auto& uoex = uoexec();
+    uoex.SleepForMs( 500u );
+    --uoex.PC;
+    return uoex.fparams[0]->impptr();
   }
   else
   {
@@ -318,8 +310,7 @@ BObjectImp* HttpExecutorModule::mf_QueryParam()
     QueryParamMap::iterator itr = params_.find( str->data() );
     if ( itr != params_.end() )
       return new String( ( *itr ).second );
-    else
-      return new BLong( 0 );
+    return new BLong( 0 );
   }
   else
   {

@@ -50,9 +50,9 @@ struct ci_cmp_pred
     auto res = strnicmp( sv1.data(), sv2.data(), std::min( sv1.size(), sv2.size() ) );
     if ( res != 0 )
       return res < 0;
-    else if ( sv1.size() == sv2.size() )
+    if ( sv1.size() == sv2.size() )
       return res < 0;
-    else if ( sv1.size() > sv2.size() )
+    if ( sv1.size() > sv2.size() )
       return false;
     return true;
   }

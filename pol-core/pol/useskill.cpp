@@ -42,7 +42,7 @@ void handle_use_skill( Network::Client* client, PKTIN_12* msg )
 
   if ( !attrib->disable_core_checks && !CanUseSkill( client ) )
     return;
-  else if ( !attrib->script_.empty() )
+  if ( !attrib->script_.empty() )
   {
     if ( StartSkillScript( client, attrib ) )
       return;
@@ -93,7 +93,7 @@ bool CanUseSkill( Network::Client* client )
     private_say_above( chr, chr, "I am dead and cannot do that." );
     return false;
   }
-  else if ( chr->skill_ex_active() || chr->casting_spell() )
+  if ( chr->skill_ex_active() || chr->casting_spell() )
   {
     private_say_above( chr, chr, "I am already performing another action." );
     return false;

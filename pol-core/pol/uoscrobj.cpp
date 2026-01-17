@@ -235,8 +235,7 @@ bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
 
       return ( chrref_imp->obj_->serial == obj_->serial );
     }
-    else
-      return false;
+    return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
@@ -257,7 +256,7 @@ bool ECharacterRefObjImp::operator<( const BObjectImp& objimp ) const
 
       return ( chrref_imp->obj_->serial < obj_->serial );
     }
-    else if ( aob->object_type() == &eitemrefobjimp_type )
+    if ( aob->object_type() == &eitemrefobjimp_type )
       return true;
     return false;
   }
@@ -389,7 +388,7 @@ bool EItemRefObjImp::operator==( const BObjectImp& objimp ) const
     }
     return false;
   }
-  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+  if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   return false;
 }
@@ -521,7 +520,7 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
     }
     return false;
   }
-  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+  if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   return false;
 }
@@ -632,7 +631,7 @@ bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
     }
     return false;
   }
-  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+  if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   return false;
 }
@@ -690,8 +689,7 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
       Multi::UMulti* multi;
       if ( nullptr != ( multi = realm()->find_supporting_multi( pos3d() ) ) )
         return multi->make_ref();
-      else
-        return new BLong( 0 );
+      return new BLong( 0 );
     }
     else
       return new BLong( 0 );
@@ -1661,7 +1659,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
-    else if ( !ex.getPos4dParam( 0, 1, 2, 3, &newpos ) )
+    if ( !ex.getPos4dParam( 0, 1, 2, 3, &newpos ) )
       return new BError( "Invalid parameter type" );
     else if ( !ex.getParam( 4, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1726,7 +1724,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
-    else if ( !ex.getItemParam( 0, cont_item ) )
+    if ( !ex.getItemParam( 0, cont_item ) )
       return new BError( "No container specified" );
     else if ( !ex.getParam( 1, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1845,8 +1843,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
       return new Module::EItemRefObjImp( existing_stack );
     }
-    else
-      return create_new_stack();
+    return create_new_stack();
 
     break;
   }
@@ -1856,7 +1853,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough params" );
-    else if ( !ex.getItemParam( 0, cont ) )
+    if ( !ex.getItemParam( 0, cont ) )
       return new BError( "No container specified" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
@@ -1916,15 +1913,13 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
     if ( id.method_script->FindExportedFunction(
              methodname, static_cast<unsigned int>( pmore.size() + 1 ), PC ) )
       return id.method_script->call( PC, new Module::EItemRefObjImp( this ), pmore );
-    else
-    {
-      std::string message;
-      message = "Method script for objtype " + id.objtype_description() +
-                " does not export function " + std::string( methodname ) + " taking " +
-                Clib::tostring( pmore.size() + 1 ) + " parameters";
-      BError* err = new BError( message );
-      return BObject( err );
-    }
+
+    std::string message;
+    message = "Method script for objtype " + id.objtype_description() +
+              " does not export function " + std::string( methodname ) + " taking " +
+              Clib::tostring( pmore.size() + 1 ) + " parameters";
+    BError* err = new BError( message );
+    return BObject( err );
   }
   return BObject( new BError( "No method script defined for " + id.objtype_description() ) );
 }
@@ -3053,7 +3048,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
         squelched_until( ~0u );
         return new BLong( -1 );
       }
-      else if ( duration == 0 )
+      if ( duration == 0 )
         squelched_until( 0 );
       else
         squelched_until( Core::read_gameclock() + duration );
@@ -3378,7 +3373,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
         deafened_until( ~0u );
         return new BLong( -1 );
       }
-      else if ( duration == 0 )
+      if ( duration == 0 )
         deafened_until( 0 );
       else
         deafened_until( Core::read_gameclock() + duration );
@@ -3714,11 +3709,10 @@ BObjectImp* NPC::script_method_id( const int id, Core::UOExecutor& executor )
       master_.set( chr );
       return new BLong( 1 );
     }
-    else
-    {
-      master_.clear();
-      return new BLong( 0 );
-    }
+
+    master_.clear();
+    return new BLong( 0 );
+
     break;
   }
   default:
@@ -3947,8 +3941,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
         return new BError( "SpellID must be >= 1" );
       if ( this->has_spellid( sid ) )
         return new BLong( 1 );
-      else
-        return new BLong( 0 );
+      return new BLong( 0 );
     }
     break;
   }
@@ -3982,8 +3975,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
         return new BError( "SpellID must be >= 1" );
       if ( this->remove_spellid( sid ) )
         return new BLong( 1 );
-      else
-        return new BLong( 0 );
+      return new BLong( 0 );
     }
     break;
   }
@@ -3998,8 +3990,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
         return new BError( "SpellID must be >= 1" );
       if ( this->add_spellid( sid ) )
         return new BLong( 1 );
-      else
-        return new BLong( 0 );
+      return new BLong( 0 );
     }
     break;
   }
@@ -4152,7 +4143,7 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
       move_offline_mobiles( Core::Pos4d( pos, realm() ) );
       return new BLong( 1 );
     }
-    else if ( ex.numParams() == 4 )
+    if ( ex.numParams() == 4 )
     {
       Core::Pos4d pos;
       if ( !ex.getPos4dParam( 0, 1, 2, 3, &pos ) )
@@ -4178,15 +4169,13 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
         return new BError( "Invalid parameters" );
       return set_pilot( nullptr );
     }
-    else
-    {
-      Mobile::Character* chr;
 
-      if ( !ex.getCharacterParam( 0, chr ) )
-        return new BError( "Invalid parameters" );
+    Mobile::Character* chr;
 
-      return set_pilot( chr );
-    }
+    if ( !ex.getCharacterParam( 0, chr ) )
+      return new BError( "Invalid parameters" );
+
+    return set_pilot( chr );
   }
   case MTH_SET_ALTERNATE_MULTIID:
   {
@@ -4356,12 +4345,10 @@ BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
 
       if ( ret != nullptr )
         return ret;
-      else
-      {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
-        return new BError( message );
-      }
+
+      std::string message = std::string( "Member " ) + std::string( mname->value() ) +
+                            std::string( " not found on that object" );
+      return new BError( message );
     }
     break;
   }
@@ -4376,12 +4363,10 @@ BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
       BObjectImp* ret = get_script_member( mname->value().c_str() );
       if ( ret != nullptr )
         return ret;
-      else
-      {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
-        return new BError( message );
-      }
+
+      std::string message = std::string( "Member " ) + std::string( mname->value() ) +
+                            std::string( " not found on that object" );
+      return new BError( message );
     }
     break;
   }
@@ -4403,15 +4388,13 @@ BObjectImp* UObject::script_method( const char* methodname, Core::UOExecutor& ex
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->script_method_id( objmethod->id, ex );
-  else
-  {
-    bool changed = false;
-    BObjectImp* imp = CallPropertyListMethod( proplist_, methodname, ex, changed );
-    if ( changed )
-      set_dirty();
 
-    return imp;
-  }
+  bool changed = false;
+  BObjectImp* imp = CallPropertyListMethod( proplist_, methodname, ex, changed );
+  if ( changed )
+    set_dirty();
+
+  return imp;
 }
 
 BObjectImp* UObject::custom_script_method( const char* methodname, Core::UOExecutor& ex )
@@ -4791,7 +4774,7 @@ bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
     }
     return false;
   }
-  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+  if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   return false;
 }

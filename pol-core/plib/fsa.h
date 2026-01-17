@@ -100,34 +100,33 @@ public:  // methods
     {
       return nullptr;
     }
+
+    pNewNode = m_pFirstFree;
+    m_pFirstFree = pNewNode->pNext;
+
+    // if the new node points to another free node then
+    // change that nodes prev free pointer...
+    if ( pNewNode->pNext )
+    {
+      pNewNode->pNext->pPrev = nullptr;
+    }
+
+    // node is now on the used list
+
+    pNewNode->pPrev = nullptr;  // the allocated node is always first in the list
+
+    if ( m_pFirstUsed == nullptr )
+    {
+      pNewNode->pNext = nullptr;  // no other nodes
+    }
     else
     {
-      pNewNode = m_pFirstFree;
-      m_pFirstFree = pNewNode->pNext;
-
-      // if the new node points to another free node then
-      // change that nodes prev free pointer...
-      if ( pNewNode->pNext )
-      {
-        pNewNode->pNext->pPrev = nullptr;
-      }
-
-      // node is now on the used list
-
-      pNewNode->pPrev = nullptr;  // the allocated node is always first in the list
-
-      if ( m_pFirstUsed == nullptr )
-      {
-        pNewNode->pNext = nullptr;  // no other nodes
-      }
-      else
-      {
-        m_pFirstUsed->pPrev = pNewNode;  // insert this at the head of the used list
-        pNewNode->pNext = m_pFirstUsed;
-      }
-
-      m_pFirstUsed = pNewNode;
+      m_pFirstUsed->pPrev = pNewNode;  // insert this at the head of the used list
+      pNewNode->pNext = m_pFirstUsed;
     }
+
+    m_pFirstUsed = pNewNode;
+
 
     return reinterpret_cast<USER_TYPE*>( pNewNode );
   }

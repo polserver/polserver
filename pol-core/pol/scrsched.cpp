@@ -392,8 +392,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
 
   if ( ex.ValueStack.empty() )
     return new Bscript::BLong( 1 );
-  else
-    return ex.ValueStack.back().get()->impptr()->copy();
+  return ex.ValueStack.back().get()->impptr()->copy();
 }
 
 Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script )

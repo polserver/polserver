@@ -64,8 +64,7 @@ std::unique_ptr<Node> IfThenElseStatement::take_alternative()
 {
   if ( children.size() >= 3 )
     return std::move( children[2] );
-  else
-    return {};
+  return {};
 }
 
 }  // namespace Pol::Bscript::Compiler

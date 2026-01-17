@@ -404,7 +404,7 @@ unsigned char cvt_8to6( char ch )
 {
   if ( ch >= 'A' && ch <= 'Z' )
     return ch - 'A';
-  else if ( ch >= 'a' && ch <= 'z' )
+  if ( ch >= 'a' && ch <= 'z' )
     return ch - 'a' + 26;
   else if ( ch >= '0' && ch <= '9' )
     return ch - '0' + 52;
@@ -461,7 +461,7 @@ bool legal_pagename( const std::string& page )
     {
       continue;
     }
-    else if ( ( ch == '.' ) && ( isalnum( *( t + 1 ) ) ) )
+    if ( ( ch == '.' ) && ( isalnum( *( t + 1 ) ) ) )
     {
       continue;
     }
@@ -486,10 +486,8 @@ std::string get_pagetype( const std::string& page )
   {
     return page.substr( dotpos + 1 );
   }
-  else
-  {
-    return "";
-  }
+
+  return "";
 }
 
 bool get_script_page_filename( const std::string& page, ScriptDef& sd )
@@ -508,10 +506,8 @@ bool get_script_page_filename( const std::string& page, ScriptDef& sd )
         sd.quickconfig( pkg, "www/" + page.substr( pkgname_end + 1 ) );
         return true;
       }
-      else
-      {
-        return false;
-      }
+
+      return false;
     }
     else
     {

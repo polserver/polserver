@@ -111,7 +111,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     {
       return BObjectRef( new BError( "Index out of bounds" ) );
     }
-    else if ( _row[index - 1] == nullptr )
+    if ( _row[index - 1] == nullptr )
     {
       return BObjectRef( UninitObject::create() );
     }
@@ -126,7 +126,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     }
     return BObjectRef( new String( _row[index - 1], String::Tainted::YES ) );
   }
-  else if ( right.isa( OTString ) )
+  if ( right.isa( OTString ) )
   {
     String& string = (String&)right;
     for ( unsigned int i = 0; i < num_fields; i++ )
@@ -251,8 +251,7 @@ Bscript::BObjectImp* BSQLResultSet::copy() const
 {
   if ( _affected_rows )
     return new BSQLResultSet( _affected_rows );
-  else
-    return new BSQLResultSet( _result, _fields );
+  return new BSQLResultSet( _result, _fields );
 };
 
 int BSQLResultSet::num_fields() const
@@ -290,20 +289,19 @@ Bscript::BObjectImp* BSQLConnection::getResultSet() const
     return new BSQLResultSet( result );
     // retrieve rows, then call mysql_free_result(result)
   }
-  else  // mysql_store_result() returned nothing; should it have?
-  {
-    /*  if (mysql_errno(_conn))
-        {
-          _error = mysql_error(_conn);
-          _errno = mysql_errno(_conn);
-          return new BError(_error);
-        }
-        else */
-    if ( mysql_field_count( _conn->ptr() ) == 0 )
+  // mysql_store_result() returned nothing; should it have?
+  /*  if (mysql_errno(_conn))
     {
-      return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn->ptr() ) ) );
+      _error = mysql_error(_conn);
+      _errno = mysql_errno(_conn);
+      return new BError(_error);
     }
+    else */
+  if ( mysql_field_count( _conn->ptr() ) == 0 )
+  {
+    return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn->ptr() ) ) );
   }
+
   return new BError( "Unknown error getting ResultSet" );
 }
 BSQLConnection::BSQLConnection()
@@ -360,7 +358,7 @@ bool BSQLConnection::select_db( const char* db )
     _error = "No active MYSQL object instance.";
     return false;
   }
-  else if ( mysql_select_db( _conn->ptr(), db ) )
+  if ( mysql_select_db( _conn->ptr(), db ) )
   {
     _errno = mysql_errno( _conn->ptr() );
     _error = mysql_error( _conn->ptr() );
@@ -484,8 +482,7 @@ BObjectRef BSQLConnection::get_member( const char* membername )
   ObjMember* objmember = getKnownObjMember( membername );
   if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
-  else
-    return BObjectRef( UninitObject::create() );
+  return BObjectRef( UninitObject::create() );
 }
 
 Bscript::BObjectImp* BSQLConnection::call_polmethod( const char* methodname, UOExecutor& ex )
@@ -493,8 +490,7 @@ Bscript::BObjectImp* BSQLConnection::call_polmethod( const char* methodname, UOE
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Bscript::BObjectImp* BSQLConnection::call_polmethod_id( const int /*id*/, UOExecutor& /*ex*/,

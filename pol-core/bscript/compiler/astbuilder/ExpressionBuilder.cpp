@@ -97,7 +97,7 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
           location_for( *ctx ), consume, element_access->take_entity(),
           element_access->take_indexes(), std::move( rhs ) );
     }
-    else if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
+    if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
     {
       return std::make_unique<MemberAssignment>( location_for( *ctx ), consume,
                                                  get_member->take_entity(), get_member->name,
@@ -120,8 +120,7 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
                                               ctx->bop->getText(), token_id, std::move( rhs ) );
   if ( consume )
     return consume_expression_result( std::move( op ) );
-  else
-    return op;
+  return op;
 }
 
 BTokenId ExpressionBuilder::binary_operator_token(
@@ -129,7 +128,7 @@ BTokenId ExpressionBuilder::binary_operator_token(
 {
   if ( ctx->ADD() )
     return TOK_ADD;
-  else if ( ctx->SUB() )
+  if ( ctx->SUB() )
     return TOK_SUBTRACT;
   else if ( ctx->MUL() )
     return TOK_MULT;
@@ -489,7 +488,7 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   {
     return element_access( std::move( lhs ), indexing->indexList() );
   }
-  else if ( auto member = ctx->navigationSuffix() )
+  if ( auto member = ctx->navigationSuffix() )
   {
     return navigation( std::move( lhs ), member );
   }
@@ -562,7 +561,7 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return value( literal );
   }
-  else if ( auto par_expression = ctx->parExpression() )
+  if ( auto par_expression = ctx->parExpression() )
   {
     return expression( par_expression->expression() );
   }
@@ -643,13 +642,11 @@ std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
 
     return std::make_unique<Identifier>( loc, std::move( scoped_name ) );
   }
-  else
-  {
-    ScopableName scoped_name( ScopeName::Global, text( ctx->identifier ) );
 
-    return std::make_unique<Identifier>(
-        loc, ScopableName( ScopeName::Global, text( ctx->identifier ) ) );
-  }
+  ScopableName scoped_name( ScopeName::Global, text( ctx->identifier ) );
+
+  return std::make_unique<Identifier>( loc,
+                                       ScopableName( ScopeName::Global, text( ctx->identifier ) ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(

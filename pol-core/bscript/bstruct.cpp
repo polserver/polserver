@@ -150,21 +150,19 @@ BObject* BStructIterator::step()
     BObjectRef& oref = ( *itr ).second;
     return oref.get();
   }
-  else
-  {
-    auto itr = m_pStruct->contents_.find( key );
-    if ( itr == m_pStruct->contents_.end() )
-      return nullptr;
-    ++itr;
-    if ( itr == m_pStruct->contents_.end() )
-      return nullptr;
 
-    key = ( *itr ).first;
-    m_IterVal->setimp( new String( key ) );
+  auto itr = m_pStruct->contents_.find( key );
+  if ( itr == m_pStruct->contents_.end() )
+    return nullptr;
+  ++itr;
+  if ( itr == m_pStruct->contents_.end() )
+    return nullptr;
 
-    BObjectRef& oref = ( *itr ).second;
-    return oref.get();
-  }
+  key = ( *itr ).first;
+  m_IterVal->setimp( new String( key ) );
+
+  BObjectRef& oref = ( *itr ).second;
+  return oref.get();
 }
 
 ContIterator* BStruct::createIterator( BObject* pIterVal )

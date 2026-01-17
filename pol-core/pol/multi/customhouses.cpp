@@ -78,7 +78,7 @@ char CustomHouseDesign::z_to_custom_house_table( char z )
   {
     if ( z == custom_house_z_xlate_table[i] )
       return i;
-    else if ( z < custom_house_z_xlate_table[i] )
+    if ( z < custom_house_z_xlate_table[i] )
       return i - 1;
   }
   return -1;
@@ -334,14 +334,12 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
     *compr_length = cbuflen;
     return compressed;
   }
-  else
-  {
-    *uncompr_length = 0;
-    *compr_length = 0;
-    delete[] compressed;
-    delete[] uncompressed;
-    return nullptr;
-  }
+
+  *uncompr_length = 0;
+  *compr_length = 0;
+  delete[] compressed;
+  delete[] uncompressed;
+  return nullptr;
 }
 
 bool CustomHouseDesign::IsEmpty() const

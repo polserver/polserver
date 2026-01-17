@@ -392,7 +392,7 @@ int Executor::paramAsLong( unsigned param )
   BObjectImp* objimp = getParam( param )->impptr();
   if ( auto* l = impptrIf<BLong>( objimp ) )
     return l->value();
-  else if ( auto* d = impptrIf<Double>( objimp ) )
+  if ( auto* d = impptrIf<Double>( objimp ) )
     return static_cast<int>( d->value() );
   return 0;
 }
@@ -572,7 +572,7 @@ bool Executor::getRealParam( unsigned param, double& value )
     value = d->value();
     return true;
   }
-  else if ( auto* l = impptrIf<BLong>( imp ) )
+  if ( auto* l = impptrIf<BLong>( imp ) )
   {
     value = l->value();
     return true;
@@ -782,7 +782,7 @@ bool Executor::getParam( unsigned param, bool& value )
     value = b->value();
     return true;
   }
-  else if ( auto* l = impptrIf<BLong>( imp ) )
+  if ( auto* l = impptrIf<BLong>( imp ) )
   {
     value = l->isTrue();
     return true;
@@ -807,7 +807,7 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
     pstr = s;
     return true;
   }
-  else if ( auto* a = obj->impptr_if<ObjArray>() )
+  if ( auto* a = obj->impptr_if<ObjArray>() )
   {
     String* str = String::fromUCArray( a );
     fparams[param].set( str );  // store raw pointer
@@ -2322,8 +2322,7 @@ void Executor::ins_unpack_indices( const Instruction& ins )
       ValueStack.emplace( insert_at, new BError( "Invalid type for rest binding" ) );
       return;
     }
-    else
-      rest_obj = std::make_unique<BDictionary>();
+    rest_obj = std::make_unique<BDictionary>();
 
     auto& unique_index = indexes.get<1>();
 
@@ -3063,31 +3062,29 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
 
     return result.release();
   }
-  else  // as string
+  // as string
+  std::string result;
+
+  if ( has_symbols )
   {
-    std::string result;
-
-    if ( has_symbols )
-    {
-      with_dbginfo(
-          [&]( unsigned int /*pc*/, const std::string& filename, unsigned int line,
-               const std::string& functionName )
-          {
-            result.append( fmt::format( "{}at {} ({}:{})", result.empty() ? "" : "\n", functionName,
-                                        filename, line ) );
-          } );
-    }
-    else
-    {
-      walkCallStack(
-          [&]( unsigned int pc ) {
-            result.append(
-                fmt::format( "{}at {}+{}", result.empty() ? "" : "\n", scriptname(), pc ) );
-          } );
-    }
-
-    return new String( std::move( result ) );
+    with_dbginfo(
+        [&]( unsigned int /*pc*/, const std::string& filename, unsigned int line,
+             const std::string& functionName )
+        {
+          result.append( fmt::format( "{}at {} ({}:{})", result.empty() ? "" : "\n", functionName,
+                                      filename, line ) );
+        } );
   }
+  else
+  {
+    walkCallStack(
+        [&]( unsigned int pc ) {
+          result.append(
+              fmt::format( "{}at {}+{}", result.empty() ? "" : "\n", scriptname(), pc ) );
+        } );
+  }
+
+  return new String( std::move( result ) );
 }
 
 void Executor::ins_pop_param( const Instruction& ins )

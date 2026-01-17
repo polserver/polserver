@@ -589,11 +589,9 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
           schedule_executor( ex.release() );
           return true;
         }
-        else
-        {
-          ERROR_PRINTLN( "script {}: setProgram failed", scriptname );
-          // TODO: it seems to keep looking until it finds one it can use..guess this is okay?
-        }
+
+        ERROR_PRINTLN( "script {}: setProgram failed", scriptname );
+        // TODO: it seems to keep looking until it finds one it can use..guess this is okay?
       }
     }
   }

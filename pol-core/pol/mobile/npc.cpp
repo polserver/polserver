@@ -725,7 +725,7 @@ void NPC::on_pc_spoke( Character* src_chr, const std::string& speech, u8 texttyp
   {
     if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
       return;
-    else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
+    if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
       return;
   }
   if ( ( ( ex->eventmask & Core::EVID_SPOKE ) || ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
@@ -750,7 +750,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 t
   {
     if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
       return;
-    else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
+    if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
       return;
   }
   if ( ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) ||
@@ -857,7 +857,7 @@ void NPC::inform_moved( Character* moved )
         ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
         return;
       }
-      else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
+      if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
       {
         ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
         return;
@@ -920,8 +920,7 @@ bool NPC::can_accept_event( Core::EVENTID eventid )
     return false;
   if ( ex->eventmask & eventid )
     return true;
-  else
-    return false;
+  return false;
 }
 
 bool NPC::send_event( Bscript::BObjectImp* event )
@@ -945,10 +944,8 @@ Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
   {
     if ( ex->signal_event( event ) )
       return new Bscript::BLong( 1 );
-    else
-    {
-      return new Bscript::BError( "Event queue is full, discarding event" );
-    }
+
+    return new Bscript::BError( "Event queue is full, discarding event" );
   }
   else
   {
@@ -1014,8 +1011,7 @@ Items::UWeapon* NPC::intrinsic_weapon()
 {
   if ( template_->intrinsic_weapon )
     return template_->intrinsic_weapon;
-  else
-    return Core::gamestate.wrestling_weapon;
+  return Core::gamestate.wrestling_weapon;
 }
 
 void NPC::refresh_ar()

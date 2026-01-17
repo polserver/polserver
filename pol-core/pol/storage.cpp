@@ -126,8 +126,7 @@ StorageArea* Storage::find_area( const std::string& name )
   AreaCont::iterator itr = areas.find( name );
   if ( itr == areas.end() )
     return nullptr;
-  else
-    return ( *itr ).second;
+  return ( *itr ).second;
 }
 
 StorageArea* Storage::create_area( const std::string& name )
@@ -139,10 +138,8 @@ StorageArea* Storage::create_area( const std::string& name )
     areas[name] = area;
     return area;
   }
-  else
-  {
-    return ( *itr ).second;
-  }
+
+  return ( *itr ).second;
 }
 
 StorageArea* Storage::create_area( Clib::ConfigElem& elem )
@@ -152,11 +149,9 @@ StorageArea* Storage::create_area( Clib::ConfigElem& elem )
   {
     return create_area( rest );
   }
-  else
-  {
-    std::string name = elem.remove_string( "NAME" );
-    return create_area( name );
-  }
+
+  std::string name = elem.remove_string( "NAME" );
+  return create_area( name );
 }
 
 
@@ -326,7 +321,7 @@ BObjectRef StorageAreaImp::get_member( const char* membername )
   {
     return BObjectRef( new BLong( static_cast<int>( _area->_items.size() ) ) );
   }
-  else if ( stricmp( membername, "totalcount" ) == 0 )
+  if ( stricmp( membername, "totalcount" ) == 0 )
   {
     unsigned int total = 0;
     for ( StorageArea::Cont::iterator itr = _area->_items.begin(); itr != _area->_items.end();
@@ -416,10 +411,8 @@ BObjectRef StorageAreasImp::OperSubscript( const BObject& obj )
     {
       return BObjectRef( new BObject( new StorageAreaImp( ( *itr ).second ) ) );
     }
-    else
-    {
-      return BObjectRef( new BObject( new BError( "Storage Area not found" ) ) );
-    }
+
+    return BObjectRef( new BObject( new BError( "Storage Area not found" ) ) );
   }
   return BObjectRef( new BObject( new BError( "Invalid parameter type" ) ) );
 }

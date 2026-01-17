@@ -48,8 +48,7 @@ bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
 
       return ( guildref_imp->obj_->_guildid == obj_->_guildid );
     }
-    else
-      return false;
+    return false;
   }
   else if ( objimp.isa( BObjectImp::OTBoolean ) )
     return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();

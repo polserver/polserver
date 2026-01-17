@@ -41,9 +41,7 @@ bool ConfigSection::matches( const ConfigElem& elem )
     _found = true;
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 }  // namespace Pol::Clib

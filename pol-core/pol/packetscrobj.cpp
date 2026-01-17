@@ -83,8 +83,7 @@ BObjectRef BPacket::get_member( const char* membername )
   ObjMember* objmember = getKnownObjMember( membername );
   if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
-  else
-    return BObjectRef( UninitObject::create() );
+  return BObjectRef( UninitObject::create() );
 }
 
 BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*forcebuiltin*/ )
@@ -116,8 +115,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
                                                            static_cast<int>( buffer.size() ) );
           return new BLong( 1 );
         }
-        else
-          return new BLong( 0 );
+        return new BLong( 0 );
       }
     }
     break;
@@ -568,8 +566,7 @@ BObjectImp* BPacket::call_polmethod( const char* methodname, UOExecutor& ex )
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex );
-  else
-    return nullptr;
+  return nullptr;
 }
 BObjectImp* BPacket::copy() const
 {

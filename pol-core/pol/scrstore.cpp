@@ -45,12 +45,10 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
     {
       return ( *itr ).second;
     }
-    else
-    {
-      ref_ptr<Bscript::EScriptProgram> res( ( *itr ).second );
-      scriptScheduler.scrstore.erase( itr );
-      return res;
-    }
+
+    ref_ptr<Bscript::EScriptProgram> res( ( *itr ).second );
+    scriptScheduler.scrstore.erase( itr );
+    return res;
   }
 
   ref_ptr<Bscript::EScriptProgram> program( new Bscript::EScriptProgram );

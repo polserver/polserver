@@ -152,7 +152,7 @@ MapServer* MapServer::Create( const RealmDescriptor& descriptor )
   {
     return new InMemoryMapServer( descriptor );
   }
-  else if ( descriptor.mapserver_type == "file" )
+  if ( descriptor.mapserver_type == "file" )
   {
     return new FileMapServer( descriptor );
   }

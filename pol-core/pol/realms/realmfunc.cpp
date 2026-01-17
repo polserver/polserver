@@ -712,7 +712,7 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
           result = false;
           break;
         }
-        else if ( z < ztop && ztop <= dropz )
+        if ( z < ztop && ztop <= dropz )
         {
           // a blocking item somewhere between where they _tried_ to drop it,
           // and where we decided to place it.
@@ -866,16 +866,14 @@ bool Realm::findstatic( const Core::Pos2d& pos, unsigned short objtype ) const
 {
   if ( is_shadowrealm )
     return baserealm->_staticserver->findstatic( pos.x(), pos.y(), objtype );
-  else
-    return _staticserver->findstatic( pos.x(), pos.y(), objtype );
+  return _staticserver->findstatic( pos.x(), pos.y(), objtype );
 }
 
 void Realm::getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos ) const
 {
   if ( is_shadowrealm )
     return baserealm->_staticserver->getstatics( statics, pos.x(), pos.y() );
-  else
-    _staticserver->getstatics( statics, pos.x(), pos.y() );
+  _staticserver->getstatics( statics, pos.x(), pos.y() );
 }
 
 bool Realm::groundheight( const Core::Pos2d& pos, short* z ) const
@@ -894,8 +892,7 @@ Plib::MAPTILE_CELL Realm::getmaptile( const Core::Pos2d& pos ) const
 {
   if ( is_shadowrealm )
     return baserealm->_maptileserver->GetMapTile( pos.x(), pos.y() );
-  else
-    return _maptileserver->GetMapTile( pos.x(), pos.y() );
+  return _maptileserver->GetMapTile( pos.x(), pos.y() );
 }
 
 void Realm::getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,

@@ -117,7 +117,7 @@ UFACING Pos2d::direction_toward( const Pos2d& dst ) const
   {
     if ( y() < dst.y() )
       return FACING_SE;
-    else if ( y() == dst.y() )
+    if ( y() == dst.y() )
       return FACING_E;
     else /* y() > dst.y() */
       return FACING_NE;
@@ -126,14 +126,14 @@ UFACING Pos2d::direction_toward( const Pos2d& dst ) const
   {
     if ( y() < dst.y() )
       return FACING_S;
-    else if ( y() > dst.y() )
+    if ( y() > dst.y() )
       return FACING_N;
   }
   else /* x() > dst.x() */  // West to target
   {
     if ( y() < dst.y() )
       return FACING_SW;
-    else if ( y() == dst.y() )
+    if ( y() == dst.y() )
       return FACING_W;
     else /* y() > dst.y() */
       return FACING_NW;

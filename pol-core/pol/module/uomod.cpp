@@ -308,8 +308,7 @@ BObjectImp* UOExecutorModule::mf_Attach( /* Character */ )
 
         return new BLong( 1 );
       }
-      else
-        return new BError( "Another script still attached." );
+      return new BError( "Another script still attached." );
     }
     else
       return new BError( "Another character still attached." );
@@ -327,10 +326,8 @@ BObjectImp* UOExecutorModule::mf_Detach()
     attached_chr_ = nullptr;
     return new BLong( 1 );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 static bool item_create_params_ok( u32 objtype, int amount )
@@ -483,11 +480,9 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
 
       return new EItemRefObjImp( item );
     }
-    else
-    {
-      item->destroy();
-      return new BError( "That container is full" );
-    }
+
+    item->destroy();
+    return new BError( "That container is full" );
   }
   else
   {
@@ -515,10 +510,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
                                         static_cast<unsigned short>( amount ), false, pos, this );
     }
-    else
-    {
-      return new BError( "That is not a container" );
-    }
+
+    return new BError( "That is not a container" );
   }
   else
   {
@@ -546,10 +539,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
                                         static_cast<unsigned short>( amount ), true, pos, this );
     }
-    else
-    {
-      return new BError( "That is not a container" );
-    }
+
+    return new BError( "That is not a container" );
   }
   else
   {
@@ -575,10 +566,8 @@ BObjectImp* UOExecutorModule::mf_Broadcast()
       Core::broadcast_unicode( text, "ENU", font, color, requiredCmdLevel );
     return new BLong( 1 );
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 /* Special containers (specifically, bankboxes, but probably any other
@@ -705,8 +694,7 @@ BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
   Item* found = cont->find_objtype( objtype, flags );
   if ( found == nullptr )
     return new BError( "No items were found" );
-  else
-    return new EItemRefObjImp( found );
+  return new EItemRefObjImp( found );
 }
 
 
@@ -728,10 +716,8 @@ BObjectImp* UOExecutorModule::mf_SendSysMessage()
         Core::send_sysmessage_unicode( chr->client, ptext->value(), "ENU", font, color );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "Mobile has no active client" );
-    }
+
+    return new BError( "Mobile has no active client" );
   }
   else
   {
@@ -752,9 +738,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
   {
     if ( !ptext->hasUTF8Characters() )
       return new BLong( say_above( obj, ptext->data(), font, color, journal_print ) );
-    else
-      return new BLong(
-          say_above_unicode( obj, ptext->value(), "ENU", font, color, journal_print ) );
+    return new BLong( say_above_unicode( obj, ptext->value(), "ENU", font, color, journal_print ) );
   }
   else
   {
@@ -775,8 +759,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
   {
     if ( !ptext->hasUTF8Characters() )
       return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
-    else
-      return new BLong( private_say_above_unicode( chr, obj, ptext->value(), "ENU", font, color ) );
+    return new BLong( private_say_above_unicode( chr, obj, ptext->value(), "ENU", font, color ) );
   }
   else
   {
@@ -910,10 +893,8 @@ BObjectImp* UOExecutorModule::mf_CancelTarget()
         msg.Send( chr->client, sizeof msg->buffer );
         return new BLong( 0 );
       }
-      else
-      {
-        return new BError( "Client does not have an active target cursor" );
-      }
+
+      return new BError( "Client does not have an active target cursor" );
     }
     else
     {
@@ -1061,7 +1042,7 @@ BObjectImp* UOExecutorModule::mf_GetObjType()
   {
     return new BLong( item->objtype_ );
   }
-  else if ( getCharacterParam( 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     return new BLong( chr->objtype_ );
   }
@@ -1087,8 +1068,7 @@ BObjectImp* UOExecutorModule::mf_Accessible()
 
     if ( chr->can_access( item, range ) )
       return new BLong( 1 );
-    else
-      return new BLong( 0 );
+    return new BLong( 0 );
   }
   return new BLong( 0 );
 }
@@ -1101,10 +1081,8 @@ BObjectImp* UOExecutorModule::mf_GetAmount()
   {
     return new BLong( item->getamount() );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 
@@ -1129,10 +1107,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
         pos = Core::Pos2d( static_cast<u16>( px ), static_cast<u16>( py ) );
       return _create_item_in_container( backpack, descriptor, amount, false, pos, this );
     }
-    else
-    {
-      return new BError( "Character has no backpack." );
-    }
+
+    return new BError( "Character has no backpack." );
   }
   else
   {
@@ -1154,10 +1130,8 @@ BObjectImp* _complete_create_item_at_location( Item* item, const Core::Pos4d& po
       item->destroy();
       return res;
     }
-    else
-    {
-      BObject ob( res );
-    }
+
+    BObject ob( res );
   }
 
   update_item_to_inrange( item );
@@ -1185,10 +1159,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemAtLocation( /* x,y,z,objtype,amount,r
       item->setamount( amount );
       return _complete_create_item_at_location( item, pos );
     }
-    else
-    {
-      return new BError( "Unable to create item of objtype " + Clib::hexint( itemdesc->objtype ) );
-    }
+
+    return new BError( "Unable to create item of objtype " + Clib::hexint( itemdesc->objtype ) );
   }
   return new BError( "Invalid parameter type" );
 }
@@ -1207,10 +1179,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation( /* x,y,z,item,realm *
     {
       return _complete_create_item_at_location( item, pos );
     }
-    else
-    {
-      return new BError( "Unable to clone item" );
-    }
+
+    return new BError( "Unable to clone item" );
   }
   else
   {
@@ -1409,10 +1379,8 @@ BObjectImp* UOExecutorModule::mf_SubtractAmount()
     subtract_amount_from_item( item, amount );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_AddAmount()
@@ -1445,10 +1413,8 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
 
     return new EItemRefObjImp( item );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_PerformAction()
@@ -1472,10 +1438,8 @@ BObjectImp* UOExecutorModule::mf_PerformAction()
         static_cast<REPEAT_FLAG_OLD>( repeatflag ), static_cast<unsigned char>( delay ) );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_PlaySoundEffect()
@@ -1487,10 +1451,8 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffect()
     play_sound_effect( chr, static_cast<u16>( effect ) );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_PlaySoundEffectPrivate()
@@ -1503,10 +1465,8 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectPrivate()
     play_sound_effect_private( center, static_cast<u16>( effect ), forchr );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
@@ -1518,10 +1478,8 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
     play_sound_effect_xyz( center, static_cast<u16>( effect ) );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_PlayMusic( /* char, music_id */ )
@@ -1533,10 +1491,8 @@ BObjectImp* UOExecutorModule::mf_PlayMusic( /* char, music_id */ )
     send_midi( chr->client, static_cast<u16>( musicid ) );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
@@ -1575,10 +1531,8 @@ bool UOExecutorModule::getDynamicMenuParam( unsigned param, Menu*& menu )
     menu = &menu_imp->value();
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu )
@@ -1590,7 +1544,7 @@ bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu 
     menu = Menu::find_menu( pmenuname->data() );
     return ( menu != nullptr );
   }
-  else if ( imp->isa( BObjectImp::OTApplicObj ) )
+  if ( imp->isa( BObjectImp::OTApplicObj ) )
   {
     BApplicObjBase* aob = static_cast<BApplicObjBase*>( imp );
     if ( aob->object_type() == &menu_type )
@@ -1755,10 +1709,8 @@ BObjectImp* UOExecutorModule::mf_AddMenuItem()
     mi->color_ = color & settingsManager.ssopt.item_color_mask;
     return new BLong( 1 );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_GetObjProperty()
@@ -1772,10 +1724,8 @@ BObjectImp* UOExecutorModule::mf_GetObjProperty()
     {
       return BObjectImp::unpack( val.c_str() );
     }
-    else
-    {
-      return new BError( "Property not found" );
-    }
+
+    return new BError( "Property not found" );
   }
   else
   {
@@ -1793,10 +1743,8 @@ BObjectImp* UOExecutorModule::mf_SetObjProperty()
     uobj->setprop( propname_str->value(), propval->pack() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_EraseObjProperty()
@@ -1808,10 +1756,8 @@ BObjectImp* UOExecutorModule::mf_EraseObjProperty()
     uobj->eraseprop( propname_str->value() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 BObjectImp* UOExecutorModule::mf_GetObjPropertyNames()
 {
@@ -1827,10 +1773,8 @@ BObjectImp* UOExecutorModule::mf_GetObjPropertyNames()
     }
     return arr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -1844,10 +1788,8 @@ BObjectImp* UOExecutorModule::mf_GetGlobalProperty()
     {
       return BObjectImp::unpack( val.c_str() );
     }
-    else
-    {
-      return new BError( "Property not found" );
-    }
+
+    return new BError( "Property not found" );
   }
   else
   {
@@ -1864,10 +1806,8 @@ BObjectImp* UOExecutorModule::mf_SetGlobalProperty()
     gamestate.global_properties->setprop( propname_str->value(), propval->pack() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_EraseGlobalProperty()
@@ -1878,10 +1818,8 @@ BObjectImp* UOExecutorModule::mf_EraseGlobalProperty()
     gamestate.global_properties->eraseprop( propname_str->value() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetGlobalPropertyNames()
@@ -1914,10 +1852,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
                         static_cast<unsigned char>( loop ), static_cast<unsigned char>( explode ) );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZ()
@@ -1938,10 +1874,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZ()
                          realm );
     return new BLong( 1 );
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 // FIXME add/test:stationary
@@ -1959,10 +1893,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect()
                                  static_cast<unsigned char>( loop ) );
     return new BLong( 1 );
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
@@ -1979,10 +1911,8 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
                             static_cast<unsigned char>( explode ) );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 
@@ -2016,10 +1946,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
         static_cast<unsigned char>( explode ), effect3d, effect3dexplode, effect3dsound );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZEx()
@@ -2053,10 +1981,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZEx()
         static_cast<unsigned char>( explode ), effect3d, effect3dexplode, effect3dsound );
     return new BLong( 1 );
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffectEx()
@@ -2081,10 +2007,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffectEx()
         static_cast<unsigned char>( layer ), effect3d );
     return new BLong( 1 );
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 BObjectImp* UOExecutorModule::mf_PlayStationaryEffectEx()
@@ -2106,10 +2030,8 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffectEx()
         static_cast<unsigned int>( hue ), static_cast<unsigned int>( render ), effect3d );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_PlayLightningBoltEffect()
@@ -2120,10 +2042,8 @@ BObjectImp* UOExecutorModule::mf_PlayLightningBoltEffect()
     play_lightning_bolt_effect( center );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocation( /* x, y, z, range, realm */ )
@@ -2501,10 +2421,8 @@ BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
 
     return newarr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 const unsigned LMBLEX_FLAG_NORMAL = 0x01;
@@ -2559,10 +2477,8 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx( /* x, y, z, range, f
 
     return newarr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation( /* x, y, z, range, realm */ )
@@ -2586,10 +2502,8 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation( /* x, y, z, range, rea
         } );
     return newarr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
@@ -2619,10 +2533,8 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
 
     return newarr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm( /*realm*/ )
@@ -2647,10 +2559,8 @@ BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm( /*realm*/ )
     }
     return newarr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 // keep this in sync with UO.EM
@@ -2680,10 +2590,8 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
 
     return arr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_CheckLineOfSight()
@@ -2694,10 +2602,8 @@ BObjectImp* UOExecutorModule::mf_CheckLineOfSight()
   {
     return new BLong( src->realm()->has_los( *src, *dst->toplevel_owner() ) );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_CheckLosAt()
@@ -2757,10 +2663,8 @@ BObjectImp* UOExecutorModule::mf_DestroyItem()
     destroy_item( item );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_SetName()
@@ -2773,10 +2677,8 @@ BObjectImp* UOExecutorModule::mf_SetName()
     obj->setname( name_str->value() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_GetPosition()
@@ -2790,10 +2692,8 @@ BObjectImp* UOExecutorModule::mf_GetPosition()
     arr->addMember( "z", new BLong( obj->z() ) );
     return arr.release();
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
@@ -2819,8 +2719,7 @@ BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
 
     return nullptr;
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_EnumerateOnlineCharacters()
@@ -2858,10 +2757,8 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
       registered_for_speech_events = true;
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "Already registered for speech events" );
-    }
+
+    return new BError( "Already registered for speech events" );
   }
   else
   {
@@ -2901,10 +2798,8 @@ BObjectImp* UOExecutorModule::mf_EnableEvents()
     uoex.eventmask |= eventmask;
     return new BLong( uoex.eventmask );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_DisableEvents()
@@ -2917,10 +2812,8 @@ BObjectImp* UOExecutorModule::mf_DisableEvents()
 
     return new BLong( uoex.eventmask );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_Resurrect()
@@ -2955,10 +2848,8 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
     chr->resurrect();
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
@@ -2979,8 +2870,7 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
       {
         if ( sysfind_flags & SYSFIND_SEARCH_OFFLINE_MOBILES )
           return new EOfflineCharacterRefObjImp( chr );
-        else
-          return new ECharacterRefObjImp( chr );
+        return new ECharacterRefObjImp( chr );
       }
       else
       {
@@ -3135,8 +3025,7 @@ BObjectImp* UOExecutorModule::mf_AssignRectToWeatherRegion()
                                                            Range2d( nw, se, nullptr ), realm );
   if ( res )
     return new BLong( 1 );
-  else
-    return new BError( "Weather region not found" );
+  return new BError( "Weather region not found" );
 }
 
 BObjectImp* UOExecutorModule::mf_Distance()
@@ -3159,10 +3048,8 @@ BObjectImp* UOExecutorModule::mf_DistanceEuclidean()
     return new Double( sqrt( pow( (double)( tobj1->x() - tobj2->x() ), 2 ) +
                              pow( (double)( tobj1->y() - tobj2->y() ), 2 ) ) );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_CoordinateDistance()
@@ -3190,7 +3077,7 @@ BObjectImp* UOExecutorModule::mf_GetCoordsInLine()
   {
     return new BError( "Invalid parameter type" );
   }
-  else if ( x1 == x2 && y1 == y2 )
+  if ( x1 == x2 && y1 == y2 )
   {  // Same exact coordinates ... just give them the coordinate back!
     ObjArray* coords = new ObjArray;
     BStruct* point = new BStruct;
@@ -3545,8 +3432,7 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
       BObjectImp* res = item->run_equip_script( chr, false );
       if ( !res->isTrue() )
         return res;
-      else
-        BObject obj( res );
+      BObject obj( res );
     }
 
 
@@ -3558,10 +3444,8 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
 
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_RestartScript()
@@ -3576,7 +3460,7 @@ BObjectImp* UOExecutorModule::mf_RestartScript()
     npc->restart_script();
     return new BLong( 1 );
   }
-  else if ( obj->script_isa( POLCLASS_ITEM ) )
+  if ( obj->script_isa( POLCLASS_ITEM ) )
   {
     Item* item = static_cast<Item*>( obj );
     item->stop_control_script();
@@ -3600,10 +3484,8 @@ BObjectImp* UOExecutorModule::mf_GetHarvestDifficulty()
   {
     return get_harvest_difficulty( resource->data(), Pos4d( pos, 0, realm ), tiletype );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_HarvestResource()
@@ -3621,10 +3503,8 @@ BObjectImp* UOExecutorModule::mf_HarvestResource()
       return new BError( "b must be >= 0" );
     return harvest_resource( resource->data(), Pos4d( pos, 0, realm ), b, n );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
@@ -3651,8 +3531,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
 
     if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );
-    else
-      return new String( justice_region->region_name() );
+    return new String( justice_region->region_name() );
   }
   else
     return new BError( "Invalid parameter" );
@@ -3667,8 +3546,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation( /* x, y, realm */ )
     JusticeRegion* justice_region = gamestate.justicedef->getregion( Pos4d( pos, 0, realm ) );
     if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );
-    else
-      return new String( justice_region->region_name() );
+    return new String( justice_region->region_name() );
   }
   else
     return new BError( "Invalid parameter" );
@@ -3685,10 +3563,8 @@ BObjectImp* UOExecutorModule::mf_GetRegionString()
   {
     return get_region_string( resource->data(), Pos4d( pos, 0, realm ), propname->value() );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetRegionLightLevelAtLocation( /* x, y, realm */ )
@@ -3706,10 +3582,8 @@ BObjectImp* UOExecutorModule::mf_GetRegionLightLevelAtLocation( /* x, y, realm *
       lightlevel = settingsManager.ssopt.default_light_level;
     return new BLong( lightlevel );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 
@@ -3721,10 +3595,8 @@ BObjectImp* UOExecutorModule::mf_EquipFromTemplate()
   {
     return equip_from_template( chr, template_name->value() );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 // FIXME: Use a PrivUpdater here
@@ -3737,10 +3609,8 @@ BObjectImp* UOExecutorModule::mf_GrantPrivilege()
     chr->grant_privilege( privstr->data() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 // FIXME: Use a PrivUpdater here
@@ -3753,10 +3623,8 @@ BObjectImp* UOExecutorModule::mf_RevokePrivilege()
     chr->revoke_privilege( privstr->data() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ReadGameClock()
@@ -3806,10 +3674,8 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
         buffer.Send( chr->client );
         return new BLong( 1 );
       }
-      else
-      {
-        return new BError( "No client attached" );
-      }
+
+      return new BError( "No client attached" );
     }
     else if ( client != nullptr )
     {
@@ -3818,10 +3684,8 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
         buffer.Send( client );
         return new BLong( 1 );
       }
-      else
-      {
-        return new BError( "Client is disconnected" );
-      }
+
+      return new BError( "Client is disconnected" );
     }
     else
     {
@@ -3869,10 +3733,8 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
         {
           return new BError( "ArrowID must be supplied for cancelation." );
         }
-        else
-        {
-          msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
-        }
+
+        msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
       }
     }
     else
@@ -3889,10 +3751,8 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     msg.Send( chr->client );
     return new BLong( arrowid );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ConsumeReagents()
@@ -3913,10 +3773,8 @@ BObjectImp* UOExecutorModule::mf_ConsumeReagents()
 
     return new BLong( spell->consume_reagents( chr ) ? 1 : 0 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_StartSpellEffect()
@@ -3938,10 +3796,8 @@ BObjectImp* UOExecutorModule::mf_StartSpellEffect()
     spell->cast( chr );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 BObjectImp* UOExecutorModule::mf_GetSpellDifficulty()
 {
@@ -3960,10 +3816,8 @@ BObjectImp* UOExecutorModule::mf_GetSpellDifficulty()
 
     return new BLong( spell->difficulty() );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
 {
@@ -3989,10 +3843,8 @@ BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
 
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ListEquippedItems()
@@ -4011,10 +3863,8 @@ BObjectImp* UOExecutorModule::mf_ListEquippedItems()
     }
     return arr.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_GetEquipmentByLayer()
@@ -4033,10 +3883,8 @@ BObjectImp* UOExecutorModule::mf_GetEquipmentByLayer()
     {
       return new BError( "Nothing equipped on that layer." );
     }
-    else
-    {
-      return new EItemRefObjImp( item );
-    }
+
+    return new EItemRefObjImp( item );
   }
   else
   {
@@ -4066,8 +3914,7 @@ BObjectImp* UOExecutorModule::mf_DisconnectClient()
         client->Disconnect();
         return new BLong( 1 );
       }
-      else
-        return new BError( "Client is disconnected" );
+      return new BError( "Client is disconnected" );
     }
     else
       return new BError( "Invalid parameter type" );
@@ -4094,10 +3941,8 @@ BObjectImp* UOExecutorModule::mf_GetMapInfo()
 
     return result.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 BObjectImp* UOExecutorModule::mf_GetWorldHeight()
 {
@@ -4108,8 +3953,7 @@ BObjectImp* UOExecutorModule::mf_GetWorldHeight()
     short z = -255;
     if ( realm->lowest_standheight( pos, &z ) )
       return new BLong( z );
-    else
-      return new BError( "Nowhere" );
+    return new BError( "Nowhere" );
   }
   else
   {
@@ -4125,8 +3969,7 @@ BObjectImp* UOExecutorModule::mf_GetObjtypeByName()
     unsigned int objtype = get_objtype_byname( namestr->data() );
     if ( objtype != 0 )
       return new BLong( objtype );
-    else
-      return new BError( "No objtype by that name" );
+    return new BError( "No objtype by that name" );
   }
   else
   {
@@ -4148,10 +3991,8 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
         // event->add_ref(); // UNTESTED
         return npc->send_event_script( event->copy() );
       }
-      else
-      {
-        return new BError( "That mobile is not an NPC" );
-      }
+
+      return new BError( "That mobile is not an NPC" );
     }
     else
     {
@@ -4191,10 +4032,8 @@ BObjectImp* UOExecutorModule::mf_DestroyMulti()
     }
     return new BError( "WTF!? Don't know what kind of multi that is!" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -4214,8 +4053,7 @@ BObjectImp* UOExecutorModule::mf_GetMultiDimensions()
     ret->addMember( "ymax", new BLong( md.maxrxyz.y() ) );
     return ret.release();
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_SetScriptController()
@@ -4244,8 +4082,7 @@ BObjectImp* UOExecutorModule::mf_SetScriptController()
 
   if ( old_controller )
     return new ECharacterRefObjImp( old_controller );
-  else
-    return new BLong( 0 );
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_GetStandingHeight()
@@ -4265,10 +4102,8 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
         arr->addMember( "multi", new EMultiRefObjImp( multi ) );
       return arr.release();
     }
-    else
-    {
-      return new BError( "Can't stand there" );
-    }
+
+    return new BError( "Can't stand there" );
   }
   else
   {
@@ -4313,8 +4148,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, inclu
 
     return newarr.release();
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp*
@@ -4380,17 +4214,14 @@ BObjectImp* UOExecutorModule::mf_ReserveItem()
     {
       if ( is_reserved_to_me( item ) )
         return new BLong( 2 );
-      else
-        return new BError( "That item is already being used." );
+      return new BError( "That item is already being used." );
     }
     item->inuse( true );
     reserved_items_.emplace_back( item );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter" );
-  }
+
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ReleaseItem()
@@ -4412,10 +4243,8 @@ BObjectImp* UOExecutorModule::mf_ReleaseItem()
       }
       return new BError( "That item is not reserved by this script." );
     }
-    else
-    {
-      return new BError( "That item is not reserved." );
-    }
+
+    return new BError( "That item is not reserved." );
   }
   else
   {
@@ -4434,10 +4263,8 @@ BObjectImp* UOExecutorModule::mf_SendSkillWindow()
       send_skillmsg( towhom->client, forwhom );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "No client attached" );
-    }
+
+    return new BError( "No client attached" );
   }
   else
   {
@@ -4456,10 +4283,8 @@ BObjectImp* UOExecutorModule::mf_OpenPaperdoll()
       send_paperdoll( towhom->client, forwhom );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "No client attached" );
-    }
+
+    return new BError( "No client attached" );
   }
   else
   {
@@ -4492,10 +4317,8 @@ BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
 
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 bool UOExecutorModule::is_reserved_to_me( Item* item )
@@ -4538,10 +4361,8 @@ BObjectImp* UOExecutorModule::mf_GetCommandHelp()
     {
       return new String( help );
     }
-    else
-    {
-      return new BError( "No help for that command found" );
-    }
+
+    return new BError( "No help for that command found" );
   }
   else
   {
@@ -4561,10 +4382,8 @@ BObjectImp* UOExecutorModule::mf_SendStringAsTipWindow()
       send_tip( chr->client, str->value() );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "No client attached" );
-    }
+
+    return new BError( "No client attached" );
   }
   else
   {
@@ -4656,8 +4475,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation( /* x, y, z, flags, realm
 
     return newarr.release();
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, flags, realm */ )
@@ -4717,8 +4535,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
 
     return newarr.release();
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 //  Birdy :  (Notes on Pathfinding)
@@ -4908,7 +4725,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
     astarsearch->FreeSolutionNodes();
     return nodeArray.release();
   }
-  else if ( SearchState == UOSearch::SEARCH_STATE_FAILED )
+  if ( SearchState == UOSearch::SEARCH_STATE_FAILED )
   {
     return new BError( "Failed to find a path." );
   }
@@ -4968,8 +4785,7 @@ BObjectImp* UOExecutorModule::mf_UseItem()
     {
       if ( chr->start_itemuse_script( prog.get(), item, itemdesc.requires_attention ) )
         return new BLong( 1 );
-      else
-        return new BError( "Failed to start script!" );
+      return new BError( "Failed to start script!" );
       // else log the fact?
     }
     else
@@ -5012,27 +4828,25 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
     int amthave = cont->find_sumof_objtype_noninuse( objtype, amount, substanceVector, flags );
     if ( ( amthave < amount ) && ( !( flags & FINDSUBSTANCE_FIND_ALL ) ) )
       return new BError( "Not enough of that substance in container" );
-    else
-    {
-      std::unique_ptr<ObjArray> theArray( new ObjArray() );
-      Item* item;
 
-      for ( UContainer::Contents::const_iterator itr = substanceVector.begin();
-            itr != substanceVector.end(); ++itr )
+    std::unique_ptr<ObjArray> theArray( new ObjArray() );
+    Item* item;
+
+    for ( UContainer::Contents::const_iterator itr = substanceVector.begin();
+          itr != substanceVector.end(); ++itr )
+    {
+      item = *itr;
+      if ( item != nullptr )
       {
-        item = *itr;
-        if ( item != nullptr )
+        if ( ( makeInUse ) && ( !item->inuse() ) )
         {
-          if ( ( makeInUse ) && ( !item->inuse() ) )
-          {
-            item->inuse( true );
-            reserved_items_.emplace_back( item );
-          }
-          theArray->addElement( new EItemRefObjImp( item ) );
+          item->inuse( true );
+          reserved_items_.emplace_back( item );
         }
+        theArray->addElement( new EItemRefObjImp( item ) );
       }
-      return theArray.release();
     }
+    return theArray.release();
   }
   else
   {
@@ -5057,8 +4871,7 @@ BObjectImp* UOExecutorModule::mf_IsStackable()
 
   if ( item1->can_add_to_self( *item2, false ) )
     return new BLong( 1 );
-  else
-    return new BError( "Failed to stack" );
+  return new BError( "Failed to stack" );
 }
 
 BObjectImp* UOExecutorModule::mf_UpdateMobile()
@@ -5100,10 +4913,8 @@ BObjectImp* UOExecutorModule::mf_UpdateItem()
     send_item_to_inrange( item );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -5157,8 +4968,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
 
     return new BLong( newz );
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 
@@ -5182,8 +4992,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
       sendCharProfile( chr, of_who, title->value(), uText->value(), eText->value() );
       return new BLong( 1 );
     }
-    else
-      return new BError( "Mobile must be online." );
+    return new BError( "Mobile must be online." );
   }
   else
     return new BError( "Invalid parameter type" );
@@ -5213,8 +5022,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*
     }
     return new BLong( 1 );
   }
-  else
-    return new BError( "Invalid parameter" );
+  return new BError( "Invalid parameter" );
 }
 
 // bresenham circle calculates the coords based on center coords and radius

@@ -105,20 +105,18 @@ BObjectImp* do_match( const RegexT& re, const String* value, boost::match_flag_t
     return UninitObject::create();
   }
   // Global regex: Return array of all struct{ matched, groups, offset }
-  else
+
+  iterator_type current_match( input.cbegin(), input.cend(), re, flags );
+  iterator_type last_match;
+  std::unique_ptr<ObjArray> all_matches( new ObjArray );
+
+  while ( current_match != last_match )
   {
-    iterator_type current_match( input.cbegin(), input.cend(), re, flags );
-    iterator_type last_match;
-    std::unique_ptr<ObjArray> all_matches( new ObjArray );
-
-    while ( current_match != last_match )
-    {
-      all_matches->addElement( add_match( *current_match ) );
-      ++current_match;
-    }
-
-    return all_matches.release();
+    all_matches->addElement( add_match( *current_match ) );
+    ++current_match;
   }
+
+  return all_matches.release();
 }
 
 template <typename RegexT>

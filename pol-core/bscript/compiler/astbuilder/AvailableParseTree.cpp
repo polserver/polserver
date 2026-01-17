@@ -40,8 +40,7 @@ fmt::formatter<Pol::Bscript::Compiler::AvailableSecondPassTarget>::format(
 
     return fmt::formatter<std::string>::format( std::move( tmp ), ctx );
   }
-  else if ( aspt.type ==
-            Pol::Bscript::Compiler::AvailableSecondPassTarget::Type::GeneratedFunction )
+  if ( aspt.type == Pol::Bscript::Compiler::AvailableSecondPassTarget::Type::GeneratedFunction )
   {
     const Pol::Bscript::Compiler::AvailableGeneratedFunction& agf =
         static_cast<const Pol::Bscript::Compiler::AvailableGeneratedFunction&>( aspt );

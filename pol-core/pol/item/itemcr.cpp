@@ -54,7 +54,7 @@ Item* Item::create( u32 objtype, u32 serial )
   {
     return create( id, serial );
   }
-  else if ( objtype <= Plib::systemstate.config.max_tile_id )
+  if ( objtype <= Plib::systemstate.config.max_tile_id )
   {
     Core::gamestate.temp_itemdesc->objtype = objtype;
     Core::gamestate.temp_itemdesc->graphic = static_cast<u16>( objtype );

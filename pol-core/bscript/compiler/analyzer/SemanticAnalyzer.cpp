@@ -454,7 +454,7 @@ void SemanticAnalyzer::analyze_class( ClassDeclaration* class_decl )
 
           break;  // Stop on first error
         }
-        else if ( uninit_param.uninit_default && defined_param.default_value() == nullptr )
+        if ( uninit_param.uninit_default && defined_param.default_value() == nullptr )
         {
           details = fmt::format( "Parameter {} ('{}') must have a default value.", i + 1,
                                  defined_param.name.string() );
@@ -826,8 +826,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     // statically via `Constr()`. Provide a `this` parameter at this function
     // call site. Only do this when calling constructors outside of a
     // compiler-generated function (ie. super or generated constructor)
-    else if ( uf->type == UserFunctionType::Constructor && !in_generated_function &&
-              !in_super_func )
+    if ( uf->type == UserFunctionType::Constructor && !in_generated_function && !in_super_func )
     {
       // A super call inherits the `this` argument
       if ( is_super_call )
@@ -899,7 +898,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
                       method_name );
         return;
       }
-      else if ( !uf->is_variadic() )
+      if ( !uf->is_variadic() )
       {
         report.error( arg,
                       "In call to '{}': Spread operator can only be used in variadic functions.",
@@ -939,15 +938,13 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
           // Do not add to `arguments_passed`, so continue.
           continue;
         }
-        else
-        {
-          auto expected_args =
-              static_cast<int>( parameters.size() ) - ( has_class_inst_parameter ? 1 : 0 );
 
-          report.error( arg, "In call to '{}': Too many arguments passed.  Expected {}, got {}.",
-                        method_name, expected_args, arguments.size() );
-          continue;
-        }
+        auto expected_args =
+            static_cast<int>( parameters.size() ) - ( has_class_inst_parameter ? 1 : 0 );
+
+        report.error( arg, "In call to '{}': Too many arguments passed.  Expected {}, got {}.",
+                      method_name, expected_args, arguments.size() );
+        continue;
       }
       else
       {
@@ -1529,19 +1526,17 @@ std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocatio
   {
     return local_scope->create( maybe_scoped_name, WarnOn::Never, source_location );
   }
-  else
-  {
-    if ( auto existing = globals.find( maybe_scoped_name ) )
-    {
-      report.error( source_location,
-                    "Global variable '{}' already defined.\n"
-                    "  See also: {}",
-                    maybe_scoped_name, existing->source_location );
-      return {};
-    }
 
-    return globals.create( maybe_scoped_name, 0, WarnOn::Never, source_location );
+  if ( auto existing = globals.find( maybe_scoped_name ) )
+  {
+    report.error( source_location,
+                  "Global variable '{}' already defined.\n"
+                  "  See also: {}",
+                  maybe_scoped_name, existing->source_location );
+    return {};
   }
+
+  return globals.create( maybe_scoped_name, 0, WarnOn::Never, source_location );
 }
 
 bool SemanticAnalyzer::report_function_name_conflict( const SourceLocation& referencing_loc,

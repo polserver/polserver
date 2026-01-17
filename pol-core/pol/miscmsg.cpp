@@ -106,10 +106,9 @@ void handle_mode_set( Client* client, PKTBI_72* msg )
     send_move( client, client->chr );
     return;
   }
-  else
-  {
-    client->chr->warmode_wait = read_gameclock() + settingsManager.combat_config.warmode_delay;
-  }
+
+  client->chr->warmode_wait = read_gameclock() + settingsManager.combat_config.warmode_delay;
+
 
   bool msg_warmode = msg->warmode ? true : false;
 

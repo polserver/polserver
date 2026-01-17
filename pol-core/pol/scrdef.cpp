@@ -25,8 +25,7 @@ std::string full_scriptname( const std::string& spec, const Plib::Package* pkg,
 
   if ( spec.find( '/' ) == std::string::npos )
     return Bscript::normalize_ecl_filename( mainpfx + spec );
-  else
-    return Bscript::normalize_ecl_filename( "scripts/" + spec );
+  return Bscript::normalize_ecl_filename( "scripts/" + spec );
 }
 
 ScriptDef::ScriptDef( const std::string& iname, const Plib::Package* ipkg, const char* mainpfx )
@@ -102,15 +101,14 @@ std::string ScriptDef::qualifiedname() const
 {
   if ( empty() )
     return "";
-  else
-    return ":" + ( pkg_ ? pkg_->name() : "" ) + ":" + localname_.get();
+  return ":" + ( pkg_ ? pkg_->name() : "" ) + ":" + localname_.get();
 }
 
 std::string ScriptDef::relativename( const Plib::Package* pkg ) const
 {
   if ( empty() )
     return "";
-  else if ( pkg == pkg_ )
+  if ( pkg == pkg_ )
     return localname_;
   else
     return qualifiedname();

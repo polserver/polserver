@@ -146,7 +146,7 @@ int PolToolMain::unpackCompressedGump()
       {
         break;
       }
-      else if ( per_line == 16 )  // both razor and pol have 16 bytes per line
+      if ( per_line == 16 )  // both razor and pol have 16 bytes per line
       {
         if ( c == '\n' )
           per_line = 0;
@@ -269,7 +269,7 @@ int PolToolMain::main()
   {
     return mapdump();
   }
-  else if ( binArgs[1] == "uncompressgump" )
+  if ( binArgs[1] == "uncompressgump" )
   {
     return unpackCompressedGump();
   }

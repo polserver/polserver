@@ -107,10 +107,8 @@ void* fixed_allocator<N, B>::allocate()
     freelist_ = p->next;
     return p;
   }
-  else
-  {
-    return refill();
-  }
+
+  return refill();
 }
 
 template <size_t N, size_t B>
@@ -161,8 +159,7 @@ void* fixed_allocator<N, B>::allocate( size_t size )
   assert( size == B );
   if ( size == B )
     return allocate();
-  else
-    return ::operator new( size );
+  return ::operator new( size );
 }
 
 template <size_t N, size_t B>

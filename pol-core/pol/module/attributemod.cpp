@@ -42,10 +42,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_CheckSkill()
   {
     return new Bscript::BLong( chr->check_skill( skillid, difficulty, points ) );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter" );
-  }
+
+  return new Bscript::BError( "Invalid parameter" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeName( /* alias_name */ )
@@ -83,10 +81,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname,
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( precision == 1 ? av.effective_tenths() : av.effective() );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeBaseValue( /* mob, attrname */ )
@@ -99,10 +95,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeBaseValue( /* mob, 
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.base() );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeTemporaryMod( /* mob, attrname */ )
@@ -115,10 +109,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeTemporaryMod( /* mo
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.temp_mod() );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeIntrinsicMod( /* mob, attrname */ )
@@ -131,10 +123,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeIntrinsicMod( /* mo
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.intrinsic_mod() );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeLock( /* mob, attrname */ )
@@ -147,10 +137,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeLock( /* mob, attrn
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.lock() );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeCap( /* mob, attrname */ )
 {
@@ -162,10 +150,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeCap( /* mob, attrna
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.cap() );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeCap( /* mob, attributeid, capvalue */ )
@@ -191,10 +177,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeCap( /* mob, attrib
 
     return new Bscript::BLong( 1 );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeLock(
@@ -221,10 +205,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeLock(
 
     return new Bscript::BLong( 1 );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeBaseValue(
@@ -254,10 +236,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeBaseValue(
 
     return new Bscript::BLong( 1 );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeTemporaryMod(
@@ -286,10 +266,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeTemporaryMod(
 
     return new Bscript::BLong( 1 );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
@@ -322,10 +300,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
 
     return new Bscript::BLong( 1 );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 
@@ -338,10 +314,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBaseSkill()
       rawskill = 0;
     return new Bscript::BLong( Core::raw_to_base( rawskill ) );
   }
-  else
-  {
-    return new Bscript::BError( "Invalid parameter type" );
-  }
+
+  return new Bscript::BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRawSkill()
@@ -349,7 +323,6 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRawSkill()
   unsigned short baseskill;
   if ( getParam( 0, baseskill ) )
     return new Bscript::BLong( Core::base_to_raw( baseskill ) );
-  else
-    return new Bscript::BError( "Invalid parameter type" );
+  return new Bscript::BError( "Invalid parameter type" );
 }
 }  // namespace Pol::Module

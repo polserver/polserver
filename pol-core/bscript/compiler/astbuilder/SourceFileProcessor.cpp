@@ -267,8 +267,7 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
 
   if ( !filename_full.empty() )
     return std::optional<std::string>( filename_full );
-  else
-    return {};
+  return {};
 }
 
 void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationContext* ctx,
@@ -405,7 +404,6 @@ std::string getpathof( const std::string& fname )
   std::string::size_type pos = fname.find_last_of( "\\/" );
   if ( pos == std::string::npos )
     return "./";
-  else
-    return fname.substr( 0, pos + 1 );
+  return fname.substr( 0, pos + 1 );
 }
 }  // namespace Pol::Bscript::Compiler

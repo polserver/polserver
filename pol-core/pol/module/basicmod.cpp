@@ -53,9 +53,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Len()
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( auto* a = impptrIf<Bscript::ObjArray>( imp ) )
     return new BLong( static_cast<int>( a->ref_arr.size() ) );
-  else if ( auto* s = impptrIf<Bscript::String>( imp ) )
+  if ( auto* s = impptrIf<Bscript::String>( imp ) )
     return new BLong( static_cast<int>( s->length() ) );
-  else if ( auto* e = impptrIf<Bscript::BError>( imp ) )
+  if ( auto* e = impptrIf<Bscript::BError>( imp ) )
     return new BLong( static_cast<int>( e->mapcount() ) );
   return new BLong( 0 );
 }
@@ -203,22 +203,19 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
   {
     if ( !str1.compare( str2 ) )
       return new BLong( 0 );
-    else
-      return new BLong( 1 );
+    return new BLong( 1 );
   }
-  else if ( pos1_index > 0 && pos2_index == 0 )
+  if ( pos1_index > 0 && pos2_index == 0 )
   {
     if ( !str1.compare( pos1_index - 1, pos1_len, str2 ) )
       return new BLong( 0 );
-    else
-      return new BLong( 1 );
+    return new BLong( 1 );
   }
   else
   {
     if ( !str1.compare( pos1_index - 1, pos1_len, str2, pos2_index - 1, pos2_len ) )
       return new BLong( 0 );
-    else
-      return new BLong( 1 );
+    return new BLong( 1 );
   }
 }
 
@@ -241,9 +238,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CInt()
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( imp->isa( Bscript::BObjectImp::OTLong ) )
     return imp->copy();
-  else if ( auto* s = impptrIf<String>( imp ) )
+  if ( auto* s = impptrIf<String>( imp ) )
     return new BLong( strtoul( s->data(), nullptr, 0 ) );
-  else if ( auto* d = impptrIf<Double>( imp ) )
+  if ( auto* d = impptrIf<Double>( imp ) )
     return new BLong( static_cast<int>( d->value() ) );
   return new BLong( 0 );
 }
@@ -253,9 +250,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CDbl()
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( auto* l = impptrIf<BLong>( imp ) )
     return new Double( l->value() );
-  else if ( auto* s = impptrIf<String>( imp ) )
+  if ( auto* s = impptrIf<String>( imp ) )
     return new Double( strtod( s->data(), nullptr ) );
-  else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
+  if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
     return imp->copy();
   return new Double( 0 );
 }
@@ -275,14 +272,12 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
     const auto& utf16 = substr->toUTF16();
     if ( utf16.empty() )
       return new BLong( 0 );
-    else if ( utf16.size() > 1 )
+    if ( utf16.size() > 1 )
       return new BError( "Cannot be represented by a single number" );
     return new BLong( utf16[0] );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_CAscZ()
@@ -309,10 +304,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChr()
   {
     return new String( String::fromUTF16( static_cast<u16>( val & 0xffff ) ) );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
@@ -335,13 +328,13 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
     snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( l->value() ) );
     return new String( s );
   }
-  else if ( auto* d = impptrIf<Double>( imp ) )
+  if ( auto* d = impptrIf<Double>( imp ) )
   {
     char s[20];
     snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( d->value() ) );
     return new String( s );
   }
-  else if ( auto* simp = impptrIf<String>( imp ) )
+  if ( auto* simp = impptrIf<String>( imp ) )
   {
     char s[20];
     snprintf( s, Clib::arsize( s ), "0x%X",
@@ -470,7 +463,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
     found = new_string.find( delimiter, 0 );
     if ( found == std::string::npos )
       break;
-    else if ( count == max_split )
+    if ( count == max_split )
     {  // added max_split parameter
       break;
     }
@@ -508,10 +501,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Unpack()
   {
     return Bscript::BObjectImp::unpack( str->data() );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 Bscript::BObjectImp* BasicExecutorModule::mf_TypeOf()
 {
@@ -535,11 +526,11 @@ picojson::value recurseE2J( BObjectImp* value )
   {
     return picojson::value( s->getStringRep() );
   }
-  else if ( auto* l = impptrIf<BLong>( value ) )
+  if ( auto* l = impptrIf<BLong>( value ) )
   {
     return picojson::value( static_cast<double>( l->value() ) );
   }
-  else if ( auto* d = impptrIf<Double>( value ) )
+  if ( auto* d = impptrIf<Double>( value ) )
   {
     return picojson::value( d->value() );
   }
@@ -598,12 +589,12 @@ Bscript::BObjectImp* recurseJ2E( const picojson::value& v )
   {
     return new String( v.get<std::string>() );
   }
-  else if ( v.is<double>() )
+  if ( v.is<double>() )
   {
     // Possible improvement: separate into BLong and Double
     return new Double( v.get<double>() );
   }
-  else if ( v.is<bool>() )
+  if ( v.is<bool>() )
   {
     return new BBoolean( v.get<bool>() );
   }
@@ -644,10 +635,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
     }
     return recurseJ2E( v );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
@@ -655,7 +644,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( auto* l = impptrIf<BLong>( imp ) )
     return new BBoolean( l->value() != 0 );
-  else if ( auto* b = impptrIf<BBoolean>( imp ) )
+  if ( auto* b = impptrIf<BBoolean>( imp ) )
     return new BBoolean( *b );
   return new BError( "Boolean() expects an Integer or Boolean" );
 }

@@ -60,10 +60,8 @@ Core::UACTION remove_action( Clib::ConfigElem& elem, const char* name, Core::UAC
   {
     return static_cast<Core::UACTION>( tmp );
   }
-  else
-  {
-    elem.throw_error( std::string( name ) + " is out of range" );
-  }
+
+  elem.throw_error( std::string( name ) + " is out of range" );
 }
 Core::UACTION remove_action( Clib::ConfigElem& elem, const char* name )
 {
@@ -72,18 +70,15 @@ Core::UACTION remove_action( Clib::ConfigElem& elem, const char* name )
   {
     return static_cast<Core::UACTION>( tmp );
   }
-  else
-  {
-    elem.throw_error( std::string( name ) + " is out of range" );
-  }
+
+  elem.throw_error( std::string( name ) + " is out of range" );
 }
 
 Core::UACTION default_anim( bool two_handed )
 {
   if ( two_handed )
     return Core::ACTION_RIDINGHORSE7;
-  else
-    return Core::ACTION_RIDINGHORSE4;
+  return Core::ACTION_RIDINGHORSE4;
 }
 
 WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
@@ -343,7 +338,7 @@ unsigned short UWeapon::speed() const
 
   if ( speed_ < 0 )
     return 0;
-  else if ( speed_ <= USHRT_MAX )
+  if ( speed_ <= USHRT_MAX )
     return static_cast<u16>( speed_ );
   else
     return USHRT_MAX;
@@ -365,7 +360,7 @@ unsigned short UWeapon::get_random_damage() const
   dmg += damage_mod();
   if ( dmg < 0 )
     return 0;
-  else if ( dmg <= USHRT_MAX )
+  if ( dmg <= USHRT_MAX )
     return static_cast<unsigned short>( dmg );
   else
     return USHRT_MAX;
@@ -376,7 +371,7 @@ unsigned short UWeapon::min_weapon_damage() const
   int dmg = static_cast<int>( WEAPON_TMPL->damage_dice.min_value() ) + damage_mod();
   if ( dmg < 0 )
     return 0;
-  else if ( dmg <= USHRT_MAX )
+  if ( dmg <= USHRT_MAX )
     return static_cast<unsigned short>( dmg );
   return USHRT_MAX;
 }
@@ -386,7 +381,7 @@ unsigned short UWeapon::max_weapon_damage() const
   int dmg = static_cast<int>( WEAPON_TMPL->damage_dice.max_value() ) + damage_mod();
   if ( dmg < 0 )
     return 0;
-  else if ( dmg <= USHRT_MAX )
+  if ( dmg <= USHRT_MAX )
     return static_cast<unsigned short>( dmg );
   return USHRT_MAX;
 }
@@ -449,10 +444,8 @@ bool UWeapon::consume_projectile( Core::UContainer* cont ) const
     subtract_amount_from_item( item, 1 );
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const

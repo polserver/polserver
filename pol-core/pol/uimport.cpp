@@ -179,8 +179,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     ERROR_PRINTLN( "Unable to create item: objtype={:#x}, serial={:#x}", objtype, serial );
     if ( !Plib::systemstate.config.ignore_load_errors )
       throw std::runtime_error( "Item::create failed!" );
-    else
-      return nullptr;
+    return nullptr;
   }
   item->setposition( Pos4d( item->pos().xyz(), find_realm( "britannia" ) ) );
 
@@ -243,10 +242,8 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
         cont_item = cont;
         break;
       }
-      else
-      {
-        parent_conts.pop();
-      }
+
+      parent_conts.pop();
     }
 
     if ( cont_item == nullptr )

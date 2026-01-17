@@ -443,10 +443,8 @@ public:  // methods
     {
       return &m_Start->m_UserState;
     }
-    else
-    {
-      return nullptr;
-    }
+
+    return nullptr;
   }
 
   // Get next node
@@ -473,10 +471,8 @@ public:  // methods
     {
       return &m_Goal->m_UserState;
     }
-    else
-    {
-      return nullptr;
-    }
+
+    return nullptr;
   }
 
   // Step solution iterator backwards

@@ -316,10 +316,8 @@ BObjectImp* DebugContextObjImp::call_polmethod( const char* methodname, UOExecut
       }
       return arr.release();
     }
-    else
-    {
-      return new BError( "Invalid parameter type" );
-    }
+
+    return new BError( "Invalid parameter type" );
   }
   return new BError( "undefined" );
 }
@@ -327,8 +325,7 @@ BObjectRef DebugContextObjImp::get_member( const char* membername )
 {
   if ( stricmp( membername, "prompt" ) == 0 )
     return BObjectRef( new String( value()->prompt() ) );
-  else
-    return BObjectRef( new BError( "Undefined member" ) );
+  return BObjectRef( new BError( "Undefined member" ) );
 }
 
 BObjectImp* create_debug_context()
@@ -355,8 +352,7 @@ std::string DebugContext::prompt() const
 {
   if ( !_authorized )
     return "Authorization required.";
-  else
-    return "Ready.";
+  return "Ready.";
 }
 
 /// [1] Debugger Commands:
@@ -591,10 +587,8 @@ std::string DebugContext::cmd_attach( unsigned pid )
     _script.set( prog );
     return "Attached to PID " + Clib::tostring( pid ) + ".";
   }
-  else
-  {
-    return "PID not found.";
-  }
+
+  return "PID not found.";
 }
 
 std::string DebugContext::cmd_loadsym( unsigned pid )
@@ -605,8 +599,7 @@ std::string DebugContext::cmd_loadsym( unsigned pid )
     int res = const_cast<EScriptProgram*>( uoexec->prog() )->read_dbg_file();
     if ( res )
       return "Failed to load symbols.";
-    else
-      return "Loaded debug symbols.";
+    return "Loaded debug symbols.";
   }
   else
   {
@@ -622,10 +615,8 @@ std::string DebugContext::cmd_kill( unsigned pid )
     uoexec->seterror( true );
     return "Marked PID " + Clib::tostring( pid ) + " with an error.";
   }
-  else
-  {
-    return "PID not found.";
-  }
+
+  return "PID not found.";
 }
 
 std::string DebugContext::cmd_detach()
@@ -876,8 +867,7 @@ std::string get_fileline( EScriptProgram* prog, int filenum, int linenum )
   }
   if ( getline( ifs, tmp ) )
     return tmp;
-  else
-    return "";
+  return "";
 }
 
 std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& results )

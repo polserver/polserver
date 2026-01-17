@@ -42,13 +42,10 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomInt()
   {
     if ( value > 0 )
       return new BLong( Clib::random_int( value - 1 ) );
-    else
-      return new BError( "RandomInt() expects a positive integer" );
-  }
-  else
-  {
     return new BError( "RandomInt() expects a positive integer" );
   }
+
+  return new BError( "RandomInt() expects a positive integer" );
 }
 
 Bscript::BObjectImp* UtilExecutorModule::mf_RandomIntMinMax()
@@ -62,11 +59,9 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomIntMinMax()
       maxvalue--;
       return new BLong( Clib::random_int_range( minvalue, maxvalue ) );
     }
-    else
-      return new BError( "RandomIntMinMax() expects an integer" );
-  }
-  else
     return new BError( "RandomIntMinMax() expects an integer" );
+  }
+  return new BError( "RandomIntMinMax() expects an integer" );
 }
 
 Bscript::BObjectImp* UtilExecutorModule::mf_RandomFloat()
@@ -76,10 +71,8 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomFloat()
   {
     return new Double( Clib::random_double( value ) );
   }
-  else
-  {
-    return new BError( "RandomFloat() expects a Real parameter" );
-  }
+
+  return new BError( "RandomFloat() expects a Real parameter" );
 }
 
 Bscript::BObjectImp* UtilExecutorModule::mf_RandomDiceRoll()
@@ -95,13 +88,10 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomDiceRoll()
     {
       if ( allow_negatives )
         return new BLong( dice.roll_with_negatives() );
-      else
-        return new BLong( dice.roll() );
+      return new BLong( dice.roll() );
     }
-    else
-    {
-      return new BError( errormsg.c_str() );
-    }
+
+    return new BError( errormsg.c_str() );
   }
   else
   {
@@ -247,7 +237,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomUUID()
   int value;
   if ( !exec.getParam( 0, value ) )
     return new BError( "Invalid parameter type" );
-  else if ( value != 4 && value != 7 )
+  if ( value != 4 && value != 7 )
     return new BError( "Invalid version" );
 
   if ( value == 7 )
@@ -257,12 +247,10 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomUUID()
     boost::uuids::uuid uuid = (uuid_generator)();
     return new String( boost::uuids::to_string( uuid ) );
   }
-  else
-  {
-    static auto uuid_generator = boost::uuids::random_generator();
 
-    boost::uuids::uuid uuid = (uuid_generator)();
-    return new String( boost::uuids::to_string( uuid ) );
-  }
+  static auto uuid_generator = boost::uuids::random_generator();
+
+  boost::uuids::uuid uuid = (uuid_generator)();
+  return new String( boost::uuids::to_string( uuid ) );
 }
 }  // namespace Pol::Module

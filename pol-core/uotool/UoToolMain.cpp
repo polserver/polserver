@@ -1241,7 +1241,7 @@ int UoToolMain::main()
   {
     return UoTool::tiledump( s_argc, s_argv );
   }
-  else if ( argvalue == "vertile" )
+  if ( argvalue == "vertile" )
   {
     return UoTool::vertile();
   }
