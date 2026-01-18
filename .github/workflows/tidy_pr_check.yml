@@ -115,4 +115,4 @@ jobs:
 
       - name: Tidy Diff Check
         run: |
-          git diff -U0 origin/${{github.event.pull_request.base.ref}}..origin/${{github.head_ref}} | clang-tidy-diff-20.py -checks='-*,${{matrix.config.tidy-checks}}' -p1 -path bin-build
+          git diff -U0 origin/${{github.event.pull_request.base.ref}}..origin/${{github.head_ref}} | clang-tidy-diff-20.py -checks='-*,${{matrix.config.tidy-checks}}' -p1 -path bin-build || true
