@@ -1084,7 +1084,7 @@ class BApplicObj : public BApplicObjBase
 {
 public:
   explicit BApplicObj( const BApplicObjType* object_type );
-  BApplicObj( const BApplicObjType*, const T& );
+  BApplicObj( const BApplicObjType*, T );
 
   T& value();
   const T& value() const;
@@ -1105,8 +1105,8 @@ BApplicObj<T>::BApplicObj( const BApplicObjType* object_type ) : BApplicObjBase(
 }
 
 template <class T>
-BApplicObj<T>::BApplicObj( const BApplicObjType* object_type, const T& obj )
-    : BApplicObjBase( object_type ), obj_( obj )
+BApplicObj<T>::BApplicObj( const BApplicObjType* object_type, T obj )
+    : BApplicObjBase( object_type ), obj_( std::move( obj ) )
 {
 }
 

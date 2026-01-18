@@ -119,10 +119,12 @@ jobs:
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 1
       - name: Format
+        if: always()
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target clang_format
       - name: Commit
+        if: always()
         run: |
           git config --global user.name 'Clang Tidy'
           git config --global user.email 'clang-tidy@users.noreply.github.com'
