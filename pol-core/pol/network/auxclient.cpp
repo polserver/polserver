@@ -11,7 +11,6 @@
 
 #include <chrono>
 #include <iosfwd>
-#include <utility>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -117,7 +116,7 @@ AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock
       _auxservice( nullptr ),
       _auxconnection(),
       _uoexec( nullptr ),
-      _scriptdef( std::move( scriptdef ) ),
+      _scriptdef( scriptdef ),
       _params( params ),
       _assume_string( assume_string ),
       _transmit_counter( 0 ),

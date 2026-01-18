@@ -31,7 +31,7 @@ ExpressionEvaluator::ExpressionEvaluator()
 }
 
 BObjectRef ExpressionEvaluator::evaluate( Executor* exec, EScriptProgram* script,
-                                          const std::string& expression )
+                                          std::string expression )
 {
   SourceFile source_file( "<eval>", expression, _profile );
 

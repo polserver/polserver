@@ -1,7 +1,5 @@
 #include "bclassinstance.h"
 
-#include <utility>
-
 #include "berror.h"
 #include "bobject.h"
 #include "clib/clib.h"
@@ -14,10 +12,7 @@ namespace Pol::Bscript
 {
 BClassInstance::BClassInstance( ref_ptr<EScriptProgram> program, int index,
                                 std::shared_ptr<ValueStackCont> globals )
-    : BStruct( OTClassInstance ),
-      prog_( std::move( program ) ),
-      index_( index ),
-      globals( std::move( globals ) )
+    : BStruct( OTClassInstance ), prog_( program ), index_( index ), globals( std::move( globals ) )
 {
   passert( index_ < prog_->class_descriptors.size() );
 }

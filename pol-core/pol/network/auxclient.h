@@ -11,7 +11,6 @@
 #include <atomic>
 #include <mutex>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include "../../bscript/bobject.h"
@@ -60,7 +59,7 @@ public:
   AuxConnection( AuxClientThread* auxclientthread, std::string ip )
       : PolObjectImp( Bscript::BObjectImp::OTUnknown ),
         _auxclientthread( auxclientthread ),
-        _ip( std::move( ip ) )
+        _ip( ip )
   {
   }
 

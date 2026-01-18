@@ -38,7 +38,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
                                         Bscript::BObjectImp* param1,
                                         Bscript::BObjectImp* param2 = nullptr,
                                         Bscript::BObjectImp* param3 = nullptr );
-Module::UOExecutorModule* start_script( const ref_ptr<Bscript::EScriptProgram>& program,
+Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program,
                                         Bscript::BObjectImp* param );
 
 UOExecutor* create_script_executor();

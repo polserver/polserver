@@ -58,7 +58,7 @@ class BXMLfile final : public Bscript::BObjectImp
 {
 public:
   BXMLfile();
-  BXMLfile( const std::string& filename );
+  BXMLfile( std::string filename );
   ~BXMLfile() override = default;
   Bscript::BObjectRef get_member( const char* membername ) override;
   Bscript::BObjectRef get_member_id( const int id ) override;  // id test

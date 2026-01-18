@@ -198,7 +198,7 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
  * @param item Reference to the item being added
  * @return true on success, false when the item can't be added
  */
-bool UHouse::add_component( const Component& item )
+bool UHouse::add_component( Component item )
 {
   if ( !can_add_component( item.get() ) )
     return false;

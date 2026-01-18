@@ -25,7 +25,7 @@ namespace Pol::Core
 using namespace Bscript;
 BXMLfile::BXMLfile() : Bscript::BObjectImp( OTXMLFile ), file(), _filename( "" ) {}
 
-BXMLfile::BXMLfile( const std::string& filename )
+BXMLfile::BXMLfile( std::string filename )
     : Bscript::BObjectImp( OTXMLFile ), file( filename.c_str() ), _filename( filename )
 {
   if ( !file.LoadFile() )

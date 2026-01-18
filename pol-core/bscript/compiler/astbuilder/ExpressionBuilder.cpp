@@ -323,7 +323,7 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
 }
 
 std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
-    const std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*>& ctx )
+    std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> ctx )
 {
   std::vector<std::unique_ptr<Expression>> expressions;
 

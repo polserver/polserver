@@ -80,7 +80,7 @@ public:
 
   // Throws on errors (parsing, evaluation, ...)
   Bscript::BObjectRef evaluate( Executor* uoexec, EScriptProgram* script,
-                                const std::string& expression );
+                                std::string expression );
 
 private:
   Profile _profile;

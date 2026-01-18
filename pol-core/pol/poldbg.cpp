@@ -14,7 +14,6 @@
 #include <fstream>
 #include <stddef.h>
 #include <string>
-#include <utility>
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -284,7 +283,7 @@ public:
   BObjectRef get_member( const char* membername ) override;
 };
 DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx )
-    : DebugContextObjImpBase( &debugcontextobjimp_type, std::move( rcdctx ) )
+    : DebugContextObjImpBase( &debugcontextobjimp_type, rcdctx )
 {
 }
 const char* DebugContextObjImp::typeOf() const
@@ -640,7 +639,7 @@ std::string DebugContext::cmd_quit()
 
 std::string DebugContext::cmd_start( const std::string& rest )
 {
-  const std::string& filename = rest;
+  std::string filename = rest;
   ScriptDef sd;
   if ( !sd.config_nodie( filename, nullptr, "scripts/" ) )
     return "Error in script name.";

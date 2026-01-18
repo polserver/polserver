@@ -16,7 +16,6 @@
 
 #include <stddef.h>
 #include <string>
-#include <utility>
 
 #include "bscript/berror.h"
 #include "bscript/bobject.h"
@@ -273,7 +272,7 @@ BObjectRef ScriptExObjImp::get_member( const char* membername )
   return BObjectRef( UninitObject::create() );
 }
 
-ScriptWrapper::ScriptWrapper( ScriptExPtr script ) : _script( std::move( script ) ) {}
+ScriptWrapper::ScriptWrapper( ScriptExPtr script ) : _script( script ) {}
 ScriptWrapper::~ScriptWrapper()
 {
   if ( !_script.exists() )
@@ -297,7 +296,7 @@ ExportScriptObjImp::ExportScriptObjImp( UOExecutor* uoexec )
 {
 }
 ExportScriptObjImp::ExportScriptObjImp( std::shared_ptr<ScriptWrapper> script, bool delayed )
-    : PolObjectImp( OTExportScript ), _ex( std::move( script ) ), _delayed( delayed )
+    : PolObjectImp( OTExportScript ), _ex( script ), _delayed( delayed )
 {
 }
 

@@ -50,7 +50,7 @@ PacketLog Client::stop_log()
 }
 
 
-PacketLog ThreadedClient::start_log( const std::string& filename )
+PacketLog ThreadedClient::start_log( std::string filename )
 {
   Clib::SpinLockGuard guard( _fpLog_lock );
   if ( !fpLog.empty() )

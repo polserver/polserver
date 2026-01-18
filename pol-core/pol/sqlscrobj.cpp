@@ -9,7 +9,6 @@
 #include <exception>
 #include <regex>
 #include <string.h>
-#include <utility>
 
 #include "../bscript/bobject.h"
 
@@ -39,12 +38,12 @@ BSQLRow::BSQLRow( BSQLResultSet* resultset ) : PolObjectImp( OTSQLRow )
 }
 BSQLRow::BSQLRow( RES_WRAPPER result ) : PolObjectImp( OTSQLRow )
 {
-  _result = std::move( result );
+  _result = result;
   _row = mysql_fetch_row( _result->ptr() );
   _fields = mysql_fetch_fields( _result->ptr() );
 }
 BSQLRow::BSQLRow( RES_WRAPPER result, MYSQL_ROW row, MYSQL_FIELD* fields )
-    : PolObjectImp( OTSQLRow ), _row( row ), _result( std::move( result ) ), _fields( fields )
+    : PolObjectImp( OTSQLRow ), _row( row ), _result( result ), _fields( fields )
 {
 }
 
@@ -159,7 +158,7 @@ Bscript::BObjectImp* BSQLRow::copy() const
   return new BSQLRow( _result, _row, _fields );
 }
 
-BSQLResultSet::BSQLResultSet( const RES_WRAPPER& result )
+BSQLResultSet::BSQLResultSet( RES_WRAPPER result )
     : Bscript::BObjectImp( OTSQLResultSet ),
       _result( result ),
       _fields( nullptr ),
@@ -170,7 +169,7 @@ BSQLResultSet::BSQLResultSet( const RES_WRAPPER& result )
 }
 BSQLResultSet::BSQLResultSet( RES_WRAPPER result, MYSQL_FIELD* fields )
     : Bscript::BObjectImp( OTSQLResultSet ),
-      _result( std::move( result ) ),
+      _result( result ),
       _fields( fields ),
       _affected_rows( 0 )
 {
@@ -315,7 +314,7 @@ BSQLConnection::BSQLConnection()
 }
 
 BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn )
-    : PolObjectImp( OTSQLConnection ), _conn( std::move( conn ) ), _errno( 0 )
+    : PolObjectImp( OTSQLConnection ), _conn( conn ), _errno( 0 )
 {
 }
 
@@ -366,7 +365,7 @@ bool BSQLConnection::select_db( const char* db )
   return true;
 }
 
-bool BSQLConnection::query( const std::string& query )
+bool BSQLConnection::query( const std::string query )
 {
   if ( !_conn->ptr() )
   {
@@ -389,7 +388,7 @@ bool BSQLConnection::query( const std::string& query )
  * Allows binding parameters to the query
  * Every occurrence of "?" is replaced with a single parameter
  */
-bool BSQLConnection::query( const std::string& query, const QueryParams& params )
+bool BSQLConnection::query( const std::string query, QueryParams params )
 {
   if ( params == nullptr || params->empty() )
     return this->query( query );

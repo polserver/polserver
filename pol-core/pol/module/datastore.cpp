@@ -13,7 +13,6 @@
 #include <filesystem>
 #include <fstream>
 #include <stddef.h>
-#include <utility>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -209,7 +208,7 @@ Bscript::BObjectImp* DataFileContents::methodKeys() const
 
 
 DataFileRefObjImp::DataFileRefObjImp( DataFileContentsRef dfcontents )
-    : DataFileRefObjImpBase( &datafileref_type, std::move( dfcontents ) )
+    : DataFileRefObjImpBase( &datafileref_type, dfcontents )
 {
 }
 
@@ -315,8 +314,7 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method( const char* methodname, Bsc
 
 
 DataElemRefObjImp::DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dfelem )
-    : DataElemRefObjImpBase( &datafileelem_type,
-                             DataFileElemObj( std::move( dfcontents ), std::move( dfelem ) ) )
+    : DataElemRefObjImpBase( &datafileelem_type, DataFileElemObj( dfcontents, dfelem ) )
 {
 }
 const char* DataElemRefObjImp::typeOf() const

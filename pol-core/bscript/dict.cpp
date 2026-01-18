@@ -11,8 +11,6 @@
 
 #include <stddef.h>
 
-#include <utility>
-
 #include "../clib/stlutil.h"
 #include "berror.h"
 #include "contiter.h"
@@ -213,7 +211,7 @@ BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target, bool
 void BDictionary::addMember( const char* name, BObjectRef val )
 {
   BObject key( new String( name ) );
-  contents_[key] = std::move( val );
+  contents_[key] = val;
 }
 
 void BDictionary::addMember( const char* name, BObjectImp* imp )

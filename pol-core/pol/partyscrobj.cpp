@@ -2,7 +2,6 @@
 
 #include <stddef.h>
 #include <string>
-#include <utility>
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -31,7 +30,7 @@ using namespace Bscript;
 BApplicObjType party_type;
 
 EPartyRefObjImp::EPartyRefObjImp( Core::PartyRef pref )
-    : PolApplicObj<Core::PartyRef>( &party_type, std::move( pref ) ){};
+    : PolApplicObj<Core::PartyRef>( &party_type, pref ){};
 
 const char* EPartyRefObjImp::typeOf() const
 {

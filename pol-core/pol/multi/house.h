@@ -104,7 +104,7 @@ public:
 
   void ClearSquatters();
   bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
-  bool add_component( const Component& component );
+  bool add_component( Component component );
   static void list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in );
   static ItemList get_working_design_items( UHouse* house );
   void AcceptHouseCommit( Mobile::Character* chr, bool accept );
