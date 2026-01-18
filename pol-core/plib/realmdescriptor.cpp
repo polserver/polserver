@@ -78,7 +78,6 @@ std::string RealmDescriptor::path( const std::string& filename ) const
 {
   if ( file_path.empty() )
     return "realm/" + name + "/" + filename;
-  else
-    return file_path + "/" + filename;
+  return file_path + "/" + filename;
 }
 }  // namespace Pol::Plib

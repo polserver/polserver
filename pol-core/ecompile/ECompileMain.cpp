@@ -212,10 +212,8 @@ bool format_file( const std::string& path )
         INFO_PRINTLN( "Formatting failed as expected." );
       return true;
     }
-    else
-    {
-      throw std::runtime_error( "Formatting succeeded (-e indicates failure was expected)" );
-    }
+
+    throw std::runtime_error( "Formatting succeeded (-e indicates failure was expected)" );
   }
 
   if ( !success )
@@ -395,10 +393,8 @@ bool compile_file( const std::string& path )
           INFO_PRINTLN( "Compilation failed as expected." );
         return true;
       }
-      else
-      {
-        throw std::runtime_error( "Compilation succeeded (-e indicates failure was expected)" );
-      }
+
+      throw std::runtime_error( "Compilation succeeded (-e indicates failure was expected)" );
     }
 
     if ( !success )
@@ -514,12 +510,11 @@ bool setting_value( const char* arg )
   // format of arg is -C or -C-
   if ( arg[2] == '\0' )
     return true;
-  else if ( arg[2] == '-' )
+  if ( arg[2] == '-' )
     return false;
-  else if ( arg[2] == '+' )
+  if ( arg[2] == '+' )
     return true;
-  else
-    return true;
+  return true;
 }
 
 
@@ -749,7 +744,7 @@ void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
           dir_itr.disable_recursion_pending();
         continue;
       }
-      else if ( !dir_itr->is_regular_file() )
+      if ( !dir_itr->is_regular_file() )
         continue;
       const auto ext = dir_itr->path().extension();
       const auto file = dir_itr->path().generic_string();

@@ -242,69 +242,67 @@ uint8_t unicodeToCp1252( uint32_t codepoint )
 {
   if ( codepoint >= 0x80 && codepoint <= 0x9f )
     return '?';
-  else if ( codepoint <= 0xff )
+  if ( codepoint <= 0xff )
     return (char)codepoint;
-  else
+
+  switch ( codepoint )
   {
-    switch ( codepoint )
-    {
-    case 0x20AC:
-      return 128;  // €
-    case 0x201A:
-      return 130;  // ‚
-    case 0x0192:
-      return 131;  // ƒ
-    case 0x201E:
-      return 132;  // „
-    case 0x2026:
-      return 133;  // …
-    case 0x2020:
-      return 134;  // †
-    case 0x2021:
-      return 135;  // ‡
-    case 0x02C6:
-      return 136;  // ˆ
-    case 0x2030:
-      return 137;  // ‰
-    case 0x0160:
-      return 138;  // Š
-    case 0x2039:
-      return 139;  // ‹
-    case 0x0152:
-      return 140;  // Œ
-    case 0x017D:
-      return 142;  // Ž
-    case 0x2018:
-      return 145;  // ‘
-    case 0x2019:
-      return 146;  // ’
-    case 0x201C:
-      return 147;  // “
-    case 0x201D:
-      return 148;  // ”
-    case 0x2022:
-      return 149;  // •
-    case 0x2013:
-      return 150;  // –
-    case 0x2014:
-      return 151;  // —
-    case 0x02DC:
-      return 152;  // ˜
-    case 0x2122:
-      return 153;  // ™
-    case 0x0161:
-      return 154;  // š
-    case 0x203A:
-      return 155;  // ›
-    case 0x0153:
-      return 156;  // œ
-    case 0x017E:
-      return 158;  // ž
-    case 0x0178:
-      return 159;  // Ÿ
-    default:
-      return '?';
-    }
+  case 0x20AC:
+    return 128;  // €
+  case 0x201A:
+    return 130;  // ‚
+  case 0x0192:
+    return 131;  // ƒ
+  case 0x201E:
+    return 132;  // „
+  case 0x2026:
+    return 133;  // …
+  case 0x2020:
+    return 134;  // †
+  case 0x2021:
+    return 135;  // ‡
+  case 0x02C6:
+    return 136;  // ˆ
+  case 0x2030:
+    return 137;  // ‰
+  case 0x0160:
+    return 138;  // Š
+  case 0x2039:
+    return 139;  // ‹
+  case 0x0152:
+    return 140;  // Œ
+  case 0x017D:
+    return 142;  // Ž
+  case 0x2018:
+    return 145;  // ‘
+  case 0x2019:
+    return 146;  // ’
+  case 0x201C:
+    return 147;  // “
+  case 0x201D:
+    return 148;  // ”
+  case 0x2022:
+    return 149;  // •
+  case 0x2013:
+    return 150;  // –
+  case 0x2014:
+    return 151;  // —
+  case 0x02DC:
+    return 152;  // ˜
+  case 0x2122:
+    return 153;  // ™
+  case 0x0161:
+    return 154;  // š
+  case 0x203A:
+    return 155;  // ›
+  case 0x0153:
+    return 156;  // œ
+  case 0x017E:
+    return 158;  // ž
+  case 0x0178:
+    return 159;  // Ÿ
+  default:
+    return '?';
   }
 }
 

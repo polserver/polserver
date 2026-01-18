@@ -57,8 +57,7 @@ BObjectImp* ScriptExObjImp::copy() const
 {
   if ( value().exists() )
     return new ScriptExObjImp( value().get_weakptr() );
-  else
-    return new BError( "Script has been destroyed" );
+  return new BError( "Script has been destroyed" );
 }
 
 
@@ -90,13 +89,10 @@ BObjectImp* ScriptExObjImp::call_polmethod_id( const int id, UOExecutor& ex, boo
                               std::string( " not found on that object" );
         return new BError( message );
       }
-      else
-      {
-        return ret;
-      }
+
+      return ret;
     }
-    else
-      return new BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
     break;
   }
   case MTH_SENDEVENT:
@@ -106,8 +102,7 @@ BObjectImp* ScriptExObjImp::call_polmethod_id( const int id, UOExecutor& ex, boo
     BObjectImp* param0 = ex.getParamImp( 0 );
     if ( uoexec->signal_event( param0->copy() ) )
       return new BLong( 1 );
-    else
-      return new BError( "Event queue is full, discarding event" );
+    return new BError( "Event queue is full, discarding event" );
   }
 
   case MTH_KILL:
@@ -180,8 +175,7 @@ BObjectImp* ScriptExObjImp::call_polmethod( const char* methodname, UOExecutor& 
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex );
-  else
-    return new BError( "undefined" );
+  return new BError( "undefined" );
 }
 
 BObjectImp* GetGlobals( const UOExecutor* uoexec )
@@ -224,8 +218,7 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
     {
       return BObjectRef( new Pol::Module::PackageObjImp( pkg_ptr ) );
     }
-    else
-      return BObjectRef( new BError( "Script has no package" ) );
+    return BObjectRef( new BError( "Script has no package" ) );
   }
   case MBR_STATE:
     return BObjectRef( new String( uoexec->state() ) );
@@ -276,8 +269,7 @@ BObjectRef ScriptExObjImp::get_member( const char* membername )
   ObjMember* objmember = getKnownObjMember( membername );
   if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
-  else
-    return BObjectRef( UninitObject::create() );
+  return BObjectRef( UninitObject::create() );
 }
 
 ScriptWrapper::ScriptWrapper( ScriptExPtr script ) : _script( script ) {}
@@ -353,7 +345,7 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
       _delayed = false;
       if ( uoexec->error() )
         return new BLong( 0 );
-      else if ( uoexec->ValueStack.empty() )
+      if ( uoexec->ValueStack.empty() )
         return new BLong( 1 );
       auto ret = uoexec->ValueStack.back().get()->impptr()->copy();
       uoexec->ValueStack.pop_back();
@@ -410,18 +402,16 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
       uoexec->suspend();
       return ret;
     }
-    else
-    {
-      ex.pChild = uoexec;
-      uoexec->pParent = &ex;
-      ex.PC--;
+
+    ex.pChild = uoexec;
+    uoexec->pParent = &ex;
+    ex.PC--;
+    ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+    if ( arr != nullptr )
       ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
-      if ( arr != nullptr )
-        ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
-      ex.suspend();
-      uoexec->revive();
-      return new ExportScriptObjImp( _ex, true );
-    }
+    ex.suspend();
+    uoexec->revive();
+    return new ExportScriptObjImp( _ex, true );
   }
   default:
     return new BError( "undefined" );

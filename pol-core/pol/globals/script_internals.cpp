@@ -287,7 +287,7 @@ void ScriptScheduler::run_ready()
         }
         continue;
       }
-      else if ( !ex->blocked() )
+      if ( !ex->blocked() )
       {
         THREAD_CHECKPOINT( scripts, 115 );
 
@@ -365,11 +365,9 @@ bool ScriptScheduler::find_exec( unsigned int pid, UOExecutor** exec )
     *exec = ( *itr ).second;
     return true;
   }
-  else
-  {
-    *exec = nullptr;
-    return false;
-  }
+
+  *exec = nullptr;
+  return false;
 }
 
 bool ScriptScheduler::logScriptVariables( const std::string& name ) const

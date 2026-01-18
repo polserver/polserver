@@ -185,8 +185,7 @@ unsigned short Dice::min_value() const
 
   if ( total < 0 )
     return 0;
-  else
-    return static_cast<u16>( total );
+  return static_cast<u16>( total );
 }
 
 unsigned short Dice::max_value() const
@@ -195,7 +194,6 @@ unsigned short Dice::max_value() const
 
   if ( total < 0 )
     return 0;
-  else
-    return static_cast<u16>( total );
+  return static_cast<u16>( total );
 }
 }  // namespace Pol::Core

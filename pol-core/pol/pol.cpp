@@ -371,10 +371,8 @@ bool can_delete_character( Mobile::Character* chr, int delete_by )
     return call_script( sd, new Module::EOfflineCharacterRefObjImp( chr ),
                         new Bscript::BLong( delete_by ) );
   }
-  else
-  {
-    return true;
-  }
+
+  return true;
 }
 void call_ondelete_scripts( Mobile::Character* chr )
 {

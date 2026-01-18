@@ -87,10 +87,8 @@ bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem )
     tm.copyto( elem );
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 // FIXME inefficient.  Templates should be read in once, and reused.

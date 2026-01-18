@@ -147,30 +147,29 @@ bool BoatShape::objtype_is_component( unsigned int objtype )
 {
   if ( objtype == Core::settingsManager.extobj.tillerman )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.port_plank )
+  if ( objtype == Core::settingsManager.extobj.port_plank )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.starboard_plank )
+  if ( objtype == Core::settingsManager.extobj.starboard_plank )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.hold )
+  if ( objtype == Core::settingsManager.extobj.hold )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.rope )
+  if ( objtype == Core::settingsManager.extobj.rope )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.wheel )
+  if ( objtype == Core::settingsManager.extobj.wheel )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.hull )
+  if ( objtype == Core::settingsManager.extobj.hull )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.tiller )
+  if ( objtype == Core::settingsManager.extobj.tiller )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.rudder )
+  if ( objtype == Core::settingsManager.extobj.rudder )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.sails )
+  if ( objtype == Core::settingsManager.extobj.sails )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.storage )
+  if ( objtype == Core::settingsManager.extobj.storage )
     return true;
-  else if ( objtype == Core::settingsManager.extobj.weaponslot )
+  if ( objtype == Core::settingsManager.extobj.weaponslot )
     return true;
-  else
-    return false;
+  return false;
 }
 
 size_t BoatShape::estimateSize() const
@@ -1683,61 +1682,59 @@ Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
     clear_pilot();
     return new Bscript::BLong( 1 );
   }
-  else
+
+  if ( mountpiece != nullptr && !mountpiece->orphan() )
   {
-    if ( mountpiece != nullptr && !mountpiece->orphan() )
-    {
-      return new Bscript::BError( "The boat is already being piloted." );
-    }
-
-    if ( !has_process() )
-    {
-      return new Bscript::BError( "The boat does not have a running process." );
-    }
-
-    if ( !chr->client )
-    {
-      return new Bscript::BError( "That character is not connected." );
-    }
-
-    if ( !( chr->client->ClientType & Network::CLIENTTYPE_7090 ) )
-    {
-      return new Bscript::BError(
-          "The client for that character does not support High Seas Adventure." );
-    }
-
-    BoatContext bc( *this );
-    bool pilot_on_ship = false;
-    for ( const auto& travellerRef : travellers_ )
-    {
-      UObject* obj = travellerRef.get();
-      if ( !obj->orphan() && on_ship( bc, obj ) && obj == chr )
-      {
-        pilot_on_ship = true;
-        break;
-      }
-    }
-
-    if ( !pilot_on_ship )
-    {
-      return new Bscript::BError( "The boat does not have that character on it." );
-    }
-
-    Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
-    if ( !chr->equippable( item ) )
-    {
-      item->destroy();
-      return new Bscript::BError( "The boat mount piece is not equippable by that character." );
-    }
-    chr->equip( item );
-    send_wornitem_to_inrange( chr, item );
-    mountpiece = Core::ItemRef( item );
-
-    // Mark the item as 'in-use' to prevent moving by client or scripts.
-    item->inuse( true );
-
-    return new Bscript::BLong( 1 );
+    return new Bscript::BError( "The boat is already being piloted." );
   }
+
+  if ( !has_process() )
+  {
+    return new Bscript::BError( "The boat does not have a running process." );
+  }
+
+  if ( !chr->client )
+  {
+    return new Bscript::BError( "That character is not connected." );
+  }
+
+  if ( !( chr->client->ClientType & Network::CLIENTTYPE_7090 ) )
+  {
+    return new Bscript::BError(
+        "The client for that character does not support High Seas Adventure." );
+  }
+
+  BoatContext bc( *this );
+  bool pilot_on_ship = false;
+  for ( const auto& travellerRef : travellers_ )
+  {
+    UObject* obj = travellerRef.get();
+    if ( !obj->orphan() && on_ship( bc, obj ) && obj == chr )
+    {
+      pilot_on_ship = true;
+      break;
+    }
+  }
+
+  if ( !pilot_on_ship )
+  {
+    return new Bscript::BError( "The boat does not have that character on it." );
+  }
+
+  Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
+  if ( !chr->equippable( item ) )
+  {
+    item->destroy();
+    return new Bscript::BError( "The boat mount piece is not equippable by that character." );
+  }
+  chr->equip( item );
+  send_wornitem_to_inrange( chr, item );
+  mountpiece = Core::ItemRef( item );
+
+  // Mark the item as 'in-use' to prevent moving by client or scripts.
+  item->inuse( true );
+
+  return new Bscript::BLong( 1 );
 }
 
 void UBoat::clear_pilot()

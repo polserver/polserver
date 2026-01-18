@@ -87,13 +87,11 @@ std::string getcmdstr( char ch )
     s[2] = '\0';
     return s;
   }
-  else
-  {
-    char s[2];
-    s[0] = ch;
-    s[1] = '\0';
-    return s;
-  }
+
+  char s[2];
+  s[0] = ch;
+  s[1] = '\0';
+  return s;
 }
 
 ConsoleCommand* ConsoleCommand::find_console_command( char ch )

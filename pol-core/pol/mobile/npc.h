@@ -297,8 +297,7 @@ inline unsigned short NPC::ar() const
       return npc_ar_ + shield->ar();
     return npc_ar_;
   }
-  else
-    return ar_;
+  return ar_;
 }
 }  // namespace Mobile
 }  // namespace Pol

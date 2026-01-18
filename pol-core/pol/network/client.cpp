@@ -60,8 +60,8 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( \
-    disable : 4351 )  // new behavior: elements of array '...' will be default initialized
+#pragma warning( disable \
+                 : 4351 )  // new behavior: elements of array '...' will be default initialized
 #endif
 
 namespace Pol
@@ -347,22 +347,21 @@ bool Client::compareVersion( const VersionDetailStruct& ver2 )
 
   if ( ver1.major > ver2.major )
     return true;
-  else if ( ver1.major < ver2.major )
+  if ( ver1.major < ver2.major )
     return false;
-  else if ( ver1.minor > ver2.minor )
+  if ( ver1.minor > ver2.minor )
     return true;
-  else if ( ver1.minor < ver2.minor )
+  if ( ver1.minor < ver2.minor )
     return false;
-  else if ( ver1.rev > ver2.rev )
+  if ( ver1.rev > ver2.rev )
     return true;
-  else if ( ver1.rev < ver2.rev )
+  if ( ver1.rev < ver2.rev )
     return false;
-  else if ( ver1.patch > ver2.patch )
+  if ( ver1.patch > ver2.patch )
     return true;
-  else if ( ver1.patch < ver2.patch )
+  if ( ver1.patch < ver2.patch )
     return false;
-  else
-    return true;
+  return true;
 }
 
 void Client::setClientType( ClientTypeFlag type )
@@ -519,32 +518,29 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
       THREAD_CHECKPOINT( active_client, 207 );
       return;
     }
-    else
-    {
-      THREAD_CHECKPOINT( active_client, 208 );
-      if ( !disconnect )
-        POLLOG_ERRORLN( "Client#{}: Disconnecting client due to send() error (1): {}",
-                        myClient.instance_, sckerr );
-      disconnect = true;
-      THREAD_CHECKPOINT( active_client, 209 );
-      return;
-    }
+
+    THREAD_CHECKPOINT( active_client, 208 );
+    if ( !disconnect )
+      POLLOG_ERRORLN( "Client#{}: Disconnecting client due to send() error (1): {}",
+                      myClient.instance_, sckerr );
+    disconnect = true;
+    THREAD_CHECKPOINT( active_client, 209 );
+    return;
   }
-  else  // no error
+  // no error
+  THREAD_CHECKPOINT( active_client, 210 );
+  datalen -= static_cast<unsigned short>( nsent );
+  counters.bytes_transmitted += nsent;
+  Core::networkManager.polstats.bytes_sent += nsent;
+  if ( datalen )  // anything left? if so, queue for later.
   {
-    THREAD_CHECKPOINT( active_client, 210 );
-    datalen -= static_cast<unsigned short>( nsent );
-    counters.bytes_transmitted += nsent;
-    Core::networkManager.polstats.bytes_sent += nsent;
-    if ( datalen )  // anything left? if so, queue for later.
-    {
-      THREAD_CHECKPOINT( active_client, 211 );
-      POLLOG_ERRORLN( "Client#{}: Switching to queued data mode (2)", myClient.instance_ );
-      THREAD_CHECKPOINT( active_client, 212 );
-      queue_data( cdata + nsent, datalen );
-      THREAD_CHECKPOINT( active_client, 213 );
-    }
+    THREAD_CHECKPOINT( active_client, 211 );
+    POLLOG_ERRORLN( "Client#{}: Switching to queued data mode (2)", myClient.instance_ );
+    THREAD_CHECKPOINT( active_client, 212 );
+    queue_data( cdata + nsent, datalen );
+    THREAD_CHECKPOINT( active_client, 213 );
   }
+
   THREAD_CHECKPOINT( active_client, 214 );
 }
 
@@ -570,34 +566,30 @@ void ThreadedClient::send_queued_data()
         // do nothing.  it'll be re-queued later, when it won't block.
         return;
       }
-      else
-      {
-        if ( !disconnect )
-          POLLOGLN( "Client#{}: Disconnecting client due to send() error (2): {}",
-                    myClient.instance_, sckerr );
-        disconnect = true;
-        return;
-      }
+
+      if ( !disconnect )
+        POLLOGLN( "Client#{}: Disconnecting client due to send() error (2): {}", myClient.instance_,
+                  sckerr );
+      disconnect = true;
+      return;
     }
-    else
+
+    xbuffer->nsent += static_cast<unsigned short>( nsent );
+    xbuffer->lenleft -= static_cast<unsigned short>( nsent );
+    counters.bytes_transmitted += nsent;
+    Core::networkManager.polstats.bytes_sent += nsent;
+    if ( xbuffer->lenleft == 0 )
     {
-      xbuffer->nsent += static_cast<unsigned short>( nsent );
-      xbuffer->lenleft -= static_cast<unsigned short>( nsent );
-      counters.bytes_transmitted += nsent;
-      Core::networkManager.polstats.bytes_sent += nsent;
-      if ( xbuffer->lenleft == 0 )
+      first_xmit_buffer = first_xmit_buffer->next;
+      if ( first_xmit_buffer == nullptr )
       {
-        first_xmit_buffer = first_xmit_buffer->next;
-        if ( first_xmit_buffer == nullptr )
-        {
-          last_xmit_buffer = nullptr;
-          POLLOGLN( "Client#{}: Leaving queued mode ({} bytes xmitted)", myClient.instance_,
-                    queued_bytes_counter );
-          queued_bytes_counter = 0;
-        }
-        free( xbuffer );
-        --n_queued;
+        last_xmit_buffer = nullptr;
+        POLLOGLN( "Client#{}: Leaving queued mode ({} bytes xmitted)", myClient.instance_,
+                  queued_bytes_counter );
+        queued_bytes_counter = 0;
       }
+      free( xbuffer );
+      --n_queued;
     }
   }
 }

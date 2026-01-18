@@ -115,20 +115,17 @@ bool validhair( u16 HairStyle )
   {
     return false;
   }
-  else
-  {
-    if ( ( ( 0x203B <= HairStyle ) && ( HairStyle <= 0x203D ) ) ||
-         ( ( 0x2044 <= HairStyle ) && ( HairStyle <= 0x204A ) ) ||
-         ( ( 0x2FBF <= HairStyle ) && ( HairStyle <= 0x2FC2 ) ) ||
-         ( ( 0x2FCC <= HairStyle ) && ( HairStyle <= 0x2FD2 ) ) ||
-         ( ( 0x4258 <= HairStyle ) && ( HairStyle <= 0x425F ) ) ||
-         ( ( 0x4261 <= HairStyle ) && ( HairStyle <= 0x4262 ) ) ||
-         ( ( 0x4273 <= HairStyle ) && ( HairStyle <= 0x4275 ) ) ||
-         ( ( 0x42aa <= HairStyle ) && ( HairStyle <= 0x42ab ) ) || ( HairStyle == 0x42B1 ) )
-      return true;
-    else
-      return false;
-  }
+
+  if ( ( ( 0x203B <= HairStyle ) && ( HairStyle <= 0x203D ) ) ||
+       ( ( 0x2044 <= HairStyle ) && ( HairStyle <= 0x204A ) ) ||
+       ( ( 0x2FBF <= HairStyle ) && ( HairStyle <= 0x2FC2 ) ) ||
+       ( ( 0x2FCC <= HairStyle ) && ( HairStyle <= 0x2FD2 ) ) ||
+       ( ( 0x4258 <= HairStyle ) && ( HairStyle <= 0x425F ) ) ||
+       ( ( 0x4261 <= HairStyle ) && ( HairStyle <= 0x4262 ) ) ||
+       ( ( 0x4273 <= HairStyle ) && ( HairStyle <= 0x4275 ) ) ||
+       ( ( 0x42aa <= HairStyle ) && ( HairStyle <= 0x42ab ) ) || ( HairStyle == 0x42B1 ) )
+    return true;
+  return false;
 }
 
 /* beard can be:
@@ -152,8 +149,7 @@ bool validbeard( u16 BeardStyle )
        ( ( 0x42AD <= BeardStyle ) && ( BeardStyle <= 0x42B0 ) &&
          ( Plib::systemstate.config.max_tile_id > BeardStyle ) ) )
     return true;
-  else
-    return false;
+  return false;
 }
 
 /* face can be:
@@ -204,23 +200,23 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     client->forceDisconnect();
     return;
   }
-  else if ( Plib::systemstate.config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
+  if ( Plib::systemstate.config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
   {
     // FIXME: Add send_login_error!
     client->Disconnect();
     return;
   }
-  else if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( msg->CharNumber ) != nullptr ||
-            msg->StartIndex >= gamestate.startlocations.size() )
+  if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
+       client->acct->get_character( msg->CharNumber ) != nullptr ||
+       msg->StartIndex >= gamestate.startlocations.size() )
   {
     ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
+       client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -573,22 +569,22 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     client->Disconnect();
     return;
   }
-  else if ( Plib::systemstate.config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
+  if ( Plib::systemstate.config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
   {
     // FIXME: Add send_login_error ...
     client->Disconnect();
     return;
   }
-  else if ( charslot >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( charslot ) != nullptr )
+  if ( charslot >= Plib::systemstate.config.character_slots ||
+       client->acct->get_character( charslot ) != nullptr )
   {
     ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
+       client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -904,23 +900,23 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     client->forceDisconnect();
     return;
   }
-  else if ( Plib::systemstate.config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
+  if ( Plib::systemstate.config.min_cmdlevel_to_login > client->acct->default_cmdlevel() )
   {
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
   }
-  else if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( msg->CharNumber ) != nullptr ||
-            msg->StartIndex >= gamestate.startlocations.size() )
+  if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
+       client->acct->get_character( msg->CharNumber ) != nullptr ||
+       msg->StartIndex >= gamestate.startlocations.size() )
   {
     ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
+       client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();

@@ -27,10 +27,8 @@ BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
       send_full_statmsg( chr->client, chr );
       return new BLong( 1 );
     }
-    else
-      return new BError( "Mobile must not be offline" );
+    return new BError( "Mobile must not be offline" );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 }  // namespace Pol::Module

@@ -262,15 +262,13 @@ std::unique_ptr<Statement> CompoundStatementBuilder::for_loop( EscriptParser::Fo
   {
     return cstyle_for_loop( cstyle, std::move( label ) );
   }
-  else if ( auto basic = ctx->basicForStatement() )
+  if ( auto basic = ctx->basicForStatement() )
   {
     return basic_for_loop( basic, std::move( label ) );
   }
-  else
-  {
-    location_for( *ctx ).internal_error(
-        "neither c-style nor basic-style for statement in for group" );
-  }
+
+  location_for( *ctx ).internal_error(
+      "neither c-style nor basic-style for statement in for group" );
 }
 
 std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expression(
@@ -280,34 +278,31 @@ std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expressio
   {
     return scoped_identifier( scoped_ident );
   }
-  else if ( auto identifier = ctx->IDENTIFIER() )
+  if ( auto identifier = ctx->IDENTIFIER() )
   {
     return std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) );
   }
-  else if ( auto m_call = ctx->functionCall() )
+  if ( auto m_call = ctx->functionCall() )
   {
     return function_call( location_for( *m_call ), m_call, ScopeName::None );
   }
-  else if ( auto scoped_call = ctx->scopedFunctionCall() )
+  if ( auto scoped_call = ctx->scopedFunctionCall() )
   {
     return scoped_function_call( scoped_call );
   }
-  else if ( auto array_init = ctx->explicitArrayInitializer() )
+  if ( auto array_init = ctx->explicitArrayInitializer() )
   {
     return array_initializer( array_init );
   }
-  else if ( auto bare_array = ctx->bareArrayInitializer() )
+  if ( auto bare_array = ctx->bareArrayInitializer() )
   {
     return array_initializer( bare_array );
   }
-  else if ( auto par_ex = ctx->parExpression() )
+  if ( auto par_ex = ctx->parExpression() )
   {
     return expression( par_ex->expression() );
   }
-  else
-  {
-    location_for( *ctx ).internal_error( "unhandled foreach iterable expression" );
-  }
+  location_for( *ctx ).internal_error( "unhandled foreach iterable expression" );
 }
 
 std::unique_ptr<ForeachLoop> CompoundStatementBuilder::foreach_loop(

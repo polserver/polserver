@@ -1241,118 +1241,118 @@ int UoToolMain::main()
   {
     return UoTool::tiledump( s_argc, s_argv );
   }
-  else if ( argvalue == "vertile" )
+  if ( argvalue == "vertile" )
   {
     return UoTool::vertile();
   }
-  else if ( argvalue == "verlandtile" )
+  if ( argvalue == "verlandtile" )
   {
     return UoTool::verlandtile();
   }
-  else if ( argvalue == "landtilehist" )
+  if ( argvalue == "landtilehist" )
   {
     return UoTool::landtilehist();
   }
-  else if ( argvalue == "flagsearch" )
+  if ( argvalue == "flagsearch" )
   {
     return UoTool::flagsearch( s_argc, s_argv );
   }
-  else if ( argvalue == "landtileflagsearch" )
+  if ( argvalue == "landtileflagsearch" )
   {
     return UoTool::landtileflagsearch( s_argc, s_argv );
   }
-  else if ( argvalue == "loschange" )
+  if ( argvalue == "loschange" )
   {
     return UoTool::loschange( s_argc, s_argv );
   }
-  else if ( argvalue == "rawdump" )
+  if ( argvalue == "rawdump" )
   {
     return UoTool::rawdump( s_argc, s_argv );
   }
-  else if ( argvalue == "ctable" )
+  if ( argvalue == "ctable" )
   {
     return UoTool::print_ctable();
   }
-  else if ( argvalue == "sndlist" )
+  if ( argvalue == "sndlist" )
   {
     return UoTool::print_sndlist();
   }
-  else if ( argvalue == "statics" )
+  if ( argvalue == "statics" )
   {
     return UoTool::print_statics();
   }
-  else if ( argvalue == "verdata" )
+  if ( argvalue == "verdata" )
   {
     return UoTool::print_verdata_info();
   }
-  else if ( argvalue == "multis" )
+  if ( argvalue == "multis" )
   {
     return UoTool::print_multis();
   }
-  else if ( argvalue == "water" )
+  if ( argvalue == "water" )
   {
     return UoTool::print_water_data();
   }
-  else if ( argvalue == "newstatics" )
+  if ( argvalue == "newstatics" )
   {
     return write_pol_static_files( "main" );
   }
-  else if ( argvalue == "staticsmax" )
+  if ( argvalue == "staticsmax" )
   {
     open_uo_data_files();
     staticsmax();
     return 0;
   }
-  else if ( argvalue == "watersearch" )
+  if ( argvalue == "watersearch" )
   {
     return UoTool::water_search();
   }
-  else if ( argvalue == "zhist" )
+  if ( argvalue == "zhist" )
   {
     return UoTool::z_histogram();
   }
-  else if ( argvalue == "staticshist" )
+  if ( argvalue == "staticshist" )
   {
     return UoTool::statics_histogram();
   }
-  else if ( argvalue == "writedungmap" )
+  if ( argvalue == "writedungmap" )
   {
     return UoTool::write_polmap();
   }
-  else if ( argvalue == "writekeys" )
+  if ( argvalue == "writekeys" )
   {
     INFO_PRINTLN( "Keys written to current.key" );
     return 0;
   }
-  else if ( argvalue == "mapdump" )
+  if ( argvalue == "mapdump" )
   {
     return UoTool::mapdump( s_argc, s_argv );
   }
-  else if ( argvalue == "contour" )
+  if ( argvalue == "contour" )
   {
     return UoTool::contour();
   }
-  else if ( argvalue == "findlandtile" )
+  if ( argvalue == "findlandtile" )
   {
     return UoTool::findlandtile( s_argc - 1, s_argv + 1 );
   }
-  else if ( argvalue == "findlandtileflags" )
+  if ( argvalue == "findlandtileflags" )
   {
     return UoTool::findlandtileflags( s_argc - 1, s_argv + 1 );
   }
-  else if ( argvalue == "findgraphic" )
+  if ( argvalue == "findgraphic" )
   {
     return UoTool::findgraphic( s_argc - 1, s_argv + 1 );
   }
-  else if ( argvalue == "defragstatics" )
+  if ( argvalue == "defragstatics" )
   {
     return UoTool::defragstatics( s_argc - 1, s_argv + 1 );
   }
-  else if ( argvalue == "formatdesc" )
+  if ( argvalue == "formatdesc" )
   {
     return UoTool::format_description( s_argc - 1, s_argv + 1 );
   }
-  else if ( argvalue == "checkmultis" )
+  if ( argvalue == "checkmultis" )
   {
     return UoTool::checkmultis();
   }

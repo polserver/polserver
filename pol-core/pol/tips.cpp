@@ -34,10 +34,8 @@ bool send_tip( Network::Client* client, const char* tipname, unsigned short tipn
     msg.Send( client );
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void send_tip( Network::Client* client, const std::string& tiptext )

@@ -63,10 +63,8 @@ PacketLog ThreadedClient::start_log( std::string filename )
   {
     return PacketLog::Success;
   }
-  else
-  {
-    return PacketLog::Error;
-  }
+
+  return PacketLog::Error;
 }
 
 PacketLog ThreadedClient::stop_log()
@@ -80,10 +78,8 @@ PacketLog ThreadedClient::stop_log()
     fpLog.clear();
     return PacketLog::Success;
   }
-  else
-  {
-    return PacketLog::Unchanged;
-  }
+
+  return PacketLog::Unchanged;
 }
 
 

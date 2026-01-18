@@ -54,8 +54,7 @@ UObject* ObjectHash::Find( u32 serial )
   OH_iterator itr = hash.find( serial );
   if ( itr != hash.end() )
     return ( itr->second ).get();
-  else
-    return nullptr;
+  return nullptr;
 }
 
 u32 ObjectHash::GetNextUnusedItemSerial()
@@ -75,20 +74,18 @@ u32 ObjectHash::GetNextUnusedItemSerial()
       tempserial++;
       continue;
     }
-    else if ( dirty_deleted.count( tempserial ) )
+    if ( dirty_deleted.count( tempserial ) )
     {
       tempserial++;
       continue;
     }
-    else if ( clean_deleted.count( tempserial ) )
+    if ( clean_deleted.count( tempserial ) )
     {
       tempserial++;
       continue;
     }
-    else
-    {
-      break;
-    }
+
+    break;
   }
   return tempserial;
 };
@@ -110,20 +107,18 @@ u32 ObjectHash::GetNextUnusedCharSerial()
       tempserial++;
       continue;
     }
-    else if ( dirty_deleted.find( tempserial ) != dirty_deleted.end() )
+    if ( dirty_deleted.find( tempserial ) != dirty_deleted.end() )
     {
       tempserial++;
       continue;
     }
-    else if ( clean_deleted.find( tempserial ) != clean_deleted.end() )
+    if ( clean_deleted.find( tempserial ) != clean_deleted.end() )
     {
       tempserial++;
       continue;
     }
-    else
-    {
-      break;
-    }
+
+    break;
   }
   return tempserial;
 };

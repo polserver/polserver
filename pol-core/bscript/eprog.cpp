@@ -100,13 +100,11 @@ void EScriptProgram::dump( std::ostream& os )
     {
       return;
     }
-    else
+
+    os << PC << ": " << token << std::endl;
+    if ( token.id == INS_CASEJMP )
     {
-      os << PC << ": " << token << std::endl;
-      if ( token.id == INS_CASEJMP )
-      {
-        dump_casejmp( os, token );
-      }
+      dump_casejmp( os, token );
     }
   }
 }

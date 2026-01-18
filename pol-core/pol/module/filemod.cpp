@@ -534,8 +534,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_LogToFile()
 
     return new BLong( 1 );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 Bscript::BObjectImp* FileAccessExecutorModule::mf_OpenBinaryFile()

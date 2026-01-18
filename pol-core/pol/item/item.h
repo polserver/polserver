@@ -408,8 +408,7 @@ inline bool Item::slot_index( u8 newvalue )
       slot_index_ = newvalue;
       return true;
     }
-    else
-      return false;
+    return false;
   }
   return true;
 }

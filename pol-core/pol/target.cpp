@@ -121,10 +121,8 @@ bool TargetCursor::send_object_cursor( Network::Client* client, PKTBI_6C::CURSOR
     client->gd->tcursor2 = this;
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void TargetCursor::cancel( Mobile::Character* chr )
@@ -337,10 +335,8 @@ bool LosCheckedCoordCursor::send_coord_cursor( Network::Client* client )
     client->gd->tcursor2 = this;
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void LosCheckedCoordCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )

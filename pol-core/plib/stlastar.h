@@ -246,146 +246,142 @@ public:  // methods
 
       return m_State;
     }
-    else  // not goal
+    // not goal
+
+    // We now need to generate the successors of this node
+    // The user helps us to do this, and we keep the new nodes in
+    // m_Successors ...
+
+    m_Successors.clear();  // empty vector of successor nodes to n
+
+    // User provides this functions and uses AddSuccessor to add each successor of
+    // node 'n' to m_Successors
+    bool ret = n->m_UserState.GetSuccessors( this, n->parent ? &n->parent->m_UserState : nullptr );
+
+    if ( !ret )
     {
-      // We now need to generate the successors of this node
-      // The user helps us to do this, and we keep the new nodes in
-      // m_Successors ...
-
-      m_Successors.clear();  // empty vector of successor nodes to n
-
-      // User provides this functions and uses AddSuccessor to add each successor of
-      // node 'n' to m_Successors
-      bool ret =
-          n->m_UserState.GetSuccessors( this, n->parent ? &n->parent->m_UserState : nullptr );
-
-      if ( !ret )
-      {
-        // free the nodes that may previously have been added
-        for ( NodeVectorIterator successor = m_Successors.begin(),
-                                 successor_end = m_Successors.end();
-              successor != successor_end; ++successor )
-        {
-          FreeNode( ( *successor ) );
-        }
-
-        m_Successors.clear();  // empty vector of successor nodes to n
-
-        // free up everything else we allocated
-        FreeAllNodes();
-
-        m_State = SEARCH_STATE_OUT_OF_MEMORY;
-        return m_State;
-      }
-
-      // Now handle each successor to the current node ...
+      // free the nodes that may previously have been added
       for ( NodeVectorIterator successor = m_Successors.begin(), successor_end = m_Successors.end();
             successor != successor_end; ++successor )
       {
-        // The g value for this successor ...
-        float newg = n->g + n->m_UserState.GetCost( ( *successor )->m_UserState );
-
-        // Now we need to find whether the node is on the open or closed lists
-        // If it is but the node that is already on them is better (lower g)
-        // then we can forget about this successor
-
-        // First linear search of open list to find node
-
-        NodeVectorIterator openlist_result, openlist_end;
-
-        for ( openlist_result = m_OpenList.begin(), openlist_end = m_OpenList.end();
-              openlist_result != openlist_end; ++openlist_result )
-        {
-          if ( ( *openlist_result )->m_UserState.IsSameState( ( *successor )->m_UserState ) )
-          {
-            break;
-          }
-        }
-
-        if ( openlist_result != openlist_end )
-        {
-          // we found this state on open
-
-          if ( ( *openlist_result )->g <= newg )
-          {
-            FreeNode( ( *successor ) );
-
-            // the one on Open is cheaper than this one
-            continue;
-          }
-        }
-
-        NodeVectorIterator closedlist_result, closedlist_end;
-
-        for ( closedlist_result = m_ClosedList.begin(), closedlist_end = m_ClosedList.end();
-              closedlist_result != closedlist_end; ++closedlist_result )
-        {
-          if ( ( *closedlist_result )->m_UserState.IsSameState( ( *successor )->m_UserState ) )
-          {
-            break;
-          }
-        }
-
-        if ( closedlist_result != closedlist_end )
-        {
-          // we found this state on closed
-
-          if ( ( *closedlist_result )->g <= newg )
-          {
-            // the one on Closed is cheaper than this one
-            FreeNode( ( *successor ) );
-            continue;
-          }
-        }
-
-        // This node is the best node so far with this particular state
-        // so lets keep it and set up its AStar specific data ...
-
-        ( *successor )->parent = n;
-        ( *successor )->g = newg;
-        ( *successor )->h = ( *successor )->m_UserState.GoalDistanceEstimate( m_Goal->m_UserState );
-        ( *successor )->f = ( *successor )->g + ( *successor )->h;
-
-        // Remove successor from closed if it was on it
-
-        if ( closedlist_result != closedlist_end )
-        {
-          // remove it from Closed
-          FreeNode( ( *closedlist_result ) );
-          m_ClosedList.erase( closedlist_result );
-        }
-
-        // Update old version of this node
-        if ( openlist_result != openlist_end )
-        {
-          FreeNode( ( *openlist_result ) );
-          m_OpenList.erase( openlist_result );
-
-          // re-make the heap
-          make_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
-
-          // make_heap rather than sort_heap is an essential bug fix
-          // thanks to Mike Ryynanen for pointing this out and then explaining
-          // it in detail. sort_heap called on an invalid heap does not work
-
-          //               sort_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
-
-          //               assert( is_heap( m_OpenList.begin(), m_OpenList.end(),
-          // HeapCompare_f() ) );
-        }
-
-        // heap now unsorted
-        m_OpenList.push_back( ( *successor ) );
-
-        // sort back element into heap
-        push_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
+        FreeNode( ( *successor ) );
       }
 
-      // push n onto Closed, as we have expanded it now
+      m_Successors.clear();  // empty vector of successor nodes to n
 
-      m_ClosedList.push_back( n );
+      // free up everything else we allocated
+      FreeAllNodes();
 
-    }  // end else (not goal so expand)
+      m_State = SEARCH_STATE_OUT_OF_MEMORY;
+      return m_State;
+    }
+
+    // Now handle each successor to the current node ...
+    for ( NodeVectorIterator successor = m_Successors.begin(), successor_end = m_Successors.end();
+          successor != successor_end; ++successor )
+    {
+      // The g value for this successor ...
+      float newg = n->g + n->m_UserState.GetCost( ( *successor )->m_UserState );
+
+      // Now we need to find whether the node is on the open or closed lists
+      // If it is but the node that is already on them is better (lower g)
+      // then we can forget about this successor
+
+      // First linear search of open list to find node
+
+      NodeVectorIterator openlist_result, openlist_end;
+
+      for ( openlist_result = m_OpenList.begin(), openlist_end = m_OpenList.end();
+            openlist_result != openlist_end; ++openlist_result )
+      {
+        if ( ( *openlist_result )->m_UserState.IsSameState( ( *successor )->m_UserState ) )
+        {
+          break;
+        }
+      }
+
+      if ( openlist_result != openlist_end )
+      {
+        // we found this state on open
+
+        if ( ( *openlist_result )->g <= newg )
+        {
+          FreeNode( ( *successor ) );
+
+          // the one on Open is cheaper than this one
+          continue;
+        }
+      }
+
+      NodeVectorIterator closedlist_result, closedlist_end;
+
+      for ( closedlist_result = m_ClosedList.begin(), closedlist_end = m_ClosedList.end();
+            closedlist_result != closedlist_end; ++closedlist_result )
+      {
+        if ( ( *closedlist_result )->m_UserState.IsSameState( ( *successor )->m_UserState ) )
+        {
+          break;
+        }
+      }
+
+      if ( closedlist_result != closedlist_end )
+      {
+        // we found this state on closed
+
+        if ( ( *closedlist_result )->g <= newg )
+        {
+          // the one on Closed is cheaper than this one
+          FreeNode( ( *successor ) );
+          continue;
+        }
+      }
+
+      // This node is the best node so far with this particular state
+      // so lets keep it and set up its AStar specific data ...
+
+      ( *successor )->parent = n;
+      ( *successor )->g = newg;
+      ( *successor )->h = ( *successor )->m_UserState.GoalDistanceEstimate( m_Goal->m_UserState );
+      ( *successor )->f = ( *successor )->g + ( *successor )->h;
+
+      // Remove successor from closed if it was on it
+
+      if ( closedlist_result != closedlist_end )
+      {
+        // remove it from Closed
+        FreeNode( ( *closedlist_result ) );
+        m_ClosedList.erase( closedlist_result );
+      }
+
+      // Update old version of this node
+      if ( openlist_result != openlist_end )
+      {
+        FreeNode( ( *openlist_result ) );
+        m_OpenList.erase( openlist_result );
+
+        // re-make the heap
+        make_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
+
+        // make_heap rather than sort_heap is an essential bug fix
+        // thanks to Mike Ryynanen for pointing this out and then explaining
+        // it in detail. sort_heap called on an invalid heap does not work
+
+        //               sort_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
+
+        //               assert( is_heap( m_OpenList.begin(), m_OpenList.end(),
+        // HeapCompare_f() ) );
+      }
+
+      // heap now unsorted
+      m_OpenList.push_back( ( *successor ) );
+
+      // sort back element into heap
+      push_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
+    }
+
+    // push n onto Closed, as we have expanded it now
+
+    m_ClosedList.push_back( n );
 
     return m_State;  // Succeeded bool is false at this point.
   }
@@ -443,10 +439,8 @@ public:  // methods
     {
       return &m_Start->m_UserState;
     }
-    else
-    {
-      return nullptr;
-    }
+
+    return nullptr;
   }
 
   // Get next node
@@ -473,10 +467,8 @@ public:  // methods
     {
       return &m_Goal->m_UserState;
     }
-    else
-    {
-      return nullptr;
-    }
+
+    return nullptr;
   }
 
   // Step solution iterator backwards

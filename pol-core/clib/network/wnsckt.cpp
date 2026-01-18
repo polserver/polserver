@@ -111,11 +111,9 @@ std::string Socket::getpeername() const
     struct sockaddr_in* in_addr = (struct sockaddr_in*)&client_addr;
     if ( client_addr.sa_family == AF_INET )
       return inet_ntoa( in_addr->sin_addr );
-    else
-      return "(display error)";
+    return "(display error)";
   }
-  else
-    return "Error retrieving peer name";
+  return "Error retrieving peer name";
 }
 struct sockaddr Socket::peer_address() const
 {
@@ -162,16 +160,14 @@ bool Socket::open( const char* ipaddr, unsigned short port )
   {
     return true;
   }
-  else
-  {
+
 #ifdef _WIN32
-    closesocket( _sck );
+  closesocket( _sck );
 #else
-    ::close( _sck );
+  ::close( _sck );
 #endif
-    _sck = INVALID_SOCKET;
-    return false;
-  }
+  _sck = INVALID_SOCKET;
+  return false;
 }
 
 void Socket::disable_nagle()
@@ -306,11 +302,9 @@ bool Socket::accept( SOCKET* s, unsigned int /*mstimeout*/ )
     apply_socket_options( *s );
     return true;
   }
-  else
-  {
-    *s = INVALID_SOCKET;
-    return false;
-  }
+
+  *s = INVALID_SOCKET;
+  return false;
 }
 
 bool Socket::accept( Socket* newsocket )
@@ -412,7 +406,7 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
 #endif
     return true;
   }
-  else if ( res == 0 )
+  if ( res == 0 )
   {
 #if SCK_WATCH
     INFO_PRINTLN( "{CLOSE}" );
@@ -420,12 +414,10 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
     close();
     return false;
   }
-  else
-  {
-    /* Can't time out here this is an ERROR! */
-    HandleError();
-    return false;
-  }
+
+  /* Can't time out here this is an ERROR! */
+  HandleError();
+  return false;
 }
 
 bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
@@ -562,7 +554,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   {
     return res;
   }
-  else if ( res == 0 )
+  if ( res == 0 )
   {
 #if SCK_WATCH
     INFO_PRINTLN( "{CLOSE}" );
@@ -570,12 +562,10 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
     close();
     return 0;
   }
-  else
-  {
-    /* Can't time out here this is an ERROR! */
-    HandleError();
-    return 0;
-  }
+
+  /* Can't time out here this is an ERROR! */
+  HandleError();
+  return 0;
 }
 
 void Socket::send( const void* vdata, unsigned datalen )
@@ -593,18 +583,14 @@ void Socket::send( const void* vdata, unsigned datalen )
         // FIXME sleep
         continue;
       }
-      else
-      {
-        INFO_PRINTLN( "Socket::send() error: {}", sckerr );
-        HandleError();
-        return;
-      }
+
+      INFO_PRINTLN( "Socket::send() error: {}", sckerr );
+      HandleError();
+      return;
     }
-    else
-    {
-      datalen -= res;
-      cdata += res;
-    }
+
+    datalen -= res;
+    cdata += res;
   }
 }
 
@@ -625,19 +611,15 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
         // FIXME sleep
         return false;
       }
-      else
-      {
-        INFO_PRINTLN( "Socket::send_nowait() error: {}", sckerr );
-        HandleError();
-        return true;
-      }
+
+      INFO_PRINTLN( "Socket::send_nowait() error: {}", sckerr );
+      HandleError();
+      return true;
     }
-    else
-    {
-      datalen -= res;
-      cdata += res;
-      *nsent += res;
-    }
+
+    datalen -= res;
+    cdata += res;
+    *nsent += res;
   }
   return true;
 }

@@ -45,12 +45,11 @@ u32 GetSubCmd( const unsigned char* message, PacketHookData* phd )
 {
   if ( phd->sub_command_length == 1 )
     return *( reinterpret_cast<const u8*>( &message[phd->sub_command_offset] ) );
-  else if ( phd->sub_command_length == 2 )
+  if ( phd->sub_command_length == 2 )
     return cfBEu16( *( reinterpret_cast<const u16*>( &message[phd->sub_command_offset] ) ) );
   // else if(phd->sub_command_length == 4)
   //    return cfBEu32(*(reinterpret_cast<const u32*>(&message[phd->sub_command_offset])));
-  else
-    return cfBEu32( *( reinterpret_cast<const u32*>( &message[phd->sub_command_offset] ) ) );
+  return cfBEu32( *( reinterpret_cast<const u32*>( &message[phd->sub_command_offset] ) ) );
 }
 
 // Variable length is defined in MSGLEN_2BYTELEN_DATA
@@ -542,21 +541,20 @@ bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 )
 {
   if ( ver1.major > ver2.major )
     return true;
-  else if ( ver1.major < ver2.major )
+  if ( ver1.major < ver2.major )
     return false;
-  else if ( ver1.minor > ver2.minor )
+  if ( ver1.minor > ver2.minor )
     return true;
-  else if ( ver1.minor < ver2.minor )
+  if ( ver1.minor < ver2.minor )
     return false;
-  else if ( ver1.rev > ver2.rev )
+  if ( ver1.rev > ver2.rev )
     return true;
-  else if ( ver1.rev < ver2.rev )
+  if ( ver1.rev < ver2.rev )
     return false;
-  else if ( ver1.patch > ver2.patch )
+  if ( ver1.patch > ver2.patch )
     return true;
-  else if ( ver1.patch < ver2.patch )
+  if ( ver1.patch < ver2.patch )
     return false;
-  else
-    return true;
+  return true;
 }
 }  // namespace Pol::Network

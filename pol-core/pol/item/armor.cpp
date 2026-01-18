@@ -136,10 +136,9 @@ unsigned short UArmor::ar() const
 
   if ( ar < 0 )
     return 0;
-  else if ( ar <= USHRT_MAX )
+  if ( ar <= USHRT_MAX )
     return static_cast<unsigned short>( ar );
-  else
-    return USHRT_MAX;
+  return USHRT_MAX;
 }
 
 unsigned short UArmor::ar_base() const
@@ -259,10 +258,8 @@ UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const 
 
     return create_intrinsic_shield( elem.rest(), shieldelem, pkg );
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 size_t UArmor::estimatedSize() const

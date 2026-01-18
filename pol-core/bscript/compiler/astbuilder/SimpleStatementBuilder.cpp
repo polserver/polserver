@@ -117,7 +117,7 @@ std::unique_ptr<Node> SimpleStatementBuilder::binding(
     }
     return std::make_unique<SequenceBinding>( location_for( *ctx ), std::move( bindings ) );
   }
-  else if ( auto index_binding_list = ctx->indexBindingList() )
+  if ( auto index_binding_list = ctx->indexBindingList() )
   {
     std::vector<std::unique_ptr<Expression>> indices;
     std::vector<std::unique_ptr<Node>> bindings;
@@ -175,12 +175,10 @@ std::unique_ptr<Node> SimpleStatementBuilder::binding(
     return std::make_unique<IndexBinding>( location_for( *ctx ), std::move( element_indexes ),
                                            std::move( bindings ) );
   }
-  else
-  {
-    // Should never happen, as the context check is exhaustive.
-    report.error( location_for( *ctx ), "Unsupported binding list" );
-    return {};
-  }
+
+  // Should never happen, as the context check is exhaustive.
+  report.error( location_for( *ctx ), "Unsupported binding list" );
+  return {};
 }
 
 std::unique_ptr<JumpStatement> SimpleStatementBuilder::break_statement(
@@ -288,8 +286,7 @@ std::unique_ptr<Expression> SimpleStatementBuilder::variable_initializer(
 {
   if ( auto expr = ctx->expression() )
     return expression( expr );
-  else
-    return std::unique_ptr<Expression>( new StringValue( location_for( *ctx ), "" ) );
+  return std::unique_ptr<Expression>( new StringValue( location_for( *ctx ), "" ) );
 }
 
 std::unique_ptr<ReturnStatement> SimpleStatementBuilder::return_statement(

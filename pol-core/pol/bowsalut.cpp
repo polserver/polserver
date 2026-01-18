@@ -64,10 +64,8 @@ UACTION str_to_action( Clib::ConfigElem& elem, const std::string& str )
   {
     return static_cast<UACTION>( tmp );
   }
-  else
-  {
-    elem.throw_error( "Animation value of " + str + " is out of range" );
-  }
+
+  elem.throw_error( "Animation value of " + str + " is out of range" );
 }
 
 void load_anim_xlate_cfg( bool /*reload*/ )

@@ -310,8 +310,7 @@ ObjMember* getObjMember( int id )
 {
   if ( id >= n_objmembers )
     return nullptr;
-  else
-    return &( object_members[id] );
+  return &( object_members[id] );
 }
 
 ObjMethod object_methods[] = {
@@ -509,8 +508,7 @@ ObjMethod* getObjMethod( int id )
 {
   if ( id >= n_objmethods )
     return nullptr;
-  else
-    return &( object_methods[id] );
+  return &( object_methods[id] );
 }
 
 }  // namespace Pol::Bscript

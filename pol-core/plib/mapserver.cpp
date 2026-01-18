@@ -152,14 +152,12 @@ MapServer* MapServer::Create( const RealmDescriptor& descriptor )
   {
     return new InMemoryMapServer( descriptor );
   }
-  else if ( descriptor.mapserver_type == "file" )
+  if ( descriptor.mapserver_type == "file" )
   {
     return new FileMapServer( descriptor );
   }
-  else
-  {
-    throw std::runtime_error( "Undefined mapserver type: " + descriptor.mapserver_type );
-  }
+
+  throw std::runtime_error( "Undefined mapserver type: " + descriptor.mapserver_type );
 }
 
 size_t MapServer::sizeEstimate() const

@@ -88,34 +88,31 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   {
     return BObjectRef( new String( value()->name() ) );
   }
-  else if ( stricmp( membername, "version" ) == 0 )
+  if ( stricmp( membername, "version" ) == 0 )
   {
     return BObjectRef( new String( value()->version() ) );
   }
-  else if ( stricmp( membername, "supports_http" ) == 0 )
+  if ( stricmp( membername, "supports_http" ) == 0 )
   {
     const Plib::Package* pkg = value().Ptr();
     return BObjectRef( new BLong( Clib::FileExists( pkg->dir() + "www" ) ) );
   }
-  else if ( stricmp( membername, "npcdesc" ) == 0 )
+  if ( stricmp( membername, "npcdesc" ) == 0 )
   {
     const Plib::Package* pkg = value().Ptr();
     std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
     return BObjectRef( new BLong( Clib::FileExists( filepath ) ) );
   }
-  else if ( stricmp( membername, "dir" ) == 0 )
+  if ( stricmp( membername, "dir" ) == 0 )
   {
     const Plib::Package* pkg = value().Ptr();
     return BObjectRef( new String( pkg->dir() ) );
   }
-  else if ( stricmp( membername, "desc" ) == 0 )
+  if ( stricmp( membername, "desc" ) == 0 )
   {
     return BObjectRef( new String( value()->desc() ) );
   }
-  else
-  {
-    return BObjectRef( new BError( "Undefined member" ) );
-  }
+  return BObjectRef( new BError( "Undefined member" ) );
 }
 
 PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
@@ -132,10 +129,8 @@ BObjectImp* PolSystemExecutorModule::mf_IncRevision( /* uobject */ )
     send_object_cache_to_inrange( uobj );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
@@ -145,23 +140,21 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
 
   if ( exec.numParams() != 1 )
     return new BError( "Expected 1 parameter." );
-  else if ( getParam( 0, cmdlevel_num ) )
+  if ( getParam( 0, cmdlevel_num ) )
   {
     if ( cmdlevel_num >= static_cast<int>( Core::gamestate.cmdlevels.size() ) )
       cmdlevel_num = static_cast<int>( Core::gamestate.cmdlevels.size() - 1 );
 
     return new String( Core::gamestate.cmdlevels[cmdlevel_num].name );
   }
-  else if ( getStringParam( 0, cmdlevel_alias ) )
+  if ( getStringParam( 0, cmdlevel_alias ) )
   {
     Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data() );
     if ( cmdlevel == nullptr )
       return new BError( "Could not find a command level with that alias." );
-    else
-      return new String( cmdlevel->name );
+    return new String( cmdlevel->name );
   }
-  else
-    return new BError( "Invalid parameter type." );
+  return new BError( "Invalid parameter type." );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
@@ -198,8 +191,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
   Plib::Package* pkg = Plib::find_package( pkgname->value() );
   if ( !pkg )
     return new BError( "No package found by that name." );
-  else
-    return new PackageObjImp( PackagePtrHolder( pkg ) );
+  return new PackageObjImp( PackagePtrHolder( pkg ) );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
@@ -293,20 +285,17 @@ BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
     Realms::Realm* realm = Core::find_realm( realm_name->value() );
     if ( !realm )
       return new BError( "Realm not found." );
-    else
-      return SetupRealmDetails( realm );
+    return SetupRealmDetails( realm );
   }
-  else
-  {
-    BDictionary* dict = new BDictionary;
-    std::vector<Realms::Realm*>::iterator itr;
-    for ( itr = Core::gamestate.Realms.begin(); itr != Core::gamestate.Realms.end(); ++itr )
-    {
-      dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
-    }
 
-    return dict;
+  BDictionary* dict = new BDictionary;
+  std::vector<Realms::Realm*>::iterator itr;
+  for ( itr = Core::gamestate.Realms.begin(); itr != Core::gamestate.Realms.end(); ++itr )
+  {
+    dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
   }
+
+  return dict;
 }
 
 BObjectImp* PolSystemExecutorModule::mf_SetSysTrayPopupText()
@@ -335,10 +324,8 @@ BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 
     return descriptor.release();
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_FormatItemDescription()
@@ -351,10 +338,8 @@ BObjectImp* PolSystemExecutorModule::mf_FormatItemDescription()
   {
     return new String( Core::format_description( 0, desc->value(), amount, suffix->value() ) );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
@@ -368,10 +353,8 @@ BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
 
     return new Core::BPacket( static_cast<u8>( type ), static_cast<signed short>( size ) );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_AddRealm( /*name,base*/ )

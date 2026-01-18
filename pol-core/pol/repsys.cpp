@@ -613,14 +613,13 @@ unsigned short RepSystem::name_color( const Mobile::Character* amy, const Mobile
     return settingsManager.repsys_cfg.NameColoring.Murderer;
   if ( bob->is_criminal() )
     return settingsManager.repsys_cfg.NameColoring.Criminal;
-  else if ( bob->is_guild_ally( amy ) )
+  if ( bob->is_guild_ally( amy ) )
     return settingsManager.repsys_cfg.NameColoring.GuildAlly;
-  else if ( bob->is_aggressor_to( amy ) || amy->has_lawfully_damaged( bob ) )
+  if ( bob->is_aggressor_to( amy ) || amy->has_lawfully_damaged( bob ) )
     return settingsManager.repsys_cfg.NameColoring.Attackable;
-  else if ( bob->is_guild_enemy( amy ) )
+  if ( bob->is_guild_enemy( amy ) )
     return settingsManager.repsys_cfg.NameColoring.GuildEnemy;
-  else
-    return settingsManager.repsys_cfg.NameColoring.Innocent;
+  return settingsManager.repsys_cfg.NameColoring.Innocent;
 }
 }  // namespace Core
 namespace Mobile
@@ -1030,24 +1029,22 @@ unsigned char NPC::hilite_color_idx( const Character* seen_by ) const
   {
     return Core::RepSystem::hilite_color_idx( seen_by, master() );
   }
-  else
+
+  switch ( template_->alignment )
   {
-    switch ( template_->alignment )
-    {
-    case Core::NpcTemplate::NEUTRAL:
-      return CHAR_HILITE_ATTACKABLE;
-    case Core::NpcTemplate::GOOD:
-      if ( is_murderer() )
-        return CHAR_HILITE_MURDERER;
-      else if ( is_criminal() )
-        return CHAR_HILITE_ATTACKABLE;
-      else
-        return CHAR_HILITE_INNOCENT;
-    case Core::NpcTemplate::EVIL:
-      return CHAR_HILITE_MURDERER;
-    }
+  case Core::NpcTemplate::NEUTRAL:
     return CHAR_HILITE_ATTACKABLE;
+  case Core::NpcTemplate::GOOD:
+    if ( is_murderer() )
+      return CHAR_HILITE_MURDERER;
+    else if ( is_criminal() )
+      return CHAR_HILITE_ATTACKABLE;
+    else
+      return CHAR_HILITE_INNOCENT;
+  case Core::NpcTemplate::EVIL:
+    return CHAR_HILITE_MURDERER;
   }
+  return CHAR_HILITE_ATTACKABLE;
 }
 
 unsigned short NPC::name_color( const Character* seen_by ) const
@@ -1071,25 +1068,23 @@ unsigned short NPC::name_color( const Character* seen_by ) const
   {
     return Core::RepSystem::name_color( seen_by, master() );
   }
-  else
-  {
-    switch ( template_->alignment )
-    {
-    case Core::NpcTemplate::NEUTRAL:
-      return Core::settingsManager.repsys_cfg.NameColoring.Attackable;
-    case Core::NpcTemplate::GOOD:
-      if ( is_murderer() )
-        return Core::settingsManager.repsys_cfg.NameColoring.Murderer;
-      else if ( is_criminal() )
-        return Core::settingsManager.repsys_cfg.NameColoring.Criminal;
-      else
-        return Core::settingsManager.repsys_cfg.NameColoring.Innocent;
-    case Core::NpcTemplate::EVIL:
-      return Core::settingsManager.repsys_cfg.NameColoring.Murderer;
-    }
 
+  switch ( template_->alignment )
+  {
+  case Core::NpcTemplate::NEUTRAL:
     return Core::settingsManager.repsys_cfg.NameColoring.Attackable;
+  case Core::NpcTemplate::GOOD:
+    if ( is_murderer() )
+      return Core::settingsManager.repsys_cfg.NameColoring.Murderer;
+    else if ( is_criminal() )
+      return Core::settingsManager.repsys_cfg.NameColoring.Criminal;
+    else
+      return Core::settingsManager.repsys_cfg.NameColoring.Innocent;
+  case Core::NpcTemplate::EVIL:
+    return Core::settingsManager.repsys_cfg.NameColoring.Murderer;
   }
+
+  return Core::settingsManager.repsys_cfg.NameColoring.Attackable;
 }
 
 ///

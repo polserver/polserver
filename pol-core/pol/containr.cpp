@@ -159,20 +159,15 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
                                     ( held_weight_ * held_weight_multiplier() ) );
       return container->can_add_bulk( 0, 0, modded_diff );
     }
-    else
-      return true;
+    return true;
   }
-  else
+
+  if ( settingsManager.ssopt.use_slot_index )
   {
-    if ( settingsManager.ssopt.use_slot_index )
-    {
-      return ( ( contents_.size() < MAX_CONTAINER_ITEMS ) && ( contents_.size() < MAX_SLOTS ) );
-    }
-    else
-    {
-      return ( contents_.size() < MAX_CONTAINER_ITEMS );
-    }
+    return ( ( contents_.size() < MAX_CONTAINER_ITEMS ) && ( contents_.size() < MAX_SLOTS ) );
   }
+
+  return ( contents_.size() < MAX_CONTAINER_ITEMS );
 }
 
 bool UContainer::can_add( const Items::Item& item ) const
@@ -298,10 +293,8 @@ bool UContainer::find_empty_slot( u8& slotIndex )
       slotIndex = slot_location;
       return true;
     }
-    else
-    {
-      slot_check = false;
-    }
+
+    slot_check = false;
   }
   return false;
 }
@@ -807,10 +800,8 @@ bool UContainer::can_insert_increase_stack( Mobile::Character* mob, MoveType mov
                         adding_item ? adding_item->make_ref() : Bscript::UninitObject::create(),
                         existing_item->make_ref(), new Bscript::BLong( amt_to_add ) );
   }
-  else
-  {
-    return true;
-  }
+
+  return true;
 }
 
 void UContainer::on_insert_increase_stack( Mobile::Character* mob, MoveType movetype,
@@ -835,10 +826,8 @@ bool UContainer::can_insert_add_item( Mobile::Character* mob, MoveType movetype,
                         new Bscript::BLong( movetype ), new Bscript::BLong( INSERT_ADD_ITEM ),
                         new_item->make_ref() );
   }
-  else
-  {
-    return true;
-  }
+
+  return true;
 }
 
 void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype,
@@ -873,10 +862,8 @@ bool UContainer::check_can_remove_script( Mobile::Character* chr, Items::Item* i
     return call_script( desc.can_remove_script, chrParam, make_ref(), item->make_ref(),
                         new Bscript::BLong( move ), new Bscript::BLong( amount ) );
   }
-  else
-  {
-    return true;
-  }
+
+  return true;
 }
 
 
@@ -966,10 +953,9 @@ unsigned short UContainer::max_weight() const
 
   if ( max_weight < 1 )
     return USHRT_MAX;
-  else if ( max_weight <= USHRT_MAX )
+  if ( max_weight <= USHRT_MAX )
     return static_cast<u16>( max_weight );
-  else
-    return USHRT_MAX;
+  return USHRT_MAX;
 }
 
 u8 UContainer::max_slots() const

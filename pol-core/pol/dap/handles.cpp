@@ -46,20 +46,20 @@ BObjectRef Handles::set_index_or_member( const BObjectRef& objref, const std::st
       bstruct->addMember( key.c_str(), value );
       return value;
     }
-    else if ( impptr->isa( BObjectImp::OTDictionary ) )
+    if ( impptr->isa( BObjectImp::OTDictionary ) )
     {
       BDictionary* dict = static_cast<BDictionary*>( impptr );
       dict->addMember( key.c_str(), value );
       return value;
     }
-    else if ( impptr->isa( BObjectImp::OTArray ) )
+    if ( impptr->isa( BObjectImp::OTArray ) )
     {
       ObjArray* objarr = static_cast<ObjArray*>( impptr );
       auto index = strtoul( key.c_str(), nullptr, 0 );
       objarr->ref_arr.at( index ) = value;
       return value;
     }
-    else if ( impptr->isa( BObjectImp::OTApplicObj ) )
+    if ( impptr->isa( BObjectImp::OTApplicObj ) )
     {
       impptr->set_member( key.c_str(), value->impptr(), true );
       return impptr->get_member( key.c_str() );

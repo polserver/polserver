@@ -162,7 +162,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     client->Disconnect();
     return;
   }
-  else if ( Plib::systemstate.config.min_cmdlevel_to_login > acct->default_cmdlevel() )
+  if ( Plib::systemstate.config.min_cmdlevel_to_login > acct->default_cmdlevel() )
   {
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
@@ -184,14 +184,13 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     POLLOGLN( "Incorrect password for account {} from {}", acct->name(), client->ipaddrAsString() );
     return;
   }
-  else
+
+  if ( Plib::systemstate.config.retain_cleartext_passwords )
   {
-    if ( Plib::systemstate.config.retain_cleartext_passwords )
-    {
-      if ( acct->password().empty() )
-        acct->set_password( msgpass );
-    }
+    if ( acct->password().empty() )
+      acct->set_password( msgpass );
   }
+
 
   if ( !acct->enabled() || acct->banned() )
   {
@@ -437,15 +436,14 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
     POLLOGLN( "Incorrect password for account {} from {}", acct->name(), client->ipaddrAsString() );
     return;
   }
-  else
+
+  // write out cleartext if necessary
+  if ( Plib::systemstate.config.retain_cleartext_passwords )
   {
-    // write out cleartext if necessary
-    if ( Plib::systemstate.config.retain_cleartext_passwords )
-    {
-      if ( acct->password().empty() )
-        acct->set_password( msgpass );
-    }
+    if ( acct->password().empty() )
+      acct->set_password( msgpass );
   }
+
 
   if ( !acct->enabled() || acct->banned() )
   {

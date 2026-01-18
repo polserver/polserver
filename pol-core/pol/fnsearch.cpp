@@ -24,8 +24,7 @@ UObject* system_find_object( u32 serial )
   UObject* obj = objStorageManager.objecthash.Find( serial );
   if ( obj != nullptr && !obj->orphan() )
     return obj;
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Mobile::Character* system_find_mobile( u32 serial /*, int sysfind_flags*/ )
@@ -33,8 +32,7 @@ Mobile::Character* system_find_mobile( u32 serial /*, int sysfind_flags*/ )
   UObject* obj = objStorageManager.objecthash.Find( serial );
   if ( obj != nullptr && obj->ismobile() && !obj->orphan() )
     return static_cast<Mobile::Character*>( obj );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Items::Item* system_find_item( u32 serial /*, int sysfind_flags */ )
@@ -42,8 +40,7 @@ Items::Item* system_find_item( u32 serial /*, int sysfind_flags */ )
   UObject* obj = objStorageManager.objecthash.Find( serial );
   if ( obj != nullptr && obj->isitem() && !obj->orphan() )
     return static_cast<Items::Item*>( obj );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Multi::UMulti* system_find_multi( u32 serial )
@@ -51,8 +48,7 @@ Multi::UMulti* system_find_multi( u32 serial )
   UObject* obj = objStorageManager.objecthash.Find( serial );
   if ( obj != nullptr && obj->ismulti() && !obj->orphan() )
     return static_cast<Multi::UMulti*>( obj );
-  else
-    return nullptr;
+  return nullptr;
 }
 
 // find_character: find a logged-in character given a serial number.
@@ -61,8 +57,7 @@ Mobile::Character* find_character( u32 serial )
   Mobile::Character* chr = system_find_mobile( serial );
   if ( chr != nullptr && chr->logged_in() )
     return chr;
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Items::Item* find_toplevel_item( u32 serial )
@@ -88,9 +83,7 @@ UObject* find_toplevel_object( u32 serial )
   {
     return find_toplevel_item( serial );
   }
-  else
-  {
-    return find_character( serial );
-  }
+
+  return find_character( serial );
 }
 }  // namespace Pol::Core

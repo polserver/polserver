@@ -23,8 +23,7 @@ bool SchComparer::operator()( const ScheduledTask* x, const ScheduledTask* y ) c
 {
   if ( x->next_run_clock_ == y->next_run_clock_ )
     return x > y;
-  else
-    return x->next_run_clock_ > y->next_run_clock_;
+  return x->next_run_clock_ > y->next_run_clock_;
 }
 
 bool TaskScheduler::dirty_ = false;

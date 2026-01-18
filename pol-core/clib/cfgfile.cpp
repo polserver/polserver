@@ -117,10 +117,8 @@ bool ConfigElem::remove_prop( const char* propname, std::string* value )
     properties.erase( itr );
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool ConfigElem::read_prop( const char* propname, std::string* value ) const
@@ -131,10 +129,8 @@ bool ConfigElem::read_prop( const char* propname, std::string* value ) const
     *value = ( *itr ).second;
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void ConfigElem::get_prop( const char* propname, unsigned int* plong ) const
@@ -159,10 +155,8 @@ bool ConfigElem::remove_prop( const char* propname, unsigned int* plong )
     properties.erase( itr );
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool ConfigElem::remove_prop( const char* propname, unsigned short* psval )
@@ -228,10 +222,8 @@ unsigned short ConfigElem::remove_ushort( const char* propname )
   {
     return temp;
   }
-  else
-  {
-    prop_not_found( propname );  // prop_not_found throws
-  }
+
+  prop_not_found( propname );  // prop_not_found throws
 }
 
 unsigned short ConfigElem::remove_ushort( const char* propname, unsigned short dflt )
@@ -239,8 +231,7 @@ unsigned short ConfigElem::remove_ushort( const char* propname, unsigned short d
   unsigned short temp;
   if ( remove_prop( propname, &temp ) )
     return temp;
-  else
-    return dflt;
+  return dflt;
 }
 
 int ConfigElem::remove_int( const char* propname )
@@ -257,10 +248,8 @@ int ConfigElem::remove_int( const char* propname, int dflt )
   {
     return atoi( temp.c_str() );
   }
-  else
-  {
-    return dflt;
-  }
+
+  return dflt;
 }
 
 unsigned ConfigElem::remove_unsigned( const char* propname )
@@ -277,10 +266,8 @@ unsigned ConfigElem::remove_unsigned( const char* propname, int dflt )
   {
     return strtoul( temp.c_str(), nullptr, 0 );  // TODO check unsigned range
   }
-  else
-  {
-    return dflt;
-  }
+
+  return dflt;
 }
 
 
@@ -291,10 +278,8 @@ std::string ConfigElem::remove_string( const char* propname )
   {
     return temp;
   }
-  else
-  {
-    prop_not_found( propname );  // prop_not_found throws
-  }
+
+  prop_not_found( propname );  // prop_not_found throws
 }
 
 std::string ConfigElem::read_string( const char* propname ) const
@@ -304,18 +289,15 @@ std::string ConfigElem::read_string( const char* propname ) const
   {
     return temp;
   }
-  else
-  {
-    prop_not_found( propname );  // prop_not_found throws
-  }
+
+  prop_not_found( propname );  // prop_not_found throws
 }
 std::string ConfigElem::read_string( const char* propname, const char* dflt ) const
 {
   std::string temp;
   if ( read_prop( propname, &temp ) )
     return temp;
-  else
-    return dflt;
+  return dflt;
 }
 
 std::string ConfigElem::remove_string( const char* propname, const char* dflt )
@@ -323,8 +305,7 @@ std::string ConfigElem::remove_string( const char* propname, const char* dflt )
   std::string temp;
   if ( remove_prop( propname, &temp ) )
     return temp;
-  else
-    return dflt;
+  return dflt;
 }
 
 bool ConfigElem::remove_bool( const char* propname )
@@ -344,10 +325,8 @@ float ConfigElem::remove_float( const char* propname, float dflt )
   {
     return static_cast<float>( strtod( tmp.c_str(), nullptr ) );
   }
-  else
-  {
-    return dflt;
-  }
+
+  return dflt;
 }
 double ConfigElem::remove_double( const char* propname, double dflt )
 {
@@ -356,10 +335,8 @@ double ConfigElem::remove_double( const char* propname, double dflt )
   {
     return strtod( tmp.c_str(), nullptr );
   }
-  else
-  {
-    return dflt;
-  }
+
+  return dflt;
 }
 
 unsigned int ConfigElem::remove_ulong( const char* propname )
@@ -369,10 +346,8 @@ unsigned int ConfigElem::remove_ulong( const char* propname )
   {
     return temp;
   }
-  else
-  {
-    prop_not_found( propname );  // prop_not_found throws
-  }
+
+  prop_not_found( propname );  // prop_not_found throws
 }
 
 unsigned int ConfigElem::remove_ulong( const char* propname, unsigned int dflt )
@@ -380,8 +355,7 @@ unsigned int ConfigElem::remove_ulong( const char* propname, unsigned int dflt )
   unsigned int temp;
   if ( remove_prop( propname, &temp ) )
     return temp;
-  else
-    return dflt;
+  return dflt;
 }
 
 void ConfigElem::clear_prop( const char* propname )
@@ -634,10 +608,9 @@ bool ConfigFile::readline( std::string& strbuf )
       strbuf += buffer;
       return true;
     }
-    else
-    {
-      strbuf += buffer;
-    }
+
+    strbuf += buffer;
+
   } while ( fgets( buffer, sizeof buffer, fp ) );
 
   return true;
@@ -745,8 +718,7 @@ bool ConfigFile::_read( ConfigElem& elem )
 
     if ( read_properties( elem ) )
       return true;
-    else
-      throw std::runtime_error( "Expected '}' on a blank line after element properties" );
+    throw std::runtime_error( "Expected '}' on a blank line after element properties" );
   }
   return false;
 }

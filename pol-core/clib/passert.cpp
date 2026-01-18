@@ -116,10 +116,8 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
                               std::string( reason ) + "), " + std::string( file ) + ", line " +
                               tostring( line ) );
   }
-  else
-  {
-    throw std::runtime_error( "Assertion Failed: " + std::string( expr ) + ", " +
-                              std::string( file ) + ", line " + tostring( line ) );
-  }
+
+  throw std::runtime_error( "Assertion Failed: " + std::string( expr ) + ", " +
+                            std::string( file ) + ", line " + tostring( line ) );
 }
 }  // namespace Pol::Clib

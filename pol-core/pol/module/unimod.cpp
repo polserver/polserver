@@ -140,10 +140,8 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
                              requiredCmdLevel );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 
 BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
@@ -166,10 +164,8 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
     return new BLong( say_above_unicode( obj, text->value(), Clib::strupperASCII( lang->value() ),
                                          font, color, journal_print ) );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 
 BObjectImp* UnicodeExecutorModule::mf_PrintTextAbovePrivateUC()
@@ -192,10 +188,8 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAbovePrivateUC()
     return new BLong( private_say_above_unicode(
         chr, obj, text->value(), Clib::strupperASCII( lang->value() ), font, color ) );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 
 BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
@@ -242,10 +236,8 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 
     return new BLong( 0 );
   }
-  else
-  {
-    return new BError( "A parameter was invalid" );
-  }
+
+  return new BError( "A parameter was invalid" );
 }
 
 BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
@@ -270,15 +262,11 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
                                      Clib::strupperASCII( lang->value() ), font, color );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "Mobile has no active client" );
-    }
+
+    return new BError( "Mobile has no active client" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()

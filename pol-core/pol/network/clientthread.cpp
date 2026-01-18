@@ -90,7 +90,7 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
     POLLOGLN( "Client#{}: select res={}, sckerr={}", session->myClient.instance_, res, sckerr );
     return false;
   }
-  else if ( res == 0 )
+  if ( res == 0 )
   {
     if ( session->myClient.should_check_idle() )
     {
@@ -420,15 +420,14 @@ bool process_data( Network::ThreadedClient* session )
         SESSION_CHECKPOINT( 28 );
         return true;
       }
-      else
-      {
-        // Such combinations of instance and acct happen quite often. Maybe this should become
-        // Client->full_id() or something.
-        POLLOG_ERRORLN( "Client#{} ({}, Acct {}) sent non-allowed message type {:#x}.",
-                        session->myClient.instance_, session->ipaddrAsString(),
-                        ( session->myClient.acct ? session->myClient.acct->name() : "unknown" ),
-                        (int)msgtype );
-      }
+
+      // Such combinations of instance and acct happen quite often. Maybe this should become
+      // Client->full_id() or something.
+      POLLOG_ERRORLN( "Client#{} ({}, Acct {}) sent non-allowed message type {:#x}.",
+                      session->myClient.instance_, session->ipaddrAsString(),
+                      ( session->myClient.acct ? session->myClient.acct->name() : "unknown" ),
+                      (int)msgtype );
+
       session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
       SESSION_CHECKPOINT( 28 );
       return false;

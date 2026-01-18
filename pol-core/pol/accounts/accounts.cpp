@@ -178,8 +178,7 @@ int delete_account( const char* acctname )
           Plib::systemstate.accounts_txt_dirty = true;
         return 1;
       }
-      else
-        return -1;
+      return -1;
     }
   }
   return -2;

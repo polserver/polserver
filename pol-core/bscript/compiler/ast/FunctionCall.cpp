@@ -67,8 +67,7 @@ std::vector<std::reference_wrapper<FunctionParameterDeclaration>> FunctionCall::
 {
   if ( auto fn = function_link->function() )
     return fn->parameters();
-  else
-    internal_error( "function has not been resolved" );
+  internal_error( "function has not been resolved" );
 }
 
 std::string FunctionCall::string() const

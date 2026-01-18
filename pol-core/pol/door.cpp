@@ -68,8 +68,7 @@ bool UDoor::is_open() const
   const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc() );
   if ( graphic == dd->open_graphic )
     return true;
-  else
-    return false;
+  return false;
 }
 
 void UDoor::open()

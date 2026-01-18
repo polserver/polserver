@@ -109,8 +109,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     private_say_above( client->chr, client->chr, "You must wait to use something again." );
     return;
   }
-  else
-    client->chr->dblclick_wait( read_gameclock() + settingsManager.ssopt.dblclick_wait );
+  client->chr->dblclick_wait( read_gameclock() + settingsManager.ssopt.dblclick_wait );
 
   if ( IsCharacter( serial ) )
   {
@@ -150,86 +149,84 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     }
     return;
   }
-  else  // doubleclicked an item
+  // doubleclicked an item
+  // next, search worn items, items in the backpack, and items in the world.
+  Items::Item* item = find_legal_item( client->chr, serial );
+
+  Mobile::Character* owner = nullptr;
+  if ( item == nullptr )
   {
-    // next, search worn items, items in the backpack, and items in the world.
-    Items::Item* item = find_legal_item( client->chr, serial );
+    item = find_snoopable_item( serial, &owner );
+  }
 
-    Mobile::Character* owner = nullptr;
-    if ( item == nullptr )
+  if ( item != nullptr )
+  {
+    const Items::ItemDesc& id = item->itemdesc();
+
+    if ( !id.ghosts_can_use && client->chr->dead() )
     {
-      item = find_snoopable_item( serial, &owner );
+      private_say_above( client->chr, client->chr, "I am dead and cannot do that." );
+      return;
     }
-
-    if ( item != nullptr )
+    if ( !id.can_use_while_frozen && client->chr->frozen() )
     {
-      const Items::ItemDesc& id = item->itemdesc();
-
-      if ( !id.ghosts_can_use && client->chr->dead() )
-      {
-        private_say_above( client->chr, client->chr, "I am dead and cannot do that." );
-        return;
-      }
-      if ( !id.can_use_while_frozen && client->chr->frozen() )
-      {
-        private_say_above( client->chr, client->chr, "I am frozen and cannot do that." );
-        return;
-      }
-      if ( !id.can_use_while_paralyzed && client->chr->paralyzed() )
-      {
-        private_say_above( client->chr, client->chr, "I am paralyzed and cannot do that." );
-        return;
-      }
-
-      if ( !client->chr->can_dblclickany() && !item->in_range( client->chr, id.doubleclick_range ) )
-      {
-        private_say_above( client->chr, item, "That is too far away." );
-        return;
-      }
-      UObject* obj = item->toplevel_owner();
-      obj = obj->self_as_owner();
-      if ( id.use_requires_los && !client->chr->realm()->has_los( *client->chr, *obj ) )  // DAVE
-                                                                                          // 11/24
-      {
-        private_say_above( client->chr, item, "I can't see that." );
-        return;
-      }
-
-      ScriptDef sd;
-      sd.quickconfig( "scripts/misc/dblclickitem.ecl" );
-      if ( sd.exists() )
-      {
-        ref_ptr<Bscript::EScriptProgram> prog;
-        prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
-        if ( prog.get() != nullptr )
-          client->chr->start_script( prog.get(), false, new Module::EItemRefObjImp( item ) );
-      }
-
-      if ( owner == nullptr )
-      {
-        item->double_click( client );
-      }
-      else
-      {
-        item->snoop( client, owner );
-      }
+      private_say_above( client->chr, client->chr, "I am frozen and cannot do that." );
+      return;
+    }
+    if ( !id.can_use_while_paralyzed && client->chr->paralyzed() )
+    {
+      private_say_above( client->chr, client->chr, "I am paralyzed and cannot do that." );
       return;
     }
 
-    // allow looking into containers being traded
-    if ( client->chr->is_trading() )
+    if ( !client->chr->can_dblclickany() && !item->in_range( client->chr, id.doubleclick_range ) )
     {
-      UContainer* cont = client->chr->trade_container()->find_container( serial );
-      if ( cont != nullptr )
+      private_say_above( client->chr, item, "That is too far away." );
+      return;
+    }
+    UObject* obj = item->toplevel_owner();
+    obj = obj->self_as_owner();
+    if ( id.use_requires_los && !client->chr->realm()->has_los( *client->chr, *obj ) )  // DAVE
+                                                                                        // 11/24
+    {
+      private_say_above( client->chr, item, "I can't see that." );
+      return;
+    }
+
+    ScriptDef sd;
+    sd.quickconfig( "scripts/misc/dblclickitem.ecl" );
+    if ( sd.exists() )
+    {
+      ref_ptr<Bscript::EScriptProgram> prog;
+      prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
+      if ( prog.get() != nullptr )
+        client->chr->start_script( prog.get(), false, new Module::EItemRefObjImp( item ) );
+    }
+
+    if ( owner == nullptr )
+    {
+      item->double_click( client );
+    }
+    else
+    {
+      item->snoop( client, owner );
+    }
+    return;
+  }
+
+  // allow looking into containers being traded
+  if ( client->chr->is_trading() )
+  {
+    UContainer* cont = client->chr->trade_container()->find_container( serial );
+    if ( cont != nullptr )
+    {
+      cont->builtin_on_use( client );
+      if ( !cont->locked() )
       {
-        cont->builtin_on_use( client );
-        if ( !cont->locked() )
-        {
-          if ( client->chr->trading_with->client != nullptr )
-            cont->builtin_on_use( client->chr->trading_with->client );
-        }
-        return;
+        if ( client->chr->trading_with->client != nullptr )
+          cont->builtin_on_use( client->chr->trading_with->client );
       }
+      return;
     }
   }
 }

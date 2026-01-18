@@ -361,11 +361,9 @@ bool PropertyList::getprop( const std::string& propname, std::string& propval ) 
   {
     return false;
   }
-  else
-  {
-    propval = ( *itr ).second;
-    return true;
-  }
+
+  propval = ( *itr ).second;
+  return true;
 }
 void PropertyList::setprop( const std::string& propname, const std::string& propvalue )
 {
@@ -577,7 +575,6 @@ Bscript::BObjectImp* CallPropertyListMethod( PropertyList& proplist, const char*
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return CallPropertyListMethod_id( proplist, objmethod->id, ex, changed );
-  else
-    return nullptr;
+  return nullptr;
 }
 }  // namespace Pol::Core

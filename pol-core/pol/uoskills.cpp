@@ -21,8 +21,7 @@ const UOSkill& GetUOSkill( unsigned skillid )
 {
   if ( skillid < gamestate.uo_skills.size() )
     return gamestate.uo_skills[skillid];
-  else
-    throw std::runtime_error( "Bad UO Skill ID" );
+  throw std::runtime_error( "Bad UO Skill ID" );
 }
 
 UOSkill::UOSkill( const Plib::Package* pkg, Clib::ConfigElem& elem )

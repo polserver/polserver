@@ -74,7 +74,7 @@ unsigned int base_to_raw( unsigned short base )
   {
     return base * 2048L / 100L;
   }
-  else if ( base > 2100 )
+  if ( base > 2100 )
   {
     base = 2100;
   }

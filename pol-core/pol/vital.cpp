@@ -81,8 +81,7 @@ Vital* FindVital( const std::string& str )
   VitalsByName::const_iterator citr = gamestate.vitals_byname.find( str );
   if ( citr != gamestate.vitals_byname.end() )
     return ( *citr ).second;
-  else
-    return nullptr;
+  return nullptr;
 }
 
 void load_vital_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )

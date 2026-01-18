@@ -39,10 +39,8 @@ Package* find_package( const std::string& pkgname )
   {
     return ( *itr ).second;
   }
-  else
-  {
-    return nullptr;
-  }
+
+  return nullptr;
 }
 
 void remove_package( Package* pkg )
@@ -83,19 +81,17 @@ void compare_versions( const std::string& verleft, const std::string& verright, 
       isgreater = true;
       return;
     }
-    else if ( vhavepart < vneedpart )
+    if ( vhavepart < vneedpart )
     {
       return;
     }
-    else  // same, so check the next one
-    {
-      vneed = new_vneed;
-      if ( vneed && *vneed )
-        ++vneed;
-      vhave = new_vhave;
-      if ( vhave && *vhave )
-        ++vhave;
-    }
+    // same, so check the next one
+    vneed = new_vneed;
+    if ( vneed && *vneed )
+      ++vneed;
+    vhave = new_vhave;
+    if ( vhave && *vhave )
+      ++vhave;
   }
   isequal = true;
 }
@@ -233,17 +229,15 @@ void Package::check_dependencies() const
           name_, dir_, elem.pkgname );
       throw std::runtime_error( "Package dependency error" );
     }
-    else
+
+    if ( !version_greater_or_equal( found->version_, elem.version ) )
     {
-      if ( !version_greater_or_equal( found->version_, elem.version ) )
-      {
-        ERROR_PRINTLN(
-            "Error in package '{}' ({}):\n"
-            "  Package '{}' version {} is required, but version {} "
-            "was found",
-            name_, dir_, elem.pkgname, elem.version, found->version_ );
-        throw std::runtime_error( "Package dependency error" );
-      }
+      ERROR_PRINTLN(
+          "Error in package '{}' ({}):\n"
+          "  Package '{}' version {} is required, but version {} "
+          "was found",
+          name_, dir_, elem.pkgname, elem.version, found->version_ );
+      throw std::runtime_error( "Package dependency error" );
     }
   }
 }

@@ -162,8 +162,7 @@ BObjectImp* OSExecutorModule::mf_Debugger()
   {
     return new BLong( uoexec->attach_debugger() );
   }
-  else
-    return new BError( "Could not find UOExecutor for current process." );
+  return new BError( "Could not find UOExecutor for current process." );
 }
 
 BObjectImp* OSExecutorModule::mf_GetProcess()
@@ -181,8 +180,7 @@ BObjectImp* OSExecutorModule::mf_GetProcess()
   Core::UOExecutor* uoexec;
   if ( find_uoexec( pid, &uoexec ) )
     return new Core::ScriptExObjImp( uoexec );
-  else
-    return new BError( "Process not found" );
+  return new BError( "Process not found" );
 }
 
 BObjectImp* OSExecutorModule::mf_GetPid()
@@ -225,38 +223,36 @@ BObjectImp* OSExecutorModule::mf_Wait_For_Event()
     events_.pop_front();
     return imp;
   }
+
+  auto param = exec.getParamImp( 0 );
+  double nsecs = 0;
+
+  if ( auto* long_param = impptrIf<BLong>( param ) )
+  {
+    nsecs = long_param->value();
+    if ( !nsecs )
+      return new BLong( 0 );
+    if ( nsecs < 1 )
+      nsecs = 1;
+  }
+  else if ( auto* double_param = impptrIf<Double>( param ) )
+  {
+    nsecs = double_param->value();
+    if ( !nsecs )
+      return new BLong( 0 );
+    if ( nsecs < 0.01 )
+      nsecs = 0.01;
+  }
   else
   {
-    auto param = exec.getParamImp( 0 );
-    double nsecs = 0;
-
-    if ( auto* long_param = impptrIf<BLong>( param ) )
-    {
-      nsecs = long_param->value();
-      if ( !nsecs )
-        return new BLong( 0 );
-      if ( nsecs < 1 )
-        nsecs = 1;
-    }
-    else if ( auto* double_param = impptrIf<Double>( param ) )
-    {
-      nsecs = double_param->value();
-      if ( !nsecs )
-        return new BLong( 0 );
-      if ( nsecs < 0.01 )
-        nsecs = 0.01;
-    }
-    else
-    {
-      return new BLong( 0 );
-    }
-
-    wait_type = Core::WAIT_TYPE::WAIT_EVENT;
-    blocked_ = true;
-    sleep_until_clock_ =
-        Core::polclock() + Clib::clamp_convert<u32>( nsecs * Core::POLCLOCKS_PER_SEC );
     return new BLong( 0 );
   }
+
+  wait_type = Core::WAIT_TYPE::WAIT_EVENT;
+  blocked_ = true;
+  sleep_until_clock_ =
+      Core::polclock() + Clib::clamp_convert<u32>( nsecs * Core::POLCLOCKS_PER_SEC );
+  return new BLong( 0 );
 }
 
 BObjectImp* OSExecutorModule::mf_Events_Waiting()
@@ -294,10 +290,8 @@ BObjectImp* OSExecutorModule::mf_Start_Script()
 
     return new Core::ScriptExObjImp( &new_uoemod->uoexec() );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -310,73 +304,69 @@ BObjectImp* OSExecutorModule::mf_Start_Skill_Script()
   {
     if ( !attr->disable_core_checks && !Core::CanUseSkill( chr->client ) )
       return new BLong( 0 );
+
+    const String* script_name;
+    Core::ScriptDef script;
+
+    if ( exec.getStringParam( 2, script_name ) && ( script_name->length() > 0 ) )
+    {
+      if ( !script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ) )
+      {
+        return new BError( "Error in script name" );
+      }
+      if ( !script.exists() )
+      {
+        return new BError( "Script " + script.name() + " does not exist." );
+      }
+    }
     else
     {
-      const String* script_name;
-      Core::ScriptDef script;
-
-      if ( exec.getStringParam( 2, script_name ) && ( script_name->length() > 0 ) )
-      {
-        if ( !script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ) )
-        {
-          return new BError( "Error in script name" );
-        }
-        if ( !script.exists() )
-        {
-          return new BError( "Script " + script.name() + " does not exist." );
-        }
-      }
+      if ( !attr->script_.empty() )
+        script = attr->script_;
       else
-      {
-        if ( !attr->script_.empty() )
-          script = attr->script_;
-        else
-          return new BError( "No script defined for attribute " + attr->name + "." );
-      }
-
-      ref_ptr<EScriptProgram> prog = find_script2(
-          script, true,
-          /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
-
-      if ( prog.get() != nullptr )
-      {
-        BObjectImp* imp = exec.getParamImp( 3 );
-        if ( imp )
-        {
-          if ( chr->start_script( prog.get(), true, imp->copy() ) )
-          {
-            if ( chr->hidden() && attr->unhides )
-              chr->unhide();
-            if ( attr->delay_seconds )
-              chr->disable_skills_until( Core::poltime() + attr->delay_seconds );
-          }
-        }
-        else
-        {
-          if ( chr->start_script( prog.get(), true ) )
-          {
-            if ( chr->hidden() && attr->unhides )
-              chr->unhide();
-            if ( attr->delay_seconds )
-              chr->disable_skills_until( Core::poltime() + attr->delay_seconds );
-          }
-        }
-      }
-      else
-      {
-        std::string msg = "Unable to start skill script:";
-        msg += script.c_str();
-        Core::send_sysmessage( chr->client, msg.c_str() );
-
-        return new BLong( 0 );
-      }
-      return new BLong( 1 );
+        return new BError( "No script defined for attribute " + attr->name + "." );
     }
+
+    ref_ptr<EScriptProgram> prog = find_script2(
+        script, true,
+        /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
+
+    if ( prog.get() != nullptr )
+    {
+      BObjectImp* imp = exec.getParamImp( 3 );
+      if ( imp )
+      {
+        if ( chr->start_script( prog.get(), true, imp->copy() ) )
+        {
+          if ( chr->hidden() && attr->unhides )
+            chr->unhide();
+          if ( attr->delay_seconds )
+            chr->disable_skills_until( Core::poltime() + attr->delay_seconds );
+        }
+      }
+      else
+      {
+        if ( chr->start_script( prog.get(), true ) )
+        {
+          if ( chr->hidden() && attr->unhides )
+            chr->unhide();
+          if ( attr->delay_seconds )
+            chr->disable_skills_until( Core::poltime() + attr->delay_seconds );
+        }
+      }
+    }
+    else
+    {
+      std::string msg = "Unable to start skill script:";
+      msg += script.c_str();
+      Core::send_sysmessage( chr->client, msg.c_str() );
+
+      return new BLong( 0 );
+    }
+    return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* OSExecutorModule::mf_Set_Critical()
@@ -387,18 +377,15 @@ BObjectImp* OSExecutorModule::mf_Set_Critical()
     critical_ = ( crit != 0 );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* OSExecutorModule::mf_Is_Critical()
 {
   if ( critical_ )
     return new BLong( 1 );
-  else
-    return new BLong( 0 );
+  return new BLong( 0 );
 }
 
 BObjectImp* OSExecutorModule::mf_Run_Script_To_Completion()
@@ -467,10 +454,8 @@ BObjectImp* OSExecutorModule::mf_Run_Script()
 
       return new BLong( 0 );
     }
-    else
-    {
-      return new BError( "Invalid parameter type" );
-    }
+
+    return new BError( "Invalid parameter type" );
   }
 
   // else I am running a child script, and its ended
@@ -496,10 +481,8 @@ BObjectImp* OSExecutorModule::mf_Set_Debug()
       exec.setDebugLevel( Executor::SOURCELINES );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* OSExecutorModule::mf_SysLog()
@@ -547,10 +530,8 @@ BObjectImp* OSExecutorModule::mf_Set_Priority()
     priority_ = static_cast<unsigned char>( newpri );
     return new BLong( oldpri );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -566,10 +547,8 @@ BObjectImp* OSExecutorModule::mf_Unload_Scripts()
       n = Core::unload_script( str->data() );
     return new BLong( n );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* OSExecutorModule::clear_event_queue()  // DAVE
@@ -591,8 +570,7 @@ BObjectImp* OSExecutorModule::mf_Set_Event_Queue_Size()  // DAVE 11/24
     max_eventqueue_size = param;
     return new BLong( oldsize );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* OSExecutorModule::mf_OpenURL()
@@ -616,15 +594,11 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
       msg.Send( chr->client );
       return new BLong( 1 );
     }
-    else
-    {
-      return new BError( "No client attached" );
-    }
+
+    return new BError( "No client attached" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -1134,10 +1108,8 @@ BObjectImp* OSExecutorModule::mf_Set_Script_Option()
     }
     return new BLong( oldval );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* OSExecutorModule::mf_Clear_Event_Queue()  // DAVE
@@ -1323,42 +1295,38 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
 
       return array.release();
     }
-    else
-    {
-      Core::scriptScheduler.schedule( uoexec );
 
-      uoexec->pParent = &this_uoexec;
-      this_uoexec.pChild = uoexec;
+    Core::scriptScheduler.schedule( uoexec );
 
-      this_uoexec.PC--;
-      // need to fill the valuestack equal to param count (-the return value)
-      this_uoexec.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
-      suspend();
+    uoexec->pParent = &this_uoexec;
+    this_uoexec.pChild = uoexec;
 
-      return UninitObject::create();
-    }
+    this_uoexec.PC--;
+    // need to fill the valuestack equal to param count (-the return value)
+    this_uoexec.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+    suspend();
+
+    return UninitObject::create();
   }
-  else  // reentry
+  // reentry
+  BObjectImp* ret;
+  if ( this_uoexec.pChild->error() )
+    ret = new BLong( 0 );
+  else if ( this_uoexec.pChild->ValueStack.empty() )
+    ret = new BLong( 1 );
+  else
   {
-    BObjectImp* ret;
-    if ( this_uoexec.pChild->error() )
-      ret = new BLong( 0 );
-    else if ( this_uoexec.pChild->ValueStack.empty() )
-      ret = new BLong( 1 );
-    else
-    {
-      ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
-      this_uoexec.pChild->ValueStack.pop_back();
-    }
-    auto array = std::make_unique<Bscript::ObjArray>();
-    array->addElement( new Core::ExportScriptObjImp( this_uoexec.pChild ) );
-    array->addElement( ret );
-
-    this_uoexec.pChild->pParent = nullptr;
-    this_uoexec.pChild = nullptr;
-
-    return array.release();
+    ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
+    this_uoexec.pChild->ValueStack.pop_back();
   }
+  auto array = std::make_unique<Bscript::ObjArray>();
+  array->addElement( new Core::ExportScriptObjImp( this_uoexec.pChild ) );
+  array->addElement( ret );
+
+  this_uoexec.pChild->pParent = nullptr;
+  this_uoexec.pChild = nullptr;
+
+  return array.release();
 }
 
 BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
@@ -1394,21 +1362,18 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
     }
     return envs.release();
   }
-  else
-  {
-    if ( !all_allowed )
-    {
-      auto name_lowered = Clib::strlowerASCII( env_name->value() );
-      if ( std::find( allowed_vars.begin(), allowed_vars.end(), name_lowered ) ==
-           allowed_vars.end() )
-        return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
-    }
 
-    const char* env_val = std::getenv( env_name->data() );
-    if ( !env_val )
-      return new BError( "Environment variable not found" );
-    return new String( env_val, String::Tainted::YES );
+  if ( !all_allowed )
+  {
+    auto name_lowered = Clib::strlowerASCII( env_name->value() );
+    if ( std::find( allowed_vars.begin(), allowed_vars.end(), name_lowered ) == allowed_vars.end() )
+      return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
   }
+
+  const char* env_val = std::getenv( env_name->data() );
+  if ( !env_val )
+    return new BError( "Environment variable not found" );
+  return new String( env_val, String::Tainted::YES );
 }
 
 BObjectImp* OSExecutorModule::mf_SendEmail()

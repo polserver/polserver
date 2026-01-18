@@ -49,10 +49,8 @@ BObjectImp* BLong::unpack( std::istream& is )
   {
     return new BLong( lv );
   }
-  else
-  {
-    return new BError( "Error extracting Integer value" );
-  }
+
+  return new BError( "Error extracting Integer value" );
 }
 
 BObjectImp* BLong::copy() const
@@ -76,18 +74,16 @@ bool BLong::operator==( const BObjectImp& objimp ) const
   {
     return lval_ == ( (BLong&)objimp ).lval_;
   }
-  else if ( objimp.isa( OTDouble ) )
+  if ( objimp.isa( OTDouble ) )
   {
     return lval_ == ( (Double&)objimp ).value();
   }
-  else if ( objimp.isa( OTBoolean ) )
+  if ( objimp.isa( OTBoolean ) )
   {
     return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool BLong::operator<( const BObjectImp& objimp ) const
@@ -96,7 +92,7 @@ bool BLong::operator<( const BObjectImp& objimp ) const
   {
     return lval_ < ( (BLong&)objimp ).lval_;
   }
-  else if ( objimp.isa( OTDouble ) )
+  if ( objimp.isa( OTDouble ) )
   {
     return lval_ < ( (Double&)objimp ).value();
   }
@@ -215,16 +211,14 @@ BObjectImp* BLong::selfDividedByObj( const BLong& objimp ) const
   int divisor = objimp.lval_;
   if ( !divisor )
     return new BError( "Divide by Zero" );
-  else
-    return new BLong( lval_ / divisor );
+  return new BLong( lval_ / divisor );
 }
 BObjectImp* BLong::selfDividedByObj( const Double& objimp ) const
 {
   double divisor = objimp.value();
   if ( divisor == 0.0 )
     return new BError( "Divide by Zero" );
-  else
-    return new Double( lval_ / divisor );
+  return new Double( lval_ / divisor );
 }
 void BLong::selfDividedByObjImp( BObjectImp& objimp, BObject& obj )
 {

@@ -1,8 +1,8 @@
 #include "DataEmitter.h"
 
 #include <algorithm>
-#include <stdexcept>
 #include <limits>
+#include <stdexcept>
 
 namespace Pol::Bscript::Compiler
 {
@@ -32,14 +32,14 @@ unsigned DataEmitter::store( const std::byte* data, size_t len )
 {
   if ( auto existing = find( data, len ) )
     return existing;
-  else
-    return append( data, len );
+  return append( data, len );
 }
 
 unsigned DataEmitter::append( const std::byte* data, size_t len )
 {
   size_t position = data_section.size();
-  if ( position + len > std::numeric_limits<unsigned>::max() ) {
+  if ( position + len > std::numeric_limits<unsigned>::max() )
+  {
     throw std::runtime_error( "Data offset overflow" );
   }
   data_section.insert( data_section.end(), data, data + len );

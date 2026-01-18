@@ -725,7 +725,7 @@ void NPC::on_pc_spoke( Character* src_chr, const std::string& speech, u8 texttyp
   {
     if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
       return;
-    else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
+    if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
       return;
   }
   if ( ( ( ex->eventmask & Core::EVID_SPOKE ) || ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
@@ -750,7 +750,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 t
   {
     if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
       return;
-    else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
+    if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
       return;
   }
   if ( ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) ||
@@ -857,7 +857,7 @@ void NPC::inform_moved( Character* moved )
         ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
         return;
       }
-      else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
+      if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
       {
         ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
         return;
@@ -920,8 +920,7 @@ bool NPC::can_accept_event( Core::EVENTID eventid )
     return false;
   if ( ex->eventmask & eventid )
     return true;
-  else
-    return false;
+  return false;
 }
 
 bool NPC::send_event( Bscript::BObjectImp* event )
@@ -945,17 +944,13 @@ Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
   {
     if ( ex->signal_event( event ) )
       return new Bscript::BLong( 1 );
-    else
-    {
-      return new Bscript::BError( "Event queue is full, discarding event" );
-    }
+
+    return new Bscript::BError( "Event queue is full, discarding event" );
   }
-  else
-  {
-    // Because there is no control script, we must delete it ourselves.
-    Bscript::BObject bo( event );
-    return new Bscript::BError( "That NPC doesn't have a control script" );
-  }
+
+  // Because there is no control script, we must delete it ourselves.
+  Bscript::BObject bo( event );
+  return new Bscript::BError( "That NPC doesn't have a control script" );
 }
 
 void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys,
@@ -980,21 +975,18 @@ double NPC::armor_absorb_damage( double damage )
   {
     return base::armor_absorb_damage( damage );
   }
-  else
-  {
-    int blocked = npc_ar_ + ar_mod();
-    if ( blocked < 0 )
-      blocked = 0;
-    int absorbed = blocked / 2;
+  int blocked = npc_ar_ + ar_mod();
+  if ( blocked < 0 )
+    blocked = 0;
+  int absorbed = blocked / 2;
 
-    blocked -= absorbed;
-    absorbed += Clib::random_int( blocked );
-    if ( Core::settingsManager.watch.combat )
-      INFO_PRINTLN( "{} hits absorbed by NPC armor.", absorbed );
-    damage -= absorbed;
-    if ( damage < 0 )
-      damage = 0;
-  }
+  blocked -= absorbed;
+  absorbed += Clib::random_int( blocked );
+  if ( Core::settingsManager.watch.combat )
+    INFO_PRINTLN( "{} hits absorbed by NPC armor.", absorbed );
+  damage -= absorbed;
+  if ( damage < 0 )
+    damage = 0;
   return damage;
 }
 
@@ -1014,8 +1006,7 @@ Items::UWeapon* NPC::intrinsic_weapon()
 {
   if ( template_->intrinsic_weapon )
     return template_->intrinsic_weapon;
-  else
-    return Core::gamestate.wrestling_weapon;
+  return Core::gamestate.wrestling_weapon;
 }
 
 void NPC::refresh_ar()

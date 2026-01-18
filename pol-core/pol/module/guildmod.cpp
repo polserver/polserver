@@ -184,8 +184,7 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
   ObjMember* objmember = getKnownObjMember( membername );
   if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
-  else
-    return BObjectRef( UninitObject::create() );
+  return BObjectRef( UninitObject::create() );
 }
 
 BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool forcebuiltin )
@@ -222,8 +221,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
     if ( getGuildParam( ex, 0, allyguild, err ) )
       return new BLong(
           static_cast<int>( obj_->_allyguild_serials.count( allyguild->guildid() ) ) );
-    else
-      return err;
+    return err;
   }
 
   case MTH_ISENEMYGUILD:
@@ -235,8 +233,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
     if ( getGuildParam( ex, 0, enemyguild, err ) )
       return new BLong(
           static_cast<int>( obj_->_enemyguild_serials.count( enemyguild->guildid() ) ) );
-    else
-      return err;
+    return err;
   }
 
   case MTH_ADDMEMBER:
@@ -280,8 +277,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
 
       return new BLong( 1 );
     }
-    else
-      return err;
+    return err;
   }
 
   case MTH_ADDENEMYGUILD:
@@ -306,8 +302,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
 
       return new BLong( 1 );
     }
-    else
-      return err;
+    return err;
   }
 
   case MTH_REMOVEMEMBER:
@@ -349,8 +344,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
 
       return new BLong( 1 );
     }
-    else
-      return err;
+    return err;
   }
 
   case MTH_REMOVEENEMYGUILD:
@@ -373,8 +367,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
 
       return new BLong( 1 );
     }
-    else
-      return err;
+    return err;
   }
   default:
   {
@@ -447,10 +440,8 @@ BObjectImp* GuildExecutorModule::mf_DestroyGuild()
     Core::gamestate.guilds.erase( guild->guildid() );
     return new BLong( 1 );
   }
-  else
-  {
-    return err;
-  }
+
+  return err;
 }
 
 ///  FindGuild( guildid );
@@ -462,12 +453,9 @@ BObjectImp* GuildExecutorModule::mf_FindGuild()
     Core::Guilds::iterator itr = Core::gamestate.guilds.find( guildid );
     if ( itr != Core::gamestate.guilds.end() )
       return new EGuildRefObjImp( ref_ptr<Core::Guild>( ( *itr ).second.get() ) );
-    else
-      return new BError( "Guild not found" );
+    return new BError( "Guild not found" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 }  // namespace Pol::Module

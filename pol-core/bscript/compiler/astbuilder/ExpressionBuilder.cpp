@@ -97,7 +97,7 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
           location_for( *ctx ), consume, element_access->take_entity(),
           element_access->take_indexes(), std::move( rhs ) );
     }
-    else if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
+    if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
     {
       return std::make_unique<MemberAssignment>( location_for( *ctx ), consume,
                                                  get_member->take_entity(), get_member->name,
@@ -120,8 +120,7 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
                                               ctx->bop->getText(), token_id, std::move( rhs ) );
   if ( consume )
     return consume_expression_result( std::move( op ) );
-  else
-    return op;
+  return op;
 }
 
 BTokenId ExpressionBuilder::binary_operator_token(
@@ -129,70 +128,70 @@ BTokenId ExpressionBuilder::binary_operator_token(
 {
   if ( ctx->ADD() )
     return TOK_ADD;
-  else if ( ctx->SUB() )
+  if ( ctx->SUB() )
     return TOK_SUBTRACT;
-  else if ( ctx->MUL() )
+  if ( ctx->MUL() )
     return TOK_MULT;
-  else if ( ctx->DIV() )
+  if ( ctx->DIV() )
     return TOK_DIV;
-  else if ( ctx->ASSIGN() )
+  if ( ctx->ASSIGN() )
     return TOK_ASSIGN;
-  else if ( ctx->EQUAL() )
+  if ( ctx->EQUAL() )
     return TOK_EQUAL;
-  else if ( ctx->NOTEQUAL_A() || ctx->NOTEQUAL_B() )
+  if ( ctx->NOTEQUAL_A() || ctx->NOTEQUAL_B() )
     return TOK_NEQ;
-  else if ( ctx->LT() )
+  if ( ctx->LT() )
     return TOK_LESSTHAN;
-  else if ( ctx->LE() )
+  if ( ctx->LE() )
     return TOK_LESSEQ;
-  else if ( ctx->GT() )
+  if ( ctx->GT() )
     return TOK_GRTHAN;
-  else if ( ctx->GE() )
+  if ( ctx->GE() )
     return TOK_GREQ;
-  else if ( ctx->AND_A() || ctx->AND_B() )
+  if ( ctx->AND_A() || ctx->AND_B() )
     return TOK_AND;
-  else if ( ctx->OR_A() || ctx->OR_B() )
+  if ( ctx->OR_A() || ctx->OR_B() )
     return TOK_OR;
-  else if ( ctx->ADD_ASSIGN() )
+  if ( ctx->ADD_ASSIGN() )
     return TOK_PLUSEQUAL;
-  else if ( ctx->SUB_ASSIGN() )
+  if ( ctx->SUB_ASSIGN() )
     return TOK_MINUSEQUAL;
-  else if ( ctx->MUL_ASSIGN() )
+  if ( ctx->MUL_ASSIGN() )
     return TOK_TIMESEQUAL;
-  else if ( ctx->DIV_ASSIGN() )
+  if ( ctx->DIV_ASSIGN() )
     return TOK_DIVIDEEQUAL;
-  else if ( ctx->MOD() )
+  if ( ctx->MOD() )
     return TOK_MODULUS;
-  else if ( ctx->MOD_ASSIGN() )
+  if ( ctx->MOD_ASSIGN() )
     return TOK_MODULUSEQUAL;
-  else if ( ctx->ADDMEMBER() )
+  if ( ctx->ADDMEMBER() )
     return TOK_ADDMEMBER;
-  else if ( ctx->DELMEMBER() )
+  if ( ctx->DELMEMBER() )
     return TOK_DELMEMBER;
-  else if ( ctx->CHKMEMBER() )
+  if ( ctx->CHKMEMBER() )
     return TOK_CHKMEMBER;
-  else if ( ctx->BITAND() )
+  if ( ctx->BITAND() )
     return TOK_BITAND;
-  else if ( ctx->BITOR() )
+  if ( ctx->BITOR() )
     return TOK_BITOR;
-  else if ( ctx->CARET() )
+  if ( ctx->CARET() )
     return TOK_BITXOR;
-  else if ( ctx->TOK_IN() )
+  if ( ctx->TOK_IN() )
     return TOK_IN;
-  else if ( ctx->LSHIFT() )
+  if ( ctx->LSHIFT() )
     return TOK_BSLEFT;
-  else if ( ctx->RSHIFT() )
+  if ( ctx->RSHIFT() )
     return TOK_BSRIGHT;
-  else if ( ctx->ADDMEMBER() )
+  if ( ctx->ADDMEMBER() )
     return TOK_ADDMEMBER;
-  else if ( ctx->CHKMEMBER() )
+  if ( ctx->CHKMEMBER() )
     return TOK_CHKMEMBER;
-  else if ( ctx->DELMEMBER() )
+  if ( ctx->DELMEMBER() )
     return TOK_DELMEMBER;
-  else if ( ctx->IS() )
+  if ( ctx->IS() )
     return TOK_IS;
-  else
-    location_for( *ctx ).internal_error( "unrecognized binary operator" );
+
+  location_for( *ctx ).internal_error( "unrecognized binary operator" );
 }
 
 std::unique_ptr<DictionaryInitializer> ExpressionBuilder::dictionary_initializer(
@@ -489,22 +488,19 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   {
     return element_access( std::move( lhs ), indexing->indexList() );
   }
-  else if ( auto member = ctx->navigationSuffix() )
+  if ( auto member = ctx->navigationSuffix() )
   {
     return navigation( std::move( lhs ), member );
   }
-  else if ( auto method = ctx->methodCallSuffix() )
+  if ( auto method = ctx->methodCallSuffix() )
   {
     return method_call( std::move( lhs ), method );
   }
-  else if ( auto function_call_suffix = ctx->functionCallSuffix() )
+  if ( auto function_call_suffix = ctx->functionCallSuffix() )
   {
     return function_call( std::move( lhs ), function_call_suffix );
   }
-  else
-  {
-    location_for( *ctx ).internal_error( "unhandled navigation suffix" );
-  }
+  location_for( *ctx ).internal_error( "unhandled navigation suffix" );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::prefix_unary_operator(
@@ -562,55 +558,55 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return value( literal );
   }
-  else if ( auto par_expression = ctx->parExpression() )
+  if ( auto par_expression = ctx->parExpression() )
   {
     return expression( par_expression->expression() );
   }
-  else if ( auto scoped_ident = ctx->scopedIdentifier() )
+  if ( auto scoped_ident = ctx->scopedIdentifier() )
   {
     return scoped_identifier( scoped_ident );
   }
-  else if ( auto identifier = ctx->IDENTIFIER() )
+  if ( auto identifier = ctx->IDENTIFIER() )
   {
     return std::make_unique<Identifier>( location_for( *ctx ), text( identifier ) );
   }
-  else if ( auto f_call = ctx->functionCall() )
+  if ( auto f_call = ctx->functionCall() )
   {
     return function_call( location_for( *f_call ), f_call, ScopeName::None );
   }
-  else if ( auto scoped_f_call = ctx->scopedFunctionCall() )
+  if ( auto scoped_f_call = ctx->scopedFunctionCall() )
   {
     return scoped_function_call( scoped_f_call );
   }
-  else if ( auto dict_init = ctx->explicitDictInitializer() )
+  if ( auto dict_init = ctx->explicitDictInitializer() )
   {
     return dictionary_initializer( dict_init );
   }
-  else if ( auto struct_init = ctx->explicitStructInitializer() )
+  if ( auto struct_init = ctx->explicitStructInitializer() )
   {
     return struct_initializer( struct_init );
   }
-  else if ( auto fr = ctx->functionReference() )
+  if ( auto fr = ctx->functionReference() )
   {
     return function_reference( fr );
   }
-  else if ( auto fe = ctx->functionExpression() )
+  if ( auto fe = ctx->functionExpression() )
   {
     return function_expression( fe );
   }
-  else if ( auto error_init = ctx->explicitErrorInitializer() )
+  if ( auto error_init = ctx->explicitErrorInitializer() )
   {
     return error( error_init );
   }
-  else if ( auto array_init = ctx->explicitArrayInitializer() )
+  if ( auto array_init = ctx->explicitArrayInitializer() )
   {
     return array_initializer( array_init );
   }
-  else if ( auto bare_array = ctx->bareArrayInitializer() )
+  if ( auto bare_array = ctx->bareArrayInitializer() )
   {
     return array_initializer( bare_array );
   }
-  else if ( auto inter_string = ctx->interpolatedString() )
+  if ( auto inter_string = ctx->interpolatedString() )
   {
     return interpolate_string( inter_string );
   }
@@ -643,13 +639,11 @@ std::unique_ptr<Identifier> ExpressionBuilder::scoped_identifier(
 
     return std::make_unique<Identifier>( loc, std::move( scoped_name ) );
   }
-  else
-  {
-    ScopableName scoped_name( ScopeName::Global, text( ctx->identifier ) );
 
-    return std::make_unique<Identifier>(
-        loc, ScopableName( ScopeName::Global, text( ctx->identifier ) ) );
-  }
+  ScopableName scoped_name( ScopeName::Global, text( ctx->identifier ) );
+
+  return std::make_unique<Identifier>( loc,
+                                       ScopableName( ScopeName::Global, text( ctx->identifier ) ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(

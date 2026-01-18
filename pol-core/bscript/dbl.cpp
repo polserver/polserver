@@ -98,10 +98,8 @@ BObjectImp* Double::unpack( std::istream& is )
   {
     return new Double( dv );
   }
-  else
-  {
-    return new BError( "Error extracting Real value" );
-  }
+
+  return new BError( "Error extracting Real value" );
 }
 
 size_t Double::sizeEstimate() const
@@ -117,19 +115,17 @@ bool Double::operator==( const BObjectImp& objimp ) const
     double diff = dval_ - ( (Double&)objimp ).dval_;
     return fabs( diff ) < 0.00000001;
   }
-  else if ( objimp.isa( OTLong ) )
+  if ( objimp.isa( OTLong ) )
   {
     double diff = dval_ - ( (BLong&)objimp ).value();
     return fabs( diff ) < 0.00000001;
   }
-  else if ( objimp.isa( OTBoolean ) )
+  if ( objimp.isa( OTBoolean ) )
   {
     return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 bool Double::operator<( const BObjectImp& objimp ) const
@@ -138,7 +134,7 @@ bool Double::operator<( const BObjectImp& objimp ) const
   {
     return ( dval_ < ( (Double&)objimp ).dval_ );
   }
-  else if ( objimp.isa( OTLong ) )
+  if ( objimp.isa( OTLong ) )
   {
     return ( dval_ < ( (BLong&)objimp ).value() );
   }
@@ -254,16 +250,14 @@ BObjectImp* Double::selfDividedByObj( const BLong& objimp ) const
   int divisor = objimp.value();
   if ( !divisor )
     return new BError( "Divide by Zero" );
-  else
-    return new Double( dval_ / divisor );
+  return new Double( dval_ / divisor );
 }
 BObjectImp* Double::selfDividedByObj( const Double& objimp ) const
 {
   double divisor = objimp.value();
   if ( divisor == 0.0 )
     return new BError( "Divide by Zero" );
-  else
-    return new Double( dval_ / divisor );
+  return new Double( dval_ / divisor );
 }
 void Double::selfDividedByObjImp( BObjectImp& objimp, BObject& obj )
 {

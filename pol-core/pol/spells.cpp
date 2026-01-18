@@ -52,10 +52,8 @@ static bool nocast_here( Mobile::Character* chr )
   {
     return false;
   }
-  else
-  {
-    return rgn->nocast();
-  }
+
+  return rgn->nocast();
 }
 
 bool knows_spell( Mobile::Character* chr, u16 spellid )

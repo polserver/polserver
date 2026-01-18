@@ -118,23 +118,20 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
 
       return new BLong( npc.could_move( facing ) ? 1 : 0 );
     }
-    else if ( auto* l = impptrIf<BLong>( param0 ) )
+    if ( auto* l = impptrIf<BLong>( param0 ) )
     {
       Core::UFACING facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
       return new BLong( npc.could_move( facing ) ? 1 : 0 );
     }
-    else
-    {
-      DEBUGLOGLN(
-          "Script Error in '{}' PC={}: \n"
-          "\tCall to function npc::canmove():\n"
-          "\tParameter 0: Expected direction, got datatype {}",
-          scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
-      return new BError( "Invalid parameter type" );
-    }
+
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function npc::canmove():\n"
+        "\tParameter 0: Expected direction, got datatype {}",
+        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
+    return new BError( "Invalid parameter type" );
   }
-  else
-    return new BError( "Invalid parameter count" );
+  return new BError( "Invalid parameter count" );
 }
 
 BObjectImp* NPCExecutorModule::mf_Self()
@@ -156,16 +153,12 @@ BObjectImp* NPCExecutorModule::mf_SetAnchor()
       npc.anchor.psub = static_cast<unsigned short>( psub );
       return new BLong( 1 );
     }
-    else
-    {
-      npc.anchor.enabled = false;
-      return new BLong( 1 );
-    }
+
+    npc.anchor.enabled = false;
+    return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -330,12 +323,12 @@ BObjectImp* NPCExecutorModule::mf_Move()
 
     return move_self( facing, false );
   }
-  else if ( auto* l = impptrIf<BLong>( param0 ) )
+  if ( auto* l = impptrIf<BLong>( param0 ) )
   {
     Core::UFACING facing = static_cast<Core::UFACING>( l->value() & PKTIN_02_FACING_MASK );
     return move_self( facing, false );
   }
-  else if ( param0->isa( BObjectImp::OTApplicObj ) )
+  if ( param0->isa( BObjectImp::OTApplicObj ) )
   {
     BApplicObjBase* appobj = static_cast<BApplicObjBase*>( param0 );
     if ( appobj->object_type() == &bounding_box_type )
@@ -353,31 +346,16 @@ BObjectImp* NPCExecutorModule::mf_Move()
         os_module->SleepFor( 1 );
         return new String( Mobile::FacingStr( facing ) );
       }
-      else
-      {
-        return new String( "" );
-      }
-    }
-    else
-    {
-      DEBUGLOGLN(
-          "Script Error in '{}' PC={}: \n"
-          "\tCall to function npc::move():\n"
-          "\tParameter 0: Expected direction or bounding box, , got datatype {}",
-          scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
-      return nullptr;
-    }
-  }
-  else
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function npc::move():\n"
-        "\tParameter 0: Expected direction or bounding box, , got datatype {}",
-        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
 
-    return nullptr;
+      return new String( "" );
+    }
   }
+  DEBUGLOGLN(
+      "Script Error in '{}' PC={}: \n"
+      "\tCall to function npc::move():\n"
+      "\tParameter 0: Expected direction or bounding box, , got datatype {}",
+      scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
+  return nullptr;
 }
 
 BObjectImp* NPCExecutorModule::mf_WalkToward()
@@ -394,10 +372,8 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
     Core::UFACING fac = npc.direction_toward( obj );
     return move_self( fac, false, true );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 
@@ -414,10 +390,8 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
     }
     return move_self( npc.direction_toward( obj ), true, true );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
@@ -435,10 +409,8 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
 
                       false, true );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
@@ -456,10 +428,8 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
 
                       true, true );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* NPCExecutorModule::mf_TurnToward()
@@ -610,7 +580,7 @@ BObjectImp* NPCExecutorModule::mf_Say()
 {
   if ( npc.squelched() )
     return new BError( "NPC is squelched" );
-  else if ( npc.hidden() )
+  if ( npc.hidden() )
     npc.unhide();
 
   const char* text = exec.paramAsString( 0 );
@@ -707,7 +677,7 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
 {
   if ( npc.squelched() )
     return new BError( "NPC is squelched" );
-  else if ( npc.hidden() )
+  if ( npc.hidden() )
     npc.unhide();
 
   const String* text;
@@ -815,15 +785,11 @@ BObjectImp* NPCExecutorModule::mf_GetProperty()
     {
       return BObjectImp::unpack( val.c_str() );
     }
-    else
-    {
-      return new BError( "Property not found" );
-    }
+
+    return new BError( "Property not found" );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* NPCExecutorModule::mf_SetProperty()
@@ -835,10 +801,8 @@ BObjectImp* NPCExecutorModule::mf_SetProperty()
     npc.setprop( propname_str->value(), propval->pack() );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* NPCExecutorModule::mf_CreateBackpack()
@@ -922,11 +886,9 @@ BObjectImp* NPCExecutorModule::mf_SetOpponent()
     npc.set_opponent( chr );
     return new BLong( 1 );
   }
-  else
-  {
-    npc.set_opponent( nullptr );
-    return new BLong( 0 );
-  }
+
+  npc.set_opponent( nullptr );
+  return new BLong( 0 );
 }
 
 BObjectImp* NPCExecutorModule::mf_SetWarMode()
@@ -937,10 +899,8 @@ BObjectImp* NPCExecutorModule::mf_SetWarMode()
     npc.set_warmode( warmode != 0 );
     return new BLong( 1 );
   }
-  else
-  {
-    return new BLong( 0 );
-  }
+
+  return new BLong( 0 );
 }
 
 size_t NPCExecutorModule::sizeEstimate() const

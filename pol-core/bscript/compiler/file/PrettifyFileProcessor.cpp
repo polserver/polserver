@@ -661,20 +661,20 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     visitPrimary( prim );
     return true;
   }
-  else if ( ctx->prefix )
+  if ( ctx->prefix )
   {
     addToken( ctx->prefix->getText(), ctx->prefix,
               ctx->prefix->getType() == EscriptLexer::BANG_B ? FmtToken::SPACE : FmtToken::NONE );
     visitExpression( ctx->expression( 0 ) );
     return true;
   }
-  else if ( ctx->postfix )
+  if ( ctx->postfix )
   {
     visitExpression( ctx->expression( 0 ) );
     addToken( ctx->postfix->getText(), ctx->postfix, FmtToken::SPACE | FmtToken::ATTACHED );
     return true;
   }
-  else if ( ctx->bop && ctx->expression().size() == 2 )
+  if ( ctx->bop && ctx->expression().size() == 2 )
   {
     visitExpression( ctx->expression( 0 ) );  // left
     int style = FmtToken::NONE;
@@ -738,12 +738,12 @@ antlrcpp::Any PrettifyFileProcessor::visitExpression( EscriptParser::ExpressionC
     visitExpression( ctx->expression( 1 ) );  // right
     return true;
   }
-  else if ( auto suffix = ctx->expressionSuffix() )
+  if ( auto suffix = ctx->expressionSuffix() )
   {
     expression_suffix( ctx->expression( 0 ), suffix );
     return true;
   }
-  else if ( ctx->QUESTION() )
+  if ( ctx->QUESTION() )
   {
     visitExpression( ctx->expression( 0 ) );  // conditional
     addToken( "?", ctx->QUESTION(), FmtToken::SPACE | FmtToken::BREAKPOINT );
@@ -806,7 +806,7 @@ antlrcpp::Any PrettifyFileProcessor::visitFloatLiteral( EscriptParser::FloatLite
 {
   if ( auto float_literal = ctx->FLOAT_LITERAL() )
     return make_float_literal( float_literal );
-  else if ( auto hex_float_literal = ctx->HEX_FLOAT_LITERAL() )
+  if ( auto hex_float_literal = ctx->HEX_FLOAT_LITERAL() )
     return make_float_literal( hex_float_literal );
 
   return visitChildren( ctx );
@@ -1360,13 +1360,13 @@ antlrcpp::Any PrettifyFileProcessor::visitIntegerLiteral(
   if ( auto decimal_literal = ctx->DECIMAL_LITERAL() )
     return make_integer_literal( decimal_literal );
 
-  else if ( auto hex_literal = ctx->HEX_LITERAL() )
+  if ( auto hex_literal = ctx->HEX_LITERAL() )
     return make_integer_literal( hex_literal );
 
-  else if ( auto oct_literal = ctx->OCT_LITERAL() )
+  if ( auto oct_literal = ctx->OCT_LITERAL() )
     return make_integer_literal( oct_literal );
 
-  else if ( auto binary_literal = ctx->BINARY_LITERAL() )
+  if ( auto binary_literal = ctx->BINARY_LITERAL() )
     return make_integer_literal( binary_literal );
 
   return visitChildren( ctx );
@@ -1376,15 +1376,15 @@ antlrcpp::Any PrettifyFileProcessor::visitLiteral( EscriptParser::LiteralContext
 {
   if ( auto string_literal = ctx->STRING_LITERAL() )
     return make_string_literal( string_literal );
-  else if ( auto integer_literal = ctx->integerLiteral() )
+  if ( auto integer_literal = ctx->integerLiteral() )
     return visitIntegerLiteral( integer_literal );
-  else if ( auto float_literal = ctx->floatLiteral() )
+  if ( auto float_literal = ctx->floatLiteral() )
     return visitFloatLiteral( float_literal );
-  else if ( auto uninit = ctx->UNINIT() )
+  if ( auto uninit = ctx->UNINIT() )
     addToken( "uninit", uninit, FmtToken::SPACE );
-  else if ( auto bool_literal = ctx->boolLiteral() )
+  if ( auto bool_literal = ctx->boolLiteral() )
     return visitBoolLiteral( bool_literal );
-  else if ( auto regular_expression_literal = ctx->REGEXP_LITERAL() )
+  if ( auto regular_expression_literal = ctx->REGEXP_LITERAL() )
     return make_regular_expression_literal( regular_expression_literal );
   return visitChildren( ctx );
 }
@@ -1434,31 +1434,31 @@ antlrcpp::Any PrettifyFileProcessor::visitPrimary( EscriptParser::PrimaryContext
 {
   if ( auto literal = ctx->literal() )
     return visitLiteral( literal );
-  else if ( auto parExpression = ctx->parExpression() )
+  if ( auto parExpression = ctx->parExpression() )
     return visitParExpression( parExpression );
-  else if ( auto functionCall = ctx->functionCall() )
+  if ( auto functionCall = ctx->functionCall() )
     return visitFunctionCall( functionCall );
-  else if ( auto scopedIdentifier = ctx->scopedIdentifier() )
+  if ( auto scopedIdentifier = ctx->scopedIdentifier() )
     return visitScopedIdentifier( scopedIdentifier );
-  else if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
+  if ( auto scopedFunctionCall = ctx->scopedFunctionCall() )
     return visitScopedFunctionCall( scopedFunctionCall );
-  else if ( auto identifier = ctx->IDENTIFIER() )
+  if ( auto identifier = ctx->IDENTIFIER() )
     return make_identifier( identifier );
-  else if ( auto functionReference = ctx->functionReference() )
+  if ( auto functionReference = ctx->functionReference() )
     return visitFunctionReference( functionReference );
-  else if ( auto functionExpression = ctx->functionExpression() )
+  if ( auto functionExpression = ctx->functionExpression() )
     return visitFunctionExpression( functionExpression );
-  else if ( auto explicitArrayInitializer = ctx->explicitArrayInitializer() )
+  if ( auto explicitArrayInitializer = ctx->explicitArrayInitializer() )
     return visitExplicitArrayInitializer( explicitArrayInitializer );
-  else if ( auto explicitStructInitializer = ctx->explicitStructInitializer() )
+  if ( auto explicitStructInitializer = ctx->explicitStructInitializer() )
     return visitExplicitStructInitializer( explicitStructInitializer );
-  else if ( auto explicitDictInitializer = ctx->explicitDictInitializer() )
+  if ( auto explicitDictInitializer = ctx->explicitDictInitializer() )
     return visitExplicitDictInitializer( explicitDictInitializer );
-  else if ( auto explicitErrorInitializer = ctx->explicitErrorInitializer() )
+  if ( auto explicitErrorInitializer = ctx->explicitErrorInitializer() )
     return visitExplicitErrorInitializer( explicitErrorInitializer );
-  else if ( auto bareArrayInitializer = ctx->bareArrayInitializer() )
+  if ( auto bareArrayInitializer = ctx->bareArrayInitializer() )
     return visitBareArrayInitializer( bareArrayInitializer );
-  else if ( auto interpolatedString = ctx->interpolatedString() )
+  if ( auto interpolatedString = ctx->interpolatedString() )
     return visitInterpolatedString( interpolatedString );
   return {};
 }
@@ -1522,35 +1522,35 @@ antlrcpp::Any PrettifyFileProcessor::visitStatement( EscriptParser::StatementCon
 {
   if ( auto ifStatement = ctx->ifStatement() )
     return visitIfStatement( ifStatement );
-  else if ( auto gotoStatement = ctx->gotoStatement() )
+  if ( auto gotoStatement = ctx->gotoStatement() )
     return visitGotoStatement( gotoStatement );
-  else if ( auto returnStatement = ctx->returnStatement() )
+  if ( auto returnStatement = ctx->returnStatement() )
     return visitReturnStatement( returnStatement );
-  else if ( auto constStatement = ctx->constStatement() )
+  if ( auto constStatement = ctx->constStatement() )
     return visitConstStatement( constStatement );
-  else if ( auto varStatement = ctx->varStatement() )
+  if ( auto varStatement = ctx->varStatement() )
     return visitVarStatement( varStatement );
-  else if ( auto doStatement = ctx->doStatement() )
+  if ( auto doStatement = ctx->doStatement() )
     return visitDoStatement( doStatement );
-  else if ( auto whileStatement = ctx->whileStatement() )
+  if ( auto whileStatement = ctx->whileStatement() )
     return visitWhileStatement( whileStatement );
-  else if ( auto exitStatement = ctx->exitStatement() )
+  if ( auto exitStatement = ctx->exitStatement() )
     return visitExitStatement( exitStatement );
-  else if ( auto breakStatement = ctx->breakStatement() )
+  if ( auto breakStatement = ctx->breakStatement() )
     return visitBreakStatement( breakStatement );
-  else if ( auto continueStatement = ctx->continueStatement() )
+  if ( auto continueStatement = ctx->continueStatement() )
     return visitContinueStatement( continueStatement );
-  else if ( auto forStatement = ctx->forStatement() )
+  if ( auto forStatement = ctx->forStatement() )
     return visitForStatement( forStatement );
-  else if ( auto foreachStatement = ctx->foreachStatement() )
+  if ( auto foreachStatement = ctx->foreachStatement() )
     return visitForeachStatement( foreachStatement );
-  else if ( auto repeatStatement = ctx->repeatStatement() )
+  if ( auto repeatStatement = ctx->repeatStatement() )
     return visitRepeatStatement( repeatStatement );
-  else if ( auto caseStatement = ctx->caseStatement() )
+  if ( auto caseStatement = ctx->caseStatement() )
     return visitCaseStatement( caseStatement );
-  else if ( auto enumStatement = ctx->enumStatement() )
+  if ( auto enumStatement = ctx->enumStatement() )
     return visitEnumStatement( enumStatement );
-  else if ( auto expression = ctx->statementExpression )
+  if ( auto expression = ctx->statementExpression )
   {
     visitExpression( expression );
 
@@ -1568,7 +1568,7 @@ antlrcpp::Any PrettifyFileProcessor::visitStringIdentifier(
 {
   if ( auto identifier = ctx->IDENTIFIER() )
     return make_identifier( identifier );
-  else if ( auto string_literal = ctx->STRING_LITERAL() )
+  if ( auto string_literal = ctx->STRING_LITERAL() )
     return make_string_literal( string_literal );
   return {};
 }

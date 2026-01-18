@@ -163,71 +163,69 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
 
     return;
   }
-  else
-  {
-    u8 oldfacing = chr->facing;
 
-    if ( chr->move( msg02->dir ) )
+  u8 oldfacing = chr->facing;
+
+  if ( chr->move( msg02->dir ) )
+  {
+    // If facing is dir they are walking, check to see if already 4 tiles away
+    // from the person trading with. If so, cancel trading!!!!
+    if ( !settingsManager.ssopt.allow_moving_trade )
     {
-      // If facing is dir they are walking, check to see if already 4 tiles away
-      // from the person trading with. If so, cancel trading!!!!
-      if ( !settingsManager.ssopt.allow_moving_trade )
+      if ( chr->is_trading() )
       {
-        if ( chr->is_trading() )
+        if ( ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) ) &&
+             !chr->in_range( chr->trading_with.get(), 3 ) )
         {
-          if ( ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) ) &&
-               !chr->in_range( chr->trading_with.get(), 3 ) )
-          {
-            cancel_trade( chr );
-          }
+          cancel_trade( chr );
         }
       }
-      client->pause();
-      Network::PktHelper::PacketOut<Network::PktOut_22> msg;
-      msg->Write<u8>( msg02->movenum );
-      msg->Write<u8>( client->chr->hilite_color_idx( client->chr ) );
-      msg.Send( client );
-
-      client->movementsequence = msg02->movenum;
-      if ( client->movementsequence == 255 )
-        client->movementsequence = 1;
-      else
-        client->movementsequence++;
-
-
-      // FIXME: Make sure we only tell those who can see us.
-      chr->tellmove();
-
-      send_objects_newly_inrange( client );
-
-      client->restart();
-
-      // here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()
-      if ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) )
-      {
-        if ( client->chr->on_mount() )
-          client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT )
-                                       ? settingsManager.ssopt.speedhack_mountrundelay
-                                       : settingsManager.ssopt.speedhack_mountwalkdelay;
-        else
-          client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT )
-                                       ? settingsManager.ssopt.speedhack_footrundelay
-                                       : settingsManager.ssopt.speedhack_footwalkdelay;
-      }
-      else  // changing only facing is fast
-        client->next_movement += settingsManager.ssopt.speedhack_mountrundelay;
     }
+    client->pause();
+    Network::PktHelper::PacketOut<Network::PktOut_22> msg;
+    msg->Write<u8>( msg02->movenum );
+    msg->Write<u8>( client->chr->hilite_color_idx( client->chr ) );
+    msg.Send( client );
+
+    client->movementsequence = msg02->movenum;
+    if ( client->movementsequence == 255 )
+      client->movementsequence = 1;
     else
+      client->movementsequence++;
+
+
+    // FIXME: Make sure we only tell those who can see us.
+    chr->tellmove();
+
+    send_objects_newly_inrange( client );
+
+    client->restart();
+
+    // here we set the delay for SpeedHackPrevention see Client::SpeedHackPrevention()
+    if ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) )
     {
-      Network::PktHelper::PacketOut<Network::PktOut_21> msg;
-      msg->Write<u8>( msg02->movenum );
-      msg->WriteFlipped<u16>( chr->x() );
-      msg->WriteFlipped<u16>( chr->y() );
-      msg->Write<u8>( chr->facing );
-      msg->Write<s8>( chr->z() );
-      msg.Send( client );
-      client->movementsequence = 0;
+      if ( client->chr->on_mount() )
+        client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT )
+                                     ? settingsManager.ssopt.speedhack_mountrundelay
+                                     : settingsManager.ssopt.speedhack_mountwalkdelay;
+      else
+        client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT )
+                                     ? settingsManager.ssopt.speedhack_footrundelay
+                                     : settingsManager.ssopt.speedhack_footwalkdelay;
     }
+    else  // changing only facing is fast
+      client->next_movement += settingsManager.ssopt.speedhack_mountrundelay;
+  }
+  else
+  {
+    Network::PktHelper::PacketOut<Network::PktOut_21> msg;
+    msg->Write<u8>( msg02->movenum );
+    msg->WriteFlipped<u16>( chr->x() );
+    msg->WriteFlipped<u16>( chr->y() );
+    msg->Write<u8>( chr->facing );
+    msg->Write<s8>( chr->z() );
+    msg.Send( client );
+    client->movementsequence = 0;
   }
 }
 }  // namespace Pol::Core

@@ -86,17 +86,17 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
   {
     if ( leader->has_party() )
       return new BError( "Leader is already in a party" );
-    else if ( leader->has_candidate_of() )
+    if ( leader->has_candidate_of() )
       return new BError( "Leader is already candidate of a party" );
-    else if ( leader->has_offline_mem_of() )
+    if ( leader->has_offline_mem_of() )
       return new BError( "Leader is already offline member of a party" );
-    else if ( leader == firstmem )
+    if ( leader == firstmem )
       return new BError( "Leader and Firstmember are the same" );
-    else if ( firstmem->has_party() )
+    if ( firstmem->has_party() )
       return new BError( "First Member is already in a party" );
-    else if ( firstmem->has_candidate_of() )
+    if ( firstmem->has_candidate_of() )
       return new BError( "First Member is already candidate of a party" );
-    else if ( firstmem->has_offline_mem_of() )
+    if ( firstmem->has_offline_mem_of() )
       return new BError( "First Member is already offline member of a party" );
 
     Core::Party* party = new Core::Party( leader->serial );
@@ -120,8 +120,7 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
 
     return new BLong( 1 );
   }
-  else
-    return new BError( "Invalid parameter type" );
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* PartyExecutorModule::mf_DisbandParty()
@@ -133,8 +132,7 @@ BObjectImp* PartyExecutorModule::mf_DisbandParty()
     Core::disband_party( party->leader() );
     return new BLong( 1 );
   }
-  else
-    return err;
+  return err;
 }
 
 BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
@@ -156,11 +154,9 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
       party->send_member_msg_public( chr, text->value() );
       return new BLong( 1 );
     }
-    else
-      return new BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
   }
-  else
-    return err;
+  return err;
 }
 
 BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
@@ -184,11 +180,9 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
       party->send_member_msg_private( chr, tochr, text->value() );
       return new BLong( 1 );
     }
-    else
-      return new BError( "Invalid parameter type" );
+    return new BError( "Invalid parameter type" );
   }
-  else
-    return err;
+  return err;
 }
 }  // namespace Module
 }  // namespace Pol
