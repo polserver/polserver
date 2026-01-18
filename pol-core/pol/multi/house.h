@@ -158,7 +158,7 @@ private:
   inline void add_component_no_check( Component item )
   {
     item->house( this );
-    components_.push_back( item );
+    components_.push_back( std::move( item ) );
   }
 
   /**
