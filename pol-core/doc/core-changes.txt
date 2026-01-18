@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+01-18-2026 Turley:
+    Fixed: ClassInstance memory estimate
 01-17-2026 Kukkino:
   Changed: FunctionReference no longer includes full program in its memory estimate.
 01-10-2026 Turley:
