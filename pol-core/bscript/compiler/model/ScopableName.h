@@ -9,8 +9,8 @@ namespace Pol::Bscript::Compiler
 class ScopableName
 {
 public:
-  ScopableName( const ScopeName& scope, const std::string& name );
-  ScopableName( const std::string& scope, const std::string& name );
+  ScopableName( const ScopeName& scope, std::string name );
+  ScopableName( std::string scope, std::string name );
 
   // True if the scope is global.
   bool global() const;

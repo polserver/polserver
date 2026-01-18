@@ -2497,7 +2497,7 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*for
   }
 }
 
-BSpread::BSpread( BObjectRef obj ) : BObjectImp( OTSpread ), object( obj ) {}
+BSpread::BSpread( BObjectRef obj ) : BObjectImp( OTSpread ), object( std::move( obj ) ) {}
 
 BSpread::BSpread( const BSpread& B ) : BObjectImp( OTSpread ), object( B.object ) {}
 

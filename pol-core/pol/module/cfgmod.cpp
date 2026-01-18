@@ -41,7 +41,7 @@ Bscript::BApplicObjType cfgelem_type;
 
 
 EConfigFileRefObjImp::EConfigFileRefObjImp( ref_ptr<Core::StoredConfigFile> rcfile )
-    : EConfigFileRefObjImpBase( &cfgfile_type, rcfile )
+    : EConfigFileRefObjImpBase( &cfgfile_type, std::move( rcfile ) )
 {
 }
 
@@ -116,7 +116,7 @@ Bscript::BObjectImp* EConfigFileRefObjImp::copy() const
 }
 
 EConfigElemRefObjImp::EConfigElemRefObjImp( ref_ptr<Core::StoredConfigElem> rcelem )
-    : EConfigElemRefObjImpBase( &cfgelem_type, rcelem )
+    : EConfigElemRefObjImpBase( &cfgelem_type, std::move( rcelem ) )
 {
 }
 

@@ -9,7 +9,7 @@ ScopeName ScopeName::Global = ScopeName( "" );
 ScopeName ScopeName::None = ScopeName();
 ScopeName ScopeName::Super = ScopeName( Compiler::SUPER );
 
-ScopeName::ScopeName( const std::string& name ) : std::optional<std::string>( name ) {}
+ScopeName::ScopeName( std::string name ) : std::optional<std::string>( std::move( name ) ) {}
 
 ScopeName::ScopeName() : std::optional<std::string>( std::nullopt ) {}
 

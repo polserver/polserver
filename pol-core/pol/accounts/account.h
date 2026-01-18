@@ -58,8 +58,8 @@ public:
   std::string default_privlist() const;
   unsigned char default_cmdlevel() const;
 
-  void set_password( std::string newpass ) { password_ = newpass; };
-  void set_passwordhash( std::string newpass ) { passwordhash_ = newpass; };
+  void set_password( std::string newpass ) { password_ = std::move( newpass ); };
+  void set_passwordhash( std::string newpass ) { passwordhash_ = std::move( newpass ); };
   friend class AccountObjImp;
 
 private:
