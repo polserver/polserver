@@ -11,13 +11,10 @@
 #include "../../clib/rawtypes.h"
 #include "../polobject.h"
 #include "../reftypes.h"
+#include "account.h"
 
 namespace Pol
 {
-namespace Accounts
-{
-class Account;
-}  // namespace Accounts
 namespace Bscript
 {
 class Executor;

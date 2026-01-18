@@ -111,6 +111,8 @@ jobs:
           cmake --build . --target libfmt_ext
           cmake --build . --target libescriptgrammar
           cmake --build . --target libcppdap_ext || true
+          cmake --build . --target parse_modules
+
       - name: Tidy Diff Check
         run: |
           git diff -U0 origin/${{github.event.pull_request.base.ref}}..origin/${{github.head_ref}} | clang-tidy-diff-20.py -checks='-*,${{matrix.config.tidy-checks}}' -p1 -path bin-build
