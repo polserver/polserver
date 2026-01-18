@@ -19,7 +19,7 @@ jobs:
             compiler-version: 20
             build-type: RelWithDebInfo
             name: ClangTidy
-            tidy-checks: ""
+            tidy-checks: "performance-unnecessary-copy-initialization,performance-unnecessary-value-param"
             #"modernize-use-override"
             #"modernize-use-equals-default"
             #"modernize-use-equals-delete"
@@ -31,7 +31,10 @@ jobs:
             #"modernize-use-using"
             #"modernize-concat-nested-namespaces"
             #"readability-container-size-empty"
-            #"readability-else-after-return
+            #"readability-else-after-return"
+            #"performance-unnecessary-copy-initialization"
+            #"performance-unnecessary-value-param"
+
 
     runs-on: ${{ matrix.config.os }}
 
