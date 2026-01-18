@@ -149,7 +149,7 @@ public:
   bool has_delayed_packets() const;
   void process_delayed_packets();
 
-  PacketLog start_log( std::string filename );
+  PacketLog start_log( const std::string& filename );
   PacketLog stop_log();
 
 protected:

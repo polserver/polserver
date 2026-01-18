@@ -8,6 +8,8 @@
 #ifndef ACSCROBJ_H
 #define ACSCROBJ_H
 
+#include <utility>
+
 #include "../../clib/rawtypes.h"
 #include "../polobject.h"
 #include "../reftypes.h"
@@ -30,7 +32,7 @@ namespace Pol::Accounts
 class AccountPtrHolder
 {
 public:
-  explicit AccountPtrHolder( Core::AccountRef i_acct ) : acct( i_acct ) {}
+  explicit AccountPtrHolder( Core::AccountRef i_acct ) : acct( std::move( i_acct ) ) {}
   Account* operator->() { return acct.get(); }
   const Account* operator->() const { return acct.get(); }
   Account* Ptr() { return acct.get(); }

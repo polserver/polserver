@@ -13,6 +13,7 @@
 
 #include <stddef.h>
 #include <string>
+#include <utility>
 
 #include "../bscript/bobject.h"
 #include "../bscript/bstruct.h"
@@ -216,7 +217,7 @@ class EClientRefObjImp final : public Core::PolApplicObj<ClientPtrHolder>
 
 public:
   explicit EClientRefObjImp( ClientPtrHolder client )
-      : PolApplicObj<ClientPtrHolder>( &eclientrefobjimp_type, client )
+      : PolApplicObj<ClientPtrHolder>( &eclientrefobjimp_type, std::move( client ) )
   {
   }
   ~EClientRefObjImp() override = default;
@@ -245,7 +246,7 @@ class SpeechEvent final : public Bscript::BStruct
 {
 public:
   SpeechEvent( Mobile::Character* speaker, const std::string& speech, const std::string& texttype,
-               std::string lang = "", Bscript::ObjArray* speechtokens = nullptr );
+               const std::string& lang = "", Bscript::ObjArray* speechtokens = nullptr );
 };
 
 class DamageEvent final : public Bscript::BStruct

@@ -13,6 +13,7 @@
 #include <limits>
 #include <stddef.h>
 #include <string>
+#include <utility>
 
 #include "../clib/clib.h"
 #include "../clib/fixalloc.h"
@@ -1688,7 +1689,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
                        filteredRef = BObjectRef( new ObjArray ),
                        initialSize = static_cast<int>( ref_arr.size() )](
                           Executor& ex, BContinuation* continuation,
-                          BObjectRef result ) mutable -> BObjectImp*
+                          const BObjectRef& result ) mutable -> BObjectImp*
       {
         auto filtered = filteredRef->impptr<ObjArray>();
 
@@ -1762,7 +1763,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
                        mappedRef = BObjectRef( new ObjArray ),
                        initialSize = static_cast<int>( ref_arr.size() )](
                           Executor& ex, BContinuation* continuation,
-                          BObjectRef result ) mutable -> BObjectImp*
+                          const BObjectRef& result ) mutable -> BObjectImp*
       {
         auto mapped = mappedRef->impptr<ObjArray>();
 
@@ -1848,7 +1849,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       auto callback = [thisArray = args[3], processed = processed,
                        initialSize = static_cast<int>( ref_arr.size() )](
                           Executor& ex, BContinuation* continuation,
-                          BObjectRef result /* accumulator */ ) mutable -> BObjectImp*
+                          const BObjectRef& result /* accumulator */ ) mutable -> BObjectImp*
       {
         if ( !thisArray->isa( OTArray ) )
           return result->impptr();
@@ -1902,7 +1903,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       auto callback = [elementRef = args[0], processed = 1, thisArray = args[2],
                        initialSize = static_cast<int>( ref_arr.size() )](
                           Executor& ex, BContinuation* continuation,
-                          BObjectRef result ) mutable -> BObjectImp*
+                          const BObjectRef& result ) mutable -> BObjectImp*
       {
         if ( result->isTrue() )
         {
@@ -1959,9 +1960,10 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       args.push_back( BObjectRef( new BLong( 1 ) ) );
       args.emplace_back( this );
 
-      auto callback =
-          [processed = 1, thisArray = args[2], initialSize = static_cast<int>( ref_arr.size() )](
-              Executor& ex, BContinuation* continuation, BObjectRef result ) mutable -> BObjectImp*
+      auto callback = [processed = 1, thisArray = args[2],
+                       initialSize = static_cast<int>( ref_arr.size() )](
+                          Executor& ex, BContinuation* continuation,
+                          const BObjectRef& result ) mutable -> BObjectImp*
       {
         if ( result->isTrue() )
         {
@@ -2497,7 +2499,7 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*for
   }
 }
 
-BSpread::BSpread( BObjectRef obj ) : BObjectImp( OTSpread ), object( obj ) {}
+BSpread::BSpread( BObjectRef obj ) : BObjectImp( OTSpread ), object( std::move( obj ) ) {}
 
 BSpread::BSpread( const BSpread& B ) : BObjectImp( OTSpread ), object( B.object ) {}
 

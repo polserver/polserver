@@ -52,14 +52,14 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_mysql_field_name();
   [[nodiscard]] Bscript::BObjectImp* mf_mysql_escape_string();
 
-  static Bscript::BObjectImp* background_connect( weak_ptr<Core::UOExecutor> uoexec,
-                                                  const std::string host,
-                                                  const std::string username,
-                                                  const std::string password, int port );
-  static Bscript::BObjectImp* background_select( weak_ptr<Core::UOExecutor> uoexec,
-                                                 Core::BSQLConnection* sql, const std::string db );
-  static Bscript::BObjectImp* background_query( weak_ptr<Core::UOExecutor> uoexec,
-                                                Core::BSQLConnection* sql, const std::string query,
+  static Bscript::BObjectImp* background_connect( const weak_ptr<Core::UOExecutor>& uoexec,
+                                                  const std::string& host,
+                                                  const std::string& username,
+                                                  const std::string& password, int port );
+  static Bscript::BObjectImp* background_select( const weak_ptr<Core::UOExecutor>& uoexec,
+                                                 Core::BSQLConnection* sql, const std::string& db );
+  static Bscript::BObjectImp* background_query( const weak_ptr<Core::UOExecutor>& uoexec,
+                                                Core::BSQLConnection* sql, const std::string& query,
                                                 const Bscript::ObjArray* params );
 
   size_t sizeEstimate() const override;

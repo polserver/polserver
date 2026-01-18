@@ -52,6 +52,7 @@
 #include <cstring>
 #include <exception>
 #include <numeric>
+#include <utility>
 
 
 namespace Pol::Bscript
@@ -74,7 +75,7 @@ ExecutorDebugEnvironment::ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugL
       breakpoints(),
       break_on_linechange_from{ ~0u, ~0u },
       bp_skip( ~0u ),
-      listener( listener )
+      listener( std::move( listener ) )
 {
 }
 
@@ -4025,7 +4026,8 @@ ExecutorModule* Executor::findModule( const std::string& name )
   return nullptr;
 }
 
-bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener, bool set_attaching )
+bool Executor::attach_debugger( const std::weak_ptr<ExecutorDebugListener>& listener,
+                                bool set_attaching )
 {
   // FIXME: a script can be in debugging state but have no debugger attached,
   // eg. a script that called `os::Debugger()`. This needs to check if a

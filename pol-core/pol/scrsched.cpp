@@ -234,7 +234,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
 }
 
 // EXACTLY the same as start_script, except uses find_script2
-Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program,
+Module::UOExecutorModule* start_script( const ref_ptr<Bscript::EScriptProgram>& program,
                                         Bscript::BObjectImp* param )
 {
   Bscript::BObject bobj(

@@ -201,7 +201,7 @@ BObjectImp* do_replace( const RegexT& re, Executor& ex, BRegExp* bregexp, const 
                    lastPos = std::move( lastPos ), match = std::move( match ),
                    replaced_result = std::move( replaced_result )](
                       Executor& ex, BContinuation* continuation,
-                      BObjectRef result ) mutable -> BObjectImp*
+                      const BObjectRef& result ) mutable -> BObjectImp*
   {
     // Append the replacement from the callback
     replaced_result.append( traits::convert( result->impptr()->getStringRep() ) );
@@ -251,7 +251,7 @@ BObjectImp* do_split( const RegexT& re, const String* value, size_t limit,
 
   for ( ; it != end_it && result->ref_arr.size() < limit - 1; ++it )
   {
-    auto m = *it;
+    const auto& m = *it;
 
     // text before the match
     result->addElement( new String( string_type( start + last_pos, m[0].first ) ) );

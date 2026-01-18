@@ -85,7 +85,7 @@ private:
 class BSQLResultSet final : public Bscript::BObjectImp
 {
 public:
-  BSQLResultSet( RES_WRAPPER result );
+  BSQLResultSet( const RES_WRAPPER& result );
   BSQLResultSet( RES_WRAPPER result, MYSQL_FIELD* fields );
   BSQLResultSet( int affected_rows );
   ~BSQLResultSet() override;
@@ -124,8 +124,8 @@ public:
   BSQLConnection( std::shared_ptr<ConnectionWrapper> conn );
   ~BSQLConnection() override;
   bool connect( const char* host, const char* user, const char* passwd, int port = 0 );
-  bool query( const std::string query );
-  bool query( const std::string query, const QueryParams params );
+  bool query( const std::string& query );
+  bool query( const std::string& query, const QueryParams& params );
   bool select_db( const char* db );
   bool close();
   Bscript::BObjectImp* getResultSet() const;

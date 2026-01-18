@@ -2555,8 +2555,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
-      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
+      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = Clib::clamp_convert<u32>( value ) );
@@ -4883,7 +4883,7 @@ SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
 }
 
 SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
-                          const std::string& texttype, std::string lang,
+                          const std::string& texttype, const std::string& lang,
                           Bscript::ObjArray* speechtokens )
 {
   addMember( "type", new BLong( Core::EVID_SPOKE ) );

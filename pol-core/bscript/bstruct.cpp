@@ -12,6 +12,8 @@
 
 #include <stddef.h>
 
+#include <utility>
+
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "berror.h"
@@ -252,7 +254,7 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
 
 void BStruct::addMember( const char* name, BObjectRef val )
 {
-  contents_[name] = val;
+  contents_[name] = std::move( val );
 }
 
 void BStruct::addMember( const char* name, BObjectImp* imp )

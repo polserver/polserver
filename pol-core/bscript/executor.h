@@ -486,7 +486,7 @@ public:
   // filename+line+function name will be empty.
   BObjectImp* get_stacktrace( bool as_array );
 
-  bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
+  bool attach_debugger( const std::weak_ptr<ExecutorDebugListener>& listener = {},
                         bool set_attaching = true );
   void detach_debugger();
   void print_to_debugger( const std::string& message );

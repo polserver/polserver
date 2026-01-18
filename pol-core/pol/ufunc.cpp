@@ -1800,7 +1800,7 @@ void update_all_weatherregions()
     that I just don't understand yet.
     */
 std::string format_description( unsigned int polflags, const std::string& descdef,
-                                unsigned short amount, const std::string suffix )
+                                unsigned short amount, const std::string& suffix )
 {
   std::string desc;
 

@@ -39,10 +39,10 @@ size_t SQLExecutorModule::sizeEstimate() const
 
 #ifdef HAVE_MYSQL
 
-BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uoexec,
-                                                   const std::string host,
-                                                   const std::string username,
-                                                   const std::string password, int port )
+BObjectImp* SQLExecutorModule::background_connect( const weak_ptr<Core::UOExecutor>& uoexec,
+                                                   const std::string& host,
+                                                   const std::string& username,
+                                                   const std::string& password, int port )
 {
   auto msg = [uoexec, host, username, password, port]()
   {
@@ -101,9 +101,9 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
   return new BLong( 0 );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoexec,
+Bscript::BObjectImp* SQLExecutorModule::background_select( const weak_ptr<Core::UOExecutor>& uoexec,
                                                            Core::BSQLConnection* sql,
-                                                           const std::string db )
+                                                           const std::string& db )
 {
   // The BSQLConnection shouldn't be destroyed before the lambda runs
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
@@ -158,9 +158,9 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
   return new BLong( 0 );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoexec,
+Bscript::BObjectImp* SQLExecutorModule::background_query( const weak_ptr<Core::UOExecutor>& uoexec,
                                                           Core::BSQLConnection* sql,
-                                                          const std::string query,
+                                                          const std::string& query,
                                                           const Bscript::ObjArray* params )
 {
   // Copy and parse params before they will be deleted by this thread (go out of scope)

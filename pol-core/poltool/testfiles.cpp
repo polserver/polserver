@@ -52,12 +52,12 @@ void FileGenerator::writeFile( std::ofstream& stream, T& data )
 template <typename T, typename U>
 void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
 {
-  auto addland = []( T* e, u32 flags, std::string name )
+  auto addland = []( T* e, u32 flags, const std::string& name )
   {
     e->flags = flags;
     strncpy( e->name, name.c_str(), 19 );
   };
-  auto additem = []( U* e, u32 flags, u8 weight, u8 layer, u8 height, std::string name )
+  auto additem = []( U* e, u32 flags, u8 weight, u8 layer, u8 height, const std::string& name )
   {
     e->flags = flags;
     e->weight = weight;

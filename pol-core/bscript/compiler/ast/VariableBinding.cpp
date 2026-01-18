@@ -7,8 +7,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-VariableBinding::VariableBinding( const SourceLocation& loc, std::string scope, std::string name,
-                                  bool rest )
+VariableBinding::VariableBinding( const SourceLocation& loc, const std::string& scope,
+                                  const std::string& name, bool rest )
     : Node( loc ), scoped_name( std::move( scope ), std::move( name ) ), rest( rest ), variable()
 {
 }

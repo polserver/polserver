@@ -4,6 +4,7 @@
 #include "guilds.h"
 #include <stddef.h>
 #include <string>
+#include <utility>
 
 
 namespace Pol::Module
@@ -13,7 +14,7 @@ using namespace Bscript;
 BApplicObjType guild_type;
 
 EGuildRefObjImp::EGuildRefObjImp( Core::GuildRef gref )
-    : PolApplicObj<Core::GuildRef>( &guild_type, gref ){};
+    : PolApplicObj<Core::GuildRef>( &guild_type, std::move( gref ) ){};
 
 const char* EGuildRefObjImp::typeOf() const
 {

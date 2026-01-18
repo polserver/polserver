@@ -10,6 +10,7 @@
 #include <exception>
 #include <string>
 #include <time.h>
+#include <utility>
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -38,7 +39,7 @@ namespace Pol::Core
 {
 using namespace Bscript;
 
-StorageArea::StorageArea( std::string name ) : _name( name ) {}
+StorageArea::StorageArea( std::string name ) : _name( std::move( name ) ) {}
 
 StorageArea::~StorageArea()
 {
