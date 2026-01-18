@@ -19,7 +19,7 @@ jobs:
             compiler-version: 20
             build-type: RelWithDebInfo
             tidy-checks: "modernize-use-override,modernize-make-shared,modernize-make-unique,modernize-use-constraints,modernize-use-emplace,modernize-use-equals-default,modernize-use-equals-delete,modernize-use-using,readability-else-after-return,readability-container-size-empty,modernize-concat-nested-namespaces,modernize-redundant-void-arg,performance-unnecessary-copy-initialization"
-            name: Linux Clang
+            name: Clang-Tidy
 
     runs-on: ${{ matrix.config.os }}
 
