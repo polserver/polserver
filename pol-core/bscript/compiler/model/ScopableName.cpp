@@ -6,13 +6,13 @@
 
 namespace Pol::Bscript::Compiler
 {
-ScopableName::ScopableName( const ScopeName& scope, const std::string& name )
-    : scope( scope ), name( name )
+ScopableName::ScopableName( const ScopeName& scope, std::string name )
+    : scope( scope ), name( std::move( name ) )
 {
 }
 
-ScopableName::ScopableName( const std::string& scope, const std::string& name )
-    : ScopableName( ScopeName( scope ), name )
+ScopableName::ScopableName( std::string scope, std::string name )
+    : ScopableName( ScopeName( std::move( scope ) ), std::move( name ) )
 {
 }
 

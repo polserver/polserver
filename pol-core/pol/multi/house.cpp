@@ -203,7 +203,7 @@ bool UHouse::add_component( Component item )
   if ( !can_add_component( item.get() ) )
     return false;
 
-  add_component_no_check( item );
+  add_component_no_check( std::move( item ) );
   return true;
 }
 

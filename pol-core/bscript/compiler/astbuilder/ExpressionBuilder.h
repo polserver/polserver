@@ -39,16 +39,16 @@ public:
   std::unique_ptr<ArrayInitializer> array_initializer(
       EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* );
 
-  std::unique_ptr<Expression> binary_operator(
-      EscriptGrammar::EscriptParser::ExpressionContext*, bool consume );
+  std::unique_ptr<Expression> binary_operator( EscriptGrammar::EscriptParser::ExpressionContext*,
+                                               bool consume );
 
   BTokenId binary_operator_token( EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::unique_ptr<DictionaryInitializer> dictionary_initializer(
       EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* );
 
-  std::unique_ptr<ElementAccess> element_access(
-      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::IndexListContext* );
+  std::unique_ptr<ElementAccess> element_access( std::unique_ptr<Expression> lhs,
+                                                 EscriptGrammar::EscriptParser::IndexListContext* );
 
   std::unique_ptr<ElvisOperator> elvis_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
@@ -67,7 +67,7 @@ public:
   std::vector<std::unique_ptr<Expression>> expressions(
       EscriptGrammar::EscriptParser::ExpressionListContext* );
   std::vector<std::unique_ptr<Expression>> expressions(
-      std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> );
+      const std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*>& );
 
   std::unique_ptr<FunctionCall> function_call( SourceLocation loc,
                                                EscriptGrammar::EscriptParser::FunctionCallContext*,
@@ -83,8 +83,7 @@ public:
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* );
 
   std::unique_ptr<Expression> expression_suffix(
-      std::unique_ptr<Expression> lhs,
-      EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
+      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
 
   std::unique_ptr<Expression> prefix_unary_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
@@ -108,8 +107,8 @@ public:
   std::unique_ptr<InterpolateString> interpolate_string(
       EscriptGrammar::EscriptParser::InterpolatedStringContext* );
 
-  std::unique_ptr<Expression> format_expression(
-      std::unique_ptr<Expression>, antlr4::tree::TerminalNode* );
+  std::unique_ptr<Expression> format_expression( std::unique_ptr<Expression>,
+                                                 antlr4::tree::TerminalNode* );
 };
 
 }  // namespace Pol::Bscript::Compiler

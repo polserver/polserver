@@ -639,7 +639,7 @@ std::string DebugContext::cmd_quit()
 
 std::string DebugContext::cmd_start( const std::string& rest )
 {
-  std::string filename = rest;
+  const std::string& filename = rest;
   ScriptDef sd;
   if ( !sd.config_nodie( filename, nullptr, "scripts/" ) )
     return "Error in script name.";

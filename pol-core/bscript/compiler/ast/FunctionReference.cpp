@@ -7,7 +7,9 @@ namespace Pol::Bscript::Compiler
 {
 FunctionReference::FunctionReference( const SourceLocation& source_location, std::string name,
                                       std::shared_ptr<FunctionLink> function_link )
-    : Value( source_location ), name( name ), function_link( std::move( function_link ) )
+    : Value( source_location ),
+      name( std::move( name ) ),
+      function_link( std::move( function_link ) )
 {
 }
 

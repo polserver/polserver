@@ -10,7 +10,7 @@ const std::string SUPER = "super";
 class ScopeName : private std::optional<std::string>
 {
 public:
-  ScopeName( const std::string& name );
+  ScopeName( std::string name );
   ScopeName();
 
   // True if scope is global scope

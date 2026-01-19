@@ -52,7 +52,7 @@ class UContainer;
 class UOExecutor;
 
 std::string format_description( unsigned int polflags, const std::string& descdef,
-                                unsigned short amount, const std::string suffix );
+                                unsigned short amount, const std::string& suffix );
 }  // namespace Core
 namespace Mobile
 {

@@ -34,8 +34,8 @@ public:
       : Bscript::BApplicObj<T>( object_type )
   {
   }
-  explicit PolApplicObj( const Bscript::BApplicObjType* object_type, const T& value )
-      : Bscript::BApplicObj<T>( object_type, value )
+  explicit PolApplicObj( const Bscript::BApplicObjType* object_type, T value )
+      : Bscript::BApplicObj<T>( object_type, std::move( value ) )
   {
   }
 

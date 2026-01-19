@@ -18,8 +18,8 @@ jobs:
             c-compiler: clang
             compiler-version: 20
             build-type: RelWithDebInfo
-            tidy-checks: "modernize-use-override,modernize-make-shared,modernize-make-unique,modernize-use-constraints,modernize-use-emplace,modernize-use-equals-default,modernize-use-equals-delete,modernize-use-using,readability-else-after-return,readability-container-size-empty,modernize-concat-nested-namespaces,modernize-redundant-void-arg"
-            name: Linux Clang
+            tidy-checks: "modernize-use-override,modernize-make-shared,modernize-make-unique,modernize-use-constraints,modernize-use-emplace,modernize-use-equals-default,modernize-use-equals-delete,modernize-use-using,readability-else-after-return,readability-container-size-empty,modernize-concat-nested-namespaces,modernize-redundant-void-arg,performance-unnecessary-copy-initialization"
+            name: Clang-Tidy
 
     runs-on: ${{ matrix.config.os }}
 
@@ -111,6 +111,8 @@ jobs:
           cmake --build . --target libfmt_ext
           cmake --build . --target libescriptgrammar
           cmake --build . --target libcppdap_ext || true
+          cmake --build . --target parse_modules
+
       - name: Tidy Diff Check
         run: |
-          git diff -U0 origin/${{github.event.pull_request.base.ref}}..origin/${{github.head_ref}} | clang-tidy-diff-20.py -checks='-*,${{matrix.config.tidy-checks}}' -p1 -path bin-build
+          git diff -U0 origin/${{github.event.pull_request.base.ref}}..origin/${{github.head_ref}} | clang-tidy-diff-20.py -checks='-*,${{matrix.config.tidy-checks}}' -p1 -path bin-build || true

@@ -216,7 +216,7 @@ class EClientRefObjImp final : public Core::PolApplicObj<ClientPtrHolder>
 
 public:
   explicit EClientRefObjImp( ClientPtrHolder client )
-      : PolApplicObj<ClientPtrHolder>( &eclientrefobjimp_type, client )
+      : PolApplicObj<ClientPtrHolder>( &eclientrefobjimp_type, std::move( client ) )
   {
   }
   ~EClientRefObjImp() override = default;
@@ -271,14 +271,14 @@ class EngageEvent final : public SourcedEvent
 {
 public:
   explicit EngageEvent( Mobile::Character* engaged )
-      : SourcedEvent( Core::EVID_ENGAGED, engaged ){};
+      : SourcedEvent( Core::EVID_ENGAGED, engaged ) {};
 };
 
 class DisengageEvent final : public SourcedEvent
 {
 public:
   explicit DisengageEvent( Mobile::Character* disengaged )
-      : SourcedEvent( Core::EVID_DISENGAGED, disengaged ){};
+      : SourcedEvent( Core::EVID_DISENGAGED, disengaged ) {};
 };
 
 class ItemGivenEvent final : public SourcedEvent

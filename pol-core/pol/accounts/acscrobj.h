@@ -11,13 +11,10 @@
 #include "../../clib/rawtypes.h"
 #include "../polobject.h"
 #include "../reftypes.h"
+#include "account.h"
 
 namespace Pol
 {
-namespace Accounts
-{
-class Account;
-}  // namespace Accounts
 namespace Bscript
 {
 class Executor;
@@ -30,7 +27,7 @@ namespace Pol::Accounts
 class AccountPtrHolder
 {
 public:
-  explicit AccountPtrHolder( Core::AccountRef i_acct ) : acct( i_acct ) {}
+  explicit AccountPtrHolder( Core::AccountRef i_acct ) : acct( std::move( i_acct ) ) {}
   Account* operator->() { return acct.get(); }
   const Account* operator->() const { return acct.get(); }
   Account* Ptr() { return acct.get(); }

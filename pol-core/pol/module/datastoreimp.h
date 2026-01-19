@@ -97,7 +97,7 @@ class DataFileElemObj
 {
 public:
   DataFileElemObj( DataFileContentsRef dfcontents, DataFileElementRef dfelem )
-      : dfcontents( dfcontents ), dfelem( dfelem )
+      : dfcontents( std::move( dfcontents ) ), dfelem( std::move( dfelem ) )
   {
   }
 
