@@ -28,6 +28,7 @@ class Package;
 }
 namespace Module
 {
+class DataStoreFile;
 class DataFileElement final : public ref_counted
 {
 public:
