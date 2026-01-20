@@ -4,6 +4,7 @@ cppdap-*
 curl-*
 efsw-*
 fmt-*
+google-benchmark*
 kaitai-*
 picojson-*
 utf8-*

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.27)
 
 #protect the user from himself
 if(" ${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")

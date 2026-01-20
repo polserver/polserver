@@ -216,7 +216,7 @@ endfunction()
 
 function(use_benchmark target)
   if (ENABLE_BENCHMARK)
-    target_link_libraries(${target} PUBLIC benchmark)
+    target_link_libraries(${target} PUBLIC benchmark::benchmark)
   endif()
 endfunction()
 
