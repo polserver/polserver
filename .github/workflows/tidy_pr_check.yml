@@ -115,4 +115,5 @@ jobs:
 
       - name: Tidy Diff Check
         run: |
+          # TODO: if we have to many headers which fail to compile add "-only-check-in-db"
           git diff -U0 origin/${{github.event.pull_request.base.ref}}..origin/${{github.head_ref}} | clang-tidy-diff-20.py -checks='-*,${{matrix.config.tidy-checks}}' -p1 -path bin-build || true
