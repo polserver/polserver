@@ -102,8 +102,8 @@ CustomHouseDesign::~CustomHouseDesign() = default;
 size_t CustomHouseDesign::estimatedSize() const
 {
   size_t size = sizeof( CustomHouseDesign );
-  for ( const auto& Element : Elements )
-    size += Element.estimatedSize();
+  for ( const auto& element : Elements )
+    size += element.estimatedSize();
   return size;
 }
 
@@ -245,9 +245,9 @@ void CustomHouseDesign::ReplaceDirtFloor( u32 x, u32 y )
   if ( !ValidLocation( xidx, yidx ) )
     return;
   HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
-  for ( auto& itr : *column )
+  for ( const auto& elem : *column )
   {
-    if ( Plib::tileheight( itr.graphic ) == 0 )  // a floor tile exists
+    if ( Plib::tileheight( elem.graphic ) == 0 )  // a floor tile exists
     {
       floor_exists = true;
       break;
@@ -273,10 +273,9 @@ void CustomHouseDesign::Clear()
   {
     for ( auto& xitr : Elements[i].data )
     {
-      for ( HouseFloorRow::iterator yitr = xitr.begin(), yitrend = xitr.end(); yitr != yitrend;
-            ++yitr )
+      for ( auto& yitr : xitr )
       {
-        yitr->clear();
+        yitr.clear();
       }
     }
     floor_sizes[i] = 0;
@@ -300,24 +299,23 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
   for ( const auto& xitr : Elements[floor].data )
   {
     i = 0;
-    for ( HouseFloorRow::const_iterator yitr = xitr.begin(), yitrend = xitr.end(); yitr != yitrend;
-          ++yitr )
+    for ( const auto& yitr : xitr )
     {
-      for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
-            zitr != zitrend; ++zitr, ++i )
+      for ( const auto& zitr : yitr )
       {
         // assume type 0, I don't know how to deal with stair pieces at odd Z values for mode 1,
         // and mode 2 is just wacky. (position implied from list position, needs alot of null tiles
         // to make that work (but they compress very well)
         if ( i < numtiles )
         {
-          uncompressed[nextindex++] = (u8)( ( zitr->graphic >> 8 ) & 0xFF );
-          uncompressed[nextindex++] = (u8)( zitr->graphic & 0xFF );
+          uncompressed[nextindex++] = (u8)( ( zitr.graphic >> 8 ) & 0xFF );
+          uncompressed[nextindex++] = (u8)( zitr.graphic & 0xFF );
 
-          uncompressed[nextindex++] = (u8)zitr->xoffset;
-          uncompressed[nextindex++] = (u8)zitr->yoffset;
-          uncompressed[nextindex++] = (u8)zitr->z;
+          uncompressed[nextindex++] = (u8)zitr.xoffset;
+          uncompressed[nextindex++] = (u8)zitr.yoffset;
+          uncompressed[nextindex++] = (u8)zitr.z;
         }
+        ++i;
       }
     }
   }
@@ -382,7 +380,7 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
     return;
   }
 
-  for ( auto component : multidef->components )
+  for ( const auto& component : multidef->components )
   {
     const MULTI_ELEM* m_elem = component.second;
     if ( ( ( m_elem->objtype ) & Plib::systemstate.config.max_tile_id ) ==
@@ -428,18 +426,16 @@ void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::stri
 {
   if ( !IsEmpty() )
   {
-    for ( const auto& Element : Elements )
+    for ( const auto& element : Elements )
     {
-      for ( HouseFloor::const_iterator xitr = Element.data.begin(), xitrend = Element.data.end();
-            xitr != xitrend; ++xitr )
+      for ( const auto& xitr : element.data )
       {
-        for ( const auto& yitr : *xitr )
+        for ( const auto& yitr : xitr )
         {
-          for ( HouseFloorZColumn::const_iterator zitr = yitr.begin(), zitrend = yitr.end();
-                zitr != zitrend; ++zitr )
+          for ( const auto& zitr : yitr )
           {
-            sw.add( prefix, fmt::format( FMT_COMPILE( "{} {} {} {}" ), zitr->graphic, zitr->xoffset,
-                                         zitr->yoffset, (u16)zitr->z ) );
+            sw.add( prefix, fmt::format( FMT_COMPILE( "{} {} {} {}" ), zitr.graphic, zitr.xoffset,
+                                         zitr.yoffset, (u16)zitr.z ) );
           }
         }
       }
@@ -452,23 +448,23 @@ void CustomHouseDesign::testprint( std::ostream& os ) const
 {
   if ( !IsEmpty() )
   {
-    for ( const auto& Element : Elements )
+    for ( const auto& element : Elements )
     {
       int x = 0, y = 0;
-      for ( HouseFloor::const_iterator xitr = Element.data.begin(), xitrend = Element.data.end();
-            xitr != xitrend; ++xitr, x++ )
+      for ( const auto& xitr : element.data )
       {
         os << "X: " << x << std::endl;
-        for ( HouseFloorRow::const_iterator yitr = xitr->begin(), yitrend = xitr->end();
-              yitr != yitrend; ++yitr, y++ )
+        for ( const auto& yitr : xitr )
         {
           os << "\tY: " << y << std::endl;
-          for ( auto zitr : *yitr )
+          for ( const auto& zitr : yitr )
           {
             os << "\t\t" << zitr.graphic << " " << zitr.xoffset << " " << zitr.yoffset << " "
                << (u16)zitr.z << std::endl;
           }
+          ++y;
         }
+        ++x;
       }
     }
   }
@@ -645,21 +641,19 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
 Bscript::ObjArray* CustomHouseDesign::list_parts() const
 {
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( const auto& Element : Elements )
+  for ( const auto& element : Elements )
   {
-    for ( HouseFloor::const_iterator xitr = Element.data.begin(), xitrend = Element.data.end();
-          xitr != xitrend; ++xitr )
+    for ( const auto& xitr : element.data )
     {
-      for ( const auto& yitr : *xitr )
+      for ( const auto& yitr : xitr )
       {
-        for ( HouseFloorZColumn::const_iterator zitr = yitr.begin(), zitrend = yitr.end();
-              zitr != zitrend; ++zitr )
+        for ( const auto& zitr : yitr )
         {
           std::unique_ptr<Bscript::BStruct> itemstruct( new Bscript::BStruct );
-          itemstruct->addMember( "graphic", new Bscript::BLong( zitr->graphic ) );
-          itemstruct->addMember( "xoffset", new Bscript::BLong( zitr->xoffset ) );
-          itemstruct->addMember( "yoffset", new Bscript::BLong( zitr->yoffset ) );
-          itemstruct->addMember( "z", new Bscript::BLong( zitr->z ) );
+          itemstruct->addMember( "graphic", new Bscript::BLong( zitr.graphic ) );
+          itemstruct->addMember( "xoffset", new Bscript::BLong( zitr.xoffset ) );
+          itemstruct->addMember( "yoffset", new Bscript::BLong( zitr.yoffset ) );
+          itemstruct->addMember( "z", new Bscript::BLong( zitr.z ) );
           arr->addElement( itemstruct.release() );
         }
       }

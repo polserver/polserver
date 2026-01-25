@@ -127,11 +127,10 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
 
   CmdLevel& cmdlevel = gamestate.cmdlevels[cmdlvl_num];
 
-  for ( auto& diridx : cmdlevel.searchlist )
+  for ( const auto& search_dir : cmdlevel.searchlist )
   {
-    CmdLevel::SearchDir* search_dir = &diridx;
-    Plib::Package* pkg = search_dir->pkg;
-    std::string dir_name = search_dir->dir;
+    Plib::Package* pkg = search_dir.pkg;
+    std::string dir_name = search_dir.dir;
     if ( ( !pkg && m_pkg ) || ( pkg && !m_pkg ) )
       continue;
     if ( pkg && m_pkg )

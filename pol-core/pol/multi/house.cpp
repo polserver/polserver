@@ -136,7 +136,7 @@ size_t UHouse::estimatedSize() const
 void UHouse::create_components()
 {
   const MultiDef& md = multidef();
-  for ( auto elem : md.elems )
+  for ( const auto& elem : md.elems )
   {
     if ( !elem.is_static )
     {
@@ -716,10 +716,7 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
     return false;
 
   bool result = false;
-  HouseFloorZColumn* elems;
-  HouseFloorZColumn::iterator itr;
-  CustomHouseDesign* design;
-  design =
+  CustomHouseDesign* design =
       editing
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
@@ -727,15 +724,15 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
   if ( shape_x + design->xoff < 0 || shape_x + design->xoff >= static_cast<s32>( design->width ) ||
        shape_y + design->yoff < 0 || shape_y + design->yoff >= static_cast<s32>( design->height ) )
     return false;
-  for ( auto& Element : design->Elements )
+  for ( auto& element : design->Elements )
   {
-    elems = Element.GetElementsAt( shape_x, shape_y );
-    for ( itr = elems->begin(); itr != elems->end(); ++itr )
+    auto* elems = element.GetElementsAt( shape_x, shape_y );
+    for ( const auto& item : *elems )
     {
       Plib::MapShape shape;
-      shape.z = itr->z + zbase;
-      shape.height = Plib::tileheight( itr->graphic );
-      shape.flags = Plib::tile_flags( itr->graphic );
+      shape.z = item.z + zbase;
+      shape.height = Plib::tileheight( item.graphic );
+      shape.flags = Plib::tile_flags( item.graphic );
       if ( !shape.height )
       {
         ++shape.height;
@@ -775,10 +772,7 @@ bool UHouse::readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short
     return false;
 
   bool result = false;
-  HouseFloorZColumn* elems;
-  HouseFloorZColumn::iterator itr;
-  CustomHouseDesign* design;
-  design =
+  CustomHouseDesign* design =
       editing
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
@@ -786,13 +780,13 @@ bool UHouse::readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short
   if ( obj_x + design->xoff < 0 || obj_x + design->xoff >= static_cast<s32>( design->width ) ||
        obj_y + design->yoff < 0 || obj_y + design->yoff >= static_cast<s32>( design->height ) )
     return false;
-  for ( auto& Element : design->Elements )
+  for ( auto& element : design->Elements )
   {
-    elems = Element.GetElementsAt( obj_x, obj_y );
-    for ( itr = elems->begin(); itr != elems->end(); ++itr )
+    auto* elems = element.GetElementsAt( obj_x, obj_y );
+    for ( const auto& elem : *elems )
     {
-      Plib::StaticRec rec( itr->graphic, static_cast<signed char>( itr->z + zbase ),
-                           Plib::tile_flags( itr->graphic ), Plib::tileheight( itr->graphic ) );
+      Plib::StaticRec rec( elem.graphic, static_cast<signed char>( elem.z + zbase ),
+                           Plib::tile_flags( elem.graphic ), Plib::tileheight( elem.graphic ) );
       if ( !rec.height )
       {
         ++rec.height;

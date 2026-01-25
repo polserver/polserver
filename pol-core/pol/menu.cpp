@@ -68,10 +68,9 @@ size_t Menu::estimateSize() const
 //         -- leaving the warning here as a reminder --
 Menu* Menu::find_menu( const char* name )
 {
-  for ( auto& idx : gamestate.menus )
+  for ( const auto& menu : gamestate.menus )
   {
-    Menu* menu = &idx;
-    if ( stricmp( menu->name, name ) == 0 )
+    if ( stricmp( menu.name, name ) == 0 )
       return menu;
   }
   return nullptr;
@@ -228,23 +227,20 @@ void Menu::read_menus()
   }
 
 
-  for ( auto& menuidx : gamestate.menus )
+  for ( auto& menu : gamestate.menus )
   {
-    Menu* menu = &menuidx;
-    for ( auto& menuitem : menu->menuitems_ )
+    for ( auto& mi : menu.menuitems_ )
     {
-      MenuItem* mi = &menuitem;
-
-      if ( mi->submenu_name[0] )
+      if ( mi.submenu_name[0] )
       {
-        Menu* found = find_menu( mi->submenu_name );
+        Menu* found = find_menu( mi.submenu_name );
         if ( found )
         {
-          mi->submenu_id = found->menu_id;
+          mi.submenu_id = found->menu_id;
         }
         else
         {
-          INFO_PRINTLN( "Unable to find SubMenu {}", mi->submenu_name );
+          INFO_PRINTLN( "Unable to find SubMenu {}", mi.submenu_name );
         }
       }
     }
