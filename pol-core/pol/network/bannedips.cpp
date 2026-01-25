@@ -29,7 +29,7 @@ bool is_banned_ip( Client* client )
     addr1part = banned_ip.ipMatch & banned_ip.ipMask;
 
 #ifdef _WIN32
-    addr2part = sockin->sin_addr.S_un.S_addr & itr->ipMask;
+    addr2part = sockin->sin_addr.S_un.S_addr & banned_ip.ipMask;
 #else
     addr2part = sockin->sin_addr.s_addr & banned_ip.ipMask;
 #endif
