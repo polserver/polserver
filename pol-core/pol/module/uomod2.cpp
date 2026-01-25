@@ -1776,7 +1776,7 @@ BObjectImp* GetScriptProfiles()
 
 BObjectImp* GetIoStatsObj( const IOStats& stats )
 {
-  std::unique_ptr<BStruct> arr( new BStruct );
+  auto arr = std::make_unique<BStruct>();
 
   ObjArray* sent = new ObjArray;
   arr->addMember( "sent", sent );
@@ -1784,19 +1784,19 @@ BObjectImp* GetIoStatsObj( const IOStats& stats )
   ObjArray* received = new ObjArray;
   arr->addMember( "received", received );
 
-  for ( auto i : stats.sent )
+  for ( const auto& pkt : stats.sent )
   {
-    std::unique_ptr<BStruct> elem = std::make_unique<BStruct>();
-    elem->addMember( "count", new BLong( i.count ) );
-    elem->addMember( "bytes", new BLong( i.bytes ) );
+    auto elem = std::make_unique<BStruct>();
+    elem->addMember( "count", new BLong( pkt.count ) );
+    elem->addMember( "bytes", new BLong( pkt.bytes ) );
     sent->addElement( elem.release() );
   }
 
-  for ( auto i : stats.received )
+  for ( const auto& pkt : stats.received )
   {
-    std::unique_ptr<BStruct> elem( new BStruct );
-    elem->addMember( "count", new BLong( i.count ) );
-    elem->addMember( "bytes", new BLong( i.bytes ) );
+    auto elem = std::make_unique<BStruct>();
+    elem->addMember( "count", new BLong( pkt.count ) );
+    elem->addMember( "bytes", new BLong( pkt.bytes ) );
     received->addElement( elem.release() );
   }
 
