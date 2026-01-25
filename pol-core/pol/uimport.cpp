@@ -655,11 +655,9 @@ int read_data()
   while ( !parent_conts.empty() )
     parent_conts.pop();
 
-  for ( ObjectHash::hs::const_iterator citr = objStorageManager.objecthash.begin(),
-                                       citrend = objStorageManager.objecthash.end();
-        citr != citrend; ++citr )
+  for ( const auto& citr : objStorageManager.objecthash )
   {
-    UObject* obj = ( *citr ).second.get();
+    UObject* obj = citr.second.get();
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );

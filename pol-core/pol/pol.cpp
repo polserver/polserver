@@ -339,11 +339,8 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
                              : new Module::ECharacterRefObjImp( chr ) );
   }
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = *itr;
-
     sd.quickconfig( pkg, pkg_script_ecl );
     if ( sd.exists() )
     {
@@ -497,10 +494,8 @@ void restart_all_clients()
 {
   if ( !networkManager.uoclient_protocol.EnableFlowControlPackets )
     return;
-  for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end();
-        itr != end; ++itr )
+  for ( auto client : networkManager.clients )
   {
-    Network::Client* client = ( *itr );
     if ( client->pause_count )
     {
       client->restart();

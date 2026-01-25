@@ -2555,8 +2555,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
-      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
+      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = Clib::clamp_convert<u32>( value ) );
@@ -3488,11 +3488,8 @@ ObjArray* Character::GetReportables() const
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
 
-  for ( ReportableList::const_iterator itr = reportable_.begin(), end = reportable_.end();
-        itr != end; ++itr )
+  for ( auto rt : reportable_ )
   {
-    const reportable_t& rt = ( *itr );
-
     std::unique_ptr<BObjectImp> kmember( nullptr );
     Character* killer = Core::system_find_mobile( rt.serial );
     if ( killer )
@@ -3514,23 +3511,20 @@ ObjArray* Character::GetAggressorTo() const
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
 
-  for ( Character::MobileCont::const_iterator itr = aggressor_to_.begin(),
-                                              end = aggressor_to_.end();
-        itr != end; ++itr )
+  for ( const auto& itr : aggressor_to_ )
   {
     std::unique_ptr<BObjectImp> member( nullptr );
-    Character* chr = Core::system_find_mobile( ( *itr ).first->serial );
+    Character* chr = Core::system_find_mobile( itr.first->serial );
     if ( chr )
       member = std::make_unique<Module::EOfflineCharacterRefObjImp>( chr );
     else
       member = std::make_unique<BError>( "Mobile not found" );
 
     std::unique_ptr<BStruct> elem( new BStruct );
-    elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );
+    elem->addMember( "serial", new BLong( itr.first->serial ) );
     elem->addMember( "ref", member.release() );
-    elem->addMember( "seconds",
-                     new BLong( static_cast<s32>( ( ( *itr ).second - Core::polclock() ) /
-                                                  Core::POLCLOCKS_PER_SEC ) ) );
+    elem->addMember( "seconds", new BLong( static_cast<s32>( ( itr.second - Core::polclock() ) /
+                                                             Core::POLCLOCKS_PER_SEC ) ) );
 
     arr->addElement( elem.release() );
   }
@@ -3541,23 +3535,20 @@ ObjArray* Character::GetLawFullyDamaged() const
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
 
-  for ( Character::MobileCont::const_iterator itr = lawfully_damaged_.begin(),
-                                              end = lawfully_damaged_.end();
-        itr != end; ++itr )
+  for ( const auto& itr : lawfully_damaged_ )
   {
     std::unique_ptr<BObjectImp> member( nullptr );
-    Character* chr = Core::system_find_mobile( ( *itr ).first->serial );
+    Character* chr = Core::system_find_mobile( itr.first->serial );
     if ( chr )
       member = std::make_unique<Module::EOfflineCharacterRefObjImp>( chr );
     else
       member = std::make_unique<BError>( "Mobile not found" );
 
     std::unique_ptr<BStruct> elem( new BStruct );
-    elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );
+    elem->addMember( "serial", new BLong( itr.first->serial ) );
     elem->addMember( "ref", member.release() );
-    elem->addMember( "seconds",
-                     new BLong( static_cast<s32>( ( ( *itr ).second - Core::polclock() ) /
-                                                  Core::POLCLOCKS_PER_SEC ) ) );
+    elem->addMember( "seconds", new BLong( static_cast<s32>( ( itr.second - Core::polclock() ) /
+                                                             Core::POLCLOCKS_PER_SEC ) ) );
 
     arr->addElement( elem.release() );
   }

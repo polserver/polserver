@@ -46,9 +46,9 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
                                          unsigned& PC ) const
 {
   const EScriptProgram* prog = uoexec.prog();
-  for ( unsigned i = 0; i < prog->exported_functions.size(); ++i )
+  for ( const auto& exported_function : prog->exported_functions )
   {
-    const EPExportedFunction* exportedfunc = &prog->exported_functions[i];
+    const EPExportedFunction* exportedfunc = &exported_function;
     if ( stricmp( exportedfunc->name.c_str(), name.c_str() ) == 0 )
     {
       if ( args != exportedfunc->nargs )
@@ -67,9 +67,9 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
 bool ExportScript::FindExportedFunction( const char* name, unsigned args, unsigned& PC ) const
 {
   const EScriptProgram* prog = uoexec.prog();
-  for ( unsigned i = 0; i < prog->exported_functions.size(); ++i )
+  for ( const auto& exported_function : prog->exported_functions )
   {
-    const EPExportedFunction* exportedfunc = &prog->exported_functions[i];
+    const EPExportedFunction* exportedfunc = &exported_function;
     if ( stricmp( exportedfunc->name.c_str(), name ) == 0 )
     {
       if ( args != exportedfunc->nargs )

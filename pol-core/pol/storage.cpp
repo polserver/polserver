@@ -167,9 +167,9 @@ void StorageArea::print( Clib::StreamWriter& sw ) const
 
 void StorageArea::on_delete_realm( Realms::Realm* realm )
 {
-  for ( Cont::const_iterator itr = _items.begin(), itrend = _items.end(); itr != itrend; ++itr )
+  for ( const auto& _item : _items )
   {
-    Items::Item* item = ( *itr ).second;
+    Items::Item* item = _item.second;
     if ( item )
     {
       setrealmif( item, (void*)realm );
@@ -184,9 +184,9 @@ void StorageArea::on_delete_realm( Realms::Realm* realm )
 
 void Storage::on_delete_realm( Realms::Realm* realm )
 {
-  for ( AreaCont::const_iterator itr = areas.begin(), itrend = areas.end(); itr != itrend; ++itr )
+  for ( const auto& area : areas )
   {
-    itr->second->on_delete_realm( realm );
+    area.second->on_delete_realm( realm );
   }
 }
 
@@ -324,10 +324,9 @@ BObjectRef StorageAreaImp::get_member( const char* membername )
   if ( stricmp( membername, "totalcount" ) == 0 )
   {
     unsigned int total = 0;
-    for ( StorageArea::Cont::iterator itr = _area->_items.begin(); itr != _area->_items.end();
-          ++itr )
+    for ( auto& _item : _area->_items )
     {
-      Items::Item* item = ( *itr ).second;
+      Items::Item* item = _item.second;
       total += item->item_count();
     }
     return BObjectRef( new BLong( total ) );

@@ -220,9 +220,9 @@ void MultiDef::addrec( const MULTI_ELEM* elem )
 
 void MultiDef::init()
 {
-  for ( unsigned i = 0; i < elems.size(); i++ )
+  for ( auto& elem : elems )
   {
-    addrec( &elems[i] );
+    addrec( &elem );
   }
   computehull();
 }

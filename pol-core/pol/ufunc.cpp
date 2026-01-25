@@ -1695,10 +1695,8 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
   lightregion->lightlevel = lightlevel;
   PktHelper::PacketOut<PktOut_4F> msg;
   msg->Write<u8>( static_cast<u8>( lightlevel ) );
-  for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end();
-        itr != end; ++itr )
+  for ( auto client : networkManager.clients )
   {
-    Client* client = *itr;
     if ( !client->ready )
       continue;
 
@@ -2020,10 +2018,10 @@ void send_map_difs( Client* client )
     u32 map_patches;
   };
   std::map<u32, mapdiff> mapinfo;
-  for ( auto it = gamestate.Realms.begin(); it != gamestate.Realms.end(); ++it )
+  for ( auto& Realm : gamestate.Realms )
   {
-    mapdiff md = { ( *it )->getNumStaticPatches(), ( *it )->getNumMapPatches() };
-    mapinfo.insert( std::pair<u32, mapdiff>( ( *it )->getUOMapID(), md ) );
+    mapdiff md = { Realm->getNumStaticPatches(), Realm->getNumMapPatches() };
+    mapinfo.insert( std::pair<u32, mapdiff>( Realm->getUOMapID(), md ) );
   }
 
   u32 max_map_id = mapinfo.rbegin()->first;

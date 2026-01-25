@@ -44,10 +44,8 @@ void load_stacking_cfg()
     Clib::ConfigFile cf_main( main_cfg.c_str() );
     read_stacking_cfg( cf_main );
   }
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *itr );
     // string filename = pkg->dir() + cfgname + ".cfg";
     std::string filename = Plib::GetPackageCfgPath( pkg, "stacking.cfg" );
     if ( Clib::FileExists( filename.c_str() ) )

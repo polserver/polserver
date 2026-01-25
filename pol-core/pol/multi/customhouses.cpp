@@ -86,8 +86,8 @@ char CustomHouseDesign::z_to_custom_house_table( char z )
 
 CustomHouseDesign::CustomHouseDesign() : height( 0 ), width( 0 ), xoff( 0 ), yoff( 0 )
 {
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
-    floor_sizes[i] = 0;
+  for ( int& floor_size : floor_sizes )
+    floor_size = 0;
 }
 
 // fixme: need a copy ctor?
@@ -102,8 +102,8 @@ CustomHouseDesign::~CustomHouseDesign() = default;
 size_t CustomHouseDesign::estimatedSize() const
 {
   size_t size = sizeof( CustomHouseDesign );
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
-    size += Elements[i].estimatedSize();
+  for ( const auto& Element : Elements )
+    size += Element.estimatedSize();
   return size;
 }
 
@@ -245,10 +245,9 @@ void CustomHouseDesign::ReplaceDirtFloor( u32 x, u32 y )
   if ( !ValidLocation( xidx, yidx ) )
     return;
   HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
-  for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
-        ++itr )
+  for ( auto& itr : *column )
   {
-    if ( Plib::tileheight( itr->graphic ) == 0 )  // a floor tile exists
+    if ( Plib::tileheight( itr.graphic ) == 0 )  // a floor tile exists
     {
       floor_exists = true;
       break;
@@ -272,10 +271,9 @@ void CustomHouseDesign::Clear()
   // delete contents of all z column lists
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    for ( HouseFloor::iterator xitr = Elements[i].data.begin(), xitrend = Elements[i].data.end();
-          xitr != xitrend; ++xitr )
+    for ( auto& xitr : Elements[i].data )
     {
-      for ( HouseFloorRow::iterator yitr = xitr->begin(), yitrend = xitr->end(); yitr != yitrend;
+      for ( HouseFloorRow::iterator yitr = xitr.begin(), yitrend = xitr.end(); yitr != yitrend;
             ++yitr )
       {
         yitr->clear();
@@ -299,13 +297,11 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
   memset( compressed, 0, cbuflen );
 
   int i = 0;
-  for ( HouseFloor::const_iterator xitr = Elements[floor].data.begin(),
-                                   xitrend = Elements[floor].data.end();
-        xitr != xitrend; ++xitr )
+  for ( const auto& xitr : Elements[floor].data )
   {
     i = 0;
-    for ( HouseFloorRow::const_iterator yitr = xitr->begin(), yitrend = xitr->end();
-          yitr != yitrend; ++yitr )
+    for ( HouseFloorRow::const_iterator yitr = xitr.begin(), yitrend = xitr.end(); yitr != yitrend;
+          ++yitr )
     {
       for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
             zitr != zitrend; ++zitr, ++i )
@@ -345,17 +341,17 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
 bool CustomHouseDesign::IsEmpty() const
 {
   int total = 0;
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
-    total += floor_sizes[i];
+  for ( int floor_size : floor_sizes )
+    total += floor_size;
   return total == 0 ? true : false;
 }
 
 unsigned int CustomHouseDesign::TotalSize() const
 {
   unsigned int size = 0;
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+  for ( int floor_size : floor_sizes )
   {
-    size += floor_sizes[i];
+    size += floor_size;
   }
   return size;
 }
@@ -363,9 +359,9 @@ unsigned int CustomHouseDesign::TotalSize() const
 unsigned char CustomHouseDesign::NumUsedPlanes() const
 {
   unsigned char size = 0;
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+  for ( int floor_size : floor_sizes )
   {
-    if ( floor_sizes[i] > 0 )
+    if ( floor_size > 0 )
       size++;
   }
   return size;
@@ -386,11 +382,9 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
     return;
   }
 
-  for ( MultiDef::Components::const_iterator itr = multidef->components.begin(),
-                                             end = multidef->components.end();
-        itr != end; ++itr )
+  for ( auto component : multidef->components )
   {
-    const MULTI_ELEM* m_elem = itr->second;
+    const MULTI_ELEM* m_elem = component.second;
     if ( ( ( m_elem->objtype ) & Plib::systemstate.config.max_tile_id ) ==
          1 )  // don't add the invisible multi tile
       continue;
@@ -434,16 +428,14 @@ void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::stri
 {
   if ( !IsEmpty() )
   {
-    for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+    for ( const auto& Element : Elements )
     {
-      for ( HouseFloor::const_iterator xitr = Elements[i].data.begin(),
-                                       xitrend = Elements[i].data.end();
+      for ( HouseFloor::const_iterator xitr = Element.data.begin(), xitrend = Element.data.end();
             xitr != xitrend; ++xitr )
       {
-        for ( HouseFloorRow::const_iterator yitr = xitr->begin(), yitrend = xitr->end();
-              yitr != yitrend; ++yitr )
+        for ( const auto& yitr : *xitr )
         {
-          for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
+          for ( HouseFloorZColumn::const_iterator zitr = yitr.begin(), zitrend = yitr.end();
                 zitr != zitrend; ++zitr )
           {
             sw.add( prefix, fmt::format( FMT_COMPILE( "{} {} {} {}" ), zitr->graphic, zitr->xoffset,
@@ -460,11 +452,10 @@ void CustomHouseDesign::testprint( std::ostream& os ) const
 {
   if ( !IsEmpty() )
   {
-    for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+    for ( const auto& Element : Elements )
     {
       int x = 0, y = 0;
-      for ( HouseFloor::const_iterator xitr = Elements[i].data.begin(),
-                                       xitrend = Elements[i].data.end();
+      for ( HouseFloor::const_iterator xitr = Element.data.begin(), xitrend = Element.data.end();
             xitr != xitrend; ++xitr, x++ )
       {
         os << "X: " << x << std::endl;
@@ -472,11 +463,10 @@ void CustomHouseDesign::testprint( std::ostream& os ) const
               yitr != yitrend; ++yitr, y++ )
         {
           os << "\tY: " << y << std::endl;
-          for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
-                zitr != zitrend; ++zitr )
+          for ( auto zitr : *yitr )
           {
-            os << "\t\t" << zitr->graphic << " " << zitr->xoffset << " " << zitr->yoffset << " "
-               << (u16)zitr->z << std::endl;
+            os << "\t\t" << zitr.graphic << " " << zitr.xoffset << " " << zitr.yoffset << " "
+               << (u16)zitr.z << std::endl;
           }
         }
       }
@@ -530,10 +520,9 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
 void CustomHouseDesign::AddComponents( UHouse* house )
 {
   UHouse::Components* comp = house->get_components();
-  for ( UHouse::Components::const_iterator itr = comp->begin(), end = comp->end(); itr != end;
-        ++itr )
+  for ( const auto& itr : *comp )
   {
-    Items::Item* item = ( *itr ).get();
+    Items::Item* item = itr.get();
     if ( item != nullptr && !item->orphan() )
     {
       if ( isEditableItem( house, item ) )  // give scripters the chance to keep an item alive
@@ -556,11 +545,10 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
     for ( HouseFloor::iterator xitr = Elements[i].data.begin(), xitrend = Elements[i].data.end();
           xitr != xitrend; ++xitr )
     {
-      for ( HouseFloorRow::iterator yitr = xitr->begin(), yitrend = xitr->end(); yitr != yitrend;
-            ++yitr )
+      for ( auto& yitr : *xitr )
       {
-        HouseFloorZColumn::iterator zitr = yitr->begin();
-        while ( zitr != yitr->end() )
+        HouseFloorZColumn::iterator zitr = yitr.begin();
+        while ( zitr != yitr.end() )
         {
           const Items::ItemDesc& id = Items::find_itemdesc( zitr->graphic );
           if ( id.type == Items::ItemDesc::DOORDESC )
@@ -601,7 +589,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 continue;
               }
             }
-            zitr = yitr->erase( zitr );
+            zitr = yitr.erase( zitr );
             floor_sizes[i]--;
           }
           else if ( zitr->graphic >= TELEPORTER_START &&
@@ -643,7 +631,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 continue;
               }
             }
-            zitr = yitr->erase( zitr );
+            zitr = yitr.erase( zitr );
             floor_sizes[i]--;
           }
           else
@@ -657,16 +645,14 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
 Bscript::ObjArray* CustomHouseDesign::list_parts() const
 {
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+  for ( const auto& Element : Elements )
   {
-    for ( HouseFloor::const_iterator xitr = Elements[i].data.begin(),
-                                     xitrend = Elements[i].data.end();
+    for ( HouseFloor::const_iterator xitr = Element.data.begin(), xitrend = Element.data.end();
           xitr != xitrend; ++xitr )
     {
-      for ( HouseFloorRow::const_iterator yitr = xitr->begin(), yitrend = xitr->end();
-            yitr != yitrend; ++yitr )
+      for ( const auto& yitr : *xitr )
       {
-        for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
+        for ( HouseFloorZColumn::const_iterator zitr = yitr.begin(), zitrend = yitr.end();
               zitr != zitrend; ++zitr )
         {
           std::unique_ptr<Bscript::BStruct> itemstruct( new Bscript::BStruct );

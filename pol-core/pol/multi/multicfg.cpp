@@ -29,10 +29,8 @@ void load_special_storedconfig( const std::string& cfgname )
     scfg->load( cf_main );
   }
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *itr );
     // string filename = pkg->dir() + cfgname + ".cfg";
     std::string filename = Plib::GetPackageCfgPath( pkg, cfgname + ".cfg" );
     if ( Clib::FileExists( filename.c_str() ) )

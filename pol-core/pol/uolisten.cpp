@@ -184,9 +184,9 @@ void UoClientListener::run()
 
 void start_uo_client_listeners()
 {
-  for ( unsigned i = 0; i < networkManager.uoclient_listeners.size(); ++i )
+  for ( auto& uoclient_listener : networkManager.uoclient_listeners )
   {
-    UoClientListener* ls = &networkManager.uoclient_listeners[i];
+    UoClientListener* ls = &uoclient_listener;
     std::string threadname = "UO Client Listener Port " + Clib::tostring( ls->port );
     threadhelp::start_thread( uo_client_listener_thread, threadname.c_str(), ls );
   }
