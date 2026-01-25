@@ -1242,10 +1242,8 @@ Core::Spellbook* Character::spellbook( u8 school ) const
   Core::UContainer* cont = backpack();
   if ( cont != nullptr )
   {
-    for ( Core::UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
+    for ( auto item : *cont )
     {
-      const Items::Item* item = *itr;
-
       if ( item != nullptr && item->script_isa( Core::POLCLASS_SPELLBOOK ) )
       {
         const Core::Spellbook* book = static_cast<const Core::Spellbook*>( item );

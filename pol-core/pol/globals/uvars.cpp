@@ -425,12 +425,12 @@ void GameState::unload_intrinsic_weapons()
 
 void GameState::unload_intrinsic_templates()
 {
-  for ( auto it = intrinsic_equipments.begin(); it != intrinsic_equipments.end(); ++it )
+  for ( auto& intrinsic_equipment : intrinsic_equipments )
   {
-    if ( it->second != nullptr )
+    if ( intrinsic_equipment.second != nullptr )
     {
-      it->second->destroy();
-      it->second = nullptr;
+      intrinsic_equipment.second->destroy();
+      intrinsic_equipment.second = nullptr;
     }
   }
   intrinsic_equipments.clear();

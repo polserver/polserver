@@ -68,9 +68,9 @@ size_t Menu::estimateSize() const
 //         -- leaving the warning here as a reminder --
 Menu* Menu::find_menu( const char* name )
 {
-  for ( unsigned idx = 0; idx < gamestate.menus.size(); idx++ )
+  for ( auto& idx : gamestate.menus )
   {
-    Menu* menu = &gamestate.menus[idx];
+    Menu* menu = &idx;
     if ( stricmp( menu->name, name ) == 0 )
       return menu;
   }
@@ -228,12 +228,12 @@ void Menu::read_menus()
   }
 
 
-  for ( unsigned menuidx = 0; menuidx < gamestate.menus.size(); menuidx++ )
+  for ( auto& menuidx : gamestate.menus )
   {
-    Menu* menu = &gamestate.menus[menuidx];
-    for ( unsigned itemidx = 0; itemidx < menu->menuitems_.size(); itemidx++ )
+    Menu* menu = &menuidx;
+    for ( auto& menuitem : menu->menuitems_ )
     {
-      MenuItem* mi = &menu->menuitems_[itemidx];
+      MenuItem* mi = &menuitem;
 
       if ( mi->submenu_name[0] )
       {

@@ -51,8 +51,7 @@ void insert_deferred_items()
 
   INFO_PRINT( "  deferred inserts:" );
 
-  for ( DeferList::iterator itr = objStorageManager.deferred_insertions.begin();
-        itr != objStorageManager.deferred_insertions.end(); ++itr )
+  for ( auto& deferred_insertion : objStorageManager.deferred_insertions )
   {
     if ( --num_until_dot == 0 )
     {
@@ -60,8 +59,8 @@ void insert_deferred_items()
       num_until_dot = 1000;
     }
 
-    pol_serial_t container_serial = ( *itr ).first;
-    UObject* obj = ( *itr ).second;
+    pol_serial_t container_serial = deferred_insertion.first;
+    UObject* obj = deferred_insertion.second;
 
     if ( IsCharacter( container_serial ) )
     {

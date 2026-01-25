@@ -57,9 +57,8 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
   short newz = -127;
   bool result = false;
 
-  for ( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )
+  for ( auto& srec : statics )
   {
-    StaticRec& srec = ( *itr );
     unsigned int flags = srec.flags;
     signed char ztemp;
 #if ENABLE_POLTEST_OUTPUT
@@ -99,9 +98,8 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 
   if ( result )
   {
-    for ( StaticList::iterator itr = statics.begin(); itr != statics.end(); ++itr )
+    for ( auto& srec : statics )
     {
-      StaticRec& srec = ( *itr );
       signed char ztemp;
       ztemp = srec.z + srec.height;
 

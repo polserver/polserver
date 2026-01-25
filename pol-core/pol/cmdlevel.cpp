@@ -50,9 +50,9 @@ bool CmdLevel::matches( const std::string& i_name ) const
 {
   if ( Clib::stringicmp( i_name, name ) == 0 )
     return true;
-  for ( Aliases::const_iterator itr = aliases.begin(); itr != aliases.end(); ++itr )
+  for ( const auto& aliase : aliases )
   {
-    if ( Clib::stringicmp( i_name, *itr ) == 0 )
+    if ( Clib::stringicmp( i_name, aliase ) == 0 )
       return true;
   }
   return false;
@@ -127,9 +127,9 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
 
   CmdLevel& cmdlevel = gamestate.cmdlevels[cmdlvl_num];
 
-  for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
+  for ( auto& diridx : cmdlevel.searchlist )
   {
-    CmdLevel::SearchDir* search_dir = &cmdlevel.searchlist[diridx];
+    CmdLevel::SearchDir* search_dir = &diridx;
     Plib::Package* pkg = search_dir->pkg;
     std::string dir_name = search_dir->dir;
     if ( ( !pkg && m_pkg ) || ( pkg && !m_pkg ) )
@@ -199,9 +199,8 @@ void process_package_cmds_cfg( Plib::Package* pkg )
 // look for a "textcmd/cmdlevel" or "commands/cmdlevel" directory for each name and alias
 void implicit_package_cmds_cfg( Plib::Package* pkg )
 {
-  for ( unsigned i = 0; i < gamestate.cmdlevels.size(); ++i )
+  for ( auto& cmdlevel : gamestate.cmdlevels )
   {
-    CmdLevel& cmdlevel = gamestate.cmdlevels[i];
     std::string dir, part;
 
     // first check for the package name
@@ -234,10 +233,8 @@ void implicit_package_cmds_cfg( Plib::Package* pkg )
 
 void load_package_cmdlevels()
 {
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *itr );
     std::string filename = Plib::GetPackageCfgPath( pkg, "cmds.cfg" );
     if ( Clib::FileExists( filename.c_str() ) )
     {

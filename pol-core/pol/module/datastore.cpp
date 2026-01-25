@@ -191,16 +191,14 @@ Bscript::BObjectImp* DataFileContents::methodKeys() const
 {
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
 
-  for ( ElementsByString::const_iterator citr = elements_by_string.begin();
-        citr != elements_by_string.end(); ++citr )
+  for ( const auto& citr : elements_by_string )
   {
-    arr->addElement( new Bscript::String( ( *citr ).first ) );
+    arr->addElement( new Bscript::String( citr.first ) );
   }
 
-  for ( ElementsByInteger::const_iterator citr = elements_by_integer.begin();
-        citr != elements_by_integer.end(); ++citr )
+  for ( const auto& citr : elements_by_integer )
   {
-    arr->addElement( new Bscript::BLong( ( *citr ).first ) );
+    arr->addElement( new Bscript::BLong( citr.first ) );
   }
 
   return arr.release();
@@ -390,10 +388,9 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
 Bscript::BObjectImp* DataFileExecutorModule::mf_ListDataFiles()
 {
   std::unique_ptr<Bscript::ObjArray> file_list( new Bscript::ObjArray );
-  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin();
-        itr != Core::configurationbuffer.datastore.end(); ++itr )
+  for ( auto& itr : Core::configurationbuffer.datastore )
   {
-    DataStoreFile* dsf = ( *itr ).second;
+    DataStoreFile* dsf = itr.second;
     std::unique_ptr<Bscript::BStruct> file_name( new Bscript::BStruct );
     file_name->addMember( "pkg", new Bscript::String( dsf->pkgname ) );
     file_name->addMember( "name", new Bscript::String( dsf->name ) );
@@ -692,10 +689,9 @@ void read_datastore_dat()
 
 void write_datastore( Clib::StreamWriter& sw )
 {
-  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin();
-        itr != Core::configurationbuffer.datastore.end(); ++itr )
+  for ( auto& itr : Core::configurationbuffer.datastore )
   {
-    DataStoreFile* dsf = ( *itr ).second;
+    DataStoreFile* dsf = itr.second;
 
     dsf->delversion = dsf->oldversion;
     dsf->oldversion = dsf->version;
@@ -716,10 +712,9 @@ void write_datastore( Clib::StreamWriter& sw )
 
 void commit_datastore()
 {
-  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin();
-        itr != Core::configurationbuffer.datastore.end(); ++itr )
+  for ( auto& itr : Core::configurationbuffer.datastore )
   {
-    DataStoreFile* dsf = ( *itr ).second;
+    DataStoreFile* dsf = itr.second;
 
     if ( dsf->delversion != dsf->version && dsf->delversion != dsf->oldversion )
     {

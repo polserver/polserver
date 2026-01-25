@@ -71,9 +71,9 @@ bool acct_check( Network::Client* client, int i )
   if ( networkManager.servers[i]->acct_match.empty() )
     return true;
 
-  for ( unsigned j = 0; j < networkManager.servers[i]->acct_match.size(); ++j )
+  for ( const auto& j : networkManager.servers[i]->acct_match )
   {
-    if ( stricmp( networkManager.servers[i]->acct_match[j].c_str(), client->acct->name() ) == 0 )
+    if ( stricmp( j.c_str(), client->acct->name() ) == 0 )
       return true;
   }
 

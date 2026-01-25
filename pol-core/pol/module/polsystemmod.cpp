@@ -173,9 +173,9 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
 BObjectImp* PolSystemExecutorModule::mf_Packages()
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
-  for ( unsigned i = 0; i < Plib::systemstate.packages.size(); ++i )
+  for ( auto& package : Plib::systemstate.packages )
   {
-    PackageObjImp* imp = new PackageObjImp( PackagePtrHolder( Plib::systemstate.packages[i] ) );
+    PackageObjImp* imp = new PackageObjImp( PackagePtrHolder( package ) );
     arr->addElement( imp );
   }
   return arr.release();
@@ -210,10 +210,8 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
   }
 
   // Sets up packaged text commands.
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *itr );
     auto cmd_lvl_list = Core::ListAllCommandsInPackage( pkg, max_cmdlevel );
     if ( !cmd_lvl_list->contents().empty() )
       pkg_list->addMember( new String( pkg->name().c_str() ), cmd_lvl_list.release() );

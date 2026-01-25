@@ -204,8 +204,8 @@ void TwoFish::MakeKey( KeyInstance* key, unsigned char direction, int keyLen, ch
   key->keyLen = ( keyLen + 63 ) & ~63;
   key->numRounds = this->numRounds[( keyLen - 1 ) / 64];
 
-  for ( int i = 0; i < 8; i++ )
-    key->key32[i] = 0;
+  for ( unsigned int& i : key->key32 )
+    i = 0;
 
   key->keyMaterial[64] = 0;
 }
