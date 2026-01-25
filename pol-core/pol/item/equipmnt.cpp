@@ -7,6 +7,7 @@
 
 #include "equipmnt.h"
 
+#include <ranges>
 #include <stddef.h>
 
 #include "../../bscript/executor.h"
@@ -166,9 +167,8 @@ void insert_intrinsic_equipment( const std::string& name, Equipment* equip )
 /// Deferred allocator for serials during startup, see comments in register_intrinsic_equipment()
 void allocate_intrinsic_equipment_serials()
 {
-  for ( auto& intrinsic_equipment : Core::gamestate.intrinsic_equipments )
+  for ( auto* eqp : Core::gamestate.intrinsic_equipments | std::views::values )
   {
-    Equipment* eqp = intrinsic_equipment.second;
     eqp->serial = Core::GetNewItemSerialNumber();
     eqp->serial_ext = ctBEu32( eqp->serial );
     Core::objStorageManager.objecthash.Insert( eqp );

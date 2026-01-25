@@ -151,7 +151,7 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
       if ( !ext.compare( ".ecl" ) )
       {
         std::unique_ptr<Bscript::BStruct> cmdinfo( new Bscript::BStruct );
-        cmdinfo->addMember( "dir", new Bscript::String( search_dir->dir ) );
+        cmdinfo->addMember( "dir", new Bscript::String( search_dir.dir ) );
         cmdinfo->addMember( "script", new Bscript::String( dir_entry.path().filename().string() ) );
         script_names->addElement( cmdinfo.release() );
       }

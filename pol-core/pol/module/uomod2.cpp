@@ -2663,9 +2663,9 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   if ( chr->client->ClientType & CLIENTTYPE_UOKR )
     newformat = true;
 
-  for ( auto& entry : menu_arr->ref_arr )
+  for ( auto& mentry : menu_arr->ref_arr )
   {
-    BObject* bo = entry.get();
+    BObject* bo = mentry.get();
     if ( bo == nullptr )
       continue;
     BObjectImp* imp = bo->impptr();

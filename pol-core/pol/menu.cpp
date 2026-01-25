@@ -68,10 +68,10 @@ size_t Menu::estimateSize() const
 //         -- leaving the warning here as a reminder --
 Menu* Menu::find_menu( const char* name )
 {
-  for ( const auto& menu : gamestate.menus )
+  for ( auto& menu : gamestate.menus )
   {
     if ( stricmp( menu.name, name ) == 0 )
-      return menu;
+      return &menu;
   }
   return nullptr;
 }
