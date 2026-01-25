@@ -2898,7 +2898,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
               arr->addMember( "x", new BLong( tile.x() ) );
               arr->addMember( "y", new BLong( tile.y() ) );
               arr->addMember( "z", new BLong( entry.z ) );
-              arr->addMember( "objtype", new BLong( i.objtype ) );
+              arr->addMember( "objtype", new BLong( entry.objtype ) );
               arr->addMember( "hue", new BLong( entry.hue ) );
               newarr->addElement( arr.release() );
             }
