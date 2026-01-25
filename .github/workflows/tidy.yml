@@ -19,7 +19,7 @@ jobs:
             compiler-version: 20
             build-type: RelWithDebInfo
             name: ClangTidy
-            tidy-checks: ""
+            tidy-checks: "modernize-loop-convert"
             #"modernize-use-override"
             #"modernize-use-equals-default"
             #"modernize-use-equals-delete"
@@ -33,7 +33,7 @@ jobs:
             #"readability-container-size-empty"
             #"readability-else-after-return"
             #"performance-unnecessary-copy-initialization"
-
+            #"modernize-loop-convert"
 
     runs-on: ${{ matrix.config.os }}
 
