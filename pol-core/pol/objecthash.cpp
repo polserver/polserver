@@ -212,9 +212,9 @@ void ObjectHash::Clear( bool shutdown )
 
 void ObjectHash::ClearCharacterAccountReferences()
 {
-  for ( OH_const_iterator itr = hash.begin(), itrend = hash.end(); itr != itrend; ++itr )
+  for ( const auto& itr : hash )
   {
-    UObject* obj = ( *itr ).second.get();
+    UObject* obj = itr.second.get();
     if ( !obj->orphan() && obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );

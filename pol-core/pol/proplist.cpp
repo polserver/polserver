@@ -9,6 +9,8 @@
 
 #include <stddef.h>
 
+#include <ranges>
+
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../bscript/executor.h"
@@ -215,9 +217,9 @@ void CPropProfiler::dumpProfile( std::ostream& os ) const
   {
     Clib::SpinLockGuard lock( _hitsLock );
 
-    for ( auto tIter = _hits->begin(); tIter != _hits->end(); ++tIter )
+    for ( auto& tIter : *_hits )
     {
-      Type t = tIter->first;
+      Type t = tIter.first;
 
       std::string typeName;
       switch ( t )
@@ -251,17 +253,17 @@ void CPropProfiler::dumpProfile( std::ostream& os ) const
         break;
       }
 
-      for ( auto pIter = tIter->second.begin(); pIter != tIter->second.end(); ++pIter )
+      for ( auto& pIter : tIter.second )
       {
         std::ostringstream line;
-        line << pIter->first << " ";
-        line << pIter->second[HitsCounter::READ] << "/";
-        line << pIter->second[HitsCounter::WRITE] << "/";
-        line << pIter->second[HitsCounter::ERASE] << std::endl;
+        line << pIter.first << " ";
+        line << pIter.second[HitsCounter::READ] << "/";
+        line << pIter.second[HitsCounter::WRITE] << "/";
+        line << pIter.second[HitsCounter::ERASE] << std::endl;
 
-        if ( !pIter->second[HitsCounter::READ] )
+        if ( !pIter.second[HitsCounter::READ] )
           outData["WRITTEN BUT NEVER READ"][typeName].push_back( line.str() );
-        else if ( !pIter->second[HitsCounter::WRITE] )
+        else if ( !pIter.second[HitsCounter::WRITE] )
           outData["READ BUT NEVER WRITTEN"][typeName].push_back( line.str() );
         else
           outData["ALL THE REST"][typeName].push_back( line.str() );
@@ -270,20 +272,20 @@ void CPropProfiler::dumpProfile( std::ostream& os ) const
   }
 
   // Then output it
-  for ( auto it1 = outData.rbegin(); it1 != outData.rend(); ++it1 )
+  for ( auto& it1 : std::ranges::reverse_view( outData ) )
   {
     // 1st level header
-    os << std::string( 15, '-' ) << " " << it1->first << " " << std::string( 15, '-' ) << std::endl;
+    os << std::string( 15, '-' ) << " " << it1.first << " " << std::string( 15, '-' ) << std::endl;
 
-    for ( auto it2 = it1->second.begin(); it2 != it1->second.end(); ++it2 )
+    for ( auto& it2 : it1.second )
     {
       // 2nd level header
-      os << it2->first << " CProps summary (read/write/erase):" << std::endl;
+      os << it2.first << " CProps summary (read/write/erase):" << std::endl;
 
-      std::sort( it2->second.begin(), it2->second.end() );
-      for ( auto it3 = it2->second.begin(); it3 != it2->second.end(); ++it3 )
+      std::sort( it2.second.begin(), it2.second.end() );
+      for ( auto& it3 : it2.second )
       {
-        os << "- " << *it3;
+        os << "- " << it3;
       }
     }
 

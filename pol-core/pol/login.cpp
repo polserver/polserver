@@ -33,6 +33,7 @@
 #include "accounts/accounts.h"
 #include "core.h"
 #include "crypt/cryptbase.h"
+#include "globals/network.h"
 #include "globals/settings.h"
 #include "globals/uvars.h"
 #include "mobile/charactr.h"
@@ -71,9 +72,9 @@ bool acct_check( Network::Client* client, int i )
   if ( networkManager.servers[i]->acct_match.empty() )
     return true;
 
-  for ( unsigned j = 0; j < networkManager.servers[i]->acct_match.size(); ++j )
+  for ( const auto& acct : networkManager.servers[i]->acct_match )
   {
-    if ( stricmp( networkManager.servers[i]->acct_match[j].c_str(), client->acct->name() ) == 0 )
+    if ( stricmp( acct.c_str(), client->acct->name() ) == 0 )
       return true;
   }
 
@@ -84,18 +85,17 @@ bool ip_check( Network::Client* client, int i )
 {
   if ( networkManager.servers[i]->ip_match.empty() )
     return true;
-
-  for ( unsigned j = 0; j < networkManager.servers[i]->ip_match.size(); ++j )
+  const auto* server = networkManager.servers[i];
+  for ( unsigned j = 0; j < server->ip_match.size(); ++j )
   {
     unsigned int addr1part, addr2part;
     struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
 
-    addr1part =
-        networkManager.servers[i]->ip_match[j] & networkManager.servers[i]->ip_match_mask[j];
+    addr1part = server->ip_match[j] & server->ip_match_mask[j];
 #ifdef _WIN32
-    addr2part = sockin->sin_addr.S_un.S_addr & networkManager.servers[i]->ip_match_mask[j];
+    addr2part = sockin->sin_addr.S_un.S_addr & server->ip_match_mask[j];
 #else
-    addr2part = sockin->sin_addr.s_addr & networkManager.servers[i]->ip_match_mask[j];
+    addr2part = sockin->sin_addr.s_addr & server->ip_match_mask[j];
 #endif
     if ( addr1part == addr2part )
       return true;

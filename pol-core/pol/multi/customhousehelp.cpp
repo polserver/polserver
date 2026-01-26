@@ -107,14 +107,12 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
 
   if ( IsStairBlock( id ) )
   {
-    for ( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at( xidx ).at( yidx ).begin(),
-                                      itrend = Elements[floor_num].data.at( xidx ).at( yidx ).end();
-          itr != itrend; ++itr )
+    for ( const auto& elem : Elements[floor_num].data.at( xidx ).at( yidx ) )
     {
-      if ( itr->z == ( z + 5 ) )
+      if ( elem.z == ( z + 5 ) )
       {
-        id = itr->graphic;
-        z = itr->z;
+        id = elem.graphic;
+        z = elem.z;
         if ( !IsStairBlock( id ) )
           break;
       }
@@ -212,12 +210,12 @@ void CustomHouseElements::SetWidth( u32 _width )
 size_t CustomHouseElements::estimatedSize() const
 {
   size_t size = sizeof( CustomHouseElements ) + Clib::memsize( data );
-  for ( const auto& floor : data )
+  for ( const auto& row : data )
   {
-    size += Clib::memsize( floor );
-    for ( const auto& l : floor )
+    size += Clib::memsize( row );
+    for ( const auto& column : row )
     {
-      size += Clib::memsize( l );
+      size += Clib::memsize( column );
     }
   }
   return size;

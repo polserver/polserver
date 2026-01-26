@@ -140,9 +140,9 @@ std::vector<FmtToken> PrettifyLineBuilder::buildLineSplits()
   std::vector<FmtToken> lines;
   bool has_varcomma = false;  // only if a "var," exists split based on these, otherwise var
                               // statement would be splitted
-  for ( size_t i = 0; i < _line_parts.size(); ++i )
+  for ( auto& _line_part : _line_parts )
   {
-    if ( _line_parts[i].context == FmtContext::VAR_COMMA )
+    if ( _line_part.context == FmtContext::VAR_COMMA )
     {
       has_varcomma = true;
       break;
@@ -1209,15 +1209,15 @@ void PrettifyLineBuilder::alignComments( std::vector<std::string>& finallines )
     return;
   std::vector<size_t> commentstart;
   // collect comment columns
-  for ( size_t i = 0; i < finallines.size(); ++i )
+  for ( const auto& finalline : finallines )
   {
-    auto linecomment = finallines[i].find( "//" );
+    auto linecomment = finalline.find( "//" );
     if ( linecomment == std::string::npos )
       commentstart.push_back( 0 );
     else
     {
       // if the line only contains a comment dont align it
-      auto other = finallines[i].find_first_not_of( " \t" );
+      auto other = finalline.find_first_not_of( " \t" );
       if ( other == linecomment )
         commentstart.push_back( 0 );
       else

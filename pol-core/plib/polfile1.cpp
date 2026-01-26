@@ -30,9 +30,8 @@ bool newstat_dont_add( std::vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
 {
   char pheight = tileheight_read( pstat->graphic );
 
-  for ( unsigned i = 0; i < vec.size(); ++i )
+  for ( auto& prec : vec )
   {
-    STATIC_ENTRY& prec = vec[i];
     passert_always( prec.objtype <= systemstate.config.max_tile_id );
     char height = tileheight_read( prec.objtype );  // TODO read from itemdesc?
     unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
@@ -128,9 +127,9 @@ int write_pol_static_files( const std::string& realm )
                           ( y + STATICBLOCK_CHUNK - 1 ) );
         }
       }
-      for ( unsigned i = 0; i < vec.size(); ++i )
+      for ( auto& i : vec )
       {
-        fwrite( &vec[i], sizeof( STATIC_ENTRY ), 1, fdat );
+        fwrite( &i, sizeof( STATIC_ENTRY ), 1, fdat );
         ++index;
       }
 #ifndef NDEBUG

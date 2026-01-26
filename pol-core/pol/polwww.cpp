@@ -110,10 +110,8 @@ void load_mime_config()
 
 void config_web_server()
 {
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *itr );
     if ( pkg->provides_system_home_page() )
     {
       if ( gamestate.wwwroot_pkg == nullptr )

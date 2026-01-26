@@ -310,9 +310,9 @@ BObjectImp* DebugContextObjImp::call_polmethod( const char* methodname, UOExecut
       std::vector<std::string> results;
       value()->process( str->value(), results );
       std::unique_ptr<ObjArray> arr( new ObjArray );
-      for ( unsigned i = 0; i < results.size(); ++i )
+      for ( const auto& result : results )
       {
-        arr->addElement( new String( results[i] ) );
+        arr->addElement( new String( result ) );
       }
       return arr.release();
     }
@@ -700,14 +700,13 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
 {
   std::string match = Clib::strlowerASCII( rest );
 
-  for ( PidList::const_iterator citr = scriptScheduler.getPidlist().begin();
-        citr != scriptScheduler.getPidlist().end(); ++citr )
+  for ( auto citr : scriptScheduler.getPidlist() )
   {
-    UOExecutor* uoexec = ( *citr ).second;
+    UOExecutor* uoexec = citr.second;
     std::string name = Clib::strlowerASCII( uoexec->scriptname() );
     if ( strstr( name.c_str(), match.c_str() ) != nullptr )
     {
-      results.push_back( Clib::tostring( ( *citr ).first ) + " " + uoexec->scriptname() );
+      results.push_back( Clib::tostring( citr.first ) + " " + uoexec->scriptname() );
     }
   }
 
@@ -795,10 +794,10 @@ std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results
     }
   }
 
-  for ( Cycles::iterator itr = cycle_counts.begin(); itr != cycle_counts.end(); ++itr )
+  for ( auto& cycle_count : cycle_counts )
   {
-    unsigned int linenum = ( *itr ).first;
-    unsigned int cycles = ( *itr ).second;
+    unsigned int linenum = cycle_count.first;
+    unsigned int cycles = cycle_count.second;
     std::string result = Clib::tostring( linenum ) + " " + Clib::tostring( cycles );
     results.push_back( result );
   }
@@ -1371,9 +1370,9 @@ void DebugClientThread::run()
       Clib::writeline( _sck, "Results: " + Clib::tostring( results.size() ) );
     else
       Clib::writeline( _sck, "Failure: " + Clib::tostring( results.size() ) );
-    for ( unsigned i = 0; i < results.size(); ++i )
+    for ( const auto& result : results )
     {
-      Clib::writeline( _sck, results[i] );
+      Clib::writeline( _sck, result );
     }
   }
 }

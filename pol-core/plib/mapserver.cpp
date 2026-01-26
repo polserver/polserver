@@ -65,11 +65,11 @@ void MapServer::LoadSecondLevelIndex()
   {
     passert( elem.baseindex < _shapedata.size() );
 
-    for ( unsigned x = 0; x < SOLIDX_X_SIZE; ++x )
+    for ( const auto& yarray : elem.addindex )
     {
-      for ( unsigned y = 0; y < SOLIDX_Y_SIZE; ++y )
+      for ( const auto& yelem : yarray )
       {
-        size_t idx = elem.baseindex + elem.addindex[x][y];
+        size_t idx = elem.baseindex + yelem;
         passert( idx < _shapedata.size() );
       }
     }

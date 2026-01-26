@@ -55,8 +55,8 @@ Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
     spell_school = 6;
   else if ( descriptor.spelltype == "BardMasteries" )
     spell_school = 7;
-  for ( int i = 0; i < 8; ++i )
-    bitwise_contents[i] = 0;
+  for ( unsigned char& bitwise_content : bitwise_contents )
+    bitwise_content = 0;
 }
 
 Spellbook::~Spellbook() = default;
@@ -312,9 +312,8 @@ void Spellbook::printSelfOn( Clib::StreamWriter& sw ) const
 
 void Spellbook::calc_current_bitwise_contents()
 {
-  for ( UContainer::const_iterator itr = begin(), itrend = end(); itr != itrend; ++itr )
+  for ( auto scroll : *this )
   {
-    const Item* scroll = *itr;
     u16 spellnum = USpellScroll::convert_objtype_to_spellnum( scroll->objtype_, spell_school );
     u8 spellslot = spellnum & 7;
     if ( spellslot == 0 )
@@ -323,9 +322,8 @@ void Spellbook::calc_current_bitwise_contents()
   }
 
   // ok, it's been upgraded. Destroy everything inside it.
-  for ( UContainer::iterator itr = begin(), itrend = end(); itr != itrend; ++itr )
+  for ( auto scroll : *this )
   {
-    Item* scroll = *itr;
     scroll->destroy();
   }
 }

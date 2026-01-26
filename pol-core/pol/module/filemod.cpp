@@ -387,9 +387,8 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_WriteFile()
   if ( !ofs.is_open() )
     return new BError( "File not found: " + filepath );
 
-  for ( unsigned i = 0; i < contents->ref_arr.size(); ++i )
+  for ( auto& ref : contents->ref_arr )
   {
-    BObjectRef& ref = contents->ref_arr[i];
     BObject* obj = ref.get();
     if ( obj != nullptr )
     {
@@ -463,9 +462,8 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_AppendToFile()
   if ( !ofs.is_open() )
     return new BError( "Unable to open file: " + filepath );
 
-  for ( unsigned i = 0; i < contents->ref_arr.size(); ++i )
+  for ( auto& ref : contents->ref_arr )
   {
-    BObjectRef& ref = contents->ref_arr[i];
     BObject* obj = ref.get();
     if ( obj != nullptr )
     {

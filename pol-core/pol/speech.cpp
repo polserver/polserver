@@ -275,9 +275,8 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     auto thisguild = chr->guild();
     if ( settingsManager.ssopt.core_sends_guildmsgs && thisguild != nullptr )
     {
-      for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
+      for ( auto client2 : networkManager.clients )
       {
-        Network::Client* client2 = networkManager.clients[cli];
         if ( !client2->ready )
           continue;
         if ( thisguild->guildid() == client2->chr->guildid() )
@@ -290,9 +289,8 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     auto thisguild = chr->guild();
     if ( settingsManager.ssopt.core_sends_guildmsgs && thisguild != nullptr )
     {
-      for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
+      for ( auto client2 : networkManager.clients )
       {
-        Network::Client* client2 = networkManager.clients[cli];
         if ( !client2->ready )
           continue;
         auto otherguild = client2->chr->guild();

@@ -261,17 +261,13 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
                                  Clib::tostring( ( *itr ).second ) + "]" );
   }
 
-  for ( Mobile::Character::ToBeReportableList::const_iterator itr = mob->to_be_reportable_.begin();
-        itr != mob->to_be_reportable_.end(); ++itr )
+  for ( unsigned int serial : mob->to_be_reportable_ )
   {
-    USERIAL serial = ( *itr );
     send_sysmessage( client, "ToBeReportable: " + Clib::hexint( serial ) );
   }
 
-  for ( Mobile::Character::ReportableList::const_iterator itr = mob->reportable_.begin();
-        itr != mob->reportable_.end(); ++itr )
+  for ( auto rt : mob->reportable_ )
   {
-    const Mobile::reportable_t& rt = ( *itr );
     send_sysmessage( client, "Reportable: " + Clib::hexint( rt.serial ) + " at " +
                                  Clib::tostring( rt.polclock ) );
   }
@@ -438,12 +434,10 @@ void textcmd_constat( Network::Client* client )
 {
   int i = 0;
   send_sysmessage( client, "Connection statuses:" );
-  for ( Clients::const_iterator itr = networkManager.clients.begin(),
-                                end = networkManager.clients.end();
-        itr != end; ++itr )
+  for ( auto itr : networkManager.clients )
   {
     OSTRINGSTREAM os;
-    os << i << ": " << ( *itr )->status() << " ";
+    os << i << ": " << itr->status() << " ";
     send_sysmessage( client, OSTRINGSTREAM_STR( os ) );
     ++i;
   }
@@ -496,12 +490,12 @@ std::string get_textcmd_help( Mobile::Character* chr, const std::string& cmd )
   for ( int i = chr->cmdlevel(); i >= 0; --i )
   {
     CmdLevel& cmdlevel = gamestate.cmdlevels[i];
-    for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
+    for ( auto& diridx : cmdlevel.searchlist )
     {
       std::string filename;
 
-      Plib::Package* pkg = cmdlevel.searchlist[diridx].pkg;
-      filename = cmdlevel.searchlist[diridx].dir + cmd + std::string( ".txt" );
+      Plib::Package* pkg = diridx.pkg;
+      filename = diridx.dir + cmd + std::string( ".txt" );
       if ( pkg )
         filename = pkg->dir() + filename;
 
@@ -552,14 +546,14 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
   for ( int i = client->chr->cmdlevel(); i >= 0; --i )
   {
     CmdLevel& cmdlevel = gamestate.cmdlevels[i];
-    for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
+    for ( auto& diridx : cmdlevel.searchlist )
     {
       ScriptDef sd;
-      Plib::Package* pkg = cmdlevel.searchlist[diridx].pkg;
+      Plib::Package* pkg = diridx.pkg;
       if ( pkg )
-        sd.quickconfig( pkg, cmdlevel.searchlist[diridx].dir + scriptname + ".ecl" );
+        sd.quickconfig( pkg, diridx.dir + scriptname + ".ecl" );
       else
-        sd.quickconfig( cmdlevel.searchlist[diridx].dir + scriptname + ".ecl" );
+        sd.quickconfig( diridx.dir + scriptname + ".ecl" );
       if ( !sd.exists() )
         continue;
 

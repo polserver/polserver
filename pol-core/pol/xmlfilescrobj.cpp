@@ -102,12 +102,10 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
         BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
         if ( attr )
         {
-          for ( BStruct::Contents::const_iterator citr = attr->contents().begin(),
-                                                  end = attr->contents().end();
-                citr != end; ++citr )
+          for ( const auto& citr : attr->contents() )
           {
-            const std::string& name = ( *citr ).first;
-            Bscript::BObjectImp* ref = ( *citr ).second->impptr();
+            const std::string& name = citr.first;
+            Bscript::BObjectImp* ref = citr.second->impptr();
             if ( ref->isa( Bscript::BObjectImp::OTLong ) )
               elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
             else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
@@ -381,12 +379,10 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
         if ( attr )
         {
-          for ( BStruct::Contents::const_iterator citr = attr->contents().begin(),
-                                                  end = attr->contents().end();
-                citr != end; ++citr )
+          for ( const auto& citr : attr->contents() )
           {
-            const std::string& name = ( *citr ).first;
-            Bscript::BObjectImp* ref = ( *citr ).second->impptr();
+            const std::string& name = citr.first;
+            Bscript::BObjectImp* ref = citr.second->impptr();
             if ( ref->isa( Bscript::BObjectImp::OTLong ) )
               elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
             else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
@@ -424,12 +420,10 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( attr )
     {
       TiXmlElement* elem = node->ToElement();
-      for ( BStruct::Contents::const_iterator citr = attr->contents().begin(),
-                                              end = attr->contents().end();
-            citr != end; ++citr )
+      for ( const auto& citr : attr->contents() )
       {
-        const std::string& name = ( *citr ).first;
-        Bscript::BObjectImp* ref = ( *citr ).second->impptr();
+        const std::string& name = citr.first;
+        Bscript::BObjectImp* ref = citr.second->impptr();
         if ( ref->isa( Bscript::BObjectImp::OTLong ) )
           elem->SetAttribute( name, static_cast<BLong*>( ref )->value() );
         else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )

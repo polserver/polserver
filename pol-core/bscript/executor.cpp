@@ -52,6 +52,7 @@
 #include <cstring>
 #include <exception>
 #include <numeric>
+#include <ranges>
 
 
 namespace Pol::Bscript
@@ -516,17 +517,17 @@ void Executor::printStack( const std::string& message = "" )
   }
 
   size_t i = 0;
-  for ( auto riter = fparams.rbegin(); riter != fparams.rend(); ++riter )
+  for ( auto& fparam : std::ranges::reverse_view( fparams ) )
   {
-    auto* ptr = riter->get()->impptr();
+    auto* ptr = fparam.get()->impptr();
     INFO_PRINTLN( "fparam[{} @ {}] {}", static_cast<void*>( ptr ), i, ptr->getStringRep() );
     i++;
   }
 
   i = 0;
-  for ( auto riter = ValueStack.rbegin(); riter != ValueStack.rend(); ++riter )
+  for ( auto& riter : std::ranges::reverse_view( ValueStack ) )
   {
-    auto* ptr = riter->get()->impptr();
+    auto* ptr = riter.get()->impptr();
     INFO_PRINTLN( "vstack[{} @ {}] {}", static_cast<void*>( ptr ), i, ptr->getStringRep() );
     i++;
   }

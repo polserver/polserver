@@ -575,8 +575,8 @@ BObjectImp* BPacket::copy() const
 std::string BPacket::getStringRep() const
 {
   OSTRINGSTREAM os;
-  for ( auto itr = buffer.begin(); itr != buffer.end(); ++itr )
-    os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<u16>( *itr );
+  for ( unsigned char itr : buffer )
+    os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<u16>( itr );
 
   return OSTRINGSTREAM_STR( os );
 }

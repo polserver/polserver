@@ -305,10 +305,8 @@ void RepSystem::repsys_task( Mobile::Character* amy )
   THREAD_CHECKPOINT( tasks, 1025 );
   // For those that were hostile to Amy due to her non-Innocence, if she's Innocent now,
   // break off the attack.
-  for ( Mobile::Character::CharacterSet::iterator h_itr = defensive_hostiles.begin();
-        h_itr != defensive_hostiles.end(); ++h_itr )
+  for ( auto bob : defensive_hostiles )
   {
-    Mobile::Character* bob = *h_itr;
     THREAD_CHECKPOINT( tasks, 1026 );
 
     if ( amy->is_innocent_to( bob ) )

@@ -402,7 +402,7 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
 
   std::string replaced = query;
   std::regex re( "^((?:[^']|'[^']*')*?)(\\?)" );
-  for ( auto it = params->begin(); it != params->end(); ++it )
+  for ( auto& it : *params )
   {
     if ( !std::regex_search( replaced, re ) )
     {
@@ -411,7 +411,7 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
       return false;
     }
 
-    if ( it->size() > ( std::numeric_limits<size_t>::max() - 5 ) / 2 )
+    if ( it.size() > ( std::numeric_limits<size_t>::max() - 5 ) / 2 )
     {
       _errno = -3;
       _error = "Parameter is too long.";
@@ -419,12 +419,12 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
 
     // Escape the string and add quoting. A bit tricky, but effective.
     size_t escaped_max_size =
-        it->size() * 2 + 5;  // max is +1, using +5 to leave space for quoting and "$1"
+        it.size() * 2 + 5;  // max is +1, using +5 to leave space for quoting and "$1"
     std::unique_ptr<char[]> escptr(
         new char[escaped_max_size] );  // will contain the escaped string
     // use +3 to leave space for quoting
-    unsigned long esclen = mysql_real_escape_string( _conn->ptr(), escptr.get() + 3, it->c_str(),
-                                                     static_cast<unsigned long>( it->size() ) );
+    unsigned long esclen = mysql_real_escape_string( _conn->ptr(), escptr.get() + 3, it.c_str(),
+                                                     static_cast<unsigned long>( it.size() ) );
     // Now add quoting, equivalent to escptr = "$1'" + escptr + "'"
     esclen += 4;
     escptr[0] = '$';

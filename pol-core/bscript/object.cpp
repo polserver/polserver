@@ -1227,10 +1227,9 @@ void ObjArray::selfPlusObj( String& objimp, BObject& /*obj*/ )
 }
 void ObjArray::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 {
-  for ( const_iterator itr = objimp.ref_arr.begin(), itrend = objimp.ref_arr.end(); itr != itrend;
-        ++itr )
+  for ( const auto& itr : objimp.ref_arr )
   {
-    if ( itr->get() )
+    if ( itr.get() )
     {
       /*
           NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
@@ -1238,7 +1237,7 @@ void ObjArray::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
           No, we're making a copy, leaving the original be.
           (SO, bno's refcount should be >1 here)
           */
-      BObject* bo = itr->get();
+      BObject* bo = itr.get();
 
       ref_arr.push_back( BObjectRef( new BObject( ( *bo )->copy() ) ) );
     }
@@ -1294,15 +1293,15 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
 
   // std::unique_ptr<ObjArray> result (new ObjArray());
   unsigned i = 0;
-  for ( const_iterator itr = ref_arr.begin(), itrend = ref_arr.end(); itr != itrend; ++itr )
+  for ( const auto& itr : ref_arr )
   {
     if ( ++i < index )
       continue;
     if ( i > end )
       break;
-    if ( itr->get() )
+    if ( itr.get() )
     {
-      BObject* bo = itr->get();
+      BObject* bo = itr.get();
       str->ref_arr.push_back( BObjectRef( new BObject( ( *bo )->copy() ) ) );
     }
     else

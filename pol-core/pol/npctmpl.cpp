@@ -136,10 +136,8 @@ void load_npc_templates()
     }
   }
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *itr );
     std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
 
     if ( Clib::FileExists( filename.c_str() ) )

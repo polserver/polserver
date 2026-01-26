@@ -95,9 +95,8 @@ void UCorpse::spill_contents( Multi::UMulti* multi )
   do
   {
     any = false;
-    for ( iterator itr = begin(); itr != end(); ++itr )
+    for ( auto item : *this )
     {
-      Item* item = *itr;
       if ( item->tile_layer == LAYER_HAIR || item->tile_layer == LAYER_BEARD ||
            item->tile_layer == LAYER_FACE || item->movable() == false )
       {

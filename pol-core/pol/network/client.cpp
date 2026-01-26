@@ -60,8 +60,8 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable \
-                 : 4351 )  // new behavior: elements of array '...' will be default initialized
+#pragma warning( \
+    disable : 4351 )  // new behavior: elements of array '...' will be default initialized
 #endif
 
 namespace Pol
@@ -286,8 +286,8 @@ Bscript::BStruct* Client::getclientinfo() const
                   new Bscript::String( lc ) );  // Language Code
 
   std::unique_ptr<ObjArray> arr_u2( new ObjArray );
-  for ( unsigned i = 0; i < sizeof( clientinfo_.unknown2 ); ++i )
-    arr_u2->addElement( new BLong( clientinfo_.unknown2[i] ) );
+  for ( unsigned char i : clientinfo_.unknown2 )
+    arr_u2->addElement( new BLong( i ) );
   ret->addMember( "unknown2", arr_u2.release() );  // Unknown
 
   return ret.release();

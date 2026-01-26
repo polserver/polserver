@@ -382,8 +382,8 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
     uoexec->initForFnCall( func_call_pc );
     if ( arr != nullptr )
     {
-      for ( size_t i = 0; i < arr->ref_arr.size(); ++i )
-        uoexec->pushArg( arr->ref_arr[i].get()->impptr() );
+      for ( auto& i : arr->ref_arr )
+        uoexec->pushArg( i.get()->impptr() );
     }
     if ( ex.critical() )
     {

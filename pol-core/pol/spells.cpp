@@ -70,10 +70,8 @@ bool knows_spell( Mobile::Character* chr, u16 spellid )
   UContainer* cont = chr->backpack();
   if ( cont != nullptr )
   {
-    for ( UContainer::const_iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
+    for ( auto _item : *cont )
     {
-      const Items::Item* _item = *itr;
-
       if ( _item != nullptr && _item->script_isa( POLCLASS_SPELLBOOK ) )
       {
         const Spellbook* book = static_cast<const Spellbook*>( _item );
@@ -213,9 +211,9 @@ bool USpell::consume_reagents( Mobile::Character* chr )
   if ( bp == nullptr )
     return false;
 
-  for ( RegList::iterator itr = reglist_.begin(), end = reglist_.end(); itr != end; ++itr )
+  for ( unsigned int& itr : reglist_ )
   {
-    Items::Item* item = bp->find_objtype_noninuse( *itr );
+    Items::Item* item = bp->find_objtype_noninuse( itr );
     if ( item == nullptr )
       return false;
     subtract_amount_from_item( item, 1 );
@@ -479,10 +477,8 @@ void load_spell_data()
   else if ( Plib::systemstate.config.loglevel > 1 )
     INFO_PRINTLN( "File config/spells.cfg not found, skipping" );
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *itr );
     std::string filename = Plib::GetPackageCfgPath( pkg, "spells.cfg" );
     if ( Clib::FileExists( filename.c_str() ) )
     {

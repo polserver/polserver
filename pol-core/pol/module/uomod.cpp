@@ -1181,23 +1181,18 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation( /* x,y,z,objtype,flags,r
 
 void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
 {
-  for ( BStruct::Contents::const_iterator citr = custom->contents().begin(),
-                                          end = custom->contents().end();
-        citr != end; ++citr )
+  for ( const auto& [name, refobj] : custom->contents() )
   {
-    const std::string& name = ( *citr ).first;
-    BObjectImp* ref = ( *citr ).second->impptr();
+    BObjectImp* ref = refobj->impptr();
 
     if ( name == "CProps" )
     {
       if ( auto* cpropdict = impptrIf<BDictionary>( ref ) )
       {
         const BDictionary::Contents& cprop_cont = cpropdict->contents();
-        BDictionary::Contents::const_iterator itr;
-        for ( itr = cprop_cont.begin(); itr != cprop_cont.end(); ++itr )
+        for ( const auto& [key, valueobj] : cprop_cont )
         {
-          elem.add_prop( "cprop", ( ( *itr ).first->getStringRep() + "\t" +
-                                    ( *itr ).second->impptr()->pack() ) );
+          elem.add_prop( "cprop", ( key->getStringRep() + "\t" + valueobj->impptr()->pack() ) );
         }
       }
       else
@@ -1572,22 +1567,20 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
 
 void append_objtypes( ObjArray* objarr, Menu* menu )
 {
-  for ( unsigned i = 0; i < menu->menuitems_.size(); ++i )
+  for ( const auto& menuitem : menu->menuitems_ )
   {
-    MenuItem* mi = &menu->menuitems_[i];
-
-    if ( mi->submenu_id )
+    if ( menuitem.submenu_id )
     {
       // Code Analyze: Commented out and replaced with tmp_menu due to hiding
       // menu passed to function.
       //      Menu* menu = find_menu( mi->submenu_id );
-      Menu* tmp_menu = Menu::find_menu( mi->submenu_id );
+      Menu* tmp_menu = Menu::find_menu( menuitem.submenu_id );
       if ( tmp_menu != nullptr )
         append_objtypes( objarr, tmp_menu );
     }
     else
     {
-      objarr->addElement( new BLong( mi->objtype_ ) );
+      objarr->addElement( new BLong( menuitem.objtype_ ) );
     }
   }
 }
@@ -1618,10 +1611,8 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
   {
     std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-    for ( unsigned i = 0; i < arr->ref_arr.size(); i++ )
+    for ( auto& ref : arr->ref_arr )
     {
-      BObjectRef& ref = arr->ref_arr[i];
-
       BObject* bo = ref.get();
       if ( bo == nullptr )
         continue;
@@ -1738,9 +1729,9 @@ BObjectImp* UOExecutorModule::mf_GetObjPropertyNames()
     std::vector<std::string> propnames;
     uobj->getpropnames( propnames );
     std::unique_ptr<ObjArray> arr( new ObjArray );
-    for ( unsigned i = 0; i < propnames.size(); ++i )
+    for ( const auto& propname : propnames )
     {
-      arr->addElement( new String( propnames[i] ) );
+      arr->addElement( new String( propname ) );
     }
     return arr.release();
   }
@@ -1796,9 +1787,9 @@ BObjectImp* UOExecutorModule::mf_GetGlobalPropertyNames()
   std::vector<std::string> propnames;
   gamestate.global_properties->getpropnames( propnames );
   std::unique_ptr<ObjArray> arr( new ObjArray );
-  for ( unsigned i = 0; i < propnames.size(); ++i )
+  for ( const auto& propname : propnames )
   {
-    arr->addElement( new String( propnames[i] ) );
+    arr->addElement( new String( propname ) );
   }
   return arr.release();
 }
@@ -2275,16 +2266,16 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
       Plib::StaticEntryList slist;
       realm->getstatics( slist, pos );
 
-      for ( unsigned i = 0; i < slist.size(); ++i )
+      for ( const auto& entry : slist )
       {
-        if ( ( z1 <= slist[i].z ) && ( slist[i].z <= z2 ) )
+        if ( ( z1 <= entry.z ) && ( entry.z <= z2 ) )
         {
           std::unique_ptr<BStruct> arr( new BStruct );
           arr->addMember( "x", new BLong( pos.x() ) );
           arr->addMember( "y", new BLong( pos.y() ) );
-          arr->addMember( "z", new BLong( slist[i].z ) );
-          arr->addMember( "objtype", new BLong( slist[i].objtype ) );
-          arr->addMember( "hue", new BLong( slist[i].hue ) );
+          arr->addMember( "z", new BLong( entry.z ) );
+          arr->addMember( "objtype", new BLong( entry.objtype ) );
+          arr->addMember( "hue", new BLong( entry.hue ) );
           newarr->addElement( arr.release() );
         }
       }
@@ -2295,15 +2286,15 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
       Plib::StaticList mlist;
       realm->readmultis( mlist, pos );
 
-      for ( unsigned i = 0; i < mlist.size(); ++i )
+      for ( const auto& entry : mlist )
       {
-        if ( ( z1 <= mlist[i].z ) && ( mlist[i].z <= z2 ) )
+        if ( ( z1 <= entry.z ) && ( entry.z <= z2 ) )
         {
           std::unique_ptr<BStruct> arr( new BStruct );
           arr->addMember( "x", new BLong( pos.x() ) );
           arr->addMember( "y", new BLong( pos.y() ) );
-          arr->addMember( "z", new BLong( mlist[i].z ) );
-          arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
+          arr->addMember( "z", new BLong( entry.z ) );
+          arr->addMember( "objtype", new BLong( entry.graphic ) );
           newarr->addElement( arr.release() );
         }
       }
@@ -2695,13 +2686,11 @@ BObjectImp* UOExecutorModule::mf_EnumerateOnlineCharacters()
 {
   std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-  for ( Clients::const_iterator itr = networkManager.clients.begin(),
-                                end = networkManager.clients.end();
-        itr != end; ++itr )
+  for ( auto client : networkManager.clients )
   {
-    if ( ( *itr )->chr != nullptr )
+    if ( client->chr != nullptr )
     {
-      newarr->addElement( new ECharacterRefObjImp( ( *itr )->chr ) );
+      newarr->addElement( new ECharacterRefObjImp( client->chr ) );
     }
   }
 
@@ -4070,17 +4059,17 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, inclu
       realm->readdynamics( mlist, pos, ivec, false, flags );
     }
 
-    for ( unsigned i = 0; i < mlist.size(); ++i )
+    for ( const auto& entry : mlist )
     {
       std::unique_ptr<BStruct> arr( new BStruct );
 
-      if ( mlist[i].flags & ( Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA ) )
-        arr->addMember( "z", new BLong( mlist[i].z + mlist[i].height ) );
+      if ( entry.flags & ( Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA ) )
+        arr->addMember( "z", new BLong( entry.z + entry.height ) );
       else
-        arr->addMember( "z", new BLong( mlist[i].z ) );
+        arr->addMember( "z", new BLong( entry.z ) );
 
-      arr->addMember( "height", new BLong( mlist[i].height ) );
-      arr->addMember( "flags", new BLong( mlist[i].flags ) );
+      arr->addMember( "height", new BLong( entry.height ) );
+      arr->addMember( "flags", new BLong( entry.flags ) );
       newarr->addElement( arr.release() );
     }
 
@@ -4255,9 +4244,9 @@ BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
 
 bool UOExecutorModule::is_reserved_to_me( Item* item )
 {
-  for ( unsigned i = 0; i < reserved_items_.size(); ++i )
+  for ( const auto& reserved_item : reserved_items_ )
   {
-    if ( reserved_items_[i].get() == item )
+    if ( reserved_item.get() == item )
       return true;
   }
   return false;
@@ -4367,16 +4356,16 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation( /* x, y, z, flags, realm
       Plib::StaticEntryList slist;
       realm->getstatics( slist, pos );
 
-      for ( unsigned i = 0; i < slist.size(); ++i )
+      for ( const auto& entry : slist )
       {
-        if ( ( z == LIST_IGNORE_Z ) || ( slist[i].z == z ) )
+        if ( ( z == LIST_IGNORE_Z ) || ( entry.z == z ) )
         {
           std::unique_ptr<BStruct> arr( new BStruct );
           arr->addMember( "x", new BLong( pos.x() ) );
           arr->addMember( "y", new BLong( pos.y() ) );
-          arr->addMember( "z", new BLong( slist[i].z ) );
-          arr->addMember( "objtype", new BLong( slist[i].objtype ) );
-          arr->addMember( "hue", new BLong( slist[i].hue ) );
+          arr->addMember( "z", new BLong( entry.z ) );
+          arr->addMember( "objtype", new BLong( entry.objtype ) );
+          arr->addMember( "hue", new BLong( entry.hue ) );
           newarr->addElement( arr.release() );
         }
       }
@@ -4387,15 +4376,15 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation( /* x, y, z, flags, realm
       Plib::StaticList mlist;
       realm->readmultis( mlist, pos );
 
-      for ( unsigned i = 0; i < mlist.size(); ++i )
+      for ( const auto& entry : mlist )
       {
-        if ( ( z == LIST_IGNORE_Z ) || ( mlist[i].z == z ) )
+        if ( ( z == LIST_IGNORE_Z ) || ( entry.z == z ) )
         {
           std::unique_ptr<BStruct> arr( new BStruct );
           arr->addMember( "x", new BLong( pos.x() ) );
           arr->addMember( "y", new BLong( pos.y() ) );
-          arr->addMember( "z", new BLong( mlist[i].z ) );
-          arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
+          arr->addMember( "z", new BLong( entry.z ) );
+          arr->addMember( "objtype", new BLong( entry.graphic ) );
           newarr->addElement( arr.release() );
         }
       }
@@ -4426,16 +4415,16 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
         Plib::StaticEntryList slist;
         realm->getstatics( slist, tile );
 
-        for ( unsigned i = 0; i < slist.size(); ++i )
+        for ( const auto& entry : slist )
         {
-          if ( ( z == LIST_IGNORE_Z ) || ( abs( slist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+          if ( ( z == LIST_IGNORE_Z ) || ( abs( entry.z - z ) < CONST_DEFAULT_ZRANGE ) )
           {
             std::unique_ptr<BStruct> arr( new BStruct );
             arr->addMember( "x", new BLong( tile.x() ) );
             arr->addMember( "y", new BLong( tile.y() ) );
-            arr->addMember( "z", new BLong( slist[i].z ) );
-            arr->addMember( "objtype", new BLong( slist[i].objtype ) );
-            arr->addMember( "hue", new BLong( slist[i].hue ) );
+            arr->addMember( "z", new BLong( entry.z ) );
+            arr->addMember( "objtype", new BLong( entry.objtype ) );
+            arr->addMember( "hue", new BLong( entry.hue ) );
             newarr->addElement( arr.release() );
           }
         }
@@ -4446,15 +4435,15 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
         Plib::StaticList mlist;
         realm->readmultis( mlist, tile );
 
-        for ( unsigned i = 0; i < mlist.size(); ++i )
+        for ( const auto& entry : mlist )
         {
-          if ( ( z == LIST_IGNORE_Z ) || ( abs( mlist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+          if ( ( z == LIST_IGNORE_Z ) || ( abs( entry.z - z ) < CONST_DEFAULT_ZRANGE ) )
           {
             std::unique_ptr<BStruct> arr( new BStruct );
             arr->addMember( "x", new BLong( tile.x() ) );
             arr->addMember( "y", new BLong( tile.y() ) );
-            arr->addMember( "z", new BLong( mlist[i].z ) );
-            arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
+            arr->addMember( "z", new BLong( entry.z ) );
+            arr->addMember( "objtype", new BLong( entry.graphic ) );
             newarr->addElement( arr.release() );
           }
         }
@@ -4754,12 +4743,8 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
       return new BError( "Not enough of that substance in container" );
 
     std::unique_ptr<ObjArray> theArray( new ObjArray() );
-    Item* item;
-
-    for ( UContainer::Contents::const_iterator itr = substanceVector.begin();
-          itr != substanceVector.end(); ++itr )
+    for ( auto item : substanceVector )
     {
-      item = *itr;
       if ( item != nullptr )
       {
         if ( ( makeInUse ) && ( !item->inuse() ) )
@@ -4932,11 +4917,8 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*
     msg->Write<u8>( static_cast<u16>( season_id ) );
     msg->Write<u8>( static_cast<u16>( playsound ) );
 
-    for ( Clients::iterator itr = networkManager.clients.begin(),
-                            end = networkManager.clients.end();
-          itr != end; ++itr )
+    for ( auto client : networkManager.clients )
     {
-      Network::Client* client = *itr;
       if ( !client->chr || !client->chr->logged_in() || client->getversiondetail().major < 1 )
         continue;
       msg.Send( client );

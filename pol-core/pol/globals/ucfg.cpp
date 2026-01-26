@@ -25,9 +25,9 @@ void ConfigurationBuffer::deinitialize()
   oldcfgfiles.clear();
   cfgfiles.clear();
 
-  for ( Core::DataStore::iterator itr = datastore.begin(); itr != datastore.end(); ++itr )
+  for ( auto& itr : datastore )
   {
-    Module::DataStoreFile* dsf = ( *itr ).second;
+    Module::DataStoreFile* dsf = itr.second;
     delete dsf;
   }
   datastore.clear();

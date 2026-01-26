@@ -274,11 +274,8 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
         scfg->load( cf_main );
         any = true;
       }
-      for ( Plib::Packages::iterator pitr = Plib::systemstate.packages.begin(),
-                                     pitrend = Plib::systemstate.packages.end();
-            pitr != pitrend; ++pitr )
+      for ( auto pkg : Plib::systemstate.packages )
       {
-        Plib::Package* pkg = ( *pitr );
         // string pkgfilename = pkg->dir() + allpkgbase + ".cfg";
         std::string pkgfilename = GetPackageCfgPath( pkg, allpkgbase + ".cfg" );
         if ( Clib::FileExists( pkgfilename.c_str() ) )

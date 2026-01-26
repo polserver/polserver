@@ -31,9 +31,9 @@ SerialSet::SerialSet( Clib::ConfigElem& elem, const char* tag )
 
 void SerialSet::writeOn( Clib::StreamWriter& sw, const char* tag ) const
 {
-  for ( const_iterator citr = begin(), citrend = end(); citr != citrend; ++citr )
+  for ( unsigned int citr : *this )
   {
-    sw.add( tag, Clib::hexintv( *citr ) );
+    sw.add( tag, Clib::hexintv( citr ) );
   }
 }
 
@@ -186,10 +186,9 @@ bool Guild::AreEnemies( Guild* g1, Guild* g2 )
 
 void register_guilds()
 {
-  for ( Guilds::iterator itr = Core::gamestate.guilds.begin(); itr != Core::gamestate.guilds.end();
-        ++itr )
+  for ( auto& itr : Core::gamestate.guilds )
   {
-    Guild* guild = ( *itr ).second.get();
+    Guild* guild = itr.second.get();
     guild->registerWithMembers();
   }
 }
