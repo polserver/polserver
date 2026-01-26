@@ -1818,21 +1818,21 @@ BObjectImp* GetPktStatusObj()
   using namespace PacketWriterDefs;
   std::unique_ptr<ObjArray> pkts = std::make_unique<ObjArray>();
   PacketQueueMap* map = networkManager.packetsSingleton->getPackets();
-  for ( const auto& pkt : *map )
+  for ( const auto& [id, queue] : *map )
   {
     std::unique_ptr<BStruct> elem( new BStruct );
-    elem->addMember( "pkt", new BLong( pkt.first ) );
-    elem->addMember( "count", new BLong( static_cast<int>( pkt.second->Count() ) ) );
+    elem->addMember( "pkt", new BLong( id ) );
+    elem->addMember( "count", new BLong( static_cast<int>( queue->Count() ) ) );
     pkts->addElement( elem.release() );
-    if ( pkt.second->HasSubs() )
+    if ( queue->HasSubs() )
     {
-      PacketInterfaceQueueMap* submap = pkt.second->GetSubs();
-      for ( const auto& subpkt : *submap )
+      PacketInterfaceQueueMap* submap = queue->GetSubs();
+      for ( const auto& [subid, subqueue] : *submap )
       {
         std::unique_ptr<BStruct> elemsub( new BStruct );
-        elemsub->addMember( "pkt", new BLong( pkt.first ) );
-        elemsub->addMember( "sub", new BLong( subpkt.first ) );
-        elemsub->addMember( "count", new BLong( static_cast<int>( subpkt.second.size() ) ) );
+        elemsub->addMember( "pkt", new BLong( id ) );
+        elemsub->addMember( "sub", new BLong( subid ) );
+        elemsub->addMember( "count", new BLong( static_cast<int>( subqueue.size() ) ) );
         pkts->addElement( elemsub.release() );
       }
     }

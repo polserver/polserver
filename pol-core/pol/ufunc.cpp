@@ -2018,10 +2018,10 @@ void send_map_difs( Client* client )
     u32 map_patches;
   };
   std::map<u32, mapdiff> mapinfo;
-  for ( auto& Realm : gamestate.Realms )
+  for ( auto realm : gamestate.Realms )
   {
-    mapdiff md = { Realm->getNumStaticPatches(), Realm->getNumMapPatches() };
-    mapinfo.insert( std::pair<u32, mapdiff>( Realm->getUOMapID(), md ) );
+    mapinfo.emplace( realm->getUOMapID(),
+                     mapdiff{ realm->getNumStaticPatches(), realm->getNumMapPatches() } );
   }
 
   u32 max_map_id = mapinfo.rbegin()->first;
@@ -2040,8 +2040,8 @@ void send_map_difs( Client* client )
     }
     else
     {
-      msg->WriteFlipped<u32>( mapinfo.at( i ).static_patches );
-      msg->WriteFlipped<u32>( mapinfo.at( i ).map_patches );
+      msg->WriteFlipped<u32>( it->second.static_patches );
+      msg->WriteFlipped<u32>( it->second.map_patches );
     }
   }
   u16 len = msg->offset;

@@ -1181,21 +1181,18 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation( /* x,y,z,objtype,flags,r
 
 void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
 {
-  for ( const auto& citr : custom->contents() )
+  for ( const auto& [name, refobj] : custom->contents() )
   {
-    const std::string& name = citr.first;
-    BObjectImp* ref = citr.second->impptr();
+    BObjectImp* ref = refobj->impptr();
 
     if ( name == "CProps" )
     {
       if ( auto* cpropdict = impptrIf<BDictionary>( ref ) )
       {
         const BDictionary::Contents& cprop_cont = cpropdict->contents();
-        BDictionary::Contents::const_iterator itr;
-        for ( itr = cprop_cont.begin(); itr != cprop_cont.end(); ++itr )
+        for ( const auto& [key, valueobj] : cprop_cont )
         {
-          elem.add_prop( "cprop", ( ( *itr ).first->getStringRep() + "\t" +
-                                    ( *itr ).second->impptr()->pack() ) );
+          elem.add_prop( "cprop", ( key->getStringRep() + "\t" + valueobj->impptr()->pack() ) );
         }
       }
       else

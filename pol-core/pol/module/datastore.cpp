@@ -12,6 +12,7 @@
 #include <exception>
 #include <filesystem>
 #include <fstream>
+#include <ranges>
 #include <stddef.h>
 
 #include "../../bscript/berror.h"
@@ -92,17 +93,17 @@ void DataFileContents::load( Clib::ConfigFile& cf )
 
 void DataFileContents::save( Clib::StreamWriter& sw )
 {
-  for ( const auto& element : elements_by_string )
+  for ( const auto& [key, ref] : elements_by_string )
   {
-    sw.begin( "Element", element.first );
-    element.second->printOn( sw );
+    sw.begin( "Element", key );
+    ref->printOn( sw );
     sw.end();
   }
 
-  for ( const auto& element : elements_by_integer )
+  for ( const auto& [key, ref] : elements_by_integer )
   {
-    sw.begin( "Element", element.first );
-    element.second->printOn( sw );
+    sw.begin( "Element", key );
+    ref->printOn( sw );
     sw.end();
   }
 }
@@ -388,9 +389,8 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
 Bscript::BObjectImp* DataFileExecutorModule::mf_ListDataFiles()
 {
   std::unique_ptr<Bscript::ObjArray> file_list( new Bscript::ObjArray );
-  for ( auto& itr : Core::configurationbuffer.datastore )
+  for ( auto dsf : Core::configurationbuffer.datastore | std::views::values )
   {
-    DataStoreFile* dsf = itr.second;
     std::unique_ptr<Bscript::BStruct> file_name( new Bscript::BStruct );
     file_name->addMember( "pkg", new Bscript::String( dsf->pkgname ) );
     file_name->addMember( "name", new Bscript::String( dsf->name ) );
@@ -689,10 +689,8 @@ void read_datastore_dat()
 
 void write_datastore( Clib::StreamWriter& sw )
 {
-  for ( auto& itr : Core::configurationbuffer.datastore )
+  for ( auto dsf : Core::configurationbuffer.datastore | std::views::values )
   {
-    DataStoreFile* dsf = itr.second;
-
     dsf->delversion = dsf->oldversion;
     dsf->oldversion = dsf->version;
 
@@ -712,10 +710,8 @@ void write_datastore( Clib::StreamWriter& sw )
 
 void commit_datastore()
 {
-  for ( auto& itr : Core::configurationbuffer.datastore )
+  for ( auto dsf : Core::configurationbuffer.datastore | std::views::values )
   {
-    DataStoreFile* dsf = itr.second;
-
     if ( dsf->delversion != dsf->version && dsf->delversion != dsf->oldversion )
     {
       Clib::RemoveFile( dsf->filename( dsf->delversion ) );

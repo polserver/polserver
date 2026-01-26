@@ -46,18 +46,17 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
                                          unsigned& PC ) const
 {
   const EScriptProgram* prog = uoexec.prog();
-  for ( const auto& exported_function : prog->exported_functions )
+  for ( const auto& exportedfunc : prog->exported_functions )
   {
-    const EPExportedFunction* exportedfunc = &exported_function;
-    if ( stricmp( exportedfunc->name.c_str(), name.c_str() ) == 0 )
+    if ( stricmp( exportedfunc.name.c_str(), name.c_str() ) == 0 )
     {
-      if ( args != exportedfunc->nargs )
+      if ( args != exportedfunc.nargs )
       {
         INFO_PRINTLN( "Exported function {} in script {} takes {} parameters, expected {}", name,
-                      scriptname(), exportedfunc->nargs, args );
+                      scriptname(), exportedfunc.nargs, args );
         return false;
       }
-      PC = exportedfunc->PC;
+      PC = exportedfunc.PC;
       return true;
     }
   }
@@ -67,18 +66,17 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
 bool ExportScript::FindExportedFunction( const char* name, unsigned args, unsigned& PC ) const
 {
   const EScriptProgram* prog = uoexec.prog();
-  for ( const auto& exported_function : prog->exported_functions )
+  for ( const auto& exportedfunc : prog->exported_functions )
   {
-    const EPExportedFunction* exportedfunc = &exported_function;
-    if ( stricmp( exportedfunc->name.c_str(), name ) == 0 )
+    if ( stricmp( exportedfunc.name.c_str(), name ) == 0 )
     {
-      if ( args != exportedfunc->nargs )
+      if ( args != exportedfunc.nargs )
       {
         INFO_PRINTLN( "Exported function {} in script {} takes {} parameters, expected {}", name,
-                      scriptname(), exportedfunc->nargs, args );
+                      scriptname(), exportedfunc.nargs, args );
         return false;
       }
-      PC = exportedfunc->PC;
+      PC = exportedfunc.PC;
       return true;
     }
   }
@@ -323,10 +321,9 @@ BObjectImp* ExportScript::call( unsigned PC, BObjectImp* p0, std::vector<BObject
     uoexec.initForFnCall( PC );
 
     uoexec.pushArg( p0 );
-    size_t n = pmore.size();
-    for ( size_t i = 0; i < n; ++i )
+    for ( const auto& ref : pmore )
     {  // push BObjectRef so params can be pass-by-ref
-      uoexec.pushArg( pmore[i] );
+      uoexec.pushArg( ref );
     }
 
     uoexec.exec();
@@ -355,11 +352,8 @@ BObject ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImpRefVec& pmore
     uoexec.initForFnCall( PC );
 
     uoexec.pushArg( p0 );
-    size_t n = pmore.size();
-    for ( size_t i = 0; i < n; ++i )
-    {
-      uoexec.pushArg( pmore[i].get() );
-    }
+    for ( const auto& ref : pmore )
+      uoexec.pushArg( ref.get() );
 
     uoexec.exec();
     BObjectImp* ret = expect_imp();

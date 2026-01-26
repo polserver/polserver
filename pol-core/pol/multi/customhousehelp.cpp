@@ -210,12 +210,12 @@ void CustomHouseElements::SetWidth( u32 _width )
 size_t CustomHouseElements::estimatedSize() const
 {
   size_t size = sizeof( CustomHouseElements ) + Clib::memsize( data );
-  for ( const auto& floor : data )
+  for ( const auto& row : data )
   {
-    size += Clib::memsize( floor );
-    for ( const auto& l : floor )
+    size += Clib::memsize( row );
+    for ( const auto& column : row )
     {
-      size += Clib::memsize( l );
+      size += Clib::memsize( column );
     }
   }
   return size;

@@ -22,6 +22,7 @@
 #include "customhouses.h"
 
 #include <cstddef>
+#include <ranges>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
@@ -271,11 +272,11 @@ void CustomHouseDesign::Clear()
   // delete contents of all z column lists
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    for ( auto& xitr : Elements[i].data )
+    for ( auto& floor : Elements[i].data )
     {
-      for ( auto& yitr : xitr )
+      for ( auto& row : floor )
       {
-        yitr.clear();
+        row.clear();
       }
     }
     floor_sizes[i] = 0;
@@ -296,24 +297,24 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
   memset( compressed, 0, cbuflen );
 
   int i = 0;
-  for ( const auto& xitr : Elements[floor].data )
+  for ( const auto& row : Elements[floor].data )
   {
     i = 0;
-    for ( const auto& yitr : xitr )
+    for ( const auto& column : row )
     {
-      for ( const auto& zitr : yitr )
+      for ( const auto& ele : column )
       {
         // assume type 0, I don't know how to deal with stair pieces at odd Z values for mode 1,
         // and mode 2 is just wacky. (position implied from list position, needs alot of null tiles
         // to make that work (but they compress very well)
         if ( i < numtiles )
         {
-          uncompressed[nextindex++] = (u8)( ( zitr.graphic >> 8 ) & 0xFF );
-          uncompressed[nextindex++] = (u8)( zitr.graphic & 0xFF );
+          uncompressed[nextindex++] = (u8)( ( ele.graphic >> 8 ) & 0xFF );
+          uncompressed[nextindex++] = (u8)( ele.graphic & 0xFF );
 
-          uncompressed[nextindex++] = (u8)zitr.xoffset;
-          uncompressed[nextindex++] = (u8)zitr.yoffset;
-          uncompressed[nextindex++] = (u8)zitr.z;
+          uncompressed[nextindex++] = (u8)ele.xoffset;
+          uncompressed[nextindex++] = (u8)ele.yoffset;
+          uncompressed[nextindex++] = (u8)ele.z;
         }
         ++i;
       }
@@ -380,9 +381,8 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
     return;
   }
 
-  for ( const auto& component : multidef->components )
+  for ( auto m_elem : multidef->components | std::views::values )
   {
-    const MULTI_ELEM* m_elem = component.second;
     if ( ( ( m_elem->objtype ) & Plib::systemstate.config.max_tile_id ) ==
          1 )  // don't add the invisible multi tile
       continue;
@@ -428,14 +428,14 @@ void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::stri
   {
     for ( const auto& element : Elements )
     {
-      for ( const auto& xitr : element.data )
+      for ( const auto& row : element.data )
       {
-        for ( const auto& yitr : xitr )
+        for ( const auto& column : row )
         {
-          for ( const auto& zitr : yitr )
+          for ( const auto& ele : column )
           {
-            sw.add( prefix, fmt::format( FMT_COMPILE( "{} {} {} {}" ), zitr.graphic, zitr.xoffset,
-                                         zitr.yoffset, (u16)zitr.z ) );
+            sw.add( prefix, fmt::format( FMT_COMPILE( "{} {} {} {}" ), ele.graphic, ele.xoffset,
+                                         ele.yoffset, (u16)ele.z ) );
           }
         }
       }
@@ -451,16 +451,16 @@ void CustomHouseDesign::testprint( std::ostream& os ) const
     for ( const auto& element : Elements )
     {
       int x = 0, y = 0;
-      for ( const auto& xitr : element.data )
+      for ( const auto& row : element.data )
       {
         os << "X: " << x << std::endl;
-        for ( const auto& yitr : xitr )
+        for ( const auto& column : row )
         {
           os << "\tY: " << y << std::endl;
-          for ( const auto& zitr : yitr )
+          for ( const auto& ele : column )
           {
-            os << "\t\t" << zitr.graphic << " " << zitr.xoffset << " " << zitr.yoffset << " "
-               << (u16)zitr.z << std::endl;
+            os << "\t\t" << ele.graphic << " " << ele.xoffset << " " << ele.yoffset << " "
+               << (u16)ele.z << std::endl;
           }
           ++y;
         }
@@ -538,15 +538,14 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
   UHouse::Components* comp = house->get_components();
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    for ( HouseFloor::iterator xitr = Elements[i].data.begin(), xitrend = Elements[i].data.end();
-          xitr != xitrend; ++xitr )
+    for ( auto& row : Elements[i].data )
     {
-      for ( auto& yitr : *xitr )
+      for ( auto& column : row )
       {
-        HouseFloorZColumn::iterator zitr = yitr.begin();
-        while ( zitr != yitr.end() )
+        HouseFloorZColumn::iterator ele = column.begin();
+        while ( ele != column.end() )
         {
-          const Items::ItemDesc& id = Items::find_itemdesc( zitr->graphic );
+          const Items::ItemDesc& id = Items::find_itemdesc( ele->graphic );
           if ( id.type == Items::ItemDesc::DOORDESC )
           {
             if ( add_as_component )
@@ -554,7 +553,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               Items::Item* component = Items::Item::create( id.objtype );
               if ( component != nullptr )
               {
-                bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                bool res = house->add_component( component, ele->xoffset, ele->yoffset, ele->z );
                 passert_always_r( res,
                                   "Couldn't add newly created door as house component. Please "
                                   "report this bug on the forums." );
@@ -562,9 +561,9 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              u16 c_x = static_cast<u16>( house->x() + zitr->xoffset );
-              u16 c_y = static_cast<u16>( house->y() + zitr->yoffset );
-              s8 c_z = static_cast<s8>( house->z() + zitr->z );
+              u16 c_x = static_cast<u16>( house->x() + ele->xoffset );
+              u16 c_y = static_cast<u16>( house->y() + ele->yoffset );
+              s8 c_z = static_cast<s8>( house->z() + ele->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
               for ( const auto& c : *comp )
@@ -573,7 +572,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 if ( item == nullptr || item->orphan() )
                   continue;
                 if ( c_x == item->x() && c_y == item->y() && c_z == item->z() &&
-                     zitr->graphic == item->graphic )
+                     ele->graphic == item->graphic )
                 {
                   exists = true;
                   break;
@@ -581,22 +580,22 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               }
               if ( !exists )
               {
-                ++zitr;
+                ++ele;
                 continue;
               }
             }
-            zitr = yitr.erase( zitr );
+            ele = column.erase( ele );
             floor_sizes[i]--;
           }
-          else if ( zitr->graphic >= TELEPORTER_START &&
-                    zitr->graphic <= TELEPORTER_END )  // teleporters
+          else if ( ele->graphic >= TELEPORTER_START &&
+                    ele->graphic <= TELEPORTER_END )  // teleporters
           {
             if ( add_as_component )
             {
-              Items::Item* component = Items::Item::create( zitr->graphic );
+              Items::Item* component = Items::Item::create( ele->graphic );
               if ( component != nullptr )
               {
-                bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                bool res = house->add_component( component, ele->xoffset, ele->yoffset, ele->z );
                 passert_always_r( res,
                                   "Couldn't add newly created teleporter as house component. "
                                   "Please report this bug on the forums." );
@@ -604,9 +603,9 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              u16 c_x = static_cast<u16>( house->x() + zitr->xoffset );
-              u16 c_y = static_cast<u16>( house->y() + zitr->yoffset );
-              s8 c_z = static_cast<s8>( house->z() + zitr->z );
+              u16 c_x = static_cast<u16>( house->x() + ele->xoffset );
+              u16 c_y = static_cast<u16>( house->y() + ele->yoffset );
+              s8 c_z = static_cast<s8>( house->z() + ele->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
               for ( const auto& c : *comp )
@@ -615,7 +614,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 if ( item == nullptr || item->orphan() )
                   continue;
                 if ( c_x == item->x() && c_y == item->y() && c_z == item->z() &&
-                     zitr->graphic == item->graphic )
+                     ele->graphic == item->graphic )
                 {
                   exists = true;
                   break;
@@ -623,15 +622,15 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               }
               if ( !exists )
               {
-                ++zitr;
+                ++ele;
                 continue;
               }
             }
-            zitr = yitr.erase( zitr );
+            ele = column.erase( ele );
             floor_sizes[i]--;
           }
           else
-            ++zitr;
+            ++ele;
         }
       }
     }
@@ -641,19 +640,19 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
 Bscript::ObjArray* CustomHouseDesign::list_parts() const
 {
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( const auto& element : Elements )
+  for ( const auto& floor : Elements )
   {
-    for ( const auto& xitr : element.data )
+    for ( const auto& row : floor.data )
     {
-      for ( const auto& yitr : xitr )
+      for ( const auto& column : row )
       {
-        for ( const auto& zitr : yitr )
+        for ( const auto& ele : column )
         {
           std::unique_ptr<Bscript::BStruct> itemstruct( new Bscript::BStruct );
-          itemstruct->addMember( "graphic", new Bscript::BLong( zitr.graphic ) );
-          itemstruct->addMember( "xoffset", new Bscript::BLong( zitr.xoffset ) );
-          itemstruct->addMember( "yoffset", new Bscript::BLong( zitr.yoffset ) );
-          itemstruct->addMember( "z", new Bscript::BLong( zitr.z ) );
+          itemstruct->addMember( "graphic", new Bscript::BLong( ele.graphic ) );
+          itemstruct->addMember( "xoffset", new Bscript::BLong( ele.xoffset ) );
+          itemstruct->addMember( "yoffset", new Bscript::BLong( ele.yoffset ) );
+          itemstruct->addMember( "z", new Bscript::BLong( ele.z ) );
           arr->addElement( itemstruct.release() );
         }
       }
