@@ -50,9 +50,9 @@ bool CmdLevel::matches( const std::string& i_name ) const
 {
   if ( Clib::stringicmp( i_name, name ) == 0 )
     return true;
-  for ( const auto& aliase : aliases )
+  for ( const auto& alias : aliases )
   {
-    if ( Clib::stringicmp( i_name, aliase ) == 0 )
+    if ( Clib::stringicmp( i_name, alias ) == 0 )
       return true;
   }
   return false;
