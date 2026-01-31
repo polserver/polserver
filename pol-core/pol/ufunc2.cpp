@@ -41,16 +41,15 @@ bool send_menu( Client* client, Menu* menu )
   msg->Write( convertedText.c_str(), static_cast<u16>( stringlen ), false );
   msg->Write<u8>( menu->menuitems_.size() );
 
-  for ( unsigned idx = 0; idx < menu->menuitems_.size(); idx++ )
+  for ( const auto& mi : menu->menuitems_ )
   {
     if ( msg->offset + 85 > static_cast<u16>( sizeof msg->buffer ) )
     {
       return false;
     }
-    MenuItem* mi = &menu->menuitems_[idx];
-    msg->WriteFlipped<u16>( mi->graphic_ );
-    msg->WriteFlipped<u16>( mi->color_ );
-    convertedText = Clib::strUtf8ToCp1252( mi->title );
+    msg->WriteFlipped<u16>( mi.graphic_ );
+    msg->WriteFlipped<u16>( mi.color_ );
+    convertedText = Clib::strUtf8ToCp1252( mi.title );
     stringlen = convertedText.length();
     if ( stringlen > 80 )
       stringlen = 80;
@@ -80,9 +79,8 @@ void send_container_contents( Client* client, const UContainer& cont )
   PktHelper::PacketOut<PktOut_3C> msg;
   msg->offset += 4;  // msglen+count
   u16 count = 0;
-  for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
+  for ( auto item : cont )
   {
-    const Items::Item* item = *itr;
     if ( !item->invisible() || client->chr->can_seeinvisitems() )
     {
       msg->Write<u32>( item->serial_ext );
@@ -113,9 +111,8 @@ void send_container_contents( Client* client, const UContainer& cont )
   {
     // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send
     // revision
-    for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
+    for ( auto item : cont )
     {
-      const Items::Item* item = *itr;
       if ( !item->invisible() || client->chr->can_seeinvisitems() )
       {
         send_object_cache( client, item );

@@ -170,12 +170,11 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
       return new BError( "Array empty" );
 
     BObjectImp* compare = nullptr;
-    for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin();
-          itr != value->ref_arr.end(); ++itr )
+    for ( auto& itr : value->ref_arr )
     {
-      if ( itr->get() )
+      if ( itr.get() )
       {
-        BObject* bo = ( itr->get() );
+        BObject* bo = ( itr.get() );
 
         if ( bo == nullptr )
           continue;
@@ -212,12 +211,11 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
       return new BError( "Array empty" );
 
     BObjectImp* compare = nullptr;
-    for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin();
-          itr != value->ref_arr.end(); ++itr )
+    for ( auto& itr : value->ref_arr )
     {
-      if ( itr->get() )
+      if ( itr.get() )
       {
-        BObject* bo = ( itr->get() );
+        BObject* bo = ( itr.get() );
 
         if ( bo == nullptr )
           continue;

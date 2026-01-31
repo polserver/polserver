@@ -169,9 +169,8 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
   {
     sharedParams = std::make_shared<Core::QueryParam>();
 
-    for ( unsigned i = 0; i < params->ref_arr.size(); ++i )
+    for ( const auto& ref : params->ref_arr )
     {
-      const BObjectRef& ref = params->ref_arr[i];
       const BObject* obj = ref.get();
       if ( obj != nullptr )
         sharedParams->insert( sharedParams->end(), obj->impptr()->getStringRep() );

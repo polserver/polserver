@@ -603,11 +603,9 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
   if ( !ofs.is_open() )
     return new Bscript::BError( "Failed to open file" );
   ofs << std::endl << elemtype->value() << " " << elemkey << std::endl << "{" << std::endl;
-  for ( Bscript::ObjArray::const_iterator itr = objarr->ref_arr.begin(),
-                                          end = objarr->ref_arr.end();
-        itr != end; ++itr )
+  for ( const auto& itr : objarr->ref_arr )
   {
-    Bscript::BObject* bo = itr->get();
+    Bscript::BObject* bo = itr.get();
     if ( bo != nullptr )
     {
       if ( auto* inarr = bo->impptr_if<Bscript::ObjArray>() )

@@ -16,6 +16,7 @@
 #include "uvars.h"
 
 #include <algorithm>
+#include <ranges>
 #include <string.h>
 
 #include "../../bscript/bobject.h"
@@ -425,12 +426,12 @@ void GameState::unload_intrinsic_weapons()
 
 void GameState::unload_intrinsic_templates()
 {
-  for ( auto it = intrinsic_equipments.begin(); it != intrinsic_equipments.end(); ++it )
+  for ( auto& intrinsic_equipment : intrinsic_equipments | std::views::values )
   {
-    if ( it->second != nullptr )
+    if ( intrinsic_equipment != nullptr )
     {
-      it->second->destroy();
-      it->second = nullptr;
+      intrinsic_equipment->destroy();
+      intrinsic_equipment = nullptr;
     }
   }
   intrinsic_equipments.clear();

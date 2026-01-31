@@ -403,11 +403,9 @@ GuildExecutorModule::GuildExecutorModule( Bscript::Executor& exec )
 BObjectImp* GuildExecutorModule::mf_ListGuilds()
 {
   std::unique_ptr<ObjArray> result( new ObjArray );
-  for ( Core::Guilds::iterator itr = Core::gamestate.guilds.begin(),
-                               end = Core::gamestate.guilds.end();
-        itr != end; ++itr )
+  for ( auto& itr : Core::gamestate.guilds )
   {
-    Core::Guild* guild = ( *itr ).second.get();
+    Core::Guild* guild = itr.second.get();
     result->addElement( new EGuildRefObjImp( Core::GuildRef( guild ) ) );
   }
   return result.release();

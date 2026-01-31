@@ -203,18 +203,18 @@ void ResourceDef::counttiles()
     }
   }
   POLLOG_INFOLN( "Resource {}: {}", name(), tilecount );
-  for ( unsigned i = 0; i < regions_.size(); ++i )
+  for ( auto& region : regions_ )
   {
-    ResourceRegion* rrgn = static_cast<ResourceRegion*>( regions_[i] );
-    POLLOG_INFOLN( "Region {}: {}", regions_[i]->name(), rrgn->tilecount_ );
+    ResourceRegion* rrgn = static_cast<ResourceRegion*>( region );
+    POLLOG_INFOLN( "Region {}: {}", region->name(), rrgn->tilecount_ );
   }
 }
 
 void ResourceDef::regenerate( time_t now )
 {
-  for ( unsigned i = 0; i < regions_.size(); ++i )
+  for ( auto& region : regions_ )
   {
-    ResourceRegion* rrgn = static_cast<ResourceRegion*>( regions_[i] );
+    ResourceRegion* rrgn = static_cast<ResourceRegion*>( region );
     rrgn->regenerate( now );
   }
 }
@@ -236,21 +236,17 @@ void regen_resources()
 {
   THREAD_CHECKPOINT( tasks, 700 );
   time_t now = poltime();
-  for ( ResourceDefs::iterator itr = gamestate.resourcedefs.begin(),
-                               end = gamestate.resourcedefs.end();
-        itr != end; ++itr )
+  for ( auto& resourcedef : gamestate.resourcedefs )
   {
-    ( *itr ).second->regenerate( now );
+    resourcedef.second->regenerate( now );
   }
   THREAD_CHECKPOINT( tasks, 799 );
 }
 void count_resource_tiles()
 {
-  for ( ResourceDefs::iterator itr = gamestate.resourcedefs.begin(),
-                               end = gamestate.resourcedefs.end();
-        itr != end; ++itr )
+  for ( auto& resourcedef : gamestate.resourcedefs )
   {
-    ( *itr ).second->counttiles();
+    resourcedef.second->counttiles();
   }
 }
 
@@ -425,9 +421,9 @@ void ResourceDef::write( Clib::StreamWriter& sw ) const
   sw.add( "Units", current_units_ );
   sw.end();
 
-  for ( unsigned i = 0; i < regions_.size(); ++i )
+  for ( auto region : regions_ )
   {
-    ResourceRegion* rrgn = static_cast<ResourceRegion*>( regions_[i] );
+    ResourceRegion* rrgn = static_cast<ResourceRegion*>( region );
     rrgn->write( sw, name() );
   }
 }

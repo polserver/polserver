@@ -273,10 +273,8 @@ void setMethod( std::unique_ptr<ExportScript>* script, Plib::Package* pkg,
 
 void load_system_hooks()
 {
-  for ( Plib::Packages::const_iterator citr = Plib::systemstate.packages.begin();
-        citr != Plib::systemstate.packages.end(); ++citr )
+  for ( auto pkg : Plib::systemstate.packages )
   {
-    Plib::Package* pkg = ( *citr );
     std::string fname = Plib::GetPackageCfgPath( pkg, "syshook.cfg" );
     if ( Clib::FileExists( fname.c_str() ) )
     {

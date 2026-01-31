@@ -1515,14 +1515,12 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor,
 void UBoat::create_components()
 {
   const BoatShape& bshape = boatshape();
-  for ( std::vector<BoatShape::ComponentShape>::const_iterator itr = bshape.Componentshapes.begin(),
-                                                               end = bshape.Componentshapes.end();
-        itr != end; ++itr )
+  for ( const auto& componentshape : bshape.Componentshapes )
   {
     Items::Item* component;
     try
     {
-      component = Items::Item::create( itr->objtype );
+      component = Items::Item::create( componentshape.objtype );
     }
     catch ( ... )
     {
@@ -1541,10 +1539,10 @@ void UBoat::create_components()
     if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == nullptr )
       hold = component;
 
-    component->graphic = itr->graphic;
+    component->graphic = componentshape.graphic;
     // component itemdesc entries generally have graphic=1, so they don't get their height set.
     component->height = Plib::tileheight( component->graphic );
-    component->setposition( pos() + itr->delta );
+    component->setposition( pos() + componentshape.delta );
     component->disable_decay();
     component->movable( false );
     add_item_to_world( component );

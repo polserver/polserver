@@ -136,9 +136,8 @@ size_t UHouse::estimatedSize() const
 void UHouse::create_components()
 {
   const MultiDef& md = multidef();
-  for ( unsigned i = 0; i < md.elems.size(); ++i )
+  for ( const auto& elem : md.elems )
   {
-    const MULTI_ELEM& elem = md.elems[i];
     if ( !elem.is_static )
     {
       Items::Item* item = Items::Item::create( elem.objtype );
@@ -215,10 +214,9 @@ bool UHouse::add_component( Component item )
 Bscript::ObjArray* UHouse::component_list() const
 {
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end;
-        ++itr )
+  for ( const auto& component : components_ )
   {
-    Items::Item* item = ( *itr ).get();
+    Items::Item* item = component.get();
     if ( item != nullptr && !item->orphan() )
     {
       arr->addElement( new Module::EItemRefObjImp( item ) );
@@ -597,10 +595,9 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
 
-  for ( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end;
-        ++itr )
+  for ( const auto& component : components_ )
   {
-    Items::Item* item = ( *itr ).get();
+    Items::Item* item = component.get();
     if ( item != nullptr && !item->orphan() )
     {
       sw.add( "Component", Clib::hexintv( item->serial ) );
@@ -719,10 +716,7 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
     return false;
 
   bool result = false;
-  HouseFloorZColumn* elems;
-  HouseFloorZColumn::iterator itr;
-  CustomHouseDesign* design;
-  design =
+  CustomHouseDesign* design =
       editing
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
@@ -730,15 +724,15 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
   if ( shape_x + design->xoff < 0 || shape_x + design->xoff >= static_cast<s32>( design->width ) ||
        shape_y + design->yoff < 0 || shape_y + design->yoff >= static_cast<s32>( design->height ) )
     return false;
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+  for ( auto& element : design->Elements )
   {
-    elems = design->Elements[i].GetElementsAt( shape_x, shape_y );
-    for ( itr = elems->begin(); itr != elems->end(); ++itr )
+    auto* elems = element.GetElementsAt( shape_x, shape_y );
+    for ( const auto& item : *elems )
     {
       Plib::MapShape shape;
-      shape.z = itr->z + zbase;
-      shape.height = Plib::tileheight( itr->graphic );
-      shape.flags = Plib::tile_flags( itr->graphic );
+      shape.z = item.z + zbase;
+      shape.height = Plib::tileheight( item.graphic );
+      shape.flags = Plib::tile_flags( item.graphic );
       if ( !shape.height )
       {
         ++shape.height;
@@ -778,10 +772,7 @@ bool UHouse::readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short
     return false;
 
   bool result = false;
-  HouseFloorZColumn* elems;
-  HouseFloorZColumn::iterator itr;
-  CustomHouseDesign* design;
-  design =
+  CustomHouseDesign* design =
       editing
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
@@ -789,13 +780,13 @@ bool UHouse::readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short
   if ( obj_x + design->xoff < 0 || obj_x + design->xoff >= static_cast<s32>( design->width ) ||
        obj_y + design->yoff < 0 || obj_y + design->yoff >= static_cast<s32>( design->height ) )
     return false;
-  for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+  for ( auto& element : design->Elements )
   {
-    elems = design->Elements[i].GetElementsAt( obj_x, obj_y );
-    for ( itr = elems->begin(); itr != elems->end(); ++itr )
+    auto* elems = element.GetElementsAt( obj_x, obj_y );
+    for ( const auto& elem : *elems )
     {
-      Plib::StaticRec rec( itr->graphic, static_cast<signed char>( itr->z + zbase ),
-                           Plib::tile_flags( itr->graphic ), Plib::tileheight( itr->graphic ) );
+      Plib::StaticRec rec( elem.graphic, static_cast<signed char>( elem.z + zbase ),
+                           Plib::tile_flags( elem.graphic ), Plib::tileheight( elem.graphic ) );
       if ( !rec.height )
       {
         ++rec.height;

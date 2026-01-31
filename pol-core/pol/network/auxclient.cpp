@@ -338,10 +338,9 @@ void aux_service_thread_stub( void* arg )
 
 void start_aux_services()
 {
-  for ( unsigned i = 0; i < Core::networkManager.auxservices.size(); ++i )
+  for ( auto& auxservice : Core::networkManager.auxservices )
   {
-    threadhelp::start_thread( aux_service_thread_stub, "AuxService",
-                              Core::networkManager.auxservices[i] );
+    threadhelp::start_thread( aux_service_thread_stub, "AuxService", auxservice );
   }
 }
 

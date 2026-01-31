@@ -96,9 +96,8 @@ std::string getcmdstr( char ch )
 
 ConsoleCommand* ConsoleCommand::find_console_command( char ch )
 {
-  for ( unsigned i = 0; i < gamestate.console_commands.size(); ++i )
+  for ( auto& cmd : gamestate.console_commands )
   {
-    ConsoleCommand& cmd = gamestate.console_commands[i];
     if ( cmd.ch == ch )
       return &cmd;
   }
@@ -139,9 +138,8 @@ void ConsoleCommand::exec_console_cmd( char ch )
   if ( ch == '?' )
   {
     std::string tmp = "Commands: \n";
-    for ( unsigned i = 0; i < gamestate.console_commands.size(); ++i )
+    for ( auto& cmd : gamestate.console_commands )
     {
-      ConsoleCommand& cmd = gamestate.console_commands[i];
       std::string sc = getcmdstr( cmd.ch );
       tmp += fmt::format( "{}{}: {}\n", sc.size() == 1 ? "  " : " ", sc, cmd.description );
     }
