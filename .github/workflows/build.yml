@@ -276,7 +276,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "NightlyRelease"
-          reference_release_tag: "v100.1.0"
+          reference_release_tag: "v100.2.0"
           prerelease: true
           title: "Nightly Release"
           files: |
