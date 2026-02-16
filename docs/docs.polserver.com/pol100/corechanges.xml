@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-18-2026</datemodified>
+		<datemodified>02-16-2026</datemodified>
 	</header>
 	<version name="POL100.2.0">
+		<entry>
+			<date>02-16-2026</date>
+			<author>Turley:</author>
+			<change type="Note">Pol 100.2.0 is now officially released</change>
+		</entry>
 		<entry>
 			<date>01-18-2026</date>
 			<author>Turley:</author>
