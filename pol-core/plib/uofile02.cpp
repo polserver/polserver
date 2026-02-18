@@ -13,6 +13,7 @@
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
 #include "../clib/strutil.h"
+#include "staticblock.h"
 #include "uofile.h"
 #include "uofilei.h"
 #include "ustruct.h"
@@ -69,10 +70,7 @@ void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned sho
   {
     ERROR_PRINTLN( "readstaticblock: x={},y={}", x, y );
   }
-  unsigned int x_block, y_block;
-  x_block = x / 8;
-  y_block = y / 8;
-  unsigned int block = ( x_block * ( uo_map_height / 8 ) + y_block );
+  auto block = staticblock_from_coords( x, y, uo_map_height );
   *ppst = rawstatic_buffer_vec.at( block ).statics;
   *pnum = rawstatic_buffer_vec.at( block ).count;
 }
@@ -95,15 +93,12 @@ void rawstaticfullread()
                                     Clib::tostring( idx.offset ) + " failed." );
         }
         srec_count = idx.length / sizeof srecs[0];
-        int x = block / uo_map_width;  // FIXME is this correct?
-        int y = ( block % uo_map_width ) / 8;
-        passert_always_r( srec_count <= cfg_max_statics_per_block,
-                          "to many static items in area " + Clib::tostring( x ) + " " +
-                              Clib::tostring( y ) + " " + Clib::tostring( x + 7 ) + " " +
-                              Clib::tostring( y + 7 ) +
-                              " - maybe double items... you've to reduce amount of " +
-                              Clib::tostring( srec_count ) + " items below " +
-                              Clib::tostring( cfg_max_statics_per_block ) + " items" );
+        auto [x, y] = staticblock_to_coords( block, uo_map_height );
+        passert_always_r(
+            srec_count <= cfg_max_statics_per_block,
+            std::format( "to many static items in area {} {} {} {} - maybe double items... you've "
+                         "to reduce amount of {} items below {} items ",
+                         x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
         // dave 9/8/3, Austin's statics had a normal offset but a length of 0. badly written tool?
         if ( idx.length != 0 && fread( srecs, idx.length, 1, statfile ) != 1 )
@@ -149,15 +144,12 @@ void rawstaticfullread()
         }
 
         srec_count = idx.length / sizeof srecs[0];
-        int x = block / uo_map_width;
-        int y = ( block % uo_map_width ) / ( uo_map_height / 8 );
-        passert_always_r( srec_count <= cfg_max_statics_per_block,
-                          "to many static items in area " + Clib::tostring( x ) + " " +
-                              Clib::tostring( y ) + " " + Clib::tostring( x + 7 ) + " " +
-                              Clib::tostring( y + 7 ) +
-                              " - maybe double items... you've to reduce amount of " +
-                              Clib::tostring( srec_count ) + " items below " +
-                              Clib::tostring( cfg_max_statics_per_block ) + " items" );
+        auto [x, y] = staticblock_to_coords( block, uo_map_height );
+        passert_always_r(
+            srec_count <= cfg_max_statics_per_block,
+            std::format( "to many static items in area {} {} {} {} - maybe double items... you've "
+                         "to reduce amount of {} items below {} items ",
+                         x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
         if ( fread( srecs, idx.length, 1, stadif_file ) != 1 )
         {
