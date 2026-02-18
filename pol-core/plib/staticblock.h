@@ -49,7 +49,7 @@ constexpr std::pair<u16, u16> staticblock_to_coords( size_t block, u16 map_heigh
            ( block % ( map_height / STATICBLOCK_CHUNK ) ) * STATICBLOCK_CHUNK };
 }
 static_assert( staticblock_to_coords( staticblock_from_coords( 96, 200, 4096 ), 4096 ) ==
-               std::make_pair( 96, 200 ) );
+               std::make_pair( 96u, 200u ) );
 
 }  // namespace Pol::Plib
 
