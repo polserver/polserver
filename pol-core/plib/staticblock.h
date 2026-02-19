@@ -45,11 +45,11 @@ constexpr size_t staticblock_from_coords( u16 x, u16 y, u16 map_height )
 
 constexpr std::pair<u16, u16> staticblock_to_coords( size_t block, u16 map_height )
 {
-  return { block / ( map_height / STATICBLOCK_CHUNK ) * STATICBLOCK_CHUNK,
-           ( block % ( map_height / STATICBLOCK_CHUNK ) ) * STATICBLOCK_CHUNK };
+  return { static_cast<u16>( block / ( map_height / STATICBLOCK_CHUNK ) * STATICBLOCK_CHUNK ),
+           static_cast<u16>( ( block % ( map_height / STATICBLOCK_CHUNK ) ) * STATICBLOCK_CHUNK ) };
 }
-static_assert( staticblock_to_coords( staticblock_from_coords( 96, 200, 4096 ), 4096 ) ==
-               std::make_pair( 96_u16, 200_u16 ) );
+static_assert( staticblock_to_coords( staticblock_from_coords( 3288, 4000, 4096 ), 4096 ) ==
+               std::make_pair( 3288_u16, 4000_u16 ) );
 
 }  // namespace Pol::Plib
 

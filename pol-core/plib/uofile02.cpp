@@ -8,6 +8,7 @@
 
 
 #include <cstdio>
+#include <fmt/format.h>
 
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
@@ -96,7 +97,7 @@ void rawstaticfullread()
         auto [x, y] = staticblock_to_coords( block, uo_map_height );
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
-            std::format( "to many static items in area {} {} {} {} - maybe double items... you've "
+            fmt::format( "to many static items in area {} {} {} {} - maybe double items... you've "
                          "to reduce amount of {} items below {} items ",
                          x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
@@ -147,7 +148,7 @@ void rawstaticfullread()
         auto [x, y] = staticblock_to_coords( block, uo_map_height );
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
-            std::format( "to many static items in area {} {} {} {} - maybe double items... you've "
+            fmt::format( "to many static items in area {} {} {} {} - maybe double items... you've "
                          "to reduce amount of {} items below {} items ",
                          x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
