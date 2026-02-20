@@ -1006,6 +1006,7 @@ class BSpecialUserFuncJump final : public BObjectImp
 {
 public:
   static BSpecialUserFuncJump* get();
+  static void ReleaseSharedInstance();
 
 public:  // needed minimal imp
   size_t sizeEstimate() const override;
@@ -1015,7 +1016,9 @@ public:  // needed minimal imp
 private:
   BSpecialUserFuncJump();
   ~BSpecialUserFuncJump() override = default;
-  static BSpecialUserFuncJump imp_special_userjmp;
+  static std::unique_ptr<BSpecialUserFuncJump> imp_special_userjmp;
+  friend std::unique_ptr<BSpecialUserFuncJump> std::make_unique<BSpecialUserFuncJump>();
+  friend std::unique_ptr<BSpecialUserFuncJump>::deleter_type;
 };
 
 class BApplicObjType

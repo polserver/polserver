@@ -276,6 +276,7 @@ void GameState::deinitialize()
                            // 2012-08-27: moved before objecthash due to npc-method_script cleanup
 
   Bscript::UninitObject::ReleaseSharedInstance();
+  Bscript::BSpecialUserFuncJump::ReleaseSharedInstance();
   objStorageManager.deinitialize();
   display_leftover_objects();
 
