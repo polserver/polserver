@@ -97,9 +97,10 @@ void rawstaticfullread()
         auto [x, y] = staticblock_to_coords( block, uo_map_height );
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
-            fmt::format( "to many static items in area {} {} {} {} - maybe double items... you've "
-                         "to reduce amount of {} items below {} items ",
-                         x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
+            fmt::format(
+                "to many static items in area {},{} - {},{} - maybe double items... you've "
+                "to reduce amount of {} items below {} items ",
+                x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
         // dave 9/8/3, Austin's statics had a normal offset but a length of 0. badly written tool?
         if ( idx.length != 0 && fread( srecs, idx.length, 1, statfile ) != 1 )
@@ -110,8 +111,8 @@ void rawstaticfullread()
 
 
         if ( srec_count > cfg_warning_statics_per_block )
-          INFO_PRINTLN( " Warning: {} items found in area {} {} {} {}", srec_count, x, y, ( x + 7 ),
-                        ( y + 7 ) );
+          INFO_PRINTLN( " Warning: {} items found in area {},{} - {},{}", srec_count, x, y,
+                        ( x + 7 ), ( y + 7 ) );
 
         buf.count = srec_count;
       }
@@ -148,9 +149,10 @@ void rawstaticfullread()
         auto [x, y] = staticblock_to_coords( block, uo_map_height );
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
-            fmt::format( "to many static items in area {} {} {} {} - maybe double items... you've "
-                         "to reduce amount of {} items below {} items ",
-                         x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
+            fmt::format(
+                "to many static items in area {},{} - {},{} - maybe double items... you've "
+                "to reduce amount of {} items below {} items ",
+                x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
         if ( fread( srecs, idx.length, 1, stadif_file ) != 1 )
         {
@@ -158,7 +160,7 @@ void rawstaticfullread()
         }
 
         if ( srec_count > cfg_warning_statics_per_block )
-          INFO_PRINTLN( " Warning: {} items found in dif-area {} {} {} {}", srec_count, x, y,
+          INFO_PRINTLN( " Warning: {} items found in dif-area {},{} - {},{}", srec_count, x, y,
                         ( x + 7 ), ( y + 7 ) );
 
         buf.count = srec_count;
