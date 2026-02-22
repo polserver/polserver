@@ -98,7 +98,7 @@ void rawstaticfullread()
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
             fmt::format(
-                "to many static items in area {},{} - {},{} - maybe double items... you've "
+                "too many static items in area {},{} - {},{} - maybe double items... you've "
                 "to reduce amount of {} items below {} items ",
                 x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
@@ -150,7 +150,7 @@ void rawstaticfullread()
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
             fmt::format(
-                "to many static items in area {},{} - {},{} - maybe double items... you've "
+                "too many static items in area {},{} - {},{} - maybe double items... you've "
                 "to reduce amount of {} items below {} items ",
                 x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
