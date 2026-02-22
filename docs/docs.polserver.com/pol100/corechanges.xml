@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-16-2026</datemodified>
+		<datemodified>02-22-2026</datemodified>
 	</header>
-	<version name="POL100.3.0"/>
+	<version name="POL100.3.0">
+		<entry>
+			<date>02-22-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">uoconvert showed wrong coordinates in the error msgs when too many static items exist in a block</change>
+		</entry>
+	</version>
 	<version name="POL100.2.0">
 		<entry>
 			<date>02-16-2026</date>
