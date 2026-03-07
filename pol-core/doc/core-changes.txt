@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+03-07-2026 Turley:
+    Fixed: configuration file reading failed in very rare cases due to missing thread-safety
 02-22-2026 Turley:
     Fixed: uoconvert showed wrong coordinates in the error msgs when too many static items exist in a block
 -- POL100.2.0 --
