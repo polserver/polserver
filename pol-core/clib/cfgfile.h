@@ -9,18 +9,12 @@
 #ifndef CLIB_CFGFILE_H
 #define CLIB_CFGFILE_H
 
-#define CFGFILE_USES_IOSTREAMS 0
 
-#if CFGFILE_USES_IOSTREAMS
-#include <fstream>
-#else
 #include <stdio.h>
-#endif
 
 #include <set>
 #include <string>
 #include <time.h>
-#include <vector>
 
 #include "maputil.h"
 
@@ -70,12 +64,7 @@ protected:
 private:
   std::string _filename;  // saved for exception reporting
   time_t _modified;       // used to detect modification
-#if CFGFILE_USES_IOSTREAMS
-  std::ifstream ifs;
-#else
   FILE* fp;
-  static char buffer[1024];
-#endif
   int _element_line_start;  // what line in the file did this elem start on?
   int _cur_line;
 

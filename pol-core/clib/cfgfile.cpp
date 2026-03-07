@@ -24,15 +24,12 @@
 
 namespace Pol::Clib
 {
+using namespace std::literals;
 namespace
 {
 bool commentline( const std::string& str )
 {
-#ifdef __GNUC__
-  return ( ( str[0] == '#' ) || ( str.substr( 0, 2 ) == "//" ) );
-#else
-  return ( ( str[0] == '#' ) || ( str.compare( 0, 2, "//" ) == 0 ) );
-#endif
+  return ( ( str[0] == '#' ) || ( str.compare( 0, 2, "//"sv ) == 0 ) );
 }
 }  // namespace
 
@@ -46,10 +43,6 @@ size_t ConfigElemBase::estimateSize() const
 {
   return type_.capacity() + rest_.capacity() + sizeof( _source );
 }
-
-ConfigElem::ConfigElem() : ConfigElemBase() {}
-
-ConfigElem::~ConfigElem() = default;
 
 size_t ConfigElem::estimateSize() const
 {
@@ -97,90 +90,70 @@ bool ConfigElem::remove_first_prop( std::string* propname, std::string* value )
     return false;
 
   auto itr = properties.begin();
-  *propname = ( *itr ).first;
-  *value = ( *itr ).second;
+  *propname = itr->first;
+  *value = itr->second;
   properties.erase( itr );
   return true;
 }
 
 bool ConfigElem::has_prop( const char* propname ) const
 {
-  return properties.count( propname ) != 0;
+  return properties.contains( propname );
 }
 
 bool ConfigElem::remove_prop( const char* propname, std::string* value )
 {
   auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *value = ( *itr ).second;
-    properties.erase( itr );
-    return true;
-  }
-
-  return false;
+  if ( itr == properties.end() )
+    return false;
+  *value = itr->second;
+  properties.erase( itr );
+  return true;
 }
 
 bool ConfigElem::read_prop( const char* propname, std::string* value ) const
 {
   auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *value = ( *itr ).second;
-    return true;
-  }
-
-  return false;
+  if ( itr == properties.end() )
+    return false;
+  *value = itr->second;
+  return true;
 }
 
 void ConfigElem::get_prop( const char* propname, unsigned int* plong ) const
 {
   auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *plong = strtoul( ( *itr ).second.c_str(), nullptr, 0 );
-  }
-  else
-  {
+  if ( itr == properties.end() )
     throw_error( "SERIAL property not found" );
-  }
+  *plong = strtoul( itr->second.c_str(), nullptr, 0 );
 }
 
 bool ConfigElem::remove_prop( const char* propname, unsigned int* plong )
 {
   auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *plong = strtoul( ( *itr ).second.c_str(), nullptr, 0 );
-    properties.erase( itr );
-    return true;
-  }
-
-  return false;
+  if ( itr == properties.end() )
+    return false;
+  *plong = strtoul( itr->second.c_str(), nullptr, 0 );
+  properties.erase( itr );
+  return true;
 }
 
 bool ConfigElem::remove_prop( const char* propname, unsigned short* psval )
 {
   std::string temp;
-  if ( remove_prop( propname, &temp ) )
-  {
-    // FIXME isdigit isxdigit - +
-    // or, use endptr
+  if ( !remove_prop( propname, &temp ) )
+    return false;
+  // FIXME isdigit isxdigit - +
+  // or, use endptr
 
-    char* endptr = nullptr;
-    *psval = (unsigned short)strtoul( temp.c_str(), &endptr, 0 );
-    if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
-    {
-      std::string errmsg;
-      errmsg = "Poorly formed number in property '";
-      errmsg += propname;
-      errmsg += "': " + temp;
-      throw_error( errmsg );
-    }
-    // FIXME check range within unsigned short
-    return true;
+  char* endptr = nullptr;
+  *psval = (unsigned short)strtoul( temp.c_str(), &endptr, 0 );
+  if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+  {
+    throw_error( fmt::format( "Poorly formed number in property '{}': {}", propname, temp ) );
   }
-  return false;
+  // FIXME check range within unsigned short
+  return true;
 }
 
 void ConfigElem::throw_error( const std::string& errmsg ) const
@@ -209,20 +182,14 @@ void ConfigElem::warn_with_line( const std::string& errmsg ) const
 
 void ConfigElem::prop_not_found( const char* propname ) const
 {
-  std::string errmsg( "Property '" );
-  errmsg += propname;
-  errmsg += "' was not found.";
-  throw_error( errmsg );
+  throw_error( fmt::format( "Property '{}' was not found", propname ) );
 }
 
 unsigned short ConfigElem::remove_ushort( const char* propname )
 {
   unsigned short temp;
   if ( remove_prop( propname, &temp ) )
-  {
     return temp;
-  }
-
   prop_not_found( propname );  // prop_not_found throws
 }
 
@@ -237,7 +204,6 @@ unsigned short ConfigElem::remove_ushort( const char* propname, unsigned short d
 int ConfigElem::remove_int( const char* propname )
 {
   std::string temp = remove_string( propname );
-
   return atoi( temp.c_str() );
 }
 
@@ -245,17 +211,13 @@ int ConfigElem::remove_int( const char* propname, int dflt )
 {
   std::string temp;
   if ( remove_prop( propname, &temp ) )
-  {
     return atoi( temp.c_str() );
-  }
-
   return dflt;
 }
 
 unsigned ConfigElem::remove_unsigned( const char* propname )
 {
   std::string temp = remove_string( propname );
-
   return strtoul( temp.c_str(), nullptr, 0 );  // TODO check unsigned range
 }
 
@@ -263,10 +225,7 @@ unsigned ConfigElem::remove_unsigned( const char* propname, int dflt )
 {
   std::string temp;
   if ( remove_prop( propname, &temp ) )
-  {
     return strtoul( temp.c_str(), nullptr, 0 );  // TODO check unsigned range
-  }
-
   return dflt;
 }
 
@@ -275,10 +234,7 @@ std::string ConfigElem::remove_string( const char* propname )
 {
   std::string temp;
   if ( remove_prop( propname, &temp ) )
-  {
     return temp;
-  }
-
   prop_not_found( propname );  // prop_not_found throws
 }
 
@@ -286,10 +242,7 @@ std::string ConfigElem::read_string( const char* propname ) const
 {
   std::string temp;
   if ( read_prop( propname, &temp ) )
-  {
     return temp;
-  }
-
   prop_not_found( propname );  // prop_not_found throws
 }
 std::string ConfigElem::read_string( const char* propname, const char* dflt ) const
@@ -322,20 +275,14 @@ float ConfigElem::remove_float( const char* propname, float dflt )
 {
   std::string tmp;
   if ( remove_prop( propname, &tmp ) )
-  {
     return static_cast<float>( strtod( tmp.c_str(), nullptr ) );
-  }
-
   return dflt;
 }
 double ConfigElem::remove_double( const char* propname, double dflt )
 {
   std::string tmp;
   if ( remove_prop( propname, &tmp ) )
-  {
     return strtod( tmp.c_str(), nullptr );
-  }
-
   return dflt;
 }
 
@@ -343,10 +290,7 @@ unsigned int ConfigElem::remove_ulong( const char* propname )
 {
   unsigned int temp;
   if ( remove_prop( propname, &temp ) )
-  {
     return temp;
-  }
-
   prop_not_found( propname );  // prop_not_found throws
 }
 
@@ -385,29 +329,13 @@ void ConfigElem::add_prop( std::string propname, unsigned int lval )
 }
 
 ConfigFile::ConfigFile( const char* i_filename, const char* allowed_types_str )
-    : _filename( "<n/a>" ),
-      _modified( 0 ),
-#if CFGFILE_USES_IOSTREAMS
-      ifs(),
-#else
-      fp( nullptr ),
-#endif
-      _element_line_start( 0 ),
-      _cur_line( 0 )
+    : _filename( "<n/a>" ), _modified( 0 ), fp( nullptr ), _element_line_start( 0 ), _cur_line( 0 )
 {
   init( i_filename, allowed_types_str );
 }
 
 ConfigFile::ConfigFile( const std::string& i_filename, const char* allowed_types_str )
-    : _filename( "<n/a>" ),
-      _modified( 0 ),
-#if CFGFILE_USES_IOSTREAMS
-      ifs(),
-#else
-      fp( nullptr ),
-#endif
-      _element_line_start( 0 ),
-      _cur_line( 0 )
+    : _filename( "<n/a>" ), _modified( 0 ), fp( nullptr ), _element_line_start( 0 ), _cur_line( 0 )
 {
   init( i_filename.c_str(), allowed_types_str );
 }
@@ -425,7 +353,7 @@ void ConfigFile::init( const char* i_filename, const char* allowed_types_str )
     std::string tag;
     while ( is >> tag )
     {
-      allowed_types_.insert( tag.c_str() );
+      allowed_types_.insert( tag );
     }
   }
 }
@@ -447,15 +375,6 @@ void ConfigFile::open( const char* i_filename )
 {
   _filename = i_filename;
 
-#if CFGFILE_USES_IOSTREAMS
-  ifs.open( i_filename, ios::in );
-
-  if ( !ifs.is_open() )
-  {
-    ERROR_PRINTLN( "Unable to open configuration file {}", _filename );
-    throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
-  }
-#else
   fp = fopen( i_filename, "rt" );
   if ( !fp )
   {
@@ -463,7 +382,6 @@ void ConfigFile::open( const char* i_filename )
                     std::strerror( errno ) );
     throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
   }
-#endif
 
   struct stat cfgstat;
   stat( i_filename, &cfgstat );
@@ -472,144 +390,23 @@ void ConfigFile::open( const char* i_filename )
 
 ConfigFile::~ConfigFile()
 {
-#if !CFGFILE_USES_IOSTREAMS
   if ( fp )
     fclose( fp );
   fp = nullptr;
-#endif
 }
-
-#if !CFGFILE_USES_IOSTREAMS
-char ConfigFile::buffer[1024];
-#endif
-
-#if CFGFILE_USES_IOSTREAMS
-// returns true if ended on a }, false if ended on EOF.
-bool ConfigFile::read_properties( ConfigElem& elem )
-{
-  std::string strbuf;
-  std::string propname, propvalue;
-  while ( getline( ifs, strbuf ) )  // get
-  {
-    if ( !cur_line )
-      remove_bom( &strbuf );
-    ++cur_line;
-    sanitizeUnicodeWithIso( &strbuf );
-    ISTRINGSTREAM is( strbuf );
-
-
-    splitnamevalue( strbuf, propname, propvalue );
-
-    if ( propname.empty() ||  // empty line
-         commentline( propname ) )
-    {
-      continue;
-    }
-
-    if ( propname == "}" )
-      return true;
-
-    if ( propvalue[0] == '\"' )
-      convertquotedstring( propvalue );
-
-    ConfigProperty* prop = new ConfigProperty( propname, propvalue );
-    elem.properties.push_back( prop );
-  }
-  return false;
-}
-
-
-bool ConfigFile::_read( ConfigElem& elem )
-{
-  while ( !elem.properties.empty() )
-  {
-    delete elem.properties.back();
-    elem.properties.pop_back();
-  }
-  elem.type_ = "";
-  elem.rest_ = "";
-
-  element_line_start = 0;
-
-  std::string strbuf;
-  while ( getline( ifs, strbuf ) )
-  {
-    if ( !cur_line )
-      remove_bom( &strbuf );
-    ++cur_line;
-
-    sanitizeUnicodeWithIso( &strbuf );
-
-    string type, rest;
-    splitnamevalue( strbuf, type, rest );
-
-    if ( type.empty() ||  // empty line
-         commentline( type ) )
-    {
-      continue;
-    }
-
-    element_line_start = cur_line;
-
-    elem.type_ = type;
-
-    if ( !allowed_types_.empty() )
-    {
-      if ( allowed_types_.find( type.c_str() ) == allowed_types_.end() )
-      {
-        e_ostringstream os;
-        os << "Unexpected type '" << type << "'" << endl;
-        os << "\tValid types are:";
-        for ( AllowedTypesCont::const_iterator itr = allowed_types_.begin();
-              itr != allowed_types_.end(); ++itr )
-        {
-          os << " " << ( *itr ).c_str();
-        }
-        throw std::runtime_error( os.e_str() );
-      }
-    }
-
-    elem.rest_ = rest;
-
-    if ( !getline( ifs, strbuf ) )
-      throw std::runtime_error( "File ends after element type -- expected a '{'" );
-    ++cur_line;
-
-    sanitizeUnicodeWithIso( &strbuf );
-    if ( strbuf.empty() || strbuf[0] != '{' )
-    {
-      throw std::runtime_error( "Expected '{' on a blank line after element type" );
-    }
-
-    if ( read_properties( elem ) )
-      return true;
-    else
-      throw std::runtime_error( "Expected '}' on a blank line after element properties" );
-  }
-  return false;
-}
-#else
 
 bool ConfigFile::readline( std::string& strbuf )
 {
+  static thread_local char buffer[1024];
   if ( !fgets( buffer, sizeof buffer, fp ) )
     return false;
 
   strbuf = "";
-
   do
   {
-    char* nl = strchr( buffer, '\n' );
-    if ( nl )
-    {
-      if ( nl != buffer && *( nl - 1 ) == '\r' )
-        --nl;
-      *nl = '\0';
-      strbuf += buffer;
-      return true;
-    }
-
     strbuf += buffer;
+    if ( strbuf.ends_with( '\n' ) )
+      return true;
 
   } while ( fgets( buffer, sizeof buffer, fp ) );
 
@@ -619,53 +416,6 @@ bool ConfigFile::readline( std::string& strbuf )
 // returns true if ended on a }, false if ended on EOF. Throws an error if propname is invalid.
 bool ConfigFile::read_properties( ConfigElem& elem )
 {
-  static std::string strbuf;
-  static std::string propname, propvalue;
-  while ( readline( strbuf ) )
-  {
-    if ( !_cur_line )
-      remove_bom( &strbuf );
-    ++_cur_line;
-
-    sanitizeUnicodeWithIso( &strbuf );
-
-    ISTRINGSTREAM is( strbuf );
-
-
-    splitnamevalue( strbuf, propname, propvalue );
-
-    if ( propname.empty() ||  // empty line
-         commentline( propname ) )
-    {
-      continue;
-    }
-
-    if ( propname == "}" )
-      return true;
-
-    // Disallow curly braces in the propname otherwise
-    if ( propname.find_first_of( "{}" ) != std::string::npos )
-      elem.throw_error( "Expected a closing brace on a line by itself, got something else" );
-
-    if ( propvalue[0] == '\"' )
-    {
-      decodequotedstring( propvalue );
-    }
-
-    elem.properties.emplace( propname, propvalue );
-  }
-  return false;
-}
-
-bool ConfigFile::_read( ConfigElem& elem )
-{
-  elem.properties.clear();
-
-  elem.type_ = "";
-  elem.rest_ = "";
-
-  _element_line_start = 0;
-
   std::string strbuf;
   while ( readline( strbuf ) )
   {
@@ -675,41 +425,72 @@ bool ConfigFile::_read( ConfigElem& elem )
 
     sanitizeUnicodeWithIso( &strbuf );
 
-    std::string type, rest;
-    splitnamevalue( strbuf, type, rest );
+    std::string propname, propvalue;
+    splitnamevalue( strbuf, propname, propvalue );
 
-    if ( type.empty() ||  // empty line
-         commentline( type ) )
+    if ( propname.empty() ||  // empty line
+         commentline( propname ) )
+    {
+      continue;
+    }
+
+    if ( propname == "}"sv )
+      return true;
+
+    // Disallow curly braces in the propname otherwise
+    if ( propname.find_first_of( "{}"sv ) != std::string::npos )
+      elem.throw_error( "Expected a closing brace on a line by itself, got something else" );
+
+    if ( propvalue[0] == '\"' )
+    {
+      decodequotedstring( propvalue );
+    }
+
+    elem.properties.emplace( std::move( propname ), std::move( propvalue ) );
+  }
+  return false;
+}
+
+bool ConfigFile::_read( ConfigElem& elem )
+{
+  elem.properties.clear();
+
+  _element_line_start = 0;
+  std::string strbuf;
+  while ( readline( strbuf ) )
+  {
+    if ( !_cur_line )
+      remove_bom( &strbuf );
+    ++_cur_line;
+
+    sanitizeUnicodeWithIso( &strbuf );
+
+    splitnamevalue( strbuf, elem.type_, elem.rest_ );
+
+    if ( elem.type_.empty() ||  // empty line
+         commentline( elem.type_ ) )
     {
       continue;
     }
 
     _element_line_start = _cur_line;
 
-    elem.type_ = type;
-
     if ( !allowed_types_.empty() )
     {
-      if ( allowed_types_.find( type.c_str() ) == allowed_types_.end() )
+      if ( allowed_types_.find( elem.type_ ) == allowed_types_.end() )
       {
-        OSTRINGSTREAM os;
-        os << "Unexpected type '" << type << "'" << std::endl;
-        os << "\tValid types are:";
+        auto msg = fmt::format( "Unexpected type '{}'\n\tValid types are:", elem.type_ );
         for ( const auto& allowed : allowed_types_ )
         {
-          os << " " << allowed.c_str();
+          msg += " " + allowed;
         }
-        throw std::runtime_error( OSTRINGSTREAM_STR( os ) );
+        throw std::runtime_error( msg );
       }
     }
 
-    elem.rest_ = rest;
-
-    if ( !fgets( buffer, sizeof buffer, fp ) )
+    if ( !readline( strbuf ) )
       throw std::runtime_error( "File ends after element type -- expected a '{'" );
-    strbuf = buffer;
     ++_cur_line;
-    sanitizeUnicodeWithIso( &strbuf );
 
     if ( strbuf.empty() || strbuf[0] != '{' )
     {
@@ -722,7 +503,6 @@ bool ConfigFile::_read( ConfigElem& elem )
   }
   return false;
 }
-#endif
 
 void ConfigFile::display_error( const std::string& msg, bool show_curline,
                                 const ConfigElemBase* elem, bool error ) const

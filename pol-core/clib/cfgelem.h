@@ -9,7 +9,6 @@
 #include "maputil.h"
 
 #include <map>
-#include <vector>
 
 
 namespace Pol::Clib
@@ -50,8 +49,8 @@ protected:
 class ConfigElem : public ConfigElemBase
 {
 public:
-  ConfigElem();
-  ~ConfigElem() override;
+  ConfigElem() = default;
+  ~ConfigElem() override = default;
   size_t estimateSize() const override;
   friend class ConfigFile;
 
