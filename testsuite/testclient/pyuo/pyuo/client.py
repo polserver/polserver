@@ -963,7 +963,8 @@ class Client(threading.Thread):
       self.handleStatusBar(pkt)
     elif isinstance(pkt, packets.CompressedGumpPacket):
       po = packets.CloseGumpResponsePacket()
-      po.fill(pkt.serial, pkt.gumpid)
+      has_button = any(['button' in c for c in pkt.commands])
+      po.fill(pkt.serial, pkt.gumpid,1 if has_button else 0)
       self.queue(po)
       self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
     elif isinstance(pkt, packets.WornItemPacket):
