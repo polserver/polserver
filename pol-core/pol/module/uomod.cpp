@@ -226,58 +226,57 @@ UOExecutorModule::~UOExecutorModule()
     reserved_items_.pop_back();
   }
 
-  if ( target_cursor_chr != nullptr )
+  if ( target_cursor_chr )
   {
     // CHECKME can we cancel the cursor request?
-    if ( target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
-      target_cursor_chr->client->gd->target_cursor_uoemod = nullptr;
+    if ( auto* client = target_cursor_chr->client; client && client->gd )
+      client->gd->target_cursor_uoemod = nullptr;
     target_cursor_chr = nullptr;
   }
-  if ( menu_selection_chr != nullptr )
+  if ( menu_selection_chr )
   {
-    if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
-      menu_selection_chr->client->gd->menu_selection_uoemod = nullptr;
+    if ( auto* client = menu_selection_chr->client; client && client->gd )
+      client->gd->menu_selection_uoemod = nullptr;
     menu_selection_chr = nullptr;
   }
-  if ( popup_menu_selection_chr != nullptr )
+  if ( popup_menu_selection_chr )
   {
-    if ( popup_menu_selection_chr->client != nullptr &&
-         popup_menu_selection_chr->client->gd != nullptr )
-      popup_menu_selection_chr->client->gd->popup_menu_selection_uoemod = nullptr;
+    if ( auto* client = popup_menu_selection_chr->client; client && client->gd )
+      client->gd->popup_menu_selection_uoemod = nullptr;
     popup_menu_selection_chr = nullptr;
     popup_menu_selection_above = nullptr;
   }
-  if ( prompt_chr != nullptr )
+  if ( prompt_chr )
   {
-    if ( prompt_chr->client != nullptr && prompt_chr->client->gd != nullptr )
-      prompt_chr->client->gd->prompt_uoemod = nullptr;
+    if ( auto* client = prompt_chr->client; client && client->gd )
+      client->gd->prompt_uoemod = nullptr;
     prompt_chr = nullptr;
   }
-  if ( gump_chr != nullptr )
+  if ( gump_chr )
   {
-    if ( gump_chr->client != nullptr && gump_chr->client->gd != nullptr )
-      gump_chr->client->gd->remove_gumpmods( this );
+    if ( auto* client = gump_chr->client; client && client->gd )
+      client->gd->remove_gumpmods( this );
     gump_chr = nullptr;
   }
-  if ( textentry_chr != nullptr )
+  if ( textentry_chr )
   {
-    if ( textentry_chr->client != nullptr && textentry_chr->client->gd != nullptr )
-      textentry_chr->client->gd->textentry_uoemod = nullptr;
+    if ( auto* client = textentry_chr->client; client && client->gd )
+      client->gd->textentry_uoemod = nullptr;
     textentry_chr = nullptr;
   }
-  if ( resurrect_chr != nullptr )
+  if ( resurrect_chr )
   {
-    if ( resurrect_chr->client != nullptr && resurrect_chr->client->gd != nullptr )
-      resurrect_chr->client->gd->resurrect_uoemod = nullptr;
+    if ( auto* client = resurrect_chr->client; client && client->gd )
+      client->gd->resurrect_uoemod = nullptr;
     resurrect_chr = nullptr;
   }
-  if ( selcolor_chr != nullptr )
+  if ( selcolor_chr )
   {
-    if ( selcolor_chr->client != nullptr && selcolor_chr->client->gd != nullptr )
-      selcolor_chr->client->gd->selcolor_uoemod = nullptr;
+    if ( auto* client = selcolor_chr->client; client && client->gd )
+      client->gd->selcolor_uoemod = nullptr;
     selcolor_chr = nullptr;
   }
-  if ( attached_chr_ != nullptr )
+  if ( attached_chr_ )
   {
     passert( attached_chr_->script_ex == &uoex );
     attached_chr_->script_ex = nullptr;
