@@ -64,28 +64,35 @@ void ClientGameData::clear()
 {
   while ( !gumpmods.empty() )
   {
-    GumpMods::iterator it = gumpmods.begin();
-    Module::UOExecutorModule* uoemod = it->second;
-    uoemod->uoexec().revive();
-    uoemod->gump_chr = nullptr;
+    auto it = gumpmods.begin();
+    auto& [uoemod, event_based] = it->second;
+    if ( !event_based )
+    {
+      uoemod->uoexec().revive();
+      uoemod->gump_chr = nullptr;
+    }
+    else
+    {
+      // TODO send event?
+    }
     gumpmods.erase( it );
   }
 
-  if ( textentry_uoemod != nullptr )
+  if ( textentry_uoemod )
   {
     textentry_uoemod->uoexec().revive();
     textentry_uoemod->textentry_chr = nullptr;
     textentry_uoemod = nullptr;
   }
 
-  if ( menu_selection_uoemod != nullptr )
+  if ( menu_selection_uoemod )
   {
     menu_selection_uoemod->uoexec().revive();
     menu_selection_uoemod->menu_selection_chr = nullptr;
     menu_selection_uoemod = nullptr;
   }
 
-  if ( popup_menu_selection_uoemod != nullptr )
+  if ( popup_menu_selection_uoemod )
   {
     popup_menu_selection_uoemod->uoexec().revive();
     popup_menu_selection_uoemod->popup_menu_selection_chr = nullptr;
@@ -93,47 +100,47 @@ void ClientGameData::clear()
     popup_menu_selection_uoemod = nullptr;
   }
 
-  if ( prompt_uoemod != nullptr )
+  if ( prompt_uoemod )
   {
     prompt_uoemod->uoexec().revive();
     prompt_uoemod->prompt_chr = nullptr;
     prompt_uoemod = nullptr;
   }
 
-  if ( resurrect_uoemod != nullptr )
+  if ( resurrect_uoemod )
   {
     resurrect_uoemod->uoexec().revive();
     resurrect_uoemod->resurrect_chr = nullptr;
     resurrect_uoemod = nullptr;
   }
 
-  if ( selcolor_uoemod != nullptr )
+  if ( selcolor_uoemod )
   {
     selcolor_uoemod->uoexec().revive();
     selcolor_uoemod->selcolor_chr = nullptr;
     selcolor_uoemod = nullptr;
   }
 
-  if ( target_cursor_uoemod != nullptr )
+  if ( target_cursor_uoemod )
   {
     target_cursor_uoemod->uoexec().revive();
     target_cursor_uoemod->target_cursor_chr = nullptr;
     target_cursor_uoemod = nullptr;
   }
 
-  if ( prompt_uniemod != nullptr )
+  if ( prompt_uniemod )
   {
     prompt_uniemod->uoexec().revive();
     prompt_uniemod->prompt_chr = nullptr;
     prompt_uniemod = nullptr;
   }
-  if ( custom_house_serial != 0 )
+  if ( custom_house_serial )
   {
     Multi::UMulti* multi = Core::system_find_multi( custom_house_serial );
-    if ( multi != nullptr )
+    if ( multi )
     {
       Multi::UHouse* house = multi->as_house();
-      if ( house != nullptr )
+      if ( house )
       {
         Mobile::Character* chr = Core::find_character( custom_house_chrserial );
         house->CustomHousesQuit( chr, false /*drop_changes*/, false /*send_pkts*/ );
@@ -145,28 +152,35 @@ void ClientGameData::clear()
 }
 
 /// Registers a gumpid for the given module
-void ClientGameData::add_gumpmod( Module::UOExecutorModule* uoemod, u32 gumpid )
+void ClientGameData::add_gumpmod( Module::UOExecutorModule* uoemod, u32 gumpid, bool event_based )
 {
-  gumpmods[gumpid] = uoemod;
+  gumpmods[gumpid] = { uoemod, event_based };
 }
 
 /// Given a gumpid, finds the module that registered it, returns nullptr if not found
-Module::UOExecutorModule* ClientGameData::find_gumpmod( u32 gumpid )
+std::pair<Module::UOExecutorModule*, bool> ClientGameData::find_gumpmod( u32 gumpid )
 {
-  GumpMods::iterator it = gumpmods.find( gumpid );
+  auto it = gumpmods.find( gumpid );
   if ( it == gumpmods.end() )
-    return nullptr;
+    return { nullptr, false };
   return it->second;
 }
 
 /// Removes all the registered gumpids for a given module
 void ClientGameData::remove_gumpmods( Module::UOExecutorModule* uoemod )
 {
-  for ( GumpMods::const_iterator it = gumpmods.cbegin(); it != gumpmods.cend(); /* no inc here */ )
-    if ( it->second == uoemod )
-      gumpmods.erase( it++ );
+  for ( auto it = gumpmods.cbegin(); it != gumpmods.cend(); /* no inc here */ )
+    if ( it->second.first == uoemod )
+      it = gumpmods.erase( it );
     else
       ++it;
+}
+void ClientGameData::remove_gumpmod( Module::UOExecutorModule* uoemod, u32 gumpid )
+{
+  auto it = gumpmods.find( gumpid );
+  if ( it == gumpmods.end() || it->second.first != uoemod )
+    return;
+  gumpmods.erase( it );
 }
 
 size_t ClientGameData::estimatedSize() const

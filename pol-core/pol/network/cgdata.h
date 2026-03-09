@@ -50,12 +50,12 @@ public:
   ref_ptr<Core::UContainer> vendor_for_sale;
   Core::NpcRef vendor;
 
-  using GumpMods = std::map<u32, Module::UOExecutorModule*>;
-  GumpMods gumpmods;
+  std::map<u32, std::pair<Module::UOExecutorModule*, bool>> gumpmods;
 
-  void add_gumpmod( Module::UOExecutorModule*, u32 gumpid );
-  Module::UOExecutorModule* find_gumpmod( u32 gumpid );
+  void add_gumpmod( Module::UOExecutorModule*, u32 gumpid, bool event_based );
+  std::pair<Module::UOExecutorModule*, bool> find_gumpmod( u32 gumpid );
   void remove_gumpmods( Module::UOExecutorModule* );
+  void remove_gumpmod( Module::UOExecutorModule*, u32 gumpid );
 
   Module::UOExecutorModule* textentry_uoemod;
 

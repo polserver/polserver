@@ -1016,7 +1016,7 @@ BObjectImp* UOExecutorModule::mf_SendDialogGump()
     msg->offset = 3;
     msg->template Write<u32>( chr->serial_ext );
     msg.Send( chr->client, len );
-    chr->client->gd->add_gumpmod( this, gumpid );
+    chr->client->gd->add_gumpmod( this, gumpid, false );
     gump_chr = chr;
     return new BLong( 0 );
   };
@@ -1309,11 +1309,14 @@ BObjectRef BIntHash::OperSubscript( const BObject& obj )
   return BObjectRef( new BError( "Incorrect type used as subscript to inthash" ) );
 }
 
-void clear_gumphandler( Client* client, UOExecutorModule* uoemod )
+void clear_gumphandler( Client* client, UOExecutorModule* uoemod, bool event_based, u32 gumpid )
 {
-  uoemod->uoexec().revive();
-  uoemod->gump_chr = nullptr;
-  client->gd->remove_gumpmods( uoemod );
+  if ( !event_based )
+  {
+    uoemod->uoexec().revive();
+    uoemod->gump_chr = nullptr;
+  }
+  client->gd->remove_gumpmod( uoemod, gumpid );
 }
 
 BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
@@ -1332,7 +1335,7 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
 
   Client* client = chr->client;
 
-  UOExecutorModule* uoemod = client->gd->find_gumpmod( pid );
+  auto [uoemod, event_based] = client->gd->find_gumpmod( pid );
   if ( uoemod == nullptr )
   {
     return new BError( "Couldnt find script" );
@@ -1346,8 +1349,15 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
 
   msg.Send( client );
 
-  uoemod->uoexec().ValueStack.back().set( new BObject( resp ) );
-  clear_gumphandler( client, uoemod );
+  if ( !event_based )
+  {
+    uoemod->uoexec().ValueStack.back().set( new BObject( resp ) );
+  }
+  else
+  {
+    // TODO what
+  }
+  clear_gumphandler( client, uoemod, event_based, pid );
 
   return new BLong( 1 );
 }
@@ -1394,7 +1404,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   const u32 VIRTUE_GUMP_ID = 0x1CD;
 
   char* msgbuf = reinterpret_cast<char*>( msg );
-  PKTIN_B1::HEADER* hdr = reinterpret_cast<PKTIN_B1::HEADER*>( msg );
+  auto* hdr = reinterpret_cast<PKTIN_B1::HEADER*>( msg );
   unsigned short msglen = cfBEu16( hdr->msglen );
 
   u32 gumpid = cfBEu32( hdr->dialogid );
@@ -1404,10 +1414,10 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   // PKTIN_B1 gump reply packet with dialogid == 0x01CD and buttonid == 1 will be sent to us
   if ( gumpid == VIRTUE_GUMP_ID && hdr->serial == client->chr->serial_ext && buttonid == 1 )
   {
-    PKTIN_B1::INTS_HEADER* intshdr_ = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
+    auto* intshdr_ = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
     if ( cfBEu32( intshdr_->count ) == 1 )
     {
-      PKTIN_B1::INT_ENTRY* intentries_ = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr_ + 1 );
+      auto* intentries_ = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr_ + 1 );
       if ( intentries_->value == client->chr->serial_ext )
       {
         ref_ptr<EScriptProgram> prog = find_script(
@@ -1420,96 +1430,95 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   }
 
 
-  UOExecutorModule* uoemod = client->gd->find_gumpmod( gumpid );
-  if ( uoemod == nullptr )
+  auto [uoemod, event_based] = client->gd->find_gumpmod( gumpid );
+  if ( !uoemod )
   {
     SuspiciousActs::GumpResponseWasUnexpected( client, gumpid, buttonid );
     return;
   }
 
-  auto& uoex = uoemod->uoexec();
-  if ( msglen <=
-       0x0f )  // Using == instead of <= should do the trick, but i think <= is more robust
+  auto inform_executor = [&]( BObjectImp* imp )
+  {
+    auto& uoex = uoemod->uoexec();
+    if ( !event_based )
+    {
+      uoex.ValueStack.back().set( new BObject( imp ) );
+    }
+    else
+    {
+      // TODO
+    }
+    clear_gumphandler( client, uoemod, event_based, gumpid );
+  };
+
+  // Using == instead of <= should do the trick, but i think <= is more robust
+  if ( msglen <= 0x0f )
   {
     // The virtue button packet is 15 bytes long: it will not carry a switchcount/INTS_HEADER,
     // so prevent full processing code to overflow and save some CPU cycles meanwhile.
     // Maybe other packets could be that short too?
     if ( buttonid == 0 )
     {
-      uoex.ValueStack.back().set( new BObject( new BLong( 0 ) ) );
+      inform_executor( new BLong( 0 ) );
+      return;
     }
-    else
-    {
-      std::unique_ptr<BIntHash> hash( new BIntHash );
-      hash->add( 0, new BLong( buttonid ) );
-      hash->add( buttonid, new BLong( 1 ) );
-      uoex.ValueStack.back().set( new BObject( hash.release() ) );
-    }
+    auto hash = std::make_unique<BIntHash>();
+    hash->add( 0, new BLong( buttonid ) );
+    hash->add( buttonid, new BLong( 1 ) );
+    inform_executor( hash.release() );
+    return;
   }
-  else
+  // Process rest of the packet
+  auto* intshdr = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
+  u32 ints_count = cfBEu32( intshdr->count );
+  unsigned stridx = sizeof( PKTIN_B1::HEADER ) + sizeof( PKTIN_B1::INTS_HEADER ) +
+                    sizeof( PKTIN_B1::INT_ENTRY ) * ints_count + sizeof( PKTIN_B1::STRINGS_HEADER );
+  if ( stridx > msglen )
   {
-    // Process rest of the packet
-    PKTIN_B1::INTS_HEADER* intshdr = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
-    u32 ints_count = cfBEu32( intshdr->count );
-    unsigned stridx = sizeof( PKTIN_B1::HEADER ) + sizeof( PKTIN_B1::INTS_HEADER ) +
-                      sizeof( PKTIN_B1::INT_ENTRY ) * ints_count +
-                      sizeof( PKTIN_B1::STRINGS_HEADER );
+    SuspiciousActs::GumpResponseHasTooManyInts( client );
+    inform_executor( new BError( "B1 message specified too many ints." ) );
+    return;
+  }
+  auto* intentries = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr + 1 );
+  auto* strhdr = reinterpret_cast<PKTIN_B1::STRINGS_HEADER*>( intentries + ints_count );
+  u32 strings_count = cfBEu32( strhdr->count );
+  // even if this is ok, it could still overflow.  Have to check each string.
+  // -2 per entry to only count tag+length (data has size of 2 in struct)
+  if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
+  {
+    SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( client );
+    inform_executor( new BError( "B1 message specified too many ints and/or strings." ) );
+    return;
+  }
+  if ( ints_count == 0 && strings_count == 0 && buttonid == 0 )
+  {
+    inform_executor( new BLong( 0 ) );
+    return;
+  }
+  auto hash = std::make_unique<BIntHash>();
+  hash->add( 0, new BLong( buttonid ) );
+  hash->add( buttonid, new BLong( 1 ) );
+  for ( unsigned i = 0; i < ints_count; ++i )
+  {
+    hash->add( cfBEu32( intentries[i].value ), new BLong( 1 ) );
+  }
+  for ( unsigned i = 0; i < strings_count; ++i )
+  {
+    auto* strentry = reinterpret_cast<PKTIN_B1::STRING_ENTRY*>( msgbuf + stridx );
+    unsigned short length = cfBEu16( strentry->length );
+    stridx += offsetof( PKTIN_B1::STRING_ENTRY, data ) + length * 2;
     if ( stridx > msglen )
     {
-      SuspiciousActs::GumpResponseHasTooManyInts( client );
-      clear_gumphandler( client, uoemod );
-      return;
-    }
-    PKTIN_B1::INT_ENTRY* intentries = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr + 1 );
-    PKTIN_B1::STRINGS_HEADER* strhdr =
-        reinterpret_cast<PKTIN_B1::STRINGS_HEADER*>( intentries + ints_count );
-    u32 strings_count = cfBEu32( strhdr->count );
-    // even if this is ok, it could still overflow.  Have to check each string.
-    // -2 per entry to only count tag+length (data has size of 2 in struct)
-    if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
-    {
-      SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( client );
-      uoex.ValueStack.back().set(
-          new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
-      clear_gumphandler( client, uoemod );
-      return;
+      SuspiciousActs::GumpResponseOverflows( client );
+      break;
     }
 
-    if ( ints_count == 0 && strings_count == 0 && buttonid == 0 )
-    {
-      uoex.ValueStack.back().set( new BObject( new BLong( 0 ) ) );
-    }
-    else
-    {
-      std::unique_ptr<BIntHash> hash( new BIntHash );
-      hash->add( 0, new BLong( buttonid ) );
-      hash->add( buttonid, new BLong( 1 ) );
-      for ( unsigned i = 0; i < ints_count; ++i )
-      {
-        hash->add( cfBEu32( intentries[i].value ), new BLong( 1 ) );
-      }
-      for ( unsigned i = 0; i < strings_count; ++i )
-      {
-        PKTIN_B1::STRING_ENTRY* strentry =
-            reinterpret_cast<PKTIN_B1::STRING_ENTRY*>( msgbuf + stridx );
-        unsigned short length = cfBEu16( strentry->length );
-        stridx += offsetof( PKTIN_B1::STRING_ENTRY, data ) + length * 2;
-        if ( stridx > msglen )
-        {
-          SuspiciousActs::GumpResponseOverflows( client );
-          break;
-        }
-
-        std::string str = Clib::tostring( cfBEu16( strentry->tag ) ) + ": " +
-                          Bscript::String::fromUTF16( strentry->data, length, true );
-        // oops we're throwing away tag!
-        hash->add( cfBEu16( strentry->tag ), new String( str ) );
-      }
-      uoex.ValueStack.back().set( new BObject( hash.release() ) );
-    }
+    std::string str = fmt::format( "{}: {}", cfBEu16( strentry->tag ),
+                                   Bscript::String::fromUTF16( strentry->data, length, true ) );
+    // oops we're throwing away tag!
+    hash->add( cfBEu16( strentry->tag ), new String( str ) );
   }
-
-  clear_gumphandler( client, uoemod );
+  inform_executor( hash.release() );
 }
 
 BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
