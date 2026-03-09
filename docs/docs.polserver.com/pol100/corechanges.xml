@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-07-2026</datemodified>
+		<datemodified>03-09-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>03-09-2026</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Passing a boat item descriptor struct which contains an `AlternateMultiID` member to<br/>
+`CreateMultiAtLocation` now works correctly.</change>
+		</entry>
 		<entry>
 			<date>03-07-2026</date>
 			<author>Turley:</author>

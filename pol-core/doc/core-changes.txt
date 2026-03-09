@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+03-09-2026 Kevin:
+    Fixed: Passing a boat item descriptor struct which contains an `AlternateMultiID` member to
+           `CreateMultiAtLocation` now works correctly.
 03-07-2026 Turley:
     Fixed: configuration file reading failed in very rare cases due to missing thread-safety
 02-22-2026 Turley:

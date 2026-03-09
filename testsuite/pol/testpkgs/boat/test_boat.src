@@ -62,6 +62,42 @@ exported function move()
   return 1;
 endfunction
 
+exported function create_alternate_multiid_filled( resources )
+  var itemdesc := GetItemDescriptor( 0x11000 );
+  itemdesc.AlternateMultiID := array{ 4, 8 };
+
+  var res := resources.CreateMultiAtLocation( 10, 50, -4, itemdesc, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
+  endif
+
+  return 1;
+endfunction
+
+exported function create_alternate_multiid_empty( resources )
+  var itemdesc := GetItemDescriptor( 0x11000 );
+  itemdesc.AlternateMultiID := {};
+
+  var res := resources.CreateMultiAtLocation( 10, 50, -4, itemdesc, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
+  endif
+
+  return 1;
+endfunction
+
+exported function create_alternate_multiid_missing( resources )
+  var itemdesc := GetItemDescriptor( 0x11000 );
+  itemdesc.-AlternateMultiID;
+
+  var res := resources.CreateMultiAtLocation( 10, 50, -4, itemdesc, CRMULTI_FACING_EAST );
+  if ( !res )
+    return ret_error( "Failed to create boat " + res );
+  endif
+
+  return 1;
+endfunction
+
 exported function test_script_method_syshook()
   var res := CreateMultiAtLocation( 10, 50, -4, 0x11000, CRMULTI_FACING_EAST );
   if ( !res )

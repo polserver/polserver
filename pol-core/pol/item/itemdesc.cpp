@@ -1229,6 +1229,22 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
                                   std::string( val_imp->typeOf() ) );
       }
     }
+    else if ( key == "AlternateMultiID" )
+    {
+      if ( auto arr = impptrIf<Bscript::ObjArray>( val_imp ) )
+      {
+        for ( const auto& obj : arr->ref_arr )
+        {
+          elem.add_prop( "ALTERNATEMULTIID", obj->impptr()->getStringRep() );
+        }
+      }
+      else
+      {
+        throw std::runtime_error(
+            fmt::format( "CreateItemDescriptor: AlternateMultiID must be an array, but is: {}",
+                         val_imp->typeOf() ) );
+      }
+    }
     else if ( key == "StackingIgnoresCProps" )
     {
       if ( val_imp->isa( Bscript::BObjectImp::OTArray ) )
