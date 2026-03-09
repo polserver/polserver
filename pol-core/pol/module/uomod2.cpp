@@ -34,6 +34,7 @@
 
 #include <ctype.h>
 #include <optional>
+#include <ranges>
 #include <stddef.h>
 #include <string>
 
@@ -999,28 +1000,51 @@ BObjectImp* UOExecutorModule::mf_SendDialogGump()
     gumpid = this->uoexec().pid();
   }
 
-  /*
-  if (chr->client->gd->gump_uoemod != nullptr)
+  auto send = [this]( auto msg, auto chr, auto gumpid ) -> BObjectImp*
   {
-  return new BError( "Client already has an active gump" );
-  }
-  */
+    if ( !uoexec().suspend() )
+    {
+      DEBUGLOGLN(
+          "Script Error in '{}' PC={}: \n"
+          "\tCall to function UO::SendDialogGump():\n"
+          "\tThe execution of this script can't be blocked!",
+          scriptname(), exec.PC );
+      return new Bscript::BError( "Script can't be blocked" );
+    }
+
+    auto len = msg->offset;
+    msg->offset = 3;
+    msg->template Write<u32>( chr->serial_ext );
+    msg.Send( chr->client, len );
+    chr->client->gd->add_gumpmod( this, gumpid );
+    gump_chr = chr;
+    return new BLong( 0 );
+  };
+
   if ( ( chr->client->ClientType & CLIENTTYPE_UOSA ) || ( chr->client->IsUOKRClient() ) ||
        ( ( !( flags & SENDDIALOGMENU_FORCE_OLD ) ) &&
          ( chr->client->compareVersion( CLIENT_VER_5000 ) ) ) )
-    return internal_SendCompressedGumpMenu( chr, layout_arr, data_arr, x, y, gumpid );
-  return internal_SendUnCompressedGumpMenu( chr, layout_arr, data_arr, x, y, gumpid );
+  {
+    PktHelper::PacketOut<PktOut_DD> msg;
+    if ( auto error = buildCompressedGumpMenu( msg, layout_arr, data_arr, x, y, gumpid );
+         !error.empty() )
+      return new BError( error );
+    return send( msg, chr, gumpid );
+  }
+  PktHelper::PacketOut<PktOut_B0> msg;
+  if ( auto error = buildUnCompressedGumpMenu( msg, layout_arr, data_arr, x, y, gumpid );
+       !error.empty() )
+    return new BError( error );
+  return send( msg, chr, gumpid );
 }
 
 
-BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
-                                                                 ObjArray* layout_arr,
-                                                                 ObjArray* data_arr, int x, int y,
-                                                                 u32 gumpid )
+std::string UOExecutorModule::buildUnCompressedGumpMenu( PktHelper::PacketOut<PktOut_B0>& msg,
+                                                         ObjArray* layout_arr, ObjArray* data_arr,
+                                                         int x, int y, u32 gumpid )
 {
-  PktHelper::PacketOut<PktOut_B0> msg;
   msg->offset += 2;
-  msg->Write<u32>( chr->serial_ext );
+  msg->offset += 4;  // msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u32>( gumpid );
   msg->WriteFlipped<u32>( static_cast<u32>( x ) );
   msg->WriteFlipped<u32>( static_cast<u32>( y ) );
@@ -1039,7 +1063,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
     layoutlen += addlen;
     if ( msg->offset + addlen > sizeof msg->buffer )
     {
-      return new BError( "Buffer length exceeded" );
+      return "Buffer length exceeded";
     }
     msg->Write( "{ ", 2, false );
     msg->Write( s.c_str(), static_cast<u16>( s.length() ), false );
@@ -1048,7 +1072,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
 
   if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
   {
-    return new BError( "Buffer length exceeded" );
+    return "Buffer length exceeded";
   }
   msg->offset++;  // nullterm
   layoutlen++;
@@ -1062,7 +1086,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
 
   if ( msg->offset + 2 > static_cast<int>( sizeof msg->buffer ) )
   {
-    return new BError( "Buffer length exceeded" );
+    return "Buffer length exceeded";
   }
   msg->offset += 2;  // numlines
 
@@ -1080,7 +1104,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
 
     if ( msg->offset + 2 + utf16.size() * 2 > sizeof msg->buffer )
     {
-      return new BError( "Buffer length exceeded" );
+      return "Buffer length exceeded";
     }
 
     msg->WriteFlipped<u16>( utf16.size() );
@@ -1089,7 +1113,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
 
   if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
   {
-    return new BError( "Buffer length exceeded" );
+    return "Buffer length exceeded";
   }
   msg->offset++;  // nullterm
 
@@ -1098,34 +1122,19 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
   msg->WriteFlipped<u16>( numlines );
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
+  msg->offset = len;
 
-  if ( !uoexec().suspend() )
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function UO::SendDialogGump():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
-    return new Bscript::BError( "Script can't be blocked" );
-  }
-
-  msg.Send( chr->client, len );
-  chr->client->gd->add_gumpmod( this, gumpid );
-  // old_gump_uoemod = this;
-  gump_chr = chr;
-
-  return new BLong( 0 );
+  return {};
 }
 
-BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, ObjArray* layout_arr,
-                                                               ObjArray* data_arr, int x, int y,
-                                                               u32 gumpid )
+std::string UOExecutorModule::buildCompressedGumpMenu( PktHelper::PacketOut<PktOut_DD>& msg,
+                                                       ObjArray* layout_arr, ObjArray* data_arr,
+                                                       int x, int y, u32 gumpid )
 {
-  PktHelper::PacketOut<PktOut_DD> msg;
   PktHelper::PacketOut<PktOut_DD> bfr;  // compress buffer
   bfr->offset = 0;
   msg->offset += 2;
-  msg->Write<u32>( chr->serial_ext );
+  msg->offset += 4;  //  msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u32>( gumpid );
   msg->WriteFlipped<u32>( static_cast<u16>( x ) );
   msg->WriteFlipped<u32>( static_cast<u16>( y ) );
@@ -1144,7 +1153,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     size_t addlen = 4 + s.length();
     if ( layoutdlen + addlen > sizeof bfr->buffer )
     {
-      return new BError( "Buffer length exceeded" );
+      return "Buffer length exceeded";
     }
     layoutdlen += static_cast<u32>( addlen );
     bfr->Write( "{ ", 2, false );
@@ -1153,7 +1162,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
   }
   if ( layoutdlen + 1 > static_cast<u32>( sizeof bfr->buffer ) )
   {
-    return new BError( "Buffer length exceeded" );
+    return "Buffer length exceeded";
   }
   layoutdlen++;
   bfr->offset++;  // nullterm
@@ -1162,14 +1171,14 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
       ( ( (unsigned long)( ( (float)( layoutdlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
   if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
   {
-    return new BError( "Compression error" );
+    return "Compression error";
   }
 
   if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
                   reinterpret_cast<unsigned char*>( &bfr->buffer ), layoutdlen,
                   Z_DEFAULT_COMPRESSION ) != Z_OK )
   {
-    return new BError( "Compression error" );
+    return "Compression error";
   }
   msg->offset -= 8;
   msg->WriteFlipped<u32>( cbuflen + 4 );
@@ -1194,7 +1203,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     size_t addlen = ( utf16.size() + 1 ) * 2;
     if ( datadlen + addlen > sizeof bfr->buffer )
     {
-      return new BError( "Buffer length exceeded" );
+      return "Buffer length exceeded";
     }
     datadlen += static_cast<u32>( addlen );
     bfr->WriteFlipped<u16>( utf16.size() );
@@ -1208,13 +1217,13 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     cbuflen = ( ( (unsigned long)( ( (float)( datadlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
     if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
     {
-      return new BError( "Compression error" );
+      return "Compression error";
     }
     if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
                     reinterpret_cast<unsigned char*>( &bfr->buffer ), datadlen,
                     Z_DEFAULT_COMPRESSION ) != Z_OK )
     {
-      return new BError( "Compression error" );
+      return "Compression error";
     }
 
     msg->offset -= 8;
@@ -1227,23 +1236,9 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
+  msg->offset = len;
 
-  if ( !uoexec().suspend() )
-  {
-    DEBUGLOGLN(
-        "Script Error in '{}' PC={}: \n"
-        "\tCall to function UO::SendDialogGump():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
-    return new Bscript::BError( "Script can't be blocked" );
-  }
-
-  msg.Send( chr->client, len );
-  chr->client->gd->add_gumpmod( this, gumpid );
-  // old_gump_uoemod = this;
-  gump_chr = chr;
-
-  return new BLong( 0 );
+  return {};
 }
 
 class BIntHash final : public BObjectImp
@@ -1262,7 +1257,6 @@ private:
   using Contents = std::map<int, BObjectRef>;
   Contents contents_;
 
-  // not implemented:
   BIntHash& operator=( const BIntHash& ) = delete;
 };
 
@@ -1288,7 +1282,6 @@ std::string BIntHash::getStringRep() const
 
 void BIntHash::add( int key, BObjectImp* value )
 {
-  // contents_.insert( Contents::value_type( key, value ) );
   contents_[key].set( new BObject( value ) );
 }
 
@@ -1296,38 +1289,23 @@ BObjectRef BIntHash::get_member( const char* membername )
 {
   if ( stricmp( membername, "keys" ) == 0 )
   {
-    ObjArray* arr = new ObjArray;
-    BObject obj( arr );
-
-    Contents::const_iterator itr, end;
-    for ( itr = contents_.begin(), end = contents_.end(); itr != end; ++itr )
-    {
-      int key = ( *itr ).first;
-      arr->addElement( new BLong( key ) );
-    }
-
-    return BObjectRef( obj.impptr() );
+    auto arr = std::make_unique<ObjArray>();
+    std::ranges::for_each( contents_,
+                           [&arr]( const auto& e ) { arr->addElement( new BLong( e.first ) ); } );
+    return BObjectRef( arr.release() );
   }
-
   return BObjectRef( new BError( "member not found" ) );
 }
 
 BObjectRef BIntHash::OperSubscript( const BObject& obj )
 {
-  const BObjectImp& objimp = obj.impref();
-  if ( objimp.isa( OTLong ) )
+  if ( auto* lng = obj.impptr_if<BLong>() )
   {
-    const BLong& lng = static_cast<const BLong&>( objimp );
-    Contents::iterator itr = contents_.find( lng.value() );
+    auto itr = contents_.find( lng->value() );
     if ( itr != contents_.end() )
-    {
-      BObjectRef& oref = ( *itr ).second;
-      return BObjectRef( oref.get()->impptr() );
-    }
-
+      return BObjectRef( itr->second->impptr() );
     return BObjectRef( new BError( "Key not found in inthash" ) );
   }
-
   return BObjectRef( new BError( "Incorrect type used as subscript to inthash" ) );
 }
 
@@ -1424,25 +1402,19 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
 
   // When the player double-clicks the virtue pentagram icon in its paperdoll, an unexpected
   // PKTIN_B1 gump reply packet with dialogid == 0x01CD and buttonid == 1 will be sent to us
-  if ( gumpid == VIRTUE_GUMP_ID )
+  if ( gumpid == VIRTUE_GUMP_ID && hdr->serial == client->chr->serial_ext && buttonid == 1 )
   {
-    if ( hdr->serial == client->chr->serial_ext )
+    PKTIN_B1::INTS_HEADER* intshdr_ = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
+    if ( cfBEu32( intshdr_->count ) == 1 )
     {
-      if ( buttonid == 1 )
+      PKTIN_B1::INT_ENTRY* intentries_ = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr_ + 1 );
+      if ( intentries_->value == client->chr->serial_ext )
       {
-        PKTIN_B1::INTS_HEADER* intshdr_ = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
-        if ( cfBEu32( intshdr_->count ) == 1 )
-        {
-          PKTIN_B1::INT_ENTRY* intentries_ = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr_ + 1 );
-          if ( intentries_->value == client->chr->serial_ext )
-          {
-            ref_ptr<EScriptProgram> prog = find_script(
-                "misc/virtuebutton", true, Plib::systemstate.config.cache_interactive_scripts );
-            if ( prog.get() != nullptr )
-              client->chr->start_script( prog.get(), false );
-            return;
-          }
-        }
+        ref_ptr<EScriptProgram> prog = find_script(
+            "misc/virtuebutton", true, Plib::systemstate.config.cache_interactive_scripts );
+        if ( prog.get() != nullptr )
+          client->chr->start_script( prog.get(), false );
+        return;
       }
     }
   }

@@ -32,6 +32,7 @@
 
 #include "base/range.h"
 #include "clib/rawtypes.h"
+#include "network/packethelper.h"
 #include "plib/poltype.h"
 #include "polmodl.h"
 #include "reftypes.h"
@@ -348,18 +349,18 @@ protected:
   static Core::Range3d internal_InBoxAreaChecks( const Core::Pos2d& p1, int z1,
                                                  const Core::Pos2d& p2, int z2,
                                                  Realms::Realm* realm );
-  Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr,
-                                                          Bscript::ObjArray* layout_arr,
-                                                          Bscript::ObjArray* data_arr, int x, int y,
-                                                          u32 gumpid );
-  Bscript::BObjectImp* internal_SendCompressedGumpMenu( Mobile::Character* chr,
-                                                        Bscript::ObjArray* layout_arr,
-                                                        Bscript::ObjArray* data_arr, int x, int y,
-                                                        u32 gumpid );
 
-private:  // not implemented
-  UOExecutorModule( const UOExecutorModule& );
-  UOExecutorModule& operator=( const UOExecutorModule& );
+private:
+  static std::string buildUnCompressedGumpMenu(
+      Network::PktHelper::PacketOut<Network::PktOut_B0>& msg, Bscript::ObjArray* layout_arr,
+      Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
+  static std::string buildCompressedGumpMenu(
+      Network::PktHelper::PacketOut<Network::PktOut_DD>& msg, Bscript::ObjArray* layout_arr,
+      Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
+
+
+  UOExecutorModule( const UOExecutorModule& ) = delete;
+  UOExecutorModule& operator=( const UOExecutorModule& ) = delete;
 };
 }  // namespace Module
 }  // namespace Pol
