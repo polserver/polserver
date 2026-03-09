@@ -20,7 +20,7 @@ exported function show_gump_simple()
   Clear_Event_Queue();
   var cmds := { "hello", "world" };
   var texts := { "more", "text" };
-  SendDialogGump( char, cmds, texts );
+  var res := SendDialogGump( char, cmds, texts );
   var ev := waitForClient( 0, { EVT_GUMP } );
   if ( !ev )
     return ev;
@@ -31,5 +31,38 @@ exported function show_gump_simple()
   if ( ev.texts != texts )
     return ret_error( $"wrong gump textstring: {ev}" );
   endif
+  if ( res != 0 )
+    return ret_error( $"wrong response: {res}" );
+  endif
   return 1;
 endfunction
+
+exported function show_gump_simple_button()
+  Clear_Event_Queue();
+  var cmds := { "button blubb" }; // client just checks for button
+  var texts := { "more", "text" };
+  var res := SendDialogGump( char, cmds, texts );
+  var ev := waitForClient( 0, { EVT_GUMP } );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.commands != cmds )
+    return ret_error( $"wrong gump cmdstring: {ev}" );
+  endif
+  if ( ev.texts != texts )
+    return ret_error( $"wrong gump textstring: {ev}" );
+  endif
+  if ( CStr( res ) != "<inthash>" )
+    return ret_error( $"wrong response: {res}" );
+  endif
+  if ( res.keys != { 0, 1 } )
+    return ret_error( $"wrong response keys: {res.keys}" );
+  endif
+  foreach k in ( res.keys )
+    if ( res[k] != 1 )
+      return ret_error( $"wrong response value: {res[k]}" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
