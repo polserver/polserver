@@ -33,6 +33,9 @@ private:
 public:
   PacketOut();
   ~PacketOut();
+  PacketOut( const PacketOut<T>& ) = delete;
+  PacketOut<T>& operator=( const PacketOut<T>& ) = delete;
+
   void Release();
   void Send( Client* client, int len = -1 ) const;
   T* operator->() const;
@@ -40,15 +43,14 @@ public:
 };
 
 template <class T>
-PacketOut<T>::PacketOut()
+PacketOut<T>::PacketOut() : pkt( RequestPacket<T>( T::ID, T::SUB ) )
 {
-  pkt = RequestPacket<T>( T::ID, T::SUB );
 }
 
 template <class T>
 PacketOut<T>::~PacketOut()
 {
-  if ( pkt != 0 )
+  if ( pkt )
     ReAddPacket( pkt );
 }
 
@@ -56,13 +58,13 @@ template <class T>
 void PacketOut<T>::Release()
 {
   ReAddPacket( pkt );
-  pkt = 0;
+  pkt = nullptr;
 }
 
 template <class T>
 void PacketOut<T>::Send( Client* client, int len ) const
 {
-  if ( pkt == 0 )
+  if ( !pkt )
     return;
   if ( len == -1 )
     len = pkt->offset;
