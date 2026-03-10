@@ -72,6 +72,7 @@
 #include "door.h"
 #include "dynproperties.h"
 #include "equipdsc.h"
+#include "eventid.h"
 #include "exscrobj.h"
 #include "fnsearch.h"
 #include "globals/network.h"
@@ -2555,8 +2556,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
-      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
+      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = Clib::clamp_convert<u32>( value ) );
@@ -4966,6 +4967,12 @@ ItemGivenEvent::~ItemGivenEvent()
     register_with_supporting_multi( item );
     move_item( item, item->pos() );
   }
+}
+
+GumpEvent::GumpEvent( Mobile::Character* source, Bscript::BObjectImp* resp )
+    : SourcedEvent( Core::EVID_GUMP_RESPONSE, source )
+{
+  addMember( "response", resp );
 }
 }  // namespace Module
 

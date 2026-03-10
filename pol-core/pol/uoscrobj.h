@@ -294,6 +294,12 @@ private:
   Core::CharacterRef given_by_;
   Core::gameclock_t given_time_;
 };
+
+class GumpEvent final : public SourcedEvent
+{
+public:
+  GumpEvent( Mobile::Character* source, Bscript::BObjectImp* resp );
+};
 }  // namespace Pol::Module
 
 #endif  // UOSCROBJ_H
