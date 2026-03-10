@@ -231,27 +231,6 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
   {
     BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
 
-    if ( ( aob != nullptr ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
-    {
-      ECharacterRefObjImp* chrref_imp =
-          Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
-
-      chrptr = chrref_imp->value().get();
-
-      if ( chrptr->orphan() )
-      {
-        setFunctionResult( new BError( "Mobile has been destroyed" ) );
-        return false;
-      }
-
-      if ( chrptr->logged_in() || chrref_imp->offline_access_ok() || can_access_offline_mobiles_ )
-      {
-        return true;
-      }
-
-      setFunctionResult( new BError( "Mobile is offline" ) );
-      return false;
-    }
     if ( ( aob != nullptr ) && ( aob->object_type() == &eclientrefobjimp_type ) )
     {
       EClientRefObjImp* clientref_imp =
@@ -267,47 +246,24 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
       setFunctionResult( new BError( "Client is disconnected" ) );
       return false;
     }
-    // FIXME: log error
-    return false;
   }
-  if ( imp->isa( BObjectImp::OTLong ) )
-  {
-    BLong* pchar_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
-    unsigned int serial = pchar_serial->value();
-    if ( IsItem( serial ) || serial == 0 )
-    {
-      setFunctionResult( new BError( "Serial refers to an Item, or is zero" ) );
-      return false;
-    }
-
-    chrptr = system_find_mobile( serial );
-
-    if ( chrptr != nullptr )
-    {
-      if ( chrptr->logged_in() || can_access_offline_mobiles_ )
-      {
-        return true;
-      }
-
-      setFunctionResult( new BError( "Mobile is offline" ) );
-      return false;
-    }
-
-    setFunctionResult( new BError( "Mobile does not exist" ) );
-    return false;
-  }
+  std::string error;
+  chrptr = convertToCharacter( imp, &error );
+  if ( chrptr )
+    return true;
+  if ( !error.empty() )
+    setFunctionResult( new BError( error ) );
   // FIXME: log error
   return false;
 }
 
-bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
+Mobile::Character* UOExecutor::convertToCharacter( Bscript::BObjectImp* imp, std::string* error )
 {
-  BObjectImp* imp = getParamImp( param );
-  if ( imp == nullptr )
+  if ( !imp )
   {
-    setFunctionResult( new BError( "Missing parameter " + Clib::tostring( param ) ) );
-    return false;
+    if ( error )
+      *error = "Invalid object";
+    return nullptr;
   }
   if ( imp->isa( BObjectImp::OTApplicObj ) )
   {
@@ -318,25 +274,27 @@ bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
       ECharacterRefObjImp* chrref_imp =
           Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
 
-      chrptr = chrref_imp->value().get();
+      auto* chrptr = chrref_imp->value().get();
 
       if ( chrptr->orphan() )
       {
-        setFunctionResult( new BError( "Mobile has been destroyed" ) );
-        return false;
+        if ( error )
+          *error = "Mobile has been destroyed";
+        return nullptr;
       }
 
       if ( chrptr->logged_in() || chrref_imp->offline_access_ok() || can_access_offline_mobiles_ )
       {
-        return true;
+        return chrptr;
       }
 
-      setFunctionResult( new BError( "Mobile is offline" ) );
-      return false;
+      if ( error )
+        *error = "Mobile is offline";
+      return nullptr;
     }
 
     // FIXME: log error
-    return false;
+    return nullptr;
   }
   if ( imp->isa( BObjectImp::OTLong ) )
   {
@@ -345,28 +303,46 @@ bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
     unsigned int serial = pchar_serial->value();
     if ( IsItem( serial ) || serial == 0 )
     {
-      setFunctionResult( new BError( "Serial refers to an Item, or is zero" ) );
-      return false;
+      if ( error )
+        *error = "Serial refers to an Item, or is zero";
+      return nullptr;
     }
 
-    chrptr = system_find_mobile( serial );
+    auto* chrptr = system_find_mobile( serial );
 
     if ( chrptr != nullptr )
     {
       if ( chrptr->logged_in() || can_access_offline_mobiles_ )
       {
-        return true;
+        return chrptr;
       }
 
-      setFunctionResult( new BError( "Mobile is offline" ) );
-      return false;
+      if ( error )
+        *error = "Mobile is offline";
+      return nullptr;
     }
 
-    setFunctionResult( new BError( "Mobile does not exist" ) );
-    return false;
+    if ( error )
+      *error = "Mobile does not exist";
+    return nullptr;
   }
   // FIXME: log error
-  return false;
+  return nullptr;
+}
+
+bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
+{
+  BObjectImp* imp = getParamImp( param );
+  if ( !imp )
+  {
+    setFunctionResult( new BError( "Missing parameter " + Clib::tostring( param ) ) );
+    return false;
+  }
+  std::string error;
+  chrptr = convertToCharacter( imp, &error );
+  if ( !error.empty() )
+    setFunctionResult( new BError( error ) );
+  return chrptr != nullptr;
 }
 
 bool UOExecutor::getItemParam( unsigned param, Items::Item*& itemptr )

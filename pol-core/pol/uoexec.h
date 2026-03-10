@@ -163,6 +163,7 @@ public:
                       const Realms::Realm* realm = nullptr );
   bool getPos4dParam( unsigned xparam, unsigned yparam, unsigned zparam, unsigned realmparam,
                       Pos4d* pos );
+  Mobile::Character* convertToCharacter( Bscript::BObjectImp* imp, std::string* error );
 };
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const
