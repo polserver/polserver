@@ -38,6 +38,7 @@
 #include "../globals/state.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
+#include "../module/uomod.h"
 #include "../polsig.h"
 #include "../realms/WorldChangeReasons.h"
 #include "../ufunc.h"  // only in here temporarily, until logout-on-disconnect stuff is removed
@@ -60,8 +61,8 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( \
-    disable : 4351 )  // new behavior: elements of array '...' will be default initialized
+#pragma warning( disable \
+                 : 4351 )  // new behavior: elements of array '...' will be default initialized
 #endif
 
 namespace Pol
@@ -206,6 +207,16 @@ void Client::PreDelete()
     }
   }
 
+  // send closing event as long as client is attached to chr
+  for ( const auto& gump : gd->gumpmods )
+  {
+    auto& [uoemod, event_based] = gump.second;
+    if ( event_based )
+    {
+      uoemod->uoexec().signal_event( new Module::GumpEvent( chr, new Bscript::BLong( 0 ) ) );
+      std::erase( uoemod->evgump_chrs, chr );
+    }
+  }
   // detach the account and character from this client, if they
   // are still associated with it.
 
@@ -232,9 +243,6 @@ void Client::PreDelete()
     --n_queued;
   }
   last_xmit_buffer = nullptr;
-
-  // while (!movementqueue.empty())
-  //  movementqueue.pop();
 }
 
 // ClientInfo - delivers a lot of usefull infomation about client PC

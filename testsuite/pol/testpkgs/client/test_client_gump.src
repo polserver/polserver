@@ -5,6 +5,7 @@ include "testutil";
 include "communication";
 
 var char;
+var char2;
 
 var clientcon := getClientConnection();
 
@@ -13,6 +14,11 @@ program chartests()
   char := a.getcharacter( 1 );
   if ( !char )
     return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
   endif
 endprogram
 
@@ -63,6 +69,95 @@ exported function show_gump_simple_button()
       return ret_error( $"wrong response value: {res[k]}" );
     endif
   endforeach
+  return 1;
+endfunction
+
+function collectEvents( byref clientev, byref coreev )
+  var ev := waitForClients( { 0x20000, EVT_GUMP } );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.type == EVT_GUMP )
+    clientev.append( ev );
+  else
+    coreev.append( ev );
+  endif
+  return true;
+endfunction
+
+exported function display_gump_simple()
+  Clear_Event_Queue();
+  var cmds := { "hello", "world" };
+  var texts := { "display", "simple" };
+  var res := DisplayDialogGump( char, cmds, texts );
+  if ( res != { char } )
+    return ret_error( $"wrong response: {res}" );
+  endif
+  var clientev := {};
+  var coreev := {};
+  for i := 1 to 2
+    var ev := collectEvents( clientev, coreev );
+    if ( !ev )
+      return ev;
+    endif
+  endfor
+  print( clientev );
+  print( coreev );
+  if ( clientev[1].commands != cmds )
+    return ret_error( $"wrong gump cmdstring: {clientev[1]}" );
+  endif
+  if ( clientev[1].texts != texts )
+    return ret_error( $"wrong gump textstring: {clientev[1]}" );
+  endif
+  if ( coreev[1].type != 0x20000 )
+    return ret_error( $"wrong gumpevent type: {coreev[1]}" );
+  endif
+  if ( coreev[1].source != char )
+    return ret_error( $"wrong gumpevent source: {coreev[1]}" );
+  endif
+  if ( coreev[1].response != 0 )
+    return ret_error( $"wrong gumpevent response: {coreev[1]}" );
+  endif
+  return 1;
+endfunction
+
+exported function display_gump_button_multiple()
+  Clear_Event_Queue();
+  var cmds := { "button blubb", "world" };
+  var texts := { "display", "multiple" };
+  var res := DisplayDialogGump( { char, char2 }, cmds, texts );
+  if ( res != { char, char2 } )
+    return ret_error( $"wrong response: {res}" );
+  endif
+  var clientev := {};
+  var coreev := {};
+  var ev;
+  for i := 1 to 4
+    var ev := collectEvents( clientev, coreev );
+    if ( !ev )
+      return ev;
+    endif
+  endfor
+  print( clientev );
+  print( coreev );
+  if ( clientev[1].id == clientev[2].id )
+    return ret_error( $"wrong gump ids: {clientev}" );
+  endif
+  if ( clientev[1].commands != cmds || clientev[1].commands != clientev[2].commands )
+    return ret_error( $"wrong gump cmdstring: {clientev}" );
+  endif
+  if ( clientev[1].texts != texts || clientev[1].texts != clientev[2].texts )
+    return ret_error( $"wrong gump textstring: {clientev}" );
+  endif
+  if ( coreev[1].source == coreev[2].source )
+    return ret_error( $"wrong ev source: {coreev}" );
+  endif
+  if ( CStr( coreev[1].response ) != "<inthash>" || CStr( coreev[2].response ) != "<inthash>" )
+    return ret_error( $"wrong ev response: {coreev}" );
+  endif
+  if ( coreev[1].response.keys != { 0, 1 } || coreev[2].response.keys != { 0, 1 } )
+    return ret_error( $"wrong response keys: {coreev[1].response.keys}, {coreev[2].response.keys}" );
+  endif
   return 1;
 endfunction
 

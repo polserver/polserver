@@ -117,6 +117,7 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_DestroyMulti();
   [[nodiscard]] Bscript::BObjectImp* mf_SendTextEntryGump();
   [[nodiscard]] Bscript::BObjectImp* mf_SendDialogGump();
+  [[nodiscard]] Bscript::BObjectImp* mf_DisplayDialogGump();
   [[nodiscard]] Bscript::BObjectImp* mf_CloseGump();
   [[nodiscard]] Bscript::BObjectImp* mf_CloseWindow( /* chr, type, who */ );
   [[nodiscard]] Bscript::BObjectImp* mf_SendEvent();
@@ -314,6 +315,7 @@ public:
   Core::UObject* popup_menu_selection_above;
   Mobile::Character* prompt_chr;
   Mobile::Character* gump_chr;
+  std::vector<Mobile::Character*> evgump_chrs;
   Mobile::Character* textentry_chr;
   Mobile::Character* resurrect_chr;
   Mobile::Character* selcolor_chr;

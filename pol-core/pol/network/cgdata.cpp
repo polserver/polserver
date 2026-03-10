@@ -71,10 +71,8 @@ void ClientGameData::clear()
       uoemod->uoexec().revive();
       uoemod->gump_chr = nullptr;
     }
-    else
-    {
-      // TODO send event?
-    }
+    // else event is send in client and evgump_chrs cleared
+
     gumpmods.erase( it );
   }
 

@@ -203,6 +203,7 @@ UOExecutorModule::UOExecutorModule( UOExecutor& exec )
       popup_menu_selection_above( nullptr ),
       prompt_chr( nullptr ),
       gump_chr( nullptr ),
+      evgump_chrs(),
       textentry_chr( nullptr ),
       resurrect_chr( nullptr ),
       selcolor_chr( nullptr ),
@@ -257,6 +258,11 @@ UOExecutorModule::~UOExecutorModule()
     if ( auto* client = gump_chr->client; client && client->gd )
       client->gd->remove_gumpmods( this );
     gump_chr = nullptr;
+  }
+  for ( auto* chr : evgump_chrs )
+  {
+    if ( auto* client = chr->client; client && client->gd )
+      client->gd->remove_gumpmods( this );
   }
   if ( textentry_chr )
   {
