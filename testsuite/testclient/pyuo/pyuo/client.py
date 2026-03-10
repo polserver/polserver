@@ -597,6 +597,8 @@ class Client(threading.Thread):
     self.view_range = 18 # default client view range
     self.auto_delete_objs = True
 
+    self.gumps=[] # open gumps
+
   @status('disconnected')
   def connect(self, host, port, user, pwd):
     '''! Connnects to the server, returns a list of gameservers
@@ -962,10 +964,14 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.StatusBarInfoPacket):
       self.handleStatusBar(pkt)
     elif isinstance(pkt, packets.CompressedGumpPacket):
-      po = packets.CloseGumpResponsePacket()
       has_button = any(['button' in c for c in pkt.commands])
-      po.fill(pkt.serial, pkt.gumpid,1 if has_button else 0)
-      self.queue(po)
+      no_close = any(['no_close' in c for c in pkt.commands])
+      if not no_close:
+        po = packets.CloseGumpResponsePacket()
+        po.fill(pkt.serial, pkt.gumpid,1 if has_button else 0)
+        self.queue(po)
+      else:
+        self.gumps.append(pkt.gumpid)
       self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
     elif isinstance(pkt, packets.WornItemPacket):
       self.handleWornItemPacket(pkt)
@@ -1118,6 +1124,12 @@ class Client(threading.Thread):
       pass
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
       self.log.info("Ignoring party system data")
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEGUMP:
+      if pkt.gumpid in self.gumps:
+        self.gumps.remove(pkt.gumpid)
+        self.brain.event(brain.Event(brain.Event.EVT_GUMP, gumpid=pkt.gumpid,buttonid=pkt.buttonid))
+      else:
+        self.log.warn(f"non-open gumpid {pkt.gumpid} should close")
     else:
       self.log.warn("Unhandled GeneralInfo subpacket 0x%X", pkt.sub)
 

@@ -3,6 +3,7 @@ use uo;
 
 include "testutil";
 include "communication";
+include "sysevent";
 
 var char;
 var char2;
@@ -73,7 +74,7 @@ exported function show_gump_simple_button()
 endfunction
 
 function collectEvents( byref clientev, byref coreev )
-  var ev := waitForClients( { 0x20000, EVT_GUMP } );
+  var ev := waitForClients( { SYSEVENT_GUMP_RESPONSE, EVT_GUMP } );
   if ( !ev )
     return ev;
   endif
@@ -101,16 +102,11 @@ exported function display_gump_simple()
       return ev;
     endif
   endfor
-  print( clientev );
-  print( coreev );
   if ( clientev[1].commands != cmds )
     return ret_error( $"wrong gump cmdstring: {clientev[1]}" );
   endif
   if ( clientev[1].texts != texts )
     return ret_error( $"wrong gump textstring: {clientev[1]}" );
-  endif
-  if ( coreev[1].type != 0x20000 )
-    return ret_error( $"wrong gumpevent type: {coreev[1]}" );
   endif
   if ( coreev[1].source != char )
     return ret_error( $"wrong gumpevent source: {coreev[1]}" );
@@ -138,8 +134,6 @@ exported function display_gump_button_multiple()
       return ev;
     endif
   endfor
-  print( clientev );
-  print( coreev );
   if ( clientev[1].id == clientev[2].id )
     return ret_error( $"wrong gump ids: {clientev}" );
   endif
@@ -157,6 +151,53 @@ exported function display_gump_button_multiple()
   endif
   if ( coreev[1].response.keys != { 0, 1 } || coreev[2].response.keys != { 0, 1 } )
     return ret_error( $"wrong response keys: {coreev[1].response.keys}, {coreev[2].response.keys}" );
+  endif
+  return 1;
+endfunction
+
+exported function display_gump_close()
+  Clear_Event_Queue();
+  var cmds := { "no_close" };
+  var texts := { "display", "simple" };
+  var res := DisplayDialogGump( char, cmds, texts, gumpid := 100 );
+  if ( res != { char } )
+    return ret_error( $"wrong response: {res}" );
+  endif
+  var clientev := {};
+  var coreev := {};
+  var ev := collectEvents( clientev, coreev );
+  if ( !ev )
+    return ev;
+  endif
+  if ( coreev.size() )
+    return ret_error( $"got core event {coreev}" );
+  endif
+  if ( clientev[1].commands != cmds )
+    return ret_error( $"wrong gump cmdstring: {clientev[1]}" );
+  endif
+  if ( clientev[1].texts != texts )
+    return ret_error( $"wrong gump textstring: {clientev[1]}" );
+  endif
+
+  CloseGump( char, 100, 123 );
+  clientev := {};
+  for i := 1 to 2
+    ev := collectEvents( clientev, coreev );
+    if ( !ev )
+      return ev;
+    endif
+  endfor
+  if ( coreev[1].source != char )
+    return ret_error( $"wrong gumpevent source: {coreev[1]}" );
+  endif
+  if ( coreev[1].response != 123 )
+    return ret_error( $"wrong gumpevent response: {coreev[1]}" );
+  endif
+  if ( clientev[1].gumpid != 100 )
+    return ret_error( $"wrong gumpid: {clientev[1]}" );
+  endif
+  if ( clientev[1].buttonid != 0 )
+    return ret_error( $"wrong buttonid: {clientev[1]}" );
   endif
   return 1;
 endfunction

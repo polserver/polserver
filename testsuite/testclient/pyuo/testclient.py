@@ -353,8 +353,12 @@ class PolServer:
     elif ev.type==Event.EVT_DROP_APPROVED:
       pass
     elif ev.type==Event.EVT_GUMP:
-      res['commands']=ev.commands
-      res['texts']=ev.texts
+      if hasattr(ev,"gumpid"):
+        res['gumpid']=ev.gumpid
+        res['buttonid']=ev.buttonid
+      else:
+        res['commands']=ev.commands
+        res['texts']=ev.texts
     elif ev.type==Event.EVT_AOS_TOOLTIP:
       res['text']=ev.text
     elif ev.type==Event.EVT_OPEN_PAPERDOLL:
