@@ -36,10 +36,6 @@ const String* ExecutorModule::getStringParam( unsigned param )
 {
   return exec.getStringParam( param );
 }
-void* ExecutorModule::getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type )
-{
-  return exec.getApplicPtrParam( param, pointer_type );
-}
 BApplicObjBase* ExecutorModule::getApplicObjParam( unsigned param,
                                                    const BApplicObjType* object_type )
 {

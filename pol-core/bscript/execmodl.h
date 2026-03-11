@@ -47,7 +47,6 @@ public:
   bool getParamImp( unsigned param, BObjectImp*& imp );
 
   const String* getStringParam( unsigned param );
-  void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
   BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
   bool getStringParam( unsigned param, const String*& pstr );
   bool getUnicodeStringParam( unsigned param, const String*& pstr );  // accepts also BLong array

@@ -267,7 +267,6 @@ public:
 
   bool getParam( unsigned param, bool& value );
 
-  void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
   BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
 
 

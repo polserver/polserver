@@ -595,24 +595,6 @@ bool Executor::getObjArrayParam( unsigned param, ObjArray*& pobjarr )
   return ( pobjarr != nullptr );
 }
 
-void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type )
-{
-  auto ap = static_cast<BApplicPtr*>( getParamImp( param, BObjectImp::OTApplicPtr ) );
-  if ( ap == nullptr )
-    return nullptr;
-
-  if ( ap->pointer_type() == pointer_type )
-    return ap->ptr();
-  DEBUGLOGLN(
-      "Script Error in '{}' PC={}: \n"
-      "\tCall to function {}:\n"
-      "\tParameter {}: Expected datatype, got datatype {}",
-      scriptname(), PC, current_module_function->name.get(), param,
-      BObjectImp::typestr( ap->type() ) );
-
-  return nullptr;
-}
-
 BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjType* object_type )
 {
   auto aob = static_cast<BApplicObjBase*>( getParamImp( param, BObjectImp::OTApplicObj ) );
@@ -3079,7 +3061,8 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
   else
   {
     walkCallStack(
-        [&]( unsigned int pc ) {
+        [&]( unsigned int pc )
+        {
           result.append(
               fmt::format( "{}at {}+{}", result.empty() ? "" : "\n", scriptname(), pc ) );
         } );

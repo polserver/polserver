@@ -70,6 +70,7 @@ class BContinuation;
 class BSpread;
 class BRegExp;
 class BSpecialUserFuncJump;
+class BApplicObjBase;
 
 using ValueStackCont = std::vector<BObjectRef>;
 
@@ -92,7 +93,7 @@ public:
     OTLong = 3,
     OTDouble = 4,
     OTArray = 5,
-    OTApplicPtr = 6,
+    // unused
     OTApplicObj = 7,
     OTError = 8,
     OTDictionary = 9,
@@ -431,6 +432,7 @@ T* impptrIf( I* objimp )
   impif_e( BObjectImp::OTSpread, BSpread );
   impif_e( BObjectImp::OTRegExp, BRegExp );
   impif_e( BObjectImp::OTSpecialUserFuncJump, BSpecialUserFuncJump );
+  impif_e( BObjectImp::OTApplicObj, BApplicObjBase );
   else static_assert( always_false<T>::value, "unsupported type" );
 #undef impif_i
 #undef impif_e
@@ -1024,34 +1026,6 @@ private:
 class BApplicObjType
 {
 };
-
-/**
- * Application Pointer object.  Meant to point to some application data.
- *
- * The script can't modify the value of the pointer, so the application can
- * hand this off to the script and trust that when it gets it back, it's
- * what was passed in.  pointer_type should be, typically, a class name.
- */
-class BApplicPtr final : public BObjectImp
-{
-public:
-  BApplicPtr( const BApplicObjType* pointer_type, void* ptr );
-
-  const BApplicObjType* pointer_type() const;
-  void* ptr() const;
-
-public:  // Class Machinery
-  BObjectImp* copy() const override;
-
-  std::string getStringRep() const override;
-  void printOn( std::ostream& ) const override;
-  size_t sizeEstimate() const override;
-
-private:
-  void* ptr_;
-  const BApplicObjType* pointer_type_;
-};
-
 
 class BApplicObjBase : public BObjectImp
 {

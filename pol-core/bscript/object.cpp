@@ -229,8 +229,6 @@ const char* BObjectImp::typestr( BObjectType typ )
     return "Double";
   case OTArray:
     return "Array";
-  case OTApplicPtr:
-    return "ApplicPtr";
   case OTApplicObj:
     return "ApplicObj";
   case OTError:
@@ -2168,42 +2166,6 @@ BObjectImp* ObjArray::unpack( std::istream& is )
     }
   }
   return arr.release();
-}
-
-BApplicPtr::BApplicPtr( const BApplicObjType* pointer_type, void* ptr )
-    : BObjectImp( OTApplicPtr ), ptr_( ptr ), pointer_type_( pointer_type )
-{
-}
-
-BObjectImp* BApplicPtr::copy() const
-{
-  return new BApplicPtr( pointer_type_, ptr_ );
-}
-
-size_t BApplicPtr::sizeEstimate() const
-{
-  return sizeof( BApplicPtr );
-}
-
-const BApplicObjType* BApplicPtr::pointer_type() const
-{
-  return pointer_type_;
-}
-
-void* BApplicPtr::ptr() const
-{
-  return ptr_;
-}
-
-std::string BApplicPtr::getStringRep() const
-{
-  return "<appptr>";
-}
-
-
-void BApplicPtr::printOn( std::ostream& os ) const
-{
-  os << "<appptr>";
 }
 
 std::string BApplicObjBase::getStringRep() const
