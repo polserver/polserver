@@ -227,11 +227,9 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
     setFunctionResult( new BError( "Missing parameter " + Clib::tostring( param ) ) );
     return false;
   }
-  if ( imp->isa( BObjectImp::OTApplicObj ) )
+  if ( auto* aob = impptrIf<BApplicObjBase>( imp ) )
   {
-    BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
-
-    if ( ( aob != nullptr ) && ( aob->object_type() == &eclientrefobjimp_type ) )
+    if ( aob->object_type() == &eclientrefobjimp_type )
     {
       EClientRefObjImp* clientref_imp =
           Clib::explicit_cast<EClientRefObjImp*, BApplicObjBase*>( aob );
@@ -265,11 +263,9 @@ Mobile::Character* UOExecutor::convertToCharacter( Bscript::BObjectImp* imp, std
       *error = "Invalid object";
     return nullptr;
   }
-  if ( imp->isa( BObjectImp::OTApplicObj ) )
+  if ( auto* aob = impptrIf<BApplicObjBase>( imp ) )
   {
-    BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
-
-    if ( ( aob != nullptr ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
+    if ( aob->object_type() == &echaracterrefobjimp_type )
     {
       ECharacterRefObjImp* chrref_imp =
           Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
@@ -296,10 +292,8 @@ Mobile::Character* UOExecutor::convertToCharacter( Bscript::BObjectImp* imp, std
     // FIXME: log error
     return nullptr;
   }
-  if ( imp->isa( BObjectImp::OTLong ) )
+  if ( auto* pchar_serial = impptrIf<BLong>( imp ) )
   {
-    BLong* pchar_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
     unsigned int serial = pchar_serial->value();
     if ( IsItem( serial ) || serial == 0 )
     {
@@ -352,11 +346,9 @@ bool UOExecutor::getItemParam( unsigned param, Items::Item*& itemptr )
   {
     return false;
   }
-  if ( imp->isa( BObjectImp::OTApplicObj ) )
+  if ( auto* aob = impptrIf<BApplicObjBase>( imp ) )
   {
-    BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
-
-    if ( ( aob != nullptr ) && ( aob->object_type() == &eitemrefobjimp_type ) )
+    if ( aob->object_type() == &eitemrefobjimp_type )
     {
       EItemRefObjImp* itemref_imp = Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
 
@@ -367,9 +359,8 @@ bool UOExecutor::getItemParam( unsigned param, Items::Item*& itemptr )
     // FIXME: log error
     return false;
   }
-  if ( imp->isa( BObjectImp::OTLong ) )
+  if ( auto pitem_serial = impptrIf<BLong>( imp ) )
   {
-    BLong* pitem_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
     unsigned int serial = pitem_serial->value();
 
     if ( IsCharacter( serial ) || serial == 0 )
@@ -390,10 +381,8 @@ bool UOExecutor::getUBoatParam( unsigned param, Multi::UBoat*& boatptr )
   {
     return false;
   }
-  if ( imp->isa( BObjectImp::OTApplicObj ) )
+  if ( auto* aob = impptrIf<BApplicObjBase>( imp ) )
   {
-    BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
-
     if ( aob->object_type() == &euboatrefobjimp_type )
     {
       EUBoatRefObjImp* boatref_imp = Clib::explicit_cast<EUBoatRefObjImp*, BApplicObjBase*>( aob );
@@ -419,10 +408,8 @@ bool UOExecutor::getUBoatParam( unsigned param, Multi::UBoat*& boatptr )
     // FIXME: log error
     return false;
   }
-  if ( imp->isa( BObjectImp::OTLong ) )
+  if ( auto* pitem_serial = impptrIf<BLong>( imp ) )
   {
-    BLong* pitem_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
     Multi::UMulti* multi = system_find_multi( pitem_serial->value() );
     if ( multi )
       boatptr = multi->as_boat();
@@ -441,10 +428,8 @@ bool UOExecutor::getMultiParam( unsigned param, Multi::UMulti*& multiptr )
   {
     return false;
   }
-  if ( imp->isa( BObjectImp::OTApplicObj ) )
+  if ( auto* aob = impptrIf<BApplicObjBase>( imp ) )
   {
-    BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
-
     if ( aob->object_type() == &emultirefobjimp_type )
     {
       EMultiRefObjImp* multiref_imp = Clib::explicit_cast<EMultiRefObjImp*, BApplicObjBase*>( aob );
@@ -463,10 +448,8 @@ bool UOExecutor::getMultiParam( unsigned param, Multi::UMulti*& multiptr )
     // FIXME: log error
     return false;
   }
-  if ( imp->isa( BObjectImp::OTLong ) )
+  if ( auto* pitem_serial = impptrIf<BLong>( imp ) )
   {
-    BLong* pitem_serial = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
-
     multiptr = system_find_multi( pitem_serial->value() );
 
     return ( multiptr != nullptr );
@@ -513,15 +496,13 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
   }
   unsigned int objtype_long = 0;
 
-  if ( imp->isa( BObjectImp::OTLong ) )
+  if ( auto* plong = impptrIf<BLong>( imp ) )
   {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
     objtype_long = plong->value();
   }
-  else if ( imp->isa( BObjectImp::OTString ) )
+  else if ( auto* pstring = impptrIf<String>( imp ) )
   {
     // this could be an objtypename, or an objtype in string form.  Cope with either.
-    String* pstring = Clib::explicit_cast<String*, BObjectImp*>( imp );
     const char* ot_str = pstring->data();
     if ( !isdigit( ot_str[0] ) )
     {
@@ -588,15 +569,13 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
   }
   unsigned int objtype_long = 0;
 
-  if ( imp->isa( BObjectImp::OTLong ) )
+  if ( auto* plong = impptrIf<BLong>( imp ) )
   {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
     objtype_long = plong->value();
   }
-  else if ( imp->isa( BObjectImp::OTString ) )
+  else if ( auto* pstring = impptrIf<String>( imp ) )
   {
     // this could be an objtypename, or an objtype in string form.  Cope with either.
-    String* pstring = Clib::explicit_cast<String*, BObjectImp*>( imp );
     const char* ot_str = pstring->data();
     if ( !isdigit( ot_str[0] ) )
     {
@@ -615,9 +594,8 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
     // a number passed...process below as if passed as a BLong
     objtype_long = strtol( ot_str, nullptr, 0 );
   }
-  else if ( imp->isa( BObjectImp::OTStruct ) )
+  else if ( auto* itemdesc_struct = impptrIf<BStruct>( imp ) )
   {
-    BStruct* itemdesc_struct = Clib::explicit_cast<BStruct*, BObjectImp*>( imp );
     try
     {
       itemdesc_out = Items::CreateItemDescriptor( itemdesc_struct );
@@ -693,9 +671,8 @@ bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
     setFunctionResult( new BError( "Missing parameter " + Clib::tostring( param ) ) );
     return false;
   }
-  if ( imp->isa( BObjectImp::OTLong ) )
+  if ( auto* plong = impptrIf<BLong>( imp ) )
   {
-    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
     int value = plong->value();
     if ( value >= SKILLID__LOWEST && value <= networkManager.uoclient_general.maxskills )
     {
