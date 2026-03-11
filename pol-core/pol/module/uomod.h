@@ -332,6 +332,8 @@ public:
 
   explicit UOExecutorModule( Core::UOExecutor& exec );
   ~UOExecutorModule() override;
+  UOExecutorModule( const UOExecutorModule& ) = delete;
+  UOExecutorModule& operator=( const UOExecutorModule& ) = delete;
 
   size_t sizeEstimate() const override;
 
@@ -359,10 +361,6 @@ private:
   static std::string buildCompressedGumpMenu(
       Network::PktHelper::PacketOut<Network::PktOut_DD>& msg, Bscript::ObjArray* layout_arr,
       Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
-
-
-  UOExecutorModule( const UOExecutorModule& ) = delete;
-  UOExecutorModule& operator=( const UOExecutorModule& ) = delete;
 };
 }  // namespace Module
 }  // namespace Pol
