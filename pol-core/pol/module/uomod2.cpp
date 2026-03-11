@@ -1421,26 +1421,36 @@ void clear_gumphandler( Client* client, UOExecutorModule* uoemod, bool event_bas
   client->gd->remove_gumpmod( uoemod, gumpid );
 }
 
-BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
+BObjectImp* UOExecutorModule::mf_CloseGump( /* who_or_array, pid, response := 0 */ )
 {
-  Character* chr;
+  BObjectImp* chr_or_array = exec.getParamImp( 0 );
   unsigned int pid;
   BObjectImp* resp;
 
-  if ( !( getCharacterParam( 0, chr ) && exec.getParam( 1, pid ) && ( getParamImp( 2, resp ) ) ) )
+  if ( !( chr_or_array && exec.getParam( 1, pid ) && ( getParamImp( 2, resp ) ) ) )
   {
     return new BError( "Invalid parameter" );
   }
-
-  if ( !chr->has_active_client() )
-    return new BError( "No client attached" );
-
-  Client* client = chr->client;
-
-  auto [uoemod, event_based] = client->gd->find_gumpmod( pid );
-  if ( uoemod == nullptr )
+  auto* chrarray = Bscript::impptrIf<ObjArray>( chr_or_array );
+  std::vector<Character*> characters;
+  if ( !chrarray )
   {
-    return new BError( "Couldnt find script" );
+    std::string error;
+    auto* chr = uoexec().convertToCharacter( chr_or_array, &error );
+    if ( !error.empty() )
+      return new BError( error );
+    if ( !chr || !chr->has_active_client() )
+      return new BError( "No client attached" );
+    characters.push_back( chr );
+  }
+  else
+  {
+    characters.reserve( chrarray->ref_arr.size() );
+    for ( auto& e : chrarray->ref_arr )
+    {
+      characters.push_back(
+          uoexec().convertToCharacter( e->impptr(), nullptr /*ignore convert errors*/ ) );
+    }
   }
 
   PktHelper::PacketOut<PktOut_BF_Sub4> msg;
@@ -1448,19 +1458,31 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
   msg->offset += 2;
   msg->WriteFlipped<u32>( pid );
   msg->offset += 4;  // buttonid
-
-  msg.Send( client );
-
-  if ( !event_based )
+  for ( auto* chr : characters )
   {
-    uoemod->uoexec().ValueStack.back().set( new BObject( resp ) );
-  }
-  else
-  {
-    uoemod->uoexec().signal_event( new GumpEvent( chr, resp ) );
-  }
-  clear_gumphandler( client, uoemod, event_based, pid );
+    if ( !chr || !chr->has_active_client() )
+      continue;
+    auto [uoemod, event_based] = chr->client->gd->find_gumpmod( pid );
+    if ( uoemod == nullptr )
+    {
+      // only return an error if just one chr is given
+      if ( characters.size() == 1 )
+        return new BError( "Couldnt find script" );
+      continue;
+    }
 
+    msg.Send( chr->client );
+
+    if ( !event_based )
+    {
+      uoemod->uoexec().ValueStack.back().set( new BObject( resp ) );
+    }
+    else
+    {
+      uoemod->uoexec().signal_event( new GumpEvent( chr, resp ) );
+    }
+    clear_gumphandler( chr->client, uoemod, event_based, pid );
+  }
   return new BLong( 1 );
 }
 
