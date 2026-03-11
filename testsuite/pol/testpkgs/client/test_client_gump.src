@@ -121,7 +121,7 @@ exported function display_gump_button_multiple()
   Clear_Event_Queue();
   var cmds := { "button blubb", "world" };
   var texts := { "display", "multiple" };
-  var res := DisplayDialogGump( { char, char2 }, cmds, texts );
+  var res := DisplayDialogGump( { char, char2.serial, "bad" }, cmds, texts );
   if ( res != { char, char2 } )
     return ret_error( $"wrong response: {res}" );
   endif
