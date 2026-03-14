@@ -212,11 +212,13 @@ void Client::PreDelete()
   {
     auto& [uoemod, event_based] = gump.second;
     if ( event_based )
-    {
       uoemod->uoexec().signal_event( new Module::GumpEvent( chr, new Bscript::BLong( 0 ) ) );
-      std::erase( uoemod->evgump_chrs, chr );
-    }
+    else
+      uoemod->uoexec().revive();
+    std::erase_if( uoemod->gump_chrs, [&]( auto& e ) { return e.first == chr; } );
   }
+  gd->gumpmods.clear();
+
   // detach the account and character from this client, if they
   // are still associated with it.
 

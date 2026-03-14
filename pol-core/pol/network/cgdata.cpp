@@ -62,20 +62,6 @@ ClientGameData::~ClientGameData()
 
 void ClientGameData::clear()
 {
-  while ( !gumpmods.empty() )
-  {
-    auto it = gumpmods.begin();
-    auto& [uoemod, event_based] = it->second;
-    if ( !event_based )
-    {
-      uoemod->uoexec().revive();
-      uoemod->gump_chr = nullptr;
-    }
-    // else event is send in client and evgump_chrs cleared
-
-    gumpmods.erase( it );
-  }
-
   if ( textentry_uoemod )
   {
     textentry_uoemod->uoexec().revive();

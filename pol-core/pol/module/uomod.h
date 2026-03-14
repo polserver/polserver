@@ -314,8 +314,7 @@ public:
   Mobile::Character* popup_menu_selection_chr;
   Core::UObject* popup_menu_selection_above;
   Mobile::Character* prompt_chr;
-  Mobile::Character* gump_chr;
-  std::vector<Mobile::Character*> evgump_chrs;
+  std::vector<std::pair<Mobile::Character*, u32>> gump_chrs;
   Mobile::Character* textentry_chr;
   Mobile::Character* resurrect_chr;
   Mobile::Character* selcolor_chr;

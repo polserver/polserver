@@ -960,13 +960,9 @@ void sellhandler( Client* client, PKTIN_9F* msg )
 //
 //  "GUMP" Functions
 //
-BObjectImp* UOExecutorModule::mf_SendDialogGump()
+BObjectImp* UOExecutorModule::mf_SendDialogGump(
+    /* chr, layout, txtlines, x=0, y=0, flags=0,gumpid=0*/ )
 {
-  /*
-   Client* client,
-   const char* layout,
-   const char* strings[]
-   */
   int x, y, flags, gump_id;
   Character* chr;
   ObjArray* layout_arr;
@@ -1015,8 +1011,13 @@ BObjectImp* UOExecutorModule::mf_SendDialogGump()
     msg->offset = 3;
     msg->template Write<u32>( chr->serial_ext );
     msg.Send( chr->client, len );
+    // classicuo seems to refresh existing gumps without Close
+    // official client just opens a second gump
+    // we can only hope for the best and just keep one entry per gumpid
     chr->client->gd->add_gumpmod( this, gumpid, false );
-    gump_chr = chr;
+    auto e = std::make_pair( chr, gumpid );
+    if ( std::ranges::find( gump_chrs, e ) == gump_chrs.end() )
+      gump_chrs.push_back( std::move( e ) );
     return new BLong( 0 );
   };
 
@@ -1037,7 +1038,8 @@ BObjectImp* UOExecutorModule::mf_SendDialogGump()
   return send( msg, chr, gumpid );
 }
 
-BObjectImp* UOExecutorModule::mf_DisplayDialogGump()
+BObjectImp* UOExecutorModule::mf_DisplayDialogGump(
+    /* chr_or_array, layout, txtlines, x=0, y=0, flags=0,gumpid=0*/ )
 {
   int x, y, flags, gump_id;
   BObjectImp* chr_or_array = exec.getParamImp( 0 );
@@ -1096,8 +1098,13 @@ BObjectImp* UOExecutorModule::mf_DisplayDialogGump()
     msg->template Write<u32>( chr->serial_ext );
     msg->offset = len;
     msg.Send( chr->client, len );
+    // classicuo seems to refresh existing gumps without Close
+    // official client just opens a second gump
+    // we can only hope for the best and just keep one entry per gumpid
     chr->client->gd->add_gumpmod( this, gumpid, true );
-    evgump_chrs.push_back( chr );
+    auto e = std::make_pair( chr, gumpid );
+    if ( std::ranges::find( gump_chrs, e ) == gump_chrs.end() )
+      gump_chrs.push_back( std::move( e ) );
   };
 
   auto send_chrs = std::make_unique<ObjArray>();
@@ -1404,20 +1411,12 @@ BObjectRef BIntHash::OperSubscript( const BObject& obj )
   return BObjectRef( new BError( "Incorrect type used as subscript to inthash" ) );
 }
 
-void clear_gumphandler( Client* client, UOExecutorModule* uoemod, bool event_based, u32 gumpid )
+void clear_gumphandler( Client* client, UOExecutorModule* uoemod, u32 gumpid )
 {
-  if ( !event_based )
-  {
-    uoemod->uoexec().revive();
-    uoemod->gump_chr = nullptr;
-  }
-  else
-  {
-    // remove single entry
-    auto itr = std::ranges::find( uoemod->evgump_chrs, client->chr );
-    if ( itr != uoemod->evgump_chrs.end() )
-      uoemod->evgump_chrs.erase( itr );
-  }
+  auto itr = std::ranges::find_if(
+      uoemod->gump_chrs, [&]( auto& e ) { return client->chr == e.first && gumpid == e.second; } );
+  if ( itr != uoemod->gump_chrs.end() )
+    uoemod->gump_chrs.erase( itr );
   client->gd->remove_gumpmod( uoemod, gumpid );
 }
 
@@ -1476,12 +1475,13 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who_or_array, pid, response := 0 
     if ( !event_based )
     {
       uoemod->uoexec().ValueStack.back().set( new BObject( resp ) );
+      uoemod->uoexec().revive();
     }
     else
     {
       uoemod->uoexec().signal_event( new GumpEvent( chr, resp ) );
     }
-    clear_gumphandler( chr->client, uoemod, event_based, pid );
+    clear_gumphandler( chr->client, uoemod, pid );
   }
   return new BLong( 1 );
 }
@@ -1567,12 +1567,13 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
     if ( !event_based )
     {
       uoex.ValueStack.back().set( new BObject( imp ) );
+      uoemod->uoexec().revive();
     }
     else
     {
       uoex.signal_event( new GumpEvent( client->chr, imp ) );
     }
-    clear_gumphandler( client, uoemod, event_based, gumpid );
+    clear_gumphandler( client, uoemod, gumpid );
   };
 
   // Using == instead of <= should do the trick, but i think <= is more robust
