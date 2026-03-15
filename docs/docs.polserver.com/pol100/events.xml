@@ -6,7 +6,7 @@
     <fname>POL System Events</fname>
     <hdesc>This document describes all the "System Events" (Sysevents) that the POL core uses. These are enabled in Control Scripts using the EnableEvents() function. Only these events listed here should be used in the EnableEvents() function. You may not define User Events with any of these values (or any of the reserved values in sysEvent.inc). To use a user event in your script, you must not use EnableEvents(), just send it using SendEvent() (or process_obj.sendevent()) and look for it normally in the receiving script. Some of the Sysevents below are ranged, meaning you may specify a world distance in EnableEvents() beyond which the script will not receive the event. Use DisableEvents() to disable any of the Sysevents.
     </hdesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>03/14/2026</datemodified>
 </header>
 
 
@@ -214,4 +214,14 @@
   <ranged>No</ranged>
 </event>
 
+<event>
+  <name>SYSEVENT_GUMP_RESPONSE</name>
+  <explain>Used when calling uo::DisplayDialogGump to inform about a gump input.</explain>
+  <ID>0x00020000</ID>
+  <member mname="type" value="SYSEVENT_GUMP_RESPONSE (0x00020000)"/>
+  <member mname="source" value="Character Reference"/>
+  <member mname="response" value="see uo::SendDialogGump response"/>
+  <whensent>A player interacts with a gump.</whensent>
+  <ranged>No</ranged>
+</event>
 </ESCRIPT>
