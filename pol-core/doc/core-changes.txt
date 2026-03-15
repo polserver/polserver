@@ -1,4 +1,12 @@
 -- POL100.3.0 --
+03-15-2026 Turley:
+    Added: uo::DisplayDialogGump(chr_or_array, layout, textlines, x:=0, y:=0, flags:=0, gumpid:=0 )
+           non-blocking version of uo::SendDialogGump(), instead of blocking the script until the client interacts with the gump it returns immediately.
+           Sends event SYSEVENT_GUMP_RESPONSE{type=0x20000, source=chrref, response=0/IntHash} once the client reacted.
+           Where the response member has the same structure/logic as the return value of uo::SendDialogGump().
+           First param can be a single character reference or an array of character references to send the same gump to multiple clients.
+  Changed: uo::CloseGump(chr_or_array, gumpid, response:=0)
+           First param can now be a single character reference or an array of character references to close the same gump for multiple clients.
 03-09-2026 Kevin:
     Fixed: Passing a boat item descriptor struct which contains an `AlternateMultiID` member to
            `CreateMultiAtLocation` now works correctly.
