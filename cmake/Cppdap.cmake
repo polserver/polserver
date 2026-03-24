@@ -38,6 +38,11 @@ if(NOT EXISTS ${CPPDAP_LIB})
     INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --config Release --target install
     BUILD_BYPRODUCTS ${CPPDAP_LIB}
     EXCLUDE_FROM_ALL 1
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
+    LOG_OUTPUT_ON_FAILURE 1
   )
 else()
   message("  - already built")
