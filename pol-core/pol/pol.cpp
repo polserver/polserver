@@ -721,9 +721,7 @@ void threadstatus_thread()
         send_pulse();
         wake_tasks_thread();
         networkManager.clientTransmit->Cancel();
-#ifdef HAVE_MYSQL
         networkManager.sql_service->stop();
-#endif
         sent_wakeups = true;
       }
 
@@ -801,10 +799,8 @@ void start_threads()
   checkpoint( "start clienttransmit thread" );
   start_thread( Network::ClientTransmitThread, "ClientTransmit" );
 
-#ifdef HAVE_MYSQL
   checkpoint( "start sql service thread" );
   start_sql_service();
-#endif
 }
 
 #if REFPTR_DEBUG

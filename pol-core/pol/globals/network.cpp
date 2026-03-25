@@ -31,9 +31,7 @@ NetworkManager::NetworkManager()
     : clients(),
       servers(),
       polstats(),
-#ifdef HAVE_MYSQL
       sql_service( new SQLService ),
-#endif
       uo_client_interface( new Network::UOClientInterface() ),
       auxservices(),
       uoclient_general(),
@@ -159,9 +157,7 @@ NetworkManager::Memory NetworkManager::estimateSize() const
     if ( server != nullptr )
       usage.misc += server->estimateSize();
 
-#ifdef HAVE_MYSQL
-  usage.misc += sizeof( SQLService ); /* sql_service */
-#endif
+  usage.misc += sizeof( SQLService );                 /* sql_service */
   usage.misc += sizeof( Network::UOClientInterface ); /*uo_client_interface*/
   usage.misc += Clib::memsize( auxservices );
   for ( const auto& aux : auxservices )

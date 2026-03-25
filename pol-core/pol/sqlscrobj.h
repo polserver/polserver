@@ -9,14 +9,10 @@
 
 #include "pol_global_config.h"
 
-#ifdef HAVE_MYSQL
-
 #ifdef _WIN32
 #include "../clib/Header_Windows.h"
-#include <mysql.h>
-#else
-#include <mysql/mysql.h>
 #endif
+#include <mariadb/mysql.h>
 
 #include <functional>
 #include <memory>
@@ -184,7 +180,5 @@ private:
 void start_sql_service();
 }  // namespace Pol::Core
 
-
-#endif
 
 #endif

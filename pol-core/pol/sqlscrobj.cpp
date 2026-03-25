@@ -10,12 +10,8 @@
 #include <regex>
 #include <string.h>
 
-#include "../bscript/bobject.h"
-
-
-#ifdef HAVE_MYSQL
-
 #include "../bscript/berror.h"
+#include "../bscript/bobject.h"
 #include "../bscript/contiter.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
@@ -597,5 +593,3 @@ void start_sql_service()
   threadhelp::start_thread( sql_service_thread_stub, "SQLService" );
 }
 }  // namespace Pol::Core
-
-#endif

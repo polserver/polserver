@@ -23,26 +23,8 @@ target_link_libraries(${ex_name} PUBLIC
   libz
   libpicojson
   libcurl
+  libsql
 )
-
-if(HAVE_MYSQL)
-  target_link_libraries(${ex_name} PUBLIC libsql)
-
-  if(${windows})
-    get_target_property(sqldll libsql IMPORTED_LOCATION)
-    get_filename_component(dllname ${sqldll} NAME)
-    add_custom_command(TARGET ${ex_name} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-        "${sqldll}"
-        "$<TARGET_FILE_DIR:${ex_name}>/${dllname}"
-    )
-    install(
-      FILES ${sqldll}
-      DESTINATION .
-      COMPONENT bin
-    )
-  endif()
-endif()
 
 dist(${ex_name} .)
 

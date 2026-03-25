@@ -37,8 +37,6 @@ size_t SQLExecutorModule::sizeEstimate() const
   return sizeof( *this );
 }
 
-#ifdef HAVE_MYSQL
-
 BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uoexec,
                                                    const std::string host,
                                                    const std::string username,
@@ -362,23 +360,4 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_escape_string()
     return new BError( "failed to escape string" );
   return new String( escaped );
 }
-
-#else
-
-#define MF_NO_MYSQL( funcName )                                      \
-  BObjectImp* SQLExecutorModule::funcName()                          \
-  {                                                                  \
-    return new BError( "POL was not compiled with MySQL support." ); \
-  }
-MF_NO_MYSQL( mf_mysql_connect )
-MF_NO_MYSQL( mf_mysql_select_db )
-MF_NO_MYSQL( mf_mysql_query )
-MF_NO_MYSQL( mf_mysql_num_fields )
-MF_NO_MYSQL( mf_mysql_field_name )
-MF_NO_MYSQL( mf_mysql_affected_rows )
-MF_NO_MYSQL( mf_mysql_num_rows )
-MF_NO_MYSQL( mf_mysql_close )
-MF_NO_MYSQL( mf_mysql_fetch_row )
-MF_NO_MYSQL( mf_mysql_escape_string )
-#endif
 }  // namespace Pol::Module

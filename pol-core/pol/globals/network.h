@@ -64,9 +64,7 @@ public:
 
   PolStats polstats;
 
-#ifdef HAVE_MYSQL
   std::unique_ptr<SQLService> sql_service;
-#endif
   std::unique_ptr<Network::UOClientInterface> uo_client_interface;
 
   std::vector<Network::AuxService*> auxservices;
