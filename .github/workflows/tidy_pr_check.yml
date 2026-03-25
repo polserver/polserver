@@ -64,7 +64,6 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             sudo apt-get install "clang-tidy-$version" -y
           }
-          sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install uuid-dev -y
 
           $ninja_version = "1.12.1"

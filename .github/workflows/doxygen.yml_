@@ -30,7 +30,7 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             Invoke-Expression "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev doxygen graphviz -y
+          sudo apt-get install doxygen graphviz -y
 
       - name: Set CXX and CC
         shell: pwsh

@@ -75,7 +75,6 @@ jobs:
           if ($version -ne 'default') {
             sudo apt-get install "$compiler-$version" -y
           }
-          sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
           pip install aiosmtpd

@@ -29,7 +29,6 @@ jobs:
           if ($version -ne 'default') {
             sudo apt-get install "$compiler-$version" -y
           }
-          sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install uuid-dev -y
           pip install aiosmtpd
 
@@ -67,6 +66,7 @@ jobs:
           cmake --build . --target libfmt_ext
           cmake --build . --target libescriptgrammar
           cmake --build . --target libcppdap_ext
+          cmake --build . --target libmaria_ext
 
 
       - name: Build with cov-build

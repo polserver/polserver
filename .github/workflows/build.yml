@@ -99,7 +99,6 @@ jobs:
           if ($version -ne 'default') {
             sudo apt-get install "$compiler-$version" -y
           }
-          sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
           pip install aiosmtpd
@@ -131,10 +130,9 @@ jobs:
           /opt/homebrew/bin/pip3.13 install --break-system-packages aiosmtpd
           brew bundle --file=bin-build/Brewfile
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `brew-universalize`.
-          ./bin-build/brew-universalize mysql-client mysql-connector-c++ openssl@3 libssh2
+          ./bin-build/brew-universalize openssl@3 libssh2
           OPENSSL_VERSION_INSTALLED=$(brew info --json openssl@3 | jq -r '.[0].installed[0].version')
-          MYSQL_CLIENT_VERSION_INSTALLED=$(brew info --json mysql-client | jq -r '.[0].installed[0].version')
-          echo "PKG_CONFIG_PATH=/opt/homebrew/Cellar/openssl@3/$OPENSSL_VERSION_INSTALLED/lib/pkgconfig:/opt/homebrew/Cellar/mysql-client/$MYSQL_CLIENT_VERSION_INSTALLED/lib/pkgconfig:$Env:PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/opt/homebrew/Cellar/openssl@3/$OPENSSL_VERSION_INSTALLED/lib/pkgconfig:$Env:PKG_CONFIG_PATH" >> $GITHUB_ENV
           #env:
           #HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
 
