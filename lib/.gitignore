@@ -6,6 +6,7 @@ efsw-*
 fmt-*
 google-benchmark*
 kaitai-*
+mariadb-*
 picojson-*
 utf8-*
 zlib-*
