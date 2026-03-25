@@ -3,12 +3,20 @@
 if (${windows})
   message("* libz")
   set(ZLIB_REPO "https://github.com/madler/zlib")
-  set(ZLIB_TAG "v1.3.1")
+  set(ZLIB_TAG "v1.3.2")
   set(ZLIB_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/zlib-${ZLIB_TAG}")
 
   set(ZLIB_INSTALL_DIR "${ZLIB_SOURCE_DIR}/builds")
-  set(ZLIB_LIB "${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib")
-  set(ZLIB_FLAGS -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_CURRENT_LIST_DIR}/c_flag_overrides.cmake)
+  set(ZLIB_LIB "${ZLIB_INSTALL_DIR}/lib/zs.lib")
+  set(ZLIB_FLAGS
+    -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_CURRENT_LIST_DIR}/c_flag_overrides.cmake
+    -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_INSTALL_PREFIX=${ZLIB_INSTALL_DIR}
+    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_OSX_ARCHITECTURES=${PIPED_OSX_ARCHITECTURES}
+  )
 
   if(NOT EXISTS "${ZLIB_LIB}")
     ExternalProject_Add(libz_ext
@@ -18,7 +26,7 @@ if (${windows})
       SOURCE_DIR  "${ZLIB_SOURCE_DIR}"
       PREFIX z
       LIST_SEPARATOR |
-      CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${ZLIB_INSTALL_DIR} ${ZLIB_FLAGS} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_OSX_ARCHITECTURES=${PIPED_OSX_ARCHITECTURES}
+      CMAKE_ARGS ${ZLIB_FLAGS}
       BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
       INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
       BUILD_IN_SOURCE 1
