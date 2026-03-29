@@ -110,6 +110,7 @@ jobs:
           cmake --build . --target libfmt_ext
           cmake --build . --target libescriptgrammar
           cmake --build . --target libcppdap_ext || true
+          cmake --build . --target libmaria_ext
           cmake --build . --target parse_modules
 
       - name: Tidy Diff Check
