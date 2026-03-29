@@ -72,6 +72,13 @@ function (read_def MODCLASS CONTENT OUT_APPEND_TO)
       continue()
     endif()
 
+    # Skip `;` remainings, starting with cmake 4.x the regex below does not match the ;
+    string(FIND "${CONTENT}" ";" out)
+    if(${out} EQUAL 0)
+      string(SUBSTRING "${CONTENT}" 1 -1 CONTENT)
+      continue()
+    endif()
+
     # Check for module function declaration. If none, break.
     string(REGEX MATCH "^([a-zA-Z_0-9]+)[\\( ]+([^;]*)[ \\)]+;" out "${CONTENT}")
     string(LENGTH "${out}" out)
@@ -119,8 +126,8 @@ function(createfunctable)
       set(MODPARENT "Core::PolModule")
     endif()
 
-    set(HEADER "#ifndef ${MODCLASS}_EM_h\n#define ${MODCLASS}_EM_h\n")
-    set(HEADER "${HEADER}namespace Pol\n{\nnamespace Bscript\n{\nusing namespace Module\;\n\n")
+    set(HEADER "#pragma once\n")
+    set(HEADER "${HEADER}namespace Pol::Bscript\n{\nusing namespace Module\;\n\n")
   
     # message("Creating function table definition for ${em} => ${em_name} => ${MODCLASS}")
     set(MODDEF "template <>\nconst char* const TmplExecutorModule<${MODCLASS}, ${MODPARENT}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}, ${MODPARENT}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}, ${MODPARENT}>::function_table = {\n")
@@ -129,7 +136,7 @@ function(createfunctable)
     read_def(${MODCLASS} ${contents} FUNCTBL)
     set(MODDEF "${MODDEF}${FUNCTBL}}\;\n\n")
     
-    set(FOOTER "} // namespace Bscript\n} // namespace Pol\n#endif")
+    set(FOOTER "} // namespace Bscript::Pol\n")
     set(OUT_MOD "${HEADER}\n${MODDEF}${FOOTER}")
 
     file(WRITE "${OUT_FOLDER}/${em_name}.h" ${OUT_MOD})
