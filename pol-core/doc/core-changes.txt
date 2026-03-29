@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+03-29-2026 Turley:
+  Changed: for sql connection mariadb connector is now used, since its compatible nothing changes except that the core nolonger needs mysql as external dependency.
 03-15-2026 Turley:
     Added: uo::DisplayDialogGump(chr_or_array, layout, textlines, x:=0, y:=0, flags:=0, gumpid:=0 )
            non-blocking version of uo::SendDialogGump(), instead of blocking the script until the client interacts with the gump it returns immediately.

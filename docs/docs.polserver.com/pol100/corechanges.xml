@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-15-2026</datemodified>
+		<datemodified>03-29-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>03-29-2026</date>
+			<author>Turley:</author>
+			<change type="Changed">for sql connection mariadb connector is now used, since its compatible nothing changes except that the core nolonger needs mysql as external dependency.</change>
+		</entry>
 		<entry>
 			<date>03-15-2026</date>
 			<author>Turley:</author>
