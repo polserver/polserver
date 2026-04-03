@@ -9,6 +9,7 @@
 
 #include "dict.h"
 
+#include <iterator>
 #include <stddef.h>
 
 #include "../clib/stlutil.h"
@@ -365,33 +366,29 @@ BObjectImp* BDictionary::unpack( std::istream& is )
 
 std::string BDictionary::getStringRep() const
 {
-  OSTRINGSTREAM os;
-  os << typetag() << "{ ";
+  std::string rep = fmt::format( "{}{{ ", typetag() );
   bool any = false;
 
-  for ( const auto& content : contents_ )
+  for ( const auto& [bkeyobj, bvalref] : contents_ )
   {
-    const BObject& bkeyobj = content.first;
-    const BObjectRef& bvalref = content.second;
-
     if ( any )
-      os << ", ";
+      rep += ", ";
     else
       any = true;
 
-    FormatForStringRep( os, bkeyobj, bvalref );
+    FormatForStringRep( rep, bkeyobj, bvalref );
   }
 
-  os << " }";
+  rep += " }";
 
-  return OSTRINGSTREAM_STR( os );
+  return rep;
 }
 
-void BDictionary::FormatForStringRep( std::ostream& os, const BObject& bkeyobj,
+void BDictionary::FormatForStringRep( std::string& rep, const BObject& bkeyobj,
                                       const BObjectRef& bvalref ) const
 {
-  os << bkeyobj.impref().getFormattedStringRep() << " -> "
-     << bvalref->impref().getFormattedStringRep();
+  fmt::format_to( std::back_inserter( rep ), "{} -> {}", bkeyobj.impref().getFormattedStringRep(),
+                  bvalref->impref().getFormattedStringRep() );
 }
 
 

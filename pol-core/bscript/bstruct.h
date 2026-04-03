@@ -57,8 +57,8 @@ protected:
 
   virtual char packtype() const;
   virtual const char* typetag() const;
-  virtual void FormatForStringRep( std::ostream& os, const std::string& key,
-                                   const BObjectRef& bvalref ) const;
+  void FormatForStringRep( std::string& rep, const std::string& key,
+                           const BObjectRef& bvalref ) const;
 
   std::string getStringRep() const override;
   size_t sizeEstimate() const override;

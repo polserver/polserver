@@ -52,7 +52,7 @@ class Spellbook final : public UContainer
 
 public:
   explicit Spellbook( const Items::SpellbookDesc& descriptor );
-  ~Spellbook() override;
+  ~Spellbook() override = default;
   size_t estimatedSize() const override;
 
   bool has_spellid( unsigned int spellid ) const;

@@ -926,9 +926,7 @@ BObjectImp* BObjectImp::call_method( const char* methodname, Executor& /*ex*/ )
 }
 BObjectImp* BObjectImp::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
 {
-  OSTRINGSTREAM os;
-  os << "Method id '" << id << "' (" << getObjMethod( id )->code << ") not found";
-  return new BError( std::string( OSTRINGSTREAM_STR( os ) ) );
+  return new BError( fmt::format( "Method id '{}' ({}) not found", id, getObjMethod( id )->code ) );
 }
 BObjectRef BObjectImp::set_member( const char* membername, BObjectImp* /*valueimp*/, bool /*copy*/ )
 {
@@ -1402,27 +1400,23 @@ void ObjArray::addElement( BObjectImp* imp )
 
 std::string ObjArray::getStringRep() const
 {
-  OSTRINGSTREAM os;
-  os << "{ ";
+  std::string rep{ "{ " };
   bool any = false;
   for ( const auto& elem : ref_arr )
   {
     if ( any )
-      os << ", ";
+      rep += ", ";
     else
       any = true;
 
     BObject* bo = elem.get();
 
     if ( bo != nullptr )
-    {
-      std::string tmp = bo->impptr()->getStringRep();
-      os << tmp;
-    }
+      rep += bo->impptr()->getStringRep();
   }
-  os << " }";
+  rep += " }";
 
-  return OSTRINGSTREAM_STR( os );
+  return rep;
 }
 
 long ObjArray::contains( const BObjectImp& imp ) const
@@ -2201,9 +2195,7 @@ void BBoolean::packonto( std::ostream& os ) const
 
 std::string BBoolean::pack() const
 {
-  OSTRINGSTREAM os;
-  os << "b" << ( bval_ ? 1 : 0 );
-  return OSTRINGSTREAM_STR( os );
+  return fmt::format( "b{}", bval_ ? 1 : 0 );
 }
 
 BObjectImp* BBoolean::copy() const

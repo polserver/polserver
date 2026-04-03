@@ -35,7 +35,6 @@
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
-#include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
 #include "../plib/uconst.h"
 #include "accounts/account.h"
@@ -363,7 +362,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     if ( client->chr->race == Plib::RACE_GARGOYLE )
     {
       // FIXME: add checks if its possible to stand with new movemode
-      client->chr->movemode = ( Plib::MOVEMODE )( client->chr->movemode ^ Plib::MOVEMODE_FLY );
+      client->chr->movemode = (Plib::MOVEMODE)( client->chr->movemode ^ Plib::MOVEMODE_FLY );
       send_move_mobile_to_nearby_cansee( client->chr );
       send_goxyz( client, client->chr );
     }
@@ -639,9 +638,8 @@ void handle_ef_seed( Client* client, PKTIN_EF* msg )
     client->setClientType( CLIENTTYPE_4000 );
 
   // detail->patch is since 5.0.7 always numeric, so no need to make it complicated
-  OSTRINGSTREAM os;
-  os << detail.major << "." << detail.minor << "." << detail.rev << "." << detail.patch;
-  client->setversion( OSTRINGSTREAM_STR( os ) );
+  client->setversion(
+      fmt::format( "{}.{}.{}.{}", detail.major, detail.minor, detail.rev, detail.patch ) );
 }
 
 void handle_e1_clienttype( Client* client, PKTIN_E1* msg )

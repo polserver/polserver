@@ -24,16 +24,12 @@ BLong::BLong( const BLong& L ) : BObjectImp( OTLong ), lval_( L.lval_ ) {}
 
 std::string BLong::pack() const
 {
-  OSTRINGSTREAM os;
-  os << "i" << lval_;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::format( "i{}", lval_ );
 }
 
 std::string BLong::pack( int val )
 {
-  OSTRINGSTREAM os;
-  os << "i" << val;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::format( "i{}", val );
 }
 
 
@@ -102,11 +98,7 @@ bool BLong::operator<( const BObjectImp& objimp ) const
 
 std::string BLong::getStringRep() const
 {
-  OSTRINGSTREAM os;
-
-  os << lval_;
-
-  return OSTRINGSTREAM_STR( os );
+  return fmt::to_string( lval_ );
 }
 
 BObjectImp* BLong::selfPlusObjImp( const BObjectImp& objimp ) const

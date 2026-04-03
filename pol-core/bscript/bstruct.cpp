@@ -10,6 +10,7 @@
 
 #include "bstruct.h"
 
+#include <iterator>
 #include <stddef.h>
 
 #include "../clib/passert.h"
@@ -107,10 +108,11 @@ BObjectImp* BStruct::unpack( std::istream& is )
   return new BStruct( is, size, OTStruct );
 }
 
-void BStruct::FormatForStringRep( std::ostream& os, const std::string& key,
+void BStruct::FormatForStringRep( std::string& rep, const std::string& key,
                                   const BObjectRef& bvalref ) const
 {
-  os << key << " = " << bvalref->impref().getFormattedStringRep();
+  fmt::format_to( std::back_inserter( rep ), "{} = {}", key,
+                  bvalref->impref().getFormattedStringRep() );
 }
 
 class BStructIterator final : public ContIterator
@@ -345,26 +347,21 @@ void BStruct::packonto( std::ostream& os ) const
 
 std::string BStruct::getStringRep() const
 {
-  OSTRINGSTREAM os;
-  os << typetag() << "{ ";
+  std::string rep = fmt::format( "{}{{ ", typetag() );
   bool any = false;
 
-  for ( const auto& content : contents_ )
+  for ( const auto& [key, bvalref] : contents_ )
   {
-    const std::string& key = content.first;
-    const BObjectRef& bvalref = content.second;
-
     if ( any )
-      os << ", ";
+      rep += ", ";
     else
       any = true;
 
-    FormatForStringRep( os, key, bvalref );
+    FormatForStringRep( rep, key, bvalref );
   }
 
-  os << " }";
-
-  return OSTRINGSTREAM_STR( os );
+  rep += " }";
+  return rep;
 }
 
 

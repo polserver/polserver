@@ -43,9 +43,7 @@ void start_gameclock()
 
 void update_gameclock()
 {
-  OSTRINGSTREAM os;
-  os << "s" << read_gameclock();
-  gamestate.global_properties->setprop( "gameclock", OSTRINGSTREAM_STR( os ) );
+  gamestate.global_properties->setprop( "gameclock", fmt::format( "s{}", read_gameclock() ) );
 }
 
 void stop_gameclock()

@@ -374,14 +374,10 @@ void textcmd_stoplog( Network::Client* client )
 
 void textcmd_orphans( Network::Client* client )
 {
-  OSTRINGSTREAM os;
-  os << "Unreaped orphans: " << stateManager.uobjcount.unreaped_orphans;
-
-  send_sysmessage( client, OSTRINGSTREAM_STR( os ) );
-
-  OSTRINGSTREAM os2;
-  os2 << "EChrRef count: " << stateManager.uobjcount.uobj_count_echrref;
-  send_sysmessage( client, OSTRINGSTREAM_STR( os2 ) );
+  send_sysmessage( client,
+                   fmt::format( "Unreaped orphans: {}", stateManager.uobjcount.unreaped_orphans ) );
+  send_sysmessage( client,
+                   fmt::format( "EChrRef count: {}", stateManager.uobjcount.uobj_count_echrref ) );
 }
 
 void list_scripts();
@@ -426,8 +422,7 @@ void textcmd_heapcheck( Network::Client* /*client*/ )
 
 void textcmd_threads( Network::Client* client )
 {
-  std::string s = "Child threads: " + Clib::tostring( threadhelp::child_threads );
-  send_sysmessage( client, s );
+  send_sysmessage( client, fmt::format( "Child threads: {}", threadhelp::child_threads ) );
 }
 
 void textcmd_constat( Network::Client* client )
@@ -436,9 +431,7 @@ void textcmd_constat( Network::Client* client )
   send_sysmessage( client, "Connection statuses:" );
   for ( auto itr : networkManager.clients )
   {
-    OSTRINGSTREAM os;
-    os << i << ": " << itr->status() << " ";
-    send_sysmessage( client, OSTRINGSTREAM_STR( os ) );
+    send_sysmessage( client, fmt::format( "{}: {}", i, itr->status() ) );
     ++i;
   }
 }

@@ -10,13 +10,13 @@
 #include <cstring>
 #include <ctype.h>
 #include <exception>
+#include <fmt/format.h>
 #include <stdlib.h>
 
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/random.h"
 #include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
 
 
 namespace Pol::Core
@@ -60,31 +60,24 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
       {
         if ( !isdigit( *str ) )
         {
-          *errormsg = "Error reading die string '";
-          *errormsg += dicestr;
-          *errormsg += "': ";
-          *errormsg += "Expected digit at beginning";
+          *errormsg =
+              fmt::format( "Error reading die string '{}': Expected digit at beginning", dicestr );
           return false;
         }
 
         die_count = strtoul( str, &endptr, 0 );
         if ( die_count == 0 )
         {
-          *errormsg = "Error reading die string '";
-          *errormsg += dicestr;
-          *errormsg += "': ";
-          *errormsg += "Got a die count of 0?  strtoul failed?";
+          *errormsg = fmt::format(
+              "Error reading die string '{}': Got a die count of 0?  strtoul failed?", dicestr );
           return false;
         }
         // str should point at the 'D'
         if ( toupper( *endptr ) != 'D' )
         {
-          *errormsg = "Error reading die string '";
-          *errormsg += dicestr;
-          *errormsg += "': ";
-          *errormsg += "Didn't expect '";
-          *errormsg += *endptr;
-          *errormsg += "' before the 'D'";
+          *errormsg =
+              fmt::format( "Error reading die string '{}': Didn't expect '{}' before the 'D'",
+                           dicestr, *endptr );
           return false;
         }
         str = endptr + 1;
@@ -92,23 +85,16 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
       // now, we point just past the 'D'. Get the die type.
       if ( !isdigit( *str ) )
       {
-        *errormsg = "Error reading die string '";
-        *errormsg += dicestr;
-        *errormsg += "': ";
-        *errormsg += "expected a number after the 'D', got '";
-        *errormsg += *str;
-        *errormsg += "'";
+        *errormsg =
+            fmt::format( "Error reading die string '{}': expected a number after the 'D', got '{}'",
+                         dicestr, *str );
         return false;
       }
       die_type = strtoul( str, &endptr, 0 );
       if ( !die_type )
       {
-        *errormsg = "Error reading die string '";
-        *errormsg += dicestr;
-        *errormsg += "': ";
-        *errormsg += "Die type of '";
-        *errormsg += str;
-        *errormsg += "' doesn't make sense!";
+        *errormsg = fmt::format(
+            "Error reading die string '{}': Die type of '{}' doesn't make sense!", dicestr, str );
         return false;
       }
 
@@ -125,12 +111,9 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
         char sign = *str;
         if ( sign != '+' && sign != '-' )
         {
-          *errormsg = "Error reading die string '";
-          *errormsg += dicestr;
-          *errormsg += "': ";
-          *errormsg += "Expected '+' or '-' after xDy, got '";
-          *errormsg += sign;
-          *errormsg += "'";
+          *errormsg =
+              fmt::format( "Error reading die string '{}': Expected '+' or '-' after xDy, got '{}'",
+                           dicestr, sign );
           return false;
         }
         str += 1;
@@ -143,12 +126,8 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
     {
       if ( !isdigit( *str ) )
       {
-        *errormsg = "Error reading die string '";
-        *errormsg += dicestr;
-        *errormsg += "': ";
-        *errormsg += "Expected digit at beginning, got '";
-        *errormsg += *str;
-        *errormsg += "'";
+        *errormsg = fmt::format(
+            "Error reading die string '{}': Expected digit at beginning, got '{}'", dicestr, *str );
         return false;
       }
       die_count = 0;
@@ -165,18 +144,14 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
         "No spaces please!",
         dicestr );
     POLLOGLN( "Dice String {} hurt me!: {}", dicestr, ex.what() );
-    *errormsg = "An exception occured trying to decipher dice '";
-    *errormsg += dicestr;
-    *errormsg += "'";
+    *errormsg = fmt::format( "An exception occured trying to decipher dice '{}'", dicestr );
     return false;
   }
 }
 
 void Dice::die_string( std::string& str ) const
 {
-  OSTRINGSTREAM os;
-  os << die_count << "d" << die_type << "+" << plus_damage;
-  str = OSTRINGSTREAM_STR( os );
+  str = fmt::format( "{}d{}+{}", die_count, die_type, plus_damage );
 }
 
 unsigned short Dice::min_value() const

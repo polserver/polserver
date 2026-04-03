@@ -1177,7 +1177,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
         return new BError( "string.join expects an array" );
       ObjArray* container = cont->impptr<ObjArray>();
       // no empty check here on purpose
-      OSTRINGSTREAM joined;
+      std::string joined;
       bool first = true;
       for ( const BObjectRef& ref : container->ref_arr )
       {
@@ -1188,13 +1188,13 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
           if ( bo == nullptr )
             continue;
           if ( !first )
-            joined << value_;
+            joined += value_;
           else
             first = false;
-          joined << bo->impptr()->getStringRep();
+          joined += bo->impptr()->getStringRep();
         }
       }
-      return new String( OSTRINGSTREAM_STR( joined ) );
+      return new String( joined );
     }
     return new BError( "string.join(array) requires a parameter." );
   }
@@ -1269,7 +1269,7 @@ std::string String::fromUTF16( const unsigned short* code, size_t len, bool big_
   struct BigEndianIterator
   {
     const u16* ptr;
-    BigEndianIterator( const u16* begin ) : ptr( begin ){};
+    BigEndianIterator( const u16* begin ) : ptr( begin ) {};
     BigEndianIterator& operator++()
     {
       ++ptr;

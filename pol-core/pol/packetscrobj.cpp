@@ -26,7 +26,6 @@
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 #include "../clib/clib_endian.h"
-#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "base/position.h"
 #include "globals/network.h"
@@ -574,11 +573,10 @@ BObjectImp* BPacket::copy() const
 }
 std::string BPacket::getStringRep() const
 {
-  OSTRINGSTREAM os;
+  std::string os;
   for ( unsigned char itr : buffer )
-    os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<u16>( itr );
-
-  return OSTRINGSTREAM_STR( os );
+    fmt::format_to( std::back_inserter( os ), "{:02x}", itr );
+  return os;
 }
 
 bool BPacket::SetSize( u16 newsize )

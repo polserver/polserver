@@ -58,7 +58,7 @@ protected:
 
   char packtype() const;
   const char* typetag() const;
-  void FormatForStringRep( std::ostream& os, const BObject& bkeyobj,
+  void FormatForStringRep( std::string& rep, const BObject& bkeyobj,
                            const BObjectRef& bvalref ) const;
 
   BObjectRef OperSubscript( const BObject& obj ) override;

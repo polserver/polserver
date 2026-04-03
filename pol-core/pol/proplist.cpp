@@ -24,8 +24,6 @@
 #include "../plib/systemstate.h"
 #include "baseobject.h"
 
-#define pf_endl '\n'
-
 namespace Pol::Core
 {
 CPropProfiler::HitsCounter::HitsCounter() : hits( std::array<u64, 3>{ { 0, 0, 0 } } ) {}
@@ -255,18 +253,16 @@ void CPropProfiler::dumpProfile( std::ostream& os ) const
 
       for ( auto& pIter : tIter.second )
       {
-        std::ostringstream line;
-        line << pIter.first << " ";
-        line << pIter.second[HitsCounter::READ] << "/";
-        line << pIter.second[HitsCounter::WRITE] << "/";
-        line << pIter.second[HitsCounter::ERASE] << std::endl;
+        std::string line =
+            fmt::format( "{} {}/{}/{}\n", pIter.first, pIter.second[HitsCounter::READ],
+                         pIter.second[HitsCounter::WRITE], pIter.second[HitsCounter::ERASE] );
 
         if ( !pIter.second[HitsCounter::READ] )
-          outData["WRITTEN BUT NEVER READ"][typeName].push_back( line.str() );
+          outData["WRITTEN BUT NEVER READ"][typeName].push_back( line );
         else if ( !pIter.second[HitsCounter::WRITE] )
-          outData["READ BUT NEVER WRITTEN"][typeName].push_back( line.str() );
+          outData["READ BUT NEVER WRITTEN"][typeName].push_back( line );
         else
-          outData["ALL THE REST"][typeName].push_back( line.str() );
+          outData["ALL THE REST"][typeName].push_back( line );
       }
     }
   }

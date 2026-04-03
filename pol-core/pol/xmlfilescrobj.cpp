@@ -222,9 +222,7 @@ std::string BXMLfile::getStringRep() const
 {
   if ( file.Error() )
   {
-    OSTRINGSTREAM os;
-    os << file.ErrorRow() << "," << file.ErrorCol() << ":" << file.ErrorDesc();
-    return OSTRINGSTREAM_STR( os );
+    return fmt::format( "{},{}:{}", file.ErrorRow(), file.ErrorCol(), file.ErrorDesc() );
   }
   return _filename;
 }
@@ -538,9 +536,7 @@ std::string BXmlNode::getStringRep() const
   if ( node->Type() == TiXmlNode::TINYXML_DECLARATION )
   {
     TiXmlDeclaration* dec = node->ToDeclaration();
-    OSTRINGSTREAM os;
-    os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
-    return OSTRINGSTREAM_STR( os );
+    return fmt::format( "v:{} e:{} s:{}", dec->Version(), dec->Encoding(), dec->Standalone() );
   }
   std::string text = node->Value();
   Clib::sanitizeUnicodeWithIso( &text );

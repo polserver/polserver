@@ -59,8 +59,6 @@ Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
     bitwise_content = 0;
 }
 
-Spellbook::~Spellbook() = default;
-
 size_t Spellbook::estimatedSize() const
 {
   return sizeof( u8 ) * 8 /* bitwise_contents*/
@@ -288,12 +286,10 @@ void Spellbook::printProperties( Clib::StreamWriter& sw ) const
 void Spellbook::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
-  std::ostringstream os;
   for ( int i = 0; i < 8; ++i )
   {
-    os << "Spellbits" << i;
-    bitwise_contents[i] = (u8)elem.remove_ushort( os.str().c_str(), 0 );
-    os.str( "" );
+    std::string os = fmt::format( "Spellbits{}", i );
+    bitwise_contents[i] = (u8)elem.remove_ushort( os.c_str(), 0 );
   }
 }
 

@@ -1204,23 +1204,19 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
   elem.set_source( &stub_source );
 
   const Bscript::BStruct::Contents& struct_cont = itemdesc_struct->contents();
-  Bscript::BStruct::Contents::const_iterator itr;
-  for ( itr = struct_cont.begin(); itr != struct_cont.end(); ++itr )
+  for ( const auto& [key, val_ref] : struct_cont )
   {
-    const std::string& key = ( *itr ).first;
-    Bscript::BObjectImp* val_imp = ( *itr ).second->impptr();
+    Bscript::BObjectImp* val_imp = val_ref->impptr();
 
     if ( key == "CProps" )
     {
-      if ( val_imp->isa( Bscript::BObjectImp::OTDictionary ) )
+      if ( auto cpropdict = impptrIf<Bscript::BDictionary>( val_imp ) )
       {
-        Bscript::BDictionary* cpropdict = static_cast<Bscript::BDictionary*>( val_imp );
         const Bscript::BDictionary::Contents& cprop_cont = cpropdict->contents();
-        Bscript::BDictionary::Contents::const_iterator ditr;
-        for ( ditr = cprop_cont.begin(); ditr != cprop_cont.end(); ++ditr )
+        for ( const auto& [dictkey, dictval] : cprop_cont )
         {
-          elem.add_prop( "cprop", ( ( *ditr ).first->getStringRep() + "\t" +
-                                    ( *ditr ).second->impptr()->pack() ) );
+          elem.add_prop( "cprop", fmt::format( "{}\t{}", dictkey->getStringRep(),
+                                               dictval->impptr()->pack() ) );
         }
       }
       else
@@ -1247,18 +1243,15 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     }
     else if ( key == "StackingIgnoresCProps" )
     {
-      if ( val_imp->isa( Bscript::BObjectImp::OTArray ) )
+      if ( auto ignorecp = impptrIf<Bscript::ObjArray>( val_imp ) )
       {
-        OSTRINGSTREAM os;
-        // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* ignorecp = itr->second->impptr<Bscript::ObjArray>();
         const Bscript::ObjArray::Cont& conts = ignorecp->ref_arr;
-        Bscript::ObjArray::Cont::const_iterator aitr;
-        for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
+        std::string prop;
+        for ( const auto& cont : conts )
         {
-          os << ( *aitr ).get()->impptr()->getStringRep() << " ";
+          fmt::format_to( std::back_inserter( prop ), "{} ", cont.get()->impptr()->getStringRep() );
         }
-        elem.add_prop( key, OSTRINGSTREAM_STR( os ) );
+        elem.add_prop( key, std::move( prop ) );
       }
       else
       {
@@ -1269,17 +1262,12 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     }
     else if ( key == "Coverage" )  // Dave 7/13 needs to be parsed out into individual lines
     {
-      if ( val_imp->isa( Bscript::BObjectImp::OTArray ) )
+      if ( auto coverage = impptrIf<Bscript::ObjArray>( val_imp ) )
       {
-        // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* coverage = itr->second->impptr<Bscript::ObjArray>();
         const Bscript::ObjArray::Cont& conts = coverage->ref_arr;
-        Bscript::ObjArray::Cont::const_iterator aitr;
-        for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
+        for ( const auto& cont : conts )
         {
-          OSTRINGSTREAM os;
-          os << ( *aitr ).get()->impptr()->getStringRep();
-          elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ) );
+          elem.add_prop( key.c_str(), cont.get()->impptr()->getStringRep() );
         }
       }
       else
@@ -1298,10 +1286,9 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       std::string value = val_imp->getStringRep();
       elem.set_rest( value.c_str() );
     }
-    else if ( Clib::strlowerASCII( key ) == "name" || Clib::strlowerASCII( key ) == "objtypename" ||
-              Clib::strlowerASCII( key ) == "oldobjtype" ||
-              Clib::strlowerASCII( key ) == "methodscript" ||
-              Clib::strlowerASCII( key ) == "weight" )
+    else if ( auto lower_key = Clib::strlowerASCII( key );
+              lower_key == "name" || lower_key == "objtypename" || lower_key == "oldobjtype" ||
+              lower_key == "methodscript" || lower_key == "weight" )
     {
       // all of these only affect the main descriptor, so they're left out.
       //   name, objtypename, and oldobjtype would try to insert aliases
