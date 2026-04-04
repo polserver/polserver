@@ -111,6 +111,9 @@ jobs:
           cmake --build . --target libescriptgrammar
           cmake --build . --target libcppdap_ext || true
           cmake --build . --target libmaria_ext
+          cmake --build . --target libutf8_ext
+          cmake --build . --target libpicojson_ext
+          cmake --build . --target libefsw_ext
           cmake --build . --target parse_modules
 
       - name: Tidy Diff Check
