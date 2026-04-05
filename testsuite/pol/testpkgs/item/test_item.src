@@ -691,3 +691,71 @@ exported function test_hp_overflow( resmngr )
   endif
   return 1;
 endfunction
+
+exported function test_door( resmngr )
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, 0x6a5 );
+  if ( !item )
+    return ret_error( $"failed to create door: {item}" );
+  endif
+  var desc := GetItemDescriptor( 0x6a5 );
+  if ( desc.xmod != 1 || desc.ymod != 2 )
+    return ret_error( $"wrong mod descriptor x:{desc.xmod} y:{desc.ymod}" );
+  endif
+  if ( desc.opengraphic != 0x6a6 )
+    return ret_error( $"wrong opengraphic {desc.opengraphic:#x}" );
+  endif
+  return 1;
+endfunction
+
+exported function test_stack_ignore( resmngr )
+  var cnt := resmngr.CreateItemAtLocation( 0, 0, 0, 0x200001 );
+  if ( !cnt )
+    return ret_error( $"Failed to create container {cnt}" );
+  endif
+  var desc := GetItemDescriptor( "goldcoin" );
+
+  desc.cprops := dictionary{ "test" -> 1, "test1" -> 2 };
+  var gold1 := resmngr.CreateItemInContainer( cnt, desc, 1 );
+  if ( !gold1 )
+    return ret_error( $"Failed to create goldcoin {gold1}" );
+  endif
+  desc.cprops := dictionary{};
+  var gold2 := resmngr.CreateItemInContainer( cnt, desc, 1 );
+  if ( !gold2 )
+    return ret_error( $"Failed to create goldcoin {gold1}" );
+  endif
+  if ( gold2.amount > 1 )
+    return ret_error( $"different cprops stacked" );
+  endif
+  resmngr.DestroyItem( gold1 );
+
+  desc.cprops := dictionary{ "test" -> 1, "test1" -> 2 };
+  desc.stackingignorescprops := { "test", "test1" };
+  var gold3 := resmngr.CreateItemInContainer( cnt, desc, 1 );
+  if ( !gold3 )
+    return ret_error( $"Failed to create goldcoin {gold3}" );
+  endif
+  if ( gold3.amount == 1 )
+    return ret_error( "ignore did not stack vs non-existing" );
+  endif
+  resmngr.DestroyItem( gold2 );
+  resmngr.DestroyItem( gold3 );
+
+  desc.cprops := dictionary{ "test" -> 1, "test1" -> 2 };
+  desc.stackingignorescprops := { "test", "test1" };
+  var gold4 := resmngr.CreateItemInContainer( cnt, desc, 1 );
+  if ( !gold4 )
+    return ret_error( $"Failed to create goldcoin {gold4}" );
+  endif
+  desc.cprops := dictionary{ "test" -> 1, "test1" -> 3 };
+  desc.stackingignorescprops := { "test", "test1" };
+  var gold5 := resmngr.CreateItemInContainer( cnt, desc, 1 );
+  if ( !gold5 )
+    return ret_error( $"Failed to create goldcoin {gold5}" );
+  endif
+  if ( gold5.amount == 1 )
+    return ret_error( "ignore did not stack" );
+  endif
+  return 1;
+endfunction
+
