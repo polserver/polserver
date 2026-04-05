@@ -100,7 +100,7 @@ ItemDesc* ItemDesc::create( Clib::ConfigElem& elem, const Plib::Package* pkg )
     elem.throw_error( "Element must have objtype specified" );
   }
 
-  if ( Core::gamestate.old_objtype_conversions.count( objtype ) )
+  if ( Core::gamestate.old_objtype_conversions.contains( objtype ) )
   {
     elem.throw_error(
         "Objtype is defined as an OldObjtype of " +
@@ -349,31 +349,19 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   while ( elem.remove_prop( "Name", &temp ) || elem.remove_prop( "ObjtypeName", &temp ) )
   {
-    if ( Core::gamestate.objtype_byname.count( temp.c_str() ) )
+    if ( Core::gamestate.objtype_byname.contains( temp ) )
     {
       ERROR_PRINTLN( "Warning! objtype {:#x} : ObjtypeName '{}' is the same as objtype {:#x}",
-                     objtype, temp, Core::gamestate.objtype_byname[temp.c_str()] );
+                     objtype, temp, Core::gamestate.objtype_byname[temp] );
       // throw runtime_error( "Configuration file error" );
     }
     else
     {
-      Core::gamestate.objtype_byname[temp.c_str()] = objtype;
+      Core::gamestate.objtype_byname[temp] = objtype;
     }
 
     if ( objtypename.empty() )
       objtypename = temp;
-
-    /*
-            if (objtype_byname.count( temp.c_str() ))
-            {
-            cerr << "itemdesc.cfg, objtype 0x" << hex << objtype << dec
-            << ": Name '" << temp << "' has already been specified for objtype 0x"
-            << hex << objtype_byname[ temp.c_str() ] << dec << endl;
-            throw runtime_error( "Configuration file error" );
-            }
-            */
-    // if (!objtype_byname.count( temp.c_str() ))
-    //  objtype_byname[ temp.c_str() ] = objtype;
   }
 
   props.readProperties( elem );
@@ -395,19 +383,21 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   unsigned int old_objtype;
   while ( elem.remove_prop( "OldObjtype", &old_objtype ) )
   {
-    if ( Core::gamestate.old_objtype_conversions.count( old_objtype ) )
+    if ( Core::gamestate.old_objtype_conversions.contains( old_objtype ) )
     {
-      elem.throw_error( objtype_description() + " specifies OldObjtype " +
-                        Clib::hexint( old_objtype ) + " which is already mapped to " +
-                        find_itemdesc( Core::gamestate.old_objtype_conversions[old_objtype] )
-                            .objtype_description() );
+      elem.throw_error(
+          fmt::format( "{} specifies OldObjtype {:#x} which is already mapped to {}",
+                       objtype_description(), old_objtype,
+                       find_itemdesc( Core::gamestate.old_objtype_conversions[old_objtype] )
+                           .objtype_description() ) );
     }
     if ( has_itemdesc( old_objtype ) )
     {
       elem.throw_error(
-          objtype_description() + " specifies OldObjtype " + Clib::hexint( old_objtype ) +
-          " which is already defined as " +
-          find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
+          fmt::format( "{} specifies OldObjtype {:#x} which is already defined as {}",
+                       objtype_description(), old_objtype,
+                       find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] )
+                           .objtype_description() ) );
     }
     Core::gamestate.old_objtype_conversions[old_objtype] = objtype;
   }
@@ -1132,7 +1122,7 @@ size_t MapDesc::estimatedSize() const
 
 bool has_itemdesc( u32 objtype )
 {
-  return Core::gamestate.desctable.count( objtype ) > 0;
+  return Core::gamestate.desctable.contains( objtype );
 }
 
 bool objtype_is_lockable( u32 objtype )
@@ -1298,8 +1288,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     }
     else
     {
-      std::string value = val_imp->getStringRep();
-      elem.add_prop( key, std::move( value ) );
+      elem.add_prop( key, val_imp->getStringRep() );
     }
   }
 
@@ -1314,14 +1303,6 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
 
 void read_itemdesc_file( const char* filename, Plib::Package* pkg = nullptr )
 {
-  /*
-      if (1)
-      {
-      ref_ptr<StoredConfigFile> scfg = FindConfigFile( "config/itemdesc.cfg" );
-      ConfigFile cf( filename );
-      scfg->load( cf );
-      }
-      */
   Clib::ConfigFile cf( filename,
                        "CONTAINER ITEM DOOR WEAPON ARMOR BOAT HOUSE SPELLBOOK SPELLSCROLL MAP" );
 
@@ -1329,15 +1310,6 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = nullptr )
   while ( cf.read( elem ) )
   {
     ItemDesc* descriptor = ItemDesc::create( elem, pkg );
-
-
-    // string unused_name, unused_value;
-    // while (elem.remove_first_prop( &unused_name, &unused_value ))
-    //{
-    //  elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is
-    // unused." );
-    //}
-
     if ( has_itemdesc( descriptor->objtype ) )
     {
       auto objpkg = find_itemdesc( descriptor->objtype ).pkg;
@@ -1358,7 +1330,6 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = nullptr )
 
 void load_package_itemdesc( Plib::Package* pkg )
 {
-  // string filename = pkg->dir() + "itemdesc.cfg";
   std::string filename = GetPackageCfgPath( pkg, "itemdesc.cfg" );
   if ( Clib::FileExists( filename.c_str() ) )
   {
@@ -1389,7 +1360,7 @@ void write_objtypes_txt()
       }
     }
 
-    if ( !Core::gamestate.old_objtype_conversions.count( i ) )
+    if ( !Core::gamestate.old_objtype_conversions.contains( i ) )
     {
       ofs << Clib::hexint( i ) << " ";
       if ( itemdesc->objtypename.empty() == false )
@@ -1426,11 +1397,8 @@ void write_objtypes_txt()
 
 void load_itemdesc()
 {
-  //  CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
   if ( Clib::FileExists( "config/itemdesc.cfg" ) )
     read_itemdesc_file( "config/itemdesc.cfg" );
-  //  read_itemdesc_file( "config/wepndesc.cfg" );
-  //  read_itemdesc_file( "config/armrdesc.cfg" );
   for ( auto& pkg : Plib::systemstate.packages )
     load_package_itemdesc( pkg );
 
