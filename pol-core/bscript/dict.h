@@ -50,7 +50,7 @@ protected:
   BObjectImp* copy() const override;
   std::string getStringRep() const override;
   size_t sizeEstimate() const override;
-  void packonto( std::ostream& os ) const override;
+  void packonto( std::string& str ) const override;
   const char* typeOf() const override;
   u8 typeOfInt() const override;
 

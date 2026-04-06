@@ -10,6 +10,7 @@
 
 #include "bstruct.h"
 
+#include <fmt/compile.h>
 #include <iterator>
 #include <stddef.h>
 
@@ -332,16 +333,14 @@ BObjectImp* BStruct::call_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-void BStruct::packonto( std::ostream& os ) const
+void BStruct::packonto( std::string& str ) const
 {
-  os << packtype() << contents_.size() << ":";
-  for ( const auto& content : contents_ )
+  using namespace fmt::literals;
+  fmt::format_to( std::back_inserter( str ), "{}{}:"_cf, packtype(), contents_.size() );
+  for ( const auto& [key, bvalref] : contents_ )
   {
-    const std::string& key = content.first;
-    const BObjectRef& bvalref = content.second;
-
-    String::packonto( os, key );
-    bvalref->impref().packonto( os );
+    String::packonto( str, key );
+    bvalref->impref().packonto( str );
   }
 }
 

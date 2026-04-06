@@ -39,7 +39,7 @@ public:  // Class Machinery
   BObjectImp* call_method( const char* methodname, Executor& ex ) override;
   BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) override;
   BObjectRef get_member_id( const int id ) override;
-  void packonto( std::ostream& os ) const override;
+  // void packonto( std::string& os ) const override; // no serialization
 
   std::string getStringRep() const override;
 

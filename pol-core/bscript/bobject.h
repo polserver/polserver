@@ -177,7 +177,7 @@ public:
 
 
   virtual std::string pack() const;
-  virtual void packonto( std::ostream& os ) const;
+  virtual void packonto( std::string& os ) const;
   virtual void printOn( std::ostream& ) const;
 
   virtual bool operator==( const BObjectImp& objimp ) const;
@@ -624,7 +624,7 @@ public:
   ObjArray();
   ObjArray( const ObjArray& i );  // copy constructor
 
-  void packonto( std::ostream& os ) const override;
+  void packonto( std::string& str ) const override;
   static BObjectImp* unpack( std::istream& is );
   size_t sizeEstimate() const override;
   BObjectImp* copy() const override;
@@ -691,9 +691,8 @@ public:
   void operator delete( void*, size_t );
 
   static BObjectImp* unpack( std::istream& is );
-  std::string pack() const override;
   static std::string pack( int val );
-  void packonto( std::ostream& os ) const override;
+  void packonto( std::string& os ) const override;
   size_t sizeEstimate() const override;
 
   int value() const { return lval_; }
@@ -817,8 +816,7 @@ public:
   void operator delete( void* );
 
   static BObjectImp* unpack( std::istream& is );
-  std::string pack() const override;
-  void packonto( std::ostream& os ) const override;
+  void packonto( std::string& str ) const override;
   size_t sizeEstimate() const override;
 
   double value() const { return dval_; }
@@ -909,8 +907,7 @@ private:
 
 public:
   static BObjectImp* unpack( std::istream& is );
-  std::string pack() const override;
-  void packonto( std::ostream& os ) const override;
+  void packonto( std::string& os ) const override;
   size_t sizeEstimate() const override;
 
   bool value() const { return bval_; }

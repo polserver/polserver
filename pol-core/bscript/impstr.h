@@ -46,8 +46,8 @@ public:
   static BObjectImp* unpack( std::istream& is );
   static BObjectImp* unpackWithLen( std::istream& is );
   std::string pack() const override;
-  void packonto( std::ostream& os ) const override;
-  static void packonto( std::ostream& os, const std::string& value );
+  void packonto( std::string& str ) const override;
+  static void packonto( std::string& str, const std::string& value );
   BObjectImp* copy() const override { return new String( *this ); }
   size_t sizeEstimate() const override;
   ContIterator* createIterator( BObject* pIterVal ) override;

@@ -65,12 +65,6 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
                            ValueStackCont{} );
 }
 
-void BClassInstance::packonto( std::ostream& os ) const
-{
-  // A class cannot be serialized
-  os << "u";
-}
-
 const char* BClassInstance::typetag() const
 {
   // Return the class name as the type tag.

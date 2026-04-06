@@ -62,7 +62,7 @@ protected:
 
   std::string getStringRep() const override;
   size_t sizeEstimate() const override;
-  void packonto( std::ostream& os ) const override;
+  void packonto( std::string& os ) const override;
   const char* typeOf() const override;
   u8 typeOfInt() const override;
 

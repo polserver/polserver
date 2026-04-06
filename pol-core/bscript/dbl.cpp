@@ -6,9 +6,12 @@
 
 #include <charconv>
 #include <cmath>
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <system_error>
+
+#include <fmt/compile.h>
 
 #include "../clib/stlutil.h"
 #include "berror.h"
@@ -30,20 +33,16 @@ std::string Double::double_to_string( double val )
   throw std::system_error( std::make_error_code( ec ) );
 }
 
-std::string Double::pack() const
+void Double::packonto( std::string& str ) const
 {
-  return std::string( "r" ) + double_to_string( dval_ );
-}
-
-void Double::packonto( std::ostream& os ) const
-{
-  os << "r" << double_to_string( dval_ );
+  using namespace fmt::literals;
+  fmt::format_to( std::back_inserter( str ), "r{}"_cf, double_to_string( dval_ ) );
 }
 
 BObjectImp* Double::unpack( std::istream& is )
 {
   double dv;
-#ifndef __APPLE__
+#if !__APPLE__ && !__ANDROID__
   if ( is >> dv )
 #else
   // well this (and the pack format) is terrible:

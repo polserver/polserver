@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <ctype.h>
 #include <cwctype>
+#include <fmt/compile.h>
+#include <iterator>
 #include <string>
 #include <utf8cpp/utf8.h>
 
@@ -38,6 +40,8 @@
 
 namespace Pol::Bscript
 {
+using namespace fmt::literals;
+
 String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() ) {}
 
 String::String( const char* s, size_t len, Tainted san ) : BObjectImp( OTString ), value_( s, len )
@@ -158,16 +162,15 @@ void String::ESubStrReplace( String* replace_with, unsigned int index, unsigned 
 
 std::string String::pack() const
 {
-  return "s" + value_;
+  return fmt::format( "s{}"_cf, value_ );
 }
-
-void String::packonto( std::ostream& os ) const
+void String::packonto( std::string& str ) const
 {
-  os << "S" << value_.size() << ":" << value_;
+  fmt::format_to( std::back_inserter( str ), "S{}:{}"_cf, value_.size(), value_ );
 }
-void String::packonto( std::ostream& os, const std::string& value )
+void String::packonto( std::string& str, const std::string& value )
 {
-  os << "S" << value.size() << ":" << value;
+  fmt::format_to( std::back_inserter( str ), "S{}:{}"_cf, value.size(), value );
 }
 
 BObjectImp* String::unpack( std::istream& is )

@@ -9,7 +9,9 @@
  */
 
 #include <assert.h>
+#include <fmt/compile.h>
 #include <istream>
+#include <iterator>
 #include <limits>
 #include <stddef.h>
 #include <string>
@@ -42,6 +44,8 @@
 
 namespace Pol::Bscript
 {
+using namespace fmt::literals;
+
 Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
 Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
 Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
@@ -198,14 +202,14 @@ BObjectImp::~BObjectImp()
 
 std::string BObjectImp::pack() const
 {
-  OSTRINGSTREAM os;
-  packonto( os );
-  return OSTRINGSTREAM_STR( os );
+  std::string str;
+  packonto( str );
+  return str;
 }
 
-void BObjectImp::packonto( std::ostream& os ) const
+void BObjectImp::packonto( std::string& str ) const
 {
-  os << "u";
+  str += "u";
 }
 
 std::string BObjectImp::getFormattedStringRep() const
@@ -2116,19 +2120,19 @@ BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-void ObjArray::packonto( std::ostream& os ) const
+void ObjArray::packonto( std::string& str ) const
 {
-  os << "a" << ref_arr.size() << ":";
+  fmt::format_to( std::back_inserter( str ), "a{}:"_cf, ref_arr.size() );
   for ( const auto& elem : ref_arr )
   {
     if ( elem.get() )
     {
       BObject* bo = elem.get();
-      bo->impptr()->packonto( os );
+      bo->impptr()->packonto( str );
     }
     else
     {
-      os << "x";
+      str += "x";
     }
   }
 }
@@ -2188,14 +2192,9 @@ BObjectImp* BBoolean::unpack( std::istream& is )
   return new BError( "Error extracting Boolean value" );
 }
 
-void BBoolean::packonto( std::ostream& os ) const
+void BBoolean::packonto( std::string& str ) const
 {
-  os << "b" << ( bval_ ? 1 : 0 );
-}
-
-std::string BBoolean::pack() const
-{
-  return fmt::format( "b{}", bval_ ? 1 : 0 );
+  fmt::format_to( std::back_inserter( str ), "b{}"_cf, bval_ ? 1 : 0 );
 }
 
 BObjectImp* BBoolean::copy() const

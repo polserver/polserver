@@ -9,6 +9,7 @@
 
 #include "dict.h"
 
+#include <fmt/compile.h>
 #include <iterator>
 #include <stddef.h>
 
@@ -330,19 +331,16 @@ u8 BDictionary::typeOfInt() const
   return OTDictionary;
 }
 
-void BDictionary::packonto( std::ostream& os ) const
+void BDictionary::packonto( std::string& str ) const
 {
-  os << packtype() << contents_.size() << ":";
-  for ( const auto& content : contents_ )
+  using namespace fmt::literals;
+  fmt::format_to( std::back_inserter( str ), "{}{}:"_cf, packtype(), contents_.size() );
+  for ( const auto& [bkeyobj, bvalref] : contents_ )
   {
-    const BObject& bkeyobj = content.first;
-    const BObjectRef& bvalref = content.second;
-
-    bkeyobj.impref().packonto( os );
-    bvalref->impref().packonto( os );
+    bkeyobj.impref().packonto( str );
+    bvalref->impref().packonto( str );
   }
 }
-
 
 BObjectImp* BDictionary::unpack( std::istream& is )
 {
