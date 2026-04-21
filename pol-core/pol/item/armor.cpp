@@ -188,7 +188,7 @@ void UArmor::set_onhitscript( const std::string& scriptname )
     onhitscript_.config( scriptname, itemdesc().pkg, "scripts/items/", true );
   }
 }
-std::set<unsigned short> UArmor::tmplzones()
+const std::set<unsigned short>& UArmor::tmplzones()
 {
   passert( tmpl != nullptr );
   return ARMOR_TMPL->zones;

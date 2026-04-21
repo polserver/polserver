@@ -60,7 +60,7 @@ public:
   size_t estimatedSize() const override;
 
   void set_onhitscript( const std::string& scriptname );
-  std::set<unsigned short> tmplzones();
+  const std::set<unsigned short>& tmplzones();
   bool get_method_hook( const char* methodname, Bscript::Executor* ex, Core::ExportScript** hook,
                         unsigned int* PC ) const override;
 

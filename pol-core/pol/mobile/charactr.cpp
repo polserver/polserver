@@ -2444,27 +2444,25 @@ void Character::refresh_ar()
   //   FIXME? NZONES * NLAYERS (5 * 24 = 124) iterations.
   // okay, reverse, for each wornitem, for each coverage area, upgrade.
   // Turley: should be fixed now only iterators over armor's coverage zones instead of all zones
-  for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
-    armor_[zone] = nullptr;
+  for ( auto& entry : armor_ )
+    entry = nullptr;
   // we need to reset each resist to 0, then add the base back using calc.
   resetEquipableProperties();
 
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
   {
     Items::Item* item = wornitems->GetItemOnLayer( layer );
-    if ( item == nullptr )
+    if ( !item )
       continue;
     // Let's check all items as base, and handle their element_resists.
     updateEquipableProperties( item );
     if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
-      Items::UArmor* armor = static_cast<Items::UArmor*>( item );
-      std::set<unsigned short> tmplzones = armor->tmplzones();
-      std::set<unsigned short>::iterator itr;
-      for ( itr = tmplzones.begin(); itr != tmplzones.end(); ++itr )
+      auto* armor = static_cast<Items::UArmor*>( item );
+      for ( auto zone : armor->tmplzones() )
       {
-        if ( ( armor_[*itr] == nullptr ) || ( armor->ar() > armor_[*itr]->ar() ) )
-          armor_[*itr] = armor;
+        if ( !armor_[zone] || armor->ar() > armor_[zone]->ar() )
+          armor_[zone] = armor;
       }
     }
   }
@@ -2475,7 +2473,7 @@ void Character::refresh_ar()
   for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
   {
     Items::UArmor* armor = armor_[zone];
-    if ( armor != nullptr )
+    if ( armor )
     {
       new_ar += armor->ar() * Core::gamestate.armorzones[zone].chance;
     }
@@ -2483,25 +2481,18 @@ void Character::refresh_ar()
 
   /* add AR due to shield : parry skill / 2 is percent of AR */
   // FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
-  if ( shield != nullptr )
+  if ( shield )
   {
-    double add =
-        0.5 * 0.01 * shield->ar() * attribute( Core::gamestate.pAttrParry->attrid ).effective();
-    if ( add > 1.0 )
-      new_ar += add;
-    else
-      new_ar += 1.0;
+    new_ar += std::max(
+        1.0,  //
+        0.5 * 0.01 * shield->ar() * attribute( Core::gamestate.pAttrParry->attrid ).effective() );
   }
 
   new_ar += ar_mod();
 
-  short s_new_ar = static_cast<short>( new_ar );
-  if ( s_new_ar >= 0 )
-    ar_ = s_new_ar;
-  else
-    ar_ = 0;
+  ar_ = std::max( 0_s16, Clib::clamp_convert<short>( new_ar ) );
 
-  if ( client != nullptr )
+  if ( client )
   {  // CHECKME consider sending less frequently
     send_full_statmsg( client, this );
   }
@@ -2574,11 +2565,6 @@ void Character::updateEquipableProperties( Items::Item* item )
   // calc defence increase if lower than cap
   if ( item->has_defence_increase() )
     defence_increase( defence_increase().addToValue( item->defence_increase() ) );
-
-  if ( client != nullptr )
-  {  // CHECKME consider sending less frequently
-    send_full_statmsg( client, this );
-  }
 }
 
 void Character::resetEquipableProperties()
