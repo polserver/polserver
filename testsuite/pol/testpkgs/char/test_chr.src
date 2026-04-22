@@ -136,3 +136,35 @@ exported function test_logged_in()
   return ret_error_not_equal( char.logged_in, 0,
                               $"Character should not be logged_in, got {char.logged_in} expected 0" );
 endfunction
+
+exported function test_equip_ar( resmgnr )
+  var shirt := resmgnr.CreateItemAtLocation( char.x, char.y, char.z, 0x301517 );
+  if ( !shirt )
+    return ret_error( $"failed to create shirt: {shirt}" );
+  endif
+  var old_shirt;
+  foreach equip in ListEquippedItems( char )
+    if ( equip.layer == 5 )
+      old_shirt := equip;
+      MoveObjectToLocation( old_shirt, char.x, char.y, char.z );
+      break;
+    endif
+  endforeach
+  var curr_ar := char.ar;
+  var res := EquipItem( char, shirt );
+  if ( !res )
+    return ret_error( $"failed to equip: {res}" );
+  endif
+
+  var delta := char.ar - curr_ar;
+  if ( old_shirt )
+    MoveObjectToLocation( shirt, char.x, char.y, char.z );
+    EquipItem( char, old_shirt );
+  endif
+
+  if ( delta != 22 )
+    return ret_error( $"wrong ar delta 50 != {delta}" );
+  endif
+  return 1;
+endfunction
+
