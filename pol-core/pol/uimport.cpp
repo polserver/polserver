@@ -393,6 +393,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
       }
       catch ( std::exception& )
       {
+        INFO_PRINTLN( "Failed to load entry starting at line: {}", cf.element_line_start() );
         if ( !Plib::systemstate.config.ignore_load_errors )
           throw;
       }

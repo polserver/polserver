@@ -9,6 +9,7 @@
 			<date>04-22-2026</date>
 			<author>Turley:</author>
 			<change type="Fixed">Statmsg pkt (0x11) was send way to often</change>
+			<change type="Fixed">In case of a load error print the starting line number of the element</change>
 		</entry>
 		<entry>
 			<date>03-29-2026</date>
