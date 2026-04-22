@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+04-22-2026 Turley:
+    Fixed: Statmsg pkt (0x11) was send way to often
 03-29-2026 Turley:
   Changed: for sql connection mariadb connector is now used, since its compatible nothing changes except that the core nolonger needs mysql as external dependency.
 03-15-2026 Turley:

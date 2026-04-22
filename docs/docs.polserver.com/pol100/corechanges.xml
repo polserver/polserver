@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-29-2026</datemodified>
+		<datemodified>04-22-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>04-22-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">Statmsg pkt (0x11) was send way to often</change>
+		</entry>
 		<entry>
 			<date>03-29-2026</date>
 			<author>Turley:</author>
