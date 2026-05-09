@@ -45,10 +45,10 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   }
   else
   {
-    msg->WriteFlipped<u16>( 0u );  // hits
-    msg->WriteFlipped<u16>( 0u );  // max_hits
+    msg->WriteFlipped<u16>( 0_u16 );  // hits
+    msg->WriteFlipped<u16>( 0_u16 );  // max_hits
   }
-  msg->Write<u8>( 0u );  // (client->chr->can_rename( chr ) ? 0xFF : 0);
+  msg->Write<u8>( 0_u8 );  // (client->chr->can_rename( chr ) ? 0xFF : 0);
 
   u8 type = 1u;  // Set to oldschool statbar info.
   if ( client->ClientType & Network::CLIENTTYPE_70300 )
@@ -72,7 +72,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>( v );
   }
   else
-    msg->WriteFlipped<u16>( 0u );
+    msg->WriteFlipped<u16>( 0_u16 );
 
   if ( networkManager.uoclient_general.dexterity.any )
   {
@@ -81,7 +81,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>( v );
   }
   else
-    msg->WriteFlipped<u16>( 0u );
+    msg->WriteFlipped<u16>( 0_u16 );
 
   if ( networkManager.uoclient_general.intelligence.any )
   {
@@ -90,7 +90,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>( v );
   }
   else
-    msg->WriteFlipped<u16>( 0u );
+    msg->WriteFlipped<u16>( 0_u16 );
 
   if ( networkManager.uoclient_general.stamina.any )
   {
@@ -104,8 +104,8 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   }
   else
   {
-    msg->WriteFlipped<u16>( 0u );
-    msg->WriteFlipped<u16>( 0u );
+    msg->WriteFlipped<u16>( 0_u16 );
+    msg->WriteFlipped<u16>( 0_u16 );
   }
 
   if ( networkManager.uoclient_general.mana.any )
@@ -120,8 +120,8 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   }
   else
   {
-    msg->WriteFlipped<u16>( 0u );
-    msg->WriteFlipped<u16>( 0u );
+    msg->WriteFlipped<u16>( 0_u16 );
+    msg->WriteFlipped<u16>( 0_u16 );
   }
 
   msg->WriteFlipped<u32>( chr->gold_carried() );
@@ -248,9 +248,9 @@ void send_stat_locks( Network::Client* client, Mobile::Character* chr )
   lockbit |= chr->attribute( networkManager.uoclient_general.intelligence.id ).lock();
 
   PacketOut<Network::PktOut_BF_Sub19> msg;
-  msg->WriteFlipped<u16>( 12u );
-  msg->offset += 2;         // sub
-  msg->Write<u8>( 0x02u );  // 2D Client = 0x02, KR = 0x05
+  msg->WriteFlipped<u16>( 12_u16 );
+  msg->offset += 2;           // sub
+  msg->Write<u8>( 0x02_u8 );  // 2D Client = 0x02, KR = 0x05
   msg->Write<u32>( chr->serial_ext );
   msg->offset++;  // unk
   msg->Write<u8>( lockbit );
@@ -268,15 +268,15 @@ void send_short_statmsg( Network::Client* client, Mobile::Character* chr )
   {
     msg->WriteFlipped<u16>( Clib::clamp_convert<u16>(
         chr->vital( networkManager.uoclient_general.hits.id ).current_thousands() ) );
-    msg->WriteFlipped<u16>( 1000u );  // max_hits
+    msg->WriteFlipped<u16>( 1000_u16 );  // max_hits
   }
   else
   {
-    msg->WriteFlipped<u16>( 0u );  // hits
-    msg->WriteFlipped<u16>( 0u );  // max_hits
+    msg->WriteFlipped<u16>( 0_u16 );  // hits
+    msg->WriteFlipped<u16>( 0_u16 );  // max_hits
   }
-  msg->Write<u8>( client->chr->can_rename( chr ) ? 0xFFu : 0u );
-  msg->Write<u8>( 0u );  // moreinfo
+  msg->Write<u8>( client->chr->can_rename( chr ) ? 0xFF_u8 : 0_u8 );
+  msg->Write<u8>( 0_u8 );  // moreinfo
 
   u16 len = msg->offset;
   msg->offset = 1;
@@ -305,7 +305,7 @@ void send_update_hits_to_inrange( Mobile::Character* chr )
     }
 
     // To stop "HP snooping"...
-    msg->WriteFlipped<u16>( 1000u );
+    msg->WriteFlipped<u16>( 1000_u16 );
     msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( h * 1000 / mh ) );
   }
   else
