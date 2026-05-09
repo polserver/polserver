@@ -292,19 +292,19 @@ void send_update_hits_to_inrange( Mobile::Character* chr )
 
   if ( networkManager.uoclient_general.hits.any )
   {
-    auto h = Clib::clamp_convert<u16>(
-        chr->vital( networkManager.uoclient_general.hits.id ).current_ones() );
-    auto mh = Clib::clamp_convert<u16>(
-        chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones() );
-    msg->WriteFlipped<u16>( mh );
-    msg->WriteFlipped<u16>( h );
-
+    auto h = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
+    auto mh = chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
     // Send proper data to self (if we exist?)
     if ( chr->client && chr->client->ready )
+    {
+      msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( mh ) );
+      msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( h ) );
+
       msg.Send( chr->client );
+      msg->offset = 5;
+    }
 
     // To stop "HP snooping"...
-    msg->offset = 5;
     msg->WriteFlipped<u16>( 1000u );
     msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( h * 1000 / mh ) );
   }
