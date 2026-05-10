@@ -1075,7 +1075,7 @@ void NPC::resetEquipablePropertiesNPC()
   if ( has_fire_resist_cap() || has_orig_fire_resist_cap() )
     fire_resist_cap( fire_resist_cap().setAsValue( orig_fire_resist_cap() ) );
   if ( has_cold_resist_cap() || has_orig_cold_resist_cap() )
-    cold_resist_cap( cold_resist_cap().setAsValue( orig_energy_resist_cap() ) );
+    cold_resist_cap( cold_resist_cap().setAsValue( orig_cold_resist_cap() ) );
   if ( has_energy_resist_cap() || has_orig_energy_resist_cap() )
     energy_resist_cap( energy_resist_cap().setAsValue( orig_energy_resist_cap() ) );
   if ( has_physical_resist_cap() || has_orig_physical_resist_cap() )

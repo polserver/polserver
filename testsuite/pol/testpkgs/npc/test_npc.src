@@ -267,3 +267,90 @@ exported function test_logged_in( resources )
   var npc := resources.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0 );
   return ret_error_not_equal( npc.logged_in, 1, $"NPC should be logged_in, got {npc.logged_in} expected 1" );
 endfunction
+
+exported function test_npc_resist_cap_refresh( resources )
+  // Refreshing an intrinsic-AR NPC must restore each property from its
+  // OWN orig_*; a copy-paste once wired cold_resist_cap to
+  // orig_energy_resist_cap. Distinct values 1..27 catch any such swap.
+  // Each cap must stay strictly greater than the resist/value it caps —
+  // resist_* and defence_increase reads clamp to min(value, cap), which
+  // would mask a swap if a value ever exceeded its cap.
+  var override := struct{
+    AR := 50,
+    FireResist := 1,
+    ColdResist := 2,
+    EnergyResist := 3,
+    PoisonResist := 4,
+    PhysicalResist := 5,
+    FireDamage := 6,
+    ColdDamage := 7,
+    EnergyDamage := 8,
+    PoisonDamage := 9,
+    PhysicalDamage := 10,
+    LowerReagentCost := 11,
+    SpellDamageIncrease := 12,
+    FasterCasting := 13,
+    FasterCastRecovery := 14,
+    DefenceIncrease := 15,
+    DefenceIncreaseCap := 16,
+    LowerManaCost := 17,
+    HitChance := 18,
+    FireResistCap := 19,
+    ColdResistCap := 20,
+    EnergyResistCap := 21,
+    PhysicalResistCap := 22,
+    PoisonResistCap := 23,
+    Luck := 24,
+    SwingSpeedIncrease := 25,
+    MinAttackRangeIncrease := 26,
+    MaxAttackRangeIncrease := 27
+  };
+
+  var checks := {
+    { "resist_fire", override.FireResist },
+    { "resist_cold", override.ColdResist },
+    { "resist_energy", override.EnergyResist },
+    { "resist_poison", override.PoisonResist },
+    { "resist_physical", override.PhysicalResist },
+    { "damage_fire", override.FireDamage },
+    { "damage_cold", override.ColdDamage },
+    { "damage_energy", override.EnergyDamage },
+    { "damage_poison", override.PoisonDamage },
+    { "damage_physical", override.PhysicalDamage },
+    { "lower_reagent_cost", override.LowerReagentCost },
+    { "spell_damage_increase", override.SpellDamageIncrease },
+    { "faster_casting", override.FasterCasting },
+    { "faster_cast_recovery", override.FasterCastRecovery },
+    { "defence_increase", override.DefenceIncrease },
+    { "defence_increase_cap", override.DefenceIncreaseCap },
+    { "lower_mana_cost", override.LowerManaCost },
+    { "hit_chance", override.HitChance },
+    { "resist_fire_cap", override.FireResistCap },
+    { "resist_cold_cap", override.ColdResistCap },
+    { "resist_energy_cap", override.EnergyResistCap },
+    { "resist_physical_cap", override.PhysicalResistCap },
+    { "resist_poison_cap", override.PoisonResistCap },
+    { "luck", override.Luck },
+    { "swing_speed_increase", override.SwingSpeedIncrease },
+    { "min_attack_range_increase", override.MinAttackRangeIncrease },
+    { "max_attack_range_increase", override.MaxAttackRangeIncrease }
+  };
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0, override );
+  if ( !npc )
+    return ret_error( "Could not create NPC: " + npc );
+  endif
+
+  // ar_mod triggers the refresh; it isn't one of the asserted members,
+  // so the trigger stays independent of what's being verified.
+  npc.ar_mod := 0;
+
+  foreach check in checks
+    var got := npc.get_member( check[1] );
+    if ( got != check[2] )
+      return ret_error( $"{check[1]} after refresh: got {got}, expected {check[2]}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction

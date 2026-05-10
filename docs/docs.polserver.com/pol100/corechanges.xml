@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-22-2026</datemodified>
+		<datemodified>05-10-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>05-10-2026</date>
+			<author>AsYlum:</author>
+			<change type="Fixed">NPCs with intrinsic AR had their ColdResistCap silently overwritten<br/>
+with EnergyResistCap whenever any resist/damage/cap mod was changed.</change>
+		</entry>
 		<entry>
 			<date>04-22-2026</date>
 			<author>Turley:</author>

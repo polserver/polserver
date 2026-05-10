@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+05-10-2026 AsYlum:
+    Fixed: NPCs with intrinsic AR had their ColdResistCap silently overwritten
+           with EnergyResistCap whenever any resist/damage/cap mod was changed.
 04-22-2026 Turley:
     Fixed: Statmsg pkt (0x11) was send way to often
     Fixed: In case of a load error print the starting line number of the element
