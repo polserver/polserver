@@ -56,6 +56,7 @@ bool run_pol_tests()
   RUNTEST( uoextension_test )
 
   RUNTEST( caseinsensitive_compare_test )
+  RUNTEST( refptr_test )
   //  RUNTEST( dummy )
 
   UnitTest::display_test_results();

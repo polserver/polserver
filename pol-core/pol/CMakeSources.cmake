@@ -399,6 +399,7 @@ set (pol_sources  # sorted !
   testing/testmisc.cpp
   testing/testpos.cpp
   testing/testrange.cpp
+  testing/testrefptr.cpp
   testing/testskill.cpp
   testing/testvector.cpp
   testing/testwalk.cpp

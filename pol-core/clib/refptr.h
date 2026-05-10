@@ -38,6 +38,16 @@ private:
 };
 
 // **** ref_ptr class, assuming T implements ref_counted interface
+//
+// Thread-safety contract:
+//  - The pointee's refcount is atomic; two threads holding *distinct* ref_ptr<T>
+//    instances pointing at the same T are safe.
+//  - A single ref_ptr instance is NOT safe for concurrent mutation: the source-
+//    side load-then-incref window in copy-assign cannot be closed with a plain
+//    std::atomic<T*>. Callers needing to share the slot across threads must
+//    serialize externally.
+//  - get() / operator-> / operator* return raw T*/T& whose lifetime is bounded
+//    by the issuing ref_ptr; storing them past a reassignment is a UAF.
 template <class T>
 class ref_ptr
 {
@@ -218,11 +228,17 @@ bool ref_ptr<T>::operator>=( T* ptr ) const
 template <class T>
 ref_ptr<T>& ref_ptr<T>::operator=( const ref_ptr<T>& rptr )
 {
-  if ( *this != rptr )
+  // identity check, not value compare: the exchange-based body is correct for
+  // self-assignment-by-value, and a value compare would do two racy loads.
+  if ( this != &rptr )
   {
-    release();
-    _ptr = rptr.get();
-    add_ref();
+    // dont use add_ref/release here
+    T* new_p = rptr.get();
+    if ( new_p )
+      new_p->add_ref();
+    T* old_p = _ptr.exchange( new_p );
+    if ( old_p && old_p->release() == 0 )
+      delete old_p;
   }
   return *this;
 }
@@ -230,10 +246,14 @@ ref_ptr<T>& ref_ptr<T>::operator=( const ref_ptr<T>& rptr )
 template <class T>
 ref_ptr<T>& ref_ptr<T>::operator=( ref_ptr<T>&& rptr ) noexcept
 {
-  if ( *this != rptr )
+  // true self-move must be skipped: rptr._ptr.exchange(nullptr) would null self.
+  if ( this != &rptr )
   {
-    release();
-    _ptr = rptr._ptr.exchange( nullptr );
+    // dont use add_ref/release here
+    T* new_p = rptr._ptr.exchange( nullptr );
+    T* old_p = _ptr.exchange( new_p );
+    if ( old_p && old_p->release() == 0 )
+      delete old_p;
   }
   return *this;
 }
@@ -241,11 +261,14 @@ ref_ptr<T>& ref_ptr<T>::operator=( ref_ptr<T>&& rptr ) noexcept
 template <class T>
 void ref_ptr<T>::set( T* ptr )
 {
-  if ( *this == ptr )  // protection against self assignment
+  if ( *this == ptr )
     return;
-  release();
-  _ptr = ptr;
-  add_ref();
+  // dont use add_ref/release here
+  if ( ptr )
+    ptr->add_ref();
+  T* old_p = _ptr.exchange( ptr );
+  if ( old_p && old_p->release() == 0 )
+    delete old_p;
 }
 
 template <class T>
