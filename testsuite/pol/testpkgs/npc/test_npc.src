@@ -267,3 +267,99 @@ exported function test_logged_in( resources )
   var npc := resources.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0 );
   return ret_error_not_equal( npc.logged_in, 1, $"NPC should be logged_in, got {npc.logged_in} expected 1" );
 endfunction
+
+// Regression: resetEquipablePropertiesNPC restores 27 properties from their
+// orig_* values. A single copy-paste in that block silently swaps two
+// channels (the original bug had cold_resist_cap reading orig_energy_resist_cap).
+// Distinct values per property catch any such swap generically.
+exported function test_npc_resist_cap_refresh()
+  // Distinct non-zero value per property so any cross-wiring in
+  // resetEquipablePropertiesNPC produces a detectable mismatch.
+  // INVARIANT: each resist must be < its matching cap, and
+  // DefenceIncrease < DefenceIncreaseCap. Reads for those members go
+  // through EnforceCaps (= min(value, cap)); if a resist ever exceeds
+  // its cap the read silently clamps to the cap and a real swap regression
+  // would be masked. Keep caps strictly larger than the things they cap.
+  var override := struct{
+    AR := 50,
+    FireResist := 1,
+    ColdResist := 2,
+    EnergyResist := 3,
+    PoisonResist := 4,
+    PhysicalResist := 5,
+    FireDamage := 6,
+    ColdDamage := 7,
+    EnergyDamage := 8,
+    PoisonDamage := 9,
+    PhysicalDamage := 10,
+    LowerReagentCost := 11,
+    SpellDamageIncrease := 12,
+    FasterCasting := 13,
+    FasterCastRecovery := 14,
+    DefenceIncrease := 15,
+    DefenceIncreaseCap := 16,
+    LowerManaCost := 17,
+    HitChance := 18,
+    FireResistCap := 19,
+    ColdResistCap := 20,
+    EnergyResistCap := 21,
+    PhysicalResistCap := 22,
+    PoisonResistCap := 23,
+    Luck := 24,
+    SwingSpeedIncrease := 25,
+    MinAttackRangeIncrease := 26,
+    MaxAttackRangeIncrease := 27
+  };
+
+  var checks := {
+    { "resist_fire", override.FireResist },
+    { "resist_cold", override.ColdResist },
+    { "resist_energy", override.EnergyResist },
+    { "resist_poison", override.PoisonResist },
+    { "resist_physical", override.PhysicalResist },
+    { "damage_fire", override.FireDamage },
+    { "damage_cold", override.ColdDamage },
+    { "damage_energy", override.EnergyDamage },
+    { "damage_poison", override.PoisonDamage },
+    { "damage_physical", override.PhysicalDamage },
+    { "lower_reagent_cost", override.LowerReagentCost },
+    { "spell_damage_increase", override.SpellDamageIncrease },
+    { "faster_casting", override.FasterCasting },
+    { "faster_cast_recovery", override.FasterCastRecovery },
+    { "defence_increase", override.DefenceIncrease },
+    { "defence_increase_cap", override.DefenceIncreaseCap },
+    { "lower_mana_cost", override.LowerManaCost },
+    { "hit_chance", override.HitChance },
+    { "resist_fire_cap", override.FireResistCap },
+    { "resist_cold_cap", override.ColdResistCap },
+    { "resist_energy_cap", override.EnergyResistCap },
+    { "resist_physical_cap", override.PhysicalResistCap },
+    { "resist_poison_cap", override.PoisonResistCap },
+    { "luck", override.Luck },
+    { "swing_speed_increase", override.SwingSpeedIncrease },
+    { "min_attack_range_increase", override.MinAttackRangeIncrease },
+    { "max_attack_range_increase", override.MaxAttackRangeIncrease }
+  };
+
+  var npc := CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0, override );
+  if ( !npc )
+    return ret_error( "Could not create NPC: " + npc );
+  endif
+
+  // ar_mod calls refresh_ar(); with npc_ar_ != 0 (AR=50) this takes the
+  // intrinsic-armor path that re-applies orig values via
+  // resetEquipablePropertiesNPC. ar_mod is used (not one of the properties
+  // under test) so the trigger and the assertions stay independent.
+  npc.ar_mod := 0;
+
+  foreach check in checks
+    var got := npc.get_member( check[1] );
+    if ( got != check[2] )
+      npc.kill();
+      return ret_error( $"{check[1]} after refresh: got {got}, expected {check[2]}" );
+    endif
+  endforeach
+
+  npc.kill();
+  return 1;
+endfunction
