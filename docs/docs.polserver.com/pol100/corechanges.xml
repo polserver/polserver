@@ -8,10 +8,8 @@
 		<entry>
 			<date>05-10-2026</date>
 			<author>AsYlum:</author>
-			<change type="Fixed">NPC::resetEquipablePropertiesNPC was restoring cold_resist_cap from<br/>
-orig_energy_resist_cap (copy-paste). On NPCs with intrinsic AR,<br/>
-refresh_ar() would clobber the cold resist cap with the energy<br/>
-cap's original value. Each cap is now restored from its own orig.</change>
+			<change type="Fixed">NPCs with intrinsic AR had their ColdResistCap silently overwritten<br/>
+with EnergyResistCap whenever any resist/damage/cap mod was changed.</change>
 		</entry>
 		<entry>
 			<date>04-22-2026</date>

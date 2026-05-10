@@ -1,9 +1,7 @@
 -- POL100.3.0 --
 05-10-2026 AsYlum:
-    Fixed: NPC::resetEquipablePropertiesNPC was restoring cold_resist_cap from
-           orig_energy_resist_cap (copy-paste). On NPCs with intrinsic AR,
-           refresh_ar() would clobber the cold resist cap with the energy
-           cap's original value. Each cap is now restored from its own orig.
+    Fixed: NPCs with intrinsic AR had their ColdResistCap silently overwritten
+           with EnergyResistCap whenever any resist/damage/cap mod was changed.
 04-22-2026 Turley:
     Fixed: Statmsg pkt (0x11) was send way to often
     Fixed: In case of a load error print the starting line number of the element

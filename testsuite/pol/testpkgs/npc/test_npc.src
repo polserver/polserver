@@ -268,18 +268,13 @@ exported function test_logged_in( resources )
   return ret_error_not_equal( npc.logged_in, 1, $"NPC should be logged_in, got {npc.logged_in} expected 1" );
 endfunction
 
-// Regression: resetEquipablePropertiesNPC restores 27 properties from their
-// orig_* values. A single copy-paste in that block silently swaps two
-// channels (the original bug had cold_resist_cap reading orig_energy_resist_cap).
-// Distinct values per property catch any such swap generically.
-exported function test_npc_resist_cap_refresh()
-  // Distinct non-zero value per property so any cross-wiring in
-  // resetEquipablePropertiesNPC produces a detectable mismatch.
-  // INVARIANT: each resist must be < its matching cap, and
-  // DefenceIncrease < DefenceIncreaseCap. Reads for those members go
-  // through EnforceCaps (= min(value, cap)); if a resist ever exceeds
-  // its cap the read silently clamps to the cap and a real swap regression
-  // would be masked. Keep caps strictly larger than the things they cap.
+exported function test_npc_resist_cap_refresh( resources )
+  // Refreshing an intrinsic-AR NPC must restore each property from its
+  // OWN orig_*; a copy-paste once wired cold_resist_cap to
+  // orig_energy_resist_cap. Distinct values 1..27 catch any such swap.
+  // Each cap must stay strictly greater than the resist/value it caps —
+  // resist_* and defence_increase reads clamp to min(value, cap), which
+  // would mask a swap if a value ever exceeded its cap.
   var override := struct{
     AR := 50,
     FireResist := 1,
@@ -341,25 +336,21 @@ exported function test_npc_resist_cap_refresh()
     { "max_attack_range_increase", override.MaxAttackRangeIncrease }
   };
 
-  var npc := CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0, override );
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0, override );
   if ( !npc )
     return ret_error( "Could not create NPC: " + npc );
   endif
 
-  // ar_mod calls refresh_ar(); with npc_ar_ != 0 (AR=50) this takes the
-  // intrinsic-armor path that re-applies orig values via
-  // resetEquipablePropertiesNPC. ar_mod is used (not one of the properties
-  // under test) so the trigger and the assertions stay independent.
+  // ar_mod triggers the refresh; it isn't one of the asserted members,
+  // so the trigger stays independent of what's being verified.
   npc.ar_mod := 0;
 
   foreach check in checks
     var got := npc.get_member( check[1] );
     if ( got != check[2] )
-      npc.kill();
       return ret_error( $"{check[1]} after refresh: got {got}, expected {check[2]}" );
     endif
   endforeach
 
-  npc.kill();
   return 1;
 endfunction
