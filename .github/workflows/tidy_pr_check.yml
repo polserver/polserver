@@ -24,30 +24,30 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Cache curl
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lib/curl-8_14_1
           key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.14.1-2
       - name: Cache antlr
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lib/antlr-cb85012
           key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-cb85012-2
       - name: Cache boost
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lib/boost_1_91_0-1
           key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.91.0-1
       - name: Cache cppdap
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lib/cppdap-82beeea
           key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea-2
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
 
