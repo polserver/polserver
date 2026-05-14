@@ -73,9 +73,6 @@ public:
   void clear();
 
 private:
-  void add_ref();
-  void release();
-
   std::atomic<T*> _ptr;
 };
 
@@ -99,13 +96,16 @@ inline unsigned int ref_counted::count() const
 template <class T>
 ref_ptr<T>::ref_ptr( T* ptr ) : _ptr( ptr )
 {
-  add_ref();
+  if ( ptr )
+    ptr->add_ref();
 }
 
 template <class T>
 ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr.get() )
 {
-  add_ref();
+  T* pointee = _ptr.load();
+  if ( pointee )
+    pointee->add_ref();
 }
 
 template <class T>
@@ -116,7 +116,7 @@ ref_ptr<T>::ref_ptr( ref_ptr&& rptr ) noexcept : _ptr( rptr._ptr.exchange( nullp
 template <class T>
 ref_ptr<T>::~ref_ptr()
 {
-  release();
+  clear();
 }
 
 template <class T>
@@ -218,52 +218,37 @@ bool ref_ptr<T>::operator>=( T* ptr ) const
 template <class T>
 ref_ptr<T>& ref_ptr<T>::operator=( const ref_ptr<T>& rptr )
 {
-  if ( *this != rptr )
-  {
-    release();
-    _ptr = rptr.get();
-    add_ref();
-  }
+  T* new_p = rptr.get();
+  if ( new_p )
+    new_p->add_ref();
+  T* old_p = _ptr.exchange( new_p );
+  if ( old_p && old_p->release() == 0 )
+    delete old_p;
   return *this;
 }
 
 template <class T>
 ref_ptr<T>& ref_ptr<T>::operator=( ref_ptr<T>&& rptr ) noexcept
 {
-  if ( *this != rptr )
-  {
-    release();
-    _ptr = rptr._ptr.exchange( nullptr );
-  }
+  T* new_p = rptr._ptr.exchange( nullptr );
+  T* old_p = _ptr.exchange( new_p );
+  if ( old_p && old_p->release() == 0 )
+    delete old_p;
   return *this;
 }
 
 template <class T>
 void ref_ptr<T>::set( T* ptr )
 {
-  if ( *this == ptr )  // protection against self assignment
-    return;
-  release();
-  _ptr = ptr;
-  add_ref();
+  if ( ptr )
+    ptr->add_ref();
+  T* old_p = _ptr.exchange( ptr );
+  if ( old_p && old_p->release() == 0 )
+    delete old_p;
 }
 
 template <class T>
 void ref_ptr<T>::clear()
-{
-  release();
-}
-
-template <class T>
-void ref_ptr<T>::add_ref()
-{
-  T* pointee = _ptr.load();
-  if ( pointee )
-    pointee->add_ref();
-}
-
-template <class T>
-void ref_ptr<T>::release()
 {
   T* pointee = _ptr.exchange( nullptr );
   if ( !pointee )
