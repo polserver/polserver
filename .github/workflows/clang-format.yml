@@ -16,8 +16,8 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |

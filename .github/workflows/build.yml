@@ -61,31 +61,31 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
       - uses: compnerd/gha-setup-vsdevenv@v6
       - name: Cache curl
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lib/curl-8_14_1
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.14.1-2
+          key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.14.1-2
       - name: Cache antlr
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lib/antlr-cb85012
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-cb85012-2
+          key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-cb85012-2
       - name: Cache boost
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
-          path: lib/boost_1_89_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.89.0-1
+          path: lib/boost_1_91_0-1
+          key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.91.0-1
       - name: Cache cppdap
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lib/cppdap-82beeea
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea-2
+          key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea-2
 
       - name: Install Compiler and Dependencies (Linux)
         if: matrix.config.os == 'ubuntu-latest'
@@ -226,7 +226,7 @@ jobs:
           #POLCORE_TEST_FILTER: testitems
       - name: Upload coretest folder
         if: matrix.config.tests && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Testdir-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/
@@ -249,7 +249,7 @@ jobs:
 
       - name: Upload Artefact
         if: matrix.config.tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release

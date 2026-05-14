@@ -1,5 +1,5 @@
 message("* libboost")
-set (BOOST_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/boost_1_89_0")
+set (BOOST_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/boost_1_91_0-1")
 set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
 if (clang)
@@ -13,8 +13,10 @@ elseif (msvc)
     set(BOOST_TOOLSET "msvc-14.1") # VS 2017 (15.0)
   elseif(MSVC_TOOLSET_VERSION EQUAL 142)
     set(BOOST_TOOLSET "msvc-14.2") # VS 2019 (16.0)
-  elseif(MSVC_TOOLSET_VERSION GREATER_EQUAL 143)
+  elseif(MSVC_TOOLSET_VERSION EQUAL 143)
     set(BOOST_TOOLSET "msvc-14.3") # VS 2022 (17.0)
+  elseif(MSVC_TOOLSET_VERSION GREATER_EQUAL 145)
+    set(BOOST_TOOLSET "msvc-14.5") # VS 2026 (18.0)
   endif()
 endif()
 
@@ -59,12 +61,12 @@ set(boost_needs_build FALSE)
 if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   message("  - will extract")
   ExternalProject_Add(libboost_ext
-    URL "https://github.com/boostorg/boost/releases/download/boost-1.89.0/boost-1.89.0-b2-nodocs.tar.gz"
+    URL "https://github.com/boostorg/boost/releases/download/boost-1.91.0-1/boost-1.91.0-1-b2-nodocs.tar.gz"
     SOURCE_DIR "${BOOST_SOURCE_DIR}"
     CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
-    URL_HASH SHA256=aa25e7b9c227c21abb8a681efd4fe6e54823815ffc12394c9339de998eb503fb
+    URL_HASH SHA256=b5a3d1490118e012f8b12688240d981bcdfcd009fd35bc70d120fbc907df4f7c
     BUILD_BYPRODUCTS "${BOOST_SOURCE_DIR}"
     LOG_DOWNLOAD 1
     LOG_CONFIGURE 1

@@ -17,7 +17,7 @@ jobs:
             build-type: Release
     runs-on: ${{ matrix.config.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |

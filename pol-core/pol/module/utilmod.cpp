@@ -9,6 +9,8 @@
 
 #include "utilmod.h"
 #include <algorithm>
+
+#define BOOST_UUID_NO_SIMD
 #include <boost/uuid/time_generator_v7.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
