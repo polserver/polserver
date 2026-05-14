@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+05-10-2026 Turley:
+    Fixed: Healthbar updates of other mobs if the hp is greater then 0xffff
 05-10-2026 AsYlum:
     Fixed: NPCs with intrinsic AR had their ColdResistCap silently overwritten
            with EnergyResistCap whenever any resist/damage/cap mod was changed.
