@@ -3,6 +3,7 @@
 
 #include "../../clib/rawtypes.h"
 #include "../globals/settings.h"
+#include "../item/item.h"
 #include "../mobile/charactr.h"
 #include "../uobject.h"
 #include "client.h"
@@ -54,24 +55,25 @@ void SendWorldItem::build1A()
   // transmit item info
   _p_old->offset += 2;
   // If the 0x80000000 is left out, the item won't show up.
-  _p_old->WriteFlipped<u32>( 0x80000000u | _serial );  // bit 0x80000000 enables piles
-  _p_old->WriteFlipped<u16>( _graphic );
-  _p_old->WriteFlipped<u16>( _amount );
-  if ( _facing == 0 )
+  _p_old->WriteFlipped<u32>( 0x80000000u | _item->serial );  // bit 0x80000000 enables piles
+  _p_old->WriteFlipped<u16>( _item->graphic );
+  _p_old->WriteFlipped<u16>( _item->get_senditem_amount() );
+  const auto& pos = _item->pos3d();
+  if ( _item->facing == 0 )
   {
-    _p_old->WriteFlipped<u16>( _pos.x() );
+    _p_old->WriteFlipped<u16>( pos.x() );
     // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-    _p_old->WriteFlipped<u16>( 0xC000u | _pos.y() );  // dyeable and moveable?
+    _p_old->WriteFlipped<u16>( 0xC000u | pos.y() );  // dyeable and moveable?
   }
   else
   {
-    _p_old->WriteFlipped<u16>( 0x8000u | _pos.x() );
+    _p_old->WriteFlipped<u16>( 0x8000u | pos.x() );
     // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-    _p_old->WriteFlipped<u16>( 0xC000u | _pos.y() );  // dyeable and moveable?
-    _p_old->Write<u8>( _facing );
+    _p_old->WriteFlipped<u16>( 0xC000u | pos.y() );  // dyeable and moveable?
+    _p_old->Write<u8>( _item->facing );
   }
-  _p_old->Write<s8>( _pos.z() );
-  _p_old->WriteFlipped<u16>( _color );
+  _p_old->Write<s8>( pos.z() );
+  _p_old->WriteFlipped<u16>( _item->color );
   _p_old->Write<u8>( _flags );
   _p_oldlen = _p_old->offset;
   _p_old->offset = 1;
@@ -80,34 +82,26 @@ void SendWorldItem::build1A()
 void SendWorldItem::buildF3()
 {
   _p->offset = 1;
-  _p->WriteFlipped<u16>( 0x1u );
-  _p->offset++;  // datatype
-  _p->WriteFlipped<u32>( _serial );
-  _p->WriteFlipped<u16>( _graphic );
-  _p->Write<u8>( 0u );
-  _p->WriteFlipped<u16>( _amount );
-  _p->WriteFlipped<u16>( _amount );
-  _p->WriteFlipped<u16>( _pos.x() );
-  _p->WriteFlipped<u16>( _pos.y() );
-  _p->Write<s8>( _pos.z() );
-  _p->Write<u8>( _facing );
-  _p->WriteFlipped<u16>( _color );
+  _p->WriteFlipped<u16>( 0x1_u16 );
+
+  _p->Write<u8>( _item->is_attackable() ? 3_u8 : 0_u8 );
+  _p->WriteFlipped<u32>( _item->serial );
+  _p->WriteFlipped<u16>( _item->graphic );
+  _p->Write<u8>( 0_u8 );
+  const auto amount = _item->get_senditem_amount();
+  _p->WriteFlipped<u16>( amount );
+  _p->WriteFlipped<u16>( amount );
+  const auto& pos = _item->pos3d();
+  _p->WriteFlipped<u16>( pos.x() );
+  _p->WriteFlipped<u16>( pos.y() );
+  _p->Write<s8>( pos.z() );
+  _p->Write<u8>( _item->facing );
+  _p->WriteFlipped<u16>( _item->color );
   _p->Write<u8>( _flags );
 }
 
-SendWorldItem::SendWorldItem( u32 serial, u16 graphic, u16 amount, Core::Pos3d pos, u8 facing,
-                              u16 color, u8 flags )
-    : PktSender(),
-      _p_oldlen( 0 ),
-      _serial( serial ),
-      _graphic( graphic ),
-      _amount( amount ),
-      _pos( std::move( pos ) ),
-      _facing( facing ),
-      _color( color ),
-      _flags( flags ),
-      _p_old(),
-      _p()
+SendWorldItem::SendWorldItem( const Items::Item* item, u8 flags )
+    : PktSender(), _flags{ flags }, _item{ item }, _p_old(), _p()
 {
 }
 

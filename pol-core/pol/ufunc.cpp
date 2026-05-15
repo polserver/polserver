@@ -628,8 +628,7 @@ void send_item( Client* client, const Item* item )
   if ( item->invisible() )
     flags |= ITEM_FLAG_HIDDEN;
 
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
-                            item->facing, item->color, flags );
+  auto pkt = SendWorldItem( item, flags );
   pkt.Send( client );
 
   // if the item is a corpse, transmit items contained by it
@@ -649,8 +648,7 @@ void send_item( Client* client, const Item* item )
 /* Tell all clients new information about an item */
 void send_item_to_inrange( const Item* item )
 {
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
-                            item->facing, item->color, 0 );
+  auto pkt = SendWorldItem( item, 0 );
   auto pkt_remove = RemoveObjectPkt( item->serial_ext );
   auto pkt_rev = ObjRevisionPkt( item->serial_ext, item->rev() );
 

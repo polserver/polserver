@@ -14,6 +14,10 @@ namespace Core
 {
 class UObject;
 }
+namespace Items
+{
+class Item;
+}
 namespace Mobile
 {
 class Character;
@@ -32,8 +36,7 @@ public:
 class SendWorldItem final : public PktSender
 {
 public:
-  SendWorldItem( u32 serial, u16 graphic, u16 amount, Core::Pos3d pos, u8 facing, u16 color,
-                 u8 flags );
+  SendWorldItem( const Items::Item* item, u8 flags );
   ~SendWorldItem() override = default;
   void Send( Client* client ) override;
   void updateFlags( u8 flags );
@@ -42,13 +45,8 @@ private:
   void buildF3();
   void build1A();
   u16 _p_oldlen;
-  u32 _serial;
-  u16 _graphic;
-  u16 _amount;
-  Core::Pos3d _pos;
-  u8 _facing;
-  u16 _color;
   u8 _flags;
+  const Items::Item* _item;
   PktHelper::PacketOut<PktOut_1A> _p_old;
   PktHelper::PacketOut<PktOut_F3> _p;
 };
