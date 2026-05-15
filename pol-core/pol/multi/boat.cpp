@@ -372,9 +372,9 @@ void UBoat::send_display_boat( Network::Client* client )
     }
     if ( component == nullptr || component->orphan() )
       continue;
-    msg->Write<u8>( 0xF3u );
-    msg->WriteFlipped<u16>( 0x1u );
-    msg->Write<u8>( 0x0u );  // ItemData flag
+    msg->Write<u8>( 0xF3_u8 );
+    msg->WriteFlipped<u16>( 0x1_u16 );
+    msg->Write<u8>( component->is_attackable() ? 0x3_u8 : 0x0_u8 );  // ItemData flag
     msg->Write<u32>( component->serial_ext );
     msg->WriteFlipped<u16>( component->graphic );
     msg->offset++;  // ID offset, TODO CHECK IF NEED THESE
@@ -420,13 +420,16 @@ void UBoat::send_display_boat( Network::Client* client )
         flags |= ITEM_FLAG_FORCE_MOVABLE;
     }
 
-    msg->Write<u8>( 0xF3u );
-    msg->WriteFlipped<u16>( 0x1u );
+    msg->Write<u8>( 0xF3_u8 );
+    msg->WriteFlipped<u16>( 0x1_u16 );
 
     if ( obj->ismobile() )
-      msg->Write<u8>( 0x1u );  // CharData flag
+      msg->Write<u8>( 0x1_u8 );  // CharData flag
     else
-      msg->Write<u8>( 0x0u );  // ItemData flag
+    {
+      auto* item = static_cast<Items::Item*>( obj );
+      msg->Write<u8>( item->is_attackable() ? 0x3_u8 : 0x0_u8 );  // ItemData flag
+    }
 
     msg->Write<u32>( obj->serial_ext );
     msg->WriteFlipped<u16>( obj->graphic );
@@ -434,8 +437,8 @@ void UBoat::send_display_boat( Network::Client* client )
 
     if ( obj->ismobile() )
     {
-      msg->WriteFlipped<u16>( 0x1u );  // Amount
-      msg->WriteFlipped<u16>( 0x1u );  // Amount
+      msg->WriteFlipped<u16>( 0x1_u16 );  // Amount
+      msg->WriteFlipped<u16>( 0x1_u16 );  // Amount
     }
     else
     {
