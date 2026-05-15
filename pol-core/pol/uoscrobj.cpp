@@ -1561,6 +1561,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
         }
       }
     }
+    send_hit_status_inrange();
     return new BLong( hp_ );
   case MBR_MAXHP_MOD:
     this->maxhp_mod( Clib::clamp_convert<s16>( value ) );
@@ -1576,6 +1577,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
         }
       }
     }
+    send_hit_status_inrange();
     return new BLong( value );
   case MBR_NO_DROP:
     no_drop( value ? true : false );

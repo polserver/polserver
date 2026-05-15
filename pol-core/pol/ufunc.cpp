@@ -641,8 +641,9 @@ void send_item( Client* client, const Item* item )
   if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, item );
-    return;
   }
+
+  item->send_hit_status( client );
 }
 
 /* Tell all clients new information about an item */
@@ -680,6 +681,7 @@ void send_item_to_inrange( const Item* item )
         }
 
         pkt_rev.Send( zonechr->client );
+        item->send_hit_status( zonechr->client );
       } );
 }
 

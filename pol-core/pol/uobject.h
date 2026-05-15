@@ -105,7 +105,7 @@ template <typename ENUM,
 struct AttributeFlags
 {
   using enum_t = typename std::underlying_type<ENUM>::type;
-  AttributeFlags() : flags_( 0 ){};
+  AttributeFlags() : flags_( 0 ) {};
 
   bool get( ENUM flag ) const
   {

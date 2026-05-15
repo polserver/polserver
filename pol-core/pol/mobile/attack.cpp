@@ -55,32 +55,28 @@ Items::Item* Attackable::item() const
 void Attackable::remove_opponent_of( const Attackable& other )
 {
   // Items have no need to store multiple opponents
-  auto* mob = mobile();
-  if ( !mob )
-    return;
-  mob->remove_opponent_of( other );
+  if ( auto* mob = mobile() )
+    mob->remove_opponent_of( other );
 }
 void Attackable::add_opponent_of( Attackable other )
 {
   // Items have no need to store multiple opponents
-  auto* mob = mobile();
-  if ( !mob )
-    return;
-  mob->add_opponent_of( std::move( other ) );
+  if ( auto* mob = mobile() )
+    mob->add_opponent_of( std::move( other ) );
 }
 void Attackable::inform_disengaged( const Attackable& disengaged )
 {
   if ( auto* mob = mobile() )
     mob->inform_disengaged( disengaged );
   else if ( auto* item_ = item() )
-    ;  // TODO send event
+    item_->inform_disengaged( disengaged );
 }
 void Attackable::inform_engaged( const Attackable& engaged )
 {
   if ( auto* mob = mobile() )
     mob->inform_engaged( engaged );
   else if ( auto* item_ = item() )
-    ;  // TODO send event
+    item_->inform_engaged( engaged );
 }
 
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg )

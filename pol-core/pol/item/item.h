@@ -20,6 +20,7 @@
 #include "../dynproperties.h"
 #include "../globals/settings.h"
 #include "../layers.h"
+#include "../mobile/attack.h"
 #include "../uobject.h"
 
 
@@ -267,6 +268,10 @@ public:
 
 
   bool is_attackable() const;
+  void send_hit_status( Network::Client* client ) const;
+  void send_hit_status_inrange() const;
+  void inform_engaged( const Mobile::Attackable& engaged );
+  void inform_disengaged( const Mobile::Attackable& disengaged );
 
 protected:  // only derived classes need the constructor
   void printProperties( Clib::StreamWriter& sw ) const override;

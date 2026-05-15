@@ -39,6 +39,7 @@
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "../uoscrobj.h"
+#include "../uworld.h"
 #include "itemdesc.h"
 #include "regions/resource.h"
 
@@ -121,6 +122,7 @@ Item* Item::clone() const
   item->name_suffix( name_suffix() );
 
   item->no_drop( no_drop() );
+  item->flags_.change( Core::OBJ_FLAGS::ATTACKABLE, is_attackable() );
   return item;
 }
 
@@ -1417,10 +1419,41 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
 
 bool Item::is_attackable() const
 {
-  // TODO Attackable
-  // explizit type or just a flag?
   return flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
 }
+
+void Item::send_hit_status( Network::Client* client ) const
+{
+  if ( !is_attackable() )
+    return;
+  Network::PktHelper::PacketOut<Network::PktOut_A1> msg;
+  msg->Write<u32>( serial_ext );
+  msg->WriteFlipped<u16>( 1000_u16 );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hp_ * 1000 / maxhp() ) );
+  msg.Send( client );
+}
+
+void Item::send_hit_status_inrange() const
+{
+  if ( !is_attackable() )
+    return;
+  Network::PktHelper::PacketOut<Network::PktOut_A1> msg;
+  msg->Write<u32>( serial_ext );
+  msg->WriteFlipped<u16>( 1000_u16 );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hp_ * 1000 / maxhp() ) );
+
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+      this,
+      [&]( Mobile::Character* zonechr )
+      {
+        if ( !zonechr->in_visual_range( this ) )
+          return;
+        if ( invisible() && !zonechr->can_seeinvisitems() )
+          return;
+        msg.Send( zonechr->client );
+      } );
+}
+
 // Event notifications
 
 bool Item::is_visible_to_me( const Mobile::Character* chr ) const
@@ -1437,7 +1470,7 @@ bool Item::is_visible_to_me( const Mobile::Character* chr ) const
   return true;
 }
 
-void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
+void Item::inform_leftarea( Mobile::Character* wholeft )
 {
   Core::UOExecutor* ex = uoexec_control();
   if ( ex == nullptr || !ex->listens_to( Core::EVID_LEFTAREA ) )
@@ -1458,7 +1491,7 @@ void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
   ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
 }
 
-void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoenters )
+void Item::inform_enteredarea( Mobile::Character* whoenters )
 {
   Core::UOExecutor* ex = uoexec_control();
   if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA ) )
@@ -1478,7 +1511,7 @@ void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoenters )
 
   ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoenters ) );
 }
-void Pol::Items::Item::inform_moved( Mobile::Character* moved )
+void Item::inform_moved( Mobile::Character* moved )
 {
   Core::UOExecutor* ex = uoexec_control();
   if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
@@ -1506,4 +1539,19 @@ void Pol::Items::Item::inform_moved( Mobile::Character* moved )
   }
 }
 
+void Item::inform_engaged( const Mobile::Attackable& engaged )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( !ex || !engaged || !ex->listens_to( Core::EVID_ENGAGED ) )
+    return;
+  ex->signal_event( new Module::EngageEvent( engaged.object() ) );
+}
+
+void Item::inform_disengaged( const Mobile::Attackable& disengaged )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( !ex || !disengaged || !ex->listens_to( Core::EVID_DISENGAGED ) )
+    return;
+  ex->signal_event( new Module::DisengageEvent( disengaged.object() ) );
+}
 }  // namespace Pol::Items
