@@ -31,6 +31,7 @@
 #include "../mobile/charactr.h"
 #include "../module/uomod.h"
 #include "../network/client.h"
+#include "../network/packetdefs.h"
 #include "../proplist.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
@@ -1420,6 +1421,24 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
 bool Item::is_attackable() const
 {
   return flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
+}
+
+void Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damage_pkt )
+{
+  if ( !is_attackable() )
+    return;
+  hp_ -= damage;
+  set_dirty();
+  increv();
+  if ( send_damage_pkt && attacker && attacker->client )
+  {
+    Network::SendDamagePkt pkt( serial_ext, damage );
+    pkt.Send( attacker->client );
+  }
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex && attacker && ex->listens_to( Core::EVID_DAMAGED ) )
+    ex->signal_event( new Module::DamageEvent( attacker, damage ) );
+  send_hit_status_inrange();
 }
 
 void Item::send_hit_status( Network::Client* client ) const

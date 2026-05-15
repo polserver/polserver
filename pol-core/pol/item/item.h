@@ -268,6 +268,7 @@ public:
 
 
   bool is_attackable() const;
+  void apply_damage( u16 damage, Mobile::Character* attacker, bool send_dmg_packet );
   void send_hit_status( Network::Client* client ) const;
   void send_hit_status_inrange() const;
   void inform_engaged( const Mobile::Attackable& engaged );
