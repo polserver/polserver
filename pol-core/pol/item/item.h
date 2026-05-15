@@ -17,11 +17,11 @@
 #include "bscript/bobject.h"
 #include "clib/boostutils.h"
 #include "clib/rawtypes.h"
-
 #include "pol/baseobject.h"
 #include "pol/dynproperties.h"
 #include "pol/globals/settings.h"
 #include "pol/layers.h"
+#include "pol/mobile/attack.h"
 #include "pol/uobject.h"
 
 namespace Pol
@@ -264,6 +264,10 @@ public:
 
 
   bool is_attackable() const;
+  void send_hit_status( Network::Client* client ) const;
+  void send_hit_status_inrange() const;
+  void inform_engaged( const Mobile::Attackable& engaged );
+  void inform_disengaged( const Mobile::Attackable& disengaged );
 
 protected:  // only derived classes need the constructor
   void printProperties( Clib::StreamWriter& sw ) const override;
