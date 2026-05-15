@@ -34,6 +34,7 @@
 #include "pol/mobile/charactr.h"
 #include "pol/module/uomod.h"
 #include "pol/network/client.h"
+#include "pol/network/packetdefs.h"
 #include "pol/proplist.h"
 #include "pol/regions/resource.h"
 #include "pol/scrdef.h"
@@ -43,6 +44,7 @@
 #include "pol/tooltips.h"
 #include "pol/ufunc.h"
 #include "pol/uoscrobj.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Items
@@ -1421,6 +1423,24 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
 bool Item::is_attackable() const
 {
   return flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
+}
+
+void Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damage_pkt )
+{
+  if ( !is_attackable() )
+    return;
+  hp_ -= damage;
+  set_dirty();
+  increv();
+  if ( send_damage_pkt && attacker && attacker->client )
+  {
+    Network::SendDamagePkt pkt( serial_ext, damage );
+    pkt.Send( attacker->client );
+  }
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex && attacker && ex->listens_to( Core::EVID_DAMAGED ) )
+    ex->signal_event( new Module::DamageEvent( attacker, damage ) );
+  send_hit_status_inrange();
 }
 
 void Item::send_hit_status( Network::Client* client ) const
