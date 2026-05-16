@@ -3353,8 +3353,33 @@ void Character::attack( const Attackable& opponent )
   }
 
   do_attack_effects( opponent );
-  if ( opponent.item() )
-    return;  // TODO Attackable
+
+  if ( auto* item = opponent.item() )
+  {
+    // always hit?
+    // TODO Attackable cleanup, runhitscript maybe?
+    do_hit_success_effects();
+
+    double damage = random_weapon_damage();
+    damage_weapon();
+
+    double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
+    damage_multiplier += strength() * 0.20f;
+    damage_multiplier *= 0.01f;
+
+    damage *= damage_multiplier;
+    //    if ( weapon->hit_script().empty() )
+    //    {
+    item->apply_damage( Clib::clamp_convert<u16>( damage ), this,
+                        Core::settingsManager.combat_config.send_damage_packet );
+    //    }
+    //    else
+    //    {
+    //      run_hit_script( opponent_mobile, damage );
+    //    }
+
+    return;
+  }
 
   if ( Core::gamestate.system_hooks.combat_advancement_hook )
   {
