@@ -3,39 +3,44 @@
  * @par History
  *
  * @par Design decisions (64bit)
- * Since boost::any has a size of 8 a padding of 8 will be introduced which means that even if the
- * prop type is a u8 full 16 bytes will be used
- * boost::variant is as big as the biggest possible value plus a type information member
- * in our case the biggest type to store in a variant is u32 thus only a padding of 4 exists:
- * min/max size is 12 instead of 16
- * an empty vector still uses 24bytes moving the vectors into a pointer saves if unused 16bytes.
+ * std::any has a size of 16, introducing a padding of 7 (after the u8 type field),
+ * meaning that even if the stored prop type is a u8, a full 24 bytes will be used
+ * per PropHolder<std::any>.
+ *
+ * std::variant is as big as the largest alternative plus a discriminator.
+ * The largest types in variant_storage are u32, ValueModPack, and SkillStatCap
+ * (all 4 bytes, verified by static_assert), giving sizeof(variant_storage) = 8.
+ * PropHolder<variant_storage> is therefore 12 bytes (1 byte type + 3 padding + 8 variant).
+ *
+ * An empty vector uses 24 bytes; moving the any-props vector behind a pointer
+ * saves those 24 bytes when no "big" properties are set.
  *
  * @par Layout
- * - Uobject
- *   - ptr DynProps
- *     -> 8 bytes per object
+ * - UObject
+ *   - unique_ptr<DynProps>
+ *   -> 8 bytes per object
  * - DynProps
- *   - bitset (currently 4 bytes (more then 32 types = 8 bytes)
- *   - vector<PropHolder> variant version
- *   - ptr vector<PropHolder> any version
- *     -> N "small" properties:
- *     4+24+12*N+8 = 36+12*N
- *     -> +M "big" properties:
- *     +24+(16+unk)*M = (36+12*N) + (24+(16+unk)*M)
- *     unk is the type size which is stored in boost::any
+ *   - bitset<PROP_FLAG_SIZE>   (currently 16 bytes, covers up to 128 types)
+ *   - vector<PropHolder<variant_storage>>
+ *   - unique_ptr<PropHolderContainer<std::any>>
+ *   -> base (no properties set): 16 + 24 + 8 = 48 bytes
+ *   -> N "small" (variant) properties:
+ *      48 + 12*N
+ *   -> +M "big" (any) properties:
+ *      (48 + 12*N) + (24 + (24 + sizeof(T)) * M)
+ *      where 24 is the PropHolder<std::any> overhead and sizeof(T) is
+ *      the heap-allocated type size stored inside std::any
  *
- * @todo Is it worse it to combine e.g resistances struct?
- * 5 * s16
- * 24+12*5 -> 84
- * Combining means storage as boost::any:
- * 24+(16+5*2) -> 50
- * But only valid if all 5 props are really set, if only 2 props are set variant is smaller->
- * 24+12*2=48
- * Different idea combine per resistance type mod and real value:
- * for variant its still 24+12*5 -> 84
- * any would use 24+(16+5*2)*2 -> 76 (but again only if all props are set)
- * Combining would use the u32 size for a prop in a variant without loss (2*s16)
- * -> 8 props can be stored with less space
+ * @todo Is it worth combining e.g. resistances into a struct?
+ *   5 separate s16 resistances as variant props:
+ *     48 + 12*5 -> 108 bytes
+ *   Combined as a single std::any prop (struct of 5*s16 = 10 bytes):
+ *     48 + (24 + 10) -> 82 bytes
+ *   But only smaller if all 5 are set; for 2 props variant wins:
+ *     48 + 12*2 = 72 vs 48 + (24 + 10) = 82
+ *   Different idea: combine per-resistance mod and value into ValueModPack (2*s16 fits in u32):
+ *     Already done -> ValueModPack stores both value and mod in 4 bytes,
+ *     so 5 resistance pairs still cost 48 + 12*5 = 108 as variant props.
  */
 
 
@@ -247,7 +252,7 @@ struct ValueModPack
 
   static const ValueModPack DEFAULT;
 };
-static_assert( sizeof( ValueModPack ) == sizeof( u32 ), "size missmatch" );
+static_assert( sizeof( ValueModPack ) == sizeof( u32 ), "size mismatch" );
 
 // combination of skill and stat cap
 struct SkillStatCap
@@ -260,7 +265,7 @@ struct SkillStatCap
 
   static const SkillStatCap DEFAULT;
 };
-static_assert( sizeof( SkillStatCap ) == sizeof( u32 ), "size missmatch" );
+static_assert( sizeof( SkillStatCap ) == sizeof( u32 ), "size mismatch" );
 
 // combination of followers/followers_max
 struct ExtStatBarFollowers
@@ -273,7 +278,7 @@ struct ExtStatBarFollowers
 
   static const ExtStatBarFollowers DEFAULT;
 };
-static_assert( sizeof( ExtStatBarFollowers ) == sizeof( u16 ), "size missmatch" );
+static_assert( sizeof( ExtStatBarFollowers ) == sizeof( u16 ), "size mismatch" );
 
 // movement cost mod (not in variant storage)
 struct MovementCostMod
@@ -877,8 +882,8 @@ inline void DynProps::removeProperty( DynPropTypes type )
 
 inline size_t DynProps::estimateSize() const
 {
-  size_t size = sizeof( std::bitset<PROP_FLAG_SIZE> ) + sizeof( std::unique_ptr<void> ) +
-                _props.estimateSize();
+  size_t size = sizeof( std::bitset<PROP_FLAG_SIZE> ) +
+                sizeof( std::unique_ptr<PropHolderContainer<std::any>> ) + _props.estimateSize();
   if ( _any_props )
     size += _any_props->estimateSize();
   return size;
@@ -957,7 +962,7 @@ inline void DynamicPropsHolder::setmemberPointer( DynPropTypes member, V value )
     return;
   }
   initProps();
-  _dynprops->setProperty( member, value );
+  _dynprops->setPropertyPointer( member, value );
 }
 template <typename V>
 inline void DynamicPropsHolder::removeProperty( DynPropTypes type )
