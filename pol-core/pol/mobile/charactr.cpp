@@ -2105,14 +2105,14 @@ void Character::clear_opponent_of()
 {
   while ( !opponent_of.empty() )
   {
-    auto att = *opponent_of.begin();
+    auto attitr = opponent_of.begin();
     // note that chr->set_opponent is going to remove
     // its entry from our opponent_of collection,
     // so eventually this loop will exit.
-    if ( auto* mob = att.mobile() )
+    if ( auto* mob = attitr->mobile() )
       mob->set_opponent( {}, false );
-    else if ( att.item() )  // just delete the entry
-      remove_opponent_of( att );
+    else  // just erase
+      opponent_of.erase( attitr );
   }
 }
 
