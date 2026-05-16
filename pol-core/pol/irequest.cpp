@@ -14,8 +14,10 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../plib/systemstate.h"
+#include "fnsearch.h"
 #include "globals/network.h"
 #include "globals/settings.h"
+#include "item/item.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -35,6 +37,25 @@
 
 namespace Pol::Core
 {
+void send_short_statmsg( Network::Client* client, Items::Item* item )
+{
+  Network::PktHelper::PacketOut<Network::PktOut_11> msg;
+  msg->offset += 2;  // msglen
+  msg->Write<u32>( item->serial_ext );
+  msg->Write( Clib::strUtf8ToCp1252( item->name() ).c_str(), 30, false );
+
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( item->hp_ * 1000 / item->maxhp() ) );
+  msg->WriteFlipped<u16>( 1000_u16 );
+  msg->Write<u8>( 0_u8 );
+  msg->Write<u8>( 0_u8 );  // moreinfo
+
+  u16 len = msg->offset;
+  msg->offset = 1;
+  msg->WriteFlipped<u16>( len );
+
+  msg.Send( client, len );
+}
+
 void statrequest( Network::Client* client, u32 serial )
 {
   auto chr = client->chr;
@@ -45,7 +66,17 @@ void statrequest( Network::Client* client, u32 serial )
   }
   Mobile::Character* bob = find_character( serial );
   if ( !bob )
+  {
+    auto* item = system_find_item( serial );
+    if ( !item || !item->is_attackable() )
+      return;
+    if ( item->invisible() && !client->chr->can_seeinvisitems() )
+      return;
+    if ( !client->chr->in_visual_range( item ) )
+      return;
+    send_short_statmsg( client, item );
     return;
+  }
   if ( chr->is_visible_to_me( bob ) )
     send_short_statmsg( client, bob );
   if ( chr->has_party() )
