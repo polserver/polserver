@@ -79,6 +79,7 @@
  */
 
 
+#include "mobile/attack.h"
 #include "pol_global_config.h"
 
 #include "charactr.h"
@@ -2924,16 +2925,15 @@ Attackable Character::get_opponent() const
 bool Character::is_attackable( const Attackable& attackable ) const
 {
   passert( attackable.object() != nullptr );
-  if ( attackable.item() )  // TODO Attackable
-    return true;
-  auto* who = attackable.mobile();
+  const auto* obj = attackable.object();
   if ( Core::settingsManager.combat_config.scripted_attack_checks )
   {
     INFO_PRINTLN_TRACE( 21 )
-    ( "is_attackable({:#x},{:#x}): will be handled by combat hook.", this->serial, who->serial );
+    ( "is_attackable({:#x},{:#x}): will be handled by combat hook.", this->serial, obj->serial );
     return true;
   }
 
+  const auto* mob = attackable.mobile();
   INFO_PRINTLN_TRACE( 21 )
   ( "is_attackable({:#x},{:#x}):\n"
     "  who->dead:  {}\n"
@@ -2941,19 +2941,23 @@ bool Character::is_attackable( const Attackable& attackable ) const
     "  hidden:     {}\n"
     "  who->hidden:  {}\n"
     "  concealed:  {}",
-    this->serial, who->serial, who->dead(), weapon->in_range( this, who ), hidden(), who->hidden(),
-    is_concealed_from_me( who ) );
-  if ( who->dead() )
+    this->serial, obj->serial, mob ? mob->dead() : false, weapon->in_range( this, attackable ),
+    hidden(), mob ? mob->hidden() : false, mob ? is_concealed_from_me( mob ) : false );
+
+  if ( mob && mob->dead() )
     return false;
-  if ( !weapon->in_range( this, who ) )
+  if ( !weapon->in_range( this, attackable ) )
     return false;
   if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
     return false;
-  if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
-    return false;
-  if ( is_concealed_from_me( who ) )
-    return false;
-  if ( !realm()->has_los( *this, *who ) )
+  if ( mob )
+  {
+    if ( mob->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
+      return false;
+    if ( is_concealed_from_me( mob ) )
+      return false;
+  }
+  if ( !realm()->has_los( *this, *obj ) )
     return false;
   return true;
 }
@@ -3216,13 +3220,13 @@ Core::UACTION Character::weapon_anim() const
   return weapon->anim();
 }
 
-void Character::do_attack_effects( Character* target )
+void Character::do_attack_effects( const Attackable& target )
 {
   if ( weapon->is_projectile() )
   {
     // 234 is hit, 238 is miss??
     play_sound_effect( this, weapon->projectile_sound() );
-    play_moving_effect( this, target, weapon->projectile_anim(),
+    play_moving_effect( this, target.object(), weapon->projectile_anim(),
                         9,    // Speed (??)
                         0,    // Loop
                         0 );  // Explode
@@ -3341,13 +3345,16 @@ void Character::attack( const Attackable& opponent )
     }
   }
 
+  auto* opponent_mobile = opponent.mobile();
+  if ( opponent_mobile )
+  {
+    repsys_on_attack( opponent_mobile );
+    repsys_on_damage( opponent_mobile );
+  }
+
+  do_attack_effects( opponent );
   if ( opponent.item() )
     return;  // TODO Attackable
-  auto* opponent_mobile = opponent.mobile();
-  repsys_on_attack( opponent_mobile );
-  repsys_on_damage( opponent_mobile );
-
-  do_attack_effects( opponent_mobile );
 
   if ( Core::gamestate.system_hooks.combat_advancement_hook )
   {
