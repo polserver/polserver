@@ -17,8 +17,9 @@
 #include "clib/rawtypes.h"
 #include "pol/action.h"
 #include "pol/dynproperties.h"
-#include "pol/scrdef.h"
 #include "pol/item/equipmnt.h"
+#include "pol/mobile/attack.h"
+#include "pol/scrdef.h"
 
 namespace Pol
 {
@@ -77,7 +78,7 @@ public:
   unsigned short max_weapon_damage() const;
   bool is_projectile() const;
   bool consume_projectile( Core::UContainer* cont ) const;
-  bool in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const;
+  bool in_range( const Mobile::Character* wielder, const Mobile::Attackable& target ) const;
   unsigned short projectile_sound() const;
   unsigned short projectile_anim() const;
   Core::UACTION anim() const;

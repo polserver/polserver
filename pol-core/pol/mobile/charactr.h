@@ -440,7 +440,7 @@ public:
   unsigned short min_weapon_damage() const;
   unsigned short max_weapon_damage() const;
   void damage_weapon();
-  void do_attack_effects( Character* target );
+  void do_attack_effects( const Attackable& target );
   void do_imhit_effects();
   void do_hit_success_effects();
   void do_hit_failure_effects();
