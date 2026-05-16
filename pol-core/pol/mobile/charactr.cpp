@@ -2109,8 +2109,10 @@ void Character::clear_opponent_of()
     // note that chr->set_opponent is going to remove
     // its entry from our opponent_of collection,
     // so eventually this loop will exit.
-    if ( auto* mob = att.mobile() )  // TODO Attackable
+    if ( auto* mob = att.mobile() )
       mob->set_opponent( {}, false );
+    else if ( att.item() )  // just delete the entry
+      remove_opponent_of( att );
   }
 }
 
@@ -3058,14 +3060,15 @@ void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent 
       set_warmode( true );
   }
 
-  if ( opponent_ )  // TODO Attackable
+  Attackable this_att{ this };
+  if ( opponent_ )
   {
-    opponent_.remove_opponent_of( Attackable{ this } );
+    opponent_.remove_opponent_of( this_att );
     // Turley 05/26/09 no need to send disengaged event on shutdown
     if ( !Clib::exit_signalled )
     {
       if ( inform_old_opponent )
-        opponent_.inform_disengaged( Attackable{ this } );
+        opponent_.inform_disengaged( this_att );
     }
   }
 
@@ -3088,8 +3091,8 @@ void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent 
           mob->reset_swing_timer();
       }
 
-      opponent_.add_opponent_of( Attackable{ this } );
-      opponent_.inform_engaged( Attackable{ this } );
+      opponent_.add_opponent_of( this_att );
+      opponent_.inform_engaged( this_att );
       if ( mob )
         mob->schedule_attack();
     }
