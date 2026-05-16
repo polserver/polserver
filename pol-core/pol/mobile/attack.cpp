@@ -14,6 +14,7 @@
 #include "../../clib/clib_endian.h"
 #include "../../clib/rawtypes.h"
 #include "../cmbtcfg.h"
+#include "../fnsearch.h"
 #include "../globals/settings.h"
 #include "../item/item.h"
 #include "../network/client.h"
@@ -33,6 +34,8 @@ Attackable::Attackable( Items::Item* item ) : _opp( item )
 }*/
 Attackable::Attackable( Core::UObject* obj ) : _opp( obj )
 {
+  if ( !_opp )
+    return;
   if ( obj->ismobile() )
     return;
   if ( auto* item_ = item(); item_ && item_->is_attackable() )
@@ -88,33 +91,49 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
   }
 
   u32 serial = cfBEu32( msg->serial );
-  Character* defender = Core::find_character( serial );
-  if ( defender == nullptr )
+  Attackable attackable{ Core::find_toplevel_object( serial ) };
+  if ( !attackable )
     return;
-  if ( !( Core::settingsManager.combat_config.attack_self ) )
+  if ( auto* defender = attackable.mobile() )
   {
-    if ( defender->serial == client->chr->serial )
+    if ( !( Core::settingsManager.combat_config.attack_self ) )
+    {
+      if ( defender->serial == client->chr->serial )
+      {
+        client->chr->send_highlight();
+        return;
+      }
+    }
+
+    if ( !client->chr->is_visible_to_me( defender ) )
+    {
+      client->chr->send_highlight();
+      return;
+    }
+
+    if ( defender->acct != nullptr )
+    {
+      if ( Core::JusticeRegion::RunNoCombatCheck( defender->client ) == true )
+      {
+        client->chr->send_highlight();
+        Core::send_sysmessage( client, "Combat is not allowed in this area." );
+        return;
+      }
+    }
+  }
+  else if ( auto* item = attackable.item() )
+  {
+    if ( item->invisible() && !client->chr->can_seeinvisitems() )
+    {
+      client->chr->send_highlight();
+      return;
+    }
+    if ( !client->chr->in_visual_range( item ) )
     {
       client->chr->send_highlight();
       return;
     }
   }
-
-  if ( !client->chr->is_visible_to_me( defender ) )
-  {
-    client->chr->send_highlight();
-    return;
-  }
-
-  if ( defender->acct != nullptr )
-  {
-    if ( Core::JusticeRegion::RunNoCombatCheck( defender->client ) == true )
-    {
-      client->chr->send_highlight();
-      Core::send_sysmessage( client, "Combat is not allowed in this area." );
-      return;
-    }
-  }
-  client->chr->select_opponent( serial );
+  client->chr->select_opponent( std::move( attackable ) );
 }
 }  // namespace Pol::Mobile

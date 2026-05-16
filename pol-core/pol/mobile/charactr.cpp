@@ -3101,18 +3101,15 @@ void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent 
   send_highlight();
 }
 
-void Character::select_opponent( u32 opp_serial )
+void Character::select_opponent( Attackable opponent )
 {
   // test for setting to same so swing timer doesn't reset
   // if you double-click the same guy over and over
-  if ( !opponent_ || opponent_.object()->serial != opp_serial )
+  if ( !opponent_ || opponent_.object()->serial != opponent.object()->serial )
   {
-    auto* obj = Core::find_toplevel_object( opp_serial );
-    if ( !obj )
+    if ( realm() != opponent.object()->realm() )
       return;
-    if ( realm() != obj->realm() )
-      return;
-    set_opponent( Attackable{ obj } );
+    set_opponent( std::move( opponent ) );
   }
 }
 
