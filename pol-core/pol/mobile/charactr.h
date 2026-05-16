@@ -425,7 +425,7 @@ public:
   void remove_opponent_of( const Attackable& other );
   void add_opponent_of( Attackable other );
 
-  void select_opponent( u32 opp_serial );
+  void select_opponent( Attackable opponent );
   void set_opponent( Attackable opponent, bool inform_old_opponent = true );
 
   void clear_opponent_of();
