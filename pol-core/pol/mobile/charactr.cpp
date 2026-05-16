@@ -2110,9 +2110,13 @@ void Character::clear_opponent_of()
     // its entry from our opponent_of collection,
     // so eventually this loop will exit.
     if ( auto* mob = attitr->mobile() )
+    {
       mob->set_opponent( {}, false );
-    else  // just erase
-      opponent_of.erase( attitr );
+      continue;
+    }
+    if ( auto* item = attitr->item() )
+      item->remove_opponent_of( Attackable{ this } );
+    opponent_of.erase( attitr );
   }
 }
 

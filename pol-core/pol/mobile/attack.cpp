@@ -57,15 +57,17 @@ Items::Item* Attackable::item() const
 }
 void Attackable::remove_opponent_of( const Attackable& other )
 {
-  // Items have no need to store multiple opponents
   if ( auto* mob = mobile() )
     mob->remove_opponent_of( other );
+  else if ( auto* item_ = item() )
+    item_->remove_opponent_of( other );
 }
 void Attackable::add_opponent_of( Attackable other )
 {
-  // Items have no need to store multiple opponents
   if ( auto* mob = mobile() )
     mob->add_opponent_of( std::move( other ) );
+  else if ( auto* item_ = item() )
+    item_->add_opponent_of( other );
 }
 void Attackable::inform_disengaged( const Attackable& disengaged )
 {

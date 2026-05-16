@@ -84,6 +84,7 @@ public:
   bool stackable() const;
 
   ~Item() override;
+  void destroy() override;
   size_t estimatedSize() const override;
 
   virtual void double_click( Network::Client* client );
@@ -273,6 +274,11 @@ public:
   void send_hit_status_inrange() const;
   void inform_engaged( const Mobile::Attackable& engaged );
   void inform_disengaged( const Mobile::Attackable& disengaged );
+
+  DYN_PROPERTY_REF( opponent_of, std::set<Mobile::Attackable>, Core::PROP_OPPONENT_OF,
+                    std::set<Mobile::Attackable>{} );
+  void remove_opponent_of( const Mobile::Attackable& other );
+  void add_opponent_of( Mobile::Attackable other );
 
 protected:  // only derived classes need the constructor
   void printProperties( Clib::StreamWriter& sw ) const override;

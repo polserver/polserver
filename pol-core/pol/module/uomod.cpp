@@ -2534,24 +2534,26 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
   Character* chr;
   u16 range;
   int flags;
+  // TODO Attackable allow items
   if ( getCharacterParam( 0, chr ) && getParam( 1, range ) && getParam( 2, flags ) )
   {
     std::unique_ptr<ObjArray> arr( new ObjArray );
 
     for ( auto& hostile : chr->hostiles() )
     {
-      if ( auto* mob = hostile.mobile() )  // TODO Attackable
+      if ( auto* mob = hostile.mobile() )
       {
         if ( mob->concealed() )
           continue;
-        if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *mob ) )
-          continue;
         if ( ( ~flags & LH_FLAG_INCLUDE_HIDDEN ) && mob->hidden() )
           continue;
-        if ( !chr->in_range( mob, range ) )
-          continue;
-        arr->addElement( mob->make_ref() );
       }
+      auto* obj = hostile.object();
+      if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *obj ) )
+        continue;
+      if ( !chr->in_range( obj, range ) )
+        continue;
+      arr->addElement( obj->make_ref() );
     }
 
     return arr.release();

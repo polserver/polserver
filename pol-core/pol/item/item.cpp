@@ -1573,4 +1573,36 @@ void Item::inform_disengaged( const Mobile::Attackable& disengaged )
     return;
   ex->signal_event( new Module::DisengageEvent( disengaged.object() ) );
 }
+
+void Item::remove_opponent_of( const Mobile::Attackable& other )
+{
+  if ( !is_attackable() )
+    return;
+  if ( !has_opponent_of() )
+    return;
+  opponent_of()->erase( other );
+  if ( opponent_of()->empty() )
+    clear_opponent_of();
+}
+void Item::add_opponent_of( Mobile::Attackable other )
+{
+  if ( !is_attackable() )
+    return;
+  opponent_of()->insert( std::move( other ) );
+}
+
+void Item::destroy()
+{
+  if ( has_opponent_of() )
+  {
+    Mobile::Attackable self{ this };
+    for ( auto opp : *opponent_of() )
+    {
+      opp.remove_opponent_of( self );
+    }
+    opponent_of()->clear();
+    clear_opponent_of();
+  }
+  base::destroy();
+}
 }  // namespace Pol::Items
