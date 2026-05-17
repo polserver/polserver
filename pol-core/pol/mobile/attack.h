@@ -18,8 +18,6 @@ class Attackable
 {
 public:
   Attackable() = default;
-  //  Attackable( Character* chr );
-  //  Attackable( Items::Item* item );
   Attackable( Core::UObject* obj );
 
   explicit operator bool() const { return _opp != nullptr; };

@@ -89,6 +89,7 @@
 #include "pol/item/itemdesc.h"
 #include "pol/item/weapon.h"
 #include "pol/lockable.h"
+#include "pol/mobile/attack.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/corpse.h"
 #include "pol/mobile/npc.h"
@@ -3235,13 +3236,13 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Character is dead" );
     if ( ex.hasParams( 1 ) )
     {
-      // TODO Attackable
-      Character* chr;
-      if ( !ex.getCharacterParam( 0, chr ) )
+      UObject* obj;
+      if ( !ex.getUObjectParam( 0, obj ) )
         return new BError( "Invalid parameter type" );
-      if ( !is_attackable( chr ) )
+      Attackable att{ obj };
+      if ( !att || !is_attackable( att ) )
         return new BError( "Opponent is not attackable" );
-      attack( chr );
+      attack( att );
     }
     else
     {
