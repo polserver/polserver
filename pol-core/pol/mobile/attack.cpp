@@ -9,7 +9,7 @@
  */
 
 
-#include <cstdio>
+#include "attack.h"
 
 #include "../../clib/clib_endian.h"
 #include "../../clib/rawtypes.h"

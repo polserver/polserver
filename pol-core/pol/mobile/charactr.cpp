@@ -866,11 +866,13 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if ( elem.remove_bool( "FROZEN", false ) )
     mob_flags_.set( MOB_FLAGS::FROZEN );
 
-  movement_cost( Core::MovementCostMod(
-      elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
-      elem.remove_double( "MovementRunMod", Core::MovementCostMod::DEFAULT.run ),
-      elem.remove_double( "MovementWalkMountedMod", Core::MovementCostMod::DEFAULT.walk_mounted ),
-      elem.remove_double( "MovementRunMountedMod", Core::MovementCostMod::DEFAULT.run_mounted ) ) );
+  movement_cost( Core::MovementCostMod{
+      .walk = elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
+      .run = elem.remove_double( "MovementRunMod", Core::MovementCostMod::DEFAULT.run ),
+      .walk_mounted = elem.remove_double( "MovementWalkMountedMod",
+                                          Core::MovementCostMod::DEFAULT.walk_mounted ),
+      .run_mounted = elem.remove_double( "MovementRunMountedMod",
+                                         Core::MovementCostMod::DEFAULT.run_mounted ) } );
 
   carrying_capacity_mod( static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) ) );
 
@@ -906,14 +908,15 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   }
 
   uclang = elem.remove_string( "UCLang", "enu" );
-  skillstatcap( Core::SkillStatCap(
-      static_cast<s16>( elem.remove_int( "STATCAP", Core::SkillStatCap::DEFAULT.statcap ) ),
-      static_cast<u16>( elem.remove_int( "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) ) );
-  followers( Core::ExtStatBarFollowers(
-      static_cast<s8>(
+  skillstatcap( Core::SkillStatCap{ .statcap = static_cast<s16>( elem.remove_int(
+                                        "STATCAP", Core::SkillStatCap::DEFAULT.statcap ) ),
+                                    .skillcap = static_cast<u16>( elem.remove_int(
+                                        "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) } );
+  followers( Core::ExtStatBarFollowers{
+      .followers = static_cast<s8>(
           elem.remove_int( "FOLLOWERS", Core::ExtStatBarFollowers::DEFAULT.followers ) ),
-      static_cast<s8>(
-          elem.remove_int( "FOLLOWERSMAX", Core::ExtStatBarFollowers::DEFAULT.followers_max ) ) ) );
+      .followers_max = static_cast<s8>(
+          elem.remove_int( "FOLLOWERSMAX", Core::ExtStatBarFollowers::DEFAULT.followers_max ) ) } );
   tithing( elem.remove_int( "TITHING", 0 ) );
 
   privs.readfrom( elem.remove_string( "Privs", "" ) );

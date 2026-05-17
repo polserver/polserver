@@ -26,7 +26,7 @@ bool run_pol_tests()
 
 #ifdef ENABLE_BENCHMARK
   benchmark::RunSpecifiedBenchmarks();
-  return;
+  return true;
 #endif
   RUNTEST( test_splitnamevalue )
   RUNTEST( test_convertquotedstring )
