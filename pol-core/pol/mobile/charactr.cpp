@@ -1798,14 +1798,8 @@ unsigned short calc_thru_damage( double damage, unsigned short ar )
   damage -= absorbed;
 
   if ( damage >= 2.0 )
-  {
-    return static_cast<unsigned short>( damage * 0.5 );
-  }
-
-  int dmg = static_cast<int>( damage );
-  if ( dmg >= 0 )
-    return static_cast<unsigned short>( dmg );
-  return 0;
+    return Clib::clamp_convert<unsigned short>( damage * 0.5 );
+  return Clib::clamp_convert<unsigned short>( damage );
 }
 
 
@@ -1839,17 +1833,13 @@ void Character::get_hitscript_params( double damage, Items::UArmor** parmor,
 {
   Items::UArmor* armor = choose_armor();
   if ( armor )
-  {
     *rawdamage = calc_thru_damage( damage, armor->ar() + ar_mod() );
-  }
   else
-  {
-    *rawdamage = static_cast<unsigned short>( damage );
-  }
+    *rawdamage = Clib::clamp_convert<unsigned short>( damage );
   *parmor = armor;
 }
 
-void Character::run_hit_script( Character* defender, double damage )
+void Character::run_hit_script( const Attackable& defender, double damage )
 {
   ref_ptr<Bscript::EScriptProgram> prog = find_script2(
       weapon->hit_script(), true, Plib::systemstate.config.cache_interactive_scripts );
@@ -1861,11 +1851,14 @@ void Character::run_hit_script( Character* defender, double damage )
   ex->addModule( uoemod );
 
   unsigned short rawdamage = 0;
-  unsigned short basedamage = static_cast<unsigned short>( damage );
+  unsigned short basedamage = Clib::clamp_convert<unsigned short>( damage );
 
   Items::UArmor* armor = nullptr;
 
-  defender->get_hitscript_params( damage, &armor, &rawdamage );
+  if ( auto* mob = defender.mobile() )
+    mob->get_hitscript_params( damage, &armor, &rawdamage );
+  else
+    rawdamage = Clib::clamp_convert<u16>( damage );
 
 
   ex->pushArg( new Bscript::BLong( rawdamage ) );
@@ -1875,7 +1868,7 @@ void Character::run_hit_script( Character* defender, double damage )
   else
     ex->pushArg( new Bscript::BLong( 0 ) );
   ex->pushArg( new Module::EItemRefObjImp( weapon ) );
-  ex->pushArg( new Module::ECharacterRefObjImp( defender ) );
+  ex->pushArg( defender.object()->make_ref() );
   ex->pushArg( new Module::ECharacterRefObjImp( this ) );
 
   ex->priority( 100 );
@@ -3290,6 +3283,26 @@ void Character::do_imhit_effects()
 
 void Character::attack( const Attackable& opponent )
 {
+  auto calc_damage = [&]()
+  {
+    double damage = random_weapon_damage();
+    damage_weapon();
+
+    if ( Core::settingsManager.watch.combat )
+      INFO_PRINTLN( "Base damage: {}", damage );
+
+    double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
+    damage_multiplier += strength() * 0.20f;
+    damage_multiplier *= 0.01f;
+
+    damage *= damage_multiplier;
+
+    if ( Core::settingsManager.watch.combat )
+      INFO_PRINTLN( "Damage multiplier due to tactics/STR: {} Result: {}", damage_multiplier,
+                    damage );
+    return damage;
+  };
+
   INC_PROFILEVAR( combat_operations );
 
   if ( Core::gamestate.system_hooks.attack_hook )
@@ -3361,39 +3374,29 @@ void Character::attack( const Attackable& opponent )
 
   do_attack_effects( opponent );
 
-  if ( auto* item = opponent.item() )
-  {
-    // always hit?
-    // TODO Attackable cleanup, runhitscript maybe?
-    do_hit_success_effects();
-
-    double damage = random_weapon_damage();
-    damage_weapon();
-
-    double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
-    damage_multiplier += strength() * 0.20f;
-    damage_multiplier *= 0.01f;
-
-    damage *= damage_multiplier;
-    //    if ( weapon->hit_script().empty() )
-    //    {
-    item->apply_damage( Clib::clamp_convert<u16>( damage ), this,
-                        Core::settingsManager.combat_config.send_damage_packet );
-    //    }
-    //    else
-    //    {
-    //      run_hit_script( opponent_mobile, damage );
-    //    }
-
-    return;
-  }
-
   if ( Core::gamestate.system_hooks.combat_advancement_hook )
   {
     Core::gamestate.system_hooks.combat_advancement_hook->call(
         new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
-        new Module::ECharacterRefObjImp( opponent_mobile ) );
+        opponent.object()->make_ref() );
   }
+
+  // special handling when attacking items
+  // they always hit
+  if ( auto* item = opponent.item() )
+  {
+    do_hit_success_effects();
+
+    double damage = calc_damage();
+    if ( weapon->hit_script().empty() )
+      item->apply_damage( Clib::clamp_convert<u16>( damage ), this,
+                          Core::settingsManager.combat_config.send_damage_packet );
+    else
+      run_hit_script( opponent, damage );
+
+    return;
+  }
+
 
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent_mobile->weapon_attribute().effective() + 50.0 ) );
@@ -3407,21 +3410,7 @@ void Character::attack( const Attackable& opponent )
       INFO_PRINTLN( "Hit!" );
     do_hit_success_effects();
 
-    double damage = random_weapon_damage();
-    damage_weapon();
-
-    if ( Core::settingsManager.watch.combat )
-      INFO_PRINTLN( "Base damage: {}", damage );
-
-    double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
-    damage_multiplier += strength() * 0.20f;
-    damage_multiplier *= 0.01f;
-
-    damage *= damage_multiplier;
-
-    if ( Core::settingsManager.watch.combat )
-      INFO_PRINTLN( "Damage multiplier due to tactics/STR: {} Result: {}", damage_multiplier,
-                    damage );
+    double damage = calc_damage();
 
     if ( opponent_mobile->shield != nullptr )
     {
@@ -3463,7 +3452,7 @@ void Character::attack( const Attackable& opponent )
     }
     else
     {
-      run_hit_script( opponent_mobile, damage );
+      run_hit_script( opponent, damage );
     }
   }
   else

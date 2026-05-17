@@ -460,7 +460,7 @@ public:
   bool manual_set_swing_timer( Core::polclock_t time );
 
   const AttackableSet& hostiles() const;
-  void run_hit_script( Character* defender, double damage );
+  void run_hit_script( const Attackable& defender, double damage );
 
 private:
   void schedule_attack();
