@@ -1430,6 +1430,7 @@ void Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_dama
   hp_ -= damage;
   set_dirty();
   increv();
+  send_object_cache_to_inrange( this );
   if ( send_damage_pkt && attacker && attacker->client )
   {
     Network::SendDamagePkt pkt( serial_ext, damage );

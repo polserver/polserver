@@ -2531,15 +2531,27 @@ const int LH_FLAG_LOS = 1;             // only include those in LOS
 const int LH_FLAG_INCLUDE_HIDDEN = 2;  // include hidden characters
 BObjectImp* UOExecutorModule::mf_ListHostiles()
 {
-  Character* chr;
+  UObject* uobj;
   u16 range;
   int flags;
-  // TODO Attackable allow items
-  if ( getCharacterParam( 0, chr ) && getParam( 1, range ) && getParam( 2, flags ) )
+  if ( getUObjectParam( 0, uobj ) && getParam( 1, range ) && getParam( 2, flags ) )
   {
-    std::unique_ptr<ObjArray> arr( new ObjArray );
+    Attackable att{ uobj };
+    if ( !att )
+      return new BError( "Invalid parameter" );
 
-    for ( auto& hostile : chr->hostiles() )
+    std::unique_ptr<ObjArray> arr( new ObjArray );
+    const Character::AttackableSet* hostiles = nullptr;
+    if ( auto* item = att.item() )
+    {
+      if ( item->has_opponent_of() )
+        hostiles = item->opponent_of();
+    }
+    else if ( auto* mob = att.mobile() )
+      hostiles = &mob->hostiles();
+    if ( !hostiles )
+      return arr.release();
+    for ( auto& hostile : *hostiles )
     {
       if ( auto* mob = hostile.mobile() )
       {
@@ -2549,9 +2561,9 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
           continue;
       }
       auto* obj = hostile.object();
-      if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *obj ) )
+      if ( ( flags & LH_FLAG_LOS ) && !att.object()->realm()->has_los( *att.object(), *obj ) )
         continue;
-      if ( !chr->in_range( obj, range ) )
+      if ( !att.object()->in_range( obj, range ) )
         continue;
       arr->addElement( obj->make_ref() );
     }
