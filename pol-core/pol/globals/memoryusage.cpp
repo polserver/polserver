@@ -22,11 +22,6 @@ namespace Pol::Core
 {
 void MemoryUsage::log()
 {
-  // std::string footprint is ~ string.capacity()
-  // std::vector footprint is ~ 3 * sizeof(T*) + vector.capacity() * sizeof( T );
-  // std::set footprint is ~ 3 * sizeof( void* ) + set.size() * ( sizeof(T)+3 * sizeof( void* ) );
-  // std::map footprint is ~ ( sizeof(K)+sizeof( V ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * map.size();
-
   size_t systemstate_size = Plib::systemstate.estimatedSize();
   size_t multibuffer_size = Multi::multidef_buffer.estimateSize();
   auto network_size = networkManager.estimateSize();
