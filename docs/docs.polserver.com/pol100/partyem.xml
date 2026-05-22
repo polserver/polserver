@@ -34,6 +34,14 @@
 	<relatedcfg>party.cfg</relatedcfg>
 </function>
 
+<function name="ListParties">
+	<prototype>ListParties()</prototype>
+	<explain>Gets a list of all parties.</explain>
+	<return>Array of Party References</return>
+	<related>Party</related>
+	<relatedcfg>party.cfg</relatedcfg>
+</function>
+
 <function name="SendPartyMsg">
 	<prototype>SendPartyMsg( party, character, uctext )</prototype>
 	<parameter name="party" value="Party Reference" />
