@@ -32,6 +32,7 @@ public:
 
   [[nodiscard]] Bscript::BObjectImp* mf_CreateParty();
   [[nodiscard]] Bscript::BObjectImp* mf_DisbandParty();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListParties();
   [[nodiscard]] Bscript::BObjectImp* mf_SendPartyMsg();
   [[nodiscard]] Bscript::BObjectImp* mf_SendPrivatePartyMsg();
 };
