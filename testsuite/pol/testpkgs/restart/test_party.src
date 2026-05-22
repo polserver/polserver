@@ -18,6 +18,11 @@ exported function load_save_party()
       return ret_error( $"create failed {chr1} {chr2} {res}" );
     endif
     chr1.party.setprop( "name", "test" );
+
+    if ( !( chr1.party in ListParties() ) )
+      DisbandParty( chr1.party );
+      return ret_error( $"created party is not in ListParties()" );
+    endif
   else
     var chr1 := FindAccount( "restart_test_party1" ).getcharacter( 1 );
     var chr2 := FindAccount( "restart_test_party2" ).getcharacter( 1 );
