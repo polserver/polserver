@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-10-2026</datemodified>
+		<datemodified>05-23-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>05-23-2026</date>
+			<author>Kevin:</author>
+			<change type="Added">New module function party::ListParties()</change>
+		</entry>
 		<entry>
 			<date>05-10-2026</date>
 			<author>Turley:</author>

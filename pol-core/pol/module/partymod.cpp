@@ -159,6 +159,16 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
   return err;
 }
 
+BObjectImp* PartyExecutorModule::mf_ListParties()
+{
+  auto arr = std::make_unique<ObjArray>();
+
+  for ( const auto& party : Core::gamestate.parties )
+    arr->addElement( CreatePartyRefObjImp( party.get() ) );
+
+  return arr.release();
+}
+
 BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
 {
   Core::Party* party;
