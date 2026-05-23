@@ -11,7 +11,7 @@
 namespace Pol::Bscript
 {
 BClassInstance::BClassInstance( ref_ptr<EScriptProgram> program, int index,
-                                std::shared_ptr<ValueStackCont> globals )
+                                std::weak_ptr<ValueStackCont> globals )
     : BStruct( OTClassInstance ),
       prog_( std::move( program ) ),
       index_( index ),
@@ -31,7 +31,7 @@ size_t BClassInstance::sizeEstimate() const
 {
   return base::sizeEstimate() + Clib::memsize( constructors_called ) +
          sizeof( ref_ptr<EScriptProgram> ) + sizeof( unsigned int ) +
-         sizeof( std::shared_ptr<ValueStackCont> );
+         sizeof( std::weak_ptr<ValueStackCont> );
 }
 
 ref_ptr<EScriptProgram> BClassInstance::prog() const

@@ -2223,7 +2223,7 @@ std::string BBoolean::getStringRep() const
 }
 
 BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_reference_index,
-                            std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures )
+                            std::weak_ptr<ValueStackCont> globals, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       prog_( std::move( program ) ),
       function_reference_index_( function_reference_index ),

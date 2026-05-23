@@ -141,18 +141,24 @@ BObjectRef BDictionary::set_member( const char* membername, BObjectImp* value, b
 {
   BObject key( new String( membername ) );
   BObjectImp* target = copy ? value->copy() : value;
-
-  auto itr = contents_.find( key );
-  if ( itr != contents_.end() )
+  auto [itr, inserted] = contents_.try_emplace( key, target );
+  if ( !inserted )
   {
-    BObjectRef& oref = ( *itr ).second;
+    BObjectRef& oref = itr->second;
     oref->setimp( target );
-    return oref;
   }
+  return itr->second;
+  /*  auto itr = contents_.find( key );
+    if ( itr != contents_.end() )
+    {
+      BObjectRef& oref = ( *itr ).second;
+      oref->setimp( target );
+      return oref;
+    }
 
-  BObjectRef ref( new BObject( target ) );
-  contents_[key] = ref;
-  return ref;
+    BObjectRef ref( new BObject( target ) );
+    contents_[key] = ref;
+    return ref;*/
 }
 
 BObjectRef BDictionary::get_member( const char* membername )

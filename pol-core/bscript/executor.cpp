@@ -2942,14 +2942,25 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
   // Only store our global context if the function is external to the current program.
   if ( funcref != nullptr && funcref->prog() != prog_ )
   {
-    // Store external context for the return path.
-    rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
+    POLLOG_INFOLN( "different prog {}", funcref->prog()->name );
+    if ( auto shared = funcref->globals.lock() )
+    {
+      // Store external context for the return path.
+      rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
+
+      Globals2 = shared;
+    }
+    else
+    {
+      POLLOG_INFOLN( "Function no longer valid" );
+      setFunctionResult( new BError( "Function no longer valid" ) );
+      return;
+    }
 
     // Set the prog and globals to the external function's, updating nLines and
     // execmodules.
     prog_ = funcref->prog();
 
-    Globals2 = funcref->globals;
 
     nLines = static_cast<unsigned int>( prog_->instr.size() );
 
@@ -3858,9 +3869,15 @@ void Executor::show_context( std::string& os, unsigned atPC )
 void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* continuation,
                                         const Instruction& jmp )
 {
+  POLLOG_INFOLN( "CALL FUNC" );
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
-
+  if ( funcr->globals.expired() )
+  {
+    POLLOG_INFOLN( "expired" );
+    ValueStack.emplace_back( new BError( "expired" ) );
+    return;
+  }
   // Push captured parameters onto the stack prior to function parameters.
   for ( auto& p : funcr->captures )
     ValueStack.push_back( p );

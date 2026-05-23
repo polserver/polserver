@@ -930,7 +930,7 @@ class BFunctionRef final : public BObjectImp
 
 public:
   BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_reference_index,
-                std::shared_ptr<ValueStackCont> globals, ValueStackCont&& captures );
+                std::weak_ptr<ValueStackCont> globals, ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -971,7 +971,7 @@ private:
   unsigned function_reference_index_;
 
 public:
-  std::shared_ptr<ValueStackCont> globals;
+  std::weak_ptr<ValueStackCont> globals;
   ValueStackCont captures;
 };
 
