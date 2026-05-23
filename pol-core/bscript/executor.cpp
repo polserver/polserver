@@ -15,6 +15,7 @@
 
 #include "executor.h"
 #include "bobject.h"
+#include "exectype.h"
 #include "executor.inl.h"
 
 #include "../clib/clib.h"
@@ -814,7 +815,7 @@ BObjectRef& Executor::LocalVar( unsigned int varnum )
 
 BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
-  passert( varnum < Globals2->size() );
+  passert_always_r( varnum < Globals2->size(), "Globals empty" );
   return ( *Globals2 )[varnum];
 }
 
@@ -1455,6 +1456,7 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
+  passert_always_r( (unsigned)ins.token.lval < Globals2->size(), "Globals empty" );
   ValueStack.push_back( ( *Globals2 )[ins.token.lval] );
 }
 
@@ -1687,6 +1689,7 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
+  passert_always_r( (unsigned)ine.token.lval < Globals2->size(), "Globals empty" );
   BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
@@ -2374,6 +2377,7 @@ void Executor::ins_take_global( const Instruction& ins )
   passert( !ValueStack.empty() );
 
   // Globals already have an entry in the globals vector, so just index into it.
+  passert_always_r( (unsigned)ins.token.lval < Globals2->size(), "Globals empty" );
   BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
@@ -2943,18 +2947,19 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
   if ( funcref != nullptr && funcref->prog() != prog_ )
   {
     POLLOG_INFOLN( "different prog {}", funcref->prog()->name );
+    // Store external context for the return path.
+    rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
+
     if ( auto shared = funcref->globals.lock() )
     {
-      // Store external context for the return path.
-      rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
-
       Globals2 = shared;
     }
     else
     {
-      POLLOG_INFOLN( "Function no longer valid" );
-      setFunctionResult( new BError( "Function no longer valid" ) );
-      return;
+      Globals2 = std::make_shared<BObjectRefVec>();
+      //      POLLOG_INFOLN( "Function no longer valid" );
+      //    setFunctionResult( new BError( "Function no longer valid" ) );
+      //  return;
     }
 
     // Set the prog and globals to the external function's, updating nLines and
@@ -3872,12 +3877,12 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
   POLLOG_INFOLN( "CALL FUNC" );
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
-  if ( funcr->globals.expired() )
-  {
-    POLLOG_INFOLN( "expired" );
-    ValueStack.emplace_back( new BError( "expired" ) );
-    return;
-  }
+  /*  if ( funcr->globals.expired() )
+    {
+      POLLOG_INFOLN( "expired" );
+      ValueStack.emplace_back( new BError( "expired" ) );
+      return;
+    }*/
   // Push captured parameters onto the stack prior to function parameters.
   for ( auto& p : funcr->captures )
     ValueStack.push_back( p );
