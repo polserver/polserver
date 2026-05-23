@@ -815,7 +815,7 @@ BObjectRef& Executor::LocalVar( unsigned int varnum )
 
 BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
-  if ( varnum < Globals2->size() )
+  if ( varnum >= Globals2->size() )
   {
     POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
     seterror( true );
@@ -1462,7 +1462,7 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
-  if ( (unsigned)ins.token.lval < Globals2->size() )
+  if ( (unsigned)ins.token.lval >= Globals2->size() )
   {
     POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
     seterror( true );
@@ -1701,7 +1701,7 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
-  if ( (unsigned)ins.token.lval < Globals2->size() )
+  if ( (unsigned)ins.token.lval >= Globals2->size() )
   {
     POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
     seterror( true );
@@ -2394,8 +2394,7 @@ void Executor::ins_take_global( const Instruction& ins )
 {
   passert( !ValueStack.empty() );
 
-  // Globals already have an entry in the globals vector, so just index into it.
-  if ( (unsigned)ins.token.lval < Globals2->size() )
+  if ( (unsigned)ins.token.lval >= Globals2->size() )
   {
     POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
     seterror( true );
