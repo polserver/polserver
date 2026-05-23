@@ -974,6 +974,7 @@ BObjectRef BObjectImp::operDotQMark( const char* /*name*/ )
 
 UninitObject* UninitObject::SharedInstance;
 ref_ptr<BObjectImp> UninitObject::SharedInstanceOwner;
+BObjectRef UninitObject::SharedInstanceRef;
 
 UninitObject::UninitObject() : BObjectImp( OTUninit ) {}
 

@@ -576,6 +576,7 @@ public:
 
   static UninitObject* SharedInstance;
   static ref_ptr<BObjectImp> SharedInstanceOwner;
+  static BObjectRef SharedInstanceRef;
 
   BObjectImp* copy() const override;
   size_t sizeEstimate() const override;

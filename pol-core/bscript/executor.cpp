@@ -815,7 +815,13 @@ BObjectRef& Executor::LocalVar( unsigned int varnum )
 
 BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
-  passert_always_r( varnum < Globals2->size(), "Globals empty" );
+  if ( varnum < Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    UninitObject::SharedInstanceRef.set( UninitObject::SharedInstance );
+    return UninitObject::SharedInstanceRef;
+  }
   return ( *Globals2 )[varnum];
 }
 
@@ -1456,7 +1462,13 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
-  passert_always_r( (unsigned)ins.token.lval < Globals2->size(), "Globals empty" );
+  if ( (unsigned)ins.token.lval < Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    ValueStack.push_back( BObjectRef( UninitObject::create() ) );
+    return;
+  }
   ValueStack.push_back( ( *Globals2 )[ins.token.lval] );
 }
 
@@ -1689,7 +1701,13 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
-  passert_always_r( (unsigned)ins.token.lval < Globals2->size(), "Globals empty" );
+  if ( (unsigned)ins.token.lval < Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    ValueStack.pop_back();
+    return;
+  }
   BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
@@ -2377,7 +2395,13 @@ void Executor::ins_take_global( const Instruction& ins )
   passert( !ValueStack.empty() );
 
   // Globals already have an entry in the globals vector, so just index into it.
-  passert_always_r( (unsigned)ins.token.lval < Globals2->size(), "Globals empty" );
+  if ( (unsigned)ins.token.lval < Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    ValueStack.pop_back();
+    return;
+  }
   BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
