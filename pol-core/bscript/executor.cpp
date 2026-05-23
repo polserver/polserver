@@ -2946,7 +2946,6 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
   // Only store our global context if the function is external to the current program.
   if ( funcref != nullptr && funcref->prog() != prog_ )
   {
-    POLLOG_INFOLN( "different prog {}", funcref->prog()->name );
     // Store external context for the return path.
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
 
@@ -3874,7 +3873,6 @@ void Executor::show_context( std::string& os, unsigned atPC )
 void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* continuation,
                                         const Instruction& jmp )
 {
-  POLLOG_INFOLN( "CALL FUNC" );
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
   /*  if ( funcr->globals.expired() )
