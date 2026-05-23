@@ -1689,7 +1689,7 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
-  passert_always_r( (unsigned)ine.token.lval < Globals2->size(), "Globals empty" );
+  passert_always_r( (unsigned)ins.token.lval < Globals2->size(), "Globals empty" );
   BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
