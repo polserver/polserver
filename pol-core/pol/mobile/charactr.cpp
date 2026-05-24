@@ -3059,9 +3059,10 @@ void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent 
     if ( !warmode() && ( script_isa( Core::POLCLASS_NPC ) || has_active_client() ) )
       set_warmode( true );
   }
-
+  // if its the same opponent no need to send events and stuff
+  const bool different_op = new_opponent.object() != opponent_.object();
   Attackable this_att{ this };
-  if ( opponent_ )
+  if ( opponent_ && different_op )
   {
     opponent_.remove_opponent_of( this_att );
     // Turley 05/26/09 no need to send disengaged event on shutdown
@@ -3090,9 +3091,11 @@ void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent 
         if ( !mob->get_opponent() )
           mob->reset_swing_timer();
       }
-
-      opponent_.add_opponent_of( this_att );
-      opponent_.inform_engaged( this_att );
+      if ( different_op )
+      {
+        opponent_.add_opponent_of( this_att );
+        opponent_.inform_engaged( this_att );
+      }
       if ( mob )
         mob->schedule_attack();
     }
