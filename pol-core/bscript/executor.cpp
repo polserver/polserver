@@ -1466,7 +1466,7 @@ void Executor::ins_globalvar( const Instruction& ins )
   {
     POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
     seterror( true );
-    ValueStack.push_back( BObjectRef( UninitObject::create() ) );
+    ValueStack.emplace_back( UninitObject::create() );
     return;
   }
   ValueStack.push_back( ( *Globals2 )[ins.token.lval] );
