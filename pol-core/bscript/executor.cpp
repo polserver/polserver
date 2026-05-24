@@ -2973,16 +2973,10 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
 
     if ( auto shared = funcref->globals.lock() )
-    {
       Globals2 = shared;
-    }
     else
-    {
-      Globals2 = std::make_shared<BObjectRefVec>();
-      //      POLLOG_INFOLN( "Function no longer valid" );
-      //    setFunctionResult( new BError( "Function no longer valid" ) );
-      //  return;
-    }
+      Globals2 =
+          std::make_shared<BObjectRefVec>();  // empty but valid, access would stop the executor
 
     // Set the prog and globals to the external function's, updating nLines and
     // execmodules.
@@ -3898,12 +3892,6 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
 {
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
-  /*  if ( funcr->globals.expired() )
-    {
-      POLLOG_INFOLN( "expired" );
-      ValueStack.emplace_back( new BError( "expired" ) );
-      return;
-    }*/
   // Push captured parameters onto the stack prior to function parameters.
   for ( auto& p : funcr->captures )
     ValueStack.push_back( p );
