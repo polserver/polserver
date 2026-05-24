@@ -41,6 +41,7 @@
 #include "../ufunc.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "eventid.h"
 #include "itemdesc.h"
 #include "regions/resource.h"
 
@@ -1537,28 +1538,45 @@ void Item::inform_enteredarea( Mobile::Character* whoenters )
 void Item::inform_moved( Mobile::Character* moved )
 {
   Core::UOExecutor* ex = uoexec_control();
-  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+  if ( ex == nullptr ||
+       !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA | Core::EVID_OPPONENT_MOVED ) )
     return;
 
+  bool skip_area_events = false;
   if ( ( ex->area_mask & Core::EVMASK_ONLY_PC ) && moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
-    return;
-
-  if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
-    return;
+    skip_area_events = true;
+  else if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) &&
+            !moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+    skip_area_events = true;
 
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )
     return;
 
-  const bool are_inrange = in_range( moved, ex->area_size );
-  const bool were_inrange = in_range( moved->lastpos, ex->area_size );
+  if ( !skip_area_events )
+  {
+    const bool are_inrange = in_range( moved, ex->area_size );
+    const bool were_inrange = in_range( moved->lastpos, ex->area_size );
 
-  if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
-  {
-    ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+    if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
+    {
+      ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+      return;
+    }
+    else if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+    {
+      ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+      return;
+    }
   }
-  else if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+
+  if ( !is_attackable() || !has_opponent_of() || !ex->listens_to( Core::EVID_OPPONENT_MOVED ) )
+    return;
+  for ( const auto& opp : *opponent_of() )
   {
-    ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+    if ( moved != opp.object() )
+      continue;
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
+    return;
   }
 }
 
