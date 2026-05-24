@@ -78,7 +78,7 @@ exported function test_call_destroyed_executor()
     return ret_error( $"Spawned process not destroyed in time" );
   dowhile ( 0 );
 
-  spawned.SendEvent( struct{ type := "call",
+  spawned.SendEvent( struct{ type := "call_with_locals",
                              pid := GetPid(), args := { 1, 2, 3 },
                              mapper := @( what ) {
     return what * 100;
@@ -94,12 +94,62 @@ exported function test_call_destroyed_executor()
 
   var result := ev.result;
 
-  // the three globals in `destroyed` + the arguments array passed above,
+  // the two locals in `destroyed` + the arguments array passed above,
   // passed through the mapper function.
-  var expected := "dg0 dg1 dg2 DestroyedUserFunc({ 100, 200, 300 })";
+  var expected := "true hello local DestroyedUserFunc({ 100, 200, 300 })";
 
   return ret_error_not_equal( result, expected,
                               $"Unexpected return from call, expected '{expected}', actual '{result}'" );
+endfunction
+
+// calls the function in the destroyed script which access globals
+// this has to stop the calling script since its an illegal access.
+exported function test_call_destroyed_globals()
+  var res := start_script( ":testfuncref:destroyed", GetPid() );
+
+  if ( !res )
+    return res;
+  endif
+
+  var destroyed_pid := res.pid;
+
+  var ev := wait_for_event( 1 );
+
+  if ( !ev )
+    return ev;
+  elseif ( ev.type != "spawned" )
+    return ret_error( $"Unexpected event {ev}" );
+  elseif ( !ev.result )
+    return ev.result;
+  endif
+
+  var spawned := ev.result;
+
+  outer: do
+    for i := 1 to 5
+      if ( !GetProcess( destroyed_pid ) )
+        break outer;
+      endif
+      Sleepms( 1 );
+    endfor
+    return ret_error( $"Spawned process not destroyed in time" );
+  dowhile ( 0 );
+
+  spawned.SendEvent( struct{ type := "call_with_globals",
+                             pid := GetPid(), args := { 1, 2, 3 },
+                             mapper := @( what ) {
+    return what * 100;
+  } } );
+
+  ev := wait_for_event( 1 );
+
+  if ( !ev )
+    if ( spawned.state.errortext != "Script has been destroyed" )
+      return ret_error( $"Spawned script wasnt destroyed {spawned.state}" );
+    endif
+    return 1;
+  endif
+  return ret_error( $"Unexpected event {ev}" );
 endfunction
 
 function user_func()
@@ -119,3 +169,4 @@ function embedded_globals()
     }();
   }();
 endfunction
+
