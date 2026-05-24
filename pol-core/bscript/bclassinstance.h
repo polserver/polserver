@@ -48,7 +48,7 @@ private:
   unsigned int index_;
 
 public:
-  std::shared_ptr<ValueStackCont> globals;
+  std::weak_ptr<ValueStackCont> globals;
 };
 
 class BClassInstanceRef final : public BObjectImp
