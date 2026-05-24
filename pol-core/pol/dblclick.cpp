@@ -161,7 +161,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
 
   if ( item != nullptr )
   {
-    if ( item->is_attackable() )
+    if ( item->is_attackable() && client->chr->warmode() )
     {
       client->chr->set_opponent( Mobile::Attackable( item ) );
       return;
