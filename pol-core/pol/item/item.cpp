@@ -1427,7 +1427,10 @@ void Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_dama
 {
   if ( !is_attackable() )
     return;
-  hp_ -= damage;
+  if ( hp_ > damage )
+    hp_ -= damage;
+  else
+    hp_ = 0;
   set_dirty();
   increv();
   send_object_cache_to_inrange( this );
