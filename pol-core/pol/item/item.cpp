@@ -1562,7 +1562,7 @@ void Item::inform_moved( Mobile::Character* moved )
       ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
       return;
     }
-    else if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+    if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
     {
       ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
       return;
