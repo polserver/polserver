@@ -1,7 +1,12 @@
 # This is a short summary of breaking changes.
 # Please consult core-changes.txt for more information.
 
--- POL100.2.0 [work-in-progress] --
+-- POL100.3.0 [work-in-progress] --
+05-25-2026 Turley:
+    When sending classes/functionobjects to another script its no longer valid to access global variables when the sending script is destroyed before the call.
+    The calling script will stop with an error.
+    Original feature description check 08-08-2024
+-- POL100.2.0 --
 11-17-2025 Kevin:
     EquipScript/UnequipScript will now be given an OfflineCharacterRef for the equip_on/equip_by and unequip_on/unequip_by parameters,
     allowing scripts to access the mobile if the mobile is offline.
