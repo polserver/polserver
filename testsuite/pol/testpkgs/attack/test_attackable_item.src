@@ -137,7 +137,7 @@ exported function attack_check_moved( resmgn )
                                   sleep := 0, unhide := false } );
 
   // Collect engaged
-  if ( !( evs := collect_events( 1 ) ) )
+  if ( !( evs := collect_events( 1, "no event after engaged" ) ) )
     return evs;
   endif
   var engaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1];
@@ -148,7 +148,7 @@ exported function attack_check_moved( resmgn )
     return ret_error( $"wrong engaged event: {engaged_ev}" );
   endif
   MoveObjectToLocation( npc1, npc1.x - 2, npc1.y, npc1.z );
-  if ( !( evs := collect_events( 1 ) ) )
+  if ( !( evs := collect_events( 1, "no event after moveobject" ) ) )
     return evs;
   endif
   var moved_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_OPPONENT_MOVED; } )[1];
@@ -157,6 +157,88 @@ exported function attack_check_moved( resmgn )
   endif
   if ( moved_ev.source != npc1 )
     return ret_error( $"wrong moved event: {moved_ev}" );
+  endif
+
+  return 1;
+endfunction
+
+// checks on item left/enter events
+exported function check_area_events( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( npc1, item.x - 22, npc1.y, npc1.z );
+  sleepms( 10 );
+  clear_event_queue();
+  var success := false;
+  for i := 0 to 5
+    npc1.process.sendevent( struct{ type := "move_to", source := item } );
+    if ( !( evs := collect_events( 1, "" ) ) )
+      continue;
+    endif
+
+    var enter_ev := evs.filter( @( ev ) {
+      return ev.type == SYSEVENT_ENTEREDAREA;
+    } )[1];
+    if ( !enter_ev )
+      continue;
+    endif
+    if ( enter_ev.source != npc1 )
+      return ret_error( $"wrong enterarea event: {enter_ev}" );
+    endif
+    if ( Distance( item, npc1 ) != 20 )
+      return ret_error( $"wrong enter distance: {Distance( item, npc1 )}" );
+    endif
+    success := true;
+    break;
+  endfor
+  if ( !success )
+    return ret_error( "no entered area event" );
+  endif
+
+  // npc1 attacks to send both oppmoved and leffarea
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  if ( !( evs := collect_events( 1, "timeout waiting for engaged" ) ) )
+    return evs;
+  endif
+  var engaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1];
+  if ( !engaged_ev )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+  if ( engaged_ev.source != npc1 )
+    return ret_error( $"wrong engaged event: {engaged_ev}" );
+  endif
+
+  success := false;
+  for i := 0 to 5
+    npc1.process.sendevent( struct{ type := "move_away", source := item } );
+    if ( !( evs := collect_events( 1, "timeout while waiting for left area" ) ) )
+      continue;
+    endif
+
+    var enter_ev := evs.filter( @( ev ) {
+      return ev.type == SYSEVENT_LEFTAREA;
+    } )[1];
+    if ( !enter_ev )
+      continue;
+    endif
+    if ( enter_ev.source != npc1 )
+      return ret_error( $"wrong leftarea event: {enter_ev}" );
+    endif
+    if ( Distance( item, npc1 ) != 21 )
+      return ret_error( $"wrong left distance: {Distance( item, npc1 )}" );
+    endif
+    success := true;
+    break;
+  endfor
+  if ( !success )
+    return ret_error( "no left area event" );
   endif
 
   return 1;
