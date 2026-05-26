@@ -2,9 +2,9 @@ use uo;
 use os;
 include "sysevent";
 program attackable( item )
-  EnableEvents( SYSEVENT_DAMAGED | SYSEVENT_LEFTAREA | SYSEVENT_ENTEREDAREA
-                | SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED | SYSEVENT_OPPONENT_MOVED, 20 );
-
+  var eventmask := EnableEvents( SYSEVENT_DAMAGED | SYSEVENT_LEFTAREA | SYSEVENT_ENTEREDAREA
+                                 | SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED | SYSEVENT_OPPONENT_MOVED,
+                                 20 );
   while ( true )
     var ev := Wait_For_Event( 1 );
     if ( !item )
@@ -12,8 +12,7 @@ program attackable( item )
     endif
     if ( !ev )
       continue;
-    elseif ( ev.type in { SYSEVENT_ENGAGED, SYSEVENT_DISENGAGED, SYSEVENT_DAMAGED,
-                          SYSEVENT_OPPONENT_MOVED } )
+    elseif ( ev.type & eventmask )
       GetProcess( GetObjProperty( item, "#TestPid" ) ).SendEvent( ev );
     endif
   endwhile

@@ -29,6 +29,10 @@ program enteredarea()
         EnableEvents( SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED );
       elseif ( ev.type == "disable_events" )
         DisableEvents( SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED );
+      elseif ( ev.type == "move_to" )
+        RunToward( ev.source );
+      elseif ( ev.type == "move_away" )
+        RunAwayFrom( ev.source );
       endif
     endif
   endwhile
