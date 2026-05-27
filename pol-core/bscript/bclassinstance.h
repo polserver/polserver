@@ -15,7 +15,7 @@ class BClassInstance final : public BStruct
 
 public:
   BClassInstance( ref_ptr<EScriptProgram> program, int index,
-                  std::shared_ptr<ValueStackCont> globals );
+                  std::weak_ptr<ValueStackCont> globals );
   BClassInstance( const BClassInstance& B );
   ~BClassInstance() override = default;
 
@@ -48,7 +48,7 @@ private:
   unsigned int index_;
 
 public:
-  std::shared_ptr<ValueStackCont> globals;
+  std::weak_ptr<ValueStackCont> globals;
 };
 
 class BClassInstanceRef final : public BObjectImp

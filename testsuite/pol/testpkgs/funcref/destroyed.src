@@ -10,7 +10,14 @@ program destroyed( test_pid )
   return 1;
 endprogram
 
-function DestroyedUserFunc( args ... )
-  dest_glob1 := $"{dest_glob0} {dest_glob1} {dest_glob2} DestroyedUserFunc({args})";
-  return dest_glob1;
+function DestroyedUserFunc( use_globals, args... )
+  var dest_loc1 := True;
+  var dest_loc2 := "hello local";
+  if ( use_globals )
+    dest_glob1 := $"{dest_glob0} {dest_glob1} {dest_glob2} DestroyedUserFunc({args})";
+    return dest_glob1;
+  else
+    return $"{dest_loc1} {dest_loc2} DestroyedUserFunc({args})";
+  endif
 endfunction
+

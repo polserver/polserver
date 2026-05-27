@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+05-25-2026 Turley:
+    Fixed: Memoryleak when storing classes or functionobjects as global variable
+  Changed: When sending classes/functionobjects to another script its no longer valid to access global variables when the sending script is destroyed before the call.
+           The calling script will stop with an error.
+           Original feature description check 08-08-2024
 05-23-2026 Kevin:
     Added: New module function party::ListParties()
 05-10-2026 Turley:

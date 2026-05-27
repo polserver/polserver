@@ -15,6 +15,7 @@
 
 #include "executor.h"
 #include "bobject.h"
+#include "exectype.h"
 #include "executor.inl.h"
 
 #include "../clib/clib.h"
@@ -814,7 +815,13 @@ BObjectRef& Executor::LocalVar( unsigned int varnum )
 
 BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
-  passert( varnum < Globals2->size() );
+  if ( varnum >= Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    UninitObject::SharedInstanceRef.set( UninitObject::SharedInstance );
+    return UninitObject::SharedInstanceRef;
+  }
   return ( *Globals2 )[varnum];
 }
 
@@ -1455,6 +1462,13 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
+  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    ValueStack.emplace_back( UninitObject::create() );
+    return;
+  }
   ValueStack.push_back( ( *Globals2 )[ins.token.lval] );
 }
 
@@ -1687,6 +1701,13 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
+  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    ValueStack.pop_back();
+    return;
+  }
   BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
@@ -2373,7 +2394,13 @@ void Executor::ins_take_global( const Instruction& ins )
 {
   passert( !ValueStack.empty() );
 
-  // Globals already have an entry in the globals vector, so just index into it.
+  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  {
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    seterror( true );
+    ValueStack.pop_back();
+    return;
+  }
   BObjectRef& gvar = ( *Globals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
@@ -2945,11 +2972,16 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
     // Store external context for the return path.
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
 
+    if ( auto shared = funcref->globals.lock() )
+      Globals2 = shared;
+    else
+      Globals2 =
+          std::make_shared<BObjectRefVec>();  // empty but valid, access would stop the executor
+
     // Set the prog and globals to the external function's, updating nLines and
     // execmodules.
     prog_ = funcref->prog();
 
-    Globals2 = funcref->globals;
 
     nLines = static_cast<unsigned int>( prog_->instr.size() );
 
@@ -3860,7 +3892,6 @@ void Executor::call_function_reference( BFunctionRef* funcr, BContinuation* cont
 {
   // params need to be on the stack, without current objectref
   ValueStack.pop_back();
-
   // Push captured parameters onto the stack prior to function parameters.
   for ( auto& p : funcr->captures )
     ValueStack.push_back( p );
