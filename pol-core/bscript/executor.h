@@ -518,6 +518,8 @@ public:
   bool empty_scriptname();
   const EScriptProgram* prog() const;
 
+  virtual unsigned int pid() const { return 0; };
+
 private:
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;

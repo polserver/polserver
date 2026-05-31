@@ -5,7 +5,6 @@ var state;
 program prog( args )
   state := args[2];
   var parent := GetProcess( args[1] );
-  print( state );
   if ( state == "main" )
     return spawn();
   else

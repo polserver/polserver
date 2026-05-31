@@ -2726,8 +2726,8 @@ void Executor::ins_call_method_id( const Instruction& ins )
         if ( funcr->constructor() )
         {
           fparams.insert( fparams.begin(),
-                          BObjectRef( new BConstObject( new BClassInstanceRef(
-                              new BClassInstance( prog_, funcr->class_index(), Globals2 ) ) ) ) );
+                          BObjectRef( new BConstObject( new BClassInstanceRef( new BClassInstance(
+                              prog_, funcr->class_index(), Globals2, pid() ) ) ) ) );
         }
       }
 
@@ -2967,7 +2967,7 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
   }
 
   // Only store our global context if the function is external to the current program.
-  if ( funcref != nullptr && funcref->prog() != prog_ )
+  if ( funcref != nullptr && funcref->pid() != pid() )
   {
     // Store external context for the return path.
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
@@ -3255,7 +3255,7 @@ void Executor::ins_double( const Instruction& ins )
 void Executor::ins_classinst( const Instruction& ins )
 {
   ValueStack.emplace_back( new BConstObject(
-      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) );
+      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2, pid() ) ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )
@@ -3459,7 +3459,8 @@ void Executor::ins_funcref( const Instruction& ins )
 
   auto funcref_index = static_cast<unsigned>( ins.token.lval );
 
-  ValueStack.emplace_back( new BFunctionRef( prog_, funcref_index, Globals2, {} /* captures */ ) );
+  ValueStack.emplace_back(
+      new BFunctionRef( prog_, pid(), funcref_index, Globals2, {} /* captures */ ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3478,7 +3479,7 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func = new BFunctionRef( prog_, funcref_index, Globals2, std::move( captures ) );
+  auto func = new BFunctionRef( prog_, pid(), funcref_index, Globals2, std::move( captures ) );
 
   ValueStack.emplace_back( func );
 
