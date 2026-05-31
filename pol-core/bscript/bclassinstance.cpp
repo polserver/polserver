@@ -11,10 +11,11 @@
 namespace Pol::Bscript
 {
 BClassInstance::BClassInstance( ref_ptr<EScriptProgram> program, int index,
-                                std::weak_ptr<ValueStackCont> globals )
+                                std::weak_ptr<ValueStackCont> globals, unsigned int pid )
     : BStruct( OTClassInstance ),
       prog_( std::move( program ) ),
       index_( index ),
+      pid_( pid ),
       globals( std::move( globals ) )
 {
   passert( index_ < prog_->class_descriptors.size() );
@@ -24,13 +25,14 @@ BClassInstance::BClassInstance( const BClassInstance& B ) : BStruct( B, OTClassI
 {
   prog_ = B.prog_;
   index_ = B.index_;
+  pid_ = B.pid_;
   globals = B.globals;
 }
 
 size_t BClassInstance::sizeEstimate() const
 {
   return base::sizeEstimate() + Clib::memsize( constructors_called ) +
-         sizeof( ref_ptr<EScriptProgram> ) + sizeof( unsigned int ) +
+         sizeof( ref_ptr<EScriptProgram> ) + 2 * sizeof( unsigned int ) +
          sizeof( std::weak_ptr<ValueStackCont> );
 }
 
@@ -61,7 +63,7 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
   if ( method_itr == methods.end() )
     return nullptr;
 
-  return new BFunctionRef( prog_, method_itr->second.function_reference_index, globals,
+  return new BFunctionRef( prog_, pid_, method_itr->second.function_reference_index, globals,
                            ValueStackCont{} );
 }
 
@@ -184,7 +186,7 @@ BObjectRef BClassInstance::get_member_id( const int id )
     const auto funcref_index =
         prog_->class_descriptors.at( index_ ).constructor_function_reference_index;
 
-    return BObjectRef( new BFunctionRef( prog_, funcref_index, globals, ValueStackCont{} ) );
+    return BObjectRef( new BFunctionRef( prog_, pid_, funcref_index, globals, ValueStackCont{} ) );
   }
 
   return base::get_member_id( id );

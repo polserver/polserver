@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-25-2026</datemodified>
+		<datemodified>05-31-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>05-31-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">When sending classes/functionobjects to the same script but different instance the wrong globals where used</change>
+		</entry>
 		<entry>
 			<date>05-25-2026</date>
 			<author>Turley:</author>

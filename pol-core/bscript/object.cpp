@@ -2223,10 +2223,12 @@ std::string BBoolean::getStringRep() const
   return bval_ ? "true" : "false";
 }
 
-BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_reference_index,
+BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, unsigned int pid,
+                            unsigned function_reference_index,
                             std::weak_ptr<ValueStackCont> globals, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       prog_( std::move( program ) ),
+      original_pid_( pid ),
       function_reference_index_( function_reference_index ),
       globals( std::move( globals ) ),
       captures( std::move( captures ) )
@@ -2235,7 +2237,8 @@ BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_r
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.prog_, B.function_reference_index_, B.globals, ValueStackCont( B.captures ) )
+    : BFunctionRef( B.prog_, B.original_pid_, B.function_reference_index_, B.globals,
+                    ValueStackCont( B.captures ) )
 {
 }
 
@@ -2376,6 +2379,11 @@ bool BFunctionRef::variadic() const
 ref_ptr<EScriptProgram> BFunctionRef::prog() const
 {
   return prog_;
+}
+
+unsigned int BFunctionRef::pid() const
+{
+  return original_pid_;
 }
 
 unsigned BFunctionRef::class_index() const

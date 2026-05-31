@@ -14,8 +14,8 @@ class BClassInstance final : public BStruct
   using base = BStruct;
 
 public:
-  BClassInstance( ref_ptr<EScriptProgram> program, int index,
-                  std::weak_ptr<ValueStackCont> globals );
+  BClassInstance( ref_ptr<EScriptProgram> program, int index, std::weak_ptr<ValueStackCont> globals,
+                  unsigned int pid );
   BClassInstance( const BClassInstance& B );
   ~BClassInstance() override = default;
 
@@ -46,6 +46,7 @@ public:  // Class Machinery
 private:
   ref_ptr<EScriptProgram> prog_;
   unsigned int index_;
+  unsigned int pid_;
 
 public:
   std::weak_ptr<ValueStackCont> globals;

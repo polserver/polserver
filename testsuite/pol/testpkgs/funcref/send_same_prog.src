@@ -1,0 +1,31 @@
+use os;
+
+var state;
+
+program prog( args )
+  state := args[2];
+  var parent := GetProcess( args[1] );
+  if ( state == "main" )
+    return spawn();
+  else
+    parent.SendEvent( struct{ res := @() { return state; } } );
+    Wait_For_Event( 1 );
+  endif
+endprogram
+
+function spawn()
+  var spawned := start_script( ":testfuncref:send_same_prog", { GetPid(), "secondary" } );
+
+  if ( !spawned )
+    return $"failed to spawn: {spawned}";
+  endif
+
+  var ev := Wait_For_Event( 1 );
+  if ( !ev )
+    return $"no event: {ev}";
+  endif
+  var res := ev.res.call();
+  spawned.SendEvent( 1 );
+  return res;
+endfunction
+

@@ -123,7 +123,7 @@ public:
 
   void SleepFor( u32 secs );
   void SleepForMs( u32 msecs );
-  unsigned int pid() const;
+  unsigned int pid() const override;
   bool blocked() const;
   bool in_debugger_holdlist() const;
   void revive_debugged();
