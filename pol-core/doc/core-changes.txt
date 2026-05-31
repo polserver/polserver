@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+05-31-2026 Turley:
+    Fixed: When sending classes/functionobjects to the same script but different instance the wrong globals where used
 05-25-2026 Turley:
     Fixed: Memoryleak when storing classes or functionobjects as global variable
   Changed: When sending classes/functionobjects to another script its no longer valid to access global variables when the sending script is destroyed before the call.
