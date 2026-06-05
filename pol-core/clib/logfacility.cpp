@@ -260,7 +260,7 @@ LogSinkGenericFile::LogSinkGenericFile( const LogFileBehaviour* behaviour )
   open_log_file( true );
 }
 // default constructor does not open directly
-LogSinkGenericFile::LogSinkGenericFile() : LogSink()
+LogSinkGenericFile::LogSinkGenericFile() : LogSink(), _imp( new imp{} )
 {
   _imp->_behaviour = nullptr;
   _imp->_log_filename = "";
