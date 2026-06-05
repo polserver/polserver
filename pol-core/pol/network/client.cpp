@@ -22,14 +22,16 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/clib.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"  //CNXBUG
-#include "../../clib/wallclock.h"
+#include "bscript/barray.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/bstruct.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"  //CNXBUG
+#include "clib/wallclock.h"
+
 #include "../accounts/account.h"
 #include "../crypt/cryptbase.h"
 #include "../crypt/cryptengine.h"

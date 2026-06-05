@@ -1,5 +1,6 @@
 #include "handles.h"
 
+#include "../../bscript/buninit.h"
 #include "../../bscript/eprog.h"
 #include "../uoexec.h"
 

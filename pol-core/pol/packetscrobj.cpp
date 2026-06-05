@@ -19,14 +19,16 @@
 #include <iomanip>
 #include <stddef.h>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/executor.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-#include "../clib/clib_endian.h"
-#include "../clib/strutil.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/clib_endian.h"
+#include "clib/strutil.h"
+
 #include "base/position.h"
 #include "globals/network.h"
 #include "mobile/charactr.h"

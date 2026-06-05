@@ -19,13 +19,15 @@
 #include <exception>
 #include <fmt/format.h>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/refptr.h"
-#include "../plib/systemstate.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/buninit.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/refptr.h"
+#include "plib/systemstate.h"
+
 #include "globals/script_internals.h"
 #include "globals/state.h"
 #include "module/attributemod.h"

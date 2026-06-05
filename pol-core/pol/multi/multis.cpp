@@ -8,15 +8,16 @@
 
 #include <stddef.h>
 
-#include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/objmembers.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/streamsaver.h"
-#include "../../plib/uconst.h"
+#include "bscript/blong.h"
+#include "bscript/bstruct.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "clib/cfgelem.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/streamsaver.h"
+#include "plib/uconst.h"
+
 #include "../baseobject.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"

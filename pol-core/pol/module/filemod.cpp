@@ -16,16 +16,18 @@
 #include <string>
 #include <system_error>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/clib.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../plib/pkg.h"
+#include "bscript/barray.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "plib/pkg.h"
+
 #include "../binaryfilescrobj.h"
 #include "../core.h"
 #include "../globals/ucfg.h"

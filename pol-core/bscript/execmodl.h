@@ -8,9 +8,7 @@
 #ifndef BSCRIPT_EXECMODL_H
 #define BSCRIPT_EXECMODL_H
 
-#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
-#endif
 
 #include <map>
 #include <string>

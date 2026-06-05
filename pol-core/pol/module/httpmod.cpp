@@ -4,12 +4,15 @@
  */
 
 #include "httpmod.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/network/wnsckt.h"
-#include "../../clib/stlutil.h"
-#include "../../plib/systemstate.h"
+
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/logfacility.h"
+#include "clib/network/wnsckt.h"
+#include "clib/stlutil.h"
+#include "plib/systemstate.h"
+
 #include "../polwww.h"
 #include "../uoexec.h"
 

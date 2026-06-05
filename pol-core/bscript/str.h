@@ -1,12 +1,11 @@
-#ifndef __STR_H
-#define __STR_H
+#pragma once
 
-#include "bobject.h"
 #include <sstream>
 #include <string>
 
 namespace Pol::Bscript
 {
+class BObjectImp;
+bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string& frmt );
 std::string get_formatted( BObjectImp* what, std::string& frmt );
-}
-#endif
+}  // namespace Pol::Bscript

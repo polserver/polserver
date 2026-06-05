@@ -21,7 +21,8 @@
 #include <string>
 #include <time.h>
 
-#include "../bscript/impstr.h"
+#include "../bscript/barray.h"
+#include "../bscript/bstring.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"

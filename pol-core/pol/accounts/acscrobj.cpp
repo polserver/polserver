@@ -26,8 +26,10 @@
 #include <string>
 
 #include "../../bscript/berror.h"
+#include "../../bscript/blong.h"
+#include "../../bscript/bstring.h"
+#include "../../bscript/buninit.h"
 #include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 #include "../../clib/clib_MD5.h"

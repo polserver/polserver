@@ -27,15 +27,18 @@
 #include <string.h>
 #include <string>
 
-#include "../../bscript/bstruct.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/streamsaver.h"
-#include "../../plib/clidata.h"
-#include "../../plib/systemstate.h"
+#include "bscript/barray.h"
+#include "bscript/blong.h"
+#include "bscript/bstruct.h"
+#include "clib/cfgelem.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "plib/clidata.h"
+#include "plib/systemstate.h"
+
 #include "../core.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"

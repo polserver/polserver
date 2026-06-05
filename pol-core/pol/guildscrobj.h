@@ -2,12 +2,9 @@
 #define GUILDSCROBJ_H
 
 
-#ifndef BSCRIPT_BOBJECT_H
-#include "../bscript/bobject.h"
-#endif
+#include "bscript/bobject.h"
+#include "clib/rawtypes.h"
 
-#include "../clib/rawtypes.h"
-#include "../clib/weakptr.h"
 #include "globals/uvars.h"
 #include "polobject.h"
 

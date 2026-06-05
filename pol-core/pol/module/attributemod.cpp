@@ -6,8 +6,11 @@
 
 
 #include "attributemod.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
+
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+
 #include "../globals/uvars.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"

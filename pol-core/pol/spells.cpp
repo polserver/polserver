@@ -12,15 +12,17 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../bscript/eprog.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/refptr.h"
-#include "../clib/stlutil.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
+#include "bscript/blong.h"
+#include "bscript/eprog.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/refptr.h"
+#include "clib/stlutil.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+
 #include "containr.h"
 #include "globals/state.h"
 #include "globals/uvars.h"

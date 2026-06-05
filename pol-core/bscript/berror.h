@@ -11,7 +11,6 @@
 #include <string>
 
 #include "../clib/rawtypes.h"
-#include "bobject.h"
 #include "bstruct.h"
 
 

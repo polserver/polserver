@@ -2,15 +2,16 @@
 
 #include <stddef.h>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/executor.h"
-#include "../bscript/fmodule.h"
-#include "../bscript/impstr.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../plib/systemstate.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/executor.h"
+#include "bscript/fmodule.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "plib/systemstate.h"
+
 #include "fnsearch.h"
 #include "globals/network.h"
 #include "globals/settings.h"

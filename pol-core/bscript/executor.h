@@ -10,29 +10,23 @@
 
 #include "pol_global_config.h"
 
-#ifndef __EXECTYPE_H
-#include "exectype.h"
-#endif
-
-#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
-#endif
+#include "exectype.h"
 
 #include <exception>
 #include <map>
 #include <memory>
 #include <optional>
 #include <set>
-#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
-#include "berror.h"
+#include "bapplicobj.h"
+#include "bcontinuation.h"
 #include "bobject.h"
-#include "continueimp.h"
 #include "eprog.h"
 #include "executortype.h"
 

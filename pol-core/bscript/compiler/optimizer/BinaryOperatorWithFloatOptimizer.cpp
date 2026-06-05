@@ -1,5 +1,6 @@
 #include "BinaryOperatorWithFloatOptimizer.h"
 
+#include "bscript/bdouble.h"
 #include "bscript/bobject.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"

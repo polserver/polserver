@@ -12,15 +12,17 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../bscript/bstruct.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/streamsaver.h"
-#include "../../clib/strutil.h"
-#include "../../plib/systemstate.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/bstruct.h"
+#include "bscript/executor.h"
+#include "clib/cfgelem.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/streamsaver.h"
+#include "clib/strutil.h"
+#include "plib/systemstate.h"
+
 #include "../containr.h"
 #include "../dice.h"
 #include "../equipdsc.h"

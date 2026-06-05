@@ -11,10 +11,6 @@
 #include <string>
 #include <time.h>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/contiter.h"
-#include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
@@ -22,11 +18,9 @@
 #include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
-#include "../plib/poltype.h"
 #include "../plib/systemstate.h"
 #include "containr.h"
 #include "fnsearch.h"
-#include "globals/object_storage.h"
 #include "globals/uvars.h"
 #include "item/item.h"
 #include "loaddata.h"
@@ -56,7 +50,6 @@ size_t StorageArea::estimateSize() const
   size_t size = _name.capacity() + Clib::memsize( _items );
   return size;
 }
-
 
 Items::Item* StorageArea::find_root_item( const std::string& name )
 {
@@ -274,145 +267,5 @@ size_t Storage::estimateSize() const
       size += area.second->estimateSize();
   }
   return size;
-}
-
-class StorageAreaIterator final : public ContIterator
-{
-public:
-  StorageAreaIterator( StorageArea* area, BObject* pIter );
-  BObject* step() override;
-
-private:
-  BObject* m_pIterVal;
-  std::string key;
-  StorageArea* _area;
-};
-
-StorageAreaIterator::StorageAreaIterator( StorageArea* area, BObject* pIter )
-    : ContIterator(), m_pIterVal( pIter ), key( "" ), _area( area )
-{
-}
-
-BObject* StorageAreaIterator::step()
-{
-  StorageArea::Cont::iterator itr = _area->_items.lower_bound( key );
-  if ( !key.empty() && itr != _area->_items.end() )
-  {
-    ++itr;
-  }
-
-  if ( itr == _area->_items.end() )
-    return nullptr;
-
-  key = ( *itr ).first;
-  m_pIterVal->setimp( new String( key ) );
-  BObject* result = new BObject( make_itemref( ( *itr ).second ) );
-  return result;
-}
-
-ContIterator* StorageAreaImp::createIterator( BObject* pIterVal )
-{
-  return new StorageAreaIterator( _area, pIterVal );
-}
-
-BObjectRef StorageAreaImp::get_member( const char* membername )
-{
-  if ( stricmp( membername, "count" ) == 0 )
-  {
-    return BObjectRef( new BLong( static_cast<int>( _area->_items.size() ) ) );
-  }
-  if ( stricmp( membername, "totalcount" ) == 0 )
-  {
-    unsigned int total = 0;
-    for ( auto& _item : _area->_items )
-    {
-      Items::Item* item = _item.second;
-      total += item->item_count();
-    }
-    return BObjectRef( new BLong( total ) );
-  }
-  return BObjectRef( UninitObject::create() );
-}
-
-
-class StorageAreasIterator final : public ContIterator
-{
-public:
-  StorageAreasIterator( BObject* pIter );
-  BObject* step() override;
-
-private:
-  BObject* m_pIterVal;
-  std::string key;
-};
-
-StorageAreasIterator::StorageAreasIterator( BObject* pIter )
-    : ContIterator(), m_pIterVal( pIter ), key( "" )
-{
-}
-
-BObject* StorageAreasIterator::step()
-{
-  Storage::AreaCont::iterator itr = gamestate.storage.areas.lower_bound( key );
-  if ( !key.empty() && itr != gamestate.storage.areas.end() )
-  {
-    ++itr;
-  }
-
-  if ( itr == gamestate.storage.areas.end() )
-    return nullptr;
-
-  key = ( *itr ).first;
-  m_pIterVal->setimp( new String( key ) );
-  BObject* result = new BObject( new StorageAreaImp( ( *itr ).second ) );
-  return result;
-}
-
-class StorageAreasImp final : public BObjectImp
-{
-public:
-  StorageAreasImp() : BObjectImp( BObjectImp::OTUnknown ) {}
-  BObjectImp* copy() const override { return new StorageAreasImp(); }
-  std::string getStringRep() const override { return "<StorageAreas>"; }
-  size_t sizeEstimate() const override { return sizeof( *this ); }
-  ContIterator* createIterator( BObject* pIterVal ) override
-  {
-    return new StorageAreasIterator( pIterVal );
-  }
-
-  BObjectRef get_member( const char* membername ) override;
-
-  BObjectRef OperSubscript( const BObject& obj ) override;
-};
-
-BObjectImp* CreateStorageAreasImp()
-{
-  return new StorageAreasImp();
-}
-
-BObjectRef StorageAreasImp::get_member( const char* membername )
-{
-  if ( stricmp( membername, "count" ) == 0 )
-  {
-    return BObjectRef( new BLong( static_cast<int>( gamestate.storage.areas.size() ) ) );
-  }
-  return BObjectRef( UninitObject::create() );
-}
-BObjectRef StorageAreasImp::OperSubscript( const BObject& obj )
-{
-  if ( obj.isa( OTString ) )
-  {
-    String& rtstr = (String&)obj.impref();
-    std::string key = rtstr.value();
-
-    Storage::AreaCont::iterator itr = gamestate.storage.areas.find( key );
-    if ( itr != gamestate.storage.areas.end() )
-    {
-      return BObjectRef( new BObject( new StorageAreaImp( ( *itr ).second ) ) );
-    }
-
-    return BObjectRef( new BObject( new BError( "Storage Area not found" ) ) );
-  }
-  return BObjectRef( new BObject( new BError( "Invalid parameter type" ) ) );
 }
 }  // namespace Pol::Core

@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <string.h>
 
-#include "../bscript/impstr.h"
+#include "../bscript/bstring.h"
 #include "mobile/charactr.h"
 #include "network/packethelper.h"
 #include "network/pktdef.h"

@@ -12,19 +12,23 @@
 #include <string>
 #include <utility>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/contiter.h"
-#include "../../bscript/dict.h"
-#include "../../bscript/execmodl.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
-#include "../../bscript/objmembers.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../../clib/strutil.h"
-#include "../../plib/pkg.h"
+#include "bscript/barray.h"
+#include "bscript/bdict.h"
+#include "bscript/bdouble.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/bstruct.h"
+#include "bscript/buninit.h"
+#include "bscript/contiter.h"
+#include "bscript/execmodl.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/strutil.h"
+#include "plib/pkg.h"
+
 #include "../cfgrepos.h"
 
 #include <module_defs/cfgfile.h>

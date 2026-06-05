@@ -28,15 +28,17 @@
 #include <iterator>
 #include <string>
 
-#include "../bscript/eprog.h"
-#include "../bscript/impstr.h"
-#include "../clib/clib_endian.h"
-#include "../clib/fdump.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
-#include "../plib/systemstate.h"
-#include "../plib/uconst.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/eprog.h"
+#include "clib/clib_endian.h"
+#include "clib/fdump.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "plib/systemstate.h"
+#include "plib/uconst.h"
+
 #include "accounts/account.h"
 #include "cmbtcfg.h"
 #include "fnsearch.h"

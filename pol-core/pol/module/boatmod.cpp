@@ -10,9 +10,11 @@
 #include "boatmod.h"
 #include <stddef.h>
 
-#include "../../bscript/berror.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/uconst.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
+
 #include "../multi/boat.h"
 #include "../multi/multi.h"
 #include "../realms/realm.h"

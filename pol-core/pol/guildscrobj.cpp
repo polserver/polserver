@@ -1,9 +1,10 @@
 #include "guildscrobj.h"
 
-#include "../clib/stlutil.h"
+#include "bscript/bboolean.h"
+#include "clib/stlutil.h"
+
 #include "guilds.h"
 #include <stddef.h>
-#include <string>
 
 
 namespace Pol::Module

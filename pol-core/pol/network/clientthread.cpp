@@ -6,15 +6,16 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/esignal.h"
-#include "../../clib/fdump.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/network/singlepoller.h"
-#include "../../clib/passert.h"
-#include "../../clib/spinlock.h"
-#include "../../clib/stlutil.h"
-#include "../../plib/systemstate.h"
+#include "bscript/blong.h"
+#include "clib/esignal.h"
+#include "clib/fdump.h"
+#include "clib/logfacility.h"
+#include "clib/network/singlepoller.h"
+#include "clib/passert.h"
+#include "clib/spinlock.h"
+#include "clib/stlutil.h"
+#include "plib/systemstate.h"
+
 #include "../accounts/account.h"
 #include "../clib/network/sockets.h"
 #include "../core.h"

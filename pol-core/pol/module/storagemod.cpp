@@ -8,24 +8,21 @@
 #include "storagemod.h"
 #include <stddef.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/clib.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/clib.h"
+
 #include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../storage.h"
+#include "../storagescrobj.h"
 #include "../uoscrobj.h"
 #include "realms/realms.h"
 
 #include <module_defs/storage.h>
 
-namespace Pol
-{
-namespace Core
-{
-Bscript::BObjectImp* CreateStorageAreasImp();
-}
-namespace Module
+namespace Pol::Module
 {
 using namespace Bscript;
 
@@ -121,5 +118,4 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 
   return new EItemRefObjImp( item );
 }
-}  // namespace Module
-}  // namespace Pol
+}  // namespace Pol::Module

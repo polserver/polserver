@@ -13,18 +13,20 @@
 #include <string>
 #include <system_error>
 
-#include "../bscript/bstruct.h"
-#include "../bscript/impstr.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-#include "bscript/dict.h"
+#include "bscript/barray.h"
+#include "bscript/bdict.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/bstruct.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/fileutil.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
 #include "globals/uvars.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
 
 namespace Pol::Core
 {

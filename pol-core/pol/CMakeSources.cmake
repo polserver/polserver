@@ -377,6 +377,8 @@ set (pol_sources  # sorted !
   statmsg.h
   storage.cpp
   storage.h
+  storagescrobj.cpp
+  storagescrobj.h
   syshook.cpp
   syshook.h
   syshookscript.cpp

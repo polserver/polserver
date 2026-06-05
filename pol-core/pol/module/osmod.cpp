@@ -5,11 +5,14 @@
 
 #include "osmod.h"
 
+#include "bscript/barray.h"
+#include "bscript/bdict.h"
+#include "bscript/bdouble.h"
 #include "bscript/berror.h"
-#include "bscript/bobject.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
 #include "bscript/bstruct.h"
-#include "bscript/dict.h"
-#include "bscript/impstr.h"
+#include "bscript/buninit.h"
 #include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/network/sckutil.h"

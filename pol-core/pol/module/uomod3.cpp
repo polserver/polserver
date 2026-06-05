@@ -5,7 +5,9 @@
  * - 2005/09/30 Shinigami: added Player Check to mf_SendStatus (crashed on NPCs)
  */
 
-#include "../../bscript/berror.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+
 #include "../mobile/charactr.h"
 #include "../statmsg.h"
 #include "uomod.h"
