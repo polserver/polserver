@@ -2,6 +2,8 @@
 
 #include "bobjectimp.h"
 
+#include <memory>
+
 namespace Pol::Bscript
 {
 
