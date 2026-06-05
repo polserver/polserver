@@ -34,6 +34,10 @@
 #include "../pol/module/mathmod.h"
 #include "../pol/module/utilmod.h"
 
+#if BOBJECTIMP_DEBUG
+#include "bscript/object.h"
+#endif
+
 namespace Pol
 {
 namespace Core
