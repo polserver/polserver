@@ -1,5 +1,7 @@
 #include "bapplicobj.h"
 
+#include <ostream>
+
 namespace Pol::Bscript
 {
 std::string BApplicObjBase::getStringRep() const

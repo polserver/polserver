@@ -14,6 +14,8 @@
 #include "objmethods.h"
 
 #if BOBJECTIMP_DEBUG
+#include "../clib/logfacility.h"
+#include "escriptv.h"
 #include <unordered_map>
 #endif
 
