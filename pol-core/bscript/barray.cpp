@@ -14,6 +14,7 @@
 #include "executor.inl.h"
 #include "objmembers.h"
 #include "objmethods.h"
+#include "str.h"
 
 namespace Pol::Bscript
 {

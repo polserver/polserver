@@ -7,8 +7,6 @@
  */
 #pragma once
 
-#include <fmt/ostream.h>
-
 #include "bobjectimp.h"
 
 #include "../clib/fixalloc.h"
@@ -155,12 +153,3 @@ public:
 };
 
 }  // namespace Pol::Bscript
-
-template <>
-struct fmt::formatter<Pol::Bscript::BObjectImp> : fmt::ostream_formatter
-{
-};
-template <>
-struct fmt::formatter<Pol::Bscript::BObject> : fmt::ostream_formatter
-{
-};

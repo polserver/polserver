@@ -27,6 +27,7 @@
 #include "bboolean.h"
 #include "bclassinstance.h"
 #include "bcontinuation.h"
+#include "bcontiter.h"
 #include "bdict.h"
 #include "bdouble.h"
 #include "berror.h"
@@ -36,7 +37,6 @@
 #include "bspread.h"
 #include "bstring.h"
 #include "config.h"
-#include "contiter.h"
 #include "eprog.h"
 #include "escriptv.h"
 #include "execmodl.h"
@@ -1013,25 +1013,6 @@ BObjectRef Executor::checkmember( BObject& left, const BObject& right )
   const String& varname = right.impref<const String>();
 
   return left.impref().operDotQMark( varname.data() );
-}
-
-
-ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown ) {}
-BObject* ContIterator::step()
-{
-  return nullptr;
-}
-BObjectImp* ContIterator::copy() const
-{
-  return nullptr;
-}
-size_t ContIterator::sizeEstimate() const
-{
-  return sizeof( ContIterator );
-}
-std::string ContIterator::getStringRep() const
-{
-  return "<iterator>";
 }
 
 class ArrayIterator final : public ContIterator

@@ -12,7 +12,7 @@
 #include <string>
 #include <tinyxml/tinyxml.h>
 
-#include "../bscript/contiter.h"
+#include "../bscript/bcontiter.h"
 #include "../clib/rawtypes.h"
 
 

@@ -13,6 +13,8 @@ set (bscript_sources    # sorted !
   bclassinstance.h
   bcontinuation.cpp
   bcontinuation.h
+  bcontiter.cpp
+  bcontiter.h
   bdict.cpp
   bdict.h
   bdouble.cpp
@@ -390,7 +392,6 @@ set (bscript_sources    # sorted !
   compilercfg.cpp
   compilercfg.h
   config.h
-  contiter.h
   eprog.cpp
   eprog.h
   eprog_read.cpp

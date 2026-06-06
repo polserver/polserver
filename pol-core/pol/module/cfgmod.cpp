@@ -13,6 +13,7 @@
 #include <utility>
 
 #include "bscript/barray.h"
+#include "bscript/bcontiter.h"
 #include "bscript/bdict.h"
 #include "bscript/bdouble.h"
 #include "bscript/berror.h"
@@ -20,7 +21,6 @@
 #include "bscript/bstring.h"
 #include "bscript/bstruct.h"
 #include "bscript/buninit.h"
-#include "bscript/contiter.h"
 #include "bscript/execmodl.h"
 #include "bscript/executor.h"
 #include "bscript/objmembers.h"

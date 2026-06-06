@@ -6,8 +6,8 @@
 
 #include "berror.h"
 
+#include "bcontiter.h"
 #include "bstring.h"
-#include "contiter.h"
 
 
 namespace Pol::Bscript
