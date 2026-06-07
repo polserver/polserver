@@ -1,3 +1,4 @@
+#include "bcontinuation.h"
 #include "berror.h"
 #include "bfuncref.h"
 #include "bobject.h"

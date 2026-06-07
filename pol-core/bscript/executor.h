@@ -25,7 +25,6 @@
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
 #include "bapplicobj.h"
-#include "bcontinuation.h"
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
@@ -48,7 +47,6 @@ namespace Bscript
 class BContinuation;
 class BFunctionRef;
 class Executor;
-class EScriptProgram;
 class ExecutorModule;
 class ModuleFunction;
 class String;

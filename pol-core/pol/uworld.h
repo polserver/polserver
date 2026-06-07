@@ -22,13 +22,9 @@
 #ifndef __CHARACTR_H
 #include "mobile/charactr.h"
 #endif
-#include <algorithm>
-#include <vector>
 
-#include "../clib/passert.h"
 #include "../clib/rawtypes.h"
 #include "../plib/realmdescriptor.h"
-#include "../plib/uconst.h"
 #include "base/position.h"
 #include "base/range.h"
 #include "globals/uvars.h"
