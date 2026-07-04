@@ -40,7 +40,7 @@ jobs:
             tests: true
             name: Linux Clang
           
-          - os: "macos-14"
+          - os: "macos-15"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: default

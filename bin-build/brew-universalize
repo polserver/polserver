@@ -16,6 +16,7 @@ done
 MACOS_VERSION=$(/usr/bin/sw_vers -productVersion)
 
 case $MACOS_VERSION in
+15.*) MACOS_RELEASE="sequoia" ;;
 14.*) MACOS_RELEASE="sonoma" ;;
 13.*) MACOS_RELEASE="ventura" ;;
 12.*) MACOS_RELEASE="monterey" ;;
