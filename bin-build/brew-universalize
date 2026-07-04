@@ -57,18 +57,88 @@ echo "macOS release: $MACOS_RELEASE [$ARCH_THIS]"
 echo "brew info download property: $DOWNLOAD_PROPERTY"
 echo "Work directory: $WORK_DIR"
 
-DOWNLOAD_URLS=$(brew info --json "$@" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "sonoma" \
+BREW_INFO_JSON=$(brew info --json "$@")
+
+info=$(echo "$BREW_INFO_JSON" | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
+echo "info: $info"
+
+# Homebrew has been dropping Intel bottles for actively-updated formulae
+# ahead of its documented September 2026 Intel deprecation. That means
+# files[$prop] -- and even the documented "fall back to the previous OS's
+# Intel bottle" behavior -- can legitimately be absent. Split dependencies
+# into those with a usable bottle and those we'll build from source instead.
+BOTTLED_FORMULAE=()
+while IFS= read -r NAME; do
+  [ -n "$NAME" ] && BOTTLED_FORMULAE+=("$NAME")
+done < <(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "sonoma" \
+  '.[] | select((.bottle.stable.files[$prop] // .bottle.stable.files[$fallback])) | .name')
+
+SOURCE_FORMULAE=()
+while IFS= read -r NAME; do
+  [ -n "$NAME" ] && SOURCE_FORMULAE+=("$NAME")
+done < <(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "sonoma" \
+  '.[] | select((.bottle.stable.files[$prop] // .bottle.stable.files[$fallback]) | not) | .name')
+
+DOWNLOAD_URLS=$(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "sonoma" \
   '.[] | (.bottle.stable.files[$prop] // .bottle.stable.files[$fallback]).url // empty')
 
-info=$(brew info --json "$@" | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
-echo "info: $info"
+echo "Bottled (${#BOTTLED_FORMULAE[@]}): ${BOTTLED_FORMULAE[*]:-none}"
+echo "From source (${#SOURCE_FORMULAE[@]}): ${SOURCE_FORMULAE[*]:-none}"
 echo "urls: $DOWNLOAD_URLS"
 
-echo "$DOWNLOAD_URLS" | wget --no-verbose -P $WORK_DIR --header "Authorization: Bearer QQ==" -i -
+if [ -n "$DOWNLOAD_URLS" ]; then
+  echo "$DOWNLOAD_URLS" | wget --no-verbose -P "$WORK_DIR" --header "Authorization: Bearer QQ==" -i -
 
-for DOWNLOAD_URL in $DOWNLOAD_URLS; do
-  tar xfz $WORK_DIR/$(basename $DOWNLOAD_URL) -C $WORK_DIR
-done
+  for DOWNLOAD_URL in $DOWNLOAD_URLS; do
+    tar xfz "$WORK_DIR/$(basename "$DOWNLOAD_URL")" -C "$WORK_DIR"
+  done
+fi
+
+if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
+  BREW_OTHER="$HOMEBREW_PREFIX_OTHER/bin/brew"
+
+  if [ ! -x "$BREW_OTHER" ]; then
+    printf "No %s (or sonoma-fallback) bottle for: %s\n" "$DOWNLOAD_PROPERTY" "${SOURCE_FORMULAE[*]}" >&2
+    printf "Tried to build from source instead, but found no %s Homebrew at %s.\n" "$ARCH_OTHER" "$BREW_OTHER" >&2
+    printf 'Install one first, e.g.: arch -%s /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"\n' "$ARCH_OTHER" >&2
+    exit 1
+  fi
+
+  echo "Building from source for $ARCH_OTHER: ${SOURCE_FORMULAE[*]}"
+
+  arch "-$ARCH_OTHER" "$BREW_OTHER" update
+
+  # Build fresh if not yet installed on the other-arch Homebrew; reinstall
+  # (still forcing a source build) if a previous run already bottled it in.
+  if ! arch "-$ARCH_OTHER" "$BREW_OTHER" install --build-from-source "${SOURCE_FORMULAE[@]}"; then
+    arch "-$ARCH_OTHER" "$BREW_OTHER" reinstall --build-from-source "${SOURCE_FORMULAE[@]}"
+  fi
+
+  for SOURCE_FORMULA in "${SOURCE_FORMULAE[@]}"; do
+    SOURCE_VERSION=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$SOURCE_FORMULA" '.[] | select(.name == $name) | .versions.stable')
+    SOURCE_CELLAR_DIR="$HOMEBREW_CELLAR_OTHER/$SOURCE_FORMULA/$SOURCE_VERSION"
+
+    if [ ! -d "$SOURCE_CELLAR_DIR" ]; then
+      # Revision suffixes (e.g. "_1") aren't part of versions.stable, so fall
+      # back to whatever's actually there. `ls -t` (unlike GNU-only
+      # `sort -V`) works with both BSD (macOS) and GNU sort/ls, and the
+      # formula we just built/reinstalled will be the most recently modified
+      # entry.
+      SOURCE_CELLAR_DIR=$(ls -t "$HOMEBREW_CELLAR_OTHER/$SOURCE_FORMULA" 2>/dev/null | head -n1)
+      [ -n "$SOURCE_CELLAR_DIR" ] && SOURCE_CELLAR_DIR="$HOMEBREW_CELLAR_OTHER/$SOURCE_FORMULA/$SOURCE_CELLAR_DIR"
+    fi
+
+    if [ -z "$SOURCE_CELLAR_DIR" ] || [ ! -d "$SOURCE_CELLAR_DIR" ]; then
+      echo "Built $SOURCE_FORMULA from source but found nothing under $HOMEBREW_CELLAR_OTHER/$SOURCE_FORMULA" >&2
+      exit 1
+    fi
+
+    # Stage it the same way a downloaded-and-extracted bottle would land,
+    # so the merge loop below doesn't need to know how it got here.
+    mkdir -p "$WORK_DIR/$SOURCE_FORMULA"
+    cp -R "$SOURCE_CELLAR_DIR" "$WORK_DIR/$SOURCE_FORMULA/"
+  done
+fi
 
 for MERGING_LIB in $(find $WORK_DIR -iname '*.dylib' -type f); do
   EXISTING_LIB="${MERGING_LIB/$WORK_DIR/$HOMEBREW_PREFIX/Cellar}"
