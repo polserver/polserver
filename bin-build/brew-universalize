@@ -57,7 +57,7 @@ echo "macOS release: $MACOS_RELEASE [$ARCH_THIS]"
 echo "brew info download property: $DOWNLOAD_PROPERTY"
 echo "Work directory: $WORK_DIR"
 
-info =$(brew info --json "$@" | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
+info=$(brew info --json "$@" | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
 echo "info: $info"
 
 DOWNLOAD_URLS=$(brew info --json $@ | jq -r '.[] | .bottle.stable.files[. = "'$DOWNLOAD_PROPERTY'"].url')
