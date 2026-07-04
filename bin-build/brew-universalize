@@ -62,6 +62,7 @@ DOWNLOAD_URLS=$(brew info --json "$@" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --
 
 info=$(brew info --json "$@" | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
 echo "info: $info"
+echo "urls: $DOWNLOAD_URLS"
 
 echo "$DOWNLOAD_URLS" | wget --no-verbose -P $WORK_DIR --header "Authorization: Bearer QQ==" -i -
 
