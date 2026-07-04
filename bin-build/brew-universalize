@@ -40,10 +40,12 @@ if [ "$ARCH_THIS" == "arm64" ]; then
   ARCH_OTHER=x86_64
   HOMEBREW_PREFIX_OTHER=/usr/local
   DOWNLOAD_PROPERTY=$MACOS_RELEASE
+  FALLBACK_PROPERTY="sonoma"
 else
   ARCH_OTHER=arm64
   HOMEBREW_PREFIX_OTHER=/opt/homebrew
   DOWNLOAD_PROPERTY="arm64_$MACOS_RELEASE"
+  FALLBACK_PROPERTY="arm64_sonoma"
 fi
 
 HOMEBREW_CELLAR_OTHER=$HOMEBREW_PREFIX_OTHER/Cellar
@@ -70,16 +72,16 @@ echo "info: $info"
 BOTTLED_FORMULAE=()
 while IFS= read -r NAME; do
   [ -n "$NAME" ] && BOTTLED_FORMULAE+=("$NAME")
-done < <(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "sonoma" \
+done < <(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "$FALLBACK_PROPERTY" \
   '.[] | select((.bottle.stable.files[$prop] // .bottle.stable.files[$fallback])) | .name')
 
 SOURCE_FORMULAE=()
 while IFS= read -r NAME; do
   [ -n "$NAME" ] && SOURCE_FORMULAE+=("$NAME")
-done < <(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "sonoma" \
+done < <(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "$FALLBACK_PROPERTY" \
   '.[] | select((.bottle.stable.files[$prop] // .bottle.stable.files[$fallback]) | not) | .name')
 
-DOWNLOAD_URLS=$(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "sonoma" \
+DOWNLOAD_URLS=$(echo "$BREW_INFO_JSON" | jq -r --arg prop "$DOWNLOAD_PROPERTY" --arg fallback "$FALLBACK_PROPERTY" \
   '.[] | (.bottle.stable.files[$prop] // .bottle.stable.files[$fallback]).url // empty')
 
 echo "Bottled (${#BOTTLED_FORMULAE[@]}): ${BOTTLED_FORMULAE[*]:-none}"
@@ -98,10 +100,29 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
   BREW_OTHER="$HOMEBREW_PREFIX_OTHER/bin/brew"
 
   if [ ! -x "$BREW_OTHER" ]; then
-    printf "No %s (or sonoma-fallback) bottle for: %s\n" "$DOWNLOAD_PROPERTY" "${SOURCE_FORMULAE[*]}" >&2
-    printf "Tried to build from source instead, but found no %s Homebrew at %s.\n" "$ARCH_OTHER" "$BREW_OTHER" >&2
-    printf 'Install one first, e.g.: arch -%s /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"\n' "$ARCH_OTHER" >&2
-    exit 1
+    # Rosetta 2 only translates x86_64 -> arm64, never the reverse, so an
+    # Intel machine cannot run arm64 code at all -- bootstrapping is
+    # impossible here, not just missing.
+    if [ "$ARCH_OTHER" = "arm64" ]; then
+      echo "No arm64 Homebrew at $HOMEBREW_PREFIX_OTHER, and none can be bootstrapped here:" >&2
+      echo "Rosetta 2 translates x86_64 -> arm64, not the reverse, so arm64 code can't" >&2
+      echo "run on this Intel machine at all. Build $ARCH_OTHER natively on Apple Silicon." >&2
+      exit 1
+    fi
+
+    echo "No $ARCH_OTHER Homebrew at $HOMEBREW_PREFIX_OTHER for: ${SOURCE_FORMULAE[*]}"
+    echo "Bootstrapping one now (one-time setup; later runs on this machine will skip this)."
+
+    NONINTERACTIVE=1 arch "-$ARCH_OTHER" /bin/bash -c \
+      "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    if [ ! -x "$BREW_OTHER" ]; then
+      echo "Bootstrapped $ARCH_OTHER Homebrew, but $BREW_OTHER still doesn't exist" >&2
+      echo "(installer may have failed, or installed to a different prefix)." >&2
+      exit 1
+    fi
+
+    echo "$ARCH_OTHER Homebrew ready at $HOMEBREW_PREFIX_OTHER"
   fi
 
   echo "Building from source for $ARCH_OTHER: ${SOURCE_FORMULAE[*]}"
