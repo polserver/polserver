@@ -59,6 +59,7 @@ debug_info=$(brew info --json $@ | jq -r '.[] | "\(.name): \(.bottle.stable.file
 echo "brew info: $debug_info"
 
 DOWNLOAD_URLS=$(brew info --json $@ | jq -r '.[] | .bottle.stable.files[. = "'$DOWNLOAD_PROPERTY'"].url')
+echo "urls: $DOWNLOAD_URLS"
 
 echo "$DOWNLOAD_URLS" | wget --no-verbose -P $WORK_DIR --header "Authorization: Bearer QQ==" -i -
 
