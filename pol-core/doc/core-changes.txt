@@ -1,4 +1,16 @@
 -- POL100.3.0 --
+07-04-2026 Nando:
+    Fixed: Webserver performance: Nagle's algorithm is now disabled for HTTP connections,
+           responses are sent in single network operations with Content-Length and
+           Connection headers, and file transfers use a larger buffer.
+    Fixed: Webserver: data race when config/www.cfg was reloaded while requests were
+           being served, transient accept() errors no longer terminate the webserver
+           thread, error pages no longer reflect unescaped request data (XSS), and
+           sending to a stalled peer no longer busy-loops the CPU.
+  Changed: Webserver only accepts GET requests (405 otherwise) and limits requests to
+           64 header lines read within 10 seconds.
+  Changed: Webserver: the built-in MIME type list (used when config/www.cfg does not
+           exist) now also covers css, json, svg, txt, webp, woff2 and wasm.
 05-31-2026 Turley:
     Fixed: When sending classes/functionobjects to the same script but different instance the wrong globals where used
 05-25-2026 Turley:

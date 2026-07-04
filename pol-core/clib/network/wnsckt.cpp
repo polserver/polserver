@@ -568,9 +568,34 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   return 0;
 }
 
-void Socket::send( const void* vdata, unsigned datalen )
+// Waits until the socket becomes writable, an error occurs, or waitms expires.
+static bool wait_for_writable( SOCKET sck, unsigned int waitms )
+{
+  SinglePoller poller( sck );
+  poller.set_timeout( waitms );
+
+  if ( !poller.prepare( true ) )
+    throw std::runtime_error( "Unable to poll socket=" + tostring( sck ) );
+
+  int res;
+  do
+  {
+    res = poller.wait_for_events();
+  } while ( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+
+  return poller.writable() && !poller.error();
+}
+
+void Socket::send( const void* vdata, unsigned length )
 {
   const char* cdata = static_cast<const char*>( vdata );
+  unsigned datalen = length;
+
+  // maximum time to wait for the peer to drain its receive buffer before
+  // considering the connection dead
+  const unsigned int max_wait_ms = 60 * 1000;
+  const unsigned int wait_slice_ms = 500;
+  unsigned int waited_ms = 0;
 
   while ( datalen )
   {
@@ -580,7 +605,14 @@ void Socket::send( const void* vdata, unsigned datalen )
       int sckerr = socket_errno;
       if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
       {
-        // FIXME sleep
+        if ( exit_signalled || waited_ms >= max_wait_ms )
+        {
+          INFO_PRINTLN( "Socket::send() timed out waiting for peer to receive" );
+          close();
+          return;
+        }
+        if ( !wait_for_writable( _sck, wait_slice_ms ) )
+          waited_ms += wait_slice_ms;
         continue;
       }
 
@@ -589,6 +621,7 @@ void Socket::send( const void* vdata, unsigned datalen )
       return;
     }
 
+    waited_ms = 0;  // made progress, reset the stall budget
     datalen -= res;
     cdata += res;
   }

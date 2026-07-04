@@ -13,3 +13,4 @@ build/
 .vscode
 compile_commands.json
 /.cache
+CLAUDE.local.md
