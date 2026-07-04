@@ -58,10 +58,10 @@ echo "Work directory: $WORK_DIR"
 debug_info=$(brew info --json $@ | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
 echo "brew info: $debug_info"
 
-DOWNLOAD_URLS=$(brew info --json $@ | jq -r '.[] | .bottle.stable.files[. = "'$DOWNLOAD_PROPERTY'"].url')
+DOWNLOAD_URLS=$(brew info --json "$@" | jq -r --arg prop "$DOWNLOAD_PROPERTY" '.[] | .bottle.stable.files[$prop].url // empty')
 echo "urls: $DOWNLOAD_URLS"
 
-echo "$DOWNLOAD_URLS" | wget --no-verbose -P $WORK_DIR --header "Authorization: Bearer QQ==" -i -
+echo "$DOWNLOAD_URLS" | wget --no-verbose -P "$WORK_DIR" --header "Authorization: Bearer QQ==" -i -
 
 for DOWNLOAD_URL in $DOWNLOAD_URLS; do
   tar xfz $WORK_DIR/$(basename $DOWNLOAD_URL) -C $WORK_DIR
