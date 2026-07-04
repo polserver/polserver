@@ -16,7 +16,7 @@ done
 MACOS_VERSION=$(/usr/bin/sw_vers -productVersion)
 
 case $MACOS_VERSION in
-15.*) MACOS_RELEASE="sequoia" ;;
+15.*) MACOS_RELEASE="seqoia" ;;
 14.*) MACOS_RELEASE="sonoma" ;;
 13.*) MACOS_RELEASE="ventura" ;;
 12.*) MACOS_RELEASE="monterey" ;;
@@ -39,28 +39,30 @@ ARCH_THIS=$(uname -m)
 if [ "$ARCH_THIS" == "arm64" ]; then
   ARCH_OTHER=x86_64
   HOMEBREW_PREFIX_OTHER=/usr/local
+  DOWNLOAD_PROPERTY=$MACOS_RELEASE
 else
   ARCH_OTHER=arm64
   HOMEBREW_PREFIX_OTHER=/opt/homebrew
+  DOWNLOAD_PROPERTY="arm64_$MACOS_RELEASE"
 fi
-DOWNLOAD_PROPERTY="arm64_$MACOS_RELEASE"
 
 HOMEBREW_CELLAR_OTHER=$HOMEBREW_PREFIX_OTHER/Cellar
 
 WORK_DIR=$(mktemp -d)
 
+brew update
+
 echo "Homebrew prefix: $HOMEBREW_PREFIX"
 echo "macOS release: $MACOS_RELEASE [$ARCH_THIS]"
-echo "brew info download property: '$DOWNLOAD_PROPERTY'"
+echo "brew info download property: $DOWNLOAD_PROPERTY"
 echo "Work directory: $WORK_DIR"
 
-debug_info=$(brew info --json $@ | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
-echo "brew info: '$debug_info'"
+info =$(brew info --json "$@" | jq -r '.[] | "\(.name): \(.bottle.stable.files | keys | join(", "))"')
+echo "info: $info"
 
-DOWNLOAD_URLS=$(brew info --json "$@" | jq -r --arg prop "$DOWNLOAD_PROPERTY" '.[] | .bottle.stable.files[$prop].url // empty')
-echo "urls: '$DOWNLOAD_URLS'"
+DOWNLOAD_URLS=$(brew info --json $@ | jq -r '.[] | .bottle.stable.files[. = "'$DOWNLOAD_PROPERTY'"].url')
 
-echo "$DOWNLOAD_URLS" | wget --no-verbose -P "$WORK_DIR" --header "Authorization: Bearer QQ==" -i -
+echo "$DOWNLOAD_URLS" | wget --no-verbose -P $WORK_DIR --header "Authorization: Bearer QQ==" -i -
 
 for DOWNLOAD_URL in $DOWNLOAD_URLS; do
   tar xfz $WORK_DIR/$(basename $DOWNLOAD_URL) -C $WORK_DIR
