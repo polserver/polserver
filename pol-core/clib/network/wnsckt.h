@@ -4,7 +4,7 @@
 #include <string>
 
 #include "../Header_Windows.h"
-#ifndef WINDOWS
+#ifndef _WIN32
 #include <sys/socket.h>
 
 using SOCKET = int;

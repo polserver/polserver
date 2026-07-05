@@ -19,7 +19,7 @@
 
 #include "singlepoller.h"
 
-#if defined( WINDOWS )
+#ifdef _WIN32
 #define SOCKET_ERRNO( x ) WSA##x
 #define socket_errno WSAGetLastError()
 typedef int socklen_t;
@@ -287,7 +287,9 @@ void Socket::apply_prebind_socket_options( SOCKET sck )
 {
   if ( sck != INVALID_SOCKET && _options & reuseaddr )
   {
-#ifndef WIN32
+// Deliberately not set on Windows: there SO_REUSEADDR lets another process bind an
+// in-use port (port hijacking), unlike the POSIX rebind-in-TIME_WAIT semantics.
+#ifndef _WIN32
     int reuse_opt = 1;
     int res =
         setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse_opt, sizeof( reuse_opt ) );

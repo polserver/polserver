@@ -167,7 +167,9 @@ SOCKET open_listen_socket( unsigned short port )
 
   apply_socket_options( sck );
 
-#ifndef WIN32
+// Deliberately not set on Windows: there SO_REUSEADDR lets another process bind an
+// in-use port (port hijacking), unlike the POSIX rebind-in-TIME_WAIT semantics.
+#ifndef _WIN32
   int reuse_opt = 1;
   res = setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse_opt, sizeof( reuse_opt ) );
   if ( res < 0 )
