@@ -54,6 +54,18 @@ WORK_DIR=$(mktemp -d)
 
 brew update
 
+# brew bundle (an earlier step) installs this-arch formulae against
+# whatever the tap knew at that time. The `brew update` above can move the
+# tap's notion of "current" forward without touching what's actually
+# installed -- `update` and `upgrade` are different things in Homebrew.
+# Everything below resolves versions against the post-update tap, so if we
+# don't also bring the already-installed side up to match, the merge loop
+# ends up looking for a version that was never actually installed here,
+# quietly skips the merge, and leaves the original single-arch library
+# untouched (surfacing later as a linker "wrong architecture" error rather
+# than failing here where it'd be obvious).
+brew upgrade "$@"
+
 echo "Homebrew prefix: $HOMEBREW_PREFIX"
 echo "macOS release: $MACOS_RELEASE [$ARCH_THIS]"
 echo "brew info download property: $DOWNLOAD_PROPERTY"
