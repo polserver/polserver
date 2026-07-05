@@ -4,14 +4,12 @@
 use os;
 include "testutil";
 
-const BASE_URL := "http://127.0.0.1:5006";
-
 program test_www_static()
   return 1;
 endprogram
 
 function get_extended( path, method := "GET" )
-  return HTTPRequest( BASE_URL + path, method, flags := HTTPREQUEST_EXTENDED_RESPONSE );
+  return www_get( path, method );
 endfunction
 
 function ends_with( str, suffix )
@@ -109,6 +107,22 @@ exported function test_static_xss_escaped()
   // The '<' must have reached the body (as '&lt;'), not been dropped earlier.
   if ( !res.body.find( "&lt;script&gt;" ) )
     return ret_error( $"403 body '{res.body}' does not contain the escaped '&lt;script&gt;'" );
+  endif
+  return 1;
+endfunction
+
+// '&' before the '?' is part of the page name, which legal_pagename rejects
+// (403); the error page must echo it escaped as '&amp;'
+exported function test_static_amp_escaped()
+  var res := get_extended( "/pkg/webserver/a&b.html" );
+  if ( res.status != 403 )
+    return ret_error( $"'&'-page returned status {res.status}, expecting 403" );
+  endif
+  if ( res.body.find( "a&b.html" ) )
+    return ret_error( $"403 body '{res.body}' contains the unescaped 'a&b.html'" );
+  endif
+  if ( !res.body.find( "a&amp;b.html" ) )
+    return ret_error( $"403 body '{res.body}' does not contain the escaped 'a&amp;b.html'" );
   endif
   return 1;
 endfunction

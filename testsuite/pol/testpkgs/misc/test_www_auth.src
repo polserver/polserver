@@ -1,0 +1,57 @@
+// Shard tests for the webserver's HTTP basic auth (pol.cfg WebServerPassword,
+// which is polcore:test in the test shard -- see testutil.inc). Exercises the
+// server-side base64 decoding and the constant-time password comparison.
+use os;
+include "testutil";
+
+program test_www_auth()
+  return 1;
+endprogram
+
+const PAGE := "/pkg/webserver/static.html";
+
+function expect_401( res, what )
+  if ( res.status != 401 )
+    return ret_error( $"{what} returned status {res.status}, expecting 401" );
+  endif
+  return 1;
+endfunction
+
+exported function test_auth_missing()
+  var res := www_get( PAGE, auth := 0 );
+  var ok := expect_401( res, "request without Authorization" );
+  if ( ok != 1 )
+    return ok;
+  endif
+
+  var actual := res.headers["www-authenticate"];
+  if ( actual != "Basic realm=\"pol\"" )
+    return ret_error( $"401 www-authenticate header '{actual}', expecting 'Basic realm=\"pol\"'" );
+  endif
+  return 1;
+endfunction
+
+// base64( "polcore:tset" ) -- same length as the real password
+exported function test_auth_wrong_password()
+  return expect_401( www_get( PAGE, auth := "Basic cG9sY29yZTp0c2V0" ),
+                     "request with wrong password" );
+endfunction
+
+// base64( "polcore:t" ) -- correct prefix, wrong length
+exported function test_auth_wrong_length()
+  return expect_401( www_get( PAGE, auth := "Basic cG9sY29yZTp0" ),
+                     "request with truncated password" );
+endfunction
+
+// not even valid base64
+exported function test_auth_garbage()
+  return expect_401( www_get( PAGE, auth := "Basic !!!!" ), "request with garbage base64" );
+endfunction
+
+exported function test_auth_correct()
+  var res := www_get( PAGE );
+  if ( res.status != 200 )
+    return ret_error( $"authorized request returned status {res.status}, expecting 200" );
+  endif
+  return 1;
+endfunction

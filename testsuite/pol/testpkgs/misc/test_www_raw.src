@@ -1,0 +1,115 @@
+// Shard tests for webserver behavior that needs a raw TCP client (rawhttp.src)
+// because libcurl cannot send these requests: malformed request lines (400),
+// header floods (400), literal dot-segment traversal (403 -- libcurl
+// normalizes ../ away client-side, see specs/webserver/05) and '"' in the
+// page name (403 + html escaping).
+use os;
+include "testutil";
+
+program test_www_raw()
+  return 1;
+endprogram
+
+// eScript string literals have no \r escape, so CRLF is built at runtime.
+// Each element of `lines` becomes one CRLF-terminated line; pass a trailing ""
+// for the blank line ending the header block.
+function http_request( lines )
+  var crlf := CChr( 13 ) + "\n";
+  var request := "";
+  foreach line in lines
+    request += line + crlf;
+  endforeach
+  return request;
+endfunction
+
+function raw_http( request, what )
+  var conn := OpenConnection( "127.0.0.1", 5006, "rawhttp",
+                              params := struct{ request := request,
+                                                test_script_pid := GetPid() },
+                              assume_string := 1, keep_connection := 0,
+                              ignore_line_breaks := 1 );
+  if ( !conn )
+    return ret_error( $"{what}: could not connect to the webserver: {conn}" );
+  endif
+
+  var ev := wait_for_event( 30 );
+  if ( !ev )
+    return ret_error( $"{what}: no response event from rawhttp client" );
+  endif
+  return ev;
+endfunction
+
+function expect_status( request, expected, what )
+  var res := raw_http( request, what );
+  if ( !res )
+    return res;
+  endif
+  if ( res.status != expected )
+    return ret_error( $"{what} returned status {res.status}, expecting {expected} (raw: '{res.raw}')" );
+  endif
+  return res;
+endfunction
+
+exported function test_raw_400_empty_request_line()
+  var res := expect_status( http_request( array{ "" } ), 400, "empty request line" );
+  if ( !res )
+    return res;
+  endif
+  return 1;
+endfunction
+
+exported function test_raw_400_missing_url()
+  var res := expect_status( http_request( array{ "GET", "" } ), 400, "request line without URL" );
+  if ( !res )
+    return res;
+  endif
+  return 1;
+endfunction
+
+// the server allows at most 64 request lines before answering 400
+exported function test_raw_400_header_flood()
+  var lines := array{ "GET /pkg/webserver/static.html HTTP/1.1" };
+  var i := 0;
+  while ( i < 70 )
+    i += 1;
+    lines.append( $"X-Filler-{i}: x" );
+  endwhile
+  lines.append( "" );
+
+  var res := expect_status( http_request( lines ), 400, "header flood" );
+  if ( !res )
+    return res;
+  endif
+  return 1;
+endfunction
+
+// literal dot-segments must be rejected before touching the filesystem
+exported function test_raw_403_path_traversal()
+  var request := http_request( array{ "GET /pkg/webserver/../x.html HTTP/1.1",
+                                      "Authorization: " + WWW_AUTH_VALUE, "" } );
+  var res := expect_status( request, 403, "path traversal" );
+  if ( !res )
+    return res;
+  endif
+  if ( !res.raw.find( "/pkg/webserver/../x.html" ) )
+    return ret_error( $"403 response '{res.raw}' does not mention the requested path" );
+  endif
+  return 1;
+endfunction
+
+// '"' in a page name is rejected (403) and escaped in the error page
+exported function test_raw_403_quote_escaped()
+  var request := http_request( array{ "GET /pkg/webserver/a\"b.html HTTP/1.1",
+                                      "Authorization: " + WWW_AUTH_VALUE, "" } );
+  var res := expect_status( request, 403, "quote in page name" );
+  if ( !res )
+    return res;
+  endif
+  if ( res.raw.find( "a\"b.html" ) )
+    return ret_error( $"403 response '{res.raw}' contains the unescaped quote" );
+  endif
+  if ( !res.raw.find( "a&quot;b.html" ) )
+    return ret_error( $"403 response '{res.raw}' does not contain the escaped 'a&quot;b.html'" );
+  endif
+  return 1;
+endfunction

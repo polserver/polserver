@@ -39,7 +39,7 @@ ctest --test-dir build -C Release -R "escript_<testname>" -VV
 
 - eScript tests: `testsuite/escript/*/` (one `.src` + expected-output file per test); server/shard tests: `testsuite/pol/`. Test definitions and fixtures live in `cmake/core_tests.cmake` and `cmake/escript_tests.cmake`; `ctest --test-dir build -N` lists everything.
 - Shard tests boot a real server in the generated `build/coretest` dir; `POLCORE_TEST_FILTER=<pkg>:<file>:<func>` narrows the run (each part matches by prefix, any part may be empty).
-- **Manual test shard**: run `bin\Release\pol.exe` with cwd `build\coretest` and no `POLCORE_TEST_RUN` set — it skips the test suite and stays up, webserver on `http://127.0.0.1:5006` (local-only). ctest sets `POLCORE_TEST_RUN`, which runs the suite and shuts down.
+- **Manual test shard**: run `bin\Release\pol.exe` with cwd `build\coretest` and no `POLCORE_TEST_RUN` set — it skips the test suite and stays up, webserver on `http://127.0.0.1:5006` (local-only, basic auth `polcore` / `test` per pol.cfg `WebServerPassword`). ctest sets `POLCORE_TEST_RUN`, which runs the suite and shuts down.
 - On Windows, a shell cd'd into `build\coretest` blocks the `cleantestdir` fixture (dir-handle lock).
 
 ## Linting and Formatting

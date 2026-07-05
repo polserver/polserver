@@ -1,0 +1,86 @@
+// Shard test for config/www.cfg (webserver MIME map): the coretest shard
+// starts without the file (built-in defaults), this test creates one and
+// waits for the webserver to pick it up.
+//
+// The file stays in place afterwards on purpose: its mappings are a superset
+// of the built-in defaults (so later static-file tests keep working), and the
+// second shard run then boots with the file present, covering the
+// parse-at-startup path too.
+use os;
+use file;
+include "testutil";
+
+program test_www_config()
+  return 1;
+endprogram
+
+const CUSTOM_PATH := "/pkg/webserver/custom.polt";
+const CUSTOM_MIME := "application/x-polcore-test";
+
+exported function test_wwwcfg_reload()
+  // Without a www.cfg mapping, .polt is an unknown pagetype -> 500
+  var res := www_get( CUSTOM_PATH );
+  if ( res.status != 500 )
+    return ret_error( $"custom.polt returned status {res.status}, expecting 500 before www.cfg has a mapping" );
+  endif
+  if ( !res.body.find( CUSTOM_PATH ) )
+    return ret_error( $"500 body '{res.body}' does not mention the requested path" );
+  endif
+
+  // The custom extension plus all built-in defaults (load_mime_config uses
+  // the file INSTEAD of the defaults, not in addition to them)
+  var mimetypes := array{
+    array{ "polt", CUSTOM_MIME },
+    array{ "jpg", "image/jpeg" },
+    array{ "jpeg", "image/jpeg" },
+    array{ "gif", "image/gif" },
+    array{ "png", "image/png" },
+    array{ "js", "text/javascript" },
+    array{ "ico", "image/x-icon" },
+    array{ "css", "text/css" },
+    array{ "json", "application/json" },
+    array{ "svg", "image/svg+xml" },
+    array{ "txt", "text/plain" },
+    array{ "webp", "image/webp" },
+    array{ "woff2", "font/woff2" },
+    array{ "wasm", "application/wasm" }
+  };
+  var lines := array{};
+  foreach entry in mimetypes
+    lines.append( "MimeType" );
+    lines.append( "{" );
+    lines.append( $"    Extension {entry[1]}" );
+    lines.append( $"    MIME {entry[2]}" );
+    lines.append( "}" );
+    lines.append( "" );
+  endforeach
+
+  var write_res := WriteFile( "::config/www.cfg", lines );
+  if ( write_res != 1 )
+    return ret_error( $"could not write config/www.cfg: {write_res}" );
+  endif
+
+  // The listener only reloads www.cfg when its 5-second accept-select times
+  // out with no incoming connection, so stay quiet for >5s between attempts.
+  var attempt := 0;
+  while ( attempt < 3 )
+    attempt += 1;
+    SleepMS( 6000 );
+    res := www_get( CUSTOM_PATH );
+    if ( res.status == 200 )
+      break;
+    endif
+  endwhile
+
+  if ( res.status != 200 )
+    return ret_error( $"custom.polt returned status {res.status}, expecting 200 after www.cfg reload" );
+  endif
+  var actual := res.headers["content-type"];
+  if ( actual != CUSTOM_MIME )
+    return ret_error( $"custom.polt content-type '{actual}', expecting '{CUSTOM_MIME}'" );
+  endif
+  if ( !res.body.find( "POLCORE_CUSTOM_MIME_MARKER" ) )
+    return ret_error( $"custom.polt body '{res.body}' does not contain the marker" );
+  endif
+  return 1;
+endfunction

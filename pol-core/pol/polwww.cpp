@@ -14,10 +14,11 @@
 
 #include "polwww.h"
 
-#include <assert.h>
 #include <ctype.h>
 #include <errno.h>
+#include <fmt/format.h>
 #include <iosfwd>
+#include <iterator>
 #include <map>
 #include <mutex>
 #include <string>
@@ -30,10 +31,8 @@
 #include "../clib/logfacility.h"
 #include "../clib/network/sockets.h"
 #include "../clib/network/wnsckt.h"
-#include "../clib/passert.h"
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
-#include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/timer.h"
 
@@ -153,17 +152,6 @@ void config_web_server()
   load_mime_config();
 }
 
-void http_writeline( Clib::Socket& sck, const std::string& s )
-{
-  std::string line;
-  line.reserve( s.length() + 2 );
-  line += s;
-  line += "\r\n";
-  sck.send( line.data(), static_cast<unsigned int>( line.length() ) );
-}
-
-namespace
-{
 std::string html_escape( const std::string& s )
 {
   std::string escaped;
@@ -204,19 +192,22 @@ bool constant_time_equal( const std::string& expected, const std::string& provid
   return diff == 0;
 }
 
+namespace
+{
 // Builds the complete response and sends it with a single send() call
 void http_send_response( Clib::Socket& sck, const std::string& status, const std::string& title,
                          const std::string& message, const std::string& extra_headers = "" )
 {
-  std::string body = "<HTML><HEAD><TITLE>" + title + "</TITLE></HEAD>\r\n<BODY><H1>" + title +
-                     "</H1>\r\n" + message + "\r\n</BODY></HTML>\r\n";
+  std::string body = fmt::format(
+      "<HTML><HEAD><TITLE>{0}</TITLE></HEAD>\r\n<BODY><H1>{0}</H1>\r\n{1}\r\n</BODY></HTML>\r\n",
+      title, message );
 
   std::string response;
   response.reserve( 160 + extra_headers.size() + body.size() );
-  response += "HTTP/1.1 " + status + "\r\n";
+  fmt::format_to( std::back_inserter( response ), "HTTP/1.1 {}\r\n", status );
   response += extra_headers;
   response += "Content-Type: text/html\r\n";
-  response += "Content-Length: " + Clib::tostring( body.size() ) + "\r\n";
+  fmt::format_to( std::back_inserter( response ), "Content-Length: {}\r\n", body.size() );
   response += "Connection: close\r\n";
   response += "\r\n";
   response += body;
@@ -232,9 +223,9 @@ void http_forbidden( Clib::Socket& sck )
 
 void http_forbidden( Clib::Socket& sck, const std::string& filename )
 {
-  http_send_response( sck, "403 Forbidden", "Forbidden",
-                      "You are forbidden to access to " + html_escape( filename ) +
-                          " on this server." );
+  http_send_response(
+      sck, "403 Forbidden", "Forbidden",
+      fmt::format( "You are forbidden to access to {} on this server.", html_escape( filename ) ) );
 }
 
 void http_not_authorized( Clib::Socket& sck, const std::string& /*filename*/ )
@@ -247,15 +238,15 @@ void http_not_authorized( Clib::Socket& sck, const std::string& /*filename*/ )
 void http_internal_error( Clib::Socket& sck, const std::string& filename )
 {
   http_send_response( sck, "500 Internal Server Error", "Internal Server Error",
-                      "The requested URL " + html_escape( filename ) +
-                          " caused an internal server error." );
+                      fmt::format( "The requested URL {} caused an internal server error.",
+                                   html_escape( filename ) ) );
 }
 
 void http_not_found( Clib::Socket& sck, const std::string& filename )
 {
   http_send_response( sck, "404 Not Found", "Not Found",
-                      "The requested URL " + html_escape( filename ) +
-                          " was not found on this server." );
+                      fmt::format( "The requested URL {} was not found on this server.",
+                                   html_escape( filename ) ) );
 }
 
 void http_bad_request( Clib::Socket& sck )
@@ -272,9 +263,10 @@ void http_method_not_allowed( Clib::Socket& sck )
 
 void http_redirect( Clib::Socket& sck, const std::string& new_url )
 {
-  http_send_response( sck, "301 Moved Permanently", "Moved Permanently",
-                      "The requested URL has been moved to " + html_escape( new_url ),
-                      "Location: " + new_url + "\r\n" );
+  http_send_response(
+      sck, "301 Moved Permanently", "Moved Permanently",
+      fmt::format( "The requested URL has been moved to {}", html_escape( new_url ) ),
+      fmt::format( "Location: {}\r\n", new_url ) );
 }
 
 std::string reasonPhrase( int code )
@@ -559,33 +551,6 @@ std::string get_pagetype( const std::string& page )
   return "";
 }
 
-bool get_script_page_filename( const std::string& page, ScriptDef& sd )
-{
-  if ( page.substr( 0, 5 ) == "/pkg/" )
-  {
-    // cerr << "package page script: " << page << endl;
-    auto pkgname_end = page.find_first_of( '/', 5 );
-    if ( pkgname_end != std::string::npos )
-    {
-      std::string pkg_name = page.substr( 5, pkgname_end - 5 );
-      // cerr << "pkg name: " << pkg_name << endl;
-      Plib::Package* pkg = Plib::find_package( pkg_name );
-      if ( pkg != nullptr )
-      {
-        sd.quickconfig( pkg, "www/" + page.substr( pkgname_end + 1 ) );
-        return true;
-      }
-
-      return false;
-    }
-
-    return false;
-  }
-
-  sd.quickconfig( "scripts/www" + page + ".ecl" );
-  return true;
-}
-
 // FIXME this is just ugly!  The HttpExecutorModule takes ownership of the
 // socket, through the Socket copy-constructor..  But sometimes, after we've
 // built it, we need to send data (on errors).
@@ -760,8 +725,8 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
     headers.reserve( 160 );
     headers += "HTTP/1.1 200 OK\r\n";
     headers += "Accept-Ranges: bytes\r\n";
-    headers += "Content-Length: " + Clib::tostring( fsize ) + "\r\n";
-    headers += "Content-Type: " + content_type + "\r\n";
+    fmt::format_to( std::back_inserter( headers ), "Content-Length: {}\r\n", fsize );
+    fmt::format_to( std::back_inserter( headers ), "Content-Type: {}\r\n", content_type );
     headers += "Connection: close\r\n";
     headers += "\r\n";
     sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) );
@@ -999,55 +964,8 @@ void init_http_thread_support()
 }
 #endif
 
-void test_decode( const char* page, bool result_expected, Plib::Package* pkg_expected,
-                  const char* filename_expected, const char* pagetype_expected,
-                  const char* redirect_to_expected )
-{
-  Plib::Package* pkg = nullptr;
-  std::string filename;
-  std::string pagetype;
-  std::string redirect_to;
-  bool result;
-
-  result = decode_page( page, &pkg, &filename, &pagetype, &redirect_to );
-  passert_always( result == result_expected );
-  if ( result )
-  {
-    assert( redirect_to == redirect_to_expected );
-    (void)redirect_to_expected;
-    if ( redirect_to.empty() )
-    {
-      passert_always( pkg == pkg_expected );
-      passert_always( filename == filename_expected );
-      passert_always( pagetype == pagetype_expected );
-    }
-  }
-}
-
-void test_decode()
-{
-  /*
-      lock();
-      if (find_package( "testwww" ))
-      {
-      test_decode( "/", true, nullptr, "scripts/www/index.htm", "htm" );
-      test_decode( "/pkg/testwww1",
-      true, find_package( "testwww1" ), "pkg/test/testwww1/www/index.htm", "htm", "" );
-      test_decode( "/pkg/testwww1/noexist.ecl",
-      true, find_package( "testwww1" ), "www/noexist.ecl", "ecl", "" );
-      test_decode( "/pkg/testwww3",
-      true, find_package( "testwww3" ), "www/index.ecl", "ecl" );
-      }
-      unlock();
-      */
-}
-
-
 void http_thread()
 {
-  test_decode();
-
-
   config_web_server();
   init_http_thread_support();
 

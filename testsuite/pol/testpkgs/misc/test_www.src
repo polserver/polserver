@@ -6,7 +6,7 @@ program test_httprequest()
 endprogram
 
 function createUrl( order )
-  return $"http://127.0.0.1:5006/pkg/webserver/test.ecl?testPid={GetPid()}&order={order}&status=200&body=Okay&headers=%5B%7B%22name%22%3A%22test1%22%2C%22value%22%3A%22value1%22%7D%5D";
+  return $"/pkg/webserver/test.ecl?testPid={GetPid()}&order={order}&status=200&body=Okay&headers=%5B%7B%22name%22%3A%22test1%22%2C%22value%22%3A%22value1%22%7D%5D";
 endfunction
 
 // Checks if status, headers, and body were written based off expected values
@@ -24,68 +24,67 @@ function checkEvent( expected )
 endfunction
 
 exported function test_www_status_headers_body()
-  var res := HTTPRequest( createUrl( "status,headers,body" ) );
+  var res := www_get( createUrl( "status,headers,body" ) );
   return checkEvent( struct{ status := 1, headers := 1, body := 1 } );
 endfunction
 
 exported function test_www_status_body_headers()
-  var res := HTTPRequest( createUrl( "status,body,headers" ) );
+  var res := www_get( createUrl( "status,body,headers" ) );
   return checkEvent( struct{ status := 1, headers := error, body := 1 } );
 endfunction
 
 exported function test_www_headers_status_body()
-  var res := HTTPRequest( createUrl( "headers,status,body" ) );
+  var res := www_get( createUrl( "headers,status,body" ) );
   return checkEvent( struct{ status := error, headers := 1, body := 1 } );
 endfunction
 
 exported function test_www_headers_body_status()
-  var res := HTTPRequest( createUrl( "headers,body,status" ) );
+  var res := www_get( createUrl( "headers,body,status" ) );
   return checkEvent( struct{ status := error, headers := 1, body := 1 } );
 endfunction
 exported function test_www_body_headers_status()
-  var res := HTTPRequest( createUrl( "body,headers,status" ) );
+  var res := www_get( createUrl( "body,headers,status" ) );
   return checkEvent( struct{ status := error, headers := error, body := 1 } );
 endfunction
 
 exported function test_www_body_status_headers()
-  var res := HTTPRequest( createUrl( "body,status,headers" ) );
+  var res := www_get( createUrl( "body,status,headers" ) );
   return checkEvent( struct{ status := error, headers := error, body := 1 } );
 endfunction
 
 exported function test_www_status_body()
-  var res := HTTPRequest( createUrl( "status,body" ) );
+  var res := www_get( createUrl( "status,body" ) );
   return checkEvent( struct{ status := 1, body := 1 } );
 endfunction
 
 exported function test_www_body_status()
-  var res := HTTPRequest( createUrl( "body,status" ) );
+  var res := www_get( createUrl( "body,status" ) );
   return checkEvent( struct{ status := error, body := 1 } );
 endfunction
 
 exported function test_www_headers_body()
-  var res := HTTPRequest( createUrl( "headers,body" ) );
+  var res := www_get( createUrl( "headers,body" ) );
   return checkEvent( struct{ headers := 1, body := 1 } );
 endfunction
 
 exported function test_www_status_headers()
-  var res := HTTPRequest( createUrl( "status,headers" ) );
+  var res := www_get( createUrl( "status,headers" ) );
   return checkEvent( struct{ status := 1, headers := 1 } );
 endfunction
 
 exported function test_www_headers_status()
-  var res := HTTPRequest( createUrl( "headers,status" ) );
+  var res := www_get( createUrl( "headers,status" ) );
   return checkEvent( struct{ status := error, headers := 1 } );
 endfunction
 
 exported function test_www_body_headers()
-  var res := HTTPRequest( createUrl( "body,headers" ) );
+  var res := www_get( createUrl( "body,headers" ) );
   return checkEvent( struct{ headers := error, body := 1 } );
 endfunction
 
 // Make sure status code, status text, and content-type are sent even if no Write*() was performed inside script
 exported function test_www_defaults()
-  var res := HTTPRequest( $"http://127.0.0.1:5006/pkg/webserver/test.ecl",
-                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
+  var res := www_get( "/pkg/webserver/test.ecl" );
 
   var actual := res.status;
   var expected := 200;
@@ -109,8 +108,7 @@ endfunction
 
 // Check if Content-Type can be overwritten
 exported function test_www_custom_content_type()
-  var res := HTTPRequest( $"http://127.0.0.1:5006/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22content-type%22%2C%22value%22%3A%22text%2Fplain%22%7D%5D",
-                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
+  var res := www_get( "/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22content-type%22%2C%22value%22%3A%22text%2Fplain%22%7D%5D" );
 
   var actual := res.headers["content-type"];
   var expected := "text/plain";
@@ -122,8 +120,7 @@ endfunction
 
 // Check status reason phrase can be overwritten
 exported function test_www_custom_status_reason()
-  var res := HTTPRequest( $"http://127.0.0.1:5006/pkg/webserver/test.ecl?status=200&statusText=Alright",
-                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
+  var res := www_get( "/pkg/webserver/test.ecl?status=200&statusText=Alright" );
 
   var actual := res.statusText;
   var expected := "Alright";

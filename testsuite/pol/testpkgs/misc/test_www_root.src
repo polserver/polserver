@@ -1,0 +1,57 @@
+// Shard tests for packages providing the system home page
+// (pkg.cfg ProvidesSystemHomePage): testpkgs/wwwroot1 and testpkgs/wwwroot2
+// both provide one; packages are sorted by name at load, so config_web_server
+// picks wwwroot1 and ignores wwwroot2 (with a log message).
+use os;
+include "testutil";
+
+program test_www_root()
+  return 1;
+endprogram
+
+function ends_with( str, suffix )
+  if ( Len( str ) < Len( suffix ) )
+    return 0;
+  endif
+  return str[Len( str ) - Len( suffix ) + 1, Len( suffix )] == suffix;
+endfunction
+
+// "/" has no pagetype, so decode_page redirects to the directory index inside
+// the wwwroot package (no index.ecl there, so index.htm)
+exported function test_wwwroot_redirect()
+  var res := www_get( "/" );
+  if ( res.status != 301 )
+    return ret_error( $"GET / returned status {res.status}, expecting 301" );
+  endif
+
+  var location := res.headers["location"];
+  if ( !ends_with( location, "/index.htm" ) )
+    return ret_error( $"301 location '{location}' does not end with /index.htm" );
+  endif
+  return 1;
+endfunction
+
+// non-/pkg/ pages are served from the winning package's www/ dir
+exported function test_wwwroot_first_pkg_wins()
+  var res := www_get( "/index.htm" );
+  if ( res.status != 200 )
+    return ret_error( $"GET /index.htm returned status {res.status}, expecting 200" );
+  endif
+  if ( !res.body.find( "POLCORE_WWWROOT1_MARKER" ) )
+    return ret_error( $"/index.htm body '{res.body}' is not wwwroot1's index" );
+  endif
+  return 1;
+endfunction
+
+// the ignored second package is still reachable through the explicit
+// /pkg/<name>/ route
+exported function test_wwwroot_second_reachable()
+  var res := www_get( "/pkg/wwwroot2/index.htm" );
+  if ( res.status != 200 )
+    return ret_error( $"GET /pkg/wwwroot2/index.htm returned status {res.status}, expecting 200" );
+  endif
+  if ( !res.body.find( "POLCORE_WWWROOT2_MARKER" ) )
+    return ret_error( $"/pkg/wwwroot2/index.htm body '{res.body}' is not wwwroot2's index" );
+  endif
+  return 1;
+endfunction
