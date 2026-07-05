@@ -175,7 +175,8 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
       
       # Fetch formula source via API instead of `brew cat` (which requires
       # a full local tap clone, unavailable in modern API-based Homebrew)
-      FORMULA_TAP=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$FORMULA" '.[] | select(.name == $name) | .tap // "Homebrew/homebrew-core"')
+      # Prefer lowercase default tap name for raw.githubusercontent.com paths.
+      FORMULA_TAP=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$FORMULA" '.[] | select(.name == $name) | .tap // "homebrew/homebrew-core"')
       FORMULA_GIT_HEAD=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$FORMULA" '.[] | select(.name == $name) | .tap_git_head')
       FORMULA_SOURCE_PATH=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$FORMULA" '.[] | select(.name == $name) | .ruby_source_path // "Formula/\($name).rb"')
       
@@ -184,9 +185,16 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
       
       FORMULA_RAW_URL="https://raw.githubusercontent.com/$FORMULA_TAP/$FORMULA_GIT_HEAD/$FORMULA_SOURCE_PATH"
       
+      # Try primary URL; if it fails (404), try a lowercase tap path as a fallback.
       if ! curl -fsSL "$FORMULA_RAW_URL" | sed '/system "make", "HARNESS_JOBS=/d' > "$PATCHED_FILE"; then
-        echo "Failed to fetch formula source from $FORMULA_RAW_URL" >&2
-        exit 1
+        FORMULA_TAP_LOWER=$(echo "$FORMULA_TAP" | tr '[:upper:]' '[:lower:]')
+        FORMULA_RAW_URL2="https://raw.githubusercontent.com/$FORMULA_TAP_LOWER/$FORMULA_GIT_HEAD/$FORMULA_SOURCE_PATH"
+        if curl -fsSL "$FORMULA_RAW_URL2" | sed '/system "make", "HARNESS_JOBS=/d' > "$PATCHED_FILE"; then
+          echo "Fetched formula from fallback URL using lowercased tap: $FORMULA_RAW_URL2"
+        else
+          echo "Failed to fetch formula source from $FORMULA_RAW_URL and $FORMULA_RAW_URL2" >&2
+          exit 1
+        fi
       fi
       
       PATCHED_PATHS+=("$PATCHED_FILE")
@@ -194,8 +202,39 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
 
     # Build fresh if not yet installed on the other-arch Homebrew; reinstall
     # (still forcing a source build) if a previous run already bottled it in.
-    if ! arch "-$ARCH_OTHER" "$BREW_OTHER" install --build-from-source "${PATCHED_PATHS[@]}"; then
-      arch "-$ARCH_OTHER" "$BREW_OTHER" reinstall --build-from-source "${PATCHED_PATHS[@]}"
+    # Modern Homebrew rejects formula files that are not in a tap, so create a
+    # temporary tap in the other-arch Homebrew and copy the patched formulae
+    # into it, then install by tap-qualified name.
+    if [ ${#PATCHED_PATHS[@]} -gt 0 ]; then
+      TAP_USER="local"
+      TAP_REPO="patched-$(date +%s)"
+      TAP_NAME="$TAP_USER/$TAP_REPO"
+
+      echo "Creating temporary tap $TAP_NAME on $ARCH_OTHER Homebrew"
+      arch "-$ARCH_OTHER" "$BREW_OTHER" tap-new "$TAP_NAME"
+
+      # Determine the other-arch Homebrew repository location (run under that arch)
+      HOMEBREW_REPO_OTHER=$(arch "-$ARCH_OTHER" "$BREW_OTHER" --repository)
+      TAP_DIR="$HOMEBREW_REPO_OTHER/Library/Taps/$TAP_USER/homebrew-$TAP_REPO"
+      mkdir -p "$TAP_DIR/Formula"
+
+      # Copy patched formula files into the tap's Formula directory.
+      for PF in "${PATCHED_PATHS[@]}"; do
+        cp "$PF" "$TAP_DIR/Formula/"
+      done
+
+      # Install from the tap by tap-qualified name (forces build-from-source).
+      INSTALL_TARGETS=()
+      for FORMULA in "${TO_BUILD[@]}"; do
+        INSTALL_TARGETS+=("$TAP_NAME/$FORMULA")
+      done
+
+      if ! arch "-$ARCH_OTHER" "$BREW_OTHER" install --build-from-source "${INSTALL_TARGETS[@]}"; then
+        arch "-$ARCH_OTHER" "$BREW_OTHER" reinstall --build-from-source "${INSTALL_TARGETS[@]}"
+      fi
+
+      # Untap to clean up the temporary tap (ignore failures).
+      arch "-$ARCH_OTHER" "$BREW_OTHER" untap "$TAP_NAME" || true
     fi
   fi
 
