@@ -144,7 +144,7 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
   # rebuild instead of being mistaken for a hit.
   TO_BUILD=()
   for SOURCE_FORMULA in "${SOURCE_FORMULAE[@]}"; do
-    SOURCE_VERSION=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$SOURCE_FORMULA" '.[] | select(..name == $name) | .versions.stable')
+    SOURCE_VERSION=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$SOURCE_FORMULA" '.[] | select(.name == $name) | .versions.stable')
     if [ -d "$HOMEBREW_CELLAR_OTHER/$SOURCE_FORMULA/$SOURCE_VERSION" ]; then
       echo "$SOURCE_FORMULA $SOURCE_VERSION already present under $HOMEBREW_CELLAR_OTHER (cache hit) -- skipping build"
     else
