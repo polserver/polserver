@@ -125,14 +125,52 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
     echo "$ARCH_OTHER Homebrew ready at $HOMEBREW_PREFIX_OTHER"
   fi
 
-  echo "Building from source for $ARCH_OTHER: ${SOURCE_FORMULAE[*]}"
+  # Skip anything a restored cache already provided (see the workflow's
+  # actions/cache step, keyed on resolved formula versions) -- checked
+  # against the *exact* versions.stable directory, not just "something is
+  # there", so a stale/wrong-version cache entry safely falls through to a
+  # rebuild instead of being mistaken for a hit.
+  TO_BUILD=()
+  for SOURCE_FORMULA in "${SOURCE_FORMULAE[@]}"; do
+    SOURCE_VERSION=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$SOURCE_FORMULA" '.[] | select(.name == $name) | .versions.stable')
+    if [ -d "$HOMEBREW_CELLAR_OTHER/$SOURCE_FORMULA/$SOURCE_VERSION" ]; then
+      echo "$SOURCE_FORMULA $SOURCE_VERSION already present under $HOMEBREW_CELLAR_OTHER (cache hit) -- skipping build"
+    else
+      TO_BUILD+=("$SOURCE_FORMULA")
+    fi
+  done
 
-  arch "-$ARCH_OTHER" "$BREW_OTHER" update
+  if [ ${#TO_BUILD[@]} -gt 0 ]; then
+    echo "Building from source for $ARCH_OTHER: ${TO_BUILD[*]}"
 
-  # Build fresh if not yet installed on the other-arch Homebrew; reinstall
-  # (still forcing a source build) if a previous run already bottled it in.
-  if ! arch "-$ARCH_OTHER" "$BREW_OTHER" install --build-from-source "${SOURCE_FORMULAE[@]}"; then
-    arch "-$ARCH_OTHER" "$BREW_OTHER" reinstall --build-from-source "${SOURCE_FORMULAE[@]}"
+    arch "-$ARCH_OTHER" "$BREW_OTHER" update
+
+    # Some formulae (e.g. openssl@3) hardcode their own internal test suite
+    # inside `install` itself, with no install-time flag to disable it --
+    # unlike `brew test`, which never runs automatically, this always runs
+    # on a from-source build. We don't need upstream's self-test to produce
+    # a linkable library, so patch it out of a copy fetched fresh from the
+    # tap (keeping it in sync with version/checksum bumps rather than
+    # vendoring a copy that'll drift). This is a real trade-off, not a free
+    # win: it also means we skip whatever regression coverage that test
+    # suite provided for this exact build.
+    PATCHED_DIR="$WORK_DIR/patched-formulas"
+    mkdir -p "$PATCHED_DIR"
+    PATCHED_PATHS=()
+
+    for FORMULA in "${TO_BUILD[@]}"; do
+      PATCHED_FILE="$PATCHED_DIR/$FORMULA.rb"
+      arch "-$ARCH_OTHER" "$BREW_OTHER" cat "$FORMULA" \
+        | sed '/system "make", "HARNESS_JOBS=/d' \
+        > "$PATCHED_FILE"
+      PATCHED_PATHS+=("$PATCHED_FILE")
+    done
+
+    # Build fresh if not yet installed on the other-arch Homebrew; reinstall
+    # (still forcing a source build) if a previous run already bottled it in.
+    if ! arch "-$ARCH_OTHER" "$BREW_OTHER" install --build-from-source "${PATCHED_PATHS[@]}"; then
+      arch "-$ARCH_OTHER" "$BREW_OTHER" reinstall --build-from-source "${PATCHED_PATHS[@]}"
+    fi
   fi
 
   for SOURCE_FORMULA in "${SOURCE_FORMULAE[@]}"; do
