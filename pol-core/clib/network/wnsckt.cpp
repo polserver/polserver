@@ -285,7 +285,11 @@ bool Socket::has_incoming_data( unsigned int waitms, int* result )
 
   if ( result )
     *result = res;
-  if ( poller.error() )
+  // On BSD/macOS poll() reports POLLHUP as soon as the peer closes, even while
+  // received data is still buffered (Linux would only report POLLIN here). Only
+  // treat it as fatal once there is nothing left to read, so the caller can
+  // drain the buffer first.
+  if ( poller.error() && !poller.incoming() )
   {
     HandleError();
     close();
