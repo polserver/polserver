@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+07-05-2026 Nando:
+    Fixed: On macOS, sockets could lose data that arrived just before the peer closed
+           the connection (poll() reports POLLHUP eagerly there; the buffered data is
+           now drained before the connection is treated as closed). Affected e.g.
+           os::OpenConnection() clients talking to servers that close after responding.
 07-04-2026 Nando:
     Fixed: Webserver performance: Nagle's algorithm is now disabled for HTTP connections,
            responses are sent in single network operations with Content-Length and

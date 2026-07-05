@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-04-2026</datemodified>
+		<datemodified>07-05-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-05-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">On macOS, sockets could lose data that arrived just before the peer closed the connection<br/>
+(poll() reports POLLHUP eagerly there; the buffered data is now drained before the connection is treated as closed).<br/>
+Affected e.g. os::OpenConnection() clients talking to servers that close after responding.</change>
+		</entry>
 		<entry>
 			<date>07-04-2026</date>
 			<author>Nando:</author>
