@@ -169,7 +169,11 @@ exported function multi_update_range( resmngr )
     if ( ev["serial"] == multi.serial )
       var x := ev["pos"][1] - char.x;
       if ( x != 22 ) // (18 visual range + 4)
-        return ret_error( $"update distance failed: {x}" );
+        var evdelta := ev["pos"][1] - ev["playerpos"][1];
+        var mindelta := multi.footprint.minx - multi.x;
+        var maxdelta := multi.footprint.maxx - multi.x;
+        var range := char.client.visual_range;
+        return ret_error( $"update distance failed: {x} (ev: {evdelta}) {mindelta}/{maxdelta} range{range}" );
       endif
       break;
     endif
