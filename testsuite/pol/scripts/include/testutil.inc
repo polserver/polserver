@@ -5,6 +5,21 @@ use polsys;
 
 const IGNORE_TEST := 255; // only valid for setup or programs
 
+// The shard's built-in webserver (pol.cfg: WebServerPort=5006,
+// WebServerPassword=polcore:test; the auth value is base64( "polcore:test" ))
+const WWW_BASE_URL := "http://127.0.0.1:5006";
+const WWW_AUTH_VALUE := "Basic cG9sY29yZTp0ZXN0";
+
+// GET (or `method`) a page from the shard's webserver, authenticated unless
+// auth := 0 is passed. Returns the extended response struct.
+function www_get( path, method := "GET", auth := WWW_AUTH_VALUE )
+  var options := struct{};
+  if ( auth )
+    options := struct{ headers := struct{ Authorization := auth } };
+  endif
+  return HTTPRequest( WWW_BASE_URL + path, method, options, HTTPREQUEST_EXTENDED_RESPONSE );
+endfunction
+
 function ret_error( str )
   return error{ errortext := str };
 endfunction

@@ -1,0 +1,40 @@
+// Raw HTTP client helper for test_www_raw.src (not a test file itself).
+//
+// Started through os::OpenConnection( ..., assume_string := 1,
+// keep_connection := 0, ignore_line_breaks := 1 ), which makes transmit()
+// write the string verbatim (no added line break) and delivers whatever the
+// server sends back as raw chunks -- unlike HTTPRequest, this allows
+// deliberately malformed requests.
+//
+// Transmits params.request, accumulates the response until the connection
+// goes quiet, and sends struct{ status, raw } to params.test_script_pid.
+use os;
+
+include "testutil";
+
+program auxservice( conn, params )
+  conn.transmit( params.request );
+
+  var buffer := "";
+  var timeout := 10; // response should arrive quickly; drop to 2s once it starts
+  var ev;
+  while ( ( ev := wait_for_event( timeout ) ) )
+    if ( ev.value )
+      buffer += ev.value;
+    endif
+    timeout := 2;
+  endwhile
+
+  // Parse "HTTP/1.1 NNN ..." -- split on LF; the stray \r on the last word
+  // does not matter (and eScript has no \r escape anyway)
+  var status := 0;
+  var line_end := buffer.find( "\n" );
+  if ( line_end )
+    var parts := SplitWords( buffer[1, line_end - 1], " " );
+    if ( parts.size() >= 2 )
+      status := CInt( parts[2] );
+    endif
+  endif
+
+  GetProcess( params.test_script_pid ).SendEvent( struct{ status := status, raw := buffer } );
+endprogram

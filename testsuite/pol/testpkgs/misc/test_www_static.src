@@ -1,0 +1,165 @@
+// Shard tests for the webserver's static-file path (specs/webserver/05, phase A):
+// send_binary/send_html, the error pages, 403 escaping, and 405 dispatch.
+// The assets live in testpkgs/webserver/www/ and are served at /pkg/webserver/...
+use os;
+include "testutil";
+
+program test_www_static()
+  return 1;
+endprogram
+
+function get_extended( path, method := "GET" )
+  return www_get( path, method );
+endfunction
+
+function ends_with( str, suffix )
+  if ( Len( str ) < Len( suffix ) )
+    return 0;
+  endif
+  return str[Len( str ) - Len( suffix ) + 1, Len( suffix )] == suffix;
+endfunction
+
+exported function test_static_html()
+  var res := get_extended( "/pkg/webserver/static.html" );
+  if ( res.status != 200 )
+    return ret_error( $"static.html returned status {res.status}, expecting 200" );
+  endif
+
+  var actual := res.headers["content-type"];
+  if ( actual != "text/html" )
+    return ret_error( $"static.html content-type '{actual}', expecting 'text/html'" );
+  endif
+
+  actual := res.headers["content-length"];
+  if ( actual != CStr( Len( res.body ) ) )
+    return ret_error( $"static.html content-length '{actual}' does not match body length {Len( res.body )}" );
+  endif
+
+  if ( !res.body.find( "polcore static test" ) )
+    return ret_error( $"static.html body '{res.body}' does not contain the marker text" );
+  endif
+  return 1;
+endfunction
+
+// A non-htm(l) extension goes through the MIME map (js is a built-in default)
+exported function test_static_mime()
+  var res := get_extended( "/pkg/webserver/static.js" );
+  if ( res.status != 200 )
+    return ret_error( $"static.js returned status {res.status}, expecting 200" );
+  endif
+
+  var actual := res.headers["content-type"];
+  if ( actual != "text/javascript" )
+    return ret_error( $"static.js content-type '{actual}', expecting 'text/javascript'" );
+  endif
+
+  if ( !res.body.find( "POLCORE_STATIC_JS_MARKER" ) )
+    return ret_error( $"static.js body '{res.body}' does not contain the marker pattern" );
+  endif
+
+  actual := res.headers["content-length"];
+  if ( actual != CStr( Len( res.body ) ) )
+    return ret_error( $"static.js content-length '{actual}' does not match body length {Len( res.body )}" );
+  endif
+  return 1;
+endfunction
+
+exported function test_static_404()
+  var res := get_extended( "/pkg/webserver/doesnotexist.html" );
+  if ( res.status != 404 )
+    return ret_error( $"missing page returned status {res.status}, expecting 404" );
+  endif
+  if ( !res.body.find( "/pkg/webserver/doesnotexist.html" ) )
+    return ret_error( $"404 body '{res.body}' does not mention the requested path" );
+  endif
+  if ( !res.headers.exists( "content-length" ) )
+    return ret_error( $"404 response has no content-length header ({res.headers})" );
+  endif
+  return 1;
+endfunction
+
+// '%' is outside legal_pagename's allowlist, so a percent-encoded page name is
+// rejected. This also demonstrates the page is validated *before* URL-decoding:
+// non-dot-segment escapes like '%20' reach the server as a literal '%'.
+// (Dot-segment traversal such as '../' or '%2e%2e/' cannot be tested here --
+// libcurl normalizes those client-side before the request is sent; see the
+// note in specs/webserver/05-static-file-tests.md.)
+exported function test_static_403_percent()
+  var res := get_extended( "/pkg/webserver/bad%20name.html" );
+  if ( res.status != 403 )
+    return ret_error( $"'%'-page returned status {res.status}, expecting 403" );
+  endif
+  return 1;
+endfunction
+
+// A page name carrying HTML metacharacters is rejected (403) and, crucially,
+// echoed into the error page in escaped form -- guards against reflected XSS in
+// the error pages. libcurl passes literal '<'/'>' through unchanged, so this is
+// deterministic.
+exported function test_static_xss_escaped()
+  var res := get_extended( "/pkg/webserver/<script>x.html" );
+  if ( res.status != 403 )
+    return ret_error( $"'<script>'-page returned status {res.status}, expecting 403" );
+  endif
+  if ( res.body.find( "<script>" ) )
+    return ret_error( $"403 body '{res.body}' contains an unescaped '<script>'" );
+  endif
+  // The '<' must have reached the body (as '&lt;'), not been dropped earlier.
+  if ( !res.body.find( "&lt;script&gt;" ) )
+    return ret_error( $"403 body '{res.body}' does not contain the escaped '&lt;script&gt;'" );
+  endif
+  return 1;
+endfunction
+
+// '&' before the '?' is part of the page name, which legal_pagename rejects
+// (403); the error page must echo it escaped as '&amp;'
+exported function test_static_amp_escaped()
+  var res := get_extended( "/pkg/webserver/a&b.html" );
+  if ( res.status != 403 )
+    return ret_error( $"'&'-page returned status {res.status}, expecting 403" );
+  endif
+  if ( res.body.find( "a&b.html" ) )
+    return ret_error( $"403 body '{res.body}' contains the unescaped 'a&b.html'" );
+  endif
+  if ( !res.body.find( "a&amp;b.html" ) )
+    return ret_error( $"403 body '{res.body}' does not contain the escaped 'a&amp;b.html'" );
+  endif
+  return 1;
+endfunction
+
+exported function test_static_405()
+  var res := get_extended( "/pkg/webserver/static.html", "POST" );
+  if ( res.status != 405 )
+    return ret_error( $"POST returned status {res.status}, expecting 405" );
+  endif
+
+  var allow := res.headers["allow"];
+  if ( !allow.find( "GET" ) )
+    return ret_error( $"405 allow header '{allow}' does not contain GET" );
+  endif
+  return 1;
+endfunction
+
+exported function test_static_redirect()
+  var res := get_extended( "/pkg/webserver/" );
+  if ( res.status != 301 )
+    return ret_error( $"directory request returned status {res.status}, expecting 301" );
+  endif
+
+  // no index.ecl in the package, so decode_page picks index.htm (asset exists)
+  var location := res.headers["location"];
+  if ( !ends_with( location, "/pkg/webserver/index.htm" ) )
+    return ret_error( $"301 location '{location}' does not end with /pkg/webserver/index.htm" );
+  endif
+  return 1;
+endfunction
+
+exported function test_static_connection_header()
+  var res := get_extended( "/pkg/webserver/static.html" );
+  // TODO spec 01 (keep-alive): accept "keep-alive" once it lands
+  var actual := res.headers["connection"];
+  if ( actual != "close" )
+    return ret_error( $"connection header '{actual}', expecting 'close'" );
+  endif
+  return 1;
+endfunction

@@ -1,6 +1,11 @@
 use os;
 program start()
   print( "POL initialization complete." );
-  start_script( "tests" );
+  // ctest sets POLCORE_TEST_RUN (1 or 2); without it the shard stays up for manual testing
+  if ( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) )
+    start_script( "tests" );
+  else
+    print( "POLCORE_TEST_RUN not set - skipping testscripts, shard stays up." );
+  endif
   start_script( "busyloop" );
 endprogram

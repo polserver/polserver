@@ -2,9 +2,29 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-31-2026</datemodified>
+		<datemodified>07-05-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-05-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">On macOS, sockets could lose data that arrived just before the peer closed the connection<br/>
+(poll() reports POLLHUP eagerly there; the buffered data is now drained before the connection is treated as closed).<br/>
+Affected e.g. os::OpenConnection() clients talking to servers that close after responding.</change>
+		</entry>
+		<entry>
+			<date>07-04-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">Webserver performance: Nagle's algorithm is now disabled for HTTP connections,<br/>
+responses are sent in single network operations with Content-Length and Connection headers,<br/>
+and file transfers use a larger buffer.</change>
+			<change type="Fixed">Webserver: data race when config/www.cfg was reloaded while requests were being served,<br/>
+transient accept() errors no longer terminate the webserver thread,<br/>
+error pages no longer reflect unescaped request data (XSS),<br/>
+and sending to a stalled peer no longer busy-loops the CPU.</change>
+			<change type="Changed">Webserver only accepts GET requests (405 otherwise) and limits requests to 64 header lines read within 10 seconds.</change>
+			<change type="Changed">Webserver: the built-in MIME type list (used when config/www.cfg does not exist) now also covers css, json, svg, txt, webp, woff2 and wasm.</change>
+		</entry>
 		<entry>
 			<date>05-31-2026</date>
 			<author>Turley:</author>

@@ -5,8 +5,13 @@ program test_httprequest()
   return 1;
 endprogram
 
+function auth_options()
+  return struct{ headers := struct{ Authorization := WWW_AUTH_VALUE } };
+endfunction
+
 exported function test_httprequest_regular()
-  var res := HTTPRequest( "http://127.0.0.1:5006/pkg/webserver/test.ecl?body=%7B%22status%22%3A200%7D" );
+  var res := HTTPRequest( WWW_BASE_URL + "/pkg/webserver/test.ecl?body=%7B%22status%22%3A200%7D",
+                          options := auth_options() );
   var expected := "{\"status\":200}";
   if ( res != expected )
     return ret_error( $"HTTPRequest returned '{res}', expecting '{expected}'" );
@@ -15,8 +20,8 @@ exported function test_httprequest_regular()
 endfunction
 
 exported function test_httprequest_ext_status()
-  var res := HTTPRequest( "http://127.0.0.1:5006/pkg/webserver/test.ecl?status=429&body=%7B%22status%22%3A429%7D",
-                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
+  var res := HTTPRequest( WWW_BASE_URL + "/pkg/webserver/test.ecl?status=429&body=%7B%22status%22%3A429%7D",
+                          options := auth_options(), flags := HTTPREQUEST_EXTENDED_RESPONSE );
   var actual, expected;
 
   actual := TypeOfInt( res );
@@ -47,8 +52,8 @@ exported function test_httprequest_ext_status()
 endfunction
 
 exported function test_httprequest_ext_headers()
-  var res := HTTPRequest( "http://127.0.0.1:5006/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22test1%22%2C%22value%22%3A%22value1%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2a%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2b%22%7D%5D",
-                          flags := HTTPREQUEST_EXTENDED_RESPONSE );
+  var res := HTTPRequest( WWW_BASE_URL + "/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22test1%22%2C%22value%22%3A%22value1%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2a%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2b%22%7D%5D",
+                          options := auth_options(), flags := HTTPREQUEST_EXTENDED_RESPONSE );
   var actual, expected;
 
   actual := TypeOfInt( res );
