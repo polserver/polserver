@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-05-2026</datemodified>
+		<datemodified>07-06-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-06-2026</date>
+			<author>Nando:</author>
+			<change type="Changed">With WebServerLocalOnly=1 (the default), the webserver now binds to 127.0.0.1 instead of<br/>
+all interfaces, so the port is no longer reachable (or even visible) from other machines.<br/>
+Set WebServerLocalOnly=0 to allow remote connections, as before.</change>
+		</entry>
 		<entry>
 			<date>07-05-2026</date>
 			<author>Nando:</author>

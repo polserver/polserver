@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+07-06-2026 Nando:
+  Changed: With WebServerLocalOnly=1 (the default), the webserver now binds to
+           127.0.0.1 instead of all interfaces, so the port is no longer reachable
+           (or even visible) from other machines. Set WebServerLocalOnly=0 to allow
+           remote connections, as before.
 07-05-2026 Nando:
     Fixed: On macOS, sockets could lose data that arrived just before the peer closed
            the connection (poll() reports POLLHUP eagerly there; the buffered data is

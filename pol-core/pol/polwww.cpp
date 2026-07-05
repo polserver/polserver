@@ -969,11 +969,15 @@ void http_thread()
   config_web_server();
   init_http_thread_support();
 
-  // if (1)
-  INFO_PRINTLN( "Listening for HTTP requests on port {}",
-                Plib::systemstate.config.web_server_port );
+  if ( Plib::systemstate.config.web_server_local_only )
+    INFO_PRINTLN( "Listening for HTTP requests on 127.0.0.1:{} (local only)",
+                  Plib::systemstate.config.web_server_port );
+  else
+    INFO_PRINTLN( "Listening for HTTP requests on port {}",
+                  Plib::systemstate.config.web_server_port );
 
-  SOCKET http_socket = Network::open_listen_socket( Plib::systemstate.config.web_server_port );
+  SOCKET http_socket = Network::open_listen_socket( Plib::systemstate.config.web_server_port,
+                                                    Plib::systemstate.config.web_server_local_only );
   if ( http_socket == INVALID_SOCKET )
   {
     ERROR_PRINTLN( "Unable to listen on socket: {}", http_socket );

@@ -154,7 +154,7 @@ void apply_socket_options( SOCKET sck )
                               Clib::tostring( res ) );
   }
 }
-SOCKET open_listen_socket( unsigned short port )
+SOCKET open_listen_socket( unsigned short port, bool loopback_only )
 {
   int res;
   SOCKET sck;
@@ -186,7 +186,8 @@ SOCKET open_listen_socket( unsigned short port )
 
   struct sockaddr_in connection;
   connection.sin_family = AF_INET;
-  connection.sin_addr.s_addr = INADDR_ANY;
+  // if IPv6 listeners are ever added, loopback_only must also cover ::1
+  connection.sin_addr.s_addr = htonl( loopback_only ? INADDR_LOOPBACK : INADDR_ANY );
   connection.sin_port = ctBEu16( port );
   memset( connection.sin_zero, 0, sizeof( connection.sin_zero ) );  // for completeness
 
@@ -195,8 +196,9 @@ SOCKET open_listen_socket( unsigned short port )
   {
     // Aug. 16, 2006. Austin
     //   Added the port number that failed.
-    std::string tmp_error = "Unable to bind listening socket. Port(" + Clib::tostring( port ) +
-                            ") Res=" + Clib::tostring( res );
+    std::string tmp_error = std::string( "Unable to bind listening socket. Addr(" ) +
+                            ( loopback_only ? "127.0.0.1" : "0.0.0.0" ) + ") Port(" +
+                            Clib::tostring( port ) + ") Res=" + Clib::tostring( res );
     throw std::runtime_error( tmp_error );
   }
 
