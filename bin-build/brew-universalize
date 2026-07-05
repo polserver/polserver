@@ -172,9 +172,23 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
 
     for FORMULA in "${TO_BUILD[@]}"; do
       PATCHED_FILE="$PATCHED_DIR/$FORMULA.rb"
-      arch "-$ARCH_OTHER" "$BREW_OTHER" cat "$FORMULA" \
-        | sed '/system "make", "HARNESS_JOBS=/d' \
-        > "$PATCHED_FILE"
+      
+      # Fetch formula source via API instead of `brew cat` (which requires
+      # a full local tap clone, unavailable in modern API-based Homebrew)
+      FORMULA_TAP=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$FORMULA" '.[] | select(.name == $name) | .tap // "Homebrew/homebrew-core"')
+      FORMULA_GIT_HEAD=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$FORMULA" '.[] | select(.name == $name) | .tap_git_head')
+      FORMULA_SOURCE_PATH=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$FORMULA" '.[] | select(.name == $name) | .ruby_source_path // "Formula/\($name).rb"')
+      
+      # Fall back to HEAD if tap_git_head is not available
+      FORMULA_GIT_HEAD=${FORMULA_GIT_HEAD:-HEAD}
+      
+      FORMULA_RAW_URL="https://raw.githubusercontent.com/$FORMULA_TAP/$FORMULA_GIT_HEAD/$FORMULA_SOURCE_PATH"
+      
+      if ! curl -fsSL "$FORMULA_RAW_URL" | sed '/system "make", "HARNESS_JOBS=/d' > "$PATCHED_FILE"; then
+        echo "Failed to fetch formula source from $FORMULA_RAW_URL" >&2
+        exit 1
+      fi
+      
       PATCHED_PATHS+=("$PATCHED_FILE")
     done
 
