@@ -45,7 +45,8 @@ jobs:
             c-compiler: clang
             compiler-version: default
             build-type: Release
-            cmake-cfg: "-DREUSE_PCH=1 -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64'"
+            cmake-cfg: "-DREUSE_PCH=1 -DCMAKE_OSX_ARCHITECTURES='arm64'"
+            #cmake-cfg: "-DREUSE_PCH=1 -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64'"
             tests: true
             name: MacOS Clang
 
@@ -130,7 +131,7 @@ jobs:
           /opt/homebrew/bin/pip3.13 install --break-system-packages aiosmtpd
           brew bundle --file=bin-build/Brewfile
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `brew-universalize`.
-          ./bin-build/brew-universalize openssl@3 libssh2 zstd
+          #./bin-build/brew-universalize openssl@3 libssh2 zstd
           OPENSSL_VERSION_INSTALLED=$(brew info --json openssl@3 | jq -r '.[0].installed[0].version')
           echo "PKG_CONFIG_PATH=/opt/homebrew/Cellar/openssl@3/$OPENSSL_VERSION_INSTALLED/lib/pkgconfig:$Env:PKG_CONFIG_PATH" >> $GITHUB_ENV
           #env:
