@@ -4,6 +4,16 @@
            the connection (poll() reports POLLHUP eagerly there; the buffered data is
            now drained before the connection is treated as closed). Affected e.g.
            os::OpenConnection() clients talking to servers that close after responding.
+  Changed: os::OpenConnection() now resolves hostnames (e.g. "shard.example.com"), not
+           only numeric IP addresses. Unresolvable names fail immediately (previously
+           they silently connected to 255.255.255.255) and unreachable hosts give up
+           after the new connect_timeout_ms parameter (default 10000 ms; 0 restores the
+           old behavior of blocking a worker thread for the OS default of a minute or
+           more).
+    Fixed: Connections read line-by-line (aux services, webserver, remote debugger)
+           could be kept open forever by a peer streaming data without line breaks:
+           receive timeouts now only reset when usable data arrives, and line buffers
+           without a configured maximum are capped at 16 MB.
 07-04-2026 Nando:
     Fixed: Webserver performance: Nagle's algorithm is now disabled for HTTP connections,
            responses are sent in single network operations with Content-Length and

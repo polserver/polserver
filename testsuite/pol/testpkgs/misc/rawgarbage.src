@@ -1,0 +1,34 @@
+// Helper for test_openconn.src (not a test file itself). Streams non-printable
+// bytes (0x01, no line breaks) at the connected server until the server drops
+// the connection, then reports the elapsed seconds to params.test_script_pid
+// (-1 if the server never closed it). Started with keep_connection := 1 so our
+// own receive timeout does not close the socket first.
+use os;
+use uo;
+
+program auxservice( conn, params )
+  var start := ReadGameClock();
+
+  var garbage := "";
+  var i := 0;
+  while ( i < 64 )
+    i += 1;
+    garbage += CChr( 1 );
+  endwhile
+
+  var elapsed := -1;
+  var loops := 120; // 30s safety net
+  while ( loops > 0 )
+    loops -= 1;
+    // the only event we can receive is the "connection closed" error --
+    // the webserver never answers an incomplete request line
+    if ( Events_Waiting() )
+      elapsed := ReadGameClock() - start;
+      break;
+    endif
+    conn.transmit( garbage );
+    Sleepms( 250 );
+  endwhile
+
+  GetProcess( params.test_script_pid ).SendEvent( struct{ elapsed := elapsed } );
+endprogram

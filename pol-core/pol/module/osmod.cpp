@@ -5,6 +5,8 @@
 
 #include "osmod.h"
 
+#include <limits>
+
 #include "bscript/berror.h"
 #include "bscript/bobject.h"
 #include "bscript/bstruct.h"
@@ -611,9 +613,11 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   int assume_string_int;
   int keep_connection_int;
   int ignore_line_breaks_int;
+  int connect_timeout_ms_int;
   if ( !getStringParam( 0, host ) || !getParam( 1, port ) || !getStringParam( 2, scriptname_str ) ||
        !getParamImp( 3, scriptparam ) || !getParam( 4, assume_string_int ) ||
-       !getParam( 5, keep_connection_int ) || !getParam( 6, ignore_line_breaks_int ) )
+       !getParam( 5, keep_connection_int ) || !getParam( 6, ignore_line_breaks_int ) ||
+       !getParam( 7, connect_timeout_ms_int, 0, std::numeric_limits<int>::max() ) )
     return new BError( "Invalid parameter type" );
 
   // FIXME needs to inherit available modules?
@@ -641,14 +645,18 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   bool assume_string = assume_string_int != 0;
   bool keep_connection = keep_connection_int != 0;
   bool ignore_line_breaks = ignore_line_breaks_int != 0;
+  // 0 means a blocking connect with the OS default timeout; the escript default
+  // is 10s so an unreachable host doesn't pin an auxthreadpool worker for the
+  // OS default of a minute or more
+  auto connect_timeout_ms = static_cast<unsigned int>( connect_timeout_ms_int );
   auto* paramobjimp_raw = scriptparam->copy();  // prevent delete
   Core::networkManager.auxthreadpool->push(
       [uoexec_w, sd, hostname, port, paramobjimp_raw, assume_string, keep_connection,
-       ignore_line_breaks]()
+       ignore_line_breaks, connect_timeout_ms]()
       {
         Clib::Socket s;
         std::unique_ptr<Network::AuxClientThread> client;
-        bool success_open = s.open( hostname.c_str(), port );
+        bool success_open = s.open( hostname.c_str(), port, connect_timeout_ms );
         {
           Core::PolLock lck;
           std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );

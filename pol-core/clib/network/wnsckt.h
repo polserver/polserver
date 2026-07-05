@@ -36,7 +36,8 @@ public:
 
   void write( const std::string& str );
 
-  bool open( const char* ipaddr, unsigned short port );
+  // connect_timeout_ms == 0 means a blocking connect with the OS default timeout
+  bool open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms = 0 );
   bool listen( unsigned short port );
   bool has_incoming_data( unsigned int waitms, int* result = nullptr );
   bool accept( SOCKET* s, unsigned int mstimeout );
@@ -107,6 +108,9 @@ protected:
   unsigned int _timeout_secs;
 
   bool _disconnect_on_timeout;
+  // set by try_read() when it consumed usable bytes; read() only refreshes its
+  // timeout on progress
+  bool _made_progress = false;
 };
 
 class SocketLineReader : public SocketReader

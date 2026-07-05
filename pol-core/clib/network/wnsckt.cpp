@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 
@@ -28,6 +29,7 @@ typedef int socklen_t;
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
@@ -45,23 +47,37 @@ typedef int socklen_t;
 
 namespace Pol::Clib
 {
+#ifdef _WIN32
+static void winsock_initialize()
+{
+  // magic static: initialization is thread-safe and happens exactly once
+  static struct WinsockInit
+  {
+    WinsockInit()
+    {
+      WSADATA wsad;
+      if ( WSAStartup( MAKEWORD( 2, 2 ), &wsad ) != 0 )
+        INFO_PRINTLN( "Error in WSAStartup()" );
+    }
+    ~WinsockInit() { WSACleanup(); }
+  } init;
+}
+#endif
+
 Socket::Socket() : _sck( INVALID_SOCKET ), _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
 #ifdef _WIN32
-  static bool init;
-  if ( !init )
-  {
-    init = true;
-    WSADATA dummy;
-    WSAStartup( MAKEWORD( 1, 0 ), &dummy );
-  }
+  winsock_initialize();
 #endif
 }
 
 Socket::Socket( SOCKET sock ) : _sck( sock ), _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
+#ifdef _WIN32
+  winsock_initialize();
+#endif
 }
 
 Socket::Socket( Socket&& sock )
@@ -74,10 +90,14 @@ Socket::Socket( Socket&& sock )
 
 Socket& Socket::operator=( Socket&& sock )
 {
-  _sck = std::move( sock._sck );
-  _options = std::move( sock._options );
-  _peer = std::move( sock._peer );
-  sock._sck = INVALID_SOCKET;
+  if ( this != &sock )
+  {
+    close();
+    _sck = sock._sck;
+    _options = sock._options;
+    _peer = sock._peer;
+    sock._sck = INVALID_SOCKET;
+  }
   return *this;
 }
 
@@ -104,13 +124,15 @@ void Socket::setpeer( struct sockaddr peer )
 
 std::string Socket::getpeername() const
 {
-  struct sockaddr client_addr;  // inet_addr
+  struct sockaddr client_addr;
   socklen_t addrlen = sizeof client_addr;
   if ( ::getpeername( _sck, &client_addr, &addrlen ) == 0 )
   {
     struct sockaddr_in* in_addr = (struct sockaddr_in*)&client_addr;
-    if ( client_addr.sa_family == AF_INET )
-      return inet_ntoa( in_addr->sin_addr );
+    char buffer[INET_ADDRSTRLEN];
+    if ( client_addr.sa_family == AF_INET &&
+         inet_ntop( AF_INET, &in_addr->sin_addr, buffer, sizeof buffer ) != nullptr )
+      return buffer;
     return "(display error)";
   }
   return "Error retrieving peer name";
@@ -133,40 +155,93 @@ SOCKET Socket::release_handle()
 }
 
 
-bool Socket::open( const char* ipaddr, unsigned short port )
+static bool wait_for_writable( SOCKET sck, unsigned int waitms );
+
+static bool set_blocking_mode( SOCKET sck, bool blocking )
+{
+#ifdef _WIN32
+  u_long nonblocking = blocking ? 0 : 1;
+  return ioctlsocket( sck, FIONBIO, &nonblocking ) == 0;
+#else
+  int flags = fcntl( sck, F_GETFL );
+  if ( flags == -1 )
+    return false;
+  flags = blocking ? ( flags & ~O_NONBLOCK ) : ( flags | O_NONBLOCK );
+  return fcntl( sck, F_SETFL, flags ) == 0;
+#endif
+}
+
+// Connects sck to addr, waiting at most timeout_ms for the connection to be
+// established (0 = blocking connect with the OS default timeout).
+static bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeout_ms )
+{
+  auto addrlen = static_cast<socklen_t>( addr->ai_addrlen );
+  if ( timeout_ms == 0 )
+    return ::connect( sck, addr->ai_addr, addrlen ) == 0;
+
+  if ( !set_blocking_mode( sck, false ) )
+    return false;
+
+  bool connected = ::connect( sck, addr->ai_addr, addrlen ) == 0;
+  if ( !connected )
+  {
+#ifdef _WIN32
+    bool in_progress = socket_errno == WSAEWOULDBLOCK;
+#else
+    bool in_progress = socket_errno == EINPROGRESS;
+#endif
+    if ( in_progress && wait_for_writable( sck, timeout_ms ) )
+    {
+      int so_error = 0;
+      socklen_t optlen = sizeof so_error;
+      connected = getsockopt( sck, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>( &so_error ),
+                              &optlen ) == 0 &&
+                  so_error == 0;
+    }
+  }
+
+  return connected && set_blocking_mode( sck, true );
+}
+
+bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms )
 {
   close();
-  _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( _sck == INVALID_SOCKET
-#ifndef WINDOWS
-       || _sck < 0
-#endif
-  )
+
+  struct addrinfo hints;
+  memset( &hints, 0, sizeof hints );
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+
+  struct addrinfo* addrs = nullptr;
+  int res = getaddrinfo( ipaddr, Clib::tostring( port ).c_str(), &hints, &addrs );
+  if ( res != 0 )
   {
-    INFO_PRINTLN( "Unable to open socket in Socket::open()" );
+    INFO_PRINTLN( "Unable to resolve '{}' in Socket::open(), error={}", ipaddr, res );
     return false;
   }
 
-  struct sockaddr_in sin;
-  memset( &sin, 0, sizeof sin );
-  sin.sin_family = AF_INET;
-  sin.sin_addr.s_addr = inet_addr( ipaddr );
-  sin.sin_port = htons( port );
-
-
-  int res = connect( _sck, (struct sockaddr*)&sin, sizeof sin );
-
-  if ( res == 0 )
+  for ( struct addrinfo* addr = addrs; addr != nullptr; addr = addr->ai_next )
   {
-    return true;
-  }
+    _sck = socket( addr->ai_family, addr->ai_socktype, addr->ai_protocol );
+    if ( _sck == INVALID_SOCKET )
+      continue;
+
+    if ( connect_socket( _sck, addr, connect_timeout_ms ) )
+    {
+      freeaddrinfo( addrs );
+      return true;
+    }
 
 #ifdef _WIN32
-  closesocket( _sck );
+    closesocket( _sck );
 #else
-  ::close( _sck );
+    ::close( _sck );
 #endif
-  _sck = INVALID_SOCKET;
+    _sck = INVALID_SOCKET;
+  }
+
+  freeaddrinfo( addrs );
   return false;
 }
 
@@ -697,6 +772,7 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
 {
   if ( timed_out )
     *timed_out = false;
+  _made_progress = false;
 
   // check if there is already a line in the buffer
   auto pos_newline = _currentLine.find_first_of( "\n" );
@@ -733,15 +809,21 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
 
     // append only the valid characters to the buffer
     _currentLine.append( buffer.data(), valid_char_count );
+    _made_progress = true;
 
     // update position
     pos_newline = _currentLine.find_first_of( "\n", oldSize );
   }
 
+  // hard cap even when no maximum is configured, so a peer that never sends a
+  // newline cannot grow the buffer without bound
+  constexpr size_t absolute_max_linelength = 16 * 1024 * 1024;
+  const size_t max_linelength = _maxLinelength > 0 ? _maxLinelength : absolute_max_linelength;
+
   // note that std::string::npos is larger than any other number, so the conditon below will be
   // false only if there is a newline before the maximum line length or if the current line is still
   // small.
-  if ( _maxLinelength > 0 && pos_newline > _maxLinelength && _currentLine.size() > _maxLinelength )
+  if ( pos_newline > max_linelength && _currentLine.size() > max_linelength )
   {
     out = _currentLine;
     _currentLine.clear();
@@ -764,6 +846,7 @@ bool SocketByteReader::try_read( std::string& out, bool* timed_out )
 {
   if ( timed_out )
     *timed_out = false;
+  _made_progress = false;
 
   std::array<char, 4096> buffer;
 
@@ -780,24 +863,25 @@ bool SocketByteReader::try_read( std::string& out, bool* timed_out )
     return false;
 
   out = std::string( buffer.data(), bytes_read );
+  _made_progress = true;
 
   return true;
 }
 
-// Blocks until a whole line is received, waitms are over or maxlen is reached
+// Blocks until a whole line is received, the timeout is over or maxlen is reached
 bool SocketReader::read( std::string& out, bool* timed_out )
 {
   out = "";
   if ( timed_out )
     *timed_out = false;
 
-  const int max_timeouts = ( _timeout_secs * 1000 ) / _waitms;
-  bool single_timed_out = false;
+  using clock = std::chrono::steady_clock;
+  const auto timeout = std::chrono::seconds( _timeout_secs );
+  auto deadline = clock::now() + timeout;
 
-  int timeout_left = max_timeouts;
   while ( !Clib::exit_signalled && _socket.connected() )
   {
-    if ( try_read( out, &single_timed_out ) )
+    if ( try_read( out ) )
     {
       return true;
     }
@@ -809,10 +893,15 @@ bool SocketReader::read( std::string& out, bool* timed_out )
       return false;
     }
 
-    if ( _timeout_secs > 0 && single_timed_out )
+    if ( _timeout_secs > 0 )
     {
-      timeout_left--;
-      if ( timeout_left <= 0 )
+      if ( _made_progress )
+      {
+        // partial data arrived; only actual progress refreshes the deadline, so
+        // a peer streaming discarded bytes cannot keep the connection alive
+        deadline = clock::now() + timeout;
+      }
+      else if ( clock::now() >= deadline )
       {
         if ( _disconnect_on_timeout || !timed_out )
           _socket.close();
@@ -822,11 +911,6 @@ bool SocketReader::read( std::string& out, bool* timed_out )
 
         return false;
       }
-    }
-    else
-    {
-      // refresh timeout counter
-      timeout_left = max_timeouts;
     }
   }
   return false;

@@ -11,6 +11,13 @@
 			<change type="Fixed">On macOS, sockets could lose data that arrived just before the peer closed the connection<br/>
 (poll() reports POLLHUP eagerly there; the buffered data is now drained before the connection is treated as closed).<br/>
 Affected e.g. os::OpenConnection() clients talking to servers that close after responding.</change>
+			<change type="Changed">os::OpenConnection() now resolves hostnames (e.g. "shard.example.com"), not only numeric IP addresses.<br/>
+Unresolvable names fail immediately (previously they silently connected to 255.255.255.255)<br/>
+and unreachable hosts give up after the new connect_timeout_ms parameter (default 10000 ms;<br/>
+0 restores the old behavior of blocking a worker thread for the OS default of a minute or more).</change>
+			<change type="Fixed">Connections read line-by-line (aux services, webserver, remote debugger) could be kept open forever<br/>
+by a peer streaming data without line breaks: receive timeouts now only reset when usable data arrives,<br/>
+and line buffers without a configured maximum are capped at 16 MB.</change>
 		</entry>
 		<entry>
 			<date>07-04-2026</date>
