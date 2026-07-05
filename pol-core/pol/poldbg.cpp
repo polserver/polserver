@@ -1374,7 +1374,8 @@ void debug_listen_thread()
 {
   if ( Plib::systemstate.config.debug_port )
   {
-    Clib::SocketListener SL( Plib::systemstate.config.debug_port );
+    Clib::SocketListener SL( Plib::systemstate.config.debug_port,
+                             Plib::systemstate.config.debug_local_only );
     while ( !Clib::exit_signalled )
     {
       Clib::Socket sock;

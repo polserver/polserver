@@ -18,6 +18,11 @@ and unreachable hosts give up after the new connect_timeout_ms parameter (defaul
 			<change type="Fixed">Connections read line-by-line (aux services, webserver, remote debugger) could be kept open forever<br/>
 by a peer streaming data without line breaks: receive timeouts now only reset when usable data arrives,<br/>
 and line buffers without a configured maximum are capped at 16 MB.</change>
+			<change type="Changed">With DebugLocalOnly=1 (the default), the DebugPort listener now binds to 127.0.0.1 instead of<br/>
+all interfaces, so the port is no longer reachable (or even visible) from other machines.<br/>
+Set DebugLocalOnly=0 to allow remote debugger connections, as before.</change>
+			<change type="Changed">The "local only" peer checks (DebugLocalOnly, WebServerLocalOnly) now accept connections<br/>
+from any 127.0.0.0/8 loopback address instead of only exactly 127.0.0.1.</change>
 		</entry>
 		<entry>
 			<date>07-04-2026</date>

@@ -14,6 +14,13 @@
            could be kept open forever by a peer streaming data without line breaks:
            receive timeouts now only reset when usable data arrives, and line buffers
            without a configured maximum are capped at 16 MB.
+  Changed: With DebugLocalOnly=1 (the default), the DebugPort listener now binds to
+           127.0.0.1 instead of all interfaces, so the port is no longer reachable
+           (or even visible) from other machines. Set DebugLocalOnly=0 to allow
+           remote debugger connections, as before.
+  Changed: The "local only" peer checks (DebugLocalOnly, WebServerLocalOnly) now
+           accept connections from any 127.0.0.0/8 loopback address instead of
+           only exactly 127.0.0.1.
 07-04-2026 Nando:
     Fixed: Webserver performance: Nagle's algorithm is now disabled for HTTP connections,
            responses are sent in single network operations with Content-Length and

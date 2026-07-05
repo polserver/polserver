@@ -302,13 +302,13 @@ void Socket::apply_prebind_socket_options( SOCKET sck )
   }
 }
 
-bool Socket::listen( unsigned short port )
+bool Socket::listen( unsigned short port, bool loopback_only )
 {
   struct sockaddr_in local;
 
   close();
   local.sin_family = AF_INET;
-  local.sin_addr.s_addr = INADDR_ANY;
+  local.sin_addr.s_addr = htonl( loopback_only ? INADDR_LOOPBACK : INADDR_ANY );
   /* Port MUST be in Network Byte Order */
   local.sin_port = htons( port );
   memset( local.sin_zero, 0, sizeof( local.sin_zero ) );  // not needed, but for completeness
@@ -761,8 +761,12 @@ void Socket::close()
 
 bool Socket::is_local() const
 {
-  std::string s = getpeername();
-  return ( s == "127.0.0.1" );
+  struct sockaddr_in peer;
+  socklen_t addrlen = sizeof peer;
+  if ( ::getpeername( _sck, reinterpret_cast<struct sockaddr*>( &peer ), &addrlen ) != 0 )
+    return false;
+  // the whole 127.0.0.0/8 block is loopback, not just 127.0.0.1
+  return peer.sin_family == AF_INET && ( ntohl( peer.sin_addr.s_addr ) >> 24 ) == 127;
 }
 
 bool is_invalid_readline_char( unsigned char c )

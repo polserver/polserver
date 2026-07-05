@@ -38,7 +38,8 @@ public:
 
   // connect_timeout_ms == 0 means a blocking connect with the OS default timeout
   bool open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms = 0 );
-  bool listen( unsigned short port );
+  // loopback_only binds to 127.0.0.1 instead of all interfaces
+  bool listen( unsigned short port, bool loopback_only = false );
   bool has_incoming_data( unsigned int waitms, int* result = nullptr );
   bool accept( SOCKET* s, unsigned int mstimeout );
   bool accept( Socket* newsocket );
