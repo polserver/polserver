@@ -55,7 +55,7 @@ WORK_DIR=$(mktemp -d)
 brew update
 
 # brew bundle (an earlier step) installs this-arch formulae against
-# whatever the tap knew at that time. The `brew update` above can move the
+# whatever the tap knew at that time. The `brew_update` above can move the
 # tap's notion of "current" forward without touching what's actually
 # installed -- `update` and `upgrade` are different things in Homebrew.
 # Everything below resolves versions against the post-update tap, so if we
@@ -144,7 +144,7 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
   # rebuild instead of being mistaken for a hit.
   TO_BUILD=()
   for SOURCE_FORMULA in "${SOURCE_FORMULAE[@]}"; do
-    SOURCE_VERSION=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$SOURCE_FORMULA" '.[] | select(.name == $name) | .versions.stable')
+    SOURCE_VERSION=$(echo "$BREW_INFO_JSON" | jq -r --arg name "$SOURCE_FORMULA" '.[] | select(..name == $name) | .versions.stable')
     if [ -d "$HOMEBREW_CELLAR_OTHER/$SOURCE_FORMULA/$SOURCE_VERSION" ]; then
       echo "$SOURCE_FORMULA $SOURCE_VERSION already present under $HOMEBREW_CELLAR_OTHER (cache hit) -- skipping build"
     else
@@ -196,13 +196,33 @@ if [ ${#SOURCE_FORMULAE[@]} -gt 0 ]; then
           exit 1
         fi
       fi
+
+      # Verify the fetched file looks like a Ruby formula (contains a class).
+      # If not, try a more explicit fallback to homebrew/homebrew-core HEAD raw URL.
+      if ! grep -qE '^\s*class\s+[A-Za-z_][A-Za-z0-9_]*' "$PATCHED_FILE"; then
+        echo "Fetched $PATCHED_FILE does not contain a Ruby class definition, trying explicit homebrew/homebrew-core HEAD fallback..."
+        ALT_URL="https://raw.githubusercontent.com/homebrew/homebrew-core/HEAD/$FORMULA_SOURCE_PATH"
+        if curl -fsSL "$ALT_URL" | sed '/system "make", "HARNESS_JOBS=/d' > "$PATCHED_FILE"; then
+          if grep -qE '^\s*class\s+[A-Za-z_][A-Za-z0-9_]*' "$PATCHED_FILE"; then
+            echo "Fetched formula from $ALT_URL"
+          else
+            echo "Alternate fetch from $ALT_URL also didn't yield a valid formula" >&2
+            echo "First 20 lines of $PATCHED_FILE for debugging:" >&2
+            head -n20 "$PATCHED_FILE" >&2
+            exit 1
+          fi
+        else
+          echo "Alternate fetch failed: $ALT_URL" >&2
+          exit 1
+        fi
+      fi
       
       PATCHED_PATHS+=("$PATCHED_FILE")
     done
 
     # Build fresh if not yet installed on the other-arch Homebrew; reinstall
     # (still forcing a source build) if a previous run already bottled it in.
-    # Modern Homebrew rejects formula files that are not in a tap, so create a
+    # Modern Homebrew rejects formulae that are not in a tap, so create a
     # temporary tap in the other-arch Homebrew and copy the patched formulae
     # into it, then install by tap-qualified name.
     if [ ${#PATCHED_PATHS[@]} -gt 0 ]; then
