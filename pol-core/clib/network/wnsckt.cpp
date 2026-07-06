@@ -744,9 +744,17 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
 
 void Socket::write( const std::string& s )
 {
-  send( (void*)s.c_str(), static_cast<unsigned int>( s.length() ) );
+  send( s.data(), static_cast<unsigned int>( s.length() ) );
 }
 
+void Socket::writeline( const std::string& s )
+{
+  std::string line;
+  line.reserve( s.length() + 2 );
+  line += s;
+  line += "\r\n";
+  send( line.data(), static_cast<unsigned int>( line.length() ) );
+}
 
 void Socket::close()
 {

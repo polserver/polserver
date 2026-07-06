@@ -21,7 +21,6 @@
 #include "../../clib/clib.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/network/sckutil.h"
 #include "../../clib/network/socketsvc.h"
 #include "../../clib/network/wnsckt.h"
 #include "../../clib/stlutil.h"
@@ -180,7 +179,7 @@ void AuxClientThread::run()
   {
     if ( _sck.connected() )
     {
-      writeline( _sck, "Connection closed" );
+      _sck.writeline("Connection closed" );
       _sck.close();
     }
     _auxconnection.clear();
@@ -271,7 +270,7 @@ void AuxClientThread::transmit( const std::string& msg )
     if ( _ignore_line_breaks )
       _sck.write( msg );
     else
-      writeline( _sck, msg );
+      _sck.writeline( msg );
   }
   --_transmit_counter;
 }

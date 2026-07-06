@@ -48,8 +48,6 @@ set (clib_sources
   message_queue.h
   mlog.cpp 
   mlog.h
-  network/sckutil.cpp 
-  network/sckutil.h
   network/singlepoller.h
   network/singlepollers/pollingwithpoll.h
   network/sockets.h

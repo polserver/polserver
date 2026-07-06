@@ -36,6 +36,7 @@ public:
   ~Socket();
 
   void write( const std::string& str );
+  void writeline( const std::string& s );
 
   // connect_timeout_ms == 0 means a blocking connect with the OS default timeout
   bool open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms = 0 );

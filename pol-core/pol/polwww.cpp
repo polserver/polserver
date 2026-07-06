@@ -719,34 +719,29 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
 {
   unsigned int fsize = Clib::filesize( filename.c_str() );
   std::ifstream ifs( filename.c_str(), std::ios::binary );
-  if ( ifs.is_open() )
-  {
-    std::string headers;
-    headers.reserve( 160 );
-    headers += "HTTP/1.1 200 OK\r\n";
-    headers += "Accept-Ranges: bytes\r\n";
-    fmt::format_to( std::back_inserter( headers ), "Content-Length: {}\r\n", fsize );
-    fmt::format_to( std::back_inserter( headers ), "Content-Type: {}\r\n", content_type );
-    headers += "Connection: close\r\n";
-    headers += "\r\n";
-    sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) );
-
-    // Actual reading and outputting.
-    char bfr[32768];
-    unsigned int cur_read = 0;
-    while ( sck.connected() && ifs.good() && cur_read < fsize )
-    {
-      ifs.read( bfr, sizeof( bfr ) );
-      cur_read += static_cast<unsigned int>( ifs.gcount() );
-      sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) );  // This was sizeof bfr, which
-                                                                   // would send garbage... fixed --
-                                                                   // Nando, 2009-02-22
-    }
-    // -------------
-  }
-  else
-  {
+  if ( !ifs.is_open() ) {
     http_not_found( sck, page );
+    return;
+  }
+
+  std::string headers;
+  headers.reserve( 160 );
+  headers += "HTTP/1.1 200 OK\r\n";
+  headers += "Accept-Ranges: bytes\r\n";
+  fmt::format_to( std::back_inserter( headers ), "Content-Length: {}\r\n", fsize );
+  fmt::format_to( std::back_inserter( headers ), "Content-Type: {}\r\n", content_type );
+  headers += "Connection: close\r\n";
+  headers += "\r\n";
+  sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) );
+
+  // Actual reading and outputting.
+  char bfr[32768];
+  unsigned int cur_read = 0;
+  while ( sck.connected() && ifs.good() && cur_read < fsize )
+  {
+    ifs.read( bfr, sizeof( bfr ) );
+    cur_read += static_cast<unsigned int>( ifs.gcount() );
+    sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) ); 
   }
 }
 
