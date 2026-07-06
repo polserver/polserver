@@ -1,6 +1,7 @@
 #ifndef CLIB_WNSCKT_H
 #define CLIB_WNSCKT_H
 
+#include <atomic>
 #include <string>
 
 #include "../Header_Windows.h"
@@ -62,7 +63,6 @@ public:
 
   void setsocket( SOCKET sck );
   void setpeer( struct sockaddr peer );
-  void takesocket( Socket& sck );
 
   void set_options( option opt );
 
@@ -75,7 +75,11 @@ protected:
 private:
   void HandleError();
 
-  SOCKET _sck;
+  // atomic: close() may be called while another thread does I/O (aux connections
+  // close from the reader thread while transmit tasks send); this keeps the
+  // handle reads/writes race-free, but a concurrent sender can still lose the
+  // race and act on an already-closed descriptor (specs/sockets/06).
+  std::atomic<SOCKET> _sck;
 
   int _options;
   struct sockaddr _peer;

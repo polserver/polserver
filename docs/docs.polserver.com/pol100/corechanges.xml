@@ -8,6 +8,8 @@
 		<entry>
 			<date>07-06-2026</date>
 			<author>Nando:</author>
+			<change type="Fixed">Data race on the socket handle between an aux connection's reader thread and deferred transmit() tasks<br/>
+(os::OpenConnection / aux services): a transmit racing the connection close could act on an already-closed socket handle.</change>
 			<change type="Changed">With WebServerLocalOnly=1 (the default), the webserver now binds to 127.0.0.1 instead of<br/>
 all interfaces, so the port is no longer reachable (or even visible) from other machines.<br/>
 Set WebServerLocalOnly=0 to allow remote connections, as before.</change>

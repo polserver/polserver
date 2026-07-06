@@ -85,6 +85,29 @@ exported function test_openconn_timeout_param()
   return 1;
 endfunction
 
+// Transmitting while (and after) the server closes the connection must be
+// safe: the aux reader thread closes the socket on EOF while deferred
+// transmit tasks still touch it (regression test for a data race on the
+// socket handle; the TSan CI build is what actually flags regressions).
+exported function test_openconn_transmit_on_close()
+  var conn := OpenConnection( "127.0.0.1", 5006, "rawclose",
+                              params := struct{ test_script_pid := GetPid() },
+                              assume_string := 1, keep_connection := 1,
+                              ignore_line_breaks := 1 );
+  if ( !conn )
+    return ret_error( $"could not connect to the webserver: {conn}" );
+  endif
+
+  var ev := wait_for_event( 30 );
+  if ( !ev )
+    return ret_error( "no report event from rawclose client" );
+  endif
+  if ( !ev.closed )
+    return ret_error( "webserver never closed the connection" );
+  endif
+  return 1;
+endfunction
+
 // A peer streaming non-printable bytes without line breaks must not keep its
 // webserver connection alive past the 5s idle timeout (regression test for
 // the timeout refreshing on discarded bytes).

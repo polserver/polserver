@@ -81,11 +81,10 @@ Socket::Socket( SOCKET sock ) : _sck( sock ), _options( none )
 }
 
 Socket::Socket( Socket&& sock )
-    : _sck( std::move( sock._sck ) ),
+    : _sck( sock._sck.exchange( INVALID_SOCKET ) ),
       _options( std::move( sock._options ) ),
       _peer( std::move( sock._peer ) )
 {
-  sock._sck = INVALID_SOCKET;
 }
 
 Socket& Socket::operator=( Socket&& sock )
@@ -93,10 +92,9 @@ Socket& Socket::operator=( Socket&& sock )
   if ( this != &sock )
   {
     close();
-    _sck = sock._sck;
+    _sck = sock._sck.exchange( INVALID_SOCKET );
     _options = sock._options;
     _peer = sock._peer;
-    sock._sck = INVALID_SOCKET;
   }
   return *this;
 }
@@ -149,9 +147,7 @@ SOCKET Socket::handle() const
 
 SOCKET Socket::release_handle()
 {
-  SOCKET s = _sck;
-  _sck = INVALID_SOCKET;
-  return s;
+  return _sck.exchange( INVALID_SOCKET );
 }
 
 
@@ -223,22 +219,22 @@ bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect
 
   for ( struct addrinfo* addr = addrs; addr != nullptr; addr = addr->ai_next )
   {
-    _sck = socket( addr->ai_family, addr->ai_socktype, addr->ai_protocol );
-    if ( _sck == INVALID_SOCKET )
+    SOCKET sck = socket( addr->ai_family, addr->ai_socktype, addr->ai_protocol );
+    if ( sck == INVALID_SOCKET )
       continue;
 
-    if ( connect_socket( _sck, addr, connect_timeout_ms ) )
+    if ( connect_socket( sck, addr, connect_timeout_ms ) )
     {
+      _sck = sck;
       freeaddrinfo( addrs );
       return true;
     }
 
 #ifdef _WIN32
-    closesocket( _sck );
+    closesocket( sck );
 #else
-    ::close( _sck );
+    ::close( sck );
 #endif
-    _sck = INVALID_SOCKET;
   }
 
   freeaddrinfo( addrs );
@@ -247,12 +243,13 @@ bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect
 
 void Socket::disable_nagle()
 {
-  if ( _sck == INVALID_SOCKET )
+  SOCKET sck = _sck;
+  if ( sck == INVALID_SOCKET )
     return;
 
   int tcp_nodelay = 1;
-  int res = setsockopt( _sck, IPPROTO_TCP, TCP_NODELAY, (const char*)&tcp_nodelay,
-                        sizeof( tcp_nodelay ) );
+  int res =
+      setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char*)&tcp_nodelay, sizeof( tcp_nodelay ) );
   if ( res < 0 )
   {
     throw std::runtime_error( "Unable to setsockopt (TCP_NODELAY) on socket, res=" +
@@ -313,22 +310,20 @@ bool Socket::listen( unsigned short port, bool loopback_only )
   local.sin_port = htons( port );
   memset( local.sin_zero, 0, sizeof( local.sin_zero ) );  // not needed, but for completeness
 
-  _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( _sck == INVALID_SOCKET )
-  {
-    close();
+  SOCKET sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+  if ( sck == INVALID_SOCKET )
     return false;
-  }
+  _sck = sck;
 
-  apply_socket_options( _sck );
-  apply_prebind_socket_options( _sck );
+  apply_socket_options( sck );
+  apply_prebind_socket_options( sck );
 
-  if ( bind( _sck, (struct sockaddr*)&local, sizeof( local ) ) == -1 )
+  if ( ::bind( sck, (struct sockaddr*)&local, sizeof( local ) ) == -1 )
   {
     HandleError();
     return false;
   }
-  if ( ::listen( _sck, SOMAXCONN ) == -1 )
+  if ( ::listen( sck, SOMAXCONN ) == -1 )
   {
     HandleError();
     return false;
@@ -338,20 +333,21 @@ bool Socket::listen( unsigned short port, bool loopback_only )
 
 bool Socket::has_incoming_data( unsigned int waitms, int* result )
 {
-  if ( !connected() )
+  SOCKET sck = _sck;
+  if ( sck == INVALID_SOCKET )
   {
     if ( result )
       *result = -1;
     return false;
   }
-  SinglePoller poller( _sck );
+  SinglePoller poller( sck );
   poller.set_timeout( waitms );
 
   if ( !poller.prepare( false ) )
   {
     if ( result )
       *result = -1;
-    throw std::runtime_error( "Unable to poll socket=" + tostring( _sck ) );
+    throw std::runtime_error( "Unable to poll socket=" + tostring( sck ) );
   }
 
   int res = -1;
@@ -405,7 +401,7 @@ bool Socket::accept( Socket* newsocket )
 
 bool Socket::connected() const
 {
-  return ( _sck != INVALID_SOCKET );
+  return ( _sck.load() != INVALID_SOCKET );
 }
 
 /* Read and clear the error value */
@@ -680,7 +676,12 @@ void Socket::send( const void* vdata, unsigned length )
 
   while ( datalen )
   {
-    int res = ::send( _sck, cdata, datalen, 0 );
+    // snapshot the handle: close() may race from another thread; a send on the
+    // stale handle then just fails and is handled below
+    SOCKET sck = _sck;
+    if ( sck == INVALID_SOCKET )
+      return;
+    int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
       int sckerr = socket_errno;
@@ -692,7 +693,7 @@ void Socket::send( const void* vdata, unsigned length )
           close();
           return;
         }
-        if ( !wait_for_writable( _sck, wait_slice_ms ) )
+        if ( !wait_for_writable( sck, wait_slice_ms ) )
           waited_ms += wait_slice_ms;
         continue;
       }
@@ -716,7 +717,10 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
 
   while ( datalen )
   {
-    int res = ::send( _sck, cdata, datalen, 0 );
+    SOCKET sck = _sck;
+    if ( sck == INVALID_SOCKET )
+      return true;  // treat like a send error: no data will ever leave
+    int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
       int sckerr = socket_errno;
@@ -746,16 +750,17 @@ void Socket::write( const std::string& s )
 
 void Socket::close()
 {
-  if ( _sck != INVALID_SOCKET )
+  // exchange so concurrent close() calls cannot release the same handle twice
+  SOCKET sck = _sck.exchange( INVALID_SOCKET );
+  if ( sck != INVALID_SOCKET )
   {
 #ifdef _WIN32
-    shutdown( _sck, 2 );  // 2 is both sides. defined in winsock2.h ...
-    closesocket( _sck );
+    shutdown( sck, 2 );  // 2 is both sides. defined in winsock2.h ...
+    closesocket( sck );
 #else
-    shutdown( _sck, SHUT_RDWR );
-    ::close( _sck );
+    shutdown( sck, SHUT_RDWR );
+    ::close( sck );
 #endif
-    _sck = INVALID_SOCKET;
   }
 }
 

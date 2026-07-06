@@ -235,7 +235,10 @@ void AuxClientThread::run()
       break;
     }
   }
-  // wait for all transmits to finish
+  // wait for all transmits to finish: the counter only reaches zero once every
+  // queued transmit task ran, and grabbing _transmit_mutex below waits out the
+  // last one still inside transmit(). This keeps the tasks (which capture
+  // `this`) from outliving the object, whose destruction closes the socket.
   while ( !Clib::exit_signalled && _transmit_counter > 0 )
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
