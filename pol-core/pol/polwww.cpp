@@ -976,8 +976,8 @@ void http_thread()
     INFO_PRINTLN( "Listening for HTTP requests on port {}",
                   Plib::systemstate.config.web_server_port );
 
-  SOCKET http_socket = Network::open_listen_socket( Plib::systemstate.config.web_server_port,
-                                                    Plib::systemstate.config.web_server_local_only );
+  SOCKET http_socket = Network::open_listen_socket(
+      Plib::systemstate.config.web_server_port, Plib::systemstate.config.web_server_local_only );
   if ( http_socket == INVALID_SOCKET )
   {
     ERROR_PRINTLN( "Unable to listen on socket: {}", http_socket );
