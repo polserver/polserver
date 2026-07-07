@@ -43,12 +43,9 @@ public:
   // loopback_only binds to 127.0.0.1 instead of all interfaces
   bool listen( unsigned short port, bool loopback_only = false );
   bool has_incoming_data( unsigned int waitms, int* result = nullptr );
-  bool accept( SOCKET* s, unsigned int mstimeout );
   bool accept( Socket* newsocket );
-  bool recvbyte( unsigned char* byte, unsigned int waitms );
   bool recvdata_nowait( char* vdest, unsigned len, int* bytes_read );
   bool recvdata( void* vdest, unsigned len, unsigned int waitms );
-  unsigned peek( void* vdest, unsigned len, unsigned int waitms );
   void send( const void* data, unsigned length );
   bool send_nowait( const void* vdata, unsigned datalen, unsigned* nsent );
   bool connected() const;

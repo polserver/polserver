@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <system_error>
 
 #include "esignal.h"
 #include "logfacility.h"
@@ -371,19 +372,6 @@ bool Socket::has_incoming_data( unsigned int waitms, int* result )
   return poller.incoming();
 }
 
-bool Socket::accept( SOCKET* s, unsigned int /*mstimeout*/ )
-{
-  *s = ::accept( _sck, nullptr, nullptr );
-  if ( *s != INVALID_SOCKET )
-  {
-    apply_socket_options( *s );
-    return true;
-  }
-
-  *s = INVALID_SOCKET;
-  return false;
-}
-
 bool Socket::accept( Socket* newsocket )
 {
   struct sockaddr client_addr;
@@ -404,97 +392,28 @@ bool Socket::connected() const
   return ( _sck.load() != INVALID_SOCKET );
 }
 
-/* Read and clear the error value */
+/* Read and clear the error value, then close the socket. The general rule is to
+   close on any socket error; there are no error codes we currently want to keep
+   the connection open for. */
 void Socket::HandleError()
 {
 #ifdef _WIN32
-  int ErrVal;
-#if SCK_WATCH
-  static char ErrorBuffer[80];
-#endif
-
-  ErrVal = WSAGetLastError();
+  int err = WSAGetLastError();
   WSASetLastError( 0 );
-
-  switch ( ErrVal )
-  {
-  case WSAENOTSOCK:   /* Software caused connection to abort */
-  case WSAECONNRESET: /* Arg list too long */
-    close();
-    break;
-
-  default:
-    close(); /*
-                   gee, we'll close here,too.
-                   if you want to _not_ close for _specific_ error codes,
-                   feel more than free to make exceptions; but the general
-                   rule should be, close on error.
-                   */
-    break;
-  }
-
-#if SCK_WATCH
-  if ( FormatMessage( FORMAT_MESSAGE_FROM_HMODULE, GetModuleHandle( TEXT( "wsock32" ) ), ErrVal,
-                      MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), ErrorBuffer, sizeof ErrorBuffer,
-                      nullptr ) == 0 )
-  {
-    sprintf( ErrorBuffer, "Unknown error code 0x%08x", ErrVal );
-  }
-  INFO_PRINTLN( std::string( ErrorBuffer ) );
-#endif
 #else
+  int err = errno;
+  errno = 0;
+#endif
+
+#if SCK_WATCH
+  // system_category maps to Win32 error codes (WSAGetLastError) on Windows and
+  // errno on POSIX, so a single call formats the message portably.
+  INFO_PRINTLN( "socket error {}: {}", err, std::system_category().message( err ) );
+#else
+  (void)err;
+#endif
+
   close();
-#endif
-}
-
-bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
-{
-  if ( !connected() )
-    return false;
-
-#if SCK_WATCH
-  INFO_PRINTLN( "{L;1}" );
-#endif
-
-  int res;
-  if ( !has_incoming_data( waitms, &res ) )
-  {
-    if ( res == -1 )
-    {
-      HandleError();
-      close();
-    }
-    else if ( res == 0 )
-    {
-#if SCK_WATCH
-      INFO_PRINTLN( "{TO}" );
-#endif
-    }
-
-    return false;
-  }
-
-
-  res = recv( _sck, (char*)ch, 1, 0 );
-  if ( res == 1 )
-  {
-#if SCK_WATCH
-    INFO_PRINTLN( "{{{:#x}}}", *ch );
-#endif
-    return true;
-  }
-  if ( res == 0 )
-  {
-#if SCK_WATCH
-    INFO_PRINTLN( "{CLOSE}" );
-#endif
-    close();
-    return false;
-  }
-
-  /* Can't time out here this is an ERROR! */
-  HandleError();
-  return false;
 }
 
 bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
@@ -525,7 +444,7 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
   if ( res == 0 )
   {
 #if SCK_WATCH
-    INFO_PRINTLN( "{CLOSE}" );
+    INFO_PRINTLN( "{{CLOSE}}" );
 #endif
     close();
     return false;
@@ -557,7 +476,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
       else if ( res == 0 )
       {
 #if SCK_WATCH
-        INFO_PRINTLN( "{TO}" );
+        INFO_PRINTLN( "{{TO}}" );
 #endif
       }
 
@@ -583,7 +502,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     else if ( res == 0 )
     {
 #if SCK_WATCH
-      INFO_PRINTLN( "{CLOSE}" );
+      INFO_PRINTLN( "{{CLOSE}}" );
 #endif
       close();
       return false;
@@ -596,53 +515,6 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     }
   }
   return true;
-}
-
-unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
-{
-  ;
-  char* pdest = (char*)vdest;
-
-#if SCK_WATCH
-  INFO_PRINTLN( "{{L:{}}}", len );
-#endif
-
-  int res;
-  if ( !has_incoming_data( 1000 * wait_sec, &res ) )
-  {
-    if ( res == -1 )
-    {
-      HandleError();
-      close();
-    }
-    else if ( res == 0 )
-    {
-#if SCK_WATCH
-      INFO_PRINTLN( "{TO}" );
-#endif
-    }
-
-    return 0;
-  }
-
-
-  res = ::recv( _sck, pdest, len, MSG_PEEK );
-  if ( res > 0 )
-  {
-    return res;
-  }
-  if ( res == 0 )
-  {
-#if SCK_WATCH
-    INFO_PRINTLN( "{CLOSE}" );
-#endif
-    close();
-    return 0;
-  }
-
-  /* Can't time out here this is an ERROR! */
-  HandleError();
-  return 0;
 }
 
 // Waits until the socket becomes writable, an error occurs, or waitms expires.
