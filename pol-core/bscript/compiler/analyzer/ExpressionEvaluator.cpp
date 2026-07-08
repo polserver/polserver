@@ -1,5 +1,11 @@
 #include "ExpressionEvaluator.h"
 
+#include "bscript/bboolean.h"
+#include "bscript/bdouble.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/ElementAccess.h"
 #include "bscript/compiler/ast/ElementIndexes.h"
@@ -14,7 +20,6 @@
 #include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/executor.h"
-#include "bscript/impstr.h"
 
 namespace Pol::Bscript::Compiler
 {

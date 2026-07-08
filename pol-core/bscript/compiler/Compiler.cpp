@@ -1,5 +1,7 @@
 #include "Compiler.h"
 
+#include <fstream>
+
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Disambiguator.h"

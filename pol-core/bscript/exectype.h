@@ -8,9 +8,7 @@
 #define __EXECTYPE_H
 
 
-#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
-#endif
 
 #include <vector>
 

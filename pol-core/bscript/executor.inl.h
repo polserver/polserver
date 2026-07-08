@@ -1,5 +1,8 @@
-// Really for IDE integration
+#include "bcontinuation.h"
+#include "berror.h"
+#include "bfuncref.h"
 #include "bobject.h"
+#include "buninit.h"
 
 #include <ranges>
 

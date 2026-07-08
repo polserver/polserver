@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bobject.h"
+#include "bobjectimp.h"
 #include "exectype.h"
 
 

@@ -3,12 +3,8 @@
  * @par History
  */
 
-#ifndef H_BSCRIPT_IMPSTR_H
-#define H_BSCRIPT_IMPSTR_H
-
-#ifndef BSCRIPT_BOBJECT_H
+#pragma once
 #include "bobject.h"
-#endif
 
 #include <stack>
 #include <string>
@@ -160,5 +156,3 @@ public:
   explicit ConstString( const std::string& str ) : String( str ) {}
 };
 }  // namespace Pol::Bscript
-
-#endif

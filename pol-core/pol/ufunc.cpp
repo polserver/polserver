@@ -47,15 +47,16 @@
 #include <string.h>
 #include <string>
 
-#include "../bscript/impstr.h"
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../plib/mapcell.h"
-#include "../plib/objtype.h"
-#include "../plib/systemstate.h"
-#include "../plib/uoexpansion.h"
+#include "bscript/bstring.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "plib/mapcell.h"
+#include "plib/objtype.h"
+#include "plib/systemstate.h"
+#include "plib/uoexpansion.h"
+
 #include "accounts/account.h"
 #include "containr.h"
 #include "fnsearch.h"

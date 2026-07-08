@@ -9,9 +9,11 @@
 
 
 #include "vitalmod.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
+
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+
 #include "../cmbtcfg.h"
 #include "../globals/settings.h"
 #include "../mobile/attribute.h"

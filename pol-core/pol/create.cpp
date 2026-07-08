@@ -13,13 +13,17 @@
 #include <stdlib.h>
 #include <string>
 
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
-#include "../plib/clidata.h"
-#include "../plib/systemstate.h"
-#include "../plib/uconst.h"
+#include "bscript/barray.h"
+#include "bscript/blong.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "plib/clidata.h"
+#include "plib/objtype.h"
+#include "plib/systemstate.h"
+#include "plib/uconst.h"
+
 #include "accounts/account.h"
 #include "containr.h"
 #include "gameclck.h"
@@ -36,7 +40,6 @@
 #include "network/client.h"
 #include "network/pktdef.h"
 #include "network/pktin.h"
-#include "plib/objtype.h"
 #include "realms/WorldChangeReasons.h"
 #include "scrsched.h"
 #include "scrstore.h"
@@ -592,7 +595,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   unsigned short graphic;
-  Plib::URACE race = ( Plib::URACE )( msg->race - 1 );
+  Plib::URACE race = (Plib::URACE)( msg->race - 1 );
   Plib::UGENDER gender =
       ( msg->gender & Plib::GENDER_FEMALE ) ? Plib::GENDER_FEMALE : Plib::GENDER_MALE;
   if ( race == Plib::RACE_HUMAN )

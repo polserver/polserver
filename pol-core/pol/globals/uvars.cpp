@@ -19,12 +19,14 @@
 #include <ranges>
 #include <string.h>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/boostutils.h"
-#include "../../clib/clib_MD5.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../plib/systemstate.h"
+#include "bscript/bspecialjump.h"
+#include "bscript/buninit.h"
+#include "clib/boostutils.h"
+#include "clib/clib_MD5.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "plib/systemstate.h"
+
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"

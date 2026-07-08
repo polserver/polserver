@@ -3,16 +3,17 @@
  * @par History
  */
 
-#include "pol_global_config.h"
-
 #include "sqlmod.h"
 #include <stddef.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/refptr.h"
-#include "../../clib/weakptr.h"
+#include "bscript/barray.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/logfacility.h"
+#include "clib/refptr.h"
+#include "clib/weakptr.h"
+
 #include "../globals/network.h"
 #include "../polsem.h"
 #include "../sqlscrobj.h"

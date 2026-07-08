@@ -10,8 +10,8 @@
 #include <string.h>
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
+#include "../../bscript/blong.h"
+#include "../../bscript/bstring.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../accounts/account.h"

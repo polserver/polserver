@@ -1,9 +1,13 @@
 #include "memoryusage.h"
 
-#include "../../clib/boostutils.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../plib/systemstate.h"
+#include "bscript/bdouble.h"
+#include "bscript/blong.h"
+#include "bscript/buninit.h"
+#include "clib/boostutils.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "plib/systemstate.h"
+
 #include "multidefs.h"
 #include "network.h"
 #include "object_storage.h"
@@ -12,6 +16,7 @@
 #include "state.h"
 #include "ucfg.h"
 #include "uvars.h"
+
 #include <fmt/format.h>
 #include <iterator>
 

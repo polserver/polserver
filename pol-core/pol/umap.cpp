@@ -12,16 +12,18 @@
 #include <stdio.h>
 #include <string>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/bstruct.h"
-#include "../bscript/executor.h"
-#include "../bscript/objmethods.h"
-#include "../clib/cfgelem.h"
-#include "../clib/clib_endian.h"
-#include "../clib/stlutil.h"
-#include "../clib/streamsaver.h"
-#include "../clib/strutil.h"
+#include "bscript/barray.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstruct.h"
+#include "bscript/executor.h"
+#include "bscript/objmethods.h"
+#include "clib/cfgelem.h"
+#include "clib/clib_endian.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "clib/strutil.h"
+
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"

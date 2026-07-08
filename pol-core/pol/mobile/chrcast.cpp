@@ -7,7 +7,9 @@
 
 #include <stddef.h>
 
-#include "../../clib/passert.h"
+#include "bscript/blong.h"
+#include "clib/passert.h"
+
 #include "../polclock.h"
 #include "../spells.h"
 #include "charactr.h"

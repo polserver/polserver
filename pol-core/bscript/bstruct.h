@@ -9,9 +9,7 @@
 #ifndef BSCRIPT_BSTRUCT_H
 #define BSCRIPT_BSTRUCT_H
 
-#ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
-#endif
 
 #include <iosfwd>
 #include <map>

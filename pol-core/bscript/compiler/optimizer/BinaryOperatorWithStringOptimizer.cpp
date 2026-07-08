@@ -1,5 +1,6 @@
 #include "BinaryOperatorWithStringOptimizer.h"
 
+#include "bscript/bdouble.h"
 #include "bscript/bobject.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/BooleanValue.h"

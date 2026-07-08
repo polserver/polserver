@@ -4,8 +4,13 @@
  */
 
 
+#include "barray.h"
+#include "bboolean.h"
+#include "bdouble.h"
+#include "blong.h"
 #include "bobject.h"
-#include "impstr.h"
+#include "bstring.h"
+#include "buninit.h"
 
 
 #include <sstream>

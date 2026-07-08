@@ -11,10 +11,12 @@
 #include <cmath>
 #include <stdio.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/stlutil.h"
+#include "bscript/barray.h"
+#include "bscript/bdouble.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/stlutil.h"
 
 #include <module_defs/math.h>
 

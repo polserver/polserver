@@ -14,18 +14,15 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../clib/boostutils.h"
-#include "../../clib/rawtypes.h"
+#include "bscript/bobject.h"
+#include "clib/boostutils.h"
+#include "clib/rawtypes.h"
+
 #include "../baseobject.h"
 #include "../dynproperties.h"
 #include "../globals/settings.h"
 #include "../layers.h"
 #include "../uobject.h"
-
-
-#ifndef BSCRIPT_BOBJECT_H
-#include "../../bscript/bobject.h"
-#endif
 
 namespace Pol
 {

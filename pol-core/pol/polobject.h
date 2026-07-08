@@ -1,11 +1,9 @@
 #ifndef POLOBJECT_H
 #define POLOBJECT_H
 
-#ifndef BSCRIPT_BOBJECT_H
-#include "../bscript/bobject.h"
-#endif
+#include "bscript/bobject.h"
+#include "bscript/executor.h"
 
-#include "../bscript/executor.h"
 #include "uoexec.h"
 
 

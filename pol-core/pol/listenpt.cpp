@@ -14,8 +14,10 @@
 #include <limits>
 #include <stddef.h>
 
-#include "../bscript/bobject.h"
-#include "../plib/uconst.h"
+#include "bscript/barray.h"
+#include "bscript/bobject.h"
+#include "plib/uconst.h"
+
 #include "globals/settings.h"
 #include "globals/uvars.h"
 #include "mobile/charactr.h"

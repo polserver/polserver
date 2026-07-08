@@ -10,13 +10,13 @@
 #include "partymod.h"
 #include <stddef.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
-#include "../../bscript/objmembers.h"
-#include "../../bscript/objmethods.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/stlutil.h"
+#include "bscript/barray.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/executor.h"
+#include "clib/rawtypes.h"
+
 #include "../clfunc.h"
 #include "../fnsearch.h"
 #include "../globals/settings.h"

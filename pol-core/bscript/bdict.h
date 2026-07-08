@@ -4,13 +4,9 @@
  * - 2009/12/21 Turley:    ._method() call fix
  */
 
+#pragma once
 
-#ifndef BSCRIPT_DICT_H
-#define BSCRIPT_DICT_H
-
-#ifndef BSCRIPT_BOBJECT_H
-#include "bobject.h"
-#endif
+#include "bobjectimp.h"
 
 #include <iosfwd>
 #include <map>
@@ -81,5 +77,3 @@ private:
   BDictionary& operator=( const BDictionary& ) = delete;
 };
 }  // namespace Pol::Bscript
-
-#endif

@@ -23,19 +23,25 @@
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "barray.h"
+#include "bboolean.h"
 #include "bclassinstance.h"
+#include "bcontinuation.h"
+#include "bcontiter.h"
+#include "bdict.h"
+#include "bdouble.h"
 #include "berror.h"
+#include "blong.h"
+#include "bregexp.h"
+#include "bspecialjump.h"
+#include "bspread.h"
+#include "bstring.h"
 #include "config.h"
-#include "continueimp.h"
-#include "contiter.h"
-#include "dict.h"
 #include "eprog.h"
 #include "escriptv.h"
 #include "execmodl.h"
 #include "fmodule.h"
-#include "impstr.h"
 #include "objmethods.h"
-#include "regexp.h"
 #include "str.h"
 #include "token.h"
 #include "tokens.h"
@@ -1007,25 +1013,6 @@ BObjectRef Executor::checkmember( BObject& left, const BObject& right )
   const String& varname = right.impref<const String>();
 
   return left.impref().operDotQMark( varname.data() );
-}
-
-
-ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown ) {}
-BObject* ContIterator::step()
-{
-  return nullptr;
-}
-BObjectImp* ContIterator::copy() const
-{
-  return nullptr;
-}
-size_t ContIterator::sizeEstimate() const
-{
-  return sizeof( ContIterator );
-}
-std::string ContIterator::getStringRep() const
-{
-  return "<iterator>";
 }
 
 class ArrayIterator final : public ContIterator

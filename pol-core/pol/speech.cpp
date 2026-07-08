@@ -12,17 +12,18 @@
 
 #include <cctype>
 #include <cstddef>
-#include <iostream>
 #include <memory>
 #include <string>
 
-#include "../bscript/bobject.h"
-#include "../bscript/impstr.h"
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/rawtypes.h"
-#include "../plib/systemstate.h"
+#include "bscript/barray.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/random.h"
+#include "clib/rawtypes.h"
+#include "plib/systemstate.h"
+
 #include "globals/settings.h"
 #include "globals/uvars.h"
 #include "guilds.h"

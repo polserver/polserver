@@ -3,9 +3,50 @@ set (bscript_sources    # sorted !
   StdAfx.h
   StoredToken.cpp
   StoredToken.h
+  bapplicobj.cpp
+  bapplicobj.h
+  barray.cpp
+  barray.h
+  bboolean.cpp
+  bboolean.h
+  bclassinstance.cpp
+  bclassinstance.h
+  bcontinuation.cpp
+  bcontinuation.h
+  bcontiter.cpp
+  bcontiter.h
+  bdict.cpp
+  bdict.h
+  bdouble.cpp
+  bdouble.h
+  berror.cpp
+  berror.h
+  bfuncref.cpp
+  bfuncref.h
+  blong.cpp
+  blong.h
+  bobject.cpp
+  bobject.h
+  bobjectimp.cpp
+  bobjectimp.h
+  bregexp.cpp
+  bregexp.h
+  bspecialjump.cpp
+  bspecialjump.h
+  bspread.cpp
+  bspread.h
+  bstring.cpp
+  bstring.h
+  bstruct.cpp
+  bstruct.h
+  buninit.cpp
+  buninit.h
   compiler/Antlr4Inc.h
   compiler/Compiler.cpp
   compiler/Compiler.h
+  compiler/Profile.h
+  compiler/Report.cpp
+  compiler/Report.h
   compiler/analyzer/Constants.cpp
   compiler/analyzer/Constants.h
   compiler/analyzer/Disambiguator.cpp
@@ -68,10 +109,10 @@ set (bscript_sources    # sorted !
   compiler/ast/ClassParameterList.h
   compiler/ast/ConditionalOperator.cpp
   compiler/ast/ConditionalOperator.h
-  compiler/ast/ConstantPredicateLoop.cpp
-  compiler/ast/ConstantPredicateLoop.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
+  compiler/ast/ConstantPredicateLoop.cpp
+  compiler/ast/ConstantPredicateLoop.h
   compiler/ast/CstyleForLoop.cpp
   compiler/ast/CstyleForLoop.h
   compiler/ast/DebugStatementMarker.cpp
@@ -104,8 +145,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FloatValue.h
   compiler/ast/ForeachLoop.cpp
   compiler/ast/ForeachLoop.h
-  compiler/ast/FormatExpression.h
   compiler/ast/FormatExpression.cpp
+  compiler/ast/FormatExpression.h
   compiler/ast/Function.cpp
   compiler/ast/Function.h
   compiler/ast/FunctionBody.cpp
@@ -120,6 +161,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterList.h
   compiler/ast/FunctionReference.cpp
   compiler/ast/FunctionReference.h
+  compiler/ast/GeneratedFunction.cpp
+  compiler/ast/GeneratedFunction.h
   compiler/ast/Identifier.cpp
   compiler/ast/Identifier.h
   compiler/ast/IfThenElseStatement.cpp
@@ -176,8 +219,6 @@ set (bscript_sources    # sorted !
   compiler/ast/StructInitializer.h
   compiler/ast/StructMemberInitializer.cpp
   compiler/ast/StructMemberInitializer.h
-  compiler/ast/GeneratedFunction.cpp
-  compiler/ast/GeneratedFunction.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp
@@ -192,12 +233,12 @@ set (bscript_sources    # sorted !
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
   compiler/ast/ValueConsumer.h
+  compiler/ast/VarStatement.cpp
+  compiler/ast/VarStatement.h
   compiler/ast/VariableAssignmentStatement.cpp
   compiler/ast/VariableAssignmentStatement.h
   compiler/ast/VariableBinding.cpp
   compiler/ast/VariableBinding.h
-  compiler/ast/VarStatement.cpp
-  compiler/ast/VarStatement.h
   compiler/ast/WhileLoop.cpp
   compiler/ast/WhileLoop.h
   compiler/astbuilder/AvailableParseTree.cpp
@@ -238,10 +279,10 @@ set (bscript_sources    # sorted !
   compiler/codegen/AbstractSyntaxTreeStringGenerator.h
   compiler/codegen/CaseDispatchGroupVisitor.cpp
   compiler/codegen/CaseDispatchGroupVisitor.h
-  compiler/codegen/ClassDeclarationRegistrar.cpp
-  compiler/codegen/ClassDeclarationRegistrar.h
   compiler/codegen/CaseJumpDataBlock.cpp
   compiler/codegen/CaseJumpDataBlock.h
+  compiler/codegen/ClassDeclarationRegistrar.cpp
+  compiler/codegen/ClassDeclarationRegistrar.h
   compiler/codegen/CodeEmitter.cpp
   compiler/codegen/CodeEmitter.h
   compiler/codegen/CodeGenerator.cpp
@@ -348,26 +389,9 @@ set (bscript_sources    # sorted !
   compiler/representation/ModuleDescriptor.h
   compiler/representation/ModuleFunctionDescriptor.cpp
   compiler/representation/ModuleFunctionDescriptor.h
-  compiler/Profile.h
-  compiler/Report.cpp
-  compiler/Report.h
-  bclassinstance.cpp
-  bclassinstance.h
-  berror.cpp
-  berror.h
-  blong.cpp
-  bobject.h
-  bstruct.cpp
-  bstruct.h
   compilercfg.cpp
   compilercfg.h
   config.h
-  continueimp.cpp
-  continueimp.h
-  contiter.h
-  dbl.cpp
-  dict.cpp
-  dict.h
   eprog.cpp
   eprog.h
   eprog_read.cpp
@@ -386,16 +410,12 @@ set (bscript_sources    # sorted !
   filefmt.h
   fmodule.cpp
   fmodule.h
-  impstr.h
   modules.h
   objaccess.cpp
-  object.cpp
   object.h
   objmembers.h
   objmethods.h
   objstrm.cpp
-  regexp.cpp
-  regexp.h
   str.cpp
   str.h
   symcont.cpp

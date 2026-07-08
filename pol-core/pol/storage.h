@@ -10,15 +10,10 @@
 #include <map>
 #include <string>
 
-#include "../bscript/bobject.h"
 #include "../clib/maputil.h"
 
 namespace Pol
 {
-namespace Bscript
-{
-class ContIterator;
-}
 namespace Items
 {
 class Item;
@@ -59,27 +54,6 @@ private:
 
   friend class StorageAreaImp;
   friend class StorageAreaIterator;
-};
-
-
-class StorageAreaImp final : public Bscript::BObjectImp
-{
-public:
-  StorageAreaImp( StorageArea* area )
-      : Bscript::BObjectImp( BObjectImp::OTStorageArea ), _area( area )
-  {
-  }
-  BObjectImp* copy() const override { return new StorageAreaImp( _area ); }
-  std::string getStringRep() const override { return _area->_name; }
-  size_t sizeEstimate() const override { return sizeof( *this ); }
-  Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) override;
-  Bscript::BObjectRef get_member( const char* membername ) override;
-  const char* typeOf() const override { return "StorageArea"; }
-  u8 typeOfInt() const override { return OTStorageArea; }
-  StorageArea* area() const { return _area; }
-
-private:
-  StorageArea* _area;
 };
 
 class Storage

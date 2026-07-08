@@ -17,13 +17,18 @@
 #include <string>
 #include <utf8cpp/utf8.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/dict.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
-#include "../../bscript/regexp.h"
-#include "../../clib/stlutil.h"
+#include "bscript/barray.h"
+#include "bscript/bboolean.h"
+#include "bscript/bdict.h"
+#include "bscript/bdouble.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/bregexp.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
+#include "bscript/executor.h"
+#include "clib/stlutil.h"
 
 #include <module_defs/basic.h>
 

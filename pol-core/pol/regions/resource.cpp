@@ -8,6 +8,7 @@
 #include "resource.h"
 
 #include "bscript/berror.h"
+#include "bscript/blong.h"
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
 #include "clib/fileutil.h"

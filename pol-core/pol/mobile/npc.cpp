@@ -28,15 +28,17 @@
 
 #include <stdlib.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/executor.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/random.h"
-#include "../../clib/refptr.h"
-#include "../../clib/streamsaver.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/executor.h"
+#include "clib/cfgelem.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/random.h"
+#include "clib/refptr.h"
+#include "clib/streamsaver.h"
+
 #include "../baseobject.h"
 #include "../dice.h"
 #include "../fnsearch.h"

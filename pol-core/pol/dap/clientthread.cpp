@@ -1,9 +1,9 @@
 #include "clientthread.h"
 
+#include "../../bscript/bdict.h"
+#include "../../bscript/bstring.h"
 #include "../../bscript/bstruct.h"
-#include "../../bscript/dict.h"
 #include "../../bscript/eprog.h"
-#include "../../bscript/impstr.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"

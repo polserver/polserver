@@ -8,9 +8,9 @@
 
 #include <stddef.h>
 
-#include "../bscript/bobject.h"
-#include "../bscript/impstr.h"
-#include "../clib/cfgelem.h"
+#include "bscript/bstring.h"
+#include "clib/cfgelem.h"
+
 #include "globals/uvars.h"
 #include "network/cgdata.h"
 #include "network/client.h"
