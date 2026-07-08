@@ -56,11 +56,6 @@
 #endif
 
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
-#endif
-
-
 namespace Pol::Core
 {
 using namespace threadhelp;
@@ -971,88 +966,52 @@ void http_thread()
     INFO_PRINTLN( "Listening for HTTP requests on port {}",
                   Plib::systemstate.config.web_server_port );
 
-  SOCKET http_socket = Network::open_listen_socket(
-      Plib::systemstate.config.web_server_port, Plib::systemstate.config.web_server_local_only );
-  if ( http_socket == INVALID_SOCKET )
+  Clib::Socket listen_sck;
+  if ( !listen_sck.listen( Plib::systemstate.config.web_server_port,
+                           Plib::systemstate.config.web_server_local_only ) )
   {
-    ERROR_PRINTLN( "Unable to listen on socket: {}", http_socket );
-    return;
+    ERROR_PRINTLN( "Unable to listen on HTTP port {}",
+                   Plib::systemstate.config.web_server_port );
+    return;  // webserver off, but the rest of the server keeps running
   }
-  fd_set listen_fd;
-  struct timeval listen_timeout = { 0, 0 };
 
   {
     Pol::threadhelp::TaskThreadPool worker_threads( 4, "http" );
     while ( !Clib::exit_signalled )
     {
-      int nfds = 0;
-      FD_ZERO( &listen_fd );
-
-      FD_SET( http_socket, &listen_fd );
-#ifndef _WIN32
-      nfds = http_socket + 1;
-#endif
-
-      int res;
-      do
+      if ( !listen_sck.has_incoming_data( 5000 ) )
       {
-        listen_timeout.tv_sec = 5;
-        listen_timeout.tv_usec = 0;
-        res = select( nfds, &listen_fd, nullptr, nullptr, &listen_timeout );
-      } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
-
-      if ( res <= 0 )
-      {
-        load_mime_config();
+        load_mime_config();  // hot-reload the MIME config while idle
         continue;
       }
 
-      if ( FD_ISSET( http_socket, &listen_fd ) )
+      if ( Plib::systemstate.config.web_server_debug )
+        INFO_PRINTLN( "Accepting connection.." );
+
+      Clib::Socket client;
+      try
       {
-        if ( Plib::systemstate.config.web_server_debug )
-          INFO_PRINTLN( "Accepting connection.." );
-
-        struct sockaddr client_addr;  // inet_addr
-        socklen_t addrlen = sizeof client_addr;
-        SOCKET client_socket = accept( http_socket, &client_addr, &addrlen );
-        if ( client_socket == INVALID_SOCKET )
-        {
-          POLLOG_ERRORLN( "HTTP server: accept() failed: {}", socket_errno );
+        if ( !listen_sck.accept( &client ) || !client.connected() )
           continue;
-        }
-
-        try
-        {
-          Network::apply_socket_options( client_socket );
-          Network::disable_nagle( client_socket );
-        }
-        catch ( std::exception& ex )
-        {
-          POLLOG_ERRORLN( "HTTP server: failed to set socket options: {}", ex.what() );
-#ifdef _WIN32
-          closesocket( client_socket );
-#else
-          close( client_socket );
-#endif
-          continue;
-        }
-
-        std::string addrstr = Network::AddressToString( &client_addr );
-        INFO_PRINTLN( "HTTP client connected from {}", addrstr );
-
-        worker_threads.push(
-            [=]() { http_func( client_socket ); } );  // copy socket into queue to keep it valid
+        // Always disable Nagle on webserver clients; config.disable_nagle gates UO clients only.
+        client.disable_nagle();
       }
+      catch ( std::exception& ex )
+      {
+        POLLOG_ERRORLN( "HTTP server: failed to set socket options: {}", ex.what() );
+        continue;  // client closes via RAII
+      }
+
+      struct sockaddr client_addr = client.peer_address();
+      INFO_PRINTLN( "HTTP client connected from {}", Network::AddressToString( &client_addr ) );
+
+      // Transfer the handle out of the stack Socket; http_func re-wraps it into a Clib::Socket.
+      SOCKET client_socket = client.release_handle();
+      worker_threads.push( [client_socket]() { http_func( client_socket ); } );
     }
   }  // wait for the worker threads to finish before cleanup
 
   gamestate.mime_types.clear();  // cleanup on exit
-
-#ifdef _WIN32
-  closesocket( http_socket );
-#else
-  close( http_socket );
-#endif
 }
 
 void start_http_server()
