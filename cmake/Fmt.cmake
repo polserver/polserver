@@ -61,4 +61,6 @@ set_target_properties(libfmt PROPERTIES
 )
 file(MAKE_DIRECTORY ${FMT_INSTALL_DIR}/include) #directory has to exist during configure
 
-add_dependencies(libfmt libfmt_ext)
+if(TARGET libfmt_ext)
+  add_dependencies(libfmt libfmt_ext)
+endif()

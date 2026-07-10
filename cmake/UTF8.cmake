@@ -34,4 +34,6 @@ add_library(libutf8 INTERFACE IMPORTED)
 set_target_properties(libutf8 PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${UTF_INSTALL_DIR}/include"
 )
-add_dependencies(libutf8 libutf8_ext)
+if(TARGET libutf8_ext)
+  add_dependencies(libutf8 libutf8_ext)
+endif()

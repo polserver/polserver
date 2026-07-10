@@ -20,9 +20,10 @@ elseif (msvc)
   endif()
 endif()
 
-#if (NOT DEFINED BOOST_TOOLSET)
-#  message(FATAL_ERROR "Unknown boost toolset to build")
-#endif()
+# without a toolset bootstrap fails much later with a cryptic error
+if (NOT DEFINED BOOST_TOOLSET)
+  message(FATAL_ERROR "Unknown boost toolset to build (compiler ${CMAKE_CXX_COMPILER_ID}, MSVC toolset '${MSVC_TOOLSET_VERSION}')")
+endif()
 set (BOOST_ARC "")
 if (${windows})
   set (BOOST_CONFIGURE_COMMAND "bootstrap.bat")
