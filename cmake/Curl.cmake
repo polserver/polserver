@@ -104,4 +104,6 @@ else()
   set_property(TARGET libcurl 
     PROPERTY INTERFACE_LINK_LIBRARIES wldap32)
 endif()
-add_dependencies(libcurl libcurl_ext)
+if(TARGET libcurl_ext)
+  add_dependencies(libcurl libcurl_ext)
+endif()

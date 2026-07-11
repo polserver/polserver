@@ -63,4 +63,6 @@ set_target_properties(libkaitai PROPERTIES
 )
 file(MAKE_DIRECTORY ${KAITAI_INSTALL_DIR}/include) #directory has to exist during configure
 
-add_dependencies(libkaitai libkaitai_ext)
+if(TARGET libkaitai_ext)
+  add_dependencies(libkaitai libkaitai_ext)
+endif()

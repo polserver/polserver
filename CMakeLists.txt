@@ -57,14 +57,13 @@ if(${ENABLE_TIDY})
   set(NO_PCH ON)
 endif()
 
-set(OUTPUT_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin" CACHE STRING "binary output dir, defaults to sourcedir/bin")
-set(EXT_DOWNLOAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib" CACHE STRING "external library download dir, defaults to sourcedir/lib")
+set(OUTPUT_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin" CACHE PATH "binary output dir, defaults to sourcedir/bin")
+set(EXT_DOWNLOAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib" CACHE PATH "external library download dir, defaults to sourcedir/lib")
 option(USE_BOOST_HEADER_STACKTRACE "Use boost::stacktrace as header-only" OFF)
 
 include(CheckIncludeFiles)
 include(ExternalProject)
 include(CheckCXXSourceCompiles)
-include(TestBigEndian)
 
 include(cmake/init.cmake)
 
@@ -90,7 +89,7 @@ if (ENABLE_TIDY)
     DOC "Path to clang-tidy executable"
   )
   if(NOT CLANG_TIDY_EXE)
-    message(ERROR "clang-tidy not found.")
+    message(FATAL_ERROR "clang-tidy not found.")
   else()
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     message(STATUS "clang-tidy args: ${TIDY_ARGS}")
@@ -172,8 +171,8 @@ foreach(child ${children})
       COMMAND ${CMAKE_COMMAND}
         -Dtestdir=${testdir}
         -Dsubtest=${child}
-        -Decompile=${output_bin_dir}/ecompile
-        -Drunecl=${output_bin_dir}/runecl
+        -Decompile=$<TARGET_FILE:ecompile>
+        -Drunecl=$<TARGET_FILE:runecl>
         -Dgit=${GIT_EXECUTABLE}
         -Derrfilesuffix=1
         -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
