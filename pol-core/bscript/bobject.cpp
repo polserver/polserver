@@ -14,7 +14,7 @@
 namespace Pol::Bscript
 {
 
-Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
+Clib::fixed_allocator<BObject, 256> bobject_alloc;
 
 size_t BObjectRef::sizeEstimate() const
 {

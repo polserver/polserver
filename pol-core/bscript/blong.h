@@ -119,7 +119,7 @@ protected:
   int lval_;
 };
 
-extern Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
+extern Clib::fixed_allocator<BLong, 256> blong_alloc;
 inline void* BLong::operator new( std::size_t len )
 {
   (void)len;
