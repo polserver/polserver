@@ -16,10 +16,13 @@
 #include <fstream>
 #include <string>
 
+#include "bscript/barray.h"
+#include "bscript/bboolean.h"
+#include "bscript/bdict.h"
+#include "bscript/bdouble.h"
 #include "bscript/berror.h"
-#include "bscript/bobject.h"
-#include "bscript/dict.h"
-#include "bscript/impstr.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
 #include "clib/clib.h"
 #include "clib/clib_MD5.h"
 #include "clib/fileutil.h"

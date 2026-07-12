@@ -16,11 +16,14 @@
 
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
+#include "barray.h"
+#include "bcontiter.h"
 #include "berror.h"
+#include "blong.h"
 #include "bobject.h"
-#include "contiter.h"
+#include "bstring.h"
+#include "buninit.h"
 #include "executor.h"
-#include "impstr.h"
 #include "objmethods.h"
 
 

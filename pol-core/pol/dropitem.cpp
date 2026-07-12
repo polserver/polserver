@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../bscript/berror.h"
+#include "../bscript/blong.h"
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"

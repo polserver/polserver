@@ -1,7 +1,9 @@
 #include "bclassinstance.h"
 
 #include "berror.h"
+#include "bfuncref.h"
 #include "bobject.h"
+#include "bspecialjump.h"
 #include "clib/clib.h"
 #include "clib/stlutil.h"
 #include "executor.h"

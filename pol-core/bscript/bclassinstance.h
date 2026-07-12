@@ -1,9 +1,12 @@
 #pragma once
 
-#include <map>
+#include <memory>
 #include <set>
 
+#include "../clib/refptr.h"
+#include "bobject.h"
 #include "bstruct.h"
+#include "eprog.h"
 
 namespace Pol::Bscript
 {

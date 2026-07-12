@@ -1,8 +1,9 @@
 #ifndef DAP_HANDLES_H
 #define DAP_HANDLES_H
 
+#include "../../bscript/barray.h"
+#include "../../bscript/bdict.h"
 #include "../../bscript/bstruct.h"
-#include "../../bscript/dict.h"
 #include "../../bscript/objmembers.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"

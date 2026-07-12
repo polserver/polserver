@@ -10,15 +10,18 @@
 #include <regex>
 #include <string.h>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/contiter.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-#include "../clib/esignal.h"
-#include "../clib/logfacility.h"
-#include "../clib/threadhelp.h"
+#include "bscript/bcontiter.h"
+#include "bscript/bdouble.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "clib/threadhelp.h"
+
 #include "globals/network.h"
 
 

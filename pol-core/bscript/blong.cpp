@@ -4,19 +4,23 @@
  */
 
 
+#include "blong.h"
+
 #include <fmt/compile.h>
 #include <iterator>
-#include <sstream>
 #include <string>
 
-#include "../clib/stlutil.h"
+#include "bboolean.h"
+#include "bdouble.h"
 #include "berror.h"
 #include "bobject.h"
-#include "impstr.h"
+#include "bstring.h"
 
 
 namespace Pol::Bscript
 {
+Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
+
 using namespace fmt::literals;
 
 #if BOBJECTIMP_DEBUG

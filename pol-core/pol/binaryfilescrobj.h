@@ -8,9 +8,7 @@
 #ifndef BINARYSCROBJ_H
 #define BINARYSCROBJ_H
 
-#ifndef BSCRIPT_BOBJECT_H
-#include "../bscript/bobject.h"
-#endif
+#include "../bscript/bobjectimp.h"
 
 #include <fstream>
 #include <string>

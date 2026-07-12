@@ -7,14 +7,12 @@
 #ifndef XMLSCROBJ_H
 #define XMLSCROBJ_H
 
-#ifndef BSCRIPT_BOBJECT_H
 #include "../bscript/bobject.h"
-#endif
 
 #include <string>
 #include <tinyxml/tinyxml.h>
 
-#include "../bscript/contiter.h"
+#include "../bscript/bcontiter.h"
 #include "../clib/rawtypes.h"
 
 

@@ -16,6 +16,7 @@ POLLOG("hello {}\n", "world");
 #include <fmt/chrono.h>
 #include <fstream>
 #include <functional>
+#include <future>
 #include <iostream>
 #include <mutex>
 #include <string.h>
@@ -237,35 +238,48 @@ Sink* getSink()
   return sink;
 }
 
+struct LogSinkGenericFile::imp
+{
+  bool test_for_rollover( std::chrono::time_point<std::chrono::system_clock>& now );
+  const LogFileBehaviour* _behaviour;
+  std::ofstream _filestream;
+  std::string _log_filename;
+  struct tm _opened;
+  std::chrono::time_point<std::chrono::system_clock> _lasttimestamp;
+  bool _active_line;
+};
+
 // first construction also opens the file
 LogSinkGenericFile::LogSinkGenericFile( const LogFileBehaviour* behaviour )
-    : LogSink(),
-      _behaviour( behaviour ),
-      _log_filename( behaviour->basename + ".log" ),
-      _active_line( false )
+    : LogSink(), _imp( new imp{} )
 {
-  memset( &_opened, 0, sizeof( _opened ) );
+  _imp->_behaviour = behaviour;
+  _imp->_log_filename = behaviour->basename + ".log";
+  _imp->_active_line = false;
+  memset( &_imp->_opened, 0, sizeof( _imp->_opened ) );
   open_log_file( true );
 }
 // default constructor does not open directly
-LogSinkGenericFile::LogSinkGenericFile()
-    : LogSink(), _behaviour(), _log_filename(), _active_line( false )
+LogSinkGenericFile::LogSinkGenericFile() : LogSink(), _imp( new imp{} )
 {
-  memset( &_opened, 0, sizeof( _opened ) );
+  _imp->_behaviour = nullptr;
+  _imp->_log_filename = "";
+  _imp->_active_line = false;
+  memset( &_imp->_opened, 0, sizeof( _imp->_opened ) );
 }
 LogSinkGenericFile::~LogSinkGenericFile()
 {
-  if ( _filestream.is_open() )
+  if ( _imp->_filestream.is_open() )
   {
-    _filestream.flush();
-    _filestream.close();
+    _imp->_filestream.flush();
+    _imp->_filestream.close();
   }
 }
 // set behaviour and logfilename, does not work with rollover
 void LogSinkGenericFile::setBehaviour( const LogFileBehaviour* behaviour, std::string filename )
 {
-  _behaviour = behaviour;
-  _log_filename = std::move( filename );
+  _imp->_behaviour = behaviour;
+  _imp->_log_filename = std::move( filename );
 }
 
 // open file
@@ -273,21 +287,21 @@ void LogSinkGenericFile::open_log_file( bool open_timestamp )
 {
   if ( _disabled )
     return;
-  _filestream.open( _log_filename, _behaviour->openmode );
-  if ( !_filestream.is_open() )
+  _imp->_filestream.open( _imp->_log_filename, _imp->_behaviour->openmode );
+  if ( !_imp->_filestream.is_open() )
   {
     getSink<LogSink_cerr>()->addMessage(
-        fmt::format( "failed to open logfile {}\n", _log_filename ) );
+        fmt::format( "failed to open logfile {}\n", _imp->_log_filename ) );
     return;
   }
   if ( open_timestamp )
   {
-    addTimeStamp( _filestream );
-    _filestream << "Logfile opened." << std::endl;
+    addTimeStamp( _imp->_filestream );
+    _imp->_filestream << "Logfile opened." << std::endl;
   }
-  _opened = Clib::localtime( std::chrono::system_clock::to_time_t(
+  _imp->_opened = Clib::localtime( std::chrono::system_clock::to_time_t(
       std::chrono::system_clock::now() ) );  // mark current time for later possible rollover
-  _active_line = false;
+  _imp->_active_line = false;
 }
 
 // print given msg into filestream
@@ -300,28 +314,28 @@ void LogSinkGenericFile::addMessage( const std::string& msg )
     return;
   }
 
-  if ( !_filestream.is_open() )
+  if ( !_imp->_filestream.is_open() )
     return;
   if ( msg.empty() )
     return;
 
-  if ( !_active_line )  // only rollover or add timestamp if there is currently no open line
+  if ( !_imp->_active_line )  // only rollover or add timestamp if there is currently no open line
   {
     using std::chrono::system_clock;
     std::chrono::time_point<system_clock> now = system_clock::now();
-    if ( now != _lasttimestamp )
+    if ( now != _imp->_lasttimestamp )
     {
-      if ( !test_for_rollover( now ) )
+      if ( !_imp->test_for_rollover( now ) )
         return;
-      if ( _behaviour->timestamps )
-        addTimeStamp( _filestream );
+      if ( _imp->_behaviour->timestamps )
+        addTimeStamp( _imp->_filestream );
     }
-    else if ( _behaviour->timestamps && Clib::LogfileTimestampEveryLine )
-      addTimeStamp( _filestream );
+    else if ( _imp->_behaviour->timestamps && Clib::LogfileTimestampEveryLine )
+      addTimeStamp( _imp->_filestream );
   }
-  _active_line = ( msg.back() != '\n' );  // is the last character a newline?
-  _filestream << msg;
-  _filestream.flush();
+  _imp->_active_line = ( msg.back() != '\n' );  // is the last character a newline?
+  _imp->_filestream << msg;
+  _imp->_filestream.flush();
 }
 void LogSinkGenericFile::addMessage( const std::string& msg, const std::string& )
 {
@@ -329,7 +343,7 @@ void LogSinkGenericFile::addMessage( const std::string& msg, const std::string& 
 }
 
 // check if a rollover is needed (new day)
-bool LogSinkGenericFile::test_for_rollover(
+bool LogSinkGenericFile::imp::test_for_rollover(
     std::chrono::time_point<std::chrono::system_clock>& now )
 {
   auto tm_now = Clib::localtime( std::chrono::system_clock::to_time_t( now ) );
@@ -391,10 +405,10 @@ LogSink_pollog::LogSink_pollog() : LogSinkGenericFile( &startlogBehaviour ) {}
 // performs the switch between start.log and pol.log
 void LogSink_pollog::deinitialize_startlog()
 {
-  _filestream.flush();
-  _filestream.close();
-  _behaviour = &pollogBehaviour;
-  _log_filename = _behaviour->basename + ".log";
+  _imp->_filestream.flush();
+  _imp->_filestream.close();
+  _imp->_behaviour = &pollogBehaviour;
+  _imp->_log_filename = _imp->_behaviour->basename + ".log";
   open_log_file( true );
 }
 
@@ -407,10 +421,10 @@ LogSink_debuglog::LogSink_debuglog() : LogSinkGenericFile( &debuglogBehaviour ) 
 // debug.log can be disabled
 void LogSink_debuglog::disable()
 {
-  if ( _filestream.is_open() )
+  if ( _imp->_filestream.is_open() )
   {
-    _filestream.flush();
-    _filestream.close();
+    _imp->_filestream.flush();
+    _imp->_filestream.close();
   }
   Disabled = true;
 }

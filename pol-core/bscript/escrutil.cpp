@@ -12,8 +12,9 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "bobject.h"
-#include "impstr.h"
+#include "bdouble.h"
+#include "blong.h"
+#include "bstring.h"
 
 
 namespace Pol::Bscript

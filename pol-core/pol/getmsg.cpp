@@ -7,11 +7,13 @@
 #include <ctype.h>
 #include <stddef.h>
 
-#include "../bscript/berror.h"
-#include "../bscript/impstr.h"
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+
 #include "item/item.h"
 #include "mobile/charactr.h"
 #include "module/unimod.h"

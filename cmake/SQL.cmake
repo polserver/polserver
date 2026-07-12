@@ -84,4 +84,6 @@ if(${windows})
   set_property(TARGET libsql
     PROPERTY INTERFACE_LINK_LIBRARIES secur32 crypt32 bcrypt)
 endif()
-add_dependencies(libsql libmaria_ext)
+if(TARGET libmaria_ext)
+  add_dependencies(libsql libmaria_ext)
+endif()

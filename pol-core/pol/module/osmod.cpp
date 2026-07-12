@@ -5,13 +5,14 @@
 
 #include "osmod.h"
 
-#include <limits>
-
+#include "bscript/barray.h"
+#include "bscript/bdict.h"
+#include "bscript/bdouble.h"
 #include "bscript/berror.h"
-#include "bscript/bobject.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
 #include "bscript/bstruct.h"
-#include "bscript/dict.h"
-#include "bscript/impstr.h"
+#include "bscript/buninit.h"
 #include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
@@ -47,6 +48,7 @@
 #include "uomod.h"
 
 #include <chrono>
+#include <limits>
 #include <module_defs/os.h>
 
 #ifdef _WIN32

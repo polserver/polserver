@@ -11,7 +11,9 @@
 #include <stddef.h>
 #include <string>
 
+#include "../bscript/bboolean.h"
 #include "../bscript/berror.h"
+#include "../bscript/blong.h"
 #include "../bscript/eprog.h"
 #include "../bscript/executor.h"
 #include "../clib/clib.h"

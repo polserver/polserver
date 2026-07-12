@@ -8,13 +8,13 @@
 #include <iostream>
 #include <iterator>
 
-#include "../bscript/bobject.h"
+#include "../bscript/bspecialjump.h"
+#include "../bscript/buninit.h"
 #include "../bscript/config.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/execmodl.h"
 #include "../bscript/executor.h"
 #include "../bscript/filefmt.h"
-#include "../bscript/object.h"
 #include "../clib/Header_Windows.h"
 #include "../clib/Program/ProgramMain.h"
 #include "../clib/boostutils.h"
@@ -33,6 +33,10 @@
 #include "../pol/module/filemod.h"
 #include "../pol/module/mathmod.h"
 #include "../pol/module/utilmod.h"
+
+#if BOBJECTIMP_DEBUG
+#include "bscript/object.h"
+#endif
 
 namespace Pol
 {

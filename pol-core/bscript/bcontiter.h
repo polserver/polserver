@@ -3,14 +3,9 @@
  * @par History
  */
 
+#pragma once
 
-#ifndef BSCRIPT_CONTITER_H
-#define BSCRIPT_CONTITER_H
-
-#include "bobject.h"
-
-#include <typeinfo>
-
+#include "bobjectimp.h"
 
 namespace Pol::Bscript
 {
@@ -25,8 +20,6 @@ public:
   size_t sizeEstimate() const override;
   std::string getStringRep() const override;
 
-  bool is_default() const { return typeid( *this ) == typeid( ContIterator ); }
+  bool is_default() const;
 };
 }  // namespace Pol::Bscript
-
-#endif

@@ -20,11 +20,6 @@ macro(detect_compiler)
     set(clang 1)
   elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(msvc 1)
-    if (${MSVC_VERSION} VERSION_GREATER 1900)
-      set(msvc_ide "15")
-    else()
-      set(msvc_ide "14")
-    endif()
   elseif (CMAKE_COMPILER_IS_GNUCXX)
     set(gcc 1)
   endif()
@@ -85,10 +80,9 @@ macro(detect_platform)
     set (windows 1)
   endif()
 
-  test_big_endian(bigendian)
-  if (bigendian)
-    #Error? I don't think that it really works
-    message("Platform is Big Endian")
+  if (CMAKE_CXX_BYTE_ORDER STREQUAL "BIG_ENDIAN")
+    # the packet/file-format code assumes little endian throughout
+    message(WARNING "Platform is Big Endian - unsupported, expect breakage")
   else()
     message("Platform is Little Endian")
   endif()
@@ -262,7 +256,7 @@ macro(git_revision_target)
     -DTMP_FILE=${PROJECT_BINARY_DIR}/pol_revision.h.tmp
     -DOUT_FILE=${PROJECT_BINARY_DIR}/pol_revision.h
     -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/git_revision.cmake
-    BYPRODUCTS=${PROJECT_BINARY_DIR}/pol_revision.h 
+    BYPRODUCTS ${PROJECT_BINARY_DIR}/pol_revision.h
   )
   set_target_properties(git_rev PROPERTIES FOLDER Misc)
 endmacro()

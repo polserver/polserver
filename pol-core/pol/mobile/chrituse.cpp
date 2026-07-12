@@ -6,13 +6,16 @@
 
 #include <stddef.h>
 
-#include "../../bscript/bobject.h"
-#include "../../bscript/eprog.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/refptr.h"
-#include "../../plib/systemstate.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
+#include "bscript/eprog.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/refptr.h"
+#include "plib/systemstate.h"
+
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../module/uomod.h"

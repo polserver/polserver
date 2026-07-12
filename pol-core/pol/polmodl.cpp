@@ -1,19 +1,8 @@
 #include "polmodl.h"
 
-#include <ctype.h>
-#include <exception>
 #include <stdlib.h>
-#include <string>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
 #include "../bscript/executor.h"
-#include "../bscript/fmodule.h"
-#include "../bscript/impstr.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../plib/systemstate.h"
 #include "base/position.h"
 #include "fnsearch.h"
 #include "globals/network.h"

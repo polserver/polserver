@@ -3,7 +3,7 @@
  * @par History
  */
 
-
+#include "bdouble.h"
 #include <charconv>
 #include <cmath>
 #include <iterator>
@@ -14,13 +14,17 @@
 #include <fmt/compile.h>
 
 #include "../clib/stlutil.h"
+#include "bboolean.h"
 #include "berror.h"
+#include "blong.h"
 #include "bobject.h"
-#include "impstr.h"
+#include "bstring.h"
 
 
 namespace Pol::Bscript
 {
+Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
+
 std::string Double::double_to_string( double val )
 {
   std::string buff( 100, '\0' );

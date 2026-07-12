@@ -11,17 +11,19 @@
 
 #include <ranges>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/executor.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmethods.h"
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/streamsaver.h"
-#include "../clib/strutil.h"
-#include "../plib/systemstate.h"
+#include "bscript/barray.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/executor.h"
+#include "bscript/objmethods.h"
+#include "clib/cfgelem.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "clib/strutil.h"
+#include "plib/systemstate.h"
+
 #include "baseobject.h"
 
 namespace Pol::Core

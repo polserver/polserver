@@ -1,8 +1,10 @@
-#include "regexp.h"
+#include "bregexp.h"
 #include <stdexcept>
 
-#include "bscript/berror.h"
-#include "bscript/impstr.h"
+#include "barray.h"
+#include "berror.h"
+#include "blong.h"
+#include "bstring.h"
 #include "clib/strutil.h"
 #include "exectype.h"
 #include "executor.h"

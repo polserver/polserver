@@ -11,12 +11,16 @@
 #include "guildmod.h"
 #include <stddef.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/objmembers.h"
-#include "../../bscript/objmethods.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/stlutil.h"
+#include "bscript/barray.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/buninit.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
 #include "../guilds.h"

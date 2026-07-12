@@ -15,10 +15,11 @@
 #include <stddef.h>
 #include <string>
 
-#include "../bscript/impstr.h"
-#include "../clib/clib_endian.h"
-#include "../clib/rawtypes.h"
-#include "../plib/uoexpansion.h"
+#include "bscript/bstring.h"
+#include "clib/clib_endian.h"
+#include "clib/rawtypes.h"
+#include "plib/uoexpansion.h"
+
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"

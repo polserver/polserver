@@ -14,11 +14,11 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/clib.h"
-#include "../../plib/uconst.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "clib/clib.h"
+#include "plib/uconst.h"
+
 #include "../containr.h"
 #include "../core.h"
 #include "../item/item.h"

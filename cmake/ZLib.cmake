@@ -53,7 +53,9 @@ if (${windows})
     INTERFACE_INCLUDE_DIRECTORIES ${ZLIB_INSTALL_DIR}/include
     FOLDER 3rdParty
   )
-  add_dependencies(libz libz_ext)
+  if(TARGET libz_ext)
+    add_dependencies(libz libz_ext)
+  endif()
 
 else()
   add_library(libz INTERFACE IMPORTED)

@@ -30,4 +30,6 @@ endif()
 set_target_properties(libpicojson PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${PICO_SOURCE_DIR}"
 )
-add_dependencies(libpicojson libpicojson_ext)
+if(TARGET libpicojson_ext)
+  add_dependencies(libpicojson libpicojson_ext)
+endif()

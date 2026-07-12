@@ -23,9 +23,10 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include "../bscript/barray.h"
 #include "../bscript/bobject.h"
+#include "../bscript/bstring.h"
 #include "../bscript/escrutil.h"
-#include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
