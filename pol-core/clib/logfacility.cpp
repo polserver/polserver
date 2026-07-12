@@ -12,6 +12,7 @@ POLLOG("hello {}\n", "world");
 
 #include "logfacility.h"
 
+#include <boost/compat/move_only_function.hpp>
 #include <chrono>
 #include <fmt/chrono.h>
 #include <fstream>
@@ -76,7 +77,7 @@ void initLogging( LogFacility* logger )
 // internal worker class which performs the work in a additional thread
 class LogFacility::LogWorker
 {
-  using msg = std::function<void()>;
+  using msg = boost::compat::move_only_function<void()>;
   using msg_queue = message_queue<msg>;
 
 public:
@@ -99,7 +100,7 @@ public:
     _work_thread.join();  // wait for it
   }
   // send msg into queue
-  void send( const msg& msg_ ) { _queue.push( msg_ ); }
+  void send( msg&& msg_ ) { _queue.push_move( std::move( msg_ ) ); }
 
 private:
   // endless loop in thread
@@ -191,18 +192,18 @@ void LogFacility::closeFlexLog( const std::string& id )
 // blocks to return unique identifier
 std::string LogFacility::registerFlexLogger( const std::string& logfilename, bool open_timestamp )
 {
-  auto promise = std::make_shared<std::promise<std::string>>();
-  auto ret = promise->get_future();
+  auto promise = std::promise<std::string>();
+  auto ret = promise.get_future();
   _worker->send(
-      [=]()
+      [=, promise = std::move( promise )]() mutable
       {
         try
         {
-          promise->set_value( getSink<LogSink_flexlog>()->create( logfilename, open_timestamp ) );
+          promise.set_value( getSink<LogSink_flexlog>()->create( logfilename, open_timestamp ) );
         }
         catch ( ... )
         {
-          promise->set_exception( std::current_exception() );
+          promise.set_exception( std::current_exception() );
         }
       } );
   return ret.get();  // block wait till valid
@@ -211,9 +212,9 @@ std::string LogFacility::registerFlexLogger( const std::string& logfilename, boo
 // block waits till the queue is empty
 void LogFacility::wait_for_empty_queue()
 {
-  auto promise = std::make_shared<std::promise<bool>>();
-  auto ret = promise->get_future();
-  _worker->send( [=]() { promise->set_value( true ); } );
+  auto promise = std::promise<bool>();
+  auto ret = promise.get_future();
+  _worker->send( [promise = std::move( promise )]() mutable { promise.set_value( true ); } );
   ret.get();  // block wait till valid
 }
 
