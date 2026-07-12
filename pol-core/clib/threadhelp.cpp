@@ -391,7 +391,7 @@ void TaskThreadPool::deinit_pool()
   if ( _threads.empty() )
     return;
   // send both done and cancel to wake up all workers
-  _msg_queue.push(
+  _msg_queue.push_move(
       [&]()
       {
         _done = true;
@@ -407,27 +407,27 @@ TaskThreadPool::~TaskThreadPool()
 }
 
 /// simply fire and forget only the deconstructor ensures the msg to be finished
-void TaskThreadPool::push( const msg& msg )
+void TaskThreadPool::push( msg&& msg )
 {
-  _msg_queue.push( msg );
+  _msg_queue.push_move( std::move( msg ) );
 }
 
 /// returns a future which will be set once the msg is processed
-std::future<bool> TaskThreadPool::checked_push( const msg& msg )
+std::future<bool> TaskThreadPool::checked_push( msg&& msg )
 {
-  auto promise = std::make_shared<std::promise<bool>>();
-  auto ret = promise->get_future();
-  _msg_queue.push(
-      [=]()
+  auto promise = std::promise<bool>();
+  auto ret = promise.get_future();
+  _msg_queue.push_move(
+      [promise = std::move( promise ), msg = std::move( msg )]() mutable
       {
         try
         {
           msg();
-          promise->set_value( true );
+          promise.set_value( true );
         }
         catch ( ... )
         {
-          promise->set_exception( std::current_exception() );
+          promise.set_exception( std::current_exception() );
         }
       } );
   return ret;

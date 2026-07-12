@@ -16,6 +16,8 @@
 #include <thread>
 #include <vector>
 
+#include <boost/compat/move_only_function.hpp>
+
 #include "Header_Windows.h"
 #include "message_queue.h"
 #include "spinlock.h"
@@ -71,7 +73,7 @@ public:
 
 class TaskThreadPool
 {
-  using msg = std::function<void()>;
+  using msg = boost::compat::move_only_function<void()>;
   using msg_queue = Clib::message_queue<msg>;
 
 public:
@@ -81,8 +83,8 @@ public:
   TaskThreadPool( const TaskThreadPool& ) = delete;
   TaskThreadPool& operator=( const TaskThreadPool& ) = delete;
   ~TaskThreadPool();
-  void push( const msg& msg );
-  std::future<bool> checked_push( const msg& msg );
+  void push( msg&& msg );
+  std::future<bool> checked_push( msg&& msg );
   size_t size() const;
 
   void init_pool( unsigned int max_count, const std::string& name );
