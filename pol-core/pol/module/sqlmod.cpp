@@ -42,51 +42,6 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
                                                    std::string host, std::string username,
                                                    std::string password, int port )
 {
-  auto msg = [uoexec = std::move( uoexec ), host = std::move( host ),
-              username = std::move( username ), password = std::move( password ), port]()
-  {
-    std::unique_ptr<Core::BSQLConnection> sql;
-    {
-      Core::PolLock lck;
-      sql = std::make_unique<Core::BSQLConnection>();
-    }
-    if ( sql->getLastErrNo() )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Insufficient memory" ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-    else if ( !sql->connect( host, username, password, port ) )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-    else
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql.release() ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-  };
-
   if ( !uoexec->suspend() )
   {
     DEBUGLOGLN(
@@ -95,8 +50,52 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
         uoexec->scriptname(), uoexec->PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
+  Core::networkManager.sql_service->push(
+      [uoexec = std::move( uoexec ), host = std::move( host ), username = std::move( username ),
+       password = std::move( password ), port]()
+      {
+        std::unique_ptr<Core::BSQLConnection> sql;
+        {
+          Core::PolLock lck;
+          sql = std::make_unique<Core::BSQLConnection>();
+        }
+        if ( sql->getLastErrNo() )
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            INFO_PRINTLN( "Script has been destroyed" );
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( "Insufficient memory" ) ) );
+            uoexec.get_weakptr()->revive();
+          }
+        }
+        else if ( !sql->connect( host, username, password, port ) )
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            INFO_PRINTLN( "Script has been destroyed" );
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( sql->getLastError() ) ) );
+            uoexec.get_weakptr()->revive();
+          }
+        }
+        else
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            INFO_PRINTLN( "Script has been destroyed" );
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql.release() ) );
+            uoexec.get_weakptr()->revive();
+          }
+        }
+      } );
 
-  Core::networkManager.sql_service->push( std::move( msg ) );
   return new BLong( 0 );
 }
 
@@ -106,33 +105,6 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
 {
   // The BSQLConnection shouldn't be destroyed before the lambda runs
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
-  auto msg = [uoexec = std::move( uoexec ), sqlRef = std::move( sqlRef ), db = std::move( db )]()
-  {
-    if ( !sqlRef->select_db( db ) )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sqlRef->getLastError() ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-    else
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-  };
-
   if ( !uoexec->suspend() )
   {
     DEBUGLOGLN(
@@ -141,7 +113,34 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
         uoexec->scriptname(), uoexec->PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
-  Core::networkManager.sql_service->push( std::move( msg ) );
+  Core::networkManager.sql_service->push(
+      [uoexec = std::move( uoexec ), sqlRef = std::move( sqlRef ), db = std::move( db )]()
+      {
+        if ( !sqlRef->select_db( db ) )
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            INFO_PRINTLN( "Script has been destroyed" );
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( sqlRef->getLastError() ) ) );
+            uoexec.get_weakptr()->revive();
+          }
+        }
+        else
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            INFO_PRINTLN( "Script has been destroyed" );
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
+            uoexec.get_weakptr()->revive();
+          }
+        }
+      } );
+
   return new BLong( 0 );
 }
 
@@ -164,34 +163,6 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
 
   // The BSQLConnection shouldn't be destroyed before the lambda runs
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
-  auto msg = [uoexec = std::move( uoexec ), sqlRef = std::move( sqlRef ),
-              query = std::move( query ), sharedParams = std::move( sharedParams )]()
-  {
-    if ( !sqlRef->query( query, sharedParams ) )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sqlRef->getLastError() ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-    else
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINTLN( "Script has been destroyed" );
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( sqlRef->getResultSet() ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
-  };
-
   if ( !uoexec->suspend() )
   {
     DEBUGLOGLN(
@@ -201,7 +172,35 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  Core::networkManager.sql_service->push( std::move( msg ) );
+  Core::networkManager.sql_service->push(
+      [uoexec = std::move( uoexec ), sqlRef = std::move( sqlRef ), query = std::move( query ),
+       sharedParams = std::move( sharedParams )]()
+      {
+        if ( !sqlRef->query( query, sharedParams ) )
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            INFO_PRINTLN( "Script has been destroyed" );
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( sqlRef->getLastError() ) ) );
+            uoexec.get_weakptr()->revive();
+          }
+        }
+        else
+        {
+          Core::PolLock lck;
+          if ( !uoexec.exists() )
+            INFO_PRINTLN( "Script has been destroyed" );
+          else
+          {
+            uoexec.get_weakptr()->ValueStack.back().set( new BObject( sqlRef->getResultSet() ) );
+            uoexec.get_weakptr()->revive();
+          }
+        }
+      } );
+
   return new BLong( 0 );
 }
 
