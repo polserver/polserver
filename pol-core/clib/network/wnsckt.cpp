@@ -152,9 +152,11 @@ SOCKET Socket::release_handle()
 }
 
 
-static bool wait_for_writable( SOCKET sck, unsigned int waitms );
+namespace
+{
+bool wait_for_writable( SOCKET sck, unsigned int waitms );
 
-static bool set_blocking_mode( SOCKET sck, bool blocking )
+bool set_blocking_mode( SOCKET sck, bool blocking )
 {
 #ifdef _WIN32
   u_long nonblocking = blocking ? 0 : 1;
@@ -170,7 +172,7 @@ static bool set_blocking_mode( SOCKET sck, bool blocking )
 
 // Connects sck to addr, waiting at most timeout_ms for the connection to be
 // established (0 = blocking connect with the OS default timeout).
-static bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeout_ms )
+bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeout_ms )
 {
   auto addrlen = static_cast<socklen_t>( addr->ai_addrlen );
   if ( timeout_ms == 0 )
@@ -199,6 +201,7 @@ static bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned in
 
   return connected && set_blocking_mode( sck, true );
 }
+}  // namespace
 
 bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms )
 {
@@ -517,8 +520,10 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
   return true;
 }
 
+namespace
+{
 // Waits until the socket becomes writable, an error occurs, or waitms expires.
-static bool wait_for_writable( SOCKET sck, unsigned int waitms )
+bool wait_for_writable( SOCKET sck, unsigned int waitms )
 {
   SinglePoller poller( sck );
   poller.set_timeout( waitms );
@@ -534,6 +539,7 @@ static bool wait_for_writable( SOCKET sck, unsigned int waitms )
 
   return poller.writable() && !poller.error();
 }
+}  // namespace
 
 void Socket::send( const void* vdata, unsigned length )
 {

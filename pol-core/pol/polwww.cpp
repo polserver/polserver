@@ -719,14 +719,14 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
     return;
   }
 
-  std::string headers;
-  headers.reserve( 160 );
-  headers += "HTTP/1.1 200 OK\r\n";
-  headers += "Accept-Ranges: bytes\r\n";
-  fmt::format_to( std::back_inserter( headers ), "Content-Length: {}\r\n", fsize );
-  fmt::format_to( std::back_inserter( headers ), "Content-Type: {}\r\n", content_type );
-  headers += "Connection: close\r\n";
-  headers += "\r\n";
+  std::string headers = fmt::format(
+      "HTTP/1.1 200 OK\r\n"
+      "Accept-Ranges: bytes\r\n"
+      "Content-Length: {}\r\n"
+      "Content-Type: {}\r\n"
+      "Connection: close\r\n"
+      "\r\n",
+      fsize, content_type );
   sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) );
 
   // Actual reading and outputting.
