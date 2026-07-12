@@ -3,10 +3,8 @@ ATTENTION:
 This header is part of the PCH
 Remove the include in all StdAfx.h files or live with the consequences :)
 */
+#pragma once
 
-#ifndef MESSAGE_QUEUE_H
-#define MESSAGE_QUEUE_H
-#include <chrono>
 #include <condition_variable>
 #include <list>
 #include <mutex>
@@ -132,8 +130,7 @@ template <typename Message>
 void message_queue<Message>::pop_wait( Message* msg )
 {
   std::unique_lock<std::mutex> lock( _mutex );
-  while ( _queue.empty() && !_cancel )
-    _notifier.wait( lock );  // will unlock mutex during wait
+  _notifier.wait( lock, [this] { return !_queue.empty() || _cancel; } );
   if ( _cancel )
     throw Canceled();
   *msg = std::move( _queue.front() );
@@ -144,8 +141,7 @@ template <typename Message>
 void message_queue<Message>::pop_wait( std::list<Message>* msgs )
 {
   std::unique_lock<std::mutex> lock( _mutex );
-  while ( _queue.empty() && !_cancel )
-    _notifier.wait( lock );  // will unlock mutex during wait
+  _notifier.wait( lock, [this] { return !_queue.empty() || _cancel; } );
   if ( _cancel )
     throw Canceled();
   msgs->splice( msgs->end(), _queue );
@@ -167,6 +163,3 @@ void message_queue<Message>::cancel()
   _notifier.notify_all();
 }
 }  // namespace Pol::Clib
-
-
-#endif
