@@ -357,18 +357,20 @@ void TaskThreadPool::init( unsigned int max_count, const std::string& name )
           {
             while ( !_done )
             {
-              _msg_queue.pop_wait( &f );
-              f();
+              try
+              {
+                _msg_queue.pop_wait( &f );
+                f();
+              }
+              catch ( std::exception& ex )
+              {
+                ERROR_PRINTLN( "Thread exception: {}", ex.what() );
+                Clib::force_backtrace( true );
+              }
             }
           }
           catch ( msg_queue::Canceled& )
           {
-          }
-          catch ( std::exception& ex )
-          {
-            ERROR_PRINTLN( "Thread exception: {}", ex.what() );
-            Clib::force_backtrace( true );
-            return;
           }
           // purge the queue empty
           std::list<msg> remaining;
