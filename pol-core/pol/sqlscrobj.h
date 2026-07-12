@@ -7,8 +7,6 @@
 #ifndef SQLSCROBJ_H
 #define SQLSCROBJ_H
 
-#include "pol_global_config.h"
-
 #ifdef _WIN32
 #include "../clib/Header_Windows.h"
 #endif
@@ -17,6 +15,8 @@
 #include <functional>
 #include <memory>
 #include <string>
+
+#include <boost/compat/move_only_function.hpp>
 
 #include "../bscript/bobject.h"
 #include "../clib/message_queue.h"
@@ -108,8 +108,7 @@ private:
 };
 class SQLService;
 
-using QueryParam = std::vector<std::string>;
-using QueryParams = std::shared_ptr<QueryParam>;
+using QueryParams = std::vector<std::string>;
 
 class BSQLConnection final : public Core::PolObjectImp
 {
@@ -119,10 +118,11 @@ public:
   BSQLConnection();
   BSQLConnection( std::shared_ptr<ConnectionWrapper> conn );
   ~BSQLConnection() override;
-  bool connect( const char* host, const char* user, const char* passwd, int port = 0 );
-  bool query( const std::string query );
-  bool query( const std::string query, const QueryParams params );
-  bool select_db( const char* db );
+  bool connect( const std::string& host, const std::string& user, const std::string& passwd,
+                int port = 0 );
+  bool query( const std::string& query );
+  bool query( const std::string& query, const QueryParams& params );
+  bool select_db( const std::string& db );
   bool close();
   Bscript::BObjectImp* getResultSet() const;
 
@@ -166,7 +166,7 @@ private:
 class SQLService
 {
 public:
-  using msg = std::function<void()>;
+  using msg = boost::compat::move_only_function<void()>;
   using msg_queue = Clib::message_queue<msg>;
   SQLService();
   ~SQLService();

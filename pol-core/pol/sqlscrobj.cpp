@@ -330,7 +330,8 @@ bool BSQLConnection::isTrue() const
     return true;
   return false;
 }
-bool BSQLConnection::connect( const char* host, const char* user, const char* passwd, int port )
+bool BSQLConnection::connect( const std::string& host, const std::string& user,
+                              const std::string& passwd, int port )
 {
   if ( !_conn->ptr() )
   {
@@ -339,7 +340,8 @@ bool BSQLConnection::connect( const char* host, const char* user, const char* pa
     return false;
   }
   // port == 0 means default sql port
-  if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, nullptr, port, nullptr, 0 ) )
+  if ( !mysql_real_connect( _conn->ptr(), host.c_str(), user.c_str(), passwd.c_str(), nullptr, port,
+                            nullptr, 0 ) )
   {
     _errno = mysql_errno( _conn->ptr() );
     _error = mysql_error( _conn->ptr() );
@@ -347,7 +349,7 @@ bool BSQLConnection::connect( const char* host, const char* user, const char* pa
   }
   return true;
 }
-bool BSQLConnection::select_db( const char* db )
+bool BSQLConnection::select_db( const std::string& db )
 {
   if ( !_conn->ptr() )
   {
@@ -355,7 +357,7 @@ bool BSQLConnection::select_db( const char* db )
     _error = "No active MYSQL object instance.";
     return false;
   }
-  if ( mysql_select_db( _conn->ptr(), db ) )
+  if ( mysql_select_db( _conn->ptr(), db.c_str() ) )
   {
     _errno = mysql_errno( _conn->ptr() );
     _error = mysql_error( _conn->ptr() );
@@ -364,7 +366,7 @@ bool BSQLConnection::select_db( const char* db )
   return true;
 }
 
-bool BSQLConnection::query( const std::string query )
+bool BSQLConnection::query( const std::string& query )
 {
   if ( !_conn->ptr() )
   {
@@ -387,9 +389,9 @@ bool BSQLConnection::query( const std::string query )
  * Allows binding parameters to the query
  * Every occurrence of "?" is replaced with a single parameter
  */
-bool BSQLConnection::query( const std::string query, QueryParams params )
+bool BSQLConnection::query( const std::string& query, const QueryParams& params )
 {
-  if ( params == nullptr || params->empty() )
+  if ( params.empty() )
     return this->query( query );
 
   if ( !_conn->ptr() )
@@ -401,7 +403,7 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
 
   std::string replaced = query;
   std::regex re( "^((?:[^']|'[^']*')*?)(\\?)" );
-  for ( auto& it : *params )
+  for ( auto& it : params )
   {
     if ( !std::regex_search( replaced, re ) )
     {
