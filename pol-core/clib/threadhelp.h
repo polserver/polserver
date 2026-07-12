@@ -102,7 +102,7 @@ class DynTaskThreadPool
   class PoolWorker;
 
   friend class PoolWorker;
-  using msg = std::function<void()>;
+  using msg = boost::compat::move_only_function<void()>;
   using msg_queue = Clib::message_queue<msg>;
 
 public:
@@ -110,12 +110,14 @@ public:
   ~DynTaskThreadPool();
   DynTaskThreadPool( const DynTaskThreadPool& ) = delete;
   DynTaskThreadPool& operator=( const DynTaskThreadPool& ) = delete;
-  void push( const msg& msg );
-  std::future<bool> checked_push( const msg& msg );
+  void push( msg&& msg );
+  std::future<bool> checked_push( msg&& msg );
   size_t threadpoolsize() const;
 
 protected:
   std::atomic<bool> _done;
+  std::atomic<size_t> _busy_count{ 0 };
+  size_t _live_threads{ 0 };
 
 private:
   void create_thread();
