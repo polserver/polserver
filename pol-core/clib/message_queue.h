@@ -5,6 +5,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 */
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <list>
 #include <mutex>
@@ -42,7 +43,10 @@ public:
   void pop_wait( std::list<Message>* msgs );
   // empties the queue (unsafe)
   void pop_remaining( std::list<Message>* msgs );
-
+  // waits till queue is non empty or timeout is reached
+  template <typename Rep, typename Period>
+  [[nodiscard]] bool pop_wait_for( Message* msg,
+                                   const std::chrono::duration<Rep, Period>& timeout );
   void cancel();
   struct Canceled
   {
@@ -145,6 +149,21 @@ void message_queue<Message>::pop_wait( std::list<Message>* msgs )
   if ( _cancel )
     throw Canceled();
   msgs->splice( msgs->end(), _queue );
+}
+
+template <typename Message>
+template <typename Rep, typename Period>
+bool message_queue<Message>::pop_wait_for( Message* msg,
+                                           const std::chrono::duration<Rep, Period>& timeout )
+{
+  std::unique_lock<std::mutex> lock( _mutex );
+  if ( !_notifier.wait_for( lock, timeout, [this] { return !_queue.empty() || _cancel; } ) )
+    return false;
+  if ( _cancel )
+    throw Canceled();
+  *msg = std::move( _queue.front() );
+  _queue.pop_front();
+  return true;
 }
 
 template <typename Message>
