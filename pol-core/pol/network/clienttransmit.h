@@ -1,8 +1,5 @@
-#ifndef CLIENTSEND_H
-#define CLIENTSEND_H
+#pragma once
 
-#include <memory>
-#include <mutex>
 #include <vector>
 
 #include "../../clib/message_queue.h"
@@ -14,26 +11,13 @@ namespace Pol::Network
 {
 class Client;
 
-struct TransmitData
-{
-  // store a weak_ptr as a guard for pkts after deleting
-  weak_ptr<Client> client;
-  int len;
-  std::vector<u8> data;
-  bool disconnects;
-  bool remove;
-
-  TransmitData() : client( 0 ), len( 0 ), disconnects( false ), remove( false ){};
-};
-
-using TransmitDataSPtr = std::unique_ptr<TransmitData>;
-using ClientTransmitQueue = Clib::message_queue<TransmitDataSPtr>;
+void ClientTransmitThread();
 
 class ClientTransmit
 {
 public:
-  ClientTransmit();
-  ~ClientTransmit();
+  ClientTransmit() = default;
+  ~ClientTransmit() = default;
   ClientTransmit( const ClientTransmit& ) = delete;
   ClientTransmit& operator=( const ClientTransmit& ) = delete;
 
@@ -44,13 +28,23 @@ public:
   void QueueDelete( Client* client );
   void Cancel();
 
-  TransmitDataSPtr NextQueueEntry();
+protected:
+  friend void ClientTransmitThread();
+
+  struct TransmitData
+  {
+    // store a weak_ptr as a guard for pkts after deleting
+    weak_ptr<Client> client{ nullptr };
+    std::vector<u8> data{};
+    bool disconnects{ false };
+    bool remove{ false };
+  };
+
+  using ClientTransmitQueue = Clib::message_queue<TransmitData>;
+  TransmitData NextQueueEntry();
 
 private:
-  ClientTransmitQueue _transmitqueue;
+  ClientTransmitQueue _transmitqueue{};
 };
 
-void ClientTransmitThread();
 }  // namespace Pol::Network
-
-#endif
