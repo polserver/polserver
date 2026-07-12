@@ -12,15 +12,13 @@
  * Remove the include in all StdAfx.h files or live with the consequences :)
  */
 
-
-#ifndef __CLIB_FIXALLOC_H
-#define __CLIB_FIXALLOC_H
+#pragma once
 
 #include "pol_global_config.h"
 
-#include <assert.h>
-#include <stddef.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstddef>
+#include <cstdlib>
 
 #ifdef MEMORYLEAK
 #include "logfacility.h"
@@ -28,77 +26,84 @@
 
 namespace Pol::Clib
 {
-template <size_t N, size_t B>
+template <typename T, size_t B>
 class fixed_allocator
 {
-public:
-  union Buffer
+  static_assert( B > 1, "batch size must be greater than 1" );
+
+  static constexpr size_t N = sizeof( T );
+  static constexpr size_t Align = alignof( T );
+
+  static_assert( Align >= alignof( void* ), "minimum alignment not reached, illegal type" );
+
+  union alignas( Align ) Buffer
   {
     Buffer* next;
     char data[N];
   };
-  void* allocate();
-  void deallocate( void* );
 
-  void* allocate( size_t size );
-  void deallocate( void* size, size_t n );
+  static constexpr size_t ChunkBytes = sizeof( Buffer[B] );
+
+public:
+  fixed_allocator() = default;
+  fixed_allocator( const fixed_allocator& ) = delete;
+  fixed_allocator& operator=( const fixed_allocator& ) = delete;
+  fixed_allocator( fixed_allocator&& ) = delete;
+  fixed_allocator& operator=( fixed_allocator&& ) = delete;
+
+  [[nodiscard]] void* allocate();
+  void deallocate( void* vp ) noexcept;
+
+  [[nodiscard]] void* allocate( size_t size );
+  void deallocate( void* vp, size_t size ) noexcept;
 
 #ifdef MEMORYLEAK
-  fixed_allocator();
   ~fixed_allocator();
   void log_stuff( const std::string& detail );
+#else
+  ~fixed_allocator() = default;
 #endif
 
   size_t memsize = 0;
 
-protected:
+private:
   void* refill();
 
-private:
   Buffer* freelist_ = nullptr;
 #ifdef MEMORYLEAK
-  int buffers;
-  int requests;
-  int max_requests;
+  int buffers_ = 0;
+  int requests_ = 0;
+  int max_requests_ = 0;
 #endif
 };
 
 #ifdef MEMORYLEAK
-template <size_t N, size_t B>
-fixed_allocator<N, B>::fixed_allocator()
-{
-  freelist_ = nullptr;
-  buffers = 0;
-  requests = 0;
-  max_requests = 0;
-};
-
-template <size_t N, size_t B>
-fixed_allocator<N, B>::~fixed_allocator()
+template <typename T, size_t B>
+fixed_allocator<T, B>::~fixed_allocator()
 {
   log_stuff( "destructor" );
 }
 
-template <size_t N, size_t B>
-void fixed_allocator<N, B>::log_stuff( const std::string& detail )
+template <typename T, size_t B>
+void fixed_allocator<T, B>::log_stuff( const std::string& detail )
 {
   DEBUGLOGLN( "fixed_allocator[{}]: {} Buffer with {} Bytes allocated [{} Requests of {}]", detail,
-              buffers, sizeof( Buffer[B] ), requests, max_requests );
+              buffers_, ChunkBytes, requests_, max_requests_ );
 
-  LEAKLOG( "{};{};{};{};", buffers, sizeof( Buffer[B] ), requests, max_requests );
+  LEAKLOG( "{};{};{};{};", buffers_, ChunkBytes, requests_, max_requests_ );
 }
 #endif
 
-template <size_t N, size_t B>
-void* fixed_allocator<N, B>::allocate()
+template <typename T, size_t B>
+void* fixed_allocator<T, B>::allocate()
 {
 #ifdef LEAK_DEBUG
   return ::operator new( N );
-#endif
+#else
 #ifdef MEMORYLEAK
-  requests++;
-  if ( max_requests < requests )
-    max_requests = requests;
+  ++requests_;
+  if ( max_requests_ < requests_ )
+    max_requests_ = requests_;
 #endif
 
   Buffer* p = freelist_;
@@ -109,71 +114,67 @@ void* fixed_allocator<N, B>::allocate()
   }
 
   return refill();
+#endif
 }
 
-template <size_t N, size_t B>
-void* fixed_allocator<N, B>::refill()
+template <typename T, size_t B>
+void* fixed_allocator<T, B>::refill()
 {
-  size_t nbytes = sizeof( Buffer[B] );
-
-  Buffer* morebuf = static_cast<Buffer*>( ::operator new( nbytes ) );
+  Buffer* morebuf = static_cast<Buffer*>( ::operator new( ChunkBytes ) );
 
 #ifdef MEMORYLEAK
-  buffers++;
+  ++buffers_;
 #endif
-  memsize += nbytes;
-  Buffer* walk = morebuf + 1;
-  int count = B - 2;
-  while ( count-- )
-  {
-    Buffer* next = walk + 1;
-    walk->next = next;
-    walk++;
-  }
-  walk->next = nullptr;
-  freelist_ = morebuf + 1;
+  memsize += ChunkBytes;
+
+  for ( size_t i = 1; i + 1 < B; ++i )
+    morebuf[i].next = &morebuf[i + 1];
+  morebuf[B - 1].next = nullptr;
+
+  freelist_ = &morebuf[1];
   return morebuf;
 }
 
-template <size_t N, size_t B>
-void fixed_allocator<N, B>::deallocate( void* vp )
+template <typename T, size_t B>
+void fixed_allocator<T, B>::deallocate( void* vp ) noexcept
 {
 #ifdef LEAK_DEBUG
   return ::operator delete( vp );
-#endif
+#else
 #ifdef MEMORYLEAK
-  requests--;
+  --requests_;
 #endif
 
   Buffer* buf = static_cast<Buffer*>( vp );
   buf->next = freelist_;
   freelist_ = buf;
+#endif
 }
 
-template <size_t N, size_t B>
-void* fixed_allocator<N, B>::allocate( size_t size )
+template <typename T, size_t B>
+void* fixed_allocator<T, B>::allocate( size_t size )
 {
 #ifdef LEAK_DEBUG
   return ::operator new( size );
-#endif
-  assert( size == B );
-  if ( size == B )
+#else
+  assert( size == N );
+  if ( size == N )
     return allocate();
   return ::operator new( size );
+#endif
 }
 
-template <size_t N, size_t B>
-void fixed_allocator<N, B>::deallocate( void* vp, size_t size )
+template <typename T, size_t B>
+void fixed_allocator<T, B>::deallocate( void* vp, size_t size ) noexcept
 {
 #ifdef LEAK_DEBUG
   return ::operator delete( vp );
-#endif
-  assert( size == B );
-  if ( size == B )
+#else
+  assert( size == N );
+  if ( size == N )
     deallocate( vp );
   else
     ::operator delete( vp );
+#endif
 }
 }  // namespace Pol::Clib
-
-#endif
