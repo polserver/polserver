@@ -58,7 +58,7 @@ private:
   HANDLES _handles;
 #endif
 };
-extern ThreadMap threadmap;
+ThreadMap& threadmap_instance();
 #ifdef _WIN32
 void SetThreadName( int dwThreadID, std::string threadName );
 #endif

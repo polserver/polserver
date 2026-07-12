@@ -40,7 +40,13 @@
 namespace Pol::threadhelp
 {
 using namespace std::chrono_literals;
-ThreadMap threadmap;
+
+ThreadMap& threadmap_instance()
+{
+  static ThreadMap threadmap;
+  return threadmap;
+}
+
 std::atomic<unsigned int> child_threads( 0 );
 static int threads = 0;
 
@@ -131,7 +137,7 @@ void run_thread( void ( *threadf )() )
 
   --child_threads;
 
-  threadmap.Unregister( thread_pid() );
+  threadmap_instance().Unregister( thread_pid() );
 }
 void run_thread( void ( *threadf )( void* ), void* arg )
 {
@@ -147,7 +153,7 @@ void run_thread( void ( *threadf )( void* ), void* arg )
 
   --child_threads;
 
-  threadmap.Unregister( thread_pid() );
+  threadmap_instance().Unregister( thread_pid() );
 }
 
 class ThreadData
@@ -171,7 +177,7 @@ void* thread_stub2( void* v_td )
   void ( *entry_noparam )() = td->entry_noparam;
   void* arg = td->arg;
 
-  threadmap.Register( thread_pid(), td->name );
+  threadmap_instance().Register( thread_pid(), td->name );
 
   delete td;
   td = nullptr;
@@ -285,6 +291,7 @@ HANDLE ThreadMap::getThreadHandle( size_t pid ) const
 #endif
 void ThreadMap::Register( size_t pid, const std::string& name )
 {
+  printf( "register %zu %s\n", pid, name.c_str() );
   Clib::SpinLockGuard guard( _spinlock );
   _contents.insert( std::make_pair( pid, name ) );
 #ifdef _WIN32
@@ -317,11 +324,11 @@ void ThreadMap::CopyContents( Contents& out ) const
 
 ThreadRegister::ThreadRegister( const std::string& name )
 {
-  threadmap.Register( thread_pid(), name );
+  threadmap_instance().Register( thread_pid(), name );
 }
 ThreadRegister::~ThreadRegister()
 {
-  threadmap.Unregister( thread_pid() );
+  threadmap_instance().Unregister( thread_pid() );
 }
 
 
@@ -488,7 +495,9 @@ void DynTaskThreadPool::PoolWorker::run()
   _thread = std::jthread(
       [&]()
       {
+        printf( "pool %s\n", _name.c_str() );
         ThreadRegister register_thread( _name );
+        printf( "poolreg %s\n", _name.c_str() );
         ERROR_PRINTLN( "created pool worker {}", _name );
         auto f = msg();
         try

@@ -702,7 +702,7 @@ void threadstatus_thread()
                         stateManager.polsig.check_attack_after_move_function_checkpoint );
       tmp += "Current Threads:\n";
       ThreadMap::Contents contents;
-      threadmap.CopyContents( contents );
+      threadmap_instance().CopyContents( contents );
       for ( ThreadMap::Contents::const_iterator citr = contents.begin(); citr != contents.end();
             ++citr )
       {
@@ -768,7 +768,7 @@ void console_thread()
 
 void start_threads()
 {
-  threadmap.Register( thread_pid(), "Main" );
+  threadmap_instance().Register( thread_pid(), "Main" );
 
   if ( Plib::systemstate.config.web_server )
     start_http_server();
