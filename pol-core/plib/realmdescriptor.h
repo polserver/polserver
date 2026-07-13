@@ -25,7 +25,7 @@ class RealmDescriptor
 {
 public:
   static RealmDescriptor Load( const std::string& realm_name, const std::string& realm_path = "" );
-  static constexpr unsigned short VERSION = 1;
+  static constexpr unsigned short VERSION = 2;
 
   std::string name;
   std::string file_path;

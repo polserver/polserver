@@ -1,5 +1,14 @@
 -- POL100.3.0 --
-07-06-2026 Nando:
+07-13-2026 Nando:
+    Fixed: uoconvert's maptile.dat block index used a truncating (floor) shift instead
+           of a rounded-up (ceil) block count, so realms whose width or height isn't a
+           multiple of 64 (Tokuno, 1448x1448, among the standard maps) had their
+           easternmost/southernmost partial tile-block aliased onto the start of the
+           next block row, silently overwriting it. This corrupted landtile/z lookups
+           (Realm::groundheight, GetMapInfo, findmarker/counttiles) along a ~40-tile
+           strip; movement/walkability were unaffected. maptile.dat's layout changes
+           for affected realms, so RealmDescriptor::VERSION is bumped 1->2, requiring
+           all realms to be reconverted.
     Fixed: Data race on the socket handle between an aux connection's reader thread
            and deferred transmit() tasks (os::OpenConnection / aux services): a
            transmit racing the connection close could act on an already-closed

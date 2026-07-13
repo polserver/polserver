@@ -136,9 +136,15 @@ void UoConvertMain::create_maptile( const std::string& realmname )
   {
     for ( unsigned short x_base = 0; x_base < uo_map_width; x_base += Plib::MAPTILE_CHUNK )
     {
-      for ( unsigned short x_add = 0; x_add < Plib::MAPTILE_CHUNK; ++x_add )
+      unsigned short x_add_max = Plib::MAPTILE_CHUNK, y_add_max = Plib::MAPTILE_CHUNK;
+      if ( x_base + x_add_max > uo_map_width )
+        x_add_max = uo_map_width - x_base;
+      if ( y_base + y_add_max > uo_map_height )
+        y_add_max = uo_map_height - y_base;
+
+      for ( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
       {
-        for ( unsigned short y_add = 0; y_add < Plib::MAPTILE_CHUNK; ++y_add )
+        for ( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
         {
           unsigned short x = x_base + x_add;
           unsigned short y = y_base + y_add;

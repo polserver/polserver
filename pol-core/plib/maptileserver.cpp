@@ -25,7 +25,7 @@ MAPTILE_CELL MapTileServer::GetMapTile( unsigned short x, unsigned short y )
   unsigned short yblock = y >> MAPTILE_SHIFT;
   unsigned short ycell = y & MAPTILE_CELLMASK;
 
-  int block_index = yblock * ( _descriptor.width >> MAPTILE_SHIFT ) + xblock;
+  int block_index = yblock * _descriptor.grid_width + xblock;
   if ( block_index != _cur_block_index )
   {
     size_t offset = block_index * sizeof _cur_block;

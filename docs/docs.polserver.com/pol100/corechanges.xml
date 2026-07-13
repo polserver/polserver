@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-06-2026</datemodified>
+		<datemodified>07-13-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-13-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">uoconvert's maptile.dat block index used a truncating (floor) shift instead of a rounded-up (ceil)<br/>
+block count, so realms whose width or height isn't a multiple of 64 (Tokuno, 1448x1448, among the standard maps)<br/>
+had their easternmost/southernmost partial tile-block aliased onto the start of the next block row, silently<br/>
+overwriting it. This corrupted landtile/z lookups (Realm::groundheight, GetMapInfo, findmarker/counttiles)<br/>
+along a ~40-tile strip; movement/walkability were unaffected. maptile.dat's layout changes for affected realms,<br/>
+so RealmDescriptor::VERSION is bumped 1-&gt;2, requiring all realms to be reconverted.</change>
+		</entry>
 		<entry>
 			<date>07-06-2026</date>
 			<author>Nando:</author>

@@ -53,6 +53,7 @@ bool run_pol_tests()
 
   RUNTEST( decay_test )
   RUNTEST( clamp_test )
+  RUNTEST( maptile_geometry_test )
   RUNTEST( uoextension_test )
 
   RUNTEST( caseinsensitive_compare_test )

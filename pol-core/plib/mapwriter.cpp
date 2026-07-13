@@ -211,7 +211,7 @@ unsigned int MapWriter::total_solid_blocks()
 }
 unsigned int MapWriter::total_maptile_blocks()
 {
-  return _width * _height / MAPTILE_CHUNK / MAPTILE_CHUNK;
+  return maptile_blocks_across( _width ) * maptile_blocks_across( _height );
 }
 
 void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
@@ -246,7 +246,7 @@ void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cel
   unsigned short ycell = y & MAPTILE_CELLMASK;
 
   // doh, need to know map geometry here.
-  int blockIdx = yblock * ( _width >> MAPTILE_SHIFT ) + xblock;
+  int blockIdx = yblock * maptile_blocks_across( _width ) + xblock;
   if ( blockIdx != _cur_maptile_index )
   {
     if ( _cur_maptile_index >= 0 )
