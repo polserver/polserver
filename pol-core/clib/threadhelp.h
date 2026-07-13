@@ -110,6 +110,7 @@ public:
   ~DynTaskThreadPool();
   DynTaskThreadPool( const DynTaskThreadPool& ) = delete;
   DynTaskThreadPool& operator=( const DynTaskThreadPool& ) = delete;
+  void prefill_workers();
   void push( msg&& msg );
   std::future<bool> checked_push( msg&& msg );
   size_t threadpoolsize() const;

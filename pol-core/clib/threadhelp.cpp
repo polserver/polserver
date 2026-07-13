@@ -549,6 +549,10 @@ void DynTaskThreadPool::PoolWorker::run()
 DynTaskThreadPool::DynTaskThreadPool( const std::string& name )
     : _done( false ), _msg_queue(), _pool_mutex(), _name( "DynTaskPool" + name )
 {
+}
+
+void DynTaskThreadPool::prefill_workers()
+{
   std::lock_guard<std::mutex> guard( _pool_mutex );
   for ( size_t i = 0; i < PoolWorker::MIN_WORKER; ++i )
   {
