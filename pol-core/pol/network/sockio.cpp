@@ -14,12 +14,9 @@ struct utsname my_utsname;
 
 #include <cstdio>
 #include <cstring>
-#include <fcntl.h>
-#include <stdexcept>
 #include <string>
 
 #include "../clib/clib.h"
-#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/network/sockets.h"
 #include "../clib/strutil.h"
@@ -124,87 +121,6 @@ int deinit_sockets_library()
   }
 #endif
   return 0;
-}
-
-void disable_nagle( SOCKET sck )
-{
-  int tcp_nodelay = 1;
-  int res =
-      setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char*)&tcp_nodelay, sizeof( tcp_nodelay ) );
-  if ( res < 0 )
-  {
-    throw std::runtime_error( "Unable to setsockopt (TCP_NODELAY) on listening socket, res=" +
-                              Clib::tostring( res ) );
-  }
-}
-
-void apply_socket_options( SOCKET sck )
-{
-#ifdef _WIN32
-  u_long nonblocking = 1;
-  int res = ioctlsocket( sck, FIONBIO, &nonblocking );
-#else
-  int flags = fcntl( sck, F_GETFL );
-  flags |= O_NONBLOCK;
-  int res = fcntl( sck, F_SETFL, flags );
-#endif
-  if ( res < 0 )
-  {
-    throw std::runtime_error( "Unable to set socket to nonblocking mode, res=" +
-                              Clib::tostring( res ) );
-  }
-}
-SOCKET open_listen_socket( unsigned short port )
-{
-  int res;
-  SOCKET sck;
-
-  sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( sck == INVALID_SOCKET )
-  {
-    throw std::runtime_error( "Unable to create listening socket" );
-  }
-
-  apply_socket_options( sck );
-
-#ifndef WIN32
-  int reuse_opt = 1;
-  res = setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse_opt, sizeof( reuse_opt ) );
-  if ( res < 0 )
-  {
-    throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " +
-                              Clib::tostring( res ) );
-  }
-#endif
-
-#define DISABLE_NAGLE_ALGORITHM 0
-#if DISABLE_NAGLE_ALGORITHM
-  disable_nagle( sck );
-#endif
-
-  struct sockaddr_in connection;
-  connection.sin_family = AF_INET;
-  connection.sin_addr.s_addr = INADDR_ANY;
-  connection.sin_port = ctBEu16( port );
-  memset( connection.sin_zero, 0, sizeof( connection.sin_zero ) );  // for completeness
-
-  res = bind( sck, (struct sockaddr*)&connection, sizeof connection );
-  if ( res < 0 )
-  {
-    // Aug. 16, 2006. Austin
-    //   Added the port number that failed.
-    std::string tmp_error = "Unable to bind listening socket. Port(" + Clib::tostring( port ) +
-                            ") Res=" + Clib::tostring( res );
-    throw std::runtime_error( tmp_error );
-  }
-
-  res = listen( sck, SOMAXCONN );
-  if ( res < 0 )
-  {
-    throw std::runtime_error( "Listen failed, res=" + Clib::tostring( res ) );
-  }
-
-  return sck;
 }
 
 std::string AddressToString( const sockaddr* addr )

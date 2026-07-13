@@ -1,0 +1,51 @@
+// Helper for test_openconn.src (not a test file itself). Regression driver for
+// the data race between the aux reader thread closing the socket (peer EOF)
+// and deferred transmit() tasks touching it: keeps a steady stream of
+// transmits in flight while asking the webserver to close the connection
+// (HTTP/1.0 request), then keeps transmitting after the close arrived.
+// Reports struct{ closed } to params.test_script_pid; the test mainly relies
+// on the TSan CI build flagging the racy access pair.
+use os;
+use uo;
+
+include "testutil";
+
+program auxservice( conn, params )
+  var crlf := CChr( 13 ) + "\n";
+  conn.transmit( "GET /pkg/webserver/static.html HTTP/1.0" + crlf
+                 + "Authorization: " + WWW_AUTH_VALUE + crlf + crlf );
+
+  var closed := 0;
+  var loops := 500; // ~5s safety net; the 1.0 response + close arrives quickly
+  while ( loops > 0 )
+    loops -= 1;
+
+    // keep several transmit tasks queued so some are in flight when the
+    // reader thread sees the EOF and closes the socket
+    var burst := 8;
+    while ( burst > 0 )
+      burst -= 1;
+      conn.transmit( CChr( 1 ) );
+    endwhile
+
+    while ( Events_Waiting() )
+      var ev := os::Wait_For_Event( 0 );
+      if ( !( ev.type == "recv" ) )
+        closed := 1; // the "connection closed" error event
+      endif
+    endwhile
+    if ( closed )
+      break;
+    endif
+    Sleepms( 10 );
+  endwhile
+
+  // transmits after the connection died must be harmless no-ops
+  var i := 100;
+  while ( i > 0 )
+    i -= 1;
+    conn.transmit( CChr( 1 ) );
+  endwhile
+
+  GetProcess( params.test_script_pid ).SendEvent( struct{ closed := closed } );
+endprogram

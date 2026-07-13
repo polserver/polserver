@@ -1,0 +1,134 @@
+// Shard tests for os::OpenConnection() socket-level behavior: hostname
+// resolution (getaddrinfo), fast failure on unresolvable names, and the
+// webserver dropping connections that stream bytes without line breaks.
+use os;
+use uo;
+include "testutil";
+
+program test_openconn()
+  return 1;
+endprogram
+
+// eScript string literals have no \r escape, so CRLF is built at runtime.
+function http_request( lines )
+  var crlf := CChr( 13 ) + "\n";
+  var request := "";
+  foreach line in lines
+    request += line + crlf;
+  endforeach
+  return request;
+endfunction
+
+// OpenConnection with a hostname instead of an IP address: "localhost" must
+// resolve and reach the webserver like "127.0.0.1" does in test_www_raw.src
+exported function test_openconn_hostname()
+  var request := http_request( array{ "GET /pkg/webserver/static.html HTTP/1.1",
+                                      "Authorization: " + WWW_AUTH_VALUE, "" } );
+  var conn := OpenConnection( "localhost", 5006, "rawhttp",
+                              params := struct{ request := request,
+                                                test_script_pid := GetPid() },
+                              assume_string := 1, keep_connection := 0,
+                              ignore_line_breaks := 1 );
+  if ( !conn )
+    return ret_error( $"could not connect to the webserver via hostname: {conn}" );
+  endif
+
+  var ev := wait_for_event( 30 );
+  if ( !ev )
+    return ret_error( "no response event from rawhttp client" );
+  endif
+  if ( ev.status != 200 )
+    return ret_error( $"request via hostname returned status {ev.status}, expecting 200 (raw: '{ev.raw}')" );
+  endif
+  return 1;
+endfunction
+
+// Unresolvable names must fail with an error, quickly (they used to be
+// treated as 255.255.255.255 and could block for the OS connect timeout)
+exported function test_openconn_unresolvable()
+  var start := ReadGameClock();
+  var conn := OpenConnection( "unresolvable-host.invalid", 5006, "rawhttp",
+                              params := struct{ request := "x",
+                                                test_script_pid := GetPid() },
+                              assume_string := 1, keep_connection := 0,
+                              ignore_line_breaks := 1 );
+  var elapsed := ReadGameClock() - start;
+  if ( conn )
+    return ret_error( "OpenConnection to unresolvable-host.invalid unexpectedly succeeded" );
+  endif
+  // resolution failure is immediate; a DNS-hijacking resolver still hits the
+  // 10s connect timeout. Anything beyond that means connect() blocked.
+  if ( elapsed > 15 )
+    return ret_error( $"OpenConnection took {elapsed}s to fail, expecting < 15s" );
+  endif
+  return 1;
+endfunction
+
+// An explicit connect_timeout_ms must bound the connect attempt: a blackhole
+// address (TEST-NET-1, packets are dropped) with a 2s timeout must fail well
+// before the 10s default. If the network stack rejects the address outright
+// the failure is immediate, which also passes.
+exported function test_openconn_timeout_param()
+  var start := ReadGameClock();
+  var conn := OpenConnection( "192.0.2.1", 5006, "rawhttp",
+                              params := struct{ request := "x",
+                                                test_script_pid := GetPid() },
+                              assume_string := 1, keep_connection := 0,
+                              ignore_line_breaks := 1, connect_timeout_ms := 2000 );
+  var elapsed := ReadGameClock() - start;
+  if ( conn )
+    return ret_error( "OpenConnection to blackhole address 192.0.2.1 unexpectedly succeeded" );
+  endif
+  if ( elapsed > 8 )
+    return ret_error( $"OpenConnection took {elapsed}s to fail, expecting ~2s" );
+  endif
+  return 1;
+endfunction
+
+// Transmitting while (and after) the server closes the connection must be
+// safe: the aux reader thread closes the socket on EOF while deferred
+// transmit tasks still touch it (regression test for a data race on the
+// socket handle; the TSan CI build is what actually flags regressions).
+exported function test_openconn_transmit_on_close()
+  var conn := OpenConnection( "127.0.0.1", 5006, "rawclose",
+                              params := struct{ test_script_pid := GetPid() },
+                              assume_string := 1, keep_connection := 1,
+                              ignore_line_breaks := 1 );
+  if ( !conn )
+    return ret_error( $"could not connect to the webserver: {conn}" );
+  endif
+
+  var ev := wait_for_event( 30 );
+  if ( !ev )
+    return ret_error( "no report event from rawclose client" );
+  endif
+  if ( !ev.closed )
+    return ret_error( "webserver never closed the connection" );
+  endif
+  return 1;
+endfunction
+
+// A peer streaming non-printable bytes without line breaks must not keep its
+// webserver connection alive past the 5s idle timeout (regression test for
+// the timeout refreshing on discarded bytes).
+exported function test_openconn_garbage_timeout()
+  var conn := OpenConnection( "127.0.0.1", 5006, "rawgarbage",
+                              params := struct{ test_script_pid := GetPid() },
+                              assume_string := 1, keep_connection := 1,
+                              ignore_line_breaks := 1 );
+  if ( !conn )
+    return ret_error( $"could not connect to the webserver: {conn}" );
+  endif
+
+  var ev := wait_for_event( 45 );
+  if ( !ev )
+    return ret_error( "no report event from rawgarbage client" );
+  endif
+  if ( ev.elapsed < 0 )
+    return ret_error( "webserver did not close the garbage-streaming connection" );
+  endif
+  if ( ev.elapsed > 15 )
+    return ret_error( $"webserver took {ev.elapsed}s to close the garbage-streaming connection, expecting ~5s" );
+  endif
+  return 1;
+endfunction

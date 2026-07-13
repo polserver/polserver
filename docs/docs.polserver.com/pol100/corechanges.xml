@@ -2,15 +2,36 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-05-2026</datemodified>
+		<datemodified>07-06-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-06-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">Data race on the socket handle between an aux connection's reader thread and deferred transmit() tasks<br/>
+(os::OpenConnection / aux services): a transmit racing the connection close could act on an already-closed socket handle.</change>
+			<change type="Changed">With WebServerLocalOnly=1 (the default), the webserver now binds to 127.0.0.1 instead of<br/>
+all interfaces, so the port is no longer reachable (or even visible) from other machines.<br/>
+Set WebServerLocalOnly=0 to allow remote connections, as before.</change>
+		</entry>
 		<entry>
 			<date>07-05-2026</date>
 			<author>Nando:</author>
 			<change type="Fixed">On macOS, sockets could lose data that arrived just before the peer closed the connection<br/>
 (poll() reports POLLHUP eagerly there; the buffered data is now drained before the connection is treated as closed).<br/>
 Affected e.g. os::OpenConnection() clients talking to servers that close after responding.</change>
+			<change type="Changed">os::OpenConnection() now resolves hostnames (e.g. "shard.example.com"), not only numeric IP addresses.<br/>
+Unresolvable names fail immediately (previously they silently connected to 255.255.255.255)<br/>
+and unreachable hosts give up after the new connect_timeout_ms parameter (default 10000 ms;<br/>
+0 restores the old behavior of blocking a worker thread for the OS default of a minute or more).</change>
+			<change type="Fixed">Connections read line-by-line (aux services, webserver, remote debugger) could be kept open forever<br/>
+by a peer streaming data without line breaks: receive timeouts now only reset when usable data arrives,<br/>
+and line buffers without a configured maximum are capped at 16 MB.</change>
+			<change type="Changed">With DebugLocalOnly=1 (the default), the DebugPort listener now binds to 127.0.0.1 instead of<br/>
+all interfaces, so the port is no longer reachable (or even visible) from other machines.<br/>
+Set DebugLocalOnly=0 to allow remote debugger connections, as before.</change>
+			<change type="Changed">The "local only" peer checks (DebugLocalOnly, WebServerLocalOnly) now accept connections<br/>
+from any 127.0.0.0/8 loopback address instead of only exactly 127.0.0.1.</change>
 		</entry>
 		<entry>
 			<date>07-04-2026</date>

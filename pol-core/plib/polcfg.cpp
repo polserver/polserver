@@ -60,8 +60,13 @@ void PolConfig::read( bool initial_load )
 
     check_integrity = true;  // elem.remove_bool( "CheckIntegrity", true );
     count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
+    
     web_server = elem.remove_bool( "WebServer", false );
     web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
+    web_server_local_only = elem.remove_bool( "WebServerLocalOnly", true );
+    web_server_debug = elem.remove_ushort( "WebServerDebug", 0 );
+    web_server_password = elem.remove_string( "WebServerPassword", "" );
+
 
     unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0 );
     if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX &&
@@ -100,9 +105,6 @@ void PolConfig::read( bool initial_load )
   log_sysload = elem.remove_bool( "LogSysLoad", false );
   inhibit_saves = elem.remove_bool( "InhibitSaves", false );
   log_script_cycles = elem.remove_bool( "LogScriptCycles", false );
-  web_server_local_only = elem.remove_bool( "WebServerLocalOnly", true );
-  web_server_debug = elem.remove_ushort( "WebServerDebug", 0 );
-  web_server_password = elem.remove_string( "WebServerPassword", "" );
 
   profile_cprops = elem.remove_bool( "ProfileCProps", false );
 

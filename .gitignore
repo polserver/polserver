@@ -14,3 +14,5 @@ build/
 compile_commands.json
 /.cache
 CLAUDE.local.md
+.venv
+specs/

@@ -1,10 +1,11 @@
 #ifndef CLIB_WNSCKT_H
 #define CLIB_WNSCKT_H
 
+#include <atomic>
 #include <string>
 
 #include "../Header_Windows.h"
-#ifndef WINDOWS
+#ifndef _WIN32
 #include <sys/socket.h>
 
 using SOCKET = int;
@@ -35,16 +36,16 @@ public:
   ~Socket();
 
   void write( const std::string& str );
+  void writeline( const std::string& s );
 
-  bool open( const char* ipaddr, unsigned short port );
-  bool listen( unsigned short port );
+  // connect_timeout_ms == 0 means a blocking connect with the OS default timeout
+  bool open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms = 0 );
+  // loopback_only binds to 127.0.0.1 instead of all interfaces
+  bool listen( unsigned short port, bool loopback_only = false );
   bool has_incoming_data( unsigned int waitms, int* result = nullptr );
-  bool accept( SOCKET* s, unsigned int mstimeout );
   bool accept( Socket* newsocket );
-  bool recvbyte( unsigned char* byte, unsigned int waitms );
   bool recvdata_nowait( char* vdest, unsigned len, int* bytes_read );
   bool recvdata( void* vdest, unsigned len, unsigned int waitms );
-  unsigned peek( void* vdest, unsigned len, unsigned int waitms );
   void send( const void* data, unsigned length );
   bool send_nowait( const void* vdata, unsigned datalen, unsigned* nsent );
   bool connected() const;
@@ -60,7 +61,6 @@ public:
 
   void setsocket( SOCKET sck );
   void setpeer( struct sockaddr peer );
-  void takesocket( Socket& sck );
 
   void set_options( option opt );
 
@@ -73,7 +73,11 @@ protected:
 private:
   void HandleError();
 
-  SOCKET _sck;
+  // atomic: close() may be called while another thread does I/O (aux connections
+  // close from the reader thread while transmit tasks send); this keeps the
+  // handle reads/writes race-free, but a concurrent sender can still lose the
+  // race and act on an already-closed descriptor (specs/sockets/06).
+  std::atomic<SOCKET> _sck;
 
   int _options;
   struct sockaddr _peer;
@@ -107,6 +111,9 @@ protected:
   unsigned int _timeout_secs;
 
   bool _disconnect_on_timeout;
+  // set by try_read() when it consumed usable bytes; read() only refreshes its
+  // timeout on progress
+  bool _made_progress = false;
 };
 
 class SocketLineReader : public SocketReader

@@ -24,7 +24,6 @@
 #include "bscript/executor.h"
 #include "clib/clib.h"
 #include "clib/esignal.h"
-#include "clib/network/sckutil.h"
 #include "clib/network/socketsvc.h"
 #include "clib/network/wnsckt.h"
 #include "clib/rawtypes.h"
@@ -1344,7 +1343,7 @@ void DebugClientThread::run()
   {
     if ( !_sck.is_local() )
     {
-      Clib::writeline( _sck, "Only accepting connections from localhost." );
+      _sck.writeline("Only accepting connections from localhost." );
       return;
     }
   }
@@ -1356,18 +1355,18 @@ void DebugClientThread::run()
 
   while ( !dctx.done() )
   {
-    Clib::writeline( _sck, dctx.prompt() );
+    _sck.writeline( dctx.prompt() );
     if ( !linereader.read( cmdline ) )
       break;
 
     bool ret = dctx.process( cmdline, results );
     if ( ret )
-      Clib::writeline( _sck, "Results: " + Clib::tostring( results.size() ) );
+      _sck.writeline( "Results: " + Clib::tostring( results.size() ) );
     else
-      Clib::writeline( _sck, "Failure: " + Clib::tostring( results.size() ) );
+      _sck.writeline( "Failure: " + Clib::tostring( results.size() ) );
     for ( const auto& result : results )
     {
-      Clib::writeline( _sck, result );
+      _sck.writeline( result );
     }
   }
 }
@@ -1376,7 +1375,8 @@ void debug_listen_thread()
 {
   if ( Plib::systemstate.config.debug_port )
   {
-    Clib::SocketListener SL( Plib::systemstate.config.debug_port );
+    Clib::SocketListener SL( Plib::systemstate.config.debug_port,
+                             Plib::systemstate.config.debug_local_only );
     while ( !Clib::exit_signalled )
     {
       Clib::Socket sock;

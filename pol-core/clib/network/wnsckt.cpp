@@ -8,8 +8,10 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <system_error>
 
 #include "esignal.h"
 #include "logfacility.h"
@@ -18,7 +20,7 @@
 
 #include "singlepoller.h"
 
-#if defined( WINDOWS )
+#ifdef _WIN32
 #define SOCKET_ERRNO( x ) WSA##x
 #define socket_errno WSAGetLastError()
 typedef int socklen_t;
@@ -28,6 +30,7 @@ typedef int socklen_t;
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
@@ -45,39 +48,55 @@ typedef int socklen_t;
 
 namespace Pol::Clib
 {
+#ifdef _WIN32
+static void winsock_initialize()
+{
+  // magic static: initialization is thread-safe and happens exactly once
+  static struct WinsockInit
+  {
+    WinsockInit()
+    {
+      WSADATA wsad;
+      if ( WSAStartup( MAKEWORD( 2, 2 ), &wsad ) != 0 )
+        INFO_PRINTLN( "Error in WSAStartup()" );
+    }
+    ~WinsockInit() { WSACleanup(); }
+  } init;
+}
+#endif
+
 Socket::Socket() : _sck( INVALID_SOCKET ), _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
 #ifdef _WIN32
-  static bool init;
-  if ( !init )
-  {
-    init = true;
-    WSADATA dummy;
-    WSAStartup( MAKEWORD( 1, 0 ), &dummy );
-  }
+  winsock_initialize();
 #endif
 }
 
 Socket::Socket( SOCKET sock ) : _sck( sock ), _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
+#ifdef _WIN32
+  winsock_initialize();
+#endif
 }
 
 Socket::Socket( Socket&& sock )
-    : _sck( std::move( sock._sck ) ),
+    : _sck( sock._sck.exchange( INVALID_SOCKET ) ),
       _options( std::move( sock._options ) ),
       _peer( std::move( sock._peer ) )
 {
-  sock._sck = INVALID_SOCKET;
 }
 
 Socket& Socket::operator=( Socket&& sock )
 {
-  _sck = std::move( sock._sck );
-  _options = std::move( sock._options );
-  _peer = std::move( sock._peer );
-  sock._sck = INVALID_SOCKET;
+  if ( this != &sock )
+  {
+    close();
+    _sck = sock._sck.exchange( INVALID_SOCKET );
+    _options = sock._options;
+    _peer = sock._peer;
+  }
   return *this;
 }
 
@@ -104,13 +123,15 @@ void Socket::setpeer( struct sockaddr peer )
 
 std::string Socket::getpeername() const
 {
-  struct sockaddr client_addr;  // inet_addr
+  struct sockaddr client_addr;
   socklen_t addrlen = sizeof client_addr;
   if ( ::getpeername( _sck, &client_addr, &addrlen ) == 0 )
   {
     struct sockaddr_in* in_addr = (struct sockaddr_in*)&client_addr;
-    if ( client_addr.sa_family == AF_INET )
-      return inet_ntoa( in_addr->sin_addr );
+    char buffer[INET_ADDRSTRLEN];
+    if ( client_addr.sa_family == AF_INET &&
+         inet_ntop( AF_INET, &in_addr->sin_addr, buffer, sizeof buffer ) != nullptr )
+      return buffer;
     return "(display error)";
   }
   return "Error retrieving peer name";
@@ -127,57 +148,112 @@ SOCKET Socket::handle() const
 
 SOCKET Socket::release_handle()
 {
-  SOCKET s = _sck;
-  _sck = INVALID_SOCKET;
-  return s;
+  return _sck.exchange( INVALID_SOCKET );
 }
 
 
-bool Socket::open( const char* ipaddr, unsigned short port )
+namespace
+{
+bool wait_for_writable( SOCKET sck, unsigned int waitms );
+
+bool set_blocking_mode( SOCKET sck, bool blocking )
+{
+#ifdef _WIN32
+  u_long nonblocking = blocking ? 0 : 1;
+  return ioctlsocket( sck, FIONBIO, &nonblocking ) == 0;
+#else
+  int flags = fcntl( sck, F_GETFL );
+  if ( flags == -1 )
+    return false;
+  flags = blocking ? ( flags & ~O_NONBLOCK ) : ( flags | O_NONBLOCK );
+  return fcntl( sck, F_SETFL, flags ) == 0;
+#endif
+}
+
+// Connects sck to addr, waiting at most timeout_ms for the connection to be
+// established (0 = blocking connect with the OS default timeout).
+bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeout_ms )
+{
+  auto addrlen = static_cast<socklen_t>( addr->ai_addrlen );
+  if ( timeout_ms == 0 )
+    return ::connect( sck, addr->ai_addr, addrlen ) == 0;
+
+  if ( !set_blocking_mode( sck, false ) )
+    return false;
+
+  bool connected = ::connect( sck, addr->ai_addr, addrlen ) == 0;
+  if ( !connected )
+  {
+#ifdef _WIN32
+    bool in_progress = socket_errno == WSAEWOULDBLOCK;
+#else
+    bool in_progress = socket_errno == EINPROGRESS;
+#endif
+    if ( in_progress && wait_for_writable( sck, timeout_ms ) )
+    {
+      int so_error = 0;
+      socklen_t optlen = sizeof so_error;
+      connected = getsockopt( sck, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>( &so_error ),
+                              &optlen ) == 0 &&
+                  so_error == 0;
+    }
+  }
+
+  return connected && set_blocking_mode( sck, true );
+}
+}  // namespace
+
+bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms )
 {
   close();
-  _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( _sck == INVALID_SOCKET
-#ifndef WINDOWS
-       || _sck < 0
-#endif
-  )
+
+  struct addrinfo hints;
+  memset( &hints, 0, sizeof hints );
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+
+  struct addrinfo* addrs = nullptr;
+  int res = getaddrinfo( ipaddr, Clib::tostring( port ).c_str(), &hints, &addrs );
+  if ( res != 0 )
   {
-    INFO_PRINTLN( "Unable to open socket in Socket::open()" );
+    INFO_PRINTLN( "Unable to resolve '{}' in Socket::open(), error={}", ipaddr, res );
     return false;
   }
 
-  struct sockaddr_in sin;
-  memset( &sin, 0, sizeof sin );
-  sin.sin_family = AF_INET;
-  sin.sin_addr.s_addr = inet_addr( ipaddr );
-  sin.sin_port = htons( port );
-
-
-  int res = connect( _sck, (struct sockaddr*)&sin, sizeof sin );
-
-  if ( res == 0 )
+  for ( struct addrinfo* addr = addrs; addr != nullptr; addr = addr->ai_next )
   {
-    return true;
-  }
+    SOCKET sck = socket( addr->ai_family, addr->ai_socktype, addr->ai_protocol );
+    if ( sck == INVALID_SOCKET )
+      continue;
+
+    if ( connect_socket( sck, addr, connect_timeout_ms ) )
+    {
+      _sck = sck;
+      freeaddrinfo( addrs );
+      return true;
+    }
 
 #ifdef _WIN32
-  closesocket( _sck );
+    closesocket( sck );
 #else
-  ::close( _sck );
+    ::close( sck );
 #endif
-  _sck = INVALID_SOCKET;
+  }
+
+  freeaddrinfo( addrs );
   return false;
 }
 
 void Socket::disable_nagle()
 {
-  if ( _sck == INVALID_SOCKET )
+  SOCKET sck = _sck;
+  if ( sck == INVALID_SOCKET )
     return;
 
   int tcp_nodelay = 1;
-  int res = setsockopt( _sck, IPPROTO_TCP, TCP_NODELAY, (const char*)&tcp_nodelay,
-                        sizeof( tcp_nodelay ) );
+  int res =
+      setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char*)&tcp_nodelay, sizeof( tcp_nodelay ) );
   if ( res < 0 )
   {
     throw std::runtime_error( "Unable to setsockopt (TCP_NODELAY) on socket, res=" +
@@ -212,7 +288,9 @@ void Socket::apply_prebind_socket_options( SOCKET sck )
 {
   if ( sck != INVALID_SOCKET && _options & reuseaddr )
   {
-#ifndef WIN32
+// Deliberately not set on Windows: there SO_REUSEADDR lets another process bind an
+// in-use port (port hijacking), unlike the POSIX rebind-in-TIME_WAIT semantics.
+#ifndef _WIN32
     int reuse_opt = 1;
     int res =
         setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse_opt, sizeof( reuse_opt ) );
@@ -225,33 +303,31 @@ void Socket::apply_prebind_socket_options( SOCKET sck )
   }
 }
 
-bool Socket::listen( unsigned short port )
+bool Socket::listen( unsigned short port, bool loopback_only )
 {
   struct sockaddr_in local;
 
   close();
   local.sin_family = AF_INET;
-  local.sin_addr.s_addr = INADDR_ANY;
+  local.sin_addr.s_addr = htonl( loopback_only ? INADDR_LOOPBACK : INADDR_ANY );
   /* Port MUST be in Network Byte Order */
   local.sin_port = htons( port );
   memset( local.sin_zero, 0, sizeof( local.sin_zero ) );  // not needed, but for completeness
 
-  _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( _sck == INVALID_SOCKET )
-  {
-    close();
+  SOCKET sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+  if ( sck == INVALID_SOCKET )
     return false;
-  }
+  _sck = sck;
 
-  apply_socket_options( _sck );
-  apply_prebind_socket_options( _sck );
+  apply_socket_options( sck );
+  apply_prebind_socket_options( sck );
 
-  if ( bind( _sck, (struct sockaddr*)&local, sizeof( local ) ) == -1 )
+  if ( ::bind( sck, (struct sockaddr*)&local, sizeof( local ) ) == -1 )
   {
     HandleError();
     return false;
   }
-  if ( ::listen( _sck, SOMAXCONN ) == -1 )
+  if ( ::listen( sck, SOMAXCONN ) == -1 )
   {
     HandleError();
     return false;
@@ -261,20 +337,21 @@ bool Socket::listen( unsigned short port )
 
 bool Socket::has_incoming_data( unsigned int waitms, int* result )
 {
-  if ( !connected() )
+  SOCKET sck = _sck;
+  if ( sck == INVALID_SOCKET )
   {
     if ( result )
       *result = -1;
     return false;
   }
-  SinglePoller poller( _sck );
+  SinglePoller poller( sck );
   poller.set_timeout( waitms );
 
   if ( !poller.prepare( false ) )
   {
     if ( result )
       *result = -1;
-    throw std::runtime_error( "Unable to poll socket=" + tostring( _sck ) );
+    throw std::runtime_error( "Unable to poll socket=" + tostring( sck ) );
   }
 
   int res = -1;
@@ -298,19 +375,6 @@ bool Socket::has_incoming_data( unsigned int waitms, int* result )
   return poller.incoming();
 }
 
-bool Socket::accept( SOCKET* s, unsigned int /*mstimeout*/ )
-{
-  *s = ::accept( _sck, nullptr, nullptr );
-  if ( *s != INVALID_SOCKET )
-  {
-    apply_socket_options( *s );
-    return true;
-  }
-
-  *s = INVALID_SOCKET;
-  return false;
-}
-
 bool Socket::accept( Socket* newsocket )
 {
   struct sockaddr client_addr;
@@ -328,100 +392,31 @@ bool Socket::accept( Socket* newsocket )
 
 bool Socket::connected() const
 {
-  return ( _sck != INVALID_SOCKET );
+  return ( _sck.load() != INVALID_SOCKET );
 }
 
-/* Read and clear the error value */
+/* Read and clear the error value, then close the socket. The general rule is to
+   close on any socket error; there are no error codes we currently want to keep
+   the connection open for. */
 void Socket::HandleError()
 {
 #ifdef _WIN32
-  int ErrVal;
-#if SCK_WATCH
-  static char ErrorBuffer[80];
-#endif
-
-  ErrVal = WSAGetLastError();
+  int err = WSAGetLastError();
   WSASetLastError( 0 );
-
-  switch ( ErrVal )
-  {
-  case WSAENOTSOCK:   /* Software caused connection to abort */
-  case WSAECONNRESET: /* Arg list too long */
-    close();
-    break;
-
-  default:
-    close(); /*
-                   gee, we'll close here,too.
-                   if you want to _not_ close for _specific_ error codes,
-                   feel more than free to make exceptions; but the general
-                   rule should be, close on error.
-                   */
-    break;
-  }
-
-#if SCK_WATCH
-  if ( FormatMessage( FORMAT_MESSAGE_FROM_HMODULE, GetModuleHandle( TEXT( "wsock32" ) ), ErrVal,
-                      MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), ErrorBuffer, sizeof ErrorBuffer,
-                      nullptr ) == 0 )
-  {
-    sprintf( ErrorBuffer, "Unknown error code 0x%08x", ErrVal );
-  }
-  INFO_PRINTLN( std::string( ErrorBuffer ) );
-#endif
 #else
+  int err = errno;
+  errno = 0;
+#endif
+
+#if SCK_WATCH
+  // system_category maps to Win32 error codes (WSAGetLastError) on Windows and
+  // errno on POSIX, so a single call formats the message portably.
+  INFO_PRINTLN( "socket error {}: {}", err, std::system_category().message( err ) );
+#else
+  (void)err;
+#endif
+
   close();
-#endif
-}
-
-bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
-{
-  if ( !connected() )
-    return false;
-
-#if SCK_WATCH
-  INFO_PRINTLN( "{L;1}" );
-#endif
-
-  int res;
-  if ( !has_incoming_data( waitms, &res ) )
-  {
-    if ( res == -1 )
-    {
-      HandleError();
-      close();
-    }
-    else if ( res == 0 )
-    {
-#if SCK_WATCH
-      INFO_PRINTLN( "{TO}" );
-#endif
-    }
-
-    return false;
-  }
-
-
-  res = recv( _sck, (char*)ch, 1, 0 );
-  if ( res == 1 )
-  {
-#if SCK_WATCH
-    INFO_PRINTLN( "{{{:#x}}}", *ch );
-#endif
-    return true;
-  }
-  if ( res == 0 )
-  {
-#if SCK_WATCH
-    INFO_PRINTLN( "{CLOSE}" );
-#endif
-    close();
-    return false;
-  }
-
-  /* Can't time out here this is an ERROR! */
-  HandleError();
-  return false;
 }
 
 bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
@@ -452,7 +447,7 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
   if ( res == 0 )
   {
 #if SCK_WATCH
-    INFO_PRINTLN( "{CLOSE}" );
+    INFO_PRINTLN( "{{CLOSE}}" );
 #endif
     close();
     return false;
@@ -484,7 +479,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
       else if ( res == 0 )
       {
 #if SCK_WATCH
-        INFO_PRINTLN( "{TO}" );
+        INFO_PRINTLN( "{{TO}}" );
 #endif
       }
 
@@ -510,7 +505,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     else if ( res == 0 )
     {
 #if SCK_WATCH
-      INFO_PRINTLN( "{CLOSE}" );
+      INFO_PRINTLN( "{{CLOSE}}" );
 #endif
       close();
       return false;
@@ -525,55 +520,10 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
   return true;
 }
 
-unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
+namespace
 {
-  ;
-  char* pdest = (char*)vdest;
-
-#if SCK_WATCH
-  INFO_PRINTLN( "{{L:{}}}", len );
-#endif
-
-  int res;
-  if ( !has_incoming_data( 1000 * wait_sec, &res ) )
-  {
-    if ( res == -1 )
-    {
-      HandleError();
-      close();
-    }
-    else if ( res == 0 )
-    {
-#if SCK_WATCH
-      INFO_PRINTLN( "{TO}" );
-#endif
-    }
-
-    return 0;
-  }
-
-
-  res = ::recv( _sck, pdest, len, MSG_PEEK );
-  if ( res > 0 )
-  {
-    return res;
-  }
-  if ( res == 0 )
-  {
-#if SCK_WATCH
-    INFO_PRINTLN( "{CLOSE}" );
-#endif
-    close();
-    return 0;
-  }
-
-  /* Can't time out here this is an ERROR! */
-  HandleError();
-  return 0;
-}
-
 // Waits until the socket becomes writable, an error occurs, or waitms expires.
-static bool wait_for_writable( SOCKET sck, unsigned int waitms )
+bool wait_for_writable( SOCKET sck, unsigned int waitms )
 {
   SinglePoller poller( sck );
   poller.set_timeout( waitms );
@@ -589,6 +539,7 @@ static bool wait_for_writable( SOCKET sck, unsigned int waitms )
 
   return poller.writable() && !poller.error();
 }
+}  // namespace
 
 void Socket::send( const void* vdata, unsigned length )
 {
@@ -603,7 +554,12 @@ void Socket::send( const void* vdata, unsigned length )
 
   while ( datalen )
   {
-    int res = ::send( _sck, cdata, datalen, 0 );
+    // snapshot the handle: close() may race from another thread; a send on the
+    // stale handle then just fails and is handled below
+    SOCKET sck = _sck;
+    if ( sck == INVALID_SOCKET )
+      return;
+    int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
       int sckerr = socket_errno;
@@ -615,7 +571,7 @@ void Socket::send( const void* vdata, unsigned length )
           close();
           return;
         }
-        if ( !wait_for_writable( _sck, wait_slice_ms ) )
+        if ( !wait_for_writable( sck, wait_slice_ms ) )
           waited_ms += wait_slice_ms;
         continue;
       }
@@ -639,7 +595,10 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
 
   while ( datalen )
   {
-    int res = ::send( _sck, cdata, datalen, 0 );
+    SOCKET sck = _sck;
+    if ( sck == INVALID_SOCKET )
+      return true;  // treat like a send error: no data will ever leave
+    int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
       int sckerr = socket_errno;
@@ -663,29 +622,42 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
 
 void Socket::write( const std::string& s )
 {
-  send( (void*)s.c_str(), static_cast<unsigned int>( s.length() ) );
+  send( s.data(), static_cast<unsigned int>( s.length() ) );
 }
 
+void Socket::writeline( const std::string& s )
+{
+  std::string line;
+  line.reserve( s.length() + 2 );
+  line += s;
+  line += "\r\n";
+  send( line.data(), static_cast<unsigned int>( line.length() ) );
+}
 
 void Socket::close()
 {
-  if ( _sck != INVALID_SOCKET )
+  // exchange so concurrent close() calls cannot release the same handle twice
+  SOCKET sck = _sck.exchange( INVALID_SOCKET );
+  if ( sck != INVALID_SOCKET )
   {
 #ifdef _WIN32
-    shutdown( _sck, 2 );  // 2 is both sides. defined in winsock2.h ...
-    closesocket( _sck );
+    shutdown( sck, 2 );  // 2 is both sides. defined in winsock2.h ...
+    closesocket( sck );
 #else
-    shutdown( _sck, SHUT_RDWR );
-    ::close( _sck );
+    shutdown( sck, SHUT_RDWR );
+    ::close( sck );
 #endif
-    _sck = INVALID_SOCKET;
   }
 }
 
 bool Socket::is_local() const
 {
-  std::string s = getpeername();
-  return ( s == "127.0.0.1" );
+  struct sockaddr_in peer;
+  socklen_t addrlen = sizeof peer;
+  if ( ::getpeername( _sck, reinterpret_cast<struct sockaddr*>( &peer ), &addrlen ) != 0 )
+    return false;
+  // the whole 127.0.0.0/8 block is loopback, not just 127.0.0.1
+  return peer.sin_family == AF_INET && ( ntohl( peer.sin_addr.s_addr ) >> 24 ) == 127;
 }
 
 bool is_invalid_readline_char( unsigned char c )
@@ -697,6 +669,7 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
 {
   if ( timed_out )
     *timed_out = false;
+  _made_progress = false;
 
   // check if there is already a line in the buffer
   auto pos_newline = _currentLine.find_first_of( "\n" );
@@ -733,15 +706,21 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
 
     // append only the valid characters to the buffer
     _currentLine.append( buffer.data(), valid_char_count );
+    _made_progress = true;
 
     // update position
     pos_newline = _currentLine.find_first_of( "\n", oldSize );
   }
 
+  // hard cap even when no maximum is configured, so a peer that never sends a
+  // newline cannot grow the buffer without bound
+  constexpr size_t absolute_max_linelength = 16 * 1024 * 1024;
+  const size_t max_linelength = _maxLinelength > 0 ? _maxLinelength : absolute_max_linelength;
+
   // note that std::string::npos is larger than any other number, so the conditon below will be
   // false only if there is a newline before the maximum line length or if the current line is still
   // small.
-  if ( _maxLinelength > 0 && pos_newline > _maxLinelength && _currentLine.size() > _maxLinelength )
+  if ( pos_newline > max_linelength && _currentLine.size() > max_linelength )
   {
     out = _currentLine;
     _currentLine.clear();
@@ -764,6 +743,7 @@ bool SocketByteReader::try_read( std::string& out, bool* timed_out )
 {
   if ( timed_out )
     *timed_out = false;
+  _made_progress = false;
 
   std::array<char, 4096> buffer;
 
@@ -780,24 +760,25 @@ bool SocketByteReader::try_read( std::string& out, bool* timed_out )
     return false;
 
   out = std::string( buffer.data(), bytes_read );
+  _made_progress = true;
 
   return true;
 }
 
-// Blocks until a whole line is received, waitms are over or maxlen is reached
+// Blocks until a whole line is received, the timeout is over or maxlen is reached
 bool SocketReader::read( std::string& out, bool* timed_out )
 {
   out = "";
   if ( timed_out )
     *timed_out = false;
 
-  const int max_timeouts = ( _timeout_secs * 1000 ) / _waitms;
-  bool single_timed_out = false;
+  using clock = std::chrono::steady_clock;
+  const auto timeout = std::chrono::seconds( _timeout_secs );
+  auto deadline = clock::now() + timeout;
 
-  int timeout_left = max_timeouts;
   while ( !Clib::exit_signalled && _socket.connected() )
   {
-    if ( try_read( out, &single_timed_out ) )
+    if ( try_read( out ) )
     {
       return true;
     }
@@ -809,10 +790,15 @@ bool SocketReader::read( std::string& out, bool* timed_out )
       return false;
     }
 
-    if ( _timeout_secs > 0 && single_timed_out )
+    if ( _timeout_secs > 0 )
     {
-      timeout_left--;
-      if ( timeout_left <= 0 )
+      if ( _made_progress )
+      {
+        // partial data arrived; only actual progress refreshes the deadline, so
+        // a peer streaming discarded bytes cannot keep the connection alive
+        deadline = clock::now() + timeout;
+      }
+      else if ( clock::now() >= deadline )
       {
         if ( _disconnect_on_timeout || !timed_out )
           _socket.close();
@@ -822,11 +808,6 @@ bool SocketReader::read( std::string& out, bool* timed_out )
 
         return false;
       }
-    }
-    else
-    {
-      // refresh timeout counter
-      timeout_left = max_timeouts;
     }
   }
   return false;

@@ -21,7 +21,6 @@
 #include "clib/clib.h"
 #include "clib/esignal.h"
 #include "clib/logfacility.h"
-#include "clib/network/sckutil.h"
 #include "clib/network/socketsvc.h"
 #include "clib/network/wnsckt.h"
 #include "clib/stlutil.h"
@@ -181,7 +180,7 @@ void AuxClientThread::run()
   {
     if ( _sck.connected() )
     {
-      writeline( _sck, "Connection closed" );
+      _sck.writeline("Connection closed" );
       _sck.close();
     }
     _auxconnection.clear();
@@ -236,7 +235,10 @@ void AuxClientThread::run()
       break;
     }
   }
-  // wait for all transmits to finish
+  // wait for all transmits to finish: the counter only reaches zero once every
+  // queued transmit task ran, and grabbing _transmit_mutex below waits out the
+  // last one still inside transmit(). This keeps the tasks (which capture
+  // `this`) from outliving the object, whose destruction closes the socket.
   while ( !Clib::exit_signalled && _transmit_counter > 0 )
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
@@ -269,7 +271,7 @@ void AuxClientThread::transmit( const std::string& msg )
     if ( _ignore_line_breaks )
       _sck.write( msg );
     else
-      writeline( _sck, msg );
+      _sck.writeline( msg );
   }
   --_transmit_counter;
 }
