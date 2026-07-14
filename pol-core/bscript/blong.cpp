@@ -19,7 +19,7 @@
 
 namespace Pol::Bscript
 {
-Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
+Clib::fixed_allocator<BLong, 256> blong_alloc;
 
 using namespace fmt::literals;
 

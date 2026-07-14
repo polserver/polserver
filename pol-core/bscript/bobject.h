@@ -86,7 +86,7 @@ public:
 
 using BObjectImpRefVec = std::vector<ref_ptr<BObjectImp>>;
 
-extern Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
+extern Clib::fixed_allocator<BObject, 256> bobject_alloc;
 
 inline void* BObject::operator new( std::size_t /*len*/ )
 {

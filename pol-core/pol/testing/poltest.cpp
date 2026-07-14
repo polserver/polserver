@@ -57,6 +57,7 @@ bool run_pol_tests()
 
   RUNTEST( caseinsensitive_compare_test )
   RUNTEST( www_test )
+  RUNTEST( dynthreadpool_test )
   //  RUNTEST( dummy )
 
   UnitTest::display_test_results();

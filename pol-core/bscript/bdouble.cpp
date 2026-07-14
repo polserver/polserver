@@ -23,7 +23,7 @@
 
 namespace Pol::Bscript
 {
-Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
+Clib::fixed_allocator<Double, 256> double_alloc;
 
 std::string Double::double_to_string( double val )
 {

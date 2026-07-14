@@ -100,6 +100,7 @@ void NetworkManager::initialize()
   {
     _dap_debug_server = std::make_unique<Network::DAP::DebugServer>();
   }
+  auxthreadpool->prefill_workers();
 }
 
 void NetworkManager::deinialize()

@@ -1,7 +1,5 @@
 #include "clienttransmit.h"
 
-#include <memory>
-
 #include "../../clib/esignal.h"
 #include "../../clib/rawtypes.h"
 #include "../globals/network.h"
@@ -11,44 +9,32 @@
 
 namespace Pol::Network
 {
-ClientTransmit::ClientTransmit() : _transmitqueue() {}
-
-ClientTransmit::~ClientTransmit() = default;
-
 void ClientTransmit::Cancel()
 {
   _transmitqueue.cancel();
 }
+
 void ClientTransmit::AddToQueue( Client* client, const void* data, int len )
 {
   const u8* message = static_cast<const u8*>( data );
-  auto transmitdata = std::make_unique<TransmitData>();
-  transmitdata->client = client->getWeakPtr();
-  transmitdata->len = len;
-  transmitdata->data.assign( message, message + len );
-  transmitdata->disconnects = false;
-  _transmitqueue.push_move( std::move( transmitdata ) );
+  _transmitqueue.push_move( { .client = client->getWeakPtr(),
+                              .data = { message, message + len },
+                              .disconnects = false } );
 }
 
 void ClientTransmit::QueueDisconnection( Client* client )
 {
-  auto transmitdata = std::make_unique<TransmitData>();
-  transmitdata->disconnects = true;
-  transmitdata->client = client->getWeakPtr();
-  _transmitqueue.push_move( std::move( transmitdata ) );
+  _transmitqueue.push_move( { .client = client->getWeakPtr(), .disconnects = true } );
 }
 
 void ClientTransmit::QueueDelete( Client* client )
 {
-  auto transmitdata = std::make_unique<TransmitData>();
-  transmitdata->remove = true;
-  transmitdata->client = client->getWeakPtr();
-  _transmitqueue.push_move( std::move( transmitdata ) );
+  _transmitqueue.push_move( { .client = client->getWeakPtr(), .remove = true } );
 }
 
-TransmitDataSPtr ClientTransmit::NextQueueEntry()
+ClientTransmit::TransmitData ClientTransmit::NextQueueEntry()
 {
-  auto transmitdata = TransmitDataSPtr();
+  TransmitData transmitdata;
   _transmitqueue.pop_wait( &transmitdata );
   return transmitdata;
 }
@@ -61,24 +47,25 @@ void ClientTransmitThread()
     try
     {
       auto data = transmit_instance->NextQueueEntry();
-      if ( data->client.exists() )
+      if ( !data.client.exists() )
+        continue;
+
+      if ( data.remove )
       {
-        if ( data->remove )
-        {
-          Core::PolLock lock;
-          delete data->client.get_weakptr();
-        }
-        else if ( data->disconnects )
-        {
-          data->client->forceDisconnect();
-        }
-        else if ( data->client->isReallyConnected() )
-        {
-          data->client->transmit( static_cast<void*>( &data->data[0] ), data->len );
-        }
+        Core::PolLock lock;
+        delete data.client.get_weakptr();
+      }
+      else if ( data.disconnects )
+      {
+        data.client->forceDisconnect();
+      }
+      else if ( data.client->isReallyConnected() )
+      {
+        data.client->transmit( static_cast<void*>( &data.data[0] ),
+                               static_cast<int>( data.data.size() ) );
       }
     }
-    catch ( ClientTransmitQueue::Canceled& )
+    catch ( ClientTransmit::ClientTransmitQueue::Canceled& )
     {
       return;
     }

@@ -77,7 +77,7 @@ namespace
 class CurlStringList
 {
 public:
-  CurlStringList() : resource_( nullptr ) {}
+  CurlStringList() = default;
 
   ~CurlStringList()
   {
@@ -102,7 +102,7 @@ public:
   curl_slist* get() const { return resource_; }
 
 private:
-  curl_slist* resource_;
+  curl_slist* resource_ = nullptr;
 };
 
 };  // namespace
@@ -762,8 +762,9 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
   Core::UOExecutor& this_uoexec = uoexec();
   weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
 
-  std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
-  CURL* curl = curl_sp.get();
+  std::unique_ptr<CURL, decltype( &curl_easy_cleanup )> curl_up( curl_easy_init(),
+                                                                 curl_easy_cleanup );
+  CURL* curl = curl_up.get();
   if ( !curl )
     return new BError( "curl_easy_init() failed" );
   curl_easy_setopt( curl, CURLOPT_URL, url->data() );
@@ -808,9 +809,9 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
   }
 
   Core::networkManager.auxthreadpool->push(
-      [uoexec_w, curl_sp, chunk, flags]()
+      [uoexec_w, curl_up = std::move( curl_up ), chunk, flags]()
       {
-        CURL* curl = curl_sp.get();
+        CURL* curl = curl_up.get();
         CURLcode res;
         std::string readBuffer;
         CurlHeaderData headerData;
@@ -1401,15 +1402,16 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
     return new BError( "Invalid parameter type" );
   }
 
-  std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
-  CURL* curl = curl_sp.get();
+  std::unique_ptr<CURL, decltype( &curl_easy_cleanup )> curl_up( curl_easy_init(),
+                                                                 curl_easy_cleanup );
+  CURL* curl = curl_up.get();
   if ( !curl )
   {
     return new BError( "curl_easy_init() failed" );
   }
 
-  auto headers_slist = std::make_shared<CurlStringList>();
-  auto recipients_slist = std::make_shared<CurlStringList>();
+  auto headers_slist = std::make_unique<CurlStringList>();
+  auto recipients_slist = std::make_unique<CurlStringList>();
   std::string to_header_value;
 
   auto extract_email_address = []( const String* email_string )
@@ -1569,7 +1571,8 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
                        std::string( curl_easy_strerror( res ) ) );
   }
 
-  std::shared_ptr<curl_mime> mime( curl_mime_init( curl ), curl_mime_free );
+  std::unique_ptr<curl_mime, decltype( &curl_mime_free )> mime( curl_mime_init( curl ),
+                                                                curl_mime_free );
 
   curl_mimepart* part = curl_mime_addpart( mime.get() );
 
@@ -1606,9 +1609,10 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
   weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
 
   Core::networkManager.auxthreadpool->push(
-      [uoexec_w, curl_sp, recipients_slist, headers_slist, mime]()
+      [uoexec_w, curl_up = std::move( curl_up ), recipients_slist = std::move( recipients_slist ),
+       headers_slist = std::move( headers_slist ), mime = std::move( mime )]()
       {
-        CURL* curl = curl_sp.get();
+        CURL* curl = curl_up.get();
 
         auto res = curl_easy_perform( curl );
 

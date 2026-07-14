@@ -37,7 +37,7 @@ public:
     SharedInstance = nullptr;
   }
 };
-extern Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
+extern Clib::fixed_allocator<UninitObject, 256> uninit_alloc;
 
 inline void* UninitObject::operator new( std::size_t /*len*/ )
 {

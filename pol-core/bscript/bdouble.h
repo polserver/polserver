@@ -87,7 +87,7 @@ private:
   double dval_;
 };
 
-extern Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
+extern Clib::fixed_allocator<Double, 256> double_alloc;
 inline void* Double::operator new( std::size_t len )
 {
   (void)len;

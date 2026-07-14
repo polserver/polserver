@@ -3,9 +3,8 @@ ATTENTION:
 This header is part of the PCH
 Remove the include in all StdAfx.h files or live with the consequences :)
 */
+#pragma once
 
-#ifndef MESSAGE_QUEUE_H
-#define MESSAGE_QUEUE_H
 #include <chrono>
 #include <condition_variable>
 #include <list>
@@ -44,7 +43,10 @@ public:
   void pop_wait( std::list<Message>* msgs );
   // empties the queue (unsafe)
   void pop_remaining( std::list<Message>* msgs );
-
+  // waits till queue is non empty or timeout is reached
+  template <typename Rep, typename Period>
+  [[nodiscard]] bool pop_wait_for( Message* msg,
+                                   const std::chrono::duration<Rep, Period>& timeout );
   void cancel();
   struct Canceled
   {
@@ -132,8 +134,7 @@ template <typename Message>
 void message_queue<Message>::pop_wait( Message* msg )
 {
   std::unique_lock<std::mutex> lock( _mutex );
-  while ( _queue.empty() && !_cancel )
-    _notifier.wait( lock );  // will unlock mutex during wait
+  _notifier.wait( lock, [this] { return !_queue.empty() || _cancel; } );
   if ( _cancel )
     throw Canceled();
   *msg = std::move( _queue.front() );
@@ -144,11 +145,25 @@ template <typename Message>
 void message_queue<Message>::pop_wait( std::list<Message>* msgs )
 {
   std::unique_lock<std::mutex> lock( _mutex );
-  while ( _queue.empty() && !_cancel )
-    _notifier.wait( lock );  // will unlock mutex during wait
+  _notifier.wait( lock, [this] { return !_queue.empty() || _cancel; } );
   if ( _cancel )
     throw Canceled();
   msgs->splice( msgs->end(), _queue );
+}
+
+template <typename Message>
+template <typename Rep, typename Period>
+bool message_queue<Message>::pop_wait_for( Message* msg,
+                                           const std::chrono::duration<Rep, Period>& timeout )
+{
+  std::unique_lock<std::mutex> lock( _mutex );
+  if ( !_notifier.wait_for( lock, timeout, [this] { return !_queue.empty() || _cancel; } ) )
+    return false;
+  if ( _cancel )
+    throw Canceled();
+  *msg = std::move( _queue.front() );
+  _queue.pop_front();
+  return true;
 }
 
 template <typename Message>
@@ -167,6 +182,3 @@ void message_queue<Message>::cancel()
   _notifier.notify_all();
 }
 }  // namespace Pol::Clib
-
-
-#endif

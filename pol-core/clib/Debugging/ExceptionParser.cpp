@@ -473,7 +473,7 @@ static void handleStackTraceRequestLinux( int signal, siginfo_t* signalInfo, voi
   (void)signalInfo;
   (void)arg;
   threadhelp::ThreadMap::Contents threadDesc;
-  threadhelp::threadmap.CopyContents( threadDesc );
+  threadhelp::threadmap_instance().CopyContents( threadDesc );
 
   std::string output = fmt::format( "STACK TRACE for thread \"{}\"({}):\n",
                                     threadDesc[pthread_self()], pthread_self() );
@@ -493,7 +493,7 @@ static void handleStackTraceRequestLinux( int signal, siginfo_t* signalInfo, voi
 void ExceptionParser::logAllStackTraces()
 {
   threadhelp::ThreadMap::Contents threadsDesc;
-  threadhelp::threadmap.CopyContents( threadsDesc );
+  threadhelp::threadmap_instance().CopyContents( threadsDesc );
   for ( const auto& threadDesc : threadsDesc )
   {
     pthread_t threadID = (pthread_t)threadDesc.first;
