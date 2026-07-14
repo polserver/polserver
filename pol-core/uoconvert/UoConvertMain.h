@@ -29,6 +29,15 @@ public:
   bool cfg_use_no_shoot;
   bool cfg_LOS_through_windows;
 
+  // When set (via `profile=1`), ProcessSolidBlock accumulates per-tile timing into the
+  // prof_*_ns members below so create_map can report a breakdown of the hot loop. Off by
+  // default because the per-tile chrono reads add measurable overhead across ~25M tiles.
+  bool cfg_profile = false;
+  long long prof_mapinfo_ns = 0;  // safe_getmapinfo + get_lowestadjacentz + landtile flags
+  long long prof_statics_ns = 0;  // readstatics + flag filter
+  long long prof_shape_ns = 0;    // water/wall pass + sort + shape consolidation
+  long long prof_writer_ns = 0;   // SetMapCell + AppendSolid
+
   void display_flags();
 
   void write_flags( FILE* fp, unsigned int flags );

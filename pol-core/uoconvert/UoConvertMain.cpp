@@ -1,6 +1,7 @@
 #include "UoConvertMain.h"
 
 #include <algorithm>
+#include <chrono>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -64,7 +65,7 @@ void UoConvertMain::showHelp()
       "    \n"
       "  Commands: \n"
       "    map {uodata=Dir} {realm=realmname} {width=Width}        {height=Height} {mapid=0} "
-      "{readuop=1} {x=X} {y=Y}\n"
+      "{readuop=1} {x=X} {y=Y} {profile=0}\n"
       "    statics {uodata=Dir} {realm=realmname}\n"
       "    maptile {uodata=Dir} {realm=realmname}\n"
       "    multis {uodata=Dir} {outdir=dir}\n"
@@ -229,12 +230,25 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
       "Initializing files: ",
       realm, uo_mapid, ( uo_readuop ? "Yes" : "No" ), ( uo_usedif ? "Yes" : "No" ), uo_map_width,
       uo_map_height );
+  // Reset the opt-in per-tile profiling accumulators for this run.
+  prof_mapinfo_ns = prof_statics_ns = prof_shape_ns = prof_writer_ns = 0;
+
+  // Coarse, always-on phase timers so a plain run shows where the wall-clock goes
+  // (file init vs map read vs static read vs the hot loop vs the final flush).
+  Tools::Timer<> init_timer;
   mapwriter.CreateNewFiles( realm, width, height );
+  init_timer.stop();
   INFO_PRINTLN( "Done." );
-  Tools::Timer<> timer;
+
+  Tools::Timer<> mapread_timer;
   rawmapfullread();
+  mapread_timer.stop();
+
+  Tools::Timer<> staticread_timer;
   rawstaticfullread();
-  INFO_PRINTLN( "  Reading mapfiles time: {} ms.", timer.ellapsed() );
+  staticread_timer.stop();
+
+  Tools::Timer<> loop_timer;
   for ( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
   {
     for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
@@ -243,10 +257,16 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
     }
     INFO_PRINT( "\rConverting: {}%", y_base * 100 / height );
   }
-  timer.stop();
+  loop_timer.stop();
 
+  Tools::Timer<> flush_timer;
   mapwriter.WriteConfigFile();
   mapwriter.Flush();  // surface any write errors before reporting success
+  flush_timer.stop();
+
+  long long total_ms = init_timer.ellapsed() + mapread_timer.ellapsed() +
+                       staticread_timer.ellapsed() + loop_timer.ellapsed() +
+                       flush_timer.ellapsed();
 
   INFO_PRINTLN(
       "\rConversion complete.\n"
@@ -256,9 +276,34 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
       "  Blocks without solids: {} ({}%)\n"
       "  Locations with solids: {}\n"
       "  Total number of solids: {}\n"
-      "  Elapsed time: {} ms.",
+      "Timing:\n"
+      "  Init files:   {} ms\n"
+      "  Map read:     {} ms\n"
+      "  Static read:  {} ms\n"
+      "  Process loop: {} ms\n"
+      "  Config+flush: {} ms\n"
+      "  Total:        {} ms",
       empty + nonempty, nonempty, ( nonempty * 100 / ( empty + nonempty ) ), empty,
-      ( empty * 100 / ( empty + nonempty ) ), with_more_solids, total_statics, timer.ellapsed() );
+      ( empty * 100 / ( empty + nonempty ) ), with_more_solids, total_statics,
+      init_timer.ellapsed(), mapread_timer.ellapsed(), staticread_timer.ellapsed(),
+      loop_timer.ellapsed(), flush_timer.ellapsed(), total_ms );
+
+  if ( cfg_profile )
+  {
+    // Sub-totals of the process loop (see prof_* members). Their sum is slightly below the
+    // loop time; the remainder is block bookkeeping plus the chrono-read overhead itself.
+    auto to_ms = []( long long ns ) { return ns / 1'000'000; };
+    INFO_PRINTLN(
+        "Process loop breakdown (profile=1):\n"
+        "    Map-info:    {} ms\n"
+        "    Statics:     {} ms\n"
+        "    Shape-build: {} ms\n"
+        "    Writer:      {} ms\n"
+        "    Sum:         {} ms",
+        to_ms( prof_mapinfo_ns ), to_ms( prof_statics_ns ), to_ms( prof_shape_ns ),
+        to_ms( prof_writer_ns ),
+        to_ms( prof_mapinfo_ns + prof_statics_ns + prof_shape_ns + prof_writer_ns ) );
+  }
 }
 
 static bool is_no_draw( USTRUCT_MAPINFO& mi )
@@ -451,6 +496,18 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
   StaticList statics;
   std::vector<MapShape> shapes;
 
+  // Opt-in per-tile profiling: `t` is a rolling cursor and lap() folds the elapsed time
+  // since the last cursor into an accumulator, advancing the cursor. Guarded by cfg_profile
+  // at every call site so a normal run does no chrono reads at all.
+  using ProfClock = std::chrono::high_resolution_clock;
+  ProfClock::time_point t;
+  auto lap = [&]( long long& acc )
+  {
+    auto now = ProfClock::now();
+    acc += std::chrono::duration_cast<std::chrono::nanoseconds>( now - t ).count();
+    t = now;
+  };
+
   for ( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
   {
     for ( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
@@ -459,6 +516,9 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       unsigned short y = y_base + y_add;
 
       statics.clear();
+
+      if ( cfg_profile )
+        t = ProfClock::now();
 
       // read the map, and treat it like a static.
       short z;
@@ -495,6 +555,9 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
         lt_height = 20;
 
+      if ( cfg_profile )
+        lap( prof_mapinfo_ns );
+
       readstatics( statics, x, y, kSolidStaticFlags );
 
       std::erase_if( statics,
@@ -506,6 +569,9 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
                               ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
                               ( ~polflags & FLAG::OVERFLIGHT );
                      } );
+
+      if ( cfg_profile )
+        lap( prof_statics_ns );
 
       bool addMap = true;
 
@@ -687,6 +753,9 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       if ( !shapes.empty() )
         cell.flags |= FLAG::MORE_SOLIDS;
 
+      if ( cfg_profile )
+        lap( prof_shape_ns );
+
       mapwriter.SetMapCell( x, y, cell );
 
       if ( !shapes.empty() )
@@ -723,6 +792,9 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
           mapwriter.AppendSolid( solid );
         }
       }
+
+      if ( cfg_profile )
+        lap( prof_writer_ns );
     }
   }
   if ( idx2_offset )
@@ -1053,6 +1125,7 @@ int UoConvertMain::main()
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
     UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 1, false );
     UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
+    cfg_profile = (bool)programArgsFindEquals( "profile=", 0, false );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
 
