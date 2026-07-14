@@ -3,39 +3,44 @@
  * @par History
  *
  * @par Design decisions (64bit)
- * Since boost::any has a size of 8 a padding of 8 will be introduced which means that even if the
- * prop type is a u8 full 16 bytes will be used
- * boost::variant is as big as the biggest possible value plus a type information member
- * in our case the biggest type to store in a variant is u32 thus only a padding of 4 exists:
- * min/max size is 12 instead of 16
- * an empty vector still uses 24bytes moving the vectors into a pointer saves if unused 16bytes.
+ * std::any has a size of 16, introducing a padding of 7 (after the u8 type field),
+ * meaning that even if the stored prop type is a u8, a full 24 bytes will be used
+ * per PropHolder<std::any>.
+ *
+ * std::variant is as big as the largest alternative plus a discriminator.
+ * The largest types in variant_storage are u32, ValueModPack, and SkillStatCap
+ * (all 4 bytes, verified by static_assert), giving sizeof(variant_storage) = 8.
+ * PropHolder<variant_storage> is therefore 12 bytes (1 byte type + 3 padding + 8 variant).
+ *
+ * An empty vector uses 24 bytes; moving the any-props vector behind a pointer
+ * saves those 24 bytes when no "big" properties are set.
  *
  * @par Layout
- * - Uobject
- *   - ptr DynProps
- *     -> 8 bytes per object
+ * - UObject
+ *   - unique_ptr<DynProps>
+ *   -> 8 bytes per object
  * - DynProps
- *   - bitset (currently 4 bytes (more then 32 types = 8 bytes)
- *   - vector<PropHolder> variant version
- *   - ptr vector<PropHolder> any version
- *     -> N "small" properties:
- *     4+24+12*N+8 = 36+12*N
- *     -> +M "big" properties:
- *     +24+(16+unk)*M = (36+12*N) + (24+(16+unk)*M)
- *     unk is the type size which is stored in boost::any
+ *   - bitset<PROP_FLAG_SIZE>   (currently 16 bytes, covers up to 128 types)
+ *   - vector<PropHolder<variant_storage>>
+ *   - unique_ptr<PropHolderContainer<std::any>>
+ *   -> base (no properties set): 16 + 24 + 8 = 48 bytes
+ *   -> N "small" (variant) properties:
+ *      48 + 12*N
+ *   -> +M "big" (any) properties:
+ *      (48 + 12*N) + (24 + (24 + sizeof(T)) * M)
+ *      where 24 is the PropHolder<std::any> overhead and sizeof(T) is
+ *      the heap-allocated type size stored inside std::any
  *
- * @todo Is it worse it to combine e.g resistances struct?
- * 5 * s16
- * 24+12*5 -> 84
- * Combining means storage as boost::any:
- * 24+(16+5*2) -> 50
- * But only valid if all 5 props are really set, if only 2 props are set variant is smaller->
- * 24+12*2=48
- * Different idea combine per resistance type mod and real value:
- * for variant its still 24+12*5 -> 84
- * any would use 24+(16+5*2)*2 -> 76 (but again only if all props are set)
- * Combining would use the u32 size for a prop in a variant without loss (2*s16)
- * -> 8 props can be stored with less space
+ * @todo Is it worth combining e.g. resistances into a struct?
+ *   5 separate s16 resistances as variant props:
+ *     48 + 12*5 -> 108 bytes
+ *   Combined as a single std::any prop (struct of 5*s16 = 10 bytes):
+ *     48 + (24 + 10) -> 82 bytes
+ *   But only smaller if all 5 are set; for 2 props variant wins:
+ *     48 + 12*2 = 72 vs 48 + (24 + 10) = 82
+ *   Different idea: combine per-resistance mod and value into ValueModPack (2*s16 fits in u32):
+ *     Already done -> ValueModPack stores both value and mod in 4 bytes,
+ *     so 5 resistance pairs still cost 48 + 12*5 = 108 as variant props.
  */
 
 
@@ -92,6 +97,30 @@ namespace Pol::Core
   bool has_##name() const                      \
   {                                            \
     return hasmember( id );                    \
+  }
+// define to generate methods for get/has/clear
+// it returns a pointer of the property without copy
+// no autodelete
+#define DYN_PROPERTY_REF( name, type, id, defaultvalue ) \
+  type* name()                                           \
+  {                                                      \
+    if ( !hasmember( id ) )                              \
+      setmember( id, defaultvalue );                     \
+    return getmember<type>( id );                        \
+  };                                                     \
+  const type* name() const                               \
+  {                                                      \
+    if ( !hasmember( id ) )                              \
+      return nullptr;                                    \
+    return getmember<type>( id );                        \
+  };                                                     \
+  void clear_##name()                                    \
+  {                                                      \
+    removeProperty<type>( id );                          \
+  };                                                     \
+  bool has_##name() const                                \
+  {                                                      \
+    return hasmember( id );                              \
   }
 // enum for the propertys
 enum DynPropTypes : u8
@@ -197,6 +226,7 @@ enum DynPropTypes : u8
   PROP_MAX_ATTACK_RANGE_INCREASE = 98,        // UObject
   PROP_MAX_ATTACK_RANGE_INCREASE_MOD = 99,    // UObject
   PROP_ORIG_MAX_ATTACK_RANGE_INCREASE = 100,  // Npc
+  PROP_OPPONENT_OF = 101,                     // Item
 
   PROP_FLAG_SIZE  // used for bitset size
 };
@@ -204,10 +234,8 @@ enum DynPropTypes : u8
 // value & mod struct definition for e.g. the resist/damage properties
 struct ValueModPack
 {
-  s16 value;
-  s16 mod;
-  ValueModPack( s16 value_ );
-  ValueModPack();
+  s16 value = 0;
+  s16 mod = 0;
   bool operator==( const ValueModPack& other ) const;
   bool operator!=( const ValueModPack& other ) const;
   ValueModPack& addToValue( const ValueModPack& other );
@@ -222,43 +250,37 @@ struct ValueModPack
 
   static const ValueModPack DEFAULT;
 };
-static_assert( sizeof( ValueModPack ) == sizeof( u32 ), "size missmatch" );
+static_assert( sizeof( ValueModPack ) == sizeof( u32 ), "size mismatch" );
 
 // combination of skill and stat cap
 struct SkillStatCap
 {
-  s16 statcap;
-  u16 skillcap;
-  SkillStatCap();
-  SkillStatCap( s16 statcap_, u16 skillcap_ );
+  s16 statcap = 0;
+  u16 skillcap = 0;
   bool operator==( const SkillStatCap& other ) const;
 
   static const SkillStatCap DEFAULT;
 };
-static_assert( sizeof( SkillStatCap ) == sizeof( u32 ), "size missmatch" );
+static_assert( sizeof( SkillStatCap ) == sizeof( u32 ), "size mismatch" );
 
 // combination of followers/followers_max
 struct ExtStatBarFollowers
 {
-  s8 followers;
-  s8 followers_max;
-  ExtStatBarFollowers();
-  ExtStatBarFollowers( s8 followers_, s8 followers_max_ );
+  s8 followers = 0;
+  s8 followers_max = 0;
   bool operator==( const ExtStatBarFollowers& other ) const;
 
   static const ExtStatBarFollowers DEFAULT;
 };
-static_assert( sizeof( ExtStatBarFollowers ) == sizeof( u16 ), "size missmatch" );
+static_assert( sizeof( ExtStatBarFollowers ) == sizeof( u16 ), "size mismatch" );
 
 // movement cost mod (not in variant storage)
 struct MovementCostMod
 {
-  double walk;
-  double run;
-  double walk_mounted;
-  double run_mounted;
-  MovementCostMod();
-  MovementCostMod( double walk_, double run_, double walk_mounted_, double run_mounted_ );
+  double walk = 1.0;
+  double run = 1.0;
+  double walk_mounted = 1.0;
+  double run_mounted = 1.0;
   bool operator==( const MovementCostMod& other ) const;
 
   static const MovementCostMod DEFAULT;
@@ -267,18 +289,16 @@ struct MovementCostMod
 template <typename Storage>
 class PropHolderContainer;
 
-// small property type no types above size 4, for bigger types boost::any will be used
-using variant_storage =
-    std::variant<u8, u16, u32, s8, s16, s32, ValueModPack, SkillStatCap, ExtStatBarFollowers>;
+// small property type no types above size 4, for bigger types std::any will be used
+using variant_storage = std::variant<u8, u16, u32, s8, s16, s32, ValueModPack, SkillStatCap,
+                                     ExtStatBarFollowers /*, gameclock_t*/>;
+
 template <typename T>
-struct can_be_used_in_variant
-{
-  static const bool value =
-      std::is_same<T, u8>::value || std::is_same<T, u16>::value || std::is_same<T, u32>::value ||
-      std::is_same<T, s8>::value || std::is_same<T, s16>::value || std::is_same<T, s32>::value ||
-      std::is_same<T, ValueModPack>::value || std::is_same<T, SkillStatCap>::value ||
-      std::is_same<T, ExtStatBarFollowers>::value || std::is_same<T, gameclock_t>::value;
-};
+concept VariantStorable = []<typename... Ts>( std::type_identity<std::variant<Ts...>> ) constexpr
+{ return ( std::is_same_v<T, Ts> || ... ); }( std::type_identity<variant_storage>{} );
+
+// indirect used types, check explicit
+static_assert( VariantStorable<gameclock_t> );
 
 // holder class
 // stores the property kind and via boost::variant/boost::any the value
@@ -292,6 +312,10 @@ public:
   PropHolder( DynPropTypes type, const Storage& value );
   template <typename V>
   V getValue() const;
+  template <typename V>
+  V* getValueRef();
+  template <typename V>
+  const V* getValueRef() const;
 
 protected:
   DynPropTypes _type;
@@ -307,6 +331,10 @@ public:
   PropHolderContainer();
   template <typename V>
   bool getValue( DynPropTypes type, V* value ) const;
+  template <typename V>
+  V* getValue( DynPropTypes type );
+  template <typename V>
+  const V* getValue( DynPropTypes type ) const;
   template <typename V>
   bool updateValue( DynPropTypes type, const V& value );
   template <typename V>
@@ -335,6 +363,10 @@ public:
   // get property returns false if non existent (checks via hasProperty before)
   template <typename V>
   bool getProperty( DynPropTypes type, V* value ) const;
+  template <typename V>
+  V* getProperty( DynPropTypes type );
+  template <typename V>
+  const V* getProperty( DynPropTypes type ) const;
   // set property (sets also the flag)
   template <typename V>
   void setProperty( DynPropTypes type, const V& value );
@@ -363,9 +395,17 @@ public:
   template <typename V>
   bool getmember( DynPropTypes member, V* value ) const;
   template <typename V>
+  V* getmember( DynPropTypes member );
+  template <typename V>
+  const V* getmember( DynPropTypes member ) const;
+  template <typename V>
   void setmember( DynPropTypes member, const V& value, const V& defaultvalue );
   template <typename V>
+  void setmember( DynPropTypes member, const V& value );
+  template <typename V>
   void setmemberPointer( DynPropTypes member, V value );
+  template <typename V>
+  void removeProperty( DynPropTypes type );
   size_t estimateSizeDynProps() const;
 
 protected:
@@ -384,8 +424,6 @@ private:
 ////////////////
 // ValueModPack
 
-inline ValueModPack::ValueModPack( s16 value_ ) : value( value_ ), mod( 0 ) {}
-inline ValueModPack::ValueModPack() : value( 0 ), mod( 0 ) {}
 inline bool ValueModPack::operator==( const ValueModPack& other ) const
 {
   return value == other.value && mod == other.mod;
@@ -441,11 +479,6 @@ inline s16 ValueModPack::sum() const
 
 ////////////////
 // SkillStatCap
-inline SkillStatCap::SkillStatCap() : statcap( 0 ), skillcap( 0 ) {}
-inline SkillStatCap::SkillStatCap( s16 statcap_, u16 skillcap_ )
-    : statcap( statcap_ ), skillcap( skillcap_ )
-{
-}
 inline bool SkillStatCap::operator==( const SkillStatCap& other ) const
 {
   return statcap == other.statcap && skillcap == other.skillcap;
@@ -453,11 +486,6 @@ inline bool SkillStatCap::operator==( const SkillStatCap& other ) const
 
 ////////////////
 // ExtStatBarFollowers
-inline ExtStatBarFollowers::ExtStatBarFollowers() : followers( 0 ), followers_max( 0 ) {}
-inline ExtStatBarFollowers::ExtStatBarFollowers( s8 followers_, s8 followers_max_ )
-    : followers( followers_ ), followers_max( followers_max_ )
-{
-}
 inline bool ExtStatBarFollowers::operator==( const ExtStatBarFollowers& other ) const
 {
   return followers == other.followers && followers_max == other.followers_max;
@@ -465,15 +493,6 @@ inline bool ExtStatBarFollowers::operator==( const ExtStatBarFollowers& other ) 
 
 ////////////////
 // MovementCostMod
-inline MovementCostMod::MovementCostMod()
-    : walk( 1.0 ), run( 1.0 ), walk_mounted( 1.0 ), run_mounted( 1.0 )
-{
-}
-inline MovementCostMod::MovementCostMod( double walk_, double run_, double walk_mounted_,
-                                         double run_mounted_ )
-    : walk( walk_ ), run( run_ ), walk_mounted( walk_mounted_ ), run_mounted( run_mounted_ )
-{
-}
 inline bool MovementCostMod::operator==( const MovementCostMod& other ) const
 {
   return walk == other.walk && run == other.run && walk_mounted == other.walk_mounted &&
@@ -504,6 +523,30 @@ inline V PropHolder<variant_storage>::getValue() const
 {
   return std::get<V>( _value );
 }
+template <>
+template <typename V>
+inline V* PropHolder<std::any>::getValueRef()
+{
+  return std::any_cast<V>( &_value );
+}
+template <>
+template <typename V>
+inline V* PropHolder<variant_storage>::getValueRef()
+{
+  return std::get<V>( &_value );
+}
+template <>
+template <typename V>
+inline const V* PropHolder<std::any>::getValueRef() const
+{
+  return std::any_cast<V>( &_value );
+}
+template <>
+template <typename V>
+inline const V* PropHolder<variant_storage>::getValueRef() const
+{
+  return std::get<V>( &_value );
+}
 
 ////////////////
 // PropHolderContainer
@@ -525,6 +568,32 @@ inline bool PropHolderContainer<Storage>::getValue( DynPropTypes type, V* value 
     }
   }
   return false;
+}
+template <class Storage>
+template <typename V>
+inline V* PropHolderContainer<Storage>::getValue( DynPropTypes type )
+{
+  for ( PropHolder<Storage>& prop : _props )
+  {
+    if ( prop._type == type )
+    {
+      return prop.template getValueRef<V>();
+    }
+  }
+  return nullptr;
+}
+template <class Storage>
+template <typename V>
+inline const V* PropHolderContainer<Storage>::getValue( DynPropTypes type ) const
+{
+  for ( PropHolder<Storage>& prop : _props )
+  {
+    if ( prop._type == type )
+    {
+      return prop.template getValueRef<V>();
+    }
+  }
+  return nullptr;
 }
 
 template <class Storage>
@@ -595,7 +664,7 @@ template <typename V>
 static bool getPropertyHelper( const PropHolderContainer<variant_storage>& variant_props,
                                const std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                DynPropTypes type, V* value )
-  requires can_be_used_in_variant<V>::value
+  requires VariantStorable<V>
 {
   (void)any_props;
   return variant_props.getValue( type, value );
@@ -604,7 +673,7 @@ template <typename V>
 static bool getPropertyHelper( const PropHolderContainer<variant_storage>& variant_props,
                                const std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                DynPropTypes type, V* value )
-  requires( !can_be_used_in_variant<V>::value )
+  requires( !VariantStorable<V> )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -615,16 +684,56 @@ template <typename V>
 static bool updatePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
                                   std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                   DynPropTypes type, const V& value )
-  requires can_be_used_in_variant<V>::value
+  requires VariantStorable<V>
 {
   (void)any_props;
   return variant_props.updateValue( type, value );
 }
+
+template <typename V>
+static V* getPropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                             std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                             DynPropTypes type )
+  requires VariantStorable<V>
+{
+  (void)any_props;
+  return variant_props.getValue<V>( type );
+}
+template <typename V>
+static V* getPropertyHelper( PropHolderContainer<variant_storage>& variant_props,
+                             std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                             DynPropTypes type )
+  requires( !VariantStorable<V> )
+{
+  (void)variant_props;
+  passert_always( any_props.get() );
+  return any_props->getValue<V>( type );
+}
+template <typename V>
+static const V* getPropertyHelper( const PropHolderContainer<variant_storage>& variant_props,
+                                   const std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                                   DynPropTypes type )
+  requires VariantStorable<V>
+{
+  (void)any_props;
+  return variant_props.getValue<V>( type );
+}
+template <typename V>
+static const V* getPropertyHelper( const PropHolderContainer<variant_storage>& variant_props,
+                                   const std::unique_ptr<PropHolderContainer<std::any>>& any_props,
+                                   DynPropTypes type )
+  requires( !VariantStorable<V> )
+{
+  (void)variant_props;
+  passert_always( any_props.get() );
+  return any_props->getValue<V>( type );
+}
+
 template <typename V>
 static bool updatePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
                                   std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                   DynPropTypes type, const V& value )
-  requires( !can_be_used_in_variant<V>::value )
+  requires( !VariantStorable<V> )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -634,7 +743,7 @@ template <typename V>
 static void addPropertyHelper( PropHolderContainer<variant_storage>& variant_props,
                                std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                DynPropTypes type, const V& value )
-  requires can_be_used_in_variant<V>::value
+  requires VariantStorable<V>
 {
   (void)any_props;
   variant_props.addValue( type, value );
@@ -643,7 +752,7 @@ template <typename V>
 static void addPropertyHelper( PropHolderContainer<variant_storage>& variant_props,
                                std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                DynPropTypes type, const V& value )
-  requires( !can_be_used_in_variant<V>::value )
+  requires( !VariantStorable<V> )
 {
   (void)variant_props;
   if ( !any_props )
@@ -655,7 +764,7 @@ template <typename V>
 static void removePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
                                   std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                   DynPropTypes type )
-  requires can_be_used_in_variant<V>::value
+  requires VariantStorable<V>
 {
   (void)any_props;
   variant_props.removeValue( type );
@@ -664,7 +773,7 @@ template <typename V>
 static void removePropertyHelper( PropHolderContainer<variant_storage>& variant_props,
                                   std::unique_ptr<PropHolderContainer<std::any>>& any_props,
                                   DynPropTypes type )
-  requires( !can_be_used_in_variant<V>::value )
+  requires( !VariantStorable<V> )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -686,6 +795,20 @@ inline bool DynProps::getProperty( DynPropTypes type, V* value ) const
   if ( !hasProperty( type ) )
     return false;
   return getPropertyHelper<V>( _props, _any_props, type, value );
+}
+template <typename V>
+inline V* DynProps::getProperty( DynPropTypes type )
+{
+  if ( !hasProperty( type ) )
+    return nullptr;
+  return getPropertyHelper<V>( _props, _any_props, type );
+}
+template <typename V>
+inline const V* DynProps::getProperty( DynPropTypes type ) const
+{
+  if ( !hasProperty( type ) )
+    return nullptr;
+  return getPropertyHelper<V>( _props, _any_props, type );
 }
 
 template <typename V>
@@ -728,8 +851,8 @@ inline void DynProps::removeProperty( DynPropTypes type )
 
 inline size_t DynProps::estimateSize() const
 {
-  size_t size = sizeof( std::bitset<PROP_FLAG_SIZE> ) + sizeof( std::unique_ptr<void> ) +
-                _props.estimateSize();
+  size_t size = sizeof( std::bitset<PROP_FLAG_SIZE> ) +
+                sizeof( std::unique_ptr<PropHolderContainer<std::any>> ) + _props.estimateSize();
   if ( _any_props )
     size += _any_props->estimateSize();
   return size;
@@ -755,6 +878,21 @@ inline bool DynamicPropsHolder::getmember( DynPropTypes member, V* value ) const
   return _dynprops->getProperty( member, value );
 }
 
+template <typename V>
+inline V* DynamicPropsHolder::getmember( DynPropTypes member )
+{
+  if ( !_dynprops )
+    return nullptr;
+  return _dynprops->getProperty<V>( member );
+}
+template <typename V>
+inline const V* DynamicPropsHolder::getmember( DynPropTypes member ) const
+{
+  if ( !_dynprops )
+    return nullptr;
+  return _dynprops->getProperty<V>( member );
+}
+
 inline bool DynamicPropsHolder::hasmember( DynPropTypes member ) const
 {
   if ( !_dynprops || !_dynprops->hasProperty( member ) )
@@ -777,6 +915,13 @@ inline void DynamicPropsHolder::setmember( DynPropTypes member, const V& value,
 }
 
 template <typename V>
+inline void DynamicPropsHolder::setmember( DynPropTypes member, const V& value )
+{
+  initProps();
+  _dynprops->setProperty( member, value );
+}
+
+template <typename V>
 inline void DynamicPropsHolder::setmemberPointer( DynPropTypes member, V value )
 {
   if ( value == nullptr )
@@ -786,7 +931,13 @@ inline void DynamicPropsHolder::setmemberPointer( DynPropTypes member, V value )
     return;
   }
   initProps();
-  _dynprops->setProperty( member, value );
+  _dynprops->setPropertyPointer( member, value );
+}
+template <typename V>
+inline void DynamicPropsHolder::removeProperty( DynPropTypes type )
+{
+  if ( _dynprops )
+    _dynprops->removeProperty<V>( type );
 }
 
 inline size_t DynamicPropsHolder::estimateSizeDynProps() const

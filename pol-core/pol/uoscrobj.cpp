@@ -89,6 +89,7 @@
 #include "item/itemdesc.h"
 #include "item/weapon.h"
 #include "lockable.h"
+#include "mobile/attack.h"
 #include "mobile/charactr.h"
 #include "mobile/corpse.h"
 #include "mobile/npc.h"
@@ -1567,6 +1568,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
         }
       }
     }
+    send_hit_status_inrange();
     return new BLong( hp_ );
   case MBR_MAXHP_MOD:
     this->maxhp_mod( Clib::clamp_convert<s16>( value ) );
@@ -1582,6 +1584,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
         }
       }
     }
+    send_hit_status_inrange();
     return new BLong( value );
   case MBR_NO_DROP:
     no_drop( value ? true : false );
@@ -2171,8 +2174,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     break;
 
   case MBR_OPPONENT:
-    if ( opponent_ != nullptr )
-      return opponent_->make_ref();
+    if ( opponent_ )
+      return opponent_.object()->make_ref();
     return new BError( "Mobile does not have any opponent selected." );
     break;
   case MBR_CONNECTED:
@@ -3229,33 +3232,24 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_ATTACK_ONCE:
   {
-    Character* chr;
+    if ( dead() )
+      return new BError( "Character is dead" );
     if ( ex.hasParams( 1 ) )
     {
-      if ( ex.getCharacterParam( 0, chr ) )
-      {
-        if ( dead() )
-          return new BError( "Character is dead" );
-        if ( is_attackable( chr ) )
-          attack( chr );
-        else
-          return new BError( "Opponent is not attackable" );
-      }
-      else
+      UObject* obj;
+      if ( !ex.getUObjectParam( 0, obj ) )
         return new BError( "Invalid parameter type" );
+      Attackable att{ obj };
+      if ( !att || !is_attackable( att ) )
+        return new BError( "Opponent is not attackable" );
+      attack( att );
     }
     else
     {
-      chr = get_attackable_opponent();
-      if ( chr != nullptr )
-      {
-        if ( !dead() )
-          attack( chr );
-        else
-          return new BError( "Character is dead" );
-      }
-      else
+      auto opp = get_attackable_opponent();
+      if ( !opp )
         return new BError( "No opponent" );
+      attack( opp );
     }
     return new BLong( 1 );
     break;
@@ -4874,10 +4868,13 @@ BoatMovementEvent::BoatMovementEvent( Mobile::Character* source, const u8 speed,
   addMember( "relative_direction", new BLong( static_cast<int>( relative_direction ) ) );
 }
 
-SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
+SourcedEvent::SourcedEvent( Core::EVENTID type, Core::UObject* source )
 {
   addMember( "type", new BLong( type ) );
-  addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
+  if ( source->ismobile() )
+    addMember( "source", static_cast<Mobile::Character*>( source )->make_offline_ref() );
+  else
+    addMember( "source", source->make_ref() );
 }
 
 SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,

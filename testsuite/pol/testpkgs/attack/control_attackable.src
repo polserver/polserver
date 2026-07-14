@@ -1,0 +1,20 @@
+use uo;
+use os;
+include "sysevent";
+program attackable( item )
+  var eventmask := EnableEvents( SYSEVENT_DAMAGED | SYSEVENT_LEFTAREA | SYSEVENT_ENTEREDAREA
+                                 | SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED | SYSEVENT_OPPONENT_MOVED,
+                                 20 );
+  while ( true )
+    var ev := Wait_For_Event( 1 );
+    if ( !item )
+      return;
+    endif
+    if ( !ev )
+      continue;
+    elseif ( ev.type & eventmask )
+      GetProcess( GetObjProperty( item, "#TestPid" ) ).SendEvent( ev );
+    endif
+  endwhile
+endprogram
+

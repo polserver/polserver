@@ -1,0 +1,287 @@
+use uo;
+use os;
+
+include "testutil";
+include "sysevent";
+
+program npc_ai()
+  return 1;
+endprogram
+
+// checks on item listhostile, engaged-, disengage-event
+exported function attack_check_listhostiles( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+  npc1.process.sendevent( struct{ type := "enable_events" } );
+
+  // npc1 attacks item
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  // Collect attack and engaged event
+  if ( !( evs := collect_events( 2 ) ) )
+    return evs;
+  endif
+  var hit_ev := evs.filter( @( ev ) { return ev.type == "HIT"; } )[1];
+  var engaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1];
+  if ( !hit_ev )
+    return ret_error( $"no hit event: {evs}" );
+  endif
+  if ( !engaged_ev )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+  if ( hit_ev.defender != item || hit_ev.attacker != npc1 )
+    return ret_error( $"wrong hit event: {hit_ev}" );
+  endif
+  if ( engaged_ev.source != npc1 )
+    return ret_error( $"wrong engaged event: {engaged_ev}" );
+  endif
+
+  var hostile := ListHostiles( item );
+  if ( hostile.size() != 1 )
+    return ret_error( $"Hostile list != 1: {hostile.size()}" );
+  endif
+  if ( hostile[1] != npc1 )
+    return ret_error( $"wrong opponent set: {hostile[1]}" );
+  endif
+
+  // stop attacking
+  npc1.process.sendevent( struct{ type := SYSEVENT_DISENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  if ( !( evs := collect_events( 1 ) ) )
+    return evs;
+  endif
+  var disengaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_DISENGAGED; } )[1];
+  if ( !disengaged_ev )
+    return ret_error( $"no disengaged event: {evs}" );
+  endif
+  if ( disengaged_ev.source != npc1 )
+    return ret_error( $"wrong disengaged event: {disengaged_ev}" );
+  endif
+
+  hostile := ListHostiles( item );
+  if ( hostile.size() )
+    return ret_error( $"Hostile list != 0: {hostile}" );
+  endif
+  return 1;
+endfunction
+
+// checks on item damage event + ApplyDamage
+exported function attack_check_damage( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+  SetObjProperty( npc1, "#Damage", 10 );
+  npc1.process.sendevent( struct{ type := "enable_events" } );
+
+  // npc1 attacks item
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  // Collect attack, engaged and damage event
+  if ( !( evs := collect_events( 3 ) ) )
+    return evs;
+  endif
+  var hit_ev := evs.filter( @( ev ) { return ev.type == "HIT"; } )[1];
+  var engaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1];
+  var damaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_DAMAGED; } )[1];
+  if ( !hit_ev )
+    return ret_error( $"no hit event: {evs}" );
+  endif
+  if ( !engaged_ev )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+  if ( !damaged_ev )
+    return ret_error( $"no damaged event: {evs}" );
+  endif
+  if ( hit_ev.defender != item || hit_ev.attacker != npc1 )
+    return ret_error( $"wrong hit event: {hit_ev}" );
+  endif
+  if ( engaged_ev.source != npc1 )
+    return ret_error( $"wrong engaged event: {engaged_ev}" );
+  endif
+  if ( damaged_ev.source != npc1 || damaged_ev.damage != 10 )
+    return ret_error( $"wrong damaged event: {damaged_ev}" );
+  endif
+
+  if ( item.hp != item.maxhp - 10 )
+    return ret_error( $"item not damaged: {item.hp}/{item.maxhp}" );
+  endif
+
+  return 1;
+endfunction
+
+// checks on item opponent move event
+exported function attack_check_moved( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+  npc1.process.sendevent( struct{ type := "enable_events" } );
+  MoveObjectToLocation( npc1, npc1.x - 2, npc1.y, npc1.z );
+  // npc1 attacks item
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  // Collect engaged
+  if ( !( evs := collect_events( 1, "no event after engaged" ) ) )
+    return evs;
+  endif
+  var engaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1];
+  if ( !engaged_ev )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+  if ( engaged_ev.source != npc1 )
+    return ret_error( $"wrong engaged event: {engaged_ev}" );
+  endif
+  MoveObjectToLocation( npc1, npc1.x - 2, npc1.y, npc1.z );
+  if ( !( evs := collect_events( 1, "no event after moveobject" ) ) )
+    return evs;
+  endif
+  var moved_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_OPPONENT_MOVED; } )[1];
+  if ( !moved_ev )
+    return ret_error( $"no moved event: {evs}" );
+  endif
+  if ( moved_ev.source != npc1 )
+    return ret_error( $"wrong moved event: {moved_ev}" );
+  endif
+
+  return 1;
+endfunction
+
+// checks on item left/enter events
+exported function check_area_events( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( npc1, item.x - 22, npc1.y, npc1.z );
+  sleepms( 10 );
+  clear_event_queue();
+  var success := false;
+  for i := 0 to 5
+    npc1.process.sendevent( struct{ type := "move_to", source := item } );
+    if ( !( evs := collect_events( 1, "" ) ) )
+      continue;
+    endif
+
+    var enter_ev := evs.filter( @( ev ) {
+      return ev.type == SYSEVENT_ENTEREDAREA;
+    } )[1];
+    if ( !enter_ev )
+      continue;
+    endif
+    if ( enter_ev.source != npc1 )
+      return ret_error( $"wrong enterarea event: {enter_ev}" );
+    endif
+    if ( Distance( item, npc1 ) != 20 )
+      return ret_error( $"wrong enter distance: {Distance( item, npc1 )}" );
+    endif
+    success := true;
+    break;
+  endfor
+  if ( !success )
+    return ret_error( "no entered area event" );
+  endif
+
+  // npc1 attacks to send both oppmoved and leffarea
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  if ( !( evs := collect_events( 1, "timeout waiting for engaged" ) ) )
+    return evs;
+  endif
+  var engaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1];
+  if ( !engaged_ev )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+  if ( engaged_ev.source != npc1 )
+    return ret_error( $"wrong engaged event: {engaged_ev}" );
+  endif
+
+  success := false;
+  for i := 0 to 5
+    npc1.process.sendevent( struct{ type := "move_away", source := item } );
+    if ( !( evs := collect_events( 1, "timeout while waiting for left area" ) ) )
+      continue;
+    endif
+
+    var enter_ev := evs.filter( @( ev ) {
+      return ev.type == SYSEVENT_LEFTAREA;
+    } )[1];
+    if ( !enter_ev )
+      continue;
+    endif
+    if ( enter_ev.source != npc1 )
+      return ret_error( $"wrong leftarea event: {enter_ev}" );
+    endif
+    if ( Distance( item, npc1 ) != 21 )
+      return ret_error( $"wrong left distance: {Distance( item, npc1 )}" );
+    endif
+    success := true;
+    break;
+  endfor
+  if ( !success )
+    return ret_error( "no left area event" );
+  endif
+
+  return 1;
+endfunction
+
+function reset( resmgn, byref npc1, byref item )
+  npc1 := resmgn.CreateNPCFromTemplate( ":testattack:test_attack", 50, 100, 0 );
+
+  if ( !npc1 )
+    return ret_error( "Could not create NPC: " + npc1 );
+  endif
+
+  npc1.hitchance_mod := 1000;
+  SetObjProperty( npc1, "#TestPid", GetPid() );
+  SetName( npc1, "npc1" );
+
+  item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableItem" );
+
+  if ( !item )
+    return ret_error( "Could not create item: " + item );
+  endif
+  SetObjProperty( item, "#TestPid", GetPid() );
+  clear_event_queue();
+  return 1;
+endfunction
+
+// Collect a number of events
+function collect_events( count, errorMessage := "No event from NPC script received.", timeout := 5 )
+  var evs := array{};
+
+  while ( true )
+    var ev := wait_for_event( timeout );
+    if ( ev )
+      evs.append( ev );
+      if ( evs.size() >= count )
+        break;
+      endif
+      continue;
+    endif
+
+    return ret_error( errorMessage );
+  endwhile
+
+  return evs;
+endfunction
+

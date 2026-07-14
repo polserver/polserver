@@ -79,6 +79,7 @@
  */
 
 
+#include "mobile/attack.h"
 #include "pol_global_config.h"
 
 #include "charactr.h"
@@ -282,7 +283,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // COMBAT
       warmode_wait( 0 ),
       ar_( 0 ),
-      opponent_( nullptr ),
+      opponent_(),
       opponent_of(),
       swing_timer_start_clock_( 0 ),
       swing_task( nullptr ),
@@ -401,13 +402,10 @@ void Character::removal_cleanup()
      but that was sending disengage events, which were
      trying to resurrect this object. (C++)
      */
-  if ( opponent_ != nullptr )
+  if ( opponent_ )
   {
-    opponent_->opponent_of.erase( this );
-    //    This is cleanup, wtf we doing trying to send highlights?!
-    //    opponent_->send_highlight();
-    //    opponent_->schedule_attack();
-    opponent_ = nullptr;
+    opponent_.remove_opponent_of( Attackable{ this } );
+    opponent_.clear();
   }
 
   if ( swing_task != nullptr )
@@ -871,11 +869,13 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if ( elem.remove_bool( "FROZEN", false ) )
     mob_flags_.set( MOB_FLAGS::FROZEN );
 
-  movement_cost( Core::MovementCostMod(
-      elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
-      elem.remove_double( "MovementRunMod", Core::MovementCostMod::DEFAULT.run ),
-      elem.remove_double( "MovementWalkMountedMod", Core::MovementCostMod::DEFAULT.walk_mounted ),
-      elem.remove_double( "MovementRunMountedMod", Core::MovementCostMod::DEFAULT.run_mounted ) ) );
+  movement_cost( Core::MovementCostMod{
+      .walk = elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
+      .run = elem.remove_double( "MovementRunMod", Core::MovementCostMod::DEFAULT.run ),
+      .walk_mounted = elem.remove_double( "MovementWalkMountedMod",
+                                          Core::MovementCostMod::DEFAULT.walk_mounted ),
+      .run_mounted = elem.remove_double( "MovementRunMountedMod",
+                                         Core::MovementCostMod::DEFAULT.run_mounted ) } );
 
   carrying_capacity_mod( static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) ) );
 
@@ -911,14 +911,15 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   }
 
   uclang = elem.remove_string( "UCLang", "enu" );
-  skillstatcap( Core::SkillStatCap(
-      static_cast<s16>( elem.remove_int( "STATCAP", Core::SkillStatCap::DEFAULT.statcap ) ),
-      static_cast<u16>( elem.remove_int( "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) ) );
-  followers( Core::ExtStatBarFollowers(
-      static_cast<s8>(
+  skillstatcap( Core::SkillStatCap{ .statcap = static_cast<s16>( elem.remove_int(
+                                        "STATCAP", Core::SkillStatCap::DEFAULT.statcap ) ),
+                                    .skillcap = static_cast<u16>( elem.remove_int(
+                                        "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) } );
+  followers( Core::ExtStatBarFollowers{
+      .followers = static_cast<s8>(
           elem.remove_int( "FOLLOWERS", Core::ExtStatBarFollowers::DEFAULT.followers ) ),
-      static_cast<s8>(
-          elem.remove_int( "FOLLOWERSMAX", Core::ExtStatBarFollowers::DEFAULT.followers_max ) ) ) );
+      .followers_max = static_cast<s8>(
+          elem.remove_int( "FOLLOWERSMAX", Core::ExtStatBarFollowers::DEFAULT.followers_max ) ) } );
   tithing( elem.remove_int( "TITHING", 0 ) );
 
   privs.readfrom( elem.remove_string( "Privs", "" ) );
@@ -1800,14 +1801,8 @@ unsigned short calc_thru_damage( double damage, unsigned short ar )
   damage -= absorbed;
 
   if ( damage >= 2.0 )
-  {
-    return static_cast<unsigned short>( damage * 0.5 );
-  }
-
-  int dmg = static_cast<int>( damage );
-  if ( dmg >= 0 )
-    return static_cast<unsigned short>( dmg );
-  return 0;
+    return Clib::clamp_convert<unsigned short>( damage * 0.5 );
+  return Clib::clamp_convert<unsigned short>( damage );
 }
 
 
@@ -1841,17 +1836,13 @@ void Character::get_hitscript_params( double damage, Items::UArmor** parmor,
 {
   Items::UArmor* armor = choose_armor();
   if ( armor )
-  {
     *rawdamage = calc_thru_damage( damage, armor->ar() + ar_mod() );
-  }
   else
-  {
-    *rawdamage = static_cast<unsigned short>( damage );
-  }
+    *rawdamage = Clib::clamp_convert<unsigned short>( damage );
   *parmor = armor;
 }
 
-void Character::run_hit_script( Character* defender, double damage )
+void Character::run_hit_script( const Attackable& defender, double damage )
 {
   ref_ptr<Bscript::EScriptProgram> prog = find_script2(
       weapon->hit_script(), true, Plib::systemstate.config.cache_interactive_scripts );
@@ -1863,11 +1854,14 @@ void Character::run_hit_script( Character* defender, double damage )
   ex->addModule( uoemod );
 
   unsigned short rawdamage = 0;
-  unsigned short basedamage = static_cast<unsigned short>( damage );
+  unsigned short basedamage = Clib::clamp_convert<unsigned short>( damage );
 
   Items::UArmor* armor = nullptr;
 
-  defender->get_hitscript_params( damage, &armor, &rawdamage );
+  if ( auto* mob = defender.mobile() )
+    mob->get_hitscript_params( damage, &armor, &rawdamage );
+  else
+    rawdamage = Clib::clamp_convert<u16>( damage );
 
 
   ex->pushArg( new Bscript::BLong( rawdamage ) );
@@ -1877,7 +1871,7 @@ void Character::run_hit_script( Character* defender, double damage )
   else
     ex->pushArg( new Bscript::BLong( 0 ) );
   ex->pushArg( new Module::EItemRefObjImp( weapon ) );
-  ex->pushArg( new Module::ECharacterRefObjImp( defender ) );
+  ex->pushArg( defender.object()->make_ref() );
   ex->pushArg( new Module::ECharacterRefObjImp( this ) );
 
   ex->priority( 100 );
@@ -2075,7 +2069,7 @@ void Character::on_death( Items::Item* corpse )
   if ( client != nullptr )
   {
     if ( opponent_ )
-      opponent_->inform_disengaged( this );
+      opponent_.inform_disengaged( Attackable{ this } );
 
     client->pause();
     send_warmode();
@@ -2110,12 +2104,28 @@ void Character::clear_opponent_of()
 {
   while ( !opponent_of.empty() )
   {
-    Character* chr = *opponent_of.begin();
+    auto attitr = opponent_of.begin();
     // note that chr->set_opponent is going to remove
     // its entry from our opponent_of collection,
     // so eventually this loop will exit.
-    chr->set_opponent( nullptr, false );
+    if ( auto* mob = attitr->mobile() )
+    {
+      mob->set_opponent( {}, false );
+      continue;
+    }
+    if ( auto* item = attitr->item() )
+      item->remove_opponent_of( Attackable{ this } );
+    opponent_of.erase( attitr );
   }
+}
+
+void Character::remove_opponent_of( const Attackable& other )
+{
+  opponent_of.erase( other );
+}
+void Character::add_opponent_of( Attackable other )
+{
+  opponent_of.insert( std::move( other ) );
 }
 
 void Character::die()
@@ -2431,7 +2441,7 @@ void Character::die()
 
   clear_opponent_of();
 
-  set_opponent( nullptr );
+  set_opponent( {} );
 
   UPDATE_CHECKPOINT();
 
@@ -2908,25 +2918,27 @@ bool Character::manual_set_swing_timer( Core::polclock_t clocks )
      If not, then the first char that has you as their opponent.
      Or, noone.
      */
-Character* Character::get_opponent() const
+Attackable Character::get_opponent() const
 {
-  if ( opponent_ != nullptr )
+  if ( opponent_ )
     return opponent_;
   if ( !opponent_of.empty() )
     return *opponent_of.begin();
-  return nullptr;
+  return {};
 }
 
-bool Character::is_attackable( Character* who ) const
+bool Character::is_attackable( const Attackable& attackable ) const
 {
-  passert( who != nullptr );
+  passert( attackable.object() != nullptr );
+  const auto* obj = attackable.object();
   if ( Core::settingsManager.combat_config.scripted_attack_checks )
   {
     INFO_PRINTLN_TRACE( 21 )
-    ( "is_attackable({:#x},{:#x}): will be handled by combat hook.", this->serial, who->serial );
+    ( "is_attackable({:#x},{:#x}): will be handled by combat hook.", this->serial, obj->serial );
     return true;
   }
 
+  const auto* mob = attackable.mobile();
   INFO_PRINTLN_TRACE( 21 )
   ( "is_attackable({:#x},{:#x}):\n"
     "  who->dead:  {}\n"
@@ -2934,29 +2946,34 @@ bool Character::is_attackable( Character* who ) const
     "  hidden:     {}\n"
     "  who->hidden:  {}\n"
     "  concealed:  {}",
-    this->serial, who->serial, who->dead(), weapon->in_range( this, who ), hidden(), who->hidden(),
-    is_concealed_from_me( who ) );
-  if ( who->dead() )
+    this->serial, obj->serial, mob ? mob->dead() : false, weapon->in_range( this, attackable ),
+    hidden(), mob ? mob->hidden() : false, mob ? is_concealed_from_me( mob ) : false );
+
+  if ( mob && mob->dead() )
     return false;
-  if ( !weapon->in_range( this, who ) )
+  if ( !weapon->in_range( this, attackable ) )
     return false;
   if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
     return false;
-  if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
-    return false;
-  if ( is_concealed_from_me( who ) )
-    return false;
-  if ( !realm()->has_los( *this, *who ) )
+  if ( mob )
+  {
+    if ( mob->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
+      return false;
+    if ( is_concealed_from_me( mob ) )
+      return false;
+  }
+  if ( !realm()->has_los( *this, *obj ) )
     return false;
   return true;
 }
 
-Character* Character::get_attackable_opponent() const
+Attackable Character::get_attackable_opponent() const
 {
-  if ( opponent_ != nullptr )
+  if ( opponent_ )
   {
     INFO_PRINTLN_TRACE( 20 )
-    ( "get_attackable_opponent({:#x}): checking opponent {:#x}", this->serial, opponent_->serial );
+    ( "get_attackable_opponent({:#x}): checking opponent {:#x}", this->serial,
+      opponent_.object()->serial );
     if ( is_attackable( opponent_ ) )
       return opponent_;
   }
@@ -2966,24 +2983,25 @@ Character* Character::get_attackable_opponent() const
     for ( auto& who : opponent_of )
     {
       INFO_PRINTLN_TRACE( 20 )
-      ( "get_attackable_opponent({:#x}): checking opponent_of {:#x}", this->serial, who->serial );
+      ( "get_attackable_opponent({:#x}): checking opponent_of {:#x}", this->serial,
+        who.object()->serial );
       if ( is_attackable( who ) )
         return who;
     }
   }
 
-  return nullptr;
+  return {};
 }
 
 void Character::send_highlight() const
 {
   if ( client != nullptr && has_active_client() )
   {
-    Character* opponent = get_opponent();
+    auto opponent = get_opponent();
 
     Network::PktHelper::PacketOut<Network::PktOut_AA> msg;
-    if ( opponent != nullptr )
-      msg->Write<u32>( opponent->serial_ext );
+    if ( opponent )
+      msg->Write<u32>( opponent.object()->serial_ext );
     else
       msg->offset += 4;
     msg.Send( client );
@@ -2995,19 +3013,19 @@ void Character::on_swing_failure( Character* /*attacker*/ )
   // do nothing
 }
 
-void Character::inform_disengaged( Character* /*disengaged*/ )
+void Character::inform_disengaged( const Attackable& /*disengaged*/ )
 {
   // someone has just disengaged. If we don't have an explicit opponent,
   // pick one of those that has us targetted as the highlight character.
-  if ( opponent_ == nullptr )
+  if ( !opponent_ )
     send_highlight();
 }
 
-void Character::inform_engaged( Character* /*engaged*/ )
+void Character::inform_engaged( const Attackable& /*engaged*/ )
 {
   // someone has targetted us.  If we don't have an explicit opponent,
   // pick one of those that has us targetted as the highlight character.
-  if ( opponent_ == nullptr )
+  if ( !opponent_ )
     send_highlight();
 }
 
@@ -3032,31 +3050,33 @@ void Character::inform_moved( Character* /*moved*/ )
 }
 void Character::inform_imoved( Character* /*chr*/ ) {}
 
-void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
+void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent )
 {
   INFO_PRINTLN_TRACE( 12 )
-  ( "set_opponent({:#x},{:#x})", this->serial, new_opponent != nullptr ? new_opponent->serial : 0 );
-  if ( new_opponent != nullptr )
+  ( "set_opponent({:#x},{:#x})", this->serial, new_opponent ? new_opponent.object()->serial : 0 );
+  if ( new_opponent )
   {
-    if ( new_opponent->dead() )
+    if ( auto* mob = new_opponent.mobile(); mob && mob->dead() )
       return;
 
     if ( !warmode() && ( script_isa( Core::POLCLASS_NPC ) || has_active_client() ) )
       set_warmode( true );
   }
-
-  if ( opponent_ != nullptr )
+  // if its the same opponent no need to send events and stuff
+  const bool different_op = new_opponent.object() != opponent_.object();
+  Attackable this_att{ this };
+  if ( opponent_ && different_op )
   {
-    opponent_->opponent_of.erase( this );
+    opponent_.remove_opponent_of( this_att );
     // Turley 05/26/09 no need to send disengaged event on shutdown
     if ( !Clib::exit_signalled )
     {
-      if ( inform_old_opponent && opponent_ != nullptr )
-        opponent_->inform_disengaged( this );
+      if ( inform_old_opponent )
+        opponent_.inform_disengaged( this_att );
     }
   }
 
-  opponent_ = new_opponent;
+  opponent_ = std::move( new_opponent );
 
 
   // Turley 05/26/09 possible shutdown crashfix during cleanup
@@ -3065,36 +3085,37 @@ void Character::set_opponent( Character* new_opponent, bool inform_old_opponent 
   {
     reset_swing_timer();
 
-    if ( opponent_ != nullptr )
+    if ( opponent_ )
     {
-      repsys_on_attack( opponent_ );
-      if ( opponent_->get_opponent() == nullptr )
-        opponent_->reset_swing_timer();
-
-      opponent_->opponent_of.insert( this );
-
-      opponent_->inform_engaged( this );
-
-      opponent_->schedule_attack();
+      auto* mob = opponent_.mobile();
+      if ( mob )
+      {
+        repsys_on_attack( mob );
+        if ( !mob->get_opponent() )
+          mob->reset_swing_timer();
+      }
+      if ( different_op )
+      {
+        opponent_.add_opponent_of( this_att );
+        opponent_.inform_engaged( this_att );
+      }
+      if ( mob )
+        mob->schedule_attack();
     }
-
-    send_highlight();
   }
+
+  send_highlight();
 }
 
-void Character::select_opponent( u32 opp_serial )
+void Character::select_opponent( Attackable opponent )
 {
   // test for setting to same so swing timer doesn't reset
   // if you double-click the same guy over and over
-  if ( opponent_ == nullptr || opponent_->serial != opp_serial )
+  if ( !opponent_ || opponent_.object()->serial != opponent.object()->serial )
   {
-    Character* new_opponent = Core::find_character( opp_serial );
-    if ( new_opponent != nullptr )
-    {
-      if ( realm() != new_opponent->realm() )
-        return;
-      set_opponent( new_opponent );
-    }
+    if ( realm() != opponent.object()->realm() )
+      return;
+    set_opponent( std::move( opponent ) );
   }
 }
 
@@ -3124,7 +3145,7 @@ void Character::set_warmode( bool i_warmode )
   mob_flags_.change( MOB_FLAGS::WARMODE, i_warmode );
   if ( i_warmode == false )
   {
-    set_opponent( nullptr );
+    set_opponent( {} );
   }
   reset_swing_timer();
 
@@ -3205,13 +3226,13 @@ Core::UACTION Character::weapon_anim() const
   return weapon->anim();
 }
 
-void Character::do_attack_effects( Character* target )
+void Character::do_attack_effects( const Attackable& target )
 {
   if ( weapon->is_projectile() )
   {
     // 234 is hit, 238 is miss??
     play_sound_effect( this, weapon->projectile_sound() );
-    play_moving_effect( this, target, weapon->projectile_anim(),
+    play_moving_effect( this, target.object(), weapon->projectile_anim(),
                         9,    // Speed (??)
                         0,    // Loop
                         0 );  // Explode
@@ -3266,20 +3287,39 @@ void Character::do_imhit_effects()
 }
 
 
-void Character::attack( Character* opponent )
+void Character::attack( const Attackable& opponent )
 {
+  auto calc_damage = [&]()
+  {
+    double damage = random_weapon_damage();
+    damage_weapon();
+
+    if ( Core::settingsManager.watch.combat )
+      INFO_PRINTLN( "Base damage: {}", damage );
+
+    double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
+    damage_multiplier += strength() * 0.20f;
+    damage_multiplier *= 0.01f;
+
+    damage *= damage_multiplier;
+
+    if ( Core::settingsManager.watch.combat )
+      INFO_PRINTLN( "Damage multiplier due to tactics/STR: {} Result: {}", damage_multiplier,
+                    damage );
+    return damage;
+  };
+
   INC_PROFILEVAR( combat_operations );
 
   if ( Core::gamestate.system_hooks.attack_hook )
   {
-    if ( Core::gamestate.system_hooks.attack_hook->call(
-             new Module::ECharacterRefObjImp( this ),
-             new Module::ECharacterRefObjImp( opponent ) ) )
+    if ( Core::gamestate.system_hooks.attack_hook->call( new Module::ECharacterRefObjImp( this ),
+                                                         opponent.object()->make_ref() ) )
       return;
   }
 
   if ( Core::settingsManager.watch.combat )
-    INFO_PRINTLN( "{} attacks {}", name(), opponent->name() );
+    INFO_PRINTLN( "{} attacks {}", name(), opponent.object()->name() );
 
   if ( weapon->is_projectile() )
   {
@@ -3331,8 +3371,12 @@ void Character::attack( Character* opponent )
     }
   }
 
-  repsys_on_attack( opponent );
-  repsys_on_damage( opponent );
+  auto* opponent_mobile = opponent.mobile();
+  if ( opponent_mobile )
+  {
+    repsys_on_attack( opponent_mobile );
+    repsys_on_damage( opponent_mobile );
+  }
 
   do_attack_effects( opponent );
 
@@ -3340,13 +3384,30 @@ void Character::attack( Character* opponent )
   {
     Core::gamestate.system_hooks.combat_advancement_hook->call(
         new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
-        new Module::ECharacterRefObjImp( opponent ) );
+        opponent.object()->make_ref() );
   }
 
+  // special handling when attacking items
+  // they always hit
+  if ( auto* item = opponent.item() )
+  {
+    do_hit_success_effects();
+
+    double damage = calc_damage();
+    if ( weapon->hit_script().empty() )
+      item->apply_damage( Clib::clamp_convert<u16>( damage ), this,
+                          Core::settingsManager.combat_config.send_damage_packet );
+    else
+      run_hit_script( opponent, damage );
+
+    return;
+  }
+
+
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
-                      ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
+                      ( 2.0 * ( opponent_mobile->weapon_attribute().effective() + 50.0 ) );
   hit_chance += hitchance_mod() * 0.001f;
-  hit_chance -= opponent->evasionchance_mod() * 0.001f;
+  hit_chance -= opponent_mobile->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
     INFO_PRINT( "Chance to hit: {}: ", hit_chance );
   if ( Clib::random_double( 1.0 ) < hit_chance )
@@ -3355,46 +3416,32 @@ void Character::attack( Character* opponent )
       INFO_PRINTLN( "Hit!" );
     do_hit_success_effects();
 
-    double damage = random_weapon_damage();
-    damage_weapon();
+    double damage = calc_damage();
 
-    if ( Core::settingsManager.watch.combat )
-      INFO_PRINTLN( "Base damage: {}", damage );
-
-    double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
-    damage_multiplier += strength() * 0.20f;
-    damage_multiplier *= 0.01f;
-
-    damage *= damage_multiplier;
-
-    if ( Core::settingsManager.watch.combat )
-      INFO_PRINTLN( "Damage multiplier due to tactics/STR: {} Result: {}", damage_multiplier,
-                    damage );
-
-    if ( opponent->shield != nullptr )
+    if ( opponent_mobile->shield != nullptr )
     {
       if ( Core::gamestate.system_hooks.parry_advancement_hook )
       {
         Core::gamestate.system_hooks.parry_advancement_hook->call(
             new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
-            new Module::ECharacterRefObjImp( opponent ),
-            new Module::EItemRefObjImp( opponent->shield ) );
+            new Module::ECharacterRefObjImp( opponent_mobile ),
+            new Module::EItemRefObjImp( opponent_mobile->shield ) );
       }
 
       double parry_chance =
-          opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
-      parry_chance += opponent->parrychance_mod() * 0.001f;
+          opponent_mobile->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
+      parry_chance += opponent_mobile->parrychance_mod() * 0.001f;
       if ( Core::settingsManager.watch.combat )
         INFO_PRINT( "Parry Chance: {}: ", parry_chance );
       if ( Clib::random_double( 1.0 ) < parry_chance )
       {
         if ( Core::settingsManager.watch.combat )
-          INFO_PRINTLN( "{} hits deflected", opponent->shield->ar() );
+          INFO_PRINTLN( "{} hits deflected", opponent_mobile->shield->ar() );
         if ( Core::settingsManager.combat_config.display_parry_success_messages &&
-             opponent->client )
-          Core::send_sysmessage( opponent->client, "You successfully parried the attack!" );
+             opponent_mobile->client )
+          Core::send_sysmessage( opponent_mobile->client, "You successfully parried the attack!" );
 
-        damage -= opponent->shield->ar();
+        damage -= opponent_mobile->shield->ar();
         if ( damage < 0 )
           damage = 0;
       }
@@ -3406,8 +3453,8 @@ void Character::attack( Character* opponent )
     }
     if ( weapon->hit_script().empty() )
     {
-      opponent->apply_damage( damage, this, true,
-                              Core::settingsManager.combat_config.send_damage_packet );
+      opponent_mobile->apply_damage( damage, this, true,
+                                     Core::settingsManager.combat_config.send_damage_packet );
     }
     else
     {
@@ -3418,12 +3465,13 @@ void Character::attack( Character* opponent )
   {
     if ( Core::settingsManager.watch.combat )
       INFO_PRINTLN( "Miss!" );
-    opponent->on_swing_failure( this );
+    opponent_mobile->on_swing_failure( this );
     do_hit_failure_effects();
     if ( Core::gamestate.system_hooks.hitmiss_hook )
     {
       Core::gamestate.system_hooks.hitmiss_hook->call(
-          new Module::ECharacterRefObjImp( this ), new Module::ECharacterRefObjImp( opponent ) );
+          new Module::ECharacterRefObjImp( this ),
+          new Module::ECharacterRefObjImp( opponent_mobile ) );
     }
   }
 }
@@ -3431,13 +3479,13 @@ void Character::attack( Character* opponent )
 void Character::check_attack_after_move( bool check_opponents_after_check )
 {
   FUNCTION_CHECKPOINT( check_attack_after_move, 1 );
-  Character* opponent = get_attackable_opponent();
+  auto opponent = get_attackable_opponent();
   FUNCTION_CHECKPOINT( check_attack_after_move, 2 );
   INFO_PRINTLN_TRACE( 20 )
   ( "check_attack_after_move({:#x}): opponent is {:#x}", this->serial,
-    opponent != nullptr ? opponent->serial : 0 );
-  if ( opponent != nullptr &&  // and I have an opponent
-       !dead() &&              // If I'm not dead
+    opponent ? opponent.object()->serial : 0 );
+  if ( opponent &&  // and I have an opponent
+       !dead() &&   // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
          ( !paralyzed() && !frozen() ) ) )
   {
@@ -3446,7 +3494,7 @@ void Character::check_attack_after_move( bool check_opponents_after_check )
     {                                                   // do so.
       FUNCTION_CHECKPOINT( check_attack_after_move, 4 );
       if ( Core::settingsManager.combat_config.send_swing_packet && client != nullptr )
-        send_fight_occuring( client, opponent );
+        send_fight_occuring( client, opponent.object() );
 
       // we don't want attack() to recursively cause new attacks
       mob_flags_.remove( MOB_FLAGS::READY_TO_SWING );
@@ -3467,14 +3515,15 @@ void Character::check_attack_after_move( bool check_opponents_after_check )
 
   if ( check_opponents_after_check )
   {
-    if ( opponent_ != nullptr )
-      opponent_->check_attack_after_move( false );
+    if ( auto* mob = opponent_.mobile() )
+      mob->check_attack_after_move( false );
 
     // attacking can change the opponent_of array drastically.
-    std::set<Character*> tmp( opponent_of );
-    for ( auto& chr : tmp )
+    AttackableSet tmp( opponent_of );
+    for ( auto& att : tmp )
     {
-      chr->check_attack_after_move( false );
+      if ( auto* mob = att.mobile() )
+        mob->check_attack_after_move( false );
     }
   }
 }
@@ -3550,15 +3599,15 @@ void Character::check_justice_region_change()
 
     if ( new_justice_region && new_justice_region->RunNoCombatCheck( client ) == true )
     {
-      Character* opp2 = get_opponent();
-      if ( ( opp2 != nullptr && opp2->client ) )
+      get_opponent().remove_opponent_of( Attackable{ client->chr } );
+      if ( auto* opp2 = get_opponent().mobile(); opp2 && opp2->client )
       {
-        opp2->opponent_of.erase( client->chr );
-        opp2->set_opponent( nullptr, true );
+        // TODO Attackable
+        opp2->set_opponent( {}, true );
         opp2->schedule_attack();
-        opp2->opponent_ = nullptr;
+        opp2->opponent_.clear();
         opp2->clear_opponent_of();
-        set_opponent( nullptr, true );
+        set_opponent( {}, true );
         if ( swing_task != nullptr )
           swing_task->cancel();
       }
@@ -3605,9 +3654,8 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
   Core::WeatherRegion* cur_weather_region = client->gd->weather_region;
   Core::WeatherRegion* new_weather_region = Core::gamestate.weatherdef->getregion( pos() );
 
-  // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has no
-  // weather region,
-  // and to walk to somewhere that doesn't have a weather region.
+  // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has
+  // no weather region, and to walk to somewhere that doesn't have a weather region.
   //
   if ( force || ( cur_weather_region != new_weather_region ) )
   {
@@ -3619,9 +3667,8 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
     }
 
     // eric removed this 5/31/03, it's calling itself recursively:
-    // move_character_to -> tellmove -> check_region_changes -> check_weather_region_change (here,
-    // doh)
-    // if you need to send the client something special, just do it.
+    // move_character_to -> tellmove -> check_region_changes -> check_weather_region_change
+    // (here, doh) if you need to send the client something special, just do it.
     // move_character_to(this,x,y,z,0); //dave added 5/26/03: client doesn't refresh properly
     // without a teleport :| and send_goxyz causes weather effects to stop if character is
     // walking/running too
@@ -4352,7 +4399,7 @@ size_t Character::estimatedSize() const
                 + sizeof( unsigned int )                              /*mountedsteps_*/
                 + privs.estimatedSize() + settings.estimatedSize() +
                 sizeof( Core::UOExecutor* )                  /*script_ex*/
-                + sizeof( Character* )                       /*opponent_*/
+                + sizeof( Attackable )                       /*opponent_*/
                 + sizeof( Core::polclock_t )                 /*swing_timer_start_clock_*/
                 + sizeof( Core::OneShotTask* )               /*swing_task*/
                 + sizeof( Core::OneShotTask* )               /*spell_task*/

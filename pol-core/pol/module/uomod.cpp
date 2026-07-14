@@ -765,16 +765,21 @@ void handle_script_cursor( Character* chr, UObject* obj )
     auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( obj != nullptr )
     {
-      if ( obj->ismobile() )
+      if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HARMFUL )
       {
-        Character* targetted_chr = static_cast<Character*>( obj );
-        if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HARMFUL )
+        auto attackable = Attackable{ obj };
+        if ( attackable )
         {
-          targetted_chr->inform_engaged( chr );
-          chr->repsys_on_attack( targetted_chr );
+          attackable.inform_engaged( Attackable{ chr } );
+          if ( auto* mob = attackable.mobile() )
+            chr->repsys_on_attack( mob );
         }
-        else if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HELPFUL )
+      }
+      else if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HELPFUL )
+      {
+        if ( obj->ismobile() )
         {
+          Character* targetted_chr = static_cast<Character*>( obj );
           chr->repsys_on_help( targetted_chr );
         }
       }
@@ -2530,24 +2535,41 @@ const int LH_FLAG_LOS = 1;             // only include those in LOS
 const int LH_FLAG_INCLUDE_HIDDEN = 2;  // include hidden characters
 BObjectImp* UOExecutorModule::mf_ListHostiles()
 {
-  Character* chr;
+  UObject* uobj;
   u16 range;
   int flags;
-  if ( getCharacterParam( 0, chr ) && getParam( 1, range ) && getParam( 2, flags ) )
+  if ( getUObjectParam( 0, uobj ) && getParam( 1, range ) && getParam( 2, flags ) )
   {
-    std::unique_ptr<ObjArray> arr( new ObjArray );
+    Attackable att{ uobj };
+    if ( !att )
+      return new BError( "Invalid parameter" );
 
-    for ( auto& hostile : chr->hostiles() )
+    std::unique_ptr<ObjArray> arr( new ObjArray );
+    const Character::AttackableSet* hostiles = nullptr;
+    if ( auto* item = att.item() )
     {
-      if ( hostile->concealed() )
+      if ( item->has_opponent_of() )
+        hostiles = item->opponent_of();
+    }
+    else if ( auto* mob = att.mobile() )
+      hostiles = &mob->hostiles();
+    if ( !hostiles )
+      return arr.release();
+    for ( auto& hostile : *hostiles )
+    {
+      if ( auto* mob = hostile.mobile() )
+      {
+        if ( mob->concealed() )
+          continue;
+        if ( ( ~flags & LH_FLAG_INCLUDE_HIDDEN ) && mob->hidden() )
+          continue;
+      }
+      auto* obj = hostile.object();
+      if ( ( flags & LH_FLAG_LOS ) && !att.object()->realm()->has_los( *att.object(), *obj ) )
         continue;
-      if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *hostile ) )
+      if ( !att.object()->in_range( obj, range ) )
         continue;
-      if ( ( ~flags & LH_FLAG_INCLUDE_HIDDEN ) && hostile->hidden() )
-        continue;
-      if ( !chr->in_range( hostile, range ) )
-        continue;
-      arr->addElement( hostile->make_ref() );
+      arr->addElement( obj->make_ref() );
     }
 
     return arr.release();

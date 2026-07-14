@@ -105,7 +105,7 @@ template <typename ENUM,
 struct AttributeFlags
 {
   using enum_t = typename std::underlying_type<ENUM>::type;
-  AttributeFlags() : flags_( 0 ){};
+  AttributeFlags() : flags_( 0 ) {};
 
   bool get( ENUM flag ) const
   {
@@ -141,6 +141,7 @@ enum class OBJ_FLAGS : u16
   NO_DROP = 1 << 9,             // Item flag
   NO_DROP_EXCEPTION = 1 << 10,  // Container/Character flag
   CURSED = 1 << 11,             // Cursed
+  ATTACKABLE = 1 << 12,         // Item flag
 };
 
 /**

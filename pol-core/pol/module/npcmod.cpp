@@ -33,6 +33,7 @@
 #include "../polobject.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "mobile/attack.h"
 #include "osmod.h"
 #include "unimod.h"
 
@@ -881,14 +882,16 @@ BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 
 BObjectImp* NPCExecutorModule::mf_SetOpponent()
 {
-  Mobile::Character* chr;
-  if ( getCharacterParam( 0, chr ) && chr != &npc )
+  Core::UObject* uobj;
+  if ( getUObjectParam( 0, uobj ) && uobj != &npc )
   {
-    npc.set_opponent( chr );
+    Mobile::Attackable opp{ uobj };
+    if ( !opp )
+      return new BError( "Invalid parameter" );
+    npc.set_opponent( opp );
     return new BLong( 1 );
   }
-
-  npc.set_opponent( nullptr );
+  npc.set_opponent( {} );
   return new BLong( 0 );
 }
 

@@ -201,6 +201,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       decays_on_multis( elem.remove_bool( "DecaysOnMultis", false ) ),
       blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
       no_drop( elem.remove_bool( "NoDrop", false ) ),
+      attackable( elem.remove_bool( "ATTACKABLE", false ) ),
       base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
       quality( elem.remove_double( "QUALITY", 1.0 ) ),
       lower_reag_cost( 0 ),
@@ -684,6 +685,7 @@ ItemDesc::ItemDesc( Type type )
       decays_on_multis( false ),
       blocks_casting_if_in_hand( true ),
       no_drop( false ),
+      attackable( false ),
       base_str_req( 0 ),
       stack_limit( MAX_STACK_ITEMS ),
       quality( 1.0 ),
@@ -812,6 +814,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "DecaysOnMultis", new BLong( decays_on_multis ) );
   descriptor->addMember( "BlocksCastingIfInHand", new BLong( blocks_casting_if_in_hand ) );
   descriptor->addMember( "NoDrop", new BLong( no_drop ) );
+  descriptor->addMember( "Attackable", new BLong( attackable ) );
   descriptor->addMember( "StrRequired", new BLong( base_str_req ) );
   descriptor->addMember( "StackLimit", new BLong( stack_limit ) );
   descriptor->addMember( "Weight", new Double( static_cast<double>( weightmult ) / weightdiv ) );

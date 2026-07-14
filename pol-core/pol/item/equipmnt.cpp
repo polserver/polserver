@@ -97,6 +97,7 @@ void Equipment::reduce_hp_from_hit()
         chr->refresh_ar();
     }
     send_object_cache_to_inrange( this );
+    send_hit_status_inrange();
   }
 }
 

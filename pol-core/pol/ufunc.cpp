@@ -629,8 +629,7 @@ void send_item( Client* client, const Item* item )
   if ( item->invisible() )
     flags |= ITEM_FLAG_HIDDEN;
 
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
-                            item->facing, item->color, flags );
+  auto pkt = SendWorldItem( item, flags );
   pkt.Send( client );
 
   // if the item is a corpse, transmit items contained by it
@@ -642,15 +641,15 @@ void send_item( Client* client, const Item* item )
   if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, item );
-    return;
   }
+
+  item->send_hit_status( client );
 }
 
 /* Tell all clients new information about an item */
 void send_item_to_inrange( const Item* item )
 {
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
-                            item->facing, item->color, 0 );
+  auto pkt = SendWorldItem( item, 0 );
   auto pkt_remove = RemoveObjectPkt( item->serial_ext );
   auto pkt_rev = ObjRevisionPkt( item->serial_ext, item->rev() );
 
@@ -681,6 +680,7 @@ void send_item_to_inrange( const Item* item )
         }
 
         pkt_rev.Send( zonechr->client );
+        item->send_hit_status( zonechr->client );
       } );
 }
 
@@ -2084,7 +2084,7 @@ void send_new_subserver( Client* client )
   msg.Send( client );
 }
 
-void send_fight_occuring( Client* client, Character* opponent )
+void send_fight_occuring( Client* client, UObject* opponent )
 {
   PktHelper::PacketOut<PktOut_2F> msg;
   msg->offset++;  // zero1

@@ -768,28 +768,27 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 t
   }
 }
 
-void NPC::inform_engaged( Character* engaged )
+void NPC::inform_engaged( const Attackable& engaged )
 {
   // someone has targetted us. Create an event if appropriate.
-  if ( ex != nullptr )
+  if ( !ex || !engaged )
+    return;
+  if ( ex->eventmask & Core::EVID_ENGAGED )
   {
-    if ( ex->eventmask & Core::EVID_ENGAGED )
-    {
-      ex->signal_event( new Module::EngageEvent( engaged ) );
-    }
+    ex->signal_event( new Module::EngageEvent( engaged.object() ) );
   }
   // Note, we don't do the base class thing, 'cause we have no client.
 }
 
-void NPC::inform_disengaged( Character* disengaged )
+void NPC::inform_disengaged( const Attackable& disengaged )
 {
   // someone has targetted us. Create an event if appropriate.
-  if ( ex != nullptr )
+  if ( !ex || !disengaged )
+    return;
+
+  if ( ex->eventmask & Core::EVID_DISENGAGED )
   {
-    if ( ex->eventmask & Core::EVID_DISENGAGED )
-    {
-      ex->signal_event( new Module::DisengageEvent( disengaged ) );
-    }
+    ex->signal_event( new Module::DisengageEvent( disengaged.object() ) );
   }
   // Note, we don't do the base class thing, 'cause we have no client.
 }
@@ -868,7 +867,7 @@ void NPC::inform_moved( Character* moved )
   }
 
   // only send moved event if left/enteredarea wasnt send
-  if ( ( moved == opponent_ ) && ( ex->eventmask & ( Core::EVID_OPPONENT_MOVED ) ) )
+  if ( ( moved == opponent_.object() ) && ( ex->eventmask & ( Core::EVID_OPPONENT_MOVED ) ) )
   {
     if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
          is_visible_to_me( moved ) )

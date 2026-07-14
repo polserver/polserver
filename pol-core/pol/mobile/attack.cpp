@@ -9,12 +9,14 @@
  */
 
 
-#include <cstdio>
+#include "attack.h"
 
 #include "../../clib/clib_endian.h"
 #include "../../clib/rawtypes.h"
 #include "../cmbtcfg.h"
+#include "../fnsearch.h"
 #include "../globals/settings.h"
+#include "../item/item.h"
 #include "../network/client.h"
 #include "../network/pktin.h"
 #include "../ufunc.h"
@@ -24,6 +26,58 @@
 
 namespace Pol::Mobile
 {
+Attackable::Attackable( Core::UObject* obj ) : _opp( obj )
+{
+  if ( !_opp )
+    return;
+  if ( obj->ismobile() )
+    return;
+  if ( auto* item_ = item(); item_ && item_->is_attackable() )
+    return;
+  _opp = nullptr;
+}
+
+Character* Attackable::mobile() const
+{
+  if ( _opp && _opp->ismobile() )
+    return static_cast<Character*>( _opp );
+  return nullptr;
+}
+Items::Item* Attackable::item() const
+{
+  if ( _opp && _opp->isitem() )
+    return static_cast<Items::Item*>( _opp );
+  return nullptr;
+}
+void Attackable::remove_opponent_of( const Attackable& other )
+{
+  if ( auto* mob = mobile() )
+    mob->remove_opponent_of( other );
+  else if ( auto* item_ = item() )
+    item_->remove_opponent_of( other );
+}
+void Attackable::add_opponent_of( Attackable other )
+{
+  if ( auto* mob = mobile() )
+    mob->add_opponent_of( std::move( other ) );
+  else if ( auto* item_ = item() )
+    item_->add_opponent_of( other );
+}
+void Attackable::inform_disengaged( const Attackable& disengaged )
+{
+  if ( auto* mob = mobile() )
+    mob->inform_disengaged( disengaged );
+  else if ( auto* item_ = item() )
+    item_->inform_disengaged( disengaged );
+}
+void Attackable::inform_engaged( const Attackable& engaged )
+{
+  if ( auto* mob = mobile() )
+    mob->inform_engaged( engaged );
+  else if ( auto* item_ = item() )
+    item_->inform_engaged( engaged );
+}
+
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
 {
   if ( client->chr->dead() )
@@ -33,33 +87,49 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
   }
 
   u32 serial = cfBEu32( msg->serial );
-  Character* defender = Core::find_character( serial );
-  if ( defender == nullptr )
+  Attackable attackable{ Core::find_toplevel_object( serial ) };
+  if ( !attackable )
     return;
-  if ( !( Core::settingsManager.combat_config.attack_self ) )
+  if ( auto* defender = attackable.mobile() )
   {
-    if ( defender->serial == client->chr->serial )
+    if ( !( Core::settingsManager.combat_config.attack_self ) )
+    {
+      if ( defender->serial == client->chr->serial )
+      {
+        client->chr->send_highlight();
+        return;
+      }
+    }
+
+    if ( !client->chr->is_visible_to_me( defender ) )
+    {
+      client->chr->send_highlight();
+      return;
+    }
+
+    if ( defender->acct != nullptr )
+    {
+      if ( Core::JusticeRegion::RunNoCombatCheck( defender->client ) == true )
+      {
+        client->chr->send_highlight();
+        Core::send_sysmessage( client, "Combat is not allowed in this area." );
+        return;
+      }
+    }
+  }
+  else if ( auto* item = attackable.item() )
+  {
+    if ( item->invisible() && !client->chr->can_seeinvisitems() )
+    {
+      client->chr->send_highlight();
+      return;
+    }
+    if ( !client->chr->in_visual_range( item ) )
     {
       client->chr->send_highlight();
       return;
     }
   }
-
-  if ( !client->chr->is_visible_to_me( defender ) )
-  {
-    client->chr->send_highlight();
-    return;
-  }
-
-  if ( defender->acct != nullptr )
-  {
-    if ( Core::JusticeRegion::RunNoCombatCheck( defender->client ) == true )
-    {
-      client->chr->send_highlight();
-      Core::send_sysmessage( client, "Combat is not allowed in this area." );
-      return;
-    }
-  }
-  client->chr->select_opponent( serial );
+  client->chr->select_opponent( std::move( attackable ) );
 }
 }  // namespace Pol::Mobile

@@ -3,12 +3,12 @@
 
 namespace Pol::Core
 {
-const ValueModPack ValueModPack::DEFAULT = ValueModPack();
+const ValueModPack ValueModPack::DEFAULT = ValueModPack{};
 
-const MovementCostMod MovementCostMod::DEFAULT = MovementCostMod( 1.0, 1.0, 1.0, 1.0 );
+const MovementCostMod MovementCostMod::DEFAULT = MovementCostMod{};
 
-const ExtStatBarFollowers ExtStatBarFollowers::DEFAULT = ExtStatBarFollowers( 0, 0 );
+const ExtStatBarFollowers ExtStatBarFollowers::DEFAULT = ExtStatBarFollowers{};
 
-const SkillStatCap SkillStatCap::DEFAULT = SkillStatCap( 225, 700 );
+const SkillStatCap SkillStatCap::DEFAULT = SkillStatCap{ .statcap = 225, .skillcap = 700 };
 
 }  // namespace Pol::Core

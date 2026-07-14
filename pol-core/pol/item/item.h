@@ -22,6 +22,7 @@
 #include "../dynproperties.h"
 #include "../globals/settings.h"
 #include "../layers.h"
+#include "../mobile/attack.h"
 #include "../uobject.h"
 
 namespace Pol
@@ -80,6 +81,7 @@ public:
   bool stackable() const;
 
   ~Item() override;
+  void destroy() override;
   size_t estimatedSize() const override;
 
   virtual void double_click( Network::Client* client );
@@ -261,6 +263,19 @@ public:
   Bscript::BObject call_custom_method( const char* methodname );
   bool get_method_hook( const char* methodname, Bscript::Executor* ex, Core::ExportScript** hook,
                         unsigned int* PC ) const override;
+
+
+  bool is_attackable() const;
+  void apply_damage( u16 damage, Mobile::Character* attacker, bool send_dmg_packet );
+  void send_hit_status( Network::Client* client ) const;
+  void send_hit_status_inrange() const;
+  void inform_engaged( const Mobile::Attackable& engaged );
+  void inform_disengaged( const Mobile::Attackable& disengaged );
+
+  DYN_PROPERTY_REF( opponent_of, std::set<Mobile::Attackable>, Core::PROP_OPPONENT_OF,
+                    std::set<Mobile::Attackable>{} );
+  void remove_opponent_of( const Mobile::Attackable& other );
+  void add_opponent_of( Mobile::Attackable other );
 
 protected:  // only derived classes need the constructor
   void printProperties( Clib::StreamWriter& sw ) const override;

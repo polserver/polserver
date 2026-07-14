@@ -83,7 +83,6 @@ exported function attack_on_unhide_defender()
   // npc1 attacks npc2
   npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2,
                                   sleep := 0, unhide := false } );
-
   // Collect two attack events
   if ( !( evs := collect_events( 2 ) ) )
     return evs;
@@ -137,7 +136,7 @@ exported function test_attack_range_mod()
                                   sleep := 0, unhide := false } );
 
   // Should _not_ have attack events until mod is set
-  Sleepms(500);
+  Sleepms( 500 );
   if ( evs := collect_events( 2, timeout := 0 ) )
     return ret_error( $"Unexpectedly collected attack events when too far away: {evs}" );
   endif
@@ -155,6 +154,40 @@ exported function test_attack_range_mod()
   return 1;
 endfunction
 
+exported function attack_check_listhostiles()
+  var err, evs, t;
+
+  reset_npcs();
+  npc1.process.sendevent( struct{ type := "enable_events" } );
+  npc2.process.sendevent( struct{ type := "enable_events" } );
+
+  // npc1 attacks npc2
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := npc2,
+                                  sleep := 0, unhide := false } );
+
+  // Collect two attack events
+  if ( !( evs := collect_events( 2 ) ) )
+    return evs;
+  endif
+
+  // Both attacks should happen at the same time
+  t := evs[1].gameclock;
+
+  if ( !validate_events( err, evs, t ) )
+    return err;
+  endif
+
+  var hostile1 := ListHostiles( npc1 );
+  var hostile2 := ListHostiles( npc2 );
+  if ( hostile1.size() != 1 || hostile2.size() != 1 )
+    return ret_error( $"Hostile list != 1: {hostile1.size()},{hostile2.size()}" );
+  endif
+  if ( hostile1[1] != npc2 || hostile2[1] != npc1 )
+    return ret_error( $"wrong opponent set: {hostile1[1]}, {hostile2[1]}" );
+  endif
+  return 1;
+endfunction
+
 /**
  * Helper functions
  */
@@ -169,6 +202,8 @@ function reset_npcs()
   npc2.max_attack_range_increase := 0;
   npc1.swing_speed_increase_mod := 0;
   npc2.swing_speed_increase_mod := 0;
+  npc1.process.sendevent( struct{ type := "disable_events" } );
+  npc2.process.sendevent( struct{ type := "disable_events" } );
   npc1.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
   npc2.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
   clear_event_queue();
@@ -208,3 +243,4 @@ function collect_events( count, errorMessage := "No event from NPC script receiv
 
   return evs;
 endfunction
+

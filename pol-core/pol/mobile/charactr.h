@@ -55,6 +55,7 @@
 #include "../skillid.h"
 #include "../uobject.h"
 #include "../utype.h"
+#include "attack.h"
 #include "attribute.h"
 
 namespace Pol
@@ -274,7 +275,7 @@ class Character : public Core::UObject
 {
   // types:
   using base = UObject;
-  using CharacterSet = std::set<Character*>;
+  using AttackableSet = std::set<Attackable>;
 
 public:
   explicit Character( u32 objtype,
@@ -335,8 +336,8 @@ public:
 public:
   virtual Items::UWeapon* intrinsic_weapon();
 
-  virtual void inform_disengaged( Character* disengaged );
-  virtual void inform_engaged( Character* engaged );
+  virtual void inform_disengaged( const Attackable& disengaged );
+  virtual void inform_engaged( const Attackable& engaged );
   virtual void inform_criminal( Character* thecriminal );
   virtual void inform_leftarea( Character* wholeft );
   virtual void inform_enteredarea( Character* whoentered );
@@ -420,8 +421,12 @@ public:
 
   // COMBAT
 public:
-  void select_opponent( u32 opp_serial );
-  void set_opponent( Character* opponent, bool inform_old_opponent = true );
+  // Attackable api
+  void remove_opponent_of( const Attackable& other );
+  void add_opponent_of( Attackable other );
+
+  void select_opponent( Attackable opponent );
+  void set_opponent( Attackable opponent, bool inform_old_opponent = true );
 
   void clear_opponent_of();
 
@@ -435,14 +440,14 @@ public:
   unsigned short min_weapon_damage() const;
   unsigned short max_weapon_damage() const;
   void damage_weapon();
-  void do_attack_effects( Character* target );
+  void do_attack_effects( const Attackable& target );
   void do_imhit_effects();
   void do_hit_success_effects();
   void do_hit_failure_effects();
 
-  bool is_attackable( Character* who ) const;
-  Character* get_opponent() const;
-  Character* get_attackable_opponent() const;
+  bool is_attackable( const Attackable& att ) const;
+  Attackable get_opponent() const;
+  Attackable get_attackable_opponent() const;
 
   Items::UArmor* choose_armor() const;
 
@@ -450,12 +455,12 @@ public:
 
   void reset_swing_timer();
   void check_attack_after_move( bool check_opponents_after_check );
-  void attack( Character* opponent );
+  void attack( const Attackable& opponent );
   void send_highlight() const;
   bool manual_set_swing_timer( Core::polclock_t time );
 
-  const CharacterSet& hostiles() const;
-  void run_hit_script( Character* defender, double damage );
+  const AttackableSet& hostiles() const;
+  void run_hit_script( const Attackable& defender, double damage );
 
 private:
   void schedule_attack();
@@ -777,8 +782,8 @@ protected:
   DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
   DYN_PROPERTY( parrychance_mod, s16, Core::PROP_PARRYCHANCE_MOD, 0 );
 
-  Character* opponent_;
-  CharacterSet opponent_of;
+  Attackable opponent_;
+  AttackableSet opponent_of;
   Core::polclock_t swing_timer_start_clock_;
   Core::OneShotTask* swing_task;
   // ATTRIBUTES / VITALS
@@ -972,7 +977,7 @@ inline bool Character::casting_spell() const
   return ( spell_task != nullptr );
 }
 
-inline const Character::CharacterSet& Character::hostiles() const
+inline const Character::AttackableSet& Character::hostiles() const
 {
   return opponent_of;
 }

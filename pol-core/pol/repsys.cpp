@@ -193,19 +193,20 @@ void RepSystem::repsys_task( Mobile::Character* amy )
   // the 'defensive hostiles' are those that are attacking Amy while she's not innocent.
   // If she's innocent at the end of this, they will break off the attack.
   THREAD_CHECKPOINT( tasks, 1001 );
-  Mobile::Character::CharacterSet defensive_hostiles;
-  for ( Mobile::Character::CharacterSet::iterator h_itr = amy->opponent_of.begin();
-        h_itr != amy->opponent_of.end(); ++h_itr )
+  std::set<Mobile::Character*> defensive_hostiles;
+  for ( const auto& opp : amy->opponent_of )
   {
-    Mobile::Character* hostile_bob = *h_itr;
-    THREAD_CHECKPOINT( tasks, 1002 );
-
-    if ( !amy->is_innocent_to( hostile_bob ) )
+    if ( auto* bob = opp.mobile() )
     {
-      THREAD_CHECKPOINT( tasks, 1003 );
-      defensive_hostiles.insert( hostile_bob );
+      THREAD_CHECKPOINT( tasks, 1002 );
+
+      if ( !amy->is_innocent_to( bob ) )
+      {
+        THREAD_CHECKPOINT( tasks, 1003 );
+        defensive_hostiles.insert( bob );
+      }
+      THREAD_CHECKPOINT( tasks, 1004 );
     }
-    THREAD_CHECKPOINT( tasks, 1004 );
   }
 
 
@@ -305,7 +306,7 @@ void RepSystem::repsys_task( Mobile::Character* amy )
   THREAD_CHECKPOINT( tasks, 1025 );
   // For those that were hostile to Amy due to her non-Innocence, if she's Innocent now,
   // break off the attack.
-  for ( auto bob : defensive_hostiles )
+  for ( auto* bob : defensive_hostiles )
   {
     THREAD_CHECKPOINT( tasks, 1026 );
 
@@ -532,14 +533,14 @@ void RepSystem::on_pc_helps_pc( Mobile::Character* amy, Mobile::Character* bob )
 
 void RepSystem::de_escalate( Mobile::Character* amy, Mobile::Character* bob )
 {
-  if ( amy->opponent_ == bob )
+  if ( amy->opponent_.object() == bob )
   {
-    amy->set_opponent( nullptr, true );
+    amy->set_opponent( {}, true );
   }
 
-  if ( bob->opponent_ == amy )
+  if ( bob->opponent_.object() == amy )
   {
-    bob->set_opponent( nullptr, true );
+    bob->set_opponent( {}, true );
   }
 }
 

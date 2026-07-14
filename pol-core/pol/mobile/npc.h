@@ -13,6 +13,7 @@
 #ifndef H_NPC_H
 #define H_NPC_H
 
+#include "mobile/attack.h"
 #ifndef __CHARACTR_H
 #include "charactr.h"
 #endif
@@ -76,7 +77,7 @@ namespace Mobile
 {
 struct Anchor
 {
-  Anchor() : enabled( false ), pos( 0, 0 ), dstart( 0 ), psub( 0 ){};
+  Anchor() : enabled( false ), pos( 0, 0 ), dstart( 0 ), psub( 0 ) {};
   bool enabled;
   Core::Pos2d pos;
   unsigned short dstart;
@@ -130,8 +131,8 @@ protected:
 public:
   Items::UWeapon* intrinsic_weapon() override;
 
-  void inform_disengaged( Character* disengaged ) override;
-  void inform_engaged( Character* engaged ) override;
+  void inform_disengaged( const Attackable& disengaged ) override;
+  void inform_engaged( const Attackable& engaged ) override;
   void inform_criminal( Character* thecriminal ) override;
   void inform_leftarea( Character* wholeft ) override;
   void inform_enteredarea( Character* whoentered ) override;
