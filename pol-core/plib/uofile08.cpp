@@ -56,6 +56,13 @@ void rawmapfullread()
     rawmap_ready = true;
 }
 
+void rawmap_extract_planes( u16* landtile_out, s8* z_out )
+{
+  if ( !rawmap_ready )
+    rawmapfullread();
+  rawmap.extract_planes( landtile_out, z_out );
+}
+
 /*
 
     MAP(x,y)        MAP

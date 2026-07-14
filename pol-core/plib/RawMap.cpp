@@ -7,6 +7,7 @@
 #include "uopreader/uop.h"
 #include "uopreader/uophash.h"
 
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <map>
@@ -35,6 +36,29 @@ signed char RawMap::rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO
 
   *gi = get_cell( block, x_offset, y_offset );
   return gi->z;
+}
+
+void RawMap::extract_planes( u16* landtile_out, s8* z_out ) const
+{
+  passert_r( is_init, "Tried to read map information before loading the map files" );
+  passert( m_mapwidth > 0 && m_mapheight > 0 );
+
+  const unsigned int hblocks = m_mapheight / 8;
+  for ( unsigned int y = 0; y < m_mapheight; ++y )
+  {
+    const unsigned int y_block = y / 8;
+    const unsigned int y_offset = y & 0x7;
+    const std::size_t row = static_cast<std::size_t>( y ) * m_mapwidth;
+    for ( unsigned int x = 0; x < m_mapwidth; ++x )
+    {
+      // Same block/cell selection as rawinfo(), but with operator[] (no bounds check)
+      // and no USTRUCT_MAPINFO copy.
+      const USTRUCT_MAPINFO& cell =
+          m_mapinfo_vec[( x / 8 ) * hblocks + y_block].cell[y_offset][x & 0x7];
+      landtile_out[row + x] = cell.landtile;
+      z_out[row + x] = cell.z;
+    }
+  }
 }
 
 void RawMap::add_block( const USTRUCT_MAPINFO_BLOCK& block )

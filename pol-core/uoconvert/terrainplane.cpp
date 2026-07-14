@@ -1,5 +1,7 @@
 #include "terrainplane.h"
 
+#include <cstdlib>
+
 #include "../plib/clidata.h"
 #include "../plib/uofile.h"
 #include "../plib/ustruct.h"
@@ -42,31 +44,42 @@ void TerrainPlane::build( int w, int h, bool need_low_z )
   if ( need_low_z )
     low_z.resize( n );
 
-  // Pass 1: reuse safe_getmapinfo once per tile. This is byte-identical to the original
-  // per-tile math by construction (including safe_getmapinfo's x+1/y+1 edge clamping):
-  // it drops the cost from nine safe_getmapinfo calls per tile to one, and every tile's
-  // 4-corner average is now computed exactly once instead of nine times.
+  // Bulk-extract the raw landtile ids and raw cell z's in one sequential pass, instead of
+  // four block-indexed rawmapinfo lookups per corner per tile.
+  std::vector<s8> raw_z( n );
+  Plib::rawmap_extract_planes( landtile.data(), raw_z.data() );
+
+  // Pass 1: avg_z + eff_z from the flat raw arrays. This replicates safe_getmapinfo
+  // exactly -- its x+1/y+1 edge clamping, the min-differential diagonal choice, and the
+  // round-toward-negative-infinity halving -- but reads the four corners from flat memory
+  // rather than recomputing UO block-index math and copying a USTRUCT_MAPINFO each time.
   for ( int y = 0; y < h; ++y )
   {
+    const int yp = ( y + 1 < h ) ? y + 1 : h - 1;
+    const std::size_t row = static_cast<std::size_t>( y ) * static_cast<std::size_t>( w );
+    const std::size_t rowp = static_cast<std::size_t>( yp ) * static_cast<std::size_t>( w );
     for ( int x = 0; x < w; ++x )
     {
-      short z;
-      Plib::USTRUCT_MAPINFO mi;
-      Plib::safe_getmapinfo( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ), &z,
-                             &mi );
+      const int xp = ( x + 1 < w ) ? x + 1 : w - 1;
+      const short z1 = raw_z[row + xp];
+      const short z2 = raw_z[row + x];
+      const short z3 = raw_z[rowp + x];
+      const short z4 = raw_z[rowp + xp];
+      const short zsum = ( std::abs( z1 - z3 ) < std::abs( z2 - z4 ) )
+                             ? static_cast<short>( z1 + z3 )
+                             : static_cast<short>( z2 + z4 );
+      const s8 avg = static_cast<s8>( zsum >= 0 ? zsum / 2 : ( zsum - 1 ) / 2 );
 
-      const std::size_t i = static_cast<std::size_t>( y ) * static_cast<std::size_t>( w ) + x;
-      landtile[i] = mi.landtile;
-      avg_z[i] = static_cast<s8>( z );
+      const std::size_t i = row + x;
+      avg_z[i] = avg;
 
       // Caller-side liquid override (UoConvertMain ProcessSolidBlock / create_maptile):
       // for water, don't average with surrounding tiles -- use the raw cell z. This lands
       // in eff_z only; avg_z stays the plain average because get_lowestadjacentz reads
       // neighbors' *un-overridden* averages.
-      if ( Plib::landtile_uoflags_read( mi.landtile ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
-        eff_z[i] = mi.z;
-      else
-        eff_z[i] = static_cast<s8>( z );
+      eff_z[i] = ( Plib::landtile_uoflags_read( landtile[i] ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
+                     ? raw_z[i]
+                     : avg;
     }
   }
 

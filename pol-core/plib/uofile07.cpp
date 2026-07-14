@@ -60,11 +60,11 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned 
     }
 #endif
 
-    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) &&
-         ( tile_uoflags_read( srec.graphic ) & flags ) )
+    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) )
     {
-      vec.emplace_back( srec.graphic, srec.z, tile_uoflags_read( srec.graphic ),
-                        tileheight_read( srec.graphic ) );
+      const unsigned int uoflags = tile_uoflags_read( srec.graphic );
+      if ( uoflags & flags )
+        vec.emplace_back( srec.graphic, srec.z, uoflags, tileheight_read( srec.graphic ) );
     }
   }
 }
