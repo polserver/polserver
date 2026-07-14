@@ -16,6 +16,8 @@ struct USTRUCT_MULTI_ELEMENT;
 }
 namespace UoConvert
 {
+struct TerrainPlane;
+
 class UoConvertMain final : public Pol::Clib::ProgramMain
 {
 public:
@@ -58,7 +60,7 @@ public:
 
   void create_maptile( const std::string& realmname );
 
-  void ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
+  void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, const TerrainPlane& plane,
                           Plib::MapWriter& mapwriter );
 
   std::string resolve_type_from_id( unsigned id ) const;

@@ -37,6 +37,8 @@
 #include "plib/ustruct.h"
 #include "pol/landtile.h"
 
+#include "terrainplane.h"
+
 
 namespace Pol::UoConvert
 {
@@ -135,6 +137,12 @@ void UoConvertMain::create_maptile( const std::string& realmname )
   Plib::MapWriter writer;
   writer.OpenExistingFiles( realmname );
 
+  // Same precomputed terrain as create_map; maptile only needs the landtile id and the
+  // effective (liquid-overridden) z per tile, so skip the lowest-adjacent-z pass.
+  rawmapfullread();
+  TerrainPlane plane;
+  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/false );
+
   for ( unsigned short y_base = 0; y_base < uo_map_height; y_base += Plib::MAPTILE_CHUNK )
   {
     for ( unsigned short x_base = 0; x_base < uo_map_width; x_base += Plib::MAPTILE_CHUNK )
@@ -152,21 +160,16 @@ void UoConvertMain::create_maptile( const std::string& realmname )
           unsigned short x = x_base + x_add;
           unsigned short y = y_base + y_add;
 
-          short z;
-          USTRUCT_MAPINFO mi;
+          const std::size_t plane_idx = plane.index( x, y );
+          const u16 landtile = plane.landtile[plane_idx];
+          const s8 z = plane.eff_z[plane_idx];  // effective z (liquid override applied)
 
-          safe_getmapinfo( x, y, &z, &mi );
-
-          if ( mi.landtile > 0x3FFF )
-            INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
-
-          // for water, don't average with surrounding tiles.
-          if ( Plib::landtile_uoflags_read( mi.landtile ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
-            z = mi.z;
+          if ( landtile > 0x3FFF )
+            INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
 
           Plib::MAPTILE_CELL cell;
-          cell.landtile = mi.landtile;
-          cell.z = static_cast<signed char>( z );
+          cell.landtile = landtile;
+          cell.z = z;
           writer.SetMapTile( x, y, cell );
         }
       }
@@ -211,7 +214,12 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
   unsigned short x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
   unsigned short y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
 
-  ProcessSolidBlock( x_base, y_base, mapwriter );
+  // ProcessSolidBlock reads the smoothed-terrain plane; build the full plane. This is a
+  // rarely-used single-block debug path (x=/y= args), so the full build is acceptable.
+  TerrainPlane plane;
+  plane.build( uo_map_width, uo_map_height );
+
+  ProcessSolidBlock( x_base, y_base, plane, mapwriter );
   INFO_PRINTLN( "empty={}, nonempty={}\nwith more_solids: {}\ntotal statics={}", empty, nonempty,
                 with_more_solids, total_statics );
 }
@@ -248,12 +256,20 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   rawstaticfullread();
   staticread_timer.stop();
 
+  // Precompute the smoothed-terrain plane once (safe_getmapinfo + lowest-adjacent-z for
+  // every tile) so the block loop below is flat array reads instead of ~36 raw cell
+  // fetches per tile. The plane is immutable during the loop.
+  Tools::Timer<> plane_timer;
+  TerrainPlane plane;
+  plane.build( width, height );
+  plane_timer.stop();
+
   Tools::Timer<> loop_timer;
   for ( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
   {
     for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
     {
-      ProcessSolidBlock( x_base, y_base, mapwriter );
+      ProcessSolidBlock( x_base, y_base, plane, mapwriter );
     }
     INFO_PRINT( "\rConverting: {}%", y_base * 100 / height );
   }
@@ -265,8 +281,8 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   flush_timer.stop();
 
   long long total_ms = init_timer.ellapsed() + mapread_timer.ellapsed() +
-                       staticread_timer.ellapsed() + loop_timer.ellapsed() +
-                       flush_timer.ellapsed();
+                       staticread_timer.ellapsed() + plane_timer.ellapsed() +
+                       loop_timer.ellapsed() + flush_timer.ellapsed();
 
   INFO_PRINTLN(
       "\rConversion complete.\n"
@@ -280,13 +296,14 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
       "  Init files:   {} ms\n"
       "  Map read:     {} ms\n"
       "  Static read:  {} ms\n"
+      "  Terrain plane:{} ms\n"
       "  Process loop: {} ms\n"
       "  Config+flush: {} ms\n"
       "  Total:        {} ms",
       empty + nonempty, nonempty, ( nonempty * 100 / ( empty + nonempty ) ), empty,
       ( empty * 100 / ( empty + nonempty ) ), with_more_solids, total_statics,
       init_timer.ellapsed(), mapread_timer.ellapsed(), staticread_timer.ellapsed(),
-      loop_timer.ellapsed(), flush_timer.ellapsed(), total_ms );
+      plane_timer.ellapsed(), loop_timer.ellapsed(), flush_timer.ellapsed(), total_ms );
 
   if ( cfg_profile )
   {
@@ -306,173 +323,8 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   }
 }
 
-static bool is_no_draw( USTRUCT_MAPINFO& mi )
-{
-  return ( mi.landtile == 0x2 );
-}
-
-static bool is_cave_exit( USTRUCT_MAPINFO& mi )
-{
-  return ( mi.landtile == 0x7ec || mi.landtile == 0x7ed || mi.landtile == 0x7ee ||
-           mi.landtile == 0x7ef || mi.landtile == 0x7f0 || mi.landtile == 0x7f1 ||
-           mi.landtile == 0x834 || mi.landtile == 0x835 || mi.landtile == 0x836 ||
-           mi.landtile == 0x837 || mi.landtile == 0x838 || mi.landtile == 0x839 ||
-           mi.landtile == 0x1d3 || mi.landtile == 0x1d4 || mi.landtile == 0x1d5 ||
-           mi.landtile == 0x1d6 || mi.landtile == 0x1d7 || mi.landtile == 0x1d8 ||
-           mi.landtile == 0x1d9 || mi.landtile == 0x1da );
-}
-
-static bool is_cave_shadow( USTRUCT_MAPINFO& mi )
-{
-  return ( mi.landtile == 0x1db ||  // shadows above caves
-           mi.landtile == 0x1ae ||  // more shadows above caves
-           mi.landtile == 0x1af || mi.landtile == 0x1b0 || mi.landtile == 0x1b1 ||
-           mi.landtile == 0x1b2 || mi.landtile == 0x1b3 || mi.landtile == 0x1b4 ||
-           mi.landtile == 0x1b5 );
-}
-
-short get_lowestadjacentz( unsigned short x, unsigned short y, short z )
-{
-  USTRUCT_MAPINFO mi;
-  short z0;
-  short lowest_z = z;
-  bool cave_override = false;
-
-  if ( ( x - 1 >= 0 ) && ( y - 1 >= 0 ) )
-  {
-    safe_getmapinfo( x - 1, y - 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( x - 1 >= 0 )
-  {
-    safe_getmapinfo( x - 1, y, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( ( x - 1 >= 0 ) && ( y + 1 < uo_map_height ) )
-  {
-    safe_getmapinfo( x - 1, y + 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( y - 1 >= 0 )
-  {
-    safe_getmapinfo( x, y - 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( ( y - 1 >= 0 ) && ( x + 1 < uo_map_width ) )
-  {
-    safe_getmapinfo( x + 1, y - 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( x + 1 < uo_map_width )
-  {
-    safe_getmapinfo( x + 1, y, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( ( x + 1 < uo_map_width ) && ( y + 1 < uo_map_height ) )
-  {
-    safe_getmapinfo( x + 1, y + 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( y + 1 < uo_map_height )
-  {
-    safe_getmapinfo( x, y + 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( cave_override )
-    return z;
-  return lowest_z;
-}
-
 void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
-                                       MapWriter& mapwriter )
+                                       const TerrainPlane& plane, MapWriter& mapwriter )
 {
   // Raw UO tile flags fetched for every tile's statics below. Any static reaching
   // `statics` is guaranteed to have at least one of these bits set, so nothing
@@ -520,27 +372,23 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       if ( cfg_profile )
         t = ProfClock::now();
 
-      // read the map, and treat it like a static.
-      short z;
-      USTRUCT_MAPINFO mi;
+      // read the precomputed smoothed terrain, and treat it like a static.
+      const std::size_t plane_idx = plane.index( x, y );
+      const u16 landtile = plane.landtile[plane_idx];
+      short z = plane.eff_z[plane_idx];  // effective z: the liquid override is already folded in
 
-      safe_getmapinfo( x, y, &z, &mi );
+      if ( landtile > 0x3FFF )
+        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
 
-      if ( mi.landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
-
-      // for water, don't average with surrounding tiles.
-      if ( Plib::landtile_uoflags_read( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
-        z = mi.z;
-      short low_z = get_lowestadjacentz( x, y, z );
+      short low_z = plane.low_z[plane_idx];
 
       short lt_height = z - low_z;
       z = low_z;
 
-      if ( mi.landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
+      if ( landtile > 0x3FFF )
+        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
 
-      unsigned int lt_flags = Plib::landtile_uoflags_read( mi.landtile );
+      unsigned int lt_flags = Plib::landtile_uoflags_read( landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
       {  // this seems to be the default.
         lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
@@ -594,14 +442,14 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
         }
       }
       // shadows above caves
-      if ( is_cave_shadow( mi ) && !statics.empty() )
+      if ( is_cave_shadow( landtile ) && !statics.empty() )
       {
         addMap = false;
       }
 
 
       // If the map is a NODRAW tile, and there are statics, discard the map tile
-      if ( mi.landtile == 2 && !statics.empty() )
+      if ( landtile == 2 && !statics.empty() )
         addMap = false;
 
       if ( addMap )
