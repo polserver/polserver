@@ -613,10 +613,7 @@ static int statics_histogram()
     INFO_PRINT( "." );
     for ( u16 y = 0; y < 4095; y += 8 )
     {
-      std::vector<USTRUCT_STATIC> p;
-      int count;
-
-      readstaticblock( &p, &count, x, y );
+      size_t count = getstaticblock( x, y ).size();
       if ( count < 1000 )
         ++counts[count];
       else
@@ -947,16 +944,13 @@ static int defragstatics( int argc, char** argv )
     }
     for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
     {
-      std::vector<USTRUCT_STATIC> pstat;
-      int num;
+      const std::vector<USTRUCT_STATIC>& pstat = getstaticblock( x, y );
       std::vector<USTRUCT_STATIC> tilelist;
-      readstaticblock( &pstat, &num, x, y );
-      if ( num > 0 )
+      if ( !pstat.empty() )
       {
         int currwritepos = ftell( fmul );
-        for ( int i = 0; i < num; ++i )
+        for ( const auto& tile : pstat )
         {
-          USTRUCT_STATIC& tile = pstat[i];
           if ( tile.graphic < 0x4000 )
           {
             bool first = true;

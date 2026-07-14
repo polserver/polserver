@@ -1,8 +1,10 @@
 #include "UoConvertMain.h"
 
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <vector>
 
 #include "clib/Program/ProgramMain.h"
 #include "clib/cfgelem.h"
@@ -429,9 +431,15 @@ short get_lowestadjacentz( unsigned short x, unsigned short y, short z )
 void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
                                        MapWriter& mapwriter )
 {
+  // Raw UO tile flags fetched for every tile's statics below. Any static reaching
+  // `statics` is guaranteed to have at least one of these bits set, so nothing
+  // downstream needs to re-check srec.flags against this same mask.
+  static constexpr unsigned int kSolidStaticFlags =
+      USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
+      USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID | USTRUCT_TILE::FLAG_HOVEROVER;
+
   unsigned int idx2_offset = 0;
-  SOLIDX2_ELEM idx2_elem;
-  memset( &idx2_elem, 0, sizeof idx2_elem );
+  SOLIDX2_ELEM idx2_elem{};
   idx2_elem.baseindex = mapwriter.NextSolidIndex();
 
   unsigned short x_add_max = SOLIDX_X_SIZE, y_add_max = SOLIDX_Y_SIZE;
@@ -440,6 +448,11 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
   if ( y_base + y_add_max > uo_map_height )
     y_add_max = uo_map_height - y_base;
 
+  // Reused across tiles (cleared, not reconstructed) to avoid a per-tile
+  // allocation across the ~25M tiles a full map conversion visits.
+  StaticList statics;
+  std::vector<MapShape> shapes;
+
   for ( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
   {
     for ( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
@@ -447,7 +460,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       unsigned short x = x_base + x_add;
       unsigned short y = y_base + y_add;
 
-      StaticList statics;
+      statics.clear();
 
       // read the map, and treat it like a static.
       short z;
@@ -484,40 +497,17 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
         lt_height = 20;
 
-      readstatics( statics, x, y,
-                   USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
-                       USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID |
-                       USTRUCT_TILE::FLAG_HOVEROVER
-                   // USTRUCT_TILE::FLAG__WALK
-      );
+      readstatics( statics, x, y, kSolidStaticFlags );
 
-      for ( unsigned i = 0; i < statics.size(); ++i )
-      {
-        StaticRec srec = statics[i];
-
-        unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot,
-                                                         cfg_LOS_through_windows );
-
-        if ( ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
-             ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
-             ( ~polflags & FLAG::OVERFLIGHT ) )
-        {
-          // remove it.  we'll re-sort later.
-          statics.erase( statics.begin() + i );
-          --i;  // do-over
-        }
-        if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
-        /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
-        {
-          // remove it.  we'll re-sort later.
-          statics.erase( statics.begin() + i );
-          --i;  // do-over
-        }
-      }
+      std::erase_if( statics,
+                     [this]( const StaticRec& srec )
+                     {
+                       unsigned int polflags = polflags_from_tileflags(
+                           srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+                       return ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
+                              ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
+                              ( ~polflags & FLAG::OVERFLIGHT );
+                     } );
 
       bool addMap = true;
 
@@ -557,7 +547,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       sort( statics.begin(), statics.end(), StaticsByZ() );
       reverse( statics.begin(), statics.end() );
 
-      std::vector<MapShape> shapes;
+      shapes.clear();
 
       // try to consolidate like shapes, and discard ones we don't care about.
       while ( !statics.empty() )
@@ -571,16 +561,8 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
              ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
              ( ~polflags & FLAG::OVERFLIGHT ) )
         {
-          passert_always( 0 );
-          continue;
-        }
-        if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
-        /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
-        {
+          // Invariant from the filter above: every element still in `statics` has
+          // at least one of these bits set, so this can never fire.
           passert_always( 0 );
           continue;
         }
@@ -589,22 +571,16 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
         {
           // this, whatever it is, is the map base.
           // TODO: look for water statics and use THOSE as the map.
-          MapShape shape;
-          shape.z = srec.z;  // these will be converted below to
-          shape.height = 0;  // make the map "solid"
-          shape.flags = static_cast<unsigned char>( polflags );
-          // no matter what, the lowest level is gradual
-          shape.flags |= FLAG::GRADUAL;
+          // these will be converted below to make the map "solid"; the lowest
+          // level is always gradual no matter what.
+          MapShape shape{ .z = srec.z, .height = 0, .flags = ( polflags & 0xFFu ) | FLAG::GRADUAL };
           shapes.push_back( shape );
 
           // for wall flag - map tile always height 0, at bottom. if map tile has height, add it as
           // a static
           if ( srec.height != 0 )
           {
-            MapShape _shape;
-            _shape.z = srec.z;
-            _shape.height = srec.height;
-            _shape.flags = polflags;
+            MapShape _shape{ .z = srec.z, .height = srec.height, .flags = polflags };
             shapes.push_back( _shape );
           }
           continue;
@@ -612,10 +588,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
 
         MapShape& prev = shapes.back();
         // we're adding it.
-        MapShape shape;
-        shape.z = srec.z;
-        shape.height = srec.height;
-        shape.flags = polflags;
+        MapShape shape{ .z = srec.z, .height = srec.height, .flags = polflags };
 
         // always add the map shape seperately
         if ( shapes.size() == 1 )

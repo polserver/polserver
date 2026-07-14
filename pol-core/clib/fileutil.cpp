@@ -167,4 +167,17 @@ std::string GetFilePart( const char* filename )
 {
   return std::filesystem::path( filename ).filename().string();
 }
+
+std::vector<std::byte> ReadEntireFile( FILE* fp )
+{
+  long start = ftell( fp );
+  fseek( fp, 0, SEEK_END );
+  long end = ftell( fp );
+  fseek( fp, start, SEEK_SET );
+
+  std::vector<std::byte> buf( static_cast<size_t>( end - start ) );
+  if ( !buf.empty() )
+    fread( buf.data(), 1, buf.size(), fp );
+  return buf;
+}
 }  // namespace Pol::Clib

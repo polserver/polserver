@@ -1,5 +1,6 @@
 #include "RawMap.h"
 
+#include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 
@@ -9,6 +10,7 @@
 #include <cstdio>
 #include <cstring>
 #include <map>
+#include <span>
 
 
 namespace Pol::Plib
@@ -71,17 +73,22 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
   if ( !mapdifl.empty() && mapdif_file == nullptr )
     throw std::runtime_error( "load_full_map: mapdifl is loaded but mapdif is not" );
 
-  unsigned int block = 0;
-  USTRUCT_MAPINFO_BLOCK buffer;
+  // Bulk-read the whole map file once instead of one 196-byte fread per block.
+  std::vector<std::byte> map_buf = Clib::ReadEntireFile( mapfile );
+  std::span<const USTRUCT_MAPINFO_BLOCK> blocks(
+      reinterpret_cast<const USTRUCT_MAPINFO_BLOCK*>( map_buf.data() ),
+      map_buf.size() / sizeof( USTRUCT_MAPINFO_BLOCK ) );
 
-  while ( fread( &buffer, sizeof buffer, 1, mapfile ) == 1 )
+  m_mapinfo_vec.reserve( blocks.size() );
+
+  for ( unsigned int block = 0; block < blocks.size(); ++block )
   {
     auto citr = mapdifl.find( block );
-    if ( citr == mapdifl.end() )
+    if ( citr == mapdifl.end() ) [[likely]]
     {
-      add_block( buffer );
+      add_block( blocks[block] );
     }
-    else
+    else [[unlikely]]
     {
       // it's in the dif file.. get it from there.
       unsigned dif_index = ( *citr ).second;
@@ -89,15 +96,15 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
       if ( fseek( mapdif_file, file_offset, SEEK_SET ) != 0 )
         throw std::runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
 
+      USTRUCT_MAPINFO_BLOCK buffer;
       if ( fread( &buffer, sizeof buffer, 1, mapdif_file ) != 1 )
         throw std::runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
       add_block( buffer );
     }
-    ++block;
   }
 
   is_init = true;
-  return block;
+  return static_cast<unsigned int>( blocks.size() );
 }
 
 // TODO: cleanup the code

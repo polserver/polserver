@@ -9,6 +9,7 @@
 
 #include <cstdio>
 #include <string>
+#include <unordered_set>
 
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
@@ -26,24 +27,19 @@ namespace Pol::Plib
 {
 bool cfg_show_illegal_graphic_warning = true;
 
-bool newstat_dont_add( std::vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
+namespace
 {
-  char pheight = tileheight_read( pstat->graphic );
-
-  for ( auto& prec : vec )
-  {
-    passert_always( prec.objtype <= systemstate.config.max_tile_id );
-    char height = tileheight_read( prec.objtype );  // TODO read from itemdesc?
-    unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
-    if (                                   // flags == pflags &&
-        prec.objtype == pstat->graphic &&  // TODO map objtype->graphic from itemdesc
-        height == pheight && prec.xy == xy && prec.z == pstat->z && prec.hue == pstat->hue )
-    {
-      return true;
-    }
-  }
-  return false;
+// (objtype, xy, z, hue) packed into a u64. Height isn't part of the key:
+// height is a pure function of objtype (tileheight_read), so objtype equality
+// already implies height equality.
+bool newstat_dont_add( std::unordered_set<u64>& seen, const USTRUCT_STATIC* pstat )
+{
+  unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
+  u64 key = ( static_cast<u64>( pstat->graphic ) << 32 ) | ( static_cast<u64>( xy ) << 24 ) |
+            ( static_cast<u64>( static_cast<unsigned char>( pstat->z ) ) << 16 ) | pstat->hue;
+  return !seen.insert( key ).second;
 }
+}  // namespace
 
 int write_pol_static_files( const std::string& realm )
 {
@@ -73,6 +69,7 @@ int write_pol_static_files( const std::string& realm )
 
   int lastprogress = -1;
   unsigned int index = 0;
+  std::unordered_set<u64> seen;
   for ( u16 y = 0; y < descriptor.height; y += STATICBLOCK_CHUNK )
   {
     int progress = y * 100L / descriptor.height;
@@ -87,22 +84,21 @@ int write_pol_static_files( const std::string& realm )
       idx.index = index;
       fwrite( &idx, sizeof idx, 1, fidx );
 
-      std::vector<USTRUCT_STATIC> pstat;
-      int num;
+      const std::vector<USTRUCT_STATIC>& pstat = getstaticblock( x, y );
       std::vector<STATIC_ENTRY> vec;
-      readstaticblock( &pstat, &num, x, y );
-      for ( int i = 0; i < num; ++i )
+      seen.clear();
+      for ( const auto& stat : pstat )
       {
-        if ( pstat[i].graphic <= systemstate.config.max_tile_id )
+        if ( stat.graphic <= systemstate.config.max_tile_id )
         {
-          if ( !newstat_dont_add( vec, &pstat[i] ) )
+          if ( !newstat_dont_add( seen, &stat ) )
           {
             STATIC_ENTRY nrec;
 
-            nrec.objtype = pstat[i].graphic;  // TODO map these?
-            nrec.xy = ( pstat[i].x_offset << 4 ) | pstat[i].y_offset;
-            nrec.z = pstat[i].z;
-            nrec.hue = pstat[i].hue;
+            nrec.objtype = stat.graphic;  // TODO map these?
+            nrec.xy = ( stat.x_offset << 4 ) | stat.y_offset;
+            nrec.z = stat.z;
+            nrec.hue = stat.hue;
             vec.push_back( nrec );
 #ifndef NDEBUG
             ++statics;
@@ -123,7 +119,7 @@ int write_pol_static_files( const std::string& realm )
 
           if ( cfg_show_illegal_graphic_warning )
             INFO_PRINTLN( " Warning: Item with illegal Graphic {:#x} in Area {} {} {} {}",
-                          pstat[i].graphic, x, y, ( x + STATICBLOCK_CHUNK - 1 ),
+                          stat.graphic, x, y, ( x + STATICBLOCK_CHUNK - 1 ),
                           ( y + STATICBLOCK_CHUNK - 1 ) );
         }
       }

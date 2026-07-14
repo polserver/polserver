@@ -18,99 +18,78 @@ extern bool static_debug_on;
 
 void readstatics( StaticList& vec, unsigned short x, unsigned short y )
 {
-  std::vector<USTRUCT_STATIC> srecarr;
-  int nrec;
+  const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
 
-  readstaticblock( &srecarr, &nrec, x, y );
-  if ( nrec )
+  unsigned short x_offset, y_offset;
+  x_offset = x & 0x7;
+  y_offset = y & 0x7;
+
+  for ( const auto& srec : srecarr )
   {
-    unsigned short x_offset, y_offset;
-    x_offset = x & 0x7;
-    y_offset = y & 0x7;
-
-    for ( int i = 0; i < nrec; ++i )
-    {
-      USTRUCT_STATIC* srec = &srecarr[i];
-
 #if ENABLE_POLTEST_OUTPUT
-      if ( static_debug_on )
-      {
-        INFO_PRINTLN( "static: {} {} {} {}", int( srec->x_offset ), int( srec->y_offset ),
-                      int( srec->z ), srec->graphic );
-      }
+    if ( static_debug_on )
+    {
+      INFO_PRINTLN( "static: {} {} {} {}", int( srec.x_offset ), int( srec.y_offset ),
+                    int( srec.z ), srec.graphic );
+    }
 #endif
 
-      if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) &&
-           ( tile_uoflags_read( srec->graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
-      {
-        vec.emplace_back( srec->graphic, srec->z, tile_uoflags_read( srec->graphic ),
-                          tileheight_read( srec->graphic ) );
-      }
+    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) &&
+         ( tile_uoflags_read( srec.graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
+    {
+      vec.emplace_back( srec.graphic, srec.z, tile_uoflags_read( srec.graphic ),
+                        tileheight_read( srec.graphic ) );
     }
   }
 }
 void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags )
 {
-  std::vector<USTRUCT_STATIC> srecarr;
-  int nrec;
+  const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
 
-  readstaticblock( &srecarr, &nrec, x, y );
-  if ( nrec )
+  unsigned short x_offset, y_offset;
+  x_offset = x & 0x7;
+  y_offset = y & 0x7;
+
+  for ( const auto& srec : srecarr )
   {
-    unsigned short x_offset, y_offset;
-    x_offset = x & 0x7;
-    y_offset = y & 0x7;
-
-    for ( int i = 0; i < nrec; ++i )
-    {
-      USTRUCT_STATIC* srec = &srecarr[i];
-
 #if ENABLE_POLTEST_OUTPUT
-      if ( static_debug_on )
-      {
-        INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec->x_offset ), int( srec->y_offset ),
-                      int( srec->z ), srec->graphic );
-      }
+    if ( static_debug_on )
+    {
+      INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec.x_offset ), int( srec.y_offset ),
+                    int( srec.z ), srec.graphic );
+    }
 #endif
 
-      if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) &&
-           ( tile_uoflags_read( srec->graphic ) & flags ) )
-      {
-        vec.emplace_back( srec->graphic, srec->z, tile_uoflags_read( srec->graphic ),
-                          tileheight_read( srec->graphic ) );
-      }
+    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) &&
+         ( tile_uoflags_read( srec.graphic ) & flags ) )
+    {
+      vec.emplace_back( srec.graphic, srec.z, tile_uoflags_read( srec.graphic ),
+                        tileheight_read( srec.graphic ) );
     }
   }
 }
 void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
 {
-  std::vector<USTRUCT_STATIC> srecarr;
-  int nrec;
+  const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
 
-  readstaticblock( &srecarr, &nrec, x, y );
-  if ( nrec )
+  unsigned short x_offset, y_offset;
+  x_offset = x & 0x7;
+  y_offset = y & 0x7;
+
+  for ( const auto& srec : srecarr )
   {
-    unsigned short x_offset, y_offset;
-    x_offset = x & 0x7;
-    y_offset = y & 0x7;
-
-    for ( int i = 0; i < nrec; ++i )
-    {
-      USTRUCT_STATIC* srec = &srecarr[i];
-
 #if ENABLE_POLTEST_OUTPUT
-      if ( static_debug_on )
-      {
-        INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec->x_offset ), int( srec->y_offset ),
-                      int( srec->z ), srec->graphic );
-      }
+    if ( static_debug_on )
+    {
+      INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec.x_offset ), int( srec.y_offset ),
+                    int( srec.z ), srec.graphic );
+    }
 #endif
 
-      if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) )
-      {
-        vec.emplace_back( srec->graphic, srec->z, tile_uoflags_read( srec->graphic ),
-                          tileheight_read( srec->graphic ) );
-      }
+    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) )
+    {
+      vec.emplace_back( srec.graphic, srec.z, tile_uoflags_read( srec.graphic ),
+                        tileheight_read( srec.graphic ) );
     }
   }
 }

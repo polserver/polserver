@@ -8,8 +8,11 @@
 
 
 #include <cstdio>
+#include <cstring>
+#include <span>
 #include <fmt/format.h>
 
+#include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
@@ -24,13 +27,6 @@ namespace Pol::Plib
 {
 unsigned int num_static_patches = 0;
 bool static_debug_on = false;
-
-// I'd put these in an anonymous namespace, but the debugger can't see 'em...at least not easily.
-
-unsigned int last_block = ~0u;
-USTRUCT_IDX idxrec;
-USTRUCT_STATIC srecs[MAX_STATICS_PER_BLOCK];
-int srec_count;
 
 int cfg_max_statics_per_block = 1000;
 int cfg_warning_statics_per_block = 1000;
@@ -62,38 +58,41 @@ void read_static_diffs()
   num_static_patches = index;
 }
 
-void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x,
-                      unsigned short y )
+const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y )
 {
   if ( !rawstatic_init )  // FIXME just for safety cause I'm lazy
     rawstaticfullread();
   if ( x >= uo_map_width || y >= uo_map_height )
   {
-    ERROR_PRINTLN( "readstaticblock: x={},y={}", x, y );
+    ERROR_PRINTLN( "getstaticblock: x={},y={}", x, y );
   }
   auto block = staticblock_from_coords( x, y, uo_map_height );
-  *ppst = rawstatic_buffer_vec.at( block ).statics;
-  *pnum = rawstatic_buffer_vec.at( block ).count;
+  return rawstatic_buffer_vec.at( block ).statics;
 }
 
 void rawstaticfullread()
 {
-  unsigned int block = 0;
-  USTRUCT_IDX idx;
-  while ( fread( &idx, sizeof idx, 1, sidxfile ) == 1 )
+  // Bulk-read both input files once instead of one fseek+fread pair per block
+  // (~393k blocks for map0). The dif-file path below stays fseek/fread since
+  // it's rare and small.
+  std::vector<std::byte> idx_buf = Clib::ReadEntireFile( sidxfile );
+  std::vector<std::byte> stat_buf = Clib::ReadEntireFile( statfile );
+  std::span<const USTRUCT_IDX> idx_records(
+      reinterpret_cast<const USTRUCT_IDX*>( idx_buf.data() ),
+      idx_buf.size() / sizeof( USTRUCT_IDX ) );
+
+  rawstatic_buffer_vec.reserve( idx_records.size() );
+
+  for ( unsigned int block = 0; block < idx_records.size(); ++block )
   {
+    USTRUCT_IDX idx = idx_records[block];
     USTRUCT_STATIC_BUFFER buf;
     StaticDifBlockIndex::const_iterator citr = stadifl.find( block );
-    if ( citr == stadifl.end() )
+    if ( citr == stadifl.end() ) [[likely]]
     {
       if ( idx.length != 0xFFffFFffLu && idx.offset != 0xFFffFFffLu )
       {
-        if ( fseek( statfile, idx.offset, SEEK_SET ) != 0 )
-        {
-          throw std::runtime_error( "readstaticblock: fseek(statfile) to " +
-                                    Clib::tostring( idx.offset ) + " failed." );
-        }
-        srec_count = idx.length / sizeof srecs[0];
+        int srec_count = idx.length / sizeof( USTRUCT_STATIC );
         auto [x, y] = staticblock_to_coords( block, uo_map_height );
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
@@ -103,12 +102,16 @@ void rawstaticfullread()
                 x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
         // dave 9/8/3, Austin's statics had a normal offset but a length of 0. badly written tool?
-        if ( idx.length != 0 && fread( srecs, idx.length, 1, statfile ) != 1 )
+        if ( idx.length != 0 )
         {
-          throw std::runtime_error( "readstaticblock: fread(statfile) failed." +
-                                    Clib::tostring( block ) );
+          if ( static_cast<u64>( idx.offset ) + idx.length > stat_buf.size() )
+          {
+            throw std::runtime_error( "rawstaticfullread: statics0.mul read out of range for block " +
+                                      Clib::tostring( block ) );
+          }
+          buf.statics.resize( srec_count );
+          memcpy( buf.statics.data(), stat_buf.data() + idx.offset, idx.length );
         }
-
 
         if ( srec_count > cfg_warning_statics_per_block )
           INFO_PRINTLN( " Warning: {} items found in area {},{} - {},{}", srec_count, x, y,
@@ -121,31 +124,31 @@ void rawstaticfullread()
         buf.count = 0;
       }
     }
-    else
+    else [[unlikely]]
     {
       // it's in the dif file.. get it from there.
       unsigned dif_index = ( *citr ).second;
       int offset = dif_index * sizeof idx;
       if ( fseek( stadifi_file, offset, SEEK_SET ) != 0 )
       {
-        throw std::runtime_error( "readstaticblock: fseek(stadifi) to " + Clib::tostring( offset ) +
+        throw std::runtime_error( "rawstaticfullread: fseek(stadifi) to " + Clib::tostring( offset ) +
                                   " failed." );
       }
 
       if ( fread( &idx, sizeof idx, 1, stadifi_file ) != 1 )
       {
-        throw std::runtime_error( "readstaticblock: fread(stadifi) failed." );
+        throw std::runtime_error( "rawstaticfullread: fread(stadifi) failed." );
       }
 
       if ( idx.length != 0xFFffFFffLu )
       {
         if ( fseek( stadif_file, idx.offset, SEEK_SET ) != 0 )
         {
-          throw std::runtime_error( "readstaticblock: fseek(stadif) to " +
+          throw std::runtime_error( "rawstaticfullread: fseek(stadif) to " +
                                     Clib::tostring( idx.offset ) + " failed." );
         }
 
-        srec_count = idx.length / sizeof srecs[0];
+        int srec_count = idx.length / sizeof( USTRUCT_STATIC );
         auto [x, y] = staticblock_to_coords( block, uo_map_height );
         passert_always_r(
             srec_count <= cfg_max_statics_per_block,
@@ -154,9 +157,10 @@ void rawstaticfullread()
                 "to reduce amount of {} items below {} items ",
                 x, y, x + 7, y + 7, srec_count, cfg_max_statics_per_block ) );
 
-        if ( fread( srecs, idx.length, 1, stadif_file ) != 1 )
+        buf.statics.resize( srec_count );
+        if ( fread( buf.statics.data(), idx.length, 1, stadif_file ) != 1 )
         {
-          throw std::runtime_error( "readstaticblock: fread(stadif) failed." );
+          throw std::runtime_error( "rawstaticfullread: fread(stadif) failed." );
         }
 
         if ( srec_count > cfg_warning_statics_per_block )
@@ -170,12 +174,7 @@ void rawstaticfullread()
         buf.count = 0;
       }
     }
-    if ( buf.count > 0 )
-    {
-      buf.statics.assign( &srecs[0], &srecs[buf.count] );
-    }
-    rawstatic_buffer_vec.push_back( buf );
-    ++block;
+    rawstatic_buffer_vec.push_back( std::move( buf ) );
   }
   rawstatic_init = true;
 }
