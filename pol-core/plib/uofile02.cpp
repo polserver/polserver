@@ -9,8 +9,8 @@
 
 #include <cstdio>
 #include <cstring>
-#include <span>
 #include <fmt/format.h>
+#include <span>
 
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
@@ -77,9 +77,8 @@ void rawstaticfullread()
   // it's rare and small.
   std::vector<std::byte> idx_buf = Clib::ReadEntireFile( sidxfile );
   std::vector<std::byte> stat_buf = Clib::ReadEntireFile( statfile );
-  std::span<const USTRUCT_IDX> idx_records(
-      reinterpret_cast<const USTRUCT_IDX*>( idx_buf.data() ),
-      idx_buf.size() / sizeof( USTRUCT_IDX ) );
+  std::span<const USTRUCT_IDX> idx_records( reinterpret_cast<const USTRUCT_IDX*>( idx_buf.data() ),
+                                            idx_buf.size() / sizeof( USTRUCT_IDX ) );
 
   rawstatic_buffer_vec.reserve( idx_records.size() );
 
@@ -106,8 +105,9 @@ void rawstaticfullread()
         {
           if ( static_cast<u64>( idx.offset ) + idx.length > stat_buf.size() )
           {
-            throw std::runtime_error( "rawstaticfullread: statics0.mul read out of range for block " +
-                                      Clib::tostring( block ) );
+            throw std::runtime_error(
+                "rawstaticfullread: statics0.mul read out of range for block " +
+                Clib::tostring( block ) );
           }
           buf.statics.resize( srec_count );
           memcpy( buf.statics.data(), stat_buf.data() + idx.offset, idx.length );
@@ -131,8 +131,8 @@ void rawstaticfullread()
       int offset = dif_index * sizeof idx;
       if ( fseek( stadifi_file, offset, SEEK_SET ) != 0 )
       {
-        throw std::runtime_error( "rawstaticfullread: fseek(stadifi) to " + Clib::tostring( offset ) +
-                                  " failed." );
+        throw std::runtime_error( "rawstaticfullread: fseek(stadifi) to " +
+                                  Clib::tostring( offset ) + " failed." );
       }
 
       if ( fread( &idx, sizeof idx, 1, stadifi_file ) != 1 )
