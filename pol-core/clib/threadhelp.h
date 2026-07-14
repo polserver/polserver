@@ -126,6 +126,7 @@ private:
   std::vector<std::unique_ptr<PoolWorker>> _threads;
   mutable std::mutex _pool_mutex;
   std::string _name;
+  size_t _worker_count{ 0 };
 };
 
 

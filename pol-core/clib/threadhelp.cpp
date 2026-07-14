@@ -461,13 +461,11 @@ public:
   bool isretired() const;
 
   constexpr static size_t MIN_WORKER = 4;
-  constexpr static auto TIMEOUT = 1min;
+  constexpr static size_t JITTER_STEPS = 10;
+  constexpr static auto TIMEOUT = 5min;
+  constexpr static auto TIMEOUT_JITTER = 15s;
 
-private:
-  std::string _name;
-  std::jthread _thread;
-  DynTaskThreadPool* _parent;
-  std::atomic<bool> _retired;
+  // guard which is alive as long as the task is in the pool
   struct BusyGuard
   {
     std::atomic<size_t>* _busy;
@@ -475,11 +473,31 @@ private:
     {
       _busy->fetch_add( 1, std::memory_order_relaxed );
     }
-    ~BusyGuard() { _busy->fetch_sub( 1, std::memory_order_relaxed ); }
+    BusyGuard( BusyGuard&& o ) noexcept : _busy( o._busy ) { o._busy = nullptr; }
+    BusyGuard( const BusyGuard& ) = delete;
+    BusyGuard& operator=( const BusyGuard& ) = delete;
+    BusyGuard& operator=( BusyGuard&& ) = delete;
+    ~BusyGuard()
+    {
+      if ( _busy )
+        _busy->fetch_sub( 1, std::memory_order_relaxed );
+    }
   };
+
+private:
+  std::string _name;
+  std::jthread _thread;
+  DynTaskThreadPool* _parent;
+  std::atomic<bool> _retired;
+  std::chrono::seconds _timeout;
 };
+
 DynTaskThreadPool::PoolWorker::PoolWorker( DynTaskThreadPool* parent, const std::string& name )
-    : _name( name ), _thread(), _parent( parent ), _retired( false )
+    : _name( name ),
+      _thread(),
+      _parent( parent ),
+      _retired( false ),
+      _timeout( ( parent->_worker_count % JITTER_STEPS ) * TIMEOUT_JITTER )
 {
   run();
 }
@@ -501,7 +519,7 @@ void DynTaskThreadPool::PoolWorker::run()
         {
           while ( !_parent->_done && !Clib::exit_signalled )
           {
-            if ( !_parent->_msg_queue.pop_wait_for( &f, TIMEOUT ) )
+            if ( !_parent->_msg_queue.pop_wait_for( &f, _timeout ) )
             {
               std::lock_guard<std::mutex> guard( _parent->_pool_mutex );
               // we timed out: can we retire?
@@ -515,18 +533,16 @@ void DynTaskThreadPool::PoolWorker::run()
               continue;  // keep alive
             }
 
+            try
             {
-              BusyGuard busy( &_parent->_busy_count );
-              try
-              {
-                f();
-              }
-              catch ( std::exception& ex )
-              {
-                ERROR_PRINTLN( "Thread exception: {}", ex.what() );
-                Clib::force_backtrace( true );
-              }
+              f();
             }
+            catch ( std::exception& ex )
+            {
+              ERROR_PRINTLN( "Thread exception: {}", ex.what() );
+              Clib::force_backtrace( false );
+            }
+            f = nullptr;  // reset BusyGuard
           }
         }
         catch ( msg_queue::Canceled& )
@@ -553,7 +569,7 @@ void DynTaskThreadPool::prefill_workers()
   std::lock_guard<std::mutex> guard( _pool_mutex );
   for ( size_t i = 0; i < PoolWorker::MIN_WORKER; ++i )
   {
-    _threads.emplace_back( new PoolWorker( this, fmt::format( "{} {}", _name, _live_threads ) ) );
+    _threads.emplace_back( new PoolWorker( this, fmt::format( "{} {}", _name, _worker_count++ ) ) );
     ++_live_threads;
   }
 }
@@ -567,14 +583,14 @@ size_t DynTaskThreadPool::threadpoolsize() const
 void DynTaskThreadPool::create_thread()
 {
   std::lock_guard<std::mutex> guard( _pool_mutex );
+  // TODO move to some task and run every X seconds
   // remove timeout threads
   std::erase_if( _threads, []( const auto& w ) { return w->isretired(); } );
   // still atleast one idle worker left?
-  size_t idle = _live_threads - _busy_count.load( std::memory_order_relaxed );
-  if ( idle > 0 )
+  if ( _busy_count.load( std::memory_order_relaxed ) <= _live_threads )
     return;
 
-  _threads.emplace_back( new PoolWorker( this, fmt::format( "{} {}", _name, _live_threads ) ) );
+  _threads.emplace_back( new PoolWorker( this, fmt::format( "{} {}", _name, _worker_count++ ) ) );
   ++_live_threads;
 }
 
@@ -587,14 +603,16 @@ DynTaskThreadPool::~DynTaskThreadPool()
         _done = true;
         _msg_queue.cancel();
       } );
+  create_thread();
   _threads.clear();  // dont rely on order
 }
 
 /// simply fire and forget only the deconstructor ensures the msg to be finished
 void DynTaskThreadPool::push( msg&& msg )
 {
-  create_thread();
-  _msg_queue.push_move( std::move( msg ) );
+  _msg_queue.push_move(
+      [msg = std::move( msg ), busy = PoolWorker::BusyGuard( &_busy_count )]() mutable { msg(); } );
+  create_thread();  // needs to be the last so that busy_count is updated
 }
 
 /// returns a future which will be set once the msg is processed
@@ -602,9 +620,9 @@ std::future<bool> DynTaskThreadPool::checked_push( msg&& msg )
 {
   auto promise = std::promise<bool>();
   auto ret = promise.get_future();
-  create_thread();
   _msg_queue.push_move(
-      [promise = std::move( promise ), msg = std::move( msg )]() mutable
+      [promise = std::move( promise ), msg = std::move( msg ),
+       busy = PoolWorker::BusyGuard( &_busy_count )]() mutable
       {
         try
         {
@@ -616,6 +634,7 @@ std::future<bool> DynTaskThreadPool::checked_push( msg&& msg )
           promise.set_exception( std::current_exception() );
         }
       } );
+  create_thread();  // needs to be the last so that busy_count is updated
   return ret;
 }
 }  // namespace Pol::threadhelp
