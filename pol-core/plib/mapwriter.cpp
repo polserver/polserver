@@ -64,6 +64,17 @@ void append_pod( std::vector<char>& buf, const T& value )
   const char* p = reinterpret_cast<const char*>( &value );
   buf.insert( buf.end(), p, p + sizeof( T ) );
 }
+
+// Write `buf` to `path` only if it was modified since it was created/loaded,
+// then clear the flag so a later Flush() (e.g. from the destructor) is a no-op.
+template <typename T>
+void flush_buffer( const std::string& path, const std::vector<T>& buf, bool& dirty )
+{
+  if ( !dirty )
+    return;
+  write_file( path, buf );
+  dirty = false;
+}
 }  // namespace
 
 void MapWriter::WriteConfigFile()
@@ -104,6 +115,10 @@ void MapWriter::CreateNewFiles( const std::string& realm_name, unsigned short wi
   _solidx2 = { 'f', 'i', 'l', 'l' };
   _solids = { 'f', 'i', 'l', 'l', 'e', 'r' };  // multiple of 3
   _maptile.assign( total_maptile_blocks(), MAPTILE_BLOCK{} );
+
+  // These are brand-new files; every buffer must be written even if the
+  // conversion never touches it (e.g. maptile.dat during a plain `map` run).
+  _base_dirty = _solidx1_dirty = _solidx2_dirty = _solids_dirty = _maptile_dirty = true;
 }
 
 void MapWriter::OpenExistingFiles( const std::string& realm_name )
@@ -137,17 +152,13 @@ MapWriter::~MapWriter()
 
 void MapWriter::Flush()
 {
-  // Flush() is called explicitly and again from the destructor (via delete in
-  // create_map's flow); only the first call writes.
-  if ( _flushed )
-    return;
-  _flushed = true;
-
-  write_file( _directory + "base.dat", _base );
-  write_file( _directory + "solidx1.dat", _solidx1 );
-  write_file( _directory + "solidx2.dat", _solidx2 );
-  write_file( _directory + "solids.dat", _solids );
-  write_file( _directory + "maptile.dat", _maptile );
+  // Only dirtied buffers are written; flush_buffer clears each flag so the
+  // destructor's Flush() after an explicit one writes nothing.
+  flush_buffer( _directory + "base.dat", _base, _base_dirty );
+  flush_buffer( _directory + "solidx1.dat", _solidx1, _solidx1_dirty );
+  flush_buffer( _directory + "solidx2.dat", _solidx2, _solidx2_dirty );
+  flush_buffer( _directory + "solids.dat", _solids, _solids_dirty );
+  flush_buffer( _directory + "maptile.dat", _maptile, _maptile_dirty );
 }
 
 unsigned int MapWriter::total_blocks() const
@@ -173,6 +184,7 @@ void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
   // doh, need to know map geometry here.
   int blockIdx = yblock * ( _width >> MAPBLOCK_SHIFT ) + xblock;
   _base[blockIdx].cell[xcell][ycell] = cell;
+  _base_dirty = true;
 }
 void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell )
 {
@@ -184,6 +196,7 @@ void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cel
   // doh, need to know map geometry here.
   int blockIdx = yblock * maptile_blocks_across( _width ) + xblock;
   _maptile[blockIdx].cell[xcell][ycell] = cell;
+  _maptile_dirty = true;
 }
 
 unsigned int MapWriter::NextSolidOffset() const
@@ -204,11 +217,13 @@ unsigned int MapWriter::NextSolidx2Offset() const
 void MapWriter::AppendSolid( const SOLIDS_ELEM& solid )
 {
   append_pod( _solids, solid );
+  _solids_dirty = true;
 }
 
 void MapWriter::AppendSolidx2Elem( const SOLIDX2_ELEM& elem )
 {
   append_pod( _solidx2, elem );
+  _solidx2_dirty = true;
 }
 
 void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base,
@@ -217,5 +232,6 @@ void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base,
   unsigned int elems_per_row = ( _width / SOLIDX_X_SIZE );
   unsigned int index = ( y_base / SOLIDX_Y_SIZE ) * elems_per_row + ( x_base / SOLIDX_X_SIZE );
   _solidx1[index].offset = offset;
+  _solidx1_dirty = true;
 }
 }  // namespace Pol::Plib

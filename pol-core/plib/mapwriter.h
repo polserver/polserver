@@ -59,13 +59,22 @@ private:
   std::string _realm_name;
   unsigned short _width = 0;
   unsigned short _height = 0;
-  bool _flushed = false;
 
+  // Each buffer is paired with a dirty flag: Flush() only writes buffers whose
+  // flag is set, and clears it afterwards (so the explicit Flush() and the
+  // destructor's don't write twice). CreateNewFiles marks every buffer dirty
+  // because none of the files exist on disk yet; OpenExistingFiles leaves them
+  // clean so a mode that patches one file doesn't rewrite the others.
   std::vector<MAPBLOCK> _base;
+  bool _base_dirty = false;
   std::vector<SOLIDX1_ELEM> _solidx1;
+  bool _solidx1_dirty = false;
   std::vector<char> _solidx2;  // leading bytes are the SOLIDX2 filler
-  std::vector<char> _solids;   // leading bytes are the solids filler
+  bool _solidx2_dirty = false;
+  std::vector<char> _solids;  // leading bytes are the solids filler
+  bool _solids_dirty = false;
   std::vector<MAPTILE_BLOCK> _maptile;
+  bool _maptile_dirty = false;
 };
 }  // namespace Pol::Plib
 
