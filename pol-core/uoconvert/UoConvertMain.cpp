@@ -131,8 +131,8 @@ void UoConvertMain::create_maptile( const std::string& realmname )
       realmname, descriptor.uomapid, ( descriptor.uodif ? "Yes" : "No" ), uo_map_width,
       uo_map_height );
 
-  auto writer = new Plib::MapWriter();
-  writer->OpenExistingFiles( realmname );
+  Plib::MapWriter writer;
+  writer.OpenExistingFiles( realmname );
 
   for ( unsigned short y_base = 0; y_base < uo_map_height; y_base += Plib::MAPTILE_CHUNK )
   {
@@ -166,14 +166,13 @@ void UoConvertMain::create_maptile( const std::string& realmname )
           Plib::MAPTILE_CELL cell;
           cell.landtile = mi.landtile;
           cell.z = static_cast<signed char>( z );
-          writer->SetMapTile( x, y, cell );
+          writer.SetMapTile( x, y, cell );
         }
       }
     }
     INFO_PRINT( "\rConverting: {}%", y_base * 100 / uo_map_height );
   }
-  writer->Flush();
-  delete writer;
+  writer.Flush();
   INFO_PRINTLN( "\rConversion complete." );
 }
 
@@ -204,15 +203,14 @@ bool differby_exactly( unsigned char f1, unsigned char f2, unsigned char bits )
 
 void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsigned short y )
 {
-  auto mapwriter = new MapWriter();
-  mapwriter->OpenExistingFiles( realm );
+  MapWriter mapwriter;
+  mapwriter.OpenExistingFiles( realm );
   rawmapfullread();
   rawstaticfullread();
   unsigned short x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
   unsigned short y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
 
-  ProcessSolidBlock( x_base, y_base, *mapwriter );
-  delete mapwriter;
+  ProcessSolidBlock( x_base, y_base, mapwriter );
   INFO_PRINTLN( "empty={}, nonempty={}\nwith more_solids: {}\ntotal statics={}", empty, nonempty,
                 with_more_solids, total_statics );
 }
@@ -220,7 +218,7 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
 void UoConvertMain::create_map( const std::string& realm, unsigned short width,
                                 unsigned short height )
 {
-  auto mapwriter = new MapWriter();
+  MapWriter mapwriter;
   INFO_PRINT(
       "Creating map base and solids files.\n"
       "  Realm: {}\n"
@@ -231,7 +229,7 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
       "Initializing files: ",
       realm, uo_mapid, ( uo_readuop ? "Yes" : "No" ), ( uo_usedif ? "Yes" : "No" ), uo_map_width,
       uo_map_height );
-  mapwriter->CreateNewFiles( realm, width, height );
+  mapwriter.CreateNewFiles( realm, width, height );
   INFO_PRINTLN( "Done." );
   Tools::Timer<> timer;
   rawmapfullread();
@@ -241,14 +239,14 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   {
     for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
     {
-      ProcessSolidBlock( x_base, y_base, *mapwriter );
+      ProcessSolidBlock( x_base, y_base, mapwriter );
     }
     INFO_PRINT( "\rConverting: {}%", y_base * 100 / height );
   }
   timer.stop();
 
-  mapwriter->WriteConfigFile();
-  delete mapwriter;
+  mapwriter.WriteConfigFile();
+  mapwriter.Flush();  // surface any write errors before reporting success
 
   INFO_PRINTLN(
       "\rConversion complete.\n"
