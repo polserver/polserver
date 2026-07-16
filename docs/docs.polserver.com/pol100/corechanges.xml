@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-13-2026</datemodified>
+		<datemodified>07-16-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-16-2026</date>
+			<author>Nando:</author>
+			<change type="Changed">uoconvert's map conversion is substantially faster. The 'map' and 'maptile' commands now build<br/>
+their output files in memory (writing each once instead of re-reading and rewriting blocks per change),<br/>
+compute the smoothed terrain for the whole realm a single time instead of re-deriving it per tile, and<br/>
+process the map's solid blocks in parallel across CPU cores. A new optional threads= argument sets the<br/>
+worker count (threads=0, the default, uses all available cores; threads=1 forces the old single-threaded<br/>
+behavior). The generated realm files are byte-for-byte identical to previous versions; on a typical<br/>
+multi-core machine a full 7168x4096 realm conversion drops from tens of seconds to a few.</change>
+		</entry>
 		<entry>
 			<date>07-13-2026</date>
 			<author>Nando:</author>
