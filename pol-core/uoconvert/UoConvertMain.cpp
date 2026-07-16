@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstring>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -219,7 +220,8 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
   TerrainPlane plane;
   plane.build( uo_map_width, uo_map_height );
 
-  ProcessSolidBlock( x_base, y_base, plane, mapwriter );
+  BlockResult result = ComputeSolidBlock( x_base, y_base, plane );
+  StitchBlock( mapwriter, x_base, y_base, result );
   INFO_PRINTLN( "empty={}, nonempty={}\nwith more_solids: {}\ntotal statics={}", empty, nonempty,
                 with_more_solids, total_statics );
 }
@@ -269,7 +271,10 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   {
     for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
     {
-      ProcessSolidBlock( x_base, y_base, plane, mapwriter );
+      // Phase A/B split: compute the block from immutable inputs, then stitch it into
+      // the writer in this fixed block order so the output stays byte-identical.
+      BlockResult result = ComputeSolidBlock( x_base, y_base, plane );
+      StitchBlock( mapwriter, x_base, y_base, result );
     }
     INFO_PRINT( "\rConverting: {}%", y_base * 100 / height );
   }
@@ -323,8 +328,13 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   }
 }
 
-void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
-                                       const TerrainPlane& plane, MapWriter& mapwriter )
+// Phase A (pure compute): produce this block's cells, solids, and block-local index
+// data from immutable inputs only. Deliberately touches no MapWriter and no
+// UoConvertMain counters -- stats and warnings accumulate into the returned
+// BlockResult so this can later run concurrently across blocks. StitchBlock() folds
+// the result into the MapWriter in block order.
+BlockResult UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_base,
+                                              const TerrainPlane& plane ) const
 {
   // Raw UO tile flags fetched for every tile's statics below. Any static reaching
   // `statics` is guaranteed to have at least one of these bits set, so nothing
@@ -333,15 +343,20 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
       USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID | USTRUCT_TILE::FLAG_HOVEROVER;
 
-  unsigned int idx2_offset = 0;
-  SOLIDX2_ELEM idx2_elem{};
-  idx2_elem.baseindex = mapwriter.NextSolidIndex();
+  BlockResult result;
+
+  // Block-local, 0-based count of solid elements appended so far in this block. Replaces
+  // the old `NextSolidIndex() - baseindex` math (which was already block-local); the
+  // stitch rebases it against the live solids buffer.
+  unsigned int local_elems = 0;
 
   unsigned short x_add_max = SOLIDX_X_SIZE, y_add_max = SOLIDX_Y_SIZE;
   if ( x_base + x_add_max > uo_map_width )
     x_add_max = uo_map_width - x_base;
   if ( y_base + y_add_max > uo_map_height )
     y_add_max = uo_map_height - y_base;
+  result.x_add_max = x_add_max;
+  result.y_add_max = y_add_max;
 
   // Reused across tiles (cleared, not reconstructed) to avoid a per-tile
   // allocation across the ~25M tiles a full map conversion visits.
@@ -378,7 +393,8 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       short z = plane.eff_z[plane_idx];  // effective z: the liquid override is already folded in
 
       if ( landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
+        result.warnings.push_back(
+            fmt::format( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z ) );
 
       short low_z = plane.low_z[plane_idx];
 
@@ -386,7 +402,8 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       z = low_z;
 
       if ( landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
+        result.warnings.push_back(
+            fmt::format( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z ) );
 
       unsigned int lt_flags = Plib::landtile_uoflags_read( landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
@@ -404,7 +421,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
         lt_height = 20;
 
       if ( cfg_profile )
-        lap( prof_mapinfo_ns );
+        lap( result.prof_mapinfo_ns );
 
       readstatics( statics, x, y, kSolidStaticFlags );
 
@@ -419,7 +436,7 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
                      } );
 
       if ( cfg_profile )
-        lap( prof_statics_ns );
+        lap( result.prof_statics_ns );
 
       bool addMap = true;
 
@@ -602,21 +619,23 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
         cell.flags |= FLAG::MORE_SOLIDS;
 
       if ( cfg_profile )
-        lap( prof_shape_ns );
+        lap( result.prof_shape_ns );
 
-      mapwriter.SetMapCell( x, y, cell );
+      result.cells[x_add][y_add] = cell;
 
       if ( !shapes.empty() )
       {
-        ++with_more_solids;
-        total_statics += static_cast<unsigned int>( shapes.size() );
-        if ( idx2_offset == 0 )
-          idx2_offset = mapwriter.NextSolidx2Offset();
+        ++result.nonempty_locations;
+        result.total_statics += static_cast<unsigned int>( shapes.size() );
+        result.has_solids = true;
 
-        unsigned int addindex = mapwriter.NextSolidIndex() - idx2_elem.baseindex;
+        // Block-local element offset of this cell's first run. Captured before the
+        // appends below, so it equals the count of runs emitted by earlier cells of
+        // this block -- identical to the old `NextSolidIndex() - baseindex`.
+        unsigned int addindex = local_elems;
         if ( addindex > std::numeric_limits<unsigned short>::max() )
           throw std::runtime_error( "addoffset overflow" );
-        idx2_elem.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
+        result.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
         int count = static_cast<int>( shapes.size() );
         for ( int j = 0; j < count; ++j )
         {
@@ -637,24 +656,75 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
           solid.z = _z;
           solid.height = height;
           solid.flags = flags;
-          mapwriter.AppendSolid( solid );
+          result.solids.push_back( solid );
+          ++local_elems;
         }
       }
-
-      if ( cfg_profile )
-        lap( prof_writer_ns );
     }
   }
-  if ( idx2_offset )
+  return result;
+}
+
+// Phase B (stitch): fold one block's compute result into the MapWriter. Runs in the
+// exact block order create_map used to run ProcessSolidBlock, so every solids/solidx2
+// append offset -- and thus every byte of solidx1/solidx2 -- is identical to the old
+// serial path.
+void UoConvertMain::StitchBlock( MapWriter& mapwriter, unsigned short x_base,
+                                 unsigned short y_base, const BlockResult& result )
+{
+  // Reduce the per-block stat sums into the run-wide counters.
+  with_more_solids += result.nonempty_locations;
+  total_statics += result.total_statics;
+  if ( cfg_profile )
   {
-    ++nonempty;
-    mapwriter.AppendSolidx2Elem( idx2_elem );
+    prof_mapinfo_ns += result.prof_mapinfo_ns;
+    prof_statics_ns += result.prof_statics_ns;
+    prof_shape_ns += result.prof_shape_ns;
+  }
+
+  // Replay invalid-ID warnings in the order they were produced.
+  for ( const auto& w : result.warnings )
+    INFO_PRINTLN( "{}", w );
+
+  // Time the MapWriter mutations as the "writer" slice of the loop breakdown (the
+  // per-tile writer laps moved out of ComputeSolidBlock, which no longer writes).
+  using ProfClock = std::chrono::high_resolution_clock;
+  ProfClock::time_point writer_start;
+  if ( cfg_profile )
+    writer_start = ProfClock::now();
+
+  // Cell writes are disjoint per block; copy the clamped region into the base buffer.
+  for ( unsigned short x_add = 0; x_add < result.x_add_max; ++x_add )
+    for ( unsigned short y_add = 0; y_add < result.y_add_max; ++y_add )
+      mapwriter.SetMapCell( x_base + x_add, y_base + y_add, result.cells[x_add][y_add] );
+
+  if ( !result.has_solids )
+  {
+    ++empty;
+    mapwriter.SetSolidx2Offset( x_base, y_base, 0 );
   }
   else
   {
-    ++empty;
+    ++nonempty;
+    SOLIDX2_ELEM idx2_elem{};
+    idx2_elem.baseindex = mapwriter.NextSolidIndex();
+    // addindex is already block-local and zero for run-less cells -- emit as-is.
+    std::memcpy( idx2_elem.addindex, result.addindex, sizeof( idx2_elem.addindex ) );
+
+    // Byte offset this block's solidx2 elem lands at (before appending it).
+    unsigned int idx2_offset = mapwriter.NextSolidx2Offset();
+    mapwriter.AppendSolidx2Elem( idx2_elem );
+    for ( const auto& solid : result.solids )
+      mapwriter.AppendSolid( solid );
+    mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
   }
-  mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
+
+  if ( cfg_profile )
+  {
+    auto now = ProfClock::now();
+    prof_writer_ns +=
+        std::chrono::duration_cast<std::chrono::nanoseconds>( now - writer_start ).count();
+  }
 }
 
 std::string UoConvertMain::resolve_type_from_id( unsigned id ) const
