@@ -42,6 +42,11 @@ static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPIN
   return rawmap.rawinfo( x, y, gi );
 }
 
+bool rawmap_loaded()
+{
+  return rawmap_ready;
+}
+
 void rawmapfullread()
 {
   rawmap.set_bounds( uo_map_width, uo_map_height );

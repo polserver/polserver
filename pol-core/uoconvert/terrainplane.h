@@ -35,12 +35,13 @@ struct TerrainPlane
   // dimensions (== uo_map_width / uo_map_height). Pass need_low_z=false to skip the
   // lowest-adjacent-z reduction (Pass 2) when only landtile/eff_z are needed, e.g.
   // create_maptile -- it leaves low_z empty.
-  void build( int w, int h, bool need_low_z = true );
+  //
+  // Both passes are pure indexed writes (each tile writes only its own index), so
+  // they run in parallel over row bands: threads==0 uses hardware_concurrency,
+  // threads==1 forces serial. Output is byte-identical regardless of thread count.
+  void build( int w, int h, bool need_low_z = true, unsigned threads = 0 );
 
-  std::size_t index( int x, int y ) const
-  {
-    return static_cast<std::size_t>( y ) * width + x;
-  }
+  std::size_t index( int x, int y ) const { return static_cast<std::size_t>( y ) * width + x; }
 };
 
 // Landtile classifiers used by the plane build and by ProcessSolidBlock. They inspect

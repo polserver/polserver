@@ -32,6 +32,12 @@ void clear_tiledata();
 const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y );
 void rawstaticfullread();
 
+// True once rawmapfullread()/rawstaticfullread() have populated the raw buffers. Used to
+// assert the buffers are already loaded before entering a parallel region, so getstaticblock/
+// safe_getmapinfo's lazy first-touch read can never fire concurrently (which would race).
+bool rawmap_loaded();
+bool rawstatics_loaded();
+
 
 void read_objinfo( u16 graphic, struct USTRUCT_TILE& objinfo );
 void read_objinfo( u16 graphic, struct USTRUCT_TILE_HSA& objinfo );

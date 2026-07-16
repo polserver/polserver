@@ -70,6 +70,11 @@ const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned sh
   return rawstatic_buffer_vec.at( block ).statics;
 }
 
+bool rawstatics_loaded()
+{
+  return rawstatic_init;
+}
+
 void rawstaticfullread()
 {
   // Bulk-read both input files once instead of one fseek+fread pair per block

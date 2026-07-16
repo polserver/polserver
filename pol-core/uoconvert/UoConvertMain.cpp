@@ -38,6 +38,7 @@
 #include "plib/ustruct.h"
 #include "pol/landtile.h"
 
+#include "parallel.h"
 #include "terrainplane.h"
 
 
@@ -68,7 +69,7 @@ void UoConvertMain::showHelp()
       "    \n"
       "  Commands: \n"
       "    map {uodata=Dir} {realm=realmname} {width=Width}        {height=Height} {mapid=0} "
-      "{readuop=1} {x=X} {y=Y} {profile=0}\n"
+      "{readuop=1} {x=X} {y=Y} {profile=0} {threads=0}\n"
       "    statics {uodata=Dir} {realm=realmname}\n"
       "    maptile {uodata=Dir} {realm=realmname}\n"
       "    multis {uodata=Dir} {outdir=dir}\n"
@@ -142,7 +143,7 @@ void UoConvertMain::create_maptile( const std::string& realmname )
   // effective (liquid-overridden) z per tile, so skip the lowest-adjacent-z pass.
   rawmapfullread();
   TerrainPlane plane;
-  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/false );
+  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/false, cfg_threads );
 
   for ( unsigned short y_base = 0; y_base < uo_map_height; y_base += Plib::MAPTILE_CHUNK )
   {
@@ -218,9 +219,10 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
   // ProcessSolidBlock reads the smoothed-terrain plane; build the full plane. This is a
   // rarely-used single-block debug path (x=/y= args), so the full build is acceptable.
   TerrainPlane plane;
-  plane.build( uo_map_width, uo_map_height );
+  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/true, cfg_threads );
 
-  BlockResult result = ComputeSolidBlock( x_base, y_base, plane );
+  BlockResult result;
+  ComputeSolidBlock( x_base, y_base, plane, result );
   StitchBlock( mapwriter, x_base, y_base, result );
   INFO_PRINTLN( "empty={}, nonempty={}\nwith more_solids: {}\ntotal statics={}", empty, nonempty,
                 with_more_solids, total_statics );
@@ -263,20 +265,53 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   // fetches per tile. The plane is immutable during the loop.
   Tools::Timer<> plane_timer;
   TerrainPlane plane;
-  plane.build( width, height );
+  plane.build( width, height, /*need_low_z=*/true, cfg_threads );
   plane_timer.stop();
 
+  // ComputeSolidBlock runs concurrently below and calls getstaticblock / the raw-map
+  // readers, whose lazy first-touch init (rawstaticfullread / rawmapfullread) would race if
+  // it fired inside the parallel region. Both were already forced above; assert it so a
+  // future reorder trips here instead of racing.
+  passert_always( Plib::rawmap_loaded() );
+  passert_always( Plib::rawstatics_loaded() );
+
+  // Phase A/B: compute every block in parallel over contiguous block-row bands (each
+  // ComputeSolidBlock is pure and writes only its own BlockResult -- no shared state), in a
+  // single parallel region (threads spawned once). Then stitch all blocks into the writer
+  // serially in the fixed y-outer/x-inner order so the solids/solidx2 append offsets, and thus
+  // every output byte, stay identical to a serial run. Profiling forces the compute serial:
+  // per-tile timings are meaningless summed across overlapping threads. threads=0 =>
+  // hardware_concurrency.
+  const unsigned block_threads = cfg_profile ? 1u : cfg_threads;
+  const std::size_t blocks_per_row =
+      ( static_cast<std::size_t>( width ) + SOLIDX_X_SIZE - 1 ) / SOLIDX_X_SIZE;
+  const std::size_t num_block_rows =
+      ( static_cast<std::size_t>( height ) + SOLIDX_Y_SIZE - 1 ) / SOLIDX_Y_SIZE;
+  std::vector<BlockResult> results( blocks_per_row * num_block_rows );
+
   Tools::Timer<> loop_timer;
-  for ( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
+  parallel_for(
+      num_block_rows,
+      [&]( std::size_t yr )
+      {
+        const unsigned short y_base = static_cast<unsigned short>( yr * SOLIDX_Y_SIZE );
+        for ( std::size_t xi = 0; xi < blocks_per_row; ++xi )
+        {
+          const unsigned short x_base = static_cast<unsigned short>( xi * SOLIDX_X_SIZE );
+          ComputeSolidBlock( x_base, y_base, plane, results[yr * blocks_per_row + xi] );
+        }
+      },
+      block_threads );
+
+  for ( std::size_t yr = 0; yr < num_block_rows; ++yr )
   {
-    for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
+    const unsigned short y_base = static_cast<unsigned short>( yr * SOLIDX_Y_SIZE );
+    for ( std::size_t xi = 0; xi < blocks_per_row; ++xi )
     {
-      // Phase A/B split: compute the block from immutable inputs, then stitch it into
-      // the writer in this fixed block order so the output stays byte-identical.
-      BlockResult result = ComputeSolidBlock( x_base, y_base, plane );
-      StitchBlock( mapwriter, x_base, y_base, result );
+      const unsigned short x_base = static_cast<unsigned short>( xi * SOLIDX_X_SIZE );
+      StitchBlock( mapwriter, x_base, y_base, results[yr * blocks_per_row + xi] );
     }
-    INFO_PRINT( "\rConverting: {}%", y_base * 100 / height );
+    INFO_PRINT( "\rConverting: {}%", static_cast<unsigned>( yr ) * 100 / num_block_rows );
   }
   loop_timer.stop();
 
@@ -330,20 +365,30 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
 
 // Phase A (pure compute): produce this block's cells, solids, and block-local index
 // data from immutable inputs only. Deliberately touches no MapWriter and no
-// UoConvertMain counters -- stats and warnings accumulate into the returned
-// BlockResult so this can later run concurrently across blocks. StitchBlock() folds
-// the result into the MapWriter in block order.
-BlockResult UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_base,
-                                              const TerrainPlane& plane ) const
+// UoConvertMain counters -- stats and warnings accumulate into `result` so this can
+// run concurrently across blocks. StitchBlock() folds the result into the MapWriter
+// in block order.
+void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_base,
+                                       const TerrainPlane& plane, BlockResult& result ) const
 {
   // Raw UO tile flags fetched for every tile's statics below. Any static reaching
   // `statics` is guaranteed to have at least one of these bits set, so nothing
   // downstream needs to re-check srec.flags against this same mask.
   static constexpr unsigned int kSolidStaticFlags =
-      USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
-      USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID | USTRUCT_TILE::FLAG_HOVEROVER;
+      USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM | USTRUCT_TILE::FLAG_HALF_HEIGHT |
+      USTRUCT_TILE::FLAG_LIQUID | USTRUCT_TILE::FLAG_HOVEROVER;
 
-  BlockResult result;
+  // Reset the caller's buffer, retaining vector capacity so reusing one BlockResult across
+  // blocks avoids per-block heap allocation. addindex must be re-zeroed (the stitch copies
+  // it wholesale and run-less cells must read 0); cells are fully rewritten for the clamped
+  // region and never read outside it, so they need no reset.
+  result.solids.clear();
+  result.warnings.clear();
+  result.has_solids = false;
+  result.nonempty_locations = 0;
+  result.total_statics = 0;
+  result.prof_mapinfo_ns = result.prof_statics_ns = result.prof_shape_ns = 0;
+  std::memset( result.addindex, 0, sizeof( result.addindex ) );
 
   // Block-local, 0-based count of solid elements appended so far in this block. Replaces
   // the old `NextSolidIndex() - baseindex` math (which was already block-local); the
@@ -662,15 +707,14 @@ BlockResult UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned sh
       }
     }
   }
-  return result;
 }
 
 // Phase B (stitch): fold one block's compute result into the MapWriter. Runs in the
 // exact block order create_map used to run ProcessSolidBlock, so every solids/solidx2
 // append offset -- and thus every byte of solidx1/solidx2 -- is identical to the old
 // serial path.
-void UoConvertMain::StitchBlock( MapWriter& mapwriter, unsigned short x_base,
-                                 unsigned short y_base, const BlockResult& result )
+void UoConvertMain::StitchBlock( MapWriter& mapwriter, unsigned short x_base, unsigned short y_base,
+                                 const BlockResult& result )
 {
   // Reduce the per-block stat sums into the run-wide counters.
   with_more_solids += result.nonempty_locations;
@@ -1044,6 +1088,7 @@ int UoConvertMain::main()
     UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 1, false );
     UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
     cfg_profile = (bool)programArgsFindEquals( "profile=", 0, false );
+    cfg_threads = static_cast<unsigned>( programArgsFindEquals( "threads=", 0, false ) );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
 
@@ -1120,6 +1165,7 @@ int UoConvertMain::main()
   }
   else if ( command == "maptile" )
   {
+    cfg_threads = static_cast<unsigned>( programArgsFindEquals( "threads=", 0, false ) );
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
     Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 

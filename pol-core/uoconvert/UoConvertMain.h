@@ -64,6 +64,12 @@ public:
   // can report a breakdown of the hot loop. Off by default because the per-tile chrono
   // reads add measurable overhead across ~25M tiles.
   bool cfg_profile = false;
+
+  // Worker-thread count for the parallel map-conversion phases (terrain-plane build
+  // and, later, the block compute). 0 = auto (hardware_concurrency); 1 = serial. Set
+  // via the `threads=` arg; output is byte-identical for any value.
+  unsigned cfg_threads = 0;
+
   long long prof_mapinfo_ns = 0;  // safe_getmapinfo + get_lowestadjacentz + landtile flags
   long long prof_statics_ns = 0;  // readstatics + flag filter
   long long prof_shape_ns = 0;    // water/wall pass + sort + shape consolidation
@@ -91,9 +97,11 @@ public:
 
   // Phase A: pure per-block compute. Reads only immutable inputs; touches no
   // MapWriter state and no UoConvertMain counters (stats/profiling accumulate into
-  // the returned BlockResult). Safe to call concurrently for distinct blocks.
-  BlockResult ComputeSolidBlock( unsigned short x_base, unsigned short y_base,
-                                 const TerrainPlane& plane ) const;
+  // `result`). Safe to call concurrently for distinct `result` objects. `result` is
+  // reset on entry but its vector capacity is retained, so reusing one BlockResult
+  // across many blocks avoids per-block heap allocation in the hot parallel loop.
+  void ComputeSolidBlock( unsigned short x_base, unsigned short y_base, const TerrainPlane& plane,
+                          BlockResult& result ) const;
 
   // Phase B: fold one block's result into the MapWriter in block order. Must be
   // called in the same y-outer/x-inner order the blocks are laid out so the
