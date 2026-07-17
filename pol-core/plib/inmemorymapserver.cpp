@@ -29,13 +29,10 @@ MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) cons
 {
   passert( x < _descriptor.width && y < _descriptor.height );
 
-  unsigned short xblock = x >> MAPBLOCK_SHIFT;
   unsigned short xcell = x & MAPBLOCK_CELLMASK;
-  unsigned short yblock = y >> MAPBLOCK_SHIFT;
   unsigned short ycell = y & MAPBLOCK_CELLMASK;
 
-  int block_index = yblock * ( _descriptor.width >> MAPBLOCK_SHIFT ) + xblock;
-  const MAPBLOCK& mapblock = _mapblocks[block_index];
+  const MAPBLOCK& mapblock = _mapblocks[realm_block_index( x, y, _descriptor.width )];
   return mapblock.cell[xcell][ycell];
 }
 

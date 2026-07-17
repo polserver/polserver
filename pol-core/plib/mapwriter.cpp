@@ -177,36 +177,25 @@ unsigned int MapWriter::total_maptile_blocks() const
 
 void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
 {
-  unsigned short xblock = x >> MAPBLOCK_SHIFT;
   unsigned short xcell = x & MAPBLOCK_CELLMASK;
-  unsigned short yblock = y >> MAPBLOCK_SHIFT;
   unsigned short ycell = y & MAPBLOCK_CELLMASK;
 
-  // doh, need to know map geometry here.
-  int blockIdx = yblock * ( _width >> MAPBLOCK_SHIFT ) + xblock;
-  _base[blockIdx].cell[xcell][ycell] = cell;
+  _base[realm_block_index( x, y, _width )].cell[xcell][ycell] = cell;
   _base_dirty = true;
 }
 void MapWriter::SetMapBlock( unsigned short x_base, unsigned short y_base, const MAPBLOCK& block )
 {
   passert( ( x_base & MAPBLOCK_CELLMASK ) == 0 && ( y_base & MAPBLOCK_CELLMASK ) == 0 );
-  unsigned short xblock = x_base >> MAPBLOCK_SHIFT;
-  unsigned short yblock = y_base >> MAPBLOCK_SHIFT;
-  int blockIdx = yblock * ( _width >> MAPBLOCK_SHIFT ) + xblock;
-  _base[blockIdx] = block;
+  _base[realm_block_index( x_base, y_base, _width )] = block;
   _base_dirty = true;
 }
 
 void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell )
 {
-  unsigned short xblock = x >> MAPTILE_SHIFT;
   unsigned short xcell = x & MAPTILE_CELLMASK;
-  unsigned short yblock = y >> MAPTILE_SHIFT;
   unsigned short ycell = y & MAPTILE_CELLMASK;
 
-  // doh, need to know map geometry here.
-  int blockIdx = yblock * maptile_blocks_across( _width ) + xblock;
-  _maptile[blockIdx].cell[xcell][ycell] = cell;
+  _maptile[maptile_index( x, y, _width )].cell[xcell][ycell] = cell;
   _maptile_dirty = true;
 }
 
@@ -240,9 +229,8 @@ void MapWriter::AppendSolidx2Elem( const SOLIDX2_ELEM& elem )
 void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base,
                                   unsigned int offset )
 {
-  unsigned int elems_per_row = ( _width / SOLIDX_X_SIZE );
-  unsigned int index = ( y_base / SOLIDX_Y_SIZE ) * elems_per_row + ( x_base / SOLIDX_X_SIZE );
-  _solidx1[index].offset = offset;
+  // Solid blocks share the 8x8 row-major realm block layout.
+  _solidx1[realm_block_index( x_base, y_base, _width )].offset = offset;
   _solidx1_dirty = true;
 }
 }  // namespace Pol::Plib

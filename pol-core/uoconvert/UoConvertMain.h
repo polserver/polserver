@@ -30,16 +30,17 @@ struct BlockResult
   // Final map cells (flags incl. MORE_SOLIDS) for each in-bounds tile of the block,
   // stored as a ready-made MAPBLOCK: a solid block and a base.dat block are the same
   // 8x8 [x][y] geometry, so a full block stitches with a single block assignment.
-  static_assert( SOLIDX_X_SIZE == Plib::MAPBLOCK_CHUNK && SOLIDX_Y_SIZE == Plib::MAPBLOCK_CHUNK,
+  static_assert( Plib::SOLIDX_X_SIZE == Plib::MAPBLOCK_CHUNK &&
+                     Plib::SOLIDX_Y_SIZE == Plib::MAPBLOCK_CHUNK,
                  "solid blocks and map blocks must share the 8x8 geometry" );
   Plib::MAPBLOCK cells;
   // Element offset of each cell's first solid, relative to this block's first solid
   // (block-local, 0-based). Zero for cells without runs, matching the old SOLIDX2_ELEM
   // which left those slots at 0; the stitch copies this array wholesale.
-  unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE] = {};
+  unsigned short addindex[Plib::SOLIDX_X_SIZE][Plib::SOLIDX_Y_SIZE] = {};
   // Edge-clamped extent actually computed (blocks at the map edge are partial).
-  unsigned short x_add_max = SOLIDX_X_SIZE;
-  unsigned short y_add_max = SOLIDX_Y_SIZE;
+  unsigned short x_add_max = Plib::SOLIDX_X_SIZE;
+  unsigned short y_add_max = Plib::SOLIDX_Y_SIZE;
   bool has_solids = false;  // any cell produced a run -> this block needs a solidx2 elem
   std::vector<Plib::SOLIDS_ELEM> solids;  // this block's runs, in cell order
   std::vector<std::string> warnings;      // invalid-ID messages, replayed in order in the stitch

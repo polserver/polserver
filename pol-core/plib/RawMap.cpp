@@ -3,6 +3,7 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "staticblock.h"
 
 #include "uopreader/uop.h"
 #include "uopreader/uophash.h"
@@ -27,14 +28,13 @@ signed char RawMap::rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO
   passert_r( is_init, "Tried to read map information before loading the map files" );
   passert( m_mapwidth > 0 && m_mapheight > 0 && x < m_mapwidth && y < m_mapheight );
 
-  unsigned int x_block = x / 8;
-  unsigned int y_block = y / 8;
-  unsigned int block = ( x_block * ( m_mapheight / 8 ) + y_block );
+  // The client's map mul shares the column-major 8x8 block layout of staidx.
+  size_t block = staticblock_from_coords( x, y, m_mapheight );
 
   unsigned int x_offset = x & 0x7;
   unsigned int y_offset = y & 0x7;
 
-  *gi = get_cell( block, x_offset, y_offset );
+  *gi = get_cell( static_cast<unsigned int>( block ), x_offset, y_offset );
   return gi->z;
 }
 

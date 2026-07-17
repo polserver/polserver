@@ -20,12 +20,12 @@ MapTileServer::MapTileServer( const RealmDescriptor& descriptor )
 
 MAPTILE_CELL MapTileServer::GetMapTile( unsigned short x, unsigned short y )
 {
-  unsigned short xblock = x >> MAPTILE_SHIFT;
   unsigned short xcell = x & MAPTILE_CELLMASK;
-  unsigned short yblock = y >> MAPTILE_SHIFT;
   unsigned short ycell = y & MAPTILE_CELLMASK;
 
-  int block_index = yblock * _descriptor.grid_width + xblock;
+  // grid_width (the world zone grid, WGRID_SIZE=64, rounded up) matches the
+  // maptile block stride; use the canonical maptile index.
+  int block_index = static_cast<int>( maptile_index( x, y, _descriptor.width ) );
   if ( block_index != _cur_block_index )
   {
     size_t offset = block_index * sizeof _cur_block;

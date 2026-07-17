@@ -7,7 +7,6 @@ set (plib_sources  # sorted !
   fsa.h
   inmemorymapserver.cpp
   inmemorymapserver.h
-  mapblob.h
   mapblock.h
   mapcell.h
   mapfunc.cpp 

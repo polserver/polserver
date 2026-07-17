@@ -15,6 +15,7 @@
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
+#include "mapblock.h"
 #include "staticblock.h"
 
 
@@ -58,11 +59,8 @@ void StaticServer::Validate() const
 
 void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const
 {
-  unsigned short x_block = x / STATICBLOCK_CHUNK;
-  unsigned short y_block = y / STATICBLOCK_CHUNK;
-
-  size_t block_index =
-      static_cast<size_t>( y_block ) * ( _descriptor.width >> STATICBLOCK_SHIFT ) + x_block;
+  // POL's statics.dat/statidx.dat use the shared 8x8 row-major realm block layout.
+  size_t block_index = realm_block_index( x, y, _descriptor.width );
   if ( block_index + 1 >= _index.size() )
   {
     std::string message =
@@ -83,11 +81,9 @@ bool StaticServer::findstatic( unsigned short x, unsigned short y, unsigned shor
 {
   passert( x < _descriptor.width && y < _descriptor.height );
 
-  unsigned short x_block = x >> STATICBLOCK_SHIFT;
-  unsigned short y_block = y >> STATICBLOCK_SHIFT;
   unsigned short xy = ( ( x & STATICCELL_MASK ) << 4 ) | ( y & STATICCELL_MASK );
 
-  unsigned int block_index = x_block + y_block * ( _descriptor.width >> STATICBLOCK_SHIFT );
+  size_t block_index = realm_block_index( x, y, _descriptor.width );
   unsigned int first_entry_index = _index[block_index].index;
   unsigned int num = _index[block_index + 1].index - first_entry_index;
 
@@ -110,11 +106,9 @@ void StaticServer::getstatics( StaticEntryList& statics, unsigned short x, unsig
 {
   passert( x < _descriptor.width && y < _descriptor.height );
 
-  unsigned short x_block = x >> STATICBLOCK_SHIFT;
-  unsigned short y_block = y >> STATICBLOCK_SHIFT;
   unsigned short xy = ( ( x & STATICCELL_MASK ) << 4 ) | ( y & STATICCELL_MASK );
 
-  unsigned int block_index = x_block + y_block * ( _descriptor.width >> STATICBLOCK_SHIFT );
+  size_t block_index = realm_block_index( x, y, _descriptor.width );
   unsigned int first_entry_index = _index[block_index].index;
   unsigned int num = _index[block_index + 1].index - first_entry_index;
 

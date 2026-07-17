@@ -120,13 +120,11 @@ void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned s
 
   if ( cell.flags & FLAG::MORE_SOLIDS )
   {
-    unsigned short xblock = x >> SOLIDX_X_SHIFT;
     unsigned short xcell = x & SOLIDX_X_CELLMASK;
-    unsigned short yblock = y >> SOLIDX_Y_SHIFT;
     unsigned short ycell = y & SOLIDX_Y_CELLMASK;
 
-    size_t block = static_cast<size_t>( yblock ) * ( _descriptor.width >> SOLIDX_X_SHIFT ) + xblock;
-    SOLIDX2_ELEM* pIndex2 = _index1[block];
+    // Solid blocks share the 8x8 row-major realm block layout.
+    SOLIDX2_ELEM* pIndex2 = _index1[realm_block_index( x, y, _descriptor.width )];
     unsigned int index = pIndex2->baseindex + pIndex2->addindex[xcell][ycell];
     const SOLIDS_ELEM* pElem = &_shapedata[index];
     for ( ;; )
