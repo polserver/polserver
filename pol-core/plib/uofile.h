@@ -51,6 +51,13 @@ void readwater();
 void staticsmax();
 bool iswater( u16 objtype );
 
+// Mutable global UO-file state, set once per run before any reader/conversion
+// function is called and then treated as read-only. uoconvert's main() fills
+// these from the command-line/realm descriptor for the chosen command (map
+// dimensions, mapid, dif usage) *before* dispatching to create_map/create_maptile/
+// statics/etc.; pol sets them when loading a realm. Every getmapinfo/readstatics/
+// block-index call silently depends on uo_map_width/uo_map_height already holding
+// the current realm's dimensions -- change them mid-run and the block math is wrong.
 extern int uo_mapid;
 extern int uo_usedif;
 extern bool uo_readuop;

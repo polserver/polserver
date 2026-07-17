@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstring>
+#include <stdexcept>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -47,6 +48,40 @@ namespace Pol::UoConvert
 using namespace std;
 using namespace Pol::Core;
 using namespace Pol::Plib;
+
+namespace
+{
+// RAII owner for the C FILE* handles used by the .cfg writers below, so an early
+// return or a throw closes the file instead of leaking it. Implicitly converts
+// to FILE*, so the fprintf-based writer code reads exactly as before.
+class UniqueFile
+{
+public:
+  explicit UniqueFile( FILE* fp ) : fp_( fp ) {}
+  ~UniqueFile()
+  {
+    if ( fp_ )
+      fclose( fp_ );
+  }
+  UniqueFile( const UniqueFile& ) = delete;
+  UniqueFile& operator=( const UniqueFile& ) = delete;
+
+  operator FILE*() const { return fp_; }
+
+private:
+  FILE* fp_;
+};
+
+// Open a text file for writing, throwing with the path on failure (the old code
+// left the FILE* unchecked and would crash on the first fprintf).
+UniqueFile open_out_text( const std::string& path )
+{
+  FILE* fp = fopen( path.c_str(), "wt" );
+  if ( !fp )
+    throw std::runtime_error( "Unable to open output file for writing: " + path );
+  return UniqueFile( fp );
+}
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -933,7 +968,7 @@ void UoConvertMain::create_multis_cfg()
   std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>> multi_map;
 
   std::string outdir = programArgsFindEquals( "outdir=", "." );
-  FILE* multis_cfg = fopen( ( outdir + "/multis.cfg" ).c_str(), "wt" );
+  UniqueFile multis_cfg = open_out_text( outdir + "/multis.cfg" );
 
   if ( open_uopmulti_file( multi_map ) )
   {
@@ -947,15 +982,10 @@ void UoConvertMain::create_multis_cfg()
     return;
   }
 
-  FILE* multi_idx = open_uo_file( "multi.idx" );
-  FILE* multi_mul = open_uo_file( "multi.mul" );
+  UniqueFile multi_idx( open_uo_file( "multi.idx" ) );
+  UniqueFile multi_mul( open_uo_file( "multi.mul" ) );
 
   create_multis_cfg( multi_idx, multi_mul, multis_cfg );
-
-  fclose( multis_cfg );
-
-  fclose( multi_idx );
-  fclose( multi_mul );
 }
 void UoConvertMain::write_flags( FILE* fp, unsigned int flags )
 {
@@ -988,7 +1018,7 @@ void UoConvertMain::write_flags( FILE* fp, unsigned int flags )
 void UoConvertMain::create_tiles_cfg()
 {
   std::string outdir = programArgsFindEquals( "outdir=", "." );
-  FILE* fp = fopen( ( outdir + "/tiles.cfg" ).c_str(), "wt" );
+  UniqueFile fp = open_out_text( outdir + "/tiles.cfg" );
   int mountCount;
   char name[21];
 
@@ -1051,7 +1081,6 @@ void UoConvertMain::create_tiles_cfg()
     fprintf( fp, "\n" );
     ++count;
   }
-  fclose( fp );
 
   INFO_PRINTLN( "{} tile definitions written to tiles.cfg", count );
 }
@@ -1059,7 +1088,7 @@ void UoConvertMain::create_tiles_cfg()
 void UoConvertMain::create_landtiles_cfg()
 {
   std::string outdir = programArgsFindEquals( "outdir=", "." );
-  FILE* fp = fopen( ( outdir + "/landtiles.cfg" ).c_str(), "wt" );
+  UniqueFile fp = open_out_text( outdir + "/landtiles.cfg" );
   unsigned count = 0;
 
   for ( u16 i = 0; i <= MAX_LANDTILE_ID; ++i )
@@ -1091,7 +1120,6 @@ void UoConvertMain::create_landtiles_cfg()
       ++count;
     }
   }
-  fclose( fp );
 
   INFO_PRINTLN( "{} landtile definitions written to landtiles.cfg", count );
 }
@@ -1463,6 +1491,6 @@ void UoConvertMain::load_uoconvert_cfg()
 
 int main( int argc, char* argv[] )
 {
-  Pol::UoConvert::UoConvertMain* UoConvertMain = new Pol::UoConvert::UoConvertMain();
-  UoConvertMain->start( argc, argv );
+  Pol::UoConvert::UoConvertMain program;
+  program.start( argc, argv );
 }
