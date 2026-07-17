@@ -68,6 +68,29 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned 
     }
   }
 }
+void readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short y,
+                        unsigned int flags )
+{
+  for ( auto& bucket : buckets )
+    bucket.clear();
+
+  const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
+
+  for ( const auto& srec : srecarr )
+  {
+    // Records with offsets outside the 8x8 block never match any tile in the
+    // per-tile readstatics() scan; drop them here the same way.
+    if ( srec.x_offset < 0 || srec.x_offset >= static_cast<int>( STATICBLOCK_CHUNK ) ||
+         srec.y_offset < 0 || srec.y_offset >= static_cast<int>( STATICBLOCK_CHUNK ) )
+      continue;
+
+    const unsigned int uoflags = tile_uoflags_read( srec.graphic );
+    if ( uoflags & flags )
+      buckets[srec.x_offset * STATICBLOCK_CHUNK + srec.y_offset].emplace_back(
+          srec.graphic, srec.z, uoflags, tileheight_read( srec.graphic ) );
+  }
+}
+
 void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
 {
   const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );

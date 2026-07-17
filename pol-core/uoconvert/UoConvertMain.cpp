@@ -394,9 +394,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
   // Reused across tiles (cleared, not reconstructed) to avoid a per-tile
   // allocation across the ~25M tiles a full map conversion visits. The reserve
   // covers the typical per-tile count, so most tiles never reallocate at all.
-  StaticList statics;
   std::vector<MapShape> shapes;
-  statics.reserve( 8 );
   shapes.reserve( 8 );
 
   // Opt-in per-tile profiling: `t` is a rolling cursor and lap() folds the elapsed time
@@ -411,14 +409,24 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
     t = now;
   };
 
+  // All of this block's statics, bucketed per cell in a single pass over the raw
+  // block, instead of one whole-block readstatics() scan per tile (64x the work).
+  // thread_local so each parallel worker reuses one scratch -- with its vectors'
+  // capacity -- across every block of its band; BlockResult itself is per-block in
+  // create_map, so the scratch must not live there.
+  thread_local StaticBuckets cell_statics;
+  if ( cfg_profile )
+    t = ProfClock::now();
+  readstatics_block( cell_statics, x_base, y_base, kSolidStaticFlags );
+  if ( cfg_profile )
+    lap( result.prof_statics_ns );
+
   for ( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
   {
     for ( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
     {
       unsigned short x = x_base + x_add;
       unsigned short y = y_base + y_add;
-
-      statics.clear();
 
       if ( cfg_profile )
         t = ProfClock::now();
@@ -459,7 +467,10 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
       if ( cfg_profile )
         lap( result.prof_mapinfo_ns );
 
-      readstatics( statics, x, y, kSolidStaticFlags );
+      // This tile's bucket doubles as the mutable per-tile scratch: the merge loop
+      // below consumes it via pop_back, and readstatics_block re-clears it for the
+      // next block, so no copy into a separate vector is needed.
+      StaticList& statics = cell_statics[x_add * STATICBLOCK_CHUNK + y_add];
 
       std::erase_if( statics,
                      [this]( const StaticRec& srec )
@@ -509,7 +520,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
       if ( addMap )
         statics.emplace_back( 0, static_cast<signed char>( z ), lt_flags,
                               static_cast<char>( lt_height ) );
-      
+
       if ( statics.size() > 1 )
       {
         sort( statics.begin(), statics.end(), StaticsByZ() );
