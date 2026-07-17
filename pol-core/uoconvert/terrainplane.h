@@ -44,12 +44,33 @@ struct TerrainPlane
   std::size_t index( int x, int y ) const { return static_cast<std::size_t>( y ) * width + x; }
 };
 
-// Landtile classifiers used by the plane build and by ProcessSolidBlock. They inspect
-// only the landtile id (the pre-refactor versions took a whole USTRUCT_MAPINFO but read
-// nothing but .landtile).
-bool is_no_draw( u16 landtile );
-bool is_cave_exit( u16 landtile );
-bool is_cave_shadow( u16 landtile );
+// Landtile classifiers used by the plane build and by the solid-block conversion.
+// The id lists are hardcoded client landtile ids (see tiledata.mul / landtiles.cfg:
+// 0x2 = NODRAW; 0x7ec-0x7f1, 0x834-0x839, 0x1d3-0x1da = cave entrance floors/edges;
+// 0x1ae-0x1b5, 0x1db = the black "shadow" tiles above cave interiors). They have
+// carried through from the original UOConvert; audit against the client's tiledata
+// if a newer client ever renumbers them.
+constexpr bool is_no_draw( u16 landtile )
+{
+  return ( landtile == 0x2 );
+}
+
+constexpr bool is_cave_exit( u16 landtile )
+{
+  return ( landtile == 0x7ec || landtile == 0x7ed || landtile == 0x7ee || landtile == 0x7ef ||
+           landtile == 0x7f0 || landtile == 0x7f1 || landtile == 0x834 || landtile == 0x835 ||
+           landtile == 0x836 || landtile == 0x837 || landtile == 0x838 || landtile == 0x839 ||
+           landtile == 0x1d3 || landtile == 0x1d4 || landtile == 0x1d5 || landtile == 0x1d6 ||
+           landtile == 0x1d7 || landtile == 0x1d8 || landtile == 0x1d9 || landtile == 0x1da );
+}
+
+constexpr bool is_cave_shadow( u16 landtile )
+{
+  return ( landtile == 0x1db ||  // shadows above caves
+           landtile == 0x1ae ||  // more shadows above caves
+           landtile == 0x1af || landtile == 0x1b0 || landtile == 0x1b1 || landtile == 0x1b2 ||
+           landtile == 0x1b3 || landtile == 0x1b4 || landtile == 0x1b5 );
+}
 
 }  // namespace Pol::UoConvert
 

@@ -27,6 +27,8 @@ std::string tile_desc( unsigned short tilenum );
 unsigned int landtile_uoflags_read( unsigned short landtile );  // uotool version
 
 const unsigned LANDTILE_COUNT = 0x4000;
+// Landtile ids are 14-bit; anything above this is not a valid landtile.
+constexpr unsigned short MAX_LANDTILE_ID = LANDTILE_COUNT - 1;
 struct LandTile
 {
   unsigned int uoflags;

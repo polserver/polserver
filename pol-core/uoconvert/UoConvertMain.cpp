@@ -80,6 +80,18 @@ void UoConvertMain::showHelp()
 using namespace Core;
 using namespace Plib;
 
+// A WALL-flagged landtile is treated as a solid of this height, unless a static
+// sitting on it caps it lower (see the wall override in ComputeSolidBlock).
+constexpr short WALL_LANDTILE_HEIGHT = 20;
+
+// A discarded-water static replaces the map base only when it lies at or above
+// the terrain top by at most this many z (statics further up are unrelated water).
+constexpr short WATER_DISCARD_Z_WINDOW = 10;
+
+// "Sand over water": a shape starting at most this far above a water shape is
+// extended downward to meet it (see merge_shapes).
+constexpr short SAND_OVER_WATER_MAX_GAP = 4;
+
 void UoConvertMain::display_flags()
 {
   for ( unsigned blocking = 0; blocking <= 1; ++blocking )
@@ -157,7 +169,7 @@ void UoConvertMain::create_maptile( const std::string& realmname )
       const u16 landtile = plane.landtile[plane_idx];
       const s8 z = plane.eff_z[plane_idx];  // effective z (liquid override applied)
 
-      if ( landtile > 0x3FFF )
+      if ( landtile > Plib::MAX_LANDTILE_ID )
         INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
 
       Plib::MAPTILE_CELL cell;
@@ -426,10 +438,10 @@ void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& sh
     }
 
     // sometimes water has "sand" a couple z-coords above it.
-    // We'll try to detect this (really, anything that is up to 4 dist from water)
-    // and extend the thing above downward.
+    // We'll try to detect this (really, anything that is up to
+    // SAND_OVER_WATER_MAX_GAP dist from water) and extend the thing above downward.
     if ( ( prev.flags & FLAG::MOVESEA ) && ( shape.z > prev.z + prev.height ) &&
-         ( shape.z <= prev.z + prev.height + 4 ) )
+         ( shape.z <= prev.z + prev.height + SAND_OVER_WATER_MAX_GAP ) )
     {
       short height_add = shape.z - prev.z - prev.height;
       shape.z -= height_add;
@@ -438,7 +450,12 @@ void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& sh
     if ( ( prev.flags & FLAG::MOVESEA ) && ( prev.z + prev.height == -5 ) &&
          ( shape.flags & FLAG::MOVESEA ) && ( shape.z == 25 ) )
     {
-      // oddly, there are some water tiles at z=25 in some places...I don't get it
+      // The client's statics0.mul really does contain stray water statics (0x1796)
+      // floating at z=25 directly above ordinary ocean whose surface tops out at -5;
+      // on real Britannia (map1) e.g. around (1344,573) and (1703,450). Dropping
+      // them keeps the ocean a single walkable-sea shape instead of stacking a
+      // phantom water slab 30z above it. The -5 and 25 literals are those exact
+      // client-data values, not tunables.
       continue;
     }
 
@@ -569,7 +586,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
       const u16 landtile = plane.landtile[plane_idx];
       short z = plane.eff_z[plane_idx];  // effective z: the liquid override is already folded in
 
-      if ( landtile > 0x3FFF )
+      if ( landtile > MAX_LANDTILE_ID )
         result.warnings.push_back(
             fmt::format( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z ) );
 
@@ -578,7 +595,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
       short lt_height = z - low_z;
       z = low_z;
 
-      if ( landtile > 0x3FFF )
+      if ( landtile > MAX_LANDTILE_ID )
         result.warnings.push_back(
             fmt::format( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z ) );
 
@@ -595,7 +612,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
       lt_flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT;  // the entire map is this way
 
       if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
-        lt_height = 20;
+        lt_height = WALL_LANDTILE_HEIGHT;
 
       if ( cfg_profile )
         lap( result.prof_mapinfo_ns );
@@ -625,7 +642,8 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
         // Look for water tiles. If there are any, discard the map (which is usually at -15 anyway)
         if ( z + lt_height <= srec.z &&
              // only where the map is below or same Z as the static
-             ( ( srec.z - ( z + lt_height ) ) <= 10 ) && is_discarded_water[srec.graphic] )
+             ( ( srec.z - ( z + lt_height ) ) <= WATER_DISCARD_Z_WINDOW ) &&
+             is_discarded_water[srec.graphic] )
         {
           // arr, there be water here
           addMap = false;
@@ -1044,7 +1062,7 @@ void UoConvertMain::create_landtiles_cfg()
   FILE* fp = fopen( ( outdir + "/landtiles.cfg" ).c_str(), "wt" );
   unsigned count = 0;
 
-  for ( u16 i = 0; i <= 0x3FFF; ++i )
+  for ( u16 i = 0; i <= MAX_LANDTILE_ID; ++i )
   {
     USTRUCT_LAND_TILE landtile;
     if ( cfg_use_new_hsa_format )

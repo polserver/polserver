@@ -10,31 +10,6 @@
 
 namespace Pol::UoConvert
 {
-// These three classifiers are copied verbatim (constants unchanged) from the former
-// file-scope helpers in UoConvertMain.cpp; only the parameter type changed from
-// USTRUCT_MAPINFO& to the landtile id they actually read.
-bool is_no_draw( u16 landtile )
-{
-  return ( landtile == 0x2 );
-}
-
-bool is_cave_exit( u16 landtile )
-{
-  return ( landtile == 0x7ec || landtile == 0x7ed || landtile == 0x7ee || landtile == 0x7ef ||
-           landtile == 0x7f0 || landtile == 0x7f1 || landtile == 0x834 || landtile == 0x835 ||
-           landtile == 0x836 || landtile == 0x837 || landtile == 0x838 || landtile == 0x839 ||
-           landtile == 0x1d3 || landtile == 0x1d4 || landtile == 0x1d5 || landtile == 0x1d6 ||
-           landtile == 0x1d7 || landtile == 0x1d8 || landtile == 0x1d9 || landtile == 0x1da );
-}
-
-bool is_cave_shadow( u16 landtile )
-{
-  return ( landtile == 0x1db ||  // shadows above caves
-           landtile == 0x1ae ||  // more shadows above caves
-           landtile == 0x1af || landtile == 0x1b0 || landtile == 0x1b1 || landtile == 0x1b2 ||
-           landtile == 0x1b3 || landtile == 0x1b4 || landtile == 0x1b5 );
-}
-
 void TerrainPlane::build( int w, int h, bool need_low_z, unsigned threads )
 {
   width = w;

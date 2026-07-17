@@ -166,7 +166,7 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
-  if ( tilenum <= 0x3FFF )
+  if ( tilenum <= MAX_LANDTILE_ID )
   {
     int block;
     block = ( tilenum / 32 );
@@ -198,7 +198,7 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
-  if ( tilenum <= 0x3FFF )
+  if ( tilenum <= MAX_LANDTILE_ID )
   {
     int block;
     block = ( tilenum / 32 );
