@@ -6,7 +6,9 @@
 #include <vector>
 
 #include "../clib/Program/ProgramMain.h"
+#include "../plib/mapshape.h"
 #include "../plib/mapwriter.h"
+#include "../plib/udatfile.h"
 
 namespace Pol
 {
@@ -60,6 +62,12 @@ public:
   std::set<unsigned int> MountTypes;
   std::set<unsigned int> DiscardedWaterTypes;
 
+  // DiscardedWaterTypes as a flat per-graphic table for the hot water check in
+  // ComputeSolidBlock (probed once per candidate static, millions of times per
+  // conversion -- a tree lookup there costs ~13x a flat probe). Filled from the
+  // set after config load; graphics are u16, so the index is always in range.
+  std::vector<bool> is_discarded_water = std::vector<bool>( 0x10000, false );
+
   bool cfg_use_no_shoot;
   bool cfg_LOS_through_windows;
 
@@ -106,6 +114,14 @@ public:
   // across many blocks avoids per-block heap allocation in the hot parallel loop.
   void ComputeSolidBlock( unsigned short x_base, unsigned short y_base, const TerrainPlane& plane,
                           BlockResult& result ) const;
+
+  // Consolidate one tile's statics into its final shape stack. `statics` must be
+  // sorted descending by (z, height) and is consumed (emptied); `shapes` is
+  // rebuilt: shapes[0] is the map base (height 0), the rest are the cell's solid
+  // runs, bottom-up, after overlap shrinking and same-top combining. This is the
+  // byte-sensitive heart of the conversion -- every rule in it is reflected in
+  // solids.dat.
+  void merge_shapes( Plib::StaticList& statics, std::vector<Plib::MapShape>& shapes ) const;
 
   // Phase B: fold one block's result into the MapWriter in block order. Must be
   // called in the same y-outer/x-inner order the blocks are laid out so the

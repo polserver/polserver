@@ -351,6 +351,139 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   }
 }
 
+// Consolidate one tile's statics (sorted descending by z/height, consumed via
+// pop_back) into the tile's final shape stack: shapes[0] becomes the map base,
+// the rest the cell's solid runs, bottom-up. See the declaration for the contract;
+// every rule below is reflected byte-for-byte in solids.dat, so treat any change
+// here as an output-format change.
+void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& shapes ) const
+{
+  shapes.clear();
+
+  // try to consolidate like shapes, and discard ones we don't care about.
+  while ( !statics.empty() )
+  {
+    StaticRec srec = statics.back();
+    statics.pop_back();
+
+    unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot,
+                                                     cfg_LOS_through_windows );
+    if ( ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
+         ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
+         ( ~polflags & FLAG::OVERFLIGHT ) )
+    {
+      // Invariant from the caller's filter: every element still in `statics` has
+      // at least one of these bits set, so this can never fire.
+      passert_always( 0 );
+      continue;
+    }
+
+    if ( shapes.empty() )
+    {
+      // this, whatever it is, is the map base.
+      // TODO: look for water statics and use THOSE as the map.
+      // these will be converted below to make the map "solid"; the lowest
+      // level is always gradual no matter what.
+      MapShape shape{ .z = srec.z, .height = 0, .flags = ( polflags & 0xFFu ) | FLAG::GRADUAL };
+      shapes.push_back( shape );
+
+      // for wall flag - map tile always height 0, at bottom. if map tile has height, add it as
+      // a static
+      if ( srec.height != 0 )
+      {
+        MapShape _shape{ .z = srec.z, .height = srec.height, .flags = polflags };
+        shapes.push_back( _shape );
+      }
+      continue;
+    }
+
+    MapShape& prev = shapes.back();
+    // we're adding it.
+    MapShape shape{ .z = srec.z, .height = srec.height, .flags = polflags };
+
+    // always add the map shape seperately
+    if ( shapes.size() == 1 )
+    {
+      shapes.push_back( shape );
+      continue;
+    }
+
+    if ( shape.z < prev.z + prev.height )
+    {
+      // things can't exist in the same place.
+      // shrink the bottom part of this shape.
+      // if that would give it negative height, then skip it.
+      short height_remove = prev.z + prev.height - shape.z;
+      if ( height_remove <= shape.height )
+      {
+        shape.z += height_remove;
+        shape.height -= height_remove;
+      }
+      else
+      {  // example: 5530, 14
+        continue;
+      }
+    }
+
+    // sometimes water has "sand" a couple z-coords above it.
+    // We'll try to detect this (really, anything that is up to 4 dist from water)
+    // and extend the thing above downward.
+    if ( ( prev.flags & FLAG::MOVESEA ) && ( shape.z > prev.z + prev.height ) &&
+         ( shape.z <= prev.z + prev.height + 4 ) )
+    {
+      short height_add = shape.z - prev.z - prev.height;
+      shape.z -= height_add;
+      shape.height += height_add;
+    }
+    if ( ( prev.flags & FLAG::MOVESEA ) && ( prev.z + prev.height == -5 ) &&
+         ( shape.flags & FLAG::MOVESEA ) && ( shape.z == 25 ) )
+    {
+      // oddly, there are some water tiles at z=25 in some places...I don't get it
+      continue;
+    }
+
+    if ( shape.z > prev.z + prev.height )
+    {
+      //
+      // elevated above what's below, must include separately
+      //
+
+      shapes.push_back( shape );
+      continue;
+    }
+
+    passert_always( shape.z == prev.z + prev.height );
+
+    if ( shape.z == prev.z + prev.height )
+    {
+      //
+      // sitting right on top of the previous solid
+      //
+
+      // standable atop non-standable: standable
+      // nonstandable atop standable: nonstandable
+      // etc
+      bool can_combine = flags_match( prev.flags, shape.flags, FLAG::BLOCKSIGHT | FLAG::BLOCKING );
+      if ( prev.flags & FLAG::MOVELAND && ~shape.flags & FLAG::BLOCKING &&
+           ~shape.flags & FLAG::MOVELAND )
+      {
+        can_combine = false;
+      }
+
+      if ( can_combine )
+      {
+        prev.flags = shape.flags;
+        prev.height += shape.height;
+      }
+      else  // if one blocks LOS, but not the other, they can't be combined this way.
+      {
+        shapes.push_back( shape );
+        continue;
+      }
+    }
+  }
+}
+
 // Phase A (pure compute): produce this block's cells, solids, and block-local index
 // data from immutable inputs only. Deliberately touches no MapWriter and no
 // UoConvertMain counters -- stats and warnings accumulate into `result` so this can
@@ -492,7 +625,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
         // Look for water tiles. If there are any, discard the map (which is usually at -15 anyway)
         if ( z + lt_height <= srec.z &&
              // only where the map is below or same Z as the static
-             ( ( srec.z - ( z + lt_height ) ) <= 10 ) && DiscardedWaterTypes.count( srec.graphic ) )
+             ( ( srec.z - ( z + lt_height ) ) <= 10 ) && is_discarded_water[srec.graphic] )
         {
           // arr, there be water here
           addMap = false;
@@ -527,136 +660,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
         reverse( statics.begin(), statics.end() );
       }
 
-      shapes.clear();
-
-      // try to consolidate like shapes, and discard ones we don't care about.
-      while ( !statics.empty() )
-      {
-        StaticRec srec = statics.back();
-        statics.pop_back();
-
-        unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot,
-                                                         cfg_LOS_through_windows );
-        if ( ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
-             ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
-             ( ~polflags & FLAG::OVERFLIGHT ) )
-        {
-          // Invariant from the filter above: every element still in `statics` has
-          // at least one of these bits set, so this can never fire.
-          passert_always( 0 );
-          continue;
-        }
-
-        if ( shapes.empty() )
-        {
-          // this, whatever it is, is the map base.
-          // TODO: look for water statics and use THOSE as the map.
-          // these will be converted below to make the map "solid"; the lowest
-          // level is always gradual no matter what.
-          MapShape shape{ .z = srec.z, .height = 0, .flags = ( polflags & 0xFFu ) | FLAG::GRADUAL };
-          shapes.push_back( shape );
-
-          // for wall flag - map tile always height 0, at bottom. if map tile has height, add it as
-          // a static
-          if ( srec.height != 0 )
-          {
-            MapShape _shape{ .z = srec.z, .height = srec.height, .flags = polflags };
-            shapes.push_back( _shape );
-          }
-          continue;
-        }
-
-        MapShape& prev = shapes.back();
-        // we're adding it.
-        MapShape shape{ .z = srec.z, .height = srec.height, .flags = polflags };
-
-        // always add the map shape seperately
-        if ( shapes.size() == 1 )
-        {
-          shapes.push_back( shape );
-          continue;
-        }
-
-        if ( shape.z < prev.z + prev.height )
-        {
-          // things can't exist in the same place.
-          // shrink the bottom part of this shape.
-          // if that would give it negative height, then skip it.
-          short height_remove = prev.z + prev.height - shape.z;
-          if ( height_remove <= shape.height )
-          {
-            shape.z += height_remove;
-            shape.height -= height_remove;
-          }
-          else
-          {  // example: 5530, 14
-            continue;
-          }
-        }
-
-        // sometimes water has "sand" a couple z-coords above it.
-        // We'll try to detect this (really, anything that is up to 4 dist from water)
-        // and extend the thing above downward.
-        if ( ( prev.flags & FLAG::MOVESEA ) && ( shape.z > prev.z + prev.height ) &&
-             ( shape.z <= prev.z + prev.height + 4 ) )
-        {
-          short height_add = shape.z - prev.z - prev.height;
-          shape.z -= height_add;
-          shape.height += height_add;
-        }
-        if ( ( prev.flags & FLAG::MOVESEA ) && ( prev.z + prev.height == -5 ) &&
-             ( shape.flags & FLAG::MOVESEA ) && ( shape.z == 25 ) )
-        {
-          // oddly, there are some water tiles at z=25 in some places...I don't get it
-          continue;
-        }
-
-        // string prevflags_s = flagstr(prev.flags);
-        // const char* prevflags = prevflags_s.c_str();
-        // string shapeflags_s = flagstr(shape.flags);
-        // const char* shapeflags = shapeflags_s.c_str();
-
-        if ( shape.z > prev.z + prev.height )
-        {
-          //
-          // elevated above what's below, must include separately
-          //
-
-          shapes.push_back( shape );
-          continue;
-        }
-
-        passert_always( shape.z == prev.z + prev.height );
-
-        if ( shape.z == prev.z + prev.height )
-        {
-          //
-          // sitting right on top of the previous solid
-          //
-
-          // standable atop non-standable: standable
-          // nonstandable atop standable: nonstandable
-          // etc
-          bool can_combine =
-              flags_match( prev.flags, shape.flags, FLAG::BLOCKSIGHT | FLAG::BLOCKING );
-          if ( prev.flags & FLAG::MOVELAND && ~shape.flags & FLAG::BLOCKING &&
-               ~shape.flags & FLAG::MOVELAND )
-          {
-            can_combine = false;
-          }
-
-          if ( can_combine )
-          {
-            prev.flags = shape.flags;
-            prev.height += shape.height;
-          }
-          else  // if one blocks LOS, but not the other, they can't be combined this way.
-          {
-            shapes.push_back( shape );
-            continue;
-          }
-        }
-      }
+      merge_shapes( statics, shapes );
 
       // the first StaticShape is the map base; the rest are this cell's solid runs
       // (left in place -- no need to pay an O(n) front erase per tile).
@@ -1426,6 +1430,11 @@ void UoConvertMain::load_uoconvert_cfg()
       }
     }
   }
+
+  // Snapshot the water-type set into the flat lookup the conversion loop probes.
+  for ( unsigned int graphic : DiscardedWaterTypes )
+    if ( graphic < is_discarded_water.size() )
+      is_discarded_water[graphic] = true;
 }
 }  // namespace Pol::UoConvert
 
