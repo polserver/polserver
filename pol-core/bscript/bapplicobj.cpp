@@ -1,16 +1,11 @@
 #include "bapplicobj.h"
 
-#include <ostream>
+#include <fmt/format.h>
 
 namespace Pol::Bscript
 {
 std::string BApplicObjBase::getStringRep() const
 {
-  return std::string( "<appobj:" ) + typeOf() + ">";
-}
-
-void BApplicObjBase::printOn( std::ostream& os ) const
-{
-  os << getStringRep();
+  return fmt::format( "<appobj:{}>", typeOf() );
 }
 }  // namespace Pol::Bscript

@@ -76,7 +76,8 @@
 #include "bscript/compiler/model/FlowControlLabel.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/Variable.h"
-#include "symcont.h"
+
+#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {

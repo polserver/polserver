@@ -26,6 +26,7 @@
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/stlutil.h"
+#include "clib/strutil.h"
 #include "plib/pkg.h"
 
 #include "../binaryfilescrobj.h"

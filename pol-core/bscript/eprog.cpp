@@ -6,6 +6,9 @@
 #include "eprog.h"
 
 #include <cstdio>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <iomanip>
 
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
@@ -57,9 +60,7 @@ EScriptProgram::~EScriptProgram()
 
 std::string EScriptProgram::dbg_get_instruction( size_t atPC ) const
 {
-  OSTRINGSTREAM os;
-  os << instr[atPC].token;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::to_string( instr[atPC].token );
 }
 
 size_t EScriptProgram::sizeEstimate() const
@@ -101,7 +102,7 @@ void EScriptProgram::dump( std::ostream& os )
       return;
     }
 
-    os << PC << ": " << token << std::endl;
+    fmt::println( os, "{}: {}", PC, token );
     if ( token.id == INS_CASEJMP )
     {
       dump_casejmp( os, token );

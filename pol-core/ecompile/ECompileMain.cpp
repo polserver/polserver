@@ -3,12 +3,14 @@
 #include <cstdio>
 #include <exception>
 #include <filesystem>
-#include <iosfwd>
+#include <fstream>
 #include <memory>
 #include <stdlib.h>
 #include <string>
 #include <system_error>
 #include <time.h>
+
+#include <fmt/std.h>
 
 #include "EfswFileWatchListener.h"
 

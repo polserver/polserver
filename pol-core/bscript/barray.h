@@ -55,7 +55,6 @@ public:
   const BObjectImp* imp_at( unsigned index ) const;  // 1-based
 
   std::string getStringRep() const override;
-  void printOn( std::ostream& os ) const override;
 
   BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
   BObjectRef OperSubscript( const BObject& obj ) override;

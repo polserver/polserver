@@ -24,6 +24,8 @@
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopeName.h"
 
+#include "clib/strutil.h"
+
 #include <algorithm>
 
 using EscriptGrammar::EscriptParser;

@@ -7,21 +7,11 @@
 #ifndef __TOKEN_H
 #define __TOKEN_H
 
-#ifndef __TOKENS_H
 #include "tokens.h"
-#endif
-#ifndef __MODULES_H
-#include "modules.h"
-#endif
 
-#include <iosfwd>
-#include <set>
+#include <fmt/format.h>
 
-#include <fmt/ostream.h>
-
-namespace Pol
-{
-namespace Bscript
+namespace Pol::Bscript
 {
 struct DebugToken
 {
@@ -64,19 +54,14 @@ public:
   void nulStr();
   void setStr( std::string str );
 
-  void printOn( std::ostream& outputStream ) const;
+  std::string tostring() const;
 };
 
-std::ostream& operator<<( std::ostream&, const Token& );
-}  // namespace Bscript
-namespace Clib
-{
+}  // namespace Pol::Bscript
 template <>
-std::string tostring<Bscript::Token>( const Bscript::Token& v );
-}
-}  // namespace Pol
-template <>
-struct fmt::formatter<Pol::Bscript::Token> : fmt::ostream_formatter
+struct fmt::formatter<Pol::Bscript::Token> : fmt::formatter<std::string>
 {
+  fmt::format_context::iterator format( const Pol::Bscript::Token& t,
+                                        fmt::format_context& ctx ) const;
 };
 #endif

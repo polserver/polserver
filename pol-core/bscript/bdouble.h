@@ -81,7 +81,6 @@ public:  // Class Machinery
 
   BObjectImp* inverse() const override { return new Double( -dval_ ); }
   std::string getStringRep() const override;
-  void printOn( std::ostream& ) const override;
 
 private:
   double dval_;

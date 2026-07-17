@@ -32,7 +32,6 @@ public:  // Class Machinery
   bool operator==( const BObjectImp& objimp ) const override;
 
   std::string getStringRep() const override;
-  void printOn( std::ostream& ) const override;
 
 private:
   bool bval_;

@@ -156,7 +156,6 @@ public:
 
   virtual std::string pack() const;
   virtual void packonto( std::string& os ) const;
-  virtual void printOn( std::ostream& ) const;
 
   virtual bool operator==( const BObjectImp& objimp ) const;
   virtual bool operator<( const BObjectImp& objimp ) const;
@@ -340,8 +339,6 @@ public:
   virtual void selfMinusMinus();
 
   virtual ContIterator* createIterator( BObject* pIterVal );
-
-  friend std::ostream& operator<<( std::ostream&, const BObjectImp& );
 
 private:
   BObjectType type_;

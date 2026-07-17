@@ -19,6 +19,7 @@
 #include "bscript/objmembers.h"
 #include "bscript/objmethods.h"
 #include "clib/stlutil.h"
+#include "clib/strutil.h"
 #include "plib/pkg.h"
 
 #include "module/fileaccess.h"

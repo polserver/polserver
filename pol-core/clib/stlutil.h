@@ -73,9 +73,6 @@ inline int stringicmp( const char* str1, const std::string& str2 )
 
 #define ISTRINGSTREAM std::istringstream
 
-#define OSTRINGSTREAM std::ostringstream
-#define OSTRINGSTREAM_STR( x ) x.str()
-
 template <class T, size_t N>
 constexpr size_t arsize( T ( & )[N] )
 {

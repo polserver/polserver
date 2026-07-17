@@ -4,6 +4,7 @@
 #include "bscript/compiler/representation/DebugStore.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
+#include "clib/strutil.h"
 #include "objmembers.h"
 #include "objmethods.h"
 #include <algorithm>

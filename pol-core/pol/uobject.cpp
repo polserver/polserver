@@ -21,6 +21,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../clib/streamsaver.h"
+#include "../clib/strutil.h"
 #include "../plib/clidata.h"
 #include "../plib/objtype.h"
 #include "../plib/systemstate.h"

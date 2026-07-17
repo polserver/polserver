@@ -16,6 +16,8 @@
 #include "objmethods.h"
 #include "str.h"
 
+#include <fmt/compile.h>
+
 namespace Pol::Bscript
 {
 using namespace fmt::literals;
@@ -444,7 +446,8 @@ long ObjArray::contains( const BObjectImp& imp ) const
       if ( bo == nullptr )
       {
         INFO_PRINTLN( "{} - '{} in array{{}}' check. Invalid data at index {}",
-                      Clib::scripts_thread_script, imp, ( itr - ref_arr.begin() ) + 1 );
+                      Clib::scripts_thread_script, imp.getStringRep(),
+                      ( itr - ref_arr.begin() ) + 1 );
         continue;
       }
       if ( *( bo->impptr() ) == imp )
