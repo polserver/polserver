@@ -13,11 +13,57 @@
 #include "maptile.h"
 
 #include <string>
+#include <string_view>
+#include <type_traits>
 #include <vector>
 
 
 namespace Pol::Plib
 {
+// A realm output file held fully in memory: an optional raw filler prefix
+// followed by a packed array of T. Recorded file offsets are byte offsets from
+// the start of the file, filler included (byte_size() is exactly the offset the
+// next appended element will land at). The dirty flag lives with the buffer:
+// any non-const elems() handout marks the file dirty, store() writes only dirty
+// files and marks them clean again, so untouched files are never rewritten and
+// a destructor flush after an explicit one writes nothing twice.
+template <typename T>
+class OutputFile
+{
+  static_assert( std::is_trivially_copyable_v<T>, "OutputFile streams the raw bytes of T" );
+
+public:
+  explicit OutputFile( std::string name, std::string_view filler = {} );
+
+  unsigned int byte_size() const
+  {
+    return static_cast<unsigned int>( filler_.size() + elems_.size() * sizeof( T ) );
+  }
+
+  std::vector<T>& elems()  // mutating access dirties the file
+  {
+    dirty_ = true;
+    return elems_;
+  }
+  const std::vector<T>& elems() const { return elems_; }
+
+  // Read dir+name into the buffer, verifying and stripping the filler prefix;
+  // leaves the file clean. Throws with the filename on any failure, including a
+  // size that is not filler plus a whole number of elements.
+  void load( const std::string& dir );
+  // Write filler then the element blob to dir+name, iff dirty; marks clean.
+  void store( const std::string& dir );
+  // For brand-new realms: the file does not exist on disk yet, so it must be
+  // written even if the conversion never touches it.
+  void mark_fresh() { dirty_ = true; }
+
+private:
+  std::string name_;
+  std::string filler_;
+  std::vector<T> elems_;
+  bool dirty_ = false;
+};
+
 // Builds a realm's output files (base/solidx1/solidx2/solids/maptile.dat) in
 // memory and writes each one out a single time in Flush(). The conversion path
 // touches map blocks in a scattered order, so buffering avoids the seek+read /
@@ -25,7 +71,7 @@ namespace Pol::Plib
 class MapWriter
 {
 public:
-  MapWriter() = default;
+  MapWriter();
   ~MapWriter();
 
   void SetMapCell( unsigned short x, unsigned short y, MAPCELL cell );
@@ -63,21 +109,11 @@ private:
   unsigned short _width = 0;
   unsigned short _height = 0;
 
-  // Each buffer is paired with a dirty flag: Flush() only writes buffers whose
-  // flag is set, and clears it afterwards (so the explicit Flush() and the
-  // destructor's don't write twice). CreateNewFiles marks every buffer dirty
-  // because none of the files exist on disk yet; OpenExistingFiles leaves them
-  // clean so a mode that patches one file doesn't rewrite the others.
-  std::vector<MAPBLOCK> _base;
-  bool _base_dirty = false;
-  std::vector<SOLIDX1_ELEM> _solidx1;
-  bool _solidx1_dirty = false;
-  std::vector<char> _solidx2;  // leading bytes are the SOLIDX2 filler
-  bool _solidx2_dirty = false;
-  std::vector<char> _solids;  // leading bytes are the solids filler
-  bool _solids_dirty = false;
-  std::vector<MAPTILE_BLOCK> _maptile;
-  bool _maptile_dirty = false;
+  OutputFile<MAPBLOCK> _base;
+  OutputFile<SOLIDX1_ELEM> _solidx1;
+  OutputFile<SOLIDX2_ELEM> _solidx2;
+  OutputFile<SOLIDS_ELEM> _solids;
+  OutputFile<MAPTILE_BLOCK> _maptile;
 };
 }  // namespace Pol::Plib
 

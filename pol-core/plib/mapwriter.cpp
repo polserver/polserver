@@ -26,57 +26,91 @@ extern unsigned int num_static_patches;
 
 namespace
 {
-// Write an entire buffer to `path`, truncating any existing file. Throws with
-// the filename in the message on any open/write failure.
+// The filler prefixes keep offset 0 from referencing real data. solids.dat's is
+// two whole SOLIDS_ELEMs (NextSolidIndex counts elements, filler included);
+// solidx2.dat's is 4 raw bytes -- NOT a whole 132-byte SOLIDX2_ELEM -- which is
+// fine because solidx1 records byte offsets into solidx2, and is exactly why
+// OutputFile models fillers as bytes rather than elements.
+constexpr std::string_view SOLIDS_FILLER = "filler";
+constexpr std::string_view SOLIDX2_FILLER = "fill";
+static_assert( SOLIDS_FILLER.size() == 2 * sizeof( SOLIDS_ELEM ) );
+static_assert( SOLIDX2_FILLER.size() == SOLIDX2_FILLER_SIZE );
+}  // namespace
+
 template <typename T>
-void write_file( std::string path, const std::vector<T>& buf )
+OutputFile<T>::OutputFile( std::string name, std::string_view filler )
+    : name_( std::move( name ) ), filler_( filler )
 {
-  std::ofstream ofs;
-  ofs.exceptions( std::ios_base::failbit | std::ios_base::badbit );
-  Clib::open_file( ofs, path, std::ios::out | std::ios::trunc | std::ios::binary );
-  if ( !buf.empty() )
-    ofs.write( reinterpret_cast<const char*>( buf.data() ),
-               static_cast<std::streamsize>( buf.size() * sizeof( T ) ) );
 }
 
-// Read the entire file at `path` into `buf`, resizing it to fit. Throws with
-// the filename in the message on any open/read failure, or if the file size is
-// not a whole number of T elements.
 template <typename T>
-void read_file( std::string path, std::vector<T>& buf )
+void OutputFile<T>::load( const std::string& dir )
 {
+  std::string path = dir + name_;
   std::ifstream ifs;
   ifs.exceptions( std::ios_base::failbit | std::ios_base::badbit );
   Clib::open_file( ifs, path, std::ios::in | std::ios::binary );
   ifs.seekg( 0, std::ios::end );
   const auto bytes = static_cast<std::streamoff>( ifs.tellg() );
   ifs.seekg( 0, std::ios::beg );
-  if ( bytes % static_cast<std::streamoff>( sizeof( T ) ) != 0 )
-    throw std::runtime_error( "File " + path + " size is not a multiple of its element size" );
-  buf.resize( static_cast<size_t>( bytes ) / sizeof( T ) );
-  if ( bytes )
-    ifs.read( reinterpret_cast<char*>( buf.data() ), bytes );
+
+  const auto filler_bytes = static_cast<std::streamoff>( filler_.size() );
+  if ( bytes < filler_bytes ||
+       ( bytes - filler_bytes ) % static_cast<std::streamoff>( sizeof( T ) ) != 0 )
+    throw std::runtime_error( "File " + path +
+                              " size is not the filler plus a whole number of elements" );
+
+  if ( filler_bytes != 0 )
+  {
+    std::string prefix( filler_.size(), '\0' );
+    ifs.read( prefix.data(), filler_bytes );
+    if ( prefix != filler_ )
+      throw std::runtime_error( "File " + path + " does not start with the expected filler" );
+  }
+
+  elems_.resize( static_cast<size_t>( ( bytes - filler_bytes ) / sizeof( T ) ) );
+  if ( !elems_.empty() )
+    ifs.read( reinterpret_cast<char*>( elems_.data() ),
+              static_cast<std::streamsize>( elems_.size() * sizeof( T ) ) );
+  dirty_ = false;
 }
 
-// Append the raw bytes of a trivially-copyable value to a byte buffer.
 template <typename T>
-void append_pod( std::vector<char>& buf, const T& value )
+void OutputFile<T>::store( const std::string& dir )
 {
-  const char* p = reinterpret_cast<const char*>( &value );
-  buf.insert( buf.end(), p, p + sizeof( T ) );
-}
-
-// Write `buf` to `path` only if it was modified since it was created/loaded,
-// then clear the flag so a later Flush() (e.g. from the destructor) is a no-op.
-template <typename T>
-void flush_buffer( const std::string& path, const std::vector<T>& buf, bool& dirty )
-{
-  if ( !dirty )
+  if ( !dirty_ )
     return;
-  write_file( path, buf );
-  dirty = false;
+  std::string path = dir + name_;
+  std::ofstream ofs;
+  ofs.exceptions( std::ios_base::failbit | std::ios_base::badbit );
+  Clib::open_file( ofs, path, std::ios::out | std::ios::trunc | std::ios::binary );
+  if ( !filler_.empty() )
+    ofs.write( filler_.data(), static_cast<std::streamsize>( filler_.size() ) );
+  if ( !elems_.empty() )
+    ofs.write( reinterpret_cast<const char*>( elems_.data() ),
+               static_cast<std::streamsize>( elems_.size() * sizeof( T ) ) );
+  dirty_ = false;
 }
-}  // namespace
+
+template class OutputFile<MAPBLOCK>;
+template class OutputFile<SOLIDX1_ELEM>;
+template class OutputFile<SOLIDX2_ELEM>;
+template class OutputFile<SOLIDS_ELEM>;
+template class OutputFile<MAPTILE_BLOCK>;
+
+MapWriter::MapWriter()
+    : _base( "base.dat" ),
+      _solidx1( "solidx1.dat" ),
+      _solidx2( "solidx2.dat", SOLIDX2_FILLER ),
+      _solids( "solids.dat", SOLIDS_FILLER ),
+      _maptile( "maptile.dat" )
+{
+}
+
+MapWriter::~MapWriter()
+{
+  Flush();
+}
 
 void MapWriter::WriteConfigFile()
 {
@@ -110,16 +144,20 @@ void MapWriter::CreateNewFiles( const std::string& realm_name, unsigned short wi
   Clib::make_dir( _directory.c_str() );
 
   // Zero-initialized blocks match the byte content the old block-by-block
-  // zero-fill produced; the fillers keep offset 0 from referencing real data.
-  _base.assign( total_blocks(), MAPBLOCK{} );
-  _solidx1.assign( total_solid_blocks(), SOLIDX1_ELEM{ 0 } );
-  _solidx2 = { 'f', 'i', 'l', 'l' };
-  _solids = { 'f', 'i', 'l', 'l', 'e', 'r' };  // multiple of 3
-  _maptile.assign( total_maptile_blocks(), MAPTILE_BLOCK{} );
+  // zero-fill produced.
+  _base.elems().assign( total_blocks(), MAPBLOCK{} );
+  _solidx1.elems().assign( total_solid_blocks(), SOLIDX1_ELEM{ 0 } );
+  _solidx2.elems().clear();
+  _solids.elems().clear();
+  _maptile.elems().assign( total_maptile_blocks(), MAPTILE_BLOCK{} );
 
-  // These are brand-new files; every buffer must be written even if the
+  // These are brand-new files; every one must be written even if the
   // conversion never touches it (e.g. maptile.dat during a plain `map` run).
-  _base_dirty = _solidx1_dirty = _solidx2_dirty = _solids_dirty = _maptile_dirty = true;
+  _base.mark_fresh();
+  _solidx1.mark_fresh();
+  _solidx2.mark_fresh();
+  _solids.mark_fresh();
+  _maptile.mark_fresh();
 }
 
 void MapWriter::OpenExistingFiles( const std::string& realm_name )
@@ -139,27 +177,22 @@ void MapWriter::OpenExistingFiles( const std::string& realm_name )
   // one file (create_maptile, update_map) leave the rest byte-identical, and
   // update_map's append-to-existing-solids behavior falls out of loading the
   // append buffers with the current file contents.
-  read_file( _directory + "base.dat", _base );
-  read_file( _directory + "solidx1.dat", _solidx1 );
-  read_file( _directory + "solidx2.dat", _solidx2 );
-  read_file( _directory + "solids.dat", _solids );
-  read_file( _directory + "maptile.dat", _maptile );
-}
-
-MapWriter::~MapWriter()
-{
-  Flush();
+  _base.load( _directory );
+  _solidx1.load( _directory );
+  _solidx2.load( _directory );
+  _solids.load( _directory );
+  _maptile.load( _directory );
 }
 
 void MapWriter::Flush()
 {
-  // Only dirtied buffers are written; flush_buffer clears each flag so the
+  // Only dirtied buffers are written; store() clears each flag so the
   // destructor's Flush() after an explicit one writes nothing.
-  flush_buffer( _directory + "base.dat", _base, _base_dirty );
-  flush_buffer( _directory + "solidx1.dat", _solidx1, _solidx1_dirty );
-  flush_buffer( _directory + "solidx2.dat", _solidx2, _solidx2_dirty );
-  flush_buffer( _directory + "solids.dat", _solids, _solids_dirty );
-  flush_buffer( _directory + "maptile.dat", _maptile, _maptile_dirty );
+  _base.store( _directory );
+  _solidx1.store( _directory );
+  _solidx2.store( _directory );
+  _solids.store( _directory );
+  _maptile.store( _directory );
 }
 
 unsigned int MapWriter::total_blocks() const
@@ -180,14 +213,12 @@ void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
   unsigned short xcell = x & MAPBLOCK_CELLMASK;
   unsigned short ycell = y & MAPBLOCK_CELLMASK;
 
-  _base[realm_block_index( x, y, _width )].cell[xcell][ycell] = cell;
-  _base_dirty = true;
+  _base.elems()[realm_block_index( x, y, _width )].cell[xcell][ycell] = cell;
 }
 void MapWriter::SetMapBlock( unsigned short x_base, unsigned short y_base, const MAPBLOCK& block )
 {
   passert( ( x_base & MAPBLOCK_CELLMASK ) == 0 && ( y_base & MAPBLOCK_CELLMASK ) == 0 );
-  _base[realm_block_index( x_base, y_base, _width )] = block;
-  _base_dirty = true;
+  _base.elems()[realm_block_index( x_base, y_base, _width )] = block;
 }
 
 void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell )
@@ -195,42 +226,39 @@ void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cel
   unsigned short xcell = x & MAPTILE_CELLMASK;
   unsigned short ycell = y & MAPTILE_CELLMASK;
 
-  _maptile[maptile_index( x, y, _width )].cell[xcell][ycell] = cell;
-  _maptile_dirty = true;
+  _maptile.elems()[maptile_index( x, y, _width )].cell[xcell][ycell] = cell;
 }
 
 unsigned int MapWriter::NextSolidOffset() const
 {
-  return static_cast<unsigned int>( _solids.size() );
+  return _solids.byte_size();
 }
 
 unsigned int MapWriter::NextSolidIndex() const
 {
+  // Element index, counting the two filler elements at the front of the file.
   return NextSolidOffset() / sizeof( SOLIDS_ELEM );
 }
 
 unsigned int MapWriter::NextSolidx2Offset() const
 {
-  return static_cast<unsigned int>( _solidx2.size() );
+  return _solidx2.byte_size();
 }
 
 void MapWriter::AppendSolid( const SOLIDS_ELEM& solid )
 {
-  append_pod( _solids, solid );
-  _solids_dirty = true;
+  _solids.elems().push_back( solid );
 }
 
 void MapWriter::AppendSolidx2Elem( const SOLIDX2_ELEM& elem )
 {
-  append_pod( _solidx2, elem );
-  _solidx2_dirty = true;
+  _solidx2.elems().push_back( elem );
 }
 
 void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base,
                                   unsigned int offset )
 {
   // Solid blocks share the 8x8 row-major realm block layout.
-  _solidx1[realm_block_index( x_base, y_base, _width )].offset = offset;
-  _solidx1_dirty = true;
+  _solidx1.elems()[realm_block_index( x_base, y_base, _width )].offset = offset;
 }
 }  // namespace Pol::Plib
