@@ -29,6 +29,9 @@ public:
   ~MapWriter();
 
   void SetMapCell( unsigned short x, unsigned short y, MAPCELL cell );
+  // Overwrite a whole 8x8 base.dat block at once; x_base/y_base must be
+  // block-aligned (multiples of MAPBLOCK_CHUNK).
+  void SetMapBlock( unsigned short x_base, unsigned short y_base, const MAPBLOCK& block );
   void SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell );
 
   void Flush();

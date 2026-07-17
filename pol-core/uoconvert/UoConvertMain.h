@@ -25,8 +25,12 @@ struct TerrainPlane;
 // (SOLIDX_X_SIZE/SOLIDX_Y_SIZE from plib/mapsolid.h).
 struct BlockResult
 {
-  // Final map cell (flags incl. MORE_SOLIDS) for each in-bounds tile of the block.
-  Plib::MAPCELL cells[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
+  // Final map cells (flags incl. MORE_SOLIDS) for each in-bounds tile of the block,
+  // stored as a ready-made MAPBLOCK: a solid block and a base.dat block are the same
+  // 8x8 [x][y] geometry, so a full block stitches with a single block assignment.
+  static_assert( SOLIDX_X_SIZE == Plib::MAPBLOCK_CHUNK && SOLIDX_Y_SIZE == Plib::MAPBLOCK_CHUNK,
+                 "solid blocks and map blocks must share the 8x8 geometry" );
+  Plib::MAPBLOCK cells;
   // Element offset of each cell's first solid, relative to this block's first solid
   // (block-local, 0-based). Zero for cells without runs, matching the old SOLIDX2_ELEM
   // which left those slots at 0; the stitch copies this array wholesale.

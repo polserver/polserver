@@ -145,38 +145,26 @@ void UoConvertMain::create_maptile( const std::string& realmname )
   TerrainPlane plane;
   plane.build( uo_map_width, uo_map_height, /*need_low_z=*/false, cfg_threads );
 
-  for ( unsigned short y_base = 0; y_base < uo_map_height; y_base += Plib::MAPTILE_CHUNK )
+  // Plain row-major sweep; the old 64x64 blocked iteration only existed to suit the
+  // former one-block writer cache, which got replaced with in-memory buffers.
+  for ( unsigned short y = 0; y < uo_map_height; ++y )
   {
-    for ( unsigned short x_base = 0; x_base < uo_map_width; x_base += Plib::MAPTILE_CHUNK )
+    if ( y % Plib::MAPTILE_CHUNK == 0 )
+      INFO_PRINT( "\rConverting: {}%", y * 100 / uo_map_height );
+    for ( unsigned short x = 0; x < uo_map_width; ++x )
     {
-      unsigned short x_add_max = Plib::MAPTILE_CHUNK, y_add_max = Plib::MAPTILE_CHUNK;
-      if ( x_base + x_add_max > uo_map_width )
-        x_add_max = uo_map_width - x_base;
-      if ( y_base + y_add_max > uo_map_height )
-        y_add_max = uo_map_height - y_base;
+      const std::size_t plane_idx = plane.index( x, y );
+      const u16 landtile = plane.landtile[plane_idx];
+      const s8 z = plane.eff_z[plane_idx];  // effective z (liquid override applied)
 
-      for ( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
-      {
-        for ( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
-        {
-          unsigned short x = x_base + x_add;
-          unsigned short y = y_base + y_add;
+      if ( landtile > 0x3FFF )
+        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
 
-          const std::size_t plane_idx = plane.index( x, y );
-          const u16 landtile = plane.landtile[plane_idx];
-          const s8 z = plane.eff_z[plane_idx];  // effective z (liquid override applied)
-
-          if ( landtile > 0x3FFF )
-            INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
-
-          Plib::MAPTILE_CELL cell;
-          cell.landtile = landtile;
-          cell.z = z;
-          writer.SetMapTile( x, y, cell );
-        }
-      }
+      Plib::MAPTILE_CELL cell;
+      cell.landtile = landtile;
+      cell.z = z;
+      writer.SetMapTile( x, y, cell );
     }
-    INFO_PRINT( "\rConverting: {}%", y_base * 100 / uo_map_height );
   }
   writer.Flush();
   INFO_PRINTLN( "\rConversion complete." );
@@ -404,9 +392,12 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
   result.y_add_max = y_add_max;
 
   // Reused across tiles (cleared, not reconstructed) to avoid a per-tile
-  // allocation across the ~25M tiles a full map conversion visits.
+  // allocation across the ~25M tiles a full map conversion visits. The reserve
+  // covers the typical per-tile count, so most tiles never reallocate at all.
   StaticList statics;
   std::vector<MapShape> shapes;
+  statics.reserve( 8 );
+  shapes.reserve( 8 );
 
   // Opt-in per-tile profiling: `t` is a rolling cursor and lap() folds the elapsed time
   // since the last cursor into an accumulator, advancing the cursor. Guarded by cfg_profile
@@ -503,8 +494,9 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
           lt_height = srec.z - z;
         }
       }
-      // shadows above caves
-      if ( is_cave_shadow( landtile ) && !statics.empty() )
+      // shadows above caves (check the cheap emptiness test first; most tiles
+      // have no statics at all)
+      if ( !statics.empty() && is_cave_shadow( landtile ) )
       {
         addMap = false;
       }
@@ -517,9 +509,12 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
       if ( addMap )
         statics.emplace_back( 0, static_cast<signed char>( z ), lt_flags,
                               static_cast<char>( lt_height ) );
-
-      sort( statics.begin(), statics.end(), StaticsByZ() );
-      reverse( statics.begin(), statics.end() );
+      
+      if ( statics.size() > 1 )
+      {
+        sort( statics.begin(), statics.end(), StaticsByZ() );
+        reverse( statics.begin(), statics.end() );
+      }
 
       shapes.clear();
 
@@ -652,26 +647,27 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
         }
       }
 
-      // the first StaticShape is the map base.
-      MapShape base = shapes[0];
-      shapes.erase( shapes.begin() );
+      // the first StaticShape is the map base; the rest are this cell's solid runs
+      // (left in place -- no need to pay an O(n) front erase per tile).
+      const MapShape& base = shapes[0];
+      const size_t num_runs = shapes.size() - 1;
       MAPCELL cell;
       passert_always( base.height == 0 );
       cell.z = static_cast<signed char>(
           base.z );  // assume now map has height=1. a static was already added if it was >0
       cell.flags = static_cast<u8>( base.flags );
-      if ( !shapes.empty() )
+      if ( num_runs != 0 )
         cell.flags |= FLAG::MORE_SOLIDS;
 
       if ( cfg_profile )
         lap( result.prof_shape_ns );
 
-      result.cells[x_add][y_add] = cell;
+      result.cells.cell[x_add][y_add] = cell;
 
-      if ( !shapes.empty() )
+      if ( num_runs != 0 )
       {
         ++result.nonempty_locations;
-        result.total_statics += static_cast<unsigned int>( shapes.size() );
+        result.total_statics += static_cast<unsigned int>( num_runs );
         result.has_solids = true;
 
         // Block-local element offset of this cell's first run. Captured before the
@@ -681,12 +677,11 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
         if ( addindex > std::numeric_limits<unsigned short>::max() )
           throw std::runtime_error( "addoffset overflow" );
         result.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
-        int count = static_cast<int>( shapes.size() );
-        for ( int j = 0; j < count; ++j )
+        for ( size_t j = 1; j < shapes.size(); ++j )
         {
-          MapShape shape = shapes[j];
+          const MapShape& shape = shapes[j];
           char _z, height, flags;
-          _z = static_cast<char>( shapes[j].z );
+          _z = static_cast<char>( shape.z );
           height = static_cast<char>( shape.height );
           flags = static_cast<u8>( shape.flags );
           if ( !height )  // make 0 height solid
@@ -695,7 +690,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
             ++height;
           }
 
-          if ( j != count - 1 )
+          if ( j != shapes.size() - 1 )
             flags |= FLAG::MORE_SOLIDS;
           SOLIDS_ELEM solid;
           solid.z = _z;
@@ -737,10 +732,19 @@ void UoConvertMain::StitchBlock( MapWriter& mapwriter, unsigned short x_base, un
   if ( cfg_profile )
     writer_start = ProfClock::now();
 
-  // Cell writes are disjoint per block; copy the clamped region into the base buffer.
-  for ( unsigned short x_add = 0; x_add < result.x_add_max; ++x_add )
-    for ( unsigned short y_add = 0; y_add < result.y_add_max; ++y_add )
-      mapwriter.SetMapCell( x_base + x_add, y_base + y_add, result.cells[x_add][y_add] );
+  // Cell writes are disjoint per block. A full block (the only case in practice --
+  // map dimensions are enforced divisible by 8) is one aligned block assignment;
+  // the per-cell fallback covers a hypothetical edge-clamped partial block.
+  if ( result.x_add_max == SOLIDX_X_SIZE && result.y_add_max == SOLIDX_Y_SIZE )
+  {
+    mapwriter.SetMapBlock( x_base, y_base, result.cells );
+  }
+  else
+  {
+    for ( unsigned short x_add = 0; x_add < result.x_add_max; ++x_add )
+      for ( unsigned short y_add = 0; y_add < result.y_add_max; ++y_add )
+        mapwriter.SetMapCell( x_base + x_add, y_base + y_add, result.cells.cell[x_add][y_add] );
+  }
 
   if ( !result.has_solids )
   {

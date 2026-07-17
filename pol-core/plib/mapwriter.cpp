@@ -13,6 +13,7 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/iohelp.h"
+#include "../clib/passert.h"
 #include "mapcell.h"
 #include "realmdescriptor.h"
 #include "uofile.h"
@@ -186,6 +187,16 @@ void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
   _base[blockIdx].cell[xcell][ycell] = cell;
   _base_dirty = true;
 }
+void MapWriter::SetMapBlock( unsigned short x_base, unsigned short y_base, const MAPBLOCK& block )
+{
+  passert( ( x_base & MAPBLOCK_CELLMASK ) == 0 && ( y_base & MAPBLOCK_CELLMASK ) == 0 );
+  unsigned short xblock = x_base >> MAPBLOCK_SHIFT;
+  unsigned short yblock = y_base >> MAPBLOCK_SHIFT;
+  int blockIdx = yblock * ( _width >> MAPBLOCK_SHIFT ) + xblock;
+  _base[blockIdx] = block;
+  _base_dirty = true;
+}
+
 void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell )
 {
   unsigned short xblock = x >> MAPTILE_SHIFT;
