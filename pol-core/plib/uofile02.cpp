@@ -1,4 +1,6 @@
 /** @file
+ * Full-read cache of staidx/statics (dif-merged): rawstaticfullread fills it,
+ * getstaticblock serves per-block record vectors from it.
  *
  * @par History
  * - 2005/01/17 Shinigami: readstaticblock - modified passert reason

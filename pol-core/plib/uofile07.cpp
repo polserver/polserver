@@ -1,4 +1,6 @@
 /** @file
+ * Per-tile static queries over getstaticblock: readstatics (flag-filtered),
+ * readstatics_block (whole-block bucketing), readallstatics.
  *
  * @par History
  */

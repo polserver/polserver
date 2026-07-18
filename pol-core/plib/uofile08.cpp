@@ -1,4 +1,6 @@
 /** @file
+ * Raw map accessors over the RawMap full-read cache: getmapinfo (with
+ * neighbour z-averaging), safe_getmapinfo, rawmap_extract_planes.
  *
  * @par History
  * - 2005/01/13 Shinigami: safe_getmapinfo - add missing checks for x and y

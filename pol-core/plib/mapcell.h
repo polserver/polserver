@@ -22,9 +22,11 @@ struct FLAG
     ALLOWDROPON = 0x0010,  // 'd'
     GRADUAL = 0x0020,      // 'g'
     BLOCKING = 0x0040,     // 'B'
-    // MORE_SOLIDS:
-    // for a map entry, indicates there are entries in the solids file.
-    // for a solid, indicates there is another solid following
+    // MORE_SOLIDS is overloaded by file:
+    // - on a base.dat MAPCELL: this cell has SOLIDS_ELEMs in solids.dat
+    //   (found via the solidx1.dat/solidx2.dat two-level index)
+    // - on a solids.dat SOLIDS_ELEM: another elem for this cell follows
+    //   (the elems of a cell are chained; the last one has the flag clear)
     MORE_SOLIDS = 0x0080,  // '+'
 
     // the flags above go into base.dat, solids.dat etc, so have to be the lower 8 bits.

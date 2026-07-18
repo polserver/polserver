@@ -1,4 +1,16 @@
 /** @file
+ * Reader API over the raw UO client data files (map/statics/tiledata/verdata),
+ * used by uoconvert and uotool -- pol reads converted realm files instead.
+ *
+ * Implementation is spread over uofile00-08.cpp; by declaration group:
+ * - open_uo_data_files/read_uo_data ......... uofile00.cpp (open, UOP probing)
+ * - readtile/readlandtile/read_objinfo ...... uofile01.cpp (tiledata + verdata cache)
+ * - getstaticblock/rawstaticfullread ........ uofile02.cpp (statics full-read cache)
+ * - readwater/iswater ....................... uofile04.cpp (water-tile table)
+ * - staticsmax .............................. uofile05.cpp
+ * - readstatics* (udatfile.h) ............... uofile07.cpp (per-tile static queries)
+ * - getmapinfo/safe_getmapinfo/rawmap* ...... uofile08.cpp (raw map cache accessors)
+ * (uofile06.cpp: standheight_read, declared in uofilei.h)
  *
  * @par History
  * - 2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)

@@ -1,4 +1,6 @@
 /** @file
+ * In-memory tiledata cache (land + item tiles, verdata-patched):
+ * readtile/readlandtile and the tileheight/tile_uoflags_read accessors.
  *
  * @par History
  * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
