@@ -90,9 +90,13 @@ void TerrainPlane::build( int w, int h, bool need_low_z, unsigned threads )
                 static_cast<std::size_t>( ny ) * static_cast<std::size_t>( w ) + nx;
             short z0 = avg_z[ni];
             const u16 lt = landtile[ni];
-            if ( is_cave_shadow( lt ) || is_cave_exit( lt ) )
+            // raw mul data can hold ids past the landtile range (the conversion warns
+            // about them later); out-of-range ids classify as plain terrain, exactly
+            // like the == chains they replace.
+            const u8 cls = lt < landtile_class.size() ? landtile_class[lt] : 0;
+            if ( cls & LandtileClass::CAVE )
               z0 = z_center;
-            if ( is_no_draw( lt ) )
+            if ( cls & LandtileClass::NO_DRAW )
               cave_override = true;
             if ( z0 < lowest )
               lowest = z0;

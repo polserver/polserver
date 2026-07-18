@@ -421,16 +421,15 @@ void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& sh
       // TODO: look for water statics and use THOSE as the map.
       // these will be converted below to make the map "solid"; the lowest
       // level is always gradual no matter what.
-      MapShape shape{ .z = srec.z, .height = 0, .flags = ( polflags & 0xFFu ) | FLAG::GRADUAL };
-      shapes.push_back( shape );
+      // emplace_back( z, height, flags ) throughout this function: constructing the
+      // MapShape in place lets the compiler keep the working shape in registers
+      // (push_back's const& parameter forces it into memory for the copy).
+      shapes.emplace_back( srec.z, short{ 0 }, ( polflags & 0xFFu ) | FLAG::GRADUAL );
 
       // for wall flag - map tile always height 0, at bottom. if map tile has height, add it as
       // a static
       if ( srec.height != 0 )
-      {
-        MapShape _shape{ .z = srec.z, .height = srec.height, .flags = polflags };
-        shapes.push_back( _shape );
-      }
+        shapes.emplace_back( srec.z, srec.height, polflags );
       continue;
     }
 
@@ -441,7 +440,7 @@ void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& sh
     // always add the map shape seperately
     if ( shapes.size() == 1 )
     {
-      shapes.push_back( shape );
+      shapes.emplace_back( shape.z, shape.height, shape.flags );
       continue;
     }
 
@@ -490,7 +489,7 @@ void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& sh
       // elevated above what's below, must include separately
       //
 
-      shapes.push_back( shape );
+      shapes.emplace_back( shape.z, shape.height, shape.flags );
       continue;
     }
 
@@ -519,7 +518,7 @@ void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& sh
       }
       else  // if one blocks LOS, but not the other, they can't be combined this way.
       {
-        shapes.push_back( shape );
+        shapes.emplace_back( shape.z, shape.height, shape.flags );
         continue;
       }
     }
@@ -750,11 +749,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
 
           if ( j != shapes.size() - 1 )
             flags |= FLAG::MORE_SOLIDS;
-          SOLIDS_ELEM solid;
-          solid.z = _z;
-          solid.height = height;
-          solid.flags = flags;
-          result.solids.push_back( solid );
+          result.solids.emplace_back( _z, height, flags );
           ++local_elems;
         }
       }

@@ -1,6 +1,7 @@
 #ifndef POL_UOCONVERT_TERRAINPLANE_H
 #define POL_UOCONVERT_TERRAINPLANE_H
 
+#include <array>
 #include <cstddef>
 #include <vector>
 
@@ -71,6 +72,33 @@ constexpr bool is_cave_shadow( u16 landtile )
            landtile == 0x1af || landtile == 0x1b0 || landtile == 0x1b1 || landtile == 0x1b2 ||
            landtile == 0x1b3 || landtile == 0x1b4 || landtile == 0x1b5 );
 }
+
+// The three classifiers folded into one compile-time table, for the hot loops that
+// probe them per neighbor (TerrainPlane::build pass 2 runs up to 8 probes for each
+// of width*height tiles): one 16 KB L1-resident load instead of walking the ==
+// chains above on every miss. Built from the constexpr functions, so the id lists
+// above remain the single source of truth.
+struct LandtileClass
+{
+  static constexpr u8 CAVE = 0x1;     // is_cave_shadow || is_cave_exit
+  static constexpr u8 NO_DRAW = 0x2;  // is_no_draw
+};
+
+inline constexpr auto landtile_class = []
+{
+  std::array<u8, 0x4000> table{};
+  for ( unsigned id = 0; id < table.size(); ++id )
+  {
+    const u16 lt = static_cast<u16>( id );
+    u8 c = 0;
+    if ( is_cave_shadow( lt ) || is_cave_exit( lt ) )
+      c |= LandtileClass::CAVE;
+    if ( is_no_draw( lt ) )
+      c |= LandtileClass::NO_DRAW;
+    table[id] = c;
+  }
+  return table;
+}();
 
 }  // namespace Pol::UoConvert
 
