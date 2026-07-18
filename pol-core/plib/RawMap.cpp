@@ -38,10 +38,12 @@ signed char RawMap::rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO
   return gi->z;
 }
 
-void RawMap::extract_planes( u16* landtile_out, s8* z_out ) const
+void RawMap::extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const
 {
   passert_r( is_init, "Tried to read map information before loading the map files" );
   passert( m_mapwidth > 0 && m_mapheight > 0 );
+  const std::size_t n = static_cast<std::size_t>( m_mapwidth ) * m_mapheight;
+  passert( landtile_out.size() == n && z_out.size() == n );
 
   const unsigned int hblocks = m_mapheight / 8;
   for ( unsigned int y = 0; y < m_mapheight; ++y )

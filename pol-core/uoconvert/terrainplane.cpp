@@ -24,7 +24,7 @@ void TerrainPlane::build( int w, int h, bool need_low_z, unsigned threads )
   // Bulk-extract the raw landtile ids and raw cell z's in one sequential pass, instead of
   // four block-indexed rawmapinfo lookups per corner per tile.
   std::vector<s8> raw_z( n );
-  Plib::rawmap_extract_planes( landtile.data(), raw_z.data() );
+  Plib::rawmap_extract_planes( landtile, raw_z );
 
   // Pass 1: avg_z + eff_z from the flat raw arrays. This replicates safe_getmapinfo
   // exactly -- its x+1/y+1 edge clamping, the min-differential diagonal choice, and the

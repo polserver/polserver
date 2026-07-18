@@ -25,6 +25,7 @@
 #include "clidata.h"
 #include "ustruct.h"
 
+#include <span>
 #include <vector>
 
 
@@ -35,8 +36,8 @@ namespace Pol::Plib
 extern void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void rawmapfullread();
 // Bulk-copy the raw map into caller-provided row-major arrays (idx = y*uo_map_width + x),
-// each uo_map_width*uo_map_height in size. Triggers a lazy rawmapfullread() if needed.
-void rawmap_extract_planes( u16* landtile_out, s8* z_out );
+// each exactly uo_map_width*uo_map_height in size. Triggers a lazy rawmapfullread() if needed.
+void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out );
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void readtile( unsigned short tilenum, USTRUCT_TILE* tile );
 void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile );

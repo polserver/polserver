@@ -220,27 +220,17 @@ void UoConvertMain::create_maptile( const std::string& realmname )
 class StaticsByZ
 {
 public:
-  bool operator()( const StaticRec& a, const StaticRec& b )
+  bool operator()( const StaticRec& a, const StaticRec& b ) const
   {
     return ( a.z < b.z ) || ( ( a.z == b.z && a.height < b.height ) );
   }
 };
 
 
-bool flags_match( unsigned int f1, unsigned int f2, unsigned char bits_compare )
+constexpr bool flags_match( unsigned int f1, unsigned int f2, unsigned char bits_compare )
 {
   return ( f1 & bits_compare ) == ( f2 & bits_compare );
 }
-
-/*
-bool otherflags_match( unsigned char f1, unsigned char f2, unsigned char bits_exclude )
-{
-  return ( f1 & ~bits_exclude ) == ( f2 & ~bits_exclude );
-}
-bool differby_exactly( unsigned char f1, unsigned char f2, unsigned char bits )
-{
-  return ( ( f1 ^ f2 ) == bits );
-}*/
 
 void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsigned short y )
 {
@@ -845,7 +835,7 @@ void UoConvertMain::StitchBlock( MapWriter& mapwriter, unsigned short x_base, un
 
 std::string UoConvertMain::resolve_type_from_id( unsigned id ) const
 {
-  if ( BoatTypes.count( id ) )
+  if ( BoatTypes.contains( id ) )
     return "Boat";
   return "Multi";
 }
@@ -1019,7 +1009,6 @@ void UoConvertMain::create_tiles_cfg()
 {
   std::string outdir = programArgsFindEquals( "outdir=", "." );
   UniqueFile fp = open_out_text( outdir + "/tiles.cfg" );
-  int mountCount;
   char name[21];
 
   unsigned count = 0;
@@ -1046,16 +1035,16 @@ void UoConvertMain::create_tiles_cfg()
     }
     else
       read_objinfo( graphic, tile );
-    mountCount = static_cast<int>( MountTypes.count( graphic ) );
+    const bool is_mount = MountTypes.contains( graphic );
 
     if ( tile.name[0] == '\0' && tile.flags == 0 && tile.layer == 0 && tile.height == 0 &&
-         mountCount == 0 )
+         !is_mount )
     {
       continue;
     }
     unsigned int flags =
         polflags_from_tileflags( graphic, tile.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
-    if ( mountCount != 0 )
+    if ( is_mount )
     {
       tile.layer = 25;
       flags |= FLAG::EQUIPPABLE;

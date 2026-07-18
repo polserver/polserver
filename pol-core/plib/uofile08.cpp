@@ -63,7 +63,7 @@ void rawmapfullread()
     rawmap_ready = true;
 }
 
-void rawmap_extract_planes( u16* landtile_out, s8* z_out )
+void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out )
 {
   if ( !rawmap_ready )
     rawmapfullread();
