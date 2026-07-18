@@ -1,9 +1,10 @@
 -- POL100.3.0 --
-07-16-2026 Nando:
+07-18-2026 Nando:
   Changed: uoconvert's map conversion is substantially faster. The 'map' and 'maptile'
            commands now build their output files in memory (writing each once instead of
            re-reading and rewriting blocks per change), compute the smoothed terrain for
-           the whole realm a single time instead of re-deriving it per tile, and process
+           the whole realm a single time instead of re-deriving it per tile, filter each
+           block's statics once instead of rescanning them for every tile, and process
            the map's solid blocks in parallel across CPU cores. A new optional threads=
            argument sets the worker count (threads=0, the default, uses all available
            cores; threads=1 forces the old single-threaded behavior). The generated realm
