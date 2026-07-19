@@ -1,0 +1,16 @@
+// this will fail with the current jump optimization
+var t1 := true;
+var t2 := true;
+var t3 := true;
+var t4 := false;
+var f := false;
+if ( ( f && t1 )     //
+     || ( f && t2 )  //
+     || ( t3 && t3 ) //
+     || ( f && t4 )  //
+     )
+  print( "success" );
+else
+  print( "failed" );
+endif
+
