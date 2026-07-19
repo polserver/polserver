@@ -9,6 +9,7 @@
 
 #include <filesystem>
 #include <limits.h>
+#include <stdexcept>
 #include <sys/stat.h>
 
 #ifdef LINUX
@@ -177,7 +178,15 @@ std::vector<std::byte> ReadEntireFile( FILE* fp )
 
   std::vector<std::byte> buf( static_cast<size_t>( end - start ) );
   if ( !buf.empty() )
-    fread( buf.data(), 1, buf.size(), fp );
+  {
+    size_t nread = fread( buf.data(), 1, buf.size(), fp );
+    if ( nread != buf.size() )
+    {
+      if ( ferror( fp ) )
+        throw std::runtime_error( "ReadEntireFile: fread failed" );
+      buf.resize( nread );  // file shrank between size check and read
+    }
+  }
   return buf;
 }
 }  // namespace Pol::Clib
