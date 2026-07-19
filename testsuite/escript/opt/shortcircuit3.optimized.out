@@ -11,76 +11,86 @@ success
 6: :=
 8: "multiple ||" (string)
 10: global variable #1
-11: logical jump if true to 16
+11: logical jump if true to 14
 12: global variable #1
-13: logical jump if true to 16
-14: global variable #0
-15: logical convert
-16: if false goto 21
-17: "success" (string)
-18: "" (string)
-19: call module function (0, 0): Print
-21: "multible &&" (string)
-23: global variable #0
-24: logical jump if false to 29
-25: global variable #0
-26: logical jump if false to 29
-27: global variable #0
-28: logical convert
-29: if false goto 34
-30: "success" (string)
-31: "" (string)
-32: call module function (0, 0): Print
-34: "combined t && (t || t)" (string)
-36: global variable #0
-37: logical jump if false to 42
+13: logical convert
+14: logical jump if true to 17
+15: global variable #0
+16: logical convert
+17: if false goto 22
+18: "success" (string)
+19: "" (string)
+20: call module function (0, 0): Print
+22: "multible &&" (string)
+24: global variable #0
+25: logical jump if false to 28
+26: global variable #0
+27: logical convert
+28: logical jump if false to 31
+29: global variable #0
+30: logical convert
+31: if false goto 36
+32: "success" (string)
+33: "" (string)
+34: call module function (0, 0): Print
+36: "combined t && (t || t)" (string)
 38: global variable #0
-39: logical jump if true to 42
+39: logical jump if false to 45
 40: global variable #0
-41: logical convert
-42: if false goto 47
-43: "success" (string)
-44: "" (string)
-45: call module function (0, 0): Print
-47: "combined 2 t && (f || f)" (string)
-49: global variable #0
-50: logical jump if false to 55
-51: global variable #1
-52: logical jump if true to 55
-53: global variable #1
-54: logical convert
-55: if false goto 60
-56: "failed" (string)
-57: "" (string)
-58: call module function (0, 0): Print
-60: "combined 3 ( f || t ) && ( f || t)" (string)
-62: global variable #1
-63: logical jump if true to 65
-64: global variable #0
-65: logical jump if false to 70
+41: logical jump if true to 44
+42: global variable #0
+43: logical convert
+44: logical convert
+45: if false goto 50
+46: "success" (string)
+47: "" (string)
+48: call module function (0, 0): Print
+50: "combined 2 t && (f || f)" (string)
+52: global variable #0
+53: logical jump if false to 59
+54: global variable #1
+55: logical jump if true to 58
+56: global variable #1
+57: logical convert
+58: logical convert
+59: if false goto 64
+60: "failed" (string)
+61: "" (string)
+62: call module function (0, 0): Print
+64: "combined 3 ( f || t ) && ( f || t)" (string)
 66: global variable #1
 67: logical jump if true to 70
 68: global variable #0
 69: logical convert
-70: if false goto 75
-71: "success" (string)
-72: "" (string)
-73: call module function (0, 0): Print
-75: "combined 4 ( f || t || t ) && ( f || t || t )" (string)
-77: global variable #1
-78: logical jump if true to 82
-79: global variable #0
-80: logical jump if true to 82
-81: global variable #0
-82: logical jump if false to 89
+70: logical jump if false to 76
+71: global variable #1
+72: logical jump if true to 75
+73: global variable #0
+74: logical convert
+75: logical convert
+76: if false goto 81
+77: "success" (string)
+78: "" (string)
+79: call module function (0, 0): Print
+81: "combined 4 ( f || t || t ) && ( f || t || t )" (string)
 83: global variable #1
-84: logical jump if true to 89
+84: logical jump if true to 87
 85: global variable #0
-86: logical jump if true to 89
-87: global variable #0
-88: logical convert
-89: if false goto 94
-90: "success" (string)
-91: "" (string)
-92: call module function (0, 0): Print
+86: logical convert
+87: logical jump if true to 90
+88: global variable #0
+89: logical convert
+90: logical jump if false to 99
+91: global variable #1
+92: logical jump if true to 95
+93: global variable #0
+94: logical convert
+95: logical jump if true to 98
+96: global variable #0
+97: logical convert
+98: logical convert
+99: if false goto 104
+100: "success" (string)
+101: "" (string)
+102: call module function (0, 0): Print
 

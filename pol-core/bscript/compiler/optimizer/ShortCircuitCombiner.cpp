@@ -10,8 +10,8 @@ class ShortCircuitCombinerChildVisitor : public NodeVisitor
 {
 public:
   ShortCircuitCombinerChildVisitor( BinaryOperatorShortCircuit& parent, bool rhs )
-      : parent( parent ), rhs( rhs ){};
-  void visit_children( Node& ) override{};
+      : parent( parent ), rhs( rhs ) {};
+  void visit_children( Node& ) override {};
   void visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& child ) override
   {
     // create a new jmplink or use the existing
@@ -43,13 +43,16 @@ ShortCircuitCombiner::ShortCircuitCombiner( Report& ) {}
 
 void ShortCircuitCombiner::visit_children( Node& ) {}
 
-void ShortCircuitCombiner::visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& op )
+void ShortCircuitCombiner::visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& /*op*/ )
 {
+  // disabled doesnt work :(
+  return;
+
   // dont visit recursivly just direct both sides
-  ShortCircuitCombinerChildVisitor lhs_child{ op, false };
-  op.lhs().accept( lhs_child );
-  ShortCircuitCombinerChildVisitor rhs_child{ op, true };
-  op.rhs().accept( rhs_child );
+  //  ShortCircuitCombinerChildVisitor lhs_child{ op, false };
+  // op.lhs().accept( lhs_child );
+  //  ShortCircuitCombinerChildVisitor rhs_child{ op, true };
+  //  op.rhs().accept( rhs_child );
 }
 
 }  // namespace Pol::Bscript::Compiler

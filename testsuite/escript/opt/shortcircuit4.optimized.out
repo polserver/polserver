@@ -7,18 +7,19 @@ success
 5: false (boolean)
 6: :=
 8: global variable #1
-9: logical jump if true to 19
+9: logical jump if true to 17
 10: global variable #0
 11: logical jump if true to 14
 12: global variable #1
 13: logical convert
 14: "" (string)
 15: call module function (0, 0): Print
-16: logical jump if true to 19
-17: global variable #0
-18: logical convert
-19: if false goto 24
-20: "success" (string)
-21: "" (string)
-22: call module function (0, 0): Print
+16: logical convert
+17: logical jump if true to 20
+18: global variable #0
+19: logical convert
+20: if false goto 25
+21: "success" (string)
+22: "" (string)
+23: call module function (0, 0): Print
 
