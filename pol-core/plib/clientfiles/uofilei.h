@@ -7,8 +7,8 @@
 #ifndef UOFILEI_H
 #define UOFILEI_H
 
-#include "uconst.h"
-#include "udatfile.h"
+#include "../uconst.h"
+#include "../udatfile.h"
 
 #include <cstdio>
 #include <fstream>

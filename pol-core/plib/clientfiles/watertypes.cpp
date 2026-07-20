@@ -7,8 +7,8 @@
 #include <set>
 #include <stdio.h>
 
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
 #include "uoclientfiles.h"
 #include "uofilei.h"
 #include "ustruct.h"

@@ -16,11 +16,11 @@
 #include <fmt/format.h>
 #include <span>
 
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/strutil.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/strutil.h"
 #include "staticblock.h"
 #include "uoclientfiles.h"
 #include "uofile.h"

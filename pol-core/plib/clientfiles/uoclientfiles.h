@@ -10,15 +10,15 @@
 #include <vector>
 
 #include "RawMap.h"
-#include "clidata.h"
+#include "../clidata.h"
 #include "clib/rawtypes.h"
-#include "uconst.h"
-#include "udatfile.h"
-#include "ustruct.h"
+#include "../uconst.h"
+#include "../udatfile.h"
+#include "../ustruct.h"
 
 namespace Pol::Plib
 {
-// One tiledata.mul entry's cached fields (see uofile01.cpp).
+// One tiledata.mul entry's cached fields (see tiledatacache.cpp).
 struct TileData
 {
   u8 height;
@@ -27,7 +27,7 @@ struct TileData
 };
 
 // Per-file verdata.mul patch index: which blocks of a client file have a newer
-// version stored in verdata (see uofile01.cpp).
+// version stored in verdata (see tiledatacache.cpp).
 struct VerdataIndexes
 {
   using VRecList = std::map<unsigned int, USTRUCT_VERSION>;
@@ -44,7 +44,7 @@ struct VerdataIndexes
   }
 };
 
-// One statics block's cached records (see uofile02.cpp).
+// One statics block's cached records (see staticscache.cpp).
 struct USTRUCT_STATIC_BUFFER
 {
   std::vector<USTRUCT_STATIC> statics;
@@ -67,10 +67,11 @@ struct USTRUCT_STATIC_BUFFER
 // threads it explicitly; uotool keeps a process-wide instance behind its own
 // uofiles() accessor and its own load-on-first-use guards.
 //
-// Method definitions live in uofile00-08.cpp, grouped as before:
-// open/UOP probing (00), tiledata + verdata (01), statics cache (02), water
-// table (04), staticsmax (05), standheight (06), per-tile static queries (07),
-// raw-map accessors (08).
+// Method definitions live alongside this header in clientfiles/, grouped by
+// responsibility: open/UOP probing + the load sequence (uoclientfiles.cpp),
+// tiledata + verdata (tiledatacache.cpp), statics cache + queries + staticsmax
+// (staticscache.cpp), water table (watertypes.cpp), walk simulation
+// (standheight.cpp), raw-map load + map queries (rawmapaccess.cpp).
 class UoClientFiles
 {
 public:
@@ -88,7 +89,7 @@ public:
   bool cfg_show_illegal_graphic_warning = true;
   bool cfg_show_roof_and_platform_warning = true;
 
-  // --- Loads (uofile00.cpp / uofile01.cpp / uofile02.cpp / uofile08.cpp) ---
+  // --- Loads (uoclientfiles/tiledatacache/staticscache/rawmapaccess .cpp) ---
   // Call the relevant load before the matching queries -- the queries assert the
   // cache is present rather than loading lazily (see rawmap_loaded()). Not
   // thread-safe; a parallel region must find the caches already loaded.
@@ -102,7 +103,7 @@ public:
   bool rawmap_loaded() const;
   bool rawstatics_loaded() const;
 
-  // --- Tiledata / verdata queries (uofile01.cpp) ---
+  // --- Tiledata / verdata queries (tiledatacache.cpp) ---
   void readtile( unsigned short tilenum, USTRUCT_TILE* tile ) const;
   void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile ) const;
   void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile ) const;
@@ -116,7 +117,7 @@ public:
   unsigned int tile_uoflags_read( unsigned short tilenum ) const;
   bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec ) const;
 
-  // --- Statics queries (uofile02.cpp / uofile07.cpp) ---
+  // --- Statics queries (staticscache.cpp) ---
   const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y ) const;
   void readstatics( StaticList& vec, unsigned short x, unsigned short y ) const;
   void readstatics( StaticList& vec, unsigned short x, unsigned short y,
@@ -126,7 +127,7 @@ public:
   void readallstatics( StaticList& vec, unsigned short x, unsigned short y ) const;
   void staticsmax() const;  // scans staidx for the largest block (diagnostic print)
 
-  // --- Raw map queries (uofile08.cpp) ---
+  // --- Raw map queries (rawmapaccess.cpp) ---
   void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi ) const;
   void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi ) const;
   bool groundheight_read( unsigned short x, unsigned short y, short* z ) const;
@@ -134,7 +135,7 @@ public:
   // each exactly uo_map_width*uo_map_height in size.
   void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const;
 
-  // --- Walk simulation over raw client data (uofile06.cpp, uotool) ---
+  // --- Walk simulation over raw client data (standheight.cpp, uotool) ---
   void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
                          unsigned short y, short oldz, bool* result, short* newz ) const;
 

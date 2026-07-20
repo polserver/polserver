@@ -15,8 +15,8 @@
 #ifndef UOFILE_H
 #define UOFILE_H
 
-#include "clidata.h"
-#include "ustruct.h"
+#include "../clidata.h"
+#include "../ustruct.h"
 
 #include <span>
 #include <vector>

@@ -19,8 +19,8 @@
 #include "realmdescriptor.h"
 #include "staticblock.h"
 #include "systemstate.h"
-#include "uoclientfiles.h"
-#include "uofile.h"
+#include "clientfiles/uoclientfiles.h"
+#include "clientfiles/uofile.h"
 #include "ustruct.h"
 
 

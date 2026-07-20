@@ -10,9 +10,9 @@
 #include <cstdio>
 #include <cstring>
 
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
 #include "systemstate.h"
 #include "uoclientfiles.h"
 #include "uofile.h"

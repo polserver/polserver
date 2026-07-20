@@ -4,8 +4,8 @@
 #include <cstdlib>
 
 #include "../plib/clidata.h"
-#include "../plib/uoclientfiles.h"
-#include "../plib/uofile.h"
+#include "../plib/clientfiles/uoclientfiles.h"
+#include "../plib/clientfiles/uofile.h"
 #include "../plib/ustruct.h"
 #include "parallel.h"
 

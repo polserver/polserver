@@ -1,8 +1,8 @@
 #include "RawMap.h"
 
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
 #include "staticblock.h"
 
 #include "uopreader/uop.h"

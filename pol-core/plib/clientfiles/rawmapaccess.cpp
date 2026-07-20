@@ -13,8 +13,8 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
 #include "clidata.h"
 #include "poltype.h"
 #include "uoclientfiles.h"
