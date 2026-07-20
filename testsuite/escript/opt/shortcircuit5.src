@@ -1,3 +1,4 @@
+include "listfile";
 // this will fail with the current jump optimization
 var t1 := true;
 var t2 := true;
@@ -13,4 +14,6 @@ if ( ( f && t1 )     //
 else
   print( "failed" );
 endif
+
+print_listfile( "shortcircuit5" );
 

@@ -13,7 +13,6 @@ BinaryOperatorShortCircuit::BinaryOperatorShortCircuit( const SourceLocation& so
     : Expression( source_location ),
       oper( op ),
       end_label( std::make_shared<FlowControlLabel>() ),
-      linked_jmp_label(),
       generate_logical_convert( true )
 {
   children.reserve( 2 );

@@ -18,12 +18,16 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/optimizer/ShortCircuitCombiner.h"
 #include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
+#include "bscript/compilercfg.h"
+#include "compiler/optimizer/ShortCircuitCombiner.h"
+
 
 namespace Pol::Bscript::Compiler
 {
@@ -73,6 +77,9 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
                                                      workspace->user_function_labels );
 
   std::vector<ClassDescriptor> class_descriptors = class_declaration_registrar.take_descriptors();
+
+  if ( compilercfg.ShortCircuitEvaluation )
+    ShortCircuitCombiner::optimize_jumps( code );
 
   std::string tree;
 
