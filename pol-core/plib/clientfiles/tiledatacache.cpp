@@ -376,12 +376,4 @@ void UoClientFiles::read_landtiledata()
     }
   }
 }
-void UoClientFiles::read_uo_data()
-{
-  read_veridx();
-  read_tiledata();
-  read_landtiledata();
-  read_static_diffs();
-  read_map_difs();
-}
 }  // namespace Pol::Plib

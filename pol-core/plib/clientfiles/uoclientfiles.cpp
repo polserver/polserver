@@ -405,4 +405,16 @@ void UoClientFiles::open_uo_data_files()
     }
   }
 }
+
+// The second half of setup: fill the caches from the files opened above. Reads the
+// verdata index + tiledata/landtile caches (tiledatacache), then the statics- and
+// map-diff lists that the statics/rawmap loads consult.
+void UoClientFiles::read_uo_data()
+{
+  read_veridx();
+  read_tiledata();
+  read_landtiledata();
+  read_static_diffs();
+  read_map_difs();
+}
 }  // namespace Pol::Plib

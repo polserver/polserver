@@ -53,10 +53,8 @@ set (plib_sources  # sorted !
   uofile00.cpp
   uofile01.cpp
   uofile02.cpp
-  uofile04.cpp 
-  uofile05.cpp
+  uofile04.cpp
   uofile06.cpp
-  uofile07.cpp
   uofile08.cpp
   uoinstallfinder.cpp
   uoinstallfinder.h
