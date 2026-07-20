@@ -8,13 +8,14 @@
 #include <stdio.h>
 
 #include "../clib/logfacility.h"
+#include "uoclientfiles.h"
 #include "uofilei.h"
 #include "ustruct.h"
 
 
 namespace Pol::Plib
 {
-void staticsmax()
+void UoClientFiles::staticsmax() const
 {
   unsigned int max = 0;
   USTRUCT_IDX idxrec;

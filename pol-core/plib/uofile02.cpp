@@ -20,6 +20,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/strutil.h"
 #include "staticblock.h"
+#include "uoclientfiles.h"
 #include "uofile.h"
 #include "uofilei.h"
 #include "ustruct.h"
@@ -27,25 +28,9 @@
 
 namespace Pol::Plib
 {
-unsigned int num_static_patches = 0;
 bool static_debug_on = false;
 
-int cfg_max_statics_per_block = 1000;
-int cfg_warning_statics_per_block = 1000;
-bool cfg_use_new_hsa_format = false;
-
-using StaticDifBlockIndex = std::map<unsigned int, unsigned int>;
-StaticDifBlockIndex stadifl;
-
-struct USTRUCT_STATIC_BUFFER
-{
-  std::vector<USTRUCT_STATIC> statics;
-  int count;
-};
-static std::vector<USTRUCT_STATIC_BUFFER> rawstatic_buffer_vec;
-static bool rawstatic_init = false;
-
-void read_static_diffs()
+void UoClientFiles::read_static_diffs()
 {
   unsigned index = 0;
   if ( stadifl_file != nullptr )
@@ -60,7 +45,8 @@ void read_static_diffs()
   num_static_patches = index;
 }
 
-const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y )
+const std::vector<USTRUCT_STATIC>& UoClientFiles::getstaticblock( unsigned short x,
+                                                                  unsigned short y ) const
 {
   if ( !rawstatic_init )  // FIXME just for safety cause I'm lazy
     rawstaticfullread();
@@ -72,12 +58,12 @@ const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned sh
   return rawstatic_buffer_vec.at( block ).statics;
 }
 
-bool rawstatics_loaded()
+bool UoClientFiles::rawstatics_loaded() const
 {
   return rawstatic_init;
 }
 
-void rawstaticfullread()
+void UoClientFiles::rawstaticfullread() const
 {
   // Bulk-read both input files once instead of one fseek+fread pair per block
   // (~393k blocks for map0). The dif-file path below stays fseek/fread since
@@ -93,7 +79,7 @@ void rawstaticfullread()
   {
     USTRUCT_IDX idx = idx_records[block];
     USTRUCT_STATIC_BUFFER buf;
-    StaticDifBlockIndex::const_iterator citr = stadifl.find( block );
+    auto citr = stadifl.find( block );
     if ( citr == stadifl.end() ) [[likely]]
     {
       if ( idx.length != 0xFFffFFffLu && idx.offset != 0xFFffFFffLu )

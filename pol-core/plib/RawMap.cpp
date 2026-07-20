@@ -18,12 +18,12 @@
 namespace Pol::Plib
 {
 USTRUCT_MAPINFO RawMap::get_cell( unsigned int blockidx, unsigned int x_offset,
-                                  unsigned int y_offset )
+                                  unsigned int y_offset ) const
 {
   return m_mapinfo_vec.at( blockidx ).cell[y_offset][x_offset];
 }
 
-signed char RawMap::rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
+signed char RawMap::rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi ) const
 {
   passert_r( is_init, "Tried to read map information before loading the map files" );
   passert( m_mapwidth > 0 && m_mapheight > 0 && x < m_mapwidth && y < m_mapheight );

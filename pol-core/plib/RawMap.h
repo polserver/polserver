@@ -27,10 +27,11 @@ private:
 
 public:
   // Gets information about a single tile within a 8x8 cell
-  USTRUCT_MAPINFO get_cell( unsigned int blockidx, unsigned int x_offset, unsigned int y_offset );
+  USTRUCT_MAPINFO get_cell( unsigned int blockidx, unsigned int x_offset,
+                            unsigned int y_offset ) const;
 
   // Returns information about a given coordinate in the world
-  signed char rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi );
+  signed char rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi ) const;
 
   // Bulk-copy the whole map into caller-provided row-major arrays
   // (idx = y * width + x), each exactly width*height in size. Same cell selection

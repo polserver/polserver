@@ -25,22 +25,16 @@
 #include "plib/uopreader/uop.h"
 #include "plib/uopreader/uophash.h"
 #include "systemstate.h"
+#include "uoclientfiles.h"
 
 
 namespace Pol::Plib
 {
-FILE* mapfile = nullptr;
-FILE* sidxfile = nullptr;
-FILE* statfile = nullptr;
-FILE* verfile = nullptr;
-FILE* tilefile = nullptr;
-FILE* stadifl_file = nullptr;
-FILE* stadifi_file = nullptr;
-FILE* stadif_file = nullptr;
-FILE* mapdifl_file = nullptr;
-FILE* mapdif_file = nullptr;
-
-std::ifstream uopmapfile;
+UoClientFiles& uofiles()
+{
+  static UoClientFiles instance;
+  return instance;
+}
 
 class ByteReader
 {
@@ -91,7 +85,7 @@ public:
 
 // This code is almost identical to the one in RawMap::load_full_map. One should consider a way to
 // refactor both.
-size_t uop_equivalent_mul_size( std::ifstream& ifs )
+static size_t uop_equivalent_mul_size( std::ifstream& ifs, int uo_mapid )
 {
   kaitai::kstream ks( &ifs );
   uop_t uopfile( &ks );
@@ -157,9 +151,9 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
   return totalSize;
 }
 
-bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
+bool UoClientFiles::open_uopmap_file( size_t* out_file_size )
 {
-  std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
+  std::string filepart = "map" + std::to_string( uo_mapid ) + "LegacyMUL.uop";
   std::string filename = systemstate.config.uo_datafile_root + filepart;
   if ( !Clib::FileExists( filename ) )
   {
@@ -174,7 +168,7 @@ bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
     return false;
 
   if ( out_file_size != nullptr )
-    *out_file_size = uop_equivalent_mul_size( uopmapfile );
+    *out_file_size = uop_equivalent_mul_size( uopmapfile, uo_mapid );
   return true;
 }
 
@@ -322,11 +316,11 @@ FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nu
   return fp;
 }
 
-FILE* open_map_file( std::string name, int map_id, size_t* out_file_size = nullptr )
+FILE* UoClientFiles::open_map_file( const std::string& name, size_t* out_file_size )
 {
   std::string filename;
 
-  filename = name + Clib::tostring( map_id ) + ".mul";
+  filename = name + Clib::tostring( uo_mapid ) + ".mul";
   if ( uo_mapid == 1 && !Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
   {
     ERROR_PRINTLN( "Unable to find UO file: {}, reading {}0.mul instead.", filename, name );
@@ -336,15 +330,7 @@ FILE* open_map_file( std::string name, int map_id, size_t* out_file_size = nullp
   return open_uo_file( filename, out_file_size );
 }
 
-int uo_mapid = 0;
-int uo_usedif = 1;
-bool uo_readuop = true;
-
-unsigned short uo_map_width = 0;
-unsigned short uo_map_height = 0;
-size_t uo_map_size = 0;
-
-void open_tiledata()
+void UoClientFiles::open_tiledata()
 {
   size_t tiledata_size;
 
@@ -353,8 +339,7 @@ void open_tiledata()
   // Auto-detect HSA format, find number of blocks, etc
   MUL::TiledataInfo tileinfo( tiledata_size );
 
-  // Save the parameters into this ugly global state we have
-  Plib::cfg_use_new_hsa_format = tileinfo.is_hsa();
+  cfg_use_new_hsa_format = tileinfo.is_hsa();
   Plib::systemstate.config.max_tile_id = tileinfo.max_tile_id();
 
   if ( !Plib::systemstate.config.max_tile_id )
@@ -372,29 +357,28 @@ void open_tiledata()
       "Using auto-detected parameters:\n"
       "\tUseNewHSAFormat = {}\n"
       "\tMaxTileID = {:#x}",
-      Plib::cfg_use_new_hsa_format, Plib::systemstate.config.max_tile_id );
+      cfg_use_new_hsa_format, Plib::systemstate.config.max_tile_id );
 }
 
-void open_map()
+void UoClientFiles::open_map()
 {
   size_t map_size;
   // First tries to load the new UOP files. Otherwise fall back to map[N].mul files.
   // map1 uses map0 + 'dif' files, unless there is a map1.mul (newer clients)
   // same for staidx and statics
 
-  if ( !uo_readuop || !open_uopmap_file( uo_mapid, &map_size ) )
-    mapfile = open_map_file( "map", uo_mapid, &map_size );
+  if ( !uo_readuop || !open_uopmap_file( &map_size ) )
+    mapfile = open_map_file( "map", &map_size );
 
-  // Store the file size in a global variable (UGH!)
   uo_map_size = map_size;
 }
 
-void open_uo_data_files()
+void UoClientFiles::open_uo_data_files()
 {
   open_map();
 
-  sidxfile = open_map_file( "staidx", uo_mapid );
-  statfile = open_map_file( "statics", uo_mapid );
+  sidxfile = open_map_file( "staidx" );
+  statfile = open_map_file( "statics" );
 
   if ( Clib::FileExists( ( systemstate.config.uo_datafile_root + "verdata.mul" ).c_str() ) )
   {

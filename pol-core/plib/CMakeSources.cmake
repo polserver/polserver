@@ -45,6 +45,7 @@ set (plib_sources  # sorted !
   tiles.h
   uconst.h
   udatfile.h
+  uoclientfiles.h
   uoexpansion.cpp
   uoexpansion.h
   uofile.h

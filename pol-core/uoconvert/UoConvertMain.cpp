@@ -31,6 +31,7 @@
 #include "plib/realmdescriptor.h"
 #include "plib/systemstate.h"
 #include "plib/udatfile.h"
+#include "plib/uoclientfiles.h"
 #include "plib/uofile.h"
 #include "plib/uofilei.h"
 #include "plib/uoinstallfinder.h"
@@ -171,8 +172,9 @@ void UoConvertMain::display_flags()
 void UoConvertMain::create_maptile( const std::string& realmname )
 {
   Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realmname );
-  uo_map_height = static_cast<unsigned short>( descriptor.height );
-  uo_map_width = static_cast<unsigned short>( descriptor.width );
+  auto& uof = uofiles();
+  uof.uo_map_height = static_cast<unsigned short>( descriptor.height );
+  uof.uo_map_width = static_cast<unsigned short>( descriptor.width );
 
   INFO_PRINTLN(
       "Creating maptile file.\n"
@@ -180,25 +182,25 @@ void UoConvertMain::create_maptile( const std::string& realmname )
       "  Map ID: {}\n"
       "  Use Dif files: {}\n"
       "  Size: {}x{}",
-      realmname, descriptor.uomapid, ( descriptor.uodif ? "Yes" : "No" ), uo_map_width,
-      uo_map_height );
+      realmname, descriptor.uomapid, ( descriptor.uodif ? "Yes" : "No" ), uof.uo_map_width,
+      uof.uo_map_height );
 
   Plib::MapWriter writer;
   writer.OpenExistingFiles( realmname );
 
   // Same precomputed terrain as create_map; maptile only needs the landtile id and the
   // effective (liquid-overridden) z per tile, so skip the lowest-adjacent-z pass.
-  rawmapfullread();
+  uof.rawmapfullread();
   TerrainPlane plane;
-  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/false, cfg_threads );
+  plane.build( uof.uo_map_width, uof.uo_map_height, /*need_low_z=*/false, cfg_threads );
 
   // Plain row-major sweep; the old 64x64 blocked iteration only existed to suit the
   // former one-block writer cache, which got replaced with in-memory buffers.
-  for ( unsigned short y = 0; y < uo_map_height; ++y )
+  for ( unsigned short y = 0; y < uof.uo_map_height; ++y )
   {
     if ( y % Plib::MAPTILE_CHUNK == 0 )
-      INFO_PRINT( "\rConverting: {}%", y * 100 / uo_map_height );
-    for ( unsigned short x = 0; x < uo_map_width; ++x )
+      INFO_PRINT( "\rConverting: {}%", y * 100 / uof.uo_map_height );
+    for ( unsigned short x = 0; x < uof.uo_map_width; ++x )
     {
       const std::size_t plane_idx = plane.index( x, y );
       const u16 landtile = plane.landtile[plane_idx];
@@ -236,15 +238,16 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
 {
   MapWriter mapwriter;
   mapwriter.OpenExistingFiles( realm );
-  rawmapfullread();
-  rawstaticfullread();
+  auto& uof = uofiles();
+  uof.rawmapfullread();
+  uof.rawstaticfullread();
   unsigned short x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
   unsigned short y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
 
   // ProcessSolidBlock reads the smoothed-terrain plane; build the full plane. This is a
   // rarely-used single-block debug path (x=/y= args), so the full build is acceptable.
   TerrainPlane plane;
-  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/true, cfg_threads );
+  plane.build( uof.uo_map_width, uof.uo_map_height, /*need_low_z=*/true, cfg_threads );
 
   BlockResult result;
   ComputeSolidBlock( x_base, y_base, plane, result );
@@ -265,8 +268,8 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
       "  Use Dif files: {}\n"
       "  Size: {}x{}\n"
       "Initializing files: ",
-      realm, uo_mapid, ( uo_readuop ? "Yes" : "No" ), ( uo_usedif ? "Yes" : "No" ), uo_map_width,
-      uo_map_height );
+      realm, uofiles().uo_mapid, ( uofiles().uo_readuop ? "Yes" : "No" ),
+      ( uofiles().uo_usedif ? "Yes" : "No" ), uofiles().uo_map_width, uofiles().uo_map_height );
   // Reset the opt-in per-tile profiling accumulators for this run.
   prof_mapinfo_ns = prof_statics_ns = prof_shape_ns = prof_writer_ns = 0;
 
@@ -278,11 +281,11 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   INFO_PRINTLN( "Done." );
 
   Tools::Timer<> mapread_timer;
-  rawmapfullread();
+  uofiles().rawmapfullread();
   mapread_timer.stop();
 
   Tools::Timer<> staticread_timer;
-  rawstaticfullread();
+  uofiles().rawstaticfullread();
   staticread_timer.stop();
 
   // Precompute the smoothed-terrain plane once (safe_getmapinfo + lowest-adjacent-z for
@@ -297,8 +300,8 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   // readers, whose lazy first-touch init (rawstaticfullread / rawmapfullread) would race if
   // it fired inside the parallel region. Both were already forced above; assert it so a
   // future reorder trips here instead of racing.
-  passert_always( Plib::rawmap_loaded() );
-  passert_always( Plib::rawstatics_loaded() );
+  passert_always( uofiles().rawmap_loaded() );
+  passert_always( uofiles().rawstatics_loaded() );
 
   // Phase A/B: compute every block in parallel over contiguous block-row bands (each
   // ComputeSolidBlock is pure and writes only its own BlockResult -- no shared state), in a
@@ -558,10 +561,11 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
   unsigned int local_elems = 0;
 
   unsigned short x_add_max = SOLIDX_X_SIZE, y_add_max = SOLIDX_Y_SIZE;
-  if ( x_base + x_add_max > uo_map_width )
-    x_add_max = uo_map_width - x_base;
-  if ( y_base + y_add_max > uo_map_height )
-    y_add_max = uo_map_height - y_base;
+  const auto& uof = uofiles();
+  if ( x_base + x_add_max > uof.uo_map_width )
+    x_add_max = uof.uo_map_width - x_base;
+  if ( y_base + y_add_max > uof.uo_map_height )
+    y_add_max = uof.uo_map_height - y_base;
   result.x_add_max = x_add_max;
   result.y_add_max = y_add_max;
 
@@ -591,7 +595,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
   thread_local StaticBuckets cell_statics;
   if ( cfg_profile )
     t = ProfClock::now();
-  readstatics_block( cell_statics, x_base, y_base, kSolidStaticFlags );
+  uofiles().readstatics_block( cell_statics, x_base, y_base, kSolidStaticFlags );
   if ( cfg_profile )
     lap( result.prof_statics_ns );
 
@@ -623,7 +627,7 @@ void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_b
         result.warnings.push_back(
             fmt::format( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z ) );
 
-      unsigned int lt_flags = Plib::landtile_uoflags_read( landtile );
+      unsigned int lt_flags = uofiles().landtile_uoflags_read( landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
       {  // this seems to be the default.
         lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
@@ -847,16 +851,16 @@ void UoConvertMain::write_multi_element( FILE* multis_cfg, const USTRUCT_MULTI_E
     type = "static";
 
   std::string comment;
-  if ( cfg_use_new_hsa_format )
+  if ( uofiles().cfg_use_new_hsa_format )
   {
     USTRUCT_TILE_HSA tile;
-    readtile( elem.graphic, &tile );
+    uofiles().readtile( elem.graphic, &tile );
     comment.assign( tile.name, sizeof( tile.name ) );
   }
   else
   {
     USTRUCT_TILE tile;
-    readtile( elem.graphic, &tile );
+    uofiles().readtile( elem.graphic, &tile );
     comment.assign( tile.name, sizeof( tile.name ) );
   }
 
@@ -887,8 +891,9 @@ void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
                                  unsigned int offset, unsigned int length )
 {
   USTRUCT_MULTI_ELEMENT elem;
-  unsigned int count =
-      cfg_use_new_hsa_format ? length / sizeof( USTRUCT_MULTI_ELEMENT_HSA ) : length / sizeof elem;
+  unsigned int count = uofiles().cfg_use_new_hsa_format
+                           ? length / sizeof( USTRUCT_MULTI_ELEMENT_HSA )
+                           : length / sizeof elem;
 
   std::string mytype = resolve_type_from_id( id );
 
@@ -909,7 +914,7 @@ void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
       throw std::runtime_error( "write_multi(): fread() failed" );
     }
 
-    if ( cfg_use_new_hsa_format )
+    if ( uofiles().cfg_use_new_hsa_format )
     {
       if ( fseek( multi_mul, 4, SEEK_CUR ) != 0 )
         throw std::runtime_error( "write_multi(): fseek() failed" );
@@ -931,9 +936,9 @@ void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* m
   {
     const USTRUCT_VERSION* vrec = nullptr;
 
-    if ( check_verdata( VERFILE_MULTI_MUL, i, vrec ) )
+    if ( uofiles().check_verdata( VERFILE_MULTI_MUL, i, vrec ) )
     {
-      write_multi( multis_cfg, i, verfile, vrec->filepos, vrec->length );
+      write_multi( multis_cfg, i, uofiles().verfile, vrec->filepos, vrec->length );
       ++count;
     }
     else
@@ -1011,10 +1016,10 @@ void UoConvertMain::create_tiles_cfg()
   {
     u16 graphic = static_cast<u16>( graphic_i );
     USTRUCT_TILE tile;
-    if ( cfg_use_new_hsa_format )
+    if ( uofiles().cfg_use_new_hsa_format )
     {
       USTRUCT_TILE_HSA newtile;
-      read_objinfo( graphic, newtile );
+      uofiles().read_objinfo( graphic, newtile );
       tile.anim = newtile.anim;
       tile.flags = newtile.flags;
       tile.height = newtile.height;
@@ -1029,7 +1034,7 @@ void UoConvertMain::create_tiles_cfg()
       tile.weight = newtile.weight;
     }
     else
-      read_objinfo( graphic, tile );
+      uofiles().read_objinfo( graphic, tile );
     const bool is_mount = MountTypes.contains( graphic );
 
     if ( tile.name[0] == '\0' && tile.flags == 0 && tile.layer == 0 && tile.height == 0 &&
@@ -1078,16 +1083,16 @@ void UoConvertMain::create_landtiles_cfg()
   for ( u16 i = 0; i <= MAX_LANDTILE_ID; ++i )
   {
     USTRUCT_LAND_TILE landtile;
-    if ( cfg_use_new_hsa_format )
+    if ( uofiles().cfg_use_new_hsa_format )
     {
       USTRUCT_LAND_TILE_HSA newlandtile;
-      readlandtile( i, &newlandtile );
+      uofiles().readlandtile( i, &newlandtile );
       landtile.flags = newlandtile.flags;
       landtile.unk = newlandtile.unk;
       memcpy( landtile.name, newlandtile.name, sizeof landtile.name );
     }
     else
-      readlandtile( i, &landtile );
+      uofiles().readlandtile( i, &landtile );
 
     if ( landtile.name[0] || landtile.flags )
     {
@@ -1133,29 +1138,30 @@ int UoConvertMain::main()
   }
   else if ( command == "map" )
   {
-    UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
-    UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 1, false );
-    UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
+    auto& uof = Plib::uofiles();
+    uof.uo_mapid = programArgsFindEquals( "mapid=", 0, false );
+    uof.uo_usedif = programArgsFindEquals( "usedif=", 1, false );
+    uof.uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
     cfg_profile = (bool)programArgsFindEquals( "profile=", 0, false );
     cfg_threads = static_cast<unsigned>( programArgsFindEquals( "threads=", 0, false ) );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
 
-    UoConvert::open_uo_data_files();
-    UoConvert::read_uo_data();
+    uof.open_uo_data_files();
+    uof.read_uo_data();
 
     // Auto-detects defaults for mapid=0 or 1 based on the map size. All other sizes are fixed based
     // on the mapid.
-    Pol::Plib::MUL::MapInfo mapinfo( UoConvert::uo_mapid, UoConvert::uo_map_size );
+    Pol::Plib::MUL::MapInfo mapinfo( uof.uo_mapid, uof.uo_map_size );
     int default_width = mapinfo.width();
     int default_height = mapinfo.height();
 
     if ( mapinfo.guessed() )
       INFO_PRINTLN( "Auto-detected map dimensions: {}x{}", default_width, default_height );
 
-    uo_map_width =
+    uof.uo_map_width =
         static_cast<unsigned short>( programArgsFindEquals( "width=", default_width, false ) );
-    uo_map_height =
+    uof.uo_map_height =
         static_cast<unsigned short>( programArgsFindEquals( "height=", default_height, false ) );
 
     check_for_errors_in_map_parameters();
@@ -1175,8 +1181,7 @@ int UoConvertMain::main()
     }
     else
     {
-      UoConvertMain::create_map( realm, static_cast<unsigned short>( uo_map_width ),
-                                 static_cast<unsigned short>( uo_map_height ) );
+      UoConvertMain::create_map( realm, uof.uo_map_width, uof.uo_map_height );
     }
   }
   else if ( command == "statics" )
@@ -1184,32 +1189,33 @@ int UoConvertMain::main()
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
     Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 
-    UoConvert::uo_mapid = descriptor.uomapid;
-    UoConvert::uo_usedif = descriptor.uodif;
-    UoConvert::uo_map_width = static_cast<unsigned short>( descriptor.width );
-    UoConvert::uo_map_height = static_cast<unsigned short>( descriptor.height );
+    auto& uof = Plib::uofiles();
+    uof.uo_mapid = descriptor.uomapid;
+    uof.uo_usedif = descriptor.uodif;
+    uof.uo_map_width = static_cast<unsigned short>( descriptor.width );
+    uof.uo_map_height = static_cast<unsigned short>( descriptor.height );
 
-    UoConvert::open_uo_data_files();
-    UoConvert::read_uo_data();
+    uof.open_uo_data_files();
+    uof.read_uo_data();
 
     write_pol_static_files( realm );
   }
   else if ( command == "multis" )
   {
-    UoConvert::open_uo_data_files();
-    UoConvert::read_uo_data();
+    Plib::uofiles().open_uo_data_files();
+    Plib::uofiles().read_uo_data();
     UoConvertMain::create_multis_cfg();
   }
   else if ( command == "tiles" )
   {
-    UoConvert::open_uo_data_files();
-    UoConvert::read_uo_data();
+    Plib::uofiles().open_uo_data_files();
+    Plib::uofiles().read_uo_data();
     UoConvertMain::create_tiles_cfg();
   }
   else if ( command == "landtiles" )
   {
-    UoConvert::open_uo_data_files();
-    UoConvert::read_uo_data();
+    Plib::uofiles().open_uo_data_files();
+    Plib::uofiles().read_uo_data();
     UoConvertMain::create_landtiles_cfg();
   }
   else if ( command == "maptile" )
@@ -1218,13 +1224,14 @@ int UoConvertMain::main()
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
     Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 
-    UoConvert::uo_mapid = descriptor.uomapid;
-    UoConvert::uo_usedif = descriptor.uodif;
-    UoConvert::uo_map_width = static_cast<unsigned short>( descriptor.width );
-    UoConvert::uo_map_height = static_cast<unsigned short>( descriptor.height );
+    auto& uof = Plib::uofiles();
+    uof.uo_mapid = descriptor.uomapid;
+    uof.uo_usedif = descriptor.uodif;
+    uof.uo_map_width = static_cast<unsigned short>( descriptor.width );
+    uof.uo_map_height = static_cast<unsigned short>( descriptor.height );
 
-    UoConvert::open_uo_data_files();
-    UoConvert::read_uo_data();
+    uof.open_uo_data_files();
+    uof.read_uo_data();
 
     UoConvertMain::create_maptile( realm );
   }
@@ -1237,36 +1244,38 @@ int UoConvertMain::main()
     showHelp();
     return 1;
   }
-  UoConvert::clear_tiledata();
+  Plib::uofiles().clear_tiledata();
   return 0;
 }
 void UoConvertMain::check_for_errors_in_map_parameters()
 {
-  if ( !MUL::Map::valid_size( UoConvert::uo_map_size, uo_map_width, uo_map_height ) )
+  const auto& uof = Plib::uofiles();
+  if ( !MUL::Map::valid_size( uof.uo_map_size, uof.uo_map_width, uof.uo_map_height ) )
   {
     size_t expected_size =
-        MUL::Map::blockSize * MUL::Map::expected_blocks( uo_map_width, uo_map_height );
+        MUL::Map::blockSize * MUL::Map::expected_blocks( uof.uo_map_width, uof.uo_map_height );
 
     INFO_PRINTLN( "\nWarning: Width and height do not match the map size ({} bytes, expected {})",
-                  UoConvert::uo_map_size, expected_size );
+                  uof.uo_map_size, expected_size );
 
-    if ( uo_map_width == 0 || uo_map_height == 0 )
+    if ( uof.uo_map_width == 0 || uof.uo_map_height == 0 )
       throw std::runtime_error(
           "Width and height were not identified automatically. Please specify them manually." );
 
 
-    if ( ( uo_map_width % MUL::Map::blockWidth != 0 ) ||
-         ( uo_map_height % MUL::Map::blockHeight != 0 ) )
+    if ( ( uof.uo_map_width % MUL::Map::blockWidth != 0 ) ||
+         ( uof.uo_map_height % MUL::Map::blockHeight != 0 ) )
       throw std::runtime_error( "Width and height must be divisible by 8" );
 
-    if ( uo_map_size < expected_size )
+    if ( uof.uo_map_size < expected_size )
       throw std::runtime_error( "Map size is smaller than the given width and height" );
   }
 }
 bool UoConvertMain::convert_uop_to_mul()
 {
   // this is kludgy and doesn't take into account the UODataPath. Mostly a proof of concept now.
-  UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
+  const int uo_mapid = programArgsFindEquals( "mapid=", 0, false );
+  Plib::uofiles().uo_mapid = uo_mapid;
 
   std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
   std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
@@ -1408,32 +1417,33 @@ void UoConvertMain::load_uoconvert_cfg()
       }
       else if ( elem.type_is( "StaticOptions" ) )
       {
+        auto& uof = Plib::uofiles();
         if ( elem.has_prop( "MaxStaticsPerBlock" ) )
         {
-          UoConvert::cfg_max_statics_per_block = elem.remove_int( "MaxStaticsPerBlock" );
+          uof.cfg_max_statics_per_block = elem.remove_int( "MaxStaticsPerBlock" );
 
-          if ( UoConvert::cfg_max_statics_per_block > MAX_STATICS_PER_BLOCK )
+          if ( uof.cfg_max_statics_per_block > MAX_STATICS_PER_BLOCK )
           {
-            UoConvert::cfg_max_statics_per_block = MAX_STATICS_PER_BLOCK;
+            uof.cfg_max_statics_per_block = MAX_STATICS_PER_BLOCK;
             INFO_PRINTLN( "max. Statics per Block limited to {} Items",
-                          UoConvert::cfg_max_statics_per_block );
+                          uof.cfg_max_statics_per_block );
           }
-          else if ( UoConvert::cfg_max_statics_per_block < 0 )
-            UoConvert::cfg_max_statics_per_block = 1000;
+          else if ( uof.cfg_max_statics_per_block < 0 )
+            uof.cfg_max_statics_per_block = 1000;
         }
 
         if ( elem.has_prop( "WarningStaticsPerBlock" ) )
         {
-          UoConvert::cfg_warning_statics_per_block = elem.remove_int( "WarningStaticsPerBlock" );
+          uof.cfg_warning_statics_per_block = elem.remove_int( "WarningStaticsPerBlock" );
 
-          if ( UoConvert::cfg_warning_statics_per_block > MAX_STATICS_PER_BLOCK )
+          if ( uof.cfg_warning_statics_per_block > MAX_STATICS_PER_BLOCK )
           {
-            UoConvert::cfg_warning_statics_per_block = MAX_STATICS_PER_BLOCK;
+            uof.cfg_warning_statics_per_block = MAX_STATICS_PER_BLOCK;
             INFO_PRINTLN( "max. Statics per Block for Warning limited to {} Items",
-                          UoConvert::cfg_warning_statics_per_block );
+                          uof.cfg_warning_statics_per_block );
           }
-          else if ( UoConvert::cfg_warning_statics_per_block < 0 )
-            UoConvert::cfg_warning_statics_per_block = 1000;
+          else if ( uof.cfg_warning_statics_per_block < 0 )
+            uof.cfg_warning_statics_per_block = 1000;
         }
 
         if ( elem.has_prop( "DiscardedWaterTiles" ) )
@@ -1445,13 +1455,13 @@ void UoConvertMain::load_uoconvert_cfg()
             DiscardedWaterTypes.insert( i );
 
         if ( elem.has_prop( "ShowIllegalGraphicWarning" ) )
-          UoConvert::cfg_show_illegal_graphic_warning =
-              elem.remove_bool( "ShowIllegalGraphicWarning" );
+          uof.cfg_show_illegal_graphic_warning = elem.remove_bool( "ShowIllegalGraphicWarning" );
       }
       else if ( elem.type_is( "TileOptions" ) )
       {
         if ( elem.has_prop( "ShowRoofAndPlatformWarning" ) )
-          cfg_show_roof_and_platform_warning = elem.remove_bool( "ShowRoofAndPlatformWarning" );
+          Plib::uofiles().cfg_show_roof_and_platform_warning =
+              elem.remove_bool( "ShowRoofAndPlatformWarning" );
       }
       else if ( elem.type_is( "ClientOptions" ) )
       {

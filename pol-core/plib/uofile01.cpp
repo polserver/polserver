@@ -14,6 +14,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
 #include "systemstate.h"
+#include "uoclientfiles.h"
 #include "uofile.h"
 #include "uofilei.h"
 #include "ustruct.h"
@@ -25,56 +26,19 @@ namespace Pol::Plib
 #define TILEDATA_TILES 0x68800
 #define TILEDATA_TILES_HSA 0x78800
 
-struct TileData
+unsigned int UoClientFiles::landtile_uoflags_read( unsigned short landtile ) const
 {
-  u8 height;
-  u8 layer;
-  u32 flags;
-};
-TileData* tiledata;
-
-const unsigned N_LANDTILEDATA = 0x4000;
-unsigned int landtile_flags_arr[N_LANDTILEDATA];
-
-unsigned int landtile_uoflags_read( unsigned short landtile )
-{
-  passert_always( landtile < N_LANDTILEDATA );
+  passert_always( landtile < LANDTILE_COUNT );
   return landtile_flags_arr[landtile];
 }
 
-
-struct VerdataIndexes
-{
-  using VRecList = std::map<unsigned int, USTRUCT_VERSION>;
-  VRecList vrecs;  // key is the block
-
-  void insert( const USTRUCT_VERSION& vrec );
-  bool find( unsigned int block, const USTRUCT_VERSION*& vrec );
-};
-void VerdataIndexes::insert( const USTRUCT_VERSION& vrec )
-{
-  vrecs.insert( VRecList::value_type( vrec.block, vrec ) );
-}
-bool VerdataIndexes::find( unsigned int block, const USTRUCT_VERSION*& vrec )
-{
-  VRecList::const_iterator itr = vrecs.find( block );
-  if ( itr == vrecs.end() )
-    return false;
-
-  vrec = &( ( *itr ).second );
-  return true;
-}
-
-
-VerdataIndexes vidx[32];
-const unsigned int vidx_count = 32;
-
-bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec )
+bool UoClientFiles::check_verdata( unsigned int file, unsigned int block,
+                                   const USTRUCT_VERSION*& vrec ) const
 {
   return vidx[file].find( block, vrec );
 }
 
-static bool seekto_newer_version( unsigned int file, unsigned int block )
+bool UoClientFiles::seekto_newer_version( unsigned int file, unsigned int block ) const
 {
   const USTRUCT_VERSION* vrec;
   if ( vidx[file].find( block, vrec ) )
@@ -86,7 +50,7 @@ static bool seekto_newer_version( unsigned int file, unsigned int block )
   return false;
 }
 
-void readtile( unsigned short tilenum, USTRUCT_TILE* tile )
+void UoClientFiles::readtile( unsigned short tilenum, USTRUCT_TILE* tile ) const
 {
   memset( tile, 0, sizeof *tile );
 
@@ -126,7 +90,7 @@ void readtile( unsigned short tilenum, USTRUCT_TILE* tile )
   tile->name[sizeof( tile->name ) - 1] = '\0';
 }
 
-void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile )
+void UoClientFiles::readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile ) const
 {
   memset( tile, 0, sizeof *tile );
 
@@ -164,7 +128,7 @@ void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile )
 }
 
 
-void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
+void UoClientFiles::readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile ) const
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
@@ -196,7 +160,7 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
   landtile->name[sizeof( landtile->name ) - 1] = '\0';
 }
 
-void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
+void UoClientFiles::readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile ) const
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
@@ -228,18 +192,18 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
   landtile->name[sizeof( landtile->name ) - 1] = '\0';
 }
 
-void read_objinfo( u16 graphic, USTRUCT_TILE& objinfo )
+void UoClientFiles::read_objinfo( u16 graphic, USTRUCT_TILE& objinfo ) const
 {
   readtile( graphic, &objinfo );
 }
 
-void read_objinfo( u16 graphic, USTRUCT_TILE_HSA& objinfo )
+void UoClientFiles::read_objinfo( u16 graphic, USTRUCT_TILE_HSA& objinfo ) const
 {
   readtile( graphic, &objinfo );
 }
 
 
-char tileheight_read( unsigned short tilenum )
+char UoClientFiles::tileheight_read( unsigned short tilenum ) const
 {
   u8 height;
   u32 flags;
@@ -272,7 +236,7 @@ char tileheight_read( unsigned short tilenum )
   return height;
 }
 
-unsigned char tilelayer_read( unsigned short tilenum )
+unsigned char UoClientFiles::tilelayer_read( unsigned short tilenum ) const
 {
   if ( tilenum <= systemstate.config.max_tile_id )
   {
@@ -293,7 +257,7 @@ unsigned char tilelayer_read( unsigned short tilenum )
   return tile.layer;
 }
 
-u16 tileweight_read( unsigned short tilenum )
+u16 UoClientFiles::tileweight_read( unsigned short tilenum ) const
 {
   if ( cfg_use_new_hsa_format )
   {
@@ -309,7 +273,7 @@ u16 tileweight_read( unsigned short tilenum )
   return tile.weight;
 }
 
-u32 tile_uoflags_read( unsigned short tilenum )
+u32 UoClientFiles::tile_uoflags_read( unsigned short tilenum ) const
 {
   if ( tilenum <= systemstate.config.max_tile_id )
   {
@@ -331,7 +295,7 @@ u32 tile_uoflags_read( unsigned short tilenum )
 }
 
 
-static void read_veridx()
+void UoClientFiles::read_veridx()
 {
   int num_version_records;
   USTRUCT_VERSION vrec;
@@ -357,7 +321,7 @@ static void read_veridx()
   }
 }
 
-static void read_tiledata()
+void UoClientFiles::read_tiledata()
 {
   tiledata = new TileData[systemstate.config.max_tile_id + 1];
 
@@ -387,14 +351,14 @@ static void read_tiledata()
   }
 }
 
-void clear_tiledata()
+void UoClientFiles::clear_tiledata()
 {
   delete[] tiledata;
 }
 
-static void read_landtiledata()
+void UoClientFiles::read_landtiledata()
 {
-  for ( u16 objtype = 0; objtype < N_LANDTILEDATA; ++objtype )
+  for ( u16 objtype = 0; objtype < LANDTILE_COUNT; ++objtype )
   {
     if ( cfg_use_new_hsa_format )
     {
@@ -412,7 +376,7 @@ static void read_landtiledata()
     }
   }
 }
-void read_uo_data()
+void UoClientFiles::read_uo_data()
 {
   read_veridx();
   read_tiledata();

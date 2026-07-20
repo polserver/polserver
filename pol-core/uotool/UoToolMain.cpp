@@ -26,6 +26,7 @@
 #include "../plib/systemstate.h"
 #include "../plib/uconst.h"
 #include "../plib/udatfile.h"
+#include "../plib/uoclientfiles.h"
 #include "../plib/uofile.h"
 #include "../plib/uofilei.h"
 #include "../plib/uoinstallfinder.h"
@@ -179,17 +180,17 @@ static int vertile()
 {
   USTRUCT_TILE tile;
 
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   int i;
   for ( i = 0; i <= 0xFFFF; i++ )
   {
     unsigned short objtype = (unsigned short)i;
-    read_objinfo( objtype, tile );
+    uofiles().read_objinfo( objtype, tile );
     display_tileinfo( objtype, tile );
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -197,14 +198,14 @@ static int verlandtile()
 {
   USTRUCT_LAND_TILE landtile;
 
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   int i;
   for ( i = 0; i <= 0x3FFF; i++ )
   {
     unsigned short objtype = (unsigned short)i;
-    readlandtile( objtype, &landtile );
+    uofiles().readlandtile( objtype, &landtile );
     if ( landtile.flags || landtile.unk || landtile.name[0] )
     {
       INFO_PRINTLN(
@@ -215,7 +216,7 @@ static int verlandtile()
           objtype, landtile.flags, landtile.unk, landtile.name );
     }
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -223,8 +224,8 @@ static int landtilehist()
 {
   USTRUCT_LAND_TILE landtile;
 
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   typedef std::map<std::string, unsigned> M;
   M tilecount;
@@ -233,7 +234,7 @@ static int landtilehist()
   for ( i = 0; i < 0x4000; i++ )
   {
     unsigned short objtype = (unsigned short)i;
-    readlandtile( objtype, &landtile );
+    uofiles().readlandtile( objtype, &landtile );
     tilecount[landtile.name] = tilecount[landtile.name] + 1;
   }
 
@@ -243,7 +244,7 @@ static int landtilehist()
     tmp += fmt::format( "{}: {}\n", elem.first, elem.second );
   }
   INFO_PRINTLN( tmp );
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -251,8 +252,8 @@ static int flagsearch( int argc, char** argv )
 {
   USTRUCT_TILE tile;
 
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   if ( argc < 3 )
     return 1;
@@ -266,20 +267,20 @@ static int flagsearch( int argc, char** argv )
   for ( i = 0; i <= 0xFFFF; i++ )
   {
     unsigned short objtype = (unsigned short)i;
-    read_objinfo( objtype, tile );
+    uofiles().read_objinfo( objtype, tile );
     if ( ( ( tile.flags & flags ) == flags ) && ( ( ~tile.flags & notflags ) == notflags ) )
     {
       display_tileinfo( objtype, tile );
     }
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
 static int landtileflagsearch( int argc, char** argv )
 {
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   if ( argc < 3 )
     return 1;
@@ -295,7 +296,7 @@ static int landtileflagsearch( int argc, char** argv )
   for ( i = 0; i < 0x4000; i++ )
   {
     unsigned short objtype = (unsigned short)i;
-    readlandtile( objtype, &landtile );
+    uofiles().readlandtile( objtype, &landtile );
     if ( ( landtile.flags & flags ) == flags && ( ~landtile.flags & notflags ) == notflags )
     {
       INFO_PRINTLN(
@@ -306,7 +307,7 @@ static int landtileflagsearch( int argc, char** argv )
           objtype, landtile.flags, landtile.unk, landtile.name );
     }
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -314,13 +315,13 @@ static int loschange( int /*argc*/, char** /*argv*/ )
 {
   USTRUCT_TILE tile;
 
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   for ( int i = 0; i <= 0xFFFF; i++ )
   {
     unsigned short objtype = (unsigned short)i;
-    read_objinfo( objtype, tile );
+    uofiles().read_objinfo( objtype, tile );
 
     bool old_lostest = ( tile.flags & USTRUCT_TILE::FLAG_WALKBLOCK ) != 0;
 
@@ -333,20 +334,21 @@ static int loschange( int /*argc*/, char** /*argv*/ )
       INFO_PRINTLN( " Old LOS: {}\n New LOS: {}", old_lostest, new_lostest );
     }
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
 static int print_verdata_info()
 {
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
   int num_version_records;
   USTRUCT_VERSION vrec;
 
+  auto& uof = Plib::uofiles();
   // FIXME: should read this once per run, per file.
-  fseek( verfile, 0, SEEK_SET );
-  if ( fread( &num_version_records, sizeof num_version_records, 1, verfile ) !=
+  fseek( uof.verfile, 0, SEEK_SET );
+  if ( fread( &num_version_records, sizeof num_version_records, 1, uof.verfile ) !=
        1 )  // ENDIAN-BROKEN
     throw std::runtime_error( "print_verdata_info: fread(num_version_records) failed." );
 
@@ -358,7 +360,7 @@ static int print_verdata_info()
 
   for ( int i = 0; i < num_version_records; i++ )
   {
-    if ( fread( &vrec, sizeof vrec, 1, verfile ) != 1 )
+    if ( fread( &vrec, sizeof vrec, 1, uof.verfile ) != 1 )
       throw std::runtime_error( "print_verdata_info: fread(vrec) failed." );
     if ( vrec.file < 32 )
       ++filecount[vrec.file];
@@ -372,15 +374,15 @@ static int print_verdata_info()
   }
   if ( inv_filecount )
     INFO_PRINTLN( "{} invalid file indexes", inv_filecount );
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
 static int print_statics()
 {
   INFO_PRINTLN( "Reading UO data.." );
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
   int water = 0;
   int strange_water = 0;
   int cnt = 0;
@@ -389,14 +391,14 @@ static int print_statics()
     for ( u16 x = 5900; x < 5940; x++ )
     {
       std::vector<StaticRec> vec;
-      readallstatics( vec, x, y );
+      uofiles().readallstatics( vec, x, y );
 
       if ( !vec.empty() )
       {
         bool hdrshown = false;
         for ( const auto& elem : vec )
         {
-          int height = Plib::tileheight_read( elem.graphic );
+          int height = Plib::uofiles().tileheight_read( elem.graphic );
           if ( elem.graphic >= 0x1796 && elem.graphic <= 0x17b2 )
           {
             if ( elem.z == -5 && height == 0 )
@@ -409,7 +411,7 @@ static int print_statics()
             INFO_PRINTLN( "{},{}:", x, y );
           hdrshown = true;
           INFO_PRINTLN( "\tOBJT= {:#x}  Z={}  HT={}  FLAGS={:#x}", elem.graphic, int( elem.z ),
-                        height, Plib::tile_uoflags_read( elem.graphic ) );
+                        height, Plib::uofiles().tile_uoflags_read( elem.graphic ) );
           ++cnt;
         }
       }
@@ -417,7 +419,7 @@ static int print_statics()
   }
   INFO_PRINTLN( "{} statics exist.\n{} water tiles exist.\n{} strange water tiles exist.", cnt,
                 water, strange_water );
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -506,7 +508,7 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
     return;
 
   USTRUCT_TILE tile;
-  read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
+  uofiles().read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
   INFO_PRINTLN( "Multi {:#x} -- {}:", i + i + ( Plib::systemstate.config.max_tile_id + 1 ),
                 tile.name );
   std::string tmp;
@@ -541,7 +543,7 @@ static void print_multidata( u16 i, Multi::MultiDef* multi )
     return;
 
   USTRUCT_TILE tile;
-  read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
+  uofiles().read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
   INFO_PRINTLN( "Multi {:#x} -- {}:", i + ( Plib::systemstate.config.max_tile_id + 1 ), tile.name );
   std::string tmp;
   for ( const auto& _itr : multi->components )
@@ -555,8 +557,8 @@ static void print_multidata( u16 i, Multi::MultiDef* multi )
 static int print_multis()
 {
   INFO_PRINTLN( "Reading UO data.." );
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
   Multi::read_multidefs();
 
   for ( u16 i = 0; i < 0x1000; ++i )
@@ -567,7 +569,7 @@ static int print_multis()
       print_multidata( i, Multi::multidef_buffer.multidefs_by_multiid[i] );
     }
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -577,8 +579,8 @@ static int z_histogram()
   memset( zcount, 0, sizeof( zcount ) );
 
   INFO_PRINTLN( "Reading UO data.." );
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
   for ( u16 x = 0; x < 6143; ++x )
   {
     INFO_PRINT( "." );
@@ -586,7 +588,7 @@ static int z_histogram()
     {
       USTRUCT_MAPINFO mi;
       short z;
-      getmapinfo( x, y, &z, &mi );
+      uofiles().getmapinfo( x, y, &z, &mi );
       assert( z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
       ++zcount[z + 128];
     }
@@ -597,7 +599,7 @@ static int z_histogram()
     if ( zcount[i] )
       INFO_PRINTLN( "{}: {}", i - 128, zcount[i] );
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -606,14 +608,14 @@ static int statics_histogram()
   unsigned int counts[1000];
   memset( counts, 0, sizeof counts );
   INFO_PRINTLN( "Reading UO data.." );
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
   for ( u16 x = 0; x < 6143; x += 8 )
   {
     INFO_PRINT( "." );
     for ( u16 y = 0; y < 4095; y += 8 )
     {
-      size_t count = getstaticblock( x, y ).size();
+      size_t count = uofiles().getstaticblock( x, y ).size();
       if ( count < 1000 )
         ++counts[count];
       else
@@ -626,7 +628,7 @@ static int statics_histogram()
     if ( counts[i] )
       INFO_PRINTLN( "{}: {}", i, counts[i] );
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -654,7 +656,7 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
             x = 6142;
           if ( y == 4095 )
             y = 4094;
-          bool walkok = groundheight_read( x, y, &z );
+          bool walkok = uofiles().groundheight_read( x, y, &z );
           blk.z[xi][yi] = static_cast<signed char>( z );
           if ( walkok )
             blk.walkok[xi] |= ( 1 << yi );
@@ -670,18 +672,18 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
 static int write_polmap()
 {
   INFO_PRINTLN( "Reading UO data.." );
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
   write_polmap( "dngnmap0.pol", 5120, 6144 );
   write_polmap( "map0.pol", 0, 6144 );
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
 static int print_water_data()
 {
-  open_uo_data_files();
-  readwater();
+  uofiles().open_uo_data_files();
+  uofiles().readwater();
   return 0;
 }
 
@@ -689,7 +691,7 @@ static bool has_water( u16 x, u16 y )
 {
   StaticList vec;
   vec.clear();
-  readstatics( vec, x, y );
+  uofiles().readstatics( vec, x, y );
   for ( const auto& rec : vec )
   {
     if ( iswater( rec.graphic ) )
@@ -701,7 +703,7 @@ static bool has_water( u16 x, u16 y )
 static int water_search()
 {
   u16 wxl = 1420, wxh = 1480, wyl = 1760, wyh = 1780;
-  open_uo_data_files();
+  uofiles().open_uo_data_files();
   for ( u16 y = wyl; y < wyh; y++ )
   {
     for ( u16 x = wxl; x < wxh; x++ )
@@ -732,8 +734,8 @@ static int mapdump( int argc, char* argv[] )
     wyh = static_cast<u16>( atoi( argv[5] ) );
   }
 
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   std::ofstream ofs( "mapdump.html" );
 
@@ -752,16 +754,16 @@ static int mapdump( int argc, char* argv[] )
       ofs << "<td align=left valign=top>";
       short z;
       USTRUCT_MAPINFO mi;
-      safe_getmapinfo( x, y, &z, &mi );
+      uofiles().safe_getmapinfo( x, y, &z, &mi );
       USTRUCT_LAND_TILE landtile;
-      readlandtile( mi.landtile, &landtile );
+      uofiles().readlandtile( mi.landtile, &landtile );
       ofs << "z=" << z << "<br>";
       ofs << "landtile=" << Clib::hexint( mi.landtile ) << " " << landtile.name << "<br>";
       ofs << "&nbsp;flags=" << Clib::hexint( landtile.flags ) << "<br>";
       ofs << "mapz=" << (int)mi.z << "<br>";
 
       StaticList statics;
-      readallstatics( statics, x, y );
+      uofiles().readallstatics( statics, x, y );
       if ( !statics.empty() )
       {
         ofs << "<table border=1 cellpadding=5 cellspacing=0>" << std::endl;
@@ -782,7 +784,7 @@ static int mapdump( int argc, char* argv[] )
     ofs << "</tr>" << std::endl;
   }
   ofs << "</table>" << std::endl;
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -793,8 +795,8 @@ struct MapContour
 
 static int contour()
 {
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   auto mc = new MapContour;
   for ( u16 y = 0; y < 4095; ++y )
@@ -805,11 +807,11 @@ static int contour()
 
       vec.clear();
 
-      readstatics( vec, x, y );
+      uofiles().readstatics( vec, x, y );
 
       bool result;
       short newz;
-      standheight_read( MOVEMODE_LAND, vec, x, y, 127, &result, &newz );
+      uofiles().standheight_read( MOVEMODE_LAND, vec, x, y, 127, &result, &newz );
       if ( result )
       {
         mc->z[x][y] = static_cast<signed char>( newz );
@@ -823,7 +825,7 @@ static int contour()
 
   std::ofstream ofs( "contour.dat", std::ios::trunc | std::ios::out | std::ios::binary );
   ofs.write( reinterpret_cast<const char*>( mc ), sizeof( MapContour ) );
-  clear_tiledata();
+  uofiles().clear_tiledata();
   delete mc;
   return 0;
 }
@@ -831,8 +833,8 @@ static int contour()
 static int findlandtile( int /*argc*/, char** argv )
 {
   int landtile = strtoul( argv[1], nullptr, 0 );
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   for ( u16 y = 0; y < 4095; ++y )
   {
@@ -840,7 +842,7 @@ static int findlandtile( int /*argc*/, char** argv )
     {
       short z;
       USTRUCT_MAPINFO mi;
-      safe_getmapinfo( x, y, &z, &mi );
+      uofiles().safe_getmapinfo( x, y, &z, &mi );
       if ( mi.landtile == landtile )
       {
         INFO_PRINT( "{},{},{}", x, y, (int)mi.z );
@@ -851,7 +853,7 @@ static int findlandtile( int /*argc*/, char** argv )
     }
   }
 
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -860,15 +862,15 @@ static int findgraphic( int /*argc*/, char** argv )
   int graphic = strtoul( argv[1], nullptr, 0 );
   INFO_PRINTLN( "Searching map for statics with graphic={:#x}", graphic );
 
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   for ( u16 y = 0; y < 4095; ++y )
   {
     for ( u16 x = 0; x < 6143; ++x )
     {
       StaticList statics;
-      readallstatics( statics, x, y );
+      uofiles().readallstatics( statics, x, y );
       for ( const auto& rec : statics )
       {
         if ( rec.graphic == graphic )
@@ -878,15 +880,15 @@ static int findgraphic( int /*argc*/, char** argv )
       }
     }
   }
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
 static int findlandtileflags( int /*argc*/, char** argv )
 {
   unsigned int flags = strtoul( argv[1], nullptr, 0 );
-  open_uo_data_files();
-  read_uo_data();
+  uofiles().open_uo_data_files();
+  uofiles().read_uo_data();
 
   for ( u16 y = 0; y < 4095; ++y )
   {
@@ -894,16 +896,16 @@ static int findlandtileflags( int /*argc*/, char** argv )
     {
       short z;
       USTRUCT_MAPINFO mi;
-      safe_getmapinfo( x, y, &z, &mi );
-      if ( Plib::landtile_uoflags_read( mi.landtile ) & flags )
+      uofiles().safe_getmapinfo( x, y, &z, &mi );
+      if ( Plib::uofiles().landtile_uoflags_read( mi.landtile ) & flags )
       {
         INFO_PRINTLN( "{},{},{}: landtile {:#x}, flags {:#x}", x, y, (int)mi.z, mi.landtile,
-                      Plib::landtile_uoflags_read( mi.landtile ) );
+                      Plib::uofiles().landtile_uoflags_read( mi.landtile ) );
       }
     }
   }
 
-  clear_tiledata();
+  uofiles().clear_tiledata();
   return 0;
 }
 
@@ -917,16 +919,17 @@ static int defragstatics( int argc, char** argv )
 
   Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 
-  uo_mapid = descriptor.uomapid;
-  uo_usedif = descriptor.uodif;
-  uo_map_width = static_cast<unsigned short>( descriptor.width );
-  uo_map_height = static_cast<unsigned short>( descriptor.height );
+  auto& uof = Plib::uofiles();
+  uof.uo_mapid = descriptor.uomapid;
+  uof.uo_usedif = descriptor.uodif;
+  uof.uo_map_width = static_cast<unsigned short>( descriptor.width );
+  uof.uo_map_height = static_cast<unsigned short>( descriptor.height );
 
-  open_uo_data_files();
-  read_uo_data();
+  uof.open_uo_data_files();
+  uof.read_uo_data();
 
-  std::string statidx = "staidx" + Clib::tostring( uo_mapid ) + ".mul";
-  std::string statics = "statics" + Clib::tostring( uo_mapid ) + ".mul";
+  std::string statidx = "staidx" + Clib::tostring( uof.uo_mapid ) + ".mul";
+  std::string statics = "statics" + Clib::tostring( uof.uo_mapid ) + ".mul";
   Clib::RemoveFile( statidx );
   Clib::RemoveFile( statics );
 
@@ -944,7 +947,7 @@ static int defragstatics( int argc, char** argv )
     }
     for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
     {
-      const std::vector<USTRUCT_STATIC>& pstat = getstaticblock( x, y );
+      const std::vector<USTRUCT_STATIC>& pstat = uofiles().getstaticblock( x, y );
       std::vector<USTRUCT_STATIC> tilelist;
       if ( !pstat.empty() )
       {
@@ -1293,8 +1296,8 @@ int UoToolMain::main()
   }
   if ( argvalue == "staticsmax" )
   {
-    open_uo_data_files();
-    staticsmax();
+    uofiles().open_uo_data_files();
+    uofiles().staticsmax();
     return 0;
   }
   if ( argvalue == "watersearch" )

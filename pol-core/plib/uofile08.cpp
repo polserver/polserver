@@ -17,6 +17,7 @@
 #include "../clib/rawtypes.h"
 #include "clidata.h"
 #include "poltype.h"
+#include "uoclientfiles.h"
 #include "uofile.h"
 #include "uofilei.h"
 #include "ustruct.h"
@@ -26,16 +27,13 @@
 
 namespace Pol::Plib
 {
-unsigned int num_map_patches = 0;
-static RawMap rawmap;
-static bool rawmap_ready = false;
-
-void read_map_difs()
+void UoClientFiles::read_map_difs()
 {
   num_map_patches = rawmap.load_map_difflist( mapdifl_file );
 }
 
-static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
+signed char UoClientFiles::rawmapinfo( unsigned short x, unsigned short y,
+                                       USTRUCT_MAPINFO* gi ) const
 {
   // UoTool has a serious problem of not loading data before using this function...
   if ( !rawmap_ready )
@@ -44,12 +42,12 @@ static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPIN
   return rawmap.rawinfo( x, y, gi );
 }
 
-bool rawmap_loaded()
+bool UoClientFiles::rawmap_loaded() const
 {
   return rawmap_ready;
 }
 
-void rawmapfullread()
+void UoClientFiles::rawmapfullread() const
 {
   rawmap.set_bounds( uo_map_width, uo_map_height );
 
@@ -63,7 +61,8 @@ void rawmapfullread()
     rawmap_ready = true;
 }
 
-void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out )
+void UoClientFiles::rawmap_extract_planes( std::span<u16> landtile_out,
+                                           std::span<s8> z_out ) const
 {
   if ( !rawmap_ready )
     rawmapfullread();
@@ -83,7 +82,7 @@ void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out )
     Simple averaging doesn't seem to work near cliffs and such.
     poltest has a unit test for this.
     */
-bool groundheight_read( unsigned short x, unsigned short y, short* z )
+bool UoClientFiles::groundheight_read( unsigned short x, unsigned short y, short* z ) const
 {
   USTRUCT_MAPINFO md, mi;
   short z1, z2, z3, z4;  // quadrants
@@ -105,7 +104,8 @@ bool groundheight_read( unsigned short x, unsigned short y, short* z )
            ( ( landtile_uoflags_read( mi.landtile ) & USTRUCT_TILE::FLAG_BLOCKING ) == 0 ) );
 }
 
-void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi )
+void UoClientFiles::getmapinfo( unsigned short x, unsigned short y, short* z,
+                                USTRUCT_MAPINFO* mi ) const
 {
   USTRUCT_MAPINFO md;
   short z1, z2, z3, z4;  // quadrants
@@ -135,7 +135,8 @@ void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* 
   }
 }
 
-void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi )
+void UoClientFiles::safe_getmapinfo( unsigned short x, unsigned short y, short* z,
+                                     USTRUCT_MAPINFO* mi ) const
 {
   USTRUCT_MAPINFO md;
   short z1, z2, z3, z4;  // quadrants

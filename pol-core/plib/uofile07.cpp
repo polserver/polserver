@@ -8,6 +8,7 @@
 
 #include "clidata.h"
 #include "udatfile.h"
+#include "uoclientfiles.h"
 #include "uofile.h"
 #include "ustruct.h"
 
@@ -18,7 +19,7 @@ extern bool static_debug_on;
 
 // I'd put these in an anonymous namespace, but the debugger can't see 'em...at least not easily.
 
-void readstatics( StaticList& vec, unsigned short x, unsigned short y )
+void UoClientFiles::readstatics( StaticList& vec, unsigned short x, unsigned short y ) const
 {
   const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
 
@@ -44,7 +45,8 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y )
     }
   }
 }
-void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags )
+void UoClientFiles::readstatics( StaticList& vec, unsigned short x, unsigned short y,
+                                 unsigned int flags ) const
 {
   const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
 
@@ -70,8 +72,8 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned 
     }
   }
 }
-void readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short y,
-                        unsigned int flags )
+void UoClientFiles::readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short y,
+                                       unsigned int flags ) const
 {
   for ( auto& bucket : buckets )
     bucket.clear();
@@ -93,7 +95,7 @@ void readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short
   }
 }
 
-void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
+void UoClientFiles::readallstatics( StaticList& vec, unsigned short x, unsigned short y ) const
 {
   const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
 

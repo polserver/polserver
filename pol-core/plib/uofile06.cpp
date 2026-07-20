@@ -8,12 +8,15 @@
 #include "clidata.h"
 #include "uconst.h"
 #include "udatfile.h"
+#include "uoclientfiles.h"
 #include "uofile.h"
 #include "ustruct.h"
 
 
 namespace Pol::Plib
 {
+extern bool static_debug_on;
+
 inline bool flags_standable( unsigned int flags )
 {
   return ( flags & ( USTRUCT_TILE::FLAG_PLATFORM | USTRUCT_TILE::FLAG_BLOCKING ) ) ==
@@ -24,8 +27,9 @@ inline bool flags_swimmable( unsigned int flags )
   return ( flags & ( USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID ) ) ==
          ( USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID );
 }
-void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
-                       short oldz, bool* result_out, short* newz_out )
+void UoClientFiles::standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
+                                      unsigned short y, short oldz, bool* result_out,
+                                      short* newz_out ) const
 {
   short lowest_blocking_z = 128;
   short highest_blocking_z = -127;

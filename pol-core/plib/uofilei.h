@@ -18,28 +18,11 @@
 
 namespace Pol::Plib
 {
-extern FILE* mapfile;
-extern FILE* sidxfile;
-extern FILE* statfile;
-extern FILE* verfile;
-extern FILE* tilefile;
-extern FILE* stadifl_file;
-extern FILE* stadifi_file;
-extern FILE* stadif_file;
-extern FILE* mapdifl_file;
-extern FILE* mapdif_file;
-extern std::ifstream uopmapfile;
-
 struct USTRUCT_VERSION;
 struct USTRUCT_MULTI_ELEMENT;
 
 FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr );
 bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map );
-
-bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
-
-void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
-                       short oldz, bool* result, short* newz );  // uotool version
 
 #define VERFILE_MAP0_MUL 0x00
 #define VERFILE_STAIDX0_MUL 0x01
@@ -60,9 +43,6 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 #define VERFILE_SKILLS_MUL 0x10
 #define VERFILE_TILEDATA_MUL 0x1E
 #define VERFILE_ANIMDATA_MUL 0x1F
-
-void read_static_diffs();
-void read_map_difs();
 }  // namespace Pol::Plib
 
 #endif

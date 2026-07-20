@@ -9,20 +9,19 @@
 
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
+#include "uoclientfiles.h"
 #include "uofilei.h"
 #include "ustruct.h"
 
 
 namespace Pol::Plib
 {
-std::set<unsigned int> water;
-
 bool iswater( u16 objtype )
 {
   return ( objtype >= 0x1796 && objtype <= 0x17b2 );
 }
 
-void readwater()
+void UoClientFiles::readwater()
 {
   USTRUCT_IDX idxrec;
 

@@ -12,12 +12,12 @@
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "mapcell.h"
+#include "uoclientfiles.h"
 #include "ustruct.h"
 
 
 namespace Pol::Plib
 {
-bool cfg_show_roof_and_platform_warning = true;
 std::string flagstr( unsigned int flags )
 {
   std::string tmp;
@@ -187,7 +187,7 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   // everything allows overflight above it.
   // mapflags |= FLAG::OVERFLIGHT;
 
-  if ( cfg_show_roof_and_platform_warning )
+  if ( uofiles().cfg_show_roof_and_platform_warning )
     if ( ( mapflags & FLAG::BLOCKING ) && ( mapflags & ( FLAG::MOVELAND | FLAG::MOVESEA ) ) )
       INFO_PRINTLN( "Warning: Tile {:#x} uses Roof- and Platform-Flag at same time.", tile );
 
