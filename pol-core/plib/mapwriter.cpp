@@ -16,8 +16,6 @@
 #include "../clib/passert.h"
 #include "mapcell.h"
 #include "realmdescriptor.h"
-#include "uoclientfiles.h"
-#include "uofile.h"
 
 
 namespace Pol::Plib
@@ -110,7 +108,8 @@ MapWriter::~MapWriter()
   Flush();
 }
 
-void MapWriter::WriteConfigFile()
+void MapWriter::WriteConfigFile( int uo_mapid, int uo_usedif, unsigned int num_static_patches,
+                                 unsigned int num_map_patches )
 {
   std::string filename = _directory + "realm.cfg";
   std::ofstream ofs_cfg;
@@ -123,11 +122,10 @@ void MapWriter::WriteConfigFile()
   ofs_cfg << "    width " << _width << std::endl;
   ofs_cfg << "    height " << _height << std::endl;
   ofs_cfg << "    mapserver memory" << std::endl;
-  const auto& uof = uofiles();
-  ofs_cfg << "    uomapid " << uof.uo_mapid << std::endl;
-  ofs_cfg << "    uodif " << uof.uo_usedif << std::endl;
-  ofs_cfg << "    num_static_patches " << uof.num_static_patches << std::endl;
-  ofs_cfg << "    num_map_patches " << uof.num_map_patches << std::endl;
+  ofs_cfg << "    uomapid " << uo_mapid << std::endl;
+  ofs_cfg << "    uodif " << uo_usedif << std::endl;
+  ofs_cfg << "    num_static_patches " << num_static_patches << std::endl;
+  ofs_cfg << "    num_map_patches " << num_map_patches << std::endl;
   ofs_cfg << "    season 1" << std::endl;
   ofs_cfg << "    version " << RealmDescriptor::VERSION << std::endl;
   ofs_cfg << "}" << std::endl;

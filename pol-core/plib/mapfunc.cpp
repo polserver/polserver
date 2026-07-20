@@ -12,7 +12,6 @@
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "mapcell.h"
-#include "uoclientfiles.h"
 #include "ustruct.h"
 
 
@@ -56,7 +55,7 @@ std::string flagdescs()
 }
 
 u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot,
-                             bool LOS_through_windows )
+                             bool LOS_through_windows, bool show_roof_and_platform_warning )
 {
   u32 mapflags = 0;
 
@@ -187,14 +186,15 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   // everything allows overflight above it.
   // mapflags |= FLAG::OVERFLIGHT;
 
-  if ( uofiles().cfg_show_roof_and_platform_warning )
+  if ( show_roof_and_platform_warning )
     if ( ( mapflags & FLAG::BLOCKING ) && ( mapflags & ( FLAG::MOVELAND | FLAG::MOVESEA ) ) )
       INFO_PRINTLN( "Warning: Tile {:#x} uses Roof- and Platform-Flag at same time.", tile );
 
   return mapflags;
 }
 
-u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags )
+u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags,
+                                 bool show_roof_and_platform_warning )
 {
   if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
   {  // this seems to be the default.
@@ -204,8 +204,9 @@ u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags )
   lt_flags |= USTRUCT_TILE::FLAG_FLOOR;
   lt_flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT;  // the entire map is this way
 
-  unsigned int flags = polflags_from_tileflags(
-      tile, lt_flags, false, false );  // Land tiles shouldn't worry about noshoot or windows
+  // Land tiles shouldn't worry about noshoot or windows
+  unsigned int flags =
+      polflags_from_tileflags( tile, lt_flags, false, false, show_roof_and_platform_warning );
   return flags;
 }
 

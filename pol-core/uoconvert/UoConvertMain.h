@@ -15,6 +15,7 @@ namespace Pol
 namespace Plib
 {
 struct USTRUCT_MULTI_ELEMENT;
+class UoClientFiles;
 }
 namespace UoConvert
 {
@@ -88,25 +89,29 @@ public:
   long long prof_shape_ns = 0;    // water/wall pass + sort + shape consolidation
   long long prof_writer_ns = 0;   // SetMapCell + AppendSolid
 
-  void display_flags();
+  void display_flags( const Plib::UoClientFiles& uof );
 
   void write_flags( FILE* fp, unsigned int flags );
 
-  void create_tiles_cfg();
-  void create_landtiles_cfg();
+  void create_tiles_cfg( const Plib::UoClientFiles& uof );
+  void create_landtiles_cfg( const Plib::UoClientFiles& uof );
 
-  void create_multis_cfg();
-  void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg );
+  void create_multis_cfg( const Plib::UoClientFiles& uof );
+  void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg,
+                          const Plib::UoClientFiles& uof );
 
   void write_multi( FILE* multis_cfg, unsigned id,
-                    std::vector<Plib::USTRUCT_MULTI_ELEMENT>& multi_elems );
+                    std::vector<Plib::USTRUCT_MULTI_ELEMENT>& multi_elems,
+                    const Plib::UoClientFiles& uof );
   void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int offset,
-                    unsigned int length );
+                    unsigned int length, const Plib::UoClientFiles& uof );
 
-  void create_map( const std::string& realm, unsigned short width, unsigned short height );
-  void update_map( const std::string& realm, unsigned short x, unsigned short y );
+  void create_map( const std::string& realm, unsigned short width, unsigned short height,
+                   Plib::UoClientFiles& uof );
+  void update_map( const std::string& realm, unsigned short x, unsigned short y,
+                   Plib::UoClientFiles& uof );
 
-  void create_maptile( const std::string& realmname );
+  void create_maptile( const std::string& realmname, Plib::UoClientFiles& uof );
 
   // Phase A: pure per-block compute. Reads only immutable inputs; touches no
   // MapWriter state and no UoConvertMain counters (stats/profiling accumulate into
@@ -114,7 +119,7 @@ public:
   // reset on entry but its vector capacity is retained, so reusing one BlockResult
   // across many blocks avoids per-block heap allocation in the hot parallel loop.
   void ComputeSolidBlock( unsigned short x_base, unsigned short y_base, const TerrainPlane& plane,
-                          BlockResult& result ) const;
+                          BlockResult& result, const Plib::UoClientFiles& uof ) const;
 
   // Consolidate one tile's statics into its final shape stack. `statics` must be
   // sorted descending by (z, height) and is consumed (emptied); `shapes` is
@@ -122,7 +127,8 @@ public:
   // runs, bottom-up, after overlap shrinking and same-top combining. This is the
   // byte-sensitive heart of the conversion -- every rule in it is reflected in
   // solids.dat.
-  void merge_shapes( Plib::StaticList& statics, std::vector<Plib::MapShape>& shapes ) const;
+  void merge_shapes( Plib::StaticList& statics, std::vector<Plib::MapShape>& shapes,
+                     const Plib::UoClientFiles& uof ) const;
 
   // Phase B: fold one block's result into the MapWriter in block order. Must be
   // called in the same y-outer/x-inner order the blocks are laid out so the
@@ -132,7 +138,7 @@ public:
 
   std::string resolve_type_from_id( unsigned id ) const;
   void write_multi_element( FILE* multis_cfg, const Plib::USTRUCT_MULTI_ELEMENT& elem,
-                            const std::string& mytype, bool& first );
+                            const std::string& mytype, bool& first, const Plib::UoClientFiles& uof );
 
   unsigned empty = 0, nonempty = 0;
   unsigned total_statics = 0;
@@ -141,12 +147,12 @@ public:
 protected:
   int main() override;
 
-  void check_for_errors_in_map_parameters();
+  void check_for_errors_in_map_parameters( const Plib::UoClientFiles& uof );
 
-  bool convert_uop_to_mul();
+  bool convert_uop_to_mul( Plib::UoClientFiles& uof );
 
-  void setup_uoconvert();
-  void load_uoconvert_cfg();
+  void setup_uoconvert( Plib::UoClientFiles& uof );
+  void load_uoconvert_cfg( Plib::UoClientFiles& uof );
 
 private:
   void showHelp() override;

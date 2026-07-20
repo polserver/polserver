@@ -1292,7 +1292,7 @@ int UoToolMain::main()
   }
   if ( argvalue == "newstatics" )
   {
-    return write_pol_static_files( "main" );
+    return write_pol_static_files( "main", uofiles() );
   }
   if ( argvalue == "staticsmax" )
   {
