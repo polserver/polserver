@@ -1,4 +1,16 @@
 /** @file
+ * Reader API over the raw UO client data files (map/statics/tiledata/verdata),
+ * used by uoconvert and uotool -- pol reads converted realm files instead.
+ *
+ * Implementation is spread over uofile00-08.cpp; by declaration group:
+ * - open_uo_data_files/read_uo_data ......... uofile00.cpp (open, UOP probing)
+ * - readtile/readlandtile/read_objinfo ...... uofile01.cpp (tiledata + verdata cache)
+ * - getstaticblock/rawstaticfullread ........ uofile02.cpp (statics full-read cache)
+ * - readwater/iswater ....................... uofile04.cpp (water-tile table)
+ * - staticsmax .............................. uofile05.cpp
+ * - readstatics* (udatfile.h) ............... uofile07.cpp (per-tile static queries)
+ * - getmapinfo/safe_getmapinfo/rawmap* ...... uofile08.cpp (raw map cache accessors)
+ * (uofile06.cpp: standheight_read, declared in uofilei.h)
  *
  * @par History
  * - 2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
@@ -13,6 +25,7 @@
 #include "clidata.h"
 #include "ustruct.h"
 
+#include <span>
 #include <vector>
 
 
@@ -22,13 +35,21 @@ namespace Pol::Plib
 {
 extern void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void rawmapfullread();
+// Bulk-copy the raw map into caller-provided row-major arrays (idx = y*uo_map_width + x),
+// each exactly uo_map_width*uo_map_height in size. Triggers a lazy rawmapfullread() if needed.
+void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out );
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void readtile( unsigned short tilenum, USTRUCT_TILE* tile );
 void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile );
 void clear_tiledata();
-void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x,
-                      unsigned short y );
+const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y );
 void rawstaticfullread();
+
+// True once rawmapfullread()/rawstaticfullread() have populated the raw buffers. Used to
+// assert the buffers are already loaded before entering a parallel region, so getstaticblock/
+// safe_getmapinfo's lazy first-touch read can never fire concurrently (which would race).
+bool rawmap_loaded();
+bool rawstatics_loaded();
 
 
 void read_objinfo( u16 graphic, struct USTRUCT_TILE& objinfo );
@@ -43,6 +64,13 @@ void readwater();
 void staticsmax();
 bool iswater( u16 objtype );
 
+// Mutable global UO-file state, set once per run before any reader/conversion
+// function is called and then treated as read-only. uoconvert's main() fills
+// these from the command-line/realm descriptor for the chosen command (map
+// dimensions, mapid, dif usage) *before* dispatching to create_map/create_maptile/
+// statics/etc.; pol sets them when loading a realm. Every getmapinfo/readstatics/
+// block-index call silently depends on uo_map_width/uo_map_height already holding
+// the current realm's dimensions -- change them mid-run and the block math is wrong.
 extern int uo_mapid;
 extern int uo_usedif;
 extern bool uo_readuop;

@@ -1,4 +1,5 @@
 /** @file
+ * standheight_read: walk/stand height simulation over raw client data (uotool).
  *
  * @par History
  */

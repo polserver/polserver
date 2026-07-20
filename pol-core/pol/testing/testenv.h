@@ -105,6 +105,7 @@ void test_curlfeatures();
 
 void decay_test();
 void clamp_test();
+void maptile_geometry_test();
 void uoextension_test();
 void caseinsensitive_compare_test();
 void www_test();

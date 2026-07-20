@@ -1,4 +1,6 @@
 /** @file
+ * Raw map accessors over the RawMap full-read cache: getmapinfo (with
+ * neighbour z-averaging), safe_getmapinfo, rawmap_extract_planes.
  *
  * @par History
  * - 2005/01/13 Shinigami: safe_getmapinfo - add missing checks for x and y
@@ -42,6 +44,11 @@ static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPIN
   return rawmap.rawinfo( x, y, gi );
 }
 
+bool rawmap_loaded()
+{
+  return rawmap_ready;
+}
+
 void rawmapfullread()
 {
   rawmap.set_bounds( uo_map_width, uo_map_height );
@@ -54,6 +61,13 @@ void rawmapfullread()
 
   if ( blocks )
     rawmap_ready = true;
+}
+
+void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out )
+{
+  if ( !rawmap_ready )
+    rawmapfullread();
+  rawmap.extract_planes( landtile_out, z_out );
 }
 
 /*

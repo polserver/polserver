@@ -1,4 +1,5 @@
 /** @file
+ * Water-tile table: readwater scans tiledata for wet items, iswater queries it.
  *
  * @par History
  */

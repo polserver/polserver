@@ -1,4 +1,6 @@
 /** @file
+ * Opens/closes the UO client data files (map/statics/tiledata/verdata/difs),
+ * including UOP map probing and decompression into the legacy mul layout.
  *
  * @par History
  */

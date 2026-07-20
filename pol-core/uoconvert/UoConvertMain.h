@@ -6,7 +6,9 @@
 #include <vector>
 
 #include "../clib/Program/ProgramMain.h"
+#include "../plib/mapshape.h"
 #include "../plib/mapwriter.h"
+#include "../plib/udatfile.h"
 
 namespace Pol
 {
@@ -16,6 +18,41 @@ struct USTRUCT_MULTI_ELEMENT;
 }
 namespace UoConvert
 {
+struct TerrainPlane;
+
+// Per-block output of the pure compute phase (Phase A) of the solid-block
+// conversion. ComputeSolidBlock() fills one of these from immutable inputs
+// (terrain plane + statics + config) without touching the MapWriter; StitchBlock()
+// then folds it into the MapWriter in block order. Sized to the 8x8 solid block
+// (SOLIDX_X_SIZE/SOLIDX_Y_SIZE from plib/mapsolid.h).
+struct BlockResult
+{
+  // Final map cells (flags incl. MORE_SOLIDS) for each in-bounds tile of the block,
+  // stored as a ready-made MAPBLOCK: a solid block and a base.dat block are the same
+  // 8x8 [x][y] geometry, so a full block stitches with a single block assignment.
+  static_assert( Plib::SOLIDX_X_SIZE == Plib::MAPBLOCK_CHUNK &&
+                     Plib::SOLIDX_Y_SIZE == Plib::MAPBLOCK_CHUNK,
+                 "solid blocks and map blocks must share the 8x8 geometry" );
+  Plib::MAPBLOCK cells;
+  // Element offset of each cell's first solid, relative to this block's first solid
+  // (block-local, 0-based). Zero for cells without runs, matching the old SOLIDX2_ELEM
+  // which left those slots at 0; the stitch copies this array wholesale.
+  unsigned short addindex[Plib::SOLIDX_X_SIZE][Plib::SOLIDX_Y_SIZE] = {};
+  // Edge-clamped extent actually computed (blocks at the map edge are partial).
+  unsigned short x_add_max = Plib::SOLIDX_X_SIZE;
+  unsigned short y_add_max = Plib::SOLIDX_Y_SIZE;
+  bool has_solids = false;  // any cell produced a run -> this block needs a solidx2 elem
+  std::vector<Plib::SOLIDS_ELEM> solids;  // this block's runs, in cell order
+  std::vector<std::string> warnings;      // invalid-ID messages, replayed in order in the stitch
+  // Stat sums, reduced in the stitch:
+  unsigned nonempty_locations = 0;  // cells with MORE_SOLIDS -> feeds with_more_solids
+  unsigned total_statics = 0;
+  // Opt-in per-tile profiling sub-sums (see cfg_profile); reduced in the stitch.
+  long long prof_mapinfo_ns = 0;
+  long long prof_statics_ns = 0;
+  long long prof_shape_ns = 0;
+};
+
 class UoConvertMain final : public Pol::Clib::ProgramMain
 {
 public:
@@ -26,8 +63,30 @@ public:
   std::set<unsigned int> MountTypes;
   std::set<unsigned int> DiscardedWaterTypes;
 
+  // DiscardedWaterTypes as a flat per-graphic table for the hot water check in
+  // ComputeSolidBlock (probed once per candidate static, millions of times per
+  // conversion -- a tree lookup there costs ~13x a flat probe). Filled from the
+  // set after config load; graphics are u16, so the index is always in range.
+  std::vector<bool> is_discarded_water = std::vector<bool>( 0x10000, false );
+
   bool cfg_use_no_shoot;
   bool cfg_LOS_through_windows;
+
+  // When set (via `profile=1`), ComputeSolidBlock accumulates per-tile timing into the
+  // BlockResult and StitchBlock reduces it into the prof_*_ns members below, so create_map
+  // can report a breakdown of the hot loop. Off by default because the per-tile chrono
+  // reads add measurable overhead across ~25M tiles.
+  bool cfg_profile = false;
+
+  // Worker-thread count for the parallel map-conversion phases (terrain-plane build
+  // and, later, the block compute). 0 = auto (hardware_concurrency); 1 = serial. Set
+  // via the `threads=` arg; output is byte-identical for any value.
+  unsigned cfg_threads = 0;
+
+  long long prof_mapinfo_ns = 0;  // safe_getmapinfo + get_lowestadjacentz + landtile flags
+  long long prof_statics_ns = 0;  // readstatics + flag filter
+  long long prof_shape_ns = 0;    // water/wall pass + sort + shape consolidation
+  long long prof_writer_ns = 0;   // SetMapCell + AppendSolid
 
   void display_flags();
 
@@ -49,8 +108,27 @@ public:
 
   void create_maptile( const std::string& realmname );
 
-  void ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
-                          Plib::MapWriter& mapwriter );
+  // Phase A: pure per-block compute. Reads only immutable inputs; touches no
+  // MapWriter state and no UoConvertMain counters (stats/profiling accumulate into
+  // `result`). Safe to call concurrently for distinct `result` objects. `result` is
+  // reset on entry but its vector capacity is retained, so reusing one BlockResult
+  // across many blocks avoids per-block heap allocation in the hot parallel loop.
+  void ComputeSolidBlock( unsigned short x_base, unsigned short y_base, const TerrainPlane& plane,
+                          BlockResult& result ) const;
+
+  // Consolidate one tile's statics into its final shape stack. `statics` must be
+  // sorted descending by (z, height) and is consumed (emptied); `shapes` is
+  // rebuilt: shapes[0] is the map base (height 0), the rest are the cell's solid
+  // runs, bottom-up, after overlap shrinking and same-top combining. This is the
+  // byte-sensitive heart of the conversion -- every rule in it is reflected in
+  // solids.dat.
+  void merge_shapes( Plib::StaticList& statics, std::vector<Plib::MapShape>& shapes ) const;
+
+  // Phase B: fold one block's result into the MapWriter in block order. Must be
+  // called in the same y-outer/x-inner order the blocks are laid out so the
+  // solids/solidx2 append offsets (baked into solidx1/solidx2) stay identical.
+  void StitchBlock( Plib::MapWriter& mapwriter, unsigned short x_base, unsigned short y_base,
+                    const BlockResult& result );
 
   std::string resolve_type_from_id( unsigned id ) const;
   void write_multi_element( FILE* multis_cfg, const Plib::USTRUCT_MULTI_ELEMENT& elem,

@@ -7,20 +7,19 @@
  */
 
 
-#ifndef PLIB_MAPBLOB_H
-#define PLIB_MAPBLOB_H
-
-#define SOLIDX_X_SIZE 8
-#define SOLIDX_X_SHIFT 3
-#define SOLIDX_X_CELLMASK 7
-
-#define SOLIDX_Y_SIZE 8
-#define SOLIDX_Y_SHIFT 3
-#define SOLIDX_Y_CELLMASK 7
-
+#ifndef PLIB_MAPSOLID_H
+#define PLIB_MAPSOLID_H
 
 namespace Pol::Plib
 {
+constexpr unsigned SOLIDX_X_SIZE = 8;
+constexpr unsigned SOLIDX_X_SHIFT = 3;
+constexpr unsigned SOLIDX_X_CELLMASK = 7;
+
+constexpr unsigned SOLIDX_Y_SIZE = 8;
+constexpr unsigned SOLIDX_Y_SHIFT = 3;
+constexpr unsigned SOLIDX_Y_CELLMASK = 7;
+
 struct SOLIDX1_ELEM
 {
   unsigned int offset;

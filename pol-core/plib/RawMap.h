@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <iosfwd>
 #include <map>
+#include <span>
 #include <vector>
 
 #include "ustruct.h"
@@ -30,6 +31,12 @@ public:
 
   // Returns information about a given coordinate in the world
   signed char rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi );
+
+  // Bulk-copy the whole map into caller-provided row-major arrays
+  // (idx = y * width + x), each exactly width*height in size. Same cell selection
+  // as rawinfo(), but without the per-call bounds-check / struct-copy overhead --
+  // for consumers (uoconvert's terrain plane) that need every tile at once.
+  void extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const;
 
   // Inserts another block of 8x8 tiles
   void add_block( const USTRUCT_MAPINFO_BLOCK& block );

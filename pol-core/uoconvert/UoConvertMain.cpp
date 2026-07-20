@@ -1,8 +1,13 @@
 #include "UoConvertMain.h"
 
+#include <algorithm>
+#include <chrono>
+#include <cstring>
+#include <stdexcept>
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <vector>
 
 #include "clib/Program/ProgramMain.h"
 #include "clib/cfgelem.h"
@@ -34,12 +39,49 @@
 #include "plib/ustruct.h"
 #include "pol/landtile.h"
 
+#include "parallel.h"
+#include "terrainplane.h"
+
 
 namespace Pol::UoConvert
 {
 using namespace std;
 using namespace Pol::Core;
 using namespace Pol::Plib;
+
+namespace
+{
+// RAII owner for the C FILE* handles used by the .cfg writers below, so an early
+// return or a throw closes the file instead of leaking it. Implicitly converts
+// to FILE*, so the fprintf-based writer code reads exactly as before.
+class UniqueFile
+{
+public:
+  explicit UniqueFile( FILE* fp ) : fp_( fp ) {}
+  ~UniqueFile()
+  {
+    if ( fp_ )
+      fclose( fp_ );
+  }
+  UniqueFile( const UniqueFile& ) = delete;
+  UniqueFile& operator=( const UniqueFile& ) = delete;
+
+  operator FILE*() const { return fp_; }
+
+private:
+  FILE* fp_;
+};
+
+// Open a text file for writing, throwing with the path on failure (the old code
+// left the FILE* unchecked and would crash on the first fprintf).
+UniqueFile open_out_text( const std::string& path )
+{
+  FILE* fp = fopen( path.c_str(), "wt" );
+  if ( !fp )
+    throw std::runtime_error( "Unable to open output file for writing: " + path );
+  return UniqueFile( fp );
+}
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +104,7 @@ void UoConvertMain::showHelp()
       "    \n"
       "  Commands: \n"
       "    map {uodata=Dir} {realm=realmname} {width=Width}        {height=Height} {mapid=0} "
-      "{readuop=1} {x=X} {y=Y}\n"
+      "{readuop=1} {x=X} {y=Y} {profile=0} {threads=0}\n"
       "    statics {uodata=Dir} {realm=realmname}\n"
       "    maptile {uodata=Dir} {realm=realmname}\n"
       "    multis {uodata=Dir} {outdir=dir}\n"
@@ -72,6 +114,18 @@ void UoConvertMain::showHelp()
 
 using namespace Core;
 using namespace Plib;
+
+// A WALL-flagged landtile is treated as a solid of this height, unless a static
+// sitting on it caps it lower (see the wall override in ComputeSolidBlock).
+constexpr short WALL_LANDTILE_HEIGHT = 20;
+
+// A discarded-water static replaces the map base only when it lies at or above
+// the terrain top by at most this many z (statics further up are unrelated water).
+constexpr short WATER_DISCARD_Z_WINDOW = 10;
+
+// "Sand over water": a shape starting at most this far above a water shape is
+// extended downward to meet it (see merge_shapes).
+constexpr short SAND_OVER_WATER_MAX_GAP = 4;
 
 void UoConvertMain::display_flags()
 {
@@ -129,82 +183,72 @@ void UoConvertMain::create_maptile( const std::string& realmname )
       realmname, descriptor.uomapid, ( descriptor.uodif ? "Yes" : "No" ), uo_map_width,
       uo_map_height );
 
-  auto writer = new Plib::MapWriter();
-  writer->OpenExistingFiles( realmname );
+  Plib::MapWriter writer;
+  writer.OpenExistingFiles( realmname );
 
-  for ( unsigned short y_base = 0; y_base < uo_map_height; y_base += Plib::MAPTILE_CHUNK )
+  // Same precomputed terrain as create_map; maptile only needs the landtile id and the
+  // effective (liquid-overridden) z per tile, so skip the lowest-adjacent-z pass.
+  rawmapfullread();
+  TerrainPlane plane;
+  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/false, cfg_threads );
+
+  // Plain row-major sweep; the old 64x64 blocked iteration only existed to suit the
+  // former one-block writer cache, which got replaced with in-memory buffers.
+  for ( unsigned short y = 0; y < uo_map_height; ++y )
   {
-    for ( unsigned short x_base = 0; x_base < uo_map_width; x_base += Plib::MAPTILE_CHUNK )
+    if ( y % Plib::MAPTILE_CHUNK == 0 )
+      INFO_PRINT( "\rConverting: {}%", y * 100 / uo_map_height );
+    for ( unsigned short x = 0; x < uo_map_width; ++x )
     {
-      for ( unsigned short x_add = 0; x_add < Plib::MAPTILE_CHUNK; ++x_add )
-      {
-        for ( unsigned short y_add = 0; y_add < Plib::MAPTILE_CHUNK; ++y_add )
-        {
-          unsigned short x = x_base + x_add;
-          unsigned short y = y_base + y_add;
+      const std::size_t plane_idx = plane.index( x, y );
+      const u16 landtile = plane.landtile[plane_idx];
+      const s8 z = plane.eff_z[plane_idx];  // effective z (liquid override applied)
 
-          short z;
-          USTRUCT_MAPINFO mi;
+      if ( landtile > Plib::MAX_LANDTILE_ID )
+        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z );
 
-          safe_getmapinfo( x, y, &z, &mi );
-
-          if ( mi.landtile > 0x3FFF )
-            INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
-
-          // for water, don't average with surrounding tiles.
-          if ( Plib::landtile_uoflags_read( mi.landtile ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
-            z = mi.z;
-
-          Plib::MAPTILE_CELL cell;
-          cell.landtile = mi.landtile;
-          cell.z = static_cast<signed char>( z );
-          writer->SetMapTile( x, y, cell );
-        }
-      }
+      Plib::MAPTILE_CELL cell;
+      cell.landtile = landtile;
+      cell.z = z;
+      writer.SetMapTile( x, y, cell );
     }
-    INFO_PRINT( "\rConverting: {}%", y_base * 100 / uo_map_height );
   }
-  writer->Flush();
-  delete writer;
+  writer.Flush();
   INFO_PRINTLN( "\rConversion complete." );
 }
 
 class StaticsByZ
 {
 public:
-  bool operator()( const StaticRec& a, const StaticRec& b )
+  bool operator()( const StaticRec& a, const StaticRec& b ) const
   {
     return ( a.z < b.z ) || ( ( a.z == b.z && a.height < b.height ) );
   }
 };
 
 
-bool flags_match( unsigned int f1, unsigned int f2, unsigned char bits_compare )
+constexpr bool flags_match( unsigned int f1, unsigned int f2, unsigned char bits_compare )
 {
   return ( f1 & bits_compare ) == ( f2 & bits_compare );
 }
 
-/*
-bool otherflags_match( unsigned char f1, unsigned char f2, unsigned char bits_exclude )
-{
-  return ( f1 & ~bits_exclude ) == ( f2 & ~bits_exclude );
-}
-bool differby_exactly( unsigned char f1, unsigned char f2, unsigned char bits )
-{
-  return ( ( f1 ^ f2 ) == bits );
-}*/
-
 void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsigned short y )
 {
-  auto mapwriter = new MapWriter();
-  mapwriter->OpenExistingFiles( realm );
+  MapWriter mapwriter;
+  mapwriter.OpenExistingFiles( realm );
   rawmapfullread();
   rawstaticfullread();
   unsigned short x_base = x / SOLIDX_X_SIZE * SOLIDX_X_SIZE;
   unsigned short y_base = y / SOLIDX_Y_SIZE * SOLIDX_Y_SIZE;
 
-  ProcessSolidBlock( x_base, y_base, *mapwriter );
-  delete mapwriter;
+  // ProcessSolidBlock reads the smoothed-terrain plane; build the full plane. This is a
+  // rarely-used single-block debug path (x=/y= args), so the full build is acceptable.
+  TerrainPlane plane;
+  plane.build( uo_map_width, uo_map_height, /*need_low_z=*/true, cfg_threads );
+
+  BlockResult result;
+  ComputeSolidBlock( x_base, y_base, plane, result );
+  StitchBlock( mapwriter, x_base, y_base, result );
   INFO_PRINTLN( "empty={}, nonempty={}\nwith more_solids: {}\ntotal statics={}", empty, nonempty,
                 with_more_solids, total_statics );
 }
@@ -212,7 +256,7 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
 void UoConvertMain::create_map( const std::string& realm, unsigned short width,
                                 unsigned short height )
 {
-  auto mapwriter = new MapWriter();
+  MapWriter mapwriter;
   INFO_PRINT(
       "Creating map base and solids files.\n"
       "  Realm: {}\n"
@@ -223,24 +267,87 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
       "Initializing files: ",
       realm, uo_mapid, ( uo_readuop ? "Yes" : "No" ), ( uo_usedif ? "Yes" : "No" ), uo_map_width,
       uo_map_height );
-  mapwriter->CreateNewFiles( realm, width, height );
-  INFO_PRINTLN( "Done." );
-  Tools::Timer<> timer;
-  rawmapfullread();
-  rawstaticfullread();
-  INFO_PRINTLN( "  Reading mapfiles time: {} ms.", timer.ellapsed() );
-  for ( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
-  {
-    for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
-    {
-      ProcessSolidBlock( x_base, y_base, *mapwriter );
-    }
-    INFO_PRINT( "\rConverting: {}%", y_base * 100 / height );
-  }
-  timer.stop();
+  // Reset the opt-in per-tile profiling accumulators for this run.
+  prof_mapinfo_ns = prof_statics_ns = prof_shape_ns = prof_writer_ns = 0;
 
-  mapwriter->WriteConfigFile();
-  delete mapwriter;
+  // Coarse, always-on phase timers so a plain run shows where the wall-clock goes
+  // (file init vs map read vs static read vs the hot loop vs the final flush).
+  Tools::Timer<> init_timer;
+  mapwriter.CreateNewFiles( realm, width, height );
+  init_timer.stop();
+  INFO_PRINTLN( "Done." );
+
+  Tools::Timer<> mapread_timer;
+  rawmapfullread();
+  mapread_timer.stop();
+
+  Tools::Timer<> staticread_timer;
+  rawstaticfullread();
+  staticread_timer.stop();
+
+  // Precompute the smoothed-terrain plane once (safe_getmapinfo + lowest-adjacent-z for
+  // every tile) so the block loop below is flat array reads instead of ~36 raw cell
+  // fetches per tile. The plane is immutable during the loop.
+  Tools::Timer<> plane_timer;
+  TerrainPlane plane;
+  plane.build( width, height, /*need_low_z=*/true, cfg_threads );
+  plane_timer.stop();
+
+  // ComputeSolidBlock runs concurrently below and calls getstaticblock / the raw-map
+  // readers, whose lazy first-touch init (rawstaticfullread / rawmapfullread) would race if
+  // it fired inside the parallel region. Both were already forced above; assert it so a
+  // future reorder trips here instead of racing.
+  passert_always( Plib::rawmap_loaded() );
+  passert_always( Plib::rawstatics_loaded() );
+
+  // Phase A/B: compute every block in parallel over contiguous block-row bands (each
+  // ComputeSolidBlock is pure and writes only its own BlockResult -- no shared state), in a
+  // single parallel region (threads spawned once). Then stitch all blocks into the writer
+  // serially in the fixed y-outer/x-inner order so the solids/solidx2 append offsets, and thus
+  // every output byte, stay identical to a serial run. Profiling forces the compute serial:
+  // per-tile timings are meaningless summed across overlapping threads. threads=0 =>
+  // hardware_concurrency.
+  const unsigned block_threads = cfg_profile ? 1u : cfg_threads;
+  const std::size_t blocks_per_row =
+      ( static_cast<std::size_t>( width ) + SOLIDX_X_SIZE - 1 ) / SOLIDX_X_SIZE;
+  const std::size_t num_block_rows =
+      ( static_cast<std::size_t>( height ) + SOLIDX_Y_SIZE - 1 ) / SOLIDX_Y_SIZE;
+  std::vector<BlockResult> results( blocks_per_row * num_block_rows );
+
+  Tools::Timer<> loop_timer;
+  parallel_for(
+      num_block_rows,
+      [&]( std::size_t yr )
+      {
+        const unsigned short y_base = static_cast<unsigned short>( yr * SOLIDX_Y_SIZE );
+        for ( std::size_t xi = 0; xi < blocks_per_row; ++xi )
+        {
+          const unsigned short x_base = static_cast<unsigned short>( xi * SOLIDX_X_SIZE );
+          ComputeSolidBlock( x_base, y_base, plane, results[yr * blocks_per_row + xi] );
+        }
+      },
+      block_threads );
+
+  for ( std::size_t yr = 0; yr < num_block_rows; ++yr )
+  {
+    const unsigned short y_base = static_cast<unsigned short>( yr * SOLIDX_Y_SIZE );
+    for ( std::size_t xi = 0; xi < blocks_per_row; ++xi )
+    {
+      const unsigned short x_base = static_cast<unsigned short>( xi * SOLIDX_X_SIZE );
+      StitchBlock( mapwriter, x_base, y_base, results[yr * blocks_per_row + xi] );
+    }
+    INFO_PRINT( "\rConverting: {}%", static_cast<unsigned>( yr ) * 100 / num_block_rows );
+  }
+  loop_timer.stop();
+
+  Tools::Timer<> flush_timer;
+  mapwriter.WriteConfigFile();
+  mapwriter.Flush();  // surface any write errors before reporting success
+  flush_timer.stop();
+
+  long long total_ms = init_timer.ellapsed() + mapread_timer.ellapsed() +
+                       staticread_timer.ellapsed() + plane_timer.ellapsed() +
+                       loop_timer.ellapsed() + flush_timer.ellapsed();
 
   INFO_PRINTLN(
       "\rConversion complete.\n"
@@ -250,189 +357,243 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
       "  Blocks without solids: {} ({}%)\n"
       "  Locations with solids: {}\n"
       "  Total number of solids: {}\n"
-      "  Elapsed time: {} ms.",
+      "Timing:\n"
+      "  Init files:   {} ms\n"
+      "  Map read:     {} ms\n"
+      "  Static read:  {} ms\n"
+      "  Terrain plane:{} ms\n"
+      "  Process loop: {} ms\n"
+      "  Config+flush: {} ms\n"
+      "  Total:        {} ms",
       empty + nonempty, nonempty, ( nonempty * 100 / ( empty + nonempty ) ), empty,
-      ( empty * 100 / ( empty + nonempty ) ), with_more_solids, total_statics, timer.ellapsed() );
+      ( empty * 100 / ( empty + nonempty ) ), with_more_solids, total_statics,
+      init_timer.ellapsed(), mapread_timer.ellapsed(), staticread_timer.ellapsed(),
+      plane_timer.ellapsed(), loop_timer.ellapsed(), flush_timer.ellapsed(), total_ms );
+
+  if ( cfg_profile )
+  {
+    // Sub-totals of the process loop (see prof_* members). Their sum is slightly below the
+    // loop time; the remainder is block bookkeeping plus the chrono-read overhead itself.
+    auto to_ms = []( long long ns ) { return ns / 1'000'000; };
+    INFO_PRINTLN(
+        "Process loop breakdown (profile=1):\n"
+        "    Map-info:    {} ms\n"
+        "    Statics:     {} ms\n"
+        "    Shape-build: {} ms\n"
+        "    Writer:      {} ms\n"
+        "    Sum:         {} ms",
+        to_ms( prof_mapinfo_ns ), to_ms( prof_statics_ns ), to_ms( prof_shape_ns ),
+        to_ms( prof_writer_ns ),
+        to_ms( prof_mapinfo_ns + prof_statics_ns + prof_shape_ns + prof_writer_ns ) );
+  }
 }
 
-static bool is_no_draw( USTRUCT_MAPINFO& mi )
+// Consolidate one tile's statics (sorted descending by z/height, consumed via
+// pop_back) into the tile's final shape stack: shapes[0] becomes the map base,
+// the rest the cell's solid runs, bottom-up. See the declaration for the contract;
+// every rule below is reflected byte-for-byte in solids.dat, so treat any change
+// here as an output-format change.
+void UoConvertMain::merge_shapes( StaticList& statics, std::vector<MapShape>& shapes ) const
 {
-  return ( mi.landtile == 0x2 );
+  shapes.clear();
+
+  // try to consolidate like shapes, and discard ones we don't care about.
+  while ( !statics.empty() )
+  {
+    StaticRec srec = statics.back();
+    statics.pop_back();
+
+    unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot,
+                                                     cfg_LOS_through_windows );
+    if ( ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
+         ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
+         ( ~polflags & FLAG::OVERFLIGHT ) )
+    {
+      // Invariant from the caller's filter: every element still in `statics` has
+      // at least one of these bits set, so this can never fire.
+      passert_always( 0 );
+      continue;
+    }
+
+    if ( shapes.empty() )
+    {
+      // this, whatever it is, is the map base.
+      // TODO: look for water statics and use THOSE as the map.
+      // these will be converted below to make the map "solid"; the lowest
+      // level is always gradual no matter what.
+      // emplace_back( z, height, flags ) throughout this function: constructing the
+      // MapShape in place lets the compiler keep the working shape in registers
+      // (push_back's const& parameter forces it into memory for the copy).
+      shapes.emplace_back( srec.z, short{ 0 }, ( polflags & 0xFFu ) | FLAG::GRADUAL );
+
+      // for wall flag - map tile always height 0, at bottom. if map tile has height, add it as
+      // a static
+      if ( srec.height != 0 )
+        shapes.emplace_back( srec.z, srec.height, polflags );
+      continue;
+    }
+
+    MapShape& prev = shapes.back();
+    // we're adding it.
+    MapShape shape{ .z = srec.z, .height = srec.height, .flags = polflags };
+
+    // always add the map shape seperately
+    if ( shapes.size() == 1 )
+    {
+      shapes.emplace_back( shape.z, shape.height, shape.flags );
+      continue;
+    }
+
+    if ( shape.z < prev.z + prev.height )
+    {
+      // things can't exist in the same place.
+      // shrink the bottom part of this shape.
+      // if that would give it negative height, then skip it.
+      short height_remove = prev.z + prev.height - shape.z;
+      if ( height_remove <= shape.height )
+      {
+        shape.z += height_remove;
+        shape.height -= height_remove;
+      }
+      else
+      {  // example: 5530, 14
+        continue;
+      }
+    }
+
+    // sometimes water has "sand" a couple z-coords above it.
+    // We'll try to detect this (really, anything that is up to
+    // SAND_OVER_WATER_MAX_GAP dist from water) and extend the thing above downward.
+    if ( ( prev.flags & FLAG::MOVESEA ) && ( shape.z > prev.z + prev.height ) &&
+         ( shape.z <= prev.z + prev.height + SAND_OVER_WATER_MAX_GAP ) )
+    {
+      short height_add = shape.z - prev.z - prev.height;
+      shape.z -= height_add;
+      shape.height += height_add;
+    }
+    if ( ( prev.flags & FLAG::MOVESEA ) && ( prev.z + prev.height == -5 ) &&
+         ( shape.flags & FLAG::MOVESEA ) && ( shape.z == 25 ) )
+    {
+      // The client's statics0.mul really does contain stray water statics (0x1796)
+      // floating at z=25 directly above ordinary ocean whose surface tops out at -5;
+      // on real Britannia (map1) e.g. around (1344,573) and (1703,450). Dropping
+      // them keeps the ocean a single walkable-sea shape instead of stacking a
+      // phantom water slab 30z above it. The -5 and 25 literals are those exact
+      // client-data values, not tunables.
+      continue;
+    }
+
+    if ( shape.z > prev.z + prev.height )
+    {
+      //
+      // elevated above what's below, must include separately
+      //
+
+      shapes.emplace_back( shape.z, shape.height, shape.flags );
+      continue;
+    }
+
+    passert_always( shape.z == prev.z + prev.height );
+
+    if ( shape.z == prev.z + prev.height )
+    {
+      //
+      // sitting right on top of the previous solid
+      //
+
+      // standable atop non-standable: standable
+      // nonstandable atop standable: nonstandable
+      // etc
+      bool can_combine = flags_match( prev.flags, shape.flags, FLAG::BLOCKSIGHT | FLAG::BLOCKING );
+      if ( prev.flags & FLAG::MOVELAND && ~shape.flags & FLAG::BLOCKING &&
+           ~shape.flags & FLAG::MOVELAND )
+      {
+        can_combine = false;
+      }
+
+      if ( can_combine )
+      {
+        prev.flags = shape.flags;
+        prev.height += shape.height;
+      }
+      else  // if one blocks LOS, but not the other, they can't be combined this way.
+      {
+        shapes.emplace_back( shape.z, shape.height, shape.flags );
+        continue;
+      }
+    }
+  }
 }
 
-static bool is_cave_exit( USTRUCT_MAPINFO& mi )
+// Phase A (pure compute): produce this block's cells, solids, and block-local index
+// data from immutable inputs only. Deliberately touches no MapWriter and no
+// UoConvertMain counters -- stats and warnings accumulate into `result` so this can
+// run concurrently across blocks. StitchBlock() folds the result into the MapWriter
+// in block order.
+void UoConvertMain::ComputeSolidBlock( unsigned short x_base, unsigned short y_base,
+                                       const TerrainPlane& plane, BlockResult& result ) const
 {
-  return ( mi.landtile == 0x7ec || mi.landtile == 0x7ed || mi.landtile == 0x7ee ||
-           mi.landtile == 0x7ef || mi.landtile == 0x7f0 || mi.landtile == 0x7f1 ||
-           mi.landtile == 0x834 || mi.landtile == 0x835 || mi.landtile == 0x836 ||
-           mi.landtile == 0x837 || mi.landtile == 0x838 || mi.landtile == 0x839 ||
-           mi.landtile == 0x1d3 || mi.landtile == 0x1d4 || mi.landtile == 0x1d5 ||
-           mi.landtile == 0x1d6 || mi.landtile == 0x1d7 || mi.landtile == 0x1d8 ||
-           mi.landtile == 0x1d9 || mi.landtile == 0x1da );
-}
+  // Raw UO tile flags fetched for every tile's statics below. Any static reaching
+  // `statics` is guaranteed to have at least one of these bits set, so nothing
+  // downstream needs to re-check srec.flags against this same mask.
+  static constexpr unsigned int kSolidStaticFlags =
+      USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM | USTRUCT_TILE::FLAG_HALF_HEIGHT |
+      USTRUCT_TILE::FLAG_LIQUID | USTRUCT_TILE::FLAG_HOVEROVER;
 
-static bool is_cave_shadow( USTRUCT_MAPINFO& mi )
-{
-  return ( mi.landtile == 0x1db ||  // shadows above caves
-           mi.landtile == 0x1ae ||  // more shadows above caves
-           mi.landtile == 0x1af || mi.landtile == 0x1b0 || mi.landtile == 0x1b1 ||
-           mi.landtile == 0x1b2 || mi.landtile == 0x1b3 || mi.landtile == 0x1b4 ||
-           mi.landtile == 0x1b5 );
-}
+  // Reset the caller's buffer, retaining vector capacity so reusing one BlockResult across
+  // blocks avoids per-block heap allocation. addindex must be re-zeroed (the stitch copies
+  // it wholesale and run-less cells must read 0); cells are fully rewritten for the clamped
+  // region and never read outside it, so they need no reset.
+  result.solids.clear();
+  result.warnings.clear();
+  result.has_solids = false;
+  result.nonempty_locations = 0;
+  result.total_statics = 0;
+  result.prof_mapinfo_ns = result.prof_statics_ns = result.prof_shape_ns = 0;
+  std::memset( result.addindex, 0, sizeof( result.addindex ) );
 
-short get_lowestadjacentz( unsigned short x, unsigned short y, short z )
-{
-  USTRUCT_MAPINFO mi;
-  short z0;
-  short lowest_z = z;
-  bool cave_override = false;
-
-  if ( ( x - 1 >= 0 ) && ( y - 1 >= 0 ) )
-  {
-    safe_getmapinfo( x - 1, y - 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( x - 1 >= 0 )
-  {
-    safe_getmapinfo( x - 1, y, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( ( x - 1 >= 0 ) && ( y + 1 < uo_map_height ) )
-  {
-    safe_getmapinfo( x - 1, y + 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( y - 1 >= 0 )
-  {
-    safe_getmapinfo( x, y - 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( ( y - 1 >= 0 ) && ( x + 1 < uo_map_width ) )
-  {
-    safe_getmapinfo( x + 1, y - 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( x + 1 < uo_map_width )
-  {
-    safe_getmapinfo( x + 1, y, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( ( x + 1 < uo_map_width ) && ( y + 1 < uo_map_height ) )
-  {
-    safe_getmapinfo( x + 1, y + 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( y + 1 < uo_map_height )
-  {
-    safe_getmapinfo( x, y + 1, &z0, &mi );
-
-    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-      z0 = z;
-
-    if ( is_no_draw( mi ) )
-      cave_override = true;
-
-    if ( z0 < lowest_z )
-    {
-      lowest_z = z0;
-    }
-  }
-
-  if ( cave_override )
-    return z;
-  return lowest_z;
-}
-
-void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
-                                       MapWriter& mapwriter )
-{
-  unsigned int idx2_offset = 0;
-  SOLIDX2_ELEM idx2_elem;
-  memset( &idx2_elem, 0, sizeof idx2_elem );
-  idx2_elem.baseindex = mapwriter.NextSolidIndex();
+  // Block-local, 0-based count of solid elements appended so far in this block. Replaces
+  // the old `NextSolidIndex() - baseindex` math (which was already block-local); the
+  // stitch rebases it against the live solids buffer.
+  unsigned int local_elems = 0;
 
   unsigned short x_add_max = SOLIDX_X_SIZE, y_add_max = SOLIDX_Y_SIZE;
   if ( x_base + x_add_max > uo_map_width )
     x_add_max = uo_map_width - x_base;
   if ( y_base + y_add_max > uo_map_height )
     y_add_max = uo_map_height - y_base;
+  result.x_add_max = x_add_max;
+  result.y_add_max = y_add_max;
+
+  // Reused across tiles (cleared, not reconstructed) to avoid a per-tile
+  // allocation across the ~25M tiles a full map conversion visits. The reserve
+  // covers the typical per-tile count, so most tiles never reallocate at all.
+  std::vector<MapShape> shapes;
+  shapes.reserve( 8 );
+
+  // Opt-in per-tile profiling: `t` is a rolling cursor and lap() folds the elapsed time
+  // since the last cursor into an accumulator, advancing the cursor. Guarded by cfg_profile
+  // at every call site so a normal run does no chrono reads at all.
+  using ProfClock = std::chrono::high_resolution_clock;
+  ProfClock::time_point t;
+  auto lap = [&]( long long& acc )
+  {
+    auto now = ProfClock::now();
+    acc += std::chrono::duration_cast<std::chrono::nanoseconds>( now - t ).count();
+    t = now;
+  };
+
+  // All of this block's statics, bucketed per cell in a single pass over the raw
+  // block, instead of one whole-block readstatics() scan per tile (64x the work).
+  // thread_local so each parallel worker reuses one scratch -- with its vectors'
+  // capacity -- across every block of its band; BlockResult itself is per-block in
+  // create_map, so the scratch must not live there.
+  thread_local StaticBuckets cell_statics;
+  if ( cfg_profile )
+    t = ProfClock::now();
+  readstatics_block( cell_statics, x_base, y_base, kSolidStaticFlags );
+  if ( cfg_profile )
+    lap( result.prof_statics_ns );
 
   for ( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
   {
@@ -441,29 +602,28 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       unsigned short x = x_base + x_add;
       unsigned short y = y_base + y_add;
 
-      StaticList statics;
+      if ( cfg_profile )
+        t = ProfClock::now();
 
-      // read the map, and treat it like a static.
-      short z;
-      USTRUCT_MAPINFO mi;
+      // read the precomputed smoothed terrain, and treat it like a static.
+      const std::size_t plane_idx = plane.index( x, y );
+      const u16 landtile = plane.landtile[plane_idx];
+      short z = plane.eff_z[plane_idx];  // effective z: the liquid override is already folded in
 
-      safe_getmapinfo( x, y, &z, &mi );
+      if ( landtile > MAX_LANDTILE_ID )
+        result.warnings.push_back(
+            fmt::format( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z ) );
 
-      if ( mi.landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
-
-      // for water, don't average with surrounding tiles.
-      if ( Plib::landtile_uoflags_read( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
-        z = mi.z;
-      short low_z = get_lowestadjacentz( x, y, z );
+      short low_z = plane.low_z[plane_idx];
 
       short lt_height = z - low_z;
       z = low_z;
 
-      if ( mi.landtile > 0x3FFF )
-        INFO_PRINTLN( "Tile {:#x} at ({},{},{}) is an invalid ID!", mi.landtile, x, y, z );
+      if ( landtile > MAX_LANDTILE_ID )
+        result.warnings.push_back(
+            fmt::format( "Tile {:#x} at ({},{},{}) is an invalid ID!", landtile, x, y, z ) );
 
-      unsigned int lt_flags = Plib::landtile_uoflags_read( mi.landtile );
+      unsigned int lt_flags = Plib::landtile_uoflags_read( landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
       {  // this seems to be the default.
         lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
@@ -476,42 +636,28 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
       lt_flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT;  // the entire map is this way
 
       if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
-        lt_height = 20;
+        lt_height = WALL_LANDTILE_HEIGHT;
 
-      readstatics( statics, x, y,
-                   USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
-                       USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID |
-                       USTRUCT_TILE::FLAG_HOVEROVER
-                   // USTRUCT_TILE::FLAG__WALK
-      );
+      if ( cfg_profile )
+        lap( result.prof_mapinfo_ns );
 
-      for ( unsigned i = 0; i < statics.size(); ++i )
-      {
-        StaticRec srec = statics[i];
+      // This tile's bucket doubles as the mutable per-tile scratch: the merge loop
+      // below consumes it via pop_back, and readstatics_block re-clears it for the
+      // next block, so no copy into a separate vector is needed.
+      StaticList& statics = cell_statics[x_add * STATICBLOCK_CHUNK + y_add];
 
-        unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot,
-                                                         cfg_LOS_through_windows );
+      std::erase_if( statics,
+                     [this]( const StaticRec& srec )
+                     {
+                       unsigned int polflags = polflags_from_tileflags(
+                           srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+                       return ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
+                              ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
+                              ( ~polflags & FLAG::OVERFLIGHT );
+                     } );
 
-        if ( ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
-             ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
-             ( ~polflags & FLAG::OVERFLIGHT ) )
-        {
-          // remove it.  we'll re-sort later.
-          statics.erase( statics.begin() + i );
-          --i;  // do-over
-        }
-        if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
-        /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
-        {
-          // remove it.  we'll re-sort later.
-          statics.erase( statics.begin() + i );
-          --i;  // do-over
-        }
-      }
+      if ( cfg_profile )
+        lap( result.prof_statics_ns );
 
       bool addMap = true;
 
@@ -520,7 +666,8 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
         // Look for water tiles. If there are any, discard the map (which is usually at -15 anyway)
         if ( z + lt_height <= srec.z &&
              // only where the map is below or same Z as the static
-             ( ( srec.z - ( z + lt_height ) ) <= 10 ) && DiscardedWaterTypes.count( srec.graphic ) )
+             ( ( srec.z - ( z + lt_height ) ) <= WATER_DISCARD_Z_WINDOW ) &&
+             is_discarded_water[srec.graphic] )
         {
           // arr, there be water here
           addMap = false;
@@ -533,202 +680,65 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
           lt_height = srec.z - z;
         }
       }
-      // shadows above caves
-      if ( is_cave_shadow( mi ) && !statics.empty() )
+      // shadows above caves (check the cheap emptiness test first; most tiles
+      // have no statics at all)
+      if ( !statics.empty() && is_cave_shadow( landtile ) )
       {
         addMap = false;
       }
 
 
       // If the map is a NODRAW tile, and there are statics, discard the map tile
-      if ( mi.landtile == 2 && !statics.empty() )
+      if ( landtile == 2 && !statics.empty() )
         addMap = false;
 
       if ( addMap )
         statics.emplace_back( 0, static_cast<signed char>( z ), lt_flags,
                               static_cast<char>( lt_height ) );
 
-      sort( statics.begin(), statics.end(), StaticsByZ() );
-      reverse( statics.begin(), statics.end() );
-
-      std::vector<MapShape> shapes;
-
-      // try to consolidate like shapes, and discard ones we don't care about.
-      while ( !statics.empty() )
+      if ( statics.size() > 1 )
       {
-        StaticRec srec = statics.back();
-        statics.pop_back();
-
-        unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot,
-                                                         cfg_LOS_through_windows );
-        if ( ( ~polflags & FLAG::MOVELAND ) && ( ~polflags & FLAG::MOVESEA ) &&
-             ( ~polflags & FLAG::BLOCKSIGHT ) && ( ~polflags & FLAG::BLOCKING ) &&
-             ( ~polflags & FLAG::OVERFLIGHT ) )
-        {
-          passert_always( 0 );
-          continue;
-        }
-        if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
-             ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
-        /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
-        {
-          passert_always( 0 );
-          continue;
-        }
-
-        if ( shapes.empty() )
-        {
-          // this, whatever it is, is the map base.
-          // TODO: look for water statics and use THOSE as the map.
-          MapShape shape;
-          shape.z = srec.z;  // these will be converted below to
-          shape.height = 0;  // make the map "solid"
-          shape.flags = static_cast<unsigned char>( polflags );
-          // no matter what, the lowest level is gradual
-          shape.flags |= FLAG::GRADUAL;
-          shapes.push_back( shape );
-
-          // for wall flag - map tile always height 0, at bottom. if map tile has height, add it as
-          // a static
-          if ( srec.height != 0 )
-          {
-            MapShape _shape;
-            _shape.z = srec.z;
-            _shape.height = srec.height;
-            _shape.flags = polflags;
-            shapes.push_back( _shape );
-          }
-          continue;
-        }
-
-        MapShape& prev = shapes.back();
-        // we're adding it.
-        MapShape shape;
-        shape.z = srec.z;
-        shape.height = srec.height;
-        shape.flags = polflags;
-
-        // always add the map shape seperately
-        if ( shapes.size() == 1 )
-        {
-          shapes.push_back( shape );
-          continue;
-        }
-
-        if ( shape.z < prev.z + prev.height )
-        {
-          // things can't exist in the same place.
-          // shrink the bottom part of this shape.
-          // if that would give it negative height, then skip it.
-          short height_remove = prev.z + prev.height - shape.z;
-          if ( height_remove <= shape.height )
-          {
-            shape.z += height_remove;
-            shape.height -= height_remove;
-          }
-          else
-          {  // example: 5530, 14
-            continue;
-          }
-        }
-
-        // sometimes water has "sand" a couple z-coords above it.
-        // We'll try to detect this (really, anything that is up to 4 dist from water)
-        // and extend the thing above downward.
-        if ( ( prev.flags & FLAG::MOVESEA ) && ( shape.z > prev.z + prev.height ) &&
-             ( shape.z <= prev.z + prev.height + 4 ) )
-        {
-          short height_add = shape.z - prev.z - prev.height;
-          shape.z -= height_add;
-          shape.height += height_add;
-        }
-        if ( ( prev.flags & FLAG::MOVESEA ) && ( prev.z + prev.height == -5 ) &&
-             ( shape.flags & FLAG::MOVESEA ) && ( shape.z == 25 ) )
-        {
-          // oddly, there are some water tiles at z=25 in some places...I don't get it
-          continue;
-        }
-
-        // string prevflags_s = flagstr(prev.flags);
-        // const char* prevflags = prevflags_s.c_str();
-        // string shapeflags_s = flagstr(shape.flags);
-        // const char* shapeflags = shapeflags_s.c_str();
-
-        if ( shape.z > prev.z + prev.height )
-        {
-          //
-          // elevated above what's below, must include separately
-          //
-
-          shapes.push_back( shape );
-          continue;
-        }
-
-        passert_always( shape.z == prev.z + prev.height );
-
-        if ( shape.z == prev.z + prev.height )
-        {
-          //
-          // sitting right on top of the previous solid
-          //
-
-          // standable atop non-standable: standable
-          // nonstandable atop standable: nonstandable
-          // etc
-          bool can_combine =
-              flags_match( prev.flags, shape.flags, FLAG::BLOCKSIGHT | FLAG::BLOCKING );
-          if ( prev.flags & FLAG::MOVELAND && ~shape.flags & FLAG::BLOCKING &&
-               ~shape.flags & FLAG::MOVELAND )
-          {
-            can_combine = false;
-          }
-
-          if ( can_combine )
-          {
-            prev.flags = shape.flags;
-            prev.height += shape.height;
-          }
-          else  // if one blocks LOS, but not the other, they can't be combined this way.
-          {
-            shapes.push_back( shape );
-            continue;
-          }
-        }
+        sort( statics.begin(), statics.end(), StaticsByZ() );
+        reverse( statics.begin(), statics.end() );
       }
 
-      // the first StaticShape is the map base.
-      MapShape base = shapes[0];
-      shapes.erase( shapes.begin() );
+      merge_shapes( statics, shapes );
+
+      // the first StaticShape is the map base; the rest are this cell's solid runs
+      // (left in place -- no need to pay an O(n) front erase per tile).
+      const MapShape& base = shapes[0];
+      const size_t num_runs = shapes.size() - 1;
       MAPCELL cell;
       passert_always( base.height == 0 );
       cell.z = static_cast<signed char>(
           base.z );  // assume now map has height=1. a static was already added if it was >0
       cell.flags = static_cast<u8>( base.flags );
-      if ( !shapes.empty() )
+      if ( num_runs != 0 )
         cell.flags |= FLAG::MORE_SOLIDS;
 
-      mapwriter.SetMapCell( x, y, cell );
+      if ( cfg_profile )
+        lap( result.prof_shape_ns );
 
-      if ( !shapes.empty() )
+      result.cells.cell[x_add][y_add] = cell;
+
+      if ( num_runs != 0 )
       {
-        ++with_more_solids;
-        total_statics += static_cast<unsigned int>( shapes.size() );
-        if ( idx2_offset == 0 )
-          idx2_offset = mapwriter.NextSolidx2Offset();
+        ++result.nonempty_locations;
+        result.total_statics += static_cast<unsigned int>( num_runs );
+        result.has_solids = true;
 
-        unsigned int addindex = mapwriter.NextSolidIndex() - idx2_elem.baseindex;
+        // Block-local element offset of this cell's first run. Captured before the
+        // appends below, so it equals the count of runs emitted by earlier cells of
+        // this block -- identical to the old `NextSolidIndex() - baseindex`.
+        unsigned int addindex = local_elems;
         if ( addindex > std::numeric_limits<unsigned short>::max() )
           throw std::runtime_error( "addoffset overflow" );
-        idx2_elem.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
-        int count = static_cast<int>( shapes.size() );
-        for ( int j = 0; j < count; ++j )
+        result.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
+        for ( size_t j = 1; j < shapes.size(); ++j )
         {
-          MapShape shape = shapes[j];
+          const MapShape& shape = shapes[j];
           char _z, height, flags;
-          _z = static_cast<char>( shapes[j].z );
+          _z = static_cast<char>( shape.z );
           height = static_cast<char>( shape.height );
           flags = static_cast<u8>( shape.flags );
           if ( !height )  // make 0 height solid
@@ -737,32 +747,90 @@ void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_b
             ++height;
           }
 
-          if ( j != count - 1 )
+          if ( j != shapes.size() - 1 )
             flags |= FLAG::MORE_SOLIDS;
-          SOLIDS_ELEM solid;
-          solid.z = _z;
-          solid.height = height;
-          solid.flags = flags;
-          mapwriter.AppendSolid( solid );
+          result.solids.emplace_back( _z, height, flags );
+          ++local_elems;
         }
       }
     }
   }
-  if ( idx2_offset )
+}
+
+// Phase B (stitch): fold one block's compute result into the MapWriter. Runs in the
+// exact block order create_map used to run ProcessSolidBlock, so every solids/solidx2
+// append offset -- and thus every byte of solidx1/solidx2 -- is identical to the old
+// serial path.
+void UoConvertMain::StitchBlock( MapWriter& mapwriter, unsigned short x_base, unsigned short y_base,
+                                 const BlockResult& result )
+{
+  // Reduce the per-block stat sums into the run-wide counters.
+  with_more_solids += result.nonempty_locations;
+  total_statics += result.total_statics;
+  if ( cfg_profile )
   {
-    ++nonempty;
-    mapwriter.AppendSolidx2Elem( idx2_elem );
+    prof_mapinfo_ns += result.prof_mapinfo_ns;
+    prof_statics_ns += result.prof_statics_ns;
+    prof_shape_ns += result.prof_shape_ns;
+  }
+
+  // Replay invalid-ID warnings in the order they were produced.
+  for ( const auto& w : result.warnings )
+    INFO_PRINTLN( "{}", w );
+
+  // Time the MapWriter mutations as the "writer" slice of the loop breakdown (the
+  // per-tile writer laps moved out of ComputeSolidBlock, which no longer writes).
+  using ProfClock = std::chrono::high_resolution_clock;
+  ProfClock::time_point writer_start;
+  if ( cfg_profile )
+    writer_start = ProfClock::now();
+
+  // Cell writes are disjoint per block. A full block (the only case in practice --
+  // map dimensions are enforced divisible by 8) is one aligned block assignment;
+  // the per-cell fallback covers a hypothetical edge-clamped partial block.
+  if ( result.x_add_max == SOLIDX_X_SIZE && result.y_add_max == SOLIDX_Y_SIZE )
+  {
+    mapwriter.SetMapBlock( x_base, y_base, result.cells );
   }
   else
   {
-    ++empty;
+    for ( unsigned short x_add = 0; x_add < result.x_add_max; ++x_add )
+      for ( unsigned short y_add = 0; y_add < result.y_add_max; ++y_add )
+        mapwriter.SetMapCell( x_base + x_add, y_base + y_add, result.cells.cell[x_add][y_add] );
   }
-  mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
+
+  if ( !result.has_solids )
+  {
+    ++empty;
+    mapwriter.SetSolidx2Offset( x_base, y_base, 0 );
+  }
+  else
+  {
+    ++nonempty;
+    SOLIDX2_ELEM idx2_elem{};
+    idx2_elem.baseindex = mapwriter.NextSolidIndex();
+    // addindex is already block-local and zero for run-less cells -- emit as-is.
+    std::memcpy( idx2_elem.addindex, result.addindex, sizeof( idx2_elem.addindex ) );
+
+    // Byte offset this block's solidx2 elem lands at (before appending it).
+    unsigned int idx2_offset = mapwriter.NextSolidx2Offset();
+    mapwriter.AppendSolidx2Elem( idx2_elem );
+    for ( const auto& solid : result.solids )
+      mapwriter.AppendSolid( solid );
+    mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
+  }
+
+  if ( cfg_profile )
+  {
+    auto now = ProfClock::now();
+    prof_writer_ns +=
+        std::chrono::duration_cast<std::chrono::nanoseconds>( now - writer_start ).count();
+  }
 }
 
 std::string UoConvertMain::resolve_type_from_id( unsigned id ) const
 {
-  if ( BoatTypes.count( id ) )
+  if ( BoatTypes.contains( id ) )
     return "Boat";
   return "Multi";
 }
@@ -885,7 +953,7 @@ void UoConvertMain::create_multis_cfg()
   std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>> multi_map;
 
   std::string outdir = programArgsFindEquals( "outdir=", "." );
-  FILE* multis_cfg = fopen( ( outdir + "/multis.cfg" ).c_str(), "wt" );
+  UniqueFile multis_cfg = open_out_text( outdir + "/multis.cfg" );
 
   if ( open_uopmulti_file( multi_map ) )
   {
@@ -899,15 +967,10 @@ void UoConvertMain::create_multis_cfg()
     return;
   }
 
-  FILE* multi_idx = open_uo_file( "multi.idx" );
-  FILE* multi_mul = open_uo_file( "multi.mul" );
+  UniqueFile multi_idx( open_uo_file( "multi.idx" ) );
+  UniqueFile multi_mul( open_uo_file( "multi.mul" ) );
 
   create_multis_cfg( multi_idx, multi_mul, multis_cfg );
-
-  fclose( multis_cfg );
-
-  fclose( multi_idx );
-  fclose( multi_mul );
 }
 void UoConvertMain::write_flags( FILE* fp, unsigned int flags )
 {
@@ -940,8 +1003,7 @@ void UoConvertMain::write_flags( FILE* fp, unsigned int flags )
 void UoConvertMain::create_tiles_cfg()
 {
   std::string outdir = programArgsFindEquals( "outdir=", "." );
-  FILE* fp = fopen( ( outdir + "/tiles.cfg" ).c_str(), "wt" );
-  int mountCount;
+  UniqueFile fp = open_out_text( outdir + "/tiles.cfg" );
   char name[21];
 
   unsigned count = 0;
@@ -968,16 +1030,16 @@ void UoConvertMain::create_tiles_cfg()
     }
     else
       read_objinfo( graphic, tile );
-    mountCount = static_cast<int>( MountTypes.count( graphic ) );
+    const bool is_mount = MountTypes.contains( graphic );
 
     if ( tile.name[0] == '\0' && tile.flags == 0 && tile.layer == 0 && tile.height == 0 &&
-         mountCount == 0 )
+         !is_mount )
     {
       continue;
     }
     unsigned int flags =
         polflags_from_tileflags( graphic, tile.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
-    if ( mountCount != 0 )
+    if ( is_mount )
     {
       tile.layer = 25;
       flags |= FLAG::EQUIPPABLE;
@@ -1003,7 +1065,6 @@ void UoConvertMain::create_tiles_cfg()
     fprintf( fp, "\n" );
     ++count;
   }
-  fclose( fp );
 
   INFO_PRINTLN( "{} tile definitions written to tiles.cfg", count );
 }
@@ -1011,10 +1072,10 @@ void UoConvertMain::create_tiles_cfg()
 void UoConvertMain::create_landtiles_cfg()
 {
   std::string outdir = programArgsFindEquals( "outdir=", "." );
-  FILE* fp = fopen( ( outdir + "/landtiles.cfg" ).c_str(), "wt" );
+  UniqueFile fp = open_out_text( outdir + "/landtiles.cfg" );
   unsigned count = 0;
 
-  for ( u16 i = 0; i <= 0x3FFF; ++i )
+  for ( u16 i = 0; i <= MAX_LANDTILE_ID; ++i )
   {
     USTRUCT_LAND_TILE landtile;
     if ( cfg_use_new_hsa_format )
@@ -1043,7 +1104,6 @@ void UoConvertMain::create_landtiles_cfg()
       ++count;
     }
   }
-  fclose( fp );
 
   INFO_PRINTLN( "{} landtile definitions written to landtiles.cfg", count );
 }
@@ -1076,6 +1136,8 @@ int UoConvertMain::main()
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
     UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 1, false );
     UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
+    cfg_profile = (bool)programArgsFindEquals( "profile=", 0, false );
+    cfg_threads = static_cast<unsigned>( programArgsFindEquals( "threads=", 0, false ) );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
 
@@ -1152,6 +1214,7 @@ int UoConvertMain::main()
   }
   else if ( command == "maptile" )
   {
+    cfg_threads = static_cast<unsigned>( programArgsFindEquals( "threads=", 0, false ) );
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
     Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 
@@ -1397,6 +1460,11 @@ void UoConvertMain::load_uoconvert_cfg()
       }
     }
   }
+
+  // Snapshot the water-type set into the flat lookup the conversion loop probes.
+  for ( unsigned int graphic : DiscardedWaterTypes )
+    if ( graphic < is_discarded_water.size() )
+      is_discarded_water[graphic] = true;
 }
 }  // namespace Pol::UoConvert
 
@@ -1407,6 +1475,6 @@ void UoConvertMain::load_uoconvert_cfg()
 
 int main( int argc, char* argv[] )
 {
-  Pol::UoConvert::UoConvertMain* UoConvertMain = new Pol::UoConvert::UoConvertMain();
-  UoConvertMain->start( argc, argv );
+  Pol::UoConvert::UoConvertMain program;
+  program.start( argc, argv );
 }

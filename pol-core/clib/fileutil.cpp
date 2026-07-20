@@ -9,6 +9,7 @@
 
 #include <filesystem>
 #include <limits.h>
+#include <stdexcept>
 #include <sys/stat.h>
 
 #ifdef LINUX
@@ -166,5 +167,26 @@ std::string GetTrueName( const char* filename )
 std::string GetFilePart( const char* filename )
 {
   return std::filesystem::path( filename ).filename().string();
+}
+
+std::vector<std::byte> ReadEntireFile( FILE* fp )
+{
+  long start = ftell( fp );
+  fseek( fp, 0, SEEK_END );
+  long end = ftell( fp );
+  fseek( fp, start, SEEK_SET );
+
+  std::vector<std::byte> buf( static_cast<size_t>( end - start ) );
+  if ( !buf.empty() )
+  {
+    size_t nread = fread( buf.data(), 1, buf.size(), fp );
+    if ( nread != buf.size() )
+    {
+      if ( ferror( fp ) )
+        throw std::runtime_error( "ReadEntireFile: fread failed" );
+      buf.resize( nread );  // file shrank between size check and read
+    }
+  }
+  return buf;
 }
 }  // namespace Pol::Clib

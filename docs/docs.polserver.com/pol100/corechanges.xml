@@ -2,49 +2,83 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-06-2026</datemodified>
+		<datemodified>07-19-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
-			<date>07-06-2026</date>
+			<date>07-18-2026</date>
 			<author>Nando:</author>
-			<change type="Fixed">Data race on the socket handle between an aux connection's reader thread and deferred transmit() tasks<br/>
-(os::OpenConnection / aux services): a transmit racing the connection close could act on an already-closed socket handle.</change>
-			<change type="Changed">With WebServerLocalOnly=1 (the default), the webserver now binds to 127.0.0.1 instead of<br/>
-all interfaces, so the port is no longer reachable (or even visible) from other machines.<br/>
-Set WebServerLocalOnly=0 to allow remote connections, as before.</change>
+			<change type="Changed">uoconvert's map conversion is substantially faster. The 'map' and 'maptile'<br/>
+commands now build their output files in memory (writing each once instead of<br/>
+re-reading and rewriting blocks per change), compute the smoothed terrain for<br/>
+the whole realm a single time instead of re-deriving it per tile, filter each<br/>
+block's statics once instead of rescanning them for every tile, and process<br/>
+the map's solid blocks in parallel across CPU cores. A new optional threads=<br/>
+argument sets the worker count (threads=0, the default, uses all available<br/>
+cores; threads=1 forces the old single-threaded behavior). The generated realm<br/>
+files are byte-for-byte identical to previous versions; on a typical multi-core<br/>
+machine a full 7168x4096 realm conversion drops from tens of seconds to a few.</change>
+		</entry>
+		<entry>
+			<date>07-13-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">uoconvert's maptile.dat block index used a truncating (floor) shift instead<br/>
+of a rounded-up (ceil) block count, so realms whose width or height isn't a<br/>
+multiple of 64 (Tokuno, 1448x1448, among the standard maps) had their<br/>
+easternmost/southernmost partial tile-block aliased onto the start of the<br/>
+next block row, silently overwriting it. This corrupted landtile/z lookups<br/>
+(Realm::groundheight, GetMapInfo, findmarker/counttiles) along a ~40-tile<br/>
+strip; movement/walkability were unaffected. maptile.dat's layout changes<br/>
+for affected realms, so RealmDescriptor::VERSION is bumped 1-&gt;2, requiring<br/>
+all realms to be reconverted.</change>
+			<change type="Fixed">Data race on the socket handle between an aux connection's reader thread<br/>
+and deferred transmit() tasks (os::OpenConnection / aux services): a<br/>
+transmit racing the connection close could act on an already-closed<br/>
+socket handle.</change>
+			<change type="Changed">With WebServerLocalOnly=1 (the default), the webserver now binds to<br/>
+127.0.0.1 instead of all interfaces, so the port is no longer reachable<br/>
+(or even visible) from other machines. Set WebServerLocalOnly=0 to allow<br/>
+remote connections, as before.</change>
 		</entry>
 		<entry>
 			<date>07-05-2026</date>
 			<author>Nando:</author>
-			<change type="Fixed">On macOS, sockets could lose data that arrived just before the peer closed the connection<br/>
-(poll() reports POLLHUP eagerly there; the buffered data is now drained before the connection is treated as closed).<br/>
-Affected e.g. os::OpenConnection() clients talking to servers that close after responding.</change>
-			<change type="Changed">os::OpenConnection() now resolves hostnames (e.g. "shard.example.com"), not only numeric IP addresses.<br/>
-Unresolvable names fail immediately (previously they silently connected to 255.255.255.255)<br/>
-and unreachable hosts give up after the new connect_timeout_ms parameter (default 10000 ms;<br/>
-0 restores the old behavior of blocking a worker thread for the OS default of a minute or more).</change>
-			<change type="Fixed">Connections read line-by-line (aux services, webserver, remote debugger) could be kept open forever<br/>
-by a peer streaming data without line breaks: receive timeouts now only reset when usable data arrives,<br/>
-and line buffers without a configured maximum are capped at 16 MB.</change>
-			<change type="Changed">With DebugLocalOnly=1 (the default), the DebugPort listener now binds to 127.0.0.1 instead of<br/>
-all interfaces, so the port is no longer reachable (or even visible) from other machines.<br/>
-Set DebugLocalOnly=0 to allow remote debugger connections, as before.</change>
-			<change type="Changed">The "local only" peer checks (DebugLocalOnly, WebServerLocalOnly) now accept connections<br/>
-from any 127.0.0.0/8 loopback address instead of only exactly 127.0.0.1.</change>
+			<change type="Fixed">On macOS, sockets could lose data that arrived just before the peer closed<br/>
+the connection (poll() reports POLLHUP eagerly there; the buffered data is<br/>
+now drained before the connection is treated as closed). Affected e.g.<br/>
+os::OpenConnection() clients talking to servers that close after responding.</change>
+			<change type="Changed">os::OpenConnection() now resolves hostnames (e.g. &quot;shard.example.com&quot;), not<br/>
+only numeric IP addresses. Unresolvable names fail immediately (previously<br/>
+they silently connected to 255.255.255.255) and unreachable hosts give up<br/>
+after the new connect_timeout_ms parameter (default 10000 ms; 0 restores the<br/>
+old behavior of blocking a worker thread for the OS default of a minute or<br/>
+more).</change>
+			<change type="Fixed">Connections read line-by-line (aux services, webserver, remote debugger)<br/>
+could be kept open forever by a peer streaming data without line breaks:<br/>
+receive timeouts now only reset when usable data arrives, and line buffers<br/>
+without a configured maximum are capped at 16 MB.</change>
+			<change type="Changed">With DebugLocalOnly=1 (the default), the DebugPort listener now binds to<br/>
+127.0.0.1 instead of all interfaces, so the port is no longer reachable<br/>
+(or even visible) from other machines. Set DebugLocalOnly=0 to allow<br/>
+remote debugger connections, as before.</change>
+			<change type="Changed">The &quot;local only&quot; peer checks (DebugLocalOnly, WebServerLocalOnly) now<br/>
+accept connections from any 127.0.0.0/8 loopback address instead of<br/>
+only exactly 127.0.0.1.</change>
 		</entry>
 		<entry>
 			<date>07-04-2026</date>
 			<author>Nando:</author>
 			<change type="Fixed">Webserver performance: Nagle's algorithm is now disabled for HTTP connections,<br/>
-responses are sent in single network operations with Content-Length and Connection headers,<br/>
-and file transfers use a larger buffer.</change>
-			<change type="Fixed">Webserver: data race when config/www.cfg was reloaded while requests were being served,<br/>
-transient accept() errors no longer terminate the webserver thread,<br/>
-error pages no longer reflect unescaped request data (XSS),<br/>
-and sending to a stalled peer no longer busy-loops the CPU.</change>
-			<change type="Changed">Webserver only accepts GET requests (405 otherwise) and limits requests to 64 header lines read within 10 seconds.</change>
-			<change type="Changed">Webserver: the built-in MIME type list (used when config/www.cfg does not exist) now also covers css, json, svg, txt, webp, woff2 and wasm.</change>
+responses are sent in single network operations with Content-Length and<br/>
+Connection headers, and file transfers use a larger buffer.</change>
+			<change type="Fixed">Webserver: data race when config/www.cfg was reloaded while requests were<br/>
+being served, transient accept() errors no longer terminate the webserver<br/>
+thread, error pages no longer reflect unescaped request data (XSS), and<br/>
+sending to a stalled peer no longer busy-loops the CPU.</change>
+			<change type="Changed">Webserver only accepts GET requests (405 otherwise) and limits requests to<br/>
+64 header lines read within 10 seconds.</change>
+			<change type="Changed">Webserver: the built-in MIME type list (used when config/www.cfg does not<br/>
+exist) now also covers css, json, svg, txt, webp, woff2 and wasm.</change>
 		</entry>
 		<entry>
 			<date>05-31-2026</date>

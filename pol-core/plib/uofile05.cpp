@@ -1,4 +1,5 @@
 /** @file
+ * staticsmax: scans staidx for the largest static block (diagnostic print).
  *
  * @par History
  */

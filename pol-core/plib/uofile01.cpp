@@ -1,4 +1,6 @@
 /** @file
+ * In-memory tiledata cache (land + item tiles, verdata-patched):
+ * readtile/readlandtile and the tileheight/tile_uoflags_read accessors.
  *
  * @par History
  * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
@@ -166,7 +168,7 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
-  if ( tilenum <= 0x3FFF )
+  if ( tilenum <= MAX_LANDTILE_ID )
   {
     int block;
     block = ( tilenum / 32 );
@@ -198,7 +200,7 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
-  if ( tilenum <= 0x3FFF )
+  if ( tilenum <= MAX_LANDTILE_ID )
   {
     int block;
     block = ( tilenum / 32 );

@@ -1,14 +1,18 @@
 #include "RawMap.h"
 
+#include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "staticblock.h"
 
 #include "uopreader/uop.h"
 #include "uopreader/uophash.h"
 
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <map>
+#include <span>
 
 
 namespace Pol::Plib
@@ -24,15 +28,39 @@ signed char RawMap::rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO
   passert_r( is_init, "Tried to read map information before loading the map files" );
   passert( m_mapwidth > 0 && m_mapheight > 0 && x < m_mapwidth && y < m_mapheight );
 
-  unsigned int x_block = x / 8;
-  unsigned int y_block = y / 8;
-  unsigned int block = ( x_block * ( m_mapheight / 8 ) + y_block );
+  // The client's map mul shares the column-major 8x8 block layout of staidx.
+  size_t block = staticblock_from_coords( x, y, m_mapheight );
 
   unsigned int x_offset = x & 0x7;
   unsigned int y_offset = y & 0x7;
 
-  *gi = get_cell( block, x_offset, y_offset );
+  *gi = get_cell( static_cast<unsigned int>( block ), x_offset, y_offset );
   return gi->z;
+}
+
+void RawMap::extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const
+{
+  passert_r( is_init, "Tried to read map information before loading the map files" );
+  passert( m_mapwidth > 0 && m_mapheight > 0 );
+  const std::size_t n = static_cast<std::size_t>( m_mapwidth ) * m_mapheight;
+  passert( landtile_out.size() == n && z_out.size() == n );
+
+  const unsigned int hblocks = m_mapheight / 8;
+  for ( unsigned int y = 0; y < m_mapheight; ++y )
+  {
+    const unsigned int y_block = y / 8;
+    const unsigned int y_offset = y & 0x7;
+    const std::size_t row = static_cast<std::size_t>( y ) * m_mapwidth;
+    for ( unsigned int x = 0; x < m_mapwidth; ++x )
+    {
+      // Same block/cell selection as rawinfo(), but with operator[] (no bounds check)
+      // and no USTRUCT_MAPINFO copy.
+      const USTRUCT_MAPINFO& cell =
+          m_mapinfo_vec[( x / 8 ) * hblocks + y_block].cell[y_offset][x & 0x7];
+      landtile_out[row + x] = cell.landtile;
+      z_out[row + x] = cell.z;
+    }
+  }
 }
 
 void RawMap::add_block( const USTRUCT_MAPINFO_BLOCK& block )
@@ -71,17 +99,22 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
   if ( !mapdifl.empty() && mapdif_file == nullptr )
     throw std::runtime_error( "load_full_map: mapdifl is loaded but mapdif is not" );
 
-  unsigned int block = 0;
-  USTRUCT_MAPINFO_BLOCK buffer;
+  // Bulk-read the whole map file once instead of one 196-byte fread per block.
+  std::vector<std::byte> map_buf = Clib::ReadEntireFile( mapfile );
+  std::span<const USTRUCT_MAPINFO_BLOCK> blocks(
+      reinterpret_cast<const USTRUCT_MAPINFO_BLOCK*>( map_buf.data() ),
+      map_buf.size() / sizeof( USTRUCT_MAPINFO_BLOCK ) );
 
-  while ( fread( &buffer, sizeof buffer, 1, mapfile ) == 1 )
+  m_mapinfo_vec.reserve( blocks.size() );
+
+  for ( unsigned int block = 0; block < blocks.size(); ++block )
   {
     auto citr = mapdifl.find( block );
-    if ( citr == mapdifl.end() )
+    if ( citr == mapdifl.end() ) [[likely]]
     {
-      add_block( buffer );
+      add_block( blocks[block] );
     }
-    else
+    else [[unlikely]]
     {
       // it's in the dif file.. get it from there.
       unsigned dif_index = ( *citr ).second;
@@ -89,15 +122,15 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
       if ( fseek( mapdif_file, file_offset, SEEK_SET ) != 0 )
         throw std::runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
 
+      USTRUCT_MAPINFO_BLOCK buffer;
       if ( fread( &buffer, sizeof buffer, 1, mapdif_file ) != 1 )
         throw std::runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
       add_block( buffer );
     }
-    ++block;
   }
 
   is_init = true;
-  return block;
+  return static_cast<unsigned int>( blocks.size() );
 }
 
 // TODO: cleanup the code
