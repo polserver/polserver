@@ -35,10 +35,7 @@ void UoClientFiles::read_map_difs()
 signed char UoClientFiles::rawmapinfo( unsigned short x, unsigned short y,
                                        USTRUCT_MAPINFO* gi ) const
 {
-  // UoTool has a serious problem of not loading data before using this function...
-  if ( !rawmap_ready )
-    rawmapfullread();
-
+  passert_always( rawmap_ready );  // caller must rawmapfullread() first
   return rawmap.rawinfo( x, y, gi );
 }
 
@@ -47,7 +44,7 @@ bool UoClientFiles::rawmap_loaded() const
   return rawmap_ready;
 }
 
-void UoClientFiles::rawmapfullread() const
+void UoClientFiles::rawmapfullread()
 {
   rawmap.set_bounds( uo_map_width, uo_map_height );
 
@@ -64,8 +61,7 @@ void UoClientFiles::rawmapfullread() const
 void UoClientFiles::rawmap_extract_planes( std::span<u16> landtile_out,
                                            std::span<s8> z_out ) const
 {
-  if ( !rawmap_ready )
-    rawmapfullread();
+  passert_always( rawmap_ready );  // caller must rawmapfullread() first
   rawmap.extract_planes( landtile_out, z_out );
 }
 

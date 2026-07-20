@@ -60,9 +60,12 @@ struct USTRUCT_STATIC_BUFFER
 // dimensions -- every block-index computation depends on uo_map_width/
 // uo_map_height holding the current realm's dimensions), then
 // open_uo_data_files() + read_uo_data(), then rawmapfullread()/
-// rawstaticfullread() (or rely on the queries' lazy first-touch load -- but
-// never from concurrent code; parallel regions must find the caches already
-// loaded, see rawmap_loaded()/rawstatics_loaded()). Queries are const.
+// rawstaticfullread() before any raw-map/statics query -- the queries assert the
+// cache is loaded rather than loading it themselves, so the caller controls when
+// the (non-thread-safe) load happens. Queries are const and safe to share across
+// a parallel region once the loads are done. uoconvert owns an instance and
+// threads it explicitly; uotool keeps a process-wide instance behind its own
+// uofiles() accessor and its own load-on-first-use guards.
 //
 // Method definitions live in uofile00-08.cpp, grouped as before:
 // open/UOP probing (00), tiledata + verdata (01), statics cache (02), water
@@ -86,14 +89,13 @@ public:
   bool cfg_show_roof_and_platform_warning = true;
 
   // --- Loads (uofile00.cpp / uofile01.cpp / uofile02.cpp / uofile08.cpp) ---
+  // Call the relevant load before the matching queries -- the queries assert the
+  // cache is present rather than loading lazily (see rawmap_loaded()). Not
+  // thread-safe; a parallel region must find the caches already loaded.
   void open_uo_data_files();
-  void read_uo_data();          // verdata index, tiledata, landtiles, dif lists
-  // The raw-map/statics caches are memoized: these fill them and the queries below
-  // trigger them lazily on first touch, so both are const (they populate mutable
-  // caches without changing any query's observable result). Not thread-safe -- a
-  // parallel region must find the caches already loaded (see rawmap_loaded()).
-  void rawmapfullread() const;     // raw map full read (mul or UOP) + difs
-  void rawstaticfullread() const;  // staidx/statics full read + dif merge
+  void read_uo_data();     // verdata index, tiledata, landtiles, dif lists
+  void rawmapfullread();     // raw map full read (mul or UOP) + difs
+  void rawstaticfullread();  // staidx/statics full read + dif merge
   void readwater();             // water-tile table (uotool)
   void clear_tiledata();
 
@@ -147,7 +149,7 @@ public:
   FILE* stadif_file = nullptr;
   FILE* mapdifl_file = nullptr;
   FILE* mapdif_file = nullptr;
-  mutable std::ifstream uopmapfile;  // mutable: read by rawmapfullread()'s lazy load
+  std::ifstream uopmapfile;
 
   // --- Caches ---
   TileData* tiledata = nullptr;
@@ -155,15 +157,13 @@ public:
   static constexpr unsigned int vidx_count = 32;
   VerdataIndexes vidx[vidx_count];
 
-  // mutable: memoized cache filled lazily by rawstaticfullread() from const queries.
-  mutable std::vector<USTRUCT_STATIC_BUFFER> rawstatic_buffer_vec;
-  mutable bool rawstatic_init = false;
+  std::vector<USTRUCT_STATIC_BUFFER> rawstatic_buffer_vec;
+  bool rawstatic_init = false;
   std::map<unsigned int, unsigned int> stadifl;  // block -> stadif index
   unsigned int num_static_patches = 0;
 
-  // mutable: memoized cache filled lazily by rawmapfullread() from const queries.
-  mutable RawMap rawmap;
-  mutable bool rawmap_ready = false;
+  RawMap rawmap;
+  bool rawmap_ready = false;
   unsigned int num_map_patches = 0;
 
   std::set<unsigned int> water;
@@ -181,12 +181,6 @@ private:
   bool seekto_newer_version( unsigned int file, unsigned int block ) const;
   signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi ) const;
 };
-
-// The process-wide instance (defined in uofile00.cpp). See the TRANSITIONAL note
-// on the class: the eventual end state is an instance owned by main() and passed
-// explicitly through the conversion pipeline; this singleton is scaffolding for
-// that migration.
-UoClientFiles& uofiles();
 }  // namespace Pol::Plib
 
 #endif

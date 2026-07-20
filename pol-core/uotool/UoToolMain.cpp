@@ -35,6 +35,18 @@
 #include "../pol/multi/multidef.h"
 #include <fmt/format.h>
 
+namespace Pol::Plib
+{
+// uotool owns the one process-wide reader instance (uoconvert threads its own
+// instance explicitly instead). Defined here rather than in plib so the library
+// no longer exports an ambient reader global.
+UoClientFiles& uofiles()
+{
+  static UoClientFiles instance;
+  return instance;
+}
+}  // namespace Pol::Plib
+
 namespace Pol
 {
 namespace Multi
@@ -51,6 +63,25 @@ namespace UoTool
 using namespace std;
 using namespace Pol::Core;
 using namespace Pol::Plib;
+
+namespace
+{
+// uotool's load-on-first-use convenience. Many commands query the raw map/statics
+// without an explicit load (and some never set map dimensions -- those were always
+// broken and still are). These reproduce the historical lazy first-touch so uotool's
+// behavior is unchanged; UoClientFiles' queries now assert-loaded instead of loading
+// themselves, so the load policy lives here in the tool that wants it.
+void ensure_map( UoClientFiles& uof )
+{
+  if ( !uof.rawmap_loaded() )
+    uof.rawmapfullread();
+}
+void ensure_statics( UoClientFiles& uof )
+{
+  if ( !uof.rawstatics_loaded() )
+    uof.rawstaticfullread();
+}
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -383,6 +414,7 @@ static int print_statics()
   INFO_PRINTLN( "Reading UO data.." );
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_statics( uofiles() );
   int water = 0;
   int strange_water = 0;
   int cnt = 0;
@@ -581,6 +613,7 @@ static int z_histogram()
   INFO_PRINTLN( "Reading UO data.." );
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_map( uofiles() );
   for ( u16 x = 0; x < 6143; ++x )
   {
     INFO_PRINT( "." );
@@ -610,6 +643,7 @@ static int statics_histogram()
   INFO_PRINTLN( "Reading UO data.." );
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_statics( uofiles() );
   for ( u16 x = 0; x < 6143; x += 8 )
   {
     INFO_PRINT( "." );
@@ -637,6 +671,7 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
   INFO_PRINTLN( "Writing {}", filename );
   FILE* fp = fopen( filename, "wb" );
   int num = xend + 1 - xbegin;
+  ensure_map( uofiles() );
   for ( u16 xs = xbegin; xs < xend; xs += 8 )
   {
     int percent = ( xs - xbegin ) * 100 / num;
@@ -704,6 +739,7 @@ static int water_search()
 {
   u16 wxl = 1420, wxh = 1480, wyl = 1760, wyh = 1780;
   uofiles().open_uo_data_files();
+  ensure_statics( uofiles() );
   for ( u16 y = wyl; y < wyh; y++ )
   {
     for ( u16 x = wxl; x < wxh; x++ )
@@ -736,6 +772,8 @@ static int mapdump( int argc, char* argv[] )
 
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_map( uofiles() );
+  ensure_statics( uofiles() );
 
   std::ofstream ofs( "mapdump.html" );
 
@@ -797,6 +835,8 @@ static int contour()
 {
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_map( uofiles() );
+  ensure_statics( uofiles() );
 
   auto mc = new MapContour;
   for ( u16 y = 0; y < 4095; ++y )
@@ -835,6 +875,7 @@ static int findlandtile( int /*argc*/, char** argv )
   int landtile = strtoul( argv[1], nullptr, 0 );
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_map( uofiles() );
 
   for ( u16 y = 0; y < 4095; ++y )
   {
@@ -864,6 +905,7 @@ static int findgraphic( int /*argc*/, char** argv )
 
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_statics( uofiles() );
 
   for ( u16 y = 0; y < 4095; ++y )
   {
@@ -889,6 +931,7 @@ static int findlandtileflags( int /*argc*/, char** argv )
   unsigned int flags = strtoul( argv[1], nullptr, 0 );
   uofiles().open_uo_data_files();
   uofiles().read_uo_data();
+  ensure_map( uofiles() );
 
   for ( u16 y = 0; y < 4095; ++y )
   {
@@ -927,6 +970,7 @@ static int defragstatics( int argc, char** argv )
 
   uof.open_uo_data_files();
   uof.read_uo_data();
+  ensure_statics( uof );
 
   std::string statidx = "staidx" + Clib::tostring( uof.uo_mapid ) + ".mul";
   std::string statics = "statics" + Clib::tostring( uof.uo_mapid ) + ".mul";
@@ -1292,6 +1336,7 @@ int UoToolMain::main()
   }
   if ( argvalue == "newstatics" )
   {
+    ensure_statics( uofiles() );  // write_pol_static_files queries getstaticblock
     return write_pol_static_files( "main", uofiles() );
   }
   if ( argvalue == "staticsmax" )

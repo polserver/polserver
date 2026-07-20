@@ -1209,6 +1209,7 @@ int UoConvertMain::main()
 
     uof.open_uo_data_files();
     uof.read_uo_data();
+    uof.rawstaticfullread();  // write_pol_static_files queries getstaticblock
 
     write_pol_static_files( realm, uof );
   }

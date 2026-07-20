@@ -48,8 +48,7 @@ void UoClientFiles::read_static_diffs()
 const std::vector<USTRUCT_STATIC>& UoClientFiles::getstaticblock( unsigned short x,
                                                                   unsigned short y ) const
 {
-  if ( !rawstatic_init )  // FIXME just for safety cause I'm lazy
-    rawstaticfullread();
+  passert_always( rawstatic_init );  // caller must rawstaticfullread() first
   if ( x >= uo_map_width || y >= uo_map_height )
   {
     ERROR_PRINTLN( "getstaticblock: x={},y={}", x, y );
@@ -63,7 +62,7 @@ bool UoClientFiles::rawstatics_loaded() const
   return rawstatic_init;
 }
 
-void UoClientFiles::rawstaticfullread() const
+void UoClientFiles::rawstaticfullread()
 {
   // Bulk-read both input files once instead of one fseek+fread pair per block
   // (~393k blocks for map0). The dif-file path below stays fseek/fread since

@@ -30,12 +30,6 @@
 
 namespace Pol::Plib
 {
-UoClientFiles& uofiles()
-{
-  static UoClientFiles instance;
-  return instance;
-}
-
 class ByteReader
 {
   const unsigned char* data_ = nullptr;

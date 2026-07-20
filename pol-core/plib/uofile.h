@@ -2,7 +2,8 @@
  * Reader API over the raw UO client data files (map/statics/tiledata/verdata),
  * used by uoconvert and uotool -- pol reads converted realm files instead.
  * The reader state and every operation now live on UoClientFiles -- see
- * uoclientfiles.h; the process-wide instance is uofiles().
+ * uoclientfiles.h. uoconvert owns an instance and threads it explicitly;
+ * uotool keeps a process-wide one behind its own uofiles() accessor.
  *
  * @par History
  * - 2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
