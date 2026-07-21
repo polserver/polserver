@@ -32,6 +32,7 @@
 #include "clientqueries/mapqueries.h"
 #include "clientqueries/readeraccess.h"
 #include "clientqueries/standheight.h"
+#include "clientqueries/staticsqueries.h"
 #include "../plib/uoinstallfinder.h"
 #include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
@@ -395,7 +396,7 @@ static int print_statics()
     for ( u16 x = 5900; x < 5940; x++ )
     {
       std::vector<StaticRec> vec;
-      uofiles().readallstatics( vec, x, y );
+      readallstatics( uofiles(), vec, x, y );
 
       if ( !vec.empty() )
       {
@@ -698,7 +699,7 @@ static bool has_water( u16 x, u16 y )
 {
   StaticList vec;
   vec.clear();
-  uofiles().readstatics( vec, x, y );
+  readstatics( uofiles(), vec, x, y );
   for ( const auto& rec : vec )
   {
     if ( iswater( rec.graphic ) )
@@ -773,7 +774,7 @@ static int mapdump( int argc, char* argv[] )
       ofs << "mapz=" << (int)mi.z << "<br>";
 
       StaticList statics;
-      uofiles().readallstatics( statics, x, y );
+      readallstatics( uofiles(), statics, x, y );
       if ( !statics.empty() )
       {
         ofs << "<table border=1 cellpadding=5 cellspacing=0>" << std::endl;
@@ -819,7 +820,7 @@ static int contour()
 
       vec.clear();
 
-      uofiles().readstatics( vec, x, y );
+      readstatics( uofiles(), vec, x, y );
 
       bool result;
       short newz;
@@ -884,7 +885,7 @@ static int findgraphic( int /*argc*/, char** argv )
     for ( u16 x = 0; x < 6143; ++x )
     {
       StaticList statics;
-      uofiles().readallstatics( statics, x, y );
+      readallstatics( uofiles(), statics, x, y );
       for ( const auto& rec : statics )
       {
         if ( rec.graphic == graphic )
@@ -1314,7 +1315,7 @@ int UoToolMain::main()
   if ( argvalue == "staticsmax" )
   {
     uofiles().open_uo_data_files();
-    uofiles().staticsmax();
+    staticsmax( uofiles() );
     return 0;
   }
   if ( argvalue == "watersearch" )

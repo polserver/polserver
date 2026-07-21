@@ -115,15 +115,10 @@ public:
   unsigned int tile_uoflags_read( unsigned short tilenum ) const;
   bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec ) const;
 
-  // --- Statics queries (staticscache.cpp) ---
+  // --- Statics cache queries (staticscache.cpp) ---
   const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y ) const;
-  void readstatics( StaticList& vec, unsigned short x, unsigned short y ) const;
-  void readstatics( StaticList& vec, unsigned short x, unsigned short y,
-                    unsigned int flags ) const;
   void readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short y,
                           unsigned int flags ) const;
-  void readallstatics( StaticList& vec, unsigned short x, unsigned short y ) const;
-  void staticsmax() const;  // scans staidx for the largest block (diagnostic print)
 
   // --- Raw map (rawmapaccess.cpp) ---
   // Bulk-copy the raw map into caller-provided row-major arrays (idx = y*uo_map_width + x),

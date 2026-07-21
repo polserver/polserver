@@ -9,6 +9,7 @@
 #include "standheight.h"
 
 #include "mapqueries.h"
+#include "staticsqueries.h"  // static_debug_on
 
 #include "../../plib/clidata.h"
 #include "../../plib/clientfiles/uoclientfiles.h"
@@ -16,11 +17,6 @@
 #include "../../plib/udatfile.h"
 #include "../../plib/ustruct.h"
 
-
-namespace Pol::Plib
-{
-extern bool static_debug_on;
-}
 
 namespace Pol::UoTool
 {

@@ -12,4 +12,6 @@ set (uotool_sources  # sorted !
   clientqueries/readeraccess.h
   clientqueries/standheight.cpp
   clientqueries/standheight.h
+  clientqueries/staticsqueries.cpp
+  clientqueries/staticsqueries.h
 )

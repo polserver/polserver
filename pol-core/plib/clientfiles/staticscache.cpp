@@ -30,8 +30,6 @@
 
 namespace Pol::Plib
 {
-bool static_debug_on = false;
-
 void UoClientFiles::read_static_diffs()
 {
   unsigned index = 0;
@@ -173,62 +171,7 @@ void UoClientFiles::rawstaticfullread()
   rawstatic_init = true;
 }
 
-// --- Per-tile queries over the block cache (formerly uofile07.cpp) ---
-// static_debug_on above gates the optional per-record debug prints below.
-
-void UoClientFiles::readstatics( StaticList& vec, unsigned short x, unsigned short y ) const
-{
-  const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
-
-  unsigned short x_offset, y_offset;
-  x_offset = x & 0x7;
-  y_offset = y & 0x7;
-
-  for ( const auto& srec : srecarr )
-  {
-#if ENABLE_POLTEST_OUTPUT
-    if ( static_debug_on )
-    {
-      INFO_PRINTLN( "static: {} {} {} {}", int( srec.x_offset ), int( srec.y_offset ),
-                    int( srec.z ), srec.graphic );
-    }
-#endif
-
-    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) &&
-         ( tile_uoflags_read( srec.graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
-    {
-      vec.emplace_back( srec.graphic, srec.z, tile_uoflags_read( srec.graphic ),
-                        tileheight_read( srec.graphic ) );
-    }
-  }
-}
-void UoClientFiles::readstatics( StaticList& vec, unsigned short x, unsigned short y,
-                                 unsigned int flags ) const
-{
-  const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
-
-  unsigned short x_offset, y_offset;
-  x_offset = x & 0x7;
-  y_offset = y & 0x7;
-
-  for ( const auto& srec : srecarr )
-  {
-#if ENABLE_POLTEST_OUTPUT
-    if ( static_debug_on )
-    {
-      INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec.x_offset ), int( srec.y_offset ),
-                    int( srec.z ), srec.graphic );
-    }
-#endif
-
-    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) )
-    {
-      const unsigned int uoflags = tile_uoflags_read( srec.graphic );
-      if ( uoflags & flags )
-        vec.emplace_back( srec.graphic, srec.z, uoflags, tileheight_read( srec.graphic ) );
-    }
-  }
-}
+// --- Statics-block query used by uoconvert (formerly uofile07.cpp) ---
 void UoClientFiles::readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short y,
                                        unsigned int flags ) const
 {
@@ -249,58 +192,6 @@ void UoClientFiles::readstatics_block( StaticBuckets& buckets, unsigned short x,
     if ( uoflags & flags )
       buckets[srec.x_offset * STATICBLOCK_CHUNK + srec.y_offset].emplace_back(
           srec.graphic, srec.z, uoflags, tileheight_read( srec.graphic ) );
-  }
-}
-
-void UoClientFiles::readallstatics( StaticList& vec, unsigned short x, unsigned short y ) const
-{
-  const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
-
-  unsigned short x_offset, y_offset;
-  x_offset = x & 0x7;
-  y_offset = y & 0x7;
-
-  for ( const auto& srec : srecarr )
-  {
-#if ENABLE_POLTEST_OUTPUT
-    if ( static_debug_on )
-    {
-      INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec.x_offset ), int( srec.y_offset ),
-                    int( srec.z ), srec.graphic );
-    }
-#endif
-
-    if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) )
-    {
-      vec.emplace_back( srec.graphic, srec.z, tile_uoflags_read( srec.graphic ),
-                        tileheight_read( srec.graphic ) );
-    }
-  }
-}
-
-// --- staidx diagnostic (formerly uofile05.cpp) ---
-void UoClientFiles::staticsmax() const
-{
-  unsigned int max = 0;
-  USTRUCT_IDX idxrec;
-
-  fseek( sidxfile, 0, SEEK_SET );
-  for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
-  {
-    for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
-    {
-      if ( fread( &idxrec, sizeof idxrec, 1, sidxfile ) != 1 )
-        throw std::runtime_error( "staticsmax: fread(idxrec) failed." );
-
-      if ( idxrec.length != 0xFFffFFffLu )
-      {
-        if ( idxrec.length > max )
-        {
-          max = idxrec.length;
-          INFO_PRINTLN( "Max: {}, X={}, Y={}", max, xblock, yblock );
-        }
-      }
-    }
   }
 }
 }  // namespace Pol::Plib
