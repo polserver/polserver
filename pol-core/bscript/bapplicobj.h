@@ -21,7 +21,6 @@ public:  // Class Machinery
   BObjectImp* copy() const override = 0;
 
   std::string getStringRep() const override;
-  void printOn( std::ostream& ) const override;
   size_t sizeEstimate() const override = 0;
 
 private:

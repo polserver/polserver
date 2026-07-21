@@ -8,6 +8,8 @@
 #include <iostream>
 #include <iterator>
 
+#include <fmt/std.h>
+
 #include "../bscript/bspecialjump.h"
 #include "../bscript/buninit.h"
 #include "../bscript/config.h"

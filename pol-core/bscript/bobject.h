@@ -51,9 +51,6 @@ public:
 
   bool isa( BObjectImp::BObjectType type ) const;
 
-  friend std::ostream& operator<<( std::ostream&, const BObject& );
-  void printOn( std::ostream& ) const;
-
   template <typename T = BObjectImp>
   T* impptr();
   template <typename T = BObjectImp>

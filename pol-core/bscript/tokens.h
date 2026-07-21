@@ -8,10 +8,8 @@
 #define __TOKENS_H
 
 #include <fmt/format.h>
-#include <iosfwd>
 
 #include "../clib/rawtypes.h"
-#include "../clib/strutil.h"
 
 
 namespace Pol::Bscript

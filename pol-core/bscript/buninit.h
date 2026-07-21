@@ -21,7 +21,6 @@ public:
   BObjectImp* copy() const override;
   size_t sizeEstimate() const override;
   std::string getStringRep() const override { return "<uninitialized object>"; }
-  void printOn( std::ostream& os ) const override;
 
   bool isTrue() const override;
   bool operator==( const BObjectImp& objimp ) const override;

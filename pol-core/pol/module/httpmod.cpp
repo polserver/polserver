@@ -11,6 +11,7 @@
 #include "clib/logfacility.h"
 #include "clib/network/wnsckt.h"
 #include "clib/stlutil.h"
+#include "clib/strutil.h"
 #include "plib/systemstate.h"
 
 #include "../polwww.h"

@@ -113,7 +113,6 @@ public:  // Class Machinery
   void selfMinusMinus() override { --lval_; }
 
   std::string getStringRep() const override;
-  void printOn( std::ostream& ) const override;
 
 protected:
   int lval_;

@@ -3,544 +3,368 @@
  * @par History
  */
 
-
-#include <sstream>
-#include <stddef.h>
-
 #include "objmembers.h"
 #include "objmethods.h"
 #include "token.h"
 #include "tokens.h"
 
-
 namespace Pol::Bscript
 {
-void Token::printOn( std::ostream& os ) const
+std::string Token::tostring() const
 {
   switch ( id )
   {
   case TOK_LONG:
-    os << lval << "L";
-    break;
+    return fmt::format( "{}L", lval );
   case TOK_DOUBLE:
-    os << dval << "LF";
-    break;
+    return fmt::format( "{}LF", dval );
   case TOK_BOOL:
-    os << fmt::format( "{} (boolean)", static_cast<bool>( lval ) );
-    break;
+    return fmt::format( "{} (boolean)", static_cast<bool>( lval ) );
   case TOK_IDENT:
-    os << token;
-    break;
+    return token;
   case INS_ADDMEMBER2:
-    os << "addmember(" << token << ")";
-    break;
+    return fmt::format( "addmember({})", token );
   case INS_ADDMEMBER_ASSIGN:
-    os << "addmember-assign(" << token << ")";
-    break;
+    return fmt::format( "addmember-assign({})", token );
   case TOK_STRING:
-    os << '\"' << token << '\"';
-    break;
+    return fmt::format( "\"{}\"", token );
   case TOK_LOCALVAR:
-    os << "local #" << lval;
-    if ( !token.empty() )
-      os << " (" << token << ")";
-    break;
+    return fmt::format( "local #{} {}", lval,
+                        token.empty() ? std::string() : fmt::format( " ({})", token ) );
   case TOK_GLOBALVAR:
-    os << "global #" << lval;
-    if ( !token.empty() )
-      os << " (" << token << ")";
-    break;
-
+    return fmt::format( "global #{} {}", lval,
+                        token.empty() ? std::string() : fmt::format( " ({})", token ) );
   case TOK_ERROR:
-    os << "error";
-    break;
+    return "error";
   case TOK_DICTIONARY:
-    os << "dictionary";
-    break;
-
+    return "dictionary";
   case TOK_MULT:
-    os << "*";
-    break;
+    return "*";
   case TOK_DIV:
-    os << "/";
-    break;
+    return "/";
   case TOK_ADD:
-    os << "+";
-    break;
+    return "+";
 
   case TOK_INSERTINTO:
-    os << "init{}";
-    break;
+    return "init{}";
   case TOK_SUBTRACT:
-    os << "-";
-    break;
+    return "-";
   case TOK_PLUSEQUAL:
-    os << "+=";
-    break;
+    return "+=";
   case TOK_MINUSEQUAL:
-    os << "-=";
-    break;
+    return "-=";
   case TOK_TIMESEQUAL:
-    os << "*=";
-    break;
+    return "*=";
   case TOK_DIVIDEEQUAL:
-    os << "/=";
-    break;
+    return "/=";
   case TOK_MODULUSEQUAL:
-    os << "%=";
-    break;
+    return "%=";
 
   case TOK_ASSIGN:
-    os << ":=";
-    break;
+    return ":=";
   case INS_ASSIGN_LOCALVAR:
-    os << "local" << lval;
-    if ( !token.empty() )
-      os << " (" << token << ")";
-    os << " := ";
-    break;
+    return fmt::format( "local{} {} :=", lval,
+                        token.empty() ? std::string() : fmt::format( " ({})", token ) );
   case INS_ASSIGN_GLOBALVAR:
-    os << "global" << lval;
-    if ( !token.empty() )
-      os << " (" << token << ")";
-    os << " := ";
-    break;
+    return fmt::format( "global{} {} :=", lval,
+                        token.empty() ? std::string() : fmt::format( " ({})", token ) );
   case INS_ASSIGN_CONSUME:
-    os << ":= #";
-    break;
+    return ":= #";
   case INS_SUBSCRIPT_ASSIGN_CONSUME:
-    os << "[] := (" << lval << ") #";
-    break;
+    return fmt::format( "[] := ({}) #", lval );
   case INS_SUBSCRIPT_ASSIGN:
-    os << "[] := (" << lval << ")";
-    break;
+    return fmt::format( "[] := ({})", lval );
   case TOK_LESSTHAN:
-    os << "<";
-    break;
+    return "<";
   case TOK_LESSEQ:
-    os << "<=";
-    break;
+    return "<=";
   case TOK_GRTHAN:
-    os << ">";
-    break;
+    return ">";
   case TOK_GREQ:
-    os << ">=";
-    break;
+    return ">=";
   case TOK_EQUAL1:
-    os << "=";
-    break;
+    return "=";
   case TOK_EQUAL:
-    os << "==";
-    break;
+    return "==";
   case TOK_NEQ:
-    os << "<>";
-    break;
+    return "<>";
   case TOK_AND:
-    os << "&&";
-    break;
+    return "&&";
   case TOK_OR:
-    os << "||";
-    break;
+    return "||";
   case TOK_ARRAY_SUBSCRIPT:
-    os << "[] " << lval;
-    break;
+    return fmt::format( "[] {}", lval );
   case INS_MULTISUBSCRIPT:
-    os << "[";
-    for ( int i = 1; i < lval; ++i )
-      os << ",";
-    os << "]";
-    break;
+    return fmt::format( "[{:,<{}}]", "", lval - 1 );
   case INS_MULTISUBSCRIPT_ASSIGN:
-    os << "[";
-    for ( int i = 1; i < lval; ++i )
-      os << ",";
-    os << "] :=";
-    break;
+    return fmt::format( "[{:,<{}}] :=", "", lval - 1 );
   case TOK_ADDMEMBER:
-    os << ".+";
-    break;
+    return ".+";
   case TOK_DELMEMBER:
-    os << ".-";
-    break;
+    return ".-";
   case TOK_CHKMEMBER:
-    os << ".?";
-    break;
+    return ".?";
   case TOK_MEMBER:
-    os << ".";
-    break;
+    return ".";
   case INS_GET_MEMBER:
-    os << "get member '" << token << "'";
-    break;
+    return fmt::format( "get member '{}'", token );
   case INS_SET_MEMBER:
-    os << "set member '" << token << "'";
-    break;
+    return fmt::format( "set member '{}'", token );
   case INS_SET_MEMBER_CONSUME:
-    os << "set member '" << token << "' #";
-    break;
+    return fmt::format( "set member '{}' #", token );
   case INS_GET_MEMBER_ID:
-    os << "get member id '" << getObjMember( lval )->code << "' (" << lval << ")";
+    return fmt::format( "get member id '{}' ({})", getObjMember( lval )->code, lval );
     break;
   case INS_SET_MEMBER_ID:
-    os << "set member id '" << getObjMember( lval )->code << "' (" << lval << ")";
-    break;
+    return fmt::format( "set member id '{}' ({})", getObjMember( lval )->code, lval );
   case INS_SET_MEMBER_ID_CONSUME:
-    os << "set member id '" << getObjMember( lval )->code << "' (" << lval << ") #";
-    break;
+    return fmt::format( "set member id '{}' ({}) #", getObjMember( lval )->code, lval );
   case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:
-    os << "set member id '" << getObjMember( lval )->code << "' (" << lval << ")  += #";
-    break;
+    return fmt::format( "set member id '{}' ({})  += #", getObjMember( lval )->code, lval );
   case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL:
-    os << "set member id '" << getObjMember( lval )->code << "' (" << lval << ")  -= #";
-    break;
+    return fmt::format( "set member id '{}' ({})  -= #", getObjMember( lval )->code, lval );
   case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
-    os << "set member id '" << getObjMember( lval )->code << "' (" << lval << ")  *= #";
-    break;
+    return fmt::format( "set member id '{}' ({})  *= #", getObjMember( lval )->code, lval );
   case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
-    os << "set member id '" << getObjMember( lval )->code << "' (" << lval << ")  /= #";
-    break;
+    return fmt::format( "set member id '{}' ({})  /= #", getObjMember( lval )->code, lval );
   case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
-    os << "set member id '" << getObjMember( lval )->code << "' (" << lval << ")  %= #";
-    break;
+    return fmt::format( "set member id '{}' ({})  %= #", getObjMember( lval )->code, lval );
 
   case INS_CALL_METHOD_ID:
-    os << "Call Method id " << getObjMethod( lval )->code << " (#" << lval << ", "
-       << static_cast<int>( type ) << " params)";
-    break;
+    return fmt::format( "Call Method id {} (#{}, {} params)", getObjMethod( lval )->code, lval,
+                        type );
   case TOK_IN:
-    os << "in";
-    break;
+    return "in";
   case INS_DICTIONARY_ADDMEMBER:
-    os << "add dictionary member";
-    break;
+    return "add dictionary member";
 
   case TOK_UNPLUS:
-    os << "unary +";
-    break;
+    return "unary +";
   case TOK_UNMINUS:
-    os << "unary -";
-    break;
+    return "unary -";
   case TOK_LOG_NOT:
-    os << "!";
-    break;
+    return "!";
   case TOK_CONSUMER:
-    os << "#";
-    break;
+    return "#";
   case TOK_REFTO:
-    os << "refto";
-    break;
+    return "refto";
   case TOK_UNUSED:
-    os << "unused";
-    break;
+    return "unused";
   case TOK_BITAND:
-    os << "&";
-    break;
+    return "&";
   case TOK_BITOR:
-    os << "|";
-    break;
+    return "|";
   case TOK_BSRIGHT:
-    os << ">>";
-    break;
+    return ">>";
   case TOK_BSLEFT:
-    os << "<<";
-    break;
+    return "<<";
   case TOK_BITXOR:
-    os << "^";
-    break;
+    return "^";
   case TOK_BITWISE_NOT:
-    os << "~";
-    break;
+    return "~";
   case TOK_MODULUS:
-    os << "%";
-    break;
+    return "%";
 
   case INS_INITFOREACH:
-    os << "initforeach @" << lval;
-    break;
+    return fmt::format( "initforeach @{}", lval );
   case INS_STEPFOREACH:
-    os << "stepforeach @" << lval;
-    break;
+    return fmt::format( "stepforeach @{}", lval );
   case INS_CASEJMP:
-    os << "casejmp";
-    break;
+    return "casejmp";
   case INS_INITFOR:
-    os << "initfor @" << lval;
-    break;
+    return fmt::format( "initfor @{}", lval );
   case INS_NEXTFOR:
-    os << "nextfor @" << lval;
-    break;
+    return fmt::format( "nextfor @{}", lval );
 
   case TOK_TERM:
-    os << "Terminator";
-    break;
+    return "Terminator";
 
   case TOK_LPAREN:
-    os << "(";
-    break;
+    return "(";
   case TOK_RPAREN:
-    os << ")";
-    break;
+    return ")";
   case TOK_LBRACKET:
-    os << "[";
-    break;
+    return "[";
   case TOK_RBRACKET:
-    os << "]";
-    break;
+    return "]";
   case TOK_LBRACE:
-    os << "{";
-    break;
+    return "{";
   case TOK_RBRACE:
-    os << "}";
-    break;
+    return "}";
 
   case RSV_JMPIFTRUE:
-    os << "if true goto " << lval;
-    break;
+    return fmt::format( "if true goto {}", lval );
   case RSV_JMPIFFALSE:
-    os << "if false goto " << lval;
-
-    break;
+    return fmt::format( "if false goto {}", lval );
   case RSV_ST_IF:
-    os << "if";
-    break;
+    return "if";
   case RSV_GOTO:
-    os << "goto " << lval;
-    break;
+    return fmt::format( "goto {}", lval );
   case RSV_GOSUB:
-    os << "gosub" << lval;
-    break;
+    return fmt::format( "gosub{}", lval );
   case RSV_EXIT:
-    os << "exit";
-    break;
+    return "exit";
   case RSV_RETURN:
-    os << "return";
-    break;
+    return "return";
   case RSV_LOCAL:
-    os << "decl local #" << lval;
-    break;
+    return fmt::format( "decl local #{}", lval );
   case RSV_GLOBAL:
-    os << "decl global #" << lval;
-    break;
+    return fmt::format( "decl global #{}", lval );
   case RSV_VAR:
-    os << "var";
-    break;
+    return "var";
   case RSV_CONST:
-    os << "const";
-    break;
+    return "const";
   case RSV_FUNCTION:
-    os << "function";
-    break;
+    return "function";
   case RSV_ENDFUNCTION:
-    os << "endfunction";
-    break;
+    return "endfunction";
   case RSV_DO:
-    os << "do";
-    break;
+    return "do";
   case RSV_DOWHILE:
-    os << "dowhile";
-    break;
+    return "dowhile";
   case RSV_WHILE:
-    os << "while";
-    break;
+    return "while";
   case RSV_ENDWHILE:
-    os << "endwhile";
-    break;
+    return "endwhile";
   case RSV_REPEAT:
-    os << "repeat";
-    break;
+    return "repeat";
   case RSV_UNTIL:
-    os << "until";
-    break;
+    return "until";
   case RSV_FOR:
-    os << "for";
-    break;
+    return "for";
   case RSV_ENDFOR:
-    os << "endfor";
-    break;
+    return "endfor";
   case RSV_FOREACH:
-    os << "foreach";
-    break;
+    return "foreach";
   case RSV_ENDFOREACH:
-    os << "endforeach";
-    break;
+    return "endforeach";
   case INS_DECLARE_ARRAY:
-    os << "declare array";
-    break;
+    return "declare array";
   case TOK_ARRAY:
-    os << "array";
-    break;
+    return "array";
   case TOK_STRUCT:
-    os << "struct";
-    break;
+    return "struct";
   case TOK_CLASSINST:
-    os << "class instance #" << lval;
-    break;
+    return fmt::format( "class instance #{}", lval );
   case INS_UNINIT:
-    os << "uninit";
-    break;
+    return "uninit";
   case RSV_USE_MODULE:
-    os << "use module";
-    break;
+    return "use module";
   case RSV_INCLUDE_FILE:
-    os << "include file";
-    break;
+    return "include file";
 
   case CTRL_LABEL:
-    os << token << ":";
-    break;
+    return fmt::format( "{}:", token );
 
   case TOK_COMMA:
-    os << "','";
-    break;
+    return "','";
   case TOK_SEMICOLON:
-    os << "';'";
-    break;
+    return "';'";
 
   case CTRL_STATEMENTBEGIN:
-    os << "[" << ( !token.empty() ? token : "--source not available--" ) << "]";
-    break;
+    return fmt::format( "[{}]", !token.empty() ? token : "--source not available--" );
   case CTRL_PROGEND:
-    os << "progend";
-    break;
+    return "progend";
   case CTRL_MAKELOCAL:
-    os << "makelocal";
-    break;
+    return "makelocal";
   case CTRL_JSR_USERFUNC:
-    os << "jmp userfunc @" << lval;
-    break;
+    return fmt::format( "jmp userfunc @{}", lval );
   case INS_CHECK_MRO:
-    os << "check mro (this at offset " << lval << ")";
-    break;
+    return fmt::format( "check mro (this at offset {})", lval );
   case INS_POP_PARAM_BYREF:
-    os << "pop param byref '" << token << "'";
-    break;
+    return fmt::format( "pop param byref '{}'", token );
   case INS_POP_PARAM:
-    os << "pop param '" << token << "'";
-    break;
+    return fmt::format( "pop param '{}'", token );
   case INS_GET_ARG:
-    os << "get arg '" << token << "'";
-    break;
+    return fmt::format( "get arg '{}'", token );
   case CTRL_LEAVE_BLOCK:
-    os << "leave block(" << lval << ")";
-    break;
+    return fmt::format( "leave block({})", lval );
 
   case INS_CALL_METHOD:
-    os << "Call Method " << token << " (" << lval << " params)";
+    return fmt::format( "Call Method {} ({} params) ", token, lval );
     break;
   case TOK_USERFUNC:
-    os << "User Function " << ( !token.empty() ? token : "--function name not available--" );
+    return fmt::format( "User Function {}",
+                        !token.empty() ? token : "--function name not available--" );
     break;
   case TOK_FUNCREF:
-    os << "Function Ref " << ( !token.empty() ? token : "--function name not available--" ) << "@"
-       << lval;
-    break;
+    return fmt::format( "Function Ref {}@{}",
+                        !token.empty() ? token : "--function name not available--", lval );
   case TOK_UNPLUSPLUS:
-    os << "unary ++";
-    break;
+    return "unary ++";
   case TOK_UNMINUSMINUS:
-    os << "unary --";
-    break;
+    return "unary --";
   case TOK_UNPLUSPLUS_POST:
-    os << "unary ++ post";
-    break;
+    return "unary ++ post";
   case TOK_UNMINUSMINUS_POST:
-    os << "unary -- post";
-    break;
+    return "unary -- post";
   case INS_SET_MEMBER_ID_UNPLUSPLUS:
-    os << "set member id '" << getObjMember( lval )->code << "' unary ++";
-    break;
+    return fmt::format( "set member id '{}' unary ++", getObjMember( lval )->code );
   case INS_SET_MEMBER_ID_UNMINUSMINUS:
-    os << "set member id '" << getObjMember( lval )->code << "' unary --";
-    break;
+    return fmt::format( "set member id '{}' unary --", getObjMember( lval )->code );
   case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
-    os << "set member id '" << getObjMember( lval )->code << "' unary ++ post";
-    break;
+    return fmt::format( "set member id '{}' unary ++ post", getObjMember( lval )->code );
   case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
-    os << "set member id '" << getObjMember( lval )->code << "' unary -- post";
-    break;
+    return fmt::format( "set member id '{}' unary -- post", getObjMember( lval )->code );
   case INS_SKIPIFTRUE_ELSE_CONSUME:
-    os << "peek at top of stack; skip " << lval << " instructions if true, otherwise consume it";
-    break;
+    return fmt::format( "peek at top of stack; skip {} instructions if true, otherwise consume it",
+                        lval );
   case RSV_COLON:
-    os << "':'";
-    break;
+    return "':'";
   case RSV_PROGRAM:
-    os << "program";
-    break;
+    return "program";
   case RSV_ENDPROGRAM:
-    os << "endprogram";
-    break;
+    return "endprogram";
   case RSV_ENUM:
-    os << "enum";
-    break;
+    return "enum";
   case RSV_ENDENUM:
-    os << "endenum";
-    break;
+    return "endenum";
   case RSV_ELVIS:
-    os << "?: (elvis)";
-    break;
+    return "?: (elvis)";
   case TOK_INTERPOLATE_STRING:
-    os << "interpolate string " << "(" << lval << "parts)";
-    break;
+    return fmt::format( "interpolate string ({} parts)", lval );
   case TOK_FORMAT_EXPRESSION:
-    os << "format expression";
-    break;
+    return "format expression";
 
   case INS_UNPACK_SEQUENCE:
   {
     int rest_index = lval > 0x7F ? ( ( lval >> 7 ) & 0x7F ) : -1;
-    os << fmt::format( "unpack sequence ({} elements, rest index {})", lval & 0x7F, rest_index );
-    break;
+    return fmt::format( "unpack sequence ({} elements, rest index {})", lval & 0x7F, rest_index );
   }
   case INS_UNPACK_INDICES:
   {
     int rest_index = lval > 0x7F ? ( ( lval >> 7 ) & 0x7F ) : -1;
-    os << fmt::format( "unpack indices ({} elements, rest index {})", lval & 0x7F, rest_index );
-    break;
+    return fmt::format( "unpack indices ({} elements, rest index {})", lval & 0x7F, rest_index );
   }
   case INS_TAKE_GLOBAL:
-    os << "take global #" << lval;
-    break;
+    return fmt::format( "take global #{}", lval );
   case INS_TAKE_LOCAL:
-    os << "take local #" << lval;
-    break;
+    return fmt::format( "take local #{}", lval );
 
   case TOK_FUNC:
-  {
-    os << "Func(" << (int)module << "," << lval << "): ";
-    if ( !token.empty() )
-      os << token;
-    else
-      os << "<unknown>";
-    return;
-  }
+    return fmt::format( "Func({},{}): {}", (int)module, lval,
+                        !token.empty() ? token : "<unknown>" );
 
   case TOK_SPREAD:
-    os << ( lval ? "spread-into" : "create-spread" );
-    break;
+    return ( lval ? "spread-into" : "create-spread" );
 
   case INS_LOGICAL_JUMP:
-    os << fmt::format( "logical jump if {} to {}", type != TYP_LOGICAL_JUMP_FALSE, lval );
-    break;
+    return fmt::format( "logical jump if {} to {}", type != TYP_LOGICAL_JUMP_FALSE, lval );
   case INS_LOGICAL_CONVERT:
-    os << "logical convert";
-    break;
+    return "logical convert";
 
   case TOK_REGEXP:
-    os << "create-regular-expression";
-    break;
+    return "create-regular-expression";
 
   default:
-    os << "Unknown Token: (" << int( id ) << "," << int( type );
-    if ( !token.empty() )
-      os << ",'" << token << "'";
-    os << ")";
-    break;
+    return fmt::format( "Unknown Token: ({},{}{})", id, type,
+                        token.empty() ? std::string{} : fmt::format( ",'{}'", token ) );
   }
 }
-
-std::ostream& operator<<( std::ostream& os, const Token& tok )
-{
-  tok.printOn( os );
-  return os;
-}
 }  // namespace Pol::Bscript
+
+fmt::format_context::iterator fmt::formatter<Pol::Bscript::Token>::format(
+    const Pol::Bscript::Token& t, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( t.tostring(), ctx );
+}

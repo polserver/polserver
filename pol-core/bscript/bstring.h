@@ -130,7 +130,6 @@ public:
 
   std::string getStringRep() const override { return value_; }
   std::string getFormattedStringRep() const override { return "\"" + value_ + "\""; }
-  void printOn( std::ostream& ) const override;
 
   bool compare( const String& str ) const;
   bool compare( size_t pos1, size_t len1, const String& str ) const;
