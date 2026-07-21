@@ -1,0 +1,74 @@
+=== Chained OR (2 terms): A || B ===
+PASS OR2-1: true || X  [evaluated: A]
+PASS OR2-2: false || true  [evaluated: AB]
+PASS OR2-3: false || false  [evaluated: AB]
+
+=== Chained OR (3 terms): A || B || C ===
+PASS OR3-1: true || X || X  [evaluated: A]
+PASS OR3-2: false || true || X  [evaluated: AB]
+PASS OR3-3: false || false || true  [evaluated: ABC]
+PASS OR3-4: false || false || false  [evaluated: ABC]
+
+=== Chained OR (4 terms): A || B || C || D ===
+PASS OR4-1: true || X || X || X  [evaluated: A]
+PASS OR4-2: false || true || X || X  [evaluated: AB]
+PASS OR4-3: false || false || true || X  [evaluated: ABC]
+PASS OR4-4: false*3 || true  [evaluated: ABCD]
+PASS OR4-5: false*4  [evaluated: ABCD]
+
+=== Chained OR (5 terms): A || B || C || D || E ===
+PASS OR5-1: true || X || X || X || X  [evaluated: A]
+PASS OR5-2: false || true || X || X || X  [evaluated: AB]
+PASS OR5-3: false || false || true || X || X  [evaluated: ABC]
+PASS OR5-4: false*3 || true || X  [evaluated: ABCD]
+PASS OR5-5: false*4 || true  [evaluated: ABCDE]
+PASS OR5-6: false*5  [evaluated: ABCDE]
+
+=== Chained AND (2 terms): A && B ===
+PASS AND2-1: false && X  [evaluated: A]
+PASS AND2-2: true && false  [evaluated: AB]
+PASS AND2-3: true && true  [evaluated: AB]
+
+=== Chained AND (3 terms): A && B && C ===
+PASS AND3-1: false && X && X  [evaluated: A]
+PASS AND3-2: true && false && X  [evaluated: AB]
+PASS AND3-3: true && true && false  [evaluated: ABC]
+PASS AND3-4: true && true && true  [evaluated: ABC]
+
+=== Chained AND (4 terms): A && B && C && D ===
+PASS AND4-1: false && X && X && X  [evaluated: A]
+PASS AND4-2: true && false && X && X  [evaluated: AB]
+PASS AND4-3: true && true && false && X  [evaluated: ABC]
+PASS AND4-4: true*3 && false  [evaluated: ABCD]
+PASS AND4-5: true*4  [evaluated: ABCD]
+
+=== Chained AND (5 terms): A && B && C && D && E ===
+PASS AND5-1: false && X && X && X && X  [evaluated: A]
+PASS AND5-2: true && false && X && X && X  [evaluated: AB]
+PASS AND5-3: true && true && false && X && X  [evaluated: ABC]
+PASS AND5-4: true*3 && false && X  [evaluated: ABCD]
+PASS AND5-5: true*4 && false  [evaluated: ABCDE]
+PASS AND5-6: true*5  [evaluated: ABCDE]
+
+=== Mixed precedence (5 terms): A || B && C || D && E  (== A || (B&&C) || (D&&E)) ===
+PASS MIX5A-1: true || (X&&X) || (X&&X)  [evaluated: A]
+PASS MIX5A-2: false || (true&&true) || X  [evaluated: ABC]
+PASS MIX5A-3: false || (false&&X) || (true&&true)  [evaluated: ABDE]
+PASS MIX5A-4: false || (false&&X) || (false&&X)  [evaluated: ABD]
+PASS MIX5A-5: false || (true&&false) || (false&&X)  [evaluated: ABCD]
+PASS MIX5A-6: false || (true&&false) || (true&&true)  [evaluated: ABCDE]
+
+=== Mixed precedence (5 terms): A && B || C && D || E  (== (A&&B) || (C&&D) || E) ===
+PASS MIX5B-1: (true&&true) || X || X  [evaluated: AB]
+PASS MIX5B-2: (false&&X) || (true&&true) || X  [evaluated: ACD]
+PASS MIX5B-3: (false&&X) || (false&&X) || true  [evaluated: ACE]
+PASS MIX5B-4: (false&&X) || (false&&X) || false  [evaluated: ACE]
+PASS MIX5B-5: (true&&false) || (true&&false) || true  [evaluated: ABCDE]
+PASS MIX5B-6: (true&&false) || (false&&X) || false  [evaluated: ABCE]
+
+=== Nested (5 terms): (A || B || C) && (D || E) ===
+PASS NEST5-1: (true || X || X) && (true || X)  [evaluated: AD]
+PASS NEST5-2: (false*3) && (X || X)  [evaluated: ABC]
+PASS NEST5-3: (false || true || X) && (false || true)  [evaluated: ABDE]
+PASS NEST5-4: (false || false || true) && (true || X)  [evaluated: ABCD]
+PASS NEST5-5: (false || true || X) && (false || false)  [evaluated: ABDE]

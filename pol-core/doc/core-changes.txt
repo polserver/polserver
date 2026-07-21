@@ -1,6 +1,6 @@
 -- POL100.3.0 --
-07-20-2026 Turley:
-    Fixed: reverted changes from 08-06-2025. The further ShortCircuit optimizations created wrong instructions in certain situations.
+07-21-2026 Turley:
+    Fixed: ShortCircuit optimizations created wrong instructions in certain situations.
            Since the bug is in codegen recompilation is needed.
 07-18-2026 Nando:
   Changed: uoconvert's map conversion is substantially faster. The 'map' and 'maptile'

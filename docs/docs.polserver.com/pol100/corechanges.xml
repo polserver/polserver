@@ -2,13 +2,13 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-20-2026</datemodified>
+		<datemodified>07-21-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
-			<date>07-20-2026</date>
+			<date>07-21-2026</date>
 			<author>Turley:</author>
-			<change type="Fixed">reverted changes from 08-06-2025. The further ShortCircuit optimizations created wrong instructions in certain situations.<br/>
+			<change type="Fixed">ShortCircuit optimizations created wrong instructions in certain situations.<br/>
 Since the bug is in codegen recompilation is needed.</change>
 		</entry>
 		<entry>

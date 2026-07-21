@@ -1,5 +1,5 @@
 include "listfile";
-// this will fail with the current jump optimization
+// this used to fail, (f && t2) jumped to the end
 var t1 := true;
 var t2 := true;
 var t3 := true;

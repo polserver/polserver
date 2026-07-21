@@ -1,0 +1,144 @@
+=== Chained OR (2 terms): A || B ===
+FAIL OR2-1: true || X
+      expected evaluated=A  got=AB
+      expected result=true  got=true
+PASS OR2-2: false || true  [evaluated: AB]
+PASS OR2-3: false || false  [evaluated: AB]
+
+=== Chained OR (3 terms): A || B || C ===
+FAIL OR3-1: true || X || X
+      expected evaluated=A  got=ABC
+      expected result=true  got=true
+FAIL OR3-2: false || true || X
+      expected evaluated=AB  got=ABC
+      expected result=true  got=true
+PASS OR3-3: false || false || true  [evaluated: ABC]
+PASS OR3-4: false || false || false  [evaluated: ABC]
+
+=== Chained OR (4 terms): A || B || C || D ===
+FAIL OR4-1: true || X || X || X
+      expected evaluated=A  got=ABCD
+      expected result=true  got=true
+FAIL OR4-2: false || true || X || X
+      expected evaluated=AB  got=ABCD
+      expected result=true  got=true
+FAIL OR4-3: false || false || true || X
+      expected evaluated=ABC  got=ABCD
+      expected result=true  got=true
+PASS OR4-4: false*3 || true  [evaluated: ABCD]
+PASS OR4-5: false*4  [evaluated: ABCD]
+
+=== Chained OR (5 terms): A || B || C || D || E ===
+FAIL OR5-1: true || X || X || X || X
+      expected evaluated=A  got=ABCDE
+      expected result=true  got=true
+FAIL OR5-2: false || true || X || X || X
+      expected evaluated=AB  got=ABCDE
+      expected result=true  got=true
+FAIL OR5-3: false || false || true || X || X
+      expected evaluated=ABC  got=ABCDE
+      expected result=true  got=true
+FAIL OR5-4: false*3 || true || X
+      expected evaluated=ABCD  got=ABCDE
+      expected result=true  got=true
+PASS OR5-5: false*4 || true  [evaluated: ABCDE]
+PASS OR5-6: false*5  [evaluated: ABCDE]
+
+=== Chained AND (2 terms): A && B ===
+FAIL AND2-1: false && X
+      expected evaluated=A  got=AB
+      expected result=false  got=false
+PASS AND2-2: true && false  [evaluated: AB]
+PASS AND2-3: true && true  [evaluated: AB]
+
+=== Chained AND (3 terms): A && B && C ===
+FAIL AND3-1: false && X && X
+      expected evaluated=A  got=ABC
+      expected result=false  got=false
+FAIL AND3-2: true && false && X
+      expected evaluated=AB  got=ABC
+      expected result=false  got=false
+PASS AND3-3: true && true && false  [evaluated: ABC]
+PASS AND3-4: true && true && true  [evaluated: ABC]
+
+=== Chained AND (4 terms): A && B && C && D ===
+FAIL AND4-1: false && X && X && X
+      expected evaluated=A  got=ABCD
+      expected result=false  got=false
+FAIL AND4-2: true && false && X && X
+      expected evaluated=AB  got=ABCD
+      expected result=false  got=false
+FAIL AND4-3: true && true && false && X
+      expected evaluated=ABC  got=ABCD
+      expected result=false  got=false
+PASS AND4-4: true*3 && false  [evaluated: ABCD]
+PASS AND4-5: true*4  [evaluated: ABCD]
+
+=== Chained AND (5 terms): A && B && C && D && E ===
+FAIL AND5-1: false && X && X && X && X
+      expected evaluated=A  got=ABCDE
+      expected result=false  got=false
+FAIL AND5-2: true && false && X && X && X
+      expected evaluated=AB  got=ABCDE
+      expected result=false  got=false
+FAIL AND5-3: true && true && false && X && X
+      expected evaluated=ABC  got=ABCDE
+      expected result=false  got=false
+FAIL AND5-4: true*3 && false && X
+      expected evaluated=ABCD  got=ABCDE
+      expected result=false  got=false
+PASS AND5-5: true*4 && false  [evaluated: ABCDE]
+PASS AND5-6: true*5  [evaluated: ABCDE]
+
+=== Mixed precedence (5 terms): A || B && C || D && E  (== A || (B&&C) || (D&&E)) ===
+FAIL MIX5A-1: true || (X&&X) || (X&&X)
+      expected evaluated=A  got=ABCDE
+      expected result=true  got=true
+FAIL MIX5A-2: false || (true&&true) || X
+      expected evaluated=ABC  got=ABCDE
+      expected result=true  got=true
+FAIL MIX5A-3: false || (false&&X) || (true&&true)
+      expected evaluated=ABDE  got=ABCDE
+      expected result=true  got=true
+FAIL MIX5A-4: false || (false&&X) || (false&&X)
+      expected evaluated=ABD  got=ABCDE
+      expected result=false  got=false
+FAIL MIX5A-5: false || (true&&false) || (false&&X)
+      expected evaluated=ABCD  got=ABCDE
+      expected result=false  got=false
+PASS MIX5A-6: false || (true&&false) || (true&&true)  [evaluated: ABCDE]
+
+=== Mixed precedence (5 terms): A && B || C && D || E  (== (A&&B) || (C&&D) || E) ===
+FAIL MIX5B-1: (true&&true) || X || X
+      expected evaluated=AB  got=ABCDE
+      expected result=true  got=true
+FAIL MIX5B-2: (false&&X) || (true&&true) || X
+      expected evaluated=ACD  got=ABCDE
+      expected result=true  got=true
+FAIL MIX5B-3: (false&&X) || (false&&X) || true
+      expected evaluated=ACE  got=ABCDE
+      expected result=true  got=true
+FAIL MIX5B-4: (false&&X) || (false&&X) || false
+      expected evaluated=ACE  got=ABCDE
+      expected result=false  got=false
+PASS MIX5B-5: (true&&false) || (true&&false) || true  [evaluated: ABCDE]
+FAIL MIX5B-6: (true&&false) || (false&&X) || false
+      expected evaluated=ABCE  got=ABCDE
+      expected result=false  got=false
+
+=== Nested (5 terms): (A || B || C) && (D || E) ===
+FAIL NEST5-1: (true || X || X) && (true || X)
+      expected evaluated=AD  got=ABCDE
+      expected result=true  got=true
+FAIL NEST5-2: (false*3) && (X || X)
+      expected evaluated=ABC  got=ABCDE
+      expected result=false  got=false
+FAIL NEST5-3: (false || true || X) && (false || true)
+      expected evaluated=ABDE  got=ABCDE
+      expected result=true  got=true
+FAIL NEST5-4: (false || false || true) && (true || X)
+      expected evaluated=ABCD  got=ABCDE
+      expected result=true  got=true
+FAIL NEST5-5: (false || true || X) && (false || false)
+      expected evaluated=ABDE  got=ABCDE
+      expected result=false  got=false
