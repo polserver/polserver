@@ -29,23 +29,12 @@
 #include "../plib/clientfiles/uoclientfiles.h"
 #include "../plib/clientfiles/uofile.h"
 #include "../plib/clientfiles/uofilei.h"
+#include "clientqueries/readeraccess.h"
 #include "../plib/uoinstallfinder.h"
 #include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
 #include "../pol/multi/multidef.h"
 #include <fmt/format.h>
-
-namespace Pol::Plib
-{
-// uotool owns the one process-wide reader instance (uoconvert threads its own
-// instance explicitly instead). Defined here rather than in plib so the library
-// no longer exports an ambient reader global.
-UoClientFiles& uofiles()
-{
-  static UoClientFiles instance;
-  return instance;
-}
-}  // namespace Pol::Plib
 
 namespace Pol
 {
@@ -63,25 +52,6 @@ namespace UoTool
 using namespace std;
 using namespace Pol::Core;
 using namespace Pol::Plib;
-
-namespace
-{
-// uotool's load-on-first-use convenience. Many commands query the raw map/statics
-// without an explicit load (and some never set map dimensions -- those were always
-// broken and still are). These reproduce the historical lazy first-touch so uotool's
-// behavior is unchanged; UoClientFiles' queries now assert-loaded instead of loading
-// themselves, so the load policy lives here in the tool that wants it.
-void ensure_map( UoClientFiles& uof )
-{
-  if ( !uof.rawmap_loaded() )
-    uof.rawmapfullread();
-}
-void ensure_statics( UoClientFiles& uof )
-{
-  if ( !uof.rawstatics_loaded() )
-    uof.rawstaticfullread();
-}
-}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 

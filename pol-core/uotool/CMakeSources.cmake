@@ -3,7 +3,9 @@ set (uotool_sources  # sorted !
   ../pol/base/vector.h
   ../pol/globals/multidefs.cpp
   ../pol/multi/multidef.cpp
-  CMakeSources.cmake 
+  CMakeSources.cmake
   UoToolMain.cpp
   UoToolMain.h
+  clientqueries/readeraccess.cpp
+  clientqueries/readeraccess.h
 )
