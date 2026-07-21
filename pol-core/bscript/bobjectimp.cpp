@@ -3,6 +3,7 @@
 #include "../clib/stlutil.h"
 #include "barray.h"
 #include "bboolean.h"
+#include "bcontiter.h"
 #include "bdict.h"
 #include "bdouble.h"
 #include "berror.h"
@@ -900,4 +901,8 @@ BObjectRef BObjectImp::operDotQMark( const char* /*name*/ )
   return BObjectRef( new BError( "Operator .? undefined" ) );
 }
 
+ContIterator* BObjectImp::createIterator( BObject* /*pIterVal*/ )
+{
+  return new ContIterator();
+}
 }  // namespace Pol::Bscript

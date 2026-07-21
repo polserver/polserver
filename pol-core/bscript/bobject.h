@@ -13,7 +13,6 @@
 #include "../clib/passert.h"
 #include "../clib/refptr.h"
 
-#include <iosfwd>
 #include <vector>
 
 
