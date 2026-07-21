@@ -112,8 +112,6 @@ public:
   void read_objinfo( u16 graphic, struct USTRUCT_TILE_HSA& objinfo ) const;
   unsigned int landtile_uoflags_read( unsigned short landtile ) const;
   char tileheight_read( unsigned short tilenum ) const;
-  unsigned char tilelayer_read( unsigned short tilenum ) const;
-  unsigned short tileweight_read( unsigned short tilenum ) const;
   unsigned int tile_uoflags_read( unsigned short tilenum ) const;
   bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec ) const;
 

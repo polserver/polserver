@@ -236,43 +236,6 @@ char UoClientFiles::tileheight_read( unsigned short tilenum ) const
   return height;
 }
 
-unsigned char UoClientFiles::tilelayer_read( unsigned short tilenum ) const
-{
-  if ( tilenum <= systemstate.config.max_tile_id )
-  {
-    return tiledata[tilenum].layer;
-  }
-
-  if ( cfg_use_new_hsa_format )
-  {
-    USTRUCT_TILE_HSA tile;
-    tile.layer = 0;
-    readtile( tilenum, &tile );
-    return tile.layer;
-  }
-
-  USTRUCT_TILE tile;
-  tile.layer = 0;
-  readtile( tilenum, &tile );
-  return tile.layer;
-}
-
-u16 UoClientFiles::tileweight_read( unsigned short tilenum ) const
-{
-  if ( cfg_use_new_hsa_format )
-  {
-    USTRUCT_TILE_HSA tile;
-    tile.weight = 1;
-    readtile( tilenum, &tile );
-    return tile.weight;
-  }
-
-  USTRUCT_TILE tile;
-  tile.weight = 1;
-  readtile( tilenum, &tile );
-  return tile.weight;
-}
-
 u32 UoClientFiles::tile_uoflags_read( unsigned short tilenum ) const
 {
   if ( tilenum <= systemstate.config.max_tile_id )
