@@ -32,13 +32,6 @@ void UoClientFiles::read_map_difs()
   num_map_patches = rawmap.load_map_difflist( mapdifl_file );
 }
 
-signed char UoClientFiles::rawmapinfo( unsigned short x, unsigned short y,
-                                       USTRUCT_MAPINFO* gi ) const
-{
-  passert_always( rawmap_ready );  // caller must rawmapfullread() first
-  return rawmap.rawinfo( x, y, gi );
-}
-
 bool UoClientFiles::rawmap_loaded() const
 {
   return rawmap_ready;
@@ -63,111 +56,5 @@ void UoClientFiles::rawmap_extract_planes( std::span<u16> landtile_out,
 {
   passert_always( rawmap_ready );  // caller must rawmapfullread() first
   rawmap.extract_planes( landtile_out, z_out );
-}
-
-/*
-
-    MAP(x,y)        MAP
-    ^
-    \--CHARACTER(x,y)
-
-    MAP             MAP
-
-    We use the diagonal with the smallest differential..
-
-    Simple averaging doesn't seem to work near cliffs and such.
-    poltest has a unit test for this.
-    */
-bool UoClientFiles::groundheight_read( unsigned short x, unsigned short y, short* z ) const
-{
-  USTRUCT_MAPINFO md, mi;
-  short z1, z2, z3, z4;  // quadrants
-
-  z1 = rawmapinfo( x + 1, y, &md );
-  z2 = rawmapinfo( x, y, &mi );
-  z3 = rawmapinfo( x, y + 1, &md );
-  z4 = rawmapinfo( x + 1, y + 1, &md );
-
-  if ( abs( z1 - z3 ) < abs( z2 - z4 ) )
-    *z = ( z1 + z3 ) / 2;
-  else
-    *z = ( z2 + z4 ) / 2;
-
-  if ( mi.landtile == 0x2 )  // it's a nodraw tile
-    *z = Core::ZCOORD_MIN;
-
-  return ( ( mi.landtile < 0x4000 ) &&
-           ( ( landtile_uoflags_read( mi.landtile ) & USTRUCT_TILE::FLAG_BLOCKING ) == 0 ) );
-}
-
-void UoClientFiles::getmapinfo( unsigned short x, unsigned short y, short* z,
-                                USTRUCT_MAPINFO* mi ) const
-{
-  USTRUCT_MAPINFO md;
-  short z1, z2, z3, z4;  // quadrants
-
-  z1 = rawmapinfo( x + 1, y, &md );
-  z2 = rawmapinfo( x, y, mi );
-  z3 = rawmapinfo( x, y + 1, &md );
-  z4 = rawmapinfo( x + 1, y + 1, &md );
-
-  short zsum;
-
-  if ( abs( z1 - z3 ) < abs( z2 - z4 ) )
-  {
-    zsum = ( z1 + z3 );
-  }
-  else
-  {
-    zsum = ( z2 + z4 );
-  }
-  if ( zsum >= 0 )
-  {
-    *z = zsum / 2;
-  }
-  else
-  {
-    *z = ( zsum - 1 ) / 2;
-  }
-}
-
-void UoClientFiles::safe_getmapinfo( unsigned short x, unsigned short y, short* z,
-                                     USTRUCT_MAPINFO* mi ) const
-{
-  USTRUCT_MAPINFO md;
-  short z1, z2, z3, z4;  // quadrants
-
-  if ( x >= uo_map_width )
-    x = uo_map_width - 1;
-  if ( y >= uo_map_height )
-    y = uo_map_height - 1;
-  unsigned short xp = x + 1, yp = y + 1;
-  if ( xp >= uo_map_width )
-    xp = uo_map_width - 1;
-  if ( yp >= uo_map_height )
-    yp = uo_map_height - 1;
-  z1 = rawmapinfo( xp, y, &md );
-  z2 = rawmapinfo( x, y, mi );
-  z3 = rawmapinfo( x, yp, &md );
-  z4 = rawmapinfo( xp, yp, &md );
-
-  short zsum;
-
-  if ( abs( z1 - z3 ) < abs( z2 - z4 ) )
-  {
-    zsum = ( z1 + z3 );
-  }
-  else
-  {
-    zsum = ( z2 + z4 );
-  }
-  if ( zsum >= 0 )
-  {
-    *z = zsum / 2;
-  }
-  else
-  {
-    *z = ( zsum - 1 ) / 2;
-  }
 }
 }  // namespace Pol::Plib

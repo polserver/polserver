@@ -125,17 +125,10 @@ public:
   void readallstatics( StaticList& vec, unsigned short x, unsigned short y ) const;
   void staticsmax() const;  // scans staidx for the largest block (diagnostic print)
 
-  // --- Raw map queries (rawmapaccess.cpp) ---
-  void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi ) const;
-  void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi ) const;
-  bool groundheight_read( unsigned short x, unsigned short y, short* z ) const;
+  // --- Raw map (rawmapaccess.cpp) ---
   // Bulk-copy the raw map into caller-provided row-major arrays (idx = y*uo_map_width + x),
   // each exactly uo_map_width*uo_map_height in size.
   void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const;
-
-  // --- Walk simulation over raw client data (standheight.cpp, uotool) ---
-  void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
-                         unsigned short y, short oldz, bool* result, short* newz ) const;
 
   // --- Open file handles (public during the migration; will become private) ---
   FILE* mapfile = nullptr;
@@ -178,7 +171,6 @@ private:
   void read_static_diffs();
   void read_map_difs();
   bool seekto_newer_version( unsigned int file, unsigned int block ) const;
-  signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi ) const;
 };
 }  // namespace Pol::Plib
 

@@ -6,6 +6,10 @@ set (uotool_sources  # sorted !
   CMakeSources.cmake
   UoToolMain.cpp
   UoToolMain.h
+  clientqueries/mapqueries.cpp
+  clientqueries/mapqueries.h
   clientqueries/readeraccess.cpp
   clientqueries/readeraccess.h
+  clientqueries/standheight.cpp
+  clientqueries/standheight.h
 )

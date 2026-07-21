@@ -29,7 +29,9 @@
 #include "../plib/clientfiles/uoclientfiles.h"
 #include "../plib/clientfiles/uofile.h"
 #include "../plib/clientfiles/uofilei.h"
+#include "clientqueries/mapqueries.h"
 #include "clientqueries/readeraccess.h"
+#include "clientqueries/standheight.h"
 #include "../plib/uoinstallfinder.h"
 #include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
@@ -591,7 +593,7 @@ static int z_histogram()
     {
       USTRUCT_MAPINFO mi;
       short z;
-      uofiles().getmapinfo( x, y, &z, &mi );
+      getmapinfo( uofiles(), x, y, &z, &mi );
       assert( z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
       ++zcount[z + 128];
     }
@@ -661,7 +663,7 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
             x = 6142;
           if ( y == 4095 )
             y = 4094;
-          bool walkok = uofiles().groundheight_read( x, y, &z );
+          bool walkok = groundheight_read( uofiles(), x, y, &z );
           blk.z[xi][yi] = static_cast<signed char>( z );
           if ( walkok )
             blk.walkok[xi] |= ( 1 << yi );
@@ -762,7 +764,7 @@ static int mapdump( int argc, char* argv[] )
       ofs << "<td align=left valign=top>";
       short z;
       USTRUCT_MAPINFO mi;
-      uofiles().safe_getmapinfo( x, y, &z, &mi );
+      safe_getmapinfo( uofiles(), x, y, &z, &mi );
       USTRUCT_LAND_TILE landtile;
       uofiles().readlandtile( mi.landtile, &landtile );
       ofs << "z=" << z << "<br>";
@@ -821,7 +823,7 @@ static int contour()
 
       bool result;
       short newz;
-      uofiles().standheight_read( MOVEMODE_LAND, vec, x, y, 127, &result, &newz );
+      standheight_read( uofiles(), MOVEMODE_LAND, vec, x, y, 127, &result, &newz );
       if ( result )
       {
         mc->z[x][y] = static_cast<signed char>( newz );
@@ -853,7 +855,7 @@ static int findlandtile( int /*argc*/, char** argv )
     {
       short z;
       USTRUCT_MAPINFO mi;
-      uofiles().safe_getmapinfo( x, y, &z, &mi );
+      safe_getmapinfo( uofiles(), x, y, &z, &mi );
       if ( mi.landtile == landtile )
       {
         INFO_PRINT( "{},{},{}", x, y, (int)mi.z );
@@ -909,7 +911,7 @@ static int findlandtileflags( int /*argc*/, char** argv )
     {
       short z;
       USTRUCT_MAPINFO mi;
-      uofiles().safe_getmapinfo( x, y, &z, &mi );
+      safe_getmapinfo( uofiles(), x, y, &z, &mi );
       if ( Plib::uofiles().landtile_uoflags_read( mi.landtile ) & flags )
       {
         INFO_PRINTLN( "{},{},{}: landtile {:#x}, flags {:#x}", x, y, (int)mi.z, mi.landtile,

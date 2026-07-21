@@ -54,7 +54,6 @@ set (plib_sources  # sorted !
   clientfiles/tiledatacache.cpp
   clientfiles/staticscache.cpp
   clientfiles/watertypes.cpp
-  clientfiles/standheight.cpp
   clientfiles/rawmapaccess.cpp
   uoinstallfinder.cpp
   uoinstallfinder.h

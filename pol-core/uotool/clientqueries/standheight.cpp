@@ -1,44 +1,54 @@
 /** @file
  * standheight_read: walk/stand height simulation over raw client data (uotool).
+ * Relocated from plib -- uoconvert does not use this.
  *
  * @par History
  */
 
 
-#include "clidata.h"
-#include "uconst.h"
-#include "udatfile.h"
-#include "uoclientfiles.h"
-#include "uofile.h"
-#include "ustruct.h"
+#include "standheight.h"
+
+#include "mapqueries.h"
+
+#include "../../plib/clidata.h"
+#include "../../plib/clientfiles/uoclientfiles.h"
+#include "../../plib/uconst.h"
+#include "../../plib/udatfile.h"
+#include "../../plib/ustruct.h"
 
 
 namespace Pol::Plib
 {
 extern bool static_debug_on;
+}
 
+namespace Pol::UoTool
+{
 inline bool flags_standable( unsigned int flags )
 {
+  using namespace Pol::Plib;
   return ( flags & ( USTRUCT_TILE::FLAG_PLATFORM | USTRUCT_TILE::FLAG_BLOCKING ) ) ==
          USTRUCT_TILE::FLAG_PLATFORM;
 }
 inline bool flags_swimmable( unsigned int flags )
 {
+  using namespace Pol::Plib;
   return ( flags & ( USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID ) ) ==
          ( USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID );
 }
-void UoClientFiles::standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
-                                      unsigned short y, short oldz, bool* result_out,
-                                      short* newz_out ) const
+void standheight_read( const Pol::Plib::UoClientFiles& uof, Pol::Plib::MOVEMODE movemode,
+                       Pol::Plib::StaticList& statics, unsigned short x, unsigned short y,
+                       short oldz, bool* result_out, short* newz_out )
 {
+  using namespace Pol::Plib;
   short lowest_blocking_z = 128;
   short highest_blocking_z = -127;
 
 
   short mapz;
   USTRUCT_MAPINFO mi;
-  getmapinfo( x, y, &mapz, &mi );
-  unsigned int mapflags = landtile_uoflags_read( mi.landtile );
+  getmapinfo( uof, x, y, &mapz, &mi );
+  unsigned int mapflags = uof.landtile_uoflags_read( mi.landtile );
   if ( !mapflags )
     mapflags = /*USTRUCT_TILE::FLAG_BLOCKING|*/ USTRUCT_TILE::FLAG_PLATFORM;
 
@@ -129,4 +139,4 @@ void UoClientFiles::standheight_read( MOVEMODE movemode, StaticList& statics, un
   *result_out = result;
   *newz_out = newz;
 }
-}  // namespace Pol::Plib
+}  // namespace Pol::UoTool
