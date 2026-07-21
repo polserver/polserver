@@ -4,6 +4,7 @@
 #include "clib/random.h"
 #include "clib/stlutil.h"
 
+#include "bcontiter.h"
 #include "bdouble.h"
 #include "berror.h"
 #include "blong.h"
@@ -1178,5 +1179,49 @@ BObjectImp* ObjArray::unpack( std::istream& is )
     }
   }
   return arr.release();
+}
+
+class ArrayIterator final : public ContIterator
+{
+public:
+  ArrayIterator( ObjArray* pArr, BObject* pIterVal );
+  BObject* step() override;
+
+private:
+  size_t m_Index;
+  BObject m_Array;
+  ObjArray* m_pArray;
+  BObjectRef m_IterVal;
+  BLong* m_pIterVal;
+};
+ArrayIterator::ArrayIterator( ObjArray* pArr, BObject* pIterVal )
+    : ContIterator(),
+      m_Index( 0 ),
+      m_Array( pArr ),
+      m_pArray( pArr ),
+      m_IterVal( pIterVal ),
+      m_pIterVal( new BLong( 0 ) )
+{
+  m_IterVal.get()->setimp( m_pIterVal );
+}
+BObject* ArrayIterator::step()
+{
+  m_pIterVal->increment();
+  if ( ++m_Index > m_pArray->ref_arr.size() )
+    return nullptr;
+
+  BObjectRef& objref = m_pArray->ref_arr[m_Index - 1];
+  BObject* elem = objref.get();
+  if ( elem == nullptr )
+  {
+    elem = new BObject( UninitObject::create() );
+    objref.set( elem );
+  }
+  return elem;
+}
+
+ContIterator* ObjArray::createIterator( BObject* pIterVal )
+{
+  return new ArrayIterator( this, pIterVal );
 }
 }  // namespace Pol::Bscript
