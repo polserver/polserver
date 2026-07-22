@@ -18,6 +18,7 @@
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../plib/clidata.h"
+#include "../plib/clientfiles/uoclientfiles.h"
 #include "../plib/objtype.h"
 #include "../plib/polfile.h"
 #include "../plib/poltype.h"
@@ -26,16 +27,15 @@
 #include "../plib/systemstate.h"
 #include "../plib/uconst.h"
 #include "../plib/udatfile.h"
-#include "../plib/clientfiles/uoclientfiles.h"
+#include "../plib/uoinstallfinder.h"
+#include "../plib/ustruct.h"
+#include "../pol/globals/multidefs.h"
+#include "../pol/multi/multidef.h"
 #include "clientqueries/mapqueries.h"
 #include "clientqueries/readeraccess.h"
 #include "clientqueries/standheight.h"
 #include "clientqueries/staticsqueries.h"
 #include "clientqueries/water.h"
-#include "../plib/uoinstallfinder.h"
-#include "../plib/ustruct.h"
-#include "../pol/globals/multidefs.h"
-#include "../pol/multi/multidef.h"
 #include <fmt/format.h>
 
 namespace Pol
@@ -350,8 +350,8 @@ static int print_verdata_info()
 
   auto& uof = Plib::uofiles();
   // FIXME: should read this once per run, per file.
-  fseek( uof.verfile, 0, SEEK_SET );
-  if ( fread( &num_version_records, sizeof num_version_records, 1, uof.verfile ) !=
+  fseek( uof.verdata_file(), 0, SEEK_SET );
+  if ( fread( &num_version_records, sizeof num_version_records, 1, uof.verdata_file() ) !=
        1 )  // ENDIAN-BROKEN
     throw std::runtime_error( "print_verdata_info: fread(num_version_records) failed." );
 
@@ -363,7 +363,7 @@ static int print_verdata_info()
 
   for ( int i = 0; i < num_version_records; i++ )
   {
-    if ( fread( &vrec, sizeof vrec, 1, uof.verfile ) != 1 )
+    if ( fread( &vrec, sizeof vrec, 1, uof.verdata_file() ) != 1 )
       throw std::runtime_error( "print_verdata_info: fread(vrec) failed." );
     if ( vrec.file < 32 )
       ++filecount[vrec.file];
@@ -512,7 +512,8 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
     return;
 
   USTRUCT_TILE tile;
-  uofiles().read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
+  uofiles().read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ),
+                          tile );
   INFO_PRINTLN( "Multi {:#x} -- {}:", i + i + ( Plib::systemstate.config.max_tile_id + 1 ),
                 tile.name );
   std::string tmp;
@@ -547,7 +548,8 @@ static void print_multidata( u16 i, Multi::MultiDef* multi )
     return;
 
   USTRUCT_TILE tile;
-  uofiles().read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
+  uofiles().read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ),
+                          tile );
   INFO_PRINTLN( "Multi {:#x} -- {}:", i + ( Plib::systemstate.config.max_tile_id + 1 ), tile.name );
   std::string tmp;
   for ( const auto& _itr : multi->components )

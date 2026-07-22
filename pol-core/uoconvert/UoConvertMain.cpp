@@ -19,6 +19,7 @@
 #include "clib/stlutil.h"
 #include "clib/timer.h"
 #include "plib/clidata.h"
+#include "plib/clientfiles/uoclientfiles.h"
 #include "plib/mapcell.h"
 #include "plib/mapfunc.h"
 #include "plib/mapshape.h"
@@ -31,7 +32,6 @@
 #include "plib/realmdescriptor.h"
 #include "plib/systemstate.h"
 #include "plib/udatfile.h"
-#include "plib/clientfiles/uoclientfiles.h"
 #include "plib/uoinstallfinder.h"
 #include "plib/uopreader/uop.h"
 #include "plib/uopreader/uophash.h"
@@ -854,7 +854,7 @@ void UoConvertMain::write_multi_element( FILE* multis_cfg, const USTRUCT_MULTI_E
     type = "static";
 
   std::string comment;
-  if ( uof.cfg_use_new_hsa_format )
+  if ( uof.use_new_hsa_format() )
   {
     USTRUCT_TILE_HSA tile;
     uof.readtile( elem.graphic, &tile );
@@ -896,8 +896,8 @@ void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
                                  const Plib::UoClientFiles& uof )
 {
   USTRUCT_MULTI_ELEMENT elem;
-  unsigned int count = uof.cfg_use_new_hsa_format ? length / sizeof( USTRUCT_MULTI_ELEMENT_HSA )
-                                                  : length / sizeof elem;
+  unsigned int count = uof.use_new_hsa_format() ? length / sizeof( USTRUCT_MULTI_ELEMENT_HSA )
+                                                : length / sizeof elem;
 
   std::string mytype = resolve_type_from_id( id );
 
@@ -918,7 +918,7 @@ void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
       throw std::runtime_error( "write_multi(): fread() failed" );
     }
 
-    if ( uof.cfg_use_new_hsa_format )
+    if ( uof.use_new_hsa_format() )
     {
       if ( fseek( multi_mul, 4, SEEK_CUR ) != 0 )
         throw std::runtime_error( "write_multi(): fseek() failed" );
@@ -943,7 +943,7 @@ void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* m
 
     if ( uof.check_verdata( VERFILE_MULTI_MUL, i, vrec ) )
     {
-      write_multi( multis_cfg, i, uof.verfile, vrec->filepos, vrec->length, uof );
+      write_multi( multis_cfg, i, uof.verdata_file(), vrec->filepos, vrec->length, uof );
       ++count;
     }
     else
@@ -1021,7 +1021,7 @@ void UoConvertMain::create_tiles_cfg( const Plib::UoClientFiles& uof )
   {
     u16 graphic = static_cast<u16>( graphic_i );
     USTRUCT_TILE tile;
-    if ( uof.cfg_use_new_hsa_format )
+    if ( uof.use_new_hsa_format() )
     {
       USTRUCT_TILE_HSA newtile;
       uof.read_objinfo( graphic, newtile );
@@ -1089,7 +1089,7 @@ void UoConvertMain::create_landtiles_cfg( const Plib::UoClientFiles& uof )
   for ( u16 i = 0; i <= MAX_LANDTILE_ID; ++i )
   {
     USTRUCT_LAND_TILE landtile;
-    if ( uof.cfg_use_new_hsa_format )
+    if ( uof.use_new_hsa_format() )
     {
       USTRUCT_LAND_TILE_HSA newlandtile;
       uof.readlandtile( i, &newlandtile );
@@ -1468,8 +1468,7 @@ void UoConvertMain::load_uoconvert_cfg( Plib::UoClientFiles& uof )
       else if ( elem.type_is( "TileOptions" ) )
       {
         if ( elem.has_prop( "ShowRoofAndPlatformWarning" ) )
-          uof.cfg_show_roof_and_platform_warning =
-              elem.remove_bool( "ShowRoofAndPlatformWarning" );
+          uof.cfg_show_roof_and_platform_warning = elem.remove_bool( "ShowRoofAndPlatformWarning" );
       }
       else if ( elem.type_is( "ClientOptions" ) )
       {

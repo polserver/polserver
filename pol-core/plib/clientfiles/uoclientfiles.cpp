@@ -19,7 +19,6 @@
 #include "clib/strutil.h"
 #include "objtype.h"
 #include "plib/mul/map.h"
-#include "plib/mul/tiledata.h"
 #include "plib/uopreader/uop.h"
 #include "plib/uopreader/uophash.h"
 #include "systemstate.h"
@@ -322,36 +321,6 @@ FILE* UoClientFiles::open_map_file( const std::string& name, size_t* out_file_si
   return open_uo_file( filename, out_file_size );
 }
 
-void UoClientFiles::open_tiledata()
-{
-  size_t tiledata_size;
-
-  tilefile = open_uo_file( "tiledata.mul", &tiledata_size );
-
-  // Auto-detect HSA format, find number of blocks, etc
-  MUL::TiledataInfo tileinfo( tiledata_size );
-
-  cfg_use_new_hsa_format = tileinfo.is_hsa();
-  Plib::systemstate.config.max_tile_id = tileinfo.max_tile_id();
-
-  if ( !Plib::systemstate.config.max_tile_id )
-  {
-    ERROR_PRINTLN(
-        "\n"
-        "Error reading tiledata.mul:\n"
-        " - The file is either corrupted or has an "
-        "unknown format.\n" );
-
-    throw std::runtime_error( "Unknown format of tiledata.mul" );
-  }
-
-  INFO_PRINTLN(
-      "Using auto-detected parameters:\n"
-      "\tUseNewHSAFormat = {}\n"
-      "\tMaxTileID = {:#x}",
-      cfg_use_new_hsa_format, Plib::systemstate.config.max_tile_id );
-}
-
 void UoClientFiles::open_map()
 {
   size_t map_size;
@@ -372,15 +341,8 @@ void UoClientFiles::open_uo_data_files()
   sidxfile = open_map_file( "staidx" );
   statfile = open_map_file( "statics" );
 
-  if ( Clib::FileExists( ( systemstate.config.uo_datafile_root + "verdata.mul" ).c_str() ) )
-  {
-    verfile = open_uo_file( "verdata.mul" );
-  }
-  else
-  {
-    verfile = nullptr;
-  }
-  open_tiledata();
+  // Opens verdata.mul (if present) then tiledata.mul; HSA-detects.
+  tiledata_.open();
 
   if ( uo_usedif )
   {
@@ -409,9 +371,7 @@ void UoClientFiles::open_uo_data_files()
 // map-diff lists that the statics/rawmap loads consult.
 void UoClientFiles::read_uo_data()
 {
-  read_veridx();
-  read_tiledata();
-  read_landtiledata();
+  tiledata_.load();  // verdata index, tiledata + landtile caches
   read_static_diffs();
   read_map_difs();
 }

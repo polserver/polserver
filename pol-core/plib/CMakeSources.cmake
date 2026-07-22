@@ -49,6 +49,7 @@ set (plib_sources  # sorted !
   clientfiles/RawMap.h
   clientfiles/RawMap.cpp
   clientfiles/uoclientfiles.cpp
+  clientfiles/tiledatacache.h
   clientfiles/tiledatacache.cpp
   clientfiles/staticscache.cpp
   clientfiles/rawmapaccess.cpp

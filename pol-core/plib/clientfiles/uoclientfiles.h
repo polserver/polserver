@@ -8,41 +8,16 @@
 #include <span>
 #include <vector>
 
-#include "RawMap.h"
 #include "../clidata.h"
-#include "clib/rawtypes.h"
 #include "../uconst.h"
 #include "../udatfile.h"
 #include "../ustruct.h"
+#include "RawMap.h"
+#include "clib/rawtypes.h"
+#include "tiledatacache.h"
 
 namespace Pol::Plib
 {
-// One tiledata.mul entry's cached fields (see tiledatacache.cpp).
-struct TileData
-{
-  u8 height;
-  u8 layer;
-  u32 flags;
-};
-
-// Per-file verdata.mul patch index: which blocks of a client file have a newer
-// version stored in verdata (see tiledatacache.cpp).
-struct VerdataIndexes
-{
-  using VRecList = std::map<unsigned int, USTRUCT_VERSION>;
-  VRecList vrecs;  // key is the block
-
-  void insert( const USTRUCT_VERSION& vrec ) { vrecs.emplace( vrec.block, vrec ); }
-  bool find( unsigned int block, const USTRUCT_VERSION*& vrec ) const
-  {
-    VRecList::const_iterator itr = vrecs.find( block );
-    if ( itr == vrecs.end() )
-      return false;
-    vrec = &( ( *itr ).second );
-    return true;
-  }
-};
-
 // One statics block's cached records (see staticscache.cpp).
 struct USTRUCT_STATIC_BUFFER
 {
@@ -85,7 +60,6 @@ public:
 
   int cfg_max_statics_per_block = 1000;
   int cfg_warning_statics_per_block = 1000;
-  bool cfg_use_new_hsa_format = false;
   bool cfg_show_illegal_graphic_warning = true;
   bool cfg_show_roof_and_platform_warning = true;
 
@@ -94,25 +68,57 @@ public:
   // cache is present rather than loading lazily (see rawmap_loaded()). Not
   // thread-safe; a parallel region must find the caches already loaded.
   void open_uo_data_files();
-  void read_uo_data();     // verdata index, tiledata, landtiles, dif lists
+  void read_uo_data();       // verdata index, tiledata, landtiles, dif lists
   void rawmapfullread();     // raw map full read (mul or UOP) + difs
   void rawstaticfullread();  // staidx/statics full read + dif merge
-  void clear_tiledata();
+  void clear_tiledata() { tiledata_.clear(); }
 
   bool rawmap_loaded() const;
   bool rawstatics_loaded() const;
 
-  // --- Tiledata / verdata queries (tiledatacache.cpp) ---
-  void readtile( unsigned short tilenum, USTRUCT_TILE* tile ) const;
-  void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile ) const;
-  void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile ) const;
-  void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile ) const;
-  void read_objinfo( u16 graphic, struct USTRUCT_TILE& objinfo ) const;
-  void read_objinfo( u16 graphic, struct USTRUCT_TILE_HSA& objinfo ) const;
-  unsigned int landtile_uoflags_read( unsigned short landtile ) const;
-  char tileheight_read( unsigned short tilenum ) const;
-  unsigned int tile_uoflags_read( unsigned short tilenum ) const;
-  bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec ) const;
+  // --- Tiledata / verdata queries: delegate to the tiledata cache ---
+  bool use_new_hsa_format() const { return tiledata_.use_new_hsa_format(); }
+  FILE* verdata_file() const { return tiledata_.verdata_file(); }
+  void readtile( unsigned short tilenum, USTRUCT_TILE* tile ) const
+  {
+    tiledata_.readtile( tilenum, tile );
+  }
+  void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile ) const
+  {
+    tiledata_.readtile( tilenum, tile );
+  }
+  void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile ) const
+  {
+    tiledata_.readlandtile( tilenum, landtile );
+  }
+  void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile ) const
+  {
+    tiledata_.readlandtile( tilenum, landtile );
+  }
+  void read_objinfo( u16 graphic, USTRUCT_TILE& objinfo ) const
+  {
+    tiledata_.read_objinfo( graphic, objinfo );
+  }
+  void read_objinfo( u16 graphic, USTRUCT_TILE_HSA& objinfo ) const
+  {
+    tiledata_.read_objinfo( graphic, objinfo );
+  }
+  unsigned int landtile_uoflags_read( unsigned short landtile ) const
+  {
+    return tiledata_.landtile_uoflags_read( landtile );
+  }
+  char tileheight_read( unsigned short tilenum ) const
+  {
+    return tiledata_.tileheight_read( tilenum );
+  }
+  unsigned int tile_uoflags_read( unsigned short tilenum ) const
+  {
+    return tiledata_.tile_uoflags_read( tilenum );
+  }
+  bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec ) const
+  {
+    return tiledata_.check_verdata( file, block, vrec );
+  }
 
   // --- Statics cache queries (staticscache.cpp) ---
   const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y ) const;
@@ -128,8 +134,6 @@ public:
   FILE* mapfile = nullptr;
   FILE* sidxfile = nullptr;
   FILE* statfile = nullptr;
-  FILE* verfile = nullptr;
-  FILE* tilefile = nullptr;
   FILE* stadifl_file = nullptr;
   FILE* stadifi_file = nullptr;
   FILE* stadif_file = nullptr;
@@ -138,10 +142,7 @@ public:
   std::ifstream uopmapfile;
 
   // --- Caches ---
-  TileData* tiledata = nullptr;
-  unsigned int landtile_flags_arr[LANDTILE_COUNT] = {};
-  static constexpr unsigned int vidx_count = 32;
-  VerdataIndexes vidx[vidx_count];
+  TileDataCache tiledata_;
 
   std::vector<USTRUCT_STATIC_BUFFER> rawstatic_buffer_vec;
   bool rawstatic_init = false;
@@ -154,15 +155,10 @@ public:
 
 private:
   void open_map();
-  void open_tiledata();
   FILE* open_map_file( const std::string& name, size_t* out_file_size = nullptr );
   bool open_uopmap_file( size_t* out_file_size = nullptr );
-  void read_veridx();
-  void read_tiledata();
-  void read_landtiledata();
   void read_static_diffs();
   void read_map_difs();
-  bool seekto_newer_version( unsigned int file, unsigned int block ) const;
 };
 
 // Hard ceiling uoconvert clamps cfg_max_statics_per_block / *_warning_* to.
