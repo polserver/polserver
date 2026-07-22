@@ -397,7 +397,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       else
         break;
     }
-    else if ( ex.hasParams( 1 ) )
+    else if ( ex.numParams() == 1 )
     {
       if ( auto* array = impptrIf<ObjArray>( ex.getParamImp( 0 ) ) )
       {
@@ -457,7 +457,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
             Clib::clamp_convert<u32>( yoff ), Clib::clamp_convert<u8>( item_z ) );
       }
     }
-    else if ( ex.hasParams( 1 ) )
+    else if ( ex.numParams() == 1 )
     {
       if ( auto* array = impptrIf<ObjArray>( ex.getParamImp( 0 ) ) )
       {
