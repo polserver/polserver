@@ -227,7 +227,7 @@ HouseFloorZColumn* CustomHouseElements::GetElementsAt( s32 xoffset, s32 yoffset 
   u32 y = yoffset + yoff;
   return &( data.at( x ).at( y ) );
 }
-void CustomHouseElements::AddElement( CUSTOM_HOUSE_ELEMENT& elem )
+void CustomHouseElements::AddElement( const CUSTOM_HOUSE_ELEMENT& elem )
 {
   u32 x = elem.xoffset + xoff;
   u32 y = elem.yoffset + yoff;
