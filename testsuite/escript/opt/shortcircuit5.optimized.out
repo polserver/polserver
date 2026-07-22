@@ -15,15 +15,15 @@ success
 17: false (boolean)
 18: :=
 20: global variable #4
-21: logical jump if false to 24
+21: logical jump if false to 23
 22: global variable #0
 23: logical jump if true to 37
 24: global variable #4
-25: logical jump if false to 28
+25: logical jump if false to 27
 26: global variable #1
 27: logical jump if true to 37
 28: global variable #2
-29: logical jump if false to 32
+29: logical jump if false to 31
 30: global variable #2
 31: logical jump if true to 37
 32: global variable #4

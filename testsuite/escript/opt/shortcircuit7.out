@@ -1,0 +1,21 @@
+=== value context: nested (A&&B)||(C&&D)... via  var result := <chain> ===
+FAIL VNEST-1: (t&&t) || X   (first clause true)
+      expected evaluated=AB  got=ABCD
+      expected result=true  got=1
+FAIL VNEST-2: (f&&X) || (t&&t)
+      expected evaluated=ACD  got=ABCD
+      expected result=true  got=1
+FAIL VNEST-3: (f&&X) || (f&&X) || (t&&t)
+      expected evaluated=ACEF  got=ABCDEF
+      expected result=true  got=1
+FAIL VNEST-4: (f&&X) || (f&&X)   (none true)
+      expected evaluated=AC  got=ABCD
+      expected result=false  got=0
+=== controls: same chains in non-triggering forms (must PASS) ===
+PASS VCTL-1: f || t   (simple operands, var:=)  [evaluated: AB]
+FAIL VCTL-2: (f&&X)||(t&&t)   (split declaration)
+      expected evaluated=ACD  got=ABCD
+      expected result=true  got=1
+FAIL VCTL-3: (f&&X)||(t&&t)   (if-condition)
+      expected evaluated=ACD  got=ABCD
+      expected result=true  got=true

@@ -55,7 +55,7 @@ success
 58: call module function (0, 0): Print
 60: "combined 3 ( f || t ) && ( f || t)" (string)
 62: global variable #1
-63: logical jump if true to 66
+63: logical jump if true to 65
 64: global variable #0
 65: logical jump if false to 75
 66: global variable #1
@@ -68,9 +68,9 @@ success
 73: call module function (0, 0): Print
 75: "combined 4 ( f || t || t ) && ( f || t || t )" (string)
 77: global variable #1
-78: logical jump if true to 83
+78: logical jump if true to 82
 79: global variable #0
-80: logical jump if true to 83
+80: logical jump if true to 82
 81: global variable #0
 82: logical jump if false to 94
 83: global variable #1

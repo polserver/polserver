@@ -37,7 +37,9 @@ void CodeSectionOptimizer::short_circuit_jumps( CodeSection& code ) const
       if ( loc.type == jump.type )
         jump.offset = loc.offset;
       else
-        jump.offset++;
+        // opposite-type jump falls through and pops this value; skipping it would
+        // leave a stray value on the stack, so keep targeting it
+        return;
     }
     else if ( loc.id == INS_LOGICAL_CONVERT )
     {
