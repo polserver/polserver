@@ -14,17 +14,11 @@
 #include "../ustruct.h"
 #include "RawMap.h"
 #include "clib/rawtypes.h"
+#include "staticscache.h"
 #include "tiledatacache.h"
 
 namespace Pol::Plib
 {
-// One statics block's cached records (see staticscache.cpp).
-struct USTRUCT_STATIC_BUFFER
-{
-  std::vector<USTRUCT_STATIC> statics;
-  int count = 0;
-};
-
 // Reader over the raw UO client data files (map/statics/tiledata/verdata):
 // configuration knobs, open file handles, the in-memory caches filled from
 // them, and every query that answers from those caches. Used only by
@@ -68,13 +62,18 @@ public:
   // cache is present rather than loading lazily (see rawmap_loaded()). Not
   // thread-safe; a parallel region must find the caches already loaded.
   void open_uo_data_files();
-  void read_uo_data();       // verdata index, tiledata, landtiles, dif lists
-  void rawmapfullread();     // raw map full read (mul or UOP) + difs
-  void rawstaticfullread();  // staidx/statics full read + dif merge
+  void read_uo_data();      // verdata index, tiledata, landtiles, dif lists
+  void rawmapfullread();    // raw map full read (mul or UOP) + difs
+  void rawstaticfullread()  // staidx/statics full read + dif merge
+  {
+    statics_.full_read( uo_map_width, uo_map_height, cfg_max_statics_per_block,
+                        cfg_warning_statics_per_block );
+  }
   void clear_tiledata() { tiledata_.clear(); }
 
   bool rawmap_loaded() const;
-  bool rawstatics_loaded() const;
+  bool rawstatics_loaded() const { return statics_.loaded(); }
+  unsigned int num_static_patches() const { return statics_.num_patches(); }
 
   // --- Tiledata / verdata queries: delegate to the tiledata cache ---
   bool use_new_hsa_format() const { return tiledata_.use_new_hsa_format(); }
@@ -120,34 +119,55 @@ public:
     return tiledata_.check_verdata( file, block, vrec );
   }
 
-  // --- Statics cache queries (staticscache.cpp) ---
-  const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y ) const;
+  // --- Statics cache queries: delegate to / compose over the statics cache ---
+  const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y ) const
+  {
+    return statics_.getstaticblock( x, y );
+  }
+  // Composes the statics block with the tiledata flag/height lookups (needs both
+  // caches), so it lives on the coordinator rather than on StaticsCache. Used by
+  // uoconvert's ComputeSolidBlock (formerly uofile07.cpp).
   void readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short y,
-                          unsigned int flags ) const;
+                          unsigned int flags ) const
+  {
+    for ( auto& bucket : buckets )
+      bucket.clear();
+
+    const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
+
+    for ( const auto& srec : srecarr )
+    {
+      // Records with offsets outside the 8x8 block never match any tile in the
+      // per-tile readstatics() scan; drop them here the same way.
+      if ( srec.x_offset < 0 || srec.x_offset >= static_cast<int>( STATICBLOCK_CHUNK ) ||
+           srec.y_offset < 0 || srec.y_offset >= static_cast<int>( STATICBLOCK_CHUNK ) )
+        continue;
+
+      const unsigned int uoflags = tile_uoflags_read( srec.graphic );
+      if ( uoflags & flags )
+        buckets[srec.x_offset * STATICBLOCK_CHUNK + srec.y_offset].emplace_back(
+            srec.graphic, srec.z, uoflags, tileheight_read( srec.graphic ) );
+    }
+  }
+  // The open staidx/statics handles, for the uotool diagnostics that scan them
+  // directly (staticsmax, water scan).
+  FILE* staidx_file() const { return statics_.staidx_file(); }
+  FILE* statics_file() const { return statics_.statics_file(); }
 
   // --- Raw map (rawmapaccess.cpp) ---
   // Bulk-copy the raw map into caller-provided row-major arrays (idx = y*uo_map_width + x),
   // each exactly uo_map_width*uo_map_height in size.
   void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const;
 
-  // --- Open file handles (public during the migration; will become private) ---
+  // --- Open map file handles (public during the migration; will become private) ---
   FILE* mapfile = nullptr;
-  FILE* sidxfile = nullptr;
-  FILE* statfile = nullptr;
-  FILE* stadifl_file = nullptr;
-  FILE* stadifi_file = nullptr;
-  FILE* stadif_file = nullptr;
   FILE* mapdifl_file = nullptr;
   FILE* mapdif_file = nullptr;
   std::ifstream uopmapfile;
 
   // --- Caches ---
   TileDataCache tiledata_;
-
-  std::vector<USTRUCT_STATIC_BUFFER> rawstatic_buffer_vec;
-  bool rawstatic_init = false;
-  std::map<unsigned int, unsigned int> stadifl;  // block -> stadif index
-  unsigned int num_static_patches = 0;
+  StaticsCache statics_;
 
   RawMap rawmap;
   bool rawmap_ready = false;
@@ -155,9 +175,7 @@ public:
 
 private:
   void open_map();
-  FILE* open_map_file( const std::string& name, size_t* out_file_size = nullptr );
   bool open_uopmap_file( size_t* out_file_size = nullptr );
-  void read_static_diffs();
   void read_map_difs();
 };
 
@@ -171,6 +189,9 @@ private:
 // Free helpers over the raw client files (defined in uoclientfiles.cpp): open a
 // named mul/idx by install path, and load the multi collection from a UOP.
 FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr );
+// Open <name><mapid>.mul by install path (mapid 1 falls back to <name>0.mul when
+// the map1 variant is absent).
+FILE* open_map_file( const std::string& name, int mapid, size_t* out_file_size = nullptr );
 bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map );
 }  // namespace Pol::Plib
 

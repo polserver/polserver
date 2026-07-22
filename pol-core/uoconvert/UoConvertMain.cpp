@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "clib/Program/ProgramMain.h"
+#include "clib/UniqueFile.h"
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
 #include "clib/fileutil.h"
@@ -50,26 +51,9 @@ using namespace Pol::Plib;
 
 namespace
 {
-// RAII owner for the C FILE* handles used by the .cfg writers below, so an early
-// return or a throw closes the file instead of leaking it. Implicitly converts
-// to FILE*, so the fprintf-based writer code reads exactly as before.
-class UniqueFile
-{
-public:
-  explicit UniqueFile( FILE* fp ) : fp_( fp ) {}
-  ~UniqueFile()
-  {
-    if ( fp_ )
-      fclose( fp_ );
-  }
-  UniqueFile( const UniqueFile& ) = delete;
-  UniqueFile& operator=( const UniqueFile& ) = delete;
-
-  operator FILE*() const { return fp_; }
-
-private:
-  FILE* fp_;
-};
+// The .cfg/text writers below use Clib::UniqueFile (RAII FILE* owner that implicitly
+// converts to FILE*, so the fprintf-based code reads unchanged); see clib/UniqueFile.h.
+using Clib::UniqueFile;
 
 // Open a text file for writing, throwing with the path on failure (the old code
 // left the FILE* unchecked and would crash on the first fprintf).
@@ -342,7 +326,7 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
   loop_timer.stop();
 
   Tools::Timer<> flush_timer;
-  mapwriter.WriteConfigFile( uof.uo_mapid, uof.uo_usedif, uof.num_static_patches,
+  mapwriter.WriteConfigFile( uof.uo_mapid, uof.uo_usedif, uof.num_static_patches(),
                              uof.num_map_patches );
   mapwriter.Flush();  // surface any write errors before reporting success
   flush_timer.stop();

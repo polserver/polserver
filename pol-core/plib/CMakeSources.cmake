@@ -51,6 +51,7 @@ set (plib_sources  # sorted !
   clientfiles/uoclientfiles.cpp
   clientfiles/tiledatacache.h
   clientfiles/tiledatacache.cpp
+  clientfiles/staticscache.h
   clientfiles/staticscache.cpp
   clientfiles/rawmapaccess.cpp
   uoinstallfinder.cpp

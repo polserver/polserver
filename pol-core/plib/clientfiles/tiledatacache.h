@@ -3,11 +3,11 @@
 
 #include <cstdio>
 #include <map>
-#include <memory>
 #include <vector>
 
 #include "../clidata.h"
 #include "../ustruct.h"
+#include "clib/UniqueFile.h"
 #include "clib/rawtypes.h"
 
 
@@ -80,23 +80,13 @@ public:
   bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec ) const;
 
 private:
-  struct FileCloser
-  {
-    void operator()( FILE* fp ) const noexcept
-    {
-      if ( fp )
-        fclose( fp );
-    }
-  };
-  using UniqueFilePtr = std::unique_ptr<FILE, FileCloser>;
-
   bool seekto_newer_version( unsigned int file, unsigned int block ) const;
   void read_veridx();
   void read_tiledata();
   void read_landtiledata();
 
-  UniqueFilePtr tilefile_;
-  UniqueFilePtr verfile_;
+  Clib::UniqueFile tilefile_;
+  Clib::UniqueFile verfile_;
   bool use_new_hsa_format_ = false;
 
   std::vector<TileData> tiledata_;

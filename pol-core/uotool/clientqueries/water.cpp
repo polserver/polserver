@@ -29,23 +29,23 @@ void readwater( const Pol::Plib::UoClientFiles& uof )
   using namespace Pol::Plib;
   USTRUCT_IDX idxrec;
 
-  fseek( uof.sidxfile, 0, SEEK_SET );
+  fseek( uof.staidx_file(), 0, SEEK_SET );
   for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
   {
     INFO_PRINT( "{}..", xblock );
     for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
     {
-      if ( fread( &idxrec, sizeof idxrec, 1, uof.sidxfile ) != 1 )
+      if ( fread( &idxrec, sizeof idxrec, 1, uof.staidx_file() ) != 1 )
         throw std::runtime_error( "readwater: fread(idxrec) failed." );
 
       if ( idxrec.length != 0xFFffFFffLu )
       {
-        fseek( uof.statfile, idxrec.offset, SEEK_SET );
+        fseek( uof.statics_file(), idxrec.offset, SEEK_SET );
 
         for ( idxrec.length /= 7; idxrec.length > 0; --idxrec.length )
         {
           USTRUCT_STATIC srec;
-          if ( fread( &srec, sizeof srec, 1, uof.statfile ) != 1 )
+          if ( fread( &srec, sizeof srec, 1, uof.statics_file() ) != 1 )
             throw std::runtime_error( "readwater: fread(srec) failed." );
           // The set this scan used to populate (z == -5 && iswater) had no
           // consumers, so it was removed; the traversal is kept for parity.

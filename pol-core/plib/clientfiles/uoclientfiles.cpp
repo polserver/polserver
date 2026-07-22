@@ -307,12 +307,12 @@ FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size )
   return fp;
 }
 
-FILE* UoClientFiles::open_map_file( const std::string& name, size_t* out_file_size )
+FILE* open_map_file( const std::string& name, int mapid, size_t* out_file_size )
 {
   std::string filename;
 
-  filename = name + Clib::tostring( uo_mapid ) + ".mul";
-  if ( uo_mapid == 1 && !Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
+  filename = name + Clib::tostring( mapid ) + ".mul";
+  if ( mapid == 1 && !Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
   {
     ERROR_PRINTLN( "Unable to find UO file: {}, reading {}0.mul instead.", filename, name );
     filename = name + "0.mul";
@@ -329,7 +329,7 @@ void UoClientFiles::open_map()
   // same for staidx and statics
 
   if ( !uo_readuop || !open_uopmap_file( &map_size ) )
-    mapfile = open_map_file( "map", &map_size );
+    mapfile = open_map_file( "map", uo_mapid, &map_size );
 
   uo_map_size = map_size;
 }
@@ -338,25 +338,15 @@ void UoClientFiles::open_uo_data_files()
 {
   open_map();
 
-  sidxfile = open_map_file( "staidx" );
-  statfile = open_map_file( "statics" );
+  // Opens staidx/statics.mul (+ stadif* patch files when usedif).
+  statics_.open( uo_mapid, uo_usedif );
 
   // Opens verdata.mul (if present) then tiledata.mul; HSA-detects.
   tiledata_.open();
 
   if ( uo_usedif )
   {
-    std::string filename;
-    filename = "stadifl" + Clib::tostring( uo_mapid ) + ".mul";
-    if ( Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
-    {
-      stadifl_file = open_uo_file( filename );
-      filename = "stadifi" + Clib::tostring( uo_mapid ) + ".mul";
-      stadifi_file = open_uo_file( filename );
-      filename = "stadif" + Clib::tostring( uo_mapid ) + ".mul";
-      stadif_file = open_uo_file( filename );
-    }
-    filename = "mapdifl" + Clib::tostring( uo_mapid ) + ".mul";
+    std::string filename = "mapdifl" + Clib::tostring( uo_mapid ) + ".mul";
     if ( Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
     {
       mapdifl_file = open_uo_file( filename );
@@ -372,7 +362,7 @@ void UoClientFiles::open_uo_data_files()
 void UoClientFiles::read_uo_data()
 {
   tiledata_.load();  // verdata index, tiledata + landtile caches
-  read_static_diffs();
+  statics_.read_difflist();
   read_map_difs();
 }
 }  // namespace Pol::Plib

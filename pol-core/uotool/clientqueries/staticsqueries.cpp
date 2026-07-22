@@ -116,12 +116,12 @@ void staticsmax( const Pol::Plib::UoClientFiles& uof )
   unsigned int max = 0;
   USTRUCT_IDX idxrec;
 
-  fseek( uof.sidxfile, 0, SEEK_SET );
+  fseek( uof.staidx_file(), 0, SEEK_SET );
   for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
   {
     for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
     {
-      if ( fread( &idxrec, sizeof idxrec, 1, uof.sidxfile ) != 1 )
+      if ( fread( &idxrec, sizeof idxrec, 1, uof.staidx_file() ) != 1 )
         throw std::runtime_error( "staticsmax: fread(idxrec) failed." );
 
       if ( idxrec.length != 0xFFffFFffLu )
