@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-21-2026</datemodified>
+		<datemodified>07-22-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-22-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">uoconvert's 'map' command failed to convert several UOP maps. Its UOP size<br/>
+estimator dropped a block from the final chunk, aborting on maps whose block<br/>
+count isn't a multiple of 4096 (Ilshenar/map2, Tokuno/map4); and it didn't<br/>
+tolerate the extra trailing padding block some clients add, which broke map0/<br/>
+map1 dimension auto-detection. Both are fixed; all standard maps (0-5) now<br/>
+convert from both .mul and UOP.</change>
+		</entry>
 		<entry>
 			<date>07-21-2026</date>
 			<author>Turley:</author>

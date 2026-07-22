@@ -398,6 +398,7 @@ set (pol_sources  # sorted !
   testing/testenv.h
   testing/testexpansion.cpp
   testing/testlos.cpp
+  testing/testmapsize.cpp
   testing/testmaptile.cpp
   testing/testmisc.cpp
   testing/testpos.cpp

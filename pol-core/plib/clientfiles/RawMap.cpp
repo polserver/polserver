@@ -76,13 +76,10 @@ static size_t uop_equivalent_mul_size( std::ifstream& ifs, int uo_mapid )
       throw std::runtime_error( "UOP map is missing a file chunk." );
     }
 
-    // Each chunk typically has 0xC4000 bytes (4096 blocks). If the chunk is smaller,
-    // the size is off by one.
-    const size_t chunkSize = fileitr->second;
-    if ( chunkSize < 0xC4000 )
-      totalSize += chunkSize - MUL::Map::blockSize;
-    else
-      totalSize += chunkSize;
+    // Each full chunk holds 4096 blocks (0xC4000 bytes); the final chunk holds the
+    // remaining blocks. Every chunk's decompressed size is an exact number of whole
+    // blocks, so sum them as-is -- this matches what load_full_map() actually reads.
+    totalSize += fileitr->second;
   }
 
   ifs.clear();
