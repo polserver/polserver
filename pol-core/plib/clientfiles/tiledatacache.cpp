@@ -15,7 +15,6 @@
 #include "clib/stlutil.h"
 #include "systemstate.h"
 #include "uoclientfiles.h"
-#include "uofile.h"
 #include "ustruct.h"
 
 

@@ -5,8 +5,6 @@
  * @par History
  */
 
-#include "uofile.h"
-
 #include <cstdio>
 #include <fstream>
 #include <stdexcept>

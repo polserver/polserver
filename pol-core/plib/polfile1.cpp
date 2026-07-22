@@ -20,7 +20,6 @@
 #include "staticblock.h"
 #include "systemstate.h"
 #include "clientfiles/uoclientfiles.h"
-#include "clientfiles/uofile.h"
 #include "ustruct.h"
 
 

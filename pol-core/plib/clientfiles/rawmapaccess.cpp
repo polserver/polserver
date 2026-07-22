@@ -18,7 +18,6 @@
 #include "clidata.h"
 #include "poltype.h"
 #include "uoclientfiles.h"
-#include "uofile.h"
 #include "ustruct.h"
 
 #include "RawMap.h"

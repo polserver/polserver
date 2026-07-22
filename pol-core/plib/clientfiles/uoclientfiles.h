@@ -165,6 +165,9 @@ private:
   bool seekto_newer_version( unsigned int file, unsigned int block ) const;
 };
 
+// Hard ceiling uoconvert clamps cfg_max_statics_per_block / *_warning_* to.
+#define MAX_STATICS_PER_BLOCK 10000
+
 // Which client data file a verdata patch applies to (the file key check_verdata
 // takes). Only the multi file is queried today (uoconvert create_multis_cfg).
 #define VERFILE_MULTI_MUL 0x0E

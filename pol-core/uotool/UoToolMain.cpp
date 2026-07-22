@@ -27,7 +27,6 @@
 #include "../plib/uconst.h"
 #include "../plib/udatfile.h"
 #include "../plib/clientfiles/uoclientfiles.h"
-#include "../plib/clientfiles/uofile.h"
 #include "clientqueries/mapqueries.h"
 #include "clientqueries/readeraccess.h"
 #include "clientqueries/standheight.h"

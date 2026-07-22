@@ -46,7 +46,6 @@ set (plib_sources  # sorted !
   uoexpansion.cpp
   uoexpansion.h
   clientfiles/uoclientfiles.h
-  clientfiles/uofile.h
   clientfiles/RawMap.h
   clientfiles/RawMap.cpp
   clientfiles/uoclientfiles.cpp

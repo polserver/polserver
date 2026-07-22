@@ -23,7 +23,6 @@
 #include "clib/strutil.h"
 #include "staticblock.h"
 #include "uoclientfiles.h"
-#include "uofile.h"
 #include "ustruct.h"
 
 
