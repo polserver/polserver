@@ -138,7 +138,8 @@ public:
 
   std::string resolve_type_from_id( unsigned id ) const;
   void write_multi_element( FILE* multis_cfg, const Plib::USTRUCT_MULTI_ELEMENT& elem,
-                            const std::string& mytype, bool& first, const Plib::UoClientFiles& uof );
+                            const std::string& mytype, bool& first,
+                            const Plib::UoClientFiles& uof );
 
   unsigned empty = 0, nonempty = 0;
   unsigned total_statics = 0;
