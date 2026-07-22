@@ -33,7 +33,6 @@
 #include "plib/udatfile.h"
 #include "plib/clientfiles/uoclientfiles.h"
 #include "plib/clientfiles/uofile.h"
-#include "plib/clientfiles/uofilei.h"
 #include "plib/uoinstallfinder.h"
 #include "plib/uopreader/uop.h"
 #include "plib/uopreader/uophash.h"

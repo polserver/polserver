@@ -282,7 +282,7 @@ bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMEN
   return true;
 }
 
-FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr )
+FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size )
 {
   std::string filename = systemstate.config.uo_datafile_root + filename_part;
   FILE* fp = fopen( filename.c_str(), "rb" );

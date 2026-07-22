@@ -28,11 +28,11 @@
 #include "../plib/udatfile.h"
 #include "../plib/clientfiles/uoclientfiles.h"
 #include "../plib/clientfiles/uofile.h"
-#include "../plib/clientfiles/uofilei.h"
 #include "clientqueries/mapqueries.h"
 #include "clientqueries/readeraccess.h"
 #include "clientqueries/standheight.h"
 #include "clientqueries/staticsqueries.h"
+#include "clientqueries/water.h"
 #include "../plib/uoinstallfinder.h"
 #include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
@@ -691,7 +691,7 @@ static int write_polmap()
 static int print_water_data()
 {
   uofiles().open_uo_data_files();
-  uofiles().readwater();
+  readwater( uofiles() );
   return 0;
 }
 

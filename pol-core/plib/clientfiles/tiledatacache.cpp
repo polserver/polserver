@@ -16,7 +16,6 @@
 #include "systemstate.h"
 #include "uoclientfiles.h"
 #include "uofile.h"
-#include "uofilei.h"
 #include "ustruct.h"
 
 

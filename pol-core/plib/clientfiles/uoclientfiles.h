@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <fstream>
 #include <map>
-#include <set>
 #include <span>
 #include <vector>
 
@@ -69,9 +68,10 @@ struct USTRUCT_STATIC_BUFFER
 //
 // Method definitions live alongside this header in clientfiles/, grouped by
 // responsibility: open/UOP probing + the load sequence (uoclientfiles.cpp),
-// tiledata + verdata (tiledatacache.cpp), statics cache + queries + staticsmax
-// (staticscache.cpp), water table (watertypes.cpp), walk simulation
-// (standheight.cpp), raw-map load + map queries (rawmapaccess.cpp).
+// tiledata + verdata (tiledatacache.cpp), statics cache + queries
+// (staticscache.cpp), raw-map load (rawmapaccess.cpp). uotool-only diagnostics
+// (map z-averaging, walk sim, per-tile statics, water scan) live in
+// uotool/clientqueries/ as free functions over this reader.
 class UoClientFiles
 {
 public:
@@ -97,7 +97,6 @@ public:
   void read_uo_data();     // verdata index, tiledata, landtiles, dif lists
   void rawmapfullread();     // raw map full read (mul or UOP) + difs
   void rawstaticfullread();  // staidx/statics full read + dif merge
-  void readwater();             // water-tile table (uotool)
   void clear_tiledata();
 
   bool rawmap_loaded() const;
@@ -153,8 +152,6 @@ public:
   bool rawmap_ready = false;
   unsigned int num_map_patches = 0;
 
-  std::set<unsigned int> water;
-
 private:
   void open_map();
   void open_tiledata();
@@ -167,6 +164,15 @@ private:
   void read_map_difs();
   bool seekto_newer_version( unsigned int file, unsigned int block ) const;
 };
+
+// Which client data file a verdata patch applies to (the file key check_verdata
+// takes). Only the multi file is queried today (uoconvert create_multis_cfg).
+#define VERFILE_MULTI_MUL 0x0E
+
+// Free helpers over the raw client files (defined in uoclientfiles.cpp): open a
+// named mul/idx by install path, and load the multi collection from a UOP.
+FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr );
+bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map );
 }  // namespace Pol::Plib
 
 #endif

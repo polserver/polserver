@@ -47,13 +47,11 @@ set (plib_sources  # sorted !
   uoexpansion.h
   clientfiles/uoclientfiles.h
   clientfiles/uofile.h
-  clientfiles/uofilei.h
   clientfiles/RawMap.h
   clientfiles/RawMap.cpp
   clientfiles/uoclientfiles.cpp
   clientfiles/tiledatacache.cpp
   clientfiles/staticscache.cpp
-  clientfiles/watertypes.cpp
   clientfiles/rawmapaccess.cpp
   uoinstallfinder.cpp
   uoinstallfinder.h

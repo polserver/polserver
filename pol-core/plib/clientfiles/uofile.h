@@ -24,9 +24,4 @@
 
 #define MAX_STATICS_PER_BLOCK 10000
 
-namespace Pol::Plib
-{
-bool iswater( u16 objtype );
-}  // namespace Pol::Plib
-
 #endif

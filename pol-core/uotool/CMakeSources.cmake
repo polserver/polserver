@@ -14,4 +14,6 @@ set (uotool_sources  # sorted !
   clientqueries/standheight.h
   clientqueries/staticsqueries.cpp
   clientqueries/staticsqueries.h
+  clientqueries/water.cpp
+  clientqueries/water.h
 )
