@@ -18,7 +18,6 @@
 #include "clib/rawtypes.h"
 #include "clib/strutil.h"
 #include "objtype.h"
-#include "plib/mul/map.h"
 #include "plib/uopreader/uop.h"
 #include "plib/uopreader/uophash.h"
 #include "systemstate.h"
@@ -73,95 +72,6 @@ public:
   }
 };
 
-
-// This code is almost identical to the one in RawMap::load_full_map. One should consider a way to
-// refactor both.
-static size_t uop_equivalent_mul_size( std::ifstream& ifs, int uo_mapid )
-{
-  kaitai::kstream ks( &ifs );
-  uop_t uopfile( &ks );
-  auto maphash = []( int mapid, size_t chunkidx )
-  {
-    char mapstring[1024];
-    snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
-    return HashLittle2( mapstring );
-  };
-
-  size_t totalSize = 0;
-  unsigned int nreadfiles = 0;
-  std::map<uint64_t, size_t> fileSizes;
-
-  uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
-  do
-  {
-    if ( currentblock->blockaddr() == 0 )
-      break;
-    if ( currentblock->block_body()->files() == nullptr )
-      break;
-
-    for ( auto file : *currentblock->block_body()->files() )
-    {
-      if ( file == nullptr )
-        continue;
-      if ( file->decompressed_size() == 0 )
-        continue;
-
-      passert_r( file->compression_type() == uop_t::COMPRESSION_TYPE_NO_COMPRESSION,
-                 "This map is zlib compressed and we can't handle that yet." );
-
-      nreadfiles++;
-      fileSizes[file->filehash()] = file->decompressed_size();
-    }
-    currentblock = currentblock->block_body()->next_addr();
-  } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
-
-  if ( uopfile.header()->nfiles() != nreadfiles )
-    INFO_PRINTLN( "Warning: not all chunks read ({}/{})", nreadfiles, uopfile.header()->nfiles() );
-
-  for ( size_t i = 0; i < fileSizes.size(); i++ )
-  {
-    auto fileitr = fileSizes.find( maphash( uo_mapid, i ) );
-    if ( fileitr == fileSizes.end() )
-    {
-      ERROR_PRINTLN( "Couldn't find file hash: {}", std::to_string( maphash( uo_mapid, i ) ) );
-      throw std::runtime_error( "UOP map is missing a file chunk." );
-    }
-
-    // Each chunk typically has 0xC4000 bytes (4096 blocks). If the chunk is smaller,
-    // the size is off by one.
-    const size_t chunkSize = fileitr->second;
-    if ( chunkSize < 0xC4000 )
-      totalSize += chunkSize - MUL::Map::blockSize;
-    else
-      totalSize += chunkSize;
-  }
-
-  ifs.clear();
-  ifs.seekg( 0, std::ios::beg );
-
-  return totalSize;
-}
-
-bool UoClientFiles::open_uopmap_file( size_t* out_file_size )
-{
-  std::string filepart = "map" + std::to_string( uo_mapid ) + "LegacyMUL.uop";
-  std::string filename = systemstate.config.uo_datafile_root + filepart;
-  if ( !Clib::FileExists( filename ) )
-  {
-    INFO_PRINTLN( "{} not found in {}. Searching for old map[N].mul files.", filepart,
-                  systemstate.config.uo_datafile_root );
-    return false;
-  }
-
-  uopmapfile.open( filename, std::ios::binary );
-
-  if ( uopmapfile.fail() )
-    return false;
-
-  if ( out_file_size != nullptr )
-    *out_file_size = uop_equivalent_mul_size( uopmapfile, uo_mapid );
-  return true;
-}
 
 bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map )
 {
@@ -321,39 +231,16 @@ FILE* open_map_file( const std::string& name, int mapid, size_t* out_file_size )
   return open_uo_file( filename, out_file_size );
 }
 
-void UoClientFiles::open_map()
-{
-  size_t map_size;
-  // First tries to load the new UOP files. Otherwise fall back to map[N].mul files.
-  // map1 uses map0 + 'dif' files, unless there is a map1.mul (newer clients)
-  // same for staidx and statics
-
-  if ( !uo_readuop || !open_uopmap_file( &map_size ) )
-    mapfile = open_map_file( "map", uo_mapid, &map_size );
-
-  uo_map_size = map_size;
-}
-
 void UoClientFiles::open_uo_data_files()
 {
-  open_map();
+  // Opens map<mapid>.mul or the UOP (+ mapdif* patch files when usedif).
+  uo_map_size = rawmap_.open( uo_mapid, uo_usedif, uo_readuop );
 
   // Opens staidx/statics.mul (+ stadif* patch files when usedif).
   statics_.open( uo_mapid, uo_usedif );
 
   // Opens verdata.mul (if present) then tiledata.mul; HSA-detects.
   tiledata_.open();
-
-  if ( uo_usedif )
-  {
-    std::string filename = "mapdifl" + Clib::tostring( uo_mapid ) + ".mul";
-    if ( Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
-    {
-      mapdifl_file = open_uo_file( filename );
-      filename = "mapdif" + Clib::tostring( uo_mapid ) + ".mul";
-      mapdif_file = open_uo_file( filename );
-    }
-  }
 }
 
 // The second half of setup: fill the caches from the files opened above. Reads the
@@ -363,6 +250,6 @@ void UoClientFiles::read_uo_data()
 {
   tiledata_.load();  // verdata index, tiledata + landtile caches
   statics_.read_difflist();
-  read_map_difs();
+  rawmap_.read_difflist();
 }
 }  // namespace Pol::Plib

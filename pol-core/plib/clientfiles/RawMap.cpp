@@ -3,7 +3,11 @@
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
+#include "clib/strutil.h"
+#include "plib/mul/map.h"
 #include "staticblock.h"
+#include "systemstate.h"
+#include "uoclientfiles.h"
 
 #include "uopreader/uop.h"
 #include "uopreader/uophash.h"
@@ -13,10 +17,142 @@
 #include <cstring>
 #include <map>
 #include <span>
+#include <stdexcept>
+#include <string>
 
 
 namespace Pol::Plib
 {
+// This code is almost identical to the one in RawMap::load_full_map. One should consider a way to
+// refactor both.
+static size_t uop_equivalent_mul_size( std::ifstream& ifs, int uo_mapid )
+{
+  kaitai::kstream ks( &ifs );
+  uop_t uopfile( &ks );
+  auto maphash = []( int mapid, size_t chunkidx )
+  {
+    char mapstring[1024];
+    snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
+    return HashLittle2( mapstring );
+  };
+
+  size_t totalSize = 0;
+  unsigned int nreadfiles = 0;
+  std::map<uint64_t, size_t> fileSizes;
+
+  uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
+  do
+  {
+    if ( currentblock->blockaddr() == 0 )
+      break;
+    if ( currentblock->block_body()->files() == nullptr )
+      break;
+
+    for ( auto file : *currentblock->block_body()->files() )
+    {
+      if ( file == nullptr )
+        continue;
+      if ( file->decompressed_size() == 0 )
+        continue;
+
+      passert_r( file->compression_type() == uop_t::COMPRESSION_TYPE_NO_COMPRESSION,
+                 "This map is zlib compressed and we can't handle that yet." );
+
+      nreadfiles++;
+      fileSizes[file->filehash()] = file->decompressed_size();
+    }
+    currentblock = currentblock->block_body()->next_addr();
+  } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
+
+  if ( uopfile.header()->nfiles() != nreadfiles )
+    INFO_PRINTLN( "Warning: not all chunks read ({}/{})", nreadfiles, uopfile.header()->nfiles() );
+
+  for ( size_t i = 0; i < fileSizes.size(); i++ )
+  {
+    auto fileitr = fileSizes.find( maphash( uo_mapid, i ) );
+    if ( fileitr == fileSizes.end() )
+    {
+      ERROR_PRINTLN( "Couldn't find file hash: {}", std::to_string( maphash( uo_mapid, i ) ) );
+      throw std::runtime_error( "UOP map is missing a file chunk." );
+    }
+
+    // Each chunk typically has 0xC4000 bytes (4096 blocks). If the chunk is smaller,
+    // the size is off by one.
+    const size_t chunkSize = fileitr->second;
+    if ( chunkSize < 0xC4000 )
+      totalSize += chunkSize - MUL::Map::blockSize;
+    else
+      totalSize += chunkSize;
+  }
+
+  ifs.clear();
+  ifs.seekg( 0, std::ios::beg );
+
+  return totalSize;
+}
+
+bool RawMap::open_uop( int mapid, size_t* out_file_size )
+{
+  std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
+  std::string filename = systemstate.config.uo_datafile_root + filepart;
+  if ( !Clib::FileExists( filename ) )
+  {
+    INFO_PRINTLN( "{} not found in {}. Searching for old map[N].mul files.", filepart,
+                  systemstate.config.uo_datafile_root );
+    return false;
+  }
+
+  uopmapfile_.open( filename, std::ios::binary );
+
+  if ( uopmapfile_.fail() )
+    return false;
+
+  if ( out_file_size != nullptr )
+    *out_file_size = uop_equivalent_mul_size( uopmapfile_, mapid );
+  return true;
+}
+
+size_t RawMap::open( int mapid, bool usedif, bool readuop )
+{
+  size_t map_size = 0;
+  // First tries to load the new UOP files. Otherwise fall back to map[N].mul files.
+  // map1 uses map0 + 'dif' files, unless there is a map1.mul (newer clients).
+  if ( !readuop || !open_uop( mapid, &map_size ) )
+    mapfile_.reset( open_map_file( "map", mapid, &map_size ) );
+
+  if ( usedif )
+  {
+    std::string filename = "mapdifl" + Clib::tostring( mapid ) + ".mul";
+    if ( Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
+    {
+      mapdifl_file_.reset( open_uo_file( filename ) );
+      filename = "mapdif" + Clib::tostring( mapid ) + ".mul";
+      mapdif_file_.reset( open_uo_file( filename ) );
+    }
+  }
+  return map_size;
+}
+
+unsigned int RawMap::read_difflist()
+{
+  m_num_patches = load_map_difflist( mapdifl_file_ );
+  return m_num_patches;
+}
+
+void RawMap::full_read( int mapid, unsigned short width, unsigned short height )
+{
+  set_bounds( width, height );
+
+  unsigned int blocks = 0;
+  if ( mapfile_.get() == nullptr )
+    blocks = load_full_map( mapid, uopmapfile_ );
+  else
+    blocks = load_full_map( mapfile_, mapdif_file_ );
+
+  if ( blocks )
+    is_init = true;
+}
+
 USTRUCT_MAPINFO RawMap::get_cell( unsigned int blockidx, unsigned int x_offset,
                                   unsigned int y_offset ) const
 {
@@ -129,7 +265,6 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
     }
   }
 
-  is_init = true;
   return static_cast<unsigned int>( blocks.size() );
 }
 
@@ -210,9 +345,6 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
     remaining -= file->data()->filebytes().size();
     vecidx += file->data()->filebytes().size() / sizeof( USTRUCT_MAPINFO_BLOCK );
   }
-
-  if ( !m_mapinfo_vec.empty() )
-    is_init = true;
 
   return (unsigned int)m_mapinfo_vec.size();
 }

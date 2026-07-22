@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include <cstdio>
-#include <fstream>
 #include <map>
 #include <span>
 #include <vector>
@@ -62,8 +61,11 @@ public:
   // cache is present rather than loading lazily (see rawmap_loaded()). Not
   // thread-safe; a parallel region must find the caches already loaded.
   void open_uo_data_files();
-  void read_uo_data();      // verdata index, tiledata, landtiles, dif lists
-  void rawmapfullread();    // raw map full read (mul or UOP) + difs
+  void read_uo_data();   // verdata index, tiledata, landtiles, dif lists
+  void rawmapfullread()  // raw map full read (mul or UOP) + difs
+  {
+    rawmap_.full_read( uo_mapid, uo_map_width, uo_map_height );
+  }
   void rawstaticfullread()  // staidx/statics full read + dif merge
   {
     statics_.full_read( uo_map_width, uo_map_height, cfg_max_statics_per_block,
@@ -71,9 +73,10 @@ public:
   }
   void clear_tiledata() { tiledata_.clear(); }
 
-  bool rawmap_loaded() const;
+  bool rawmap_loaded() const { return rawmap_.loaded(); }
   bool rawstatics_loaded() const { return statics_.loaded(); }
   unsigned int num_static_patches() const { return statics_.num_patches(); }
+  unsigned int num_map_patches() const { return rawmap_.num_patches(); }
 
   // --- Tiledata / verdata queries: delegate to the tiledata cache ---
   bool use_new_hsa_format() const { return tiledata_.use_new_hsa_format(); }
@@ -154,29 +157,19 @@ public:
   FILE* staidx_file() const { return statics_.staidx_file(); }
   FILE* statics_file() const { return statics_.statics_file(); }
 
-  // --- Raw map (rawmapaccess.cpp) ---
+  // --- Raw map queries: delegate to the raw-map cache (rawmapaccess.cpp) ---
+  // Both assert the map is loaded (rawmapfullread() first).
+  // Neighbour-averaged ground info at (x,y).
+  signed char rawmap_rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi ) const;
   // Bulk-copy the raw map into caller-provided row-major arrays (idx = y*uo_map_width + x),
   // each exactly uo_map_width*uo_map_height in size.
   void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const;
 
-  // --- Open map file handles (public during the migration; will become private) ---
-  FILE* mapfile = nullptr;
-  FILE* mapdifl_file = nullptr;
-  FILE* mapdif_file = nullptr;
-  std::ifstream uopmapfile;
-
+private:
   // --- Caches ---
   TileDataCache tiledata_;
   StaticsCache statics_;
-
-  RawMap rawmap;
-  bool rawmap_ready = false;
-  unsigned int num_map_patches = 0;
-
-private:
-  void open_map();
-  bool open_uopmap_file( size_t* out_file_size = nullptr );
-  void read_map_difs();
+  RawMap rawmap_;
 };
 
 // Hard ceiling uoconvert clamps cfg_max_statics_per_block / *_warning_* to.

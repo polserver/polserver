@@ -12,11 +12,11 @@
 
 #include "mapqueries.h"
 
+#include "../../clib/passert.h"
 #include "../../plib/clidata.h"
 #include "../../plib/clientfiles/uoclientfiles.h"
 #include "../../plib/poltype.h"
 #include "../../plib/ustruct.h"
-#include "../../clib/passert.h"
 
 
 namespace Pol::UoTool
@@ -26,8 +26,7 @@ namespace
 signed char rawmapinfo( const Pol::Plib::UoClientFiles& uof, unsigned short x, unsigned short y,
                         Pol::Plib::USTRUCT_MAPINFO* gi )
 {
-  passert_always( uof.rawmap_ready );  // caller must rawmapfullread() first
-  return uof.rawmap.rawinfo( x, y, gi );
+  return uof.rawmap_rawinfo( x, y, gi );  // asserts rawmapfullread() ran
 }
 }  // namespace
 

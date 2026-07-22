@@ -327,7 +327,7 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
 
   Tools::Timer<> flush_timer;
   mapwriter.WriteConfigFile( uof.uo_mapid, uof.uo_usedif, uof.num_static_patches(),
-                             uof.num_map_patches );
+                             uof.num_map_patches() );
   mapwriter.Flush();  // surface any write errors before reporting success
   flush_timer.stop();
 
