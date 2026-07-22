@@ -18,7 +18,7 @@ enum class ShortCircuitOp
 struct JmpLocationLink : public std::enable_shared_from_this<JmpLocationLink>
 {
   JmpLocationLink( std::shared_ptr<FlowControlLabel> label, ShortCircuitOp op )
-      : jmp_label( std::move( label ) ), oper( op ){};
+      : jmp_label( std::move( label ) ), oper( op ) {};
   void update( const JmpLocationLink& op )
   {
     jmp_label = op.jmp_label;
@@ -41,8 +41,6 @@ public:
   Expression& rhs();
   const ShortCircuitOp oper;
   const std::shared_ptr<FlowControlLabel> end_label;
-  // will be set and changed by the ShortCircuitCombiner
-  std::shared_ptr<JmpLocationLink> linked_jmp_label;
   bool generate_logical_convert;
 };
 

@@ -11,9 +11,9 @@ success
 6: :=
 8: "multiple ||" (string)
 10: global variable #1
-11: logical jump if true to 16
+11: logical jump if true to 17
 12: global variable #1
-13: logical jump if true to 16
+13: logical jump if true to 17
 14: global variable #0
 15: logical convert
 16: if false goto 21
@@ -22,9 +22,9 @@ success
 19: call module function (0, 0): Print
 21: "multible &&" (string)
 23: global variable #0
-24: logical jump if false to 29
+24: logical jump if false to 34
 25: global variable #0
-26: logical jump if false to 29
+26: logical jump if false to 34
 27: global variable #0
 28: logical convert
 29: if false goto 34
@@ -33,9 +33,9 @@ success
 32: call module function (0, 0): Print
 34: "combined t && (t || t)" (string)
 36: global variable #0
-37: logical jump if false to 42
+37: logical jump if false to 47
 38: global variable #0
-39: logical jump if true to 42
+39: logical jump if true to 43
 40: global variable #0
 41: logical convert
 42: if false goto 47
@@ -44,9 +44,9 @@ success
 45: call module function (0, 0): Print
 47: "combined 2 t && (f || f)" (string)
 49: global variable #0
-50: logical jump if false to 55
+50: logical jump if false to 60
 51: global variable #1
-52: logical jump if true to 55
+52: logical jump if true to 56
 53: global variable #1
 54: logical convert
 55: if false goto 60
@@ -55,11 +55,11 @@ success
 58: call module function (0, 0): Print
 60: "combined 3 ( f || t ) && ( f || t)" (string)
 62: global variable #1
-63: logical jump if true to 65
+63: logical jump if true to 66
 64: global variable #0
-65: logical jump if false to 70
+65: logical jump if false to 75
 66: global variable #1
-67: logical jump if true to 70
+67: logical jump if true to 71
 68: global variable #0
 69: logical convert
 70: if false goto 75
@@ -68,15 +68,15 @@ success
 73: call module function (0, 0): Print
 75: "combined 4 ( f || t || t ) && ( f || t || t )" (string)
 77: global variable #1
-78: logical jump if true to 82
+78: logical jump if true to 83
 79: global variable #0
-80: logical jump if true to 82
+80: logical jump if true to 83
 81: global variable #0
-82: logical jump if false to 89
+82: logical jump if false to 94
 83: global variable #1
-84: logical jump if true to 89
+84: logical jump if true to 90
 85: global variable #0
-86: logical jump if true to 89
+86: logical jump if true to 90
 87: global variable #0
 88: logical convert
 89: if false goto 94

@@ -18,6 +18,8 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/optimizer/CodeSectionOptimizer.h"
+#include "bscript/compiler/optimizer/ShortCircuitCombiner.h"
 #include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
@@ -73,6 +75,8 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
                                                      workspace->user_function_labels );
 
   std::vector<ClassDescriptor> class_descriptors = class_declaration_registrar.take_descriptors();
+
+  CodeSectionOptimizer{}.optimize( code );
 
   std::string tree;
 

@@ -1,0 +1,41 @@
+success
+0: declare global #0
+1: true (boolean)
+2: :=
+4: declare global #1
+5: true (boolean)
+6: :=
+8: declare global #2
+9: true (boolean)
+10: :=
+12: declare global #3
+13: false (boolean)
+14: :=
+16: declare global #4
+17: false (boolean)
+18: :=
+20: global variable #4
+21: logical jump if false to 24
+22: global variable #0
+23: logical jump if true to 37
+24: global variable #4
+25: logical jump if false to 28
+26: global variable #1
+27: logical jump if true to 37
+28: global variable #2
+29: logical jump if false to 32
+30: global variable #2
+31: logical jump if true to 37
+32: global variable #4
+33: logical jump if false to 42
+34: global variable #3
+35: logical convert
+36: if false goto 42
+37: "success" (string)
+38: "" (string)
+39: call module function (0, 0): Print
+41: goto 46
+42: "failed" (string)
+43: "" (string)
+44: call module function (0, 0): Print
+

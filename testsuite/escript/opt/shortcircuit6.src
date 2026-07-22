@@ -1,0 +1,646 @@
+var call_log := "";
+
+function mk( id, val )
+  call_log := call_log + id;
+  return val;
+endfunction
+
+function reset()
+  call_log := "";
+endfunction
+
+function check( test_name, expr_desc, expected_log, actual_result, expected_result )
+  if ( call_log == expected_log && actual_result == expected_result )
+    print( $"PASS {test_name}: {expr_desc}  [evaluated: {call_log}]" );
+  else
+    print( $"FAIL {test_name}: {expr_desc}" );
+    print( $"      expected evaluated={expected_log}  got={call_log}" );
+    print( $"      expected result={expected_result}  got={actual_result}" );
+  endif
+endfunction
+
+var test_name := "";
+var expr_desc := "";
+var expected_log := "";
+var expected_result := false;
+
+print( "=== Chained OR (2 terms): A || B ===" );
+
+reset();
+test_name := "OR2-1";
+expr_desc := "true || X";
+expected_log := "A";
+expected_result := true;
+if ( mk( "A", true ) || mk( "B", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR2-2";
+expr_desc := "false || true";
+expected_log := "AB";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR2-3";
+expr_desc := "false || false";
+expected_log := "AB";
+expected_result := false;
+if ( mk( "A", false ) || mk( "B", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Chained OR (3 terms): A || B || C ===" );
+
+reset();
+test_name := "OR3-1";
+expr_desc := "true || X || X";
+expected_log := "A";
+expected_result := true;
+if ( mk( "A", true ) || mk( "B", true ) || mk( "C", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR3-2";
+expr_desc := "false || true || X";
+expected_log := "AB";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", true ) || mk( "C", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR3-3";
+expr_desc := "false || false || true";
+expected_log := "ABC";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR3-4";
+expr_desc := "false || false || false";
+expected_log := "ABC";
+expected_result := false;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Chained OR (4 terms): A || B || C || D ===" );
+
+reset();
+test_name := "OR4-1";
+expr_desc := "true || X || X || X";
+expected_log := "A";
+expected_result := true;
+if ( mk( "A", true ) || mk( "B", true ) || mk( "C", true ) || mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR4-2";
+expr_desc := "false || true || X || X";
+expected_log := "AB";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", true ) || mk( "C", true ) || mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR4-3";
+expr_desc := "false || false || true || X";
+expected_log := "ABC";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", true ) || mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR4-4";
+expr_desc := "false*3 || true";
+expected_log := "ABCD";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", false ) || mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR4-5";
+expr_desc := "false*4";
+expected_log := "ABCD";
+expected_result := false;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", false ) || mk( "D", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Chained OR (5 terms): A || B || C || D || E ===" );
+
+reset();
+test_name := "OR5-1";
+expr_desc := "true || X || X || X || X";
+expected_log := "A";
+expected_result := true;
+if ( mk( "A", true ) || mk( "B", true ) || mk( "C", true ) || mk( "D", true ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR5-2";
+expr_desc := "false || true || X || X || X";
+expected_log := "AB";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", true ) || mk( "C", true ) || mk( "D", true ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR5-3";
+expr_desc := "false || false || true || X || X";
+expected_log := "ABC";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", true ) || mk( "D", true ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR5-4";
+expr_desc := "false*3 || true || X";
+expected_log := "ABCD";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", false ) || mk( "D", true ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR5-5";
+expr_desc := "false*4 || true";
+expected_log := "ABCDE";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", false ) || mk( "D", false ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "OR5-6";
+expr_desc := "false*5";
+expected_log := "ABCDE";
+expected_result := false;
+if ( mk( "A", false ) || mk( "B", false ) || mk( "C", false ) || mk( "D", false ) || mk( "E", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Chained AND (2 terms): A && B ===" );
+
+reset();
+test_name := "AND2-1";
+expr_desc := "false && X";
+expected_log := "A";
+expected_result := false;
+if ( mk( "A", false ) && mk( "B", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND2-2";
+expr_desc := "true && false";
+expected_log := "AB";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND2-3";
+expr_desc := "true && true";
+expected_log := "AB";
+expected_result := true;
+if ( mk( "A", true ) && mk( "B", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Chained AND (3 terms): A && B && C ===" );
+
+reset();
+test_name := "AND3-1";
+expr_desc := "false && X && X";
+expected_log := "A";
+expected_result := false;
+if ( mk( "A", false ) && mk( "B", true ) && mk( "C", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND3-2";
+expr_desc := "true && false && X";
+expected_log := "AB";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", false ) && mk( "C", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND3-3";
+expr_desc := "true && true && false";
+expected_log := "ABC";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND3-4";
+expr_desc := "true && true && true";
+expected_log := "ABC";
+expected_result := true;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Chained AND (4 terms): A && B && C && D ===" );
+
+reset();
+test_name := "AND4-1";
+expr_desc := "false && X && X && X";
+expected_log := "A";
+expected_result := false;
+if ( mk( "A", false ) && mk( "B", true ) && mk( "C", true ) && mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND4-2";
+expr_desc := "true && false && X && X";
+expected_log := "AB";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", false ) && mk( "C", true ) && mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND4-3";
+expr_desc := "true && true && false && X";
+expected_log := "ABC";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", false ) && mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND4-4";
+expr_desc := "true*3 && false";
+expected_log := "ABCD";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", true ) && mk( "D", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND4-5";
+expr_desc := "true*4";
+expected_log := "ABCD";
+expected_result := true;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", true ) && mk( "D", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Chained AND (5 terms): A && B && C && D && E ===" );
+
+reset();
+test_name := "AND5-1";
+expr_desc := "false && X && X && X && X";
+expected_log := "A";
+expected_result := false;
+if ( mk( "A", false ) && mk( "B", true ) && mk( "C", true ) && mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND5-2";
+expr_desc := "true && false && X && X && X";
+expected_log := "AB";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", false ) && mk( "C", true ) && mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND5-3";
+expr_desc := "true && true && false && X && X";
+expected_log := "ABC";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", false ) && mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND5-4";
+expr_desc := "true*3 && false && X";
+expected_log := "ABCD";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", true ) && mk( "D", false ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND5-5";
+expr_desc := "true*4 && false";
+expected_log := "ABCDE";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", true ) && mk( "D", true ) && mk( "E", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "AND5-6";
+expr_desc := "true*5";
+expected_log := "ABCDE";
+expected_result := true;
+if ( mk( "A", true ) && mk( "B", true ) && mk( "C", true ) && mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Mixed precedence (5 terms): A || B && C || D && E  (== A || (B&&C) || (D&&E)) ===" );
+
+reset();
+test_name := "MIX5A-1";
+expr_desc := "true || (X&&X) || (X&&X)";
+expected_log := "A";
+expected_result := true;
+if ( mk( "A", true ) || mk( "B", true ) && mk( "C", true ) || mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5A-2";
+expr_desc := "false || (true&&true) || X";
+expected_log := "ABC";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", true ) && mk( "C", true ) || mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5A-3";
+expr_desc := "false || (false&&X) || (true&&true)";
+expected_log := "ABDE";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", false ) && mk( "C", true ) || mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5A-4";
+expr_desc := "false || (false&&X) || (false&&X)";
+expected_log := "ABD";
+expected_result := false;
+if ( mk( "A", false ) || mk( "B", false ) && mk( "C", true ) || mk( "D", false ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5A-5";
+expr_desc := "false || (true&&false) || (false&&X)";
+expected_log := "ABCD";
+expected_result := false;
+if ( mk( "A", false ) || mk( "B", true ) && mk( "C", false ) || mk( "D", false ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5A-6";
+expr_desc := "false || (true&&false) || (true&&true)";
+expected_log := "ABCDE";
+expected_result := true;
+if ( mk( "A", false ) || mk( "B", true ) && mk( "C", false ) || mk( "D", true ) && mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Mixed precedence (5 terms): A && B || C && D || E  (== (A&&B) || (C&&D) || E) ===" );
+
+reset();
+test_name := "MIX5B-1";
+expr_desc := "(true&&true) || X || X";
+expected_log := "AB";
+expected_result := true;
+if ( mk( "A", true ) && mk( "B", true ) || mk( "C", true ) && mk( "D", true ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5B-2";
+expr_desc := "(false&&X) || (true&&true) || X";
+expected_log := "ACD";
+expected_result := true;
+if ( mk( "A", false ) && mk( "B", true ) || mk( "C", true ) && mk( "D", true ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5B-3";
+expr_desc := "(false&&X) || (false&&X) || true";
+expected_log := "ACE";
+expected_result := true;
+if ( mk( "A", false ) && mk( "B", true ) || mk( "C", false ) && mk( "D", true ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5B-4";
+expr_desc := "(false&&X) || (false&&X) || false";
+expected_log := "ACE";
+expected_result := false;
+if ( mk( "A", false ) && mk( "B", true ) || mk( "C", false ) && mk( "D", true ) || mk( "E", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5B-5";
+expr_desc := "(true&&false) || (true&&false) || true";
+expected_log := "ABCDE";
+expected_result := true;
+if ( mk( "A", true ) && mk( "B", false ) || mk( "C", true ) && mk( "D", false ) || mk( "E", true ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "MIX5B-6";
+expr_desc := "(true&&false) || (false&&X) || false";
+expected_log := "ABCE";
+expected_result := false;
+if ( mk( "A", true ) && mk( "B", false ) || mk( "C", false ) && mk( "D", true ) || mk( "E", false ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+print( "" );
+print( "=== Nested (5 terms): (A || B || C) && (D || E) ===" );
+
+reset();
+test_name := "NEST5-1";
+expr_desc := "(true || X || X) && (true || X)";
+expected_log := "AD";
+expected_result := true;
+if ( ( mk( "A", true ) || mk( "B", true ) || mk( "C", true ) ) && ( mk( "D", true ) ||
+     mk( "E", true ) ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "NEST5-2";
+expr_desc := "(false*3) && (X || X)";
+expected_log := "ABC";
+expected_result := false;
+if ( ( mk( "A", false ) || mk( "B", false ) || mk( "C", false ) ) && ( mk( "D", true ) ||
+     mk( "E", true ) ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "NEST5-3";
+expr_desc := "(false || true || X) && (false || true)";
+expected_log := "ABDE";
+expected_result := true;
+if ( ( mk( "A", false ) || mk( "B", true ) || mk( "C", true ) ) && ( mk( "D", false ) ||
+     mk( "E", true ) ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "NEST5-4";
+expr_desc := "(false || false || true) && (true || X)";
+expected_log := "ABCD";
+expected_result := true;
+if ( ( mk( "A", false ) || mk( "B", false ) || mk( "C", true ) ) && ( mk( "D", true ) ||
+     mk( "E", true ) ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+
+reset();
+test_name := "NEST5-5";
+expr_desc := "(false || true || X) && (false || false)";
+expected_log := "ABDE";
+expected_result := false;
+if ( ( mk( "A", false ) || mk( "B", true ) || mk( "C", true ) ) && ( mk( "D", false ) ||
+     mk( "E", false ) ) )
+  check( test_name, expr_desc, expected_log, true, expected_result );
+else
+  check( test_name, expr_desc, expected_log, false, expected_result );
+endif
+

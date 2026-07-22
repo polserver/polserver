@@ -1115,9 +1115,7 @@ void InstructionGenerator::visit_binary_operator_short_circuit( BinaryOperatorSh
   emit.debug_statementbegin();
   update_debug_location( op );
   generate( op.lhs() );
-
-  emit.logical_jmp( op.linked_jmp_label ? *op.linked_jmp_label->jmp_label : *op.end_label,
-                    op.oper == ShortCircuitOp::OR );
+  emit.logical_jmp( *op.end_label, op.oper == ShortCircuitOp::OR );
   generate( op.rhs() );
   // dont emit convert if the rhs oper is also a ShortCircuit which generated already a convert, or
   // the parent

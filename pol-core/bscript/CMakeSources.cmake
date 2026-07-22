@@ -359,6 +359,8 @@ set (bscript_sources    # sorted !
   compiler/optimizer/BinaryOperatorWithStringOptimizer.h
   compiler/optimizer/ConstantValidator.cpp
   compiler/optimizer/ConstantValidator.h
+  compiler/optimizer/CodeSectionOptimizer.cpp
+  compiler/optimizer/CodeSectionOptimizer.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
   compiler/optimizer/ReferencedFunctionGatherer.cpp

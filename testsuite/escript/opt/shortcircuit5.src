@@ -1,0 +1,19 @@
+include "listfile";
+// this used to fail, (f && t2) jumped to the end
+var t1 := true;
+var t2 := true;
+var t3 := true;
+var t4 := false;
+var f := false;
+if ( ( f && t1 )     //
+     || ( f && t2 )  //
+     || ( t3 && t3 ) //
+     || ( f && t4 )  //
+     )
+  print( "success" );
+else
+  print( "failed" );
+endif
+
+print_listfile( "shortcircuit5" );
+
