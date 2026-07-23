@@ -17,17 +17,17 @@ success
 20: global variable #4
 21: logical jump if false to 23
 22: global variable #0
-23: logical jump if true to 37
+23: logical jump if true to 36
 24: global variable #4
 25: logical jump if false to 27
 26: global variable #1
-27: logical jump if true to 37
+27: logical jump if true to 36
 28: global variable #2
 29: logical jump if false to 31
 30: global variable #2
-31: logical jump if true to 37
+31: logical jump if true to 36
 32: global variable #4
-33: logical jump if false to 42
+33: logical jump if false to 36
 34: global variable #3
 35: logical convert
 36: if false goto 42
