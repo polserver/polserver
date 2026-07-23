@@ -28,6 +28,15 @@ print( "r3=" + r3 );
 var r4 := sc_loops( 2 ) * sc_loops( 4 ); // expect 8
 print( "r4=" + r4 );
 
+// --- JMPIFTRUE skip, opposite-type predicate. An && predicate is a JMPIFFALSE-type
+// logical jump landing on the do/dowhile's JMPIFTRUE, which also pops. Same leak as
+// r3/r4, but exercises the other jump-type combination.
+var r5 := sc_loops_and( 3 ) + 100; // expect 103
+print( "r5=" + r5 );
+
+var r6 := sc_loops_and( 2 ) * sc_loops_and( 4 ); // expect 8
+print( "r6=" + r6 );
+
 function sc_loops( n )
   var a := 1;
   var b := 0;
@@ -38,6 +47,19 @@ function sc_loops( n )
       a := 0;
     endif
   dowhile ( a || b ); // OR fires while a is true -> JMPIFTRUE skipped
+  return i;
+endfunction
+
+function sc_loops_and( n )
+  var a := 1;
+  var b := 1;
+  var i := 0;
+  do
+    i := i + 1;
+    if ( i >= n )
+      a := 0;
+    endif
+  dowhile ( a && b ); // AND fires while a is true -> JMPIFTRUE skipped (opposite type)
   return i;
 endfunction
 
