@@ -1,6 +1,7 @@
 #ifndef PLIB_TILEDATACACHE_H
 #define PLIB_TILEDATACACHE_H
 
+#include <array>
 #include <cstdio>
 #include <map>
 #include <vector>
@@ -90,7 +91,7 @@ private:
   bool use_new_hsa_format_ = false;
 
   std::vector<TileData> tiledata_;
-  unsigned int landtile_flags_arr_[LANDTILE_COUNT] = {};
+  std::array<unsigned int, LANDTILE_COUNT> landtile_flags_arr_ = {};
   static constexpr unsigned int vidx_count = 32;
   VerdataIndexes vidx_[vidx_count];
 };
