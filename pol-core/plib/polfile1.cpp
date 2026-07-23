@@ -19,13 +19,12 @@
 #include "realmdescriptor.h"
 #include "staticblock.h"
 #include "systemstate.h"
-#include "uofile.h"
+#include "clientfiles/uoclientfiles.h"
 #include "ustruct.h"
 
 
 namespace Pol::Plib
 {
-bool cfg_show_illegal_graphic_warning = true;
 
 namespace
 {
@@ -41,7 +40,7 @@ bool newstat_dont_add( std::unordered_set<u64>& seen, const USTRUCT_STATIC* psta
 }
 }  // namespace
 
-int write_pol_static_files( const std::string& realm )
+int write_pol_static_files( const std::string& realm, const UoClientFiles& uof )
 {
 #ifndef NDEBUG
   unsigned int duplicates = 0;
@@ -84,7 +83,7 @@ int write_pol_static_files( const std::string& realm )
       idx.index = index;
       fwrite( &idx, sizeof idx, 1, fidx );
 
-      const std::vector<USTRUCT_STATIC>& pstat = getstaticblock( x, y );
+      const std::vector<USTRUCT_STATIC>& pstat = uof.getstaticblock( x, y );
       std::vector<STATIC_ENTRY> vec;
       seen.clear();
       for ( const auto& stat : pstat )
@@ -117,7 +116,7 @@ int write_pol_static_files( const std::string& realm )
           ++illegales;
 #endif
 
-          if ( cfg_show_illegal_graphic_warning )
+          if ( uof.cfg_show_illegal_graphic_warning )
             INFO_PRINTLN( " Warning: Item with illegal Graphic {:#x} in Area {} {} {} {}",
                           stat.graphic, x, y, ( x + STATICBLOCK_CHUNK - 1 ),
                           ( y + STATICBLOCK_CHUNK - 1 ) );

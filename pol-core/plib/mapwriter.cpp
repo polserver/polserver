@@ -16,14 +16,10 @@
 #include "../clib/passert.h"
 #include "mapcell.h"
 #include "realmdescriptor.h"
-#include "uofile.h"
 
 
 namespace Pol::Plib
 {
-extern unsigned int num_map_patches;
-extern unsigned int num_static_patches;
-
 namespace
 {
 // The filler prefixes keep offset 0 from referencing real data. solids.dat's is
@@ -112,7 +108,8 @@ MapWriter::~MapWriter()
   Flush();
 }
 
-void MapWriter::WriteConfigFile()
+void MapWriter::WriteConfigFile( int uo_mapid, int uo_usedif, unsigned int num_static_patches,
+                                 unsigned int num_map_patches )
 {
   std::string filename = _directory + "realm.cfg";
   std::ofstream ofs_cfg;

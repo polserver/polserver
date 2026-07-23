@@ -1,6 +1,7 @@
 /** @file
- * In-memory tiledata cache (land + item tiles, verdata-patched):
- * readtile/readlandtile and the tileheight/tile_uoflags_read accessors.
+ * In-memory tiledata cache (land + item tiles, verdata-patched): owns the
+ * tiledata.mul/verdata.mul handles, opens + fills the caches, and answers
+ * readtile/readlandtile and the tileheight/tile_uoflags accessors.
  *
  * @par History
  * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
@@ -9,84 +10,99 @@
 
 #include <cstdio>
 #include <cstring>
+#include <stdexcept>
 
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "plib/mul/tiledata.h"
 #include "systemstate.h"
-#include "uofile.h"
-#include "uofilei.h"
+#include "tiledatacache.h"
+#include "uoclientfiles.h"
 #include "ustruct.h"
 
 
 namespace Pol::Plib
 {
-#define VERFILE_TILEDATA 0x1E
-#define TILEDATA_TILES 0x68800
-#define TILEDATA_TILES_HSA 0x78800
+constexpr int VERFILE_TILEDATA = 0x1E;
+constexpr int TILEDATA_TILES = 0x68800;
+constexpr int TILEDATA_TILES_HSA = 0x78800;
 
-struct TileData
+void TileDataCache::open()
 {
-  u8 height;
-  u8 layer;
-  u32 flags;
-};
-TileData* tiledata;
+  // verdata is opened before tiledata so console output matches the historical
+  // open_uo_data_files() ordering.
+  if ( Clib::FileExists( ( systemstate.config.uo_datafile_root + "verdata.mul" ).c_str() ) )
+    verfile_.reset( open_uo_file( "verdata.mul" ) );
+  else
+    verfile_.reset();
 
-const unsigned N_LANDTILEDATA = 0x4000;
-unsigned int landtile_flags_arr[N_LANDTILEDATA];
+  size_t tiledata_size;
+  tilefile_.reset( open_uo_file( "tiledata.mul", &tiledata_size ) );
 
-unsigned int landtile_uoflags_read( unsigned short landtile )
-{
-  passert_always( landtile < N_LANDTILEDATA );
-  return landtile_flags_arr[landtile];
+  // Auto-detect HSA format, find number of blocks, etc
+  MUL::TiledataInfo tileinfo( tiledata_size );
+
+  use_new_hsa_format_ = tileinfo.is_hsa();
+  systemstate.config.max_tile_id = tileinfo.max_tile_id();
+
+  if ( !systemstate.config.max_tile_id )
+  {
+    ERROR_PRINTLN(
+        "\n"
+        "Error reading tiledata.mul:\n"
+        " - The file is either corrupted or has an "
+        "unknown format.\n" );
+
+    throw std::runtime_error( "Unknown format of tiledata.mul" );
+  }
+
+  INFO_PRINTLN(
+      "Using auto-detected parameters:\n"
+      "\tUseNewHSAFormat = {}\n"
+      "\tMaxTileID = {:#x}",
+      use_new_hsa_format_, systemstate.config.max_tile_id );
 }
 
-
-struct VerdataIndexes
+void TileDataCache::load()
 {
-  using VRecList = std::map<unsigned int, USTRUCT_VERSION>;
-  VRecList vrecs;  // key is the block
-
-  void insert( const USTRUCT_VERSION& vrec );
-  bool find( unsigned int block, const USTRUCT_VERSION*& vrec );
-};
-void VerdataIndexes::insert( const USTRUCT_VERSION& vrec )
-{
-  vrecs.insert( VRecList::value_type( vrec.block, vrec ) );
-}
-bool VerdataIndexes::find( unsigned int block, const USTRUCT_VERSION*& vrec )
-{
-  VRecList::const_iterator itr = vrecs.find( block );
-  if ( itr == vrecs.end() )
-    return false;
-
-  vrec = &( ( *itr ).second );
-  return true;
+  read_veridx();
+  read_tiledata();
+  read_landtiledata();
 }
 
-
-VerdataIndexes vidx[32];
-const unsigned int vidx_count = 32;
-
-bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec )
+void TileDataCache::clear()
 {
-  return vidx[file].find( block, vrec );
+  tiledata_.clear();
 }
 
-static bool seekto_newer_version( unsigned int file, unsigned int block )
+unsigned int TileDataCache::landtile_uoflags_read( unsigned short landtile ) const
+{
+  passert_always( landtile < LANDTILE_COUNT );
+  return landtile_flags_arr_[landtile];
+}
+
+bool TileDataCache::check_verdata( unsigned int file, unsigned int block,
+                                   const USTRUCT_VERSION*& vrec ) const
+{
+  return vidx_[file].find( block, vrec );
+}
+
+bool TileDataCache::seekto_newer_version( unsigned int file, unsigned int block ) const
 {
   const USTRUCT_VERSION* vrec;
-  if ( vidx[file].find( block, vrec ) )
+  if ( vidx_[file].find( block, vrec ) )
   {
-    fseek( verfile, vrec->filepos, SEEK_SET );
+    fseek( verfile_.get(), vrec->filepos, SEEK_SET );
     return true;
   }
 
   return false;
 }
 
-void readtile( unsigned short tilenum, USTRUCT_TILE* tile )
+void TileDataCache::readtile( unsigned short tilenum, USTRUCT_TILE* tile ) const
 {
   memset( tile, 0, sizeof *tile );
 
@@ -103,8 +119,8 @@ void readtile( unsigned short tilenum, USTRUCT_TILE* tile )
     {
       int filepos;
       filepos = 4 + ( sizeof *tile ) * ( tilenum & 0x1F );
-      fseek( verfile, filepos, SEEK_CUR );
-      if ( fread( tile, sizeof *tile, 1, verfile ) != 1 )
+      fseek( verfile_.get(), filepos, SEEK_CUR );
+      if ( fread( tile, sizeof *tile, 1, verfile_.get() ) != 1 )
         throw std::runtime_error( "readtile: fread(tile) failed." );
     }
     else
@@ -116,8 +132,8 @@ void readtile( unsigned short tilenum, USTRUCT_TILE* tile )
       filepos = TILEDATA_TILES + ( block * 4 ) +  // skip headers of all previous blocks
                 4 +                               // skip my header
                 ( sizeof( USTRUCT_TILE ) * tilenum );
-      fseek( tilefile, filepos, SEEK_SET );
-      if ( fread( tile, sizeof *tile, 1, tilefile ) != 1 )
+      fseek( tilefile_.get(), filepos, SEEK_SET );
+      if ( fread( tile, sizeof *tile, 1, tilefile_.get() ) != 1 )
         throw std::runtime_error( "readtile: fread(tile) failed." );
     }
   }
@@ -126,7 +142,7 @@ void readtile( unsigned short tilenum, USTRUCT_TILE* tile )
   tile->name[sizeof( tile->name ) - 1] = '\0';
 }
 
-void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile )
+void TileDataCache::readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile ) const
 {
   memset( tile, 0, sizeof *tile );
 
@@ -143,8 +159,8 @@ void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile )
     {
       int filepos;
       filepos = 4 + ( sizeof *tile ) * ( tilenum & 0x1F );
-      fseek( verfile, filepos, SEEK_CUR );
-      if ( fread( tile, sizeof *tile, 1, verfile ) != 1 )
+      fseek( verfile_.get(), filepos, SEEK_CUR );
+      if ( fread( tile, sizeof *tile, 1, verfile_.get() ) != 1 )
         throw std::runtime_error( "readtile: fread(tile) failed." );
     }
     else
@@ -153,8 +169,8 @@ void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile )
       filepos = TILEDATA_TILES_HSA + ( block * 4 ) +  // skip headers of all previous blocks
                 4 +                                   // skip my header
                 ( sizeof( USTRUCT_TILE_HSA ) * tilenum );
-      fseek( tilefile, filepos, SEEK_SET );
-      if ( fread( tile, sizeof *tile, 1, tilefile ) != 1 )
+      fseek( tilefile_.get(), filepos, SEEK_SET );
+      if ( fread( tile, sizeof *tile, 1, tilefile_.get() ) != 1 )
         throw std::runtime_error( "readtile: fread(tile) failed." );
     }
   }
@@ -164,7 +180,7 @@ void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile )
 }
 
 
-void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
+void TileDataCache::readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile ) const
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
@@ -176,8 +192,8 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
     {
       int filepos;
       filepos = 4 + ( sizeof *landtile ) * ( tilenum & 0x1F );
-      fseek( verfile, filepos, SEEK_CUR );
-      if ( fread( landtile, sizeof *landtile, 1, verfile ) != 1 )
+      fseek( verfile_.get(), filepos, SEEK_CUR );
+      if ( fread( landtile, sizeof *landtile, 1, verfile_.get() ) != 1 )
         throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
     else
@@ -186,8 +202,8 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
       filepos = ( block * 4 ) +  // skip headers of all previous blocks
                 4 +              // skip my header
                 ( sizeof( USTRUCT_LAND_TILE ) * tilenum );
-      fseek( tilefile, filepos, SEEK_SET );
-      if ( fread( landtile, sizeof *landtile, 1, tilefile ) != 1 )
+      fseek( tilefile_.get(), filepos, SEEK_SET );
+      if ( fread( landtile, sizeof *landtile, 1, tilefile_.get() ) != 1 )
         throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
   }
@@ -196,7 +212,7 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile )
   landtile->name[sizeof( landtile->name ) - 1] = '\0';
 }
 
-void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
+void TileDataCache::readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile ) const
 {
   memset( landtile, 0, sizeof( *landtile ) );
 
@@ -208,8 +224,8 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
     {
       int filepos;
       filepos = 4 + ( sizeof *landtile ) * ( tilenum & 0x1F );
-      fseek( verfile, filepos, SEEK_CUR );
-      if ( fread( landtile, sizeof *landtile, 1, verfile ) != 1 )
+      fseek( verfile_.get(), filepos, SEEK_CUR );
+      if ( fread( landtile, sizeof *landtile, 1, verfile_.get() ) != 1 )
         throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
     else
@@ -218,8 +234,8 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
       filepos = ( block * 4 ) +  // skip headers of all previous blocks
                 4 +              // skip my header
                 ( sizeof( USTRUCT_LAND_TILE_HSA ) * tilenum );
-      fseek( tilefile, filepos, SEEK_SET );
-      if ( fread( landtile, sizeof *landtile, 1, tilefile ) != 1 )
+      fseek( tilefile_.get(), filepos, SEEK_SET );
+      if ( fread( landtile, sizeof *landtile, 1, tilefile_.get() ) != 1 )
         throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
   }
@@ -228,30 +244,30 @@ void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile )
   landtile->name[sizeof( landtile->name ) - 1] = '\0';
 }
 
-void read_objinfo( u16 graphic, USTRUCT_TILE& objinfo )
+void TileDataCache::read_objinfo( u16 graphic, USTRUCT_TILE& objinfo ) const
 {
   readtile( graphic, &objinfo );
 }
 
-void read_objinfo( u16 graphic, USTRUCT_TILE_HSA& objinfo )
+void TileDataCache::read_objinfo( u16 graphic, USTRUCT_TILE_HSA& objinfo ) const
 {
   readtile( graphic, &objinfo );
 }
 
 
-char tileheight_read( unsigned short tilenum )
+char TileDataCache::tileheight_read( unsigned short tilenum ) const
 {
   u8 height;
   u32 flags;
 
   if ( tilenum <= systemstate.config.max_tile_id )
   {
-    height = tiledata[tilenum].height;
-    flags = tiledata[tilenum].flags;
+    height = tiledata_[tilenum].height;
+    flags = tiledata_[tilenum].flags;
   }
   else
   {
-    if ( cfg_use_new_hsa_format )
+    if ( use_new_hsa_format_ )
     {
       USTRUCT_TILE_HSA tile;
       readtile( tilenum, &tile );
@@ -272,152 +288,98 @@ char tileheight_read( unsigned short tilenum )
   return height;
 }
 
-unsigned char tilelayer_read( unsigned short tilenum )
+u32 TileDataCache::tile_uoflags_read( unsigned short tilenum ) const
 {
   if ( tilenum <= systemstate.config.max_tile_id )
   {
-    return tiledata[tilenum].layer;
+    return tiledata_[tilenum].flags;
   }
 
-  if ( cfg_use_new_hsa_format )
+  if ( use_new_hsa_format_ )
   {
     USTRUCT_TILE_HSA tile;
-    tile.layer = 0;
-    readtile( tilenum, &tile );
-    return tile.layer;
-  }
-
-  USTRUCT_TILE tile;
-  tile.layer = 0;
-  readtile( tilenum, &tile );
-  return tile.layer;
-}
-
-u16 tileweight_read( unsigned short tilenum )
-{
-  if ( cfg_use_new_hsa_format )
-  {
-    USTRUCT_TILE_HSA tile;
-    tile.weight = 1;
-    readtile( tilenum, &tile );
-    return tile.weight;
-  }
-
-  USTRUCT_TILE tile;
-  tile.weight = 1;
-  readtile( tilenum, &tile );
-  return tile.weight;
-}
-
-u32 tile_uoflags_read( unsigned short tilenum )
-{
-  if ( tilenum <= systemstate.config.max_tile_id )
-  {
-    return tiledata[tilenum].flags;
-  }
-
-  if ( cfg_use_new_hsa_format )
-  {
-    USTRUCT_TILE_HSA tile;
-    tile.flags = 0;
     readtile( tilenum, &tile );
     return tile.flags;
   }
 
   USTRUCT_TILE tile;
-  tile.flags = 0;
   readtile( tilenum, &tile );
   return tile.flags;
 }
 
 
-static void read_veridx()
+void TileDataCache::read_veridx()
 {
   int num_version_records;
   USTRUCT_VERSION vrec;
 
-  if ( verfile != nullptr )
+  if ( verfile_.get() != nullptr )
   {
     // FIXME: should read this once per run, per file.
-    fseek( verfile, 0, SEEK_SET );
-    if ( fread( &num_version_records, sizeof num_version_records, 1, verfile ) !=
+    fseek( verfile_.get(), 0, SEEK_SET );
+    if ( fread( &num_version_records, sizeof num_version_records, 1, verfile_.get() ) !=
          1 )  // ENDIAN-BROKEN
       throw std::runtime_error( "read_veridx: fread(num_version_records) failed." );
 
     for ( int i = 0; i < num_version_records; i++ )
     {
-      if ( fread( &vrec, sizeof vrec, 1, verfile ) != 1 )
+      if ( fread( &vrec, sizeof vrec, 1, verfile_.get() ) != 1 )
         throw std::runtime_error( "read_veridx: fread(vrec) failed." );
 
       if ( vrec.file < vidx_count )
       {
-        vidx[vrec.file].insert( vrec );
+        vidx_[vrec.file].insert( vrec );
       }
     }
   }
 }
 
-static void read_tiledata()
+void TileDataCache::read_tiledata()
 {
-  tiledata = new TileData[systemstate.config.max_tile_id + 1];
+  tiledata_.assign( systemstate.config.max_tile_id + 1, TileData{} );
 
   for ( u32 graphic_i = 0; graphic_i <= systemstate.config.max_tile_id; ++graphic_i )
   {
     u16 graphic = static_cast<u16>( graphic_i );
-    if ( cfg_use_new_hsa_format )
+    if ( use_new_hsa_format_ )
     {
       USTRUCT_TILE_HSA objinfo;
-      memset( &objinfo, 0, sizeof objinfo );
-      readtile( (u16)graphic, &objinfo );
+      readtile( graphic, &objinfo );
 
-      tiledata[graphic].height = objinfo.height;
-      tiledata[graphic].layer = objinfo.layer;
-      tiledata[graphic].flags = objinfo.flags;
+      tiledata_[graphic].height = objinfo.height;
+      tiledata_[graphic].layer = objinfo.layer;
+      tiledata_[graphic].flags = objinfo.flags;
     }
     else
     {
       USTRUCT_TILE objinfo;
-      memset( &objinfo, 0, sizeof objinfo );
       readtile( graphic, &objinfo );
 
-      tiledata[graphic].height = objinfo.height;
-      tiledata[graphic].layer = objinfo.layer;
-      tiledata[graphic].flags = objinfo.flags;
+      tiledata_[graphic].height = objinfo.height;
+      tiledata_[graphic].layer = objinfo.layer;
+      tiledata_[graphic].flags = objinfo.flags;
     }
   }
 }
 
-void clear_tiledata()
+void TileDataCache::read_landtiledata()
 {
-  delete[] tiledata;
-}
-
-static void read_landtiledata()
-{
-  for ( u16 objtype = 0; objtype < N_LANDTILEDATA; ++objtype )
+  for ( u16 objtype = 0; objtype < LANDTILE_COUNT; ++objtype )
   {
-    if ( cfg_use_new_hsa_format )
+    if ( use_new_hsa_format_ )
     {
       USTRUCT_LAND_TILE_HSA landtile;
       readlandtile( objtype, &landtile );
 
-      landtile_flags_arr[objtype] = landtile.flags;
+      landtile_flags_arr_[objtype] = landtile.flags;
     }
     else
     {
       USTRUCT_LAND_TILE landtile;
       readlandtile( objtype, &landtile );
 
-      landtile_flags_arr[objtype] = landtile.flags;
+      landtile_flags_arr_[objtype] = landtile.flags;
     }
   }
-}
-void read_uo_data()
-{
-  read_veridx();
-  read_tiledata();
-  read_landtiledata();
-  read_static_diffs();
-  read_map_difs();
 }
 }  // namespace Pol::Plib

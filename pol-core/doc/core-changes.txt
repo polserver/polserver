@@ -1,4 +1,11 @@
 -- POL100.3.0 --
+07-22-2026 Nando:
+    Fixed: uoconvert's 'map' command failed to convert several UOP maps. Its UOP size
+           estimator dropped a block from the final chunk, aborting on maps whose block
+           count isn't a multiple of 4096 (Ilshenar/map2, Tokuno/map4); and it didn't
+           tolerate the extra trailing padding block some clients add, which broke map0/
+           map1 dimension auto-detection. Both are fixed; all standard maps (0-5) now
+           convert from both .mul and UOP.
 07-22-2026 Ins:
     Fixed: ShortCircuit jump optimization left an uninitialized value on the stack when a
            nested chain such as ( a && b ) || ( c && d ) was assigned via a variable

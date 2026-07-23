@@ -11,7 +11,8 @@ set (clib_sources
   Program/ProgramMain.cpp
   Program/ProgramMain.h
   StdAfx.h
-  binaryfile.cpp 
+  UniqueFile.h
+  binaryfile.cpp
   binaryfile.h
   bitutil.h
   boostutils.cpp 

@@ -12,19 +12,16 @@
 
 namespace Pol::Plib
 {
-bool groundheight_read( unsigned short x, unsigned short y, short* z );  // uotool version
+// The *_read (client-mul backed) family used to live here as free functions;
+// it is now UoClientFiles methods (uoclientfiles.h) -- used only by
+// uoconvert/uotool. What remains here is the tiles.cfg/pol-file backed family
+// (polfile2.cpp), used by the server.
 char tileheight( unsigned short tilenum );
-char tileheight_read( unsigned short tilenum );  // uotool version
 unsigned char tilelayer( unsigned short tilenum );
-unsigned char tilelayer_read( unsigned short tilenum );  // uotool version
-unsigned int tile_flags( unsigned short tilenum );       // POL flags
+unsigned int tile_flags( unsigned short tilenum );  // POL flags
 unsigned int tile_uoflags( unsigned short tilenum );
-unsigned int tile_uoflags_read( unsigned short tilenum );  // uotool version
 unsigned short tileweight( unsigned short tilenum );
-unsigned short tileweight_read( unsigned short tilenum );  // uotool version
 std::string tile_desc( unsigned short tilenum );
-
-unsigned int landtile_uoflags_read( unsigned short landtile );  // uotool version
 
 const unsigned LANDTILE_COUNT = 0x4000;
 // Landtile ids are 14-bit; anything above this is not a valid landtile.

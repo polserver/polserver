@@ -7,6 +7,11 @@
 
 #include "../clib/rawtypes.h"
 
+namespace Pol::Plib
+{
+class UoClientFiles;
+}
+
 namespace Pol::UoConvert
 {
 // Precomputed per-tile smoothed-terrain data for a whole realm, built once from the
@@ -35,12 +40,15 @@ struct TerrainPlane
   // Build from the loaded raw map (call rawmapfullread() first). w/h are the realm
   // dimensions (== uo_map_width / uo_map_height). Pass need_low_z=false to skip the
   // lowest-adjacent-z reduction (Pass 2) when only landtile/eff_z are needed, e.g.
-  // create_maptile -- it leaves low_z empty.
+  // create_maptile -- it leaves low_z empty. `uof` supplies the loaded raw map and
+  // landtile flags; it is only read, so a fully-loaded instance is safe to share
+  // across the parallel passes.
   //
   // Both passes are pure indexed writes (each tile writes only its own index), so
   // they run in parallel over row bands: threads==0 uses hardware_concurrency,
   // threads==1 forces serial. Output is byte-identical regardless of thread count.
-  void build( int w, int h, bool need_low_z = true, unsigned threads = 0 );
+  void build( const Plib::UoClientFiles& uof, int w, int h, bool need_low_z = true,
+              unsigned threads = 0 );
 
   std::size_t index( int x, int y ) const { return static_cast<std::size_t>( y ) * width + x; }
 };

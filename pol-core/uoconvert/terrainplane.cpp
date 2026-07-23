@@ -4,13 +4,14 @@
 #include <cstdlib>
 
 #include "../plib/clidata.h"
-#include "../plib/uofile.h"
+#include "../plib/clientfiles/uoclientfiles.h"
 #include "../plib/ustruct.h"
 #include "parallel.h"
 
 namespace Pol::UoConvert
 {
-void TerrainPlane::build( int w, int h, bool need_low_z, unsigned threads )
+void TerrainPlane::build( const Plib::UoClientFiles& uof, int w, int h, bool need_low_z,
+                          unsigned threads )
 {
   width = w;
   height = h;
@@ -24,7 +25,7 @@ void TerrainPlane::build( int w, int h, bool need_low_z, unsigned threads )
   // Bulk-extract the raw landtile ids and raw cell z's in one sequential pass, instead of
   // four block-indexed rawmapinfo lookups per corner per tile.
   std::vector<s8> raw_z( n );
-  Plib::rawmap_extract_planes( landtile, raw_z );
+  uof.rawmap_extract_planes( landtile, raw_z );
 
   // Pass 1: avg_z + eff_z from the flat raw arrays. This replicates safe_getmapinfo
   // exactly -- its x+1/y+1 edge clamping, the min-differential diagonal choice, and the
@@ -58,7 +59,7 @@ void TerrainPlane::build( int w, int h, bool need_low_z, unsigned threads )
           // in eff_z only; avg_z stays the plain average because get_lowestadjacentz reads
           // neighbors' *un-overridden* averages.
           eff_z[i] =
-              ( Plib::landtile_uoflags_read( landtile[i] ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
+              ( uof.landtile_uoflags_read( landtile[i] ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
                   ? raw_z[i]
                   : avg;
         }

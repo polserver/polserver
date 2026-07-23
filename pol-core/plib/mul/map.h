@@ -27,12 +27,16 @@ struct Map
       return false;
 
     size_t nblocks = filesize / Map::blockSize;
-    return expected_blocks( width, height ) == nblocks;
+    size_t expected = expected_blocks( width, height );
+    // Some client UOP/MUL maps carry a single trailing padding block beyond the
+    // width x height grid (modern clients); accept that as well as the exact size.
+    return nblocks == expected || nblocks == expected + 1;
   }
 };
 static_assert( Map::blockSize == 196, "Size mismatch" );
 static_assert( Map::valid_size( 77070336, 6144, 4096 ) );                 // Legacy map
 static_assert( Map::valid_size( 89915392, 7168, 4096 ) );                 // New maps
+static_assert( Map::valid_size( 89915392 + 196, 7168, 4096 ) );           // Modern padded map
 static_assert( Map::valid_size( 77070336 - 196, 6144, 4096 ) == false );  // Wrong map 1
 static_assert( Map::valid_size( 89915392 - 196, 7168, 4096 ) == false );  // Wrong map 2
 
@@ -79,6 +83,10 @@ inline bool MapInfo::guess_size( size_t map_size )
 
   size_t mapblocks = map_size / Map::blockSize;
   constexpr int map0_blocks = map0_height / Map::blockHeight;
+
+  // Some client maps carry a single trailing padding block; drop it before matching.
+  if ( ( mapblocks % map0_blocks ) == 1 )
+    mapblocks -= 1;
 
   // Number of blocks has to be divisible by either dimension
   if ( ( mapblocks % map0_blocks ) != 0 )

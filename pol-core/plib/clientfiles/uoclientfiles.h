@@ -1,0 +1,191 @@
+#ifndef PLIB_UOCLIENTFILES_H
+#define PLIB_UOCLIENTFILES_H
+
+#include <cstddef>
+#include <cstdio>
+#include <map>
+#include <span>
+#include <vector>
+
+#include "../clidata.h"
+#include "../uconst.h"
+#include "../udatfile.h"
+#include "../ustruct.h"
+#include "RawMap.h"
+#include "clib/rawtypes.h"
+#include "staticscache.h"
+#include "tiledatacache.h"
+
+namespace Pol::Plib
+{
+// Reader over the raw UO client data files (map/statics/tiledata/verdata):
+// configuration knobs, open file handles, the in-memory caches filled from
+// them, and every query that answers from those caches. Used only by
+// uoconvert/uotool -- pol reads converted realm files instead.
+//
+// Lifecycle: construct, set the configuration members (mapid, dif usage, map
+// dimensions -- every block-index computation depends on uo_map_width/
+// uo_map_height holding the current realm's dimensions), then
+// open_uo_data_files() + read_uo_data(), then rawmapfullread()/
+// rawstaticfullread() before any raw-map/statics query -- the queries assert the
+// cache is loaded rather than loading it themselves, so the caller controls when
+// the (non-thread-safe) load happens. Queries are const and safe to share across
+// a parallel region once the loads are done. uoconvert owns an instance and
+// threads it explicitly; uotool keeps a process-wide instance behind its own
+// uofiles() accessor and its own load-on-first-use guards.
+//
+// Method definitions live alongside this header in clientfiles/, grouped by
+// responsibility: open/UOP probing + the load sequence (uoclientfiles.cpp),
+// tiledata + verdata (tiledatacache.cpp), statics cache + queries
+// (staticscache.cpp), raw-map load (rawmapaccess.cpp). uotool-only diagnostics
+// (map z-averaging, walk sim, per-tile statics, water scan) live in
+// uotool/clientqueries/ as free functions over this reader.
+class UoClientFiles
+{
+public:
+  // --- Configuration: set before open_uo_data_files(), read-only afterwards ---
+  int uo_mapid = 0;
+  int uo_usedif = 1;
+  bool uo_readuop = true;
+  unsigned short uo_map_width = 0;
+  unsigned short uo_map_height = 0;
+  size_t uo_map_size = 0;
+
+  int cfg_max_statics_per_block = 1000;
+  int cfg_warning_statics_per_block = 1000;
+  bool cfg_show_illegal_graphic_warning = true;
+  bool cfg_show_roof_and_platform_warning = true;
+
+  // --- Loads (uoclientfiles/tiledatacache/staticscache/rawmapaccess .cpp) ---
+  // Call the relevant load before the matching queries -- the queries assert the
+  // cache is present rather than loading lazily (see rawmap_loaded()). Not
+  // thread-safe; a parallel region must find the caches already loaded.
+  void open_uo_data_files();
+  void read_uo_data();   // verdata index, tiledata, landtiles, dif lists
+  void rawmapfullread()  // raw map full read (mul or UOP) + difs
+  {
+    rawmap_.full_read( uo_mapid, uo_map_width, uo_map_height );
+  }
+  void rawstaticfullread()  // staidx/statics full read + dif merge
+  {
+    statics_.full_read( uo_map_width, uo_map_height, cfg_max_statics_per_block,
+                        cfg_warning_statics_per_block );
+  }
+  void clear_tiledata() { tiledata_.clear(); }
+
+  bool rawmap_loaded() const { return rawmap_.loaded(); }
+  bool rawstatics_loaded() const { return statics_.loaded(); }
+  unsigned int num_static_patches() const { return statics_.num_patches(); }
+  unsigned int num_map_patches() const { return rawmap_.num_patches(); }
+
+  // --- Tiledata / verdata queries: delegate to the tiledata cache ---
+  bool use_new_hsa_format() const { return tiledata_.use_new_hsa_format(); }
+  FILE* verdata_file() const { return tiledata_.verdata_file(); }
+  void readtile( unsigned short tilenum, USTRUCT_TILE* tile ) const
+  {
+    tiledata_.readtile( tilenum, tile );
+  }
+  void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile ) const
+  {
+    tiledata_.readtile( tilenum, tile );
+  }
+  void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE* landtile ) const
+  {
+    tiledata_.readlandtile( tilenum, landtile );
+  }
+  void readlandtile( unsigned short tilenum, USTRUCT_LAND_TILE_HSA* landtile ) const
+  {
+    tiledata_.readlandtile( tilenum, landtile );
+  }
+  void read_objinfo( u16 graphic, USTRUCT_TILE& objinfo ) const
+  {
+    tiledata_.read_objinfo( graphic, objinfo );
+  }
+  void read_objinfo( u16 graphic, USTRUCT_TILE_HSA& objinfo ) const
+  {
+    tiledata_.read_objinfo( graphic, objinfo );
+  }
+  unsigned int landtile_uoflags_read( unsigned short landtile ) const
+  {
+    return tiledata_.landtile_uoflags_read( landtile );
+  }
+  char tileheight_read( unsigned short tilenum ) const
+  {
+    return tiledata_.tileheight_read( tilenum );
+  }
+  unsigned int tile_uoflags_read( unsigned short tilenum ) const
+  {
+    return tiledata_.tile_uoflags_read( tilenum );
+  }
+  bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec ) const
+  {
+    return tiledata_.check_verdata( file, block, vrec );
+  }
+
+  // --- Statics cache queries: delegate to / compose over the statics cache ---
+  const std::vector<USTRUCT_STATIC>& getstaticblock( unsigned short x, unsigned short y ) const
+  {
+    return statics_.getstaticblock( x, y );
+  }
+  // Composes the statics block with the tiledata flag/height lookups (needs both
+  // caches), so it lives on the coordinator rather than on StaticsCache. Used by
+  // uoconvert's ComputeSolidBlock (formerly uofile07.cpp).
+  void readstatics_block( StaticBuckets& buckets, unsigned short x, unsigned short y,
+                          unsigned int flags ) const
+  {
+    for ( auto& bucket : buckets )
+      bucket.clear();
+
+    const std::vector<USTRUCT_STATIC>& srecarr = getstaticblock( x, y );
+
+    for ( const auto& srec : srecarr )
+    {
+      // Records with offsets outside the 8x8 block never match any tile in the
+      // per-tile readstatics() scan; drop them here the same way.
+      if ( srec.x_offset < 0 || srec.x_offset >= static_cast<int>( STATICBLOCK_CHUNK ) ||
+           srec.y_offset < 0 || srec.y_offset >= static_cast<int>( STATICBLOCK_CHUNK ) )
+        continue;
+
+      const unsigned int uoflags = tile_uoflags_read( srec.graphic );
+      if ( uoflags & flags )
+        buckets[srec.x_offset * STATICBLOCK_CHUNK + srec.y_offset].emplace_back(
+            srec.graphic, srec.z, uoflags, tileheight_read( srec.graphic ) );
+    }
+  }
+  // The open staidx/statics handles, for the uotool diagnostics that scan them
+  // directly (staticsmax, water scan).
+  FILE* staidx_file() const { return statics_.staidx_file(); }
+  FILE* statics_file() const { return statics_.statics_file(); }
+
+  // --- Raw map queries: delegate to the raw-map cache (rawmapaccess.cpp) ---
+  // Both assert the map is loaded (rawmapfullread() first).
+  // Neighbour-averaged ground info at (x,y).
+  signed char rawmap_rawinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi ) const;
+  // Bulk-copy the raw map into caller-provided row-major arrays (idx = y*uo_map_width + x),
+  // each exactly uo_map_width*uo_map_height in size.
+  void rawmap_extract_planes( std::span<u16> landtile_out, std::span<s8> z_out ) const;
+
+private:
+  // --- Caches ---
+  TileDataCache tiledata_;
+  StaticsCache statics_;
+  RawMap rawmap_;
+};
+
+// Hard ceiling uoconvert clamps cfg_max_statics_per_block / *_warning_* to.
+#define MAX_STATICS_PER_BLOCK 10000
+
+// Which client data file a verdata patch applies to (the file key check_verdata
+// takes). Only the multi file is queried today (uoconvert create_multis_cfg).
+#define VERFILE_MULTI_MUL 0x0E
+
+// Free helpers over the raw client files (defined in uoclientfiles.cpp): open a
+// named mul/idx by install path, and load the multi collection from a UOP.
+FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr );
+// Open <name><mapid>.mul by install path (mapid 1 falls back to <name>0.mul when
+// the map1 variant is absent).
+FILE* open_map_file( const std::string& name, int mapid, size_t* out_file_size = nullptr );
+bool open_uopmulti_file( std::map<unsigned int, std::vector<USTRUCT_MULTI_ELEMENT>>& multi_map );
+}  // namespace Pol::Plib
+
+#endif

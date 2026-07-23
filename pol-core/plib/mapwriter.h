@@ -84,7 +84,8 @@ public:
 
   void CreateNewFiles( const std::string& realm_name, unsigned short width, unsigned short height );
   void OpenExistingFiles( const std::string& realm_name );
-  void WriteConfigFile();
+  void WriteConfigFile( int uo_mapid, int uo_usedif, unsigned int num_static_patches,
+                        unsigned int num_map_patches );
 
   unsigned int NextSolidIndex() const;
   unsigned int NextSolidOffset() const;

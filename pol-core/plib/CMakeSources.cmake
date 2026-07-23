@@ -31,9 +31,7 @@ set (plib_sources  # sorted !
   polfile1.cpp
   polfile2.cpp
   poltype.h
-  RawMap.cpp
-  RawMap.h
-  realmdescriptor.cpp 
+  realmdescriptor.cpp
   realmdescriptor.h
   staticblock.h
   staticserver.cpp
@@ -47,16 +45,15 @@ set (plib_sources  # sorted !
   udatfile.h
   uoexpansion.cpp
   uoexpansion.h
-  uofile.h
-  uofilei.h
-  uofile00.cpp
-  uofile01.cpp
-  uofile02.cpp
-  uofile04.cpp 
-  uofile05.cpp
-  uofile06.cpp
-  uofile07.cpp
-  uofile08.cpp
+  clientfiles/uoclientfiles.h
+  clientfiles/RawMap.h
+  clientfiles/RawMap.cpp
+  clientfiles/uoclientfiles.cpp
+  clientfiles/tiledatacache.h
+  clientfiles/tiledatacache.cpp
+  clientfiles/staticscache.h
+  clientfiles/staticscache.cpp
+  clientfiles/rawmapaccess.cpp
   uoinstallfinder.cpp
   uoinstallfinder.h
   uopreader/uop.cpp
