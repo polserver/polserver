@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-22-2026</datemodified>
+		<datemodified>07-23-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
@@ -14,6 +14,15 @@ count isn't a multiple of 4096 (Ilshenar/map2, Tokuno/map4); and it didn't<br/>
 tolerate the extra trailing padding block some clients add, which broke map0/<br/>
 map1 dimension auto-detection. Both are fixed; all standard maps (0-5) now<br/>
 convert from both .mul and UOP.</change>
+		</entry>
+		<entry>
+			<date>07-22-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">ShortCircuit jump optimization left an uninitialized value on the stack when a<br/>
+nested chain such as ( a &amp;&amp; b ) || ( c &amp;&amp; d ) was assigned via a variable<br/>
+declaration-with-initializer ( var x := ... ). The optimizer skipped past an<br/>
+opposite-type logical jump that pops on fall-through, corrupting the following<br/>
+stack-addressed assignment. Recompilation is needed.</change>
 		</entry>
 		<entry>
 			<date>07-21-2026</date>

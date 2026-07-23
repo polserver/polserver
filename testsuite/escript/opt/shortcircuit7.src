@@ -1,0 +1,99 @@
+// Companion to shortcircuit6. shortcircuit6 evaluates every chain as an `if ( ... )`
+// condition. This file evaluates the same kind of chains as a VALUE, assigned via a
+// variable declaration-with-initializer:  `var result := <chain>;`
+//
+// With ShortCircuitEvaluation on, a NESTED short-circuit chain  (A && B) || (C && D) || ...
+// captured this way evaluates to an *uninitialized object* whenever the first true clause
+// is not the first operand. The evaluation order (call_log) is correct; only the produced
+// value is wrong. The same chain works as an `if ( ... )` condition (shortcircuit6) or when
+// declaration and assignment are split ( `var result; result := <chain>;` ).
+
+var call_log := "";
+
+function mk( id, val )
+  call_log := call_log + id;
+  return val;
+endfunction
+
+function reset()
+  call_log := "";
+endfunction
+
+function check( test_name, expr_desc, expected_log, actual_result, expected_result )
+  if ( call_log == expected_log && actual_result == expected_result )
+    print( $"PASS {test_name}: {expr_desc}  [evaluated: {call_log}]" );
+  else
+    print( $"FAIL {test_name}: {expr_desc}" );
+    print( $"      expected evaluated={expected_log}  got={call_log}" );
+    print( $"      expected result={expected_result}  got={actual_result}" );
+  endif
+endfunction
+
+var test_name := "";
+var expr_desc := "";
+var expected_log := "";
+var expected_result := false;
+
+print( "=== value context: nested (A&&B)||(C&&D)... via  var result := <chain> ===" );
+
+reset();
+test_name := "VNEST-1";
+expr_desc := "(t&&t) || X   (first clause true)";
+expected_log := "AB";
+expected_result := true;
+var r1 := ( mk( "A", true ) && mk( "B", true ) ) || ( mk( "C", true ) && mk( "D", true ) );
+check( test_name, expr_desc, expected_log, r1, expected_result );
+
+reset();
+test_name := "VNEST-2";
+expr_desc := "(f&&X) || (t&&t)";
+expected_log := "ACD";
+expected_result := true;
+var r2 := ( mk( "A", false ) && mk( "B", true ) ) || ( mk( "C", true ) && mk( "D", true ) );
+check( test_name, expr_desc, expected_log, r2, expected_result );
+
+reset();
+test_name := "VNEST-3";
+expr_desc := "(f&&X) || (f&&X) || (t&&t)";
+expected_log := "ACEF";
+expected_result := true;
+var r3 := ( mk( "A", false ) && mk( "B", true ) ) || ( mk( "C", false ) && mk( "D", true ) ) || ( mk( "E", true ) && mk( "F", true ) );
+check( test_name, expr_desc, expected_log, r3, expected_result );
+
+reset();
+test_name := "VNEST-4";
+expr_desc := "(f&&X) || (f&&X)   (none true)";
+expected_log := "AC";
+expected_result := false;
+var r4 := ( mk( "A", false ) && mk( "B", true ) ) || ( mk( "C", false ) && mk( "D", true ) );
+check( test_name, expr_desc, expected_log, r4, expected_result );
+
+print( "=== controls: same chains in non-triggering forms (must PASS) ===" );
+
+reset();
+test_name := "VCTL-1";
+expr_desc := "f || t   (simple operands, var:=)";
+expected_log := "AB";
+expected_result := true;
+var c1 := mk( "A", false ) || mk( "B", true );
+check( test_name, expr_desc, expected_log, c1, expected_result );
+
+reset();
+test_name := "VCTL-2";
+expr_desc := "(f&&X)||(t&&t)   (split declaration)";
+expected_log := "ACD";
+expected_result := true;
+var c2;
+c2 := ( mk( "A", false ) && mk( "B", true ) ) || ( mk( "C", true ) && mk( "D", true ) );
+check( test_name, expr_desc, expected_log, c2, expected_result );
+
+reset();
+test_name := "VCTL-3";
+expr_desc := "(f&&X)||(t&&t)   (if-condition)";
+expected_log := "ACD";
+expected_result := true;
+var c3 := false;
+if ( ( mk( "A", false ) && mk( "B", true ) ) || ( mk( "C", true ) && mk( "D", true ) ) )
+  c3 := true;
+endif
+check( test_name, expr_desc, expected_log, c3, expected_result );

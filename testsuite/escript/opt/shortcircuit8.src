@@ -1,0 +1,65 @@
+// Regression for the short-circuit jump peephole (CodeSectionOptimizer).
+// A firing INS_LOGICAL_JUMP KEEPS its boxed value on the stack, so the peephole
+// must not thread it across an instruction that pops that value. Skipping a
+// JMPIFFALSE or a JMPIFTRUE orphans the value and corrupts the result: both
+// cases below yield <uninitialized object> under the buggy peephole and the
+// correct value with the fix. No .optimized.out on purpose: the -S pass is
+// compared against this file's .out, so a corrupted -S run fails the test.
+
+// --- JMPIFFALSE skip. A ternary embeds a JMPIFFALSE inside an expression; the
+// condition's short-circuit jump targets it. Firing past the pop leaves a value
+// between the assignment target and the ternary result.
+var a := 0;
+var b := 1;
+var r1 := ( a && b ) ? 10 : 20; // a false -> AND short-circuits (fires)
+print( "r1=" + r1 ); // expect 20
+
+var c := 1;
+var d := 0;
+var r2 := ( c || d ) ? 10 : 20; // c true -> OR short-circuits (fires)
+print( "r2=" + r2 ); // expect 10
+
+// --- JMPIFTRUE skip. do/dowhile emits a JMPIFTRUE for its predicate. A firing
+// short-circuit predicate that skips it leaks a value inside the function frame,
+// displacing the return value the caller reads out of its expression.
+var r3 := sc_loops( 3 ) + 100; // expect 103
+print( "r3=" + r3 );
+
+var r4 := sc_loops( 2 ) * sc_loops( 4 ); // expect 8
+print( "r4=" + r4 );
+
+// --- JMPIFTRUE skip, opposite-type predicate. An && predicate is a JMPIFFALSE-type
+// logical jump landing on the do/dowhile's JMPIFTRUE, which also pops. Same leak as
+// r3/r4, but exercises the other jump-type combination.
+var r5 := sc_loops_and( 3 ) + 100; // expect 103
+print( "r5=" + r5 );
+
+var r6 := sc_loops_and( 2 ) * sc_loops_and( 4 ); // expect 8
+print( "r6=" + r6 );
+
+function sc_loops( n )
+  var a := 1;
+  var b := 0;
+  var i := 0;
+  do
+    i := i + 1;
+    if ( i >= n )
+      a := 0;
+    endif
+  dowhile ( a || b ); // OR fires while a is true -> JMPIFTRUE skipped
+  return i;
+endfunction
+
+function sc_loops_and( n )
+  var a := 1;
+  var b := 1;
+  var i := 0;
+  do
+    i := i + 1;
+    if ( i >= n )
+      a := 0;
+    endif
+  dowhile ( a && b ); // AND fires while a is true -> JMPIFTRUE skipped (opposite type)
+  return i;
+endfunction
+

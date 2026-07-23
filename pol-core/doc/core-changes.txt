@@ -6,6 +6,12 @@
            tolerate the extra trailing padding block some clients add, which broke map0/
            map1 dimension auto-detection. Both are fixed; all standard maps (0-5) now
            convert from both .mul and UOP.
+07-22-2026 Ins:
+    Fixed: ShortCircuit jump optimization left an uninitialized value on the stack when a
+           nested chain such as ( a && b ) || ( c && d ) was assigned via a variable
+           declaration-with-initializer ( var x := ... ). The optimizer skipped past an
+           opposite-type logical jump that pops on fall-through, corrupting the following
+           stack-addressed assignment. Recompilation is needed.
 07-21-2026 Turley:
     Fixed: ShortCircuit optimizations created wrong instructions in certain situations.
            Since the bug is in codegen recompilation is needed.
