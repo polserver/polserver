@@ -18,35 +18,15 @@ void CodeSectionOptimizer::short_circuit_jumps( CodeSection& code ) const
   auto combine = [&]( StoredToken& jump, auto&& combine )
   {
     const auto& loc = code[jump.offset];
-    if ( loc.id == RSV_JMPIFFALSE )
-    {
-      if ( jump.type == TYP_LOGICAL_JUMP_FALSE )
-        jump.offset = loc.offset;
-      else
-        jump.offset++;
-    }
-    else if ( loc.id == RSV_JMPIFTRUE )
-    {
-      if ( jump.type != TYP_LOGICAL_JUMP_FALSE )
-        jump.offset = loc.offset;
-      else
-        jump.offset++;
-    }
-    else if ( loc.id == INS_LOGICAL_JUMP )
-    {
-      if ( loc.type == jump.type )
-        jump.offset = loc.offset;
-      else
-        jump.offset++;
-    }
+    // logical jumps of different type pop value from stack
+    // same is true for "normal" jumps
+    // thus they cannot be optimized
+    if ( loc.id == INS_LOGICAL_JUMP && loc.type == jump.type )
+      jump.offset = loc.offset;
     else if ( loc.id == INS_LOGICAL_CONVERT )
-    {
       jump.offset++;
-    }
     else
-    {
       return;
-    }
     return combine( jump, combine );
   };
   for ( auto& c : code )

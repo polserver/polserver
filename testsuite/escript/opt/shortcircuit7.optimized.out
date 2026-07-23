@@ -1,0 +1,9 @@
+=== value context: nested (A&&B)||(C&&D)... via  var result := <chain> ===
+PASS VNEST-1: (t&&t) || X   (first clause true)  [evaluated: AB]
+PASS VNEST-2: (f&&X) || (t&&t)  [evaluated: ACD]
+PASS VNEST-3: (f&&X) || (f&&X) || (t&&t)  [evaluated: ACEF]
+PASS VNEST-4: (f&&X) || (f&&X)   (none true)  [evaluated: AC]
+=== controls: same chains in non-triggering forms (must PASS) ===
+PASS VCTL-1: f || t   (simple operands, var:=)  [evaluated: AB]
+PASS VCTL-2: (f&&X)||(t&&t)   (split declaration)  [evaluated: ACD]
+PASS VCTL-3: (f&&X)||(t&&t)   (if-condition)  [evaluated: ACD]
