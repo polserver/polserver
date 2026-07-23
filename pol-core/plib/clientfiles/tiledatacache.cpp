@@ -26,9 +26,9 @@
 
 namespace Pol::Plib
 {
-#define VERFILE_TILEDATA 0x1E
-#define TILEDATA_TILES 0x68800
-#define TILEDATA_TILES_HSA 0x78800
+constexpr int VERFILE_TILEDATA = 0x1E;
+constexpr int TILEDATA_TILES = 0x68800;
+constexpr int TILEDATA_TILES_HSA = 0x78800;
 
 void TileDataCache::open()
 {
@@ -76,7 +76,6 @@ void TileDataCache::load()
 void TileDataCache::clear()
 {
   tiledata_.clear();
-  tiledata_.shrink_to_fit();
 }
 
 unsigned int TileDataCache::landtile_uoflags_read( unsigned short landtile ) const
@@ -299,13 +298,11 @@ u32 TileDataCache::tile_uoflags_read( unsigned short tilenum ) const
   if ( use_new_hsa_format_ )
   {
     USTRUCT_TILE_HSA tile;
-    tile.flags = 0;
     readtile( tilenum, &tile );
     return tile.flags;
   }
 
   USTRUCT_TILE tile;
-  tile.flags = 0;
   readtile( tilenum, &tile );
   return tile.flags;
 }
@@ -347,8 +344,7 @@ void TileDataCache::read_tiledata()
     if ( use_new_hsa_format_ )
     {
       USTRUCT_TILE_HSA objinfo;
-      memset( &objinfo, 0, sizeof objinfo );
-      readtile( (u16)graphic, &objinfo );
+      readtile( graphic, &objinfo );
 
       tiledata_[graphic].height = objinfo.height;
       tiledata_[graphic].layer = objinfo.layer;
@@ -357,7 +353,6 @@ void TileDataCache::read_tiledata()
     else
     {
       USTRUCT_TILE objinfo;
-      memset( &objinfo, 0, sizeof objinfo );
       readtile( graphic, &objinfo );
 
       tiledata_[graphic].height = objinfo.height;

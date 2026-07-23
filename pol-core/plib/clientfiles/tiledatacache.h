@@ -93,7 +93,7 @@ private:
   std::vector<TileData> tiledata_;
   std::array<unsigned int, LANDTILE_COUNT> landtile_flags_arr_ = {};
   static constexpr unsigned int vidx_count = 32;
-  VerdataIndexes vidx_[vidx_count];
+  std::array<VerdataIndexes, vidx_count> vidx_;
 };
 }  // namespace Pol::Plib
 
