@@ -18,19 +18,15 @@ void CodeSectionOptimizer::short_circuit_jumps( CodeSection& code ) const
   auto combine = [&]( StoredToken& jump, auto&& combine )
   {
     const auto& loc = code[jump.offset];
-    if ( loc.id == RSV_JMPIFFALSE )
+    if ( loc.id == RSV_JMPIFFALSE || loc.id == RSV_JMPIFTRUE )
     {
-      if ( jump.type == TYP_LOGICAL_JUMP_FALSE )
-        jump.offset = loc.offset;
-      else
-        jump.offset++;
-    }
-    else if ( loc.id == RSV_JMPIFTRUE )
-    {
-      if ( jump.type != TYP_LOGICAL_JUMP_FALSE )
-        jump.offset = loc.offset;
-      else
-        jump.offset++;
+      // A conditional jump ALWAYS pops its condition (Executor::ins_jmpiffalse /
+      // ins_jmpiftrue), but a firing INS_LOGICAL_JUMP KEEPS its value on the stack.
+      // Threading the logical jump onto/past the conditional jump would skip that pop
+      // and strand a value, corrupting a following stack-addressed op (e.g. the `:=` of
+      // `var x := ( a && b ) ? ... ` or the return value read out of a `do..dowhile`
+      // predicate). Keep targeting the conditional jump so its pop still runs.
+      return;
     }
     else if ( loc.id == INS_LOGICAL_JUMP )
     {

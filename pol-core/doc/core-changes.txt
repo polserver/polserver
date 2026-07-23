@@ -4,7 +4,14 @@
            nested chain such as ( a && b ) || ( c && d ) was assigned via a variable
            declaration-with-initializer ( var x := ... ). The optimizer skipped past an
            opposite-type logical jump that pops on fall-through, corrupting the following
-           stack-addressed assignment. Recompilation is needed.
+           stack-addressed assignment. The same stranding also happened when a short-circuit
+           chain was the condition of a value-producing construct - a ternary
+           ( ( a && b ) ? x : y ) or a do..dowhile predicate: a conditional jump
+           ( JMPIFFALSE / JMPIFTRUE ) always pops its condition, but a firing logical jump
+           keeps its value, so threading the logical jump onto/past the conditional jump
+           dropped the pop and corrupted the following stack-addressed op (the assignment,
+           or the function's return value read by the caller). The logical jump now keeps
+           targeting the conditional jump so its pop still runs. Recompilation is needed.
 07-21-2026 Turley:
     Fixed: ShortCircuit optimizations created wrong instructions in certain situations.
            Since the bug is in codegen recompilation is needed.

@@ -29,6 +29,19 @@ function check( test_name, expr_desc, expected_log, actual_result, expected_resu
   endif
 endfunction
 
+// A do..dowhile whose predicate is a short-circuit chain; the loop returns a plain
+// value the caller reads out of an enclosing expression. Counts up to n and stops.
+function sc_dowhile( n )
+  var a := 1; var b := 0; var i := 0;
+  do
+    i := i + 1;
+    if ( i >= n )
+      a := 0;
+    endif
+  dowhile ( a || b );   // OR fires while a is true -> predicate emits RSV_JMPIFTRUE
+  return i;
+endfunction
+
 var test_name := "";
 var expr_desc := "";
 var expected_log := "";
@@ -97,3 +110,60 @@ if ( ( mk( "A", false ) && mk( "B", true ) ) || ( mk( "C", true ) && mk( "D", tr
   c3 := true;
 endif
 check( test_name, expr_desc, expected_log, c3, expected_result );
+
+print( "=== expression context: short-circuit chain feeding a value-producing construct ===" );
+
+// The ternary condition is a short-circuit chain -> it embeds the ternary's RSV_JMPIFFALSE.
+// A firing logical jump from the chain must not thread onto/past that JMPIFFALSE: the
+// conditional jump always pops, the firing logical jump keeps its value, so skipping the
+// pop strands a value and corrupts the `var := ` assignment.
+reset();
+test_name := "TERN-1";
+expr_desc := "( f && X ) ? 10 : 20";
+expected_log := "A";
+expected_result := 20;
+var t1 := ( mk( "A", false ) && mk( "B", true ) ) ? 10 : 20;
+check( test_name, expr_desc, expected_log, t1, expected_result );
+
+reset();
+test_name := "TERN-2";
+expr_desc := "( t || X ) ? 10 : 20";
+expected_log := "A";
+expected_result := 10;
+var t2 := ( mk( "A", true ) || mk( "B", true ) ) ? 10 : 20;
+check( test_name, expr_desc, expected_log, t2, expected_result );
+
+reset();
+test_name := "TERN-3";
+expr_desc := "( f || t ) ? 10 : 20   (OR fires on 2nd operand)";
+expected_log := "AB";
+expected_result := 10;
+var t3 := ( mk( "A", false ) || mk( "B", true ) ) ? 10 : 20;
+check( test_name, expr_desc, expected_log, t3, expected_result );
+
+reset();
+test_name := "TERN-4";
+expr_desc := "( ( f && X ) ? 10 : 20 ) + 20   (ternary result reused in arithmetic)";
+expected_log := "A";
+expected_result := 40;
+var t4 := ( ( mk( "A", false ) && mk( "B", true ) ) ? 10 : 20 ) + 20;
+check( test_name, expr_desc, expected_log, t4, expected_result );
+
+// A do..dowhile predicate is a short-circuit chain -> it emits RSV_JMPIFTRUE. A firing
+// predicate must not thread past it, or the function frame keeps a stray value and the
+// caller reads the wrong return value out of the enclosing expression.
+reset();
+test_name := "LOOP-1";
+expr_desc := "sc_dowhile( 3 ) + 100";
+expected_log := "";
+expected_result := 103;
+var l1 := sc_dowhile( 3 ) + 100;
+check( test_name, expr_desc, expected_log, l1, expected_result );
+
+reset();
+test_name := "LOOP-2";
+expr_desc := "sc_dowhile( 2 ) * sc_dowhile( 4 )";
+expected_log := "";
+expected_result := 8;
+var l2 := sc_dowhile( 2 ) * sc_dowhile( 4 );
+check( test_name, expr_desc, expected_log, l2, expected_result );

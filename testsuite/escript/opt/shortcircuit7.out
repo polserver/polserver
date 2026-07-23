@@ -19,3 +19,16 @@ FAIL VCTL-2: (f&&X)||(t&&t)   (split declaration)
 FAIL VCTL-3: (f&&X)||(t&&t)   (if-condition)
       expected evaluated=ACD  got=ABCD
       expected result=true  got=true
+=== expression context: short-circuit chain feeding a value-producing construct ===
+FAIL TERN-1: ( f && X ) ? 10 : 20
+      expected evaluated=A  got=AB
+      expected result=20  got=20
+FAIL TERN-2: ( t || X ) ? 10 : 20
+      expected evaluated=A  got=AB
+      expected result=10  got=10
+PASS TERN-3: ( f || t ) ? 10 : 20   (OR fires on 2nd operand)  [evaluated: AB]
+FAIL TERN-4: ( ( f && X ) ? 10 : 20 ) + 20   (ternary result reused in arithmetic)
+      expected evaluated=A  got=AB
+      expected result=40  got=40
+PASS LOOP-1: sc_dowhile( 3 ) + 100  [evaluated: ]
+PASS LOOP-2: sc_dowhile( 2 ) * sc_dowhile( 4 )  [evaluated: ]
