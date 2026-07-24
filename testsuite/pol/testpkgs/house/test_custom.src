@@ -1,0 +1,212 @@
+use uo;
+use os;
+use boat;
+
+include "testutil";
+
+const PARTS := 32;
+program test_custom_house()
+  return 1;
+endprogram
+
+exported function test_customhouse_custom( resources )
+  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  if ( !multi )
+    return multi;
+  endif
+  if ( multi.custom )
+    return ret_error( "house is custom but shouldnt" );
+  endif
+  multi.setcustom( 1 );
+  if ( !multi.custom )
+    return ret_error( "house is not custom but should" );
+  endif
+  multi.setcustom( 0 );
+  if ( multi.custom )
+    return ret_error( "house is still custom but shouldnt" );
+  endif
+  return 1;
+endfunction
+
+exported function test_customhouse_parts( resources )
+  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  if ( !multi )
+    return multi;
+  endif
+  if ( multi.house_parts )
+    return ret_error( $"house parts without custom should be an error {multi.house_parts}" );
+  endif
+  multi.setcustom( 1 );
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {multi.house_parts.size()}" );
+  endif
+  return 1;
+endfunction
+
+function find_part( multi, graphic, xoffset, yoffset, z )
+  return multi.house_parts.find( @( e ) {
+    return ( e.graphic == graphic && e.xoffset == xoffset && e.yoffset == yoffset && e.z == z );
+  } );
+endfunction
+
+exported function test_customhouse_addpart( resources )
+  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  if ( !multi )
+    return multi;
+  endif
+  multi.setcustom( 1 );
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+  if ( find_part( multi, 0x1, 1, 2, 0 ) )
+    return ret_error( "part already exists" );
+  endif
+  var ret := multi.addhousepart( 0x1, 1, 2, 0 );
+  if ( !ret )
+    return ret_error( $"addhousepart failed: {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS + 1 )
+    return ret_error( $"expected {PARTS}+1 parts got {len( multi.house_parts )}" );
+  endif
+  if ( !find_part( multi, 0x1, 1, 2, 0 ) )
+    return ret_error( "part wasnt added" );
+  endif
+
+  ret := multi.erasehousepart( 0x1, 1, 2, 0 );
+  if ( !ret )
+    return ret_error( $"erasehousepart failed: {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+  if ( find_part( multi, 0x1, 1, 2, 0 ) )
+    return ret_error( "part wasnt deleted" );
+  endif
+  return 1;
+endfunction
+
+exported function test_customhouse_addparts( resources )
+  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  if ( !multi )
+    return multi;
+  endif
+  multi.setcustom( 1 );
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+  if ( find_part( multi, 0x1, 1, 2, 0 ) || find_part( multi, 0x1, 1, 2, 5 ) )
+    return ret_error( "parts already exists" );
+  endif
+  var ret := multi.addhousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 0 },
+                                   struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 5 }
+                                 } );
+  if ( !ret )
+    return ret_error( $"addhouseparts failed: {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS + 2 )
+    return ret_error( $"expected {PARTS}+2 parts got {len( multi.house_parts )}" );
+  endif
+  if ( !find_part( multi, 0x1, 1, 2, 0 ) || !find_part( multi, 0x1, 1, 2, 5 ) )
+    return ret_error( "part wasnt added" );
+  endif
+
+  ret := multi.erasehousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 0 },
+                                 struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 5 }
+                               } );
+  if ( !ret )
+    return ret_error( $"erasehouseparts failed: {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+  if ( find_part( multi, 0x1, 1, 2, 0 ) || find_part( multi, 0x1, 1, 2, 5 ) )
+    return ret_error( "part wasnt deleted" );
+  endif
+  return 1;
+endfunction
+
+exported function test_customhouse_addparts_fail( resources )
+  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  if ( !multi )
+    return multi;
+  endif
+  multi.setcustom( 1 );
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+  if ( find_part( multi, 0x1, 1, 2, 0 ) )
+    return ret_error( "parts already exists" );
+  endif
+
+  var ret := multi.addhousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := 2 } } );
+  if ( ret )
+    return ret_error( $"addhouseparts succeded (missing z): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+
+  ret := multi.addhousepart( { "blubb" } );
+  if ( ret )
+    return ret_error( $"addhouseparts succeded (subtype): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+
+  ret := multi.addhousepart( "blubb" );
+  if ( ret )
+    return ret_error( $"addhouseparts succeded (type): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+
+  ret := multi.addhousepart( "blubb", "blah" );
+  if ( ret )
+    return ret_error( $"addhouseparts succeded (extra argument): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS )
+    return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
+  endif
+
+  // start of failing erase
+  ret := multi.addhousepart( 0x1, 1, 2, 0 );
+  if ( !ret )
+    return ret_error( $"addhousepart failed: {ret}" );
+  endif
+
+  ret := multi.erasehousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := 2 } } );
+  if ( ret )
+    return ret_error( $"erasehouseparts succeeded (missing z): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS + 1 )
+    return ret_error( $"expected {PARTS}+1 parts got {len( multi.house_parts )}" );
+  endif
+
+  ret := multi.erasehousepart( { "blubb" } );
+  if ( ret )
+    return ret_error( $"erasehouseparts succeeded (subtype): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS + 1 )
+    return ret_error( $"expected {PARTS}+1 parts got {len( multi.house_parts )}" );
+  endif
+
+  ret := multi.erasehousepart( "blubb" );
+  if ( ret )
+    return ret_error( $"erasehouseparts succeeded (type): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS + 1 )
+    return ret_error( $"expected {PARTS}+1 parts got {len( multi.house_parts )}" );
+  endif
+
+  ret := multi.erasehousepart( "blubb", "blah" );
+  if ( ret )
+    return ret_error( $"erasehouseparts succeeded (extra argument): {ret}" );
+  endif
+  if ( multi.house_parts.size() != PARTS + 1 )
+    return ret_error( $"expected {PARTS}+1 parts got {len( multi.house_parts )}" );
+  endif
+  return 1;
+endfunction
+

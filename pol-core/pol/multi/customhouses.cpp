@@ -140,7 +140,7 @@ CustomHouseDesign& CustomHouseDesign::operator=( const CustomHouseDesign& design
 }
 
 // Adds the element to the design
-void CustomHouseDesign::Add( CUSTOM_HOUSE_ELEMENT& elem )
+void CustomHouseDesign::Add( const CUSTOM_HOUSE_ELEMENT& elem )
 {
   int floor_num = z_to_custom_house_table( elem.z );
   if ( floor_num == -1 )
@@ -151,7 +151,7 @@ void CustomHouseDesign::Add( CUSTOM_HOUSE_ELEMENT& elem )
 
 // fixme: low walls not being replaced
 // Replaces an existing object depending on the 2 tile heights
-void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
+void CustomHouseDesign::AddOrReplace( const CUSTOM_HOUSE_ELEMENT& elem )
 {
   int floor_num = z_to_custom_house_table( elem.z );
   if ( floor_num == -1 )

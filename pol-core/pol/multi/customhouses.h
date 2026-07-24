@@ -94,7 +94,7 @@ public:
   size_t estimatedSize() const;
   HouseFloorZColumn* GetElementsAt( s32 xoffset, s32 yoffset );
 
-  void AddElement( CUSTOM_HOUSE_ELEMENT& elem );
+  void AddElement( const CUSTOM_HOUSE_ELEMENT& elem );
 
   HouseFloor data;
   u32 height, width;
@@ -111,8 +111,8 @@ public:
   void InitDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
 
   CustomHouseDesign& operator=( const CustomHouseDesign& design );
-  void Add( CUSTOM_HOUSE_ELEMENT& elem );
-  void AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem );
+  void Add( const CUSTOM_HOUSE_ELEMENT& elem );
+  void AddOrReplace( const CUSTOM_HOUSE_ELEMENT& elem );
   void AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z );
 
   bool Erase( u32 xoffset, u32 yoffset, u8 z, int minheight = 0 );
