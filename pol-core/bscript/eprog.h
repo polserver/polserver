@@ -14,13 +14,13 @@
 #include <string>
 #include <vector>
 
+#include "bscript/executortype.h"
+#include "bscript/symcont.h"
+#include "bscript/token.h"
 #include "clib/boostutils.h"
 #include "clib/maputil.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
-#include "bscript/executortype.h"
-#include "bscript/symcont.h"
-#include "bscript/Token.h"
 
 namespace Pol
 {
