@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include "../clib/fixalloc.h"
-#include "../clib/passert.h"
-#include "bobjectimp.h"
+#include "clib/fixalloc.h"
+#include "clib/passert.h"
+#include "bscript/bobjectimp.h"
 
 namespace Pol::Bscript
 {

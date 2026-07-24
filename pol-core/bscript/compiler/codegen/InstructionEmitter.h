@@ -7,13 +7,13 @@
 #include <vector>
 
 #ifndef OBJMEMBERS_H
-#include "objmembers.h"
+#include "bscript/objmembers.h"
 #endif
 #ifndef OBJMETHODS_H
-#include "objmethods.h"
+#include "bscript/objmethods.h"
 #endif
 #ifndef __TOKENS_H
-#include "tokens.h"
+#include "bscript/tokens.h"
 #endif
 #include "bscript/compiler/codegen/CodeEmitter.h"
 #include "bscript/compiler/codegen/DataEmitter.h"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
 
 #include <stack>
 #include <string>
@@ -20,10 +20,10 @@
 #endif
 
 #if BOBJECTIMP_DEBUG
-#include "../clib/spinlock.h"
+#include "clib/spinlock.h"
 #endif
 #if INLINE_BOBJECTIMP_CTOR
-#include "escriptv.h"
+#include "bscript/escriptv.h"
 #endif
 
 namespace Pol::Bscript

@@ -1,7 +1,7 @@
 
-#include "uoinstallfinder.h"
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
+#include "plib/uoinstallfinder.h"
+#include "clib/cfgelem.h"
+#include "clib/logfacility.h"
 #include <stdexcept>
 #include <string>
 

@@ -1,4 +1,4 @@
-#include "CaseDispatchGroups.h"
+#include "bscript/compiler/ast/CaseDispatchGroups.h"
 
 
 #include "bscript/compiler/ast/CaseDispatchGroup.h"

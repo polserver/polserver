@@ -1,4 +1,4 @@
-#include "FunctionLink.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"

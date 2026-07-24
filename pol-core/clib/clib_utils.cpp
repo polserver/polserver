@@ -4,8 +4,8 @@
  */
 
 
-#include "clib.h"
-#include "rawtypes.h"
+#include "clib/clib.h"
+#include "clib/rawtypes.h"
 #include <cmath>
 
 namespace Pol::Clib

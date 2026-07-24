@@ -23,11 +23,11 @@
 #include "clib/passert.h"
 #include "clib/rawtypes.h"
 #include "clib/strutil.h"
-#include "staticblock.h"
-#include "staticscache.h"
-#include "systemstate.h"
-#include "uoclientfiles.h"
-#include "ustruct.h"
+#include "plib/staticblock.h"
+#include "plib/clientfiles/staticscache.h"
+#include "plib/systemstate.h"
+#include "plib/clientfiles/uoclientfiles.h"
+#include "plib/ustruct.h"
 
 
 namespace Pol::Plib

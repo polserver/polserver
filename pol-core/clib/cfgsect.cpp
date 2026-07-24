@@ -4,10 +4,10 @@
  */
 
 
-#include "cfgsect.h"
+#include "clib/cfgsect.h"
 
-#include "cfgelem.h"
-#include "cfgfile.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
 
 #include <stdexcept>
 

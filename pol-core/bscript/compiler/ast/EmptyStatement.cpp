@@ -1,4 +1,4 @@
-#include "EmptyStatement.h"
+#include "bscript/compiler/ast/EmptyStatement.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

@@ -6,7 +6,7 @@
 
 #ifndef CLIB_CFGELEM_H
 #define CLIB_CFGELEM_H
-#include "maputil.h"
+#include "clib/maputil.h"
 
 #include <map>
 

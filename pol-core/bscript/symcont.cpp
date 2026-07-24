@@ -5,15 +5,15 @@
  */
 
 
-#include "symcont.h"
+#include "bscript/symcont.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
 
-#include "../clib/logfacility.h"
-#include "../clib/strutil.h"
+#include "clib/logfacility.h"
+#include "clib/strutil.h"
 
 
 namespace Pol::Bscript

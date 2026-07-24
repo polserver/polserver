@@ -4,21 +4,21 @@
  */
 
 
-#include "mapserver.h"
+#include "plib/mapserver.h"
 
 #include <stddef.h>
 #include <stdexcept>
 #include <string>
 
-#include "../clib/binaryfile.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "filemapserver.h"
-#include "inmemorymapserver.h"
-#include "mapcell.h"
-#include "mapshape.h"
-#include "mapsolid.h"
+#include "clib/binaryfile.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "plib/filemapserver.h"
+#include "plib/inmemorymapserver.h"
+#include "plib/mapcell.h"
+#include "plib/mapshape.h"
+#include "plib/mapsolid.h"
 
 
 namespace Pol::Plib

@@ -1,10 +1,10 @@
 
-#include "systemstate.h"
+#include "plib/systemstate.h"
 
-#include "../clib/stlutil.h"
-#include "objtype.h"
-#include "pkg.h"
-#include "tiles.h"
+#include "clib/stlutil.h"
+#include "plib/objtype.h"
+#include "plib/pkg.h"
+#include "plib/tiles.h"
 
 
 namespace Pol::Plib

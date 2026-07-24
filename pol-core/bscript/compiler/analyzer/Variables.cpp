@@ -1,4 +1,4 @@
-#include "Variables.h"
+#include "bscript/compiler/analyzer/Variables.h"
 
 #include <ranges>
 

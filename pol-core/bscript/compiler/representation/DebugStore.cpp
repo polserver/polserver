@@ -1,4 +1,4 @@
-#include "DebugStore.h"
+#include "bscript/compiler/representation/DebugStore.h"
 
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"
 #include "bscript/compiler/model/Variable.h"

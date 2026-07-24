@@ -1,4 +1,4 @@
-#include "IfThenElseStatement.h"
+#include "bscript/compiler/ast/IfThenElseStatement.h"
 
 
 #include "bscript/compiler/ast/Block.h"

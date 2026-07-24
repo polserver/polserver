@@ -1,4 +1,4 @@
-#include "FlowControlScopes.h"
+#include "bscript/compiler/analyzer/FlowControlScopes.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/FlowControlScope.h"

@@ -12,11 +12,11 @@
 #define _BSCRIPT_STDAFX_H
 
 // include default pch
-#include "../clib/StdAfx.h"
+#include "clib/StdAfx.h"
 
-#include "bobject.h"
-#include "token.h"
-#include "tokens.h"
+#include "bscript/bobject.h"
+#include "bscript/token.h"
+#include "bscript/tokens.h"
 
 
 #endif

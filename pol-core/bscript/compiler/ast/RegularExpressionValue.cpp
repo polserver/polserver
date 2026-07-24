@@ -1,4 +1,4 @@
-#include "RegularExpressionValue.h"
+#include "bscript/compiler/ast/RegularExpressionValue.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

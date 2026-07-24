@@ -1,8 +1,8 @@
-#include "MemberAccess.h"
+#include "bscript/compiler/ast/MemberAccess.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"
-#include "compilercfg.h"
+#include "bscript/compilercfg.h"
 
 namespace Pol::Bscript::Compiler
 {

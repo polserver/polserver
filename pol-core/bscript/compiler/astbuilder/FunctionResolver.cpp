@@ -1,4 +1,4 @@
-#include "FunctionResolver.h"
+#include "bscript/compiler/astbuilder/FunctionResolver.h"
 
 #include <list>
 

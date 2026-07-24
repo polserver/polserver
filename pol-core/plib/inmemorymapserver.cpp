@@ -3,12 +3,12 @@
  * @par History
  */
 
-#include "inmemorymapserver.h"
+#include "plib/inmemorymapserver.h"
 
-#include "../clib/binaryfile.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "mapblock.h"
+#include "clib/binaryfile.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "plib/mapblock.h"
 
 
 namespace Pol::Plib

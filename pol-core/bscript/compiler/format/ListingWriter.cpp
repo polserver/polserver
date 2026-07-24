@@ -1,10 +1,10 @@
-#include "ListingWriter.h"
+#include "bscript/compiler/format/ListingWriter.h"
 
 #include <fmt/ostream.h>
 #include <fstream>
 #include <string_view>
 
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/format/StoredTokenDecoder.h"

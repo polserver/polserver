@@ -7,11 +7,11 @@
  */
 #pragma once
 
-#include "bobjectimp.h"
+#include "bscript/bobjectimp.h"
 
-#include "../clib/fixalloc.h"
-#include "../clib/passert.h"
-#include "../clib/refptr.h"
+#include "clib/fixalloc.h"
+#include "clib/passert.h"
+#include "clib/refptr.h"
 
 #include <vector>
 

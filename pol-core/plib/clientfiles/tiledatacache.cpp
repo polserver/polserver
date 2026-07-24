@@ -18,10 +18,10 @@
 #include "clib/rawtypes.h"
 #include "clib/stlutil.h"
 #include "plib/mul/tiledata.h"
-#include "systemstate.h"
-#include "tiledatacache.h"
-#include "uoclientfiles.h"
-#include "ustruct.h"
+#include "plib/systemstate.h"
+#include "plib/clientfiles/tiledatacache.h"
+#include "plib/clientfiles/uoclientfiles.h"
+#include "plib/ustruct.h"
 
 
 namespace Pol::Plib

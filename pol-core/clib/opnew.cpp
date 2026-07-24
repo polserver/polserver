@@ -11,8 +11,8 @@
  */
 
 
-#include "opnew.h"
-#include "logfacility.h"
+#include "clib/opnew.h"
+#include "clib/logfacility.h"
 #include "pol_global_config.h"
 
 #ifdef _WIN32

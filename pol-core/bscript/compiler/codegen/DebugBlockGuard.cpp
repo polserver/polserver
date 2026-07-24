@@ -1,4 +1,4 @@
-#include "DebugBlockGuard.h"
+#include "bscript/compiler/codegen/DebugBlockGuard.h"
 
 #include "bscript/compiler/codegen/InstructionEmitter.h"
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"

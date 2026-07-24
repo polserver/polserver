@@ -4,7 +4,7 @@
 #include "bscript/compiler/ast/Expression.h"
 
 #ifndef OBJMETHODS_H
-#include "objmethods.h"
+#include "bscript/objmethods.h"
 #endif
 
 namespace Pol::Bscript::Compiler

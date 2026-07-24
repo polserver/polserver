@@ -6,8 +6,8 @@
  */
 
 
-#include "NTService.h"
-#include "ntservmsg.h"  // Event message ids
+#include "clib/NTService.h"
+#include "clib/ntservmsg.h"  // Event message ids
 #include <stdio.h>
 
 // Custom Controls Below Here

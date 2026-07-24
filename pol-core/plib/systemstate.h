@@ -9,9 +9,9 @@
 #include <sys/types.h>
 #endif
 
-#include "../clib/maputil.h"
-#include "../clib/rawtypes.h"
-#include "polcfg.h"
+#include "clib/maputil.h"
+#include "clib/rawtypes.h"
+#include "plib/polcfg.h"
 
 
 namespace Pol::Plib

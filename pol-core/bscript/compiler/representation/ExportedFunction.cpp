@@ -1,4 +1,4 @@
-#include "ExportedFunction.h"
+#include "bscript/compiler/representation/ExportedFunction.h"
 
 namespace Pol::Bscript::Compiler
 {

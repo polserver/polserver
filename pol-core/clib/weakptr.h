@@ -10,7 +10,7 @@
 #ifndef __WEAKPTR_H
 #define __WEAKPTR_H
 
-#include "refptr.h"
+#include "clib/refptr.h"
 #include <atomic>
 
 //

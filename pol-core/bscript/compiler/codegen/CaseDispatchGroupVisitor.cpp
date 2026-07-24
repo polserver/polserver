@@ -1,4 +1,4 @@
-#include "CaseDispatchGroupVisitor.h"
+#include "bscript/compiler/codegen/CaseDispatchGroupVisitor.h"
 
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/CaseDispatchDefaultSelector.h"

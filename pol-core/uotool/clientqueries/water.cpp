@@ -9,12 +9,12 @@
 #include <stdexcept>
 #include <stdio.h>
 
-#include "water.h"
+#include "uotool/clientqueries/water.h"
 
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/clientfiles/uoclientfiles.h"
-#include "../../plib/ustruct.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "plib/clientfiles/uoclientfiles.h"
+#include "plib/ustruct.h"
 
 
 namespace Pol::UoTool

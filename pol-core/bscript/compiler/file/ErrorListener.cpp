@@ -1,4 +1,4 @@
-#include "ErrorListener.h"
+#include "bscript/compiler/file/ErrorListener.h"
 
 #include <set>
 

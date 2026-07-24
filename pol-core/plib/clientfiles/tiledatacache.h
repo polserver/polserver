@@ -6,8 +6,8 @@
 #include <map>
 #include <vector>
 
-#include "../clidata.h"
-#include "../ustruct.h"
+#include "plib/clidata.h"
+#include "plib/ustruct.h"
 #include "clib/UniqueFile.h"
 #include "clib/rawtypes.h"
 

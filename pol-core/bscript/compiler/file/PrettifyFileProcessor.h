@@ -4,7 +4,7 @@
 #include "bscript/compiler/file/SourceLocation.h"
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
-#include "PrettifyLineBuilder.h"
+#include "bscript/compiler/file/PrettifyLineBuilder.h"
 
 #include <memory>
 #include <optional>

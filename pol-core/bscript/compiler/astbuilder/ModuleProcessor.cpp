@@ -1,4 +1,4 @@
-#include "ModuleProcessor.h"
+#include "bscript/compiler/astbuilder/ModuleProcessor.h"
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"

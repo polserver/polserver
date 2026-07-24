@@ -1,4 +1,4 @@
-#include "ElementAccess.h"
+#include "bscript/compiler/ast/ElementAccess.h"
 
 
 #include "bscript/compiler/ast/ElementIndexes.h"

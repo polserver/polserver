@@ -1,7 +1,7 @@
-#include "JumpStatement.h"
+#include "bscript/compiler/ast/JumpStatement.h"
 
 
-#include "NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

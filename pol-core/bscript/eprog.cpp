@@ -3,17 +3,17 @@
  * @par History
  */
 
-#include "eprog.h"
+#include "bscript/eprog.h"
 
 #include <cstdio>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <iomanip>
 
-#include "../clib/refptr.h"
-#include "../clib/stlutil.h"
-#include "escriptv.h"
-#include "fmodule.h"
+#include "clib/refptr.h"
+#include "clib/stlutil.h"
+#include "bscript/escriptv.h"
+#include "bscript/fmodule.h"
 
 
 namespace Pol::Bscript

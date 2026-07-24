@@ -6,11 +6,11 @@
 
 #include <stdlib.h>
 
-#include "logfacility.h"
-#include "passert.h"
-#include "socketsvc.h"
-#include "strutil.h"
-#include "threadhelp.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/network/socketsvc.h"
+#include "clib/strutil.h"
+#include "clib/threadhelp.h"
 
 
 namespace Pol::Clib

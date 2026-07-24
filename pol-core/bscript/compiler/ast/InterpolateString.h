@@ -1,7 +1,7 @@
 #ifndef POLSERVER_INTERPOLATESTRING_H
 #define POLSERVER_INTERPOLATESTRING_H
 
-#include "compiler/ast/Expression.h"
+#include "bscript/compiler/ast/Expression.h"
 
 namespace Pol::Bscript::Compiler
 {

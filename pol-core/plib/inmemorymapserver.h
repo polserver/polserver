@@ -9,10 +9,10 @@
 
 #include <vector>
 
-#include "../clib/binaryfile.h"
-#include "mapblock.h"
-#include "mapcell.h"
-#include "mapserver.h"
+#include "clib/binaryfile.h"
+#include "plib/mapblock.h"
+#include "plib/mapcell.h"
+#include "plib/mapserver.h"
 
 
 namespace Pol::Plib

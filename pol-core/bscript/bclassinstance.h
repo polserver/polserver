@@ -3,10 +3,10 @@
 #include <memory>
 #include <set>
 
-#include "../clib/refptr.h"
-#include "bobject.h"
-#include "bstruct.h"
-#include "eprog.h"
+#include "clib/refptr.h"
+#include "bscript/bobject.h"
+#include "bscript/bstruct.h"
+#include "bscript/eprog.h"
 
 namespace Pol::Bscript
 {

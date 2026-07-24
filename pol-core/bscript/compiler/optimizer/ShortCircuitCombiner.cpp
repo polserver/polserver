@@ -1,4 +1,4 @@
-#include "ShortCircuitCombiner.h"
+#include "bscript/compiler/optimizer/ShortCircuitCombiner.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"

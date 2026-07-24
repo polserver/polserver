@@ -1,7 +1,7 @@
 
 #include "pol_global_config.h"
 
-#include "RunEclMain.h"
+#include "runecl/RunEclMain.h"
 
 #include <ctime>
 
@@ -10,31 +10,31 @@
 
 #include <fmt/std.h>
 
-#include "../bscript/bspecialjump.h"
-#include "../bscript/buninit.h"
-#include "../bscript/config.h"
-#include "../bscript/escriptv.h"
-#include "../bscript/execmodl.h"
-#include "../bscript/executor.h"
-#include "../bscript/filefmt.h"
-#include "../clib/Header_Windows.h"
-#include "../clib/Program/ProgramMain.h"
-#include "../clib/boostutils.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/refptr.h"
-#include "../clib/stlutil.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
+#include "bscript/bspecialjump.h"
+#include "bscript/buninit.h"
+#include "bscript/config.h"
+#include "bscript/escriptv.h"
+#include "bscript/execmodl.h"
+#include "bscript/executor.h"
+#include "bscript/filefmt.h"
+#include "clib/Header_Windows.h"
+#include "clib/Program/ProgramMain.h"
+#include "clib/boostutils.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/refptr.h"
+#include "clib/stlutil.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
 
-#include "../pol/globals/ucfg.h"
-#include "../pol/module/basiciomod.h"
-#include "../pol/module/basicmod.h"
-#include "../pol/module/cfgmod.h"
-#include "../pol/module/datastore.h"
-#include "../pol/module/filemod.h"
-#include "../pol/module/mathmod.h"
-#include "../pol/module/utilmod.h"
+#include "pol/globals/ucfg.h"
+#include "pol/module/basiciomod.h"
+#include "pol/module/basicmod.h"
+#include "pol/module/cfgmod.h"
+#include "pol/module/datastore.h"
+#include "pol/module/filemod.h"
+#include "pol/module/mathmod.h"
+#include "pol/module/utilmod.h"
 
 #if BOBJECTIMP_DEBUG
 #include "bscript/object.h"

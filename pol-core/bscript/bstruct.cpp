@@ -8,23 +8,23 @@
  */
 
 
-#include "bstruct.h"
+#include "bscript/bstruct.h"
 
 #include <fmt/compile.h>
 #include <iterator>
 #include <stddef.h>
 
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "barray.h"
-#include "bcontiter.h"
-#include "berror.h"
-#include "blong.h"
-#include "bobject.h"
-#include "bstring.h"
-#include "buninit.h"
-#include "executor.h"
-#include "objmethods.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "bscript/barray.h"
+#include "bscript/bcontiter.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
+#include "bscript/executor.h"
+#include "bscript/objmethods.h"
 
 
 namespace Pol::Bscript

@@ -1,9 +1,9 @@
-#include "testfiles.h"
+#include "poltool/testfiles.h"
 
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/strutil.h"
-#include "../plib/mapblock.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/strutil.h"
+#include "plib/mapblock.h"
 
 #include <cstring>
 #include <filesystem>

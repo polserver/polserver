@@ -1,8 +1,8 @@
-#include "str.h"
+#include "bscript/str.h"
 
-#include "bdouble.h"
-#include "blong.h"
-#include "bobject.h"
+#include "bscript/bdouble.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
 
 namespace Pol::Bscript
 {

@@ -1,4 +1,4 @@
-#include "DictionaryEntry.h"
+#include "bscript/compiler/ast/DictionaryEntry.h"
 
 
 #include "bscript/compiler/ast/Expression.h"

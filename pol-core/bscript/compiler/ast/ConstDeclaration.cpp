@@ -1,4 +1,4 @@
-#include "ConstDeclaration.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
 
 
 #include <utility>

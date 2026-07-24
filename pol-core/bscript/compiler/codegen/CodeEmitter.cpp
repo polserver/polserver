@@ -1,6 +1,6 @@
-#include "CodeEmitter.h"
+#include "bscript/compiler/codegen/CodeEmitter.h"
 
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 
 namespace Pol::Bscript::Compiler
 {

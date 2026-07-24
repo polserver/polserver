@@ -1,4 +1,4 @@
-#include "ClassParameterList.h"
+#include "bscript/compiler/ast/ClassParameterList.h"
 
 #include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/Identifier.h"

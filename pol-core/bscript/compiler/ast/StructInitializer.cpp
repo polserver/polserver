@@ -1,4 +1,4 @@
-#include "StructInitializer.h"
+#include "bscript/compiler/ast/StructInitializer.h"
 
 
 #include <utility>

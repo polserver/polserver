@@ -1,8 +1,8 @@
-#include "CodeGenerator.h"
+#include "bscript/compiler/codegen/CodeGenerator.h"
 
 #include <memory>
 
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"

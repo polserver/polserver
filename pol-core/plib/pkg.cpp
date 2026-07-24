@@ -4,7 +4,7 @@
  */
 
 
-#include "pkg.h"
+#include "plib/pkg.h"
 
 #include "pol_global_config.h"
 #include <algorithm>
@@ -12,15 +12,15 @@
 #include <stdlib.h>
 #include <system_error>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "systemstate.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "plib/systemstate.h"
 
 namespace fs = std::filesystem;
 

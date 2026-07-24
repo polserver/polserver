@@ -1,4 +1,4 @@
-#include "SourceFileProcessor.h"
+#include "bscript/compiler/astbuilder/SourceFileProcessor.h"
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
@@ -18,7 +18,7 @@
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/timer.h"
-#include "compilercfg.h"
+#include "bscript/compilercfg.h"
 #include "plib/pkg.h"
 
 using EscriptGrammar::EscriptParser;

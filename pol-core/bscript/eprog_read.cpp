@@ -9,18 +9,18 @@
 #include <map>
 #include <string>
 
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/strutil.h"
-#include "eprog.h"
-#include "executor.h"
-#include "filefmt.h"
-#include "fmodule.h"
-#include "modules.h"
-#include "objmethods.h"
-#include "symcont.h"
-#include "token.h"
-#include "tokens.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/strutil.h"
+#include "bscript/eprog.h"
+#include "bscript/executor.h"
+#include "bscript/filefmt.h"
+#include "bscript/fmodule.h"
+#include "bscript/modules.h"
+#include "bscript/objmethods.h"
+#include "bscript/symcont.h"
+#include "bscript/token.h"
+#include "bscript/tokens.h"
 
 
 namespace Pol::Bscript

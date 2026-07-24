@@ -10,8 +10,8 @@
 
 #include <vector>
 
-#include "realmdescriptor.h"
-#include "staticblock.h"
+#include "plib/realmdescriptor.h"
+#include "plib/staticblock.h"
 
 
 namespace Pol::Plib

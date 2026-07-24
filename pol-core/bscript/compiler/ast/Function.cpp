@@ -1,4 +1,4 @@
-#include "Function.h"
+#include "bscript/compiler/ast/Function.h"
 
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"

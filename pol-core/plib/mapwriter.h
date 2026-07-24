@@ -8,9 +8,9 @@
 #ifndef PLIB_MAPWRITER_H
 #define PLIB_MAPWRITER_H
 
-#include "mapblock.h"
-#include "mapsolid.h"
-#include "maptile.h"
+#include "plib/mapblock.h"
+#include "plib/mapsolid.h"
+#include "plib/maptile.h"
 
 #include <string>
 #include <string_view>

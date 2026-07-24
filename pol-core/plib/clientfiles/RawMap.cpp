@@ -1,16 +1,16 @@
-#include "RawMap.h"
+#include "plib/clientfiles/RawMap.h"
 
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "clib/strutil.h"
 #include "plib/mul/map.h"
-#include "staticblock.h"
-#include "systemstate.h"
-#include "uoclientfiles.h"
+#include "plib/staticblock.h"
+#include "plib/systemstate.h"
+#include "plib/clientfiles/uoclientfiles.h"
 
-#include "uopreader/uop.h"
-#include "uopreader/uophash.h"
+#include "plib/uopreader/uop.h"
+#include "plib/uopreader/uophash.h"
 
 #include <cstddef>
 #include <cstdio>

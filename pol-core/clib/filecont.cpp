@@ -4,10 +4,10 @@
  */
 
 
-#include "filecont.h"
+#include "clib/filecont.h"
 
-#include "logfacility.h"
-#include "strutil.h"
+#include "clib/logfacility.h"
+#include "clib/strutil.h"
 #include <cstdio>
 
 

@@ -1,4 +1,4 @@
-#include "FunctionReferenceDescriptor.h"
+#include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

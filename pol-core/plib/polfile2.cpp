@@ -10,10 +10,10 @@
 
 #include <string>
 
-#include "../clib/rawtypes.h"
-#include "mapcell.h"
-#include "systemstate.h"
-#include "tiles.h"
+#include "clib/rawtypes.h"
+#include "plib/mapcell.h"
+#include "plib/systemstate.h"
+#include "plib/tiles.h"
 
 
 namespace Pol::Plib

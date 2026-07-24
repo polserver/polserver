@@ -3,7 +3,7 @@
  * @par History
  */
 
-#include "bdouble.h"
+#include "bscript/bdouble.h"
 #include <charconv>
 #include <cmath>
 #include <iterator>
@@ -13,12 +13,12 @@
 
 #include <fmt/compile.h>
 
-#include "../clib/stlutil.h"
-#include "bboolean.h"
-#include "berror.h"
-#include "blong.h"
-#include "bobject.h"
-#include "bstring.h"
+#include "clib/stlutil.h"
+#include "bscript/bboolean.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/bstring.h"
 
 
 namespace Pol::Bscript

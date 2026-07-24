@@ -10,8 +10,8 @@
 #include <array>
 #include <vector>
 
-#include "clidata.h"
-#include "staticblock.h"
+#include "plib/clidata.h"
+#include "plib/staticblock.h"
 
 
 namespace Pol::Plib

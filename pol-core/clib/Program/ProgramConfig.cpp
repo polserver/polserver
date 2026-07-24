@@ -1,4 +1,4 @@
-#include "ProgramConfig.h"
+#include "clib/Program/ProgramConfig.h"
 #include "pol_global_config.h"
 #include "pol_revision.h"
 #include <string>

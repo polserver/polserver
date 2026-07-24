@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-#include "ModuleDeclarationBuilder.h"
+#include "bscript/compiler/astbuilder/ModuleDeclarationBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,4 +1,4 @@
-#include "NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ArrayInitializer.h"

@@ -1,4 +1,4 @@
-#include "MemberAssignmentByOperator.h"
+#include "bscript/compiler/ast/MemberAssignmentByOperator.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

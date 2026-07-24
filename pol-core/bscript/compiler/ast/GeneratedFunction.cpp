@@ -1,4 +1,4 @@
-#include "GeneratedFunction.h"
+#include "bscript/compiler/ast/GeneratedFunction.h"
 
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"

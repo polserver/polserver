@@ -10,8 +10,8 @@
 #include <istream>
 #include <string>
 
-#include "../clib/rawtypes.h"
-#include "bstruct.h"
+#include "clib/rawtypes.h"
+#include "bscript/bstruct.h"
 
 
 namespace Pol::Bscript

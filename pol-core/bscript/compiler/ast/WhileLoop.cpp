@@ -1,4 +1,4 @@
-#include "WhileLoop.h"
+#include "bscript/compiler/ast/WhileLoop.h"
 
 
 #include "bscript/compiler/ast/Block.h"

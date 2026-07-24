@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "../clib/Program/ProgramMain.h"
-#include "../plib/mapshape.h"
-#include "../plib/mapwriter.h"
-#include "../plib/udatfile.h"
+#include "clib/Program/ProgramMain.h"
+#include "plib/mapshape.h"
+#include "plib/mapwriter.h"
+#include "plib/udatfile.h"
 
 namespace Pol
 {

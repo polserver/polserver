@@ -1,4 +1,4 @@
-#include "Block.h"
+#include "bscript/compiler/ast/Block.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

@@ -1,4 +1,4 @@
-#include "CompilerWorkspaceBuilder.h"
+#include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"

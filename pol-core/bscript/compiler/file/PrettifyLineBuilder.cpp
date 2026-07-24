@@ -1,4 +1,4 @@
-#include "PrettifyLineBuilder.h"
+#include "bscript/compiler/file/PrettifyLineBuilder.h"
 
 #include "bscript/compilercfg.h"
 #include "clib/filecont.h"

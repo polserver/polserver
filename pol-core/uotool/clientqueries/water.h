@@ -1,7 +1,7 @@
 #ifndef UOTOOL_CLIENTQUERIES_WATER_H
 #define UOTOOL_CLIENTQUERIES_WATER_H
 
-#include "../../clib/rawtypes.h"  // u16
+#include "clib/rawtypes.h"  // u16
 
 namespace Pol::Plib
 {

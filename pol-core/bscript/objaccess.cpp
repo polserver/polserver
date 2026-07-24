@@ -1,5 +1,5 @@
-#include "objmembers.h"
-#include "objmethods.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
 
 #include <algorithm>
 #include <string>

@@ -1,10 +1,10 @@
-#include "InstructionEmitter.h"
+#include "bscript/compiler/codegen/InstructionEmitter.h"
 
 #include <limits>
 #include <list>
 #include <set>
 
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
@@ -23,10 +23,10 @@
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ConstructorDescriptor.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
-#include "escriptv.h"
-#include "modules.h"
-#include "token.h"
-#include "tokens.h"
+#include "bscript/escriptv.h"
+#include "bscript/modules.h"
+#include "bscript/token.h"
+#include "bscript/tokens.h"
 
 namespace Pol::Bscript::Compiler
 {

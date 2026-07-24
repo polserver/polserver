@@ -4,10 +4,10 @@
  */
 
 
-#include "berror.h"
+#include "bscript/berror.h"
 
-#include "bcontiter.h"
-#include "bstring.h"
+#include "bscript/bcontiter.h"
+#include "bscript/bstring.h"
 
 
 namespace Pol::Bscript

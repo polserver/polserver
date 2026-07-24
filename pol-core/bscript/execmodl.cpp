@@ -4,11 +4,11 @@
  */
 
 
-#include "execmodl.h"
+#include "bscript/execmodl.h"
 
 #include <string>
 
-#include "executor.h"
+#include "bscript/executor.h"
 
 
 namespace Pol::Bscript

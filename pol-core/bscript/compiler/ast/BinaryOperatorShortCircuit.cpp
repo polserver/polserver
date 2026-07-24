@@ -1,4 +1,4 @@
-#include "BinaryOperatorShortCircuit.h"
+#include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
 

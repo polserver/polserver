@@ -1,4 +1,4 @@
-#include "MethodDescriptor.h"
+#include "bscript/compiler/representation/MethodDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

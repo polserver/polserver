@@ -1,8 +1,8 @@
-#include "bcontinuation.h"
-#include "berror.h"
-#include "bfuncref.h"
-#include "bobject.h"
-#include "buninit.h"
+#include "bscript/bcontinuation.h"
+#include "bscript/berror.h"
+#include "bscript/bfuncref.h"
+#include "bscript/bobject.h"
+#include "bscript/buninit.h"
 
 #include <ranges>
 

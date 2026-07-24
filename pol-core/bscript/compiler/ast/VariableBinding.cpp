@@ -1,4 +1,4 @@
-#include "VariableBinding.h"
+#include "bscript/compiler/ast/VariableBinding.h"
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/Node.h"

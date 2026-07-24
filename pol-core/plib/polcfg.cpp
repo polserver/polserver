@@ -11,7 +11,7 @@
  */
 
 
-#include "polcfg.h"
+#include "plib/polcfg.h"
 
 #include <cstdio>
 #include <exception>
@@ -21,14 +21,14 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/strutil.h"
-#include "objtype.h"
-#include "uoinstallfinder.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/strutil.h"
+#include "plib/objtype.h"
+#include "plib/uoinstallfinder.h"
 
 namespace Pol::Plib
 {

@@ -1,8 +1,8 @@
-#include "InterpolateString.h"
+#include "bscript/compiler/ast/InterpolateString.h"
 
 
 #include "clib/strutil.h"
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

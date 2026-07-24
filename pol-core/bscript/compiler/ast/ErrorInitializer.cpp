@@ -1,4 +1,4 @@
-#include "ErrorInitializer.h"
+#include "bscript/compiler/ast/ErrorInitializer.h"
 
 
 #include <utility>

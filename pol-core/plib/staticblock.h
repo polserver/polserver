@@ -9,7 +9,7 @@
 #ifndef PLIB_STATICBLOCK_H
 #define PLIB_STATICBLOCK_H
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 
 #include <utility>
 #include <vector>

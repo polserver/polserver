@@ -1,14 +1,14 @@
-#include "bregexp.h"
+#include "bscript/bregexp.h"
 #include <stdexcept>
 
-#include "barray.h"
-#include "berror.h"
-#include "blong.h"
-#include "bstring.h"
+#include "bscript/barray.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
 #include "clib/strutil.h"
-#include "exectype.h"
-#include "executor.h"
-#include "executor.inl.h"
+#include "bscript/exectype.h"
+#include "bscript/executor.h"
+#include "bscript/executor.inl.h"
 
 namespace Pol::Bscript
 {

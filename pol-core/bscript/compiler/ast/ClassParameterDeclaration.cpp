@@ -1,4 +1,4 @@
-#include "ClassParameterDeclaration.h"
+#include "bscript/compiler/ast/ClassParameterDeclaration.h"
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/model/FunctionLink.h"

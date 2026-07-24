@@ -12,7 +12,7 @@
 
 #include <cstddef>
 
-#include "mapcell.h"
+#include "plib/mapcell.h"
 
 namespace Pol::Plib
 {

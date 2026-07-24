@@ -1,4 +1,4 @@
-#include "UninitializedFunctionDeclaration.h"
+#include "bscript/compiler/ast/UninitializedFunctionDeclaration.h"
 
 #include <utility>
 

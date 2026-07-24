@@ -1,4 +1,4 @@
-#include "IndexBinding.h"
+#include "bscript/compiler/ast/IndexBinding.h"
 
 #include <ranges>
 

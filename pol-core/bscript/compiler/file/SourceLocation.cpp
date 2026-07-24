@@ -1,4 +1,4 @@
-#include "SourceLocation.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 #include "bscript/compiler/Antlr4Inc.h"
 

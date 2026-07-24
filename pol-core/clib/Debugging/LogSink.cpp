@@ -1,10 +1,10 @@
-#include "LogSink.h"
+#include "clib/Debugging/LogSink.h"
 
 #include <chrono>
 #include <fmt/chrono.h>
 #include <time.h>
 
-#include "../clib.h"
+#include "clib/clib.h"
 
 namespace Pol::Clib::Logging
 {

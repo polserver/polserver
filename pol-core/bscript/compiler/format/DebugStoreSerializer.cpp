@@ -1,4 +1,4 @@
-#include "DebugStoreSerializer.h"
+#include "bscript/compiler/format/DebugStoreSerializer.h"
 
 #include <fmt/format.h>
 #include <fstream>
@@ -7,7 +7,7 @@
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/DebugBlock.h"
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
-#include "filefmt.h"
+#include "bscript/filefmt.h"
 
 namespace Pol::Bscript::Compiler
 {

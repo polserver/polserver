@@ -1,4 +1,4 @@
-#include "ExpressionBuilder.h"
+#include "bscript/compiler/astbuilder/ExpressionBuilder.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Argument.h"

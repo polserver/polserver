@@ -1,4 +1,4 @@
-#include "FunctionReference.h"
+#include "bscript/compiler/ast/FunctionReference.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

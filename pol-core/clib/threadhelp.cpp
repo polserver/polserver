@@ -11,7 +11,7 @@
  */
 
 
-#include "threadhelp.h"
+#include "clib/threadhelp.h"
 
 #include <algorithm>
 #include <atomic>
@@ -20,9 +20,9 @@
 #include <exception>
 #include <thread>
 
-#include "esignal.h"
-#include "logfacility.h"
-#include "passert.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
 
 #ifndef _WIN32
 #include <errno.h>

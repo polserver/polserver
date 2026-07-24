@@ -1,4 +1,4 @@
-#include "ConstantValidator.h"
+#include "bscript/compiler/optimizer/ConstantValidator.h"
 
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BooleanValue.h"

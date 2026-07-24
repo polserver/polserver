@@ -1,4 +1,4 @@
-#include "FlowControlLabel.h"
+#include "bscript/compiler/model/FlowControlLabel.h"
 
 #include <stdexcept>
 

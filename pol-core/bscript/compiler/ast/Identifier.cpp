@@ -1,4 +1,4 @@
-#include "Identifier.h"
+#include "bscript/compiler/ast/Identifier.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

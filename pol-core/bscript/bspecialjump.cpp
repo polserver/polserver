@@ -1,4 +1,4 @@
-#include "bspecialjump.h"
+#include "bscript/bspecialjump.h"
 
 namespace Pol::Bscript
 {

@@ -13,7 +13,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <type_traits>
 #include <vector>
 
-#include "Debugging/LogSink.h"
+#include "clib/Debugging/LogSink.h"
 
 
 namespace Pol::Clib

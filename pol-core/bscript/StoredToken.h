@@ -2,7 +2,7 @@
 #define POLSERVER_STOREDTOKEN_H
 
 #ifndef __TOKENS_H
-#include "tokens.h"
+#include "bscript/tokens.h"
 #endif
 
 

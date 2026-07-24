@@ -1,4 +1,4 @@
-#include "UoConvertMain.h"
+#include "uoconvert/UoConvertMain.h"
 
 #include <algorithm>
 #include <chrono>
@@ -39,8 +39,8 @@
 #include "plib/ustruct.h"
 #include "pol/landtile.h"
 
-#include "parallel.h"
-#include "terrainplane.h"
+#include "uoconvert/parallel.h"
+#include "uoconvert/terrainplane.h"
 
 
 namespace Pol::UoConvert

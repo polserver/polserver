@@ -1,4 +1,4 @@
-#include "ScopeName.h"
+#include "bscript/compiler/model/ScopeName.h"
 
 #include "clib/clib.h"
 #include "clib/strutil.h"

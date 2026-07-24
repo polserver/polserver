@@ -1,15 +1,15 @@
-#include "BinaryOperatorOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorOptimizer.h"
 
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 #include "bscript/compilercfg.h"
 
-#include "BinaryOperatorShortCircuitOptimizer.h"
-#include "BinaryOperatorWithBooleanOptimizer.h"
-#include "BinaryOperatorWithFloatOptimizer.h"
-#include "BinaryOperatorWithIntegerOptimizer.h"
-#include "BinaryOperatorWithStringOptimizer.h"
-#include "ShortCircuitCombiner.h"
+#include "bscript/compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorWithBooleanOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorWithFloatOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorWithIntegerOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorWithStringOptimizer.h"
+#include "bscript/compiler/optimizer/ShortCircuitCombiner.h"
 
 namespace Pol::Bscript::Compiler
 {

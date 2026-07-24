@@ -1,4 +1,4 @@
-#include "ConstantPredicateLoop.h"
+#include "bscript/compiler/ast/ConstantPredicateLoop.h"
 
 
 #include "bscript/compiler/ast/Block.h"

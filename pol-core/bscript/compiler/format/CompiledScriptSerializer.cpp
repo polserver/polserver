@@ -1,9 +1,9 @@
-#include "CompiledScriptSerializer.h"
+#include "bscript/compiler/format/CompiledScriptSerializer.h"
 
 #include <cstring>
 #include <fstream>
 
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 #include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/CompiledScript.h"
 #include "bscript/compiler/representation/ExportedFunction.h"
@@ -12,7 +12,7 @@
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 #include "clib/clib.h"
 #include "clib/logfacility.h"
-#include "filefmt.h"
+#include "bscript/filefmt.h"
 
 namespace Pol::Bscript::Compiler
 {

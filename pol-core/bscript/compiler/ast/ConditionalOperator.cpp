@@ -1,4 +1,4 @@
-#include "ConditionalOperator.h"
+#include "bscript/compiler/ast/ConditionalOperator.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

@@ -1,4 +1,4 @@
-#include "PrettifyFileProcessor.h"
+#include "bscript/compiler/file/PrettifyFileProcessor.h"
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"

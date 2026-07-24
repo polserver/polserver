@@ -2,9 +2,9 @@
 #ifndef H_SINGLEPOLLER
 #define H_SINGLEPOLLER
 
-#include "sockets.h"
+#include "clib/network/sockets.h"
 
-#include "singlepollers/pollingwithpoll.h"
+#include "clib/network/singlepollers/pollingwithpoll.h"
 
 
 namespace Pol::Clib

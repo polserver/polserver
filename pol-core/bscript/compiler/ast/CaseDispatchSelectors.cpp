@@ -1,4 +1,4 @@
-#include "CaseDispatchSelectors.h"
+#include "bscript/compiler/ast/CaseDispatchSelectors.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

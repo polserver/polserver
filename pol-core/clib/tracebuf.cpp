@@ -4,7 +4,7 @@
  */
 
 
-#include "tracebuf.h"
+#include "clib/tracebuf.h"
 
 #ifndef NDEBUG
 #include "logfacility.h"

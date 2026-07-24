@@ -5,9 +5,9 @@
  */
 
 
-#include "escriptv.h"
+#include "bscript/escriptv.h"
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 
 
 namespace Pol::Bscript

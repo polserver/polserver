@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../clib/refptr.h"
-#include "bobject.h"
-#include "bobjectimp.h"
-#include "eprog.h"
+#include "clib/refptr.h"
+#include "bscript/bobject.h"
+#include "bscript/bobjectimp.h"
+#include "bscript/eprog.h"
 
 #include <memory>
 #include <utility>

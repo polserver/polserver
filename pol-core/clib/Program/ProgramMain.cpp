@@ -1,12 +1,12 @@
-#include "ProgramMain.h"
+#include "clib/Program/ProgramMain.h"
 
 #include <stdlib.h>
 
 #include <boost/stacktrace.hpp>
 
-#include "../Debugging/ExceptionParser.h"
-#include "../logfacility.h"
-#include "ProgramConfig.h"
+#include "clib/Debugging/ExceptionParser.h"
+#include "clib/logfacility.h"
+#include "clib/Program/ProgramConfig.h"
 #include "pol_global_config.h"
 
 #ifdef ENABLE_BENCHMARK

@@ -6,4 +6,4 @@
  */
 
 
-#include "StdAfx.h"
+#include "bscript/StdAfx.h"

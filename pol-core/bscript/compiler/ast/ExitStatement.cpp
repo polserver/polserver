@@ -1,4 +1,4 @@
-#include "ExitStatement.h"
+#include "bscript/compiler/ast/ExitStatement.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

@@ -10,7 +10,7 @@ POLLOGLN("my text)"
 POLLOG("hello {}\n", "world");
 */
 
-#include "logfacility.h"
+#include "clib/logfacility.h"
 
 #include <boost/compat/move_only_function.hpp>
 #include <chrono>
@@ -23,9 +23,9 @@ POLLOG("hello {}\n", "world");
 #include <string.h>
 #include <thread>
 
-#include "Header_Windows.h"
-#include "clib.h"
-#include "message_queue.h"
+#include "clib/Header_Windows.h"
+#include "clib/clib.h"
+#include "clib/message_queue.h"
 
 namespace Pol
 {

@@ -1,4 +1,4 @@
-#include "ModuleDescriptor.h"
+#include "bscript/compiler/representation/ModuleDescriptor.h"
 
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 

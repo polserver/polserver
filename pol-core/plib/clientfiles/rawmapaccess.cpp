@@ -6,11 +6,11 @@
 
 #include <span>
 
-#include "RawMap.h"
+#include "plib/clientfiles/RawMap.h"
 #include "clib/passert.h"
 #include "clib/rawtypes.h"
-#include "uoclientfiles.h"
-#include "ustruct.h"
+#include "plib/clientfiles/uoclientfiles.h"
+#include "plib/ustruct.h"
 
 
 namespace Pol::Plib

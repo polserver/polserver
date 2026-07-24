@@ -1,4 +1,4 @@
-#include "ClassLink.h"
+#include "bscript/compiler/model/ClassLink.h"
 
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/file/SourceLocation.h"

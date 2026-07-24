@@ -1,4 +1,4 @@
-#include "FunctionExpression.h"
+#include "bscript/compiler/ast/FunctionExpression.h"
 
 #include <fmt/format.h>
 

@@ -1,4 +1,4 @@
-#include "bspread.h"
+#include "bscript/bspread.h"
 
 namespace Pol::Bscript
 {

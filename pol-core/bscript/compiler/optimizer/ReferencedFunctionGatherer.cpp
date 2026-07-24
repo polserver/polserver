@@ -1,4 +1,4 @@
-#include "ReferencedFunctionGatherer.h"
+#include "bscript/compiler/optimizer/ReferencedFunctionGatherer.h"
 
 #include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionCall.h"

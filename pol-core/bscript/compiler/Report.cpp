@@ -1,4 +1,4 @@
-#include "Report.h"
+#include "bscript/compiler/Report.h"
 
 #include "bscript/compiler/file/SourceLocation.h"
 #include "clib/logfacility.h"

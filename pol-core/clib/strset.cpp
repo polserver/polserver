@@ -3,9 +3,9 @@
  * @par History
  */
 
-#include "strset.h"
+#include "clib/strset.h"
 
-#include "stlutil.h"
+#include "clib/stlutil.h"
 
 
 namespace Pol::Clib

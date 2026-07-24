@@ -1,4 +1,4 @@
-#include "UserFunctionVisitor.h"
+#include "bscript/compiler/astbuilder/UserFunctionVisitor.h"
 
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"

@@ -7,7 +7,7 @@
  */
 
 
-#include "cfgfile.h"
+#include "clib/cfgfile.h"
 
 #include <ctype.h>
 #include <exception>
@@ -15,11 +15,11 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "cfgelem.h"
-#include "clib.h"
-#include "logfacility.h"
-#include "stlutil.h"
-#include "strutil.h"
+#include "clib/cfgelem.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
 
 
 namespace Pol::Clib

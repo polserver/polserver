@@ -1,4 +1,4 @@
-#include "InstructionGenerator.h"
+#include "bscript/compiler/codegen/InstructionGenerator.h"
 
 #include <ranges>
 

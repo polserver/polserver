@@ -1,8 +1,8 @@
-#include "CompiledScript.h"
+#include "bscript/compiler/representation/CompiledScript.h"
 
 #include <utility>
 
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/representation/ClassDescriptor.h"
 #include "bscript/compiler/representation/ExportedFunction.h"

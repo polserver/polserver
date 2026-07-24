@@ -1,4 +1,4 @@
-#include "FunctionReferenceRegistrar.h"
+#include "bscript/compiler/codegen/FunctionReferenceRegistrar.h"
 
 #include <limits.h>
 #include <ranges>

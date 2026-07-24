@@ -1,4 +1,4 @@
-#include "ClassDeclarationRegistrar.h"
+#include "bscript/compiler/codegen/ClassDeclarationRegistrar.h"
 
 #include "bscript/compiler/representation/ClassDescriptor.h"
 
