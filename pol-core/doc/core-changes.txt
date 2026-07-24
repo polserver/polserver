@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+07-24-2026 Turley:
+    Added: customhouse methods addhousepart and erasehousepart accept now also a single argument array of struct{graphic,xoffset,yoffset,z} to add/erase multiple parts at once
 07-22-2026 Nando:
     Fixed: uoconvert's 'map' command failed to convert several UOP maps. Its UOP size
            estimator dropped a block from the final chunk, aborting on maps whose block

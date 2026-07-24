@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-23-2026</datemodified>
+		<datemodified>07-24-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-24-2026</date>
+			<author>Turley:</author>
+			<change type="Added">customhouse methods addhousepart and erasehousepart accept now also a single argument array of struct{graphic,xoffset,yoffset,z} to add/erase multiple parts at once</change>
+		</entry>
 		<entry>
 			<date>07-22-2026</date>
 			<author>Nando:</author>
