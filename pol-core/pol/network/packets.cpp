@@ -8,15 +8,15 @@
  */
 
 
-#include "packets.h"
+#include "pol/network/packets.h"
 
-#include "../../clib/rawtypes.h"
-#include "../../clib/spinlock.h"
-#include "../../clib/stlutil.h"
-#include "packethelper.h"
-#include "packetinterface.h"
-#include "pktboth.h"
-#include "pktbothid.h"
+#include "clib/rawtypes.h"
+#include "clib/spinlock.h"
+#include "clib/stlutil.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packetinterface.h"
+#include "pol/network/pktboth.h"
+#include "pol/network/pktbothid.h"
 
 
 namespace Pol::Network

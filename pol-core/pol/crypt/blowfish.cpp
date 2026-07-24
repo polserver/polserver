@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "blowfish.h"
-#include "cryptbase.h"
+#include "pol/crypt/blowfish.h"
+#include "pol/crypt/cryptbase.h"
 
 // Crypt Boxes
 

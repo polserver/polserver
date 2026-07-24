@@ -8,7 +8,7 @@
 #ifndef BSCRIPT_MATHEMOD_H
 #define BSCRIPT_MATHEMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "bscript/execmodl.h"
 
 
 namespace Pol::Bscript

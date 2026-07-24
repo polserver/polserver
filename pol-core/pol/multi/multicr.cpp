@@ -7,16 +7,16 @@
 
 #include <stddef.h>
 
-#include "../../bscript/berror.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../globals/object_storage.h"
-#include "../item/itemdesc.h"
-#include "../ufunc.h"
-#include "boat.h"
-#include "house.h"
-#include "multi.h"
+#include "bscript/berror.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/object_storage.h"
+#include "pol/item/itemdesc.h"
+#include "pol/ufunc.h"
+#include "pol/multi/boat.h"
+#include "pol/multi/house.h"
+#include "pol/multi/multi.h"
 
 
 namespace Pol::Multi

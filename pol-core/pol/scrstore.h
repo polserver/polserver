@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "../clib/refptr.h"
+#include "clib/refptr.h"
 
 namespace Pol
 {

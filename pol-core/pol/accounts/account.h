@@ -13,11 +13,11 @@
 #include <string>
 #include <vector>
 
-#include "../../clib/refptr.h"
-#include "../../clib/strset.h"
-#include "../../plib/uoexpansion.h"
-#include "../proplist.h"
-#include "../reftypes.h"
+#include "clib/refptr.h"
+#include "clib/strset.h"
+#include "plib/uoexpansion.h"
+#include "pol/proplist.h"
+#include "pol/reftypes.h"
 
 namespace Pol
 {

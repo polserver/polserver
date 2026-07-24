@@ -6,9 +6,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../../clib/rawtypes.h"
-#include "../../plib/poltype.h"
-#include "../objecthash.h"
+#include "clib/rawtypes.h"
+#include "plib/poltype.h"
+#include "pol/objecthash.h"
 
 
 namespace Pol::Core

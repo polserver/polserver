@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../bscript/bcontiter.h"
-#include "../bscript/bobject.h"
-#include "storage.h"
+#include "bscript/bcontiter.h"
+#include "bscript/bobject.h"
+#include "pol/storage.h"
 
 namespace Pol::Core
 {

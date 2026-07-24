@@ -4,17 +4,17 @@
  */
 
 
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "accounts/account.h"
-#include "menu.h"
-#include "mobile/charactr.h"
-#include "network/cgdata.h"
-#include "network/client.h"
-#include "network/pktin.h"
-#include "ufunc.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "pol/accounts/account.h"
+#include "pol/menu.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/cgdata.h"
+#include "pol/network/client.h"
+#include "pol/network/pktin.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core

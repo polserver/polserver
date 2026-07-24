@@ -1,12 +1,12 @@
 
-#include "crypt.h"
-#include "../../clib/passert.h"
-#include "../../plib/uconst.h"
-#include "blowfish.h"
-#include "cryptbase.h"
-#include "logincrypt.h"
-#include "md5.h"
-#include "twofish.h"
+#include "pol/crypt/crypt.h"
+#include "clib/passert.h"
+#include "plib/uconst.h"
+#include "pol/crypt/blowfish.h"
+#include "pol/crypt/cryptbase.h"
+#include "pol/crypt/logincrypt.h"
+#include "pol/crypt/md5.h"
+#include "pol/crypt/twofish.h"
 
 // NOCRYPT
 

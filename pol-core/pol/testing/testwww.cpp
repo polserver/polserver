@@ -5,8 +5,8 @@
 
 #include <string>
 
-#include "../polwww.h"
-#include "testenv.h"
+#include "pol/polwww.h"
+#include "pol/testing/testenv.h"
 
 namespace Pol::Testing
 {

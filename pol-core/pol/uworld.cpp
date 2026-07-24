@@ -11,18 +11,18 @@
  */
 
 
-#include "uworld.h"
+#include "pol/uworld.h"
 
 #include <stddef.h>
 #include <string>
 
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "mobile/charactr.h"
-#include "multi/multi.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/mobile/charactr.h"
+#include "pol/multi/multi.h"
 
 
 namespace Pol::Core

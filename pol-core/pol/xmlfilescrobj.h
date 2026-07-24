@@ -7,13 +7,13 @@
 #ifndef XMLSCROBJ_H
 #define XMLSCROBJ_H
 
-#include "../bscript/bobject.h"
+#include "bscript/bobject.h"
 
 #include <string>
 #include <tinyxml/tinyxml.h>
 
-#include "../bscript/bcontiter.h"
-#include "../clib/rawtypes.h"
+#include "bscript/bcontiter.h"
+#include "clib/rawtypes.h"
 
 
 namespace Pol::Bscript

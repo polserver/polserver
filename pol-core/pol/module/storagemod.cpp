@@ -5,7 +5,7 @@
  */
 
 
-#include "storagemod.h"
+#include "pol/module/storagemod.h"
 #include <stddef.h>
 
 #include "bscript/berror.h"
@@ -13,12 +13,12 @@
 #include "bscript/bstring.h"
 #include "clib/clib.h"
 
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../storage.h"
-#include "../storagescrobj.h"
-#include "../uoscrobj.h"
-#include "realms/realms.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/storage.h"
+#include "pol/storagescrobj.h"
+#include "pol/uoscrobj.h"
+#include "pol/realms/realms.h"
 
 #include <module_defs/storage.h>
 

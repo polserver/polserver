@@ -1,10 +1,10 @@
 #ifndef MOBILE_CORPSE_H
 #define MOBILE_CORPSE_H
 
-#include "../../clib/rawtypes.h"
-#include "../containr.h"
-#include "../item/item.h"
-#include "../reftypes.h"
+#include "clib/rawtypes.h"
+#include "pol/containr.h"
+#include "pol/item/item.h"
+#include "pol/reftypes.h"
 
 namespace Pol
 {

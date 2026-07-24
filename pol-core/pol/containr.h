@@ -16,15 +16,15 @@
 
 #include <stddef.h>
 
-#include "../clib/rawtypes.h"
-#include "baseobject.h"
-#include "dynproperties.h"
+#include "clib/rawtypes.h"
+#include "pol/baseobject.h"
+#include "pol/dynproperties.h"
 #ifndef ITEM_H
-#include "item/item.h"
+#include "pol/item/item.h"
 #endif
 
 #ifndef LOCKABLE_H
-#include "lockable.h"
+#include "pol/lockable.h"
 #endif
 
 namespace Pol

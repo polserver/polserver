@@ -4,21 +4,20 @@
  */
 
 
-#include "../clib/esignal.h"
-#include "../clib/threadhelp.h"
-// #include "../clib/xmain.h"
-#include "../clib/logfacility.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "clib/threadhelp.h"
 
-#include "../plib/systemstate.h"
+#include "plib/systemstate.h"
 
-#include "polresource.h"
+#include "pol/polresource.h"
 
-#include "../clib/Header_Windows.h"
-#include "../clib/Program/ProgramConfig.h"
-#include "pol.h"
+#include "clib/Header_Windows.h"
+#include "clib/Program/ProgramConfig.h"
+#include "pol/pol.h"
 // This needs to be after the windows includes, otherwise it'll complain about windows types.
-#include "../clib/NTService.h"
-#include "../clib/ntservmsg.h"
+#include "clib/NTService.h"
+#include "clib/ntservmsg.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4189 )  // local variable is initialized but not referenced. TODO: check

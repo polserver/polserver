@@ -30,17 +30,17 @@
 #include <queue>
 #include <string>
 
-#include "../../clib/network/sockets.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/spinlock.h"
-#include "../../clib/wallclock.h"
-#include "../../clib/weakptr.h"
-#include "../../plib/uconst.h"
-#include "../../plib/uoexpansion.h"
-#include "../crypt/cryptkey.h"
-#include "../polclock.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "clib/network/sockets.h"
+#include "clib/rawtypes.h"
+#include "clib/spinlock.h"
+#include "clib/wallclock.h"
+#include "clib/weakptr.h"
+#include "plib/uconst.h"
+#include "plib/uoexpansion.h"
+#include "pol/crypt/cryptkey.h"
+#include "pol/polclock.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktin.h"
 
 namespace Pol
 {

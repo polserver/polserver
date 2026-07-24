@@ -11,13 +11,13 @@
 #include <list>
 #include <vector>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/udatfile.h"
-#include "../item/item.h"
-#include "../reftypes.h"
-#include "customhouses.h"
-#include "multi.h"
+#include "bscript/bobject.h"
+#include "clib/rawtypes.h"
+#include "plib/udatfile.h"
+#include "pol/item/item.h"
+#include "pol/reftypes.h"
+#include "pol/multi/customhouses.h"
+#include "pol/multi/multi.h"
 
 namespace Pol
 {

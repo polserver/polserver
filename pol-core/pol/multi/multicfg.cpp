@@ -7,12 +7,12 @@
 
 #include <string>
 
-#include "../../clib/cfgfile.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/refptr.h"
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
-#include "../cfgrepos.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/refptr.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "pol/cfgrepos.h"
 
 
 namespace Pol::Multi

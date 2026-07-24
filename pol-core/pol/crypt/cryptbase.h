@@ -71,9 +71,9 @@
         S[0x0300 + ( ( R ) & 0xff )]
 
 
-#include "../../clib/network/sockets.h"
-#include "../../plib/uconst.h"
-#include "logincrypt.h"
+#include "clib/network/sockets.h"
+#include "plib/uconst.h"
+#include "pol/crypt/logincrypt.h"
 
 namespace Pol::Crypt
 {

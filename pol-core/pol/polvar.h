@@ -7,6 +7,8 @@
 #ifndef POLVAR_H
 #define POLVAR_H
 
+#include <string>
+
 namespace Pol::Core
 {
 class PolVar

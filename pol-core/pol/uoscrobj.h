@@ -14,23 +14,23 @@
 #include <stddef.h>
 #include <string>
 
-#include "../bscript/bobject.h"
-#include "../bscript/bstruct.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
-#include "../clib/weakptr.h"
-#include "eventid.h"
-#include "gameclck.h"
-#include "globals/state.h"
-#include "mobile/charactr.h"
-#include "multi/boat.h"
-#include "network/client.h"
-#include "polobject.h"
-#include "uobjcnt.h"
+#include "bscript/bobject.h"
+#include "bscript/bstruct.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/weakptr.h"
+#include "pol/eventid.h"
+#include "pol/gameclck.h"
+#include "pol/globals/state.h"
+#include "pol/mobile/charactr.h"
+#include "pol/multi/boat.h"
+#include "pol/network/client.h"
+#include "pol/polobject.h"
+#include "pol/uobjcnt.h"
 
 #ifndef ITEM_H
-#include "item/item.h"
+#include "pol/item/item.h"
 #endif
 
 

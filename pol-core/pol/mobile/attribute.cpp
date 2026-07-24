@@ -4,17 +4,17 @@
  */
 
 
-#include "attribute.h"
+#include "pol/mobile/attribute.h"
 
 #include <stddef.h>
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/passert.h"
-#include "../../plib/pkg.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../syshook.h"
-#include "../uoskills.h"
+#include "clib/cfgelem.h"
+#include "clib/passert.h"
+#include "plib/pkg.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/syshook.h"
+#include "pol/uoskills.h"
 
 
 namespace Pol::Mobile

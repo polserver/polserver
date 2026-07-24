@@ -11,7 +11,7 @@
 #include "clib/maputil.h"
 #include "clib/refptr.h"
 
-#include "../proplist.h"
+#include "pol/proplist.h"
 
 #include <map>
 #include <string>

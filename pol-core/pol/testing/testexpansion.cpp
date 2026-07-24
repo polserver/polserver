@@ -9,10 +9,10 @@
 #include <limits>
 #include <string>
 
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/uoexpansion.h"
-#include "testenv.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "plib/uoexpansion.h"
+#include "pol/testing/testenv.h"
 
 
 namespace Pol::Testing

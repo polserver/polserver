@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <string>
 
-#include "../clib/boostutils.h"
+#include "clib/boostutils.h"
 
 namespace Pol
 {

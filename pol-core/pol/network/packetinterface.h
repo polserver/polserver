@@ -1,7 +1,7 @@
 #ifndef __PACKETINTERFACE_H
 #define __PACKETINTERFACE_H
 
-#include "../../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 #include <map>
 #include <queue>
 

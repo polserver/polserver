@@ -10,10 +10,10 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../bscript/bobject.h"
-#include "../../bscript/execmodl.h"
-#include "../../clib/rawtypes.h"
-#include "../cfgrepos.h"
+#include "bscript/bobject.h"
+#include "bscript/execmodl.h"
+#include "clib/rawtypes.h"
+#include "pol/cfgrepos.h"
 
 namespace Pol
 {

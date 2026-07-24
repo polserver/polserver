@@ -7,21 +7,21 @@
  */
 
 
-#include "corpse.h"
+#include "pol/mobile/corpse.h"
 
 #include <stddef.h>
 
-#include "../../bscript/executor.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/passert.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/streamsaver.h"
-#include "../containr.h"
-#include "../globals/uvars.h"
-#include "../layers.h"
-#include "../syshookscript.h"
-#include "../ufunc.h"
-#include "../uobject.h"
+#include "bscript/executor.h"
+#include "clib/cfgelem.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "pol/containr.h"
+#include "pol/globals/uvars.h"
+#include "pol/layers.h"
+#include "pol/syshookscript.h"
+#include "pol/ufunc.h"
+#include "pol/uobject.h"
 
 
 namespace Pol::Core

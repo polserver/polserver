@@ -3,8 +3,8 @@
  * @par History
  */
 
-#include "../../plib/mul/map.h"
-#include "testenv.h"
+#include "plib/mul/map.h"
+#include "pol/testing/testenv.h"
 
 
 namespace Pol::Testing

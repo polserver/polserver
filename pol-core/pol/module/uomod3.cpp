@@ -8,9 +8,9 @@
 #include "bscript/berror.h"
 #include "bscript/blong.h"
 
-#include "../mobile/charactr.h"
-#include "../statmsg.h"
-#include "uomod.h"
+#include "pol/mobile/charactr.h"
+#include "pol/statmsg.h"
+#include "pol/module/uomod.h"
 
 
 namespace Pol::Module

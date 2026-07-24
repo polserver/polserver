@@ -7,7 +7,7 @@
 #ifndef __BLOWFISH_H__
 #define __BLOWFISH_H__
 
-#include "cryptbase.h"
+#include "pol/crypt/cryptbase.h"
 
 namespace Pol::Crypt
 {

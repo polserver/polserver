@@ -12,8 +12,8 @@
 #include <unordered_set>
 #include <utility>
 
-#include "../clib/rawtypes.h"
-#include "reftypes.h"
+#include "clib/rawtypes.h"
+#include "pol/reftypes.h"
 
 
 namespace Pol::Core

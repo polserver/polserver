@@ -7,8 +7,8 @@
 #ifndef PARTYMOD_H
 #define PARTYMOD_H
 
-#include "../../bscript/bobject.h"
-#include "../polmodl.h"
+#include "bscript/bobject.h"
+#include "pol/polmodl.h"
 
 
 namespace Pol::Bscript

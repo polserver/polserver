@@ -10,10 +10,10 @@
 #include <cstddef>
 #include <map>
 
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../../clib/weakptr.h"
-#include "../reftypes.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/weakptr.h"
+#include "pol/reftypes.h"
 
 namespace Pol
 {

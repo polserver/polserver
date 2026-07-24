@@ -11,9 +11,9 @@
 #include <optional>
 #include <string>
 
-#include "../clib/streamsaver.h"
-#include "gameclck.h"
-#include "uoexec.h"
+#include "clib/streamsaver.h"
+#include "pol/gameclck.h"
+#include "pol/uoexec.h"
 
 namespace Pol::Core
 {

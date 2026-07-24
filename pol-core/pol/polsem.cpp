@@ -4,14 +4,14 @@
  */
 
 
-#include "polsem.h"
+#include "pol/polsem.h"
 
 #include <time.h>
 
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/threadhelp.h"
-#include "../clib/tracebuf.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/threadhelp.h"
+#include "clib/tracebuf.h"
 
 #ifdef _WIN32
 #include <process.h>

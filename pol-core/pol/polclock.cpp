@@ -4,14 +4,14 @@
  */
 
 
-#include "polclock.h"
+#include "pol/polclock.h"
 
 #include <atomic>
 #include <chrono>
 #include <thread>
 
-#include "../clib/logfacility.h"
-#include "../clib/spinlock.h"
+#include "clib/logfacility.h"
+#include "clib/spinlock.h"
 
 
 namespace Pol::Core

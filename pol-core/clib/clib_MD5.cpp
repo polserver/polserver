@@ -14,10 +14,10 @@
 #include "clib/stlutil.h"
 
 #ifdef WINDOWS
-#include "Header_Windows.h"
+#include "clib/Header_Windows.h"
 #include <wincrypt.h>
 
-#include "logfacility.h"
+#include "clib/logfacility.h"
 
 namespace Pol::Clib
 {

@@ -7,7 +7,7 @@
 #ifndef LOADDATA_H
 #define LOADDATA_H
 
-#include "../plib/poltype.h"
+#include "plib/poltype.h"
 
 namespace Pol
 {

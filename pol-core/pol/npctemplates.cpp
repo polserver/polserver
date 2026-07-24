@@ -12,15 +12,15 @@
 #include <string.h>
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-#include "globals/uvars.h"
-#include "npctmpl.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "pol/globals/uvars.h"
+#include "pol/npctmpl.h"
 
 
 namespace Pol::Core

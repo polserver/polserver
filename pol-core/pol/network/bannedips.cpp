@@ -4,15 +4,15 @@
  */
 
 
-#include "bannedips.h"
+#include "pol/network/bannedips.h"
 
 #include <string>
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/fileutil.h"
-#include "../globals/network.h"
-#include "client.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "pol/globals/network.h"
+#include "pol/network/client.h"
 
 
 namespace Pol::Network

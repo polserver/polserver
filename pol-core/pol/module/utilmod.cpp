@@ -7,7 +7,7 @@
  */
 
 
-#include "utilmod.h"
+#include "pol/module/utilmod.h"
 #include <algorithm>
 
 #define BOOST_UUID_NO_SIMD
@@ -26,7 +26,7 @@
 #include "clib/clib.h"
 #include "clib/random.h"
 
-#include "../dice.h"
+#include "pol/dice.h"
 
 #include <module_defs/util.h>
 

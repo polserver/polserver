@@ -7,8 +7,8 @@
 #ifndef EQUIPDSC_H
 #define EQUIPDSC_H
 
-#include "../clib/rawtypes.h"
-#include "item/itemdesc.h"
+#include "clib/rawtypes.h"
+#include "pol/item/itemdesc.h"
 
 
 namespace Pol::Bscript

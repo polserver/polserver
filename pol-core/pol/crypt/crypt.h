@@ -7,11 +7,11 @@
 #ifndef __CRYPT_H__
 #define __CRYPT_H__
 
-#include "../../clib/network/sockets.h"
-#include "blowfish.h"
-#include "cryptbase.h"
-#include "md5.h"
-#include "twofish.h"
+#include "clib/network/sockets.h"
+#include "pol/crypt/blowfish.h"
+#include "pol/crypt/cryptbase.h"
+#include "pol/crypt/md5.h"
+#include "pol/crypt/twofish.h"
 
 // NOCRYPT
 

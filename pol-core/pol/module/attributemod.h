@@ -10,7 +10,7 @@
 #ifndef ATTRIBUTEEMOD_H
 #define ATTRIBUTEEMOD_H
 
-#include "../polmodl.h"
+#include "pol/polmodl.h"
 
 
 namespace Pol::Bscript

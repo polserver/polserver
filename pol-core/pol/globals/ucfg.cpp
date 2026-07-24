@@ -1,11 +1,11 @@
 
-#include "ucfg.h"
+#include "pol/globals/ucfg.h"
 
 #include <string.h>
 
-#include "../../clib/stlutil.h"
-#include "../cfgrepos.h"
-#include "../module/datastoreimp.h"
+#include "clib/stlutil.h"
+#include "pol/cfgrepos.h"
+#include "pol/module/datastoreimp.h"
 
 
 namespace Pol::Core

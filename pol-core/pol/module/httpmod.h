@@ -9,8 +9,8 @@
 
 #include <string>
 
-#include "../../clib/network/wnsckt.h"
-#include "../polmodl.h"
+#include "clib/network/wnsckt.h"
+#include "pol/polmodl.h"
 
 
 namespace Pol::Bscript

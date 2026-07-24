@@ -5,20 +5,20 @@
  */
 
 
-#include "attributemod.h"
+#include "pol/module/attributemod.h"
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
 #include "bscript/bstring.h"
 
-#include "../globals/uvars.h"
-#include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
-#include "../network/cliface.h"
-#include "../skilladv.h"
-#include "../skillid.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/cliface.h"
+#include "pol/skilladv.h"
+#include "pol/skillid.h"
 
-#include "../polmodl.h"
+#include "pol/polmodl.h"
 
 #include <module_defs/attributes.h>
 

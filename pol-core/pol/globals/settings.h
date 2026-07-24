@@ -1,15 +1,15 @@
 #ifndef GLOBALS_SETTINGS_H
 #define GLOBALS_SETTINGS_H
 
-#include "../cmbtcfg.h"
-#include "../email_cfg.h"
-#include "../extobj.h"
-#include "../movecost.h"
-#include "../party_cfg.h"
-#include "../polvar.h"
-#include "../repsys_cfg.h"
-#include "../ssopt.h"
-#include "../watch.h"
+#include "pol/cmbtcfg.h"
+#include "pol/email_cfg.h"
+#include "pol/extobj.h"
+#include "pol/movecost.h"
+#include "pol/party_cfg.h"
+#include "pol/polvar.h"
+#include "pol/repsys_cfg.h"
+#include "pol/ssopt.h"
+#include "pol/watch.h"
 
 
 namespace Pol::Core

@@ -9,10 +9,10 @@
 #include <limits>
 #include <string>
 
-#include "../../clib/clib.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "testenv.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "pol/testing/testenv.h"
 
 #include <type_traits>
 

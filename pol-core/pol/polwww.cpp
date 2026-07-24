@@ -12,7 +12,7 @@
  */
 
 
-#include "polwww.h"
+#include "pol/polwww.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -24,30 +24,30 @@
 #include <string>
 #include <time.h>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/esignal.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/network/sockets.h"
-#include "../clib/network/wnsckt.h"
-#include "../clib/refptr.h"
-#include "../clib/stlutil.h"
-#include "../clib/threadhelp.h"
-#include "../clib/timer.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/esignal.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/network/sockets.h"
+#include "clib/network/wnsckt.h"
+#include "clib/refptr.h"
+#include "clib/stlutil.h"
+#include "clib/threadhelp.h"
+#include "clib/timer.h"
 
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
 
-#include "globals/uvars.h"
-#include "module/httpmod.h"
-#include "module/uomod.h"
-#include "network/sockio.h"
-#include "polsem.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "uoexec.h"
+#include "pol/globals/uvars.h"
+#include "pol/module/httpmod.h"
+#include "pol/module/uomod.h"
+#include "pol/network/sockio.h"
+#include "pol/polsem.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/scrstore.h"
+#include "pol/uoexec.h"
 
 #ifdef _WIN32
 #include <process.h>

@@ -1,15 +1,15 @@
-#include "script_internals.h"
+#include "pol/globals/script_internals.h"
 
 #include <iterator>
 #include <string.h>
 
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/stlutil.h"
-#include "../../plib/systemstate.h"
-#include "../polsig.h"
-#include "../uoexec.h"
-#include "state.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "plib/systemstate.h"
+#include "pol/polsig.h"
+#include "pol/uoexec.h"
+#include "pol/globals/state.h"
 
 
 namespace Pol::Core

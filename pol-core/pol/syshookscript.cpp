@@ -5,20 +5,20 @@
  */
 
 
-#include "syshookscript.h"
+#include "pol/syshookscript.h"
 
 #include <exception>
 #include <stddef.h>
 #include <string>
 
-#include "../bscript/bboolean.h"
-#include "../bscript/berror.h"
-#include "../bscript/blong.h"
-#include "../bscript/eprog.h"
-#include "../bscript/executor.h"
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "scrsched.h"
+#include "bscript/bboolean.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/eprog.h"
+#include "bscript/executor.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "pol/scrsched.h"
 
 
 namespace Pol::Core

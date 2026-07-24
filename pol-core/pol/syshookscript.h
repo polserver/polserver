@@ -10,9 +10,9 @@
 #include <string>
 #include <vector>
 
-#include "../bscript/bobject.h"
-#include "scrdef.h"
-#include "uoexec.h"
+#include "bscript/bobject.h"
+#include "pol/scrdef.h"
+#include "pol/uoexec.h"
 
 
 namespace Pol::Bscript

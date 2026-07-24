@@ -20,7 +20,7 @@
  */
 
 
-#include "containr.h"
+#include "pol/containr.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -37,22 +37,22 @@
 #include "clib/random.h"
 #include "clib/stlutil.h"
 #include "clib/streamsaver.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
 #include "plib/uconst.h"
-#include "profile.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "statmsg.h"
-#include "syshookscript.h"
-#include "ufunc.h"
-#include "umanip.h"
-#include "uobject.h"
-#include "uoscrobj.h"
-#include "uworld.h"
+#include "pol/profile.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/statmsg.h"
+#include "pol/syshookscript.h"
+#include "pol/ufunc.h"
+#include "pol/umanip.h"
+#include "pol/uobject.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

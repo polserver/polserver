@@ -10,7 +10,7 @@
 #ifndef __PKTNI_H
 #define __PKTNI_H
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 
 namespace Pol
 {

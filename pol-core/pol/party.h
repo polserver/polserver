@@ -10,9 +10,9 @@
 #include <stddef.h>
 #include <vector>
 
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
-#include "proplist.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "pol/proplist.h"
 
 
 namespace Pol::Clib

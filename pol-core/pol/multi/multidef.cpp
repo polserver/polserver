@@ -6,18 +6,18 @@
  */
 
 
-#include "multidef.h"
+#include "pol/multi/multidef.h"
 
 #include <cstdio>
 #include <sstream>
 #include <string>
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/passert.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../globals/multidefs.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "pol/globals/multidefs.h"
 
 
 namespace Pol::Multi

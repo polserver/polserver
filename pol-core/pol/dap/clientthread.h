@@ -1,10 +1,10 @@
 #ifndef DAP_CLIENTTHREAD_H
 #define DAP_CLIENTTHREAD_H
 
-#include "../../bscript/compiler/analyzer/ExpressionEvaluator.h"
-#include "../uoexec.h"
-#include "handles.h"
-#include "proto.h"
+#include "bscript/compiler/analyzer/ExpressionEvaluator.h"
+#include "pol/uoexec.h"
+#include "pol/dap/handles.h"
+#include "pol/dap/proto.h"
 
 #include <atomic>
 #include <dap/session.h>

@@ -3,7 +3,7 @@
  * @par History
  */
 
-#include "equipdsc.h"
+#include "pol/equipdsc.h"
 
 
 namespace Pol::Core

@@ -9,7 +9,7 @@
 #ifndef BOATEMOD_H
 #define BOATEMOD_H
 
-#include "../polmodl.h"
+#include "pol/polmodl.h"
 
 
 namespace Pol::Bscript

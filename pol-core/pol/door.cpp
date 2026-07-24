@@ -3,20 +3,20 @@
  * @par History
  */
 
-#include "door.h"
+#include "pol/door.h"
 
 #include <stddef.h>
 
 #include "bscript/executor.h"
 #include "clib/rawtypes.h"
 
-#include "base/vector.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
-#include "network/client.h"
-#include "syshookscript.h"
-#include "ufunc.h"
-#include "uworld.h"
+#include "pol/base/vector.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/network/client.h"
+#include "pol/syshookscript.h"
+#include "pol/ufunc.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

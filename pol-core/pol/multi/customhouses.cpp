@@ -19,7 +19,7 @@
  */
 
 
-#include "customhouses.h"
+#include "pol/multi/customhouses.h"
 
 #include <cstddef>
 #include <ranges>
@@ -39,28 +39,28 @@
 #include "plib/clidata.h"
 #include "plib/systemstate.h"
 
-#include "../core.h"
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../mkscrobj.h"
-#include "../mobile/charactr.h"
-#include "../network/cgdata.h"
-#include "../network/client.h"
-#include "../network/packethelper.h"
-#include "../network/packets.h"
-#include "../network/pktboth.h"
-#include "../network/pktout.h"
-#include "../network/pktoutid.h"
-#include "../realms/realm.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../syshook.h"
-#include "../ufunc.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "house.h"
-#include "multidef.h"
+#include "pol/core.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mkscrobj.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/cgdata.h"
+#include "pol/network/client.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktboth.h"
+#include "pol/network/pktout.h"
+#include "pol/network/pktoutid.h"
+#include "pol/realms/realm.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/syshook.h"
+#include "pol/ufunc.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
+#include "pol/multi/house.h"
+#include "pol/multi/multidef.h"
 
 #include <zlib.h>
 

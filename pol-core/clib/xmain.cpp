@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #if defined( WINDOWS )
-#include "Header_Windows.h"
+#include "clib/Header_Windows.h"
 
 #pragma comment( lib, "psapi.lib" )  // 32bit is a bit dumb..
 #else

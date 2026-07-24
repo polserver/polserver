@@ -4,7 +4,7 @@
 #include "bscript/bobject.h"
 #include "bscript/executor.h"
 
-#include "uoexec.h"
+#include "pol/uoexec.h"
 
 
 namespace Pol::Core

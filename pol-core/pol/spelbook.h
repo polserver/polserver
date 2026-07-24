@@ -10,10 +10,10 @@
 #ifndef __SPELBOOK_H
 #define __SPELBOOK_H
 
-#include "../clib/rawtypes.h"
-#include "item/item.h"
+#include "clib/rawtypes.h"
+#include "pol/item/item.h"
 #ifndef CONTAINR_H
-#include "containr.h"
+#include "pol/containr.h"
 #endif
 
 namespace Pol

@@ -8,12 +8,12 @@
 #ifndef BINARYSCROBJ_H
 #define BINARYSCROBJ_H
 
-#include "../bscript/bobjectimp.h"
+#include "bscript/bobjectimp.h"
 
 #include <fstream>
 #include <string>
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 
 
 namespace Pol::Bscript

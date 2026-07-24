@@ -5,7 +5,7 @@
  */
 
 
-#include "clmod.h"
+#include "pol/module/clmod.h"
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
@@ -13,9 +13,9 @@
 #include "clib/passert.h"
 #include "clib/rawtypes.h"
 
-#include "../clfunc.h"
-#include "../mobile/charactr.h"
-#include "../network/pktdef.h"
+#include "pol/clfunc.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/pktdef.h"
 
 #include <module_defs/cliloc.h>
 

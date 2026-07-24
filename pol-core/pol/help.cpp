@@ -5,13 +5,13 @@
 
 #include <stddef.h>
 
-#include "../bscript/eprog.h"
-#include "../clib/refptr.h"
-#include "../plib/systemstate.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/pktin.h"
-#include "scrstore.h"
+#include "bscript/eprog.h"
+#include "clib/refptr.h"
+#include "plib/systemstate.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/pktin.h"
+#include "pol/scrstore.h"
 
 
 namespace Pol::Core

@@ -9,20 +9,20 @@
 #include <string.h>
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
-#include "action.h"
-#include "globals/uvars.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/packetdefs.h"
-#include "network/pktin.h"
-#include "uworld.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "pol/action.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/packetdefs.h"
+#include "pol/network/pktin.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

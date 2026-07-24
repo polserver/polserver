@@ -10,9 +10,9 @@
 #include <iosfwd>
 #include <string>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/rawtypes.h"
-#include "../baseobject.h"
+#include "bscript/bobject.h"
+#include "clib/rawtypes.h"
+#include "pol/baseobject.h"
 
 namespace Pol
 {
@@ -27,7 +27,7 @@ class ItemDesc;
 }  // namespace Pol
 
 #ifndef ITEM_H
-#include "item.h"
+#include "pol/item/item.h"
 #endif
 
 namespace Pol

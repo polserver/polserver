@@ -7,7 +7,7 @@
 
 #include "pol_global_config.h"
 
-#include "auxclient.h"
+#include "pol/network/auxclient.h"
 
 #include <chrono>
 #include <iosfwd>
@@ -27,12 +27,12 @@
 #include "clib/threadhelp.h"
 #include "plib/pkg.h"
 
-#include "../globals/network.h"
-#include "../module/uomod.h"
-#include "../polsem.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../uoexec.h"
+#include "pol/globals/network.h"
+#include "pol/module/uomod.h"
+#include "pol/polsem.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/uoexec.h"
 
 
 namespace Pol::Network

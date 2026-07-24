@@ -4,22 +4,22 @@
  */
 
 
-#include "menu.h"
+#include "pol/menu.h"
 
 #include <cstddef>
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
-#include "../plib/systemstate.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "plib/systemstate.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
 
 
 namespace Pol::Core

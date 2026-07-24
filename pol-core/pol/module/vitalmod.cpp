@@ -8,19 +8,19 @@
  */
 
 
-#include "vitalmod.h"
+#include "pol/module/vitalmod.h"
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
 #include "bscript/bstring.h"
 
-#include "../cmbtcfg.h"
-#include "../globals/settings.h"
-#include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
-#include "../spells.h"
-#include "../ufunc.h"
-#include "../vital.h"
+#include "pol/cmbtcfg.h"
+#include "pol/globals/settings.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/charactr.h"
+#include "pol/spells.h"
+#include "pol/ufunc.h"
+#include "pol/vital.h"
 
 #include <module_defs/vitals.h>
 

@@ -8,8 +8,8 @@
 #ifndef POLSYSTEMEMOD_H
 #define POLSYSTEMEMOD_H
 
-#include "../polmodl.h"
-#include "../polobject.h"
+#include "pol/polmodl.h"
+#include "pol/polobject.h"
 
 namespace Pol::Bscript
 {

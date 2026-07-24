@@ -3,7 +3,7 @@
  * @par History
  */
 
-#include "httpmod.h"
+#include "pol/module/httpmod.h"
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
@@ -14,8 +14,8 @@
 #include "clib/strutil.h"
 #include "plib/systemstate.h"
 
-#include "../polwww.h"
-#include "../uoexec.h"
+#include "pol/polwww.h"
+#include "pol/uoexec.h"
 
 #include <module_defs/http.h>
 

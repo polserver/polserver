@@ -9,20 +9,20 @@
 
 #include <stddef.h>
 
-#include "../clib/rawtypes.h"
-#include "../plib/uconst.h"
-#include "mobile/charactr.h"
-#include "multi/customhouses.h"
-#include "multi/house.h"
-#include "multi/multi.h"
-#include "network/client.h"
-#include "network/packetdefs.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "network/pktdef.h"
-#include "network/pktin.h"
-#include "ufunc.h"
-#include "uworld.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
+#include "pol/mobile/charactr.h"
+#include "pol/multi/customhouses.h"
+#include "pol/multi/house.h"
+#include "pol/multi/multi.h"
+#include "pol/network/client.h"
+#include "pol/network/packetdefs.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktin.h"
+#include "pol/ufunc.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

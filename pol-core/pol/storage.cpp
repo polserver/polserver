@@ -5,27 +5,27 @@
  */
 
 
-#include "storage.h"
+#include "pol/storage.h"
 
 #include <exception>
 #include <string>
 #include <time.h>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
-#include "../clib/streamsaver.h"
-#include "../plib/systemstate.h"
-#include "containr.h"
-#include "fnsearch.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "loaddata.h"
-#include "mkscrobj.h"
-#include "ufunc.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "plib/systemstate.h"
+#include "pol/containr.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/loaddata.h"
+#include "pol/mkscrobj.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core

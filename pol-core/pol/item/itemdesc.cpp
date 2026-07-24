@@ -13,7 +13,7 @@
  */
 
 
-#include "itemdesc.h"
+#include "pol/item/itemdesc.h"
 
 #include <ctype.h>
 #include <iosfwd>
@@ -41,18 +41,18 @@
 #include "plib/systemstate.h"
 #include "plib/uconst.h"
 
-#include "../dice.h"
-#include "../extobj.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../multi/multidef.h"
-#include "../network/pktdef.h"
-#include "../proplist.h"
-#include "../syshookscript.h"
-#include "../uobject.h"
-#include "armrtmpl.h"
-#include "regions/resource.h"
-#include "wepntmpl.h"
+#include "pol/dice.h"
+#include "pol/extobj.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/multi/multidef.h"
+#include "pol/network/pktdef.h"
+#include "pol/proplist.h"
+#include "pol/syshookscript.h"
+#include "pol/uobject.h"
+#include "pol/item/armrtmpl.h"
+#include "pol/regions/resource.h"
+#include "pol/item/wepntmpl.h"
 
 
 namespace Pol::Items

@@ -10,9 +10,9 @@
 #include "bscript/blong.h"
 #include "clib/passert.h"
 
-#include "../polclock.h"
-#include "../spells.h"
-#include "charactr.h"
+#include "pol/polclock.h"
+#include "pol/spells.h"
+#include "pol/mobile/charactr.h"
 
 
 namespace Pol::Mobile

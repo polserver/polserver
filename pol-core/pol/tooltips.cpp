@@ -10,7 +10,7 @@
  */
 
 
-#include "tooltips.h"
+#include "pol/tooltips.h"
 
 #include <stddef.h>
 #include <string>
@@ -20,17 +20,17 @@
 #include "clib/rawtypes.h"
 #include "plib/uoexpansion.h"
 
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/packetdefs.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "network/pktin.h"
-#include "ufunc.h"
-#include "uobject.h"
-#include "uworld.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/packetdefs.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktin.h"
+#include "pol/ufunc.h"
+#include "pol/uobject.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

@@ -8,12 +8,12 @@
 #define __MENU_H
 
 #ifndef __CLIB_RAWTYPES_H
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 #endif
 #include <cstddef>
 #include <vector>
 
-#include "../clib/weakptr.h"
+#include "clib/weakptr.h"
 
 
 namespace Pol::Core

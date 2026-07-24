@@ -18,11 +18,11 @@
 #include "clib/boostutils.h"
 #include "clib/rawtypes.h"
 
-#include "../baseobject.h"
-#include "../dynproperties.h"
-#include "../globals/settings.h"
-#include "../layers.h"
-#include "../uobject.h"
+#include "pol/baseobject.h"
+#include "pol/dynproperties.h"
+#include "pol/globals/settings.h"
+#include "pol/layers.h"
+#include "pol/uobject.h"
 
 namespace Pol
 {

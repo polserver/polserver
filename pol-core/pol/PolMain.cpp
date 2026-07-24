@@ -1,7 +1,7 @@
-#include "PolMain.h"
+#include "pol/PolMain.h"
 
-#include "../clib/Program/ProgramMain.h"
-#include "pol.h"
+#include "clib/Program/ProgramMain.h"
+#include "pol/pol.h"
 
 
 namespace Pol::Clib

@@ -5,33 +5,33 @@
  * - 2009/11/26 Turley:    Syshook CanDie(mobile)
  */
 
-#include "syshook.h"
+#include "pol/syshook.h"
 
 #include <stddef.h>
 #include <string>
 #include <tuple>
 
-#include "../bscript/bobject.h"
-#include "../bscript/executor.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/strutil.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-#include "accounts/account.h"
-#include "accounts/acscrobj.h"
-#include "globals/uvars.h"
-#include "guildscrobj.h"
-#include "module/guildmod.h"
-#include "module/partymod.h"
-#include "partyscrobj.h"
-#include "polclass.h"
-#include "scrdef.h"
-#include "syshookscript.h"
-#include "uobject.h"
-#include "uoscrobj.h"
+#include "bscript/bobject.h"
+#include "bscript/executor.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/strutil.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "pol/accounts/account.h"
+#include "pol/accounts/acscrobj.h"
+#include "pol/globals/uvars.h"
+#include "pol/guildscrobj.h"
+#include "pol/module/guildmod.h"
+#include "pol/module/partymod.h"
+#include "pol/partyscrobj.h"
+#include "pol/polclass.h"
+#include "pol/scrdef.h"
+#include "pol/syshookscript.h"
+#include "pol/uobject.h"
+#include "pol/uoscrobj.h"
 
 
 namespace Pol::Core

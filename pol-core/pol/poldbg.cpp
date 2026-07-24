@@ -9,7 +9,7 @@
  * - 2009/08/25 Shinigami: STLport-5.2.1 fix: string array definition and memname definition changed
  */
 
-#include "poldbg.h"
+#include "pol/poldbg.h"
 
 #include <fstream>
 #include <stddef.h>
@@ -33,11 +33,11 @@
 #include "clib/weakptr.h"
 #include "plib/systemstate.h"
 
-#include "module/uomod.h"
-#include "polobject.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "uoexec.h"
+#include "pol/module/uomod.h"
+#include "pol/polobject.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/uoexec.h"
 
 
 namespace Pol::Core

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../../bscript/execmodl.h"
+#include "bscript/execmodl.h"
 
 
 namespace Pol::Bscript

@@ -1,11 +1,11 @@
-#include "object_storage.h"
+#include "pol/globals/object_storage.h"
 
 #include <string.h>
 
-#include "../../clib/stlutil.h"
-#include "../objecthash.h"
-#include "../reftypes.h"
-#include "../uobject.h"
+#include "clib/stlutil.h"
+#include "pol/objecthash.h"
+#include "pol/reftypes.h"
+#include "pol/uobject.h"
 
 
 namespace Pol::Core

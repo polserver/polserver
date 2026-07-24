@@ -7,7 +7,7 @@
 #ifndef LOCKABLE_H
 #define LOCKABLE_H
 
-#include "baseobject.h"
+#include "pol/baseobject.h"
 
 namespace Pol
 {
@@ -27,7 +27,7 @@ class ItemDesc;
 }  // namespace Items
 }  // namespace Pol
 #ifndef ITEM_H
-#include "item/item.h"
+#include "pol/item/item.h"
 #endif
 
 

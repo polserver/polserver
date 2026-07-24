@@ -15,7 +15,7 @@ class Executor;
 }  // namespace Pol::Bscript
 
 #ifndef BSCRIPT_EXECMODL_H
-#include "../../bscript/execmodl.h"
+#include "bscript/execmodl.h"
 #endif
 
 // FIXME: this is currently misnamed, should be StringExecutorModule

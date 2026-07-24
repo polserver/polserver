@@ -12,10 +12,10 @@
 #ifndef __PKTBOTHH
 #define __PKTBOTHH
 
-#include "../clib/rawtypes.h"
-#include "../plib/uconst.h"
-#include "pktbothid.h"
-#include "pktdef.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
+#include "pol/network/pktbothid.h"
+#include "pol/network/pktdef.h"
 
 
 namespace Pol::Core

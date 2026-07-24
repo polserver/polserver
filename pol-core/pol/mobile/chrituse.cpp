@@ -16,16 +16,16 @@
 #include "clib/refptr.h"
 #include "plib/systemstate.h"
 
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../module/uomod.h"
-#include "../realms/realm.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../uoexec.h"
-#include "../uoscrobj.h"
-#include "charactr.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/module/uomod.h"
+#include "pol/realms/realm.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/scrstore.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
+#include "pol/mobile/charactr.h"
 
 namespace Pol
 {

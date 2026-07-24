@@ -30,7 +30,7 @@ std::string UOInstallFinder::remove_elem( Clib::ConfigElem& elem )
 
 #ifdef _WIN32
 
-#include "../clib/fileutil.h"
+#include "clib/fileutil.h"
 
 #define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
 #include <windows.h>

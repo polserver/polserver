@@ -7,7 +7,7 @@
  * shadowname
  */
 
-#include "realm.h"
+#include "pol/realms/realm.h"
 
 #include "clib/stlutil.h"
 #include "plib/mapserver.h"
@@ -16,10 +16,10 @@
 #include "plib/realmdescriptor.h"
 #include "plib/staticserver.h"
 
-#include "mobile/charactr.h"
-#include "realms/WorldChangeReasons.h"
-#include "ufunc.h"
-#include "uworld.h"
+#include "pol/mobile/charactr.h"
+#include "pol/realms/WorldChangeReasons.h"
+#include "pol/ufunc.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Realms

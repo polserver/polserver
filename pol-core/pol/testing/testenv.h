@@ -7,7 +7,7 @@
 #ifndef POL_TESTENV_H
 #define POL_TESTENV_H
 
-#include "../../clib/logfacility.h"
+#include "clib/logfacility.h"
 
 #include <string>
 

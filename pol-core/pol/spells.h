@@ -11,13 +11,13 @@
 #include <time.h>
 #include <vector>
 
-#include "../clib/rawtypes.h"
-#include "action.h"
-#include "globals/uvars.h"
-#include "polclock.h"
-#include "reftypes.h"
-#include "schedule.h"
-#include "scrdef.h"
+#include "clib/rawtypes.h"
+#include "pol/action.h"
+#include "pol/globals/uvars.h"
+#include "pol/polclock.h"
+#include "pol/reftypes.h"
+#include "pol/schedule.h"
+#include "pol/scrdef.h"
 
 namespace Pol
 {

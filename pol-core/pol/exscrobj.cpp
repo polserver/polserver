@@ -12,7 +12,7 @@
  */
 
 
-#include "exscrobj.h"
+#include "pol/exscrobj.h"
 
 #include <stddef.h>
 #include <string>
@@ -31,11 +31,11 @@
 #include "clib/strutil.h"
 #include "plib/systemstate.h"
 
-#include "module/polsystemmod.h"
-#include "module/uomod.h"
-#include "scrsched.h"
-#include "uoexec.h"
-#include "uoscrobj.h"
+#include "pol/module/polsystemmod.h"
+#include "pol/module/uomod.h"
+#include "pol/scrsched.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
 
 
 namespace Pol::Core

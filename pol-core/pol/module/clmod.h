@@ -7,7 +7,7 @@
 #ifndef CLILOCEMOD_H
 #define CLILOCEMOD_H
 
-#include "../polmodl.h"
+#include "pol/polmodl.h"
 
 
 namespace Pol::Bscript

@@ -1,21 +1,21 @@
-#include "polmodl.h"
+#include "pol/polmodl.h"
 
 #include <stdlib.h>
 
-#include "../bscript/executor.h"
-#include "base/position.h"
-#include "fnsearch.h"
-#include "globals/network.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
-#include "multi/multi.h"
-#include "network/client.h"
-#include "uobject.h"
-#include "uoexec.h"
-#include "uoscrobj.h"
-#include "vital.h"
+#include "bscript/executor.h"
+#include "pol/base/position.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/network.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/charactr.h"
+#include "pol/multi/multi.h"
+#include "pol/network/client.h"
+#include "pol/uobject.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
+#include "pol/vital.h"
 
 
 namespace Pol::Core

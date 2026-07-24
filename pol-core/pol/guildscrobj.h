@@ -5,8 +5,8 @@
 #include "bscript/bobject.h"
 #include "clib/rawtypes.h"
 
-#include "globals/uvars.h"
-#include "polobject.h"
+#include "pol/globals/uvars.h"
+#include "pol/polobject.h"
 
 
 namespace Pol::Bscript

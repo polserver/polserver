@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "../../clib/message_queue.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/weakptr.h"
+#include "clib/message_queue.h"
+#include "clib/rawtypes.h"
+#include "clib/weakptr.h"
 
 
 namespace Pol::Network

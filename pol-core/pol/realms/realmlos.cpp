@@ -9,11 +9,11 @@
 #include "clib/rawtypes.h"
 #include "plib/mapcell.h"
 
-#include "baseobject.h"
-#include "item/item.h"
-#include "mobile/charactr.h"
-#include "realms/realm.h"
-#include "uworld.h"
+#include "pol/baseobject.h"
+#include "pol/item/item.h"
+#include "pol/mobile/charactr.h"
+#include "pol/realms/realm.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Realms

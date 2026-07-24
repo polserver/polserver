@@ -5,8 +5,8 @@
 #include <boost/stacktrace.hpp>
 
 #include "clib/Debugging/ExceptionParser.h"
-#include "clib/logfacility.h"
 #include "clib/Program/ProgramConfig.h"
+#include "clib/logfacility.h"
 #include "pol_global_config.h"
 
 #ifdef ENABLE_BENCHMARK
@@ -15,7 +15,7 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include "../Header_Windows.h"
+#include "clib/Header_Windows.h"
 #include <crtdbg.h>
 #include <psapi.h>
 #include <windows.h>  // for GetModuleFileName

@@ -29,8 +29,8 @@
 #include <string>
 #include <vector>
 
-#include "../clib/rawtypes.h"
-#include "../plib/uoexpansion.h"
+#include "clib/rawtypes.h"
+#include "plib/uoexpansion.h"
 
 namespace Pol
 {

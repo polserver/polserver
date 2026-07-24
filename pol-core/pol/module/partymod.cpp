@@ -7,7 +7,7 @@
 
 #include "pol_global_config.h"
 
-#include "partymod.h"
+#include "pol/module/partymod.h"
 #include <stddef.h>
 
 #include "bscript/barray.h"
@@ -17,19 +17,19 @@
 #include "bscript/executor.h"
 #include "clib/rawtypes.h"
 
-#include "../clfunc.h"
-#include "../fnsearch.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../mobile/charactr.h"
-#include "../network/pktdef.h"
-#include "../party.h"
-#include "../party_cfg.h"
-#include "../partyscrobj.h"
-#include "../polobject.h"
-#include "../syshook.h"
-#include "../uoexec.h"
-#include "../uoscrobj.h"
+#include "pol/clfunc.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/pktdef.h"
+#include "pol/party.h"
+#include "pol/party_cfg.h"
+#include "pol/partyscrobj.h"
+#include "pol/polobject.h"
+#include "pol/syshook.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
 #include <module_defs/party.h>
 
 namespace Pol

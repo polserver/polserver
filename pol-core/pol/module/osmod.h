@@ -9,15 +9,15 @@
 #define BSCRIPT_OSEMOD_H
 
 #ifndef POL_POLMODL_H
-#include "../polmodl.h"
+#include "pol/polmodl.h"
 #endif
 
 #include <ctime>
 #include <deque>
 #include <map>
 
-#include "../globals/script_internals.h"
-#include "../polclock.h"
+#include "pol/globals/script_internals.h"
+#include "pol/polclock.h"
 #include "clib/rawtypes.h"
 
 namespace Pol

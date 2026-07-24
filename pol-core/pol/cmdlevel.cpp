@@ -5,7 +5,7 @@
  */
 
 
-#include "cmdlevel.h"
+#include "pol/cmdlevel.h"
 
 #include <filesystem>
 #include <memory>
@@ -24,7 +24,7 @@
 #include "clib/fileutil.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
-#include "globals/uvars.h"
+#include "pol/globals/uvars.h"
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
 

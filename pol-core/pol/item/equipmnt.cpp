@@ -5,34 +5,34 @@
  */
 
 
-#include "equipmnt.h"
+#include "pol/item/equipmnt.h"
 
 #include <ranges>
 #include <stddef.h>
 
-#include "../../bscript/executor.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/passert.h"
-#include "../../clib/random.h"
-#include "../../clib/streamsaver.h"
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
-#include "../equipdsc.h"
-#include "../globals/object_storage.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../layers.h"
-#include "../mobile/charactr.h"
-#include "../syshookscript.h"
-#include "../tooltips.h"
-#include "../ufunc.h"
-#include "armor.h"
-#include "item.h"
-#include "itemdesc.h"
-#include "weapon.h"
+#include "bscript/executor.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib_endian.h"
+#include "clib/fileutil.h"
+#include "clib/passert.h"
+#include "clib/random.h"
+#include "clib/streamsaver.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "pol/equipdsc.h"
+#include "pol/globals/object_storage.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/layers.h"
+#include "pol/mobile/charactr.h"
+#include "pol/syshookscript.h"
+#include "pol/tooltips.h"
+#include "pol/ufunc.h"
+#include "pol/item/armor.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/item/weapon.h"
 
 
 namespace Pol::Items

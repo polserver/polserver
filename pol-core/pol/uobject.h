@@ -13,7 +13,7 @@
 #define __UOBJECT_H
 
 #ifndef __CLIB_RAWTYPES_H
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 #endif
 
 #include <atomic>
@@ -25,11 +25,11 @@
 #include <string>
 #include <type_traits>
 
-#include "../clib/boostutils.h"
-#include "../clib/refptr.h"
-#include "baseobject.h"
-#include "dynproperties.h"
-#include "proplist.h"
+#include "clib/boostutils.h"
+#include "clib/refptr.h"
+#include "pol/baseobject.h"
+#include "pol/dynproperties.h"
+#include "pol/proplist.h"
 
 #define pf_endl '\n'
 

@@ -4,10 +4,10 @@
  */
 
 
-#include "startloc.h"
+#include "pol/startloc.h"
 
-#include "../clib/random.h"
-#include "../clib/stlutil.h"
+#include "clib/random.h"
+#include "clib/stlutil.h"
 
 
 namespace Pol::Core

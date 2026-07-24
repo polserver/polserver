@@ -18,11 +18,6 @@
 #include "bscript/exectype.h"
 #include "bscript/executor.inl.h"
 
-#include "clib/clib.h"
-#include "clib/logfacility.h"
-#include "clib/passert.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
 #include "bscript/barray.h"
 #include "bscript/bboolean.h"
 #include "bscript/bclassinstance.h"
@@ -45,10 +40,15 @@
 #include "bscript/str.h"
 #include "bscript/token.h"
 #include "bscript/tokens.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
 #include <iterator>
 #include <limits>
 #ifdef MEMORYLEAK
-#include "../clib/mlog.h"
+#include "clib/mlog.h"
 #endif
 
 #include <boost/multi_index/ordered_index.hpp>

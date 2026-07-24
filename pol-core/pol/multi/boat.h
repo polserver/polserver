@@ -16,13 +16,13 @@
 #include <string>
 #include <vector>
 
-#include "base/position.h"
+#include "pol/base/position.h"
 #include "bscript/bobject.h"
 #include "clib/rawtypes.h"
-#include "multi.h"
+#include "pol/multi/multi.h"
 #include "plib/poltype.h"
 #include "plib/uconst.h"
-#include "reftypes.h"
+#include "pol/reftypes.h"
 
 namespace Pol
 {

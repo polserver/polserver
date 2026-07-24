@@ -1,4 +1,4 @@
-#include "clientthread.h"
+#include "pol/network/clientthread.h"
 
 #include <errno.h>
 #include <exception>
@@ -16,29 +16,29 @@
 #include "clib/stlutil.h"
 #include "plib/systemstate.h"
 
-#include "../accounts/account.h"
-#include "../clib/network/sockets.h"
-#include "../core.h"
-#include "../crypt/cryptbase.h"
-#include "../mobile/charactr.h"
-#include "../polclock.h"
-#include "../polsem.h"
-#include "../schedule.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "cgdata.h"  // This might not be needed if the client has a clear_gd() method
-#include "client.h"
-#include "msgfiltr.h"  // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
-#include "msghandl.h"
-#include "packethelper.h"
-#include "packets.h"
-#include "pktboth.h"
-#include "pktbothid.h"
-#include "pktdef.h"
-#include "pktinid.h"
-#include "proxyprotocol.h"
+#include "pol/accounts/account.h"
+#include "clib/network/sockets.h"
+#include "pol/core.h"
+#include "pol/crypt/cryptbase.h"
+#include "pol/mobile/charactr.h"
+#include "pol/polclock.h"
+#include "pol/polsem.h"
+#include "pol/schedule.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
+#include "pol/network/cgdata.h"  // This might not be needed if the client has a clear_gd() method
+#include "pol/network/client.h"
+#include "pol/network/msgfiltr.h"  // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
+#include "pol/network/msghandl.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktboth.h"
+#include "pol/network/pktbothid.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktinid.h"
+#include "pol/network/proxyprotocol.h"
 
 
 #define CLIENT_CHECKPOINT( x ) client->session()->checkpoint = x

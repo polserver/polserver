@@ -14,11 +14,11 @@
 #define H_NPC_H
 
 #ifndef __CHARACTR_H
-#include "charactr.h"
+#include "pol/mobile/charactr.h"
 #endif
 
 #ifndef ARMOR_H
-#include "../item/armor.h"
+#include "pol/item/armor.h"
 #endif
 
 #include <iosfwd>
@@ -27,16 +27,16 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/boostutils.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/uconst.h"
-#include "../base/position.h"
-#include "../dynproperties.h"
-#include "../eventid.h"
-#include "../item/weapon.h"
-#include "../npctmpl.h"
-#include "../reftypes.h"
+#include "bscript/bobject.h"
+#include "clib/boostutils.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
+#include "pol/base/position.h"
+#include "pol/dynproperties.h"
+#include "pol/eventid.h"
+#include "pol/item/weapon.h"
+#include "pol/npctmpl.h"
+#include "pol/reftypes.h"
 
 namespace Pol
 {

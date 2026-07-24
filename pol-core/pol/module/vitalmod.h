@@ -11,8 +11,8 @@
 
 #include <stddef.h>
 
-#include "../polmodl.h"
-#include "uomod.h"
+#include "pol/polmodl.h"
+#include "pol/module/uomod.h"
 
 namespace Pol
 {

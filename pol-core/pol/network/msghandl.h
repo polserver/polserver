@@ -8,9 +8,9 @@
 #ifndef MSGHANDL_H
 #define MSGHANDL_H
 
-#include "pktboth.h"
-#include "pktin.h"
-#include "pktout.h"
+#include "pol/network/pktboth.h"
+#include "pol/network/pktin.h"
+#include "pol/network/pktout.h"
 
 namespace Pol
 {

@@ -2,12 +2,12 @@
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
 
-#include "base/position.h"
-#include "base/range.h"
-#include "base/vector.h"
-#include "globals/uvars.h"
-#include "realms/realm.h"
-#include "testenv.h"
+#include "pol/base/position.h"
+#include "pol/base/range.h"
+#include "pol/base/vector.h"
+#include "pol/globals/uvars.h"
+#include "pol/realms/realm.h"
+#include "pol/testing/testenv.h"
 
 
 namespace Pol::Testing

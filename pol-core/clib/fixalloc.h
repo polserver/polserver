@@ -21,7 +21,7 @@
 #include <cstdlib>
 
 #ifdef MEMORYLEAK
-#include "logfacility.h"
+#include "clib/logfacility.h"
 #endif
 
 namespace Pol::Clib

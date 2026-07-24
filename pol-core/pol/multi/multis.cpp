@@ -18,15 +18,15 @@
 #include "clib/streamsaver.h"
 #include "plib/uconst.h"
 
-#include "../baseobject.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../syshookscript.h"
-#include "../uobjcnt.h"
-#include "multi.h"
-#include "multidef.h"
+#include "pol/baseobject.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/syshookscript.h"
+#include "pol/uobjcnt.h"
+#include "pol/multi/multi.h"
+#include "pol/multi/multidef.h"
 
 
 namespace Pol::Multi

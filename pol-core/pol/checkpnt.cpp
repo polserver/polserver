@@ -4,11 +4,11 @@
  */
 
 
-#include "checkpnt.h"
+#include "pol/checkpnt.h"
 
-#include "../clib/logfacility.h"
-#include "../plib/systemstate.h"
-#include "globals/state.h"
+#include "clib/logfacility.h"
+#include "plib/systemstate.h"
+#include "pol/globals/state.h"
 
 
 namespace Pol::Core

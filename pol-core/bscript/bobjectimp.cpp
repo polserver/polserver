@@ -1,6 +1,5 @@
 #include "bscript/bobjectimp.h"
 
-#include "clib/stlutil.h"
 #include "bscript/barray.h"
 #include "bscript/bboolean.h"
 #include "bscript/bcontiter.h"
@@ -13,10 +12,11 @@
 #include "bscript/buninit.h"
 #include "bscript/objmembers.h"
 #include "bscript/objmethods.h"
+#include "clib/stlutil.h"
 
 #if BOBJECTIMP_DEBUG
-#include "../clib/logfacility.h"
-#include "escriptv.h"
+#include "bscript/escriptv.h"
+#include "clib/logfacility.h"
 #include <unordered_map>
 #endif
 

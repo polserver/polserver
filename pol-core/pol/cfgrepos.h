@@ -18,9 +18,9 @@
 #include <time.h>
 #include <utility>
 
-#include "../clib/boostutils.h"
-#include "../clib/maputil.h"
-#include "../clib/refptr.h"
+#include "clib/boostutils.h"
+#include "clib/maputil.h"
+#include "clib/refptr.h"
 
 namespace Pol
 {

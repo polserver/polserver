@@ -11,26 +11,26 @@
 #define UWORLD_H
 
 #ifndef __UOBJECT_H
-#include "uobject.h"
+#include "pol/uobject.h"
 #endif
 #ifndef ITEM_H
-#include "item/item.h"
+#include "pol/item/item.h"
 #endif
 #ifndef MULTI_H
-#include "multi/multi.h"
+#include "pol/multi/multi.h"
 #endif
 #ifndef __CHARACTR_H
-#include "mobile/charactr.h"
+#include "pol/mobile/charactr.h"
 #endif
 
-#include "../clib/rawtypes.h"
-#include "../plib/realmdescriptor.h"
-#include "base/position.h"
-#include "base/range.h"
-#include "globals/uvars.h"
-#include "realms/WorldChangeReasons.h"
-#include "realms/realm.h"
-#include "zone.h"
+#include "clib/rawtypes.h"
+#include "plib/realmdescriptor.h"
+#include "pol/base/position.h"
+#include "pol/base/range.h"
+#include "pol/globals/uvars.h"
+#include "pol/realms/WorldChangeReasons.h"
+#include "pol/realms/realm.h"
+#include "pol/zone.h"
 
 
 namespace Pol::Core

@@ -13,9 +13,9 @@
 #include "pol_global_config.h"
 
 #if defined( WINDOWS )
-#include "Header_Windows.h"
-#include "msjexhnd.h"
-#include "strexcpt.h"
+#include "clib/Header_Windows.h"
+#include "clib/msjexhnd.h"
+#include "clib/strexcpt.h"
 #include <stdio.h>
 #else
 #include "clib/passert.h"

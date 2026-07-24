@@ -1,9 +1,9 @@
-#include "guildscrobj.h"
+#include "pol/guildscrobj.h"
 
 #include "bscript/bboolean.h"
 #include "clib/stlutil.h"
 
-#include "guilds.h"
+#include "pol/guilds.h"
 #include <stddef.h>
 
 

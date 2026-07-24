@@ -11,20 +11,20 @@
 #include <string>
 #include <thread>
 
-#include "../clib/esignal.h"
-#include "../clib/logfacility.h"
-#include "../clib/network/socketsvc.h"
-#include "../clib/network/wnsckt.h"
-#include "../clib/strutil.h"
-#include "../clib/threadhelp.h"
-#include "../plib/systemstate.h"
-#include "core.h"
-#include "globals/network.h"
-#include "network/client.h"
-#include "network/clienttransmit.h"
-#include "network/cliface.h"
-#include "polsem.h"
-#include "uoclient.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "clib/network/socketsvc.h"
+#include "clib/network/wnsckt.h"
+#include "clib/strutil.h"
+#include "clib/threadhelp.h"
+#include "plib/systemstate.h"
+#include "pol/core.h"
+#include "pol/globals/network.h"
+#include "pol/network/client.h"
+#include "pol/network/clienttransmit.h"
+#include "pol/network/cliface.h"
+#include "pol/polsem.h"
+#include "pol/uoclient.h"
 
 
 namespace Pol::Core

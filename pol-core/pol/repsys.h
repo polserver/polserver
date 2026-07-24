@@ -7,7 +7,7 @@
 #ifndef REPSYS_H
 #define REPSYS_H
 
-#include "polclock.h"
+#include "pol/polclock.h"
 
 namespace Pol
 {

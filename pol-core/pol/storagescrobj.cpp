@@ -1,13 +1,13 @@
-#include "storagescrobj.h"
+#include "pol/storagescrobj.h"
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
 #include "bscript/bstring.h"
 #include "bscript/buninit.h"
 
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "mkscrobj.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/mkscrobj.h"
 
 namespace Pol::Core
 {

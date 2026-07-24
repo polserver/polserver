@@ -17,9 +17,9 @@
 #include <string>
 #include <vector>
 
-#include "../clib/boostutils.h"
-#include "../clib/rawtypes.h"
-#include "../clib/spinlock.h"
+#include "clib/boostutils.h"
+#include "clib/rawtypes.h"
+#include "clib/spinlock.h"
 
 namespace Pol
 {

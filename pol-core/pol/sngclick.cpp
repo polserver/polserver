@@ -5,23 +5,23 @@
  * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
  */
 
-#include "sngclick.h"
+#include "pol/sngclick.h"
 
 #include <cstdio>
 #include <string>
 
-#include "../clib/clib_endian.h"
-#include "../clib/passert.h"
-#include "../plib/uconst.h"
-#include "base/range.h"
-#include "containr.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/pktin.h"
-#include "ufunc.h"
-#include "ufuncstd.h"
-#include "uobject.h"
-#include "uworld.h"
+#include "clib/clib_endian.h"
+#include "clib/passert.h"
+#include "plib/uconst.h"
+#include "pol/base/range.h"
+#include "pol/containr.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/pktin.h"
+#include "pol/ufunc.h"
+#include "pol/ufuncstd.h"
+#include "pol/uobject.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

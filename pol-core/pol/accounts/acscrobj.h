@@ -8,10 +8,10 @@
 #ifndef ACSCROBJ_H
 #define ACSCROBJ_H
 
-#include "../../clib/rawtypes.h"
-#include "../polobject.h"
-#include "../reftypes.h"
-#include "account.h"
+#include "clib/rawtypes.h"
+#include "pol/polobject.h"
+#include "pol/reftypes.h"
+#include "pol/accounts/account.h"
 
 namespace Pol
 {

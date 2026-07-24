@@ -10,7 +10,7 @@
 #include <set>
 #include <string>
 
-#include "../equipdsc.h"
+#include "pol/equipdsc.h"
 namespace Pol
 {
 namespace Clib

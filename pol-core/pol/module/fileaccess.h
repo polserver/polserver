@@ -7,7 +7,7 @@
 #ifndef FILEACCESS_H
 #define FILEACCESS_H
 
-#include "../../clib/maputil.h"
+#include "clib/maputil.h"
 
 #include <set>
 #include <string>

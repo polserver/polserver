@@ -8,7 +8,7 @@
  */
 
 
-#include "realms.h"
+#include "pol/realms/realms.h"
 
 #include <filesystem>
 #include <stddef.h>
@@ -20,8 +20,8 @@
 #include "clib/timer.h"
 #include "plib/systemstate.h"
 
-#include "globals/uvars.h"
-#include "realms/realm.h"
+#include "pol/globals/uvars.h"
+#include "pol/realms/realm.h"
 
 
 namespace Pol::Core

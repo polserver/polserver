@@ -7,8 +7,8 @@
 #ifndef H_LOS_H
 #define H_LOS_H
 
-#include "base/position.h"
-#include "baseobject.h"
+#include "pol/base/position.h"
+#include "pol/baseobject.h"
 
 
 namespace Pol::Core

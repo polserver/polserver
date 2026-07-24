@@ -9,29 +9,29 @@
  */
 
 
-#include "tasks.h"
+#include "pol/tasks.h"
 
 #include <time.h>
 
-#include "../bscript/berror.h"
-#include "../bscript/escriptv.h"
-#include "../clib/logfacility.h"
-#include "../plib/polcfg.h"
-#include "../plib/systemstate.h"
-#include "cmbtcfg.h"
-#include "core.h"
-#include "gameclck.h"
-#include "globals/script_internals.h"
-#include "globals/settings.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "mobile/charactr.h"
-#include "polclock.h"
-#include "polsig.h"
-#include "profile.h"
-#include "realms/realm.h"
-#include "uworld.h"
-#include "vital.h"
+#include "bscript/berror.h"
+#include "bscript/escriptv.h"
+#include "clib/logfacility.h"
+#include "plib/polcfg.h"
+#include "plib/systemstate.h"
+#include "pol/cmbtcfg.h"
+#include "pol/core.h"
+#include "pol/gameclck.h"
+#include "pol/globals/script_internals.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/polclock.h"
+#include "pol/polsig.h"
+#include "pol/profile.h"
+#include "pol/realms/realm.h"
+#include "pol/uworld.h"
+#include "pol/vital.h"
 
 #ifndef _WIN32
 #include <sys/times.h>

@@ -4,19 +4,19 @@
  */
 
 
-#include "guardrgn.h"
+#include "pol/regions/guardrgn.h"
 
 #include <stddef.h>
 
 #include "bscript/bstring.h"
 #include "clib/cfgelem.h"
 
-#include "globals/uvars.h"
-#include "network/cgdata.h"
-#include "network/client.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "uoscrobj.h"
+#include "pol/globals/uvars.h"
+#include "pol/network/cgdata.h"
+#include "pol/network/client.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/uoscrobj.h"
 
 namespace Pol::Core
 {

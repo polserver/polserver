@@ -10,7 +10,7 @@
 #include <map>
 #include <string>
 
-#include "../clib/maputil.h"
+#include "clib/maputil.h"
 
 namespace Pol
 {

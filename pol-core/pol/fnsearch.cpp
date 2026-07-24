@@ -5,16 +5,16 @@
  */
 
 
-#include "fnsearch.h"
+#include "pol/fnsearch.h"
 
 #include <stddef.h>
 
-#include "globals/object_storage.h"
-#include "item/item.h"
-#include "mobile/charactr.h"
-#include "multi/multi.h"
-#include "objecthash.h"
-#include "uobject.h"
+#include "pol/globals/object_storage.h"
+#include "pol/item/item.h"
+#include "pol/mobile/charactr.h"
+#include "pol/multi/multi.h"
+#include "pol/objecthash.h"
+#include "pol/uobject.h"
 
 
 namespace Pol::Core

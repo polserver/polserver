@@ -5,27 +5,27 @@
  */
 
 
-#include "cliface.h"
+#include "pol/network/cliface.h"
 
 #include <memory>
 #include <stddef.h>
 
-#include "../../clib/rawtypes.h"
-#include "../globals/network.h"
-#include "../globals/settings.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
-#include "../network/packethelper.h"
-#include "../party.h"
-#include "../statmsg.h"
-#include "../ufunc.h"
-#include "../uoclient.h"
-#include "../uoskills.h"
-#include "../vital.h"
-#include "client.h"
-#include "packets.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/network.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/packethelper.h"
+#include "pol/party.h"
+#include "pol/statmsg.h"
+#include "pol/ufunc.h"
+#include "pol/uoclient.h"
+#include "pol/uoskills.h"
+#include "pol/vital.h"
+#include "pol/network/client.h"
+#include "pol/network/packets.h"
 
 
 namespace Pol::Network

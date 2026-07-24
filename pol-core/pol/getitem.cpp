@@ -13,25 +13,25 @@
  *                         Changes for multi related source file relocation
  */
 
-#include "getitem.h"
+#include "pol/getitem.h"
 
 #include <cstdio>
 
-#include "../clib/clib_endian.h"
-#include "../clib/rawtypes.h"
-#include "containr.h"
-#include "fnsearch.h"
-#include "item/item.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/pktdef.h"
-#include "network/pktin.h"
-#include "realms/realms.h"
-#include "reftypes.h"
-#include "statmsg.h"
-#include "ufunc.h"
-#include "uobject.h"
-#include "uworld.h"
+#include "clib/clib_endian.h"
+#include "clib/rawtypes.h"
+#include "pol/containr.h"
+#include "pol/fnsearch.h"
+#include "pol/item/item.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktin.h"
+#include "pol/realms/realms.h"
+#include "pol/reftypes.h"
+#include "pol/statmsg.h"
+#include "pol/ufunc.h"
+#include "pol/uobject.h"
+#include "pol/uworld.h"
 
 
 /* How get_item works:

@@ -1,11 +1,18 @@
 /** @file
-*
+ *
  * @par History
  * - 2024/02/07 Kukkino:  added proxy protocol v2 support
  */
 
 #ifndef PROXYPROTOCOL_H
 #define PROXYPROTOCOL_H
+
+#include <stdint.h>
+#ifdef _WIN32
+#include "clib/Header_Windows.h"
+#else
+#include <arpa/inet.h>
+#endif
 
 /*
  * The connection was established on purpose by the proxy
@@ -125,13 +132,13 @@ public:
     return has_valid_signature() && has_valid_version() && has_valid_command() &&
            has_valid_address_family() && has_valid_protocol();
   }
-
 };
 
 // sanity check
 static_assert( sizeof( pp_header_v2 ) == 16 );
 
-union pp_payload_v2 {
+union pp_payload_v2
+{
   /* for TCP/UDP over IPv4, len = 12 */
   struct
   {
@@ -143,8 +150,8 @@ union pp_payload_v2 {
   /* for TCP/UDP over IPv6, len = 36 */
   struct
   {
-    uint8_t  src_addr[16];
-    uint8_t  dst_addr[16];
+    uint8_t src_addr[16];
+    uint8_t dst_addr[16];
     uint16_t src_port;
     uint16_t dst_port;
   } ipv6_addr;
@@ -157,6 +164,6 @@ union pp_payload_v2 {
 };
 
 // sanity check
-static_assert(sizeof(pp_payload_v2) == 216);
+static_assert( sizeof( pp_payload_v2 ) == 216 );
 
-#endif //PROXYPROTOCOL_H
+#endif  // PROXYPROTOCOL_H

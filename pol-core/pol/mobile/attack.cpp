@@ -11,15 +11,15 @@
 
 #include <cstdio>
 
-#include "../../clib/clib_endian.h"
-#include "../../clib/rawtypes.h"
-#include "../cmbtcfg.h"
-#include "../globals/settings.h"
-#include "../network/client.h"
-#include "../network/pktin.h"
-#include "../ufunc.h"
-#include "charactr.h"
-#include "regions/guardrgn.h"
+#include "clib/clib_endian.h"
+#include "clib/rawtypes.h"
+#include "pol/cmbtcfg.h"
+#include "pol/globals/settings.h"
+#include "pol/network/client.h"
+#include "pol/network/pktin.h"
+#include "pol/ufunc.h"
+#include "pol/mobile/charactr.h"
+#include "pol/regions/guardrgn.h"
 
 
 namespace Pol::Mobile

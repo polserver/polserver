@@ -18,9 +18,6 @@
 #include <string>
 #include <utf8cpp/utf8.h>
 
-#include "clib/clib_endian.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
 #include "bscript/barray.h"
 #include "bscript/bboolean.h"
 #include "bscript/bcontiter.h"
@@ -34,13 +31,16 @@
 #include "bscript/executor.h"
 #include "bscript/objmethods.h"
 #include "bscript/str.h"
+#include "clib/clib_endian.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
 
 #ifdef __GNUG__
 #include <streambuf>
 #endif
 
 #ifdef _MSC_VER
-#include "../clib/Header_Windows.h"
+#include "clib/Header_Windows.h"
 #include <codecvt>
 #endif
 

@@ -16,8 +16,8 @@
 #include "clib/strutil.h"
 
 #ifdef WINDOWS
-#include "Header_Windows.h"
-#include "mdumpimp.h"
+#include "clib/Header_Windows.h"
+#include "clib/mdumpimp.h"
 #else
 #include <cstdlib>
 #endif

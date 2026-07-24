@@ -9,14 +9,14 @@
 
 #include <stddef.h>
 
-#include "../baseobject.h"
-#include "../gameclck.h"
-#include "../globals/state.h"
-#include "../uobjcnt.h"
-#include "../uobject.h"
-#include "item.h"
-#include "itemdesc.h"
-#include "regions/resource.h"
+#include "pol/baseobject.h"
+#include "pol/gameclck.h"
+#include "pol/globals/state.h"
+#include "pol/uobjcnt.h"
+#include "pol/uobject.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/regions/resource.h"
 
 
 namespace Pol::Items

@@ -1,15 +1,15 @@
 #ifndef DAP_HANDLES_H
 #define DAP_HANDLES_H
 
-#include "../../bscript/barray.h"
-#include "../../bscript/bdict.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/objmembers.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../polclass.h"
-#include "../uoscrobj.h"
+#include "bscript/barray.h"
+#include "bscript/bdict.h"
+#include "bscript/bstruct.h"
+#include "bscript/objmembers.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "pol/polclass.h"
+#include "pol/uoscrobj.h"
 #include <array>
 #include <dap/protocol.h>
 

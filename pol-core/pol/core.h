@@ -19,7 +19,7 @@
 
 #include <string>
 
-#include "base/position.h"
+#include "pol/base/position.h"
 
 namespace Pol
 {

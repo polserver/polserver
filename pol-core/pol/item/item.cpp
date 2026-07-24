@@ -10,7 +10,7 @@
  * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
  */
 
-#include "item.h"
+#include "pol/item/item.h"
 
 #include <exception>
 
@@ -27,22 +27,22 @@
 #include "plib/objtype.h"
 #include "plib/systemstate.h"
 
-#include "../containr.h"
-#include "../gameclck.h"
-#include "../globals/uvars.h"
-#include "../mobile/charactr.h"
-#include "../module/uomod.h"
-#include "../network/client.h"
-#include "../proplist.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../syshookscript.h"
-#include "../tooltips.h"
-#include "../ufunc.h"
-#include "../uoscrobj.h"
-#include "itemdesc.h"
-#include "regions/resource.h"
+#include "pol/containr.h"
+#include "pol/gameclck.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/module/uomod.h"
+#include "pol/network/client.h"
+#include "pol/proplist.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/scrstore.h"
+#include "pol/syshookscript.h"
+#include "pol/tooltips.h"
+#include "pol/ufunc.h"
+#include "pol/uoscrobj.h"
+#include "pol/item/itemdesc.h"
+#include "pol/regions/resource.h"
 
 
 namespace Pol::Items

@@ -17,8 +17,8 @@
 #include <string>
 #include <vector>
 
-#include "client.h"
-#include "msghandl.h"
+#include "pol/network/client.h"
+#include "pol/network/msghandl.h"
 
 template <class T>
 class ref_ptr;
