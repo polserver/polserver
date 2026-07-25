@@ -10,6 +10,7 @@
 #include "clib/passert.h"
 #include "pol/network/packetdefs.h"
 #include "pol/ufunc.h"
+#include "pol/uoscrobj.h"
 #include "pol/uworld.h"
 
 
