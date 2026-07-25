@@ -361,6 +361,10 @@ Spell (int spellid)
 [InvulTag                       (0/1/2 {default 1})]
 [StartingGold                   (int {default 100})]
 [PrivacyPaperdoll               (0/1 {default 0})]
+[TitlePrefixSeparator           (string {default " "})]
+[TitleSuffixSeparator           (string {default " "})]
+[TitleRaceSeparator             (string {default " "})]
+[TitleGuildSeparator            (string {default " "})]
 [ForceNewObjCachePackets        (0/1 {default 0})]
 [AllowMovingTrade               (0/1 {default 0})]
 [CoreHandledLocks               (0/1 {default 0})]
@@ -416,6 +420,10 @@ Spell (int spellid)
   <explain><i>DoubleClickWait:</i> Time that must pass before a player can double click something again.</explain>
   <explain><i>InvulTag:</i> 0 Disables invul tags totally. 1 keeps them as they are now, giving [Invul] tag when single clicked. 2 will work only on 3.x+ clients, and makes the mob's highlight color Yellow with no [Invul] tag when single clicked. Only recommend using 2 if your shard requires a 3.x or higher client!</explain>
   <explain><i>PrivacyPaperdoll:</i> If enabled Paperdoll gives only char name for others.</explain>
+  <explain><i>TitlePrefixSeparator:</i> String the core inserts between title_prefix and the name on the paperdoll and AOS tooltip (default a single space). Set empty (present with no value) if your title_prefix already ends with its own separator. Note: unquoted whitespace is trimmed, so quote a value that contains spaces, e.g. <code>TitlePrefixSeparator " "</code>.</explain>
+  <explain><i>TitleSuffixSeparator:</i> String the core inserts between the name and title_suffix (default a single space). Set empty if your title_suffix already begins with its own separator (e.g. ", Guildmaster").</explain>
+  <explain><i>TitleRaceSeparator:</i> String the core inserts before the "(race)" part of the title (default a single space).</explain>
+  <explain><i>TitleGuildSeparator:</i> String the core inserts before the "[guild]" part of the AOS tooltip (default a single space).</explain>
   <explain><i>ForceNewObjCachePackets:</i> Forces to only send new ObjectCacheInfos for Tooltips (since 5.0.0)</explain>
   <explain><i>AllowMovingTrade:</i>  0 Disables moving more than 4 tiles away with an open trade window, cancels trading window.</explain>
   <explain><i>CoreHandledLocks:</i> If enabled, core will handle the change of skill locks and stat locks from the client (setting the attribute locks).</explain>
