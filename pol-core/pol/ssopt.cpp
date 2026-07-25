@@ -90,6 +90,10 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.item_color_mask = elem.remove_ushort( "ItemColorMask", 0xFFF );
   settingsManager.ssopt.use_win_lfh = elem.remove_bool( "UseWinLFH", false );
   settingsManager.ssopt.privacy_paperdoll = elem.remove_bool( "PrivacyPaperdoll", false );
+  settingsManager.ssopt.title_prefix_separator = elem.remove_string( "TitlePrefixSeparator", " " );
+  settingsManager.ssopt.title_suffix_separator = elem.remove_string( "TitleSuffixSeparator", " " );
+  settingsManager.ssopt.title_race_separator = elem.remove_string( "TitleRaceSeparator", " " );
+  settingsManager.ssopt.title_guild_separator = elem.remove_string( "TitleGuildSeparator", " " );
   settingsManager.ssopt.force_new_objcache_packets =
       elem.remove_bool( "ForceNewObjCachePackets", false );
   settingsManager.ssopt.allow_moving_trade = elem.remove_bool( "AllowMovingTrade", false );
