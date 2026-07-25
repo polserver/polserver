@@ -116,9 +116,9 @@ public:
   void AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z );
 
   bool Erase( u32 xoffset, u32 yoffset, u8 z, int minheight = 0 );
-  bool EraseGraphicAt( u16 graphic, u32 xoffset, u32 yoffset, u8 z );
+  bool EraseGraphicAt( u16 graphic, s32 xoffset, s32 yoffset, u8 z );
 
-  void ReplaceDirtFloor( u32 x, u32 y );
+  void ReplaceDirtFloor( s32 xoffset, s32 yoffset );
   void Clear();
   bool IsEmpty() const;
 
@@ -132,7 +132,7 @@ public:
 
   int floor_sizes[CUSTOM_HOUSE_NUM_PLANES];
 
-  bool DeleteStairs( u16 id, s32 x, s32 y, s8 z );
+  bool DeleteStairs( u16 id, s32 xoffset, s32 yoffset, s8 z );
 
   // assumes x,y already added with xoff and yoff
   inline bool ValidLocation( u32 xidx, u32 yidx ) { return !( xidx >= width || yidx >= height ); }

@@ -94,14 +94,14 @@ bool CustomHouseDesign::IsStair( u16 id, int& dir )
   return ( delta == 0 );
 }
 
-bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
+bool CustomHouseDesign::DeleteStairs( u16 id, s32 xoffset, s32 yoffset, s8 z )
 {
   int floor_num = z_to_custom_house_table( z );
   if ( floor_num == -1 )
     return false;
 
-  u32 xidx = x + xoff;
-  u32 yidx = y + yoff;
+  u32 xidx = xoffset + xoff;
+  u32 yidx = yoffset + yoff;
   if ( !ValidLocation( xidx, yidx ) )
     return false;
 
@@ -134,32 +134,32 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
   default:
   case 0:  // North
   {
-    xStart = x;
-    yStart = y + erase_height;
+    xStart = xoffset;
+    yStart = yoffset + erase_height;
     xInc = 0;
     yInc = -1;
     break;
   }
   case 1:  // West
   {
-    xStart = x + erase_height;
-    yStart = y;
+    xStart = xoffset + erase_height;
+    yStart = yoffset;
     xInc = -1;
     yInc = 0;
     break;
   }
   case 2:  // South
   {
-    xStart = x;
-    yStart = y - erase_height;
+    xStart = xoffset;
+    yStart = yoffset - erase_height;
     xInc = 0;
     yInc = 1;
     break;
   }
   case 3:  // East
   {
-    xStart = x - erase_height;
-    yStart = y;
+    xStart = xoffset - erase_height;
+    yStart = yoffset;
     xInc = 1;
     yInc = 0;
     break;
@@ -170,13 +170,13 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
 
   for ( int i = 0; i < 4; ++i )
   {
-    x = xStart + ( i * xInc );
-    y = yStart + ( i * yInc );
+    xoffset = xStart + ( i * xInc );
+    yoffset = yStart + ( i * yInc );
 
     for ( int j = 0; j <= i; ++j )
-      Erase( x, y, static_cast<u8>( zStart + ( j * 5 ) ), 2 );
+      Erase( xoffset, yoffset, static_cast<u8>( zStart + ( j * 5 ) ), 2 );
 
-    ReplaceDirtFloor( x, y );
+    ReplaceDirtFloor( xoffset, yoffset );
   }
 
   return true;
