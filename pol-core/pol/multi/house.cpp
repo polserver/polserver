@@ -452,9 +452,8 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       if ( ex.getParam( 0, item_graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
            ex.getParam( 3, item_z ) )
       {
-        success = CurrentDesign.EraseGraphicAt(
-            Clib::clamp_convert<u16>( item_graphic ), Clib::clamp_convert<u32>( xoff ),
-            Clib::clamp_convert<u32>( yoff ), Clib::clamp_convert<u8>( item_z ) );
+        success = CurrentDesign.EraseGraphicAt( Clib::clamp_convert<u16>( item_graphic ), xoff,
+                                                yoff, Clib::clamp_convert<u8>( item_z ) );
       }
     }
     else if ( ex.numParams() == 1 )
@@ -473,8 +472,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
               return new BError(
                   "array has to contain structs {.graphic, .xoffset, .yoffset, .z}" );
             if ( CurrentDesign.EraseGraphicAt( Clib::clamp_convert<u16>( graphic_i->value() ),
-                                               Clib::clamp_convert<u32>( xoffset_i->value() ),
-                                               Clib::clamp_convert<u32>( yoffset_i->value() ),
+                                               xoffset_i->value(), yoffset_i->value(),
                                                Clib::clamp_convert<u8>( z_i->value() ) ) )
               success = true;
           }

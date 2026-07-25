@@ -7,6 +7,11 @@
 	<version name="POL100.3.0">
 		<entry>
 			<date>07-25-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">it was not possible to add/remove houseparts with negative offset due to changes from 07-24.</change>
+		</entry>
+		<entry>
+			<date>07-25-2026</date>
 			<author>Ins:</author>
 			<change type="Added">ServSpecOpt TitlePrefixSeparator, TitleSuffixSeparator, TitleRaceSeparator and TitleGuildSeparator configure the separators the core inserts around the parts of a mobile's displayed title (paperdoll and AOS tooltip): title_prefix|name|title_suffix, plus before (race) and [guild]. Each defaults to a single space, preserving the previous behavior; set empty to let the title strings supply their own separators.</change>
 		</entry>
