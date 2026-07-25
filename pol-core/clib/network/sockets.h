@@ -8,7 +8,7 @@
 #define __SOCKETS_H
 
 #ifdef _WIN32
-#include "../clib/Header_Windows.h"
+#include "clib/Header_Windows.h"
 #define SOCKET_ERRNO( x ) WSA##x
 #define socket_errno WSAGetLastError()
 typedef int socklen_t;

@@ -1,4 +1,4 @@
-#include "SimpleStatementBuilder.h"
+#include "bscript/compiler/astbuilder/SimpleStatementBuilder.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"

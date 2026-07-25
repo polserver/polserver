@@ -8,7 +8,7 @@
  */
 
 
-#include "datastore.h"
+#include "pol/module/datastore.h"
 #include <exception>
 #include <filesystem>
 #include <ranges>
@@ -31,9 +31,9 @@
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
 
-#include "../globals/ucfg.h"
-#include "../proplist.h"
-#include "datastoreimp.h"
+#include "pol/globals/ucfg.h"
+#include "pol/proplist.h"
+#include "pol/module/datastoreimp.h"
 
 #include <module_defs/datafile.h>
 

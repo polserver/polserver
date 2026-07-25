@@ -1,7 +1,7 @@
-#include "position.h"
+#include "pol/base/position.h"
 
 #include "clib/clib.h"
-#include "realms/realm.h"
+#include "pol/realms/realm.h"
 
 #include <algorithm>
 #include <array>

@@ -1,4 +1,4 @@
-#include "AvailableParseTree.h"
+#include "bscript/compiler/astbuilder/AvailableParseTree.h"
 
 #include <fmt/format.h>
 

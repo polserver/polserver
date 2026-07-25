@@ -7,7 +7,7 @@
 #ifndef __SOCKIO_H
 #define __SOCKIO_H
 
-#include "../clib/network/sockets.h"
+#include "clib/network/sockets.h"
 #include <string>
 
 

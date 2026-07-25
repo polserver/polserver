@@ -5,11 +5,11 @@
  */
 
 
-#include "allocd.h"
+#include "pol/allocd.h"
 
 #include <cstddef>
 #ifdef _WIN32
-#include "../clib/logfacility.h"
+#include "clib/logfacility.h"
 
 #include <malloc.h>
 #endif

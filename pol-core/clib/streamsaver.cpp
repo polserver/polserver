@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "streamsaver.h"
+#include "clib/streamsaver.h"
 
 namespace Pol::Clib
 {

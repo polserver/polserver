@@ -5,20 +5,20 @@
  */
 
 
-#include "objecthash.h"
+#include "pol/objecthash.h"
 
 #include <fstream>
 #include <stddef.h>
 
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/streamsaver.h"
-#include "../plib/systemstate.h"
-#include "accounts/account.h"
-#include "globals/state.h"
-#include "mobile/charactr.h"
-#include "ufunc.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "plib/systemstate.h"
+#include "pol/accounts/account.h"
+#include "pol/globals/state.h"
+#include "pol/mobile/charactr.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core

@@ -3,7 +3,7 @@
  * @par History
  */
 
-#include "fmodule.h"
+#include "bscript/fmodule.h"
 
 #include <cstddef>
 

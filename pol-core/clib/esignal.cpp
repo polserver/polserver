@@ -4,10 +4,10 @@
  */
 
 
-#include "esignal.h"
+#include "clib/esignal.h"
 #ifdef WINDOWS
-#include "Header_Windows.h"
-#include "logfacility.h"
+#include "clib/Header_Windows.h"
+#include "clib/logfacility.h"
 #else
 #include <signal.h>
 #endif

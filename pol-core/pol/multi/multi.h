@@ -20,10 +20,10 @@
 // unsigned int is z << 16 | objtype
 
 #ifndef ITEM_H
-#include "item/item.h"
+#include "pol/item/item.h"
 #endif
 
-#include "base/range.h"
+#include "pol/base/range.h"
 
 namespace Pol
 {

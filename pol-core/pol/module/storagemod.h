@@ -10,7 +10,7 @@
 #ifndef STORAGEEMOD_H
 #define STORAGEEMOD_H
 
-#include "../polmodl.h"
+#include "pol/polmodl.h"
 
 
 namespace Pol::Bscript

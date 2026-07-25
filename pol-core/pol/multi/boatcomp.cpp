@@ -6,10 +6,10 @@
  */
 
 
-#include "boatcomp.h"
+#include "pol/multi/boatcomp.h"
 
-#include "../baseobject.h"
-#include "../lockable.h"
+#include "pol/baseobject.h"
+#include "pol/lockable.h"
 
 
 namespace Pol::Multi

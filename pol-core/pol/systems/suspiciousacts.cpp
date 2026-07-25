@@ -1,12 +1,12 @@
-#include "suspiciousacts.h"
+#include "pol/systems/suspiciousacts.h"
 
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
 #include "plib/systemstate.h"
 
-#include "accounts/account.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
+#include "pol/accounts/account.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
 
 using namespace Pol;
 

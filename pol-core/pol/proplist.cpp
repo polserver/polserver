@@ -5,7 +5,7 @@
  */
 
 
-#include "proplist.h"
+#include "pol/proplist.h"
 
 #include <stddef.h>
 
@@ -24,7 +24,7 @@
 #include "clib/strutil.h"
 #include "plib/systemstate.h"
 
-#include "baseobject.h"
+#include "pol/baseobject.h"
 
 namespace Pol::Core
 {

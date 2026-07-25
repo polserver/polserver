@@ -1,4 +1,4 @@
-#include "LabelableStatement.h"
+#include "bscript/compiler/ast/LabelableStatement.h"
 
 namespace Pol::Bscript::Compiler
 {

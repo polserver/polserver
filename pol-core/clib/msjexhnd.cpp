@@ -15,8 +15,8 @@
 // FILE: MSJEXHND.CPP
 //==========================================
 
-#include "msjexhnd.h"
-#include "logfacility.h"
+#include "clib/msjexhnd.h"
+#include "clib/logfacility.h"
 #include <algorithm>
 #include <imagehlp.h>
 #include <stdio.h>

@@ -4,11 +4,11 @@
  */
 
 
-#include "realmdescriptor.h"
+#include "plib/realmdescriptor.h"
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/strutil.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/strutil.h"
 
 
 namespace Pol::Plib

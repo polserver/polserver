@@ -8,8 +8,8 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include "../clib/clib.h"
-#include "../clib/rawtypes.h"
+#include "clib/clib.h"
+#include "clib/rawtypes.h"
 #include <atomic>
 #include <cstddef>
 

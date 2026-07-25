@@ -1,4 +1,4 @@
-#include "ProgramParameterDeclaration.h"
+#include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 
 
 #include <utility>

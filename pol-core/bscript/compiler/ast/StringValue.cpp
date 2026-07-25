@@ -1,4 +1,4 @@
-#include "StringValue.h"
+#include "bscript/compiler/ast/StringValue.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

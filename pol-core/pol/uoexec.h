@@ -9,17 +9,17 @@
 #define __UOEXEC_H
 
 #ifndef __BSCRIPT_EXECUTOR_H
-#include "../bscript/executor.h"
+#include "bscript/executor.h"
 #endif
 
 #include <string>
 #include <time.h>
 
-#include "../clib/rawtypes.h"
-#include "../clib/weakptr.h"
-#include "./globals/script_internals.h"
-#include "base/position.h"
-#include "skillid.h"
+#include "clib/rawtypes.h"
+#include "clib/weakptr.h"
+#include "pol/globals/script_internals.h"
+#include "pol/base/position.h"
+#include "pol/skillid.h"
 
 namespace Pol
 {

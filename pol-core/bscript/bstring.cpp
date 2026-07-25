@@ -8,7 +8,7 @@
  * sense.
  */
 
-#include "bstring.h"
+#include "bscript/bstring.h"
 
 #include <cstdlib>
 #include <ctype.h>
@@ -18,29 +18,29 @@
 #include <string>
 #include <utf8cpp/utf8.h>
 
-#include "../clib/clib_endian.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "barray.h"
-#include "bboolean.h"
-#include "bcontiter.h"
-#include "bdouble.h"
-#include "berror.h"
-#include "bfuncref.h"
-#include "blong.h"
-#include "bobject.h"
-#include "bregexp.h"
-#include "buninit.h"
-#include "executor.h"
-#include "objmethods.h"
-#include "str.h"
+#include "bscript/barray.h"
+#include "bscript/bboolean.h"
+#include "bscript/bcontiter.h"
+#include "bscript/bdouble.h"
+#include "bscript/berror.h"
+#include "bscript/bfuncref.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/bregexp.h"
+#include "bscript/buninit.h"
+#include "bscript/executor.h"
+#include "bscript/objmethods.h"
+#include "bscript/str.h"
+#include "clib/clib_endian.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
 
 #ifdef __GNUG__
 #include <streambuf>
 #endif
 
 #ifdef _MSC_VER
-#include "../clib/Header_Windows.h"
+#include "clib/Header_Windows.h"
 #include <codecvt>
 #endif
 

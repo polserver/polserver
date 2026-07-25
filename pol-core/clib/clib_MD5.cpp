@@ -7,17 +7,17 @@
  */
 
 
-#include "clib_MD5.h"
+#include "clib/clib_MD5.h"
 
 #include <fmt/format.h>
 
-#include "stlutil.h"
+#include "clib/stlutil.h"
 
 #ifdef WINDOWS
-#include "Header_Windows.h"
+#include "clib/Header_Windows.h"
 #include <wincrypt.h>
 
-#include "logfacility.h"
+#include "clib/logfacility.h"
 
 namespace Pol::Clib
 {

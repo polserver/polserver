@@ -7,8 +7,8 @@
 #ifndef LISTENPT_H
 #define LISTENPT_H
 
-#include "../clib/rawtypes.h"
-#include "reftypes.h"
+#include "clib/rawtypes.h"
+#include "pol/reftypes.h"
 #include <string>
 
 namespace Pol

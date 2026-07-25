@@ -1,4 +1,4 @@
-#include "memoryusage.h"
+#include "pol/globals/memoryusage.h"
 
 #include "bscript/bdouble.h"
 #include "bscript/blong.h"
@@ -8,19 +8,19 @@
 #include "clib/logfacility.h"
 #include "plib/systemstate.h"
 
-#include "multidefs.h"
-#include "network.h"
-#include "object_storage.h"
-#include "script_internals.h"
-#include "settings.h"
-#include "state.h"
-#include "ucfg.h"
-#include "uvars.h"
+#include "pol/globals/multidefs.h"
+#include "pol/globals/network.h"
+#include "pol/globals/object_storage.h"
+#include "pol/globals/script_internals.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/state.h"
+#include "pol/globals/ucfg.h"
+#include "pol/globals/uvars.h"
 
 #include <fmt/format.h>
 #include <iterator>
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 
 namespace Pol::Core

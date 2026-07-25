@@ -1,16 +1,16 @@
 
-#include "wornitems.h"
+#include "pol/mobile/wornitems.h"
 
-#include "../../bscript/bobject.h"
-#include "../../clib/passert.h"
-#include "../../plib/objtype.h"
-#include "../containr.h"
-#include "../extobj.h"
-#include "../globals/settings.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../layers.h"
-#include "charactr.h"
+#include "bscript/bobject.h"
+#include "clib/passert.h"
+#include "plib/objtype.h"
+#include "pol/containr.h"
+#include "pol/extobj.h"
+#include "pol/globals/settings.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/layers.h"
+#include "pol/mobile/charactr.h"
 
 
 namespace Pol::Core

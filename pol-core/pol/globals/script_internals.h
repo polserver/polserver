@@ -5,10 +5,10 @@
 #include <map>
 #include <set>
 
-#include "../../bscript/eprog.h"
-#include "../../clib/maputil.h"
-#include "../polclock.h"
-#include "../reftypes.h"
+#include "bscript/eprog.h"
+#include "clib/maputil.h"
+#include "pol/polclock.h"
+#include "pol/reftypes.h"
 
 
 namespace Pol::Core

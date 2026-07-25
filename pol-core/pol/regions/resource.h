@@ -15,11 +15,11 @@
 #include <string>
 #include <time.h>
 
-#include "../clib/rawtypes.h"
-#include "../plib/poltype.h"
-#include "base/position.h"
-#include "regions/region.h"
-#include "zone.h"
+#include "clib/rawtypes.h"
+#include "plib/poltype.h"
+#include "pol/base/position.h"
+#include "pol/regions/region.h"
+#include "pol/zone.h"
 
 namespace Pol
 {

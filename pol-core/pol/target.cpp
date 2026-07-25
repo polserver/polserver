@@ -7,30 +7,30 @@
  */
 
 
-#include "target.h"
+#include "pol/target.h"
 
 #include <stddef.h>
 
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../plib/systemstate.h"
-#include "fnsearch.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
-#include "mobile/charactr.h"
-#include "multi/multi.h"
-#include "network/cgdata.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "network/pktboth.h"
-#include "polclass.h"
-#include "realms/realm.h"
-#include "regions/guardrgn.h"
-#include "systems/suspiciousacts.h"
-#include "ufunc.h"
-#include "uobject.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "plib/systemstate.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mobile/charactr.h"
+#include "pol/multi/multi.h"
+#include "pol/network/cgdata.h"
+#include "pol/network/client.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktboth.h"
+#include "pol/polclass.h"
+#include "pol/realms/realm.h"
+#include "pol/regions/guardrgn.h"
+#include "pol/systems/suspiciousacts.h"
+#include "pol/ufunc.h"
+#include "pol/uobject.h"
 
 
 namespace Pol::Core

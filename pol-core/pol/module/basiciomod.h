@@ -7,7 +7,7 @@
 #ifndef BSCRIPT_BASICIOMOD_H
 #define BSCRIPT_BASICIOMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "bscript/execmodl.h"
 
 
 namespace Pol::Bscript

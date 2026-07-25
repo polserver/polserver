@@ -1,6 +1,6 @@
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 
-#include "../clib/logfacility.h"
+#include "clib/logfacility.h"
 
 
 namespace Pol::Bscript

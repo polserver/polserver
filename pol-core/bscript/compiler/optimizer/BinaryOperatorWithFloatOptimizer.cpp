@@ -1,4 +1,4 @@
-#include "BinaryOperatorWithFloatOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorWithFloatOptimizer.h"
 
 #include "bscript/bdouble.h"
 #include "bscript/bobject.h"

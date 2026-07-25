@@ -9,18 +9,18 @@
  */
 
 
-#include "statmsg.h"
+#include "pol/statmsg.h"
 
-#include "../clib/clib.h"
-#include "../clib/rawtypes.h"
-#include "globals/network.h"
-#include "globals/settings.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "ufunc.h"
-#include "uoclient.h"
+#include "clib/clib.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/network.h"
+#include "pol/globals/settings.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/ufunc.h"
+#include "pol/uoclient.h"
 
 
 namespace Pol::Core

@@ -4,15 +4,15 @@
  */
 
 
-#include "gameclck.h"
+#include "pol/gameclck.h"
 
 #include <ctime>
 #include <string>
 
-#include "../clib/spinlock.h"
-#include "../clib/stlutil.h"
-#include "globals/uvars.h"
-#include "polclock.h"
+#include "clib/spinlock.h"
+#include "clib/stlutil.h"
+#include "pol/globals/uvars.h"
+#include "pol/polclock.h"
 
 
 namespace Pol::Core

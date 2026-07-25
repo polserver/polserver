@@ -4,8 +4,8 @@
  */
 
 
-#include "mkscrobj.h"
-#include "uoscrobj.h"
+#include "pol/mkscrobj.h"
+#include "pol/uoscrobj.h"
 
 
 namespace Pol::Core

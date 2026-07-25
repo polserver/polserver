@@ -7,7 +7,7 @@
  */
 
 
-#include "weapon.h"
+#include "pol/item/weapon.h"
 
 #include <stddef.h>
 #include <string>
@@ -23,21 +23,21 @@
 #include "clib/strutil.h"
 #include "plib/systemstate.h"
 
-#include "../containr.h"
-#include "../dice.h"
-#include "../equipdsc.h"
-#include "../extobj.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../layers.h"
-#include "../mobile/charactr.h"
-#include "../realms/realm.h"
-#include "../syshookscript.h"
-#include "../ufunc.h"
-#include "../umanip.h"
-#include "../uobject.h"
-#include "itemdesc.h"
-#include "wepntmpl.h"
+#include "pol/containr.h"
+#include "pol/dice.h"
+#include "pol/equipdsc.h"
+#include "pol/extobj.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/layers.h"
+#include "pol/mobile/charactr.h"
+#include "pol/realms/realm.h"
+#include "pol/syshookscript.h"
+#include "pol/ufunc.h"
+#include "pol/umanip.h"
+#include "pol/uobject.h"
+#include "pol/item/itemdesc.h"
+#include "pol/item/wepntmpl.h"
 
 
 namespace Pol::Items

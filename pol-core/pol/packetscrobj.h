@@ -10,13 +10,13 @@
 
 
 #ifndef POLOBJECT_H
-#include "polobject.h"
+#include "pol/polobject.h"
 #endif
 
 #include <string>
 
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
 
 
 namespace Pol::Bscript

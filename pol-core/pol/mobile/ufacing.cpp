@@ -1,12 +1,12 @@
-#include "ufacing.h"
+#include "pol/mobile/ufacing.h"
 
 #include "clib/clib.h"
 #include "clib/random.h"
 #include "plib/uconst.h"
 
-#include "base/position.h"
-#include "charactr.h"
-#include "uobject.h"
+#include "pol/base/position.h"
+#include "pol/mobile/charactr.h"
+#include "pol/uobject.h"
 
 namespace Pol
 {

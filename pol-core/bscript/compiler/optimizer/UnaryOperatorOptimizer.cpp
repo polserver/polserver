@@ -1,4 +1,4 @@
-#include "UnaryOperatorOptimizer.h"
+#include "bscript/compiler/optimizer/UnaryOperatorOptimizer.h"
 
 #include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/FloatValue.h"

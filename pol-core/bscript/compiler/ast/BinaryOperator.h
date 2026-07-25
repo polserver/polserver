@@ -3,7 +3,7 @@
 
 #include "bscript/compiler/ast/Expression.h"
 
-#include "tokens.h"
+#include "bscript/tokens.h"
 
 namespace Pol::Bscript::Compiler
 {

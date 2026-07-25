@@ -1,4 +1,4 @@
-#include "dynproperties.h"
+#include "pol/dynproperties.h"
 
 
 namespace Pol::Core

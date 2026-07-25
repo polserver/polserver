@@ -6,7 +6,7 @@
  */
 
 
-#include "cfgmod.h"
+#include "pol/module/cfgmod.h"
 #include <ctype.h>
 #include <fstream>
 #include <string>
@@ -29,7 +29,7 @@
 #include "clib/strutil.h"
 #include "plib/pkg.h"
 
-#include "../cfgrepos.h"
+#include "pol/cfgrepos.h"
 
 #include <module_defs/cfgfile.h>
 

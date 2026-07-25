@@ -7,14 +7,14 @@
  */
 
 
-#include "../../plib/clidata.h"
-#include "../../plib/mapcell.h"
-#include "../../plib/mapshape.h"
-#include "../../plib/systemstate.h"
-#include "../../plib/tiles.h"
-#include "../../plib/udatfile.h"
-#include "../item/itemdesc.h"
-#include "multidef.h"
+#include "plib/clidata.h"
+#include "plib/mapcell.h"
+#include "plib/mapshape.h"
+#include "plib/systemstate.h"
+#include "plib/tiles.h"
+#include "plib/udatfile.h"
+#include "pol/item/itemdesc.h"
+#include "pol/multi/multidef.h"
 
 
 namespace Pol::Multi

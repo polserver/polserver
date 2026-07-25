@@ -1,14 +1,14 @@
-#include "bclassinstance.h"
+#include "bscript/bclassinstance.h"
 
-#include "berror.h"
-#include "bfuncref.h"
-#include "bobject.h"
-#include "bspecialjump.h"
+#include "bscript/berror.h"
+#include "bscript/bfuncref.h"
+#include "bscript/bobject.h"
+#include "bscript/bspecialjump.h"
 #include "clib/clib.h"
 #include "clib/stlutil.h"
-#include "executor.h"
-#include "objmembers.h"
-#include "objmethods.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
 
 namespace Pol::Bscript
 {

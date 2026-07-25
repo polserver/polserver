@@ -7,7 +7,7 @@
 #ifndef __TOKEN_H
 #define __TOKEN_H
 
-#include "tokens.h"
+#include "bscript/tokens.h"
 
 #include <fmt/format.h>
 

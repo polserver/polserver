@@ -22,7 +22,7 @@
  */
 
 
-#include "ssopt.h"
+#include "pol/ssopt.h"
 
 #include <cstring>
 #include <ctype.h>
@@ -30,14 +30,14 @@
 #include <stdlib.h>
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "globals/settings.h"
-#include "globals/uvars.h"
-#include "network/pktdef.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/network/pktdef.h"
 
 
 namespace Pol::Core

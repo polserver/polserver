@@ -6,16 +6,16 @@
  */
 
 
-#include "standheight.h"
+#include "uotool/clientqueries/standheight.h"
 
-#include "mapqueries.h"
-#include "staticsqueries.h"  // static_debug_on
+#include "uotool/clientqueries/mapqueries.h"
+#include "uotool/clientqueries/staticsqueries.h"  // static_debug_on
 
-#include "../../plib/clidata.h"
-#include "../../plib/clientfiles/uoclientfiles.h"
-#include "../../plib/uconst.h"
-#include "../../plib/udatfile.h"
-#include "../../plib/ustruct.h"
+#include "plib/clidata.h"
+#include "plib/clientfiles/uoclientfiles.h"
+#include "plib/uconst.h"
+#include "plib/udatfile.h"
+#include "plib/ustruct.h"
 
 
 namespace Pol::UoTool

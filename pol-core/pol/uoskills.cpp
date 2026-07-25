@@ -4,15 +4,15 @@
  */
 
 
-#include "uoskills.h"
+#include "pol/uoskills.h"
 
 #include <stddef.h>
 
-#include "../clib/cfgelem.h"
-#include "../plib/pkg.h"
-#include "globals/uvars.h"
-#include "mobile/attribute.h"
-#include "skillid.h"
+#include "clib/cfgelem.h"
+#include "plib/pkg.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/attribute.h"
+#include "pol/skillid.h"
 
 
 namespace Pol::Core

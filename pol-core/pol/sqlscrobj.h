@@ -8,7 +8,7 @@
 #define SQLSCROBJ_H
 
 #ifdef _WIN32
-#include "../clib/Header_Windows.h"
+#include "clib/Header_Windows.h"
 #endif
 #include <mariadb/mysql.h>
 
@@ -18,10 +18,10 @@
 
 #include <boost/compat/move_only_function.hpp>
 
-#include "../bscript/bobject.h"
-#include "../clib/message_queue.h"
-#include "../clib/rawtypes.h"
-#include "polobject.h"
+#include "bscript/bobject.h"
+#include "clib/message_queue.h"
+#include "clib/rawtypes.h"
+#include "pol/polobject.h"
 
 
 namespace Pol::Bscript

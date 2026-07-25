@@ -1,12 +1,12 @@
-#include "terrainplane.h"
+#include "uoconvert/terrainplane.h"
 
 #include <cstddef>
 #include <cstdlib>
 
-#include "../plib/clidata.h"
-#include "../plib/clientfiles/uoclientfiles.h"
-#include "../plib/ustruct.h"
-#include "parallel.h"
+#include "plib/clidata.h"
+#include "plib/clientfiles/uoclientfiles.h"
+#include "plib/ustruct.h"
+#include "uoconvert/parallel.h"
 
 namespace Pol::UoConvert
 {

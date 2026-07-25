@@ -40,7 +40,7 @@
 
 #include <string.h>
 
-#include "cryptbase.h"
+#include "pol/crypt/cryptbase.h"
 
 
 namespace Pol::Crypt

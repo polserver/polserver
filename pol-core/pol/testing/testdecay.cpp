@@ -8,17 +8,17 @@
 #include <cstring>
 #include <string>
 
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../multi/multi.h"
-#include "../polclock.h"
-#include "../realms/realm.h"
-#include "../realms/realms.h"
-#include "../uworld.h"
-#include "testenv.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/multi/multi.h"
+#include "pol/polclock.h"
+#include "pol/realms/realm.h"
+#include "pol/realms/realms.h"
+#include "pol/uworld.h"
+#include "pol/testing/testenv.h"
 
 namespace Pol::Testing
 {

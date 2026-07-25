@@ -17,9 +17,9 @@
 #include <string>
 #include <vector>
 
-#include "../clib/network/socketsvc.h"
-#include "crypt/cryptkey.h"
-#include "polclock.h"
+#include "clib/network/socketsvc.h"
+#include "pol/crypt/cryptkey.h"
+#include "pol/polclock.h"
 
 namespace Pol
 {

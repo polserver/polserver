@@ -1,22 +1,22 @@
-#include "bobjectimp.h"
+#include "bscript/bobjectimp.h"
 
-#include "../clib/stlutil.h"
-#include "barray.h"
-#include "bboolean.h"
-#include "bcontiter.h"
-#include "bdict.h"
-#include "bdouble.h"
-#include "berror.h"
-#include "blong.h"
-#include "bstring.h"
-#include "bstruct.h"
-#include "buninit.h"
-#include "objmembers.h"
-#include "objmethods.h"
+#include "bscript/barray.h"
+#include "bscript/bboolean.h"
+#include "bscript/bcontiter.h"
+#include "bscript/bdict.h"
+#include "bscript/bdouble.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/bstruct.h"
+#include "bscript/buninit.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/stlutil.h"
 
 #if BOBJECTIMP_DEBUG
-#include "../clib/logfacility.h"
-#include "escriptv.h"
+#include "bscript/escriptv.h"
+#include "clib/logfacility.h"
 #include <unordered_map>
 #endif
 

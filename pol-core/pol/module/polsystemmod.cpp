@@ -11,7 +11,7 @@
  */
 
 
-#include "polsystemmod.h"
+#include "pol/module/polsystemmod.h"
 #include <ctime>
 #include <fstream>
 #include <string>
@@ -33,23 +33,23 @@
 #include "plib/systemstate.h"
 
 
-#include "realms/realm.h"
-#include "realms/realms.h"
+#include "pol/realms/realm.h"
+#include "pol/realms/realms.h"
 
-#include "globals/settings.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "item/itemdesc.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
 
-#include "cmdlevel.h"
-#include "core.h"
-#include "decay.h"
-#include "listenpt.h"
-#include "packetscrobj.h"
-#include "proplist.h"
-#include "tooltips.h"
-#include "uobject.h"
-#include "uoexec.h"
+#include "pol/cmdlevel.h"
+#include "pol/core.h"
+#include "pol/decay.h"
+#include "pol/listenpt.h"
+#include "pol/packetscrobj.h"
+#include "pol/proplist.h"
+#include "pol/tooltips.h"
+#include "pol/uobject.h"
+#include "pol/uoexec.h"
 
 #include <module_defs/polsys.h>
 

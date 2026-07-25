@@ -6,10 +6,10 @@
  */
 
 
-#include "testenv.h"
+#include "pol/testing/testenv.h"
 
-#include "../../clib/logfacility.h"
-#include "../skilladv.h"
+#include "clib/logfacility.h"
+#include "pol/skilladv.h"
 
 
 namespace Pol::Testing

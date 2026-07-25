@@ -1,4 +1,4 @@
-#include "CompilerWorkspace.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"

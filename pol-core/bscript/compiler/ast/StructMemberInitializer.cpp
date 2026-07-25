@@ -1,4 +1,4 @@
-#include "StructMemberInitializer.h"
+#include "bscript/compiler/ast/StructMemberInitializer.h"
 
 
 #include "bscript/compiler/ast/Expression.h"

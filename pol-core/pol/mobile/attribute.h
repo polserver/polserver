@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "../scrdef.h"
-#include "../skillid.h"
+#include "pol/scrdef.h"
+#include "pol/skillid.h"
 
 namespace Pol
 {

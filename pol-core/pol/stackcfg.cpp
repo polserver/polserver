@@ -4,17 +4,17 @@
  */
 
 
-#include "stackcfg.h"
+#include "pol/stackcfg.h"
 
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-#include "globals/uvars.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/stlutil.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "pol/globals/uvars.h"
 
 
 namespace Pol::Core

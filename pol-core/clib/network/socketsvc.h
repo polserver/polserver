@@ -7,7 +7,7 @@
 #ifndef SOCKETSVC_H
 #define SOCKETSVC_H
 
-#include "wnsckt.h"
+#include "clib/network/wnsckt.h"
 
 
 namespace Pol::Clib

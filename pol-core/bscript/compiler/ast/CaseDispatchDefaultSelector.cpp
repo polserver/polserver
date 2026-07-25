@@ -1,4 +1,4 @@
-#include "CaseDispatchDefaultSelector.h"
+#include "bscript/compiler/ast/CaseDispatchDefaultSelector.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

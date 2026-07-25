@@ -5,7 +5,7 @@
  */
 
 
-#include "savedata.h"
+#include "pol/savedata.h"
 
 #include <cerrno>
 #include <exception>
@@ -13,35 +13,35 @@
 #include <fstream>
 #include <thread>
 
-#include "../clib/Debugging/ExceptionParser.h"
-#include "../clib/Program/ProgramConfig.h"
-#include "../clib/clib_endian.h"
-#include "../clib/esignal.h"
-#include "../clib/fileutil.h"
-#include "../clib/iohelp.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/streamsaver.h"
-#include "../clib/strutil.h"
-#include "../clib/timer.h"
-#include "../plib/systemstate.h"
-#include "accounts/accounts.h"
-#include "globals/object_storage.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "mobile/charactr.h"
-#include "mobile/npc.h"
-#include "multi/house.h"
-#include "multi/multi.h"
-#include "objecthash.h"
-#include "polsem.h"
-#include "realms/realm.h"
-#include "regions/resource.h"
-#include "storage.h"
-#include "ufunc.h"
-#include "uobject.h"
-#include "uworld.h"
+#include "clib/Debugging/ExceptionParser.h"
+#include "clib/Program/ProgramConfig.h"
+#include "clib/clib_endian.h"
+#include "clib/esignal.h"
+#include "clib/fileutil.h"
+#include "clib/iohelp.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/streamsaver.h"
+#include "clib/strutil.h"
+#include "clib/timer.h"
+#include "plib/systemstate.h"
+#include "pol/accounts/accounts.h"
+#include "pol/globals/object_storage.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mobile/charactr.h"
+#include "pol/mobile/npc.h"
+#include "pol/multi/house.h"
+#include "pol/multi/multi.h"
+#include "pol/objecthash.h"
+#include "pol/polsem.h"
+#include "pol/realms/realm.h"
+#include "pol/regions/resource.h"
+#include "pol/storage.h"
+#include "pol/ufunc.h"
+#include "pol/uobject.h"
+#include "pol/uworld.h"
 
 namespace fs = std::filesystem;
 

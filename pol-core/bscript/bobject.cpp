@@ -8,7 +8,7 @@
  * - 2009/12/21 Turley:    ._method() call fix
  */
 
-#include "bobject.h"
+#include "bscript/bobject.h"
 
 
 namespace Pol::Bscript

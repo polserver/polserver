@@ -1,4 +1,4 @@
-#include "ShortCircuitWarning.h"
+#include "bscript/compiler/analyzer/ShortCircuitWarning.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"

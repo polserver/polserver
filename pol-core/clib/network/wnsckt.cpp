@@ -4,7 +4,7 @@
  */
 
 
-#include "wnsckt.h"
+#include "clib/network/wnsckt.h"
 
 #include <algorithm>
 #include <array>
@@ -13,12 +13,12 @@
 #include <cstring>
 #include <system_error>
 
-#include "esignal.h"
-#include "logfacility.h"
-#include "passert.h"
-#include "strutil.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/strutil.h"
 
-#include "singlepoller.h"
+#include "clib/network/singlepoller.h"
 
 #ifdef _WIN32
 #define SOCKET_ERRNO( x ) WSA##x

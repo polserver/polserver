@@ -8,17 +8,17 @@
  */
 
 
-#include "Program/ProgramConfig.h"
-#include "logfacility.h"
-#include "pol_global_config.h"
+#include "clib/Program/ProgramConfig.h"
+#include "clib/logfacility.h"
+#include <pol_global_config.h>
 
 #if defined( WINDOWS )
-#include "Header_Windows.h"
-#include "msjexhnd.h"
-#include "strexcpt.h"
+#include "clib/Header_Windows.h"
+#include "clib/msjexhnd.h"
+#include "clib/strexcpt.h"
 #include <stdio.h>
 #else
-#include "passert.h"
+#include "clib/passert.h"
 #include <execinfo.h>
 #include <signal.h>
 #include <unistd.h>

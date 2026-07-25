@@ -1,4 +1,4 @@
-#include "TreeBuilder.h"
+#include "bscript/compiler/astbuilder/TreeBuilder.h"
 
 #include "bscript/compiler/Antlr4Inc.h"
 #include "bscript/compiler/ast/ValueConsumer.h"

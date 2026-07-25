@@ -1,4 +1,4 @@
-#include "ScopableName.h"
+#include "bscript/compiler/model/ScopableName.h"
 
 #include <fmt/format.h>
 

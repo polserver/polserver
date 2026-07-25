@@ -1,12 +1,12 @@
-#include "bfuncref.h"
+#include "bscript/bfuncref.h"
 
-#include "../clib/stlutil.h"
-#include "bclassinstance.h"
-#include "berror.h"
-#include "blong.h"
-#include "bobject.h"
-#include "executor.h"
-#include "objmethods.h"
+#include "clib/stlutil.h"
+#include "bscript/bclassinstance.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/executor.h"
+#include "bscript/objmethods.h"
 
 #include <fmt/format.h>
 

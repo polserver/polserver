@@ -6,7 +6,7 @@
  */
 
 
-#include "tiles.h"
+#include "plib/tiles.h"
 
 #include <algorithm>
 
@@ -16,10 +16,10 @@
 #include "clib/passert.h"
 #include "clib/strutil.h"
 
-#include "mapfunc.h"
-#include "objtype.h"
-#include "pkg.h"
-#include "systemstate.h"
+#include "plib/mapfunc.h"
+#include "plib/objtype.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
 
 
 namespace Pol::Plib

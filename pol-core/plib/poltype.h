@@ -7,7 +7,7 @@
 #ifndef POLTYPE_H
 #define POLTYPE_H
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 
 namespace Pol::Core
 {

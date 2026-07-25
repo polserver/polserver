@@ -4,17 +4,17 @@
  */
 
 
-#include "schedule.h"
+#include "pol/schedule.h"
 
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/tracebuf.h"
-#include "../plib/systemstate.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "polclock.h"
-#include "polsig.h"
-#include "profile.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/tracebuf.h"
+#include "plib/systemstate.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/polclock.h"
+#include "pol/polsig.h"
+#include "pol/profile.h"
 
 
 namespace Pol::Core

@@ -1,8 +1,8 @@
 #ifndef POL_POLMODL_H
 #define POL_POLMODL_H
 
-#include "../bscript/execmodl.h"
-#include "skillid.h"
+#include "bscript/execmodl.h"
+#include "pol/skillid.h"
 
 namespace Pol
 {

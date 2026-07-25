@@ -51,10 +51,10 @@
 #include <variant>
 #include <vector>
 
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
-#include "gameclck.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "pol/gameclck.h"
 
 
 namespace Pol::Core

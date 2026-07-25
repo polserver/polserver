@@ -5,16 +5,16 @@
  */
 
 
-#include "escrutil.h"
+#include "bscript/escrutil.h"
 
 #include <climits>
 #include <cmath>
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "bdouble.h"
-#include "blong.h"
-#include "bstring.h"
+#include "bscript/bdouble.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
 
 
 namespace Pol::Bscript

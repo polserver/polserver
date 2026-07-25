@@ -5,19 +5,19 @@
  */
 
 
-#include "npctmpl.h"
+#include "pol/npctmpl.h"
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-#include "globals/uvars.h"
-#include "item/armor.h"
-#include "item/equipmnt.h"
-#include "item/weapon.h"
-#include "syshookscript.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/armor.h"
+#include "pol/item/equipmnt.h"
+#include "pol/item/weapon.h"
+#include "pol/syshookscript.h"
 
 #include <iterator>
 #include <memory>

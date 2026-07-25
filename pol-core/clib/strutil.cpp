@@ -8,15 +8,15 @@
  */
 
 
-#include "strutil.h"
+#include "clib/strutil.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <utf8cpp/utf8.h>
 
-#include "logfacility.h"
-#include "stlutil.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
 
 
 namespace Pol::Clib

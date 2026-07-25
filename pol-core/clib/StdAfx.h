@@ -36,18 +36,18 @@
 // Project Includes (be really really carefull what to include!)
 
 // explicit included since needed anyway for later includes
-#include "Debugging/LogSink.h"
-#include "compilerspecifics.h"
-#include "message_queue.h"
+#include "clib/Debugging/LogSink.h"
+#include "clib/compilerspecifics.h"
+#include "clib/message_queue.h"
 
-#include "fixalloc.h"
-#include "logfacility.h"
-#include "passert.h"
-#include "rawtypes.h"
-#include "refptr.h"
-#include "spinlock.h"
-#include "stlutil.h"
-#include "strutil.h"
-#include "weakptr.h"
+#include "clib/fixalloc.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/spinlock.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "clib/weakptr.h"
 
 #endif  // _CLIB_STDAFX_H

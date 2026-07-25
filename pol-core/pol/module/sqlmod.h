@@ -9,8 +9,8 @@
 
 #include <string>
 
-#include "../polmodl.h"
-#include "../uoexec.h"
+#include "pol/polmodl.h"
+#include "pol/uoexec.h"
 
 namespace Pol
 {

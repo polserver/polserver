@@ -9,14 +9,14 @@
 #ifndef BSCRIPT_BSTRUCT_H
 #define BSCRIPT_BSTRUCT_H
 
-#include "bobject.h"
+#include "bscript/bobject.h"
 
 #include <iosfwd>
 #include <map>
 #include <string>
 
-#include "../clib/maputil.h"
-#include "../clib/rawtypes.h"
+#include "clib/maputil.h"
+#include "clib/rawtypes.h"
 
 
 namespace Pol::Bscript

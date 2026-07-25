@@ -1,4 +1,4 @@
-#include "SemanticAnalyzer.h"
+#include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 
 #include <algorithm>
 #include <iterator>
@@ -64,7 +64,7 @@
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/optimizer/ConstantValidator.h"
 #include "clib/strutil.h"
-#include "filefmt.h"
+#include "bscript/filefmt.h"
 
 namespace Pol::Bscript::Compiler
 {

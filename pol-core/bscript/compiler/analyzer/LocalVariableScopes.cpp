@@ -1,4 +1,4 @@
-#include "LocalVariableScopes.h"
+#include "bscript/compiler/analyzer/LocalVariableScopes.h"
 
 #include "bscript/compiler/analyzer/Variables.h"
 

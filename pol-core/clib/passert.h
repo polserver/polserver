@@ -11,7 +11,7 @@
 #ifndef CLIB_PASSERT_H
 #define CLIB_PASSERT_H
 
-#include "compilerspecifics.h"
+#include "clib/compilerspecifics.h"
 #include <string>
 
 #ifndef INC_PASSERT

@@ -4,11 +4,11 @@
  */
 
 
-#include "filemapserver.h"
+#include "plib/filemapserver.h"
 
 #include <string>
 
-#include "../clib/passert.h"
+#include "clib/passert.h"
 
 
 namespace Pol::Plib

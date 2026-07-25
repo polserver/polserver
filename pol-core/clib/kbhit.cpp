@@ -4,7 +4,7 @@
 // this file only used in Linux build
 #ifdef LINUX
 
-#include "kbhit.h"
+#include "clib/kbhit.h"
 #include <unistd.h>  // read()
 
 namespace Pol::Clib

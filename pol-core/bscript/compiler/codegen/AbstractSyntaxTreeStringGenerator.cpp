@@ -1,4 +1,4 @@
-#include "AbstractSyntaxTreeStringGenerator.h"
+#include "bscript/compiler/codegen/AbstractSyntaxTreeStringGenerator.h"
 
 #include "bscript/compiler/ast/Node.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"

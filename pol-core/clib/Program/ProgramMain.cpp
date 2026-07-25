@@ -1,13 +1,13 @@
-#include "ProgramMain.h"
+#include "clib/Program/ProgramMain.h"
 
 #include <stdlib.h>
 
 #include <boost/stacktrace.hpp>
 
-#include "../Debugging/ExceptionParser.h"
-#include "../logfacility.h"
-#include "ProgramConfig.h"
-#include "pol_global_config.h"
+#include "clib/Debugging/ExceptionParser.h"
+#include "clib/Program/ProgramConfig.h"
+#include "clib/logfacility.h"
+#include <pol_global_config.h>
 
 #ifdef ENABLE_BENCHMARK
 #include <benchmark/benchmark.h>
@@ -15,7 +15,7 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include "../Header_Windows.h"
+#include "clib/Header_Windows.h"
 #include <crtdbg.h>
 #include <psapi.h>
 #include <windows.h>  // for GetModuleFileName

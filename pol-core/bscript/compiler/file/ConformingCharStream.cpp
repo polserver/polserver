@@ -1,4 +1,4 @@
-#include "ConformingCharStream.h"
+#include "bscript/compiler/file/ConformingCharStream.h"
 
 #include <cctype>
 

@@ -9,7 +9,7 @@
 #ifndef SYSHOOK_H
 #define SYSHOOK_H
 
-#include "../bscript/bobject.h"
+#include "bscript/bobject.h"
 
 #include <memory>
 

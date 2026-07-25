@@ -1,4 +1,4 @@
-#include "CompoundStatementBuilder.h"
+#include "bscript/compiler/astbuilder/CompoundStatementBuilder.h"
 
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"

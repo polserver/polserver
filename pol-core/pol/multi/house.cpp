@@ -12,7 +12,7 @@
  * - 2012/02/02 Tomi:      Added boat member MBR_MULTIID
  */
 
-#include "house.h"
+#include "pol/multi/house.h"
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <iterator>
@@ -37,26 +37,26 @@
 #include "plib/systemstate.h"
 #include "plib/uconst.h"
 
-#include "../core.h"
-#include "../fnsearch.h"
-#include "../globals/object_storage.h"
-#include "../globals/uvars.h"
-#include "../item/itemdesc.h"
-#include "../mobile/charactr.h"
-#include "../module/uomod.h"
-#include "../network/cgdata.h"
-#include "../network/client.h"
-#include "../realms/realm.h"
-#include "../syshookscript.h"
-#include "../ufunc.h"
-#include "../uobject.h"
-#include "../uoexec.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "base/range.h"
-#include "customhouses.h"
-#include "multi.h"
-#include "multidef.h"
+#include "pol/core.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/object_storage.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mobile/charactr.h"
+#include "pol/module/uomod.h"
+#include "pol/network/cgdata.h"
+#include "pol/network/client.h"
+#include "pol/realms/realm.h"
+#include "pol/syshookscript.h"
+#include "pol/ufunc.h"
+#include "pol/uobject.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
+#include "pol/base/range.h"
+#include "pol/multi/customhouses.h"
+#include "pol/multi/multi.h"
+#include "pol/multi/multidef.h"
 
 
 namespace Pol::Multi

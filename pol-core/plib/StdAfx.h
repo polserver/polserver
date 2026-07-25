@@ -10,11 +10,11 @@
 #define _PLIB_STDAFX_H
 
 // include default pch
-#include "../clib/StdAfx.h"
+#include "clib/StdAfx.h"
 
-#include "clidata.h"
-#include "mapcell.h"
-#include "realmdescriptor.h"
-#include "ustruct.h"
+#include "plib/clidata.h"
+#include "plib/mapcell.h"
+#include "plib/realmdescriptor.h"
+#include "plib/ustruct.h"
 
 #endif

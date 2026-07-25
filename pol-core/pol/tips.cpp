@@ -7,13 +7,13 @@
 
 #include <string>
 
-#include "../clib/clib_endian.h"
-#include "../clib/rawtypes.h"
-#include "globals/uvars.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "network/pktdef.h"
-#include "network/pktin.h"
+#include "clib/clib_endian.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/uvars.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktin.h"
 
 
 namespace Pol::Core

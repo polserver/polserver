@@ -1,4 +1,4 @@
-#include "ModuleFunctionDescriptor.h"
+#include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,10 +1,10 @@
-#include "testenv.h"
+#include "poltool/testenv.h"
 
-#include "../clib/logfacility.h"
-#include "baredistro.h"
-#include "testfiles.h"
+#include "clib/logfacility.h"
+#include "poltool/baredistro.h"
+#include "poltool/testfiles.h"
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <fstream>
 #include <utility>

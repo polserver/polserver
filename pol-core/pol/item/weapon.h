@@ -13,12 +13,12 @@
 #include <memory>
 #include <string>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/rawtypes.h"
-#include "../action.h"
-#include "../dynproperties.h"
-#include "../scrdef.h"
-#include "equipmnt.h"
+#include "bscript/bobject.h"
+#include "clib/rawtypes.h"
+#include "pol/action.h"
+#include "pol/dynproperties.h"
+#include "pol/scrdef.h"
+#include "pol/item/equipmnt.h"
 
 namespace Pol
 {

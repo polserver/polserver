@@ -1,6 +1,6 @@
-#include "bcontinuation.h"
-#include "bfuncref.h"
-#include "executor.h"
+#include "bscript/bcontinuation.h"
+#include "bscript/bfuncref.h"
+#include "bscript/executor.h"
 
 
 namespace Pol::Bscript

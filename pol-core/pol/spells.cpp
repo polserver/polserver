@@ -6,7 +6,7 @@
  */
 
 
-#include "spells.h"
+#include "pol/spells.h"
 
 #include <iterator>
 #include <stdlib.h>
@@ -23,26 +23,26 @@
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
 
-#include "containr.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "layers.h"
-#include "mkscrobj.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/pktin.h"
-#include "polclass.h"
-#include "polsig.h"
-#include "regions/miscrgn.h"
-#include "scrstore.h"
-#include "skillid.h"
-#include "spelbook.h"
-#include "syshook.h"
-#include "ufunc.h"
-#include "umanip.h"
-#include "vital.h"
+#include "pol/containr.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/layers.h"
+#include "pol/mkscrobj.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/pktin.h"
+#include "pol/polclass.h"
+#include "pol/polsig.h"
+#include "pol/regions/miscrgn.h"
+#include "pol/scrstore.h"
+#include "pol/skillid.h"
+#include "pol/spelbook.h"
+#include "pol/syshook.h"
+#include "pol/ufunc.h"
+#include "pol/umanip.h"
+#include "pol/vital.h"
 
 
 namespace Pol::Core

@@ -6,12 +6,12 @@
  */
 
 
-#include "multidefs.h"
+#include "pol/globals/multidefs.h"
 
 #include <cstddef>
 
-#include "../../clib/stlutil.h"
-#include "../multi/multidef.h"
+#include "clib/stlutil.h"
+#include "pol/multi/multidef.h"
 
 
 namespace Pol::Multi

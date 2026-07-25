@@ -1,4 +1,4 @@
-#include "BinaryOperatorWithBooleanOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorWithBooleanOptimizer.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"

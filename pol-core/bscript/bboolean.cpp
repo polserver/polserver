@@ -1,6 +1,6 @@
-#include "bboolean.h"
+#include "bscript/bboolean.h"
 
-#include "berror.h"
+#include "bscript/berror.h"
 
 #include <fmt/compile.h>
 #include <fmt/format.h>

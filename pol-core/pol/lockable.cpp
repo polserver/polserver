@@ -4,12 +4,12 @@
  */
 
 
-#include "lockable.h"
+#include "pol/lockable.h"
 
-#include "../clib/cfgelem.h"
-#include "../clib/streamsaver.h"
-#include "globals/uvars.h"
-#include "uobject.h"
+#include "clib/cfgelem.h"
+#include "clib/streamsaver.h"
+#include "pol/globals/uvars.h"
+#include "pol/uobject.h"
 
 
 namespace Pol::Core

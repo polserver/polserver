@@ -3,23 +3,23 @@
  * @par History
  */
 
-#include "testenv.h"
+#include "pol/testing/testenv.h"
 
-#include "../../bscript/bobject.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/rawtypes.h"
-#include "../globals/object_storage.h"
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../mobile/npc.h"
-#include "../multi/multi.h"
-#include "../npctmpl.h"
-#include "../ufunc.h"
-#include "../uworld.h"
+#include "bscript/bobject.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/object_storage.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/mobile/npc.h"
+#include "pol/multi/multi.h"
+#include "pol/npctmpl.h"
+#include "pol/ufunc.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Testing

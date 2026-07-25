@@ -4,15 +4,15 @@
  */
 
 
-#include "tildecmd.h"
+#include "pol/tildecmd.h"
 
 #include <iostream>
 #include <stdlib.h>
 #include <string>
 
-#include "../clib/logfacility.h"
-#include "../plib/systemstate.h"
-#include "spells.h"
+#include "clib/logfacility.h"
+#include "plib/systemstate.h"
+#include "pol/spells.h"
 
 
 namespace Pol::Core

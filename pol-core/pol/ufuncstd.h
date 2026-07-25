@@ -6,6 +6,17 @@
 #ifndef __UFUNCSTD_H
 #define __UFUNCSTD_H
 
+#include <string>
+
+namespace Pol::Network
+{
+class Client;
+}
+namespace Pol::Mobile
+{
+class Character;
+}
+
 namespace Pol::Core
 {
 void send_sysmessage( Network::Client* client, const std::string& text, unsigned short font = 3,

@@ -5,17 +5,17 @@
  */
 
 
-#include "scrstore.h"
+#include "pol/scrstore.h"
 
-#include "../bscript/eprog.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/strutil.h"
-#include "../plib/systemstate.h"
-#include "globals/script_internals.h"
-#include "globals/state.h"
-#include "profile.h"
-#include "scrdef.h"
+#include "bscript/eprog.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/strutil.h"
+#include "plib/systemstate.h"
+#include "pol/globals/script_internals.h"
+#include "pol/globals/state.h"
+#include "pol/profile.h"
+#include "pol/scrdef.h"
 
 #include <iterator>
 

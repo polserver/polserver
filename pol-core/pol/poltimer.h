@@ -7,7 +7,7 @@
 #ifndef POLTIMER_H
 #define POLTIMER_H
 
-#include "polclock.h"
+#include "pol/polclock.h"
 #include <iosfwd>
 namespace Pol
 {

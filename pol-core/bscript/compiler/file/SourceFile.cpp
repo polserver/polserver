@@ -1,4 +1,4 @@
-#include "SourceFile.h"
+#include "bscript/compiler/file/SourceFile.h"
 
 #include <cstring>
 
@@ -8,7 +8,7 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
-#include "compilercfg.h"
+#include "bscript/compilercfg.h"
 #include <EscriptGrammar/EscriptParserVisitor.h>
 
 using EscriptGrammar::EscriptLexer;

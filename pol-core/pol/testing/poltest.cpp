@@ -3,11 +3,11 @@
  * @par History
  */
 
-#include "poltest.h"
+#include "pol/testing/poltest.h"
 
-#include "testenv.h"
+#include "pol/testing/testenv.h"
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #ifdef ENABLE_BENCHMARK
 #include <benchmark/benchmark.h>

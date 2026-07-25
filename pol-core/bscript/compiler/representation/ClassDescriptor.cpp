@@ -1,4 +1,4 @@
-#include "ClassDescriptor.h"
+#include "bscript/compiler/representation/ClassDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

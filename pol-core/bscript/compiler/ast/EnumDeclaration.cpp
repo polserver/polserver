@@ -1,4 +1,4 @@
-#include "EnumDeclaration.h"
+#include "bscript/compiler/ast/EnumDeclaration.h"
 
 
 #include <utility>

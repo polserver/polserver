@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "bobjectimp.h"
+#include "bscript/bobjectimp.h"
 
 namespace Pol::Bscript
 {

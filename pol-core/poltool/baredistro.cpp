@@ -1,6 +1,6 @@
-#include "baredistro.h"
+#include "poltool/baredistro.h"
 
-#include "../clib/logfacility.h"
+#include "clib/logfacility.h"
 
 #include <fstream>
 #include <utility>

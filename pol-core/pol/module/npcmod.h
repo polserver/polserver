@@ -14,9 +14,9 @@
 
 #include "plib/uconst.h"
 
-#include "base/position.h"
-#include "polmodl.h"
-#include "reftypes.h"
+#include "pol/base/position.h"
+#include "pol/polmodl.h"
+#include "pol/reftypes.h"
 
 
 namespace Pol::Bscript

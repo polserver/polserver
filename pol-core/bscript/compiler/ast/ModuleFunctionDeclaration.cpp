@@ -1,4 +1,4 @@
-#include "ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 
 
 #include <utility>

@@ -8,12 +8,12 @@
 #define H_UNIEMOD_H
 
 #ifndef POL_POLMODL_H
-#include "../polmodl.h"
+#include "pol/polmodl.h"
 #endif
 
-#include "../../clib/rawtypes.h"
-#include "../network/pktdef.h"
-#include "../uoexec.h"
+#include "clib/rawtypes.h"
+#include "pol/network/pktdef.h"
+#include "pol/uoexec.h"
 
 namespace Pol
 {

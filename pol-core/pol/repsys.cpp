@@ -8,32 +8,32 @@
  */
 
 
-#include "repsys.h"
+#include "pol/repsys.h"
 
 #include <stddef.h>
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/cfgsect.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "cmbtcfg.h"
-#include "fnsearch.h"
-#include "globals/settings.h"
-#include "globals/state.h"
-#include "guilds.h"
-#include "mobile/charactr.h"
-#include "mobile/npc.h"
-#include "network/pktdef.h"
-#include "npctmpl.h"
-#include "party.h"
-#include "polsig.h"
-#include "repsys_cfg.h"
-#include "schedule.h"
-#include "syshook.h"
-#include "ufunc.h"
-#include "uworld.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/cfgsect.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "pol/cmbtcfg.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/state.h"
+#include "pol/guilds.h"
+#include "pol/mobile/charactr.h"
+#include "pol/mobile/npc.h"
+#include "pol/network/pktdef.h"
+#include "pol/npctmpl.h"
+#include "pol/party.h"
+#include "pol/polsig.h"
+#include "pol/repsys_cfg.h"
+#include "pol/schedule.h"
+#include "pol/syshook.h"
+#include "pol/ufunc.h"
+#include "pol/uworld.h"
 
 // BUGS:
 //  it looks like you can restart someone's aggressor timer by toggling war mode and setting

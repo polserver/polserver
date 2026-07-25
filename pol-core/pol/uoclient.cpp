@@ -5,19 +5,19 @@
  */
 
 
-#include "uoclient.h"
+#include "pol/uoclient.h"
 
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../plib/pkg.h"
-#include "globals/network.h"
-#include "mobile/attribute.h"
-#include "skillid.h"
-#include "syshookscript.h"
-#include "vital.h"
+#include "clib/cfgelem.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "plib/pkg.h"
+#include "pol/globals/network.h"
+#include "pol/mobile/attribute.h"
+#include "pol/skillid.h"
+#include "pol/syshookscript.h"
+#include "pol/vital.h"
 
 
 namespace Pol::Core

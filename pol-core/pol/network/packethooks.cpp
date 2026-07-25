@@ -17,26 +17,26 @@
  */
 
 
-#include "packethooks.h"
+#include "pol/network/packethooks.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../../plib/pkg.h"
-#include "../globals/network.h"
-#include "../mobile/charactr.h"
-#include "../packetscrobj.h"
-#include "../syshook.h"
-#include "client.h"
+#include "clib/cfgelem.h"
+#include "clib/clib.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "plib/pkg.h"
+#include "pol/globals/network.h"
+#include "pol/mobile/charactr.h"
+#include "pol/packetscrobj.h"
+#include "pol/syshook.h"
+#include "pol/network/client.h"
 
 
 namespace Pol::Network

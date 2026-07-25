@@ -9,8 +9,8 @@
 
 #include <array>
 
-#include "../clib/rawtypes.h"
-#include "network/pktboth.h"
+#include "clib/rawtypes.h"
+#include "pol/network/pktboth.h"
 
 namespace Pol
 {

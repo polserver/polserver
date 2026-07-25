@@ -1,4 +1,4 @@
-#include "ModuleDeclarationRegistrar.h"
+#include "bscript/compiler/codegen/ModuleDeclarationRegistrar.h"
 
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"

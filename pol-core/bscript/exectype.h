@@ -8,7 +8,7 @@
 #define __EXECTYPE_H
 
 
-#include "bobject.h"
+#include "bscript/bobject.h"
 
 #include <vector>
 

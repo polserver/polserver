@@ -1,7 +1,7 @@
 #ifndef H_SYSTEMS_SUSPICIOUSACTS
 #define H_SYSTEMS_SUSPICIOUSACTS
 
-#include "base/position.h"
+#include "pol/base/position.h"
 #include "clib/rawtypes.h"
 
 namespace Pol::Network

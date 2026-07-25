@@ -1,8 +1,8 @@
 #pragma once
 
-#include "bobject.h"
-#include "bobjectimp.h"
-#include "exectype.h"
+#include "bscript/bobject.h"
+#include "bscript/bobjectimp.h"
+#include "bscript/exectype.h"
 
 
 namespace Pol::Bscript

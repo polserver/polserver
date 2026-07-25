@@ -5,17 +5,17 @@
  */
 
 
-#include "vital.h"
+#include "pol/vital.h"
 
 #include <stddef.h>
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../plib/pkg.h"
-#include "checkpnt.h"
-#include "globals/uvars.h"
+#include "clib/cfgelem.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "plib/pkg.h"
+#include "pol/checkpnt.h"
+#include "pol/globals/uvars.h"
 
 
 namespace Pol::Core

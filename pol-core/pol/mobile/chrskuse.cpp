@@ -4,8 +4,8 @@
  */
 
 
-#include "../../bscript/eprog.h"
-#include "charactr.h"
+#include "bscript/eprog.h"
+#include "pol/mobile/charactr.h"
 
 
 namespace Pol::Mobile

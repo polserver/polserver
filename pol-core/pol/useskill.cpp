@@ -12,17 +12,17 @@
 #include "clib/refptr.h"
 #include "plib/systemstate.h"
 
-#include "globals/network.h"
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/pktin.h"
-#include "polclock.h"
-#include "scrdef.h"
-#include "scrstore.h"
-#include "skills.h"
-#include "ufunc.h"
-#include "uoskills.h"
+#include "pol/globals/network.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/pktin.h"
+#include "pol/polclock.h"
+#include "pol/scrdef.h"
+#include "pol/scrstore.h"
+#include "pol/skills.h"
+#include "pol/ufunc.h"
+#include "pol/uoskills.h"
 
 
 namespace Pol::Core

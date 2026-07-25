@@ -6,21 +6,21 @@
  */
 
 
-#include "movecost.h"
+#include "pol/movecost.h"
 
 #include <string.h>
 #include <string>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../plib/systemstate.h"
-#include "dynproperties.h"
-#include "globals/settings.h"
-#include "mobile/charactr.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "plib/systemstate.h"
+#include "pol/dynproperties.h"
+#include "pol/globals/settings.h"
+#include "pol/mobile/charactr.h"
 
 
 namespace Pol::Core

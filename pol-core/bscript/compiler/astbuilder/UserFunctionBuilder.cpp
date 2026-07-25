@@ -1,4 +1,4 @@
-#include "UserFunctionBuilder.h"
+#include "bscript/compiler/astbuilder/UserFunctionBuilder.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Argument.h"

@@ -5,22 +5,22 @@
  */
 
 
-#include "binaryfilescrobj.h"
+#include "pol/binaryfilescrobj.h"
 
 #include <fstream>
 #include <stddef.h>
 
-#include "../bscript/bboolean.h"
-#include "../bscript/berror.h"
-#include "../bscript/blong.h"
-#include "../bscript/bobject.h"
-#include "../bscript/bstring.h"
-#include "../bscript/buninit.h"
-#include "../bscript/executor.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-#include "../clib/clib_endian.h"
-#include "../clib/rawtypes.h"
+#include "bscript/bboolean.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bobject.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/clib_endian.h"
+#include "clib/rawtypes.h"
 
 
 namespace Pol::Core

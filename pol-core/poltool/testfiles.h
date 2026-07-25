@@ -1,7 +1,7 @@
 #ifndef POLTOOL_TESTFILES_H
 #define POLTOOL_TESTFILES_H
 
-#include "../plib/ustruct.h"
+#include "plib/ustruct.h"
 
 #include <filesystem>
 #include <string>

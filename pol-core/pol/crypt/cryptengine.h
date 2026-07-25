@@ -4,7 +4,7 @@
 #ifndef CRYPTENGINE_H
 #define CRYPTENGINE_H
 
-#include "cryptkey.h"
+#include "pol/crypt/cryptkey.h"
 
 namespace Pol::Crypt
 {

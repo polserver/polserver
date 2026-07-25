@@ -16,7 +16,7 @@
  */
 
 
-#include "client.h"
+#include "pol/network/client.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -32,34 +32,34 @@
 #include "clib/strutil.h"  //CNXBUG
 #include "clib/wallclock.h"
 
-#include "../accounts/account.h"
-#include "../crypt/cryptbase.h"
-#include "../crypt/cryptengine.h"
-#include "../globals/network.h"
-#include "../globals/settings.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../mobile/charactr.h"
-#include "../module/uomod.h"
-#include "../polsig.h"
-#include "../realms/WorldChangeReasons.h"
-#include "../ufunc.h"  // only in here temporarily, until logout-on-disconnect stuff is removed
-#include "../uoclient.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "cgdata.h"
-#include "cliface.h"
-#include "packethelper.h"
-#include "packets.h"
-#include "pktdef.h"
-#include "pktin.h"
-#include "xbuffer.h"
+#include "pol/accounts/account.h"
+#include "pol/crypt/cryptbase.h"
+#include "pol/crypt/cryptengine.h"
+#include "pol/globals/network.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/module/uomod.h"
+#include "pol/network/cgdata.h"
+#include "pol/network/cliface.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktin.h"
+#include "pol/network/xbuffer.h"
+#include "pol/polsig.h"
+#include "pol/realms/WorldChangeReasons.h"
+#include "pol/ufunc.h"  // only in here temporarily, until logout-on-disconnect stuff is removed
+#include "pol/uoclient.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
 
 
 #define PRE_ENCRYPT
 
 #ifndef PRE_ENCRYPT
-#include "sockio.h"
+#include "pol/network/sockio.h"
 #endif
 
 #ifdef _MSC_VER

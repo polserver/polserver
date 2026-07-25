@@ -4,7 +4,7 @@
 #include "bscript/compiler/ast/Expression.h"
 
 #ifndef OBJMEMBERS_H
-#include "objmembers.h"
+#include "bscript/objmembers.h"
 #endif
 
 namespace Pol::Bscript::Compiler

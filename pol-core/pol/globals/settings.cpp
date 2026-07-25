@@ -1,11 +1,11 @@
-#include "settings.h"
+#include "pol/globals/settings.h"
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../plib/systemstate.h"
-#include "../watch.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "plib/systemstate.h"
+#include "pol/watch.h"
 
 
 namespace Pol::Core

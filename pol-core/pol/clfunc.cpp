@@ -7,16 +7,16 @@
  */
 
 
-#include "clfunc.h"
+#include "pol/clfunc.h"
 
 #include <cstddef>
 #include <string.h>
 
-#include "../bscript/bstring.h"
-#include "mobile/charactr.h"
-#include "network/packethelper.h"
-#include "network/pktdef.h"
-#include "ufunc.h"
+#include "bscript/bstring.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/pktdef.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core

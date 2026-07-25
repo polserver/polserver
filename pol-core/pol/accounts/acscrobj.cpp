@@ -20,29 +20,29 @@
  */
 
 
-#include "acscrobj.h"
+#include "pol/accounts/acscrobj.h"
 
 #include <stddef.h>
 #include <string>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/blong.h"
-#include "../../bscript/bstring.h"
-#include "../../bscript/buninit.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/objmembers.h"
-#include "../../bscript/objmethods.h"
-#include "../../clib/clib_MD5.h"
-#include "../../plib/systemstate.h"
-#include "../core.h"
-#include "../globals/uvars.h"
-#include "../mobile/charactr.h"
-#include "../network/client.h"
-#include "../ufunc.h"
-#include "../uoexec.h"
-#include "../uoscrobj.h"
-#include "account.h"
-#include "accounts.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "bscript/buninit.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/clib_MD5.h"
+#include "plib/systemstate.h"
+#include "pol/core.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/ufunc.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
+#include "pol/accounts/account.h"
+#include "pol/accounts/accounts.h"
 
 namespace Pol
 {

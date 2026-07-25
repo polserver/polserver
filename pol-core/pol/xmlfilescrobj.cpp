@@ -4,7 +4,7 @@
  */
 
 
-#include "xmlfilescrobj.h"
+#include "pol/xmlfilescrobj.h"
 
 #include <stddef.h>
 
@@ -22,7 +22,7 @@
 #include "clib/strutil.h"
 #include "plib/pkg.h"
 
-#include "module/fileaccess.h"
+#include "pol/module/fileaccess.h"
 
 
 namespace Pol::Core

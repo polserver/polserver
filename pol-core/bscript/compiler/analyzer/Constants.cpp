@@ -1,4 +1,4 @@
-#include "Constants.h"
+#include "bscript/compiler/analyzer/Constants.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"

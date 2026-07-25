@@ -1,4 +1,4 @@
-#include "MemberAssignment.h"
+#include "bscript/compiler/ast/MemberAssignment.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

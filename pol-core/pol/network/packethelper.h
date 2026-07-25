@@ -1,10 +1,10 @@
 #ifndef __PACKETHELPER_H
 #define __PACKETHELPER_H
 
-#include "../globals/network.h"
-#include "client.h"
-#include "clienttransmit.h"
-#include "packets.h"
+#include "pol/globals/network.h"
+#include "pol/network/client.h"
+#include "pol/network/clienttransmit.h"
+#include "pol/network/packets.h"
 
 
 namespace Pol::Network::PktHelper

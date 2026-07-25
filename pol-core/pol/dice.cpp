@@ -5,7 +5,7 @@
  */
 
 
-#include "dice.h"
+#include "pol/dice.h"
 
 #include <cstring>
 #include <ctype.h>
@@ -13,10 +13,10 @@
 #include <fmt/format.h>
 #include <stdlib.h>
 
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/rawtypes.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/random.h"
+#include "clib/rawtypes.h"
 
 
 namespace Pol::Core

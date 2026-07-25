@@ -9,10 +9,10 @@
 
 #include <cstdio>
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 
 #ifndef POLSERVER_STOREDTOKEN_H
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 #endif
 
 

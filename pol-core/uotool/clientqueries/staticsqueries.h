@@ -1,7 +1,7 @@
 #ifndef UOTOOL_CLIENTQUERIES_STATICSQUERIES_H
 #define UOTOOL_CLIENTQUERIES_STATICSQUERIES_H
 
-#include "../../plib/udatfile.h"  // StaticList
+#include "plib/udatfile.h"  // StaticList
 
 namespace Pol::Plib
 {

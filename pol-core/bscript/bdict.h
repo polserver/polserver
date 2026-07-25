@@ -6,13 +6,13 @@
 
 #pragma once
 
-#include "bobjectimp.h"
+#include "bscript/bobjectimp.h"
 
 #include <iosfwd>
 #include <map>
 #include <string>
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
 
 
 namespace Pol::Bscript

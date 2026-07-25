@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "../../clib/passert.h"
-#include "twofish.h"
+#include "clib/passert.h"
+#include "pol/crypt/twofish.h"
 
 
 namespace Pol::Crypt

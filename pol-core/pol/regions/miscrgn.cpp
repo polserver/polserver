@@ -6,7 +6,7 @@
  */
 
 
-#include "miscrgn.h"
+#include "pol/regions/miscrgn.h"
 
 #include <stddef.h>
 
@@ -14,9 +14,9 @@
 #include "clib/rawtypes.h"
 #include "clib/stlutil.h"
 
-#include "globals/uvars.h"
-#include "realms/realm.h"
-#include "ufunc.h"
+#include "pol/globals/uvars.h"
+#include "pol/realms/realm.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core

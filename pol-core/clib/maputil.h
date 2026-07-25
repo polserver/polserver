@@ -12,7 +12,7 @@
 #include <string_view>
 #include <type_traits>
 
-#include "clib.h"
+#include "clib/clib.h"
 
 namespace Pol::Clib
 {

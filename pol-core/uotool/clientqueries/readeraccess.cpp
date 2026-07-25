@@ -4,9 +4,9 @@
  * @par History
  */
 
-#include "readeraccess.h"
+#include "uotool/clientqueries/readeraccess.h"
 
-#include "../../plib/clientfiles/uoclientfiles.h"
+#include "plib/clientfiles/uoclientfiles.h"
 
 namespace Pol::Plib
 {

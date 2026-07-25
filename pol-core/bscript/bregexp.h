@@ -3,7 +3,7 @@
 #include <boost/regex.hpp>
 #include <variant>
 
-#include "bobjectimp.h"
+#include "bscript/bobjectimp.h"
 
 namespace Pol::Bscript
 {

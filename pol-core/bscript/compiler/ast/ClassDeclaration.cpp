@@ -1,4 +1,4 @@
-#include "ClassDeclaration.h"
+#include "bscript/compiler/ast/ClassDeclaration.h"
 
 #include "bscript/compiler/ast/ClassParameterDeclaration.h"
 #include "bscript/compiler/ast/ClassParameterList.h"

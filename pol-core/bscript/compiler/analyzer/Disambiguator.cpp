@@ -1,4 +1,4 @@
-#include "Disambiguator.h"
+#include "bscript/compiler/analyzer/Disambiguator.h"
 
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/ast/Program.h"

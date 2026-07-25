@@ -8,15 +8,15 @@
 #ifndef BSCRIPT_EXECMODL_H
 #define BSCRIPT_EXECMODL_H
 
-#include "bobject.h"
+#include "bscript/bobject.h"
 
 #include <map>
 #include <string>
 #include <vector>
 
-#include "../clib/boostutils.h"
-#include "../clib/maputil.h"
-#include "executor.h"
+#include "clib/boostutils.h"
+#include "clib/maputil.h"
+#include "bscript/executor.h"
 
 
 namespace Pol::Bscript

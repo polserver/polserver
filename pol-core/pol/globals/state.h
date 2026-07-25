@@ -3,11 +3,11 @@
 
 #include <atomic>
 
-#include "../../clib/clib.h"
-#include "../../clib/rawtypes.h"
-#include "../polsig.h"
-#include "../profile.h"
-#include "../uobjcnt.h"
+#include "clib/clib.h"
+#include "clib/rawtypes.h"
+#include "pol/polsig.h"
+#include "pol/profile.h"
+#include "pol/uobjcnt.h"
 
 
 namespace Pol::Core

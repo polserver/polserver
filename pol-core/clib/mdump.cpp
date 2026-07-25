@@ -5,18 +5,18 @@
  * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
  */
 
-#include "mdump.h"
-#include "clib.h"
-#include "logfacility.h"
-#include "passert.h"
-#include "strexcpt.h"
-#include "threadhelp.h"
+#include "clib/mdump.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/strexcpt.h"
+#include "clib/threadhelp.h"
 #include <iterator>
 
 #pragma warning( disable : 4091 )  // unused typedef
 #include <StackWalker/StackWalker.h>
 
-#include "Header_Windows.h"
+#include "clib/Header_Windows.h"
 #include <assert.h>
 #include <time.h>
 
@@ -53,7 +53,7 @@ typedef BOOL( WINAPI* __SymGetLineFromAddr64 )( _In_ HANDLE hProcess, _In_ DWORD
                                                 _Out_ PDWORD pdwDisplacement,
                                                 _Out_ PIMAGEHLP_LINE64 Line64 );
 
-#include "mdumpimp.h"
+#include "clib/mdumpimp.h"
 namespace Pol
 {
 namespace Clib
@@ -215,7 +215,7 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 class StackWalkerLogger : public StackWalker
 {
 public:
-  StackWalkerLogger( int options ) : StackWalker( options ){};
+  StackWalkerLogger( int options ) : StackWalker( options ) {};
   virtual ~StackWalkerLogger()
   {
     if ( !_log.empty() )
@@ -230,7 +230,7 @@ protected:
                              LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) override
   {
   }
-  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) override{};
+  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) override {};
   virtual void OnOutput( LPCSTR szText ) override { _log += szText; }
   virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry& entry ) override
   {

@@ -1,4 +1,4 @@
-#include "Argument.h"
+#include "bscript/compiler/ast/Argument.h"
 
 
 #include "bscript/compiler/ast/Expression.h"

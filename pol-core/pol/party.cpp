@@ -11,9 +11,9 @@
  * - 2009/11/17 Turley:    fixed hang due to illegal pointers
  */
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
-#include "party.h"
+#include "pol/party.h"
 
 #include <ctype.h>
 #include <iostream>
@@ -21,40 +21,40 @@
 #include <string>
 #include <time.h>
 
-#include "../bscript/barray.h"
-#include "../bscript/bstring.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/cfgsect.h"
-#include "../clib/clib_endian.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/streamsaver.h"
-#include "../plib/systemstate.h"
-#include "clfunc.h"
-#include "fnsearch.h"
-#include "globals/network.h"
-#include "globals/settings.h"
-#include "globals/uvars.h"
-#include "mobile/charactr.h"
-#include "module/partymod.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "network/pktboth.h"
-#include "network/pktdef.h"
-#include "party_cfg.h"
-#include "polclock.h"
-#include "schedule.h"
-#include "statmsg.h"
-#include "syshook.h"
-#include "ufunc.h"
-#include "uobject.h"
-#include "uoclient.h"
+#include "bscript/barray.h"
+#include "bscript/bstring.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/cfgsect.h"
+#include "clib/clib_endian.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "plib/systemstate.h"
+#include "pol/clfunc.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/network.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/module/partymod.h"
+#include "pol/network/client.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktboth.h"
+#include "pol/network/pktdef.h"
+#include "pol/party_cfg.h"
+#include "pol/polclock.h"
+#include "pol/schedule.h"
+#include "pol/statmsg.h"
+#include "pol/syshook.h"
+#include "pol/ufunc.h"
+#include "pol/uobject.h"
+#include "pol/uoclient.h"
 
 #ifdef MEMORYLEAK
-#include "../bscript/bobject.h"
+#include "bscript/bobject.h"
 #endif
 
 

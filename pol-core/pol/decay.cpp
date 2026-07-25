@@ -8,27 +8,27 @@
  */
 
 
-#include "decay.h"
+#include "pol/decay.h"
 
 #include <stddef.h>
 
-#include "../clib/esignal.h"
-#include "../clib/logfacility.h"
-#include "../plib/systemstate.h"
-#include "gameclck.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "polsem.h"
-#include "realms/realm.h"
-#include "regions/guardrgn.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "syshook.h"
-#include "ufunc.h"
-#include "uoscrobj.h"
-#include "uworld.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "plib/systemstate.h"
+#include "pol/gameclck.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
+#include "pol/polsem.h"
+#include "pol/realms/realm.h"
+#include "pol/regions/guardrgn.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/syshook.h"
+#include "pol/ufunc.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

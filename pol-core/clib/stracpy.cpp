@@ -7,8 +7,8 @@
 #include <assert.h>
 #include <string.h>
 
-#include "Header_Windows.h"
-#include "clib.h"
+#include "clib/Header_Windows.h"
+#include "clib/clib.h"
 
 
 namespace Pol::Clib

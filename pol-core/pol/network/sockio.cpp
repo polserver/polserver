@@ -4,7 +4,7 @@
  */
 
 
-#include "sockio.h"
+#include "pol/network/sockio.h"
 
 #ifdef __unix__
 #include <sys/utsname.h>
@@ -16,11 +16,11 @@ struct utsname my_utsname;
 #include <cstring>
 #include <string>
 
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/network/sockets.h"
-#include "../clib/strutil.h"
-#include "globals/network.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/network/sockets.h"
+#include "clib/strutil.h"
+#include "pol/globals/network.h"
 
 
 namespace Pol::Network

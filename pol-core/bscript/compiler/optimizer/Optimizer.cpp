@@ -1,4 +1,4 @@
-#include "Optimizer.h"
+#include "bscript/compiler/optimizer/Optimizer.h"
 
 #include <optional>
 #include <utility>
@@ -36,7 +36,7 @@
 #include "bscript/compiler/optimizer/ReferencedFunctionGatherer.h"
 #include "bscript/compiler/optimizer/UnaryOperatorOptimizer.h"
 #include "bscript/compiler/optimizer/ValueConsumerOptimizer.h"
-#include "compiler/model/ScopableName.h"
+#include "bscript/compiler/model/ScopableName.h"
 
 namespace Pol::Bscript::Compiler
 {

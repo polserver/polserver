@@ -9,12 +9,12 @@
 #ifndef BOATCOMP_H
 #define BOATCOMP_H
 
-#include "../../bscript/bobject.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../item/item.h"
-#include "../lockable.h"
-#include "boat.h"
+#include "bscript/bobject.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "pol/item/item.h"
+#include "pol/lockable.h"
+#include "pol/multi/boat.h"
 
 namespace Pol
 {

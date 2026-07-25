@@ -1,4 +1,4 @@
-#include "Variable.h"
+#include "bscript/compiler/model/Variable.h"
 
 #include <utility>
 

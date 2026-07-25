@@ -18,9 +18,9 @@
 
 #include <boost/compat/move_only_function.hpp>
 
-#include "Header_Windows.h"
-#include "message_queue.h"
-#include "spinlock.h"
+#include "clib/Header_Windows.h"
+#include "clib/message_queue.h"
+#include "clib/spinlock.h"
 
 
 namespace Pol::threadhelp

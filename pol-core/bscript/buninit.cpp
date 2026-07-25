@@ -1,6 +1,6 @@
-#include "buninit.h"
+#include "bscript/buninit.h"
 
-#include "bobject.h"
+#include "bscript/bobject.h"
 
 namespace Pol::Bscript
 {

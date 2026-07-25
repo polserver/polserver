@@ -8,9 +8,9 @@
 #define MISCRGN_H
 
 
-#include "base/range.h"
-#include "regions/region.h"
-#include "zone.h"
+#include "pol/base/range.h"
+#include "pol/regions/region.h"
+#include "pol/zone.h"
 
 
 namespace Pol::Clib

@@ -7,7 +7,7 @@
  */
 
 
-#include "uobject.h"
+#include "pol/uobject.h"
 
 #include <atomic>
 #include <iosfwd>
@@ -15,28 +15,28 @@
 #include <string>
 #include <utility>
 
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
-#include "../clib/streamsaver.h"
-#include "../clib/strutil.h"
-#include "../plib/clidata.h"
-#include "../plib/objtype.h"
-#include "../plib/systemstate.h"
-#include "../plib/uconst.h"
-#include "baseobject.h"
-#include "dynproperties.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
-#include "proplist.h"
-#include "realms/realm.h"
-#include "realms/realms.h"
-#include "syshookscript.h"
-#include "tooltips.h"
-#include "uobjcnt.h"
+#include "clib/cfgelem.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/streamsaver.h"
+#include "clib/strutil.h"
+#include "plib/clidata.h"
+#include "plib/objtype.h"
+#include "plib/systemstate.h"
+#include "plib/uconst.h"
+#include "pol/baseobject.h"
+#include "pol/dynproperties.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/proplist.h"
+#include "pol/realms/realm.h"
+#include "pol/realms/realms.h"
+#include "pol/syshookscript.h"
+#include "pol/tooltips.h"
+#include "pol/uobjcnt.h"
 
 
 namespace Pol::Core

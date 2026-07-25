@@ -9,8 +9,8 @@
 
 #include <string>
 
-#include "regions/region.h"
-#include "zone.h"
+#include "pol/regions/region.h"
+#include "pol/zone.h"
 
 namespace Pol::Clib
 {

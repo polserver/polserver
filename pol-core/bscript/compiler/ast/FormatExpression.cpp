@@ -1,9 +1,9 @@
-#include "FormatExpression.h"
+#include "bscript/compiler/ast/FormatExpression.h"
 
 
 #include "clib/strutil.h"
-#include "compiler/ast/NodeVisitor.h"
-#include "compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/StringValue.h"
 
 namespace Pol::Bscript::Compiler
 {

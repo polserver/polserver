@@ -1,11 +1,11 @@
-#include "MethodCall.h"
+#include "bscript/compiler/ast/MethodCall.h"
 
 
 #include <utility>
 
 #include "bscript/compiler/ast/MethodCallArgumentList.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
-#include "compilercfg.h"
+#include "bscript/compilercfg.h"
 
 namespace Pol::Bscript::Compiler
 {

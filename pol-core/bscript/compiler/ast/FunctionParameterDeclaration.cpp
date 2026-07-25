@@ -1,4 +1,4 @@
-#include "FunctionParameterDeclaration.h"
+#include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 
 #include <utility>
 

@@ -4,18 +4,18 @@
  */
 
 
-#include "mapwriter.h"
+#include "plib/mapwriter.h"
 
 #include <fstream>
 #include <stdexcept>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/iohelp.h"
-#include "../clib/passert.h"
-#include "mapcell.h"
-#include "realmdescriptor.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/iohelp.h"
+#include "clib/passert.h"
+#include "plib/mapcell.h"
+#include "plib/realmdescriptor.h"
 
 
 namespace Pol::Plib

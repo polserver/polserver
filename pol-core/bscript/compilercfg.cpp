@@ -4,14 +4,14 @@
  */
 
 
-#include "compilercfg.h"
+#include "bscript/compilercfg.h"
 
 #include <stdlib.h>
 
-#include "../clib/Program/ProgramConfig.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
+#include "clib/Program/ProgramConfig.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
 
 
 namespace Pol::Bscript

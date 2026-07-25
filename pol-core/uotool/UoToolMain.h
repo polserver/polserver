@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../clib/Program/ProgramMain.h"
+#include "clib/Program/ProgramMain.h"
 
 
 namespace Pol::UoTool

@@ -4,7 +4,7 @@
  */
 
 #pragma once
-#include "bobject.h"
+#include "bscript/bobject.h"
 
 #include <stack>
 #include <string>

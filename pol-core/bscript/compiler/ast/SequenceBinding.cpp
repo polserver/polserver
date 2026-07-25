@@ -1,4 +1,4 @@
-#include "SequenceBinding.h"
+#include "bscript/compiler/ast/SequenceBinding.h"
 
 #include "bscript/compiler/ast/Node.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

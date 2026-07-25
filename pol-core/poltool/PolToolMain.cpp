@@ -1,23 +1,23 @@
-#include "PolToolMain.h"
+#include "poltool/PolToolMain.h"
 
 #include <fstream>
 #include <string>
 
-#include "../clib/Program/ProgramMain.h"
-#include "../clib/clib_endian.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../plib/mapcell.h"
-#include "../plib/mapfunc.h"
-#include "../plib/mapserver.h"
-#include "../plib/mapshape.h"
-#include "../plib/maptile.h"
-#include "../plib/maptileserver.h"
-#include "../plib/realmdescriptor.h"
-#include "baredistro.h"
-#include "testenv.h"
-#include "testfiles.h"
+#include "clib/Program/ProgramMain.h"
+#include "clib/clib_endian.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "plib/mapcell.h"
+#include "plib/mapfunc.h"
+#include "plib/mapserver.h"
+#include "plib/mapshape.h"
+#include "plib/maptile.h"
+#include "plib/maptileserver.h"
+#include "plib/realmdescriptor.h"
+#include "poltool/baredistro.h"
+#include "poltool/testenv.h"
+#include "poltool/testfiles.h"
 
 
 #include <zlib.h>

@@ -1,12 +1,12 @@
-#include "StoredTokenDecoder.h"
+#include "bscript/compiler/format/StoredTokenDecoder.h"
 
-#include "StoredToken.h"
+#include "bscript/StoredToken.h"
 #include "bscript/compiler/representation/DebugStore.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 #include "clib/strutil.h"
-#include "objmembers.h"
-#include "objmethods.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
 #include <algorithm>
 #include <iterator>
 

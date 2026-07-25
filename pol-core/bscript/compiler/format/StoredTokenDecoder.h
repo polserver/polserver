@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "token.h"  // for DebugToken
+#include "bscript/token.h"  // for DebugToken
 
 namespace Pol::Bscript
 {

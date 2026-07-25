@@ -1,8 +1,8 @@
 #ifndef UOTOOL_CLIENTQUERIES_STANDHEIGHT_H
 #define UOTOOL_CLIENTQUERIES_STANDHEIGHT_H
 
-#include "../../plib/uconst.h"    // MOVEMODE
-#include "../../plib/udatfile.h"  // StaticList
+#include "plib/uconst.h"    // MOVEMODE
+#include "plib/udatfile.h"  // StaticList
 
 namespace Pol::Plib
 {

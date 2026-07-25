@@ -4,7 +4,7 @@
  */
 
 
-#include "config.h"
+#include "bscript/config.h"
 
 namespace Pol::Bscript
 {

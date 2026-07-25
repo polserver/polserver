@@ -1,4 +1,4 @@
-#include "ElementAssignment.h"
+#include "bscript/compiler/ast/ElementAssignment.h"
 
 
 #include "bscript/compiler/ast/ElementIndexes.h"

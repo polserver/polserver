@@ -8,7 +8,7 @@
 #ifndef __CLIB_ENDIAN_H
 #define __CLIB_ENDIAN_H
 
-#include "rawtypes.h"
+#include "clib/rawtypes.h"
 
 #ifndef U_BIG_ENDIAN
 #define U_LITTLE_ENDIAN

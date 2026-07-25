@@ -3,10 +3,10 @@
  * @par History
  */
 
-#include "objmembers.h"
-#include "objmethods.h"
-#include "token.h"
-#include "tokens.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "bscript/token.h"
+#include "bscript/tokens.h"
 
 namespace Pol::Bscript
 {

@@ -4,11 +4,11 @@
  */
 
 
-#include "cryptengine.h"
+#include "pol/crypt/cryptengine.h"
 
-#include "../../clib/logfacility.h"
-#include "crypt.h"
-#include "cryptkey.h"
+#include "clib/logfacility.h"
+#include "pol/crypt/crypt.h"
+#include "pol/crypt/cryptkey.h"
 
 
 namespace Pol::Crypt

@@ -1,4 +1,4 @@
-#include "ECompileMain.h"
+#include "ecompile/ECompileMain.h"
 
 #include <cstdio>
 #include <exception>
@@ -12,7 +12,7 @@
 
 #include <fmt/std.h>
 
-#include "EfswFileWatchListener.h"
+#include "ecompile/EfswFileWatchListener.h"
 
 #include "bscript/compiler/Compiler.h"
 #include "bscript/compiler/Profile.h"

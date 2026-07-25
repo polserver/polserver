@@ -1,4 +1,4 @@
-#include "SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "clib/filecont.h"
 #include "clib/strutil.h"
 

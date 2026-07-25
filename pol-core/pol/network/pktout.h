@@ -20,11 +20,11 @@
 #ifndef __PKTOUTH
 #define __PKTOUTH
 
-#include "../clib/rawtypes.h"
-#include "../plib/uconst.h"
-#include "layers.h"
-#include "pktdef.h"
-#include "pktoutid.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
+#include "pol/layers.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktoutid.h"
 
 
 namespace Pol::Core

@@ -3,7 +3,7 @@
  * @par History
  */
 
-#include "sqlmod.h"
+#include "pol/module/sqlmod.h"
 #include <stddef.h>
 
 #include "bscript/barray.h"
@@ -14,10 +14,10 @@
 #include "clib/refptr.h"
 #include "clib/weakptr.h"
 
-#include "../globals/network.h"
-#include "../polsem.h"
-#include "../sqlscrobj.h"
-#include "../uoexec.h"
+#include "pol/globals/network.h"
+#include "pol/polsem.h"
+#include "pol/sqlscrobj.h"
+#include "pol/uoexec.h"
 
 #include <module_defs/sql.h>
 

@@ -5,18 +5,18 @@
  */
 
 
-#include "staticserver.h"
+#include "plib/staticserver.h"
 
 #include <string>
 
-#include "../clib/binaryfile.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/timer.h"
-#include "mapblock.h"
-#include "staticblock.h"
+#include "clib/binaryfile.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
+#include "clib/timer.h"
+#include "plib/mapblock.h"
+#include "plib/staticblock.h"
 
 
 namespace Pol::Plib

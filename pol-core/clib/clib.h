@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "pol_global_config.h"
 #include <algorithm>
 #include <fmt/format.h>
 #include <limits>
+#include <pol_global_config.h>
 #include <type_traits>
 
 #ifdef __GNUC__
@@ -20,10 +20,9 @@
 #include <string.h>
 #endif
 
-#ifndef __STDDEF_H
-#include "stddef.h"
-#endif
-#include "rawtypes.h"
+#include <stddef.h>
+
+#include "clib/rawtypes.h"
 #include <ctime>
 
 #define ms_to_clocks( ms ) ( ms * CLOCKS_PER_SEC / 1000 )

@@ -9,13 +9,13 @@
  */
 
 
-#include "msgfiltr.h"
+#include "pol/network/msgfiltr.h"
 
 #include <cstring>
 
-#include "../globals/network.h"
-#include "pktbothid.h"
-#include "pktinid.h"
+#include "pol/globals/network.h"
+#include "pol/network/pktbothid.h"
+#include "pol/network/pktinid.h"
 
 
 namespace Pol::Core

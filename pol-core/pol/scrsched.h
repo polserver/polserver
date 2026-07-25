@@ -10,8 +10,8 @@
 #include <list>
 #include <set>
 
-#include "../clib/refptr.h"
-#include "polclock.h"
+#include "clib/refptr.h"
+#include "pol/polclock.h"
 
 namespace Pol
 {

@@ -4,11 +4,11 @@
 #include "bscript/compiler/ast/Expression.h"
 
 #ifndef OBJMEMBERS_H
-#include "objmembers.h"
+#include "bscript/objmembers.h"
 #endif
 
 #ifndef __TOKENS_H
-#include "tokens.h"
+#include "bscript/tokens.h"
 #endif
 
 namespace Pol::Bscript::Compiler

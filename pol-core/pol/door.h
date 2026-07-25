@@ -8,11 +8,11 @@
 #define DOOR_H
 
 #ifndef LOCKABLE_H
-#include "lockable.h"
+#include "pol/lockable.h"
 #endif
 
 #ifndef ITEM_H
-#include "item/item.h"
+#include "pol/item/item.h"
 #endif
 
 namespace Pol

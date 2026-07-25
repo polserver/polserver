@@ -5,7 +5,7 @@
  */
 
 
-#include "armor.h"
+#include "pol/item/armor.h"
 
 #include <stddef.h>
 #include <stdexcept>
@@ -26,15 +26,15 @@
 #include "plib/systemstate.h"
 #include "plib/tiles.h"
 
-#include "../equipdsc.h"
-#include "../extobj.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../layers.h"
-#include "../syshookscript.h"
-#include "../uobject.h"
-#include "armrtmpl.h"
-#include "itemdesc.h"
+#include "pol/equipdsc.h"
+#include "pol/extobj.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/layers.h"
+#include "pol/syshookscript.h"
+#include "pol/uobject.h"
+#include "pol/item/armrtmpl.h"
+#include "pol/item/itemdesc.h"
 
 
 namespace Pol

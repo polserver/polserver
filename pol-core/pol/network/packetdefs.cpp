@@ -1,12 +1,12 @@
 
-#include "packetdefs.h"
+#include "pol/network/packetdefs.h"
 
-#include "../../clib/rawtypes.h"
-#include "../globals/settings.h"
-#include "../mobile/charactr.h"
-#include "../uobject.h"
-#include "client.h"
-#include "pktdef.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/settings.h"
+#include "pol/mobile/charactr.h"
+#include "pol/uobject.h"
+#include "pol/network/client.h"
+#include "pol/network/pktdef.h"
 
 
 namespace Pol::Network

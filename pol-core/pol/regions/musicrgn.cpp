@@ -4,13 +4,13 @@
  */
 
 
-#include "musicrgn.h"
+#include "pol/regions/musicrgn.h"
 
 #include "clib/cfgelem.h"
 #include "clib/random.h"
 #include "clib/stlutil.h"
 
-#include "globals/uvars.h"
+#include "pol/globals/uvars.h"
 
 
 namespace Pol::Core

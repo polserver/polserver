@@ -1,4 +1,4 @@
-#include "SourceFileCache.h"
+#include "bscript/compiler/file/SourceFileCache.h"
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/file/SourceFile.h"

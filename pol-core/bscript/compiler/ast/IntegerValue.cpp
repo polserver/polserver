@@ -1,4 +1,4 @@
-#include "IntegerValue.h"
+#include "bscript/compiler/ast/IntegerValue.h"
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"

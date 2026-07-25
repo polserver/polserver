@@ -1,8 +1,8 @@
 #ifndef GUILDS_H
 #define GUILDS_H
 
-#include "../clib/refptr.h"
-#include "proplist.h"
+#include "clib/refptr.h"
+#include "pol/proplist.h"
 
 namespace Pol
 {

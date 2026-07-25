@@ -29,12 +29,12 @@
 #include "clib/strutil.h"
 #include "plib/pkg.h"
 
-#include "../binaryfilescrobj.h"
-#include "../core.h"
-#include "../globals/ucfg.h"
-#include "../xmlfilescrobj.h"
-#include "fileaccess.h"
-#include "filemod.h"
+#include "pol/binaryfilescrobj.h"
+#include "pol/core.h"
+#include "pol/globals/ucfg.h"
+#include "pol/xmlfilescrobj.h"
+#include "pol/module/fileaccess.h"
+#include "pol/module/filemod.h"
 
 #include <module_defs/file.h>
 

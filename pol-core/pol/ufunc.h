@@ -15,11 +15,11 @@
 
 #include <stddef.h>
 
-#include "../clib/rawtypes.h"
-#include "../plib/uconst.h"
-#include "base/position.h"
-#include "core.h"
-#include "network/packets.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
+#include "pol/base/position.h"
+#include "pol/core.h"
+#include "pol/network/packets.h"
 
 namespace Pol
 {

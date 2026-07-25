@@ -7,7 +7,7 @@
  */
 
 
-#include "mathmod.h"
+#include "pol/module/mathmod.h"
 #include <cmath>
 #include <stdio.h>
 

@@ -1,4 +1,4 @@
-#include "VariableAssignmentStatement.h"
+#include "bscript/compiler/ast/VariableAssignmentStatement.h"
 
 
 #include "bscript/compiler/ast/Identifier.h"

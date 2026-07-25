@@ -10,16 +10,16 @@
 #include <string>
 #include <string_view>
 
-#include "../../clib/boostutils.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/maputil.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/maptile.h"
-#include "../dynproperties.h"
-#include "../globals/uvars.h"
-#include "../network/packethelper.h"
-#include "../realms/realm.h"
-#include "testenv.h"
+#include "clib/boostutils.h"
+#include "clib/logfacility.h"
+#include "clib/maputil.h"
+#include "clib/rawtypes.h"
+#include "plib/maptile.h"
+#include "pol/dynproperties.h"
+#include "pol/globals/uvars.h"
+#include "pol/network/packethelper.h"
+#include "pol/realms/realm.h"
+#include "pol/testing/testenv.h"
 
 #include <curl/curl.h>
 #include <type_traits>

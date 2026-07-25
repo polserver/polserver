@@ -4,7 +4,7 @@
  */
 
 
-#include "sqlscrobj.h"
+#include "pol/sqlscrobj.h"
 
 #include <exception>
 #include <regex>
@@ -22,7 +22,7 @@
 #include "clib/logfacility.h"
 #include "clib/threadhelp.h"
 
-#include "globals/network.h"
+#include "pol/globals/network.h"
 
 
 namespace Pol::Core

@@ -5,27 +5,27 @@
  * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
  */
 
-#include "unimod.h"
+#include "pol/module/unimod.h"
 #include <iostream>
 #include <string.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/blong.h"
-#include "../../bscript/bstring.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../accounts/account.h"
-#include "../item/item.h"
-#include "../mobile/charactr.h"
-#include "../network/cgdata.h"
-#include "../network/client.h"
-#include "../network/packethelper.h"
-#include "../network/packets.h"
-#include "../network/pktboth.h"
-#include "../network/pktdef.h"
-#include "../ufunc.h"
-#include "../uoexec.h"
-#include "uomod.h"
+#include "bscript/berror.h"
+#include "bscript/blong.h"
+#include "bscript/bstring.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "pol/accounts/account.h"
+#include "pol/item/item.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/cgdata.h"
+#include "pol/network/client.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktboth.h"
+#include "pol/network/pktdef.h"
+#include "pol/ufunc.h"
+#include "pol/uoexec.h"
+#include "pol/module/uomod.h"
 
 #include <module_defs/unicode.h>
 

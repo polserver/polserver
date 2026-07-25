@@ -4,7 +4,7 @@
  * - 2009/09/14 MuadDib:   CreateItem() now has slot support.
  */
 
-#include "npcmod.h"
+#include "pol/module/npcmod.h"
 #include <iostream>
 #include <stddef.h>
 #include <string>
@@ -21,20 +21,20 @@
 #include "plib/objtype.h"
 #include "plib/poltype.h"
 
-#include "../containr.h"
-#include "../item/item.h"
-#include "../mobile/boundbox.h"
-#include "../mobile/charactr.h"
-#include "../mobile/npc.h"
-#include "../mobile/ufacing.h"
-#include "../network/packethelper.h"
-#include "../network/packets.h"
-#include "../network/pktdef.h"
-#include "../polobject.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "osmod.h"
-#include "unimod.h"
+#include "pol/containr.h"
+#include "pol/item/item.h"
+#include "pol/mobile/boundbox.h"
+#include "pol/mobile/charactr.h"
+#include "pol/mobile/npc.h"
+#include "pol/mobile/ufacing.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/network/pktdef.h"
+#include "pol/polobject.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
+#include "pol/module/osmod.h"
+#include "pol/module/unimod.h"
 
 #include <module_defs/npc.h>
 

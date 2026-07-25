@@ -1,4 +1,4 @@
-#include "ClassBody.h"
+#include "bscript/compiler/ast/ClassBody.h"
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 

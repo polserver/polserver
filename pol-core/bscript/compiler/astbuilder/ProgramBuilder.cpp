@@ -1,4 +1,4 @@
-#include "ProgramBuilder.h"
+#include "bscript/compiler/astbuilder/ProgramBuilder.h"
 
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/Program.h"

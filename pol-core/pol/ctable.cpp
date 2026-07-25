@@ -4,7 +4,7 @@
  */
 
 
-#include "ctable.h"
+#include "pol/ctable.h"
 
 
 namespace Pol::Core

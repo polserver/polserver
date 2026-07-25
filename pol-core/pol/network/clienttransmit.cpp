@@ -1,10 +1,10 @@
-#include "clienttransmit.h"
+#include "pol/network/clienttransmit.h"
 
-#include "../../clib/esignal.h"
-#include "../../clib/rawtypes.h"
-#include "../globals/network.h"
-#include "../polsem.h"
-#include "client.h"
+#include "clib/esignal.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/network.h"
+#include "pol/polsem.h"
+#include "pol/network/client.h"
 
 
 namespace Pol::Network

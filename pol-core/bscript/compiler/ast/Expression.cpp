@@ -1,4 +1,4 @@
-#include "Expression.h"
+#include "bscript/compiler/ast/Expression.h"
 
 namespace Pol::Bscript::Compiler
 {

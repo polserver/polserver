@@ -1,4 +1,4 @@
-#include "BinaryOperatorShortCircuitOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h"
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/BinaryOperator.h"

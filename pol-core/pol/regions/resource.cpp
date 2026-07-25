@@ -5,7 +5,7 @@
  */
 
 
-#include "resource.h"
+#include "pol/regions/resource.h"
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
@@ -20,12 +20,12 @@
 #include "plib/maptile.h"
 #include "plib/systemstate.h"
 
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
-#include "polclock.h"
-#include "polsig.h"
-#include "realms/realm.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/polclock.h"
+#include "pol/polsig.h"
+#include "pol/realms/realm.h"
 
 
 namespace Pol::Core

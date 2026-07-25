@@ -1,4 +1,4 @@
-#include "BinaryOperatorWithStringOptimizer.h"
+#include "bscript/compiler/optimizer/BinaryOperatorWithStringOptimizer.h"
 
 #include "bscript/bdouble.h"
 #include "bscript/bobject.h"

@@ -1,4 +1,4 @@
-#include "DictionaryInitializer.h"
+#include "bscript/compiler/ast/DictionaryInitializer.h"
 
 
 #include "bscript/compiler/ast/DictionaryEntry.h"

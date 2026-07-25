@@ -1,4 +1,4 @@
-#include "GeneratedFunctionBuilder.h"
+#include "bscript/compiler/astbuilder/GeneratedFunctionBuilder.h"
 
 #include <list>
 #include <ranges>

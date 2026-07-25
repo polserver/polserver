@@ -3,9 +3,9 @@
  * @par History
  */
 
-#include "../../clib/logfacility.h"
-#include "../../plib/maptile.h"
-#include "testenv.h"
+#include "clib/logfacility.h"
+#include "plib/maptile.h"
+#include "pol/testing/testenv.h"
 
 
 namespace Pol::Testing

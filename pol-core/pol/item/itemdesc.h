@@ -11,14 +11,14 @@
 #include <string>
 #include <vector>
 
-#include "../../clib/boostutils.h"
-#include "../../clib/rawtypes.h"
-#include "../dice.h"
-#include "../proplist.h"
-#include "../scrdef.h"
-#include "../uobject.h"
-#include "base/range.h"
-#include "base/vector.h"
+#include "clib/boostutils.h"
+#include "clib/rawtypes.h"
+#include "pol/dice.h"
+#include "pol/proplist.h"
+#include "pol/scrdef.h"
+#include "pol/uobject.h"
+#include "pol/base/range.h"
+#include "pol/base/vector.h"
 
 namespace Pol
 {

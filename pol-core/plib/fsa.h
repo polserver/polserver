@@ -24,7 +24,7 @@
 #ifndef FSA_H
 #define FSA_H
 
-#include "../clib/logfacility.h"
+#include "clib/logfacility.h"
 #include <stdio.h>
 #include <string>
 

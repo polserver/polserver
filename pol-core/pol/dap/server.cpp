@@ -1,11 +1,11 @@
-#include "server.h"
+#include "pol/dap/server.h"
 
-#include "clientthread.h"
+#include "pol/dap/clientthread.h"
 
-#include "../../clib/logfacility.h"
-#include "../../clib/threadhelp.h"
-#include "../../plib/systemstate.h"
-#include "../globals/network.h"
+#include "clib/logfacility.h"
+#include "clib/threadhelp.h"
+#include "plib/systemstate.h"
+#include "pol/globals/network.h"
 
 #include <dap/network.h>
 

@@ -10,9 +10,9 @@
 
 #include <string>
 
-#include "../action.h"
-#include "../dice.h"
-#include "../equipdsc.h"
+#include "pol/action.h"
+#include "pol/dice.h"
+#include "pol/equipdsc.h"
 
 namespace Pol
 {

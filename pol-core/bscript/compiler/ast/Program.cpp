@@ -1,4 +1,4 @@
-#include "Program.h"
+#include "bscript/compiler/ast/Program.h"
 
 
 #include "bscript/compiler/ast/FunctionBody.h"

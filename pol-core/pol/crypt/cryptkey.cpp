@@ -14,12 +14,12 @@
 **
 *********************************************************************/
 
-#include "cryptkey.h"
+#include "pol/crypt/cryptkey.h"
 
 #include <cstring>
 
-#include "../../clib/clib.h"
-#include "../../clib/logfacility.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
 
 
 namespace Pol::Crypt

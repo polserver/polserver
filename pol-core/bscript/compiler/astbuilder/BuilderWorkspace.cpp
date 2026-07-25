@@ -1,4 +1,4 @@
-#include "BuilderWorkspace.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/file/SourceFile.h"

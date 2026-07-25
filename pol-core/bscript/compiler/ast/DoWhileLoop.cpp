@@ -1,4 +1,4 @@
-#include "DoWhileLoop.h"
+#include "bscript/compiler/ast/DoWhileLoop.h"
 
 
 #include "bscript/compiler/ast/Block.h"

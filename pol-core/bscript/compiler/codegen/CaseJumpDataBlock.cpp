@@ -1,6 +1,6 @@
-#include "CaseJumpDataBlock.h"
+#include "bscript/compiler/codegen/CaseJumpDataBlock.h"
 
-#include "tokens.h"
+#include "bscript/tokens.h"
 
 namespace Pol::Bscript::Compiler
 {

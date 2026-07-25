@@ -8,22 +8,22 @@
  */
 
 
-#include "account.h"
+#include "pol/accounts/account.h"
 
 #include <cstring>
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib_MD5.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/streamsaver.h"
-#include "../../plib/systemstate.h"
-#include "../cmdlevel.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../mobile/charactr.h"
-#include "../network/client.h"
-#include "../uobject.h"
+#include "clib/cfgelem.h"
+#include "clib/clib_MD5.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "clib/streamsaver.h"
+#include "plib/systemstate.h"
+#include "pol/cmdlevel.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/uobject.h"
 
 
 namespace Pol::Accounts

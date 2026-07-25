@@ -13,7 +13,7 @@
 #include "clib/rawtypes.h"
 #include "clib/weakptr.h"
 
-#include "polobject.h"
+#include "pol/polobject.h"
 
 #include <memory>
 

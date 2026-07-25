@@ -1,4 +1,4 @@
-#include "partyscrobj.h"
+#include "pol/partyscrobj.h"
 
 #include <stddef.h>
 
@@ -13,14 +13,14 @@
 #include "bscript/objmethods.h"
 #include "clib/stlutil.h"
 
-#include "clfunc.h"
-#include "fnsearch.h"
-#include "globals/uvars.h"
-#include "module/polsystemmod.h"
-#include "module/uomod.h"
-#include "party.h"
-#include "uoexec.h"
-#include "uoscrobj.h"
+#include "pol/clfunc.h"
+#include "pol/fnsearch.h"
+#include "pol/globals/uvars.h"
+#include "pol/module/polsystemmod.h"
+#include "pol/module/uomod.h"
+#include "pol/party.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
 
 
 namespace Pol::Module

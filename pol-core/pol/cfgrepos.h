@@ -11,16 +11,16 @@
 #ifndef CFGREPOS_H
 #define CFGREPOS_H
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <map>
 #include <string>
 #include <time.h>
 #include <utility>
 
-#include "../clib/boostutils.h"
-#include "../clib/maputil.h"
-#include "../clib/refptr.h"
+#include "clib/boostutils.h"
+#include "clib/maputil.h"
+#include "clib/refptr.h"
 
 namespace Pol
 {

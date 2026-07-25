@@ -4,8 +4,8 @@
  */
 
 
-#include "Header_Windows.h"
-#include "clib.h"
+#include "clib/Header_Windows.h"
+#include "clib/clib.h"
 #include <stdio.h>
 
 namespace Pol

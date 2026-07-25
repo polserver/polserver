@@ -7,7 +7,7 @@
  */
 
 
-#include "loadunld.h"
+#include "pol/loadunld.h"
 
 #include <string>
 
@@ -16,19 +16,19 @@
 #include "plib/systemstate.h"
 #include "plib/tiles.h"
 
-#include "checkpnt.h"
-#include "cmbtcfg.h"
-#include "console.h"
-#include "core.h"
-#include "extobj.h"
-#include "globals/multidefs.h"
-#include "globals/settings.h"
-#include "globals/uvars.h"
-#include "item/equipmnt.h"
-#include "item/itemdesc.h"
-#include "landtile.h"
-#include "mobile/attribute.h"
-#include "multi/multidef.h"
+#include "pol/checkpnt.h"
+#include "pol/cmbtcfg.h"
+#include "pol/console.h"
+#include "pol/core.h"
+#include "pol/extobj.h"
+#include "pol/globals/multidefs.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/equipmnt.h"
+#include "pol/item/itemdesc.h"
+#include "pol/landtile.h"
+#include "pol/mobile/attribute.h"
+#include "pol/multi/multidef.h"
 #include "plib/objtype.h"
 
 namespace Pol

@@ -1,4 +1,4 @@
-#include "FunctionVariableScope.h"
+#include "bscript/compiler/analyzer/FunctionVariableScope.h"
 
 #include "bscript/compiler/analyzer/Variables.h"
 

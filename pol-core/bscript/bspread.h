@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bobject.h"
-#include "bobjectimp.h"
+#include "bscript/bobject.h"
+#include "bscript/bobjectimp.h"
 
 namespace Pol::Bscript
 {

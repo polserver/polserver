@@ -10,10 +10,10 @@
 #include <map>
 #include <string>
 
-#include "../plib/poltype.h"
-#include "base/position.h"
-#include "proplist.h"
-#include "zone.h"
+#include "plib/poltype.h"
+#include "pol/base/position.h"
+#include "pol/proplist.h"
+#include "pol/zone.h"
 
 namespace Pol
 {

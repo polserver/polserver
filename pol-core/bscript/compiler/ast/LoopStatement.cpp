@@ -1,4 +1,4 @@
-#include "LoopStatement.h"
+#include "bscript/compiler/ast/LoopStatement.h"
 
 #include "bscript/compiler/model/FlowControlLabel.h"
 

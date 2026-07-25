@@ -12,8 +12,8 @@
 #include <string>
 #include <vector>
 
-#include "../clib/boostutils.h"
-#include "../clib/maputil.h"
+#include "clib/boostutils.h"
+#include "clib/maputil.h"
 
 
 namespace Pol::Bscript

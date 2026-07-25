@@ -7,17 +7,17 @@
  */
 
 
-#include "passert.h"
+#include "clib/passert.h"
 
-#include "Debugging/ExceptionParser.h"
-#include "esignal.h"
-#include "logfacility.h"
-#include "stlutil.h"
-#include "strutil.h"
+#include "clib/Debugging/ExceptionParser.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "clib/stlutil.h"
+#include "clib/strutil.h"
 
 #ifdef WINDOWS
-#include "Header_Windows.h"
-#include "mdumpimp.h"
+#include "clib/Header_Windows.h"
+#include "clib/mdumpimp.h"
 #else
 #include <cstdlib>
 #endif

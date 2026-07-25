@@ -3,11 +3,11 @@
  * @par History
  */
 
-#include "../../clib/logfacility.h"
-#include "../../plib/uconst.h"
-#include "../globals/uvars.h"
-#include "../realms/realm.h"
-#include "testenv.h"
+#include "clib/logfacility.h"
+#include "plib/uconst.h"
+#include "pol/globals/uvars.h"
+#include "pol/realms/realm.h"
+#include "pol/testing/testenv.h"
 
 
 namespace Pol::Testing

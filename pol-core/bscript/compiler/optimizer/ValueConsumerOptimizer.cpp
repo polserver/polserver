@@ -1,6 +1,6 @@
-#include "ValueConsumerOptimizer.h"
+#include "bscript/compiler/optimizer/ValueConsumerOptimizer.h"
 
-#include "tokens.h"
+#include "bscript/tokens.h"
 
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/ElementAssignment.h"

@@ -8,7 +8,7 @@
 #define ZONE_H
 #include <vector>
 
-#include "base/position.h"
+#include "pol/base/position.h"
 
 namespace Pol
 {

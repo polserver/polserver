@@ -10,13 +10,13 @@
 
 #include <stdlib.h>
 
-#include "mapqueries.h"
+#include "uotool/clientqueries/mapqueries.h"
 
-#include "../../clib/passert.h"
-#include "../../plib/clidata.h"
-#include "../../plib/clientfiles/uoclientfiles.h"
-#include "../../plib/poltype.h"
-#include "../../plib/ustruct.h"
+#include "clib/passert.h"
+#include "plib/clidata.h"
+#include "plib/clientfiles/uoclientfiles.h"
+#include "plib/poltype.h"
+#include "plib/ustruct.h"
 
 
 namespace Pol::UoTool

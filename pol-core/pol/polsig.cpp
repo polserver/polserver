@@ -5,15 +5,15 @@
  */
 
 
-#include "polsig.h"
+#include "pol/polsig.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../clib/esignal.h"
-#include "../clib/logfacility.h"
-#include "../clib/threadhelp.h"
-#include "globals/state.h"
+#include "clib/esignal.h"
+#include "clib/logfacility.h"
+#include "clib/threadhelp.h"
+#include "pol/globals/state.h"
 
 #ifndef _WIN32
 #include <signal.h>

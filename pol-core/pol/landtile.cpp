@@ -5,17 +5,17 @@
  */
 
 
-#include "landtile.h"
+#include "pol/landtile.h"
 
 #include <stddef.h>
 
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../plib/clidata.h"
-#include "../plib/mapfunc.h"
-#include "../plib/pkg.h"
-#include "globals/uvars.h"
+#include "clib/cfgelem.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "plib/clidata.h"
+#include "plib/mapfunc.h"
+#include "plib/pkg.h"
+#include "pol/globals/uvars.h"
 
 
 namespace Pol::Core

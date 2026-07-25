@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../clib/fixalloc.h"
-#include "../clib/refptr.h"
-#include "bobjectimp.h"
+#include "clib/fixalloc.h"
+#include "clib/refptr.h"
+#include "bscript/bobjectimp.h"
 
 #include <string>
 

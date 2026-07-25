@@ -9,21 +9,21 @@
 
 #include <cstdio>
 
-#include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../plib/systemstate.h"
-#include "item/item.h"
-#include "layers.h"
-#include "mobile/charactr.h"
-#include "multi/multi.h"
-#include "network/client.h"
-#include "network/pktdef.h"
-#include "network/pktin.h"
-#include "realms/realm.h"
-#include "reftypes.h"
-#include "systems/suspiciousacts.h"
-#include "ufunc.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "plib/systemstate.h"
+#include "pol/item/item.h"
+#include "pol/layers.h"
+#include "pol/mobile/charactr.h"
+#include "pol/multi/multi.h"
+#include "pol/network/client.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktin.h"
+#include "pol/realms/realm.h"
+#include "pol/reftypes.h"
+#include "pol/systems/suspiciousacts.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core

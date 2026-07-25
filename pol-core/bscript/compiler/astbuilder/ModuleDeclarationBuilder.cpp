@@ -1,4 +1,4 @@
-#include "ModuleDeclarationBuilder.h"
+#include "bscript/compiler/astbuilder/ModuleDeclarationBuilder.h"
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"

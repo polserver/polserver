@@ -1,4 +1,4 @@
-#include "Value.h"
+#include "bscript/compiler/ast/Value.h"
 
 namespace Pol::Bscript::Compiler
 {

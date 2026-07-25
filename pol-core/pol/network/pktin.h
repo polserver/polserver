@@ -15,11 +15,11 @@
 #ifndef __PKTINH
 #define __PKTINH
 
-#include "../clib/rawtypes.h"
-#include "../plib/uconst.h"
-#include "layers.h"
-#include "pktdef.h"
-#include "pktinid.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
+#include "pol/layers.h"
+#include "pol/network/pktdef.h"
+#include "pol/network/pktinid.h"
 
 
 namespace Pol::Core

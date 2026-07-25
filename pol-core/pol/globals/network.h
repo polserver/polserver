@@ -1,18 +1,18 @@
 #ifndef GLOBALS_NETWORK_H
 #define GLOBALS_NETWORK_H
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <array>
 #include <memory>
 #include <vector>
 
-#include "../network/bannedips.h"
-#include "../network/iostats.h"
-#include "../network/msghandl.h"
-#include "../network/sockio.h"
-#include "../polstats.h"
-#include "../uoclient.h"
+#include "pol/network/bannedips.h"
+#include "pol/network/iostats.h"
+#include "pol/network/msghandl.h"
+#include "pol/network/sockio.h"
+#include "pol/polstats.h"
+#include "pol/uoclient.h"
 
 namespace Pol
 {

@@ -4,12 +4,12 @@
  */
 
 
-#include "scrdef.h"
+#include "pol/scrdef.h"
 
-#include "../bscript/escrutil.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../plib/pkg.h"
+#include "bscript/escrutil.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "plib/pkg.h"
 
 
 namespace Pol::Core

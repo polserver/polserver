@@ -30,12 +30,12 @@
 #ifndef H_UOMOD_H
 #define H_UOMOD_H
 
-#include "base/range.h"
+#include "pol/base/range.h"
 #include "clib/rawtypes.h"
-#include "network/packethelper.h"
+#include "pol/network/packethelper.h"
 #include "plib/poltype.h"
-#include "polmodl.h"
-#include "reftypes.h"
+#include "pol/polmodl.h"
+#include "pol/reftypes.h"
 
 
 namespace Pol::Bscript

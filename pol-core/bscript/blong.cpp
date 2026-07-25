@@ -4,17 +4,17 @@
  */
 
 
-#include "blong.h"
+#include "bscript/blong.h"
 
 #include <fmt/compile.h>
 #include <iterator>
 #include <string>
 
-#include "bboolean.h"
-#include "bdouble.h"
-#include "berror.h"
-#include "bobject.h"
-#include "bstring.h"
+#include "bscript/bboolean.h"
+#include "bscript/bdouble.h"
+#include "bscript/berror.h"
+#include "bscript/bobject.h"
+#include "bscript/bstring.h"
 
 
 namespace Pol::Bscript

@@ -2,8 +2,8 @@
 #ifndef H_POLLINGWITHPOLL
 #define H_POLLINGWITHPOLL
 
-#include "../../passert.h"
-#include "../sockets.h"
+#include "clib/passert.h"
+#include "clib/network/sockets.h"
 
 #ifdef _WIN32
 

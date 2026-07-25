@@ -4,26 +4,26 @@
  */
 
 
-#include "testenv.h"
+#include "pol/testing/testenv.h"
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #ifdef ENABLE_BENCHMARK
-#include "../module/uomod.h"
-#include "../scrsched.h"
-#include "../uoexec.h"
-#include "../uoscrobj.h"
+#include "pol/module/uomod.h"
+#include "pol/scrsched.h"
+#include "pol/uoexec.h"
+#include "pol/uoscrobj.h"
 #include <benchmark/benchmark.h>
 #endif
 
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../los.h"
-#include "../mobile/npc.h"
-#include "../realms/realm.h"
-#include "../uobject.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+#include "pol/globals/uvars.h"
+#include "pol/item/item.h"
+#include "pol/los.h"
+#include "pol/mobile/npc.h"
+#include "pol/realms/realm.h"
+#include "pol/uobject.h"
 
 
 namespace Pol::Testing

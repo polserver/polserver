@@ -1,4 +1,4 @@
-#include "BindingStatement.h"
+#include "bscript/compiler/ast/BindingStatement.h"
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

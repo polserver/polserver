@@ -1,4 +1,4 @@
-#include "bapplicobj.h"
+#include "bscript/bapplicobj.h"
 
 #include <fmt/format.h>
 

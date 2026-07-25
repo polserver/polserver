@@ -1,4 +1,4 @@
-#include "DebugBlock.h"
+#include "bscript/compiler/representation/DebugBlock.h"
 
 namespace Pol::Bscript::Compiler
 {

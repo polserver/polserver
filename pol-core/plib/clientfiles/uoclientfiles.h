@@ -7,14 +7,14 @@
 #include <span>
 #include <vector>
 
-#include "../clidata.h"
-#include "../uconst.h"
-#include "../udatfile.h"
-#include "../ustruct.h"
-#include "RawMap.h"
+#include "plib/clidata.h"
+#include "plib/uconst.h"
+#include "plib/udatfile.h"
+#include "plib/ustruct.h"
+#include "plib/clientfiles/RawMap.h"
 #include "clib/rawtypes.h"
-#include "staticscache.h"
-#include "tiledatacache.h"
+#include "plib/clientfiles/staticscache.h"
+#include "plib/clientfiles/tiledatacache.h"
 
 namespace Pol::Plib
 {

@@ -1,4 +1,4 @@
-#include "ConstructorDescriptor.h"
+#include "bscript/compiler/representation/ConstructorDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

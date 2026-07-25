@@ -5,24 +5,24 @@
  */
 
 
-#include "cgdata.h"
+#include "pol/network/cgdata.h"
 
 #include <cstddef>
 
-#include "../../clib/stlutil.h"
-#include "../containr.h"
-#include "../fnsearch.h"
-#include "../menu.h"
-#include "../mobile/npc.h"
-#include "../module/unimod.h"
-#include "../module/uomod.h"
-#include "../multi/customhouses.h"
-#include "../multi/house.h"
-#include "../multi/multi.h"
-#include "../plib/systemstate.h"
-#include "../target.h"
-#include "../uoexec.h"
-#include "pktin.h"
+#include "clib/stlutil.h"
+#include "pol/containr.h"
+#include "pol/fnsearch.h"
+#include "pol/menu.h"
+#include "pol/mobile/npc.h"
+#include "pol/module/unimod.h"
+#include "pol/module/uomod.h"
+#include "pol/multi/customhouses.h"
+#include "pol/multi/house.h"
+#include "pol/multi/multi.h"
+#include "plib/systemstate.h"
+#include "pol/target.h"
+#include "pol/uoexec.h"
+#include "pol/network/pktin.h"
 
 
 namespace Pol::Network

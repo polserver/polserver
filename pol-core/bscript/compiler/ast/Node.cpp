@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "bscript/compiler/ast/Node.h"
 
 
 namespace Pol::Bscript::Compiler

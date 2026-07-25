@@ -9,8 +9,8 @@
 
 #include <vector>
 
-#include "mapsolid.h"
-#include "realmdescriptor.h"
+#include "plib/mapsolid.h"
+#include "plib/realmdescriptor.h"
 
 
 namespace Pol::Plib

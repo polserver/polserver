@@ -8,7 +8,7 @@
  */
 
 
-#include "accounts.h"
+#include "pol/accounts/accounts.h"
 
 #include <iosfwd>
 #include <stdio.h>
@@ -16,19 +16,19 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "../../clib/Debugging/ExceptionParser.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/clib.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/streamsaver.h"
-#include "../../clib/timer.h"
-#include "../../plib/systemstate.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../polsig.h"
-#include "account.h"
+#include "clib/Debugging/ExceptionParser.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/clib.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/streamsaver.h"
+#include "clib/timer.h"
+#include "plib/systemstate.h"
+#include "pol/globals/state.h"
+#include "pol/globals/uvars.h"
+#include "pol/polsig.h"
+#include "pol/accounts/account.h"
 
 
 namespace Pol::Accounts

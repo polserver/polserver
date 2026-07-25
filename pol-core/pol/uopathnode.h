@@ -9,10 +9,11 @@
 // AStar search class
 #include "clib/clib.h"
 #include "plib/stlastar.h"
-#include "realms/realm.h"
+#include "pol/realms/realm.h"
 
-#include "base/position.h"
-#include "base/vector.h"
+#include "pol/base/position.h"
+#include "pol/base/vector.h"
+#include "pol/globals/settings.h"
 
 
 namespace Pol::Core
@@ -84,10 +85,10 @@ private:
   Pos3d pos;
 };
 
-UOPathState::UOPathState() : params( nullptr ), pos(){};
+UOPathState::UOPathState() : params( nullptr ), pos() {};
 
 UOPathState::UOPathState( Pos3d p, AStarParams* astarparams )
-    : params( astarparams ), pos( std::move( p ) ){};
+    : params( astarparams ), pos( std::move( p ) ) {};
 
 bool UOPathState::IsSameState( const UOPathState& rhs ) const
 {

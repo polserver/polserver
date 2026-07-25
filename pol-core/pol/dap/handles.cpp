@@ -1,8 +1,8 @@
-#include "handles.h"
+#include "pol/dap/handles.h"
 
-#include "../../bscript/buninit.h"
-#include "../../bscript/eprog.h"
-#include "../uoexec.h"
+#include "bscript/buninit.h"
+#include "bscript/eprog.h"
+#include "pol/uoexec.h"
 
 
 namespace Pol::Network::DAP

@@ -1,4 +1,4 @@
-#include "BooleanValue.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 
 #include <fmt/format.h>
 

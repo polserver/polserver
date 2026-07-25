@@ -14,7 +14,7 @@
  */
 
 
-#include "packetscrobj.h"
+#include "pol/packetscrobj.h"
 
 #include <iomanip>
 #include <stddef.h>
@@ -29,15 +29,15 @@
 #include "clib/clib_endian.h"
 #include "clib/strutil.h"
 
-#include "base/position.h"
-#include "globals/network.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/clienttransmit.h"
-#include "realms/realm.h"
-#include "realms/realms.h"
-#include "uoexec.h"
-#include "uworld.h"
+#include "pol/base/position.h"
+#include "pol/globals/network.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/clienttransmit.h"
+#include "pol/realms/realm.h"
+#include "pol/realms/realms.h"
+#include "pol/uoexec.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Core

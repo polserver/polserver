@@ -23,10 +23,10 @@
 #include "plib/uconst.h"
 #include "plib/udatfile.h"
 
-#include "base/position.h"
-#include "base/range.h"
-#include "realms/WorldChangeReasons.h"
-#include "zone.h"
+#include "pol/base/position.h"
+#include "pol/base/range.h"
+#include "pol/realms/WorldChangeReasons.h"
+#include "pol/zone.h"
 
 namespace Pol
 {

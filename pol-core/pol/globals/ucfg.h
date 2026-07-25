@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
-#include "../../clib/maputil.h"
-#include "../../clib/refptr.h"
-#include "../module/fileaccess.h"
+#include "clib/maputil.h"
+#include "clib/refptr.h"
+#include "pol/module/fileaccess.h"
 
 namespace Pol
 {

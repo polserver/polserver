@@ -14,14 +14,14 @@
 
 #pragma once
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
 
 #ifdef MEMORYLEAK
-#include "logfacility.h"
+#include "clib/logfacility.h"
 #endif
 
 namespace Pol::Clib

@@ -7,16 +7,16 @@
  */
 
 
-#include "../clib/rawtypes.h"
-#include "containr.h"
-#include "item/item.h"
-#include "menu.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "tooltips.h"
-#include "ufunc.h"
+#include "clib/rawtypes.h"
+#include "pol/containr.h"
+#include "pol/item/item.h"
+#include "pol/menu.h"
+#include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
+#include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
+#include "pol/tooltips.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core
