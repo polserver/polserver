@@ -58,28 +58,28 @@ exported function test_customhouse_addpart( resources )
   if ( multi.house_parts.size() != PARTS )
     return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
   endif
-  if ( find_part( multi, 0x1, 1, 2, 0 ) )
+  if ( find_part( multi, 0x1, 1, -2, 0 ) )
     return ret_error( "part already exists" );
   endif
-  var ret := multi.addhousepart( 0x1, 1, 2, 0 );
+  var ret := multi.addhousepart( 0x1, 1, -2, 0 );
   if ( !ret )
     return ret_error( $"addhousepart failed: {ret}" );
   endif
   if ( multi.house_parts.size() != PARTS + 1 )
     return ret_error( $"expected {PARTS}+1 parts got {len( multi.house_parts )}" );
   endif
-  if ( !find_part( multi, 0x1, 1, 2, 0 ) )
+  if ( !find_part( multi, 0x1, 1, -2, 0 ) )
     return ret_error( "part wasnt added" );
   endif
 
-  ret := multi.erasehousepart( 0x1, 1, 2, 0 );
+  ret := multi.erasehousepart( 0x1, 1, -2, 0 );
   if ( !ret )
     return ret_error( $"erasehousepart failed: {ret}" );
   endif
   if ( multi.house_parts.size() != PARTS )
     return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
   endif
-  if ( find_part( multi, 0x1, 1, 2, 0 ) )
+  if ( find_part( multi, 0x1, 1, -2, 0 ) )
     return ret_error( "part wasnt deleted" );
   endif
   return 1;
@@ -94,10 +94,10 @@ exported function test_customhouse_addparts( resources )
   if ( multi.house_parts.size() != PARTS )
     return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
   endif
-  if ( find_part( multi, 0x1, 1, 2, 0 ) || find_part( multi, 0x1, 1, 2, 5 ) )
+  if ( find_part( multi, 0x1, 1, -2, 0 ) || find_part( multi, 0x1, 1, 2, 5 ) )
     return ret_error( "parts already exists" );
   endif
-  var ret := multi.addhousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 0 },
+  var ret := multi.addhousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := -2, z := 0 },
                                    struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 5 }
                                  } );
   if ( !ret )
@@ -106,11 +106,11 @@ exported function test_customhouse_addparts( resources )
   if ( multi.house_parts.size() != PARTS + 2 )
     return ret_error( $"expected {PARTS}+2 parts got {len( multi.house_parts )}" );
   endif
-  if ( !find_part( multi, 0x1, 1, 2, 0 ) || !find_part( multi, 0x1, 1, 2, 5 ) )
+  if ( !find_part( multi, 0x1, 1, -2, 0 ) || !find_part( multi, 0x1, 1, 2, 5 ) )
     return ret_error( "part wasnt added" );
   endif
 
-  ret := multi.erasehousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 0 },
+  ret := multi.erasehousepart( { struct{ graphic := 0x1, xoffset := 1, yoffset := -2, z := 0 },
                                  struct{ graphic := 0x1, xoffset := 1, yoffset := 2, z := 5 }
                                } );
   if ( !ret )
@@ -119,7 +119,7 @@ exported function test_customhouse_addparts( resources )
   if ( multi.house_parts.size() != PARTS )
     return ret_error( $"expected {PARTS} parts got {len( multi.house_parts )}" );
   endif
-  if ( find_part( multi, 0x1, 1, 2, 0 ) || find_part( multi, 0x1, 1, 2, 5 ) )
+  if ( find_part( multi, 0x1, 1, -2, 0 ) || find_part( multi, 0x1, 1, 2, 5 ) )
     return ret_error( "part wasnt deleted" );
   endif
   return 1;
