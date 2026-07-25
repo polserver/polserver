@@ -1,8 +1,5 @@
 function(set_compile_flags target is_executable)
   message("* ${target}")
-  target_include_directories(${target}  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR} #own folder
-  )
 
   target_compile_definitions(${target} PRIVATE
     INC_PASSERT=1
