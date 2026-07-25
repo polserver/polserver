@@ -91,6 +91,8 @@ All config files live in `config/` and are parsed through the same `Clib::Config
 
 String values in `servspecopt.cfg` are whitespace-trimmed unless quoted (e.g. `Key=" "`); a present-but-empty value (`Key=`) yields an empty string, distinct from the compiled default.
 
+A new flag is a user-visible change, so also add a changelog entry — see **Conventions** below.
+
 ## Conventions
 
 - User-visible changes need a changelog entry. Edit the **source** file `pol-core/doc/core-changes.txt` (add your entry at the top of the current `-- POLxxx --` version block, same format as existing entries), then regenerate the derived XML with `python doctools/buildcorechanges.py` — it rewrites `docs/docs.polserver.com/pol100/corechanges.xml` (including its `datemodified`). **Do not hand-edit `corechanges.xml`; it is generated, not authored.** Commit both files.
