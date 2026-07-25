@@ -1,7 +1,7 @@
 #ifndef GLOBALS_NETWORK_H
 #define GLOBALS_NETWORK_H
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <array>
 #include <memory>

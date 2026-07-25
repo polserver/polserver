@@ -5,7 +5,7 @@
  */
 
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "pol/network/auxclient.h"
 
@@ -180,7 +180,7 @@ void AuxClientThread::run()
   {
     if ( _sck.connected() )
     {
-      _sck.writeline("Connection closed" );
+      _sck.writeline( "Connection closed" );
       _sck.close();
     }
     _auxconnection.clear();

@@ -79,7 +79,7 @@
  */
 
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "pol/mobile/charactr.h"
 
@@ -128,6 +128,10 @@
 #include "pol/item/wepntmpl.h"
 #include "pol/layers.h"
 #include "pol/mkscrobj.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/corpse.h"
+#include "pol/mobile/privupdater.h"
+#include "pol/mobile/wornitems.h"
 #include "pol/module/uomod.h"
 #include "pol/movecost.h"
 #include "pol/multi/customhouses.h"
@@ -148,6 +152,9 @@
 #include "pol/profile.h"
 #include "pol/realms/WorldChangeReasons.h"
 #include "pol/realms/realm.h"
+#include "pol/regions/guardrgn.h"
+#include "pol/regions/miscrgn.h"
+#include "pol/regions/musicrgn.h"
 #include "pol/schedule.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
@@ -165,13 +172,6 @@
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
 #include "pol/vital.h"
-#include "pol/mobile/attribute.h"
-#include "pol/mobile/corpse.h"
-#include "pol/mobile/privupdater.h"
-#include "pol/regions/guardrgn.h"
-#include "pol/regions/miscrgn.h"
-#include "pol/regions/musicrgn.h"
-#include "pol/mobile/wornitems.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4505 )  // unreferenced local function has been removed

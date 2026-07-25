@@ -7,7 +7,7 @@
 #include "clib/Debugging/ExceptionParser.h"
 #include "clib/Program/ProgramConfig.h"
 #include "clib/logfacility.h"
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #ifdef ENABLE_BENCHMARK
 #include <benchmark/benchmark.h>

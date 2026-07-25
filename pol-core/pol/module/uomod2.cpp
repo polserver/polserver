@@ -30,7 +30,7 @@
     UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
     */
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <ctype.h>
 #include <optional>

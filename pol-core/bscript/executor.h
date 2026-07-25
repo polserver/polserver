@@ -8,7 +8,7 @@
 #ifndef __EXECUTOR_H
 #define __EXECUTOR_H
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "bscript/bobject.h"
 #include "bscript/exectype.h"
@@ -22,12 +22,12 @@
 #include <utility>
 #include <vector>
 
-#include "clib/refptr.h"
-#include "clib/spinlock.h"
 #include "bscript/bapplicobj.h"
 #include "bscript/bobject.h"
 #include "bscript/eprog.h"
 #include "bscript/executortype.h"
+#include "clib/refptr.h"
+#include "clib/spinlock.h"
 
 #ifdef ESCRIPT_PROFILE
 #include "clib/timer.h"

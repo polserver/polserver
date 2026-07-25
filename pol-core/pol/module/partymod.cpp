@@ -5,7 +5,7 @@
  */
 
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "pol/module/partymod.h"
 #include <stddef.h>

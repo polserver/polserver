@@ -11,7 +11,7 @@
  * - 2009/11/17 Turley:    fixed hang due to illegal pointers
  */
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "pol/party.h"
 

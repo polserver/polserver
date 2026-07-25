@@ -6,9 +6,9 @@
 
 #include "plib/pkg.h"
 
-#include "pol_global_config.h"
 #include <algorithm>
 #include <filesystem>
+#include <pol_global_config.h>
 #include <stdlib.h>
 #include <system_error>
 

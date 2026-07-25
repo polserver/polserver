@@ -65,7 +65,7 @@
  */
 
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "pol/module/uomod.h"
 #include <cmath>
@@ -123,6 +123,7 @@
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/npc.h"
 #include "pol/mobile/ufacing.h"
+#include "pol/module/cfgmod.h"
 #include "pol/multi/boat.h"
 #include "pol/multi/house.h"
 #include "pol/multi/multi.h"
@@ -140,6 +141,11 @@
 #include "pol/polsem.h"
 #include "pol/polsig.h"
 #include "pol/profile.h"
+#include "pol/realms/realm.h"
+#include "pol/realms/realms.h"
+#include "pol/regions/guardrgn.h"
+#include "pol/regions/miscrgn.h"
+#include "pol/regions/resource.h"
 #include "pol/savedata.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
@@ -155,12 +161,6 @@
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
 #include "pol/wthrtype.h"
-#include "pol/module/cfgmod.h"
-#include "pol/realms/realm.h"
-#include "pol/realms/realms.h"
-#include "pol/regions/guardrgn.h"
-#include "pol/regions/miscrgn.h"
-#include "pol/regions/resource.h"
 
 #include <module_defs/uo.h>
 

@@ -4,7 +4,7 @@
 #include "poltool/baredistro.h"
 #include "poltool/testfiles.h"
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <fstream>
 #include <utility>

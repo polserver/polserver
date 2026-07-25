@@ -1,5 +1,5 @@
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "runecl/RunEclMain.h"
 

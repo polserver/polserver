@@ -60,7 +60,7 @@
 
 #include <errno.h>
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include "bscript/blong.h"
 #include "bscript/escriptv.h"
@@ -142,14 +142,14 @@
 
 
 #ifndef NDEBUG
-#include "containr.h"
-#include "mobile/npc.h"
+#include "pol/containr.h"
+#include "pol/mobile/npc.h"
 #endif
 
 #ifdef _WIN32
 #include <process.h>
 
-#include "../clib/mdump.h"
+#include "clib/mdump.h"
 #endif
 
 

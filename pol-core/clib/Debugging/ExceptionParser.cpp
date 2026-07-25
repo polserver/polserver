@@ -4,7 +4,7 @@
 #include "clib/logfacility.h"
 #include "clib/stlutil.h"
 #include "clib/threadhelp.h"
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <cstddef>
 #include <cstdlib>
@@ -25,7 +25,7 @@
 #define SOCKET int
 #else
 #include "clib/Header_Windows.h"
-#include "shlwapi.h"
+#include <shlwapi.h>
 #endif
 
 #include <boost/stacktrace.hpp>

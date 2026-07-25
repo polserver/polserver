@@ -6,7 +6,7 @@
 #ifndef BOOSTUTILS_H
 #define BOOSTUTILS_H
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4503 )  // decorated name length exceeded

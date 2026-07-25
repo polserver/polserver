@@ -6,7 +6,7 @@
 
 #include "pol/testing/testenv.h"
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #ifdef ENABLE_BENCHMARK
 #include "pol/module/uomod.h"

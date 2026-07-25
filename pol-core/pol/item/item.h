@@ -9,7 +9,7 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#include "pol_global_config.h"
+#include <pol_global_config.h>
 
 #include <stddef.h>
 #include <string>

@@ -1,17 +1,14 @@
 #ifndef PRIVUPDATER_H
 #define PRIVUPDATER_H
 
-#ifndef __CHARACTR_H
-#include "charactr.h"
-#endif
+#include "pol/mobile/charactr.h"
 
-#ifndef H_NPC_H
 // At some point, npc.h should be removed.
 // The only dependence is to send leftarea/enteredarea events.
 #include "pol/mobile/npc.h"
-#endif
 
 #include "clib/passert.h"
+#include "pol/network/packetdefs.h"
 #include "pol/ufunc.h"
 #include "pol/uworld.h"
 
