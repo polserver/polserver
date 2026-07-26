@@ -117,8 +117,8 @@ void ThreadedClient::recv_remaining( int total_expected )
   }
   else
   {
-    int errn = socket_errno;
-    if ( errn != SOCKET_ERRNO( EWOULDBLOCK ) )
+    int errn = Clib::socket_errno();
+    if ( errn != Clib::sockerr::wouldblock )
       disconnect = true;
   }
 }
@@ -143,8 +143,8 @@ void ThreadedClient::recv_remaining_nocrypt( int total_expected )
   }
   else
   {
-    int errn = socket_errno;
-    if ( errn != SOCKET_ERRNO( EWOULDBLOCK ) )
+    int errn = Clib::socket_errno();
+    if ( errn != Clib::sockerr::wouldblock )
       disconnect = true;
   }
 }

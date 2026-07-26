@@ -131,6 +131,9 @@ public:
 
 private:
   std::string _currentLine;
+  // bytes at the front of _currentLine already handed out; the buffer is compacted
+  // once this prefix outweighs the remainder rather than on every extracted line
+  size_t _consumed = 0;
   unsigned int _maxLinelength;
 };
 

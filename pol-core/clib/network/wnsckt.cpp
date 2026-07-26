@@ -19,38 +19,15 @@
 #include "clib/strutil.h"
 
 #include "clib/network/singlepoller.h"
-
-#ifdef _WIN32
-#define SOCKET_ERRNO( x ) WSA##x
-#define socket_errno WSAGetLastError()
-typedef int socklen_t;
-
-#else
-
-#include <arpa/inet.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <unistd.h>
-
-#define SOCKET_ERRNO( x ) x
-#define socket_errno errno
-
-#endif
-
-#ifndef SCK_WATCH
-#define SCK_WATCH 0
-#endif
+#include "clib/network/sockets.h"
 
 namespace Pol::Clib
 {
-#ifdef _WIN32
+// Brings up the socket library. No-op where none is needed, so callers do not have to
+// know which platforms want it.
 static void winsock_initialize()
 {
+#ifdef _WIN32
   // magic static: initialization is thread-safe and happens exactly once
   static struct WinsockInit
   {
@@ -62,23 +39,19 @@ static void winsock_initialize()
     }
     ~WinsockInit() { WSACleanup(); }
   } init;
-}
 #endif
+}
 
 Socket::Socket() : _sck( INVALID_SOCKET ), _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
-#ifdef _WIN32
   winsock_initialize();
-#endif
 }
 
 Socket::Socket( SOCKET sock ) : _sck( sock ), _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
-#ifdef _WIN32
   winsock_initialize();
-#endif
 }
 
 Socket::Socket( Socket&& sock )
@@ -156,20 +129,6 @@ namespace
 {
 bool wait_for_writable( SOCKET sck, unsigned int waitms );
 
-bool set_blocking_mode( SOCKET sck, bool blocking )
-{
-#ifdef _WIN32
-  u_long nonblocking = blocking ? 0 : 1;
-  return ioctlsocket( sck, FIONBIO, &nonblocking ) == 0;
-#else
-  int flags = fcntl( sck, F_GETFL );
-  if ( flags == -1 )
-    return false;
-  flags = blocking ? ( flags & ~O_NONBLOCK ) : ( flags | O_NONBLOCK );
-  return fcntl( sck, F_SETFL, flags ) == 0;
-#endif
-}
-
 // Connects sck to addr, waiting at most timeout_ms for the connection to be
 // established (0 = blocking connect with the OS default timeout).
 bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeout_ms )
@@ -178,17 +137,13 @@ bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeo
   if ( timeout_ms == 0 )
     return ::connect( sck, addr->ai_addr, addrlen ) == 0;
 
-  if ( !set_blocking_mode( sck, false ) )
+  if ( !set_blocking( sck, false ) )
     return false;
 
   bool connected = ::connect( sck, addr->ai_addr, addrlen ) == 0;
   if ( !connected )
   {
-#ifdef _WIN32
-    bool in_progress = socket_errno == WSAEWOULDBLOCK;
-#else
-    bool in_progress = socket_errno == EINPROGRESS;
-#endif
+    bool in_progress = socket_errno() == sockerr::inprogress;
     if ( in_progress && wait_for_writable( sck, timeout_ms ) )
     {
       int so_error = 0;
@@ -199,7 +154,7 @@ bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeo
     }
   }
 
-  return connected && set_blocking_mode( sck, true );
+  return connected && set_blocking( sck, true );
 }
 }  // namespace
 
@@ -234,11 +189,7 @@ bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect
       return true;
     }
 
-#ifdef _WIN32
-    closesocket( sck );
-#else
-    ::close( sck );
-#endif
+    close_socket( sck );
   }
 
   freeaddrinfo( addrs );
@@ -265,21 +216,10 @@ void Socket::apply_socket_options( SOCKET sck )
 {
   if ( _options & nonblocking )
   {
-#ifdef _WIN32
-    u_long nonblocking = 1;
-    int res = ioctlsocket( sck, FIONBIO, &nonblocking );
-#else
-    int flags = fcntl( sck, F_GETFL );
-    if ( flags == -1 )
-      flags = O_NONBLOCK;
-    else
-      flags |= O_NONBLOCK;
-    int res = fcntl( sck, F_SETFL, flags );
-#endif
-    if ( res < 0 )
+    if ( !set_blocking( sck, false ) )
     {
-      throw std::runtime_error( "Unable to set listening socket to nonblocking mode, res=" +
-                                tostring( res ) );
+      throw std::runtime_error( "Unable to set listening socket to nonblocking mode, error=" +
+                                tostring( socket_errno() ) );
     }
   }
 }
@@ -358,7 +298,7 @@ bool Socket::has_incoming_data( unsigned int waitms, int* result )
   do
   {
     res = poller.wait_for_events();
-  } while ( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+  } while ( res < 0 && !exit_signalled && socket_errno() == sockerr::intr );
 
   if ( result )
     *result = res;
@@ -400,21 +340,15 @@ bool Socket::connected() const
    the connection open for. */
 void Socket::HandleError()
 {
-#ifdef _WIN32
-  int err = WSAGetLastError();
-  WSASetLastError( 0 );
-#else
-  int err = errno;
-  errno = 0;
-#endif
+  int err = socket_errno();
+  clear_socket_errno();
 
-#if SCK_WATCH
-  // system_category maps to Win32 error codes (WSAGetLastError) on Windows and
-  // errno on POSIX, so a single call formats the message portably.
-  INFO_PRINTLN( "socket error {}: {}", err, std::system_category().message( err ) );
-#else
-  (void)err;
-#endif
+  if constexpr ( sck_watch )
+  {
+    // system_category maps to Win32 error codes (WSAGetLastError) on Windows and
+    // errno on POSIX, so a single call formats the message portably.
+    INFO_PRINTLN( "socket error {}: {}", err, std::system_category().message( err ) );
+  }
 
   close();
 }
@@ -427,9 +361,8 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
   if ( !connected() )
     return false;
 
-#if SCK_WATCH
-  INFO_PRINTLN( "{{L:{}}}", len );
-#endif
+  if constexpr ( sck_watch )
+    INFO_PRINTLN( "{{L:{}}}", len );
 
   int res;
   res = ::recv( _sck, pdest, len, 0 );
@@ -446,9 +379,8 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
 
   if ( res == 0 )
   {
-#if SCK_WATCH
-    INFO_PRINTLN( "{{CLOSE}}" );
-#endif
+    if constexpr ( sck_watch )
+      INFO_PRINTLN( "{{CLOSE}}" );
     close();
     return false;
   }
@@ -465,9 +397,8 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     if ( !connected() )
       return false;
 
-#if SCK_WATCH
-    INFO_PRINTLN( "{{L:{}}}", len );
-#endif
+    if constexpr ( sck_watch )
+      INFO_PRINTLN( "{{L:{}}}", len );
     int res;
     if ( !has_incoming_data( waitms, &res ) )
     {
@@ -478,9 +409,8 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
       }
       else if ( res == 0 )
       {
-#if SCK_WATCH
-        INFO_PRINTLN( "{{TO}}" );
-#endif
+        if constexpr ( sck_watch )
+          INFO_PRINTLN( "{{TO}}" );
       }
 
       return false;
@@ -490,23 +420,20 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     res = ::recv( _sck, pdest, len, 0 );
     if ( res > 0 )
     {
-#if SCK_WATCH
-      char* tmp = pdest;
-      INFO_PRINTLN( "{{R:{}[{}]}}", res, len );
-#endif
+      if constexpr ( sck_watch )
+      {
+        INFO_PRINTLN( "{{R:{}[{}]}}", res, len );
+        const char* tmp = pdest;
+        for ( int i = 0; i < res; ++i )
+          INFO_PRINTLN( "{{{:#x}}}", (unsigned char)( *tmp++ ) );
+      }
       len -= res;
       pdest += res;
-
-#if SCK_WATCH
-      while ( res-- )
-        INFO_PRINTLN( "{{{:#x}}}", (unsigned char)( *tmp++ ) );
-#endif
     }
     else if ( res == 0 )
     {
-#if SCK_WATCH
-      INFO_PRINTLN( "{{CLOSE}}" );
-#endif
+      if constexpr ( sck_watch )
+        INFO_PRINTLN( "{{CLOSE}}" );
       close();
       return false;
     }
@@ -535,7 +462,7 @@ bool wait_for_writable( SOCKET sck, unsigned int waitms )
   do
   {
     res = poller.wait_for_events();
-  } while ( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+  } while ( res < 0 && !exit_signalled && socket_errno() == sockerr::intr );
 
   return poller.writable() && !poller.error();
 }
@@ -562,8 +489,8 @@ void Socket::send( const void* vdata, unsigned length )
     int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
-      int sckerr = socket_errno;
-      if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
+      int sckerr = socket_errno();
+      if ( sckerr == sockerr::wouldblock )
       {
         if ( exit_signalled || waited_ms >= max_wait_ms )
         {
@@ -601,8 +528,8 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
     int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
-      int sckerr = socket_errno;
-      if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
+      int sckerr = socket_errno();
+      if ( sckerr == sockerr::wouldblock )
       {
         // FIXME sleep
         return false;
@@ -640,13 +567,8 @@ void Socket::close()
   SOCKET sck = _sck.exchange( INVALID_SOCKET );
   if ( sck != INVALID_SOCKET )
   {
-#ifdef _WIN32
-    shutdown( sck, 2 );  // 2 is both sides. defined in winsock2.h ...
-    closesocket( sck );
-#else
-    shutdown( sck, SHUT_RDWR );
-    ::close( sck );
-#endif
+    shutdown_both( sck );
+    close_socket( sck );
   }
 }
 
@@ -672,7 +594,7 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
   _made_progress = false;
 
   // check if there is already a line in the buffer
-  auto pos_newline = _currentLine.find_first_of( "\n" );
+  auto pos_newline = _currentLine.find( '\n', _consumed );
 
   // If not, try to read more data
   if ( pos_newline == std::string::npos )
@@ -709,7 +631,7 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
     _made_progress = true;
 
     // update position
-    pos_newline = _currentLine.find_first_of( "\n", oldSize );
+    pos_newline = _currentLine.find( '\n', oldSize );
   }
 
   // hard cap even when no maximum is configured, so a peer that never sends a
@@ -717,13 +639,18 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
   constexpr size_t absolute_max_linelength = 16 * 1024 * 1024;
   const size_t max_linelength = _maxLinelength > 0 ? _maxLinelength : absolute_max_linelength;
 
-  // note that std::string::npos is larger than any other number, so the conditon below will be
-  // false only if there is a newline before the maximum line length or if the current line is still
-  // small.
-  if ( pos_newline > max_linelength && _currentLine.size() > max_linelength )
+  // lengths of the un-consumed part, which is the line being assembled
+  const size_t pending = _currentLine.size() - _consumed;
+  const size_t line_length =
+      pos_newline == std::string::npos ? std::string::npos : pos_newline - _consumed;
+
+  // no newline within the maximum length, and enough data to be sure of it: hand the
+  // oversized fragment to the caller, who closes the connection
+  if ( line_length > max_linelength && pending > max_linelength )
   {
-    out = _currentLine;
+    out = _currentLine.substr( _consumed );
     _currentLine.clear();
+    _consumed = 0;
     return false;
   }
 
@@ -731,10 +658,16 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
   if ( pos_newline == std::string::npos )
     return false;
 
-  auto end_newline = pos_newline + 1;
+  out = _currentLine.substr( _consumed, line_length );
 
-  out = _currentLine.substr( 0, pos_newline );
-  _currentLine.erase( 0, end_newline );
+  // consume through the newline. Compacting only once the consumed prefix outweighs
+  // what is left avoids shifting the remainder on every single line.
+  _consumed = pos_newline + 1;
+  if ( _consumed > _currentLine.size() - _consumed )
+  {
+    _currentLine.erase( 0, _consumed );
+    _consumed = 0;
+  }
 
   return true;
 }

@@ -95,7 +95,7 @@ int init_sockets_library()
 
   if ( gethostname( Core::networkManager.hostname, sizeof Core::networkManager.hostname ) )
   {
-    POLLOG_ERRORLN( "gethostname failed: {}", socket_errno );
+    POLLOG_ERRORLN( "gethostname failed: {}", Clib::socket_errno() );
   }
   search_name( Core::networkManager.hostname );
 
@@ -136,7 +136,7 @@ std::string AddressToString( const sockaddr* addr )
   char address[INET_ADDRSTRLEN] = {};
   if ( inet_ntop( AF_INET, reinterpret_cast<const void*>( &in_addr->sin_addr ), address,
                   sizeof( address ) ) == nullptr )
-    return std::string( "(error - " + std::to_string( socket_errno ) + ")" );
+    return std::string( "(error - " + std::to_string( Clib::socket_errno() ) + ")" );
 
   return address;
 }

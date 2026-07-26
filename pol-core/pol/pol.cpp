@@ -159,10 +159,6 @@
 #include <iosfwd>
 #include <string>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
-#endif
-
 namespace Pol
 {
 namespace Bscript

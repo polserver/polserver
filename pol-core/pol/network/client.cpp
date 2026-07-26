@@ -28,6 +28,7 @@
 #include "bscript/bstruct.h"
 #include "clib/clib.h"
 #include "clib/logfacility.h"
+#include "clib/network/sockets.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"  //CNXBUG
 #include "clib/wallclock.h"
@@ -518,9 +519,9 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
   if ( -1 == ( nsent = send( csocket, (const char*)cdata, datalen, 0 ) ) )
   {
     THREAD_CHECKPOINT( active_client, 204 );
-    int sckerr = socket_errno;
+    int sckerr = Clib::socket_errno();
 
-    if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
+    if ( sckerr == Clib::sockerr::wouldblock )
     {
       THREAD_CHECKPOINT( active_client, 205 );
       POLLOG_ERRORLN( "Client#{}: Switching to queued data mode (1, {} bytes)", myClient.instance_,
@@ -568,12 +569,8 @@ void ThreadedClient::send_queued_data()
     nsent = send( csocket, (char*)&xbuffer->data[xbuffer->nsent], xbuffer->lenleft, 0 );
     if ( nsent == -1 )
     {
-#ifdef _WIN32
-      int sckerr = WSAGetLastError();
-#else
-      int sckerr = errno;
-#endif
-      if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
+      int sckerr = Clib::socket_errno();
+      if ( sckerr == Clib::sockerr::wouldblock )
       {
         // do nothing.  it'll be re-queued later, when it won't block.
         return;

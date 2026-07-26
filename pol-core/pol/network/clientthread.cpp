@@ -83,11 +83,11 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
     SESSION_CHECKPOINT( 2 );
     res = clientpoller.wait_for_events();
     SESSION_CHECKPOINT( 3 );
-  } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+  } while ( res < 0 && !Clib::exit_signalled && Clib::socket_errno() == Clib::sockerr::intr );
 
   if ( res < 0 )
   {
-    int sckerr = socket_errno;
+    int sckerr = Clib::socket_errno();
     POLLOGLN( "Client#{}: select res={}, sckerr={}", session->myClient.instance_, res, sckerr );
     return false;
   }
