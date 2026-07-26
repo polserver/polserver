@@ -100,11 +100,13 @@ BObjectImp* HttpExecutorModule::mf_WriteStatus()
       line += " " + reasonString + "\n";
     }
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( line.c_str() + continuing_offset ),
                           static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
 
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call
+    if ( res != Clib::Socket::SendResult::retry )
     {
       cannotSendStatus = true;
       continuing_offset = 0;
@@ -153,11 +155,13 @@ BObjectImp* HttpExecutorModule::mf_WriteHeader()
     }
     line += name->value() + ": " + value->value() + "\n";
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( line.c_str() + continuing_offset ),
                           static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
 
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call
+    if ( res != Clib::Socket::SendResult::retry )
     {
       cannotSendStatus = true;
       continuing_offset = 0;
@@ -203,10 +207,12 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
     }
     s += str->value();
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call
+    if ( res != Clib::Socket::SendResult::retry )
     {
       cannotSendStatus = true;
       cannotSendHeaders = true;
@@ -258,10 +264,12 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     }
     s += str->value();
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call
+    if ( res != Clib::Socket::SendResult::retry )
     {
       cannotSendStatus = true;
       cannotSendHeaders = true;

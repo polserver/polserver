@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-25-2026</datemodified>
+		<datemodified>07-26-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-26-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">A peer that stopped reading could stall an aux connection for the OS TCP<br/>
+timeout (minutes). Aux service and os::OpenConnection() sockets were blocking,<br/>
+so a transmit to such a peer sat inside send() and held back every other<br/>
+transmit queued on that connection. These sockets are now non-blocking and a<br/>
+transmit gives up after 60 seconds without progress, closing the connection<br/>
+and signaling the script as usual. The 60 seconds only count while the peer<br/>
+accepts nothing at all, so slow consumers are unaffected.</change>
+		</entry>
 		<entry>
 			<date>07-25-2026</date>
 			<author>Turley:</author>

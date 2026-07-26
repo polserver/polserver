@@ -172,6 +172,14 @@ bool AuxClientThread::ipAllowed( sockaddr MyPeer )
 }
 void AuxClientThread::run()
 {
+  // Transmits must not block: transmit() holds _transmit_mutex while sending, so a peer
+  // that stops reading would hold back every other transmit on this connection until the
+  // OS TCP timeout. Non-blocking, Socket::send() gives up after its own stall budget.
+  // Accepted connections inherit this from the listener; os::OpenConnection() sockets are
+  // connected by Socket::open(), which leaves them blocking.
+  if ( !_sck.set_nonblocking() )
+    POLLOG_ERRORLN( "Aux connection: unable to switch the socket to non-blocking mode" );
+
   if ( !init() )
   {
     if ( _sck.connected() )
@@ -303,7 +311,8 @@ void AuxService::run()
 {
   INFO_PRINTLN( "Starting Aux Listener ({}, port {})", _scriptdef.relativename(), _port );
 
-  Clib::SocketListener listener( _port );
+  // non-blocking, so a dead peer cannot stall a transmit thread (see run())
+  Clib::SocketListener listener( _port, Clib::Socket::nonblocking );
   while ( !Clib::exit_signalled )
   {
     Clib::Socket sock;

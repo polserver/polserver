@@ -727,16 +727,20 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
       "Connection: close\r\n"
       "\r\n",
       fsize, content_type );
-  sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) );
+  if ( !sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) ) )
+    return;
 
   // Actual reading and outputting.
   char bfr[32768];
   unsigned int cur_read = 0;
-  while ( sck.connected() && ifs.good() && cur_read < fsize )
+  while ( ifs.good() && cur_read < fsize )
   {
     ifs.read( bfr, sizeof( bfr ) );
     cur_read += static_cast<unsigned int>( ifs.gcount() );
-    sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) ); 
+    // stop at the first failed chunk instead of reading the rest of the file for a
+    // connection that is already gone
+    if ( !sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) ) )
+      break;
   }
 }
 
