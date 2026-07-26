@@ -6,3 +6,5 @@
 *.dep
 *.tst
 *.ast
+*.unformatted.src
+*.formatted.src

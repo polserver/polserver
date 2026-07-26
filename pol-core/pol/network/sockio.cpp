@@ -49,11 +49,7 @@ void search_name( const char* hostname )
     const char* adstr = inet_ntoa( ad );
     POLLOG_INFOLN( "address: {}", adstr );
 
-#ifdef _WIN32
-    const unsigned long ip = ad.S_un.S_addr;
-#else
     const unsigned long ip = ad.s_addr;
-#endif
     // Careful: IPs are reversed (i.e. 1.0.168.192)
     if ( ( ip & 0x0000ffff ) == 0x0000a8c0 ||  // 192.168.0.0/16
          ( ip & 0x0000f0ff ) == 0x000010ac ||  // 172.16.0.0/12
@@ -95,7 +91,7 @@ int init_sockets_library()
 
   if ( gethostname( Core::networkManager.hostname, sizeof Core::networkManager.hostname ) )
   {
-    POLLOG_ERRORLN( "gethostname failed: {}", socket_errno );
+    POLLOG_ERRORLN( "gethostname failed: {}", Clib::socket_errno() );
   }
   search_name( Core::networkManager.hostname );
 
@@ -136,7 +132,7 @@ std::string AddressToString( const sockaddr* addr )
   char address[INET_ADDRSTRLEN] = {};
   if ( inet_ntop( AF_INET, reinterpret_cast<const void*>( &in_addr->sin_addr ), address,
                   sizeof( address ) ) == nullptr )
-    return std::string( "(error - " + std::to_string( socket_errno ) + ")" );
+    return std::string( "(error - " + std::to_string( Clib::socket_errno() ) + ")" );
 
   return address;
 }

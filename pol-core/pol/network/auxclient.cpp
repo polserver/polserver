@@ -164,11 +164,7 @@ bool AuxClientThread::ipAllowed( sockaddr MyPeer )
     struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &MyPeer );
 
     addr1part = _auxservice->_aux_ip_match[j] & _auxservice->_aux_ip_match_mask[j];
-#ifdef _WIN32
-    addr2part = sockin->sin_addr.S_un.S_addr & _auxservice->_aux_ip_match_mask[j];
-#else
     addr2part = sockin->sin_addr.s_addr & _auxservice->_aux_ip_match_mask[j];
-#endif
     if ( addr1part == addr2part )
       return true;
   }
