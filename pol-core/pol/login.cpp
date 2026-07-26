@@ -92,11 +92,7 @@ bool ip_check( Network::Client* client, int i )
     struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
 
     addr1part = server->ip_match[j] & server->ip_match_mask[j];
-#ifdef _WIN32
-    addr2part = sockin->sin_addr.S_un.S_addr & server->ip_match_mask[j];
-#else
     addr2part = sockin->sin_addr.s_addr & server->ip_match_mask[j];
-#endif
     if ( addr1part == addr2part )
       return true;
   }
@@ -128,11 +124,7 @@ bool proxy_check( Network::Client* client, int i )
 
     addr1part =
         networkManager.servers[i]->proxy_match[j] & networkManager.servers[i]->proxy_match_mask[j];
-#ifdef _WIN32
-    addr2part = sockin->sin_addr.S_un.S_addr & networkManager.servers[i]->proxy_match_mask[j];
-#else
     addr2part = sockin->sin_addr.s_addr & networkManager.servers[i]->proxy_match_mask[j];
-#endif
     if ( addr1part == addr2part )
       return true;
   }

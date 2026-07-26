@@ -49,11 +49,7 @@ void search_name( const char* hostname )
     const char* adstr = inet_ntoa( ad );
     POLLOG_INFOLN( "address: {}", adstr );
 
-#ifdef _WIN32
-    const unsigned long ip = ad.S_un.S_addr;
-#else
     const unsigned long ip = ad.s_addr;
-#endif
     // Careful: IPs are reversed (i.e. 1.0.168.192)
     if ( ( ip & 0x0000ffff ) == 0x0000a8c0 ||  // 192.168.0.0/16
          ( ip & 0x0000f0ff ) == 0x000010ac ||  // 172.16.0.0/12

@@ -116,12 +116,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient,
   {
     // accept proxy protocol only from allowed ips
     auto ipaddrv4 = reinterpret_cast<sockaddr_in*>( &ipaddr );
-    auto my_address =
-#ifdef _WIN32
-        boost::asio::ip::address_v4( htonl( ipaddrv4->sin_addr.S_un.S_addr ) );
-#else
-        boost::asio::ip::address_v4( htonl( ipaddrv4->sin_addr.s_addr ) );
-#endif
+    auto my_address = boost::asio::ip::address_v4( htonl( ipaddrv4->sin_addr.s_addr ) );
     auto my_network = boost::asio::ip::network_v4( my_address, 32 );
     for ( const auto& allowed_proxy : allowed_proxies )
     {
