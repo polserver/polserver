@@ -1,0 +1,13 @@
+// The slow-reader test needs testsuite/deafclient/deafclient.py running alongside the
+// shard, which cmake/core_tests_start.cmake only starts when python3 was found.
+use os;
+include "testutil";
+
+program setup()
+  var have_helper := GetEnvironmentVariable( "POLCORE_TESTSLOWREADER" ) == "TRUE";
+  if ( !have_helper )
+    syslog( "NO SLOW READER TESTS", 0 );
+    return IGNORE_TEST;
+  endif
+  return 1;
+endprogram

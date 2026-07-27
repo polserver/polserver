@@ -1,0 +1,65 @@
+// Regression test: an HTTP client that stops reading must not stall the shard.
+//
+// Page scripts run on the scripts thread while it holds the world lock, so before
+// webserver sockets were made non-blocking a client that stopped reading blocked the
+// generating script inside send() and froze every script on the shard until the client
+// resumed or the OS TCP timeout expired (measured: 24s, ending only when the client
+// disconnected).
+//
+// The test arms testsuite/deafclient/deafclient.py to request a large page and read
+// nothing, then measures how long a 2 second sleep actually takes. A frozen scheduler
+// stretches it to the helper's whole hold time.
+use os;
+use polsys;
+include "testutil";
+
+const DEAFCLIENT_PORT   := 5011;
+const HOLD_SECONDS      := 8;
+const PAGE_KB           := 8192;
+// the body must be written in pieces: a single large send is accepted whole by the OS
+// and would never stall, making this test vacuous
+const PAGE_CHUNKS       := 128;
+
+const SLEEP_MS          := 2000;
+// generous margin over SLEEP_MS, far below the helper's hold time, so the verdict is
+// unambiguous either way
+const MAX_ELAPSED_MS    := 5000;
+
+exported function test_www_slowreader( )
+  var conn := OpenConnection( "127.0.0.1", DEAFCLIENT_PORT, "deafctl",
+                              params := struct{
+                                test_script_pid := GetPid(),
+                                command := $"STALL {HOLD_SECONDS} {PAGE_KB} {PAGE_CHUNKS}" },
+                              assume_string := 1, keep_connection := 1,
+                              ignore_line_breaks := 0 );
+  if ( !conn )
+    return ret_error( $"could not reach the deaf client helper: {conn}" );
+  endif
+
+  var armed := wait_for_event( 30 );
+  if ( !armed or !armed.armed )
+    return ret_error( "deaf client helper never reported the request as armed" );
+  endif
+
+  var start := ReadMillisecondClock();
+  Sleepms( SLEEP_MS );
+  var elapsed := ReadMillisecondClock() - start;
+
+  if ( elapsed > MAX_ELAPSED_MS )
+    return ret_error( $"the script scheduler stalled for {elapsed}ms while an HTTP client stopped reading (expected about {SLEEP_MS}ms)" );
+  endif
+
+  // the response must still be delivered in full once the client resumes: this is the
+  // only coverage of httpmod's resume path, which never ran while sockets were blocking
+  var drained := wait_for_event( 120 );
+  if ( !drained )
+    return ret_error( "deaf client helper never reported how much it received" );
+  endif
+
+  var received := CInt( drained.bytes );
+  if ( received < PAGE_KB * 1024 )
+    return ret_error( $"deaf client received {received} bytes, expected at least {PAGE_KB * 1024}" );
+  endif
+
+  return 1;
+endfunction

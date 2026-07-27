@@ -230,7 +230,7 @@ else()
 endif()
 set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
 # needed for test_env
-set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND};POLCORE_TESTEMAIL=${HAS_AIOSMTPD}")
+set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND};POLCORE_TESTEMAIL=${HAS_AIOSMTPD};POLCORE_TESTSLOWREADER=${Python3_FOUND}")
 set_tests_properties(shard_test_1 PROPERTIES FIXTURES_SETUP shard_test)
 
 # second test run

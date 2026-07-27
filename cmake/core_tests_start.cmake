@@ -3,6 +3,7 @@ if(testemail)
   execute_process(
     COMMAND ${Python3_EXECUTABLE} ${testdir}/testclient/pyuo/testclient.py
     COMMAND ${Python3_EXECUTABLE} ${testdir}/smtpd/smtpd.py
+    COMMAND ${Python3_EXECUTABLE} ${testdir}/deafclient/deafclient.py
     COMMAND ${pol}
     COMMAND_ECHO STDOUT
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -12,6 +13,7 @@ if(testemail)
 else()
   execute_process(
     COMMAND ${Python3_EXECUTABLE} ${testdir}/testclient/pyuo/testclient.py
+    COMMAND ${Python3_EXECUTABLE} ${testdir}/deafclient/deafclient.py
     COMMAND ${pol}
     COMMAND_ECHO STDOUT
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}

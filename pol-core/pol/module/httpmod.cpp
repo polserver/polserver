@@ -32,6 +32,27 @@ HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& 
 {
 }
 
+bool HttpExecutorModule::keep_retrying_send( unsigned nsent )
+{
+  // Same budget Socket::send() gives a stalled peer, for the same reason: without one, a
+  // client that never reads keeps the script resuming (and the socket open) forever.
+  const Core::polclock_t max_stall = 60 * Core::POLCLOCKS_PER_SEC;
+  Core::polclock_t now = Core::polclock();
+
+  if ( nsent > 0 || send_stalled_since == 0 )
+  {
+    send_stalled_since = now;  // progress, or the first attempt: start the budget over
+    return true;
+  }
+
+  if ( now - send_stalled_since < max_stall )
+    return true;
+
+  INFO_PRINTLN( "HTTP: giving up on a client that stopped receiving" );
+  sck_.close();
+  return false;
+}
+
 HttpExecutorModule::~HttpExecutorModule()
 {
   if ( sck_.connected() )
@@ -105,11 +126,13 @@ BObjectImp* HttpExecutorModule::mf_WriteStatus()
                           static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
 
     // an error is as final as a completed send: nothing is left to resume, and the script
-    // sees the dead connection on its next call
-    if ( res != Clib::Socket::SendResult::retry )
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       continuing_offset = 0;
+      send_stalled_since = 0;
       return new BLong( 1 );
     }
 
@@ -160,11 +183,13 @@ BObjectImp* HttpExecutorModule::mf_WriteHeader()
                           static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
 
     // an error is as final as a completed send: nothing is left to resume, and the script
-    // sees the dead connection on its next call
-    if ( res != Clib::Socket::SendResult::retry )
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       continuing_offset = 0;
+      send_stalled_since = 0;
       return new BLong( 1 );
     }
 
@@ -211,12 +236,14 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
     // an error is as final as a completed send: nothing is left to resume, and the script
-    // sees the dead connection on its next call
-    if ( res != Clib::Socket::SendResult::retry )
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       cannotSendHeaders = true;
       continuing_offset = 0;
+      send_stalled_since = 0;
       // we don't really care if this works or not, terribly.
       sck_.send_nowait( "\n", 1, &nsent );
       return new BLong( 1 );
@@ -268,12 +295,14 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
     // an error is as final as a completed send: nothing is left to resume, and the script
-    // sees the dead connection on its next call
-    if ( res != Clib::Socket::SendResult::retry )
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       cannotSendHeaders = true;
       continuing_offset = 0;
+      send_stalled_since = 0;
       return new BLong( 1 );
     }
 

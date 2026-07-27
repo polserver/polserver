@@ -971,6 +971,12 @@ void http_thread()
                   Plib::systemstate.config.web_server_port );
 
   Clib::Socket listen_sck;
+  // Accepted clients inherit this. Blocking writes to a client that stops reading stall
+  // the script thread that generates the page -- and it holds the world lock, so the whole
+  // shard freezes until the peer resumes or the OS TCP timeout expires. Non-blocking, the
+  // page script sleeps and resumes instead (httpmod.cpp), and send_binary's file loop is
+  // bounded by Socket::send's stall budget.
+  listen_sck.set_options( Clib::Socket::nonblocking );
   if ( !listen_sck.listen( Plib::systemstate.config.web_server_port,
                            Plib::systemstate.config.web_server_local_only ) )
   {
