@@ -36,9 +36,9 @@ SocketListener::SocketListener( unsigned short port, Socket::option opt, bool lo
   }
 }
 
-bool SocketListener::GetConnection( Socket* newsck, unsigned int timeout_msec )
+bool SocketListener::GetConnection( Socket* newsck, std::chrono::milliseconds timeout )
 {
-  if ( _listen_sck.has_incoming_data( timeout_msec ) )
+  if ( _listen_sck.has_incoming_data( timeout ) )
     return _listen_sck.accept( newsck );
   return false;
 }

@@ -1,5 +1,6 @@
 #include "pol/network/clientthread.h"
 
+#include <chrono>
 #include <errno.h>
 #include <exception>
 #include <iterator>
@@ -54,9 +55,10 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
 void report_weird_packet( Network::ThreadedClient* session,
                           const std::string& why );  // Defined below
 
-void set_polling_timeouts( Clib::SinglePoller& poller, bool single_threaded_login )
+// LoginServerSelectTimeout is configured in milliseconds
+std::chrono::milliseconds polling_timeout( bool single_threaded_login )
 {
-  poller.set_timeout(
+  return std::chrono::milliseconds(
       single_threaded_login ? Plib::systemstate.config.loginserver_select_timeout_msecs : 2000 );
 }
 
@@ -175,7 +177,7 @@ void threadedclient_io_loop( Network::ThreadedClient* session, bool login )
   session->last_activity_at = polclock();
 
   Clib::SinglePoller clientpoller( session->csocket );
-  set_polling_timeouts( clientpoller, login );
+  clientpoller.set_timeout( polling_timeout( login ) );
 
   while ( !Clib::exit_signalled && session->isReallyConnected() )
   {

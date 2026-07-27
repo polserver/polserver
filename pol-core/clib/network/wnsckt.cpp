@@ -140,14 +140,14 @@ SOCKET Socket::release_handle()
 
 namespace
 {
-bool wait_for_writable( SOCKET sck, unsigned int waitms );
+bool wait_for_writable( SOCKET sck, std::chrono::milliseconds wait );
 
-// Connects sck to addr, waiting at most timeout_ms for the connection to be
-// established (0 = blocking connect with the OS default timeout).
-bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeout_ms )
+// Connects sck to addr, waiting at most timeout for the connection to be
+// established (zero = blocking connect with the OS default timeout).
+bool connect_socket( SOCKET sck, const struct addrinfo* addr, std::chrono::milliseconds timeout )
 {
   auto addrlen = static_cast<socklen_t>( addr->ai_addrlen );
-  if ( timeout_ms == 0 )
+  if ( timeout == std::chrono::milliseconds::zero() )
     return ::connect( sck, addr->ai_addr, addrlen ) == 0;
 
   if ( !set_blocking( sck, false ) )
@@ -157,7 +157,7 @@ bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeo
   if ( !connected )
   {
     bool in_progress = socket_errno() == sockerr::inprogress;
-    if ( in_progress && wait_for_writable( sck, timeout_ms ) )
+    if ( in_progress && wait_for_writable( sck, timeout ) )
     {
       int so_error = 0;
       socklen_t optlen = sizeof so_error;
@@ -171,7 +171,8 @@ bool connect_socket( SOCKET sck, const struct addrinfo* addr, unsigned int timeo
 }
 }  // namespace
 
-bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms )
+bool Socket::open( const char* ipaddr, unsigned short port,
+                   std::chrono::milliseconds connect_timeout )
 {
   close();
 
@@ -195,7 +196,7 @@ bool Socket::open( const char* ipaddr, unsigned short port, unsigned int connect
     if ( sck == INVALID_SOCKET )
       continue;
 
-    if ( connect_socket( sck, addr, connect_timeout_ms ) )
+    if ( connect_socket( sck, addr, connect_timeout ) )
     {
       _sck = sck;
       freeaddrinfo( addrs );
@@ -288,7 +289,7 @@ bool Socket::listen( unsigned short port, bool loopback_only )
   return true;
 }
 
-bool Socket::has_incoming_data( unsigned int waitms, int* result )
+bool Socket::has_incoming_data( std::chrono::milliseconds wait, int* result )
 {
   SOCKET sck = _sck;
   if ( sck == INVALID_SOCKET )
@@ -298,7 +299,7 @@ bool Socket::has_incoming_data( unsigned int waitms, int* result )
     return false;
   }
   SinglePoller poller( sck );
-  poller.set_timeout( waitms );
+  poller.set_timeout( wait );
 
   if ( !poller.prepare( false ) )
   {
@@ -411,7 +412,7 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
   return true;
 }
 
-bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
+bool Socket::recvdata( void* vdest, unsigned len, std::chrono::milliseconds wait )
 {
   char* pdest = (char*)vdest;
 
@@ -423,7 +424,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     if constexpr ( sck_watch )
       INFO_PRINTLN( "{{L:{}}}", len );
     int res;
-    if ( !has_incoming_data( waitms, &res ) )
+    if ( !has_incoming_data( wait, &res ) )
     {
       if ( res == -1 )
       {
@@ -477,11 +478,11 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 
 namespace
 {
-// Waits until the socket becomes writable, an error occurs, or waitms expires.
-bool wait_for_writable( SOCKET sck, unsigned int waitms )
+// Waits until the socket becomes writable, an error occurs, or wait expires.
+bool wait_for_writable( SOCKET sck, std::chrono::milliseconds wait )
 {
   SinglePoller poller( sck );
-  poller.set_timeout( waitms );
+  poller.set_timeout( wait );
 
   if ( !poller.prepare( true ) )
     throw std::runtime_error( "Unable to poll socket=" + tostring( sck ) );
@@ -504,7 +505,7 @@ bool Socket::send( const void* vdata, unsigned length )
   // This blocks the calling thread until the peer drains its receive buffer, so it is only
   // ever called from threads that may block: aux transmits and the webserver's file
   // streaming, never from the scripts thread.
-  const unsigned int wait_slice_ms = 500;
+  constexpr auto wait_slice = std::chrono::milliseconds( 500 );
   StallBudget budget;
 
   while ( datalen )
@@ -526,7 +527,7 @@ bool Socket::send( const void* vdata, unsigned length )
           close();
           return false;
         }
-        wait_for_writable( sck, wait_slice_ms );
+        wait_for_writable( sck, wait_slice );
         continue;
       }
 
@@ -627,7 +628,7 @@ bool SocketLineReader::try_read( std::string& out, bool* timed_out )
     std::array<char, 4096> buffer;
 
     int res = -1;
-    if ( !_socket.has_incoming_data( _waitms, &res ) )
+    if ( !_socket.has_incoming_data( _wait, &res ) )
     {
       if ( timed_out )
         *timed_out = true;
@@ -706,7 +707,7 @@ bool SocketByteReader::try_read( std::string& out, bool* timed_out )
   std::array<char, 4096> buffer;
 
   int res = -1;
-  if ( !_socket.has_incoming_data( _waitms, &res ) )
+  if ( !_socket.has_incoming_data( _wait, &res ) )
   {
     if ( timed_out )
       *timed_out = true;
@@ -731,8 +732,7 @@ bool SocketReader::read( std::string& out, bool* timed_out )
     *timed_out = false;
 
   using clock = std::chrono::steady_clock;
-  const auto timeout = std::chrono::seconds( _timeout_secs );
-  auto deadline = clock::now() + timeout;
+  auto deadline = clock::now() + _timeout;
 
   while ( !Clib::exit_signalled && _socket.connected() )
   {
@@ -748,13 +748,13 @@ bool SocketReader::read( std::string& out, bool* timed_out )
       return false;
     }
 
-    if ( _timeout_secs > 0 )
+    if ( _timeout > std::chrono::seconds::zero() )
     {
       if ( _made_progress )
       {
         // partial data arrived; only actual progress refreshes the deadline, so
         // a peer streaming discarded bytes cannot keep the connection alive
-        deadline = clock::now() + timeout;
+        deadline = clock::now() + _timeout;
       }
       else if ( clock::now() >= deadline )
       {

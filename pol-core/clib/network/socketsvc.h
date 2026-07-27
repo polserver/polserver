@@ -7,6 +7,8 @@
 #ifndef SOCKETSVC_H
 #define SOCKETSVC_H
 
+#include <chrono>
+
 #include "clib/network/wnsckt.h"
 
 
@@ -17,7 +19,7 @@ class SocketListener
 public:
   explicit SocketListener( unsigned short port, bool loopback_only = false );
   SocketListener( unsigned short port, Socket::option opt, bool loopback_only = false );
-  bool GetConnection( Socket* newsck, unsigned int timeout_msec );
+  bool GetConnection( Socket* newsck, std::chrono::milliseconds timeout );
 
   friend class SocketClientThread;
 

@@ -2,6 +2,8 @@
 #ifndef H_POLLINGWITHPOLL
 #define H_POLLINGWITHPOLL
 
+#include <chrono>
+
 #include "clib/passert.h"
 #include "clib/network/sockets.h"
 
@@ -25,7 +27,7 @@ namespace Pol::Clib
 class PollingWithPoll
 {
 public:
-  explicit PollingWithPoll( SOCKET socket ) : timeoutms( 0 ), processed( false )
+  explicit PollingWithPoll( SOCKET socket ) : processed( false )
   {
     fdList.fd = socket;
     reset();
@@ -50,13 +52,16 @@ public:
   }
   bool writable() { return ( processed ) ? ( ( fdList.revents & POLLOUT ) != 0 ) : false; }
 
-  void set_timeout( int timeout_msec ) { timeoutms = timeout_msec; }
+  void set_timeout( std::chrono::milliseconds timeout ) { timeout_ = timeout; }
 
   int wait_for_events()
   {
     passert( valid_socket() );
 
-    int res = poll( &fdList, 1, timeoutms );
+    // the one place a duration becomes the plain integer milliseconds poll() wants. A
+    // timeout beyond ~24 days does not fit an int, and none of ours comes close: the
+    // largest is os::OpenConnection's, which getParam already bounds to INT_MAX ms.
+    int res = poll( &fdList, 1, static_cast<int>( timeout_.count() ) );
 
     // only mark as processed if we don't have errors
     if ( res >= 0 )
@@ -70,7 +75,7 @@ public:
 private:
   pollfd fdList;  // a list of 1, this is a single poller
 
-  int timeoutms;
+  std::chrono::milliseconds timeout_{ 0 };
   bool processed;
 };
 }  // namespace Pol::Clib
