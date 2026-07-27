@@ -1,5 +1,13 @@
 -- POL100.3.0 --
 07-27-2026 Nando:
+    Fixed: Clients connecting at the same time were let in slowly, and the delay grew
+           with the square of how many were waiting. Each pass of a UO listener accepted
+           only one connection, and a pass also polls every client still on the login
+           server, so each new connection waited for all the earlier ones to be polled
+           first. A listener now accepts every connection already queued, up to 64 per
+           pass. Measured on loopback, admitting 75 simultaneous connections went from
+           28.7 to 1.2 seconds. This is most visible right after a restart, when many
+           players reconnect at once.
     Added: pol.cfg StalledPeerTimeout (seconds, default 60) sets how long a peer may
            accept no data at all before the core closes the connection. It applies to
            both places that wait one out: aux service / os::OpenConnection() transmits

@@ -121,6 +121,10 @@ public:
   std::vector<boost::asio::ip::network_v4> allowed_proxies;
 
 private:
+  // Turns one accepted connection into a client, either parked in
+  // login_clients or handed to its own thread.
+  void accept_connection( Clib::Socket&& newsck );
+
   std::atomic<size_t> login_clients_size;  // multiple threads want to know the login size
   std::list<std::unique_ptr<UoClientThread>> login_clients;
 };
