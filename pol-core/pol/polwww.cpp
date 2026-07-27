@@ -727,16 +727,20 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
       "Connection: close\r\n"
       "\r\n",
       fsize, content_type );
-  sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) );
+  if ( !sck.send( headers.data(), static_cast<unsigned int>( headers.size() ) ) )
+    return;
 
   // Actual reading and outputting.
   char bfr[32768];
   unsigned int cur_read = 0;
-  while ( sck.connected() && ifs.good() && cur_read < fsize )
+  while ( ifs.good() && cur_read < fsize )
   {
     ifs.read( bfr, sizeof( bfr ) );
     cur_read += static_cast<unsigned int>( ifs.gcount() );
-    sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) ); 
+    // stop at the first failed chunk instead of reading the rest of the file for a
+    // connection that is already gone
+    if ( !sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) ) )
+      break;
   }
 }
 
@@ -748,6 +752,14 @@ void send_html( Clib::Socket& sck, const std::string& page, const std::string& f
 void http_func( SOCKET client_socket )
 {
   Clib::Socket sck( client_socket );
+  // Sockets are switched to non-blocking by whoever takes ownership of the connection,
+  // which is here. Blocking writes to a client that stops reading stall the script that
+  // generates the page -- and it runs on the scripts thread while that holds the world
+  // lock, so the whole shard freezes until the peer resumes or the OS TCP timeout expires.
+  // Non-blocking, the page script sleeps and resumes instead (httpmod.cpp), and
+  // send_binary's file streaming is bounded by Socket::send's stall budget.
+  if ( !sck.set_nonblocking() )
+    POLLOG_ERRORLN( "HTTP: unable to switch a client socket to non-blocking mode" );
   Clib::SocketLineReader lineReader( sck, 5, 3000,
                                      false );  // we take care of disconnecting at timeout
 
@@ -967,11 +979,15 @@ void http_thread()
                   Plib::systemstate.config.web_server_port );
 
   Clib::Socket listen_sck;
+  // Non-blocking listener, so accept() cannot hang this loop: a client can abort between
+  // has_incoming_data() and the accept, and a blocking accept() would then wait for the
+  // next client -- taking the idle www.cfg hot-reload down with it. This is about the
+  // accept loop only; client connections are made non-blocking in http_func().
+  listen_sck.set_options( Clib::Socket::nonblocking );
   if ( !listen_sck.listen( Plib::systemstate.config.web_server_port,
                            Plib::systemstate.config.web_server_local_only ) )
   {
-    ERROR_PRINTLN( "Unable to listen on HTTP port {}",
-                   Plib::systemstate.config.web_server_port );
+    ERROR_PRINTLN( "Unable to listen on HTTP port {}", Plib::systemstate.config.web_server_port );
     return;  // webserver off, but the rest of the server keeps running
   }
 

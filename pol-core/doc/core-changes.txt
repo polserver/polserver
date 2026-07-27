@@ -1,4 +1,19 @@
 -- POL100.3.0 --
+07-26-2026 Nando:
+    Fixed: A peer that stopped reading could stall an aux connection for the OS TCP
+           timeout (minutes). Aux service and os::OpenConnection() sockets were blocking,
+           so a transmit to such a peer sat inside send() and held back every other
+           transmit queued on that connection. These sockets are now non-blocking and a
+           transmit gives up after 60 seconds without progress, closing the connection
+           and signaling the script as usual. The 60 seconds only count while the peer
+           accepts nothing at all, so slow consumers are unaffected.
+    Fixed: An HTTP client that stopped reading could freeze the entire shard. Webserver
+           connections were blocking, so a page script writing more than fits in the
+           socket buffer sat inside send() while holding the world lock, stopping every
+           script on the shard until the client resumed reading or the OS TCP timeout
+           expired. Webserver connections are now non-blocking: a page script whose write
+           does not fit sleeps and resumes it instead of blocking, and a client that
+           accepts nothing for 60 seconds is disconnected.
 07-25-2026 Turley:
     Fixed: it was not possible to add/remove houseparts with negative offset due to changes from 07-24.
 07-25-2026 Ins:

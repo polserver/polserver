@@ -89,6 +89,19 @@ void Socket::set_options( option opt )
   _options = opt;
 }
 
+bool Socket::set_nonblocking()
+{
+  SOCKET sck = _sck;
+  if ( sck == INVALID_SOCKET )
+    return false;
+
+  if ( !set_blocking( sck, false ) )
+    return false;
+
+  _options = static_cast<option>( _options | nonblocking );
+  return true;
+}
+
 void Socket::setpeer( struct sockaddr peer )
 {
   _peer = peer;
@@ -372,6 +385,16 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
 
   if ( res < 0 )
   {
+    // On a non-blocking socket a readable poll result can still come up empty (the
+    // stack discarded the data, or another reader got there first). That is not an
+    // error: report no data and leave the connection open.
+    if ( socket_errno() == sockerr::wouldblock )
+    {
+      if ( bytes_read )
+        *bytes_read = 0;
+      return false;
+    }
+
     /* Can't time out here this is an ERROR! */
     HandleError();
     return false;
@@ -437,6 +460,11 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
       close();
       return false;
     }
+    else if ( socket_errno() == sockerr::wouldblock )
+    {
+      // non-blocking socket: the readable poll result did not pan out, wait again
+      continue;
+    }
     else
     {
       /* Can't time out here this is an ERROR! */
@@ -468,16 +496,16 @@ bool wait_for_writable( SOCKET sck, unsigned int waitms )
 }
 }  // namespace
 
-void Socket::send( const void* vdata, unsigned length )
+bool Socket::send( const void* vdata, unsigned length )
 {
   const char* cdata = static_cast<const char*>( vdata );
   unsigned datalen = length;
 
-  // maximum time to wait for the peer to drain its receive buffer before
-  // considering the connection dead
-  const unsigned int max_wait_ms = 60 * 1000;
+  // This blocks the calling thread until the peer drains its receive buffer, so it is only
+  // ever called from threads that may block: aux transmits and the webserver's file
+  // streaming, never from the scripts thread.
   const unsigned int wait_slice_ms = 500;
-  unsigned int waited_ms = 0;
+  StallBudget budget;
 
   while ( datalen )
   {
@@ -485,36 +513,36 @@ void Socket::send( const void* vdata, unsigned length )
     // stale handle then just fails and is handled below
     SOCKET sck = _sck;
     if ( sck == INVALID_SOCKET )
-      return;
+      return false;
     int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
       int sckerr = socket_errno();
       if ( sckerr == sockerr::wouldblock )
       {
-        if ( exit_signalled || waited_ms >= max_wait_ms )
+        if ( exit_signalled || budget.expired() )
         {
-          INFO_PRINTLN( "Socket::send() timed out waiting for peer to receive" );
+          INFO_PRINTLN( "Closing socket - peer has stopped receiving" );
           close();
-          return;
+          return false;
         }
-        if ( !wait_for_writable( sck, wait_slice_ms ) )
-          waited_ms += wait_slice_ms;
+        wait_for_writable( sck, wait_slice_ms );
         continue;
       }
 
       INFO_PRINTLN( "Socket::send() error: {}", sckerr );
       HandleError();
-      return;
+      return false;
     }
 
-    waited_ms = 0;  // made progress, reset the stall budget
+    budget.note_progress();
     datalen -= res;
     cdata += res;
   }
+  return true;
 }
 
-bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
+Socket::SendResult Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
 {
   const char* cdata = static_cast<const char*>( vdata );
 
@@ -524,41 +552,38 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
   {
     SOCKET sck = _sck;
     if ( sck == INVALID_SOCKET )
-      return true;  // treat like a send error: no data will ever leave
+      return SendResult::error;  // no data will ever leave
     int res = ::send( sck, cdata, datalen, 0 );
     if ( res < 0 )
     {
       int sckerr = socket_errno();
       if ( sckerr == sockerr::wouldblock )
-      {
-        // FIXME sleep
-        return false;
-      }
+        return SendResult::retry;  // *nsent tells the caller where to resume
 
       INFO_PRINTLN( "Socket::send_nowait() error: {}", sckerr );
       HandleError();
-      return true;
+      return SendResult::error;
     }
 
     datalen -= res;
     cdata += res;
     *nsent += res;
   }
-  return true;
+  return SendResult::done;
 }
 
-void Socket::write( const std::string& s )
+bool Socket::write( const std::string& s )
 {
-  send( s.data(), static_cast<unsigned int>( s.length() ) );
+  return send( s.data(), static_cast<unsigned int>( s.length() ) );
 }
 
-void Socket::writeline( const std::string& s )
+bool Socket::writeline( const std::string& s )
 {
   std::string line;
   line.reserve( s.length() + 2 );
   line += s;
   line += "\r\n";
-  send( line.data(), static_cast<unsigned int>( line.length() ) );
+  return send( line.data(), static_cast<unsigned int>( line.length() ) );
 }
 
 void Socket::close()

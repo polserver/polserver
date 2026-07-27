@@ -2,6 +2,7 @@
 #define CLIB_WNSCKT_H
 
 #include <atomic>
+#include <chrono>
 #include <string>
 
 #include "clib/Header_Windows.h"
@@ -17,6 +18,27 @@ using SOCKET = int;
 
 namespace Pol::Clib
 {
+// How long a peer may accept nothing at all before its connection is considered dead.
+// Two places wait out a stalled peer and both use this: Socket::send(), which blocks the
+// calling thread, and the webserver's page scripts, which sleep and resume instead
+// (pol/module/httpmod.cpp). They differ because a page script runs on the scripts thread
+// while it holds the world lock, so it must never block; a thread-pool worker may.
+inline constexpr auto stalled_peer_timeout = std::chrono::seconds( 60 );
+
+// Time since a transfer last made any progress. Any progress at all restarts the budget,
+// so a peer that keeps accepting data is never dropped for being slow -- only one that
+// accepts nothing.
+class StallBudget
+{
+public:
+  void note_progress() { _deadline = clock::now() + stalled_peer_timeout; }
+  bool expired() const { return clock::now() >= _deadline; }
+
+private:
+  using clock = std::chrono::steady_clock;
+  clock::time_point _deadline = clock::now() + stalled_peer_timeout;
+};
+
 class Socket
 {
 public:
@@ -27,6 +49,15 @@ public:
     reuseaddr = 2
   };
 
+  // Outcome of send_nowait(): everything reached the kernel, the peer's buffer is full
+  // and the caller should retry with what is left, or the connection is gone.
+  enum class SendResult
+  {
+    done,
+    retry,
+    error
+  };
+
   Socket();
   explicit Socket( SOCKET sock );
   Socket( Socket&& sck );
@@ -35,8 +66,11 @@ public:
   Socket& operator=( const Socket& ) = delete;
   ~Socket();
 
-  void write( const std::string& str );
-  void writeline( const std::string& s );
+  // Return false when the data did not (entirely) reach the kernel: the connection was
+  // already gone, the peer stopped accepting data, or the send failed. Callers that
+  // cannot do anything about it may ignore the result.
+  bool write( const std::string& str );
+  bool writeline( const std::string& s );
 
   // connect_timeout_ms == 0 means a blocking connect with the OS default timeout
   bool open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms = 0 );
@@ -46,8 +80,8 @@ public:
   bool accept( Socket* newsocket );
   bool recvdata_nowait( char* vdest, unsigned len, int* bytes_read );
   bool recvdata( void* vdest, unsigned len, unsigned int waitms );
-  void send( const void* data, unsigned length );
-  bool send_nowait( const void* vdata, unsigned datalen, unsigned* nsent );
+  bool send( const void* data, unsigned length );
+  SendResult send_nowait( const void* vdata, unsigned datalen, unsigned* nsent );
   bool connected() const;
   void close();
 
@@ -62,7 +96,12 @@ public:
   void setsocket( SOCKET sck );
   void setpeer( struct sockaddr peer );
 
+  // Records the options that listen()/accept() apply to the sockets they create.
   void set_options( option opt );
+  // Switches an already-connected socket to non-blocking mode, for sockets this Socket
+  // did not create itself (open() leaves its socket blocking). Returns false on failure,
+  // leaving the socket blocking.
+  bool set_nonblocking();
 
   void disable_nagle();
 

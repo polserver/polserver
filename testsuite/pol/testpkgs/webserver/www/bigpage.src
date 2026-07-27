@@ -1,0 +1,28 @@
+// A page whose body is deliberately larger than a socket send buffer, so a client
+// that stops reading forces the writing script to block (or, once the webserver's
+// sockets are non-blocking, to sleep and resume). Used by test_www_slowreader.
+//
+// kb     - total body size in KiB
+// chunks - how many WriteHtmlRaw calls to split it over (default 1)
+use os;
+use http;
+
+program HTMLPage()
+  var kb := CInt( QueryParam( "kb" ) ) ?: 1024;
+  var chunks := CInt( QueryParam( "chunks" ) ) ?: 1;
+
+  var chunk := "0123456789abcdef";
+  while ( Len( chunk ) < 1024 )
+    chunk := chunk + chunk;
+  endwhile
+
+  // doubling, not appending: building the body one chunk at a time is quadratic
+  var body := chunk;
+  while ( Len( body ) < ( kb / chunks ) * 1024 )
+    body := body + body;
+  endwhile
+
+  for i := 1 to chunks
+    WriteHtmlRaw( body );
+  endfor
+endprogram

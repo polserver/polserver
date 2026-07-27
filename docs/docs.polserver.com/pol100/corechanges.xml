@@ -2,9 +2,27 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-25-2026</datemodified>
+		<datemodified>07-26-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-26-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">A peer that stopped reading could stall an aux connection for the OS TCP<br/>
+timeout (minutes). Aux service and os::OpenConnection() sockets were blocking,<br/>
+so a transmit to such a peer sat inside send() and held back every other<br/>
+transmit queued on that connection. These sockets are now non-blocking and a<br/>
+transmit gives up after 60 seconds without progress, closing the connection<br/>
+and signaling the script as usual. The 60 seconds only count while the peer<br/>
+accepts nothing at all, so slow consumers are unaffected.</change>
+			<change type="Fixed">An HTTP client that stopped reading could freeze the entire shard. Webserver<br/>
+connections were blocking, so a page script writing more than fits in the<br/>
+socket buffer sat inside send() while holding the world lock, stopping every<br/>
+script on the shard until the client resumed reading or the OS TCP timeout<br/>
+expired. Webserver connections are now non-blocking: a page script whose write<br/>
+does not fit sleeps and resumes it instead of blocking, and a client that<br/>
+accepts nothing for 60 seconds is disconnected.</change>
+		</entry>
 		<entry>
 			<date>07-25-2026</date>
 			<author>Turley:</author>

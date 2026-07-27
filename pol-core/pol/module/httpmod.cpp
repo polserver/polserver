@@ -32,6 +32,23 @@ HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& 
 {
 }
 
+// Page scripts cannot block: they run on the scripts thread while it holds the world lock,
+// so instead of waiting inside send() like Socket::send() does, they sleep and resume the
+// write. The budget that ends it is the same one, so both paths drop a peer that stopped
+// receiving after the same time.
+bool HttpExecutorModule::keep_retrying_send( unsigned nsent )
+{
+  if ( nsent > 0 )
+    send_budget.note_progress();
+
+  if ( !send_budget.expired() )
+    return true;
+
+  INFO_PRINTLN( "Closing socket - peer has stopped receiving" );
+  sck_.close();
+  return false;
+}
+
 HttpExecutorModule::~HttpExecutorModule()
 {
   if ( sck_.connected() )
@@ -100,14 +117,18 @@ BObjectImp* HttpExecutorModule::mf_WriteStatus()
       line += " " + reasonString + "\n";
     }
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( line.c_str() + continuing_offset ),
                           static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
 
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       continuing_offset = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       return new BLong( 1 );
     }
 
@@ -153,14 +174,18 @@ BObjectImp* HttpExecutorModule::mf_WriteHeader()
     }
     line += name->value() + ": " + value->value() + "\n";
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( line.c_str() + continuing_offset ),
                           static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
 
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       continuing_offset = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       return new BLong( 1 );
     }
 
@@ -203,14 +228,18 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
     }
     s += str->value();
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       cannotSendHeaders = true;
       continuing_offset = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       // we don't really care if this works or not, terribly.
       sck_.send_nowait( "\n", 1, &nsent );
       return new BLong( 1 );
@@ -258,14 +287,18 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     }
     s += str->value();
 
-    bool res =
+    auto res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
-    if ( res )
+    // an error is as final as a completed send: nothing is left to resume, and the script
+    // sees the dead connection on its next call. So is a peer that stopped receiving for
+    // good, which keep_retrying_send() disconnects.
+    if ( res != Clib::Socket::SendResult::retry || !keep_retrying_send( nsent ) )
     {
       cannotSendStatus = true;
       cannotSendHeaders = true;
       continuing_offset = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       return new BLong( 1 );
     }
 

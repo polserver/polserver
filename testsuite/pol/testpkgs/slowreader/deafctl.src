@@ -1,0 +1,32 @@
+// Control channel to testsuite/deafclient/deafclient.py (not a test file itself).
+//
+// Started through os::OpenConnection( ..., assume_string := 1, keep_connection := 1,
+// ignore_line_breaks := 0 ), so transmit() writes whole lines and each reply arrives as
+// one event. Sends params.command, then forwards the helper's replies to
+// params.test_script_pid as struct{ armed } and struct{ bytes }.
+use os;
+
+program auxservice( conn, params )
+  conn.transmit( params.command );
+
+  var ev;
+  while ( ( ev := wait_for_event( 120 ) ) )
+    if ( !ev.value )
+      continue;
+    endif
+
+    var words := SplitWords( ev.value, " " );
+    case ( words[1] )
+      "ARMED":
+        GetProcess( params.test_script_pid ).SendEvent( struct{ armed := 1 } );
+      "LISTENING":
+        GetProcess( params.test_script_pid ).SendEvent( struct{ listening := 1 } );
+        break;
+      "BYTES":
+        GetProcess( params.test_script_pid ).SendEvent( struct{ bytes := CInt( words[2] ) } );
+        break;
+    endcase
+  endwhile
+
+  conn := uninit;
+endprogram
