@@ -6,15 +6,19 @@ use os;
 use polsys;
 
 program auxservice( conn, params )
-  // one 64 KiB write per transmit: more than the socket buffer holds for a peer that
-  // never reads, so the send after the first cannot be handed to the kernel at all
+  // 16 MiB in 1 MiB writes. The peer's receive window is tiny (deafclient.py sets
+  // SO_RCVBUF on its listening socket), but that alone does not stall a sender: Linux
+  // gives a loopback socket a ~2.5 MB send buffer, which swallows anything smaller
+  // whole and leaves nothing for the stall budget to catch. The total has to exceed
+  // the sender's own buffer -- net.core.wmem_max is 4 MB by default -- not just the
+  // peer's, so 16 MiB keeps a wide margin on every platform.
   var chunk := "x";
-  while ( Len( chunk ) < 65536 )
+  while ( Len( chunk ) < 1048576 )
     chunk := chunk + chunk;
   endwhile
 
   var start := ReadMillisecondClock();
-  for i := 1 to 8
+  for i := 1 to 16
     conn.transmit( chunk );
   endfor
 

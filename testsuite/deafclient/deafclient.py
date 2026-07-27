@@ -13,9 +13,11 @@ Control protocol (line based, spoken by testpkgs/slowreader/deafctl.src):
 STALL covers the webserver; DEAFLISTEN covers the aux service, where the shard is the one
 connecting out and this process is the peer that stops reading.
 
-Two details the test depends on: the small SO_RCVBUF, which makes the server's socket
-buffer fill after ~64 KB, and `chunks` -- a body written in one large send is accepted
-whole by the OS and never stalls, which would leave the test passing either way.
+Two details the test depends on: the small SO_RCVBUF, which shrinks the receive window
+this side advertises, and `chunks` -- a body written in one large send is accepted whole
+by the OS and never stalls, which would leave the test passing either way. A small window
+is necessary but not sufficient: the sender's own socket buffer (2.5 MB on Linux loopback)
+also has to fill, which is why the peers here are fed far more than they can hold.
 
 To notice the shard is gone it binds the webserver port instead of connecting to it: a
 connection resets the listener's idle timer, which stops config/www.cfg from being
