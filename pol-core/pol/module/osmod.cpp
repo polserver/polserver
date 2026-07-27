@@ -646,18 +646,19 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   bool assume_string = assume_string_int != 0;
   bool keep_connection = keep_connection_int != 0;
   bool ignore_line_breaks = ignore_line_breaks_int != 0;
-  // 0 means a blocking connect with the OS default timeout; the escript default
-  // is 10s so an unreachable host doesn't pin an auxthreadpool worker for the
-  // OS default of a minute or more
-  auto connect_timeout_ms = static_cast<unsigned int>( connect_timeout_ms_int );
+  // The escript argument stays an integer number of milliseconds (os.em contract); wrap it
+  // once, here. 0 means a blocking connect with the OS default timeout; the escript default
+  // is 10s so an unreachable host doesn't pin an auxthreadpool worker for the OS default of
+  // a minute or more
+  std::chrono::milliseconds connect_timeout{ connect_timeout_ms_int };
   auto* paramobjimp_raw = scriptparam->copy();  // prevent delete
   Core::networkManager.auxthreadpool->push(
       [uoexec_w, sd, hostname, port, paramobjimp_raw, assume_string, keep_connection,
-       ignore_line_breaks, connect_timeout_ms]()
+       ignore_line_breaks, connect_timeout]()
       {
         Clib::Socket s;
         std::unique_ptr<Network::AuxClientThread> client;
-        bool success_open = s.open( hostname.c_str(), port, connect_timeout_ms );
+        bool success_open = s.open( hostname.c_str(), port, connect_timeout );
         {
           Core::PolLock lck;
           std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );

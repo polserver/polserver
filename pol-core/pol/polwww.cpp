@@ -14,6 +14,7 @@
 
 #include "pol/polwww.h"
 
+#include <chrono>
 #include <ctype.h>
 #include <errno.h>
 #include <fmt/format.h>
@@ -59,6 +60,7 @@
 namespace Pol::Core
 {
 using namespace threadhelp;
+using namespace std::chrono_literals;
 
 namespace
 {
@@ -760,7 +762,7 @@ void http_func( SOCKET client_socket )
   // send_binary's file streaming is bounded by Socket::send's stall budget.
   if ( !sck.set_nonblocking() )
     POLLOG_ERRORLN( "HTTP: unable to switch a client socket to non-blocking mode" );
-  Clib::SocketLineReader lineReader( sck, 5, 3000,
+  Clib::SocketLineReader lineReader( sck, 5s, 3000,
                                      false );  // we take care of disconnecting at timeout
 
   std::string request_line;
@@ -995,7 +997,7 @@ void http_thread()
     Pol::threadhelp::TaskThreadPool worker_threads( 4, "http" );
     while ( !Clib::exit_signalled )
     {
-      if ( !listen_sck.has_incoming_data( 5000 ) )
+      if ( !listen_sck.has_incoming_data( 5s ) )
       {
         load_mime_config();  // hot-reload the MIME config while idle
         continue;

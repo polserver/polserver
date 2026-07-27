@@ -23,7 +23,11 @@ namespace Pol::Clib
 // calling thread, and the webserver's page scripts, which sleep and resume instead
 // (pol/module/httpmod.cpp). They differ because a page script runs on the scripts thread
 // while it holds the world lock, so it must never block; a thread-pool worker may.
-inline constexpr auto stalled_peer_timeout = std::chrono::seconds( 60 );
+//
+// pol.cfg's StalledPeerTimeout sets it at startup and on config reload; clib cannot read
+// the config itself, so pol hands the value down (pol/core.cpp apply_polcfg).
+std::chrono::seconds stalled_peer_timeout();
+void set_stalled_peer_timeout( std::chrono::seconds timeout );
 
 // Time since a transfer last made any progress. Any progress at all restarts the budget,
 // so a peer that keeps accepting data is never dropped for being slow -- only one that
@@ -31,12 +35,12 @@ inline constexpr auto stalled_peer_timeout = std::chrono::seconds( 60 );
 class StallBudget
 {
 public:
-  void note_progress() { _deadline = clock::now() + stalled_peer_timeout; }
+  void note_progress() { _deadline = clock::now() + stalled_peer_timeout(); }
   bool expired() const { return clock::now() >= _deadline; }
 
 private:
   using clock = std::chrono::steady_clock;
-  clock::time_point _deadline = clock::now() + stalled_peer_timeout;
+  clock::time_point _deadline = clock::now() + stalled_peer_timeout();
 };
 
 class Socket
@@ -72,14 +76,16 @@ public:
   bool write( const std::string& str );
   bool writeline( const std::string& s );
 
-  // connect_timeout_ms == 0 means a blocking connect with the OS default timeout
-  bool open( const char* ipaddr, unsigned short port, unsigned int connect_timeout_ms = 0 );
+  // a zero connect_timeout means a blocking connect with the OS default timeout
+  bool open( const char* ipaddr, unsigned short port,
+             std::chrono::milliseconds connect_timeout = std::chrono::milliseconds::zero() );
   // loopback_only binds to 127.0.0.1 instead of all interfaces
   bool listen( unsigned short port, bool loopback_only = false );
-  bool has_incoming_data( unsigned int waitms, int* result = nullptr );
+  // a zero wait polls once and returns immediately
+  bool has_incoming_data( std::chrono::milliseconds wait, int* result = nullptr );
   bool accept( Socket* newsocket );
   bool recvdata_nowait( char* vdest, unsigned len, int* bytes_read );
-  bool recvdata( void* vdest, unsigned len, unsigned int waitms );
+  bool recvdata( void* vdest, unsigned len, std::chrono::milliseconds wait );
   bool send( const void* data, unsigned length );
   SendResult send_nowait( const void* vdata, unsigned datalen, unsigned* nsent );
   bool connected() const;
@@ -125,19 +131,19 @@ private:
 class SocketReader
 {
 public:
-  SocketReader( Socket& socket, unsigned int timeout_secs = 0, bool disconnect_on_timeout = true )
-      : _socket( socket ),
-        _waitms( 500 ),
-        _timeout_secs( timeout_secs ),
-        _disconnect_on_timeout( disconnect_on_timeout )
+  // _wait is how long a single poll blocks; _timeout is how long the whole read may go
+  // without progress before the peer is given up on. Different units, hence different types.
+  SocketReader( Socket& socket, std::chrono::seconds timeout = std::chrono::seconds::zero(),
+                bool disconnect_on_timeout = true )
+      : _socket( socket ), _timeout( timeout ), _disconnect_on_timeout( disconnect_on_timeout )
   {
   }
   virtual ~SocketReader() = default;
   virtual bool try_read( std::string& out, bool* timed_out = nullptr ) = 0;
   bool read( std::string& out, bool* timed_out = nullptr );
 
-  void set_wait( unsigned int waitms ) { _waitms = waitms; }
-  void set_timeout( unsigned int timeout_secs ) { _timeout_secs = timeout_secs; }
+  void set_wait( std::chrono::milliseconds wait ) { _wait = wait; }
+  void set_timeout( std::chrono::seconds timeout ) { _timeout = timeout; }
 
   void set_disconnect_on_timeout( bool disconnect ) { _disconnect_on_timeout = disconnect; }
 
@@ -146,8 +152,8 @@ public:
 protected:
   Socket& _socket;
 
-  unsigned int _waitms;
-  unsigned int _timeout_secs;
+  std::chrono::milliseconds _wait{ 500 };
+  std::chrono::seconds _timeout;
 
   bool _disconnect_on_timeout;
   // set by try_read() when it consumed usable bytes; read() only refreshes its
@@ -158,10 +164,9 @@ protected:
 class SocketLineReader : public SocketReader
 {
 public:
-  SocketLineReader( Socket& socket, unsigned int timeout_secs = 0, unsigned int max_linelength = 0,
-                    bool disconnect_on_timeout = true )
-      : SocketReader( socket, timeout_secs, disconnect_on_timeout ),
-        _maxLinelength( max_linelength )
+  SocketLineReader( Socket& socket, std::chrono::seconds timeout = std::chrono::seconds::zero(),
+                    unsigned int max_linelength = 0, bool disconnect_on_timeout = true )
+      : SocketReader( socket, timeout, disconnect_on_timeout ), _maxLinelength( max_linelength )
   {
   }
   bool try_read( std::string& out, bool* timed_out = nullptr ) override;
@@ -179,9 +184,9 @@ private:
 class SocketByteReader : public SocketReader
 {
 public:
-  SocketByteReader( Socket& socket, unsigned int timeout_secs = 0,
+  SocketByteReader( Socket& socket, std::chrono::seconds timeout = std::chrono::seconds::zero(),
                     bool disconnect_on_timeout = true )
-      : SocketReader( socket, timeout_secs, disconnect_on_timeout )
+      : SocketReader( socket, timeout, disconnect_on_timeout )
   {
   }
   bool try_read( std::string& out, bool* timed_out = nullptr ) override;

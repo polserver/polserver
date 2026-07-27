@@ -13,6 +13,7 @@
 
 #include "plib/polcfg.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <exception>
 #include <sstream>
@@ -100,6 +101,9 @@ void PolConfig::read( bool initial_load )
   loglevel = elem.remove_ushort( "LogLevel", 0 );
   loginserver_select_timeout_msecs = elem.remove_ushort( "LoginServerSelectTimeout", 1 );
   loginserver_timeout_mins = elem.remove_ushort( "LoginServerTimeout", 10 );
+  // floored at one second: zero would drop a peer the moment its buffer filled once
+  stalled_peer_timeout_secs =
+      std::max<unsigned short>( 1, elem.remove_ushort( "StalledPeerTimeout", 60 ) );
   watch_rpm = elem.remove_bool( "WatchRpm", false );
   watch_sysload = elem.remove_bool( "WatchSysLoad", false );
   log_sysload = elem.remove_bool( "LogSysLoad", false );

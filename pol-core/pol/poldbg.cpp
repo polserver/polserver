@@ -11,6 +11,7 @@
 
 #include "pol/poldbg.h"
 
+#include <chrono>
 #include <fstream>
 #include <stddef.h>
 #include <string>
@@ -43,6 +44,7 @@
 namespace Pol::Core
 {
 using namespace Bscript;
+using namespace std::chrono_literals;
 
 // 14 members
 const char* poldbg_base_members[] = { "x",       "y",      "z",     "name",   "objtype",
@@ -1380,7 +1382,7 @@ void debug_listen_thread()
     while ( !Clib::exit_signalled )
     {
       Clib::Socket sock;
-      if ( SL.GetConnection( &sock, 1000 ) && sock.connected() )
+      if ( SL.GetConnection( &sock, 1s ) && sock.connected() )
       {
         Clib::SocketClientThread* p = new DebugClientThread( std::move( sock ) );
         p->start();

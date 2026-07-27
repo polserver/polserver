@@ -16,7 +16,7 @@ public:
 
   int wait_for_events() { return poller.wait_for_events(); }
 
-  void set_timeout( int timeout_msec ) { poller.set_timeout( timeout_msec ); }
+  void set_timeout( std::chrono::milliseconds timeout ) { poller.set_timeout( timeout ); }
 
   bool incoming() { return poller.incoming(); }
   bool error() { return poller.error(); }

@@ -37,6 +37,8 @@
 
 namespace Pol::Network
 {
+using namespace std::chrono_literals;
+
 Bscript::BObjectImp* AuxConnection::copy() const
 {
   return const_cast<AuxConnection*>( this );
@@ -198,11 +200,11 @@ void AuxClientThread::run()
 
   if ( _ignore_line_breaks )
   {
-    reader = std::make_unique<Clib::SocketByteReader>( _sck, 5, !_keep_alive );
+    reader = std::make_unique<Clib::SocketByteReader>( _sck, 5s, !_keep_alive );
   }
   else
   {
-    reader = std::make_unique<Clib::SocketLineReader>( _sck, 5, 0, !_keep_alive );
+    reader = std::make_unique<Clib::SocketLineReader>( _sck, 5s, 0, !_keep_alive );
   }
 
   for ( ;; )
@@ -322,7 +324,7 @@ void AuxService::run()
   while ( !Clib::exit_signalled )
   {
     Clib::Socket sock;
-    if ( listener.GetConnection( &sock, 5000 ) && sock.connected() )
+    if ( listener.GetConnection( &sock, 5s ) && sock.connected() )
     {
       Core::PolLock lock;
       AuxClientThread* client( new AuxClientThread( this, std::move( sock ) ) );

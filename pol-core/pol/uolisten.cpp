@@ -29,6 +29,8 @@
 
 namespace Pol::Core
 {
+using namespace std::chrono_literals;
+
 UoClientThread::UoClientThread( UoClientListener* def, Clib::Socket&& newsck )
     : Clib::SocketClientThread( std::move( newsck ) ),
       _def( def ),
@@ -112,11 +114,11 @@ void UoClientListener::run()
       port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
   while ( !Clib::exit_signalled )
   {
-    unsigned int mstimeout = 2000;
+    auto timeout = 2000ms;
     if ( !login_clients.empty() )
-      mstimeout = 200;
+      timeout = 200ms;
     Clib::Socket newsck;
-    if ( SL.GetConnection( &newsck, mstimeout ) && newsck.connected() )
+    if ( SL.GetConnection( &newsck, timeout ) && newsck.connected() )
     {
       // create an appropriate Client object
       if ( Plib::systemstate.config.use_single_thread_login )

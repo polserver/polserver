@@ -29,6 +29,7 @@ struct PolConfig
   std::atomic<unsigned short> loglevel;  // 0=nothing 10=lots
   unsigned short loginserver_select_timeout_msecs;
   unsigned short loginserver_timeout_mins;
+  unsigned short stalled_peer_timeout_secs;
   bool watch_rpm;
   bool watch_sysload;
   bool log_sysload;

@@ -6,23 +6,23 @@
 // (minutes). Non-blocking, Socket::send() gives up after 60 seconds without progress and
 // closes the connection, which the script sees as "connection closed".
 //
-// Unlike the webserver case this costs a full minute of wall clock: blocking and
-// non-blocking sockets behave identically until that budget expires, so there is nothing
-// cheaper to observe.
+// The wait is the whole cost of this test: blocking and non-blocking sockets behave
+// identically until the budget expires, so there is nothing cheaper to observe. That is
+// why the test shard sets pol.cfg StalledPeerTimeout=15 instead of the 60s default.
 use os;
 include "testutil";
 
 const DEAFCLIENT_PORT := 5011;
 const AUX_PORT        := 5012;
 // longer than the core's stall budget, so the core is what ends the connection
-const HOLD_SECONDS    := 90;
+const HOLD_SECONDS    := 45;
 
-// The core gives up after 60s without progress and the reader notices within its 5s poll,
-// so a pass lands near 62s. The upper bound has to stay well below HOLD_SECONDS: without
-// the fix the connection survives until the peer itself closes, and a bound at the hold
-// time would make that a pass by a few milliseconds.
-const MIN_GIVEUP_MS   := 30000;
-const MAX_GIVEUP_MS   := 75000;
+// The core gives up after StalledPeerTimeout (15s here) without progress and the reader
+// notices within its 5s poll, so a pass lands near 17s. The upper bound has to stay well
+// below HOLD_SECONDS: without the fix the connection survives until the peer itself
+// closes, and a bound at the hold time would make that a pass by a few milliseconds.
+const MIN_GIVEUP_MS   := 8000;
+const MAX_GIVEUP_MS   := 30000;
 
 exported function test_aux_stalled_peer( )
   var ctl := OpenConnection( "127.0.0.1", DEAFCLIENT_PORT, "deafctl",
@@ -48,7 +48,7 @@ exported function test_aux_stalled_peer( )
     return ret_error( $"could not connect to the deaf listener: {conn}" );
   endif
 
-  var report := wait_for_event( 150 );
+  var report := wait_for_event( 90 );
   if ( !report )
     return ret_error( "aux client never reported back" );
   endif
@@ -58,10 +58,10 @@ exported function test_aux_stalled_peer( )
     return ret_error( "the core never gave up on an aux peer that stopped reading: the transmit stays stuck until the OS TCP timeout" );
   endif
   if ( elapsed > MAX_GIVEUP_MS )
-    return ret_error( $"the core did not drop the stalled aux peer: the connection only ended after {elapsed}ms, when the peer closed it, instead of at the core's own 60000ms budget" );
+    return ret_error( $"the core did not drop the stalled aux peer: the connection only ended after {elapsed}ms, when the peer closed it, instead of within its StalledPeerTimeout ({MAX_GIVEUP_MS}ms allowed)" );
   endif
   if ( elapsed < MIN_GIVEUP_MS )
-    return ret_error( $"the stalled aux connection ended after only {elapsed}ms, expected about 60000ms" );
+    return ret_error( $"the stalled aux connection ended after only {elapsed}ms, expected at least {MIN_GIVEUP_MS}ms" );
   endif
 
   return 1;

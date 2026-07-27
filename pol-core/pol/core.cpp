@@ -8,6 +8,7 @@
 
 #include "pol/core.h"
 
+#include <chrono>
 #include <stddef.h>
 
 #include "bscript/config.h"
@@ -15,6 +16,7 @@
 #include "clib/clib.h"
 #include "clib/compilerspecifics.h"
 #include "clib/mdump.h"
+#include "clib/network/wnsckt.h"
 #include "clib/passert.h"
 #include "clib/rawtypes.h"
 #include "plib/systemstate.h"
@@ -51,6 +53,7 @@ void apply_polcfg( bool initial )
   }
   Bscript::escript_config.max_call_depth = config.max_call_depth;
   Clib::passert_dump_stack = config.passert_dump_stack;
+  Clib::set_stalled_peer_timeout( std::chrono::seconds( config.stalled_peer_timeout_secs ) );
 
   if ( config.passert_failure_action == "abort" )
   {
