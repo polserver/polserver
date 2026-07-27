@@ -96,6 +96,11 @@ def deaf_listen(control, port, hold_secs):
     """Accept one connection from the shard and never read it, so its transmit stalls."""
     listener = socket.socket()
     listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # small receive window, same reason as the STALL case -- it has to be set on the
+    # listening socket: the accepted socket inherits it, and on Linux/macOS the window is
+    # negotiated during the handshake, so setting it after accept() comes too late to
+    # shrink what was already advertised and nothing ever stalls
+    listener.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 2048)
     listener.bind(("127.0.0.1", port))
     listener.listen(1)
     listener.settimeout(60)
@@ -108,8 +113,6 @@ def deaf_listen(control, port, hold_secs):
         log(f"nothing connected to {port}: {type(ex).__name__}")
         listener.close()
         return
-    # small receive window, same reason as the STALL case
-    peer.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 2048)
 
     time.sleep(hold_secs)
 
