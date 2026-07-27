@@ -23,6 +23,7 @@ To notice the shard is gone it binds the webserver port instead of connecting to
 connection resets the listener's idle timer, which stops config/www.cfg from being
 hot-reloaded and breaks test_www_config.
 """
+import os
 import socket
 import threading
 import time
@@ -37,6 +38,22 @@ logfile = open("deafclient.log", "w", encoding="utf-8", buffering=1)
 
 def log(message):
     logfile.write(message + "\n")
+
+
+def release_stdout():
+    """Let POL's stdin reach EOF immediately.
+
+    cmake's execute_process chains its COMMANDs into a pipeline, so this process's
+    stdout is POL's stdin -- and POL's console thread calls read() on stdin once a
+    second (the VMIN/VTIME its keyboard hook sets do not apply to a pipe, so the read
+    blocks). Anything still holding the write end keeps that thread inside read()
+    through shutdown, which drags the shard past the 30 second "no clock movement"
+    watchdog. testclient.py and smtpd.py get away with holding it because they exit
+    mid-run; this helper deliberately outlives the shard, so it hands the fd back.
+    """
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    os.dup2(devnull, 1)
+    os.close(devnull)
 
 
 def webserver_port_free():
@@ -144,6 +161,7 @@ def handle(control):
 
 
 def main():
+    release_stdout()
     listener = socket.socket()
     listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     listener.bind(("127.0.0.1", CONTROL_PORT))
