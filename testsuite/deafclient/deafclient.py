@@ -8,6 +8,10 @@ Control protocol (line based, spoken by testpkgs/slowreader/deafctl.src):
 
     STALL <hold_secs> <kb> <chunks>   ->  ARMED       once the request is on the wire
                                       ->  BYTES <n>   after it drains the response
+    DEAFLISTEN <port> <hold_secs>     ->  LISTENING   ready for os::OpenConnection()
+
+STALL covers the webserver; DEAFLISTEN covers the aux service, where the shard is the one
+connecting out and this process is the peer that stops reading.
 
 Two details the test depends on: the small SO_RCVBUF, which makes the server's socket
 buffer fill after ~64 KB, and `chunks` -- a body written in one large send is accepted
@@ -88,6 +92,32 @@ def stall(control, hold_secs, kb, chunks):
     control.sendall(f"BYTES {received}\n".encode())
 
 
+def deaf_listen(control, port, hold_secs):
+    """Accept one connection from the shard and never read it, so its transmit stalls."""
+    listener = socket.socket()
+    listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    listener.bind(("127.0.0.1", port))
+    listener.listen(1)
+    listener.settimeout(60)
+    control.sendall(b"LISTENING\n")
+    log(f"deaf listener on {port}, will hold {hold_secs}s without reading")
+
+    try:
+        peer, _ = listener.accept()
+    except OSError as ex:
+        log(f"nothing connected to {port}: {type(ex).__name__}")
+        listener.close()
+        return
+    # small receive window, same reason as the STALL case
+    peer.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 2048)
+
+    time.sleep(hold_secs)
+
+    peer.close()
+    listener.close()
+    log(f"deaf listener on {port} done")
+
+
 def handle(control):
     try:
         while True:
@@ -98,6 +128,8 @@ def handle(control):
             words = line.split()
             if words[0] == "STALL":
                 stall(control, float(words[1]), int(words[2]), int(words[3]))
+            elif words[0] == "DEAFLISTEN":
+                deaf_listen(control, int(words[1]), float(words[2]))
             else:
                 log(f"ignoring unknown command: {line}")
     except OSError as ex:

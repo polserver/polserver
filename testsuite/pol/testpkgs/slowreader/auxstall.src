@@ -1,0 +1,35 @@
+// Helper for test_auxstall.src (not a test file itself). Transmits more than a deaf
+// peer's receive window can hold, then reports how many milliseconds the core took to
+// give up on the connection (-1 if it never did). Started with keep_connection := 1 so
+// our own receive timeout does not close the socket first.
+use os;
+use polsys;
+
+program auxservice( conn, params )
+  // one 64 KiB write per transmit: more than the socket buffer holds for a peer that
+  // never reads, so the send after the first cannot be handed to the kernel at all
+  var chunk := "x";
+  while ( Len( chunk ) < 65536 )
+    chunk := chunk + chunk;
+  endwhile
+
+  var start := ReadMillisecondClock();
+  for i := 1 to 8
+    conn.transmit( chunk );
+  endfor
+
+  // the only event this connection can produce is the "connection closed" error the
+  // reader signals once the core drops the stalled peer
+  var elapsed := -1;
+  var loops := 200;  // 100s safety net
+  while ( loops > 0 )
+    loops -= 1;
+    if ( Events_Waiting() )
+      elapsed := ReadMillisecondClock() - start;
+      break;
+    endif
+    Sleepms( 500 );
+  endwhile
+
+  GetProcess( params.test_script_pid ).SendEvent( struct{ elapsed := elapsed } );
+endprogram

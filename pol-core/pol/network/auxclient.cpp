@@ -172,11 +172,11 @@ bool AuxClientThread::ipAllowed( sockaddr MyPeer )
 }
 void AuxClientThread::run()
 {
-  // Transmits must not block: transmit() holds _transmit_mutex while sending, so a peer
-  // that stops reading would hold back every other transmit on this connection until the
-  // OS TCP timeout. Non-blocking, Socket::send() gives up after its own stall budget.
-  // Accepted connections inherit this from the listener; os::OpenConnection() sockets are
-  // connected by Socket::open(), which leaves them blocking.
+  // Sockets are switched to non-blocking by whoever takes ownership of the connection,
+  // which is here for both directions: accepted aux connections and the ones
+  // os::OpenConnection() dials out. Without it a peer that stops reading holds
+  // _transmit_mutex -- and every other transmit queued on this connection -- until the OS
+  // TCP timeout; non-blocking, Socket::send() gives up after stalled_peer_timeout.
   if ( !_sck.set_nonblocking() )
     POLLOG_ERRORLN( "Aux connection: unable to switch the socket to non-blocking mode" );
 
@@ -272,6 +272,8 @@ void AuxClientThread::transmit( const std::string& msg )
   std::unique_lock<std::mutex> lock( _transmit_mutex );
   if ( _sck.connected() )
   {
+    // A failed write needs no handling here: Socket::send() logged it and closed the
+    // socket, and the reader thread turns that into the script's "connection closed".
     if ( _ignore_line_breaks )
       _sck.write( msg );
     else
@@ -311,7 +313,11 @@ void AuxService::run()
 {
   INFO_PRINTLN( "Starting Aux Listener ({}, port {})", _scriptdef.relativename(), _port );
 
-  // non-blocking, so a dead peer cannot stall a transmit thread (see run())
+  // Non-blocking listener, so accept() cannot hang this loop: GetConnection() polls first,
+  // but a client can abort between the poll and the accept, and a blocking accept() would
+  // then sit waiting for the *next* client. This is about the accept loop only -- the
+  // connections themselves are made non-blocking by their owner in AuxClientThread::run(),
+  // which is also the only place that reaches sockets os::OpenConnection() dialled out.
   Clib::SocketListener listener( _port, Clib::Socket::nonblocking );
   while ( !Clib::exit_signalled )
   {

@@ -10,7 +10,6 @@
 #include <string>
 
 #include "clib/network/wnsckt.h"
-#include "pol/polclock.h"
 #include "pol/polmodl.h"
 
 
@@ -58,9 +57,8 @@ public:
   using QueryParamMap = std::map<std::string, std::string, Clib::ci_cmp_pred>;
   QueryParamMap params_;
   int continuing_offset;
-  // when the current partially-sent write started making no progress; zero while no
-  // write is being resumed
-  Core::polclock_t send_stalled_since = 0;
+  // how long the write being resumed has been making no progress
+  Clib::StallBudget send_budget;
   std::string query_ip_;
   bool cannotSendStatus = false;
   bool cannotSendHeaders = false;

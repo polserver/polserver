@@ -19,6 +19,9 @@ program auxservice( conn, params )
     case ( words[1] )
       "ARMED":
         GetProcess( params.test_script_pid ).SendEvent( struct{ armed := 1 } );
+      "LISTENING":
+        GetProcess( params.test_script_pid ).SendEvent( struct{ listening := 1 } );
+        break;
       "BYTES":
         GetProcess( params.test_script_pid ).SendEvent( struct{ bytes := CInt( words[2] ) } );
         break;

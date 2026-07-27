@@ -32,23 +32,19 @@ HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& 
 {
 }
 
+// Page scripts cannot block: they run on the scripts thread while it holds the world lock,
+// so instead of waiting inside send() like Socket::send() does, they sleep and resume the
+// write. The budget that ends it is the same one, so both paths drop a peer that stopped
+// receiving after the same time.
 bool HttpExecutorModule::keep_retrying_send( unsigned nsent )
 {
-  // Same budget Socket::send() gives a stalled peer, for the same reason: without one, a
-  // client that never reads keeps the script resuming (and the socket open) forever.
-  const Core::polclock_t max_stall = 60 * Core::POLCLOCKS_PER_SEC;
-  Core::polclock_t now = Core::polclock();
+  if ( nsent > 0 )
+    send_budget.note_progress();
 
-  if ( nsent > 0 || send_stalled_since == 0 )
-  {
-    send_stalled_since = now;  // progress, or the first attempt: start the budget over
-    return true;
-  }
-
-  if ( now - send_stalled_since < max_stall )
+  if ( !send_budget.expired() )
     return true;
 
-  INFO_PRINTLN( "HTTP: giving up on a client that stopped receiving" );
+  INFO_PRINTLN( "Closing socket - peer has stopped receiving" );
   sck_.close();
   return false;
 }
@@ -132,7 +128,7 @@ BObjectImp* HttpExecutorModule::mf_WriteStatus()
     {
       cannotSendStatus = true;
       continuing_offset = 0;
-      send_stalled_since = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       return new BLong( 1 );
     }
 
@@ -189,7 +185,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHeader()
     {
       cannotSendStatus = true;
       continuing_offset = 0;
-      send_stalled_since = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       return new BLong( 1 );
     }
 
@@ -243,7 +239,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
       cannotSendStatus = true;
       cannotSendHeaders = true;
       continuing_offset = 0;
-      send_stalled_since = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       // we don't really care if this works or not, terribly.
       sck_.send_nowait( "\n", 1, &nsent );
       return new BLong( 1 );
@@ -302,7 +298,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
       cannotSendStatus = true;
       cannotSendHeaders = true;
       continuing_offset = 0;
-      send_stalled_since = 0;
+      send_budget.note_progress();  // a finished write starts the next one on a full budget
       return new BLong( 1 );
     }
 

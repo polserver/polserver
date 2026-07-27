@@ -501,11 +501,11 @@ bool Socket::send( const void* vdata, unsigned length )
   const char* cdata = static_cast<const char*>( vdata );
   unsigned datalen = length;
 
-  // maximum time to wait for the peer to drain its receive buffer before
-  // considering the connection dead
-  const unsigned int max_wait_ms = 60 * 1000;
+  // This blocks the calling thread until the peer drains its receive buffer, so it is only
+  // ever called from threads that may block: aux transmits and the webserver's file
+  // streaming, never from the scripts thread.
   const unsigned int wait_slice_ms = 500;
-  unsigned int waited_ms = 0;
+  StallBudget budget;
 
   while ( datalen )
   {
@@ -520,14 +520,13 @@ bool Socket::send( const void* vdata, unsigned length )
       int sckerr = socket_errno();
       if ( sckerr == sockerr::wouldblock )
       {
-        if ( exit_signalled || waited_ms >= max_wait_ms )
+        if ( exit_signalled || budget.expired() )
         {
-          INFO_PRINTLN( "Socket::send() timed out waiting for peer to receive" );
+          INFO_PRINTLN( "Closing socket - peer has stopped receiving" );
           close();
           return false;
         }
-        if ( !wait_for_writable( sck, wait_slice_ms ) )
-          waited_ms += wait_slice_ms;
+        wait_for_writable( sck, wait_slice_ms );
         continue;
       }
 
@@ -536,7 +535,7 @@ bool Socket::send( const void* vdata, unsigned length )
       return false;
     }
 
-    waited_ms = 0;  // made progress, reset the stall budget
+    budget.note_progress();
     datalen -= res;
     cdata += res;
   }

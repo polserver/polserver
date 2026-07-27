@@ -2,6 +2,7 @@
 #define CLIB_WNSCKT_H
 
 #include <atomic>
+#include <chrono>
 #include <string>
 
 #include "clib/Header_Windows.h"
@@ -17,6 +18,27 @@ using SOCKET = int;
 
 namespace Pol::Clib
 {
+// How long a peer may accept nothing at all before its connection is considered dead.
+// Two places wait out a stalled peer and both use this: Socket::send(), which blocks the
+// calling thread, and the webserver's page scripts, which sleep and resume instead
+// (pol/module/httpmod.cpp). They differ because a page script runs on the scripts thread
+// while it holds the world lock, so it must never block; a thread-pool worker may.
+inline constexpr auto stalled_peer_timeout = std::chrono::seconds( 60 );
+
+// Time since a transfer last made any progress. Any progress at all restarts the budget,
+// so a peer that keeps accepting data is never dropped for being slow -- only one that
+// accepts nothing.
+class StallBudget
+{
+public:
+  void note_progress() { _deadline = clock::now() + stalled_peer_timeout; }
+  bool expired() const { return clock::now() >= _deadline; }
+
+private:
+  using clock = std::chrono::steady_clock;
+  clock::time_point _deadline = clock::now() + stalled_peer_timeout;
+};
+
 class Socket
 {
 public:
