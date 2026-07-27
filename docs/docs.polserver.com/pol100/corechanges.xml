@@ -8,14 +8,17 @@
 		<entry>
 			<date>07-27-2026</date>
 			<author>Nando:</author>
-			<change type="Fixed">Clients connecting at the same time were let in slowly, and the delay grew<br/>
-with the square of how many were waiting. Each pass of a UO listener accepted<br/>
-only one connection, and a pass also polls every client still on the login<br/>
-server, so each new connection waited for all the earlier ones to be polled<br/>
-first. A listener now accepts every connection already queued, up to 64 per<br/>
-pass. Measured on loopback, admitting 75 simultaneous connections went from<br/>
-28.7 to 1.2 seconds. This is most visible right after a restart, when many<br/>
-players reconnect at once.</change>
+			<change type="Fixed">Logging in was slow, and got slower the more players were logging in at the<br/>
+same time. A UO listener waited on each client still on the login server one<br/>
+after another, and accepted only one new connection per pass, so every client<br/>
+waited for all the others to be checked first. A listener now waits on all of<br/>
+them at once and accepts every connection already queued. Measured on<br/>
+loopback with 75 clients on the login server: a login packet went from 247ms<br/>
+to 0.8ms, and admitting 75 connections went from 28.7 to 0.8 seconds. This is<br/>
+most visible right after a restart, when many players reconnect at once.</change>
+			<change type="Removed">pol.cfg LoginServerSelectTimeout. It bounded a wait the login server paid<br/>
+once per waiting client, which no longer happens. Leaving the setting in<br/>
+pol.cfg is harmless, it is simply ignored.</change>
 			<change type="Added">pol.cfg StalledPeerTimeout (seconds, default 60) sets how long a peer may<br/>
 accept no data at all before the core closes the connection. It applies to<br/>
 both places that wait one out: aux service / os::OpenConnection() transmits<br/>

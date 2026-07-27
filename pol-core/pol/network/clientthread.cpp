@@ -55,45 +55,11 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
 void report_weird_packet( Network::ThreadedClient* session,
                           const std::string& why );  // Defined below
 
-// LoginServerSelectTimeout is configured in milliseconds
-std::chrono::milliseconds polling_timeout( bool single_threaded_login )
+constexpr auto polling_timeout = std::chrono::milliseconds( 2000 );
+
+bool threadedclient_io_step( Network::ThreadedClient* session, SocketReadiness ready, int& nidle )
 {
-  return std::chrono::milliseconds(
-      single_threaded_login ? Plib::systemstate.config.loginserver_select_timeout_msecs : 2000 );
-}
-
-// Taking a reference to SinglePoller is ugly here. But io_step, io_loop and clientpoller will
-// eventually move into the same class.
-bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePoller& clientpoller,
-                             int& nidle )
-{
-  SESSION_CHECKPOINT( 1 );
-  if ( !clientpoller.prepare( session->have_queued_data() ) )
-  {
-    POLLOG_INFO( "Client#{}: ERROR - couldn't poll socket={}\n", session->myClient.instance_,
-                 session->csocket );
-
-    if ( session->csocket != INVALID_SOCKET )
-      session->forceDisconnect();
-
-    return false;
-  }
-
-  int res = 0;
-  do
-  {
-    SESSION_CHECKPOINT( 2 );
-    res = clientpoller.wait_for_events();
-    SESSION_CHECKPOINT( 3 );
-  } while ( res < 0 && !Clib::exit_signalled && Clib::socket_errno() == Clib::sockerr::intr );
-
-  if ( res < 0 )
-  {
-    int sckerr = Clib::socket_errno();
-    POLLOGLN( "Client#{}: select res={}, sckerr={}", session->myClient.instance_, res, sckerr );
-    return false;
-  }
-  if ( res == 0 )
+  if ( ready.timed_out )
   {
     if ( session->myClient.should_check_idle() )
     {
@@ -115,7 +81,7 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
   if ( !session->isReallyConnected() )
     return false;
 
-  if ( clientpoller.error() )
+  if ( ready.error )
   {
     session->forceDisconnect();
     return false;
@@ -129,7 +95,7 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
   }
   // endregion Speedhack
 
-  if ( clientpoller.incoming() )
+  if ( ready.incoming )
   {
     SESSION_CHECKPOINT( 6 );
     if ( process_data( session ) )
@@ -159,7 +125,7 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
     return false;
   }
 
-  if ( session->have_queued_data() && clientpoller.writable() )
+  if ( session->have_queued_data() && ready.writable )
   {
     PolLock lck;
     SESSION_CHECKPOINT( 8 );
@@ -170,18 +136,57 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
   return true;
 }  // namespace Pol::Core
 
-void threadedclient_io_loop( Network::ThreadedClient* session, bool login )
+// Waits on this one client's socket. Returns false if the wait itself failed,
+// in which case the client has been disconnected and there is nothing to run.
+bool threadedclient_wait( Network::ThreadedClient* session, Clib::SinglePoller& clientpoller,
+                          SocketReadiness* ready )
+{
+  SESSION_CHECKPOINT( 1 );
+  if ( !clientpoller.prepare( session->have_queued_data() ) )
+  {
+    POLLOG_INFO( "Client#{}: ERROR - couldn't poll socket={}\n", session->myClient.instance_,
+                 session->csocket );
+
+    if ( session->csocket != INVALID_SOCKET )
+      session->forceDisconnect();
+
+    return false;
+  }
+
+  int res = 0;
+  do
+  {
+    SESSION_CHECKPOINT( 2 );
+    res = clientpoller.wait_for_events();
+    SESSION_CHECKPOINT( 3 );
+  } while ( res < 0 && !Clib::exit_signalled && Clib::socket_errno() == Clib::sockerr::intr );
+
+  if ( res < 0 )
+  {
+    int sckerr = Clib::socket_errno();
+    POLLOGLN( "Client#{}: select res={}, sckerr={}", session->myClient.instance_, res, sckerr );
+    return false;
+  }
+
+  *ready = { clientpoller.incoming(), clientpoller.writable(), clientpoller.error(), res == 0 };
+  return true;
+}
+
+void threadedclient_io_loop( Network::ThreadedClient* session )
 {
   int nidle = 0;
   session->last_packet_at = polclock();
   session->last_activity_at = polclock();
 
   Clib::SinglePoller clientpoller( session->csocket );
-  clientpoller.set_timeout( polling_timeout( login ) );
+  clientpoller.set_timeout( polling_timeout );
 
   while ( !Clib::exit_signalled && session->isReallyConnected() )
   {
-    if ( !threadedclient_io_step( session, clientpoller, nidle ) || login )
+    SocketReadiness ready;
+    if ( !threadedclient_wait( session, clientpoller, &ready ) )
+      break;
+    if ( !threadedclient_io_step( session, ready, nidle ) )
       break;
   }
 }
@@ -221,38 +226,16 @@ void threadedclient_io_finalize( Network::ThreadedClient* session )
   }
 }
 
-bool client_io_thread( Network::Client* client, bool login )
+void report_io_exception( Network::Client* client, const std::string& what )
 {
-  if ( !login && Plib::systemstate.config.loglevel >= 11 )
-  {
-    POLLOGLN( "Network::Client#{} i/o thread starting", client->instance_ );
-  }
+  POLLOG_ERRORLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
+                  what, client->session()->checkpoint );
+}
 
-  CLIENT_CHECKPOINT( 0 );
-  try
-  {
-    threadedclient_io_loop( client->session(), login );
-  }
-  catch ( std::string& str )
-  {
-    POLLOG_ERRORLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
-                    str, client->session()->checkpoint );
-  }
-  catch ( const char* msg )
-  {
-    POLLOG_ERRORLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
-                    msg, client->session()->checkpoint );
-  }
-  catch ( std::exception& ex )
-  {
-    POLLOG_ERRORLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
-                    ex.what(), client->session()->checkpoint );
-  }
-  CLIENT_CHECKPOINT( 20 );
-
-  if ( login && client->isConnected() )
-    return true;
-
+// Logs the client off and hands it over to be deleted. Always returns false,
+// so callers can say `return client_io_done( client );`.
+bool client_io_done( Network::Client* client )
+{
   POLLOGLN( "Client#{} ({}): disconnected (account {})", client->instance_,
             client->ipaddrAsString(),
             ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" ) );
@@ -270,6 +253,72 @@ bool client_io_thread( Network::Client* client, bool login )
   // queue delete of client ptr see method doc for reason
   Core::networkManager.clientTransmit->QueueDelete( client );
   return false;
+}
+
+bool client_io_thread( Network::Client* client )
+{
+  if ( Plib::systemstate.config.loglevel >= 11 )
+  {
+    POLLOGLN( "Network::Client#{} i/o thread starting", client->instance_ );
+  }
+
+  CLIENT_CHECKPOINT( 0 );
+  try
+  {
+    threadedclient_io_loop( client->session() );
+  }
+  catch ( std::string& str )
+  {
+    report_io_exception( client, str );
+  }
+  catch ( const char* msg )
+  {
+    report_io_exception( client, msg );
+  }
+  catch ( std::exception& ex )
+  {
+    report_io_exception( client, ex.what() );
+  }
+  CLIENT_CHECKPOINT( 20 );
+
+  return client_io_done( client );
+}
+
+bool client_io_login_step( Network::Client* client, SocketReadiness ready )
+{
+  auto* session = client->session();
+
+  CLIENT_CHECKPOINT( 0 );
+  try
+  {
+    // A login client only ever runs one pass per call, so nidle never gets
+    // anywhere: the idle warn/disconnect belongs to the threaded loop, and
+    // LoginServerTimeout is what bounds a client's stay on the login server.
+    int nidle = 0;
+    session->last_packet_at = polclock();
+    session->last_activity_at = polclock();
+
+    if ( !Clib::exit_signalled && session->isReallyConnected() )
+      threadedclient_io_step( session, ready, nidle );
+  }
+  catch ( std::string& str )
+  {
+    report_io_exception( client, str );
+  }
+  catch ( const char* msg )
+  {
+    report_io_exception( client, msg );
+  }
+  catch ( std::exception& ex )
+  {
+    report_io_exception( client, ex.what() );
+  }
+  CLIENT_CHECKPOINT( 20 );
+
+  if ( client->isConnected() )
+    return true;
+
+  return client_io_done( client );
 }
 
 bool valid_message_length( Network::ThreadedClient* session, unsigned int length )

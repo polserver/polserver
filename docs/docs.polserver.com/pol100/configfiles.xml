@@ -1001,7 +1001,6 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [MaxAnimID=(0x800/0xFFFFFFFF {default 0x800})]
 [DiscardOldEvents=(1/0 {default 0})]
 [UseSingleThreadLogin=(1/0 {default 1})]
-[LoginServerSelectTimeout=(int {default 1})]
 [StalledPeerTimeout=(int seconds {default 60})]
 [DisableNagle=(1/0 {default 0})]
 [ShowRealmInfo=(1/0 {default 0})]
