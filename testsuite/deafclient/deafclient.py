@@ -36,8 +36,11 @@ HARD_DEADLINE_SECS = 540  # backstop if the shard never appears; ctest allows 60
 logfile = open("deafclient.log", "w", encoding="utf-8", buffering=1)
 
 
+START = time.monotonic()
+
+
 def log(message):
-    logfile.write(message + "\n")
+    logfile.write(f"[{time.monotonic() - START:7.2f}s] {message}\n")
 
 
 def release_stdout():
@@ -96,6 +99,10 @@ def stall(control, hold_secs, kb, chunks):
 
     time.sleep(hold_secs)
 
+    # The stall is over: stop advertising a keyhole window, or draining 8 MB back through
+    # it costs far more wall clock than the stall being tested (measured: 31s vs 8s).
+    deaf.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1 << 20)
+    log("hold over, draining")
     received = 0
     try:
         while True:

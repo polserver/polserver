@@ -23,7 +23,11 @@ namespace Pol::Clib
 // calling thread, and the webserver's page scripts, which sleep and resume instead
 // (pol/module/httpmod.cpp). They differ because a page script runs on the scripts thread
 // while it holds the world lock, so it must never block; a thread-pool worker may.
-inline constexpr auto stalled_peer_timeout = std::chrono::seconds( 60 );
+//
+// pol.cfg's StalledPeerTimeout sets it at startup and on config reload; clib cannot read
+// the config itself, so pol hands the value down (pol/core.cpp apply_polcfg).
+std::chrono::seconds stalled_peer_timeout();
+void set_stalled_peer_timeout( std::chrono::seconds timeout );
 
 // Time since a transfer last made any progress. Any progress at all restarts the budget,
 // so a peer that keeps accepting data is never dropped for being slow -- only one that
@@ -31,12 +35,12 @@ inline constexpr auto stalled_peer_timeout = std::chrono::seconds( 60 );
 class StallBudget
 {
 public:
-  void note_progress() { _deadline = clock::now() + stalled_peer_timeout; }
+  void note_progress() { _deadline = clock::now() + stalled_peer_timeout(); }
   bool expired() const { return clock::now() >= _deadline; }
 
 private:
   using clock = std::chrono::steady_clock;
-  clock::time_point _deadline = clock::now() + stalled_peer_timeout;
+  clock::time_point _deadline = clock::now() + stalled_peer_timeout();
 };
 
 class Socket

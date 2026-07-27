@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>07/25/2026</datemodified>
+    <datemodified>07/27/2026</datemodified>
 </fileheader>
 
 
@@ -1002,6 +1002,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [DiscardOldEvents=(1/0 {default 0})]
 [UseSingleThreadLogin=(1/0 {default 1})]
 [LoginServerSelectTimeout=(int {default 1})]
+[StalledPeerTimeout=(int seconds {default 60})]
 [DisableNagle=(1/0 {default 0})]
 [ShowRealmInfo=(1/0 {default 0})]
 [EnforceMountObjtype=(1/0 {default 0})]
@@ -1026,6 +1027,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>AccountDataSave: -1 : old behaviour, saves accounts.txt immediately after an account change, 0 : saves only during worldsave (if needed), >0 : saves every X seconds and during worldsave (if needed)</explain>
     <explain>UseSingleThreadLogin: if set all prelogin clients are handled inside the listener thread and not inside an extra thread this will reduce the amount of thread creates and destroys</explain>
     <explain>DisableNagle: disables Nagle's algorithm. In theory, latency should improve if DisableNagle=1.</explain>
+    <explain>StalledPeerTimeout: how many seconds a peer may accept no data at all before the core closes the connection. Applies to aux service connections and to web pages being written by a script; any progress at all restarts the countdown, so a merely slow peer is never dropped, only one that has stopped receiving entirely. Minimum 1.</explain>
     <explain>ShowRealmInfo: will report every once in a while the number of items, mobiles and multis per realm.</explain>
     <explain>EnforceMountObjtype: will enforce that only items with the mount objtype (as defined in extobj.cfg) can be mounted.</explain>
     <explain>AllowMultiClientsPerAccount: when true, will allow multiple characters from the same account to be logged in at the same time</explain>

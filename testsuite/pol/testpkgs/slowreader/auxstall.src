@@ -27,7 +27,7 @@ program auxservice( conn, params )
   // the only event this connection can produce is the "connection closed" error the
   // reader signals once the core drops the stalled peer
   var elapsed := -1;
-  var loops := 200;  // 100s safety net
+  var loops := 100;  // 50s safety net, above the shard's StalledPeerTimeout plus poll
   while ( loops > 0 )
     loops -= 1;
     if ( Events_Waiting() )

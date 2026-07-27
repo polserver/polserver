@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-26-2026</datemodified>
+		<datemodified>07-27-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-27-2026</date>
+			<author>Nando:</author>
+			<change type="Added">pol.cfg StalledPeerTimeout (seconds, default 60) sets how long a peer may<br/>
+accept no data at all before the core closes the connection. It applies to<br/>
+both places that wait one out: aux service / os::OpenConnection() transmits<br/>
+and web pages being written by a script. Any progress restarts the countdown,<br/>
+so a slow peer is never dropped, only one that has stopped receiving; the<br/>
+minimum is 1 second, and the value is re-read on configuration reload.</change>
+		</entry>
 		<entry>
 			<date>07-26-2026</date>
 			<author>Nando:</author>

@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstring>
@@ -23,6 +24,24 @@
 
 namespace Pol::Clib
 {
+namespace
+{
+// Read by every StallBudget on every socket thread, written once at startup and again on
+// each config reload -- an atomic keeps that defined without costing the readers anything.
+std::atomic<unsigned> stalled_peer_timeout_secs( 60 );
+}  // namespace
+
+std::chrono::seconds stalled_peer_timeout()
+{
+  return std::chrono::seconds( stalled_peer_timeout_secs.load( std::memory_order_relaxed ) );
+}
+
+void set_stalled_peer_timeout( std::chrono::seconds timeout )
+{
+  stalled_peer_timeout_secs.store( static_cast<unsigned>( timeout.count() ),
+                                   std::memory_order_relaxed );
+}
+
 // Brings up the socket library. No-op where none is needed, so callers do not have to
 // know which platforms want it.
 static void winsock_initialize()
