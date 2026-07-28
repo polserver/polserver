@@ -3619,7 +3619,6 @@ void Character::check_justice_region_change()
       get_opponent().remove_opponent_of( Attackable{ client->chr } );
       if ( auto* opp2 = get_opponent().mobile(); opp2 && opp2->client )
       {
-        // TODO Attackable
         opp2->set_opponent( {}, true );
         opp2->schedule_attack();
         opp2->opponent_.clear();
