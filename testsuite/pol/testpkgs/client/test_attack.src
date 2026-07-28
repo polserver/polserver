@@ -1,0 +1,310 @@
+// tests attacks performed by a client against an npc
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+const ATTACK_X := 100;
+const ATTACK_Y := 100;
+const ATTACK_Z := 0;
+
+var char;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+endprogram
+
+exported function test_client_attack_npc( resources )
+  var npc := setup_attack( resources );
+  if ( !npc )
+    return npc;
+  endif
+
+  var npc_hits := GetVital( npc, "Life" );
+  var char_hits := GetVital( char, "Life" );
+
+  var ev := send_attack( npc.serial, npc.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  var opponent := char.opponent;
+  if ( !opponent || opponent != npc )
+    return ret_error( $"Wrong opponent selected: {opponent}" );
+  elseif ( !char.warmode )
+    return ret_error( "Client did not enter warmode" );
+  endif
+
+  // the client swings at the npc
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_FIGHT_OCCURING } );
+    if ( !ev )
+      return ret_error( $"Client did not swing at the npc: {ev}" );
+    endif
+    if ( ev.attacker == char.serial && ev.defender == npc.serial )
+      break;
+    endif
+  endwhile
+
+  // and damages it
+  var res := wait_for_damage( npc, npc_hits );
+  if ( !res )
+    return res;
+  endif
+
+  // the new hitpoints of the npc are announced to the client
+  res := wait_for_client_hits( npc.serial );
+  if ( !res )
+    return res;
+  endif
+
+  // and the npc fights back, which the client sees on its own healthbar
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_HP_CHANGED } );
+    if ( !ev )
+      return ret_error( $"Client received no damage from the npc: {ev}" );
+    endif
+    if ( ev.serial == char.serial && ev.new < ev.old && GetVital( char, "Life" ) < char_hits )
+      break;
+    endif
+  endwhile
+
+  char.hitchance_mod := 0;
+  return 1;
+endfunction
+
+// leaving warmode stops the attack: the server clears the opponent and tells
+// the client that nothing is highlighted anymore
+exported function test_client_attack_stop_warmode( resources )
+  var npc := setup_attack( resources );
+  if ( !npc )
+    return npc;
+  endif
+
+  var ev := send_attack( npc.serial, npc.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "war_mode", arg := 0, id := 0 } );
+
+  ev := waitForClient( 0, { EVT_WAR_MODE } );
+  if ( !ev )
+    return ret_error( $"No warmode answer received: {ev}" );
+  elseif ( ev.war )
+    return ret_error( $"Client is still in warmode: {ev.war}" );
+  endif
+
+  ev := waitForClient( 0, { EVT_ATTACK } );
+  if ( !ev )
+    return ret_error( $"No highlight received: {ev}" );
+  elseif ( ev.serial )
+    return ret_error( $"Npc 0x{ev.serial:x} is still highlighted" );
+  endif
+
+  if ( char.opponent )
+    return ret_error( $"Opponent is still set: {char.opponent}" );
+  elseif ( char.warmode )
+    return ret_error( "Client did not leave warmode" );
+  endif
+
+  char.hitchance_mod := 0;
+  return 1;
+endfunction
+
+// attacking yourself is refused (SingleCombat is disabled), the already
+// selected opponent stays untouched
+exported function test_client_attack_self( resources )
+  var npc := setup_attack( resources );
+  if ( !npc )
+    return npc;
+  endif
+
+  var ev := send_attack( npc.serial, npc.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  // the npc stays the highlighted opponent
+  ev := send_attack( char.serial, npc.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  var opponent := char.opponent;
+  if ( !opponent || opponent != npc )
+    return ret_error( $"Wrong opponent selected: {opponent}" );
+  endif
+
+  char.hitchance_mod := 0;
+  return 1;
+endfunction
+
+// a hidden npc cannot be attacked
+exported function test_client_attack_hidden_npc( resources )
+  var npc := setup_attack( resources );
+  if ( !npc )
+    return npc;
+  endif
+  npc.hidden := 1;
+
+  var ev := send_attack( npc.serial, 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( char.opponent )
+    return ret_error( $"Opponent got selected: {char.opponent}" );
+  endif
+
+  char.hitchance_mod := 0;
+  return 1;
+endfunction
+
+// an npc outside of the visual range of the client cannot be attacked
+exported function test_client_attack_out_of_range( resources )
+  var npc := setup_attack( resources );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := MoveObjectToLocation( npc, ATTACK_X + 40, ATTACK_Y, ATTACK_Z,
+                                   flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Could not move npc: {res}" );
+  endif
+
+  var ev := send_attack( npc.serial, 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( char.opponent )
+    return ret_error( $"Opponent got selected: {char.opponent}" );
+  endif
+
+  char.hitchance_mod := 0;
+  return 1;
+endfunction
+
+// the vitals of a new npc must not be sent before the client knows about it,
+// but every change afterwards has to reach the client
+exported function test_client_npc_hits( resources )
+  var res := MoveObjectToLocation( char, ATTACK_X, ATTACK_Y, ATTACK_Z, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Could not move player: {res}" );
+  endif
+  Clear_Event_Queue();
+
+  var npc := resources.CreateNPCFromTemplate( ":TestClient:test_attack", char.x, char.y, char.z );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  var ev;
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_NEW_MOBILE, EVT_HP_CHANGED } );
+    if ( !ev )
+      return ret_error( $"Client did not receive the new npc: {ev}" );
+    elseif ( ev.serial != npc.serial )
+      continue;
+    elseif ( ev.type == EVT_HP_CHANGED )
+      return ret_error( "Client received the hitpoints of the npc before the npc itself" );
+    endif
+    break;
+  endwhile
+
+  SetVital( npc, "Life", GetVitalMaximumValue( npc, "Life" ) / 2 );
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_HP_CHANGED } );
+    if ( !ev )
+      return ret_error( $"Client received no hitpoints of the npc: {ev}" );
+    elseif ( ev.serial != npc.serial )
+      continue;
+    endif
+    break;
+  endwhile
+  if ( ev.new < 450 || ev.new > 550 )
+    return ret_error( $"Client got {ev.new} instead of the halved hitpoints of the npc" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+// moves the client to the testlocation and creates an npc on the same tile,
+// both always hit each other.
+function setup_attack( resources )
+  var res := MoveObjectToLocation( char, ATTACK_X, ATTACK_Y, ATTACK_Z, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Could not move player: {res}" );
+  endif
+  // the previous test killed its npc, which stops a still running attack
+  if ( char.opponent )
+    return ret_error( $"Client is still attacking: {char.opponent}" );
+  endif
+
+  SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
+  char.hitchance_mod := 1000;
+
+  var npc := resources.CreateNPCFromTemplate( ":TestClient:test_attack", char.x, char.y, char.z );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+  npc.hitchance_mod := 1000;
+
+  Clear_Event_Queue();
+  return npc;
+endfunction
+
+// sends an attack request for the given serial and waits for the server to
+// highlight the expected object.
+function send_attack( serial, expected )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "attack", arg := serial, id := 0 } );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_ATTACK } );
+    if ( !ev )
+      return ret_error( $"No highlight of 0x{expected:x} received: {ev}" );
+    endif
+    if ( ev.serial == expected )
+      return ev;
+    endif
+  endwhile
+endfunction
+
+// waits until the client got a hitpoint update (with changed value)
+function wait_for_client_hits( serial )
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_HP_CHANGED } );
+    if ( !ev )
+      return ret_error( $"Client received no hitpoints of 0x{serial:x}: {ev}" );
+    elseif ( ev.serial != serial || ev.new >= 1000 )
+      continue;
+    endif
+    return 1;
+  endwhile
+endfunction
+
+// waits until the hitpoints of the given mobile dropped below start_hits
+function wait_for_damage( who, start_hits, timeout := 10000 )
+  var start := ReadMillisecondClock();
+  while ( GetVital( who, "Life" ) >= start_hits )
+    if ( ReadMillisecondClock() - start > timeout )
+      return ret_error( $"{who.name} took no damage within {timeout}ms" );
+    endif
+    Sleepms( 100 );
+  endwhile
+  return 1;
+endfunction

@@ -1,0 +1,235 @@
+// tests attacks performed by a client against an attackable item
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+const ATTACK_X := 100;
+const ATTACK_Y := 100;
+const ATTACK_Z := 0;
+
+var char;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+endprogram
+
+exported function test_client_attack_item( resources )
+  var item := setup_attack( resources );
+  if ( !item )
+    return item;
+  endif
+
+  var ev := send_attack( item.serial, item.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  var opponent := char.opponent;
+  if ( !opponent || opponent != item )
+    return ret_error( $"Wrong opponent selected: {opponent}" );
+  elseif ( !char.warmode )
+    return ret_error( "Client did not enter warmode" );
+  endif
+
+  // the client swings at the item
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_FIGHT_OCCURING } );
+    if ( !ev )
+      return ret_error( $"Client did not swing at the item: {ev}" );
+    endif
+    if ( ev.attacker == char.serial && ev.defender == item.serial )
+      break;
+    endif
+  endwhile
+
+  // swings against items always hit
+  var res := wait_for_damage( item );
+  if ( !res )
+    return res;
+  endif
+
+  // the new hitpoints of the item are announced to the client
+  res := wait_for_client_hits( item.serial );
+  if ( !res )
+    return res;
+  endif
+
+  // stop attacking before the item gets destroyed by the resourcemanager
+  return stop_attack();
+endfunction
+
+// an invisible item cannot be attacked
+exported function test_client_attack_invis_item( resources )
+  var item := setup_attack( resources );
+  if ( !item )
+    return item;
+  endif
+  item.invisible := 1;
+
+  var ev := send_attack( item.serial, 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( char.opponent )
+    return ret_error( $"Opponent got selected: {char.opponent}" );
+  endif
+
+  return 1;
+endfunction
+
+// an item outside of the visual range of the client cannot be attacked
+exported function test_client_attack_item_range( resources )
+  var item := setup_attack( resources, 40 );
+  if ( !item )
+    return item;
+  endif
+
+  var ev := send_attack( item.serial, 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( char.opponent )
+    return ret_error( $"Opponent got selected: {char.opponent}" );
+  endif
+
+  return 1;
+endfunction
+
+// a normal item is no valid target at all, the server ignores the request
+exported function test_client_attack_normal_item( resources )
+  var res := prepare_char();
+  if ( !res )
+    return res;
+  endif
+
+  var item := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xF3F );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "attack", arg := item.serial, id := 0 } );
+  var ev := waitForClient( 0, { EVT_ATTACK }, 2 );
+  if ( ev )
+    return ret_error( $"Got a highlight of 0x{ev.serial:x} for a not attackable item" );
+  endif
+
+  if ( char.opponent )
+    return ret_error( $"Opponent got selected: {char.opponent}" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+// moves the client to the testlocation and creates an attackable item, by
+// default on the same tile.
+function setup_attack( resources, dist := 0 )
+  var res := prepare_char();
+  if ( !res )
+    return res;
+  endif
+
+  var item := resources.CreateItemAtLocation( char.x + dist, char.y, char.z, "AttackableTarget" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  Clear_Event_Queue();
+  return item;
+endfunction
+
+// moves the client to the testlocation and makes sure that it is not attacking
+// anything anymore
+function prepare_char()
+  var res := MoveObjectToLocation( char, ATTACK_X, ATTACK_Y, ATTACK_Z, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Could not move player: {res}" );
+  endif
+
+  if ( char.opponent || char.warmode )
+    return stop_attack();
+  endif
+  return 1;
+endfunction
+
+// leaves warmode, which clears the opponent of the client
+function stop_attack()
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "war_mode", arg := 0, id := 0 } );
+  var ev := waitForClient( 0, { EVT_WAR_MODE } );
+  if ( !ev )
+    return ret_error( $"No warmode answer received: {ev}" );
+  elseif ( ev.war )
+    return ret_error( $"Client is still in warmode: {ev.war}" );
+  endif
+
+  // clearing the opponent unhighlights it at the client
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_ATTACK } );
+    if ( !ev )
+      return ret_error( $"No highlight received: {ev}" );
+    elseif ( !ev.serial )
+      break;
+    endif
+  endwhile
+
+  if ( char.opponent )
+    return ret_error( $"Opponent is still set: {char.opponent}" );
+  endif
+  return 1;
+endfunction
+
+// sends an attack request for the given serial and waits for the server to
+// highlight the expected object.
+function send_attack( serial, expected )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "attack", arg := serial, id := 0 } );
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_ATTACK } );
+    if ( !ev )
+      return ret_error( $"No highlight of 0x{expected:x} received: {ev}" );
+    endif
+    if ( ev.serial == expected )
+      return ev;
+    endif
+  endwhile
+endfunction
+
+// waits until the client got a hitpoint update (with changed value)
+function wait_for_client_hits( serial )
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_HP_CHANGED } );
+    if ( !ev )
+      return ret_error( $"Client received no hitpoints of 0x{serial:x}: {ev}" );
+    elseif ( ev.serial != serial || ev.new >= 1000 )
+      continue;
+    endif
+    return 1;
+  endwhile
+endfunction
+
+// waits until the item lost hitpoints
+function wait_for_damage( item, timeout := 10000 )
+  var start := ReadMillisecondClock();
+  while ( item.hp >= item.maxhp )
+    if ( ReadMillisecondClock() - start > timeout )
+      return ret_error( $"Item took no damage within {timeout}ms: {item.hp}/{item.maxhp}" );
+    endif
+    Sleepms( 100 );
+  endwhile
+  return 1;
+endfunction
