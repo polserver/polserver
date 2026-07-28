@@ -1,5 +1,6 @@
 #include "ecompile/ECompileMain.h"
 
+#include <chrono>
 #include <cstdio>
 #include <exception>
 #include <filesystem>
@@ -46,6 +47,7 @@ namespace fs = std::filesystem;
 using namespace Pol::Core;
 using namespace Pol::Plib;
 using namespace Pol::Bscript;
+using namespace std::chrono_literals;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -979,7 +981,7 @@ void EnterWatchMode()
 
   while ( !Clib::exit_signalled )
   {
-    std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+    std::this_thread::sleep_for( 1s );
     listener.take_messages( watch_messages );
     if ( !watch_messages.empty() )
     {

@@ -9,8 +9,10 @@
 
 #ifdef _WIN32
 
-// compatibility wrapper for windows
-inline int poll( struct pollfd* fds, ULONG nfds, int timeout )
+// compatibility wrappers for windows
+using nfds_t = ULONG;
+
+inline int poll( struct pollfd* fds, nfds_t nfds, int timeout )
 {
   return WSAPoll( fds, nfds, timeout );
 };

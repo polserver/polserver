@@ -1,5 +1,16 @@
 -- POL100.3.0 --
 07-27-2026 Nando:
+    Fixed: Logging in was slow, and got slower the more players were logging in at the
+           same time. A UO listener waited on each client still on the login server one
+           after another, and accepted only one new connection per pass, so every client
+           waited for all the others to be checked first. A listener now waits on all of
+           them at once and accepts every connection already queued. Measured on
+           loopback with 75 clients on the login server: a login packet went from 247ms
+           to 0.8ms, and admitting 75 connections went from 28.7 to 0.8 seconds. This is
+           most visible right after a restart, when many players reconnect at once.
+  Removed: pol.cfg LoginServerSelectTimeout. It bounded a wait the login server paid
+           once per waiting client, which no longer happens. Leaving the setting in
+           pol.cfg is harmless, it is simply ignored.
     Added: pol.cfg StalledPeerTimeout (seconds, default 60) sets how long a peer may
            accept no data at all before the core closes the connection. It applies to
            both places that wait one out: aux service / os::OpenConnection() transmits
