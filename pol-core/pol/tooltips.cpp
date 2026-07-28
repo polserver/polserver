@@ -129,12 +129,12 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
     msg->WriteFlipped<u32>( 1042971u );  // ~1_NOTHING~
 
   std::vector<u16> utf16 = Bscript::String::toUTF16( desc );
+  // Clamp before narrowing to u16, or a longer text wraps and passes the
+  // check. 25 bytes of the packet are not text.
+  constexpr size_t max_text_length = ( 0xFFFF - 25 ) / 2;
+  if ( utf16.size() > max_text_length )
+    utf16.resize( max_text_length );
   u16 textlen = static_cast<u16>( utf16.size() );
-  if ( ( textlen * 2 ) > ( 0xFFFF - 22 ) )
-  {
-    textlen = 0xFFFF / 2 - 22;
-    utf16.resize( textlen );
-  }
   msg->WriteFlipped<u16>( textlen * 2u );
   msg->Write( utf16, false );
   msg->offset += 4;  // indicates end of property list
