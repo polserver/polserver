@@ -314,6 +314,12 @@ class MoveRequestPacket(Packet):
     self.euint(0) #Fastwalk prevention key
 
 
+class AttackRequestPacket(SerialOnlyPacket):
+  ''' Requests to attack a given object '''
+
+  cmd = 0x05
+
+
 class DoubleClickPacket(SerialOnlyPacket):
   ''' Notify server of a doble click on something '''
 
@@ -676,6 +682,18 @@ class WornItemPacket(Packet):
     self.mobile = self.duint()
     self.color = self.dushort()
 
+class FightOccuringPacket(Packet):
+  ''' Notifies that a swing occurs '''
+
+  cmd = 0x2f
+  length = 10
+
+  def decodeChild(self):
+    self.duchar() # unknown
+    self.attacker = self.duint()
+    self.defender = self.duint()
+
+
 class Unk32Packet(Packet):
   ''' Unknown packet '''
 
@@ -958,6 +976,18 @@ class WarModePacket(Packet):
 
   cmd = 0x72
   length = 5
+
+  def fill(self, war):
+    '''!
+    @param war bool: True to enter war mode, False to leave it
+    '''
+    self.war = 1 if war else 0
+
+  def encodeChild(self):
+    self.euchar(self.war)
+    self.euchar(0x00) # unknown
+    self.euchar(0x32) # unknown
+    self.euchar(0x00) # unknown
 
   def decodeChild(self):
     self.war = self.duchar()

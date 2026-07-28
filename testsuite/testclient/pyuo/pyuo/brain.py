@@ -144,6 +144,9 @@ class Event:
   EVT_GUMP = 13
   EVT_OPEN_PAPERDOLL = 14
   EVT_AUTO_DELETE_OBJS = 15
+  EVT_ATTACK = 16
+  EVT_WAR_MODE = 17
+  EVT_FIGHT_OCCURING = 18
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -231,3 +234,9 @@ class Event:
       return "open_paperdoll"
     elif self.type==Event.EVT_AUTO_DELETE_OBJS:
       return "auto_delete_objs"
+    elif self.type==Event.EVT_ATTACK:
+      return "attack"
+    elif self.type==Event.EVT_WAR_MODE:
+      return "war_mode"
+    elif self.type==Event.EVT_FIGHT_OCCURING:
+      return "fight_occuring"

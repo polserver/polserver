@@ -83,6 +83,10 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             serial = bp,
             contentlen = content))
+      elif todo=="attack":
+        self.client.attack(arg)
+      elif todo=="war_mode":
+        self.client.warMode(arg)
       elif todo=="double_click":
         self.client.doubleClick(arg)
         self.server.addevent(
@@ -279,6 +283,8 @@ class PolServer:
         ev.type==Event.EVT_STAM_CHANGED or
         ev.type==Event.EVT_NOTORIETY):
       res["new"]=ev.new
+      if hasattr(ev,"old"):
+        res["old"]=ev.old
       if hasattr(ev,"serial"):
         res["serial"]=ev.serial
     elif ev.type==Event.EVT_SPEECH:
@@ -367,6 +373,13 @@ class PolServer:
       res['flags']=ev.flags
     elif ev.type==Event.EVT_AUTO_DELETE_OBJS:
       res['state']=ev.state
+    elif ev.type==Event.EVT_ATTACK:
+      res['serial']=ev.serial
+    elif ev.type==Event.EVT_WAR_MODE:
+      res['war']=ev.war
+    elif ev.type==Event.EVT_FIGHT_OCCURING:
+      res['attacker']=ev.attacker
+      res['defender']=ev.defender
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 
