@@ -1,0 +1,205 @@
+include "communication";
+include "testutil";
+
+use uo;
+use os;
+
+var char;
+var clientcon := getClientConnection();
+
+program test_client_titles()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+
+  return 1;
+endprogram
+
+// Checks every combination of set title parts against both renderers of a
+// mobile's title: the paperdoll (packet 0x88, no guild part) and the AOS
+// tooltip (cliloc 1050045, tab-separated arguments). A ServSpecOpt separator
+// may only appear for a title part that is set, and no tooltip argument may be
+// empty - hence the leading space on every tooltip without a title_prefix.
+//
+// Rows are { which titles are set, expected paperdoll, expected tooltip }.
+exported function test_title_separators( resources )
+  var titles := struct{ prefix := "Lord", suffix := "Guildmaster", race := "Elf", guild := "TST" };
+
+  // @format-off
+  var default_separators := struct{ prefix := " ", suffix := " ", race := " ", guild := " " };
+  var default_matrix := {
+    { "----", "Client0",                          " \tClient0\t " },
+    { "P---", "Lord Client0",                     "Lord \tClient0\t " },
+    { "-S--", "Client0 Guildmaster",              " \tClient0\t Guildmaster" },
+    { "PS--", "Lord Client0 Guildmaster",         "Lord \tClient0\t Guildmaster" },
+    { "--R-", "Client0 (Elf)",                    " \tClient0\t (Elf)" },
+    { "P-R-", "Lord Client0 (Elf)",               "Lord \tClient0\t (Elf)" },
+    { "-SR-", "Client0 Guildmaster (Elf)",        " \tClient0\t Guildmaster (Elf)" },
+    { "PSR-", "Lord Client0 Guildmaster (Elf)",   "Lord \tClient0\t Guildmaster (Elf)" },
+    { "---G", "Client0",                          " \tClient0\t [TST]" },
+    { "P--G", "Lord Client0",                     "Lord \tClient0\t [TST]" },
+    { "-S-G", "Client0 Guildmaster",              " \tClient0\t Guildmaster [TST]" },
+    { "PS-G", "Lord Client0 Guildmaster",         "Lord \tClient0\t Guildmaster [TST]" },
+    { "--RG", "Client0 (Elf)",                    " \tClient0\t (Elf) [TST]" },
+    { "P-RG", "Lord Client0 (Elf)",               "Lord \tClient0\t (Elf) [TST]" },
+    { "-SRG", "Client0 Guildmaster (Elf)",        " \tClient0\t Guildmaster (Elf) [TST]" },
+    { "PSRG", "Lord Client0 Guildmaster (Elf)",   "Lord \tClient0\t Guildmaster (Elf) [TST]" }
+  };
+
+  // Only the suffix separator differs, so every row without a suffix has to
+  // come out exactly as it does above.
+  var comma_separators := struct{ prefix := " ", suffix := ", ", race := " ", guild := " " };
+  var comma_matrix := {
+    { "----", "Client0",                          " \tClient0\t " },
+    { "P---", "Lord Client0",                     "Lord \tClient0\t " },
+    { "-S--", "Client0, Guildmaster",             " \tClient0\t, Guildmaster" },
+    { "PS--", "Lord Client0, Guildmaster",        "Lord \tClient0\t, Guildmaster" },
+    { "--R-", "Client0 (Elf)",                    " \tClient0\t (Elf)" },
+    { "P-R-", "Lord Client0 (Elf)",               "Lord \tClient0\t (Elf)" },
+    { "-SR-", "Client0, Guildmaster (Elf)",       " \tClient0\t, Guildmaster (Elf)" },
+    { "PSR-", "Lord Client0, Guildmaster (Elf)",  "Lord \tClient0\t, Guildmaster (Elf)" },
+    { "---G", "Client0",                          " \tClient0\t [TST]" },
+    { "P--G", "Lord Client0",                     "Lord \tClient0\t [TST]" },
+    { "-S-G", "Client0, Guildmaster",             " \tClient0\t, Guildmaster [TST]" },
+    { "PS-G", "Lord Client0, Guildmaster",        "Lord \tClient0\t, Guildmaster [TST]" },
+    { "--RG", "Client0 (Elf)",                    " \tClient0\t (Elf) [TST]" },
+    { "P-RG", "Lord Client0 (Elf)",               "Lord \tClient0\t (Elf) [TST]" },
+    { "-SRG", "Client0, Guildmaster (Elf)",       " \tClient0\t, Guildmaster (Elf) [TST]" },
+    { "PSRG", "Lord Client0, Guildmaster (Elf)",  "Lord \tClient0\t, Guildmaster (Elf) [TST]" }
+  };
+
+  // Empty separators, with the title strings carrying their own.
+  var own_separators := struct{ prefix := "", suffix := "", race := " ", guild := " " };
+  var own_titles := struct{ prefix := "Lord ", suffix := ", Guildmaster", race := "Elf", guild := "TST" };
+  var own_matrix := {
+    { "----", "Client0",                          " \tClient0\t " },
+    { "PS--", "Lord Client0, Guildmaster",        "Lord \tClient0\t, Guildmaster" },
+    { "-SR-", "Client0, Guildmaster (Elf)",       " \tClient0\t, Guildmaster (Elf)" },
+    { "--RG", "Client0 (Elf)",                    " \tClient0\t (Elf) [TST]" }
+  };
+  // @format-on
+
+  var res := run_matrix( resources, "default separators", default_separators, titles,
+                         default_matrix );
+  if ( !res )
+    clear_titles();
+    return res;
+  endif
+
+  res := run_matrix( resources, "suffix separator \", \"", comma_separators, titles, comma_matrix );
+  if ( !res )
+    clear_titles();
+    return res;
+  endif
+
+  res := run_matrix( resources, "titles carry their own separators", own_separators, own_titles,
+                     own_matrix );
+  clear_titles();
+
+  return res;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function run_matrix( resources, what, separators, titles, matrix )
+  var res := apply_separators( resources, separators );
+  if ( !res )
+    return res;
+  endif
+
+  foreach row in matrix
+    var [ set_parts, expected_paperdoll, expected_tooltip ] := row;
+
+    set_titles( set_parts, titles );
+
+    var paperdoll := paperdoll_text();
+    if ( paperdoll == error )
+      return paperdoll;
+    elseif ( paperdoll != expected_paperdoll )
+      return ret_error( $"{what} [{set_parts}]: paperdoll \"{paperdoll}\", expected \"{expected_paperdoll}\"" );
+    endif
+
+    var tooltip := tooltip_text();
+    if ( tooltip == error )
+      return tooltip;
+    elseif ( tooltip != expected_tooltip )
+      return ret_error( $"{what} [{set_parts}]: tooltip \"{tooltip}\", expected \"{expected_tooltip}\"" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// servspecopt.cfg trims unquoted values, so the separators go in quoted.
+function apply_separators( resources, separators )
+  var configs := struct{
+    TitlePrefixSeparator := "\"" + separators.prefix + "\"",
+    TitleSuffixSeparator := "\"" + separators.suffix + "\"",
+    TitleRaceSeparator := "\"" + separators.race + "\"",
+    TitleGuildSeparator := "\"" + separators.guild + "\""
+  };
+
+  return resources.UpdateConfiguration( configs );
+endfunction
+
+// `set_parts` marks which titles are set, e.g. "P-R-" is prefix and race.
+function set_titles( set_parts, titles )
+  char.title_prefix := title_part( set_parts, "P", titles.prefix );
+  char.title_suffix := title_part( set_parts, "S", titles.suffix );
+  char.title_race := title_part( set_parts, "R", titles.race );
+  char.title_guild := title_part( set_parts, "G", titles.guild );
+endfunction
+
+function title_part( set_parts, marker, value )
+  if ( set_parts.find( marker ) )
+    return value;
+  endif
+
+  return "";
+endfunction
+
+function clear_titles()
+  char.title_prefix := "";
+  char.title_suffix := "";
+  char.title_race := "";
+  char.title_guild := "";
+endfunction
+
+function paperdoll_text()
+  Clear_Event_Queue();
+
+  var res := OpenPaperdoll( char, char );
+  if ( !res )
+    return ret_error( $"Could not open paperdoll: {res}" );
+  endif
+
+  var ev := waitForClient( 0, { EVT_OPEN_PAPERDOLL } );
+  if ( !ev )
+    return ev;
+  endif
+
+  return ev.text;
+endfunction
+
+function tooltip_text()
+  Clear_Event_Queue();
+
+  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+
+  var ev := waitForClient( 0, { EVT_AOS_TOOLTIP } );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( len( ev.text ) != 1 )
+    return ret_error( $"unexpected tooltip content {ev.text}" );
+  elseif ( ev.text[1][1] != 1050045 )
+    return ret_error( $"unexpected tooltip cliloc {ev.text[1][1]}" );
+  endif
+
+  return ev.text[1][2];
+endfunction
