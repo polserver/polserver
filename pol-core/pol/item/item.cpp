@@ -1619,13 +1619,18 @@ void Item::destroy()
 {
   if ( has_opponent_of() )
   {
-    Mobile::Attackable self{ this };
-    for ( auto opp : *opponent_of() )
-    {
-      opp.remove_opponent_of( self );
-    }
-    opponent_of()->clear();
+    // use a copy since removing others would call remove_opponent of
+    auto opponents = *opponent_of();
     clear_opponent_of();
+
+    Mobile::Attackable self{ this };
+    for ( auto opp : opponents )
+    {
+      if ( auto* mob = opp.mobile() )
+        mob->set_opponent( {}, false );
+      else
+        opp.remove_opponent_of( self );
+    }
   }
   base::destroy();
 }

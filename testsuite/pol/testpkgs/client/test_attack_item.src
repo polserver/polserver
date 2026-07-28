@@ -67,6 +67,68 @@ exported function test_client_attack_item( resources )
   return stop_attack();
 endfunction
 
+// destroying the item while the client is swinging at it must clear the
+// opponent, otherwise the next swing dereferences the destroyed item
+exported function test_client_attack_destroy_item( resources )
+  var item := setup_attack( resources );
+  if ( !item )
+    return item;
+  endif
+
+  var ev := send_attack( item.serial, item.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  // the fight is running
+  var res := wait_for_swing( item.serial );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := DestroyItem( item );
+  if ( !res )
+    return ret_error( $"Could not destroy item: {res}" );
+  endif
+
+  // the destroyed item gets unhighlighted at the client and forgotten
+  res := check_attack_stopped();
+  if ( !res )
+    return res;
+  endif
+
+  // a few swing timers pass, all of them with the destroyed item as opponent
+  Sleepms( 2000 );
+  if ( char.opponent )
+    return ret_error( $"Opponent reappeared after the item got destroyed: {char.opponent}" );
+  endif
+
+  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, 2 );
+  if ( ev )
+    return ret_error( $"Client still swings at 0x{ev.defender:x}" );
+  endif
+
+  // and the client is still able to attack another item
+  var item2 := resources.CreateItemAtLocation( char.x, char.y, char.z, "AttackableTarget" );
+  if ( !item2 )
+    return ret_error( $"Could not create item: {item2}" );
+  endif
+
+  ev := send_attack( item2.serial, item2.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  res := wait_for_swing( item2.serial );
+  if ( !res )
+    return res;
+  endif
+
+  // stop attacking before the item gets destroyed by the resourcemanager
+  return stop_attack();
+endfunction
+
 // an invisible item cannot be attacked
 exported function test_client_attack_invis_item( resources )
   var item := setup_attack( resources );
@@ -212,6 +274,48 @@ function send_attack( serial, expected )
       return ev;
     endif
   endwhile
+endfunction
+
+// waits until the client swings at the given serial.
+// deadline based, since a running fight never stops sending events.
+function wait_for_swing( serial, timeout := 10000 )
+  var start := ReadMillisecondClock();
+  while ( ReadMillisecondClock() - start < timeout )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev || ev.id != 0 || ev.type != EVT_FIGHT_OCCURING )
+      continue;
+    endif
+    if ( ev.attacker == char.serial && ev.defender == serial )
+      return 1;
+    endif
+  endwhile
+  return ret_error( $"Client did not swing at 0x{serial:x} within {timeout}ms" );
+endfunction
+
+// the opponent has to be gone and the client told that nothing is highlighted
+// anymore. deadline based, since the client keeps receiving the swings of a
+// fight that was not stopped.
+function check_attack_stopped( timeout := 10000 )
+  var start := ReadMillisecondClock();
+  var unhighlighted := 0;
+  while ( ReadMillisecondClock() - start < timeout )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev || ev.id != 0 || ev.type != EVT_ATTACK )
+      continue;
+    endif
+    if ( !ev.serial )
+      unhighlighted := 1;
+      break;
+    endif
+  endwhile
+  if ( !unhighlighted )
+    return ret_error( $"Client did not get unhighlighted within {timeout}ms" );
+  endif
+
+  if ( char.opponent )
+    return ret_error( $"Opponent is still set: {char.opponent}" );
+  endif
+  return 1;
 endfunction
 
 // waits until the client got a hitpoint update (with changed value)
