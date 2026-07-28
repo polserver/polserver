@@ -1,6 +1,7 @@
 // tests attacks performed by a client against an npc
 use os;
 use uo;
+use attributes;
 
 include "testutil";
 include "communication";
@@ -254,6 +255,10 @@ function setup_attack( resources )
   if ( char.opponent )
     return ret_error( $"Client is still attacking: {char.opponent}" );
   endif
+
+  // increase damage
+  SetAttributeBaseValue( char, "Strength", 1000 );
+  SetAttributeBaseValue( char, "Tactics", 1000 );
 
   SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
   char.hitchance_mod := 1000;

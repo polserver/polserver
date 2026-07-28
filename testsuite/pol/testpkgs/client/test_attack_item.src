@@ -1,6 +1,7 @@
 // tests attacks performed by a client against an attackable item
 use os;
 use uo;
+use attributes;
 
 include "testutil";
 include "communication";
@@ -159,6 +160,10 @@ function prepare_char()
   if ( !res )
     return ret_error( $"Could not move player: {res}" );
   endif
+
+  // increase damage
+  SetAttributeBaseValue( char, "Strength", 1000 );
+  SetAttributeBaseValue( char, "Tactics", 1000 );
 
   if ( char.opponent || char.warmode )
     return stop_attack();
