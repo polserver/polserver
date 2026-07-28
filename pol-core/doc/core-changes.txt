@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+07-28-2026 Ins:
+    Fixed: an AOS tooltip with more than 65535 characters of text could shut the shard
+           down, since the length was narrowed to 16 bits before the range check. A
+           script can set a name that long, so it was script-reachable.
 07-27-2026 Nando:
     Fixed: Logging in was slow, and got slower the more players were logging in at the
            same time. A UO listener waited on each client still on the login server one

@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-27-2026</datemodified>
+		<datemodified>07-28-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-28-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">an AOS tooltip with more than 65535 characters of text could shut the shard<br/>
+down, since the length was narrowed to 16 bits before the range check. A<br/>
+script can set a name that long, so it was script-reachable.</change>
+		</entry>
 		<entry>
 			<date>07-27-2026</date>
 			<author>Nando:</author>
