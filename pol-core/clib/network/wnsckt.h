@@ -18,6 +18,14 @@ using SOCKET = int;
 
 namespace Pol::Clib
 {
+// Brings up the socket library. No-op where none is needed, so callers do not have to
+// know which platforms want it. Idempotent, and teardown happens on its own at exit.
+//
+// Every Socket constructor calls this, so socket code never has to. It is public for the
+// one caller that needs winsock before it owns a Socket: pol's startup resolves the host's
+// own address with bare winsock calls (pol/network/sockio.cpp).
+void winsock_initialize();
+
 // How long a peer may accept nothing at all before its connection is considered dead.
 // Two places wait out a stalled peer and both use this: Socket::send(), which blocks the
 // calling thread, and the webserver's page scripts, which sleep and resume instead

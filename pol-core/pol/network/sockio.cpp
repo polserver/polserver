@@ -19,6 +19,7 @@ struct utsname my_utsname;
 #include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/network/sockets.h"
+#include "clib/network/wnsckt.h"
 #include "clib/strutil.h"
 #include "pol/globals/network.h"
 
@@ -71,23 +72,14 @@ void search_name( const char* hostname )
 }
 
 
-#ifdef _WIN32
-#define WSOCK_VERSION 0x0101
-WSADATA wsa_data;
-#endif
-
-int init_sockets_library()
+void init_sockets_library()
 {
-#ifdef _WIN32
-  int res;
-
-  res = WSAStartup( WSOCK_VERSION, &wsa_data );
-  if ( res < 0 )
-  {
-    POLLOG_ERRORLN( "Error starting Winsock 1.1: {}", res );
-    return -1;
-  }
-#endif
+  // Must come first: the lookups below are socket-library calls, which fail on Windows
+  // until it is up. Nothing has constructed a Clib::Socket this early in startup, so this
+  // is the one place that has to ask for it directly. Getting the order wrong is quiet
+  // rather than loud -- the lookup just fails, ipaddr_str stays empty, and every
+  // `IP --ip--` game server disappears from the UO client's server list (uimport.cpp).
+  Clib::winsock_initialize();
 
   if ( gethostname( Core::networkManager.hostname, sizeof Core::networkManager.hostname ) )
   {
@@ -99,24 +91,6 @@ int init_sockets_library()
   uname( &my_utsname );
   search_name( my_utsname.nodename );
 #endif
-
-  return 0;
-}
-
-
-int deinit_sockets_library()
-{
-#ifdef _WIN32
-  int res;
-
-  res = WSACleanup();
-  if ( res < 0 )
-  {
-    POLLOG_ERRORLN( "Error stopping Winsock 1.1: {}", res );
-    return -1;
-  }
-#endif
-  return 0;
 }
 
 std::string AddressToString( const sockaddr* addr )

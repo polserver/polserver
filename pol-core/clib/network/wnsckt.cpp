@@ -44,9 +44,7 @@ void set_stalled_peer_timeout( std::chrono::seconds timeout )
                                    std::memory_order_relaxed );
 }
 
-// Brings up the socket library. No-op where none is needed, so callers do not have to
-// know which platforms want it.
-static void winsock_initialize()
+void winsock_initialize()
 {
 #ifdef _WIN32
   // magic static: initialization is thread-safe and happens exactly once

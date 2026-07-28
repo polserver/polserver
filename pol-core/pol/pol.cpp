@@ -937,8 +937,6 @@ int xmain_inner( bool testing )
   Core::gamestate.task_thread_pool.init_pool(
       std::max( 2u, std::thread::hardware_concurrency() / 2 ), "generic_task_thread" );
 
-  int res;
-
   // for profiling:
   // chdir( "d:\\pol" );
   // PrintAllocationData();
@@ -1026,12 +1024,7 @@ int xmain_inner( bool testing )
 #endif
 
   Core::checkpoint( "initializing sockets library" );
-  res = Network::init_sockets_library();
-  if ( res < 0 )
-  {
-    POLLOG_ERRORLN( "Unable to initialize sockets library." );
-    return 1;
-  }
+  Network::init_sockets_library();
 
   Core::checkpoint( "loading configuration" );
   Core::load_data();
