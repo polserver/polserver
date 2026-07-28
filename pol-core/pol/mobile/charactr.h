@@ -877,6 +877,16 @@ public:
   DYN_PROPERTY( title_suffix, std::string, Core::PROP_TITLE_SUFFIX, "" );
   DYN_PROPERTY( title_guild, std::string, Core::PROP_TITLE_GUILD, "" );
   DYN_PROPERTY( title_race, std::string, Core::PROP_TITLE_RACE, "" );
+
+  // Title around the name for the paperdoll and the AOS tooltip: title_prefix
+  // before, suffix/(race)/[guild] after, each with its ServSpecOpt separator
+  // and left out when unset. The paperdoll has no guild part.
+  struct DisplayedTitle
+  {
+    std::string before;
+    std::string after;
+  };
+  DisplayedTitle displayed_title( bool with_guild ) const;
 };
 
 

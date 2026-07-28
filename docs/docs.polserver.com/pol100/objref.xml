@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>07/24/2026</datemodified>
+<datemodified>07/28/2026</datemodified>
 </fileheader>
 
 
@@ -226,10 +226,10 @@
 <member mname="gump" type="Boolean" access="r/o">True if the client has any active gumps from SendGump</member>
 <member mname="prompt" type="Boolean" access="r/o">True if the client has any active String or Unicode prompt windows</member>
 <member mname="gold" type="Integer" access="r/o">Amount of gold in character's pack</member>
-<member mname="title_prefix" type="String" access="r/w">String placed before name i.e. Lord Racalac</member>
-<member mname="title_suffix" type="String" access="r/w">String placed after name i.e. Racalac the Brave</member>
-<member mname="title_guild" type="String" access="r/w">String guild title i.e. [ROX, super d00d] Racalac</member>
-<member mname="title_race" type="String" access="r/w">String race title after suffix in paperdoll</member>
+<member mname="title_prefix" type="String" access="r/w">String placed before the name on the paperdoll and AOS tooltip i.e. Lord Racalac (separator: servspecopt.cfg TitlePrefixSeparator)</member>
+<member mname="title_suffix" type="String" access="r/w">String placed after the name on the paperdoll and AOS tooltip i.e. Racalac the Brave (separator: TitleSuffixSeparator)</member>
+<member mname="title_guild" type="String" access="r/w">String guild title, appended as [guild] to the AOS tooltip (separator: TitleGuildSeparator); not shown on the paperdoll. Single-click sends it as its own overhead text when CoreHandledTags has 0x1 set</member>
+<member mname="title_race" type="String" access="r/w">String race title, shown as (race) after the suffix on the paperdoll and AOS tooltip (separator: TitleRaceSeparator)</member>
 <member mname="guildid" type="Integer" access="r/o">guild ID number</member>
 <member mname="guild" type="Guild" access="r/o">guild object reference</member>
 <member mname="murderer" type="Boolean" access="r/w">1 = player flagged murderer (red)</member>

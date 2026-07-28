@@ -729,6 +729,23 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "LastCorpse", last_corpse );
 }
 
+Character::DisplayedTitle Character::displayed_title( bool with_guild ) const
+{
+  const auto& ssopt = Core::settingsManager.ssopt;
+  DisplayedTitle title;
+
+  if ( has_title_prefix() )
+    title.before = title_prefix() + ssopt.title_prefix_separator;
+  if ( has_title_suffix() )
+    title.after = ssopt.title_suffix_separator + title_suffix();
+  if ( has_title_race() )
+    title.after += ssopt.title_race_separator + "(" + title_race() + ")";
+  if ( with_guild && has_title_guild() )
+    title.after += ssopt.title_guild_separator + "[" + title_guild() + "]";
+
+  return title;
+}
+
 void Character::printDebugProperties( Clib::StreamWriter& sw ) const
 {
   base::printDebugProperties( sw );

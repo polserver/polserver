@@ -53,13 +53,9 @@ void send_paperdoll( Network::Client* client, Mobile::Character* chr )
 
   if ( ( !settingsManager.ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
   {
-    const auto& ssopt = settingsManager.ssopt;
-    std::string name =
-        ( !chr->has_title_prefix() ? "" : chr->title_prefix() + ssopt.title_prefix_separator ) +
-        chr->name() +
-        ( !chr->has_title_suffix() ? "" : ssopt.title_suffix_separator + chr->title_suffix() );
-    if ( chr->has_title_race() )
-      name += ssopt.title_race_separator + "(" + chr->title_race() + ")";
+    // The paperdoll has no guild part
+    auto title = chr->displayed_title( false );
+    std::string name = title.before + chr->name() + title.after;
     msg->Write( Clib::strUtf8ToCp1252( name ).c_str(), 60 );
   }
   else

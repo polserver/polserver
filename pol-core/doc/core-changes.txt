@@ -1,4 +1,10 @@
 -- POL100.3.0 --
+07-28-2026 Ins:
+    Fixed: the AOS tooltip inserted the ServSpecOpt title separators for title parts that
+           are not set, skipped TitleRaceSeparator unless a title_suffix was set, and
+           skipped TitleGuildSeparator unless a title_suffix or title_race was set. It now
+           builds the title with the same code as the paperdoll. Output with the default
+           separators is unchanged.
 07-27-2026 Nando:
     Fixed: Logging in was slow, and got slower the more players were logging in at the
            same time. A UO listener waited on each client still on the login server one

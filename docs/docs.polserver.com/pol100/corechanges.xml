@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-27-2026</datemodified>
+		<datemodified>07-28-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-28-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">the AOS tooltip inserted the ServSpecOpt title separators for title parts that<br/>
+are not set, skipped TitleRaceSeparator unless a title_suffix was set, and<br/>
+skipped TitleGuildSeparator unless a title_suffix or title_race was set. It now<br/>
+builds the title with the same code as the paperdoll. Output with the default<br/>
+separators is unchanged.</change>
+		</entry>
 		<entry>
 			<date>07-27-2026</date>
 			<author>Nando:</author>
