@@ -1561,7 +1561,7 @@ void Character::regen_vital( const Core::Vital* pVital )
     consume( pVital, vv, -rr / 12, VitalDepletedReason::REGENERATE );
 }
 
-void Character::calc_vital_stuff( bool i_mod, bool v_mod )
+void Character::calc_vital_stuff( bool i_mod, bool v_mod, bool notify_clients )
 {
   if ( i_mod )
   {
@@ -1575,12 +1575,12 @@ void Character::calc_vital_stuff( bool i_mod, bool v_mod )
   {
     for ( unsigned vi = 0; vi < Core::gamestate.numVitals; ++vi )
     {
-      calc_single_vital( Core::gamestate.vitals[vi] );
+      calc_single_vital( Core::gamestate.vitals[vi], notify_clients );
     }
   }
 }
 
-void Character::calc_single_vital( const Core::Vital* pVital )
+void Character::calc_single_vital( const Core::Vital* pVital, bool notify_clients )
 {
   VitalValue& vv = vital( pVital->vitalid );
 
@@ -1606,7 +1606,8 @@ void Character::calc_single_vital( const Core::Vital* pVital )
 
   vv.regenrate( rr );
 
-  if ( ( start_ones != vv.current_ones() ) || ( start_max != vv.maximum_ones() ) )
+  if ( notify_clients &&
+       ( ( start_ones != vv.current_ones() ) || ( start_max != vv.maximum_ones() ) ) )
     Network::ClientInterface::tell_vital_changed( this, pVital );
 }
 
@@ -1627,7 +1628,7 @@ void Character::calc_single_attribute( const Attribute* pAttr )
   }
 }
 
-void Character::set_vitals_to_maximum()  // throw()
+void Character::set_vitals_to_maximum( bool notify_clients )  // throw()
 {
   set_dirty();
   for ( unsigned vi = 0; vi < Core::gamestate.numVitals; ++vi )
@@ -1635,7 +1636,8 @@ void Character::set_vitals_to_maximum()  // throw()
     VitalValue& vv = vital( vi );
     vv.current( vv.maximum() );
 
-    Network::ClientInterface::tell_vital_changed( this, Core::gamestate.vitals[vi] );
+    if ( notify_clients )
+      Network::ClientInterface::tell_vital_changed( this, Core::gamestate.vitals[vi] );
   }
 }
 

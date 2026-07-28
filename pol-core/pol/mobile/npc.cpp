@@ -47,6 +47,9 @@
 #include "pol/item/armor.h"
 #include "pol/item/weapon.h"
 #include "pol/listenpt.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/charactr.h"
+#include "pol/mobile/wornitems.h"
 #include "pol/module/npcmod.h"
 #include "pol/module/uomod.h"
 #include "pol/multi/multi.h"
@@ -61,9 +64,6 @@
 #include "pol/uoexec.h"
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
-#include "pol/mobile/attribute.h"
-#include "pol/mobile/charactr.h"
-#include "pol/mobile/wornitems.h"
 
 
 /* An area definition is as follows:
@@ -626,8 +626,9 @@ void NPC::readPropertiesForNewNPC( Clib::ConfigElem& elem )
   readCommonProperties( elem );
   readNewNpcAttributes( elem );
   readNpcProperties( elem );
-  calc_vital_stuff();
-  set_vitals_to_maximum();
+  // not yet entered the world, dont send vital pkts
+  calc_vital_stuff( true, true, false );
+  set_vitals_to_maximum( false );
 
   //    readNpcProperties( elem );
 }

@@ -394,8 +394,9 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       chr->attribute( pAttr->attrid ).base( msg->SkillValue3 * 10 );
   }
 
-  chr->calc_vital_stuff();
-  chr->set_vitals_to_maximum();
+  // not yet entered the world, dont send vital pkts
+  chr->calc_vital_stuff( true, true, false );
+  chr->set_vitals_to_maximum( false );
 
 
   chr->created_at = read_gameclock();
@@ -737,8 +738,9 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       chr->attribute( pAttr->attrid ).base( msg->skillvalue4 * 10 );
   }
 
-  chr->calc_vital_stuff();
-  chr->set_vitals_to_maximum();
+  // not yet entered the world, dont send vital pkts
+  chr->calc_vital_stuff( true, true, false );
+  chr->set_vitals_to_maximum( false );
 
 
   chr->created_at = read_gameclock();
@@ -1142,8 +1144,9 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       chr->attribute( pAttr->attrid ).base( msg->SkillValue4 * 10 );
   }
 
-  chr->calc_vital_stuff();
-  chr->set_vitals_to_maximum();
+  // not yet entered the world, dont send vital pkts
+  chr->calc_vital_stuff( true, true, false );
+  chr->set_vitals_to_maximum( false );
 
 
   chr->created_at = read_gameclock();

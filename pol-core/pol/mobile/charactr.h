@@ -501,11 +501,12 @@ public:
 
   const VitalValue& vital( unsigned vitalid ) const;
   VitalValue& vital( unsigned vitalid );
-  void regen_vital( const Core::Vital* );                         // throw()
-  void calc_vital_stuff( bool i_mod = true, bool v_mod = true );  // throw()
-  void calc_single_vital( const Core::Vital* pVital );
+  void regen_vital( const Core::Vital* );  // throw()
+  void calc_vital_stuff( bool i_mod = true, bool v_mod = true,
+                         bool notify_clients = true );  // throw()
+  void calc_single_vital( const Core::Vital* pVital, bool notify_clients = true );
   void calc_single_attribute( const Attribute* pAttr );
-  void set_vitals_to_maximum();  // throw();
+  void set_vitals_to_maximum( bool notify_clients = true );  // throw();
   enum class VitalDepletedReason
   {
     // used in depleted hook as reason parameter
