@@ -33,6 +33,9 @@ const EVT_GUMP := "gump";
 const EVT_AOS_TOOLTIP := "aos_tooltip";
 const EVT_OPEN_PAPERDOLL := "open_paperdoll";
 const EVT_AUTO_DELETE_OBJS := "auto_delete_objs";
+const EVT_ATTACK := "attack";
+const EVT_WAR_MODE := "war_mode";
+const EVT_FIGHT_OCCURING := "fight_occuring";
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
