@@ -246,7 +246,7 @@ void AuxClientThread::run()
   // last one still inside transmit(). This keeps the tasks (which capture
   // `this`) from outliving the object, whose destruction closes the socket.
   while ( !Clib::exit_signalled && _transmit_counter > 0 )
-    std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+    std::this_thread::sleep_for( 1s );
 
   Core::PolLock lock;
   // hold also the transmit mutex, the counter syncs but not in a way that the threadsanitizer

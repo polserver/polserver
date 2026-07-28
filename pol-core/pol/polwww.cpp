@@ -780,7 +780,7 @@ void http_func( SOCKET client_socket )
   bool first_line = true;
   unsigned int header_count = 0;
   const unsigned int max_header_count = 64;
-  const auto max_request_time = std::chrono::seconds( 10 );
+  const auto max_request_time = 10s;
   Tools::HighPerfTimer requestTimer;
   while ( sck.connected() && lineReader.read( tmpstr, &timed_out ) )
   {

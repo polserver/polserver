@@ -47,6 +47,8 @@
 
 namespace Pol::Core
 {
+using namespace std::chrono_literals;
+
 // This function below is defined (for now) in pol.cpp. That's ugly.
 void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ecl,
                        const std::string& pkg_script_ecl, bool offline = false );
@@ -55,7 +57,7 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
 void report_weird_packet( Network::ThreadedClient* session,
                           const std::string& why );  // Defined below
 
-constexpr auto polling_timeout = std::chrono::milliseconds( 2000 );
+constexpr auto polling_timeout = 2000ms;
 
 bool threadedclient_io_step( Network::ThreadedClient* session, SocketReadiness ready, int& nidle )
 {

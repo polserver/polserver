@@ -24,6 +24,8 @@
 
 namespace Pol::Clib
 {
+using namespace std::chrono_literals;
+
 namespace
 {
 // Read by every StallBudget on every socket thread, written once at startup and again on
@@ -524,7 +526,7 @@ bool Socket::send( const void* vdata, unsigned length )
   // This blocks the calling thread until the peer drains its receive buffer, so it is only
   // ever called from threads that may block: aux transmits and the webserver's file
   // streaming, never from the scripts thread.
-  constexpr auto wait_slice = std::chrono::milliseconds( 500 );
+  constexpr auto wait_slice = 500ms;
   StallBudget budget;
 
   while ( datalen )
