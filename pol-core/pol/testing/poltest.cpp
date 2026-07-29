@@ -58,6 +58,7 @@ bool run_pol_tests()
   RUNTEST( uoextension_test )
 
   RUNTEST( caseinsensitive_compare_test )
+  RUNTEST( resolve_test )
   RUNTEST( www_test )
   RUNTEST( dynthreadpool_test )
   //  RUNTEST( dummy )

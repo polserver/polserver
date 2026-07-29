@@ -50,6 +50,8 @@ set (clib_sources
   mlog.cpp 
   mlog.h
   network/multipoller.h
+  network/resolve.cpp
+  network/resolve.h
   network/singlepoller.h
   network/singlepollers/pollingwithpoll.h
   network/sockets.h

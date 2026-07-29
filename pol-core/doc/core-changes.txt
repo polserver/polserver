@@ -1,4 +1,16 @@
 -- POL100.3.0 --
+07-28-2026 Nando:
+  Changed: Hostnames are now resolved with getaddrinfo everywhere instead of
+           gethostbyname. Two things shard owners can notice. On a host with more than
+           one address, the address picked for SERVERS.CFG's --ip-- and --lan-- may
+           differ from before, because the addresses are now offered in the order the
+           system prefers for reaching the outside world rather than in adapter order;
+           on a machine with virtual adapters (Hyper-V, WSL, VPN) this usually means the
+           real network address is chosen where a virtual one was chosen before. And a
+           SERVERS.CFG entry whose IP is a hostname that does not resolve is now reported
+           at startup on Windows as well, which previously only happened on Linux. The
+           address sent to clients is unaffected by the latter: it has always been
+           resolved again for each server list.
 07-28-2026 Ins:
     Fixed: the AOS tooltip inserted the ServSpecOpt title separators for title parts that
            are not set, skipped TitleRaceSeparator unless a title_suffix was set, and

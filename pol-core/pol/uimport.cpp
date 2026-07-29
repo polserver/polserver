@@ -802,36 +802,16 @@ void read_gameservers()
     {
       svr->hostname = iptext;
 
-#ifdef __linux__
-      /* try to look up */
-      struct hostent host_ret;
-      struct hostent* host_result = nullptr;
-      char tmp_buf[1024];
-      int my_h_errno;
-      int res = gethostbyname_r( svr->hostname.c_str(), &host_ret, tmp_buf, sizeof tmp_buf,
-                                 &host_result, &my_h_errno );
-      if ( res == 0 && host_result && host_result->h_addr_list[0] )
-      {
-        char* addr = host_result->h_addr_list[0];
-        svr->ip[0] = addr[3];
-        svr->ip[1] = addr[2];
-        svr->ip[2] = addr[1];
-        svr->ip[3] = addr[0];
-        /*
-                        struct sockaddr_in saddr;
-                        memcpy( &saddr.sin_addr, he->h_addr_list[0], he->h_length);
-                        server->ip[0] = saddr.sin_addr.S_un.S_un_b.s_b1;
-                        server->ip[1] = saddr.sin_addr.S_un.S_un_b.s_b2;
-                        server->ip[2] = saddr.sin_addr.S_un.S_un_b.s_b3;
-                        server->ip[3] = saddr.sin_addr.S_un.S_un_b.s_b4;
-                        */
-      }
+      // Only a startup pre-fill and an early warning about a name that does not resolve:
+      // login.cpp resolves the hostname again for every server list it sends, which is
+      // what actually reaches the client. Used to be #ifdef __linux__ (gethostbyname_r),
+      // so Windows shards got no warning here.
+      const auto addrs = Clib::resolve_ipv4( svr->hostname );
+      if ( addrs.empty() )
+        POLLOG_ERRORLN( "Warning: unable to resolve \"{}\" for server {}", svr->hostname,
+                        svr->name );
       else
-      {
-        POLLOG_ERRORLN( "Warning: gethostbyname_r failed for server {} ({}): {}", svr->name,
-                        svr->hostname, my_h_errno );
-      }
-#endif
+        pack_server_ip( svr->ip, addrs.front() );
     }
 
     svr->port = elem.remove_ushort( "PORT" );

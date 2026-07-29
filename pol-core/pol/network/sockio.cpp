@@ -18,6 +18,7 @@ struct utsname my_utsname;
 
 #include "clib/clib.h"
 #include "clib/logfacility.h"
+#include "clib/network/resolve.h"
 #include "clib/network/sockets.h"
 #include "clib/network/wnsckt.h"
 #include "clib/strutil.h"
@@ -37,36 +38,31 @@ void set_lan_address( const char* ip )
   POLLOG_INFOLN( "LAN IP address is {}", Core::networkManager.lanaddr_str );
 }
 
+// Records this host's own addresses for SERVERS.CFG's --lan-- and --ip-- placeholders:
+// the first private address found becomes the LAN address, the first public one the
+// internet address. Loopback counts as neither. What callers depend on is the
+// classification, not which address of a class gets picked -- a multi-homed host may
+// well be offered its addresses in a different order than it was before.
 void search_name( const char* hostname )
 {
-  struct sockaddr_in server;
   POLLOG_INFOLN( "hostname is {}", hostname );
-  struct hostent* he = gethostbyname( hostname );
-  for ( int i = 0; ( he != nullptr ) && ( he->h_addr_list[i] != nullptr ); ++i )
-  {
-    memcpy( &server.sin_addr, he->h_addr_list[i], he->h_length );
 
-    const in_addr ad = server.sin_addr;
-    const char* adstr = inet_ntoa( ad );
+  for ( const Clib::ipv4_addr addr : Clib::resolve_ipv4( hostname ) )
+  {
+    const std::string adstr = Clib::ipv4_to_string( addr );
     POLLOG_INFOLN( "address: {}", adstr );
 
-    const unsigned long ip = ad.s_addr;
-    // Careful: IPs are reversed (i.e. 1.0.168.192)
-    if ( ( ip & 0x0000ffff ) == 0x0000a8c0 ||  // 192.168.0.0/16
-         ( ip & 0x0000f0ff ) == 0x000010ac ||  // 172.16.0.0/12
-         ( ip & 0x000000ff ) == 0x0000000a )   // 10.0.0.0/8
+    if ( Clib::is_loopback_ipv4( addr ) )
+      continue;
+
+    if ( Clib::is_private_ipv4( addr ) )
     {
       if ( !Core::networkManager.lanaddr_str[0] )
-        set_lan_address( adstr );
+        set_lan_address( adstr.c_str() );
     }
-    else if ( ( ip & 0x000000ff ) == 0x0000007f )  // 127.0.0.0/8
+    else if ( !Core::networkManager.ipaddr_str[0] )
     {
-      ;
-    }
-    else
-    {
-      if ( !Core::networkManager.ipaddr_str[0] )
-        set_ip_address( adstr );
+      set_ip_address( adstr.c_str() );
     }
   }
 }

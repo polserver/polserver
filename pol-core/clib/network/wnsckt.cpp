@@ -19,6 +19,7 @@
 #include "clib/passert.h"
 #include "clib/strutil.h"
 
+#include "clib/network/resolve.h"
 #include "clib/network/singlepoller.h"
 #include "clib/network/sockets.h"
 
@@ -623,8 +624,10 @@ bool Socket::is_local() const
   socklen_t addrlen = sizeof peer;
   if ( ::getpeername( _sck, reinterpret_cast<struct sockaddr*>( &peer ), &addrlen ) != 0 )
     return false;
-  // the whole 127.0.0.0/8 block is loopback, not just 127.0.0.1
-  return peer.sin_family == AF_INET && ( ntohl( peer.sin_addr.s_addr ) >> 24 ) == 127;
+  // Both callers gate access on this -- the remote debugger and the webserver's
+  // web_server_local_only -- so whatever this accepts is who can reach them. Loopback
+  // only, on purpose: a peer on the LAN is not this machine.
+  return peer.sin_family == AF_INET && is_loopback_ipv4( ntohl( peer.sin_addr.s_addr ) );
 }
 
 bool is_invalid_readline_char( unsigned char c )

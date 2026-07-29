@@ -403,6 +403,7 @@ set (pol_sources  # sorted !
   testing/testmisc.cpp
   testing/testpos.cpp
   testing/testrange.cpp
+  testing/testresolve.cpp
   testing/testskill.cpp
   testing/testthreadpool.cpp
   testing/testvector.cpp

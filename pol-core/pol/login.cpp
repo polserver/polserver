@@ -209,21 +209,17 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
 
     if ( !server->hostname.empty() )
     {
-      struct hostent* he =
-          gethostbyname( server->hostname.c_str() );  // FIXME: here is a potential server lockup
-      if ( he != nullptr && he->h_addr_list[0] )
+      // Re-resolved per login so a server that moves is picked up without a restart.
+      // Still a blocking lookup on the login path, and with single-threaded login that
+      // path is the listener thread, so a slow resolver delays every pending login;
+      // resolving asynchronously is its own change (specs/sockets/10).
+      const auto addrs = Clib::resolve_ipv4( server->hostname );
+      if ( addrs.empty() )
       {
-        char* addr = he->h_addr_list[0];
-        server->ip[0] = addr[3];
-        server->ip[1] = addr[2];
-        server->ip[2] = addr[1];
-        server->ip[3] = addr[0];
-      }
-      else
-      {
-        POLLOGLN( "gethostbyname(\"{}\") failed for server {}", server->hostname, server->name );
+        POLLOGLN( "Unable to resolve \"{}\" for server {}", server->hostname, server->name );
         continue;
       }
+      pack_server_ip( server->ip, addrs.front() );
     }
 
     if ( server_applies( client, idx ) )
