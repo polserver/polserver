@@ -3306,6 +3306,94 @@ void Character::do_imhit_effects()
     send_action_to_inrange( this, Core::ACTION_GOT_HIT );
 }
 
+bool Character::projectile_attack_check()
+{
+  if ( !weapon->is_projectile() )
+    return true;
+
+  Core::UContainer* bp = backpack();
+  int check_consume_hook = -1;
+  if ( Core::gamestate.system_hooks.consume_ammunition_hook )
+  {
+    check_consume_hook = Core::gamestate.system_hooks.consume_ammunition_hook->call_long(
+        new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ) );
+    if ( check_consume_hook == 0 )
+    {
+      return false;
+    }
+  }
+
+  if ( ( check_consume_hook == -1 ) &&
+       ( ( bp == nullptr ) || ( weapon->consume_projectile( bp ) == false ) ) )
+  {
+    // 04/2007 - MuadDib
+    // Range through wornitems to find containers and check
+    // here also if backpack fails. Use the mainpack first this way.
+    bool projectile_check = false;
+    for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; layer++ )
+    {
+      Items::Item* item = wornitems->GetItemOnLayer( layer );
+      if ( item )
+      {
+        if ( item != nullptr && item->script_isa( Core::POLCLASS_CONTAINER ) )
+        {
+          if ( layer != Core::LAYER_HAIR && layer != Core::LAYER_FACE &&
+               layer != Core::LAYER_BEARD && layer != Core::LAYER_BACKPACK &&
+               layer != Core::LAYER_MOUNT )
+          {
+            Core::UContainer* cont = static_cast<Core::UContainer*>( item );
+
+            if ( weapon->consume_projectile( cont ) == true )
+            {
+              projectile_check = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    return projectile_check;
+  }
+  return true;
+}
+
+double Character::attack_parry_check( Character* opponent_mobile, double damage )
+{
+  if ( !opponent_mobile->shield )
+    return damage;
+
+  if ( Core::gamestate.system_hooks.parry_advancement_hook )
+  {
+    Core::gamestate.system_hooks.parry_advancement_hook->call(
+        new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
+        new Module::ECharacterRefObjImp( opponent_mobile ),
+        new Module::EItemRefObjImp( opponent_mobile->shield ) );
+  }
+
+  double parry_chance =
+      opponent_mobile->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
+  parry_chance += opponent_mobile->parrychance_mod() * 0.001f;
+  if ( Core::settingsManager.watch.combat )
+    INFO_PRINT( "Parry Chance: {}: ", parry_chance );
+  if ( Clib::random_double( 1.0 ) < parry_chance )
+  {
+    if ( Core::settingsManager.watch.combat )
+      INFO_PRINTLN( "{} hits deflected", opponent_mobile->shield->ar() );
+    if ( Core::settingsManager.combat_config.display_parry_success_messages &&
+         opponent_mobile->client )
+      Core::send_sysmessage( opponent_mobile->client, "You successfully parried the attack!" );
+
+    damage -= opponent_mobile->shield->ar();
+    if ( damage < 0 )
+      damage = 0;
+  }
+  else
+  {
+    if ( Core::settingsManager.watch.combat )
+      INFO_PRINTLN( "failed." );
+  }
+  return damage;
+}
 
 void Character::attack( const Attackable& opponent )
 {
@@ -3341,55 +3429,8 @@ void Character::attack( const Attackable& opponent )
   if ( Core::settingsManager.watch.combat )
     INFO_PRINTLN( "{} attacks {}", name(), opponent.object()->name() );
 
-  if ( weapon->is_projectile() )
-  {
-    Core::UContainer* bp = backpack();
-    int check_consume_hook = -1;
-    if ( Core::gamestate.system_hooks.consume_ammunition_hook )
-    {
-      check_consume_hook = Core::gamestate.system_hooks.consume_ammunition_hook->call_long(
-          new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ) );
-      if ( check_consume_hook == 0 )
-      {
-        return;
-      }
-    }
-
-    if ( ( check_consume_hook == -1 ) &&
-         ( ( bp == nullptr ) || ( weapon->consume_projectile( bp ) == false ) ) )
-    {
-      // 04/2007 - MuadDib
-      // Range through wornitems to find containers and check
-      // here also if backpack fails. Use the mainpack first this way.
-      bool projectile_check = false;
-      for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST;
-            layer++ )
-      {
-        Items::Item* item = wornitems->GetItemOnLayer( layer );
-        if ( item )
-        {
-          if ( item != nullptr && item->script_isa( Core::POLCLASS_CONTAINER ) )
-          {
-            if ( layer != Core::LAYER_HAIR && layer != Core::LAYER_FACE &&
-                 layer != Core::LAYER_BEARD && layer != Core::LAYER_BACKPACK &&
-                 layer != Core::LAYER_MOUNT )
-            {
-              Core::UContainer* cont = static_cast<Core::UContainer*>( item );
-
-              if ( weapon->consume_projectile( cont ) == true )
-              {
-                projectile_check = true;
-                break;
-              }
-            }
-          }
-        }
-      }
-      // I'm out of projectiles.
-      if ( projectile_check == false )
-        return;
-    }
-  }
+  if ( !projectile_attack_check() )
+    return;
 
   auto* opponent_mobile = opponent.mobile();
   if ( opponent_mobile )
@@ -3436,41 +3477,8 @@ void Character::attack( const Attackable& opponent )
       INFO_PRINTLN( "Hit!" );
     do_hit_success_effects();
 
-    double damage = calc_damage();
+    double damage = attack_parry_check( opponent_mobile, calc_damage() );
 
-    if ( opponent_mobile->shield != nullptr )
-    {
-      if ( Core::gamestate.system_hooks.parry_advancement_hook )
-      {
-        Core::gamestate.system_hooks.parry_advancement_hook->call(
-            new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
-            new Module::ECharacterRefObjImp( opponent_mobile ),
-            new Module::EItemRefObjImp( opponent_mobile->shield ) );
-      }
-
-      double parry_chance =
-          opponent_mobile->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
-      parry_chance += opponent_mobile->parrychance_mod() * 0.001f;
-      if ( Core::settingsManager.watch.combat )
-        INFO_PRINT( "Parry Chance: {}: ", parry_chance );
-      if ( Clib::random_double( 1.0 ) < parry_chance )
-      {
-        if ( Core::settingsManager.watch.combat )
-          INFO_PRINTLN( "{} hits deflected", opponent_mobile->shield->ar() );
-        if ( Core::settingsManager.combat_config.display_parry_success_messages &&
-             opponent_mobile->client )
-          Core::send_sysmessage( opponent_mobile->client, "You successfully parried the attack!" );
-
-        damage -= opponent_mobile->shield->ar();
-        if ( damage < 0 )
-          damage = 0;
-      }
-      else
-      {
-        if ( Core::settingsManager.watch.combat )
-          INFO_PRINTLN( "failed." );
-      }
-    }
     if ( weapon->hit_script().empty() )
     {
       opponent_mobile->apply_damage( damage, this, true,

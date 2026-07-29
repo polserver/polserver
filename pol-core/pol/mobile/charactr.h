@@ -464,6 +464,8 @@ public:
 
 private:
   void schedule_attack();
+  bool projectile_attack_check();
+  double attack_parry_check( Character* opponent_mobile, double damage );
   static void swing_task_func( Character* chr );
 
   // ATTRIBUTES / VITALS
