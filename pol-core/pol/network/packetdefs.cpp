@@ -101,7 +101,7 @@ void SendWorldItem::buildF3()
 }
 
 SendWorldItem::SendWorldItem( const Items::Item* item, u8 flags )
-    : PktSender(), _flags{ flags }, _item{ item }, _p_old(), _p()
+    : PktSender(), _p_oldlen{ 0 }, _flags{ flags }, _item{ item }, _p_old(), _p()
 {
 }
 
