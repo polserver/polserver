@@ -680,8 +680,8 @@ void send_item_to_inrange( const Item* item )
         }
 
         pkt_rev.Send( zonechr->client );
-        item->send_hit_status( zonechr->client );
       } );
+  item->send_hit_status_inrange();
 }
 
 
