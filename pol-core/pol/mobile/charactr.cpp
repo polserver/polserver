@@ -3119,9 +3119,8 @@ void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent 
       if ( mob )
         mob->schedule_attack();
     }
+    send_highlight();
   }
-
-  send_highlight();
 }
 
 void Character::select_opponent( Attackable opponent )
@@ -3130,7 +3129,7 @@ void Character::select_opponent( Attackable opponent )
   // if you double-click the same guy over and over
   if ( !opponent_ || opponent_.object()->serial != opponent.object()->serial )
   {
-    if ( realm() != opponent.object()->realm() )
+    if ( opponent && realm() != opponent.object()->realm() )
       return;
     set_opponent( std::move( opponent ) );
   }
