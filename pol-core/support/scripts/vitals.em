@@ -17,8 +17,8 @@ const RECALC_NO_VITALS        := 0;
 //
 // Vital related functions
 //
-ApplyDamage( mobile, damage, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT );
-ApplyRawDamage( character, hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT );
+ApplyDamage( attackable, damage, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT );
+ApplyRawDamage( attackable, hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT );
 HealDamage( character, hits );
 ConsumeMana( who, spellid );
 
