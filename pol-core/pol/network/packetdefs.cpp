@@ -12,6 +12,8 @@
 
 namespace Pol::Network
 {
+using namespace Core;
+
 void SendWorldItem::Send( Client* client )
 {
   if ( client->ClientType & CLIENTTYPE_7000 )
@@ -84,7 +86,7 @@ void SendWorldItem::buildF3()
   _p->offset = 1;
   _p->WriteFlipped<u16>( 0x1_u16 );
 
-  _p->Write<u8>( _item->is_attackable() ? 3_u8 : 0_u8 );
+  _p->Write<u8>( _item->is_attackable() ? PKTOUT_F3_TYPE_ATTACKABLE : PKTOUT_F3_TYPE_ITEM );
   _p->WriteFlipped<u32>( _item->serial );
   _p->WriteFlipped<u16>( _item->graphic );
   _p->Write<u8>( 0_u8 );
@@ -135,7 +137,7 @@ void SendWorldMulti::buildF3()
 {
   _p->offset = 1;
   _p->WriteFlipped<u16>( 0x1u );
-  _p->Write<u8>( 0x02u );
+  _p->Write<u8>( PKTOUT_F3_TYPE_MULTI );
   _p->Write<u32>( _serial_ext );
   _p->WriteFlipped<u16>( _graphic );
   _p->Write<u8>( 0u );
