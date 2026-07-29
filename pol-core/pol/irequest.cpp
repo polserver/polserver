@@ -34,27 +34,8 @@
 #include "pol/uoclient.h"
 #include "pol/uoskills.h"
 
-
 namespace Pol::Core
 {
-void send_short_statmsg( Network::Client* client, Items::Item* item )
-{
-  Network::PktHelper::PacketOut<Network::PktOut_11> msg;
-  msg->offset += 2;  // msglen
-  msg->Write<u32>( item->serial_ext );
-  msg->Write( Clib::strUtf8ToCp1252( item->name() ).c_str(), 30, false );
-
-  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( item->hp_ * 1000 / item->maxhp() ) );
-  msg->WriteFlipped<u16>( 1000_u16 );
-  msg->Write<u8>( 0_u8 );
-  msg->Write<u8>( 0_u8 );  // moreinfo
-
-  u16 len = msg->offset;
-  msg->offset = 1;
-  msg->WriteFlipped<u16>( len );
-
-  msg.Send( client, len );
-}
 
 void statrequest( Network::Client* client, u32 serial )
 {
