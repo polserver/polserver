@@ -78,11 +78,10 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
   bool send_dmg = send_damage_packet == 2 ? Core::settingsManager.combat_config.send_damage_packet
                                           : ( send_damage_packet > 0 ? true : false );
   if ( auto* chr = att.mobile() )
-    damage = chr->apply_damage( static_cast<unsigned short>( damage ), GetUOController(),
-                                userepsys > 0 ? true : false, send_dmg );
+    damage = chr->apply_damage( damage, GetUOController(), userepsys > 0 ? true : false, send_dmg );
   else if ( auto* item = att.item() )
-    item->apply_damage( Clib::clamp_convert<u16>( damage ), GetUOController(), send_dmg );
-  return new BLong( static_cast<int>( damage ) );
+    damage = item->apply_damage( Clib::clamp_convert<u16>( damage ), GetUOController(), send_dmg );
+  return new BLong( Clib::clamp_convert<s32>( damage ) );
 }
 
 BObjectImp* VitalExecutorModule::mf_HealDamage()

@@ -533,12 +533,12 @@ void RepSystem::on_pc_helps_pc( Mobile::Character* amy, Mobile::Character* bob )
 
 void RepSystem::de_escalate( Mobile::Character* amy, Mobile::Character* bob )
 {
-  if ( amy->opponent_.object() == bob )
+  if ( amy->opponent_ == bob )
   {
     amy->set_opponent( {}, true );
   }
 
-  if ( bob->opponent_.object() == amy )
+  if ( bob->opponent_ == amy )
   {
     bob->set_opponent( {}, true );
   }

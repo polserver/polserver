@@ -18,7 +18,9 @@ class Attackable
 {
 public:
   Attackable() = default;
-  Attackable( Core::UObject* obj );
+  explicit Attackable( Character* chr );
+  explicit Attackable( Items::Item* attackable );
+  explicit Attackable( Core::UObject* attackable );
 
   explicit operator bool() const { return _opp != nullptr; };
   void clear() { _opp = nullptr; };
@@ -34,6 +36,8 @@ public:
 
   // std::less support for std::set
   bool operator<( const Attackable& o ) const { return _opp < o._opp; };
+  bool operator==( const Attackable& o ) const { return _opp == o._opp; };
+  bool operator==( const Core::UObject* o ) const { return _opp == o; };
 
 private:
   Core::UObject* _opp = nullptr;

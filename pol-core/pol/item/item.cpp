@@ -1426,10 +1426,10 @@ bool Item::is_attackable() const
   return !orphan() && flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
 }
 
-void Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damage_pkt )
+u16 Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damage_pkt )
 {
   if ( !is_attackable() )
-    return;
+    return 0;
   if ( hp_ > damage )
     hp_ -= damage;
   else
@@ -1446,6 +1446,7 @@ void Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_dama
   if ( ex && attacker && ex->listens_to( Core::EVID_DAMAGED ) )
     ex->signal_event( new Module::DamageEvent( attacker, damage ) );
   send_hit_status_inrange();
+  return damage;
 }
 
 void Item::send_hit_status( Network::Client* client ) const
@@ -1604,6 +1605,8 @@ void Item::remove_opponent_of( const Mobile::Attackable& other )
     return;
   if ( !has_opponent_of() )
     return;
+  if ( !other )
+    return;
   opponent_of()->erase( other );
   if ( opponent_of()->empty() )
     clear_opponent_of();
@@ -1611,6 +1614,8 @@ void Item::remove_opponent_of( const Mobile::Attackable& other )
 void Item::add_opponent_of( Mobile::Attackable other )
 {
   if ( !is_attackable() )
+    return;
+  if ( !other )
     return;
   opponent_of()->insert( std::move( other ) );
 }

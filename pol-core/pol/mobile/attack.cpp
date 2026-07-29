@@ -26,11 +26,14 @@
 
 namespace Pol::Mobile
 {
+Attackable::Attackable( Character* chr ) : _opp( chr && !chr->orphan() ? chr : nullptr ) {}
+Attackable::Attackable( Items::Item* attackable )
+    : _opp( attackable && attackable->is_attackable() ? attackable : nullptr )
+{
+}
 Attackable::Attackable( Core::UObject* obj ) : _opp( obj )
 {
-  if ( !_opp )
-    return;
-  if ( obj->ismobile() )
+  if ( !_opp || obj->ismobile() )
     return;
   if ( auto* item_ = item(); item_ && item_->is_attackable() )
     return;

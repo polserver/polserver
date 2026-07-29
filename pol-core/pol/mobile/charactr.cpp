@@ -2138,11 +2138,13 @@ void Character::clear_opponent_of()
 
 void Character::remove_opponent_of( const Attackable& other )
 {
-  opponent_of.erase( other );
+  if ( other )
+    opponent_of.erase( other );
 }
 void Character::add_opponent_of( Attackable other )
 {
-  opponent_of.insert( std::move( other ) );
+  if ( other )
+    opponent_of.insert( std::move( other ) );
 }
 
 void Character::die()
@@ -3080,7 +3082,7 @@ void Character::set_opponent( Attackable new_opponent, bool inform_old_opponent 
       set_warmode( true );
   }
   // if its the same opponent no need to send events and stuff
-  const bool different_op = new_opponent.object() != opponent_.object();
+  const bool different_op = new_opponent != opponent_;
   Attackable this_att{ this };
   if ( opponent_ && different_op )
   {
@@ -3127,7 +3129,7 @@ void Character::select_opponent( Attackable opponent )
 {
   // test for setting to same so swing timer doesn't reset
   // if you double-click the same guy over and over
-  if ( !opponent_ || opponent_.object()->serial != opponent.object()->serial )
+  if ( !opponent_ || opponent_ != opponent )
   {
     if ( opponent && realm() != opponent.object()->realm() )
       return;
