@@ -502,8 +502,14 @@ public:
   const VitalValue& vital( unsigned vitalid ) const;
   VitalValue& vital( unsigned vitalid );
   void regen_vital( const Core::Vital* );  // throw()
-  void calc_vital_stuff( bool i_mod = true, bool v_mod = true,
-                         bool notify_clients = true );  // throw()
+  enum class VitalCalcFlags : u8
+  {
+    NONE = 0,
+    ATTRIBUTES = 1,
+    VITALS = 2,
+    NOTIFY = 4,
+  };
+  void calc_vital_stuff( VitalCalcFlags flags );
   void calc_single_vital( const Core::Vital* pVital, bool notify_clients = true );
   void calc_single_attribute( const Attribute* pAttr );
   void set_vitals_to_maximum( bool notify_clients = true );  // throw();
@@ -1084,6 +1090,24 @@ inline void NpcPropagateEnteredArea( Character* chr, Character* whoentered )
   {
     chr->inform_enteredarea( whoentered );
   }
+}
+
+// minimal bitflag operators
+inline constexpr Character::VitalCalcFlags operator|( Character::VitalCalcFlags a,
+                                                      Character::VitalCalcFlags b )
+{
+  return static_cast<Character::VitalCalcFlags>( static_cast<u8>( a ) | static_cast<u8>( b ) );
+}
+inline constexpr Character::VitalCalcFlags operator&( Character::VitalCalcFlags a,
+                                                      Character::VitalCalcFlags b )
+{
+  return static_cast<Character::VitalCalcFlags>( static_cast<u8>( a ) & static_cast<u8>( b ) );
+}
+inline constexpr Character::VitalCalcFlags& operator|=( Character::VitalCalcFlags& a,
+                                                        Character::VitalCalcFlags b )
+{
+  a = a | b;
+  return a;
 }
 }  // namespace Mobile
 }  // namespace Pol

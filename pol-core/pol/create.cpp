@@ -395,7 +395,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   }
 
   // not yet entered the world, dont send vital pkts
-  chr->calc_vital_stuff( true, true, false );
+  chr->calc_vital_stuff( Mobile::Character::VitalCalcFlags::ATTRIBUTES |
+                         Mobile::Character::VitalCalcFlags::VITALS );
   chr->set_vitals_to_maximum( false );
 
 
@@ -739,7 +740,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   // not yet entered the world, dont send vital pkts
-  chr->calc_vital_stuff( true, true, false );
+  chr->calc_vital_stuff( Mobile::Character::VitalCalcFlags::ATTRIBUTES |
+                         Mobile::Character::VitalCalcFlags::VITALS );
   chr->set_vitals_to_maximum( false );
 
 
@@ -1145,7 +1147,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   }
 
   // not yet entered the world, dont send vital pkts
-  chr->calc_vital_stuff( true, true, false );
+  chr->calc_vital_stuff( Mobile::Character::VitalCalcFlags::ATTRIBUTES |
+                         Mobile::Character::VitalCalcFlags::VITALS );
   chr->set_vitals_to_maximum( false );
 
 

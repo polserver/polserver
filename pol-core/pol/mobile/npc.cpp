@@ -627,7 +627,8 @@ void NPC::readPropertiesForNewNPC( Clib::ConfigElem& elem )
   readNewNpcAttributes( elem );
   readNpcProperties( elem );
   // not yet entered the world, dont send vital pkts
-  calc_vital_stuff( true, true, false );
+  calc_vital_stuff( Mobile::Character::VitalCalcFlags::ATTRIBUTES |
+                    Mobile::Character::VitalCalcFlags::VITALS );
   set_vitals_to_maximum( false );
 
   //    readNpcProperties( elem );

@@ -220,11 +220,13 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
   {
     if ( chr->logged_in() )
     {
-      bool calc_attr = false;
-      bool calc_vital = false;
+      auto flags = Mobile::Character::VitalCalcFlags::NOTIFY;
 
       if ( auto* v = impptrIf<BLong>( param1 ) )
-        calc_attr = v->isTrue();
+      {
+        if ( v->isTrue() )
+          flags |= Mobile::Character::VitalCalcFlags::ATTRIBUTES;
+      }
       else if ( auto* attrname = impptrIf<String>( param1 ) )
       {
         Mobile::Attribute* attr = Mobile::Attribute::FindAttribute( attrname->value() );
@@ -236,7 +238,10 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
         return new BError( "Invalid parameter type" );
 
       if ( auto* v = impptrIf<BLong>( param2 ) )
-        calc_vital = v->isTrue();
+      {
+        if ( v->isTrue() )
+          flags |= Mobile::Character::VitalCalcFlags::VITALS;
+      }
       else if ( auto* vitalname = impptrIf<String>( param2 ) )
       {
         Core::Vital* vital = Core::FindVital( vitalname->value() );
@@ -247,7 +252,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       else
         return new BError( "Invalid parameter type" );
 
-      chr->calc_vital_stuff( calc_attr, calc_vital );
+      chr->calc_vital_stuff( flags );
       return new BLong( 1 );
     }
     return new BError( "Mobile must be online." );

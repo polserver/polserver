@@ -1021,7 +1021,8 @@ void Character::readAttributesAndVitals( Clib::ConfigElem& elem )
     }
   }
 
-  calc_vital_stuff();
+  calc_vital_stuff( Mobile::Character::VitalCalcFlags::ATTRIBUTES |
+                    Mobile::Character::VitalCalcFlags::VITALS );
 
   // read Vitals
   for ( Core::Vital* pVital : Core::gamestate.vitals )
@@ -1561,9 +1562,9 @@ void Character::regen_vital( const Core::Vital* pVital )
     consume( pVital, vv, -rr / 12, VitalDepletedReason::REGENERATE );
 }
 
-void Character::calc_vital_stuff( bool i_mod, bool v_mod, bool notify_clients )
+void Character::calc_vital_stuff( VitalCalcFlags flags )
 {
-  if ( i_mod )
+  if ( ( flags & VitalCalcFlags::ATTRIBUTES ) != VitalCalcFlags::NONE )
   {
     for ( unsigned ai = 0; ai < Core::gamestate.numAttributes; ++ai )
     {
@@ -1571,8 +1572,9 @@ void Character::calc_vital_stuff( bool i_mod, bool v_mod, bool notify_clients )
     }
   }
 
-  if ( v_mod )
+  if ( ( flags & VitalCalcFlags::VITALS ) != VitalCalcFlags::NONE )
   {
+    const bool notify_clients = ( flags & VitalCalcFlags::NOTIFY ) != VitalCalcFlags::NONE;
     for ( unsigned vi = 0; vi < Core::gamestate.numVitals; ++vi )
     {
       calc_single_vital( Core::gamestate.vitals[vi], notify_clients );
