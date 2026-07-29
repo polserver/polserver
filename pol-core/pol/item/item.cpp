@@ -1423,7 +1423,7 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
 
 bool Item::is_attackable() const
 {
-  return flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
+  return !orphan() && flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
 }
 
 void Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damage_pkt )
