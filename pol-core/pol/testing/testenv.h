@@ -110,6 +110,7 @@ void mapsize_validation_test();
 void uoextension_test();
 void caseinsensitive_compare_test();
 void resolve_test();
+void ipmatch_test();
 void www_test();
 void dynthreadpool_test();
 }  // namespace Testing

@@ -50,6 +50,7 @@
 #include "pol/mobile/npc.h"
 #include "pol/multi/house.h"
 #include "pol/multi/multi.h"
+#include "pol/network/ipmatch.h"
 #include "pol/objecthash.h"
 #include "pol/polvar.h"
 #include "pol/regions/resource.h"
@@ -739,8 +740,7 @@ size_t ServerDescription::estimateSize() const
 {
   size_t size = name.capacity() + 4 * sizeof( unsigned char ) /*ip*/
                 + sizeof( unsigned short )                    /*port*/
-                + Clib::memsize( ip_match ) + Clib::memsize( ip_match_mask ) +
-                Clib::memsize( proxy_match ) + Clib::memsize( proxy_match_mask ) +
+                + Clib::memsize( ip_match ) + Clib::memsize( proxy_match ) +
                 hostname.capacity();
   for ( const auto& s : acct_match )
     size += s.capacity();
@@ -816,45 +816,8 @@ void read_gameservers()
 
     svr->port = elem.remove_ushort( "PORT" );
 
-    while ( elem.remove_prop( "IPMATCH", &iptext ) )
-    {
-      auto delim = iptext.find_first_of( '/' );
-      if ( delim != std::string::npos )
-      {
-        std::string ipaddr_str = iptext.substr( 0, delim );
-        std::string ipmask_str = iptext.substr( delim + 1 );
-        unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
-        unsigned int ipmask = inet_addr( ipmask_str.c_str() );
-        svr->ip_match.push_back( ipaddr );
-        svr->ip_match_mask.push_back( ipmask );
-      }
-      else
-      {
-        unsigned int ipaddr = inet_addr( iptext.c_str() );
-        svr->ip_match.push_back( ipaddr );
-        svr->ip_match_mask.push_back( 0xFFffFFffLu );
-      }
-    }
-
-    while ( elem.remove_prop( "PROXYMATCH", &iptext ) )
-    {
-      auto delim = iptext.find_first_of( '/' );
-      if ( delim != std::string::npos )
-      {
-        std::string ipaddr_str = iptext.substr( 0, delim );
-        std::string ipmask_str = iptext.substr( delim + 1 );
-        unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
-        unsigned int ipmask = inet_addr( ipmask_str.c_str() );
-        svr->proxy_match.push_back( ipaddr );
-        svr->proxy_match_mask.push_back( ipmask );
-      }
-      else
-      {
-        unsigned int ipaddr = inet_addr( iptext.c_str() );
-        svr->proxy_match.push_back( ipaddr );
-        svr->proxy_match_mask.push_back( 0xFFffFFffLu );
-      }
-    }
+    Network::read_ip_match_list( elem, "IPMATCH", &svr->ip_match );
+    Network::read_ip_match_list( elem, "PROXYMATCH", &svr->proxy_match );
 
     while ( elem.remove_prop( "ACCTMATCH", &accttext ) )
     {

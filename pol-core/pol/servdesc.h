@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "clib/network/resolve.h"
+#include "pol/network/ipmatch.h"
 
 namespace Pol::Core
 {
@@ -23,10 +24,8 @@ public:
   std::string name;
   unsigned char ip[4];
   unsigned short port;
-  std::vector<unsigned int> ip_match;
-  std::vector<unsigned int> ip_match_mask;
-  std::vector<unsigned int> proxy_match;
-  std::vector<unsigned int> proxy_match_mask;
+  std::vector<Network::IpMatch> ip_match;
+  std::vector<Network::IpMatch> proxy_match;
   std::vector<std::string> acct_match;
   std::string hostname;
 };

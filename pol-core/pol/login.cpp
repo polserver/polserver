@@ -38,6 +38,7 @@
 #include "pol/globals/uvars.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
+#include "pol/network/ipmatch.h"
 #include "pol/network/packethelper.h"
 #include "pol/network/packets.h"
 #include "pol/network/pktdef.h"
@@ -83,20 +84,10 @@ bool acct_check( Network::Client* client, int i )
 
 bool ip_check( Network::Client* client, int i )
 {
-  if ( networkManager.servers[i]->ip_match.empty() )
-    return true;
   const auto* server = networkManager.servers[i];
-  for ( unsigned j = 0; j < server->ip_match.size(); ++j )
-  {
-    unsigned int addr1part, addr2part;
-    struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
-
-    addr1part = server->ip_match[j] & server->ip_match_mask[j];
-    addr2part = sockin->sin_addr.s_addr & server->ip_match_mask[j];
-    if ( addr1part == addr2part )
-      return true;
-  }
-  return false;
+  if ( server->ip_match.empty() )
+    return true;
+  return Network::matches_any( server->ip_match, client->ipaddr );
 }
 
 bool proxy_check( Network::Client* client, int i )
@@ -117,18 +108,7 @@ bool proxy_check( Network::Client* client, int i )
     return false;
   }
 
-  for ( unsigned j = 0; j < networkManager.servers[i]->proxy_match.size(); ++j )
-  {
-    unsigned int addr1part, addr2part;
-    struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr_proxy );
-
-    addr1part =
-        networkManager.servers[i]->proxy_match[j] & networkManager.servers[i]->proxy_match_mask[j];
-    addr2part = sockin->sin_addr.s_addr & networkManager.servers[i]->proxy_match_mask[j];
-    if ( addr1part == addr2part )
-      return true;
-  }
-  return false;
+  return Network::matches_any( networkManager.servers[i]->proxy_match, client->ipaddr_proxy );
 }
 
 bool server_applies( Network::Client* client, int i )

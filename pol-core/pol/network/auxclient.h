@@ -17,6 +17,7 @@
 #include "clib/network/socketsvc.h"
 #include "clib/refptr.h"
 #include "clib/weakptr.h"
+#include "pol/network/ipmatch.h"
 #include "pol/polobject.h"
 #include "pol/scrdef.h"
 #include "pol/uoexec.h"
@@ -86,8 +87,7 @@ public:
   size_t estimateSize() const;
 
   const Core::ScriptDef& scriptdef() const { return _scriptdef; }
-  std::vector<unsigned int> _aux_ip_match;
-  std::vector<unsigned int> _aux_ip_match_mask;
+  std::vector<IpMatch> _aux_ip_match;
 
 private:
   const Plib::Package* _pkg;

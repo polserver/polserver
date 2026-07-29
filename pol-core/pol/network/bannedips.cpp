@@ -13,27 +13,14 @@
 #include "clib/fileutil.h"
 #include "pol/globals/network.h"
 #include "pol/network/client.h"
+#include "pol/network/ipmatch.h"
 
 
 namespace Pol::Network
 {
 bool is_banned_ip( Client* client )
 {
-  if ( Core::networkManager.banned_ips.empty() )
-    return false;
-
-  for ( auto& banned_ip : Core::networkManager.banned_ips )
-  {
-    unsigned int addr1part, addr2part;
-    struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
-    addr1part = banned_ip.ipMatch & banned_ip.ipMask;
-
-    addr2part = sockin->sin_addr.s_addr & banned_ip.ipMask;
-
-    if ( addr1part == addr2part )
-      return true;
-  }
-  return false;
+  return matches_any( Core::networkManager.banned_ips, client->ipaddr );
 }
 
 void read_bannedips_config( bool initial_load )
@@ -50,24 +37,8 @@ void read_bannedips_config( bool initial_load )
 
   while ( cf.read( elem ) )
   {
-    IPRule CurrentEntry;
-    std::string iptext = elem.remove_string( "IPMatch" );
-    std::string::size_type delim = iptext.find_first_of( '/' );
-    if ( delim != std::string::npos )
-    {
-      std::string ipaddr_str = iptext.substr( 0, delim );
-      std::string ipmask_str = iptext.substr( delim + 1 );
-      CurrentEntry.ipMatch = inet_addr( ipaddr_str.c_str() );
-      CurrentEntry.ipMask = inet_addr( ipmask_str.c_str() );
-      Core::networkManager.banned_ips.push_back( CurrentEntry );
-    }
-    else
-    {
-      std::string ipmask_str = "255.255.255.255";
-      CurrentEntry.ipMatch = inet_addr( iptext.c_str() );
-      CurrentEntry.ipMask = inet_addr( ipmask_str.c_str() );
-      Core::networkManager.banned_ips.push_back( CurrentEntry );
-    }
+    Core::networkManager.banned_ips.push_back(
+        IpMatch::parse( elem.remove_string( "IPMatch" ) ) );
   }
 }
 }  // namespace Pol::Network
