@@ -1,0 +1,222 @@
+// The geometry helpers of the uo module. These are pure functions of their
+// arguments, so they need no world state and their results are exact.
+use uo;
+use os;
+
+include "testutil";
+
+program geometry()
+  return 1;
+endprogram
+
+// the pol distance is the larger of the two axis distances, so a diagonal
+// costs the same as a straight move
+exported function coordinate_distance()
+  var cases := array{
+    struct{ x2 := 55, y2 := 50, expected := 5 },
+    struct{ x2 := 50, y2 := 55, expected := 5 },
+    struct{ x2 := 55, y2 := 53, expected := 5 },
+    struct{ x2 := 53, y2 := 55, expected := 5 },
+    struct{ x2 := 55, y2 := 55, expected := 5 },
+    struct{ x2 := 50, y2 := 50, expected := 0 },
+    struct{ x2 := 45, y2 := 50, expected := 5 },
+    struct{ x2 := 45, y2 := 45, expected := 5 }
+  };
+
+  foreach c in ( cases )
+    var actual := CoordinateDistance( 50, 50, c.x2, c.y2 );
+    if ( actual != c.expected )
+      return ret_error( $"CoordinateDistance( 50, 50, {c.x2}, {c.y2} ) = {actual}, expected {c.expected}" );
+    endif
+  endforeach
+
+  // and it does not care which way round the two points are given
+  if ( CoordinateDistance( 55, 53, 50, 50 ) != CoordinateDistance( 50, 50, 55, 53 ) )
+    return ret_error( "CoordinateDistance is not symmetric" );
+  endif
+
+  return 1;
+endfunction
+
+// the euclidean variant measures the straight line instead, so it only agrees
+// with the pol distance on the axes
+exported function coordinate_distance_euclidean()
+  var res := check_near( CoordinateDistanceEuclidean( 50, 50, 55, 50 ), 5.0,
+                         "straight line along x" );
+  if ( !res )
+    return res;
+  endif
+  if ( !( res := check_near( CoordinateDistanceEuclidean( 50, 50, 50, 55 ), 5.0,
+                             "straight line along y" ) ) )
+    return res;
+  endif
+
+  // a 3 4 5 triangle
+  if ( !( res := check_near( CoordinateDistanceEuclidean( 50, 50, 53, 54 ), 5.0, "3 4 5" ) ) )
+    return res;
+  endif
+
+  // the diagonal is where the two distances part ways
+  if ( !( res := check_near( CoordinateDistanceEuclidean( 50, 50, 55, 55 ), 7.0710678,
+                             "diagonal" ) ) )
+    return res;
+  endif
+  if ( CoordinateDistance( 50, 50, 55, 55 ) != 5 )
+    return ret_error( "the pol distance of the diagonal changed" );
+  endif
+
+  if ( !( res := check_near( CoordinateDistanceEuclidean( 50, 50, 50, 50 ), 0.0, "same tile" ) ) )
+    return res;
+  endif
+
+  return 1;
+endfunction
+
+// the object based distances measure between the toplevel positions
+exported function object_distance( resmngr )
+  var item1 := resmngr.CreateItemAtLocation( 50, 50, 0, 0x4ae );
+  var item2 := resmngr.CreateItemAtLocation( 53, 54, 0, 0x4ae );
+  if ( !item1 || !item2 )
+    return ret_error( $"failed to create items: {item1}, {item2}" );
+  endif
+
+  if ( Distance( item1, item2 ) != 4 )
+    return ret_error( $"Distance = {Distance( item1, item2 )}, expected 4" );
+  endif
+
+  var res := check_near( DistanceEuclidean( item1, item2 ), 5.0, "DistanceEuclidean" );
+  if ( !res )
+    return res;
+  endif
+
+  // an object has no distance to itself
+  if ( Distance( item1, item1 ) != 0 )
+    return ret_error( "Distance to itself is not 0" );
+  endif
+  if ( !( res := check_near( DistanceEuclidean( item1, item1 ), 0.0, "distance to itself" ) ) )
+    return res;
+  endif
+
+  // both agree with the coordinate based variants
+  if ( Distance( item1, item2 ) != CoordinateDistance( 50, 50, 53, 54 ) )
+    return ret_error( "Distance and CoordinateDistance disagree" );
+  endif
+
+  return 1;
+endfunction
+
+// the facing is the compass direction from one point to another, 0 is north
+// and it counts clockwise
+exported function facing()
+  var cases := array{
+    struct{ dx := 0,  dy := -1, expected := 0, name := "north" },
+    struct{ dx := 1,  dy := -1, expected := 1, name := "north east" },
+    struct{ dx := 1,  dy := 0,  expected := 2, name := "east" },
+    struct{ dx := 1,  dy := 1,  expected := 3, name := "south east" },
+    struct{ dx := 0,  dy := 1,  expected := 4, name := "south" },
+    struct{ dx := -1, dy := 1,  expected := 5, name := "south west" },
+    struct{ dx := -1, dy := 0,  expected := 6, name := "west" },
+    struct{ dx := -1, dy := -1, expected := 7, name := "north west" }
+  };
+
+  foreach c in ( cases )
+    var actual := GetFacing( 50, 50, 50 + c.dx, 50 + c.dy );
+    if ( actual != c.expected )
+      return ret_error( $"facing {c.name} = {actual}, expected {c.expected}" );
+    endif
+  endforeach
+
+  // only the direction matters, not how far away the target is
+  foreach c in ( cases )
+    var actual := GetFacing( 50, 50, 50 + ( c.dx * 10 ), 50 + ( c.dy * 10 ) );
+    if ( actual != c.expected )
+      return ret_error( $"facing {c.name} at range 10 = {actual}, expected {c.expected}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// the line between two points, both ends included
+exported function coords_in_line()
+  // the same tile gives just that tile back
+  var coords := GetCoordsInLine( 50, 50, 50, 50 );
+  if ( coords.size() != 1 )
+    return ret_error( $"same tile returned {coords.size()} coordinates" );
+  endif
+  if ( coords[1].x != 50 || coords[1].y != 50 )
+    return ret_error( $"same tile returned {coords[1]}" );
+  endif
+
+  // a run along x keeps y and covers every tile including both ends
+  coords := GetCoordsInLine( 50, 50, 55, 50 );
+  var res := check_ends( coords, 6, 50, 50, 55, 50 );
+  if ( !res )
+    return res;
+  endif
+  foreach coord in ( coords )
+    if ( coord.y != 50 )
+      return ret_error( $"a horizontal line left its row: {coord}" );
+    endif
+  endforeach
+
+  // the same along y
+  coords := GetCoordsInLine( 50, 50, 50, 55 );
+  if ( !( res := check_ends( coords, 6, 50, 50, 50, 55 ) ) )
+    return res;
+  endif
+  foreach coord in ( coords )
+    if ( coord.x != 50 )
+      return ret_error( $"a vertical line left its column: {coord}" );
+    endif
+  endforeach
+
+  // a diagonal advances on both axes at once
+  coords := GetCoordsInLine( 50, 50, 55, 55 );
+  if ( !( res := check_ends( coords, 6, 50, 50, 55, 55 ) ) )
+    return res;
+  endif
+  var i;
+  for ( i := 1; i <= coords.size(); i += 1 )
+    if ( coords[i].x != 49 + i || coords[i].y != 49 + i )
+      return ret_error( $"diagonal step {i} is {coords[i]}" );
+    endif
+  endfor
+
+  // and it works backwards just as well
+  coords := GetCoordsInLine( 55, 50, 50, 50 );
+  if ( !( res := check_ends( coords, 6, 55, 50, 50, 50 ) ) )
+    return res;
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function check_near( actual, expected, what )
+  var diff := actual - expected;
+  if ( diff < 0 )
+    diff := -diff;
+  endif
+  if ( diff > 0.0001 )
+    return ret_error( $"{what}: {actual}, expected {expected}" );
+  endif
+  return 1;
+endfunction
+
+// the line has the expected length and runs from the first to the last point
+function check_ends( coords, count, x1, y1, x2, y2 )
+  if ( coords.size() != count )
+    return ret_error( $"line has {coords.size()} coordinates, expected {count}" );
+  endif
+  if ( coords[1].x != x1 || coords[1].y != y1 )
+    return ret_error( $"line starts at {coords[1]}, expected {x1},{y1}" );
+  endif
+  if ( coords[count].x != x2 || coords[count].y != y2 )
+    return ret_error( $"line ends at {coords[count]}, expected {x2},{y2}" );
+  endif
+  return 1;
+endfunction

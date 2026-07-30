@@ -1,0 +1,272 @@
+// The DepletedFunction of a vital: that it fires at all, the transition rule
+// that decides when it fires, and the reason it reports.
+//
+// The reasons that damage, death and resurrection use are not covered here:
+// they are hardcoded to the Life, Mana and Stamina vitals, whose configuration
+// belongs to the bare distro, so reaching them would mean overriding a distro
+// file from the testsuite. See the notes in config/vitals.cfg.
+use uo;
+use os;
+use polsys;
+use vitals;
+
+include "testutil";
+
+// Mobile::Character::VitalDepletedReason
+const VITAL_DEPLETED_REGENERATE := 0;
+const VITAL_DEPLETED_DAMAGE     := 1;
+const VITAL_DEPLETED_MOVEMENT   := 2;
+const VITAL_DEPLETED_DEATH      := 3;
+const VITAL_DEPLETED_RESURRECT  := 4;
+const VITAL_DEPLETED_SCRIPT     := 5;
+
+const TESTVITAL_MAXIMUM := 10000;
+
+program vitals_tests()
+  return 1;
+endprogram
+
+// the fixture itself: the test vital exists, starts at its maximum and is
+// reachable under its alias
+exported function depleted_fixture( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  if ( GetVitalName( "TestVital" ) != "TestVital" )
+    return ret_error( $"wrong vital name: {GetVitalName( "TestVital" )}" );
+  endif
+  if ( GetVitalName( "TestVitalAlias" ) != "TestVital" )
+    return ret_error( $"alias does not resolve: {GetVitalName( "TestVitalAlias" )}" );
+  endif
+
+  if ( GetVitalMaximumValue( npc, "TestVital" ) != TESTVITAL_MAXIMUM )
+    return ret_error( $"wrong maximum: {GetVitalMaximumValue( npc, "TestVital" )}" );
+  endif
+  if ( GetVital( npc, "TestVital" ) != TESTVITAL_MAXIMUM )
+    return ret_error( $"vital does not start at its maximum: {GetVital( npc, "TestVital" )}" );
+  endif
+
+  // both names address the same vital
+  if ( GetVital( npc, "TestVitalAlias" ) != GetVital( npc, "TestVital" ) )
+    return ret_error( "the alias addresses a different vital" );
+  endif
+  SetVital( npc, "TestVitalAlias", 5000 );
+  if ( GetVital( npc, "TestVital" ) != 5000 )
+    return ret_error( $"writing through the alias failed: {GetVital( npc, "TestVital" )}" );
+  endif
+
+  // and the vital is inert for characters that no test marked
+  var other := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals", 51, 100, 0 );
+  if ( !other )
+    return ret_error( $"Could not create NPC: {other}" );
+  endif
+  clear_depleted();
+  SetVital( other, "TestVital", 0 );
+  if ( depleted_records( other.serial ).size() )
+    return ret_error( "an unmarked character was recorded" );
+  endif
+
+  return 1;
+endfunction
+
+// setting a vital to zero from a script reports SCRIPT
+exported function depleted_setvital( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  clear_depleted();
+  SetVital( npc, "TestVital", 0 );
+
+  var res := check_single_record( npc, VITAL_DEPLETED_SCRIPT );
+  if ( !res )
+    return res;
+  endif
+  if ( GetVital( npc, "TestVital" ) != 0 )
+    return ret_error( $"vital is not empty: {GetVital( npc, "TestVital" )}" );
+  endif
+
+  return 1;
+endfunction
+
+// consuming more than is left empties the vital, reports SCRIPT and returns 0
+exported function depleted_consumevital( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // a partial consume changes nothing about the hook
+  clear_depleted();
+  var res := ConsumeVital( npc, "TestVital", 100 );
+  if ( res != 1 )
+    return ret_error( $"ConsumeVital failed: {res}" );
+  endif
+  if ( GetVital( npc, "TestVital" ) != TESTVITAL_MAXIMUM - 100 )
+    return ret_error( $"wrong value after consume: {GetVital( npc, "TestVital" )}" );
+  endif
+  if ( depleted_records( npc.serial ).size() )
+    return ret_error( "a partial consume was recorded as depleted" );
+  endif
+
+  // consuming past the current value empties it and reports the depletion
+  clear_depleted();
+  res := ConsumeVital( npc, "TestVital", TESTVITAL_MAXIMUM );
+  if ( res != 0 )
+    return ret_error( $"ConsumeVital did not report the underflow: {res}" );
+  endif
+  if ( GetVital( npc, "TestVital" ) != 0 )
+    return ret_error( $"vital did not clamp to 0: {GetVital( npc, "TestVital" )}" );
+  endif
+
+  return check_single_record( npc, VITAL_DEPLETED_SCRIPT );
+endfunction
+
+// the hook fires on the transition to zero only, not on every write of zero
+exported function depleted_no_refire( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  clear_depleted();
+  SetVital( npc, "TestVital", 0 );
+  var res := check_single_record( npc, VITAL_DEPLETED_SCRIPT );
+  if ( !res )
+    return res;
+  endif
+
+  // the vital is already empty, so none of these is a transition
+  clear_depleted();
+  SetVital( npc, "TestVital", 0 );
+  ConsumeVital( npc, "TestVital", 100 );
+  if ( depleted_records( npc.serial ).size() )
+    return ret_error( $"the hook fired again: {depleted_records( npc.serial )}" );
+  endif
+
+  // refilling and emptying it again does fire
+  SetVital( npc, "TestVital", TESTVITAL_MAXIMUM );
+  clear_depleted();
+  SetVital( npc, "TestVital", 0 );
+
+  return check_single_record( npc, VITAL_DEPLETED_SCRIPT );
+endfunction
+
+// a value below one full point is still zero for the hook, which counts in
+// whole points and not in hundredths
+exported function depleted_counts_points( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // drop to 0.99 points: the hundredths are not zero, but the points are
+  clear_depleted();
+  SetVital( npc, "TestVital", 99 );
+  if ( GetVital( npc, "TestVital" ) != 99 )
+    return ret_error( $"wrong value: {GetVital( npc, "TestVital" )}" );
+  endif
+
+  var res := check_single_record( npc, VITAL_DEPLETED_SCRIPT );
+  if ( !res )
+    return res;
+  endif
+
+  return 1;
+endfunction
+
+// draining a vital through its regeneration rate reports REGENERATE
+exported function depleted_regenerate( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // npcs do not regenerate in warmode with the WarmodeInhibitsRegen of the
+  // test configuration
+  npc.setwarmode( 0 );
+
+  // the lowest rate the core accepts, so that a single tick empties the vital
+  SetObjProperty( npc, "#VitalTestRegen", -30000 );
+  var res := RecalcVitals( npc, RECALC_NO_INTRINSIC_MOD, "TestVital" );
+  if ( !res )
+    return ret_error( $"RecalcVitals failed: {res}" );
+  endif
+  if ( GetVitalRegenRate( npc, "TestVital" ) != -30000 )
+    return ret_error( $"regen rate not applied: {GetVitalRegenRate( npc, "TestVital" )}" );
+  endif
+
+  // one point left, so the next regeneration tick empties it
+  SetVital( npc, "TestVital", 100 );
+  clear_depleted();
+
+  // the regeneration task runs every 5 seconds
+  var records := wait_for_depleted( npc, 20000 );
+  if ( !records )
+    return records;
+  endif
+  if ( records[1].reason != VITAL_DEPLETED_REGENERATE )
+    return ret_error( $"wrong reason: {records[1].reason} != {VITAL_DEPLETED_REGENERATE}" );
+  endif
+  if ( GetVital( npc, "TestVital" ) != 0 )
+    return ret_error( $"vital is not empty: {GetVital( npc, "TestVital" )}" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function make_npc( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals", 50, 100, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  // only marked characters are recorded by the depleted hook
+  SetObjProperty( npc, "#VitalTest", 1 );
+  clear_depleted();
+  return npc;
+endfunction
+
+function clear_depleted()
+  SetGlobalProperty( "#VitalDepleted", array{} );
+endfunction
+
+function depleted_records( serial )
+  var log := GetGlobalProperty( "#VitalDepleted" );
+  if ( !log )
+    return array{};
+  endif
+  return log.filter( @( rec ) { return rec.serial == serial; } );
+endfunction
+
+// the hook has to have fired exactly once, with the expected reason
+function check_single_record( npc, expected )
+  var records := depleted_records( npc.serial );
+  if ( records.size() != 1 )
+    return ret_error( $"expected one depleted record, got {records.size()}: {records}" );
+  endif
+  if ( records[1].reason != expected )
+    return ret_error( $"wrong reason: {records[1].reason} != {expected}" );
+  endif
+  return 1;
+endfunction
+
+// waits for the hook to fire, for the paths that are driven by a task
+function wait_for_depleted( npc, timeout )
+  var start := ReadMillisecondClock();
+  while ( ReadMillisecondClock() - start < timeout )
+    var records := depleted_records( npc.serial );
+    if ( records.size() )
+      return records;
+    endif
+    sleepms( 250 );
+  endwhile
+  return ret_error( $"the vital was not reported as depleted within {timeout}ms" );
+endfunction

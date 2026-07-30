@@ -1,0 +1,137 @@
+// Height and layer queries against the terrain. The coordinates are the ones
+// test_mapinfo.src already pins down: for x 31 to 33 the map steps from water
+// at z -5 up to land at z 0 between y 27 and y 30.
+use uo;
+use os;
+
+include "testutil";
+
+program mapquery()
+  return 1;
+endprogram
+
+// the tiles the terrain step runs through, with the values test_mapinfo
+// expects from GetMapInfo
+const WATER_Y := 25;  // landtile 0xa8, z -5
+const STEP_Y  := 28;  // landtile 0x17, z -2
+const LAND_Y  := 31;  // landtile 0x3,  z 0
+
+// the landtile the test map uses for water
+const WATER_LANDTILE := 0xa8;
+
+// on land the world height follows the map, over water there is no height to
+// stand at at all
+exported function world_height()
+  var land_checked := 0;
+  var water_checked := 0;
+  var x, y;
+
+  for ( x := 31; x <= 33; x += 1 )
+    for ( y := 20; y <= 33; y += 1 )
+      var info := GetMapInfo( x, y );
+      var actual := GetWorldHeight( x, y );
+
+      if ( info.landtile == WATER_LANDTILE )
+        if ( actual != error )
+          return ret_error( $"GetWorldHeight( {x}, {y} ) over water returned {actual}" );
+        endif
+        water_checked += 1;
+      else
+        if ( actual == error )
+          return ret_error( $"GetWorldHeight( {x}, {y} ) failed: {actual.errortext}" );
+        elseif ( actual != info.z )
+          return ret_error( $"GetWorldHeight( {x}, {y} ) = {actual}, GetMapInfo says {info.z}" );
+        endif
+        land_checked += 1;
+      endif
+    endfor
+  endfor
+
+  // both branches have to have been taken, otherwise the loop proves nothing
+  if ( !land_checked || !water_checked )
+    return ret_error( $"the terrain step was not covered: {land_checked} land, {water_checked} water" );
+  endif
+
+  if ( GetWorldHeight( 31, LAND_Y ) != 0 )
+    return ret_error( $"land is at {GetWorldHeight( 31, LAND_Y )}, expected 0" );
+  endif
+
+  return 1;
+endfunction
+
+// the standing height is where a walking mobile ends up
+exported function standing_height()
+  var res := GetStandingHeight( 31, LAND_Y, 0 );
+  if ( res == error )
+    return ret_error( $"GetStandingHeight on land failed: {res.errortext}" );
+  endif
+  if ( res.z != 0 )
+    return ret_error( $"standing height on land is {res.z}, expected 0" );
+  endif
+
+  // nothing is standing on a multi out here
+  if ( res.multi )
+    return ret_error( $"unexpected multi: {res.multi}" );
+  endif
+
+  // dropping in from above lands on the same tile
+  var from_above := GetStandingHeight( 31, LAND_Y, 100 );
+  if ( from_above == error )
+    return ret_error( $"GetStandingHeight from above failed: {from_above.errortext}" );
+  endif
+  if ( from_above.z != res.z )
+    return ret_error( $"starting z changed the result: {from_above.z} != {res.z}" );
+  endif
+
+  // and it agrees with the world height on land
+  if ( res.z != GetWorldHeight( 31, LAND_Y ) )
+    return ret_error( "GetStandingHeight and GetWorldHeight disagree on land" );
+  endif
+
+  // a walker cannot stand on water, which is what stops the pathfinder in
+  // test_findpath.src
+  var water := GetStandingHeight( 31, WATER_Y, -5 );
+  if ( water != error )
+    return ret_error( $"a walking mobile can stand on water: {water}" );
+  endif
+
+  return 1;
+endfunction
+
+// the layers a mobile could stand on at a tile
+exported function standing_layers( resmngr )
+  var layers := GetStandingLayers( 31, LAND_Y );
+  if ( layers == error )
+    return ret_error( $"GetStandingLayers failed: {layers.errortext}" );
+  endif
+  if ( !layers.size() )
+    return ret_error( "no layers on solid ground" );
+  endif
+
+  // every entry describes one surface
+  foreach layer in ( layers )
+    if ( layer.z == error || layer.height == error || layer.flags == error )
+      return ret_error( $"incomplete layer: {layer}" );
+    endif
+  endforeach
+
+  var ground := layers.size();
+
+  // an item on the tile shows up, but only when items are asked for
+  var item := resmngr.CreateItemAtLocation( 31, LAND_Y, 0, 0x4ae );
+  if ( !item )
+    return ret_error( $"failed to create item: {item}" );
+  endif
+
+  var with_items := GetStandingLayers( 31, LAND_Y, MAPDATA_FLAG_ALL, _DEFAULT_REALM, 1 );
+  if ( with_items.size() != ground + 1 )
+    return ret_error( $"item not listed: {with_items.size()} != {ground + 1}" );
+  endif
+
+  var without_items := GetStandingLayers( 31, LAND_Y, MAPDATA_FLAG_ALL, _DEFAULT_REALM, 0 );
+  if ( without_items.size() != ground )
+    return ret_error( $"item listed although items were excluded: {without_items.size()} != {ground}" );
+  endif
+
+  return 1;
+endfunction

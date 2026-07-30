@@ -1,0 +1,221 @@
+// The rules the core applies around damage: who is exempt, the point at which
+// damage becomes lethal, and the bounds the core puts on the values a vital
+// hook may return.
+//
+// That damage and healing are a no-op on a dead character needs a logged in
+// player and belongs with the client tests.
+use uo;
+use os;
+use polsys;
+use vitals;
+use attributes;
+
+include "testutil";
+
+const TESTVITAL_MAXIMUM := 10000;
+
+// Core::VITAL_* bounds
+const VITAL_LOWEST_MAX_HUNDREDTHS  := 100;
+const VITAL_HIGHEST_MAX_HUNDREDTHS := 10000000;
+const VITAL_LOWEST_REGENRATE       := -30000;
+const VITAL_HIGHEST_REGENRATE      := 30000;
+
+program vitals_tests()
+  return 1;
+endprogram
+
+// an invulnerable character takes no damage at all
+exported function damage_invul( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals_invul", 50, 100, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  var max := GetVitalMaximumValue( npc, "Life" );
+  SetVital( npc, "Life", max );
+
+  var res := ApplyRawDamage( npc, 10, DAMAGE_NO_REPSYS, DAMAGE_NO_SHOW );
+  if ( res != 1 )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max )
+    return ret_error( $"an invulnerable character was damaged: {GetVital( npc, "Life" )}" );
+  endif
+
+  // and the same for the armor aware entry point
+  ApplyDamage( npc, 10, DAMAGE_NO_REPSYS, DAMAGE_NO_SHOW );
+  if ( GetVital( npc, "Life" ) != max )
+    return ret_error( $"an invulnerable character was damaged: {GetVital( npc, "Life" )}" );
+  endif
+
+  // a vulnerable one of the same template does take the damage
+  var mortal := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals", 51, 100, 0 );
+  if ( !mortal )
+    return ret_error( $"Could not create NPC: {mortal}" );
+  endif
+  SetVital( mortal, "Life", max );
+  ApplyRawDamage( mortal, 10, DAMAGE_NO_REPSYS, DAMAGE_NO_SHOW );
+  if ( GetVital( mortal, "Life" ) != max - 1000 )
+    return ret_error( $"a vulnerable character was not damaged: {GetVital( mortal, "Life" )}" );
+  endif
+
+  return 1;
+endfunction
+
+// dying and resurrecting works at all. This is mostly a check on the death
+// robe entry in itemdesc.cfg: without an equippable robe the unguarded equip
+// in Character::resurrect() trips a passert and shuts the server down.
+exported function death_and_resurrect( resmgn )
+  var char := prepare_char();
+  if ( !char )
+    return char;
+  endif
+  if ( char.dead )
+    return ret_error( "the character is dead before it was killed" );
+  endif
+
+  var res := char.kill();
+  if ( !res )
+    return ret_error( $"Could not kill the character: {res}" );
+  endif
+  if ( !char.dead )
+    return ret_error( "the character did not die" );
+  endif
+
+  // the location check is skipped: a bare account character sits on an
+  // unwalkable start location
+  if ( !( res := Resurrect( char, RESURRECT_FORCELOCATION ) ) )
+    return ret_error( $"Could not resurrect the character: {res}" );
+  endif
+  if ( char.dead )
+    return ret_error( "the character is still dead" );
+  endif
+
+  return 1;
+endfunction
+
+// damage that would leave less than a full point kills instead
+exported function damage_greedy_last_point( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals", 50, 100, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  // six points exactly: five points of damage leave one point standing
+  SetVital( npc, "Life", 600 );
+  ApplyRawDamage( npc, 5, DAMAGE_NO_REPSYS, DAMAGE_NO_SHOW );
+  if ( !npc )
+    return ret_error( "the npc died with a full point left" );
+  endif
+  if ( GetVital( npc, "Life" ) != 100 )
+    return ret_error( $"wrong value: {GetVital( npc, "Life" )}" );
+  endif
+
+  // one hundredth less, so the same damage would leave 0.99 points: the core
+  // is greedy with that last point and takes it, which is lethal
+  var doomed := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals", 51, 100, 0 );
+  if ( !doomed )
+    return ret_error( $"Could not create NPC: {doomed}" );
+  endif
+
+  SetVital( doomed, "Life", 599 );
+  ApplyRawDamage( doomed, 5, DAMAGE_NO_REPSYS, DAMAGE_NO_SHOW );
+  if ( doomed )
+    return ret_error( $"the last point survived: {GetVital( doomed, "Life" )}" );
+  endif
+
+  return 1;
+endfunction
+
+// the core clamps whatever the maximum and regenrate hooks return
+exported function calc_clamping( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals", 50, 100, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  var checks := array{
+    struct{ prop := "#VitalTestMax",   value := 5,         expected := VITAL_LOWEST_MAX_HUNDREDTHS },
+    struct{ prop := "#VitalTestMax",   value := 20000000,  expected := VITAL_HIGHEST_MAX_HUNDREDTHS },
+    struct{ prop := "#VitalTestMax",   value := TESTVITAL_MAXIMUM, expected := TESTVITAL_MAXIMUM }
+  };
+
+  foreach check in ( checks )
+    SetObjProperty( npc, check.prop, check.value );
+    var res := RecalcVitals( npc, RECALC_NO_INTRINSIC_MOD, "TestVital" );
+    if ( !res )
+      return ret_error( $"RecalcVitals failed: {res}" );
+    endif
+    var actual := GetVitalMaximumValue( npc, "TestVital" );
+    if ( actual != check.expected )
+      return ret_error( $"maximum {check.value} became {actual}, expected {check.expected}" );
+    endif
+  endforeach
+
+  var rates := array{
+    struct{ value := -50000, expected := VITAL_LOWEST_REGENRATE },
+    struct{ value := 50000,  expected := VITAL_HIGHEST_REGENRATE },
+    struct{ value := 1200,   expected := 1200 }
+  };
+
+  foreach rate in ( rates )
+    SetObjProperty( npc, "#VitalTestRegen", rate.value );
+    var res := RecalcVitals( npc, RECALC_NO_INTRINSIC_MOD, "TestVital" );
+    if ( !res )
+      return ret_error( $"RecalcVitals failed: {res}" );
+    endif
+    var actual := GetVitalRegenRate( npc, "TestVital" );
+    if ( actual != rate.expected )
+      return ret_error( $"rate {rate.value} became {actual}, expected {rate.expected}" );
+    endif
+  endforeach
+
+  // lowering the maximum below the current value pulls the value down with it
+  SetObjProperty( npc, "#VitalTestMax", TESTVITAL_MAXIMUM );
+  RecalcVitals( npc, RECALC_NO_INTRINSIC_MOD, "TestVital" );
+  SetVital( npc, "TestVital", TESTVITAL_MAXIMUM );
+
+  SetObjProperty( npc, "#VitalTestMax", 500 );
+  RecalcVitals( npc, RECALC_NO_INTRINSIC_MOD, "TestVital" );
+  if ( GetVital( npc, "TestVital" ) != 500 )
+    return ret_error( $"the value was not pulled down: {GetVital( npc, "TestVital" )}" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+// an offline account character, alive and at full health
+function prepare_char()
+  var char := createAccountWithChar( "vitalsdmg", "pass" );
+  if ( !char )
+    return ret_error( $"Could not create the test char: {char}" );
+  endif
+
+  if ( char.dead )
+    // the character sits on its start location, which is not walkable, so
+    // the location check of Resurrect has to be skipped
+    var res := Resurrect( char, RESURRECT_FORCELOCATION );
+    if ( !res )
+      return ret_error( $"Could not resurrect the character: {res}" );
+    endif
+  endif
+
+  SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
+  return char;
+endfunction
+
+// leaves the character alive and full again for the next test
+function restore_char( char )
+  if ( char.dead )
+    var res := Resurrect( char, RESURRECT_FORCELOCATION );
+    if ( !res )
+      return ret_error( $"Could not resurrect the character: {res}" );
+    endif
+  endif
+  SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
+  return 1;
+endfunction

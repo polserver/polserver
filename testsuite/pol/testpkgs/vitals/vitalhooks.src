@@ -1,0 +1,47 @@
+// Hooks of the TestVital defined in config/vitals.cfg.
+//
+// These run for every character in the shard, so they stay cheap and do
+// nothing at all unless a test marked the character with #VitalTest.
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+// A constant maximum of 100.00 points, so that tests can rely on it. A test
+// that wants to check the clamping of the core can override it, including with
+// values the core has to reject.
+exported function GetTestVitalMaximumValue( mobile )
+  var max := GetObjProperty( mobile, "#VitalTestMax" );
+  if ( max == error )
+    return 10000;
+  endif
+  return CInt( max );
+endfunction
+
+// Only marked characters regenerate or drain, everyone else stays put.
+// Rates are in hundredths of points per minute, negative values drain.
+exported function GetTestVitalRegenRate( mobile )
+  var rate := GetObjProperty( mobile, "#VitalTestRegen" );
+  if ( !rate )
+    return 0;
+  endif
+  return CInt( rate );
+endfunction
+
+// Records the depletion so that the test can check that it happened and with
+// which reason.
+exported function OnTestVitalDepleted( mobile, reason )
+  if ( !GetObjProperty( mobile, "#VitalTest" ) )
+    return 1;
+  endif
+
+  var log := GetGlobalProperty( "#VitalDepleted" );
+  if ( !log )
+    log := array{};
+  endif
+  log.append( struct{ serial := mobile.serial, reason := CInt( reason ) } );
+  SetGlobalProperty( "#VitalDepleted", log );
+  return 1;
+endfunction

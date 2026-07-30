@@ -1,0 +1,8 @@
+use os;
+
+// does nothing, the vitals tests drive the npc from the outside
+program idle()
+  while ( 1 )
+    Wait_For_Event( 60 );
+  endwhile
+endprogram

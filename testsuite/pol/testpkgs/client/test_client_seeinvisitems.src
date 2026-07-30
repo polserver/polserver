@@ -38,7 +38,13 @@ exported function see_invis_items( resources )
       return ret_error( $"Could not create item: {item}" );
     endif
 
-    // Receive NEW_ITEM with flags = 0
+    // Receive NEW_ITEM without the hidden flag. Only that flag is checked:
+    // the rest of the status depends on the itemdesc of the objtype, which
+    // this test does not care about.
+    //
+    // The status arrives as a double, and a bitwise and on anything but an
+    // integer silently returns one of its operands instead of the masked
+    // value, so it has to be converted first.
     while ( 1 )
       ev := waitForClient( 0, { EVT_NEW_ITEM } );
       if ( !ev )
@@ -47,8 +53,8 @@ exported function see_invis_items( resources )
         break;
       endif
     endwhile
-    if ( ev.status != 0 )
-      return ret_error( $"Expected status 0, got {ev.status}" );
+    if ( CInt( ev.status ) & ITEM_FLAG_HIDDEN )
+      return ret_error( $"Expected the hidden flag to be clear, got {ev.status}" );
     endif
 
     // Set item invisible, receive EVT_REMOVED_OBJ
@@ -74,7 +80,7 @@ exported function see_invis_items( resources )
       endif
     endwhile
 
-    if ( !( ev.status & ITEM_FLAG_HIDDEN ) )
+    if ( !( CInt( ev.status ) & ITEM_FLAG_HIDDEN ) )
       return ret_error( $"Expected status {ITEM_FLAG_HIDDEN}, got {ev.status}" );
     endif
 
