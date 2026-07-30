@@ -1,4 +1,16 @@
 -- POL100.3.0 --
+07-30-2026 Turley:
+    Added: itemdesc property Attackable 1/0 (default 0) makes an item a valid combat target. Needs client version 7.x.
+           It can be engaged like a mobile (attack packet or doubleclick while in warmode), takes
+           damage against its HP/MaxHP a swing always hits.
+           A ControlScript (when enabled) receives SYSEVENT_DAMAGED, SYSEVENT_ENGAGED, SYSEVENT_DISENGAGED and SYSEVENT_OPPONENT_MOVED like an npc does.
+           uo::ListHostiles, Character.attack_once
+           and vitals::ApplyDamage/ApplyRawDamage accept now attackable items as well.
+           Without a ControlScript the item is destroyed once its hp reach 0, otherwise its up to the script.
+           Only items lying toplevel in the world are attackable: picking an item up, moving
+           it into a container, equipping it or moving it to another realm disengages every
+           opponent attacking it.
+           Attackable items do not stack.
 07-28-2026 Nando:
   Changed: Hostnames are now resolved with getaddrinfo instead of gethostbyname. On a host
            with several addresses, the one picked for SERVERS.CFG's --ip-- and --lan-- can

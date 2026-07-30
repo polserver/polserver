@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>03/14/2026</datemodified>
+    <datemodified>07/30/2026</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -827,17 +827,17 @@ return objtypes;</code></explain>
 </function>
 
 <function name="ListHostiles">
-  <prototype>ListHostiles( character, range := 20, flags := 0 )</prototype>
-  <parameter name="character" value="Character Reference" />
+  <prototype>ListHostiles( attackable, range := 20, flags := 0 )</prototype>
+  <parameter name="attackable" value="Character Reference/Attackable Item" />
   <parameter name="range" value="integer (optional, default=20)" />
   <parameter name="flags" value="integer (optional, default=0)" />
-  <explain>Gets a list of Character References that are hostile (i.e. attacking) "character"</explain>
+  <explain>Gets a list of Character/Item References that are hostile (i.e. attacking) "character"</explain>
   <explain>Notes: from uo.em constants:
 <code>
 const LH_FLAG_LOS               := 1;       // only include those in LOS
 const LH_FLAG_INCLUDE_HIDDEN    := 2;       // include hidden characters</code></explain>
 <explain>Will NOT find "concealed" characters.</explain>
-  <return>Array of Character References hostile to "character"</return>
+<return>Array of Character/Item References hostile to "character"</return>
   <error>"Invalid parameter"</error>
   <related>Character</related>
   <related>Array</related>

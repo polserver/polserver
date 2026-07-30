@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>07/28/2026</datemodified>
+    <datemodified>07/30/2026</datemodified>
 </fileheader>
 
 
@@ -1544,6 +1544,7 @@ Item (objtype)
     [BlocksCastingIfInHand  (0/1 {default 0})]
     [StrRequired            (int strength {default 0})]
     [MaxHP                  (int max {default 0})]
+    [Attackable             (0/1 {default 0})]
     [Weight                 (int weight {default tiledata value})]
     [OldObjtype             (int old objtype)]...
     [StackingIgnoresCProps  (propname1) [(propname2)]... ]
@@ -1704,6 +1705,7 @@ Armor (objtype)
     <explain>Container scripts are in pkg format, or in scripts/control</explain>
     <explain>RequiresAttention 1 causes container gumps to close when you move, or to unhide you if the item is used.</explain>
     <explain>StackingIgnoresCProps is a space-delimited list of case-sensative CProp names that are ignored when stacking 2 of this item objtype. See also stacking.cfg for a global list.</explain>
+    <explain>Attackable makes the item a valid combat target: Needs client version 7.x. It can be engaged like a mobile (attack packet or doubleclick while in warmode), takes damage against its HP/MaxHP. A ControlScript (when enabled) receives SYSEVENT_DAMAGED, SYSEVENT_ENGAGED, SYSEVENT_DISENGAGED and SYSEVENT_OPPONENT_MOVED like an npc does. Without a ControlScript the item is destroyed once its hp reach 0, otherwise its up to the script. Only items lying toplevel in the world are attackable: picking an item up, moving it into a container, equipping it or moving it to another realm disengages every opponent attacking it. Attackable items do not stack.</explain>
     <explain>Spellbook: Recognized scroll objects are: Magic: 0x1F2D - 0x1F6C, Necro 0x2260 - 0x226F, Paladin: 0x2270 - 0x227C, Bushido: 0x238D - 0x2392, Ninjitsu: 0x23A1 - 0x23A8, SpellWeaving: 0x2D51 - 0x2D60. The list of spellids for spells.cfg is now as follows: Magery = 1+, Necro = 101+, Paladin = 201+, Bushido = 401+, Ninjitsu = 501+, SpellWeaving = 601+. Sorry this is hardcoded :P</explain>
     <explain>Cursed: Note that cursed gold coins (objtype 0x0EED) are still usable for commerce transactions with vendors in the core. 'Unspendable' cursed gold coins should be defined in a separate itemdesc entry with a different objtype using the same graphic as gold coins (0x0EED) with Cursed set to 1.</explain>
     <explain>Weapon: If Delay != 0 Core will use it to calculate Weapon speed. Speed Entry is optional ONLY if Delay is populated.</explain>
