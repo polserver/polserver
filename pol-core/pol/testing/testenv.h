@@ -104,6 +104,7 @@ void range3d_test();
 void test_curlfeatures();
 
 void decay_test();
+void zone_bookkeeping_test();
 void clamp_test();
 void maptile_geometry_test();
 void mapsize_validation_test();

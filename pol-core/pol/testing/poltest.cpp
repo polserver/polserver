@@ -52,6 +52,7 @@ bool run_pol_tests()
   RUNTEST( test_curlfeatures )
 
   RUNTEST( decay_test )
+  RUNTEST( zone_bookkeeping_test )
   RUNTEST( clamp_test )
   RUNTEST( maptile_geometry_test )
   RUNTEST( mapsize_validation_test )

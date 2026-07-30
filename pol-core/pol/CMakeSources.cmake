@@ -413,6 +413,7 @@ set (pol_sources  # sorted !
   testing/testvector.cpp
   testing/testwalk.cpp
   testing/testwww.cpp
+  testing/testzones.cpp
   textcmd.cpp
   textcmd.h
   tildecmd.cpp
