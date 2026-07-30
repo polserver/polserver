@@ -107,6 +107,8 @@ class Item(UOBject):
     self.parent = None
     ## flag if its a multi
     self.ismulti = False
+    ## flag if the server announced this item as an attackable one
+    self.attackable = False
     ## current/max hit points, only sent for attackable items
     self.hp = None
     self.maxhp = None
@@ -136,6 +138,8 @@ class Item(UOBject):
       self.ismulti = True
     elif isinstance(pkt, packets.NewObjectInfoPacket):
       self.ismulti = pkt.type == 0x2
+    if isinstance(pkt, packets.NewObjectInfoPacket):
+      self.attackable = pkt.type == 0x3
 
   def upgradeToContainer(self):
     ''' Upgrade this item to a container '''
@@ -1121,16 +1125,20 @@ class Client(threading.Thread):
       mob = self.player
     else:
       mob = self.objects.get(pkt.serial)
-      if mob is None:
-        self.log.info("Ignoring status of unknown 0x%X", pkt.serial)
-        return
-    mob.hp = pkt.hp
-    mob.maxhp = pkt.maxhp
-    mob.stam = pkt.stam
-    mob.maxstam = pkt.maxstam
-    mob.mana = pkt.mana
-    mob.maxmana = pkt.maxmana
+    if mob is None:
+      self.log.info("Status of unknown 0x%X", pkt.serial)
+    else:
+      mob.hp = pkt.hp
+      mob.maxhp = pkt.maxhp
+      # attackable items only get the short form, without any vitals
+      if hasattr(pkt, 'stam'):
+        mob.stam = pkt.stam
+        mob.maxstam = pkt.maxstam
+        mob.mana = pkt.mana
+        mob.maxmana = pkt.maxmana
     # TODO rest..
+    self.brain.event(brain.Event(brain.Event.EVT_STATUS_BAR, serial=pkt.serial,
+      name=pkt.name, hp=pkt.hp, maxhp=pkt.maxhp))
 
   @status('game')
   @clientthread
@@ -1299,10 +1307,10 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def requestStatus(self):
-    ''' Requests basic status (0x11 packet) '''
+  def requestStatus(self, serial=None):
+    ''' Requests basic status (0x11 packet) of the player or of a given object '''
     po = packets.GetPlayerStatusPacket()
-    po.fill(po.TYP_BASE, self.player.serial)
+    po.fill(po.TYP_BASE, self.player.serial if serial is None else serial)
     self.queue(po)
 
   @logincomplete

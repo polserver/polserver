@@ -1,0 +1,23 @@
+use uo;
+use os;
+include "sysevent";
+
+// forwards the engage events of an attackable item to the test script
+program attackable( item )
+  var eventmask := EnableEvents( SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED );
+
+  while ( true )
+    var ev := Wait_For_Event( 1 );
+    if ( !item )
+      return;
+    endif
+    if ( !ev )
+      continue;
+    elseif ( ev.type & eventmask )
+      var pid := GetObjProperty( item, "#TestPid" );
+      if ( pid )
+        GetProcess( pid ).SendEvent( ev );
+      endif
+    endif
+  endwhile
+endprogram

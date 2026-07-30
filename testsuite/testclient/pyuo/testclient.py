@@ -87,6 +87,8 @@ class TestBrain(brain.Brain):
         self.client.attack(arg)
       elif todo=="war_mode":
         self.client.warMode(arg)
+      elif todo=="request_status":
+        self.client.requestStatus(arg)
       elif todo=="double_click":
         self.client.doubleClick(arg)
         self.server.addevent(
@@ -311,6 +313,8 @@ class PolServer:
                'pos':[o.x,o.y,o.z,o.facing],
                'graphic':o.graphic}
         )
+        if hasattr(o,"attackable"):
+          res["objs"][-1]["attackable"]=o.attackable
         if hasattr(o,"parent") and o.parent is not None:
           res["objs"][-1]["parent"]=o.parent.serial
     elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:
@@ -380,6 +384,11 @@ class PolServer:
     elif ev.type==Event.EVT_FIGHT_OCCURING:
       res['attacker']=ev.attacker
       res['defender']=ev.defender
+    elif ev.type==Event.EVT_STATUS_BAR:
+      res['serial']=ev.serial
+      res['name']=ev.name
+      res['hp']=ev.hp
+      res['maxhp']=ev.maxhp
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 
