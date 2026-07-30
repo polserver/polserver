@@ -1,0 +1,361 @@
+// FindObjtypeInContainer and ConsumeSubstance: how far down a container tree
+// they look, and what makes an item invisible to them.
+use uo;
+use os;
+
+include "testutil";
+
+// 0x200001 is the "loadtest" container from itemdesc.cfg
+const CONTAINER := 0x200001;
+// goldcoin_heavy2 shares its graphic (0xeed) with goldcoin but not its objtype
+const OTHER_COIN := 0x200013;
+
+program testitemfind()
+  return 1;
+endprogram
+
+// a match at the root, a match one level down, and the flag that stops the
+// search from descending
+exported function find_objtype_recursion( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var gold := resmngr.CreateItemInContainer( cont, "goldcoin", 10 );
+  if ( !gold )
+    return ret_error( $"Could not create item: {gold}" );
+  endif
+
+  var res := FindObjtypeInContainer( cont, "goldcoin" );
+  if ( res != gold )
+    return ret_error( $"the root stack was not found: {res}" );
+  endif
+
+  // the same graphic under a different objtype is a different item
+  res := FindObjtypeInContainer( cont, OTHER_COIN );
+  if ( res )
+    return ret_error( $"matched on the graphic instead of the objtype: {res}" );
+  elseif ( res.errortext != "No items were found" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  var sub := resmngr.CreateItemInContainer( cont, CONTAINER );
+  if ( !sub )
+    return ret_error( $"Could not create sub-container: {sub}" );
+  endif
+  var buried := resmngr.CreateItemInContainer( sub, OTHER_COIN, 5 );
+  if ( !buried )
+    return ret_error( $"Could not create item: {buried}" );
+  endif
+
+  // FINDOBJTYPE_RECURSIVE is the default, and it is 0
+  res := FindObjtypeInContainer( cont, OTHER_COIN );
+  if ( res != buried )
+    return ret_error( $"the buried stack was not found: {res}" );
+  endif
+  res := FindObjtypeInContainer( cont, OTHER_COIN, FINDOBJTYPE_RECURSIVE );
+  if ( res != buried )
+    return ret_error( $"the buried stack was not found with the flag: {res}" );
+  endif
+
+  res := FindObjtypeInContainer( cont, OTHER_COIN, FINDOBJTYPE_ROOT_ONLY );
+  if ( res )
+    return ret_error( $"FINDOBJTYPE_ROOT_ONLY descended anyway: {res}" );
+  elseif ( res.errortext != "No items were found" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // the root is still searched with that flag
+  res := FindObjtypeInContainer( cont, "goldcoin", FINDOBJTYPE_ROOT_ONLY );
+  if ( res != gold )
+    return ret_error( $"the root stack was not found: {res}" );
+  endif
+
+  // and the search finds the sub-container itself, it is an item too
+  res := FindObjtypeInContainer( cont, CONTAINER );
+  if ( res != sub )
+    return ret_error( $"the sub-container was not found: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// a locked sub-container is closed to the search unless it is told otherwise
+exported function find_objtype_locked( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var sub := resmngr.CreateItemInContainer( cont, CONTAINER );
+  if ( !sub )
+    return ret_error( $"Could not create sub-container: {sub}" );
+  endif
+  var gold := resmngr.CreateItemInContainer( sub, "goldcoin", 10 );
+  if ( !gold )
+    return ret_error( $"Could not create item: {gold}" );
+  endif
+
+  sub.locked := 1;
+  if ( !sub.locked )
+    return ret_error( "Could not lock the sub-container" );
+  endif
+
+  var res := FindObjtypeInContainer( cont, "goldcoin" );
+  if ( res )
+    return ret_error( $"the search reached into a locked container: {res}" );
+  elseif ( res.errortext != "No items were found" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  res := FindObjtypeInContainer( cont, "goldcoin", FINDOBJTYPE_IGNORE_LOCKED );
+  if ( res != gold )
+    return ret_error( $"FINDOBJTYPE_IGNORE_LOCKED did not reach in: {res}" );
+  endif
+
+  // the two flags do not cancel out - root only still wins
+  res := FindObjtypeInContainer( cont, "goldcoin",
+                                 FINDOBJTYPE_IGNORE_LOCKED | FINDOBJTYPE_ROOT_ONLY );
+  if ( res )
+    return ret_error( $"FINDOBJTYPE_ROOT_ONLY descended anyway: {res}" );
+  endif
+
+  // the locked container is not hidden itself, only its contents
+  res := FindObjtypeInContainer( cont, CONTAINER );
+  if ( res != sub )
+    return ret_error( $"the locked sub-container was not found: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// what it refuses, and the one thing it does not care about
+exported function find_objtype_errors( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var gold := resmngr.CreateItemInContainer( cont, "goldcoin", 10 );
+  if ( !gold )
+    return ret_error( $"Could not create item: {gold}" );
+  endif
+
+  var res := FindObjtypeInContainer( gold, "goldcoin" );
+  if ( res )
+    return ret_error( $"a stack of coins was searched: {res}" );
+  elseif ( res.errortext != "That is not a container" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  res := FindObjtypeInContainer( 0, "goldcoin" );
+  if ( res )
+    return ret_error( $"a non-item was searched: {res}" );
+  elseif ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  res := FindObjtypeInContainer( cont, "heavyrobe" );
+  if ( res )
+    return ret_error( $"found an objtype that is not in the container: {res}" );
+  elseif ( res.errortext != "No items were found" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // unlike FindSubstance and ConsumeSubstance, this one has no opinion about
+  // items that are in use
+  if ( !( res := ReserveItem( gold ) ) )
+    return ret_error( $"Could not reserve the item: {res}" );
+  endif
+  res := FindObjtypeInContainer( cont, "goldcoin" );
+  if ( res != gold )
+    return ret_error( $"a reserved item was not found: {res}" );
+  endif
+  if ( !( res := ReleaseItem( gold ) ) )
+    return ret_error( $"Could not release the item: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// the amount is summed over the whole tree, and taken from the root first
+exported function consume_substance_spread( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var gold := resmngr.CreateItemInContainer( cont, "goldcoin", 10 );
+  var sub := resmngr.CreateItemInContainer( cont, CONTAINER );
+  if ( !gold || !sub )
+    return ret_error( $"Could not fill the container: {gold} / {sub}" );
+  endif
+  var subgold := resmngr.CreateItemInContainer( sub, "goldcoin", 15 );
+  if ( !subgold )
+    return ret_error( $"Could not create item: {subgold}" );
+  endif
+
+  // 12 is more than the root holds, so it empties the root stack and takes the
+  // remaining 2 from the sub-container
+  var res := ConsumeSubstance( cont, "goldcoin", 12 );
+  if ( res != 1 )
+    return ret_error( $"ConsumeSubstance failed: {res}" );
+  endif
+  if ( gold )
+    return ret_error( $"the emptied root stack survived: {gold.amount}" );
+  endif
+  if ( subgold.amount != 13 )
+    return ret_error( $"wrong amount left in the sub-container: {subgold.amount}" );
+  endif
+
+  return 1;
+endfunction
+
+// exactly enough is enough, one short takes nothing at all
+exported function consume_substance_shortfall( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var gold := resmngr.CreateItemInContainer( cont, "goldcoin", 10 );
+  if ( !gold )
+    return ret_error( $"Could not create item: {gold}" );
+  endif
+
+  var res := ConsumeSubstance( cont, "goldcoin", 11 );
+  if ( res )
+    return ret_error( "more was consumed than the container held" );
+  elseif ( res.errortext != "Not enough of that substance in container" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+  if ( gold.amount != 10 )
+    return ret_error( $"the failed call still took coins: {gold.amount}" );
+  endif
+
+  // an objtype the container does not hold at all is the same shortfall
+  res := ConsumeSubstance( cont, OTHER_COIN, 1 );
+  if ( res.errortext != "Not enough of that substance in container" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  if ( ( res := ConsumeSubstance( cont, "goldcoin", 10 ) ) != 1 )
+    return ret_error( $"ConsumeSubstance failed: {res}" );
+  endif
+  if ( gold )
+    return ret_error( "the emptied stack survived" );
+  endif
+
+  return 1;
+endfunction
+
+// an item in use, and a locked sub-container, are simply not there - and there
+// is no flag to say otherwise
+exported function consume_substance_hidden( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var gold := resmngr.CreateItemInContainer( cont, "goldcoin", 10 );
+  var sub := resmngr.CreateItemInContainer( cont, CONTAINER );
+  if ( !gold || !sub )
+    return ret_error( $"Could not fill the container: {gold} / {sub}" );
+  endif
+  var subgold := resmngr.CreateItemInContainer( sub, "goldcoin", 10 );
+  if ( !subgold )
+    return ret_error( $"Could not create item: {subgold}" );
+  endif
+
+  // a reservation held by this very script hides the stack all the same
+  var res := ReserveItem( gold );
+  if ( !res )
+    return ret_error( $"Could not reserve the item: {res}" );
+  endif
+
+  res := ConsumeSubstance( cont, "goldcoin", 20 );
+  if ( res )
+    return ret_error( "a reserved stack was consumed" );
+  elseif ( res.errortext != "Not enough of that substance in container" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // the other 10 are still reachable
+  if ( ( res := ConsumeSubstance( cont, "goldcoin", 10 ) ) != 1 )
+    return ret_error( $"ConsumeSubstance failed: {res}" );
+  endif
+  if ( gold.amount != 10 )
+    return ret_error( $"the reserved stack was touched: {gold.amount}" );
+  endif
+  if ( subgold )
+    return ret_error( "the sub-container stack survived" );
+  endif
+
+  if ( !( res := ReleaseItem( gold ) ) )
+    return ret_error( $"Could not release the item: {res}" );
+  endif
+
+  // locking the sub-container hides its contents the same way
+  subgold := resmngr.CreateItemInContainer( sub, "goldcoin", 10 );
+  if ( !subgold )
+    return ret_error( $"Could not create item: {subgold}" );
+  endif
+  sub.locked := 1;
+
+  res := ConsumeSubstance( cont, "goldcoin", 20 );
+  if ( res )
+    return ret_error( "a locked sub-container was consumed from" );
+  elseif ( res.errortext != "Not enough of that substance in container" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  if ( ( res := ConsumeSubstance( cont, "goldcoin", 10 ) ) != 1 )
+    return ret_error( $"ConsumeSubstance failed: {res}" );
+  endif
+  if ( subgold.amount != 10 )
+    return ret_error( $"the locked sub-container was emptied: {subgold.amount}" );
+  endif
+  if ( gold )
+    return ret_error( "the root stack survived" );
+  endif
+
+  return 1;
+endfunction
+
+exported function consume_substance_errors( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var gold := resmngr.CreateItemInContainer( cont, "goldcoin", 10 );
+  if ( !gold )
+    return ret_error( $"Could not create item: {gold}" );
+  endif
+
+  var res := ConsumeSubstance( gold, "goldcoin", 1 );
+  if ( res )
+    return ret_error( "a stack of coins was consumed from" );
+  elseif ( res.errortext != "That is not a container" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  res := ConsumeSubstance( cont, "goldcoin", -1 );
+  if ( res )
+    return ret_error( "a negative amount was accepted" );
+  elseif ( res.errortext != "Amount cannot be negative" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // 0 is not an error though, it just does nothing - even for an objtype the
+  // container does not hold
+  if ( ( res := ConsumeSubstance( cont, OTHER_COIN, 0 ) ) != 1 )
+    return ret_error( $"ConsumeSubstance of 0 failed: {res}" );
+  endif
+  if ( gold.amount != 10 )
+    return ret_error( $"the amount changed after the rejected calls: {gold.amount}" );
+  endif
+
+  return 1;
+endfunction

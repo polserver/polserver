@@ -1,0 +1,291 @@
+// The four world queries that hand back items: which coordinates they consider
+// a hit, and where their z windows end.
+use uo;
+use os;
+
+include "testutil";
+
+// a corner of the test map that nothing else is standing on
+const BASE_X := 100;
+const BASE_Y := 100;
+
+// 0x200001 is the "loadtest" container from itemdesc.cfg, graphic 0xe75
+const CONTAINER := 0x200001;
+// distinct objtypes so that two items can share one spot without stacking
+const COIN_A := 0x0EED;       // goldcoin
+const COIN_B := 0x200013;     // goldcoin_heavy2
+const COIN_C := 0x200012;     // goldcoin_heavy
+const COIN_D := 0x200014;     // goldcoin_limited
+
+// ListItemsNearLocation and ListItemsNearLocationWithFlag both take everything
+// closer than this many z levels
+const ZRANGE := 19;
+
+program testitemlist()
+  return 1;
+endprogram
+
+function has_item( list, item )
+  foreach entry in list
+    if ( entry.serial == item.serial )
+      return 1;
+    endif
+  endforeach
+  return 0;
+endfunction
+
+// the z has to match exactly, and only what lies on the ground is listed
+exported function items_at_location( resmngr )
+  var here := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN_A );
+  var above := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 5, COIN_B );
+  var beside := resmngr.CreateItemAtLocation( BASE_X + 1, BASE_Y, 0, COIN_C );
+  if ( !here || !above || !beside )
+    return ret_error( $"Could not create items: {here} / {above} / {beside}" );
+  endif
+
+  var list := ListItemsAtLocation( BASE_X, BASE_Y, 0 );
+  if ( !has_item( list, here ) )
+    return ret_error( "the item at the location was not listed" );
+  elseif ( has_item( list, above ) )
+    return ret_error( "an item 5 z levels up was listed" );
+  elseif ( has_item( list, beside ) )
+    return ret_error( "an item one tile over was listed" );
+  endif
+
+  // one z level off is already a miss - there is no z window here
+  list := ListItemsAtLocation( BASE_X, BASE_Y, 1 );
+  if ( has_item( list, here ) )
+    return ret_error( "an item one z level down was listed" );
+  endif
+
+  list := ListItemsAtLocation( BASE_X, BASE_Y, 5 );
+  if ( !has_item( list, above ) || has_item( list, here ) )
+    return ret_error( "wrong items at z 5" );
+  endif
+
+  list := ListItemsAtLocation( BASE_X, BASE_Y, LIST_IGNORE_Z );
+  if ( !has_item( list, here ) || !has_item( list, above ) )
+    return ret_error( "LIST_IGNORE_Z did not list the whole column" );
+  elseif ( has_item( list, beside ) )
+    return ret_error( "LIST_IGNORE_Z widened the x/y match as well" );
+  endif
+
+  // a container on the ground is listed, what is inside it is not
+  var cont := resmngr.CreateItemAtLocation( BASE_X, BASE_Y + 1, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+  var inside := resmngr.CreateItemInContainer( cont, COIN_A, 10 );
+  if ( !inside )
+    return ret_error( $"Could not create item: {inside}" );
+  endif
+
+  list := ListItemsAtLocation( BASE_X, BASE_Y + 1, LIST_IGNORE_Z );
+  if ( !has_item( list, cont ) )
+    return ret_error( "the container was not listed" );
+  elseif ( has_item( list, inside ) )
+    return ret_error( "an item inside a container was listed" );
+  endif
+
+  return 1;
+endfunction
+
+// the range is a square, and the z window is fixed regardless of it
+exported function items_near_location( resmngr )
+  var here := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN_A );
+  var away := resmngr.CreateItemAtLocation( BASE_X + 3, BASE_Y + 3, 0, COIN_B );
+  if ( !here || !away )
+    return ret_error( $"Could not create items: {here} / {away}" );
+  endif
+
+  var list := ListItemsNearLocation( BASE_X, BASE_Y, 0, 0 );
+  if ( !has_item( list, here ) )
+    return ret_error( "range 0 did not list the item on the spot" );
+  elseif ( has_item( list, away ) )
+    return ret_error( "range 0 reached 3 tiles out" );
+  endif
+
+  // the range counts diagonals as one step, so 3 tiles over on both axes is
+  // still range 3
+  list := ListItemsNearLocation( BASE_X, BASE_Y, 0, 2 );
+  if ( has_item( list, away ) )
+    return ret_error( "range 2 reached 3 tiles out" );
+  endif
+  list := ListItemsNearLocation( BASE_X, BASE_Y, 0, 3 );
+  if ( !has_item( list, here ) || !has_item( list, away ) )
+    return ret_error( "range 3 did not list both items" );
+  endif
+
+  // the z window is exclusive on both ends
+  var inside_z := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, ZRANGE - 1, COIN_C );
+  var outside_z := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, ZRANGE, COIN_D );
+  if ( !inside_z || !outside_z )
+    return ret_error( $"Could not create items: {inside_z} / {outside_z}" );
+  endif
+
+  list := ListItemsNearLocation( BASE_X, BASE_Y, 0, 0 );
+  if ( !has_item( list, inside_z ) )
+    return ret_error( $"an item {ZRANGE - 1} z levels up was not listed" );
+  elseif ( has_item( list, outside_z ) )
+    return ret_error( $"an item {ZRANGE} z levels up was listed" );
+  endif
+
+  list := ListItemsNearLocation( BASE_X, BASE_Y, 0, 0, _DEFAULT_REALM );
+  if ( has_item( list, outside_z ) )
+    return ret_error( "naming the realm changed the z window" );
+  endif
+
+  list := ListItemsNearLocation( BASE_X, BASE_Y, LIST_IGNORE_Z, 0 );
+  if ( !has_item( list, outside_z ) )
+    return ret_error( "LIST_IGNORE_Z did not list the whole column" );
+  endif
+
+  return 1;
+endfunction
+
+// the flags are a mask over the tiledata of the item's graphic
+exported function items_near_location_with_flag( resmngr )
+  // 0xeed carries TILEDATA_FLAG_STACKABLE, 0xe75 TILEDATA_FLAG_CONTAINER, and
+  // neither of them is a wall
+  var coin := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN_A );
+  var cont := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 1, CONTAINER );
+  if ( !coin || !cont )
+    return ret_error( $"Could not create items: {coin} / {cont}" );
+  endif
+
+  var list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, 0, 0, TILEDATA_FLAG_STACKABLE );
+  if ( !has_item( list, coin ) )
+    return ret_error( "the coin did not match TILEDATA_FLAG_STACKABLE" );
+  elseif ( has_item( list, cont ) )
+    return ret_error( "the container matched TILEDATA_FLAG_STACKABLE" );
+  endif
+
+  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, 0, 0, TILEDATA_FLAG_CONTAINER );
+  if ( !has_item( list, cont ) )
+    return ret_error( "the container did not match TILEDATA_FLAG_CONTAINER" );
+  elseif ( has_item( list, coin ) )
+    return ret_error( "the coin matched TILEDATA_FLAG_CONTAINER" );
+  endif
+
+  // any bit is enough, they are not all required
+  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, 0, 0,
+                                         TILEDATA_FLAG_STACKABLE | TILEDATA_FLAG_CONTAINER );
+  if ( !has_item( list, coin ) || !has_item( list, cont ) )
+    return ret_error( "a mask of both flags did not list both items" );
+  endif
+
+  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, 0, 0, TILEDATA_FLAG_WALL );
+  if ( has_item( list, coin ) || has_item( list, cont ) )
+    return ret_error( "an item matched a flag it does not carry" );
+  endif
+
+  // no flags at all matches nothing, not everything
+  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, 0, 0, 0 );
+  if ( has_item( list, coin ) || has_item( list, cont ) )
+    return ret_error( "an empty mask listed items" );
+  endif
+
+  // and it keeps the z window of ListItemsNearLocation
+  var outside_z := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, ZRANGE, COIN_B );
+  if ( !outside_z )
+    return ret_error( $"Could not create item: {outside_z}" );
+  endif
+
+  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, 0, 0, TILEDATA_FLAG_STACKABLE );
+  if ( has_item( list, outside_z ) )
+    return ret_error( $"an item {ZRANGE} z levels up was listed" );
+  endif
+  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, LIST_IGNORE_Z, 0,
+                                         TILEDATA_FLAG_STACKABLE );
+  if ( !has_item( list, outside_z ) )
+    return ret_error( "LIST_IGNORE_Z did not list the whole column" );
+  endif
+
+  return 1;
+endfunction
+
+// unlike the other three this one hands back mobiles as well
+exported function objects_in_box( resmngr )
+  var x1 := BASE_X - 2, y1 := BASE_Y - 2, x2 := BASE_X + 2, y2 := BASE_Y + 2;
+
+  // whatever else is lying around here is counted, not assumed away
+  var before := ListObjectsInBox( x1, y1, LIST_IGNORE_Z, x2, y2, LIST_IGNORE_Z ).size();
+
+  var coin := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN_A );
+  var cont := resmngr.CreateItemAtLocation( BASE_X + 1, BASE_Y, 0, CONTAINER );
+  if ( !coin || !cont )
+    return ret_error( $"Could not create items: {coin} / {cont}" );
+  endif
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y + 1, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  var objects := ListObjectsInBox( x1, y1, LIST_IGNORE_Z, x2, y2, LIST_IGNORE_Z );
+  if ( !has_item( objects, coin ) || !has_item( objects, cont ) )
+    return ret_error( "the items in the box were not listed" );
+  elseif ( !has_item( objects, npc ) )
+    return ret_error( "the mobile in the box was not listed" );
+  elseif ( objects.size() != before + 3 )
+    return ret_error( $"wrong number of objects: {objects.size()}, expected {before + 3}" );
+  endif
+
+  // the same three, split over the two queries that only look at one kind
+  var mobiles := ListMobilesInBox( x1, y1, LIST_IGNORE_Z, x2, y2, LIST_IGNORE_Z );
+  if ( !has_item( mobiles, npc ) || has_item( mobiles, coin ) )
+    return ret_error( "ListMobilesInBox listed the wrong objects" );
+  endif
+  var coins := ListItemsInBoxOfObjType( COIN_A, x1, y1, LIST_IGNORE_Z, x2, y2, LIST_IGNORE_Z );
+  if ( !has_item( coins, coin ) || has_item( coins, cont ) )
+    return ret_error( "ListItemsInBoxOfObjType listed the wrong objects" );
+  endif
+
+  // a box that does not reach far enough
+  objects := ListObjectsInBox( BASE_X, BASE_Y, LIST_IGNORE_Z, BASE_X, BASE_Y, LIST_IGNORE_Z );
+  if ( !has_item( objects, coin ) )
+    return ret_error( "the coin was not listed in a one tile box" );
+  elseif ( has_item( objects, cont ) || has_item( objects, npc ) )
+    return ret_error( "a one tile box reached the neighbouring tiles" );
+  endif
+
+  return 1;
+endfunction
+
+// the z bounds of the box, including the two ways of leaving them open
+exported function objects_in_box_z( resmngr )
+  var low := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN_A );
+  var high := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 40, COIN_B );
+  if ( !low || !high )
+    return ret_error( $"Could not create items: {low} / {high}" );
+  endif
+
+  // the bounds are inclusive
+  var objects := ListObjectsInBox( BASE_X, BASE_Y, 0, BASE_X, BASE_Y, 40 );
+  if ( !has_item( objects, low ) || !has_item( objects, high ) )
+    return ret_error( "the inclusive z bounds did not list both items" );
+  endif
+
+  objects := ListObjectsInBox( BASE_X, BASE_Y, 1, BASE_X, BASE_Y, 39 );
+  if ( has_item( objects, low ) || has_item( objects, high ) )
+    return ret_error( "an item outside the z bounds was listed" );
+  endif
+
+  // handing them over the wrong way round is not an error, they get swapped
+  objects := ListObjectsInBox( BASE_X, BASE_Y, 40, BASE_X, BASE_Y, 0 );
+  if ( !has_item( objects, low ) || !has_item( objects, high ) )
+    return ret_error( "the swapped z bounds did not list both items" );
+  endif
+
+  // LIST_IGNORE_Z opens up whichever end it is given to
+  objects := ListObjectsInBox( BASE_X, BASE_Y, 1, BASE_X, BASE_Y, LIST_IGNORE_Z );
+  if ( has_item( objects, low ) || !has_item( objects, high ) )
+    return ret_error( "LIST_IGNORE_Z as the upper bound listed the wrong items" );
+  endif
+
+  objects := ListObjectsInBox( BASE_X, BASE_Y, LIST_IGNORE_Z, BASE_X, BASE_Y, 39 );
+  if ( !has_item( objects, low ) || has_item( objects, high ) )
+    return ret_error( "LIST_IGNORE_Z as the lower bound listed the wrong items" );
+  endif
+
+  return 1;
+endfunction

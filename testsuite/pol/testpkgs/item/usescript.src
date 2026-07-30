@@ -1,0 +1,18 @@
+use uo;
+use os;
+
+// The use script that test_item_misc.src points an item's usescript member at.
+//
+// UseItem starts this on its own executor and does not tell it who asked, so
+// the test parks its pid in a global property under this name and we report
+// the pair we were called with back to it.
+const PARENT_PID_PROP := "test_item_usescript_pid";
+
+program usescript( character, item )
+  var parent := GetProcess( CInt( GetGlobalProperty( PARENT_PID_PROP ) ) );
+  if ( !parent )
+    return parent;
+  endif
+
+  return parent.SendEvent( struct{ character := character, item := item } );
+endprogram
