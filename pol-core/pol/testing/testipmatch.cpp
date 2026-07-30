@@ -36,8 +36,8 @@ bool hits( const std::string& filter, const char* address )
 
 void ipmatch_test()
 {
-#define T_MATCH( filter, address, expected )                            \
-  UnitTest( []() { return hits( filter, address ); }, expected,         \
+#define T_MATCH( filter, address, expected )                    \
+  UnitTest( []() { return hits( filter, address ); }, expected, \
             " " filter " vs " address " == " #expected )
 
   // a bare address matches only itself
@@ -52,18 +52,20 @@ void ipmatch_test()
   T_MATCH( "10.0.0.0/255.0.0.0", "10.1.2.3", true );
   T_MATCH( "10.0.0.0/255.0.0.0", "11.1.2.3", false );
 
-  // a zero mask matches everything, which is what an operator writing /0.0.0.0 asks for
+  // A zero mask compares no bits, so it matches everything regardless of the address in
+  // front of it. That is what an operator writing /0.0.0.0 is asking for, and it is also
+  // why IpMatch has no default constructor -- a value-initialized one would be this.
   T_MATCH( "1.2.3.4/0.0.0.0", "203.0.113.9", true );
+  T_MATCH( "0.0.0.0/0.0.0.0", "203.0.113.9", true );
 
   // bits of the filter address outside the mask are ignored
   T_MATCH( "192.168.0.99/255.255.255.0", "192.168.0.1", true );
 
-#undef T_MATCH
+  // an unparseable value becomes 255.255.255.255 rather than something permissive
+  T_MATCH( "not-an-address", "192.168.0.1", false );
+  T_MATCH( "192.168.0.0/not-a-mask", "192.168.0.1", false );
 
-  // a default-constructed filter matches nothing: mask 0 would match everything, so the
-  // address must be 0 too and only 0.0.0.0 can hit it
-  UnitTest( []() { return Network::IpMatch().matches( peer( "192.168.0.1" ) ); }, false,
-            " a default-constructed IpMatch does not match a real address" );
+#undef T_MATCH
 
   // an empty list matches nothing; callers turn that into their own default
   UnitTest( []() { return Network::matches_any( {}, peer( "192.168.0.1" ) ); }, false,

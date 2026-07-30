@@ -37,8 +37,7 @@ void read_bannedips_config( bool initial_load )
 
   while ( cf.read( elem ) )
   {
-    Core::networkManager.banned_ips.push_back(
-        IpMatch::parse( elem.remove_string( "IPMatch" ) ) );
+    Core::networkManager.banned_ips.push_back( IpMatch::parse( elem.remove_string( "IPMatch" ) ) );
   }
 }
 }  // namespace Pol::Network

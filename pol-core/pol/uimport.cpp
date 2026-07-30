@@ -740,8 +740,7 @@ size_t ServerDescription::estimateSize() const
 {
   size_t size = name.capacity() + 4 * sizeof( unsigned char ) /*ip*/
                 + sizeof( unsigned short )                    /*port*/
-                + Clib::memsize( ip_match ) + Clib::memsize( proxy_match ) +
-                hostname.capacity();
+                + Clib::memsize( ip_match ) + Clib::memsize( proxy_match ) + hostname.capacity();
   for ( const auto& s : acct_match )
     size += s.capacity();
   return size;
