@@ -201,6 +201,7 @@ void transmit_to_inrange( const UObject* center, const void* msg, unsigned msgle
 void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen );
 
 void destroy_item( Items::Item* item );
+bool destroy_item_with_script_check( Items::Item* item );
 
 void move_item( Items::Item* item, const Core::Pos4d& oldpos );
 

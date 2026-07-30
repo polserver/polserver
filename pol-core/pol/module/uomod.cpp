@@ -2628,24 +2628,9 @@ BObjectImp* UOExecutorModule::mf_DestroyItem()
     else if ( item->script_isa( POLCLASS_MULTI ) )
       return new BError( "That item is a multi. Use uo::DestroyMulti instead." );
 
-    const ItemDesc& id = find_itemdesc( item->objtype_ );
-    if ( !id.destroy_script.empty() )
-    {
-      BObjectImp* res = run_script_to_completion( id.destroy_script, new EItemRefObjImp( item ) );
-      if ( res->isTrue() )
-      {  // destruction is okay
-        BObject ob( res );
-      }
-      else
-      {
-        // destruction isn't okay!
-        return res;
-      }
-    }
-    UpdateCharacterOnDestroyItem( item );
-    UpdateCharacterWeight( item );
-    destroy_item( item );
-    return new BLong( 1 );
+    if ( destroy_item_with_script_check( item ) )
+      return new BLong( 1 );
+    return new BLong( 0 );
   }
 
   return new BError( "Invalid parameter type" );

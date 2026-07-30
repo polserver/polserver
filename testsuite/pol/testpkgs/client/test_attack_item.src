@@ -194,6 +194,68 @@ exported function test_client_attack_normal_item( resources )
   return 1;
 endfunction
 
+// destroy the item due to direct damage
+exported function test_client_attack_kill_item( resources )
+  var item := setup_attack( resources );
+  if ( !item )
+    return item;
+  endif
+
+  item.hp := 1;
+
+  var ev := send_attack( item.serial, item.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  // the fight is running
+  var res := wait_for_swing( item.serial );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  if ( item )
+    return ret_error( "Could not kill item" );
+  endif
+
+  // the destroyed item gets unhighlighted at the client and forgotten
+  res := check_attack_stopped();
+  if ( !res )
+    return res;
+  endif
+
+  // a few swing timers pass, all of them with the destroyed item as opponent
+  Sleepms( 2000 );
+  if ( char.opponent )
+    return ret_error( $"Opponent reappeared after the item got destroyed: {char.opponent}" );
+  endif
+
+  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, 2 );
+  if ( ev )
+    return ret_error( $"Client still swings at 0x{ev.defender:x}" );
+  endif
+
+  // and the client is still able to attack another item
+  var item2 := resources.CreateItemAtLocation( char.x, char.y, char.z, "AttackableTarget" );
+  if ( !item2 )
+    return ret_error( $"Could not create item: {item2}" );
+  endif
+
+  ev := send_attack( item2.serial, item2.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  res := wait_for_swing( item2.serial );
+  if ( !res )
+    return res;
+  endif
+
+  // stop attacking before the item gets destroyed by the resourcemanager
+  return stop_attack();
+endfunction
+
 /**
  * Helper functions
  */

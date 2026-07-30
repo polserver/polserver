@@ -65,6 +65,7 @@
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
 #include "pol/layers.h"
 #include "pol/lightlvl.h"
 #include "pol/mobile/charactr.h"
@@ -81,10 +82,12 @@
 #include "pol/polclass.h"
 #include "pol/realms/realm.h"
 #include "pol/regions/miscrgn.h"
+#include "pol/scrsched.h"
 #include "pol/statmsg.h"
 #include "pol/tooltips.h"
 #include "pol/uobject.h"
 #include "pol/uoclient.h"
+#include "pol/uoscrobj.h"
 #include "pol/uworld.h"
 
 
@@ -1584,11 +1587,6 @@ void destroy_item( Item* item )
 
   if ( item->serial != 0 )
   {
-    /*
-        cout << "destroy " << item->description() << ": "
-        << item->classname() << " " <<  item
-        << ", serial=" << hexint(item->serial) << endl;
-        */
     item->set_dirty();
 
     send_remove_object_to_inrange( item );
@@ -1605,6 +1603,22 @@ void destroy_item( Item* item )
 
     item->destroy();
   }
+}
+
+bool destroy_item_with_script_check( Items::Item* item )
+{
+  const ItemDesc& id = find_itemdesc( item->objtype_ );
+  if ( !id.destroy_script.empty() )
+  {
+    auto res = Bscript::BObject(
+        run_script_to_completion( id.destroy_script, new Module::EItemRefObjImp( item ) ) );
+    if ( !res.isTrue() )
+      return false;
+  }
+  UpdateCharacterOnDestroyItem( item );
+  UpdateCharacterWeight( item );
+  destroy_item( item );
+  return true;
 }
 
 void setrealm( Item* item, void* arg )

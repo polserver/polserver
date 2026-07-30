@@ -1446,6 +1446,13 @@ u16 Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damag
   if ( ex && attacker && ex->listens_to( Core::EVID_DAMAGED ) )
     ex->signal_event( new Module::DamageEvent( attacker, damage ) );
   send_hit_status_inrange();
+  // if no control script exists destroy the item once it has no hp
+  if ( !ex && !hp_ )
+  {
+    if ( has_gotten_by() )
+      gotten_by()->clear_gotten_item();
+    Core::destroy_item_with_script_check( this );
+  }
   return damage;
 }
 
