@@ -3627,13 +3627,18 @@ void Character::check_justice_region_change()
 
     if ( new_justice_region && new_justice_region->RunNoCombatCheck( client ) == true )
     {
-      get_opponent().remove_opponent_of( Attackable{ client->chr } );
-      if ( auto* opp2 = get_opponent().mobile(); opp2 && opp2->client )
+      auto opponent = get_opponent();
+      if ( opponent )
       {
-        opp2->set_opponent( {}, true );
-        opp2->schedule_attack();
-        opp2->opponent_.clear();
-        opp2->clear_opponent_of();
+        opponent.remove_opponent_of( Attackable{ client->chr } );
+        if ( auto* opp2 = opponent.mobile(); opp2 && opp2->client )
+        {
+          opp2->set_opponent( {}, true );
+          opp2->schedule_attack();
+          opp2->opponent_.clear();
+          opp2->clear_opponent_of();
+        }
+        // clear also our side
         set_opponent( {}, true );
         if ( swing_task != nullptr )
           swing_task->cancel();

@@ -126,7 +126,8 @@ Item* Item::clone() const
   item->name_suffix( name_suffix() );
 
   item->no_drop( no_drop() );
-  item->flags_.change( Core::OBJ_FLAGS::ATTACKABLE, is_attackable() );
+  // copy the raw flag
+  item->flags_.change( Core::OBJ_FLAGS::ATTACKABLE, flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) );
   return item;
 }
 
@@ -700,6 +701,8 @@ bool Item::setlayer( unsigned char in_layer )
 
 bool Item::stackable() const
 {
+  if ( flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) )
+    return false;
   return ( Plib::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
 }
 
@@ -1423,7 +1426,8 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
 
 bool Item::is_attackable() const
 {
-  return !orphan() && flags_.get( Core::OBJ_FLAGS::ATTACKABLE );
+  return flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) && !orphan() && container == nullptr &&
+         !has_gotten_by();
 }
 
 u16 Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damage_pkt )
@@ -1608,8 +1612,7 @@ void Item::inform_disengaged( const Mobile::Attackable& disengaged )
 
 void Item::remove_opponent_of( const Mobile::Attackable& other )
 {
-  if ( !is_attackable() )
-    return;
+  // no is_attackable() check it has to always work
   if ( !has_opponent_of() )
     return;
   if ( !other )
@@ -1627,23 +1630,24 @@ void Item::add_opponent_of( Mobile::Attackable other )
   opponent_of()->insert( std::move( other ) );
 }
 
+void Item::clear_opponents( bool inform_opponents )
+{
+  if ( !has_opponent_of() )
+    return;
+  // use a copy since clearing the others would call our remove_opponent_of
+  auto opponents = *opponent_of();
+  clear_opponent_of();
+
+  for ( const auto& opp : opponents )
+  {
+    if ( auto* mob = opp.mobile() )
+      mob->set_opponent( {}, inform_opponents );
+  }
+}
+
 void Item::destroy()
 {
-  if ( has_opponent_of() )
-  {
-    // use a copy since removing others would call remove_opponent of
-    auto opponents = *opponent_of();
-    clear_opponent_of();
-
-    Mobile::Attackable self{ this };
-    for ( auto opp : opponents )
-    {
-      if ( auto* mob = opp.mobile() )
-        mob->set_opponent( {}, false );
-      else
-        opp.remove_opponent_of( self );
-    }
-  }
+  clear_opponents( false );
   base::destroy();
 }
 }  // namespace Pol::Items

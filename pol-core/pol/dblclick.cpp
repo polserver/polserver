@@ -21,12 +21,14 @@
 #include "clib/clib_endian.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
+#include "plib/objtype.h"
 #include "plib/systemstate.h"
 #include "pol/containr.h"
 #include "pol/eventid.h"
 #include "pol/gameclck.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
+#include "pol/mobile/attack.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/npc.h"
 #include "pol/network/client.h"
@@ -34,7 +36,6 @@
 #include "pol/network/packets.h"
 #include "pol/network/pktdef.h"
 #include "pol/network/pktin.h"
-#include "plib/objtype.h"
 #include "pol/realms/realm.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
@@ -162,7 +163,8 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
   {
     if ( item->is_attackable() && client->chr->warmode() )
     {
-      client->chr->set_opponent( Mobile::Attackable( item ) );
+      if ( !client->chr->dead() && Mobile::can_engage_item( client->chr, item ) )
+        client->chr->select_opponent( Mobile::Attackable( item ) );
       return;
     }
     const Items::ItemDesc& id = item->itemdesc();

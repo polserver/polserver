@@ -275,6 +275,7 @@ public:
                     std::set<Mobile::Attackable>{} );
   void remove_opponent_of( const Mobile::Attackable& other );
   void add_opponent_of( Mobile::Attackable other );
+  void clear_opponents( bool inform_opponents );
 
 protected:  // only derived classes need the constructor
   void printProperties( Clib::StreamWriter& sw ) const override;

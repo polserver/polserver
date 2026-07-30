@@ -42,4 +42,7 @@ public:
 private:
   Core::UObject* _opp = nullptr;
 };
+
+// visibility check
+bool can_engage_item( const Character* chr, const Items::Item* item );
 }  // namespace Pol::Mobile

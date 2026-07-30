@@ -39,6 +39,9 @@ void add_item_to_world( Items::Item* item )
 
 void remove_item_from_world( Items::Item* item )
 {
+  // clear potential opponents and inform everyone
+  item->clear_opponents( true );
+
   // Unregister the item if it is on a multi
   if ( item->container == nullptr && !item->has_gotten_by() )
   {
@@ -234,6 +237,8 @@ void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item )
   {
     oldpos.realm()->remove_toplevel_item( *item );
     item->realm()->add_toplevel_item( *item );
+    // drop opponents when realm changes
+    item->clear_opponents( true );
   }
 }
 

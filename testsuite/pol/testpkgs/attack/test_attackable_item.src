@@ -1,5 +1,6 @@
 use uo;
 use os;
+use vitals;
 
 include "testutil";
 include "sysevent";
@@ -244,7 +245,114 @@ exported function check_area_events( resmgn )
   return 1;
 endfunction
 
-function reset( resmgn, byref npc1, byref item )
+// picking an item up ends the fight for everyone attacking it
+exported function attack_check_pickup( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item, "MovableAttackableItem" );
+  if ( !res )
+    return res;
+  endif
+  npc1.process.sendevent( struct{ type := "enable_events" } );
+
+  // npc1 attacks item
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  // Collect attack and engaged event
+  if ( !( evs := collect_events( 2 ) ) )
+    return evs;
+  endif
+  if ( !evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1] )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+  if ( ListHostiles( item ).size() != 1 )
+    return ret_error( "npc1 did not engage the item" );
+  endif
+  if ( npc1.opponent != item )
+    return ret_error( $"wrong opponent selected: {npc1.opponent}" );
+  endif
+
+  var backpack := resmgn.CreateItemAtLocation( 51, 100, 0, 0xE75 );
+  if ( !backpack )
+    return ret_error( "Could not create container: " + backpack );
+  endif
+  if ( !( res := MoveItemToContainer( item, backpack ) ) )
+    return ret_error( "Could not pick the item up: " + res );
+  endif
+
+  if ( !( evs := collect_events( 1, "no event after pickup" ) ) )
+    return evs;
+  endif
+  var disengaged_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_DISENGAGED; } )[1];
+  if ( !disengaged_ev )
+    return ret_error( $"no disengaged event: {evs}" );
+  endif
+  if ( disengaged_ev.source != npc1 )
+    return ret_error( $"wrong disengaged event: {disengaged_ev}" );
+  endif
+  if ( npc1.opponent )
+    return ret_error( $"npc1 still attacks the picked up item: {npc1.opponent}" );
+  endif
+
+  // dropping it again must not resurrect the old opponents
+  if ( !( res := MoveObjectToLocation( item, 51, 100, 0 ) ) )
+    return ret_error( "Could not drop the item: " + res );
+  endif
+  var hostile := ListHostiles( item );
+  if ( hostile.size() )
+    return ret_error( $"Hostile list != 0: {hostile}" );
+  endif
+
+  return 1;
+endfunction
+
+// a picked up item is no combat target at all
+exported function attack_check_contained_inert( resmgn )
+  var npc1;
+  var item;
+  var res := reset( resmgn, npc1, item, "MovableAttackableItem" );
+  if ( !res )
+    return res;
+  endif
+
+  var backpack := resmgn.CreateItemAtLocation( 51, 100, 0, 0xE75 );
+  if ( !backpack )
+    return ret_error( "Could not create container: " + backpack );
+  endif
+  if ( !( res := MoveItemToContainer( item, backpack ) ) )
+    return ret_error( "Could not pick the item up: " + res );
+  endif
+
+  var hp := item.hp;
+  var dmg := ApplyDamage( item, 10, 0, 0 );
+  if ( dmg )
+    return ret_error( $"contained item took damage: {dmg}" );
+  endif
+  if ( item.hp != hp )
+    return ret_error( $"contained item was damaged: {item.hp}/{hp}" );
+  endif
+
+  if ( ( res := ListHostiles( item ) ) )
+    return ret_error( $"contained item is a combat target: {res}" );
+  endif
+
+  // and it becomes a valid target again once it is back in the world
+  if ( !( res := MoveObjectToLocation( item, 51, 100, 0 ) ) )
+    return ret_error( "Could not drop the item: " + res );
+  endif
+  if ( !( dmg := ApplyDamage( item, 10, 0, 0 ) ) )
+    return ret_error( $"item in the world took no damage: {dmg}" );
+  endif
+  if ( item.hp != hp - 10 )
+    return ret_error( $"item not damaged: {item.hp}/{hp}" );
+  endif
+
+  return 1;
+endfunction
+
+function reset( resmgn, byref npc1, byref item, itemtype := "AttackableItem" )
   npc1 := resmgn.CreateNPCFromTemplate( ":testattack:test_attack", 50, 100, 0 );
 
   if ( !npc1 )
@@ -255,7 +363,7 @@ function reset( resmgn, byref npc1, byref item )
   SetObjProperty( npc1, "#TestPid", GetPid() );
   SetName( npc1, "npc1" );
 
-  item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableItem" );
+  item := resmgn.CreateItemAtLocation( 51, 100, 0, itemtype );
 
   if ( !item )
     return ret_error( "Could not create item: " + item );

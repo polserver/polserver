@@ -1589,6 +1589,9 @@ void destroy_item( Item* item )
   {
     item->set_dirty();
 
+    // clear before leaving world calls it, no need to inform control script
+    item->clear_opponents( false );
+
     send_remove_object_to_inrange( item );
 
     if ( item->container == nullptr )  // on ground, easy.

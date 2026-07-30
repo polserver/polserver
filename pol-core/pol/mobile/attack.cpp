@@ -81,6 +81,15 @@ void Attackable::inform_engaged( const Attackable& engaged )
     item_->inform_engaged( engaged );
 }
 
+bool can_engage_item( const Character* chr, const Items::Item* item )
+{
+  if ( item->invisible() && !chr->can_seeinvisitems() )
+    return false;
+  if ( !chr->in_visual_range( item ) )
+    return false;
+  return true;
+}
+
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
 {
   if ( client->chr->dead() )
@@ -122,12 +131,7 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
   }
   else if ( auto* item = attackable.item() )
   {
-    if ( item->invisible() && !client->chr->can_seeinvisitems() )
-    {
-      client->chr->send_highlight();
-      return;
-    }
-    if ( !client->chr->in_visual_range( item ) )
+    if ( !can_engage_item( client->chr, item ) )
     {
       client->chr->send_highlight();
       return;
