@@ -13,9 +13,11 @@
 #include "bscript/berror.h"
 #include "bscript/blong.h"
 #include "bscript/bstring.h"
+#include "clib/clib.h"
 
 #include "pol/cmbtcfg.h"
 #include "pol/globals/settings.h"
+#include "pol/item/item.h"
 #include "pol/mobile/attribute.h"
 #include "pol/mobile/charactr.h"
 #include "pol/spells.h"
@@ -36,17 +38,23 @@ VitalExecutorModule::VitalExecutorModule( Bscript::Executor& exec )
 
 BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 {
-  Mobile::Character* chr;
+  Core::UObject* obj;
   int damage;
   int userepsys;
   int send_damage_packet;
-  if ( getCharacterParam( 0, chr ) && getParam( 1, damage ) && getParam( 2, userepsys ) &&
+  if ( getUObjectParam( 0, obj ) && getParam( 1, damage ) && getParam( 2, userepsys ) &&
        getParam( 3, send_damage_packet ) && damage >= 0 && damage <= USHRT_MAX )
   {
+    Mobile::Attackable att{ obj };
+    if ( !att )
+      return new BError( "Object is not damageable" );
     bool send_dmg = send_damage_packet == 2 ? Core::settingsManager.combat_config.send_damage_packet
                                             : ( send_damage_packet > 0 ? true : false );
-    chr->apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), GetUOController(),
-                                      userepsys > 0 ? true : false, send_dmg );
+    if ( auto* chr = att.mobile() )
+      chr->apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ),
+                                        GetUOController(), userepsys > 0 ? true : false, send_dmg );
+    else if ( auto* item = att.item() )
+      item->apply_damage( Clib::clamp_convert<u16>( damage ), GetUOController(), send_dmg );
     return new BLong( 1 );
   }
   return new BLong( 0 );
@@ -54,25 +62,26 @@ BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 
 BObjectImp* VitalExecutorModule::mf_ApplyDamage()
 {
-  Mobile::Character* chr;
+  Core::UObject* obj;
   double damage;
   int userepsys;
   int send_damage_packet;
-  if ( getCharacterParam( 0, chr ) && getRealParam( 1, damage ) && getParam( 2, userepsys ) &&
-       getParam( 3, send_damage_packet ) )
-  {
-    if ( damage >= 0.0 && damage <= 30000.0 )
-    {
-      bool send_dmg = send_damage_packet == 2
-                          ? Core::settingsManager.combat_config.send_damage_packet
-                          : ( send_damage_packet > 0 ? true : false );
-      damage = chr->apply_damage( static_cast<unsigned short>( damage ), GetUOController(),
-                                  userepsys > 0 ? true : false, send_dmg );
-      return new BLong( static_cast<int>( damage ) );
-    }
+  if ( !getUObjectParam( 0, obj ) || !getRealParam( 1, damage ) || !getParam( 2, userepsys ) ||
+       !getParam( 3, send_damage_packet ) )
+    return new BError( "Invalid parameter type" );
+  if ( damage < 0.0 || damage > 30000.0 )
     return new BError( "Damage is out of range" );
-  }
-  return new BError( "Invalid parameter type" );
+  Mobile::Attackable att{ obj };
+  if ( !att )
+    return new BError( "Object is not damageable" );
+
+  bool send_dmg = send_damage_packet == 2 ? Core::settingsManager.combat_config.send_damage_packet
+                                          : ( send_damage_packet > 0 ? true : false );
+  if ( auto* chr = att.mobile() )
+    damage = chr->apply_damage( damage, GetUOController(), userepsys > 0 ? true : false, send_dmg );
+  else if ( auto* item = att.item() )
+    damage = item->apply_damage( Clib::clamp_convert<u16>( damage ), GetUOController(), send_dmg );
+  return new BLong( Clib::clamp_convert<s32>( damage ) );
 }
 
 BObjectImp* VitalExecutorModule::mf_HealDamage()
@@ -211,11 +220,13 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
   {
     if ( chr->logged_in() )
     {
-      bool calc_attr = false;
-      bool calc_vital = false;
+      auto flags = Mobile::Character::VitalCalcFlags::NOTIFY;
 
       if ( auto* v = impptrIf<BLong>( param1 ) )
-        calc_attr = v->isTrue();
+      {
+        if ( v->isTrue() )
+          flags |= Mobile::Character::VitalCalcFlags::ATTRIBUTES;
+      }
       else if ( auto* attrname = impptrIf<String>( param1 ) )
       {
         Mobile::Attribute* attr = Mobile::Attribute::FindAttribute( attrname->value() );
@@ -227,7 +238,10 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
         return new BError( "Invalid parameter type" );
 
       if ( auto* v = impptrIf<BLong>( param2 ) )
-        calc_vital = v->isTrue();
+      {
+        if ( v->isTrue() )
+          flags |= Mobile::Character::VitalCalcFlags::VITALS;
+      }
       else if ( auto* vitalname = impptrIf<String>( param2 ) )
       {
         Core::Vital* vital = Core::FindVital( vitalname->value() );
@@ -238,7 +252,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       else
         return new BError( "Invalid parameter type" );
 
-      chr->calc_vital_stuff( calc_attr, calc_vital );
+      chr->calc_vital_stuff( flags );
       return new BLong( 1 );
     }
     return new BError( "Mobile must be online." );

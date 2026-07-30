@@ -47,6 +47,9 @@
 #include "pol/item/armor.h"
 #include "pol/item/weapon.h"
 #include "pol/listenpt.h"
+#include "pol/mobile/attribute.h"
+#include "pol/mobile/charactr.h"
+#include "pol/mobile/wornitems.h"
 #include "pol/module/npcmod.h"
 #include "pol/module/uomod.h"
 #include "pol/multi/multi.h"
@@ -61,9 +64,6 @@
 #include "pol/uoexec.h"
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
-#include "pol/mobile/attribute.h"
-#include "pol/mobile/charactr.h"
-#include "pol/mobile/wornitems.h"
 
 
 /* An area definition is as follows:
@@ -626,8 +626,10 @@ void NPC::readPropertiesForNewNPC( Clib::ConfigElem& elem )
   readCommonProperties( elem );
   readNewNpcAttributes( elem );
   readNpcProperties( elem );
-  calc_vital_stuff();
-  set_vitals_to_maximum();
+  // not yet entered the world, dont send vital pkts
+  calc_vital_stuff( Mobile::Character::VitalCalcFlags::ATTRIBUTES |
+                    Mobile::Character::VitalCalcFlags::VITALS );
+  set_vitals_to_maximum( false );
 
   //    readNpcProperties( elem );
 }
@@ -768,28 +770,27 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 t
   }
 }
 
-void NPC::inform_engaged( Character* engaged )
+void NPC::inform_engaged( const Attackable& engaged )
 {
   // someone has targetted us. Create an event if appropriate.
-  if ( ex != nullptr )
+  if ( !ex || !engaged )
+    return;
+  if ( ex->eventmask & Core::EVID_ENGAGED )
   {
-    if ( ex->eventmask & Core::EVID_ENGAGED )
-    {
-      ex->signal_event( new Module::EngageEvent( engaged ) );
-    }
+    ex->signal_event( new Module::EngageEvent( engaged.object() ) );
   }
   // Note, we don't do the base class thing, 'cause we have no client.
 }
 
-void NPC::inform_disengaged( Character* disengaged )
+void NPC::inform_disengaged( const Attackable& disengaged )
 {
   // someone has targetted us. Create an event if appropriate.
-  if ( ex != nullptr )
+  if ( !ex || !disengaged )
+    return;
+
+  if ( ex->eventmask & Core::EVID_DISENGAGED )
   {
-    if ( ex->eventmask & Core::EVID_DISENGAGED )
-    {
-      ex->signal_event( new Module::DisengageEvent( disengaged ) );
-    }
+    ex->signal_event( new Module::DisengageEvent( disengaged.object() ) );
   }
   // Note, we don't do the base class thing, 'cause we have no client.
 }

@@ -125,6 +125,7 @@ public:
   bool decays_on_multis;
   bool blocks_casting_if_in_hand;
   bool no_drop;
+  bool attackable;
   unsigned short base_str_req;
   unsigned short stack_limit;
   double quality;

@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>07/28/2026</datemodified>
+<datemodified>07/30/2026</datemodified>
 </fileheader>
 
 
@@ -338,7 +338,7 @@
 <method proto="cleargottenitem()" returns="true/error">Returns 'dragged' item to original location.</method>
 <method proto="setwarmode(boolean)" returns="integer/error">Sets the internal warmode flag and sends the update to the player. Returns the new warmode value.</method>
 <method proto="getcorpse()" returns="Corpse">Returns an item reference to the most recent corpse made.</method>
-<method proto="attack_once([MobileRef opp])" returns="true/error">Attacks once without modifing the swingtimer. If no opp is given attacks current attackable opponent, else attacks given opponent (but checks if still attackable)</method>
+<method proto="attack_once([MobileRef/ItemRef opp])" returns="true/error">Attacks once without modifing the swingtimer. If no opp is given attacks current attackable opponent, else attacks given opponent (but checks if still attackable)</method>
 <method proto="setswingtimer(int time)" returns="true/error">If opponent is set sets swingtimer to given ms time.</method>
 <method proto="kill([MobileRef killer])" returns="true">Kills character ignoring invul, if killer is set repsys:OnDamage is called</method>
 <method proto="setfacing(string/int direction, flags := FACE_NORMAL)" returns="true/error">Sets Facing to given direction. If FACE_FORCE is set frozen/paralysed is not checked</method>

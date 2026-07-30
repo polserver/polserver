@@ -48,6 +48,9 @@
 #include "pol/mkscrobj.h"
 #include "pol/mobile/charactr.h"
 #include "pol/module/uomod.h"
+#include "pol/multi/boatcomp.h"
+#include "pol/multi/multi.h"
+#include "pol/multi/multidef.h"
 #include "pol/network/client.h"
 #include "pol/network/packethelper.h"
 #include "pol/network/packets.h"
@@ -60,15 +63,13 @@
 #include "pol/ufunc.h"
 #include "pol/uobject.h"
 #include "pol/uworld.h"
-#include "pol/multi/boatcomp.h"
-#include "pol/multi/multi.h"
-#include "pol/multi/multidef.h"
 
 
 namespace Pol::Multi
 {
 // #define DEBUG_BOATS
 
+using namespace Core;
 std::vector<Network::Client*> boat_sent_to;
 
 BoatShape::ComponentShape::ComponentShape( const std::string& str, unsigned char type )
@@ -348,7 +349,7 @@ void UBoat::send_display_boat( Network::Client* client )
   // Build boat part
   msg->Write<u8>( 0xF3u );
   msg->WriteFlipped<u16>( 0x1u );
-  msg->Write<u8>( 0x2u );  // MultiData flag
+  msg->Write<u8>( PKTOUT_F3_TYPE_MULTI );
   msg->Write<u32>( this->serial_ext );
   msg->WriteFlipped<u16>( this->multidef().multiid );
   msg->offset++;                   // ID offset, TODO CHECK IF NEED THESE
@@ -372,9 +373,9 @@ void UBoat::send_display_boat( Network::Client* client )
     }
     if ( component == nullptr || component->orphan() )
       continue;
-    msg->Write<u8>( 0xF3u );
-    msg->WriteFlipped<u16>( 0x1u );
-    msg->Write<u8>( 0x0u );  // ItemData flag
+    msg->Write<u8>( 0xF3_u8 );
+    msg->WriteFlipped<u16>( 0x1_u16 );
+    msg->Write<u8>( component->is_attackable() ? PKTOUT_F3_TYPE_ATTACKABLE : PKTOUT_F3_TYPE_ITEM );
     msg->Write<u32>( component->serial_ext );
     msg->WriteFlipped<u16>( component->graphic );
     msg->offset++;  // ID offset, TODO CHECK IF NEED THESE
@@ -420,13 +421,16 @@ void UBoat::send_display_boat( Network::Client* client )
         flags |= ITEM_FLAG_FORCE_MOVABLE;
     }
 
-    msg->Write<u8>( 0xF3u );
-    msg->WriteFlipped<u16>( 0x1u );
+    msg->Write<u8>( 0xF3_u8 );
+    msg->WriteFlipped<u16>( 0x1_u16 );
 
     if ( obj->ismobile() )
-      msg->Write<u8>( 0x1u );  // CharData flag
+      msg->Write<u8>( PKTOUT_F3_TYPE_CHAR );
     else
-      msg->Write<u8>( 0x0u );  // ItemData flag
+    {
+      auto* item = static_cast<Items::Item*>( obj );
+      msg->Write<u8>( item->is_attackable() ? PKTOUT_F3_TYPE_ATTACKABLE : PKTOUT_F3_TYPE_ITEM );
+    }
 
     msg->Write<u32>( obj->serial_ext );
     msg->WriteFlipped<u16>( obj->graphic );
@@ -434,8 +438,8 @@ void UBoat::send_display_boat( Network::Client* client )
 
     if ( obj->ismobile() )
     {
-      msg->WriteFlipped<u16>( 0x1u );  // Amount
-      msg->WriteFlipped<u16>( 0x1u );  // Amount
+      msg->WriteFlipped<u16>( 0x1_u16 );  // Amount
+      msg->WriteFlipped<u16>( 0x1_u16 );  // Amount
     }
     else
     {

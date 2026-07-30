@@ -28,12 +28,16 @@
 #include "plib/systemstate.h"
 
 #include "pol/containr.h"
+#include "pol/eventid.h"
 #include "pol/gameclck.h"
 #include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"
 #include "pol/module/uomod.h"
 #include "pol/network/client.h"
+#include "pol/network/packetdefs.h"
 #include "pol/proplist.h"
+#include "pol/regions/resource.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
 #include "pol/scrstore.h"
@@ -41,8 +45,7 @@
 #include "pol/tooltips.h"
 #include "pol/ufunc.h"
 #include "pol/uoscrobj.h"
-#include "pol/item/itemdesc.h"
-#include "pol/regions/resource.h"
+#include "pol/uworld.h"
 
 
 namespace Pol::Items
@@ -123,6 +126,8 @@ Item* Item::clone() const
   item->name_suffix( name_suffix() );
 
   item->no_drop( no_drop() );
+  // copy the raw flag
+  item->flags_.change( Core::OBJ_FLAGS::ATTACKABLE, flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) );
   return item;
 }
 
@@ -696,6 +701,8 @@ bool Item::setlayer( unsigned char in_layer )
 
 bool Item::stackable() const
 {
+  if ( flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) )
+    return false;
   return ( Plib::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
 }
 
@@ -1417,6 +1424,74 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
   return base::get_method_hook( methodname, ex, hook, PC );
 }
 
+bool Item::is_attackable() const
+{
+  return flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) && !orphan() && container == nullptr &&
+         !has_gotten_by();
+}
+
+u16 Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damage_pkt )
+{
+  if ( !is_attackable() )
+    return 0;
+  if ( hp_ > damage )
+    hp_ -= damage;
+  else
+    hp_ = 0;
+  set_dirty();
+  increv();
+  send_object_cache_to_inrange( this );
+  if ( send_damage_pkt && attacker && attacker->client )
+  {
+    Network::SendDamagePkt pkt( serial_ext, damage );
+    pkt.Send( attacker->client );
+  }
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex && attacker && ex->listens_to( Core::EVID_DAMAGED ) )
+    ex->signal_event( new Module::DamageEvent( attacker, damage ) );
+  send_hit_status_inrange();
+  // if no control script exists destroy the item once it has no hp
+  if ( !ex && !hp_ )
+  {
+    if ( has_gotten_by() )
+      gotten_by()->clear_gotten_item();
+    Core::destroy_item_with_script_check( this );
+  }
+  return damage;
+}
+
+void Item::send_hit_status( Network::Client* client ) const
+{
+  if ( !is_attackable() )
+    return;
+  Network::PktHelper::PacketOut<Network::PktOut_A1> msg;
+  msg->Write<u32>( serial_ext );
+  msg->WriteFlipped<u16>( 1000_u16 );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hp_ * 1000 / maxhp() ) );
+  msg.Send( client );
+}
+
+void Item::send_hit_status_inrange() const
+{
+  if ( !is_attackable() )
+    return;
+  Network::PktHelper::PacketOut<Network::PktOut_A1> msg;
+  msg->Write<u32>( serial_ext );
+  msg->WriteFlipped<u16>( 1000_u16 );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hp_ * 1000 / maxhp() ) );
+
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+      this,
+      [&]( Mobile::Character* zonechr )
+      {
+        if ( !zonechr->in_visual_range( this ) )
+          return;
+        if ( invisible() && !zonechr->can_seeinvisitems() )
+          return;
+        msg.Send( zonechr->client );
+      } );
+}
+
 // Event notifications
 
 bool Item::is_visible_to_me( const Mobile::Character* chr ) const
@@ -1433,7 +1508,7 @@ bool Item::is_visible_to_me( const Mobile::Character* chr ) const
   return true;
 }
 
-void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
+void Item::inform_leftarea( Mobile::Character* wholeft )
 {
   Core::UOExecutor* ex = uoexec_control();
   if ( ex == nullptr || !ex->listens_to( Core::EVID_LEFTAREA ) )
@@ -1454,7 +1529,7 @@ void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
   ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
 }
 
-void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoenters )
+void Item::inform_enteredarea( Mobile::Character* whoenters )
 {
   Core::UOExecutor* ex = uoexec_control();
   if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA ) )
@@ -1474,32 +1549,105 @@ void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoenters )
 
   ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoenters ) );
 }
-void Pol::Items::Item::inform_moved( Mobile::Character* moved )
+void Item::inform_moved( Mobile::Character* moved )
 {
   Core::UOExecutor* ex = uoexec_control();
-  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+  if ( ex == nullptr ||
+       !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA | Core::EVID_OPPONENT_MOVED ) )
     return;
 
+  bool skip_area_events = false;
   if ( ( ex->area_mask & Core::EVMASK_ONLY_PC ) && moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
-    return;
-
-  if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
-    return;
+    skip_area_events = true;
+  else if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) &&
+            !moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+    skip_area_events = true;
 
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )
     return;
 
-  const bool are_inrange = in_range( moved, ex->area_size );
-  const bool were_inrange = in_range( moved->lastpos, ex->area_size );
+  if ( !skip_area_events )
+  {
+    const bool are_inrange = in_range( moved, ex->area_size );
+    const bool were_inrange = in_range( moved->lastpos, ex->area_size );
 
-  if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
-  {
-    ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+    if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
+    {
+      ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+      return;
+    }
+    if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+    {
+      ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+      return;
+    }
   }
-  else if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+
+  if ( !is_attackable() || !has_opponent_of() || !ex->listens_to( Core::EVID_OPPONENT_MOVED ) )
+    return;
+  for ( const auto& opp : *opponent_of() )
   {
-    ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+    if ( moved != opp.object() )
+      continue;
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
+    return;
   }
 }
 
+void Item::inform_engaged( const Mobile::Attackable& engaged )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( !ex || !engaged || !ex->listens_to( Core::EVID_ENGAGED ) )
+    return;
+  ex->signal_event( new Module::EngageEvent( engaged.object() ) );
+}
+
+void Item::inform_disengaged( const Mobile::Attackable& disengaged )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( !ex || !disengaged || !ex->listens_to( Core::EVID_DISENGAGED ) )
+    return;
+  ex->signal_event( new Module::DisengageEvent( disengaged.object() ) );
+}
+
+void Item::remove_opponent_of( const Mobile::Attackable& other )
+{
+  // no is_attackable() check it has to always work
+  if ( !has_opponent_of() )
+    return;
+  if ( !other )
+    return;
+  opponent_of()->erase( other );
+  if ( opponent_of()->empty() )
+    clear_opponent_of();
+}
+void Item::add_opponent_of( Mobile::Attackable other )
+{
+  if ( !is_attackable() )
+    return;
+  if ( !other )
+    return;
+  opponent_of()->insert( std::move( other ) );
+}
+
+void Item::clear_opponents( bool inform_opponents )
+{
+  if ( !has_opponent_of() )
+    return;
+  // use a copy since clearing the others would call our remove_opponent_of
+  auto opponents = *opponent_of();
+  clear_opponent_of();
+
+  for ( const auto& opp : opponents )
+  {
+    if ( auto* mob = opp.mobile() )
+      mob->set_opponent( {}, inform_opponents );
+  }
+}
+
+void Item::destroy()
+{
+  clear_opponents( false );
+  base::destroy();
+}
 }  // namespace Pol::Items

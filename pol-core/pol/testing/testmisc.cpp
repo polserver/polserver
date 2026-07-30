@@ -37,12 +37,20 @@ void map_test()
 
 void dynprops_test()
 {
+  struct VecTest
+  {
+    bool test = false;
+  };
+
+  int i = 1;
   class Test : public Core::DynamicPropsHolder
   {
   public:
     DYN_PROPERTY( armod, s16, Core::PROP_AR_MOD, 0 );
     DYN_PROPERTY( max_items, u32, Core::PROP_MAX_ITEMS_MOD, 0 );
     DYN_PROPERTY( itemname, std::string, Core::PROP_NAME_SUFFIX, "" );
+    DYN_PROPERTY_POINTER( pointer, int*, Core::PROP_GUILD );
+    DYN_PROPERTY_REF( vec, std::vector<VecTest>, Core::PROP_PROCESS, std::vector<VecTest>{} );
   };
   Test h;
   if ( h.armod() || h.has_armod() )
@@ -88,6 +96,97 @@ void dynprops_test()
   if ( !h.itemname().empty() || h.has_itemname() )
   {
     INFO_PRINTLN( "removed name {} {}", h.itemname(), h.has_itemname() );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+
+  if ( h.has_pointer() )
+  {
+    INFO_PRINTLN( "pointer set" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+
+  h.pointer( &i );
+  if ( !h.has_pointer() )
+  {
+    INFO_PRINTLN( "pointer not set" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  if ( h.pointer() != &i )
+  {
+    INFO_PRINTLN( "pointer set wrong" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  h.pointer( nullptr );
+  if ( h.pointer() != nullptr )
+  {
+    INFO_PRINTLN( "pointer != nullptr" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  if ( h.has_pointer() )
+  {
+    INFO_PRINTLN( "pointer not cleared" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+
+  if ( h.has_vec() )
+  {
+    INFO_PRINTLN( "testvec set" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  if ( !h.vec()->empty() )
+  {
+    INFO_PRINTLN( "testvec not empty" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  h.vec()->push_back( VecTest{ true } );
+  if ( h.vec()->empty() )
+  {
+    INFO_PRINTLN( "testvec empty" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  if ( !h.vec()->begin()->test )
+  {
+    INFO_PRINTLN( "testvec value false" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  if ( !( *h.vec() )[0].test )
+  {
+    INFO_PRINTLN( "testvec value false" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  if ( []( const auto& o ) { return o.vec()->empty(); }( h ) )
+  {
+    INFO_PRINTLN( "testvec const !empty" );
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+  h.clear_vec();
+  if ( h.has_vec() )
+  {
+    INFO_PRINTLN( "testvec not cleared" );
     UnitTest::inc_failures();
   }
   else

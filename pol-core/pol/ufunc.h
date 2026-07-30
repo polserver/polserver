@@ -201,6 +201,7 @@ void transmit_to_inrange( const UObject* center, const void* msg, unsigned msgle
 void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen );
 
 void destroy_item( Items::Item* item );
+bool destroy_item_with_script_check( Items::Item* item );
 
 void move_item( Items::Item* item, const Core::Pos4d& oldpos );
 
@@ -234,7 +235,7 @@ void send_realm_change( Network::Client* client, Realms::Realm* realm );
 void send_map_difs( Network::Client* client );
 void send_season_info( Network::Client* client );
 void send_new_subserver( Network::Client* client );
-void send_fight_occuring( Network::Client* client, Mobile::Character* opponent );
+void send_fight_occuring( Network::Client* client, UObject* opponent );
 void send_damage( Mobile::Character* attacker, Mobile::Character* defender, u16 damage );
 void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const std::string& title,
                       const std::string& utext, const std::string& etext );

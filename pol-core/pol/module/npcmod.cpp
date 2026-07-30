@@ -23,18 +23,19 @@
 
 #include "pol/containr.h"
 #include "pol/item/item.h"
+#include "pol/mobile/attack.h"
 #include "pol/mobile/boundbox.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/npc.h"
 #include "pol/mobile/ufacing.h"
+#include "pol/module/osmod.h"
+#include "pol/module/unimod.h"
 #include "pol/network/packethelper.h"
 #include "pol/network/packets.h"
 #include "pol/network/pktdef.h"
 #include "pol/polobject.h"
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
-#include "pol/module/osmod.h"
-#include "pol/module/unimod.h"
 
 #include <module_defs/npc.h>
 
@@ -881,14 +882,16 @@ BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 
 BObjectImp* NPCExecutorModule::mf_SetOpponent()
 {
-  Mobile::Character* chr;
-  if ( getCharacterParam( 0, chr ) && chr != &npc )
+  Core::UObject* uobj;
+  if ( getUObjectParam( 0, uobj ) && uobj != &npc )
   {
-    npc.set_opponent( chr );
+    Mobile::Attackable opp{ uobj };
+    if ( !opp )
+      return new BError( "Invalid parameter" );
+    npc.set_opponent( opp );
     return new BLong( 1 );
   }
-
-  npc.set_opponent( nullptr );
+  npc.set_opponent( {} );
   return new BLong( 0 );
 }
 

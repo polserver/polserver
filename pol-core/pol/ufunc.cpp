@@ -65,6 +65,7 @@
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
+#include "pol/item/itemdesc.h"
 #include "pol/layers.h"
 #include "pol/lightlvl.h"
 #include "pol/mobile/charactr.h"
@@ -81,10 +82,12 @@
 #include "pol/polclass.h"
 #include "pol/realms/realm.h"
 #include "pol/regions/miscrgn.h"
+#include "pol/scrsched.h"
 #include "pol/statmsg.h"
 #include "pol/tooltips.h"
 #include "pol/uobject.h"
 #include "pol/uoclient.h"
+#include "pol/uoscrobj.h"
 #include "pol/uworld.h"
 
 
@@ -629,8 +632,7 @@ void send_item( Client* client, const Item* item )
   if ( item->invisible() )
     flags |= ITEM_FLAG_HIDDEN;
 
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
-                            item->facing, item->color, flags );
+  auto pkt = SendWorldItem( item, flags );
   pkt.Send( client );
 
   // if the item is a corpse, transmit items contained by it
@@ -642,15 +644,15 @@ void send_item( Client* client, const Item* item )
   if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
   {
     send_object_cache( client, item );
-    return;
   }
+
+  item->send_hit_status( client );
 }
 
 /* Tell all clients new information about an item */
 void send_item_to_inrange( const Item* item )
 {
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
-                            item->facing, item->color, 0 );
+  auto pkt = SendWorldItem( item, 0 );
   auto pkt_remove = RemoveObjectPkt( item->serial_ext );
   auto pkt_rev = ObjRevisionPkt( item->serial_ext, item->rev() );
 
@@ -682,6 +684,7 @@ void send_item_to_inrange( const Item* item )
 
         pkt_rev.Send( zonechr->client );
       } );
+  item->send_hit_status_inrange();
 }
 
 
@@ -1584,12 +1587,10 @@ void destroy_item( Item* item )
 
   if ( item->serial != 0 )
   {
-    /*
-        cout << "destroy " << item->description() << ": "
-        << item->classname() << " " <<  item
-        << ", serial=" << hexint(item->serial) << endl;
-        */
     item->set_dirty();
+
+    // clear before leaving world calls it, no need to inform control script
+    item->clear_opponents( false );
 
     send_remove_object_to_inrange( item );
 
@@ -1605,6 +1606,22 @@ void destroy_item( Item* item )
 
     item->destroy();
   }
+}
+
+bool destroy_item_with_script_check( Items::Item* item )
+{
+  const ItemDesc& id = find_itemdesc( item->objtype_ );
+  if ( !id.destroy_script.empty() )
+  {
+    auto res = Bscript::BObject(
+        run_script_to_completion( id.destroy_script, new Module::EItemRefObjImp( item ) ) );
+    if ( !res.isTrue() )
+      return false;
+  }
+  UpdateCharacterOnDestroyItem( item );
+  UpdateCharacterWeight( item );
+  destroy_item( item );
+  return true;
 }
 
 void setrealm( Item* item, void* arg )
@@ -2084,7 +2101,7 @@ void send_new_subserver( Client* client )
   msg.Send( client );
 }
 
-void send_fight_occuring( Client* client, Character* opponent )
+void send_fight_occuring( Client* client, UObject* opponent )
 {
   PktHelper::PacketOut<PktOut_2F> msg;
   msg->offset++;  // zero1

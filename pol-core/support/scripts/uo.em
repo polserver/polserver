@@ -329,7 +329,7 @@ IsStackable( item1, item2 ); // checks if items can stack
 ListAccounts();
 ListEquippedItems( who );
 ListGhostsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
-ListHostiles( character, range := 20, flags := 0 );
+ListHostiles( attackable, range := 20, flags := 0 );
 ListItemsAtLocation( x, y, z, realm := _DEFAULT_REALM );
 ListItemsInBoxOfObjType( objtype, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM );
 ListItemsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );

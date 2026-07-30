@@ -1,8 +1,13 @@
 use uo;
 use os;
 use polsys;
+use vitals;
 
 program MainHitScript( attacker, defender, weapon, armor, basedamage, rawdamage )
+  var damage := GetObjProperty( attacker, "#Damage" );
+  if ( damage )
+    ApplyDamage( defender, CInt( damage ) );
+  endif
   var pid := GetObjProperty( attacker, "#TestPid" );
   if ( pid )
     var ev := struct{ type := "HIT",
@@ -19,3 +24,4 @@ program MainHitScript( attacker, defender, weapon, armor, basedamage, rawdamage 
     GetProcess( pid ).SendEvent( ev );
   endif
 endprogram
+

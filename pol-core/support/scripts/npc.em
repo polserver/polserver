@@ -67,7 +67,7 @@ TurnAwayFromLocation( x, y, flags := FACE_NORMAL );
 // a projectile weapon and have LOS), you will attack.  If
 // a player character is connected, the NPC will highlight.
 // Implicitly sets war mode.
-SetOpponent( character );
+SetOpponent( attackable );
 
 // SetWarMode: Usually used to leave warmode, but can be used
 // to enter warmode independently of setting an opponent.

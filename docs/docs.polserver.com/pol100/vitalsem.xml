@@ -4,7 +4,7 @@
 <ESCRIPT>  
   <fileheader fname="Vitals.em">
     <filedesc>Functions for working with mobile vitals.</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>07/30/2026</datemodified>
 <constant>//Apply*Damage constants</constant>
 <constant>const DAMAGE_USE_REPSYS  := 1;</constant>
 <constant>const DAMAGE_NO_REPSYS   := 0;</constant>
@@ -19,12 +19,13 @@
   </fileheader>
 
 <function name="ApplyDamage">
-    <prototype>ApplyDamage( mobile, damage, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
-	<parameter name="mobile" value="Character Reference" />
+    <prototype>ApplyDamage( attackable, damage, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
+    <parameter name="attackable" value="Character/Item Reference" />
 	<parameter name="damage" value="Real (0.0 to 30000.0)" />
 	<parameter name="userepsys" value="Integer (optional, default DAMAGE_USE_REPSYS)" />
 	<parameter name="send_damage" value="Integer (optional, default DAMAGE_USE_DEFAULT)" />
 	<explain>Decreases a character's hit points, after reducing damage due to armor.</explain>
+	<explain>For Attackable items the hps are lowered, if no controlscript exists once the hp reqches 0 the item gets destroyed.</explain>
 	<explain>Notes: vitals.em constants for userepsys:
 <code>
 const DAMAGE_USE_REPSYS  := 1;
@@ -48,12 +49,13 @@ const DAMAGE_USE_DEFAULT := 2;</code></explain>
 </function>
 
 <function name="ApplyRawDamage">
-    <prototype>ApplyRawDamage( Character, Hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
-	<parameter name="Character" value="Character Reference" />
+    <prototype>ApplyRawDamage( Attackable, Hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
+    <parameter name="Attackable" value="Character/Item Reference" />
 	<parameter name="Hits" value="Integer (0..65535)" />
 	<parameter name="userepsys" value="Integer (optional, default DAMAGE_USE_REPSYS)" />
 	<parameter name="send_damage" value="Integer (optional, default DAMAGE_USE_DEFAULT)" />
 	<explain>Decreases a character's hit points.  If this causes hit points to drop to zero, kills the character.</explain>
+	<explain>For Attackable items the hps are lowered, if no controlscript exists once the hp reqches 0 the item gets destroyed.</explain>
  	<explain>Notes: Armor is ignored.</explain>
   <explain>Invokes Reputation system effects.</explain>
   <explain>Notes: vitals.em constants for userepsys:

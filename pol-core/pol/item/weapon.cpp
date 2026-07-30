@@ -29,15 +29,16 @@
 #include "pol/extobj.h"
 #include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
+#include "pol/item/itemdesc.h"
+#include "pol/item/wepntmpl.h"
 #include "pol/layers.h"
+#include "pol/mobile/attack.h"
 #include "pol/mobile/charactr.h"
 #include "pol/realms/realm.h"
 #include "pol/syshookscript.h"
 #include "pol/ufunc.h"
 #include "pol/umanip.h"
 #include "pol/uobject.h"
-#include "pol/item/itemdesc.h"
-#include "pol/item/wepntmpl.h"
 
 
 namespace Pol::Items
@@ -448,9 +449,10 @@ bool UWeapon::consume_projectile( Core::UContainer* cont ) const
   return false;
 }
 
-bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const
+bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Attackable& target ) const
 {
-  unsigned short dist = wielder->distance_to( target->toplevel_pos() );
+  const auto* tar_obj = target.object();
+  unsigned short dist = wielder->distance_to( tar_obj->toplevel_pos() );
   signed short min_dist_mod = wielder->min_attack_range_increase().sum();
   signed short max_dist_mod = wielder->max_attack_range_increase().sum();
   signed short min_dist = WEAPON_TMPL->minrange + min_dist_mod;
@@ -469,10 +471,11 @@ bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Characte
     "calc_min: {}\n"
     "calc_max: {}\n"
     "has_los:  {}\n",
-    wielder->serial, target->serial, dist, WEAPON_TMPL->minrange, min_dist_mod,
+    wielder->serial, tar_obj->serial, dist, WEAPON_TMPL->minrange, min_dist_mod,
     WEAPON_TMPL->maxrange, max_dist_mod, min_dist, max_dist,
-    wielder->realm()->has_los( *wielder, *target ) );
-  return ( dist >= min_dist && dist <= max_dist && wielder->realm()->has_los( *wielder, *target ) );
+    wielder->realm()->has_los( *wielder, *tar_obj ) );
+  return ( dist >= min_dist && dist <= max_dist &&
+           wielder->realm()->has_los( *wielder, *tar_obj ) );
 }
 
 // FIXME weak, weak..

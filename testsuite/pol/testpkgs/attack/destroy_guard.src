@@ -1,0 +1,10 @@
+use uo;
+
+// destroy script of AttackableGuardedItem: refuses the destruction while the
+// item carries the #NoDestroy property
+program destroy_guard( item )
+  if ( GetObjProperty( item, "#NoDestroy" ) )
+    return 0;
+  endif
+  return 1;
+endprogram

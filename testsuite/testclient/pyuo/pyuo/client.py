@@ -107,6 +107,11 @@ class Item(UOBject):
     self.parent = None
     ## flag if its a multi
     self.ismulti = False
+    ## flag if the server announced this item as an attackable one
+    self.attackable = False
+    ## current/max hit points, only sent for attackable items
+    self.hp = None
+    self.maxhp = None
 
     if pkt is not None:
       self.update(pkt)
@@ -133,6 +138,8 @@ class Item(UOBject):
       self.ismulti = True
     elif isinstance(pkt, packets.NewObjectInfoPacket):
       self.ismulti = pkt.type == 0x2
+    if isinstance(pkt, packets.NewObjectInfoPacket):
+      self.attackable = pkt.type == 0x3
 
   def upgradeToContainer(self):
     ''' Upgrade this item to a container '''
@@ -838,11 +845,18 @@ class Client(threading.Thread):
 
     elif isinstance(pkt, packets.WarModePacket):
       self.player.war = pkt.war
+      self.brain.event(brain.Event(brain.Event.EVT_WAR_MODE, war=pkt.war))
+
+    elif isinstance(pkt, packets.FightOccuringPacket):
+      self.log.info("0x%X swings at 0x%X", pkt.attacker, pkt.defender)
+      self.brain.event(brain.Event(brain.Event.EVT_FIGHT_OCCURING,
+        attacker=pkt.attacker, defender=pkt.defender))
 
     elif isinstance(pkt, packets.AllowAttackPacket):
       assert self.lc
       self.player.target = pkt.serial
       self.log.info("Target set to 0x%X", self.player.target)
+      self.brain.event(brain.Event(brain.Event.EVT_ATTACK, serial=pkt.serial))
 
     elif isinstance(pkt, packets.UpdateHealthPacket):
       self.handleUpdateVitalPacket(pkt, 'hp', 'maxhp', brain.Event.EVT_HP_CHANGED)
@@ -1088,7 +1102,11 @@ class Client(threading.Thread):
     if self.player.serial == pkt.serial:
       mob = self.player
     else:
-      mob = self.objects[pkt.serial]
+      mob = self.objects.get(pkt.serial)
+      if mob is None:
+        self.log.info("%s of unknown 0x%X", attrName.upper(), pkt.serial)
+        self.brain.event(brain.Event(eventId, old=None, new=pkt.cur, serial=pkt.serial))
+        return
     old = getattr(mob, attrName)
     setattr(mob, maxAttrName, pkt.max)
     setattr(mob, attrName, pkt.cur)
@@ -1106,14 +1124,21 @@ class Client(threading.Thread):
     if self.player.serial == pkt.serial:
       mob = self.player
     else:
-      mob = self.objects[pkt.serial]
-    mob.hp = pkt.hp
-    mob.maxhp = pkt.maxhp
-    mob.stam = pkt.stam
-    mob.maxstam = pkt.maxstam
-    mob.mana = pkt.mana
-    mob.maxmana = pkt.maxmana
+      mob = self.objects.get(pkt.serial)
+    if mob is None:
+      self.log.info("Status of unknown 0x%X", pkt.serial)
+    else:
+      mob.hp = pkt.hp
+      mob.maxhp = pkt.maxhp
+      # attackable items only get the short form, without any vitals
+      if hasattr(pkt, 'stam'):
+        mob.stam = pkt.stam
+        mob.maxstam = pkt.maxstam
+        mob.mana = pkt.mana
+        mob.maxmana = pkt.maxmana
     # TODO rest..
+    self.brain.event(brain.Event(brain.Event.EVT_STATUS_BAR, serial=pkt.serial,
+      name=pkt.name, hp=pkt.hp, maxhp=pkt.maxhp))
 
   @status('game')
   @clientthread
@@ -1282,10 +1307,10 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def requestStatus(self):
-    ''' Requests basic status (0x11 packet) '''
+  def requestStatus(self, serial=None):
+    ''' Requests basic status (0x11 packet) of the player or of a given object '''
     po = packets.GetPlayerStatusPacket()
-    po.fill(po.TYP_BASE, self.player.serial)
+    po.fill(po.TYP_BASE, self.player.serial if serial is None else serial)
     self.queue(po)
 
   @logincomplete
@@ -1300,6 +1325,20 @@ class Client(threading.Thread):
     ''' Sends a single click for the given object (Item/Mobile or serial) to server '''
     po = packets.DoubleClickPacket()
     po.fill(obj if type(obj) == int else obj.serial)
+    self.queue(po)
+
+  @logincomplete
+  def attack(self, obj):
+    ''' Sends an attack request for the given object (Item/Mobile or serial) to server '''
+    po = packets.AttackRequestPacket()
+    po.fill(obj if type(obj) == int else obj.serial)
+    self.queue(po)
+
+  @logincomplete
+  def warMode(self, war):
+    ''' Requests to enter/leave war mode '''
+    po = packets.WarModePacket()
+    po.fill(war)
     self.queue(po)
 
   @logincomplete

@@ -14,8 +14,10 @@
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
 #include "plib/systemstate.h"
+#include "pol/fnsearch.h"
 #include "pol/globals/network.h"
 #include "pol/globals/settings.h"
+#include "pol/item/item.h"
 #include "pol/mobile/attribute.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
@@ -32,9 +34,9 @@
 #include "pol/uoclient.h"
 #include "pol/uoskills.h"
 
-
 namespace Pol::Core
 {
+
 void statrequest( Network::Client* client, u32 serial )
 {
   auto chr = client->chr;
@@ -45,7 +47,17 @@ void statrequest( Network::Client* client, u32 serial )
   }
   Mobile::Character* bob = find_character( serial );
   if ( !bob )
+  {
+    auto* item = system_find_item( serial );
+    if ( !item || !item->is_attackable() )
+      return;
+    if ( item->invisible() && !client->chr->can_seeinvisitems() )
+      return;
+    if ( !client->chr->in_visual_range( item ) )
+      return;
+    send_short_statmsg( client, item );
     return;
+  }
   if ( chr->is_visible_to_me( bob ) )
     send_short_statmsg( client, bob );
   if ( chr->has_party() )
