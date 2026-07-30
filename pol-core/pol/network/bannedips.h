@@ -14,11 +14,10 @@
 
 namespace Pol::Network
 {
-struct IPRule
-{
-  unsigned int ipMatch;
-  unsigned int ipMask;
-};
+class Client;
+
+bool is_banned_ip( Client* client );
+void read_bannedips_config( bool initial_load );
 }  // namespace Pol::Network
 
 

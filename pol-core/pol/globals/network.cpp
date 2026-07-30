@@ -17,7 +17,6 @@
 #include "pol/network/msghandl.h"
 #include "pol/network/packethooks.h"
 #include "pol/network/packetinterface.h"
-#include "pol/network/sockio.h"
 #include "pol/servdesc.h"
 #include "pol/sqlscrobj.h"
 #include "pol/uoclient.h"
@@ -125,7 +124,6 @@ void NetworkManager::deinialize()
   auxthreadpool.reset();
   banned_ips.clear();
 
-  Network::deinit_sockets_library();
   Network::clean_packethooks();
   curl_global_cleanup();
   uoclient_general.deinitialize();

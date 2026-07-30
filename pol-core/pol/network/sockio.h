@@ -13,8 +13,10 @@
 
 namespace Pol::Network
 {
-int init_sockets_library();
-int deinit_sockets_library();
+// Brings up the socket library and discovers this host's own internet/LAN addresses,
+// which the SERVERS.CFG loader hands to UO clients. There is no matching deinit: the
+// socket library tears itself down at exit (Clib::winsock_initialize).
+void init_sockets_library();
 
 std::string AddressToString( const sockaddr* addr );
 

@@ -160,17 +160,7 @@ bool AuxClientThread::ipAllowed( sockaddr MyPeer )
   {
     return true;
   }
-  for ( unsigned j = 0; j < _auxservice->_aux_ip_match.size(); ++j )
-  {
-    unsigned int addr1part, addr2part;
-    struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &MyPeer );
-
-    addr1part = _auxservice->_aux_ip_match[j] & _auxservice->_aux_ip_match_mask[j];
-    addr2part = sockin->sin_addr.s_addr & _auxservice->_aux_ip_match_mask[j];
-    if ( addr1part == addr2part )
-      return true;
-  }
-  return false;
+  return matches_any( _auxservice->_aux_ip_match, MyPeer );
 }
 void AuxClientThread::run()
 {
@@ -289,26 +279,7 @@ AuxService::AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem )
       _scriptdef( elem.remove_string( "SCRIPT" ), _pkg ),
       _port( elem.remove_ushort( "PORT" ) )
 {
-  std::string iptext;
-  while ( elem.remove_prop( "IPMATCH", &iptext ) )
-  {
-    auto delim = iptext.find_first_of( '/' );
-    if ( delim != std::string::npos )
-    {
-      std::string ipaddr_str = iptext.substr( 0, delim );
-      std::string ipmask_str = iptext.substr( delim + 1 );
-      unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
-      unsigned int ipmask = inet_addr( ipmask_str.c_str() );
-      _aux_ip_match.push_back( ipaddr );
-      _aux_ip_match_mask.push_back( ipmask );
-    }
-    else
-    {
-      unsigned int ipaddr = inet_addr( iptext.c_str() );
-      _aux_ip_match.push_back( ipaddr );
-      _aux_ip_match_mask.push_back( 0xFFffFFffLu );
-    }
-  }
+  read_ip_match_list( elem, "IPMATCH", &_aux_ip_match );
 }
 
 void AuxService::run()
@@ -342,7 +313,7 @@ size_t AuxService::estimateSize() const
 {
   size_t size = sizeof( Plib::Package* ) + _scriptdef.estimatedSize() +
                 sizeof( unsigned short ) /*_port*/
-                + Clib::memsize( _aux_ip_match ) + Clib::memsize( _aux_ip_match_mask );
+                + Clib::memsize( _aux_ip_match );
   return size;
 }
 

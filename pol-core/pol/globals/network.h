@@ -9,6 +9,7 @@
 
 #include "pol/network/bannedips.h"
 #include "pol/network/iostats.h"
+#include "pol/network/ipmatch.h"
 #include "pol/network/msghandl.h"
 #include "pol/network/sockio.h"
 #include "pol/polstats.h"
@@ -103,7 +104,7 @@ public:
 
   std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
 
-  std::vector<Network::IPRule> banned_ips;
+  std::vector<Network::IpMatch> banned_ips;
 
   struct Memory
   {

@@ -257,6 +257,8 @@ set (pol_sources  # sorted !
   network/cliface.h
   network/iostats.cpp
   network/iostats.h
+  network/ipmatch.cpp
+  network/ipmatch.h
   network/msgfiltr.cpp
   network/msgfiltr.h
   network/msghandl.cpp
@@ -397,12 +399,14 @@ set (pol_sources  # sorted !
   testing/testenv.cpp
   testing/testenv.h
   testing/testexpansion.cpp
+  testing/testipmatch.cpp
   testing/testlos.cpp
   testing/testmapsize.cpp
   testing/testmaptile.cpp
   testing/testmisc.cpp
   testing/testpos.cpp
   testing/testrange.cpp
+  testing/testresolve.cpp
   testing/testskill.cpp
   testing/testthreadpool.cpp
   testing/testvector.cpp

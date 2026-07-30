@@ -38,6 +38,7 @@
 #include "pol/globals/uvars.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
+#include "pol/network/ipmatch.h"
 #include "pol/network/packethelper.h"
 #include "pol/network/packets.h"
 #include "pol/network/pktdef.h"
@@ -83,20 +84,10 @@ bool acct_check( Network::Client* client, int i )
 
 bool ip_check( Network::Client* client, int i )
 {
-  if ( networkManager.servers[i]->ip_match.empty() )
-    return true;
   const auto* server = networkManager.servers[i];
-  for ( unsigned j = 0; j < server->ip_match.size(); ++j )
-  {
-    unsigned int addr1part, addr2part;
-    struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
-
-    addr1part = server->ip_match[j] & server->ip_match_mask[j];
-    addr2part = sockin->sin_addr.s_addr & server->ip_match_mask[j];
-    if ( addr1part == addr2part )
-      return true;
-  }
-  return false;
+  if ( server->ip_match.empty() )
+    return true;
+  return Network::matches_any( server->ip_match, client->ipaddr );
 }
 
 bool proxy_check( Network::Client* client, int i )
@@ -117,18 +108,7 @@ bool proxy_check( Network::Client* client, int i )
     return false;
   }
 
-  for ( unsigned j = 0; j < networkManager.servers[i]->proxy_match.size(); ++j )
-  {
-    unsigned int addr1part, addr2part;
-    struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr_proxy );
-
-    addr1part =
-        networkManager.servers[i]->proxy_match[j] & networkManager.servers[i]->proxy_match_mask[j];
-    addr2part = sockin->sin_addr.s_addr & networkManager.servers[i]->proxy_match_mask[j];
-    if ( addr1part == addr2part )
-      return true;
-  }
-  return false;
+  return Network::matches_any( networkManager.servers[i]->proxy_match, client->ipaddr_proxy );
 }
 
 bool server_applies( Network::Client* client, int i )
@@ -209,21 +189,17 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
 
     if ( !server->hostname.empty() )
     {
-      struct hostent* he =
-          gethostbyname( server->hostname.c_str() );  // FIXME: here is a potential server lockup
-      if ( he != nullptr && he->h_addr_list[0] )
+      // Re-resolved per login so a server that moves is picked up without a restart.
+      // Still a blocking lookup on the login path, and with single-threaded login that
+      // path is the listener thread, so a slow resolver delays every pending login;
+      // resolving asynchronously is its own change (specs/sockets/10).
+      const auto addrs = Clib::resolve_ipv4( server->hostname );
+      if ( addrs.empty() )
       {
-        char* addr = he->h_addr_list[0];
-        server->ip[0] = addr[3];
-        server->ip[1] = addr[2];
-        server->ip[2] = addr[1];
-        server->ip[3] = addr[0];
-      }
-      else
-      {
-        POLLOGLN( "gethostbyname(\"{}\") failed for server {}", server->hostname, server->name );
+        POLLOGLN( "Unable to resolve \"{}\" for server {}", server->hostname, server->name );
         continue;
       }
+      pack_server_ip( server->ip, addrs.front() );
     }
 
     if ( server_applies( client, idx ) )

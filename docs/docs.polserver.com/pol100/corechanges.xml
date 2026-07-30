@@ -2,9 +2,22 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-28-2026</datemodified>
+		<datemodified>07-30-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-28-2026</date>
+			<author>Nando:</author>
+			<change type="Changed">Hostnames are now resolved with getaddrinfo instead of gethostbyname. On a host<br/>
+with several addresses, the one picked for SERVERS.CFG's --ip-- and --lan-- can<br/>
+differ from before: the addresses now come in the order the system prefers for<br/>
+reaching the outside world instead of in adapter order, so a machine with<br/>
+virtual adapters (Hyper-V, WSL, VPN) usually gets its real network address<br/>
+where it got a virtual one before. A SERVERS.CFG entry whose IP is a hostname<br/>
+that does not resolve is now also reported at startup on Windows, not just on<br/>
+Linux. What clients receive is unchanged, that address has always been resolved<br/>
+again for each server list.</change>
+		</entry>
 		<entry>
 			<date>07-28-2026</date>
 			<author>Ins:</author>
