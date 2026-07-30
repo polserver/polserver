@@ -1,0 +1,589 @@
+// script level api of attackable items: the module functions that were widened
+// from "character" to "attackable", and the item flag semantics that come with
+// the Attackable itemdesc entry.
+use uo;
+use os;
+use polsys;
+use vitals;
+
+include "testutil";
+include "sysevent";
+
+program npc_ai()
+  return 1;
+endprogram
+
+// attack_once accepts an item, damages it and reports the new error cases
+exported function api_attack_once( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  // nothing is selected and nobody attacks the npc
+  var res := npc.attack_once();
+  if ( res != error )
+    return ret_error( $"attack_once without an opponent: {res}" );
+  elseif ( res.errortext != "No opponent" )
+    return ret_error( $"wrong error without an opponent: {res.errortext}" );
+  endif
+
+  SetObjProperty( npc, "#Damage", 10 );
+  clear_event_queue();
+
+  if ( ( res := npc.attack_once( item ) ) != 1 )
+    return ret_error( $"attack_once( item ) failed: {res}" );
+  endif
+
+  // the swing runs the attack hit script with the item as defender
+  var ev := wait_for_type( "HIT", "no hit event after attack_once" );
+  if ( !ev )
+    return ev;
+  elseif ( ev.attacker != npc || ev.defender != item )
+    return ret_error( $"wrong hit event: {ev}" );
+  endif
+  if ( item.hp != 90 )
+    return ret_error( $"item not damaged: {item.hp}" );
+  endif
+
+  // a single swing does not select an opponent
+  if ( npc.opponent )
+    return ret_error( $"attack_once selected an opponent: {npc.opponent}" );
+  endif
+
+  // an item without the flag is no target
+  var plain := resmgn.CreateItemAtLocation( 52, 100, 0, "NonAttackableItem" );
+  if ( !plain )
+    return ret_error( $"Could not create item: {plain}" );
+  endif
+  res := npc.attack_once( plain );
+  if ( res != error )
+    return ret_error( $"attack_once( plain item ): {res}" );
+  elseif ( res.errortext != "Opponent is not attackable" )
+    return ret_error( $"wrong error for a plain item: {res.errortext}" );
+  endif
+
+  // and neither is an attackable one inside a container
+  var backpack := resmgn.CreateItemAtLocation( 52, 100, 0, 0xE75 );
+  if ( !backpack )
+    return ret_error( $"Could not create container: {backpack}" );
+  endif
+  var contained := resmgn.CreateItemInContainer( backpack, "AttackableNoScript" );
+  if ( !contained )
+    return ret_error( $"Could not create item: {contained}" );
+  endif
+  res := npc.attack_once( contained );
+  if ( res != error )
+    return ret_error( $"attack_once( contained item ): {res}" );
+  elseif ( res.errortext != "Opponent is not attackable" )
+    return ret_error( $"wrong error for a contained item: {res.errortext}" );
+  endif
+
+  // the exact text is not checked here: a failing getUObjectParam leaves its
+  // own error behind, which overrides the "Invalid parameter type" of the
+  // method itself
+  res := npc.attack_once( 5 );
+  if ( res != error )
+    return ret_error( $"attack_once( 5 ): {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// SetOpponent takes attackable items and rejects everything else
+exported function api_setopponent( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+  var plain := resmgn.CreateItemAtLocation( 52, 100, 0, "NonAttackableItem" );
+  if ( !plain )
+    return ret_error( $"Could not create item: {plain}" );
+  endif
+
+  var res := set_opponent( npc, plain );
+  if ( !res )
+    return res;
+  elseif ( res.result != 0 )
+    return ret_error( $"SetOpponent( plain item ) succeeded: {res.result}" );
+  elseif ( res.errortext != "Invalid parameter" )
+    return ret_error( $"wrong error for a plain item: '{res.errortext}'" );
+  endif
+  if ( npc.opponent )
+    return ret_error( $"a rejected object was selected: {npc.opponent}" );
+  endif
+
+  res := set_opponent( npc, item );
+  if ( !res )
+    return res;
+  elseif ( res.result != 1 )
+    return ret_error( $"SetOpponent( item ) failed: {res.errortext}" );
+  endif
+  if ( npc.opponent != item )
+    return ret_error( $"wrong opponent selected: {npc.opponent}" );
+  endif
+
+  // SetOpponent( 0 ) clears the opponent. Only the effect is checked: the
+  // failing getUObjectParam leaves its error behind, so the documented return
+  // value of 0 never reaches the script.
+  res := set_opponent( npc, 0 );
+  if ( !res )
+    return res;
+  endif
+  if ( npc.opponent )
+    return ret_error( $"opponent was not cleared: {npc.opponent}" );
+  endif
+
+  return 1;
+endfunction
+
+// only attackable toplevel items can be damaged
+exported function api_applydamage_errors( resmgn )
+  var plain := resmgn.CreateItemAtLocation( 51, 100, 0, "NonAttackableItem" );
+  if ( !plain )
+    return ret_error( $"Could not create item: {plain}" );
+  endif
+
+  var res := ApplyDamage( plain, 10 );
+  if ( res != error )
+    return ret_error( $"ApplyDamage( plain item ): {res}" );
+  elseif ( res.errortext != "Object is not damageable" )
+    return ret_error( $"wrong error for a plain item: {res.errortext}" );
+  endif
+  if ( plain.hp != 100 )
+    return ret_error( $"plain item was damaged: {plain.hp}" );
+  endif
+
+  res := ApplyRawDamage( plain, 10 );
+  if ( res != error )
+    return ret_error( $"ApplyRawDamage( plain item ): {res}" );
+  elseif ( res.errortext != "Object is not damageable" )
+    return ret_error( $"wrong raw error for a plain item: {res.errortext}" );
+  endif
+
+  // an attackable item inside a container is no target either
+  var backpack := resmgn.CreateItemAtLocation( 51, 100, 0, 0xE75 );
+  if ( !backpack )
+    return ret_error( $"Could not create container: {backpack}" );
+  endif
+  var contained := resmgn.CreateItemInContainer( backpack, "AttackableNoScript" );
+  if ( !contained )
+    return ret_error( $"Could not create item: {contained}" );
+  endif
+  res := ApplyDamage( contained, 10 );
+  if ( res != error )
+    return ret_error( $"ApplyDamage( contained item ): {res}" );
+  elseif ( res.errortext != "Object is not damageable" )
+    return ret_error( $"wrong error for a contained item: {res.errortext}" );
+  endif
+  if ( contained.hp != 100 )
+    return ret_error( $"contained item was damaged: {contained.hp}" );
+  endif
+
+  // the damage range check still applies to items
+  var item := resmgn.CreateItemAtLocation( 52, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+  res := ApplyDamage( item, 30001 );
+  if ( res != error )
+    return ret_error( $"ApplyDamage( item, 30001 ): {res}" );
+  elseif ( res.errortext != "Damage is out of range" )
+    return ret_error( $"wrong error for too much damage: {res.errortext}" );
+  endif
+  if ( item.hp != 100 )
+    return ret_error( $"item was damaged: {item.hp}" );
+  endif
+
+  return 1;
+endfunction
+
+// ApplyRawDamage subtracts the hitpoints of an item one to one, it is not
+// scaled by 100 the way the hundredths of a mobile are
+exported function api_applyrawdamage( resmgn )
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  var res := ApplyRawDamage( item, 10 );
+  if ( res != 1 )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( item.hp != 90 )
+    return ret_error( $"item not damaged: {item.hp}" );
+  endif
+
+  return 1;
+endfunction
+
+// more damage than hitpoints destroys an item that has no control script
+exported function api_applydamage_overkill( resmgn )
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  // the requested damage is reported, not the amount of hitpoints that were left
+  var res := ApplyDamage( item, 500 );
+  if ( res == error )
+    return ret_error( $"ApplyDamage failed: {res.errortext}" );
+  elseif ( res != 500 )
+    return ret_error( $"unexpected damage reported: {res}" );
+  endif
+  if ( item )
+    return ret_error( $"item survived with {item.hp} hp" );
+  endif
+
+  return 1;
+endfunction
+
+// ListHostiles on items: rejections, range and the hidden/los flags
+exported function api_listhostiles( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+  var plain := resmgn.CreateItemAtLocation( 52, 100, 0, "NonAttackableItem" );
+  if ( !plain )
+    return ret_error( $"Could not create item: {plain}" );
+  endif
+
+  var res := ListHostiles( plain );
+  if ( res != error )
+    return ret_error( $"ListHostiles( plain item ): {res}" );
+  elseif ( res.errortext != "Invalid parameter" )
+    return ret_error( $"wrong error for a plain item: {res.errortext}" );
+  endif
+
+  // an attackable item nobody attacks has an empty, but valid, list
+  res := ListHostiles( item );
+  if ( res == error )
+    return ret_error( $"ListHostiles( item ) failed: {res.errortext}" );
+  elseif ( res.size() )
+    return ret_error( $"unexpected hostiles: {res}" );
+  endif
+
+  if ( !( res := set_opponent( npc, item ) ) )
+    return res;
+  elseif ( res.result != 1 )
+    return ret_error( $"SetOpponent( item ) failed: {res.errortext}" );
+  endif
+
+  if ( ( res := ListHostiles( item ) ).size() != 1 )
+    return ret_error( $"Hostile list != 1: {res}" );
+  elseif ( res[1] != npc )
+    return ret_error( $"wrong hostile: {res[1]}" );
+  endif
+
+  // the npc stands one tile away, so it drops out of a range of 0
+  if ( ( res := ListHostiles( item, 0 ) ).size() )
+    return ret_error( $"Hostile list of range 0 != 0: {res}" );
+  endif
+
+  // both stand in the open, so the los filter keeps the npc
+  if ( ( res := ListHostiles( item, 20, LH_FLAG_LOS ) ).size() != 1 )
+    return ret_error( $"Hostile list with LH_FLAG_LOS != 1: {res}" );
+  endif
+
+  npc.hidden := 1;
+  if ( ( res := ListHostiles( item ) ).size() )
+    return ret_error( $"hidden hostile was listed: {res}" );
+  endif
+  if ( ( res := ListHostiles( item, 20, LH_FLAG_INCLUDE_HIDDEN ) ).size() != 1 )
+    return ret_error( $"Hostile list with LH_FLAG_INCLUDE_HIDDEN != 1: {res}" );
+  endif
+  npc.hidden := 0;
+
+  return 1;
+endfunction
+
+// the flag shows up in the itemdesc struct
+exported function api_itemdesc_attackable()
+  var desc := GetItemDescriptor( "AttackableItem" );
+  if ( !desc )
+    return ret_error( $"Could not get itemdesc: {desc}" );
+  elseif ( desc.Attackable != 1 )
+    return ret_error( $"Attackable != 1: {desc.Attackable}" );
+  endif
+
+  desc := GetItemDescriptor( "NonAttackableItem" );
+  if ( !desc )
+    return ret_error( $"Could not get itemdesc: {desc}" );
+  elseif ( desc.Attackable != 0 )
+    return ret_error( $"Attackable != 0: {desc.Attackable}" );
+  endif
+
+  return 1;
+endfunction
+
+// attackable items never stack, even if their graphic says otherwise
+exported function api_not_stackable( resmgn )
+  var backpack := resmgn.CreateItemAtLocation( 51, 100, 0, 0xE75 );
+  if ( !backpack )
+    return ret_error( $"Could not create container: {backpack}" );
+  endif
+
+  var attackable1 := resmgn.CreateItemInContainer( backpack, "AttackableStackable" );
+  var attackable2 := resmgn.CreateItemInContainer( backpack, "AttackableStackable" );
+  if ( !attackable1 || !attackable2 )
+    return ret_error( $"Could not create items: {attackable1}, {attackable2}" );
+  endif
+
+  var res := IsStackable( attackable1, attackable2 );
+  if ( res != error )
+    return ret_error( $"attackable items are stackable: {res}" );
+  elseif ( res.errortext != "That item type is not stackable." )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  // the same graphic without the flag stacks as usual
+  var normal1 := resmgn.CreateItemInContainer( backpack, "NormalStackable" );
+  var normal2 := resmgn.CreateItemInContainer( backpack, "NormalStackable" );
+  if ( !normal1 || !normal2 )
+    return ret_error( $"Could not create items: {normal1}, {normal2}" );
+  endif
+
+  res := IsStackable( normal1, normal2 );
+  if ( res != 1 )
+    return ret_error( $"the same graphic without the flag does not stack: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// a copy of an attackable item stays attackable
+exported function api_clone_keeps_flag( resmgn )
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  var copy := CreateItemCopyAtLocation( 52, 100, 0, item );
+  if ( !copy )
+    return ret_error( $"Could not copy item: {copy}" );
+  endif
+
+  var res := check_copy( copy );
+  DestroyItem( copy );
+  return res;
+endfunction
+
+// an equipped item is no combat target, but becomes one again once dropped
+exported function api_equipped_inert( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var shirt := resmgn.CreateItemAtLocation( 50, 100, 0, "AttackableShirt" );
+  if ( !shirt )
+    return ret_error( $"Could not create item: {shirt}" );
+  endif
+
+  // on the ground it is a valid target
+  var res := ApplyDamage( shirt, 10 );
+  if ( res == error )
+    return ret_error( $"item on the ground took no damage: {res.errortext}" );
+  elseif ( shirt.hp != 90 )
+    return ret_error( $"item not damaged: {shirt.hp}" );
+  endif
+
+  if ( !( res := EquipItem( npc, shirt ) ) )
+    return ret_error( $"Could not equip the item: {res}" );
+  endif
+
+  res := ApplyDamage( shirt, 10 );
+  if ( res != error )
+    return ret_error( $"equipped item took damage: {res}" );
+  elseif ( res.errortext != "Object is not damageable" )
+    return ret_error( $"wrong error for an equipped item: {res.errortext}" );
+  endif
+  if ( shirt.hp != 90 )
+    return ret_error( $"equipped item was damaged: {shirt.hp}" );
+  endif
+
+  res := ListHostiles( shirt );
+  if ( res != error )
+    return ret_error( $"equipped item is a combat target: {res}" );
+  endif
+
+  // and back on the ground it is attackable again
+  if ( !( res := MoveObjectToLocation( shirt, 50, 100, 0 ) ) )
+    return ret_error( $"Could not drop the item: {res}" );
+  endif
+  res := ApplyDamage( shirt, 10 );
+  if ( res == error )
+    return ret_error( $"dropped item took no damage: {res.errortext}" );
+  elseif ( shirt.hp != 80 )
+    return ret_error( $"dropped item not damaged: {shirt.hp}" );
+  endif
+
+  return 1;
+endfunction
+
+// moving an item into another realm ends every fight it was part of
+exported function api_realm_change_clears_opps( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  var res := set_opponent( npc, item );
+  if ( !res )
+    return res;
+  elseif ( res.result != 1 )
+    return ret_error( $"SetOpponent( item ) failed: {res.errortext}" );
+  endif
+  if ( ListHostiles( item ).size() != 1 )
+    return ret_error( "npc did not engage the item" );
+  endif
+
+  if ( !( res := MoveObjectToLocation( item, 10, 11, -5, "britannia2",
+                                       MOVEOBJECT_FORCELOCATION ) ) )
+    return ret_error( $"Could not move the item: {res}" );
+  endif
+
+  if ( ( res := ListHostiles( item ) ).size() )
+    return ret_error( $"Hostile list != 0 after the realm change: {res}" );
+  endif
+  if ( npc.opponent )
+    return ret_error( $"npc still attacks the item in another realm: {npc.opponent}" );
+  endif
+
+  return 1;
+endfunction
+
+// a refusing destroy script keeps an item alive, both when its hitpoints run
+// out and when DestroyItem is called
+exported function api_destroy_script_refusal( resmgn )
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableGuardedItem" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+  SetObjProperty( item, "#NoDestroy", 1 );
+
+  var res := ApplyDamage( item, 200 );
+  if ( res == error )
+    return ret_error( $"ApplyDamage failed: {res.errortext}" );
+  endif
+  if ( !item )
+    return ret_error( "item was destroyed although its destroy script refused" );
+  elseif ( item.hp != 0 )
+    return ret_error( $"item hp != 0: {item.hp}" );
+  endif
+
+  res := DestroyItem( item );
+  if ( res == error )
+    return ret_error( $"DestroyItem returned an error instead of 0: {res.errortext}" );
+  elseif ( res != 0 )
+    return ret_error( $"DestroyItem did not report the refusal: {res}" );
+  endif
+  if ( !item )
+    return ret_error( "item was destroyed against the refusal" );
+  endif
+
+  // without the guard it can be destroyed again
+  EraseObjProperty( item, "#NoDestroy" );
+  res := DestroyItem( item );
+  if ( res != 1 )
+    return ret_error( $"DestroyItem failed: {res}" );
+  endif
+  if ( item )
+    return ret_error( "item still exists" );
+  endif
+
+  return 1;
+endfunction
+
+// assigning hitpoints clamps into the storage range and never destroys the item
+exported function api_hp_member( resmgn )
+  var item := resmgn.CreateItemAtLocation( 51, 100, 0, "AttackableNoScript" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  item.hp := -5;
+  if ( item.hp != 0 )
+    return ret_error( $"negative hp not clamped: {item.hp}" );
+  endif
+  if ( !item )
+    return ret_error( "assigning 0 hp destroyed the item" );
+  endif
+
+  item.hp := 100000;
+  if ( item.hp != 65535 )
+    return ret_error( $"hp not clamped to the storage range: {item.hp}" );
+  endif
+
+  item.hp := 100;
+  if ( item.hp != 100 )
+    return ret_error( $"hp not restored: {item.hp}" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function make_npc( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testattack:test_attack", 50, 100, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  npc.hitchance_mod := 1000;
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  SetName( npc, "npc1" );
+  clear_event_queue();
+  return npc;
+endfunction
+
+// lets the ai script call SetOpponent and returns its result
+function set_opponent( npc, opponent )
+  npc.process.sendevent( struct{ type := "set_opponent", source := opponent } );
+  return wait_for_type( "set_opponent_result", "no result from SetOpponent" );
+endfunction
+
+// waits for an event of the given type. deadline based, since a running fight
+// keeps sending hit events that have to be skipped.
+function wait_for_type( evtype, errormessage, timeout := 5 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == evtype )
+      return ev;
+    endif
+  endwhile
+
+  return ret_error( errormessage );
+endfunction
+
+function check_copy( copy )
+  var res := ApplyDamage( copy, 10 );
+  if ( res == error )
+    return ret_error( $"the copy is not attackable: {res.errortext}" );
+  elseif ( copy.hp != 90 )
+    return ret_error( $"the copy was not damaged: {copy.hp}" );
+  endif
+
+  return 1;
+endfunction

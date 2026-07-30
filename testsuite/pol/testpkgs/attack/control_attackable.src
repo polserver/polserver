@@ -1,10 +1,14 @@
 use uo;
 use os;
 include "sysevent";
+
+const DEFAULT_EVENTS := SYSEVENT_DAMAGED | SYSEVENT_LEFTAREA | SYSEVENT_ENTEREDAREA
+                        | SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED | SYSEVENT_OPPONENT_MOVED;
+const DEFAULT_RANGE := 20;
+
 program attackable( item )
-  var eventmask := EnableEvents( SYSEVENT_DAMAGED | SYSEVENT_LEFTAREA | SYSEVENT_ENTEREDAREA
-                                 | SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED | SYSEVENT_OPPONENT_MOVED,
-                                 20 );
+  var eventmask := EnableEvents( DEFAULT_EVENTS, DEFAULT_RANGE );
+
   while ( true )
     var ev := Wait_For_Event( 1 );
     if ( !item )
@@ -12,9 +16,18 @@ program attackable( item )
     endif
     if ( !ev )
       continue;
-    elseif ( ev.type & eventmask )
+    endif
+
+    // lets a test replace the event registration of this control script
+    if ( ev.type == "configure" )
+      DisableEvents( eventmask );
+      eventmask := EnableEvents( ev.events, ev.range, ev.evmask );
+      GetProcess( GetObjProperty( item, "#TestPid" ) ).SendEvent( struct{ type := "configured" } );
+      continue;
+    endif
+
+    if ( ev.type & eventmask )
       GetProcess( GetObjProperty( item, "#TestPid" ) ).SendEvent( ev );
     endif
   endwhile
 endprogram
-

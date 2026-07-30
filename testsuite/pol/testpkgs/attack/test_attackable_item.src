@@ -352,6 +352,164 @@ exported function attack_check_contained_inert( resmgn )
   return 1;
 endfunction
 
+// EVMASK_ONLY_PC suppresses the area events of an npc, but the opponent move
+// event has to be reported regardless of the mask
+exported function attack_check_area_mask( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+
+  var events := SYSEVENT_ENGAGED | SYSEVENT_DISENGAGED | SYSEVENT_OPPONENT_MOVED
+                | SYSEVENT_ENTEREDAREA | SYSEVENT_LEFTAREA;
+  if ( !( res := configure_control( item, events, 5, EVMASK_ONLY_PC ) ) )
+    return res;
+  endif
+
+  // out of the area of the item, and out of the weapon range so that no swings
+  // interfere with the collected events
+  MoveObjectToLocation( npc1, item.x + 8, item.y, item.z );
+  clear_event_queue();
+
+  // npc1 attacks the item
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+  if ( !( evs := collect_events( 1, "no event after engaged" ) ) )
+    return evs;
+  endif
+  if ( !evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1] )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+
+  // entering the area of the item is suppressed, the opponent move is not
+  MoveObjectToLocation( npc1, item.x + 3, item.y, item.z );
+  if ( !( evs := collect_events( 1, "no event after entering the area" ) ) )
+    return evs;
+  endif
+  if ( evs.filter( @( ev ) { return ev.type == SYSEVENT_ENTEREDAREA; } )[1] )
+    return ret_error( $"entered area event despite EVMASK_ONLY_PC: {evs}" );
+  endif
+  var moved_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_OPPONENT_MOVED; } )[1];
+  if ( !moved_ev )
+    return ret_error( $"no opponent moved event: {evs}" );
+  endif
+  if ( moved_ev.source != npc1 )
+    return ret_error( $"wrong opponent moved event: {moved_ev}" );
+  endif
+
+  // without the mask the area event is sent instead of the opponent move
+  if ( !( res := configure_control( item, events, 5, EVMASK_ALL ) ) )
+    return res;
+  endif
+  clear_event_queue();
+
+  MoveObjectToLocation( npc1, item.x + 8, item.y, item.z );
+  if ( !( evs := collect_events( 1, "no event after leaving the area" ) ) )
+    return evs;
+  endif
+  var left_ev := evs.filter( @( ev ) { return ev.type == SYSEVENT_LEFTAREA; } )[1];
+  if ( !left_ev )
+    return ret_error( $"no left area event: {evs}" );
+  endif
+  if ( left_ev.source != npc1 )
+    return ret_error( $"wrong left area event: {left_ev}" );
+  endif
+  if ( ( evs := collect_events( 1, "", 1 ) ) )
+    return ret_error( $"the area event did not replace the opponent move: {evs}" );
+  endif
+
+  return 1;
+endfunction
+
+// an item can be attacked by more than one mobile, and destroying it has to
+// release all of them
+exported function attack_check_two_attackers( resmgn )
+  var npc1;
+  var npc2;
+  var item;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+
+  npc2 := resmgn.CreateNPCFromTemplate( ":testattack:test_attack", 52, 100, 0 );
+  if ( !npc2 )
+    return ret_error( "Could not create NPC: " + npc2 );
+  endif
+  npc2.hitchance_mod := 1000;
+  SetObjProperty( npc2, "#TestPid", GetPid() );
+  SetName( npc2, "npc2" );
+
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+  npc2.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+
+  // both fights are running, so the event queue keeps filling up with hits:
+  // poll the hostile list instead of waiting for events
+  if ( !( res := wait_for_hostiles( item, 2 ) ) )
+    return res;
+  endif
+  if ( npc1.opponent != item || npc2.opponent != item )
+    return ret_error( $"wrong opponents: {npc1.opponent}, {npc2.opponent}" );
+  endif
+
+  if ( !( res := DestroyItem( item ) ) )
+    return ret_error( "Could not destroy the item: " + res );
+  endif
+
+  if ( npc1.opponent )
+    return ret_error( $"npc1 still attacks the destroyed item: {npc1.opponent}" );
+  endif
+  if ( npc2.opponent )
+    return ret_error( $"npc2 still attacks the destroyed item: {npc2.opponent}" );
+  endif
+
+  return 1;
+endfunction
+
+// selecting the same item twice must not repeat the engaged event
+exported function attack_check_reengage_same( resmgn )
+  var npc1;
+  var item;
+  var evs;
+  var res := reset( resmgn, npc1, item );
+  if ( !res )
+    return res;
+  endif
+
+  // out of the weapon range, so that no swings interfere
+  MoveObjectToLocation( npc1, item.x + 3, item.y, item.z );
+  clear_event_queue();
+
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+  if ( !( evs := collect_events( 1, "no event after engaged" ) ) )
+    return evs;
+  endif
+  if ( !evs.filter( @( ev ) { return ev.type == SYSEVENT_ENGAGED; } )[1] )
+    return ret_error( $"no engaged event: {evs}" );
+  endif
+
+  clear_event_queue();
+  npc1.process.sendevent( struct{ type := SYSEVENT_ENGAGED, source := item,
+                                  sleep := 0, unhide := false } );
+  if ( ( evs := collect_events( 1, "", 2 ) ) )
+    return ret_error( $"reselecting the same opponent sent an event: {evs}" );
+  endif
+  if ( npc1.opponent != item )
+    return ret_error( $"wrong opponent selected: {npc1.opponent}" );
+  endif
+  if ( ListHostiles( item ).size() != 1 )
+    return ret_error( $"Hostile list != 1: {ListHostiles( item )}" );
+  endif
+
+  return 1;
+endfunction
+
 function reset( resmgn, byref npc1, byref item, itemtype := "AttackableItem" )
   npc1 := resmgn.CreateNPCFromTemplate( ":testattack:test_attack", 50, 100, 0 );
 
@@ -371,6 +529,39 @@ function reset( resmgn, byref npc1, byref item, itemtype := "AttackableItem" )
   SetObjProperty( item, "#TestPid", GetPid() );
   clear_event_queue();
   return 1;
+endfunction
+
+// Replaces the event registration of the control script of an item
+function configure_control( item, events, range, evmask )
+  item.process.sendevent( struct{ type := "configure", events := events, range := range,
+                                  evmask := evmask } );
+
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == "configured" )
+      return 1;
+    endif
+  endwhile
+
+  return ret_error( "control script did not apply the configuration" );
+endfunction
+
+// Waits until the given number of mobiles attacks the item. Deadline based,
+// since a running fight keeps sending events that would have to be skipped.
+function wait_for_hostiles( item, count, timeout := 5 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var hostiles;
+
+  while ( ReadMillisecondClock() < deadline )
+    hostiles := ListHostiles( item );
+    if ( hostiles.size() == count )
+      return 1;
+    endif
+    sleepms( 100 );
+  endwhile
+
+  return ret_error( $"Hostile list != {count}: {hostiles}" );
 endfunction
 
 // Collect a number of events
