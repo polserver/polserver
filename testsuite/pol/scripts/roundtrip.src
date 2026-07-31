@@ -1,0 +1,13 @@
+use uo;
+
+// World-save round-trip pass (POLCORE_TEST_RUN=3).
+//
+// The shard has just loaded the world the previous pass wrote. Do nothing to it and shut
+// down again - the core saves the world on the way out, so the result is a load -> save
+// round trip whose output can be byte-compared against its own input.
+//
+// Deliberately empty: every statement added here is a chance to mutate the world and turn
+// the comparison red for a reason that has nothing to do with the save format.
+program roundtrip()
+  Shutdown( 0 );
+endprogram

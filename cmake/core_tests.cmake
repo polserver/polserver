@@ -241,6 +241,20 @@ add_test(NAME shard_test_2
 set_tests_properties( shard_test_2 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile;shard_test")
 set_tests_properties( shard_test_2 PROPERTIES ENVIRONMENT "POLCORE_TEST_RUN=2")
 
+# world-save round trip: load the world the previous pass wrote, save it again, compare.
+# Needs python for the normalising comparer, and runs last because it re-saves data/.
+if (${Python3_FOUND})
+  add_test(NAME shard_save_roundtrip
+    COMMAND ${CMAKE_COMMAND}
+      -Dpol=$<TARGET_FILE:pol>
+      -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_roundtrip.cmake
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+  )
+  set_tests_properties( shard_save_roundtrip PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile;shard_test")
+  set_tests_properties( shard_save_roundtrip PROPERTIES DEPENDS shard_test_2)
+endif()
+
 # unit test
 add_test(NAME unittest_pol
   COMMAND pol -test

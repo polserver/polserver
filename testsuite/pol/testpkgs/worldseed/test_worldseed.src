@@ -1,0 +1,134 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+
+// Seeds item locations that the saved world did not otherwise contain, for the benefit of
+// the shard_save_roundtrip test (cmake/core_tests_roundtrip.cmake). That test reloads the
+// world the test passes wrote and compares a fresh save against it, so it only covers what
+// is actually in the world: before this package, pcequip.txt and npcequip.txt were empty
+// and both saved corpses had no contents, which left equipped items and corpse equipment
+// entirely uncovered.
+//
+// Nothing here is cleaned up, on purpose - the objects have to survive to the save. Each is
+// keyed by a global property so re-running the pass on an existing world finds the object
+// instead of creating a second one.
+
+const SEED_X := 120;
+const SEED_Y := 120;
+const SEED_REALM := "britannia2";
+
+const SHIRT_OBJTYPE := 0x1517;  // tiledata layer 5
+const CORPSE_OBJTYPE := 0x2006;
+
+function seeded( propname )
+  var serial := GetGlobalProperty( propname );
+  if ( !serial )
+    return 0;
+  endif
+  // the offline flag matters for the player character: it has no client here
+  return SystemFindObjectBySerial( serial, SYSFIND_SEARCH_OFFLINE_MOBILES );
+endfunction
+
+program test_worldseed()
+  return 1;
+endprogram
+
+// An item equipped on an NPC -> npcequip.txt
+exported function seed_equipped_npc()
+  if ( seeded( "test_seed_equipped_npc" ) )
+    return 1;
+  endif
+
+  var npc := CreateNpcFromTemplate( ":testworldseed:seed_npc", SEED_X, SEED_Y, 0, 0, SEED_REALM );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var res := EquipFromTemplate( npc, "StartingEquipment" );
+  if ( !res )
+    return ret_error( $"failed to equip npc: {res}" );
+  endif
+  if ( !ListEquippedItems( npc ).size() )
+    return ret_error( "npc ended up with nothing equipped" );
+  endif
+
+  SetGlobalProperty( "test_seed_equipped_npc", npc.serial );
+  return 1;
+endfunction
+
+// An item equipped on a player character -> pcequip.txt. Its own account, so that no other
+// package's cleanup takes the character away.
+exported function seed_equipped_pc()
+  var char := createAccountWithChar( "worldseed_account", "pass" );
+  if ( !char )
+    return ret_error( $"failed to create char: {char}" );
+  endif
+
+  // Guard on the equipment rather than on the character: createAccountWithChar returns the
+  // existing character on a re-run, so the shirt is what says whether this already ran.
+  foreach equipped in ListEquippedItems( char )
+    if ( equipped.objtype == SHIRT_OBJTYPE )
+      return 1;
+    endif
+  endforeach
+
+  // A shirt, not the full equipment template: addcharacter() already gave the character a
+  // backpack, and equipping a second one would fail on the occupied layer.
+  var shirt := CreateItemAtLocation( char.x, char.y, char.z, SHIRT_OBJTYPE, 1, char.realm );
+  if ( !shirt )
+    return ret_error( $"failed to create shirt: {shirt}" );
+  endif
+
+  var res := EquipItem( char, shirt );
+  if ( !res )
+    return ret_error( $"failed to equip shirt: {res}" );
+  endif
+
+  SetGlobalProperty( "test_seed_equipped_pc", char.serial );
+  return 1;
+endfunction
+
+// A corpse holding equipment -> items on the corpse's layers. The corpses the other
+// packages leave behind are empty, so nothing exercised this.
+exported function seed_corpse_with_equipment()
+  if ( seeded( "test_seed_equipped_corpse" ) )
+    return 1;
+  endif
+
+  var npc := CreateNpcFromTemplate( ":testworldseed:seed_npc", SEED_X + 2, SEED_Y, 0, 0,
+                                    SEED_REALM );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var res := EquipFromTemplate( npc, "StartingEquipment" );
+  if ( !res )
+    return ret_error( $"failed to equip npc: {res}" );
+  endif
+
+  var npcserial := npc.serial;
+  npc.kill();
+  Sleep( 1 );
+
+  var corpse;
+  foreach candidate in ListItemsNearLocationOfType( SEED_X + 2, SEED_Y, 0, 2, CORPSE_OBJTYPE,
+                                                    SEED_REALM )
+    if ( candidate.ownerserial == npcserial )
+      corpse := candidate;
+      break;
+    endif
+  endforeach
+  if ( !corpse )
+    return ret_error( "the killed npc left no corpse" );
+  endif
+
+  var contents := EnumerateItemsInContainer( corpse, ENUMERATE_ROOT_ONLY );
+  if ( !contents.size() )
+    return ret_error( "the corpse holds no equipment" );
+  endif
+
+  SetGlobalProperty( "test_seed_equipped_corpse", corpse.serial );
+  return 1;
+endfunction
