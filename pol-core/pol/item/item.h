@@ -218,7 +218,6 @@ public:
   Item* remove_part_of_stack( u16 amount_to_remove );
 
   void set_use_script( const std::string& scriptname );
-  void extricate();
 
   bool has_equip_script() const;
   Bscript::BObjectImp* run_equip_script( Mobile::Character* chr, bool startup );

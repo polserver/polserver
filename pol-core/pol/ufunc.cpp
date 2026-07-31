@@ -1599,17 +1599,12 @@ void destroy_item( Item* item )
 
     send_remove_object_to_inrange( item );
 
-    if ( item->container == nullptr )  // on ground, easy.
-    {
-      if ( !item->has_gotten_by() )  // and not in hand
-        remove_item_from_world( item );
-    }
-    else
-    {
-      item->extricate();
-    }
-
-    item->destroy();
+    // Leaving whatever home the item is in and the destruction itself are one step. A null
+    // container used to be read as "on the ground", which is also what a storage root, an item
+    // part-way through an equip and a freshly created item all look like; and the cursor case
+    // destroyed the item while the character kept holding a ticket for it.
+    if ( !Items::relocate( *item, Items::Destroyed{} ) )
+      item->destroy();  // there is no home relocate refuses to leave, but destroy() is the promise
   }
 }
 

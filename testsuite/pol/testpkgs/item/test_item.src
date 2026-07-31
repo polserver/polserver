@@ -759,3 +759,38 @@ exported function test_stack_ignore( resmngr )
   return 1;
 endfunction
 
+
+exported function test_caninsert_destroys_cont( resmngr )
+  // A CanInsert script may destroy the container it was just asked about. Both the create-into and
+  // the move-into path have to refuse; adding to a destroyed container aborts the shard.
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, "selfdestruct_container" );
+  if ( !cont )
+    return ret_error( $"failed to create container: {cont}" );
+  endif
+
+  var made := resmngr.CreateItemInContainer( cont, "goldcoin", 1 );
+  if ( made )
+    return ret_error( "CreateItemInContainer succeeded into a destroyed container" );
+  endif
+
+  cont := resmngr.CreateItemAtLocation( 0, 0, 0, "selfdestruct_container" );
+  if ( !cont )
+    return ret_error( $"failed to create second container: {cont}" );
+  endif
+
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin" );
+  if ( !item )
+    return ret_error( $"failed to create item: {item}" );
+  endif
+
+  if ( MoveItemToContainer( item, cont ) )
+    return ret_error( "MoveItemToContainer succeeded into a destroyed container" );
+  endif
+
+  // A refused move leaves the item alone -- it may not be destroyed along with the container.
+  if ( !item )
+    return ret_error( "the refused move destroyed the item" );
+  endif
+
+  return 1;
+endfunction

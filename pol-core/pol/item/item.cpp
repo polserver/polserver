@@ -1051,26 +1051,6 @@ void Item::on_facing_changed()
   update_item_to_inrange( this );
 }
 
-void Item::extricate()
-{
-  if ( container != nullptr )
-  {
-    // hmm, a good place for a virtual?
-    if ( Core::IsCharacter( container->serial ) )
-    {
-      Mobile::Character* chr = container->get_chr_owner();
-      passert_always( chr != nullptr );  // PRODFIXME linux-crash
-      passert_always( chr->is_equipped( this ) );
-
-      chr->unequip( this );  // FIXME: should run unequip script
-    }
-    else
-    {
-      container->remove( this );  // FIXME: should probably call can/onRemove for the container
-    }
-  }
-}
-
 void Item::spill_contents( Multi::UMulti* /*multi*/ ) {}
 
 unsigned int Item::weight_of( unsigned short amount ) const

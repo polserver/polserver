@@ -463,7 +463,14 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
 
       if ( !pos || !cont->is_legal_posn( pos.value() ) )
         pos = cont->get_random_location();
-      cont->add( item, pos.value() );
+
+      // The CanInsert script above is free to destroy the container it was just asked about;
+      // relocate refuses instead of adding to it.
+      if ( !Items::relocate( *item, Items::InContainer{ cont, pos.value(), item->slot_index() } ) )
+      {
+        item->destroy();
+        return new BError( "Could not add the item to the container." );
+      }
 
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert
@@ -1115,8 +1122,11 @@ BObjectImp* _complete_create_item_at_location( Item* item, const Core::Pos4d& po
   }
 
   update_item_to_inrange( item );
-  add_item_to_world( item );
-  register_with_supporting_multi( item );
+  if ( !Items::relocate( *item, Items::InWorld{} ) )
+  {
+    item->destroy();
+    return new BError( "Could not place the item in the world." );
+  }
   return new EItemRefObjImp( item );
 }
 
@@ -3255,17 +3265,15 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 
   if ( !add_to_existing_stack )
   {
+    // Neither of these may destroy the item. It is still listed in the container it came from, and
+    // a container does not own its contents, so the next reap would free it and leave that
+    // container holding a dangling pointer. Refusing the move is all that is needed: the item has
+    // not been touched yet.
     u8 slotIndex = item->slot_index();
     if ( !cont->can_add_to_slot( slotIndex ) )
-    {
-      item->destroy();
       return new BError( "No slots available in new container" );
-    }
     if ( !item->slot_index( slotIndex ) )
-    {
-      item->destroy();
       return new BError( "Couldn't set slot index on item" );
-    }
 
     Core::Pos2d cntpos;
     if ( px < 0 || py < 0 )
@@ -3277,9 +3285,15 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
         cntpos = cont->get_random_location();
     }
 
-    true_extricate( item );
+    // One move, not a detach followed by an insert: the scripts above have all run, so there is
+    // nothing left that could observe the item in between.
+    send_remove_object_to_inrange( item );
+    if ( !Items::relocate( *item, Items::InContainer{ cont, cntpos, slotIndex } ) )
+    {
+      update_item_to_inrange( item );  // the item never left, so put it back on screen
+      return new BError( "Could not insert item into container." );
+    }
 
-    cont->add( item, cntpos );
     update_item_to_inrange( item );
     // DAVE added this 11/17: if in a Character's pack, update weight.
     UpdateCharacterWeight( item );
@@ -3422,10 +3436,12 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
     }
 
 
-    true_extricate( item );
-
-    // at this point, 'item' is free - doesn't belong to the world, or a container.
-    chr->equip( item );
+    send_remove_object_to_inrange( item );
+    if ( !Items::relocate( *item, Items::Equipped{ chr, item->tile_layer } ) )
+    {
+      update_item_to_inrange( item );  // the item never left, so put it back on screen
+      return new BError( "That item is not equippable by that character" );
+    }
     send_wornitem_to_inrange( chr, item );
 
     return new BLong( 1 );

@@ -187,7 +187,8 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
       return new BError( "Item was destroyed in OnRemove script" );
     }
 
-    item->extricate();
+    if ( !Items::relocate( *item, Items::Detached{} ) )
+      return new BError( "Could not remove the item from its container." );
     //  wherever it was, it wasn't in the world/on the ground
     item->setposition( oldroot->toplevel_pos() );
     if ( item->realm() == nullptr )
