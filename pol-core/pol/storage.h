@@ -39,6 +39,13 @@ public:
   Items::Item* find_root_item( const std::string& name );
   void insert_root_item( Items::Item* item );
   bool delete_root_item( const std::string& name );
+  /**
+   * Unlink a root item without destroying it, for a move to some other home.
+   *
+   * Takes the key the item was filed under rather than deriving it from the item, because
+   * renaming a root item leaves the map key behind and the item unreachable by its new name.
+   */
+  bool remove_root_item( const std::string& key, Items::Item* item );
   void on_delete_realm( Realms::Realm* realm );
 
   void print( Clib::StreamWriter& sw ) const;

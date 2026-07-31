@@ -211,8 +211,14 @@ void UContainer::add( Items::Item* item, const Pos2d& pos )
   item->container = this;
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
+  item->set_location( location_for( item, pos ) );
 
   add_bulk( item );
+}
+
+Items::Location UContainer::location_for( const Items::Item* item, const Pos2d& pos )
+{
+  return Items::InContainer{ this, pos, item->slot_index() };
 }
 void UContainer::add_bulk( const Items::Item* item )
 {
@@ -583,6 +589,7 @@ void UContainer::remove( iterator itr )
   contents_.erase( itr );
   item->container = nullptr;
   item->reset_slot();
+  item->set_location( Items::Detached{} );
   item->set_dirty();
   remove_bulk( item );
 }

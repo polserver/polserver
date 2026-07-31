@@ -56,6 +56,8 @@ public:
   void PutItemOnLayer( Item* item );
   void RemoveItemFromLayer( Item* item );
 
+  Items::Location location_for( const Items::Item* item, const Core::Pos2d& pos ) override;
+
   void print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
 };
 

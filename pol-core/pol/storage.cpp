@@ -75,11 +75,25 @@ bool StorageArea::delete_root_item( const std::string& name )
   return false;
 }
 
+bool StorageArea::remove_root_item( const std::string& key, Items::Item* item )
+{
+  Cont::iterator itr = _items.find( key );
+  if ( itr == _items.end() || ( *itr ).second != item )
+    return false;
+
+  _items.erase( itr );
+  item->inuse( false );
+  item->set_location( Items::Detached{} );
+  return true;
+}
+
 void StorageArea::insert_root_item( Items::Item* item )
 {
   item->inuse( true );
 
-  _items.insert( make_pair( item->name(), item ) );
+  std::string key = item->name();
+  item->set_location( Items::InStorage{ this, key } );
+  _items.insert( make_pair( std::move( key ), item ) );
 }
 
 extern Items::Item* read_item( Clib::ConfigElem& elem );  // from UIMPORT.CPP

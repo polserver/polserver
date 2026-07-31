@@ -20,12 +20,22 @@
 #include "pol/baseobject.h"
 #include "pol/dynproperties.h"
 #include "pol/globals/settings.h"
+#include "pol/item/location.h"
 #include "pol/layers.h"
 #include "pol/mobile/attack.h"
 #include "pol/uobject.h"
 
 namespace Pol
 {
+namespace Items
+{
+class Item;
+}
+namespace Core
+{
+void add_item_to_world( Items::Item* item );
+void remove_item_from_world( Items::Item* item );
+}  // namespace Core
 namespace Bscript
 {
 class Executor;
@@ -45,8 +55,11 @@ class UOExecutorModule;
 }
 namespace Core
 {
+class StorageArea;
 class UContainer;
+class UCorpse;
 class UOExecutor;
+class WornItemsContainer;
 
 std::string format_description( unsigned int polflags, const std::string& descdef,
                                 unsigned short amount, const std::string& suffix );
@@ -109,6 +122,14 @@ public:
 
   bool inuse() const;
   void inuse( bool newvalue );
+
+  /**
+   * Where this item is.
+   *
+   * Destroyed and OnCursor are derived from serial and the gotten_by link respectively, so they
+   * cannot disagree with the rest of the core; every other alternative is stored.
+   */
+  Location location() const;
 
   bool invisible() const;
   void invisible( bool newvalue );
@@ -285,6 +306,20 @@ protected:  // only derived classes need the constructor
 
 private:
   double getItemdescQuality() const;
+
+  void set_location( Location loc );
+
+  Location loc_;
+
+  // relocate() is the intended writer. The registries are friends only for as long as they still
+  // maintain the location themselves; each one loses the friendship as it moves over to relocate().
+  friend bool relocate( Item& item, Location to );
+  friend class Core::StorageArea;
+  friend class Core::UContainer;
+  friend class Core::UCorpse;
+  friend class Core::WornItemsContainer;
+  friend void Core::add_item_to_world( Item* item );
+  friend void Core::remove_item_from_world( Item* item );
 
 public:
   Core::UContainer* container;

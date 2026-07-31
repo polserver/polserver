@@ -54,7 +54,13 @@ void WornItemsContainer::PutItemOnLayer( Items::Item* item )
   item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );  // TODO POS nullptr
   item->layer = item->tile_layer;
   contents_[item->tile_layer] = Contents::value_type( item );
+  item->set_location( Items::Equipped{ this, item->tile_layer } );
   add_bulk( item );
+}
+
+Items::Location WornItemsContainer::location_for( const Items::Item* item, const Core::Pos2d& )
+{
+  return Items::Equipped{ this, item->tile_layer };
 }
 
 void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
@@ -67,6 +73,7 @@ void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
   contents_[item->tile_layer] = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.
   item->layer = 0;
+  item->set_location( Items::Detached{} );
   remove_bulk( item );
 }
 

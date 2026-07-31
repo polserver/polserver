@@ -67,6 +67,20 @@ void UCorpse::equip_and_add( Item* item, unsigned idx )
   add_at_random_location( item );
 }
 
+void UCorpse::equip_and_add( Item* item, unsigned idx, const Pos2d& pos )
+{
+  can_equip_list_[idx].set( item );
+  add( item, pos );
+}
+
+Items::Location UCorpse::location_for( const Items::Item* item, const Pos2d& pos )
+{
+  if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ).get() == item )
+    return Items::OnCorpse{ this, pos, item->slot_index(), item->tile_layer };
+
+  return base::location_for( item, pos );
+}
+
 void UCorpse::remove( iterator itr )
 {
   Item* item = *itr;
