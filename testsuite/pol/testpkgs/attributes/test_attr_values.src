@@ -1,0 +1,422 @@
+// The functions of attributes.em that read and write the value of an
+// attribute. Elsewhere in the testsuite they appear only as helpers - vitals
+// derives its maximums from them, the client tests set a base value before a
+// fight - never as the subject of an assertion.
+//
+// Everything here revolves around one formula: the effective value is
+// ( base + temporary mod + intrinsic mod ), never below zero, and truncated
+// to whole points unless the tenths precision is asked for.
+use uo;
+use os;
+use attributes;
+
+include "testutil";
+
+// open flat land at z 0
+const BASE_X := 60;
+const BASE_Y := 110;
+
+// the literal values of the attr_npc template in npcdesc.cfg, in whole points
+const NPC_STRENGTH := 100;
+
+// the range a temporary modifier may hold, from attribute.h
+const TEMP_MOD_MAX := 30000;
+const TEMP_MOD_MIN := -30000;
+
+program testattrvalues()
+  return 1;
+endprogram
+
+// names and aliases resolve to the canonical attribute name
+exported function values_attribute_name()
+  var name := GetAttributeName( "Strength" );
+  if ( name != "Strength" )
+    return ret_error( $"wrong name: {name}" );
+  endif
+
+  // the distro carries STR as an alias of Strength
+  if ( ( name := GetAttributeName( "STR" ) ) != "Strength" )
+    return ret_error( $"the STR alias does not resolve: {name}" );
+  endif
+
+  // and this package carries one of its own
+  if ( ( name := GetAttributeName( "TestAttrAlias" ) ) != "TestAttr" )
+    return ret_error( $"the TestAttrAlias alias does not resolve: {name}" );
+  endif
+
+  var res := GetAttributeName( "NoSuchAttribute" );
+  if ( res != error )
+    return ret_error( $"an undefined attribute resolved: {res}" );
+  elseif ( !res.errortext.find( "Attribute not defined" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  // the name has to be a string, a skill id is not accepted here
+  res := GetAttributeName( 0 );
+  if ( res != error )
+    return ret_error( $"a numeric attribute name was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// what an npc created from a template starts out with
+exported function values_template_defaults( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // npcdesc counts whole points, the core stores tenths
+  var base := GetAttributeBaseValue( npc, "Strength" );
+  if ( base != NPC_STRENGTH * 10 )
+    return ret_error( $"wrong base value: {base}" );
+  endif
+
+  var value := GetAttribute( npc, "Strength" );
+  if ( value != NPC_STRENGTH )
+    return ret_error( $"wrong effective value: {value}" );
+  endif
+
+  var tenths := GetAttribute( npc, "Strength", ATTRIBUTE_PRECISION_TENTHS );
+  if ( tenths != NPC_STRENGTH * 10 )
+    return ret_error( $"wrong value in tenths: {tenths}" );
+  endif
+
+  // an alias addresses the same value
+  var aliased := GetAttributeBaseValue( npc, "STR" );
+  if ( aliased != base )
+    return ret_error( $"the alias reads a different value: {aliased} != {base}" );
+  endif
+
+  // a fresh npc carries no modifiers at all
+  var tempmod := GetAttributeTemporaryMod( npc, "Strength" );
+  if ( tempmod != 0 )
+    return ret_error( $"unexpected temporary mod: {tempmod}" );
+  endif
+
+  var intrinsic := GetAttributeIntrinsicMod( npc, "Strength" );
+  if ( intrinsic != 0 )
+    return ret_error( $"unexpected intrinsic mod: {intrinsic}" );
+  endif
+
+  // and an attribute the template does not mention is simply zero
+  if ( ( base := GetAttributeBaseValue( npc, "TestAttr" ) ) != 0 )
+    return ret_error( $"an unmentioned attribute is not zero: {base}" );
+  endif
+  if ( ( value := GetAttribute( npc, "TestAttr" ) ) != 0 )
+    return ret_error( $"an unmentioned attribute is not zero: {value}" );
+  endif
+
+  return 1;
+endfunction
+
+// writing the base value, and the range it accepts
+exported function values_set_base( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := SetAttributeBaseValue( npc, "TestAttr", 1005 );
+  if ( res != 1 )
+    return ret_error( $"SetAttributeBaseValue failed: {res}" );
+  endif
+
+  var base := GetAttributeBaseValue( npc, "TestAttr" );
+  if ( base != 1005 )
+    return ret_error( $"wrong base value: {base}" );
+  endif
+
+  // the effective value truncates the tenths, it does not round
+  var value := GetAttribute( npc, "TestAttr" );
+  if ( value != 100 )
+    return ret_error( $"the tenths were not truncated: {value}" );
+  endif
+
+  var tenths := GetAttribute( npc, "TestAttr", ATTRIBUTE_PRECISION_TENTHS );
+  if ( tenths != 1005 )
+    return ret_error( $"wrong value in tenths: {tenths}" );
+  endif
+
+  // both ends of the range are accepted
+  if ( ( res := SetAttributeBaseValue( npc, "TestAttr", 0 ) ) != 1 )
+    return ret_error( $"a base value of zero was refused: {res}" );
+  endif
+  if ( ( value := GetAttribute( npc, "TestAttr" ) ) != 0 )
+    return ret_error( $"wrong effective value: {value}" );
+  endif
+
+  if ( ( res := SetAttributeBaseValue( npc, "TestAttr", ATTRIBUTE_MAX_BASE ) ) != 1 )
+    return ret_error( $"the highest base value was refused: {res}" );
+  endif
+  if ( ( value := GetAttribute( npc, "TestAttr" ) ) != ATTRIBUTE_MAX_BASE / 10 )
+    return ret_error( $"wrong effective value: {value}" );
+  endif
+
+  // past either end is refused, and the refused write changes nothing
+  res := SetAttributeBaseValue( npc, "TestAttr", ATTRIBUTE_MAX_BASE + 1 );
+  if ( res != error )
+    return ret_error( $"an out of range base value was accepted: {res}" );
+  endif
+  if ( ( base := GetAttributeBaseValue( npc, "TestAttr" ) ) != ATTRIBUTE_MAX_BASE )
+    return ret_error( $"the refused write changed the value: {base}" );
+  endif
+
+  res := SetAttributeBaseValue( npc, "TestAttr", -1 );
+  if ( res != error )
+    return ret_error( $"a negative base value was accepted: {res}" );
+  endif
+  if ( ( base := GetAttributeBaseValue( npc, "TestAttr" ) ) != ATTRIBUTE_MAX_BASE )
+    return ret_error( $"the refused write changed the value: {base}" );
+  endif
+
+  return 1;
+endfunction
+
+// the temporary modifier, which is added to the base value without touching it
+exported function values_temporary_mod( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  SetAttributeBaseValue( npc, "TestAttr", 1000 );
+
+  var res := SetAttributeTemporaryMod( npc, "TestAttr", 500 );
+  if ( res != 1 )
+    return ret_error( $"SetAttributeTemporaryMod failed: {res}" );
+  endif
+
+  var tempmod := GetAttributeTemporaryMod( npc, "TestAttr" );
+  if ( tempmod != 500 )
+    return ret_error( $"wrong temporary mod: {tempmod}" );
+  endif
+
+  var base := GetAttributeBaseValue( npc, "TestAttr" );
+  if ( base != 1000 )
+    return ret_error( $"the base value moved with the mod: {base}" );
+  endif
+
+  var value := GetAttribute( npc, "TestAttr" );
+  if ( value != 150 )
+    return ret_error( $"the mod was not added: {value}" );
+  endif
+
+  // a negative modifier subtracts
+  SetAttributeTemporaryMod( npc, "TestAttr", -500 );
+  if ( ( value := GetAttribute( npc, "TestAttr" ) ) != 50 )
+    return ret_error( $"the negative mod was not subtracted: {value}" );
+  endif
+
+  // and the sum never goes below zero, however far the mod reaches
+  SetAttributeTemporaryMod( npc, "TestAttr", TEMP_MOD_MIN );
+  if ( ( tempmod := GetAttributeTemporaryMod( npc, "TestAttr" ) ) != TEMP_MOD_MIN )
+    return ret_error( $"wrong temporary mod: {tempmod}" );
+  endif
+  if ( ( value := GetAttribute( npc, "TestAttr" ) ) != 0 )
+    return ret_error( $"the effective value went negative: {value}" );
+  endif
+
+  var tenths := GetAttribute( npc, "TestAttr", ATTRIBUTE_PRECISION_TENTHS );
+  if ( tenths != 0 )
+    return ret_error( $"the effective value went negative: {tenths}" );
+  endif
+
+  // both ends of the range are accepted
+  if ( ( res := SetAttributeTemporaryMod( npc, "TestAttr", TEMP_MOD_MAX ) ) != 1 )
+    return ret_error( $"the highest temporary mod was refused: {res}" );
+  endif
+
+  // past them the write is refused and the mod stays where it was
+  res := SetAttributeTemporaryMod( npc, "TestAttr", TEMP_MOD_MAX + 1 );
+  if ( res != error )
+    return ret_error( $"an out of range temporary mod was accepted: {res}" );
+  endif
+  res := SetAttributeTemporaryMod( npc, "TestAttr", TEMP_MOD_MIN - 1 );
+  if ( res != error )
+    return ret_error( $"an out of range temporary mod was accepted: {res}" );
+  endif
+  if ( ( tempmod := GetAttributeTemporaryMod( npc, "TestAttr" ) ) != TEMP_MOD_MAX )
+    return ret_error( $"a refused write changed the mod: {tempmod}" );
+  endif
+
+  // clearing the mod leaves the base value behind
+  if ( ( res := SetAttributeTemporaryMod( npc, "TestAttr", 0 ) ) != 1 )
+    return ret_error( $"clearing the temporary mod failed: {res}" );
+  endif
+  if ( ( value := GetAttribute( npc, "TestAttr" ) ) != 100 )
+    return ret_error( $"wrong effective value after clearing: {value}" );
+  endif
+
+  return 1;
+endfunction
+
+// AlterAttributeTemporaryMod adds to the modifier instead of replacing it
+exported function values_alter_temporary_mod( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  SetAttributeBaseValue( npc, "TestAttr", 1000 );
+  SetAttributeTemporaryMod( npc, "TestAttr", 0 );
+
+  var res := AlterAttributeTemporaryMod( npc, "TestAttr", 250 );
+  if ( res != 1 )
+    return ret_error( $"AlterAttributeTemporaryMod failed: {res}" );
+  endif
+  if ( ( res := AlterAttributeTemporaryMod( npc, "TestAttr", 250 ) ) != 1 )
+    return ret_error( $"AlterAttributeTemporaryMod failed: {res}" );
+  endif
+
+  var tempmod := GetAttributeTemporaryMod( npc, "TestAttr" );
+  if ( tempmod != 500 )
+    return ret_error( $"the deltas did not accumulate: {tempmod}" );
+  endif
+
+  // a negative delta walks back down, past zero
+  AlterAttributeTemporaryMod( npc, "TestAttr", -750 );
+  if ( ( tempmod := GetAttributeTemporaryMod( npc, "TestAttr" ) ) != -250 )
+    return ret_error( $"wrong temporary mod: {tempmod}" );
+  endif
+
+  var value := GetAttribute( npc, "TestAttr" );
+  if ( value != 75 )
+    return ret_error( $"wrong effective value: {value}" );
+  endif
+
+  // a delta of zero is accepted and changes nothing
+  if ( ( res := AlterAttributeTemporaryMod( npc, "TestAttr", 0 ) ) != 1 )
+    return ret_error( $"a delta of zero was refused: {res}" );
+  endif
+  if ( ( tempmod := GetAttributeTemporaryMod( npc, "TestAttr" ) ) != -250 )
+    return ret_error( $"a delta of zero changed the mod: {tempmod}" );
+  endif
+
+  // it is the sum, not the delta, that has to stay in range - and a sum that
+  // does not is reported with an error of its own, leaving the mod intact
+  SetAttributeTemporaryMod( npc, "TestAttr", TEMP_MOD_MAX );
+  res := AlterAttributeTemporaryMod( npc, "TestAttr", 1 );
+  if ( res != error )
+    return ret_error( $"an overflowing delta was accepted: {res}" );
+  elseif ( !res.errortext.find( "out of range" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+  if ( ( tempmod := GetAttributeTemporaryMod( npc, "TestAttr" ) ) != TEMP_MOD_MAX )
+    return ret_error( $"the refused delta changed the mod: {tempmod}" );
+  endif
+
+  SetAttributeTemporaryMod( npc, "TestAttr", TEMP_MOD_MIN );
+  res := AlterAttributeTemporaryMod( npc, "TestAttr", -1 );
+  if ( res != error )
+    return ret_error( $"an underflowing delta was accepted: {res}" );
+  endif
+  if ( ( tempmod := GetAttributeTemporaryMod( npc, "TestAttr" ) ) != TEMP_MOD_MIN )
+    return ret_error( $"the refused delta changed the mod: {tempmod}" );
+  endif
+
+  return 1;
+endfunction
+
+// the precision parameter of GetAttribute
+exported function values_precision( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  SetAttributeBaseValue( npc, "TestAttr", 1234 );
+
+  // whole points is the default
+  var value := GetAttribute( npc, "TestAttr" );
+  if ( value != 123 )
+    return ret_error( $"wrong default precision: {value}" );
+  endif
+
+  value := GetAttribute( npc, "TestAttr", ATTRIBUTE_PRECISION_NORMAL );
+  if ( value != 123 )
+    return ret_error( $"wrong value: {value}" );
+  endif
+
+  value := GetAttribute( npc, "TestAttr", ATTRIBUTE_PRECISION_TENTHS );
+  if ( value != 1234 )
+    return ret_error( $"wrong value: {value}" );
+  endif
+
+  // only the tenths precision is special, everything else reads as whole points
+  value := GetAttribute( npc, "TestAttr", 2 );
+  if ( value != 123 )
+    return ret_error( $"an unknown precision was not the default: {value}" );
+  endif
+
+  return 1;
+endfunction
+
+// every function that takes an attribute name reports an undefined one, and
+// every one that takes a character reports something that is not one
+exported function values_parameter_errors( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var bad := "NoSuchAttribute";
+  var unknown := array{};
+  unknown.append( { "GetAttribute", GetAttribute( npc, bad ) } );
+  unknown.append( { "GetAttributeBaseValue", GetAttributeBaseValue( npc, bad ) } );
+  unknown.append( { "GetAttributeTemporaryMod", GetAttributeTemporaryMod( npc, bad ) } );
+  unknown.append( { "GetAttributeIntrinsicMod", GetAttributeIntrinsicMod( npc, bad ) } );
+  unknown.append( { "GetAttributeLock", GetAttributeLock( npc, bad ) } );
+  unknown.append( { "GetAttributeCap", GetAttributeCap( npc, bad ) } );
+  unknown.append( { "GetAttributeDefaultCap", GetAttributeDefaultCap( bad ) } );
+  unknown.append( { "SetAttributeBaseValue", SetAttributeBaseValue( npc, bad, 0 ) } );
+  unknown.append( { "SetAttributeTemporaryMod", SetAttributeTemporaryMod( npc, bad, 0 ) } );
+  unknown.append( { "AlterAttributeTemporaryMod", AlterAttributeTemporaryMod( npc, bad, 0 ) } );
+  unknown.append( { "SetAttributeLock", SetAttributeLock( npc, bad, 0 ) } );
+  unknown.append( { "SetAttributeCap", SetAttributeCap( npc, bad, 0 ) } );
+
+  foreach call in ( unknown )
+    var [ funcname, res ] := call;
+    if ( res != error )
+      return ret_error( $"{funcname} accepted an undefined attribute: {res}" );
+    elseif ( !res.errortext.find( "Attribute not defined" ) )
+      return ret_error( $"{funcname} reported the wrong error: {res.errortext}" );
+    endif
+  endforeach
+
+  var attr := "Strength";
+  var notachar := array{};
+  notachar.append( { "GetAttribute", GetAttribute( 1, attr ) } );
+  notachar.append( { "GetAttributeBaseValue", GetAttributeBaseValue( 1, attr ) } );
+  notachar.append( { "GetAttributeTemporaryMod", GetAttributeTemporaryMod( 1, attr ) } );
+  notachar.append( { "GetAttributeIntrinsicMod", GetAttributeIntrinsicMod( 1, attr ) } );
+  notachar.append( { "GetAttributeLock", GetAttributeLock( 1, attr ) } );
+  notachar.append( { "GetAttributeCap", GetAttributeCap( 1, attr ) } );
+  notachar.append( { "SetAttributeBaseValue", SetAttributeBaseValue( 1, attr, 0 ) } );
+  notachar.append( { "SetAttributeTemporaryMod", SetAttributeTemporaryMod( 1, attr, 0 ) } );
+  notachar.append( { "AlterAttributeTemporaryMod", AlterAttributeTemporaryMod( 1, attr, 0 ) } );
+  notachar.append( { "SetAttributeLock", SetAttributeLock( 1, attr, 0 ) } );
+  notachar.append( { "SetAttributeCap", SetAttributeCap( 1, attr, 0 ) } );
+
+  foreach call in ( notachar )
+    var [ funcname, res ] := call;
+    if ( res != error )
+      return ret_error( $"{funcname} accepted a non-character: {res}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function make_npc( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testattributes:attr_npc", BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+  return npc;
+endfunction

@@ -1,0 +1,21 @@
+// Intrinsic modifier hook of the TestAttrIntrinsic attribute defined in
+// config/attributes.cfg.
+//
+// It runs for every character the core recalculates, so it stays cheap and
+// answers 0 unless a test marked the character with #AttrIntrinsicMod.
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+// The intrinsic modifier is counted in tenths, like the base value, and the
+// core clamps whatever comes back here to [-30000, 30000].
+exported function GetTestIntrinsicMod( mobile )
+  var value := GetObjProperty( mobile, "#AttrIntrinsicMod" );
+  if ( !value )
+    return 0;
+  endif
+  return CInt( value );
+endfunction

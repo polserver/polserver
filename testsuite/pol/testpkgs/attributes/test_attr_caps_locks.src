@@ -1,0 +1,246 @@
+// Caps and lock states. testrestart/test_char.src already checks that both
+// survive a save and a load; this checks what they say while the shard is up,
+// and above all what they do not do: the core stores and reports them, it
+// never enforces them.
+use uo;
+use os;
+use attributes;
+
+include "testutil";
+
+// open flat land at z 0
+const BASE_X := 62;
+const BASE_Y := 110;
+
+// servspecopt.cfg: DefaultAttributeCap=1000
+const DEFAULT_CAP := 1000;
+// config/attributes.cfg: TestAttr carries a DefaultCap of its own
+const TESTATTR_CAP := 500;
+
+program testattrcapslocks()
+  return 1;
+endprogram
+
+// where the cap of a fresh mobile comes from
+exported function caps_default_cap( resmgn )
+  var cap := GetAttributeDefaultCap( "Strength" );
+  if ( cap != DEFAULT_CAP )
+    return ret_error( $"wrong default cap: {cap}" );
+  endif
+
+  // an attribute may carry a cap of its own instead of the server default
+  if ( ( cap := GetAttributeDefaultCap( "TestAttr" ) ) != TESTATTR_CAP )
+    return ret_error( $"wrong default cap: {cap}" );
+  endif
+  if ( ( cap := GetAttributeDefaultCap( "TestAttrAlias" ) ) != TESTATTR_CAP )
+    return ret_error( $"the alias reads a different cap: {cap}" );
+  endif
+
+  // and a fresh mobile starts at the default cap of every attribute
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  if ( ( cap := GetAttributeCap( npc, "Strength" ) ) != DEFAULT_CAP )
+    return ret_error( $"wrong cap: {cap}" );
+  endif
+  if ( ( cap := GetAttributeCap( npc, "TestAttr" ) ) != TESTATTR_CAP )
+    return ret_error( $"wrong cap: {cap}" );
+  endif
+
+  return 1;
+endfunction
+
+// writing the cap, and the range it accepts
+exported function caps_set_cap( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := SetAttributeCap( npc, "TestAttr", 1500 );
+  if ( res != 1 )
+    return ret_error( $"SetAttributeCap failed: {res}" );
+  endif
+
+  var cap := GetAttributeCap( npc, "TestAttr" );
+  if ( cap != 1500 )
+    return ret_error( $"wrong cap: {cap}" );
+  endif
+
+  // the cap of the attribute itself is untouched, and so is every other mobile
+  if ( ( cap := GetAttributeDefaultCap( "TestAttr" ) ) != TESTATTR_CAP )
+    return ret_error( $"the default cap moved: {cap}" );
+  endif
+
+  var other := make_npc_at( resmgn, BASE_X + 2, BASE_Y );
+  if ( !other )
+    return other;
+  endif
+  if ( ( cap := GetAttributeCap( other, "TestAttr" ) ) != TESTATTR_CAP )
+    return ret_error( $"the cap of another mobile moved: {cap}" );
+  endif
+
+  // both ends of the range are accepted
+  if ( ( res := SetAttributeCap( npc, "TestAttr", 0 ) ) != 1 )
+    return ret_error( $"a cap of zero was refused: {res}" );
+  endif
+  if ( ( res := SetAttributeCap( npc, "TestAttr", ATTRIBUTE_MAX_BASE ) ) != 1 )
+    return ret_error( $"the highest cap was refused: {res}" );
+  endif
+
+  // past either end is refused, and the refused write changes nothing
+  res := SetAttributeCap( npc, "TestAttr", ATTRIBUTE_MAX_BASE + 1 );
+  if ( res != error )
+    return ret_error( $"an out of range cap was accepted: {res}" );
+  endif
+  res := SetAttributeCap( npc, "TestAttr", -1 );
+  if ( res != error )
+    return ret_error( $"a negative cap was accepted: {res}" );
+  endif
+  if ( ( cap := GetAttributeCap( npc, "TestAttr" ) ) != ATTRIBUTE_MAX_BASE )
+    return ret_error( $"a refused write changed the cap: {cap}" );
+  endif
+
+  return 1;
+endfunction
+
+// The cap is advisory: the core stores it and sends it to the client, keeping
+// a value underneath it is left to the scripts.
+exported function caps_do_not_clamp( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := SetAttributeCap( npc, "TestAttr", 100 );
+  if ( res != 1 )
+    return ret_error( $"SetAttributeCap failed: {res}" );
+  endif
+
+  // a base value far above the cap is stored as it is
+  if ( ( res := SetAttributeBaseValue( npc, "TestAttr", ATTRIBUTE_MAX_BASE ) ) != 1 )
+    return ret_error( $"a base value above the cap was refused: {res}" );
+  endif
+
+  var base := GetAttributeBaseValue( npc, "TestAttr" );
+  if ( base != ATTRIBUTE_MAX_BASE )
+    return ret_error( $"the base value was clamped to the cap: {base}" );
+  endif
+
+  var value := GetAttribute( npc, "TestAttr" );
+  if ( value != ATTRIBUTE_MAX_BASE / 10 )
+    return ret_error( $"the effective value was clamped to the cap: {value}" );
+  endif
+
+  // and a temporary modifier is not capped either
+  SetAttributeBaseValue( npc, "TestAttr", 1000 );
+  SetAttributeTemporaryMod( npc, "TestAttr", 20000 );
+  if ( ( value := GetAttribute( npc, "TestAttr" ) ) != 2100 )
+    return ret_error( $"the modifier was clamped to the cap: {value}" );
+  endif
+
+  return 1;
+endfunction
+
+// reading and writing the lock state
+exported function locks_get_set( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // everything starts out unlocked and rising
+  var state := GetAttributeLock( npc, "TestAttr" );
+  if ( state != ATTRIBUTE_LOCK_UP )
+    return ret_error( $"wrong initial lock state: {state}" );
+  endif
+
+  foreach lockstate in ( array{ ATTRIBUTE_LOCK_DOWN, ATTRIBUTE_LOCK_LOCKED, ATTRIBUTE_LOCK_UP } )
+    var res := SetAttributeLock( npc, "TestAttr", lockstate );
+    if ( res != 1 )
+      return ret_error( $"SetAttributeLock( {lockstate} ) failed: {res}" );
+    endif
+    if ( ( state := GetAttributeLock( npc, "TestAttr" ) ) != lockstate )
+      return ret_error( $"wrong lock state: {state} != {lockstate}" );
+    endif
+  endforeach
+
+  // the three states are the only ones accepted
+  var res := SetAttributeLock( npc, "TestAttr", ATTRIBUTE_LOCK_LOCKED + 1 );
+  if ( res != error )
+    return ret_error( $"an unknown lock state was accepted: {res}" );
+  endif
+  res := SetAttributeLock( npc, "TestAttr", -1 );
+  if ( res != error )
+    return ret_error( $"a negative lock state was accepted: {res}" );
+  endif
+  if ( ( state := GetAttributeLock( npc, "TestAttr" ) ) != ATTRIBUTE_LOCK_UP )
+    return ret_error( $"a refused write changed the lock state: {state}" );
+  endif
+
+  // locks are held per attribute, not per mobile
+  SetAttributeLock( npc, "TestAttr", ATTRIBUTE_LOCK_LOCKED );
+  if ( ( state := GetAttributeLock( npc, "Strength" ) ) != ATTRIBUTE_LOCK_UP )
+    return ret_error( $"the lock leaked to another attribute: {state}" );
+  endif
+
+  return 1;
+endfunction
+
+// The lock state is advisory as well: it is what the client shows and what a
+// stat system reads, the core does not refuse a write to a locked attribute.
+exported function locks_do_not_block_writes( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  SetAttributeBaseValue( npc, "TestAttr", 1000 );
+  var res := SetAttributeLock( npc, "TestAttr", ATTRIBUTE_LOCK_LOCKED );
+  if ( res != 1 )
+    return ret_error( $"SetAttributeLock failed: {res}" );
+  endif
+
+  if ( ( res := SetAttributeBaseValue( npc, "TestAttr", 2000 ) ) != 1 )
+    return ret_error( $"a locked attribute refused a base value: {res}" );
+  endif
+
+  var base := GetAttributeBaseValue( npc, "TestAttr" );
+  if ( base != 2000 )
+    return ret_error( $"the write did not land: {base}" );
+  endif
+
+  if ( ( res := SetAttributeTemporaryMod( npc, "TestAttr", 500 ) ) != 1 )
+    return ret_error( $"a locked attribute refused a modifier: {res}" );
+  endif
+
+  var value := GetAttribute( npc, "TestAttr" );
+  if ( value != 250 )
+    return ret_error( $"the modifier did not land: {value}" );
+  endif
+
+  // and the lock state survived both writes
+  var state := GetAttributeLock( npc, "TestAttr" );
+  if ( state != ATTRIBUTE_LOCK_LOCKED )
+    return ret_error( $"the lock state was lost: {state}" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function make_npc( resmgn )
+  return make_npc_at( resmgn, BASE_X, BASE_Y );
+endfunction
+
+function make_npc_at( resmgn, x, y )
+  var npc := resmgn.CreateNPCFromTemplate( ":testattributes:attr_npc", x, y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+  return npc;
+endfunction
