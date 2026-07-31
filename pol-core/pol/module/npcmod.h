@@ -78,8 +78,6 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_MakeBoundingBox( /* areastring */ );
   [[nodiscard]] Bscript::BObjectImp* mf_IsLegalMove();
   [[nodiscard]] Bscript::BObjectImp* mf_CanMove();
-  [[nodiscard]] Bscript::BObjectImp* mf_CreateBackpack();
-  [[nodiscard]] Bscript::BObjectImp* mf_CreateItem();
   [[nodiscard]] Bscript::BObjectImp* mf_SetOpponent();
   [[nodiscard]] Bscript::BObjectImp* mf_SetWarMode();
   [[nodiscard]] Bscript::BObjectImp* mf_SetAnchor();

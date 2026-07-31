@@ -1,0 +1,10 @@
+use uo;
+use os;
+
+program cleanup()
+  // leave the CheckSkill hook of this package answering 0, the way a shard
+  // without the hook does
+  EraseGlobalProperty( "#AttrCheckSkill" );
+  EraseGlobalProperty( "#AttrCheckSkillResult" );
+  return 1;
+endprogram

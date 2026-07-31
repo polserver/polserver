@@ -1,0 +1,302 @@
+// The parts of attributes.em that reach outside the attribute value itself:
+// the CheckSkill system hook, the intrinsic modifier - which no script can
+// write, only a hook can - and the two skill curve conversions.
+use uo;
+use os;
+use attributes;
+use vitals;
+
+include "testutil";
+
+// open flat land at z 0
+const BASE_X := 64;
+const BASE_Y := 110;
+
+// uoskills.cfg of the distro attributes package maps skill id 0 to Alchemy
+const SKILLID_ALCHEMY := 0;
+
+// well past MaxSkillID, which the test shard leaves at the default of 57
+const SKILLID_UNDEFINED := 500;
+
+// the range an intrinsic modifier may hold, from attribute.h
+const INTRINSIC_MOD_MAX := 30000;
+const INTRINSIC_MOD_MIN := -30000;
+
+program testattrhooks()
+  return 1;
+endprogram
+
+// CheckSkill does nothing but call the CheckSkill hook and hand back what it
+// answered. The hook of this package is the only one in the test shard.
+exported function hooks_checkskill( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  EraseGlobalProperty( "#AttrCheckSkill" );
+  SetGlobalProperty( "#AttrCheckSkillResult", 0 );
+
+  var res := CheckSkill( npc, "Alchemy", 50, 10 );
+  if ( res != 0 )
+    return ret_error( $"a failed skill check did not answer 0: {res}" );
+  endif
+
+  // the arguments reach the hook unchanged
+  var call := GetGlobalProperty( "#AttrCheckSkill" );
+  if ( !call )
+    return ret_error( "the CheckSkill hook was not called" );
+  endif
+  if ( call.serial != npc.serial )
+    return ret_error( $"the hook saw another character: 0x{call.serial:x}" );
+  endif
+  if ( call.skillid != SKILLID_ALCHEMY )
+    return ret_error( $"the skill name was not resolved: {call.skillid}" );
+  endif
+  if ( call.difficulty != 50 )
+    return ret_error( $"wrong difficulty: {call.difficulty}" );
+  endif
+  if ( call.points != 10 )
+    return ret_error( $"wrong points: {call.points}" );
+  endif
+
+  // and its answer is what the caller sees
+  SetGlobalProperty( "#AttrCheckSkillResult", 1 );
+  if ( ( res := CheckSkill( npc, "Alchemy", 50, 10 ) ) != 1 )
+    return ret_error( $"a passed skill check did not answer 1: {res}" );
+  endif
+
+  SetGlobalProperty( "#AttrCheckSkillResult", 0 );
+  return 1;
+endfunction
+
+// how CheckSkill resolves its second parameter
+exported function hooks_checkskill_skillid( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  SetGlobalProperty( "#AttrCheckSkillResult", 1 );
+
+  // a numeric skill id addresses the same skill as the name of its attribute
+  EraseGlobalProperty( "#AttrCheckSkill" );
+  var res := CheckSkill( npc, SKILLID_ALCHEMY, 0, 0 );
+  if ( res != 1 )
+    return ret_error( $"a numeric skill id was not accepted: {res}" );
+  endif
+
+  var call := GetGlobalProperty( "#AttrCheckSkill" );
+  if ( !call || call.skillid != SKILLID_ALCHEMY )
+    return ret_error( $"the hook saw another skill: {call}" );
+  endif
+
+  // an attribute without an entry in uoskills.cfg cannot be checked, whether
+  // it is a stat of the distro or one of this package
+  foreach attrname in ( array{ "Strength", "TestAttr" } )
+    res := CheckSkill( npc, attrname, 0, 0 );
+    if ( res != error )
+      return ret_error( $"{attrname} was accepted as a skill: {res}" );
+    elseif ( !res.errortext.find( "has no skill id defined" ) )
+      return ret_error( $"{attrname} reported the wrong error: {res.errortext}" );
+    endif
+  endforeach
+
+  // an undefined attribute is reported as such
+  res := CheckSkill( npc, "NoSuchAttribute", 0, 0 );
+  if ( res != error )
+    return ret_error( $"an undefined attribute was accepted: {res}" );
+  elseif ( !res.errortext.find( "Attribute not defined" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  // and a numeric id outside the range the client knows about, at either end
+  EraseGlobalProperty( "#AttrCheckSkill" );
+  res := CheckSkill( npc, SKILLID_UNDEFINED, 0, 0 );
+  if ( res != error )
+    return ret_error( $"an out of range skill id was accepted: {res}" );
+  elseif ( !res.errortext.find( "out of expected range" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+  res := CheckSkill( npc, -1, 0, 0 );
+  if ( res != error )
+    return ret_error( $"a negative skill id was accepted: {res}" );
+  endif
+
+  // none of the refused calls reached the hook
+  if ( GetGlobalProperty( "#AttrCheckSkill" ) )
+    return ret_error( "a refused skill check still called the hook" );
+  endif
+
+  SetGlobalProperty( "#AttrCheckSkillResult", 0 );
+  return 1;
+endfunction
+
+// The intrinsic modifier has no setter: it is whatever the
+// GetIntrinsicModFunction of the attribute answers, and it is only picked up
+// when something recalculates the attribute.
+exported function hooks_intrinsic_mod( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // the hook of TestAttrIntrinsic is inert until the mobile is marked
+  var intrinsic := GetAttributeIntrinsicMod( npc, "TestAttrIntrinsic" );
+  if ( intrinsic != 0 )
+    return ret_error( $"unexpected intrinsic mod: {intrinsic}" );
+  endif
+
+  SetAttributeBaseValue( npc, "TestAttrIntrinsic", 1000 );
+  SetObjProperty( npc, "#AttrIntrinsicMod", 500 );
+
+  // marking the mobile alone leaves the modifier stale
+  if ( ( intrinsic := GetAttributeIntrinsicMod( npc, "TestAttrIntrinsic" ) ) != 0 )
+    return ret_error( "the modifier changed without a recalculation" );
+  endif
+
+  var res := RecalcVitals( npc, "TestAttrIntrinsic", 0 );
+  if ( res != 1 )
+    return ret_error( $"RecalcVitals failed: {res}" );
+  endif
+  if ( ( intrinsic := GetAttributeIntrinsicMod( npc, "TestAttrIntrinsic" ) ) != 500 )
+    return ret_error( $"wrong intrinsic mod: {intrinsic}" );
+  endif
+
+  // it counts towards the effective value next to base and temporary mod
+  SetAttributeTemporaryMod( npc, "TestAttrIntrinsic", 250 );
+  var tenths := GetAttribute( npc, "TestAttrIntrinsic", ATTRIBUTE_PRECISION_TENTHS );
+  if ( tenths != 1750 )
+    return ret_error( $"wrong value in tenths: {tenths}" );
+  endif
+
+  var value := GetAttribute( npc, "TestAttrIntrinsic" );
+  if ( value != 175 )
+    return ret_error( $"wrong effective value: {value}" );
+  endif
+  SetAttributeTemporaryMod( npc, "TestAttrIntrinsic", 0 );
+
+  // whatever the hook answers is clamped to the range of the core
+  SetObjProperty( npc, "#AttrIntrinsicMod", INTRINSIC_MOD_MAX + 10000 );
+  RecalcVitals( npc, "TestAttrIntrinsic", 0 );
+  intrinsic := GetAttributeIntrinsicMod( npc, "TestAttrIntrinsic" );
+  if ( intrinsic != INTRINSIC_MOD_MAX )
+    return ret_error( $"the modifier was not clamped: {intrinsic}" );
+  endif
+
+  SetObjProperty( npc, "#AttrIntrinsicMod", INTRINSIC_MOD_MIN - 10000 );
+  RecalcVitals( npc, "TestAttrIntrinsic", 0 );
+  intrinsic := GetAttributeIntrinsicMod( npc, "TestAttrIntrinsic" );
+  if ( intrinsic != INTRINSIC_MOD_MIN )
+    return ret_error( $"the modifier was not clamped: {intrinsic}" );
+  endif
+
+  // an attribute without a hook keeps its modifier at zero, even when every
+  // attribute of the mobile is recalculated
+  SetObjProperty( npc, "#AttrIntrinsicMod", 500 );
+  if ( ( res := RecalcVitals( npc, RECALC_INTRINSIC_MOD, 0 ) ) != 1 )
+    return ret_error( $"RecalcVitals failed: {res}" );
+  endif
+  if ( ( intrinsic := GetAttributeIntrinsicMod( npc, "TestAttr" ) ) != 0 )
+    return ret_error( $"an attribute without a hook has a modifier: {intrinsic}" );
+  endif
+  if ( ( intrinsic := GetAttributeIntrinsicMod( npc, "TestAttrIntrinsic" ) ) != 500 )
+    return ret_error( $"wrong intrinsic mod: {intrinsic}" );
+  endif
+
+  return 1;
+endfunction
+
+// The two ends of the skill curve the client uses: raw skill points double
+// every ten base points.
+exported function conversion_raw_and_base()
+  var pairs := array{};
+  pairs.append( { 0, 0 } );
+  pairs.append( { 100, 2048 } );
+  pairs.append( { 1000, 1048576 } );
+
+  foreach pair in ( pairs )
+    var [ base, raw ] := pair;
+    var converted := BaseSkillToRawSkill( base );
+    if ( converted != raw )
+      return ret_error( $"BaseSkillToRawSkill( {base} ) = {converted}, expected {raw}" );
+    endif
+    if ( ( converted := RawSkillToBaseSkill( raw ) ) != base )
+      return ret_error( $"RawSkillToBaseSkill( {raw} ) = {converted}, expected {base}" );
+    endif
+  endforeach
+
+  // from 10.0 upwards the round trip is exact
+  foreach base in ( array{ 100, 197, 505, 1000, 1234, 2000 } )
+    var roundtrip := RawSkillToBaseSkill( BaseSkillToRawSkill( base ) );
+    if ( roundtrip != base )
+      return ret_error( $"the round trip of {base} came back as {roundtrip}" );
+    endif
+  endforeach
+
+  // below it the curve has no room for the tenths and the round trip loses them
+  var lost := RawSkillToBaseSkill( BaseSkillToRawSkill( 1 ) );
+  if ( lost != 0 )
+    return ret_error( $"unexpected resolution below 10.0: {lost}" );
+  endif
+
+  // except on the quarters, where it happens to land exactly
+  foreach base in ( array{ 0, 25, 50, 75 } )
+    var roundtrip := RawSkillToBaseSkill( BaseSkillToRawSkill( base ) );
+    if ( roundtrip != base )
+      return ret_error( $"the round trip of {base} came back as {roundtrip}" );
+    endif
+  endforeach
+
+  // the curve stops at 210.0, above it every base value converts alike
+  var top := BaseSkillToRawSkill( 2100 );
+  var beyond := BaseSkillToRawSkill( 2500 );
+  if ( beyond != top )
+    return ret_error( $"a base skill above the top of the curve was not clamped: {beyond}" );
+  endif
+
+  // and the raw value at the top is exactly 2^31, which does not fit in the
+  // signed integer a script gets back: 210.0 is the one base value whose round
+  // trip cannot work
+  if ( top >= 0 )
+    return ret_error( $"the top of the curve no longer overflows: {top}" );
+  endif
+  var overflowed := RawSkillToBaseSkill( top );
+  if ( overflowed != 0 )
+    return ret_error( $"an overflowed raw skill did not read as zero: {overflowed}" );
+  endif
+
+  // a negative raw skill reads as no skill at all
+  var negative := RawSkillToBaseSkill( -1 );
+  if ( negative != 0 )
+    return ret_error( $"a negative raw skill did not read as zero: {negative}" );
+  endif
+
+  // and a base skill has to fit in the unsigned range the core stores
+  var res := BaseSkillToRawSkill( -1 );
+  if ( res != error )
+    return ret_error( $"a negative base skill was accepted: {res}" );
+  endif
+  res := BaseSkillToRawSkill( "abc" );
+  if ( res != error )
+    return ret_error( $"a non-numeric base skill was accepted: {res}" );
+  endif
+  res := RawSkillToBaseSkill( "abc" );
+  if ( res != error )
+    return ret_error( $"a non-numeric raw skill was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function make_npc( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testattributes:attr_npc", BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+  return npc;
+endfunction

@@ -1,0 +1,266 @@
+// GetAmount, AddAmount and SubtractAmount: what they return, the bounds they
+// put on the amount, and the items they refuse to touch.
+use uo;
+use os;
+
+include "testutil";
+
+const RESERVE_HOLDER := ":TestItems:reserve_holder.ecl";
+const EVENT_TIMEOUT_SEC := 5;
+
+// the bound AddAmount uses, from MAX_STACK_ITEMS
+const MAX_STACK := 60000;
+// the StackLimit of goldcoin_limited in itemdesc.cfg
+const LIMITED_STACK := 100;
+
+program testitemamount()
+  return 1;
+endprogram
+
+// the three of them on an ordinary stack, including what they hand back
+exported function amount_add_subtract( resmngr )
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  if ( GetAmount( item ) != 10 || item.amount != 10 )
+    return ret_error( $"wrong amount: {GetAmount( item )} / {item.amount}" );
+  endif
+
+  // AddAmount hands back the stack it grew, not just a success flag
+  var res := AddAmount( item, 5 );
+  if ( res != item )
+    return ret_error( $"AddAmount did not return the item: {res}" );
+  endif
+  if ( GetAmount( item ) != 15 )
+    return ret_error( $"wrong amount after AddAmount: {GetAmount( item )}" );
+  endif
+
+  // SubtractAmount only says that it worked
+  if ( ( res := SubtractAmount( item, 5 ) ) != 1 )
+    return ret_error( $"SubtractAmount failed: {res}" );
+  endif
+  if ( GetAmount( item ) != 10 )
+    return ret_error( $"wrong amount after SubtractAmount: {GetAmount( item )}" );
+  endif
+
+  // taking the whole stack destroys it
+  if ( ( res := SubtractAmount( item, 10 ) ) != 1 )
+    return ret_error( $"SubtractAmount failed: {res}" );
+  endif
+  if ( item )
+    return ret_error( $"the emptied stack survived: {GetAmount( item )}" );
+  endif
+
+  // GetAmount does not complain about a parameter that is not an item, it
+  // answers 0
+  if ( ( res := GetAmount( 0 ) ) != 0 )
+    return ret_error( $"GetAmount of a non-item: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// both of them keep the weight of the containing container up to date
+exported function amount_weight( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, 0x200001 );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+
+  var empty_weight := cont.weight;
+
+  // one stone per coin, so the amount is the weight
+  var item := resmngr.CreateItemInContainer( cont, "goldcoin_heavy", 10 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+  if ( cont.weight != empty_weight + 10 )
+    return ret_error( $"wrong weight: {cont.weight}, expected {empty_weight + 10}" );
+  endif
+
+  AddAmount( item, 5 );
+  if ( cont.weight != empty_weight + 15 )
+    return ret_error( $"wrong weight after AddAmount: {cont.weight}" );
+  endif
+
+  SubtractAmount( item, 5 );
+  if ( cont.weight != empty_weight + 10 )
+    return ret_error( $"wrong weight after SubtractAmount: {cont.weight}" );
+  endif
+
+  return 1;
+endfunction
+
+// nothing can be added to an item the tiledata does not mark stackable, but
+// subtracting from one is allowed and destroys it
+exported function amount_not_stackable( resmngr )
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "heavyrobe" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  if ( GetAmount( item ) != 1 )
+    return ret_error( $"wrong amount: {GetAmount( item )}" );
+  endif
+
+  var res := AddAmount( item, 1 );
+  if ( res )
+    return ret_error( $"a non-stackable item was grown: {GetAmount( item )}" );
+  elseif ( res.errortext != "That item type is not stackable." )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // SubtractAmount makes no such check
+  if ( ( res := SubtractAmount( item, 1 ) ) != 1 )
+    return ret_error( $"SubtractAmount failed: {res}" );
+  endif
+  if ( item )
+    return ret_error( "the item survived being subtracted from" );
+  endif
+
+  return 1;
+endfunction
+
+// AddAmount is bounded by the StackLimit of the itemdesc, but only through a
+// full-stack error - the parameter itself is checked against MAX_STACK_ITEMS,
+// while SubtractAmount checks its parameter against the StackLimit
+exported function amount_stack_limit( resmngr )
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin_limited", 60 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  // 60 + 41 does not fit into a stack of 100
+  var res := AddAmount( item, 41 );
+  if ( res )
+    return ret_error( $"the stack limit was exceeded: {GetAmount( item )}" );
+  elseif ( res.errortext != "Can't add that much to that stack" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // filling it to the brim works
+  if ( !( res := AddAmount( item, 40 ) ) )
+    return ret_error( $"AddAmount failed: {res}" );
+  endif
+  if ( GetAmount( item ) != LIMITED_STACK )
+    return ret_error( $"wrong amount: {GetAmount( item )}" );
+  endif
+
+  // and a full stack takes nothing more
+  if ( ( res := AddAmount( item, 1 ) ) )
+    return ret_error( $"a full stack was grown: {GetAmount( item )}" );
+  endif
+
+  // an amount over the StackLimit is still a valid parameter for AddAmount,
+  // it just cannot fit
+  res := AddAmount( item, LIMITED_STACK + 1 );
+  if ( res.errortext != "Can't add that much to that stack" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // for SubtractAmount the same amount is out of range instead
+  res := SubtractAmount( item, LIMITED_STACK + 1 );
+  if ( res )
+    return ret_error( "an out of range amount was subtracted" );
+  elseif ( res.errortext != $"Parameter 1 value {LIMITED_STACK + 1} out of expected range of [1..{LIMITED_STACK}]" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// neither of them accepts an amount of 0, and AddAmount stops at MAX_STACK_ITEMS
+exported function amount_param_range( resmngr )
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  var res := AddAmount( item, 0 );
+  if ( res )
+    return ret_error( "AddAmount accepted 0" );
+  elseif ( res.errortext != $"Parameter 1 value 0 out of expected range of [1..{MAX_STACK}]" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  res := AddAmount( item, MAX_STACK + 1 );
+  if ( res )
+    return ret_error( $"AddAmount accepted {MAX_STACK + 1}" );
+  elseif ( res.errortext != $"Parameter 1 value {MAX_STACK + 1} out of expected range of [1..{MAX_STACK}]" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  // goldcoin carries the default StackLimit, so both bounds agree here
+  res := SubtractAmount( item, 0 );
+  if ( res )
+    return ret_error( "SubtractAmount accepted 0" );
+  elseif ( res.errortext != $"Parameter 1 value 0 out of expected range of [1..{MAX_STACK}]" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  if ( GetAmount( item ) != 10 )
+    return ret_error( $"the amount changed after the rejected calls: {GetAmount( item )}" );
+  endif
+
+  return 1;
+endfunction
+
+// an item reserved by this script is fair game, one reserved by another script
+// is not
+exported function amount_reserved( resmngr )
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  var res := ReserveItem( item );
+  if ( !res )
+    return ret_error( $"Could not reserve the item: {res}" );
+  endif
+
+  // reserved to me, so both go through
+  if ( !( res := AddAmount( item, 5 ) ) )
+    return ret_error( $"AddAmount on an item reserved to me failed: {res}" );
+  endif
+  if ( ( res := SubtractAmount( item, 5 ) ) != 1 )
+    return ret_error( $"SubtractAmount on an item reserved to me failed: {res}" );
+  endif
+
+  if ( !( res := ReleaseItem( item ) ) )
+    return ret_error( $"Could not release the item: {res}" );
+  endif
+
+  // hand the reservation to another script
+  var holder := resmngr.Start_Script( RESERVE_HOLDER, struct{ parent := GetProcess(),
+                                                              item := item } );
+  if ( !holder )
+    return ret_error( $"Could not start {RESERVE_HOLDER}: {holder}" );
+  endif
+  if ( !wait_for_event( EVENT_TIMEOUT_SEC ) )
+    return ret_error( "The holder script did not reserve the item" );
+  endif
+
+  res := AddAmount( item, 5 );
+  if ( res )
+    return ret_error( $"an item in use was grown: {GetAmount( item )}" );
+  elseif ( res.errortext != "That item is being used." )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  res := SubtractAmount( item, 5 );
+  if ( res )
+    return ret_error( $"an item in use was shrunk: {GetAmount( item )}" );
+  elseif ( res.errortext != "That item is being used." )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  if ( GetAmount( item ) != 10 )
+    return ret_error( $"the amount changed while the item was in use: {GetAmount( item )}" );
+  endif
+
+  holder.SendEvent( 1 );
+
+  return 1;
+endfunction

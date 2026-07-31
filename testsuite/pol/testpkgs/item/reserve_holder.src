@@ -1,0 +1,21 @@
+use uo;
+use os;
+
+// Reserves an item on behalf of a test function. A reservation belongs to the
+// script that made it, so a test cannot check what the core does to an item
+// reserved by *someone else* without a second script doing the reserving.
+//
+// Sends the result of the reservation to the parent, then holds it until the
+// parent sends anything back.
+program reserve_holder( args )
+  var { parent, item } := args;
+
+  var res := ReserveItem( item );
+  parent.SendEvent( res ?: 0 );
+  if ( !res )
+    return res;
+  endif
+
+  wait_for_event( 10 );
+  return ReleaseItem( item );
+endprogram

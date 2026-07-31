@@ -7,6 +7,10 @@ program liststatics()
   return 1;
 endprogram
 
+// the statics within one tile of 154,153: the two the box test checks plus the
+// neighbouring column and row
+const NEAR_COUNT := 6;
+
 exported function inbox()
   var info := ListStaticsInBox( 154, 154, -128, 154, 153, 128 );
   if ( len( info ) != 2 )
@@ -20,5 +24,123 @@ exported function inbox()
        info[2].hue != 1 )
     return ret_error( "Wrong static found at pos 2 :" + info[2] );
   endif
+  return 1;
+endfunction
+
+// the same two statics, found through the other three entry points
+exported function atlocation()
+  // an exact z matches exactly one of the two
+  var info := ListStaticsAtLocation( 154, 153, 27 );
+  if ( info.size() != 1 )
+    return ret_error( $"wrong number of statics: {info}" );
+  endif
+  if ( info[1].objtype != 0x05c3 || info[1].x != 154 || info[1].y != 153 || info[1].z != 27 ||
+       info[1].hue != 0 )
+    return ret_error( $"wrong static: {info[1]}" );
+  endif
+
+  // the neighbour carries the other hue
+  info := ListStaticsAtLocation( 154, 154, 27 );
+  if ( info.size() != 1 || info[1].hue != 1 )
+    return ret_error( $"wrong static: {info}" );
+  endif
+
+  // this entry point matches the z exactly, so a different one finds nothing
+  if ( ( info := ListStaticsAtLocation( 154, 153, 0 ) ).size() )
+    return ret_error( $"a static was found at the wrong z: {info}" );
+  endif
+
+  // unless the z is ignored altogether
+  if ( ( info := ListStaticsAtLocation( 154, 153, LIST_IGNORE_Z ) ).size() != 1 )
+    return ret_error( $"wrong number of statics with LIST_IGNORE_Z: {info}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function nearlocation()
+  var info := ListStaticsNearLocation( 154, 153, 27, 1 );
+  if ( info.size() != NEAR_COUNT )
+    return ret_error( $"wrong number of statics: {info}" );
+  endif
+
+  // that count is the ones within a z range of the given z. Ignoring the z
+  // instead has to find everything the box over the same tiles finds.
+  var boxed := ListStaticsInBox( 153, 152, -128, 155, 154, 128 );
+  var ignored_z := ListStaticsNearLocation( 154, 153, LIST_IGNORE_Z, 1 );
+  if ( ignored_z.size() != boxed.size() )
+    return ret_error( $"near and box disagree: {ignored_z.size()} != {boxed.size()}" );
+  endif
+  if ( ignored_z.size() <= info.size() )
+    return ret_error( $"the z filter dropped nothing: {ignored_z.size()} <= {info.size()}" );
+  endif
+
+  // a range of 0 only looks at the one tile
+  if ( ( info := ListStaticsNearLocation( 154, 153, 27, 0 ) ).size() != 1 )
+    return ret_error( $"wrong number of statics at range 0: {info}" );
+  endif
+
+  // unlike AtLocation this one accepts a z within a range of it
+  if ( ( info := ListStaticsNearLocation( 154, 153, 20, 0 ) ).size() != 1 )
+    return ret_error( $"a nearby z was rejected: {info}" );
+  endif
+  if ( ( info := ListStaticsNearLocation( 154, 153, 0, 0 ) ).size() )
+    return ret_error( $"a far away z was accepted: {info}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function nearlocationoftype()
+  var info := ListStaticsNearLocationOfType( 154, 153, 27, 1, 0x05c3 );
+  if ( info.size() != NEAR_COUNT )
+    return ret_error( $"wrong number of statics: {info}" );
+  endif
+  foreach static in ( info )
+    if ( static.objtype != 0x05c3 )
+      return ret_error( $"wrong objtype: {static}" );
+    endif
+  endforeach
+
+  // another objtype finds nothing here
+  if ( ( info := ListStaticsNearLocationOfType( 154, 153, 27, 1, 0x05c4 ) ).size() )
+    return ret_error( $"unexpected statics of another type: {info}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function nearlocationwithflag()
+  // the tiledata marks these statics as no shoot
+  var info := ListStaticsNearLocationWithFlag( 154, 153, 27, 1, TILEDATA_FLAG_NOSHOOT );
+  if ( info.size() != NEAR_COUNT )
+    return ret_error( $"wrong number of statics: {info}" );
+  endif
+
+  // and not as a wall
+  if ( ( info := ListStaticsNearLocationWithFlag( 154, 153, 27, 1, TILEDATA_FLAG_WALL ) ).size() )
+    return ret_error( $"statics matched a flag they do not carry: {info}" );
+  endif
+
+  return 1;
+endfunction
+
+// the flags parameter that the other cases always leave at its default
+exported function ignore_statics()
+  var info := ListStaticsInBox( 154, 154, -128, 154, 153, 128, ITEMS_IGNORE_STATICS );
+  if ( info.size() )
+    return ret_error( $"statics were listed although they were excluded: {info}" );
+  endif
+
+  info := ListStaticsAtLocation( 154, 153, 27, ITEMS_IGNORE_STATICS );
+  if ( info.size() )
+    return ret_error( $"statics were listed although they were excluded: {info}" );
+  endif
+
+  info := ListStaticsNearLocation( 154, 153, 27, 1, ITEMS_IGNORE_STATICS );
+  if ( info.size() )
+    return ret_error( $"statics were listed although they were excluded: {info}" );
+  endif
+
   return 1;
 endfunction

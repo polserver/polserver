@@ -1,0 +1,27 @@
+// The CheckSkill system hook, installed by syshook.cfg.
+//
+// CheckSkill() does nothing but call this hook, and nothing else in the core
+// calls check_skill(), so this is the only way to see what the module function
+// passes on - and installing it cannot disturb any other test.
+//
+// A shard without the hook answers 0 to every skill check, which is what this
+// keeps doing until a test parks something else in #AttrCheckSkillResult.
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+exported function CheckSkillHook( character, skillid, difficulty, points )
+  SetGlobalProperty( "#AttrCheckSkill", struct{ serial := character.serial,
+                                                skillid := skillid,
+                                                difficulty := difficulty,
+                                                points := points } );
+
+  var result := GetGlobalProperty( "#AttrCheckSkillResult" );
+  if ( !result )
+    return 0;
+  endif
+  return CInt( result );
+endfunction

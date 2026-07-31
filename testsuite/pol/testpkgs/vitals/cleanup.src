@@ -1,0 +1,17 @@
+use uo;
+use os;
+
+program cleanup()
+  EraseGlobalProperty( "#VitalDepleted" );
+
+  foreach mob in ( ListMobilesInBox( 0, 0, -200, 10000, 10000, 2000 ) )
+    if ( GetObjProperty( mob, "#VitalTest" ) )
+      mob.kill();
+    endif
+  endforeach
+
+  foreach item in ( ListItemsInBoxOfObjType( 0x2006, 0, 0, -200, 10000, 10000, 2000 ) )
+    DestroyItem( item );
+  endforeach
+  return 1;
+endprogram

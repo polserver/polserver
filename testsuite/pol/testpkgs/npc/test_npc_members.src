@@ -1,0 +1,349 @@
+// The members an NPC has on top of a plain mobile, from the running side.
+// testrestart/test_npc.src already checks that they survive a save and a load;
+// this checks what they say and what they accept while the shard is up.
+use uo;
+use os;
+
+include "testutil";
+include "sysevent";
+
+const REMOTE_SCRIPT := "ai_remote";
+
+// open flat land at z 0
+const BASE_X := 120;
+const BASE_Y := 120;
+
+const RESULT_TIMEOUT_SEC := 5;
+
+// NpcTemplate::ALIGNMENT
+const ALIGNMENT_NEUTRAL := 0;
+const ALIGNMENT_EVIL := 1;
+
+program testnpcmembers()
+  return 1;
+endprogram
+
+// an NPC with no Script of its own
+function make_plain_npc( resmngr, template := ":testnpc:probe_npc" )
+  var npc := resmngr.CreateNPCFromTemplate( template, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+  return npc;
+endfunction
+
+function make_remote_npc( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y, 0, struct{
+                                                                                     script := REMOTE_SCRIPT } );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  clear_event_queue();
+  return npc;
+endfunction
+
+function remote( npc, cmd, args := 0 )
+  var sent := npc.process.sendevent( struct{ cmd := cmd, args := args } );
+  if ( !sent )
+    return ret_error( $"could not send '{cmd}' to the NPC: {sent}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == "result" && ev.cmd == cmd )
+      return ev;
+    endif
+  endwhile
+
+  return ret_error( $"no result from '{cmd}'" );
+endfunction
+
+// where the NPC came from, and which script it runs
+exported function member_npctemplate( resmngr )
+  var npc := make_plain_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+
+  // the template name as it was asked for, package prefix and all
+  if ( npc.npctemplate != ":testnpc:probe_npc" )
+    return ret_error( $"wrong npctemplate: '{npc.npctemplate}'" );
+  endif
+
+  // probe_npc has no Script line, so there is nothing to report
+  if ( npc.script != "" )
+    return ret_error( $"a scriptless NPC named a script: '{npc.script}'" );
+  endif
+
+  var scripted := make_remote_npc( resmngr );
+  if ( !scripted )
+    return scripted;
+  endif
+  if ( scripted.script != REMOTE_SCRIPT )
+    return ret_error( $"wrong script: '{scripted.script}'" );
+  endif
+  if ( scripted.npctemplate != ":testnpc:probe_npc" )
+    return ret_error( $"an override changed the npctemplate: '{scripted.npctemplate}'" );
+  endif
+
+  // the script member is writable, and says what it was set to
+  npc.script := "somethingelse";
+  if ( npc.script != "somethingelse" )
+    return ret_error( $"the script member did not take: '{npc.script}'" );
+  endif
+
+  return 1;
+endfunction
+
+// master is empty until something is made one, and clearing it is what a bad
+// parameter does
+exported function member_master( resmngr )
+  var npc := make_plain_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+  var owner := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X + 2, BASE_Y, 0 );
+  if ( !owner )
+    return ret_error( $"Could not create the owner NPC: {owner}" );
+  endif
+
+  if ( npc.master != 0 )
+    return ret_error( $"a fresh NPC already has a master: {npc.master}" );
+  endif
+
+  var res := npc.setmaster( owner );
+  if ( res != 1 )
+    return ret_error( $"setmaster failed: {res}" );
+  endif
+  if ( npc.master.serial != owner.serial )
+    return ret_error( $"wrong master: {npc.master}" );
+  endif
+
+  // anything that is not a mobile does not fail, it lets the master go
+  res := npc.setmaster( "nobody" );
+  if ( res != 0 )
+    return ret_error( $"setmaster of a non-mobile returned {res}" );
+  endif
+  if ( npc.master != 0 )
+    return ret_error( $"the master survived: {npc.master}" );
+  endif
+
+  return 1;
+endfunction
+
+// both of these are really questions about the AI script, and there may not be
+// one
+exported function member_process_and_eventmask( resmngr )
+  var npc := make_plain_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+
+  if ( npc.process )
+    return ret_error( "a scriptless NPC has a process" );
+  elseif ( npc.process.errortext != "No script running" )
+    return ret_error( $"wrong error for process: '{npc.process.errortext}'" );
+  endif
+  if ( npc.eventmask.errortext != "No script running" )
+    return ret_error( $"wrong error for eventmask: '{npc.eventmask.errortext}'" );
+  endif
+
+  var scripted := make_remote_npc( resmngr );
+  if ( !scripted )
+    return scripted;
+  endif
+
+  if ( !scripted.process )
+    return ret_error( $"a running NPC has no process: {scripted.process}" );
+  endif
+  if ( scripted.eventmask != 0 )
+    return ret_error( $"a fresh script already listens to {scripted.eventmask}" );
+  endif
+
+  // speech needs a range, and the range has to be one the core accepts
+  var res := remote( scripted, "enableevents", { SYSEVENT_SPEECH, 5, EVMASK_ALL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != SYSEVENT_SPEECH )
+    return ret_error( $"EnableEvents returned {res.result}" );
+  endif
+  if ( scripted.eventmask != SYSEVENT_SPEECH )
+    return ret_error( $"wrong eventmask: {scripted.eventmask}" );
+  endif
+
+  // the masks add up rather than replace each other
+  res := remote( scripted, "enableevents", { SYSEVENT_DAMAGED, 5, EVMASK_ALL } );
+  if ( !res )
+    return res;
+  endif
+  if ( scripted.eventmask != ( SYSEVENT_SPEECH | SYSEVENT_DAMAGED ) )
+    return ret_error( $"wrong eventmask after the second call: {scripted.eventmask}" );
+  endif
+
+  res := remote( scripted, "disableevents", { SYSEVENT_SPEECH } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != SYSEVENT_DAMAGED || scripted.eventmask != SYSEVENT_DAMAGED )
+    return ret_error( $"DisableEvents left {res.result} / {scripted.eventmask}" );
+  endif
+
+  res := remote( scripted, "disableevents", { SYSEVENT_DAMAGED } );
+  if ( !res )
+    return res;
+  endif
+  if ( scripted.eventmask != 0 )
+    return ret_error( $"the eventmask did not empty: {scripted.eventmask}" );
+  endif
+
+  return 1;
+endfunction
+
+// the three that are squeezed into a u16 on the way in
+exported function member_clamped_numbers( resmngr )
+  var npc := make_plain_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+
+  // run_speed starts out as the template's DEX, which probe_npc sets to 200
+  if ( npc.run_speed != 200 )
+    return ret_error( $"run_speed {npc.run_speed} is not the template's DEX of 200" );
+  endif
+
+  foreach name in { "speech_color", "speech_font", "run_speed" }
+    npc.set_member( name, 1234 );
+    if ( npc.get_member( name ) != 1234 )
+      return ret_error( $"{name} did not take 1234: {npc.get_member( name )}" );
+    endif
+
+    // below the range it lands on 0
+    npc.set_member( name, -1 );
+    if ( npc.get_member( name ) != 0 )
+      return ret_error( $"{name} of -1 became {npc.get_member( name )}" );
+    endif
+
+    // and above it, on the top of the range
+    npc.set_member( name, 70000 );
+    if ( npc.get_member( name ) != 65535 )
+      return ret_error( $"{name} of 70000 became {npc.get_member( name )}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// and the three that are only ever on or off
+exported function member_flags( resmngr )
+  var npc := make_plain_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+
+  // name, what the template leaves it as
+  var flags := { { "use_adjustments", 1 }, { "saveonexit", 1 }, { "no_drop_exception", 0 } };
+
+  foreach entry in flags
+    var name := entry[1], want := entry[2];
+
+    if ( npc.get_member( name ) != want )
+      return ret_error( $"{name} started at {npc.get_member( name )}, expected {want}" );
+    endif
+
+    npc.set_member( name, 0 );
+    if ( npc.get_member( name ) != 0 )
+      return ret_error( $"{name} could not be switched off" );
+    endif
+
+    // anything that is not 0 is 1, not itself
+    npc.set_member( name, 7 );
+    if ( npc.get_member( name ) != 1 )
+      return ret_error( $"{name} set to 7 reads back as {npc.get_member( name )}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// alignment belongs to the template the NPC shares, not to the NPC
+exported function member_alignment( resmngr )
+  var npc := make_plain_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+
+  if ( npc.alignment != ALIGNMENT_NEUTRAL )
+    return ret_error( $"probe_npc is not neutral: {npc.alignment}" );
+  endif
+
+  var evil := resmngr.CreateNPCFromTemplate( ":testnpc:align_npc", BASE_X + 2, BASE_Y, 0 );
+  if ( !evil )
+    return ret_error( $"Could not create the evil NPC: {evil}" );
+  endif
+  if ( evil.alignment != ALIGNMENT_EVIL )
+    return ret_error( $"align_npc is not evil: {evil.alignment}" );
+  endif
+
+  // there is no setter, so the template keeps the last word
+  npc.alignment := ALIGNMENT_EVIL;
+  if ( npc.alignment != ALIGNMENT_NEUTRAL )
+    return ret_error( $"the alignment was written after all: {npc.alignment}" );
+  endif
+
+  return 1;
+endfunction
+
+// GetProperty and SetProperty are the cprops of the NPC running the script
+exported function npc_get_set_property( resmngr )
+  var npc := make_remote_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := remote( npc, "setproperty", { "mood", "cheerful" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( $"SetProperty failed: {res.result} '{res.errortext}'" );
+  endif
+
+  // the same cprop the world sees from outside
+  var outside := GetObjProperty( npc, "mood" );
+  if ( outside != "cheerful" )
+    return ret_error( $"SetProperty wrote something else: {outside}" );
+  endif
+
+  res := remote( npc, "getproperty", { "mood" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.text != "cheerful" )
+    return ret_error( $"GetProperty read back '{res.text}'" );
+  endif
+
+  // and it reads what was written from outside
+  SetObjProperty( npc, "mood", "grim" );
+  res := remote( npc, "getproperty", { "mood" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.text != "grim" )
+    return ret_error( $"GetProperty did not see the outside write: '{res.text}'" );
+  endif
+
+  EraseObjProperty( npc, "mood" );
+  res := remote( npc, "getproperty", { "mood" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "Property not found" )
+    return ret_error( $"wrong error for a missing property: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction

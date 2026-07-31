@@ -1,0 +1,370 @@
+// The odds and ends of uo.em that act on a single item: what its objtype is,
+// which properties it carries, who may reach it, and what using it runs.
+use uo;
+use os;
+
+include "testutil";
+
+const BASE_X := 100;
+const BASE_Y := 100;
+
+// 0x200001 is the "loadtest" container from itemdesc.cfg
+const CONTAINER := 0x200001;
+const COIN := 0x0EED;
+
+const USESCRIPT := ":TestItems:usescript";
+// must match the const of the same name in usescript.src
+const PARENT_PID_PROP := "test_item_usescript_pid";
+const EVENT_TIMEOUT_SEC := 5;
+
+program testitemmisc()
+  return 1;
+endprogram
+
+// items and mobiles alike, and a soft 0 for anything else
+exported function objtype_of( resmngr )
+  var item := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN );
+  var cont := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 1, CONTAINER );
+  if ( !item || !cont )
+    return ret_error( $"Could not create items: {item} / {cont}" );
+  endif
+
+  if ( GetObjType( item ) != COIN || GetObjType( item ) != item.objtype )
+    return ret_error( $"wrong objtype: {GetObjType( item )}" );
+  endif
+  if ( GetObjType( cont ) != CONTAINER )
+    return ret_error( $"wrong container objtype: {GetObjType( cont )}" );
+  endif
+
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X + 1, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+  if ( GetObjType( npc ) != npc.objtype )
+    return ret_error( $"wrong npc objtype: {GetObjType( npc )}" );
+  endif
+
+  // anything that is neither is a plain 0, not an error
+  var res := GetObjType( "not an object" );
+  if ( res != 0 || TypeOf( res ) != "Integer" )
+    return ret_error( $"GetObjType of a non-object: {res} ({TypeOf( res )})" );
+  endif
+
+  // an integer is read as a serial though, and 0 is not a valid one
+  res := GetObjType( 0 );
+  if ( res.errortext != "Serial refers to an Item, or is zero" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// the itemdesc Name of an entry, back to its objtype
+exported function objtype_by_name( resmngr )
+  var res := GetObjtypeByName( "goldcoin" );
+  if ( res != COIN )
+    return ret_error( $"wrong objtype for goldcoin: {res}" );
+  endif
+
+  // the same name that CreateItemAtLocation takes
+  var item := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, "goldcoin" );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+  if ( GetObjType( item ) != res )
+    return ret_error( $"the name and the objtype disagree: {GetObjType( item )} / {res}" );
+  endif
+
+  if ( ( res := GetObjtypeByName( "loadtest" ) ) != CONTAINER )
+    return ret_error( $"wrong objtype for loadtest: {res}" );
+  endif
+
+  res := GetObjtypeByName( "no_such_itemdesc_entry" );
+  if ( res )
+    return ret_error( $"an unknown name gave an objtype: {res}" );
+  elseif ( res.errortext != "No objtype by that name" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  res := GetObjtypeByName( 0 );
+  if ( res )
+    return ret_error( $"a non-string gave an objtype: {res}" );
+  elseif ( res.errortext != "Invalid parameter" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// the names, not the values - and only the ones that were actually set
+exported function obj_property_names( resmngr )
+  var item := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  var names := GetObjPropertyNames( item );
+  if ( names.size() )
+    return ret_error( $"a fresh item already has properties: {names}" );
+  endif
+
+  SetObjProperty( item, "alpha", 1 );
+  SetObjProperty( item, "beta", struct{ a := 1 } );
+
+  names := GetObjPropertyNames( item );
+  if ( names.size() != 2 )
+    return ret_error( $"wrong number of property names: {names}" );
+  elseif ( !( "alpha" in names ) || !( "beta" in names ) )
+    return ret_error( $"wrong property names: {names}" );
+  endif
+
+  // overwriting one does not add a second entry
+  SetObjProperty( item, "alpha", 2 );
+  if ( GetObjPropertyNames( item ).size() != 2 )
+    return ret_error( $"overwriting a property added a name: {GetObjPropertyNames( item )}" );
+  endif
+
+  EraseObjProperty( item, "alpha" );
+  names := GetObjPropertyNames( item );
+  if ( names.size() != 1 || !( "beta" in names ) )
+    return ret_error( $"wrong property names after erasing: {names}" );
+  endif
+
+  // erasing what is not there is not an error and changes nothing
+  EraseObjProperty( item, "alpha" );
+  if ( GetObjPropertyNames( item ).size() != 1 )
+    return ret_error( "erasing an absent property changed the names" );
+  endif
+
+  var res := GetObjPropertyNames( "not an object" );
+  if ( res )
+    return ret_error( $"a non-object had property names: {res}" );
+  elseif ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// the same thing for the properties that hang off no object at all
+exported function global_property_names( unused resmngr )
+  // other tests park globals here too, so only the difference is checked
+  var before := GetGlobalPropertyNames().size();
+
+  SetGlobalProperty( "test_item_alpha", 1 );
+  SetGlobalProperty( "test_item_beta", "two" );
+
+  var names := GetGlobalPropertyNames();
+  var res := 1;
+  if ( names.size() != before + 2 )
+    res := ret_error( $"wrong number of global property names: {names.size()}, expected {before + 2}" );
+  elseif ( !( "test_item_alpha" in names ) || !( "test_item_beta" in names ) )
+    res := ret_error( $"the new global properties are not listed: {names}" );
+  endif
+
+  if ( res == 1 )
+    SetGlobalProperty( "test_item_alpha", 2 );
+    if ( GetGlobalPropertyNames().size() != before + 2 )
+      res := ret_error( "overwriting a global property added a name" );
+    endif
+  endif
+
+  if ( res == 1 )
+    EraseGlobalProperty( "test_item_alpha" );
+    names := GetGlobalPropertyNames();
+    if ( names.size() != before + 1 )
+      res := ret_error( $"wrong number of global property names after erasing: {names.size()}" );
+    elseif ( "test_item_alpha" in names )
+      res := ret_error( "an erased global property is still listed" );
+    endif
+  endif
+
+  EraseGlobalProperty( "test_item_alpha" );
+  EraseGlobalProperty( "test_item_beta" );
+  if ( res == 1 && GetGlobalPropertyNames().size() != before )
+    res := ret_error( "the test left global properties behind" );
+  endif
+
+  return res;
+endfunction
+
+// the distance half of Accessible, over a DefaultAccessibleRange the test
+// lowers so that the shard's own 18 is not in the way
+exported function accessible_range( resmngr )
+  var res := resmngr.UpdateConfiguration( struct{ DefaultAccessibleRange := 2 } );
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  var near := resmngr.CreateItemAtLocation( BASE_X + 1, BASE_Y, 0, COIN );
+  var far := resmngr.CreateItemAtLocation( BASE_X + 5, BASE_Y, 0, CONTAINER );
+  if ( !near || !far )
+    return ret_error( $"Could not create items: {near} / {far}" );
+  endif
+
+  if ( Accessible( npc, near ) != 1 )
+    return ret_error( "an item one tile away is not accessible" );
+  endif
+  if ( Accessible( npc, far ) != 0 )
+    return ret_error( "an item five tiles away is accessible at a range of 2" );
+  endif
+
+  // spelling out the default is the same as leaving it out
+  if ( Accessible( npc, far, ACCESSIBLE_DEFAULT ) != 0 )
+    return ret_error( "ACCESSIBLE_DEFAULT is not the default" );
+  endif
+
+  // a range of its own, and the one that drops the check altogether
+  if ( Accessible( npc, far, 5 ) != 1 )
+    return ret_error( "an explicit range of 5 did not reach five tiles" );
+  endif
+  if ( Accessible( npc, far, 4 ) != 0 )
+    return ret_error( "an explicit range of 4 reached five tiles" );
+  endif
+  if ( Accessible( npc, far, ACCESSIBLE_IGNOREDISTANCE ) != 1 )
+    return ret_error( "ACCESSIBLE_IGNOREDISTANCE did not ignore the distance" );
+  endif
+
+  // a range of 0 is still a range check, not the ignore value
+  if ( Accessible( npc, near, 0 ) != 0 )
+    return ret_error( "a range of 0 reached one tile" );
+  endif
+
+  return 1;
+endfunction
+
+// the other half: being close enough is not enough if the item is shut away
+exported function accessible_container( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  var cont := resmngr.CreateItemAtLocation( BASE_X + 1, BASE_Y, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"Could not create container: {cont}" );
+  endif
+  var inside := resmngr.CreateItemInContainer( cont, COIN, 10 );
+  var sub := resmngr.CreateItemInContainer( cont, CONTAINER );
+  if ( !inside || !sub )
+    return ret_error( $"Could not fill the container: {inside} / {sub}" );
+  endif
+  var buried := resmngr.CreateItemInContainer( sub, COIN, 10 );
+  if ( !buried )
+    return ret_error( $"Could not create item: {buried}" );
+  endif
+
+  // a contained item is measured from the container's spot on the ground, and
+  // the search descends as deep as it needs to
+  if ( Accessible( npc, cont ) != 1 || Accessible( npc, inside ) != 1 )
+    return ret_error( "an item in an open container next door is not accessible" );
+  endif
+  if ( Accessible( npc, buried ) != 1 )
+    return ret_error( "an item two containers down is not accessible" );
+  endif
+
+  // locking shuts the contents of the container away, but only for a container
+  // the search has to descend into - a locked container on the ground is not
+  // its own barrier
+  sub.locked := 1;
+  if ( Accessible( npc, buried ) != 0 )
+    return ret_error( "an item in a locked sub-container is accessible" );
+  endif
+  if ( Accessible( npc, sub ) != 1 || Accessible( npc, inside ) != 1 )
+    return ret_error( "locking the sub-container shut away more than its contents" );
+  endif
+
+  cont.locked := 1;
+  if ( Accessible( npc, inside ) != 1 )
+    return ret_error( "locking the container on the ground shut away its own contents" );
+  endif
+  cont.locked := 0;
+
+  // it is the container that is shut, not the distance, so ignoring the
+  // distance changes nothing
+  if ( Accessible( npc, buried, ACCESSIBLE_IGNOREDISTANCE ) != 0 )
+    return ret_error( "ACCESSIBLE_IGNOREDISTANCE opened a locked container" );
+  endif
+
+  sub.locked := 0;
+  if ( Accessible( npc, buried ) != 1 )
+    return ret_error( "unlocking the sub-container did not make the item accessible" );
+  endif
+
+  return 1;
+endfunction
+
+// UseItem runs the script the item points at, whether or not anyone is
+// watching through a client
+exported function use_item_script( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  var item := resmngr.CreateItemAtLocation( BASE_X + 1, BASE_Y, 0, COIN );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  // goldcoin has no OnUseScript in itemdesc.cfg, the member is set here
+  item.usescript := USESCRIPT;
+  if ( item.usescript != USESCRIPT )
+    return ret_error( $"the usescript did not stick: {item.usescript}" );
+  endif
+
+  SetGlobalProperty( PARENT_PID_PROP, GetPid() );
+
+  var res := UseItem( item, npc );
+  if ( res != 1 )
+    res := ret_error( $"UseItem failed: {res}" );
+  else
+    var ev := wait_for_event( EVENT_TIMEOUT_SEC );
+    if ( !ev )
+      res := ret_error( "the use script did not report back" );
+    elseif ( ev.item != item )
+      res := ret_error( $"the use script got the wrong item: {ev.item}" );
+    elseif ( ev.character != npc )
+      res := ret_error( $"the use script got the wrong character: {ev.character}" );
+    endif
+  endif
+
+  EraseGlobalProperty( PARENT_PID_PROP );
+  return res;
+endfunction
+
+// without a script and without a client there is nothing left to do
+exported function use_item_no_script( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  var item := resmngr.CreateItemAtLocation( BASE_X + 1, BASE_Y, 0, COIN );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  // 0 means "nothing ran", not "it failed"
+  var res := UseItem( item, npc );
+  if ( res != 0 )
+    return ret_error( $"UseItem ran something: {res}" );
+  elseif ( res.errortext )
+    return ret_error( $"UseItem raised an error: {res.errortext}" );
+  endif
+
+  // reaching the item is not UseItem's business either
+  res := UseItem( item, "not a character" );
+  if ( res )
+    return ret_error( "UseItem accepted a non-character" );
+  elseif ( res.errortext != "Invalid parameter" )
+    return ret_error( $"wrong error: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction

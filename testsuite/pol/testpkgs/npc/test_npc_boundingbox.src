@@ -1,0 +1,403 @@
+// The two things that fence an NPC in: a bounding box, which it is asked about
+// tile by tile, and an anchor, which quietly refuses moves that lead away from
+// it. Driven through ai_remote.src.
+use uo;
+use os;
+
+include "testutil";
+
+const REMOTE_SCRIPT := "ai_remote";
+
+// open flat land at z 0
+const BASE_X := 120;
+const BASE_Y := 120;
+
+const RESULT_TIMEOUT_SEC := 5;
+
+// the anchor rolls a die once it is past its start distance, and the worst case
+// still lets 6 attempts in 100 through. Enough probes that "none of them was
+// refused" cannot happen by chance.
+const ANCHOR_PROBES := 12;
+
+program testnpcboundingbox()
+  return 1;
+endprogram
+
+function make_remote_npc( resmngr, x, y, z )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, z, struct{ script := REMOTE_SCRIPT,
+                                                                                   RunSpeed := 250 } );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  clear_event_queue();
+  return npc;
+endfunction
+
+function remote( npc, cmd, args := 0 )
+  var sent := npc.process.sendevent( struct{ cmd := cmd, args := args } );
+  if ( !sent )
+    return ret_error( $"could not send '{cmd}' to the NPC: {sent}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == "result" && ev.cmd == cmd )
+      return ev;
+    endif
+  endwhile
+
+  return ret_error( $"no result from '{cmd}'" );
+endfunction
+
+function make_box( npc, areastring )
+  var res := remote( npc, "makeboundingbox", { areastring } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.text != "BoundingBox" )
+    return ret_error( $"MakeBoundingBox( \"{areastring}\" ) gave a {res.text}" );
+  endif
+  return 1;
+endfunction
+
+// counts how many of ANCHOR_PROBES CanMove calls in a direction were refused
+function count_refused( npc, dir )
+  var refused := 0;
+  var i;
+  for ( i := 1; i <= ANCHOR_PROBES; i += 1 )
+    var res := remote( npc, "canmove", { dir } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result == 0 )
+      refused += 1;
+    endif
+  endfor
+  return refused;
+endfunction
+
+// IsLegalMove asks about the tile one step away, and the edges are inside
+exported function bbox_is_legal_move( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // a 5x5 with the NPC in the middle
+  var res := make_box( npc, $"{BASE_X - 2} {BASE_Y - 2} {BASE_X + 2} {BASE_Y + 2}" );
+  if ( !res )
+    return res;
+  endif
+
+  foreach dir in { "N", "NE", "E", "SE", "S", "SW", "W", "NW" }
+    res := remote( npc, "islegalmove", { dir } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 1 )
+      return ret_error( $"IsLegalMove( \"{dir}\" ) called the middle of the box illegal" );
+    endif
+  endforeach
+
+  // on the northern edge the step north leaves the box, the step south does not
+  MoveObjectToLocation( npc, BASE_X, BASE_Y - 2, 0 );
+
+  res := remote( npc, "islegalmove", { "N" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( "IsLegalMove( \"N\" ) allowed a step out of the box" );
+  endif
+
+  res := remote( npc, "islegalmove", { "S" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( "IsLegalMove( \"S\" ) refused a step back into the box" );
+  endif
+
+  // the corner counts as inside, so from one tile in, the diagonal is legal
+  MoveObjectToLocation( npc, BASE_X - 1, BASE_Y - 1, 0 );
+  res := remote( npc, "islegalmove", { "NW" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( "IsLegalMove( \"NW\" ) left the corner of the box out" );
+  endif
+
+  return 1;
+endfunction
+
+// an areastring can name more than one rectangle, and they need not touch
+exported function bbox_several_areas( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // one rectangle around the NPC, a second one ten tiles away
+  var far_x := BASE_X + 10, far_y := BASE_Y + 10;
+  var res := make_box( npc, $"{BASE_X} {BASE_Y} {BASE_X} {BASE_Y} {far_x} {far_y} {far_x} {far_y}" );
+  if ( !res )
+    return res;
+  endif
+
+  // standing on the first area, every way out is illegal
+  res := remote( npc, "islegalmove", { "E" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( "a step off the single tile area was legal" );
+  endif
+
+  // next to the second area, the step into it is legal
+  MoveObjectToLocation( npc, far_x - 1, far_y, 0 );
+  res := remote( npc, "islegalmove", { "E" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( "the second area of the box was not there" );
+  endif
+
+  res := remote( npc, "islegalmove", { "W" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( "a step away from the second area was legal" );
+  endif
+
+  return 1;
+endfunction
+
+// Move with a box picks its own direction: it stays in while it is in, and it
+// is let out of nothing when it is already out
+exported function bbox_move( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // a box of exactly the tile the NPC stands on - whichever direction the core
+  // rolls, it leads out, so the move never happens
+  var res := make_box( npc, $"{BASE_X} {BASE_Y} {BASE_X} {BASE_Y}" );
+  if ( !res )
+    return res;
+  endif
+
+  res := remote( npc, "move_bbox" );
+  if ( !res )
+    return res;
+  endif
+  if ( res.text != "" )
+    return ret_error( $"Move( bbox ) stepped out of the box, facing {res.text}" );
+  elseif ( res.x != BASE_X || res.y != BASE_Y )
+    return ret_error( $"Move( bbox ) moved the NPC to {res.x},{res.y}" );
+  endif
+
+  // from outside the box the rule turns around: an NPC that is already out may
+  // move wherever the roll takes it
+  var out_x := BASE_X + 10, out_y := BASE_Y + 10;
+  MoveObjectToLocation( npc, out_x, out_y, 0 );
+
+  res := remote( npc, "move_bbox" );
+  if ( !res )
+    return res;
+  endif
+  if ( !( res.text in { "N", "NE", "E", "SE", "S", "SW", "W", "NW" } ) )
+    return ret_error( $"Move( bbox ) from outside returned '{res.text}'" );
+  endif
+  if ( res.x < out_x - 1 || res.x > out_x + 1 || res.y < out_y - 1 || res.y > out_y + 1 )
+    return ret_error( $"Move( bbox ) jumped from {out_x},{out_y} to {res.x},{res.y}" );
+  endif
+
+  return 1;
+endfunction
+
+// everything it will not accept comes back as a plain 0, never as an error
+exported function bbox_errors( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // an areastring that is not a string at all gives back an empty string
+  var res := remote( npc, "makeboundingbox", { 0 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.text != "String" )
+    return ret_error( $"MakeBoundingBox( 0 ) gave a {res.text}" );
+  endif
+
+  res := make_box( npc, $"{BASE_X - 2} {BASE_Y - 2} {BASE_X + 2} {BASE_Y + 2}" );
+  if ( !res )
+    return res;
+  endif
+
+  // a direction that is not one
+  res := remote( npc, "islegalmove", { "Q" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 || res.errortext )
+    return ret_error( $"IsLegalMove( \"Q\" ) gave {res.result} '{res.errortext}'" );
+  endif
+
+  // unlike Move and CanMove, this one takes no numeric facing
+  res := remote( npc, "islegalmove", { 0 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 || res.errortext )
+    return ret_error( $"IsLegalMove( 0 ) gave {res.result} '{res.errortext}'" );
+  endif
+
+  // and something that is not a box
+  res := remote( npc, "islegalmove_param", { "N", 0 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 || res.errortext )
+    return ret_error( $"IsLegalMove( \"N\", 0 ) gave {res.result} '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// the anchor only ever objects to moves that lead further away, and only once
+// they are past its start distance
+exported function anchor_refuses_leaving( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := remote( npc, "setanchor", { BASE_X, BASE_Y, 2, 100 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( $"SetAnchor failed: '{res.errortext}'" );
+  endif
+
+  // one tile out is still inside the start distance, so nothing is refused
+  var refused := count_refused( npc, "E" );
+  if ( refused == error )
+    return refused;
+  endif
+  if ( refused )
+    return ret_error( $"{refused} moves inside the start distance were refused" );
+  endif
+
+  // three tiles out, a step further away is past the start distance and the
+  // core starts rolling against it
+  MoveObjectToLocation( npc, BASE_X + 3, BASE_Y, 0 );
+
+  refused := count_refused( npc, "E" );
+  if ( refused == error )
+    return refused;
+  endif
+  if ( !refused )
+    return ret_error( $"none of {ANCHOR_PROBES} moves away from the anchor was refused" );
+  endif
+
+  // the way home is never refused
+  refused := count_refused( npc, "W" );
+  if ( refused == error )
+    return refused;
+  endif
+  if ( refused )
+    return ret_error( $"{refused} moves back toward the anchor were refused" );
+  endif
+
+  // and neither is a move that keeps the distance the same
+  refused := count_refused( npc, "N" );
+  if ( refused == error )
+    return refused;
+  endif
+  if ( refused )
+    return ret_error( $"{refused} moves at an unchanged distance were refused" );
+  endif
+
+  return 1;
+endfunction
+
+// a start distance of 0 switches it off, and war mode ignores it
+exported function anchor_switched_off( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X + 3, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := remote( npc, "setanchor", { BASE_X, BASE_Y, 2, 100 } );
+  if ( !res )
+    return res;
+  endif
+
+  var refused := count_refused( npc, "E" );
+  if ( refused == error )
+    return refused;
+  endif
+  if ( !refused )
+    return ret_error( "the anchor was not holding to begin with" );
+  endif
+
+  // an NPC that is fighting does not care where its anchor is
+  npc.setwarmode( 1 );
+  refused := count_refused( npc, "E" );
+  if ( refused == error )
+    return refused;
+  endif
+  if ( refused )
+    return ret_error( $"{refused} moves were refused in war mode" );
+  endif
+  npc.setwarmode( 0 );
+
+  // a start distance of 0 turns the anchor off for good, and still reports
+  // that it did something
+  res := remote( npc, "setanchor", { BASE_X, BASE_Y, 0, 100 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( $"SetAnchor with a start distance of 0 failed: '{res.errortext}'" );
+  endif
+
+  refused := count_refused( npc, "E" );
+  if ( refused == error )
+    return refused;
+  endif
+  if ( refused )
+    return ret_error( $"{refused} moves were refused after the anchor was switched off" );
+  endif
+
+  return 1;
+endfunction
+
+exported function anchor_errors( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // the coordinate conversion complains before SetAnchor gets to, so its own
+  // "Invalid parameter type" never reaches the script
+  var res := remote( npc, "setanchor", { "here", BASE_Y, 2, 100 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "Invalid parameter type.  Expected param 0 as Integer, got String" )
+    return ret_error( $"wrong error for a coordinate that is not one: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction

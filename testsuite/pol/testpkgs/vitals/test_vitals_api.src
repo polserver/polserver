@@ -1,0 +1,350 @@
+// The vitals module functions themselves. Most of these are used nowhere else
+// in the testsuite, and the few that are only appear as helpers inside combat
+// and regeneration tests, never as the subject of an assertion.
+use uo;
+use os;
+use polsys;
+use vitals;
+use attributes;
+
+include "testutil";
+
+const TESTVITAL_MAXIMUM := 10000;
+
+program vitals_tests()
+  return 1;
+endprogram
+
+// names and aliases resolve to the canonical vital name
+exported function api_getvitalname()
+  if ( GetVitalName( "Life" ) != "Life" )
+    return ret_error( $"wrong name: {GetVitalName( "Life" )}" );
+  endif
+
+  // Life carries the alias Hits in the distro configuration
+  if ( GetVitalName( "Hits" ) != "Life" )
+    return ret_error( $"the Hits alias does not resolve: {GetVitalName( "Hits" )}" );
+  endif
+  if ( GetVitalName( "Mana" ) != "Mana" )
+    return ret_error( $"wrong name: {GetVitalName( "Mana" )}" );
+  endif
+  if ( GetVitalName( "Stamina" ) != "Stamina" )
+    return ret_error( $"wrong name: {GetVitalName( "Stamina" )}" );
+  endif
+
+  var res := GetVitalName( "NoSuchVital" );
+  if ( res != error )
+    return ret_error( $"an undefined vital resolved: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// the maximum and the regeneration rate come from the hooks configured in
+// vitals.cfg
+exported function api_maximum_and_regenrate( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // the distro hooks derive the maximum from an attribute
+  var expected := GetAttribute( npc, "Strength" ) * 100;
+  if ( GetVitalMaximumValue( npc, "Life" ) != expected )
+    return ret_error( $"wrong Life maximum: {GetVitalMaximumValue( npc, "Life" )} != {expected}" );
+  endif
+  expected := GetAttribute( npc, "Intelligence" ) * 100;
+  if ( GetVitalMaximumValue( npc, "Mana" ) != expected )
+    return ret_error( $"wrong Mana maximum: {GetVitalMaximumValue( npc, "Mana" )} != {expected}" );
+  endif
+  expected := GetAttribute( npc, "Dexterity" ) * 100;
+  if ( GetVitalMaximumValue( npc, "Stamina" ) != expected )
+    return ret_error( $"wrong Stamina maximum: {GetVitalMaximumValue( npc, "Stamina" )} != {expected}" );
+  endif
+
+  if ( GetVitalRegenRate( npc, "Life" ) != 1200 )
+    return ret_error( $"wrong Life regen rate: {GetVitalRegenRate( npc, "Life" )}" );
+  endif
+
+  // and the constant hook of the test vital
+  if ( GetVitalMaximumValue( npc, "TestVital" ) != TESTVITAL_MAXIMUM )
+    return ret_error( $"wrong TestVital maximum: {GetVitalMaximumValue( npc, "TestVital" )}" );
+  endif
+  if ( GetVitalRegenRate( npc, "TestVital" ) != 0 )
+    return ret_error( $"TestVital regenerates unasked: {GetVitalRegenRate( npc, "TestVital" )}" );
+  endif
+
+  return 1;
+endfunction
+
+// reading and writing a vital, including the clamping at both ends
+exported function api_get_set_vital( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var max := GetVitalMaximumValue( npc, "Life" );
+  var res := SetVital( npc, "Life", max / 2 );
+  if ( res != 1 )
+    return ret_error( $"SetVital failed: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max / 2 )
+    return ret_error( $"wrong value: {GetVital( npc, "Life" )}" );
+  endif
+
+  // writing above the maximum clamps instead of failing
+  if ( ( res := SetVital( npc, "Life", max + 5000 ) ) != 1 )
+    return ret_error( $"SetVital above the maximum failed: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max )
+    return ret_error( $"value not clamped to the maximum: {GetVital( npc, "Life" )}" );
+  endif
+
+  // a negative value is refused and changes nothing
+  res := SetVital( npc, "Life", -1 );
+  if ( res != error )
+    return ret_error( $"a negative value was accepted: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max )
+    return ret_error( $"the refused write changed the vital: {GetVital( npc, "Life" )}" );
+  endif
+
+  // and so is one above the range the core stores
+  res := SetVital( npc, "Life", 10000001 );
+  if ( res != error )
+    return ret_error( $"an out of range value was accepted: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max )
+    return ret_error( $"the refused write changed the vital: {GetVital( npc, "Life" )}" );
+  endif
+
+  return 1;
+endfunction
+
+// GetVital, SetVital and ConsumeVital count hundredths of points, while
+// ApplyRawDamage and HealDamage count whole points
+exported function api_units( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var max := GetVitalMaximumValue( npc, "Life" );
+
+  // five points expressed in hundredths
+  SetVital( npc, "Life", max );
+  var res := ConsumeVital( npc, "Life", 500 );
+  if ( res != 1 )
+    return ret_error( $"ConsumeVital failed: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max - 500 )
+    return ret_error( $"ConsumeVital does not count hundredths: {GetVital( npc, "Life" )}" );
+  endif
+
+  // the same five points expressed as points
+  SetVital( npc, "Life", max );
+  if ( ( res := ApplyRawDamage( npc, 5, DAMAGE_NO_REPSYS, DAMAGE_NO_SHOW ) ) != 1 )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max - 500 )
+    return ret_error( $"ApplyRawDamage does not count points: {GetVital( npc, "Life" )}" );
+  endif
+
+  // and healing counts points as well
+  SetVital( npc, "Life", max - 1000 );
+  if ( ( res := HealDamage( npc, 5 ) ) != 1 )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max - 500 )
+    return ret_error( $"HealDamage does not count points: {GetVital( npc, "Life" )}" );
+  endif
+
+  return 1;
+endfunction
+
+// healing caps at the maximum and refuses amounts it cannot represent.
+// That healing a dead character is a no-op is not checked here: it needs a
+// character that stays around while dead, which an npc does not, and belongs
+// with the damage rules that need the same setup.
+exported function api_healdamage( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var max := GetVitalMaximumValue( npc, "Life" );
+  SetVital( npc, "Life", max / 2 );
+
+  // healing past the maximum stops there instead of overflowing
+  var res := HealDamage( npc, 10000 );
+  if ( res != 1 )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( GetVital( npc, "Life" ) != max )
+    return ret_error( $"healing did not cap at the maximum: {GetVital( npc, "Life" )}" );
+  endif
+
+  // healing nothing is accepted and changes nothing
+  if ( ( res := HealDamage( npc, 0 ) ) != 1 )
+    return ret_error( $"HealDamage( 0 ) failed: {res}" );
+  endif
+
+  res := HealDamage( npc, -1 );
+  if ( res != error )
+    return ret_error( $"a negative heal was accepted: {res}" );
+  endif
+  res := HealDamage( npc, 65536 );
+  if ( res != error )
+    return ret_error( $"an out of range heal was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// RecalcVitals is what turns a changed attribute into a changed vital maximum
+exported function api_recalcvitals( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var max := GetVitalMaximumValue( npc, "Life" );
+
+  // changing the attribute alone leaves the derived maximum stale
+  var res := SetAttributeBaseValue( npc, "Strength", 1500 );
+  if ( !res )
+    return ret_error( $"SetAttributeBaseValue failed: {res}" );
+  endif
+  if ( GetVitalMaximumValue( npc, "Life" ) != max )
+    return ret_error( "the maximum changed without a recalculation" );
+  endif
+
+  // the boolean form recalculates everything
+  if ( ( res := RecalcVitals( npc, RECALC_INTRINSIC_MOD, RECALC_VITALS ) ) != 1 )
+    return ret_error( $"RecalcVitals failed: {res}" );
+  endif
+  if ( GetVitalMaximumValue( npc, "Life" ) != 15000 )
+    return ret_error( $"maximum not recalculated: {GetVitalMaximumValue( npc, "Life" )}" );
+  endif
+
+  // the string form addresses a single attribute and a single vital
+  SetAttributeBaseValue( npc, "Strength", 1000 );
+  if ( ( res := RecalcVitals( npc, "Strength", "Life" ) ) != 1 )
+    return ret_error( $"RecalcVitals with names failed: {res}" );
+  endif
+  if ( GetVitalMaximumValue( npc, "Life" ) != 10000 )
+    return ret_error( $"maximum not recalculated: {GetVitalMaximumValue( npc, "Life" )}" );
+  endif
+
+  // unknown names are reported
+  res := RecalcVitals( npc, "NoSuchAttribute", RECALC_VITALS );
+  if ( res != error )
+    return ret_error( $"an undefined attribute was accepted: {res}" );
+  elseif ( !res.errortext.find( "Attribute not defined" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  res := RecalcVitals( npc, RECALC_NO_INTRINSIC_MOD, "NoSuchVital" );
+  if ( res != error )
+    return ret_error( $"an undefined vital was accepted: {res}" );
+  elseif ( !res.errortext.find( "Vital not defined" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  return 1;
+endfunction
+
+// an offline character cannot be recalculated
+exported function api_recalcvitals_offline()
+  var char := createAccountWithChar( "vitalstest", "pass" );
+  if ( !char )
+    return ret_error( $"Could not create the test char: {char}" );
+  endif
+  if ( char.logged_in )
+    return ret_error( "the test char is unexpectedly online" );
+  endif
+
+  var res := RecalcVitals( char, RECALC_INTRINSIC_MOD, RECALC_VITALS );
+  if ( res != error )
+    return ret_error( $"an offline character was recalculated: {res}" );
+  elseif ( !res.errortext.find( "must be online" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  // reading its vitals still works
+  if ( GetVitalMaximumValue( char, "Life" ) == error )
+    return ret_error( "could not read the vitals of an offline character" );
+  endif
+
+  return 1;
+endfunction
+
+// every function that takes a vital name reports an undefined one
+exported function api_unknown_vital( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var calls := array{ struct{ name := "GetVital", res := GetVital( npc, "NoSuchVital" )
+                      },
+                      struct{ name := "SetVital", res := SetVital( npc, "NoSuchVital", 0 )
+                      },
+                      struct{ name := "ConsumeVital", res := ConsumeVital( npc, "NoSuchVital", 0 )
+                      },
+                      struct{ name := "GetVitalMaximumValue", res := GetVitalMaximumValue(
+                              npc, "NoSuchVital" )
+                      },
+                      struct{ name := "GetVitalRegenRate", res := GetVitalRegenRate(
+                              npc, "NoSuchVital" )
+                      } };
+
+  foreach call in ( calls )
+    if ( call.res != error )
+      return ret_error( $"{call.name} accepted an undefined vital: {call.res}" );
+    endif
+    if ( !call.res.errortext.find( "Vital not defined" ) )
+      return ret_error( $"{call.name} reported the wrong error: {call.res.errortext}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// ConsumeMana validates the spell id. The test shard defines no spells, so
+// only the range check is reachable here, not the "No such spell" branch.
+exported function api_consumemana( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := ConsumeMana( npc, 0 );
+  if ( res != error )
+    return ret_error( $"spell id 0 was accepted: {res}" );
+  elseif ( !res.errortext.find( "Spell ID out of range" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  res := ConsumeMana( npc, 1 );
+  if ( res != error )
+    return ret_error( $"an undefined spell was accepted: {res}" );
+  elseif ( !res.errortext.find( "Spell ID out of range" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function make_npc( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testvitals:test_vitals", 50, 100, 0 );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+  return npc;
+endfunction

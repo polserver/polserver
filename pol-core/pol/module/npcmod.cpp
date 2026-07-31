@@ -807,57 +807,6 @@ BObjectImp* NPCExecutorModule::mf_SetProperty()
   return new BError( "Invalid parameter type" );
 }
 
-BObjectImp* NPCExecutorModule::mf_CreateBackpack()
-{
-  // UNTESTED
-  if ( !npc.layer_is_equipped( Core::LAYER_BACKPACK ) )
-  {
-    Items::Item* i = Items::Item::create( UOBJ_BACKPACK );
-    std::unique_ptr<Items::Item> item( i );
-    item->layer = Core::LAYER_BACKPACK;
-    if ( npc.equippable( item.get() ) )
-    {
-      npc.equip( item.release() );
-    }
-    else
-      item->destroy();
-  }
-  return new BLong( 1 );
-}
-
-BObjectImp* NPCExecutorModule::mf_CreateItem()
-{
-  // UNTESTED
-  const BLong* objtype = exec.getLongParam( 0 );
-  if ( objtype == nullptr )
-    return new BLong( 0 );
-
-  Core::UContainer* backpack = npc.backpack();
-  if ( backpack == nullptr )
-    return new BLong( 0 );
-
-  std::unique_ptr<Items::Item> item(
-      Items::Item::create( static_cast<unsigned int>( objtype->value() ) ) );
-  if ( item.get() == nullptr )
-    return new BLong( 0 );
-
-  if ( !backpack->can_add( *item ) )
-    return new BLong( 0 );
-
-  u8 slotIndex = item->slot_index();
-  if ( !backpack->can_add_to_slot( slotIndex ) )
-    return new BLong( 0 );
-
-  if ( !item->slot_index( slotIndex ) )
-    return new BLong( 0 );
-
-  u32 serial = item->serial;
-
-  backpack->add_at_random_location( item.release() );
-
-  return new BLong( serial );
-}
-
 BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 {
   auto arealist = static_cast<String*>( getParamImp( 0, BObjectImp::OTString ) );
