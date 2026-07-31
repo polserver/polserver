@@ -344,6 +344,99 @@ class LiftItemPacket(Packet):
     self.serial = self.duint()
     self.amount = self.dushort()
 
+class BuyItemsPacket(Packet):
+  ''' Notify server of the items bought from a vendor '''
+
+  cmd = 0x3b
+
+  ## The window was closed without buying anything
+  STATUS_NOTHING_BOUGHT = 0x00
+  ## Items were bought
+  STATUS_ITEMS_BOUGHT = 0x02
+
+  def fill(self, vendor_serial, items):
+    '''!
+    @param vendor_serial int: Serial of the vendor being bought from
+    @param items list: list of (layer, serial, amount) tuples, empty to buy nothing
+    '''
+    self.vendor_serial = vendor_serial
+    self.items = items
+    self.status = self.STATUS_ITEMS_BOUGHT if len(items) else self.STATUS_NOTHING_BOUGHT
+    self.length = 1 + 2 + 4 + 1 + 7 * len(items)
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.vendor_serial)
+    self.euchar(self.status)
+    for layer, serial, amount in self.items:
+      self.euchar(layer)
+      self.euint(serial)
+      self.eushort(amount)
+
+  def decodeChild(self):
+    # The server sends this same command to clear the vendor window, with no item entries.
+    self.length = self.dushort()
+    self.vendor_serial = self.duint()
+    self.status = self.duchar()
+    self.items = []
+    for i in range((self.length - 8) // 7):
+      layer = self.duchar()
+      serial = self.duint()
+      amount = self.dushort()
+      self.items.append((layer, serial, amount))
+
+
+class VendorBuyListPacket(Packet):
+  ''' The prices and descriptions of what a vendor has for sale '''
+
+  cmd = 0x74
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    num_items = self.duchar()
+    self.items = []
+    for i in range(num_items):
+      price = self.duint()
+      namelen = self.duchar()
+      # The length counts a trailing NUL, which varStr drops
+      name = self.dstring(namelen)
+      self.items.append({'price': price, 'name': name})
+
+
+class SellItemsPacket(Packet):
+  ''' Notify server of the items sold to a vendor '''
+
+  cmd = 0x9f
+
+  def fill(self, vendor_serial, items):
+    '''!
+    @param vendor_serial int: Serial of the vendor being sold to
+    @param items list: list of (serial, amount) tuples
+    '''
+    self.vendor_serial = vendor_serial
+    self.items = items
+    self.length = 1 + 2 + 4 + 2 + 6 * len(items)
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.vendor_serial)
+    self.eushort(len(self.items))
+    for serial, amount in self.items:
+      self.euint(serial)
+      self.eushort(amount)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.vendor_serial = self.duint()
+    num_items = self.dushort()
+    self.items = []
+    for i in range(num_items):
+      serial = self.duint()
+      amount = self.dushort()
+      self.items.append((serial, amount))
+
+
 class DropItemPacket(Packet):
   ''' Notify server of a drop on an item '''
 
@@ -614,6 +707,9 @@ class DrawContainerPacket(Packet):
 
   cmd = 0x24
   length = 9 # 7090 length
+
+  ## The vendor buy window. The serial is the vendor's, not a container's.
+  GUMP_VENDOR = 0x30
 
   def decodeChild(self):
     self.serial = self.duint()
@@ -1560,6 +1656,8 @@ class GeneralInfoPacket(Packet):
   SUB_MAPDIFF = 0x18
   ## Boat movement
   SUB_BOATMOVE = 0x33
+  ## Result of the character race changer gump
+  SUB_RACECHANGER = 0x2a
 
   cmd = 0xbf
 
@@ -1599,6 +1697,15 @@ class GeneralInfoPacket(Packet):
       self.listid = args[1]
       self.length = 5 + 8
 
+    elif self.sub == self.SUB_RACECHANGER:
+      checkArgLen(5)
+      self.bodyhue = args[0]
+      self.hairid = args[1]
+      self.hairhue = args[2]
+      self.beardid = args[3]
+      self.beardhue = args[4]
+      self.length = 5 + 10
+
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
 
@@ -1621,6 +1728,13 @@ class GeneralInfoPacket(Packet):
     elif self.sub == self.SUB_MEGACLILOC:
       self.euint(self.serial)
       self.euint(self.listid)
+
+    elif self.sub == self.SUB_RACECHANGER:
+      self.eushort(self.bodyhue)
+      self.eushort(self.hairid)
+      self.eushort(self.hairhue)
+      self.eushort(self.beardid)
+      self.eushort(self.beardhue)
 
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented yet'.format(self.sub))
