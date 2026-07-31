@@ -15,10 +15,10 @@ include "testutil";
 const TESTVITAL_MAXIMUM := 10000;
 
 // Core::VITAL_* bounds
-const VITAL_LOWEST_MAX_HUNDREDTHS  := 100;
+const VITAL_LOWEST_MAX_HUNDREDTHS := 100;
 const VITAL_HIGHEST_MAX_HUNDREDTHS := 10000000;
-const VITAL_LOWEST_REGENRATE       := -30000;
-const VITAL_HIGHEST_REGENRATE      := 30000;
+const VITAL_LOWEST_REGENRATE := -30000;
+const VITAL_HIGHEST_REGENRATE := 30000;
 
 program vitals_tests()
   return 1;
@@ -134,11 +134,12 @@ exported function calc_clamping( resmgn )
     return ret_error( $"Could not create NPC: {npc}" );
   endif
 
-  var checks := array{
-    struct{ prop := "#VitalTestMax",   value := 5,         expected := VITAL_LOWEST_MAX_HUNDREDTHS },
-    struct{ prop := "#VitalTestMax",   value := 20000000,  expected := VITAL_HIGHEST_MAX_HUNDREDTHS },
-    struct{ prop := "#VitalTestMax",   value := TESTVITAL_MAXIMUM, expected := TESTVITAL_MAXIMUM }
-  };
+  var checks := array{ struct{ prop := "#VitalTestMax", value := 5,
+                               expected := VITAL_LOWEST_MAX_HUNDREDTHS },
+                       struct{ prop := "#VitalTestMax", value := 20000000,
+                               expected := VITAL_HIGHEST_MAX_HUNDREDTHS },
+                       struct{ prop := "#VitalTestMax", value := TESTVITAL_MAXIMUM,
+                               expected := TESTVITAL_MAXIMUM } };
 
   foreach check in ( checks )
     SetObjProperty( npc, check.prop, check.value );
@@ -152,11 +153,9 @@ exported function calc_clamping( resmgn )
     endif
   endforeach
 
-  var rates := array{
-    struct{ value := -50000, expected := VITAL_LOWEST_REGENRATE },
-    struct{ value := 50000,  expected := VITAL_HIGHEST_REGENRATE },
-    struct{ value := 1200,   expected := 1200 }
-  };
+  var rates := array{ struct{ value := -50000, expected := VITAL_LOWEST_REGENRATE },
+                      struct{ value := 50000, expected := VITAL_HIGHEST_REGENRATE },
+                      struct{ value := 1200, expected := 1200 } };
 
   foreach rate in ( rates )
     SetObjProperty( npc, "#VitalTestRegen", rate.value );

@@ -164,8 +164,7 @@ exported function amount_stack_limit( resmngr )
   res := SubtractAmount( item, LIMITED_STACK + 1 );
   if ( res )
     return ret_error( "an out of range amount was subtracted" );
-  elseif ( res.errortext !=
-           $"Parameter 1 value {LIMITED_STACK + 1} out of expected range of [1..{LIMITED_STACK}]" )
+  elseif ( res.errortext != $"Parameter 1 value {LIMITED_STACK + 1} out of expected range of [1..{LIMITED_STACK}]" )
     return ret_error( $"wrong error: '{res.errortext}'" );
   endif
 
@@ -189,8 +188,7 @@ exported function amount_param_range( resmngr )
   res := AddAmount( item, MAX_STACK + 1 );
   if ( res )
     return ret_error( $"AddAmount accepted {MAX_STACK + 1}" );
-  elseif ( res.errortext !=
-           $"Parameter 1 value {MAX_STACK + 1} out of expected range of [1..{MAX_STACK}]" )
+  elseif ( res.errortext != $"Parameter 1 value {MAX_STACK + 1} out of expected range of [1..{MAX_STACK}]" )
     return ret_error( $"wrong error: '{res.errortext}'" );
   endif
 
@@ -235,8 +233,8 @@ exported function amount_reserved( resmngr )
   endif
 
   // hand the reservation to another script
-  var holder := resmngr.Start_Script( RESERVE_HOLDER,
-                                      struct{ parent := GetProcess(), item := item } );
+  var holder := resmngr.Start_Script( RESERVE_HOLDER, struct{ parent := GetProcess(),
+                                                              item := item } );
   if ( !holder )
     return ret_error( $"Could not start {RESERVE_HOLDER}: {holder}" );
   endif

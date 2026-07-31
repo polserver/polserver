@@ -115,8 +115,7 @@ exported function find_objtype_locked( resmngr )
   endif
 
   // the two flags do not cancel out - root only still wins
-  res := FindObjtypeInContainer( cont, "goldcoin",
-                                 FINDOBJTYPE_IGNORE_LOCKED | FINDOBJTYPE_ROOT_ONLY );
+  res := FindObjtypeInContainer( cont, "goldcoin", FINDOBJTYPE_IGNORE_LOCKED | FINDOBJTYPE_ROOT_ONLY );
   if ( res )
     return ret_error( $"FINDOBJTYPE_ROOT_ONLY descended anyway: {res}" );
   endif

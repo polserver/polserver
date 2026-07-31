@@ -12,9 +12,9 @@ endprogram
 
 // the tiles the terrain step runs through, with the values test_mapinfo
 // expects from GetMapInfo
-const WATER_Y := 25;  // landtile 0xa8, z -5
-const STEP_Y  := 28;  // landtile 0x17, z -2
-const LAND_Y  := 31;  // landtile 0x3,  z 0
+const WATER_Y := 25; // landtile 0xa8, z -5
+const STEP_Y := 28; // landtile 0x17, z -2
+const LAND_Y := 31; // landtile 0x3,  z 0
 
 // the landtile the test map uses for water
 const WATER_LANDTILE := 0xa8;

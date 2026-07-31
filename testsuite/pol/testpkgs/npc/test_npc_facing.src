@@ -10,8 +10,8 @@ const REMOTE_SCRIPT := "ai_remote";
 // npc.em cannot be used from here - it is the AI script that calls into it -
 // so its two turn flags are spelled out again under different names, because
 // FACE_NORMAL and FACE_FORCE are already taken at module scope.
-const TURN_NORMAL := 0x0;  // npc::FACE_NORMAL
-const TURN_FORCE  := 0x1;  // npc::FACE_FORCE
+const TURN_NORMAL := 0x0; // npc::FACE_NORMAL
+const TURN_FORCE := 0x1; // npc::FACE_FORCE
 
 // open flat land at z 0
 const BASE_X := 120;
@@ -20,13 +20,13 @@ const BASE_Y := 120;
 const RESULT_TIMEOUT_SEC := 5;
 
 // facings, in the order of the core's move_delta table
-const FACING_N  := 0;
+const FACING_N := 0;
 const FACING_NE := 1;
-const FACING_E  := 2;
+const FACING_E := 2;
 const FACING_SE := 3;
-const FACING_S  := 4;
+const FACING_S := 4;
 const FACING_SW := 5;
-const FACING_W  := 6;
+const FACING_W := 6;
 const FACING_NW := 7;
 
 // what the coordinate conversion says before a function gets to complain itself
@@ -37,8 +37,8 @@ program testnpcfacing()
 endprogram
 
 function make_remote_npc( resmngr, x, y, z )
-  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, z,
-                                            struct{ script := REMOTE_SCRIPT, RunSpeed := 250 } );
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, z, struct{ script := REMOTE_SCRIPT,
+                                                                                   RunSpeed := 250 } );
   if ( !npc )
     return ret_error( $"Could not create NPC: {npc}" );
   endif
@@ -360,8 +360,10 @@ exported function walk_toward_and_away( resmngr )
   endif
 
   // name, dx after the step, facing it should be left on
-  var steps := { { "walktoward", 1, FACING_E }, { "runtoward", 1, FACING_E },
-                 { "walkawayfrom", -1, FACING_W }, { "runawayfrom", -1, FACING_W } };
+  var steps := { { "walktoward", 1, FACING_E },
+                 { "runtoward", 1, FACING_E },
+                 { "walkawayfrom", -1, FACING_W },
+                 { "runawayfrom", -1, FACING_W } };
 
   var x := BASE_X;
   foreach entry in steps
@@ -399,8 +401,10 @@ exported function walk_toward_location( resmngr )
   var north_y := BASE_Y - 10;
 
   // name, dy after the step, facing it should be left on
-  var steps := { { "walktowardlocation", -1, FACING_N }, { "runtowardlocation", -1, FACING_N },
-                 { "walkawayfromlocation", 1, FACING_S }, { "runawayfromlocation", 1, FACING_S } };
+  var steps := { { "walktowardlocation", -1, FACING_N },
+                 { "runtowardlocation", -1, FACING_N },
+                 { "walkawayfromlocation", 1, FACING_S },
+                 { "runawayfromlocation", 1, FACING_S } };
 
   var y := BASE_Y;
   foreach entry in steps

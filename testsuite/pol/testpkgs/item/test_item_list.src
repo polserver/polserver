@@ -12,10 +12,10 @@ const BASE_Y := 100;
 // 0x200001 is the "loadtest" container from itemdesc.cfg, graphic 0xe75
 const CONTAINER := 0x200001;
 // distinct objtypes so that two items can share one spot without stacking
-const COIN_A := 0x0EED;       // goldcoin
-const COIN_B := 0x200013;     // goldcoin_heavy2
-const COIN_C := 0x200012;     // goldcoin_heavy
-const COIN_D := 0x200014;     // goldcoin_limited
+const COIN_A := 0x0EED; // goldcoin
+const COIN_B := 0x200013; // goldcoin_heavy2
+const COIN_C := 0x200012; // goldcoin_heavy
+const COIN_D := 0x200014; // goldcoin_limited
 
 // ListItemsNearLocation and ListItemsNearLocationWithFlag both take everything
 // closer than this many z levels
@@ -195,8 +195,7 @@ exported function items_near_location_with_flag( resmngr )
   if ( has_item( list, outside_z ) )
     return ret_error( $"an item {ZRANGE} z levels up was listed" );
   endif
-  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, LIST_IGNORE_Z, 0,
-                                         TILEDATA_FLAG_STACKABLE );
+  list := ListItemsNearLocationWithFlag( BASE_X, BASE_Y, LIST_IGNORE_Z, 0, TILEDATA_FLAG_STACKABLE );
   if ( !has_item( list, outside_z ) )
     return ret_error( "LIST_IGNORE_Z did not list the whole column" );
   endif

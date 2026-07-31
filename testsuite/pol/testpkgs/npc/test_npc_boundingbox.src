@@ -24,8 +24,8 @@ program testnpcboundingbox()
 endprogram
 
 function make_remote_npc( resmngr, x, y, z )
-  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, z,
-                                            struct{ script := REMOTE_SCRIPT, RunSpeed := 250 } );
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, z, struct{ script := REMOTE_SCRIPT,
+                                                                                   RunSpeed := 250 } );
   if ( !npc )
     return ret_error( $"Could not create NPC: {npc}" );
   endif

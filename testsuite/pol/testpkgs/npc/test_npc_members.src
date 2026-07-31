@@ -17,7 +17,7 @@ const RESULT_TIMEOUT_SEC := 5;
 
 // NpcTemplate::ALIGNMENT
 const ALIGNMENT_NEUTRAL := 0;
-const ALIGNMENT_EVIL    := 1;
+const ALIGNMENT_EVIL := 1;
 
 program testnpcmembers()
   return 1;
@@ -33,8 +33,8 @@ function make_plain_npc( resmngr, template := ":testnpc:probe_npc" )
 endfunction
 
 function make_remote_npc( resmngr )
-  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y, 0,
-                                            struct{ script := REMOTE_SCRIPT } );
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X, BASE_Y, 0, struct{
+                                                                                     script := REMOTE_SCRIPT } );
   if ( !npc )
     return ret_error( $"Could not create NPC: {npc}" );
   endif

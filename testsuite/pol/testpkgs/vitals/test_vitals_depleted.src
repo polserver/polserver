@@ -14,11 +14,11 @@ include "testutil";
 
 // Mobile::Character::VitalDepletedReason
 const VITAL_DEPLETED_REGENERATE := 0;
-const VITAL_DEPLETED_DAMAGE     := 1;
-const VITAL_DEPLETED_MOVEMENT   := 2;
-const VITAL_DEPLETED_DEATH      := 3;
-const VITAL_DEPLETED_RESURRECT  := 4;
-const VITAL_DEPLETED_SCRIPT     := 5;
+const VITAL_DEPLETED_DAMAGE := 1;
+const VITAL_DEPLETED_MOVEMENT := 2;
+const VITAL_DEPLETED_DEATH := 3;
+const VITAL_DEPLETED_RESURRECT := 4;
+const VITAL_DEPLETED_SCRIPT := 5;
 
 const TESTVITAL_MAXIMUM := 10000;
 

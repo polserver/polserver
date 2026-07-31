@@ -12,16 +12,14 @@ endprogram
 // the pol distance is the larger of the two axis distances, so a diagonal
 // costs the same as a straight move
 exported function coordinate_distance()
-  var cases := array{
-    struct{ x2 := 55, y2 := 50, expected := 5 },
-    struct{ x2 := 50, y2 := 55, expected := 5 },
-    struct{ x2 := 55, y2 := 53, expected := 5 },
-    struct{ x2 := 53, y2 := 55, expected := 5 },
-    struct{ x2 := 55, y2 := 55, expected := 5 },
-    struct{ x2 := 50, y2 := 50, expected := 0 },
-    struct{ x2 := 45, y2 := 50, expected := 5 },
-    struct{ x2 := 45, y2 := 45, expected := 5 }
-  };
+  var cases := array{ struct{ x2 := 55, y2 := 50, expected := 5 },
+                      struct{ x2 := 50, y2 := 55, expected := 5 },
+                      struct{ x2 := 55, y2 := 53, expected := 5 },
+                      struct{ x2 := 53, y2 := 55, expected := 5 },
+                      struct{ x2 := 55, y2 := 55, expected := 5 },
+                      struct{ x2 := 50, y2 := 50, expected := 0 },
+                      struct{ x2 := 45, y2 := 50, expected := 5 },
+                      struct{ x2 := 45, y2 := 45, expected := 5 } };
 
   foreach c in ( cases )
     var actual := CoordinateDistance( 50, 50, c.x2, c.y2 );
@@ -41,8 +39,7 @@ endfunction
 // the euclidean variant measures the straight line instead, so it only agrees
 // with the pol distance on the axes
 exported function coordinate_distance_euclidean()
-  var res := check_near( CoordinateDistanceEuclidean( 50, 50, 55, 50 ), 5.0,
-                         "straight line along x" );
+  var res := check_near( CoordinateDistanceEuclidean( 50, 50, 55, 50 ), 5.0, "straight line along x" );
   if ( !res )
     return res;
   endif
@@ -57,8 +54,7 @@ exported function coordinate_distance_euclidean()
   endif
 
   // the diagonal is where the two distances part ways
-  if ( !( res := check_near( CoordinateDistanceEuclidean( 50, 50, 55, 55 ), 7.0710678,
-                             "diagonal" ) ) )
+  if ( !( res := check_near( CoordinateDistanceEuclidean( 50, 50, 55, 55 ), 7.0710678, "diagonal" ) ) )
     return res;
   endif
   if ( CoordinateDistance( 50, 50, 55, 55 ) != 5 )
@@ -108,16 +104,14 @@ endfunction
 // the facing is the compass direction from one point to another, 0 is north
 // and it counts clockwise
 exported function facing()
-  var cases := array{
-    struct{ dx := 0,  dy := -1, expected := 0, name := "north" },
-    struct{ dx := 1,  dy := -1, expected := 1, name := "north east" },
-    struct{ dx := 1,  dy := 0,  expected := 2, name := "east" },
-    struct{ dx := 1,  dy := 1,  expected := 3, name := "south east" },
-    struct{ dx := 0,  dy := 1,  expected := 4, name := "south" },
-    struct{ dx := -1, dy := 1,  expected := 5, name := "south west" },
-    struct{ dx := -1, dy := 0,  expected := 6, name := "west" },
-    struct{ dx := -1, dy := -1, expected := 7, name := "north west" }
-  };
+  var cases := array{ struct{ dx := 0, dy := -1, expected := 0, name := "north" },
+                      struct{ dx := 1, dy := -1, expected := 1, name := "north east" },
+                      struct{ dx := 1, dy := 0, expected := 2, name := "east" },
+                      struct{ dx := 1, dy := 1, expected := 3, name := "south east" },
+                      struct{ dx := 0, dy := 1, expected := 4, name := "south" },
+                      struct{ dx := -1, dy := 1, expected := 5, name := "south west" },
+                      struct{ dx := -1, dy := 0, expected := 6, name := "west" },
+                      struct{ dx := -1, dy := -1, expected := 7, name := "north west" } };
 
   foreach c in ( cases )
     var actual := GetFacing( 50, 50, 50 + c.dx, 50 + c.dy );

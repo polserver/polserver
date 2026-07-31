@@ -287,13 +287,18 @@ exported function api_unknown_vital( resmgn )
     return npc;
   endif
 
-  var calls := array{
-    struct{ name := "GetVital", res := GetVital( npc, "NoSuchVital" ) },
-    struct{ name := "SetVital", res := SetVital( npc, "NoSuchVital", 0 ) },
-    struct{ name := "ConsumeVital", res := ConsumeVital( npc, "NoSuchVital", 0 ) },
-    struct{ name := "GetVitalMaximumValue", res := GetVitalMaximumValue( npc, "NoSuchVital" ) },
-    struct{ name := "GetVitalRegenRate", res := GetVitalRegenRate( npc, "NoSuchVital" ) }
-  };
+  var calls := array{ struct{ name := "GetVital", res := GetVital( npc, "NoSuchVital" )
+                      },
+                      struct{ name := "SetVital", res := SetVital( npc, "NoSuchVital", 0 )
+                      },
+                      struct{ name := "ConsumeVital", res := ConsumeVital( npc, "NoSuchVital", 0 )
+                      },
+                      struct{ name := "GetVitalMaximumValue", res := GetVitalMaximumValue(
+                              npc, "NoSuchVital" )
+                      },
+                      struct{ name := "GetVitalRegenRate", res := GetVitalRegenRate(
+                              npc, "NoSuchVital" )
+                      } };
 
   foreach call in ( calls )
     if ( call.res != error )
