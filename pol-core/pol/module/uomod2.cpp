@@ -217,7 +217,6 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   NPC* merchant;
   int flags;
   UContainer *for_sale, *bought;
-  unsigned char save_layer_one, save_layer_two;
 
   if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getCharacterParam( 2, mrchnt ) &&
        getItemParam( 3, item2 ) && getParam( 4, flags ) )
@@ -263,17 +262,11 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
 
 
   // try this
-  save_layer_one = for_sale->layer;
-  for_sale->layer = LAYER_VENDOR_FOR_SALE;
-  send_wornitem( chr->client, merchant, for_sale );
-  for_sale->layer = save_layer_one;
+  send_wornitem( chr->client, merchant, for_sale, LAYER_VENDOR_FOR_SALE );
   for_sale->setposition( merchant->pos() );
   // chr->add_additional_legal_item( for_sale );
 
-  save_layer_two = bought->layer;
-  bought->layer = LAYER_VENDOR_PLAYER_ITEMS;
-  send_wornitem( chr->client, merchant, bought );
-  bought->layer = save_layer_two;
+  send_wornitem( chr->client, merchant, bought, LAYER_VENDOR_PLAYER_ITEMS );
   bought->setposition( merchant->pos() );
   // chr->add_additional_legal_item( bought );
 
@@ -762,20 +755,9 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
     return new BError( "Character has no backpack" );
   }
 
-  unsigned char save_layer = wi1a->layer;
-  wi1a->layer = LAYER_VENDOR_FOR_SALE;
-  send_wornitem( chr->client, merchant, wi1a );
-  wi1a->layer = save_layer;
-
-  save_layer = wi1b->layer;
-  wi1b->layer = LAYER_VENDOR_PLAYER_ITEMS;
-  send_wornitem( chr->client, merchant, wi1b );
-  wi1b->layer = save_layer;
-
-  save_layer = wi1c->layer;
-  wi1c->layer = LAYER_VENDOR_BUYABLE_ITEMS;
-  send_wornitem( chr->client, merchant, wi1c );
-  wi1c->layer = save_layer;
+  send_wornitem( chr->client, merchant, wi1a, LAYER_VENDOR_FOR_SALE );
+  send_wornitem( chr->client, merchant, wi1b, LAYER_VENDOR_PLAYER_ITEMS );
+  send_wornitem( chr->client, merchant, wi1c, LAYER_VENDOR_BUYABLE_ITEMS );
 
   bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
 

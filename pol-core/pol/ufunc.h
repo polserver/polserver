@@ -74,6 +74,14 @@ void send_full_corpse( Network::Client* client, const Items::Item* item );
 
 void send_wornitem( Network::Client* client, const Mobile::Character* chr,
                     const Items::Item* item );
+/**
+ * Sends the item as worn on an arbitrary layer, without touching item->layer.
+ *
+ * Used for the pseudo-layers above HIGHEST_LAYER (vendor windows, bankbox), which exist only in
+ * the wire format and can never be a real equip layer.
+ */
+void send_wornitem( Network::Client* client, const Mobile::Character* chr, const Items::Item* item,
+                    u8 as_layer );
 
 void send_move( Network::Client* client, const Mobile::Character* chr );
 void send_move( Network::Client* client, const Mobile::Character* chr,

@@ -588,10 +588,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenSpecialContainer()
     return new BError( "That isn't a container" );
   }
 
-  u8 save_layer = item->layer;
-  item->layer = LAYER_BANKBOX;
-  send_wornitem( chr->client, chr, item );
-  item->layer = save_layer;
+  send_wornitem( chr->client, chr, item, LAYER_BANKBOX );
   item->setposition( chr->pos() );
   item->double_click( chr->client );  // open the container on the client's screen
   chr->add_remote_container( item );

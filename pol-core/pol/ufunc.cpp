@@ -754,13 +754,13 @@ void send_item_move_failure( Network::Client* client, u8 reason )
   msg.Send( client );
 }
 
-void send_wornitem( Client* client, const Character* chr, const Item* item )
+void send_wornitem( Client* client, const Character* chr, const Item* item, u8 as_layer )
 {
   PktHelper::PacketOut<PktOut_2E> msg;
   msg->Write<u32>( item->serial_ext );
   msg->WriteFlipped<u16>( item->graphic );
   msg->offset++;  // unk7
-  msg->Write<u8>( item->layer );
+  msg->Write<u8>( as_layer );
   msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u16>( item->color );
   msg.Send( client );
@@ -769,6 +769,11 @@ void send_wornitem( Client* client, const Character* chr, const Item* item )
   {
     send_object_cache( client, item );
   }
+}
+
+void send_wornitem( Client* client, const Character* chr, const Item* item )
+{
+  send_wornitem( client, chr, item, item->layer );
 }
 
 void send_wornitem_to_inrange( const Character* chr, const Item* item )
