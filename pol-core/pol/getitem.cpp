@@ -151,32 +151,17 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   Pos4d orig_pos = item->pos();  // potential container pos
   Pos4d orig_toppos = item->toplevel_pos();
 
-  GottenItem gotten_info{ item, orig_pos };
-  if ( orig_container != nullptr )
+  // One step: unlink from wherever the item is, build the return ticket describing it, and set
+  // both halves of the cursor link. The rejection is reachable — the scripts run above can have
+  // handed this character something else to hold, and overwriting the ticket would strand that
+  // item. The removal was already sent by then, so put the item back on the clients.
+  if ( !Items::relocate( *item, Items::OnCursor{ client->chr } ) )
   {
-    if ( IsCharacter( orig_container->serial ) )
-    {
-      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED;
-      gotten_info._owner_serial = orig_container->serial;
-    }
-    else
-    {
-      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
-      gotten_info._owner_serial = orig_container->serial;
-    }
-    gotten_info._slot_index = item->slot_index();
-    item->extricate();
+    update_item_to_inrange( item );
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
+    return;
   }
-  else
-  {
-    gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
-    remove_item_from_world( item );
-  }
-
-  client->chr->gotten_item( gotten_info );
-  item->inuse( true );
-  item->gotten_by( client->chr );
-  item->setposition( Pos4d( 0, 0, 0, item->realm() ) );  // don't let a boat carry it around
+  const GottenItem gotten_info = client->chr->gotten_item();
 
   /* Check for moving part of a stack.  Here are the possibilities:
       1) Client specified more amount than was in the stack.
@@ -268,6 +253,33 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 GottenItem::GottenItem( Items::Item* item, const Core::Pos4d& pos )
     : _item( item ), _pos( pos.xyz() ), _realm( pos.realm()->name() ), _owner_serial( 0 )
 {
+}
+
+GottenItem GottenItem::for_item( Items::Item* item )
+{
+  GottenItem info{ item, item->pos() };
+
+  const Items::Location loc = item->location();
+  if ( const auto* equipped = loc.get_if<Items::Equipped>() )
+  {
+    // undo() resolves this with system_find_mobile, so it has to be the character's serial. The
+    // worn-items container happens to carry the same one, but say which is meant.
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED;
+    info._owner_serial = equipped->chr->serial;
+    info._slot_index = item->slot_index();
+  }
+  else if ( UContainer* cont = loc.container() )
+  {
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
+    info._owner_serial = cont->serial;
+    info._slot_index = item->slot_index();
+  }
+  else
+  {
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
+  }
+
+  return info;
 }
 /*
   undo:

@@ -5,6 +5,7 @@
 
 #include "clib/logfacility.h"
 #include "pol/containr.h"
+#include "pol/getitem.h"
 #include "pol/globals/settings.h"
 #include "pol/item/item.h"
 #include "pol/mobile/charactr.h"
@@ -26,7 +27,7 @@ std::string Location::describe() const
     return fmt::format( "in container {:#x}", alt->cont != nullptr ? alt->cont->serial : 0 );
   if ( const auto* alt = get_if<Equipped>() )
     return fmt::format( "equipped on layer {} of {:#x}", alt->layer,
-                        alt->worn != nullptr ? alt->worn->serial : 0 );
+                        alt->chr != nullptr ? alt->chr->serial : 0 );
   if ( const auto* alt = get_if<OnCorpse>() )
     return fmt::format( "on corpse {:#x}, layer {}",
                         alt->corpse != nullptr ? alt->corpse->serial : 0, alt->layer );
@@ -47,7 +48,7 @@ Core::UContainer* Location::container() const
   if ( const auto* alt = get_if<InContainer>() )
     return alt->cont;
   if ( const auto* alt = get_if<Equipped>() )
-    return alt->worn;
+    return alt->chr != nullptr ? alt->chr->worn_items() : nullptr;
   if ( const auto* alt = get_if<OnCorpse>() )
     return alt->corpse;
   return nullptr;
@@ -122,8 +123,17 @@ bool validate( const Item& item, const Location& from, const Location& to )
   if ( to.holds<Intrinsic>() && !from.holds<Detached>() )
     return reject( item, from, to, "intrinsic equipment must be registered before it is placed" );
 
-  if ( to.holds<OnCursor>() )
-    return reject( item, from, to, "the cursor is not reachable through relocate yet" );
+  if ( const auto* on_cursor = to.get_if<OnCursor>() )
+  {
+    if ( on_cursor->holder == nullptr )
+      return reject( item, from, to, "null cursor holder" );
+    if ( on_cursor->holder->has_gotten_item() )
+      return reject( item, from, to, "that character is already holding something" );
+    // The return ticket records a realm by name, so an item that has never had one cannot
+    // describe where it should go back to.
+    if ( item.realm() == nullptr )
+      return reject( item, from, to, "the item has no realm to return to" );
+  }
 
   if ( to.holds<InWorld>() && item.realm() == nullptr )
     return reject( item, from, to, "the item has no realm" );
@@ -143,15 +153,16 @@ bool validate( const Item& item, const Location& from, const Location& to )
   }
   else if ( const auto* equipped = to.get_if<Equipped>() )
   {
-    if ( equipped->worn == nullptr )
-      return reject( item, from, to, "null worn-items container" );
-    if ( !valid_equip_layer( equipped->layer ) )
-      return reject( item, from, to, "not an equippable layer" );
+    if ( equipped->chr == nullptr )
+      return reject( item, from, to, "null character" );
     if ( equipped->layer != item.tile_layer )
       return reject( item, from, to, "the layer does not match the item's tile layer" );
-    const Item* occupant = equipped->worn->GetItemOnLayer( equipped->layer );
-    if ( occupant != nullptr && occupant->serial != item.serial )
-      return reject( item, from, to, "the layer is already occupied" );
+    // Deliberately the same predicate the equip paths already use, rather than a hand-rolled
+    // layer test: it covers the occupied layer, the strength requirement, the two-handed weapon
+    // rules and the boat-mount exception to valid_equip_layer in one place, so relocate cannot
+    // drift from it.
+    if ( !equipped->chr->equippable( &item ) )
+      return reject( item, from, to, "the character cannot equip that" );
   }
   else if ( const auto* on_corpse = to.get_if<OnCorpse>() )
   {
@@ -189,7 +200,7 @@ void detach( Item& item, const Location& from )
   if ( const auto* in_cont = from.get_if<InContainer>() )
     in_cont->cont->remove( &item );
   else if ( const auto* equipped = from.get_if<Equipped>() )
-    equipped->worn->RemoveItemFromLayer( &item );
+    equipped->chr->unequip( &item );
   else if ( const auto* on_corpse = from.get_if<OnCorpse>() )
     on_corpse->corpse->Core::UContainer::remove( &item );
   else if ( const auto* in_storage = from.get_if<InStorage>() )
@@ -207,6 +218,16 @@ void detach( Item& item, const Location& from )
     Core::remove_item_from_world( &item );
 }
 
+/// The cursor is the one home whose contents are derived from the previous one, so it is attached
+/// by relocate() itself rather than here.
+void attach_to_cursor( Item& item, Mobile::Character& holder, const Core::GottenItem& ticket )
+{
+  holder.gotten_item( ticket );
+  item.inuse( true );
+  item.gotten_by( &holder );
+  item.setposition( Core::Pos4d( 0, 0, 0, item.realm() ) );  // don't let a boat carry it around
+}
+
 /// Returns false for the alternatives that have no registry to join, whose location the caller
 /// therefore has to record itself.
 bool attach( Item& item, const Location& to )
@@ -222,7 +243,7 @@ bool attach( Item& item, const Location& to )
     in_cont->cont->add( &item, in_cont->grid );
   }
   else if ( const auto* equipped = to.get_if<Equipped>() )
-    equipped->worn->PutItemOnLayer( &item );
+    equipped->chr->equip( &item );
   else if ( const auto* on_corpse = to.get_if<OnCorpse>() )
   {
     item.slot_index( on_corpse->slot );
@@ -251,9 +272,20 @@ bool relocate( Item& item, Location to )
   if ( !validate( item, from, to ) )
     return false;
 
+  // The cursor's return ticket describes where the item is coming from, so it has to be taken
+  // before the detach resets the slot index and unlinks the container.
+  const auto* to_cursor = to.get_if<OnCursor>();
+  Core::GottenItem ticket;
+  if ( to_cursor != nullptr )
+    ticket = Core::GottenItem::for_item( &item );
+
   detach( item, from );
-  if ( !attach( item, to ) )
+
+  if ( to_cursor != nullptr )
+    attach_to_cursor( item, *to_cursor->holder, ticket );
+  else if ( !attach( item, to ) )
     item.set_location( to );
+
   return true;
 }
 }  // namespace Pol::Items

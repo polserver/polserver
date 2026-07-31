@@ -3129,14 +3129,10 @@ BObjectImp* UOExecutorModule::mf_GetFacing()
 void true_extricate( Item* item )
 {
   send_remove_object_to_inrange( item );
-  if ( item->container != nullptr )
-  {
-    item->extricate();
-  }
-  else
-  {
-    remove_item_from_world( item );
-  }
+  // A null container does not mean "on the ground": an item part-way through an equip, on a
+  // cursor, or sitting as a storage root also has none, and remove_item_from_world asserts on
+  // every one of those. Ask the item where it actually is.
+  (void)Items::relocate( *item, Items::Detached{} );
 }
 
 void undo_extricate( Character* chr, Item* item, UContainer* oldcont )

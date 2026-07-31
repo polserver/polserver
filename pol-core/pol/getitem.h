@@ -40,6 +40,12 @@ public:
   void undo( Mobile::Character* chr );
   static void handle( Network::Client* client, PKTIN_07* msg );
 
+  /**
+   * Build the return ticket for an item that is about to be picked up, describing where it is
+   * now. Must be called before the item is detached: it reads the item's location and slot.
+   */
+  static GottenItem for_item( Items::Item* item );
+
   bool operator==( const GottenItem& o ) const { return _item == o._item; }
 
 private:

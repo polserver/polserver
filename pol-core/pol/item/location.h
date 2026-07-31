@@ -64,14 +64,18 @@ struct InContainer
 };
 
 /// Worn by a character. The layer is the location, not a field on the item.
+///
+/// Names the character rather than its worn-items container: what may be equipped depends on the
+/// character's strength and current weapon as much as on the layer array, and every caller has a
+/// character to hand.
 struct Equipped
 {
-  Core::WornItemsContainer* worn;
+  Mobile::Character* chr;
   u8 layer;
 
   bool operator==( const Equipped& other ) const
   {
-    return worn == other.worn && layer == other.layer;
+    return chr == other.chr && layer == other.layer;
   }
 };
 

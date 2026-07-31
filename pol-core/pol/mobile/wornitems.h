@@ -53,12 +53,19 @@ public:
   void for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg ) override;
 
   Items::Item* GetItemOnLayer( unsigned idx ) const;
-  void PutItemOnLayer( Item* item );
-  void RemoveItemFromLayer( Item* item );
 
   Items::Location location_for( const Items::Item* item, const Core::Pos2d& pos ) override;
 
   void print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
+
+private:
+  // The layer array is only half of being equipped: the other half is the owner's weapon, shield
+  // and armor rating. Going through Character::equip/unequip is therefore the only correct way in,
+  // and these stay private so it cannot be bypassed.
+  void PutItemOnLayer( Item* item );
+  void RemoveItemFromLayer( Item* item );
+
+  friend class Mobile::Character;
 };
 
 inline Items::Item* WornItemsContainer::GetItemOnLayer( unsigned idx ) const

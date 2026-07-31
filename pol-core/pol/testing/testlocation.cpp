@@ -200,7 +200,7 @@ void location_test()
     UnitTest( [&]() { return relocate( *outer, Items::InContainer{ nullptr, Core::Pos2d(), 0 } ); },
               false, "a null container is rejected" );
     UnitTest( [&]() { return relocate( *outer, Items::Equipped{ nullptr, 0 } ); }, false,
-              "a null worn-items container is rejected" );
+              "a null character is rejected" );
     UnitTest( [&]() { return relocate( *outer, Items::OnCorpse{ nullptr, Core::Pos2d(), 0, 0 } ); },
               false, "a null corpse is rejected" );
     UnitTest( [&]() { return relocate( *outer, Items::InStorage{ nullptr, "x" } ); }, false,

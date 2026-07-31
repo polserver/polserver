@@ -970,6 +970,73 @@ exported function test_equip_npc_item_undo( resources )
   return 1;
 endfunction
 
+// An equip script can move the item somewhere else and still approve the equip. The core has to
+// detach the item from wherever the script left it before putting it on a layer; equipping it
+// straight from the cursor leaves the item both worn and listed in the container it was moved to,
+// and the container's contents are raw pointers, so whichever home is torn down first leaves the
+// other pointing at freed memory.
+exported function equip_script_rehome_one_home( resources )
+  var res := resources.UpdateConfiguration( struct{ MasterCanClotheNPCs := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  npc.setmaster( char );
+
+  var backpack := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, 0xE75 );
+  if ( !backpack )
+    return backpack;
+  endif
+
+  res := EquipItem( npc, backpack );
+  if ( !res )
+    return res;
+  endif
+
+  // where the equip script will move the shirt to
+  var stash := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  if ( !stash )
+    return stash;
+  endif
+
+  var shirt := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_rehome" );
+  if ( !shirt )
+    return shirt;
+  endif
+
+  SetObjProperty( shirt, "#RehomeTo", stash.serial );
+
+  if ( !lift_item_succeeded( res, shirt.serial ) )
+    return res;
+  endif
+
+  if ( !wear_item_succeeded( res, shirt.serial, LAYER_SHIRT, npc.serial, @() { return 1; } ) )
+    return res;
+  endif
+
+  // worn, per wear_item_succeeded above - so the only question left is whether the stash still
+  // claims it too
+  var stashed := EnumerateItemsInContainer( stash );
+  foreach it in ( stashed )
+    if ( it.serial == shirt.serial )
+      return ret_error( "The shirt is equipped and still listed in the container the equip script moved it to" );
+    endif
+  endforeach
+
+  return ret_error_not_equal( GetEquipmentByLayer( npc, LAYER_SHIRT ), shirt,
+                              "Shirt was not equipped on the NPC" );
+endfunction
+
 // When an NPC's non-master equips an item on the NPC, the equip should fail.
 exported function test_equip_npc_dragdrop_fail_1( resources )
   return equip_npc_dragdrop_fail_helper( resources, FAIL_REASON_NOT_MASTER );
