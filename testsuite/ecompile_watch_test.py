@@ -8,7 +8,10 @@ from typing import Awaitable
 import traceback
 
 # seconds; error if compilation doesn't occur within this duration
-ECOMPILE_WATCH_TIMEOUT=5
+# Watch mode is only announced after ecompile's initial -A pass, and a full-tree compile takes
+# about as long as the shard_ecompile test does (5-6s), so a budget in that range is a coin flip.
+# When the suite runs in order, shard_test_1 leaves scripts stale and the pass has real work.
+ECOMPILE_WATCH_TIMEOUT=60
 
 def print(*args, **kwargs):
     __builtins__.print(*args, flush=True, **kwargs)
@@ -76,10 +79,11 @@ class EcompileExecutor:
 
         asyncio.create_task(self._read_output(self._process.stdout, started_future))
 
-        try:
-            await asyncio.wait_for(started_future, timeout=ECOMPILE_WATCH_TIMEOUT)
-        except asyncio.TimeoutError:
-            print(f"ecompile watch mode did not start after {ECOMPILE_WATCH_TIMEOUT} seconds")
+        # Do not continue on timeout. wait_for cancels started_future, so the marker line arrives
+        # later and kills the reader task with InvalidStateError; the first test then reads the
+        # initial pass's summary as its own result and every test after it times out. One missed
+        # deadline reported as four unrelated failures is not worth the salvage attempt.
+        await asyncio.wait_for(started_future, timeout=ECOMPILE_WATCH_TIMEOUT)
 
     def new_compliation_future(self) -> Awaitable[dict[str, int]]:
         self._compilation_future = asyncio.Future()
