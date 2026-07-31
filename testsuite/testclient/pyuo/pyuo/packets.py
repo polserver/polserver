@@ -353,23 +353,26 @@ class DropItemPacket(Packet):
   def fill(self, serial, x, y, z, dropped_on_serial):
     self.type = type
     self.serial = serial
-    self.x = x
-    self.y = y
+    # The coordinates go out unsigned, so -1 and 0xFFFF are the same thing: the
+    # "dropped on an object rather than on the ground" marker, which is how an
+    # item reaches a mobile
+    self.x = x & 0xFFFF
+    self.y = y & 0xFFFF
     self.z = z
     self.dropped_on_serial = 0xFFFFFFFF if dropped_on_serial == -1 else dropped_on_serial
 
   def encodeChild(self):
     self.euint(self.serial)
-    self.esshort(self.x)
-    self.esshort(self.y)
+    self.eushort(self.x)
+    self.eushort(self.y)
     self.eschar(self.z)
     self.euchar(0) #  Backpack grid index
     self.euint(self.dropped_on_serial)
 
   def decodeChild(self):
     self.serial = self.duint()
-    self.x = self.dsshort()
-    self.y = self.dsshort()
+    self.x = self.dushort()
+    self.y = self.dushort()
     self.z = self.dschar()
     self.duchar() # Backpack grid index
     self.dropped_on_serial = self.duint()
@@ -945,6 +948,58 @@ class CharacterAnimationPacket(Packet):
     self.backwards = self.duchar()
     self.repeat = self.duchar()
     self.delay = self.duchar()
+
+
+class SecureTradingPacket(Packet):
+  ''' Secure trading window, both directions
+
+  The core sends the 47 bytes long form (with a name) for ACTION_INIT and the
+  17 bytes long one for ACTION_CANCEL/ACTION_STATUS, see dropitem.cpp.
+
+  The meaning of the three serial fields depends on the action:
+  - ACTION_INIT:   serial is the other character, cont1/cont2 are the two trade
+                   containers, cont1 being the receiving client's own one
+  - ACTION_CANCEL: serial is the receiving client's own trade container
+  - ACTION_STATUS: serial is the receiving client's own trade container,
+                   cont1/cont2 are the accept flags, cont1 being its own one
+  '''
+
+  cmd = 0x6f
+
+  ACTION_INIT = 0
+  ACTION_CANCEL = 1
+  ACTION_STATUS = 2
+
+  def fill(self, action, serial, flag=0):
+    '''!
+    @param action int: one of the ACTION_* constants
+    @param serial int: own trade container serial
+    @param flag int: the accept flag, for ACTION_STATUS
+    '''
+    self.length = 17
+    self.action = action
+    self.serial = serial
+    self.cont1 = flag
+    self.cont2 = 0
+    self.havename = 0
+    self.name = ''
+
+  def encodeChild(self):
+    self.eulen()
+    self.euchar(self.action)
+    self.euint(self.serial)
+    self.euint(self.cont1)
+    self.euint(self.cont2)
+    self.euchar(self.havename)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.action = self.duchar()
+    self.serial = self.duint()
+    self.cont1 = self.duint()
+    self.cont2 = self.duint()
+    self.havename = self.duchar()
+    self.name = self.dstring(self.length - 17) if self.length > 17 else ''
 
 
 class GraphicalEffectPacket(Packet):
@@ -1644,14 +1699,16 @@ class ClilocMsgPacket(Packet):
 
   def decodeChild(self):
     self.length = self.dushort()
-    self.id = self.duint()
-    self.body = self.dushort()
+    self.serial = self.duint()
+    self.model = self.dushort()
     self.type = self.duchar()
-    self.hue = self.dushort()
+    self.color = self.dushort()
     self.font = self.dushort()
-    self.msg = self.duint()
-    self.speaker_name = self.dstring(30)
-    self.unicode_string = self.rpb(self.length-48)
+    self.cliloc = self.duint()
+    self.name = self.dstring(30)
+    # the arguments filling the placeholders of the cliloc entry, the one
+    # little-endian unicode string of the protocol
+    self.args = self.ducstringflipped(self.length-48)
 
 class VisualRangePacket(Packet):
   ''' visual range both directions '''

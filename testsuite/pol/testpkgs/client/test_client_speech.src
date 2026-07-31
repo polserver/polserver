@@ -1,0 +1,269 @@
+// The server-to-client speech functions of uo.em, in plain text.
+
+include "speech";
+
+program test_speech()
+  return speech_setup();
+endprogram
+
+// A system message goes to the one client it is addressed to, under the core's
+// own serial and name rather than anybody in the world.
+exported function sysmessage_reaches_one_client( unused resmgn )
+  var text := "sysmessage " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := SendSysMessage( char, text, font := 2, color := 33 );
+  if ( !res )
+    return ret_error( $"Could not send the system message: {res}" );
+  endif
+
+  var ev := wait_for_speech( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( CInt( ev.serial ) != SYSMESSAGE_SERIAL )
+    return ret_error( $"the message came from 0x{ev.serial:x}, expected 0x{SYSMESSAGE_SERIAL:x}" );
+  elseif ( CInt( ev.model ) != SYSMESSAGE_MODEL )
+    return ret_error( $"the message has the body 0x{ev.model:x}, expected 0x{SYSMESSAGE_MODEL:x}" );
+  elseif ( ev.name != SYSMESSAGE_NAME )
+    return ret_error( $"the message is named \"{ev.name}\", expected \"{SYSMESSAGE_NAME}\"" );
+  elseif ( CInt( ev.texttype ) != TEXTTYPE_NORMAL )
+    return ret_error( $"the message has the texttype {ev.texttype}, expected {TEXTTYPE_NORMAL}" );
+  elseif ( CInt( ev.font ) != 2 or CInt( ev.color ) != 33 )
+    return ret_error( $"the message came in font {ev.font} colour {ev.color}, expected 2/33" );
+  elseif ( CInt( ev.unicode ) )
+    return ret_error( "plain text was sent as a unicode message" );
+  endif
+
+  // and the other client was told nothing
+  return no_speech_for( 1, text );
+endfunction
+
+// Text put above an object is attributed to that object and reaches everyone in
+// range of it, the sender included.
+exported function textabove_reaches_all_in_range( unused resmgn )
+  var text := "above " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := PrintTextAbove( char, text, font := 1, color := 55 );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var evs := wait_for_speeches( text );
+  if ( !evs )
+    return evs;
+  endif
+
+  foreach ev in ( evs )
+    var id := _ev_iter - 1;
+    if ( CInt( ev.serial ) != char.serial )
+      return ret_error( $"client {id} was told 0x{ev.serial:x} spoke, expected 0x{char.serial:x}" );
+    elseif ( ev.name != char.name )
+      return ret_error( $"client {id} saw the name \"{ev.name}\", expected \"{char.name}\"" );
+    elseif ( CInt( ev.font ) != 1 or CInt( ev.color ) != 55 )
+      return ret_error( $"client {id} got font {ev.font} colour {ev.color}, expected 1/55" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// The default font and colour of uo.em are what a call without them uses.
+exported function sysmessage_defaults( unused resmgn )
+  var text := "default " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := SendSysMessage( char, text );
+  if ( !res )
+    return ret_error( $"Could not send the system message: {res}" );
+  endif
+
+  var ev := wait_for_speech( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.font ) != _DEFAULT_TEXT_FONT or CInt( ev.color ) != _DEFAULT_TEXT_COLOR )
+    return ret_error( $"the message came in font {ev.font} colour {ev.color}, expected {_DEFAULT_TEXT_FONT}/{_DEFAULT_TEXT_COLOR}" );
+  endif
+  return 1;
+endfunction
+
+// There is nowhere to send a system message to without a client.
+exported function sysmessage_needs_client( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := SendSysMessage( npc, "into the void" );
+  if ( res )
+    return ret_error( "a system message was sent to a mobile without a client" );
+  elseif ( res.errortext != "Mobile has no active client" )
+    return ret_error( $"unexpected error for a mobile without a client: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// A broadcast goes to every client on the shard, not just the ones nearby.
+exported function broadcast_reaches_all( unused resmgn )
+  var text := "broadcast " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := Broadcast( text, font := 2, color := 44 );
+  if ( !res )
+    return ret_error( $"Could not broadcast: {res}" );
+  endif
+
+  var evs := wait_for_speeches( text );
+  if ( !evs )
+    return evs;
+  endif
+
+  // a broadcast is a system message, so it carries the same markers
+  foreach ev in ( evs )
+    var id := _ev_iter - 1;
+    if ( CInt( ev.serial ) != SYSMESSAGE_SERIAL )
+      return ret_error( $"client {id} was told 0x{ev.serial:x} broadcast, expected 0x{SYSMESSAGE_SERIAL:x}" );
+    elseif ( ev.name != SYSMESSAGE_NAME )
+      return ret_error( $"client {id} saw the name \"{ev.name}\", expected \"{SYSMESSAGE_NAME}\"" );
+    elseif ( CInt( ev.font ) != 2 or CInt( ev.color ) != 44 )
+      return ret_error( $"client {id} got font {ev.font} colour {ev.color}, expected 2/44" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// A broadcast skips every client below the command level it asks for.
+exported function broadcast_filters_cmdlevel( unused resmgn )
+  var text := "staff " + CStr( ReadMillisecondClock() );
+
+  char2.cmdlevel := 1;
+  if ( char2.cmdlevel != 1 )
+    return ret_error( $"could not raise the command level, it is {char2.cmdlevel}" );
+  endif
+
+  Clear_Event_Queue();
+  var res := Broadcast( text, required_cmdlevel := 1 );
+  if ( !res )
+    char2.cmdlevel := 0;
+    return ret_error( $"Could not broadcast: {res}" );
+  endif
+
+  var ev := wait_for_speech( 1, text );
+  var quiet := no_speech_for( 0, text );
+  char2.cmdlevel := 0;
+
+  if ( !ev )
+    return ev;
+  endif
+  return quiet;
+endfunction
+
+// JOURNAL_PRINT_YOU_SEE puts "You see" in the journal field instead of the name
+// of the object the text is above.
+exported function textabove_journal_you_see( unused resmgn )
+  var text := "yousee " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := PrintTextAbove( char, text, journal_print := JOURNAL_PRINT_YOU_SEE );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var ev := wait_for_speech( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.name != "You see" )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"You see\"" );
+  elseif ( CInt( ev.serial ) != char.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  endif
+  return 1;
+endfunction
+
+// Text can sit above an item just as well as above a mobile, and is then
+// attributed to the item with its own graphic and description.
+exported function textabove_on_item( resmgn )
+  var text := "item " + CStr( ReadMillisecondClock() );
+  var item := resmgn.CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+
+  Clear_Event_Queue();
+  var res := PrintTextAbove( item, text );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var ev := wait_for_speech( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != item.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected the item 0x{item.serial:x}" );
+  elseif ( CInt( ev.model ) != item.graphic )
+    return ret_error( $"the text carries the graphic 0x{ev.model:x}, expected 0x{item.graphic:x}" );
+  elseif ( ev.name != item.desc )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"{item.desc}\"" );
+  endif
+  return 1;
+endfunction
+
+// The private variant reaches the one character it names, and nobody else -
+// though it still claims to come from the object it was put above.
+exported function textabove_private_one_client( unused resmgn )
+  var text := "private " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := PrintTextAbovePrivate( char, text, char2, font := 1, color := 66 );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var ev := wait_for_speech( 1, text );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != char.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  elseif ( ev.name != char.name )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"{char.name}\"" );
+  elseif ( CInt( ev.font ) != 1 or CInt( ev.color ) != 66 )
+    return ret_error( $"the text came in font {ev.font} colour {ev.color}, expected 1/66" );
+  endif
+
+  // the character it is above hears nothing of it
+  return no_speech_for( 0, text );
+endfunction
+
+// Text above an object only reaches the clients that can see the object.
+exported function textabove_out_of_range( unused resmgn )
+  var text := "faraway " + CStr( ReadMillisecondClock() );
+
+  MoveObjectToLocation( char2, 160, 120, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := PrintTextAbove( char, text );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var heard := wait_for_speech( 0, text );
+  var quiet := no_speech_for( 1, text );
+
+  MoveObjectToLocation( char2, 101, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  wait_for_own_create( 1 );
+
+  if ( !heard )
+    return heard;
+  endif
+  return quiet;
+endfunction
+

@@ -1,0 +1,337 @@
+// The cliloc.em speech functions, which leave the shard as packet 0xC1.
+//
+// A cliloc message carries no text at all: the client looks the number up in its
+// own table and fills the placeholders of the entry it finds with the arguments
+// that come along. So what the test client can see, and what these cases assert,
+// is the number, the arguments, and everything the packet says about where the
+// message comes from.
+
+use cliloc;
+
+include "speech";
+
+// One number per case, so a message left over from the case before cannot be
+// taken for the one under test. The client never looks any of them up.
+const CL_SYSMESSAGE := 1042762;
+const CL_DEFAULTS := 1042763;
+const CL_NO_ARGS := 1042764;
+const CL_UNICODE_ARGS := 1042765;
+const CL_ARRAY_ARGS := 1042766;
+const CL_ABOVE := 1042767;
+const CL_ABOVE_ITEM := 1042768;
+const CL_OUT_OF_RANGE := 1042769;
+const CL_PRIVATE := 1042770;
+
+// a latin small letter a with diaeresis and a CJK ideograph, built from their
+// code points rather than put in the source file. CChrZ takes code points, not
+// the bytes of an encoding: the second one does not fit a single byte in any of
+// them and only survives because the arguments really are unicode.
+var wide_chars := CChrZ( { 0x00E4, 0x4E2D } );
+
+program test_speech_cliloc()
+  return speech_setup();
+endprogram
+
+// A cliloc system message goes to the one client it is addressed to, under the
+// all-ones serial and body the core reserves for it.
+exported function sysmessagecl_one_client( unused resmgn )
+  var args := "100 gold\t25 gold";
+
+  Clear_Event_Queue();
+  var res := SendSysMessageCL( char, CL_SYSMESSAGE, args, font := 2, color := 33 );
+  if ( !res )
+    return ret_error( $"Could not send the cliloc system message: {res}" );
+  endif
+
+  var ev := wait_for_cliloc( 0, CL_SYSMESSAGE );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( ev.serial != CLILOC_SYSMESSAGE_SERIAL )
+    return ret_error( $"the message came from {ev.serial}, expected {CLILOC_SYSMESSAGE_SERIAL}" );
+  elseif ( CInt( ev.model ) != CLILOC_SYSMESSAGE_MODEL )
+    return ret_error( $"the message has the body 0x{ev.model:x}, expected 0x{CLILOC_SYSMESSAGE_MODEL:x}" );
+  elseif ( ev.name != SYSMESSAGE_NAME )
+    return ret_error( $"the message is named \"{ev.name}\", expected \"{SYSMESSAGE_NAME}\"" );
+  elseif ( CInt( ev.texttype ) != CLILOC_TYPE_SYSTEM )
+    return ret_error( $"the message has the texttype {ev.texttype}, expected {CLILOC_TYPE_SYSTEM}" );
+  elseif ( CInt( ev.font ) != 2 or CInt( ev.color ) != 33 )
+    return ret_error( $"the message came in font {ev.font} colour {ev.color}, expected 2/33" );
+  elseif ( ev.msg != args )
+    return ret_error( $"the arguments arrived as \"{ev.msg}\", expected \"{args}\"" );
+  endif
+
+  // and the other client was told nothing
+  return no_cliloc_for( 1, CL_SYSMESSAGE );
+endfunction
+
+// The default font and colour of cliloc.em are what a call without them uses.
+exported function sysmessagecl_defaults( unused resmgn )
+  Clear_Event_Queue();
+  var res := SendSysMessageCL( char, CL_DEFAULTS );
+  if ( !res )
+    return ret_error( $"Could not send the cliloc system message: {res}" );
+  endif
+
+  var ev := wait_for_cliloc( 0, CL_DEFAULTS );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.font ) != _DEFAULT_CLFONT or CInt( ev.color ) != _DEFAULT_CLCOLOR )
+    return ret_error( $"the message came in font {ev.font} colour {ev.color}, expected {_DEFAULT_CLFONT}/{_DEFAULT_CLCOLOR}" );
+  endif
+  return 1;
+endfunction
+
+// Most cliloc entries take no arguments at all, and then the packet ends after
+// the terminator of an empty string.
+exported function sysmessagecl_no_arguments( unused resmgn )
+  Clear_Event_Queue();
+  var res := SendSysMessageCL( char, CL_NO_ARGS );
+  if ( !res )
+    return ret_error( $"Could not send the cliloc system message: {res}" );
+  endif
+
+  var ev := wait_for_cliloc( 0, CL_NO_ARGS );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.msg != "" )
+    return ret_error( $"the message carries the arguments \"{ev.msg}\", expected none" );
+  endif
+  return 1;
+endfunction
+
+// The arguments go over the wire as unicode, so characters outside ascii survive
+// the round trip unchanged.
+exported function sysmessagecl_unicode_args( unused resmgn )
+  var args := "gr" + wide_chars + "n";
+
+  Clear_Event_Queue();
+  var res := SendSysMessageCL( char, CL_UNICODE_ARGS, args );
+  if ( !res )
+    return ret_error( $"Could not send the cliloc system message: {res}" );
+  endif
+
+  var ev := wait_for_cliloc( 0, CL_UNICODE_ARGS );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.msg != args )
+    return ret_error( $"the arguments arrived as \"{ev.msg}\", expected \"{args}\"" );
+  endif
+  return 1;
+endfunction
+
+// The arguments may also be handed over as an array of unicode characters, which
+// is what the .em documents for backward compatibility.
+exported function sysmessagecl_array_args( unused resmgn )
+  Clear_Event_Queue();
+  var res := SendSysMessageCL( char, CL_ARRAY_ARGS, { 0x41, 0x42, 0x43 } );
+  if ( !res )
+    return ret_error( $"Could not send the cliloc system message: {res}" );
+  endif
+
+  var ev := wait_for_cliloc( 0, CL_ARRAY_ARGS );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.msg != "ABC" )
+    return ret_error( $"the arguments arrived as \"{ev.msg}\", expected \"ABC\"" );
+  endif
+  return 1;
+endfunction
+
+// There is nowhere to send a cliloc system message to without a client.
+exported function sysmessagecl_needs_client( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := SendSysMessageCL( npc, CL_SYSMESSAGE );
+  if ( res )
+    return ret_error( "a cliloc system message was sent to a mobile without a client" );
+  elseif ( res.errortext != "Mobile has no active client" )
+    return ret_error( $"unexpected error for a mobile without a client: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// What is refused before anything goes on the wire: something that is not a
+// mobile, and arguments longer than the packet can hold.
+exported function sysmessagecl_bad_arguments( unused resmgn )
+  var res := SendSysMessageCL( "notamobile", CL_SYSMESSAGE );
+  if ( res )
+    return ret_error( "a string was accepted where a mobile belongs" );
+  elseif ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"unexpected error for a string instead of a mobile: {res.errortext}" );
+  endif
+
+  // SPEECH_MAX_LEN in the core, pktdef.h - no eScript constant for it
+  var toolong := "x";
+  while ( toolong.length() <= 200 )
+    toolong := toolong + "xxxxxxxxxx";
+  endwhile
+
+  res := SendSysMessageCL( char, CL_SYSMESSAGE, toolong );
+  if ( res )
+    return ret_error( $"arguments of {toolong.length()} characters were accepted" );
+  elseif ( res.errortext != "Text exceeds maximum size." )
+    return ret_error( $"unexpected error for overlong arguments: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// A cliloc message put above an object is attributed to that object and reaches
+// everyone in range of it, the sender included.
+exported function textabovecl_reaches_in_range( unused resmgn )
+  Clear_Event_Queue();
+  var res := PrintTextAboveCL( char, CL_ABOVE, "", font := 1, color := 55 );
+  if ( !res )
+    return ret_error( $"Could not print the cliloc text: {res}" );
+  endif
+
+  var evs := wait_for_clilocs( CL_ABOVE );
+  if ( !evs )
+    return evs;
+  endif
+
+  foreach ev in ( evs )
+    var id := _ev_iter - 1;
+    if ( CInt( ev.serial ) != char.serial )
+      return ret_error( $"client {id} was told 0x{ev.serial:x} spoke, expected 0x{char.serial:x}" );
+    elseif ( CInt( ev.model ) != char.graphic )
+      return ret_error( $"client {id} got the body 0x{ev.model:x}, expected 0x{char.graphic:x}" );
+    elseif ( ev.name != char.name )
+      return ret_error( $"client {id} saw the name \"{ev.name}\", expected \"{char.name}\"" );
+    elseif ( CInt( ev.texttype ) != CLILOC_TYPE_ABOVE )
+      return ret_error( $"client {id} got the texttype {ev.texttype}, expected {CLILOC_TYPE_ABOVE}" );
+    elseif ( CInt( ev.font ) != 1 or CInt( ev.color ) != 55 )
+      return ret_error( $"client {id} got font {ev.font} colour {ev.color}, expected 1/55" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// It sits above an item just as well, and is then attributed to the item with
+// its own graphic and description.
+exported function textabovecl_on_item( resmgn )
+  var item := resmgn.CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+
+  Clear_Event_Queue();
+  var res := PrintTextAboveCL( item, CL_ABOVE_ITEM );
+  if ( !res )
+    return ret_error( $"Could not print the cliloc text: {res}" );
+  endif
+
+  var ev := wait_for_cliloc( 0, CL_ABOVE_ITEM );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != item.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected the item 0x{item.serial:x}" );
+  elseif ( CInt( ev.model ) != item.graphic )
+    return ret_error( $"the text carries the graphic 0x{ev.model:x}, expected 0x{item.graphic:x}" );
+  elseif ( ev.name != item.desc )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"{item.desc}\"" );
+  endif
+  return 1;
+endfunction
+
+// Only the clients that can see the object are told about it.
+exported function textabovecl_out_of_range( unused resmgn )
+  MoveObjectToLocation( char2, 160, 120, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := PrintTextAboveCL( char, CL_OUT_OF_RANGE );
+  if ( !res )
+    return ret_error( $"Could not print the cliloc text: {res}" );
+  endif
+
+  var heard := wait_for_cliloc( 0, CL_OUT_OF_RANGE );
+  var quiet := no_cliloc_for( 1, CL_OUT_OF_RANGE );
+
+  MoveObjectToLocation( char2, 101, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  wait_for_own_create( 1 );
+
+  if ( !heard )
+    return heard;
+  endif
+  return quiet;
+endfunction
+
+// The private variant reaches the one character it names, and nobody else -
+// though it still claims to come from the object it was put above.
+exported function textabovepvtcl_one_client( unused resmgn )
+  Clear_Event_Queue();
+  var res := PrintTextAbovePrivateCL( char2, char, CL_PRIVATE, "", font := 1, color := 66 );
+  if ( !res )
+    return ret_error( $"Could not print the cliloc text: {res}" );
+  endif
+
+  var ev := wait_for_cliloc( 1, CL_PRIVATE );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != char.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  elseif ( ev.name != char.name )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"{char.name}\"" );
+  elseif ( CInt( ev.texttype ) != CLILOC_TYPE_ABOVE )
+    return ret_error( $"the text has the texttype {ev.texttype}, expected {CLILOC_TYPE_ABOVE}" );
+  elseif ( CInt( ev.font ) != 1 or CInt( ev.color ) != 66 )
+    return ret_error( $"the text came in font {ev.font} colour {ev.color}, expected 1/66" );
+  endif
+
+  // the character it is above hears nothing of it
+  return no_cliloc_for( 0, CL_PRIVATE );
+endfunction
+
+// The private variant needs a client to send to, and something that is not a
+// mobile is refused before that.
+exported function textabovepvtcl_needs_client( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := PrintTextAbovePrivateCL( npc, char, CL_PRIVATE );
+  if ( res )
+    return ret_error( "a private cliloc text was sent to a mobile without a client" );
+  elseif ( res.errortext != "Mobile has no active client" )
+    return ret_error( $"unexpected error for a mobile without a client: {res.errortext}" );
+  endif
+
+  res := PrintTextAbovePrivateCL( char, "notanobject", CL_PRIVATE );
+  if ( res )
+    return ret_error( "a string was accepted where the object belongs" );
+  elseif ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"unexpected error for a string instead of an object: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// A client cannot be shown text above an object standing in another realm.
+exported function textabovepvtcl_cross_realm( resmgn )
+  var item := resmgn.CreateItemAtLocation( 10, 11, -5, 0xeed, 1, "britannia2" );
+  if ( !item )
+    return item;
+  endif
+
+  var res := PrintTextAbovePrivateCL( char, item, CL_PRIVATE );
+  if ( res )
+    return ret_error( "a cliloc text was printed above an object in another realm" );
+  elseif ( res.errortext != "Cannot print messages across realms!" )
+    return ret_error( $"unexpected error across realms: {res.errortext}" );
+  endif
+  return 1;
+endfunction

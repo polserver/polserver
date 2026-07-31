@@ -37,6 +37,38 @@ const EVT_ATTACK := "attack";
 const EVT_WAR_MODE := "war_mode";
 const EVT_FIGHT_OCCURING := "fight_occuring";
 const EVT_STATUS_BAR := "status_bar";
+const EVT_TRADE := "trade";
+const EVT_CLILOC := "cliloc";
+
+// actions of the secure trade window packet, see PKTBI_6F in the core
+const TRADE_ACTION_INIT := 0;
+const TRADE_ACTION_CANCEL := 1;
+const TRADE_ACTION_STATUS := 2;
+
+// the texttype of a speech packet, see TEXTTYPE_* in plib/uconst.h
+const TEXTTYPE_NORMAL := 0x00;
+const TEXTTYPE_SYS_BROADCAST := 0x01;
+const TEXTTYPE_EMOTE := 0x02;
+const TEXTTYPE_YOU_SEE := 0x06;
+const TEXTTYPE_WHISPER := 0x08;
+const TEXTTYPE_YELL := 0x09;
+
+// the serial and body the core sends a system message under, see send_sysmessage
+const SYSMESSAGE_SERIAL := 0x01010101;
+const SYSMESSAGE_MODEL := 0x0101;
+const SYSMESSAGE_NAME := "System";
+
+// the two text types the cliloc packet carries, see clfunc.cpp: 6 puts the
+// message in the lower left corner, 7 above the object. Neither is spelled out
+// in uconst.h the way the plain speech types are.
+const CLILOC_TYPE_SYSTEM := 0x06;
+const CLILOC_TYPE_ABOVE := 0x07;
+
+// what a cliloc system message is attributed to, see send_sysmessage_cl - all
+// ones rather than the marker serial of a plain system message. 0xFFFFFFFF does
+// not fit an integer, so it is kept as the double the client event carries.
+const CLILOC_SYSMESSAGE_SERIAL := 4294967295.0;
+const CLILOC_SYSMESSAGE_MODEL := 0xFFFF;
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
@@ -94,4 +126,3 @@ function enable_auto_delete( clientcon, id )
   while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )
   endwhile
 endfunction
-

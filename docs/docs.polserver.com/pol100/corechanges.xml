@@ -2,9 +2,30 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-30-2026</datemodified>
+		<datemodified>07-31-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>07-31-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">uo::MoveItemToSecureTradeWin could crash if the item was not accepted for the trade eg due to CanTrade hook</change>
+			<change type="Fixed">uo::PrintTextAbovePrivate ignored journal_print for texts containing UTF-8 characters</change>
+		</entry>
+		<entry>
+			<date>07-30-2026</date>
+			<author>Turley:</author>
+			<change type="Added">itemdesc property Attackable 1/0 (default 0) makes an item a valid combat target. Needs client version 7.x.<br/>
+It can be engaged like a mobile (attack packet or doubleclick while in warmode), takes<br/>
+damage against its HP/MaxHP a swing always hits.<br/>
+A ControlScript (when enabled) receives SYSEVENT_DAMAGED, SYSEVENT_ENGAGED, SYSEVENT_DISENGAGED and SYSEVENT_OPPONENT_MOVED like an npc does.<br/>
+uo::ListHostiles, Character.attack_once<br/>
+and vitals::ApplyDamage/ApplyRawDamage accept now attackable items as well.<br/>
+Without a ControlScript the item is destroyed once its hp reach 0, otherwise its up to the script.<br/>
+Only items lying toplevel in the world are attackable: picking an item up, moving<br/>
+it into a container, equipping it or moving it to another realm disengages every<br/>
+opponent attacking it.<br/>
+Attackable items do not stack.</change>
+		</entry>
 		<entry>
 			<date>07-28-2026</date>
 			<author>Nando:</author>

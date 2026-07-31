@@ -186,6 +186,11 @@ class Container(Item):
       item = Item(self.client)
       item.serial = it['serial']
       self.client.objects[it['serial']] = item
+    # An item moved between two containers is only announced in its new one,
+    # so drop it from the old one here to keep the contents believable
+    if isinstance(item.parent, Container) and item.parent.content:
+      item.parent.content = [i for i in item.parent.content if i is not item]
+
     item.graphic = it['graphic']
     item.amount = it['amount']
     item.x = it['x']
@@ -296,6 +301,8 @@ class Mobile(UOBject):
     self.maxstam = None
     ## Equip serials list, by layer (None = unknown)
     self.equip = None
+    ## Secure trade container, while this mobile is trading (None = not trading)
+    self.tradecont = None
 
     if pkt is not None:
       self.update(pkt)
@@ -445,10 +452,18 @@ class Speech:
   COMMAND   = 0x0f
 
   def __init__(self, client, pkt):
+    # a cliloc message is the same thing with a number the client looks up in
+    # its own table in place of the text, and arguments instead of a language
+    self.cliloc = None
+    self.lang = None
     if isinstance(pkt, packets.SendSpeechPacket):
       self.unicode = False
     elif isinstance(pkt, packets.UnicodeSpeechPacket):
       self.unicode = True
+      self.lang = pkt.lang
+    elif isinstance(pkt, packets.ClilocMsgPacket):
+      self.unicode = True
+      self.cliloc = pkt.cliloc
     else:
       assert False
 
@@ -459,12 +474,8 @@ class Speech:
     self.type = pkt.type
     self.color = pkt.color
     self.font = pkt.font
-    if self.unicode:
-      self.lang = pkt.lang
-    else:
-      self.lang = None
     self.name = pkt.name
-    self.msg = pkt.msg
+    self.msg = pkt.args if self.cliloc is not None else pkt.msg
 
   def typeName(self):
     ''' Returns type as string '''
@@ -505,6 +516,9 @@ class Speech:
 
   def __repr__(self):
     p = "u" if self.unicode else ""
+    if self.cliloc is not None:
+      return '{} from 0x{:02X} ({}): cliloc {} {}"{}"'.format(
+          self.typeName(), self.serial, self.name, self.cliloc, p, self.msg)
     return '{} from 0x{:02X} ({}): {}"{}"'.format(
         self.typeName(), self.serial, self.name, p, self.msg)
 
@@ -605,6 +619,9 @@ class Client(threading.Thread):
     self.auto_delete_objs = True
 
     self.gumps=[] # open gumps
+
+    ## Serial of the mobile currently traded with, None when not trading
+    self.trade = None
 
   @status('disconnected')
   def connect(self, host, port, user, pwd):
@@ -830,18 +847,12 @@ class Client(threading.Thread):
 
     elif isinstance(pkt, packets.AddItemToContainerPacket):
       assert self.lc
-      assert isinstance(self.objects[pkt.container], Item)
-      if not isinstance(self.objects[pkt.container], Container):
-        self.objects[pkt.container].upgradeToContainer()
-      self.objects[pkt.container].addItem(pkt)
+      self.addItemToContainer(pkt.__dict__)
 
     elif isinstance(pkt, packets.AddItemsToContainerPacket):
       assert self.lc
       for it in pkt.items:
-        assert isinstance(self.objects[it['container']], Item)
-        if not isinstance(self.objects[it['container']], Container):
-          self.objects[it['container']].upgradeToContainer()
-        self.objects[it['container']].addItem(it)
+        self.addItemToContainer(it)
 
     elif isinstance(pkt, packets.WarModePacket):
       self.player.war = pkt.war
@@ -906,6 +917,14 @@ class Client(threading.Thread):
       else:
         self.log.warn('EARLY %s', repr(speech))
       self.brain.event(brain.Event(brain.Event.EVT_SPEECH, speech=speech))
+
+    elif isinstance(pkt, packets.ClilocMsgPacket):
+      speech = Speech(self, pkt)
+      if self.lc:
+        self.log.info(repr(speech))
+      else:
+        self.log.warn('EARLY %s', repr(speech))
+      self.brain.event(brain.Event(brain.Event.EVT_CLILOC, speech=speech))
 
     elif isinstance(pkt, packets.TargetCursorPacket):
       assert self.target is None
@@ -1004,8 +1023,82 @@ class Client(threading.Thread):
       self.features = pkt.features
     elif isinstance(pkt, packets.OpenPaperdollPacket):
       self.brain.event(brain.Event(brain.Event.EVT_OPEN_PAPERDOLL, serial = pkt.serial, text=pkt.text, flags=pkt.flags))
+    elif isinstance(pkt, packets.SecureTradingPacket):
+      self.handleSecureTradingPacket(pkt)
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
+
+  @status('game')
+  @clientthread
+  def handleSecureTradingPacket(self, pkt):
+    ''' Handles the secure trade window packet '''
+    if pkt.action == packets.SecureTradingPacket.ACTION_INIT:
+      self.log.info("Trade with 0x%X opened, containers 0x%X and 0x%X",
+          pkt.serial, pkt.cont1, pkt.cont2)
+      # The two containers are also announced by an own AddItemToContainerPacket
+      # each, but that one carries no hint about which side it belongs to
+      self.trade = pkt.serial
+      own = self.getContainer(pkt.cont1)
+      own.parent = self.player
+      self.player.tradecont = own
+      other = self.objects.get(pkt.serial)
+      if isinstance(other, Mobile):
+        theirs = self.getContainer(pkt.cont2)
+        theirs.parent = other
+        other.tradecont = theirs
+    elif pkt.action == packets.SecureTradingPacket.ACTION_CANCEL:
+      self.log.info("Trade closed, container 0x%X", pkt.serial)
+      other = self.objects.get(self.trade)
+      if isinstance(other, Mobile):
+        other.tradecont = None
+      self.trade = None
+      self.player.tradecont = None
+    elif pkt.action == packets.SecureTradingPacket.ACTION_STATUS:
+      self.log.info("Trade status, container 0x%X: %d %d", pkt.serial, pkt.cont1, pkt.cont2)
+
+    self.brain.event(brain.Event(brain.Event.EVT_TRADE, action=pkt.action,
+        serial=pkt.serial, cont1=pkt.cont1, cont2=pkt.cont2, name=pkt.name))
+
+  def getContainer(self, serial):
+    ''' Returns the container with the given serial, creating or upgrading it
+        when the server has not drawn it as an item before
+    '''
+    obj = self.objects.get(serial)
+    if obj is None:
+      obj = Container(self)
+      obj.serial = serial
+      self.objects[serial] = obj
+    elif not isinstance(obj, Container):
+      obj.upgradeToContainer()
+    return obj
+
+  def addItemToContainer(self, it):
+    '''! Adds an item to a container, from the dictionary form of an
+    AddItem(s)ToContainerPacket
+
+    The parent is not always an item the client already knows: a secure trade
+    container is announced as an item inside the *mobile* it belongs to, and it
+    is the first the client hears of it, see send_trade_container() in the core.
+    Both trade containers are announced before the trade window packet is, and
+    the mobile on the other side of the trade may be out of sight, so an unknown
+    parent is treated as that same case.
+    '''
+    parent = self.objects.get(it['container'])
+    if parent is not None and not isinstance(parent, Mobile):
+      self.getContainer(it['container']).addItem(it)
+      return
+
+    # The item is a container of its own, hanging off a mobile
+    cont = self.getContainer(it['serial'])
+    cont.graphic = it['graphic']
+    cont.color = it['color']
+    if parent is None:
+      self.log.info("Container 0x%X belongs to the unknown 0x%X",
+          cont.serial, it['container'])
+      return
+    cont.parent = parent
+    parent.tradecont = cont
+    self.log.info("Mobile 0x%X got container 0x%X", parent.serial, cont.serial)
 
   @status('game')
   @clientthread
@@ -1360,6 +1453,16 @@ class Client(threading.Thread):
     ''' Sends a drop packet to server'''
     po = packets.DropItemPacket()
     po.fill(serial, x, y, z, dropped_on_serial)
+    self.queue(po)
+
+  @logincomplete
+  def secureTrade(self, action, flag=0):
+    '''! Accepts, un-accepts or cancels the running trade
+    @param action int: one of the SecureTradingPacket.ACTION_* constants
+    @param flag int: the accept flag, for ACTION_STATUS
+    '''
+    po = packets.SecureTradingPacket()
+    po.fill(action, self.player.tradecont.serial if self.player.tradecont else 0, flag)
     self.queue(po)
 
   @logincomplete

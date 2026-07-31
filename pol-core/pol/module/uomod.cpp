@@ -746,7 +746,8 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
   {
     if ( !ptext->hasUTF8Characters() )
       return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
-    return new BLong( private_say_above_unicode( chr, obj, ptext->value(), "ENU", font, color ) );
+    return new BLong(
+        private_say_above_unicode( chr, obj, ptext->value(), "ENU", font, color, journal_print ) );
   }
 
   return new BError( "A parameter was invalid" );
@@ -3141,6 +3142,22 @@ void true_extricate( Item* item )
   }
 }
 
+void undo_extricate( Character* chr, Item* item, UContainer* oldcont )
+{
+  if ( oldcont != nullptr && !oldcont->orphan() && oldcont->can_add( *item ) )
+  {
+    oldcont->add_at_random_location( item );
+    if ( chr != nullptr && chr->client != nullptr )
+      send_put_in_container( chr->client, item );
+    return;
+  }
+
+  item->setposition( chr->pos() );
+  add_item_to_world( item );
+  register_with_supporting_multi( item );
+  move_item( item, item->pos() );
+}
+
 BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 {
   Item* item;
@@ -3305,6 +3322,15 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
   }
 
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  if ( !chr->has_active_client() )
+  {
+    return new BError( "No client attached." );
+  }
+  // early out checks of place_item_in_secure_trade_container
+  if ( chr->trading_with.get() == nullptr || chr->trading_with->client == nullptr )
+  {
+    return new BError( "Unable to complete trade" );
+  }
   if ( !item->movable() )
   {
     Character* _chr = controller_.get();
@@ -3351,9 +3377,17 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
     }
   }
 
+  UContainer* restore_to = oldcont;
+  if ( item->layer != 0 )
+    restore_to = ( chr_owner != nullptr ) ? chr_owner->backpack() : nullptr;
+
   true_extricate( item );
 
-  return place_item_in_secure_trade_container( chr->client, item );
+  BObjectImp* res = place_item_in_secure_trade_container( chr->client, item );
+  // eg the hook can reject the trade, items needs to be added back to world
+  if ( res->isa( BObjectImp::OTError ) && !item->orphan() )
+    undo_extricate( chr, item, restore_to );
+  return res;
 }
 
 BObjectImp* UOExecutorModule::mf_EquipItem()

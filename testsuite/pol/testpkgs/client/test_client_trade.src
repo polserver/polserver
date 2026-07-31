@@ -1,0 +1,133 @@
+// Secure trade window: opening it, closing it and the accept protocol.
+//
+// Everything here needs two connected clients: the core refuses to open a trade
+// window unless both characters have an active one, and only a client can accept
+// a trade - there is no module function for it, uo::SecureTradeWin only opens the
+// window.
+
+include "trade";
+
+program test_trade()
+  return trade_setup();
+endprogram
+
+// Opening a trade window tells both clients about it, and both sides of the
+// window are visible to both of them.
+exported function trade_open_and_cancel( unused resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+  var [ ev, ev2 ] := res;
+
+  // the initiator is told about its partner, and the other way round
+  if ( ev.serial != char2.serial )
+    return ret_error( $"client 0 trades with 0x{ev.serial:x}, expected 0x{char2.serial:x}" );
+  elseif ( ev2.serial != char.serial )
+    return ret_error( $"client 1 trades with 0x{ev2.serial:x}, expected 0x{char.serial:x}" );
+  endif
+
+  // the name of the partner comes with the window
+  if ( ev.name != char2.name )
+    return ret_error( $"client 0 was given the name \"{ev.name}\", expected \"{char2.name}\"" );
+  elseif ( ev2.name != char.name )
+    return ret_error( $"client 1 was given the name \"{ev2.name}\", expected \"{char.name}\"" );
+  endif
+
+  // each client is given its own container first, the partner's second
+  var cont := char.tradewindow.serial;
+  var cont2 := char2.tradewindow.serial;
+  if ( ev.cont1 != cont or ev.cont2 != cont2 )
+    return ret_error( $"client 0 was given the containers 0x{ev.cont1:x}/0x{ev.cont2:x}, expected 0x{cont:x}/0x{cont2:x}" );
+  elseif ( ev2.cont1 != cont2 or ev2.cont2 != cont )
+    return ret_error( $"client 1 was given the containers 0x{ev2.cont1:x}/0x{ev2.cont2:x}, expected 0x{cont2:x}/0x{cont:x}" );
+  endif
+
+  // closing it reaches both clients too, each with its own container
+  Clear_Event_Queue();
+  res := CloseTradeWindow( char );
+  if ( !res )
+    return ret_error( $"Could not close the trade window: {res}" );
+  endif
+
+  res := wait_for_trades( TRADE_ACTION_CANCEL );
+  if ( !res )
+    return res;
+  endif
+  var [ cancel, cancel2 ] := res;
+  if ( cancel.serial != cont )
+    return ret_error( $"client 0 was told about 0x{cancel.serial:x}, expected its own 0x{cont:x}" );
+  elseif ( cancel2.serial != cont2 )
+    return ret_error( $"client 1 was told about 0x{cancel2.serial:x}, expected its own 0x{cont2:x}" );
+  endif
+
+  // and the window is gone on the server side
+  if ( char.tradewindow or char2.tradewindow )
+    return ret_error( "the trade window outlived the cancel" );
+  endif
+  return 1;
+endfunction
+
+// Both sides accepting swaps the two containers and ends the trade. Only a
+// client can accept, so this is the one path that needs the 0x6F packet in the
+// other direction.
+exported function trade_accept_swaps( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  var item2 := resmgn.CreateItemInContainer( char2.backpack, 0x1F03 );
+  if ( !item || !item2 )
+    return !item ? item : item2;
+  endif
+  item.movable := 1;
+  item2.movable := 1;
+
+  res := MoveItemToSecureTradeWin( item, char );
+  if ( !res )
+    return ret_error( $"Could not offer the item of client 0: {res}" );
+  endif
+  res := MoveItemToSecureTradeWin( item2, char2 );
+  if ( !res )
+    return ret_error( $"Could not offer the item of client 1: {res}" );
+  endif
+
+  if ( item.container.serial != char.tradewindow.serial )
+    return ret_error( "the item of client 0 is not in its trade window" );
+  elseif ( item2.container.serial != char2.tradewindow.serial )
+    return ret_error( "the item of client 1 is not in its trade window" );
+  endif
+
+  // the first accept only updates the indicators, both clients see both of them,
+  // their own one first
+  Clear_Event_Queue();
+  send_accept( 0, 1 );
+  res := wait_for_trades( TRADE_ACTION_STATUS, struct{ cont1 := 1, cont2 := 0 },
+                                               struct{ cont1 := 0, cont2 := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  // the second one completes the trade: the containers are swapped and the
+  // window is closed for both sides
+  Clear_Event_Queue();
+  send_accept( 1, 1 );
+  res := wait_for_trades( TRADE_ACTION_CANCEL );
+  if ( !res )
+    return res;
+  endif
+
+  if ( char.tradewindow or char2.tradewindow )
+    return ret_error( "the trade window outlived the swap" );
+  endif
+
+  // each item ended up in the backpack of the other side
+  if ( item.container.serial != char2.backpack.serial )
+    return ret_error( $"the item of client 0 is in 0x{item.container.serial:x}, expected the backpack of client 1" );
+  elseif ( item2.container.serial != char.backpack.serial )
+    return ret_error( $"the item of client 1 is in 0x{item2.container.serial:x}, expected the backpack of client 0" );
+  endif
+  return 1;
+endfunction

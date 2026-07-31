@@ -1,0 +1,231 @@
+// npc.em Say and SayUC, from the receiving client's side.
+//
+// Those two only run inside an NPC's own AI script, so the commands go through
+// ai_remote.src of the testnpc package - the same remote control its own movement
+// and facing tests use. What this file adds is the other end: what the two put on
+// the wire, which the npc package cannot see.
+
+use os;
+use uo;
+
+include "speech";
+
+const REMOTE_SCRIPT := ":testnpc:ai_remote";
+const PROBE_NPC := ":testnpc:probe_npc";
+const RESULT_TIMEOUT_SEC := 5;
+
+// npc.em is unusable together with uo.em, its constants collide at module scope
+const TEXTTYPE_ARG_DEFAULT := "default";
+const TEXTTYPE_ARG_WHISPER := "whisper";
+const TEXTTYPE_ARG_YELL := "yell";
+const DOEVENT_DISABLE := 0;
+
+program test_speech_npc()
+  return speech_setup();
+endprogram
+
+// What an NPC says reaches every client in range, under its own serial, body and
+// name, and in the colour and font of its template rather than the defaults of
+// uo.em.
+exported function npc_say_reaches_clients( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var text := "npcsay " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := remote( npc, "say", { text, TEXTTYPE_ARG_DEFAULT, DOEVENT_DISABLE } );
+  if ( !res )
+    return res;
+  endif
+
+  var evs := wait_for_speeches( text );
+  if ( !evs )
+    return evs;
+  endif
+
+  foreach ev in ( evs )
+    var id := _ev_iter - 1;
+    if ( CInt( ev.serial ) != npc.serial )
+      return ret_error( $"client {id} was told 0x{ev.serial:x} spoke, expected the npc 0x{npc.serial:x}" );
+    elseif ( CInt( ev.model ) != npc.graphic )
+      return ret_error( $"client {id} got the body 0x{ev.model:x}, expected 0x{npc.graphic:x}" );
+    elseif ( ev.name != npc.name )
+      return ret_error( $"client {id} saw the name \"{ev.name}\", expected \"{npc.name}\"" );
+    elseif ( CInt( ev.color ) != npc.speech_color )
+      return ret_error( $"client {id} got the colour {ev.color}, expected the npc's {npc.speech_color}" );
+    elseif ( CInt( ev.font ) != npc.speech_font )
+      return ret_error( $"client {id} got the font {ev.font}, expected the npc's {npc.speech_font}" );
+    elseif ( CInt( ev.texttype ) != TEXTTYPE_NORMAL )
+      return ret_error( $"client {id} got the texttype {ev.texttype}, expected {TEXTTYPE_NORMAL}" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// Whispering and yelling change the texttype the client is told, nothing else.
+exported function npc_say_texttypes( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var cases := { { TEXTTYPE_ARG_WHISPER, TEXTTYPE_WHISPER },
+                 { TEXTTYPE_ARG_YELL, TEXTTYPE_YELL },
+                 { TEXTTYPE_ARG_DEFAULT, TEXTTYPE_NORMAL } };
+
+  foreach entry in ( cases )
+    var text := "npc" + entry[1] + CStr( ReadMillisecondClock() );
+
+    Clear_Event_Queue();
+    var res := remote( npc, "say", { text, entry[1], DOEVENT_DISABLE } );
+    if ( !res )
+      return res;
+    endif
+
+    var ev := wait_for_speech( 0, text );
+    if ( !ev )
+      return ev;
+    endif
+    if ( CInt( ev.texttype ) != entry[2] )
+      return ret_error( $"\"{entry[1]}\" arrived as texttype {ev.texttype}, expected {entry[2]}" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// Anything else than the three known text types is refused, and nothing is sent.
+exported function npc_say_refuses_texttype( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var text := "npcbad " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := remote( npc, "say", { text, "shout", DOEVENT_DISABLE } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "texttype string param must be either 'default', 'whisper', or 'yell'" )
+    return ret_error( $"unexpected answer for an unknown texttype: \"{res.errortext}\"" );
+  endif
+  return no_speech_for( 0, text );
+endfunction
+
+// A squelched NPC is not allowed to say anything at all.
+exported function npc_say_refuses_squelched( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var text := "npcquiet " + CStr( ReadMillisecondClock() );
+
+  // there is no setter for the squelched member, only this method: -1 squelches
+  // until it is lifted again
+  npc.squelch( -1 );
+  if ( !npc.squelched )
+    return ret_error( "the npc could not be squelched" );
+  endif
+
+  Clear_Event_Queue();
+  var res := remote( npc, "say", { text, TEXTTYPE_ARG_DEFAULT, DOEVENT_DISABLE } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "NPC is squelched" )
+    return ret_error( $"unexpected answer for a squelched npc: \"{res.errortext}\"" );
+  endif
+  return no_speech_for( 0, text );
+endfunction
+
+// Speaking gives a hidden NPC away.
+exported function npc_say_unhides( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var text := "npcvisible " + CStr( ReadMillisecondClock() );
+
+  npc.hidden := 1;
+  if ( !npc.hidden )
+    return ret_error( "the npc could not be hidden" );
+  endif
+
+  Clear_Event_Queue();
+  var res := remote( npc, "say", { text, TEXTTYPE_ARG_DEFAULT, DOEVENT_DISABLE } );
+  if ( !res )
+    return res;
+  endif
+
+  var ev := wait_for_speech( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+  if ( npc.hidden )
+    return ret_error( "the npc is still hidden after speaking" );
+  endif
+  return 1;
+endfunction
+
+// SayUC puts the same text out as unicode, in the language it was given.
+exported function npc_sayuc_langcode( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  var text := "npcuc" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := remote( npc, "sayuc", { text, TEXTTYPE_ARG_DEFAULT, "DEU", DOEVENT_DISABLE } );
+  if ( !res )
+    return res;
+  endif
+
+  var ev := wait_for_speech_like( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !CInt( ev.unicode ) )
+    return ret_error( "SayUC was sent as plain text" );
+  elseif ( ev.lang != "DEU" )
+    return ret_error( $"SayUC came in the language \"{ev.lang}\", expected \"DEU\"" );
+  elseif ( CInt( ev.serial ) != npc.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected the npc 0x{npc.serial:x}" );
+  endif
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+// Puts a remote controlled NPC next to the two clients.
+function make_npc( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( PROBE_NPC, char.x + 1, char.y + 1, char.z, struct{
+                                                                                      script := REMOTE_SCRIPT } );
+  if ( !npc )
+    return ret_error( $"Could not create the npc: {npc}" );
+  endif
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  return npc;
+endfunction
+
+// Sends a command to the AI script and waits for its answer, skipping the client
+// events that arrive in between.
+function remote( npc, cmd, args := 0 )
+  var sent := npc.process.sendevent( struct{ cmd := cmd, args := args } );
+  if ( !sent )
+    return ret_error( $"could not send '{cmd}' to the npc: {sent}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( ev and ev.type == "result" and ev.cmd == cmd )
+      return ev;
+    endif
+  endwhile
+  return ret_error( $"no result from '{cmd}'" );
+endfunction

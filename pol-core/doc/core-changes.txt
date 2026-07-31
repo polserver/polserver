@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+07-31-2026 Turley:
+    Fixed: uo::MoveItemToSecureTradeWin could crash if the item was not accepted for the trade eg due to CanTrade hook
+    Fixed: uo::PrintTextAbovePrivate ignored journal_print for texts containing UTF-8 characters
 07-30-2026 Turley:
     Added: itemdesc property Attackable 1/0 (default 0) makes an item a valid combat target. Needs client version 7.x.
            It can be engaged like a mobile (attack packet or doubleclick while in warmode), takes
