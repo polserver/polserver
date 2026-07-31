@@ -1,0 +1,437 @@
+// Which way an NPC ends up looking, and the step it takes toward or away from
+// something. Driven through ai_remote.src.
+use uo;
+use os;
+
+include "testutil";
+
+const REMOTE_SCRIPT := "ai_remote";
+
+// npc.em cannot be used from here - it is the AI script that calls into it -
+// so its two turn flags are spelled out again under different names, because
+// FACE_NORMAL and FACE_FORCE are already taken at module scope.
+const TURN_NORMAL := 0x0;  // npc::FACE_NORMAL
+const TURN_FORCE  := 0x1;  // npc::FACE_FORCE
+
+// open flat land at z 0
+const BASE_X := 120;
+const BASE_Y := 120;
+
+const RESULT_TIMEOUT_SEC := 5;
+
+// facings, in the order of the core's move_delta table
+const FACING_N  := 0;
+const FACING_NE := 1;
+const FACING_E  := 2;
+const FACING_SE := 3;
+const FACING_S  := 4;
+const FACING_SW := 5;
+const FACING_W  := 6;
+const FACING_NW := 7;
+
+// what the coordinate conversion says before a function gets to complain itself
+const COORD_ERROR := "Invalid parameter type.  Expected param 0 as Integer, got String";
+
+program testnpcfacing()
+  return 1;
+endprogram
+
+function make_remote_npc( resmngr, x, y, z )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, z,
+                                            struct{ script := REMOTE_SCRIPT, RunSpeed := 250 } );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  clear_event_queue();
+  return npc;
+endfunction
+
+function remote( npc, cmd, args := 0 )
+  var sent := npc.process.sendevent( struct{ cmd := cmd, args := args } );
+  if ( !sent )
+    return ret_error( $"could not send '{cmd}' to the NPC: {sent}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == "result" && ev.cmd == cmd )
+      return ev;
+    endif
+  endwhile
+
+  return ret_error( $"no result from '{cmd}'" );
+endfunction
+
+// puts the NPC on a known facing so that a turn is a real change
+function face_to( npc, dir )
+  var res := remote( npc, "face", { dir, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( npc.facing != res.result )
+    return ret_error( $"could not face {dir}: '{res.errortext}'" );
+  endif
+  return 1;
+endfunction
+
+// Face hands back the facing it took, which for north is a falsy 0
+exported function face_directions( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var dirs := { "N", "NE", "E", "SE", "S", "SW", "W", "NW" };
+  var i;
+  for ( i := 1; i <= dirs.size(); i += 1 )
+    var res := remote( npc, "face", { dirs[i], TURN_NORMAL } );
+    if ( !res )
+      return res;
+    endif
+    // the answer is the facing itself, so a successful Face( "N" ) is a 0 and
+    // cannot be told from a failure by truthiness alone
+    if ( res.result != i - 1 )
+      return ret_error( $"Face( \"{dirs[i]}\" ) returned {res.result}, expected {i - 1}" );
+    elseif ( res.facing != i - 1 )
+      return ret_error( $"Face( \"{dirs[i]}\" ) left facing {res.facing}" );
+    endif
+  endfor
+
+  // a number works too, and only its low three bits count
+  var res := remote( npc, "face", { FACING_E, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != FACING_E || res.facing != FACING_E )
+    return ret_error( $"Face( 2 ) returned {res.result}, facing {res.facing}" );
+  endif
+
+  res := remote( npc, "face", { FACING_SE + 8, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != FACING_SE || res.facing != FACING_SE )
+    return ret_error( $"Face( 11 ) returned {res.result}, facing {res.facing}" );
+  endif
+
+  // facing the way it already faces is not a failure
+  res := remote( npc, "face", { "SE", TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != FACING_SE )
+    return ret_error( $"Face( \"SE\" ) again returned {res.result}" );
+  endif
+
+  return 1;
+endfunction
+
+// TURN_FORCE is the flag that skips the can-I-turn check
+exported function face_force( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := face_to( npc, "N" );
+  if ( !res )
+    return res;
+  endif
+
+  // a frozen NPC cannot turn of its own accord
+  npc.frozen := 1;
+
+  res := remote( npc, "face", { "E", TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( $"a frozen NPC turned east on its own: {res.result}" );
+  elseif ( res.facing != FACING_N )
+    return ret_error( $"a frozen NPC ended up facing {res.facing}" );
+  endif
+
+  // forced, it turns anyway
+  res := remote( npc, "face", { "E", TURN_FORCE } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != FACING_E || res.facing != FACING_E )
+    return ret_error( $"a forced turn returned {res.result}, facing {res.facing}" );
+  endif
+
+  npc.frozen := 0;
+  return 1;
+endfunction
+
+// TurnToward and TurnAwayFrom answer 1 when they turned and 0 when there was
+// nothing to turn
+exported function turn_toward_and_away( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  var other := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X + 5, BASE_Y, 0 );
+  if ( !other )
+    return ret_error( $"Could not create the other NPC: {other}" );
+  endif
+
+  var res := face_to( npc, "N" );
+  if ( !res )
+    return res;
+  endif
+
+  res := remote( npc, "turntoward", { other, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( $"TurnToward did not turn: {res.result} '{res.errortext}'" );
+  elseif ( res.facing != FACING_E )
+    return ret_error( $"TurnToward left facing {res.facing}, expected east" );
+  endif
+
+  // already looking that way, so there is nothing left to do
+  res := remote( npc, "turntoward", { other, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( $"TurnToward turned again: {res.result}" );
+  elseif ( res.facing != FACING_E )
+    return ret_error( $"the second TurnToward moved the facing to {res.facing}" );
+  endif
+
+  // away is the exact opposite facing
+  res := remote( npc, "turnawayfrom", { other, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.facing != FACING_W )
+    return ret_error( $"TurnAwayFrom returned {res.result}, facing {res.facing}" );
+  endif
+
+  // and it follows the other NPC around
+  MoveObjectToLocation( other, BASE_X, BASE_Y - 5, 0 );
+  res := remote( npc, "turntoward", { other, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.facing != FACING_N )
+    return ret_error( $"TurnToward an NPC due north returned {res.result}, facing {res.facing}" );
+  endif
+
+  return 1;
+endfunction
+
+// the same pair against a bare location, which nothing has to be standing on
+exported function turn_toward_location( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := face_to( npc, "S" );
+  if ( !res )
+    return res;
+  endif
+
+  res := remote( npc, "turntowardlocation", { BASE_X, BASE_Y - 10, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.facing != FACING_N )
+    return ret_error( $"TurnTowardLocation returned {res.result}, facing {res.facing}" );
+  endif
+
+  res := remote( npc, "turntowardlocation", { BASE_X, BASE_Y - 10, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( $"TurnTowardLocation turned again: {res.result}" );
+  endif
+
+  res := remote( npc, "turnawayfromlocation", { BASE_X, BASE_Y - 10, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.facing != FACING_S )
+    return ret_error( $"TurnAwayFromLocation returned {res.result}, facing {res.facing}" );
+  endif
+
+  // the tile the NPC is standing on has no direction, and the core calls that
+  // north
+  res := remote( npc, "turntowardlocation", { BASE_X, BASE_Y, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.facing != FACING_N )
+    return ret_error( $"TurnTowardLocation onto its own tile returned {res.result}, facing {res.facing}" );
+  endif
+
+  res := remote( npc, "turntowardlocation", { "here", BASE_Y, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != COORD_ERROR )
+    return ret_error( $"wrong error for a coordinate that is not one: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// a mobile it cannot see is no target at all, an item never needs seeing
+exported function turn_visibility( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  var other := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X + 5, BASE_Y, 0 );
+  if ( !other )
+    return ret_error( $"Could not create the other NPC: {other}" );
+  endif
+
+  other.hidden := 1;
+
+  foreach cmd in { "turntoward", "turnawayfrom" }
+    var res := remote( npc, cmd, { other, TURN_NORMAL } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.errortext != "Mobile specified cannot be seen" )
+      return ret_error( $"wrong error from {cmd} on a hidden mobile: '{res.errortext}'" );
+    endif
+  endforeach
+
+  var res := remote( npc, "walktoward", { other } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "Mobile specified cannot be seen" )
+    return ret_error( $"wrong error from WalkToward on a hidden mobile: '{res.errortext}'" );
+  endif
+
+  other.hidden := 0;
+  res := remote( npc, "turntoward", { other, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.facing != FACING_E )
+    return ret_error( $"TurnToward an unhidden mobile returned {res.result}, facing {res.facing}" );
+  endif
+
+  // an item is not a mobile, so it is never checked for visibility
+  var item := resmngr.CreateItemAtLocation( BASE_X, BASE_Y - 5, 0, 0x0EED );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+  res := remote( npc, "turntoward", { item, TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.facing != FACING_N )
+    return ret_error( $"TurnToward an item returned {res.result}, facing {res.facing}" );
+  endif
+
+  res := remote( npc, "turntoward", { "nothing", TURN_NORMAL } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"wrong error from TurnToward on a non-object: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// the four that step toward or away from an object
+exported function walk_toward_and_away( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  var other := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BASE_X + 6, BASE_Y, 0 );
+  if ( !other )
+    return ret_error( $"Could not create the other NPC: {other}" );
+  endif
+
+  // name, dx after the step, facing it should be left on
+  var steps := { { "walktoward", 1, FACING_E }, { "runtoward", 1, FACING_E },
+                 { "walkawayfrom", -1, FACING_W }, { "runawayfrom", -1, FACING_W } };
+
+  var x := BASE_X;
+  foreach entry in steps
+    var cmd := entry[1], dx := entry[2], want_facing := entry[3];
+
+    var res := remote( npc, cmd, { other } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 1 )
+      return ret_error( $"{cmd} did not move: {res.result} '{res.errortext}'" );
+    endif
+    x += dx;
+    if ( res.x != x || res.y != BASE_Y )
+      return ret_error( $"{cmd} reached {res.x},{res.y}, expected {x},{BASE_Y}" );
+    elseif ( res.facing != want_facing )
+      return ret_error( $"{cmd} left facing {res.facing}, expected {want_facing}" );
+    endif
+  endforeach
+
+  if ( x != BASE_X )
+    return ret_error( $"the four steps did not cancel out: {x}" );
+  endif
+
+  return 1;
+endfunction
+
+// and the four that step toward or away from a location
+exported function walk_toward_location( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var north_y := BASE_Y - 10;
+
+  // name, dy after the step, facing it should be left on
+  var steps := { { "walktowardlocation", -1, FACING_N }, { "runtowardlocation", -1, FACING_N },
+                 { "walkawayfromlocation", 1, FACING_S }, { "runawayfromlocation", 1, FACING_S } };
+
+  var y := BASE_Y;
+  foreach entry in steps
+    var cmd := entry[1], dy := entry[2], want_facing := entry[3];
+
+    var res := remote( npc, cmd, { BASE_X, north_y } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 1 )
+      return ret_error( $"{cmd} did not move: {res.result} '{res.errortext}'" );
+    endif
+    y += dy;
+    if ( res.x != BASE_X || res.y != y )
+      return ret_error( $"{cmd} reached {res.x},{res.y}, expected {BASE_X},{y}" );
+    elseif ( res.facing != want_facing )
+      return ret_error( $"{cmd} left facing {res.facing}, expected {want_facing}" );
+    endif
+  endforeach
+
+  if ( y != BASE_Y )
+    return ret_error( $"the four steps did not cancel out: {y}" );
+  endif
+
+  var bad := remote( npc, "walktowardlocation", { "there", north_y } );
+  if ( !bad )
+    return bad;
+  endif
+  if ( bad.errortext != COORD_ERROR )
+    return ret_error( $"wrong error for a coordinate that is not one: '{bad.errortext}'" );
+  endif
+
+  return 1;
+endfunction

@@ -1,0 +1,89 @@
+use uo;
+use os;
+use npc;
+
+// A remote control for the npc module.
+//
+// The functions in npc.em only run inside an NPC's own AI script, so a test
+// cannot call them directly. It sends a command here instead and reads the
+// answer back off its own event queue. Same convention as testattack's
+// ai_attack.src: the test parks its pid in the "#TestPid" cprop.
+//
+// Commands are struct{ cmd, args }, answers are struct{ type := "result", ... }
+// carrying the return value both as a number and as text, the error text if
+// there was one, and where the NPC ended up - so that a test can check the
+// outcome and the position it left behind in one go.
+//
+// A bounding box cannot travel through an event, so "makeboundingbox" parks it
+// here and the commands that need one pick it up from there.
+
+program ai_remote()
+  var me := Self();
+  var bbox;
+
+  while ( me )
+    var ev := wait_for_event( 5 );
+    // a test may switch system events on, and those are not commands
+    if ( !ev || !ev.cmd )
+      continue;
+    endif
+
+    var res := dispatch( ev, bbox );
+
+    var errortext := "";
+    if ( res == error )
+      errortext := res.errortext;
+    endif
+
+    var parent := GetProcess( CInt( GetObjProperty( me, "#TestPid" ) ) );
+    if ( parent )
+      parent.SendEvent( struct{ type := "result", cmd := ev.cmd, result := CInt( res ),
+                                text := CStr( res ), errortext := errortext, x := me.x,
+                                y := me.y, z := me.z, facing := me.facing } );
+    endif
+  endwhile
+endprogram
+
+function dispatch( ev, byref bbox )
+  var args := ev.args;
+
+  case ( ev.cmd )
+    "move":    return Move( args[1] );
+    "canmove": return CanMove( args[1] );
+    "wander":  return Wander();
+    "walktowardlocation": return WalkTowardLocation( args[1], args[2] );
+
+    // the box is kept here between commands, and its type is reported back so
+    // that the caller can tell a real box from the empty string
+    "makeboundingbox": bbox := MakeBoundingBox( args[1] ); return TypeOf( bbox );
+    "islegalmove":       return IsLegalMove( args[1], bbox );
+    "islegalmove_param": return IsLegalMove( args[1], args[2] );
+    "move_bbox":         return Move( bbox );
+
+    "setanchor": return SetAnchor( args[1], args[2], args[3], args[4] );
+
+    "face":                 return Face( args[1], args[2] );
+    "turntoward":           return TurnToward( args[1], args[2] );
+    "turnawayfrom":         return TurnAwayFrom( args[1], args[2] );
+    "turntowardlocation":   return TurnTowardLocation( args[1], args[2], args[3] );
+    "turnawayfromlocation": return TurnAwayFromLocation( args[1], args[2], args[3] );
+
+    "walktoward":            return WalkToward( args[1] );
+    "walkawayfrom":          return WalkAwayFrom( args[1] );
+    "runtoward":             return RunToward( args[1] );
+    "runawayfrom":           return RunAwayFrom( args[1] );
+    "runtowardlocation":     return RunTowardLocation( args[1], args[2] );
+    "walkawayfromlocation":  return WalkAwayFromLocation( args[1], args[2] );
+    "runawayfromlocation":   return RunAwayFromLocation( args[1], args[2] );
+
+    // these two are uo.em, but they act on the executor this script runs on,
+    // which is what the npc's eventmask member reports
+    "enableevents":  return EnableEvents( args[1], args[2], args[3] );
+    "disableevents": return DisableEvents( args[1] );
+
+    "getproperty": return GetProperty( args[1] );
+    "setproperty": return SetProperty( args[1], args[2] );
+
+    default: return error{ errortext := $"unknown command '{ev.cmd}'" };
+  endcase
+endfunction

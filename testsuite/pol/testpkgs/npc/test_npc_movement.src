@@ -1,0 +1,344 @@
+// Move, CanMove and Wander, driven through ai_remote.src. What a step does to
+// the NPC's position and facing, what stops it, and what use_adjustments does
+// when something is in the way.
+use uo;
+use os;
+use math;
+
+include "testutil";
+
+const REMOTE_SCRIPT := "ai_remote";
+
+// open flat land at z 0 - the whole area is terrain 0x3 with no height steps
+const BASE_X := 120;
+const BASE_Y := 120;
+
+// the land/water boundary that map/test_mapinfo.src pins down: for x 31 to 33
+// the map is water (landtile 0xa8) up to y 27 and land at z -2 from y 28. A
+// MoveMode L NPC cannot stand on water, so from here N, NE and NW are shut.
+const EDGE_X := 32;
+const EDGE_Y := 28;
+const EDGE_Z := -2;
+
+const RESULT_TIMEOUT_SEC := 5;
+
+program testnpcmovement()
+  return 1;
+endprogram
+
+// name, dx, dy - the core's move_delta table, in facing order
+function directions()
+  return { { "N", 0, -1 }, { "NE", 1, -1 }, { "E", 1, 0 }, { "SE", 1, 1 },
+           { "S", 0, 1 }, { "SW", -1, 1 }, { "W", -1, 0 }, { "NW", -1, -1 } };
+endfunction
+
+function make_remote_npc( resmngr, x, y, z, use_adjustments := 1 )
+  // RunSpeed 250 puts move_self on the NpcMinimumMovementDelay floor of 250ms,
+  // so a walk of a few steps does not take a second each
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, z,
+                                            struct{ script := REMOTE_SCRIPT, RunSpeed := 250,
+                                                    UseAdjustments := use_adjustments } );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+  if ( npc.x != x || npc.y != y || npc.z != z )
+    return ret_error( $"NPC did not start where it was put: {npc.x},{npc.y},{npc.z}" );
+  endif
+
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  clear_event_queue();
+  return npc;
+endfunction
+
+// sends a command to the AI script and waits for its answer. The wait is
+// deadline bound because a move sleeps inside the core before the script sees
+// its own result.
+function remote( npc, cmd, args := 0 )
+  var sent := npc.process.sendevent( struct{ cmd := cmd, args := args } );
+  if ( !sent )
+    return ret_error( $"could not send '{cmd}' to the NPC: {sent}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == "result" && ev.cmd == cmd )
+      return ev;
+    endif
+  endwhile
+
+  return ret_error( $"no result from '{cmd}'" );
+endfunction
+
+// every direction moves by its own delta and leaves the NPC facing that way
+exported function move_all_directions( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var dirs := directions();
+  var i;
+  for ( i := 1; i <= dirs.size(); i += 1 )
+    var dir := dirs[i];
+    // the opposite direction is four facings on, which walks the NPC home
+    var back := dirs[( ( i + 3 ) % 8 ) + 1];
+
+    var res := remote( npc, "move", { dir[1] } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 1 )
+      return ret_error( $"Move( \"{dir[1]}\" ) failed: '{res.errortext}'" );
+    elseif ( res.x != BASE_X + dir[2] || res.y != BASE_Y + dir[3] )
+      return ret_error( $"Move( \"{dir[1]}\" ) reached {res.x},{res.y}, expected {BASE_X + dir[2]},{BASE_Y + dir[3]}" );
+    elseif ( res.facing != i - 1 )
+      return ret_error( $"Move( \"{dir[1]}\" ) left facing {res.facing}, expected {i - 1}" );
+    endif
+
+    res := remote( npc, "move", { back[1] } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 1 )
+      return ret_error( $"Move( \"{back[1]}\" ) back failed: '{res.errortext}'" );
+    elseif ( res.x != BASE_X || res.y != BASE_Y )
+      return ret_error( $"Move( \"{back[1]}\" ) did not return to {BASE_X},{BASE_Y}: {res.x},{res.y}" );
+    endif
+  endfor
+
+  return 1;
+endfunction
+
+// a facing can be given as a number instead, and only its low three bits count
+exported function move_by_facing_number( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // 2 is E
+  var res := remote( npc, "move", { 2 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.x != BASE_X + 1 || res.y != BASE_Y )
+    return ret_error( $"Move( 2 ) reached {res.x},{res.y}: '{res.errortext}'" );
+  elseif ( res.facing != 2 )
+    return ret_error( $"Move( 2 ) left facing {res.facing}, expected 2" );
+  endif
+
+  // anything above the three facing bits is masked away, so this is E again
+  res := remote( npc, "move", { 2 + 8 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.x != BASE_X + 2 || res.y != BASE_Y )
+    return ret_error( $"Move( 10 ) reached {res.x},{res.y}: '{res.errortext}'" );
+  elseif ( res.facing != 2 )
+    return ret_error( $"Move( 10 ) left facing {res.facing}, expected 2" );
+  endif
+
+  return 1;
+endfunction
+
+// a step onto water fails and costs nothing, with the adjustments turned off
+exported function move_blocked( resmngr )
+  var npc := make_remote_npc( resmngr, EDGE_X, EDGE_Y, EDGE_Z, use_adjustments := 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // N, NE and NW all land on water
+  foreach dir in { "N", "NE", "NW" }
+    var res := remote( npc, "move", { dir } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 0 )
+      return ret_error( $"Move( \"{dir}\" ) walked onto water" );
+    elseif ( res.x != EDGE_X || res.y != EDGE_Y )
+      return ret_error( $"a failed Move( \"{dir}\" ) still moved the NPC to {res.x},{res.y}" );
+    endif
+  endforeach
+
+  // the step along the shore works
+  var res := remote( npc, "move", { "E" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 || res.x != EDGE_X + 1 || res.y != EDGE_Y )
+    return ret_error( $"Move( \"E\" ) along the shore reached {res.x},{res.y}: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// Move is not one of the functions that adjust. It asks for a facing and it
+// takes that facing or nothing, whatever use_adjustments says - the core only
+// passes adjust_ok for Wander and the toward/away family.
+exported function move_ignores_adjustments( resmngr )
+  var npc := make_remote_npc( resmngr, EDGE_X, EDGE_Y, EDGE_Z, use_adjustments := 1 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := remote( npc, "move", { "N" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( $"Move( \"N\" ) adjusted its way onto {res.x},{res.y}" );
+  elseif ( res.x != EDGE_X || res.y != EDGE_Y )
+    return ret_error( $"a failed Move left the NPC at {res.x},{res.y}" );
+  endif
+
+  return 1;
+endfunction
+
+// WalkTowardLocation does adjust, and that is what use_adjustments decides
+exported function walk_toward_location_adjusts( resmngr )
+  // due north of the shore is water all the way
+  var north_x := EDGE_X, north_y := EDGE_Y - 8;
+
+  var npc := make_remote_npc( resmngr, EDGE_X, EDGE_Y, EDGE_Z, use_adjustments := 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := remote( npc, "walktowardlocation", { north_x, north_y } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( $"walking north into water worked: {res.x},{res.y}" );
+  elseif ( res.x != EDGE_X || res.y != EDGE_Y )
+    return ret_error( $"the NPC moved anyway, to {res.x},{res.y}" );
+  endif
+
+  // the same walk with the adjustments on tries the facing itself, then +1,
+  // -1, +2 ... N, NE and NW are all water, so the fourth try - E - goes through
+  npc := make_remote_npc( resmngr, EDGE_X, EDGE_Y, EDGE_Z, use_adjustments := 1 );
+  if ( !npc )
+    return npc;
+  endif
+
+  res := remote( npc, "walktowardlocation", { north_x, north_y } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 1 )
+    return ret_error( $"the adjusted walk failed: '{res.errortext}'" );
+  elseif ( res.x != EDGE_X + 1 || res.y != EDGE_Y )
+    return ret_error( $"the adjusted walk reached {res.x},{res.y}, expected {EDGE_X + 1},{EDGE_Y}" );
+  elseif ( res.facing != 2 )
+    return ret_error( $"the adjusted walk left facing {res.facing}, expected 2 (E)" );
+  endif
+
+  return 1;
+endfunction
+
+// CanMove answers the question Move acts on, without moving or adjusting
+exported function canmove_agrees_with_move( resmngr )
+  var npc := make_remote_npc( resmngr, EDGE_X, EDGE_Y, EDGE_Z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var blocked := { "N", "NE", "NW" };
+  var open := { "E", "SE", "S", "SW", "W" };
+
+  foreach dir in blocked
+    var res := remote( npc, "canmove", { dir } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 0 )
+      return ret_error( $"CanMove( \"{dir}\" ) said the water was walkable" );
+    endif
+  endforeach
+
+  foreach dir in open
+    var res := remote( npc, "canmove", { dir } );
+    if ( !res )
+      return res;
+    endif
+    if ( res.result != 1 )
+      return ret_error( $"CanMove( \"{dir}\" ) said the shore was blocked" );
+    endif
+  endforeach
+
+  // asking does not move anything, even though use_adjustments is on
+  if ( npc.x != EDGE_X || npc.y != EDGE_Y )
+    return ret_error( $"CanMove moved the NPC to {npc.x},{npc.y}" );
+  endif
+
+  // a number is a facing here too, and 0 is N
+  var res := remote( npc, "canmove", { 0 } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.result != 0 )
+    return ret_error( "CanMove( 0 ) disagrees with CanMove( \"N\" )" );
+  endif
+
+  return 1;
+endfunction
+
+exported function canmove_errors( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := remote( npc, "canmove", { "Q" } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "Invalid facing value" )
+    return ret_error( $"wrong error for a direction that is not one: '{res.errortext}'" );
+  endif
+
+  res := remote( npc, "canmove", { struct{ a := 1 } } );
+  if ( !res )
+    return res;
+  endif
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"wrong error for a non-direction: '{res.errortext}'" );
+  endif
+
+  return 1;
+endfunction
+
+// Wander picks its own direction, but never further than one tile
+exported function wander_steps_once( resmngr )
+  var npc := make_remote_npc( resmngr, BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var x := BASE_X, y := BASE_Y;
+  var i;
+  for ( i := 1; i <= 8; i += 1 )
+    var res := remote( npc, "wander" );
+    if ( !res )
+      return res;
+    endif
+    // on open ground there is nothing to stop it
+    if ( res.result != 1 )
+      return ret_error( $"Wander failed on open ground: '{res.errortext}'" );
+    endif
+    if ( Abs( res.x - x ) > 1 || Abs( res.y - y ) > 1 )
+      return ret_error( $"Wander jumped from {x},{y} to {res.x},{res.y}" );
+    endif
+    x := res.x;
+    y := res.y;
+  endfor
+
+  // it wandered somewhere, otherwise the invariant above is worth nothing
+  if ( x == BASE_X && y == BASE_Y )
+    return ret_error( "Wander never moved at all" );
+  endif
+
+  return 1;
+endfunction
