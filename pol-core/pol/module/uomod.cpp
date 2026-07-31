@@ -121,6 +121,7 @@
 #include "pol/los.h"
 #include "pol/menu.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/mobile/npc.h"
 #include "pol/mobile/ufacing.h"
 #include "pol/module/cfgmod.h"
@@ -3145,20 +3146,75 @@ void true_extricate( Item* item )
   (void)Items::relocate( *item, Items::Detached{} );
 }
 
-void undo_extricate( Character* chr, Item* item, UContainer* oldcont )
+namespace
 {
-  if ( oldcont != nullptr && !oldcont->orphan() && oldcont->can_add( *item ) )
+/// Show an item that has just been put back, whichever kind of home it landed in.
+void send_item_restored( Character& chr, Item& item )
+{
+  const Items::Location loc = item.location();
+  if ( loc.holds<Items::InWorld>() )
   {
-    oldcont->add_at_random_location( item );
-    if ( chr != nullptr && chr->client != nullptr )
-      send_put_in_container( chr->client, item );
+    // The item is back on the ground under its own steam, so it starts decaying again.
+    item.restart_decay_timer();
+    update_item_to_inrange( &item );
+  }
+  else if ( const auto* equipped = loc.get_if<Items::Equipped>() )
+    // Not necessarily the character asking: an item can be offered out of somebody else's
+    // equipment, and it is the wearer the packet has to name.
+    send_wornitem_to_inrange( equipped->chr, &item );
+  else if ( chr.client != nullptr )
+    send_put_in_container( chr.client, &item );
+}
+
+/// Whether an old home would still take the item back. relocate() settles everything about the
+/// move itself; capacity is the one question it deliberately leaves to the caller.
+bool would_take_back( const Items::Location& origin, const Item& item )
+{
+  const UContainer* cont = nullptr;
+  if ( const auto* in_cont = origin.get_if<Items::InContainer>() )
+    cont = in_cont->cont;
+  else if ( const auto* on_corpse = origin.get_if<Items::OnCorpse>() )
+    cont = on_corpse->corpse;
+
+  // Anything else is either not a container at all or, for Equipped, covered by the layer and
+  // strength checks relocate() already makes.
+  return cont == nullptr || ( !cont->orphan() && cont->can_add( item ) );
+}
+}  // namespace
+
+/**
+ * Put an item back after a move that did not happen, preferring where it came from.
+ *
+ * The origin can have gone away while the scripts around the move ran: the container destroyed or
+ * filled up, the layer taken by something else. Failing that the item goes to the character's
+ * backpack, and failing that to the ground at their feet, which is where it would have ended up
+ * had they simply dropped it.
+ */
+void put_item_back( Character& chr, Item& item, const Items::Location& origin )
+{
+  if ( would_take_back( origin, item ) && Items::relocate( item, origin ) )
+  {
+    send_item_restored( chr, item );
     return;
   }
 
-  item->setposition( chr->pos() );
-  add_item_to_world( item );
-  register_with_supporting_multi( item );
-  move_item( item, item->pos() );
+  UContainer* backpack = chr.backpack();
+  if ( backpack != nullptr && backpack->can_add( item ) &&
+       Items::relocate( item, Items::InContainer{ backpack, backpack->get_random_location(),
+                                                  item.slot_index() } ) )
+  {
+    send_item_restored( chr, item );
+    return;
+  }
+
+  item.setposition( chr.pos() );
+  if ( !Items::relocate( item, Items::InWorld{} ) )
+  {
+    POLLOG_ERRORLN( "put_item_back: item {:#x} has nowhere left to go and is now detached.",
+                    item.serial );
+    return;
+  }
+  send_item_restored( chr, item );
 }
 
 BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
@@ -3384,16 +3440,16 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
     }
   }
 
-  UContainer* restore_to = oldcont;
-  if ( item->layer != 0 )
-    restore_to = ( chr_owner != nullptr ) ? chr_owner->backpack() : nullptr;
+  // Where the item is right now, taken before the extricate erases it, and where it goes back to
+  // if the trade window refuses it. The scripts above have all run, so this is its settled home.
+  const Items::Location origin = item->location();
 
   true_extricate( item );
 
   BObjectImp* res = place_item_in_secure_trade_container( chr->client, item );
-  // eg the hook can reject the trade, items needs to be added back to world
+  // eg the hook can reject the trade, and then the item has to go back where it came from
   if ( res->isa( BObjectImp::OTError ) && !item->orphan() )
-    undo_extricate( chr, item, restore_to );
+    put_item_back( *chr, *item, origin );
   return res;
 }
 

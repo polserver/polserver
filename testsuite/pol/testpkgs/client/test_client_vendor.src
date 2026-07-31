@@ -24,7 +24,14 @@ endprogram
 // Builds a vendor next to the character and opens its buy window. Returns a struct of the pieces,
 // or an error.
 function open_vendor( resources, ware_objtype, ware_amount, price )
-  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  // forcelocation: the vendor is spawned on the character, and the character is wherever the tests
+  // that ran before left them. A tile a player is standing on is not necessarily one that passes
+  // the walkheight check CreateNPCFromTemplate makes, so without this the package only works when
+  // something earlier happens to have moved the character somewhere agreeable. probeNPC has no
+  // script and never moves, and neither handler under test looks at where the vendor is, so the
+  // position is only there to keep it in the client's view.
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z, 0,
+                                              _DEFAULT_REALM, 1 );
   if ( !npc )
     return ret_error( $"failed to create vendor npc: {npc}" );
   endif
