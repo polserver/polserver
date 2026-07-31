@@ -56,6 +56,16 @@
 
 namespace Pol::Core
 {
+void release_gotten_item( Mobile::Character* chr )
+{
+  Items::Item* item = chr->gotten_item().item();
+  // A destroyed item has no location to leave. Every core path that destroys an item clears the
+  // cursor first, so this is only here to keep a character from getting stuck holding one.
+  if ( item != nullptr && !item->orphan() )
+    (void)Items::relocate( *item, Items::Detached{} );
+  chr->gotten_item( {} );
+}
+
 void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 {
   u32 serial = cfBEu32( msg->serial );
@@ -301,7 +311,6 @@ void GottenItem::undo( Mobile::Character* chr )
   // or in whatever it used to be in.
   ItemRef itemref( _item );  // dave 1/28/3 prevent item from being destroyed before function ends
   _item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
-  _item->gotten_by( nullptr );
   Realms::Realm* realm = nullptr;
   if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED )
   {
@@ -313,9 +322,11 @@ void GottenItem::undo( Mobile::Character* chr )
         if ( _item->orphan() )
           return;
         // is it possible the character doesn't exist? no, it's my character doing the undoing.
-        equipped_chr->equip( _item );
-        send_wornitem_to_inrange( equipped_chr, _item );
-        return;
+        if ( Items::relocate( *_item, Items::Equipped{ equipped_chr, _item->tile_layer } ) )
+        {
+          send_wornitem_to_inrange( equipped_chr, _item );
+          return;
+        }
       }
     }
 
@@ -377,17 +388,14 @@ void GottenItem::undo( Mobile::Character* chr )
       u8 newSlot = _slot_index ? _slot_index : 1;
       if ( container->can_add_to_slot( newSlot ) && _item->slot_index( newSlot ) )
       {
-        if ( container->is_legal_posn( _pos.xy() ) )
+        const Pos2d where =
+            container->is_legal_posn( _pos.xy() ) ? _pos.xy() : container->get_random_location();
+        if ( Items::relocate( *_item, Items::InContainer{ container, where, newSlot } ) )
         {
-          container->add( _item, _pos.xy() );
+          update_item_to_inrange( _item );
+          container->on_insert_add_item( chr, UContainer::MT_PLAYER, _item );
+          return;
         }
-        else
-        {
-          container->add_at_random_location( _item );
-        }
-        update_item_to_inrange( _item );
-        container->on_insert_add_item( chr, UContainer::MT_PLAYER, _item );
-        return;
       }
     }
     _pos = chr->pos3d();
@@ -437,13 +445,12 @@ void GottenItem::undo( Mobile::Character* chr )
   }
 
   _item->setposition( Pos4d( _pos, realm ) );
-  _item->container = nullptr;
-  // 12-17-2008 MuadDib added to clear item.layer properties.
-  _item->layer = 0;
 
-  add_item_to_world( _item );
+  // Last resort: nowhere else would take it, so the ground has to. Nothing can refuse it here —
+  // the item is detached and the realm above is never null.
+  if ( !Items::relocate( *_item, Items::InWorld{} ) )
+    return;
 
-  register_with_supporting_multi( _item );
   send_item_to_inrange( _item );
 
   // Need to explicitly send remove_object to chr if realms mismatch. Scenario:

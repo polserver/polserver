@@ -474,8 +474,7 @@ void Character::clear_gotten_item()
   auto info = gotten_item();
   if ( info.item() != nullptr )
   {
-    gotten_item( {} );
-    info.item()->inuse( false );
+    Core::release_gotten_item( this );
     if ( connected() )
       Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     info.undo( this );

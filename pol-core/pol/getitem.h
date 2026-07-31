@@ -31,6 +31,16 @@ enum class GOTTEN_ITEM_TYPE : u8
   GOTTEN_ITEM_EQUIPPED,
   GOTTEN_ITEM_IN_CONTAINER
 };
+
+/**
+ * Let go of whatever the character is holding on its cursor, without deciding where it goes.
+ *
+ * The item is left detached, for the caller to re-home or to hand back with GottenItem::undo().
+ * Both halves of the link go, and so does the in-use flag: clearing only the item's half leaves
+ * the character holding a ticket for an item that no longer thinks it is held.
+ */
+void release_gotten_item( Mobile::Character* chr );
+
 class GottenItem
 {
 public:

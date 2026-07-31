@@ -340,6 +340,17 @@ void UContainer::extract( Contents& cnt )
     passert_always( 0 );  // TODO remove once found
   }
   contents_.swap( cnt );
+  // The items are out of the container now, so say so on each of them. Leaving that to the caller
+  // is what let an extracted item still name the container it is no longer listed in.
+  for ( auto& item : cnt )
+  {
+    if ( item == nullptr )  // wornitems containers can hold null entries
+      continue;
+    item->container = nullptr;
+    item->reset_slot();
+    item->set_location( Items::Detached{} );
+    item->set_dirty();
+  }
   add_bulk( -static_cast<int>( held_item_count_ ), -static_cast<int>( held_weight_ ) );
 }
 
@@ -371,6 +382,22 @@ void UContainer::swap( UContainer& cont )
     passert_always( 0 );  // TODO remove once found
   }
   contents_.swap( cont.contents_ );
+
+  // Both sets of items just changed hands; without this they keep naming the container they came
+  // from, which is only survivable today because the trade code empties both straight afterwards.
+  auto rehome = []( UContainer& into )
+  {
+    for ( auto& item : into.contents_ )
+    {
+      if ( item == nullptr )
+        continue;
+      item->container = &into;
+      item->set_location( into.location_for( item, item->pos2d() ) );
+      item->set_dirty();
+    }
+  };
+  rehome( *this );
+  rehome( cont );
 }
 
 Items::Item* UContainer::find_toplevel_polclass( unsigned int polclass ) const

@@ -234,6 +234,9 @@ bool attach( Item& item, const Location& to )
 {
   if ( to.holds<InWorld>() )
   {
+    // An item on the ground has no slot: Location::slot() says so, and leaving the container's
+    // index behind is the kind of residue that makes the two disagree.
+    item.reset_slot();
     Core::add_item_to_world( &item );
     Core::register_with_supporting_multi( &item );
   }

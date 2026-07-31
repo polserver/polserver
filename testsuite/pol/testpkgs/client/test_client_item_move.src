@@ -1037,6 +1037,51 @@ exported function equip_script_rehome_one_home( resources )
                               "Shirt was not equipped on the NPC" );
 endfunction
 
+// A client can name a different item in the drop packet than the one it is holding. The held item
+// gets no drop of its own out of that, so it has to go back where it came from: clearing only the
+// item's half of the cursor link left it listed in no container and no zone, with the character
+// still holding a ticket for it and unable to pick anything else up.
+exported function drop_other_than_gotten_returns( resources )
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var container := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  if ( !container )
+    return container;
+  endif
+  SendViewContainer( char, container );
+
+  var held := resources.CreateItemInContainer( container, 0xeed );
+  if ( !held )
+    return held;
+  endif
+
+  var other := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xeed, 1, char.realm );
+  if ( !other )
+    return other;
+  endif
+
+  if ( !lift_item_succeeded( res, held.serial ) )
+    return res;
+  endif
+
+  // the drop names `other`, but `held` is what is on the cursor
+  if ( !drop_item_failed( res, other.serial, char.x, char.y, char.z ) )
+    return res;
+  endif
+
+  if ( char.getgottenitem() )
+    return ret_error( "The character is still holding an item after a mismatched drop" );
+  endif
+
+  // undo() offers the backpack before the container the item came from, as tests 6 and 10 above
+  // rely on; what matters here is only that the item ended up somewhere at all.
+  return ret_error_not_equal( held.container, char.backpack,
+                              "The held item was left in no container at all" );
+endfunction
+
 // When an NPC's non-master equips an item on the NPC, the equip should fail.
 exported function test_equip_npc_dragdrop_fail_1( resources )
   return equip_npc_dragdrop_fail_helper( resources, FAIL_REASON_NOT_MASTER );
