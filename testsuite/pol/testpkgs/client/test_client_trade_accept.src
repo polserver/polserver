@@ -1,0 +1,121 @@
+// The accept indicators of the trade window and the cancel a client sends. Both
+// of those arrive as packet 0x6F and have no module function at all, so this is
+// the one part of the window that can only be reached through a client.
+
+include "trade";
+
+program test_trade_accept()
+  return trade_setup();
+endprogram
+
+// Accepting raises the indicator on both clients, and un-accepting lowers it
+// again. Every client is shown its own indicator first.
+exported function accept_then_clear( unused resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  send_accept( 0, 1 );
+  res := wait_for_trades( TRADE_ACTION_STATUS, struct{ cont1 := 1, cont2 := 0 },
+                                               struct{ cont1 := 0, cont2 := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  send_accept( 0, 0 );
+  res := wait_for_trades( TRADE_ACTION_STATUS, struct{ cont1 := 0, cont2 := 0 },
+                                               struct{ cont1 := 0, cont2 := 0 } );
+  if ( !res )
+    return res;
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// Putting another item into the window takes back whatever was accepted before,
+// so nobody agrees to a deal that changed after they looked at it.
+exported function offer_resets_accept( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  send_accept( 0, 1 );
+  res := wait_for_trades( TRADE_ACTION_STATUS, struct{ cont1 := 1, cont2 := 0 },
+                                               struct{ cont1 := 0, cont2 := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  // the offer of the *other* side is enough to take the acceptance back
+  var item := resmgn.CreateItemInContainer( char2.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  res := MoveItemToSecureTradeWin( item, char2 );
+  if ( !res )
+    return ret_error( $"Could not offer the item: {res}" );
+  endif
+
+  res := wait_for_trades( TRADE_ACTION_STATUS, struct{ cont1 := 0, cont2 := 0 },
+                                               struct{ cont1 := 0, cont2 := 0 } );
+  if ( !res )
+    return res;
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// A client cancelling the window is the same as CloseTradeWindow: both sides are
+// told and both get their items back.
+exported function client_cancel_closes( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  res := MoveItemToSecureTradeWin( item, char );
+  if ( !res )
+    return ret_error( $"Could not offer the item: {res}" );
+  endif
+
+  Clear_Event_Queue();
+  send_trade_cancel( 1 );
+  res := wait_for_trades( TRADE_ACTION_CANCEL );
+  if ( !res )
+    return res;
+  endif
+
+  if ( char.tradewindow or char2.tradewindow )
+    return ret_error( "the window outlived the cancel of a client" );
+  elseif ( item.container.serial != char.backpack.serial )
+    return ret_error( $"the item is in 0x{item.container.serial:x}, expected the backpack it came from" );
+  endif
+  return 1;
+endfunction
+
+// The core drops anything a client says about a window it is not in, rather than
+// answering it.
+exported function accept_without_window_ignored( unused resmgn )
+  close_trades();
+
+  send_accept( 0, 1 );
+  var res := wait_for_no_trade();
+  if ( !res )
+    return res;
+  endif
+
+  send_trade_cancel( 0 );
+  return wait_for_no_trade();
+endfunction

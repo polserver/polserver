@@ -148,6 +148,8 @@ class Event:
   EVT_WAR_MODE = 17
   EVT_FIGHT_OCCURING = 18
   EVT_STATUS_BAR = 19
+  EVT_TRADE = 20
+  EVT_CLILOC = 21
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -243,3 +245,7 @@ class Event:
       return "fight_occuring"
     elif self.type==Event.EVT_STATUS_BAR:
       return "status_bar"
+    elif self.type==Event.EVT_TRADE:
+      return "trade"
+    elif self.type==Event.EVT_CLILOC:
+      return "cliloc"

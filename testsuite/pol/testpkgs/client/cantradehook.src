@@ -1,0 +1,26 @@
+// The CanTrade system hook, installed by syshook.cfg.
+//
+// The core asks it before an item reaches a trade window, from the drop-on-player
+// path and from uo::MoveItemToSecureTradeWin. Nothing else in the test shard
+// installs one, so this is the only way to see what the core passes on.
+//
+// It records every call and allows the trade, until a test parks something in
+// #TradeHookRefuse - an unset global property cannot be told from a refusing 0,
+// which is why the refusal is a property of its own rather than a return value.
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+exported function CanTradeHook( character, partner, item )
+  SetGlobalProperty( "#TradeHookCall", struct{ character := character.serial,
+                                               partner := partner.serial,
+                                               item := item.serial } );
+
+  if ( GetGlobalProperty( "#TradeHookRefuse" ) )
+    return 0;
+  endif
+  return 1;
+endfunction

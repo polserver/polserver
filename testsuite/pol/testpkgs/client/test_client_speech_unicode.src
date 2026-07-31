@@ -1,0 +1,213 @@
+// Speech that leaves the shard as packet 0xAE rather than 0x1C.
+//
+// Two ways lead there: the uo.em functions switch by themselves as soon as the
+// text holds a byte with the high bit set, and the unicode.em ones always do and
+// take a language code with it.
+
+use unicode;
+
+include "speech";
+
+// the UTF-8 encoding of a latin small letter a with diaeresis, built from its
+// bytes: an .em function decides on the raw bytes of the string, and a source
+// file is a clumsy place to keep one
+var umlaut := CChrZ( { 0xC3, 0xA4 } );
+
+program test_speech_unicode()
+  return speech_setup();
+endprogram
+
+// A system message with a non-ascii character in it goes out as unicode, in the
+// language the core picks for the plain functions.
+exported function utf8_switches_sysmessage( unused resmgn )
+  var tag := "uni" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := SendSysMessage( char, tag + umlaut, font := 2, color := 77 );
+  if ( !res )
+    return ret_error( $"Could not send the system message: {res}" );
+  endif
+
+  var ev := wait_for_speech_like( 0, tag );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !CInt( ev.unicode ) )
+    return ret_error( "a text with a non-ascii character was sent as plain text" );
+  elseif ( ev.lang != "ENU" )
+    return ret_error( $"the message came in the language \"{ev.lang}\", expected \"ENU\"" );
+  elseif ( ev.name != SYSMESSAGE_NAME )
+    return ret_error( $"the message is named \"{ev.name}\", expected \"{SYSMESSAGE_NAME}\"" );
+  elseif ( CInt( ev.font ) != 2 or CInt( ev.color ) != 77 )
+    return ret_error( $"the message came in font {ev.font} colour {ev.color}, expected 2/77" );
+  endif
+  return 1;
+endfunction
+
+// The same switch happens for text above an object, and it keeps everything the
+// plain packet carried.
+exported function utf8_switches_textabove( unused resmgn )
+  var tag := "uniabove" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := PrintTextAbove( char, tag + umlaut );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var ev := wait_for_speech_like( 0, tag );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !CInt( ev.unicode ) )
+    return ret_error( "a text with a non-ascii character was sent as plain text" );
+  elseif ( CInt( ev.serial ) != char.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  elseif ( ev.name != char.name )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"{char.name}\"" );
+  endif
+  return 1;
+endfunction
+
+// The unicode.em functions take the language code from the caller instead.
+exported function sysmessage_uc_langcode( unused resmgn )
+  var tag := "ucsys" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := SendSysMessageUC( char, tag, "DEU", font := 1, color := 88 );
+  if ( !res )
+    return ret_error( $"Could not send the unicode system message: {res}" );
+  endif
+
+  var ev := wait_for_speech_like( 0, tag );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !CInt( ev.unicode ) )
+    return ret_error( "a unicode system message was sent as plain text" );
+  elseif ( ev.lang != "DEU" )
+    return ret_error( $"the message came in the language \"{ev.lang}\", expected \"DEU\"" );
+  elseif ( CInt( ev.font ) != 1 or CInt( ev.color ) != 88 )
+    return ret_error( $"the message came in font {ev.font} colour {ev.color}, expected 1/88" );
+  endif
+  return no_speech_for( 1, ev.msg );
+endfunction
+
+// A unicode broadcast reaches every client, like the plain one.
+exported function broadcast_uc_reaches_all( unused resmgn )
+  var tag := "ucbc" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := BroadcastUC( tag, "FRA" );
+  if ( !res )
+    return ret_error( $"Could not broadcast: {res}" );
+  endif
+
+  // both at once: waiting for one client throws the event of the other away
+  var evs := wait_for_speeches_like( tag );
+  if ( !evs )
+    return evs;
+  endif
+  var [ first, second ] := evs;
+  if ( first.lang != "FRA" or second.lang != "FRA" )
+    return ret_error( $"the broadcast came in the languages \"{first.lang}\"/\"{second.lang}\", expected FRA" );
+  endif
+  return 1;
+endfunction
+
+// Text above an object, in unicode, with the journal field asked for by name.
+exported function textabove_uc_journal( unused resmgn )
+  var tag := "ucabove" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := PrintTextAboveUC( char, tag, "ENU", journal_print := JOURNAL_UC_PRINT_YOU_SEE );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var ev := wait_for_speech_like( 0, tag );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.name != "You see" )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"You see\"" );
+  elseif ( CInt( ev.serial ) != char.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  endif
+  return 1;
+endfunction
+
+// And privately, to the one character it names.
+exported function textabove_uc_private( unused resmgn )
+  var tag := "ucpriv" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := PrintTextAbovePrivateUC( char, tag, "ENU", char2 );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var ev := wait_for_speech_like( 1, tag );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != char.serial )
+    return ret_error( $"the text is attributed to 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  endif
+  return no_speech_for( 0, ev.msg );
+endfunction
+
+// The language code is a three character one, and the text has a length limit.
+exported function uc_refuses_bad_arguments( unused resmgn )
+  var res := SendSysMessageUC( char, "short", "ENGLISH" );
+  if ( res )
+    return ret_error( "a seven character language code was accepted" );
+  elseif ( res.errortext != "langcode must be a 3-character code." )
+    return ret_error( $"unexpected error for a long language code: {res.errortext}" );
+  endif
+
+  res := BroadcastUC( "short", "EN" );
+  if ( res )
+    return ret_error( "a two character language code was accepted" );
+  elseif ( res.errortext != "langcode must be a 3-character code." )
+    return ret_error( $"unexpected error for a short language code: {res.errortext}" );
+  endif
+
+  // SPEECH_MAX_LEN in the core, pktdef.h - no eScript constant for it
+  var toolong := "x";
+  while ( toolong.length() <= 200 )
+    toolong := toolong + "xxxxxxxxxx";
+  endwhile
+
+  res := SendSysMessageUC( char, toolong, "ENU" );
+  if ( res )
+    return ret_error( $"a text of {toolong.length()} characters was accepted" );
+  elseif ( res.errortext != "Text exceeds maximum size." )
+    return ret_error( $"unexpected error for an overlong text: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// The journal field asked for has to survive the switch to unicode. The plain
+// PrintTextAbove honours JOURNAL_PRINT_YOU_SEE on both paths, and the private
+// one is meant to do the same.
+exported function private_utf8_keeps_journal( unused resmgn )
+  var tag := "privsee" + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := PrintTextAbovePrivate( char, tag + umlaut, char2, journal_print := JOURNAL_PRINT_YOU_SEE );
+  if ( !res )
+    return ret_error( $"Could not print the text: {res}" );
+  endif
+
+  var ev := wait_for_speech_like( 1, tag );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !CInt( ev.unicode ) )
+    return ret_error( "a text with a non-ascii character was sent as plain text" );
+  elseif ( ev.name != "You see" )
+    return ret_error( $"the journal name is \"{ev.name}\", expected \"You see\"" );
+  endif
+  return 1;
+endfunction

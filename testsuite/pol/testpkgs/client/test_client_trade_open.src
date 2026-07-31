@@ -1,0 +1,244 @@
+// What the core refuses to open a trade window for, and the other way into one:
+// dropping an item onto another player.
+
+include "trade";
+
+program test_trade_open()
+  return trade_setup();
+endprogram
+
+// A character cannot trade with itself, and the check comes before everything
+// the window would need.
+exported function open_refuses_self( unused resmgn )
+  close_trades();
+  var res := SecureTradeWin( char, char );
+  if ( res )
+    return ret_error( "a character was allowed to trade with itself" );
+  elseif ( res.errortext != "You can't trade with yourself." )
+    return ret_error( $"unexpected error for a self trade: {res.errortext}" );
+  endif
+  return wait_for_no_trade();
+endfunction
+
+// Anything that is not a character is refused by the module function itself.
+exported function open_refuses_non_character( unused resmgn )
+  close_trades();
+  var res := SecureTradeWin( char, "not a character" );
+  if ( res )
+    return ret_error( "a string was accepted as a trading partner" );
+  elseif ( res.errortext != "Invalid parameter type." )
+    return ret_error( $"unexpected error for a string partner: {res.errortext}" );
+  endif
+  return wait_for_no_trade();
+endfunction
+
+// A trade window is a thing of two clients, so a mobile without one is refused.
+// The module function looks for the client before the trade code does, which is
+// why the answer is this one and not the core's "That person is already involved
+// in a trade." for a missing client.
+exported function open_refuses_without_client( resmgn )
+  close_trades();
+  var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := SecureTradeWin( char, npc );
+  if ( res )
+    return ret_error( "an npc was accepted as a trading partner" );
+  elseif ( res.errortext != "No client attached." )
+    return ret_error( $"unexpected error for an npc partner: {res.errortext}" );
+  endif
+  return wait_for_no_trade();
+endfunction
+
+// Nobody gets a second window while the first one is open. The partner is
+// checked before the caller is, and with only two clients on the shard both are
+// always in the same trade, so the caller's own branch ("You are already involved
+// in a trade.") cannot be reached from a script at all.
+exported function open_refuses_when_trading( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := SecureTradeWin( char, char2 );
+  if ( res )
+    return ret_error( "a second trade window was opened for the same two" );
+  elseif ( res.errortext != "That person is already involved in a trade." )
+    return ret_error( $"unexpected error for a second window: {res.errortext}" );
+  endif
+
+  // dropping an item on the partner is refused for the same reason
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  res := lift_item( item.serial );
+  if ( !res )
+    return res;
+  endif
+  res := drop_on_mobile_rejected( item.serial, char2.serial );
+  if ( !res )
+    return res;
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// The test shard runs with AllowSecureTradingInWarMode=1, so war mode is no
+// reason to refuse.
+exported function open_allows_warmode( unused resmgn )
+  close_trades();
+
+  var res := set_warmode( 1, 1 );
+  if ( !res )
+    return res;
+  endif
+  res := open_trade();
+  if ( !res )
+    return ret_error( $"a trade with a partner in war mode was refused: {res.errortext}" );
+  endif
+
+  close_trades();
+  return set_warmode( 1, 0 );
+endfunction
+
+// With the option off, war mode blocks a trade in both directions. The partner
+// is looked at before the caller.
+exported function open_refuses_warmode( resmgn )
+  close_trades();
+
+  var res := resmgn.UpdateConfiguration( struct{ AllowSecureTradingInWarMode := 0 } );
+  if ( !res )
+    return res;
+  endif
+
+  res := set_warmode( 1, 1 );
+  if ( !res )
+    return res;
+  endif
+  res := SecureTradeWin( char, char2 );
+  if ( res )
+    return ret_error( "a trade with a partner in war mode was opened" );
+  elseif ( res.errortext != "You cannot trade with someone in war mode." )
+    return ret_error( $"unexpected error for a partner in war mode: {res.errortext}" );
+  endif
+
+  res := set_warmode( 1, 0 );
+  if ( !res )
+    return res;
+  endif
+  res := set_warmode( 0, 1 );
+  if ( !res )
+    return res;
+  endif
+  res := SecureTradeWin( char, char2 );
+  if ( res )
+    return ret_error( "a trade was opened while in war mode" );
+  elseif ( res.errortext != "You cannot trade while in war mode." )
+    return ret_error( $"unexpected error for trading in war mode: {res.errortext}" );
+  endif
+
+  res := set_warmode( 0, 0 );
+  if ( !res )
+    return res;
+  endif
+  return wait_for_no_trade();
+endfunction
+
+// Dropping an item onto another player opens the window and puts the item into
+// the dropper's side of it in one go.
+exported function drop_on_player_opens_trade( resmgn )
+  close_trades();
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  var res := lift_item( item.serial );
+  if ( !res )
+    return res;
+  endif
+  res := drop_on_mobile( item.serial, char2.serial );
+  if ( !res )
+    return res;
+  endif
+
+  res := wait_for_trades( TRADE_ACTION_INIT );
+  if ( !res )
+    return res;
+  endif
+
+  if ( !char.tradewindow or !char2.tradewindow )
+    return ret_error( "the drop did not open a trade window on both sides" );
+  elseif ( item.container.serial != char.tradewindow.serial )
+    return ret_error( $"the dropped item is in 0x{item.container.serial:x}, expected the trade window 0x{char.tradewindow.serial:x}" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// An item that may not be dropped does not open a window either.
+exported function drop_no_drop_item_refused( resmgn )
+  close_trades();
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  var res := lift_item( item.serial );
+  if ( !res )
+    return res;
+  endif
+  item.no_drop := 1;
+
+  res := drop_on_mobile_rejected( item.serial, char2.serial );
+  if ( !res )
+    return res;
+  endif
+
+  if ( char.tradewindow or char2.tradewindow )
+    return ret_error( "a no_drop item opened a trade window" );
+  endif
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+// Puts a client in or out of war mode and waits for the core to agree.
+//
+// The core throttles war mode changes to one per WarModeDelay (a second by
+// default) and answers the ones in between with a movement packet instead of the
+// war mode one, leaving the mode unchanged - so a request that goes unanswered is
+// worth repeating rather than failing on.
+function set_warmode( id, war )
+  var who := id ? char2 : char;
+  var deadline := ReadMillisecondClock() + 10000;
+
+  while ( who.warmode != war and ReadMillisecondClock() < deadline )
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := "war_mode", arg := war, id := id } );
+    var ev := waitForClient( id, { EVT_WAR_MODE }, 2 );
+    if ( ev and CInt( ev.war ) != war )
+      return ret_error( $"client {id} answered war mode {ev.war}, expected {war}" );
+    endif
+    sleepms( 200 );
+  endwhile
+
+  if ( who.warmode != war )
+    return ret_error( $"the core has client {id} in war mode {who.warmode}, expected {war}" );
+  endif
+  return 1;
+endfunction

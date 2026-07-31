@@ -134,6 +134,11 @@ class TestBrain(brain.Brain):
             layer = arg['layer'],
             player_serial = arg['player_serial']
             ))
+      elif todo=="trade":
+        if isinstance(arg, int):
+          self.client.secureTrade(arg)
+        else:
+          self.client.secureTrade(arg['action'], arg.get('flag', 0))
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -289,8 +294,22 @@ class PolServer:
         res["old"]=ev.old
       if hasattr(ev,"serial"):
         res["serial"]=ev.serial
-    elif ev.type==Event.EVT_SPEECH:
+    elif ev.type==Event.EVT_SPEECH or ev.type==Event.EVT_CLILOC:
+      # everything the speech packets carry: which of them it was decides
+      # what the core chose, and the rest is what the sending function set
       res["msg"]=ev.speech.msg
+      res["serial"]=ev.speech.serial
+      res["model"]=ev.speech.model
+      res["texttype"]=ev.speech.type
+      res["color"]=ev.speech.color
+      res["font"]=ev.speech.font
+      res["name"]=ev.speech.name
+      res["lang"]=ev.speech.lang if ev.speech.lang else ""
+      res["unicode"]=1 if ev.speech.unicode else 0
+      if ev.type==Event.EVT_CLILOC:
+        # a cliloc message has no text of its own: the number is the message
+        # and "msg" carries the arguments filling its placeholders
+        res["cliloc"]=ev.speech.cliloc
     elif ev.type==Event.EVT_MOVED:
       res["ack"]=ev.ack
       res["pos"]=[ev.x, ev.y, ev.z, ev.facing]
@@ -384,6 +403,12 @@ class PolServer:
     elif ev.type==Event.EVT_FIGHT_OCCURING:
       res['attacker']=ev.attacker
       res['defender']=ev.defender
+    elif ev.type==Event.EVT_TRADE:
+      res['action']=ev.action
+      res['serial']=ev.serial
+      res['cont1']=ev.cont1
+      res['cont2']=ev.cont2
+      res['name']=ev.name
     elif ev.type==Event.EVT_STATUS_BAR:
       res['serial']=ev.serial
       res['name']=ev.name

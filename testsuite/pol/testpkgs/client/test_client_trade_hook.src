@@ -1,0 +1,153 @@
+// The CanTrade system hook, which the core asks before an item goes into a trade
+// window. The hook itself is cantradehook.src, installed by syshook.cfg.
+
+include "trade";
+
+program test_trade_hook()
+  EraseGlobalProperty( "#TradeHookRefuse" );
+  EraseGlobalProperty( "#TradeHookCall" );
+  return trade_setup();
+endprogram
+
+// Dropping an item on another player asks the hook first, and passes it the two
+// characters and the item.
+exported function hook_sees_the_drop( resmgn )
+  close_trades();
+  EraseGlobalProperty( "#TradeHookRefuse" );
+  EraseGlobalProperty( "#TradeHookCall" );
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  var res := lift_item( item.serial );
+  if ( !res )
+    return res;
+  endif
+  res := drop_on_mobile( item.serial, char2.serial );
+  if ( !res )
+    return res;
+  endif
+  res := wait_for_trades( TRADE_ACTION_INIT );
+  if ( !res )
+    return res;
+  endif
+
+  var call := GetGlobalProperty( "#TradeHookCall" );
+  if ( !call )
+    return ret_error( "the CanTrade hook was not called" );
+  elseif ( call.character != char.serial )
+    return ret_error( $"the hook saw the character 0x{call.character:x}, expected 0x{char.serial:x}" );
+  elseif ( call.partner != char2.serial )
+    return ret_error( $"the hook saw the partner 0x{call.partner:x}, expected 0x{char2.serial:x}" );
+  elseif ( call.item != item.serial )
+    return ret_error( $"the hook saw the item 0x{call.item:x}, expected 0x{item.serial:x}" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// A hook that says no stops the drop, and no window is opened at all.
+exported function hook_refuses_the_drop( resmgn )
+  close_trades();
+  EraseGlobalProperty( "#TradeHookCall" );
+  SetGlobalProperty( "#TradeHookRefuse", 1 );
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    EraseGlobalProperty( "#TradeHookRefuse" );
+    return item;
+  endif
+  item.movable := 1;
+
+  var res := lift_item( item.serial );
+  if ( res )
+    res := drop_on_mobile_rejected( item.serial, char2.serial );
+  endif
+  EraseGlobalProperty( "#TradeHookRefuse" );
+  if ( !res )
+    return res;
+  endif
+
+  if ( !GetGlobalProperty( "#TradeHookCall" ) )
+    return ret_error( "the refused drop never reached the hook" );
+  elseif ( char.tradewindow or char2.tradewindow )
+    return ret_error( "a refused drop opened a trade window" );
+  endif
+
+  // the item is back where it came from, the core undoes a refused drop
+  if ( item.container.serial != char.backpack.serial )
+    return ret_error( $"the item is in 0x{item.container.serial:x}, expected the backpack" );
+  endif
+  return 1;
+endfunction
+
+// The hook is asked for uo::MoveItemToSecureTradeWin as well.
+exported function hook_sees_the_offer( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+  EraseGlobalProperty( "#TradeHookCall" );
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  res := MoveItemToSecureTradeWin( item, char );
+  if ( !res )
+    return ret_error( $"Could not offer the item: {res}" );
+  endif
+
+  var call := GetGlobalProperty( "#TradeHookCall" );
+  if ( !call )
+    return ret_error( "the CanTrade hook was not called for an offer" );
+  elseif ( call.character != char.serial or call.partner != char2.serial )
+    return ret_error( $"the hook saw 0x{call.character:x} trading with 0x{call.partner:x}" );
+  elseif ( call.item != item.serial )
+    return ret_error( $"the hook saw the item 0x{call.item:x}, expected 0x{item.serial:x}" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// A refused offer leaves the item where it was. The module function has already
+// taken it out of its container by the time the hook is asked, so this is the
+// path that puts it back.
+exported function hook_refuses_the_offer( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  SetGlobalProperty( "#TradeHookRefuse", 1 );
+  res := MoveItemToSecureTradeWin( item, char );
+  EraseGlobalProperty( "#TradeHookRefuse" );
+
+  if ( res )
+    return ret_error( "a refused item was put into the trade window" );
+  elseif ( res.errortext != "Could not insert item into container." )
+    return ret_error( $"unexpected error for a refused offer: {res.errortext}" );
+  endif
+
+  if ( item.container.serial != char.backpack.serial )
+    return ret_error( $"the refused item is in 0x{item.container.serial:x}, expected the backpack" );
+  elseif ( char.tradewindow.serial == item.container.serial )
+    return ret_error( "the refused item ended up in the trade window" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction

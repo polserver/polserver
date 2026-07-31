@@ -30,8 +30,11 @@ program ai_remote()
 
     var res := dispatch( ev, bbox );
 
+    // asking for the member rather than comparing against error: a module
+    // function with nothing to return hands back an uninitialized object, and
+    // that compares equal to error while supporting no members at all
     var errortext := "";
-    if ( res == error )
+    if ( res.?errortext )
       errortext := res.errortext;
     endif
 
@@ -80,6 +83,11 @@ function dispatch( ev, byref bbox )
     "runtowardlocation":    return RunTowardLocation( args[1], args[2] );
     "walkawayfromlocation": return WalkAwayFromLocation( args[1], args[2] );
     "runawayfromlocation":  return RunAwayFromLocation( args[1], args[2] );
+
+    // speech: what these put on the wire is checked from the client package
+    "say":
+      return Say( args[1], args[2], args[3] );
+    "sayuc":                return SayUC( args[1], args[2], args[3], args[4] );
 
     // these two are uo.em, but they act on the executor this script runs on,
     // which is what the npc's eventmask member reports
