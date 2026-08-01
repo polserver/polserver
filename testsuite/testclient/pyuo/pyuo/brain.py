@@ -150,6 +150,7 @@ class Event:
   EVT_STATUS_BAR = 19
   EVT_TRADE = 20
   EVT_CLILOC = 21
+  EVT_PARTY = 22
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -249,3 +250,5 @@ class Event:
       return "trade"
     elif self.type==Event.EVT_CLILOC:
       return "cliloc"
+    elif self.type==Event.EVT_PARTY:
+      return "party"

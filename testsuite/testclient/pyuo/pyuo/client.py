@@ -453,9 +453,11 @@ class Speech:
 
   def __init__(self, client, pkt):
     # a cliloc message is the same thing with a number the client looks up in
-    # its own table in place of the text, and arguments instead of a language
+    # its own table in place of the text, and arguments instead of a language.
+    # The affix variant glues a plain string to that text, before it or after
     self.cliloc = None
     self.lang = None
+    self.affix = None
     if isinstance(pkt, packets.SendSpeechPacket):
       self.unicode = False
     elif isinstance(pkt, packets.UnicodeSpeechPacket):
@@ -464,6 +466,11 @@ class Speech:
     elif isinstance(pkt, packets.ClilocMsgPacket):
       self.unicode = True
       self.cliloc = pkt.cliloc
+    elif isinstance(pkt, packets.ClilocAffixMsgPacket):
+      self.unicode = True
+      self.cliloc = pkt.cliloc
+      self.affix = pkt.affix
+      self.prepend = pkt.flag & packets.ClilocAffixMsgPacket.FLAG_PREPEND
     else:
       assert False
 
@@ -918,7 +925,7 @@ class Client(threading.Thread):
         self.log.warn('EARLY %s', repr(speech))
       self.brain.event(brain.Event(brain.Event.EVT_SPEECH, speech=speech))
 
-    elif isinstance(pkt, packets.ClilocMsgPacket):
+    elif isinstance(pkt, (packets.ClilocMsgPacket, packets.ClilocAffixMsgPacket)):
       speech = Speech(self, pkt)
       if self.lc:
         self.log.info(repr(speech))
@@ -1241,7 +1248,8 @@ class Client(threading.Thread):
     elif pkt.sub == packets.GeneralInfoPacket.SUB_MAPDIFF:
       pass
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
-      self.log.info("Ignoring party system data")
+      self.brain.event(brain.Event(brain.Event.EVT_PARTY, partycmd=pkt.partycmd,
+        serial=pkt.serial, members=pkt.members, msg=pkt.msg))
     elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEGUMP:
       if pkt.gumpid in self.gumps:
         self.gumps.remove(pkt.gumpid)
@@ -1473,15 +1481,29 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def say(self, text, font=3, color=0, tokens=None):
+  def say(self, text, font=3, color=0, tokens=None, type=None):
     ''' Say something, in unicode
     @param text string: Any unicode string
     @param font int: Font code, usually 3
     @param colot int: Font color, usually 0
     @param tokens list of ints
+    @param type int: Speech type, see UnicodeSpeechRequestPacket.TYP_*,
+                     normal speech when not given. Guild (0x0d) and alliance
+                     (0x0e) chat are routed by the server to the guild instead
+                     of to whoever is in range
     '''
     po = packets.UnicodeSpeechRequestPacket()
-    po.fill(po.TYP_NORMAL, self.LANG, text, color, font, tokens)
+    po.fill(po.TYP_NORMAL if type is None else type, self.LANG, text, color, font, tokens)
+    self.queue(po)
+
+  @logincomplete
+  def party(self, partycmd, *args):
+    '''! Sends a party command
+    @param partycmd int: one of the GeneralInfoPacket.PARTY_* constants
+    @param *args: what that command carries, see GeneralInfoPacket.fill()
+    '''
+    po = packets.GeneralInfoPacket()
+    po.fill(po.SUB_PARTY, partycmd, *args)
     self.queue(po)
 
   @logincomplete

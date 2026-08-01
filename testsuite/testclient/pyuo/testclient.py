@@ -65,7 +65,8 @@ class TestBrain(brain.Brain):
         if isinstance(arg, str):
           self.client.say(arg)
         else:
-          self.client.say(arg['text'], tokens = arg['tokens'])
+          self.client.say(arg['text'], tokens = arg.get('tokens', None),
+            type = arg.get('type', None))
       elif todo=="move":
         self.client.move(arg)
       elif todo=="list_objects":
@@ -89,6 +90,10 @@ class TestBrain(brain.Brain):
         self.client.warMode(arg)
       elif todo=="request_status":
         self.client.requestStatus(arg)
+      elif todo=="single_click":
+        # answered with the name text of what was clicked, in the colour the
+        # server picked for it - so there is no event of its own to raise here
+        self.client.singleClick(int(arg))
       elif todo=="double_click":
         self.client.doubleClick(arg)
         self.server.addevent(
@@ -139,6 +144,17 @@ class TestBrain(brain.Brain):
           self.client.secureTrade(arg)
         else:
           self.client.secureTrade(arg['action'], arg.get('flag', 0))
+      elif todo=="party":
+        # the arguments a party command takes, in the order the packet wants
+        # them: a serial, then a text, or a loot flag on its own
+        args=[]
+        if arg.get('serial', None) is not None:
+          args.append(int(arg['serial']))
+        if arg.get('text', None) is not None:
+          args.append(arg['text'])
+        if arg.get('canloot', None) is not None:
+          args.append(int(arg['canloot']))
+        self.client.party(int(arg['partycmd']), *args)
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -310,6 +326,11 @@ class PolServer:
         # a cliloc message has no text of its own: the number is the message
         # and "msg" carries the arguments filling its placeholders
         res["cliloc"]=ev.speech.cliloc
+        # the affix variant adds a plain string of its own, a name as often as
+        # not, and says whether it goes before the text or after it
+        if ev.speech.affix is not None:
+          res["affix"]=ev.speech.affix
+          res["prepend"]=1 if ev.speech.prepend else 0
     elif ev.type==Event.EVT_MOVED:
       res["ack"]=ev.ack
       res["pos"]=[ev.x, ev.y, ev.z, ev.facing]
@@ -321,6 +342,10 @@ class PolServer:
       res["graphic"]=obj.graphic
       res["status"]=obj.status
       res["playerpos"]=ev.playerpos
+      # how the server told this client to colour that mobile: a guild ally is
+      # drawn as a friend, a guild enemy as an enemy
+      if getattr(obj, "notoriety", None) is not None:
+        res["notoriety"]=obj.notoriety
     elif ev.type==Event.EVT_REMOVED_OBJ:
       res["serial"]=ev.serial
       res["oldpos"]=ev.oldpos
@@ -334,6 +359,8 @@ class PolServer:
         )
         if hasattr(o,"attackable"):
           res["objs"][-1]["attackable"]=o.attackable
+        if getattr(o,"notoriety",None) is not None:
+          res["objs"][-1]["notoriety"]=o.notoriety
         if hasattr(o,"parent") and o.parent is not None:
           res["objs"][-1]["parent"]=o.parent.serial
     elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:
@@ -409,6 +436,16 @@ class PolServer:
       res['cont1']=ev.cont1
       res['cont2']=ev.cont2
       res['name']=ev.name
+    elif ev.type==Event.EVT_PARTY:
+      # what the subcommand carries: the member list for a list, the member that
+      # left plus the ones remaining for a removal, the speaker and the text for
+      # a message, the leader for an invitation
+      res['partycmd']=ev.partycmd
+      res['members']=ev.members
+      if ev.serial is not None:
+        res['serial']=ev.serial
+      if ev.msg is not None:
+        res['msg']=ev.msg
     elif ev.type==Event.EVT_STATUS_BAR:
       res['serial']=ev.serial
       res['name']=ev.name

@@ -39,11 +39,63 @@ const EVT_FIGHT_OCCURING := "fight_occuring";
 const EVT_STATUS_BAR := "status_bar";
 const EVT_TRADE := "trade";
 const EVT_CLILOC := "cliloc";
+const EVT_PARTY := "party";
 
 // actions of the secure trade window packet, see PKTBI_6F in the core
 const TRADE_ACTION_INIT := 0;
 const TRADE_ACTION_CANCEL := 1;
 const TRADE_ACTION_STATUS := 2;
+
+// the party subcommands of the 0xBF 0x0006 packet, see PKTBI_BF_06 in the core.
+// The client sends ADD/REMOVE/MEMBER_MSG/MSG/LOOT_PERMISSION/ACCEPT/DECLINE, the
+// server answers with ADD (the member list), REMOVE (who left, then who is left),
+// the two messages, and INVITE_MEMBER
+const PARTYCMD_ADD := 0x01;
+const PARTYCMD_REMOVE := 0x02;
+const PARTYCMD_MEMBER_MSG := 0x03;
+const PARTYCMD_MSG := 0x04;
+const PARTYCMD_LOOT_PERMISSION := 0x06;
+const PARTYCMD_INVITE_MEMBER := 0x07;
+const PARTYCMD_ACCEPT_INVITE := 0x08;
+const PARTYCMD_DECLINE_INVITE := 0x09;
+
+// the cliloc numbers the party system talks in, see party_cfg.h
+const CLP_REJOINED := 1005437;
+const CLP_ADD_YOURSELF := 1005439;
+const CLP_ALREADY_YOUR_PARTY := 1005440;
+const CLP_ALREADY_IN_A_PARTY := 1005441;
+const CLP_ADD_LIVING := 1005442;
+const CLP_IGNORE_OFFER := 1005444;
+const CLP_ADDED := 1005445;
+const CLP_ALLOW_LOOT := 1005447;
+const CLP_PREVENT_LOOT := 1005448;
+const CLP_DISBANDED := 1005449;
+const CLP_LAST_PERSON := 1005450;
+const CLP_REMOVED := 1005451;
+const CLP_PLAYER_REMOVED := 1005452;
+const CLP_ADD_NO_LEADER := 1005453;
+const CLP_WHO_TO_ADD := 1005454;
+const CLP_WHO_TO_REMOVE := 1005455;
+const CLP_INVITE := 1008089;
+const CLP_INVITED := 1008090;
+const CLP_NOTIFY_DECLINE := 1008091;
+const CLP_DECLINE := 1008092;
+const CLP_JOINED := 1008094;
+const CLP_MAX_SIZE := 1008095;
+const CLP_NO_PARTY := 3000211;
+const CLP_NO_INVITE := 3000222;
+const CLP_TOO_LATE_DECLINE := 3000223;
+
+// how the client is told to colour a mobile, see CHAR_HILITE_* in the core and
+// the notoriety constants in pyuo's client.py
+const NOTO_INNOCENT := 1;
+const NOTO_FRIEND := 2;
+// 3 is CHAR_HILITE_ATTACKABLE in the core, which pyuo calls "animal"
+const NOTO_ATTACKABLE := 3;
+const NOTO_CRIMINAL := 4;
+const NOTO_ENEMY := 5;
+const NOTO_MURDERER := 6;
+const NOTO_INVUL := 7;
 
 // the texttype of a speech packet, see TEXTTYPE_* in plib/uconst.h
 const TEXTTYPE_NORMAL := 0x00;
@@ -52,6 +104,15 @@ const TEXTTYPE_EMOTE := 0x02;
 const TEXTTYPE_YOU_SEE := 0x06;
 const TEXTTYPE_WHISPER := 0x08;
 const TEXTTYPE_YELL := 0x09;
+// the two the core never names: speech.cpp matches them as bare literals, and
+// they are routed to a guild rather than to whoever is in range
+const TEXTTYPE_GUILD := 0x0D;
+const TEXTTYPE_ALLIANCE := 0x0E;
+
+// what config/repsys.cfg colours a name with, see the NameColoring block there
+const NAMECOLOR_GUILD_ENEMY := 44;
+const NAMECOLOR_GUILD_ALLY := 68;
+const NAMECOLOR_INNOCENT := 90;
 
 // the serial and body the core sends a system message under, see send_sysmessage
 const SYSMESSAGE_SERIAL := 0x01010101;
