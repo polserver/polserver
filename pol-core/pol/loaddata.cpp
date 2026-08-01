@@ -121,11 +121,16 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
   item->layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
   item->tile_layer = item->layer;                  // adjust for tiledata changes
 
+  // The equip script above runs after equippable() has already said yes, and is free to make the
+  // item unequippable again before it is actually worn. Character::equip opens with a
+  // passert_r( equippable( item ) ), so that used to abort the server part-way through reading the
+  // world; relocate refuses and the item goes to the backpack like any other item that cannot be
+  // worn.
   if ( chr->equippable( item ) && item->check_equiptest_scripts( chr, true ) &&
        item->check_equip_script( chr, true ) &&
-       !item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+       !item->orphan() &&  // dave added 1/28/3, item might be destroyed in RTC script
+       Items::relocate( *item, Items::Equipped{ chr, item->tile_layer } ) )
   {
-    chr->equip( item );
     item->clear_dirty();  // equipping sets dirty
     return;
   }
@@ -141,9 +146,9 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
     bool canadd = bp->can_add( *item );
     u8 slotIndex = item->slot_index();
     bool add_to_slot = bp->can_add_to_slot( slotIndex );
-    if ( canadd && add_to_slot && item->slot_index( slotIndex ) )
+    if ( canadd && add_to_slot && item->slot_index( slotIndex ) &&
+         Items::relocate( *item, Items::InContainer{ bp, bp->get_random_location(), slotIndex } ) )
     {
-      bp->add_at_random_location( item );
       // leaving dirty
       stateManager.gflag_enforce_container_limits = true;
       ERROR_PRINTLN( "I'm so cool, I put it in the character's backpack!" );
@@ -207,7 +212,15 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
       throw std::runtime_error( "Data file error" );
     }
 
-    cont->add( item, item->pos2d() );
+    // The loader used to reach into the container itself. Going through relocate also means the
+    // world file no longer gets the benefit of the doubt on two things UContainer::add would
+    // simply have done: adding to a destroyed container, which add answers with a passert, and
+    // putting a container inside itself, which nothing checked at all.
+    if ( !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), slotIndex } ) )
+    {
+      ERROR_PRINTLN( "Can't add Item {:#x} to container {:#x}", item->serial, cont->serial );
+      throw std::runtime_error( "Data file error" );
+    }
     item->clear_dirty();  // adding sets dirty
 
     stateManager.gflag_enforce_container_limits = true;
