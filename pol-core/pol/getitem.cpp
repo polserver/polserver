@@ -141,10 +141,10 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   if ( item->orphan() )
     return;
 
-  if ( item->container )
+  if ( UContainer* cont = item->container(); cont != nullptr )
   {
-    if ( !item->container->check_can_remove_script( client->chr, item,
-                                                    UContainer::MoveType::MT_PLAYER, amount ) )
+    if ( !cont->check_can_remove_script( client->chr, item, UContainer::MoveType::MT_PLAYER,
+                                         amount ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
       return;
@@ -157,7 +157,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   send_remove_object_to_inrange( item );
 
-  UContainer* orig_container = item->container;
+  UContainer* orig_container = item->container();
   Pos4d orig_pos = item->pos();  // potential container pos
   Pos4d orig_toppos = item->toplevel_pos();
 
@@ -200,10 +200,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
         {
           new_item->setposition( client->chr->pos() );
           if ( Items::relocate( *new_item, Items::InWorld{} ) )
-          {
-            new_item->restart_decay_timer();
             send_item_moved( new_item, orig_toppos );
-          }
         }
         else
         {

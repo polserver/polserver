@@ -469,7 +469,7 @@ void send_put_in_container( Client* client, const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
       item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
-      item->slot_index(), item->container->serial_ext, item->color );
+      item->slot_index(), item->container()->serial_ext, item->color );
   msg.Send( client );
 
   if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
@@ -480,7 +480,7 @@ void send_put_in_container_to_inrange( const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
       item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
-      item->slot_index(), item->container->serial_ext, item->color );
+      item->slot_index(), item->container()->serial_ext, item->color );
 
   auto pkt_rev = Network::ObjRevisionPkt( item->serial_ext, item->rev() );
 
@@ -491,7 +491,7 @@ void send_put_in_container_to_inrange( const Item* item )
       continue;
     // FIXME need to check character's additional_legal_items.
     // looks like inrange should be a Character member function.
-    if ( client2->chr->mightsee( item->container ) )
+    if ( client2->chr->mightsee( item->container() ) )
     {
       // FIXME if the container has an owner, and I'm not it, don't tell me?
       msg.Send( client2 );
@@ -523,7 +523,7 @@ void send_corpse_equip( Client* client, const UCorpse* corpse )
   {
     const auto& item2 = corpse->GetItemOnLayer( layer );
 
-    if ( !item2 || item2->orphan() || item2->container != corpse )
+    if ( !item2 || item2->orphan() || item2->container() != corpse )
       continue;
 
     if ( !can_see_on_corpse( client, item2 ) )
@@ -553,7 +553,7 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
   {
     const Core::ItemRef item = corpse->GetItemOnLayer( layer );
 
-    if ( !item || item->orphan() || item->container != corpse )
+    if ( !item || item->orphan() || item->container() != corpse )
       continue;
 
     if ( !can_see_on_corpse( client, item ) )
@@ -690,16 +690,17 @@ void send_item_to_inrange( const Item* item )
 
 void update_item_to_inrange( const Item* item )
 {
-  if ( !item->container )
-    send_item_to_inrange( item );
-  else if ( auto* chr = item->container->get_chr_owner(); !chr )
-    send_put_in_container_to_inrange( item );
-  else if ( chr->logged_in() )
+  if ( Character* chr = item->wearer(); chr != nullptr )
   {
     // this may not be the right thing in all cases.
     // specifically, handle_dye used to not ever do send_wornitem.
-    update_wornitem_to_inrange( chr, item );
+    if ( chr->logged_in() )
+      update_wornitem_to_inrange( chr, item );
   }
+  else if ( item->location().container() != nullptr )
+    send_put_in_container_to_inrange( item );
+  else
+    send_item_to_inrange( item );
 }
 
 void send_light( Client* client, int lightlevel )
@@ -813,10 +814,9 @@ void update_wornitem_to_inrange( const Character* chr, const Item* item )
 // does 'item' have a parent with serial 'serial'?
 bool is_a_parent( const Item* item, u32 serial )
 {
-  while ( item->container != nullptr )
+  while ( ( item = item->container() ) != nullptr )
   {
     // UNTESTED
-    item = item->container;
     if ( item->serial == serial )
       return true;
   }
@@ -974,7 +974,7 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
         continue;
       if ( _item->serial == serial )
       {
-        passert_always( _item->container == nullptr );
+        passert_always( _item->container() == nullptr );
         return _item;
       }
       if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
@@ -1910,7 +1910,7 @@ void send_midi( Client* client, u16 midi )
 
 void register_with_supporting_multi( Item* item )
 {
-  if ( item->container == nullptr )
+  if ( item->container() == nullptr )
   {
     Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
     if ( multi )

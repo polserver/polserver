@@ -50,7 +50,6 @@ void WornItemsContainer::PutItemOnLayer( Items::Item* item )
       item ) );  // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
-  item->container = this;
   item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );  // TODO POS nullptr
   item->layer = item->tile_layer;
   contents_[item->tile_layer] = Contents::value_type( item );
@@ -69,7 +68,6 @@ void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
       item ) );  // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
-  item->container = nullptr;
   contents_[item->tile_layer] = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.
   item->layer = 0;

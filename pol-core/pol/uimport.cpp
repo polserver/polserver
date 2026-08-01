@@ -216,7 +216,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
     // The multi registration relocate() does is a no-op here: multis.txt is read after items.txt,
     // so no multi is in its zone yet. Boats and houses take their own contents back from their
     // saved Traveller and Component properties instead.
-    if ( !Items::relocate( *item, Items::InWorld{} ) )
+    if ( !Items::relocate_loaded( *item, Items::InWorld{} ) )
     {
       elem.warn_with_line( "Could not place the item in the world." );
       if ( !Plib::systemstate.config.ignore_load_errors )

@@ -88,7 +88,6 @@ void UContainer::destroy_contents()
     Contents::value_type item = contents_.back();
     if ( item != nullptr )  // this is really only for wornitems.
     {
-      item->container = nullptr;
       item->destroy();
     }
     contents_.pop_back();
@@ -155,12 +154,12 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
     if ( held_item_count_ + item_count_diff > max_items() )
       return false;
 
-    if ( container != nullptr )
+    if ( UContainer* outer = container(); outer != nullptr )
     {
       int modded_diff =
           Clib::clamp_convert<int>( ( ( held_weight_ + weight_diff ) * held_weight_multiplier() ) -
                                     ( held_weight_ * held_weight_multiplier() ) );
-      return container->can_add_bulk( 0, 0, modded_diff );
+      return outer->can_add_bulk( 0, 0, modded_diff );
     }
     return true;
   }
@@ -208,7 +207,6 @@ void UContainer::add( Items::Item* item, const Pos2d& pos )
     passert_always( 0 );  // TODO remove once found
   }
   item->setposition( Pos4d( pos, 0, realm() ) );  // TODO POS realm should be a nullptr
-  item->container = this;
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
   item->set_location( location_for( item, pos ) );
@@ -239,12 +237,13 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
   // passert( !stateManager.gflag_enforce_container_limits || (held_weight_ + weight_delta <=
   // MAX_WEIGHT) );
 
+  UContainer* outer = container();
   int oldweight = 0;
-  if ( container != nullptr )
+  if ( outer != nullptr )
     oldweight = weight();
   held_weight_ = Clib::clamp_convert<u16>( held_weight_ + weight_delta );
-  if ( container != nullptr )
-    container->add_bulk( 0, weight() - oldweight );
+  if ( outer != nullptr )
+    outer->add_bulk( 0, weight() - oldweight );
 }
 
 
@@ -346,7 +345,6 @@ void UContainer::extract( Contents& cnt )
   {
     if ( item == nullptr )  // wornitems containers can hold null entries
       continue;
-    item->container = nullptr;
     item->reset_slot();
     item->set_location( Items::Detached{} );
     item->set_dirty();
@@ -391,7 +389,6 @@ void UContainer::swap( UContainer& cont )
     {
       if ( item == nullptr )
         continue;
-      item->container = &into;
       item->set_location( into.location_for( item, item->pos2d() ) );
       item->set_dirty();
     }
@@ -565,21 +562,22 @@ Items::Item* UContainer::remove( u32 objserial, UContainer** found_in )
   item = find( objserial, itr );
   if ( item != nullptr )
   {
+    UContainer* holder = item->container();
     if ( found_in != nullptr )
-      *found_in = item->container;
+      *found_in = holder;
 
-    item->container->remove( itr );
+    holder->remove( itr );
   }
   return item;
 }
 
 void UContainer::remove( Items::Item* item )
 {
-  if ( item->container != this )
+  if ( const UContainer* holder = item->container(); holder != this )
   {
     POLLOGLN( "UContainer::remove(Item*), serial={:#x}, item={:#x}, item->cont={:#x}", serial,
-              item->serial, item->container->serial );
-    passert_always( item->container == this );
+              item->serial, holder->serial );
+    passert_always( holder == this );
     int* p = nullptr;
     *p = 6;
   }
@@ -614,7 +612,6 @@ void UContainer::remove( iterator itr )
 {
   Items::Item* item = *itr;
   contents_.erase( itr );
-  item->container = nullptr;
   item->reset_slot();
   item->set_location( Items::Detached{} );
   item->set_dirty();
@@ -778,7 +775,7 @@ bool UContainer::is_legal_posn( const Core::Pos2d& pos ) const
 
 void UContainer::spill_contents()
 {
-  passert( container == nullptr );
+  passert( container() == nullptr );
   if ( locked() )
     return;
 
@@ -799,7 +796,6 @@ void UContainer::spill_contents()
       continue;
     }
     item->layer = 0;
-    item->restart_decay_timer();
     send_item_moved( item, item->pos() );
   }
 }

@@ -719,7 +719,7 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
   if ( Core::IsItem( obj->serial ) )
   {
     const Item* item = static_cast<const Item*>( obj );
-    if ( item->container != nullptr )
+    if ( item->container() != nullptr )
       return false;
   }
   Core::Vec2d rxy = obj->pos2d() - bc.oldpos.xy();

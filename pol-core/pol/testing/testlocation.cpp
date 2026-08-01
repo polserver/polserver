@@ -59,7 +59,7 @@ struct Snapshot
 
   explicit Snapshot( const Items::Item* item )
       : loc( item->location().describe() ),
-        container( item->container ),
+        container( item->container() ),
         layer( item->layer ),
         slot( item->slot_index() ),
         zone_entries( occurrences( item->realm(), item->pos2d(), item ) )
@@ -118,8 +118,7 @@ void location_test()
               "the item is now InContainer" );
     UnitTest( [&]() { return item->location().container() == cont; }, true,
               "the location reports the container it is in" );
-    UnitTest( [&]() { return item->container == cont; }, true,
-              "the legacy container field agrees" );
+    UnitTest( [&]() { return item->container() == cont; }, true, "and so does Item::container()" );
     UnitTest( [&]() { return occurrences( realm, spot2.xy(), item ); }, size_t( 0 ),
               "the item left its world zone" );
     UnitTest( [&]() { return cont->count(); }, 1u, "the container holds it" );
@@ -129,8 +128,8 @@ void location_test()
     UnitTest( [&]() { return cont->count(); }, 0u, "the container released it" );
     UnitTest( [&]() { return occurrences( realm, item->pos2d(), item ); }, size_t( 1 ),
               "the item is back in exactly one world zone" );
-    UnitTest( [&]() { return item->container == nullptr; }, true,
-              "the legacy container field was cleared" );
+    UnitTest( [&]() { return item->container() == nullptr; }, true,
+              "and it names no container any more" );
 
     Core::remove_item_from_world( item );
     item->destroy();
@@ -208,7 +207,7 @@ void location_test()
 
     UnitTest( [&]() { return Snapshot( outer ) == before; }, true,
               "a rejected relocate leaves the item untouched" );
-    UnitTest( [&]() { return inner->container == outer; }, true,
+    UnitTest( [&]() { return inner->container() == outer; }, true,
               "a rejected relocate leaves the other item untouched" );
 
     // and the no-op case is a success, not a rejection

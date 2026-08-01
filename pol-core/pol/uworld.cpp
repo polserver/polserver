@@ -44,7 +44,7 @@ void remove_item_from_world( Items::Item* item )
   item->clear_opponents( true );
 
   // Unregister the item if it is on a multi
-  if ( item->container == nullptr && !item->has_gotten_by() )
+  if ( item->container() == nullptr && !item->has_gotten_by() )
   {
     Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos().xyz() );
 

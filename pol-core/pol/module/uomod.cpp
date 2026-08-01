@@ -3153,11 +3153,7 @@ void send_item_restored( Character& chr, Item& item )
 {
   const Items::Location loc = item.location();
   if ( loc.holds<Items::InWorld>() )
-  {
-    // The item is back on the ground under its own steam, so it starts decaying again.
-    item.restart_decay_timer();
     update_item_to_inrange( &item );
-  }
   else if ( const auto* equipped = loc.get_if<Items::Equipped>() )
     // Not necessarily the character asking: an item can be offered out of somebody else's
     // equipment, and it is the wearer the packet has to name.
@@ -3268,7 +3264,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
       chr_owner = controller_.get();
 
   // daved changed order 1/26/3 check canX scripts before onX scripts.
-  UContainer* oldcont = item->container;
+  UContainer* oldcont = item->container();
   Item* existing_stack = nullptr;
 
   if ( ( oldcont != nullptr ) &&
@@ -3406,7 +3402,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
   }
 
   // daved changed order 1/26/3 check canX scripts before onX scripts.
-  UContainer* oldcont = item->container;
+  UContainer* oldcont = item->container();
 
   // DAVE added this 12/04, call can/onInsert & can/onRemove scripts for this container
   Character* chr_owner = nullptr;

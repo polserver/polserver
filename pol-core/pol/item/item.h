@@ -131,6 +131,22 @@ public:
    */
   Location location() const;
 
+  /// The container holding this item: an ordinary container, the wearer's worn-items container, or
+  /// the corpse it is lying on. nullptr when the item is in none of those -- on the ground, on a
+  /// cursor, a storage root, or not yet placed.
+  Core::UContainer* container() const;
+
+  /// The character wearing this item, or nullptr if nobody is.
+  ///
+  /// Replaces asking the container: the worn-items container is given its character's serial, so
+  /// "is this item's container a character?" was the only way to answer this before the location
+  /// could be asked directly.
+  Mobile::Character* wearer() const;
+
+  /// An item's resistances are part of its wearer's armour rating, so changing one refreshes the
+  /// other. Does nothing when the item is not worn.
+  void refresh_wearer_ar() const;
+
   bool invisible() const;
   void invisible( bool newvalue );
   void on_invisible_changed();
@@ -313,15 +329,13 @@ private:
   // relocate() is the intended writer. The registries are friends only for as long as they still
   // maintain the location themselves; each one loses the friendship as it moves over to relocate().
   friend bool relocate( Item& item, Location to );
+  friend bool relocate_loaded( Item& item, Location to );
   friend class Core::StorageArea;
   friend class Core::UContainer;
   friend class Core::UCorpse;
   friend class Core::WornItemsContainer;
   friend void Core::add_item_to_world( Item* item );
   friend void Core::remove_item_from_world( Item* item );
-
-public:
-  Core::UContainer* container;
 
 protected:
   Core::UOExecutor* uoexec_control();

@@ -90,6 +90,24 @@ void Item::set_location( Location loc )
   loc_ = std::move( loc );
 }
 
+Core::UContainer* Item::container() const
+{
+  return location().container();
+}
+
+Mobile::Character* Item::wearer() const
+{
+  if ( const auto* equipped = location().get_if<Equipped>() )
+    return equipped->chr;
+  return nullptr;
+}
+
+void Item::refresh_wearer_ar() const
+{
+  if ( Mobile::Character* chr = wearer(); chr != nullptr )
+    chr->refresh_ar();
+}
+
 namespace
 {
 bool reject( const Item& item, const Location& from, const Location& to, const char* why )
@@ -274,7 +292,19 @@ bool attach( Item& item, const Location& to )
 }
 }  // namespace
 
-bool relocate( Item& item, Location to )
+/**
+ * The loader's entry point is the primitive one, because it wants strictly less: it is relocate()
+ * minus the effects that only make sense on a running shard.
+ *
+ * Deliberately none of those effects is telling a client about the move. That looks like a state
+ * effect and is not one: across the callers that put an item in the world, five different things
+ * are sent -- send_item_moved, send_item_to_inrange, update_item_to_inrange, send_item_restored,
+ * and nothing at all for a multi's own components. They are not interchangeable;
+ * send_item_to_inrange alone also carries the invisible and movable flags, a corpse's contents and
+ * a revision packet. What a client has to be told depends on why the item moved, not only on where
+ * it ended up, so it stays with the caller.
+ */
+bool relocate_loaded( Item& item, Location to )
 {
   const Location from = item.location();
   if ( from == to )
@@ -296,6 +326,21 @@ bool relocate( Item& item, Location to )
     attach_to_cursor( item, *to_cursor->holder, ticket );
   else if ( !attach( item, to ) )
     item.set_location( to );
+
+  return true;
+}
+
+bool relocate( Item& item, Location to )
+{
+  const bool entering_world = to.holds<InWorld>();
+  if ( !relocate_loaded( item, std::move( to ) ) )
+    return false;
+
+  // An item decays because it is in a realm zone and for no other reason, so entering the world is
+  // what starts its clock. Items whose decay was switched off -- a multi's components, say -- are
+  // unaffected: restart_decay_timer() does nothing to them.
+  if ( entering_world )
+    item.restart_decay_timer();
 
   return true;
 }

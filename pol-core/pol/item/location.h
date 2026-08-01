@@ -207,10 +207,23 @@ private:
  * item bit-for-bit as it was; there is no partially-applied state. Returns false on rejection,
  * having logged the item, the current location and the target.
  *
+ * Entering InWorld also restarts the item's decay timer, which is an effect of the state and not
+ * of the caller: Decay::step walks realm zones, so an item decays because it is in one and for no
+ * other reason. Telling clients about the move is *not* folded in — see relocate()'s definition.
+ *
  * @warning Requires PolLock. Must never be called from the world-save path: the save serializes
  *          across gamestate.task_thread_pool while the caller holds the lock.
  */
 [[nodiscard]] bool relocate( Item& item, Location to );
+
+/**
+ * The world loader's way in: the same move, without the effects that only make sense on a running
+ * shard.
+ *
+ * Today that means the decay timer, which the save already carries per item — restarting it here
+ * would quietly reset decay across the whole world on every restart.
+ */
+[[nodiscard]] bool relocate_loaded( Item& item, Location to );
 }  // namespace Pol::Items
 
 #endif

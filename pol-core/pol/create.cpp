@@ -445,9 +445,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       tmpitem->setposition( chr->pos() );
       if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
       {
-        // Not a move: it is already where it is going, so this is only the decay timer and the
-        // broadcast that shows it to everyone standing there.
-        tmpitem->restart_decay_timer();
+        // Not a move: it is already where it is going, so this only shows it to everyone standing
+        // there.
         send_item_moved( tmpitem, tmpitem->pos() );
       }
     }
@@ -808,9 +807,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       tmpitem->setposition( chr->pos() );
       if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
       {
-        // Not a move: it is already where it is going, so this is only the decay timer and the
-        // broadcast that shows it to everyone standing there.
-        tmpitem->restart_decay_timer();
+        // Not a move: it is already where it is going, so this only shows it to everyone standing
+        // there.
         send_item_moved( tmpitem, tmpitem->pos() );
       }
     }
@@ -1205,9 +1203,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       tmpitem->setposition( chr->pos() );
       if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
       {
-        // Not a move: it is already where it is going, so this is only the decay timer and the
-        // broadcast that shows it to everyone standing there.
-        tmpitem->restart_decay_timer();
+        // Not a move: it is already where it is going, so this only shows it to everyone standing
+        // there.
         send_item_moved( tmpitem, tmpitem->pos() );
       }
     }

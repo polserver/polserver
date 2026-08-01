@@ -154,11 +154,10 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
     newpos.z( Clib::clamp_convert<s8>( newz ) );
   }
 
-  if ( item->container != nullptr )
+  if ( UContainer* oldcont = item->container(); oldcont != nullptr )
   {
     // DAVE added this 12/04, call can/onRemove scripts for the old container
     UObject* oldroot = item->toplevel_owner();
-    UContainer* oldcont = item->container;
     Character* chr_owner = oldcont->GetCharacterOwner();
     if ( chr_owner == nullptr )
       if ( controller_.get() != nullptr )
@@ -199,7 +198,6 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
 
     // Not move_item: the item was never in the world at oldpos, so there is no zone entry to move
     // away from -- only the clients watching that spot to tell.
-    item->restart_decay_timer();
     send_item_moved( item, oldpos );
   }
   else

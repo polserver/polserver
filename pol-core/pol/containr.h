@@ -110,8 +110,8 @@ public:
 
   void spill_contents() override;
 
-  virtual void add( Items::Item* item,
-                    const Pos2d& pos );  // NOTE: points item->container to self on insertion
+  // NOTE: gives the item the location this container implies, via location_for()
+  virtual void add( Items::Item* item, const Pos2d& pos );
   void add_at_random_location( Items::Item* item );
 
   /// The location an item takes on once this container has accepted it at pos. Worn-items

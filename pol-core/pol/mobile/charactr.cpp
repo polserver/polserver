@@ -122,6 +122,7 @@
 #include "pol/item/armor.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
+#include "pol/item/location.h"
 #include "pol/item/weapon.h"
 #include "pol/item/wepntmpl.h"
 #include "pol/layers.h"
@@ -1441,7 +1442,7 @@ void Character::unequip( Items::Item* item )
 {
   passert( Items::valid_equip_layer( item ) );
   // assume any item being de-equipped is in fact being worn.
-  passert( item->container == wornitems.get() );
+  passert( item->container() == wornitems.get() );
   passert( is_equipped( item ) );
 
   wornitems->RemoveItemFromLayer( item );
@@ -2225,7 +2226,6 @@ void Character::die()
   // corpse->dir = dir;
   UPDATE_CHECKPOINT();
 
-  register_with_supporting_multi( corpse );
   if ( is_trading() )
     Core::cancel_trade( this );
   clear_gotten_item();
@@ -2245,14 +2245,24 @@ void Character::die()
   // small lambdas to reduce the mess inside the loops
   auto _copy_item = [&]( Items::Item* _item ) {  // copy a item into the corpse
     Items::Item* copy = _item->clone();
+    if ( !Items::relocate( *copy, Items::OnCorpse{ corpse, corpse->get_random_location(),
+                                                   copy->slot_index(), copy->tile_layer } ) )
+    {
+      Core::destroy_item( copy );
+      return;
+    }
     copied_items.push_back( copy );
-    corpse->equip_and_add( copy, copy->layer );
   };
   auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
     _item->setposition( corpse->pos() );
-    add_item_to_world( _item );
-    register_with_supporting_multi( _item );
-    move_item( _item, corpse->pos() );
+    if ( !Items::relocate( *_item, Items::InWorld{} ) )
+    {
+      Core::destroy_item( _item );
+      return;
+    }
+    // Not a move: the item is already where it is going, so this only shows it to everyone
+    // standing there.
+    send_item_moved( _item, _item->pos() );
   };
 
   // WARNING: never ever touch or be 10000% sure what you are doing!!!!
@@ -2323,17 +2333,15 @@ void Character::die()
       item->check_unequip_script();
     }
     UPDATE_CHECKPOINT();
-    unequip( item );
-    UPDATE_CHECKPOINT();
 
+    // relocate does the unequip, and leaves the item worn if the corpse turns it down -- so the
+    // fallback below is reached with the item still on the character, and unequips it itself.
     u8 newSlot = 1;
-    if ( !corpse->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
+    if ( !corpse->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) ||
+         !Items::relocate( *item, Items::OnCorpse{ corpse, corpse->get_random_location(), newSlot,
+                                                   item->tile_layer } ) )
     {
       _drop_item_to_world( item );
-    }
-    else
-    {
-      corpse->equip_and_add( item, layer );
     }
     UPDATE_CHECKPOINT();
   }
@@ -2356,31 +2364,28 @@ void Character::die()
     {
       Items::Item* bp_item = tmp.back();
       tmp.pop_back();
-      bp_item->container = nullptr;
+      // extract() has already detached these; the layer is the one thing it leaves behind.
       bp_item->layer = 0;
       UPDATE_CHECKPOINT();
       if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
            bp->can_add( *bp_item ) )
       {
-        if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
+        if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) ||
+             !Items::relocate( *bp_item, Items::InContainer{ bp, bp_item->pos2d(), packSlot } ) )
         {
           _drop_item_to_world( bp_item );
-        }
-        else
-        {
-          bp->add( bp_item, bp_item->pos2d() );
         }
         UPDATE_CHECKPOINT();
       }
       else if ( corpse->can_add( *bp_item ) )
       {
-        if ( !corpse->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
+        // Not OnCorpse: only the items a corpse renders on a layer are that, and these are the
+        // former backpack contents, which it holds like any other container would.
+        if ( !corpse->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) ||
+             !Items::relocate(
+                 *bp_item, Items::InContainer{ corpse, corpse->get_random_location(), packSlot } ) )
         {
           _drop_item_to_world( bp_item );
-        }
-        else
-        {
-          corpse->add_at_random_location( bp_item );
         }
         UPDATE_CHECKPOINT();
       }
@@ -2422,16 +2427,14 @@ void Character::die()
           item->check_unequip_script();
         }
         UPDATE_CHECKPOINT();
-        unequip( item );
-        item->layer = 0;
-        UPDATE_CHECKPOINT();
-        if ( !bp->can_add_to_slot( packSlot ) || !item->slot_index( packSlot ) )
+        if ( !bp->can_add_to_slot( packSlot ) || !item->slot_index( packSlot ) ||
+             !Items::relocate( *item,
+                               Items::InContainer{ bp, bp->get_random_location(), packSlot } ) )
         {
           _drop_item_to_world( item );
         }
         else
         {
-          bp->add_at_random_location( item );
           update_item_to_inrange( item );
         }
         UPDATE_CHECKPOINT();
@@ -2445,11 +2448,13 @@ void Character::die()
   send_death_message( this, corpse );
 
   UPDATE_CHECKPOINT();
-  corpse->restart_decay_timer();
-  UPDATE_CHECKPOINT();
-  add_item_to_world( corpse );
-  UPDATE_CHECKPOINT();
-  send_item_to_inrange( corpse );
+  // This is also where the corpse joins the multi it is standing on. It used to register with the
+  // multi right after it was created, which left a boat moving a corpse that was not in a zone yet.
+  if ( Items::relocate( *corpse, Items::InWorld{} ) )
+  {
+    UPDATE_CHECKPOINT();
+    send_item_to_inrange( corpse );
+  }
   UPDATE_CHECKPOINT();
   // Set the items to unmovable, now that the client knows about the corpse container.
   for ( auto* copied_item : copied_items )

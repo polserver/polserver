@@ -255,10 +255,11 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
   // UContainer::MT_CORE_* constants to the can_insert function (yet). :)
 
   ItemRef itemref( item );
+  UContainer* target_cont = target_item->container();
   if ( ( !target_item->stackable() ) || ( !target_item->can_add_to_self( *item, false ) ) ||
-       ( target_item->container &&
-         !target_item->container->can_insert_increase_stack(
-             client->chr, UContainer::MT_PLAYER, target_item, item->getamount(), item ) ) )
+       ( target_cont &&
+         !target_cont->can_insert_increase_stack( client->chr, UContainer::MT_PLAYER, target_item,
+                                                  item->getamount(), item ) ) )
   {
     send_sysmessage( client, "Could not add item to stack." );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
@@ -283,11 +284,10 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
   target_item->add_to_self( item );
   update_item_to_inrange( target_item );
 
-  if ( target_item->container )
+  if ( UContainer* cont = target_item->container(); cont != nullptr )
   {
-    target_item->container->on_insert_increase_stack( client->chr, UContainer::MT_PLAYER,
-                                                      target_item, amtadded );
-    target_item->container->restart_decay_timer();
+    cont->on_insert_increase_stack( client->chr, UContainer::MT_PLAYER, target_item, amtadded );
+    cont->restart_decay_timer();
   }
   return true;
 }
@@ -333,7 +333,8 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
   {
     if ( item->no_drop() )
     {
-      if ( target_item->container == nullptr || !target_item->container->no_drop_exception() )
+      const UContainer* target_cont = target_item->container();
+      if ( target_cont == nullptr || !target_cont->no_drop_exception() )
       {
         send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
         return false;
@@ -394,7 +395,6 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos3
   }
 
   item->set_dirty();
-  item->restart_decay_timer();
   auto oldrealm = item->realm();  // TODO POS get rid of all the realm for_each
   item->setposition( tgt.pos() );
   if ( oldrealm != chr->realm() )
@@ -908,7 +908,7 @@ void return_traded_items( Mobile::Character* chr )
   {
     item->setposition( chr->pos() );
     if ( Items::relocate( *item, Items::InWorld{} ) )
-      move_item( item, item->pos() );
+      send_item_moved( item, item->pos() );
   };
 
   UContainer::Contents tmp;
