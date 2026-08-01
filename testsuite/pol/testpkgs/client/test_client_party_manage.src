@@ -312,5 +312,8 @@ exported function manage_kick_stranger( resmgn )
     return party_fail( res.errortext );
   endif
 
+  // the cursor that came with it is nobody's business afterwards, retire it
+  CancelTarget( char );
+
   return party_finish( 1 );
 endfunction
