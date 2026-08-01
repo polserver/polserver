@@ -5,7 +5,7 @@ use polsys;
 include "testutil";
 
 // Seeds item locations that the saved world did not otherwise contain, for the benefit of
-// the shard_save_roundtrip test (cmake/core_tests_roundtrip.cmake). That test reloads the
+// the shard_test_roundtrip test (cmake/core_tests_roundtrip.cmake). That test reloads the
 // world the test passes wrote and compares a fresh save against it, so it only covers what
 // is actually in the world: before this package, pcequip.txt and npcequip.txt were empty
 // and both saved corpses had no contents, which left equipped items and corpse equipment

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compare two POL world saves after a normalising pass.
 
-Used by the ``shard_save_roundtrip`` ctest: the shard loads a world and saves it again
+Used by the ``shard_test_roundtrip`` ctest: the shard loads a world and saves it again
 without touching it, and this script asserts the second save carries the same data as the
 first.  A raw byte comparison cannot be used - see NORMALISATION below.
 

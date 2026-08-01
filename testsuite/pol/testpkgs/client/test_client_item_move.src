@@ -1220,7 +1220,7 @@ endfunction
 // An item on a cursor must still be persisted, at its holder's feet - that is what
 // WriteGottenItem does, and it is the only reason a lifted item survives a restart at all.
 //
-// This has to be asserted here rather than by shard_save_roundtrip. The cursor state does
+// This has to be asserted here rather than by shard_test_roundtrip. The cursor state does
 // not survive a reload, and that test starts from what pass 2 saved, while pass 2 runs
 // without a client and so can never put an item on a cursor. So force a save while the item
 // is still held, and read it back out of the file this pass just wrote.

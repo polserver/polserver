@@ -81,7 +81,7 @@ exported function equip_script_weakens_on_load( resmgn )
   // Put the strength the equip script took away back, now that it has been observed. Maximum hit
   // points are derived from strength, and the save this pass writes still carries the NPC's full
   // Life, so leaving it weak means the next load clamps Life down to match -- one settling step
-  // that costs shard_save_roundtrip its fixed point. Restoring the attribute is enough; nothing
+  // that costs shard_test_roundtrip its fixed point. Restoring the attribute is enough; nothing
   // reads it again.
   SetAttributeBaseValue( npc, "Strength", 2000 );
 
