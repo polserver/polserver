@@ -82,6 +82,11 @@ class Brain:
         timeout = start + self.timeout
         while time.time() < timeout:
           self.processEvents()
+          # an order that arrived while we were idling should not have to sit
+          # out the rest of the wait: this loop is what decides how long a
+          # driven brain takes to react to anything asked of it
+          if self.hasWork():
+            break
           time.sleep(0.01)
 
   def onEvent(self, ev):
@@ -125,6 +130,16 @@ class Brain:
     @return Return true to terminate the program
     '''
     self.log.debug('Brain running, nothing to do...')
+
+  def hasWork(self):
+    '''! Whether loop() has something waiting for it before the timeout is up
+
+    A brain that decides for itself has nothing to answer here and waits out
+    the whole timeout. One driven from outside overrides this, or every order
+    it is given waits for the timeout to expire before it is even looked at.
+    @return Return true to cut the wait short and run loop() now
+    '''
+    return False
 
 class Event:
   ''' An event sent from the client '''

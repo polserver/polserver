@@ -47,6 +47,12 @@ class TestBrain(brain.Brain):
     with self.todosLock:
       self.todos.append(ev)
 
+  def hasWork(self):
+    '''the brain is driven entirely from the test script, so anything queued
+    here is the only reason its main loop ever has to wake up early'''
+    with self.todosLock:
+      return len(self.todos) > 0
+
   def processTodos(self):
     with self.todosLock:
       if not len(self.todos):
@@ -200,7 +206,12 @@ class PolServer:
     self.s.listen(1)
     self.s.settimeout(30) # FIXME: we need a way to stop this process without a connection
     self.conn, addr = self.s.accept()
-    self.conn.settimeout(0.1)
+    # How long run() sits in recv() before it gets to flush the brains' events
+    # back to the script. Events are queued by the brain threads and only go
+    # out between two reads, so this is a floor on how fast the script can be
+    # told anything - it is a poll interval, not a deadline, and the read
+    # returns the moment a byte arrives either way.
+    self.conn.settimeout(0.02)
     self.buf=b''
 
   def run(self):
