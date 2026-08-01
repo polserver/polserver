@@ -18,6 +18,12 @@ include "communication";
 include "guildutil";
 include "speech";
 
+// How long the shard has to stay silent before settle() calls it quiet. A stale
+// event that arrives after this leaks into the next case's answer, so it wants
+// to stay comfortably above a client round trip. POLL_INTERVAL comes from
+// communication.inc.
+const SETTLE_QUIET := 500;
+
 // where speech_setup() leaves the two characters
 const CHAR_X := 100;
 const CHAR_Y := 50;
@@ -70,7 +76,12 @@ endfunction
 // listens once and sorts the result afterwards, and once everything expected
 // has arrived it listens a moment longer - anything wrongly sent would have
 // gone out with the rest.
-function check_heard( text, want, timeout := 10, grace := 1500 )
+//
+// The poll is a tenth of a second rather than a whole one: a wait ends the
+// moment an event arrives, so the interval only decides how far past the
+// deadline the last idle wait runs. A whole second of that on every call is
+// most of what the guild tests spend their time on.
+function check_heard( text, want, timeout := 10, grace := 500 )
   var found := { 0, 0 };
   var wanted := want[1] + want[2];
   // with nothing expected there is nothing to wait for, so the whole window is
@@ -79,7 +90,7 @@ function check_heard( text, want, timeout := 10, grace := 1500 )
   var settled := 0;
 
   while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
+    var ev := Wait_For_Event( POLL_INTERVAL );
     if ( ev and ev.type == EVT_SPEECH and ev.msg == text )
       var idx := CInt( ev.id ) + 1;
       if ( idx >= 1 and idx <= 2 )
@@ -119,12 +130,14 @@ endfunction
 // case that changes a guild and then asks a question finds several stale
 // answers waiting for it. Clear_Event_Queue() is not enough either: it empties
 // the queue, not the connection, and what the test client has already sent
-// arrives afterwards. Draining until a whole second has passed with nothing
+// arrives afterwards. Draining until the quiet window has passed with nothing
 // arriving leaves only the events a case caused itself.
-function settle()
-  var ev := Wait_For_Event( 1 );
-  while ( ev )
-    ev := Wait_For_Event( 1 );
+function settle( quiet := SETTLE_QUIET )
+  var deadline := ReadMillisecondClock() + quiet;
+  while ( ReadMillisecondClock() < deadline )
+    if ( Wait_For_Event( POLL_INTERVAL ) )
+      deadline := ReadMillisecondClock() + quiet;
+    endif
   endwhile
   return 1;
 endfunction

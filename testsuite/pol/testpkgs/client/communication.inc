@@ -131,6 +131,19 @@ const CLILOC_TYPE_ABOVE := 0x07;
 const CLILOC_SYSMESSAGE_SERIAL := 4294967295.0;
 const CLILOC_SYSMESSAGE_MODEL := 0xFFFF;
 
+// How long a wait for nothing in particular blocks. Wait_For_Event takes a
+// Double down to a hundredth of a second, and a wait ends the moment an event
+// arrives - so this is only the granularity of the idle waits, and the only
+// thing it costs is how far past its deadline a wait for nothing runs. Waiting
+// a whole second at a time is what made the negative assertions below cost a
+// second more than they were asked for.
+const POLL_INTERVAL := 0.1;
+
+// The default window of the "nobody was told this" assertions. It has to stay
+// comfortably above a round trip to the test client - that is all a wrongly
+// sent message needs to show up - without being paid on every single call.
+const QUIET_SECS := 0.75;
+
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
   if ( !testclient )

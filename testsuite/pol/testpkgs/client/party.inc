@@ -131,10 +131,12 @@ function wait_for_parties( partycmd, timeout := 10 )
   return ret_error( $"client {missing} never got party command {partycmd} within {timeout}s" );
 endfunction
 
-function no_party_for( id, partycmd, timeout := 2 )
+// As with no_speech_for(), the whole window is always paid, so it is kept to a
+// round trip rather than to a couple of seconds.
+function no_party_for( id, partycmd, timeout := QUIET_SECS )
   var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
+    var ev := Wait_For_Event( POLL_INTERVAL );
     if ( !ev or ev.type != EVT_PARTY or CInt( ev.id ) != id or CInt( ev.partycmd ) != partycmd )
       continue;
     endif

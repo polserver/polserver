@@ -124,10 +124,15 @@ function wait_for_speeches_like( prefix, timeout := 10 )
 endfunction
 
 // Asserts a client is told nothing carrying the given text.
-function no_speech_for( id, text, timeout := 2 )
+//
+// The whole window is always paid, so it is kept to the round trip a wrongly
+// sent message would need rather than to a comfortable-looking couple of
+// seconds. Most callers have already waited out the same message on the other
+// client, which proves the core has sent everything it was going to.
+function no_speech_for( id, text, timeout := QUIET_SECS )
   var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
+    var ev := Wait_For_Event( POLL_INTERVAL );
     if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
       continue;
     endif
@@ -174,10 +179,10 @@ function wait_for_clilocs( num, timeout := 10 )
   return ret_error( $"client {missing} never got cliloc {num} within {timeout}s" );
 endfunction
 
-function no_cliloc_for( id, num, timeout := 2 )
+function no_cliloc_for( id, num, timeout := QUIET_SECS )
   var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
+    var ev := Wait_For_Event( POLL_INTERVAL );
     if ( !ev or ev.type != EVT_CLILOC or CInt( ev.id ) != id or CInt( ev.cliloc ) != num )
       continue;
     endif

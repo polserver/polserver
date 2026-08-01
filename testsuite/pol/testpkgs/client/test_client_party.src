@@ -154,7 +154,7 @@ exported function party_decline_timeout( unused resmgn )
 
   Clear_Event_Queue();
 
-  // config/party.cfg sets the timeout to 3 seconds
+  // config/party.cfg sets the timeout to 2 seconds
   var wanted := array{};
   wanted.append( want_cliloc( 1, CLP_DECLINE ) );
   wanted.append( want_cliloc( 0, CLP_NOTIFY_DECLINE ) );
