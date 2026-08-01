@@ -1051,7 +1051,7 @@ void Item::on_facing_changed()
   update_item_to_inrange( this );
 }
 
-void Item::spill_contents( Multi::UMulti* /*multi*/ ) {}
+void Item::spill_contents() {}
 
 unsigned int Item::weight_of( unsigned short amount ) const
 {

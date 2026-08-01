@@ -187,19 +187,27 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
       return new BError( "Item was destroyed in OnRemove script" );
     }
 
+    // Where the item was seen until now: not its own position, which is a slot in a container
+    // gump, but wherever the container is standing.
+    const Pos4d oldpos = oldroot->toplevel_pos();
+
     if ( !Items::relocate( *item, Items::Detached{} ) )
       return new BError( "Could not remove the item from its container." );
-    //  wherever it was, it wasn't in the world/on the ground
-    item->setposition( oldroot->toplevel_pos() );
-    if ( item->realm() == nullptr )
-      item->setposition( Pos4d( item->pos3d(), newpos.realm() ) );
-    // move_item calls MoveItemWorldLocation, so this gets it
-    // in the right place to start with.
-    add_item_to_world( item );
+    item->setposition( newpos );
+    if ( !Items::relocate( *item, Items::InWorld{} ) )
+      return new BError( "Could not place the item in the world." );
+
+    // Not move_item: the item was never in the world at oldpos, so there is no zone entry to move
+    // away from -- only the clients watching that spot to tell.
+    item->restart_decay_timer();
+    send_item_moved( item, oldpos );
   }
-  const Pos4d oldpos = item->toplevel_pos();
-  item->setposition( newpos );
-  move_item( item, oldpos );
+  else
+  {
+    const Pos4d oldpos = item->pos();
+    item->setposition( newpos );
+    move_item( item, oldpos );
+  }
 
   if ( multi != nullptr )
   {

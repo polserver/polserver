@@ -443,9 +443,13 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
       tmpitem->setposition( chr->pos() );
-      add_item_to_world( tmpitem );
-      register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
+      {
+        // Not a move: it is already where it is going, so this is only the decay timer and the
+        // broadcast that shows it to everyone standing there.
+        tmpitem->restart_decay_timer();
+        send_item_moved( tmpitem, tmpitem->pos() );
+      }
     }
     else
       backpack->add( tmpitem, Pos2d( 46, 91 ) );
@@ -802,9 +806,13 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
       tmpitem->setposition( chr->pos() );
-      add_item_to_world( tmpitem );
-      register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
+      {
+        // Not a move: it is already where it is going, so this is only the decay timer and the
+        // broadcast that shows it to everyone standing there.
+        tmpitem->restart_decay_timer();
+        send_item_moved( tmpitem, tmpitem->pos() );
+      }
     }
     else
       backpack->add( tmpitem, Pos2d( 46, 91 ) );
@@ -1195,9 +1203,13 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
       tmpitem->setposition( chr->pos() );
-      add_item_to_world( tmpitem );
-      register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
+      {
+        // Not a move: it is already where it is going, so this is only the decay timer and the
+        // broadcast that shows it to everyone standing there.
+        tmpitem->restart_decay_timer();
+        send_item_moved( tmpitem, tmpitem->pos() );
+      }
     }
     else
       backpack->add( tmpitem, Pos2d( 46, 91 ) );

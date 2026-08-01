@@ -11,6 +11,7 @@
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/corpse.h"
 #include "pol/mobile/wornitems.h"
+#include "pol/multi/house.h"
 #include "pol/storage.h"
 #include "pol/ufunc.h"
 #include "pol/uworld.h"
@@ -215,7 +216,14 @@ void detach( Item& item, const Location& from )
     item.inuse( false );
   }
   else if ( from.holds<InWorld>() )
+  {
+    // A house component is a world item that the house also lists. Leaving the world ends that:
+    // otherwise picking a component up leaves the house holding an entry for an item now sitting
+    // in somebody's backpack, which the next house destruction would follow.
+    if ( Multi::UHouse* house = item.house(); house != nullptr )
+      house->erase_component( &item );
     Core::remove_item_from_world( &item );
+  }
 }
 
 /// The cursor is the one home whose contents are derived from the previous one, so it is attached

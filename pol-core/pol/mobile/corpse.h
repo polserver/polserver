@@ -71,7 +71,7 @@ protected:
   void PutItemOnLayer( Items::Item* item );
 
   explicit UCorpse( const Items::ContainerDesc& desc );
-  void spill_contents( Multi::UMulti* supporting_multi ) override;
+  void spill_contents() override;
   void printProperties( Clib::StreamWriter& sw ) const override;
   void readProperties( Clib::ConfigElem& elem ) override;
   friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );

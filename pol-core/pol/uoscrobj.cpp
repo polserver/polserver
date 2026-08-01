@@ -1692,9 +1692,12 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
         else
           new_stack = this->remove_part_of_stack( 1 );
         new_stack->setposition( newpos );
-        add_item_to_world( new_stack );
-        move_item( new_stack, newpos );
-        update_item_to_inrange( new_stack );
+        if ( Items::relocate( *new_stack, Items::InWorld{} ) )
+        {
+          new_stack->restart_decay_timer();
+          send_item_moved( new_stack, newpos );
+          update_item_to_inrange( new_stack );
+        }
       }
 
       if ( this->getamount() == 1 )
@@ -1714,9 +1717,12 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     new_stack->setposition( newpos );
     new_stack->setamount( amt );
-    add_item_to_world( new_stack );
-    move_item( new_stack, newpos );
-    update_item_to_inrange( new_stack );
+    if ( Items::relocate( *new_stack, Items::InWorld{} ) )
+    {
+      new_stack->restart_decay_timer();
+      send_item_moved( new_stack, newpos );
+      update_item_to_inrange( new_stack );
+    }
 
     if ( amt == item_amount )
       destroy_item( this );
@@ -4954,9 +4960,11 @@ ItemGivenEvent::~ItemGivenEvent()
         if ( !backpack->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
           item->setposition( chr->pos() );
-          add_item_to_world( item );
-          register_with_supporting_multi( item );
-          move_item( item, item->pos() );
+          if ( Items::relocate( *item, Items::InWorld{} ) )
+          {
+            item->restart_decay_timer();
+            send_item_moved( item, item->pos() );
+          }
           return;
         }
         backpack->add( item, item->pos2d() );
@@ -4966,9 +4974,11 @@ ItemGivenEvent::~ItemGivenEvent()
     }
     cont->remove( item );
     item->setposition( chr->pos() );
-    add_item_to_world( item );
-    register_with_supporting_multi( item );
-    move_item( item, item->pos() );
+    if ( Items::relocate( *item, Items::InWorld{} ) )
+    {
+      item->restart_decay_timer();
+      send_item_moved( item, item->pos() );
+    }
   }
 }
 

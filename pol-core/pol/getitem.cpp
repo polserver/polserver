@@ -199,9 +199,11 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
         if ( !orig_container->can_add_to_slot( oldSlot ) || !item->slot_index( oldSlot ) )
         {
           new_item->setposition( client->chr->pos() );
-          add_item_to_world( new_item );
-          register_with_supporting_multi( new_item );
-          move_item( new_item, orig_toppos );
+          if ( Items::relocate( *new_item, Items::InWorld{} ) )
+          {
+            new_item->restart_decay_timer();
+            send_item_moved( new_item, orig_toppos );
+          }
         }
         else
         {
@@ -212,9 +214,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
       else
       {
         new_item->setposition( orig_pos );
-        add_item_to_world( new_item );
-        register_with_supporting_multi( new_item );
-        send_item_to_inrange( new_item );
+        if ( Items::relocate( *new_item, Items::InWorld{} ) )
+          send_item_to_inrange( new_item );
       }
     }
   }

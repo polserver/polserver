@@ -213,7 +213,17 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
   if ( container_serial == 0 )
   {
-    add_item_to_world( item );
+    // The multi registration relocate() does is a no-op here: multis.txt is read after items.txt,
+    // so no multi is in its zone yet. Boats and houses take their own contents back from their
+    // saved Traveller and Component properties instead.
+    if ( !Items::relocate( *item, Items::InWorld{} ) )
+    {
+      elem.warn_with_line( "Could not place the item in the world." );
+      if ( !Plib::systemstate.config.ignore_load_errors )
+        throw std::runtime_error( "Data file error" );
+      item->destroy();
+      return;
+    }
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       parent_conts.push( static_cast<UContainer*>( item ) );
   }
@@ -544,8 +554,11 @@ void import( Clib::ConfigElem& elem )
 
     item->serial_ext = ctBEu32( item->serial );
 
-    add_item_to_world( item );
-    register_with_supporting_multi( item );
+    if ( !Items::relocate( *item, Items::InWorld{} ) )
+    {
+      ERROR_PRINTLN( "Unable to import item: objtype={:#x}", item->objtype_ );
+      throw std::runtime_error( "Error while importing file." );
+    }
     ++import_count;
   }
 }

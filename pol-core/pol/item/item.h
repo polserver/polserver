@@ -145,7 +145,7 @@ public:
   bool setgraphic( u16 newobjtype ) override;
   bool setcolor( u16 newcolor ) override;
   void on_color_changed() override;
-  virtual void spill_contents( Multi::UMulti* supporting_multi );
+  virtual void spill_contents();
 
   void setfacing( u8 newfacing ) override;
   void on_facing_changed() override;

@@ -110,7 +110,7 @@ void Decay::decay_worldzone()
           continue;
       }
 
-      item->spill_contents( multi );
+      item->spill_contents();
       destroy_item( item );
       --idx;
     }

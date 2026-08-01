@@ -103,7 +103,7 @@ u16 UCorpse::get_senditem_amount() const
   return corpsetype;
 }
 
-void UCorpse::spill_contents( Multi::UMulti* multi )
+void UCorpse::spill_contents()
 {
   bool any;
   do
@@ -122,7 +122,7 @@ void UCorpse::spill_contents( Multi::UMulti* multi )
   } while ( any );
 
   if ( !take_contents_to_grave() )
-    base::spill_contents( multi );
+    base::spill_contents();
 }
 
 void UCorpse::PutItemOnLayer( Item* item )

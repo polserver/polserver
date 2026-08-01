@@ -1,0 +1,86 @@
+use uo;
+use os;
+
+include "testutil";
+
+// A component that is taken out of the world stops being part of the house.
+//
+// The components list used to hold an item wherever it went, because only the EraseComponent
+// method ever took anything out of it. So a component picked up after the house was built was
+// still destroyed along with the house -- out of the container it was sitting in by then.
+exported function moved_component_leaves_house( resources )
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, "SmallHouse" );
+  if ( !multi )
+    return ret_error( $"failed to create the house: {multi}" );
+  endif
+  if ( multi.components.size() != 2 )
+    return ret_error( $"the house has {multi.components.size()} components, expected 2" );
+  endif
+
+  var moved := multi.components[1];
+  var stays := multi.components[2];
+
+  // Components are created immovable, and MoveItemToContainer refuses those with no controller to
+  // vouch for the move.
+  moved.movable := 1;
+
+  var box := resources.CreateItemAtLocation( 0, 0, 0, "testhouse_container" );
+  if ( !box )
+    return ret_error( $"failed to create the container: {box}" );
+  endif
+
+  var res := MoveItemToContainer( moved, box );
+  if ( !res )
+    return ret_error( $"failed to move the component into the container: {res}" );
+  endif
+
+  if ( multi.components.size() != 1 )
+    return ret_error( $"the house still lists {multi.components.size()} components, expected 1" );
+  endif
+
+  res := DestroyMulti( multi );
+  if ( !res )
+    return ret_error( $"failed to destroy the house: {res}" );
+  endif
+
+  // The half that says the assertion above is worth anything: what the house still lists it still
+  // destroys.
+  if ( stays )
+    return ret_error( "the remaining component survived the house" );
+  endif
+  if ( !moved )
+    return ret_error( "the component that had been moved away was destroyed with the house" );
+  endif
+  if ( moved.container.serial != box.serial )
+    return ret_error( "the component that had been moved away is no longer in the container" );
+  endif
+
+  return 1;
+endfunction
+
+// The reverse: a house will not take an item that is not standing in the world, because it could
+// not keep it. Refusing is the enforceable half of the invariant above.
+exported function contained_item_is_no_component( resources )
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, "SmallHouse" );
+  if ( !multi )
+    return ret_error( $"failed to create the house: {multi}" );
+  endif
+
+  var box := resources.CreateItemAtLocation( 0, 0, 0, "testhouse_container" );
+  if ( !box )
+    return ret_error( $"failed to create the container: {box}" );
+  endif
+  var item := resources.CreateItemInContainer( box, 0x3e3f, 1 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+
+  if ( multi.add_component( item ) )
+    return ret_error( "the house accepted an item sitting in a container as a component" );
+  endif
+  if ( multi.components.size() != 2 )
+    return ret_error( $"the house lists {multi.components.size()} components, expected 2" );
+  endif
+
+  return 1;
+endfunction

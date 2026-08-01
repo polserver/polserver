@@ -17,6 +17,7 @@
 
 #include "pol/multi/boat.h"
 
+#include <algorithm>
 #include <exception>
 #include <string>
 
@@ -45,6 +46,7 @@
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
+#include "pol/item/location.h"
 #include "pol/mkscrobj.h"
 #include "pol/mobile/charactr.h"
 #include "pol/module/uomod.h"
@@ -1191,13 +1193,12 @@ void UBoat::transform_components( const BoatShape& old_boatshape )
       // This should be rare enough for a simple log to be the solution. We don't want POL to
       // crash in MoveItemWorldPosition() because the item was not in the world to start with, so
       // we skip it.
-      if ( item->container != nullptr || item->has_gotten_by() )
+      if ( !item->location().holds<Items::InWorld>() )
       {
-        u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
         POLLOG_ERRORLN(
-            "Boat component is gotten or in a container and couldn't be moved together with the "
-            "boat: serial {:#x}\n, graphic: {:#x}, container: {:#x}.",
-            item->serial, item->graphic, containerSerial );
+            "Boat component is {} and couldn't be moved together with the boat: serial {:#x}, "
+            "graphic: {:#x}.",
+            item->location().describe(), item->serial, item->graphic );
         continue;
       }
 
@@ -1235,14 +1236,12 @@ void UBoat::move_components()
       // This should be rare enough for a simple log to be the solution. We don't want POL to
       // crash in MoveItemWorldPosition() because the item was not in the world to start with, so
       // we skip it.
-      if ( item->container != nullptr || item->has_gotten_by() )
+      if ( !item->location().holds<Items::InWorld>() )
       {
-        u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
         POLLOG_INFOLN(
-            "Boat component is gotten or in a container and couldn't be moved together with the "
-            "boat: serial {:#x}\n"
-            ", graphic: {:#x}, container: {:#x}.",
-            item->serial, item->graphic, containerSerial );
+            "Boat component is {} and couldn't be moved together with the boat: serial {:#x}, "
+            "graphic: {:#x}.",
+            item->location().describe(), item->serial, item->graphic );
         continue;
       }
       move_boat_item( item, pos() + itr2->delta );
@@ -1273,8 +1272,20 @@ bool UBoat::turn( RELATIVE_DIR dir )
   return true;
 }
 
+bool UBoat::is_component( const UObject* obj ) const
+{
+  return std::any_of( Components.begin(), Components.end(),
+                      [obj]( const Component& c ) { return c.get() == obj; } );
+}
+
 void UBoat::register_object( UObject* obj )
 {
+  // A component already travels with the boat, through move_components. Listing it as a traveller
+  // as well moves it twice per step and saves it under both properties, and readProperties would
+  // then read it into Components twice.
+  if ( is_component( obj ) )
+    return;
+
   if ( find( travellers_.begin(), travellers_.end(), obj ) == travellers_.end() )
   {
     set_dirty();
@@ -1535,6 +1546,24 @@ void UBoat::create_components()
     }
     if ( component == nullptr )
       continue;
+
+    component->graphic = componentshape.graphic;
+    // component itemdesc entries generally have graphic=1, so they don't get their height set.
+    component->height = Plib::tileheight( component->graphic );
+    component->setposition( pos() + componentshape.delta );
+    component->disable_decay();
+    component->movable( false );
+
+    // Listed before it is placed, so that the registration relocate() does recognises it as a
+    // component of this boat rather than taking it aboard as a traveller.
+    Components.emplace_back( component );
+    if ( !Items::relocate( *component, Items::InWorld{} ) )
+    {
+      Components.pop_back();
+      component->destroy();
+      continue;
+    }
+
     // check boat members here
     if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == nullptr )
       tillerman = component;
@@ -1546,15 +1575,7 @@ void UBoat::create_components()
     if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == nullptr )
       hold = component;
 
-    component->graphic = componentshape.graphic;
-    // component itemdesc entries generally have graphic=1, so they don't get their height set.
-    component->height = Plib::tileheight( component->graphic );
-    component->setposition( pos() + componentshape.delta );
-    component->disable_decay();
-    component->movable( false );
-    add_item_to_world( component );
     update_item_to_inrange( component );
-    Components.emplace_back( component );
   }
 }
 
@@ -1727,12 +1748,11 @@ Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
   }
 
   Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
-  if ( !chr->equippable( item ) )
+  if ( !Items::relocate( *item, Items::Equipped{ chr, item->tile_layer } ) )
   {
     item->destroy();
     return new Bscript::BError( "The boat mount piece is not equippable by that character." );
   }
-  chr->equip( item );
   send_wornitem_to_inrange( chr, item );
   mountpiece = Core::ItemRef( item );
 

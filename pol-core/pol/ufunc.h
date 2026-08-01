@@ -213,6 +213,11 @@ bool destroy_item_with_script_check( Items::Item* item );
 
 void move_item( Items::Item* item, const Core::Pos4d& oldpos );
 
+/// The broadcast half of move_item(): show the item to everyone who can see it now, and remove it
+/// for everyone who could see oldpos but cannot see it any more. Separate because oldpos can be a
+/// position the item was never in the world at -- the container it just came out of, say.
+void send_item_moved( Items::Item* item, const Core::Pos4d& oldpos );
+
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client );
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client );
 void send_objects_newly_inrange( Network::Client* client );

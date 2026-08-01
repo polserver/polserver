@@ -1660,7 +1660,11 @@ void move_item( Items::Item* item, const Core::Pos4d& oldpos )
 {
   item->restart_decay_timer();
   MoveItemWorldPosition( oldpos, item );
+  send_item_moved( item, oldpos );
+}
 
+void send_item_moved( Items::Item* item, const Core::Pos4d& oldpos )
+{
   WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( item,
                                                        [&]( Character* zonechr )
                                                        {

@@ -776,31 +776,31 @@ bool UContainer::is_legal_posn( const Core::Pos2d& pos ) const
   return desc.bounds.contains( pos );
 }
 
-void UContainer::spill_contents( Multi::UMulti* multi )
+void UContainer::spill_contents()
 {
   passert( container == nullptr );
-  if ( !locked() )
-  {
-    while ( !contents_.empty() )
-    {
-      Items::Item* item = contents_.back();
-      if ( item->movable() )
-      {
-        contents_.pop_back();
+  if ( locked() )
+    return;
 
-        item->setposition( toplevel_pos() );
-        item->container = nullptr;
-        add_item_to_world( item );
-        move_item( item, item->pos() );
-        if ( multi )
-          multi->register_object( item );
-        item->layer = 0;
-      }
-      else
-      {
-        destroy_item( item );
-      }
+  while ( !contents_.empty() )
+  {
+    // Whichever way this goes the item leaves contents_, which is what ends the loop.
+    Items::Item* item = contents_.back();
+    if ( !item->movable() )
+    {
+      destroy_item( item );
+      continue;
     }
+
+    item->setposition( toplevel_pos() );
+    if ( !Items::relocate( *item, Items::InWorld{} ) )
+    {
+      destroy_item( item );
+      continue;
+    }
+    item->layer = 0;
+    item->restart_decay_timer();
+    send_item_moved( item, item->pos() );
   }
 }
 

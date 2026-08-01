@@ -138,6 +138,7 @@ public:
 
   void register_object( Core::UObject* obj ) override;
   void unregister_object( Core::UObject* obj ) override;
+  bool is_component( const Core::UObject* obj ) const;
   Core::UFACING boat_facing() const;
 
   void send_display_boat( Network::Client* client );

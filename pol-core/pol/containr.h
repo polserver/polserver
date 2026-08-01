@@ -108,7 +108,7 @@ public:
   virtual bool can_add( const Items::Item& item ) const;
   virtual bool can_add( unsigned short more_weight ) const;
 
-  void spill_contents( Multi::UMulti* supporting_multi ) override;
+  void spill_contents() override;
 
   virtual void add( Items::Item* item,
                     const Pos2d& pos );  // NOTE: points item->container to self on insertion
