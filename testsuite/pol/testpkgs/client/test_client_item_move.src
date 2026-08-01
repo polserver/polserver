@@ -733,16 +733,10 @@ exported function realm_switch_drop_item_fail_1( resources )
     endif
 
     // Character should not see item
-    clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-    res := waitForClient( 0, { EVT_LIST_OBJS } );
+    res := client_lost_obj( clientcon, 0, container.serial );
     if ( !res )
       return res;
     endif
-    foreach it in ( res["objs"] )
-      if ( it["serial"] == container.serial )
-        return ret_error( "Container still in range" );
-      endif
-    endforeach
 
     // Move back to britannia
     res := MoveObjectToLocation( char, charX, charY, 0, realm );

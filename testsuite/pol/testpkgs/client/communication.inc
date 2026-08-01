@@ -190,6 +190,81 @@ function waitForClients( types )
   endwhile
 endfunction
 
+// Asks a client what it knows: the contents of one container when a serial is
+// given, everything it has seen otherwise. Drops whatever is queued first, so
+// the answer cannot be an older listing.
+//
+// A client answers this out of its own loop, without regard for the packets
+// still on their way to it - the core hands those to a queue that a thread of
+// its own writes out - so a listing can be older than the change it is being
+// asked about. A caller looking for one object being there, or being gone, has
+// to be able to ask again and must go through client_finds_obj() or
+// client_lost_obj() rather than pick through the answer of a single listing.
+function list_client_objs( clientcon, id, cont_serial := 0, timeout := 10 )
+  Clear_Event_Queue();
+  var todo := struct{ todo := "list_objects", id := id };
+  if ( cont_serial )
+    todo.+arg := cont_serial;
+  endif
+  clientcon.sendevent( todo );
+  return waitForClient( id, { EVT_LIST_OBJS }, timeout );
+endfunction
+
+// Waits for an object to show up in a client's listing and hands its entry back.
+function client_finds_obj( clientcon, id, serial, cont_serial := 0, timeout := 5 )
+  var res := poll_client_listing( clientcon, id, serial, cont_serial, 1, timeout );
+  if ( !res )
+    return res;
+  endif
+  return res.entry;
+endfunction
+
+// Waits for an object to be gone from a client's listing.
+function client_lost_obj( clientcon, id, serial, cont_serial := 0, timeout := 5 )
+  var res := poll_client_listing( clientcon, id, serial, cont_serial, 0, timeout );
+  if ( !res )
+    return res;
+  endif
+  return 1;
+endfunction
+
+// Lists over and over until the object is there (wanted := 1) or gone
+// (wanted := 0). A listing that already says so costs a single round trip.
+function poll_client_listing( clientcon, id, serial, cont_serial, wanted, timeout )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var answered := 0;
+
+  while ( ReadMillisecondClock() < deadline )
+    var ev := list_client_objs( clientcon, id, cont_serial, 1 );
+    if ( !ev )
+      continue;
+    endif
+    answered := 1;
+
+    var entry := 0;
+    foreach obj in ( ev.objs )
+      // the client events come out of UnpackJson, so every number in them is a
+      // Double
+      if ( CInt( obj.serial ) == CInt( serial ) )
+        entry := obj;
+        break;
+      endif
+    endforeach
+    if ( wanted == ( entry ? 1 : 0 ) )
+      return struct{ entry := entry };
+    endif
+    Sleepms( POLL_INTERVAL * 1000 );
+  endwhile
+
+  var where := cont_serial ? $"the container 0x{cont_serial:x} of client {id}" : $"the object list of client {id}";
+  if ( !answered )
+    return ret_error( $"client {id} never answered with {where}" );
+  elseif ( wanted )
+    return ret_error( $"0x{serial:x} never showed up in {where} within {timeout}s" );
+  endif
+  return ret_error( $"0x{serial:x} is still in {where} after {timeout}s" );
+endfunction
+
 function disable_auto_delete( clientcon, id )
   clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := false, id := id } );
   while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )

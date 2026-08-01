@@ -55,25 +55,15 @@ exported function move_boat()
     endif
     break;
   endwhile
-  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-  var itemres := ret_error( "item not found {}".format( item.serial ) );
-  while ( 1 )
-    var ev := waitForClient( 0, { EVT_LIST_OBJS } );
-    if ( !ev )
-      return ev;
+  var itemres := client_finds_obj( clientcon, 0, item.serial );
+  if ( itemres )
+    var p := itemres["pos"];
+    if ( p[1] != 11 || p[2] != 49 || p[3] != -1 )
+      itemres := ret_error( "wrong item pos {} != {},{},{}".format( p, 11, 49, -1 ) );
+    else
+      itemres := 1;
     endif
-    foreach it in ( ev["objs"] )
-      if ( it["serial"] == item.serial )
-        var p := it["pos"];
-        if ( p[1] != 11 || p[2] != 49 || p[3] != -1 )
-          itemres := ret_error( "wrong item pos {} != {},{},{}".format( p, 11, 49, -1 ) );
-        else
-          itemres := 1;
-        endif
-      endif
-    endforeach
-    break;
-  endwhile
+  endif
 
   foreach item in ( boat.items )
     DestroyItem( item );
@@ -375,16 +365,10 @@ exported function boat_update_range( resmgn )
                         flags := MOVEOBJECT_FORCELOCATION );
   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
-  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-  var ev := waitForClient( 0, { EVT_LIST_OBJS } );
+  var ev := client_lost_obj( clientcon, 0, boat.serial );
   if ( !ev )
     return ev;
   endif
-  foreach it in ( ev["objs"] )
-    if ( it["serial"] == boat.serial )
-      return ret_error( "boat still in range" );
-    endif
-  endforeach
   // now move boat to char
   var i := 15;
   while ( --i > 0 )
@@ -556,27 +540,13 @@ function ensure_multiid( multiid, errormsg )
     return ret_error( $"{errormsg}, expected {multiid} != actual {boat.multiid}" );
   endif
 
-  Clear_Event_Queue();
-
-  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-  while ( 1 )
-    var res := waitForClient( 0, { EVT_LIST_OBJS } );
-    if ( !res )
-      return res;
-    endif
-
-    foreach obj in ( res.objs )
-      if ( obj.serial == boat.serial )
-        if ( obj.graphic != multiid )
-          return ret_error( "client boat.graphic mismatch, expected {multiid} != actual {obj.graphic}" );
-        else
-          return 1;
-        endif
-      endif
-    endforeach
-    break;
-  endwhile
-  return ret_error( "client object list does not contain boat" );
+  var obj := client_finds_obj( clientcon, 0, boat.serial );
+  if ( !obj )
+    return obj;
+  elseif ( obj.graphic != multiid )
+    return ret_error( $"client boat.graphic mismatch, expected {multiid} != actual {obj.graphic}" );
+  endif
+  return 1;
 endfunction
 
 exported function boat_alternate_multiid_itemdesc()
@@ -606,8 +576,9 @@ exported function boat_update_range_from_boat( resmgn )
 
   var npc := resmgn.CreateNPCFromTemplate( ":testnpc:probe_npc", boat.x + 30, boat.y, 1, 0,
                                            "britannia", 1 );
-  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-  var ev := waitForClient( 0, { EVT_LIST_OBJS } );
+  // no assertion on the listing, this is only a round trip that leaves the
+  // client with an empty event queue before the boat starts moving
+  var ev := list_client_objs( clientcon, 0 );
   if ( !ev )
     return ev;
   endif
@@ -635,4 +606,3 @@ exported function boat_update_range_from_boat( resmgn )
 
   return 1;
 endfunction
-

@@ -1622,10 +1622,13 @@ class Client(threading.Thread):
       elif todo.type == brain.Event.EVT_LIST_OBJS:
         if hasattr(todo, 'parent') and todo.parent in self.objects:
           parent = self.objects[todo.parent]
-          if isinstance(parent, Container):
+          # a container the server has not sent any contents of yet has no
+          # content list at all - that is an empty listing, not a crash, and so
+          # is a parent that is no container to begin with
+          if isinstance(parent, Container) and parent.content:
             objs = { item.serial: item for item in parent.content }
           else:
-            objs = []
+            objs = {}
         else:
           objs = self.objects.copy()
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = objs))
