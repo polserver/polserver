@@ -1,0 +1,46 @@
+use file;
+
+// WriteFile, AppendToFile and LogToFile. Every case first puts the target file into a known
+// state, the escript testsuite runs each script several times (plain, shortcircuit, formatted)
+// and leftovers of the previous run must not change the output.
+
+const TARGET := ":filetest:scratch/write.txt";
+
+program FileWriteTest()
+  print( "--- WriteFile" );
+  print( "write:       " + WriteFile( TARGET, { "line one", 2, 3.5 } ) );
+  print( "contents:    " + ReadFile( TARGET ) );
+  print( "rewrite:     " + WriteFile( TARGET, { "replaced" } ) );
+  print( "contents:    " + ReadFile( TARGET ) );
+  print( "backup kept: " + FileExists( TARGET + ".bak" ) );
+  print( "backup:      " + ReadFile( TARGET + ".bak" ) );
+  print( "empty array: " + WriteFile( TARGET, array{} ) );
+  print( "contents:    " + Len( ReadFile( TARGET ) ) );
+  print( "string:      " + WriteFile( TARGET, "not an array" ) );
+  print( "traversal:   " + WriteFile( ":filetest:../x.txt", { "x" } ) );
+  print( "bad param:   " + WriteFile( 5, { "x" } ) );
+
+  print( "--- AppendToFile" );
+  WriteFile( TARGET, { "first" } );
+  print( "append:      " + AppendToFile( TARGET, { "second", "third" } ) );
+  print( "contents:    " + ReadFile( TARGET ) );
+  print( "empty array: " + AppendToFile( TARGET, array{} ) );
+  print( "contents:    " + Len( ReadFile( TARGET ) ) );
+  print( "new file:    " + AppendToFile( ":filetest:scratch/append.txt", { "created" } ) );
+  print( "traversal:   " + AppendToFile( ":filetest:../x.txt", { "x" } ) );
+  print( "bad param:   " + AppendToFile( TARGET, "not an array" ) );
+
+  print( "--- LogToFile" );
+  WriteFile( TARGET, array{} );
+  print( "log:         " + LogToFile( TARGET, "logged line" ) );
+  print( "contents:    " + ReadFile( TARGET ) );
+  print( "datetime:    " + LogToFile( TARGET, "stamped line", LOG_DATETIME ) );
+  var stamped := ReadFile( TARGET )[2];
+  // "[mm/dd hh:mm:ss] stamped line", the timestamp itself cannot be compared
+  print( "stamp len:   " + ( Len( stamped ) - Len( "stamped line" ) ) );
+  print( "stamp end:   " + stamped[16, 2] + "|" );
+  print( "logged text: " + stamped[18, Len( "stamped line" )] );
+  print( "traversal:   " + LogToFile( ":filetest:../x.txt", "x" ) );
+  print( "bad param:   " + LogToFile( TARGET, 5 ) );
+  print( "bad flags:   " + LogToFile( TARGET, "x", "notanumber" ) );
+endprogram

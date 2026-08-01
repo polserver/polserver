@@ -1,0 +1,44 @@
+--- byte order
+open:        BinaryFile
+setint32:    1
+little:      { 0x44, 0x33, 0x22, 0x11 }
+big:         { 0x11, 0x22, 0x33, 0x44 }
+--- unsigned roundtrip
+size:        7
+tell:        7
+getint8:     0xFE
+getint16:    0xFEDC
+getint32:    0xFEDCBA98
+--- signed roundtrip
+getsint8:    -2
+getsint16:   -292
+getsint32:   -19088744
+as unsigned: 0xFE 0xFEDC 0xFEDCBA98
+--- strings
+no null:     1
+with null:   1
+bytes:       { 0x61, 0x62, 0x63, 0x64, 0x65, 0x0 }
+getstring 3: abc
+getstring 3: de
+tell:        6
+--- seek, tell and peek
+peek:        0x61
+tell:        0
+seek end:    1
+tell:        6
+peek at eof: -1
+seek beg:    1
+getint8:     0x63
+seek cur:    1
+getint8:     0x65
+seek back:   1
+getint8:     0x65
+close:       1
+--- overwrite in place
+seek:        1
+setint8:     1
+flush:       1
+bytes:       { 0x61, 0x58, 0x63, 0x64, 0x65, 0x0 }
+--- append and truncate
+appended:    { 0x61, 0x58, 0x63, 0x64, 0x65, 0x0, 0x21 }
+truncated:   0

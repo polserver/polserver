@@ -1,0 +1,53 @@
+use file;
+
+// CreateDirectory and ListDirectory.
+// filemod/listdir/ holds the committed fixtures: one.file, three.file, two.dat, .hidden.file
+// and the subdirectory sub/. ListDirectory returns entries in whatever order the filesystem
+// hands them out, so every listing is sorted before it is printed.
+
+program FileDirTest()
+  print( "--- ListDirectory" );
+  print( "all files:   " + sorted( ListDirectory( ":filetest:listdir" ) ) );
+  print( "explicit *:  " + sorted( ListDirectory( ":filetest:listdir", LISTDIR_ALL_FILES ) ) );
+  print( "extension:   " + sorted( ListDirectory( ":filetest:listdir", "file" ) ) );
+  print( "with dot:    " + sorted( ListDirectory( ":filetest:listdir", ".file" ) ) );
+  print( "unknown ext: " + sorted( ListDirectory( ":filetest:listdir", "nosuchext" ) ) );
+  print( "with dirs:   " + sorted( ListDirectory( ":filetest:listdir", LISTDIR_ALL_FILES,
+                                                  LISTDIR_LIST_DIRS ) ) );
+  print( "dirs only:   " + sorted( ListDirectory( ":filetest:listdir", LISTDIR_NO_FILES,
+                                                  LISTDIR_LIST_DIRS ) ) );
+  print( "nothing:     " + sorted( ListDirectory( ":filetest:listdir", LISTDIR_NO_FILES,
+                                                  LISTDIR_DONT_LIST_DIRS ) ) );
+  print( "subdir:      " + sorted( ListDirectory( ":filetest:listdir/sub" ) ) );
+  print( "trailing /:  " + sorted( ListDirectory( ":filetest:listdir/" ) ) );
+  print( "no package:  " + sorted( ListDirectory( "filemod/listdir" ) ) );
+  print( "missing:     " + ListDirectory( ":filetest:nosuchdir" ) );
+  print( "a file:      " + ListDirectory( ":filetest:normal.file" ) );
+  print( "traversal:   " + ListDirectory( ":filetest:../filemod" ) );
+  print( "bad param:   " + ListDirectory( 5 ) );
+
+  print( "--- CreateDirectory" );
+  // the first call may find the directory of an earlier run, so only the second one is
+  // printed, existence is checked through ListDirectory instead
+  CreateDirectory( ":filetest:scratch/made" );
+  print( "created:     " + ( "made" in ListDirectory( ":filetest:scratch", LISTDIR_NO_FILES,
+                                                      LISTDIR_LIST_DIRS ) ) );
+  print( "again:       " + CreateDirectory( ":filetest:scratch/made" ) );
+  // missing intermediate directories are created as well
+  CreateDirectory( ":filetest:scratch/made/a/b" );
+  print( "nested:      " + ( "b" in ListDirectory( ":filetest:scratch/made/a", LISTDIR_NO_FILES,
+                                                   LISTDIR_LIST_DIRS ) ) );
+  print( "traversal:   " + CreateDirectory( ":filetest:../made" ) );
+  print( "bad param:   " + CreateDirectory( 5 ) );
+endprogram
+
+function sorted( entries )
+  if ( entries.errortext )
+    return entries;
+  endif
+  var result := array{};
+  foreach entry in entries
+    result.sorted_insert( entry );
+  endforeach
+  return result;
+endfunction

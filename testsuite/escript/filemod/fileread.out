@@ -1,0 +1,16 @@
+--- FileExists
+existing:    1
+missing:     0
+no package:  1
+traversal:   error{ errortext = "No parent path traversal allowed." }
+unknown pkg: error{ errortext = "Error in filename descriptor." }
+bad param:   error{ errortext = "Invalid parameter type." }
+--- ReadFile
+crlf lines:  2
+crlf keeps carriage return: { 97, 13 }
+empty file:  0
+no final newline: { no newline at end }
+missing:     error{ errortext = "File not found: ./filemod/nosuchfile" }
+unknown pkg: error{ errortext = "Error in filename descriptor" }
+traversal:   error{ errortext = "No parent path traversal please." }
+bad param:   error{ errortext = "Invalid parameter type" }

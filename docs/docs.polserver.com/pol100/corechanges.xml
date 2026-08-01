@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-31-2026</datemodified>
+		<datemodified>08-01-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-01-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">XMLNode.AppendXMLNode/AppendXMLText/SetXMLAttribute/RemoveXMLAttribute crashed when an invalid node was used. They return now the error &quot;Node is not an element&quot;</change>
+			<change type="Fixed">XMLFile.RemoveXMLNode and XMLNode.RemoveXMLNode never removed anything when a node<br/>
+object was passed, they always returned the error &quot;Failed to find node&quot;.</change>
+			<change type="Fixed">BinaryFile could not be used anymore after a read had failed, eg after reading past the end of the file.<br/>
+Seek() and Size() work again in that case, making it possible to restore the state.</change>
+		</entry>
 		<entry>
 			<date>07-31-2026</date>
 			<author>Turley:</author>

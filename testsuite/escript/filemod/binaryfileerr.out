@@ -1,0 +1,45 @@
+--- opening
+missing:     BinaryFile
+is true:     0
+read:        error{ errortext = "Failed to read" }
+size:        0
+tell:        -1
+peek:        -1
+seek:        0
+traversal:   error{ errortext = "No parent path traversal please." }
+unknown pkg: error{ errortext = "Error in filename descriptor" }
+bad param:   error{ errortext = "Invalid parameter type" }
+bad mode:    error{ errortext = "Invalid parameter type.  Expected param 1 as Integer, got String" }
+out only:    0
+--- reading past the end
+first read:  0x11223344
+second read: error{ errortext = "Failed to read" }
+size:        4
+rewind:      1
+tell:        0
+read again:  0x11223344
+--- getstring
+negative:    error{ errortext = "Len is negative or 0." }
+zero:        error{ errortext = "Len is negative or 0." }
+longer:      error{ errortext = "Failed to read" }
+recovered:   1
+exact:       4
+no param:    error{ errortext = "GetString requires 1 parameter." }
+bad param:   error{ errortext = "Invalid parameter" }
+--- closed handle
+close:       1
+close again: 1
+read:        error{ errortext = "Failed to read" }
+write:       error{ errortext = "Failed to write" }
+size:        0
+tell:        -1
+peek:        -1
+seek:        0
+flush:       1
+--- writing to a read only handle
+setint8:     error{ errortext = "Failed to write" }
+unchanged:   0x44
+--- missing parameters
+seek:        error{ errortext = "Seek requires 2 parameter." }
+setint8:     error{ errortext = "SetInt8 requires 1 parameter." }
+setstring:   error{ errortext = "SetString requires 2 parameters." }

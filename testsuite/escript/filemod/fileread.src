@@ -1,0 +1,45 @@
+use file;
+
+// FileExists and ReadFile. Fixtures which must contain exact bytes (CRLF, missing final
+// newline) are generated into filemod/scratch/ at runtime instead of being committed,
+// because .gitattributes normalizes line endings of checked in text files.
+
+program FileReadTest()
+  makefixtures();
+
+  print( "--- FileExists" );
+  print( "existing:    " + FileExists( ":filetest:normal.file" ) );
+  print( "missing:     " + FileExists( ":filetest:nosuchfile" ) );
+  print( "no package:  " + FileExists( "filemod/normal.file" ) );
+  print( "traversal:   " + FileExists( ":filetest:../ecompile.cfg" ) );
+  print( "unknown pkg: " + FileExists( ":nosuchpkg:normal.file" ) );
+  print( "bad param:   " + FileExists( 5 ) );
+
+  print( "--- ReadFile" );
+  var crlf := ReadFile( ":filetest:scratch/crlf.txt" );
+  print( "crlf lines:  " + Len( crlf ) );
+  print( "crlf keeps carriage return: " + CAscZ( crlf[1] ) );
+  print( "empty file:  " + Len( ReadFile( ":filetest:scratch/empty.txt" ) ) );
+  print( "no final newline: " + ReadFile( ":filetest:scratch/noeol.txt" ) );
+  print( "missing:     " + ReadFile( ":filetest:nosuchfile" ) );
+  print( "unknown pkg: " + ReadFile( ":nosuchpkg:normal.file" ) );
+  print( "traversal:   " + ReadFile( ":filetest:../ecompile.cfg" ) );
+  print( "bad param:   " + ReadFile( 5 ) );
+endprogram
+
+function makefixtures()
+  var f := OpenBinaryFile( ":filetest:scratch/crlf.txt", OPENMODE_OUT + OPENMODE_TRUNC );
+  f.setstring( "a", 0 );
+  f.setint8( 13 );
+  f.setint8( 10 );
+  f.setstring( "b", 0 );
+  f.setint8( 13 );
+  f.setint8( 10 );
+  f.close();
+
+  f := OpenBinaryFile( ":filetest:scratch/noeol.txt", OPENMODE_OUT + OPENMODE_TRUNC );
+  f.setstring( "no newline at end", 0 );
+  f.close();
+
+  WriteFile( ":filetest:scratch/empty.txt", array{} );
+endfunction

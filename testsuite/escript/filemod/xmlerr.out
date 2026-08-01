@@ -1,0 +1,56 @@
+--- opening
+missing:     error{ errortext = "File does not exist" }
+malformed:   error{ errortext = "3,17:Error reading end tag." }
+not xml:     error{ errortext = "0,0:Error document empty." }
+traversal:   error{ errortext = "No parent path traversal please." }
+unknown pkg: error{ errortext = "Error in filename descriptor" }
+bad param:   error{ errortext = "Invalid parameter type" }
+--- empty document
+by index:    error{ errortext = "Failed to find node" }
+by name:     error{ errortext = "Failed to find node" }
+bad key:     error{ errortext = "xml members can only be accessed by name or index" }
+remove:      0
+remove name: error{ errortext = "Failed to find node" }
+iterations:  0
+save:        error{ errortext = "No parent path traversal please." }
+save param:  error{ errortext = "Invalid parameter type" }
+--- element only methods on other node types
+types:       XMLDeclaration XMLText XMLComment
+append node: error{ errortext = "Node is not an element" }
+append text: error{ errortext = "Node is not an element" }
+set attr:    error{ errortext = "Node is not an element" }
+remove attr: error{ errortext = "Node is not an element" }
+on comment:  error{ errortext = "Node is not an element" }
+on decl:     error{ errortext = "Node is not an element" }
+attributes:  error{ errortext = "No attributes available." }
+--- missing and wrong parameters
+append node: error{ errortext = "Not enough parameters" }
+append node: error{ errortext = "Invalid parameter type" }
+append text: error{ errortext = "Not enough parameters" }
+comment:     error{ errortext = "Not enough parameters" }
+set attr:    error{ errortext = "Not enough parameters" }
+set attr:    error{ errortext = "Invalid parameter type" }
+remove attr: error{ errortext = "Not enough parameters" }
+remove node: error{ errortext = "Not enough parameters" }
+remove node: error{ errortext = "Invalid parameter type" }
+declaration: error{ errortext = "Not enough parameters" }
+first child: error{ errortext = "Invalid parameter type" }
+sibling:     error{ errortext = "Invalid parameter type" }
+--- lookups which find nothing
+by name:     error{ errortext = "Failed to find node" }
+index 0:     Hello
+index -1:    Hello
+index high:  error{ errortext = "Failed to find node" }
+bad key:     error{ errortext = "xml members can only be accessed by name or index" }
+first child: error{ errortext = "Failed to find node" }
+sibling:     error{ errortext = "Failed to find node" }
+last sibling: error{ errortext = "Failed to find node" }
+no child:    error{ errortext = "Failed to find node" }
+attribute:   error{ errortext = "Failed to find attribute" }
+attr by idx: error{ errortext = "xml attribute can only be accessed by name" }
+attr names:  {  }
+--- removing a node which is not a child
+grandchild:  error{ errortext = "Failed to find node" }
+sibling:     error{ errortext = "Failed to find node" }
+not present: error{ errortext = "Failed to find node" }
+index high:  error{ errortext = "Failed to find node" }

@@ -1,0 +1,88 @@
+use file;
+
+// Error and edge cases of OpenBinaryFile and the BinaryFile object.
+
+const TARGET := ":filetest:scratch/binaryerr.dat";
+
+program BinaryFileErrorTest()
+  print( "--- opening" );
+  var missing := OpenBinaryFile( ":filetest:scratch/nosuchfile.dat", OPENMODE_IN );
+  // a handle on a file which could not be opened is returned, but it is false
+  print( "missing:     " + missing );
+  print( "is true:     " + ( missing ? 1 : 0 ) );
+  print( "read:        " + missing.getint8() );
+  print( "size:        " + missing.size() );
+  print( "tell:        " + missing.tell() );
+  print( "peek:        " + missing.peek() );
+  print( "seek:        " + missing.seek( 0, SEEKDIR_BEG ) );
+  print( "traversal:   " + OpenBinaryFile( ":filetest:../x.dat", OPENMODE_IN ) );
+  print( "unknown pkg: " + OpenBinaryFile( ":nosuchpkg:x.dat", OPENMODE_IN ) );
+  print( "bad param:   " + OpenBinaryFile( 5, OPENMODE_IN ) );
+  print( "bad mode:    " + OpenBinaryFile( TARGET, "notanumber" ) );
+
+  // OPENMODE_OUT alone truncates an existing file, it maps to the mode a std::fstream is
+  // opened for output with
+  var f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC );
+  f.setint32( 0x11223344 );
+  f.close();
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT );
+  print( "out only:    " + f.size() );
+  f.close();
+
+  print( "--- reading past the end" );
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC );
+  f.setint32( 0x11223344 );
+  f.close();
+  f := OpenBinaryFile( TARGET, OPENMODE_IN );
+  print( "first read:  " + Hex( f.getint32() ) );
+  print( "second read: " + f.getint32() );
+  // a failed read must not leave the handle unusable
+  print( "size:        " + f.size() );
+  print( "rewind:      " + f.seek( 0, SEEKDIR_BEG ) );
+  print( "tell:        " + f.tell() );
+  print( "read again:  " + Hex( f.getint32() ) );
+  f.close();
+
+  print( "--- getstring" );
+  f := OpenBinaryFile( TARGET, OPENMODE_IN );
+  print( "negative:    " + f.getstring( -1 ) );
+  print( "zero:        " + f.getstring( 0 ) );
+  print( "longer:      " + f.getstring( 100 ) );
+  print( "recovered:   " + f.seek( 0, SEEKDIR_BEG ) );
+  print( "exact:       " + Len( f.getstring( 4 ) ) );
+  print( "no param:    " + f.getstring() );
+  print( "bad param:   " + f.getstring( "x" ) );
+  f.close();
+
+  print( "--- closed handle" );
+  f := OpenBinaryFile( TARGET, OPENMODE_IN );
+  print( "close:       " + f.close() );
+  print( "close again: " + f.close() );
+  print( "read:        " + f.getint8() );
+  print( "write:       " + f.setint8( 1 ) );
+  print( "size:        " + f.size() );
+  print( "tell:        " + f.tell() );
+  print( "peek:        " + f.peek() );
+  print( "seek:        " + f.seek( 0, SEEKDIR_BEG ) );
+  print( "flush:       " + f.flush() );
+
+  print( "--- writing to a read only handle" );
+  f := OpenBinaryFile( TARGET, OPENMODE_IN );
+  print( "setint8:     " + f.setint8( 0x41 ) );
+  f.close();
+  print( "unchanged:   " + Hex( readfirst() ) );
+
+  print( "--- missing parameters" );
+  f := OpenBinaryFile( TARGET, OPENMODE_IN );
+  print( "seek:        " + f.seek( 0 ) );
+  print( "setint8:     " + f.setint8() );
+  print( "setstring:   " + f.setstring( "x" ) );
+  f.close();
+endprogram
+
+function readfirst()
+  var f := OpenBinaryFile( TARGET, OPENMODE_IN );
+  var value := f.getint8();
+  f.close();
+  return value;
+endfunction

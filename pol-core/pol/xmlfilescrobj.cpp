@@ -161,8 +161,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
     {
       const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
-      TiXmlNode* node = file.ToElement();
-      if ( node != pstr->getNode()->Parent() )
+      if ( pstr->getNode()->Parent() != &file )
         return new BError( "Failed to find node" );
       return new BLong( file.RemoveChild( pstr->getNode() ) ? 1 : 0 );
     }
@@ -397,6 +396,8 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       }
 
       TiXmlElement* nodeelem = node->ToElement();
+      if ( !nodeelem )
+        return new BError( "Node is not an element" );
       nodeelem->LinkEndChild( elem.release() );
       return new BXmlNode( nodeelem->LastChild() );
     }
@@ -423,6 +424,8 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( attr )
     {
       TiXmlElement* elem = node->ToElement();
+      if ( !elem )
+        return new BError( "Node is not an element" );
       for ( const auto& citr : attr->contents() )
       {
         const std::string& name = citr.first;
@@ -446,6 +449,8 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, pstr ) )
     {
       TiXmlElement* elem = node->ToElement();
+      if ( !elem )
+        return new BError( "Node is not an element" );
       elem->RemoveAttribute( pstr->value() );
       return new BXmlNode( elem );
     }
@@ -477,7 +482,8 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
     {
       const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
-      if ( node->Parent() != pstr->getNode()->Parent() )
+      // only a direct child of this node can be removed
+      if ( pstr->getNode()->Parent() != node )
         return new BError( "Failed to find node" );
       return new BLong( node->RemoveChild( pstr->getNode() ) ? 1 : 0 );
     }
@@ -491,6 +497,8 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, pstr ) )
     {
       TiXmlElement* elem = node->ToElement();
+      if ( !elem )
+        return new BError( "Node is not an element" );
       elem->LinkEndChild( new TiXmlText( pstr->value() ) );
       return new BXmlNode( elem->LastChild() );
     }

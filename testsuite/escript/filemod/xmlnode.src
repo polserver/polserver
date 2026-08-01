@@ -1,0 +1,70 @@
+use file;
+
+// Navigating an XMLFile: subscripting, iteration and clonenode.
+// filemod/xmltest.xml holds a declaration and a root element with the children
+// Hello (with the text World), a comment and the empty element nodetwo.
+
+program XMLNodeTest()
+  var xml := OpenXMLFile( "filemod/xmltest.xml" );
+
+  print( "--- subscripting the file" );
+  print( "index 1:     " + xml[1] + " [" + xml[1].type + "]" );
+  print( "index 2:     " + xml[2] + " [" + xml[2].type + "]" );
+  print( "by name:     " + xml["root"] );
+
+  var root := xml[2];
+  print( "--- subscripting a node" );
+  print( "index 1:     " + root[1] + " [" + root[1].type + "]" );
+  print( "index 2:     " + root[2] + " [" + root[2].type + "]" );
+  print( "index 3:     " + root[3] + " [" + root[3].type + "]" );
+  print( "by name:     " + root["nodetwo"] );
+  print( "nested:      " + root["Hello"][1] );
+
+  print( "--- children and siblings" );
+  print( "first:       " + root.firstxmlchild() );
+  print( "named:       " + root.firstxmlchild( "nodetwo" ) );
+  print( "sibling:     " + root.firstxmlchild().nextxmlsibling() + " [" + root.firstxmlchild().nextxmlsibling().type
+       + "]" );
+  print( "named sibl.: " + root.firstxmlchild().nextxmlsibling( "nodetwo" ) );
+  print( "text child:  " + root.firstxmlchild().firstxmlchild() );
+
+  print( "--- iterating a node" );
+  // iteration returns the first child and then only the following *elements*, the comment
+  // between Hello and nodetwo is skipped although nextxmlsibling() reaches it
+  foreach child in root
+    print( "  " + _child_iter + ": " + child + " [" + child.type + "]" );
+  endforeach
+
+  print( "--- iterating a text node" );
+  var count := 0;
+  var textnode := root.firstxmlchild().firstxmlchild();
+  foreach child in textnode
+    count := count + 1;
+  endforeach
+  print( "children:    " + count );
+
+  print( "--- attributes" );
+  var nodetwo := root["nodetwo"];
+  print( "names:       " + nodetwo.attributes.propnames() );
+  print( "i:           " + nodetwo.attributes["i"] );
+  print( "j:           " + nodetwo.attributes["j"] );
+  foreach attribute in ( nodetwo.attributes )
+    print( "  " + _attribute_iter + ": " + attribute );
+  endforeach
+
+  print( "--- clonenode" );
+  var clone := cloned();
+  print( "clone:       " + clone + " [" + clone.type + "]" );
+  print( "children:    " + clone.firstxmlchild() );
+  print( "attributes:  " + clone["nodetwo"].attributes.propnames() );
+  // the clone is detached, changing it does not change the file
+  print( "append:      " + clone.appendxmlnode( "added" ) );
+  print( "in clone:    " + clone["added"] );
+  print( "in file:     " + OpenXMLFile( "filemod/xmltest.xml" )[2]["added"] );
+endprogram
+
+// returns a clone of the root element, the XMLFile object it came from is gone by then
+function cloned()
+  var xml := OpenXMLFile( "filemod/xmltest.xml" );
+  return xml[2].clonenode();
+endfunction

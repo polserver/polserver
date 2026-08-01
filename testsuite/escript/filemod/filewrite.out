@@ -1,0 +1,30 @@
+--- WriteFile
+write:       1
+contents:    { line one, 2, 3.5 }
+rewrite:     1
+contents:    { replaced }
+backup kept: 1
+backup:      { line one, 2, 3.5 }
+empty array: 1
+contents:    0
+string:      error{ errortext = "Invalid parameter type" }
+traversal:   error{ errortext = "No parent path traversal please." }
+bad param:   error{ errortext = "Invalid parameter type" }
+--- AppendToFile
+append:      1
+contents:    { first, second, third }
+empty array: 1
+contents:    3
+new file:    1
+traversal:   error{ errortext = "No parent path traversal please." }
+bad param:   error{ errortext = "Invalid parameter type" }
+--- LogToFile
+log:         1
+contents:    { logged line }
+datetime:    1
+stamp len:   17
+stamp end:   ] |
+logged text: stamped line
+traversal:   error{ errortext = "No parent path traversal please." }
+bad param:   error{ errortext = "Invalid parameter type" }
+bad flags:   error{ errortext = "Invalid parameter type" }
