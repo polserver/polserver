@@ -18,6 +18,7 @@ const EVT_LIST_OBJS := "list_objs";
 const EVT_LIST_EQUIPPED_ITEMS := "list_equipped_items";
 const EVT_OPEN_BACKPACK := "open_bp";
 const EVT_TARGET := "target";
+const EVT_CANCEL_TARGET := "cancel_target";
 const EVT_DOUBLE_CLICK := "double_click";
 const EVT_LIFT_ITEM := "lift_item";
 const EVT_MOVE_ITEM_REJECTED := "move_item_rejected";

@@ -872,6 +872,7 @@ class TargetCursorPacket(Packet):
   NEUTRAL = 0
   HARMFUL = 1
   HELPFUL = 2
+  CANCEL = 3
 
   cmd = 0x6c
   length = 19

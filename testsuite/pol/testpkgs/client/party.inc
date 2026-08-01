@@ -57,6 +57,19 @@ function send_party_remove( id, serial )
                                id := id } );
 endfunction
 
+// Dismisses a cursor the core raised, the way pressing Escape does.
+function cancel_target( id )
+  clientcon.sendevent( struct{ todo := "cancel_target", id := id } );
+  var ev := waitForClient( id, { EVT_CANCEL_TARGET } );
+  if ( !ev )
+    return ret_error( $"client {id} never answered the cancel" );
+  endif
+  if ( !ev.res )
+    return ret_error( $"client {id} had no cursor to cancel" );
+  endif
+  return 1;
+endfunction
+
 function send_party_accept( id, leaderserial )
   clientcon.sendevent( struct{ todo := "party",
                                arg := struct{ partycmd := PARTYCMD_ACCEPT_INVITE,

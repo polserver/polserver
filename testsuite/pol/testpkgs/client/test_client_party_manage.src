@@ -312,8 +312,13 @@ exported function manage_kick_stranger( resmgn )
     return party_fail( res.errortext );
   endif
 
-  // the cursor that came with it is nobody's business afterwards, retire it
-  CancelTarget( char );
+  // The cursor that came with it is nobody's business afterwards, and a cursor
+  // left standing turns up on the next case that raises one. Only the client
+  // can retire a core cursor - see cancel_target().
+  res := cancel_target( 0 );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
 
   return party_finish( 1 );
 endfunction

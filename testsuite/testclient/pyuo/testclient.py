@@ -167,13 +167,26 @@ class TestBrain(brain.Brain):
         if res is not None:
           targettype=res.type
           if res.what==client.Target.OBJECT:
-            res.target(self.client.objects[arg['serial']])
+            obj=self.client.waitForObject(arg['serial'],5)
+            if obj is None:
+              self.log.error("asked to target object 0x{:X}, which this client "
+                             "was never told about".format(arg['serial']))
+            else:
+              res.target(obj)
           else:
             res.targetLocation(arg['x'],arg['y'],arg['z'],arg['graphic'])
         self.server.addevent(
           brain.Event(brain.Event.EVT_TARGET,
             clientid = self.id,
             targettype = targettype,
+            res = res is not None))
+      elif todo=="cancel_target":
+        res=self.client.waitForTarget(5)
+        if res is not None:
+          res.cancel()
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_CANCEL_TARGET,
+            clientid = self.id,
             res = res is not None))
       elif todo=="disable_item_logging":
         self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
@@ -417,6 +430,8 @@ class PolServer:
       res['item_serial']=ev.item_serial
       res['layer']=ev.layer
       res['player_serial']=ev.player_serial
+    elif ev.type==Event.EVT_CANCEL_TARGET:
+      res["res"]=ev.res
     elif ev.type==Event.EVT_DROP_APPROVED:
       pass
     elif ev.type==Event.EVT_GUMP:

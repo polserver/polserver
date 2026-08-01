@@ -434,6 +434,14 @@ class Target:
     self.client.target = None
     self.client.queue(po)
 
+  def cancel(self):
+    ''' Dismisses the cursor without picking anything, the way Escape does
+    '''
+    po = packets.TargetCursorPacket()
+    po.fill(po.OBJECT, self.id, po.NEUTRAL, 0, 0xffff, 0xffff, 0, 0)
+    self.client.target = None
+    self.client.queue(po)
+
 
 class Speech:
   ''' Represents something that has been spoken '''
@@ -934,12 +942,14 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_CLILOC, speech=speech))
 
     elif isinstance(pkt, packets.TargetCursorPacket):
-      if self.target is not None:
-        # A cursor nobody answered, eg. one which arrived after the target todo's
-        # waitForTarget() had already given up. Replacing it keeps this client alive,
-        # asserting here killed the packet thread and every later case with it.
-        self.log.warn('replacing unanswered target cursor 0x%X', self.target.id)
-      self.target = Target(self, pkt)
+      if pkt.type == packets.TargetCursorPacket.CANCEL:
+        if self.target is not None:
+          self.log.info('server cancelled target cursor 0x%X', self.target.id)
+        self.target = None
+      else:
+        if self.target is not None:
+          self.log.warn('replacing unanswered target cursor 0x%X', self.target.id)
+        self.target = Target(self, pkt)
 
     elif isinstance(pkt, packets.CharacterAnimationPacket):
       assert self.lc
@@ -1541,6 +1551,17 @@ class Client(threading.Thread):
     '''
     self.waitFor(lambda: self.target is not None, timeout)
     return self.target
+
+  @logincomplete
+  def waitForObject(self, serial, timeout=None):
+    '''! Waits until the given serial is an object this client knows about
+
+    @param serial int: The serial to wait for
+    @param timeout float: Timeout, in seconds
+    @return the object, None if it never turned up
+    '''
+    self.waitFor(lambda: serial in self.objects, timeout)
+    return self.objects.get(serial)
 
   @logincomplete
   def getAOSTooltip(self, serial, newpkt):
