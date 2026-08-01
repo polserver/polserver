@@ -934,7 +934,11 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_CLILOC, speech=speech))
 
     elif isinstance(pkt, packets.TargetCursorPacket):
-      assert self.target is None
+      if self.target is not None:
+        # A cursor nobody answered, eg. one which arrived after the target todo's
+        # waitForTarget() had already given up. Replacing it keeps this client alive,
+        # asserting here killed the packet thread and every later case with it.
+        self.log.warn('replacing unanswered target cursor 0x%X', self.target.id)
       self.target = Target(self, pkt)
 
     elif isinstance(pkt, packets.CharacterAnimationPacket):
