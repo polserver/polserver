@@ -1,0 +1,125 @@
+// All thirteen party hooks, installed by config/party.cfg.
+//
+// The core has no other way of telling a script that something happened in a
+// party: there are no events, no return values and, for most of it, no state
+// left afterwards. So each hook records its arguments in a global property of
+// its own, which a test reads back, and the three that are asked a question
+// answer yes unless a test has parked their name in #PartyRefuse.
+//
+// The hooks are shard-wide, so they also fire for the parties the testparty
+// package makes. Recording is all they do until a test says otherwise.
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+// CanAddToParty(leader,member): asked before an invitation goes out
+exported function CanAddToPartyHook( leader, member )
+  record( "CanAddToParty", struct{ leader := leader.serial, member := member.serial } );
+  return allowed( "CanAddToParty" );
+endfunction
+
+// CanRemoveMember(leader,member): asked before the leader throws someone out
+exported function CanRemoveMemberHook( leader, member )
+  record( "CanRemoveMember", struct{ leader := leader.serial, member := member.serial } );
+  return allowed( "CanRemoveMember" );
+endfunction
+
+// CanLeaveParty(member): asked before a member removes itself
+exported function CanLeavePartyHook( member )
+  record( "CanLeaveParty", struct{ member := member.serial } );
+  return allowed( "CanLeaveParty" );
+endfunction
+
+// OnPartyCreate(party): a party came into being, either from a script or from
+// the first invitation a leader sent
+exported function OnPartyCreateHook( party )
+  record( "OnPartyCreate", struct{ leader := party.leader.serial } );
+  return 1;
+endfunction
+
+// OnAddToParty(who): a candidate became a member
+exported function OnAddToPartyHook( who )
+  record( "OnAddToParty", struct{ who := who.serial } );
+  return 1;
+endfunction
+
+// OnLeaveParty(who,fromwho): a member is gone, and who made it happen
+exported function OnLeavePartyHook( who, fromwho )
+  var from := fromwho ? fromwho.serial : 0;
+  record( "OnLeaveParty", struct{ who := who.serial, fromwho := from } );
+  return 1;
+endfunction
+
+// OnDecline(who): an invitation was turned down, or ran out of time
+exported function OnDeclineHook( who )
+  record( "OnDecline", struct{ who := who.serial } );
+  return 1;
+endfunction
+
+// OnDisband(partyref): the party is about to be taken apart. Its members are
+// still in it at this point
+exported function OnDisbandHook( party )
+  record( "OnDisband", struct{ leader := party.leader.serial, members := len( party.members ) } );
+  return 1;
+endfunction
+
+// OnLootPermChange(who): a member allowed or forbade looting of its corpse
+exported function OnLootPermChangeHook( who )
+  record( "OnLootPermChange", struct{ who := who.serial, canloot := who.partycanloot } );
+  return 1;
+endfunction
+
+// OnPublicChat(member,uctext): a message to the whole party, for logging
+exported function OnPublicChatHook( member, uctext )
+  record( "OnPublicChat", struct{ member := member.serial, text := uctext } );
+  return 1;
+endfunction
+
+// OnPrivateChat(member,tomember,uctext): the same for a message to one member
+exported function OnPrivateChatHook( member, tomember, uctext )
+  record( "OnPrivateChat", struct{ member := member.serial, tomember := tomember.serial,
+                                   text := uctext } );
+  return 1;
+endfunction
+
+// ChangePublicChat(member,uctext): may rewrite the message, or block it with a
+// 0. Anything else leaves it alone
+exported function ChangePublicChatHook( member, uctext )
+  record( "ChangePublicChat", struct{ member := member.serial, text := uctext } );
+  return rewritten();
+endfunction
+
+// ChangePrivateChat(member,tomember,uctext): the same for a private message
+exported function ChangePrivateChatHook( member, tomember, uctext )
+  record( "ChangePrivateChat", struct{ member := member.serial, tomember := tomember.serial,
+                                       text := uctext } );
+  return rewritten();
+endfunction
+
+function record( name, data )
+  SetGlobalProperty( "#PartyHook" + name, data );
+endfunction
+
+// An unset global property cannot be told from a refusing 0, so the refusal is
+// the name of the hook that is meant to say no rather than a value of its own.
+function allowed( name )
+  if ( GetGlobalProperty( "#PartyRefuse" ) == name )
+    return 0;
+  endif
+  return 1;
+endfunction
+
+// The replacement the Change*Chat hooks answer with: a text to put in place of
+// the message, the string "block" to swallow it, nothing to leave it alone.
+function rewritten()
+  var change := GetGlobalProperty( "#PartyChatChange" );
+  if ( !change )
+    return 1;
+  elseif ( change == "block" )
+    return 0;
+  endif
+  return change;
+endfunction

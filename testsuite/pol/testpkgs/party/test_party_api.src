@@ -1,0 +1,424 @@
+// party.em and the members and methods of a PartyRef, as far as they go without
+// a client.
+//
+// Coverage before this was one case in testrestart, which only checks that a
+// party survives a save and a reload.
+//
+// Every method that moves a character through a party ends in a packet to that
+// character's client, so each of them refuses a character that has none - which
+// is what makes the whole validation half of the party system testable here,
+// with npcs, and leaves only the flows themselves for the client tests.
+use uo;
+use os;
+use party;
+
+include "testutil";
+include "party";
+
+program test_party_api()
+  return 1;
+endprogram
+
+// what CreateParty builds
+exported function party_create_and_list( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+
+  var party := leader.party;
+  if ( !party )
+    return drop_and_fail( leader, $"the leader has no party: {party}" );
+  endif
+
+  var type := TypeOf( party );
+  if ( type != "PartyRef" )
+    return drop_and_fail( leader, $"wrong type: {type}" );
+  endif
+  var typeint := TypeOfInt( party );
+  if ( typeint != OT_PARTYREF )
+    return drop_and_fail( leader, $"wrong type id: {typeint}" );
+  endif
+
+  if ( party.leader.serial != leader.serial )
+    return drop_and_fail( leader, $"leader is 0x{party.leader.serial:x}" );
+  endif
+
+  // the leader comes first, the first member after it
+  var members := serials( party.members );
+  if ( members != { leader.serial, member.serial } )
+    return drop_and_fail( leader, $"members {members}" );
+  endif
+  var candidates := serials( party.candidates );
+  if ( len( candidates ) )
+    return drop_and_fail( leader, $"a fresh party has candidates: {candidates}" );
+  endif
+
+  // two references to the same party are equal - the comparison is by leader
+  if ( !( member.party == party ) )
+    return drop_and_fail( leader, "the member's party is a different one" );
+  endif
+  if ( !( party in ListParties() ) )
+    return drop_and_fail( leader, "the party is not listed" );
+  endif
+
+  return drop_and_finish( leader, 1 );
+endfunction
+
+// and what it refuses to build
+exported function party_create_refusals( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var loner := make_member( resmgn, 4 );
+  if ( !loner )
+    return drop_and_fail( leader, loner.errortext );
+  endif
+
+  var res := CreateParty( leader, loner );
+  if ( res != error || !res.errortext.find( "Leader is already in a party" ) )
+    return drop_and_fail( leader, $"the leader led two parties: {res}" );
+  endif
+
+  res := CreateParty( loner, member );
+  if ( res != error || !res.errortext.find( "First Member is already in a party" ) )
+    return drop_and_fail( leader, $"a member joined a second party: {res}" );
+  endif
+
+  // being the same character is only looked at after the leader's own state
+  res := CreateParty( loner, loner );
+  if ( res != error || !res.errortext.find( "Leader and Firstmember are the same" ) )
+    return drop_and_fail( leader, $"a party of one: {res}" );
+  endif
+
+  // there is no case for a missing parameter: unlike a method call, a module
+  // function is checked against its .em signature and CreateParty( loner ) does
+  // not compile
+  res := CreateParty( loner, "1" );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return drop_and_fail( leader, $"CreateParty with a string: {res}" );
+  endif
+
+  return drop_and_finish( leader, 1 );
+endfunction
+
+// disbanding empties the party and takes it out of the list
+exported function party_disband( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var party := leader.party;
+
+  var res := DisbandParty( party );
+  if ( !res )
+    return drop_and_fail( leader, $"DisbandParty failed: {res}" );
+  endif
+
+  if ( leader.party != error || member.party != error )
+    return ret_error( $"a member kept the party: {leader.party} {member.party}" );
+  endif
+  if ( party in ListParties() )
+    return ret_error( "the disbanded party is still listed" );
+  endif
+
+  // the reference stays alive and empty, and an empty party is false
+  var members := serials( party.members );
+  if ( len( members ) )
+    return ret_error( $"the disbanded party still holds {members}" );
+  endif
+  if ( party )
+    return ret_error( "a disbanded party reference is still true" );
+  endif
+
+  // disbanding it again finds nothing to do and says so with a 1
+  res := DisbandParty( party );
+  if ( res != 1 )
+    return ret_error( $"the second DisbandParty returned {res}" );
+  endif
+
+  res := DisbandParty( 5 );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return ret_error( $"DisbandParty with a number: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// addmember, which never gets past its checks without a client
+exported function party_add_member( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var party := leader.party;
+  var loner := make_member( resmgn, 4 );
+  if ( !loner )
+    return drop_and_fail( leader, loner.errortext );
+  endif
+
+  // a character of its own is only turned away at the last check
+  var res := party.addmember( loner );
+  if ( res != error || !res.errortext.find( "Character is offline" ) )
+    return drop_and_fail( leader, $"an npc was added to a party: {res}" );
+  endif
+
+  // one already in the party is caught earlier
+  res := party.addmember( member );
+  if ( res != error || !res.errortext.find( "Character is already in a party" ) )
+    return drop_and_fail( leader, $"a member was added twice: {res}" );
+  endif
+
+  res := party.addmember();
+  if ( res != error || !res.errortext.find( "Not enough parameters" ) )
+    return drop_and_fail( leader, $"addmember without a character: {res}" );
+  endif
+  res := party.addmember( "1" );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return drop_and_fail( leader, $"addmember with a string: {res}" );
+  endif
+
+  var members := serials( party.members );
+  if ( members != { leader.serial, member.serial } )
+    return drop_and_fail( leader, $"members changed to {members}" );
+  endif
+
+  return drop_and_finish( leader, 1 );
+endfunction
+
+// removing the last member takes the party with it
+exported function party_remove_member( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var party := leader.party;
+  var loner := make_member( resmgn, 4 );
+  if ( !loner )
+    return drop_and_fail( leader, loner.errortext );
+  endif
+
+  var res := party.removemember( loner );
+  if ( res != error || !res.errortext.find( "Character is not in this party" ) )
+    return drop_and_fail( leader, $"a stranger was removed: {res}" );
+  endif
+
+  res := party.removemember( leader );
+  if ( res != error || !res.errortext.find( "Character is leader of this party" ) )
+    return drop_and_fail( leader, $"the leader removed itself: {res}" );
+  endif
+
+  // and with the member gone a party of one is left, which the core disbands
+  res := party.removemember( member );
+  if ( res != 1 )
+    return drop_and_fail( leader, $"removemember returned {res}" );
+  endif
+
+  if ( member.party != error )
+    return drop_and_fail( leader, $"the removed member kept the party: {member.party}" );
+  endif
+  if ( leader.party != error )
+    return drop_and_fail( leader, $"the leader kept the emptied party: {leader.party}" );
+  endif
+  if ( party in ListParties() )
+    return drop_and_fail( leader, "the emptied party is still listed" );
+  endif
+
+  return 1;
+endfunction
+
+// the leader is whichever member was named last, and comes first in the list
+exported function party_set_leader( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var party := leader.party;
+  var loner := make_member( resmgn, 4 );
+  if ( !loner )
+    return drop_and_fail( leader, loner.errortext );
+  endif
+
+  var res := party.setleader( loner );
+  if ( res != error || !res.errortext.find( "Character is not in this party" ) )
+    return drop_and_fail( leader, $"a stranger became leader: {res}" );
+  endif
+
+  res := party.setleader( leader );
+  if ( res != error || !res.errortext.find( "Character is already leader of this party" ) )
+    return drop_and_fail( leader, $"the leader was named again: {res}" );
+  endif
+
+  res := party.setleader( member );
+  if ( res != 1 )
+    return drop_and_fail( leader, $"setleader returned {res}" );
+  endif
+
+  if ( party.leader.serial != member.serial )
+    return drop_and_fail( member, $"the leader is 0x{party.leader.serial:x}" );
+  endif
+
+  // the new leader is moved to the front of the member list
+  var members := serials( party.members );
+  if ( members != { member.serial, leader.serial } )
+    return drop_and_fail( member, $"members {members}" );
+  endif
+
+  return drop_and_finish( member, 1 );
+endfunction
+
+// candidates need a client too, so only the refusals are reachable here
+exported function party_candidates( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var party := leader.party;
+  var loner := make_member( resmgn, 4 );
+  if ( !loner )
+    return drop_and_fail( leader, loner.errortext );
+  endif
+
+  var res := party.addcandidate( loner );
+  if ( res != error || !res.errortext.find( "Character is offline" ) )
+    return drop_and_fail( leader, $"an npc was invited: {res}" );
+  endif
+  res := party.addcandidate( member );
+  if ( res != error || !res.errortext.find( "Character is already in a party" ) )
+    return drop_and_fail( leader, $"a member was invited: {res}" );
+  endif
+
+  res := party.removecandidate( loner );
+  if ( res != error || !res.errortext.find( "Character is not candidate of this party" ) )
+    return drop_and_fail( leader, $"a stranger was uninvited: {res}" );
+  endif
+
+  var candidates := serials( party.candidates );
+  if ( len( candidates ) )
+    return drop_and_fail( leader, $"the party has candidates: {candidates}" );
+  endif
+  if ( loner.candidate_of_party != error )
+    return drop_and_fail( leader, $"the npc is a candidate: {loner.candidate_of_party}" );
+  endif
+
+  return drop_and_finish( leader, 1 );
+endfunction
+
+// the two chat functions, as far as they go with nobody listening
+exported function party_msg_refusals( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var party := leader.party;
+
+  // nothing goes out to a member with no client, and nothing complains either
+  var res := SendPartyMsg( party, leader, "hello" );
+  if ( res != 1 )
+    return drop_and_fail( leader, $"SendPartyMsg returned {res}" );
+  endif
+  res := SendPrivatePartyMsg( party, leader, member, "hello" );
+  if ( res != 1 )
+    return drop_and_fail( leader, $"SendPrivatePartyMsg returned {res}" );
+  endif
+
+  var toolong := overlong_text();
+  res := SendPartyMsg( party, leader, toolong );
+  if ( res != error || !res.errortext.find( "Text exceeds maximum size." ) )
+    return drop_and_fail( leader, $"201 characters were sent: {res}" );
+  endif
+  res := SendPrivatePartyMsg( party, leader, member, toolong );
+  if ( res != error || !res.errortext.find( "Text exceeds maximum size." ) )
+    return drop_and_fail( leader, $"201 private characters were sent: {res}" );
+  endif
+
+  res := SendPartyMsg( leader, leader, "hello" );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return drop_and_fail( leader, $"a character passed for a party: {res}" );
+  endif
+  res := SendPartyMsg( party, leader, 5 );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return drop_and_fail( leader, $"a number passed for the text: {res}" );
+  endif
+  res := SendPrivatePartyMsg( party, leader, "1", "hello" );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return drop_and_fail( leader, $"SendPrivatePartyMsg without a target: {res}" );
+  endif
+
+  return drop_and_finish( leader, 1 );
+endfunction
+
+// a party carries a proplist like any other object
+exported function party_props( resmgn )
+  var made := make_party( resmgn );
+  if ( !made )
+    return made;
+  endif
+  var [ leader, member ] := made;
+  var party := leader.party;
+
+  var res := party.setprop( "loot", struct{ rule := "roundrobin", turn := 2 } );
+  if ( !res )
+    return drop_and_fail( leader, $"setprop failed: {res}" );
+  endif
+
+  // and both members see the one proplist
+  var loot := member.party.getprop( "loot" );
+  if ( loot.rule != "roundrobin" || loot.turn != 2 )
+    return drop_and_fail( leader, $"getprop returned {loot}" );
+  endif
+
+  var names := party.propnames();
+  if ( !( "loot" in names ) )
+    return drop_and_fail( leader, $"propnames {names}" );
+  endif
+
+  res := party.eraseprop( "loot" );
+  if ( !res )
+    return drop_and_fail( leader, $"eraseprop failed: {res}" );
+  endif
+  res := party.getprop( "loot" );
+  if ( res != error || !res.errortext.find( "Property not found" ) )
+    return drop_and_fail( leader, $"the erased prop is still there: {res}" );
+  endif
+
+  return drop_and_finish( leader, 1 );
+endfunction
+
+// what the party members of a character say when there is no party
+exported function party_char_members( resmgn )
+  var loner := make_member( resmgn );
+  if ( !loner )
+    return loner;
+  endif
+
+  var res := loner.party;
+  if ( res != error || !res.errortext.find( "Not a member of a party" ) )
+    return ret_error( $".party of a partyless character: {res}" );
+  endif
+  res := loner.candidate_of_party;
+  if ( res != error || !res.errortext.find( "Not a candidate of a party" ) )
+    return ret_error( $".candidate_of_party of a partyless character: {res}" );
+  endif
+
+  // loot permission is only ever set by the client packet: the member reads
+  // back as a flag, and assigning to it does nothing at all
+  if ( loner.partycanloot != 0 )
+    return ret_error( $"partycanloot starts at {loner.partycanloot}" );
+  endif
+  loner.partycanloot := 1;
+  if ( loner.partycanloot != 0 )
+    return ret_error( "partycanloot took an assignment" );
+  endif
+
+  return 1;
+endfunction

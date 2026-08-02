@@ -1,0 +1,30 @@
+// A party outlives the case that made it - it is shard-global and is written to
+// parties.txt at shutdown - and its npc members are killed off by the resource
+// manager as soon as the case returns. So each case disbands what it made, and
+// this is the diagnostic for the ones that did not.
+//
+// A party whose members are all gone reads back empty, because the member list
+// is pruned when it is read. It cannot be disbanded any more either: DisbandParty
+// wants the leader to still exist. Nothing is saved of it - printOn skips a party
+// without a living leader - so it is only worth a line in the log.
+use uo;
+use os;
+use party;
+
+include "testutil";
+
+program cleanup()
+  foreach party in ( ListParties() )
+    var members := party.members;
+    if ( len( members ) )
+      continue;
+    endif
+
+    var res := DisbandParty( party );
+    if ( !res )
+      syslog( $"testparty: a leftover party could not be disbanded: {res}", 0 );
+    endif
+  endforeach
+
+  return 1;
+endprogram

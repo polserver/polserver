@@ -1,0 +1,30 @@
+// Nothing in the core ever removes a guild, and a guild that still holds a
+// member, an ally or an enemy refuses to be destroyed - so a case that fails
+// halfway would otherwise leave its guilds in the world save for good. Every
+// guild this package makes is marked with a cprop; dismantle whatever is left.
+use uo;
+use os;
+use guilds;
+
+include "testutil";
+include "guild";
+
+program cleanup()
+  var leftover := array{};
+  foreach guild in ( ListGuilds() )
+    if ( guild.getprop( TEST_GUILD_PROP ) )
+      leftover.append( guild );
+    endif
+  endforeach
+
+  // dropping a guild also unlinks its allies and enemies, so take the relations
+  // apart first and destroy afterwards
+  foreach guild in ( leftover )
+    var res := drop_guild( guild );
+    if ( !res )
+      syslog( $"testguild: could not destroy guild {guild.guildid}: {res}", 0 );
+    endif
+  endforeach
+
+  return 1;
+endprogram

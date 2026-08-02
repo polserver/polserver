@@ -1,7 +1,22 @@
 use uo;
 use os;
+use guilds;
 include "testutil";
 include "communication";
+include "guildutil";
+
+// Nothing in the core ever removes a guild, and one that still holds a member,
+// an ally or an enemy refuses to be destroyed - so a case that failed halfway
+// would leave its guilds in the world save for good. Take them apart before the
+// two characters go, while there is still something to remove them from.
+foreach guild in ( ListGuilds() )
+  if ( guild.getprop( TEST_GUILD_PROP ) )
+    var dropped := drop_guild( guild );
+    if ( !dropped )
+      syslog( $"testclient: could not destroy guild {guild.guildid}: {dropped}", 0 );
+    endif
+  endif
+endforeach
 
 foreach multi in ( ListMultisInBox( 0, 0, -200, 10000, 10000, 200 ) )
   DestroyMulti( multi );

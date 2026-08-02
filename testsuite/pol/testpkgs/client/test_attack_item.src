@@ -270,14 +270,14 @@ exported function test_client_item_f3_type( resources )
     return ret_error( $"Could not create item: {normal}" );
   endif
 
-  var obj := find_client_obj( item.serial );
+  var obj := client_finds_obj( clientcon, 0, item.serial );
   if ( !obj )
     return obj;
   elseif ( !obj.attackable )
     return ret_error( $"attackable item was not announced as such: {obj}" );
   endif
 
-  obj := find_client_obj( normal.serial );
+  obj := client_finds_obj( clientcon, 0, normal.serial );
   if ( !obj )
     return obj;
   elseif ( obj.attackable )
@@ -345,7 +345,7 @@ exported function test_client_item_hp_member( resources )
   endif
 
   // make sure the client knows the item before the first update
-  var obj := find_client_obj( item.serial );
+  var obj := client_finds_obj( clientcon, 0, item.serial );
   if ( !obj )
     return obj;
   endif
@@ -677,26 +677,6 @@ function wait_for_control_event( evtype, timeout := 10000 )
     endif
   endwhile
   return ret_error( $"No event {evtype} from the control script of the item" );
-endfunction
-
-// polls the object list of the client until the given serial shows up
-function find_client_obj( serial, timeout := 10000 )
-  var start := ReadMillisecondClock();
-  while ( ReadMillisecondClock() - start < timeout )
-    Clear_Event_Queue();
-    clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-    var ev := waitForClient( 0, { EVT_LIST_OBJS } );
-    if ( !ev )
-      return ev;
-    endif
-    foreach obj in ( ev.objs )
-      if ( obj.serial == serial )
-        return obj;
-      endif
-    endforeach
-    Sleepms( 100 );
-  endwhile
-  return ret_error( $"Client does not know 0x{serial:x}" );
 endfunction
 
 // waits until the client got the expected hitpoint value for the given serial

@@ -34,7 +34,7 @@ for line in content:
         res.append(Test(m.group(2)))
         curpkg=res[-1]
         continue
-    m=re.search(r"\s+Calling (\w+).ecl", line)
+    m=re.search(r"\s+Calling (\w+)\.ecl", line)
     if m is not None:
         curpkg.sub.append(Test(m.group(1)))
         curscript = curpkg.sub[-1]

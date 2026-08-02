@@ -27,15 +27,10 @@ endprogram
 
 exported function get_char1_objs()
   // TODO: just for demonstration
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-  while ( 1 )
-    var ev := waitForClient( 0, { EVT_LIST_OBJS } );
-    if ( !ev )
-      return ev;
-    endif
-    break;
-  endwhile
+  var ev := list_client_objs( clientcon, 0 );
+  if ( !ev )
+    return ev;
+  endif
   return 1;
 endfunction
 

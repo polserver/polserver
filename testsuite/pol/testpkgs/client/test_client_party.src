@@ -1,0 +1,339 @@
+// Getting into a party and being turned away from one: the invitation, the two
+// ways of refusing it, and everything the core says no to.
+//
+// Everything here needs two connected clients. A party is built out of packets
+// the core answers with packets of the same kind, and none of it is reachable
+// from a script: uo::CreateParty makes a party, but only a client can be invited
+// into one, and only a client is ever told about it.
+
+include "party";
+
+program test_party()
+  return party_setup();
+endprogram
+
+// An invitation reaches the invited client as a packet naming the leader, and
+// both sides are told about it in words as well.
+exported function party_invite_and_accept( unused resmgn )
+  Clear_Event_Queue();
+  send_party_invite( 0, char2.serial );
+
+  // the invitation packet, and the words that go with it: <name>: You are
+  // invited to join the party ... / You have invited them to join the party.
+  var wanted := array{};
+  wanted.append( want_party( 1, PARTYCMD_INVITE_MEMBER ) );
+  wanted.append( want_cliloc( 1, CLP_INVITE ) );
+  wanted.append( want_cliloc( 0, CLP_INVITED ) );
+
+  var res := collect_events( wanted );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var [ ev, invite ] := res;
+
+  if ( CInt( ev.serial ) != char.serial )
+    return party_fail( $"invited to 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  endif
+
+  // the leader's name is glued to the invitation text rather than passed as an
+  // argument, which is what the affix form of the cliloc packet is for
+  if ( invite.affix != char.name )
+    return party_fail( $"the invitation names \"{invite.affix}\", expected \"{char.name}\"" );
+  endif
+
+  // the invitation is a party of one member and one candidate, and the invited
+  // character knows which party it was asked into
+  if ( !char.party )
+    return party_fail( "the leader has no party while the invitation is out" );
+  endif
+  if ( !char2.candidate_of_party )
+    return party_fail( $"the invited character is no candidate: {char2.candidate_of_party}" );
+  endif
+  if ( char2.party != error )
+    return party_fail( $"the invited character is already a member: {char2.party}" );
+  endif
+
+  // the party came into being with the invitation, and the hook saw it
+  var call := hook_call( "OnPartyCreate" );
+  if ( !call or call.leader != char.serial )
+    return party_fail( $"OnPartyCreate was called with {call}" );
+  endif
+
+  // accepting turns the candidate into a member, and both clients are sent the
+  // whole list, the leader first
+  Clear_Event_Queue();
+  send_party_accept( 1, char.serial );
+
+  // You have been added to the party. / <name>: joined the party.
+  wanted := array{};
+  wanted.append( want_party( 0, PARTYCMD_ADD ) );
+  wanted.append( want_party( 1, PARTYCMD_ADD ) );
+  wanted.append( want_cliloc( 1, CLP_ADDED ) );
+  wanted.append( want_cliloc( 0, CLP_JOINED ) );
+
+  res := collect_events( wanted );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var [ list, list2, added, joined ] := res;
+  var expected := { char.serial, char2.serial };
+  var members := party_members( list );
+  if ( members != expected )
+    return party_fail( $"client 0 was sent {members}" );
+  endif
+  members := party_members( list2 );
+  if ( members != expected )
+    return party_fail( $"client 1 was sent {members}" );
+  endif
+  if ( joined.affix != char2.name )
+    return party_fail( $"the leader was told \"{joined.affix}\" joined" );
+  endif
+
+  if ( !char2.party or char2.party != char.party )
+    return party_fail( "the two characters are not in the same party" );
+  endif
+
+  call := hook_call( "OnAddToParty" );
+  if ( !call or call.who != char2.serial )
+    return party_fail( $"OnAddToParty was called with {call}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// Declining says so to both sides, and a party nobody joined goes away.
+exported function party_decline_invite( unused resmgn )
+  var res := send_invitation();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_decline( 1, char.serial );
+
+  // You notify them that you do not wish to join the party. /
+  // <name>: Does not wish to join the party. / Your party has disbanded.
+  var wanted := array{};
+  wanted.append( want_cliloc( 1, CLP_DECLINE ) );
+  wanted.append( want_cliloc( 0, CLP_NOTIFY_DECLINE ) );
+  wanted.append( want_cliloc( 0, CLP_DISBANDED ) );
+  wanted.append( want_party( 0, PARTYCMD_REMOVE ) );
+
+  res := collect_events( wanted );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var [ decline, notify ] := res;
+  if ( notify.affix != char2.name )
+    return party_fail( $"the leader was told \"{notify.affix}\" declined" );
+  endif
+
+  if ( char.party != error or char2.candidate_of_party != error )
+    return party_fail( "the declined party is still there" );
+  endif
+
+  var call := hook_call( "OnDecline" );
+  if ( !call or call.who != char2.serial )
+    return party_fail( $"OnDecline was called with {call}" );
+  endif
+  call := hook_call( "OnDisband" );
+  if ( !call or call.leader != char.serial )
+    return party_fail( $"OnDisband was called with {call}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// An invitation nobody answers declines itself once DeclineTimeout is up, and
+// says exactly what a declined one says.
+exported function party_decline_timeout( unused resmgn )
+  var res := send_invitation();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+
+  // config/party.cfg sets the timeout to 2 seconds
+  var wanted := array{};
+  wanted.append( want_cliloc( 1, CLP_DECLINE ) );
+  wanted.append( want_cliloc( 0, CLP_NOTIFY_DECLINE ) );
+  wanted.append( want_cliloc( 0, CLP_DISBANDED ) );
+
+  res := collect_events( wanted );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  if ( char.party != error or char2.candidate_of_party != error )
+    return party_fail( "the party outlived the invitation" );
+  endif
+
+  var call := hook_call( "OnDecline" );
+  if ( !call or call.who != char2.serial )
+    return party_fail( $"OnDecline was called with {call}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// Who cannot be invited, and what the leader is told instead.
+exported function party_invite_refusals( resmgn )
+  var res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  // You cannot add yourself to a party.
+  Clear_Event_Queue();
+  send_party_invite( 0, char.serial );
+  res := wait_for_cliloc( 0, CLP_ADD_YOURSELF );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  if ( char.party != error )
+    return party_fail( "inviting yourself made a party" );
+  endif
+
+  // The creature ignores your offer.
+  var npc := resmgn.CreateNPCFromTemplate( ":testclient:test_snooping", 100, 52, 0 );
+  if ( !npc )
+    return party_fail( $"could not create an npc: {npc}" );
+  endif
+  Clear_Event_Queue();
+  send_party_invite( 0, npc.serial );
+  res := wait_for_cliloc( 0, CLP_IGNORE_OFFER );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // This person is already in your party! - once as a candidate
+  res := send_invitation();
+  if ( !res )
+    return res;
+  endif
+  Clear_Event_Queue();
+  send_party_invite( 0, char2.serial );
+  res := wait_for_cliloc( 0, CLP_ALREADY_YOUR_PARTY );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // and once as a member
+  res := accept_invitation();
+  if ( !res )
+    return res;
+  endif
+  Clear_Event_Queue();
+  send_party_invite( 0, char2.serial );
+  res := wait_for_cliloc( 0, CLP_ALREADY_YOUR_PARTY );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // You may only add members to the party if you are the leader.
+  Clear_Event_Queue();
+  send_party_invite( 1, npc.serial );
+  res := wait_for_cliloc( 1, CLP_ADD_NO_LEADER );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// This person is already in a party! - the one refusal that needs a party the
+// leader is not in, which a script can build out of npcs.
+exported function party_invite_taken( resmgn )
+  var res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resmgn.CreateNPCFromTemplate( ":testclient:test_snooping", 100, 52, 0 );
+  if ( !npc )
+    return party_fail( $"could not create an npc: {npc}" );
+  endif
+
+  // an npc can lead a party, it just cannot be told about one
+  res := CreateParty( npc, char2 );
+  if ( !res )
+    return party_fail( $"CreateParty failed: {res}" );
+  endif
+
+  Clear_Event_Queue();
+  send_party_invite( 0, char2.serial );
+  res := wait_for_cliloc( 0, CLP_ALREADY_IN_A_PARTY );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// Accepting and declining what was never offered.
+exported function party_answer_refusals( unused resmgn )
+  var res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  // No one has invited you to be in a party.
+  Clear_Event_Queue();
+  send_party_accept( 1, char.serial );
+  res := wait_for_cliloc( 1, CLP_NO_INVITE );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // Too late to decline, you are already in the party. Try /quit.
+  res := build_party();
+  if ( !res )
+    return res;
+  endif
+  Clear_Event_Queue();
+  send_party_decline( 1, char.serial );
+  res := wait_for_cliloc( 1, CLP_TOO_LATE_DECLINE );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  if ( !char2.party )
+    return party_fail( "declining threw the member out of the party" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// A character with no client cannot be invited. The client picks its target by
+// serial, and every serial in the shard is a valid one to ask about - an offline
+// character among them.
+exported function party_invite_offline( unused resmgn )
+  var res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  var offline := createAccountWithChar( "partyoffline", "pass" );
+  if ( !offline )
+    return offline;
+  endif
+
+  Clear_Event_Queue();
+  send_party_invite( 0, offline.serial );
+
+  // You may only add living things to your party!
+  res := wait_for_cliloc( 0, CLP_ADD_LIVING );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  if ( char.party != error )
+    return party_fail( "inviting an offline character made a party" );
+  endif
+  if ( offline.candidate_of_party != error )
+    return party_fail( "the offline character was made a candidate" );
+  endif
+
+  return party_finish( 1 );
+endfunction

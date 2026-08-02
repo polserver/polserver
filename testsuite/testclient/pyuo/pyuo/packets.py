@@ -872,6 +872,7 @@ class TargetCursorPacket(Packet):
   NEUTRAL = 0
   HARMFUL = 1
   HELPFUL = 2
+  CANCEL = 3
 
   cmd = 0x6c
   length = 19
@@ -1561,6 +1562,26 @@ class GeneralInfoPacket(Packet):
   ## Boat movement
   SUB_BOATMOVE = 0x33
 
+  ## Party subcommands, both directions, see PKTBI_BF_06 in the core
+  ## Client: add a member by serial (0 asks for a target cursor)
+  ## Server: the whole member list
+  PARTY_ADD = 0x01
+  ## Client: remove a member by serial (0 asks for a target cursor)
+  ## Server: the removed member followed by the ones left
+  PARTY_REMOVE = 0x02
+  ## A private message, to a member from the client, from a member to it
+  PARTY_MEMBER_MSG = 0x03
+  ## A message to the whole party
+  PARTY_MSG = 0x04
+  ## Client: allow or forbid the party to loot this player's corpse
+  PARTY_LOOT_PERMISSION = 0x06
+  ## Server: an invitation, carrying the leader's serial
+  PARTY_INVITE_MEMBER = 0x07
+  ## Client: accept an invitation from that leader
+  PARTY_ACCEPT_INVITE = 0x08
+  ## Client: decline an invitation from that leader
+  PARTY_DECLINE_INVITE = 0x09
+
   cmd = 0xbf
 
   def fill(self, sub, *args):
@@ -1570,6 +1591,13 @@ class GeneralInfoPacket(Packet):
                   - SUB_LOGIN: no more arguments needed
                   - SUB_LANG:
                     - lang string: The language name
+                  - SUB_PARTY:
+                    - partycmd int: see PARTY_ constants
+                    - then, depending on partycmd:
+                      - PARTY_ADD/REMOVE/ACCEPT/DECLINE: serial int
+                      - PARTY_MSG: text string
+                      - PARTY_MEMBER_MSG: serial int, text string
+                      - PARTY_LOOT_PERMISSION: canloot int
     '''
     self.sub = sub
 
@@ -1599,6 +1627,37 @@ class GeneralInfoPacket(Packet):
       self.listid = args[1]
       self.length = 5 + 8
 
+    elif self.sub == self.SUB_PARTY:
+      self.partycmd = args[0]
+      # header plus the party subcommand byte
+      self.length = 5 + 1
+
+      if self.partycmd in (self.PARTY_ADD, self.PARTY_REMOVE,
+          self.PARTY_ACCEPT_INVITE, self.PARTY_DECLINE_INVITE):
+        checkArgLen(2)
+        self.serial = args[1]
+        self.length += 4
+
+      elif self.partycmd == self.PARTY_MSG:
+        checkArgLen(2)
+        self.text = args[1]
+        # unicode text, null terminated
+        self.length += len(self.text) * 2 + 2
+
+      elif self.partycmd == self.PARTY_MEMBER_MSG:
+        checkArgLen(3)
+        self.serial = args[1]
+        self.text = args[2]
+        self.length += 4 + len(self.text) * 2 + 2
+
+      elif self.partycmd == self.PARTY_LOOT_PERMISSION:
+        checkArgLen(2)
+        self.canloot = args[1]
+        self.length += 1
+
+      else:
+        raise NotImplementedError('Party command {:02x} not implemented to send'.format(self.partycmd))
+
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
 
@@ -1621,6 +1680,19 @@ class GeneralInfoPacket(Packet):
     elif self.sub == self.SUB_MEGACLILOC:
       self.euint(self.serial)
       self.euint(self.listid)
+
+    elif self.sub == self.SUB_PARTY:
+      self.euchar(self.partycmd)
+      if self.partycmd in (self.PARTY_ADD, self.PARTY_REMOVE,
+          self.PARTY_ACCEPT_INVITE, self.PARTY_DECLINE_INVITE):
+        self.euint(self.serial)
+      elif self.partycmd == self.PARTY_MSG:
+        self.estring(self.text, len(self.text) + 1, True)
+      elif self.partycmd == self.PARTY_MEMBER_MSG:
+        self.euint(self.serial)
+        self.estring(self.text, len(self.text) + 1, True)
+      elif self.partycmd == self.PARTY_LOOT_PERMISSION:
+        self.euchar(self.canloot)
 
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented yet'.format(self.sub))
@@ -1648,7 +1720,36 @@ class GeneralInfoPacket(Packet):
       unk = self.dushort()
 
     elif self.sub == self.SUB_PARTY:
-      self.data = self.rpb(len(self.buf))
+      self.partycmd = self.duchar()
+      self.members = []
+      self.serial = None
+      self.msg = None
+
+      if self.partycmd == self.PARTY_ADD:
+        # the whole member list, the leader first
+        count = self.duchar()
+        for i in range(0, count):
+          self.members.append(self.duint())
+
+      elif self.partycmd == self.PARTY_REMOVE:
+        # the member that left, then the ones still in. A party of nobody is
+        # sent to a player who has just left one: no members, only the serial
+        count = self.duchar()
+        self.serial = self.duint()
+        for i in range(0, count):
+          self.members.append(self.duint())
+
+      elif self.partycmd in (self.PARTY_MSG, self.PARTY_MEMBER_MSG):
+        # who said it, and what they said - unicode, null terminated
+        self.serial = self.duint()
+        self.msg = self.ducstring(self.length - self.readCount)
+
+      elif self.partycmd == self.PARTY_INVITE_MEMBER:
+        # the leader whose party the player is invited to
+        self.serial = self.duint()
+
+      else:
+        raise NotImplementedError("Party command 0x%0.2X not implemented yet." % self.partycmd)
 
     elif self.sub == self.SUB_CURSORMAP:
       self.cursor = self.duchar()
@@ -1709,6 +1810,41 @@ class ClilocMsgPacket(Packet):
     # the arguments filling the placeholders of the cliloc entry, the one
     # little-endian unicode string of the protocol
     self.args = self.ducstringflipped(self.length-48)
+
+class ClilocAffixMsgPacket(Packet):
+  ''' A CliLoc message with a plain string glued to it, used wherever the text
+  the server wants to show carries a name: the party system says nearly
+  everything this way '''
+
+  ## The affix goes before the cliloc text rather than after it
+  FLAG_PREPEND = 0x01
+
+  cmd = 0xcc
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.model = self.dushort()
+    self.type = self.duchar()
+    self.color = self.dushort()
+    self.font = self.dushort()
+    self.cliloc = self.duint()
+    self.flag = self.duchar()
+    self.name = self.dstring(30)
+
+    # the affix is ascii and null terminated, of no announced length
+    affix = b''
+    while True:
+      byte = self.rpb(1)
+      if byte == b'\x00':
+        break
+      affix += byte
+    self.affix = self.varStr(affix)
+
+    # and the arguments are unicode - big-endian here, unlike the ones of the
+    # plain 0xC1 cliloc message
+    self.args = self.ducstring(self.length - self.readCount)
+
 
 class VisualRangePacket(Packet):
   ''' visual range both directions '''

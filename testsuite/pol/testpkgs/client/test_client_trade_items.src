@@ -32,11 +32,11 @@ exported function offer_moves_item( resmgn )
   endif
 
   // the offering client and the one being offered to both see it
-  res := client_sees_in_container( 0, cont, item.serial );
+  res := client_finds_obj( clientcon, 0, item.serial, cont );
   if ( !res )
     return res;
   endif
-  res := client_sees_in_container( 1, cont, item.serial );
+  res := client_finds_obj( clientcon, 1, item.serial, cont );
   if ( !res )
     return res;
   endif
@@ -232,23 +232,6 @@ function items_are_back( item, item2 )
     return ret_error( $"the item of client 1 is in 0x{item2.container.serial:x}, expected its own backpack" );
   endif
   return 1;
-endfunction
-
-// Asks a client for the contents of a container and looks for one item in it.
-function client_sees_in_container( id, cont_serial, serial )
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "list_objects", arg := cont_serial, id := id } );
-  var ev := waitForClient( id, { EVT_LIST_OBJS } );
-  if ( !ev )
-    return ret_error( $"client {id} did not answer with the contents of 0x{cont_serial:x}" );
-  endif
-
-  foreach entry in ( ev.objs )
-    if ( CInt( entry.serial ) == serial )
-      return 1;
-    endif
-  endforeach
-  return ret_error( $"client {id} does not have 0x{serial:x} in the container 0x{cont_serial:x}" );
 endfunction
 
 function move_client( id, dir )

@@ -1,0 +1,264 @@
+// Party chat: what reaches whom, what the two chat hooks may do to it, and what
+// config/party.cfg does to it on the way out.
+//
+// A message to the party and a message to one member are the same packet under
+// two commands, and the core answers in kind. Both go through a pair of hooks:
+// On*Chat only watches, Change*Chat may rewrite the text or swallow the message.
+
+include "party";
+
+program test_party_chat()
+  return party_setup();
+endprogram
+
+// A message to the party comes back to every member, the sender included, and
+// both chat hooks see it.
+exported function chat_public_reaches_all( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_msg( 0, "hello party" );
+
+  res := wait_for_parties( PARTYCMD_MSG );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var [ ev, ev2 ] := res;
+
+  foreach heard in ( { ev, ev2 } )
+    if ( CInt( heard.serial ) != char.serial )
+      return party_fail( $"the message came from 0x{heard.serial:x}" );
+    endif
+    // PrivateMsgPrefix is for private messages only
+    if ( heard.msg != "hello party" )
+      return party_fail( $"the message reads \"{heard.msg}\"" );
+    endif
+  endforeach
+
+  var call := hook_call( "OnPublicChat" );
+  if ( !call or call.member != char.serial or call.text != "hello party" )
+    return party_fail( $"OnPublicChat was called with {call}" );
+  endif
+  call := hook_call( "ChangePublicChat" );
+  if ( !call or call.text != "hello party" )
+    return party_fail( $"ChangePublicChat was called with {call}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// A private message reaches its addressee and nobody else, under a command of
+// its own and behind the prefix config/party.cfg asks for.
+exported function chat_private_reaches_one( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_private_msg( 0, char2.serial, "just you" );
+
+  var ev := wait_for_party( 1, PARTYCMD_MEMBER_MSG );
+  if ( !ev )
+    return party_fail( ev.errortext );
+  endif
+  if ( CInt( ev.serial ) != char.serial )
+    return party_fail( $"the message came from 0x{ev.serial:x}" );
+  endif
+
+  // PrivateMsgPrefix is "P:" in config/party.cfg, and the core adds the space
+  if ( ev.msg != "P: just you" )
+    return party_fail( $"the message reads \"{ev.msg}\"" );
+  endif
+
+  res := no_party_for( 0, PARTYCMD_MEMBER_MSG );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // the hooks are given the text as it was sent, without the prefix
+  var call := hook_call( "OnPrivateChat" );
+  if ( !call or call.member != char.serial or call.tomember != char2.serial )
+    return party_fail( $"OnPrivateChat was called with {call}" );
+  endif
+  if ( call.text != "just you" )
+    return party_fail( $"OnPrivateChat was given \"{call.text}\"" );
+  endif
+  call := hook_call( "ChangePrivateChat" );
+  if ( !call or call.text != "just you" )
+    return party_fail( $"ChangePrivateChat was called with {call}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// With TreatNoAsPrivate on, a message to the party beginning with a member's
+// number and a space is a private message to that member instead.
+exported function chat_number_is_private( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+
+  // slot 2 of the party is the member, the leader holding slot 1
+  send_party_msg( 0, "2 hello" );
+
+  var ev := wait_for_party( 1, PARTYCMD_MEMBER_MSG );
+  if ( !ev )
+    return party_fail( ev.errortext );
+  endif
+
+  // the number and its space are eaten, the prefix goes on what is left
+  if ( ev.msg != "P: hello" )
+    return party_fail( $"the message reads \"{ev.msg}\"" );
+  endif
+
+  // and it went nowhere near the party at large
+  res := no_party_for( 0, PARTYCMD_MSG );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  var call := hook_call( "OnPrivateChat" );
+  if ( !call or call.tomember != char2.serial or call.text != "hello" )
+    return party_fail( $"OnPrivateChat was called with {call}" );
+  endif
+  if ( hook_call( "OnPublicChat" ) )
+    return party_fail( "OnPublicChat was called for a private message" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// ChangePublicChat may put a different text in the message, or stop it.
+exported function chat_public_rewritten( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  change_chat( "not what was said" );
+  Clear_Event_Queue();
+  send_party_msg( 0, "hello party" );
+
+  res := wait_for_parties( PARTYCMD_MSG );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var [ ev, ev2 ] := res;
+  if ( ev.msg != "not what was said" or ev2.msg != "not what was said" )
+    return party_fail( $"the message reads \"{ev.msg}\" / \"{ev2.msg}\"" );
+  endif
+
+  // a hook that answers 0 swallows the message for everyone, the sender too
+  change_chat( "block" );
+  Clear_Event_Queue();
+  send_party_msg( 0, "hello party" );
+
+  res := no_party_for( 0, PARTYCMD_MSG );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  res := no_party_for( 1, PARTYCMD_MSG, 1 );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// The same for a private message, prefix and all.
+exported function chat_private_rewritten( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  change_chat( "rewritten" );
+  Clear_Event_Queue();
+  send_party_private_msg( 0, char2.serial, "just you" );
+
+  var ev := wait_for_party( 1, PARTYCMD_MEMBER_MSG );
+  if ( !ev )
+    return party_fail( ev.errortext );
+  endif
+
+  // the prefix is put on after the hook has had its say
+  if ( ev.msg != "P: rewritten" )
+    return party_fail( $"the message reads \"{ev.msg}\"" );
+  endif
+
+  change_chat( "block" );
+  Clear_Event_Queue();
+  send_party_private_msg( 0, char2.serial, "just you" );
+
+  res := no_party_for( 1, PARTYCMD_MEMBER_MSG );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// Text longer than the protocol allows is cut down to size rather than refused.
+exported function chat_text_truncated( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  // 250 characters, of which the core keeps SPEECH_MAX_LEN
+  var bigtext := "";
+  while ( bigtext.length() < 250 )
+    bigtext := bigtext + "ab";
+  endwhile
+
+  Clear_Event_Queue();
+  send_party_msg( 0, bigtext );
+
+  var ev := wait_for_party( 1, PARTYCMD_MSG );
+  if ( !ev )
+    return party_fail( ev.errortext );
+  endif
+
+  var expected := bigtext[1, 200];
+  if ( ev.msg != expected )
+    return party_fail( $"{ev.msg.length()} characters came back, expected 200" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// Talking to a party one is not in.
+exported function chat_without_a_party( unused resmgn )
+  var res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  // You are not in a party.
+  Clear_Event_Queue();
+  send_party_msg( 0, "anyone there" );
+  res := wait_for_cliloc( 0, CLP_NO_PARTY );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  Clear_Event_Queue();
+  send_party_private_msg( 0, char2.serial, "anyone there" );
+  res := wait_for_cliloc( 0, CLP_NO_PARTY );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  if ( hook_call( "OnPublicChat" ) or hook_call( "OnPrivateChat" ) )
+    return party_fail( "a chat hook fired without a party" );
+  endif
+
+  return party_finish( 1 );
+endfunction
