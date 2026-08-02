@@ -367,6 +367,9 @@ bool BinFile::Seek( std::fstream::pos_type abs_offset, std::ios::seekdir origin 
   if ( !_file.is_open() )
     return false;
 
+  // a seek should recover from previous fails (eg reading past the end)
+  _file.clear();
+
   if ( !_file.seekg( abs_offset, origin ) )
     return false;
   return true;
@@ -397,6 +400,9 @@ std::fstream::pos_type BinFile::FileSize( Bscript::Executor& exec )
 {
   if ( !_file.is_open() )
     return std::fstream::pos_type( 0 );
+
+  // querying the size should always work
+  _file.clear();
 
   std::fstream::pos_type save_pos = _file.tellg();
   if ( save_pos == std::fstream::pos_type( -1 ) )

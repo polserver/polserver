@@ -1,0 +1,43 @@
+--- subscripting the file
+index 1:     v:1.0 e: s: [XMLDeclaration]
+index 2:     root [XMLElement]
+by name:     root
+--- subscripting a node
+index 1:     Hello [XMLElement]
+index 2:     Comment [XMLComment]
+index 3:     nodetwo [XMLElement]
+by name:     nodetwo
+nested:      World
+--- children and siblings
+first:       Hello
+named:       nodetwo
+sibling:     Comment [XMLComment]
+named sibl.: nodetwo
+text child:  World
+--- iterating a node
+  1: Hello [XMLElement]
+  2: nodetwo [XMLElement]
+--- iterating a text node
+children:    0
+--- attributes
+names:       { i, j }
+i:           1
+j:           2
+  1: struct{ i = "1" }
+  2: struct{ j = "2" }
+--- clonenode
+clone:       root [XMLElement]
+children:    Hello
+attributes:  { i, j }
+append:      added
+in clone:    added
+in file:     error{ errortext = "Failed to find node" }
+--- nodes outliving their file
+node:        root [XMLElement]
+subscript:   World
+child:       Hello
+attributes:  { i, j }
+  1: Hello
+  2: nodetwo
+  1: struct{ i = "1" }
+  2: struct{ j = "2" }

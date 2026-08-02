@@ -1,0 +1,86 @@
+use file;
+
+// CreateXMLFile and the XMLFile/XMLNode write methods.
+
+const TARGET := ":filetest:scratch/written.xml";
+
+program XMLWriteTest()
+  print( "--- empty document" );
+  var xml := CreateXMLFile();
+  print( "typeof:      " + typeof( xml ) );
+  print( "as string:   [" + xml.xmltostring() + "]" );
+
+  print( "--- declaration" );
+  print( "set:         " + xml.setxmldeclaration( "1.0", "utf-8", "" ) );
+  print( xml.xmltostring() );
+
+  print( "--- nodes and attributes" );
+  var root := xml.appendxmlnode( "root", struct{ text := "a value", number := 5, decimal := 2.5 } );
+  print( "appended:    " + root + " [" + root.type + "]" );
+  print( "attributes:  " + root.attributes.propnames() );
+  print( "value:       " + root.attributes["number"] );
+  var child := root.appendxmlnode( "child" );
+  print( "text:        " + child.appendxmltext( "some text" ) );
+  print( "comment:     " + child.appendxmlcomment( "a comment" ) );
+  print( "setattr:     " + child.setxmlattribute( struct{ a := 1, b := "two" } ) );
+  print( "attributes:  " + child.attributes.propnames() );
+  print( "removeattr:  " + child.removexmlattribute( "a" ) );
+  print( "attributes:  " + child.attributes.propnames() );
+  root.appendxmlnode( "second" );
+  print( "declaration replaced, comment on file level:" );
+  print( "set:         " + xml.setxmldeclaration( "1.1", "iso-8859-1", "yes" ) );
+  print( "comment:     " + xml.appendxmlcomment( "file comment" ) );
+  print( xml.xmltostring() );
+  print( "custom indent:" );
+  print( xml.xmltostring( "" ) );
+
+  print( "--- removing" );
+  print( "by name:     " + root.removexmlnode( "second" ) );
+  print( "by index:    " + child.removexmlnode( 2 ) );
+  print( "by node:     " + root.removexmlnode( child ) );
+  print( xml.xmltostring() );
+
+  print( "--- a removed node" );
+  // child is gone from the document, the script object survives but does not point at a node
+  // anymore, every access on it fails instead of using the memory of the deleted node
+  print( "as string:   " + child );
+  if ( child )
+    print( "istrue:      1" );
+  else
+    print( "istrue:      0" );
+  endif
+  print( "member:      " + child.type );
+  print( "attributes:  " + child.attributes );
+  print( "method:      " + child.firstxmlchild() );
+  print( "subscript:   " + child["whatever"] );
+  print( "remove:      " + root.removexmlnode( child ) );
+  var count := 0;
+  foreach sub in child
+    count := count + 1;
+  endforeach
+  print( "iterations:  " + count );
+
+  print( "--- removing while iterating" );
+  var doc := CreateXMLFile();
+  var top := doc.appendxmlnode( "top", struct{ i := 1, j := 2 } );
+  top.appendxmlnode( "one" );
+  top.appendxmlnode( "two" );
+  // removing the node the iteration stands on ends it, the following nodes are not reached
+  foreach sub in top
+    print( "  " + _sub_iter + ": " + sub );
+    top.removexmlnode( sub );
+  endforeach
+  foreach attribute in ( top.attributes )
+    print( "  " + _attribute_iter + ": " + attribute );
+    top.removexmlattribute( "j" );
+  endforeach
+  print( "left:        " + doc.xmltostring( "" ) );
+
+  print( "--- save and reopen" );
+  print( "save:        " + xml.savexml( TARGET ) );
+  var reopened := OpenXMLFile( TARGET );
+  print( "typeof:      " + typeof( reopened ) );
+  print( "same:        " + ( reopened.xmltostring() == xml.xmltostring() ) );
+  print( "root:        " + reopened[2] );
+  print( "attributes:  " + reopened[2].attributes.propnames() );
+endprogram

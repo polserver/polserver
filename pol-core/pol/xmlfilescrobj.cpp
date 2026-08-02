@@ -28,12 +28,58 @@
 namespace Pol::Core
 {
 using namespace Bscript;
-BXMLfile::BXMLfile() : Bscript::BObjectImp( OTXMLFile ), file(), _filename( "" ) {}
+
+XmlTree::NodeRef XmlTree::handle( TiXmlNode* node )
+{
+  if ( node == nullptr )  // an already removed node, its handle is not shared
+    return std::make_shared<TiXmlNode*>( nullptr );
+  auto itr = _handles.find( node );
+  if ( itr != _handles.end() )
+  {
+    if ( auto existing = itr->second.lock() )
+      return existing;
+    _handles.erase( itr );
+  }
+  auto created = std::make_shared<TiXmlNode*>( node );
+  _handles[node] = created;
+  return created;
+}
+
+void XmlTree::invalidate( TiXmlNode* node )
+{
+  for ( TiXmlNode* child = node->FirstChild(); child != nullptr; child = child->NextSibling() )
+    invalidate( child );
+  auto itr = _handles.find( node );
+  if ( itr == _handles.end() )
+    return;
+  if ( auto existing = itr->second.lock() )
+    *existing = nullptr;
+  _handles.erase( itr );
+}
+
+bool XmlTree::removeChild( TiXmlNode* parent, TiXmlNode* child )
+{
+  if ( child == nullptr )
+    return false;
+  invalidate( child );  // tinyxml deletes the node and its children
+  return parent->RemoveChild( child );
+}
+
+BXMLfile::BXMLfile()
+    : Bscript::BObjectImp( OTXMLFile ),
+      _tree( std::make_shared<XmlTree>( new TiXmlDocument() ) ),
+      _doc( static_cast<TiXmlDocument*>( _tree->root() ) ),
+      _filename( "" )
+{
+}
 
 BXMLfile::BXMLfile( std::string filename )
-    : Bscript::BObjectImp( OTXMLFile ), file( filename.c_str() ), _filename( filename )
+    : Bscript::BObjectImp( OTXMLFile ),
+      _tree( std::make_shared<XmlTree>( new TiXmlDocument( filename.c_str() ) ) ),
+      _doc( static_cast<TiXmlDocument*>( _tree->root() ) ),
+      _filename( filename )
 {
-  if ( !file.LoadFile() )
+  if ( !_doc->LoadFile() )
     return;
 }
 
@@ -76,19 +122,19 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, version ) && ex.getStringParam( 1, encoding ) &&
          ex.getStringParam( 2, standalone ) )
     {
-      TiXmlDeclaration* decl =
-          new TiXmlDeclaration( version->value(), encoding->value(), standalone->value() );
-      if ( !file.NoChildren() )  // in case its not the first method used
+      std::unique_ptr<TiXmlDeclaration> decl(
+          new TiXmlDeclaration( version->value(), encoding->value(), standalone->value() ) );
+      if ( !_doc->NoChildren() )  // in case its not the first method used
       {
-        if ( file.FirstChild()->Type() == TiXmlNode::TINYXML_DECLARATION )
-          file.RemoveChild( file.FirstChild() );  // remove old declaration
-        if ( !file.NoChildren() )
-          file.InsertBeforeChild( file.FirstChild(), *decl );
+        if ( _doc->FirstChild()->Type() == TiXmlNode::TINYXML_DECLARATION )
+          _tree->removeChild( _doc, _doc->FirstChild() );  // remove old declaration
+        if ( !_doc->NoChildren() )
+          _doc->InsertBeforeChild( _doc->FirstChild(), *decl );  // inserts a copy
         else
-          file.LinkEndChild( decl );
+          _doc->LinkEndChild( decl.release() );
       }
       else
-        file.LinkEndChild( decl );
+        _doc->LinkEndChild( decl.release() );
       return new BLong( 1 );
     }
     break;
@@ -120,8 +166,8 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
           }
         }
       }
-      file.LinkEndChild( elem.release() );
-      return new BXmlNode( file.LastChild() );
+      _doc->LinkEndChild( elem.release() );
+      return new BXmlNode( _tree, _doc->LastChild() );
     }
     break;
   }
@@ -133,7 +179,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, pstr ) )
     {
       TiXmlComment* comment = new TiXmlComment( pstr->value().c_str() );
-      file.LinkEndChild( comment );
+      _doc->LinkEndChild( comment );
       return new BLong( 1 );
     }
     break;
@@ -146,9 +192,9 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     if ( imp->isa( Bscript::BObjectImp::OTString ) )
     {
       const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
-      TiXmlNode* child = file.FirstChild( pstr->value() );
+      TiXmlNode* child = _doc->FirstChild( pstr->value() );
       if ( child )
-        return new BLong( file.RemoveChild( child ) ? 1 : 0 );
+        return new BLong( _tree->removeChild( _doc, child ) ? 1 : 0 );
       return new BError( "Failed to find node" );
     }
     if ( imp->isa( Bscript::BObjectImp::OTLong ) )
@@ -156,15 +202,14 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
       const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
       if ( keyint->value() != 1 )
         return new BError( "Failed to find node" );
-      return new BLong( file.RemoveChild( file.RootElement() ) ? 1 : 0 );
+      return new BLong( _tree->removeChild( _doc, _doc->RootElement() ) ? 1 : 0 );
     }
     if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
     {
       const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
-      TiXmlNode* node = file.ToElement();
-      if ( node != pstr->getNode()->Parent() )
+      if ( pstr->getNode() == nullptr || pstr->getNode()->Parent() != _doc )
         return new BError( "Failed to find node" );
-      return new BLong( file.RemoveChild( pstr->getNode() ) ? 1 : 0 );
+      return new BLong( _tree->removeChild( _doc, pstr->getNode() ) ? 1 : 0 );
     }
     break;
   }
@@ -192,7 +237,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
       else
         filepath = outpkg->dir() + path;
 
-      return new BLong( file.SaveFile( filepath ) ? 1 : 0 );
+      return new BLong( _doc->SaveFile( filepath ) ? 1 : 0 );
     }
     break;
   }
@@ -208,7 +253,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     TiXmlPrinter printer;
     printer.SetIndent( indent.c_str() );
 
-    file.Accept( &printer );
+    _doc->Accept( &printer );
     return new String( printer.CStr(), String::Tainted::YES );
   }
 
@@ -225,16 +270,16 @@ Bscript::BObjectImp* BXMLfile::copy() const
 
 std::string BXMLfile::getStringRep() const
 {
-  if ( file.Error() )
+  if ( _doc->Error() )
   {
-    return fmt::format( "{},{}:{}", file.ErrorRow(), file.ErrorCol(), file.ErrorDesc() );
+    return fmt::format( "{},{}:{}", _doc->ErrorRow(), _doc->ErrorCol(), _doc->ErrorDesc() );
   }
   return _filename;
 }
 
 bool BXMLfile::isTrue() const
 {
-  return !file.Error();
+  return !_doc->Error();
 }
 
 BObjectRef BXMLfile::OperSubscript( const BObject& obj )
@@ -242,43 +287,35 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
   if ( obj->isa( OTString ) )
   {
     const String* keystr = obj.impptr<String>();
-    TiXmlNode* node = file.FirstChild( keystr->value() );
+    TiXmlNode* node = _doc->FirstChild( keystr->value() );
     if ( node )
-      return BObjectRef( new BXmlNode( node ) );
+      return BObjectRef( new BXmlNode( _tree, node ) );
     return BObjectRef( new BError( "Failed to find node" ) );
   }
   if ( obj->isa( OTLong ) )
   {
     BLong& keyint = (BLong&)obj.impref();
-    TiXmlHandle handle( &file );
+    TiXmlHandle handle( _doc );
     TiXmlNode* node = handle.Child( keyint.value() - 1 )
                           .ToNode();  // keep escript 1based index and change it to 0based
     if ( node )
-      return BObjectRef( new BXmlNode( node ) );
+      return BObjectRef( new BXmlNode( _tree, node ) );
     return BObjectRef( new BError( "Failed to find node" ) );
   }
 
   return BObjectRef( new BError( "xml members can only be accessed by name or index" ) );
 }
 
-BXmlNode::~BXmlNode()
-{
-  // a tiny hack: copy does copy the node just the pointer, only clonenode does, delete this cloned
-  // node if its the last reference and tinyxml does not delete it via parent, clone flag will not
-  // be transfered so only the first instance will be deleted
-  if ( _cloned && node != nullptr && count() == 0 && node->Parent() == nullptr )
-  {
-    delete node;
-  }
-}
-
 BObjectRef BXmlNode::get_member_id( const int id )  // id test
 {
+  TiXmlNode* node = getNode();
+  if ( node == nullptr )
+    return BObjectRef( new BError( "Node was removed" ) );
   switch ( id )
   {
   case MBR_ATTRIBUTES:
     if ( node->ToElement() )
-      return BObjectRef( new BXmlAttribute( node ) );
+      return BObjectRef( new BXmlAttribute( _tree, node ) );
     else
       return BObjectRef( new BError( "No attributes available." ) );
 
@@ -325,6 +362,9 @@ Bscript::BObjectImp* BXmlNode::call_method( const char* methodname, Executor& ex
 
 Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
+  TiXmlNode* node = getNode();
+  if ( node == nullptr )
+    return new BError( "Node was removed" );
   switch ( id )
   {
   case MTH_FIRSTCHILD:
@@ -336,14 +376,14 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       {
         TiXmlNode* child = node->FirstChild( pstr->value() );
         if ( child )
-          return new BXmlNode( child );
+          return new BXmlNode( _tree, child );
         return new BError( "Failed to find node" );
       }
       return new BError( "Invalid parameter type" );
     }
     TiXmlNode* child = node->FirstChild();
     if ( child )
-      return new BXmlNode( child );
+      return new BXmlNode( _tree, child );
     return new BError( "Failed to find node" );
   }
   case MTH_NEXTSIBLING:
@@ -355,7 +395,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       {
         TiXmlNode* sibling = node->NextSibling( pstr->value() );
         if ( sibling )
-          return new BXmlNode( sibling );
+          return new BXmlNode( _tree, sibling );
         return new BError( "Failed to find node" );
       }
     }
@@ -363,7 +403,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     {
       TiXmlNode* sibling = node->NextSibling();
       if ( sibling )
-        return new BXmlNode( sibling );
+        return new BXmlNode( _tree, sibling );
       return new BError( "Failed to find node" );
     }
     break;
@@ -397,8 +437,10 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       }
 
       TiXmlElement* nodeelem = node->ToElement();
+      if ( !nodeelem )
+        return new BError( "Node is not an element" );
       nodeelem->LinkEndChild( elem.release() );
-      return new BXmlNode( nodeelem->LastChild() );
+      return new BXmlNode( _tree, nodeelem->LastChild() );
     }
     break;
   }
@@ -423,6 +465,8 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( attr )
     {
       TiXmlElement* elem = node->ToElement();
+      if ( !elem )
+        return new BError( "Node is not an element" );
       for ( const auto& citr : attr->contents() )
       {
         const std::string& name = citr.first;
@@ -434,7 +478,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         else
           elem->SetAttribute( name, ref->getStringRep() );
       }
-      return new BXmlNode( elem );
+      return new BXmlNode( _tree, elem );
     }
     break;
   }
@@ -446,8 +490,10 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, pstr ) )
     {
       TiXmlElement* elem = node->ToElement();
+      if ( !elem )
+        return new BError( "Node is not an element" );
       elem->RemoveAttribute( pstr->value() );
-      return new BXmlNode( elem );
+      return new BXmlNode( _tree, elem );
     }
     break;
   }
@@ -461,7 +507,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
       TiXmlNode* child = node->FirstChild( pstr->value() );
       if ( child )
-        return new BLong( node->RemoveChild( child ) ? 1 : 0 );
+        return new BLong( _tree->removeChild( node, child ) ? 1 : 0 );
       return new BError( "Failed to find node" );
     }
     if ( imp->isa( Bscript::BObjectImp::OTLong ) )
@@ -471,15 +517,16 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       TiXmlNode* child = handle.Child( keyint->value() - 1 )
                              .ToNode();  // keep escript 1based index and change it to 0based
       if ( child )
-        return new BLong( node->RemoveChild( child ) ? 1 : 0 );
+        return new BLong( _tree->removeChild( node, child ) ? 1 : 0 );
       return new BError( "Failed to find node" );
     }
     if ( imp->isa( Bscript::BObjectImp::OTXMLNode ) )
     {
       const BXmlNode* pstr = Clib::explicit_cast<BXmlNode*, Bscript::BObjectImp*>( imp );
-      if ( node->Parent() != pstr->getNode()->Parent() )
+      // only a direct child of this node can be removed
+      if ( pstr->getNode() == nullptr || pstr->getNode()->Parent() != node )
         return new BError( "Failed to find node" );
-      return new BLong( node->RemoveChild( pstr->getNode() ) ? 1 : 0 );
+      return new BLong( _tree->removeChild( node, pstr->getNode() ) ? 1 : 0 );
     }
     break;
   }
@@ -491,14 +538,16 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, pstr ) )
     {
       TiXmlElement* elem = node->ToElement();
+      if ( !elem )
+        return new BError( "Node is not an element" );
       elem->LinkEndChild( new TiXmlText( pstr->value() ) );
-      return new BXmlNode( elem->LastChild() );
+      return new BXmlNode( _tree, elem->LastChild() );
     }
     break;
   }
   case MTH_CLONENODE:
   {
-    return new BXmlNode( node->Clone(), true );
+    return new BXmlNode( std::make_shared<XmlTree>( node->Clone() ) );
   }
   default:
     return nullptr;
@@ -508,12 +557,15 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
 
 BObjectRef BXmlNode::OperSubscript( const BObject& obj )
 {
+  TiXmlNode* node = getNode();
+  if ( node == nullptr )
+    return BObjectRef( new BError( "Node was removed" ) );
   if ( obj->isa( OTString ) )
   {
     const String* keystr = obj.impptr<String>();
     TiXmlNode* child = node->FirstChild( keystr->value() );
     if ( child )
-      return BObjectRef( new BXmlNode( child ) );
+      return BObjectRef( new BXmlNode( _tree, child ) );
     return BObjectRef( new BError( "Failed to find node" ) );
   }
   if ( obj->isa( OTLong ) )
@@ -523,7 +575,7 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
     TiXmlNode* child = handle.Child( keyint.value() - 1 )
                            .ToNode();  // keep escript 1based index and change it to 0based
     if ( child )
-      return BObjectRef( new BXmlNode( child ) );
+      return BObjectRef( new BXmlNode( _tree, child ) );
     return BObjectRef( new BError( "Failed to find node" ) );
   }
 
@@ -532,6 +584,9 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
 
 std::string BXmlNode::getStringRep() const
 {
+  TiXmlNode* node = getNode();
+  if ( node == nullptr )
+    return "removed XMLNode";
   if ( node->Type() == TiXmlNode::TINYXML_TEXT )
   {
     std::string text = node->ToText()->Value();
@@ -559,6 +614,7 @@ Bscript::BObjectImp* BXmlAttribute::call_method( const char* methodname, Executo
 Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex*/,
                                                     bool /*forcebuiltin*/ )
 {
+  TiXmlElement* node = element();
   if ( !node )
     return nullptr;
   switch ( id )
@@ -581,6 +637,9 @@ Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex
 
 BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
 {
+  TiXmlElement* node = element();
+  if ( node == nullptr )
+    return BObjectRef( new BError( "Node was removed" ) );
   if ( obj->isa( OTString ) )
   {
     const String* keystr = obj.impptr<String>();
@@ -593,9 +652,10 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
   return BObjectRef( new BError( "xml attribute can only be accessed by name" ) );
 }
 
-BXMLNodeIterator::BXMLNodeIterator( TiXmlDocument* file, BObject* pIter )
+BXMLNodeIterator::BXMLNodeIterator( XmlTreeRef tree, TiXmlDocument* file, BObject* pIter )
     :  // root elements
-      node( nullptr ),
+      _tree( tree ),
+      _node(),
       _file( file ),
       _init( false ),
       m_IterVal( pIter ),
@@ -603,9 +663,10 @@ BXMLNodeIterator::BXMLNodeIterator( TiXmlDocument* file, BObject* pIter )
 {
   m_IterVal.get()->setimp( m_pIterVal );
 }
-BXMLNodeIterator::BXMLNodeIterator( TiXmlNode* _node, BObject* pIter )
+BXMLNodeIterator::BXMLNodeIterator( XmlTreeRef tree, TiXmlNode* node, BObject* pIter )
     :  // child elements
-      node( _node ),
+      _tree( tree ),
+      _node( _tree->handle( node ) ),
       _file( nullptr ),
       _init( false ),
       m_IterVal( pIter ),
@@ -617,28 +678,36 @@ BXMLNodeIterator::BXMLNodeIterator( TiXmlNode* _node, BObject* pIter )
 BObject* BXMLNodeIterator::step()
 {
   m_pIterVal->increment();
-  if ( node == nullptr )  // root elements (iter over BXmlFile)
+  TiXmlNode* node;
+  if ( !_node )  // first step of the iteration over a BXmlFile
     node = _file->FirstChild();
+  else if ( *_node == nullptr )  // the node the iteration stands on was removed
+    return nullptr;
   else if ( _file == nullptr )  // child elements (iter over BXmlNode)
   {
     if ( !_init )
     {
       _init = true;
-      node = node->FirstChild();
+      node = ( *_node )->FirstChild();
     }
     else
-      node = node->NextSiblingElement();
+      node = ( *_node )->NextSiblingElement();
   }
   else  // root elements (iter over BXmlFile)
-    node = node->NextSibling();
+    node = ( *_node )->NextSibling();
   if ( !node )
     return nullptr;
 
-  return new BObject( new BXmlNode( node ) );
+  _node = _tree->handle( node );
+  return new BObject( new BXmlNode( _tree, node ) );
 }
 
-BXMLAttributeIterator::BXMLAttributeIterator( TiXmlElement* _node, BObject* pIter )
-    : node( _node ), nodeAttrib( nullptr ), m_IterVal( pIter ), m_pIterVal( new BLong( 0 ) )
+BXMLAttributeIterator::BXMLAttributeIterator( XmlTreeRef tree, TiXmlNode* node, BObject* pIter )
+    : _tree( tree ),
+      _node( _tree->handle( node ) ),
+      _attrib(),
+      m_IterVal( pIter ),
+      m_pIterVal( new BLong( 0 ) )
 {
   m_IterVal.get()->setimp( m_pIterVal );
 }
@@ -646,20 +715,27 @@ BXMLAttributeIterator::BXMLAttributeIterator( TiXmlElement* _node, BObject* pIte
 BObject* BXMLAttributeIterator::step()
 {
   m_pIterVal->increment();
-  if ( !node )
+  TiXmlElement* node = *_node != nullptr ? ( *_node )->ToElement() : nullptr;
+  if ( !node )  // no element or it was removed
     return nullptr;
-  if ( nodeAttrib == nullptr )
-    nodeAttrib = node->FirstAttribute();
-  else
-    nodeAttrib = nodeAttrib->Next();
-  if ( nodeAttrib )
+  TiXmlAttribute* attrib = node->FirstAttribute();
+  if ( !_attrib.empty() )
   {
-    std::unique_ptr<BStruct> details( new BStruct() );
-    std::string name = nodeAttrib->Name();
-    Clib::sanitizeUnicodeWithIso( &name );
-    details->addMember( name.c_str(), new String( nodeAttrib->Value(), String::Tainted::YES ) );
-    return new BObject( details.release() );
+    // the attribute of the last step is looked up again, it could have been removed meanwhile
+    while ( attrib != nullptr && _attrib != attrib->Name() )
+      attrib = attrib->Next();
+    if ( attrib == nullptr )
+      return nullptr;
+    attrib = attrib->Next();
   }
-  return nullptr;
+  if ( attrib == nullptr )
+    return nullptr;
+
+  _attrib = attrib->Name();
+  std::unique_ptr<BStruct> details( new BStruct() );
+  std::string name = _attrib;
+  Clib::sanitizeUnicodeWithIso( &name );
+  details->addMember( name.c_str(), new String( attrib->Value(), String::Tainted::YES ) );
+  return new BObject( details.release() );
 }
 }  // namespace Pol::Core

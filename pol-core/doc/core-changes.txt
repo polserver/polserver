@@ -1,4 +1,10 @@
 -- POL100.3.0 --
+08-01-2026 Turley:
+    Fixed: XMLNode.AppendXMLNode/AppendXMLText/SetXMLAttribute/RemoveXMLAttribute crashed when an invalid node was used. They return now the error "Node is not an element"
+    Fixed: XMLFile.RemoveXMLNode and XMLNode.RemoveXMLNode never removed anything when a node
+           object was passed, they always returned the error "Failed to find node".
+    Fixed: BinaryFile could not be used anymore after a read had failed, eg after reading past the end of the file.
+           Seek() and Size() work again in that case, making it possible to restore the state.
 07-31-2026 Turley:
     Fixed: uo::MoveItemToSecureTradeWin could crash if the item was not accepted for the trade eg due to CanTrade hook
     Fixed: uo::PrintTextAbovePrivate ignored journal_print for texts containing UTF-8 characters

@@ -8,3 +8,4 @@
 *.ast
 *.unformatted.src
 *.formatted.src
+*.bak
