@@ -8,6 +8,7 @@
 #include "pol/getitem.h"
 #include "pol/globals/settings.h"
 #include "pol/item/item.h"
+#include "pol/layers.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/corpse.h"
 #include "pol/mobile/wornitems.h"
@@ -20,6 +21,8 @@ namespace Pol::Items
 {
 std::string Location::describe() const
 {
+  if ( holds<Preparing>() )
+    return "being prepared";
   if ( holds<Detached>() )
     return "detached";
   if ( holds<InWorld>() )
@@ -37,8 +40,8 @@ std::string Location::describe() const
                         alt->holder != nullptr ? alt->holder->serial : 0 );
   if ( const auto* alt = get_if<InStorage>() )
     return fmt::format( "storage root \"{}\"", alt->key.get() );
-  if ( holds<Intrinsic>() )
-    return "intrinsic equipment";
+  if ( const auto* alt = get_if<Intrinsic>() )
+    return fmt::format( "intrinsic {}", alt->kind == IntrinsicKind::Weapon ? "weapon" : "shield" );
   if ( holds<Absorbed>() )
     return "absorbed";
   return "destroyed";
@@ -61,6 +64,11 @@ u8 Location::layer() const
     return alt->layer;
   if ( const auto* alt = get_if<OnCorpse>() )
     return alt->layer;
+  // Intrinsic equipment is never worn, but scripts read the slot it stands for through
+  // chr.weapon.layer / chr.shield.layer, so the one mapping lives here.
+  if ( const auto* alt = get_if<Intrinsic>() )
+    return static_cast<u8>( alt->kind == IntrinsicKind::Weapon ? Core::LAYER_HAND1
+                                                               : Core::LAYER_HAND2 );
   return 0;
 }
 
@@ -75,6 +83,10 @@ u8 Location::slot() const
 
 Location Item::location() const
 {
+  // An item that has never been given a serial is not destroyed, it is unfinished -- and the
+  // orphan() test below cannot tell those apart. Preparing is stored, so it can.
+  if ( loc_.holds<Preparing>() )
+    return loc_;
   // Both of these are derived rather than stored, so they cannot fall out of step with the rest
   // of the core: destruction is serial == 0, which is what Reap() collects on, and the cursor is
   // the gotten_by link.
@@ -139,8 +151,8 @@ bool validate( const Item& item, const Location& from, const Location& to )
       return reject( item, from, to, "the storage area no longer files it under that key" );
   }
 
-  if ( to.holds<Intrinsic>() && !from.holds<Detached>() )
-    return reject( item, from, to, "intrinsic equipment must be registered before it is placed" );
+  if ( to.holds<Intrinsic>() && !from.holds<Preparing>() )
+    return reject( item, from, to, "only a freshly built item can become intrinsic equipment" );
 
   if ( const auto* on_cursor = to.get_if<OnCursor>() )
   {
@@ -286,7 +298,7 @@ bool attach( Item& item, const Location& to )
   else if ( to.holds<Destroyed>() )
     item.destroy();  // Destroyed is derived from the serial, so there is nothing to record
   else
-    return false;  // Detached, Intrinsic, Absorbed
+    return false;  // Preparing, Detached, Intrinsic, Absorbed
 
   return true;
 }

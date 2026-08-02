@@ -13,6 +13,8 @@
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
 #include "pol/item/location.h"
+#include "pol/item/weapon.h"
+#include "pol/layers.h"
 #include "pol/realms/realm.h"
 #include "pol/storage.h"
 #include "pol/testing/testenv.h"
@@ -228,6 +230,23 @@ void location_test()
     UnitTest( [&]() { return item->location().slot(); }, u8( 0 ), "InWorld has no slot" );
     Core::remove_item_from_world( item );
     item->destroy();
+  }
+
+  // Intrinsic equipment: shared, never worn, and the one population that stays serial-less until
+  // startup finishes. Nothing else in the suite touches it -- deleting the writes that feed
+  // chr.weapon.layer once passed every test.
+  {
+    const Items::Item* wrestling = Core::gamestate.wrestling_weapon;
+    UnitTest( [&]() { return wrestling != nullptr; }, true, "the shard has a wrestling weapon" );
+    if ( wrestling != nullptr )
+    {
+      UnitTest( [&]() { return wrestling->location().holds<Items::Intrinsic>(); }, true,
+                "the wrestling weapon is Intrinsic, not Detached or Destroyed" );
+      UnitTest( [&]() { return wrestling->location().layer(); }, u8( Core::LAYER_HAND1 ),
+                "and reports the hand it stands for, which is what chr.weapon.layer reads" );
+      UnitTest( [&]() { return wrestling->location().container() == nullptr; }, true,
+                "intrinsic equipment is in no container" );
+    }
   }
 }
 }  // namespace Pol::Testing

@@ -38,7 +38,19 @@ namespace Pol::Items
 {
 class Item;
 
-/// Fresh from create(), or staged during world load. Belongs to no registry.
+/// Constructed but not finished being set up: no serial yet, so not in the objecthash either.
+///
+/// Distinct from Destroyed, which is derived from serial == 0 and would otherwise swallow this
+/// state. Item::create() assigns a serial and leaves Detached before it returns, so the only
+/// lasting residents are the objects built with a bare new: intrinsic equipment, until startup
+/// finishes allocating its serials, and a character's worn-items container, which never has a
+/// serial of its own and never joins a registry.
+struct Preparing
+{
+  bool operator==( const Preparing& ) const { return true; }
+};
+
+/// Has a serial and belongs to no registry: fresh from create(), or staged during world load.
 struct Detached
 {
   bool operator==( const Detached& ) const { return true; }
@@ -115,11 +127,21 @@ struct InStorage
   bool operator==( const InStorage& other ) const { return area == other.area && key == other.key; }
 };
 
+/// Which of the two slots a piece of intrinsic equipment fills. Deliberately not a layer: an
+/// intrinsic weapon is never worn. The layer it reports is derived from this, in one place.
+enum class IntrinsicKind : u8
+{
+  Weapon,
+  Shield
+};
+
 /// Intrinsic equipment (the shared wrestling weapon and friends): a real serial, in no container
-/// and no zone, handed to every character at once. Entry-only.
+/// and no zone, handed to every character at once. Entry-only, and never leaves.
 struct Intrinsic
 {
-  bool operator==( const Intrinsic& ) const { return true; }
+  IntrinsicKind kind;
+
+  bool operator==( const Intrinsic& other ) const { return kind == other.kind; }
 };
 
 /// The item became a bit in a spellbook's bitwise_contents. Terminal.
@@ -144,9 +166,10 @@ struct Destroyed
 class Location
 {
 public:
-  Location() : alt_( Detached{} ) {}
+  Location() : alt_( Preparing{} ) {}
 
   // Implicit by design: relocate( item, InWorld{} ) should read as it does.
+  Location( Preparing alt ) : alt_( alt ) {}
   Location( Detached alt ) : alt_( alt ) {}
   Location( InWorld alt ) : alt_( alt ) {}
   Location( InContainer alt ) : alt_( alt ) {}
@@ -195,8 +218,8 @@ public:
   u8 slot() const;
 
 private:
-  std::variant<Detached, InWorld, InContainer, Equipped, OnCorpse, OnCursor, InStorage, Intrinsic,
-               Absorbed, Destroyed>
+  std::variant<Preparing, Detached, InWorld, InContainer, Equipped, OnCorpse, OnCursor, InStorage,
+               Intrinsic, Absorbed, Destroyed>
       alt_;
 };
 

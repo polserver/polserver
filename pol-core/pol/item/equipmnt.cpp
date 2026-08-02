@@ -165,11 +165,15 @@ void insert_intrinsic_equipment( const std::string& name, IntrinsicKind kind, Eq
 /// Deferred allocator for serials during startup, see comments in register_intrinsic_equipment()
 void allocate_intrinsic_equipment_serials()
 {
-  for ( auto* eqp : Core::gamestate.intrinsic_equipments | std::views::values )
+  for ( auto& [key, eqp] : Core::gamestate.intrinsic_equipments )
   {
     eqp->serial = Core::GetNewItemSerialNumber();
     eqp->serial_ext = ctBEu32( eqp->serial );
     Core::objStorageManager.objecthash.Insert( eqp );
+    // Now that it has a serial it can leave Preparing. Intrinsic is where the shared-and-immovable
+    // rule lives, and it is also what answers chr.weapon.layer.
+    if ( !relocate( *eqp, Intrinsic{ key.second } ) )
+      POLLOG_ERRORLN( "Could not register intrinsic equipment {:#x}", eqp->serial );
   }
 }
 

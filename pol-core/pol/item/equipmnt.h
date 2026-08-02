@@ -83,15 +83,6 @@ protected:
   const Core::EquipDesc* tmpl;
 };
 
-/// Which of the two slots a piece of intrinsic equipment fills. Deliberately not a layer: an
-/// intrinsic weapon is never worn, so this only keeps a template's "Weapon foo" and "Shield foo"
-/// apart in the registry.
-enum class IntrinsicKind : u8
-{
-  Weapon,
-  Shield
-};
-
 Equipment* find_intrinsic_equipment( const std::string& name, IntrinsicKind kind );
 void register_intrinsic_equipment( const std::string& name, IntrinsicKind kind, Equipment* equip );
 void insert_intrinsic_equipment( const std::string& name, IntrinsicKind kind, Equipment* equip );
