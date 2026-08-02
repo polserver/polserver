@@ -102,6 +102,9 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
 {
   u32 container_serial = 0;                                  // defaults to item at storage root,
   (void)elem.remove_prop( "CONTAINER", &container_serial );  // so the return value can be ignored
+  // Where the item goes is the loader's business, so it reads the properties that say so rather
+  // than leaving them on the item for somebody else to interpret.
+  u8 saved_layer = static_cast<u8>( elem.remove_ushort( "LAYER", 0 ) );
 
   Items::Item* item = read_item( elem );
   // Austin added 8/10/2006, protect against further crash if item is null. Should throw instead?
@@ -120,11 +123,11 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
 
     if ( cont_item )
     {
-      add_loaded_item( cont_item, item );
+      add_loaded_item( cont_item, item, saved_layer );
     }
     else
     {
-      defer_item_insertion( item, container_serial );
+      defer_item_insertion( item, container_serial, saved_layer );
     }
   }
 }

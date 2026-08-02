@@ -27,6 +27,7 @@
 #include "pol/item/item.h"
 #include "pol/loaddata.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/objecthash.h"
 #include "pol/polclass.h"
 #include "pol/spelbook.h"
@@ -35,9 +36,10 @@
 
 namespace Pol::Core
 {
-void defer_item_insertion( Items::Item* item, pol_serial_t container_serial )
+void defer_item_insertion( Items::Item* item, pol_serial_t container_serial, u8 saved_layer )
 {
-  objStorageManager.deferred_insertions.insert( std::make_pair( container_serial, item ) );
+  objStorageManager.deferred_insertions.insert(
+      std::make_pair( container_serial, DeferredInsertion{ item, saved_layer } ) );
 }
 
 void insert_deferred_items()
@@ -60,7 +62,7 @@ void insert_deferred_items()
     }
 
     pol_serial_t container_serial = deferred_insertion.first;
-    UObject* obj = deferred_insertion.second;
+    UObject* obj = deferred_insertion.second.obj;
 
     if ( IsCharacter( container_serial ) )
     {
@@ -91,7 +93,7 @@ void insert_deferred_items()
       Items::Item* item = static_cast<Items::Item*>( obj );
       if ( cont_item != nullptr )
       {
-        add_loaded_item( cont_item, item );
+        add_loaded_item( cont_item, item, deferred_insertion.second.saved_layer );
       }
       else
       {
@@ -166,7 +168,32 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
   throw std::runtime_error( "Data file integrity error" );
 }
 
-void add_loaded_item( Items::Item* cont_item, Items::Item* item )
+namespace
+{
+/**
+ * Puts a loaded item back on the layer it was rendered on, if it was on one.
+ *
+ * A corpse shows its owner's equipment from a layer list that is not saved: all that survives a
+ * restart is each item's own Layer line, so the list has to be rebuilt here or the corpse comes
+ * back with nothing on it. Which layer an item renders on today is a tiledata question, so the
+ * saved value only decides whether it was worn at all.
+ *
+ * Returns false for anything that is ordinary contents -- the swallowed backpack's items, say --
+ * and for the item that loses a layer it now shares with another, which tiledata changes can
+ * produce. Those are still legitimate corpse contents and the caller inserts them normally.
+ */
+bool add_loaded_item_to_layer( UContainer* cont, Items::Item* item, u8 slot, u8 saved_layer )
+{
+  if ( saved_layer == 0 || !cont->script_isa( POLCLASS_CORPSE ) ||
+       !Items::valid_equip_layer( item ) )
+    return false;
+
+  UCorpse* corpse = static_cast<UCorpse*>( cont );
+  return Items::relocate( *item, Items::OnCorpse{ corpse, item->pos2d(), slot, item->tile_layer } );
+}
+}  // namespace
+
+void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer )
 {
   if ( cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
@@ -216,7 +243,8 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     // world file no longer gets the benefit of the doubt on two things UContainer::add would
     // simply have done: adding to a destroyed container, which add answers with a passert, and
     // putting a container inside itself, which nothing checked at all.
-    if ( !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), slotIndex } ) )
+    if ( !add_loaded_item_to_layer( cont, item, slotIndex, saved_layer ) &&
+         !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), slotIndex } ) )
     {
       ERROR_PRINTLN( "Can't add Item {:#x} to container {:#x}", item->serial, cont->serial );
       throw std::runtime_error( "Data file error" );

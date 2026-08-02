@@ -129,6 +129,17 @@ exported function seed_corpse_with_equipment()
     return ret_error( "the corpse holds no equipment" );
   endif
 
+  // How many of them the corpse renders on a layer, for the restart pass to compare against:
+  // that list is not saved and has to be rebuilt when the world is read back. Recording the
+  // count here rather than hardcoding it keeps the check honest if the template changes.
+  var layered := 0;
+  foreach item in contents
+    if ( item.layer )
+      layered += 1;
+    endif
+  endforeach
+
   SetGlobalProperty( "test_seed_equipped_corpse", corpse.serial );
+  SetGlobalProperty( "test_seed_corpse_layers", layered );
   return 1;
 endfunction

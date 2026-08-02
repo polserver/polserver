@@ -13,8 +13,19 @@
 
 namespace Pol::Core
 {
+/// An object whose container had not been read yet, keyed on that container's serial.
+///
+/// The layer is the one the save recorded for it. It is carried rather than left on the object
+/// because the only thing that still needs it once the container turns up is a corpse, whose layer
+/// list is not saved and has to be rebuilt from its contents.
+struct DeferredInsertion
+{
+  UObject* obj;
+  u8 saved_layer;
+};
+
 // if index is UINT_MAX, has been deleted
-using DeferList = std::multimap<pol_serial_t, UObject*>;
+using DeferList = std::multimap<pol_serial_t, DeferredInsertion>;
 
 class ObjectStorageManager
 {

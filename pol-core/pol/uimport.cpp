@@ -201,6 +201,9 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   u32 container_serial = 0;  // defaults to item in the world's top-level
   (void)elem.remove_prop( "CONTAINER",
                           &container_serial );  // therefore we don't need to check the return value
+  // Where the item goes is the loader's business, so it reads the properties that say so rather
+  // than leaving them on the item for somebody else to interpret.
+  u8 saved_layer = static_cast<u8>( elem.remove_ushort( "LAYER", 0 ) );
 
   Items::Item* item = read_item( elem );
   // dave added 1/15/3, protect against further crash if item is null. Should throw instead?
@@ -238,7 +241,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       }
       else
       {
-        defer_item_insertion( item, container_serial );
+        defer_item_insertion( item, container_serial, saved_layer );
       }
       return;
     }
@@ -265,11 +268,11 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 
     if ( cont_item )
     {
-      add_loaded_item( cont_item, item );
+      add_loaded_item( cont_item, item, saved_layer );
     }
     else
     {
-      defer_item_insertion( item, container_serial );
+      defer_item_insertion( item, container_serial, saved_layer );
     }
   }
 }

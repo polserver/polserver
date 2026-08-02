@@ -485,11 +485,11 @@ void Item::readProperties( Clib::ConfigElem& elem )
   color &= Core::settingsManager.ssopt.item_color_mask;
 
   amount_ = elem.remove_ushort( "AMOUNT", 1 );
-  layer = static_cast<unsigned char>( elem.remove_ushort( "LAYER", 0 ) );
   movable( elem.remove_bool( "MOVABLE", default_movable() ) );
   invisible( elem.remove_bool( "INVISIBLE", default_invisible() ) );
 
-  // NOTE, container is handled specially - it is extracted by the creator.
+  // NOTE, container and layer are handled specially - they say where the item goes rather than
+  // what it is, so the loader reads them itself and hands them to whatever places the item.
 
   on_use_script_ = elem.remove_string( "ONUSESCRIPT", "" );
   equip_script_ = elem.remove_string( "EQUIPSCRIPT", equip_script_.get().c_str() );
