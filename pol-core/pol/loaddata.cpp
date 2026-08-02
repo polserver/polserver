@@ -120,8 +120,7 @@ void insert_deferred_items()
 
 void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
 {
-  item->layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
-  item->tile_layer = item->layer;                  // adjust for tiledata changes
+  item->tile_layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
 
   // The equip script above runs after equippable() has already said yes, and is free to make the
   // item unequippable again before it is actually worn. Character::equip opens with a
