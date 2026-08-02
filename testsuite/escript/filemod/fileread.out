@@ -7,7 +7,7 @@ unknown pkg: error{ errortext = "Error in filename descriptor." }
 bad param:   error{ errortext = "Invalid parameter type." }
 --- ReadFile
 crlf lines:  2
-crlf keeps carriage return: { 97, 13 }
+crlf line 1: a
 empty file:  0
 no final newline: { no newline at end }
 missing:     error{ errortext = "File not found: ./filemod/nosuchfile" }

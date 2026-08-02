@@ -18,7 +18,10 @@ program FileReadTest()
   print( "--- ReadFile" );
   var crlf := ReadFile( ":filetest:scratch/crlf.txt" );
   print( "crlf lines:  " + Len( crlf ) );
-  print( "crlf keeps carriage return: " + CAscZ( crlf[1] ) );
+  // ReadFile opens in text mode, so windows translates CRLF and keeps only "a" while posix
+  // returns "a\r". Only the payload in front of the line break can be compared portably.
+  var crlfline := crlf[1];
+  print( "crlf line 1: " + crlfline[1, 1] );
   print( "empty file:  " + Len( ReadFile( ":filetest:scratch/empty.txt" ) ) );
   print( "no final newline: " + ReadFile( ":filetest:scratch/noeol.txt" ) );
   print( "missing:     " + ReadFile( ":filetest:nosuchfile" ) );
