@@ -66,7 +66,6 @@ Item* Item::clone() const
   item->setposition( pos() );
   item->facing = facing;
   item->setamount( amount_ );
-  item->layer = layer;
   item->tile_layer = tile_layer;
   item->sellprice_( sellprice_() );
   item->buyprice_( buyprice_() );
@@ -360,8 +359,10 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( amount_ != 1 )
     sw.add( "Amount", amount_ );
 
-  if ( layer != 0 )
-    sw.add( "Layer", (int)layer );
+  // Where the item is, not something it carries: only a worn item and the equipment a corpse
+  // renders have a layer, and the loader reads this back as one of the two.
+  if ( u8 worn_on = location().layer(); worn_on != 0 )
+    sw.add( "Layer", (int)worn_on );
 
   if ( movable() != default_movable() )
     sw.add( "Movable", movable() );
@@ -688,17 +689,6 @@ unsigned short Item::get_senditem_amount() const
   return amount_;
 }
 
-bool Item::setlayer( unsigned char in_layer )
-{
-  if ( Plib::tilelayer( graphic ) == in_layer )
-  {
-    layer = in_layer;
-    return true;
-  }
-
-  return false;
-}
-
 bool Item::stackable() const
 {
   if ( flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) )
@@ -969,7 +959,7 @@ void Item::set_use_script( const std::string& scriptname )
 bool Item::setgraphic( u16 newgraphic )
 {
   /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
-  if ( layer && layer != Plib::tilelayer( newgraphic ) )
+  if ( u8 worn_on = location().layer(); worn_on && worn_on != Plib::tilelayer( newgraphic ) )
   {
     return false;
   }

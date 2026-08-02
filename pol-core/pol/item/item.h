@@ -157,7 +157,6 @@ public:
   void disable_decay();
   bool can_decay() const;
 
-  bool setlayer( unsigned char layer );
   bool setgraphic( u16 newobjtype ) override;
   bool setcolor( u16 newcolor ) override;
   void on_color_changed() override;
@@ -351,7 +350,6 @@ protected:
   u8 slot_index_;
 
 public:
-  u8 layer;
   u8 tile_layer;
   unsigned short hp_;
   unsigned short maxhp() const;

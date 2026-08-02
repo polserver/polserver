@@ -222,8 +222,6 @@ UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem,
   auto tmpl = new ArmorDesc( Core::settingsManager.extobj.shield, elem, pkg, true );
   tmpl->is_intrinsic = true;
   auto armr = new UArmor( *tmpl, tmpl );
-  // Not a location -- intrinsic equipment is never worn. Scripts read it through chr.shield.layer.
-  armr->layer = Core::LAYER_HAND2;
   armr->tmpl = tmpl;
   armr->copyprops( tmpl->props );
 

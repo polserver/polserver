@@ -812,7 +812,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( amount_ );
     break;
   case MBR_LAYER:
-    return new BLong( layer );
+    return new BLong( location().layer() );
     break;
   case MBR_TILE_LAYER:
     return new BLong( tile_layer );

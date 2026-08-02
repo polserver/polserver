@@ -27,7 +27,6 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
       decayat_gameclock_( 0 ),
       amount_( 1 ),
       slot_index_( 0 ),
-      layer( 0 ),
       hp_( id.maxhp )
 {
   graphic = id.graphic;
@@ -66,17 +65,16 @@ Item::~Item()
 
 size_t Item::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( Core::UContainer* ) /* container*/
-         + sizeof( int )                                     /* decayat_gameclock_*/
-         + sizeof( u16 )                                     /* amount_*/
-         + sizeof( u8 )                                      /* slot_index_*/
-         + sizeof( const ItemDesc* )                         /* _itemdesc*/
-         + sizeof( u8 )                                      /* layer*/
-         + sizeof( u8 )                                      /* tile_layer*/
-         + sizeof( unsigned short )                          /* hp_*/
-         + sizeof( boost_utils::script_name_flystring )      /*on_use_script_*/
-         + sizeof( boost_utils::script_name_flystring )      /*equip_script_*/
-         + sizeof( boost_utils::script_name_flystring )      /*unequip_script_*/
-         + sizeof( boost_utils::script_name_flystring );     /*snoop_script_*/
+  return base::estimatedSize() + sizeof( Location )      /* loc_*/
+         + sizeof( int )                                 /* decayat_gameclock_*/
+         + sizeof( u16 )                                 /* amount_*/
+         + sizeof( u8 )                                  /* slot_index_*/
+         + sizeof( const ItemDesc* )                     /* _itemdesc*/
+         + sizeof( u8 )                                  /* tile_layer*/
+         + sizeof( unsigned short )                      /* hp_*/
+         + sizeof( boost_utils::script_name_flystring )  /*on_use_script_*/
+         + sizeof( boost_utils::script_name_flystring )  /*equip_script_*/
+         + sizeof( boost_utils::script_name_flystring )  /*unequip_script_*/
+         + sizeof( boost_utils::script_name_flystring ); /*snoop_script_*/
 }
 }  // namespace Pol::Items

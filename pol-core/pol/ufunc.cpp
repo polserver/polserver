@@ -529,7 +529,7 @@ void send_corpse_equip( Client* client, const UCorpse* corpse )
     if ( !can_see_on_corpse( client, item2 ) )
       continue;
 
-    msg->Write<u8>( item2->layer );
+    msg->Write<u8>( static_cast<u8>( layer ) );
     msg->Write<u32>( item2->serial_ext );
   }
 
@@ -774,7 +774,7 @@ void send_wornitem( Client* client, const Character* chr, const Item* item, u8 a
 
 void send_wornitem( Client* client, const Character* chr, const Item* item )
 {
-  send_wornitem( client, chr, item, item->layer );
+  send_wornitem( client, chr, item, item->location().layer() );
 }
 
 void send_wornitem_to_inrange( const Character* chr, const Item* item )
@@ -783,7 +783,7 @@ void send_wornitem_to_inrange( const Character* chr, const Item* item )
   msg->Write<u32>( item->serial_ext );
   msg->WriteFlipped<u16>( item->graphic );
   msg->offset++;  // unk7
-  msg->Write<u8>( item->layer );
+  msg->Write<u8>( item->location().layer() );
   msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u16>( item->color );
   transmit_to_inrange( item, &msg->buffer, msg->offset );
@@ -802,7 +802,7 @@ void update_wornitem_to_inrange( const Character* chr, const Item* item )
     msg->Write<u32>( item->serial_ext );
     msg->WriteFlipped<u16>( item->graphic );
     msg->offset++;  // unk7
-    msg->Write<u8>( item->layer );
+    msg->Write<u8>( item->location().layer() );
     msg->Write<u32>( chr->serial_ext );
     msg->WriteFlipped<u16>( item->color );
     transmit_to_inrange( item, &msg->buffer, msg->offset );
@@ -847,10 +847,12 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
   if ( worn_item != nullptr && worn_item->script_isa( POLCLASS_CONTAINER ) )
   {
     // Ignore these layers explicitly. Backpack especially since it was
-    // already checked above.
-    if ( worn_item->layer != LAYER_HAIR && worn_item->layer != LAYER_FACE &&
-         worn_item->layer != LAYER_BEARD && worn_item->layer != LAYER_BACKPACK &&
-         worn_item->layer != LAYER_MOUNT )
+    // already checked above. find_wornitem also reaches inside worn containers, and what it hands
+    // back from in there is on no layer at all -- which is why this asks where the item is rather
+    // than which layer its graphic belongs on.
+    const u8 worn_on = worn_item->location().layer();
+    if ( worn_on != LAYER_HAIR && worn_on != LAYER_FACE && worn_on != LAYER_BEARD &&
+         worn_on != LAYER_BACKPACK && worn_on != LAYER_MOUNT )
     {
       UContainer* worn_cont = static_cast<UContainer*>( worn_item );
       if ( worn_cont != nullptr )
@@ -1984,7 +1986,9 @@ void UpdateCharacterOnDestroyItem( Item* item )
   Character* chr_owner = item->GetCharacterOwner();
   if ( chr_owner != nullptr )
   {
-    if ( item->layer && chr_owner->is_equipped( item ) )
+    // is_equipped() is the whole test: an item this character wears is on a layer by definition,
+    // so the layer check that used to precede it could never say anything new.
+    if ( chr_owner->is_equipped( item ) )
     {
       item->check_unequiptest_scripts();
       item->check_unequip_script();

@@ -67,9 +67,6 @@ public:
                         unsigned int* PC ) const override;
 
 protected:
-  void RemoveItemFromLayer( Items::Item* item );
-  void PutItemOnLayer( Items::Item* item );
-
   explicit UCorpse( const Items::ContainerDesc& desc );
   void spill_contents() override;
   void printProperties( Clib::StreamWriter& sw ) const override;

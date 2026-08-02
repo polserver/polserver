@@ -1413,17 +1413,18 @@ void Character::equip( Items::Item* item )
   item->setposition( pos() );  // TODO POS realm should be nullptr
   wornitems->PutItemOnLayer( item );
 
-  // PutItemOnLayer sets the layer, so we can go on now
-  // checking item->layer instead of item->tile_layer
-  if ( item->isa( Core::UOBJ_CLASS::CLASS_WEAPON ) &&
-       ( item->layer == Core::LAYER_HAND1 || item->layer == Core::LAYER_HAND2 ) )
+  // The layer it is now worn on is the one its tiledata entry names -- that is what PutItemOnLayer
+  // just filed it under.
+  const bool in_hand =
+      item->tile_layer == Core::LAYER_HAND1 || item->tile_layer == Core::LAYER_HAND2;
+  if ( item->isa( Core::UOBJ_CLASS::CLASS_WEAPON ) && in_hand )
   {
     weapon = static_cast<Items::UWeapon*>( item );
     reset_swing_timer();
   }
   else if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
   {
-    if ( item->layer == Core::LAYER_HAND1 || item->layer == Core::LAYER_HAND2 )
+    if ( in_hand )
     {
       shield = static_cast<Items::UArmor*>( item );
     }
@@ -2267,13 +2268,12 @@ void Character::die()
     Items::Item* item = wornitems->GetItemOnLayer( layer );
     if ( item == nullptr )
       continue;
-    if ( item->layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
+    if ( layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
       continue;
     // never ever touch this order
     // first only copy the hair layers and only these!
     // then check for newbie and then I dont care
-    if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR ||
-         item->layer == Core::LAYER_FACE )
+    if ( layer == Core::LAYER_BEARD || layer == Core::LAYER_HAIR || layer == Core::LAYER_FACE )
     {
       // Copies hair items onto the corpse
       _copy_item( item );
@@ -2281,15 +2281,14 @@ void Character::die()
     }
     if ( item->newbie() || item->insured() || item->no_drop() )
       continue;
-    if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
+    if ( layer != Core::LAYER_MOUNT && layer != Core::LAYER_ROBE_DRESS &&
          !item->movable() )  // dress layer needs to be unequipped for deathrobe
     {
       _copy_item( item );
       continue;
     }
 
-    if ( item->layer == Core::LAYER_MOUNT &&
-         item->objtype_ == Core::settingsManager.extobj.boatmount )
+    if ( layer == Core::LAYER_MOUNT && item->objtype_ == Core::settingsManager.extobj.boatmount )
     {
       Multi::UMulti* multi = realm()->find_supporting_multi( pos3d() );
 
@@ -2360,8 +2359,6 @@ void Character::die()
     {
       Items::Item* bp_item = tmp.back();
       tmp.pop_back();
-      // extract() has already detached these; the layer is the one thing it leaves behind.
-      bp_item->layer = 0;
       UPDATE_CHECKPOINT();
       if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
            bp->can_add( *bp_item ) )
@@ -2400,13 +2397,11 @@ void Character::die()
       Items::Item* item = wornitems->GetItemOnLayer( layer );
       if ( item == nullptr )
         continue;
-      if ( item->layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
+      if ( layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
         continue;
-      if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR ||
-           item->layer == Core::LAYER_FACE )
+      if ( layer == Core::LAYER_BEARD || layer == Core::LAYER_HAIR || layer == Core::LAYER_FACE )
         continue;
-      if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
-           !item->movable() )
+      if ( layer != Core::LAYER_MOUNT && layer != Core::LAYER_ROBE_DRESS && !item->movable() )
         continue;
       if ( ( item->newbie() || item->no_drop() || item->use_insurance() ) && bp->can_add( *item ) )
       {

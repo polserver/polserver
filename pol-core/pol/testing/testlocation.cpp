@@ -62,7 +62,7 @@ struct Snapshot
   explicit Snapshot( const Items::Item* item )
       : loc( item->location().describe() ),
         container( item->container() ),
-        layer( item->layer ),
+        layer( item->location().layer() ),
         slot( item->slot_index() ),
         zone_entries( occurrences( item->realm(), item->pos2d(), item ) )
   {

@@ -3477,8 +3477,6 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
       return new BError( "Item was destroyed in EquipTest script" );
     }
 
-    item->layer = Plib::tilelayer( item->graphic );
-
     if ( item->has_equip_script() )
     {
       BObjectImp* res = item->run_equip_script( chr, false );

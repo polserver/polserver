@@ -61,7 +61,6 @@ void WornItemsContainer::PutItemOnLayer( Items::Item* item )
 
   item->set_dirty();
   item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );  // TODO POS nullptr
-  item->layer = item->tile_layer;
   contents_[item->tile_layer] = Contents::value_type( item );
   item->set_location( Items::Equipped{ chr_owner, item->tile_layer } );
   add_bulk( item );
@@ -79,8 +78,6 @@ void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
 
   item->set_dirty();
   contents_[item->tile_layer] = nullptr;
-  // 12-17-2008 MuadDib added to clear item.layer properties.
-  item->layer = 0;
   item->set_location( Items::Detached{} );
   remove_bulk( item );
 }

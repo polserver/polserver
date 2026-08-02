@@ -51,13 +51,11 @@ void UCorpse::take_contents_to_grave( bool newvalue )
 
 void UCorpse::add( Item* item, const Pos2d& pos )
 {
-  // When an item is added, check if it's equippable and add to the appropriate layer
+  // An item the layer list already names is rendered on the corpse itself, so what the corpse looks
+  // like changes with it. Everything else about the insertion is a container's business.
   if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == item )
-  {
-    PutItemOnLayer( item );
-  }
+    set_dirty();
 
-  // plus the defaults from UContainer
   base::add( item, pos );
 }
 
@@ -90,9 +88,7 @@ void UCorpse::remove( iterator itr )
     auto& item_on_layer = GetItemOnLayer( item->tile_layer );
 
     if ( item_on_layer != nullptr && item_on_layer->serial == item->serial )
-    {
-      RemoveItemFromLayer( item );
-    }
+      set_dirty();  // one of the items the corpse renders is leaving it
   }
   base::remove( itr );
 }
@@ -123,26 +119,6 @@ void UCorpse::spill_contents()
 
   if ( !take_contents_to_grave() )
     base::spill_contents();
-}
-
-void UCorpse::PutItemOnLayer( Item* item )
-{
-  passert( Items::valid_equip_layer(
-      item ) );  // Calling code must make sure that item->tile_layer is valid!
-
-  item->set_dirty();
-  set_dirty();
-  item->layer = item->tile_layer;
-}
-
-void UCorpse::RemoveItemFromLayer( Item* item )
-{
-  passert( Items::valid_equip_layer(
-      item ) );  // Calling code must make sure that item->tile_layer is valid!
-
-  item->set_dirty();
-  set_dirty();
-  item->layer = 0;
 }
 
 void UCorpse::printProperties( Clib::StreamWriter& sw ) const

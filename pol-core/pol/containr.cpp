@@ -795,7 +795,6 @@ void UContainer::spill_contents()
       destroy_item( item );
       continue;
     }
-    item->layer = 0;
     send_item_moved( item, item->pos() );
   }
 }
