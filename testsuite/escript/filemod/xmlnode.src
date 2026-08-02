@@ -61,7 +61,26 @@ program XMLNodeTest()
   print( "append:      " + clone.appendxmlnode( "added" ) );
   print( "in clone:    " + clone["added"] );
   print( "in file:     " + OpenXMLFile( "filemod/xmltest.xml" )[2]["added"] );
+
+  print( "--- nodes outliving their file" );
+  // the XMLFile is only a temporary here, a node keeps the document alive on its own
+  var orphan := detached();
+  print( "node:        " + orphan + " [" + orphan.type + "]" );
+  print( "subscript:   " + orphan["Hello"][1] );
+  print( "child:       " + orphan.firstxmlchild() );
+  print( "attributes:  " + orphan["nodetwo"].attributes.propnames() );
+  foreach child in orphan
+    print( "  " + _child_iter + ": " + child );
+  endforeach
+  foreach attribute in ( OpenXMLFile( "filemod/xmltest.xml" )[2]["nodetwo"].attributes )
+    print( "  " + _attribute_iter + ": " + attribute );
+  endforeach
 endprogram
+
+// returns the root element, the XMLFile object it came from is gone by then
+function detached()
+  return OpenXMLFile( "filemod/xmltest.xml" )[2];
+endfunction
 
 // returns a clone of the root element, the XMLFile object it came from is gone by then
 function cloned()

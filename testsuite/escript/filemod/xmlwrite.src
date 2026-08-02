@@ -40,6 +40,42 @@ program XMLWriteTest()
   print( "by node:     " + root.removexmlnode( child ) );
   print( xml.xmltostring() );
 
+  print( "--- a removed node" );
+  // child is gone from the document, the script object survives but does not point at a node
+  // anymore, every access on it fails instead of using the memory of the deleted node
+  print( "as string:   " + child );
+  if ( child )
+    print( "istrue:      1" );
+  else
+    print( "istrue:      0" );
+  endif
+  print( "member:      " + child.type );
+  print( "attributes:  " + child.attributes );
+  print( "method:      " + child.firstxmlchild() );
+  print( "subscript:   " + child["whatever"] );
+  print( "remove:      " + root.removexmlnode( child ) );
+  var count := 0;
+  foreach sub in child
+    count := count + 1;
+  endforeach
+  print( "iterations:  " + count );
+
+  print( "--- removing while iterating" );
+  var doc := CreateXMLFile();
+  var top := doc.appendxmlnode( "top", struct{ i := 1, j := 2 } );
+  top.appendxmlnode( "one" );
+  top.appendxmlnode( "two" );
+  // removing the node the iteration stands on ends it, the following nodes are not reached
+  foreach sub in top
+    print( "  " + _sub_iter + ": " + sub );
+    top.removexmlnode( sub );
+  endforeach
+  foreach attribute in ( top.attributes )
+    print( "  " + _attribute_iter + ": " + attribute );
+    top.removexmlattribute( "j" );
+  endforeach
+  print( "left:        " + doc.xmltostring( "" ) );
+
   print( "--- save and reopen" );
   print( "save:        " + xml.savexml( TARGET ) );
   var reopened := OpenXMLFile( TARGET );

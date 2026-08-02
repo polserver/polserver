@@ -47,6 +47,22 @@ by node:     1
 <root decimal="2.5" number="5" text="a value" />
 <!--file comment-->
 
+--- a removed node
+as string:   removed XMLNode
+istrue:      0
+member:      error{ errortext = "Node was removed" }
+attributes:  error{ errortext = "Node was removed" }
+method:      error{ errortext = "Node was removed" }
+subscript:   error{ errortext = "Node was removed" }
+remove:      error{ errortext = "Failed to find node" }
+iterations:  0
+--- removing while iterating
+  1: one
+  1: struct{ i = "1" }
+left:        <top i="1">
+<two />
+</top>
+
 --- save and reopen
 save:        1
 typeof:      XMLFile

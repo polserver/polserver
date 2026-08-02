@@ -32,3 +32,12 @@ attributes:  { i, j }
 append:      added
 in clone:    added
 in file:     error{ errortext = "Failed to find node" }
+--- nodes outliving their file
+node:        root [XMLElement]
+subscript:   World
+child:       Hello
+attributes:  { i, j }
+  1: Hello
+  2: nodetwo
+  1: struct{ i = "1" }
+  2: struct{ j = "2" }
