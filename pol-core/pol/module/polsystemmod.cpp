@@ -351,8 +351,11 @@ BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
   {
     if ( type > 0xFF )
       return new BError( "Packet type too high" );
+    if ( size != Core::MSGLEN_VARIABLE &&
+         ( size < 0 || static_cast<size_t>( size ) > Core::MAX_PACKET_LEN ) )
+      return new BError( "Invalid packet size" );
 
-    return new Core::BPacket( static_cast<u8>( type ), static_cast<signed short>( size ) );
+    return new Core::BPacket( static_cast<u8>( type ), size );
   }
 
   return new BError( "Invalid parameter type" );
