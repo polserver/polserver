@@ -1,0 +1,214 @@
+// Packets built from scratch in eScript and put on the wire.
+//
+// testpkgs/packet asserts what the Packet object does to its own bytes; this file
+// asserts that those bytes are a real packet - a 0x1C speech message assembled
+// field by field arrives at a test client and is understood as speech, and
+// SendAreaPacket reaches exactly the clients it should.
+
+include "pkthook";
+
+// 0x1C: serial at 3, body at 7, texttype at 9, colour at 10, font at 12, a 30 byte
+// name at 14, and the text from 44 to the end.
+const SPEECH_SERIAL_OFFSET := 3;
+const SPEECH_BODY_OFFSET := 7;
+const SPEECH_TYPE_OFFSET := 9;
+const SPEECH_COLOR_OFFSET := 10;
+const SPEECH_FONT_OFFSET := 12;
+const SPEECH_NAME_OFFSET := 14;
+
+const PROBE_NAME := "Probe";
+const PROBE_BODY := 0x190;
+const PROBE_COLOR := 42;
+const PROBE_FONT := 3;
+
+program test_packet_build()
+  return pkthook_setup();
+endprogram
+
+// Assembles a 0x1C ASCII speech packet carrying the given text. Every field is
+// written by hand, and the packet grows to fit as they are - the encoded length at
+// offset 1 is maintained by the Set methods.
+function build_speech( text )
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+
+  pkt.SetInt32( SPEECH_SERIAL_OFFSET, char2.serial );
+  pkt.SetInt16( SPEECH_BODY_OFFSET, PROBE_BODY );
+  pkt.SetInt8( SPEECH_TYPE_OFFSET, TEXTTYPE_NORMAL );
+  pkt.SetInt16( SPEECH_COLOR_OFFSET, PROBE_COLOR );
+  pkt.SetInt16( SPEECH_FONT_OFFSET, PROBE_FONT );
+  pkt.SetString( SPEECH_NAME_OFFSET, PROBE_NAME, 1 );
+
+  var res := pkt.SetString( SPEECH_TEXT_OFFSET, text, 1 );
+  if ( res != 1 )
+    return ret_error( $"could not write the text: {res}" );
+  endif
+
+  // the packet is now exactly the header, the text and its terminator
+  var expected := SPEECH_TEXT_OFFSET + text.length() + 1;
+  var size := pkt.GetSize();
+  if ( size != expected )
+    return ret_error( $"the built packet is {size} bytes, expected {expected}" );
+  endif
+  var encoded := pkt.GetInt16( 1 );
+  if ( encoded != expected )
+    return ret_error( $"the encoded length is {encoded}, expected {expected}" );
+  endif
+
+  return pkt;
+endfunction
+
+// a packet a script built itself arrives as speech, with every field where the
+// script put it
+exported function packet_build_reaches_client( unused resmgn )
+  var text := "built " + CStr( ReadMillisecondClock() );
+  var pkt := build_speech( text );
+  if ( !pkt )
+    return pkt;
+  endif
+
+  Clear_Event_Queue();
+  var res := pkt.SendPacket( char );
+  if ( res != 1 )
+    return ret_error( $"SendPacket answered {res}" );
+  endif
+
+  var ev := wait_for_text( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( CInt( ev.serial ) != char2.serial )
+    return ret_error( $"the speech came from 0x{ev.serial:x}, expected 0x{char2.serial:x}" );
+  elseif ( CInt( ev.model ) != PROBE_BODY )
+    return ret_error( $"the body is 0x{ev.model:x}, expected 0x{PROBE_BODY:x}" );
+  elseif ( ev.name != PROBE_NAME )
+    return ret_error( $"the name is \"{ev.name}\", expected \"{PROBE_NAME}\"" );
+  elseif ( CInt( ev.color ) != PROBE_COLOR or CInt( ev.font ) != PROBE_FONT )
+    return ret_error( $"colour {ev.color} font {ev.font}, expected {PROBE_COLOR}/{PROBE_FONT}" );
+  elseif ( CInt( ev.texttype ) != TEXTTYPE_NORMAL )
+    return ret_error( $"the texttype is {ev.texttype}, expected {TEXTTYPE_NORMAL}" );
+  elseif ( CInt( ev.unicode ) )
+    return ret_error( "a plain 0x1C arrived as a unicode message" );
+  endif
+
+  // the other client was told nothing - SendPacket goes to one client only
+  return no_text_for( 1, text );
+endfunction
+
+// an area send reaches every client in range and answers how many that was
+exported function packet_build_area_both( unused resmgn )
+  var text := "builtarea " + CStr( ReadMillisecondClock() );
+  var pkt := build_speech( text );
+  if ( !pkt )
+    return pkt;
+  endif
+
+  Clear_Event_Queue();
+  // the two clients stand next to each other at 100,50 and 101,50
+  var count := pkt.SendAreaPacket( 100, 50, 5, _DEFAULT_REALM );
+  if ( count != 2 )
+    return ret_error( $"the area send reached {count} clients, expected 2" );
+  endif
+
+  var deadline := ReadMillisecondClock() + 10000;
+  var found := { 0, 0 };
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or ev.msg != text )
+      continue;
+    endif
+    // client event numbers arrive as Doubles, and indexing with one of those
+    // hands back the whole array
+    var idx := CInt( ev.id ) + 1;
+    if ( idx < 1 or idx > 2 or found[idx] )
+      continue;
+    endif
+    found[idx] := ev;
+    if ( found[1] and found[2] )
+      return 1;
+    endif
+  endwhile
+
+  // a ternary cannot go inside an interpolated string, so the id is worked out first
+  var missing := 1;
+  if ( !found[1] )
+    missing := 0;
+  endif
+  return ret_error( $"client {missing} never heard the area packet" );
+endfunction
+
+// and the range really is a range: at range 0 only the client standing on the
+// given tile is reached
+exported function packet_build_area_range( unused resmgn )
+  var text := "builtrange " + CStr( ReadMillisecondClock() );
+  var pkt := build_speech( text );
+  if ( !pkt )
+    return pkt;
+  endif
+
+  Clear_Event_Queue();
+  var count := pkt.SendAreaPacket( char.x, char.y, 0, _DEFAULT_REALM );
+  if ( count != 1 )
+    return ret_error( $"the area send reached {count} clients, expected 1" );
+  endif
+
+  var ev := wait_for_text( 0, text );
+  if ( !ev )
+    return ev;
+  endif
+
+  return no_text_for( 1, text );
+endfunction
+
+// nobody in range means nobody is sent to, and the count says so
+exported function packet_build_area_empty( unused resmgn )
+  var text := "builtempty " + CStr( ReadMillisecondClock() );
+  var pkt := build_speech( text );
+  if ( !pkt )
+    return pkt;
+  endif
+
+  Clear_Event_Queue();
+  var count := pkt.SendAreaPacket( 20, 150, 5, _DEFAULT_REALM );
+  if ( count != 0 )
+    return ret_error( $"an empty area reached {count} clients" );
+  endif
+
+  var res := no_text_for( 0, text );
+  if ( !res )
+    return res;
+  endif
+  return no_text_for( 1, text );
+endfunction
+
+// A packet a script sends is transmitted like any other, so it passes through the
+// outgoing packet hook on its way out and the hook can still rewrite it.
+exported function packet_build_meets_the_hook( unused resmgn )
+  var text := "pkthook1c built " + CStr( ReadMillisecondClock() );
+  var replaced := "pkthook1c replaced by the hook";
+  var pkt := build_speech( text );
+  if ( !pkt )
+    return pkt;
+  endif
+
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, struct{ match := "pkthook1c", replace := replaced } );
+  pkt.SendPacket( char );
+
+  var ev := wait_for_text( 0, replaced );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !ev )
+    return ev;
+  endif
+
+  var log := hook_log( PKTHOOK_0x1C_LOG );
+  var entry := hook_entry_for( log, char.serial );
+  if ( !entry )
+    return entry;
+  endif
+  if ( entry.text != text )
+    return ret_error( $"the hook read \"{entry.text}\", expected \"{text}\"" );
+  endif
+
+  return 1;
+endfunction

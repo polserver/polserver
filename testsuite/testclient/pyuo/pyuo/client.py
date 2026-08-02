@@ -1422,10 +1422,15 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def requestStatus(self, serial=None):
-    ''' Requests basic status (0x11 packet) of the player or of a given object '''
+  def requestStatus(self, serial=None, type=None):
+    ''' Requests basic status (0x11 packet) of the player or of a given object
+    @param serial int: The object to ask about, the player itself when omitted
+    @param type int: What to request, see GetPlayerStatusPacket.TYP_ constants.
+                     Defaults to the basic status.
+    '''
     po = packets.GetPlayerStatusPacket()
-    po.fill(po.TYP_BASE, self.player.serial if serial is None else serial)
+    po.fill(po.TYP_BASE if type is None else type,
+            self.player.serial if serial is None else serial)
     self.queue(po)
 
   @logincomplete

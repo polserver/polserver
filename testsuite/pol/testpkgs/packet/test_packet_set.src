@@ -1,0 +1,330 @@
+// The Packet object's writers: the SetInt family, the three string writers and
+// SetSize, including what a fixed length packet refuses and how a variable length
+// one grows and maintains its encoded size.
+use uo;
+use os;
+use basic;
+use polsys;
+
+include "testutil";
+
+program packet_set_tests()
+  return 1;
+endprogram
+
+// every integer writer round trips through its matching reader
+exported function set_int_round_trips()
+  var pkt := CreatePacket( 0xAA, 16 );
+
+  pkt.SetInt8( 1, 0xAB );
+  var value := pkt.GetInt8( 1 );
+  if ( value != 0xAB )
+    return ret_error( $"SetInt8 round trip gave 0x{value:x}" );
+  endif
+
+  pkt.SetInt16( 2, 0x1234 );
+  value := pkt.GetInt16( 2 );
+  if ( value != 0x1234 )
+    return ret_error( $"SetInt16 round trip gave 0x{value:x}" );
+  endif
+  // written big endian, so the high byte comes first
+  value := pkt.GetInt8( 2 );
+  if ( value != 0x12 )
+    return ret_error( $"SetInt16 is not big endian: 0x{value:x}" );
+  endif
+
+  pkt.SetInt16Flipped( 4, 0x1234 );
+  value := pkt.GetInt16Flipped( 4 );
+  if ( value != 0x1234 )
+    return ret_error( $"SetInt16Flipped round trip gave 0x{value:x}" );
+  endif
+  value := pkt.GetInt8( 4 );
+  if ( value != 0x34 )
+    return ret_error( $"SetInt16Flipped is not little endian: 0x{value:x}" );
+  endif
+
+  pkt.SetInt32( 6, 0x12345678 );
+  value := pkt.GetInt32( 6 );
+  if ( value != 0x12345678 )
+    return ret_error( $"SetInt32 round trip gave 0x{value:x}" );
+  endif
+  value := pkt.GetInt8( 6 );
+  if ( value != 0x12 )
+    return ret_error( $"SetInt32 is not big endian: 0x{value:x}" );
+  endif
+
+  pkt.SetInt32Flipped( 10, 0x12345678 );
+  value := pkt.GetInt32Flipped( 10 );
+  if ( value != 0x12345678 )
+    return ret_error( $"SetInt32Flipped round trip gave 0x{value:x}" );
+  endif
+  value := pkt.GetInt8( 10 );
+  if ( value != 0x78 )
+    return ret_error( $"SetInt32Flipped is not little endian: 0x{value:x}" );
+  endif
+
+  return 1;
+endfunction
+
+// a fixed length packet cannot be resized, so a write that would have to grow it
+// is refused and changes nothing
+exported function set_fixed_refuses_growth()
+  var pkt := CreatePacket( 0xAA, 16 );
+
+  var res := pkt.SetInt8( 16, 1 );
+  if ( res != error )
+    return ret_error( $"SetInt8 past the end was accepted: {res}" );
+  endif
+  res := pkt.SetInt16( 15, 1 );
+  if ( res != error )
+    return ret_error( $"SetInt16 straddling the end was accepted: {res}" );
+  endif
+  res := pkt.SetInt32( 13, 1 );
+  if ( res != error )
+    return ret_error( $"SetInt32 straddling the end was accepted: {res}" );
+  endif
+  res := pkt.SetString( 14, "abc", 0 );
+  if ( res != error )
+    return ret_error( $"SetString running past the end was accepted: {res}" );
+  endif
+  res := pkt.SetSize( 20 );
+  if ( res != error )
+    return ret_error( $"a fixed length packet was resized: {res}" );
+  endif
+
+  var size := pkt.GetSize();
+  if ( size != 16 )
+    return ret_error( $"a refused write changed the size to {size}" );
+  endif
+
+  return 1;
+endfunction
+
+// a variable length packet grows to fit a write, and keeps the length it encodes
+// at offset 1 in step
+exported function set_variable_grows()
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+
+  pkt.SetInt8( 5, 0xAB );
+  var size := pkt.GetSize();
+  if ( size != 6 )
+    return ret_error( $"wrong size after growing: {size}" );
+  endif
+  var encoded := pkt.GetInt16( 1 );
+  if ( encoded != 6 )
+    return ret_error( $"the encoded length is {encoded}, not 6" );
+  endif
+  var value := pkt.GetInt8( 5 );
+  if ( value != 0xAB )
+    return ret_error( $"the written byte reads back as 0x{value:x}" );
+  endif
+
+  // a string with its terminator grows it further
+  pkt.SetString( 6, "hi", 1 );
+  size := pkt.GetSize();
+  if ( size != 9 )
+    return ret_error( $"wrong size after the string: {size}" );
+  endif
+  encoded := pkt.GetInt16( 1 );
+  if ( encoded != 9 )
+    return ret_error( $"the encoded length is {encoded}, not 9" );
+  endif
+
+  // a write inside the packet leaves the size alone
+  pkt.SetInt8( 0, 0x1C );
+  size := pkt.GetSize();
+  if ( size != 9 )
+    return ret_error( $"an inner write changed the size to {size}" );
+  endif
+
+  return 1;
+endfunction
+
+// SetSize answers the old size, updates the encoded length, and refuses to make a
+// variable length packet too small to hold that length
+exported function set_size_bounds()
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+
+  var old := pkt.SetSize( 20 );
+  if ( old != 1 )
+    return ret_error( $"SetSize answered {old}, not the old size 1" );
+  endif
+  var encoded := pkt.GetInt16( 1 );
+  if ( encoded != 20 )
+    return ret_error( $"the encoded length is {encoded}, not 20" );
+  endif
+
+  // shrinking works the same way
+  old := pkt.SetSize( 10 );
+  if ( old != 20 )
+    return ret_error( $"SetSize answered {old}, not the old size 20" );
+  endif
+  encoded := pkt.GetInt16( 1 );
+  if ( encoded != 10 )
+    return ret_error( $"the encoded length is {encoded}, not 10" );
+  endif
+
+  // three bytes is the smallest packet that can carry its own length, and asking
+  // for less used to write that length outside the buffer
+  var res := pkt.SetSize( 3 );
+  if ( res != 10 )
+    return ret_error( $"resizing to the minimum answered {res}" );
+  endif
+  res := pkt.SetSize( 2 );
+  if ( res != error )
+    return ret_error( $"a two byte variable length packet was accepted: {res}" );
+  endif
+  res := pkt.SetSize( 0 );
+  if ( res != error )
+    return ret_error( $"a zero size was accepted: {res}" );
+  endif
+
+  var size := pkt.GetSize();
+  if ( size != 3 )
+    return ret_error( $"a refused resize changed the size to {size}" );
+  endif
+
+  return 1;
+endfunction
+
+// an offset near the top of the u16 range used to wrap while the packet was being
+// measured, so the write landed outside the buffer instead of being refused
+exported function set_huge_offset_refused()
+  var fixed := CreatePacket( 0xAA, 16 );
+
+  var res := fixed.SetInt16( 65535, 1 );
+  if ( res != error )
+    return ret_error( $"a wrapping SetInt16 was accepted on a fixed packet: {res}" );
+  endif
+  res := fixed.SetInt32( 65535, 1 );
+  if ( res != error )
+    return ret_error( $"a wrapping SetInt32 was accepted on a fixed packet: {res}" );
+  endif
+  var size := fixed.GetSize();
+  if ( size != 16 )
+    return ret_error( $"the refused write changed the size to {size}" );
+  endif
+
+  // on a variable length packet the write is refused because the result could not
+  // describe its own length any more
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+  pkt.SetSize( 8 );
+
+  res := pkt.SetInt16( 65535, 1 );
+  if ( res != error )
+    return ret_error( $"a wrapping SetInt16 was accepted: {res}" );
+  endif
+  res := pkt.SetInt32( 65534, 1 );
+  if ( res != error )
+    return ret_error( $"a wrapping SetInt32 was accepted: {res}" );
+  endif
+  res := pkt.SetString( 65530, "abcdefghij", 1 );
+  if ( res != error )
+    return ret_error( $"a wrapping SetString was accepted: {res}" );
+  endif
+
+  size := pkt.GetSize();
+  if ( size != 8 )
+    return ret_error( $"a refused write changed the size to {size}" );
+  endif
+
+  return 1;
+endfunction
+
+// SetString writes one byte per character in the client's codepage, SetUtf8String
+// writes the utf8 encoding as it stands
+exported function set_string_encodings()
+  var umlaut := CChrZ( { 0xE4 } );
+
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+  pkt.SetString( 3, umlaut, 0 );
+  var size := pkt.GetSize();
+  if ( size != 4 )
+    return ret_error( $"SetString wrote {size - 3} bytes, not 1" );
+  endif
+  var value := pkt.GetInt8( 3 );
+  if ( value != 0xE4 )
+    return ret_error( $"SetString did not convert to the codepage: 0x{value:x}" );
+  endif
+
+  var utf8 := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+  utf8.SetUtf8String( 3, umlaut, 0 );
+  size := utf8.GetSize();
+  if ( size != 5 )
+    return ret_error( $"SetUtf8String wrote {size - 3} bytes, not 2" );
+  endif
+  value := utf8.GetInt16( 3 );
+  if ( value != 0xC3A4 )
+    return ret_error( $"SetUtf8String did not keep the encoding: 0x{value:x}" );
+  endif
+
+  // the terminator is written only when asked for
+  var plain := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+  plain.SetString( 3, "ab", 1 );
+  size := plain.GetSize();
+  if ( size != 6 )
+    return ret_error( $"the terminator was not counted: {size}" );
+  endif
+  value := plain.GetInt8( 5 );
+  if ( value != 0 )
+    return ret_error( $"the terminator was not written: 0x{value:x}" );
+  endif
+
+  return 1;
+endfunction
+
+// unicode strings take two bytes per character, and their terminator two more
+exported function set_unicode_string_sizes()
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+
+  pkt.SetUnicodeString( 3, "abc", 0 );
+  var size := pkt.GetSize();
+  if ( size != 9 )
+    return ret_error( $"three characters took {size - 3} bytes, not 6" );
+  endif
+
+  var terminated := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+  terminated.SetUnicodeString( 3, "abc", 1 );
+  size := terminated.GetSize();
+  if ( size != 11 )
+    return ret_error( $"the double terminator was not counted: {size}" );
+  endif
+  var value := terminated.GetInt16( 9 );
+  if ( value != 0 )
+    return ret_error( $"the terminator was not written: 0x{value:x}" );
+  endif
+
+  return 1;
+endfunction
+
+// the writers check their argument count and their argument types
+exported function set_refuses_bad_arguments()
+  var pkt := CreatePacket( 0xAA, 16 );
+
+  var res := pkt.SetInt8( 1 );
+  if ( res != error )
+    return ret_error( $"SetInt8 without a value was accepted: {res}" );
+  endif
+  res := pkt.SetInt8( 1, 2, 3 );
+  if ( res != error )
+    return ret_error( $"SetInt8 with three arguments was accepted: {res}" );
+  endif
+  res := pkt.SetInt8( "1", 2 );
+  if ( res != error )
+    return ret_error( $"SetInt8 with a string offset was accepted: {res}" );
+  endif
+  res := pkt.SetString( 1, "abc" );
+  if ( res != error )
+    return ret_error( $"SetString without the terminator flag was accepted: {res}" );
+  endif
+  res := pkt.SetUnicodeString( 1, 5, 0 );
+  if ( res != error )
+    return ret_error( $"SetUnicodeString with an integer was accepted: {res}" );
+  endif
+  res := pkt.SetSize();
+  if ( res != error )
+    return ret_error( $"SetSize without a size was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction

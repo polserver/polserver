@@ -95,7 +95,12 @@ class TestBrain(brain.Brain):
       elif todo=="war_mode":
         self.client.warMode(arg)
       elif todo=="request_status":
-        self.client.requestStatus(arg)
+        # a bare serial asks for the basic status, a dict can pick the request
+        # type as well (0x04 basic, 0x05 skills)
+        if isinstance(arg, dict):
+          self.client.requestStatus(arg.get('serial', None), arg.get('type', None))
+        else:
+          self.client.requestStatus(arg)
       elif todo=="single_click":
         # answered with the name text of what was clicked, in the colour the
         # server picked for it - so there is no event of its own to raise here
