@@ -228,11 +228,10 @@ UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem,
   auto tmpl = new WeaponDesc( Core::settingsManager.extobj.wrestling, elem, pkg );
   tmpl->is_intrinsic = true;
   auto wpn = new UWeapon( *tmpl, tmpl );
-  wpn->layer = Core::LAYER_HAND1;
   wpn->tmpl = tmpl;
   wpn->copyprops( tmpl->props );
 
-  Items::register_intrinsic_equipment( name, wpn );
+  Items::register_intrinsic_equipment( name, IntrinsicKind::Weapon, wpn );
 
   return wpn;
 }
@@ -259,9 +258,9 @@ void load_intrinsic_weapons()
       wdesc->is_pc_intrinsic = true;
     }
     Core::gamestate.wrestling_weapon->inuse( true );
-    Core::gamestate.wrestling_weapon->layer = Core::LAYER_HAND1;
 
-    Items::insert_intrinsic_equipment( "PC_weapon", Core::gamestate.wrestling_weapon );
+    Items::insert_intrinsic_equipment( "PC_weapon", IntrinsicKind::Weapon,
+                                       Core::gamestate.wrestling_weapon );
   }
 
   // wrestling_weapon = find_intrinsic_weapon( "Wrestling" );

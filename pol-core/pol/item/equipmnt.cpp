@@ -127,16 +127,16 @@ bool Equipment::get_method_hook( const char* methodname, Bscript::Executor* ex,
 }
 
 /// Looks up for an existing intrinsic equipment and return it or nullptr if not found
-Equipment* find_intrinsic_equipment( const std::string& name, u8 layer )
+Equipment* find_intrinsic_equipment( const std::string& name, IntrinsicKind kind )
 {
-  auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndLayer( name, layer ) );
+  auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndKind( name, kind ) );
   if ( itr == Core::gamestate.intrinsic_equipments.end() )
     return nullptr;
   return itr->second;
 }
 
 /// Must be called when a new intrinsic equipment is created
-void register_intrinsic_equipment( const std::string& name, Equipment* equip )
+void register_intrinsic_equipment( const std::string& name, IntrinsicKind kind, Equipment* equip )
 {
   equip->inuse( true );
 
@@ -149,20 +149,17 @@ void register_intrinsic_equipment( const std::string& name, Equipment* equip )
     Core::objStorageManager.objecthash.Insert( equip );
   }
 
-  insert_intrinsic_equipment( name, equip );
+  insert_intrinsic_equipment( name, kind, equip );
 }
 
 /// Adds a new intrisinc equipment to the map of known ones
-void insert_intrinsic_equipment( const std::string& name, Equipment* equip )
+void insert_intrinsic_equipment( const std::string& name, IntrinsicKind kind, Equipment* equip )
 {
-  passert_always_r( equip->layer,
-                    "Trying to use register equipment without a layer as intrinsic. Please report "
-                    "this bug on the forums." );
   passert_always_r(
       equip->is_intrinsic(),
       "Trying to register non-intrinsic equipment. Please report this bug on the forums." );
   Core::gamestate.intrinsic_equipments.insert(
-      Core::IntrinsicEquipments::value_type( Core::NameAndLayer( name, equip->layer ), equip ) );
+      Core::IntrinsicEquipments::value_type( Core::NameAndKind( name, kind ), equip ) );
 }
 
 /// Deferred allocator for serials during startup, see comments in register_intrinsic_equipment()

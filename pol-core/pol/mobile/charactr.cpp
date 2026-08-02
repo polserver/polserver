@@ -1950,19 +1950,16 @@ void Character::heal_damage_hundredths( unsigned int amount )
 Items::Item* create_death_shroud()
 {
   Items::Item* item = Items::Item::create( UOBJ_DEATH_SHROUD );
-  item->layer = Core::LAYER_ROBE_DRESS;
   return item;
 }
 Items::Item* create_death_robe()
 {
   Items::Item* item = Items::Item::create( UOBJ_DEATH_ROBE );
-  item->layer = Core::LAYER_ROBE_DRESS;
   return item;
 }
 Items::Item* create_backpack()
 {
   Items::Item* item = Items::Item::create( UOBJ_BACKPACK );
-  item->layer = Core::LAYER_BACKPACK;
   return item;
 }
 

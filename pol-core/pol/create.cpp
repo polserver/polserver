@@ -406,7 +406,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   if ( validhair( cfBEu16( msg->HairStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->HairStyle ) );
-    tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -420,7 +419,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   if ( validbeard( cfBEu16( msg->BeardStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->BeardStyle ) );
-    tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -432,7 +430,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   }
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
-  backpack->layer = LAYER_BACKPACK;
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
@@ -459,13 +456,11 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_HAND1;
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -482,13 +477,11 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -496,7 +489,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -754,7 +746,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( validhair( cfBEu16( msg->hairstyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->hairstyle ) );
-    tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->haircolor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -768,7 +759,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( validbeard( cfBEu16( msg->beardstyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->beardstyle ) );
-    tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->beardcolor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -782,7 +772,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( validface( cfBEu16( msg->face_id ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->face_id ) );
-    tmpitem->layer = LAYER_FACE;
     tmpitem->color = cfBEu16( msg->face_color );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -794,7 +783,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
-  backpack->layer = LAYER_BACKPACK;
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
@@ -821,13 +809,11 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_HAND1;
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -844,13 +830,11 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -858,7 +842,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -1164,7 +1147,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   if ( validhair( cfBEu16( msg->HairStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->HairStyle ) );
-    tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -1178,7 +1160,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   if ( validbeard( cfBEu16( msg->BeardStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->BeardStyle ) );
-    tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -1190,7 +1171,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   }
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
-  backpack->layer = LAYER_BACKPACK;
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
@@ -1217,13 +1197,11 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_HAND1;
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -1240,13 +1218,11 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -1254,7 +1230,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
