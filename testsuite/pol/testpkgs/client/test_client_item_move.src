@@ -1256,9 +1256,160 @@ exported function gotten_item_is_saved()
   return res;
 endfunction
 
+// A corpse renders what its owner wore at death. UO has no "move within a container", so dragging
+// one of those items to another spot in the loot window is a lift and a drop like any other -- and
+// the corpse has to still be wearing it afterwards.
+exported function corpse_rearrange_keeps_layer()
+  var corpse := make_equipped_corpse();
+  if ( !corpse )
+    return corpse;
+  endif
+
+  var test_func := @() {
+    var res;
+    var before := corpse_layer_serials( corpse );
+    if ( !before )
+      return before ?: ret_error( "The corpse renders no equipment at all" );
+    endif
+
+    var worn := before[1];
+
+    // open the corpse first, as a looting player would
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := "double_click", arg := corpse.serial, id := 0 } );
+    if ( !( res := waitForClient( 0, { EVT_DOUBLE_CLICK } ) ) )
+      return res;
+    endif
+
+    if ( !lift_item_succeeded( res, worn ) )
+      return res;
+    endif
+
+    // back into the same corpse, at a different spot in its gump
+    if ( !drop_item_succeeded( res, worn, 50, 50, 0, corpse.serial ) )
+      return res;
+    endif
+
+    var after := corpse_layer_serials( corpse );
+    if ( !after )
+      return after ?: ret_error( "The corpse renders nothing after the item was put back" );
+    endif
+
+    if ( !( worn in after ) )
+      return ret_error( $"Item {worn:#x} stopped rendering on the corpse after being moved within it" );
+    endif
+
+    return ret_error_not_equal( Len( after ), Len( before ),
+                                "The corpse's equipment changed size after an item was moved within it" );
+  };
+
+  var res := test_func();
+  DestroyItem( corpse );
+  return res;
+endfunction
+
+// The other half of the same rule: an item the dead character never wore does not dress its corpse
+// just by being dropped in.
+exported function corpse_drop_loose_stays_loose()
+  var corpse := make_equipped_corpse();
+  if ( !corpse )
+    return corpse;
+  endif
+
+  // equippable, and on a layer StartingEquipment leaves free
+  var robe := CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !robe )
+    DestroyItem( corpse );
+    return ret_error( $"Could not create robe: {robe}" );
+  endif
+  robe.movable := 1;
+
+  var test_func := @() {
+    var res;
+    var before := corpse_layer_serials( corpse );
+    if ( !before )
+      return before ?: ret_error( "The corpse renders no equipment at all" );
+    endif
+
+    if ( !lift_item_succeeded( res, robe.serial ) )
+      return res;
+    endif
+
+    if ( !drop_item_succeeded( res, robe.serial, 50, 50, 0, corpse.serial ) )
+      return res;
+    endif
+
+    var after := corpse_layer_serials( corpse );
+    if ( !after )
+      return after ?: ret_error( "The corpse renders nothing after the robe was dropped in" );
+    endif
+
+    if ( robe.serial in after )
+      return ret_error( $"Robe {robe.serial:#x} dressed a corpse it was never worn on" );
+    endif
+
+    return ret_error_not_equal( Len( after ), Len( before ),
+                                "The corpse's equipment changed size after a loose item was dropped in" );
+  };
+
+  var res := test_func();
+  // the robe is inside the corpse by now on the success path, so destroy it either way first
+  DestroyItem( robe );
+  DestroyItem( corpse );
+  return res;
+endfunction
+
 /**
  * Helper functions
  */
+// Kills a freshly equipped NPC at the character's feet and returns its corpse. The caller owns it.
+function make_equipped_corpse()
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  // leftovers from an earlier case would make the corpse lookup below ambiguous
+  foreach old in ( ListItemsNearLocationOfType( charX, charY, 0, 2, 0x2006 ) )
+    DestroyItem( old );
+  endforeach
+
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  if ( !( res := EquipFromTemplate( npc, "StartingEquipment" ) ) )
+    return ret_error( $"Could not equip template: {res}" );
+  endif
+
+  npc.kill();
+  Sleep( 1 );
+
+  var corpse := ListItemsNearLocationOfType( charX, charY, 0, 2, 0x2006 )[1];
+  if ( !corpse )
+    return ret_error( "Could not find the corpse" );
+  endif
+
+  return corpse;
+endfunction
+
+// What the client is told the corpse is wearing, as an array of serials.
+function corpse_layer_serials( corpse )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "list_equipped_items", arg := corpse.serial, id := 0 } );
+  var ev := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } );
+  if ( !ev )
+    return ev;
+  endif
+
+  var serials := array{};
+  foreach equipment in ( ev.objs )
+    serials.append( equipment.serial );
+  endforeach
+  return serials;
+endfunction
+
 // Checks equiptest & equip or unequiptest & unequip events have expected values
 function validate_events( evs, on_chr, by_chr, item, is_unequip )
   if ( evs.size() != 2 )

@@ -40,10 +40,13 @@
 #include "pol/containr.h"
 #include "pol/eventid.h"
 #include "pol/fnsearch.h"
+#include "pol/getitem.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
+#include "pol/layers.h"
 #include "pol/los.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/mobile/npc.h"
 #include "pol/multi/multi.h"
 #include "pol/network/client.h"
@@ -71,7 +74,7 @@ namespace Pol::Core
 void send_trade_statuses( Mobile::Character* chr );
 
 bool place_item_in_container( Network::Client* client, Items::Item* item, UContainer* cont,
-                              const Pos2d& pos, u8 slotIndex )
+                              const Pos2d& pos, u8 slotIndex, const GottenItem& gotten )
 {
   ItemRef itemref( item );
   if ( ( cont->serial == item->serial ) || is_a_parent( cont, item->serial ) )
@@ -113,9 +116,16 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
   client->pause();
   send_remove_object_to_inrange( item );
 
+  // An item that came off this corpse's layer goes back onto it. A player dragging loot around
+  // inside the corpse's gump sends a get and a drop like any other move, so without this a tidy-up
+  // would undress the corpse.
+  Items::Location target = Items::InContainer{ cont, pos, slotIndex };
+  if ( gotten.came_off_corpse_layer( cont ) )
+    target = Items::OnCorpse{ static_cast<UCorpse*>( cont ), pos, slotIndex, item->tile_layer };
+
   // The CanInsert script above can have destroyed the container out from under us; relocate says
   // no instead of adding to it.
-  if ( !Items::relocate( *item, Items::InContainer{ cont, pos, slotIndex } ) )
+  if ( !Items::relocate( *item, target ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     client->restart();
@@ -293,7 +303,7 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
 }
 
 bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, const Pos2d& pos,
-                 u8 slotIndex )
+                 u8 slotIndex, const GottenItem& gotten )
 {
   Items::Item* target_item = find_legal_item( client->chr, target_serial );
 
@@ -350,7 +360,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
       return false;
     }
     return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), pos,
-                                    slotIndex );
+                                    slotIndex, gotten );
   }
 
   // UNTESTED CLIENT_HOLE?
@@ -675,7 +685,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
 // target_serial should indicate a character, or a container, but not a pile.
 bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target_serial,
-                          u8 slotIndex )
+                          u8 slotIndex, const GottenItem& gotten )
 {
   ItemRef itemref( item );
   UContainer* cont = nullptr;
@@ -748,7 +758,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
 
   auto contpos = cont->get_random_location();
 
-  return place_item_in_container( client, item, cont, contpos, slotIndex );
+  return place_item_in_container( client, item, cont, contpos, slotIndex, gotten );
 }
 
 /* DROP_ITEM messages come in a couple varieties:
@@ -812,7 +822,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   }
   else if ( pos.x() == 0xFFFF )
   {
-    res = drop_item_on_object( client, item, target_serial, 0 );
+    res = drop_item_on_object( client, item, target_serial, 0, info );
   }
   else
   {
@@ -821,7 +831,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
     if ( multi != nullptr )
       res = drop_item_on_ground( client, item, pos + Vec2d( multi->x(), multi->y() ) );
     else
-      res = place_item( client, item, target_serial, pos.xy(), 0 );
+      res = place_item( client, item, target_serial, pos.xy(), 0, info );
   }
 
   // Nothing to clear on the way out: the item left the cursor above, and the drop paths never put
@@ -871,7 +881,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   }
   else if ( pos.x() == 0xFFFF )
   {
-    res = drop_item_on_object( client, item, target_serial, slotIndex );
+    res = drop_item_on_object( client, item, target_serial, slotIndex, info );
   }
   else
   {
@@ -880,7 +890,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
     if ( multi != nullptr )
       res = drop_item_on_ground( client, item, pos + Vec2d( multi->x(), multi->y() ) );
     else
-      res = place_item( client, item, target_serial, pos.xy(), 0 );
+      res = place_item( client, item, target_serial, pos.xy(), 0, info );
   }
 
   if ( !res && !item->orphan() )

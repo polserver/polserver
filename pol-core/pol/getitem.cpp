@@ -22,10 +22,13 @@
 #include "pol/containr.h"
 #include "pol/fnsearch.h"
 #include "pol/item/item.h"
+#include "pol/layers.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/network/client.h"
 #include "pol/network/pktdef.h"
 #include "pol/network/pktin.h"
+#include "pol/polclass.h"
 #include "pol/realms/realms.h"
 #include "pol/reftypes.h"
 #include "pol/statmsg.h"
@@ -276,6 +279,15 @@ GottenItem GottenItem::for_item( Items::Item* item )
     info._owner_serial = equipped->chr->serial;
     info._slot_index = item->slot_index();
   }
+  else if ( const auto* on_corpse = loc.get_if<Items::OnCorpse>() )
+  {
+    // Ahead of the container branch below, which would otherwise claim this: a corpse is a
+    // container, and the whole point of the distinction is that an item rendered on one of its
+    // layers is not the same as an item lying loose in it.
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE;
+    info._owner_serial = on_corpse->corpse->serial;
+    info._slot_index = item->slot_index();
+  }
   else if ( UContainer* cont = loc.container() )
   {
     info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
@@ -288,6 +300,13 @@ GottenItem GottenItem::for_item( Items::Item* item )
   }
 
   return info;
+}
+
+bool GottenItem::came_off_corpse_layer( const UContainer* cont ) const
+{
+  return _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE && _item != nullptr &&
+         cont != nullptr && cont->serial == _owner_serial && cont->script_isa( POLCLASS_CORPSE ) &&
+         Items::valid_equip_layer( _item );
 }
 /*
   undo:
@@ -336,7 +355,11 @@ void GottenItem::undo( Mobile::Character* chr )
     realm = chr->realm();
   }
 
-  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER )
+  // A corpse layer is returned to the same way an ordinary container is: the backpack is still
+  // offered first, and only the fallback below puts the item back where it came from -- which is
+  // the one branch where the layer matters.
+  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER ||
+       _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE )
   {
     // First attempt to place the item in the player's backpack.
     UContainer* container = nullptr;
@@ -388,7 +411,11 @@ void GottenItem::undo( Mobile::Character* chr )
       {
         const Pos2d where =
             container->is_legal_posn( _pos.xy() ) ? _pos.xy() : container->get_random_location();
-        if ( Items::relocate( *_item, Items::InContainer{ container, where, newSlot } ) )
+        Items::Location target = Items::InContainer{ container, where, newSlot };
+        if ( came_off_corpse_layer( container ) )
+          target = Items::OnCorpse{ static_cast<UCorpse*>( container ), where, newSlot,
+                                    _item->tile_layer };
+        if ( Items::relocate( *_item, target ) )
         {
           update_item_to_inrange( _item );
           container->on_insert_add_item( chr, UContainer::MT_PLAYER, _item );
