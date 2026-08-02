@@ -2,9 +2,49 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-31-2026</datemodified>
+		<datemodified>08-02-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-02-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">The character race changer could shut the shard down when a client sent a hair<br/>
+or beard id that the core accepts but the shard's tiledata does not have.</change>
+			<change type="Fixed">A worn item whose EquipScript refused it while the world was being read shut<br/>
+the server down during startup, so the shard could not start at all. The item<br/>
+now goes into the wearer's backpack, which is what already happened to any<br/>
+other item that could not be worn.</change>
+			<change type="Fixed">uo::EquipItem shut the shard down when the item's own EquipScript made the<br/>
+item unequippable while it ran. It returns an error now.</change>
+			<change type="Fixed">uo::MoveItemToContainer could destroy an item that was still listed in the<br/>
+container it came from, which could crash the server some time afterwards.<br/>
+The move is refused instead.</change>
+			<change type="Fixed">A house component moved out of the house, into a container or onto a<br/>
+character, stayed on the house's component list, so destroying the house<br/>
+destroyed the item wherever it had ended up by then.</change>
+			<change type="Fixed">An item could be registered as a traveller of the boat it is a component of<br/>
+(uo::MoveItem with MOVEITEM_IGNOREMOVABLE, boat.RegisterItemWithBoat). The<br/>
+boat then moved it twice on every step, and listed it twice after a restart.</change>
+			<change type="Fixed">Dropping an item while a different one was on the cursor sent no reply at all,<br/>
+so the client kept the dropped item stuck to the cursor.</change>
+			<change type="Fixed">uo::DestroyItem on an item held on a cursor left the character still holding<br/>
+it, and unable to pick anything else up.</change>
+			<change type="Fixed">An equipped item refused by uo::MoveItemToSecureTradeWin went into the owner's<br/>
+backpack instead of back onto the layer it was worn on.</change>
+			<change type="Fixed">A corpse showed none of the equipment it was wearing after a server restart.<br/>
+The items were still in it - double-clicking the corpse showed them - they<br/>
+just were not drawn on it.</change>
+			<change type="Changed">An EquipScript now sees item.layer as 0 for the item it is asked about, until<br/>
+the item is actually worn. uo::EquipItem and the world load used to set the<br/>
+layer before running the script, while the client's own equip and re-equip<br/>
+paths never did, so all four behave the same way now. A script that needs the<br/>
+layer an item would be worn on should read item.tile_layer.</change>
+			<change type="Changed">An item that is not being worn no longer reports a layer, and no longer saves<br/>
+one. It could pick one up and keep it two ways: an item that could not be worn<br/>
+while the world was being read went into the backpack still reporting the<br/>
+layer it had failed to reach, and uo::CreateItemCopyAtLocation on an equipped<br/>
+item gave the copy the original's layer.</change>
+		</entry>
 		<entry>
 			<date>07-31-2026</date>
 			<author>Turley:</author>

@@ -1,4 +1,41 @@
 -- POL100.3.0 --
+08-02-2026 Nando:
+    Fixed: The character race changer could shut the shard down when a client sent a hair
+           or beard id that the core accepts but the shard's tiledata does not have.
+    Fixed: A worn item whose EquipScript refused it while the world was being read shut
+           the server down during startup, so the shard could not start at all. The item
+           now goes into the wearer's backpack, which is what already happened to any
+           other item that could not be worn.
+    Fixed: uo::EquipItem shut the shard down when the item's own EquipScript made the
+           item unequippable while it ran. It returns an error now.
+    Fixed: uo::MoveItemToContainer could destroy an item that was still listed in the
+           container it came from, which could crash the server some time afterwards.
+           The move is refused instead.
+    Fixed: A house component moved out of the house, into a container or onto a
+           character, stayed on the house's component list, so destroying the house
+           destroyed the item wherever it had ended up by then.
+    Fixed: An item could be registered as a traveller of the boat it is a component of
+           (uo::MoveItem with MOVEITEM_IGNOREMOVABLE, boat.RegisterItemWithBoat). The
+           boat then moved it twice on every step, and listed it twice after a restart.
+    Fixed: Dropping an item while a different one was on the cursor sent no reply at all,
+           so the client kept the dropped item stuck to the cursor.
+    Fixed: uo::DestroyItem on an item held on a cursor left the character still holding
+           it, and unable to pick anything else up.
+    Fixed: An equipped item refused by uo::MoveItemToSecureTradeWin went into the owner's
+           backpack instead of back onto the layer it was worn on.
+    Fixed: A corpse showed none of the equipment it was wearing after a server restart.
+           The items were still in it - double-clicking the corpse showed them - they
+           just were not drawn on it.
+  Changed: An EquipScript now sees item.layer as 0 for the item it is asked about, until
+           the item is actually worn. uo::EquipItem and the world load used to set the
+           layer before running the script, while the client's own equip and re-equip
+           paths never did, so all four behave the same way now. A script that needs the
+           layer an item would be worn on should read item.tile_layer.
+  Changed: An item that is not being worn no longer reports a layer, and no longer saves
+           one. It could pick one up and keep it two ways: an item that could not be worn
+           while the world was being read went into the backpack still reporting the
+           layer it had failed to reach, and uo::CreateItemCopyAtLocation on an equipped
+           item gave the copy the original's layer.
 07-31-2026 Turley:
     Fixed: uo::MoveItemToSecureTradeWin could crash if the item was not accepted for the trade eg due to CanTrade hook
     Fixed: uo::PrintTextAbovePrivate ignored journal_print for texts containing UTF-8 characters
