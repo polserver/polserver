@@ -22,3 +22,4 @@ SetSysTrayPopupText( text );
 LogCPropProfile();
 GetRealmDecay( realm );
 SetRealmDecay( realm, has_decay );
+CheckItemIntegrity();

@@ -192,12 +192,25 @@ void StorageArea::on_delete_realm( Realms::Realm* realm )
   }
 }
 
+void StorageArea::for_each_root_item(
+    const std::function<void( const std::string&, Items::Item* )>& f ) const
+{
+  for ( const auto& entry : _items )
+    f( entry.first, entry.second );
+}
+
 void Storage::on_delete_realm( Realms::Realm* realm )
 {
   for ( const auto& area : areas )
   {
     area.second->on_delete_realm( realm );
   }
+}
+
+void Storage::for_each_area( const std::function<void( StorageArea& )>& f ) const
+{
+  for ( const auto& area : areas )
+    f( *area.second );
 }
 
 void Storage::read( Clib::ConfigFile& cf )

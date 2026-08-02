@@ -1,5 +1,11 @@
 -- POL100.3.0 --
 08-02-2026 Nando:
+    Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
+           is holding it - the container, corpse layer, storage area, cursor or world zone
+           an item says it is in must be the one that actually lists it, and the other way
+           round. Disagreements are written to the log; the check changes nothing. Returns
+           a struct with "checks" and "violations" counts. The .integ text command now runs
+           the same check and reports both numbers.
     Fixed: The character race changer could shut the shard down when a client sent a hair
            or beard id that the core accepts but the shard's tiledata does not have.
     Fixed: A worn item whose EquipScript refused it while the world was being read shut

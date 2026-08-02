@@ -291,6 +291,15 @@ UHouse* UHouse::as_house()
   return this;
 }
 
+void UHouse::for_each_component( const std::function<void( Items::Item& )>& f ) const
+{
+  for ( const auto& component : components_ )
+  {
+    if ( component != nullptr && !component->orphan() )
+      f( *component );
+  }
+}
+
 Bscript::BObjectImp* UHouse::get_script_member_id( const int id ) const  /// id test
 {
   using namespace Bscript;

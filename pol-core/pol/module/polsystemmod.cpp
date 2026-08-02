@@ -38,6 +38,7 @@
 
 #include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
+#include "pol/item/integrity.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
 
@@ -482,6 +483,23 @@ BObjectImp* PolSystemExecutorModule::mf_LogCPropProfile()
 
   ofs.close();
   return new BLong( 1 );
+}
+
+/**
+ * Check that every item's location and every registry's contents agree, reporting each
+ * disagreement to the log.
+ *
+ * Returns the counts rather than a pass/fail, because a caller that wants to fail on the first
+ * violation and a caller that wants to watch the number change over a run are both reasonable.
+ */
+BObjectImp* PolSystemExecutorModule::mf_CheckItemIntegrity()
+{
+  const Items::IntegrityReport report = Items::check_item_integrity();
+
+  std::unique_ptr<BStruct> result( new BStruct );
+  result->addMember( "checks", new BLong( report.checks ) );
+  result->addMember( "violations", new BLong( report.violations ) );
+  return result.release();
 }
 }  // namespace Module
 }  // namespace Pol

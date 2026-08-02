@@ -48,6 +48,7 @@
 #include "pol/globals/network.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
+#include "pol/item/integrity.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"
@@ -448,14 +449,15 @@ void textcmd_singlezone_integ_item( Network::Client* client )
     send_sysmessage( client, "Item integrity problems detected. " );
 }
 
-bool check_item_integrity();
 void textcmd_integ_item( Network::Client* client )
 {
-  bool ok = check_item_integrity();
-  if ( ok )
-    send_sysmessage( client, "Item integrity checks out OK!" );
+  const Items::IntegrityReport report = Items::check_item_integrity();
+  if ( report.ok() )
+    send_sysmessage( client,
+                     fmt::format( "Item integrity checks out OK! ({} checks)", report.checks ) );
   else
-    send_sysmessage( client, "Item integrity problems detected.  Check logfile" );
+    send_sysmessage( client, fmt::format( "{} item integrity problems in {} checks.  Check logfile",
+                                          report.violations, report.checks ) );
 }
 void check_character_integrity();
 void textcmd_integ_chr( Network::Client* /*client*/ )

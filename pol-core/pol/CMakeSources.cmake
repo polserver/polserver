@@ -129,6 +129,8 @@ set (pol_sources  # sorted !
   item/itemcr.cpp
   item/itemdesc.cpp
   item/itemdesc.h
+  item/integrity.cpp
+  item/integrity.h
   item/location.cpp
   item/location.h
   item/weapon.cpp

@@ -8,6 +8,7 @@
 #ifndef _HOUSE_H
 #define _HOUSE_H
 
+#include <functional>
 #include <list>
 #include <vector>
 
@@ -118,6 +119,10 @@ public:
 
   void readProperties( Clib::ConfigElem& elem ) override;
   void printProperties( Clib::StreamWriter& sw ) const override;
+
+  /// Visit each component that still exists. The list keeps entries for components the core has
+  /// destroyed, so skipping orphans belongs here rather than at every caller.
+  void for_each_component( const std::function<void( Items::Item& )>& f ) const;
 
 protected:
   explicit UHouse( const Items::ItemDesc& itemdesc );

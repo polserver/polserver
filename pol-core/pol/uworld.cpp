@@ -312,20 +312,6 @@ bool check_single_zone_item_integrity( const Pos2d& pos, Realms::Realm* realm )
 }
 
 
-bool check_item_integrity()
-{
-  bool ok = true;
-  for ( auto& realm : gamestate.Realms )
-  {
-    for ( const auto& p : realm->gridarea() )
-    {
-      if ( !check_single_zone_item_integrity( p, realm ) )
-        ok = false;
-    }
-  }
-  return ok;
-}
-
 void check_character_integrity()
 {
   // TODO: iterate through the object hash?
