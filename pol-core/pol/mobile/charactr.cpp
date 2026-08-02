@@ -854,8 +854,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
     ERROR_PRINTLN( "Character '{:#x}' has no name!", serial );
     throw std::runtime_error( "Data integrity error" );
   }
-  wornitems->serial = serial;
-  wornitems->serial_ext = serial_ext;
+  wornitems->adopt( *this );
   position_changed();
 
   std::string cmdaccstr = elem.remove_string( "CMDLEVEL", "player" );

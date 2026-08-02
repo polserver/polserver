@@ -41,6 +41,13 @@ public:
   ~WornItemsContainer() override = default;
   size_t estimatedSize() const override;
 
+  /// Take on the character's identity.
+  ///
+  /// A worn-items container is part of its character rather than an object in its own right: it
+  /// borrows the character's serial instead of owning one, and it never joins a registry. This is
+  /// where it stops being under construction, which is why it also settles its location.
+  void adopt( const Mobile::Character& chr );
+
   Bscript::BObjectImp* make_ref() override;
   Mobile::Character* get_chr_owner() const override;
   Mobile::Character* chr_owner;

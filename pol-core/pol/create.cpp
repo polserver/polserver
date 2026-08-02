@@ -304,8 +304,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
 
   chr->graphic = graphic;
   chr->race = race;
@@ -544,8 +543,7 @@ void createchar2( Accounts::Account* acct, unsigned index )
   chr->serial_ext = ctBEu32( chr->serial );
   chr->setposition( Pos4d( 1, 1, 1, find_realm( std::string( "britannia" ) ) ) );
   chr->facing = 1;
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
   chr->position_changed();
   chr->graphic = UOBJ_HUMAN_MALE;
   chr->gender = Plib::GENDER_MALE;
@@ -634,8 +632,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
 
   chr->graphic = graphic;
   chr->race = race;
@@ -997,8 +994,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
 
   chr->graphic = graphic;
   chr->race = race;
