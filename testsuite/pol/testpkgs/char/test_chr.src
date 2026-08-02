@@ -137,6 +137,30 @@ exported function test_logged_in()
                               $"Character should not be logged_in, got {char.logged_in} expected 0" );
 endfunction
 
+// What a worn item answers about where it is. The layer is the whole of it - an equipped item has
+// no other way to say which one it is on - and the container is the character rather than the
+// worn-items container the core keeps internally.
+exported function equipped_items_report_layers()
+  var equipped := ListEquippedItems( char );
+  if ( !equipped.size() )
+    return ret_error( "the character has nothing equipped" );
+  endif
+
+  foreach item in equipped
+    if ( !item.layer )
+      return ret_error( $"equipped item {item.serial:#x} reports no layer" );
+    endif
+    // Which layer an item is worn on is decided by its tiledata entry, nothing else.
+    if ( item.layer != item.tile_layer )
+      return ret_error( $"equipped item {item.serial:#x} is on layer {item.layer}, tile layer says {item.tile_layer}" );
+    endif
+    if ( !item.container || item.container.serial != char.serial )
+      return ret_error( $"equipped item {item.serial:#x} names {item.container} as its container, expected the character" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
 exported function test_equip_ar( resmgnr )
   var shirt := resmgnr.CreateItemAtLocation( char.x, char.y, char.z, 0x301517 );
   if ( !shirt )
