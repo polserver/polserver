@@ -151,6 +151,13 @@ bool validate( const Item& item, const Location& from, const Location& to )
       return reject( item, from, to, "the storage area no longer files it under that key" );
   }
 
+  // Preparing means "not finished being constructed", which nothing can go back to being -- and
+  // Item::location() answers it ahead of the orphan() test, so an item moved here would keep
+  // reporting Preparing after being destroyed, escaping the derivation that makes Destroyed
+  // terminal.
+  if ( to.holds<Preparing>() )
+    return reject( item, from, to, "an item cannot go back to being under construction" );
+
   if ( to.holds<Intrinsic>() && !from.holds<Preparing>() )
     return reject( item, from, to, "only a freshly built item can become intrinsic equipment" );
 
@@ -298,7 +305,7 @@ bool attach( Item& item, const Location& to )
   else if ( to.holds<Destroyed>() )
     item.destroy();  // Destroyed is derived from the serial, so there is nothing to record
   else
-    return false;  // Preparing, Detached, Intrinsic, Absorbed
+    return false;  // Detached, Intrinsic, Absorbed -- Preparing cannot get this far
 
   return true;
 }

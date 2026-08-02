@@ -206,6 +206,10 @@ void location_test()
               false, "a null corpse is rejected" );
     UnitTest( [&]() { return relocate( *outer, Items::InStorage{ nullptr, "x" } ); }, false,
               "a null storage area is rejected" );
+    // location() answers Preparing ahead of the orphan() test, so an item allowed back here would
+    // report Preparing even once destroyed
+    UnitTest( [&]() { return relocate( *outer, Items::Preparing{} ); }, false,
+              "an item cannot go back to being under construction" );
 
     UnitTest( [&]() { return Snapshot( outer ) == before; }, true,
               "a rejected relocate leaves the item untouched" );
