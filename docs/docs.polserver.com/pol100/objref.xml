@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>07/30/2026</datemodified>
+<datemodified>08/02/2026</datemodified>
 </fileheader>
 
 
@@ -855,7 +855,8 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <class name="Packet">
 <explain>Object representing a binary packet. Print(Packet) returns string of Packet contents.</explain>
 <explain>Packets that are pre-character selection will now report a struct to a packethook with the member "ip"</explain>
-<method proto="SendPacket(Character)" returns="true/error">Sends this packet to character.</method>
+<explain>A packet carries its length in two bytes, so no Set method can grow one past 0xFFFF bytes; one that would returns the error "Offset value out of range".</explain>
+<method proto="SendPacket(Character)" returns="true/error">Sends this packet to character. Returns 0 if the character has no client attached, and the error "Packet is empty" for a packet with no contents.</method>
 <method proto="SendAreaPacket(int x, int y, int range, string realm)" returns="integer/error">Sends this packet to all the players in range of x,y. Returns integer number of clients this packet was successfully sent to.</method>
 <method proto="GetSize()" returns="integer">Returns size of packet data in bytes.</method>
 <method proto="GetInt8(int offset)" returns="integer/error">Gets 8-bit (1 byte) value at offset (0-based).</method>
@@ -864,9 +865,9 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <method proto="GetInt16Flipped(int offset)" returns="integer/error">Gets 16-bit (2 byte) value at offset (0-based). Automatically converts to Low-Endian.</method>
 <method proto="GetInt32Flipped(int offset)" returns="integer/error">Gets 32-bit (4 byte) value at offset (0-based). Automatically converts to Low-Endian.</method>
 <method proto="GetString(int offset, int length)" returns="string/error">Gets a string (1-byte characters) at offset (0-based) for length characters.</method>
-<method proto="GetUnicodeString(int offset, int length)" returns="array/error">Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES).</method>
-<method proto="GetUnicodeStringFlipped(int offset, int length)" returns="array/error">Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES). With Flipped Byte Order (for specific packet support)</method>
-<method proto="SetSize(int newsize)" returns="integer/error">Sets the new size of the packet, possibly destroying data if packet size was decreased. Updates the encoded size for variable length packets, not allowed for fixed-length packets. Returns the old size of the packet.</method>
+<method proto="GetUnicodeString(int offset, int length)" returns="string/error">Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES).</method>
+<method proto="GetUnicodeStringFlipped(int offset, int length)" returns="string/error">Gets a 'unicode string' (2-byte characters) at offset (0-based) for length characters (NOT BYTES). With Flipped Byte Order (for specific packet support)</method>
+<method proto="SetSize(int newsize)" returns="integer/error">Sets the new size of the packet, possibly destroying data if packet size was decreased. Updates the encoded size for variable length packets, not allowed for fixed-length packets. A variable length packet cannot be made smaller than 3 bytes, the command byte plus the encoded size. Returns the old size of the packet.</method>
 <method proto="SetInt8(int offset, int value)" returns="true/error">Sets an 8-bit (1-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets.</method>
 <method proto="SetInt16(int offset, int value)" returns="true/error">Sets an 16-bit (2-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Big-Endian.</method>
 <method proto="SetInt32(int offset, int value)" returns="true/error">Sets an 32-bit (4-byte) value at offset (0-based). If offset is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Automatically converts to Big-Endian. NOTE: currently there's a compiler problem setting 0xFFFFFFFF, it gets converted to 0x7FFFFFFF. Use multiple SetInt16 or SetInt8 calls for now.</method>
