@@ -83,3 +83,68 @@ exported function load_save_house_custom()
   endif
   return 1;
 endfunction
+
+// A design that was built on rather than left as the multi laid it down. The
+// case above only counts the parts, which a save that lost a graphic, an offset
+// or a z would still pass - every tile is written as one line of four numbers
+// (CustomHouseDesign::printProperties) and read back by position, so the tiles
+// this one puts down are picked to tell those four apart.
+exported function load_save_house_design()
+  // graphic, x, y, z. The z picks the plane the tile is filed under and is kept
+  // as it is given: 7 is the first storey, 30 belongs to the plane that starts
+  // at 27, and 0 is the ground the house stands on.
+  var parts := { { 0x31F4, 2, -2, 7 }, { 0x5C2, -2, 3, 30 }, { 0x64, 1, -3, 0 } };
+
+  if ( testrun == 1 )
+    var house := CreateMultiAtLocation( 70, 70, 0, 0x12000 );
+    if ( !house )
+      return ret_error( $"failed to create house {house}" );
+    endif
+    house.name := "load_save_house_design";
+    SetGlobalProperty( "test_storage_house_design", house.serial );
+    house.setcustom( 1 );
+    var before := len( house.house_parts );
+
+    foreach part in parts
+      var res := house.addhousepart( part[1], part[2], part[3], part[4] );
+      if ( !res )
+        return ret_error( $"addhousepart {part[1]} answered {res}" );
+      endif
+    endforeach
+    if ( len( house.house_parts ) != before + len( parts ) )
+      return ret_error( $"the parts did not go in: {len( house.house_parts )}" );
+    endif
+    SetGlobalProperty( "test_storage_house_design_count", len( house.house_parts ) );
+  else
+
+    var serial := GetGlobalProperty( "test_storage_house_design" );
+    if ( !serial )
+      return ret_error( "Global property not found" );
+    endif
+    var house := SystemFindObjectBySerial( serial );
+    if ( !house )
+      return ret_error( $"House with serial {serial:#x} does not exists: {house}" );
+    endif
+
+    var wanted := GetGlobalProperty( "test_storage_house_design_count" );
+    var got := len( house.house_parts );
+    if ( got != wanted )
+      return ret_error( $"{got} parts survived the restart, saved {wanted}" );
+    endif
+
+    foreach part in parts
+      var found := 0;
+      foreach it in ( house.house_parts )
+        if ( it.graphic == part[1] && it.xoffset == part[2] && it.yoffset == part[3] &&
+             it.z == part[4] )
+          found := found + 1;
+        endif
+      endforeach
+      if ( found != 1 )
+        var where := $"{part[1]} at {part[2]},{part[3]},{part[4]}";
+        return ret_error( $"part {where} came back {found} times" );
+      endif
+    endforeach
+  endif
+  return 1;
+endfunction
