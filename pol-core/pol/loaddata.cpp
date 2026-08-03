@@ -144,11 +144,8 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
   if ( bp )
   {
     stateManager.gflag_enforce_container_limits = false;
-    bool canadd = bp->can_add( *item );
     u8 slotIndex = item->slot_index();
-    bool add_to_slot = bp->can_add_to_slot( slotIndex );
-    if ( canadd && add_to_slot && item->slot_index( slotIndex ) &&
-         Items::relocate( *item, Items::InContainer{ bp, bp->get_random_location(), slotIndex } ) )
+    if ( bp->can_add( *item ) && Items::move_into( *item, *bp, slotIndex ) )
     {
       // leaving dirty
       stateManager.gflag_enforce_container_limits = true;

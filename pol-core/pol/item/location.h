@@ -247,6 +247,34 @@ private:
  * would quietly reset decay across the whole world on every restart.
  */
 [[nodiscard]] bool relocate_loaded( Item& item, Location to );
+
+/**
+ * Claim a slot in a container and move the item into it.
+ *
+ * Three steps that have to happen in this order, because can_add_to_slot() writes the slot it
+ * settled on back through its argument and the item has to be told before the move. Callers spelled
+ * that out one line at a time, and got the failure path subtly wrong doing it: claiming the slot
+ * mutates the item, relocate() can still refuse afterwards, and nothing put the old slot back. This
+ * does, so a rejected insert really does leave the item as it was -- which is what relocate()
+ * promises and what its callers could not deliver on their own.
+ *
+ * @param slot_hint where to start looking, updated to the slot actually taken. Loops filling one
+ *        container should carry it, rather than rescanning from the first slot each time.
+ *
+ * Deliberately not folded in, at each caller instead:
+ *  - container capacity. relocate() does not check it either, callers have always tested can_add()
+ *    themselves, and moving it here would turn inserts that succeed today into failures.
+ *  - the CanInsert / OnInsert scripts, which can destroy either object and whose placement around
+ *    the move differs per caller.
+ *  - telling clients. Five different broadcasts are used across these sites and they are not
+ *    interchangeable.
+ */
+[[nodiscard]] bool move_into( Item& item, Core::UContainer& cont, const Core::Pos2d& grid,
+                              u8& slot_hint );
+[[nodiscard]] bool move_into( Item& item, Core::UContainer& cont, const Core::Pos2d& grid );
+/// Anywhere in the container's gump, for callers whose intent is only "inside this one".
+[[nodiscard]] bool move_into( Item& item, Core::UContainer& cont, u8& slot_hint );
+[[nodiscard]] bool move_into( Item& item, Core::UContainer& cont );
 }  // namespace Pol::Items
 
 #endif

@@ -435,8 +435,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    u8 newSlot = 1;
-    if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
+    if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
       tmpitem->setposition( chr->pos() );
       if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
@@ -446,8 +445,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
         send_item_moved( tmpitem, tmpitem->pos() );
       }
     }
-    else
-      (void)Items::relocate( *tmpitem, Items::InContainer{ backpack, Pos2d( 46, 91 ), newSlot } );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -786,8 +783,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    u8 newSlot = 1;
-    if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
+    if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
       tmpitem->setposition( chr->pos() );
       if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
@@ -797,8 +793,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
         send_item_moved( tmpitem, tmpitem->pos() );
       }
     }
-    else
-      (void)Items::relocate( *tmpitem, Items::InContainer{ backpack, Pos2d( 46, 91 ), newSlot } );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -1173,8 +1167,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    u8 newSlot = 1;
-    if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
+    if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
       tmpitem->setposition( chr->pos() );
       if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
@@ -1184,8 +1177,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
         send_item_moved( tmpitem, tmpitem->pos() );
       }
     }
-    else
-      (void)Items::relocate( *tmpitem, Items::InContainer{ backpack, Pos2d( 46, 91 ), newSlot } );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||

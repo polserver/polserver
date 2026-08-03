@@ -4730,9 +4730,7 @@ ItemGivenEvent::~ItemGivenEvent()
     {
       if ( backpack->can_add( *item ) )
       {
-        u8 newSlot = 1;
-        if ( backpack->can_add_to_slot( newSlot ) && item->slot_index( newSlot ) &&
-             Items::relocate( *item, Items::InContainer{ backpack, item->pos2d(), newSlot } ) )
+        if ( Items::move_into( *item, *backpack, item->pos2d() ) )
         {
           update_item_to_inrange( item );
           return;

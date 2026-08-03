@@ -359,6 +359,38 @@ bool relocate_loaded( Item& item, Location to )
   return true;
 }
 
+bool move_into( Item& item, Core::UContainer& cont, const Core::Pos2d& grid, u8& slot_hint )
+{
+  const u8 previous_slot = item.slot_index();
+
+  if ( cont.can_add_to_slot( slot_hint ) && item.slot_index( slot_hint ) &&
+       relocate( item, InContainer{ &cont, grid, slot_hint } ) )
+    return true;
+
+  // Claiming the slot has already written to the item by the time relocate gets a say, so put it
+  // back: an insert that was refused must not leave the item sitting where it was wearing a slot
+  // index it never took.
+  (void)item.slot_index( previous_slot );
+  return false;
+}
+
+bool move_into( Item& item, Core::UContainer& cont, const Core::Pos2d& grid )
+{
+  u8 slot_hint = 1;
+  return move_into( item, cont, grid, slot_hint );
+}
+
+bool move_into( Item& item, Core::UContainer& cont, u8& slot_hint )
+{
+  return move_into( item, cont, cont.get_random_location(), slot_hint );
+}
+
+bool move_into( Item& item, Core::UContainer& cont )
+{
+  u8 slot_hint = 1;
+  return move_into( item, cont, cont.get_random_location(), slot_hint );
+}
+
 bool relocate( Item& item, Location to )
 {
   const bool entering_world = to.holds<InWorld>();

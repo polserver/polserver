@@ -10,6 +10,7 @@
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
 #include "pol/containr.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
 #include "pol/item/location.h"
@@ -244,6 +245,38 @@ void location_test()
     UnitTest( [&]() { return item->location().layer(); }, u8( 0 ), "InWorld has no layer" );
     UnitTest( [&]() { return item->location().slot(); }, u8( 0 ), "InWorld has no slot" );
     (void)relocate( *item, Items::Destroyed{} );
+  }
+
+  // move_into() claims the slot and inserts as one step, and takes the claim back if the insert is
+  // refused. UseContainerSlots is off by default, and with it off slot_index() never writes -- so a
+  // restored slot index and one that was never touched are indistinguishable, and the property this
+  // block exists for cannot be observed. Hence the toggle.
+  {
+    auto& use_slots = Core::settingsManager.ssopt.use_slot_index;
+    const bool slots_were = use_slots;
+    use_slots = true;
+
+    auto* cont = container_in_world( spot );
+    auto* item = item_in_world( ITEM_OBJTYPE, spot2 );
+    const u8 cont_slot_before = cont->slot_index();
+
+    u8 slot = 5;
+    UnitTest( [&]() { return Items::move_into( *item, *cont, Core::Pos2d( 1, 1 ), slot ); }, true,
+              "move_into inserts and claims a slot" );
+    UnitTest( [&]() { return item->slot_index(); }, u8( 5 ), "the item took the slot it claimed" );
+    UnitTest( [&]() { return item->container() == cont; }, true, "and it is in the container" );
+
+    // Rejected by validate -- but only after move_into has already written the slot index, which is
+    // the whole reason it has to put it back.
+    u8 doomed = 7;
+    UnitTest( [&]() { return Items::move_into( *cont, *cont, Core::Pos2d( 1, 1 ), doomed ); },
+              false, "move_into refuses to put a container inside itself" );
+    UnitTest( [&]() { return cont->slot_index(); }, cont_slot_before,
+              "a refused move_into puts the slot index back" );
+
+    use_slots = slots_were;
+    (void)relocate( *item, Items::Destroyed{} );
+    (void)relocate( *cont, Items::Destroyed{} );
   }
 
   // Intrinsic equipment: shared, never worn, and the one population that stays serial-less until

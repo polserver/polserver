@@ -2363,8 +2363,7 @@ void Character::die()
       if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
            bp->can_add( *bp_item ) )
       {
-        if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) ||
-             !Items::relocate( *bp_item, Items::InContainer{ bp, bp_item->pos2d(), packSlot } ) )
+        if ( !Items::move_into( *bp_item, *bp, bp_item->pos2d(), packSlot ) )
         {
           _drop_item_to_world( bp_item );
         }
@@ -2374,9 +2373,7 @@ void Character::die()
       {
         // Not OnCorpse: only the items a corpse renders on a layer are that, and these are the
         // former backpack contents, which it holds like any other container would.
-        if ( !corpse->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) ||
-             !Items::relocate(
-                 *bp_item, Items::InContainer{ corpse, corpse->get_random_location(), packSlot } ) )
+        if ( !Items::move_into( *bp_item, *corpse, packSlot ) )
         {
           _drop_item_to_world( bp_item );
         }
@@ -2418,9 +2415,7 @@ void Character::die()
           item->check_unequip_script();
         }
         UPDATE_CHECKPOINT();
-        if ( !bp->can_add_to_slot( packSlot ) || !item->slot_index( packSlot ) ||
-             !Items::relocate( *item,
-                               Items::InContainer{ bp, bp->get_random_location(), packSlot } ) )
+        if ( !Items::move_into( *item, *bp, packSlot ) )
         {
           _drop_item_to_world( item );
         }
