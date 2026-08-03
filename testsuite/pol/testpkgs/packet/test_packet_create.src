@@ -1,0 +1,235 @@
+// polsys.em's CreatePacket and the parts of the Packet object that describe the
+// packet itself: its size, its type byte, its string representation and Assign.
+// Nothing here needs a client - a Packet is a plain script object until it is sent.
+use uo;
+use os;
+use polsys;
+
+include "testutil";
+
+program packet_create_tests()
+  return 1;
+endprogram
+
+// a fixed length packet is exactly as long as asked for, zero filled, and carries
+// its type in the first byte
+exported function create_fixed()
+  var pkt := CreatePacket( 0x77, 17 );
+  if ( TypeOf( pkt ) != "Packet" )
+    return ret_error( $"wrong type: {TypeOf( pkt )}" );
+  endif
+
+  var size := pkt.GetSize();
+  if ( size != 17 )
+    return ret_error( $"wrong size: {size}" );
+  endif
+
+  var first := pkt.GetInt8( 0 );
+  if ( first != 0x77 )
+    return ret_error( $"the type byte was not set: 0x{first:x}" );
+  endif
+
+  // everything behind the type byte starts out zeroed
+  for i := 1 to 16
+    var byte := pkt.GetInt8( i );
+    if ( byte != 0 )
+      return ret_error( $"byte {i} is 0x{byte:x}, not zero" );
+    endif
+  endfor
+
+  return 1;
+endfunction
+
+// a variable length packet starts out holding only its type byte and grows on demand
+exported function create_variable()
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+
+  var size := pkt.GetSize();
+  if ( size != 1 )
+    return ret_error( $"wrong initial size: {size}" );
+  endif
+
+  var first := pkt.GetInt8( 0 );
+  if ( first != 0x1C )
+    return ret_error( $"the type byte was not set: 0x{first:x}" );
+  endif
+
+  // the encoded length lives at offset 1 and does not exist yet, so reading it
+  // must be refused rather than reaching past the one byte the packet holds
+  var res := pkt.GetInt16( 1 );
+  if ( res != error )
+    return ret_error( $"read the unwritten length field: {res}" );
+  endif
+  res := pkt.GetInt16( 0 );
+  if ( res != error )
+    return ret_error( $"read two bytes out of a one byte packet: {res}" );
+  endif
+
+  // a variable length packet is the one that may be resized. SetSize answers the
+  // size the packet had before, which for a fresh one is the single type byte.
+  res := pkt.SetSize( 8 );
+  if ( res != 1 )
+    return ret_error( $"SetSize returned {res}, not the old size 1" );
+  endif
+  size := pkt.GetSize();
+  if ( size != 8 )
+    return ret_error( $"wrong size after SetSize: {size}" );
+  endif
+
+  return 1;
+endfunction
+
+// sizes that cannot describe a real packet are refused outright. 65535 used to be
+// truncated to -1, which silently produced a variable length packet instead of a
+// fixed one, and 65536 an empty one.
+exported function create_refuses_bad_size()
+  var res := CreatePacket( 0x77, -2 );
+  if ( res != error )
+    return ret_error( $"a negative size was accepted: {res}" );
+  endif
+
+  res := CreatePacket( 0x77, 65536 );
+  if ( res != error )
+    return ret_error( $"a size above 0xFFFF was accepted: {res}" );
+  endif
+
+  // the largest packet a u16 length can describe is still a fixed length one
+  var pkt := CreatePacket( 0x77, 65535 );
+  if ( pkt == error )
+    return ret_error( $"the largest legal size was refused: {pkt}" );
+  endif
+  var size := pkt.GetSize();
+  if ( size != 65535 )
+    return ret_error( $"wrong size: {size}" );
+  endif
+  res := pkt.SetSize( 10 );
+  if ( res != error )
+    return ret_error( $"a 65535 byte packet was resizable, so it is variable length: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// a size of 0 is legal and gives an empty packet - it holds nothing, not even the
+// type byte, and is only useful as the target of an Assign. Sending one is refused
+// rather than reaching into an empty buffer.
+exported function create_empty_packet()
+  var pkt := CreatePacket( 0x77, 0 );
+  if ( pkt == error )
+    return ret_error( $"an empty packet was refused: {pkt}" );
+  endif
+
+  var size := pkt.GetSize();
+  if ( size != 0 )
+    return ret_error( $"wrong size: {size}" );
+  endif
+
+  var res := pkt.GetInt8( 0 );
+  if ( res != error )
+    return ret_error( $"read a byte out of an empty packet: {res}" );
+  endif
+  res := pkt.GetInt16( 0 );
+  if ( res != error )
+    return ret_error( $"read an int16 out of an empty packet: {res}" );
+  endif
+
+  // it is fixed length, so it cannot be grown into a usable packet either
+  res := pkt.SetInt8( 0, 1 );
+  if ( res != error )
+    return ret_error( $"an empty packet was written to: {res}" );
+  endif
+
+  res := pkt.SendPacket( 0 );
+  if ( res != error )
+    return ret_error( $"an empty packet was sent: {res}" );
+  endif
+
+  // filling it by Assign is what it is for
+  var source := CreatePacket( 0x1C, 4 );
+  pkt.Assign( source );
+  size := pkt.GetSize();
+  if ( size != 4 )
+    return ret_error( $"wrong size after Assign: {size}" );
+  endif
+
+  return 1;
+endfunction
+
+// the type byte has to fit in a byte
+exported function create_refuses_bad_type()
+  var res := CreatePacket( 0x100, 5 );
+  if ( res != error )
+    return ret_error( $"a type above 0xFF was accepted: {res}" );
+  endif
+
+  res := CreatePacket( "0x77", 5 );
+  if ( res != error )
+    return ret_error( $"a string type was accepted: {res}" );
+  endif
+
+  res := CreatePacket( 0x77, "5" );
+  if ( res != error )
+    return ret_error( $"a string size was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// Assign copies both the contents and the variable-length property of another packet
+exported function create_assign()
+  var source := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+  source.SetInt8( 4, 0xAB );
+
+  var dest := CreatePacket( 0x11, 6 );
+  var res := dest.Assign( source );
+  if ( res != 1 )
+    return ret_error( $"Assign returned {res}" );
+  endif
+
+  var size := dest.GetSize();
+  if ( size != 5 )
+    return ret_error( $"wrong size after Assign: {size}" );
+  endif
+  var first := dest.GetInt8( 0 );
+  if ( first != 0x1C )
+    return ret_error( $"the type byte was not copied: 0x{first:x}" );
+  endif
+  var byte := dest.GetInt8( 4 );
+  if ( byte != 0xAB )
+    return ret_error( $"the contents were not copied: 0x{byte:x}" );
+  endif
+
+  // the dest took over the variable length property, so it can now be resized
+  res := dest.SetSize( 9 );
+  if ( res != 5 )
+    return ret_error( $"the assigned packet is still fixed length: {res}" );
+  endif
+
+  // and the two are independent afterwards
+  dest.SetInt8( 4, 0xCD );
+  byte := source.GetInt8( 4 );
+  if ( byte != 0xAB )
+    return ret_error( $"writing the dest changed the source: 0x{byte:x}" );
+  endif
+
+  res := dest.Assign( 5 );
+  if ( res != error )
+    return ret_error( $"Assign accepted a non-packet: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// printing a packet gives the hex dump of its contents
+exported function create_prints_as_hex()
+  var pkt := CreatePacket( 0x77, 4 );
+  pkt.SetInt8( 1, 0xAB );
+  pkt.SetInt8( 3, 0x0F );
+
+  var text := CStr( pkt );
+  if ( text != "77ab000f" )
+    return ret_error( $"wrong string representation: {text}" );
+  endif
+
+  return 1;
+endfunction

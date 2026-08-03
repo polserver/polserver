@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+08-02-2026 Turley:
+    Fixed: PacketHook with SubCommandOffset where the packet was too short, its now handled by the parent hook or default handler.
+    Fixed: several out-of-bounds reads in packet scriptobjects
+    Fixed: an outgoing PacketHook setting an encoded length larger than the packet buffer shut the server down, its sent with the buffer size now and logged.
 08-01-2026 Turley:
     Fixed: XMLNode.AppendXMLNode/AppendXMLText/SetXMLAttribute/RemoveXMLAttribute crashed when an invalid node was used. They return now the error "Node is not an element"
     Fixed: XMLFile.RemoveXMLNode and XMLNode.RemoveXMLNode never removed anything when a node

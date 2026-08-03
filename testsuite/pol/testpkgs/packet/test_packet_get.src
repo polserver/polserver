@@ -1,0 +1,244 @@
+// The Packet object's readers: GetInt8/16/32 and their Flipped variants, GetString
+// and the two GetUnicodeString forms, plus every way of asking for bytes the packet
+// does not hold.
+use uo;
+use os;
+use polsys;
+
+include "testutil";
+
+program packet_get_tests()
+  return 1;
+endprogram
+
+// a 16 byte packet with known contents: 0xAA 0x01 0x02 0x03 .. 0x0F
+function probe_packet()
+  var pkt := CreatePacket( 0xAA, 16 );
+  for i := 1 to 15
+    pkt.SetInt8( i, i );
+  endfor
+  return pkt;
+endfunction
+
+// single bytes read back exactly as written
+exported function get_int8()
+  var pkt := probe_packet();
+
+  var byte := pkt.GetInt8( 0 );
+  if ( byte != 0xAA )
+    return ret_error( $"wrong type byte: 0x{byte:x}" );
+  endif
+  byte := pkt.GetInt8( 15 );
+  if ( byte != 15 )
+    return ret_error( $"wrong last byte: 0x{byte:x}" );
+  endif
+
+  // a byte keeps its high bit - it is not read as a signed value
+  pkt.SetInt8( 2, 0xFF );
+  byte := pkt.GetInt8( 2 );
+  if ( byte != 255 )
+    return ret_error( $"0xFF read back as {byte}" );
+  endif
+
+  var res := pkt.GetInt8( 16 );
+  if ( res != error )
+    return ret_error( $"read one byte past the end: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// 16 and 32 bit reads are big endian, the Flipped variants little endian
+exported function get_int16_and_int32()
+  var pkt := probe_packet();
+
+  // bytes 1..4 are 0x01 0x02 0x03 0x04
+  var value := pkt.GetInt16( 1 );
+  if ( value != 0x0102 )
+    return ret_error( $"GetInt16 is not big endian: 0x{value:x}" );
+  endif
+  value := pkt.GetInt16Flipped( 1 );
+  if ( value != 0x0201 )
+    return ret_error( $"GetInt16Flipped is not little endian: 0x{value:x}" );
+  endif
+
+  value := pkt.GetInt32( 1 );
+  if ( value != 0x01020304 )
+    return ret_error( $"GetInt32 is not big endian: 0x{value:x}" );
+  endif
+  value := pkt.GetInt32Flipped( 1 );
+  if ( value != 0x04030201 )
+    return ret_error( $"GetInt32Flipped is not little endian: 0x{value:x}" );
+  endif
+
+  return 1;
+endfunction
+
+// a read is refused when any of the bytes it wants lies past the end
+exported function get_int_offset_too_high()
+  var pkt := probe_packet();
+
+  // the last two bytes are readable as an int16, one byte further is not
+  var value := pkt.GetInt16( 14 );
+  if ( value != 0x0E0F )
+    return ret_error( $"the last int16 read back as 0x{value:x}" );
+  endif
+  var res := pkt.GetInt16( 15 );
+  if ( res != error )
+    return ret_error( $"an int16 straddling the end was read: {res}" );
+  endif
+  res := pkt.GetInt16Flipped( 15 );
+  if ( res != error )
+    return ret_error( $"a flipped int16 straddling the end was read: {res}" );
+  endif
+
+  value := pkt.GetInt32( 12 );
+  if ( value != 0x0C0D0E0F )
+    return ret_error( $"the last int32 read back as 0x{value:x}" );
+  endif
+  res := pkt.GetInt32( 13 );
+  if ( res != error )
+    return ret_error( $"an int32 straddling the end was read: {res}" );
+  endif
+  res := pkt.GetInt32Flipped( 13 );
+  if ( res != error )
+    return ret_error( $"a flipped int32 straddling the end was read: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// a packet shorter than the value being read used to underflow the bounds check and
+// read past the buffer instead of refusing
+exported function get_int_from_short_packet()
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+
+  var res := pkt.GetInt16( 0 );
+  if ( res != error )
+    return ret_error( $"read an int16 out of a 1 byte packet: {res}" );
+  endif
+  res := pkt.GetInt16Flipped( 0 );
+  if ( res != error )
+    return ret_error( $"read a flipped int16 out of a 1 byte packet: {res}" );
+  endif
+  res := pkt.GetInt32( 0 );
+  if ( res != error )
+    return ret_error( $"read an int32 out of a 1 byte packet: {res}" );
+  endif
+  res := pkt.GetInt32Flipped( 0 );
+  if ( res != error )
+    return ret_error( $"read a flipped int32 out of a 1 byte packet: {res}" );
+  endif
+
+  // three bytes are enough for an int16 but not for an int32
+  pkt.SetSize( 3 );
+  var value := pkt.GetInt16( 1 );
+  if ( value != 3 )
+    return ret_error( $"the encoded length is {value}, not 3" );
+  endif
+  res := pkt.GetInt32( 0 );
+  if ( res != error )
+    return ret_error( $"read an int32 out of a 3 byte packet: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// GetString stops at the first null byte and never reads past the end
+exported function get_string()
+  var pkt := CreatePacket( 0xAA, 16 );
+  pkt.SetString( 1, "hello", 1 );
+
+  var text := pkt.GetString( 1, 5 );
+  if ( text != "hello" )
+    return ret_error( $"wrong string: {text}" );
+  endif
+
+  // asking for more characters than were written stops at the terminator
+  text := pkt.GetString( 1, 10 );
+  if ( text != "hello" )
+    return ret_error( $"the terminator did not stop the read: {text}" );
+  endif
+
+  // and asking for fewer truncates
+  text := pkt.GetString( 1, 3 );
+  if ( text != "hel" )
+    return ret_error( $"wrong truncated string: {text}" );
+  endif
+
+  var res := pkt.GetString( 16, 1 );
+  if ( res != error )
+    return ret_error( $"read a string starting past the end: {res}" );
+  endif
+  res := pkt.GetString( 10, 10 );
+  if ( res != error )
+    return ret_error( $"read a string running past the end: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// unicode strings are two bytes per character, big endian unless read Flipped
+exported function get_unicode_string()
+  var pkt := CreatePacket( 0xAA, 16 );
+  pkt.SetUnicodeString( 1, "abc", 1 );
+
+  var text := pkt.GetUnicodeString( 1, 3 );
+  if ( text != "abc" )
+    return ret_error( $"wrong unicode string: {text}" );
+  endif
+
+  // written big endian, so each character reads as 0x00xx
+  var value := pkt.GetInt16( 1 );
+  if ( value != 0x0061 )
+    return ret_error( $"the first character is not big endian: 0x{value:x}" );
+  endif
+
+  // and the same bytes read Flipped are a different string
+  text := pkt.GetUnicodeStringFlipped( 1, 3 );
+  if ( text == "abc" )
+    return ret_error( "reading Flipped gave the big endian string" );
+  endif
+
+  // a round trip through the flipped pair agrees with itself
+  pkt.SetUnicodeStringFlipped( 1, "xyz", 1 );
+  text := pkt.GetUnicodeStringFlipped( 1, 3 );
+  if ( text != "xyz" )
+    return ret_error( $"wrong flipped round trip: {text}" );
+  endif
+
+  var res := pkt.GetUnicodeString( 15, 1 );
+  if ( res != error )
+    return ret_error( $"read a unicode character straddling the end: {res}" );
+  endif
+  res := pkt.GetUnicodeString( 1, 10 );
+  if ( res != error )
+    return ret_error( $"read a unicode string running past the end: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// the readers check their argument count and their argument types
+exported function get_refuses_bad_arguments()
+  var pkt := probe_packet();
+
+  var res := pkt.GetInt8();
+  if ( res != error )
+    return ret_error( $"GetInt8 without an offset was accepted: {res}" );
+  endif
+  res := pkt.GetInt8( 1, 2 );
+  if ( res != error )
+    return ret_error( $"GetInt8 with two arguments was accepted: {res}" );
+  endif
+  res := pkt.GetInt8( "1" );
+  if ( res != error )
+    return ret_error( $"GetInt8 with a string offset was accepted: {res}" );
+  endif
+  res := pkt.GetString( 1 );
+  if ( res != error )
+    return ret_error( $"GetString without a length was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction

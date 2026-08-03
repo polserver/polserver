@@ -1,0 +1,213 @@
+// The incoming half of the packet hook system, and its subcommand dispatch.
+//
+// 0x34 is a client asking for a status. Its request type byte doubles as a
+// subcommand: uopacket.cfg hooks the basic status request (0x04) on its own and
+// leaves everything else to the parent hook, so this file pins which of the two
+// the core picks and what answering 1 does to the core's own reply.
+
+include "pkthook";
+
+const STATUS_TYPE_BASE := 0x04;
+const STATUS_TYPE_SKILLS := 0x05;
+
+program test_pkthook_recv()
+  return pkthook_setup();
+endprogram
+
+// asks the client to request a status and waits for the server's answer
+function request_status( id, serial, type := STATUS_TYPE_BASE, timeout := 10 )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "request_status",
+                               arg := struct{ serial := serial, type := type },
+                               id := id } );
+
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_STATUS_BAR or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( CInt( ev.serial ) == serial )
+      return ev;
+    endif
+  endwhile
+  return ret_error( $"client {id} never got the status of 0x{serial:x}" );
+endfunction
+
+// same, but asserting that no answer arrives
+function no_status_for( id, serial, secs := 1.5 )
+  var deadline := ReadMillisecondClock() + secs * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 0.1 );
+    if ( !ev or ev.type != EVT_STATUS_BAR or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( CInt( ev.serial ) == serial )
+      return ret_error( $"client {id} got the status of 0x{serial:x} after all" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+// waits until the hook has recorded something, since the packet is handled on the
+// client's own thread and the script asking for it runs on another
+function wait_for_hook_log( log_key, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var log := hook_log( log_key );
+    if ( len( log ) )
+      return log;
+    endif
+    SleepMS( 50 );
+  endwhile
+  return ret_error( "the hook never fired" );
+endfunction
+
+// a basic status request carries the subcommand the SubPacket entry names, so the
+// subcommand hook is the one that gets it
+exported function pkthook_recv_subcommand( unused resmgn )
+  arm_hook( PKTHOOK_0x34, PKTHOOK_0x34_LOG, struct{} );
+
+  var ev := request_status( 0, char.serial );
+  if ( !ev )
+    disarm_hook( PKTHOOK_0x34 );
+    return ev;
+  endif
+
+  var log := wait_for_hook_log( PKTHOOK_0x34_LOG );
+  disarm_hook( PKTHOOK_0x34 );
+  if ( !log )
+    return log;
+  endif
+
+  var entry := log[1];
+  if ( entry.which != "sub" )
+    return ret_error( $"the {entry.which} hook was called, expected the subcommand one" );
+  elseif ( entry.type != STATUS_TYPE_BASE )
+    return ret_error( $"the hook saw request type 0x{entry.type:x}" );
+  elseif ( entry.serial != char.serial )
+    return ret_error( $"the hook saw 0x{entry.serial:x}, expected 0x{char.serial:x}" );
+  elseif ( entry.size != 10 )
+    return ret_error( $"the hook was handed {entry.size} bytes, expected 10" );
+  elseif ( entry.sender != char.serial )
+    return ret_error( $"the hook was told 0x{entry.sender:x} sent it" );
+  endif
+
+  return 1;
+endfunction
+
+// a request type with no subcommand entry of its own falls through to the parent
+exported function pkthook_recv_parent( unused resmgn )
+  arm_hook( PKTHOOK_0x34, PKTHOOK_0x34_LOG, struct{} );
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "request_status",
+                               arg := struct{ serial := char.serial, type := STATUS_TYPE_SKILLS },
+                               id := 0 } );
+
+  var log := wait_for_hook_log( PKTHOOK_0x34_LOG );
+  disarm_hook( PKTHOOK_0x34 );
+  if ( !log )
+    return log;
+  endif
+
+  var entry := log[1];
+  if ( entry.which != "parent" )
+    return ret_error( $"the {entry.which} hook was called, expected the parent one" );
+  elseif ( entry.type != STATUS_TYPE_SKILLS )
+    return ret_error( $"the hook saw request type 0x{entry.type:x}" );
+  endif
+
+  return 1;
+endfunction
+
+// a hook that answers 0 leaves the core to handle the packet as usual, so the
+// status still comes back
+exported function pkthook_recv_passes_through( unused resmgn )
+  arm_hook( PKTHOOK_0x34, PKTHOOK_0x34_LOG, struct{} );
+
+  var ev := request_status( 0, char.serial );
+  disarm_hook( PKTHOOK_0x34 );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( ev.name != char.name )
+    return ret_error( $"the status names \"{ev.name}\", expected \"{char.name}\"" );
+  endif
+
+  return 1;
+endfunction
+
+// A packet that arrives before the client has picked a character is handed to the
+// hook with a ClientRef in place of the Character, since there is no mobile yet.
+// The suite's own two clients logged in long before this case runs, so the hook
+// has already recorded them.
+exported function pkthook_recv_prelogin( unused resmgn )
+  var log := hook_log( PKTHOOK_0x5D_LOG );
+  if ( len( log ) < 2 )
+    return ret_error( $"the character selection hook fired {len( log )} times, expected 2" );
+  endif
+
+  var entry := log[1];
+  if ( entry.type != "ClientRef" )
+    return ret_error( $"the hook was handed a {entry.type}, expected a ClientRef" );
+  elseif ( entry.size != 73 )
+    return ret_error( $"the hook was handed {entry.size} bytes, expected 73" );
+  endif
+
+  // the ClientRef is a real client object, not a placeholder: it knows where the
+  // connection came from and which account is logging in
+  if ( entry.ip != "127.0.0.1" )
+    return ret_error( $"the client logged in from \"{entry.ip}\", expected 127.0.0.1" );
+  elseif ( !( entry.acctname.find( "testclient" ) ) )
+    return ret_error( $"the login is for account \"{entry.acctname}\"" );
+  endif
+
+  // The packet carries the name the client asked to log in as, which is the one
+  // testclient sends and not the character's name in the world. Both logins are
+  // there and they are told apart by it.
+  var names := array{};
+  foreach seen in ( log )
+    if ( !seen.name )
+      return ret_error( $"a login carried no character name at all: {seen}" );
+    endif
+    if ( seen.name in names )
+      return ret_error( $"two logins carried the same name \"{seen.name}\"" );
+    endif
+    names.append( seen.name );
+  endforeach
+
+  return 1;
+endfunction
+
+// a hook that answers 1 has handled the packet itself, so the core's own handler
+// never runs and no status is sent back
+exported function pkthook_recv_suppresses( unused resmgn )
+  arm_hook( PKTHOOK_0x34, PKTHOOK_0x34_LOG, struct{ suppress := 1 } );
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "request_status",
+                               arg := struct{ serial := char.serial, type := STATUS_TYPE_BASE },
+                               id := 0 } );
+
+  var res := no_status_for( 0, char.serial );
+  if ( !res )
+    disarm_hook( PKTHOOK_0x34 );
+    return res;
+  endif
+
+  var log := wait_for_hook_log( PKTHOOK_0x34_LOG );
+  disarm_hook( PKTHOOK_0x34 );
+  if ( !log )
+    return log;
+  endif
+
+  // and with the hook disarmed the same request is answered again
+  var ev := request_status( 0, char.serial );
+  if ( !ev )
+    return ev;
+  endif
+
+  return 1;
+endfunction

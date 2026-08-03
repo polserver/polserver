@@ -1,5 +1,212 @@
+// it looks for its arm struct in a global property and
+// returns 0 straight away when there is none, which leaves the core to handle the
+// packet exactly as it would without the hook.
+//
+// An armed hook records what it saw into a log property, which the test reads
+// afterwards.
+//
+// The packets that exist in two versions have one exported function per version,
+// both delegating to the same body, so that a test can tell which of the two the
+// core picked for the connected client.
 use uo;
+use os;
+use polsys;
+
+const PKTHOOK_0x77 := "#PktHook0x77";
+const PKTHOOK_0x77_LOG := "#PktHook0x77Log";
+const PKTHOOK_0x1C := "#PktHook0x1C";
+const PKTHOOK_0x1C_LOG := "#PktHook0x1CLog";
+const PKTHOOK_0x34 := "#PktHook0x34";
+const PKTHOOK_0x34_LOG := "#PktHook0x34Log";
+const PKTHOOK_0x5D_LOG := "#PktHook0x5DLog";
+
+// 0x1C: length at 1, serial at 3, body at 7, type at 9, colour at 10, font at 12,
+// a 30 byte name at 14 and the text from 44 to the end.
+const SPEECH_TEXT_OFFSET := 44;
+
+// 0x34: a four byte pattern at 1, the request type at 5, the serial at 6.
+const STATUS_TYPE_OFFSET := 5;
+const STATUS_SERIAL_OFFSET := 6;
+
+// 0x5D: a four byte pattern at 1, then the 30 byte character name.
+const CHARSELECT_NAME_OFFSET := 5;
 
 program packethook()
   return 1;
 endprogram
+
+// appends one observation to a log property
+function record( key, entry )
+  var log := GetGlobalProperty( key );
+  if ( !log )
+    log := array{};
+  endif
+  log.append( entry );
+  SetGlobalProperty( key, log );
+endfunction
+
+// 0x77, a mobile that is already on screen has moved. Fixed length, 17 bytes:
+// the serial at offset 1, the body at 5, x/y/z at 7/9/11 and the colour at 13.
+//
+// The arm struct selects one mobile by serial and says what to do with its
+// updates: rewrite the body, drop the packet entirely, or try a resize that a
+// fixed length packet has to refuse.
+function handle_update_player( version, character, byref packet )
+  var arm := GetGlobalProperty( PKTHOOK_0x77 );
+  if ( !arm )
+    return 0;
+  endif
+
+  var serial := packet.GetInt32( 1 );
+  if ( serial != arm.serial )
+    return 0;
+  endif
+
+  var entry := struct{};
+  entry.+version := version;
+  entry.+serial := serial;
+  entry.+graphic := packet.GetInt16( 5 );
+  entry.+size := packet.GetSize();
+  entry.+recipient := character.serial;
+
+  if ( arm.?resize )
+    entry.+resize := CStr( packet.SetSize( arm.resize ) );
+  endif
+
+  record( PKTHOOK_0x77_LOG, entry );
+
+  if ( arm.?suppress )
+    return 1;
+  endif
+  if ( arm.?graphic )
+    packet.SetInt16( 5, arm.graphic );
+  endif
+
+  return 0;
+endfunction
+
+exported function UpdatePlayer_0x77( character, byref packet )
+  return handle_update_player( 1, character, packet );
+endfunction
+
+// the version 2 entry asks for a client no older than 6.0.0.0, which every client
+// the test suite connects is - so this is the one the core has to pick
+exported function UpdatePlayer_0x77_V2( character, byref packet )
+  return handle_update_player( 2, character, packet );
+endfunction
+
+// 0x1C, plain text on its way to a client. Variable length, so the text can be
+// replaced with a longer or a shorter one and the packet resized to match - the
+// encoded length is what the core sends out afterwards.
+//
+// The arm struct picks the message by its text, so the hook ignores everything the
+// shard says on its own account.
+function handle_speech( version, character, byref packet )
+  var arm := GetGlobalProperty( PKTHOOK_0x1C );
+  if ( !arm )
+    return 0;
+  endif
+
+  var size := packet.GetSize();
+  var text := packet.GetString( SPEECH_TEXT_OFFSET, size - SPEECH_TEXT_OFFSET );
+  if ( !text.find( arm.match ) )
+    return 0;
+  endif
+
+  var entry := struct{};
+  entry.+version := version;
+  entry.+text := text;
+  entry.+size := size;
+  entry.+encoded := packet.GetInt16( 1 );
+  entry.+serial := packet.GetInt32( 3 );
+  entry.+color := packet.GetInt16( 10 );
+  entry.+font := packet.GetInt16( 12 );
+  entry.+name := packet.GetString( 14, 30 );
+  entry.+recipient := character.serial;
+  record( PKTHOOK_0x1C_LOG, entry );
+
+  if ( arm.?suppress )
+    return 1;
+  endif
+
+  if ( arm.?replace )
+    // the text is the tail of the packet, so the packet is exactly the header plus
+    // the new text and its terminator
+    packet.SetSize( SPEECH_TEXT_OFFSET + arm.replace.length() + 1 );
+    packet.SetString( SPEECH_TEXT_OFFSET, arm.replace, 1 );
+  endif
+  if ( arm.?color )
+    packet.SetInt16( 10, arm.color );
+  endif
+  if ( arm.?badlength )
+    // the encoded length written by hand, behind SetSize's back, so it no longer
+    // describes the packet the core is about to send
+    packet.SetInt16( 1, arm.badlength );
+  endif
+
+  return 0;
+endfunction
+
+exported function Speech_0x1C( character, byref packet )
+  return handle_speech( 1, character, packet );
+endfunction
+
+// this version 2 entry asks for a client newer than any the suite connects, so it
+// must never be chosen - the version 1 function above is the one that runs
+exported function Speech_0x1C_V2( character, byref packet )
+  return handle_speech( 2, character, packet );
+endfunction
+
+// 0x34, a client asking for a status. Both hooks share this body: `which` says
+// whether the parent function or the subcommand function was entered, which is
+// how a test tells that the core picked the right one.
+//
+// Answering 1 keeps the core from replying at all, which is visible as a status
+// packet that never arrives.
+function handle_status_request( which, character, byref packet )
+  var arm := GetGlobalProperty( PKTHOOK_0x34 );
+  if ( !arm )
+    return 0;
+  endif
+
+  var entry := struct{};
+  entry.+which := which;
+  entry.+type := packet.GetInt8( STATUS_TYPE_OFFSET );
+  entry.+serial := packet.GetInt32( STATUS_SERIAL_OFFSET );
+  entry.+size := packet.GetSize();
+  entry.+sender := character.serial;
+  record( PKTHOOK_0x34_LOG, entry );
+
+  if ( arm.?suppress )
+    return 1;
+  endif
+  return 0;
+endfunction
+
+// the subcommand hook: only the basic status request reaches this one
+exported function StatusBase_0x34( character, byref packet )
+  return handle_status_request( "sub", character, packet );
+endfunction
+
+// the parent hook: every request type that has no subcommand entry of its own
+exported function StatusRequest_0x34( character, byref packet )
+  return handle_status_request( "parent", character, packet );
+endfunction
+
+// 0x5D, a client choosing its character. This one arrives before there is a
+// character to speak of, so the core hands the hook a ClientRef rather than a
+// Character - the one case where the first parameter is not a mobile.
+//
+// It cannot be armed: it fires while the suite's own clients are logging in, long
+// before any test runs, so it always records and always passes the packet on.
+exported function CharSelect_0x5D( character, byref packet )
+  var entry := struct{};
+  entry.+type := TypeOf( character );
+  entry.+size := packet.GetSize();
+  entry.+name := packet.GetString( CHARSELECT_NAME_OFFSET, 30 );
+  entry.+ip := character.ip;
+  entry.+acctname := character.acctname;
+  record( PKTHOOK_0x5D_LOG, entry );
+
+  return 0;
+endfunction

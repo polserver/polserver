@@ -34,29 +34,57 @@
 #include "plib/pkg.h"
 #include "pol/globals/network.h"
 #include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
 #include "pol/packetscrobj.h"
 #include "pol/syshook.h"
-#include "pol/network/client.h"
 
-
-namespace Pol::Network
+// helper functions
+namespace
 {
-u32 GetSubCmd( const unsigned char* message, PacketHookData* phd )
-{
-  if ( phd->sub_command_length == 1 )
-    return *( reinterpret_cast<const u8*>( &message[phd->sub_command_offset] ) );
-  if ( phd->sub_command_length == 2 )
-    return cfBEu16( *( reinterpret_cast<const u16*>( &message[phd->sub_command_offset] ) ) );
-  // else if(phd->sub_command_length == 4)
-  //    return cfBEu32(*(reinterpret_cast<const u32*>(&message[phd->sub_command_offset])));
-  return cfBEu32( *( reinterpret_cast<const u32*>( &message[phd->sub_command_offset] ) ) );
-}
-
-// Variable length is defined in MSGLEN_2BYTELEN_DATA
-static bool is_fixed_length( const PacketHookData* phd )
+using namespace Pol::Network;
+bool is_fixed_length( const PacketHookData* phd )
 {
   return phd->length > 0;
 }
+
+size_t message_length( const unsigned char* message, const PacketHookData* phd )
+{
+  if ( is_fixed_length( phd ) )
+    return static_cast<size_t>( phd->length );
+  return cfBEu16( *( reinterpret_cast<const u16*>( &message[1] ) ) );
+}
+
+size_t subcmd_width( const PacketHookData* phd )
+{
+  if ( phd->sub_command_length == 1 )
+    return 1;
+  if ( phd->sub_command_length == 2 )
+    return 2;
+  return 4;
+}
+
+// returns the subcommand if any
+std::optional<u32> GetSubCmd( const unsigned char* message, const PacketHookData* phd )
+{
+  if ( phd->sub_command_length == 0 )
+    return {};
+
+  size_t width = subcmd_width( phd );
+  if ( static_cast<size_t>( phd->sub_command_offset ) + width > message_length( message, phd ) )
+    return {};
+
+  if ( width == 1 )
+    return *( reinterpret_cast<const u8*>( &message[phd->sub_command_offset] ) );
+  else if ( width == 2 )
+    return cfBEu16( *( reinterpret_cast<const u16*>( &message[phd->sub_command_offset] ) ) );
+  else
+    return cfBEu32( *( reinterpret_cast<const u32*>( &message[phd->sub_command_offset] ) ) );
+  return {};
+}
+}  // namespace
+
+namespace Pol::Network
+{
 
 // Gets the packet hook for a specific packet version
 PacketHookData* get_packethook( u8 msgid, PacketVersion version = PacketVersion::Default )
@@ -98,13 +126,14 @@ void ExportedPacketHookHandler( Client* client, void* data )
 
   if ( !phd->SubCommands.empty() )
   {
-    u32 subcmd = GetSubCmd( message, phd );
-    std::map<u32, PacketHookData*>::iterator itr;
-    itr = phd->SubCommands.find( subcmd );
-    if ( itr != phd->SubCommands.end() )
+    if ( auto subcmd = GetSubCmd( message, phd ); subcmd )
     {
-      if ( itr->second->function != nullptr )
-        phd = itr->second;
+      auto itr = phd->SubCommands.find( subcmd.value() );
+      if ( itr != phd->SubCommands.end() )
+      {
+        if ( itr->second->function != nullptr )
+          phd = itr->second;
+      }
     }
   }
   if ( phd->function ==
@@ -198,18 +227,26 @@ void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int&
     if ( phd->outgoing_function->call( calling_ref, outpacket.get() ) == 0 )
     {
       // the buffer size may have changed in the script, make sure the packet gets the right size
-
       u16* sizeptr = reinterpret_cast<u16*>(
           &outpacket->buffer[1] );  // var-length packets always have length at 2nd and 3rd byte
-      //*sizeptr = ctBEu16(outpacket->buffer.size());
+      u16 buflen = static_cast<u16>( outpacket->buffer.size() );
+      u16 encoded = cfBEu16( *sizeptr );
+
+      // an encoded length below the buffer size truncates the packet, one the buffer cannot back
+      // is rejected and the whole buffer is sent instead
+      if ( encoded > buflen || encoded < 3 )
+      {
+        POLLOG_ERRORLN(
+            "Packet hook for message {:#x} left an encoded length of {} on a {} byte packet, "
+            "sending {} bytes.",
+            (int)outpacket->buffer[0], encoded, buflen, buflen );
+        *sizeptr = ctBEu16( buflen );
+        encoded = buflen;
+      }
 
       data = static_cast<void*>( &outpacket->buffer[0] );
       // pass the new size back to client::transmit
-      inlength = cfBEu16( *sizeptr );
-
-      // This shouldn't trigger unless something is wrong with BPacket.
-      passert_r( static_cast<u32>( inlength ) <= outpacket->buffer.size(),
-                 "Specified packet length is greater than packet buffer!" );
+      inlength = encoded;
 
       handled = false;
     }
@@ -229,14 +266,16 @@ bool GetAndCheckPacketHooked( Client* client, const void*& data, PacketHookData*
 
   if ( !phd->SubCommands.empty() )
   {
-    u32 subcmd = GetSubCmd( message, phd );
-    auto itr = phd->SubCommands.find( subcmd );
-    if ( itr != phd->SubCommands.end() )
+    if ( auto subcmd = GetSubCmd( message, phd ); subcmd )
     {
-      if ( itr->second->outgoing_function != nullptr )
+      auto itr = phd->SubCommands.find( subcmd.value() );
+      if ( itr != phd->SubCommands.end() )
       {
-        phd = itr->second;
-        subcmd_handler_exists = true;
+        if ( itr->second->outgoing_function != nullptr )
+        {
+          phd = itr->second;
+          subcmd_handler_exists = true;
+        }
       }
     }
   }

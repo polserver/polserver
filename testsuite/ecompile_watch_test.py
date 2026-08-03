@@ -10,6 +10,11 @@ import traceback
 # seconds; error if compilation doesn't occur within this duration
 ECOMPILE_WATCH_TIMEOUT=5
 
+# seconds; error if watch mode isn't entered within this duration. Watch mode
+# starts only after every script has been compiled, so this scales with the
+# number of scripts in the test shard.
+ECOMPILE_START_TIMEOUT=120
+
 def print(*args, **kwargs):
     __builtins__.print(*args, flush=True, **kwargs)
 
@@ -61,7 +66,7 @@ class EcompileExecutor:
             elif "of those script" in line:
                 compilation_summary["errored"] = int(line[0:line.index(' ')])
 
-            elif started_future and "Entering watch mode." in line:
+            elif started_future and not started_future.done() and "Entering watch mode." in line:
                 started_future.set_result(True)
 
     async def start(self):
@@ -77,9 +82,13 @@ class EcompileExecutor:
         asyncio.create_task(self._read_output(self._process.stdout, started_future))
 
         try:
-            await asyncio.wait_for(started_future, timeout=ECOMPILE_WATCH_TIMEOUT)
+            await asyncio.wait_for(started_future, timeout=ECOMPILE_START_TIMEOUT)
         except asyncio.TimeoutError:
-            print(f"ecompile watch mode did not start after {ECOMPILE_WATCH_TIMEOUT} seconds")
+            self._process.kill()
+            await self._process.wait()
+            raise RuntimeError(
+                f"ecompile watch mode did not start after {ECOMPILE_START_TIMEOUT} seconds"
+            )
 
     def new_compliation_future(self) -> Awaitable[dict[str, int]]:
         self._compilation_future = asyncio.Future()

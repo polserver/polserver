@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="POLsys.em">
     <filedesc>Functions to access POL system data.</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>08/02/2026</datemodified>
 <constant>const MSGLEN_VARIABLE := -1;</constant>
   </fileheader>
 
@@ -167,12 +167,14 @@ endforeach</code></explain>
     <parameter name="type" value="Integer" />
     <parameter name="size" value="Integer" />
     <explain>Creates a new packet object. Type is the byte command id that always is set as the first byte (no need to set it yourself). Size is the fixed-length size for this packet, or MSGLEN_VARIABLE if it is variable length (no need to figure out the size in advance, the packet buffer will be resized as need by using the Set* methods).</explain>
+	<explain>A fixed length size must be between 0 and 0xFFFF, since a packet carries its length in two bytes. A size of 0 gives an empty packet, which is only useful as the target of Packet.Assign.</explain>
 	<explain>Notes: polsys.em constants for this function:
 <code>
 const MSGLEN_VARIABLE := -1;</code></explain>
     <return>A new packet object or Error</return>
 	<error>"Invalid parameter type."</error>
 	<error>"Packet type too high"</error>
+	<error>"Invalid packet size"</error>
 	<related>Packet</related>
   </function>
 
