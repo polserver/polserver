@@ -1545,7 +1545,16 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           return new BError( "Could not insert new stack into container" );
         }
 
-        newcontainer->add_at_random_location( new_stack );
+        // The CanInsert script above can have destroyed the container or the new stack; relocate
+        // says no rather than linking one of them into the other.
+        if ( !Items::relocate(
+                 *new_stack, Items::InContainer{ newcontainer, newcontainer->get_random_location(),
+                                                 new_stack->slot_index() } ) )
+        {
+          if ( new_stack != this )
+            this->add_to_self( new_stack );
+          return new BError( "Could not insert new stack into container" );
+        }
         update_item_to_inrange( new_stack );
         UpdateCharacterWeight( new_stack );
         newcontainer->on_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
@@ -1576,7 +1585,14 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           this->add_to_self( new_stack );
         return new BError( "Could not insert new stack into container" );
       }
-      newcontainer->add_at_random_location( new_stack );
+      if ( !Items::relocate( *new_stack,
+                             Items::InContainer{ newcontainer, newcontainer->get_random_location(),
+                                                 new_stack->slot_index() } ) )
+      {
+        if ( new_stack != this )
+          this->add_to_self( new_stack );
+        return new BError( "Could not insert new stack into container" );
+      }
       new_stack->setamount( amt );
       update_item_to_inrange( new_stack );
       UpdateCharacterWeight( new_stack );
@@ -4714,21 +4730,19 @@ ItemGivenEvent::~ItemGivenEvent()
     {
       if ( backpack->can_add( *item ) )
       {
-        cont->remove( item );
         u8 newSlot = 1;
-        if ( !backpack->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
+        if ( backpack->can_add_to_slot( newSlot ) && item->slot_index( newSlot ) &&
+             Items::relocate( *item, Items::InContainer{ backpack, item->pos2d(), newSlot } ) )
         {
-          item->setposition( chr->pos() );
-          if ( Items::relocate( *item, Items::InWorld{} ) )
-            send_item_moved( item, item->pos() );
+          update_item_to_inrange( item );
           return;
         }
-        backpack->add( item, item->pos2d() );
-        update_item_to_inrange( item );
+        item->setposition( chr->pos() );
+        if ( Items::relocate( *item, Items::InWorld{} ) )
+          send_item_moved( item, item->pos() );
         return;
       }
     }
-    cont->remove( item );
     item->setposition( chr->pos() );
     if ( Items::relocate( *item, Items::InWorld{} ) )
       send_item_moved( item, item->pos() );

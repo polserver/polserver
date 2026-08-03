@@ -441,7 +441,8 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
       item->setname( name );
       item->setposition( Pos4d( item->pos().xyz(),
                                 find_realm( std::string( "britannia" ) ) ) );  // TODO POS nullptr
-      area->insert_root_item( item );
+      if ( !Items::relocate( *item, Items::InStorage{ area, name } ) )
+        return nullptr;
     }
     // Changed this from a passert to return null.
     if ( !( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) ) )

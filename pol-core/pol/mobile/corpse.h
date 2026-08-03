@@ -50,11 +50,8 @@ public:
   u16 get_senditem_amount() const override;
 
   void add( Item* item, const Pos2d& pos ) override;
-  void equip_and_add( Item* item, unsigned idx );
   void equip_and_add( Item* item, unsigned idx, const Pos2d& pos );
   void remove( iterator itr ) override;
-
-  Items::Location location_for( const Items::Item* item, const Pos2d& pos ) override;
 
   void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item ) override;
   bool take_contents_to_grave() const;

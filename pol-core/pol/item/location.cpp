@@ -273,9 +273,10 @@ void attach_to_cursor( Item& item, Mobile::Character& holder, const Core::Gotten
   item.setposition( Core::Pos4d( 0, 0, 0, item.realm() ) );  // don't let a boat carry it around
 }
 
-/// Returns false for the alternatives that have no registry to join, whose location the caller
-/// therefore has to record itself.
-bool attach( Item& item, const Location& to )
+/// File the item in whichever registry the target names. The alternatives that name none --
+/// Detached, Intrinsic, Absorbed -- have nothing to do here; relocate() records the location either
+/// way.
+void attach( Item& item, const Location& to )
 {
   if ( to.holds<InWorld>() )
   {
@@ -303,11 +304,7 @@ bool attach( Item& item, const Location& to )
   else if ( const auto* in_storage = to.get_if<InStorage>() )
     in_storage->area->insert_root_item( &item );
   else if ( to.holds<Destroyed>() )
-    item.destroy();  // Destroyed is derived from the serial, so there is nothing to record
-  else
-    return false;  // Detached, Intrinsic, Absorbed -- Preparing cannot get this far
-
-  return true;
+    item.destroy();
 }
 }  // namespace
 
@@ -342,9 +339,22 @@ bool relocate_loaded( Item& item, Location to )
   detach( item, from );
 
   if ( to_cursor != nullptr )
+  {
     attach_to_cursor( item, *to_cursor->holder, ticket );
-  else if ( !attach( item, to ) )
+    // Not OnCursor: the cursor is derived from the gotten_by link, so storing it as well would give
+    // location() two answers that can disagree. What is true of the registries is that the item has
+    // left all of them.
+    item.set_location( Detached{} );
+  }
+  else
+  {
+    attach( item, to );
+    // The location we validated is the location the item ends up with, rather than whatever the
+    // registry we just handed it to would have inferred. Those are not always the same thing: a
+    // corpse used to answer OnCorpse for an item its layer list still named, and a spellbook
+    // absorbs a scroll without ever chaining to the container it was told to join.
     item.set_location( to );
+  }
 
   return true;
 }

@@ -61,7 +61,6 @@ public:
 
   Items::Item* GetItemOnLayer( unsigned idx ) const;
 
-  Items::Location location_for( const Items::Item* item, const Core::Pos2d& pos ) override;
 
   void print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
 

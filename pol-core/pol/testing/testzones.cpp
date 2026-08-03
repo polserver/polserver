@@ -33,18 +33,20 @@ std::vector<u32> serials_in_zone( const Realms::Realm* realm, const Core::Pos2d&
   return serials;
 }
 
+// These go through relocate() even though the zone primitives are what is under test: relocate
+// calls them, so they are still exercised, and an item left in a zone without a matching location
+// is a landmine for anything that walks the zone afterwards -- the decay pass, for one.
 Items::Item* item_in_world( const Core::Pos4d& p )
 {
   auto* item = Items::Item::create( 0x0eed );
   item->setposition( p );
-  Core::add_item_to_world( item );
+  (void)Items::relocate( *item, Items::InWorld{} );
   return item;
 }
 
 void discard( Items::Item* item )
 {
-  Core::remove_item_from_world( item );
-  item->destroy();
+  (void)Items::relocate( *item, Items::Destroyed{} );
 }
 }  // namespace
 
@@ -70,7 +72,7 @@ void zone_bookkeeping_test()
     UnitTest( [&]() { return realm->toplevel_item_count(); }, count_before + 1,
               "add bumps the toplevel counter" );
 
-    Core::remove_item_from_world( item );
+    (void)Items::relocate( *item, Items::Detached{} );
 
     UnitTest( [&]() { return occurrences( realm, zone_a.xy(), item ); }, size_t( 0 ),
               "remove clears the zone entry" );
@@ -148,7 +150,7 @@ void zone_bookkeeping_test()
     auto* middle = items[2];
     expected.erase( std::find( expected.begin(), expected.end(), middle->serial ) );
 
-    Core::remove_item_from_world( middle );
+    (void)Items::relocate( *middle, Items::Detached{} );
     UnitTest( [&]() { return serials_in_zone( realm, zone_a.xy() ) == expected; }, true,
               "erasing from the middle preserves the order of the survivors" );
 

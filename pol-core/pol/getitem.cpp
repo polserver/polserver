@@ -199,16 +199,20 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
           return;
         // NOTE: we just removed 'item' from its container,
         // so there's room for new_item.
-        if ( !orig_container->can_add_to_slot( oldSlot ) || !item->slot_index( oldSlot ) )
+        if ( orig_container->can_add_to_slot( oldSlot ) && item->slot_index( oldSlot ) &&
+             Items::relocate( *new_item, Items::InContainer{ orig_container, orig_pos.xy(),
+                                                             new_item->slot_index() } ) )
         {
-          new_item->setposition( client->chr->pos() );
-          if ( Items::relocate( *new_item, Items::InWorld{} ) )
-            send_item_moved( new_item, orig_toppos );
+          send_put_in_container_to_inrange( new_item );
         }
         else
         {
-          orig_container->add( new_item, orig_pos.xy() );
-          send_put_in_container_to_inrange( new_item );
+          // The remainder of the stack has to land somewhere. Besides the slot being unavailable,
+          // the OnRemove script above can have destroyed the container out from under us, which
+          // relocate refuses -- and used to be an assertion inside UContainer::add.
+          new_item->setposition( client->chr->pos() );
+          if ( Items::relocate( *new_item, Items::InWorld{} ) )
+            send_item_moved( new_item, orig_toppos );
         }
       }
       else

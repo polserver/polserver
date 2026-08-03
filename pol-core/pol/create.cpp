@@ -447,7 +447,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       }
     }
     else
-      backpack->add( tmpitem, Pos2d( 46, 91 ) );
+      (void)Items::relocate( *tmpitem, Items::InContainer{ backpack, Pos2d( 46, 91 ), newSlot } );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -798,7 +798,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       }
     }
     else
-      backpack->add( tmpitem, Pos2d( 46, 91 ) );
+      (void)Items::relocate( *tmpitem, Items::InContainer{ backpack, Pos2d( 46, 91 ), newSlot } );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -1185,7 +1185,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       }
     }
     else
-      backpack->add( tmpitem, Pos2d( 46, 91 ) );
+      (void)Items::relocate( *tmpitem, Items::InContainer{ backpack, Pos2d( 46, 91 ), newSlot } );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||

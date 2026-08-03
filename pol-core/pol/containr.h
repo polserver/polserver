@@ -110,13 +110,10 @@ public:
 
   void spill_contents() override;
 
-  // NOTE: gives the item the location this container implies, via location_for()
+  /// Link the item into this container. Recording where it now is belongs to Items::relocate(),
+  /// which is also the only caller that has checked whether the move is allowed at all.
   virtual void add( Items::Item* item, const Pos2d& pos );
-  void add_at_random_location( Items::Item* item );
 
-  /// The location an item takes on once this container has accepted it at pos. Worn-items
-  /// containers and corpses hold their contents differently, so each answers for itself.
-  virtual Items::Location location_for( const Items::Item* item, const Pos2d& pos );
   unsigned count() const;
 
   unsigned int item_count() const override;

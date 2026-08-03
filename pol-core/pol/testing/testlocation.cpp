@@ -41,7 +41,7 @@ Items::Item* item_in_world( u32 objtype, const Core::Pos4d& p )
 {
   auto* item = Items::Item::create( objtype );
   item->setposition( p );
-  Core::add_item_to_world( item );
+  (void)Items::relocate( *item, Items::InWorld{} );
   return item;
 }
 
@@ -100,12 +100,28 @@ void location_test()
   {
     auto* item = item_in_world( ITEM_OBJTYPE, spot );
     UnitTest( [&]() { return item->location().holds<Items::InWorld>(); }, true,
-              "adding to the world sets InWorld" );
+              "entering the world sets InWorld" );
+    UnitTest( [&]() { return occurrences( realm, spot.xy(), item ); }, size_t( 1 ),
+              "and registers exactly one zone entry" );
 
-    Core::remove_item_from_world( item );
+    UnitTest( [&]() { return relocate( *item, Items::Detached{} ); }, true,
+              "leaving the world succeeds" );
     UnitTest( [&]() { return item->location().holds<Items::Detached>(); }, true,
-              "removing from the world sets Detached" );
+              "leaving the world sets Detached" );
+    UnitTest( [&]() { return occurrences( realm, spot.xy(), item ); }, size_t( 0 ),
+              "and clears the zone entry" );
     item->destroy();
+  }
+
+  // Destroying a world item has to unlink it from its zone. Decay steps its index back on exactly
+  // that promise (decay.cpp), so an item that stays in the vector is not a leak, it is a loop that
+  // logs once per turn -- which is how this went from a stale field to an unusable machine.
+  {
+    auto* item = item_in_world( ITEM_OBJTYPE, spot );
+    UnitTest( [&]() { return relocate( *item, Items::Destroyed{} ); }, true,
+              "destroying a world item succeeds" );
+    UnitTest( [&]() { return occurrences( realm, spot.xy(), item ); }, size_t( 0 ),
+              "destroying a world item clears its zone entry" );
   }
 
   // ground -> container -> ground, driven entirely by relocate()
@@ -133,17 +149,15 @@ void location_test()
     UnitTest( [&]() { return item->container() == nullptr; }, true,
               "and it names no container any more" );
 
-    Core::remove_item_from_world( item );
-    item->destroy();
-    Core::remove_item_from_world( cont );
-    cont->destroy();
+    (void)relocate( *item, Items::Destroyed{} );
+    (void)relocate( *cont, Items::Destroyed{} );
   }
 
   // destroying through relocate() unlinks first, which is what the container-move paths get wrong
   {
     auto* cont = container_in_world( spot );
     auto* item = Items::Item::create( ITEM_OBJTYPE );
-    cont->add( item, Core::Pos2d( 1, 1 ) );
+    (void)relocate( *item, Items::InContainer{ cont, Core::Pos2d( 1, 1 ), 0 } );
 
     UnitTest( [&]() { return relocate( *item, Items::Destroyed{} ); }, true,
               "relocate to Destroyed succeeds" );
@@ -154,8 +168,7 @@ void location_test()
     UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, false,
               "Destroyed is terminal" );
 
-    Core::remove_item_from_world( cont );
-    cont->destroy();
+    (void)relocate( *cont, Items::Destroyed{} );
   }
 
   // storage roots carry their key, because the area alone cannot find them again
@@ -178,8 +191,7 @@ void location_test()
     UnitTest( [&]() { return area.find_root_item( name ) == nullptr; }, true,
               "leaving storage unlinks it from the area" );
 
-    Core::remove_item_from_world( item );
-    item->destroy();
+    (void)relocate( *item, Items::Destroyed{} );
   }
 
   // rejections, each of which must leave the item exactly as it was
@@ -221,8 +233,7 @@ void location_test()
               "relocating to the location it already has is a no-op success" );
 
     inner->destroy();
-    Core::remove_item_from_world( outer );
-    outer->destroy();
+    (void)relocate( *outer, Items::Destroyed{} );
   }
 
   // the read-only views keep today's meaning for the states that have no container or layer
@@ -232,8 +243,7 @@ void location_test()
               "InWorld has no container" );
     UnitTest( [&]() { return item->location().layer(); }, u8( 0 ), "InWorld has no layer" );
     UnitTest( [&]() { return item->location().slot(); }, u8( 0 ), "InWorld has no slot" );
-    Core::remove_item_from_world( item );
-    item->destroy();
+    (void)relocate( *item, Items::Destroyed{} );
   }
 
   // Intrinsic equipment: shared, never worn, and the one population that stays serial-less until

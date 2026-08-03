@@ -31,11 +31,6 @@ namespace Items
 {
 class Item;
 }
-namespace Core
-{
-void add_item_to_world( Items::Item* item );
-void remove_item_from_world( Items::Item* item );
-}  // namespace Core
 namespace Bscript
 {
 class Executor;
@@ -55,9 +50,7 @@ class UOExecutorModule;
 }
 namespace Core
 {
-class StorageArea;
 class UContainer;
-class UCorpse;
 class UOExecutor;
 class WornItemsContainer;
 
@@ -325,16 +318,15 @@ private:
 
   Location loc_;
 
-  // relocate() is the intended writer. The registries are friends only for as long as they still
-  // maintain the location themselves; each one loses the friendship as it moves over to relocate().
+  // relocate() decides where an item is; nothing else may. The two exceptions left are the ones
+  // that unlink in bulk or hand an item to a layer, neither of which relocate() can express:
+  // UContainer::extract() empties a container in one pass for a caller that re-homes every item
+  // itself, and Character::equip() reaches PutItemOnLayer/RemoveItemFromLayer from the two dozen
+  // callers that equip without asking whether the character could.
   friend bool relocate( Item& item, Location to );
   friend bool relocate_loaded( Item& item, Location to );
-  friend class Core::StorageArea;
   friend class Core::UContainer;
-  friend class Core::UCorpse;
   friend class Core::WornItemsContainer;
-  friend void Core::add_item_to_world( Item* item );
-  friend void Core::remove_item_from_world( Item* item );
 
 protected:
   Core::UOExecutor* uoexec_control();

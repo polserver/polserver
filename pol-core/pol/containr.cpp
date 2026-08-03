@@ -209,15 +209,10 @@ void UContainer::add( Items::Item* item, const Pos2d& pos )
   item->setposition( Pos4d( pos, 0, realm() ) );  // TODO POS realm should be a nullptr
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
-  item->set_location( location_for( item, pos ) );
 
   add_bulk( item );
 }
 
-Items::Location UContainer::location_for( const Items::Item* item, const Pos2d& pos )
-{
-  return Items::InContainer{ this, pos, item->slot_index() };
-}
 void UContainer::add_bulk( const Items::Item* item )
 {
   add_bulk( 1, item->weight() );
@@ -307,11 +302,6 @@ bool UContainer::find_empty_slot( u8& slotIndex )
   return false;
 }
 
-void UContainer::add_at_random_location( Items::Item* item )
-{
-  add( item, get_random_location() );
-}
-
 void UContainer::enumerate_contents( Bscript::ObjArray* arr, int flags )
 {
   for ( auto& item : contents_ )
@@ -389,7 +379,7 @@ void UContainer::swap( UContainer& cont )
     {
       if ( item == nullptr )
         continue;
-      item->set_location( into.location_for( item, item->pos2d() ) );
+      item->set_location( Items::InContainer{ &into, item->pos2d(), item->slot_index() } );
       item->set_dirty();
     }
   };
@@ -781,21 +771,27 @@ void UContainer::spill_contents()
 
   while ( !contents_.empty() )
   {
-    // Whichever way this goes the item leaves contents_, which is what ends the loop.
     Items::Item* item = contents_.back();
     if ( !item->movable() )
-    {
       destroy_item( item );
-      continue;
+    else
+    {
+      item->setposition( toplevel_pos() );
+      if ( Items::relocate( *item, Items::InWorld{} ) )
+        send_item_moved( item, item->pos() );
+      else
+        destroy_item( item );
     }
 
-    item->setposition( toplevel_pos() );
-    if ( !Items::relocate( *item, Items::InWorld{} ) )
+    // Whichever way that went the item has left contents_, which is what ends the loop. Stop rather
+    // than trust it: every turn of this loop logs, so spinning here fills memory long before anyone
+    // gets to read the first line.
+    if ( !contents_.empty() && contents_.back() == item )
     {
-      destroy_item( item );
-      continue;
+      POLLOG_ERRORLN( "spill_contents: container {:#x} would not release item {:#x} ({})", serial,
+                      item->serial, item->location().describe() );
+      break;
     }
-    send_item_moved( item, item->pos() );
   }
 }
 

@@ -35,7 +35,6 @@ void add_item_to_world( Items::Item* item )
 
   item->realm()->add_toplevel_item( *item );
   zone.items.push_back( item );
-  item->set_location( Items::InWorld{} );
 }
 
 void remove_item_from_world( Items::Item* item )
@@ -67,7 +66,6 @@ void remove_item_from_world( Items::Item* item )
 
   item->realm()->remove_toplevel_item( *item );
   zone.items.erase( itr );
-  item->set_location( Items::Detached{} );
 }
 
 void add_multi_to_world( Multi::UMulti* multi )

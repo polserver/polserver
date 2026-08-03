@@ -114,7 +114,8 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
   if ( item->realm() == nullptr )  // TODO POS no realm needed
     item->setposition( Core::Pos4d( 0, 0, 0, Core::find_realm( std::string( "britannia" ) ) ) );
 
-  area->insert_root_item( item );
+  if ( !Items::relocate( *item, Items::InStorage{ area, name->value() } ) )
+    return new BError( "Unable to file the item at the storage root" );
 
   return new EItemRefObjImp( item );
 }

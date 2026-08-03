@@ -110,9 +110,22 @@ void Decay::decay_worldzone()
           continue;
       }
 
+      const u32 decayed_serial = item->serial;
       item->spill_contents();
       destroy_item( item );
-      --idx;
+
+      // Destroying an item unlinks it from its zone, so the next one takes this index and the step
+      // back is what makes us read it. If the item is somehow still here, step past it instead of
+      // reading the same slot again: this loop logs once per turn, so spinning fills memory long
+      // before anyone gets to read the first line.
+      if ( idx < zone.items.size() && zone.items[idx] == item )
+      {
+        POLLOG_ERRORLN(
+            "decay: item {:#x} is still in its zone after being destroyed ({}); skipped",
+            decayed_serial, item->location().describe() );
+      }
+      else
+        --idx;
     }
   }
 }

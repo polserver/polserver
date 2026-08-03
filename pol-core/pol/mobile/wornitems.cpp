@@ -66,11 +66,6 @@ void WornItemsContainer::PutItemOnLayer( Items::Item* item )
   add_bulk( item );
 }
 
-Items::Location WornItemsContainer::location_for( const Items::Item* item, const Core::Pos2d& )
-{
-  return Items::Equipped{ chr_owner, item->tile_layer };
-}
-
 void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
 {
   passert( Items::valid_equip_layer(
