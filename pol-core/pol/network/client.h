@@ -38,9 +38,9 @@
 #include "plib/uconst.h"
 #include "plib/uoexpansion.h"
 #include "pol/crypt/cryptkey.h"
-#include "pol/polclock.h"
 #include "pol/network/pktdef.h"
 #include "pol/network/pktin.h"
+#include "pol/polclock.h"
 
 namespace Pol
 {
@@ -298,10 +298,10 @@ public:
 
   void send_KR_encryption_response();
 
-  void setversion( const std::string& ver ) { version_ = ver; }
-  const std::string& getversion() const { return version_; }
-  VersionDetailStruct getversiondetail() const { return versiondetail_; }
-  void setversiondetail( VersionDetailStruct& detail ) { versiondetail_ = detail; }
+  void setversion( const std::string& ver );
+  const std::string& getversion() const;
+  VersionDetailStruct getversiondetail() const;
+  void setversiondetail( VersionDetailStruct& detail );
   static void itemizeclientversion( const std::string& ver, VersionDetailStruct& detail );
   bool compareVersion( const std::string& ver );
   bool compareVersion( const VersionDetailStruct& ver2 );
@@ -365,6 +365,7 @@ private:
   bool paused_;
   VersionDetailStruct versiondetail_;
   weak_ptr_owner<Client> weakptr;
+  std::mutex version_lock_;
 };
 
 inline bool ThreadedClient::have_queued_data() const
