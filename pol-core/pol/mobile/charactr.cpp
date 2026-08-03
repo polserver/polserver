@@ -2332,7 +2332,7 @@ void Character::die()
     // relocate does the unequip, and leaves the item worn if the corpse turns it down -- so the
     // fallback below is reached with the item still on the character, and unequips it itself.
     u8 newSlot = 1;
-    if ( !corpse->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) ||
+    if ( !corpse->can_add_to_slot( newSlot ) ||
          !Items::relocate( *item, Items::OnCorpse{ corpse, corpse->get_random_location(), newSlot,
                                                    item->tile_layer } ) )
     {

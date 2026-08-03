@@ -364,12 +364,10 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( u8 worn_on = location().layer(); worn_on != 0 )
     sw.add( "Layer", (int)worn_on );
 
-  // Same category as Layer: which cell of a container's grid the item occupies. Deliberately the
-  // item's own slot rather than location().slot() -- the two disagree when UseContainerSlots is
-  // off, because the Location carries whatever the caller asked for while Item::slot_index()
-  // refuses to record it. The item's is the one the client is told (0x25, 0x3C) and the one the
-  // loader restores, and it is zero for every shard not using slots, so nothing new is written.
-  if ( u8 slot = slot_index(); slot != 0 )
+  // Same category as Layer: which cell of a container's grid the item occupies. Zero for every
+  // shard not using slots -- relocate refuses to record one there -- so nothing new is written
+  // into their world files.
+  if ( u8 slot = location().slot(); slot != 0 )
     sw.add( "SlotIndex", (int)slot );
 
   if ( movable() != default_movable() )

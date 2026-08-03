@@ -26,7 +26,6 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
       _itemdesc( nullptr ),
       decayat_gameclock_( 0 ),
       amount_( 1 ),
-      slot_index_( 0 ),
       hp_( id.maxhp )
 {
   graphic = id.graphic;
@@ -68,7 +67,6 @@ size_t Item::estimatedSize() const
   return base::estimatedSize() + sizeof( Location )      /* loc_*/
          + sizeof( int )                                 /* decayat_gameclock_*/
          + sizeof( u16 )                                 /* amount_*/
-         + sizeof( u8 )                                  /* slot_index_*/
          + sizeof( const ItemDesc* )                     /* _itemdesc*/
          + sizeof( u8 )                                  /* tile_layer*/
          + sizeof( unsigned short )                      /* hp_*/

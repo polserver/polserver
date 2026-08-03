@@ -186,9 +186,10 @@ public:
   bool default_no_drop() const;
   void no_drop( bool newvalue );
 
+  /// Which cell of its container's grid the item sits in, or 0 for an item that is not in one.
+  /// Derived: relocate() is what puts an item in a slot, so there is nothing here to keep in
+  /// step with it.
   u8 slot_index() const;
-  bool slot_index( u8 newvalue );
-  void reset_slot();
 
   virtual unsigned int item_count() const;
   unsigned int weight_of( unsigned short amount ) const;  // uses weight_multiplier_mod
@@ -339,7 +340,6 @@ protected:
 
   unsigned int decayat_gameclock_;
   u16 amount_;
-  u8 slot_index_;
 
 public:
   u8 tile_layer;
@@ -439,32 +439,6 @@ inline void Item::insured( bool newvalue )
   flags_.change( Core::OBJ_FLAGS::INSURED, newvalue );
 }
 
-inline u8 Item::slot_index() const
-{
-  return slot_index_;
-}
-
-inline void Item::reset_slot()
-{
-  slot_index_ = 0;
-}
-
-inline bool Item::slot_index( u8 newvalue )
-{
-  if ( Core::settingsManager.ssopt.use_slot_index )
-  {
-    // Inclusive, matching UContainer::can_add_to_slot's "slotIndex > max_slots()" test. Slots count
-    // from one, so MaxContainerSlots=125 means slots 1..125; the exclusive comparison this replaces
-    // rejected the last slot the container was willing to hand out.
-    if ( newvalue <= Core::settingsManager.ssopt.default_max_slots )
-    {
-      slot_index_ = newvalue;
-      return true;
-    }
-    return false;
-  }
-  return true;
-}
 
 inline bool valid_equip_layer( int layer )
 {

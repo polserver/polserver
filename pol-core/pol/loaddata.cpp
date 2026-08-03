@@ -233,7 +233,7 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer,
       throw std::runtime_error( "Data file error" );
     }
 
-    if ( !add_to_slot || !item->slot_index( slotIndex ) )
+    if ( !add_to_slot )
     {
       ERROR_PRINTLN( "Can't add Item {:#x} to container {:#x} at slot {:#x}", item->serial,
                      cont->serial, slotIndex );

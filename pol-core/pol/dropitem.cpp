@@ -104,12 +104,6 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
     send_sysmessage( client, "The container has no free slots available!" );
     return false;
   }
-  if ( !item->slot_index( slotIndex ) )
-  {
-    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-    send_sysmessage( client, "The container has no free slots available!" );
-    return false;
-  }
 
   item->set_dirty();
 
@@ -452,10 +446,6 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
     {
       return nullptr;
     }
-    if ( !item_to_add->slot_index( slotIndex ) )
-    {
-      return nullptr;
-    }
     if ( cont->can_add( *item_to_add ) )
       return cont;
   }
@@ -659,7 +649,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     return false;
   }
 
-  if ( !cont->can_add_to_slot( slotIndex ) || !item->slot_index( slotIndex ) )
+  if ( !cont->can_add_to_slot( slotIndex ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;

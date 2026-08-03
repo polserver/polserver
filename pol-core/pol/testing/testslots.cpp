@@ -52,7 +52,6 @@ Items::Item* item_in_world( u32 objtype, const Core::Pos4d& p )
 Items::Item* at_slot( Core::UContainer* cont, u8 slot, const Core::Pos4d& spot )
 {
   auto* item = item_in_world( ITEM_OBJTYPE, spot );
-  (void)item->slot_index( slot );
   (void)Items::relocate( *item, Items::InContainer{ cont, Core::Pos2d( 1, 1 ), slot } );
   return item;
 }
@@ -199,17 +198,29 @@ void container_slot_test()
     Core::settingsManager.ssopt.use_slot_index = true;
   }
 
-  // Item::slot_index and UContainer::can_add_to_slot have to agree about the last slot, or
-  // move_into fails on a slot the container just said it had reserved.
+  // The container's ceiling is now the only bound there is. The item used to carry a second one
+  // of its own, against the global MaxContainerSlots rather than the container's, so the two
+  // could disagree about the last slot and an insert failed on a cell the container had just
+  // reserved.
   {
+    auto* cont = static_cast<Core::UContainer*>( item_in_world( CONTAINER_OBJTYPE, spot ) );
     auto* item = item_in_world( ITEM_OBJTYPE, spot );
-    const u8 last = Core::settingsManager.ssopt.default_max_slots;
-    UnitTest( [&]() { return item->slot_index( last ); }, true,
-              "an item accepts the last slot the container can hand out" );
-    UnitTest( [&]() { return item->slot_index( static_cast<u8>( last + 1 ) ); }, false,
-              "and refuses one past it" );
+    const u8 last = cont->max_slots();
+    const Core::Pos2d grid( 1, 1 );
+
+    UnitTest( [&]() { return Items::relocate( *item, Items::InContainer{ cont, grid, last } ); },
+              true, "the last slot is usable -- slots count from one" );
+    UnitTest( [&]() { return item->slot_index(); }, last, "and the item reports it" );
+    UnitTest(
+        [&]()
+        {
+          return Items::relocate( *item,
+                                  Items::InContainer{ cont, grid, static_cast<u8>( last + 1 ) } );
+        },
+        false, "one past the last is refused" );
 
     (void)Items::relocate( *item, Items::Destroyed{} );
+    (void)Items::relocate( *cont, Items::Destroyed{} );
   }
 }
 }  // namespace Pol::Testing

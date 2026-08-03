@@ -107,6 +107,11 @@ Core::UContainer* Item::container() const
   return location().container();
 }
 
+u8 Item::slot_index() const
+{
+  return location().slot();
+}
+
 Mobile::Character* Item::wearer() const
 {
   if ( const auto* equipped = location().get_if<Equipped>() )
@@ -280,22 +285,15 @@ void attach( Item& item, const Location& to )
 {
   if ( to.holds<InWorld>() )
   {
-    // An item on the ground has no slot: Location::slot() says so, and leaving the container's
-    // index behind is the kind of residue that makes the two disagree.
-    item.reset_slot();
     Core::add_item_to_world( &item );
     Core::register_with_supporting_multi( &item );
   }
   else if ( const auto* in_cont = to.get_if<InContainer>() )
-  {
-    item.slot_index( in_cont->slot );
     in_cont->cont->add( &item, in_cont->grid );
-  }
   else if ( const auto* equipped = to.get_if<Equipped>() )
     equipped->chr->equip( &item );
   else if ( const auto* on_corpse = to.get_if<OnCorpse>() )
   {
-    item.slot_index( on_corpse->slot );
     if ( on_corpse->layer != 0 )
       on_corpse->corpse->equip_and_add( &item, on_corpse->layer, on_corpse->grid );
     else
@@ -322,6 +320,19 @@ void attach( Item& item, const Location& to )
  */
 bool relocate_loaded( Item& item, Location to )
 {
+  // The one place the UseContainerSlots gate lives, now that no field refuses to record a slot.
+  // Normalising the target rather than the answer keeps the stored location and every view of it
+  // saying the same thing -- a Location that carries a cell the shard does not use would be read
+  // back out of get<InContainer>() by validate and by the save.
+  if ( !Core::settingsManager.ssopt.use_slot_index )
+  {
+    if ( const auto* in_cont = to.get_if<InContainer>(); in_cont != nullptr && in_cont->slot != 0 )
+      to = InContainer{ in_cont->cont, in_cont->grid, 0 };
+    else if ( const auto* on_corpse = to.get_if<OnCorpse>();
+              on_corpse != nullptr && on_corpse->slot != 0 )
+      to = OnCorpse{ on_corpse->corpse, on_corpse->grid, 0, on_corpse->layer };
+  }
+
   const Location from = item.location();
   if ( from == to )
     return true;
@@ -361,17 +372,8 @@ bool relocate_loaded( Item& item, Location to )
 
 bool move_into( Item& item, Core::UContainer& cont, const Core::Pos2d& grid, u8& slot_hint )
 {
-  const u8 previous_slot = item.slot_index();
-
-  if ( cont.can_add_to_slot( slot_hint ) && item.slot_index( slot_hint ) &&
-       relocate( item, InContainer{ &cont, grid, slot_hint } ) )
-    return true;
-
-  // Claiming the slot has already written to the item by the time relocate gets a say, so put it
-  // back: an insert that was refused must not leave the item sitting where it was wearing a slot
-  // index it never took.
-  (void)item.slot_index( previous_slot );
-  return false;
+  return cont.can_add_to_slot( slot_hint ) &&
+         relocate( item, InContainer{ &cont, grid, slot_hint } );
 }
 
 bool move_into( Item& item, Core::UContainer& cont, const Core::Pos2d& grid )

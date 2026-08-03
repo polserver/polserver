@@ -337,7 +337,6 @@ void UContainer::extract( Contents& cnt )
   {
     if ( item == nullptr )  // wornitems containers can hold null entries
       continue;
-    item->reset_slot();
     item->set_location( Items::Detached{} );
     item->set_dirty();
   }
@@ -604,7 +603,6 @@ void UContainer::remove( iterator itr )
 {
   Items::Item* item = *itr;
   contents_.erase( itr );
-  item->reset_slot();
   item->set_location( Items::Detached{} );
   item->set_dirty();
   remove_bulk( item );

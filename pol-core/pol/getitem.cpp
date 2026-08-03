@@ -411,7 +411,7 @@ void GottenItem::undo( Mobile::Character* chr )
     if ( container )
     {
       u8 newSlot = _slot_index ? _slot_index : 1;
-      if ( container->can_add_to_slot( newSlot ) && _item->slot_index( newSlot ) )
+      if ( container->can_add_to_slot( newSlot ) )
       {
         const Pos2d where =
             container->is_legal_posn( _pos.xy() ) ? _pos.xy() : container->get_random_location();
