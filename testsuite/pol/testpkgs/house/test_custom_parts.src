@@ -123,40 +123,31 @@ exported function test_customhouse_part_z_plane( resources )
   return check_count( multi, PARTS );
 endfunction
 
-// TODO core bug 1: re-enable once z_to_custom_house_table returns a signed type.
 // A z that maps to no plane at all should be dropped with the call still
 // answering 1, and erasing what was never added should answer 0.
-//
-// z_to_custom_house_table (customhouses.cpp:79) returns char, and its "no such
-// plane" answer is -1. Where char is unsigned - ARM, so every Android and
-// Raspberry Pi shard - that -1 arrives as 255, so the floor_num == -1 guard in
-// Add (:147), AddOrReplace (:158), Erase (:189) and EraseGraphicAt (:216) never
-// trips and all four index Elements[255] of a six-element array. It reads
-// whatever follows the array, so it throws std::out_of_range or takes the shard
-// down with it depending on what is next to it in memory.
-// exported function test_customhouse_part_z_no_plane( resources )
-//   var multi := make_custom_house( resources );
-//   if ( !multi )
-//     return multi;
-//   endif
-//
-//   // the planes stop at 80, so 100 is below none of them
-//   var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 100 );
-//   if ( !res )
-//     return ret_error( $"addhousepart at z 100 answered {res}" );
-//   endif
-//   var res2 := check_count( multi, PARTS );
-//   if ( !res2 )
-//     return res2;
-//   endif
-//
-//   // and erasing what was never added answers 0
-//   res := multi.erasehousepart( MARKER, HOLE_X, HOLE_Y, 100 );
-//   if ( res )
-//     return ret_error( $"erasehousepart at z 100 answered {res}" );
-//   endif
-//   return 1;
-// endfunction
+exported function test_customhouse_part_z_no_plane( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  // the planes stop at 80, so 100 is below none of them
+  var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 100 );
+  if ( !res )
+    return ret_error( $"addhousepart at z 100 answered {res}" );
+  endif
+  var res2 := check_count( multi, PARTS );
+  if ( !res2 )
+    return res2;
+  endif
+
+  // and erasing what was never added answers 0
+  res := multi.erasehousepart( MARKER, HOLE_X, HOLE_Y, 100 );
+  if ( res )
+    return ret_error( $"erasehousepart at z 100 answered {res}" );
+  endif
+  return 1;
+endfunction
 
 // erasehousepart matches on graphic and offset - a wrong graphic, or the right
 // graphic at the wrong place, changes nothing

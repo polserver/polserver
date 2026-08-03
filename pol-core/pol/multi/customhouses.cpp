@@ -46,6 +46,8 @@
 #include "pol/item/itemdesc.h"
 #include "pol/mkscrobj.h"
 #include "pol/mobile/charactr.h"
+#include "pol/multi/house.h"
+#include "pol/multi/multidef.h"
 #include "pol/network/cgdata.h"
 #include "pol/network/client.h"
 #include "pol/network/packethelper.h"
@@ -60,8 +62,6 @@
 #include "pol/ufunc.h"
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
-#include "pol/multi/house.h"
-#include "pol/multi/multidef.h"
 
 #include <zlib.h>
 
@@ -72,14 +72,13 @@ namespace Pol::Multi
 #define BYTES_PER_TILE 5
 
 // fixed z offsets for each floor
-const char CustomHouseDesign::custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES] = { 0,  7,  27,
-                                                                                      47, 67, 80 };
+const u8 CustomHouseDesign::custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES] = { 0,  7,  27,
+                                                                                    47, 67, 80 };
 
 // translate z offset to floor number, use floor below passed-in z value, unless exact match
-char CustomHouseDesign::z_to_custom_house_table( char z )
+int CustomHouseDesign::z_to_custom_house_table( u8 z )
 {
-  unsigned char i;
-  for ( i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
+  for ( u8 i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
     if ( z == custom_house_z_xlate_table[i] )
       return i;

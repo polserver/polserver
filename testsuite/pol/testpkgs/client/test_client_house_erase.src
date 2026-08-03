@@ -320,34 +320,22 @@ exported function erase_revision_lags( resmgn )
   return quit_design( 0 );
 endfunction
 
-// TODO core bug 1: re-enable once z_to_custom_house_table returns a signed type.
-// A z above every design plane takes the shard down. The erase command hands
-// the z the client sent to DeleteStairs and EraseGraphicAt, and both start with
-// z_to_custom_house_table( z ) (customhouses.cpp:79), whose "no such plane"
-// answer is -1 - returned as a char, which is unsigned on ARM, so every Android
-// and Raspberry Pi build reads it as 255. The floor_num == -1 guard therefore
-// never trips and both index Elements[255] of a six-element array, which throws
-// or segfaults depending on what happens to follow it in memory. This one runs
-// on the network thread, where nothing catches it either way.
-//
-// The same defect is reachable from the script side, see
-// test_customhouse_part_z_no_plane in testpkgs/house/test_custom_parts.src.
-// exported function erase_z_no_plane( resmgn )
-//   var started := house_start( resmgn );
-//   if ( !started )
-//     return started;
-//   endif
-//   var ev := enter_design( 0, char, house );
-//   if ( !ev )
-//     return ev;
-//   endif
-//
-//   // the planes stop at 80, so 100 is below none of them
-//   house_erase( 0, CH_BOARD, 0, 0, 100 );
-//
-//   ev := wait_for_design( 0 );
-//   if ( !ev )
-//     return ev;
-//   endif
-//   return quit_design( 0 );
-// endfunction
+exported function erase_z_no_plane( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+
+  // the planes stop at 80, so 100 is below none of them
+  house_erase( 0, CH_BOARD, 0, 0, 100 );
+
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  return quit_design( 0 );
+endfunction
