@@ -1,4 +1,16 @@
 -- POL100.3.0 --
+08-03-2026 Nando:
+    Fixed: Container slots (UseContainerSlots) were never usable. The slot an item was
+           given was not saved, so every arrangement collapsed onto slot 0 on the next
+           restart while the client was still being told about it; the search for a free
+           slot only looked at the first item in the container, so it handed out slots
+           that were already taken; and a container with every slot full still answered
+           that it had room, which made every "no free slots" message unreachable. Items
+           now keep their slot across a restart (a SlotIndex line, written only for items
+           that have one, so worlds from shards not using slots are unchanged), a free
+           slot is one no item occupies, and a full container is refused.
+    Fixed: Splitting part of a stack out of a container gave the slot to the part being
+           picked up rather than to the part left behind.
 08-02-2026 Nando:
     Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
            is holding it - the container, corpse layer, storage area, cursor or world zone

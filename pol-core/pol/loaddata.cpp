@@ -36,10 +36,11 @@
 
 namespace Pol::Core
 {
-void defer_item_insertion( Items::Item* item, pol_serial_t container_serial, u8 saved_layer )
+void defer_item_insertion( Items::Item* item, pol_serial_t container_serial, u8 saved_layer,
+                           u8 saved_slot )
 {
   objStorageManager.deferred_insertions.insert(
-      std::make_pair( container_serial, DeferredInsertion{ item, saved_layer } ) );
+      std::make_pair( container_serial, DeferredInsertion{ item, saved_layer, saved_slot } ) );
 }
 
 void insert_deferred_items()
@@ -93,7 +94,8 @@ void insert_deferred_items()
       Items::Item* item = static_cast<Items::Item*>( obj );
       if ( cont_item != nullptr )
       {
-        add_loaded_item( cont_item, item, deferred_insertion.second.saved_layer );
+        add_loaded_item( cont_item, item, deferred_insertion.second.saved_layer,
+                         deferred_insertion.second.saved_slot );
       }
       else
       {
@@ -189,7 +191,7 @@ bool add_loaded_item_to_layer( UContainer* cont, Items::Item* item, u8 slot, u8 
 }
 }  // namespace
 
-void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer )
+void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer, u8 saved_slot )
 {
   if ( cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
@@ -220,7 +222,10 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer 
 
     stateManager.gflag_enforce_container_limits = false;
     bool canadd = cont->can_add( *item );
-    u8 slotIndex = item->slot_index();
+    // The saved slot is a preference, not a promise: can_add_to_slot keeps it when the cell is
+    // still free and picks another when it is not, which is what a save written before the
+    // allocator was fixed can look like.
+    u8 slotIndex = saved_slot;
     bool add_to_slot = cont->can_add_to_slot( slotIndex );
     if ( !canadd )
     {

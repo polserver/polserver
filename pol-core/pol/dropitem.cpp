@@ -936,9 +936,7 @@ void return_traded_items( Mobile::Character* chr )
       {
         continue;
       }
-      u8 newSlot = 1;
-      if ( !bp->can_add_to_slot( newSlot ) ||
-           !Items::relocate( *item, Items::InContainer{ bp, bp->get_random_location(), newSlot } ) )
+      if ( !Items::move_into( *item, *bp ) )
       {
         to_feet( item );
         continue;

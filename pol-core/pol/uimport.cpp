@@ -204,6 +204,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   // Where the item goes is the loader's business, so it reads the properties that say so rather
   // than leaving them on the item for somebody else to interpret.
   u8 saved_layer = static_cast<u8>( elem.remove_ushort( "LAYER", 0 ) );
+  u8 saved_slot = static_cast<u8>( elem.remove_ushort( "SLOTINDEX", 0 ) );
 
   Items::Item* item = read_item( elem );
   // dave added 1/15/3, protect against further crash if item is null. Should throw instead?
@@ -241,7 +242,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       }
       else
       {
-        defer_item_insertion( item, container_serial, saved_layer );
+        defer_item_insertion( item, container_serial, saved_layer, saved_slot );
       }
       return;
     }
@@ -268,11 +269,11 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 
     if ( cont_item )
     {
-      add_loaded_item( cont_item, item, saved_layer );
+      add_loaded_item( cont_item, item, saved_layer, saved_slot );
     }
     else
     {
-      defer_item_insertion( item, container_serial, saved_layer );
+      defer_item_insertion( item, container_serial, saved_layer, saved_slot );
     }
   }
 }

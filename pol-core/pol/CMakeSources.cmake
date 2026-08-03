@@ -414,6 +414,7 @@ set (pol_sources  # sorted !
   testing/testrange.cpp
   testing/testresolve.cpp
   testing/testskill.cpp
+  testing/testslots.cpp
   testing/testthreadpool.cpp
   testing/testvector.cpp
   testing/testwalk.cpp

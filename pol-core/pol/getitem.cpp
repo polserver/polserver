@@ -197,11 +197,11 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
         orig_container->on_remove( client->chr, item, UContainer::MoveType::MT_PLAYER, new_item );
         if ( new_item->orphan() )
           return;
-        // NOTE: we just removed 'item' from its container,
-        // so there's room for new_item.
-        if ( orig_container->can_add_to_slot( oldSlot ) && item->slot_index( oldSlot ) &&
-             Items::relocate( *new_item, Items::InContainer{ orig_container, orig_pos.xy(),
-                                                             new_item->slot_index() } ) )
+        // NOTE: we just removed 'item' from its container, so there's room for new_item.
+        // The slot goes to new_item, which is what stays behind: the checks used to be run against
+        // it but assigned to 'item', the part being picked up onto the cursor, which then carried a
+        // slot in a container it was leaving while the remainder kept whatever it had.
+        if ( Items::move_into( *new_item, *orig_container, orig_pos.xy(), oldSlot ) )
         {
           send_put_in_container_to_inrange( new_item );
         }

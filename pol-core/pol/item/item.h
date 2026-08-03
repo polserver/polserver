@@ -453,7 +453,10 @@ inline bool Item::slot_index( u8 newvalue )
 {
   if ( Core::settingsManager.ssopt.use_slot_index )
   {
-    if ( newvalue < Core::settingsManager.ssopt.default_max_slots )
+    // Inclusive, matching UContainer::can_add_to_slot's "slotIndex > max_slots()" test. Slots count
+    // from one, so MaxContainerSlots=125 means slots 1..125; the exclusive comparison this replaces
+    // rejected the last slot the container was willing to hand out.
+    if ( newvalue <= Core::settingsManager.ssopt.default_max_slots )
     {
       slot_index_ = newvalue;
       return true;

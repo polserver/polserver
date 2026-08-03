@@ -2,9 +2,24 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-02-2026</datemodified>
+		<datemodified>08-03-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-03-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">Container slots (UseContainerSlots) were never usable. The slot an item was<br/>
+given was not saved, so every arrangement collapsed onto slot 0 on the next<br/>
+restart while the client was still being told about it; the search for a free<br/>
+slot only looked at the first item in the container, so it handed out slots<br/>
+that were already taken; and a container with every slot full still answered<br/>
+that it had room, which made every &quot;no free slots&quot; message unreachable. Items<br/>
+now keep their slot across a restart (a SlotIndex line, written only for items<br/>
+that have one, so worlds from shards not using slots are unchanged), a free<br/>
+slot is one no item occupies, and a full container is refused.</change>
+			<change type="Fixed">Splitting part of a stack out of a container gave the slot to the part being<br/>
+picked up rather than to the part left behind.</change>
+		</entry>
 		<entry>
 			<date>08-02-2026</date>
 			<author>Nando:</author>

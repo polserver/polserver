@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <bitset>
 #include <cstddef>
 
 #include "bscript/barray.h"
@@ -184,18 +185,20 @@ bool UContainer::can_add( unsigned short more_weight ) const
 
 bool UContainer::can_add_to_slot( u8& slotIndex )
 {
-  if ( settingsManager.ssopt.use_slot_index )
-  {
-    if ( slotIndex > max_slots() )
-      return false;
+  // Every slot is the same slot when the feature is off, so there is nothing to allocate and
+  // nothing that can fail.
+  if ( !settingsManager.ssopt.use_slot_index )
+    return true;
 
-    if ( is_slot_empty( slotIndex ) )
-      return true;
+  if ( slotIndex > max_slots() )
+    return false;
 
-    if ( find_empty_slot( slotIndex ) )
-      return true;
-  }
-  return true;
+  if ( is_slot_empty( slotIndex ) )
+    return true;
+
+  // Used to fall through to "yes" when this failed, which made every "no free slot" guard in the
+  // tree unreachable: a full container answered that it had room.
+  return find_empty_slot( slotIndex );
 }
 
 void UContainer::add( Items::Item* item, const Pos2d& pos )
@@ -253,7 +256,7 @@ unsigned int UContainer::item_count() const
   return Items::Item::item_count() + held_item_count_;
 }
 
-bool UContainer::is_slot_empty( u8& slotIndex )
+bool UContainer::is_slot_empty( u8 slotIndex ) const
 {
   if ( held_item_count_ == 0 )
     return true;
@@ -276,28 +279,27 @@ bool UContainer::find_empty_slot( u8& slotIndex )
   if ( held_item_count_ >= max_slots() )
     return false;
 
-  bool slot_check = false;
-
-  for ( u8 slot_location = 1; slot_location <= max_items(); ++slot_location )
+  // One pass over the contents to see what is taken, rather than rescanning them for every
+  // candidate slot. The nested form this replaces left the inner loop at the first item that did
+  // *not* hold the candidate, so it only ever reported a slot taken when the very first item
+  // happened to be in it -- and handed out slots that were already occupied.
+  std::bitset<MAX_SLOTS + 1> taken;
+  for ( const auto& item : contents_ )
   {
-    for ( const auto& item : contents_ )
+    if ( item != nullptr )
+      taken.set( item->slot_index() );
+  }
+
+  // Counts in an int, and stops at max_slots() rather than max_items(): a slot index is a u8 that
+  // can_add_to_slot refuses above max_slots(), while max_items() reaches MAX_CONTAINER_ITEMS, and
+  // a u8 counter walking towards 3200 wraps through zero instead of terminating.
+  for ( unsigned slot = 1; slot <= max_slots(); ++slot )
+  {
+    if ( !taken.test( slot ) )
     {
-      if ( item == nullptr )
-        continue;
-      if ( item->slot_index() == slot_location )
-        slot_check = true;
-      if ( !slot_check )
-      {
-        break;
-      }
-    }
-    if ( !slot_check )
-    {
-      slotIndex = slot_location;
+      slotIndex = static_cast<u8>( slot );
       return true;
     }
-
-    slot_check = false;
   }
   return false;
 }

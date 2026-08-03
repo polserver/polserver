@@ -3195,9 +3195,7 @@ void put_item_back( Character& chr, Item& item, const Items::Location& origin )
   }
 
   UContainer* backpack = chr.backpack();
-  if ( backpack != nullptr && backpack->can_add( item ) &&
-       Items::relocate( item, Items::InContainer{ backpack, backpack->get_random_location(),
-                                                  item.slot_index() } ) )
+  if ( backpack != nullptr && backpack->can_add( item ) && Items::move_into( item, *backpack ) )
   {
     send_item_restored( chr, item );
     return;

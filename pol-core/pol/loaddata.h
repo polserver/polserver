@@ -24,10 +24,11 @@ namespace Core
 {
 void slurp( const char* filename, const char* tags, int sysfind_flags = 0 );
 
-void defer_item_insertion( Items::Item* item, pol_serial_t container_serial, u8 saved_layer );
+void defer_item_insertion( Items::Item* item, pol_serial_t container_serial, u8 saved_layer,
+                           u8 saved_slot );
 void insert_deferred_items();
 void equip_loaded_item( Mobile::Character* chr, Items::Item* item );
-void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer );
+void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer, u8 saved_slot );
 }  // namespace Core
 }  // namespace Pol
 #endif

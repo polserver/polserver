@@ -1545,11 +1545,9 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           return new BError( "Could not insert new stack into container" );
         }
 
-        // The CanInsert script above can have destroyed the container or the new stack; relocate
+        // The CanInsert script above can have destroyed the container or the new stack; move_into
         // says no rather than linking one of them into the other.
-        if ( !Items::relocate(
-                 *new_stack, Items::InContainer{ newcontainer, newcontainer->get_random_location(),
-                                                 new_stack->slot_index() } ) )
+        if ( !Items::move_into( *new_stack, *newcontainer ) )
         {
           if ( new_stack != this )
             this->add_to_self( new_stack );
@@ -1585,9 +1583,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           this->add_to_self( new_stack );
         return new BError( "Could not insert new stack into container" );
       }
-      if ( !Items::relocate( *new_stack,
-                             Items::InContainer{ newcontainer, newcontainer->get_random_location(),
-                                                 new_stack->slot_index() } ) )
+      if ( !Items::move_into( *new_stack, *newcontainer ) )
       {
         if ( new_stack != this )
           this->add_to_self( new_stack );

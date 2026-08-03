@@ -124,8 +124,10 @@ public:
   void add_bulk( const Items::Item* item );
   void remove_bulk( const Items::Item* item );
 
+  /// Allocate a slot for an item about to be added: slotIndex goes in as a preference and comes
+  /// back as the slot actually reserved. False means the container has no room for one.
   bool can_add_to_slot( u8& slotIndex );
-  bool is_slot_empty( u8& slotIndex );
+  bool is_slot_empty( u8 slotIndex ) const;
   bool find_empty_slot( u8& slotIndex );
 
   Items::Item* find( u32 serial ) const;

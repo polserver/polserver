@@ -15,13 +15,15 @@ namespace Pol::Core
 {
 /// An object whose container had not been read yet, keyed on that container's serial.
 ///
-/// The layer is the one the save recorded for it. It is carried rather than left on the object
-/// because the only thing that still needs it once the container turns up is a corpse, whose layer
-/// list is not saved and has to be rebuilt from its contents.
+/// The layer and slot are the ones the save recorded. They are carried rather than left on the
+/// object because they say where it goes rather than what it is: the layer is needed to rebuild a
+/// corpse's list, which is not saved, and the slot is a preference the container may not be able
+/// to honour.
 struct DeferredInsertion
 {
   UObject* obj;
   u8 saved_layer;
+  u8 saved_slot;
 };
 
 // if index is UINT_MAX, has been deleted
