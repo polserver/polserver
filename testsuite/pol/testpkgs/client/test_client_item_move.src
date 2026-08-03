@@ -52,12 +52,12 @@ exported function lift_ground_drop_backpack()
   var err;
 
   if ( !lift_item_succeeded( err, item.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
   if ( !drop_item_succeeded( err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
@@ -78,12 +78,12 @@ exported function lift_backpack_drop_backpack()
   var err;
 
   if ( !lift_item_succeeded( err, item.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
   if ( !drop_item_succeeded( err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
@@ -104,12 +104,12 @@ exported function lift_backpack_drop_ground()
   var err;
 
   if ( !lift_item_succeeded( err, item.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
   if ( !drop_item_succeeded( err, item.serial, char.x, char.y, char.z ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
@@ -1234,13 +1234,13 @@ exported function gotten_item_is_saved()
 
   var err;
   if ( !lift_item_succeeded( err, item.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
   var saved := SaveWorldState();
   if ( saved.errortext )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return ret_error( $"Could not save the world: {saved}" );
   endif
 
@@ -1252,7 +1252,7 @@ exported function gotten_item_is_saved()
   endif
 
   // DestroyItem clears the holder's side for us when the item is still gotten
-  DestroyItem( item );
+  destroy_lifted_item( item );
   return res;
 endfunction
 
@@ -1787,6 +1787,23 @@ function gotten_item_saved_at( serial, x, y, z )
   endif
 
   return 1;
+endfunction
+
+// Destroying an item that is still on the cursor makes the core tell the client its move failed,
+// which is the client half of clearing a gotten item. Nothing consumes that packet, so left in
+// flight it arrives during the *next* test -- where a stray rejection is indistinguishable from a
+// lift that really was refused, and the test that reports the failure is not the one that caused
+// it. Waiting for it here keeps it inside the test it belongs to.
+function destroy_lifted_item( item )
+  var serial := item.serial;
+  var gotten := char.getgottenitem();
+  var was_held := gotten and gotten.serial == serial;
+
+  DestroyItem( item );
+
+  if ( was_held )
+    waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
+  endif
 endfunction
 
 function lift_item_succeeded( byref err, serial )
