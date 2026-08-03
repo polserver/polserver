@@ -580,7 +580,10 @@ class DrawGamePlayerPacket(Packet):
     self.x = self.dushort()
     self.y = self.dushort()
     self.dushort() # unknown
-    self.direction = self.dschar()
+    # the high bit is the running flag, the facing is the low three bits
+    direction = self.duchar()
+    self.running = bool(direction & 0x80)
+    self.direction = direction & 0x07
     self.z = self.dschar()
 
 
@@ -1098,7 +1101,10 @@ class UpdatePlayerPacket(Packet):
     self.x = self.dushort()
     self.y = self.dushort()
     self.z = self.dschar()
-    self.facing = self.dschar()
+    # the high bit is the running flag of the mobile's last move
+    facing = self.duchar()
+    self.running = bool(facing & 0x80)
+    self.facing = facing & 0x07
     self.color = self.dushort()
     self.flag = self.duchar()
     self.notoriety = self.duchar()
