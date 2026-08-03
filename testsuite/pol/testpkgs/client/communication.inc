@@ -41,6 +41,9 @@ const EVT_STATUS_BAR := "status_bar";
 const EVT_TRADE := "trade";
 const EVT_CLILOC := "cliloc";
 const EVT_PARTY := "party";
+const EVT_HOUSE_DESIGN := "house_design";
+const EVT_HOUSE_EDIT := "house_edit";
+const EVT_HOUSE_REV := "house_rev";
 
 // actions of the secure trade window packet, see PKTBI_6F in the core
 const TRADE_ACTION_INIT := 0;
@@ -263,6 +266,75 @@ function poll_client_listing( clientcon, id, serial, cont_serial, wanted, timeou
     return ret_error( $"0x{serial:x} never showed up in {where} within {timeout}s" );
   endif
   return ret_error( $"0x{serial:x} is still in {where} after {timeout}s" );
+endfunction
+
+// Asks a client what it thinks a mobile is wearing. Drops whatever is queued
+// first, so the answer cannot be an older listing.
+//
+// The same race as list_client_objs(): the client answers out of its own loop
+// and knows nothing of the packets still on their way to it, so a listing taken
+// straight after equipping something can be older than the equip. A caller
+// asking whether a layer is filled, or empty, has to go through
+// client_finds_layer() or client_lost_layer().
+function list_client_equipment( clientcon, id, serial, timeout := 10 )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "list_equipped_items", arg := serial, id := id } );
+  return waitForClient( id, { EVT_LIST_EQUIPPED_ITEMS }, timeout );
+endfunction
+
+// Waits for a layer of a mobile's equipment to be filled as the client sees it,
+// and hands that entry back.
+function client_finds_layer( clientcon, id, serial, layer, timeout := 5 )
+  var res := poll_client_equipment( clientcon, id, serial, layer, 1, timeout );
+  if ( !res )
+    return res;
+  endif
+  return res.entry;
+endfunction
+
+// Waits for a layer to be empty as the client sees it.
+function client_lost_layer( clientcon, id, serial, layer, timeout := 5 )
+  var res := poll_client_equipment( clientcon, id, serial, layer, 0, timeout );
+  if ( !res )
+    return res;
+  endif
+  return 1;
+endfunction
+
+// Lists over and over until the layer is filled (wanted := 1) or empty
+// (wanted := 0). A listing that already says so costs a single round trip.
+function poll_client_equipment( clientcon, id, serial, layer, wanted, timeout )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var answered := 0;
+
+  while ( ReadMillisecondClock() < deadline )
+    var ev := list_client_equipment( clientcon, id, serial, 1 );
+    if ( !ev )
+      continue;
+    endif
+    answered := 1;
+
+    var entry := 0;
+    foreach item in ( ev.objs )
+      // the client events come out of UnpackJson, so every number in them is a
+      // Double
+      if ( CInt( item.layer ) == layer )
+        entry := item;
+        break;
+      endif
+    endforeach
+    if ( wanted == ( entry ? 1 : 0 ) )
+      return struct{ entry := entry };
+    endif
+    Sleepms( POLL_INTERVAL * 1000 );
+  endwhile
+
+  if ( !answered )
+    return ret_error( $"client {id} never listed the equipment of 0x{serial:x}" );
+  elseif ( wanted )
+    return ret_error( $"client {id} never saw layer {layer} of 0x{serial:x} filled" );
+  endif
+  return ret_error( $"client {id} still has layer {layer} of 0x{serial:x} after {timeout}s" );
 endfunction
 
 function disable_auto_delete( clientcon, id )

@@ -18,6 +18,11 @@ foreach guild in ( ListGuilds() )
   endif
 endforeach
 
+// The commit script is shard-wide and holds every commit while this is set, so
+// a case that failed while it was armed would leave the rest of the run unable
+// to commit a house at all.
+EraseGlobalProperty( "#HouseCommitHold" );
+
 foreach multi in ( ListMultisInBox( 0, 0, -200, 10000, 10000, 200 ) )
   DestroyMulti( multi );
 endforeach
