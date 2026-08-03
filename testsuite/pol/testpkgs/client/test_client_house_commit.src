@@ -1,0 +1,247 @@
+// Committing a design, and what the 0xD7 packet does when it has no session to
+// belong to.
+//
+// A commit is the only command that changes the house rather than the design
+// being drawn on it: it ends the session, makes the working design the current
+// one and hands that design to everybody who can see the house, not just to the
+// client that was editing. Everything else in this file is about the two ways a
+// 0xD7 can arrive without an editing session behind it.
+
+include "customhouse";
+
+program test_client_house_commit()
+  return house_setup();
+endprogram
+
+// A commit ends the session and leaves the house built the way the working
+// design had it - house_parts reads the current design once nobody is editing,
+// so a tile that survives the commit is a tile that really moved over.
+//
+// It commits twice, once to put a tile on the house and once to take it off
+// again, because those are two different journeys through AcceptHouseCommit and
+// the second is the one a player makes when undoing.
+//
+// The size of the design is deliberately not asserted here. A commit runs
+// FillComponents first, which takes every door out of the design and puts it
+// back as an item, so the design a commit leaves is one tile smaller per door
+// than the one that was being edited - the tile a case adds and the tiles the
+// commit machinery moves are not comparable numbers.
+exported function commit_applies_the_design( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+
+  // the front step row, the only place a tile can be put down at z 0 and taken
+  // away again. The commit has to find it there, so it waits for it.
+  house_add( 0, CH_DIRT, 0, HOUSE_STEP_Y );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := commit_design( 0 );
+  if ( !res )
+    return res;
+  endif
+  if ( house.house_editing )
+    return ret_error( "the house still considers itself edited after a commit" );
+  endif
+
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var placed := design_tiles_at( ev, CH_DIRT, 0, HOUSE_STEP_Y ).size();
+  if ( placed != 1 )
+    return ret_error( $"the design a commit sent holds {placed} of the new tile" );
+  endif
+
+  res := expect_part( house, CH_DIRT, 0, HOUSE_STEP_Y, CH_PLANE_Z );
+  if ( !res )
+    return res;
+  endif
+
+  // and commit again to take it back off
+  ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  house_erase( 0, CH_DIRT, 0, HOUSE_STEP_Y, CH_PLANE_Z );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  res := commit_design( 0 );
+  if ( !res )
+    return res;
+  endif
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  return expect_no_part( house, CH_DIRT, 0, HOUSE_STEP_Y );
+endfunction
+
+// The design a commit produces goes to everyone who can see the house, which is
+// what makes a rebuilt house appear for the neighbours as well. Nothing is
+// changed here - the point is who is told, not what changed.
+exported function commit_reaches_bystander( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var other := FindAccount( "testclient1" ).getcharacter( 1 );
+  if ( !other )
+    return ret_error( "Could not find the second character" );
+  endif
+  var was := struct{ x := other.x, y := other.y, z := other.z };
+
+  // just outside the house and well inside visual range of it
+  MoveObjectToLocation( other, house_x, house_y + 8, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var ev := waitForClient( 1, { EVT_OWNCREATE } );
+  if ( !ev )
+    return ret_error( "client 1 was not moved next to the house" );
+  endif
+
+  var res := commit_from_inside();
+  MoveObjectToLocation( other, was.x, was.y, was.z, flags := MOVEOBJECT_FORCELOCATION );
+  return res;
+endfunction
+
+// Commits an unchanged design and answers whether both clients were sent it.
+//
+// One commit produces three things - the end of the session for the editor and
+// a design for each client - and the single transmit thread puts them on the
+// wire in an order the test cannot pin down. Every wait helper throws away what
+// it was not asked for, so these have to be gathered in one pass rather than
+// waited for one after another.
+function commit_from_inside()
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+
+  Clear_Event_Queue();
+  house_cmd( 0, CH_COMMIT );
+
+  var ended := 0;
+  var mine := 0;
+  var theirs := 0;
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    var got := Wait_For_Event( POLL_INTERVAL );
+    if ( !got )
+      continue;
+    endif
+    var id := CInt( got.id );
+    if ( got.type == EVT_HOUSE_EDIT && id == 0 )
+      ended := got;
+    elseif ( got.type == EVT_HOUSE_DESIGN && id == 0 )
+      mine := got;
+    elseif ( got.type == EVT_HOUSE_DESIGN && id == 1 )
+      theirs := got;
+    endif
+    if ( ended && mine && theirs )
+      break;
+    endif
+  endwhile
+
+  if ( !ended )
+    return ret_error( "the editing client was never taken out of design mode" );
+  endif
+  if ( !mine )
+    return ret_error( "the editing client was not sent the committed design" );
+  endif
+  if ( !theirs )
+    return ret_error( "the client standing outside was not sent the committed design" );
+  endif
+
+  if ( CInt( theirs.serial ) != house.serial )
+    return ret_error( $"client 1 was sent a design for 0x{theirs.serial:x}" );
+  endif
+  var here := mine.tiles.size();
+  var there := theirs.tiles.size();
+  if ( here != there )
+    return ret_error( $"client 0 was sent {here} tiles and client 1 {there}" );
+  endif
+  return design_is_consistent( theirs );
+endfunction
+
+// A 0xD7 carrying somebody else's serial is dropped before it reaches any
+// design at all - the core reads the serial out of the packet and compares it
+// with the sender's own.
+exported function commit_ignores_spoofed( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var other := FindAccount( "testclient1" ).getcharacter( 1 );
+  if ( !other )
+    return ret_error( "Could not find the second character" );
+  endif
+
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  house_cmd( 0, CH_ADD, struct{ graphic := CH_ROOF, x := 0, y := 0, serial := other.serial } );
+
+  // The synch this asks for travels the same connection, so by the time it is
+  // answered the spoofed add has already been read and thrown away. The design
+  // is untouched and the revision has not moved.
+  ev := client_sees_revision( 0, revision );
+  if ( !ev )
+    return ev;
+  endif
+  var res := expect_no_part( house, CH_ROOF, 0, 0 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "a spoofed add" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// A design command from a client that is not editing anything has no house to
+// find: the core looks the working house up through the sender's own editing
+// state, which a quit cleared. Nothing happens and nothing is answered.
+exported function command_without_a_session( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var res := quit_design( 0 );
+  if ( !res )
+    return res;
+  endif
+  var before := house.house_parts.size();
+
+  Clear_Event_Queue();
+  house_add( 0, CH_ROOF, 0, 0 );
+
+  res := wait_for_no_design( 0 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_no_part( house, CH_ROOF, 0, 0 );
+  if ( !res )
+    return res;
+  endif
+  return expect_parts( house, before, "an add with no session open" );
+endfunction

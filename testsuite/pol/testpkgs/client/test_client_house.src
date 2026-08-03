@@ -1,0 +1,238 @@
+// The custom house design session, end to end: that a client can be put into
+// one, that the 0xD7 commands it sends reach the design, and that the 0xD8 the
+// server sends back describes the same design escript sees.
+//
+// This is the file that proves the design protocol plumbing works at all. The
+// per-command cases live in the other test_client_house_* files.
+
+include "customhouse";
+
+program test_client_house()
+  return house_setup();
+endprogram
+
+// Opening the editor puts the client into design mode and sends it the working
+// design, which at that point is the bare foundation.
+exported function house_enter_and_quit( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+
+  if ( CInt( ev.serial ) != house.serial )
+    return ret_error( $"the design is for 0x{ev.serial:x}, expected 0x{house.serial:x}" );
+  endif
+  if ( !house.house_editing )
+    return ret_error( "the house does not consider itself edited" );
+  endif
+
+  var res := design_is_consistent( ev );
+  if ( !res )
+    return res;
+  endif
+
+  // the design the client was sent is the one house_parts reads back
+  var parts := house.house_parts.size();
+  var tiles := ev.tiles.size();
+  if ( parts != tiles )
+    return ret_error( $"the client was sent {tiles} tiles, house_parts has {parts}" );
+  endif
+
+  res := quit_design( 0 );
+  if ( !res )
+    return res;
+  endif
+  if ( house.house_editing )
+    return ret_error( "the house still considers itself edited after a quit" );
+  endif
+  return 1;
+endfunction
+
+// A tile added over the wire lands in the working design, and a synch after it
+// hands the client the design that now holds it.
+//
+// The add is an AddOrReplace: a floor tile put where the design already has one
+// takes its place rather than stacking on it, so the tile count does not move.
+// What changes is which graphic is at the offset - in both views of the design.
+exported function house_add_reaches_design( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+  var revision := CInt( ev.revision );
+
+  var already := design_tiles_at( ev, CH_DIRT, 0, 0 ).size();
+  if ( already )
+    return ret_error( $"the design already had {already} dirt tiles at the centre" );
+  endif
+
+  house_add( 0, CH_DIRT, 0, 0 );
+
+  ev := client_sees_revision( 0, revision + 1 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := design_is_consistent( ev );
+  if ( !res )
+    return res;
+  endif
+
+  // what the client was sent
+  var placed := design_tiles_at( ev, CH_DIRT, 0, 0 ).size();
+  if ( placed != 1 )
+    return ret_error( $"the client was sent {placed} tiles at the added offset" );
+  endif
+
+  // and what escript reads back out of the same design
+  var parts := house_parts_at( house, CH_DIRT, 0, 0 ).size();
+  if ( parts != 1 )
+    return ret_error( $"house_parts has {parts} tiles at the added offset" );
+  endif
+
+  var after := house.house_parts.size();
+  if ( after != before )
+    return ret_error( $"a replacing add moved the part count from {before} to {after}" );
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// A synch asks for the design again without changing it, so the revision the
+// second one carries is the one the first already had.
+exported function house_synch_keeps_revision( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+
+  ev := client_sees_revision( 0, revision );
+  if ( !ev )
+    return ev;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// TODO core bug 10: re-enable once the plane loop indexes by plane instead of by count.
+// A design whose used storeys have a gap loses everything above the gap.
+//
+// CustomHousesSendFull asks NumUsedPlanes() how many planes to send and then
+// loops i from 0 to that number, using i as the plane index as well as the loop
+// counter (customhouses.cpp:1049, :1068) - so it only ever sends planes
+// 0..count-1. That is right while the used planes are a run starting at 0, and
+// wrong as soon as there is a hole in them.
+//
+// This house uses planes 0, 1 and 2 out of the multi it was built from. Putting
+// a tile on storey 4 makes plane 4 used while plane 3 stays empty, so four
+// planes are used, the loop sends 0, 1, 2 and the empty 3, and the storey 4 tile
+// never leaves the server. numtiles is TotalSize() and still counts it, so the
+// packet contradicts itself - which is what design_is_consistent() catches.
+// exported function house_storey_gap_lost( resmgn )
+//   var started := house_start( resmgn );
+//   if ( !started )
+//     return started;
+//   endif
+//   var ev := enter_design( 0, char, house );
+//   if ( !ev )
+//     return ev;
+//   endif
+
+//   house_select_floor( 0, 4 );
+//   ev := wait_for_design( 0 );
+//   if ( !ev )
+//     return ev;
+//   endif
+
+//   house_add( 0, CH_ROOF, 0, 0 );
+//   ev := house_settle( 0 );
+//   if ( !ev )
+//     return ev;
+//   endif
+
+//   // escript sees the tile on the fourth storey
+//   var res := expect_part( house, CH_ROOF, 0, 0, CH_PLANE_Z4 );
+//   if ( !res )
+//     return res;
+//   endif
+
+//   // and the design the client was sent should hold everything it says it does
+//   res := design_is_consistent( ev );
+//   if ( !res )
+//     return res;
+//   endif
+
+//   return quit_design( 0 );
+// endfunction
+
+// TODO core bug 11: re-enable once an oversized plane is split or refused.
+// A plane holding more tiles than its header can describe goes out mis-encoded.
+//
+// Each plane header gives the uncompressed and the compressed length 12 bits
+// each (customhouses.cpp:1078), so a plane tops out at 4095 bytes - 819 tiles at
+// five bytes apiece. Neither length is checked before it is packed, so a bigger
+// plane has its length silently truncated: the client is told a length that is
+// short by whole multiples of 4096, and everything after that plane in the
+// buffer is read from the wrong offset.
+//
+// This one cannot be left running even once it is understood, which is why it is
+// commented out rather than asserting the current behaviour. The test client
+// does check the announced length against what it inflated, so it raises inside
+// the packet handler, and a raise there kills the client thread for the rest of
+// the run - every later case in the package then fails with something that has
+// nothing to do with this.
+//
+// Tiles stack rather than replace on the addhousepart path, so a plane of any
+// size can be built at a single offset. addhousepart writes the current design
+// and refuses while the house is being edited, and the revert enter_design opens
+// with is what pulls it into the working design that gets sent.
+// exported function house_plane_too_large( resmgn )
+//   var started := house_start( resmgn );
+//   if ( !started )
+//     return started;
+//   endif
+//
+//   var parts := array{};
+//   var i := 0;
+//   while ( i < CH_PLANE_MAX_TILES )
+//     var part := struct{};
+//     part.+graphic := CH_ROOF;
+//     part.+xoffset := 0;
+//     part.+yoffset := 0;
+//     part.+z := CH_PLANE_Z1;
+//     parts.append( part );
+//     i := i + 1;
+//   endwhile
+//
+//   var res := house.addhousepart( parts );
+//   if ( !res )
+//     return ret_error( $"could not fill the plane: {res}" );
+//   endif
+//
+//   // the revert inside this hands the client the oversized design
+//   var ev := enter_design( 0, char, house );
+//   if ( !ev )
+//     return ev;
+//   endif
+//
+//   res := design_is_consistent( ev );
+//   if ( !res )
+//     return res;
+//   endif
+//
+//   return quit_design( 0 );
+// endfunction

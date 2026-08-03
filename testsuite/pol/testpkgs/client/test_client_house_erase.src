@@ -1,0 +1,353 @@
+// Taking tiles back out of a working design: what the erase command reaches,
+// what it refuses to touch, and the two things it does on its own account -
+// paving an emptied ground floor with dirt again, and pulling a whole staircase
+// when one of its steps is named.
+//
+// Erase is the one command that both sends a design and moves the revision on,
+// and it does them in that order - so the design a client is handed after an
+// erase already holds the change while its revision is still the one from
+// before, and it stays that way because the packet is cached. Every case here
+// therefore waits for the design an erase sends and reads the content out of
+// it, or out of house_parts; only erase_revision_lags looks at the number.
+
+include "customhouse";
+
+program test_client_house_erase()
+  return house_setup();
+endprogram
+
+// A tile above the ground floor comes straight back out, and the design that
+// answers the erase is the new one under the old revision.
+exported function erase_removes_tile( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, 0, 0, 3 );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  house_erase( 0, CH_ROOF, 0, 0, CH_PLANE_Z1 + 3 );
+
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var left := design_tiles_at( ev, CH_ROOF, 0, 0 ).size();
+  if ( left )
+    return ret_error( $"the design an erase answers with still holds {left} of the tile" );
+  endif
+
+  var res := expect_no_part( house, CH_ROOF, 0, 0 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "a roof put in and erased" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// The tiles the house stands on cannot be taken away. Anything at z 0 inside
+// the footprint is refused by sending the design back untouched, and that
+// refusal comes before the revision is moved.
+exported function erase_foundation_refused( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  Clear_Event_Queue();
+  house_erase( 0, CH_FOUNDATION, CH_FOUNDATION_X, CH_FOUNDATION_Y, CH_PLANE_Z );
+
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var got := CInt( ev.revision );
+  if ( got != revision )
+    return ret_error( $"a refused erase moved the revision to {got}" );
+  endif
+
+  var res := expect_part( house, CH_FOUNDATION, CH_FOUNDATION_X, CH_FOUNDATION_Y, CH_PLANE_Z );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "a refused erase" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// The front step row is outside the footprint the foundation check covers, so
+// what is put there at z 0 can be taken away again.
+exported function erase_front_step( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  // the erase has to find what the add put there, so it waits for it
+  house_add( 0, CH_DIRT, 0, HOUSE_STEP_Y );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  house_erase( 0, CH_DIRT, 0, HOUSE_STEP_Y, CH_PLANE_Z );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_no_part( house, CH_DIRT, 0, HOUSE_STEP_Y );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "a step put down and erased" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// Emptying a tile of the first storey does not leave a hole in the house: the
+// core paves it with a dirt tile again, so the design keeps the size it had.
+exported function erase_repaves_the_floor( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  house_erase( 0, CH_BOARD, 0, 0, CH_PLANE_Z1 );
+
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_no_part( house, CH_BOARD, 0, 0 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_part( house, CH_DIRT, 0, 0, CH_PLANE_Z1 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "a floor board erased" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// Naming one step of a staircase erases the whole run of it. DeleteStairs works
+// out which way the stair climbs from the graphic and walks the pyramid back
+// down, so the ten tiles the multi laid down all go in one command.
+exported function erase_takes_the_whole_stair( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  house_add_multi( 0, CH_STAIR_MIN, 0, 2 );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := expect_parts( house, before + CH_STAIR_PARTS, "a stair multi" );
+  if ( !res )
+    return res;
+  endif
+
+  // the lowest step, which is the one a client can see to click on
+  house_erase( 0, CH_STAIR, 0, 2, CH_PLANE_Z1 );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var y := 2;
+  while ( y >= -1 )
+    res := expect_no_part( house, CH_STAIR, 0, y );
+    if ( !res )
+      return res;
+    endif
+    y := y - 1;
+  endwhile
+  res := expect_parts( house, before, "a stair erased" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// An erase names a graphic as well as a place, and the wrong graphic finds
+// nothing to take away. The command is not refused for it - the design goes
+// back to the client and the revision moves on all the same.
+exported function erase_graphic_mismatch( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  house_erase( 0, CH_DIRT, 0, 0, CH_PLANE_Z1 );
+
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_part( house, CH_BOARD, 0, 0, CH_PLANE_Z1 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "an erase that matched nothing" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// What an erase leaves the client believing about the revision, which is not
+// what the house is on.
+//
+// CustomHousesErase sends the design and then increments, so the packet carries
+// the number from before the erase. CustomHousesSendFull keeps that packet in
+// WorkingCompressed and replays it for every later synch, so asking again does
+// not help either: the client goes on being told the old revision until some
+// other command throws the cached packet away. Since the revision is what a
+// client uses to decide whether the design it holds is still good, this is
+// asserted here as what happens today rather than as what should.
+exported function erase_revision_lags( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+
+  // an add moves the revision and throws the cached packet away, so the design
+  // that answers the next synch is built fresh and counts properly
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, 0, 0, 3 );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var got := CInt( ev.revision );
+  if ( got != revision + 1 )
+    return ret_error( $"an add left the client at revision {got}, wanted {revision + 1}" );
+  endif
+
+  // the erase moves it again, and tells the client the number from before
+  house_erase( 0, CH_ROOF, 0, 0, CH_PLANE_Z1 + 3 );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  got := CInt( ev.revision );
+  if ( got != revision + 1 )
+    return ret_error( $"the design an erase answers with is at revision {got}" );
+  endif
+
+  // and asking for it again answers with the very same packet
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  got := CInt( ev.revision );
+  if ( got != revision + 1 )
+    return ret_error( $"a synch after an erase answered revision {got}" );
+  endif
+
+  // the house was two revisions on all along: one more edit invalidates the
+  // cached packet and the number the client is told jumps by two
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, 0, 0, 3 );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  got := CInt( ev.revision );
+  if ( got != revision + 3 )
+    return ret_error( $"the house came back at revision {got}, wanted {revision + 3}" );
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// TODO core bug 1: re-enable once z_to_custom_house_table returns a signed type.
+// A z above every design plane takes the shard down. The erase command hands
+// the z the client sent to DeleteStairs and EraseGraphicAt, and both start with
+// z_to_custom_house_table( z ) (customhouses.cpp:79), whose "no such plane"
+// answer is -1 - returned as a char, which is unsigned on ARM, so every Android
+// and Raspberry Pi build reads it as 255. The floor_num == -1 guard therefore
+// never trips and both index Elements[255] of a six-element array, which throws
+// or segfaults depending on what happens to follow it in memory. This one runs
+// on the network thread, where nothing catches it either way.
+//
+// The same defect is reachable from the script side, see
+// test_customhouse_part_z_no_plane in testpkgs/house/test_custom_parts.src.
+// exported function erase_z_no_plane( resmgn )
+//   var started := house_start( resmgn );
+//   if ( !started )
+//     return started;
+//   endif
+//   var ev := enter_design( 0, char, house );
+//   if ( !ev )
+//     return ev;
+//   endif
+//
+//   // the planes stop at 80, so 100 is below none of them
+//   house_erase( 0, CH_BOARD, 0, 0, 100 );
+//
+//   ev := wait_for_design( 0 );
+//   if ( !ev )
+//     return ev;
+//   endif
+//   return quit_design( 0 );
+// endfunction
