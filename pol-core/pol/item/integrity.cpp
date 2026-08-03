@@ -241,7 +241,8 @@ void check_character( Sweep& sweep, Mobile::Character& chr )
     ++sweep.report.checks;
     sweep.claim( *worn, fmt::format( "character {:#x}, layer {}", chr.serial, layer ) );
 
-    const auto* equipped = worn->location().get_if<Equipped>();
+    const Location loc = worn->location();
+    const auto* equipped = loc.get_if<Equipped>();
     if ( equipped == nullptr || equipped->chr != &chr || equipped->layer != layer )
       sweep.note( *worn, fmt::format( "is worn on layer {} of character {:#x} but does not say so",
                                       layer, chr.serial ) );
@@ -254,7 +255,8 @@ void check_character( Sweep& sweep, Mobile::Character& chr )
       ++sweep.report.checks;
       sweep.claim( *held, fmt::format( "the cursor of {:#x}", chr.serial ) );
 
-      const auto* on_cursor = held->location().get_if<OnCursor>();
+      const Location loc = held->location();
+      const auto* on_cursor = loc.get_if<OnCursor>();
       if ( on_cursor == nullptr || on_cursor->holder != &chr )
         sweep.note( *held,
                     fmt::format( "is on the cursor of {:#x} but does not say so", chr.serial ) );
@@ -275,7 +277,8 @@ void check_storage( Sweep& sweep )
               ++sweep.report.checks;
               sweep.claim( *item, fmt::format( "storage key \"{}\"", key ) );
 
-              const auto* in_storage = item->location().get_if<InStorage>();
+              const Location loc = item->location();
+              const auto* in_storage = loc.get_if<InStorage>();
               if ( in_storage == nullptr || in_storage->area != &area )
                 sweep.note( *item, fmt::format( "is a storage root under \"{}\" but does not say "
                                                 "so",

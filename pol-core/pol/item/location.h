@@ -187,19 +187,27 @@ public:
     return std::holds_alternative<T>( alt_ );
   }
 
+  // Both of these hand out a reference into the Location, and Item::location() returns one by
+  // value, so `item->location().get<T>()` would leave the caller holding a pointer into a
+  // temporary that is already gone by the next statement. Refusing to answer an rvalue turns that
+  // into a compile error: name the Location first, then ask it.
   template <typename T>
-  const T& get() const
+  const T& get() const&
   {
     passert_always( holds<T>() );
     return std::get<T>( alt_ );
   }
+  template <typename T>
+  const T& get() const&& = delete;
 
   /// nullptr if the location is not a T. Prefer this over holds() + get() in branchy code.
   template <typename T>
-  const T* get_if() const
+  const T* get_if() const&
   {
     return std::get_if<T>( &alt_ );
   }
+  template <typename T>
+  const T* get_if() const&& = delete;
 
   bool operator==( const Location& other ) const { return alt_ == other.alt_; }
   bool operator!=( const Location& other ) const { return !( *this == other ); }

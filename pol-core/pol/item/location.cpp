@@ -114,7 +114,8 @@ u8 Item::slot_index() const
 
 Mobile::Character* Item::wearer() const
 {
-  if ( const auto* equipped = location().get_if<Equipped>() )
+  const Location loc = location();
+  if ( const auto* equipped = loc.get_if<Equipped>() )
     return equipped->chr;
   return nullptr;
 }
