@@ -1,0 +1,28 @@
+// The CloseCustomHouse system hook, installed by syshook.cfg.
+//
+// The core calls it at the end of every design session, from CustomHousesQuit -
+// so on a quit from the client, on a cancelediting from a script, and on the
+// accept half of a commit. It is told which character left and which house it
+// left, and its answer is not read.
+//
+// It records every call and nothing else. Unlike the commit script it cannot
+// change what happens, so there is nothing to arm: the last call is simply left
+// where a test can read it.
+
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+exported function CloseCustomHouseHook( chr, house )
+  var call := struct{};
+  call.+character := chr.serial;
+  call.+house := house.serial;
+  // the core clears this before it calls the hook, which is worth recording
+  // rather than asking for again later
+  call.+editing := house.house_editing;
+  SetGlobalProperty( "#CloseHouseCall", call );
+  return 1;
+endfunction
