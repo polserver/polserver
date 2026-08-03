@@ -365,7 +365,7 @@ private:
   bool paused_;
   VersionDetailStruct versiondetail_;
   weak_ptr_owner<Client> weakptr;
-  std::mutex version_lock_;
+  mutable std::mutex version_lock_;
 };
 
 inline bool ThreadedClient::have_queued_data() const
