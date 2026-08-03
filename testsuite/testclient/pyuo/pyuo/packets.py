@@ -1559,8 +1559,15 @@ class GeneralInfoPacket(Packet):
   SUB_HOUSE_REV = 0x1d
   ## Enable map-diff files
   SUB_MAPDIFF = 0x18
+  ## Enter or leave the custom house design editor
+  SUB_CUSTOMHOUSE = 0x20
   ## Boat movement
   SUB_BOATMOVE = 0x33
+
+  ## SUB_CUSTOMHOUSE: the server put the client into design mode
+  CUSTOMHOUSE_BEGIN = 0x04
+  ## SUB_CUSTOMHOUSE: the server took the client back out of it
+  CUSTOMHOUSE_END = 0x05
 
   ## Party subcommands, both directions, see PKTBI_BF_06 in the core
   ## Client: add a member by serial (0 asks for a target cursor)
@@ -1783,6 +1790,13 @@ class GeneralInfoPacket(Packet):
       self.serial = self.duint()
       self.rev = self.duint()
 
+    elif self.sub == self.SUB_CUSTOMHOUSE:
+      self.serial = self.duint()
+      self.action = self.duchar()
+      self.dushort()
+      self.duint()
+      self.duchar()
+
     elif self.sub == self.SUB_BOATMOVE:
       self.serial = self.duint()
       self.direction = self.duchar()
@@ -1952,6 +1966,186 @@ class AOSTooltipPacket(Packet):
     self.eulen()
     for serial in self.serials:
       self.euint(serial)
+
+
+class CustomHouseCommandPacket(Packet):
+  ''' A command for the custom house design editor, see PKTBI_D7 in the core
+
+  Only meaningful while the server has put this client into design mode: the
+  core looks the house up by the sending character's serial and drops the
+  packet when that character is not editing one.
+  '''
+
+  cmd = 0xd7
+
+  ## Keep the working design aside, so RESTORE can bring it back
+  SUB_BACKUP = 0x02
+  ## Put the kept design back into the working design
+  SUB_RESTORE = 0x03
+  ## Make the working design the one the house really has
+  SUB_COMMIT = 0x04
+  ## Take a tile out of the working design
+  SUB_ERASE = 0x05
+  ## Put a tile into the working design
+  SUB_ADD = 0x06
+  ## Close the editor
+  SUB_QUIT = 0x0c
+  ## Put a whole stair multi into the working design
+  SUB_ADD_MULTI = 0x0d
+  ## Ask for the working design to be sent again
+  SUB_SYNCH = 0x0e
+  ## Throw the working design away, leaving the foundation
+  SUB_CLEAR = 0x10
+  ## Pick the storey being edited, 1 to 4
+  SUB_SELECT_FLOOR = 0x12
+  ## Put in a roof tile, which carries a z of its own
+  SUB_SELECT_ROOF = 0x13
+  ## Take out a roof tile
+  SUB_DELETE_ROOF = 0x14
+  ## Throw the working design away, going back to the committed one
+  SUB_REVERT = 0x1a
+
+  ## Subcommands that carry nothing but the serial and the subcommand itself
+  NO_ARGS = (SUB_BACKUP, SUB_RESTORE, SUB_COMMIT, SUB_QUIT, SUB_SYNCH,
+             SUB_CLEAR, SUB_REVERT)
+  ## Subcommands laid out as CH_ADD: a tile and an offset
+  TILE_AT = (SUB_ADD, SUB_ADD_MULTI)
+  ## Subcommands laid out as CH_ERASE: a tile, an offset and a z
+  TILE_AT_Z = (SUB_ERASE, SUB_SELECT_ROOF, SUB_DELETE_ROOF)
+
+  ## Trailing byte the real client sends, which the core never reads
+  TRAILER = 0x07
+
+  def fill(self, serial, sub, *args):
+    '''!
+    @param serial int: The editing character's serial. The core refuses the
+                       packet when it does not match the sender, so a wrong one
+                       is how a test drives the spoof check.
+    @param sub int: The subcommand, see SUB_ constants
+    @param *args: Variable number of arguments, depending on sub:
+                  - NO_ARGS subcommands: none
+                  - SUB_ADD/SUB_ADD_MULTI: graphic int, x int, y int
+                  - SUB_ERASE/SUB_SELECT_ROOF/SUB_DELETE_ROOF:
+                    graphic int, x int, y int, z int
+                  - SUB_SELECT_FLOOR: floor int
+    '''
+    self.serial = serial
+    self.sub = sub
+    # header, then the payload, then the trailing byte
+    self.length = 9 + 1
+
+    def checkArgLen(expLen):
+      if len(args) != expLen:
+        raise TypeError("Subcommand {:02x} takes {} positional argument(s) "
+            "but {} were given".format(self.sub, expLen, len(args)))
+
+    if self.sub in self.NO_ARGS:
+      checkArgLen(0)
+
+    elif self.sub in self.TILE_AT:
+      checkArgLen(3)
+      self.graphic, self.x, self.y = args
+      self.length += 15
+
+    elif self.sub in self.TILE_AT_Z:
+      checkArgLen(4)
+      self.graphic, self.x, self.y, self.z = args
+      self.length += 20
+
+    elif self.sub == self.SUB_SELECT_FLOOR:
+      checkArgLen(1)
+      self.floor = args[0]
+      self.length += 5
+
+    else:
+      raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
+
+  def eu32signed(self, val):
+    ''' Adds an offset as the u32 the core reads back into an s32 '''
+    self.euint(val & 0xffffffff)
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.eushort(self.sub)
+
+    if self.sub in self.TILE_AT or self.sub in self.TILE_AT_Z:
+      self.euchar(0)
+      self.euchar(0)
+      self.euchar(0)
+      self.eushort(self.graphic)
+      self.euchar(0)
+      self.eu32signed(self.x)
+      self.euchar(0)
+      self.eu32signed(self.y)
+      if self.sub in self.TILE_AT_Z:
+        self.euchar(0)
+        self.eu32signed(self.z)
+
+    elif self.sub == self.SUB_SELECT_FLOOR:
+      self.euint(0)
+      self.euchar(self.floor)
+
+    self.euchar(self.TRAILER)
+
+
+class CustomHouseDesignPacket(Packet):
+  ''' A whole custom house design, see CustomHousesSendFull() in the core
+
+  The tiles are split into planes - one per storey - each zlib compressed on
+  its own behind a packed header. Only mode 0 is ever sent, which is five bytes
+  per tile.
+  '''
+
+  cmd = 0xd8
+
+  ## Bytes a mode 0 tile takes: graphic, then the three offsets
+  BYTES_PER_TILE = 5
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.compressiontype = self.duchar()
+    self.unk = self.duchar()
+    self.serial = self.duint()
+    self.revision = self.duint()
+    ## How many tiles the server says the design has
+    self.numtiles = self.dushort()
+    self.planebuffer_len = self.dushort()
+    self.planecount = self.duchar()
+    ## One dict per plane: index, mode, ulen, clen and its own tile list
+    self.planes = []
+    ## Every tile of every plane, as dicts of graphic/x/y/z
+    self.tiles = []
+
+    # the plane count byte is itself part of the buffer the length covers
+    read = 1
+    while read < self.planebuffer_len:
+      header = self.duint()
+      read += 4
+      # the two lengths are 12 bit, split with their high nibble in the low byte
+      plane = {
+        'mode': (header >> 28) & 0xf,
+        'index': (header >> 24) & 0xf,
+        'ulen': ((header >> 16) & 0xff) | ((header & 0xf0) << 4),
+        'clen': ((header >> 8) & 0xff) | ((header & 0x0f) << 8),
+        'tiles': [],
+      }
+      if plane['mode'] != 0:
+        raise NotImplementedError("House plane mode {} not implemented".format(plane['mode']))
+
+      # an empty plane is sent as a header alone, the core zeroes clen for it
+      if plane['clen']:
+        raw = zlib.decompress(self.rpb(plane['clen']))
+        read += plane['clen']
+        if len(raw) != plane['ulen']:
+          raise RuntimeError("House plane {} inflated to {} bytes, header said {}".format(
+              plane['index'], len(raw), plane['ulen']))
+        for i in range(0, len(raw), self.BYTES_PER_TILE):
+          graphic, x, y, z = struct.unpack('>Hbbb', raw[i:i+self.BYTES_PER_TILE])
+          plane['tiles'].append({'graphic': graphic, 'x': x, 'y': y, 'z': z})
+
+      self.planes.append(plane)
+      self.tiles.extend(plane['tiles'])
 
 
 class NewObjectInfoPacket(Packet):

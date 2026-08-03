@@ -166,6 +166,9 @@ class Event:
   EVT_TRADE = 20
   EVT_CLILOC = 21
   EVT_PARTY = 22
+  EVT_HOUSE_DESIGN = 23
+  EVT_HOUSE_EDIT = 24
+  EVT_HOUSE_REV = 25
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -270,3 +273,9 @@ class Event:
       return "cliloc"
     elif self.type==Event.EVT_PARTY:
       return "party"
+    elif self.type==Event.EVT_HOUSE_DESIGN:
+      return "house_design"
+    elif self.type==Event.EVT_HOUSE_EDIT:
+      return "house_edit"
+    elif self.type==Event.EVT_HOUSE_REV:
+      return "house_rev"

@@ -638,6 +638,9 @@ class Client(threading.Thread):
     ## Serial of the mobile currently traded with, None when not trading
     self.trade = None
 
+    ## Serial of the house whose design is being edited, None when not editing
+    self.house = None
+
   @status('disconnected')
   def connect(self, host, port, user, pwd):
     '''! Connnects to the server, returns a list of gameservers
@@ -1046,6 +1049,12 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_OPEN_PAPERDOLL, serial = pkt.serial, text=pkt.text, flags=pkt.flags))
     elif isinstance(pkt, packets.SecureTradingPacket):
       self.handleSecureTradingPacket(pkt)
+    elif isinstance(pkt, packets.CustomHouseDesignPacket):
+      self.log.info("House 0x%X design rev %d: %d tiles in %d planes",
+          pkt.serial, pkt.revision, pkt.numtiles, pkt.planecount)
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_DESIGN, serial=pkt.serial,
+        revision=pkt.revision, numtiles=pkt.numtiles, planecount=pkt.planecount,
+        planes=pkt.planes, tiles=pkt.tiles))
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1264,6 +1273,14 @@ class Client(threading.Thread):
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
       self.brain.event(brain.Event(brain.Event.EVT_PARTY, partycmd=pkt.partycmd,
         serial=pkt.serial, members=pkt.members, msg=pkt.msg))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_HOUSE_REV:
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_REV, serial=pkt.serial,
+        revision=pkt.rev))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_CUSTOMHOUSE:
+      editing = pkt.action == packets.GeneralInfoPacket.CUSTOMHOUSE_BEGIN
+      self.house = pkt.serial if editing else None
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_EDIT, serial=pkt.serial,
+        action=pkt.action, editing=editing))
     elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEGUMP:
       if pkt.gumpid in self.gumps:
         self.gumps.remove(pkt.gumpid)
@@ -1523,6 +1540,19 @@ class Client(threading.Thread):
     '''
     po = packets.GeneralInfoPacket()
     po.fill(po.SUB_PARTY, partycmd, *args)
+    self.queue(po)
+
+  @logincomplete
+  def houseCommand(self, sub, *args, serial=None):
+    '''! Sends a custom house design command
+    @param sub int: one of the CustomHouseCommandPacket.SUB_* constants
+    @param *args: what that subcommand carries, see CustomHouseCommandPacket.fill()
+    @param serial int: whose editing session to address. The player's own by
+                       default - the core drops anything else as spoofed, which
+                       is what a test asking for another serial is checking.
+    '''
+    po = packets.CustomHouseCommandPacket()
+    po.fill(self.player.serial if serial is None else serial, sub, *args)
     self.queue(po)
 
   @logincomplete

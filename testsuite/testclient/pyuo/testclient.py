@@ -166,6 +166,21 @@ class TestBrain(brain.Brain):
         if arg.get('canloot', None) is not None:
           args.append(int(arg['canloot']))
         self.client.party(int(arg['partycmd']), *args)
+      elif todo=="house":
+        # the arguments a house command takes, in the order the packet wants
+        # them: a graphic, an offset, then a z, or a floor number on its own
+        args=[]
+        if arg.get('graphic', None) is not None:
+          args.append(int(arg['graphic']))
+          args.append(int(arg['x']))
+          args.append(int(arg['y']))
+        if arg.get('z', None) is not None:
+          args.append(int(arg['z']))
+        if arg.get('floor', None) is not None:
+          args.append(int(arg['floor']))
+        serial=arg.get('serial', None)
+        self.client.houseCommand(int(arg['sub']), *args,
+          serial = None if serial is None else int(serial))
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -482,6 +497,23 @@ class PolServer:
       res['name']=ev.name
       res['hp']=ev.hp
       res['maxhp']=ev.maxhp
+    elif ev.type==Event.EVT_HOUSE_DESIGN:
+      # what the header claims and what the planes actually carried are both
+      # here on purpose: a design that disagrees with itself is the kind of
+      # thing only decoding the packet can catch
+      res['serial']=ev.serial
+      res['revision']=ev.revision
+      res['numtiles']=ev.numtiles
+      res['planecount']=ev.planecount
+      res['planes']=[{k:v for k,v in p.items() if k != 'tiles'} for p in ev.planes]
+      res['tiles']=ev.tiles
+    elif ev.type==Event.EVT_HOUSE_EDIT:
+      res['serial']=ev.serial
+      res['action']=ev.action
+      res['editing']=ev.editing
+    elif ev.type==Event.EVT_HOUSE_REV:
+      res['serial']=ev.serial
+      res['revision']=ev.revision
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 
