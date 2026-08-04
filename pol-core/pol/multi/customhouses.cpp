@@ -145,6 +145,10 @@ void CustomHouseDesign::Add( const CUSTOM_HOUSE_ELEMENT& elem )
   int floor_num = z_to_custom_house_table( elem.z );
   if ( floor_num == -1 )
     return;
+  u32 xidx = elem.xoffset + xoff;
+  u32 yidx = elem.yoffset + yoff;
+  if ( !ValidLocation( xidx, yidx ) )
+    return;
   Elements[floor_num].AddElement( elem );
   floor_sizes[floor_num]++;
 }
@@ -237,9 +241,10 @@ void CustomHouseDesign::ReplaceDirtFloor( s32 xoffset, s32 yoffset )
 {
   int floor_num = 1;  // dirt always goes on floor 1 (z=7)
 
+  // don't replace dirt at the far-west and far-north sides, nor on the front
+  // step row - the last row of the design, which the house itself does not cover
   if ( xoffset + xoff == 0 || yoffset + yoff == 0 ||
-       Clib::clamp_convert<u32>( yoffset + yoff ) ==
-           height )  // don't replace dirt at far-west and far-north sides, check height for y + 1
+       Clib::clamp_convert<u32>( yoffset + yoff ) == height - 1 )
     return;
 
   bool floor_exists = false;
@@ -796,11 +801,11 @@ void CustomHousesErase( Core::PKTBI_D7* msg )
   std::vector<u8> newvec;
   house->WorkingCompressed.swap( newvec );
 
+  house->revision++;
+
   Mobile::Character* chr = Core::find_character( serial );
   if ( chr && chr->client )
     CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
-
-  house->revision++;
 }
 
 void CustomHousesClear( Core::PKTBI_D7* msg )
@@ -819,10 +824,11 @@ void CustomHousesClear( Core::PKTBI_D7* msg )
 
   // add foundation back to design
   house->WorkingDesign.AddMultiAtOffset( house->multiid(), 0, 0, 0 );
-  if ( chr != nullptr && chr->client != nullptr )
-    CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 
   house->revision++;
+
+  if ( chr != nullptr && chr->client != nullptr )
+    CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 }
 
 // if the client closed his tool
@@ -864,6 +870,13 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
     }
   }
   house->AcceptHouseCommit( chr, true );
+
+  // if no commit script exists, but the closehook call this instead
+  if ( Core::gamestate.system_hooks.close_customhouse_hook )
+  {
+    Core::gamestate.system_hooks.close_customhouse_hook->call(
+        make_mobileref( chr ), new Module::EMultiRefObjImp( house ) );
+  }
 }
 
 void CustomHousesSelectFloor( Core::PKTBI_D7* msg )
