@@ -247,8 +247,6 @@ bool MultiDefByMultiIDExists( u16 multiid )
 }
 const MultiDef* MultiDefByMultiID( u16 multiid )
 {
-  passert( multidef_buffer.multidefs_by_multiid.count( multiid ) != 0 );
-
   MultiDefs::const_iterator citr = multidef_buffer.multidefs_by_multiid.find( multiid );
   if ( citr != multidef_buffer.multidefs_by_multiid.end() )
     return ( *citr ).second;

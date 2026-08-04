@@ -731,6 +731,16 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
       elem( 0x31F4, 2, 0, 0, 1 ),   elem( 0x31F4, 2, 3, 0, 1 ),   elem( 0x31F4, 3, -2, 0, 1 ),
       elem( 0x31F4, 3, -1, 0, 1 ),  elem( 0x31F4, 3, 0, 0, 1 ),   elem( 0x31F4, 3, 1, 0, 1 ),
       elem( 0x31F4, 3, 2, 0, 1 ),   elem( 0x31F4, 3, 3, 0, 1 ) };
+
+  // A north facing staircase, the lowest of the multiids the custom house design
+  // editor accepts (STAIR_MULTIID_MIN). Four steps climbing north, each one a
+  // stack of blocks 5 z apart, which is the shape CustomHouseDesign::DeleteStairs
+  // walks back down when one of these is erased.
+  multis[0x1db0] = std::vector<T>{ elem( 0x0751, 0, 0, 0, 1 ),   elem( 0x0751, 0, -1, 0, 1 ),
+                                   elem( 0x0751, 0, -1, 5, 1 ),  elem( 0x0751, 0, -2, 0, 1 ),
+                                   elem( 0x0751, 0, -2, 5, 1 ),  elem( 0x0751, 0, -2, 10, 1 ),
+                                   elem( 0x0751, 0, -3, 0, 1 ),  elem( 0x0751, 0, -3, 5, 1 ),
+                                   elem( 0x0751, 0, -3, 10, 1 ), elem( 0x0751, 0, -3, 15, 1 ) };
 }
 
 template <typename T>

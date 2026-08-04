@@ -2,9 +2,23 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-01-2026</datemodified>
+		<datemodified>08-04-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-03-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">several ways to crash the shard in CustomHouses</change>
+			<change type="Fixed">the wrong revision was send after erase and clear</change>
+			<change type="Changed">syshook CloseCustomHouse now also gets called when the client commits, if no misc/customhousecommit.src exists</change>
+		</entry>
+		<entry>
+			<date>08-02-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">PacketHook with SubCommandOffset where the packet was too short, its now handled by the parent hook or default handler.</change>
+			<change type="Fixed">several out-of-bounds reads in packet scriptobjects</change>
+			<change type="Fixed">an outgoing PacketHook setting an encoded length larger than the packet buffer shut the server down, its sent with the buffer size now and logged.</change>
+		</entry>
 		<entry>
 			<date>08-01-2026</date>
 			<author>Turley:</author>

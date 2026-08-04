@@ -1,0 +1,356 @@
+// What a commit does when the shard has a commit script, and what the
+// CloseCustomHouse system hook is told.
+//
+// With scripts/misc/customhousecommit.ecl in place the core stops applying a
+// commit itself: it puts the house into "waiting for accept" and hands it to the
+// script, and nothing changes until somebody calls acceptcommit(). That script
+// is shard-wide and every commit in the run goes through it, so it only holds a
+// house when a test has parked something in #HouseCommitHold - the cases here
+// arm it, and cleanup.src disarms it whatever happens.
+
+include "customhouse";
+
+program test_client_house_accept()
+  return house_setup();
+endprogram
+
+// Holding a commit leaves the house waiting: the working design is what it was,
+// the session is still open, and the tool refuses to open a second one.
+exported function commit_holds_for_accept( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var res := arm_commit_hold();
+  if ( !res )
+    return res;
+  endif
+
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  // the commit has to find the tile there, so it waits for it
+  house_add( 0, CH_DIRT, 0, HOUSE_STEP_Y );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return release_hold( ev );
+  endif
+
+  var call := wait_for_commit_call();
+  if ( !call )
+    return release_hold( call );
+  endif
+  if ( CInt( call.character ) != char.serial )
+    return release_hold( ret_error( $"the commit script was passed character {call.character}" ) );
+  endif
+  if ( CInt( call.house ) != house.serial )
+    return release_hold( ret_error( $"the commit script was passed house {call.house}" ) );
+  endif
+
+  // it is handed the design as it stands, which is the working one - the tile
+  // that has not been committed yet is already in what the script counts
+  var parts := house.house_parts.size();
+  if ( CInt( call.parts ) != parts )
+    return release_hold( ret_error( $"the script saw {call.parts} parts, the house has {parts}" ) );
+  endif
+  if ( !house.house_editing )
+    return release_hold( ret_error( "a held commit closed the session anyway" ) );
+  endif
+
+  // The tool refuses for waiting rather than for being open: a commit leaves
+  // editing set, and mf_SendHousingTool reports the narrower of the two states.
+  var tool := SendHousingTool( char, house );
+  if ( tool )
+    return release_hold( ret_error( "the tool opened a second session on a waiting house" ) );
+  endif
+  if ( tool.errortext != "House currently being waiting for a commit" )
+    return release_hold( ret_error( $"the tool refused with {tool.errortext}" ) );
+  endif
+
+  res := release_hold( 1 );
+  if ( !res )
+    return res;
+  endif
+
+  // accepting applies the design and ends the session
+  res := house.acceptcommit( char, 1 );
+  if ( !res )
+    return ret_error( $"acceptcommit refused: {res}" );
+  endif
+  ev := waitForClient( 0, { EVT_HOUSE_EDIT } );
+  if ( !ev )
+    return ret_error( "accepting the commit did not close the session" );
+  endif
+  if ( house.house_editing )
+    return ret_error( "the house still considers itself edited after an accept" );
+  endif
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  return expect_part( house, CH_DIRT, 0, HOUSE_STEP_Y, CH_PLANE_Z );
+endfunction
+
+// Refusing the commit hands the working design back and leaves the session
+// open, so the player can carry on drawing where they left off.
+exported function commit_accept_refused( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var res := arm_commit_hold();
+  if ( !res )
+    return res;
+  endif
+
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  house_add( 0, CH_ROOF, 0, 0 );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return release_hold( ev );
+  endif
+
+  var call := wait_for_commit_call();
+  if ( !call )
+    return release_hold( call );
+  endif
+
+  res := release_hold( 1 );
+  if ( !res )
+    return res;
+  endif
+
+  res := house.acceptcommit( char, 0 );
+  if ( !res )
+    return ret_error( $"acceptcommit( 0 ) refused: {res}" );
+  endif
+
+  // the working design comes back, still holding the tile that was not committed
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var kept := design_tiles_at( ev, CH_ROOF, 0, 0 ).size();
+  if ( kept != 1 )
+    return ret_error( $"the design a refused commit sent holds {kept} of the tile" );
+  endif
+  if ( !house.house_editing )
+    return ret_error( "a refused commit closed the session" );
+  endif
+
+  // and the house is not waiting for anything any more
+  res := house.acceptcommit( char, 1 );
+  if ( res )
+    return ret_error( $"acceptcommit answered again after a refusal: {res}" );
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// The CloseCustomHouse hook is told who left which house, and by the time it is
+// called the house has already stopped considering itself edited.
+exported function close_hook_on_quit( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+
+  EraseGlobalProperty( "#CloseHouseCall" );
+  var res := quit_design( 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var call := GetGlobalProperty( "#CloseHouseCall" );
+  if ( !call )
+    return ret_error( "the CloseCustomHouse hook was not called on a quit" );
+  endif
+  if ( call.character != char.serial )
+    return ret_error( $"the hook was passed character {call.character}" );
+  endif
+  if ( call.house != house.serial )
+    return ret_error( $"the hook was passed house {call.house}" );
+  endif
+  if ( call.editing )
+    return ret_error( "the hook was called while the house still called itself edited" );
+  endif
+  return 1;
+endfunction
+
+// A script closing the session with cancelediting goes through the same path a
+// client quit does, so the hook hears about that too.
+exported function close_hook_on_cancel( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+
+  EraseGlobalProperty( "#CloseHouseCall" );
+  var res := house.cancelediting( char, 1 );
+  if ( !res )
+    return ret_error( $"cancelediting refused: {res}" );
+  endif
+
+  var call := GetGlobalProperty( "#CloseHouseCall" );
+  if ( !call )
+    return ret_error( "the CloseCustomHouse hook was not called on a cancel" );
+  endif
+  if ( call.house != house.serial )
+    return ret_error( $"the hook was passed house {call.house}" );
+  endif
+  if ( house.house_editing )
+    return ret_error( "cancelediting left the house being edited" );
+  endif
+
+  // cancelling ends the session the way a quit does, so the end packet and the
+  // design it sends have to come off the queue before the next case opens one
+  ev := waitForClient( 0, { EVT_HOUSE_EDIT } );
+  if ( !ev )
+    return ret_error( "the client was not taken out of design mode by a cancel" );
+  endif
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  return 1;
+endfunction
+
+// Arms the commit script to hold, and proves it is armed before anything relies
+// on it. The property is read by a shard-wide script, so a case that leaves it
+// set would stop every later commit in the run - cleanup.src erases it too.
+function arm_commit_hold()
+  EraseGlobalProperty( "#HouseCommitCall" );
+  SetGlobalProperty( "#HouseCommitHold", 1 );
+  if ( !GetGlobalProperty( "#HouseCommitHold" ) )
+    return ret_error( "could not arm the commit hold" );
+  endif
+  return 1;
+endfunction
+
+// Takes the hold off and hands back whatever it was given, so a case can let go
+// of it on the way out of a failure as well as at the end.
+function release_hold( res )
+  EraseGlobalProperty( "#HouseCommitHold" );
+  return res;
+endfunction
+
+// Commits and waits for the commit script to say it was called. The script is
+// started rather than called, so it does not run in step with the packet that
+// asked for it.
+function wait_for_commit_call( timeout := 10 )
+  house_cmd( 0, CH_COMMIT );
+
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var call := GetGlobalProperty( "#HouseCommitCall" );
+    if ( call )
+      return call;
+    endif
+    Sleepms( POLL_INTERVAL * 1000 );
+  endwhile
+  return ret_error( $"the commit script did not run within {timeout}s" );
+endfunction
+
+// A commit on a shard that has a commit script does not call the
+// CloseCustomHouse hook, because misc/customhousecommit.ecl is the notification
+// for that route and is handed the same character and house - calling both would
+// report one commit twice. The core calls the hook only where that script is
+// missing, so nothing is left unsaid either way.
+//
+// The other half of that rule cannot be tested here: the commit script is
+// shard-wide and always present in this test shard, so the no-script route is
+// out of reach. This case pins the half that is reachable, and pins it as
+// deliberate so the silence is not read as an oversight.
+exported function commit_skips_close_hook( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+
+  EraseGlobalProperty( "#CloseHouseCall" );
+  EraseGlobalProperty( "#HouseCommitCall" );
+  var res := commit_design( 0 );
+  if ( !res )
+    return res;
+  endif
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  // the commit script is what the shard is told with, and it was
+  var commit_call := GetGlobalProperty( "#HouseCommitCall" );
+  if ( !commit_call )
+    return ret_error( "the commit script was not called on a commit" );
+  endif
+  if ( CInt( commit_call.house ) != house.serial )
+    return ret_error( "the commit script was told about another house" );
+  endif
+
+  // and the hook was not
+  var call := GetGlobalProperty( "#CloseHouseCall" );
+  if ( call )
+    return ret_error( "the CloseCustomHouse hook was called on a commit as well" );
+  endif
+  return 1;
+endfunction
+
+// getCharacterParam takes any mobile, npcs included, and the tool has nowhere to
+// go without a client.
+exported function tool_on_a_mobile_with_no_client( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var npc := CreateNpcFromTemplate( ":testclient:test_snooping", house_x, house_y, 0 );
+  if ( !npc )
+    return ret_error( $"could not make the npc: {npc}" );
+  endif
+
+  var res := SendHousingTool( npc, house );
+  npc.Kill();
+  if ( res )
+    return ret_error( "the tool opened for a mobile with no client" );
+  endif
+  return 1;
+endfunction
+
+// Which character is editing a house is read off its client, so a mobile with
+// none is not that character and cannot end the session.
+exported function cancel_by_a_mobile_no_client( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var npc := CreateNpcFromTemplate( ":testclient:test_snooping", house_x, house_y, 0 );
+  if ( !npc )
+    return ret_error( $"could not make the npc: {npc}" );
+  endif
+
+  var res := house.cancelediting( npc, 1 );
+  npc.Kill();
+  if ( res )
+    return ret_error( "a mobile with no client cancelled the session" );
+  endif
+  return quit_design( 0 );
+endfunction

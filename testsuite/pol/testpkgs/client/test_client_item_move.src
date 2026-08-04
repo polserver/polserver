@@ -1387,16 +1387,16 @@ function wear_item_succeeded( byref err, item_serial, layer, player_serial, equi
     return err;
   endif
 
-  clientcon.sendevent( struct{ todo := "list_equipped_items", arg := player_serial, id := 0 } );
-  var ev := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } );
-  if ( !ev )
-    return ev;
+  // the client learns what it is wearing from a packet it has not necessarily
+  // read yet, so this asks again until the layer is filled rather than judging
+  // the first listing it answers with
+  var entry := client_finds_layer( clientcon, 0, player_serial, layer );
+  if ( !entry )
+    return entry;
   endif
-
-  if ( !ev.objs.find( @( equipped_item ) {
-    return equipped_item.serial == item_serial;
-  } ) )
-    return ret_error( $"Item 0x{item_serial:x} not listed in equipment for player serial 0x{player_serial:x}" );
+  var worn := CInt( entry.serial );
+  if ( worn != item_serial )
+    return ret_error( $"Layer {layer} of 0x{player_serial:x} holds 0x{worn:x}, not 0x{item_serial:x}" );
   endif
 
   return 1;

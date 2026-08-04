@@ -151,33 +151,43 @@ exported function multi_update_range( resmngr )
   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
   char.facing := 1;
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
+
+  // The distance is measured against char.x, so nothing may be in flight when
+  // it is read: walk one step at a time and drain to quiet before the next.
   var i := 10;
-  while ( --i > 0 )
-    var ev := waitForClient( 0, { EVT_MOVED, EVT_NEW_ITEM } );
-    if ( !ev )
-      return ev;
-    endif
-    if ( ev.type == EVT_MOVED )
-      if ( !ev.ack )
-        return ret_error( "failed to move" );
+  var found := 0;
+  while ( --i > 0 && !found )
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
+
+    var acked := 0;
+    var quiet := ReadMillisecondClock() + QUIET_SECS * 1000;
+    while ( ReadMillisecondClock() < quiet )
+      var ev := Wait_For_Event( POLL_INTERVAL );
+      if ( !ev )
+        continue;
       endif
-      clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
-      continue;
-    endif
-    if ( ev["serial"] == multi.serial )
-      var x := ev["pos"][1] - char.x;
-      if ( x != 22 ) // (18 visual range + 4)
-        return ret_error( $"update distance failed: {x}" );
+      quiet := ReadMillisecondClock() + QUIET_SECS * 1000;
+      if ( ev.type == EVT_MOVED && CInt( ev.id ) == 0 )
+        if ( !ev.ack )
+          return ret_error( "failed to move" );
+        endif
+        acked := 1;
+      elseif ( ev.type == EVT_NEW_ITEM && CInt( ev.id ) == 0 && CInt( ev.serial ) == multi.serial )
+        found := ev;
       endif
-      break;
+    endwhile
+    if ( !acked )
+      return ret_error( "the client never acknowledged the move" );
     endif
   endwhile
-  while ( waitForClient( 0, {}, 1 ) )
-  endwhile
-  if ( i == 0 )
+
+  if ( !found )
     return ret_error( "multi was never visible" );
+  endif
+  var x := CInt( found.pos[1] ) - char.x;
+  if ( x != 22 ) // los_size() 18 + the multi's own max_radius 4
+    return ret_error( $"update distance failed: {x}" );
   endif
   return 1;
 endfunction
@@ -221,4 +231,3 @@ exported function update_range_change( resmngr )
   endif
   return 1;
 endfunction
-

@@ -638,6 +638,9 @@ class Client(threading.Thread):
     ## Serial of the mobile currently traded with, None when not trading
     self.trade = None
 
+    ## Serial of the house whose design is being edited, None when not editing
+    self.house = None
+
   @status('disconnected')
   def connect(self, host, port, user, pwd):
     '''! Connnects to the server, returns a list of gameservers
@@ -1046,6 +1049,12 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_OPEN_PAPERDOLL, serial = pkt.serial, text=pkt.text, flags=pkt.flags))
     elif isinstance(pkt, packets.SecureTradingPacket):
       self.handleSecureTradingPacket(pkt)
+    elif isinstance(pkt, packets.CustomHouseDesignPacket):
+      self.log.info("House 0x%X design rev %d: %d tiles in %d planes",
+          pkt.serial, pkt.revision, pkt.numtiles, pkt.planecount)
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_DESIGN, serial=pkt.serial,
+        revision=pkt.revision, numtiles=pkt.numtiles, planecount=pkt.planecount,
+        planes=pkt.planes, tiles=pkt.tiles))
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1158,10 +1167,19 @@ class Client(threading.Thread):
   def handleDrawGamePlayerPacket(self, pkt):
     assert self.player.serial == pkt.serial
     assert self.player.graphic == pkt.graphic
-    assert self.player.x == pkt.x
-    assert self.player.y == pkt.y
-    assert self.player.z == pkt.z
-    #assert self.player.facing == pkt.direction
+
+    # The core telling the player where it really is, and the only facing update
+    # it ever gets: the one thing handleMovePacket's guess can resync against.
+    resync = ( self.player.x != pkt.x or self.player.y != pkt.y
+        or self.player.z != pkt.z or self.player.facing != pkt.direction )
+    if resync:
+      self.log.info("Position corrected: %s,%s,%s facing %s -> %d,%d,%d facing %d",
+          self.player.x, self.player.y, self.player.z, self.player.facing,
+          pkt.x, pkt.y, pkt.z, pkt.direction)
+    self.player.x = pkt.x
+    self.player.y = pkt.y
+    self.player.z = pkt.z
+    self.player.facing = pkt.direction
 
     self.player.color = pkt.hue
     self.player.status = pkt.flag
@@ -1264,6 +1282,14 @@ class Client(threading.Thread):
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
       self.brain.event(brain.Event(brain.Event.EVT_PARTY, partycmd=pkt.partycmd,
         serial=pkt.serial, members=pkt.members, msg=pkt.msg))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_HOUSE_REV:
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_REV, serial=pkt.serial,
+        revision=pkt.rev))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_CUSTOMHOUSE:
+      editing = pkt.action == packets.GeneralInfoPacket.CUSTOMHOUSE_BEGIN
+      self.house = pkt.serial if editing else None
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_EDIT, serial=pkt.serial,
+        action=pkt.action, editing=editing))
     elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEGUMP:
       if pkt.gumpid in self.gumps:
         self.gumps.remove(pkt.gumpid)
@@ -1285,11 +1311,14 @@ class Client(threading.Thread):
     with self.moveLock:
       # Match first move packet to be ackowledged
       mpkt = self.unmoves.popleft()
-      assert pkt.sequence == pkt.sequence
+      assert mpkt.sequence == pkt.sequence
 
       if not ack:
         # Reset sequence counter after a reject
         self.moveid = -1
+        # The core silently drops the requests still in flight, so keeping them
+        # queued would match every later ack against the wrong request.
+        self.unmoves.clear()
 
     oldx = self.player.x
     oldy = self.player.y
@@ -1298,7 +1327,9 @@ class Client(threading.Thread):
 
     if ack:
       # Need to calculate (guess) the new position, since this
-      # packets does not cointain position information
+      # packets does not cointain position information. A request whose
+      # direction is not the one we face only turns on the spot. z comes from
+      # the map and cannot be guessed, so it is kept until a 0x20 corrects it.
       if mpkt.direction == self.player.facing:
         # Moving in front of me, doing one step
         if mpkt.direction == Direction.N:
@@ -1523,6 +1554,19 @@ class Client(threading.Thread):
     '''
     po = packets.GeneralInfoPacket()
     po.fill(po.SUB_PARTY, partycmd, *args)
+    self.queue(po)
+
+  @logincomplete
+  def houseCommand(self, sub, *args, serial=None):
+    '''! Sends a custom house design command
+    @param sub int: one of the CustomHouseCommandPacket.SUB_* constants
+    @param *args: what that subcommand carries, see CustomHouseCommandPacket.fill()
+    @param serial int: whose editing session to address. The player's own by
+                       default - the core drops anything else as spoofed, which
+                       is what a test asking for another serial is checking.
+    '''
+    po = packets.CustomHouseCommandPacket()
+    po.fill(self.player.serial if serial is None else serial, sub, *args)
     self.queue(po)
 
   @logincomplete

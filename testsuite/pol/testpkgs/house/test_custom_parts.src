@@ -1,0 +1,333 @@
+// The script side of a custom house design: what addhousepart/erasehousepart do
+// to the current design, and which of the design methods refuse to run.
+//
+// The design a client edits over the wire is the working design, and it is only
+// reachable with a client attached - those cases live in the testclient package.
+// Everything here talks to the current design, which is what house.house_parts
+// reads back while the house is not being edited.
+
+use uo;
+use os;
+
+include "testutil";
+
+// the dirt plot behind objtype 0x12002 (multi 0x13ea) is 32 tiles, all at z 0,
+// and that is the whole design a freshly customized house starts from
+const PARTS := 32;
+// the graphic that plot is paved with, and one that appears nowhere in it
+const DIRT := 0x31F4;
+const MARKER := 0x1;
+
+// an offset inside the plot, and the 2x2 hole in its northwest corner
+const HOLE_X := -1;
+const HOLE_Y := -1;
+
+program test_custom_house_parts()
+  return 1;
+endprogram
+
+function make_custom_house( resources )
+  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  if ( !multi )
+    return multi;
+  endif
+  multi.setcustom( 1 );
+  return multi;
+endfunction
+
+// every part with that graphic at that offset, whatever its z
+function parts_at( multi, graphic, xoffset, yoffset )
+  return multi.house_parts.filter( @( e ) {
+    return ( e.graphic == graphic && e.xoffset == xoffset && e.yoffset == yoffset );
+  } );
+endfunction
+
+function check_count( multi, expected )
+  var count := multi.house_parts.size();
+  if ( count != expected )
+    return ret_error( $"expected {expected} parts got {count}" );
+  endif
+  return 1;
+endfunction
+
+// addhousepart calls Add(), not AddOrReplace(): the same graphic at the same
+// place stacks up instead of replacing, and each erase takes one of them away
+exported function test_customhouse_part_stacks( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( !res )
+    return ret_error( $"first addhousepart failed: {res}" );
+  endif
+  res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( !res )
+    return ret_error( $"second addhousepart failed: {res}" );
+  endif
+  res := check_count( multi, PARTS + 2 );
+  if ( !res )
+    return res;
+  endif
+  var stacked := parts_at( multi, MARKER, HOLE_X, HOLE_Y ).size();
+  if ( stacked != 2 )
+    return ret_error( $"expected both copies at the offset, got {stacked}" );
+  endif
+
+  res := multi.erasehousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( !res )
+    return ret_error( $"erasehousepart failed: {res}" );
+  endif
+  res := check_count( multi, PARTS + 1 );
+  if ( !res )
+    return res;
+  endif
+  stacked := parts_at( multi, MARKER, HOLE_X, HOLE_Y ).size();
+  if ( stacked != 1 )
+    return ret_error( $"expected one copy left, got {stacked}" );
+  endif
+  return 1;
+endfunction
+
+// z picks a plane rather than a height: z_to_custom_house_table takes the plane
+// below the value it is given, so a part added at z 3 sits on plane 0 and keeps
+// its own z, and erasing it only has to name a z on the same plane
+exported function test_customhouse_part_z_plane( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 3 );
+  if ( !res )
+    return ret_error( $"addhousepart at z 3 failed: {res}" );
+  endif
+  var added := parts_at( multi, MARKER, HOLE_X, HOLE_Y );
+  if ( added.size() != 1 )
+    return ret_error( $"expected the part at z 3, got {added.size()}" );
+  endif
+  if ( added[1].z != 3 )
+    return ret_error( $"part did not keep its z: {added[1].z}" );
+  endif
+
+  // z 0 and z 3 are both plane 0, so this erase finds it
+  res := multi.erasehousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( !res )
+    return ret_error( $"erase from the same plane failed: {res}" );
+  endif
+  return check_count( multi, PARTS );
+endfunction
+
+// A z that maps to no plane at all should be dropped with the call still
+// answering 1, and erasing what was never added should answer 0.
+exported function test_customhouse_part_z_no_plane( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  // the planes stop at 80, so 100 is below none of them
+  var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 100 );
+  if ( !res )
+    return ret_error( $"addhousepart at z 100 answered {res}" );
+  endif
+  var res2 := check_count( multi, PARTS );
+  if ( !res2 )
+    return res2;
+  endif
+
+  // and erasing what was never added answers 0
+  res := multi.erasehousepart( MARKER, HOLE_X, HOLE_Y, 100 );
+  if ( res )
+    return ret_error( $"erasehousepart at z 100 answered {res}" );
+  endif
+  return 1;
+endfunction
+
+// erasehousepart matches on graphic and offset - a wrong graphic, or the right
+// graphic at the wrong place, changes nothing
+exported function test_customhouse_erase_mismatch( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( !res )
+    return ret_error( $"addhousepart failed: {res}" );
+  endif
+
+  res := multi.erasehousepart( MARKER + 1, HOLE_X, HOLE_Y, 0 );
+  if ( res )
+    return ret_error( $"erase of a graphic that is not there answered {res}" );
+  endif
+  res := multi.erasehousepart( MARKER, HOLE_X + 1, HOLE_Y, 0 );
+  if ( res )
+    return ret_error( $"erase at the wrong offset answered {res}" );
+  endif
+  var res2 := check_count( multi, PARTS + 1 );
+  if ( !res2 )
+    return res2;
+  endif
+
+  res := multi.erasehousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( !res )
+    return ret_error( $"erasehousepart failed: {res}" );
+  endif
+  return check_count( multi, PARTS );
+endfunction
+
+// nothing guards the foundation on this path: a script can erase the tiles the
+// multi laid down, which over the wire the core refuses to do
+exported function test_customhouse_erase_dirt( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  var res := multi.erasehousepart( DIRT, 1, 1, 0 );
+  if ( !res )
+    return ret_error( $"erase of a foundation tile answered {res}" );
+  endif
+  var res2 := check_count( multi, PARTS - 1 );
+  if ( !res2 )
+    return res2;
+  endif
+  var left := parts_at( multi, DIRT, 1, 1 ).size();
+  if ( left )
+    return ret_error( $"foundation tile still there: {left}" );
+  endif
+  return 1;
+endfunction
+
+// setcustom(0) leaves the design alone, setcustom(1) builds it again from the
+// multi - so a round trip is how a script throws a design away
+exported function test_customhouse_setcustom_off( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( !res )
+    return ret_error( $"addhousepart failed: {res}" );
+  endif
+  var res2 := check_count( multi, PARTS + 1 );
+  if ( !res2 )
+    return res2;
+  endif
+
+  multi.setcustom( 0 );
+  multi.setcustom( 1 );
+  res2 := check_count( multi, PARTS );
+  if ( !res2 )
+    return res2;
+  endif
+  var leftover := parts_at( multi, MARKER, HOLE_X, HOLE_Y ).size();
+  if ( leftover )
+    return ret_error( $"the added part survived the reset: {leftover}" );
+  endif
+  return 1;
+endfunction
+
+// none of the design surface answers on a house that was never made custom
+exported function test_customhouse_not_custom( resources )
+  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  if ( !multi )
+    return multi;
+  endif
+
+  if ( multi.house_parts )
+    return ret_error( $"house_parts answered on a plain house: {multi.house_parts}" );
+  endif
+  var res := multi.addhousepart( MARKER, HOLE_X, HOLE_Y, 0 );
+  if ( res )
+    return ret_error( $"addhousepart answered on a plain house: {res}" );
+  endif
+  res := multi.erasehousepart( DIRT, 1, 1, 0 );
+  if ( res )
+    return ret_error( $"erasehousepart answered on a plain house: {res}" );
+  endif
+  res := multi.acceptcommit( 0, 1 );
+  if ( res )
+    return ret_error( $"acceptcommit answered on a plain house: {res}" );
+  endif
+  res := multi.cancelediting( 0, 1 );
+  if ( res )
+    return ret_error( $"cancelediting answered on a plain house: {res}" );
+  endif
+  return 1;
+endfunction
+
+// a custom house nobody is editing is neither waiting for a commit nor editable
+exported function test_customhouse_commit_state( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  // the member is house_editing: a plain "editing" reads back as an
+  // uninitialized object, which is falsy and so passes this on its own
+  if ( multi.house_editing )
+    return ret_error( "a house nobody opened reports itself as being edited" );
+  endif
+  var res := multi.acceptcommit( 0, 1 );
+  if ( res )
+    return ret_error( $"acceptcommit answered while not waiting: {res}" );
+  endif
+  res := multi.cancelediting( 0, 1 );
+  if ( res )
+    return ret_error( $"cancelediting answered while not editing: {res}" );
+  endif
+  return 1;
+endfunction
+
+// SendHousingTool wants a character and a multi, in that order
+exported function test_customhouse_tool_params( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  var res := SendHousingTool( "not a character", multi );
+  if ( res )
+    return ret_error( $"SendHousingTool took a string as the character: {res}" );
+  endif
+  res := SendHousingTool( 0, multi );
+  if ( res )
+    return ret_error( $"SendHousingTool took 0 as the character: {res}" );
+  endif
+  return 1;
+endfunction
+
+// The tool needs a client to send itself to, and an offline character has none.
+exported function test_customhouse_tool_offline( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  var char := createAccountWithChar( "housingtool_offline", "mypass" );
+  if ( !char )
+    return char;
+  endif
+  var res := SendHousingTool( char, multi );
+  if ( res )
+    return ret_error( $"SendHousingTool answered for an offline character: {res}" );
+  endif
+  return 1;
+endfunction
+
+// An offset outside the plot is dropped rather than indexing past the design.
+// addhousepart answers 1 either way, so the count is what says the part went
+// nowhere.
+exported function test_customhouse_part_no_bounds( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  multi.addhousepart( MARKER, 99, 99, 0 );
+  return check_count( multi, PARTS );
+endfunction

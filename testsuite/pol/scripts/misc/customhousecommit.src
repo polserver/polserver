@@ -1,0 +1,38 @@
+// The custom house commit script, which the core starts instead of applying a
+// commit itself.
+//
+// CustomHousesCommit looks for misc/customhousecommit.ecl and, when it is there,
+// sets the house waiting for an accept and hands it to this script with the
+// character that asked for the commit. Nothing applies the design until somebody
+// calls house.acceptcommit() - a real shard works out the cost here, asks the
+// player to confirm and takes the payment.
+//
+// This is shard-wide and cannot be unloaded, so every commit in the whole run
+// comes through here. Unless a test has parked something in #HouseCommitHold it
+// therefore accepts straight away, which is what the core would have done on a
+// shard with no commit script at all; only a test that wants to see the waiting
+// state holds it.
+
+use uo;
+use os;
+
+program CustomHouseCommit( chr, house )
+  // record the call for whoever is watching, before anything is decided
+  var call := struct{};
+  call.+character := chr.serial;
+  call.+house := house.serial;
+  call.+parts := house.house_parts.size();
+  SetGlobalProperty( "#HouseCommitCall", call );
+
+  if ( GetGlobalProperty( "#HouseCommitHold" ) )
+    return 1;
+  endif
+
+  var res := house.acceptcommit( chr, 1 );
+  if ( !res )
+    // leaving a house waiting for an accept nobody will send would break every
+    // later test on it, so say so where it can be found
+    syslog( $"customhousecommit: acceptcommit refused: {res}" );
+  endif
+  return 1;
+endprogram

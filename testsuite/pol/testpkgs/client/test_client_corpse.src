@@ -76,9 +76,7 @@ exported function test_corpse_equipment()
   // The corpse_content should only contain the equipped items (and not the goldcoin),
   // as the container has not been opened.
   //
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "list_equipped_items", arg := corpse.serial, id := 0 } );
-  if ( !( corpse_equipment := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } ) ) )
+  if ( !( corpse_equipment := list_client_equipment( clientcon, 0, corpse.serial ) ) )
     return cleanup_ret_error( $"Could not list corpse equipment: {corpse_equipment}" );
   endif
 

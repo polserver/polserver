@@ -1,0 +1,573 @@
+// The commands a client sends to build with: what each of them puts into the
+// working design, and which of them answer with a design rather than by moving
+// the revision on.
+//
+// The two are worth telling apart. A command that changes the design bumps the
+// revision and leaves the client to ask for the result; one that refuses sends
+// the design back unchanged so the client can undo what it drew. So a case that
+// waits for the wrong one of those either passes on a stale design or times out.
+
+include "customhouse";
+
+program test_client_house_edit()
+  return house_setup();
+endprogram
+
+// A tile lands on the storey being edited, except in the row that hangs off the
+// south side of the multi - the front steps, which are always at z 0.
+exported function house_add_front_step_z( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  house_add( 0, CH_DIRT, 0, HOUSE_MAX_OFF );
+  house_add( 0, CH_DIRT, 0, HOUSE_STEP_Y );
+
+  ev := client_sees_revision( 0, revision + 2 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_part( house, CH_DIRT, 0, HOUSE_MAX_OFF, CH_PLANE_Z1 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_part( house, CH_DIRT, 0, HOUSE_STEP_Y, CH_PLANE_Z );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before + 2, "two adds" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// Only the stair multiids are accepted. Anything else is refused by sending the
+// working design back, which is how the client is told to draw what the server
+// has rather than what it asked for - and the revision does not move.
+exported function house_add_multi_refused( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  Clear_Event_Queue();
+  house_add_multi( 0, CH_NOT_A_STAIR, 0, 0 );
+
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var got := CInt( ev.revision );
+  if ( got != revision )
+    return ret_error( $"a refused multi moved the revision to {got}, wanted {revision}" );
+  endif
+
+  var res := expect_parts( house, before, "a refused multi" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// A stair multi is expanded into its component tiles, each keeping the z it has
+// in the multi on top of the storey being edited. The test data stair is a
+// pyramid climbing north: one tile at the offset it is placed on, then two,
+// three and four on the tiles behind it.
+exported function house_add_multi_stairs( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  house_add_multi( 0, CH_STAIR_MIN, 0, 2 );
+
+  ev := client_sees_revision( 0, revision + 1 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_parts( house, before + CH_STAIR_PARTS, "a stair multi" );
+  if ( !res )
+    return res;
+  endif
+
+  // one tile deeper into the pyramid with every step north
+  var wanted := 1;
+  var y := 2;
+  while ( wanted <= 4 )
+    var found := house_parts_at( house, CH_STAIR, 0, y ).size();
+    if ( found != wanted )
+      return ret_error( $"the stair has {found} tiles at y {y}, wanted {wanted}" );
+    endif
+    wanted := wanted + 1;
+    y := y - 1;
+  endwhile
+
+  // and the lowest step sits on the storey the client was editing
+  res := expect_part( house, CH_STAIR, 0, 2, CH_PLANE_Z1 );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// Picking a storey moves the character onto it, sends the design back and
+// decides where the next add lands. A number outside 1..4 is read as 1.
+exported function house_pick_storey( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  var res := select_floor_at_z( 2, CH_PLANE_Z2, revision );
+  if ( !res )
+    return res;
+  endif
+
+  // and that is the storey an add now goes to
+  house_add( 0, CH_DIRT, -1, -1 );
+  ev := client_sees_revision( 0, revision + 1 );
+  if ( !ev )
+    return ev;
+  endif
+  res := expect_part( house, CH_DIRT, -1, -1, CH_PLANE_Z2 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before + 1, "an add on the second storey" );
+  if ( !res )
+    return res;
+  endif
+
+  res := select_floor_at_z( 3, CH_PLANE_Z3, revision + 1 );
+  if ( !res )
+    return res;
+  endif
+  // out of range, so back to the first storey
+  res := select_floor_at_z( 9, CH_PLANE_Z1, revision + 1 );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// Picks a storey and answers whether the character was put on it. The storey a
+// house is being edited on outlives the session - nothing resets it - so a case
+// that touches it has to leave the first one selected again.
+function select_floor_at_z( floor, zoffset, revision )
+  Clear_Event_Queue();
+  house_select_floor( 0, floor );
+
+  var ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var got := CInt( ev.revision );
+  if ( got != revision )
+    return ret_error( $"picking storey {floor} moved the revision to {got}" );
+  endif
+
+  var wanted := house.z + zoffset;
+  if ( char.z != wanted )
+    return ret_error( $"storey {floor} left the character at z {char.z}, wanted {wanted}" );
+  endif
+  return 1;
+endfunction
+
+// A roof tile carries a z of its own, counted from the storey being edited.
+exported function house_roof_places_at_z( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, 0, 0, 3 );
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, -1, 0, -3 );
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, -2, 0, 12 );
+
+  ev := client_sees_revision( 0, revision + 3 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_part( house, CH_ROOF, 0, 0, CH_PLANE_Z1 + 3 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_part( house, CH_ROOF, -1, 0, CH_PLANE_Z1 - 3 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_part( house, CH_ROOF, -2, 0, CH_PLANE_Z1 + 12 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before + 3, "three roof tiles" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// A roof z is only taken as it comes when it is a multiple of 3 within -3..12.
+// Anything else is read as -3 rather than refused.
+exported function house_roof_clamps_z( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+
+  // not a multiple of 3, above the ceiling, below the floor
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, 0, -1, 5 );
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, -1, -1, 15 );
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, -2, -1, -6 );
+
+  ev := client_sees_revision( 0, revision + 3 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var x := 0;
+  while ( x >= -2 )
+    var res := expect_part( house, CH_ROOF, x, -1, CH_PLANE_Z1 - 3 );
+    if ( !res )
+      return res;
+    endif
+    x := x - 1;
+  endwhile
+
+  return quit_design( 0 );
+endfunction
+
+// Removing a roof takes the tile out and moves the revision on; asking for one
+// that is not there answers with the design instead, leaving the revision alone.
+exported function house_roof_remove( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  // the removal has to find what the add put there, so it waits for it
+  house_roof( 0, CH_SELECT_ROOF, CH_ROOF, -1, 2, 3 );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  house_roof( 0, CH_DELETE_ROOF, CH_ROOF, -1, 2, CH_PLANE_Z1 + 3 );
+  ev := client_sees_revision( 0, revision + 2 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := expect_no_part( house, CH_ROOF, -1, 2 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "a roof put in and taken out again" );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  house_roof( 0, CH_DELETE_ROOF, CH_ROOF, -1, 2, CH_PLANE_Z1 + 3 );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var got := CInt( ev.revision );
+  if ( got != revision + 2 )
+    return ret_error( $"removing nothing moved the revision to {got}" );
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// Clearing throws the whole working design away and lays the multi down again,
+// so what is left is the house as it was built and nothing else.
+exported function house_clear_leaves_house( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+
+  house_add( 0, CH_ROOF, 0, 0 );
+  ev := client_sees_revision( 0, revision + 1 );
+  if ( !ev )
+    return ev;
+  endif
+
+  // a clear answers with the design it left behind, so there is nothing to ask
+  // for afterwards
+  house_cmd( 0, CH_CLEAR );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var cleared := house.house_parts.size();
+
+  var res := expect_no_part( house, CH_ROOF, 0, 0 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_part( house, CH_FOUNDATION, CH_FOUNDATION_X, CH_FOUNDATION_Y, CH_PLANE_Z );
+  if ( !res )
+    return res;
+  endif
+
+  // clearing what is already the bare multi has nothing left to take away
+  house_cmd( 0, CH_CLEAR );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  res := expect_parts( house, cleared, "a second clear" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// A backup is a design put aside, and a restore is the client asking for it
+// back. Neither is a change, so neither moves the revision - a restore hands
+// the client a design whose content moved while its revision did not.
+exported function house_backup_restore( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  // A backup is the one command that leaves no trace at all - it answers with
+  // nothing and does not move the revision - so which design it caught can only
+  // be told apart afterwards, by what a restore brings back. That makes it the
+  // one place where the order the commands are applied in has to be pinned down
+  // rather than assumed: each of the three is settled before the next goes out.
+  house_add( 0, CH_ROOF, 0, 0 );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  house_cmd( 0, CH_BACKUP );
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  house_add( 0, CH_ROOF, 0, 1 );
+  ev := client_sees_revision( 0, revision + 2 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := expect_parts( house, before + 2, "two adds around a backup" );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  house_cmd( 0, CH_RESTORE );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var got := CInt( ev.revision );
+  if ( got != revision + 2 )
+    return ret_error( $"a restore moved the revision to {got}" );
+  endif
+
+  // the tile from before the backup is there, the one from after it is not
+  res := expect_part( house, CH_ROOF, 0, 0, CH_PLANE_Z1 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_no_part( house, CH_ROOF, 0, 1 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before + 1, "a restore" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// Reverting goes back to the design the house is really built from, throwing
+// away everything the session did. It is not a change either, so the revision
+// stays where it was.
+exported function house_revert_drops_edits( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+  var before := house.house_parts.size();
+
+  house_add( 0, CH_ROOF, 0, 0 );
+  house_add( 0, CH_ROOF, 0, 1 );
+
+  ev := client_sees_revision( 0, revision + 2 );
+  if ( !ev )
+    return ev;
+  endif
+
+  Clear_Event_Queue();
+  house_cmd( 0, CH_REVERT );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var got := CInt( ev.revision );
+  if ( got != revision + 2 )
+    return ret_error( $"a revert moved the revision to {got}" );
+  endif
+
+  var res := expect_no_part( house, CH_ROOF, 0, 0 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_no_part( house, CH_ROOF, 0, 1 );
+  if ( !res )
+    return res;
+  endif
+  res := expect_parts( house, before, "a revert" );
+  if ( !res )
+    return res;
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// A multiid inside the stair range that the shard has no multi for adds nothing.
+// The range check passes it on and the lookup finds nothing, which is the whole
+// path: most of 0x1DB0..0x1DF3 is unused on a stock installation, so any client
+// with the editor open can name one.
+//
+// Neither this nor the case below is answered with a design - the command only
+// moves the revision on - so both settle with a synch rather than waiting for one.
+exported function house_add_multi_unknown_id( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  // in range, and the test data only defines the first of the range
+  house_add_multi( 0, CH_STAIR_MIN + 1, 0, 2 );
+
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_parts( house, before, "an unknown stair multiid" );
+  if ( !res )
+    return res;
+  endif
+  return quit_design( 0 );
+endfunction
+
+// The test data stair climbs three tiles north of where it is put, so the north
+// edge of the plot is enough: put down at y -3 only its lowest step is inside
+// the design and the nine tiles above it fall outside. What fits is added and
+// the rest is dropped.
+exported function house_add_multi_out_of_plot( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  house_add_multi( 0, CH_STAIR_MIN, 0, HOUSE_MIN_OFF );
+
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var landed := house_parts_at( house, CH_STAIR, 0, HOUSE_MIN_OFF ).size();
+  if ( landed != 1 )
+    return ret_error( $"{landed} of the stair landed on the edge row" );
+  endif
+  var res := expect_parts( house, before + 1, "a stair hanging off the plot" );
+  if ( !res )
+    return res;
+  endif
+  res := design_is_consistent( ev );
+  if ( !res )
+    return res;
+  endif
+  return quit_design( 0 );
+endfunction

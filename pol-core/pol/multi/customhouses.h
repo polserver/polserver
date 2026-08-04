@@ -143,7 +143,7 @@ public:
   s32 xoff, yoff;     // offsets from center west-most and north-most indicies are 0
   CustomHouseElements Elements[CUSTOM_HOUSE_NUM_PLANES];  // 5 planes
 
-  static const char custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];
+  static const u8 custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];
   // for testing
   void testprint( std::ostream& os ) const;
 
@@ -154,7 +154,7 @@ public:
 
 private:
   bool isEditableItem( UHouse* house, Items::Item* item );
-  static char z_to_custom_house_table( char z );
+  static int z_to_custom_house_table( u8 z );
 };
 
 // House Tool Command Implementations:
