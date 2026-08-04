@@ -3685,6 +3685,18 @@ BObjectImp* UCorpse::get_script_member_id( const int id ) const
   case MBR_OWNERSERIAL:
     return new BLong( ownerserial );
     break;
+  case MBR_EQUIPPED_ITEMS:
+  {
+    // What the corpse is rendered wearing, in layer order -- the same set the client is sent, so a
+    // script and a player looking at the corpse see the same thing.
+    std::unique_ptr<ObjArray> arr( new ObjArray );
+    for ( const auto& item : layer_view() )
+    {
+      if ( item != nullptr )
+        arr->addElement( new Module::EItemRefObjImp( item ) );
+    }
+    return arr.release();
+  }
   default:
     return nullptr;
   }

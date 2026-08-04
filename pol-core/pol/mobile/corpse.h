@@ -1,10 +1,12 @@
 #ifndef MOBILE_CORPSE_H
 #define MOBILE_CORPSE_H
 
+#include <array>
+
 #include "clib/rawtypes.h"
 #include "pol/containr.h"
 #include "pol/item/item.h"
-#include "pol/reftypes.h"
+#include "pol/layers.h"
 
 namespace Pol
 {
@@ -49,8 +51,10 @@ public:
   size_t estimatedSize() const override;
   u16 get_senditem_amount() const override;
 
-  void add( Item* item, const Pos2d& pos ) override;
-  void equip_and_add( Item* item, unsigned idx, const Pos2d& pos );
+  /// Add an item the corpse renders on one of its layers. Which layer is the item's own business
+  /// -- it is in the item's location -- so all this adds over a plain insert is that the corpse now
+  /// looks different.
+  void add_rendered_item( Item* item, const Pos2d& pos );
   void remove( iterator itr ) override;
 
   void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item ) override;
@@ -58,7 +62,15 @@ public:
   void take_contents_to_grave( bool newvalue );
   u16 corpsetype;
   u32 ownerserial;  // NPCs get deleted on death, so serial is used.
-  const Core::ItemRef& GetItemOnLayer( unsigned idx ) const;
+
+  /// What the corpse renders, indexed by layer; null wherever nothing is on that layer. Index 0 is
+  /// never filled, layers start at one.
+  using LayerView = std::array<Items::Item*, HIGHEST_LAYER + 1>;
+
+  /// Built from the contents on every call rather than kept. A corpse renders an item exactly while
+  /// that item's location says OnCorpse, so there is one answer and nothing to invalidate; the
+  /// callers that want the view want all of it at once, which is one pass either way.
+  LayerView layer_view() const;
 
   bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
                         unsigned int* PC ) const override;
@@ -76,7 +88,6 @@ protected:
   // value );
   // Bscript::BObjectImp* set_script_member( const char *membername, int value );
   bool script_isa( unsigned isatype ) const override;
-  std::vector<Core::ItemRef> can_equip_list_;
 };
 }  // namespace Pol::Core
 

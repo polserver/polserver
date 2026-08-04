@@ -214,16 +214,15 @@ bool validate( const Item& item, const Location& from, const Location& to )
       return reject( item, from, to, "null corpse" );
     if ( on_corpse->corpse->orphan() )
       return reject( item, from, to, "the corpse is destroyed" );
-    if ( on_corpse->layer != 0 )
-    {
-      if ( !valid_equip_layer( on_corpse->layer ) )
-        return reject( item, from, to, "not an equippable layer" );
-      if ( on_corpse->layer != item.tile_layer )
-        return reject( item, from, to, "the layer does not match the item's tile layer" );
-      const Core::ItemRef& occupant = on_corpse->corpse->GetItemOnLayer( on_corpse->layer );
-      if ( occupant != nullptr && occupant->serial != item.serial )
-        return reject( item, from, to, "the layer is already occupied" );
-    }
+    // OnCorpse means "the corpse renders this on a layer", so there is no layer-less form of it --
+    // loose corpse contents are InContainer like any other contents.
+    if ( !valid_equip_layer( on_corpse->layer ) )
+      return reject( item, from, to, "not an equippable layer" );
+    if ( on_corpse->layer != item.tile_layer )
+      return reject( item, from, to, "the layer does not match the item's tile layer" );
+    const Items::Item* occupant = on_corpse->corpse->layer_view()[on_corpse->layer];
+    if ( occupant != nullptr && occupant->serial != item.serial )
+      return reject( item, from, to, "the layer is already occupied" );
     if ( Core::settingsManager.ssopt.use_slot_index &&
          on_corpse->slot > on_corpse->corpse->max_slots() )
       return reject( item, from, to, "slot out of range" );
@@ -294,12 +293,7 @@ void attach( Item& item, const Location& to )
   else if ( const auto* equipped = to.get_if<Equipped>() )
     equipped->chr->equip( &item );
   else if ( const auto* on_corpse = to.get_if<OnCorpse>() )
-  {
-    if ( on_corpse->layer != 0 )
-      on_corpse->corpse->equip_and_add( &item, on_corpse->layer, on_corpse->grid );
-    else
-      on_corpse->corpse->add( &item, on_corpse->grid );
-  }
+    on_corpse->corpse->add_rendered_item( &item, on_corpse->grid );
   else if ( const auto* in_storage = to.get_if<InStorage>() )
     in_storage->area->insert_root_item( &item );
   else if ( to.holds<Destroyed>() )

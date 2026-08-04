@@ -8,6 +8,16 @@
 		<entry>
 			<date>08-03-2026</date>
 			<author>Nando:</author>
+			<change type="Added">corpse.equipped_items, the items a corpse is shown wearing, in layer order. This<br/>
+is the same set the client is sent, so a script and a player looking at the corpse<br/>
+see the same thing.</change>
+			<change type="Changed">A corpse now shows what its owner was wearing when it died and has kept on it<br/>
+since. Taking one of those items off the corpse ends that, so putting it back<br/>
+leaves it as ordinary loot instead of dressing the corpse again. Moving an item<br/>
+around inside the corpse's own window is unchanged - it stays on its layer.</change>
+			<change type="Fixed">A corpse held on to every item it had ever shown as equipment, so those items<br/>
+could not be freed until the corpse itself decayed, even long after they had<br/>
+been looted and destroyed.</change>
 			<change type="Fixed">Container slots (UseContainerSlots) were never usable. The slot an item was<br/>
 given was not saved, so every arrangement collapsed onto slot 0 on the next<br/>
 restart while the client was still being told about it; the search for a free<br/>

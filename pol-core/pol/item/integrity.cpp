@@ -1,6 +1,7 @@
 #include "pol/item/integrity.h"
 
 #include <algorithm>
+#include <array>
 #include <map>
 #include <string>
 
@@ -119,13 +120,13 @@ void check_forward( Sweep& sweep, Item& item )
       sweep.note( item, "names a null corpse" );
     else
     {
+      // No "does the corpse render it on that layer" check any more: the corpse's layer view is
+      // derived from this very answer, so it could only agree. What can still go wrong is two
+      // items claiming one layer, and that is asked from the corpse's side below.
       if ( unsigned seen = times_listed_in( *on_corpse->corpse, item ); seen != 1 )
         sweep.note( item, fmt::format( "corpse {:#x} lists it {} times among its contents, "
                                        "expected once",
                                        on_corpse->corpse->serial, seen ) );
-      if ( on_corpse->corpse->GetItemOnLayer( on_corpse->layer ).get() != &item )
-        sweep.note( item, fmt::format( "corpse {:#x} does not render it on that layer",
-                                       on_corpse->corpse->serial ) );
     }
   }
   else if ( const auto* on_cursor = loc.get_if<OnCursor>(); on_cursor != nullptr )
@@ -207,23 +208,29 @@ void check_container( Sweep& sweep, Core::UContainer& cont )
     }
   }
 
-  // The corpse's layer view is a second, independent list over the same contents, so it gets its
-  // own pass: an entry naming an item that has left is exactly the staleness this cannot see from
-  // the contents side.
+  // A corpse renders at most one item per layer, and the view enforces that by indexing on the
+  // layer -- so a second claimant does not conflict, it silently displaces the first and vanishes
+  // from the packet. relocate refuses this on insert; asking again here is what covers the loader
+  // and anything that has ever written a location without going through it.
   if ( is_corpse )
   {
-    auto& corpse = static_cast<Core::UCorpse&>( cont );
-    for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
+    std::array<const Item*, Core::HIGHEST_LAYER + 1> claimed{};
+    for ( const auto& item : cont )
     {
-      const Core::ItemRef& rendered = corpse.GetItemOnLayer( layer );
-      if ( rendered == nullptr )
+      if ( item == nullptr )
         continue;
-      const Location loc = rendered->location();
+      const Location loc = item->location();
       const auto* on_corpse = loc.get_if<OnCorpse>();
-      if ( on_corpse == nullptr || on_corpse->corpse != &corpse || on_corpse->layer != layer )
-        sweep.note( *rendered, fmt::format( "is rendered on layer {} of corpse {:#x} but does not "
-                                            "say so",
-                                            layer, corpse.serial ) );
+      if ( on_corpse == nullptr || !Items::valid_equip_layer( on_corpse->layer ) )
+        continue;
+
+      ++sweep.report.checks;
+      if ( const Item* first = claimed[on_corpse->layer]; first != nullptr )
+        sweep.note( *item, fmt::format( "claims layer {} of corpse {:#x}, which {:#x} already "
+                                        "claims",
+                                        on_corpse->layer, cont.serial, first->serial ) );
+      else
+        claimed[on_corpse->layer] = item;
     }
   }
 }

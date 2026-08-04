@@ -504,7 +504,7 @@ void send_put_in_container_to_inrange( const Item* item )
 //   - it's visible
 //   - or the chr has seeinvisitems() privilege
 // (note: hair items are not invisible on corpses)
-bool can_see_on_corpse( const Client* client, const Core::ItemRef& item )
+bool can_see_on_corpse( const Client* client, const Items::Item* item )
 {
   bool invisible = ( item->invisible() && !client->chr->can_seeinvisitems() );
 
@@ -519,14 +519,15 @@ void send_corpse_equip( Client* client, const UCorpse* corpse )
   msg->offset += 2;
   msg->Write<u32>( corpse->serial_ext );
 
+  // The old "is it destroyed, and does it still belong to this corpse" guards are gone with the
+  // list that made them necessary: the view is built from the corpse's own contents, and a
+  // destroyed item reports Destroyed rather than OnCorpse, so neither case can reach here.
+  const auto view = corpse->layer_view();
   for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
   {
-    const auto& item2 = corpse->GetItemOnLayer( layer );
+    const Items::Item* item2 = view[layer];
 
-    if ( !item2 || item2->orphan() || item2->container() != corpse )
-      continue;
-
-    if ( !can_see_on_corpse( client, item2 ) )
+    if ( item2 == nullptr || !can_see_on_corpse( client, item2 ) )
       continue;
 
     msg->Write<u8>( static_cast<u8>( layer ) );
@@ -549,14 +550,12 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
   msg->offset += 4;  // msglen+count
   u16 count = 0;
 
+  const auto view = corpse->layer_view();
   for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
   {
-    const Core::ItemRef item = corpse->GetItemOnLayer( layer );
+    const Items::Item* item = view[layer];
 
-    if ( !item || item->orphan() || item->container() != corpse )
-      continue;
-
-    if ( !can_see_on_corpse( client, item ) )
+    if ( item == nullptr || !can_see_on_corpse( client, item ) )
       continue;
 
     msg->Write<u32>( item->serial_ext );

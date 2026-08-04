@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>07/30/2026</datemodified>
+<datemodified>08/03/2026</datemodified>
 </fileheader>
 
 
@@ -492,6 +492,7 @@
 <explain>Objects that are created when character objects are killed</explain>
 <member mname="corpsetype" type="Integer" access="r/o">ObjType of the Character killed</member>
 <member mname="ownerserial" type="Integer" access="r/o">Serial of the Mobile that died</member>
+<member mname="equipped_items" type="Array" access="r/o">The items the corpse is shown wearing, in layer order. This is what a player sees on the corpse: an item that has been taken off the corpse is not in it, even if it is put back inside afterwards.</member>
 </class>
 
 

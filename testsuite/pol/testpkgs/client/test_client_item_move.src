@@ -1359,6 +1359,75 @@ exported function corpse_drop_loose_stays_loose()
   return res;
 endfunction
 
+// The third row of the rule, and the one that distinguishes this from "a corpse renders whatever
+// equippable thing is inside it": a corpse shows what its owner wore at death *and has held
+// continuously since*. Looting an item ends that, so putting it back makes it ordinary loot.
+exported function corpse_looted_item_stays_loose()
+  var corpse := make_equipped_corpse();
+  if ( !corpse )
+    return corpse;
+  endif
+
+  var test_func := @() {
+    var res;
+    var before := equipped_serials( corpse );
+    if ( !before )
+      return ret_error( "The corpse renders no equipment at all" );
+    endif
+
+    var worn := before[1];
+
+    // The script view and the packet view are built from the same thing and must stay that way, so
+    // check them against each other while the client's copy is still known to be fresh.
+    if ( !( res := ret_error_not_equal( Len( corpse_layer_serials( corpse ) ), Len( before ),
+                                        "corpse.equipped_items and the corpse packet disagree" ) ) )
+      return res;
+    endif
+
+    // open the corpse first, as a looting player would
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := "double_click", arg := corpse.serial, id := 0 } );
+    if ( !( res := waitForClient( 0, { EVT_DOUBLE_CLICK } ) ) )
+      return res;
+    endif
+
+    // out to the player's backpack: this is what ends the corpse's claim on it
+    if ( !lift_item_succeeded( res, worn ) )
+      return res;
+    endif
+
+    if ( !drop_item_succeeded( res, worn, 0xFF, 0xFF, 0, char.backpack.serial ) )
+      return res;
+    endif
+
+    var looted := equipped_serials( corpse );
+    if ( worn in looted )
+      return ret_error( $"Item {worn} still rendered on the corpse after being looted off it" );
+    endif
+
+    // and back onto the corpse it came from
+    if ( !lift_item_succeeded( res, worn ) )
+      return res;
+    endif
+
+    if ( !drop_item_succeeded( res, worn, 50, 50, 0, corpse.serial ) )
+      return res;
+    endif
+
+    var after := equipped_serials( corpse );
+    if ( worn in after )
+      return ret_error( $"Item {worn} dressed the corpse again after having been looted off it" );
+    endif
+
+    return ret_error_not_equal( Len( after ), Len( before ) - 1,
+                                "The corpse's equipment is the wrong size after an item was looted and put back" );
+  };
+
+  var res := test_func();
+  DestroyItem( corpse );
+  return res;
+endfunction
+
 /**
  * Helper functions
  */
@@ -1392,6 +1461,19 @@ function make_equipped_corpse()
   endif
 
   return corpse;
+endfunction
+
+// What the core says the corpse is rendered wearing, as an array of serials.
+//
+// Server-side on purpose. The client's copy of this is only refreshed when the corpse comes into
+// view or gains a rendered item, so it cannot see one leaving -- which is exactly the transition
+// the looted-item case turns on.
+function equipped_serials( corpse )
+  var serials := array{};
+  foreach item in ( corpse.equipped_items )
+    serials.append( item.serial );
+  endforeach
+  return serials;
 endfunction
 
 // What the client is told the corpse is wearing, as an array of serials.
