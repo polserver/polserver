@@ -5,11 +5,7 @@
 // reachable with a client attached - those cases live in the testclient package.
 // Everything here talks to the current design, which is what house.house_parts
 // reads back while the house is not being edited.
-//
-// Some cases here are written but commented out, because they fail against the
-// core as it stands. Each is headed by a line beginning "TODO core bug <n>", so
-// `grep -rn "TODO core bug [0-9]" testsuite/pol/testpkgs` finds all of them, here and
-// in the testclient package, and says what has to change first.
+
 use uo;
 use os;
 
@@ -305,41 +301,33 @@ exported function test_customhouse_tool_params( resources )
   return 1;
 endfunction
 
-// TODO core bug 5: re-enable once SendHousingTool checks for a client.
-// SendHousingTool reads chr->client->acctSupports() before it checks that there
-// is a client at all (uomod2.cpp:2579), so an offline character takes the shard
-// down with a null dereference. The same shape as house.cpp:533 in cancelediting.
-// exported function test_customhouse_tool_offline( resources )
-//   var multi := make_custom_house( resources );
-//   if ( !multi )
-//     return multi;
-//   endif
-//
-//   var char := createAccountWithChar( "housingtool_offline", "mypass" );
-//   if ( !char )
-//     return char;
-//   endif
-//   var res := SendHousingTool( char, multi );
-//   if ( res )
-//     return ret_error( $"SendHousingTool answered for an offline character: {res}" );
-//   endif
-//   return 1;
-// endfunction
+// The tool needs a client to send itself to, and an offline character has none.
+exported function test_customhouse_tool_offline( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
 
-// TODO core bug 3: re-enable once CustomHouseDesign::Add checks its bounds.
-// CustomHouseDesign::Add() indexes its plane with .at() and never checks the
-// offset the way AddOrReplace() does (customhouses.cpp:144), so a part outside
-// the plot throws std::out_of_range. The executor catches it, which kills this
-// script instead of answering an error.
-// exported function test_customhouse_part_no_bounds( resources )
-//   var multi := make_custom_house( resources );
-//   if ( !multi )
-//     return multi;
-//   endif
-//
-//   var res := multi.addhousepart( MARKER, 99, 99, 0 );
-//   if ( res )
-//     return ret_error( $"addhousepart outside the plot answered {res}" );
-//   endif
-//   return check_count( multi, PARTS );
-// endfunction
+  var char := createAccountWithChar( "housingtool_offline", "mypass" );
+  if ( !char )
+    return char;
+  endif
+  var res := SendHousingTool( char, multi );
+  if ( res )
+    return ret_error( $"SendHousingTool answered for an offline character: {res}" );
+  endif
+  return 1;
+endfunction
+
+// An offset outside the plot is dropped rather than indexing past the design.
+// addhousepart answers 1 either way, so the count is what says the part went
+// nowhere.
+exported function test_customhouse_part_no_bounds( resources )
+  var multi := make_custom_house( resources );
+  if ( !multi )
+    return multi;
+  endif
+
+  multi.addhousepart( MARKER, 99, 99, 0 );
+  return check_count( multi, PARTS );
+endfunction

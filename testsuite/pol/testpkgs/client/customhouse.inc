@@ -12,12 +12,11 @@
 // asserts on the design event, and one that cares about the model asserts on
 // house_parts.
 //
-// Several cases in these files are written but commented out, because they fail
-// against the core as it stands and some of them take the shard or the test
-// client down with them. Each is headed by a line beginning
-// "TODO core bug <n>", so `grep -rn "TODO core bug [0-9]" testsuite/pol/testpkgs`
-// finds all of them and says what has to change before it can be uncommented.
-// The numbers are the ones in the write-up the branch was handed over with.
+// Two cases in test_client_house.src are written but commented out, because they
+// fail against the core as it stands and one of them takes the test client down
+// with it. Each is headed by a line beginning "TODO core bug <n>", so
+// `grep -rn "TODO core bug [0-9]" testsuite/pol/testpkgs` finds them and says
+// what has to change before each can be uncommented.
 
 use os;
 use uo;
@@ -49,6 +48,8 @@ const CH_EDIT_END := 0x05;
 // part added at any z between two of these belongs to the lower one.
 const CH_PLANE_Z := 0;
 const CH_PLANE_Z1 := 7;
+// the plane index CH_PLANE_Z1 belongs to, which is what a plane header carries
+const CH_PLANE_INDEX_Z1 := 1;
 const CH_PLANE_Z2 := 27;
 const CH_PLANE_Z3 := 47;
 const CH_PLANE_Z4 := 67;
@@ -81,9 +82,11 @@ const CH_FOUNDATION_Y := 0;
 // plane there
 const CH_BOARD := 0x4AC;
 
-// The most tiles one plane of a design packet can describe. Its plane header
-// gives the uncompressed length 12 bits, and a tile is five bytes, so 4095/5
-// tiles is all that fits - see the packing in CustomHousesSendFull.
+// The most a plane header can describe: it gives the uncompressed and the
+// compressed length 12 bits each, and a tile is five bytes, so 4095/5 tiles is
+// all one plane fits - see the packing in CustomHousesSendFull. A floor holding
+// more than that is sent as several planes under the same index.
+const CH_PLANE_MAX_LEN := 4095;
 const CH_PLANE_MAX_TILES := 819;
 
 // Where the design tests put their house. Every case builds its own through the
@@ -389,9 +392,9 @@ endfunction
 //
 // What it cannot be used for is the revision. CustomHousesSendFull keeps the
 // packet it built in WorkingCompressed and replays it byte for byte until an
-// edit throws it away, so a design built before a revision was incremented goes
-// on being sent under the old number. Erase and clear both send before they
-// increment, which is what erase_revision_lags in test_client_house_erase.src
+// edit throws it away, so the number a synch answers with is the one the design
+// was built under. Every command that changes the design increments before it
+// builds, which is what erase_revision_advances in test_client_house_erase.src
 // pins down.
 function house_settle( id )
   house_cmd( id, CH_SYNCH );
@@ -492,12 +495,18 @@ function expect_parts( multi, wanted, what )
 endfunction
 
 // Whether the design the client was sent holds together: what its header claims
-// and what its planes actually carried have to be the same number of tiles.
+// and what its planes actually carried have to be the same number of tiles, and
+// the plane count has to be the number of planes the buffer really held.
 function design_is_consistent( ev )
   var claimed := CInt( ev.numtiles );
   var got := ev.tiles.size();
   if ( claimed != got )
     return ret_error( $"design says {claimed} tiles, its planes carried {got}" );
+  endif
+  var planes := CInt( ev.planecount );
+  var decoded := ev.planes.size();
+  if ( planes != decoded )
+    return ret_error( $"design says {planes} planes, its buffer held {decoded}" );
   endif
   return 1;
 endfunction

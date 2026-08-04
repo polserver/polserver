@@ -3,12 +3,11 @@
 // paving an emptied ground floor with dirt again, and pulling a whole staircase
 // when one of its steps is named.
 //
-// Erase is the one command that both sends a design and moves the revision on,
-// and it does them in that order - so the design a client is handed after an
-// erase already holds the change while its revision is still the one from
-// before, and it stays that way because the packet is cached. Every case here
-// therefore waits for the design an erase sends and reads the content out of
-// it, or out of house_parts; only erase_revision_lags looks at the number.
+// Erase is the one command that both moves the revision on and sends a design,
+// so the design a client is handed after an erase carries the change and the
+// new revision together. Every case here waits for that design and reads the
+// content out of it, or out of house_parts; only erase_revision_advances looks
+// at the number.
 
 include "customhouse";
 
@@ -17,7 +16,7 @@ program test_client_house_erase()
 endprogram
 
 // A tile above the ground floor comes straight back out, and the design that
-// answers the erase is the new one under the old revision.
+// answers the erase is the new one.
 exported function erase_removes_tile( resmgn )
   var started := house_start( resmgn );
   if ( !started )
@@ -251,17 +250,14 @@ exported function erase_graphic_mismatch( resmgn )
   return quit_design( 0 );
 endfunction
 
-// What an erase leaves the client believing about the revision, which is not
-// what the house is on.
+// The revision the client is told after an erase is the one the house is on.
 //
-// CustomHousesErase sends the design and then increments, so the packet carries
-// the number from before the erase. CustomHousesSendFull keeps that packet in
-// WorkingCompressed and replays it for every later synch, so asking again does
-// not help either: the client goes on being told the old revision until some
-// other command throws the cached packet away. Since the revision is what a
-// client uses to decide whether the design it holds is still good, this is
-// asserted here as what happens today rather than as what should.
-exported function erase_revision_lags( resmgn )
+// CustomHousesErase increments before it builds the design, and the packet it
+// builds is what CustomHousesSendFull keeps in WorkingCompressed and replays
+// for every later synch - so the number is right the first time and stays right
+// until the next edit. The revision is what a client uses to decide whether the
+// design it holds is still good, so every step here reads it back.
+exported function erase_revision_advances( resmgn )
   var started := house_start( resmgn );
   if ( !started )
     return started;
@@ -273,7 +269,7 @@ exported function erase_revision_lags( resmgn )
   var revision := CInt( ev.revision );
 
   // an add moves the revision and throws the cached packet away, so the design
-  // that answers the next synch is built fresh and counts properly
+  // that answers the next synch is built fresh
   house_roof( 0, CH_SELECT_ROOF, CH_ROOF, 0, 0, 3 );
   ev := house_settle( 0 );
   if ( !ev )
@@ -284,15 +280,16 @@ exported function erase_revision_lags( resmgn )
     return ret_error( $"an add left the client at revision {got}, wanted {revision + 1}" );
   endif
 
-  // the erase moves it again, and tells the client the number from before
+  // the erase moves it again, and the design it answers with carries the new one
+  var wanted := revision + 2;
   house_erase( 0, CH_ROOF, 0, 0, CH_PLANE_Z1 + 3 );
   ev := wait_for_design( 0 );
   if ( !ev )
     return ev;
   endif
   got := CInt( ev.revision );
-  if ( got != revision + 1 )
-    return ret_error( $"the design an erase answers with is at revision {got}" );
+  if ( got != wanted )
+    return ret_error( $"the design an erase answers with is at revision {got}, wanted {wanted}" );
   endif
 
   // and asking for it again answers with the very same packet
@@ -301,12 +298,11 @@ exported function erase_revision_lags( resmgn )
     return ev;
   endif
   got := CInt( ev.revision );
-  if ( got != revision + 1 )
-    return ret_error( $"a synch after an erase answered revision {got}" );
+  if ( got != wanted )
+    return ret_error( $"a synch after an erase answered revision {got}, wanted {wanted}" );
   endif
 
-  // the house was two revisions on all along: one more edit invalidates the
-  // cached packet and the number the client is told jumps by two
+  // one more edit invalidates the cached packet, and the number moves by one
   house_roof( 0, CH_SELECT_ROOF, CH_ROOF, 0, 0, 3 );
   ev := house_settle( 0 );
   if ( !ev )

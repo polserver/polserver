@@ -1,8 +1,11 @@
 // The CloseCustomHouse system hook, installed by syshook.cfg.
 //
-// The core calls it at the end of every design session, from CustomHousesQuit -
-// so on a quit from the client, on a cancelediting from a script, and on the
-// accept half of a commit. It is told which character left and which house it
+// The core calls it from UHouse::CustomHousesQuit - so on a quit from the client
+// and on a cancelediting from a script, which is what the hook is documented to
+// cover - and from CustomHousesCommit on a shard with no
+// misc/customhousecommit.ecl, where nothing else would say the session ended.
+// This shard has that script, so a commit does not reach the hook here; see
+// commit_skips_close_hook. It is told which character left and which house it
 // left, and its answer is not read.
 //
 // It records every call and nothing else. Unlike the commit script it cannot

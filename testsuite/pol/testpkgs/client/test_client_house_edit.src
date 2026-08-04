@@ -502,61 +502,72 @@ exported function house_revert_drops_edits( resmgn )
   return quit_design( 0 );
 endfunction
 
-// TODO core bug 2: re-enable once an unknown stair multiid stops asserting.
-// A stair multiid in range that no multi is defined for takes the shard down.
-// CustomHousesAddMulti checks the id against STAIR_MULTIID_MIN/MAX and hands
-// what passes to AddMultiAtOffset, which asks MultiDefByMultiID
-// (multidef.cpp:224) for the definition - and that opens with
-// passert( multidefs_by_multiid.count( multiid ) != 0 ). The nullptr check that
-// follows it never gets to run, and the test shard sets
-// AssertionFailureAction=shutdown, so the whole run goes down with it. Most of
-// 0x1DB0..0x1DF3 is unused on a stock installation, so any client with the
-// design editor open can do this.
-// exported function house_add_multi_unknown_id( resmgn )
-//   var started := house_start( resmgn );
-//   if ( !started )
-//     return started;
-//   endif
-//   var ev := enter_design( 0, char, house );
-//   if ( !ev )
-//     return ev;
-//   endif
+// A multiid inside the stair range that the shard has no multi for adds nothing.
+// The range check passes it on and the lookup finds nothing, which is the whole
+// path: most of 0x1DB0..0x1DF3 is unused on a stock installation, so any client
+// with the editor open can name one.
 //
-//   // in range, and the test data only defines the first of the range
-//   house_add_multi( 0, CH_STAIR_MIN + 1, 0, 2 );
-//
-//   ev := wait_for_design( 0 );
-//   if ( !ev )
-//     return ev;
-//   endif
-//   return quit_design( 0 );
-// endfunction
+// Neither this nor the case below is answered with a design - the command only
+// moves the revision on - so both settle with a synch rather than waiting for one.
+exported function house_add_multi_unknown_id( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
 
-// TODO core bug 3: re-enable once CustomHouseDesign::Add checks its bounds.
-// A stair multi placed near the edge of the plot reads and writes past the
-// design. AddMultiAtOffset (customhouses.cpp:377) adds every component through
-// Add(), which - unlike AddOrReplace - has no ValidLocation check, so
-// CustomHouseElements::AddElement indexes data.at( x ).at( y ) with an offset
-// the design does not have and throws std::out_of_range. This runs on the
-// network thread, where nothing catches it, so the shard goes down.
-//
+  // in range, and the test data only defines the first of the range
+  house_add_multi( 0, CH_STAIR_MIN + 1, 0, 2 );
+
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := expect_parts( house, before, "an unknown stair multiid" );
+  if ( !res )
+    return res;
+  endif
+  return quit_design( 0 );
+endfunction
+
 // The test data stair climbs three tiles north of where it is put, so the north
-// edge of the plot is enough: at y -1 its top step is at y -4, one row outside.
-// exported function house_add_multi_out_of_plot( resmgn )
-//   var started := house_start( resmgn );
-//   if ( !started )
-//     return started;
-//   endif
-//   var ev := enter_design( 0, char, house );
-//   if ( !ev )
-//     return ev;
-//   endif
-//
-//   house_add_multi( 0, CH_STAIR_MIN, 0, HOUSE_MIN_OFF );
-//
-//   ev := wait_for_design( 0 );
-//   if ( !ev )
-//     return ev;
-//   endif
-//   return quit_design( 0 );
-// endfunction
+// edge of the plot is enough: put down at y -3 only its lowest step is inside
+// the design and the nine tiles above it fall outside. What fits is added and
+// the rest is dropped.
+exported function house_add_multi_out_of_plot( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var before := house.house_parts.size();
+
+  house_add_multi( 0, CH_STAIR_MIN, 0, HOUSE_MIN_OFF );
+
+  ev := house_settle( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  var landed := house_parts_at( house, CH_STAIR, 0, HOUSE_MIN_OFF ).size();
+  if ( landed != 1 )
+    return ret_error( $"{landed} of the stair landed on the edge row" );
+  endif
+  var res := expect_parts( house, before + 1, "a stair hanging off the plot" );
+  if ( !res )
+    return res;
+  endif
+  res := design_is_consistent( ev );
+  if ( !res )
+    return res;
+  endif
+  return quit_design( 0 );
+endfunction

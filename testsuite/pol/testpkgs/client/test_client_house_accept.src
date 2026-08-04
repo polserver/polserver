@@ -58,14 +58,13 @@ exported function commit_holds_for_accept( resmgn )
     return release_hold( ret_error( "a held commit closed the session anyway" ) );
   endif
 
-  // The tool refuses, but for being open rather than for waiting: mf_SendHousingTool
-  // tests house->editing first and a commit does not clear it, so its own
-  // "waiting for a commit" answer cannot be reached from here at all.
+  // The tool refuses for waiting rather than for being open: a commit leaves
+  // editing set, and mf_SendHousingTool reports the narrower of the two states.
   var tool := SendHousingTool( char, house );
   if ( tool )
     return release_hold( ret_error( "the tool opened a second session on a waiting house" ) );
   endif
-  if ( tool.errortext != "House currently being customized." )
+  if ( tool.errortext != "House currently being waiting for a commit" )
     return release_hold( ret_error( $"the tool refused with {tool.errortext}" ) );
   endif
 
@@ -264,91 +263,94 @@ function wait_for_commit_call( timeout := 10 )
   return ret_error( $"the commit script did not run within {timeout}s" );
 endfunction
 
-// TODO core bug 7: re-enable once AcceptHouseCommit calls the CloseCustomHouse hook.
-// The hook is not called when a session ends in a commit. AcceptHouseCommit
-// (house.cpp:1159) calls CustomHouseStopEditing directly rather than going
-// through UHouse::CustomHousesQuit, and the hook is called from the latter only
-// - so of the three ways a design session can end, the two that throw the
-// changes away are reported and the one that keeps them is not. A shard using
-// the hook to let go of whatever it set up for the session never hears about a
-// house that was actually rebuilt.
-// exported function close_hook_on_commit( resmgn )
-//   var started := house_start( resmgn );
-//   if ( !started )
-//     return started;
-//   endif
-//   var ev := enter_design( 0, char, house );
-//   if ( !ev )
-//     return ev;
-//   endif
+// A commit on a shard that has a commit script does not call the
+// CloseCustomHouse hook, because misc/customhousecommit.ecl is the notification
+// for that route and is handed the same character and house - calling both would
+// report one commit twice. The core calls the hook only where that script is
+// missing, so nothing is left unsaid either way.
 //
-//   EraseGlobalProperty( "#CloseHouseCall" );
-//   var res := commit_design( 0 );
-//   if ( !res )
-//     return res;
-//   endif
-//   ev := wait_for_design( 0 );
-//   if ( !ev )
-//     return ev;
-//   endif
-//
-//   var call := GetGlobalProperty( "#CloseHouseCall" );
-//   if ( !call )
-//     return ret_error( "the CloseCustomHouse hook was not called on a commit" );
-//   endif
-//   return 1;
-// endfunction
+// The other half of that rule cannot be tested here: the commit script is
+// shard-wide and always present in this test shard, so the no-script route is
+// out of reach. This case pins the half that is reachable, and pins it as
+// deliberate so the silence is not read as an oversight.
+exported function commit_skips_close_hook( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
 
-// TODO core bug 5: re-enable once SendHousingTool checks for a client.
-// SendHousingTool on a character with no client takes the shard down.
-// mf_SendHousingTool (uomod2.cpp:2570) reads chr->client->acctSupports() as its
-// very first test, before the multi is even looked at, and nothing on the way in
-// checks that there is a client - getCharacterParam takes any mobile, npcs
-// included. Every other refusal in that function is a tidy BError, so this is
-// the one parameter nobody thought of.
-// exported function tool_on_a_mobile_with_no_client( resmgn )
-//   var started := house_start( resmgn );
-//   if ( !started )
-//     return started;
-//   endif
-//   var npc := CreateNpcFromTemplate( ":testclient:test_snooping", house_x, house_y, 0 );
-//   if ( !npc )
-//     return ret_error( $"could not make the npc: {npc}" );
-//   endif
-//
-//   var res := SendHousingTool( npc, house );
-//   npc.Kill();
-//   if ( res )
-//     return ret_error( "the tool opened for a mobile with no client" );
-//   endif
-//   return 1;
-// endfunction
+  EraseGlobalProperty( "#CloseHouseCall" );
+  EraseGlobalProperty( "#HouseCommitCall" );
+  var res := commit_design( 0 );
+  if ( !res )
+    return res;
+  endif
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
 
-// TODO core bug 6: re-enable once cancelediting checks for a client.
-// cancelediting on a character with no client takes the shard down the same way.
-// MTH_CANCEL_EDITING (house.cpp:533) reaches
-// chr->client->gd->custom_house_serial to decide whether that character is the
-// one editing this house, and there is no null check anywhere before it. The
-// method already answers "House is currently not been edited" and "Not enough
-// parameters" as errors, so a mobile with no client belongs in the same list.
-// exported function cancel_by_a_mobile_with_no_client( resmgn )
-//   var started := house_start( resmgn );
-//   if ( !started )
-//     return started;
-//   endif
-//   var ev := enter_design( 0, char, house );
-//   if ( !ev )
-//     return ev;
-//   endif
-//   var npc := CreateNpcFromTemplate( ":testclient:test_snooping", house_x, house_y, 0 );
-//   if ( !npc )
-//     return ret_error( $"could not make the npc: {npc}" );
-//   endif
-//
-//   var res := house.cancelediting( npc, 1 );
-//   npc.Kill();
-//   if ( res )
-//     return ret_error( "a mobile with no client cancelled the session" );
-//   endif
-//   return quit_design( 0 );
-// endfunction
+  // the commit script is what the shard is told with, and it was
+  var commit_call := GetGlobalProperty( "#HouseCommitCall" );
+  if ( !commit_call )
+    return ret_error( "the commit script was not called on a commit" );
+  endif
+  if ( CInt( commit_call.house ) != house.serial )
+    return ret_error( "the commit script was told about another house" );
+  endif
+
+  // and the hook was not
+  var call := GetGlobalProperty( "#CloseHouseCall" );
+  if ( call )
+    return ret_error( "the CloseCustomHouse hook was called on a commit as well" );
+  endif
+  return 1;
+endfunction
+
+// getCharacterParam takes any mobile, npcs included, and the tool has nowhere to
+// go without a client.
+exported function tool_on_a_mobile_with_no_client( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var npc := CreateNpcFromTemplate( ":testclient:test_snooping", house_x, house_y, 0 );
+  if ( !npc )
+    return ret_error( $"could not make the npc: {npc}" );
+  endif
+
+  var res := SendHousingTool( npc, house );
+  npc.Kill();
+  if ( res )
+    return ret_error( "the tool opened for a mobile with no client" );
+  endif
+  return 1;
+endfunction
+
+// Which character is editing a house is read off its client, so a mobile with
+// none is not that character and cannot end the session.
+exported function cancel_by_a_mobile_no_client( resmgn )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var npc := CreateNpcFromTemplate( ":testclient:test_snooping", house_x, house_y, 0 );
+  if ( !npc )
+    return ret_error( $"could not make the npc: {npc}" );
+  endif
+
+  var res := house.cancelediting( npc, 1 );
+  npc.Kill();
+  if ( res )
+    return ret_error( "a mobile with no client cancelled the session" );
+  endif
+  return quit_design( 0 );
+endfunction

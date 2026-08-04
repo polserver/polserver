@@ -133,16 +133,16 @@ endfunction
 //
 // CustomHousesSendFull asks NumUsedPlanes() how many planes to send and then
 // loops i from 0 to that number, using i as the plane index as well as the loop
-// counter (customhouses.cpp:1049, :1068) - so it only ever sends planes
-// 0..count-1. That is right while the used planes are a run starting at 0, and
-// wrong as soon as there is a hole in them.
+// counter - so it only ever sends planes 0..count-1. That is right while the
+// used planes are a run starting at 0, and wrong as soon as there is a hole in
+// them.
 //
 // This house uses planes 0, 1 and 2 out of the multi it was built from. Putting
 // a tile on storey 4 makes plane 4 used while plane 3 stays empty, so four
 // planes are used, the loop sends 0, 1, 2 and the empty 3, and the storey 4 tile
 // never leaves the server. numtiles is TotalSize() and still counts it, so the
 // packet contradicts itself - which is what design_is_consistent() catches.
-// exported function house_storey_gap_lost( resmgn )
+// exported function house_storey_gap_sent( resmgn )
 //   var started := house_start( resmgn );
 //   if ( !started )
 //     return started;
@@ -151,31 +151,42 @@ endfunction
 //   if ( !ev )
 //     return ev;
 //   endif
-
+//
 //   house_select_floor( 0, 4 );
 //   ev := wait_for_design( 0 );
 //   if ( !ev )
 //     return ev;
 //   endif
-
+//
 //   house_add( 0, CH_ROOF, 0, 0 );
 //   ev := house_settle( 0 );
 //   if ( !ev )
 //     return ev;
 //   endif
-
+//
 //   // escript sees the tile on the fourth storey
 //   var res := expect_part( house, CH_ROOF, 0, 0, CH_PLANE_Z4 );
 //   if ( !res )
 //     return res;
 //   endif
-
-//   // and the design the client was sent should hold everything it says it does
+//
+//   // and the design the client was sent holds everything it says it does
 //   res := design_is_consistent( ev );
 //   if ( !res )
 //     return res;
 //   endif
-
+//
+//   // and the storey 4 tile is in it
+//   var found := design_tiles_at( ev, CH_ROOF, 0, 0 );
+//   if ( found.size() != 1 )
+//     var count := found.size();
+//     return ret_error( $"the client was sent {count} of the storey 4 tile" );
+//   endif
+//   var tile_z := CInt( found[1].z );
+//   if ( tile_z != CH_PLANE_Z4 )
+//     return ret_error( $"the storey 4 tile reached the client at z {tile_z}" );
+//   endif
+//
 //   return quit_design( 0 );
 // endfunction
 
@@ -183,11 +194,11 @@ endfunction
 // A plane holding more tiles than its header can describe goes out mis-encoded.
 //
 // Each plane header gives the uncompressed and the compressed length 12 bits
-// each (customhouses.cpp:1078), so a plane tops out at 4095 bytes - 819 tiles at
-// five bytes apiece. Neither length is checked before it is packed, so a bigger
-// plane has its length silently truncated: the client is told a length that is
-// short by whole multiples of 4096, and everything after that plane in the
-// buffer is read from the wrong offset.
+// each, so a plane tops out at 4095 bytes - 819 tiles at five bytes apiece.
+// Neither length is checked before it is packed, so a bigger plane has its
+// length silently truncated: the client is told a length that is short by whole
+// multiples of 4096, and everything after that plane in the buffer is read from
+// the wrong offset.
 //
 // This one cannot be left running even once it is understood, which is why it is
 // commented out rather than asserting the current behaviour. The test client
@@ -232,6 +243,31 @@ endfunction
 //   res := design_is_consistent( ev );
 //   if ( !res )
 //     return res;
+//   endif
+//
+//   // every one of them reached the client
+//   var stacked := design_tiles_at( ev, CH_ROOF, 0, 0 ).size();
+//   if ( stacked != CH_PLANE_MAX_TILES )
+//     return ret_error( $"the client was sent {stacked} of the stacked tiles" );
+//   endif
+//
+//   // no plane claims a length its header cannot carry, and the storey they went
+//   // on needed more than one plane of its own
+//   var oversized := 0;
+//   var on_that_floor := 0;
+//   foreach plane in ( ev.planes )
+//     if ( CInt( plane.ulen ) > CH_PLANE_MAX_LEN or CInt( plane.clen ) > CH_PLANE_MAX_LEN )
+//       oversized := oversized + 1;
+//     endif
+//     if ( CInt( plane.index ) == CH_PLANE_INDEX_Z1 )
+//       on_that_floor := on_that_floor + 1;
+//     endif
+//   endforeach
+//   if ( oversized )
+//     return ret_error( $"{oversized} planes are longer than a plane header describes" );
+//   endif
+//   if ( on_that_floor < 2 )
+//     return ret_error( $"the oversized storey went out in {on_that_floor} planes" );
 //   endif
 //
 //   return quit_design( 0 );
