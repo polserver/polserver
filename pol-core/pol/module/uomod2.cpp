@@ -2576,6 +2576,9 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     return new BError( "Invalid parameter type" );
   }
+  if ( !chr->has_active_client() )
+    return new BError( "No client attached." );
+
   if ( !chr->client->acctSupports( Plib::ExpansionVersion::AOS ) )
     return new BError( "Charater does not have AOS enabled." );
 
@@ -2589,11 +2592,11 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   if ( !house->IsCustom() )
     return new BError( "Not a Custom House." );
 
-  if ( house->editing )
-    return new BError( "House currently being customized." );
-
   if ( house->IsWaitingForAccept() )
     return new BError( "House currently being waiting for a commit" );
+
+  if ( house->editing )
+    return new BError( "House currently being customized." );
 
   if ( chr->realm()->find_supporting_multi( chr->pos3d() ) != house )
     return new BError( "You must be inside the house to customize it." );
