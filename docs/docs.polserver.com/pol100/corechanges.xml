@@ -10,7 +10,7 @@
 			<author>Turley:</author>
 			<change type="Fixed">several ways to crash the shard in CustomHouses</change>
 			<change type="Fixed">the wrong revision was send after erase and clear</change>
-			<change type="Changed">if no misc/customhousecommit.src exists but CloseCustomHouse hook its called when the client commits.</change>
+			<change type="Changed">syshook CloseCustomHouse now also gets called when the client commits, if no misc/customhousecommit.src exists</change>
 		</entry>
 		<entry>
 			<date>08-02-2026</date>
