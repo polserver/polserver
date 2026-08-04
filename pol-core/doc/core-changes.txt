@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+08-03-2026 Turley:
+    Fixed: several ways to crash the shard in CustomHouses
+    Fixed: the wrong revision was send after erase and clear
+  Changed: if no misc/customhousecommit.src exists but CloseCustomHouse hook its called when the client commits.
 08-02-2026 Turley:
     Fixed: PacketHook with SubCommandOffset where the packet was too short, its now handled by the parent hook or default handler.
     Fixed: several out-of-bounds reads in packet scriptobjects
