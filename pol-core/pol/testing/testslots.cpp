@@ -111,10 +111,10 @@ void container_slot_test()
     UnitTest( [&]() { return cont->can_add_to_slot( wanted ); }, true, "can_add_to_slot agrees" );
     UnitTest( [&]() { return wanted; }, u8( 4 ), "and reports the slot it reserved" );
 
-    (void)Items::relocate( *first, Items::Destroyed{} );
-    (void)Items::relocate( *second, Items::Destroyed{} );
-    (void)Items::relocate( *third, Items::Destroyed{} );
-    (void)Items::relocate( *cont, Items::Destroyed{} );
+    first->destroy();
+    second->destroy();
+    third->destroy();
+    cont->destroy();
   }
 
   // A free slot is one nothing sits in, whichever order the container stores its contents.
@@ -128,9 +128,9 @@ void container_slot_test()
     UnitTest( [&]() { return cont->is_slot_empty( found ); }, true,
               "the slot the allocator hands out is actually empty" );
 
-    (void)Items::relocate( *a, Items::Destroyed{} );
-    (void)Items::relocate( *b, Items::Destroyed{} );
-    (void)Items::relocate( *cont, Items::Destroyed{} );
+    a->destroy();
+    b->destroy();
+    cont->destroy();
   }
 
   // Asking past the container's ceiling is refused rather than clamped.
@@ -140,7 +140,7 @@ void container_slot_test()
     UnitTest( [&]() { return cont->can_add_to_slot( too_high ); }, true,
               "the last slot is usable -- slots count from one" );
 
-    (void)Items::relocate( *cont, Items::Destroyed{} );
+    cont->destroy();
   }
 
   // A container with no room left says so. can_add_to_slot used to fall through to "yes" when the
@@ -157,9 +157,9 @@ void container_slot_test()
     UnitTest( [&]() { return cont->can_add_to_slot( wanted ); }, false,
               "a container whose slots are all taken has no room for another" );
 
-    (void)Items::relocate( *a, Items::Destroyed{} );
-    (void)Items::relocate( *b, Items::Destroyed{} );
-    (void)Items::relocate( *cont, Items::Destroyed{} );
+    a->destroy();
+    b->destroy();
+    cont->destroy();
   }
 
   // The slot survives a save. It was never written before, so every arrangement a player made
@@ -178,9 +178,9 @@ void container_slot_test()
     UnitTest( [&]() { return loaded->slot_index(); }, u8( 9 ),
               "and the loader puts it back in the slot the save recorded" );
 
-    (void)Items::relocate( *item, Items::Destroyed{} );
-    (void)Items::relocate( *loaded, Items::Destroyed{} );
-    (void)Items::relocate( *cont, Items::Destroyed{} );
+    item->destroy();
+    loaded->destroy();
+    cont->destroy();
   }
 
   // Nothing new lands in the save file for a shard that does not use slots, which is what keeps
@@ -193,8 +193,8 @@ void container_slot_test()
     UnitTest( [&]() { return saved_properties_of( item ).find( "SlotIndex" ) == npos; }, true,
               "with slots off no SlotIndex is written" );
 
-    (void)Items::relocate( *item, Items::Destroyed{} );
-    (void)Items::relocate( *cont, Items::Destroyed{} );
+    item->destroy();
+    cont->destroy();
     Core::settingsManager.ssopt.use_slot_index = true;
   }
 
@@ -219,8 +219,8 @@ void container_slot_test()
         },
         false, "one past the last is refused" );
 
-    (void)Items::relocate( *item, Items::Destroyed{} );
-    (void)Items::relocate( *cont, Items::Destroyed{} );
+    item->destroy();
+    cont->destroy();
   }
 }
 }  // namespace Pol::Testing

@@ -46,7 +46,7 @@ Items::Item* item_in_world( const Core::Pos4d& p )
 
 void discard( Items::Item* item )
 {
-  (void)Items::relocate( *item, Items::Destroyed{} );
+  item->destroy();
 }
 }  // namespace
 

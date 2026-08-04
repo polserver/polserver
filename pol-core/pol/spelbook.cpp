@@ -317,10 +317,20 @@ void Spellbook::calc_current_bitwise_contents()
     bitwise_contents[( spellnum - 1 ) >> 3] |= 1 << ( spellslot - 1 );
   }
 
-  // ok, it's been upgraded. Destroy everything inside it.
-  for ( auto scroll : *this )
+  // ok, it's been upgraded. Destroy everything inside it. Each scroll takes itself out of the book
+  // on the way, so no iterator survives across the destruction.
+  while ( !contents_.empty() )
   {
+    Items::Item* scroll = contents_.back();
+    Items::detach( *scroll );
     scroll->destroy();
+
+    if ( !contents_.empty() && contents_.back() == scroll )
+    {
+      POLLOG_ERRORLN( "spellbook {:#x} would not release scroll {:#x} ({})", serial, scroll->serial,
+                      scroll->location().describe() );
+      break;
+    }
   }
 }
 

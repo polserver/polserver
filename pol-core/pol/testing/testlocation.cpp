@@ -119,8 +119,7 @@ void location_test()
   // logs once per turn -- which is how this went from a stale field to an unusable machine.
   {
     auto* item = item_in_world( ITEM_OBJTYPE, spot );
-    UnitTest( [&]() { return relocate( *item, Items::Destroyed{} ); }, true,
-              "destroying a world item succeeds" );
+    item->destroy();
     UnitTest( [&]() { return occurrences( realm, spot.xy(), item ); }, size_t( 0 ),
               "destroying a world item clears its zone entry" );
   }
@@ -150,26 +149,29 @@ void location_test()
     UnitTest( [&]() { return item->container() == nullptr; }, true,
               "and it names no container any more" );
 
-    (void)relocate( *item, Items::Destroyed{} );
-    (void)relocate( *cont, Items::Destroyed{} );
+    item->destroy();
+    cont->destroy();
   }
 
-  // destroying through relocate() unlinks first, which is what the container-move paths get wrong
+  // destroying unlinks first, which is what the container-move paths get wrong: the container's
+  // entry is a plain pointer, so an item left in it is freed by Reap with the entry still there
   {
     auto* cont = container_in_world( spot );
     auto* item = Items::Item::create( ITEM_OBJTYPE );
     (void)relocate( *item, Items::InContainer{ cont, Core::Pos2d( 1, 1 ), 0 } );
 
-    UnitTest( [&]() { return relocate( *item, Items::Destroyed{} ); }, true,
-              "relocate to Destroyed succeeds" );
+    item->destroy();
     UnitTest( [&]() { return cont->count(); }, 0u,
               "the container no longer references the destroyed item" );
     UnitTest( [&]() { return item->location().holds<Items::Destroyed>(); }, true,
               "the location reports Destroyed" );
     UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, false,
               "Destroyed is terminal" );
+    UnitTest( [&]() { return relocate( *cont, Items::Destroyed{} ); }, false,
+              "and is not somewhere an item can be moved to" );
 
-    (void)relocate( *cont, Items::Destroyed{} );
+    item->destroy();  // twice, deliberately: an item already gone has nothing left to leave
+    cont->destroy();
   }
 
   // storage roots carry their key, because the area alone cannot find them again
@@ -192,7 +194,7 @@ void location_test()
     UnitTest( [&]() { return area.find_root_item( name ) == nullptr; }, true,
               "leaving storage unlinks it from the area" );
 
-    (void)relocate( *item, Items::Destroyed{} );
+    item->destroy();
   }
 
   // rejections, each of which must leave the item exactly as it was
@@ -234,7 +236,7 @@ void location_test()
               "relocating to the location it already has is a no-op success" );
 
     inner->destroy();
-    (void)relocate( *outer, Items::Destroyed{} );
+    outer->destroy();
   }
 
   // the read-only views keep today's meaning for the states that have no container or layer
@@ -244,7 +246,7 @@ void location_test()
               "InWorld has no container" );
     UnitTest( [&]() { return item->location().layer(); }, u8( 0 ), "InWorld has no layer" );
     UnitTest( [&]() { return item->location().slot(); }, u8( 0 ), "InWorld has no slot" );
-    (void)relocate( *item, Items::Destroyed{} );
+    item->destroy();
   }
 
   // move_into() claims the slot and inserts as one step, and takes the claim back if the insert is
@@ -275,8 +277,8 @@ void location_test()
               "a refused move_into puts the slot index back" );
 
     use_slots = slots_were;
-    (void)relocate( *item, Items::Destroyed{} );
-    (void)relocate( *cont, Items::Destroyed{} );
+    item->destroy();
+    cont->destroy();
   }
 
   // Intrinsic equipment: shared, never worn, and the one population that stays serial-less until

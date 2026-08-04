@@ -1589,27 +1589,29 @@ void destroy_item( Item* item )
   {
     POLLOG_ERRORLN( "destroy {}: {}, orphan! (old serial: {:#x})", item->description(),
                     item->classname(), ( cfBEu32( item->serial_ext ) ) );
+    return;
   }
 
-  if ( item->serial != 0 )
-  {
-    item->set_dirty();
+  item->set_dirty();
+  send_remove_object_to_inrange( item );
 
-    // clear before leaving world calls it, no need to inform control script
-    item->clear_opponents( false );
+  // Refreshing the carrier's status bar is two halves that want opposite orderings: who to tell can
+  // only be found by walking up out of the item's container, and what to tell them -- the packet
+  // carries chr->weight(), read as it is sent -- is only true once the item has left it.
+  //
+  // UContainer::remove() already does both, in that order, for anything leaving a container. Worn
+  // items go out through RemoveItemFromLayer instead, which has no such step, so equipment is the
+  // one case where destroying something a character carried left their weight unrefreshed.
+  Character* carrier =
+      item->location().holds<Items::Equipped>() ? item->GetCharacterOwner() : nullptr;
 
-    send_remove_object_to_inrange( item );
+  item->destroy();
 
-    // Leaving whatever home the item is in and the destruction itself are one step. A null
-    // container used to be read as "on the ground", which is also what a storage root, an item
-    // part-way through an equip and a freshly created item all look like; and the cursor case
-    // destroyed the item while the character kept holding a ticket for it.
-    if ( !Items::relocate( *item, Items::Destroyed{} ) )
-      item->destroy();  // there is no home relocate refuses to leave, but destroy() is the promise
-  }
+  if ( carrier != nullptr && carrier->client != nullptr )
+    send_full_statmsg( carrier->client, carrier );
 }
 
-bool destroy_item_with_script_check( Items::Item* item )
+bool try_destroy_item( Items::Item* item )
 {
   const ItemDesc& id = find_itemdesc( item->objtype_ );
   if ( !id.destroy_script.empty() )
@@ -1618,9 +1620,14 @@ bool destroy_item_with_script_check( Items::Item* item )
         run_script_to_completion( id.destroy_script, new Module::EItemRefObjImp( item ) ) );
     if ( !res.isTrue() )
       return false;
+    // The script runs to completion and is free to dispose of the item itself, which is a
+    // destruction that succeeded rather than one still to do.
+    if ( item->orphan() )
+      return true;
   }
   UpdateCharacterOnDestroyItem( item );
-  UpdateCharacterWeight( item );
+  if ( item->orphan() )  // and so are the unequip scripts that just ran
+    return true;
   destroy_item( item );
   return true;
 }
@@ -1650,7 +1657,7 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
   update_item_to_inrange( item );
 
   // DAVE added this 11/17: if in a Character's pack, update weight.
-  UpdateCharacterWeight( item );
+  refresh_owner_statbar( item );
 }
 
 
@@ -1969,7 +1976,7 @@ void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_b
       } );
 }
 
-Character* UpdateCharacterWeight( Item* item )
+Character* refresh_owner_statbar( Item* item )
 {
   Character* chr_owner = item->GetCharacterOwner();
   if ( chr_owner != nullptr && chr_owner->client != nullptr )
@@ -1989,6 +1996,10 @@ void UpdateCharacterOnDestroyItem( Item* item )
     // so the layer check that used to precede it could never say anything new.
     if ( chr_owner->is_equipped( item ) )
     {
+      // Both of these can refuse, and both refusals are deliberately ignored: here the scripts are
+      // being told the item is coming off, not asked. Getting rid of the item is already the
+      // shard's decision to make -- try_destroy_item() ran its destroy script first, and that is
+      // the veto. A second one would let an item nobody can take off be an item nobody can delete.
       item->check_unequiptest_scripts();
       item->check_unequip_script();
       send_remove_object_to_inrange( item );

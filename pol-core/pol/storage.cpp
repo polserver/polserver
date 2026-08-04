@@ -40,6 +40,9 @@ StorageArea::~StorageArea()
   {
     Cont::iterator itr = _items.begin();
     Items::Item* item = ( *itr ).second;
+    // The area is being torn down, so the item has nothing to be removed from; it must not go
+    // looking for the map this loop is emptying.
+    Items::abandon( *item );
     item->destroy();
     _items.erase( itr );
   }
@@ -68,8 +71,10 @@ bool StorageArea::delete_root_item( const std::string& name )
   if ( itr != _items.end() )
   {
     Items::Item* item = ( *itr ).second;
+    // The area outlives the item, so the item really does leave it -- and taking it out is what
+    // erases the entry, which is why nothing is erased here.
+    Items::detach( *item );
     item->destroy();
-    _items.erase( itr );
     return true;
   }
   return false;

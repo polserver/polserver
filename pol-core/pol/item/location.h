@@ -232,6 +232,29 @@ private:
 };
 
 /**
+ * Take the item out of whatever registry it is currently filed in, leaving it Detached.
+ *
+ * This is the half of relocate() that has no destination: it is what destruction needs, and what a
+ * caller that is about to re-home an item by hand needs. Doing nothing is a valid outcome -- an
+ * item that is Preparing, already Detached, or destroyed has no registry to leave -- so calling it
+ * twice, or on an item a script has already disposed of, is harmless.
+ */
+void detach( Item& item );
+
+/**
+ * Forget where the item is without touching the registry that holds it.
+ *
+ * Only for the case where that registry is itself being torn down: a container destroying its
+ * contents, a storage area being deleted, the shutdown sweep clearing a realm's zones. There is
+ * nothing to unlink from, and unlinking would mean walking a list that is being cleared out from
+ * underneath -- or, for worn items, running the unequip bookkeeping of a character that is already
+ * half destroyed.
+ *
+ * Anywhere the owner survives the item, use detach().
+ */
+void abandon( Item& item );
+
+/**
  * Move an item to a new home, maintaining every registry that home implies.
  *
  * The target is validated completely before anything is touched, so a rejected move leaves the

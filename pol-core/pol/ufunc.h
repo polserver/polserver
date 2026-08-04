@@ -208,8 +208,22 @@ void send_char_data( Network::Client* client, Mobile::Character* chr );
 void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen );
 void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen );
 
+/**
+ * The two outer rungs of destroying an item. Each does everything the one below it does, so they
+ * differ only in how far the news travels -- not in whether the item is properly taken apart:
+ *
+ *   item->destroy()      the item leaves every registry holding it, and ends
+ *   destroy_item()       + the clients that could see it are told, and its owner's stat bar
+ *   try_destroy_item()   + the shard gets a say: it can refuse, and its unequip scripts run
+ *
+ * Pick by how public the destruction is. The line that matters is between the second and the
+ * third: only try_destroy_item() runs eScript, so only try_destroy_item() can re-enter the core
+ * and dispose of the item -- or of anything near it -- before it returns.
+ */
 void destroy_item( Items::Item* item );
-bool destroy_item_with_script_check( Items::Item* item );
+
+/// @returns false, having destroyed nothing, if the item's destroy script refused.
+[[nodiscard]] bool try_destroy_item( Items::Item* item );
 
 void move_item( Items::Item* item, const Core::Pos4d& oldpos );
 
@@ -239,7 +253,17 @@ void send_multis_newly_inrange( Multi::UMulti* multi, Network::Client* client );
 
 void register_with_supporting_multi( Items::Item* item );
 
-Mobile::Character* UpdateCharacterWeight( Items::Item* item );
+/**
+ * Redraw the status bar of whoever is carrying this item, if they are a player and are online.
+ *
+ * Computes nothing: the weight in the packet is read from the character as it is written, so this
+ * has to be called *after* whatever changed it, and the item has to still be in that character's
+ * possession for them to be found at all. Where those two pull apart -- destroying the item -- use
+ * the returned character to send afterwards instead.
+ *
+ * @returns the character told, or null if nobody was.
+ */
+Mobile::Character* refresh_owner_statbar( Items::Item* item );
 void UpdateCharacterOnDestroyItem( Items::Item* item );
 bool clientHasCharacter( Network::Client* c );
 void login_complete( Network::Client* c );

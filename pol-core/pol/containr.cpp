@@ -89,6 +89,10 @@ void UContainer::destroy_contents()
     Contents::value_type item = contents_.back();
     if ( item != nullptr )  // this is really only for wornitems.
     {
+      // The container is going with them, so there is nothing to be taken out of. Letting each
+      // item unlink itself would mean erasing from the vector this loop is walking -- and for a
+      // character's worn items, running unequip on a character that is already being destroyed.
+      Items::abandon( *item );
       item->destroy();
     }
     contents_.pop_back();

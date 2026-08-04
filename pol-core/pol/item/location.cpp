@@ -164,6 +164,12 @@ bool validate( const Item& item, const Location& from, const Location& to )
   if ( to.holds<Preparing>() )
     return reject( item, from, to, "an item cannot go back to being under construction" );
 
+  // Destruction is not a move. It is the one transition with no destination -- Item::destroy()
+  // leaves every registry and then ends the item -- and Destroyed is derived from orphan() rather
+  // than stored, so there would be nothing here to write anyway.
+  if ( to.holds<Destroyed>() )
+    return reject( item, from, to, "an item is destroyed rather than moved there" );
+
   if ( to.holds<Intrinsic>() && !from.holds<Preparing>() )
     return reject( item, from, to, "only a freshly built item can become intrinsic equipment" );
 
@@ -296,10 +302,19 @@ void attach( Item& item, const Location& to )
     on_corpse->corpse->add_rendered_item( &item, on_corpse->grid );
   else if ( const auto* in_storage = to.get_if<InStorage>() )
     in_storage->area->insert_root_item( &item );
-  else if ( to.holds<Destroyed>() )
-    item.destroy();
 }
 }  // namespace
+
+void abandon( Item& item )
+{
+  item.set_location( Detached{} );
+}
+
+void detach( Item& item )
+{
+  detach( item, item.location() );
+  abandon( item );
+}
 
 /**
  * The loader's entry point is the primitive one, because it wants strictly less: it is relocate()
@@ -343,14 +358,19 @@ bool relocate_loaded( Item& item, Location to )
     ticket = Core::GottenItem::for_item( &item );
 
   detach( item, from );
+  // Between the two halves the item is genuinely nowhere, and it has to say so: attach() asks the
+  // item where it is -- registering with a supporting multi tests its container -- and anything a
+  // registry runs on the way in can ask too. Four of detach()'s branches already left Detached
+  // behind, by way of UContainer::remove and RemoveItemFromLayer; leaving the world and leaving a
+  // storage area did not.
+  abandon( item );
 
   if ( to_cursor != nullptr )
   {
     attach_to_cursor( item, *to_cursor->holder, ticket );
-    // Not OnCursor: the cursor is derived from the gotten_by link, so storing it as well would give
-    // location() two answers that can disagree. What is true of the registries is that the item has
-    // left all of them.
-    item.set_location( Detached{} );
+    // The location stays Detached. OnCursor is derived from the gotten_by link, so storing it as
+    // well would give location() two answers that can disagree; what is true of the registries is
+    // that the item has left all of them, which is what the detach above already recorded.
   }
   else
   {

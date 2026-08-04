@@ -326,6 +326,7 @@ private:
   // callers that equip without asking whether the character could.
   friend bool relocate( Item& item, Location to );
   friend bool relocate_loaded( Item& item, Location to );
+  friend void abandon( Item& item );
   friend class Core::UContainer;
   friend class Core::WornItemsContainer;
 

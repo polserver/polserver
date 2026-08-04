@@ -1404,7 +1404,7 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
 
     increv_send_object_recursive();
 
-    UpdateCharacterWeight( this );
+    refresh_owner_statbar( this );
     return new Double( weight_multiplier_mod() );
     break;
   }
@@ -1554,7 +1554,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           return new BError( "Could not insert new stack into container" );
         }
         update_item_to_inrange( new_stack );
-        UpdateCharacterWeight( new_stack );
+        refresh_owner_statbar( new_stack );
         newcontainer->on_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
       }
 
@@ -1591,7 +1591,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       }
       new_stack->setamount( amt );
       update_item_to_inrange( new_stack );
-      UpdateCharacterWeight( new_stack );
+      refresh_owner_statbar( new_stack );
       newcontainer->on_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
 
       if ( amt == item_amount )
@@ -1625,7 +1625,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       existing_stack->add_to_self( new_stack );
       update_item_to_inrange( existing_stack );
 
-      UpdateCharacterWeight( existing_stack );
+      refresh_owner_statbar( existing_stack );
 
       newcontainer->on_insert_increase_stack( nullptr, Core::UContainer::MT_CORE_MOVED,
                                               existing_stack, amount );
@@ -3653,7 +3653,7 @@ Bscript::BObjectImp* UContainer::set_script_member_id_double( const int id, doub
 
     increv_send_object_recursive();
 
-    UpdateCharacterWeight( this );
+    refresh_owner_statbar( this );
 
     return new Double( held_weight_multiplier() );
   }

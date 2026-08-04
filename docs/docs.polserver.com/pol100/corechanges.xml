@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-03-2026</datemodified>
+		<datemodified>08-04-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-04-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">Destroying a piece of equipment a character was wearing left their status window<br/>
+showing the old weight. Items destroyed out of a container were already refreshed;<br/>
+worn ones were not, and where a refresh was sent it went out before the item had<br/>
+gone, so it repeated the weight it was meant to correct.</change>
+		</entry>
 		<entry>
 			<date>08-03-2026</date>
 			<author>Nando:</author>

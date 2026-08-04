@@ -387,7 +387,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         item->setamount( static_cast<unsigned short>( newamount ) );
 
         update_item_to_inrange( item );
-        UpdateCharacterWeight( item );
+        refresh_owner_statbar( item );
 
         // FIXME again, this makes no sense, item is already in the container.
         cont->on_insert_increase_stack( chr_owner, UContainer::MT_CORE_CREATED, item, amount );
@@ -470,7 +470,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
 
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert
-      UpdateCharacterWeight( item );
+      refresh_owner_statbar( item );
 
       cont->on_insert_add_item( chr_owner, UContainer::MT_CORE_CREATED, item );
       if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -1388,7 +1388,7 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
     update_item_to_inrange( item );
 
     // DAVE added this 12/05: if in a Character's pack, update weight.
-    UpdateCharacterWeight( item );
+    refresh_owner_statbar( item );
 
     return new EItemRefObjImp( item );
   }
@@ -2632,7 +2632,7 @@ BObjectImp* UOExecutorModule::mf_DestroyItem()
     else if ( item->script_isa( POLCLASS_MULTI ) )
       return new BError( "That item is a multi. Use uo::DestroyMulti instead." );
 
-    if ( destroy_item_with_script_check( item ) )
+    if ( try_destroy_item( item ) )
       return new BLong( 1 );
     return new BLong( 0 );
   }
@@ -3339,7 +3339,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 
     update_item_to_inrange( item );
     // DAVE added this 11/17: if in a Character's pack, update weight.
-    UpdateCharacterWeight( item );
+    refresh_owner_statbar( item );
 
     cont->on_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item );
     if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -3353,7 +3353,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
     true_extricate( item );
     existing_stack->add_to_self( item );
     update_item_to_inrange( existing_stack );
-    UpdateCharacterWeight( existing_stack );
+    refresh_owner_statbar( existing_stack );
 
     cont->on_insert_increase_stack( chr_owner, UContainer::MT_CORE_MOVED, existing_stack, amount );
   }

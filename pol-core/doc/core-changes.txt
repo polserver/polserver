@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+08-04-2026 Nando:
+    Fixed: Destroying a piece of equipment a character was wearing left their status window
+           showing the old weight. Items destroyed out of a container were already refreshed;
+           worn ones were not, and where a refresh was sent it went out before the item had
+           gone, so it repeated the weight it was meant to correct.
 08-03-2026 Nando:
     Added: corpse.equipped_items, the items a corpse is shown wearing, in layer order. This
            is the same set the client is sent, so a script and a player looking at the corpse

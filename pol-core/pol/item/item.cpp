@@ -1427,7 +1427,9 @@ u16 Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damag
   {
     if ( has_gotten_by() )
       gotten_by()->clear_gotten_item();
-    Core::destroy_item_with_script_check( this );
+    // The shard's destroy script can refuse, and nothing here can do anything about it: the item
+    // simply stays where it is with no hit points left, and the next hit asks again.
+    (void)Core::try_destroy_item( this );
   }
   return damage;
 }
@@ -1619,7 +1621,13 @@ void Item::clear_opponents( bool inform_opponents )
 
 void Item::destroy()
 {
+  // Before the item leaves the world, so that the opponents it is disengaging from can still be
+  // found through it.
   clear_opponents( false );
-  base::destroy();
+  // Leaving whatever home the item is in and the end of the item are one step. Split apart, they
+  // are the shape that leaves a destroyed item filed in a container: the container's entry is a
+  // plain pointer, so Reap frees the item and the entry stays behind.
+  detach( *this );
+  mark_orphan();
 }
 }  // namespace Pol::Items
