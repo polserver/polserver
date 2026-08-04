@@ -117,6 +117,7 @@ program tests()
     if ( integ.violations )
       syslog( $"  !! {integ.violations} item integrity violations, {integ.checks} checks", 0,
               CONSOLE_COLOR_RED );
+      exitcode := 1;
     else
       syslog( $"  item integrity ok, {integ.checks} checks", 0, CONSOLE_COLOR_GREEN );
     endif
