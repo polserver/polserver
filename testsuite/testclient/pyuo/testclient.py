@@ -349,6 +349,10 @@ class PolServer:
     elif ev.type==Event.EVT_REMOVED_OBJ:
       res["serial"]=ev.serial
       res["oldpos"]=ev.oldpos
+    elif ev.type==Event.EVT_OUT_OF_RANGE_OBJ:
+      res["serial"]=ev.serial
+      res["pos"]=ev.pos
+      res["playerpos"]=ev.playerpos
     elif ev.type==Event.EVT_LIST_OBJS:
       res["objs"]=[]
       for _,o in ev.objs.items():

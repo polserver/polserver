@@ -150,6 +150,7 @@ class Event:
   EVT_STATUS_BAR = 19
   EVT_TRADE = 20
   EVT_CLILOC = 21
+  EVT_OUT_OF_RANGE_OBJ = 22
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -200,6 +201,8 @@ class Event:
       return "new_item"
     elif self.type==Event.EVT_REMOVED_OBJ:
       return "removed_obj"
+    elif self.type==Event.EVT_OUT_OF_RANGE_OBJ:
+      return "out_of_range_obj"
     elif self.type==Event.EVT_EXIT:
       return "exit"
     elif self.type==Event.EVT_LIST_OBJS:

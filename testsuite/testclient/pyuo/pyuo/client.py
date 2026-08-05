@@ -1185,6 +1185,12 @@ class Client(threading.Thread):
       item = Item(self, pkt)
       if not self.player.inRange(item):
         self.log.info("Ignore out of range item %s (self: %s)", item, self.player)
+        # Reported rather than only logged: being told about an object that is nowhere near us is
+        # a server-side mistake, and a test has no other way to see it -- the object is dropped
+        # here, so it never reaches self.objects or list_objects.
+        self.brain.event(brain.Event(brain.Event.EVT_OUT_OF_RANGE_OBJ, serial=item.serial,
+                                     pos=[item.x,item.y,item.z],
+                                     playerpos=[self.player.x,self.player.y,self.player.z]))
         return
       if not self.disable_item_logging:
         self.log.info("New item: %s", item)

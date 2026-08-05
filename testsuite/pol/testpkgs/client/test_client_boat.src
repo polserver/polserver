@@ -636,3 +636,65 @@ exported function boat_update_range_from_boat( resmgn )
   return 1;
 endfunction
 
+
+// A traveller that has left the boat must stop being drawn with it.
+//
+// This has to be checked through a client, because nothing on the server side will admit to the
+// problem: boat.items and every internal walk of the traveller list re-test whether the object is
+// still aboard and skip it if not, and moving the boat drops the stale entry on its way past. The
+// 0xF7 boat packet is the one reader with no such check, so a registration that outlives the item's
+// departure shows up there -- as an item announced to everyone near the boat, wherever in the world
+// it has actually gone.
+exported function boat_forgets_moved_item()
+  MoveBoatXY( boat, 10, 50 );
+  var h := getstandingheight( 11, 50, boat.z, boat.realm );
+  MoveObjectToLocation( char, 11, 50, h.z );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+
+  var item := CreateItemAtLocation( 11, 50, h.z, 0x3e3f, 1, boat.realm );
+  if ( !item )
+    return ret_error( "Failed to create item {}".format( item ) );
+  endif
+
+  // Far enough away that the client has no other reason to hear about it, and far enough that the
+  // move itself tells the client to forget it.
+  var moveres := MoveObjectToLocation( item, 100, 100, 0, flags := MOVEITEM_IGNOREMOVABLE );
+  if ( !moveres )
+    DestroyItem( item );
+    return ret_error( "Failed to move the item off the boat: {}".format( moveres ) );
+  endif
+  Clear_Event_Queue();
+
+  // Recolouring redraws the boat and everything travelling with it without moving it. Moving it
+  // would clear the stale entry on the way past and hide the very thing under test.
+  boat.color := 0x02;
+
+  // The client throws away anything described to it that is out of its range, so the arrival of the
+  // stray item cannot be seen in its object list -- only in the report that it was thrown away.
+  // list_objects is asked for afterwards purely as a fence: the answer to it cannot arrive before
+  // the packets sent ahead of it have been processed.
+  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
+  var res := 1;
+  while ( 1 )
+    var ev := waitForClient( 0, { EVT_LIST_OBJS, EVT_OUT_OF_RANGE_OBJ } );
+    if ( !ev )
+      DestroyItem( item );
+      return ev;
+    endif
+    if ( ev.type == EVT_LIST_OBJS )
+      break;
+    endif
+    if ( CInt( ev.serial ) == item.serial )
+      res := ret_error( "the boat still draws an item it no longer carries, at {}".format(
+                        ev.pos ) );
+    endif
+  endwhile
+
+  DestroyItem( item );
+  MoveObjectToLocation( char, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+  endwhile
+  Clear_Event_Queue();
+  return res;
+endfunction
