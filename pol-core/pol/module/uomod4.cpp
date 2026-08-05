@@ -56,8 +56,8 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
     return internal_MoveBoat( static_cast<Multi::UBoat*>( obj ), pos, flags );
   if ( obj->script_isa( POLCLASS_MULTI ) )
     return new BError( "Can't move multis at this time." );
-  if ( obj->script_isa( POLCLASS_CONTAINER ) )
-    return internal_MoveContainer( static_cast<UContainer*>( obj ), pos, flags );
+  // Containers used to be their own case, for a hand-written pass that pushed a realm change down
+  // to their contents. Placing an item does that now, so a container moves like any other item.
   if ( obj->script_isa( POLCLASS_ITEM ) )
     return internal_MoveItem( static_cast<Item*>( obj ), pos, flags );
   return new BError( "Can't handle that object type." );
@@ -101,24 +101,6 @@ BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, const Core:
     return new BError( "Boat does not fit into map" );
   bool ok = boat->move_to( newpos, flags );
   return new BLong( ok );
-}
-
-BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container,
-                                                      const Core::Pos4d& newpos, int flags )
-{
-  Realms::Realm* newrealm = newpos.realm();
-  Realms::Realm* oldrealm = container->realm();
-
-  BObjectImp* ok = internal_MoveItem( static_cast<Item*>( container ), newpos, flags );
-  // Check if container was successfully moved to a new realm and update contents.
-  if ( !ok->isa( BObjectImp::OTError ) )
-  {
-    // TODO POS should be removed
-    if ( newrealm != nullptr && oldrealm != newrealm )
-      container->for_each_item( setrealm, (void*)newrealm );
-  }
-
-  return ok;
 }
 
 BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos, int flags )

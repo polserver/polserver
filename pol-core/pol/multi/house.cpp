@@ -190,10 +190,9 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
                     item->serial, serial );
     return false;
   }
-  item->setposition( Core::Pos4d( newx, newy, newz, realm() ) );
   item->disable_decay();
   item->movable( false );
-  if ( !Items::relocate( *item, Items::InWorld{} ) )
+  if ( !Items::place_at( *item, Core::Pos4d( newx, newy, newz, realm() ) ) )
     return false;
   update_item_to_inrange( item );
   add_component_no_check( Component( item ) );

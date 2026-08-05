@@ -780,8 +780,7 @@ void UContainer::spill_contents()
       destroy_item( item );
     else
     {
-      item->setposition( toplevel_pos() );
-      if ( Items::relocate( *item, Items::InWorld{} ) )
+      if ( Items::place_at( *item, toplevel_pos() ) )
         send_item_moved( item, item->pos() );
       else
         destroy_item( item );

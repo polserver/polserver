@@ -1459,8 +1459,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           new_stack = this->clone();
         else
           new_stack = this->remove_part_of_stack( 1 );
-        new_stack->setposition( newpos );
-        if ( Items::relocate( *new_stack, Items::InWorld{} ) )
+        if ( Items::place_at( *new_stack, newpos ) )
         {
           send_item_moved( new_stack, newpos );
           update_item_to_inrange( new_stack );
@@ -1482,9 +1481,8 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    new_stack->setposition( newpos );
     new_stack->setamount( amt );
-    if ( Items::relocate( *new_stack, Items::InWorld{} ) )
+    if ( Items::place_at( *new_stack, newpos ) )
     {
       send_item_moved( new_stack, newpos );
       update_item_to_inrange( new_stack );
@@ -4743,14 +4741,12 @@ ItemGivenEvent::~ItemGivenEvent()
           update_item_to_inrange( item );
           return;
         }
-        item->setposition( chr->pos() );
-        if ( Items::relocate( *item, Items::InWorld{} ) )
+        if ( Items::place_at( *item, chr->pos() ) )
           send_item_moved( item, item->pos() );
         return;
       }
     }
-    item->setposition( chr->pos() );
-    if ( Items::relocate( *item, Items::InWorld{} ) )
+    if ( Items::place_at( *item, chr->pos() ) )
       send_item_moved( item, item->pos() );
   }
 }

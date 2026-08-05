@@ -210,15 +210,13 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
           // The remainder of the stack has to land somewhere. Besides the slot being unavailable,
           // the OnRemove script above can have destroyed the container out from under us, which
           // relocate refuses -- and used to be an assertion inside UContainer::add.
-          new_item->setposition( client->chr->pos() );
-          if ( Items::relocate( *new_item, Items::InWorld{} ) )
+          if ( Items::place_at( *new_item, client->chr->pos() ) )
             send_item_moved( new_item, orig_toppos );
         }
       }
       else
       {
-        new_item->setposition( orig_pos );
-        if ( Items::relocate( *new_item, Items::InWorld{} ) )
+        if ( Items::place_at( *new_item, orig_pos ) )
           send_item_to_inrange( new_item );
       }
     }
@@ -465,19 +463,10 @@ void GottenItem::undo( Mobile::Character* chr )
     }
   }
 
-  // Last resort - put it on the ground, to players feet in case of error from above.
-  // Recursively update realm if it changed.
-  if ( _item->pos().realm() != realm && _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-  {
-    Core::UContainer* cont = static_cast<Core::UContainer*>( _item );
-    cont->for_each_item( Core::setrealm, realm );
-  }
-
-  _item->setposition( Pos4d( _pos, realm ) );
-
   // Last resort: nowhere else would take it, so the ground has to. Nothing can refuse it here —
-  // the item is detached and the realm above is never null.
-  if ( !Items::relocate( *_item, Items::InWorld{} ) )
+  // the item is detached and the realm above is never null. place_at carries the realm down to the
+  // contents if it changed.
+  if ( !Items::place_at( *_item, Pos4d( _pos, realm ) ) )
     return;
 
   send_item_to_inrange( _item );

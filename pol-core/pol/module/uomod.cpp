@@ -3196,8 +3196,7 @@ void put_item_back( Character& chr, Item& item, const Items::Location& origin )
     return;
   }
 
-  item.setposition( chr.pos() );
-  if ( !Items::relocate( item, Items::InWorld{} ) )
+  if ( !Items::place_at( item, chr.pos() ) )
   {
     POLLOG_ERRORLN( "put_item_back: item {:#x} has nowhere left to go and is now detached.",
                     item.serial );

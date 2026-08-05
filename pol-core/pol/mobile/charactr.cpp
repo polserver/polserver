@@ -2251,8 +2251,7 @@ void Character::die()
     copied_items.push_back( copy );
   };
   auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
-    _item->setposition( corpse->pos() );
-    if ( !Items::relocate( *_item, Items::InWorld{} ) )
+    if ( !Items::place_at( *_item, corpse->pos() ) )
     {
       Core::destroy_item( _item );
       return;

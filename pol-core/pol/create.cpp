@@ -437,8 +437,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
     if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
-      tmpitem->setposition( chr->pos() );
-      if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
+      if ( Items::place_at( *tmpitem, chr->pos() ) )
       {
         // Not a move: it is already where it is going, so this only shows it to everyone standing
         // there.
@@ -785,8 +784,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
     if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
-      tmpitem->setposition( chr->pos() );
-      if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
+      if ( Items::place_at( *tmpitem, chr->pos() ) )
       {
         // Not a move: it is already where it is going, so this only shows it to everyone standing
         // there.
@@ -1169,8 +1167,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
     if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
-      tmpitem->setposition( chr->pos() );
-      if ( Items::relocate( *tmpitem, Items::InWorld{} ) )
+      if ( Items::place_at( *tmpitem, chr->pos() ) )
       {
         // Not a move: it is already where it is going, so this only shows it to everyone standing
         // there.

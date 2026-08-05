@@ -766,6 +766,12 @@ void UBoat::move_travellers( const BoatContext& oldlocation )
     remove_orphans();
 }
 
+/**
+ * The one place that moves an item without going through place_at(), and the only one that should:
+ * cargo riding along with the boat cannot be changing which multi supports it, so asking would cost
+ * a lookup per item per step to be told what is already known. Everything else says where the item
+ * is going and lets place_at() work the rest out.
+ */
 void UBoat::move_boat_item( Items::Item* item, const Core::Pos4d& newpos )
 {
   item->set_dirty();
@@ -1550,14 +1556,13 @@ void UBoat::create_components()
     component->graphic = componentshape.graphic;
     // component itemdesc entries generally have graphic=1, so they don't get their height set.
     component->height = Plib::tileheight( component->graphic );
-    component->setposition( pos() + componentshape.delta );
     component->disable_decay();
     component->movable( false );
 
-    // Listed before it is placed, so that the registration relocate() does recognises it as a
+    // Listed before it is placed, so that the registration place_at() does recognises it as a
     // component of this boat rather than taking it aboard as a traveller.
     Components.emplace_back( component );
-    if ( !Items::relocate( *component, Items::InWorld{} ) )
+    if ( !Items::place_at( *component, pos() + componentshape.delta ) )
     {
       Components.pop_back();
       component->destroy();

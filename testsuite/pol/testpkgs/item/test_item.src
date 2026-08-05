@@ -33,6 +33,44 @@ exported function test_item_realm_move()
   return 1;
 endfunction
 
+exported function test_container_realm_move()
+  // A container used to be its own case in MoveObjectToLocation, so that a hand-written pass could
+  // carry the realm down to its contents afterwards. Placing an item does that now, and a container
+  // moves like anything else -- so this asserts both halves: that it still moves at all, and that
+  // what is inside it comes along.
+  var cont := CreateItemAtLocation( 0, 0, 0, 0x200001 );
+  if ( !cont )
+    return ret_error( $"Failed to create container {cont}" );
+  endif
+
+  var inside := CreateItemInContainer( cont, 0xf3f );
+  if ( !inside )
+    DestroyItem( cont );
+    return ret_error( $"Failed to create item in container {inside}" );
+  endif
+
+  var res := MoveObjectToLocation( cont, 1000, 1000, 0, "britannia2", MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    DestroyItem( cont );
+    return ret_error( $"Failed to move the container: {res}" );
+  endif
+
+  if ( cont.realm != "britannia2" )
+    var err := $"The container did not change realm: {cont.realm}";
+    DestroyItem( cont );
+    return ret_error( err );
+  endif
+
+  if ( inside.realm != "britannia2" )
+    var err := $"The contents were left behind in realm {inside.realm}";
+    DestroyItem( cont );
+    return ret_error( err );
+  endif
+
+  DestroyItem( cont );
+  return 1;
+endfunction
+
 exported function test_item_cursed()
   var cnt := CreateItemAtLocation( 0, 0, 0, 0x200001 );
   if ( !cnt )

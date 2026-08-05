@@ -399,17 +399,7 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos3
   }
 
   item->set_dirty();
-  auto oldrealm = item->realm();  // TODO POS get rid of all the realm for_each
-  item->setposition( tgt.pos() );
-  if ( oldrealm != chr->realm() )
-  {
-    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-    {
-      UContainer* cont = static_cast<UContainer*>( item );
-      cont->for_each_item( setrealm, (void*)chr->realm() );
-    }
-  }
-  if ( !Items::relocate( *item, Items::InWorld{} ) )
+  if ( !Items::place_at( *item, tgt.pos() ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -907,8 +897,7 @@ void return_traded_items( Mobile::Character* chr )
   // has to be emptied either way, so this never gives up on the items behind it.
   auto to_feet = [chr]( Items::Item* item )
   {
-    item->setposition( chr->pos() );
-    if ( Items::relocate( *item, Items::InWorld{} ) )
+    if ( Items::place_at( *item, chr->pos() ) )
       send_item_moved( item, item->pos() );
   };
 
