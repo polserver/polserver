@@ -1,0 +1,298 @@
+// Map::builtin_on_use: the gump packet a map is announced with and the pin
+// stream that follows it. Both are unsolicited and neither is acknowledged, so
+// every case here either reads the packets the use produced or waits out a
+// quiet period proving none were sent.
+//
+// The map objtypes and everything asserted about the pin list itself come from
+// testpkgs/item; this file only covers what goes on the wire.
+
+include "map";
+
+program test_client_map()
+  return map_setup();
+endprogram
+
+// The area and the gump size are plain members, so a map that is used twice
+// describes itself differently the second time.
+exported function map_gump_follows_members( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+
+  client_use_map( mp );
+  var ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.xwest ) != MAP_WEST || CInt( ev.gumpwidth ) != MAP_GUMPWIDTH )
+    return ret_error( $"first use: west {ev.xwest}, gump {ev.gumpwidth}" );
+  endif
+
+  mp.xwest := 150;
+  mp.gumpwidth := 50;
+  client_use_map( mp );
+  ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.xwest ) != 150 )
+    return ret_error( $"second use: west {ev.xwest}, wanted 150" );
+  endif
+  if ( CInt( ev.gumpwidth ) != 50 )
+    return ret_error( $"second use: gump width {ev.gumpwidth}, wanted 50" );
+  endif
+
+  return 1;
+endfunction
+
+// UseItem reaches builtin_on_use without going through the double-click
+// handler, so a script can raise the gump on a client that never asked for it.
+exported function map_use_from_script( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+
+  UseItem( mp, char );
+
+  var ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.gumpheight ) != MAP_GUMPHEIGHT )
+    return ret_error( $"wrong gump height: {ev.gumpheight}" );
+  endif
+
+  var x := world_to_gump( PIN1_X );
+  var y := world_to_gump( PIN1_Y, MAP_NORTH, MAP_SOUTH, MAP_GUMPHEIGHT );
+  var stream := pin_stream( mp );
+  if ( stream != $"5/0:0,0;1/0:{x},{y};" )
+    return ret_error( $"wrong pin stream: {stream}" );
+  endif
+
+  return 1;
+endfunction
+
+// A map that has never been told how big its gump is is not sent at all - the
+// only thing between the client and a division by the gump size.
+exported function map_use_no_gump_size( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn, TESTMAP, 0, 0 );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+
+  client_use_map( mp );
+
+  return no_map_for( 0 );
+endfunction
+
+exported function map_use_sends_gump( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.facetid := 3;
+
+  client_use_map( mp );
+
+  var ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.gumpart ) != MAP_GUMPART )
+    return ret_error( $"wrong gump art: {ev.gumpart}" );
+  endif
+  if ( CInt( ev.xwest ) != MAP_WEST || CInt( ev.ynorth ) != MAP_NORTH )
+    return ret_error( $"wrong north west corner: {ev.xwest},{ev.ynorth}" );
+  endif
+  if ( CInt( ev.xeast ) != MAP_EAST || CInt( ev.ysouth ) != MAP_SOUTH )
+    return ret_error( $"wrong south east corner: {ev.xeast},{ev.ysouth}" );
+  endif
+  if ( CInt( ev.gumpwidth ) != MAP_GUMPWIDTH || CInt( ev.gumpheight ) != MAP_GUMPHEIGHT )
+    return ret_error( $"wrong gump size: {ev.gumpwidth}x{ev.gumpheight}" );
+  endif
+
+  // the facet is only in the packet the newer clients get, and this client is
+  // not one of them - see map_version_switches_packet
+  if ( CInt( ev.facetid ) != 0 )
+    return ret_error( $"the old packet carried facet {ev.facetid}" );
+  endif
+
+  return 1;
+endfunction
+
+// Every pin the map carries follows the gump packet as an add of its own, in
+// list order, after one remove-all that clears whatever the client had. They
+// are gump pixels by then, and they all arrive under index 0 - the client
+// appends rather than placing them.
+exported function map_use_sends_pins( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  mp.appendpin( PIN2_X, PIN2_Y );
+
+  client_use_map( mp );
+
+  var ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+
+  // 160 tiles across an 80 pixel gump, so a pin lands on half its offset
+  var x1 := world_to_gump( PIN1_X );
+  var y1 := world_to_gump( PIN1_Y, MAP_NORTH, MAP_SOUTH, MAP_GUMPHEIGHT );
+  var x2 := world_to_gump( PIN2_X );
+  var y2 := world_to_gump( PIN2_Y, MAP_NORTH, MAP_SOUTH, MAP_GUMPHEIGHT );
+  var stream := pin_stream( mp );
+  if ( stream != $"5/0:0,0;1/0:{x1},{y1};1/0:{x2},{y2};" )
+    return ret_error( $"wrong pin stream: {stream}" );
+  endif
+
+  return 1;
+endfunction
+
+// A map with no pins still clears the client's, so an old map's pins cannot
+// stay on the gump.
+exported function map_use_without_pins( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+
+  client_use_map( mp );
+
+  var ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+
+  var stream := pin_stream( mp );
+  if ( stream != "5/0:0,0;" )
+    return ret_error( $"wrong pin stream: {stream}" );
+  endif
+
+  return 1;
+endfunction
+
+// One gump dimension of zero is enough to refuse the map: converting a pin
+// divides the area by the gump, so an axis with no pixels has nothing to scale
+// by. This used to be sent - the guard only looked for *both* dimensions being
+// zero - and every pin was divided by that zero on the way out.
+exported function map_use_zero_gumpwidth( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn, TESTMAP, 0, MAP_GUMPHEIGHT );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+
+  client_use_map( mp );
+
+  return no_map_for( 0 );
+endfunction
+
+// And the same the other way round: an area that is a line rather than a
+// rectangle has no width to scale onto the gump. This is the one that was
+// undefined rather than merely wrong - the offset of a pin off that line
+// divided by a zero ratio.
+exported function map_use_degenerate_area( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.xeast := MAP_WEST;
+  mp.appendpin( PIN1_X, PIN1_Y );
+
+  client_use_map( mp );
+  res := no_map_for( 0 );
+  if ( !res )
+    return res;
+  endif
+
+  // an area with width but no height is refused just the same
+  mp.xeast := MAP_EAST;
+  mp.ysouth := MAP_NORTH;
+  client_use_map( mp );
+  res := no_map_for( 0 );
+  if ( !res )
+    return res;
+  endif
+
+  return 1;
+endfunction
+
+// From 7.0.13.0 on the core sends 0xF5, which is the same packet with the facet
+// on the end. The version decides it and nothing else does, so this case says
+// which one it is by changing only that - and puts it back afterwards, since
+// every later case in the run shares the client.
+exported function map_version_switches_packet( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.facetid := 3;
+
+  clientcon.sendevent( struct{ todo := "client_version", arg := VERSION_NEW, id := 0 } );
+  client_use_map( mp );
+  var ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.facetid ) != 3 )
+    return ret_error( $"the new packet carried facet {ev.facetid}, wanted 3" );
+  endif
+
+  // and back down, which is both the restore and the proof that the version is
+  // what decided it
+  clientcon.sendevent( struct{ todo := "client_version", arg := VERSION_OLD, id := 0 } );
+  client_use_map( mp );
+  ev := wait_for_map( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.facetid ) != 0 )
+    return ret_error( $"the old packet carried facet {ev.facetid}" );
+  endif
+
+  return 1;
+endfunction

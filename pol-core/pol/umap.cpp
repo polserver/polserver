@@ -30,6 +30,7 @@
 #include "pol/network/packethelper.h"
 #include "pol/network/packets.h"
 #include "pol/network/pktboth.h"
+#include "pol/polclass.h"
 #include "pol/realms/realm.h"
 #include "pol/syshookscript.h"
 #include "pol/ufunc.h"
@@ -115,9 +116,10 @@ void Map::readProperties( Clib::ConfigElem& elem )
 
 void Map::builtin_on_use( Network::Client* client )
 {
-  if ( gumpsize == Pos2d( 0, 0 ) )
-    return;
   Range2d area = getrange();
+  Vec2d size = area.se() - area.nw();
+  if ( gumpsize.x() == 0 || gumpsize.y() == 0 || size.x() == 0 || size.y() == 0 )
+    return;
   if ( client->ClientType & Network::CLIENTTYPE_70130 )
   {
     Network::PktHelper::PacketOut<Network::PktOut_F5> msgF5;
@@ -267,11 +269,9 @@ Range2d Map::getrange() const
   return Range2d( Pos2d( xwest, ynorth ), Pos2d( xeast, ysouth ), nullptr );
 }
 
-bool Map::msgCoordsInBounds( PKTBI_56* msg, const Range2d& area ) const
+bool Map::msgCoordsInBounds( PKTBI_56* msg ) const
 {
-  Pos2d newpos( cfBEu16( msg->pinx ), cfBEu16( msg->piny ) );
-  newpos += area.nw().from_origin();
-  return area.contains( newpos );
+  return cfBEu16( msg->pinx ) < gumpsize.x() && cfBEu16( msg->piny ) < gumpsize.y();
 }
 
 Pos2d Map::gumpToWorld( const Pos2d& gump, const Range2d& area ) const
@@ -331,12 +331,11 @@ bool Map::get_method_hook( const char* methodname, Bscript::Executor* ex, Export
 
 void handle_map_pin( Network::Client* client, PKTBI_56* msg )
 {
-  // FIXME you really need to check that the item is in fact a map.
-  // Can cause crash if someone is messing with their packets to script
-  // pin movement on a non-map item.
-  Map* my_map = (Map*)find_legal_item( client->chr, cfBEu32( msg->serial ) );
-  if ( my_map == nullptr )
+  Items::Item* item = find_legal_item( client->chr, cfBEu32( msg->serial ) );
+  if ( item == nullptr || !item->script_isa( POLCLASS_MAP ) )
     return;
+
+  Map* my_map = static_cast<Map*>( item );
   if ( my_map->editable == false )
     return;
 
@@ -360,7 +359,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   case PKTBI_56::TYPE_ADD:
     if ( !( my_map->plotting ) )
       return;
-    if ( !my_map->msgCoordsInBounds( msg, area ) )
+    if ( !my_map->msgCoordsInBounds( msg ) )
       return;
     my_map->pin_points.push_back(
         my_map->gumpToWorld( Pos2d( cfBEu16( msg->pinx ), cfBEu16( msg->piny ) ), area ) );
@@ -372,7 +371,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
       return;
     if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
       return;
-    if ( !my_map->msgCoordsInBounds( msg, area ) )
+    if ( !my_map->msgCoordsInBounds( msg ) )
       return;
 
     auto itr = my_map->pin_points.begin();
@@ -388,7 +387,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
       return;
     if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
       return;
-    if ( !my_map->msgCoordsInBounds( msg, area ) )
+    if ( !my_map->msgCoordsInBounds( msg ) )
       return;
 
     auto itr = my_map->pin_points.begin();
